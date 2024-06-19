@@ -1,0 +1,70 @@
+{% extends "security/base.html" %}
+
+{% from "security/_macros.html"
+  import render_field_with_errors, render_field, render_field_errors with context %}
+
+{% block content %}
+  <div class="mx-auto w-full max-w-sm lg:w-96">
+    <div>
+      <img
+        class="h-12 w-auto"
+        src="/static/img/aipress24-logo-small.png"
+        alt="AIpress24"
+      />
+
+      <h2 class="mt-6 text-3xl font-bold text-gray-900">
+        Connectez-vous à votre compte
+      </h2>
+
+      <p class="mt-2 text-sm text-gray-600">
+        Ou
+        <a
+          href="{{ url_for(".register") }}"
+          class="font-medium text-indigo-600 hover:text-indigo-500"
+        >
+          inscrivez-vous sur la plateforme
+        </a>
+      </p>
+    </div>
+
+    <div class="mt-8">
+      <div class="mt-6">
+        <form action="#" method="POST" class="space-y-6">
+          {{ login_user_form.hidden_tag() }}
+
+          {{ render_field_with_errors(login_user_form.email) }}
+          {{ render_field_with_errors(login_user_form.password) }}
+
+          <div class="flex items-center justify-between">
+            <div class="flex items-center">
+              <input
+                id="remember-me"
+                name="remember-me"
+                type="checkbox"
+                class="h-4 w-4 text-blue-600 focus:ring-indigo-500 border-gray-300 rounded"
+              />
+              <label
+                for="remember-me"
+                class="ml-2 block text-sm text-gray-900"
+              >
+                Se souvenir de moi
+              </label>
+            </div>
+
+            <div class="text-sm">
+              <a
+                href="{{ url_for(".forgot_password") }}"
+                class="font-medium text-indigo-600 hover:text-indigo-500"
+              >
+                Mot de passe oublié ?
+              </a>
+            </div>
+          </div>
+
+          <input type="submit" class="w-full button ~info @high" value="Connexion">
+        </form>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}

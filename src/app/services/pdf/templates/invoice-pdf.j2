@@ -1,0 +1,202 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Template de facture</title>
+
+  <style>
+    @page {
+      size: a4 portrait;
+    }
+
+    body {
+      font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
+      font-size: 13px;
+      color: #333;
+    }
+
+    .address {
+      line-height: 24px;
+    }
+
+    .red-box {
+      margin-top: 1em;
+      border: 2px solid red;
+      border-radius: 5px;
+      padding: 10px;
+      font-size: 120%;
+      font-weight: bold;
+      color: red;
+      margin: auto;
+      width: 25%;
+      text-align: center;
+    }
+
+    .invoice-box {
+      line-height: 24px;
+    }
+
+    .invoice-box .invoice-number {
+      margin-top: 2em;
+      width: 100%;
+      background: #eeeeee;
+      font-size: 110%;
+      font-weight: bold;
+      padding: 0.2em 1em;
+    }
+
+    /* items */
+    .invoice-box .items {
+      margin-top: 2em;
+      width: 100%;
+      line-height: inherit;
+      text-align: left;
+    }
+
+    .invoice-box .items td {
+      padding: 5px;
+      vertical-align: top;
+    }
+
+    .invoice-box .items tr td:nth-child(2) {
+      text-align: right;
+    }
+
+    .invoice-box .items tr.information .items td {
+      padding-bottom: 40px;
+    }
+
+    .invoice-box .items tr.heading td {
+      background: #eee;
+      border-bottom: 1px solid #ddd;
+      font-weight: bold;
+    }
+
+    .invoice-box .items tr.details td {
+      padding-bottom: 20px;
+    }
+
+    .invoice-box .items tr.item td {
+      border-bottom: 1px solid #eee;
+    }
+
+    .invoice-box .items tr.item.last td {
+      border-bottom: none;
+    }
+
+    /* footer */
+
+    .footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      border: 1px solid #BBB;
+      padding: 1em;
+      font-size: 80%;
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="address">
+  TECHNO-CHRONIQUEURS ASSOCIES / Aipress24<br>
+  282 rue des Pyrénées<br>
+  FR75020 - PARIS
+</div>
+
+<div class="red-box">
+  Facture acquittée
+</div>
+
+<div class="invoice-box">
+
+  <table class="invoice-number">
+    <tr>
+      <td>
+        Facture numéro: {{ invoice_number }}
+      </td>
+      <td style="text-align: right;">
+        Date de facturation: {{ invoice_date.format('DD-MM-YYYY') }}<br>
+      </td>
+    </tr>
+  </table>
+
+  <p style="font-weight: bold; font-size: 110%;">Etablie pour:</p>
+
+  <p>
+    Acme Corp.<br>
+    John Doe<br>
+    john@example.com
+  </p>
+
+  <table class="items">
+    <tr class="heading">
+      <td>Description</td>
+      <td>Quantité</td>
+      <td>P.U.</td>
+      <td>Tx TVA</td>
+      <td>TVA</td>
+      <td>Total</td>
+    </tr>
+
+    {% for line in invoice_lines %}
+      <tr class="item">
+        <td>
+          {{ line.description }}
+        </td>
+        <td style="text-align: right;">
+          1
+        </td>
+        <td style="text-align: right;">
+          100 €
+        </td>
+        <td style="text-align: right;">
+          20%
+        </td>
+        <td style="text-align: right;">
+          20 €
+        </td>
+        <td style="text-align: right;">
+          {{ line.total }} €
+        </td>
+      </tr>
+    {% endfor %}
+
+    <tr class="total">
+      <td colspan="6" style="text-align: right;">
+        Total HT: {{ invoice_total }} €
+      </td>
+    </tr>
+    <tr class="total">
+      <td colspan="6" style="text-align: right;">
+        TVA: {{ invoice_total }} €
+      </td>
+    </tr>
+    <tr class="total">
+      <td colspan="6" style="text-align: right;">
+        Total: {{ invoice_total }} €
+      </td>
+    </tr>
+  </table>
+</div>
+
+<div class="footer">
+  TECHNO-CHRONIQUEURS ASSOCIES,
+  S.A.R.L. au capital de 7 622 euros,
+  RCS : 381112820(91B3571),<br>
+  Code APE : 924Z,
+  SIRET : 38111282000034,
+  N/Id CEE : FR54381112820,
+  282 rue des Pyrénées -
+  FR75020 - PARIS
+  <br>
+  <br>
+  Passée la date d'échéance, tout paiement différé entraîne l'application
+  d'une pénalité égale au taux d'intérêt légal (loi du 4 Août 2008 N° 2008 – 776)
+  ainsi qu'une indemnité forfaitaire de 40 € pour frais de recouvrement
+  (décret 2011-1115 du 02/10/2012).
+</div>
+</body>
+</html>

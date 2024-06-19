@@ -1,0 +1,11 @@
+h1.aui-title,
+.aui-h1 {
+    @apply text-xl leading-7 font-medium text-gray-900 mb-8;
+}
+
+h2.aui-title,
+.aui-h2 {
+    @apply font-medium leading-7 text-gray-900 mb-8;
+    /* Workaround: "@apply text-lg" fails for no apparent reason */
+    font-size: 1.125rem;
+}

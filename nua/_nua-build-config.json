@@ -1,0 +1,18 @@
+{
+  "src": ".",
+  "packages": [
+    "build-essential",
+    "python3-dev",
+    "git",
+    "libmagic-dev",
+    "libpq-dev",
+    "libpango1.0-dev",
+    "libcairo-gobject2",
+    "libharfbuzz-gobject0",
+    "libpango-1.0-0",
+    "libpangocairo-1.0-0",
+    "libpangoft2-1.0-0",
+    "libpangoxft-1.0-0"
+  ],
+  "test": []
+}

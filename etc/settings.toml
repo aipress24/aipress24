@@ -1,0 +1,167 @@
+[default]
+SITE_TITLE = "AIPress24"
+
+#
+# SQLAlchemy
+#
+SQLALCHEMY_TRACK_MODIFICATIONS = false
+# SQLALCHEMY_DATABASE_URI = "@format {this.DB.URI}"
+# SQLALCHEMY_ENGINE_OPTIONS = { max_overflow = 3, pool_size = 2 }
+# SQLALCHEMY_ECHO = true
+
+#
+# Sessions
+#
+SESSION_TYPE = "filesystem"
+
+#
+# Security
+#
+
+# set to false when going live
+UNSECURE = true
+
+SECURITY_URL_PREFIX = "/auth"
+SECURITY_REGISTERABLE = true
+SECURITY_RECOVERABLE = true
+SECURITY_PASSWORD_COMPLEXITY_CHECKER = "zxcvbn"
+SECURITY_PASSWORD_CHECK_BREACHED = "strict"
+
+SECURITY_EMAIL_SENDER = "contact@aipress24.com"
+# SECURITY_USER_IDENTITY_ATTRIBUTES = "TODO"
+
+SESSION_COOKIE_SAMESITE = "Lax"
+SESSION_COOKIE_SECURE = true
+
+
+#
+# Misc
+#
+FORMS_DIR = "src/app/forms"
+
+
+#
+# RQ
+#
+RQ_ASYNC = true
+RQ_QUEUES = ["default", "low"]
+REDIS_URL = "redis://localhost:6379/0"
+RQ_DASHBOARD_REDIS_URL = "@format {this.REDIS_URL}"
+
+#
+# Email
+#
+MAIL_PORT = 587
+MAIL_USE_TLS = true
+MAIL_DEFAULT_SENDER = "test@aipress24.com"
+
+# Gandi
+# MAIL_PORT = 587
+MAIL_USERNAME = "test@aipress24.com"
+# MAIL_PASSWORD = "world_top_secret_password"
+MAIL_SERVER = "mail.gandi.net"
+
+# For Scaleway
+#MAIL_SERVER = "smtp.tem.scw.cloud"
+#MAIL_USERNAME = ""
+
+
+#S3_BUCKET_NAME = "aipress24-public"
+#S3_PUBLIC_URL = "https://aipress24-public.s3.fr-par.scw.cloud"
+#
+#S3_REGION_NAME = "fr-par"
+#S3_URL = "https://s3.fr-par.scw.cloud"
+
+#
+# S3
+#
+S3_REGION_NAME = ""
+S3_BUCKET_NAME = "aipress24-images"
+S3_URL = "https://s3.gra.io.cloud.ovh.net/"
+S3_PUBLIC_URL = "https://aipress24-images.s3.gra.io.cloud.ovh.net/"
+
+
+[default.CONTENT_SECURITY_POLICY]
+default-src = "'none'"
+img-src = [ "*", "data:" ]
+font-src = [
+  "'self'",
+  "data:",
+  # TODO: remove
+  "https://cdnjs.cloudflare.com/",
+  "https://fonts.gstatic.com/",
+  "https://use.fontawesome.com/",
+]
+style-src = [
+  "'self'",
+  "'unsafe-inline'",
+  # TODO: remove
+  "https://cdnjs.cloudflare.com/",
+  "https://fonts.googleapis.com/",
+  "https://cdn.jsdelivr.net/",
+#  "https://stackpath.bootstrapcdn.com/",
+  "https://use.fontawesome.com/",
+  "https://rsms.me/",
+]
+connect-src = [
+  "'self'",
+  "https://sentry.io/",
+  "https://shynet.aipress24.com/",
+  "https://cdn.userfront.com/",
+  "https://api.userfront.com/",
+  "https://api.anymod.com",
+]
+object-src = "'none'"
+script-src = [
+  "'self'",
+  "'unsafe-inline'",
+  "'unsafe-eval'",
+  # Used
+  "https://sentry.io/",
+  # Userfront
+  "https://api.userfront.com/",
+  "https://cdn.userfront.com/",
+  "https://api.anymod.com",
+  "https://shynet.aipress24.com/",
+  # TODO: remove
+  "https://cdn.jsdelivr.net/",
+  " https://cdnjs.cloudflare.com/",
+  #
+  #  "https://www.googletagmanager.com/",
+  #  "https://www.google-analytics.com/",
+  #  "https://www.google.com/",
+  #  "https://www.gstatic.com/",
+  #  "https://cdnjs.cloudflare.com/",
+  #  "https://code.jquery.com/",
+  #  "https://maxcdn.bootstrapcdn.com/",
+  #  "https://stackpath.bootstrapcdn.com/",
+]
+worker-src = [ "'self'", "blob:" ]
+frame-src = [ "'self'", "blob:", "https://www.google.com/" ]
+base-uri = "'none'"
+form-action = "'self'"
+
+
+[development]
+#SERVER_NAME = "aipress24.dev:5000"
+SERVER_NAME = "127.0.0.1:5000"
+# SERVER_NAME = "localhost:5000"
+# PREFERRED_URL_SCHEME = "http"
+
+DB.HOST = "localhost"
+DB.DATABASE = "aipress24"
+DB.USER = ""
+DB.PASSWORD = ""
+DB.URI = "@format postgresql://{this.DB.USER}:{this.DB.PASSWORD}@{this.DB.HOST}/{this.DB.DATABASE}"
+
+SECRET_KEY = "PhTYwoqiuweOljl9AmQPqM"
+
+DEBUG_TB_ENABLED = true
+DEBUG_TB_INTERCEPT_REDIRECTS = false
+
+MAIL_BACKEND = 'locmem'
+
+[production]
+SERVER_NAME = "aipress24.demo.abilian.com"
+PREFERRED_URL_SCHEME = "https"
+DEBUG_TB_ENABLED = false

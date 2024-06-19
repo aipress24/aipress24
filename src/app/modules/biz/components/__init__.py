@@ -1,0 +1,11 @@
+# Copyright (c) 2021-2024 - Abilian SAS & TCA
+#
+# SPDX-License-Identifier: AGPL-3.0-only
+
+from __future__ import annotations
+
+from .biz_card import BizCard
+
+# from .biz_list import BizList
+
+__all__ = ["BizCard"]

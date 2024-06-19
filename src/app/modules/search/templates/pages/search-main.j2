@@ -1,0 +1,125 @@
+{% macro render_hit(hit) %}
+  {% if hit.__class__.__name__ == "User" %}
+    <p>USER</p>
+  {% else %}
+    {{ render_post(hit) }}
+  {% endif %}
+{% endmacro %}
+
+{% macro render_post(hit) %}
+  <div class="my-2 border-t border-gray-200 pt-5 pb-3">
+
+    <a href="{{ hit.url }}">
+
+      <h3 class="text-lg font-bold text-gray-900">{{ hit.title }}</h3>
+
+      <div class="italic text-gray-800 py-2">
+        {{ hit.summary }}
+      </div>
+
+      <div class="text-sm text-gray-600">
+        Publié le
+        <time datetime="{{ hit.date.isoformat() }}"
+        >{{ hit.date.format("DD MMMM YYYY, à HH:mm", locale="fr") }}</time>
+      </div>
+    </a>
+  </div>
+{% endmacro %}
+
+<div class="m-4">
+
+  <h1 class="aui-title mb-6">
+    Résultats de la recherche : <span class="italic">"{{ qs }}"</span>
+  </h1>
+
+  {% for result_set in result_sets %}
+    {% if result_set.hits %}
+      <div class="mb-6">
+        <h2 class="aui-title flex">
+          {{ icon(result_set.icon, class="h-7 w-7 text-gray-500 mr-2") }}
+          {{ result_set.label }}
+        </h2>
+
+        <ul role="list" class="relative z-0 divide-y divide-gray-200">
+          {% for hit in result_set.hits %}
+            {{ render_hit(hit) }}
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+  {% else %}
+    <p>Aucun résultat</p>
+  {% endfor %}
+</div>
+
+
+{#          <li>#}
+{#            <a#}
+{#                href="{{ url_for(person) }}"#}
+{#                class="relative px-6 py-5 flex items-center space-x-3 hover:bg-gray-50"#}
+{#            >#}
+{#              <div class="flex-shrink-0">#}
+{#                <img#}
+{#                    class="h-10 w-10 rounded-full"#}
+{#                    src="{{ person.profileImageUrl }}"#}
+{#                    alt=""#}
+{#                />#}
+{#              </div>#}
+{##}
+{#              <div class="flex-1 min-w-0">#}
+{#                <!-- Extend touch target to entire panel -->#}
+{#                <span class="absolute inset-0" aria-hidden="true"/>#}
+{#                <p class="text-sm font-medium text-gray-900">#}
+{#                  {{ person.name }}#}
+{#                </p>#}
+{#                <p class="text-sm text-gray-500 truncate">#}
+{#                  {{ person.role }}#}
+{#                  @#}
+{#                  {{ person.organisation }}#}
+{#                </p>#}
+{#              </div>#}
+{#            </a>#}
+{#          </li>#}
+{#        {% endfor %}#}
+{#      </ul>#}
+{#    </div>#}
+{##}
+{#  {% if members %}#}
+{#  {% if False %}#}
+{#    <div>#}
+{#      <h2 class="text-xl font-medium text-gray-900">Membres</h2>#}
+{##}
+{#      <ul role="list" class="relative z-0 divide-y divide-gray-200">#}
+{#        {% for person in members %}#}
+{#          <li>#}
+{#            <a#}
+{#                href="{{ url_for(person) }}"#}
+{#                class="relative px-6 py-5 flex items-center space-x-3 hover:bg-gray-50"#}
+{#            >#}
+{#              <div class="flex-shrink-0">#}
+{#                <img#}
+{#                    class="h-10 w-10 rounded-full"#}
+{#                    src="{{ person.profileImageUrl }}"#}
+{#                    alt=""#}
+{#                />#}
+{#              </div>#}
+{##}
+{#              <div class="flex-1 min-w-0">#}
+{#                <!-- Extend touch target to entire panel -->#}
+{#                <span class="absolute inset-0" aria-hidden="true"/>#}
+{#                <p class="text-sm font-medium text-gray-900">#}
+{#                  {{ person.name }}#}
+{#                </p>#}
+{#                <p class="text-sm text-gray-500 truncate">#}
+{#                  {{ person.role }}#}
+{#                  @#}
+{#                  {{ person.organisation }}#}
+{#                </p>#}
+{#              </div>#}
+{#            </a>#}
+{#          </li>#}
+{#        {% endfor %}#}
+{#      </ul>#}
+{#    </div>#}
+{#  {% endif %}#}
+{##}

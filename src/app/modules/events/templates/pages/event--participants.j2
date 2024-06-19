@@ -1,0 +1,35 @@
+<section class="p-4 bg-white shadow sm:rounded">
+  <h2 class="text-lg font-bold mb-4 text-gray-700">Participants et personnes intéressées</h2>
+
+  <ul>
+
+    {% for user in event.participants %}
+      <li>
+        <a href="{{ url_for(user) }}" class="py-3 flex items-center space-x-3 hover:bg-gray-50">
+          <div class="flex-shrink-0">
+            <div class="rounded-full border-1 border-yellow-500">
+              {{ profile_image(user, size=12) }}
+              {#            <img#}
+              {#                class=" h-10 w-10 rounded-full border-orange-500 border-1"#}
+              {#                src="{{ url_for(u) }}" alt="">#}
+            </div>
+          </div>
+          <div class="flex-1 min-w-0">
+            <!-- Extend touch target to entire panel -->
+            <span class="inset-0" aria-hidden="true">
+            <p class="text-sm font-medium text-gray-900">
+              {{ user.full_name }}
+            </p>
+            <p class="text-sm text-gray-500 truncate">
+              {{ user.job_title }}
+              @{{ user.organisation.name }}
+
+            </p>
+          </span>
+          </div>
+        </a>
+      </li>
+    {% endfor %}
+
+  </ul>
+</section>

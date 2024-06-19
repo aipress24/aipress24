@@ -1,0 +1,127 @@
+<li class="card shadow rounded p-0 bg-white mt-4 space-y-4">
+  <div class="pt-4 px-4 flex justify-between">
+    <div>
+      <div class="text-sm text-gray-700">
+        <div data-start-date="2022/02/17" data-end-date="2022/02/18" data-status="active">
+          {# {{ event.start_date }}, 9h00 - {{ event.end_date }}, 18h00#}
+          De 9h00 à 18h00
+        </div>
+      </div>
+
+      <a href="{{ url_for(event) }}">
+        <h2 class="text-lg font-medium">
+          {{ event.title }}
+        </h2>
+      </a>
+
+      <div class="mt-4 flex text-gray-600">
+        {{ icon("map-pin", class="h-5 w-5 mt-0.5 mr-1") }}
+        <a class="hover:underline" href=".?loc=city:{{ event.city }}">{{ event.city }}</a>,&nbsp;
+        <a class="hover:underline" href=".?loc=region:{{ event.region }}">{{ event.region }}</a>,&nbsp;
+        <a class="hover:underline" href=".?loc=country:{{ event.country }}">{{ event.country }}</a>
+      </div>
+    </div>
+
+    <div class="flex-shrink-0 items-start ml-2 h-28 w-28 border border-gray-300">
+      <img
+          src="{{ event.logo_url }}"/>
+    </div>
+
+  </div>
+
+  <div class="px-4 flex justify-between">
+    <div class="text-sm text-gray-800">
+      {{ event.summary }}
+    </div>
+  </div>
+
+  <div class="px-4">
+    <a
+        href="#"
+        hx-trigger="click"
+        hx-post=""
+        hx-vals='{"force-tab": "{{ event.type_id }}"}'
+        hx-target="#content"
+        hx-swap="outerHTML"
+        class="chip ~positive @low"
+    >{{ event.type_label }}</a>
+
+    <a class="chip ~neutral @low">
+      {{ event.category }}
+    </a>
+    <a class="chip ~neutral @low">
+      {{ event.sector.split("/")[-1] }}
+    </a>
+  </div>
+
+  <div>
+    <hr/>
+
+    <div class="px-4 py-2 flex items-center space-x-3">
+      <div class="flex-shrink-0">
+        <a href="{{ url_for(event.author) }}" class="focus:outline-none">
+          {{ profile_image(event.author, size=10) }}
+        </a>
+      </div>
+
+      <div class="flex-1 min-w-0">
+        <a href="{{ url_for(event.author) }}" class="focus:outline-none">
+          <p class="text-sm font-medium text-gray-900">
+            {{ event.author.name }}
+          </p>
+          <p class="text-sm text-gray-500 truncate">
+            {{ event.author.job_title }} @ {{ event.author.organisation_name }}
+          </p>
+        </a>
+      </div>
+    </div>
+
+    <hr/>
+  </div>
+
+  <div class="px-4 pb-3 flex justify-between space-x-8">
+    <div class="flex space-x-6">
+      <span class="inline-flex items-center text-sm">
+        <button
+            type="button"
+            class="inline-flex space-x-2 text-gray-400 hover:text-gray-500"
+            hx-post="{{ url_for(event) }}"
+            hx-vals='{"action": "toggle-like"}'
+            hx-target="#likes-{{ event.id }}"
+            hx-swap="innerHTML"
+        >
+          {{ icon("star", class="h-5 w-5") }}
+          <span id="likes-{{ event.id }}" class="font-medium text-gray-900">{{ event.likes }}</span>
+          <span class="sr-only">likes</span>
+        </button>
+      </span>
+
+      <a href="{{ url_for(event) }}#comments-title" class="inline-flex items-center text-sm">
+          <span class="inline-flex space-x-2 text-gray-400">
+            {{ icon("chat-bubble-left-ellipsis", class="h-5 w-5") }}
+            <span class="font-medium text-gray-900">{{ event.replies }}</span>
+            <span class="sr-only">replies</span>
+          </span>
+      </a>
+
+      <span class="inline-flex items-center text-sm">
+        <span class="inline-flex space-x-2 text-gray-400">
+          {{ icon("eye", class="h-5 w-5") }}
+          <span class="font-medium text-gray-900">{{ event.views }}</span>
+          <span class="sr-only">views</span>
+        </span>
+      </span>
+    </div>
+
+    <div class="flex text-sm">
+      <span class="inline-flex items-center text-sm">
+        <button
+            type="button"
+            class="inline-flex space-x-2 text-gray-400 hover:text-gray-500"
+        >
+          {{ icon("share", class="h-5 w-5") }}
+        </button>
+      </span>
+    </div>
+  </div>
+</li>

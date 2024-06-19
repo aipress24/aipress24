@@ -1,0 +1,58 @@
+{% extends "iam/userfront/base.html" %}
+
+{% block content %}
+  <div class="mx-auto w-full max-w-sm lg:w-96">
+    <div>
+      <img
+        class="h-12 w-auto"
+        src="/static/img/aipress24-logo-small.png"
+        alt="AIpress24"
+      />
+
+      <h2 class="mt-6 text-3xl font-bold text-gray-900">
+        Inscrivez-vous sur la plateforme
+      </h2>
+
+      <p class="mt-2 text-sm text-gray-600">
+        Déjà inscrit ?
+        <a
+          href="{{ url_for(".login") }}"
+          class="font-medium text-indigo-600 hover:text-indigo-500"
+        >
+          Connectez-vous
+        </a>
+      </p>
+    </div>
+
+    <div class="mt-8">
+      <script id="Userfront-script">
+        (function (m, o, d, u, l, a, r, i, z, e) {
+          u[m] = {
+            rq: [], ready: function (j) {
+              u[m].rq.push(j);
+            }, m: m, o: o, d: d, r: r
+          };
+
+          function j(s) {
+            return encodeURIComponent(btoa(s));
+          }
+
+          z = l.getElementById(m + "-" + a);
+          r = u.location;
+          e = [d + "/page/" + o + "/" + j(r.pathname) + "/" + j(r.host) + "?t=" + Date.now(), d];
+          e.map(function (w) {
+            i = l.createElement(a);
+            i.defer = 1;
+            i.src = w;
+            z.parentNode.insertBefore(i, z);
+          });
+          u.amvartem = m;
+        })("Userfront", "zn5r464b", "https://cdn.userfront.com/toolkit", window, document, "script");
+      </script>
+
+      <!-- Signup form -->
+      <div id="userfront-ramdkdb"></div>
+
+    </div>
+  </div>
+{% endblock %}

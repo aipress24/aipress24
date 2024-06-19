@@ -1,0 +1,42 @@
+{% extends "security/base.html" %}
+{% from "security/_macros.html" import render_field_with_errors, render_field %}
+
+{% block content %}
+  <div class="mx-auto w-full max-w-sm lg:w-96">
+    <div>
+      <img
+        class="h-12 w-auto"
+        src="/static/img/aipress24-logo-small.png"
+        alt="AIpress24"
+      />
+
+      <h2 class="mt-6 text-3xl font-bold text-gray-900">
+        Inscrivez-vous sur la plateforme
+      </h2>
+
+      <p class="mt-2 text-sm text-gray-600">
+        Déjà inscrit ?
+        <a
+          href="{{ url_for(".login") }}"
+          class="font-medium text-indigo-600 hover:text-indigo-500"
+        >
+          Connectez-vous
+        </a>
+      </p>
+    </div>
+
+    <div class="mt-8">
+      <form action="{{ url_for_security('register') }}" class="space-y-6" method="POST" name="register_user_form">
+        {{ register_user_form.hidden_tag() }}
+
+        {{ render_field_with_errors(register_user_form.email) }}
+
+        {{ render_field_with_errors(register_user_form.password) }}
+
+        {{ render_field_with_errors(register_user_form.password_confirm) }}
+
+        <input type="submit" class="w-full button ~info @high" value="Je m'inscris">
+      </form>
+    </div>
+  </div>
+{% endblock %}

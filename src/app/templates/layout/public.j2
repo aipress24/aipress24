@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="abilian">
+<head prefix="og: https://ogp.me/ns#">
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{{ title }} - AIpress24</title>
+
+  <!-- Favicons -->
+  <link rel="icon" href="/static/icon/icon-192x192.png"/>
+  <link rel="shortcut icon" href="/static/icon/icon-192x192.png"/>
+
+  {#    <script defer src="https://unpkg.com/htmx.org@1.x.x"></script>#}
+
+  <!-- Alpine Plugins -->
+  {#    <script defer src="https://unpkg.com/@alpinejs/focus@3.x.x/dist/cdn.min.js"></script>#}
+
+  <!-- Alpine Core -->
+  {#    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>#}
+
+  {#    <script defer src="https://unpkg.com/hyperscript.org@0.9.4"></script>#}
+
+  <!-- Bundled assets -->
+  {#  <script defer src="/cdn/bundle.js"></script>#}
+
+  {% block extra_head %}
+    {% include "fragments/opengraph.j2" %}
+    {% include "fragments/json-ld.j2" %}
+  {% endblock %}
+
+  <script>
+    window.data = {{ json_data | tojson }};
+    window.toasts = {{ get_flashed_messages() | tojson }};
+  </script>
+
+  {{ vite_tags() }}
+</head>
+
+<body class="bg-gray-100 min-h-screen h-full min-h-screen">
+
+{% block content %}
+  {{ content|safe }}
+{% endblock %}
+
+{% include "fragments/footer.j2" %}
+{% include "fragments/stats.j2" %}
+
+</body>
+</html>

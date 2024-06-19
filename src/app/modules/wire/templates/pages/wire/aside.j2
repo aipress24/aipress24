@@ -1,0 +1,9 @@
+{% from "macros/promo.j2" import promo_box with context %}
+
+<aside class="top-4 space-y-4">
+
+  {{ promo_box("wire/1") }}
+  {{ promo_box("wire/2") }}
+
+  {% include "pages/wire/trending-box.j2" %}
+</aside>

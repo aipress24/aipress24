@@ -1,0 +1,7 @@
+{%- if json_ld is defined and json_ld -%}
+  <script type="application/ld+json">
+{{ json_ld | tojson(indent=2) }}
+
+
+  </script>
+{%- endif -%}

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8"/>
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, shrink-to-fit=no"
+  />
+  <meta name="author" content="Joinux Jobs"/>
+  <meta name="google-site-verification" content="UhhORP38Kj-_b4guYHboHLRuqaqeo2ecmxJ_3BFBVsY"/>
+
+  {#  <title>{% block title %}{{ config.SITE_TITLE }}{% endblock title %}</title>#}
+
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="/static/manifest.json"/>
+
+  <!-- Favicons -->
+  <link rel="icon" type="image/x-icon" href="/static/icon/favicon.ico"/>
+  <link rel="shortcut icon" type="image/x-icon" href="/static/icon/favicon.ico"/>
+
+  <!-- Android colors -->
+  <meta name="theme-color" content="#59c6b6"/>
+
+  <!-- Apple web app config -->
+  <link rel="apple-touch-icon" href="/static/icon/apple-touch-icon.png"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black"/>
+
+  <link
+    href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700&amp;display=swap"
+    rel="stylesheet"
+  />
+  <link
+    href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+
+  {{ vite_tags() }}
+
+  {% block head %}{% endblock head %}
+  {% block style %}{% endblock style %}
+
+  {% if g.extra_head is defined %}
+    {{ g.extra_head | safe }}
+  {% endif %}
+</head>
+
+<body>
+{% include "security/_messages.html" %}
+
+<div class="min-h-screen bg-white flex">
+  <div
+    class="flex-1 flex flex-col justify-center py-12 px-4 sm:px-6 lg:flex-none lg:px-20 xl:px-24"
+  >
+
+    {% block content %}{% endblock %}
+
+  </div>
+
+  <div class="hidden lg:block relative w-0 flex-1">
+    <img
+      class="absolute inset-0 h-full w-full object-cover"
+      src="/static/img/login-splash.jpg"
+      alt=""
+    />
+  </div>
+</div>
+{% block tail %}{% endblock %}
+
+{% include "layout/_extra_scripts.html.j2" ignore missing %}
+</body>
+</html>

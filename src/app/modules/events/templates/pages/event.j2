@@ -1,0 +1,17 @@
+{% extends "layout/private.j2" %}
+
+{% block content %}
+  <div id="content">
+    {% include "pages/event--header.j2" %}
+
+    <div class="my-6 mx-auto grid grid-cols-1 gap-6 sm:px-6 lg:max-w-7xl lg:grid-flow-col-dense lg:grid-cols-3">
+      <div class="space-y-6 lg:col-span-2 mb-8">
+        {% include "pages/event--main.j2" %}
+      </div>
+
+      <div class="space-y-6 lg:col-span-1">
+        {% include "pages/event--aside.j2" %}
+      </div>
+    </div>
+  </div>
+{% endblock %}

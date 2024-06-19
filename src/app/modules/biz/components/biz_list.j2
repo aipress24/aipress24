@@ -1,0 +1,23 @@
+<div id="members-list" class="my-8 mx-auto">
+  <nav class="flex-1 min-h-0" aria-label="events">
+
+    {% for date in grouped_events.keys() %}
+      <div class="relative">
+        <div class="z-10 sticky top-0 mt-8 mb-6">
+          <div class="absolute inset-0 flex items-center" aria-hidden="true">
+            <div class="w-full border-t border-gray-300"></div>
+          </div>
+          <div class="relative flex justify-center">
+            <span class="px-2 bg-gray-100 text-lg text-gray-500"> {{ date }} </span>
+          </div>
+        </div>
+
+        <ul role="list" class="relative z-0 divide-y divide-gray-200">
+          {% for event in grouped_events[date] %}
+            {{ event_card(event=event) }}
+          {% endfor %}
+        </ul>
+      </div>
+    {% endfor %}
+  </nav>
+</div>

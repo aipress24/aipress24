@@ -1,0 +1,12 @@
+.aui-label-text {
+    @apply mb-0 block font-medium text-gray-700;
+}
+
+.aip-form textarea {
+    @apply h-48;
+}
+
+.aip-form trix-editor {
+    @apply h-96;
+    width: 100%;
+}

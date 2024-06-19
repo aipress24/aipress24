@@ -1,0 +1,11 @@
+<thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-gray-700 dark:text-gray-400">
+<tr>
+  {% for column in table.columns %}
+    <th
+        class="px-4 py-4 text-left tracking-wider"
+        scope="col">
+      {{ column.label }}
+    </th>
+  {% endfor %}
+</tr>
+</thead>

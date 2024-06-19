@@ -1,0 +1,39 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: Hop3
+Upstream-Contact: Stefane Fermigier <sf@abilian.com>
+Source: https://github.com/abilian/hop3
+
+# Default
+Files: *
+Copyright: 2021-2024 - Abilian SAS & TCA
+License: AGPL-3.0-only
+Comment: Directory also includes code with other licenses and other copyright holders but those are clearly identified in the source code with prefixed comments. Only the not-explicitly licensed portions are licensed with information described here.
+
+# icons
+
+Files: icons/svg/outline/*
+Copyright: Tailwind Labs, Inc.
+License: MIT
+
+Files: icons/svg/solid/*
+Copyright: Tailwind Labs, Inc.
+License: MIT
+
+Files: icons/svg/lucide/*
+Copyright: Copyright (c) for portions of Lucide are held by Cole Bemis 2013-2022 as part of Feather (MIT). All other copyright (c) for Lucide are held by Lucide Contributors 2022.
+License: ISC
+
+Files: icons/.gitignore
+Copyright: 2021-2024 - Abilian SAS & TCA
+License: AGPL-3.0-only
+
+# Vendored code
+
+Files: vite/src/vendor/livewire/*
+Copyright: 2021 - Caleb Porzio
+License: MIT
+
+# Not open source
+Files: static-pages/*
+Copyright: 2021-2024 - TCA
+License: LicenseRef-ARR

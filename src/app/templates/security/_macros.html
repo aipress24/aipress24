@@ -1,0 +1,50 @@
+{#{% macro render_field_with_errors(field) %}#}
+{#  <p>#}
+{#    {{ field.label }} {{ field(**kwargs)|safe }}#}
+{#    {% if field.errors %}#}
+{#      <ul>#}
+{#        {% for error in field.errors %}#}
+{#          <li>{{ error }}</li>#}
+{#        {% endfor %}#}
+{#      </ul>#}
+{#    {% endif %}#}
+{#  </p>#}
+{#{% endmacro %}#}
+
+
+{% macro render_field_with_errors(field) %}
+  {% if field.errors %}
+    {% set priority="~critical" %}
+  {% else %}
+    {% set priority="~neutral" %}
+  {% endif %}
+  <div>
+    <label for="email" class="block text-sm font-medium label {{ priority }}"> {{ field.label }} </label>
+    <div class="mt-1">
+      {% set class="field {{ priority }}" %}
+      {{ field(class="field @high " + priority)|safe }}
+      {% if field.errors %}
+        {% for error in field.errors %}
+          <div class="support {{ priority }}">{{ error }}</div>
+        {% endfor %}
+      {% endif %}
+    </div>
+  </div>
+{% endmacro %}
+
+
+{% macro render_field(field) %}
+  <p>{{ field(**kwargs)|safe }}</p>
+{% endmacro %}
+
+{% macro render_field_errors(field) %}
+  <p>
+    {% if field and field.errors %}
+      <ul>
+        {% for error in field.errors %}
+          <li>{{ error }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  </p>
+{% endmacro %}

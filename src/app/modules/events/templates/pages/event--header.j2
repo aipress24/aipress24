@@ -1,0 +1,42 @@
+<section
+    class="bg-gray-500"
+    style="background-size: cover;">
+
+  <div class="lg:max-w-7xl mx-auto">
+    <div class="py-8 flex items-center space-x-8">
+      <img class="w-36 h-36 ml-8 rounded"
+           src="{{ event.logo_url }}"
+           alt="logo"/>
+
+      <div class="text-gray-50">
+        <div class="dui-badge dui-badge dui-badge-primary">
+          <button
+              href="#"
+              hx-trigger="click"
+              hx-post="{{ url_for('.events') }}"
+              hx-push-url="true"
+              hx-vals='{"force-tab": "{{ event.type_id }}"}'
+              hx-target="#body"
+              hx-swap="outerHTML"
+          >{{ event.type_label }}</button>
+        </div>
+
+        <h1 class="text-2xl font-bold my-2">
+          {{ event.title }}
+        </h1>
+
+        <div class="flex">
+          {{ icon("clock", class="w-6 h-6 mr-1") }}
+          {{ event.start_date.format("DD MMM YYYY", locale="fr") }}
+        </div>
+        <div class="flex">
+          {{ icon("map-pin", class="w-6 h-6 mr-1") }}
+          <div>
+            {{ event.location }},
+            <a href="/france/conferences" class="text-decoration-none">France</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

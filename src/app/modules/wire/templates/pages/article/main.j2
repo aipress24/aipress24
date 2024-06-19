@@ -1,0 +1,36 @@
+<div
+    class="md:flex md:items-center md:justify-between md:space-x-4 lg:border-b lg:pb-6"
+>
+  <div class="">
+    <h1 class="aui-title">
+      {{ article.title }}
+    </h1>
+
+    <p class="mt-2 text-sm text-gray-500">
+      Posté par
+      <a href="{{ url_for(article.author) }}"
+         class="font-medium text-gray-900">{{ article.author.full_name }}</a>,
+      le
+      {{ article.created_at.format("DD MMMM YYYY, à HH:mm", locale="fr") }}.
+      {% if article.modified_at %}
+        Dernière modification le
+        {{ article.modified_at.format("DD MMMM YYYY, à HH:mm", locale="fr") }}.
+      {% endif %}
+    </p>
+
+    <img class="w-full my-4 rounded" src="{{ article.image_url }}" alt=""/>
+
+    <div class="mt-5 content">
+      {{ article.content }}
+    </div>
+  </div>
+</div>
+
+<div class="py-3 xl:pt-6 xl:pb-0">
+  <h2 class="sr-only">Description</h2>
+
+  <div
+      class="max-w-none content"
+      v-html="article.body"
+  ></div>
+</div>

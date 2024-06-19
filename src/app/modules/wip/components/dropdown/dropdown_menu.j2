@@ -1,0 +1,68 @@
+<script>
+  const entry_groups = {{ entry_groups | tojson }};
+</script>
+
+<div x-data="Components.menu({ open: false })" x-init="init()"
+     @keydown.escape.stop="open = false; focusButton()"
+     @click.away="onClickAway($event)"
+     class="flex-shrink-0 pr-2">
+
+  <button type="button"
+          class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
+          id="pinned-project-options-menu-0-button" x-ref="button"
+          @click="onButtonClick()"
+          @keyup.space.prevent="onButtonEnter()"
+          @keydown.enter.prevent="onButtonEnter()"
+          @keydown.arrow-up.prevent="onArrowUp()"
+          @keydown.arrow-down.prevent="onArrowDown()"
+          aria-expanded="false"
+          aria-haspopup="true"
+          x-bind:aria-expanded="open.toString()"
+  >
+    <span class="sr-only">Open options</span>
+    <svg class="h-5 w-5" x-description="Heroicon name: mini/ellipsis-vertical"
+         xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+      <path
+          d="M10 3a1.5 1.5 0 110 3 1.5 1.5 0 010-3zM10 8.5a1.5 1.5 0 110 3 1.5 1.5 0 010-3zM11.5 15.5a1.5 1.5 0 10-3 0 1.5 1.5 0 003 0z"></path>
+    </svg>
+  </button>
+
+  <div x-show="open"
+       x-transition:enter="transition ease-out duration-100"
+       x-transition:enter-start="transform opacity-0 scale-95"
+       x-transition:enter-end="transform opacity-100 scale-100"
+       x-transition:leave="transition ease-in duration-75"
+       x-transition:leave-start="transform opacity-100 scale-100"
+       x-transition:leave-end="transform opacity-0 scale-95"
+       class="absolute right-10 top-3 z-10 mx-3 mt-1 w-48 origin-top-right divide-y divide-gray-200 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+       x-ref="menu-items"
+       x-description="Dropdown menu, show/hide based on menu state."
+       x-bind:aria-activedescendant="activeDescendant"
+       role="menu" aria-orientation="vertical"
+       aria-labelledby="pinned-project-options-menu-0-button" tabindex="-1"
+       @keydown.arrow-up.prevent="onArrowUp()"
+       @keydown.arrow-down.prevent="onArrowDown()"
+       @keydown.tab="open = false"
+       @keydown.enter.prevent="open = false; focusButton()"
+       @keyup.space.prevent="open = false; focusButton()"
+       style="display: none;">
+    {% for group in entry_groups %}
+      <div class="py-1" role="none">
+        {% for entry in group %}
+          <a
+              href="#"
+              class="text-gray-700 block px-4 py-2 text-sm"
+              x-state:on="Active"
+              x-state:off="Not Active"
+              :class="{ 'bg-gray-100 text-gray-900': activeIndex === {{ entry.index }}, 'text-gray-700': !(activeIndex === {{ entry.index }}) }"
+              role="menuitem" tabindex="-1" id="pinned-project-options-menu-0-item-{{ entry.index }}"
+              @mouseenter="onMouseEnter($event)"
+              @mousemove="onMouseMove($event, {{ entry.index }} )"
+              @mouseleave="onMouseLeave($event)"
+              @click="open = false; focusButton()"
+          >{{ entry.label }}</a>
+        {% endfor %}
+      </div>
+    {% endfor %}
+  </div>
+</div>

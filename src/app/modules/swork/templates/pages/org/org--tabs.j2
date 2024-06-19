@@ -1,0 +1,45 @@
+{% macro line(label, value) %}
+  <div class="py-3 flex md:grid md:grid-cols-2 md:gap-4 justify-between text-sm font-medium">
+    <dt class="text-gray-500">{{ label }}</dt>
+    {% if value is boolean and value == True %}
+      {% set value = "Oui" %}
+    {% elif value is boolean and value == False %}
+      {% set value = "Non" %}
+    {% endif %}
+
+    {% if value is string and value.startswith("http") %}
+      <dd class="text-gray-900">
+        <a href="{{ value }}" target="_blank"
+           class="text-blue-600 underline">{{ value }}</a>
+      </dd>
+    {% else %}
+      <dd class="text-gray-900">{{ value }}</dd>
+    {% endif %}
+  </div>
+{% endmacro %}
+
+{# Tabs #}
+<div x-data="
+  {
+    'tab': window.location.hash
+      ? window.location.hash.substring(1)
+      : '{{ tabs[0].id }}'
+    }"
+>
+  <div class="mt-6 sm:mt-2 2xl:mt-5">
+    <div class="border-b border-gray-200">
+      <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        {% include "pages/_tabs.j2" %}
+      </div>
+    </div>
+  </div>
+
+  {# Tabs content #}
+  <div class="py-6 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 bg-gray-50">
+    {% include "pages/org/org--tab-profile.html" %}
+    {% include "pages/org/org--tab-contacts.html" %}
+    {% include "pages/org/org--tab-publications.html" %}
+    {% include "pages/org/org--tab-press-releases.html" %}
+    {% include "pages/org/org--tab-events.html" %}
+  </div>
+</div>

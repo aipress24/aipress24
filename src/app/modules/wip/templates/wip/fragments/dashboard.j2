@@ -1,0 +1,41 @@
+{% macro render_card(label, icon_name, value, href) %}
+  <!-- Card -->
+  <div class="bg-white overflow-hidden shadow shadow-md rounded-lg">
+    <div class="p-5">
+      <div class="flex items-center">
+        <div class="flex-shrink-0">
+          {{ icon(icon_name, class="h-6 w-6 text-gray-400") }}
+        </div>
+        <div class="ml-5 w-0 flex-1">
+          <dl>
+            <dt class="text-sm font-medium text-gray-500 truncate">
+              {{ label }}
+            </dt>
+            <dd>
+              <div class="text-lg font-medium text-gray-900">
+                {{ value }}
+              </div>
+            </dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+    <div class="bg-gray-50 px-5 py-3">
+      <div class="text-sm">
+        <a href="{{ url_for('ArticlesWipView:index') }}" class="font-medium text-cyan-700 hover:text-cyan-900">
+          Les voir tous
+        </a>
+      </div>
+    </div>
+  </div>
+{% endmacro %}
+
+<div class="mt-8">
+  <div class="max-w-6xl mx-auto">
+    <div class="mt-2 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      {% for card in cards %}
+        {{ render_card(card.label, card.icon, card.value, card.href) }}
+      {% endfor %}
+    </div>
+  </div>
+</div>

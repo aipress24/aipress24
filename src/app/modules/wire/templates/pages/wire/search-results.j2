@@ -1,0 +1,23 @@
+<div id="search-results">
+  {% if not posts %}
+
+    {% if tab == "medias" %}️
+      <p>Vous ne suivez aucun média.</p>
+    {% elif tab == "journalists" %}
+      <p>Vous ne suivez aucun journaliste.</p>
+    {% elif tab == "groups" %}
+      <p>Aucune publication dans vos groupes.</p>
+    {% endif %}
+
+  {% else %}
+
+    <ul role="list" class="grid gap-6 grid-cols-1 md:grid-cols-2">
+      <!-- was class="bg-white rounded-lg shadow" -->
+      {% for post in posts %}
+        <li class="bg-white rounded shadow">
+          {{ post_card(post) }}
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+</div>

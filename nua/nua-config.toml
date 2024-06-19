@@ -1,0 +1,83 @@
+[metadata]
+id = "aipress24"
+title = "Aipress24"
+author = "Abilian"
+description = ""
+version = "0.1"
+release = 1
+
+
+[build]
+license = "Proprietary"
+src = "."
+packages = [
+    # FIXME: These should probably be installed by default
+    "build-essential",
+    "python3-dev",
+    # Needed because we have a git dependency
+    "git",
+    # For magic
+    "libmagic-dev",
+    # For postgres
+    "libpq-dev",
+
+    # Probably needed to move to runtime
+    "libpango1.0-dev",
+    # More
+    "libcairo-gobject2",
+    "libharfbuzz-gobject0",
+    "libpango-1.0-0",
+    "libpangocairo-1.0-0",
+    "libpangoft2-1.0-0",
+    "libpangoxft-1.0-0",
+]
+test = [
+#    "python -c 'import app.flask.main'",
+    # "flask check",
+]
+
+
+[run]
+packages = [
+    # For magic
+    "libmagic1",
+    # For postgres
+    "libpq5",
+    "postgresql-client",
+]
+
+start = [
+    "flask config show",
+    # FIXME: useful files should be copied to /nua/app
+    "gunicorn --chdir /nua/build/src -b 0.0.0.0:5000 'app.flask.main:create_app()'",
+]
+
+[port.web]
+container = 5000
+
+
+[env]
+FLASK_ENV = "production"
+FLASK_SECRET_KEY = "xxx"
+
+DB_HOST = { from="database", key="hostname" }
+DB_DATABASE = { from="database", key="POSTGRES_DB" }
+DB_USER = { from="database", key="POSTGRES_USER" }
+DB_PASSWORD = { from="database", key="POSTGRES_PASSWORD" }
+FLASK_SQLALCHEMY_DATABASE_URI = "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_DATABASE}"
+
+REDIS_HOST = { from="redis", key="hostname" }
+REDIS_PORT = { from="redis", key="REDIS_PORT" }
+FLASK_REDIS_URL = "redis://{REDIS_HOST}:{REDIS_PORT}/0"
+FLASK_RQ_DASHBOARD_REDIS_URL = "redis://{REDIS_HOST}:{REDIS_PORT}/0"
+
+
+[[resource]]
+name = "database"
+type = "postgres"
+version = ">=14, <15"
+
+[[resource]]
+name = "redis"
+type = "redis-cache"
+version = ">=7"

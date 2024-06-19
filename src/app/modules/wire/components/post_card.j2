@@ -1,0 +1,184 @@
+<!-- top -->
+<div class="px-4 py-3 border-b border-gray-200 rounded">
+  <div class="flex items-center justify-between flex-wrap sm:flex-nowrap">
+    <div>
+      <h3 class="font-medium text-gray-900">
+        {{ post.section }}
+      </h3>
+    </div>
+    <div class="flex-shrink-0">
+      <h3 class="text-gray-500 flex">
+        {{ post.published_at.format("DD MMM YYYY, HH:mm", locale="fr") }}
+        {% if post.publisher %}
+          {% if post.publisher.agree_cppap %}
+            <a href="{{ url_for(post.publisher) }}"
+               class="tooltip tooltip-bottom"
+               data-testid="publisher"
+               data-tip="Publié par une agence agréé par la commission paritaire des publications et agences de presse (CPPAP)">
+              {{ icon("newspaper", class="ml-2 h-6 w-6 text-orange-400") }}
+            </a>
+          {% endif %}
+        {% endif %}
+      </h3>
+    </div>
+  </div>
+</div>
+
+<!-- image -->
+{% if post.image_url %}
+  <a href="{{ url_for(post) }}" data-testid="article">
+    <img class="w-full lg:h-64 object-cover"
+         src="{{ post.image_url }}"
+         alt="{{ post.image_caption }}"
+         data-tooltip-target="post-{{ post.id }}-tooltip"
+         data-tooltip-placement="bottom"
+    />
+  </a>
+  {% if post.image_caption or post.image_copyright %}
+    <div id="post-{{ post.id }}-tooltip" role="tooltip"
+         class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+      {{ post.image_caption }}
+      {{ post.image_copyright }}
+      <div class="tooltip-arrow" data-popper-arrow></div>
+    </div>
+  {% endif %}
+{% endif %}
+
+<!-- text -->
+<div>
+  <a href="{{ url_for(post) }}">
+    <div class="p-5" style="height: 128px; overflow: hidden;">
+      <h3 class="-mt-1 text-gray-700 text-sm font-semibold">
+        {{ post.title }}
+      </h3>
+
+      <p class="mt-2 text-gray-600 text-sm">
+        {{ post.summary }}
+      </p>
+    </div>
+  </a>
+</div>
+
+<!-- author & publisher -->
+
+{% if show_author %}
+  <hr class="mt-4"/>
+
+  <div class="px-4 py-3 flex items-center space-x-3">
+    <div class="flex-shrink-0">
+      <a href="{{ url_for(post.author) }}" class="focus:outline-none">
+        {{ profile_image(post.author, size=10) }}
+      </a>
+    </div>
+
+    <div class="flex-1 min-w-0">
+      <a href="{{ url_for(post.author) }}" class="focus:outline-none">
+        <p class="text-sm font-medium text-gray-900">
+          {{ post.author.name }}
+        </p>
+        <p class="text-sm text-gray-500 truncate">
+          {{ post.author.job_title }} @ {{ post.author.organisation.name }}
+        </p>
+      </a>
+    </div>
+  </div>
+
+  <hr class=""/>
+
+  <div class="px-4 py-1.5 flex items-center space-x-3 border-b">
+    <div class="flex-shrink-0">
+      <a href="{{ url_for(post.publisher) }}" class="focus:outline-none">
+        {{ org_logo(post.publisher, size=10) }}
+      </a>
+    </div>
+
+    <div class="flex-1 min-w-0">
+      <a href="{{ url_for(post.publisher) }}" class="focus:outline-none">
+        <p class="text-sm font-medium text-gray-900">
+          {#  FIXME #}
+          {% if post.publisher %}
+            {{ post.publisher.name }}
+          {% endif %}
+        </p>
+      </a>
+    </div>
+  </div>
+
+{% endif %}
+
+
+<!-- social items -->
+
+<div class="px-4 py-3 flex justify-between space-x-8">
+  <div class="flex space-x-4">
+    <span class="inline-flex items-center text-sm">
+      <button
+          type="button"
+          class="inline-flex space-x-2 text-gray-400 hover:text-gray-500"
+          hx-post="{{ url_for(post) }}"
+          hx-vals='{"action": "toggle-like"}'
+          hx-target="#likes-{{ post.id }}"
+          hx-swap="innerHTML"
+      >
+        {{ icon("hand-thumb-up", class="h-5 w-5") }}
+        <span id="likes-{{ post.id }}" class="font-medium text-gray-900">{{ post.likes }}</span>
+        <span class="sr-only">likes</span>
+      </button>
+    </span>
+
+    <a href="{{ url_for(post) }}#comments-title" class="inline-flex items-center text-sm">
+      <span class="inline-flex space-x-2 text-gray-400">
+        {{ icon("chat-bubble-left-ellipsis", class="h-5 w-5") }}
+        <span class="font-medium text-gray-900">{{ post.replies }}</span>
+        <span class="sr-only">replies</span>
+      </span>
+    </a>
+
+    <span class="inline-flex items-center text-sm">
+      <span class="inline-flex space-x-2 text-gray-400">
+        {{ icon("eye", class="h-5 w-5") }}
+        <span class="font-medium text-gray-900">{{ post.views }}</span>
+        <span class="sr-only">views</span>
+      </span>
+    </span>
+  </div>
+
+  <div class="flex text-sm space-x-3">
+    <span class="inline-flex items-center text-sm">
+      <button
+          type="button"
+          class="inline-flex space-x-2 text-gray-400 hover:text-gray-500"
+      >
+        {{ icon("share", class="h-5 w-5") }}
+      </button>
+    </span>
+
+    <span class="inline-flex items-center text-sm">
+      <button
+          type="button"
+          class="inline-flex space-x-2 text-gray-400 hover:text-gray-500"
+      >
+        {{ icon("ticket", class="h-5 w-5") }}
+      </button>
+    </span>
+
+    <span class="inline-flex items-center text-sm">
+      <button
+          type="button"
+          class="inline-flex space-x-2 text-gray-400 hover:text-gray-500"
+      >
+        {{ icon("currency-euro", class="h-5 w-5") }}
+      </button>
+    </span>
+
+    <span class="inline-flex items-center text-sm">
+      <button
+          type="button"
+          class="inline-flex space-x-2 text-gray-400 hover:text-gray-500"
+      >
+        {{ icon("exclamation-triangle", class="h-5 w-5") }}
+      </button>
+    </span>
+
+  </div>
+</div>

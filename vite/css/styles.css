@@ -1,0 +1,13 @@
+@import "tailwindcss/base";
+@import "./custom-base.css";
+
+@import "tailwindcss/components";
+@import "./components/button.css";
+@import "./components/tooltip.css";
+@import "./components/form.css";
+@import "./components/choices.css";
+@import "./components/titles.css";
+@import "./components/typography.css";
+
+@import "./custom-utilities.css";
+@import "tailwindcss/utilities";

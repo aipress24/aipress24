@@ -1,0 +1,74 @@
+{% extends "wip/layout/_base.j2" %}
+
+{% macro line(label, value) %}
+  <div class="py-4 sm:flex">
+    <dt class="font-medium text-gray-900 sm:w-64 sm:flex-none sm:pr-6">{{ label }}</dt>
+    <dd class="flex justify-between gap-x-6 sm:flex-auto">
+      <div class="text-gray-900">{{ value }}</div>
+    </dd>
+  </div>
+{% endmacro %}
+
+{% block body_content %}
+
+  <h2 class="h2">Opportunité média: {{ media_opp.titre }}</h2>
+
+  <div class="prose max-w-full mt-4">
+    <p>Un/une journaliste a lancé une enquête est pense que votre expertise pourrait être mise à contribution.</p>
+  </div>
+
+  <dl class="my-6 divide-y divide-gray-200">
+    {{ line("Media", media_opp.journaliste.organisation_name) }}
+    {{ line("Titre", media_opp.titre) }}
+    {{ line("Auteur", media_opp.journaliste.name) }}
+    {{ line("Date de fin de l'enquête",
+      media_opp.avis_enquete.date_fin_enquete.format('DD/MM/YYYY à HH:mm:ss (ZZ)')) }}
+    {{ line("Date de bouclage",
+      media_opp.avis_enquete.date_bouclage.format('DD/MM/YYYY à HH:mm:ss (ZZ)')) }}
+    {{ line("Brief", media_opp.avis_enquete.brief) }}
+  </dl>
+
+  <div class="prose max-w-prose">
+    <h3>Cette enquête vous concerne-t-elle?</h3>
+
+    <form id="form" action="" method="post" hx-target="#form">
+      <fieldset class="my-4" hx-post="">
+        <div>
+          <input type="radio" id="oui" name="reponse1" value="oui"
+                 {% if form_state.reponse1 == "oui" %}checked{% endif %}
+          />
+          <label for="oui">Oui</label>
+        </div>
+
+        <div>
+          <input type="radio" id="non" name="reponse1" value="non"
+                 {% if form_state.reponse1 == "non" %}checked{% endif %}
+          />
+          <label for="non">Non</label>
+        </div>
+
+        <div>
+          <input type="radio" id="non-mais" name="reponse1" value="non-mais"
+                 {% if form_state.reponse1 == "non-mais" %}checked{% endif %}
+          />
+          <label for="non-mais">Non, mais je vous suggère une personne mieux placée que moi</label>
+        </div>
+      </fieldset>
+
+      {% if form_state["reponse1"] == "oui" %}
+        <p>Merci d'indiquer en quoi vous pouvez contribuer à cette enquête</p>
+
+        <textarea class="w-full h-48"></textarea>
+      {% endif %}
+
+      {% if form_state["reponse1"] == "non-mais" %}
+        <p>Merci de saisir le nom de la personne</p>
+
+        <input type="text" class="w-full"/>
+      {% endif %}
+
+      <button class="mt-6 aui-button aui-button-primary" type="submit">Envoyer</button>
+    </form>
+
+  </div>
+{% endblock %}

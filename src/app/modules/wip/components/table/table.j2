@@ -1,0 +1,19 @@
+<div class="dark:bg-gray-800 relative border border-gray-200 shadow-md sm:rounded-lg overflow-hidden">
+
+  {{ table.render("table_top_bar.j2") }}
+
+  <div id="{{ table.id }}-body" class="overflow-x-auto">
+    <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+
+      {{ table.render("table_head.j2") }}
+
+      <tbody class="divide-y divide-gray-200">
+      {% for row in rows %}
+        {{ row.render() }}
+      {% endfor %}
+      </tbody>
+    </table>
+
+    {{ table.pagination.render() }}
+  </div>
+</div>

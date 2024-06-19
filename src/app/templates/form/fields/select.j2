@@ -1,0 +1,11 @@
+<div class="sm:col-span-{{ field.width }}">
+  <label for="{{ field.id }}" class="dui-label">
+    <span class="aui-label-text">{{ field.label }}</span>
+  </label>
+
+  <select name="{{ field.id }}" id="{{ field.id }}" class="dui-select dui-select-bordered w-full">
+    {% for option in field.options %}
+      <option value="{{ option.value }}" {{ option.selected }}>{{ option.label }}</option>
+    {% endfor %}
+  </select>
+</div>

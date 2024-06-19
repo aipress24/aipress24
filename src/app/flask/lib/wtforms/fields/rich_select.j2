@@ -1,0 +1,44 @@
+<script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+
+<div
+    x-data="{
+      multiple: false,
+      value: '{{ field.data|escape }}',
+      options: {{ field.get_choices_for_js() }},
+      init() {
+        this.$nextTick(() => {
+          let choices = new Choices(this.$refs.select);
+
+          let refreshChoices = () => {
+            let selection = this.multiple ? this.value : [this.value];
+
+            console.log(selection);
+
+            choices.clearStore()
+            choices.setChoices(this.options.map(([value, label]) => ({
+              value,
+              label,
+              selected: selection.includes(value),
+            })));
+          }
+
+          refreshChoices();
+
+          this.$refs.select.addEventListener('change', () => {
+            this.value = choices.getValue(true);
+          });
+
+          this.$watch('value', () => refreshChoices());
+          this.$watch('options', () => refreshChoices());
+        })
+      }
+    }"
+    class="col-span-12 w-full"
+>
+  <select
+      id="{{ field.id }}"
+      name="{{ field.id }}"
+      class="dui-select dui-select-bordered w-full z-50"
+      x-ref="select"
+      :multiple="multiple"></select>
+</div>

@@ -1,0 +1,40 @@
+{% extends "admin/layout/_base.j2" %}
+
+{% block main %}
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <div class="grid gap-4 grid-cols-1">
+
+    {% for widget in widgets %}
+      <div>
+        <h2 class="text-xl mt-8 mb-4">{{ widget.label }}</h2>
+
+        <div class="mb-12">
+          <canvas id="widget-{{ widget.id }}"></canvas>
+        </div>
+
+        <script>
+          (() => {
+            const config = {
+              type: 'line',
+              data: {{ widget.get_data() }},
+              options: {
+                scales: {
+                  y: {
+                    beginAtZero: true,
+                  },
+                },
+              },
+            };
+
+            new Chart(
+                document.getElementById('widget-{{ widget.id }}'),
+                config,
+            );
+          })();
+        </script>
+      </div>
+    {% endfor %}
+  </div>
+
+{% endblock %}

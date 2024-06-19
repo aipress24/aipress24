@@ -1,0 +1,26 @@
+{#
+https://dev.to/mtownsend5512/creating-powerful-tabs-with-alpine-js-in-less-than-5-minutes-367d
+#}
+
+{% set active="border-pink-500 text-gray-900" %}
+{% set inactive="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300" %}
+
+<nav class="-mb-px flex space-x-5" aria-label="Tabs">
+  <!-- Current: "border-pink-500 text-gray-900", Default: "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300" -->
+  {% for tab in tabs %}
+    <a
+        href="#{{ tab.id }}"
+        :class="{
+          '{{ active }}': tab === '{{ tab.id }}',
+          '{{ inactive }}': tab !== '{{ tab.id }}',
+        }"
+        class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
+        @click.prevent="
+          tab = '{{ tab.id }}';
+          window.location.hash = '{{ tab.id }}';
+        "
+        aria-current="page">
+      {{ tab.label }}
+    </a>
+  {% endfor %}
+</nav>

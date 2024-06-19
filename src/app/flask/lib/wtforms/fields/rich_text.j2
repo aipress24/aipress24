@@ -1,0 +1,17 @@
+<style>
+  trix-editor {
+    min-height: 16rem;
+    max-width: unset !important;
+  }
+</style>
+
+<div
+    x-data="{ value: '' }"
+    x-id="['trix']"
+    @trix-change="value = $refs.input.value"
+>
+  <input :id="$id('trix')" type="hidden" x-ref="input" name="{{ field.id }}" value="{{ field.get_value() }}">
+
+  <!-- Optional .prose class added to utilize Tailwind's Typography Plugin for styling -->
+  <trix-editor x-ref="trix" :input="$id('trix')" class="prose bg-white min-h-48"></trix-editor>
+</div>

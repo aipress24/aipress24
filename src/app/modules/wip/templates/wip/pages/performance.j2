@@ -1,0 +1,32 @@
+{% extends "wip/layout/_base.j2" %}
+
+{% block body_content %}
+  <script>
+    const DATA = {{ page_data|tojson }};
+  </script>
+
+  <div>
+    <canvas id="myChart"></canvas>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    const config = {
+      type: 'line',
+      data: DATA,
+      options: {
+        scales: {
+          y: {
+            beginAtZero: true,
+          },
+        },
+      },
+    };
+
+    new Chart(
+        document.getElementById('myChart'),
+        config
+    );
+  </script>
+
+{% endblock %}

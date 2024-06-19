@@ -1,0 +1,79 @@
+<section>
+  <div class="card p-0 border-0 bg-white rounded shadow">
+
+    <h2 id="filter" class="px-4 py-3 text-base font-medium text-gray-900 bg-gray-200">
+      Tendances pour vous
+    </h2>
+
+    <div class="py-2 px-4 text-sm">
+
+      <ul role="list" class="divide-y divide-gray-200">
+        {% for article in page.top_news() %}
+          {% set post = article %}
+
+          <li class="flex py-4 space-x-3">
+            <div class="flex-shrink-0">
+              <a href="{{ url_for(post.owner) }}" class="focus:outline-none">
+                {{ profile_image(post.owner, size=10) }}
+              </a>
+            </div>
+
+            <div class="-mt-1 min-w-0 flex-1">
+              <a href="{{ url_for(article) }}"
+                 class="text-gray-600 text-sm font-semibold">
+                {{ article.title }}
+              </a>
+
+              <div class="mt-2 flex justify-between space-x-8">
+                <div class="flex space-x-6">
+                  <span class="inline-flex items-center text-sm">
+                    <button
+                        type="button"
+                        class="inline-flex space-x-2 text-gray-400 hover:text-gray-500"
+                        hx-post="{{ url_for(post) }}"
+                        hx-vals='{"action": "toggle-like"}'
+                        hx-target="#likes-{{ post.id }}"
+                        hx-swap="innerHTML"
+                    >
+                      {{ icon("hand-thumb-up", class="h-5 w-5") }}
+                      <span id="likes-{{ post.id }}" class="font-medium text-gray-900">{{ post.like_count }}</span>
+                      <span class="sr-only">likes</span>
+                    </button>
+                  </span>
+
+                  <a href="{{ url_for(post) }}#comments-title" class="inline-flex items-center text-sm">
+                      <span class="inline-flex space-x-2 text-gray-400">
+                        {{ icon("chat-bubble-left-ellipsis", class="h-5 w-5") }}
+                        <span class="font-medium text-gray-900">{{ post.comment_count }}</span>
+                        <span class="sr-only">replies</span>
+                      </span>
+                  </a>
+
+                  <span class="inline-flex items-center text-sm">
+                    <span class="inline-flex space-x-2 text-gray-400">
+                      {{ icon("eye", class="h-5 w-5") }}
+                      <span class="font-medium text-gray-900">{{ post.view_count }}</span>
+                      <span class="sr-only">views</span>
+                    </span>
+                  </span>
+                </div>
+
+                <div class="flex text-sm">
+                  <span class="inline-flex items-center text-sm">
+                    <button
+                        type="button"
+                        class="inline-flex space-x-2 text-gray-400 hover:text-gray-500"
+                    >
+                      {{ icon("share", class="h-5 w-5") }}
+                    </button>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </li>
+        {% endfor %}
+      </ul>
+
+    </div>
+  </div>
+</section>

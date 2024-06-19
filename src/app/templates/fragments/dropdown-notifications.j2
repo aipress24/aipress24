@@ -1,0 +1,24 @@
+{% set notifications = get_notifications() %}
+
+{% if notifications %}
+  <div class="flow-root">
+    <ul role="list" class="-mb-8">
+      {% for notification in notifications %}
+        <li>
+          <div class="relative pb-8">
+            <div class="relative flex space-x-3">
+              <div class="min-w-0 pt-1.5">
+                <p class="text-sm text-gray-500">{{ notification.get_abstract() }}</p>
+                <div class="text-right text-sm whitespace-nowrap text-gray-500">
+                  <time datetime="{{ notification.timestamp.format() }}">
+                    {{ notification.timestamp.format('YYYY-MM-DD HH:mm') }}
+                  </time>
+                </div>
+              </div>
+            </div>
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+{% endif %}

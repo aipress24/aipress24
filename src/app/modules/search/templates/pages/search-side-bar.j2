@@ -1,0 +1,33 @@
+<nav aria-label="Sidebar" class="p-0">
+  <h2 class="text-xl mb-4"> Affiner la recherche </h2>
+
+  {% for item in search_menu %}
+
+    {% if item.count %}
+      {% set class="text-gray-900 hover:bg-gray-300 group flex items-center mb-2 px-2 py-2 font-medium rounded-md" %}
+      {% if item.current %}
+        {% set class = class + " bg-gray-200" %}
+      {% else %}
+        {% set class = class + " bg-gray-100" %}
+      {% endif %}
+      <a
+          href="{{ item.href }}"
+          class="{{ class }}"
+      >
+        {{ icon(item.icon, class="h-5 w-5 mr-2 text-gray-500 ") }}
+        <span class="truncate">
+          {{ item.label }}
+          ({{ item.count }})
+        </span>
+      </a>
+    {% else %}
+      {% set class="text-gray-500 group flex items-center mb-2 px-2 py-2 font-medium rounded-md" %}
+      <span class="{{ class }}">
+        {{ icon(item.icon, class="h-5 w-5 mr-2 text-gray-400 ") }}
+        <span class="truncate">
+          {{ item.label }} (0)
+        </span>
+      </span>
+    {% endif %}
+  {% endfor %}
+</nav>

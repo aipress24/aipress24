@@ -1,0 +1,31 @@
+{% extends "admin/layout/_base.j2" %}
+
+{% block main %}
+  <div>
+    <select class="dui-select dui-select-primary w-full max-w-xs">
+      <option disabled selected>Choisissez la promo à éditer</option>
+      <option>Wire / promo 1</option>
+      <option>Wire / promo 2</option>
+      <option>Events / promo 1</option>
+      <option>Events / promo 2</option>
+      <option>Biz / promo 1</option>
+      <option>Biz / promo 2</option>
+      <option>Swork / promo 1</option>
+      <option>Swork / promo 2</option>
+    </select>
+  </div>
+
+  <div
+      x-data="{ value: '' }"
+      x-init="$refs.trix.editor.loadHTML(value)"
+      x-id="['trix']"
+      @trix-change="value = $refs.input.value"
+  >
+    <input :id="$id('trix')" type="hidden" x-ref="input">
+
+    <!-- Optional .prose class added to utilize Tailwind's Typography Plugin for styling -->
+    <trix-editor x-ref="trix" :input="$id('trix')" class="prose"></trix-editor>
+
+    <div x-html="value"></div>
+  </div>
+{% endblock %}

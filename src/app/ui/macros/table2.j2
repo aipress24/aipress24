@@ -1,0 +1,32 @@
+<div class="w-full border-1 border-gray-200 rounded">
+  <div class="overflow-x-auto">
+    <table class="table overflow-x-auto" style="width: 1879px">
+      <thead>
+      <tr class="h-8">
+        {% for column in specs.columns %}
+          <th class="px-4 py-2">
+            <button wire:click="sortTable('{{ column.name }}')" type="button"
+                    class="flex items-center whitespace-nowrap space-x-1 rtl:space-x-reverse font-medium text-sm text-gray-600">
+              <span>
+                  {{ column.label }}
+              </span>
+            </button>
+          </th>
+        {% endfor %}
+      </tr>
+      </thead>
+
+      <tbody>
+      <template x-for="row in rows">
+        <tr @click="doRowClicked($event)" data-id="xyz">
+          <td x-html="row.state"></td>
+          <td x-text="row.county"></td>
+          <td class="has-text-centered" x-text="row.year"></td>
+          <td class="has-text-centered" x-html="row.turbine_capacity"></td>
+          <td class="has-text-centered" x-text="row.project_capacity"></td>
+        </tr>
+      </template>
+      </tbody>
+    </table>
+  </div>
+</div>

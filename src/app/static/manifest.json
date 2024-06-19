@@ -1,0 +1,21 @@
+{
+    "name": "Joinux Jobs",
+    "short_name": "Joinux Jobs",
+    "theme_color": "#59c6b6",
+    "background_color": "#354249",
+    "display": "standalone",
+    "scope": "/",
+    "start_url": "/",
+    "icons": [
+        {
+            "src": "/static/img/icon-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "/static/img/icon-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+}

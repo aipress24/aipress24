@@ -1,0 +1,15 @@
+{% extends "layout/private.j2" %}
+
+{% block content %}
+  <div class="py-10" id="content">
+    <div class="mx-auto lg:max-w-7xl md:px-6 lg:px-8 lg:grid lg:grid-cols-12 lg:gap-8">
+      <div class="lg:col-span-8">
+        {% include "pages/wire/main.j2" %}
+      </div>
+
+      <div class="lg:col-span-4">
+        {% include "pages/wire/aside.j2" %}
+      </div>
+    </div>
+  </div>
+{% endblock %}

@@ -1,0 +1,111 @@
+{% extends "layout/private.j2" %}
+
+{% block content %}
+  <div class="py-10" id="content">
+    <div class="mx-auto lg:max-w-7xl md:px-6 lg:px-8">
+      <main class="p-4 bg-white rounded shadow">
+
+        <h2 class="aui-title">
+          Calendrier des événements
+        </h2>
+
+        <header class="relative z-20 flex items-center justify-between border-b border-gray-200 py-4 lg:flex-none">
+          <h1 class="aui-title">
+            <time datetime="2022-01">{{ month.format("MMMM YYYY", locale='fr') | capitalize }}</time>
+          </h1>
+
+          <div class="flex items-center">
+            <div class="flex items-center rounded-md shadow-sm md:items-stretch">
+
+              <a href="{{ url_for(".calendar", month=prev_month) }}"
+                 class="flex items-center justify-center rounded-l-md border border-r-0 border-gray-300 bg-white py-2 pl-3 pr-4 text-gray-400 hover:text-gray-500 focus:relative md:w-9 md:px-2 md:hover:bg-gray-50">
+                <span class="sr-only">Mois précédent</span>
+                {{ icon("chevron-left", type="solid", class="h-5 w-5") }}
+              </a>
+
+              <a
+                  href="{{ url_for(".calendar") }}"
+                  class="border-t border-b border-gray-300 bg-white py-2 px-3.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900 focus:relative">
+                Aujourd'hui
+              </a>
+
+              <span class="relative -mx-px h-5 w-px bg-gray-300 md:hidden"></span>
+
+              <a href="{{ url_for(".calendar", month=next_month) }}"
+                 class="flex items-center justify-center rounded-r-md border border-l-0 border-gray-300 bg-white py-2 pl-4 pr-3 text-gray-400 hover:text-gray-500 focus:relative md:w-9 md:px-2 md:hover:bg-gray-50">
+                <span class="sr-only">Mois suivant</span>
+                {{ icon("chevron-right", type="solid", class="h-5 w-5") }}
+              </a>
+            </div>
+
+            <a
+                href="{{ url_for("events.events") }}"
+                class="ml-6 inline-flex justify-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500"
+            >
+              {{ icon("bars-4", class="h-5 w-5 text-gray-400") }}
+            </a>
+
+          </div>
+        </header>
+
+        <div class="shadow ring-1 ring-black ring-opacity-5 lg:flex lg:flex-auto lg:flex-col">
+          <div
+              class="grid grid-cols-7 gap-px border-b border-gray-300 bg-gray-200 text-center text-xs font-semibold leading-6 text-gray-700 lg:flex-none">
+            <div class="bg-white py-2">L<span class="sr-only sm:not-sr-only">un</span></div>
+            <div class="bg-white py-2">M<span class="sr-only sm:not-sr-only">ar</span></div>
+            <div class="bg-white py-2">M<span class="sr-only sm:not-sr-only">er</span></div>
+            <div class="bg-white py-2">J<span class="sr-only sm:not-sr-only">eu</span></div>
+            <div class="bg-white py-2">V<span class="sr-only sm:not-sr-only">en</span></div>
+            <div class="bg-white py-2">S<span class="sr-only sm:not-sr-only">am</span></div>
+            <div class="bg-white py-2">D<span class="sr-only sm:not-sr-only">im</span></div>
+          </div>
+
+          <div class="flex bg-gray-200 text-xs leading-6 text-gray-700 lg:flex-auto">
+            {# Don't remove!: lg:grid-rows-5 lg:grid-rows-6 lg:grid-rows-7 #}
+            <div class="hidden w-full lg:grid lg:grid-cols-7 lg:grid-rows-{{ num_weeks }} lg:gap-px">
+
+              {% for cell in cells %}
+                {% if cell.day.month == month.month %}
+                  {% set class="bg-white" %}
+                {% else %}
+                  {% set class="bg-gray-50 text-gray-500" %}
+                {% endif %}
+
+                <div class="relative py-2 px-3 {{ class }}">
+                  {% if cell.is_today %}
+                    {% set class="flex h-6 w-6 items-center justify-center rounded-full bg-indigo-600 font-semibold text-white" %}
+                  {% else %}
+                    {% set class="" %}
+                  {% endif %}
+                  <time datetime="{{ cell.day.format("YYYY-MM-DD") }}"
+                        class="{{ class }}">
+                    {{ cell.day.format("D") }}
+                  </time>
+
+                  {% if cell.events %}
+                    <ol class="mt-2">
+                      {% for event in cell.events %}
+                        <li>
+                          <a href="#" class="group flex">
+                            <p
+                                class="flex-auto truncate font-medium text-gray-900 group-hover:text-indigo-600">{{ event.title }}</p>
+                            {% if event.time %}
+                              <time datetime="2022-01-03T10:00"
+                                    class="ml-3 hidden flex-none text-gray-500 group-hover:text-indigo-600 xl:block">{{ event.time }}
+                              </time>
+                            {% endif %}
+                          </a>
+                        </li>
+                      {% endfor %}
+                    </ol>
+                  {% endif %}
+
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+{% endblock %}

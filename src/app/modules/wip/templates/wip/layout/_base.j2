@@ -1,0 +1,33 @@
+{% extends "layout/private.j2" %}
+
+{% block content %}
+  <div class="py-10">
+    <main>
+      <div class="max-w-screen-xl mx-auto pb-6 px-4 sm:px-6 lg:pb-16 lg:px-8">
+        <div class="bg-white rounded shadow overflow-hidden">
+          <div class="bg-gray-50 divide-y divide-gray-200 lg:grid lg:grid-cols-12 lg:divide-y-0 lg:divide-x">
+            {% include "wip/fragments/left-menu.j2" %}
+
+            <main class="bg-white pt-8 pb-16 sm:px-6 lg:px-8 lg:col-span-10">
+              <div class="px-4 sm:px-0">
+                {% if breadcrumbs2 is defined %}
+                  <div class="text-sm mb-4 text-gray-500">
+                    {% for crumb in breadcrumbs2 %}
+                      <a href="{{ crumb.url }}">{{ crumb.label }}</a>&nbsp;:
+                    {% endfor %}
+                  </div>
+                {% endif %}
+
+                <div>
+                  <h1 class="aui-title">{{ title }}</h1>
+
+                  {% block body_content %}{% endblock %}
+                </div>
+              </div>
+            </main>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+{% endblock %}

@@ -1,0 +1,61 @@
+{#<script>#}
+{#  window.PostBox = function () {#}
+{#    return {#}
+{#      isOpen: false,#}
+{##}
+{#      open() {#}
+{#        this.isOpen = true;#}
+{#      },#}
+{##}
+{#      close() {#}
+{#        this.isOpen = false;#}
+{#      },#}
+{##}
+{#      toggle() {#}
+{#        this.isOpen = !this.isOpen;#}
+{#      },#}
+{##}
+{#      submit() {#}
+{#        const text = document.getElementById("text-field").innerText;#}
+{#        const field = document.getElementById("hidden-text-field");#}
+{#        field.value = text;#}
+{#      },#}
+{#    }#}
+{#  }#}
+{#</script>#}
+
+<div x-data="PostBox()"
+     x-spread="wrapper"
+     @keydown.window.escape="close()"
+     @click.away="close()"
+     @click="open()">
+
+  <div class="flex space-x-3">
+    <div class="flex-shrink-0">
+      <img
+          class="h-10 w-10 rounded-full"
+          src="{{ g.user.profile_image_url }}"
+          alt=""
+      />
+    </div>
+
+    <div class="min-w-0 flex-1">
+      <input class="w-full border-gray-300 rounded" type="text" placeholder="Écrivez un message..."
+             x-show="!isOpen"
+      >
+
+      <form id="post-form" action="new_post" method="post" class="block"
+            @submit="submit()" x-cloak x-show="isOpen" x-trap="isOpen" x-transition.opacity>
+
+        <input type="text" hidden name="message" id="hidden-text-field">
+
+        <div class="w-full border border-gray-300 rounded min-h-24" contenteditable id="text-field">
+        </div>
+
+        <input type="submit" value="Poster" class="mt-2 button ~info @high">
+      </form>
+
+    </div>
+
+  </div>
+</div>

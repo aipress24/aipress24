@@ -1,0 +1,118 @@
+{% include "pages/member/member--tab-bar.j2" %}
+
+<!-- Description list -->
+<div class="py-6 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+  <div>
+    <h2 class="text-lg font-medium mb-2">Profil</h2>
+
+    <dl class="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
+      <div class="sm:col-span-1">
+        <dt class="text-sm font-medium text-gray-500">
+          Communauté
+        </dt>
+        <dd class="mt-1 text-sm text-gray-900">
+          {{ profile.community_primary }}
+        </dd>
+      </div>
+
+      <div class="sm:col-span-1">
+        {% if profile.community_secondary %}
+          <dt class="text-sm font-medium text-gray-500">
+            Communauté secondaire
+          </dt>
+          <dd class="mt-1 text-sm text-gray-900">
+            {{ profile.community_secondary }}
+          </dd>
+        {% endif %}
+      </div>
+
+      <div class="sm:col-span-1">
+        <dt class="text-sm font-medium text-gray-500">
+          Fonction
+        </dt>
+        <dd class="mt-1 text-sm text-gray-900">
+          {{ profile.job_title }}
+        </dd>
+      </div>
+
+      <div class="sm:col-span-1">
+        <dt class="text-sm font-medium text-gray-500">
+          Organisation
+        </dt>
+        <dd class="mt-1 text-sm text-gray-900">
+          <a href="{{ url_for(profile.organisation) }}"
+             class="hover:underline"
+          >{{ profile.organisation.name }}</a>
+        </dd>
+      </div>
+
+      {# Geoloc #}
+      <div class="sm:col-span-1">
+        <dt class="text-sm font-medium text-gray-500">
+          Pays
+        </dt>
+        <dd class="mt-1 text-sm text-gray-900">
+          <a href="{{ url_for('.members', loc='country:' + profile.country) }}"
+             class="hover:underline">{{ profile.country }}</a>
+        </dd>
+      </div>
+
+      <div class="sm:col-span-1">
+        <dt class="text-sm font-medium text-gray-500">
+          Région
+        </dt>
+        <dd class="mt-1 text-sm text-gray-900">
+          <a href="{{ url_for('.members', loc='region:' + profile.region) }}"
+             class="hover:underline">{{ profile.region }}</a>
+        </dd>
+      </div>
+
+      <div class="sm:col-span-1">
+        <dt class="text-sm font-medium text-gray-500">
+          Département
+        </dt>
+        <dd class="mt-1 text-sm text-gray-900">
+          <a href="{{ url_for('.members', loc='departement:' + profile.departement) }}"
+             class="hover:underline">{{ profile.departement }}</a>
+        </dd>
+      </div>
+
+      <div class="sm:col-span-1">
+        <dt class="text-sm font-medium text-gray-500">
+          Ville
+        </dt>
+        <dd class="mt-1 text-sm text-gray-900">
+          <a href="{{ url_for('.members', loc='city:' + profile.city) }}"
+             class="hover:underline">{{ profile.city }}</a> ({{ profile.postal_code }})
+        </dd>
+      </div>
+
+      {# Descriptive elements #}
+
+      <div class="sm:col-span-2">
+        <dt class="text-sm font-medium text-gray-500">Rôle</dt>
+        <dd class="mt-1 max-w-prose text-sm text-gray-900 space-y-5"
+        >{{ profile.job_description }}</dd>
+      </div>
+
+      <div class="sm:col-span-2">
+        <dt class="text-sm font-medium text-gray-500">Bio</dt>
+        <dd class="mt-1 max-w-prose text-sm text-gray-900 space-y-5"
+        >{{ profile.bio }}</dd>
+      </div>
+
+      <div class="sm:col-span-2">
+        <dt class="text-sm font-medium text-gray-500">Cursus</dt>
+        <dd class="mt-1 max-w-prose text-sm text-gray-900 space-y-5"
+        >{{ profile.education }}</dd>
+      </div>
+
+      <div class="sm:col-span-2">
+        <dt class="text-sm font-medium text-gray-500">Intérêts / hobbies</dt>
+        <dd class="mt-1 max-w-prose text-sm text-gray-900 space-y-5"
+        >{{ profile.hobbies }}</dd>
+      </div>
+
+    </dl>
+  </div>
+</div>

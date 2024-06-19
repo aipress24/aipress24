@@ -1,0 +1,19 @@
+{% extends "layout/private.j2" %}
+
+{% block content %}
+  <div class="min-h-full py-10">
+    <div class="max-w-3xl mx-auto lg:max-w-7xl px-8">
+      <div class="sm:px-8 bg-white shadow sm:rounded-lg py-6 lg:py-8">
+        <div class="lg:grid lg:grid-cols-3">
+          <main class="lg:col-span-2 lg:pr-8 lg:border-r lg:border-gray-200">
+            {% include "pages/article/main.j2" %}
+          </main>
+
+          <aside class="hidden lg:block lg:pl-8">
+            {% include "pages/article/aside.j2" %}
+          </aside>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

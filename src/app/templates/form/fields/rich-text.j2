@@ -1,0 +1,21 @@
+<div class="sm:col-span-{{ field.width }}">
+  <label for="{{ field.id }}" class="dui-label">
+    <span class="aui-label-text">{{ field.label }}</span>
+  </label>
+
+  <div
+      x-data="{ value: '' }"
+      x-id="['trix']"
+      @trix-change="value = $refs.input.value"
+  >
+    <input :id="$id('trix')" type="hidden" x-ref="input" name="{{ field.id }}" value="{{ field.value }}">
+
+    <!-- Optional .prose class added to utilize Tailwind's Typography Plugin for styling -->
+    <trix-editor
+      style="min-height: 16rem; max-width: unset !important;"
+      x-ref="trix"
+      :input="$id('trix')"
+      class="prose bg-white min-h-48">
+    </trix-editor>
+  </div>
+</div>

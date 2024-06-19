@@ -1,0 +1,17 @@
+{% extends "layout/private.j2" %}
+
+{% block content %}
+  <div class="py-10">
+    <main>
+      <div class="max-w-screen-xl mx-auto pb-6 px-4 sm:px-6 lg:pb-16 lg:px-8">
+        <div class="bg-white rounded shadow overflow-hidden">
+          <div class="divide-y divide-gray-200 lg:grid lg:grid-cols-12 lg:divide-y-0 lg:divide-x">
+            {% include "pages/preferences/left-menu.j2" %}
+
+            {% block main %}{% endblock %}
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+{% endblock %}

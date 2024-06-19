@@ -1,0 +1,17 @@
+{% extends "admin/layout/_base.j2" %}
+
+{% block main %}
+  <div class="content">
+    <h2>Installed packages</h2>
+
+    <table class="dui-table dui-table-zebra">
+      {% for size, name, version in packages %}
+        <tr>
+          <td>{{ size }}</td>
+          <td>{{ name }}</td>
+          <td>{{ version }}</td>
+        </tr>
+      {% endfor %}
+    </table>
+  </div>
+{% endblock %}

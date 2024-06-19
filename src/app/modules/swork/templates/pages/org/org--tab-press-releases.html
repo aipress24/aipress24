@@ -1,0 +1,18 @@
+<div x-show="tab === 'press-releases'">
+  <h2 class="text-lg font-bold mb-2">Communiqués</h2>
+
+  {% set posts = org.press_releases %}
+
+  {% if posts %}
+    <ul role="list" class="grid gap-6 grid-cols-1 md:grid-cols-2">
+      <!-- was class="bg-white rounded-lg shadow" -->
+      {% for post in posts %}
+        <li class="bg-white rounded shadow">
+          {{ component("post-card", post, class_="bg-gray-100") }}
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>L'organisation n'a publié aucun communiqué.</p>
+  {% endif %}
+</div>

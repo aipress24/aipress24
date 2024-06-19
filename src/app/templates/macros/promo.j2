@@ -1,0 +1,18 @@
+{% macro promo_box(id) %}
+  <section>
+    {% set box = get_promotion(id) %}
+    <div class="card p-0 border-0 bg-white rounded shadow">
+      <h2 class="flex justify-between px-4 py-3 text-base font-medium text-gray-900 bg-gray-200">
+        {{ box.title }}
+
+        {# FIXME #}
+        <a href="/admin/promotions" class="text-gray-500">{{ icon("pencil-square", class="h-5 w-5") }}</a>
+      </h2>
+      <div class="py-2 px-4 text-gray-700 text-sm">
+        <div class="my-3">
+          {{ box.body }}
+        </div>
+      </div>
+    </div>
+  </section>
+{% endmacro %}

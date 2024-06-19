@@ -1,0 +1,29 @@
+<aside class="py-6 lg:col-span-2">
+  <nav class="space-y-1">
+    {% for item in menus.secondary %}
+      {% if item.current %}
+        {% set class="bg-teal-50 border-teal-500 text-teal-700 hover:bg-teal-50 hover:text-teal-700" %}
+      {% else %}
+        {% set class="border-transparent text-gray-900 hover:bg-gray-50 hover:text-gray-900" %}
+      {% endif %}
+
+      <a
+          href="{{ item.href }}"
+          class="group border-l-4 px-3 py-2 flex items-center text-sm font-medium {{ class }}"
+          :aria-current="item.current ? 'page' : undefined"
+      >
+        {% if item.current %}
+          {% set class="text-teal-500 group-hover:text-teal-500" %}
+        {% else %}
+          {% set class="text-gray-400 group-hover:text-gray-500" %}
+        {% endif %}
+
+        {{ icon(item.icon, type="outline", class="flex-shrink-0 -ml-1 mr-3 h-6 w-6 " + class) }}
+
+        <span class="truncate">
+          {{ item.label }}
+        </span>
+      </a>
+    {% endfor %}
+  </nav>
+</aside>

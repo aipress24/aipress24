@@ -1,0 +1,117 @@
+<!-- top -->
+<div class="px-4 py-3 border-b border-gray-200 rounded">
+  <div class="flex items-center justify-between flex-wrap sm:flex-nowrap">
+    <div>
+      <h3 class="font-medium text-gray-900">
+        {{ obj.product_type }}
+      </h3>
+    </div>
+    <div class="flex-shrink-0">
+      <h3 class="text-gray-500">{{ obj.published_at.format("DD MMM YYYY, HH:mm", locale="fr") }}</h3>
+    </div>
+  </div>
+</div>
+
+<!-- image -->
+{% if obj.image_url %}
+  <a href="{{ url_for(obj) }}">
+    <img class="w-full lg:h-64 object-cover" src="{{ obj.image_url }}"/>
+  </a>
+{% endif %}
+
+<!-- price + actions -->
+<div class="p-4 flex justify-between space-x-8 items-center">
+  <b class="text-lg">{{ obj.price }}€</b>
+  <div class="flex space-x-2 justify-end">
+    <span class="button ~positive text-sm">Acheter</span>
+    <span class="button ~warning text-sm">Liker</span>
+  </div>
+</div>
+
+<!-- text -->
+<hr/>
+<a href="{{ url_for(obj) }}">
+  <div class="p-4">
+    <div style="height: 124px; overflow: hidden;">
+      <h3 class="-mt-1 text-gray-900 text-sm font-medium">
+        {{ obj.title }}
+      </h3>
+
+      <p class="mt-2 text-gray-600 text-sm">
+        {{ obj.description }}
+      </p>
+    </div>
+  </div>
+</a>
+
+{% if show_author %}
+  {% set author = obj.author %}
+  <hr/>
+
+  <div class="px-4 py-3 flex items-center space-x-3 border-b">
+    <div class="flex-shrink-0">
+      <a href="{{ url_for(author) }}" class="focus:outline-none">
+        {{ profile_image(author, size=10) }}
+      </a>
+    </div>
+
+    <div class="flex-1 min-w-0">
+      <a href="{{ url_for(author) }}" class="focus:outline-none">
+        <p class="text-sm font-medium text-gray-900">
+          {{ author.name }}
+        </p>
+        <p class="text-sm text-gray-500 truncate">
+          {{ author.job_title }} @ {{ author.organisation_name }}
+        </p>
+      </a>
+    </div>
+  </div>
+{% endif %}
+
+{% if False %}
+  <div class="px-4 py-3 flex justify-between space-x-8">
+    <div class="flex space-x-6">
+      <span class="inline-flex items-center text-sm">
+        <button
+            type="button"
+            class="inline-flex space-x-2 text-gray-400 hover:text-gray-500"
+            hx-post="{{ url_for(obj) }}"
+            hx-vals='{"action": "toggle-like"}'
+            hx-target="#likes-{{ obj.id }}"
+            hx-swap="innerHTML"
+        >
+          {{ icon("hand-thumb-up", class="h-5 w-5") }}
+          <span id="likes-{{ obj.id }}" class="font-medium text-gray-900">{{ obj.likes }}</span>
+          <span class="sr-only">likes</span>
+        </button>
+      </span>
+
+      <a href="{{ url_for(obj) }}#comments-title" class="inline-flex items-center text-sm">
+        <span class="inline-flex space-x-2 text-gray-400">
+          {{ icon("chat-bubble-left-ellipsis", class="h-5 w-5") }}
+          <span class="font-medium text-gray-900">{{ obj.replies }}</span>
+          <span class="sr-only">replies</span>
+        </span>
+      </a>
+
+      <span class="inline-flex items-center text-sm">
+        <span class="inline-flex space-x-2 text-gray-400">
+          {{ icon("eye", class="h-5 w-5") }}
+          <span class="font-medium text-gray-900">{{ obj.views }}</span>
+          <span class="sr-only">views</span>
+        </span>
+      </span>
+    </div>
+
+    <div class="flex text-sm">
+      <span class="inline-flex items-center text-sm">
+        <button
+            type="button"
+            class="inline-flex space-x-2 text-gray-400 hover:text-gray-500"
+        >
+          {{ icon("share", class="h-5 w-5") }}
+        </button>
+      </span>
+    </div>
+  </div>
+{% endif %}

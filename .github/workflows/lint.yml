@@ -1,0 +1,23 @@
+name: lint
+
+on: [ push, pull_request ]
+
+jobs:
+  lint:
+
+    runs-on: ubicloud
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
+      - run: pip install -U pip setuptools wheel nox poetry
+      - run: nox -e lint
+      - name: Notify slack fail
+        if: failure()
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        uses: voxmedia/github-action-slack-notify-build@v1
+        with:
+          channel_id: C04EACFH8

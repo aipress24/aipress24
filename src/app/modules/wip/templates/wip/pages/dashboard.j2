@@ -1,0 +1,19 @@
+{% extends "wip/layout/_base.j2" %}
+
+{% block body_content %}
+
+  {% include "wip/fragments/dashboard.j2" %}
+
+  <h2 class="max-w-6xl mx-auto mt-8 mb-2 text-lg leading-6 font-medium text-gray-900">
+    Vos articles récents
+  </h2>
+
+  {{ recent_contents_table.render() }}
+
+  {#  <h2 class="max-w-6xl mx-auto  mt-12 mb-2 text-lg leading-6 font-medium text-gray-900">#}
+  {#    Vos transactions récentes#}
+  {#  </h2>#}
+  {##}
+  {#  {{ recent_transactions_table.render() }}#}
+
+{% endblock %}

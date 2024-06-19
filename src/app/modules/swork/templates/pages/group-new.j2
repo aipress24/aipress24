@@ -1,0 +1,114 @@
+{% extends "layout/private.j2" %}
+
+{% block content %}
+  <div
+      class="max-w-3xl mx-auto sm:px-6 lg:max-w-7xl lg:px-8 lg:grid lg:grid-cols-12 lg:gap-8"
+  >
+    {% include "pages/_swork_menu.j2" %}
+
+    <main class="lg:col-span-9 xl:col-span-7 bg-white mt-8 rounded-lg shadow">
+      <div class="px-6 pt-6 pb-4">
+
+        <h2 class="text-lg font-medium text-gray-900">
+          Créer un nouveau groupe
+        </h2>
+
+        <form class="space-y-8 divide-y divide-gray-200" action="" method="post">
+          <div class="pt-8">
+            <div class="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+
+              <div class="sm:col-span-6">
+                <label for="name" class="dui-label">
+                  <span class="aui-label-text">Nom du groupe</span>
+                </label>
+
+                <input type="text" name="name" id="name" autocomplete=""
+                       class="dui-input dui-input-bordered w-full">
+              </div>
+
+
+              <div
+                  class="sm:col-span-6"
+                  x-data="{
+        value: '',
+        init() {
+            const toolbarOptions = [
+              ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
+{#              ['blockquote', 'code-block'],#}
+
+{#              [{ 'header': 1 }, { 'header': 2 }],               // custom button values#}
+{#              [{ 'list': 'ordered'}, { 'list': 'bullet' }],#}
+{#              [{ 'script': 'sub'}, { 'script': 'super' }],      // superscript/subscript#}
+{#              [{ 'indent': '-1'}, { 'indent': '+1' }],          // outdent/indent#}
+              // [{ 'direction': 'rtl' }],                         // text direction
+
+              // [{ 'size': ['small', false, 'large', 'huge'] }],  // custom dropdown
+              // [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+
+              [{ 'color': [] }, { 'background': [] }],          // dropdown with defaults from theme
+{#              [{ 'font': [] }],#}
+{#              [{ 'align': [] }],#}
+
+{#              ['image', 'link'],#}
+
+              ['clean'],                                         // remove formatting button
+            ];
+
+            let quill = new Quill(this.$refs.quill, {
+              modules: {
+                toolbar: toolbarOptions
+              },
+              theme: 'snow'
+            })
+
+            quill.root.innerHTML = this.value
+
+            quill.on('text-change', () => {
+                this.value = quill.root.innerHTML
+            })
+        },
+    }"
+              >
+                <div class="">
+                  <label for="description" class="dui-label">
+                    <span class="aui-label-text">Description</span>
+                  </label>
+
+                  <input type="hidden" name="description" id="description" x-bind:value="value">
+                  <div x-ref="quill" class="min-h-24"></div>
+                </div>
+              </div>
+
+            </div>
+
+            <div class="mt-8">TODO: type (ouvert, fermé, secret)</div>
+
+          </div>
+
+
+          <div class="pt-5">
+            <div class="flex justify-end">
+              <button type="submit" class="button ~neutral">
+                Annuler
+              </button>
+              <button type="submit" class="ml-4 button ~info @high">
+                Créer le groupe
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </main>
+
+    <aside class="hidden xl:block xl:col-span-3 mt-8">
+      <div class="sticky top-4 space-y-4">
+
+        {% from "macros/promo.j2" import promo_box with context %}
+
+        {{ promo_box("swork/1") }}
+        {{ promo_box("swork/2") }}
+      </div>
+    </aside>
+
+  </div>
+{% endblock %}

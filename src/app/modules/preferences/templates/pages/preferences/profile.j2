@@ -1,0 +1,189 @@
+{% extends "pages/preferences/_base.j2" %}
+
+{% set input_class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-sky-500 focus:border-sky-500 sm:text-sm" %}
+
+{% block main %}
+  <form
+      class="divide-y divide-gray-200 lg:col-span-9"
+      action=""
+      method="POST"
+  >
+    {{ form.hidden_tag() }}
+
+    <!-- Profile section -->
+    <div class="py-6 px-4 sm:p-6 lg:pb-8">
+      <h1 class="aui-title mb-4">
+        Profil utilisateur
+      </h1>
+
+      <p class="text-sm text-gray-500">
+        Attention, ces informations sont partagées avec les utilisateurs de la plateforme.
+      </p>
+
+
+      <div class="mt-6 flex flex-col lg:flex-row">
+        <div class="flex-grow space-y-3">
+
+          <div>
+            <label
+                for="first_name"
+                class="block text-sm font-medium text-gray-700"
+            >Prénom</label
+            >
+            {{ form.first_name(class=input_class) }}
+          </div>
+
+          <div>
+            <label
+                for="last_name"
+                class="block text-sm font-medium text-gray-700"
+            >Nom</label
+            >
+            {{ form.last_name(class=input_class) }}
+          </div>
+        </div>
+
+        <div
+            class="mt-6 flex-grow lg:mt-0 lg:ml-6 lg:flex-grow-0 lg:flex-shrink-0"
+        >
+          <p
+              class="text-sm font-medium text-gray-700"
+              aria-hidden="true"
+          >
+            Photo
+          </p>
+          <div class="mt-1 lg:hidden">
+            <div class="flex items-center">
+              <div
+                  class="flex-shrink-0 inline-block rounded-full overflow-hidden h-12 w-12"
+                  aria-hidden="true"
+              >
+                <img
+                    class="rounded-full h-full w-full"
+                    src="{{ g.user.profile_image_url }}"
+                    alt=""
+                />
+              </div>
+              <div class="ml-5 rounded-md shadow-sm">
+                <div
+                    class="group relative border border-gray-300 rounded-md py-2 px-3 flex items-center justify-center hover:bg-gray-50 focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-sky-500"
+                >
+                  <label
+                      for="mobile-user-photo"
+                      class="relative text-sm leading-4 font-medium text-gray-700 pointer-events-none"
+                  >
+                    <span>Change</span>
+                    <span class="sr-only"> user photo</span>
+                  </label>
+                  <input
+                      id="mobile-user-photo"
+                      name="user-photo"
+                      type="file"
+                      class="absolute w-full h-full opacity-0 cursor-pointer border-gray-300 rounded-md"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div
+              class="hidden relative rounded-full overflow-hidden lg:block"
+          >
+            <img
+                class="relative rounded-full w-40 h-40"
+                src="{{ g.user.profile_image_url }}"
+                alt=""
+            />
+            <label
+                for="desktop-user-photo"
+                class="absolute inset-0 w-full h-full bg-black bg-opacity-75 flex items-center justify-center text-sm font-medium text-white opacity-0 hover:opacity-100 focus-within:opacity-100"
+            >
+              <span>Change</span>
+              <span class="sr-only"> user photo</span>
+              <input
+                  type="file"
+                  id="desktop-user-photo"
+                  name="user-photo"
+                  class="absolute inset-0 w-full h-full opacity-0 cursor-pointer border-gray-300 rounded-md"
+              />
+            </label>
+          </div>
+        </div>
+      </div>
+
+
+      <div class="mt-6 grid grid-cols-12 gap-6">
+
+        <div class="col-span-12 sm:col-span-8">
+          <label
+              for="first_name"
+              class="block text-sm font-medium text-gray-700"
+          >Organisation</label
+          >
+          {{ form.organisation_name(class=input_class) }}
+        </div>
+
+        <div class="col-span-12 sm:col-span-8">
+          <label
+              for="last_name"
+              class="block text-sm font-medium text-gray-700"
+          >Fonction</label
+          >
+          {{ form.job_title(class=input_class) }}
+        </div>
+
+        <div class="col-span-12">
+          <label
+              for="job_description"
+              class="block text-sm font-medium text-gray-700"
+          >Fonction détaillée [TODO: éditeur HTML]</label
+          >
+          {{ form.job_description(class=input_class) }}
+        </div>
+
+        <div class="col-span-12">
+          <label
+              for="bio"
+              class="block text-sm font-medium text-gray-700"
+          >Bio [TODO: éditeur HTML]</label
+          >
+          {{ form.bio(class=input_class) }}
+        </div>
+
+        <div class="col-span-12">
+          <label
+              for="education"
+              class="block text-sm font-medium text-gray-700"
+          >Cursus [TODO: éditeur HTML]</label
+          >
+          {{ form.education(class=input_class) }}
+        </div>
+
+        <div class="col-span-12">
+          <label
+              for="hobbies"
+              class="block text-sm font-medium text-gray-700"
+          >Intérêts / hobbies [TODO: éditeur HTML]</label
+          >
+          {{ form.hobbies(class=input_class) }}
+        </div>
+
+      </div>
+    </div>
+
+    <div class="mt-4 py-4 px-4 flex justify-end sm:px-6">
+      <button
+          type="button"
+          class="button ~neutral @low"
+      >
+        Cancel
+      </button>
+      <button
+          type="submit"
+          class="button ~info @high ml-4"
+      >
+        Save
+      </button>
+    </div>
+  </form>
+{% endblock %}

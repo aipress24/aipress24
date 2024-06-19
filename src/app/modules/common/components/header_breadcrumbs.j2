@@ -1,0 +1,56 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 bg-white">
+  <div class="border-t border-gray-200 py-3">
+    <nav class="flex" aria-label="Breadcrumb">
+      <div class="flex sm:hidden">
+        <a
+            href="{{ url_for("public.home") }}"
+            class="group inline-flex space-x-3 text-sm font-medium text-gray-500 hover:text-gray-700"
+        >
+          {{ icon("arrow-long-left", class="flex-shrink-0 h-5 w-5 text-gray-400 group-hover:text-gray-600") }}
+          <span>Retour</span>
+        </a>
+      </div>
+
+      <div class="hidden sm:block">
+        <ol role="list" class="flex items-center space-x-4">
+          <li>
+            <div>
+              <a href="{{ url_for("public.home") }}" class="text-gray-400 hover:text-gray-500">
+                {{ icon("home", class="flex-shrink-0 h-5 w-5") }}
+                <span class="sr-only">Home</span>
+              </a>
+            </div>
+          </li>
+
+          {% for item in breadcrumbs %}
+            <li>
+              <div class="flex items-center">
+                <svg
+                    class="flex-shrink-0 h-5 w-5 text-gray-300"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                    aria-hidden="true"
+                >
+                  <path d="M5.555 17.776l8-16 .894.448-8 16-.894-.448z"/>
+                </svg>
+                {% if item.href %}
+                  <a
+                      href="{{ item.href }}"
+                      class="ml-4 text-sm font-medium text-gray-500 hover:text-gray-800"
+                      {{ {'aria-current': item.current} | xmlattr }}
+                  >{{ item.name }}</a>
+                {% else %}
+                  <span
+                      class="ml-4 text-sm font-medium text-gray-500"
+                      {{ {'aria-current': item.current} | xmlattr }}
+                  >{{ item.name }}</span>
+                {% endif %}
+              </div>
+            </li>
+          {% endfor %}
+        </ol>
+      </div>
+    </nav>
+  </div>
+</div>

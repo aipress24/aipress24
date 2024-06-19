@@ -1,0 +1,11 @@
+{% extends "layout/public.j2" %}
+
+{% block content %}
+  {% include "kyc/_top.html" %}
+
+  <div class="py-10 px-4">
+    <div class="mx-auto lg:max-w-7xl p-6 lg:p-8 bg-white rounded-xl">
+      {{ content|safe }}
+    </div>
+  </div>
+{% endblock %}

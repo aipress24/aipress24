@@ -1,0 +1,45 @@
+<script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+
+<div class="sm:col-span-{{ field.width }}">
+  <label for="{{ field.id }}" class="dui-label">
+    <span class="aui-label-text">{{ field.label }}</span>
+  </label>
+
+  <div
+      x-data="{
+      multiple: false,
+      value: 1,
+      options: {{ field.options }},
+      init() {
+          this.$nextTick(() => {
+              let choices = new Choices(this.$refs.select)
+
+              let refreshChoices = () => {
+                  let selection = this.multiple ? this.value : [this.value]
+
+                  choices.clearStore()
+                  choices.setChoices(this.options.map(({ value, label }) => ({
+                      value,
+                      label,
+                      selected: selection.includes(value),
+                  })))
+              }
+
+              refreshChoices()
+
+              this.$refs.select.addEventListener('change', () => {
+                  this.value = choices.getValue(true)
+              })
+
+              this.$watch('value', () => refreshChoices())
+              this.$watch('options', () => refreshChoices())
+          })
+      }
+    }"
+      class="col-span-12 w-full"
+  >
+    <select
+        name="{{ field.id }}" id="{{ field.id }}" class="dui-select dui-select-bordered w-full z-50"
+        x-ref="select" :multiple="multiple"></select>
+  </div>
+</div>

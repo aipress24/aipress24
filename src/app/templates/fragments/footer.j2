@@ -1,0 +1,109 @@
+<footer class="bg-white dark:bg-gray-800">
+  <div class="max-w-screen-xl p-4 py-6 mx-auto lg:py-12 md:p-8">
+    <div class="text-sm grid grid-cols-2 gap-8 lg:grid-cols-4">
+      <div>
+        <h3
+            class="mb-6 font-semibold text-gray-900 uppercase dark:text-white"
+        >
+          Société
+        </h3>
+        <ul class="text-gray-500 dark:text-gray-400">
+          <li class="mb-4">
+            <a href="/page/a-propos/" class="hover:underline">Qui sommes-nous?</a>
+          </li>
+          <li class="mb-4">
+            <a href="#" class="hover:underline">Ils nous soutiennent</a>
+          </li>
+        </ul>
+      </div>
+
+      <div>
+        <h3
+            class="mb-6 font-semibold text-gray-900 uppercase dark:text-white"
+        >
+          Juridique
+        </h3>
+        <ul class="text-gray-500 dark:text-gray-400">
+          <li class="mb-4">
+            <a href="/page/confidentialite/" class="hover:underline">Politique de confidentialité</a>
+          </li>
+          <li class="mb-4">
+            <a href="#" class="hover:underline">Conditions d'utilisation</a>
+          </li>
+        </ul>
+      </div>
+
+      <div>
+        <h3
+            class="mb-6 font-semibold text-gray-900 uppercase dark:text-white"
+        >
+          Notre offre
+        </h3>
+        <ul class="text-gray-500 dark:text-gray-400">
+          <li class="mb-4">
+            <a href="/page/offre-entreprises/" class="hover:underline">Pour les journalistes</a>
+          </li>
+          <li class="mb-4">
+            <a href="/page/offre-communicants/" class="hover:underline">Pour les communicants</a>
+          </li>
+          <li class="mb-4">
+            <a href="/page/offre-experts/" class="hover:underline">Pour les experts</a>
+          </li>
+          <li class="mb-4">
+            <a href="/page/offre-entreprises/" class="hover:underline">Pour les entreprises</a>
+          </li>
+        </ul>
+      </div>
+
+      <div>
+        <h3
+            class="mb-6 font-semibold text-gray-900 uppercase dark:text-white"
+        >
+          Contacts
+        </h3>
+        <ul class="text-gray-500 dark:text-gray-400">
+          <li class="mb-4">
+            <a href="/page/contact#mail" class="hover:underline">Mail</a>
+          </li>
+          <li class="mb-4">
+            <a href="/page/contact#tel" class="hover:underline">Téléphone</a>
+          </li>
+          <li class="mb-4">
+            <a href="/page/contact#fax" class="hover:underline">Fax</a>
+          </li>
+          <li class="mb-4">
+            <a href="/page/contact#pigeon" class="hover:underline">Pigeons voyageurs</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <hr class="my-4 border-gray-200 sm:mx-auto dark:border-gray-700 lg:my-8"/>
+
+    <div class="text-center text-sm">
+      <a
+          href="#"
+          class="flex items-center justify-center mb-4 text-2xl font-semibold text-gray-900 dark:text-white"
+      >
+        {#        <img#}
+        {#          src="./images/logo.svg"#}
+        {#          class="h-6 mr-3 sm:h-9"#}
+        {#          alt="Landwind Logo"#}
+        {#        />#}
+        AIPress24
+      </a>
+
+      <div class="block text-sm text-center text-gray-500 dark:text-gray-400">
+        © 2022-2024 <a class="underline" href="https://agencetca.info/">Agence TCA</a>.
+        Tous droits réservés.
+        Application réalisée par <a class="underline" href="https://abilian.com">Abilian</a>.
+        <br class="my-2">
+        Version: {{ app_version }}.
+        Temps de génération: {{ "%.3f" | format(g.timer.elapsed()) }}s.
+      </div>
+
+      {% include "fragments/footer-logos.html" %}
+
+    </div>
+  </div>
+</footer>

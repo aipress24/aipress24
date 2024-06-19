@@ -1,0 +1,118 @@
+{% if experts %}
+  <div id="experts">
+    <h2 class="aui-title mt-8">
+      {% if experts|length == 50 %}
+        Plus de 50 experts trouvés (affichage limité à 50)
+      {% else %}
+        Experts ({{ experts|length }} experts trouvés)
+      {% endif %}
+    </h2>
+
+    <p class="mb-8">Choisissez les experts que vous souhaitez solliciter dans la liste suivante:</p>
+
+    <form>
+      <div class="overflow-x-auto">
+        <table class="dui-table dui-table-zebra border">
+          <!-- head -->
+          <thead>
+          <tr>
+            <th></th>
+            <th>Nom</th>
+            <th>Organisation</th>
+            <th>Titre</th>
+          </tr>
+          </thead>
+          <tbody>
+
+          {% for expert in experts %}
+            {% set organisation = expert.organisation %}
+            <tr>
+              <th><input name="expert:{{ expert.id }}" type="checkbox"/></th>
+              <td><a
+                  class="hover:underline"
+                  href="{{ url_for(expert) }}">{{ expert.name }}</a>
+              </td>
+              <td><a
+                  class="hover:underline"
+                  href="{{ url_for(organisation) }}">{{ organisation.name }}</a>
+              </td>
+              <td>{{ expert.job_title }}</td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mt-8">
+        <input
+            hx-post=""
+            hx-target="body"
+            type="submit"
+            class="aui-button"
+            name="action:add" value="Valider / mettre à jour la sélection">
+      </div>
+    </form>
+  </div>
+{% endif %}
+
+
+<h2 class="aui-title mt-8">
+  Experts sélectionnés ({{ selected_experts|length }})
+</h2>
+
+{% if selected_experts %}
+  <p class="mb-8">Vous avez choisi de contacter les experts suivants:</p>
+
+  <form>
+    <div class="overflow-x-auto">
+      <table class="dui-table dui-table-zebra border">
+        <!-- head -->
+        <thead>
+        <tr>
+          <th></th>
+          <th>Nom</th>
+          <th>Organisation</th>
+          <th>Titre</th>
+        </tr>
+        </thead>
+        <tbody>
+
+        {% for expert in selected_experts %}
+          {% set organisation = expert.organisation %}
+          <tr>
+            <th><input name="expert:{{ expert.id }}" type="checkbox" checked/></th>
+            <td><a
+                class="hover:underline"
+                href="{{ url_for(expert) }}">{{ expert.name }}</a>
+            </td>
+            <td><a
+                class="hover:underline"
+                href="{{ url_for(organisation) }}">{{ organisation.name }}</a>
+            </td>
+            <td>{{ expert.job_title }}</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="mt-8">
+      <input
+          hx-post=""
+          hx-target="body"
+          type="submit"
+          name="action:update"
+          class="aui-button mr-4"
+          value="Mettre à jour la sélection">
+      <input
+          hx-post=""
+          hx-target="body"
+          type="submit"
+          name="action:confirm"
+          class="aui-button aui-button-primary"
+          value="Envoyer la demande">
+    </div>
+  </form>
+{% else %}
+  <p>Vous n'avez encore sélectionné aucun expert</p>
+{% endif %}

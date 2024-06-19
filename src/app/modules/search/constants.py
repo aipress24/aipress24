@@ -1,0 +1,70 @@
+# Copyright (c) 2021-2024 - Abilian SAS & TCA
+#
+# SPDX-License-Identifier: AGPL-3.0-only
+
+from __future__ import annotations
+
+from typing import Any
+
+from app.models.auth import User
+from app.models.content import Article, Event, Image, PressRelease
+from app.models.orgs import Organisation
+from app.modules.swork.models import Group
+
+COLLECTIONS: list[dict[str, Any]] = [
+    {
+        "name": "all",
+        "label": "Tout",
+        "icon": "rectangle-stack",
+        "class": None,
+    },
+    {
+        "name": "articles",
+        "label": "Articles",
+        "icon": "newspaper",
+        "class": Article,
+    },
+    {
+        "name": "images",
+        "label": "Images",
+        "icon": "photograph",
+        "class": Image,
+    },
+    # {
+    #     "name": "videos",
+    #     "label": "Vidéos",
+    #     "icon": "film",
+    #     # TODO: video
+    #     "class": Image,
+    # },
+    {
+        "name": "press-releases",
+        "label": "Communiqués",
+        "icon": "speaker-wave",
+        "class": PressRelease,
+    },
+    {
+        "name": "events",
+        "label": "Evénements",
+        "icon": "calendar",
+        "class": Event,
+    },
+    {
+        "name": "members",
+        "label": "Membres",
+        "icon": "user",
+        "class": User,
+    },
+    {
+        "name": "orgs",
+        "label": "Entreprises",
+        "icon": "building-office",
+        "class": Organisation,
+    },
+    {
+        "name": "groups",
+        "label": "Groupes",
+        "icon": "user-group",
+        "class": Group,
+    },
+]

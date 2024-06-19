@@ -1,0 +1,247 @@
+# Copyright (c) 2021-2024 - Abilian SAS & TCA
+#
+# SPDX-License-Identifier: AGPL-3.0-only
+
+from __future__ import annotations
+
+import abc
+
+from arrow import utcnow
+from flask import flash, g, redirect, request, url_for
+from flask_classful import FlaskView, route
+from lxml import etree
+from svcs.flask import container
+from werkzeug import Response
+from wtforms import Form as WTForm
+
+from app.flask.lib.breadcrumbs import BreadCrumb
+from app.flask.lib.templates import templated
+from app.flask.lib.wtforms.renderer import FormRenderer
+from app.modules.wip.crud.cbvs._table import BaseTable
+from app.modules.wip.menu import make_menu
+from app.services.blobs import BlobService
+from app.services.context import Context
+from app.services.menus import MenuService
+from app.services.repositories import Repository
+
+# language=jinja2
+LIST_TEMPLATE = """
+{% extends "wip/layout/_base.j2" %}
+{% block body_content %}
+  {{ table.render() }}
+{% endblock %}
+"""
+
+# language=jinja2
+UPDATE_TEMPLATE = """
+{% extends "wip/layout/_base.j2" %}
+{% block body_content %}
+  {{ form_rendered|safe }}
+{% endblock %}
+"""
+
+# language=jinja2
+VIEW_TEMPLATE = """
+{% extends "wip/layout/_base.j2" %}
+{% block body_content %}
+  {{ form_rendered|safe }}
+{% endblock %}
+"""
+
+
+def get_name(obj):
+    return obj.name if obj else ""
+
+
+class BaseWipView(FlaskView, abc.ABC):
+    name: str
+    model_class: type
+    form_class: type[WTForm]
+    repo_class: type[Repository]
+    table_class: type[BaseTable]
+    doc_type: str
+
+    # UI
+    label_main: str
+    label_list: str
+    label_new: str
+    label_edit: str
+    label_view: str
+    icon: str
+    msg_delete_ok: str
+    msg_delete_ko: str
+    table_id: str
+
+    route_prefix = "/wip/"
+
+    def before_request(self, *_args, **_kwargs):
+        menu_service = container.get(MenuService)
+        menu_service.update(self._menus())
+
+    def htmx(self) -> str:
+        html = self.index().render()
+        parser = etree.HTMLParser()
+        tree = etree.fromstring(html, parser)  # noqa: S320
+        node = tree.xpath(f'//*[@id="{self.table_id}"]')[0]
+        return etree.tostring(node)
+
+    def _make_table(self, q="") -> BaseTable:
+        table = self.table_class(q)
+        table._action_url = self._url_for("htmx")
+        return table
+
+    # Exposed methods
+    @templated(LIST_TEMPLATE)
+    def index(self) -> dict:
+        q = request.args.get("q")
+        self.update_breadcrumbs()
+        return {
+            "title": self.label_main,
+            "table": self._make_table(q),
+        }
+
+    @templated(VIEW_TEMPLATE)
+    def get(self, id):
+        model = self._get_model(id)
+        title = f"{self.label_view} '{model.title}'"
+        return self._view_ctx(model, title=title, mode="view")
+
+    @templated(UPDATE_TEMPLATE)
+    def new(self) -> dict:
+        return self._view_ctx(title="Création")
+
+    @templated(UPDATE_TEMPLATE)
+    def edit(self, id):
+        model = self._get_model(id)
+        title = f"{self.label_edit} '{model.title}'"
+        return self._view_ctx(model, title=title)
+
+    @templated(UPDATE_TEMPLATE)
+    def post(self) -> Response | dict:
+        repo = self._get_repo()
+
+        form_data = request.form
+
+        if form_data["_action"] == "cancel":
+            return redirect(self._url_for("index"))
+
+        form = self.form_class(form_data)
+
+        if not form.validate():
+            return self._view_ctx(form=form)
+
+        if id := request.form.get("id"):
+            model = self._get_model(id)
+        else:
+            model = self.model_class()
+            model.owner = g.user
+            # FIXME
+            model.media = g.user.organisation
+            model.commanditaire_id = g.user.id
+
+        form.populate_obj(model)
+        self._post_update_model(model)
+
+        repo.add(model, auto_commit=True)
+
+        flash("Enregistré")
+        return redirect(self._url_for("index"))
+
+    def _view_ctx(self, model=None, form=None, mode="edit", title=""):
+        self.update_breadcrumbs(label=title)
+
+        if not form:
+            form = self.form_class(obj=model)
+
+        endpoint = f"{self.__class__.__name__}:post"
+        renderer = FormRenderer(
+            form,
+            model=model,
+            mode=mode,
+            action_url=url_for(endpoint),
+        )
+
+        return {
+            "title": title,
+            "form_rendered": renderer.render(),
+        }
+
+    def _update_model(self, form, model):
+        repo = self._get_repo()
+
+        if not model:
+            model = self.model_class()
+            model.owner = g.user
+            # FIXME
+            model.media = g.user.organisation
+            model.commanditaire_id = g.user.id
+
+        blob_service = container.get(BlobService)
+        files = request.files
+        # FIXME
+        if "image" in files:
+            blob = blob_service.save(files["image"])
+            if blob.size > 0:
+                model.image_id = blob.id
+
+        form.populate_obj(model)
+        self._post_update_model(model)
+
+        repo.add(model, auto_commit=True)
+
+    @route("/<id>/delete", methods=["GET"])
+    def delete(self, id):
+        repo = self._get_repo()
+        model = self._get_model(id)
+
+        if model.owner != g.user:
+            flash(self.msg_delete_ko)
+            return redirect(self._url_for("index"))
+
+        model.deleted_at = utcnow()
+        repo.update(model, auto_commit=True)
+
+        flash(self.msg_delete_ok)
+        return redirect(self._url_for("index"))
+
+    # Common methods
+
+    def _post_update_model(self, model):
+        """Implemented in subclass, if neeeded"""
+
+    def _url_for(self, _action="get", **kwargs):
+        class_name = self.__class__.__name__
+        return url_for(f"{class_name}:{_action}", **kwargs)
+
+    def _menus(self):
+        return {
+            "secondary": make_menu(self.name),
+        }
+
+    def update_breadcrumbs(self, key="", label=""):
+        context = container.get(Context)
+        breadcrumbs = [
+            BreadCrumb(
+                label="Work",
+                url=url_for("wip.wip"),
+            ),
+            BreadCrumb(
+                label=self.label_list,
+                url=self._url_for("index"),
+            ),
+        ]
+        if key == "new":
+            bc = BreadCrumb(label=self.label_new, url="")
+            breadcrumbs.append(bc)
+        if label:
+            bc = BreadCrumb(label=label, url="")
+            breadcrumbs.append(bc)
+
+        context.update(breadcrumbs=breadcrumbs)
+
+    def _get_repo(self):
+        return container.get(self.repo_class)
+
+    def _get_model(self, id):
+        repo = self._get_repo()
+        return repo.get(id)

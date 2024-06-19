@@ -1,0 +1,41 @@
+{% include "pages/member/member--tab-bar.j2" %}
+
+<!-- Description list -->
+<div class="py-6 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+  <h2 class="text-lg font-medium mb-2">Groupes</h2>
+
+  {% if profile.groups | length == 0 %}
+    <p>{{ profile.name }} ne fait partie d'aucun groupe.</p>
+
+  {% else %}
+    <p>Les groupes de {{ profile.name }}:</p>
+
+    <ul role="list" class="mt-4 relative z-0 divide-y divide-gray-200">
+
+      {% for group in profile.groups %}
+        <li>
+          <a
+              href="{{ url_for(group) }}"
+              class="py-3 flex items-center space-x-3 hover:bg-gray-50"
+          >
+            <div class="flex-shrink-0">
+              <img
+                  class="h-10 w-10 border-2 border-gray-100"
+                  src="{{ group.logo_url }}"
+                  alt=""
+              />
+            </div>
+            <div class="flex-1 min-w-0">
+              <!-- Extend touch target to entire panel -->
+              <span class="inset-0" aria-hidden="true"/>
+              <p class="text-sm font-medium text-gray-900">
+                {{ group.name }}<br>
+                <span class="font-normal text-gray-500">{{ group.num_members }} membre(s)</span>
+              </p>
+            </div>
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+</div>

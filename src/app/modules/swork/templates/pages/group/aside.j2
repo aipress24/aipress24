@@ -1,0 +1,14 @@
+{% from "macros/swork/_macros.j2" import format_activity %}
+
+<div class="bg-white px-4 py-5 shadow sm:rounded-lg sm:px-6">
+  <h2 class="text-lg font-medium text-gray-900">Activités dans le groupe</h2>
+
+  <!-- Activity Feed -->
+  <div class="mt-6 flow-root">
+    <ul role="list" class="-mb-8">
+      {% for activity, msg in group.timeline %}
+        {{ format_activity(activity, msg, loop.last) }}
+      {% endfor %}
+    </ul>
+  </div>
+</div>

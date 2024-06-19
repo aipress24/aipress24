@@ -1,0 +1,138 @@
+<script>
+  const options = {
+    "columns": {{ table.columns | tojson }},
+    "url": {{ table.data_source | tojson }},
+    'limit': 25,
+  }
+
+  function onRowClicked(e, url) {
+    window.location = url;
+  }
+</script>
+
+<div x-data="AbilianTable(options)">
+  <div class="w-full border-1 border-gray-200 rounded shadow">
+
+    <div>
+      <div class="flex items-center justify-between p-2 h-14">
+        <div>
+        </div>
+
+        <div class="w-full md:w-auto flex items-center gap-2 md:max-w-md">
+          <div class="flex-1">
+            <div>
+              <label for="tableSearchQueryInput" class="sr-only">
+                Search
+              </label>
+
+              <div class="relative group">
+                  <span
+                      class="absolute inset-y-0 left-0 flex items-center justify-center w-9 h-9 text-gray-400 pointer-events-none group-focus-within:text-primary-500">
+                      {{ icon("magnifying-glass", class="h-5 w-5") }}
+                  </span>
+
+                <input id="tableSearchQueryInput" placeholder="Search"
+                       type="search" autocomplete="off"
+                       x-model="params.search" @keyup.debounce.350="doSearch()"
+                       class="block w-full h-9 pl-9 placeholder-gray-400 transition duration-75 border-gray-200 rounded-lg shadow-sm focus:border-primary-600 focus:ring-1 focus:ring-inset focus:ring-primary-600">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="table overflow-x-auto text-sm">
+        <thead>
+        <tr class="h-8">
+          {% for col in table.columns %}
+            <th class="px-4 py-2">
+              <button wire:click="sortTable('{{ col.name }}')" type="button"
+                      class="flex items-center whitespace-nowrap space-x-1 rtl:space-x-reverse font-medium text-sm text-gray-600">
+                {{ col.label }}
+              </button>
+            </th>
+          {% endfor %}
+        </tr>
+        </thead>
+
+        <tbody>
+        <template x-for="row in rows">
+          <tr @click="onRowClicked($event, row['$url'])" :data-id="row['$url']" class="">
+            <template x-for="col in settings.columns">
+              <td :style="'width: ' + col.width + 'px;'" :width="col.width"
+                  class="truncate">
+                  <span class="truncate" x-html="row[col.name]"
+                        :style="'width: ' + col.width + 'px;'"
+                  ></span>
+              </td>
+            </template>
+          </tr>
+        </template>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="p-2 border-t">
+      <nav role="navigation" aria-label="Pagination Navigation" class="flex items-center justify-between">
+        <div class="hidden flex-1 items-center lg:grid grid-cols-3">
+          <div class="flex items-center">
+            <div class="pl-2 text-sm font-medium">
+              <p x-html="meta.status"></p>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-center">
+            <div class="flex items-center space-x-2 rtl:space-x-reverse">
+              <select @change="setLimit()" x-model="params.limit"
+                      class="h-8 text-sm pr-8 leading-none transition duration-75 border-gray-200 rounded-lg shadow-sm focus:border-primary-600 focus:ring-1 focus:ring-inset focus:ring-primary-600"
+              >
+                <option value="10">10</option>
+                <option value="15">15</option>
+                <option value="25">25</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+              </select>
+
+              <label for="tableRecordsPerPageSelect" class="text-sm font-medium">
+                par page
+              </label>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-end">
+            <div class="py-3 border rounded-lg">
+              <ol class="flex items-center text-sm text-gray-500 divide-x divide-gray-300">
+
+                <li>
+                  <button type="button"
+                          class="relative flex items-center justify-center font-medium min-w-[2rem] px-1.5 h-8 -my-3 rounded-md focus:outline-none hover:bg-gray-500/5 focus:bg-primary-500/10 focus:ring-2 focus:ring-primary-500 transition text-primary-600"
+                          @click="goPrevPage()"
+                          :disabled="getCurrentPage() == 0"
+                          aria-label="Next" rel="next">
+                    {{ icon("chevron-left", class="w-5 h-5 rtl:rotate-180") }}
+                    <span></span>
+                  </button>
+                </li>
+
+                <li>
+                  <button type="button"
+                          class="relative flex items-center justify-center font-medium min-w-[2rem] px-1.5 h-8 -my-3 rounded-md focus:outline-none hover:bg-gray-500/5 focus:bg-primary-500/10 focus:ring-2 focus:ring-primary-500 transition text-primary-600"
+                          @click="goNextPage()"
+                          :disabled="getCurrentPage() == getTotalPages()"
+                          aria-label="Next" rel="next">
+                    {{ icon("chevron-right", class="w-5 h-5 rtl:rotate-180") }}
+                    <span></span>
+                  </button>
+                </li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </div>
+  </div>
+</div>
+
+<script src="/cdn/abilian-table.js"></script>

@@ -1,0 +1,11 @@
+<section class="p-4 bg-white shadow sm:rounded">
+  <h2 class="aui-title mb-4">Présentation</h2>
+
+  <div class="prose xl:prose-lg max-w-full">
+    {{ event.content }}
+  </div>
+</section>
+
+{#{% include "pages/event--metadata.j2" %}#}
+
+{% include "pages/event--participants.j2" %}

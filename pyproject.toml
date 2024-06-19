@@ -1,0 +1,408 @@
+
+#
+# SPDX-License-Identifier: AGPL-3.0-only
+
+[tool.poetry]
+name = "aipress24-flask"
+version = "2024.06.17.5"
+description = ""
+authors = ["Stefane Fermigier <sf@abilian.com>"]
+
+packages = [{ include = "app", from = "src" }]
+exclude = ["**/test_*.py", "**/*_test.py", "**/tests.py"]
+
+# -----------------------------------------------------------------------------
+
+[tool.poetry.dependencies]
+python = "^3.10"
+
+# Flask
+flask = "^3.0.0"
+
+# Make implicit deps explicit
+click = "^8.1.7"
+jinja2 = "^3.1.3"
+markupsafe = "^2.1.3"
+pytz = "^2024"
+werkzeug = "^3.0.1"
+wtforms = "^3.1.2"
+blinker = "^1.7.0"
+
+# Flask extensions
+flask-babel = "^4.0.0"
+flask-classful = "^0.16.0"
+flask-htmx = "^0.3"
+flask-login = "^0.6.2"
+flask-mailman = "^1.0.0"
+flask-migrate = "^4.0.5"
+flask-security-too = "^5.3.3"
+flask-sqlalchemy = "^3.1.1"
+flask-super = "^0.2.3"
+flask-talisman = "^1.1.0"
+flask-vite = "^0.4"
+flask-wtf = "^1.2.1"
+
+# flask-httpauth = "^4.7.0"
+# flask-session = "^0.4.0"
+# flask-mailing = "^0.2.2"
+
+# htmx
+jinja2-fragments = "^1.2.1"
+
+# Config
+python-dotenv = "^1.0.0"
+dynaconf = "^3.2.4"
+
+# More Web
+webargs = "^8.4.0"
+webbits = "^0.1.2"
+# viewdom = "^0.5.1"
+
+# Generic Libs
+arrow = "^1.3.0"
+python-slugify = "^8.0.1"
+toml = "^0.10.2"
+tomli = "^2.0.1"
+pipe = "^2.1"
+attrs = "^23.2.0"
+boltons = "^24"
+
+# Removed for now (?)
+# python-benedict = "^0.24.3"
+# ubelt = "^0.10.2"
+# python-dateutil = "^2.8.2"
+# yarl = "^1.7.2"
+
+# ORM & Database
+sqlalchemy = "^2.0.25"
+sqlalchemy-utils = "^0.41.1"
+advanced-alchemy = "^0.13"
+psycopg2-binary = "^2.9.9"
+# Next...
+# psycopg = "^3"
+
+# Data
+# Country / language code
+python-iso639 = "^2024.1.2"
+
+# Prod
+gunicorn = "^22"
+honcho = "^1.1.0"
+# sentry-sdk = "^2"
+
+# CLI
+rich = "^13.7.0"
+
+# Debug / develop (currently used in prod too)
+devtools = "^0.12.2"
+snoop = "^0.4.3"
+
+# Images
+pillow = "^10.2.0"
+
+# Full text search
+typesense = "^0.21"
+# Used to remove tags from HTML
+beautifulsoup4 = "^4.12.2"
+
+# Payments ?
+stripe = "^9"
+
+# More deps
+loguru = "^0.7.2"
+markdown = "^3.5.2"
+
+# Queues (TODO: choose which one we use)
+# wakaq = "^2.0.2"
+dramatiq = "^1.15.0"
+dramatiq-pg = "^0.11.0"
+apscheduler = "^3.10.4"
+#dramatiq-dashboard = "^0.4.0"
+redis = "^5.0.1"
+
+# Maybe will be used one day
+# alchemical = "^0.6.0"
+
+# Needed because we're scanning code w/ tests
+pytest = "^8"
+hypothesis = "^6.92.8"
+
+# Fake data generators (used currently in prod, will be removed later)
+faker = "^25"
+mimesis = "^17"
+
+# PDF generation
+weasyprint = "^62"
+
+# Security / auth
+zxcvbn = "^4.4.28"
+bcrypt = "^4.1.2"
+phonenumbers = "^8.13.27"
+authlib = "^1.3.0"
+python-jose = {extras = ["cryptography"], version = "^3.3.0"}
+
+#furl = "^2.1.3"
+#geoip2 = "^4.6.0"
+#better-profanity = "^0.7.0"
+#oauth2client = "^4.1.3"
+#oauth2 = "^1.9.0.post1"
+#tweepy = "^4.13.0"
+#markdown-it-py = "^2.2.0"
+#mdit-py-plugins = "^0.3.5"
+#qrcode = "^7.4.2"
+#chevron = "^0.14.0"
+
+# Screenshots and blob storage
+# Not used yet
+# shot-scraper = "^1.2"
+
+boto3 = "^1.34.16"
+#uuid = "^1.30"
+
+# Service location
+svcs = "^24.1.0"
+
+# Misc libs
+case-convert = "^1.1.0"
+cleez = "^0.1.11"
+defusedxml = "^0.7.1"
+lxml = "^5.1.0"
+nodeenv = "^1.8.0"
+python-dateutil = "^2.8.2"
+requests = "^2.31.0"
+yarl = "^1.9.4"
+aenum = "^3.1.15"
+
+
+[tool.poetry.group.dev.dependencies]
+# Main QA tools
+abilian-devtools = "^0.5.11"
+
+#
+flask-debugtoolbar = "^0.15"
+
+# used while developing
+openpyxl = "^3.1.2"
+
+# Used to parse Wikinews
+pijnu = "20160727"
+
+# More flake8 plugins
+flake8-requirements = "^2.0.1"
+flake8-use-pathlib = "^0.3.0"
+# tryceratops = "^2.0.0"
+
+# Testing & automation
+nox = "^2024"
+invoke = "^2.2.0"
+pytest-flask = "^1.3.0"
+pytest-custom-exit-code = "^0.3.0"
+pytest-split = "^0.8.1"
+pytest-archon = "^0.0.6"
+pytest-testmon = "^2.1.0"
+pytest-watcher = "^0.4"
+hypothesis = "^6.92.8"
+
+# Typing extensions
+types-bleach = "^6"
+types-chardet = "^5"
+types-deprecated = "^1"
+types-markdown = "^3"
+types-python-dateutil = "^2"
+types-python-slugify = "^8"
+types-pytz = "^2024"
+types-pyyaml = "^6"
+types-redis = "^4"
+types-requests = "^2"
+types-setuptools = "^70"
+types-toml = "^0.10"
+
+# More linters / typecheckers / tools
+import-linter = "^2.0"
+autotyping = "^24"
+typeguard = "^4.1"
+
+# Temp
+
+# Supply chain
+pip-licenses = "^4.3.3"
+# fawltydeps = "^0.10.0"
+
+# Tools
+pyupgrade = "^3.15.0"
+tomlkit = "^0.12.1"
+
+# Alternative to deptry
+# creosote = "^2.6.0"
+
+# Needed ?
+# openpyxl = "^3.0.10"
+
+# More
+# semgrep = "^1.17.1"
+#mwparserfromhtml = "^0.0.5"
+
+# e2e tests
+playwright = "*"
+pytest-playwright = "*"
+selenium = "*"
+behave = "*"
+coverage = { extras = ["toml"], version = "^7.4.0" }
+lxml = "*"
+cssselect = "*"
+
+# More tools
+sqlalchemy-data-model-visualizer = "^0.1.3"
+deptry = "^0.16"
+shed = "^2024.1.1"
+buildstr = "^0.1.1"
+splinter = "^0.21.0"
+infer-types = "^1.0.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0", "nodeenv", "devtools"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.build]
+generate-setup-file = false
+script = "scripts/pre-build.py"
+
+# -----------------------------------------------------------------------------
+
+[tool.pytest]
+python_files = "test_*.py *_test.py tests.py"
+
+[tool.pytest.ini_options]
+addopts = "--disable-warnings --disable-pytest-warnings --ignore=src/app/sandbox/ --tb=short --doctest-modules"
+filterwarnings = [
+    'ignore:.*contextfunction.*:DeprecationWarning',
+    'ignore:.*Unmanaged.*:sqlalchemy.exc.SAWarning'
+]
+testpaths = [
+    "tests",
+    "src",
+]
+
+# -----------------------------------------------------------------------------
+
+[tool.pyanalyze]
+paths = ["src/"]
+import_paths = ["."]
+
+
+# -----------------------------------------------------------------------------
+
+[tool.deptry.per_rule_ignores]
+# X defined as a dependency but not used in the codebase
+DEP002 = [
+    # Used (implicitely) by Flask-Login (I think)
+    'zxcvbn',
+    'bcrypt',
+    # Used (implicitely) by Flask (I think)
+    'python-dotenv',
+    # Used (implicitely) by SQLA
+    # 'psycopg2',
+    'psycopg2-binary',
+    #
+    'python-iso639',
+    # Web server
+    'gunicorn',
+    'honcho',
+    # Used by dramatic (?)
+    'redis',
+    # Used as a script
+    'shot-scraper',
+    # Used during install
+    'nodeenv',
+    # ???
+    'case-convert',
+    'defusedxml',
+    # Not used (yet?)
+    'phonenumbers',
+    'jinja2-fragments',
+    'pluggy',
+    # Can be removed (I think)
+    'dramatiq-pg',
+]
+# X imported but declared as a dev dependency
+DEP004 = [
+    'hypothesis',
+    'openpyxl',
+    "flask_debugtoolbar",
+]
+
+# -----------------------------------------------------------------------------
+
+[tool.pyright]
+exclude = [
+    '.nox',
+    'tests',
+    'sandbox',
+    'doc',
+    'scripts',
+    'tmp',
+    "src/app/modules/superadmin",
+]
+include = ["src"]
+
+# False positives
+reportPrivateImportUsage = false
+reportFunctionMemberAccess = false
+
+# Enable later
+reportGeneralTypeIssues = false
+reportIncompatibleMethodOverride = false
+reportIncompatibleVariableOverride = false
+
+# -----------------------------------------------------------------------------
+
+[tool.vulture]
+ignore_decorators = [
+    "@blueprint.before_request",
+    "@expose",
+]
+
+exclude = [
+    "src/app/models/geo.py",
+]
+#ignore_names = ["visit_*", "do_*"]
+#make_whitelist = true
+#min_confidence = 80
+#paths = ["myscript.py", "mydir"]
+#sort_by_size = true
+#verbose = true
+
+# -----------------------------------------------------------------------------
+
+[tool.bandit]
+skips = [
+    "B404", # blacklist
+    "B603", # subprocess_without_shell_equals_true
+    "B101", # assert_used
+    # FIXME later
+    "B311", # blacklist
+]
+
+exclude_dirs = [
+    "tests",
+    "src/app/flask/cli/bootstrap.py",
+    "src/app/faker",
+    "conftest.py",
+]
+
+
+# -----------------------------------------------------------------------------
+
+[tool.coverage.run]
+omit = ["tests/*.py", "**/test*.py", "**/*test.py"]
+
+[tool.coverage.report]
+show_missing = true
+exclude_lines = [
+    'pragma: no cover',
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "if typing.TYPE_CHECKING:",
+    "raise AssertionError",
+    "raise NotImplementedError",
+]

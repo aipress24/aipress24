@@ -1,0 +1,120 @@
+{% set seller = item.owner %}
+
+<div class="bg-gray-100 border-b border-gray-200 mb-4 sticky top-0">
+  <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+
+    <a href="#product"
+       class="border-purple-500 text-purple-600 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
+       x-state-description="undefined: &quot;border-purple-500 text-purple-600&quot;, undefined: &quot;border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-200&quot;">
+      Produit
+    </a>
+
+    <a href="#seller"
+       class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-200 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
+       x-state-description="undefined: &quot;border-purple-500 text-purple-600&quot;, undefined: &quot;border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-200&quot;">
+      Vendeur
+    </a>
+
+    <a href="#order"
+       class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-200 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
+       x-state:on="Current" x-state:off="Default"
+       x-state-description="Current: &quot;border-purple-500 text-purple-600&quot;, Default: &quot;border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-200&quot;">
+      Commande
+    </a>
+  </nav>
+</div>
+
+<div class="sm:px-6 bg-white shadow sm:rounded py-6">
+  <a name="product"></a>
+  <div
+      class="md:flex md:items-center md:justify-between md:space-x-4 lg:border-b lg:pb-6"
+  >
+    <div class="">
+      <h2 class="text-2xl font-bold text-gray-900 mb-4">
+        Description du produit: Article
+      </h2>
+
+      <h2 class="text-xl font-bold text-gray-700">{{ item.title }}</h2>
+
+      <p class="mt-2 text-sm text-gray-500">
+        Posté par
+        <a href="{{ url_for(seller) }}"
+           class="font-medium text-gray-900">{{ seller.full_name }}</a>,
+        le
+        {{ item.created_at.format("DD MMMM YYYY, à HH:mm", locale="fr") }}.
+        {% if item.created_at != item.modified_at %}
+          Dernière modification le
+          {{ item.modified_at.format("DD MMMM YYYY, à HH:mm", locale="fr") }}.
+        {% endif %}
+      </p>
+
+      <img class="w-full my-4 rounded" src="{{ item.image_url }}" alt=""/>
+
+      <div class="mt-5 content">
+        <div class="font-bold">Description:</div>
+        {{ item.description }}
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="mt-4 sm:px-6 bg-white shadow sm:rounded py-4 lg:py-6">
+  <a name="seller"></a>
+
+  <h2 class="text-2xl font-bold text-gray-900 mb-4">A propos du vendeur</h2>
+
+  <div class="">
+    <div class="flex items-start space-x-5">
+      <div class="flex-shrink-0">
+        <div class="relative">
+          <img class="h-16 w-16 rounded-full"
+               src="{{ seller.profile_image_url }}"
+               alt="">
+          <span class="absolute inset-0 shadow-inner rounded-full" aria-hidden="true"></span>
+        </div>
+      </div>
+
+      <div>
+        <h3 class="text-xl font-bold text-gray-800">
+          <a href="{{ url_for(seller) }}" class="">{{ seller.name }}</a>
+        </h3>
+        <p class="text-sm font-medium text-gray-500">
+          {{ seller.job_title }} chez {{ seller.organisation_name }}
+        </p>
+      </div>
+    </div>
+
+    <dl class="py-5 grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
+      <div class="sm:col-span-1">
+        <dt class="text-sm font-medium text-gray-500">
+          Localisation
+        </dt>
+        <dd class="mt-1 text-sm text-gray-900">
+          Paris, France
+        </dd>
+      </div>
+
+      <div class="sm:col-span-1">
+        <dt class="text-sm font-medium text-gray-500">
+          Membre depuis
+        </dt>
+        <dd class="mt-1 text-sm text-gray-900">
+          2022
+        </dd>
+      </div>
+
+      <div class="sm:col-span-2">
+        <dt class="text-sm font-medium text-gray-500">
+          A propos
+        </dt>
+        <dd class="mt-1 text-sm text-gray-900">
+          {{ seller.job_description }}
+        </dd>
+      </div>
+    </dl>
+
+    <div class="mt-4">
+      <a href="{{ url_for(seller) }}" class="dui-btn dui-btn-outline dui-btn-sm">Profil complet</a>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,89 @@
+{% extends "wip/layout/_base.j2" %}
+
+
+{% macro render_media_opps(media_opps) %}
+  <div class="overflow-x-auto">
+    <table class="dui-table dui-table-zebra border w-full">
+      <!-- head -->
+      <thead>
+      <tr>
+        <th>Journaliste</th>
+        <th>Media</th>
+        <th>Titre</th>
+      </tr>
+      </thead>
+      <tbody>
+
+      {% for media_opp in media_opps %}
+        {% set organisation=media_opp.journaliste.organisation %}
+        <tr>
+          <td><a href="{{ url_for(media_opp.journaliste) }}"
+                 class="underline">
+            {{ media_opp.journaliste.name }}
+          </a></td>
+          <td><a href="{{ url_for(organisation) }}"
+                 class="underline">
+            {{ organisation.name }}
+          </a></td>
+          <td><a href="{{ url_for(".media_opportunity", id=media_opp.id) }}"
+                 class="underline">
+            {{ media_opp.titre }}
+          </a></td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endmacro %}
+
+{% block body_content %}
+  {% if g.user.has_role("EXPERT") %}
+    {# TODO: if has_role("expert")... #}
+    <h2 class="text-lg font-medium text-gray-900 mb-4">Opportunités d'exposition média</h2>
+
+    <div class="">
+      {% if media_opportunities %}
+        {{ render_media_opps(media_opportunities) }}
+      {% else %}
+        <p>Aucune opportunité d'exposition média pour le moment.</p>
+      {% endif %}
+    </div>
+  {% endif %}
+
+  <h2 class="text-lg font-medium text-gray-900 mt-8 mb-4">Opportunités d'emploi</h2>
+
+  <p>
+    [Des offres d'emploi sont automatiquement poussées par la marketplace vers le WIP du membre si elles correspondent
+    à ses compétences ou ses recherches.]</p>
+
+  <h2 class="text-lg font-medium text-gray-900 mt-8 mb-4">Opportunités de mission</h2>
+
+  <p>
+    [Des offres de mission ponctuelles sont automatiquement poussées par la marketplace vers le WIP du membre si elles
+    correspondent à ses compétences ou ses recherches.]
+  </p>
+
+  <h2 class="text-lg font-medium text-gray-900 mt-8 mb-4">Opportunités de stages</h2>
+
+  <p>
+    [Les demandes de stage émises par les étudiants sont automatiquement poussées par la marketplace vers le WIP du
+    membres si elles correspondent à ses recherches dans son entreprise.]
+  </p>
+
+  <h2 class="text-lg font-medium text-gray-900 mt-8 mb-4">Opportunités de partenariat</h2>
+
+  <p>
+    [Des offres de mutualisation de moyens, codéveloppement, co-opétition.]
+  </p>
+
+  <h2 class="text-lg font-medium text-gray-900 mt-8 mb-4">Opportunités de formation</h2>
+
+  <p>
+    [Des offres de formation sont automatiquement poussées vers le WIP du membre si elles correspondent à ses
+    recherches.]
+  </p>
+
+  <ul>
+    <li></li>
+  </ul>
+{% endblock %}

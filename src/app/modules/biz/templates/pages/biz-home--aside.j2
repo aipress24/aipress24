@@ -1,0 +1,26 @@
+{% from "macros/promo.j2" import promo_box with context %}
+
+<aside class="hidden lg:block lg:col-span-4">
+  <div class="top-4 space-y-4">
+
+    {{ promo_box("biz/1") }}
+    {{ promo_box("biz/2") }}
+
+    <section>
+      <div class="card p-0 border-0 bg-white rounded shadow">
+        <h2 id="sort" class="px-4 py-3 text-base font-medium text-gray-900 bg-gray-200">
+          Vos achats récents
+        </h2>
+        <div class="py-2 px-4 text-gray-700 text-sm">
+          <div class="my-3">
+            Vous n'avez encore effectué aucun achat sur AIpress24.
+          </div>
+          <div class="my-3">
+            <a href="#" class="underline text-blue-600">Voir tous vos achats.</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</aside>

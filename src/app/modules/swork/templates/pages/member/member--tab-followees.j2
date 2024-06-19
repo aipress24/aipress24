@@ -1,0 +1,18 @@
+{% from "macros/swork/_macros.j2" import m_user_list with context %}
+
+{% include "pages/member/member--tab-bar.j2" %}
+
+<div class="py-6 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+
+  <h2 class="text-lg font-medium mb-2">Abonnements</h2>
+
+  {% if profile.followees %}
+    <p>Les personnes suivies par {{ profile.full_name }}:</p>
+
+    <div class="flow-root mt-6 mb-2">
+      {{ m_user_list(profile.followees) }}
+    </div>
+  {% else %}
+    {{ profile.name }} ne suit personne.
+  {% endif %}
+</div>

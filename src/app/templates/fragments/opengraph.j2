@@ -1,0 +1,7 @@
+{%- if og_data is defined and og_data -%}
+  {% for k, v in og_data.items() -%}
+    {% if v -%}
+      <meta property="{{ k }}" content="{{ v }}"/>
+    {%- endif %}
+  {% endfor %}
+{%- endif -%}

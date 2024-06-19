@@ -1,0 +1,92 @@
+{% from "macros/swork/_macros.j2" import format_activity %}
+
+{% macro box(title, class="") %}
+  <div class="bg-white mt-6 shadow sm:rounded-md">
+    <h2 class="bg-gray-200 sm:rounded-t-md px-4 py-3 font-medium text-gray-800">{{ title }}</h2>
+
+    <div class="px-4 py-3">
+      {{ caller() }}
+    </div>
+  </div>
+{% endmacro %}
+
+<div class="bg-white shadow sm:rounded-md">
+  <h2 class="bg-gray-200 sm:rounded-t-md font-medium px-4 py-3 text-gray-900"
+  >Images à votre disposition</h2>
+
+  {{ component("slider") }}
+</div>
+
+{% if org.screenshot_id %}
+  <div class="mt-6 bg-white shadow sm:rounded-md">
+    <h2 class="bg-gray-200 sm:rounded-t-md font-medium px-4 py-3 text-gray-900">Site Web</h2>
+
+    <a href="{{ org.site_url }}">
+      <img src="{{ org.screenshot_url }}" alt="{{ org.name }}" class="w-100"/>
+    </a>
+  </div>
+{% endif %}
+
+{% call box("Recherches de collaborations ponctuelles") %}
+  <p>...</p>
+{% endcall %}
+
+{% call box("Appels à projets") %}
+  <p>...</p>
+{% endcall %}
+
+{% call box("Partenariats") %}
+  <p>...</p>
+{% endcall %}
+
+{% call box("Nos groupes thématiques") %}
+  <p>...</p>
+{% endcall %}
+
+{% call box("Job board") %}
+  <p>...</p>
+{% endcall %}
+
+{% call box("Dernières activités") %}
+  <!-- Activity Feed -->
+  <div class="mt-2 flow-root">
+    <ul role="list" class="-mb-8">
+      {% for activity, msg in org.timeline %}
+        {{ format_activity(activity, msg, loop.last) }}
+      {% endfor %}
+    </ul>
+  </div>
+{% endcall %}
+
+
+<script>
+  document.addEventListener('alpine:init', () => {
+    Alpine.data('slider', () => ({
+      currentIndex: 1,
+      images: [
+        'https://source.unsplash.com/800x600/?beach',
+        'https://source.unsplash.com/800x600/?cat',
+        'https://source.unsplash.com/800x600/?dog',
+        'https://source.unsplash.com/800x600/?lego',
+        'https://source.unsplash.com/800x600/?textures&patterns'
+      ],
+      back() {
+        if (this.currentIndex > 1) {
+          this.currentIndex = this.currentIndex - 1;
+        }
+      },
+      next() {
+        if (this.currentIndex < this.images.length) {
+          this.currentIndex = this.currentIndex + 1;
+        } else if (this.currentIndex <= this.images.length) {
+          this.currentIndex = this.images.length - this.currentIndex + 1
+        }
+      },
+      loop() {
+        setInterval(() => {
+          this.next();
+        }, 5000)
+      },
+    }))
+  })
+</script>

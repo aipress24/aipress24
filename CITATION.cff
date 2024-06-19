@@ -1,0 +1,28 @@
+cff-version: 1.2.0
+title: Aipress24
+message: 'If you use this software, please cite it as below.'
+type: software
+authors:
+  - given-names: Erick Haehnsen
+  - given-names: Stefane Fermigier
+  - given-names: Jérôme Dumonteil
+  - given-names: Visakh Unnikrishnan
+repository-code: 'https://github.com/aipress24/aipress24'
+url: 'https://aipress24.com/'
+abstract: >-
+    AIpress24 is an innovative digital platform designed to revolutionize the way journalists, news agencies, and media professionals collaborate and monetize their work. Developed by Techno-Chroniqueurs Associés with technical expertise from Abilian, AIpress24 aims to provide a comprehensive B2B environment tailored to the needs of the information and innovation sectors. The platform integrates several key features, including a collaborative newsroom, a professional social network, and a marketplace for editorial products and services. These features are designed to enhance productivity, foster community interaction, and create new revenue streams for journalists and media organizations.
+
+    The platform offers a range of tools and functionalities to support the entire news production process. These include content management, event scheduling, real-time collaboration, and a powerful search engine with access control. AIpress24 also incorporates social features like "Like," "Comment," and "Share" buttons, which help gauge the popularity and impact of news articles. Additionally, the platform introduces an innovative Reputational Performance Index (IRP) that evaluates journalists based on their interactions and contributions, providing valuable insights into their professional standing.
+
+    AIpress24 is built with a strong emphasis on transparency, security, and user control. The platform ensures that all interactions and transactions are securely managed and that only verified professionals can access and contribute to the ecosystem. While some advanced features require subscription-based access, the core functionalities are designed to be accessible to all registered users. By bringing together journalists, PR professionals, decision-makers, and researchers, AIpress24 aims to create a vibrant, collaborative environment that enhances the quality of journalism and accelerates innovation in the media industry.
+
+keywords:
+  - python
+  - web
+  - press
+  - news
+  - journalism
+  - marketplace
+license: AGPL
+version: 'N/A'
+date-released: 'N/A'

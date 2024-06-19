@@ -1,0 +1,80 @@
+{% extends "pages/preferences/_base.j2" %}
+
+{% block main %}
+  <p>
+    A qui accordez-vous le droit de vous contacter et comment ?
+  </p>
+
+
+  <form
+      class="divide-y divide-gray-200 lg:col-span-9"
+      action=""
+      method="POST"
+  >
+    <p>A qui accordez-vous le droit de vous envoyer des messages ? Cochez les cases (choix multiples).</p>
+
+    <p>A qui accordez-vous le droit de voir vos coordonnées ? Cochez les cases (choix multiples).</p>
+
+    <!-- Profile section -->
+    <div class="py-6 px-4 sm:p-6 lg:pb-8">
+      <div>
+        <h2 class="text-lg leading-6 font-medium text-gray-900">
+          A qui accordez-vous le droit de vous envoyer des messages ? Cochez les cases (choix multiples).
+        </h2>
+        <p class="mt-1 text-sm text-gray-500">
+          Attention, ces informations sont partagées avec les utilisateurs de la plateforme.
+        </p>
+      </div>
+
+      <div class="mt-6 grid grid-cols-12 gap-6">
+        <div class="col-span-12 sm:col-span-6">
+          <label
+              for="first-name"
+              class="block text-sm font-medium text-gray-700"
+          >A qui accordez-vous le droit de vous envoyer des messages ? Cochez les cases (choix multiples).</label
+          >
+          <input
+              type="text"
+              name="first-name"
+              value=""
+              id="first-name"
+              autocomplete="given-name"
+              class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-sky-500 focus:border-sky-500 sm:text-sm"
+          />
+        </div>
+
+        <div class="col-span-12 sm:col-span-6">
+          <label
+              for="last-name"
+              class="block text-sm font-medium text-gray-700"
+          >A qui accordez-vous le droit de voir vos coordonnées ? Cochez les cases (choix multiples).</label
+          >
+          <input
+              type="text"
+              name="last-name"
+              id="last-name"
+              value=""
+              autocomplete="family-name"
+              class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-sky-500 focus:border-sky-500 sm:text-sm"
+          />
+        </div>
+      </div>
+
+    </div>
+
+    <div class="mt-4 py-4 px-4 flex justify-end sm:px-6">
+      <button
+          type="button"
+          class="bg-white border border-gray-300 rounded-md shadow-sm py-2 px-4 inline-flex justify-center text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500"
+      >
+        Cancel
+      </button>
+      <button
+          type="submit"
+          class="ml-5 bg-sky-700 border border-transparent rounded-md shadow-sm py-2 px-4 inline-flex justify-center text-sm font-medium text-white hover:bg-sky-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500"
+      >
+        Save
+      </button>
+    </div>
+  </form>
+{% endblock %}

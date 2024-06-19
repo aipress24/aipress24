@@ -1,0 +1,126 @@
+{% set org = group %}
+
+<main
+    class="bg-white shadow sm:rounded-lg"
+>
+  <article x-data="{  'tab': window.location.hash ? window.location.hash.substring(1) : '{{ tabs[0].id }}' }">
+    <!-- Profile header -->
+    <div>
+      <div>
+        <img
+            class="h-32 w-full object-cover lg:h-48"
+            src="{{ group.cover_image_url }}"
+            alt=""
+        />
+      </div>
+
+      <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="-mt-12 sm:-mt-16 sm:flex sm:items-end sm:space-x-5">
+          <div class="flex">
+            <img
+                class="h-24 w-24 ring-4 ring-white sm:h-32 sm:w-32"
+                src="{{ group.logo_url }}"
+                alt=""
+            />
+          </div>
+          <div
+              class="mt-6 sm:flex-1 sm:min-w-0 sm:flex sm:items-center sm:justify-end sm:space-x-6 sm:pb-1"
+          >
+            <div class="sm:hidden 2xl:block mt-6 min-w-0 flex-1">
+              <h1 class="aui-title truncate">
+                Groupe: {{ group.name }}
+              </h1>
+            </div>
+
+            <div
+                class="mt-6 flex flex-col justify-stretch space-y-3 sm:flex-row sm:space-y-0 sm:space-x-4"
+            >
+              <button
+                  type="button"
+                  class="aui-button"
+                  hx-post="{{ url_for(group) }}"
+                  hx-vals='{"action": "toggle-join"}'
+                  hx-target="#join-{{ group.id }}"
+                  hx-swap="innerHTML"
+              >
+                {{ icon("star", class="-ml-1 mr-2 h-5 w-5 text-gray-400") }}
+                <span id="join-{{ group.id }}" class="font-medium text-gray-900">
+                  {%- if group.is_member -%}
+                    Quitter
+                  {%- else -%}
+                    Rejoindre
+                  {%- endif -%}
+                </span>
+              </button>
+
+            </div>
+          </div>
+        </div>
+
+        <div class="hidden sm:block 2xl:hidden mt-6 min-w-0 flex-1">
+          <h1 class="aui-title truncate">
+            Groupe: {{ group.name }}
+          </h1>
+        </div>
+      </div>
+    </div>
+
+    {# Tabs #}
+    <div class="mt-6 sm:mt-2 2xl:mt-5">
+      <div class="border-b border-gray-200">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          {% include "pages/_tabs.j2" %}
+        </div>
+      </div>
+    </div>
+
+    {# Tabs content #}
+    <div class="py-6 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div x-show="tab === 'wall'">
+        <h2 class="text-lg font-medium mb-2">Wall (TODO)</h2>
+
+        <div class="prose max-w-prose">
+          {{ group.description | safe }}
+        </div>
+      </div>
+
+      <div x-show="tab === 'description'">
+        <h2 class="text-lg font-medium mb-2">Description</h2>
+
+        <div class="prose max-w-prose">
+          {{ group.description | safe }}
+        </div>
+      </div>
+
+      <div x-show="tab === 'members'">
+        <h2 class="text-lg font-medium mb-2">Membres</h2>
+
+        <ul>
+          {% for member in group.members %}
+            <li>
+              <a
+                  href="{{ url_for(member) }}"
+                  class="py-3 flex items-center space-x-3 hover:bg-gray-50"
+              >
+                <div class="flex-shrink-0">
+                  {{ profile_image(member, size=10) }}
+                </div>
+                <div class="flex-1 min-w-0">
+                  <!-- Extend touch target to entire panel -->
+                  <span class="inset-0" aria-hidden="true"/>
+                  <p class="text-sm font-medium text-gray-900">
+                    {{ member.full_name }}
+                  </p>
+                  <p class="text-sm text-gray-500 truncate">
+                    {{ member.job_title }}
+                  </p>
+                </div>
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+
+    </div>
+  </article>
+</main>
