@@ -2,7 +2,7 @@
 
 Welcome to the AIpress24 project! AIpress24 is an innovative, open-source digital platform designed to transform the way journalists, news agencies, and media professionals collaborate and monetize their work. Developed by Techno-Chroniqueurs Associés, with the technical expertise of Abilian, AIpress24 provides a comprehensive B2B environment tailored to the needs of the information and innovation sectors.
 
-> **Warning**
+> [!WARNING]
 > This code is still evolving quickly, and not meant for production yet.
 > In particular, the database schema is still evolving, and we don't support schema migrations yet.
 
