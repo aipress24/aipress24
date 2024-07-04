@@ -1,0 +1,590 @@
+[
+    {
+        "value": "ISL;101 Reykjavík -",
+        "label": "101 Reykjavík -"
+    },
+    {
+        "value": "ISL;103 Reykjavík -",
+        "label": "103 Reykjavík -"
+    },
+    {
+        "value": "ISL;104 Reykjavík -",
+        "label": "104 Reykjavík -"
+    },
+    {
+        "value": "ISL;105 Reykjavík -",
+        "label": "105 Reykjavík -"
+    },
+    {
+        "value": "ISL;107 Reykjavík -",
+        "label": "107 Reykjavík -"
+    },
+    {
+        "value": "ISL;108 Reykjavík -",
+        "label": "108 Reykjavík -"
+    },
+    {
+        "value": "ISL;109 Reykjavík -",
+        "label": "109 Reykjavík -"
+    },
+    {
+        "value": "ISL;110 Reykjavík -",
+        "label": "110 Reykjavík -"
+    },
+    {
+        "value": "ISL;111 Reykjavík -",
+        "label": "111 Reykjavík -"
+    },
+    {
+        "value": "ISL;112 Reykjavík -",
+        "label": "112 Reykjavík -"
+    },
+    {
+        "value": "ISL;113 Reykjavík -",
+        "label": "113 Reykjavík -"
+    },
+    {
+        "value": "ISL;116 Kjalarnesi",
+        "label": "116 Kjalarnesi"
+    },
+    {
+        "value": "ISL;121 Reykjavík -",
+        "label": "121 Reykjavík -"
+    },
+    {
+        "value": "ISL;123 Reykjavík -",
+        "label": "123 Reykjavík -"
+    },
+    {
+        "value": "ISL;124 Reykjavík -",
+        "label": "124 Reykjavík -"
+    },
+    {
+        "value": "ISL;125 Reykjavík -",
+        "label": "125 Reykjavík -"
+    },
+    {
+        "value": "ISL;127 Reykjavík -",
+        "label": "127 Reykjavík -"
+    },
+    {
+        "value": "ISL;128 Reykjavík -",
+        "label": "128 Reykjavík -"
+    },
+    {
+        "value": "ISL;129 Reykjavík -",
+        "label": "129 Reykjavík -"
+    },
+    {
+        "value": "ISL;130 Reykjavík -",
+        "label": "130 Reykjavík -"
+    },
+    {
+        "value": "ISL;132 Reykjavík -",
+        "label": "132 Reykjavík -"
+    },
+    {
+        "value": "ISL;150 Reykjavík",
+        "label": "150 Reykjavík"
+    },
+    {
+        "value": "ISL;155 Reykjavík",
+        "label": "155 Reykjavík"
+    },
+    {
+        "value": "ISL;170 Seltjarnarnesi",
+        "label": "170 Seltjarnarnesi"
+    },
+    {
+        "value": "ISL;172 Seltjarnarnesi",
+        "label": "172 Seltjarnarnesi"
+    },
+    {
+        "value": "ISL;190 Vogum",
+        "label": "190 Vogum"
+    },
+    {
+        "value": "ISL;200 Kópavogi",
+        "label": "200 Kópavogi"
+    },
+    {
+        "value": "ISL;201 Kópavogi",
+        "label": "201 Kópavogi"
+    },
+    {
+        "value": "ISL;202 Kópavogi",
+        "label": "202 Kópavogi"
+    },
+    {
+        "value": "ISL;203 Kópavogi",
+        "label": "203 Kópavogi"
+    },
+    {
+        "value": "ISL;210 Garðabæ",
+        "label": "210 Garðabæ"
+    },
+    {
+        "value": "ISL;212 Garðabæ",
+        "label": "212 Garðabæ"
+    },
+    {
+        "value": "ISL;220 Hafnarfirði",
+        "label": "220 Hafnarfirði"
+    },
+    {
+        "value": "ISL;221 Hafnarfirði",
+        "label": "221 Hafnarfirði"
+    },
+    {
+        "value": "ISL;222 Hafnarfirði",
+        "label": "222 Hafnarfirði"
+    },
+    {
+        "value": "ISL;225 Álftanesi",
+        "label": "225 Álftanesi"
+    },
+    {
+        "value": "ISL;230 Reykjanesbæ",
+        "label": "230 Reykjanesbæ"
+    },
+    {
+        "value": "ISL;232 Reykjanesbæ",
+        "label": "232 Reykjanesbæ"
+    },
+    {
+        "value": "ISL;233 Reykjanesbæ",
+        "label": "233 Reykjanesbæ"
+    },
+    {
+        "value": "ISL;235 Keflavíkurflugvelli",
+        "label": "235 Keflavíkurflugvelli"
+    },
+    {
+        "value": "ISL;240 Grindavík",
+        "label": "240 Grindavík"
+    },
+    {
+        "value": "ISL;245 Sandgerði",
+        "label": "245 Sandgerði"
+    },
+    {
+        "value": "ISL;250 Garði",
+        "label": "250 Garði"
+    },
+    {
+        "value": "ISL;260 Reykjanesbæ",
+        "label": "260 Reykjanesbæ"
+    },
+    {
+        "value": "ISL;270 Mosfellsbæ",
+        "label": "270 Mosfellsbæ"
+    },
+    {
+        "value": "ISL;271 Mosfellsbæ",
+        "label": "271 Mosfellsbæ"
+    },
+    {
+        "value": "ISL;276 Mosfellsbæ",
+        "label": "276 Mosfellsbæ"
+    },
+    {
+        "value": "ISL;300 Akranesi",
+        "label": "300 Akranesi"
+    },
+    {
+        "value": "ISL;301 Akranesi",
+        "label": "301 Akranesi"
+    },
+    {
+        "value": "ISL;302 Akranesi",
+        "label": "302 Akranesi"
+    },
+    {
+        "value": "ISL;310 Borgarnesi",
+        "label": "310 Borgarnesi"
+    },
+    {
+        "value": "ISL;311 Borgarnesi",
+        "label": "311 Borgarnesi"
+    },
+    {
+        "value": "ISL;320 Reykholt í Borgarfirði",
+        "label": "320 Reykholt í Borgarfirði"
+    },
+    {
+        "value": "ISL;340 Stykkishólmi",
+        "label": "340 Stykkishólmi"
+    },
+    {
+        "value": "ISL;345 Flatey á Breiðafirði",
+        "label": "345 Flatey á Breiðafirði"
+    },
+    {
+        "value": "ISL;350 Grundarfirði",
+        "label": "350 Grundarfirði"
+    },
+    {
+        "value": "ISL;355 Ólafsvík",
+        "label": "355 Ólafsvík"
+    },
+    {
+        "value": "ISL;356 Snæfellsbæ",
+        "label": "356 Snæfellsbæ"
+    },
+    {
+        "value": "ISL;360 Hellissandi",
+        "label": "360 Hellissandi"
+    },
+    {
+        "value": "ISL;370 Búðardal",
+        "label": "370 Búðardal"
+    },
+    {
+        "value": "ISL;371 Búðardal",
+        "label": "371 Búðardal"
+    },
+    {
+        "value": "ISL;380 Reykhólahreppi",
+        "label": "380 Reykhólahreppi"
+    },
+    {
+        "value": "ISL;400 Ísafirði",
+        "label": "400 Ísafirði"
+    },
+    {
+        "value": "ISL;401 Ísafirði",
+        "label": "401 Ísafirði"
+    },
+    {
+        "value": "ISL;410 Hnífsdal",
+        "label": "410 Hnífsdal"
+    },
+    {
+        "value": "ISL;415 Bolungarvík",
+        "label": "415 Bolungarvík"
+    },
+    {
+        "value": "ISL;420 Súðavík",
+        "label": "420 Súðavík"
+    },
+    {
+        "value": "ISL;425 Flateyri",
+        "label": "425 Flateyri"
+    },
+    {
+        "value": "ISL;430 Suðureyri",
+        "label": "430 Suðureyri"
+    },
+    {
+        "value": "ISL;450 Patreksfirði",
+        "label": "450 Patreksfirði"
+    },
+    {
+        "value": "ISL;451 Patreksfirði",
+        "label": "451 Patreksfirði"
+    },
+    {
+        "value": "ISL;460 Tálknafirði",
+        "label": "460 Tálknafirði"
+    },
+    {
+        "value": "ISL;465 Bíldudal",
+        "label": "465 Bíldudal"
+    },
+    {
+        "value": "ISL;470 Þingeyri",
+        "label": "470 Þingeyri"
+    },
+    {
+        "value": "ISL;471 Þingeyri",
+        "label": "471 Þingeyri"
+    },
+    {
+        "value": "ISL;500 Stað",
+        "label": "500 Stað"
+    },
+    {
+        "value": "ISL;510 Hólmavík",
+        "label": "510 Hólmavík"
+    },
+    {
+        "value": "ISL;512 Hólmavík",
+        "label": "512 Hólmavík"
+    },
+    {
+        "value": "ISL;520 Drangsnesi",
+        "label": "520 Drangsnesi"
+    },
+    {
+        "value": "ISL;524 Norðurfirði",
+        "label": "524 Norðurfirði"
+    },
+    {
+        "value": "ISL;530 Hvammstanga",
+        "label": "530 Hvammstanga"
+    },
+    {
+        "value": "ISL;531 Hvammstanga",
+        "label": "531 Hvammstanga"
+    },
+    {
+        "value": "ISL;540 Blönduósi",
+        "label": "540 Blönduósi"
+    },
+    {
+        "value": "ISL;541 Blönduósi",
+        "label": "541 Blönduósi"
+    },
+    {
+        "value": "ISL;545 Skagaströnd",
+        "label": "545 Skagaströnd"
+    },
+    {
+        "value": "ISL;550 Sauðárkróki",
+        "label": "550 Sauðárkróki"
+    },
+    {
+        "value": "ISL;551 Sauðárkróki",
+        "label": "551 Sauðárkróki"
+    },
+    {
+        "value": "ISL;560 Varmahlíð",
+        "label": "560 Varmahlíð"
+    },
+    {
+        "value": "ISL;565 Hofsós",
+        "label": "565 Hofsós"
+    },
+    {
+        "value": "ISL;566 Hofsós",
+        "label": "566 Hofsós"
+    },
+    {
+        "value": "ISL;570 Fljótum",
+        "label": "570 Fljótum"
+    },
+    {
+        "value": "ISL;580 Siglufirði",
+        "label": "580 Siglufirði"
+    },
+    {
+        "value": "ISL;600 Akureyri",
+        "label": "600 Akureyri"
+    },
+    {
+        "value": "ISL;601 Akureyri",
+        "label": "601 Akureyri"
+    },
+    {
+        "value": "ISL;602 Akureyri",
+        "label": "602 Akureyri"
+    },
+    {
+        "value": "ISL;603 Akureyri",
+        "label": "603 Akureyri"
+    },
+    {
+        "value": "ISL;610 Grenivík",
+        "label": "610 Grenivík"
+    },
+    {
+        "value": "ISL;611 Grímsey",
+        "label": "611 Grímsey"
+    },
+    {
+        "value": "ISL;620 Dalvík",
+        "label": "620 Dalvík"
+    },
+    {
+        "value": "ISL;621 Dalvík",
+        "label": "621 Dalvík"
+    },
+    {
+        "value": "ISL;625 Ólafsfirði",
+        "label": "625 Ólafsfirði"
+    },
+    {
+        "value": "ISL;630 Hrísey",
+        "label": "630 Hrísey"
+    },
+    {
+        "value": "ISL;640 Húsavík",
+        "label": "640 Húsavík"
+    },
+    {
+        "value": "ISL;641 Húsavík",
+        "label": "641 Húsavík"
+    },
+    {
+        "value": "ISL;645 Fosshólli",
+        "label": "645 Fosshólli"
+    },
+    {
+        "value": "ISL;650 Laugum",
+        "label": "650 Laugum"
+    },
+    {
+        "value": "ISL;660 Mývatni",
+        "label": "660 Mývatni"
+    },
+    {
+        "value": "ISL;670 Kópaskeri",
+        "label": "670 Kópaskeri"
+    },
+    {
+        "value": "ISL;671 Kópaskeri",
+        "label": "671 Kópaskeri"
+    },
+    {
+        "value": "ISL;675 Raufarhöfn",
+        "label": "675 Raufarhöfn"
+    },
+    {
+        "value": "ISL;680 Þórshöfn",
+        "label": "680 Þórshöfn"
+    },
+    {
+        "value": "ISL;681 Þórshöfn",
+        "label": "681 Þórshöfn"
+    },
+    {
+        "value": "ISL;685 Bakkafirði",
+        "label": "685 Bakkafirði"
+    },
+    {
+        "value": "ISL;690 Vopnafirði",
+        "label": "690 Vopnafirði"
+    },
+    {
+        "value": "ISL;700 Egilsstöðum",
+        "label": "700 Egilsstöðum"
+    },
+    {
+        "value": "ISL;701 Egilsstöðum",
+        "label": "701 Egilsstöðum"
+    },
+    {
+        "value": "ISL;710 Seyðisfirði",
+        "label": "710 Seyðisfirði"
+    },
+    {
+        "value": "ISL;715 Mjóafirði",
+        "label": "715 Mjóafirði"
+    },
+    {
+        "value": "ISL;720 Borgarfirði (eystri)",
+        "label": "720 Borgarfirði (eystri)"
+    },
+    {
+        "value": "ISL;730 Reyðarfirði",
+        "label": "730 Reyðarfirði"
+    },
+    {
+        "value": "ISL;735 Eskifirði",
+        "label": "735 Eskifirði"
+    },
+    {
+        "value": "ISL;740 Neskaupstað",
+        "label": "740 Neskaupstað"
+    },
+    {
+        "value": "ISL;750 Fáskrúðsfirði",
+        "label": "750 Fáskrúðsfirði"
+    },
+    {
+        "value": "ISL;755 Stöðvarfirði",
+        "label": "755 Stöðvarfirði"
+    },
+    {
+        "value": "ISL;760 Breiðdalsvík",
+        "label": "760 Breiðdalsvík"
+    },
+    {
+        "value": "ISL;765 Djúpavogi",
+        "label": "765 Djúpavogi"
+    },
+    {
+        "value": "ISL;780 Höfn í Hornafirði",
+        "label": "780 Höfn í Hornafirði"
+    },
+    {
+        "value": "ISL;781 Höfn í Hornafirði",
+        "label": "781 Höfn í Hornafirði"
+    },
+    {
+        "value": "ISL;785 Öræfum",
+        "label": "785 Öræfum"
+    },
+    {
+        "value": "ISL;800 Selfossi",
+        "label": "800 Selfossi"
+    },
+    {
+        "value": "ISL;801 Selfossi",
+        "label": "801 Selfossi"
+    },
+    {
+        "value": "ISL;802 Selfossi",
+        "label": "802 Selfossi"
+    },
+    {
+        "value": "ISL;810 Hveragerði",
+        "label": "810 Hveragerði"
+    },
+    {
+        "value": "ISL;815 Þorlákshöfn",
+        "label": "815 Þorlákshöfn"
+    },
+    {
+        "value": "ISL;820 Eyrarbakka",
+        "label": "820 Eyrarbakka"
+    },
+    {
+        "value": "ISL;825 Stokkseyri",
+        "label": "825 Stokkseyri"
+    },
+    {
+        "value": "ISL;840 Laugarvatni",
+        "label": "840 Laugarvatni"
+    },
+    {
+        "value": "ISL;845 Flúðum",
+        "label": "845 Flúðum"
+    },
+    {
+        "value": "ISL;850 Hellu",
+        "label": "850 Hellu"
+    },
+    {
+        "value": "ISL;851 Hellu",
+        "label": "851 Hellu"
+    },
+    {
+        "value": "ISL;860 Hvolsvelli",
+        "label": "860 Hvolsvelli"
+    },
+    {
+        "value": "ISL;861 Hvolsvelli",
+        "label": "861 Hvolsvelli"
+    },
+    {
+        "value": "ISL;870 Vík",
+        "label": "870 Vík"
+    },
+    {
+        "value": "ISL;871 Vík",
+        "label": "871 Vík"
+    },
+    {
+        "value": "ISL;880 Kirkjubæjarklaustri",
+        "label": "880 Kirkjubæjarklaustri"
+    },
+    {
+        "value": "ISL;900 Vestmannaeyjum",
+        "label": "900 Vestmannaeyjum"
+    },
+    {
+        "value": "ISL;902 Vestmannaeyjum",
+        "label": "902 Vestmannaeyjum"
+    }
+]

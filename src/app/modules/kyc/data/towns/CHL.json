@@ -1,0 +1,1386 @@
+[
+    {
+        "value": "CHL;1000000 Arica",
+        "label": "1000000 Arica"
+    },
+    {
+        "value": "CHL;1040000 Camarones",
+        "label": "1040000 Camarones"
+    },
+    {
+        "value": "CHL;1070000 Putre",
+        "label": "1070000 Putre"
+    },
+    {
+        "value": "CHL;1080000 General Lagos",
+        "label": "1080000 General Lagos"
+    },
+    {
+        "value": "CHL;1100000 Iquique",
+        "label": "1100000 Iquique"
+    },
+    {
+        "value": "CHL;1130000 Alto Hospicio",
+        "label": "1130000 Alto Hospicio"
+    },
+    {
+        "value": "CHL;1140000 Huara",
+        "label": "1140000 Huara"
+    },
+    {
+        "value": "CHL;1150000 Camina",
+        "label": "1150000 Camina"
+    },
+    {
+        "value": "CHL;1160000 Colchane",
+        "label": "1160000 Colchane"
+    },
+    {
+        "value": "CHL;1170000 Pica",
+        "label": "1170000 Pica"
+    },
+    {
+        "value": "CHL;1180000 Pozo Almonte",
+        "label": "1180000 Pozo Almonte"
+    },
+    {
+        "value": "CHL;1240000 Antofagasta",
+        "label": "1240000 Antofagasta"
+    },
+    {
+        "value": "CHL;1300000 Taltal",
+        "label": "1300000 Taltal"
+    },
+    {
+        "value": "CHL;1310000 Mejillones",
+        "label": "1310000 Mejillones"
+    },
+    {
+        "value": "CHL;1320000 Sierra Gorda",
+        "label": "1320000 Sierra Gorda"
+    },
+    {
+        "value": "CHL;1340000 Tocopilla",
+        "label": "1340000 Tocopilla"
+    },
+    {
+        "value": "CHL;1360000 María Elena",
+        "label": "1360000 María Elena"
+    },
+    {
+        "value": "CHL;1390000 Calama",
+        "label": "1390000 Calama"
+    },
+    {
+        "value": "CHL;1410000 San Pedro De Atacama",
+        "label": "1410000 San Pedro De Atacama"
+    },
+    {
+        "value": "CHL;1420000 Ollague",
+        "label": "1420000 Ollague"
+    },
+    {
+        "value": "CHL;1490000 Chañaral",
+        "label": "1490000 Chañaral"
+    },
+    {
+        "value": "CHL;1500000 Diego De Almagro",
+        "label": "1500000 Diego De Almagro"
+    },
+    {
+        "value": "CHL;1530000 Copiapó",
+        "label": "1530000 Copiapó"
+    },
+    {
+        "value": "CHL;1570000 Caldera",
+        "label": "1570000 Caldera"
+    },
+    {
+        "value": "CHL;1580000 Tierra Amarilla",
+        "label": "1580000 Tierra Amarilla"
+    },
+    {
+        "value": "CHL;1610000 Vallenar",
+        "label": "1610000 Vallenar"
+    },
+    {
+        "value": "CHL;1630000 Freirina",
+        "label": "1630000 Freirina"
+    },
+    {
+        "value": "CHL;1640000 Huasco",
+        "label": "1640000 Huasco"
+    },
+    {
+        "value": "CHL;1650000 Alto Del Carmen",
+        "label": "1650000 Alto Del Carmen"
+    },
+    {
+        "value": "CHL;1700000 La Serena",
+        "label": "1700000 La Serena"
+    },
+    {
+        "value": "CHL;1740000 La Higuera",
+        "label": "1740000 La Higuera"
+    },
+    {
+        "value": "CHL;1750000 Andacollo",
+        "label": "1750000 Andacollo"
+    },
+    {
+        "value": "CHL;1760000 Vicuña",
+        "label": "1760000 Vicuña"
+    },
+    {
+        "value": "CHL;1770000 Paiguano",
+        "label": "1770000 Paiguano"
+    },
+    {
+        "value": "CHL;1780000 Coquimbo",
+        "label": "1780000 Coquimbo"
+    },
+    {
+        "value": "CHL;1840000 Ovalle",
+        "label": "1840000 Ovalle"
+    },
+    {
+        "value": "CHL;1870000 Río Hurtado",
+        "label": "1870000 Río Hurtado"
+    },
+    {
+        "value": "CHL;1880000 Monte Patria",
+        "label": "1880000 Monte Patria"
+    },
+    {
+        "value": "CHL;1890000 Combarbalá",
+        "label": "1890000 Combarbalá"
+    },
+    {
+        "value": "CHL;1900000 Punitaqui",
+        "label": "1900000 Punitaqui"
+    },
+    {
+        "value": "CHL;1930000 Illapel",
+        "label": "1930000 Illapel"
+    },
+    {
+        "value": "CHL;1940000 Los Vilos",
+        "label": "1940000 Los Vilos"
+    },
+    {
+        "value": "CHL;1950000 Salamanca",
+        "label": "1950000 Salamanca"
+    },
+    {
+        "value": "CHL;1960000 Canela",
+        "label": "1960000 Canela"
+    },
+    {
+        "value": "CHL;2030000 La Ligua",
+        "label": "2030000 La Ligua"
+    },
+    {
+        "value": "CHL;2040000 Petorca",
+        "label": "2040000 Petorca"
+    },
+    {
+        "value": "CHL;2050000 Cabildo",
+        "label": "2050000 Cabildo"
+    },
+    {
+        "value": "CHL;2060000 Zapallar",
+        "label": "2060000 Zapallar"
+    },
+    {
+        "value": "CHL;2070000 Papudo",
+        "label": "2070000 Papudo"
+    },
+    {
+        "value": "CHL;2100000 Los Andes",
+        "label": "2100000 Los Andes"
+    },
+    {
+        "value": "CHL;2120000 San Esteban",
+        "label": "2120000 San Esteban"
+    },
+    {
+        "value": "CHL;2130000 Calle Larga",
+        "label": "2130000 Calle Larga"
+    },
+    {
+        "value": "CHL;2140000 Rinconada",
+        "label": "2140000 Rinconada"
+    },
+    {
+        "value": "CHL;2170000 San Felipe",
+        "label": "2170000 San Felipe"
+    },
+    {
+        "value": "CHL;2190000 Putaendo",
+        "label": "2190000 Putaendo"
+    },
+    {
+        "value": "CHL;2200000 Santa María",
+        "label": "2200000 Santa María"
+    },
+    {
+        "value": "CHL;2210000 Panquehue",
+        "label": "2210000 Panquehue"
+    },
+    {
+        "value": "CHL;2220000 Llaillay",
+        "label": "2220000 Llaillay"
+    },
+    {
+        "value": "CHL;2230000 Catemu",
+        "label": "2230000 Catemu"
+    },
+    {
+        "value": "CHL;2240000 Limache",
+        "label": "2240000 Limache"
+    },
+    {
+        "value": "CHL;2260000 Quillota",
+        "label": "2260000 Quillota"
+    },
+    {
+        "value": "CHL;2280000 La Cruz",
+        "label": "2280000 La Cruz"
+    },
+    {
+        "value": "CHL;2290000 Calera",
+        "label": "2290000 Calera"
+    },
+    {
+        "value": "CHL;2300000 Nogales",
+        "label": "2300000 Nogales"
+    },
+    {
+        "value": "CHL;2310000 Hijuelas",
+        "label": "2310000 Hijuelas"
+    },
+    {
+        "value": "CHL;2330000 Olmué",
+        "label": "2330000 Olmué"
+    },
+    {
+        "value": "CHL;2340000 Valparaíso",
+        "label": "2340000 Valparaíso"
+    },
+    {
+        "value": "CHL;2430000 Quilpue",
+        "label": "2430000 Quilpue"
+    },
+    {
+        "value": "CHL;2480000 Casablanca",
+        "label": "2480000 Casablanca"
+    },
+    {
+        "value": "CHL;2490000 Quintero",
+        "label": "2490000 Quintero"
+    },
+    {
+        "value": "CHL;2500000 Puchuncaví",
+        "label": "2500000 Puchuncaví"
+    },
+    {
+        "value": "CHL;2510000 Concón",
+        "label": "2510000 Concón"
+    },
+    {
+        "value": "CHL;2520000 Viña Del Mar",
+        "label": "2520000 Viña Del Mar"
+    },
+    {
+        "value": "CHL;2600000 Juan Fernández",
+        "label": "2600000 Juan Fernández"
+    },
+    {
+        "value": "CHL;2660000 San Antonio",
+        "label": "2660000 San Antonio"
+    },
+    {
+        "value": "CHL;2680000 Cartagena",
+        "label": "2680000 Cartagena"
+    },
+    {
+        "value": "CHL;2690000 El Tabo",
+        "label": "2690000 El Tabo"
+    },
+    {
+        "value": "CHL;2700000 El Quisco",
+        "label": "2700000 El Quisco"
+    },
+    {
+        "value": "CHL;2710000 Algarrobo",
+        "label": "2710000 Algarrobo"
+    },
+    {
+        "value": "CHL;2720000 Santo Domingo",
+        "label": "2720000 Santo Domingo"
+    },
+    {
+        "value": "CHL;2770000 Isla De Pascua",
+        "label": "2770000 Isla De Pascua"
+    },
+    {
+        "value": "CHL;2820000 Rancagua",
+        "label": "2820000 Rancagua"
+    },
+    {
+        "value": "CHL;2880000 Graneros",
+        "label": "2880000 Graneros"
+    },
+    {
+        "value": "CHL;2890000 Mostazal",
+        "label": "2890000 Mostazal"
+    },
+    {
+        "value": "CHL;2900000 Codegua",
+        "label": "2900000 Codegua"
+    },
+    {
+        "value": "CHL;2910000 Machalí",
+        "label": "2910000 Machalí"
+    },
+    {
+        "value": "CHL;2920000 Olivar",
+        "label": "2920000 Olivar"
+    },
+    {
+        "value": "CHL;2930000 Requinoa",
+        "label": "2930000 Requinoa"
+    },
+    {
+        "value": "CHL;2940000 Rengo",
+        "label": "2940000 Rengo"
+    },
+    {
+        "value": "CHL;2950000 Malloa",
+        "label": "2950000 Malloa"
+    },
+    {
+        "value": "CHL;2960000 Quinta De Tilcoco",
+        "label": "2960000 Quinta De Tilcoco"
+    },
+    {
+        "value": "CHL;2970000 San Vicente",
+        "label": "2970000 San Vicente"
+    },
+    {
+        "value": "CHL;2980000 Pichidegua",
+        "label": "2980000 Pichidegua"
+    },
+    {
+        "value": "CHL;2990000 Peumo",
+        "label": "2990000 Peumo"
+    },
+    {
+        "value": "CHL;3000000 Coltauco",
+        "label": "3000000 Coltauco"
+    },
+    {
+        "value": "CHL;3010000 Coinco",
+        "label": "3010000 Coinco"
+    },
+    {
+        "value": "CHL;3020000 Doñihue",
+        "label": "3020000 Doñihue"
+    },
+    {
+        "value": "CHL;3030000 Las Cabras",
+        "label": "3030000 Las Cabras"
+    },
+    {
+        "value": "CHL;3070000 San Fernando",
+        "label": "3070000 San Fernando"
+    },
+    {
+        "value": "CHL;3090000 Chimbarongo",
+        "label": "3090000 Chimbarongo"
+    },
+    {
+        "value": "CHL;3100000 Placilla",
+        "label": "3100000 Placilla"
+    },
+    {
+        "value": "CHL;3110000 Nancagua",
+        "label": "3110000 Nancagua"
+    },
+    {
+        "value": "CHL;3120000 Chépica",
+        "label": "3120000 Chépica"
+    },
+    {
+        "value": "CHL;3130000 Santa Cruz",
+        "label": "3130000 Santa Cruz"
+    },
+    {
+        "value": "CHL;3140000 Lolol",
+        "label": "3140000 Lolol"
+    },
+    {
+        "value": "CHL;3150000 Pumanque",
+        "label": "3150000 Pumanque"
+    },
+    {
+        "value": "CHL;3160000 Palmilla",
+        "label": "3160000 Palmilla"
+    },
+    {
+        "value": "CHL;3170000 Peralillo",
+        "label": "3170000 Peralillo"
+    },
+    {
+        "value": "CHL;3220000 Pichilemu",
+        "label": "3220000 Pichilemu"
+    },
+    {
+        "value": "CHL;3230000 Navidad",
+        "label": "3230000 Navidad"
+    },
+    {
+        "value": "CHL;3240000 Litueche",
+        "label": "3240000 Litueche"
+    },
+    {
+        "value": "CHL;3250000 La Estrella",
+        "label": "3250000 La Estrella"
+    },
+    {
+        "value": "CHL;3260000 Marchihue",
+        "label": "3260000 Marchihue"
+    },
+    {
+        "value": "CHL;3270000 Paredones",
+        "label": "3270000 Paredones"
+    },
+    {
+        "value": "CHL;3340000 Curicó",
+        "label": "3340000 Curicó"
+    },
+    {
+        "value": "CHL;3360000 Teno",
+        "label": "3360000 Teno"
+    },
+    {
+        "value": "CHL;3370000 Romeral",
+        "label": "3370000 Romeral"
+    },
+    {
+        "value": "CHL;3380000 Molina",
+        "label": "3380000 Molina"
+    },
+    {
+        "value": "CHL;3390000 Sagrada Familia",
+        "label": "3390000 Sagrada Familia"
+    },
+    {
+        "value": "CHL;3400000 Hualañé",
+        "label": "3400000 Hualañé"
+    },
+    {
+        "value": "CHL;3410000 Licantén",
+        "label": "3410000 Licantén"
+    },
+    {
+        "value": "CHL;3420000 Vichuquén",
+        "label": "3420000 Vichuquén"
+    },
+    {
+        "value": "CHL;3430000 Rauco",
+        "label": "3430000 Rauco"
+    },
+    {
+        "value": "CHL;3460000 Talca",
+        "label": "3460000 Talca"
+    },
+    {
+        "value": "CHL;3490000 San Rafael",
+        "label": "3490000 San Rafael"
+    },
+    {
+        "value": "CHL;3500000 Pelarco",
+        "label": "3500000 Pelarco"
+    },
+    {
+        "value": "CHL;3510000 Río Claro",
+        "label": "3510000 Río Claro"
+    },
+    {
+        "value": "CHL;3520000 San Clemente",
+        "label": "3520000 San Clemente"
+    },
+    {
+        "value": "CHL;3530000 Maule",
+        "label": "3530000 Maule"
+    },
+    {
+        "value": "CHL;3540000 Empedrado",
+        "label": "3540000 Empedrado"
+    },
+    {
+        "value": "CHL;3550000 Pencahue",
+        "label": "3550000 Pencahue"
+    },
+    {
+        "value": "CHL;3560000 Constitución",
+        "label": "3560000 Constitución"
+    },
+    {
+        "value": "CHL;3570000 Curepto",
+        "label": "3570000 Curepto"
+    },
+    {
+        "value": "CHL;3580000 Linares",
+        "label": "3580000 Linares"
+    },
+    {
+        "value": "CHL;3600000 Yerbas Buenas",
+        "label": "3600000 Yerbas Buenas"
+    },
+    {
+        "value": "CHL;3610000 Colbún",
+        "label": "3610000 Colbún"
+    },
+    {
+        "value": "CHL;3620000 Longaví",
+        "label": "3620000 Longaví"
+    },
+    {
+        "value": "CHL;3630000 Parral",
+        "label": "3630000 Parral"
+    },
+    {
+        "value": "CHL;3640000 Retiro",
+        "label": "3640000 Retiro"
+    },
+    {
+        "value": "CHL;3650000 Villa Alegre",
+        "label": "3650000 Villa Alegre"
+    },
+    {
+        "value": "CHL;3660000 San Javier",
+        "label": "3660000 San Javier"
+    },
+    {
+        "value": "CHL;3690000 Cauquenes",
+        "label": "3690000 Cauquenes"
+    },
+    {
+        "value": "CHL;3710000 Pelluhue",
+        "label": "3710000 Pelluhue"
+    },
+    {
+        "value": "CHL;3720000 Chanco",
+        "label": "3720000 Chanco"
+    },
+    {
+        "value": "CHL;3780000 Chillán",
+        "label": "3780000 Chillán"
+    },
+    {
+        "value": "CHL;3820000 Chillán Viejo",
+        "label": "3820000 Chillán Viejo"
+    },
+    {
+        "value": "CHL;3840000 San Carlos",
+        "label": "3840000 San Carlos"
+    },
+    {
+        "value": "CHL;3850000 Niquén",
+        "label": "3850000 Niquén"
+    },
+    {
+        "value": "CHL;3860000 San Fabián",
+        "label": "3860000 San Fabián"
+    },
+    {
+        "value": "CHL;3870000 Coihueco",
+        "label": "3870000 Coihueco"
+    },
+    {
+        "value": "CHL;3880000 Pinto",
+        "label": "3880000 Pinto"
+    },
+    {
+        "value": "CHL;3890000 San Ignacio",
+        "label": "3890000 San Ignacio"
+    },
+    {
+        "value": "CHL;3900000 El Carmen",
+        "label": "3900000 El Carmen"
+    },
+    {
+        "value": "CHL;3910000 Pemuco",
+        "label": "3910000 Pemuco"
+    },
+    {
+        "value": "CHL;3920000 Yungay",
+        "label": "3920000 Yungay"
+    },
+    {
+        "value": "CHL;3930000 Bulnes",
+        "label": "3930000 Bulnes"
+    },
+    {
+        "value": "CHL;3940000 Quillón",
+        "label": "3940000 Quillón"
+    },
+    {
+        "value": "CHL;3950000 Ranquil",
+        "label": "3950000 Ranquil"
+    },
+    {
+        "value": "CHL;3960000 Portezuelo",
+        "label": "3960000 Portezuelo"
+    },
+    {
+        "value": "CHL;3970000 Coelemu",
+        "label": "3970000 Coelemu"
+    },
+    {
+        "value": "CHL;3980000 Treguaco",
+        "label": "3980000 Treguaco"
+    },
+    {
+        "value": "CHL;3990000 Cobquecura",
+        "label": "3990000 Cobquecura"
+    },
+    {
+        "value": "CHL;4000000 Quirihue",
+        "label": "4000000 Quirihue"
+    },
+    {
+        "value": "CHL;4010000 Ninhue",
+        "label": "4010000 Ninhue"
+    },
+    {
+        "value": "CHL;4020000 San Nicolás",
+        "label": "4020000 San Nicolás"
+    },
+    {
+        "value": "CHL;4030000 Concepción",
+        "label": "4030000 Concepción"
+    },
+    {
+        "value": "CHL;4100000 Chiguayante",
+        "label": "4100000 Chiguayante"
+    },
+    {
+        "value": "CHL;4130000 San Pedro De La Paz",
+        "label": "4130000 San Pedro De La Paz"
+    },
+    {
+        "value": "CHL;4150000 Penco",
+        "label": "4150000 Penco"
+    },
+    {
+        "value": "CHL;4160000 Tomé",
+        "label": "4160000 Tomé"
+    },
+    {
+        "value": "CHL;4170000 Florida",
+        "label": "4170000 Florida"
+    },
+    {
+        "value": "CHL;4180000 Hualqui",
+        "label": "4180000 Hualqui"
+    },
+    {
+        "value": "CHL;4190000 Coronel",
+        "label": "4190000 Coronel"
+    },
+    {
+        "value": "CHL;4210000 Lota",
+        "label": "4210000 Lota"
+    },
+    {
+        "value": "CHL;4230000 Santa Juana",
+        "label": "4230000 Santa Juana"
+    },
+    {
+        "value": "CHL;4260000 Talcahuano",
+        "label": "4260000 Talcahuano"
+    },
+    {
+        "value": "CHL;4350000 Lebu",
+        "label": "4350000 Lebu"
+    },
+    {
+        "value": "CHL;4360000 Arauco",
+        "label": "4360000 Arauco"
+    },
+    {
+        "value": "CHL;4370000 Curanilahue",
+        "label": "4370000 Curanilahue"
+    },
+    {
+        "value": "CHL;4380000 Los Alamos",
+        "label": "4380000 Los Alamos"
+    },
+    {
+        "value": "CHL;4390000 Canete",
+        "label": "4390000 Canete"
+    },
+    {
+        "value": "CHL;4400000 Contulmo",
+        "label": "4400000 Contulmo"
+    },
+    {
+        "value": "CHL;4410000 Tirua",
+        "label": "4410000 Tirua"
+    },
+    {
+        "value": "CHL;4440000 Los Angeles",
+        "label": "4440000 Los Angeles"
+    },
+    {
+        "value": "CHL;4470000 Cabrero",
+        "label": "4470000 Cabrero"
+    },
+    {
+        "value": "CHL;4480000 Tucapel",
+        "label": "4480000 Tucapel"
+    },
+    {
+        "value": "CHL;4490000 Antuco",
+        "label": "4490000 Antuco"
+    },
+    {
+        "value": "CHL;4500000 Quilleco",
+        "label": "4500000 Quilleco"
+    },
+    {
+        "value": "CHL;4510000 Santa Bárbara",
+        "label": "4510000 Santa Bárbara"
+    },
+    {
+        "value": "CHL;4520000 Quilaco",
+        "label": "4520000 Quilaco"
+    },
+    {
+        "value": "CHL;4530000 Mulchén",
+        "label": "4530000 Mulchén"
+    },
+    {
+        "value": "CHL;4540000 Negrete",
+        "label": "4540000 Negrete"
+    },
+    {
+        "value": "CHL;4550000 Nacimiento",
+        "label": "4550000 Nacimiento"
+    },
+    {
+        "value": "CHL;4560000 Laja",
+        "label": "4560000 Laja"
+    },
+    {
+        "value": "CHL;4570000 San Rosendo",
+        "label": "4570000 San Rosendo"
+    },
+    {
+        "value": "CHL;4580000 Yumbel",
+        "label": "4580000 Yumbel"
+    },
+    {
+        "value": "CHL;4590000 Alto Biobío",
+        "label": "4590000 Alto Biobío"
+    },
+    {
+        "value": "CHL;4600000 Hualpén",
+        "label": "4600000 Hualpén"
+    },
+    {
+        "value": "CHL;4650000 Angol",
+        "label": "4650000 Angol"
+    },
+    {
+        "value": "CHL;4670000 Renaico",
+        "label": "4670000 Renaico"
+    },
+    {
+        "value": "CHL;4680000 Collipulli",
+        "label": "4680000 Collipulli"
+    },
+    {
+        "value": "CHL;4690000 Lonquimay",
+        "label": "4690000 Lonquimay"
+    },
+    {
+        "value": "CHL;4700000 Curacautín",
+        "label": "4700000 Curacautín"
+    },
+    {
+        "value": "CHL;4710000 Ercilla",
+        "label": "4710000 Ercilla"
+    },
+    {
+        "value": "CHL;4720000 Victoria",
+        "label": "4720000 Victoria"
+    },
+    {
+        "value": "CHL;4730000 Traiguén",
+        "label": "4730000 Traiguén"
+    },
+    {
+        "value": "CHL;4740000 Lumaco",
+        "label": "4740000 Lumaco"
+    },
+    {
+        "value": "CHL;4750000 Purén",
+        "label": "4750000 Purén"
+    },
+    {
+        "value": "CHL;4760000 Los Sauces",
+        "label": "4760000 Los Sauces"
+    },
+    {
+        "value": "CHL;4780000 Temuco",
+        "label": "4780000 Temuco"
+    },
+    {
+        "value": "CHL;4850000 Padre Las Casas",
+        "label": "4850000 Padre Las Casas"
+    },
+    {
+        "value": "CHL;4860000 Lautaro",
+        "label": "4860000 Lautaro"
+    },
+    {
+        "value": "CHL;4870000 Perquenco",
+        "label": "4870000 Perquenco"
+    },
+    {
+        "value": "CHL;4880000 Vilcún",
+        "label": "4880000 Vilcún"
+    },
+    {
+        "value": "CHL;4890000 Cunco",
+        "label": "4890000 Cunco"
+    },
+    {
+        "value": "CHL;4900000 Melipeuco",
+        "label": "4900000 Melipeuco"
+    },
+    {
+        "value": "CHL;4910000 Curarrehue",
+        "label": "4910000 Curarrehue"
+    },
+    {
+        "value": "CHL;4920000 Pucón",
+        "label": "4920000 Pucón"
+    },
+    {
+        "value": "CHL;4930000 Villarrica",
+        "label": "4930000 Villarrica"
+    },
+    {
+        "value": "CHL;4940000 Freire",
+        "label": "4940000 Freire"
+    },
+    {
+        "value": "CHL;4950000 Pitrufquén",
+        "label": "4950000 Pitrufquén"
+    },
+    {
+        "value": "CHL;4960000 Gorbea",
+        "label": "4960000 Gorbea"
+    },
+    {
+        "value": "CHL;4970000 Loncoche",
+        "label": "4970000 Loncoche"
+    },
+    {
+        "value": "CHL;4980000 Toltén",
+        "label": "4980000 Toltén"
+    },
+    {
+        "value": "CHL;4990000 Teodoro Schmidt",
+        "label": "4990000 Teodoro Schmidt"
+    },
+    {
+        "value": "CHL;5000000 Saavedra",
+        "label": "5000000 Saavedra"
+    },
+    {
+        "value": "CHL;5010000 Carahue",
+        "label": "5010000 Carahue"
+    },
+    {
+        "value": "CHL;5020000 Nueva Imperial",
+        "label": "5020000 Nueva Imperial"
+    },
+    {
+        "value": "CHL;5030000 Galvarino",
+        "label": "5030000 Galvarino"
+    },
+    {
+        "value": "CHL;5040000 Chol Chol",
+        "label": "5040000 Chol Chol"
+    },
+    {
+        "value": "CHL;5090000 Valdivia",
+        "label": "5090000 Valdivia"
+    },
+    {
+        "value": "CHL;5150000 Mariquina",
+        "label": "5150000 Mariquina"
+    },
+    {
+        "value": "CHL;5160000 Lanco",
+        "label": "5160000 Lanco"
+    },
+    {
+        "value": "CHL;5170000 Los Lagos",
+        "label": "5170000 Los Lagos"
+    },
+    {
+        "value": "CHL;5180000 Futrono",
+        "label": "5180000 Futrono"
+    },
+    {
+        "value": "CHL;5190000 Corral",
+        "label": "5190000 Corral"
+    },
+    {
+        "value": "CHL;5200000 Mafil",
+        "label": "5200000 Mafil"
+    },
+    {
+        "value": "CHL;5210000 Panguipulli",
+        "label": "5210000 Panguipulli"
+    },
+    {
+        "value": "CHL;5220000 La Unión",
+        "label": "5220000 La Unión"
+    },
+    {
+        "value": "CHL;5230000 Paillaco",
+        "label": "5230000 Paillaco"
+    },
+    {
+        "value": "CHL;5240000 Río Bueno",
+        "label": "5240000 Río Bueno"
+    },
+    {
+        "value": "CHL;5250000 Lago Ranco",
+        "label": "5250000 Lago Ranco"
+    },
+    {
+        "value": "CHL;5290000 Osorno",
+        "label": "5290000 Osorno"
+    },
+    {
+        "value": "CHL;5350000 San Pablo",
+        "label": "5350000 San Pablo"
+    },
+    {
+        "value": "CHL;5360000 Puyehue",
+        "label": "5360000 Puyehue"
+    },
+    {
+        "value": "CHL;5370000 Puerto Octay",
+        "label": "5370000 Puerto Octay"
+    },
+    {
+        "value": "CHL;5380000 Purranque",
+        "label": "5380000 Purranque"
+    },
+    {
+        "value": "CHL;5390000 Río Negro",
+        "label": "5390000 Río Negro"
+    },
+    {
+        "value": "CHL;5400000 San Juan De La Costa",
+        "label": "5400000 San Juan De La Costa"
+    },
+    {
+        "value": "CHL;5480000 Puerto Montt",
+        "label": "5480000 Puerto Montt"
+    },
+    {
+        "value": "CHL;5550000 Puerto Varas",
+        "label": "5550000 Puerto Varas"
+    },
+    {
+        "value": "CHL;5560000 Cochamo",
+        "label": "5560000 Cochamo"
+    },
+    {
+        "value": "CHL;5570000 Calbuco",
+        "label": "5570000 Calbuco"
+    },
+    {
+        "value": "CHL;5580000 Maullín",
+        "label": "5580000 Maullín"
+    },
+    {
+        "value": "CHL;5590000 Los Muermos",
+        "label": "5590000 Los Muermos"
+    },
+    {
+        "value": "CHL;5600000 Fresia",
+        "label": "5600000 Fresia"
+    },
+    {
+        "value": "CHL;5610000 Llanquihue",
+        "label": "5610000 Llanquihue"
+    },
+    {
+        "value": "CHL;5620000 Frutillar",
+        "label": "5620000 Frutillar"
+    },
+    {
+        "value": "CHL;5700000 Castro",
+        "label": "5700000 Castro"
+    },
+    {
+        "value": "CHL;5710000 Ancud",
+        "label": "5710000 Ancud"
+    },
+    {
+        "value": "CHL;5720000 Quemchi",
+        "label": "5720000 Quemchi"
+    },
+    {
+        "value": "CHL;5730000 Dalcahue",
+        "label": "5730000 Dalcahue"
+    },
+    {
+        "value": "CHL;5740000 Curaco De Vélez",
+        "label": "5740000 Curaco De Vélez"
+    },
+    {
+        "value": "CHL;5750000 Quinchao",
+        "label": "5750000 Quinchao"
+    },
+    {
+        "value": "CHL;5760000 Puqueldón",
+        "label": "5760000 Puqueldón"
+    },
+    {
+        "value": "CHL;5770000 Chonchi",
+        "label": "5770000 Chonchi"
+    },
+    {
+        "value": "CHL;5780000 Queilen",
+        "label": "5780000 Queilen"
+    },
+    {
+        "value": "CHL;5790000 Quellón",
+        "label": "5790000 Quellón"
+    },
+    {
+        "value": "CHL;5850000 Chaitén",
+        "label": "5850000 Chaitén"
+    },
+    {
+        "value": "CHL;5860000 Hualaihue",
+        "label": "5860000 Hualaihue"
+    },
+    {
+        "value": "CHL;5870000 Futaleufú",
+        "label": "5870000 Futaleufú"
+    },
+    {
+        "value": "CHL;5880000 Palena",
+        "label": "5880000 Palena"
+    },
+    {
+        "value": "CHL;5950000 Coyhaique",
+        "label": "5950000 Coyhaique"
+    },
+    {
+        "value": "CHL;5960000 Lago Verde",
+        "label": "5960000 Lago Verde"
+    },
+    {
+        "value": "CHL;6000000 Aysén",
+        "label": "6000000 Aysén"
+    },
+    {
+        "value": "CHL;6010000 Cisnes",
+        "label": "6010000 Cisnes"
+    },
+    {
+        "value": "CHL;6020000 Guaitecas",
+        "label": "6020000 Guaitecas"
+    },
+    {
+        "value": "CHL;6050000 Chile Chico",
+        "label": "6050000 Chile Chico"
+    },
+    {
+        "value": "CHL;6060000 Río Ibanez",
+        "label": "6060000 Río Ibanez"
+    },
+    {
+        "value": "CHL;6100000 Cochrane",
+        "label": "6100000 Cochrane"
+    },
+    {
+        "value": "CHL;6110000 O’Higgins",
+        "label": "6110000 O’Higgins"
+    },
+    {
+        "value": "CHL;6120000 Tortel",
+        "label": "6120000 Tortel"
+    },
+    {
+        "value": "CHL;6160000 Natales",
+        "label": "6160000 Natales"
+    },
+    {
+        "value": "CHL;6170000 Torres Del Paine",
+        "label": "6170000 Torres Del Paine"
+    },
+    {
+        "value": "CHL;6200000 Punta Arenas",
+        "label": "6200000 Punta Arenas"
+    },
+    {
+        "value": "CHL;6240000 Río Verde",
+        "label": "6240000 Río Verde"
+    },
+    {
+        "value": "CHL;6250000 Laguna Blanca",
+        "label": "6250000 Laguna Blanca"
+    },
+    {
+        "value": "CHL;6260000 San Gregorio",
+        "label": "6260000 San Gregorio"
+    },
+    {
+        "value": "CHL;6300000 Porvenir",
+        "label": "6300000 Porvenir"
+    },
+    {
+        "value": "CHL;6310000 Primavera",
+        "label": "6310000 Primavera"
+    },
+    {
+        "value": "CHL;6320000 Timaukel",
+        "label": "6320000 Timaukel"
+    },
+    {
+        "value": "CHL;6350000 Cabo De Hornos",
+        "label": "6350000 Cabo De Hornos"
+    },
+    {
+        "value": "CHL;6360000 Antártica",
+        "label": "6360000 Antártica"
+    },
+    {
+        "value": "CHL;6500000 Villa Alemana",
+        "label": "6500000 Villa Alemana"
+    },
+    {
+        "value": "CHL;7500000 Providencia",
+        "label": "7500000 Providencia"
+    },
+    {
+        "value": "CHL;7550000 Las Condes",
+        "label": "7550000 Las Condes"
+    },
+    {
+        "value": "CHL;7630000 Vitacura",
+        "label": "7630000 Vitacura"
+    },
+    {
+        "value": "CHL;7690000 Lo Barnechea",
+        "label": "7690000 Lo Barnechea"
+    },
+    {
+        "value": "CHL;7750000 Ñuñoa",
+        "label": "7750000 Ñuñoa"
+    },
+    {
+        "value": "CHL;7810000 Macul",
+        "label": "7810000 Macul"
+    },
+    {
+        "value": "CHL;7850000 La Reina",
+        "label": "7850000 La Reina"
+    },
+    {
+        "value": "CHL;7910000 Penalolén",
+        "label": "7910000 Penalolén"
+    },
+    {
+        "value": "CHL;7970000 La Cisterna",
+        "label": "7970000 La Cisterna"
+    },
+    {
+        "value": "CHL;8010000 El Bosque",
+        "label": "8010000 El Bosque"
+    },
+    {
+        "value": "CHL;8050000 San Bernardo",
+        "label": "8050000 San Bernardo"
+    },
+    {
+        "value": "CHL;8150000 Puente Alto",
+        "label": "8150000 Puente Alto"
+    },
+    {
+        "value": "CHL;8240000 La Florida",
+        "label": "8240000 La Florida"
+    },
+    {
+        "value": "CHL;8320000 Santiago",
+        "label": "8320000 Santiago"
+    },
+    {
+        "value": "CHL;8380000 Independencia",
+        "label": "8380000 Independencia"
+    },
+    {
+        "value": "CHL;8420000 Recoleta",
+        "label": "8420000 Recoleta"
+    },
+    {
+        "value": "CHL;8460000 Pedro Aguirre Cerda",
+        "label": "8460000 Pedro Aguirre Cerda"
+    },
+    {
+        "value": "CHL;8500000 Quinta Normal",
+        "label": "8500000 Quinta Normal"
+    },
+    {
+        "value": "CHL;8540000 Conchalí",
+        "label": "8540000 Conchalí"
+    },
+    {
+        "value": "CHL;8580000 Huechuraba",
+        "label": "8580000 Huechuraba"
+    },
+    {
+        "value": "CHL;8640000 Renca",
+        "label": "8640000 Renca"
+    },
+    {
+        "value": "CHL;8700000 Quilicura",
+        "label": "8700000 Quilicura"
+    },
+    {
+        "value": "CHL;8780000 La Granja",
+        "label": "8780000 La Granja"
+    },
+    {
+        "value": "CHL;8820000 La Pintana",
+        "label": "8820000 La Pintana"
+    },
+    {
+        "value": "CHL;8860000 San Ramón",
+        "label": "8860000 San Ramón"
+    },
+    {
+        "value": "CHL;8900000 San Miguel",
+        "label": "8900000 San Miguel"
+    },
+    {
+        "value": "CHL;8940000 San Joaquín",
+        "label": "8940000 San Joaquín"
+    },
+    {
+        "value": "CHL;8980000 Lo Prado",
+        "label": "8980000 Lo Prado"
+    },
+    {
+        "value": "CHL;9020000 Pudahuel",
+        "label": "9020000 Pudahuel"
+    },
+    {
+        "value": "CHL;9080000 Cerro Navia",
+        "label": "9080000 Cerro Navia"
+    },
+    {
+        "value": "CHL;9120000 Lo Espejo",
+        "label": "9120000 Lo Espejo"
+    },
+    {
+        "value": "CHL;9160000 Estación Central",
+        "label": "9160000 Estación Central"
+    },
+    {
+        "value": "CHL;9200000 Cerrillos",
+        "label": "9200000 Cerrillos"
+    },
+    {
+        "value": "CHL;9250000 Maipu",
+        "label": "9250000 Maipu"
+    },
+    {
+        "value": "CHL;9340000 Colina",
+        "label": "9340000 Colina"
+    },
+    {
+        "value": "CHL;9380000 Lampa",
+        "label": "9380000 Lampa"
+    },
+    {
+        "value": "CHL;9420000 Tiltil",
+        "label": "9420000 Tiltil"
+    },
+    {
+        "value": "CHL;9460000 San Jose De Maipo",
+        "label": "9460000 San Jose De Maipo"
+    },
+    {
+        "value": "CHL;9480000 Pirque",
+        "label": "9480000 Pirque"
+    },
+    {
+        "value": "CHL;9500000 Buin",
+        "label": "9500000 Buin"
+    },
+    {
+        "value": "CHL;9540000 Paine",
+        "label": "9540000 Paine"
+    },
+    {
+        "value": "CHL;9560000 Calera De Tango",
+        "label": "9560000 Calera De Tango"
+    },
+    {
+        "value": "CHL;9580000 Melipilla",
+        "label": "9580000 Melipilla"
+    },
+    {
+        "value": "CHL;9620000 María Pinto",
+        "label": "9620000 María Pinto"
+    },
+    {
+        "value": "CHL;9630000 Curacaví",
+        "label": "9630000 Curacaví"
+    },
+    {
+        "value": "CHL;9650000 Alhue",
+        "label": "9650000 Alhue"
+    },
+    {
+        "value": "CHL;9660000 San Pedro",
+        "label": "9660000 San Pedro"
+    },
+    {
+        "value": "CHL;9670000 Talagante",
+        "label": "9670000 Talagante"
+    },
+    {
+        "value": "CHL;9710000 Padre Hurtado",
+        "label": "9710000 Padre Hurtado"
+    },
+    {
+        "value": "CHL;9750000 Peñaflor",
+        "label": "9750000 Peñaflor"
+    },
+    {
+        "value": "CHL;9790000 Isla De Maipo",
+        "label": "9790000 Isla De Maipo"
+    },
+    {
+        "value": "CHL;9810000 El Monte",
+        "label": "9810000 El Monte"
+    }
+]

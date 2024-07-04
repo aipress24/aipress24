@@ -1,0 +1,27 @@
+{% extends "_base.html" %} {% block main %}
+<div class="py-10 px-4">
+  <div class="mx-auto lg:max-w-7xl p-6 lg:p-8 bg-white rounded-xl">
+    <div class="mx-auto max-w-2xl">
+      <form method="post" action="profile">
+        <div class="mt-6 flex items-center justify-end gap-x-6">
+          <input
+            type="submit"
+            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            name="welcome"
+            value="Suivant" />
+        </div>
+        <div class="content">{% include "_welcome_content.html" %}</div>
+        <div>
+          <div class="mt-6 flex items-center justify-end gap-x-6">
+            <input
+              type="submit"
+              class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              name="welcome"
+              value="Suivant" />
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

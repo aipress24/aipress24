@@ -1,0 +1,168 @@
+{
+    "table": [
+        [
+            {
+                "colspanned": 2,
+                "rowspanned": 1,
+                "value": null
+            },
+            null
+        ],
+        [],
+        [
+            "INFO GÉNÉ"
+        ],
+        [
+            null,
+            "Information nationale & internationale"
+        ],
+        [
+            null,
+            "Information régionale et locale"
+        ],
+        [
+            null,
+            "Politique"
+        ],
+        [
+            null,
+            "Société & faits divers"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [],
+        [
+            "INFO ÉCO & PRO"
+        ],
+        [
+            null,
+            "Auto, moto & mobilités"
+        ],
+        [
+            null,
+            "BTP"
+        ],
+        [
+            null,
+            "Collectivités locales"
+        ],
+        [
+            null,
+            "Distribution"
+        ],
+        [
+            null,
+            "Economie & Finances"
+        ],
+        [
+            null,
+            "Entreprise & management"
+        ],
+        [
+            null,
+            "Environnement"
+        ],
+        [
+            null,
+            "IAA, agriculture"
+        ],
+        [
+            null,
+            "Industrie"
+        ],
+        [
+            null,
+            "Innovation"
+        ],
+        [
+            null,
+            "Juridique"
+        ],
+        [
+            null,
+            "Médical"
+        ],
+        [
+            null,
+            "Numérique Pro & technologies"
+        ],
+        [
+            null,
+            "Santé, santé au travail"
+        ],
+        [
+            null,
+            "Transport & Logistique"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [],
+        [
+            "INFO GRAND PUBLIC SPÉCIALISÉE"
+        ],
+        [
+            null,
+            "Animaux"
+        ],
+        [
+            null,
+            "Argent, placements, patrimoine"
+        ],
+        [
+            null,
+            "Arts & culture"
+        ],
+        [
+            null,
+            "Automobile & mobilités"
+        ],
+        [
+            null,
+            "Déco, brico, jardinage"
+        ],
+        [
+            null,
+            "Education"
+        ],
+        [
+            null,
+            "Femme (mode, beauté, santé)"
+        ],
+        [
+            null,
+            "Homme (mode, beauté, santé)"
+        ],
+        [
+            null,
+            "Loisirs, cuisine, gastronomie"
+        ],
+        [
+            null,
+            "Numérique & jeux vidéo"
+        ],
+        [
+            null,
+            "People"
+        ],
+        [
+            null,
+            "Sciences & Environnement "
+        ],
+        [
+            null,
+            "Sports"
+        ],
+        [
+            null,
+            "Tourisme, voyage"
+        ],
+        [
+            null,
+            "Autres"
+        ]
+    ]
+}

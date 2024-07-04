@@ -1,0 +1,2042 @@
+{
+    "table": [
+        [
+            "Direction générale ",
+            "Thématiques"
+        ],
+        [
+            null,
+            "Vision et stratégie"
+        ],
+        [
+            null,
+            "Cas d'école"
+        ],
+        [
+            null,
+            "Résultats financiers"
+        ],
+        [
+            null,
+            "Tendances du marché du marché"
+        ],
+        [
+            null,
+            "Actualité du secteur"
+        ],
+        [
+            null,
+            "Leadership, valeurs, éthique"
+        ],
+        [
+            null,
+            "Responsabilité sociétale des entreprises (RSE) "
+        ],
+        [
+            null,
+            "Transformation digitale de l’entreprise"
+        ],
+        [
+            null,
+            "Transformation environnementale de l’entreprise"
+        ],
+        [
+            null,
+            "Environnement, développement durable"
+        ],
+        [
+            null,
+            "Réussites et distinctions"
+        ],
+        [
+            null,
+            "Gouvernance"
+        ],
+        [
+            null,
+            "Investissements"
+        ],
+        [
+            null,
+            "Fusions & acquisitions"
+        ],
+        [
+            null,
+            "Expansion, croissance"
+        ],
+        [
+            null,
+            "International"
+        ],
+        [
+            null,
+            "Innovation et R&D"
+        ],
+        [
+            null,
+            "Nouveaux produits et services"
+        ],
+        [
+            null,
+            "Gestion des ressources humaines"
+        ],
+        [
+            null,
+            "Efficacité opérationnelle, schéma directeur"
+        ],
+        [
+            null,
+            "Gestion de crise et plan d’action "
+        ],
+        [
+            null,
+            "Sécurité, sûreté, cyber"
+        ],
+        [
+            null,
+            "Relations avec les parties prenantes"
+        ],
+        [
+            null,
+            "Communication interne et externe"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "Direction Communication"
+        ],
+        [
+            null,
+            "Stratégie et schéma directeur"
+        ],
+        [
+            null,
+            "Cas d'école"
+        ],
+        [
+            null,
+            "Image de marque et identité"
+        ],
+        [
+            null,
+            "Relations presse"
+        ],
+        [
+            null,
+            "Relations publics"
+        ],
+        [
+            null,
+            "Communication interne "
+        ],
+        [
+            null,
+            "Communication de crise "
+        ],
+        [
+            null,
+            "Responsabilité sociale d'entreprise (RSE)"
+        ],
+        [
+            null,
+            "Communication de produits/services"
+        ],
+        [
+            null,
+            "Communication institutionnelle"
+        ],
+        [
+            null,
+            "Communication financière"
+        ],
+        [
+            null,
+            "Communication partenariats"
+        ],
+        [
+            null,
+            "Communication recrutements"
+        ],
+        [
+            null,
+            "Communication digitale (site Web, réseaux sociaux)"
+        ],
+        [
+            null,
+            "Lobbying et relations gouvernementales"
+        ],
+        [
+            null,
+            "Événements et relations publics"
+        ],
+        [
+            null,
+            "Événements et relations Presse"
+        ],
+        [
+            null,
+            "Education et sensibilisation"
+        ],
+        [
+            null,
+            "Attractivité des métiers"
+        ],
+        [
+            null,
+            "Transformation digitale"
+        ],
+        [
+            null,
+            "Transformation environnementale"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "Direction Marketing"
+        ],
+        [
+            null,
+            "Stratégie et schéma directeur"
+        ],
+        [
+            null,
+            "Cas d'école"
+        ],
+        [
+            null,
+            "Positionnement de la marque"
+        ],
+        [
+            null,
+            "Stratégie produits/services"
+        ],
+        [
+            null,
+            "Responsabilité sociale d'entreprise (RSE)"
+        ],
+        [
+            null,
+            "Campagnes publicitaires"
+        ],
+        [
+            null,
+            "Stratégie de tarification"
+        ],
+        [
+            null,
+            "Marketing de contenu"
+        ],
+        [
+            null,
+            "Relations publics et événements"
+        ],
+        [
+            null,
+            "Analyse de données"
+        ],
+        [
+            null,
+            "Segmentation du marché"
+        ],
+        [
+            null,
+            "Lancement de produits/services"
+        ],
+        [
+            null,
+            "Stratégie de fidélisation de la clientèle"
+        ],
+        [
+            null,
+            "Réseaux sociaux et influenceurs"
+        ],
+        [
+            null,
+            "Etudes de marché"
+        ],
+        [
+            null,
+            "Marketing de proximité"
+        ],
+        [
+            null,
+            "Partenariats"
+        ],
+        [
+            null,
+            "Sponsoring et mécénats"
+        ],
+        [
+            null,
+            "Fondation philanthropique d’entreprise"
+        ],
+        [
+            null,
+            "Attractivité des métiers"
+        ],
+        [
+            null,
+            "Transformation digitale"
+        ],
+        [
+            null,
+            "Transformation environnementale"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "Direction Ventes"
+        ],
+        [
+            null,
+            "Stratégie et schéma directeur"
+        ],
+        [
+            null,
+            "Cas d'école"
+        ],
+        [
+            null,
+            "Connaissance du marché"
+        ],
+        [
+            null,
+            "Prospection des clients"
+        ],
+        [
+            null,
+            "Responsabilité sociale d'entreprise (RSE)"
+        ],
+        [
+            null,
+            "Analyse et suivi des indicateurs de la performance"
+        ],
+        [
+            null,
+            "Gestion de portefeuille de clients"
+        ],
+        [
+            null,
+            "Planification des ventes"
+        ],
+        [
+            null,
+            "Formation des équipes commerciales"
+        ],
+        [
+            null,
+            "Tarification et négociation"
+        ],
+        [
+            null,
+            "Distribution et logistique"
+        ],
+        [
+            null,
+            "Promotion des -ventes"
+        ],
+        [
+            null,
+            "Participation à des événements et salons"
+        ],
+        [
+            null,
+            "Service clients"
+        ],
+        [
+            null,
+            "Planification de la demande"
+        ],
+        [
+            null,
+            "Partenariats commerciaux"
+        ],
+        [
+            null,
+            "Gestion de territoires"
+        ],
+        [
+            null,
+            "Réseaux de distribution"
+        ],
+        [
+            null,
+            "Marketplace de vente"
+        ],
+        [
+            null,
+            "Risque client"
+        ],
+        [
+            null,
+            "Attractivité des métiers"
+        ],
+        [
+            null,
+            "Transformation digitale"
+        ],
+        [
+            null,
+            "Transformation environnementale"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "Direction Achats"
+        ],
+        [
+            null,
+            "Stratégie et schéma directeur"
+        ],
+        [
+            null,
+            "Cas d'école"
+        ],
+        [
+            null,
+            "Achat responsable"
+        ],
+        [
+            null,
+            "Responsabilité sociale d'entreprise (RSE)"
+        ],
+        [
+            null,
+            "Economie circulaire, réemploi"
+        ],
+        [
+            null,
+            "Gestion des fournisseurs"
+        ],
+        [
+            null,
+            "Négociation et contrats"
+        ],
+        [
+            null,
+            "Réduction des coûts"
+        ],
+        [
+            null,
+            "Qualité et conformité"
+        ],
+        [
+            null,
+            "Gestion des stocks "
+        ],
+        [
+            null,
+            "Planification des achats"
+        ],
+        [
+            null,
+            "Gestion des contrats"
+        ],
+        [
+            null,
+            "Technologies et systèmes d'approvisionnement"
+        ],
+        [
+            null,
+            "Achats internationaux"
+        ],
+        [
+            null,
+            "Marketplace d’achat"
+        ],
+        [
+            null,
+            "Risque fournisseur"
+        ],
+        [
+            null,
+            "Attractivité des métiers"
+        ],
+        [
+            null,
+            "Transformation digitale"
+        ],
+        [
+            null,
+            "Transformation environnementale"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "Direction Administration & Finances"
+        ],
+        [
+            null,
+            "Stratégie financière"
+        ],
+        [
+            null,
+            "Cas d'école"
+        ],
+        [
+            null,
+            "Comptabilité et finance"
+        ],
+        [
+            null,
+            "Elaboration du budget et planification financière"
+        ],
+        [
+            null,
+            "Contrôle de gestion interne"
+        ],
+        [
+            null,
+            "Audits financiers"
+        ],
+        [
+            null,
+            "Conformité réglementaire"
+        ],
+        [
+            null,
+            "Introduction en Bourse"
+        ],
+        [
+            null,
+            "Résultats financiers"
+        ],
+        [
+            null,
+            "Rapports financiers"
+        ],
+        [
+            null,
+            "Rapports extra-financiers, RSE"
+        ],
+        [
+            null,
+            "Conformité fiscale "
+        ],
+        [
+            null,
+            "Gestion de trésorerie"
+        ],
+        [
+            null,
+            "Gestion des actifs "
+        ],
+        [
+            null,
+            "Administration du personnel"
+        ],
+        [
+            null,
+            "Investissements"
+        ],
+        [
+            null,
+            "Financement de l’innovation"
+        ],
+        [
+            null,
+            "Corporate Venture Capital"
+        ],
+        [
+            null,
+            "Technologies et systèmes financiers"
+        ],
+        [
+            null,
+            "Gestion des risques"
+        ],
+        [
+            null,
+            "Efficacité opérationnelle"
+        ],
+        [
+            null,
+            "Attractivité des métiers"
+        ],
+        [
+            null,
+            "Transformation digitale"
+        ],
+        [
+            null,
+            "Transformation environnementale"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "Direction R&D, Innovation"
+        ],
+        [
+            null,
+            "Stratégie d'innovation"
+        ],
+        [
+            null,
+            "Cas d'école"
+        ],
+        [
+            null,
+            "Nouveaux produits, procédés, technologies, services"
+        ],
+        [
+            null,
+            "Activités de R&D, Innovation"
+        ],
+        [
+            null,
+            "Résultats de recherche"
+        ],
+        [
+            null,
+            "Collaborations académiques"
+        ],
+        [
+            null,
+            "Collaborations interentreprises"
+        ],
+        [
+            null,
+            "Collaborations avec des startups"
+        ],
+        [
+            null,
+            "Partenariats de recherche académique"
+        ],
+        [
+            null,
+            "POC, test en grandeur réelle, présérie industrielle "
+        ],
+        [
+            null,
+            "Protection de la propriété industrielle"
+        ],
+        [
+            null,
+            "Culture de l’innovation"
+        ],
+        [
+            null,
+            "Gestion des connaissances"
+        ],
+        [
+            null,
+            "RSE"
+        ],
+        [
+            null,
+            "Gestion des connaissances"
+        ],
+        [
+            null,
+            "Evénements et conférences"
+        ],
+        [
+            null,
+            "Education et sensibilisation"
+        ],
+        [
+            null,
+            "Retour d’information clients"
+        ],
+        [
+            null,
+            "Bureau d’études"
+        ],
+        [
+            null,
+            "Prix et distinctions"
+        ],
+        [
+            null,
+            "Attractivité des métiers"
+        ],
+        [
+            null,
+            "Transformation digitale"
+        ],
+        [
+            null,
+            "Transformation environnementale"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "Direction Production"
+        ],
+        [
+            null,
+            "Stratégie et schéma directeur de production"
+        ],
+        [
+            null,
+            "Cas d'école"
+        ],
+        [
+            null,
+            "Excellence opérationnelle"
+        ],
+        [
+            null,
+            "Qualité et assurance qualité "
+        ],
+        [
+            null,
+            "Ingénierie de production"
+        ],
+        [
+            null,
+            "Productivité"
+        ],
+        [
+            null,
+            "Gestion de projets"
+        ],
+        [
+            null,
+            "Gestion des méthodes"
+        ],
+        [
+            null,
+            "Gestion des coûts de production"
+        ],
+        [
+            null,
+            "Gestion de la chaîne d'approvisionnement"
+        ],
+        [
+            null,
+            "Planification de la production"
+        ],
+        [
+            null,
+            "Innovation dans la production"
+        ],
+        [
+            null,
+            "Collaborations académiques"
+        ],
+        [
+            null,
+            "Collaborations interentreprises"
+        ],
+        [
+            null,
+            "Collaborations avec des startups"
+        ],
+        [
+            null,
+            "Informatique industrielle"
+        ],
+        [
+            null,
+            "Automatisation, robotique, cobotique, IA"
+        ],
+        [
+            null,
+            "Gestion des ressources humaines"
+        ],
+        [
+            null,
+            "Santé et sécurité au travail "
+        ],
+        [
+            null,
+            "Nouvelle usine, nouvelle ligne de production"
+        ],
+        [
+            null,
+            "Gestion des opérations en temps réel "
+        ],
+        [
+            null,
+            "Satisfaction client"
+        ],
+        [
+            null,
+            "Risques industriels"
+        ],
+        [
+            null,
+            "Gestion de crise"
+        ],
+        [
+            null,
+            "Economie des ressources, "
+        ],
+        [
+            null,
+            "Economie circulaire, durabilité "
+        ],
+        [
+            null,
+            "Recyclage, réduction des pollutions et des déchets"
+        ],
+        [
+            null,
+            "Retour produits"
+        ],
+        [
+            null,
+            "Sécurité-sûreté des sites industriels"
+        ],
+        [
+            null,
+            "Attractivité des métiers"
+        ],
+        [
+            null,
+            "Transformation digitale"
+        ],
+        [
+            null,
+            "Transformation environnementale"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "Direction Logistique"
+        ],
+        [
+            null,
+            "Stratégie et schéma directeur de la logistique"
+        ],
+        [
+            null,
+            "Cas d'école"
+        ],
+        [
+            null,
+            "Efficacité de la chaîne d’approvisionnement"
+        ],
+        [
+            null,
+            "Planification logistique"
+        ],
+        [
+            null,
+            "Système de gestion d’entrepôt (WMS), IA"
+        ],
+        [
+            null,
+            "Groupage/dégroupage, gestion des transports"
+        ],
+        [
+            null,
+            "Nouvel entrepôt"
+        ],
+        [
+            null,
+            "Automatisation, robotisation de l’entrepôt"
+        ],
+        [
+            null,
+            "Gestion de l’approvisionnement"
+        ],
+        [
+            null,
+            "Gestion prévisionnelle de la demande"
+        ],
+        [
+            null,
+            "Gestion de la qualité"
+        ],
+        [
+            null,
+            "Gestion des stocks, inventaire"
+        ],
+        [
+            null,
+            "Sécurité et santé au travail dans l’entrepôt"
+        ],
+        [
+            null,
+            "Conformité réglementaire"
+        ],
+        [
+            null,
+            "Tracking-Tracing"
+        ],
+        [
+            null,
+            "Logistique verte, entrepôt vert, production d’énergie"
+        ],
+        [
+            null,
+            "Robotique mobile et autonome"
+        ],
+        [
+            null,
+            "Gestion des coûts logistiques"
+        ],
+        [
+            null,
+            "Collaborations académiques"
+        ],
+        [
+            null,
+            "Collaborations interentreprises"
+        ],
+        [
+            null,
+            "Collaborations avec des startups"
+        ],
+        [
+            null,
+            "Opérations de production de finissage"
+        ],
+        [
+            null,
+            "Gestion de crise"
+        ],
+        [
+            null,
+            "Gestion des retours"
+        ],
+        [
+            null,
+            "RSE"
+        ],
+        [
+            null,
+            "Suivi des indicateurs clés de la performance"
+        ],
+        [
+            null,
+            "Sécurité-sûreté des sites logistiques"
+        ],
+        [
+            null,
+            "Attractivité des métiers"
+        ],
+        [
+            null,
+            "Transformation digitale"
+        ],
+        [
+            null,
+            "Transformation environnementale"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "Direction Transports"
+        ],
+        [
+            null,
+            "Stratégie et schéma directeur du transport"
+        ],
+        [
+            null,
+            "Cas d'école"
+        ],
+        [
+            null,
+            "Système de gestion du transport (TMS)"
+        ],
+        [
+            null,
+            "Planification, optimisation des tournées"
+        ],
+        [
+            null,
+            "Plateformes d’intermédiation pour l’achat de transports"
+        ],
+        [
+            null,
+            "Gestion des expéditions"
+        ],
+        [
+            null,
+            "Tracking-Tracing, géolocalisation"
+        ],
+        [
+            null,
+            "Tarification et coûts"
+        ],
+        [
+            null,
+            "Système de gestion des douanes"
+        ],
+        [
+            null,
+            "Gestion de flotte"
+        ],
+        [
+            null,
+            "Nouveau véhicules, véhicules verts"
+        ],
+        [
+            null,
+            "Nouvelles mobilités"
+        ],
+        [
+            null,
+            "Transport intermodal"
+        ],
+        [
+            null,
+            "Livraison urbaine durable"
+        ],
+        [
+            null,
+            "Gestion de crise"
+        ],
+        [
+            null,
+            "RSE"
+        ],
+        [
+            null,
+            "Sécurité routière, assurances"
+        ],
+        [
+            null,
+            "eCRM"
+        ],
+        [
+            null,
+            "Gestion des risques"
+        ],
+        [
+            null,
+            "Gestion des RH"
+        ],
+        [
+            null,
+            "Formation à l’éco-conduite"
+        ],
+        [
+            null,
+            "Sécurité-sûreté des sites parkings"
+        ],
+        [
+            null,
+            "Attractivité des métiers"
+        ],
+        [
+            null,
+            "Transformation digitale"
+        ],
+        [
+            null,
+            "Transformation environnementale"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "Direction Ressources humaines"
+        ],
+        [
+            null,
+            "Stratégie et schéma directeur des RH"
+        ],
+        [
+            null,
+            "Cas d'école"
+        ],
+        [
+            null,
+            "Recrutement, attractivité, fidélisation"
+        ],
+        [
+            null,
+            "Marque employeur"
+        ],
+        [
+            null,
+            "Intégration"
+        ],
+        [
+            null,
+            "Culture d’entreprise"
+        ],
+        [
+            null,
+            "Développement professionnel, formation"
+        ],
+        [
+            null,
+            "Rémunérations et avantages sociaux"
+        ],
+        [
+            null,
+            "Gestion de la performance "
+        ],
+        [
+            null,
+            "Gestion du changement"
+        ],
+        [
+            null,
+            "Collaborations académiques"
+        ],
+        [
+            null,
+            "Collaborations interentreprises"
+        ],
+        [
+            null,
+            "Collaborations avec des startups"
+        ],
+        [
+            null,
+            "Qualité de vie et santé-sécurité au travail"
+        ],
+        [
+            null,
+            "Gestion des conflits et relations "
+        ],
+        [
+            null,
+            "Communication interne"
+        ],
+        [
+            null,
+            "Diversité et inclusion"
+        ],
+        [
+            null,
+            "RSE"
+        ],
+        [
+            null,
+            "Attractivité des métiers"
+        ],
+        [
+            null,
+            "Transformation digitale"
+        ],
+        [
+            null,
+            "Transformation environnementale"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "Direction RSE"
+        ],
+        [
+            null,
+            "Stratégie et schéma directeur RSE"
+        ],
+        [
+            null,
+            "Charte RSE"
+        ],
+        [
+            null,
+            "Cas d'école"
+        ],
+        [
+            null,
+            "Responsabilité sociétale"
+        ],
+        [
+            null,
+            "Ethique des affaires"
+        ],
+        [
+            null,
+            "Gouvernance d’entreprise"
+        ],
+        [
+            null,
+            "Indicateurs clés de la performance"
+        ],
+        [
+            null,
+            "Mesures et évaluations"
+        ],
+        [
+            null,
+            "Rapport RSE"
+        ],
+        [
+            null,
+            "Collaborations académiques"
+        ],
+        [
+            null,
+            "Collaborations interentreprises"
+        ],
+        [
+            null,
+            "Collaborations avec des startups"
+        ],
+        [
+            null,
+            "Chaînes d’approvisionnement durables"
+        ],
+        [
+            null,
+            "Transparence et redevabilité"
+        ],
+        [
+            null,
+            "Engagements philanthropiques et humanitaires"
+        ],
+        [
+            null,
+            "Sensibilisation et éducation des parties prenantes"
+        ],
+        [
+            null,
+            "Gestion de crise"
+        ],
+        [
+            null,
+            "Conformité réglementaire"
+        ],
+        [
+            null,
+            "Innovation responsable et durable"
+        ],
+        [
+            null,
+            "Impact social"
+        ],
+        [
+            null,
+            "Attractivité des métiers"
+        ],
+        [
+            null,
+            "Transformation digitale"
+        ],
+        [
+            null,
+            "Transformation environnementale"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "Direction Environnement"
+        ],
+        [
+            null,
+            "Stratégie et schéma directeur Environnement"
+        ],
+        [
+            null,
+            "Charte environnementale"
+        ],
+        [
+            null,
+            "Cas d'école"
+        ],
+        [
+            null,
+            "Bilan carbone"
+        ],
+        [
+            null,
+            "Bilan environnemental"
+        ],
+        [
+            null,
+            "Décarbonation"
+        ],
+        [
+            null,
+            "Energies propres"
+        ],
+        [
+            null,
+            "Approvisionnements responsables"
+        ],
+        [
+            null,
+            "Relocalisation"
+        ],
+        [
+            null,
+            "Utilisation responsable des ressources"
+        ],
+        [
+            null,
+            "Gestion des déchets, recyclage, réemploi"
+        ],
+        [
+            null,
+            "Economie circulaire"
+        ],
+        [
+            null,
+            "Circuits courts"
+        ],
+        [
+            null,
+            "Conformité réglementaire"
+        ],
+        [
+            null,
+            "Collaborations académiques"
+        ],
+        [
+            null,
+            "Collaborations interentreprises"
+        ],
+        [
+            null,
+            "Collaborations avec des startups"
+        ],
+        [
+            null,
+            "Mobilités douces"
+        ],
+        [
+            null,
+            "Certifications et labels environnementaux"
+        ],
+        [
+            null,
+            "Biodiversité et préservation des écosystèmes"
+        ],
+        [
+            null,
+            "Innovation environnementale "
+        ],
+        [
+            null,
+            "Gestion de crise environnementale"
+        ],
+        [
+            null,
+            "Sensibilisation des employés et de la communauté"
+        ],
+        [
+            null,
+            "Transparence et reporting"
+        ],
+        [
+            null,
+            "Attractivité des métiers"
+        ],
+        [
+            null,
+            "Transformation digitale"
+        ],
+        [
+            null,
+            "Transformation environnementale "
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "Direction Systèmes d’Information"
+        ],
+        [
+            null,
+            "Stratégie et schéma directeur Environnement"
+        ],
+        [
+            null,
+            "Transformation digitale de l’entreprise"
+        ],
+        [
+            null,
+            "Cas d'école"
+        ],
+        [
+            null,
+            "Logiciels libres (Open Source Software)"
+        ],
+        [
+            null,
+            "Sécurité des systèmes d’information, cybersécurité"
+        ],
+        [
+            null,
+            "Gestion de projets digitaux"
+        ],
+        [
+            null,
+            "Urbanisation, architectures des systèmes d’information"
+        ],
+        [
+            null,
+            "Réseaux, systèmes, infrastructures, télécoms"
+        ],
+        [
+            null,
+            "Cloud"
+        ],
+        [
+            null,
+            "Collaborations académiques"
+        ],
+        [
+            null,
+            "Collaborations interentreprises"
+        ],
+        [
+            null,
+            "Collaborations avec des startups"
+        ],
+        [
+            null,
+            "Applicatifs métiers"
+        ],
+        [
+            null,
+            "Support technique et maintenance"
+        ],
+        [
+            null,
+            "Développement logiciel"
+        ],
+        [
+            null,
+            "Innovation technologique"
+        ],
+        [
+            null,
+            "IoT, IIoT"
+        ],
+        [
+            null,
+            "Informatique avancée (IA, Block-Chain, temps réel…)"
+        ],
+        [
+            null,
+            "Sûreté de fonctionnement"
+        ],
+        [
+            null,
+            "Cyberprévention"
+        ],
+        [
+            null,
+            "Plan de continuité d’activité"
+        ],
+        [
+            null,
+            "Plan de reprise d’activité"
+        ],
+        [
+            null,
+            "Gestion de crise"
+        ],
+        [
+            null,
+            "Souveraineté technologique"
+        ],
+        [
+            null,
+            "Gestion des données"
+        ],
+        [
+            null,
+            "Formation et compétences"
+        ],
+        [
+            null,
+            "Budget et contrôle des coûts"
+        ],
+        [
+            null,
+            "Conformité réglementaire"
+        ],
+        [
+            null,
+            "Attractivité des métiers"
+        ],
+        [
+            null,
+            "Transformation environnementale Digital"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "Direction Juridique"
+        ],
+        [
+            null,
+            "Stratégie et schéma directeur Juridique"
+        ],
+        [
+            null,
+            "Conformité légale"
+        ],
+        [
+            null,
+            "Gestion des risques"
+        ],
+        [
+            null,
+            "Cas d'école"
+        ],
+        [
+            null,
+            "Contrats et négociations"
+        ],
+        [
+            null,
+            "Fusions et acquisitions"
+        ],
+        [
+            null,
+            "Propriété intellectuelle"
+        ],
+        [
+            null,
+            "Litiges et contentieux"
+        ],
+        [
+            null,
+            "Gestion de la confidentialité"
+        ],
+        [
+            null,
+            "Gestion de crise "
+        ],
+        [
+            null,
+            "Réponses à des allégations"
+        ],
+        [
+            null,
+            "Propriétés immobilière"
+        ],
+        [
+            null,
+            "Collaboration avec les startups Legal Tech"
+        ],
+        [
+            null,
+            "Droit du travail et des ressources humaines"
+        ],
+        [
+            null,
+            "Responsabilité civile et pénale"
+        ],
+        [
+            null,
+            "Formation juridique"
+        ],
+        [
+            null,
+            "Responsabilité sociale et éthique"
+        ],
+        [
+            null,
+            "Attractivité des métiers"
+        ],
+        [
+            null,
+            "Transformation digitale"
+        ],
+        [
+            null,
+            "Transformation environnementale "
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "Direction Risques/Assurance"
+        ],
+        [
+            null,
+            "Stratégie et schéma directeur Risque/Assurance"
+        ],
+        [
+            null,
+            "Gestion des risques"
+        ],
+        [
+            null,
+            "Risque climatique"
+        ],
+        [
+            null,
+            "Assurance d'entreprise"
+        ],
+        [
+            null,
+            "Cas d'école"
+        ],
+        [
+            null,
+            "Cyberassurance"
+        ],
+        [
+            null,
+            "Évaluation des besoins en assurance"
+        ],
+        [
+            null,
+            "Gestion des sinistres"
+        ],
+        [
+            null,
+            "Conformité réglementaire"
+        ],
+        [
+            null,
+            "Gestion de la sécurité"
+        ],
+        [
+            null,
+            "Éducation des collaborateurs"
+        ],
+        [
+            null,
+            "Collaborations académiques"
+        ],
+        [
+            null,
+            "Collaborations interentreprises"
+        ],
+        [
+            null,
+            "Collaborations avec des startups"
+        ],
+        [
+            null,
+            "Gestion de crise"
+        ],
+        [
+            null,
+            "Assurance responsabilité civile"
+        ],
+        [
+            null,
+            "Assurance de la propriété"
+        ],
+        [
+            null,
+            "Assurance santé et avantages sociaux"
+        ],
+        [
+            null,
+            "Attractivité des métiers"
+        ],
+        [
+            null,
+            "Transformation digitale"
+        ],
+        [
+            null,
+            "Transformation environnementale "
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "Direction Sécurité-sûreté"
+        ],
+        [
+            null,
+            "Stratégie et schéma directeur Sécurité-sûreté"
+        ],
+        [
+            null,
+            "Analyse et gestion des risques"
+        ],
+        [
+            null,
+            "Cas d'école"
+        ],
+        [
+            null,
+            "Souveraineté technologique"
+        ],
+        [
+            null,
+            "Détection périmétrique"
+        ],
+        [
+            null,
+            "Détection d’intrusion"
+        ],
+        [
+            null,
+            "Contrôle d’accès"
+        ],
+        [
+            null,
+            "Vidéosurveillance"
+        ],
+        [
+            null,
+            "Interphonie, vidéophonie"
+        ],
+        [
+            null,
+            "Superviseurs, hyperviseurs"
+        ],
+        [
+            null,
+            "Télésurveilleurs"
+        ],
+        [
+            null,
+            "Sociétés de sécurité privée"
+        ],
+        [
+            null,
+            "Biométrie"
+        ],
+        [
+            null,
+            "Sûreté des collaborateurs et visiteurs"
+        ],
+        [
+            null,
+            "Prévention et lutte contre les incendies"
+        ],
+        [
+            null,
+            "Robots patrouilleurs "
+        ],
+        [
+            null,
+            "Robots pompiers"
+        ],
+        [
+            null,
+            "Mesures de sûreté"
+        ],
+        [
+            null,
+            "Conformité réglementaire"
+        ],
+        [
+            null,
+            "Évacuation et premiers secours"
+        ],
+        [
+            null,
+            "Formation à la sécurité"
+        ],
+        [
+            null,
+            "Formation aux premiers secours"
+        ],
+        [
+            null,
+            "Gestion de crise"
+        ],
+        [
+            null,
+            "Plan de continuité d’activité"
+        ],
+        [
+            null,
+            "Plan de reprise d’activité"
+        ],
+        [
+            null,
+            "Exercices sûreté-sécurité, incendie, cyber"
+        ],
+        [
+            null,
+            "Attractivité des métiers "
+        ],
+        [
+            null,
+            "Transformation digitale"
+        ],
+        [
+            null,
+            "Transformation environnementale"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "Direction Sécurité-Santé au Travail"
+        ],
+        [
+            null,
+            "Bien-être au travail"
+        ],
+        [
+            null,
+            "Bonnes pratiques et success stories"
+        ],
+        [
+            null,
+            "Communication en situation de crise"
+        ],
+        [
+            null,
+            "Culture de la sécurité"
+        ],
+        [
+            null,
+            "Environnement de travail et productivité"
+        ],
+        [
+            null,
+            "Équipements de protection collective"
+        ],
+        [
+            null,
+            "Équipements de protection individuelle"
+        ],
+        [
+            null,
+            "Ergonomie"
+        ],
+        [
+            null,
+            "Formation en SST"
+        ],
+        [
+            null,
+            "Gestion de la santé"
+        ],
+        [
+            null,
+            "Gestion des risques"
+        ],
+        [
+            null,
+            "Gestion des situations d'urgence"
+        ],
+        [
+            null,
+            "Prévention des accidents"
+        ],
+        [
+            null,
+            "Prévention des maladies professionnelles"
+        ],
+        [
+            null,
+            "Réglementation"
+        ],
+        [
+            null,
+            "Responsabilité sociale des entreprises"
+        ],
+        [
+            null,
+            "Risques psychosociaux"
+        ],
+        [
+            null,
+            "Risques spécifiques"
+        ],
+        [
+            null,
+            "Santé au travail et performance économique"
+        ],
+        [
+            null,
+            "Surveillance médicale"
+        ],
+        [
+            null,
+            "Technologie et innovation en SST"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "Direction Artistique"
+        ],
+        [
+            null,
+            "Stratégie et schéma directeur direction artistique"
+        ],
+        [
+            null,
+            "Nouvelles créations artistiques"
+        ],
+        [
+            null,
+            "Artistes en résidence"
+        ],
+        [
+            null,
+            "Cas d'école"
+        ],
+        [
+            null,
+            "Expositions et événements artistiques "
+        ],
+        [
+            null,
+            "Collaborations artistiques "
+        ],
+        [
+            null,
+            "Inspirations artistiques "
+        ],
+        [
+            null,
+            "Techniques artistiques"
+        ],
+        [
+            null,
+            "Histoire et culture"
+        ],
+        [
+            null,
+            "Public et réception "
+        ],
+        [
+            null,
+            "Prix et distinctions"
+        ],
+        [
+            null,
+            "RSE"
+        ],
+        [
+            null,
+            "Évolution de la créativité"
+        ],
+        [
+            null,
+            "Formation artistique"
+        ],
+        [
+            null,
+            "Partenariats avec des institutions culturelles"
+        ],
+        [
+            null,
+            "Coulisses artistiques"
+        ],
+        [
+            null,
+            "Réflexions artistiques"
+        ],
+        [
+            null,
+            "Transformation digitale "
+        ],
+        [
+            null,
+            "Transformation environnementale"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [],
+        [
+            "Direction Publicité"
+        ],
+        [
+            null,
+            "Stratégie et schéma directeur Publicité"
+        ],
+        [
+            null,
+            "Campagnes publicitaires"
+        ],
+        [
+            null,
+            "Création publicitaire"
+        ],
+        [
+            null,
+            "Tendances publicitaires"
+        ],
+        [
+            null,
+            "Ciblage publicitaire"
+        ],
+        [
+            null,
+            "Ethique publicitaire"
+        ],
+        [
+            null,
+            "Stratégie de communication "
+        ],
+        [
+            null,
+            "Influenceurs et marketing d'influence"
+        ],
+        [
+            null,
+            "Marketing numérique"
+        ],
+        [
+            null,
+            "Publicité programmatique"
+        ],
+        [
+            null,
+            "Analyse de données et mesure de l'efficacité"
+        ],
+        [
+            null,
+            "Réussites et distinctions"
+        ],
+        [
+            null,
+            "RSE"
+        ],
+        [
+            null,
+            "Cas d'école"
+        ],
+        [
+            null,
+            "Événements publicitaires"
+        ],
+        [
+            null,
+            "Publicité et société"
+        ],
+        [
+            null,
+            "Attractivité des métiers "
+        ],
+        [
+            null,
+            "Transformation digitale"
+        ],
+        [
+            null,
+            "Transformation environnementale"
+        ],
+        [
+            null,
+            "Autres"
+        ]
+    ]
+}

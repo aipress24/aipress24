@@ -1,0 +1,1358 @@
+{
+    "table": [
+        [
+            "Présidence de la République",
+            "Thématiques"
+        ],
+        [
+            null,
+            "Agenda politique"
+        ],
+        [
+            null,
+            "Budgets nationaux et réformes fiscales."
+        ],
+        [
+            null,
+            "Croissance économique et taux de chômage."
+        ],
+        [
+            null,
+            "Diplomatie présidentielle."
+        ],
+        [
+            null,
+            "Education nationale, enseignement supérieur, recherche"
+        ],
+        [
+            null,
+            "Elections présidentielles"
+        ],
+        [
+            null,
+            "Événements culturels et artistiques majeurs."
+        ],
+        [
+            null,
+            "Expositions, musées et patrimoine culturel."
+        ],
+        [
+            null,
+            "Gestion de la dette publique"
+        ],
+        [
+            null,
+            "Gestion des crises nationales"
+        ],
+        [
+            null,
+            "Grandes compétitions sportives organisées en France."
+        ],
+        [
+            null,
+            "Immigration et politiques d'asile."
+        ],
+        [
+            null,
+            "Inégalités économiques."
+        ],
+        [
+            null,
+            "Initiatives économiques et sociales"
+        ],
+        [
+            null,
+            "Investissements publics et privés."
+        ],
+        [
+            null,
+            "Justice sociale et égalité des sexes."
+        ],
+        [
+            null,
+            "Justice, police"
+        ],
+        [
+            null,
+            "Mesures de relance économique."
+        ],
+        [
+            null,
+            "Négociations et accords internationaux majeurs."
+        ],
+        [
+            null,
+            "Participation de la France aux missions internationales."
+        ],
+        [
+            null,
+            "Politique culturelle nationale et soutien aux industries créatives."
+        ],
+        [
+            null,
+            "Politique étrangère"
+        ],
+        [
+            null,
+            "Politique sportive nationale"
+        ],
+        [
+            null,
+            "Politiques de développement durable."
+        ],
+        [
+            null,
+            "Politiques de logement et d'urbanisme."
+        ],
+        [
+            null,
+            "Politiques de santé publique."
+        ],
+        [
+            null,
+            "Politiques économiques du gouvernement."
+        ],
+        [
+            null,
+            "Politiques environnementales et climatiques."
+        ],
+        [
+            null,
+            "Politiques industrielles et technologiques."
+        ],
+        [
+            null,
+            "Priorités politiques du président"
+        ],
+        [
+            null,
+            "Promotion de la culture française à l'étranger."
+        ],
+        [
+            null,
+            "Réactions du Président aux conflits internationaux."
+        ],
+        [
+            null,
+            "Réformes législatives majeures"
+        ],
+        [
+            null,
+            "Renseignement, la lutte contre le terrorisme"
+        ],
+        [
+            null,
+            "Sandales et controverses"
+        ],
+        [
+            null,
+            "Sécurité nationale et politiques de défense."
+        ],
+        [
+            null,
+            "Visites officielles et sommets internationaux."
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "Gouvernement"
+        ],
+        [
+            null,
+            "Conflits et crises internationales"
+        ],
+        [
+            null,
+            "Crises sociales, mouvements sociaux"
+        ],
+        [
+            null,
+            "Croissance économique et PIB"
+        ],
+        [
+            null,
+            "Déplacements des ministres"
+        ],
+        [
+            null,
+            "Diffusion de la culture et accès à l'art"
+        ],
+        [
+            null,
+            "Education nationale, enseignement supérieur, recherche"
+        ],
+        [
+            null,
+            "Egalité des sexes, lutte contre les discriminations"
+        ],
+        [
+            null,
+            "Elections"
+        ],
+        [
+            null,
+            "Energie, EnR, changement climatique"
+        ],
+        [
+            null,
+            "Financement de la culture, des médias et industries créatives"
+        ],
+        [
+            null,
+            "Fiscalité et réformes fiscales"
+        ],
+        [
+            null,
+            "Francophonie, promotion de la langue française"
+        ],
+        [
+            null,
+            "Gestion de la dette publique"
+        ],
+        [
+            null,
+            "Grandes compétitions sportives organisées en France."
+        ],
+        [
+            null,
+            "Immigration et politiques d'asile"
+        ],
+        [
+            null,
+            "Innovation artistique, nouvelles formes d'expression"
+        ],
+        [
+            null,
+            "Investissements dans les infrastructures sportives"
+        ],
+        [
+            null,
+            "Justice, police"
+        ],
+        [
+            null,
+            "Les initiatives pour promouvoir le sport pour tous."
+        ],
+        [
+            null,
+            "Lois et réglementations"
+        ],
+        [
+            null,
+            "Lutte contre la pauvreté et l’inclusion sociale"
+        ],
+        [
+            null,
+            "Lutte contre le dopage"
+        ],
+        [
+            null,
+            "Musées, expositions, patrimoine culturel"
+        ],
+        [
+            null,
+            "Négociations et accords commerciaux"
+        ],
+        [
+            null,
+            "Organisation des Jeux Olympiques"
+        ],
+        [
+            null,
+            "Politique de logement et d’urbanisme"
+        ],
+        [
+            null,
+            "Politique de santé publique et systèmes de soins"
+        ],
+        [
+            null,
+            "Politique étrangère, diplomatie, Europe"
+        ],
+        [
+            null,
+            "Politique sportive nationale et financement du sport."
+        ],
+        [
+            null,
+            "Politiques de protection de l'environnement."
+        ],
+        [
+            null,
+            "Politiques industrielles et technologiques"
+        ],
+        [
+            null,
+            "Programmes sociaux et politiques de l’emploi"
+        ],
+        [
+            null,
+            "Projet de loi de finance "
+        ],
+        [
+            null,
+            "Protection du patrimoine artistique"
+        ],
+        [
+            null,
+            "Réformes économiques du gouvernement"
+        ],
+        [
+            null,
+            "Sécurité-sûreté, cybersécurité"
+        ],
+        [
+            null,
+            "Souveraineté industrielle et technologique"
+        ],
+        [
+            null,
+            "Transformation digitale"
+        ],
+        [
+            null,
+            "Transformation environnementale"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "Parlement"
+        ],
+        [
+            null,
+            "Amendements"
+        ],
+        [
+            null,
+            "Approbation des ordonnances"
+        ],
+        [
+            null,
+            "Budget et lois de finances."
+        ],
+        [
+            null,
+            "Coalitions, groupes parlementaires"
+        ],
+        [
+            null,
+            "Commission d'enquête"
+        ],
+        [
+            null,
+            "Commission des lois "
+        ],
+        [
+            null,
+            "Contrôle budgétaire"
+        ],
+        [
+            null,
+            "Contrôle de l'exécutif"
+        ],
+        [
+            null,
+            "Création d'impôts et taxes"
+        ],
+        [
+            null,
+            "Commissions parlementaires"
+        ],
+        [
+            null,
+            "Débats et prises de position des parlementaires"
+        ],
+        [
+            null,
+            "Déclaration de guerre"
+        ],
+        [
+            null,
+            "Déclaration des biens et des revenus des Parlementaires"
+        ],
+        [
+            null,
+            "Destitution"
+        ],
+        [
+            null,
+            "Diplomatie parlementaire"
+        ],
+        [
+            null,
+            "Discours du Président"
+        ],
+        [
+            null,
+            "Dissolution de l’Assemblée nationale "
+        ],
+        [
+            null,
+            "Élaboration et vote des lois"
+        ],
+        [
+            null,
+            "Enquêtes parlementaires, commissions d'enquête"
+        ],
+        [
+            null,
+            "Immunité parlementaire"
+        ],
+        [
+            null,
+            "Législation ordinaire"
+        ],
+        [
+            null,
+            "Législation organique"
+        ],
+        [
+            null,
+            "Missions parlementaires"
+        ],
+        [
+            null,
+            "Motion de censure"
+        ],
+        [
+            null,
+            "Navette parlementaire entre l'Assemblée nationale et le Sénat"
+        ],
+        [
+            null,
+            "Questions au gouvernement "
+        ],
+        [
+            null,
+            "Rapport sur la situation financière"
+        ],
+        [
+            null,
+            "Ratification des nominations"
+        ],
+        [
+            null,
+            "Ratification des révisions constitutionnelles"
+        ],
+        [
+            null,
+            "Ratification des traités internationaux"
+        ],
+        [
+            null,
+            "Rôle du Président de l'Assemblée nationale"
+        ],
+        [
+            null,
+            "Statut des parlementaires"
+        ],
+        [
+            null,
+            "Vote de confiance"
+        ],
+        [
+            null,
+            "Vote du budget"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "Collectivités territoriales"
+        ],
+        [
+            null,
+            "Agriculture régionale"
+        ],
+        [
+            null,
+            "Aides sociales et services aux personnes en difficulté"
+        ],
+        [
+            null,
+            "Arts et culture dans la région"
+        ],
+        [
+            null,
+            "Construction, entretien et équipement des lycées"
+        ],
+        [
+            null,
+            "Développement territorial."
+        ],
+        [
+            null,
+            "Dispositifs d’aide aux entreprises et à l'emploi"
+        ],
+        [
+            null,
+            "Économie circulaire, réduction des déchets, recyclage"
+        ],
+        [
+            null,
+            "Économie sociale et solidaire"
+        ],
+        [
+            null,
+            "Éducation artistique et culturelle"
+        ],
+        [
+            null,
+            "Elaboration des schémas régionaux d'aménagement."
+        ],
+        [
+            null,
+            "Festivals culturels"
+        ],
+        [
+            null,
+            "Formation, orientation et insertion professionnelle"
+        ],
+        [
+            null,
+            "Gestion des aéroports et ports régionaux maritimes et fluviaux"
+        ],
+        [
+            null,
+            "Gestion des fonds régionaux de développement"
+        ],
+        [
+            null,
+            "Gestion des mobilités"
+        ],
+        [
+            null,
+            "Gestion des ressources hydriques et des milieux aquatiques"
+        ],
+        [
+            null,
+            "Industrie touristique"
+        ],
+        [
+            null,
+            "Infrastructures de transport"
+        ],
+        [
+            null,
+            "Infrastructures télécom"
+        ],
+        [
+            null,
+            "Jeunesse et éducation populaire"
+        ],
+        [
+            null,
+            "Logement et urbanisme"
+        ],
+        [
+            null,
+            "Médiathèques, bibliothèques, théâtres, cinémas, musées"
+        ],
+        [
+            null,
+            "Pôle de compétitivité"
+        ],
+        [
+            null,
+            "Politique de la ville"
+        ],
+        [
+            null,
+            "Préservation, restauration du patrimoine historique"
+        ],
+        [
+            null,
+            "Prévention des maladies"
+        ],
+        [
+            null,
+            "Protection de l'environnement"
+        ],
+        [
+            null,
+            "Recherche scientifique et innovation technologique régionales"
+        ],
+        [
+            null,
+            "Santé publique, centres hospitaliers universitaires"
+        ],
+        [
+            null,
+            "Soutien aux activités sportives locales"
+        ],
+        [
+            null,
+            "Soutien aux entreprises locales."
+        ],
+        [
+            null,
+            "Transformation numérique régionale"
+        ],
+        [
+            null,
+            "Transition écologique et énergétique"
+        ],
+        [
+            null,
+            "Transports scolaires"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "Préfectures"
+        ],
+        [
+            null,
+            "Accueil des étrangers en situation précaire et des demandeurs d'asile"
+        ],
+        [
+            null,
+            "Autorisations d'urbanisme"
+        ],
+        [
+            null,
+            "Contrôle des établissements recevant du public"
+        ],
+        [
+            null,
+            "Délivrance de titres administratifs (cartes d'identité, passeports, permis de conduire..)"
+        ],
+        [
+            null,
+            "Élections"
+        ],
+        [
+            null,
+            "État civil"
+        ],
+        [
+            null,
+            "Gestion des aides aux victimes"
+        ],
+        [
+            null,
+            "Gestion des aides sociales"
+        ],
+        [
+            null,
+            "Gestion des armes"
+        ],
+        [
+            null,
+            "Gestion des associations"
+        ],
+        [
+            null,
+            "Gestion des autorisations de débits de boissons"
+        ],
+        [
+            null,
+            "Gestion des autorisations de travail"
+        ],
+        [
+            null,
+            "Gestion des calamités agricoles"
+        ],
+        [
+            null,
+            "Gestion des crises sanitaires"
+        ],
+        [
+            null,
+            "Gestion des élections professionnelles"
+        ],
+        [
+            null,
+            "Gestion des étrangers"
+        ],
+        [
+            null,
+            "Gestion des manifestations publiques et rassemblements."
+        ],
+        [
+            null,
+            "Gestion des mesures de sûreté aérienne dans les aéroports."
+        ],
+        [
+            null,
+            "Gestion des parcs naturels régionaux"
+        ],
+        [
+            null,
+            "Gestion des polices municipales"
+        ],
+        [
+            null,
+            "Gestion des préfectures de police"
+        ],
+        [
+            null,
+            "Gestion des zones de défense"
+        ],
+        [
+            null,
+            "Police administrative"
+        ],
+        [
+            null,
+            "Protection civile"
+        ],
+        [
+            null,
+            "Sécurité civile"
+        ],
+        [
+            null,
+            "Sécurité des transports"
+        ],
+        [
+            null,
+            "Sécurité intérieure"
+        ],
+        [
+            null,
+            "Sécurité maritime"
+        ],
+        [
+            null,
+            "Sécurité routière"
+        ],
+        [
+            null,
+            "Soutien aux collectivités locales"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "Police, gendarmerie"
+        ],
+        [
+            null,
+            "Contrôle de l'application des lois."
+        ],
+        [
+            null,
+            "Contrôle de la circulation routière."
+        ],
+        [
+            null,
+            "Enquêtes criminelles."
+        ],
+        [
+            null,
+            "Enquêtes sur les agressions."
+        ],
+        [
+            null,
+            "Enquêtes sur les homicides."
+        ],
+        [
+            null,
+            "Enquêtes sur les vols."
+        ],
+        [
+            null,
+            "Gestion des événements sportifs et culturels."
+        ],
+        [
+            null,
+            "Gestion des situations de crise."
+        ],
+        [
+            null,
+            "Intervention en cas d'accidents de la route."
+        ],
+        [
+            null,
+            "Intervention en cas de troubles à l'ordre public."
+        ],
+        [
+            null,
+            "Lutte contre la criminalité organisée."
+        ],
+        [
+            null,
+            "Lutte contre la cybercriminalité."
+        ],
+        [
+            null,
+            "Lutte contre la délinquance financière."
+        ],
+        [
+            null,
+            "Lutte contre la violence conjugale."
+        ],
+        [
+            null,
+            "Lutte contre le terrorisme."
+        ],
+        [
+            null,
+            "Lutte contre le trafic de drogue."
+        ],
+        [
+            null,
+            "Maintien de l'ordre public."
+        ],
+        [
+            null,
+            "Patrouilles de police."
+        ],
+        [
+            null,
+            "Police judiciaire."
+        ],
+        [
+            null,
+            "Police militaire (dans le cas de la gendarmerie)"
+        ],
+        [
+            null,
+            "Prévention de la délinquance juvénile."
+        ],
+        [
+            null,
+            "Prévention de la radicalisation."
+        ],
+        [
+            null,
+            "Prévention des crimes et délits."
+        ],
+        [
+            null,
+            "Protection de l'enfance."
+        ],
+        [
+            null,
+            "Protection des citoyens."
+        ],
+        [
+            null,
+            "Protection des institutions publiques."
+        ],
+        [
+            null,
+            "Recherche de personnes disparues."
+        ],
+        [
+            null,
+            "Secours aux victimes."
+        ],
+        [
+            null,
+            "Sécurité des biens et des personnes."
+        ],
+        [
+            null,
+            "Surveillance des frontières."
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "Chambres consulaires"
+        ],
+        [
+            null,
+            "Accès aux financements"
+        ],
+        [
+            null,
+            "Accompagnement à la création d'entreprises"
+        ],
+        [
+            null,
+            "Accompagnement des entreprises en cas de difficultés"
+        ],
+        [
+            null,
+            "Accompagnement des entreprises innovantes"
+        ],
+        [
+            null,
+            "Accompagnement juridique"
+        ],
+        [
+            null,
+            "Aménagement du territoire"
+        ],
+        [
+            null,
+            "Apprentissage"
+        ],
+        [
+            null,
+            "Conseils en gestion"
+        ],
+        [
+            null,
+            "Études de marché"
+        ],
+        [
+            null,
+            "Événements économiques, salons, rencontres d'affaires."
+        ],
+        [
+            null,
+            "Formalités administratives des entreprises"
+        ],
+        [
+            null,
+            "Formation professionnelle"
+        ],
+        [
+            null,
+            "Fourniture de données économiques"
+        ],
+        [
+            null,
+            "Internationalisation"
+        ],
+        [
+            null,
+            "Politique énergétique"
+        ],
+        [
+            null,
+            "Promotion de l'apprentissage et de la formation professionnelle."
+        ],
+        [
+            null,
+            "Promotion de l'économie locale"
+        ],
+        [
+            null,
+            "Promotion de l'entrepreneuriat"
+        ],
+        [
+            null,
+            "Réseautage, partenariats, collaborations"
+        ],
+        [
+            null,
+            "Services financiers pour les entreprises"
+        ],
+        [
+            null,
+            "Services logistiques"
+        ],
+        [
+            null,
+            "Soutien à l'industrie"
+        ],
+        [
+            null,
+            "Soutien à l'innovation"
+        ],
+        [
+            null,
+            "Soutien à l’artisanat"
+        ],
+        [
+            null,
+            "Soutien à la transmission des savoir-faire"
+        ],
+        [
+            null,
+            "Soutien au secteur du tourisme"
+        ],
+        [
+            null,
+            "Soutien aux commerces de proximité"
+        ],
+        [
+            null,
+            "Soutien aux entreprises familiales"
+        ],
+        [
+            null,
+            "Soutien aux industries créatives, à l'art, la culture et le divertissement"
+        ],
+        [
+            null,
+            "Soutien aux métiers d’art, du bâtiment, de bouche, de la santé et sur service à la personne"
+        ],
+        [
+            null,
+            "Transformation numérique des entreprises"
+        ],
+        [
+            null,
+            "Veille économique"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "Défense"
+        ],
+        [
+            null,
+            "Analyse des menaces et des risques"
+        ],
+        [
+            null,
+            "Budget de la Défense"
+        ],
+        [
+            null,
+            "Coopération internationale"
+        ],
+        [
+            null,
+            "Cyberdéfense"
+        ],
+        [
+            null,
+            "Défense des intérêts nationaux"
+        ],
+        [
+            null,
+            "Doctrine militaire"
+        ],
+        [
+            null,
+            "Équipements militaires"
+        ],
+        [
+            null,
+            "Géopolitique"
+        ],
+        [
+            null,
+            "Innovation technologique"
+        ],
+        [
+            null,
+            "Missions humanitaires"
+        ],
+        [
+            null,
+            "Opérations de maintien de la paix"
+        ],
+        [
+            null,
+            "Opérations militaires"
+        ],
+        [
+            null,
+            "Politique de dissuasion nucléaire"
+        ],
+        [
+            null,
+            "Recrutement et formation"
+        ],
+        [
+            null,
+            "Réformes structurelles"
+        ],
+        [
+            null,
+            "Relations armées-société civile"
+        ],
+        [
+            null,
+            "Relations avec l'OTAN"
+        ],
+        [
+            null,
+            "Renseignement militaire"
+        ],
+        [
+            null,
+            "Sécurité intérieure"
+        ],
+        [
+            null,
+            "Stratégie de défense"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "Education nationale"
+        ],
+        [
+            null,
+            "Budget de l'Éducation nationale"
+        ],
+        [
+            null,
+            "Éducation inclusive"
+        ],
+        [
+            null,
+            "Enseignement à distance"
+        ],
+        [
+            null,
+            "Formation des enseignants"
+        ],
+        [
+            null,
+            "Gestion des établissements scolaires"
+        ],
+        [
+            null,
+            "Inégalités scolaires"
+        ],
+        [
+            null,
+            "Innovation pédagogique"
+        ],
+        [
+            null,
+            "Insertion professionnelle des étudiants"
+        ],
+        [
+            null,
+            "Lutte contre le décrochage scolaire"
+        ],
+        [
+            null,
+            "Numérique éducatif"
+        ],
+        [
+            null,
+            "Orientation scolaire et professionnelle"
+        ],
+        [
+            null,
+            "Pédagogie différenciée"
+        ],
+        [
+            null,
+            "Politiques éducatives"
+        ],
+        [
+            null,
+            "Réformes scolaires"
+        ],
+        [
+            null,
+            "Rythmes scolaires"
+        ],
+        [
+            null,
+            "Santé et bien-être à l'école"
+        ],
+        [
+            null,
+            "Suivi et évaluation des élèves"
+        ],
+        [
+            null,
+            "Vie étudiante"
+        ],
+        [
+            null,
+            "Vie scolaire et discipline"
+        ],
+        [
+            null,
+            "Éducation aux médias et à l'information"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "Ministères"
+        ],
+        [
+            null,
+            "Budget et finances publiques"
+        ],
+        [
+            null,
+            "Coopération interministérielle"
+        ],
+        [
+            null,
+            "Digitalisation des services publics"
+        ],
+        [
+            null,
+            "Élaboration du budget du ministère"
+        ],
+        [
+            null,
+            "Éthique et déontologie"
+        ],
+        [
+            null,
+            "Gestion des ressources humaines"
+        ],
+        [
+            null,
+            "Gestion financière et comptable"
+        ],
+        [
+            null,
+            "Gestion stratégique"
+        ],
+        [
+            null,
+            "Innovation administrative"
+        ],
+        [
+            null,
+            "Juridique et réglementaire"
+        ],
+        [
+            null,
+            "Modernisation de l'administration"
+        ],
+        [
+            null,
+            "Organisation administrative"
+        ],
+        [
+            null,
+            "Performance et évaluation"
+        ],
+        [
+            null,
+            "Politiques publiques"
+        ],
+        [
+            null,
+            "Réduction des coûts"
+        ],
+        [
+            null,
+            "Relations avec les collectivités territoriales"
+        ],
+        [
+            null,
+            "Relations avec les citoyens"
+        ],
+        [
+            null,
+            "Relations internationales"
+        ],
+        [
+            null,
+            "Sécurité et cybersécurité"
+        ],
+        [
+            null,
+            "Simplification administrative"
+        ],
+        [
+            null,
+            "Transparence et accès à l'information"
+        ],
+        [
+            null,
+            "Veille et analyse stratégique"
+        ],
+        [
+            null,
+            "Communication institutionnelle"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "Santé publique"
+        ],
+        [
+            null,
+            "Accès aux soins de santé"
+        ],
+        [
+            null,
+            "Épidémiologie"
+        ],
+        [
+            null,
+            "Équipements médicaux"
+        ],
+        [
+            null,
+            "Hygiène publique"
+        ],
+        [
+            null,
+            "Maladies infectieuses"
+        ],
+        [
+            null,
+            "Nutrition et alimentation"
+        ],
+        [
+            null,
+            "Pharmaceutique et médicaments"
+        ],
+        [
+            null,
+            "Politiques de santé"
+        ],
+        [
+            null,
+            "Prévention des maladies"
+        ],
+        [
+            null,
+            "Promotion de la santé"
+        ],
+        [
+            null,
+            "Qualité des soins de santé"
+        ],
+        [
+            null,
+            "Recherche médicale"
+        ],
+        [
+            null,
+            "Santé environnementale"
+        ],
+        [
+            null,
+            "Santé mentale"
+        ],
+        [
+            null,
+            "Santé reproductive et planification familiale"
+        ],
+        [
+            null,
+            "Santé scolaire"
+        ],
+        [
+            null,
+            "Santé au travail"
+        ],
+        [
+            null,
+            "Systèmes de santé"
+        ],
+        [
+            null,
+            "Vaccination"
+        ],
+        [
+            null,
+            "Vieillissement de la population"
+        ],
+        [
+            null,
+            "Autres"
+        ]
+    ]
+}

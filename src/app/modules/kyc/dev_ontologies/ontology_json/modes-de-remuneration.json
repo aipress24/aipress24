@@ -1,0 +1,35 @@
+{
+    "table": [
+        [
+            {
+                "colspanned": 10,
+                "rowspanned": 1,
+                "value": null
+            },
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+        ],
+        [
+            "Modes de rémunération"
+        ],
+        [
+            null,
+            "Pige salariale"
+        ],
+        [
+            null,
+            "Droits d’auteurs"
+        ],
+        [
+            null,
+            "Facture"
+        ]
+    ]
+}

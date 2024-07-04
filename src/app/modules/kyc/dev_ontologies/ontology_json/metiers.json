@@ -1,0 +1,7632 @@
+{
+    "table": [
+        [
+            "ADMIN.PUBLIQUE"
+        ],
+        [
+            null,
+            "Agent.e de développement économique"
+        ],
+        [
+            null,
+            "Agent.e de développement rural"
+        ],
+        [
+            null,
+            "Agent.e de la protection de l'enfance"
+        ],
+        [
+            null,
+            "Agent.e de police municipale"
+        ],
+        [
+            null,
+            "Agent.e de réglementation"
+        ],
+        [
+            null,
+            "Agent.e des affaires étrangères"
+        ],
+        [
+            null,
+            "Agent.e des douanes"
+        ],
+        [
+            null,
+            "Agent.e du patrimoine culturel"
+        ],
+        [
+            null,
+            "Analyste de la santé publique"
+        ],
+        [
+            null,
+            "Analyste de politiques publiques"
+        ],
+        [
+            null,
+            "Analyste financier/analyste financière en administration publique"
+        ],
+        [
+            null,
+            "Architecte en chef de l'État"
+        ],
+        [
+            null,
+            "Archiviste gouvernemental/archiviste gouvernementale"
+        ],
+        [
+            null,
+            "Attaché.e parlementaire"
+        ],
+        [
+            null,
+            "Bibliothécaire en administration publique"
+        ],
+        [
+            null,
+            "Commissaire à l'éthique"
+        ],
+        [
+            null,
+            "Comptable public/comptable publique"
+        ],
+        [
+            null,
+            "Conseiller.ère juridique gouvernemental/gouvernementale"
+        ],
+        [
+            null,
+            "Conseiller.ère technique"
+        ],
+        [
+            null,
+            "Député.e"
+        ],
+        [
+            null,
+            "Directeur.rice.rice de cabinet ministériel"
+        ],
+        [
+            null,
+            "Directeur.rice.rice d'administration publique"
+        ],
+        [
+            null,
+            "Directeur.rice.rice de projet gouvernemental"
+        ],
+        [
+            null,
+            "Expert.e en gestion des catastrophes"
+        ],
+        [
+            null,
+            "Fonctionnaire"
+        ],
+        [
+            null,
+            "Gardien/gardienne de prison"
+        ],
+        [
+            null,
+            "Gestionnaire de la santé publique"
+        ],
+        [
+            null,
+            "Gestionnaire de la sécurité publique"
+        ],
+        [
+            null,
+            "Gestionnaire de programme gouvernemental"
+        ],
+        [
+            null,
+            "Inspecteur.rice de l'environnement"
+        ],
+        [
+            null,
+            "Inspecteur.rice des impôts"
+        ],
+        [
+            null,
+            "Ministre"
+        ],
+        [
+            null,
+            "Planificateur/planificatrice de la ville"
+        ],
+        [
+            null,
+            "Policier/policière"
+        ],
+        [
+            null,
+            "Pompier/pompière"
+        ],
+        [
+            null,
+            "Président de la République"
+        ],
+        [
+            null,
+            "Procureur/procureure"
+        ],
+        [
+            null,
+            "Responsable de la communication gouvernementale"
+        ],
+        [
+            null,
+            "Responsable des achats publics"
+        ],
+        [
+            null,
+            "Responsable des ressources humaines en administration publique"
+        ],
+        [
+            null,
+            "Responsable des systèmes d'information en administration publique"
+        ],
+        [
+            null,
+            "Secrétaire d’État"
+        ],
+        [
+            null,
+            "Secrétaire administratif/secrétaire administrative"
+        ],
+        [
+            null,
+            "Secrétaire général.e de la Présidence de la République"
+        ],
+        [
+            null,
+            "Sénateur.rice"
+        ],
+        [
+            null,
+            "Spécialiste des relations publiques gouvernementales"
+        ],
+        [
+            null,
+            "Technicien.ne en urbanisme"
+        ],
+        [
+            null,
+            "Urbaniste"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "AGRICULTURE"
+        ],
+        [
+            null,
+            "Agent.e de coopérative agricole"
+        ],
+        [
+            null,
+            "Agent.e de vulgarisation agricole"
+        ],
+        [
+            null,
+            "Agriculteur/agricultrice"
+        ],
+        [
+            null,
+            "Agriculteur/agricultrice biologique"
+        ],
+        [
+            null,
+            "Agriculteur/agricultrice de pépinière"
+        ],
+        [
+            null,
+            "Agriculteur/agricultrice en aquaculture"
+        ],
+        [
+            null,
+            "Agriculteur/agricultrice spécialisé(e) dans l'agritourisme"
+        ],
+        [
+            null,
+            "Agronome"
+        ],
+        [
+            null,
+            "Analyste de données agricoles"
+        ],
+        [
+            null,
+            "Apiculteur/apicultrice"
+        ],
+        [
+            null,
+            "Arboriculteur/arboricultrice"
+        ],
+        [
+            null,
+            "Consultant/consultante agricole"
+        ],
+        [
+            null,
+            "Contrôleur/contrôleuse de la qualité des cultures"
+        ],
+        [
+            null,
+            "Éleveur/éleveuse de bétail"
+        ],
+        [
+            null,
+            "Éleveur/éleveuse d’insectes"
+        ],
+        [
+            null,
+            "Éleveur/éleveuse de volaille"
+        ],
+        [
+            null,
+            "Entrepreneur/entrepreneuse agricole"
+        ],
+        [
+            null,
+            "Expert.e en irrigation"
+        ],
+        [
+            null,
+            "Expert.e en machinerie agricole"
+        ],
+        [
+            null,
+            "Fermier/fermière"
+        ],
+        [
+            null,
+            "Gestionnaire de ferme"
+        ],
+        [
+            null,
+            "Gestionnaire de ferme laitière"
+        ],
+        [
+            null,
+            "Gestionnaire de ressources naturelles"
+        ],
+        [
+            null,
+            "Horticulteur/horticultrice"
+        ],
+        [
+            null,
+            "Ingénieur/ingénieure agronome"
+        ],
+        [
+            null,
+            "Maraîcher/maraîchère"
+        ],
+        [
+            null,
+            "Maraîcher/maraîchère biologique"
+        ],
+        [
+            null,
+            "Responsable de la durabilité agricole"
+        ],
+        [
+            null,
+            "Responsable de la qualité alimentaire"
+        ],
+        [
+            null,
+            "Responsable de la sécurité alimentaire"
+        ],
+        [
+            null,
+            "Responsable de production agricole"
+        ],
+        [
+            null,
+            "Spécialiste de la protection des cultures"
+        ],
+        [
+            null,
+            "Spécialiste des sols"
+        ],
+        [
+            null,
+            "Sylviculteur/sylvicultrice"
+        ],
+        [
+            null,
+            "Technicien.ne agricole"
+        ],
+        [
+            null,
+            "Technicien.ne en génétique animale"
+        ],
+        [
+            null,
+            "Technicien.ne en gestion de l'eau agricole"
+        ],
+        [
+            null,
+            "Vendeur/vendeuse d'équipements agricoles"
+        ],
+        [
+            null,
+            "Vétérinaire pour animaux d'élevage"
+        ],
+        [
+            null,
+            "Viticulteur/viticultrice"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "ARTS PLASTIQUES"
+        ],
+        [
+            null,
+            "Art-thérapeute"
+        ],
+        [
+            null,
+            "Artiste muraliste"
+        ],
+        [
+            null,
+            "Artiste plasticien"
+        ],
+        [
+            null,
+            "Céramiste"
+        ],
+        [
+            null,
+            "Collagiste"
+        ],
+        [
+            null,
+            "Créateur de bijoux"
+        ],
+        [
+            null,
+            "Créateur de vitraux"
+        ],
+        [
+            null,
+            "Curateur"
+        ],
+        [
+            null,
+            "Décorateur d’intérieur"
+        ],
+        [
+            null,
+            "Designer de meubles"
+        ],
+        [
+            null,
+            "Designer industriel"
+        ],
+        [
+            null,
+            "Dessinateur"
+        ],
+        [
+            null,
+            "Directeur.rice artistique"
+        ],
+        [
+            null,
+            "Enlumineur"
+        ],
+        [
+            null,
+            "Fresquiste"
+        ],
+        [
+            null,
+            "Graveur"
+        ],
+        [
+            null,
+            "Maquettiste"
+        ],
+        [
+            null,
+            "Peintre"
+        ],
+        [
+            null,
+            "Photographe d'art"
+        ],
+        [
+            null,
+            "Sculpteur"
+        ],
+        [
+            null,
+            "Styliste de mode"
+        ],
+        [
+            null,
+            "Vidéaste d’art"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "ARTS DE LA SCÈNE"
+        ],
+        [
+            null,
+            "Acteur/actrice"
+        ],
+        [
+            null,
+            "Assistant/assistante de mise en scène"
+        ],
+        [
+            null,
+            "Cascadeur/cascadeuse"
+        ],
+        [
+            null,
+            "Chorégraphe"
+        ],
+        [
+            null,
+            "Compositeur/compositrice de musique de scène"
+        ],
+        [
+            null,
+            "Concepteur/conceptrice d'éclairage"
+        ],
+        [
+            null,
+            "Concepteur/conceptrice de son"
+        ],
+        [
+            null,
+            "Costumier/costumière"
+        ],
+        [
+            null,
+            "Danseur/danseuse"
+        ],
+        [
+            null,
+            "Directeur.rice.rice de casting"
+        ],
+        [
+            null,
+            "Dramaturge"
+        ],
+        [
+            null,
+            "Ingénieur lumière"
+        ],
+        [
+            null,
+            "Ingénieur du son"
+        ],
+        [
+            null,
+            "Maquilleur/maquilleuse de scène"
+        ],
+        [
+            null,
+            "Maître de ballet"
+        ],
+        [
+            null,
+            "Marionnettiste"
+        ],
+        [
+            null,
+            "Metteur en scène"
+        ],
+        [
+            null,
+            "Producteur/productrice de spectacle"
+        ],
+        [
+            null,
+            "Professeur.e de théâtre ou de danse"
+        ],
+        [
+            null,
+            "Régisseur/régisseuse"
+        ],
+        [
+            null,
+            "Régisseur/régisseuse de plateau"
+        ],
+        [
+            null,
+            "Scénariste pour le théâtre"
+        ],
+        [
+            null,
+            "Scénographe"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "BTP"
+        ],
+        [
+            null,
+            "BIM"
+        ],
+        [
+            null,
+            "Architecte"
+        ],
+        [
+            null,
+            "Carreleur"
+        ],
+        [
+            null,
+            "Charpentier"
+        ],
+        [
+            null,
+            "Chauffagiste"
+        ],
+        [
+            null,
+            "Chef d'équipe en construction"
+        ],
+        [
+            null,
+            "Chef de chantier"
+        ],
+        [
+            null,
+            "Conducteur d'engins de chantier"
+        ],
+        [
+            null,
+            "Conducteur de travaux"
+        ],
+        [
+            null,
+            "Constructeur de routes"
+        ],
+        [
+            null,
+            "Couvreur"
+        ],
+        [
+            null,
+            "Échafaudeur"
+        ],
+        [
+            null,
+            "Électricien du bâtiment"
+        ],
+        [
+            null,
+            "Électricien industriel"
+        ],
+        [
+            null,
+            "Étancheur"
+        ],
+        [
+            null,
+            "Géomètre-topographe"
+        ],
+        [
+            null,
+            "Grutier"
+        ],
+        [
+            null,
+            "Ingénieur en électricité du bâtiment"
+        ],
+        [
+            null,
+            "Ingénieur en génie civil"
+        ],
+        [
+            null,
+            "Inspecteur en bâtiment"
+        ],
+        [
+            null,
+            "Maçon"
+        ],
+        [
+            null,
+            "Maître d'œuvre"
+        ],
+        [
+            null,
+            "Mécanicien de chantier"
+        ],
+        [
+            null,
+            "Menuisier"
+        ],
+        [
+            null,
+            "Métreur"
+        ],
+        [
+            null,
+            "Monteur d'ascenseurs"
+        ],
+        [
+            null,
+            "Monteur en structures métalliques"
+        ],
+        [
+            null,
+            "Peintre en bâtiment"
+        ],
+        [
+            null,
+            "Plaquiste"
+        ],
+        [
+            null,
+            "Plâtrier"
+        ],
+        [
+            null,
+            "Plombier"
+        ],
+        [
+            null,
+            "Plombier-chauffagiste"
+        ],
+        [
+            null,
+            "Poseur de cloisons sèches"
+        ],
+        [
+            null,
+            "Poseur de revêtements de sol"
+        ],
+        [
+            null,
+            "Promoteur immobilier"
+        ],
+        [
+            null,
+            "Serrurier"
+        ],
+        [
+            null,
+            "Soudeur"
+        ],
+        [
+            null,
+            "Spécialiste du BIM"
+        ],
+        [
+            null,
+            "Tailleur de pierre"
+        ],
+        [
+            null,
+            "Technicien en bâtiment durable"
+        ],
+        [
+            null,
+            "Terrassier"
+        ],
+        [
+            null,
+            "Tuyauteur"
+        ],
+        [
+            null,
+            "Urbaniste"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "BANDE DESSINÉE"
+        ],
+        [
+            null,
+            "Agent de bande dessinée"
+        ],
+        [
+            null,
+            "Animateur/animateure d'ateliers de bande dessinée"
+        ],
+        [
+            null,
+            "Auteur/auteure de romans graphiques"
+        ],
+        [
+            null,
+            "Bibliothécaire spécialisé/spécialisée en bande dessinée"
+        ],
+        [
+            null,
+            "Coloriste de bande dessinée"
+        ],
+        [
+            null,
+            "Concepteur/conceptrice de produits dérivés de bande dessinée"
+        ],
+        [
+            null,
+            "Créateur/créatrice de personnages de bande dessinée"
+        ],
+        [
+            null,
+            "Créateur/créatrice de webcomics"
+        ],
+        [
+            null,
+            "Critique de bande dessinée"
+        ],
+        [
+            null,
+            "Dessinateur/dessinatrice de bande dessinée"
+        ],
+        [
+            null,
+            "Directeur.rice.rice artistique de bande dessinée"
+        ],
+        [
+            null,
+            "Directeur.rice.rice de festival de bande dessinée"
+        ],
+        [
+            null,
+            "Éditeur/éditrice de bande dessinée"
+        ],
+        [
+            null,
+            "Encreur/encreuse de bande dessinée"
+        ],
+        [
+            null,
+            "Lettreur/lettreuse de bande dessinée"
+        ],
+        [
+            null,
+            "Libraire spécialisé/spécialisée en bande dessinée"
+        ],
+        [
+            null,
+            "Professeur.e de bande dessinée"
+        ],
+        [
+            null,
+            "Responsable de la publication de bande dessinée"
+        ],
+        [
+            null,
+            "Scénariste de bande dessinée"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "BANQUE, ASSUR., FINANCE"
+        ],
+        [
+            null,
+            "Actuaire"
+        ],
+        [
+            null,
+            "Actuaire en assurance dommages"
+        ],
+        [
+            null,
+            "Analyste de crédit"
+        ],
+        [
+            null,
+            "Analyste de données financières"
+        ],
+        [
+            null,
+            "Analyste en assurance"
+        ],
+        [
+            null,
+            "Analyste en fusions et acquisitions"
+        ],
+        [
+            null,
+            "Analyste en gestion de patrimoine"
+        ],
+        [
+            null,
+            "Analyste financier"
+        ],
+        [
+            null,
+            "Banquier d'investissement"
+        ],
+        [
+            null,
+            "Business Angel"
+        ],
+        [
+            null,
+            "Chargé/chargée de clientèle bancaire"
+        ],
+        [
+            null,
+            "Conseiller.ère en prêts aux entreprises"
+        ],
+        [
+            null,
+            "Conseiller.ère financier/financière"
+        ],
+        [
+            null,
+            "Consultant/consultante en finance d'entreprise"
+        ],
+        [
+            null,
+            "Courtier/courtière d'assurance"
+        ],
+        [
+            null,
+            "Directeur.rice.rice d'agence bancaire"
+        ],
+        [
+            null,
+            "Expert.e en assurances de biens et de responsabilité"
+        ],
+        [
+            null,
+            "Expert.e en fiscalité"
+        ],
+        [
+            null,
+            "Expert.e en gestion de patrimoine"
+        ],
+        [
+            null,
+            "Expert.e en prévoyance"
+        ],
+        [
+            null,
+            "Expert.e en réassurance"
+        ],
+        [
+            null,
+            "Expert.e en sinistres"
+        ],
+        [
+            null,
+            "Gestionnaire de fonds d'investissement"
+        ],
+        [
+            null,
+            "Gestionnaire de patrimoine"
+        ],
+        [
+            null,
+            "Gestionnaire de polices d'assurance"
+        ],
+        [
+            null,
+            "Gestionnaire de portefeuille"
+        ],
+        [
+            null,
+            "Gestionnaire de risques financiers"
+        ],
+        [
+            null,
+            "Investisseur en capital-risque"
+        ],
+        [
+            null,
+            "Responsable de la conformité bancaire"
+        ],
+        [
+            null,
+            "Responsable de la conformité en assurance"
+        ],
+        [
+            null,
+            "Responsable de la gestion des risques bancaires"
+        ],
+        [
+            null,
+            "Souscripteur/souscriptrice d'assurance"
+        ],
+        [
+            null,
+            "Spécialiste de l'assurance-vie"
+        ],
+        [
+            null,
+            "Spécialiste des marchés financiers"
+        ],
+        [
+            null,
+            "Spécialiste des prêts immobiliers"
+        ],
+        [
+            null,
+            "Spécialiste en opérations bancaires"
+        ],
+        [
+            null,
+            "Teneur/teneuse de comptes"
+        ],
+        [
+            null,
+            "Trader financier/trader financière"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "CINÉMA, ANIMATION"
+        ],
+        [
+            null,
+            "Acteur/actrice"
+        ],
+        [
+            null,
+            "Animateur/animatrice 2D, 3D"
+        ],
+        [
+            null,
+            "Assistant/assistante réalisateur/réalisatrice"
+        ],
+        [
+            null,
+            "Background artist (artiste de décors)"
+        ],
+        [
+            null,
+            "Character designer"
+        ],
+        [
+            null,
+            "Chef décorateur/chef décoratrice"
+        ],
+        [
+            null,
+            "Chef éclairagiste"
+        ],
+        [
+            null,
+            "Chef monteur/chef monteuse"
+        ],
+        [
+            null,
+            "Coiffeur/coiffeuse de cinéma"
+        ],
+        [
+            null,
+            "Compositeur/compositrice de musique pour animation"
+        ],
+        [
+            null,
+            "Concepteur/conceptrice de props (accessoires)"
+        ],
+        [
+            null,
+            "Concepteur/conceptrice de costumes"
+        ],
+        [
+            null,
+            "Coordinateur/coordinatrice de cascades"
+        ],
+        [
+            null,
+            "Coordinateur/coordinatrice des effets spéciaux"
+        ],
+        [
+            null,
+            "Coordinateur/coordinatrice de production"
+        ],
+        [
+            null,
+            "Directeur.rice.rice artistique"
+        ],
+        [
+            null,
+            "Directeur.rice.rice de l'animation"
+        ],
+        [
+            null,
+            "Directeur.rice.rice de la photographie"
+        ],
+        [
+            null,
+            "Directeur.rice.rice de la voix"
+        ],
+        [
+            null,
+            "Distributeur/distributrice de films"
+        ],
+        [
+            null,
+            "Ingénieur effets spéciaux"
+        ],
+        [
+            null,
+            "Ingénieur lumière"
+        ],
+        [
+            null,
+            "Ingénieur du son"
+        ],
+        [
+            null,
+            "Layout artist (artiste de layout)"
+        ],
+        [
+            null,
+            "Maquilleur/maquilleuse de cinéma"
+        ],
+        [
+            null,
+            "Monteur/monteuse"
+        ],
+        [
+            null,
+            "Musicien/musicienne de film"
+        ],
+        [
+            null,
+            "Producteur/productrice"
+        ],
+        [
+            null,
+            "Rigger (rigueur/rigoureuse)"
+        ],
+        [
+            null,
+            "Réalisateur/réalisatrice"
+        ],
+        [
+            null,
+            "Responsable des effets visuels"
+        ],
+        [
+            null,
+            "Scénariste"
+        ],
+        [
+            null,
+            "Sound designer pour animation"
+        ],
+        [
+            null,
+            "Storyboard artist (dessinateur/dessinatrice de storyboard)"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "COMMERCE"
+        ],
+        [
+            null,
+            "Acheteur/acheteuse"
+        ],
+        [
+            null,
+            "Analyste en vente au détail"
+        ],
+        [
+            null,
+            "Chef de rayon"
+        ],
+        [
+            null,
+            "Commercial/commerciale"
+        ],
+        [
+            null,
+            "Consultant/consultante en vente"
+        ],
+        [
+            null,
+            "Directeur.rice.rice commercial(e)"
+        ],
+        [
+            null,
+            "Directeur.rice.rice de franchise"
+        ],
+        [
+            null,
+            "Directeur.rice.rice de la publicité"
+        ],
+        [
+            null,
+            "Directeur.rice.rice de magasin"
+        ],
+        [
+            null,
+            "Gestionnaire de compte client"
+        ],
+        [
+            null,
+            "Gestionnaire de stocks"
+        ],
+        [
+            null,
+            "Responsable de la chaîne d'approvisionnement"
+        ],
+        [
+            null,
+            "Responsable de la distribution"
+        ],
+        [
+            null,
+            "Responsable de la qualité des produits"
+        ],
+        [
+            null,
+            "Responsable de la relation client"
+        ],
+        [
+            null,
+            "Responsable des achats"
+        ],
+        [
+            null,
+            "Responsable des opérations de commerce électronique"
+        ],
+        [
+            null,
+            "Responsable des ventes"
+        ],
+        [
+            null,
+            "Responsable marketing"
+        ],
+        [
+            null,
+            "Vendeur/vendeuse"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "COMMUNICATION"
+        ],
+        [
+            null,
+            "Analyste en communication"
+        ],
+        [
+            null,
+            "Attaché/attachée de presse"
+        ],
+        [
+            null,
+            "Chargé/chargée de communication"
+        ],
+        [
+            null,
+            "Chef de la création publicitaire"
+        ],
+        [
+            null,
+            "Chef de projet en communication"
+        ],
+        [
+            null,
+            "Concepteur/conceptrice de campagnes publicitaires"
+        ],
+        [
+            null,
+            "Concepteur/conceptrice de supports de communication"
+        ],
+        [
+            null,
+            "Consultant/consultante en communication"
+        ],
+        [
+            null,
+            "Consultant/consultante en médias sociaux"
+        ],
+        [
+            null,
+            "Consultants en relations presse"
+        ],
+        [
+            null,
+            "Directeur.rice.rice artistique"
+        ],
+        [
+            null,
+            "Directeur.rice.rice de la communication"
+        ],
+        [
+            null,
+            "Directeur.rice.rice de la communication externe"
+        ],
+        [
+            null,
+            "Directeur.rice.rice de la communication gouvernementale"
+        ],
+        [
+            null,
+            "Directeur.rice.rice de la communication marketing"
+        ],
+        [
+            null,
+            "Directeur.rice.rice de la communication numérique"
+        ],
+        [
+            null,
+            "Directeur.rice.rice de la publicité en ligne"
+        ],
+        [
+            null,
+            "Directeur.rice.rice de la stratégie de communication"
+        ],
+        [
+            null,
+            "Dirigeant.e d’une agence de communication"
+        ],
+        [
+            null,
+            "Dirigeant.e d’une agence de relations presse"
+        ],
+        [
+            null,
+            "Expert.e en communication de crise"
+        ],
+        [
+            null,
+            "Expert.e en marketing de contenu"
+        ],
+        [
+            null,
+            "Gestionnaire de contenu web"
+        ],
+        [
+            null,
+            "Gestionnaire de la communication sociale"
+        ],
+        [
+            null,
+            "Gestionnaire de médias"
+        ],
+        [
+            null,
+            "Planificateur/planificatrice média"
+        ],
+        [
+            null,
+            "Rédacteur/rédactrice en chef"
+        ],
+        [
+            null,
+            "Rédacteur/rédactrice technique"
+        ],
+        [
+            null,
+            "Responsable de la communication"
+        ],
+        [
+            null,
+            "Responsable de la communication d'entreprise"
+        ],
+        [
+            null,
+            "Responsable de la communication événementielle"
+        ],
+        [
+            null,
+            "Responsable de la communication institutionnelle"
+        ],
+        [
+            null,
+            "Responsable de la communication visuelle"
+        ],
+        [
+            null,
+            "Responsable des événements spéciaux"
+        ],
+        [
+            null,
+            "Responsable des médias sociaux"
+        ],
+        [
+            null,
+            "Responsable des relations avec les investisseurs"
+        ],
+        [
+            null,
+            "Responsable des relations publiques"
+        ],
+        [
+            null,
+            "Spécialiste en communication corporate"
+        ],
+        [
+            null,
+            "Spécialiste en communication de crise"
+        ],
+        [
+            null,
+            "Spécialiste en communication de marque"
+        ],
+        [
+            null,
+            "Spécialiste en communication interne"
+        ],
+        [
+            null,
+            "Spécialiste en communication scientifique"
+        ],
+        [
+            null,
+            "Spécialiste en relations avec les médias"
+        ],
+        [
+            null,
+            "Spécialiste en relations publiques"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "COMPTABILITÉ"
+        ],
+        [
+            null,
+            "Analyste financier d'entreprise"
+        ],
+        [
+            null,
+            "Auditeur"
+        ],
+        [
+            null,
+            "Commissaire aux comptes"
+        ],
+        [
+            null,
+            "Comptable"
+        ],
+        [
+            null,
+            "Comptable agréé en insolvabilité"
+        ],
+        [
+            null,
+            "Comptable de coûts de production"
+        ],
+        [
+            null,
+            "Comptable de fonds d'investissement"
+        ],
+        [
+            null,
+            "Comptable de gestion"
+        ],
+        [
+            null,
+            "Comptable de la trésorerie"
+        ],
+        [
+            null,
+            "Comptable de paie"
+        ],
+        [
+            null,
+            "Comptable en gestion de projet"
+        ],
+        [
+            null,
+            "Comptable en gestion de trésorerie"
+        ],
+        [
+            null,
+            "Comptable fiscaliste"
+        ],
+        [
+            null,
+            "Conseiller financier"
+        ],
+        [
+            null,
+            "Consultant en finance d'entreprise"
+        ],
+        [
+            null,
+            "Contrôleur de crédit"
+        ],
+        [
+            null,
+            "Contrôleur financier"
+        ],
+        [
+            null,
+            "Courtier en valeurs mobilières"
+        ],
+        [
+            null,
+            "Directeur.rice financier (CFO)"
+        ],
+        [
+            null,
+            "Expert en fusion-acquisition"
+        ],
+        [
+            null,
+            "Expert-comptable"
+        ],
+        [
+            null,
+            "Gestionnaire de crédit"
+        ],
+        [
+            null,
+            "Gestionnaire de patrimoine"
+        ],
+        [
+            null,
+            "Gestionnaire de portefeuille"
+        ],
+        [
+            null,
+            "Gestionnaire de relations bancaires"
+        ],
+        [
+            null,
+            "Gestionnaire de risques financiers"
+        ],
+        [
+            null,
+            "Gestionnaire de trésorerie"
+        ],
+        [
+            null,
+            "Planificateur de la retraite"
+        ],
+        [
+            null,
+            "Planificateur financier"
+        ],
+        [
+            null,
+            "Trésorier"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "DÉFENSE"
+        ],
+        [
+            null,
+            "Agent.e de contre-espionnage"
+        ],
+        [
+            null,
+            "Agent.e de police militaire"
+        ],
+        [
+            null,
+            "Agent.e de renseignement tactique"
+        ],
+        [
+            null,
+            "Agent.e de sécurité des frontières"
+        ],
+        [
+            null,
+            "Agent.e de sécurité des transports"
+        ],
+        [
+            null,
+            "Agent.e de sécurité nationale"
+        ],
+        [
+            null,
+            "Agent.e de sécurité nucléaire"
+        ],
+        [
+            null,
+            "Agent.e du renseignement"
+        ],
+        [
+            null,
+            "Analyste du renseignement"
+        ],
+        [
+            null,
+            "Avocat/avocate militaire"
+        ],
+        [
+            null,
+            "Chef de projet en défense"
+        ],
+        [
+            null,
+            "Chercheur/chercheuse en défense et sécurité"
+        ],
+        [
+            null,
+            "Commandant/commandante"
+        ],
+        [
+            null,
+            "Expert.e en armement"
+        ],
+        [
+            null,
+            "Expert.e en cybersécurité militaire"
+        ],
+        [
+            null,
+            "Expert.e en guerre électronique"
+        ],
+        [
+            null,
+            "Expert.e en lutte anti-mines"
+        ],
+        [
+            null,
+            "Expert.e en opérations psychologiques"
+        ],
+        [
+            null,
+            "Gendarme militaire"
+        ],
+        [
+            null,
+            "Infirmier/infirmière militaire"
+        ],
+        [
+            null,
+            "Ingénieur/ingénieure militaire"
+        ],
+        [
+            null,
+            "Marin de la marine"
+        ],
+        [
+            null,
+            "Médecin militaire"
+        ],
+        [
+            null,
+            "Membre des forces spéciales"
+        ],
+        [
+            null,
+            "Militaire"
+        ],
+        [
+            null,
+            "Officier/officière des forces armées"
+        ],
+        [
+            null,
+            "Pharmacien/pharmacienne militaire"
+        ],
+        [
+            null,
+            "Pilote de chasse"
+        ],
+        [
+            null,
+            "Pilote de drone militaire"
+        ],
+        [
+            null,
+            "Psychologue militaire"
+        ],
+        [
+            null,
+            "Responsable de la logistique militaire"
+        ],
+        [
+            null,
+            "Responsable de la planification stratégique militaire"
+        ],
+        [
+            null,
+            "Soldat d'infanterie"
+        ],
+        [
+            null,
+            "Spécialiste en explosifs et munitions"
+        ],
+        [
+            null,
+            "Spécialiste en opérations militaires maritimes"
+        ],
+        [
+            null,
+            "Spécialiste en opérations militaires terrestres"
+        ],
+        [
+            null,
+            "Spécialiste en systèmes de surveillance militaire"
+        ],
+        [
+            null,
+            "Technicien.ne en communication militaire"
+        ],
+        [
+            null,
+            "Technicien.ne en génie militaire"
+        ],
+        [
+            null,
+            "Technicien.ne en maintenance d'aéronefs militaires"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "DISTRIBUTION"
+        ],
+        [
+            null,
+            "Agent.e de marketing en distribution"
+        ],
+        [
+            null,
+            "Agent.e de service client en magasin"
+        ],
+        [
+            null,
+            "Analyste de données de vente"
+        ],
+        [
+            null,
+            "Analyste de marché en distribution"
+        ],
+        [
+            null,
+            "Assistant/assistante de vente"
+        ],
+        [
+            null,
+            "Chef/chef de département de mode"
+        ],
+        [
+            null,
+            "Chef/chef de rayon"
+        ],
+        [
+            null,
+            "Conseiller.ère en vente"
+        ],
+        [
+            null,
+            "Directeur.rice.rice de boutique de luxe"
+        ],
+        [
+            null,
+            "Directeur.rice.rice de centre commercial"
+        ],
+        [
+            null,
+            "Directeur.rice.rice de franchise"
+        ],
+        [
+            null,
+            "Directeur.rice.rice de la distribution"
+        ],
+        [
+            null,
+            "Directeur.rice.rice de magasin d'alimentation"
+        ],
+        [
+            null,
+            "Directeur.rice.rice de point de vente"
+        ],
+        [
+            null,
+            "Directeur.rice.rice de réseau de distribution"
+        ],
+        [
+            null,
+            "Directeur.rice.rice des opérations de magasin"
+        ],
+        [
+            null,
+            "Directeur.rice.rice des ventes au détail"
+        ],
+        [
+            null,
+            "Gestionnaire de catégorie"
+        ],
+        [
+            null,
+            "Gestionnaire de franchise"
+        ],
+        [
+            null,
+            "Gestionnaire de la chaîne d'approvisionnement"
+        ],
+        [
+            null,
+            "Gestionnaire de la relation client"
+        ],
+        [
+            null,
+            "Gestionnaire de magasin"
+        ],
+        [
+            null,
+            "Gestionnaire de rayon de produits de bricolage"
+        ],
+        [
+            null,
+            "Gestionnaire de rayon de produits non alimentaires"
+        ],
+        [
+            null,
+            "Responsable de la chaîne d'approvisionnement"
+        ],
+        [
+            null,
+            "Responsable de la distribution en ligne"
+        ],
+        [
+            null,
+            "Responsable de la gestion des stocks"
+        ],
+        [
+            null,
+            "Responsable de la logistique de distribution"
+        ],
+        [
+            null,
+            "Responsable de la maintenance en magasin"
+        ],
+        [
+            null,
+            "Responsable de la planification des achats"
+        ],
+        [
+            null,
+            "Responsable de la planification des ventes"
+        ],
+        [
+            null,
+            "Responsable de la promotion des ventes"
+        ],
+        [
+            null,
+            "Responsable de la sécurité en magasin"
+        ],
+        [
+            null,
+            "Responsable de la vente en gros"
+        ],
+        [
+            null,
+            "Responsable des achats"
+        ],
+        [
+            null,
+            "Responsable des opérations de centre commercial"
+        ],
+        [
+            null,
+            "Vendeur/vendeuse de produits électroniques"
+        ],
+        [
+            null,
+            "Vendeur/vendeuse en alimentation"
+        ],
+        [
+            null,
+            "Vendeur/vendeuse en ligne"
+        ],
+        [
+            null,
+            "Vendeur/vendeuse en magasin"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "DROIT, JUSTICE"
+        ],
+        [
+            null,
+            "Agent de police"
+        ],
+        [
+            null,
+            "Arbitre"
+        ],
+        [
+            null,
+            "Assesseur"
+        ],
+        [
+            null,
+            "Assistant juridique"
+        ],
+        [
+            null,
+            "Avocat"
+        ],
+        [
+            null,
+            "Avocat de la famille"
+        ],
+        [
+            null,
+            "Avocat des affaires"
+        ],
+        [
+            null,
+            "Avocat des droits de l'homme"
+        ],
+        [
+            null,
+            "Avocat en droit bancaire"
+        ],
+        [
+            null,
+            "Avocat en droit de l'environnement"
+        ],
+        [
+            null,
+            "Avocat en droit de l'immigration"
+        ],
+        [
+            null,
+            "Avocat en droit de la cybercriminalité"
+        ],
+        [
+            null,
+            "Avocat en droit de la famille"
+        ],
+        [
+            null,
+            "Avocat en droit de la propriété intellectuelle"
+        ],
+        [
+            null,
+            "Avocat en droit de la santé"
+        ],
+        [
+            null,
+            "Avocat en droit des affaires internationales"
+        ],
+        [
+            null,
+            "Avocat en droit des assurances"
+        ],
+        [
+            null,
+            "Avocat en droit des biens immobiliers"
+        ],
+        [
+            null,
+            "Avocat en droit des contrats"
+        ],
+        [
+            null,
+            "Avocat en droit des médias"
+        ],
+        [
+            null,
+            "Avocat en droit des sociétés"
+        ],
+        [
+            null,
+            "Avocat en droit des successions"
+        ],
+        [
+            null,
+            "Avocat en droit des technologies de l'information"
+        ],
+        [
+            null,
+            "Avocat en droit du divertissement"
+        ],
+        [
+            null,
+            "Avocat en droit du travail"
+        ],
+        [
+            null,
+            "Avocat en droit fiscal"
+        ],
+        [
+            null,
+            "Avocat en droit maritime"
+        ],
+        [
+            null,
+            "Avocat pénaliste"
+        ],
+        [
+            null,
+            "Conseiller juridique"
+        ],
+        [
+            null,
+            "Délégué à la protection des données (DPO)"
+        ],
+        [
+            null,
+            "Expert en analyse dactyloscopique"
+        ],
+        [
+            null,
+            "Expert en analyse graphologique"
+        ],
+        [
+            null,
+            "Expert en balistique"
+        ],
+        [
+            null,
+            "Expert en droit de la propriété intellectuelle"
+        ],
+        [
+            null,
+            "Expert psychiatrique"
+        ],
+        [
+            null,
+            "Gardien de prison"
+        ],
+        [
+            null,
+            "Greffier de tribunal"
+        ],
+        [
+            null,
+            "Huissier de justice"
+        ],
+        [
+            null,
+            "Juge"
+        ],
+        [
+            null,
+            "Juriste d'entreprise"
+        ],
+        [
+            null,
+            "Médiateur"
+        ],
+        [
+            null,
+            "Notaire"
+        ],
+        [
+            null,
+            "Officier de probation"
+        ],
+        [
+            null,
+            "Procureur"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "ÉNERGIES"
+        ],
+        [
+            null,
+            "Analyste des marchés de l'énergie"
+        ],
+        [
+            null,
+            "Analyste en coûts de l'énergie"
+        ],
+        [
+            null,
+            "Analyste en efficacité énergétique"
+        ],
+        [
+            null,
+            "Consultant/consultante en énergie"
+        ],
+        [
+            null,
+            "Gestionnaire de projet en énergie"
+        ],
+        [
+            null,
+            "Gestionnaire de projet en énergie géothermique"
+        ],
+        [
+            null,
+            "Ingénieur/ingénieure en énergie"
+        ],
+        [
+            null,
+            "Ingénieur/ingénieure en énergie des piles à combustible"
+        ],
+        [
+            null,
+            "Ingénieur/ingénieure en énergie des vagues"
+        ],
+        [
+            null,
+            "Ingénieur/ingénieure en énergie éolienne"
+        ],
+        [
+            null,
+            "Ingénieur/ingénieure en énergie nucléaire"
+        ],
+        [
+            null,
+            "Ingénieur/ingénieure en énergie solaire"
+        ],
+        [
+            null,
+            "Ingénieur/ingénieure en énergie thermique"
+        ],
+        [
+            null,
+            "Ingénieur/ingénieure en gestion de l'énergie"
+        ],
+        [
+            null,
+            "Ingénieur/ingénieure en stockage de l'énergie"
+        ],
+        [
+            null,
+            "Ingénieur/ingénieure en systèmes d'énergie intelligents"
+        ],
+        [
+            null,
+            "Responsable de l'efficacité énergétique des bâtiments"
+        ],
+        [
+            null,
+            "Responsable de la distribution d'énergie"
+        ],
+        [
+            null,
+            "Responsable de la gestion de l'énergie"
+        ],
+        [
+            null,
+            "Responsable de la gestion de la demande d'énergie"
+        ],
+        [
+            null,
+            "Responsable de la gestion des émissions de carbone"
+        ],
+        [
+            null,
+            "Responsable de la maintenance des installations énergétiques"
+        ],
+        [
+            null,
+            "Responsable de la planification énergétique"
+        ],
+        [
+            null,
+            "Responsable de la réglementation de l'énergie"
+        ],
+        [
+            null,
+            "Responsable de la sécurité de l'énergie"
+        ],
+        [
+            null,
+            "Responsable de la sécurité des réseaux énergétiques"
+        ],
+        [
+            null,
+            "Responsable de la transition énergétique"
+        ],
+        [
+            null,
+            "Spécialiste en énergie marine"
+        ],
+        [
+            null,
+            "Spécialiste en intégration des énergies renouvelables"
+        ],
+        [
+            null,
+            "Spécialiste en micro-réseaux énergétiques"
+        ],
+        [
+            null,
+            "Technicien.ne en analyse de données énergétiques"
+        ],
+        [
+            null,
+            "Technicien.ne en biomasse"
+        ],
+        [
+            null,
+            "Technicien.ne en contrôle de la qualité de l'énergie"
+        ],
+        [
+            null,
+            "Technicien.ne en énergie des déchets"
+        ],
+        [
+            null,
+            "Technicien.ne en énergie géothermique"
+        ],
+        [
+            null,
+            "Technicien.ne en énergie hydraulique"
+        ],
+        [
+            null,
+            "Technicien.ne en énergie hydrogène"
+        ],
+        [
+            null,
+            "Technicien.ne en énergie renouvelable"
+        ],
+        [
+            null,
+            "Technicien.ne en énergie thermosolaire"
+        ],
+        [
+            null,
+            "Technicien.ne en production d'électricité"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "ENSEIGNEMENT"
+        ],
+        [
+            null,
+            "Chercheur.r"
+        ],
+        [
+            null,
+            "Conseiller d'orientation"
+        ],
+        [
+            null,
+            "Conseiller pédagogique"
+        ],
+        [
+            null,
+            "Directeur.rice d'école"
+        ],
+        [
+            null,
+            "Doctorant.e"
+        ],
+        [
+            null,
+            "Docteur.e"
+        ],
+        [
+            null,
+            "Éducateur.e spécialisé"
+        ],
+        [
+            null,
+            "Etudient.e en classe préparatoire"
+        ],
+        [
+            null,
+            "Etudient.e en première année de licence"
+        ],
+        [
+            null,
+            "Etudient.e en première année de licence"
+        ],
+        [
+            null,
+            "Etudient.e en deuxième année de licence"
+        ],
+        [
+            null,
+            "Etudient.e en troisième année de licence"
+        ],
+        [
+            null,
+            "Etudient.e en master 1"
+        ],
+        [
+            null,
+            "Etudient.e en master 2"
+        ],
+        [
+            null,
+            "Etudient.e entrepreneur.e"
+        ],
+        [
+            null,
+            "Formateur.e en entreprise"
+        ],
+        [
+            null,
+            "Enseignant.e-chercheur.e"
+        ],
+        [
+            null,
+            "Inspecteur.e de l'éducation nationale"
+        ],
+        [
+            null,
+            "Principal.e de collège ou lycée"
+        ],
+        [
+            null,
+            "Professeur.e d'économie"
+        ],
+        [
+            null,
+            "Professeur.e d'université"
+        ],
+        [
+            null,
+            "Professeur.e de danse"
+        ],
+        [
+            null,
+            "Professeur.e de droit"
+        ],
+        [
+            null,
+            "Professeur.e de langue"
+        ],
+        [
+            null,
+            "Professeur.e de langue étrangère"
+        ],
+        [
+            null,
+            "Professeur.e de musique"
+        ],
+        [
+            null,
+            "Professeur.e de philosophie"
+        ],
+        [
+            null,
+            "Professeur.e de psychologie"
+        ],
+        [
+            null,
+            "Professeur.e de sciences de l'éducation"
+        ],
+        [
+            null,
+            "Professeur.e de sciences de l'environnement"
+        ],
+        [
+            null,
+            "Professeur.e de sciences de la santé"
+        ],
+        [
+            null,
+            "Professeur.e de sciences politiques"
+        ],
+        [
+            null,
+            "Professeur.e de théâtre"
+        ],
+        [
+            null,
+            "Professeur.e en arts"
+        ],
+        [
+            null,
+            "Professeur.e en collège"
+        ],
+        [
+            null,
+            "Professeur.e en école primaire"
+        ],
+        [
+            null,
+            "Professeur.e en éducation artistique"
+        ],
+        [
+            null,
+            "Professeur.e en éducation physique"
+        ],
+        [
+            null,
+            "Professeur.e en éducation physique adaptée"
+        ],
+        [
+            null,
+            "Professeur.e en éducation religieuse"
+        ],
+        [
+            null,
+            "Professeur.e en éducation spéciale"
+        ],
+        [
+            null,
+            "Professeur.e en géographie"
+        ],
+        [
+            null,
+            "Professeur.e en histoire"
+        ],
+        [
+            null,
+            "Professeur.e en informatique"
+        ],
+        [
+            null,
+            "Professeur.e en lycée"
+        ],
+        [
+            null,
+            "Professeur.e en maternelle"
+        ],
+        [
+            null,
+            "Professeur.e en mathématiques"
+        ],
+        [
+            null,
+            "Professeur.e en musique"
+        ],
+        [
+            null,
+            "Professeur.e en sciences"
+        ],
+        [
+            null,
+            "Professeur.e en sciences sociales"
+        ],
+        [
+            null,
+            "Professeur.e en technologie"
+        ],
+        [
+            null,
+            "Tuteur.rice en ligne"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "ENVIRONNEMENT"
+        ],
+        [
+            null,
+            "Analyste en changement climatique"
+        ],
+        [
+            null,
+            "Analyste en évaluation de l'empreinte carbone"
+        ],
+        [
+            null,
+            "Analyste en évaluation environnementale"
+        ],
+        [
+            null,
+            "Analyste en qualité de l'air"
+        ],
+        [
+            null,
+            "Chercheur/chercheuse en sciences de l'environnement"
+        ],
+        [
+            null,
+            "Consultant/consultante en environnement"
+        ],
+        [
+            null,
+            "Expert.e en agriculture durable"
+        ],
+        [
+            null,
+            "Expert.e en biodiversité marine"
+        ],
+        [
+            null,
+            "Expert.e en énergie renouvelable"
+        ],
+        [
+            null,
+            "Gestionnaire de l'environnement urbain"
+        ],
+        [
+            null,
+            "Gestionnaire de la durabilité"
+        ],
+        [
+            null,
+            "Gestionnaire de la sensibilisation environnementale"
+        ],
+        [
+            null,
+            "Gestionnaire de projet environnemental"
+        ],
+        [
+            null,
+            "Ingénieur/ingénieure en écologie"
+        ],
+        [
+            null,
+            "Ingénieur/ingénieure en environnement"
+        ],
+        [
+            null,
+            "Ingénieur/ingénieure en traitement des eaux"
+        ],
+        [
+            null,
+            "Responsable de l'assainissement de l'eau"
+        ],
+        [
+            null,
+            "Responsable de la conformité environnementale"
+        ],
+        [
+            null,
+            "Responsable de la conservation de la faune"
+        ],
+        [
+            null,
+            "Responsable de la gestion des aires protégées"
+        ],
+        [
+            null,
+            "Responsable de la gestion des déversements"
+        ],
+        [
+            null,
+            "Responsable de la gestion des eaux usées"
+        ],
+        [
+            null,
+            "Responsable de la gestion des ressources en eau"
+        ],
+        [
+            null,
+            "Responsable de la gestion des zones humides"
+        ],
+        [
+            null,
+            "Responsable de la gestion environnementale"
+        ],
+        [
+            null,
+            "Responsable de la protection de la biodiversité"
+        ],
+        [
+            null,
+            "Responsable de la restauration écologique"
+        ],
+        [
+            null,
+            "Spécialiste en évaluation des risques environnementaux"
+        ],
+        [
+            null,
+            "Spécialiste en gestion de la pollution"
+        ],
+        [
+            null,
+            "Spécialiste en gestion de la pollution de l'air"
+        ],
+        [
+            null,
+            "Spécialiste en gestion des déchets"
+        ],
+        [
+            null,
+            "Spécialiste en gestion des déchets dangereux"
+        ],
+        [
+            null,
+            "Spécialiste en gestion des écosystèmes"
+        ],
+        [
+            null,
+            "Spécialiste en gestion des énergies renouvelables"
+        ],
+        [
+            null,
+            "Spécialiste en gestion des zones côtières"
+        ],
+        [
+            null,
+            "Technicien.ne en énergie solaire"
+        ],
+        [
+            null,
+            "Technicien.ne en environnement"
+        ],
+        [
+            null,
+            "Technicien.ne en foresterie"
+        ],
+        [
+            null,
+            "Technicien.ne en gestion des ressources naturelles"
+        ],
+        [
+            null,
+            "Technicien.ne en gestion des sols"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "ÉVÉNEMENTIEL"
+        ],
+        [
+            null,
+            "Account manager événementiel"
+        ],
+        [
+            null,
+            "Animateur de stands"
+        ],
+        [
+            null,
+            "Assistant événementiel"
+        ],
+        [
+            null,
+            "Attaché de presse événementiel"
+        ],
+        [
+            null,
+            "Chargé de communication événementielle"
+        ],
+        [
+            null,
+            "Chargé de production événementielle"
+        ],
+        [
+            null,
+            "Chef de projet événementiel"
+        ],
+        [
+            null,
+            "Chef de rang événementiel"
+        ],
+        [
+            null,
+            "Chorégraphe"
+        ],
+        [
+            null,
+            "Commercial événementiel"
+        ],
+        [
+            null,
+            "Commissaire général de salon"
+        ],
+        [
+            null,
+            "Concepteur de stands"
+        ],
+        [
+            null,
+            "Coordinateur événementiel"
+        ],
+        [
+            null,
+            "Décorateur événementiel"
+        ],
+        [
+            null,
+            "Directeur.rice artistique événementiel"
+        ],
+        [
+            null,
+            "Directeur.rice commercial.e"
+        ],
+        [
+            null,
+            "Directeur.rice de la communication événementielle"
+        ],
+        [
+            null,
+            "Directeur.rice de production événementielle"
+        ],
+        [
+            null,
+            "Directeur.rice de salon"
+        ],
+        [
+            null,
+            "DJ événementiel"
+        ],
+        [
+            null,
+            "Éclairagiste"
+        ],
+        [
+            null,
+            "Graphiste événementiel"
+        ],
+        [
+            null,
+            "Ingénieur du son événementiel"
+        ],
+        [
+            null,
+            "Logisticien événementiel"
+        ],
+        [
+            null,
+            "Maître d'hôtel événementiel"
+        ],
+        [
+            null,
+            "Manager d'artistes"
+        ],
+        [
+            null,
+            "Organisateur de congrès"
+        ],
+        [
+            null,
+            "Organisateur de festivals"
+        ],
+        [
+            null,
+            "Organisateur de salons"
+        ],
+        [
+            null,
+            "Photographe événementiel"
+        ],
+        [
+            null,
+            "Planificateur d'événements"
+        ],
+        [
+            null,
+            "Régisseur général"
+        ],
+        [
+            null,
+            "Responsable audiovisuel événementiel"
+        ],
+        [
+            null,
+            "Responsable billetterie"
+        ],
+        [
+            null,
+            "Responsable catering"
+        ],
+        [
+            null,
+            "Responsable logistique événementielle"
+        ],
+        [
+            null,
+            "Responsable marketing événementiel"
+        ],
+        [
+            null,
+            "Responsable sécurité événementielle"
+        ],
+        [
+            null,
+            "Scénographe événementiel"
+        ],
+        [
+            null,
+            "Technicien audiovisuel événementiel"
+        ],
+        [
+            null,
+            "Technicien lumière"
+        ],
+        [
+            null,
+            "Vidéaste événementiel"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "HÔTELLERIE, RESTAURATION"
+        ],
+        [
+            null,
+            "Agent de réservation"
+        ],
+        [
+            null,
+            "Assistant de direction d'hôtel"
+        ],
+        [
+            null,
+            "Barista"
+        ],
+        [
+            null,
+            "Barman/barmaid"
+        ],
+        [
+            null,
+            "Boulanger"
+        ],
+        [
+            null,
+            "Chef de rang"
+        ],
+        [
+            null,
+            "Chef pâtissier"
+        ],
+        [
+            null,
+            "Chef sommelier"
+        ],
+        [
+            null,
+            "Chef cuisinier"
+        ],
+        [
+            null,
+            "Commis de cuisine"
+        ],
+        [
+            null,
+            "Concierge d'hôtel"
+        ],
+        [
+            null,
+            "Cuisinier"
+        ],
+        [
+            null,
+            "Directeur.rice général d'hôtel"
+        ],
+        [
+            null,
+            "Gérant de restaurant"
+        ],
+        [
+            null,
+            "Maître d'hôtel"
+        ],
+        [
+            null,
+            "Pizzaiolo"
+        ],
+        [
+            null,
+            "Plongeur"
+        ],
+        [
+            null,
+            "Réceptionniste"
+        ],
+        [
+            null,
+            "Responsable commercial.e"
+        ],
+        [
+            null,
+            "Responsable de l'entretien ménager"
+        ],
+        [
+            null,
+            "Responsable de la réception"
+        ],
+        [
+            null,
+            "Responsable de la restauration"
+        ],
+        [
+            null,
+            "Responsable de la sécurité de l'hôtel"
+        ],
+        [
+            null,
+            "Responsable des événements"
+        ],
+        [
+            null,
+            "Serveur/serveuse"
+        ],
+        [
+            null,
+            "Sommelier"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "INDUSTRIE"
+        ],
+        [
+            null,
+            "Chef d'équipe en production"
+        ],
+        [
+            null,
+            "Chef de maintenance industrielle"
+        ],
+        [
+            null,
+            "Chef de projet en génie industriel"
+        ],
+        [
+            null,
+            "Chef de projet industriel"
+        ],
+        [
+            null,
+            "Conducteur/conductrice de chariot élévateur"
+        ],
+        [
+            null,
+            "Conducteur/conductrice de ligne de montage"
+        ],
+        [
+            null,
+            "Conducteur/conductrice de ligne de production"
+        ],
+        [
+            null,
+            "Conducteur/conductrice de machines de fabrication"
+        ],
+        [
+            null,
+            "Électricien/électricienne industriel(le)"
+        ],
+        [
+            null,
+            "Gestionnaire de chaîne d'approvisionnement"
+        ],
+        [
+            null,
+            "Ingénieur/ingénieure en automatisation industrielle"
+        ],
+        [
+            null,
+            "Ingénieur/ingénieure en contrôle de la qualité"
+        ],
+        [
+            null,
+            "Ingénieur/ingénieure en génie chimique"
+        ],
+        [
+            null,
+            "Ingénieur/ingénieure en génie civil"
+        ],
+        [
+            null,
+            "Ingénieur/ingénieure en génie électrique"
+        ],
+        [
+            null,
+            "Ingénieur/ingénieure en génie mécanique"
+        ],
+        [
+            null,
+            "Ingénieur/ingénieure en mécatronique"
+        ],
+        [
+            null,
+            "Ingénieur/ingénieure industriel(le)"
+        ],
+        [
+            null,
+            "Mécanicien/mécanicienne de machines-outils"
+        ],
+        [
+            null,
+            "Mécanicien/mécanicienne industriel(le)"
+        ],
+        [
+            null,
+            "Monteur/monteuse de structures métalliques"
+        ],
+        [
+            null,
+            "Opérateur/opératrice de commande numérique"
+        ],
+        [
+            null,
+            "Opérateur/opératrice de ligne de conditionnement"
+        ],
+        [
+            null,
+            "Opérateur/opératrice de machine d'injection plastique"
+        ],
+        [
+            null,
+            "Opérateur/opératrice de machine industrielle"
+        ],
+        [
+            null,
+            "Opérateur/opératrice de machines de soudure"
+        ],
+        [
+            null,
+            "Opérateur/opératrice de machines-outils"
+        ],
+        [
+            null,
+            "Opérateur/opératrice de traitement thermique"
+        ],
+        [
+            null,
+            "Responsable de la logistique industrielle"
+        ],
+        [
+            null,
+            "Responsable de la planification de production"
+        ],
+        [
+            null,
+            "Responsable de la qualité industrielle"
+        ],
+        [
+            null,
+            "Responsable de la sécurité industrielle"
+        ],
+        [
+            null,
+            "Soudeur/soudeuse"
+        ],
+        [
+            null,
+            "Technicien.ne de maintenance industrielle"
+        ],
+        [
+            null,
+            "Technicien.ne de production"
+        ],
+        [
+            null,
+            "Technicien.ne en assurance qualité"
+        ],
+        [
+            null,
+            "Technicien.ne en automatisme industriel"
+        ],
+        [
+            null,
+            "Technicien.ne en génie des procédés"
+        ],
+        [
+            null,
+            "Technicien.ne en maintenance des équipements"
+        ],
+        [
+            null,
+            "Technicien.ne en robotique industrielle"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "INGÉNIERIE"
+        ],
+        [
+            null,
+            "Ingénieur biomédical"
+        ],
+        [
+            null,
+            "Ingénieur chimiste"
+        ],
+        [
+            null,
+            "Ingénieur civil"
+        ],
+        [
+            null,
+            "Ingénieur de sécurité"
+        ],
+        [
+            null,
+            "Ingénieur des matériaux"
+        ],
+        [
+            null,
+            "Ingénieur électrique"
+        ],
+        [
+            null,
+            "Ingénieur électronique"
+        ],
+        [
+            null,
+            "Ingénieur en aérospatiale"
+        ],
+        [
+            null,
+            "Ingénieur en aérospatiale et défense"
+        ],
+        [
+            null,
+            "Ingénieur en contrôle de qualité"
+        ],
+        [
+            null,
+            "Ingénieur en énergie"
+        ],
+        [
+            null,
+            "Ingénieur en environnement"
+        ],
+        [
+            null,
+            "Ingénieur en génie biomédical"
+        ],
+        [
+            null,
+            "Ingénieur en génie chimique"
+        ],
+        [
+            null,
+            "Ingénieur en génie civil"
+        ],
+        [
+            null,
+            "Ingénieur en génie logiciel"
+        ],
+        [
+            null,
+            "Ingénieur en ingénierie des données"
+        ],
+        [
+            null,
+            "Ingénieur en mécatronique"
+        ],
+        [
+            null,
+            "Ingénieur en robotique"
+        ],
+        [
+            null,
+            "Ingénieur en sécurité informatique"
+        ],
+        [
+            null,
+            "Ingénieur en systèmes"
+        ],
+        [
+            null,
+            "Ingénieur en systèmes embarqués"
+        ],
+        [
+            null,
+            "Ingénieur en télécommunications"
+        ],
+        [
+            null,
+            "Ingénieur en télécommunications sans fil"
+        ],
+        [
+            null,
+            "Ingénieur informatique"
+        ],
+        [
+            null,
+            "Ingénieur logiciel"
+        ],
+        [
+            null,
+            "Ingénieur logiciel embarqué"
+        ],
+        [
+            null,
+            "Ingénieur mécanique"
+        ],
+        [
+            null,
+            "Ingénieur mécatronique"
+        ],
+        [
+            null,
+            "Technicien en automatisation"
+        ],
+        [
+            null,
+            "Technicien en conception assistée par ordinateur (CAO)"
+        ],
+        [
+            null,
+            "Technicien en électronique"
+        ],
+        [
+            null,
+            "Technicien en énergie solaire"
+        ],
+        [
+            null,
+            "Technicien en génie civil"
+        ],
+        [
+            null,
+            "Technicien en génie électrique"
+        ],
+        [
+            null,
+            "Technicien en génie mécanique"
+        ],
+        [
+            null,
+            "Technicien en informatique"
+        ],
+        [
+            null,
+            "Technicien en maintenance industrielle"
+        ],
+        [
+            null,
+            "Technicien en robotique industrielle"
+        ],
+        [
+            null,
+            "Technicien en télécommunications"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "JEUX VIDÉO"
+        ],
+        [
+            null,
+            "Analyste de données de jeux vidéo"
+        ],
+        [
+            null,
+            "Animateur/animatrice de cinématiques"
+        ],
+        [
+            null,
+            "Animateur/animatrice de personnages"
+        ],
+        [
+            null,
+            "Artiste 3D de jeux vidéo"
+        ],
+        [
+            null,
+            "Chef/chef de projet de jeux vidéo"
+        ],
+        [
+            null,
+            "Chef/chef de studio de jeux vidéo"
+        ],
+        [
+            null,
+            "Compositeur/compositrice de musique de jeux vidéo"
+        ],
+        [
+            null,
+            "Concepteur/conceptrice de mécaniques de jeu"
+        ],
+        [
+            null,
+            "Concepteur/conceptrice de niveaux"
+        ],
+        [
+            null,
+            "Concepteur/conceptrice de personnages"
+        ],
+        [
+            null,
+            "Concepteur/conceptrice sonore"
+        ],
+        [
+            null,
+            "Directeur.rice.rice artistique de jeux vidéo"
+        ],
+        [
+            null,
+            "Directeur.rice.rice de la qualité"
+        ],
+        [
+            null,
+            "Directeur.rice.rice de production"
+        ],
+        [
+            null,
+            "Directeur.rice.rice de studio de jeux vidéo"
+        ],
+        [
+            null,
+            "Directeur.rice.rice de technologie"
+        ],
+        [
+            null,
+            "Directeur.rice.rice des opérations"
+        ],
+        [
+            null,
+            "Directeur.rice.rice financier/financière"
+        ],
+        [
+            null,
+            "Directeur.rice.rice général(e) de studio de jeux vidéo"
+        ],
+        [
+            null,
+            "Directeur.rice.rice technique de jeux vidéo"
+        ],
+        [
+            null,
+            "Game analyst"
+        ],
+        [
+            null,
+            "Game artist"
+        ],
+        [
+            null,
+            "Game designer"
+        ],
+        [
+            null,
+            "Game marketer"
+        ],
+        [
+            null,
+            "Game tester"
+        ],
+        [
+            null,
+            "Graphiste de jeux vidéo"
+        ],
+        [
+            null,
+            "Producteur/productrice de jeux vidéo"
+        ],
+        [
+            null,
+            "Programmeur/programmeuse de gameplay"
+        ],
+        [
+            null,
+            "Programmeur/programmeuse de jeux vidéo"
+        ],
+        [
+            null,
+            "Programmeur/programmeuse de moteur de jeu"
+        ],
+        [
+            null,
+            "Programmeur/programmeuse de physique de jeux vidéo"
+        ],
+        [
+            null,
+            "Programmeur/programmeuse réseau de jeux vidéo"
+        ],
+        [
+            null,
+            "Scénariste de jeux vidéo"
+        ],
+        [
+            null,
+            "Sound designer de jeux vidéo"
+        ],
+        [
+            null,
+            "Spécialiste en intelligence artificielle"
+        ],
+        [
+            null,
+            "Spécialiste en marketing de jeux vidéo"
+        ],
+        [
+            null,
+            "Spécialiste en narration interactive"
+        ],
+        [
+            null,
+            "Testeur/testeuse de jeux vidéo"
+        ],
+        [
+            null,
+            "Testeur/testeuse de qualité"
+        ],
+        [
+            null,
+            "Traducteur/traductrice de jeux vidéo"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "LITTÉRATURE"
+        ],
+        [
+            null,
+            "Agent littéraire"
+        ],
+        [
+            null,
+            "Auteur de livres pour enfants"
+        ],
+        [
+            null,
+            "Bibliothécaire"
+        ],
+        [
+            null,
+            "Biographe"
+        ],
+        [
+            null,
+            "Chroniqueur/chroniqueuse littéraire"
+        ],
+        [
+            null,
+            "Correcteur/correctrice"
+        ],
+        [
+            null,
+            "Critique littéraire"
+        ],
+        [
+            null,
+            "Dramaturge"
+        ],
+        [
+            null,
+            "Écrivain/écrivaine"
+        ],
+        [
+            null,
+            "Éditeur/éditrice"
+        ],
+        [
+            null,
+            "Ghostwriter (écrivain fantôme)"
+        ],
+        [
+            null,
+            "Libraire"
+        ],
+        [
+            null,
+            "Poète"
+        ],
+        [
+            null,
+            "Responsable de bibliothèque"
+        ],
+        [
+            null,
+            "Romancier/romancière"
+        ],
+        [
+            null,
+            "Scénariste"
+        ],
+        [
+            null,
+            "Spécialiste de l'écriture créative"
+        ],
+        [
+            null,
+            "Traducteur/traductrice littéraire"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "LOGISTIQUE"
+        ],
+        [
+            null,
+            "Analyste de données logistiques"
+        ],
+        [
+            null,
+            "Analyste de la demande"
+        ],
+        [
+            null,
+            "Analyste en logistique"
+        ],
+        [
+            null,
+            "Coordinateur/coordinatrice de la chaîne d'approvisionnement"
+        ],
+        [
+            null,
+            "Coordinateur/coordinatrice de la logistique de la chaîne du froid"
+        ],
+        [
+            null,
+            "Coordinateur/coordinatrice de la logistique du commerce en ligne"
+        ],
+        [
+            null,
+            "Coordinateur/coordinatrice de la logistique humanitaire"
+        ],
+        [
+            null,
+            "Coordinateur/coordinatrice logistique"
+        ],
+        [
+            null,
+            "Coordonnateur/coordonnatrice de la logistique des événements"
+        ],
+        [
+            null,
+            "Directeur.rice.rice de l'entreposage"
+        ],
+        [
+            null,
+            "Directeur.rice.rice de la logistique"
+        ],
+        [
+            null,
+            "Directeur.rice.rice de la logistique de la construction"
+        ],
+        [
+            null,
+            "Directeur.rice.rice de la logistique de la défense"
+        ],
+        [
+            null,
+            "Directeur.rice.rice de la logistique ferroviaire"
+        ],
+        [
+            null,
+            "Directeur.rice.rice de la logistique portuaire"
+        ],
+        [
+            null,
+            "Gestionnaire de chaîne d'approvisionnement"
+        ],
+        [
+            null,
+            "Gestionnaire de la chaîne d'approvisionnement alimentaire"
+        ],
+        [
+            null,
+            "Gestionnaire de la chaîne d'approvisionnement internationale"
+        ],
+        [
+            null,
+            "Gestionnaire de la chaîne d'approvisionnement pharmaceutique"
+        ],
+        [
+            null,
+            "Gestionnaire de la logistique aéroportuaire"
+        ],
+        [
+            null,
+            "Gestionnaire de la logistique automobile"
+        ],
+        [
+            null,
+            "Gestionnaire de la logistique de l'industrie aérospatiale"
+        ],
+        [
+            null,
+            "Gestionnaire de la logistique de l'industrie minière"
+        ],
+        [
+            null,
+            "Gestionnaire de la logistique des produits chimiques"
+        ],
+        [
+            null,
+            "Gestionnaire de la logistique des produits frais"
+        ],
+        [
+            null,
+            "Gestionnaire de la logistique des technologies de l'information"
+        ],
+        [
+            null,
+            "Gestionnaire de la logistique inversée (gestion des retours)"
+        ],
+        [
+            null,
+            "Planificateur/planificatrice de la production"
+        ],
+        [
+            null,
+            "Planificateur/planificatrice logistique"
+        ],
+        [
+            null,
+            "Responsable de la distribution"
+        ],
+        [
+            null,
+            "Responsable de la logistique de l'industrie pétrolière et gazière"
+        ],
+        [
+            null,
+            "Responsable de la logistique de la construction navale"
+        ],
+        [
+            null,
+            "Responsable de la logistique de la mode"
+        ],
+        [
+            null,
+            "Responsable de la logistique de la santé"
+        ],
+        [
+            null,
+            "Responsable de la logistique des matériaux"
+        ],
+        [
+            null,
+            "Responsable de la logistique des produits dangereux"
+        ],
+        [
+            null,
+            "Responsable de la logistique du commerce de détail"
+        ],
+        [
+            null,
+            "Responsable de la logistique e-commerce"
+        ],
+        [
+            null,
+            "Responsable logistique"
+        ],
+        [
+            null,
+            "Spécialiste en logistique du transport"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "LOISIRS"
+        ],
+        [
+            null,
+            "Animateur/animatrice culturel(le)"
+        ],
+        [
+            null,
+            "Animateur/animatrice de loisirs"
+        ],
+        [
+            null,
+            "Artiste de spectacle"
+        ],
+        [
+            null,
+            "Chef d'animation"
+        ],
+        [
+            null,
+            "Chef d'orchestre"
+        ],
+        [
+            null,
+            "Chef de cuisine en loisirs"
+        ],
+        [
+            null,
+            "Coach de bien-être"
+        ],
+        [
+            null,
+            "Coach sportif/sportive personnel"
+        ],
+        [
+            null,
+            "Concepteur/conceptrice d'événements"
+        ],
+        [
+            null,
+            "Coordinateur/coordonnatrice d'événements"
+        ],
+        [
+            null,
+            "Coordonnateur/coordonnatrice de loisirs"
+        ],
+        [
+            null,
+            "Directeur.rice.rice de centre de loisirs"
+        ],
+        [
+            null,
+            "Entraîneur/entraîneuse de natation synchronisée"
+        ],
+        [
+            null,
+            "Entraîneur/entraîneuse de sports"
+        ],
+        [
+            null,
+            "Gestionnaire de parcs de loisirs"
+        ],
+        [
+            null,
+            "Guide de randonnée"
+        ],
+        [
+            null,
+            "Guide touristique"
+        ],
+        [
+            null,
+            "Instructeur/instructrice de tir à l'arc"
+        ],
+        [
+            null,
+            "Maître nageur/maître nageuse"
+        ],
+        [
+            null,
+            "Moniteur/monitrice de fitness"
+        ],
+        [
+            null,
+            "Moniteur/monitrice de natation"
+        ],
+        [
+            null,
+            "Moniteur/monitrice de plongée"
+        ],
+        [
+            null,
+            "Moniteur/monitrice de sports et loisirs"
+        ],
+        [
+            null,
+            "Organisateur/organisatrice de loisirs pour enfants"
+        ],
+        [
+            null,
+            "Organisateur/organisatrice de loisirs pour personnes âgées"
+        ],
+        [
+            null,
+            "Organisateur/organisatrice de spectacles"
+        ],
+        [
+            null,
+            "Professeur.e/Professeur.ee d'arts créatifs"
+        ],
+        [
+            null,
+            "Professeur.e/Professeur.ee d'arts martiaux"
+        ],
+        [
+            null,
+            "Professeur.e/Professeur.ee de danse"
+        ],
+        [
+            null,
+            "Professeur.e/Professeur.ee de méditation"
+        ],
+        [
+            null,
+            "Professeur.e/Professeur.ee de musique"
+        ],
+        [
+            null,
+            "Professeur.e/Professeur.ee de tai-chi"
+        ],
+        [
+            null,
+            "Professeur.e/Professeur.ee de yoga"
+        ],
+        [
+            null,
+            "Responsable d'équipe de sports et loisirs"
+        ],
+        [
+            null,
+            "Responsable de club de loisirs"
+        ],
+        [
+            null,
+            "Responsable de loisirs adaptés"
+        ],
+        [
+            null,
+            "Responsable de parcours d'escalade"
+        ],
+        [
+            null,
+            "Responsable de parcours de golf"
+        ],
+        [
+            null,
+            "Spécialiste de l'animation numérique"
+        ],
+        [
+            null,
+            "Spécialiste de loisirs en plein air"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "MARKETING"
+        ],
+        [
+            null,
+            "Analyste de données numériques"
+        ],
+        [
+            null,
+            "Analyste de marché"
+        ],
+        [
+            null,
+            "Analyste des comportements des consommateurs"
+        ],
+        [
+            null,
+            "Analyste des données marketing"
+        ],
+        [
+            null,
+            "Chargé/chargée d'études de marché"
+        ],
+        [
+            null,
+            "Chargé/chargée de relations publiques"
+        ],
+        [
+            null,
+            "Chargé/chargée des médias payants"
+        ],
+        [
+            null,
+            "Chef de la stratégie marketing"
+        ],
+        [
+            null,
+            "Chef de marque"
+        ],
+        [
+            null,
+            "Chef de produit"
+        ],
+        [
+            null,
+            "Chef de produit numérique"
+        ],
+        [
+            null,
+            "Chef de publicité"
+        ],
+        [
+            null,
+            "Concepteur/conceptrice de sites web"
+        ],
+        [
+            null,
+            "Concepteur/conceptrice publicitaire"
+        ],
+        [
+            null,
+            "Consultant/consultante en marketing"
+        ],
+        [
+            null,
+            "Directeur.rice.rice de la communication d'entreprise"
+        ],
+        [
+            null,
+            "Directeur.rice.rice de la publicité en ligne"
+        ],
+        [
+            null,
+            "Directeur.rice.rice de la stratégie marketing en ligne"
+        ],
+        [
+            null,
+            "Directeur.rice.rice des ventes et du marketing"
+        ],
+        [
+            null,
+            "Directeur.rice.rice marketing"
+        ],
+        [
+            null,
+            "Expert.e en marketing par e-mail"
+        ],
+        [
+            null,
+            "Expert.e en référencement (SEO)"
+        ],
+        [
+            null,
+            "Gestionnaire de campagnes publicitaires"
+        ],
+        [
+            null,
+            "Gestionnaire de contenu web"
+        ],
+        [
+            null,
+            "Gestionnaire de marque en ligne"
+        ],
+        [
+            null,
+            "Gestionnaire de projets marketing"
+        ],
+        [
+            null,
+            "Planificateur/planificatrice média"
+        ],
+        [
+            null,
+            "Responsable de l'e-commerce"
+        ],
+        [
+            null,
+            "Responsable de l'expérience client"
+        ],
+        [
+            null,
+            "Responsable de la communication marketing"
+        ],
+        [
+            null,
+            "Responsable de la gestion de la relation client (CRM)"
+        ],
+        [
+            null,
+            "Responsable de la stratégie de marketing numérique"
+        ],
+        [
+            null,
+            "Responsable du marketing digital"
+        ],
+        [
+            null,
+            "Responsable du marketing événementiel"
+        ],
+        [
+            null,
+            "Responsable marketing"
+        ],
+        [
+            null,
+            "Spécialiste des médias sociaux"
+        ],
+        [
+            null,
+            "Spécialiste en marketing de contenu"
+        ],
+        [
+            null,
+            "Spécialiste en marketing de produit"
+        ],
+        [
+            null,
+            "Spécialiste en marketing de recherche"
+        ],
+        [
+            null,
+            "Spécialiste en marketing mobile"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "MÉTIERS D’ART"
+        ],
+        [
+            null,
+            "Bijoutier/bijoutière"
+        ],
+        [
+            null,
+            "Céramiste"
+        ],
+        [
+            null,
+            "Cordonnier/cordonnière"
+        ],
+        [
+            null,
+            "Ébéniste"
+        ],
+        [
+            null,
+            "Facteur/factrice d'instruments de musique"
+        ],
+        [
+            null,
+            "Graveur/graveuse"
+        ],
+        [
+            null,
+            "Horloger/horlogère"
+        ],
+        [
+            null,
+            "Joaillier/joaillière"
+        ],
+        [
+            null,
+            "Laqueur/laqueuse"
+        ],
+        [
+            null,
+            "Luthier/luthière"
+        ],
+        [
+            null,
+            "Maître d'art floral"
+        ],
+        [
+            null,
+            "Maître verrier/maître verrière"
+        ],
+        [
+            null,
+            "Marqueteur/marqueteuse"
+        ],
+        [
+            null,
+            "Modiste"
+        ],
+        [
+            null,
+            "Potier/potière"
+        ],
+        [
+            null,
+            "Relieur/relieuse"
+        ],
+        [
+            null,
+            "Sellier-maroquinier/sellière-maroquinière"
+        ],
+        [
+            null,
+            "Tailleur/tailleuse de pierre"
+        ],
+        [
+            null,
+            "Tapissier/tapissière"
+        ],
+        [
+            null,
+            "Verrier/verrière d'art"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "MOBILITÉS"
+        ],
+        [
+            null,
+            "Agent de contrôle des transports en commun"
+        ],
+        [
+            null,
+            "Analyste de données de vélo-partage"
+        ],
+        [
+            null,
+            "Analyste de la demande de transport"
+        ],
+        [
+            null,
+            "Analyste des données de transport"
+        ],
+        [
+            null,
+            "Analyste en mobilité partagée"
+        ],
+        [
+            null,
+            "Architecte de la mobilité"
+        ],
+        [
+            null,
+            "Chargé de la communication en mobilité urbaine"
+        ],
+        [
+            null,
+            "Chargé de la logistique urbaine"
+        ],
+        [
+            null,
+            "Chef de projet en mobilité électrique"
+        ],
+        [
+            null,
+            "Chef de projet en transport public"
+        ],
+        [
+            null,
+            "Concepteur d'infrastructures cyclables"
+        ],
+        [
+            null,
+            "Consultant en planification de stationnement"
+        ],
+        [
+            null,
+            "Consultant en planification des transports"
+        ],
+        [
+            null,
+            "Délégataire de service publique de transport de personnes"
+        ],
+        [
+            null,
+            "Directeur.rice de la planification des transports"
+        ],
+        [
+            null,
+            "Directeur.rice des opérations de transport"
+        ],
+        [
+            null,
+            "Expert en modélisation des déplacements"
+        ],
+        [
+            null,
+            "Expert en sécurité des transports"
+        ],
+        [
+            null,
+            "Expert en transport intelligent (ITS)"
+        ],
+        [
+            null,
+            "Gestionnaire de flotte de véhicules électriques"
+        ],
+        [
+            null,
+            "Gestionnaire de la mobilité active (marche et vélo)"
+        ],
+        [
+            null,
+            "Gestionnaire de projets de transport durables"
+        ],
+        [
+            null,
+            "Ingénieur en génie civil spécialisé dans les transports"
+        ],
+        [
+            null,
+            "Ingénieur en systèmes de transport automatisé"
+        ],
+        [
+            null,
+            "Planificateur de la logistique de fret urbain"
+        ],
+        [
+            null,
+            "Planificateur de mobilité durable"
+        ],
+        [
+            null,
+            "Planificateur de transports en commun"
+        ],
+        [
+            null,
+            "Responsable de l'infrastructure de recharge des véhicules électriques"
+        ],
+        [
+            null,
+            "Responsable de l'optimisation des itinéraires"
+        ],
+        [
+            null,
+            "Responsable de la billettique et des paiements électroniques"
+        ],
+        [
+            null,
+            "Responsable de la gestion de la signalisation routière"
+        ],
+        [
+            null,
+            "Responsable de la gestion des parcs de stationnement"
+        ],
+        [
+            null,
+            "Responsable de la gestion du trafic"
+        ],
+        [
+            null,
+            "Responsable de la maintenance des transports en commun"
+        ],
+        [
+            null,
+            "Responsable de la mobilité intermodale"
+        ],
+        [
+            null,
+            "Responsable de la mobilité partagée (covoiturage, autopartage)"
+        ],
+        [
+            null,
+            "Responsable de la mobilité pour personnes à mobilité réduite"
+        ],
+        [
+            null,
+            "Responsable de la sécurité routière"
+        ],
+        [
+            null,
+            "Spécialiste en gestion des transports à la demande"
+        ],
+        [
+            null,
+            "Technicien en transports en commun"
+        ],
+        [
+            null,
+            "Urbaniste des transports"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "MODE"
+        ],
+        [
+            null,
+            "Acheteur/acheteuse de mode"
+        ],
+        [
+            null,
+            "Agent/mannequin de mode"
+        ],
+        [
+            null,
+            "Assistant styliste"
+        ],
+        [
+            null,
+            "Coiffeur/coiffeuse de mode"
+        ],
+        [
+            null,
+            "Consultant en image personnelle"
+        ],
+        [
+            null,
+            "Costumier/costumière"
+        ],
+        [
+            null,
+            "Couturier/couturière"
+        ],
+        [
+            null,
+            "Créateur de mode"
+        ],
+        [
+            null,
+            "Designer de vêtements"
+        ],
+        [
+            null,
+            "Designer textile"
+        ],
+        [
+            null,
+            "Directeur.rice artistique"
+        ],
+        [
+            null,
+            "Directeur.rice de casting de mannequins"
+        ],
+        [
+            null,
+            "Directeur.rice de la photographie de mode"
+        ],
+        [
+            null,
+            "Directeur.rice.rice de magazine de mode"
+        ],
+        [
+            null,
+            "Mannequin"
+        ],
+        [
+            null,
+            "Maquilleur/maquilleuse de mode"
+        ],
+        [
+            null,
+            "Modéliste"
+        ],
+        [
+            null,
+            "Modéliste de chaussures"
+        ],
+        [
+            null,
+            "Modéliste de patronage"
+        ],
+        [
+            null,
+            "Photographe de mode"
+        ],
+        [
+            null,
+            "Rédacteur/rédactrice de mode"
+        ],
+        [
+            null,
+            "Responsable de la production de défilés de mode"
+        ],
+        [
+            null,
+            "Responsable de la production de mode"
+        ],
+        [
+            null,
+            "Responsable des médias sociaux de mode"
+        ],
+        [
+            null,
+            "Responsable des relations publiques de mode"
+        ],
+        [
+            null,
+            "Responsable du Visual Merchandising"
+        ],
+        [
+            null,
+            "Responsable marketing de mode"
+        ],
+        [
+            null,
+            "Spécialiste des accessoires de mode"
+        ],
+        [
+            null,
+            "Styliste de célébrités"
+        ],
+        [
+            null,
+            "Styliste de mode"
+        ],
+        [
+            null,
+            "Styliste de mode de luxe"
+        ],
+        [
+            null,
+            "Styliste de mode de mariage"
+        ],
+        [
+            null,
+            "Styliste de mode écologique (mode durable)"
+        ],
+        [
+            null,
+            "Styliste de mode éditoriale"
+        ],
+        [
+            null,
+            "Styliste de mode enfantine"
+        ],
+        [
+            null,
+            "Styliste de mode masculine"
+        ],
+        [
+            null,
+            "Styliste de mode pour magazines"
+        ],
+        [
+            null,
+            "Styliste de mode sportive"
+        ],
+        [
+            null,
+            "Styliste de mode urbaine"
+        ],
+        [
+            null,
+            "Technicien.ne en retouche"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "MUSIQUE"
+        ],
+        [
+            null,
+            "A&R (Artiste et Répertoire) manager"
+        ],
+        [
+            null,
+            "Agent artistique"
+        ],
+        [
+            null,
+            "Archiviste musical(e)"
+        ],
+        [
+            null,
+            "Arrangeur/arrangeuse musical(e)"
+        ],
+        [
+            null,
+            "Assistant/assistante de studio"
+        ],
+        [
+            null,
+            "Bibliothécaire musical(e)"
+        ],
+        [
+            null,
+            "Chanteur/chanteuse"
+        ],
+        [
+            null,
+            "Chef d'orchestre"
+        ],
+        [
+            null,
+            "Chef de chœur"
+        ],
+        [
+            null,
+            "Compositeur/compositrice"
+        ],
+        [
+            null,
+            "Compositeur/compositrice de musique de film"
+        ],
+        [
+            null,
+            "Concepteur/conceptrice de spectacles musicaux"
+        ],
+        [
+            null,
+            "Concepteur/conceptrice sonore"
+        ],
+        [
+            null,
+            "Critique musical(e)"
+        ],
+        [
+            null,
+            "Directeur.rice.rice artistique"
+        ],
+        [
+            null,
+            "Disc jockey (DJ)"
+        ],
+        [
+            null,
+            "Éditeur/éditrice musical(e)"
+        ],
+        [
+            null,
+            "Expert.e en droits d'auteur"
+        ],
+        [
+            null,
+            "Fabricant/fabricante d'instruments de musique"
+        ],
+        [
+            null,
+            "Gestionnaire de tournée"
+        ],
+        [
+            null,
+            "Ingénieur du son"
+        ],
+        [
+            null,
+            "Maître de cérémonie (MC)"
+        ],
+        [
+            null,
+            "Musicien/musicienne"
+        ],
+        [
+            null,
+            "Parolier/parolière"
+        ],
+        [
+            null,
+            "Producteur/productrice de musique"
+        ],
+        [
+            null,
+            "Réalisateur/réalisatrice musical(e)"
+        ],
+        [
+            null,
+            "Responsable de la promotion musicale"
+        ],
+        [
+            null,
+            "Responsable des licences musicales"
+        ],
+        [
+            null,
+            "Roadie (technicien de tournée)"
+        ],
+        [
+            null,
+            "Technicien.ne d'instruments de musique"
+        ],
+        [
+            null,
+            "Technicien.ne de réparation d'instruments de musique"
+        ],
+        [
+            null,
+            "Technicien.ne du son"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "NUMÉRIQUE"
+        ],
+        [
+            null,
+            "Administrateur de bases de données"
+        ],
+        [
+            null,
+            "Administrateur de systèmes"
+        ],
+        [
+            null,
+            "Administrateur de systèmes de stockage"
+        ],
+        [
+            null,
+            "Administrateur de systèmes Linux"
+        ],
+        [
+            null,
+            "Administrateur de systèmes Windows"
+        ],
+        [
+            null,
+            "Analyste de données"
+        ],
+        [
+            null,
+            "Analyste de données marketing"
+        ],
+        [
+            null,
+            "Analyste de la chaîne d'approvisionnement"
+        ],
+        [
+            null,
+            "Analyste de la gestion de projet"
+        ],
+        [
+            null,
+            "Analyste de la logistique"
+        ],
+        [
+            null,
+            "Analyste de la performance du site web"
+        ],
+        [
+            null,
+            "Analyste de la veille technologique"
+        ],
+        [
+            null,
+            "Analyste en analyse prédictive"
+        ],
+        [
+            null,
+            "Analyste en cybersécurité"
+        ],
+        [
+            null,
+            "Analyste en gestion de données"
+        ],
+        [
+            null,
+            "Analyste financier des technologies de l'information"
+        ],
+        [
+            null,
+            "Architecte cloud"
+        ],
+        [
+            null,
+            "Architecte de données"
+        ],
+        [
+            null,
+            "Assistant à la maîtrise d’ouvrage"
+        ],
+        [
+            null,
+            "Chef de projet IT"
+        ],
+        [
+            null,
+            "Consultant en sécurité informatique"
+        ],
+        [
+            null,
+            "Consultant en transformation numérique"
+        ],
+        [
+            null,
+            "Data analyst"
+        ],
+        [
+            null,
+            "Développeur d'applications front-end"
+        ],
+        [
+            null,
+            "Développeur d'applications mobiles"
+        ],
+        [
+            null,
+            "Développeur de logiciels"
+        ],
+        [
+            null,
+            "Développeur mobile"
+        ],
+        [
+            null,
+            "Développeur web"
+        ],
+        [
+            null,
+            "Expert en apprentissage automatique (Machine Learning)"
+        ],
+        [
+            null,
+            "Expert en apprentissage profond (Deep Learning)"
+        ],
+        [
+            null,
+            "Expert en expérience utilisateur (UX)"
+        ],
+        [
+            null,
+            "Expert en gestion des services informatiques (ITSM)"
+        ],
+        [
+            null,
+            "Expert en intelligence artificielle"
+        ],
+        [
+            null,
+            "Expert en Internet des objets (IoT)"
+        ],
+        [
+            null,
+            "Ingénieur de la performance des applications"
+        ],
+        [
+            null,
+            "Ingénieur DevOps"
+        ],
+        [
+            null,
+            "Ingénieur DevSecOps"
+        ],
+        [
+            null,
+            "Ingénieur en apprentissage automatique"
+        ],
+        [
+            null,
+            "Ingénieur en virtualisation"
+        ],
+        [
+            null,
+            "Ingénieur réseau"
+        ],
+        [
+            null,
+            "Responsable de la conformité informatique"
+        ],
+        [
+            null,
+            "Responsable de la gestion de la chaîne d'approvisionnement"
+        ],
+        [
+            null,
+            "Responsable de la gestion de projet Agile"
+        ],
+        [
+            null,
+            "Responsable de la gestion des bases de données"
+        ],
+        [
+            null,
+            "Responsable de la qualité des données"
+        ],
+        [
+            null,
+            "Responsable de la sécurité des systèmes d'information"
+        ],
+        [
+            null,
+            "Scrum Master"
+        ],
+        [
+            null,
+            "Spécialiste en analyse de données géospatiales"
+        ],
+        [
+            null,
+            "Spécialiste en analyse des menaces"
+        ],
+        [
+            null,
+            "Spécialiste en automatisation de tests"
+        ],
+        [
+            null,
+            "Spécialiste en automatisation des processus robotiques (RPA)"
+        ],
+        [
+            null,
+            "Spécialiste en blockchain"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "POLICE-JUSTICE"
+        ],
+        [
+            null,
+            "Agent de la circulation"
+        ],
+        [
+            null,
+            "Agent de police judiciaire"
+        ],
+        [
+            null,
+            "Agent de police municipale"
+        ],
+        [
+            null,
+            "Agent de prévention et de sécurité"
+        ],
+        [
+            null,
+            "Agent de sûreté aéroportuaire"
+        ],
+        [
+            null,
+            "Agent de surveillance de la voie publique (ASVP)"
+        ],
+        [
+            null,
+            "Analyste criminel"
+        ],
+        [
+            null,
+            "Assesseur juridique"
+        ],
+        [
+            null,
+            "Assistant de justice"
+        ],
+        [
+            null,
+            "Auditeur de justice"
+        ],
+        [
+            null,
+            "Avocat"
+        ],
+        [
+            null,
+            "Capitaine de police"
+        ],
+        [
+            null,
+            "Commandant de police"
+        ],
+        [
+            null,
+            "Commissaire de police"
+        ],
+        [
+            null,
+            "Conciliateur de justice"
+        ],
+        [
+            null,
+            "Conseiller d'insertion et de probation"
+        ],
+        [
+            null,
+            "Conseiller en droit de la famille"
+        ],
+        [
+            null,
+            "Conseiller en victimologie"
+        ],
+        [
+            null,
+            "Conseiller juridique"
+        ],
+        [
+            null,
+            "Détective privé"
+        ],
+        [
+            null,
+            "Directeur.rice pénitentiaire d'insertion et de probation"
+        ],
+        [
+            null,
+            "Enquêteur criminel"
+        ],
+        [
+            null,
+            "Expert en droit international"
+        ],
+        [
+            null,
+            "Expert judiciaire"
+        ],
+        [
+            null,
+            "Expert-comptable judiciaire"
+        ],
+        [
+            null,
+            "Garde du corps"
+        ],
+        [
+            null,
+            "Gendarme"
+        ],
+        [
+            null,
+            "Greffier"
+        ],
+        [
+            null,
+            "Greffier en chef"
+        ],
+        [
+            null,
+            "Huissier de justice"
+        ],
+        [
+            null,
+            "Inspecteur de police"
+        ],
+        [
+            null,
+            "Juge"
+        ],
+        [
+            null,
+            "Lieutenant de police"
+        ],
+        [
+            null,
+            "Maître-chien policier"
+        ],
+        [
+            null,
+            "Médiateur familial"
+        ],
+        [
+            null,
+            "Médiateur judiciaire"
+        ],
+        [
+            null,
+            "Médiateur pénal"
+        ],
+        [
+            null,
+            "Négociateur de crise"
+        ],
+        [
+            null,
+            "Notaire"
+        ],
+        [
+            null,
+            "Officier de police scientifique"
+        ],
+        [
+            null,
+            "Officier de probation"
+        ],
+        [
+            null,
+            "Policier"
+        ],
+        [
+            null,
+            "Procureur de la République"
+        ],
+        [
+            null,
+            "Psychologue judiciaire"
+        ],
+        [
+            null,
+            "Rééducateur pénitentiaire"
+        ],
+        [
+            null,
+            "Responsable de la sécurité privée"
+        ],
+        [
+            null,
+            "Responsable des relations avec les citoyens"
+        ],
+        [
+            null,
+            "Spécialiste de la lutte contre la cybercriminalité"
+        ],
+        [
+            null,
+            "Technicien de la police technique et scientifique"
+        ],
+        [
+            null,
+            "Technicien en identification criminelle"
+        ],
+        [
+            null,
+            "Traducteur-interprète judiciaire"
+        ],
+        [
+            null,
+            "Autre"
+        ],
+        [
+            "POLITIQUE"
+        ],
+        [
+            null,
+            "Agent.e de relations publiques politiques"
+        ],
+        [
+            null,
+            "Analyste de politiques publiques"
+        ],
+        [
+            null,
+            "Analyste électoral/analyste électorale"
+        ],
+        [
+            null,
+            "Analyste politique"
+        ],
+        [
+            null,
+            "Attaché/attachée de presse politique"
+        ],
+        [
+            null,
+            "Attaché/attachée parlementaire"
+        ],
+        [
+            null,
+            "Chargé/chargée de communication politique"
+        ],
+        [
+            null,
+            "Chargé/chargée de mission politique"
+        ],
+        [
+            null,
+            "Chargé/chargée de recherche politique"
+        ],
+        [
+            null,
+            "Chef de parti politique"
+        ],
+        [
+            null,
+            "Chercheur/chercheuse en sciences politiques"
+        ],
+        [
+            null,
+            "Conseiller.ère en politique étrangère"
+        ],
+        [
+            null,
+            "Conseiller.ère en politique sociale"
+        ],
+        [
+            null,
+            "Conseiller.ère politique"
+        ],
+        [
+            null,
+            "Consultant/consultante en affaires publiques"
+        ],
+        [
+            null,
+            "Consultant/consultante en gestion de crise politique"
+        ],
+        [
+            null,
+            "Consultant/consultante en planification stratégique politique"
+        ],
+        [
+            null,
+            "Député/députée"
+        ],
+        [
+            null,
+            "Diplomate"
+        ],
+        [
+            null,
+            "Directeur.rice.rice de cabinet ministériel"
+        ],
+        [
+            null,
+            "Directeur.rice.rice de cabinet politique"
+        ],
+        [
+            null,
+            "Directeur.rice.rice de communication institutionnelle"
+        ],
+        [
+            null,
+            "Directeur.rice.rice des relations gouvernementales"
+        ],
+        [
+            null,
+            "Élu/élue local(e)"
+        ],
+        [
+            null,
+            "Expert.e en droit constitutionnel"
+        ],
+        [
+            null,
+            "Expert.e en relations internationales"
+        ],
+        [
+            null,
+            "Gestionnaire de campagne électorale"
+        ],
+        [
+            null,
+            "Gestionnaire de campagne politique"
+        ],
+        [
+            null,
+            "Homme politique/femme politique"
+        ],
+        [
+            null,
+            "Lobbyiste"
+        ],
+        [
+            null,
+            "Maire"
+        ],
+        [
+            null,
+            "Ministre"
+        ],
+        [
+            null,
+            "Porte-parole d'organisation politique"
+        ],
+        [
+            null,
+            "Porte-parole politique"
+        ],
+        [
+            null,
+            "Responsable de la communication gouvernementale"
+        ],
+        [
+            null,
+            "Responsable de relations gouvernementales"
+        ],
+        [
+            null,
+            "Responsable des questions environnementales"
+        ],
+        [
+            null,
+            "Secrétaire général/secrétaire générale de parti politique"
+        ],
+        [
+            null,
+            "Sénateur/sénatrice"
+        ],
+        [
+            null,
+            "Stratège politique"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "PRESSE & MÉDIAS (hors Journalisme)"
+        ],
+        [
+            null,
+            "Agent de casting"
+        ],
+        [
+            null,
+            "Analyste des médias sociaux"
+        ],
+        [
+            null,
+            "Analyste média"
+        ],
+        [
+            null,
+            "Animateur radio"
+        ],
+        [
+            null,
+            "Archiviste audiovisuel"
+        ],
+        [
+            null,
+            "Community manager"
+        ],
+        [
+            null,
+            "Community manager événementiel"
+        ],
+        [
+            null,
+            "Concepteur-rédacteur publicitaire"
+        ],
+        [
+            null,
+            "Consultant en communication"
+        ],
+        [
+            null,
+            "Consultant en médias"
+        ],
+        [
+            null,
+            "Data Analyst"
+        ],
+        [
+            null,
+            "Documentariste"
+        ],
+        [
+            null,
+            "Expert en communication digitale"
+        ],
+        [
+            null,
+            "Expert en médias et société"
+        ],
+        [
+            null,
+            "Expert en référencement (SEO)"
+        ],
+        [
+            null,
+            "Expert en stratégie digitale"
+        ],
+        [
+            null,
+            "Gestionnaire de médias sociaux"
+        ],
+        [
+            null,
+            "Media planner"
+        ],
+        [
+            null,
+            "Médiateur"
+        ],
+        [
+            null,
+            "Médiateur culturel"
+        ],
+        [
+            null,
+            "Médiateur scientifique"
+        ],
+        [
+            null,
+            "Planificateur de contenus"
+        ],
+        [
+            null,
+            "Présentateur télé/radio"
+        ],
+        [
+            null,
+            "Producteur audiovisuel"
+        ],
+        [
+            null,
+            "Réalisateur"
+        ],
+        [
+            null,
+            "Réalisateur de documentaire"
+        ],
+        [
+            null,
+            "Rédacteur en chef"
+        ],
+        [
+            null,
+            "Régisseur"
+        ],
+        [
+            null,
+            "Responsable de communication événementielle"
+        ],
+        [
+            null,
+            "Responsable de la marque (brand manager)"
+        ],
+        [
+            null,
+            "Responsable des partenariats médias"
+        ],
+        [
+            null,
+            "Responsable des relations publiques"
+        ],
+        [
+            null,
+            "Responsable éditorial marketing"
+        ],
+        [
+            null,
+            "Responsable éditorial web"
+        ],
+        [
+            null,
+            "Scénariste"
+        ],
+        [
+            null,
+            "Spécialiste des médias sociaux"
+        ],
+        [
+            null,
+            "Spécialiste en marketing de contenu"
+        ],
+        [
+            null,
+            "Storyboarder"
+        ],
+        [
+            null,
+            "Storyteller"
+        ],
+        [
+            null,
+            "Traducteur"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "PUBLICITÉ"
+        ],
+        [
+            null,
+            "Analyste de données publicitaires"
+        ],
+        [
+            null,
+            "Analyste de marché publicitaire"
+        ],
+        [
+            null,
+            "Chef de produit publicitaire"
+        ],
+        [
+            null,
+            "Chef de projet publicitaire"
+        ],
+        [
+            null,
+            "Chef de publicité"
+        ],
+        [
+            null,
+            "Concepteur/conceptrice de campagnes publicitaires"
+        ],
+        [
+            null,
+            "Concepteur/conceptrice de publicités imprimées"
+        ],
+        [
+            null,
+            "Concepteur/conceptrice de publicités radio"
+        ],
+        [
+            null,
+            "Concepteur/conceptrice publicitaire"
+        ],
+        [
+            null,
+            "Consultant/consultante en publicité"
+        ],
+        [
+            null,
+            "Directeur.rice.rice artistique"
+        ],
+        [
+            null,
+            "Directeur.rice.rice de création"
+        ],
+        [
+            null,
+            "Directeur.rice.rice de l'animation publicitaire"
+        ],
+        [
+            null,
+            "Directeur.rice.rice de la planification stratégique"
+        ],
+        [
+            null,
+            "Directeur.rice.rice de la publicité en ligne"
+        ],
+        [
+            null,
+            "Directeur.rice.rice de la publicité interactive"
+        ],
+        [
+            null,
+            "Directeur.rice.rice de la publicité mobile"
+        ],
+        [
+            null,
+            "Directeur.rice.rice de la publicité vidéo"
+        ],
+        [
+            null,
+            "Directeur.rice.rice de production publicitaire"
+        ],
+        [
+            null,
+            "Directeur.rice.rice des médias publicitaires"
+        ],
+        [
+            null,
+            "Expert.e en référencement (SEO)"
+        ],
+        [
+            null,
+            "Expert en publicité programmatique"
+        ],
+        [
+            null,
+            "Gestionnaire de campagnes publicitaires en ligne"
+        ],
+        [
+            null,
+            "Gestionnaire de comptes publicitaires"
+        ],
+        [
+            null,
+            "Planificateur/planificatrice média"
+        ],
+        [
+            null,
+            "Rédacteur/rédactrice en chef publicitaire"
+        ],
+        [
+            null,
+            "Rédacteur/rédactrice publicitaire"
+        ],
+        [
+            null,
+            "Responsable de l'expérience client publicitaire"
+        ],
+        [
+            null,
+            "Responsable de la communication d'entreprise"
+        ],
+        [
+            null,
+            "Responsable de la communication publicitaire"
+        ],
+        [
+            null,
+            "Responsable de la création publicitaire"
+        ],
+        [
+            null,
+            "Responsable de la publicité extérieure"
+        ],
+        [
+            null,
+            "Responsable de la publicité sociale"
+        ],
+        [
+            null,
+            "Responsable de la stratégie publicitaire"
+        ],
+        [
+            null,
+            "Responsable des campagnes publicitaires internationales"
+        ],
+        [
+            null,
+            "Responsable du marketing direct"
+        ],
+        [
+            null,
+            "Responsable marketing"
+        ],
+        [
+            null,
+            "Spécialiste des médias sociaux"
+        ],
+        [
+            null,
+            "Spécialiste en marketing de contenu publicitaire"
+        ],
+        [
+            null,
+            "Spécialiste en marketing de recherche"
+        ],
+        [
+            null,
+            "Spécialiste en publicité programmatique"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "RECHERCHE SCIENTIFIQUE"
+        ],
+        [
+            null,
+            "Analyste de données scientifiques"
+        ],
+        [
+            null,
+            "Assistant/assistante de recherche"
+        ],
+        [
+            null,
+            "Chercheur/chercheuse en anthropologie"
+        ],
+        [
+            null,
+            "Chercheur/chercheuse en archéologie"
+        ],
+        [
+            null,
+            "Chercheur/chercheuse en astrobiologie"
+        ],
+        [
+            null,
+            "Chercheur/chercheuse en biologie"
+        ],
+        [
+            null,
+            "Chercheur/chercheuse en chimie"
+        ],
+        [
+            null,
+            "Chercheur/chercheuse en écologie"
+        ],
+        [
+            null,
+            "Chercheur/chercheuse en économie"
+        ],
+        [
+            null,
+            "Chercheur/chercheuse en énergie"
+        ],
+        [
+            null,
+            "Chercheur/chercheuse en épidémiologie"
+        ],
+        [
+            null,
+            "Chercheur/chercheuse en génétique"
+        ],
+        [
+            null,
+            "Chercheur/chercheuse en génomique"
+        ],
+        [
+            null,
+            "Chercheur/chercheuse en géologie"
+        ],
+        [
+            null,
+            "Chercheur/chercheuse en histoire"
+        ],
+        [
+            null,
+            "Chercheur/chercheuse en intelligence artificielle"
+        ],
+        [
+            null,
+            "Chercheur/chercheuse en linguistique"
+        ],
+        [
+            null,
+            "Chercheur/chercheuse en mathématiques"
+        ],
+        [
+            null,
+            "Chercheur/chercheuse en médecine"
+        ],
+        [
+            null,
+            "Chercheur/chercheuse en météorologie"
+        ],
+        [
+            null,
+            "Chercheur/chercheuse en microbiologie"
+        ],
+        [
+            null,
+            "Chercheur/chercheuse en nanotechnologie"
+        ],
+        [
+            null,
+            "Chercheur/chercheuse en neurosciences"
+        ],
+        [
+            null,
+            "Chercheur/chercheuse en philosophie"
+        ],
+        [
+            null,
+            "Chercheur/chercheuse en physique"
+        ],
+        [
+            null,
+            "Chercheur/chercheuse en psychiatrie"
+        ],
+        [
+            null,
+            "Chercheur/chercheuse en psychologie"
+        ],
+        [
+            null,
+            "Chercheur/chercheuse en robotique"
+        ],
+        [
+            null,
+            "Chercheur/chercheuse en sciences"
+        ],
+        [
+            null,
+            "Chercheur/chercheuse en sciences de l'environnement"
+        ],
+        [
+            null,
+            "Chercheur/chercheuse en sciences de l'espace"
+        ],
+        [
+            null,
+            "Chercheur/chercheuse en sciences de l'informatique"
+        ],
+        [
+            null,
+            "Chercheur/chercheuse en sciences de la santé"
+        ],
+        [
+            null,
+            "Chercheur/chercheuse en sciences de la terre"
+        ],
+        [
+            null,
+            "Chercheur/chercheuse en sciences des matériaux"
+        ],
+        [
+            null,
+            "Chercheur/chercheuse en sciences sociales"
+        ],
+        [
+            null,
+            "Chercheur/chercheuse en sociologie"
+        ],
+        [
+            null,
+            "Chercheur/chercheuse en statistiques"
+        ],
+        [
+            null,
+            "Professeur.e/Professeur.ee de recherche"
+        ],
+        [
+            null,
+            "Responsable de la valorisation de la recherche"
+        ],
+        [
+            null,
+            "Responsable des transferts de technologie"
+        ],
+        [
+            null,
+            "Scientifique de laboratoire"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "SANTÉ",
+            "Allergologue"
+        ],
+        [
+            null,
+            "Anesthésiologiste"
+        ],
+        [
+            null,
+            "Anesthésiste-réanimateur"
+        ],
+        [
+            null,
+            "Audiologiste"
+        ],
+        [
+            null,
+            "Cardiologue"
+        ],
+        [
+            null,
+            "Chirurgien"
+        ],
+        [
+            null,
+            "Chirurgien orthopédique"
+        ],
+        [
+            null,
+            "Chirurgien-dentiste"
+        ],
+        [
+            null,
+            "Dermatologue"
+        ],
+        [
+            null,
+            "Diététicien"
+        ],
+        [
+            null,
+            "Endocrinologue"
+        ],
+        [
+            null,
+            "Gastro-entérologue"
+        ],
+        [
+            null,
+            "Gériatre"
+        ],
+        [
+            null,
+            "Gynécologue-obstétricien"
+        ],
+        [
+            null,
+            "Infectiologue"
+        ],
+        [
+            null,
+            "Infirmière"
+        ],
+        [
+            null,
+            "Infirmière anesthésiste"
+        ],
+        [
+            null,
+            "Infirmière de bloc opératoire"
+        ],
+        [
+            null,
+            "Infirmière en soins intensifs"
+        ],
+        [
+            null,
+            "Infirmière puéricultrice"
+        ],
+        [
+            null,
+            "Médecin"
+        ],
+        [
+            null,
+            "Médecin généraliste"
+        ],
+        [
+            null,
+            "Néphrologue"
+        ],
+        [
+            null,
+            "Oncologue"
+        ],
+        [
+            null,
+            "Optométriste"
+        ],
+        [
+            null,
+            "Orthophoniste"
+        ],
+        [
+            null,
+            "Pédiatre"
+        ],
+        [
+            null,
+            "Pharmacien"
+        ],
+        [
+            null,
+            "Pharmacien hospitalier"
+        ],
+        [
+            null,
+            "Pharmacien"
+        ],
+        [
+            null,
+            "Physiothérapeute"
+        ],
+        [
+            null,
+            "Psychiatre"
+        ],
+        [
+            null,
+            "Psychologue clinicien"
+        ],
+        [
+            null,
+            "Radiologue"
+        ],
+        [
+            null,
+            "Rhumatologue"
+        ],
+        [
+            null,
+            "Sage-femme"
+        ],
+        [
+            null,
+            "Technicien de laboratoire médical"
+        ],
+        [
+            null,
+            "Technicien en radiologie"
+        ],
+        [
+            null,
+            "Urologue"
+        ],
+        [
+            null,
+            "Vétérinaire"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "RESSOURCES HUMAINES"
+        ],
+        [
+            null,
+            "Analyste de la rémunération"
+        ],
+        [
+            null,
+            "Analyste des avantages sociaux"
+        ],
+        [
+            null,
+            "Analyste des données RH"
+        ],
+        [
+            null,
+            "Analyste en recrutement"
+        ],
+        [
+            null,
+            "Chargé de la gestion des effectifs"
+        ],
+        [
+            null,
+            "Coach en développement personnel et professionnel"
+        ],
+        [
+            null,
+            "Conseiller en carrière"
+        ],
+        [
+            null,
+            "Conseiller en ressources humaines"
+        ],
+        [
+            null,
+            "Consultant en gestion du changement"
+        ],
+        [
+            null,
+            "Consultant en recrutement"
+        ],
+        [
+            null,
+            "Consultant en rémunération"
+        ],
+        [
+            null,
+            "Gestionnaire de la diversité et de l'inclusion"
+        ],
+        [
+            null,
+            "Gestionnaire de la formation"
+        ],
+        [
+            null,
+            "Gestionnaire de la formation continue"
+        ],
+        [
+            null,
+            "Gestionnaire de la performance"
+        ],
+        [
+            null,
+            "Gestionnaire de la qualité de vie au travail"
+        ],
+        [
+            null,
+            "Gestionnaire de la relocalisation"
+        ],
+        [
+            null,
+            "Gestionnaire de la rémunération et des avantages sociaux"
+        ],
+        [
+            null,
+            "Gestionnaire de la santé et de la sécurité au travail"
+        ],
+        [
+            null,
+            "Gestionnaire des avantages sociaux"
+        ],
+        [
+            null,
+            "Gestionnaire des conflits en milieu de travail"
+        ],
+        [
+            null,
+            "Gestionnaire des ressources humaines"
+        ],
+        [
+            null,
+            "Gestionnaire des talents"
+        ],
+        [
+            null,
+            "Recruteur de campus"
+        ],
+        [
+            null,
+            "Responsable de la conformité RH"
+        ],
+        [
+            null,
+            "Responsable de la diversité et de l'inclusion"
+        ],
+        [
+            null,
+            "Responsable de la formation en ligne (e-learning)"
+        ],
+        [
+            null,
+            "Responsable de la gestion du personnel"
+        ],
+        [
+            null,
+            "Responsable de la marque employeur"
+        ],
+        [
+            null,
+            "Responsable de la mobilité internationale"
+        ],
+        [
+            null,
+            "Responsable de la planification de la main-d'œuvre"
+        ],
+        [
+            null,
+            "Responsable des communications internes"
+        ],
+        [
+            null,
+            "Responsable des relations employés"
+        ],
+        [
+            null,
+            "Responsable des relations syndicales"
+        ],
+        [
+            null,
+            "Responsable du développement des employés"
+        ],
+        [
+            null,
+            "Responsable du recrutement"
+        ],
+        [
+            null,
+            "Spécialiste de l'ergonomie"
+        ],
+        [
+            null,
+            "Spécialiste de la gestion du temps et de la présence"
+        ],
+        [
+            null,
+            "Spécialiste de la paie"
+        ],
+        [
+            null,
+            "Spécialiste en relations employeurs-employés"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "SÉCURITÉ CIVILE"
+        ],
+        [
+            null,
+            "Capitaine de sapeurs-pompiers"
+        ],
+        [
+            null,
+            "Chef d'équipe de secours"
+        ],
+        [
+            null,
+            "Chef de caserne"
+        ],
+        [
+            null,
+            "Chef de service de santé et sécurité"
+        ],
+        [
+            null,
+            "Conducteur/conductrice d'engins d'incendie"
+        ],
+        [
+            null,
+            "Coordinateur/coordinatrice de secours"
+        ],
+        [
+            null,
+            "Formateur/formeuse en secourisme"
+        ],
+        [
+            null,
+            "Infirmier/infirmière de sapeurs-pompiers"
+        ],
+        [
+            null,
+            "Lieutenant/lieutenante de sapeurs-pompiers"
+        ],
+        [
+            null,
+            "Médecin de secours"
+        ],
+        [
+            null,
+            "Opérateur/opératrice de drones de secours"
+        ],
+        [
+            null,
+            "Opérateur/opératrice de drones de surveillance"
+        ],
+        [
+            null,
+            "Opérateur/opératrice de la salle de réception des appels d'urgence"
+        ],
+        [
+            null,
+            "Opérateur/opératrice en désincarcération"
+        ],
+        [
+            null,
+            "Pilote d'hélicoptère de secours"
+        ],
+        [
+            null,
+            "Plongeur/plongeuse de sapeurs-pompiers"
+        ],
+        [
+            null,
+            "Responsable de l'approvisionnement en équipement de secours"
+        ],
+        [
+            null,
+            "Sapeur-pompier"
+        ],
+        [
+            null,
+            "Sauveteur/sauveteuse en eau vive"
+        ],
+        [
+            null,
+            "Sauveteur/sauveteuse en milieu confiné"
+        ],
+        [
+            null,
+            "Sergent/sergente de sapeurs-pompiers"
+        ],
+        [
+            null,
+            "Spécialiste en analyse des risques"
+        ],
+        [
+            null,
+            "Spécialiste en éducation du public sur la sécurité incendie"
+        ],
+        [
+            null,
+            "Spécialiste en gestion de crise"
+        ],
+        [
+            null,
+            "Spécialiste en gestion des opérations de secours"
+        ],
+        [
+            null,
+            "Spécialiste en gestion des ressources en cas de catastrophe"
+        ],
+        [
+            null,
+            "Spécialiste en lutte contre les incendies de forêt"
+        ],
+        [
+            null,
+            "Spécialiste en matières dangereuses"
+        ],
+        [
+            null,
+            "Spécialiste en planification de la réponse aux catastrophes"
+        ],
+        [
+            null,
+            "Spécialiste en prévention des incendies"
+        ],
+        [
+            null,
+            "Spécialiste en psychologie des premiers intervenants"
+        ],
+        [
+            null,
+            "Spécialiste en recherche et développement de technologies de secours"
+        ],
+        [
+            null,
+            "Spécialiste en recherche et sauvetage urbain"
+        ],
+        [
+            null,
+            "Spécialiste en réhabilitation post-traumatique"
+        ],
+        [
+            null,
+            "Spécialiste en sauvetage en espace clos"
+        ],
+        [
+            null,
+            "Spécialiste en sauvetage en hauteur"
+        ],
+        [
+            null,
+            "Spécialiste en secours en montagne"
+        ],
+        [
+            null,
+            "Technicien.ne en entretien des équipements de secours"
+        ],
+        [
+            null,
+            "Technicien.ne en génie civil pour les infrastructures de secours"
+        ],
+        [
+            null,
+            "Technicien.ne en systèmes de communication d'urgence"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "SERVICES AUX ENTREPRISES"
+        ],
+        [
+            null,
+            "Analyste commercial"
+        ],
+        [
+            null,
+            "Analyste de données"
+        ],
+        [
+            null,
+            "Analyste de données financières"
+        ],
+        [
+            null,
+            "Analyste de la gestion de projet"
+        ],
+        [
+            null,
+            "Analyste des opérations financières"
+        ],
+        [
+            null,
+            "Analyste en cybersécurité"
+        ],
+        [
+            null,
+            "Analyste en gestion de projet"
+        ],
+        [
+            null,
+            "Analyste en ressources humaines"
+        ],
+        [
+            null,
+            "Analyste financier"
+        ],
+        [
+            null,
+            "Architecte d'entreprise"
+        ],
+        [
+            null,
+            "Avocat d'affaires"
+        ],
+        [
+            null,
+            "Conseiller en communication d'entreprise"
+        ],
+        [
+            null,
+            "Consultant en développement de produits"
+        ],
+        [
+            null,
+            "Consultant en développement durable"
+        ],
+        [
+            null,
+            "Consultant en gestion"
+        ],
+        [
+            null,
+            "Consultant en gestion de la chaîne d'approvisionnement"
+        ],
+        [
+            null,
+            "Consultant en gestion de la chaîne d'approvisionnement"
+        ],
+        [
+            null,
+            "Consultant en gestion de la chaîne d'approvisionnement"
+        ],
+        [
+            null,
+            "Consultant en gestion de la performance"
+        ],
+        [
+            null,
+            "Consultant en gestion de la qualité"
+        ],
+        [
+            null,
+            "Consultant en gestion des risques"
+        ],
+        [
+            null,
+            "Consultant en informatique"
+        ],
+        [
+            null,
+            "Consultant en stratégie d'entreprise"
+        ],
+        [
+            null,
+            "Directeur.rice des achats"
+        ],
+        [
+            null,
+            "Directeur.rice des ressources humaines"
+        ],
+        [
+            null,
+            "Directeur.rice des ventes"
+        ],
+        [
+            null,
+            "Expert en relations publiques"
+        ],
+        [
+            null,
+            "Expert-comptable"
+        ],
+        [
+            null,
+            "Gestionnaire de flotte"
+        ],
+        [
+            null,
+            "Gestionnaire de la chaîne d'approvisionnement"
+        ],
+        [
+            null,
+            "Responsable de la chaîne d'approvisionnement"
+        ],
+        [
+            null,
+            "Responsable de la conformité réglementaire"
+        ],
+        [
+            null,
+            "Responsable de la gestion de la chaîne d'approvisionnement"
+        ],
+        [
+            null,
+            "Responsable de la logistique"
+        ],
+        [
+            null,
+            "Responsable de la qualité"
+        ],
+        [
+            null,
+            "Responsable des opérations"
+        ],
+        [
+            null,
+            "Responsable des relations gouvernementales"
+        ],
+        [
+            null,
+            "Responsable des ventes internationales"
+        ],
+        [
+            null,
+            "Spécialiste en développement des affaires"
+        ],
+        [
+            null,
+            "Spécialiste en marketing"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "SOCIAL"
+        ],
+        [
+            null,
+            "Agent.e de liaison en santé communautaire"
+        ],
+        [
+            null,
+            "Agent.e de probation"
+        ],
+        [
+            null,
+            "Agent.e de probation juvénile"
+        ],
+        [
+            null,
+            "Agent.e de services communautaires"
+        ],
+        [
+            null,
+            "Assistant/assistante de service social"
+        ],
+        [
+            null,
+            "Conseiller.ère conjugal(e) et familial(e)"
+        ],
+        [
+            null,
+            "Conseiller.ère en dépendance"
+        ],
+        [
+            null,
+            "Conseiller.ère en emploi"
+        ],
+        [
+            null,
+            "Conseiller.ère en santé mentale"
+        ],
+        [
+            null,
+            "Conseiller.ère en toxicomanie"
+        ],
+        [
+            null,
+            "Conseiller.ère en victimologie"
+        ],
+        [
+            null,
+            "Coordonnateur/coordonnatrice de programmes sociaux"
+        ],
+        [
+            null,
+            "Éducateur/éducatrice de rue"
+        ],
+        [
+            null,
+            "Éducateur/éducatrice spécialisé(e)"
+        ],
+        [
+            null,
+            "Ergothérapeute"
+        ],
+        [
+            null,
+            "Gestionnaire de cas sociaux"
+        ],
+        [
+            null,
+            "Gestionnaire de foyers de groupe"
+        ],
+        [
+            null,
+            "Gestionnaire de services aux personnes âgées"
+        ],
+        [
+            null,
+            "Médiateur/médiatrice en milieu de travail"
+        ],
+        [
+            null,
+            "Médiateur/médiatrice familial(e)"
+        ],
+        [
+            null,
+            "Médiateur/médiatrice interculturel(le)"
+        ],
+        [
+            null,
+            "Psychologue clinicien/psychologue clinicienne"
+        ],
+        [
+            null,
+            "Psychologue scolaire"
+        ],
+        [
+            null,
+            "Psychomotricien/psychomotricienne"
+        ],
+        [
+            null,
+            "Thérapeute comportemental(e)"
+        ],
+        [
+            null,
+            "Thérapeute de groupe"
+        ],
+        [
+            null,
+            "Thérapeute familial(e)"
+        ],
+        [
+            null,
+            "Travailleur/travailleuse en aide sociale"
+        ],
+        [
+            null,
+            "Travailleur/travailleuse en protection de l'enfance"
+        ],
+        [
+            null,
+            "Travailleur/travailleuse en réadaptation"
+        ],
+        [
+            null,
+            "Travailleur/travailleuse en réinsertion sociale"
+        ],
+        [
+            null,
+            "Travailleur/travailleuse en santé mentale"
+        ],
+        [
+            null,
+            "Travailleur/travailleuse social(e)"
+        ],
+        [
+            null,
+            "Travailleur/travailleuse social(e) en gériatrie"
+        ],
+        [
+            null,
+            "Travailleur/travailleuse social(e) en milieu scolaire"
+        ],
+        [
+            null,
+            "Travailleur/travailleuse social(e) en oncologie"
+        ],
+        [
+            null,
+            "Travailleur/travailleuse social(e) en périnatalité"
+        ],
+        [
+            null,
+            "Travailleur/travailleuse social(e) en psychiatrie"
+        ],
+        [
+            null,
+            "Travailleur/travailleuse social(e) en toxicomanie"
+        ],
+        [
+            null,
+            "Travailleur/travailleuse social(e) hospitalier/hospitalière"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "SPORTS"
+        ],
+        [
+            null,
+            "Agent.e de joueur/joueuse"
+        ],
+        [
+            null,
+            "Agent.e de sport"
+        ],
+        [
+            null,
+            "Agent.e de vente de billets sportifs"
+        ],
+        [
+            null,
+            "Analyste de données sportives"
+        ],
+        [
+            null,
+            "Analyste de performance sportive"
+        ],
+        [
+            null,
+            "Animateur/animatrice sportif(ve)"
+        ],
+        [
+            null,
+            "Arbitre/arbitre sportif(ve)"
+        ],
+        [
+            null,
+            "Athlète professionnel/athlète professionnelle"
+        ],
+        [
+            null,
+            "Caméraman/camérawoman sportif(ve)"
+        ],
+        [
+            null,
+            "Chercheur/chercheuse en sciences du sport"
+        ],
+        [
+            null,
+            "Coach personnel sportif/sportive"
+        ],
+        [
+            null,
+            "Commentateur/commentatrice sportif(ve)"
+        ],
+        [
+            null,
+            "Concepteur/conceptrice d'équipements sportifs"
+        ],
+        [
+            null,
+            "Conseiller.ère en équipement sportif"
+        ],
+        [
+            null,
+            "Coordinateur/coordonnatrice de programme sportif"
+        ],
+        [
+            null,
+            "Directeur.rice.rice de centre de loisirs sportifs"
+        ],
+        [
+            null,
+            "Directeur.rice.rice de club sportif"
+        ],
+        [
+            null,
+            "Directeur.rice.rice de la fédération sportive"
+        ],
+        [
+            null,
+            "Directeur.rice.rice de stade sportif"
+        ],
+        [
+            null,
+            "Entraîneur/entraîneuse sportif(ve)"
+        ],
+        [
+            null,
+            "Journaliste sportif/sportive"
+        ],
+        [
+            null,
+            "Kinésithérapeute du sport"
+        ],
+        [
+            null,
+            "Manager d'équipe sportive"
+        ],
+        [
+            null,
+            "Médecin du sport"
+        ],
+        [
+            null,
+            "Nutritionniste sportif/sportive"
+        ],
+        [
+            null,
+            "Photographe sportif/sportive"
+        ],
+        [
+            null,
+            "Physiologiste de l'exercice"
+        ],
+        [
+            null,
+            "Planificateur/planificatrice d'événements sportifs"
+        ],
+        [
+            null,
+            "Préparateur/préparatrice physique"
+        ],
+        [
+            null,
+            "Professeur.e/Professeur.ee d'éducation physique"
+        ],
+        [
+            null,
+            "Psychologue sportif/sportive"
+        ],
+        [
+            null,
+            "Responsable de l'événementiel sportif"
+        ],
+        [
+            null,
+            "Responsable de la billetterie sportive"
+        ],
+        [
+            null,
+            "Responsable de la communication sportive"
+        ],
+        [
+            null,
+            "Responsable de la logistique sportive"
+        ],
+        [
+            null,
+            "Responsable de la sécurité sportive"
+        ],
+        [
+            null,
+            "Responsable des partenariats sportifs"
+        ],
+        [
+            null,
+            "Responsable des relations publiques sportives"
+        ],
+        [
+            null,
+            "Spécialiste en marketing sportif"
+        ],
+        [
+            null,
+            "Spécialiste en réadaptation sportive"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "SÛRETÉ & SÉCURITÉ"
+        ],
+        [
+            null,
+            "Agent.e de sécurité"
+        ],
+        [
+            null,
+            "Agent.e de sécurité aéroportuaire"
+        ],
+        [
+            null,
+            "Agent.e de sécurité dans les transports de personnes"
+        ],
+        [
+            null,
+            "Agent.e de sécurité de site industriel"
+        ],
+        [
+            null,
+            "Agent.e de sécurité des systèmes de communication"
+        ],
+        [
+            null,
+            "Agent.e de sécurité des transports de marchandises"
+        ],
+        [
+            null,
+            "Agent.e de sécurité des transports en commun"
+        ],
+        [
+            null,
+            "Agent.e de sécurité en centre commercial"
+        ],
+        [
+            null,
+            "Agent.e de sécurité en centre de données"
+        ],
+        [
+            null,
+            "Agent.e de sécurité en entreprise"
+        ],
+        [
+            null,
+            "Agent.e de sécurité en établissement scolaire"
+        ],
+        [
+            null,
+            "Agent.e de sécurité en grande surface"
+        ],
+        [
+            null,
+            "Agent.e de sécurité en hôpital"
+        ],
+        [
+            null,
+            "Agent.e de sécurité en hôtellerie"
+        ],
+        [
+            null,
+            "Agent.e de sécurité en milieu commercial"
+        ],
+        [
+            null,
+            "Agent.e de sécurité en milieu culturel"
+        ],
+        [
+            null,
+            "Agent.e de sécurité en milieu événementiel"
+        ],
+        [
+            null,
+            "Agent.e de sécurité en milieu hospitalier"
+        ],
+        [
+            null,
+            "Agent.e de sécurité en milieu industriel"
+        ],
+        [
+            null,
+            "Agent.e de sécurité en milieu pénitentiaire"
+        ],
+        [
+            null,
+            "Agent.e de sécurité en milieu scolaire"
+        ],
+        [
+            null,
+            "Agent.e de sécurité en musée"
+        ],
+        [
+            null,
+            "Agent.e de sécurité en transport aérien"
+        ],
+        [
+            null,
+            "Agent.e de sécurité en transport ferroviaire"
+        ],
+        [
+            null,
+            "Agent.e de sécurité en transport maritime"
+        ],
+        [
+            null,
+            "Agent.e de sécurité en transport routier"
+        ],
+        [
+            null,
+            "Agent.e de sécurité événementielle"
+        ],
+        [
+            null,
+            "Agent.e de sécurité incendie"
+        ],
+        [
+            null,
+            "Agent.e de sécurité maritime"
+        ],
+        [
+            null,
+            "Chef de la sécurité"
+        ],
+        [
+            null,
+            "Chef de la sécurité incendie"
+        ],
+        [
+            null,
+            "Consultant/consultante en sécurité"
+        ],
+        [
+            null,
+            "Directeur.rice de la sûreté et de la sécurité"
+        ],
+        [
+            null,
+            "Maître chien"
+        ],
+        [
+            null,
+            "Responsable de la sécurité"
+        ],
+        [
+            null,
+            "Responsable de la sécurité aéroportuaire"
+        ],
+        [
+            null,
+            "Responsable de la sécurité des bâtiments"
+        ],
+        [
+            null,
+            "Responsable de la sécurité des frontières"
+        ],
+        [
+            null,
+            "Responsable de la sécurité des systèmes d'information"
+        ],
+        [
+            null,
+            "Responsable de la sécurité informatique"
+        ],
+        [
+            null,
+            "Responsable de la sécurité nucléaire"
+        ],
+        [
+            null,
+            "Responsable de la sûreté"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "SYNDICALISME"
+        ],
+        [
+            null,
+            "Agent.e de communications internes"
+        ],
+        [
+            null,
+            "Agent.e de relations publiques syndicales"
+        ],
+        [
+            null,
+            "Analyste des politiques syndicales"
+        ],
+        [
+            null,
+            "Analyste en stratégie syndicale"
+        ],
+        [
+            null,
+            "Avocat/avocate en droit du travail"
+        ],
+        [
+            null,
+            "Chargé/chargée de l'information syndicale"
+        ],
+        [
+            null,
+            "Chargé/chargée de la mobilisation des membres"
+        ],
+        [
+            null,
+            "Chargé/chargée de la négociation collective"
+        ],
+        [
+            null,
+            "Chargé/chargée de recherche syndicale"
+        ],
+        [
+            null,
+            "Chargé/chargée des questions juridiques syndicales"
+        ],
+        [
+            null,
+            "Chercheur/chercheuse en relations du travail"
+        ],
+        [
+            null,
+            "Conseiller.ère syndical(e)"
+        ],
+        [
+            null,
+            "Consultant/consultante en négociation syndicale"
+        ],
+        [
+            null,
+            "Coordonnateur/coordonnatrice de campagnes syndicales"
+        ],
+        [
+            null,
+            "Coordonnateur/coordonnatrice syndical(e)"
+        ],
+        [
+            null,
+            "Délégué/déléguée syndical(e)"
+        ],
+        [
+            null,
+            "Directeur.rice.rice de campagne syndicale"
+        ],
+        [
+            null,
+            "Directeur.rice.rice de département syndical"
+        ],
+        [
+            null,
+            "Directeur.rice.rice de la stratégie syndicale"
+        ],
+        [
+            null,
+            "Expert.e en avantages sociaux syndicaux"
+        ],
+        [
+            null,
+            "Expert.e en relations industrielles"
+        ],
+        [
+            null,
+            "Formateur/formeuse syndical(e)"
+        ],
+        [
+            null,
+            "Gestionnaire de conflits au sein du syndicat"
+        ],
+        [
+            null,
+            "Gestionnaire de la formation syndicale"
+        ],
+        [
+            null,
+            "Lobbyiste syndical(e)"
+        ],
+        [
+            null,
+            "Négociateur/négociatrice syndical(e)"
+        ],
+        [
+            null,
+            "Organisateur/organisatrice syndical(e)"
+        ],
+        [
+            null,
+            "Porte-parole syndical(e)"
+        ],
+        [
+            null,
+            "Représentant/représentante syndical(e)"
+        ],
+        [
+            null,
+            "Responsable de l'organisation syndicale"
+        ],
+        [
+            null,
+            "Responsable de la communication syndicale"
+        ],
+        [
+            null,
+            "Responsable de la coordination régionale syndicale"
+        ],
+        [
+            null,
+            "Responsable de la mobilisation syndicale"
+        ],
+        [
+            null,
+            "Responsable de la santé et de la sécurité au travail"
+        ],
+        [
+            null,
+            "Responsable des affaires législatives syndicales"
+        ],
+        [
+            null,
+            "Responsable des relations gouvernementales syndicales"
+        ],
+        [
+            null,
+            "Responsable des relations internationales syndicales"
+        ],
+        [
+            null,
+            "Secrétaire général/secrétaire générale de syndicat"
+        ],
+        [
+            null,
+            "Spécialiste en droits de la personne au travail"
+        ],
+        [
+            null,
+            "Syndicaliste"
+        ],
+        [
+            null,
+            "Autre"
+        ],
+        [
+            "TECHNOLOGIES"
+        ],
+        [
+            null,
+            "Administrateur/administratrice de bases de données"
+        ],
+        [
+            null,
+            "Administrateur/administratrice de bases de données NoSQL"
+        ],
+        [
+            null,
+            "Administrateur/administratrice de serveurs"
+        ],
+        [
+            null,
+            "Administrateur/administratrice de systèmes"
+        ],
+        [
+            null,
+            "Administrateur/administratrice de systèmes Linux"
+        ],
+        [
+            null,
+            "Analyste de business intelligence"
+        ],
+        [
+            null,
+            "Analyste de cybersécurité"
+        ],
+        [
+            null,
+            "Analyste de données"
+        ],
+        [
+            null,
+            "Analyste de la qualité des logiciels"
+        ],
+        [
+            null,
+            "Analyste de systèmes de gestion de l'apprentissage"
+        ],
+        [
+            null,
+            "Analyste en automatisation des processus robotisés"
+        ],
+        [
+            null,
+            "Analyste en gestion de la chaîne d'approvisionnement"
+        ],
+        [
+            null,
+            "Analyste en gestion des systèmes d'information"
+        ],
+        [
+            null,
+            "Analyste en sécurité des systèmes"
+        ],
+        [
+            null,
+            "Architecte de données"
+        ],
+        [
+            null,
+            "Architecte de solutions informatiques"
+        ],
+        [
+            null,
+            "Architecte en solutions de cloud"
+        ],
+        [
+            null,
+            "Concepteur/conceptrice de logiciels embarqués"
+        ],
+        [
+            null,
+            "Concepteur/conceptrice de sites web"
+        ],
+        [
+            null,
+            "Consultant/consultante en technologies de l'information"
+        ],
+        [
+            null,
+            "Développeur/développeuse back-end"
+        ],
+        [
+            null,
+            "Développeur/développeuse d'applications mobiles"
+        ],
+        [
+            null,
+            "Développeur/développeuse d'applications web"
+        ],
+        [
+            null,
+            "Développeur/développeuse de blockchain"
+        ],
+        [
+            null,
+            "Développeur/développeuse de jeux vidéo"
+        ],
+        [
+            null,
+            "Développeur/développeuse de logiciels"
+        ],
+        [
+            null,
+            "Développeur/développeuse de logiciels ERP"
+        ],
+        [
+            null,
+            "Développeur/développeuse front-end"
+        ],
+        [
+            null,
+            "Expert.e en cloud computing"
+        ],
+        [
+            null,
+            "Expert.e en intelligence artificielle"
+        ],
+        [
+            null,
+            "Gestionnaire de projet informatique"
+        ],
+        [
+            null,
+            "Ingénieur/ingénieure DevOps"
+        ],
+        [
+            null,
+            "Ingénieur/ingénieure en automatisation industrielle"
+        ],
+        [
+            null,
+            "Ingénieur/ingénieure en informatique"
+        ],
+        [
+            null,
+            "Ingénieur/ingénieure en réalité virtuelle"
+        ],
+        [
+            null,
+            "Ingénieur/ingénieure en robotique"
+        ],
+        [
+            null,
+            "Ingénieur/ingénieure en sécurité informatique"
+        ],
+        [
+            null,
+            "Ingénieur/ingénieure réseau"
+        ],
+        [
+            null,
+            "Spécialiste en apprentissage automatique"
+        ],
+        [
+            null,
+            "Spécialiste en réseaux sociaux"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "TOURISME"
+        ],
+        [
+            null,
+            "Agent.e d'accueil touristique"
+        ],
+        [
+            null,
+            "Agent.e d'excursions"
+        ],
+        [
+            null,
+            "Agent.e de relations publiques touristiques"
+        ],
+        [
+            null,
+            "Agent.e de réservation d'hôtel"
+        ],
+        [
+            null,
+            "Agent.e de voyage"
+        ],
+        [
+            null,
+            "Agent.e de voyages d'affaires"
+        ],
+        [
+            null,
+            "Agent.e de voyages en ligne"
+        ],
+        [
+            null,
+            "Animateur/animatrice culturel(le) touristique"
+        ],
+        [
+            null,
+            "Animateur/animatrice de voyage"
+        ],
+        [
+            null,
+            "Animateur/animatrice touristique"
+        ],
+        [
+            null,
+            "Chargé/chargée de la gestion des croisières"
+        ],
+        [
+            null,
+            "Chargé/chargée de marketing touristique"
+        ],
+        [
+            null,
+            "Chef de produit touristique"
+        ],
+        [
+            null,
+            "Chef de projet événementiel"
+        ],
+        [
+            null,
+            "Conseiller.ère en voyages"
+        ],
+        [
+            null,
+            "Directeur.rice.rice de l'office de tourisme"
+        ],
+        [
+            null,
+            "Directeur.rice.rice de la destination touristique"
+        ],
+        [
+            null,
+            "Directeur.rice.rice de la restauration touristique"
+        ],
+        [
+            null,
+            "Directeur.rice.rice de site touristique"
+        ],
+        [
+            null,
+            "Expert.e en développement de produits touristiques"
+        ],
+        [
+            null,
+            "Expert.e en développement durable touristique"
+        ],
+        [
+            null,
+            "Guide de randonnée"
+        ],
+        [
+            null,
+            "Guide touristique"
+        ],
+        [
+            null,
+            "Organisateur/organisatrice d'événements culturels"
+        ],
+        [
+            null,
+            "Organisateur/organisatrice de voyages"
+        ],
+        [
+            null,
+            "Responsable de l'accueil touristique"
+        ],
+        [
+            null,
+            "Responsable de l'hébergement touristique"
+        ],
+        [
+            null,
+            "Responsable de la communication touristique"
+        ],
+        [
+            null,
+            "Responsable de la gestion de l'événementiel"
+        ],
+        [
+            null,
+            "Responsable de la gestion de l'hébergement touristique"
+        ],
+        [
+            null,
+            "Responsable de la gestion de parcs à thème"
+        ],
+        [
+            null,
+            "Responsable de la gestion des activités touristiques"
+        ],
+        [
+            null,
+            "Responsable de la gestion des voyages d'aventure"
+        ],
+        [
+            null,
+            "Responsable de la promotion touristique"
+        ],
+        [
+            null,
+            "Responsable de la restauration gastronomique touristique"
+        ],
+        [
+            null,
+            "Responsable de la restauration touristique"
+        ],
+        [
+            null,
+            "Responsable de la sécurité touristique"
+        ],
+        [
+            null,
+            "Responsable du marketing numérique touristique"
+        ],
+        [
+            null,
+            "Spécialiste en gestion des attractions touristiques"
+        ],
+        [
+            null,
+            "Spécialiste en tourisme médical"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "TRANSPORTS"
+        ],
+        [
+            null,
+            "Agent.e de douane"
+        ],
+        [
+            null,
+            "Agent.e de fret"
+        ],
+        [
+            null,
+            "Agent.e de fret aérien"
+        ],
+        [
+            null,
+            "Agent.e de fret ferroviaire"
+        ],
+        [
+            null,
+            "Agent.e de fret maritime"
+        ],
+        [
+            null,
+            "Agent.e de fret routier"
+        ],
+        [
+            null,
+            "Agent.e de fret terrestre"
+        ],
+        [
+            null,
+            "Agent.e de réservation de billets"
+        ],
+        [
+            null,
+            "Agent.e de réservation de voyages"
+        ],
+        [
+            null,
+            "Agent.e de service client dans les transports"
+        ],
+        [
+            null,
+            "Chauffeur/chauffeuse de camion"
+        ],
+        [
+            null,
+            "Conducteur/conductrice de bus"
+        ],
+        [
+            null,
+            "Contrôleur/contrôleuse aérien(ne)"
+        ],
+        [
+            null,
+            "Coordinateur/coordonnatrice de la chaîne d'approvisionnement"
+        ],
+        [
+            null,
+            "Dispatcher de transport"
+        ],
+        [
+            null,
+            "Exploitant"
+        ],
+        [
+            null,
+            "Gestionnaire de flotte de camions"
+        ],
+        [
+            null,
+            "Gestionnaire de flotte de véhicules"
+        ],
+        [
+            null,
+            "Gestionnaire de la logistique de fret"
+        ],
+        [
+            null,
+            "Gestionnaire de terminaux portuaires"
+        ],
+        [
+            null,
+            "Mécanicien/mécanicienne automobile"
+        ],
+        [
+            null,
+            "Mécanicien/mécanicienne d'aéronefs"
+        ],
+        [
+            null,
+            "Pilote d'hélicoptère"
+        ],
+        [
+            null,
+            "Pilote de bateau"
+        ],
+        [
+            null,
+            "Pilote de ligne"
+        ],
+        [
+            null,
+            "Pilote de train"
+        ],
+        [
+            null,
+            "Planificateur/planificatrice de réseau de transport"
+        ],
+        [
+            null,
+            "Planificateur/planificatrice de transport"
+        ],
+        [
+            null,
+            "Responsable de la conformité des transports"
+        ],
+        [
+            null,
+            "Responsable de la distribution de marchandises"
+        ],
+        [
+            null,
+            "Responsable de la gestion de la logistique d'entrepôt"
+        ],
+        [
+            null,
+            "Responsable de la gestion des transports de marchandises"
+        ],
+        [
+            null,
+            "Responsable de la gestion des transports en commun"
+        ],
+        [
+            null,
+            "Responsable de la gestion des transports internationaux"
+        ],
+        [
+            null,
+            "Responsable de la logistique de transport"
+        ],
+        [
+            null,
+            "Responsable de la maintenance des véhicules"
+        ],
+        [
+            null,
+            "Responsable de la sécurité des transports"
+        ],
+        [
+            null,
+            "Responsable de la sécurité routière"
+        ],
+        [
+            null,
+            "Technicien.ne en maintenance ferroviaire"
+        ],
+        [
+            null,
+            "Technicien.ne en maintenance navale"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "VOYAGE"
+        ],
+        [
+            null,
+            "Agent.e de relations publiques touristiques"
+        ],
+        [
+            null,
+            "Agent.e de réservation d'hôtel"
+        ],
+        [
+            null,
+            "Agent.e de voyage"
+        ],
+        [
+            null,
+            "Agent.e de voyage d'aventure"
+        ],
+        [
+            null,
+            "Agent.e de voyages d'affaires"
+        ],
+        [
+            null,
+            "Agent.e de voyages de luxe"
+        ],
+        [
+            null,
+            "Agent.e de voyages en autocar"
+        ],
+        [
+            null,
+            "Agent.e de voyages en ligne"
+        ],
+        [
+            null,
+            "Agent.e de voyages en train"
+        ],
+        [
+            null,
+            "Animateur/animatrice culturel(le) touristique"
+        ],
+        [
+            null,
+            "Chef de produit touristique"
+        ],
+        [
+            null,
+            "Chef de projet événementiel"
+        ],
+        [
+            null,
+            "Conseiller.ère en voyages"
+        ],
+        [
+            null,
+            "Consultant/consultante en voyages"
+        ],
+        [
+            null,
+            "Directeur.rice.rice de l'agence de voyage"
+        ],
+        [
+            null,
+            "Directeur.rice.rice de site touristique"
+        ],
+        [
+            null,
+            "Gestionnaire de projet en voyage"
+        ],
+        [
+            null,
+            "Gestionnaire de voyages de luxe"
+        ],
+        [
+            null,
+            "Guide de voyage en ligne"
+        ],
+        [
+            null,
+            "Guide touristique"
+        ],
+        [
+            null,
+            "Organisateur/organisatrice d'événements culturels"
+        ],
+        [
+            null,
+            "Organisateur/organisatrice de croisières"
+        ],
+        [
+            null,
+            "Organisateur/organisatrice de voyages"
+        ],
+        [
+            null,
+            "Organisateur/organisatrice de voyages d'étude"
+        ],
+        [
+            null,
+            "Responsable de l'accueil touristique"
+        ],
+        [
+            null,
+            "Responsable de la communication touristique"
+        ],
+        [
+            null,
+            "Responsable de la distribution de forfaits touristiques"
+        ],
+        [
+            null,
+            "Responsable de la gestion de voyages d'aventure"
+        ],
+        [
+            null,
+            "Responsable de la gestion de voyages de groupe"
+        ],
+        [
+            null,
+            "Responsable de la gestion de voyages de groupe scolaire"
+        ],
+        [
+            null,
+            "Responsable de la gestion de voyages de motivation"
+        ],
+        [
+            null,
+            "Responsable de la gestion de voyages de randonnée"
+        ],
+        [
+            null,
+            "Responsable de la planification de voyages d'affaires"
+        ],
+        [
+            null,
+            "Responsable de la promotion touristique"
+        ],
+        [
+            null,
+            "Responsable de la restauration gastronomique touristique"
+        ],
+        [
+            null,
+            "Responsable de la restauration touristique"
+        ],
+        [
+            null,
+            "Responsable de la sécurité touristique"
+        ],
+        [
+            null,
+            "Spécialiste en voyages de noces"
+        ],
+        [
+            null,
+            "Spécialiste en voyages éco-responsables"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "Autres"
+        ]
+    ]
+}

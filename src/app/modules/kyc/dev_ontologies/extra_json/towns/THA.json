@@ -1,0 +1,3614 @@
+[
+    {
+        "name": "Pom Prap Sattru Phai",
+        "zip_code": "10100"
+    },
+    {
+        "name": "Samphanthawong",
+        "zip_code": "10100"
+    },
+    {
+        "name": "Wattana",
+        "zip_code": "10110"
+    },
+    {
+        "name": "Bang Kholame",
+        "zip_code": "10120"
+    },
+    {
+        "name": "Yannawa",
+        "zip_code": "10120"
+    },
+    {
+        "name": "Thung Khru",
+        "zip_code": "10140"
+    },
+    {
+        "name": "Rat Burana",
+        "zip_code": "10140"
+    },
+    {
+        "name": "Bang Khun Thian",
+        "zip_code": "10150"
+    },
+    {
+        "name": "Bang Bon",
+        "zip_code": "10150"
+    },
+    {
+        "name": "Phasi Charoen",
+        "zip_code": "10160"
+    },
+    {
+        "name": "Bang Khae",
+        "zip_code": "10160"
+    },
+    {
+        "name": "Nong Khaem",
+        "zip_code": "10160"
+    },
+    {
+        "name": "Taling Chan",
+        "zip_code": "10170"
+    },
+    {
+        "name": "Thawi Wattana",
+        "zip_code": "10170"
+    },
+    {
+        "name": "Phra Nakhon",
+        "zip_code": "10200"
+    },
+    {
+        "name": "Lak Si",
+        "zip_code": "10210"
+    },
+    {
+        "name": "Bang Khen",
+        "zip_code": "10220"
+    },
+    {
+        "name": "Sai Mai",
+        "zip_code": "10220"
+    },
+    {
+        "name": "Lat Phrao",
+        "zip_code": "10230"
+    },
+    {
+        "name": "Khanna Yao",
+        "zip_code": "10230"
+    },
+    {
+        "name": "Saphan Sung B",
+        "zip_code": "10240"
+    },
+    {
+        "name": "Bung Kum",
+        "zip_code": "10240"
+    },
+    {
+        "name": "Bang Kapi",
+        "zip_code": "10240"
+    },
+    {
+        "name": "Suang Luang",
+        "zip_code": "10250"
+    },
+    {
+        "name": "Pra Vet",
+        "zip_code": "10250"
+    },
+    {
+        "name": "Phra Khanong",
+        "zip_code": "10260"
+    },
+    {
+        "name": "Bang Na",
+        "zip_code": "10260"
+    },
+    {
+        "name": "Dusit",
+        "zip_code": "10300"
+    },
+    {
+        "name": "Wangthong Lang",
+        "zip_code": "10310"
+    },
+    {
+        "name": "Huai Khwang",
+        "zip_code": "10320"
+    },
+    {
+        "name": "Pahtum Wan",
+        "zip_code": "10330"
+    },
+    {
+        "name": "Ding Daeng",
+        "zip_code": "10400"
+    },
+    {
+        "name": "Phaya Thai",
+        "zip_code": "10400"
+    },
+    {
+        "name": "Bang Rak",
+        "zip_code": "10500"
+    },
+    {
+        "name": "Khlong Samwa",
+        "zip_code": "10510"
+    },
+    {
+        "name": "Min Buri",
+        "zip_code": "10510"
+    },
+    {
+        "name": "Lat Krabang",
+        "zip_code": "10520"
+    },
+    {
+        "name": "Nong Chok",
+        "zip_code": "10530"
+    },
+    {
+        "name": "Thon Buri",
+        "zip_code": "10600"
+    },
+    {
+        "name": "Khlong San",
+        "zip_code": "10600"
+    },
+    {
+        "name": "Bangkok Yai",
+        "zip_code": "10600"
+    },
+    {
+        "name": "Bang Plat",
+        "zip_code": "10700"
+    },
+    {
+        "name": "Bangkok Noi",
+        "zip_code": "10700"
+    },
+    {
+        "name": "Bang Su",
+        "zip_code": "10800"
+    },
+    {
+        "name": "Phra Pradaeng",
+        "zip_code": "10130"
+    },
+    {
+        "name": "Muang Samut Prakan",
+        "zip_code": "10270"
+    },
+    {
+        "name": "Phra Samut Chedi",
+        "zip_code": "10290"
+    },
+    {
+        "name": "Bang Phli",
+        "zip_code": "10540"
+    },
+    {
+        "name": "Bang Saotong",
+        "zip_code": "10540"
+    },
+    {
+        "name": "Bang Bo",
+        "zip_code": "10560"
+    },
+    {
+        "name": "Muang Nonthaburi",
+        "zip_code": "11000"
+    },
+    {
+        "name": "Bang Bua Thong",
+        "zip_code": "11110"
+    },
+    {
+        "name": "Pak Kret",
+        "zip_code": "11120"
+    },
+    {
+        "name": "Bang Kruai",
+        "zip_code": "11130"
+    },
+    {
+        "name": "Bang Yai",
+        "zip_code": "11140"
+    },
+    {
+        "name": "Sai Noi",
+        "zip_code": "11150"
+    },
+    {
+        "name": "Muang Pathum Thani",
+        "zip_code": "12000"
+    },
+    {
+        "name": "Thanyaburi",
+        "zip_code": "12110"
+    },
+    {
+        "name": "Khlong Luang",
+        "zip_code": "12120"
+    },
+    {
+        "name": "Lat Lum Kaeo",
+        "zip_code": "12140"
+    },
+    {
+        "name": "Lam Luk Ka",
+        "zip_code": "12150"
+    },
+    {
+        "name": "Sam Khok",
+        "zip_code": "12160"
+    },
+    {
+        "name": "Nong Sua",
+        "zip_code": "12170"
+    },
+    {
+        "name": "Pharnakhon Si Ayutthaya",
+        "zip_code": "13000"
+    },
+    {
+        "name": "Sena",
+        "zip_code": "13110"
+    },
+    {
+        "name": "Pak Hai",
+        "zip_code": "13120"
+    },
+    {
+        "name": "Tha Rua",
+        "zip_code": "13130"
+    },
+    {
+        "name": "Phachi",
+        "zip_code": "13140"
+    },
+    {
+        "name": "Maha Rat",
+        "zip_code": "13150"
+    },
+    {
+        "name": "Bang Pa-In",
+        "zip_code": "13160"
+    },
+    {
+        "name": "Wang Noi",
+        "zip_code": "13170"
+    },
+    {
+        "name": "Bang Sai",
+        "zip_code": "13190"
+    },
+    {
+        "name": "Uthai",
+        "zip_code": "13210"
+    },
+    {
+        "name": "Bang Pahan",
+        "zip_code": "13220"
+    },
+    {
+        "name": "Lat Bua Luang",
+        "zip_code": "13230"
+    },
+    {
+        "name": "Ban Phraek",
+        "zip_code": "13240"
+    },
+    {
+        "name": "Bang Ban",
+        "zip_code": "13250"
+    },
+    {
+        "name": "Nakhon Luang",
+        "zip_code": "13260"
+    },
+    {
+        "name": "Bang Sai",
+        "zip_code": "13270"
+    },
+    {
+        "name": "Muang ANG THONG",
+        "zip_code": "14000"
+    },
+    {
+        "name": "Wiset Chai Chan",
+        "zip_code": "14110"
+    },
+    {
+        "name": "Pho Thong",
+        "zip_code": "14120"
+    },
+    {
+        "name": "Pa Mok",
+        "zip_code": "14130"
+    },
+    {
+        "name": "Chaiyo",
+        "zip_code": "14140"
+    },
+    {
+        "name": "Sawaengha",
+        "zip_code": "14150"
+    },
+    {
+        "name": "Samko",
+        "zip_code": "14160"
+    },
+    {
+        "name": "Muang Lopburi",
+        "zip_code": "15000"
+    },
+    {
+        "name": "Ban Mi",
+        "zip_code": "15110"
+    },
+    {
+        "name": "Khok Samrong",
+        "zip_code": "15120"
+    },
+    {
+        "name": "Tha Luang",
+        "zip_code": "15130"
+    },
+    {
+        "name": "Chai Badan",
+        "zip_code": "15130"
+    },
+    {
+        "name": "Phattana Nikhom",
+        "zip_code": "15140"
+    },
+    {
+        "name": "Tha Wung",
+        "zip_code": "15150"
+    },
+    {
+        "name": "Nong Muang",
+        "zip_code": "15170"
+    },
+    {
+        "name": "Lum Sunthi",
+        "zip_code": "15190"
+    },
+    {
+        "name": "Sa Bot",
+        "zip_code": "15240"
+    },
+    {
+        "name": "Khok Charoen",
+        "zip_code": "15250"
+    },
+    {
+        "name": "Muang Sing Buri",
+        "zip_code": "16000"
+    },
+    {
+        "name": "In Buri",
+        "zip_code": "16110"
+    },
+    {
+        "name": "Phrom Buri",
+        "zip_code": "16120"
+    },
+    {
+        "name": "Bang Rachan",
+        "zip_code": "16130"
+    },
+    {
+        "name": "Tha Chang",
+        "zip_code": "16140"
+    },
+    {
+        "name": "Khai Bang Rachan",
+        "zip_code": "16150"
+    },
+    {
+        "name": "Muang Chainat",
+        "zip_code": "17000"
+    },
+    {
+        "name": "Nong Mamong",
+        "zip_code": "17100"
+    },
+    {
+        "name": "Manorom",
+        "zip_code": "17110"
+    },
+    {
+        "name": "Wat Sing",
+        "zip_code": "17120"
+    },
+    {
+        "name": "Hankha",
+        "zip_code": "17130"
+    },
+    {
+        "name": "Non Kham",
+        "zip_code": "17130"
+    },
+    {
+        "name": "Sankhaburi",
+        "zip_code": "17140"
+    },
+    {
+        "name": "Sanphaya",
+        "zip_code": "17150"
+    },
+    {
+        "name": "Chaloem Phakiat",
+        "zip_code": "18000"
+    },
+    {
+        "name": "Muang Saraburi",
+        "zip_code": "18000"
+    },
+    {
+        "name": "Kaeng Khoi",
+        "zip_code": "18110"
+    },
+    {
+        "name": "Phra Phutthabat",
+        "zip_code": "18120"
+    },
+    {
+        "name": "Ban Mo",
+        "zip_code": "18130"
+    },
+    {
+        "name": "Nong Khae",
+        "zip_code": "18140"
+    },
+    {
+        "name": "Wihan Daeng",
+        "zip_code": "18150"
+    },
+    {
+        "name": "Sao Hai",
+        "zip_code": "18160"
+    },
+    {
+        "name": "Nong Saeng",
+        "zip_code": "18170"
+    },
+    {
+        "name": "Muak Lek",
+        "zip_code": "18180"
+    },
+    {
+        "name": "Nong Doan",
+        "zip_code": "18190"
+    },
+    {
+        "name": "Don Phut",
+        "zip_code": "18210"
+    },
+    {
+        "name": "Wang Muang",
+        "zip_code": "18220"
+    },
+    {
+        "name": "Muang Chonburi",
+        "zip_code": "20000"
+    },
+    {
+        "name": "Si Racha",
+        "zip_code": "20110"
+    },
+    {
+        "name": "Ko Sichang",
+        "zip_code": "20120"
+    },
+    {
+        "name": "Phanat Nikhom",
+        "zip_code": "20140"
+    },
+    {
+        "name": "Bang Lamung",
+        "zip_code": "20150"
+    },
+    {
+        "name": "Phan Thong",
+        "zip_code": "20160"
+    },
+    {
+        "name": "Ban Bung",
+        "zip_code": "20170"
+    },
+    {
+        "name": "Sattahip",
+        "zip_code": "20180"
+    },
+    {
+        "name": "Nong Yai",
+        "zip_code": "20190"
+    },
+    {
+        "name": "Ko Chan",
+        "zip_code": "20240"
+    },
+    {
+        "name": "Bo Thong",
+        "zip_code": "20270"
+    },
+    {
+        "name": "Muang Rayong",
+        "zip_code": "21000"
+    },
+    {
+        "name": "Khao Chamao",
+        "zip_code": "21110"
+    },
+    {
+        "name": "Klaeng",
+        "zip_code": "21110"
+    },
+    {
+        "name": "Ban Khai",
+        "zip_code": "21120"
+    },
+    {
+        "name": "Ban Chang",
+        "zip_code": "21130"
+    },
+    {
+        "name": "Pluak Daeng",
+        "zip_code": "21140"
+    },
+    {
+        "name": "Nikhom Pattana",
+        "zip_code": "21180"
+    },
+    {
+        "name": "Wang Chan",
+        "zip_code": "21210"
+    },
+    {
+        "name": "Muang Chanthaburi",
+        "zip_code": "22000"
+    },
+    {
+        "name": "Khlung",
+        "zip_code": "22110"
+    },
+    {
+        "name": "Tha Mai",
+        "zip_code": "22120"
+    },
+    {
+        "name": "Laem Sing",
+        "zip_code": "22130"
+    },
+    {
+        "name": "Pong Nam Ron",
+        "zip_code": "22140"
+    },
+    {
+        "name": "Makham",
+        "zip_code": "22150"
+    },
+    {
+        "name": "Kaeng Hang Maew",
+        "zip_code": "22160"
+    },
+    {
+        "name": "Na Yai Am",
+        "zip_code": "22160"
+    },
+    {
+        "name": "Soi Dao",
+        "zip_code": "22180"
+    },
+    {
+        "name": "Khao Kitchakut",
+        "zip_code": "22210"
+    },
+    {
+        "name": "Ko Kud",
+        "zip_code": "23000"
+    },
+    {
+        "name": "Muang Trat",
+        "zip_code": "23000"
+    },
+    {
+        "name": "Khlong Yai",
+        "zip_code": "23110"
+    },
+    {
+        "name": "Laem Ngob",
+        "zip_code": "23120"
+    },
+    {
+        "name": "Ko Chang",
+        "zip_code": "23120"
+    },
+    {
+        "name": "Khao Saming",
+        "zip_code": "23130"
+    },
+    {
+        "name": "Bo Rai",
+        "zip_code": "23140"
+    },
+    {
+        "name": "Khlong Kaen",
+        "zip_code": "24000"
+    },
+    {
+        "name": "Muang Chachoengsao",
+        "zip_code": "24000"
+    },
+    {
+        "name": "Bang Khla",
+        "zip_code": "24110"
+    },
+    {
+        "name": "Rachsan",
+        "zip_code": "24120"
+    },
+    {
+        "name": "Phanom Sarakham",
+        "zip_code": "24120"
+    },
+    {
+        "name": "Bang Pakong",
+        "zip_code": "24130"
+    },
+    {
+        "name": "Ban Pho",
+        "zip_code": "24140"
+    },
+    {
+        "name": "Bang Nam Prieo",
+        "zip_code": "24150"
+    },
+    {
+        "name": "Ta Takiab",
+        "zip_code": "24160"
+    },
+    {
+        "name": "Sanam Chai Khet",
+        "zip_code": "24160"
+    },
+    {
+        "name": "Paeng Yao",
+        "zip_code": "24190"
+    },
+    {
+        "name": "Muang Prachinburi",
+        "zip_code": "25000"
+    },
+    {
+        "name": "Kabin Buri",
+        "zip_code": "25110"
+    },
+    {
+        "name": "Prachantakham",
+        "zip_code": "25130"
+    },
+    {
+        "name": "Si Maha Phot",
+        "zip_code": "25140"
+    },
+    {
+        "name": "Ban Sang",
+        "zip_code": "25150"
+    },
+    {
+        "name": "Si Mahosot",
+        "zip_code": "25190"
+    },
+    {
+        "name": "Khok Pip",
+        "zip_code": "25190"
+    },
+    {
+        "name": "Na Di",
+        "zip_code": "25220"
+    },
+    {
+        "name": "Muang Nakhon Nayok",
+        "zip_code": "26000"
+    },
+    {
+        "name": "Ban Na",
+        "zip_code": "26110"
+    },
+    {
+        "name": "Ongkarak",
+        "zip_code": "26120"
+    },
+    {
+        "name": "Pak Phli",
+        "zip_code": "26130"
+    },
+    {
+        "name": "Khao Chakhun",
+        "zip_code": "27000"
+    },
+    {
+        "name": "Muang Sa Kaeo",
+        "zip_code": "27000"
+    },
+    {
+        "name": "Khok Sung",
+        "zip_code": "27120"
+    },
+    {
+        "name": "Aranyaprathet",
+        "zip_code": "27120"
+    },
+    {
+        "name": "Wang Nam Yen",
+        "zip_code": "27120"
+    },
+    {
+        "name": "Wattana Nakhon",
+        "zip_code": "27160"
+    },
+    {
+        "name": "Ta Phraya",
+        "zip_code": "27180"
+    },
+    {
+        "name": "Wang Sombun",
+        "zip_code": "27250"
+    },
+    {
+        "name": "Khlong Hat",
+        "zip_code": "27260"
+    },
+    {
+        "name": "Muang Nakhon Ratchasima",
+        "zip_code": "30000"
+    },
+    {
+        "name": "Phimai",
+        "zip_code": "30110"
+    },
+    {
+        "name": "Bua Yai",
+        "zip_code": "30120"
+    },
+    {
+        "name": "Bua Lai",
+        "zip_code": "30120"
+    },
+    {
+        "name": "Pak Chong",
+        "zip_code": "30130"
+    },
+    {
+        "name": "Sikhiu",
+        "zip_code": "30140"
+    },
+    {
+        "name": "Pak Thong Chai",
+        "zip_code": "30150"
+    },
+    {
+        "name": "Non Sung",
+        "zip_code": "30160"
+    },
+    {
+        "name": "Sung Noen",
+        "zip_code": "30170"
+    },
+    {
+        "name": "Prathai",
+        "zip_code": "30180"
+    },
+    {
+        "name": "Chok Chai",
+        "zip_code": "30190"
+    },
+    {
+        "name": "Theparak",
+        "zip_code": "30210"
+    },
+    {
+        "name": "Dan Khun Thot",
+        "zip_code": "30210"
+    },
+    {
+        "name": "Non Thai",
+        "zip_code": "30220"
+    },
+    {
+        "name": "Phra Thomgkom",
+        "zip_code": "30220"
+    },
+    {
+        "name": "Chakkarat",
+        "zip_code": "30230"
+    },
+    {
+        "name": "Cheleam Phakiat",
+        "zip_code": "30230"
+    },
+    {
+        "name": "Huai Thalaeng",
+        "zip_code": "30240"
+    },
+    {
+        "name": "Khon Buri",
+        "zip_code": "30250"
+    },
+    {
+        "name": "Khong",
+        "zip_code": "30260"
+    },
+    {
+        "name": "Chum Phuang",
+        "zip_code": "30270"
+    },
+    {
+        "name": "Lum Thamenchai",
+        "zip_code": "30270"
+    },
+    {
+        "name": "Muang Yang",
+        "zip_code": "30270"
+    },
+    {
+        "name": "Kham Thale So",
+        "zip_code": "30280"
+    },
+    {
+        "name": "Kham Sakae Saeng",
+        "zip_code": "30290"
+    },
+    {
+        "name": "Soeng Sang",
+        "zip_code": "30330"
+    },
+    {
+        "name": "Ban Luam",
+        "zip_code": "30350"
+    },
+    {
+        "name": "Non Daeng",
+        "zip_code": "30360"
+    },
+    {
+        "name": "Wang Nam Khyo",
+        "zip_code": "30370"
+    },
+    {
+        "name": "Nong Bunnak",
+        "zip_code": "30410"
+    },
+    {
+        "name": "Sida",
+        "zip_code": "30430"
+    },
+    {
+        "name": "Kang Sanam Nang",
+        "zip_code": "30440"
+    },
+    {
+        "name": "Ban Dan",
+        "zip_code": "31000"
+    },
+    {
+        "name": "Huai Ratch",
+        "zip_code": "31000"
+    },
+    {
+        "name": "Muang Buri Ram",
+        "zip_code": "31000"
+    },
+    {
+        "name": "Nang Rong",
+        "zip_code": "31110"
+    },
+    {
+        "name": "Cham Ni",
+        "zip_code": "31110"
+    },
+    {
+        "name": "Chaloem Phrakhiat",
+        "zip_code": "31110"
+    },
+    {
+        "name": "Non Suwan",
+        "zip_code": "31110"
+    },
+    {
+        "name": "Phutthaisong",
+        "zip_code": "31120"
+    },
+    {
+        "name": "Banmai Chaiphot",
+        "zip_code": "31120"
+    },
+    {
+        "name": "Lam Phai Mat",
+        "zip_code": "31130"
+    },
+    {
+        "name": "Prakhon Chai",
+        "zip_code": "31140"
+    },
+    {
+        "name": "Kandong",
+        "zip_code": "31150"
+    },
+    {
+        "name": "Satuk",
+        "zip_code": "31150"
+    },
+    {
+        "name": "Krasang",
+        "zip_code": "31160"
+    },
+    {
+        "name": "Lahan Sai",
+        "zip_code": "31170"
+    },
+    {
+        "name": "Ban Kruat",
+        "zip_code": "31180"
+    },
+    {
+        "name": "Khu Muang",
+        "zip_code": "31190"
+    },
+    {
+        "name": "Nong Ki",
+        "zip_code": "31210"
+    },
+    {
+        "name": "Pak Kam",
+        "zip_code": "31220"
+    },
+    {
+        "name": "Na Pho",
+        "zip_code": "31230"
+    },
+    {
+        "name": "Nong Hong",
+        "zip_code": "31240"
+    },
+    {
+        "name": "Ban Phlapphla",
+        "zip_code": "31250"
+    },
+    {
+        "name": "Non Dindaeng",
+        "zip_code": "31260"
+    },
+    {
+        "name": "Muang Sisaket",
+        "zip_code": "33000"
+    },
+    {
+        "name": "Kantharalak",
+        "zip_code": "33110"
+    },
+    {
+        "name": "Benchalak",
+        "zip_code": "33110"
+    },
+    {
+        "name": "Muang Chan",
+        "zip_code": "33120"
+    },
+    {
+        "name": "Po Sri Suwan",
+        "zip_code": "33120"
+    },
+    {
+        "name": "Uthumphon Phisai",
+        "zip_code": "33120"
+    },
+    {
+        "name": "Nam Kliang",
+        "zip_code": "33130"
+    },
+    {
+        "name": "Kanthararom",
+        "zip_code": "33130"
+    },
+    {
+        "name": "Pu Sing",
+        "zip_code": "33140"
+    },
+    {
+        "name": "Khukhan",
+        "zip_code": "33140"
+    },
+    {
+        "name": "Khun Han",
+        "zip_code": "33150"
+    },
+    {
+        "name": "Silalad",
+        "zip_code": "33160"
+    },
+    {
+        "name": "Rasi Salai",
+        "zip_code": "33160"
+    },
+    {
+        "name": "Prang Ku",
+        "zip_code": "33170"
+    },
+    {
+        "name": "Phrai Bung",
+        "zip_code": "33180"
+    },
+    {
+        "name": "Yang Chum Noi",
+        "zip_code": "33190"
+    },
+    {
+        "name": "Huai Thap Than",
+        "zip_code": "33210"
+    },
+    {
+        "name": "Bung Bun",
+        "zip_code": "33220"
+    },
+    {
+        "name": "Phayu",
+        "zip_code": "33230"
+    },
+    {
+        "name": "Si Rattana",
+        "zip_code": "33240"
+    },
+    {
+        "name": "Non Khun",
+        "zip_code": "33250"
+    },
+    {
+        "name": "Wang Hin",
+        "zip_code": "33270"
+    },
+    {
+        "name": "Muang Ubon Ratchathani",
+        "zip_code": "34000"
+    },
+    {
+        "name": "Don Moddang",
+        "zip_code": "34000"
+    },
+    {
+        "name": "Phibun Mangsahan",
+        "zip_code": "34110"
+    },
+    {
+        "name": "Trakan Puetphon",
+        "zip_code": "34130"
+    },
+    {
+        "name": "Muang Samsib",
+        "zip_code": "34140"
+    },
+    {
+        "name": "Khuang Nai",
+        "zip_code": "34150"
+    },
+    {
+        "name": "Na Year",
+        "zip_code": "34160"
+    },
+    {
+        "name": "Det Udom",
+        "zip_code": "34160"
+    },
+    {
+        "name": "Thung Sriudom",
+        "zip_code": "34160"
+    },
+    {
+        "name": "Khemarat",
+        "zip_code": "34170"
+    },
+    {
+        "name": "Sawang Werarong",
+        "zip_code": "34190"
+    },
+    {
+        "name": "Warin Chamrabp",
+        "zip_code": "34190"
+    },
+    {
+        "name": "Khong Chiam",
+        "zip_code": "34220"
+    },
+    {
+        "name": "Buntharik",
+        "zip_code": "34230"
+    },
+    {
+        "name": "Si Muang Mai",
+        "zip_code": "34250"
+    },
+    {
+        "name": "Nam Yuen",
+        "zip_code": "34260"
+    },
+    {
+        "name": "Nam Khun",
+        "zip_code": "34260"
+    },
+    {
+        "name": "Kut Khaopun",
+        "zip_code": "34270"
+    },
+    {
+        "name": "Na Chaluai",
+        "zip_code": "34280"
+    },
+    {
+        "name": "Tan Sum",
+        "zip_code": "34330"
+    },
+    {
+        "name": "Po Sai",
+        "zip_code": "34340"
+    },
+    {
+        "name": "Sirinhon",
+        "zip_code": "34350"
+    },
+    {
+        "name": "Samrong",
+        "zip_code": "34360"
+    },
+    {
+        "name": "Muang Yasothon",
+        "zip_code": "35000"
+    },
+    {
+        "name": "Kham Khuan Kaeo",
+        "zip_code": "35110"
+    },
+    {
+        "name": "Thai Chaloen",
+        "zip_code": "35120"
+    },
+    {
+        "name": "Loeng Nok Tha",
+        "zip_code": "35120"
+    },
+    {
+        "name": "Maha Chana Chai",
+        "zip_code": "35130"
+    },
+    {
+        "name": "Kud Chum",
+        "zip_code": "35140"
+    },
+    {
+        "name": "Pa Tiu",
+        "zip_code": "35150"
+    },
+    {
+        "name": "Kho Wang",
+        "zip_code": "35160"
+    },
+    {
+        "name": "Sai Mun",
+        "zip_code": "35170"
+    },
+    {
+        "name": "Muang Chaiyaphum",
+        "zip_code": "36000"
+    },
+    {
+        "name": "Phu Khieo",
+        "zip_code": "36110"
+    },
+    {
+        "name": "Kaset Sombun",
+        "zip_code": "36120"
+    },
+    {
+        "name": "Noen Sa Nga",
+        "zip_code": "36130"
+    },
+    {
+        "name": "Sub Yai",
+        "zip_code": "36130"
+    },
+    {
+        "name": "Chaturat",
+        "zip_code": "36130"
+    },
+    {
+        "name": "Khon Sawan",
+        "zip_code": "36140"
+    },
+    {
+        "name": "Kaeng Khro",
+        "zip_code": "36150"
+    },
+    {
+        "name": "Bamnet Narong",
+        "zip_code": "36160"
+    },
+    {
+        "name": "Ban Khwao",
+        "zip_code": "36170"
+    },
+    {
+        "name": "Khon San",
+        "zip_code": "36180"
+    },
+    {
+        "name": "Ban Thaen",
+        "zip_code": "36190"
+    },
+    {
+        "name": "Nong Bua Daeng",
+        "zip_code": "36210"
+    },
+    {
+        "name": "Thep Satthit",
+        "zip_code": "36230"
+    },
+    {
+        "name": "Nong Bua Rawe",
+        "zip_code": "36250"
+    },
+    {
+        "name": "Phakdi Chumpon",
+        "zip_code": "36260"
+    },
+    {
+        "name": "Lua Amnart",
+        "zip_code": "37000"
+    },
+    {
+        "name": "Muang Amnat Charoen",
+        "zip_code": "37000"
+    },
+    {
+        "name": "Phathumratvongsa",
+        "zip_code": "37110"
+    },
+    {
+        "name": "Phana",
+        "zip_code": "37180"
+    },
+    {
+        "name": "Chanunman",
+        "zip_code": "37210"
+    },
+    {
+        "name": "Hua Taphan",
+        "zip_code": "37240"
+    },
+    {
+        "name": "Senangkhanikhorn",
+        "zip_code": "37290"
+    },
+    {
+        "name": "Muang Nong Bua Lam Phu",
+        "zip_code": "39000"
+    },
+    {
+        "name": "Non Sang",
+        "zip_code": "39140"
+    },
+    {
+        "name": "Nong Sang",
+        "zip_code": "39140"
+    },
+    {
+        "name": "Nawang",
+        "zip_code": "39170"
+    },
+    {
+        "name": "Na Klang",
+        "zip_code": "39170"
+    },
+    {
+        "name": "Si Bun Ruang",
+        "zip_code": "39180"
+    },
+    {
+        "name": "Suwannakhuha",
+        "zip_code": "39270"
+    },
+    {
+        "name": "Muang Khonkaen",
+        "zip_code": "40000"
+    },
+    {
+        "name": "Ban Had",
+        "zip_code": "40110"
+    },
+    {
+        "name": "Non Silla",
+        "zip_code": "40110"
+    },
+    {
+        "name": "Ban Phai",
+        "zip_code": "40110"
+    },
+    {
+        "name": "Phon",
+        "zip_code": "40120"
+    },
+    {
+        "name": "Chum Phae",
+        "zip_code": "40130"
+    },
+    {
+        "name": "Nam Phong",
+        "zip_code": "40140"
+    },
+    {
+        "name": "Nong Nakham",
+        "zip_code": "40150"
+    },
+    {
+        "name": "Phu Wiang",
+        "zip_code": "40150"
+    },
+    {
+        "name": "Khok Phochai",
+        "zip_code": "40160"
+    },
+    {
+        "name": "Mancha Khiri",
+        "zip_code": "40160"
+    },
+    {
+        "name": "Sum Sung",
+        "zip_code": "40170"
+    },
+    {
+        "name": "Kranuan",
+        "zip_code": "40170"
+    },
+    {
+        "name": "Chonnabot",
+        "zip_code": "40180"
+    },
+    {
+        "name": "Nong Song Hong",
+        "zip_code": "40190"
+    },
+    {
+        "name": "Nong Rua",
+        "zip_code": "40210"
+    },
+    {
+        "name": "Si Chomphu",
+        "zip_code": "40220"
+    },
+    {
+        "name": "Waeng Noi",
+        "zip_code": "40230"
+    },
+    {
+        "name": "Ubolratana",
+        "zip_code": "40250"
+    },
+    {
+        "name": "Ban Fang",
+        "zip_code": "40270"
+    },
+    {
+        "name": "Khao Suan Kwang",
+        "zip_code": "40280"
+    },
+    {
+        "name": "Phra Yun",
+        "zip_code": "40320"
+    },
+    {
+        "name": "Waeng Yai",
+        "zip_code": "40330"
+    },
+    {
+        "name": "Puai Noi",
+        "zip_code": "40340"
+    },
+    {
+        "name": "Phu Pha Man",
+        "zip_code": "40350"
+    },
+    {
+        "name": "Muang Udon Thani",
+        "zip_code": "41000"
+    },
+    {
+        "name": "Phrachuk Siliakram",
+        "zip_code": "41110"
+    },
+    {
+        "name": "Kumphawapi",
+        "zip_code": "41110"
+    },
+    {
+        "name": "Pibun Rak",
+        "zip_code": "41130"
+    },
+    {
+        "name": "Ku Khaew",
+        "zip_code": "41130"
+    },
+    {
+        "name": "Nong Han",
+        "zip_code": "41130"
+    },
+    {
+        "name": "Phen",
+        "zip_code": "41150"
+    },
+    {
+        "name": "Ban Dung",
+        "zip_code": "41190"
+    },
+    {
+        "name": "Ban Phu",
+        "zip_code": "41190"
+    },
+    {
+        "name": "Nam Som",
+        "zip_code": "41210"
+    },
+    {
+        "name": "Nong Wua So",
+        "zip_code": "41220"
+    },
+    {
+        "name": "Si That",
+        "zip_code": "41230"
+    },
+    {
+        "name": "Non Sa-at",
+        "zip_code": "41240"
+    },
+    {
+        "name": "Kut Chab",
+        "zip_code": "41250"
+    },
+    {
+        "name": "Sang Khom",
+        "zip_code": "41260"
+    },
+    {
+        "name": "Chaiwan",
+        "zip_code": "41290"
+    },
+    {
+        "name": "Thung Fon",
+        "zip_code": "41310"
+    },
+    {
+        "name": "Nong Saeng",
+        "zip_code": "41340"
+    },
+    {
+        "name": "Na Yung",
+        "zip_code": "41380"
+    },
+    {
+        "name": "Wang Sam Mo",
+        "zip_code": "41380"
+    },
+    {
+        "name": "Erawan",
+        "zip_code": "41220"
+    },
+    {
+        "name": "Muang Loei",
+        "zip_code": "42000"
+    },
+    {
+        "name": "Chiang Khan",
+        "zip_code": "42110"
+    },
+    {
+        "name": "Dan Sai",
+        "zip_code": "42120"
+    },
+    {
+        "name": "Wang Saphung",
+        "zip_code": "42130"
+    },
+    {
+        "name": "Tha Li",
+        "zip_code": "42140"
+    },
+    {
+        "name": "Pak Chom",
+        "zip_code": "42150"
+    },
+    {
+        "name": "Phu Rua",
+        "zip_code": "42160"
+    },
+    {
+        "name": "Na Haeo",
+        "zip_code": "42170"
+    },
+    {
+        "name": "Phu Kradung",
+        "zip_code": "42180"
+    },
+    {
+        "name": "Na Duang",
+        "zip_code": "42210"
+    },
+    {
+        "name": "Phu Luang",
+        "zip_code": "42230"
+    },
+    {
+        "name": "Pha Khao",
+        "zip_code": "42240"
+    },
+    {
+        "name": "Muang Nong Khai",
+        "zip_code": "43000"
+    },
+    {
+        "name": "Sra Khai",
+        "zip_code": "43100"
+    },
+    {
+        "name": "Tha Bo",
+        "zip_code": "43110"
+    },
+    {
+        "name": "Phon Phisai",
+        "zip_code": "43120"
+    },
+    {
+        "name": "Fao Rai",
+        "zip_code": "43120"
+    },
+    {
+        "name": "Rattana Wapi",
+        "zip_code": "43120"
+    },
+    {
+        "name": "Po Tak",
+        "zip_code": "43130"
+    },
+    {
+        "name": "Si Chiang Mai",
+        "zip_code": "43130"
+    },
+    {
+        "name": "Bung Kla",
+        "zip_code": "43140"
+    },
+    {
+        "name": "Bung Kan",
+        "zip_code": "43140"
+    },
+    {
+        "name": "Seka",
+        "zip_code": "43150"
+    },
+    {
+        "name": "Sang Khom",
+        "zip_code": "43160"
+    },
+    {
+        "name": "So Phisai",
+        "zip_code": "43170"
+    },
+    {
+        "name": "Phon Charoen",
+        "zip_code": "43180"
+    },
+    {
+        "name": "Pak Khat",
+        "zip_code": "43190"
+    },
+    {
+        "name": "Si Wilai",
+        "zip_code": "43210"
+    },
+    {
+        "name": "Bung Khong Long",
+        "zip_code": "43220"
+    },
+    {
+        "name": "Muang Maha Sarakham",
+        "zip_code": "44000"
+    },
+    {
+        "name": "Phayakkhaphum Phisai",
+        "zip_code": "44110"
+    },
+    {
+        "name": "Wapi Pathum",
+        "zip_code": "44120"
+    },
+    {
+        "name": "Kud Rang",
+        "zip_code": "44130"
+    },
+    {
+        "name": "Borabu",
+        "zip_code": "44130"
+    },
+    {
+        "name": "Kosum Phisai",
+        "zip_code": "44140"
+    },
+    {
+        "name": "Kantharawichai",
+        "zip_code": "44150"
+    },
+    {
+        "name": "Chuan Chum",
+        "zip_code": "44160"
+    },
+    {
+        "name": "Chiang Yun",
+        "zip_code": "44160"
+    },
+    {
+        "name": "Na Chuak",
+        "zip_code": "44170"
+    },
+    {
+        "name": "Na Dun",
+        "zip_code": "44180"
+    },
+    {
+        "name": "Kae Dam",
+        "zip_code": "44190"
+    },
+    {
+        "name": "Yang Si Surat",
+        "zip_code": "44210"
+    },
+    {
+        "name": "Chiang Khaw",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Chang Han",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Sri Somdet",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Muang Roi Et",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Phon Thong",
+        "zip_code": "45110"
+    },
+    {
+        "name": "Salaphum",
+        "zip_code": "45120"
+    },
+    {
+        "name": "Suwannaphum",
+        "zip_code": "45130"
+    },
+    {
+        "name": "Nong Hi",
+        "zip_code": "45140"
+    },
+    {
+        "name": "Phaanom Phrai",
+        "zip_code": "45140"
+    },
+    {
+        "name": "Kaset Wisai",
+        "zip_code": "45150"
+    },
+    {
+        "name": "At Samat",
+        "zip_code": "45160"
+    },
+    {
+        "name": "Thawatchaburi",
+        "zip_code": "45170"
+    },
+    {
+        "name": "Tung Khaoluang",
+        "zip_code": "45170"
+    },
+    {
+        "name": "Chaturaphak Phiman",
+        "zip_code": "45180"
+    },
+    {
+        "name": "Pathum Rat",
+        "zip_code": "45190"
+    },
+    {
+        "name": "Nong Phok",
+        "zip_code": "45210"
+    },
+    {
+        "name": "Muang Suang",
+        "zip_code": "45220"
+    },
+    {
+        "name": "Pho Chai",
+        "zip_code": "45230"
+    },
+    {
+        "name": "Phon Sai",
+        "zip_code": "45240"
+    },
+    {
+        "name": "Moeiyawadi",
+        "zip_code": "45250"
+    },
+    {
+        "name": "Donchan",
+        "zip_code": "46000"
+    },
+    {
+        "name": "Muang Kalasin",
+        "zip_code": "46000"
+    },
+    {
+        "name": "Kuchinarai",
+        "zip_code": "46110"
+    },
+    {
+        "name": "Yang Talat",
+        "zip_code": "46120"
+    },
+    {
+        "name": "Kong Chai",
+        "zip_code": "46130"
+    },
+    {
+        "name": "Kamalasai",
+        "zip_code": "46130"
+    },
+    {
+        "name": "Sahatsakhan",
+        "zip_code": "46140"
+    },
+    {
+        "name": "Somdet",
+        "zip_code": "46150"
+    },
+    {
+        "name": "Na Ku",
+        "zip_code": "46160"
+    },
+    {
+        "name": "Khao Wong",
+        "zip_code": "46160"
+    },
+    {
+        "name": "Huai Mek",
+        "zip_code": "46170"
+    },
+    {
+        "name": "Kham Muang",
+        "zip_code": "46180"
+    },
+    {
+        "name": "Tha Khantho",
+        "zip_code": "46190"
+    },
+    {
+        "name": "Rong Kham",
+        "zip_code": "46210"
+    },
+    {
+        "name": "Nong Kung Si",
+        "zip_code": "46220"
+    },
+    {
+        "name": "Na Mon",
+        "zip_code": "46230"
+    },
+    {
+        "name": "Huai Phung",
+        "zip_code": "46240"
+    },
+    {
+        "name": "Muang Sakon Nakhon",
+        "zip_code": "47000"
+    },
+    {
+        "name": "Sawang Daen Din",
+        "zip_code": "47110"
+    },
+    {
+        "name": "Wanon Niwat",
+        "zip_code": "47120"
+    },
+    {
+        "name": "Phanna Nikhom",
+        "zip_code": "47130"
+    },
+    {
+        "name": "Ban Muang",
+        "zip_code": "47140"
+    },
+    {
+        "name": "Waritchaphum",
+        "zip_code": "47150"
+    },
+    {
+        "name": "Phang Khon",
+        "zip_code": "47160"
+    },
+    {
+        "name": "Akat Amnuai",
+        "zip_code": "47170"
+    },
+    {
+        "name": "Phu Phan",
+        "zip_code": "47180"
+    },
+    {
+        "name": "Kut Bak",
+        "zip_code": "47180"
+    },
+    {
+        "name": "Song Dao",
+        "zip_code": "47190"
+    },
+    {
+        "name": "Kusuman",
+        "zip_code": "47210"
+    },
+    {
+        "name": "Pon Nakaew",
+        "zip_code": "47230"
+    },
+    {
+        "name": "Kham Ta Kla",
+        "zip_code": "47250"
+    },
+    {
+        "name": "Tao Ngoi",
+        "zip_code": "47260"
+    },
+    {
+        "name": "Nikhom Nam Un",
+        "zip_code": "47270"
+    },
+    {
+        "name": "Khok Si Supan",
+        "zip_code": "47280"
+    },
+    {
+        "name": "Charoensin",
+        "zip_code": "47290"
+    },
+    {
+        "name": "Muang Nakhon Phanom",
+        "zip_code": "48000"
+    },
+    {
+        "name": "That Phanom",
+        "zip_code": "48110"
+    },
+    {
+        "name": "Tha Songkhram",
+        "zip_code": "48120"
+    },
+    {
+        "name": "Tha Uthen",
+        "zip_code": "48120"
+    },
+    {
+        "name": "Na Kae",
+        "zip_code": "48130"
+    },
+    {
+        "name": "Wang Yang",
+        "zip_code": "48130"
+    },
+    {
+        "name": "Ban Phaeng",
+        "zip_code": "48140"
+    },
+    {
+        "name": "Na Thom",
+        "zip_code": "48140"
+    },
+    {
+        "name": "Si Songkhram",
+        "zip_code": "48150"
+    },
+    {
+        "name": "Pla Pak",
+        "zip_code": "48160"
+    },
+    {
+        "name": "Renu Nakhon",
+        "zip_code": "48170"
+    },
+    {
+        "name": "Na Wa",
+        "zip_code": "48180"
+    },
+    {
+        "name": "Phon Sawan",
+        "zip_code": "48190"
+    },
+    {
+        "name": "Muang Mukdahan",
+        "zip_code": "49000"
+    },
+    {
+        "name": "Khamcha-I",
+        "zip_code": "49110"
+    },
+    {
+        "name": "Don Tan",
+        "zip_code": "49120"
+    },
+    {
+        "name": "Nikhom Kham Soi",
+        "zip_code": "49130"
+    },
+    {
+        "name": "Don Luang",
+        "zip_code": "49140"
+    },
+    {
+        "name": "Wan Yai",
+        "zip_code": "49150"
+    },
+    {
+        "name": "Nong Sung",
+        "zip_code": "49160"
+    },
+    {
+        "name": "Muang Chiang Mai",
+        "zip_code": "50000"
+    },
+    {
+        "name": "Fang",
+        "zip_code": "50110"
+    },
+    {
+        "name": "San Pa Tong",
+        "zip_code": "50120"
+    },
+    {
+        "name": "Mae On",
+        "zip_code": "50130"
+    },
+    {
+        "name": "San Kamphaeng",
+        "zip_code": "50130"
+    },
+    {
+        "name": "Saraphi",
+        "zip_code": "50140"
+    },
+    {
+        "name": "Mae Taeng",
+        "zip_code": "50150"
+    },
+    {
+        "name": "Chom Thong",
+        "zip_code": "50160"
+    },
+    {
+        "name": "Doi Lor",
+        "zip_code": "50160"
+    },
+    {
+        "name": "Chiang Dao",
+        "zip_code": "50170"
+    },
+    {
+        "name": "Mae Rim",
+        "zip_code": "50180"
+    },
+    {
+        "name": "Phrao",
+        "zip_code": "50190"
+    },
+    {
+        "name": "San Sai",
+        "zip_code": "50210"
+    },
+    {
+        "name": "Doi Saket",
+        "zip_code": "50220"
+    },
+    {
+        "name": "Hang Dong",
+        "zip_code": "50230"
+    },
+    {
+        "name": "Hot",
+        "zip_code": "50240"
+    },
+    {
+        "name": "Samoeng",
+        "zip_code": "50250"
+    },
+    {
+        "name": "Doi Tao",
+        "zip_code": "50260"
+    },
+    {
+        "name": "Mae Chaem",
+        "zip_code": "50270"
+    },
+    {
+        "name": "Mae Ai",
+        "zip_code": "50280"
+    },
+    {
+        "name": "Omkoi",
+        "zip_code": "50310"
+    },
+    {
+        "name": "Chai Prakarn",
+        "zip_code": "50320"
+    },
+    {
+        "name": "Weang Hang",
+        "zip_code": "50350"
+    },
+    {
+        "name": "Mae Wang",
+        "zip_code": "50360"
+    },
+    {
+        "name": "Muang Lamphun",
+        "zip_code": "51000"
+    },
+    {
+        "name": "Li",
+        "zip_code": "51110"
+    },
+    {
+        "name": "Pa Sang",
+        "zip_code": "51120"
+    },
+    {
+        "name": "Wiang Nonglong",
+        "zip_code": "51120"
+    },
+    {
+        "name": "Ban Hong",
+        "zip_code": "51130"
+    },
+    {
+        "name": "Mae Tha",
+        "zip_code": "51140"
+    },
+    {
+        "name": "Thung Hua Chang",
+        "zip_code": "51160"
+    },
+    {
+        "name": "Ban Thi",
+        "zip_code": "51180"
+    },
+    {
+        "name": "Muang Lampang",
+        "zip_code": "52000"
+    },
+    {
+        "name": "Ngao",
+        "zip_code": "52110"
+    },
+    {
+        "name": "Chae Hom",
+        "zip_code": "52120"
+    },
+    {
+        "name": "Ko Kha",
+        "zip_code": "52130"
+    },
+    {
+        "name": "Wang Nua",
+        "zip_code": "52140"
+    },
+    {
+        "name": "Mae Tha",
+        "zip_code": "52150"
+    },
+    {
+        "name": "Thoen",
+        "zip_code": "52160"
+    },
+    {
+        "name": "Sop Prap",
+        "zip_code": "52170"
+    },
+    {
+        "name": "Mae Phrik",
+        "zip_code": "52180"
+    },
+    {
+        "name": "Hang Chat",
+        "zip_code": "52190"
+    },
+    {
+        "name": "Soem Ngam",
+        "zip_code": "52210"
+    },
+    {
+        "name": "Mae Mo",
+        "zip_code": "52220"
+    },
+    {
+        "name": "Muang Pan",
+        "zip_code": "52240"
+    },
+    {
+        "name": "Muang Uttaradit",
+        "zip_code": "53000"
+    },
+    {
+        "name": "Nam Pat",
+        "zip_code": "53110"
+    },
+    {
+        "name": "Phichai",
+        "zip_code": "53120"
+    },
+    {
+        "name": "Laplae",
+        "zip_code": "53130"
+    },
+    {
+        "name": "Tron",
+        "zip_code": "53140"
+    },
+    {
+        "name": "Tha Pla",
+        "zip_code": "53150"
+    },
+    {
+        "name": "Fak Tha",
+        "zip_code": "53160"
+    },
+    {
+        "name": "Ban Khok",
+        "zip_code": "53180"
+    },
+    {
+        "name": "Tong Saen Khan",
+        "zip_code": "53230"
+    },
+    {
+        "name": "Muang Phrae",
+        "zip_code": "54000"
+    },
+    {
+        "name": "Song",
+        "zip_code": "54120"
+    },
+    {
+        "name": "Sung Men",
+        "zip_code": "54130"
+    },
+    {
+        "name": "Den Chai",
+        "zip_code": "54140"
+    },
+    {
+        "name": "Rong Kwang",
+        "zip_code": "54140"
+    },
+    {
+        "name": "Long",
+        "zip_code": "54150"
+    },
+    {
+        "name": "Wang Chin",
+        "zip_code": "54160"
+    },
+    {
+        "name": "Nong Muangkhai",
+        "zip_code": "54170"
+    },
+    {
+        "name": "Santisuk",
+        "zip_code": "55000"
+    },
+    {
+        "name": "Phu Piang",
+        "zip_code": "55000"
+    },
+    {
+        "name": "Muang Nan",
+        "zip_code": "55000"
+    },
+    {
+        "name": "Wiang Sa",
+        "zip_code": "55110"
+    },
+    {
+        "name": "Pua",
+        "zip_code": "55120"
+    },
+    {
+        "name": "Chaloem Phrakiat",
+        "zip_code": "55130"
+    },
+    {
+        "name": "Thung Chang",
+        "zip_code": "55130"
+    },
+    {
+        "name": "Tha Wang Pha",
+        "zip_code": "55140"
+    },
+    {
+        "name": "Na Noi",
+        "zip_code": "55150"
+    },
+    {
+        "name": "Chiang Klang",
+        "zip_code": "55160"
+    },
+    {
+        "name": "Song Khaew",
+        "zip_code": "55160"
+    },
+    {
+        "name": "Mae Charim",
+        "zip_code": "55170"
+    },
+    {
+        "name": "Na Mun",
+        "zip_code": "55180"
+    },
+    {
+        "name": "Ban Luang",
+        "zip_code": "55190"
+    },
+    {
+        "name": "Bo Klua",
+        "zip_code": "55220"
+    },
+    {
+        "name": "Pu Khamyaw",
+        "zip_code": "56000"
+    },
+    {
+        "name": "Muang Phayao",
+        "zip_code": "56000"
+    },
+    {
+        "name": "Chiang Kham",
+        "zip_code": "56110"
+    },
+    {
+        "name": "Pu Sang",
+        "zip_code": "56110"
+    },
+    {
+        "name": "Dok Kham Tai",
+        "zip_code": "56120"
+    },
+    {
+        "name": "Mae Chai",
+        "zip_code": "56130"
+    },
+    {
+        "name": "Pong",
+        "zip_code": "56140"
+    },
+    {
+        "name": "Chun",
+        "zip_code": "56150"
+    },
+    {
+        "name": "Chiacg Muan",
+        "zip_code": "56160"
+    },
+    {
+        "name": "Muang Chiang Rai",
+        "zip_code": "57000"
+    },
+    {
+        "name": "Mae Chan",
+        "zip_code": "57110"
+    },
+    {
+        "name": "Doi Luang",
+        "zip_code": "57110"
+    },
+    {
+        "name": "Mae Pha Luang",
+        "zip_code": "57110"
+    },
+    {
+        "name": "Phan",
+        "zip_code": "57120"
+    },
+    {
+        "name": "Mae Sai",
+        "zip_code": "57130"
+    },
+    {
+        "name": "Chiang Khong",
+        "zip_code": "57140"
+    },
+    {
+        "name": "Chiang Saen",
+        "zip_code": "57150"
+    },
+    {
+        "name": "Thoeng",
+        "zip_code": "57160"
+    },
+    {
+        "name": "Wiang Pa Pao",
+        "zip_code": "57170"
+    },
+    {
+        "name": "Mae Suai",
+        "zip_code": "57180"
+    },
+    {
+        "name": "Pa Daet",
+        "zip_code": "57190"
+    },
+    {
+        "name": "Wiang Chiang Rung",
+        "zip_code": "57210"
+    },
+    {
+        "name": "Wiang Chai",
+        "zip_code": "57210"
+    },
+    {
+        "name": "Mae Lao",
+        "zip_code": "57250"
+    },
+    {
+        "name": "Phaya Mengrai",
+        "zip_code": "57290"
+    },
+    {
+        "name": "Wiang Kaen",
+        "zip_code": "57310"
+    },
+    {
+        "name": "Khun Tan",
+        "zip_code": "57340"
+    },
+    {
+        "name": "Muang Mae Hong Son",
+        "zip_code": "58000"
+    },
+    {
+        "name": "Sop Moei",
+        "zip_code": "58110"
+    },
+    {
+        "name": "Mae Sariang",
+        "zip_code": "58110"
+    },
+    {
+        "name": "Mae La Noi",
+        "zip_code": "58120"
+    },
+    {
+        "name": "Pai",
+        "zip_code": "58130"
+    },
+    {
+        "name": "Khun Yuam",
+        "zip_code": "58140"
+    },
+    {
+        "name": "Pang Mapha",
+        "zip_code": "58150"
+    },
+    {
+        "name": "Muang Nakhon Sawan",
+        "zip_code": "60000"
+    },
+    {
+        "name": "Nong Bua",
+        "zip_code": "60110"
+    },
+    {
+        "name": "Chumsaeng",
+        "zip_code": "60120"
+    },
+    {
+        "name": "Phayuha Khiri",
+        "zip_code": "60130"
+    },
+    {
+        "name": "Takhli",
+        "zip_code": "60140"
+    },
+    {
+        "name": "Mae Wong",
+        "zip_code": "60150"
+    },
+    {
+        "name": "Chum Tabong",
+        "zip_code": "60150"
+    },
+    {
+        "name": "Mae Poen",
+        "zip_code": "60150"
+    },
+    {
+        "name": "Lat Yao",
+        "zip_code": "60150"
+    },
+    {
+        "name": "Tha Tako",
+        "zip_code": "60160"
+    },
+    {
+        "name": "Krok Phra",
+        "zip_code": "60170"
+    },
+    {
+        "name": "Banphot Phisai",
+        "zip_code": "60180"
+    },
+    {
+        "name": "Tak Fa",
+        "zip_code": "60190"
+    },
+    {
+        "name": "Phaisali",
+        "zip_code": "60220"
+    },
+    {
+        "name": "Kao Lieo",
+        "zip_code": "60230"
+    },
+    {
+        "name": "Muang Uthai Thani",
+        "zip_code": "61000"
+    },
+    {
+        "name": "Nong Chang",
+        "zip_code": "61110"
+    },
+    {
+        "name": "Thap Than",
+        "zip_code": "61120"
+    },
+    {
+        "name": "Nong Khayang",
+        "zip_code": "61130"
+    },
+    {
+        "name": "Ban Rai",
+        "zip_code": "61140"
+    },
+    {
+        "name": "Sawang Arom",
+        "zip_code": "61150"
+    },
+    {
+        "name": "Lan Sak",
+        "zip_code": "61160"
+    },
+    {
+        "name": "Huai Khot",
+        "zip_code": "61170"
+    },
+    {
+        "name": "Muang Kamphaeng Phet",
+        "zip_code": "62000"
+    },
+    {
+        "name": "Phran Kratai",
+        "zip_code": "62110"
+    },
+    {
+        "name": "Khlong Khlung",
+        "zip_code": "62120"
+    },
+    {
+        "name": "Pangslila Thong",
+        "zip_code": "62120"
+    },
+    {
+        "name": "Khanu Woralaksaburi",
+        "zip_code": "62130"
+    },
+    {
+        "name": "Sai Ngam",
+        "zip_code": "62150"
+    },
+    {
+        "name": "Khosamphi Nakhon",
+        "zip_code": "62170"
+    },
+    {
+        "name": "Lan Krabue",
+        "zip_code": "62170"
+    },
+    {
+        "name": "Khlong Lan",
+        "zip_code": "62180"
+    },
+    {
+        "name": "Saithong Wattana",
+        "zip_code": "62190"
+    },
+    {
+        "name": "Bung Samakki",
+        "zip_code": "62210"
+    },
+    {
+        "name": "Muang Tak",
+        "zip_code": "63000"
+    },
+    {
+        "name": "Wang Chaw",
+        "zip_code": "63000"
+    },
+    {
+        "name": "Mae Sot",
+        "zip_code": "63110"
+    },
+    {
+        "name": "Ban Tak",
+        "zip_code": "63120"
+    },
+    {
+        "name": "Sam Ngao",
+        "zip_code": "63130"
+    },
+    {
+        "name": "Mae Ramat",
+        "zip_code": "63140"
+    },
+    {
+        "name": "Tha Song Yang",
+        "zip_code": "63150"
+    },
+    {
+        "name": "Phob Phra",
+        "zip_code": "63160"
+    },
+    {
+        "name": "Umphang",
+        "zip_code": "63170"
+    },
+    {
+        "name": "Muang Sukhothai",
+        "zip_code": "64000"
+    },
+    {
+        "name": "Sawankhalok",
+        "zip_code": "64110"
+    },
+    {
+        "name": "Si Samrong",
+        "zip_code": "64120"
+    },
+    {
+        "name": "Si Satchanalai",
+        "zip_code": "64130"
+    },
+    {
+        "name": "Ban Dan Lan Hoi",
+        "zip_code": "64140"
+    },
+    {
+        "name": "Thung Saliam",
+        "zip_code": "64150"
+    },
+    {
+        "name": "Khiri Mat",
+        "zip_code": "64160"
+    },
+    {
+        "name": "Kong Krailat",
+        "zip_code": "64170"
+    },
+    {
+        "name": "Si Nakhon",
+        "zip_code": "64180"
+    },
+    {
+        "name": "Muang Phitsanulok",
+        "zip_code": "65000"
+    },
+    {
+        "name": "Bang Krathum",
+        "zip_code": "65110"
+    },
+    {
+        "name": "Nakhon Thai",
+        "zip_code": "65120"
+    },
+    {
+        "name": "Wang Thong",
+        "zip_code": "65130"
+    },
+    {
+        "name": "Bang Rakam",
+        "zip_code": "65140"
+    },
+    {
+        "name": "Phrom Phiram",
+        "zip_code": "65150"
+    },
+    {
+        "name": "Wat Bot",
+        "zip_code": "65160"
+    },
+    {
+        "name": "Chat Trakan",
+        "zip_code": "65170"
+    },
+    {
+        "name": "Noen Maprang",
+        "zip_code": "65190"
+    },
+    {
+        "name": "Muang Phichit",
+        "zip_code": "66000"
+    },
+    {
+        "name": "Taphan Hin",
+        "zip_code": "66110"
+    },
+    {
+        "name": "Bang Mun Nak",
+        "zip_code": "66120"
+    },
+    {
+        "name": "Pho Thale",
+        "zip_code": "66130"
+    },
+    {
+        "name": "Bung Norong",
+        "zip_code": "66130"
+    },
+    {
+        "name": "Sam Ngam",
+        "zip_code": "66140"
+    },
+    {
+        "name": "Wachirabarami",
+        "zip_code": "66140"
+    },
+    {
+        "name": "Tab Khlo",
+        "zip_code": "66150"
+    },
+    {
+        "name": "Sak Lek",
+        "zip_code": "66160"
+    },
+    {
+        "name": "Wang Sai Phun",
+        "zip_code": "66180"
+    },
+    {
+        "name": "Pho Prathap Chang",
+        "zip_code": "66190"
+    },
+    {
+        "name": "Dong Charoen",
+        "zip_code": "66210"
+    },
+    {
+        "name": "Muang Ratchaburi",
+        "zip_code": "70000"
+    },
+    {
+        "name": "Ban Pong",
+        "zip_code": "70110"
+    },
+    {
+        "name": "Photharam",
+        "zip_code": "70120"
+    },
+    {
+        "name": "Damnoen Saduak",
+        "zip_code": "70130"
+    },
+    {
+        "name": "Pak Tho",
+        "zip_code": "70140"
+    },
+    {
+        "name": "Chom Bung",
+        "zip_code": "70150"
+    },
+    {
+        "name": "Bang Phae",
+        "zip_code": "70160"
+    },
+    {
+        "name": "Wat Phleng",
+        "zip_code": "70170"
+    },
+    {
+        "name": "Ban Ka",
+        "zip_code": "70180"
+    },
+    {
+        "name": "Suan Phung",
+        "zip_code": "70180"
+    },
+    {
+        "name": "Muang Kanchanaburi",
+        "zip_code": "71000"
+    },
+    {
+        "name": "Tha Muang",
+        "zip_code": "71110"
+    },
+    {
+        "name": "Tha Maka",
+        "zip_code": "71120"
+    },
+    {
+        "name": "Phanom Thuan",
+        "zip_code": "71140"
+    },
+    {
+        "name": "Sai Yok",
+        "zip_code": "71150"
+    },
+    {
+        "name": "Bo Phloi",
+        "zip_code": "71160"
+    },
+    {
+        "name": "Huai Khaiaw",
+        "zip_code": "71170"
+    },
+    {
+        "name": "Thong Phaphum",
+        "zip_code": "71180"
+    },
+    {
+        "name": "Lao Khwan",
+        "zip_code": "71210"
+    },
+    {
+        "name": "Nong Prue",
+        "zip_code": "71220"
+    },
+    {
+        "name": "Sangkhla Buri",
+        "zip_code": "71240"
+    },
+    {
+        "name": "Si Sawat",
+        "zip_code": "71250"
+    },
+    {
+        "name": "Dan Makham Tia",
+        "zip_code": "71260"
+    },
+    {
+        "name": "Muang Suphan Buri",
+        "zip_code": "72000"
+    },
+    {
+        "name": "Song Phi Nong",
+        "zip_code": "72110"
+    },
+    {
+        "name": "Doembang Nangbuat",
+        "zip_code": "72120"
+    },
+    {
+        "name": "Sam Chuk",
+        "zip_code": "72130"
+    },
+    {
+        "name": "Si Prachan",
+        "zip_code": "72140"
+    },
+    {
+        "name": "Bang Pla Ma",
+        "zip_code": "72150"
+    },
+    {
+        "name": "U-Thong",
+        "zip_code": "72160"
+    },
+    {
+        "name": "Don Chedi",
+        "zip_code": "72170"
+    },
+    {
+        "name": "Dan Chang",
+        "zip_code": "72180"
+    },
+    {
+        "name": "Nong Yasai",
+        "zip_code": "72240"
+    },
+    {
+        "name": "Muang Nakhon Pathom",
+        "zip_code": "73000"
+    },
+    {
+        "name": "Sam Phran",
+        "zip_code": "73110"
+    },
+    {
+        "name": "Nakhon Chaisi",
+        "zip_code": "73120"
+    },
+    {
+        "name": "Bang Len",
+        "zip_code": "73130"
+    },
+    {
+        "name": "Khamphaeng Saen",
+        "zip_code": "73140"
+    },
+    {
+        "name": "Don Tum",
+        "zip_code": "73150"
+    },
+    {
+        "name": "Phutha Monthon",
+        "zip_code": "73170"
+    },
+    {
+        "name": "Muang Samut Sakhon",
+        "zip_code": "74000"
+    },
+    {
+        "name": "Krathum Baen",
+        "zip_code": "74110"
+    },
+    {
+        "name": "Ban Phaeo",
+        "zip_code": "74120"
+    },
+    {
+        "name": "Muang Samut Songkhram",
+        "zip_code": "75000"
+    },
+    {
+        "name": "Amphawa",
+        "zip_code": "75110"
+    },
+    {
+        "name": "Bang Khonthi",
+        "zip_code": "75120"
+    },
+    {
+        "name": "Muang Phetchabun",
+        "zip_code": "67000"
+    },
+    {
+        "name": "Lom Sak",
+        "zip_code": "67110"
+    },
+    {
+        "name": "Lom Kao",
+        "zip_code": "67120"
+    },
+    {
+        "name": "Wichian Buri",
+        "zip_code": "67130"
+    },
+    {
+        "name": "Nong Phai",
+        "zip_code": "67140"
+    },
+    {
+        "name": "Chon Daen",
+        "zip_code": "67150"
+    },
+    {
+        "name": "Bung Sam Phan",
+        "zip_code": "67160"
+    },
+    {
+        "name": "Si Thep",
+        "zip_code": "67170"
+    },
+    {
+        "name": "Wang Pong",
+        "zip_code": "67240"
+    },
+    {
+        "name": "Nam Nao",
+        "zip_code": "67260"
+    },
+    {
+        "name": "Khao Kho",
+        "zip_code": "67270"
+    },
+    {
+        "name": "Muang Phetchaburi",
+        "zip_code": "76000"
+    },
+    {
+        "name": "Ban Laem",
+        "zip_code": "76110"
+    },
+    {
+        "name": "Cha-Am",
+        "zip_code": "76120"
+    },
+    {
+        "name": "Tha Yang",
+        "zip_code": "76130"
+    },
+    {
+        "name": "Khao Yoi",
+        "zip_code": "76140"
+    },
+    {
+        "name": "Ban Lat",
+        "zip_code": "76150"
+    },
+    {
+        "name": "Nong Ya Plong",
+        "zip_code": "76160"
+    },
+    {
+        "name": "Kang Krachan",
+        "zip_code": "76170"
+    },
+    {
+        "name": "Muang prachuap Khirikan",
+        "zip_code": "77000"
+    },
+    {
+        "name": "Hua Hin",
+        "zip_code": "77110"
+    },
+    {
+        "name": "Pran Buri",
+        "zip_code": "77120"
+    },
+    {
+        "name": "Thap Sakae",
+        "zip_code": "77130"
+    },
+    {
+        "name": "Bang Saphan",
+        "zip_code": "77140"
+    },
+    {
+        "name": "Kui Buri",
+        "zip_code": "77150"
+    },
+    {
+        "name": "Bang Saphan Noi",
+        "zip_code": "77170"
+    },
+    {
+        "name": "Samaroiyod",
+        "zip_code": "77180"
+    },
+    {
+        "name": "Muang Nakhon Si Thammarat",
+        "zip_code": "80000"
+    },
+    {
+        "name": "Phra Phrom",
+        "zip_code": "80000"
+    },
+    {
+        "name": "Thung Song",
+        "zip_code": "80110"
+    },
+    {
+        "name": "Sichon",
+        "zip_code": "80120"
+    },
+    {
+        "name": "Chula Phon",
+        "zip_code": "80130"
+    },
+    {
+        "name": "Ron Phibun",
+        "zip_code": "80130"
+    },
+    {
+        "name": "Pak Phanang",
+        "zip_code": "80140"
+    },
+    {
+        "name": "Chawang",
+        "zip_code": "80150"
+    },
+    {
+        "name": "Nob Pitam",
+        "zip_code": "80160"
+    },
+    {
+        "name": "Tha Sala",
+        "zip_code": "80160"
+    },
+    {
+        "name": "Hua Sai",
+        "zip_code": "80170"
+    },
+    {
+        "name": "Cha-uat",
+        "zip_code": "80180"
+    },
+    {
+        "name": "Chian Yai",
+        "zip_code": "80190"
+    },
+    {
+        "name": "Chaloem Phrakiat",
+        "zip_code": "80190"
+    },
+    {
+        "name": "Khanom",
+        "zip_code": "80210"
+    },
+    {
+        "name": "Na Bon",
+        "zip_code": "80220"
+    },
+    {
+        "name": "Lan Saka",
+        "zip_code": "80230"
+    },
+    {
+        "name": "Thung Yai",
+        "zip_code": "80240"
+    },
+    {
+        "name": "Chang Khlang",
+        "zip_code": "80250"
+    },
+    {
+        "name": "Tham Punnara",
+        "zip_code": "80260"
+    },
+    {
+        "name": "Phipun",
+        "zip_code": "80270"
+    },
+    {
+        "name": "Phromkhiri",
+        "zip_code": "80320"
+    },
+    {
+        "name": "Bang Khan",
+        "zip_code": "80360"
+    },
+    {
+        "name": "Lamai Beach",
+        "zip_code": "84310"
+    },
+    {
+        "name": "Muang Krabi",
+        "zip_code": "81000"
+    },
+    {
+        "name": "Ao Luk",
+        "zip_code": "81110"
+    },
+    {
+        "name": "Lam Thap",
+        "zip_code": "81120"
+    },
+    {
+        "name": "Khlong Thom",
+        "zip_code": "81120"
+    },
+    {
+        "name": "Nua Khlong",
+        "zip_code": "81130"
+    },
+    {
+        "name": "Khao Phanom",
+        "zip_code": "81140"
+    },
+    {
+        "name": "Ko Lanta",
+        "zip_code": "81150"
+    },
+    {
+        "name": "Plai Phraya",
+        "zip_code": "81160"
+    },
+    {
+        "name": "Muang Phang Nga",
+        "zip_code": "82000"
+    },
+    {
+        "name": "Takua Pa",
+        "zip_code": "82110"
+    },
+    {
+        "name": "Thai Muang",
+        "zip_code": "82120"
+    },
+    {
+        "name": "Takua Thung",
+        "zip_code": "82130"
+    },
+    {
+        "name": "Khura Buri",
+        "zip_code": "82150"
+    },
+    {
+        "name": "Koh Yao",
+        "zip_code": "82160"
+    },
+    {
+        "name": "Kapong",
+        "zip_code": "82170"
+    },
+    {
+        "name": "Thap Put",
+        "zip_code": "82180"
+    },
+    {
+        "name": "Muang Phuket",
+        "zip_code": "83000"
+    },
+    {
+        "name": "Thalang",
+        "zip_code": "83110"
+    },
+    {
+        "name": "Kathu",
+        "zip_code": "83120"
+    },
+    {
+        "name": "Muang Surat Thani",
+        "zip_code": "84000"
+    },
+    {
+        "name": "Chaiya",
+        "zip_code": "84110"
+    },
+    {
+        "name": "Ban Na San",
+        "zip_code": "84120"
+    },
+    {
+        "name": "Phunphin",
+        "zip_code": "84130"
+    },
+    {
+        "name": "Ko Samui",
+        "zip_code": "84140"
+    },
+    {
+        "name": "Tha Chang",
+        "zip_code": "84150"
+    },
+    {
+        "name": "Kanchanadit",
+        "zip_code": "84160"
+    },
+    {
+        "name": "Tha Chana",
+        "zip_code": "84170"
+    },
+    {
+        "name": "Khiri Ratthanikhom",
+        "zip_code": "84180"
+    },
+    {
+        "name": "Wiphawadi",
+        "zip_code": "84180"
+    },
+    {
+        "name": "Wiang Sa",
+        "zip_code": "84190"
+    },
+    {
+        "name": "Chai Buri",
+        "zip_code": "84210"
+    },
+    {
+        "name": "Phrasaeng",
+        "zip_code": "84210"
+    },
+    {
+        "name": "Don Sak",
+        "zip_code": "84220"
+    },
+    {
+        "name": "Ban Ta Khun",
+        "zip_code": "84230"
+    },
+    {
+        "name": "Ban Na Doem",
+        "zip_code": "84240"
+    },
+    {
+        "name": "Phanom",
+        "zip_code": "84250"
+    },
+    {
+        "name": "Khian Sa",
+        "zip_code": "84260"
+    },
+    {
+        "name": "Ko Phangan",
+        "zip_code": "84280"
+    },
+    {
+        "name": "Muang Ranong",
+        "zip_code": "85000"
+    },
+    {
+        "name": "Kra Buri",
+        "zip_code": "85110"
+    },
+    {
+        "name": "Suk Samran",
+        "zip_code": "85120"
+    },
+    {
+        "name": "Kapoe",
+        "zip_code": "85120"
+    },
+    {
+        "name": "La-Un",
+        "zip_code": "85130"
+    },
+    {
+        "name": "Muang Chumphon",
+        "zip_code": "86000"
+    },
+    {
+        "name": "Lang Suan",
+        "zip_code": "86110"
+    },
+    {
+        "name": "Sawi",
+        "zip_code": "86130"
+    },
+    {
+        "name": "Tha Sae",
+        "zip_code": "86140"
+    },
+    {
+        "name": "Pathiu",
+        "zip_code": "86160"
+    },
+    {
+        "name": "Lamae",
+        "zip_code": "86170"
+    },
+    {
+        "name": "Phato",
+        "zip_code": "86180"
+    },
+    {
+        "name": "Thung Tako",
+        "zip_code": "86220"
+    },
+    {
+        "name": "Muang Songkhla",
+        "zip_code": "90000"
+    },
+    {
+        "name": "Hat Yai",
+        "zip_code": "90110"
+    },
+    {
+        "name": "Bang Klam",
+        "zip_code": "90110"
+    },
+    {
+        "name": "Sa Dao",
+        "zip_code": "90120"
+    },
+    {
+        "name": "Chana",
+        "zip_code": "90130"
+    },
+    {
+        "name": "Ranot",
+        "zip_code": "90140"
+    },
+    {
+        "name": "Thepha",
+        "zip_code": "90150"
+    },
+    {
+        "name": "Na Thawi",
+        "zip_code": "90160"
+    },
+    {
+        "name": "Rattapum",
+        "zip_code": "90180"
+    },
+    {
+        "name": "Sating Phra",
+        "zip_code": "90190"
+    },
+    {
+        "name": "Sabayoi",
+        "zip_code": "90210"
+    },
+    {
+        "name": "Kuan Niang",
+        "zip_code": "90220"
+    },
+    {
+        "name": "Khlong Hoykhong",
+        "zip_code": "90230"
+    },
+    {
+        "name": "Krasae Sin",
+        "zip_code": "90270"
+    },
+    {
+        "name": "Na Mom",
+        "zip_code": "90310"
+    },
+    {
+        "name": "Singha Nakorn",
+        "zip_code": "90330"
+    },
+    {
+        "name": "Muang Satun",
+        "zip_code": "91000"
+    },
+    {
+        "name": "Langu",
+        "zip_code": "91110"
+    },
+    {
+        "name": "Thung Wa",
+        "zip_code": "91120"
+    },
+    {
+        "name": "Manung",
+        "zip_code": "91130"
+    },
+    {
+        "name": "Khuan Ka Long",
+        "zip_code": "91130"
+    },
+    {
+        "name": "Tha Phae",
+        "zip_code": "91150"
+    },
+    {
+        "name": "Khuan Doan",
+        "zip_code": "91160"
+    },
+    {
+        "name": "Muang Trang",
+        "zip_code": "92000"
+    },
+    {
+        "name": "Kantang",
+        "zip_code": "92110"
+    },
+    {
+        "name": "Palian",
+        "zip_code": "92120"
+    },
+    {
+        "name": "Had Samran",
+        "zip_code": "92120"
+    },
+    {
+        "name": "Huai Yot",
+        "zip_code": "92130"
+    },
+    {
+        "name": "Yan Tak Kao",
+        "zip_code": "92140"
+    },
+    {
+        "name": "Sikao",
+        "zip_code": "92150"
+    },
+    {
+        "name": "Rachada",
+        "zip_code": "92160"
+    },
+    {
+        "name": "Na Yong",
+        "zip_code": "92170"
+    },
+    {
+        "name": "Wang Wiset",
+        "zip_code": "92220"
+    },
+    {
+        "name": "Muang Phatthalung",
+        "zip_code": "93000"
+    },
+    {
+        "name": "Sri Nakharin",
+        "zip_code": "93000"
+    },
+    {
+        "name": "Pa Payam",
+        "zip_code": "93110"
+    },
+    {
+        "name": "Khuan Khanun",
+        "zip_code": "93110"
+    },
+    {
+        "name": "Pak Phayun",
+        "zip_code": "93120"
+    },
+    {
+        "name": "Khao Chaison",
+        "zip_code": "93130"
+    },
+    {
+        "name": "Bang Kaeo",
+        "zip_code": "93140"
+    },
+    {
+        "name": "Tamot",
+        "zip_code": "93160"
+    },
+    {
+        "name": "Pa Bon",
+        "zip_code": "93170"
+    },
+    {
+        "name": "Kong Ra",
+        "zip_code": "93180"
+    },
+    {
+        "name": "Si Ban Phot",
+        "zip_code": "93190"
+    },
+    {
+        "name": "Muang Pattani",
+        "zip_code": "94000"
+    },
+    {
+        "name": "Sai Buri",
+        "zip_code": "94110"
+    },
+    {
+        "name": "Khok Pho",
+        "zip_code": "94120"
+    },
+    {
+        "name": "Panare",
+        "zip_code": "94130"
+    },
+    {
+        "name": "Thung Yan Daeng",
+        "zip_code": "94140"
+    },
+    {
+        "name": "Mayo",
+        "zip_code": "94140"
+    },
+    {
+        "name": "Yaring",
+        "zip_code": "94150"
+    },
+    {
+        "name": "Yarang",
+        "zip_code": "94160"
+    },
+    {
+        "name": "Nong Chik",
+        "zip_code": "94170"
+    },
+    {
+        "name": "Mae Lan",
+        "zip_code": "94180"
+    },
+    {
+        "name": "Mai Kaen",
+        "zip_code": "94220"
+    },
+    {
+        "name": "Kpho",
+        "zip_code": "94230"
+    },
+    {
+        "name": "Kung Pinung",
+        "zip_code": "95000"
+    },
+    {
+        "name": "Muang Yala",
+        "zip_code": "95000"
+    },
+    {
+        "name": "Betong",
+        "zip_code": "95110"
+    },
+    {
+        "name": "Ka Bung",
+        "zip_code": "95120"
+    },
+    {
+        "name": "Yaha",
+        "zip_code": "95120"
+    },
+    {
+        "name": "Bannang Sata",
+        "zip_code": "95130"
+    },
+    {
+        "name": "Raman",
+        "zip_code": "95140"
+    },
+    {
+        "name": "Than To",
+        "zip_code": "95150"
+    },
+    {
+        "name": "Muang Narathiwat",
+        "zip_code": "96000"
+    },
+    {
+        "name": "Tak Bai",
+        "zip_code": "96110"
+    },
+    {
+        "name": "Sungai Kolok",
+        "zip_code": "96120"
+    },
+    {
+        "name": "Rangae",
+        "zip_code": "96130"
+    },
+    {
+        "name": "Jao I Rong",
+        "zip_code": "96130"
+    },
+    {
+        "name": "Sungai Padi",
+        "zip_code": "96140"
+    },
+    {
+        "name": "Ruso",
+        "zip_code": "96150"
+    },
+    {
+        "name": "Waeng",
+        "zip_code": "96160"
+    },
+    {
+        "name": "Bacho",
+        "zip_code": "96170"
+    },
+    {
+        "name": "Yi-Ngo",
+        "zip_code": "96180"
+    },
+    {
+        "name": "Sukhirin",
+        "zip_code": "96190"
+    },
+    {
+        "name": "Si Sakhon",
+        "zip_code": "96210"
+    },
+    {
+        "name": "Chanae",
+        "zip_code": "96220"
+    }
+]

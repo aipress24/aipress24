@@ -10,8 +10,9 @@ import uuid
 import sqlalchemy as sa
 from aenum import StrEnum
 from flask_security import RoleMixin, UserMixin
-from sqlalchemy import orm
+from sqlalchemy import JSON, DateTime, ForeignKey, String, orm
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.sql import func
 
 from .base import Base
 from .geoloc import GeoLocation
@@ -65,12 +66,44 @@ class User(Addressable, UserMixin, Base):
 
     # username: Mapped[str] = mapped_column(index=True, unique=True)
     email: Mapped[str] = mapped_column(unique=True)
+    email_valid: Mapped[bool] = mapped_column(default=False)
+    email_date_valid: Mapped[sa.DateTime] = mapped_column(
+        sa.DateTime, server_default=func.now()
+    )
+    email_secours: Mapped[str] = mapped_column(sa.String, default="")
+    email_secours_valid: Mapped[bool] = mapped_column(default=False)
+    email_secours_date_valid: Mapped[sa.DateTime] = mapped_column(
+        sa.DateTime, server_default=func.now()
+    )
+
     password: Mapped[str | None] = mapped_column(sa.String(64))
+    # remove _password_hash when going to bcrypt
     _password_hash: Mapped[str | None] = mapped_column(sa.String(64))
 
+    date_submit: Mapped[sa.DateTime] = mapped_column(sa.DateTime, server_default=func.now())
+    user_valid: Mapped[bool] = mapped_column(default=False)
+    user_date_valid: Mapped[sa.DateTime] = mapped_column(
+        sa.DateTime, server_default=func.now()
+    )
+    user_valid_comment: Mapped[str] = mapped_column(sa.String, default="")
+    user_date_update: Mapped[sa.DateTime] = mapped_column(
+        sa.DateTime, nullable=True, onupdate=func.now()
+    )
+
+    # from flask-security
+    last_login_at: Mapped[sa.DateTime] = mapped_column(sa.DateTime, nullable=True)
+    current_login_at: Mapped[sa.DateTime] = mapped_column(sa.DateTime, nullable=True)
+    last_login_ip: Mapped[str] = mapped_column(sa.DateTime, nullable=True)
+    current_login_ip: Mapped[str] = mapped_column(sa.String, default="")
+    login_count: Mapped[int] = mapped_column(sa.String, default=0)
     # Flask Security
     active: Mapped[bool] = mapped_column(default=False)
     fs_uniquifier: Mapped[str] = mapped_column(sa.String(64), unique=True)
+
+    gcu_acceptation: Mapped[bool] = mapped_column(default=False)
+    gcu_acceptation_date: Mapped[sa.DateTime] = mapped_column(
+        sa.DateTime, server_default=func.now()
+    )
 
     community_primary: Mapped[CommunityEnum] = mapped_column(
         sa.Enum(CommunityEnum), default=CommunityEnum.PRESS_MEDIA
@@ -83,11 +116,23 @@ class User(Addressable, UserMixin, Base):
     first_name: Mapped[str] = mapped_column(sa.Unicode(64), default="")
     last_name: Mapped[str] = mapped_column(sa.Unicode(64), default="")
 
+    photo: Mapped[bytes] = mapped_column(sa.LargeBinary, nullable=True)
+    photo_filename: Mapped[str] = mapped_column(sa.String, default="")
+    photo_carte_presse: Mapped[bytes] = mapped_column(sa.LargeBinary, nullable=True)
+    photo_carte_presse_filename: Mapped[str] = mapped_column(sa.String, default="")
+    pseudo: Mapped[str] = mapped_column(sa.String, default="")
+
     job_title: Mapped[str] = mapped_column(default="")
     job_description: Mapped[str] = mapped_column(default="")
     bio: Mapped[str] = mapped_column(default="")
     education: Mapped[str] = mapped_column(default="")
     hobbies: Mapped[str] = mapped_column(default="")
+
+    tel_mobile: Mapped[str] = mapped_column(sa.String, default="")
+    tel_mobile_valid: Mapped[bool] = mapped_column(default=False)
+    tel_mobile_date_valid: Mapped[sa.DateTime] = mapped_column(
+        sa.DateTime, server_default=func.now()
+    )
 
     organisation_id: Mapped[int | None] = mapped_column(
         sa.BigInteger, sa.ForeignKey("crp_organisation.id", name="fk_aut_user_org_id")
@@ -122,6 +167,7 @@ class User(Addressable, UserMixin, Base):
         backref=orm.backref("users", lazy="dynamic"),
     )
     wallet = relationship("IndividualWallet", uselist=False, back_populates="user")
+    profile: Mapped[KYCProfile] = relationship(back_populates="user")
 
     class AdminMeta:
         id = {"required": True, "read_only": True}
@@ -196,6 +242,21 @@ class Role(Base, RoleMixin):
     def __repr__(self) -> str:
         return f"<Role {self.name}>"
 
+
+class KYCProfile(Base):
+    __tablename__ = "kyc_profile"
+
+    id: Mapped[int] = mapped_column(primary_key=True, unique=True, autoincrement=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("aut_user.id"))
+    user: Mapped[User] = relationship(back_populates="profile")
+    profile_id: Mapped[str] = mapped_column(String, default="")
+    info_professionnelle: Mapped[dict] = mapped_column(JSON, default="{}")
+    match_making: Mapped[dict] = mapped_column(JSON, default="{}")
+    hobbies: Mapped[dict] = mapped_column(JSON, default="{}")
+    business_wall: Mapped[dict] = mapped_column(JSON, default="{}")
+    date_update: Mapped[DateTime] = mapped_column(
+        DateTime, nullable=True, onupdate=func.now()
+    )
 
 # class User2(Base):
 #     #

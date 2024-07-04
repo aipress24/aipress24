@@ -1,0 +1,52 @@
+<script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
+
+<div
+    x-data="{
+      multiple: true,
+      create: false,
+      value: {{ field.get_data() }},
+      options: {{ field.get_tom_choices_for_js() }},
+      optgroups: {{ field.get_tom_optgroups_for_js() }},
+      init() {
+        this.$nextTick(() => {
+          let choices = new TomSelect(this.$refs.select, {
+             create: this.create,
+             createOnBlur: true,
+             maxOptions: null,
+             maxItems: null,
+             optgroups: this.optgroups,
+             options: this.options,
+             preload: false,
+             labelField: 'label',
+             searchField: ['label'],
+             optgroupField: 'optgroup',
+             optgroupLabelField: 'label',
+             diacritics: true,
+             plugins: {
+		      remove_button:{
+			     title:'Retirer',
+		      }
+        	 },
+             });
+
+          choices.setValue(this.value, true);
+
+          this.$refs.select.addEventListener('change', () => {
+            this.value = choices.getValue(true);
+          });
+
+          this.$watch('value', () => refreshChoices());
+          this.$watch('options', () => refreshChoices());
+        })
+      }
+    }"
+    class="col-span-12 w-full"
+>
+  <select
+      id="{{ field.id }}"
+      name="{{ field.name }}"
+      {# if field.flags.required %}required{% endif #}
+      x-ref="select"
+      >
+  </select>
+</div>

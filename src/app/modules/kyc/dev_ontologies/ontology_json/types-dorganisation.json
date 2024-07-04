@@ -1,0 +1,1373 @@
+{
+    "table": [
+        [
+            "ORGANISATIONS POLITIQUES & ADMINISTRATIVES"
+        ],
+        [
+            null,
+            "Administration publique"
+        ],
+        [
+            null,
+            "Agence de l'Union européenne pour la coopération des régulateurs de l'énergie (ACER)"
+        ],
+        [
+            null,
+            "Agence de l'Union européenne pour la cybersécurité (ENISA)"
+        ],
+        [
+            null,
+            "Agence européenne de défense (AED)"
+        ],
+        [
+            null,
+            "Agence européenne des médicaments (EMA)"
+        ],
+        [
+            null,
+            "Agence européenne pour la sécurité aérienne (EASA)"
+        ],
+        [
+            null,
+            "Agence européenne pour la sécurité et la santé au travail (AESST)"
+        ],
+        [
+            null,
+            "Agence gouvernementale"
+        ],
+        [
+            null,
+            "Agence spatiale européenne (ESA)"
+        ],
+        [
+            null,
+            "Ambassade"
+        ],
+        [
+            null,
+            "Assemblée nationale"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            null,
+            "Banque centrale européenne"
+        ],
+        [
+            null,
+            "Banque européenne d'investissement"
+        ],
+        [
+            null,
+            "Cabinet ministériel"
+        ],
+        [
+            null,
+            "Centre européen de prévention et de contrôle des maladies"
+        ],
+        [
+            null,
+            "Chambre d’agriculture"
+        ],
+        [
+            null,
+            "Chambre de commerce et d'industrie"
+        ],
+        [
+            null,
+            "Chambre de métiers et de l'artisanat"
+        ],
+        [
+            null,
+            "Collectivité territoriale"
+        ],
+        [
+            null,
+            "Comité économique et social européen"
+        ],
+        [
+            null,
+            "Comité européen des régions"
+        ],
+        [
+            null,
+            "Commission consultative"
+        ],
+        [
+            null,
+            "Commission européenne"
+        ],
+        [
+            null,
+            "Commune"
+        ],
+        [
+            null,
+            "Conseil de l'Union européenne"
+        ],
+        [
+            null,
+            "Conseil départemental"
+        ],
+        [
+            null,
+            "Conseil économique, social et environnemental (CESE)"
+        ],
+        [
+            null,
+            "Conseil européen"
+        ],
+        [
+            null,
+            "Conseil général"
+        ],
+        [
+            null,
+            "Conseil municipal"
+        ],
+        [
+            null,
+            "Conseil régional"
+        ],
+        [
+            null,
+            "Conseil supérieur de la magistrature"
+        ],
+        [
+            null,
+            "Consulat"
+        ],
+        [
+            null,
+            "Cour d'appel"
+        ],
+        [
+            null,
+            "Cour de cassation"
+        ],
+        [
+            null,
+            "Cour de justice de l'Union européenne"
+        ],
+        [
+            null,
+            "Cour des comptes européenne"
+        ],
+        [
+            null,
+            "Défenseur des droits"
+        ],
+        [
+            null,
+            "Délégation interministérielle"
+        ],
+        [
+            null,
+            "Département"
+        ],
+        [
+            null,
+            "Ecole de journalisme"
+        ],
+        [
+            null,
+            "Établissement public à caractère scientifique, culturel et professionnel (EPSCP)"
+        ],
+        [
+            null,
+            "Établissements publics à caractère industriel et commercial (EPIC)"
+        ],
+        [
+            null,
+            "Établissements publics administratifs (EPA)"
+        ],
+        [
+            null,
+            "Établissements publics culturels"
+        ],
+        [
+            null,
+            "Établissements publics d'enseignement "
+        ],
+        [
+            null,
+            "Établissements publics de coopération intercommunale"
+        ],
+        [
+            null,
+            "Établissements publics de défense"
+        ],
+        [
+            null,
+            "Établissements publics de financement de la santé"
+        ],
+        [
+            null,
+            "Établissements publics de gestion de l'eau et de l'environnement"
+        ],
+        [
+            null,
+            "Établissements publics de gestion des retraites"
+        ],
+        [
+            null,
+            "Établissements publics de recherche"
+        ],
+        [
+            null,
+            "Établissements publics de régulation et de contrôle"
+        ],
+        [
+            null,
+            "Établissements publics de santé"
+        ],
+        [
+            null,
+            "Établissements publics de sécurité et de justice"
+        ],
+        [
+            null,
+            "Établissements publics de transports"
+        ],
+        [
+            null,
+            "Établissements publics fonciers"
+        ],
+        [
+            null,
+            "Établissements publics locaux d'enseignement "
+        ],
+        [
+            null,
+            "Établissements publics pénitentiaires"
+        ],
+        [
+            null,
+            "Établissements publics sociaux "
+        ],
+        [
+            null,
+            "Établissements publics territoriaux"
+        ],
+        [
+            null,
+            "Eurojust"
+        ],
+        [
+            null,
+            "Europol"
+        ],
+        [
+            null,
+            "Fonds européen d'investissement"
+        ],
+        [
+            null,
+            "Gouvernement"
+        ],
+        [
+            null,
+            "Groupement d'intérêt public (GIP)"
+        ],
+        [
+            null,
+            "Haute autorité"
+        ],
+        [
+            null,
+            "Inspection générale"
+        ],
+        [
+            null,
+            "Institut de recherche"
+        ],
+        [
+            null,
+            "Intercommunalité"
+        ],
+        [
+            null,
+            "Mairie"
+        ],
+        [
+            null,
+            "Médiateur européen"
+        ],
+        [
+            null,
+            "Ministère"
+        ],
+        [
+            null,
+            "Ministère de l'Action et des Comptes publics"
+        ],
+        [
+            null,
+            "Ministère de l'Agriculture et de l'Alimentation"
+        ],
+        [
+            null,
+            "Ministère de l'Économie et des Finances"
+        ],
+        [
+            null,
+            "Ministère de l'Éducation nationale"
+        ],
+        [
+            null,
+            "Ministère de l'Enseignement supérieur, de la Recherche et de l'Innovation"
+        ],
+        [
+            null,
+            "Ministère de l'Europe et des Affaires étrangères"
+        ],
+        [
+            null,
+            "Ministère de l'Intérieur"
+        ],
+        [
+            null,
+            "Ministère de la Culture"
+        ],
+        [
+            null,
+            "Ministère de la Défense"
+        ],
+        [
+            null,
+            "Ministère de la Justice"
+        ],
+        [
+            null,
+            "Ministère de la Mer"
+        ],
+        [
+            null,
+            "Ministère de la Santé et des Solidarités"
+        ],
+        [
+            null,
+            "Ministère de la Transition écologique"
+        ],
+        [
+            null,
+            "Ministère des Armées"
+        ],
+        [
+            null,
+            "Ministère des Outre-mer"
+        ],
+        [
+            null,
+            "Ministère des Solidarités et de la Santé"
+        ],
+        [
+            null,
+            "Ministère du Travail, de l'Emploi et de l'Insertion"
+        ],
+        [
+            null,
+            "Mission interministérielle"
+        ],
+        [
+            null,
+            "Municipalité"
+        ],
+        [
+            null,
+            "Musée"
+        ],
+        [
+            null,
+            "Office public"
+        ],
+        [
+            null,
+            "Parlement"
+        ],
+        [
+            null,
+            "Parlement européen"
+        ],
+        [
+            null,
+            "Parti politique"
+        ],
+        [
+            null,
+            "Préfecture"
+        ],
+        [
+            null,
+            "Préfecture de police"
+        ],
+        [
+            null,
+            "Présidence de la République"
+        ],
+        [
+            null,
+            "Régie publique"
+        ],
+        [
+            null,
+            "Région"
+        ],
+        [
+            null,
+            "Secrétariat d'État chargé de l'Économie sociale, solidaire et responsable"
+        ],
+        [
+            null,
+            "Secrétariat d'État chargé de la Jeunesse et de l'Engagement"
+        ],
+        [
+            null,
+            "Secrétariat d'État chargé de la Transition numérique et des Communications électroniques"
+        ],
+        [
+            null,
+            "Secrétariat d'État chargé des Affaires européennes"
+        ],
+        [
+            null,
+            "Secrétariat d'État chargé des Personnes handicapées"
+        ],
+        [
+            null,
+            "Sénat"
+        ],
+        [
+            null,
+            "Services centraux de l'État"
+        ],
+        [
+            null,
+            "Services déconcentrés de l'État"
+        ],
+        [
+            null,
+            "Services départementaux de l'État"
+        ],
+        [
+            null,
+            "Services municipaux"
+        ],
+        [
+            null,
+            "Services régionaux de l'État"
+        ],
+        [
+            null,
+            "Stade"
+        ],
+        [
+            null,
+            "Syndicat intercommunal"
+        ],
+        [
+            null,
+            "Tribunal administratif"
+        ],
+        [
+            null,
+            "Tribunal d'instance"
+        ],
+        [
+            null,
+            "Tribunal de commerce"
+        ],
+        [
+            null,
+            "Tribunal de grande instance"
+        ],
+        [
+            null,
+            "Union de communes"
+        ],
+        [
+            null,
+            "Union européenne"
+        ],
+        [
+            null,
+            "Université"
+        ],
+        [
+            "ORGANISATIONS PRIVÉES"
+        ],
+        [
+            null,
+            "Accélérateur de start-ups"
+        ],
+        [
+            null,
+            "Agence de communication"
+        ],
+        [
+            null,
+            "Agence de marketing"
+        ],
+        [
+            null,
+            "Agence de publicité"
+        ],
+        [
+            null,
+            "Agence de relations publiques"
+        ],
+        [
+            null,
+            "Agence immobilière"
+        ],
+        [
+            null,
+            "Agence locale"
+        ],
+        [
+            null,
+            "Agence événementielle"
+        ],
+        [
+            null,
+            "Antenne locale"
+        ],
+        [
+            null,
+            "Association professionnelle"
+        ],
+        [
+            null,
+            "Assurance"
+        ],
+        [
+            null,
+            "Auto-entrepreneur"
+        ],
+        [
+            null,
+            "Banque"
+        ],
+        [
+            null,
+            "Banque d'affaires"
+        ],
+        [
+            null,
+            "Banques de développement"
+        ],
+        [
+            null,
+            "Banques privées"
+        ],
+        [
+            null,
+            "Bar"
+        ],
+        [
+            null,
+            "Business Angel"
+        ],
+        [
+            null,
+            "Bar"
+        ],
+        [
+            null,
+            "Boutique en ligne"
+        ],
+        [
+            null,
+            "Boutique éphémère"
+        ],
+        [
+            null,
+            "Boutique physique"
+        ],
+        [
+            null,
+            "Cabinet d'architecture"
+        ],
+        [
+            null,
+            "Cabinet d'avocats"
+        ],
+        [
+            null,
+            "Cabinet de conseil en gestion de patrimoine"
+        ],
+        [
+            null,
+            "Cabinet de conseil en ressources humaines"
+        ],
+        [
+            null,
+            "Cabinet de recrutement"
+        ],
+        [
+            null,
+            "Capitaux-risqueurs (VC)"
+        ],
+        [
+            null,
+            "Clubs d'investissement"
+        ],
+        [
+            null,
+            "Corporate Venture Capital"
+        ],
+        [
+            null,
+            "Crowdfunding"
+        ],
+        [
+            null,
+            "Crowdlending"
+        ],
+        [
+            null,
+            "Centre de formation"
+        ],
+        [
+            null,
+            "Chaîne radio"
+        ],
+        [
+            null,
+            "Chaîne TV"
+        ],
+        [
+            null,
+            "Chambres de commerce et d'industrie"
+        ],
+        [
+            null,
+            "Collectivités locales"
+        ],
+        [
+            null,
+            "Coopérative agricole"
+        ],
+        [
+            null,
+            "Coopérative d'habitation"
+        ],
+        [
+            null,
+            "Coopérative de consommateurs"
+        ],
+        [
+            null,
+            "Coopérative de production"
+        ],
+        [
+            null,
+            "Discothèque"
+        ],
+        [
+            null,
+            "Ecole de journalisme"
+        ],
+        [
+            null,
+            "Editeur de presse"
+        ],
+        [
+            null,
+            "Entreprise de BTP (bâtiment et travaux publics)"
+        ],
+        [
+            null,
+            "Entreprise de commerce électronique"
+        ],
+        [
+            null,
+            "Entreprise de construction aéronautique et spatiale"
+        ],
+        [
+            null,
+            "Entreprise de construction automobile"
+        ],
+        [
+            null,
+            "Entreprise de construction ferroviaire"
+        ],
+        [
+            null,
+            "Entreprise de construction navale"
+        ],
+        [
+            null,
+            "Entreprise de décoration"
+        ],
+        [
+            null,
+            "Entreprise de déménagement"
+        ],
+        [
+            null,
+            "Entreprise de design"
+        ],
+        [
+            null,
+            "Entreprise de distribution"
+        ],
+        [
+            null,
+            "Entreprise de e-commerce"
+        ],
+        [
+            null,
+            "Entreprise de l'économie sociale et solidaire (ESS)"
+        ],
+        [
+            null,
+            "Entreprise de location de voitures"
+        ],
+        [
+            null,
+            "Entreprise de logistique"
+        ],
+        [
+            null,
+            "Entreprise de nettoyage"
+        ],
+        [
+            null,
+            "Entreprise de paysagisme"
+        ],
+        [
+            null,
+            "Entreprise de production audiovisuelle"
+        ],
+        [
+            null,
+            "Entreprise de production de biens d'équipement"
+        ],
+        [
+            null,
+            "Entreprise de production de biens de consommation"
+        ],
+        [
+            null,
+            "Entreprise de production de biens intermédiaires"
+        ],
+        [
+            null,
+            "Entreprise de production de services"
+        ],
+        [
+            null,
+            "Entreprise de propreté"
+        ],
+        [
+            null,
+            "Entreprise de sécurité"
+        ],
+        [
+            null,
+            "Entreprise de services à la personne (SAP)"
+        ],
+        [
+            null,
+            "Entreprise de services numériques (ESN)"
+        ],
+        [
+            null,
+            "Entreprise de transport"
+        ],
+        [
+            null,
+            "Entreprise de vente à distance"
+        ],
+        [
+            null,
+            "Entreprise de vente en ligne"
+        ],
+        [
+            null,
+            "Entreprise familiale"
+        ],
+        [
+            null,
+            "Entreprise individuelle (EI)"
+        ],
+        [
+            null,
+            "Entreprise unipersonnelle à responsabilité limitée (EURL)"
+        ],
+        [
+            null,
+            "Entreprises spécialisées en communication et marketing"
+        ],
+        [
+            null,
+            "Entreprises spécialisées en logistique événementielle"
+        ],
+        [
+            null,
+            "Entreprises spécialisées en organisation de salons"
+        ],
+        [
+            null,
+            "Épicerie"
+        ],
+        [
+            null,
+            "Filiale"
+        ],
+        [
+            null,
+            "Fonds d'investissement"
+        ],
+        [
+            null,
+            "Family offices"
+        ],
+        [
+            null,
+            "Fonds communs de placement"
+        ],
+        [
+            null,
+            "Fonds d'amorçage"
+        ],
+        [
+            null,
+            "Fonds de capital-risque"
+        ],
+        [
+            null,
+            "Fonds de croissance"
+        ],
+        [
+            null,
+            "Fonds de dette privée"
+        ],
+        [
+            null,
+            "Fonds de dotation"
+        ],
+        [
+            null,
+            "Fonds de fonds"
+        ],
+        [
+            null,
+            "Fonds de pensions de retraite"
+        ],
+        [
+            null,
+            "Fonds de Private Equity"
+        ],
+        [
+            null,
+            "Fonds de retournement"
+        ],
+        [
+            null,
+            "Fonds d'investissement à impact social"
+        ],
+        [
+            null,
+            "Fonds d'investissement régionaux"
+        ],
+        [
+            null,
+            "Fonds d'innovation"
+        ],
+        [
+            null,
+            "Fonds souverains"
+        ],
+        [
+            null,
+            "Franchise"
+        ],
+        [
+            null,
+            "Grande entreprise (GE)"
+        ],
+        [
+            null,
+            "Grande surface alimentaire (GSA)"
+        ],
+        [
+            null,
+            "Grande surface spécialisée (GSS)"
+        ],
+        [
+            null,
+            "Groupe"
+        ],
+        [
+            null,
+            "Groupe international"
+        ],
+        [
+            null,
+            "Groupement d'employeurs"
+        ],
+        [
+            null,
+            "Groupement d'intérêt économique (GIE)"
+        ],
+        [
+            null,
+            "Groupement de Business Angels"
+        ],
+        [
+            null,
+            "Hedge Funds"
+        ],
+        [
+            null,
+            "Holding"
+        ],
+        [
+            null,
+            "Hôtel"
+        ],
+        [
+            null,
+            "Incubateurs de start-ups"
+        ],
+        [
+            null,
+            "Indépendant"
+        ],
+        [
+            null,
+            "Industrie"
+        ],
+        [
+            null,
+            "Ingénierie"
+        ],
+        [
+            null,
+            "Investisseurs en capital-investissement"
+        ],
+        [
+            null,
+            "Investisseurs indépendants"
+        ],
+        [
+            null,
+            "Investisseurs en publicité digitale"
+        ],
+        [
+            null,
+            "Investisseurs en technologie"
+        ],
+        [
+            null,
+            "Investisseurs institutionnels"
+        ],
+        [
+            null,
+            "Investisseurs providentiels"
+        ],
+        [
+            null,
+            "Investisseurs publics"
+        ],
+        [
+            null,
+            "Laboratoire de recherche"
+        ],
+        [
+            null,
+            "Librairie"
+        ],
+        [
+            null,
+            "Licorne"
+        ],
+        [
+            null,
+            "Magasin alimentaire"
+        ],
+        [
+            null,
+            "Magasin de bricolage"
+        ],
+        [
+            null,
+            "Magasin de décoration"
+        ],
+        [
+            null,
+            "Magasin de jouets"
+        ],
+        [
+            null,
+            "Magasin de meubles"
+        ],
+        [
+            null,
+            "Magasin de vêtements"
+        ],
+        [
+            null,
+            "Marché"
+        ],
+        [
+            null,
+            "Micro-entreprise"
+        ],
+        [
+            null,
+            "Multinationale"
+        ],
+        [
+            null,
+            "Mutuelle d’assurance"
+        ],
+        [
+            null,
+            "Mutuelle de santé"
+        ],
+        [
+            null,
+            "Organisme de formation"
+        ],
+        [
+            null,
+            "Organismes de financement participatif"
+        ],
+        [
+            null,
+            "Organismes publics de soutien à l'innovation"
+        ],
+        [
+            null,
+            "Petite et moyenne entreprise (PME)"
+        ],
+        [
+            null,
+            "Pôle de compétitivité"
+        ],
+        [
+            null,
+            "Profession libérale"
+        ],
+        [
+            null,
+            "Régie publicitaire"
+        ],
+        [
+            null,
+            "Restaurant"
+        ],
+        [
+            null,
+            "Salle de sport"
+        ],
+        [
+            null,
+            "Scale-up"
+        ],
+        [
+            null,
+            "Société à responsabilité limitée (SARL)"
+        ],
+        [
+            null,
+            "Société anonyme (SA)"
+        ],
+        [
+            null,
+            "Société civile immobilière (SCI)"
+        ],
+        [
+            null,
+            "Société civile professionnelle (SCP)"
+        ],
+        [
+            null,
+            "Société coopérative et participative (SCOP)"
+        ],
+        [
+            null,
+            "Société d’accélération du transfert de technologie (SATT)"
+        ],
+        [
+            null,
+            "Société de conseil"
+        ],
+        [
+            null,
+            "Sociétés de gestion d'actifs"
+        ],
+        [
+            null,
+            "Sociétés de transfert de technologie"
+        ],
+        [
+            null,
+            "Société en commandite par actions (SCA)"
+        ],
+        [
+            null,
+            "Société en commandite simple (SCS)"
+        ],
+        [
+            null,
+            "Société en nom collectif (SNC)"
+        ],
+        [
+            null,
+            "Société par actions simplifiée (SAS)"
+        ],
+        [
+            null,
+            "Société par actions simplifiée unipersonnelle (SASU)"
+        ],
+        [
+            null,
+            "Sociétés de gestion de parcs d'expositions"
+        ],
+        [
+            null,
+            "Start-up"
+        ],
+        [
+            null,
+            "Start-up studio"
+        ],
+        [
+            null,
+            "Théâtre"
+        ],
+        [
+            null,
+            "TPE (très petite entreprise)"
+        ],
+        [
+            null,
+            "Très grande entreprise (TGE)"
+        ],
+        [
+            null,
+            "Très très grande entreprise (TTGE)"
+        ],
+        [
+            null,
+            "Université privée"
+        ],
+        [
+            null,
+            "Venture Lenders"
+        ],
+        [
+            null,
+            "Web radio"
+        ],
+        [
+            null,
+            "Web TV"
+        ],
+        [
+            null,
+            "Zones franches d'innovation"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "ASSOCIATIONS, FÉDÉRATIONS & SYNDICATS"
+        ],
+        [
+            null,
+            "Association à but non lucratif (loi 1901)"
+        ],
+        [
+            null,
+            "Association caritative"
+        ],
+        [
+            null,
+            "Association culturelle"
+        ],
+        [
+            null,
+            "Association de défense des droits de l'homme"
+        ],
+        [
+            null,
+            "Association de défense des consommateurs"
+        ],
+        [
+            null,
+            "Association de parents d'élèves"
+        ],
+        [
+            null,
+            "Association de protection de l'environnement"
+        ],
+        [
+            null,
+            "Association étudiante"
+        ],
+        [
+            null,
+            "Association professionnelle"
+        ],
+        [
+            null,
+            "Association sportive"
+        ],
+        [
+            null,
+            "Centre social"
+        ],
+        [
+            null,
+            "Club de loisirs"
+        ],
+        [
+            null,
+            "Confédérations commerciales"
+        ],
+        [
+            null,
+            "Confédérations culturelles"
+        ],
+        [
+            null,
+            "Confédérations économiques"
+        ],
+        [
+            null,
+            "Confédérations éducatives"
+        ],
+        [
+            null,
+            "Confédérations humanitaires"
+        ],
+        [
+            null,
+            "Confédérations militaires"
+        ],
+        [
+            null,
+            "Confédérations politiques"
+        ],
+        [
+            null,
+            "Confédérations professionnelles"
+        ],
+        [
+            null,
+            "Confédérations religieuses"
+        ],
+        [
+            null,
+            "Confédérations sportives"
+        ],
+        [
+            null,
+            "Confédérations syndicales"
+        ],
+        [
+            null,
+            "Confédérations technologiques"
+        ],
+        [
+            null,
+            "Coopérative d'activité et d'emploi (CAE)"
+        ],
+        [
+            null,
+            "Fédération de syndicats professionnels"
+        ],
+        [
+            null,
+            "Fédération sportive"
+        ],
+        [
+            null,
+            "Fondation d'entreprise"
+        ],
+        [
+            null,
+            "Fondation reconnue d'utilité publique"
+        ],
+        [
+            null,
+            "Fonds de dotation"
+        ],
+        [
+            null,
+            "Groupement d'employeurs"
+        ],
+        [
+            null,
+            "Lieu de culte"
+        ],
+        [
+            null,
+            "Maison de quartier"
+        ],
+        [
+            null,
+            "Mouvement associatif"
+        ],
+        [
+            null,
+            "Office de tourisme"
+        ],
+        [
+            null,
+            "Organisation non gouvernementale (ONG)"
+        ],
+        [
+            null,
+            "Réseau d'associations"
+        ],
+        [
+            null,
+            "Syndicat de salariés"
+        ],
+        [
+            null,
+            "Syndicat de fonctionnaires"
+        ],
+        [
+            null,
+            "Syndicat étudiant"
+        ],
+        [
+            null,
+            "Syndicat industriel"
+        ],
+        [
+            null,
+            "Syndicat lycéen"
+        ],
+        [
+            null,
+            "Syndicat patronal"
+        ],
+        [
+            null,
+            "Syndicat professionnel"
+        ],
+        [
+            null,
+            "Union de syndicats"
+        ],
+        [
+            null,
+            "Union professionnelle"
+        ],
+        [
+            null,
+            "Autres"
+        ]
+    ]
+}

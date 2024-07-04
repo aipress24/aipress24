@@ -1,0 +1,30 @@
+[
+    {
+        "value": "AND;AD100 Canillo",
+        "label": "AD100 Canillo"
+    },
+    {
+        "value": "AND;AD200 Encamp",
+        "label": "AD200 Encamp"
+    },
+    {
+        "value": "AND;AD300 Ordino",
+        "label": "AD300 Ordino"
+    },
+    {
+        "value": "AND;AD400 La Massana",
+        "label": "AD400 La Massana"
+    },
+    {
+        "value": "AND;AD500 Andorra la Vella",
+        "label": "AD500 Andorra la Vella"
+    },
+    {
+        "value": "AND;AD600 Sant Julià de Lòria",
+        "label": "AD600 Sant Julià de Lòria"
+    },
+    {
+        "value": "AND;AD700 Escaldes-Engordany",
+        "label": "AD700 Escaldes-Engordany"
+    }
+]

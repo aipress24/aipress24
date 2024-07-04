@@ -1,0 +1,804 @@
+{
+    "table": [
+        [
+            "Associations"
+        ],
+        [
+            null,
+            "Actions humanitaires"
+        ],
+        [
+            null,
+            "Communication et sensibilisation"
+        ],
+        [
+            null,
+            "Droits des minorités"
+        ],
+        [
+            null,
+            "Éducation populaire"
+        ],
+        [
+            null,
+            "Environnement et développement durable"
+        ],
+        [
+            null,
+            "Insertion sociale et professionnelle"
+        ],
+        [
+            null,
+            "Lutte contre la pauvreté"
+        ],
+        [
+            null,
+            "Promotion de la santé"
+        ],
+        [
+            null,
+            "Promotion des droits de l'homme"
+        ],
+        [
+            null,
+            "Protection de l'enfance"
+        ],
+        [
+            null,
+            "Relations internationales et solidarité"
+        ],
+        [
+            null,
+            "Services sociaux et d'entraide"
+        ],
+        [
+            null,
+            "Soutien aux personnes en situation de handicap"
+        ],
+        [
+            null,
+            "Soutien aux personnes âgées"
+        ],
+        [
+            null,
+            "Soutien aux réfugiés et aux migrants"
+        ],
+        [
+            null,
+            "Soutien aux victimes de violences"
+        ],
+        [
+            null,
+            "Soutien aux femmes"
+        ],
+        [
+            null,
+            "Soutien aux jeunes"
+        ],
+        [
+            null,
+            "Soutien aux personnes en situation de précarité"
+        ],
+        [
+            null,
+            "Volontariat et engagement citoyen"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "Fédérations"
+        ],
+        [
+            null,
+            "Activités sportives"
+        ],
+        [
+            null,
+            "Défense des droits professionnels"
+        ],
+        [
+            null,
+            "Développement économique"
+        ],
+        [
+            null,
+            "Environnement et développement durable"
+        ],
+        [
+            null,
+            "Formation professionnelle"
+        ],
+        [
+            null,
+            "Gestion des ressources humaines"
+        ],
+        [
+            null,
+            "Intérêts agricoles"
+        ],
+        [
+            null,
+            "Intérêts culturels"
+        ],
+        [
+            null,
+            "Intérêts industriels"
+        ],
+        [
+            null,
+            "Intérêts professionnels spécifiques"
+        ],
+        [
+            null,
+            "Lobbying et représentation politique"
+        ],
+        [
+            null,
+            "Promotion du commerce"
+        ],
+        [
+            null,
+            "Promotion du tourisme"
+        ],
+        [
+            null,
+            "Relations internationales"
+        ],
+        [
+            null,
+            "Solidarité et entraide entre membres"
+        ],
+        [
+            null,
+            "Soutien aux entreprises"
+        ],
+        [
+            null,
+            "Soutien aux initiatives locales"
+        ],
+        [
+            null,
+            "Soutien aux petites entreprises"
+        ],
+        [
+            null,
+            "Soutien aux start-ups et à l'entrepreneuriat"
+        ],
+        [
+            null,
+            "Soutien aux travailleurs indépendants"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "Fondations"
+        ],
+        [
+            null,
+            "Action sociale"
+        ],
+        [
+            null,
+            "Art et culture"
+        ],
+        [
+            null,
+            "Coopération internationale"
+        ],
+        [
+            null,
+            "Développement durable"
+        ],
+        [
+            null,
+            "Éducation et formation"
+        ],
+        [
+            null,
+            "Environnement"
+        ],
+        [
+            null,
+            "Handicap"
+        ],
+        [
+            null,
+            "Insertion professionnelle"
+        ],
+        [
+            null,
+            "Jeunesse et éducation"
+        ],
+        [
+            null,
+            "Lutte contre la pauvreté"
+        ],
+        [
+            null,
+            "Promotion de la santé"
+        ],
+        [
+            null,
+            "Recherche scientifique"
+        ],
+        [
+            null,
+            "Solidarité"
+        ],
+        [
+            null,
+            "Soutien aux personnes âgées"
+        ],
+        [
+            null,
+            "Soutien aux personnes en situation de précarité"
+        ],
+        [
+            null,
+            "Soutien aux personnes en situation de handicap"
+        ],
+        [
+            null,
+            "Soutien aux victimes"
+        ],
+        [
+            null,
+            "Soutien aux femmes"
+        ],
+        [
+            null,
+            "Soutien aux enfants"
+        ],
+        [
+            null,
+            "Soutien aux initiatives locales"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "Syndicats d’agences de presse"
+        ],
+        [
+            null,
+            "Autonomie éditoriale"
+        ],
+        [
+            null,
+            "Conditions de travail"
+        ],
+        [
+            null,
+            "Conditions de vie au travail"
+        ],
+        [
+            null,
+            "Dialogue social"
+        ],
+        [
+            null,
+            "Droits des travailleurs"
+        ],
+        [
+            null,
+            "Droits voisins"
+        ],
+        [
+            null,
+            "Éthique journalistique"
+        ],
+        [
+            null,
+            "Grèves et mouvements sociaux"
+        ],
+        [
+            null,
+            "Hygiène et sécurité au travail"
+        ],
+        [
+            null,
+            "Indépendance des médias"
+        ],
+        [
+            null,
+            "Intelligence artificielle"
+        ],
+        [
+            null,
+            "Liberté de la presse"
+        ],
+        [
+            null,
+            "Licenciements et restructurations"
+        ],
+        [
+            null,
+            "Négociations collectives"
+        ],
+        [
+            null,
+            "Précarité de l'emploi"
+        ],
+        [
+            null,
+            "Protection sociale"
+        ],
+        [
+            null,
+            "Relations employeur-employé"
+        ],
+        [
+            null,
+            "Rémunération et salaires"
+        ],
+        [
+            null,
+            "Représentation des salariés"
+        ],
+        [
+            null,
+            "Retraites"
+        ],
+        [
+            null,
+            "Temps de travail"
+        ],
+        [
+            null,
+            "Violences et harcèlement au travail"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [],
+        [
+            "Syndicats de représentation du personnel"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            null,
+            "Dialogue social"
+        ],
+        [
+            null,
+            "Droits des travailleurs"
+        ],
+        [
+            null,
+            "Égalité professionnelle"
+        ],
+        [
+            null,
+            "Formation professionnelle"
+        ],
+        [
+            null,
+            "Grèves et mouvements sociaux"
+        ],
+        [
+            null,
+            "Hygiène et sécurité au travail"
+        ],
+        [
+            null,
+            "Licenciements et restructurations"
+        ],
+        [
+            null,
+            "Négociations collectives"
+        ],
+        [
+            null,
+            "Précarité de l'emploi"
+        ],
+        [
+            null,
+            "Protection sociale"
+        ],
+        [
+            null,
+            "Rémunération et salaires"
+        ],
+        [
+            null,
+            "Représentation du personnel"
+        ],
+        [
+            null,
+            "Retraites"
+        ],
+        [
+            null,
+            "Temps de travail"
+        ],
+        [
+            null,
+            "Travail des jeunes"
+        ],
+        [
+            null,
+            "Travail des seniors"
+        ],
+        [
+            null,
+            "Violences et harcèlement au travail"
+        ],
+        [
+            null,
+            "Conditions de vie au travail"
+        ],
+        [
+            null,
+            "Relations employeur-employé"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "Syndicats industriels"
+        ],
+        [
+            null,
+            "Conditions de travail"
+        ],
+        [
+            null,
+            "Dialogue social"
+        ],
+        [
+            null,
+            "Droits des travailleurs"
+        ],
+        [
+            null,
+            "Évolution technologique"
+        ],
+        [
+            null,
+            "Grèves et mouvements sociaux"
+        ],
+        [
+            null,
+            "Hygiène et sécurité au travail"
+        ],
+        [
+            null,
+            "Licenciements et restructurations"
+        ],
+        [
+            null,
+            "Négociations collectives"
+        ],
+        [
+            null,
+            "Précarité de l'emploi"
+        ],
+        [
+            null,
+            "Protection sociale"
+        ],
+        [
+            null,
+            "Reconversion professionnelle"
+        ],
+        [
+            null,
+            "Relations employeur-employé"
+        ],
+        [
+            null,
+            "Rémunération et salaires"
+        ],
+        [
+            null,
+            "Retraites"
+        ],
+        [
+            null,
+            "Temps de travail"
+        ],
+        [
+            null,
+            "Transformation numérique"
+        ],
+        [
+            null,
+            "Violences et harcèlement au travail"
+        ],
+        [
+            null,
+            "Conditions de vie au travail"
+        ],
+        [
+            null,
+            "Formation professionnelle"
+        ],
+        [
+            null,
+            "Syndicalisme sectoriel"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "Syndicats patronaux"
+        ],
+        [
+            null,
+            "Compétitivité des entreprises"
+        ],
+        [
+            null,
+            "Dialogue social"
+        ],
+        [
+            null,
+            "Droits des employeurs"
+        ],
+        [
+            null,
+            "Économie nationale"
+        ],
+        [
+            null,
+            "Fiscalité des entreprises"
+        ],
+        [
+            null,
+            "Formation professionnelle"
+        ],
+        [
+            null,
+            "Gestion des ressources humaines"
+        ],
+        [
+            null,
+            "Grèves et mouvements sociaux"
+        ],
+        [
+            null,
+            "Lobbying et représentation politique"
+        ],
+        [
+            null,
+            "Négociations collectives"
+        ],
+        [
+            null,
+            "Politiques économiques"
+        ],
+        [
+            null,
+            "Précarité de l'emploi"
+        ],
+        [
+            null,
+            "Protection sociale"
+        ],
+        [
+            null,
+            "Relations employeur-employé"
+        ],
+        [
+            null,
+            "Rémunération et avantages sociaux"
+        ],
+        [
+            null,
+            "Retraites"
+        ],
+        [
+            null,
+            "Temps de travail"
+        ],
+        [
+            null,
+            "Travail et innovation"
+        ],
+        [
+            null,
+            "Conditions de travail"
+        ],
+        [
+            null,
+            "Stratégies commerciales"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "Syndicats de la presse et des médias"
+        ],
+        [
+            null,
+            "Conditions de travail"
+        ],
+        [
+            null,
+            "Dialogue social"
+        ],
+        [
+            null,
+            "Droits des travailleurs de la presse"
+        ],
+        [
+            null,
+            "Droits d’auteurs et droits voisins"
+        ],
+        [
+            null,
+            "Éthique journalistique"
+        ],
+        [
+            null,
+            "Formation professionnelle"
+        ],
+        [
+            null,
+            "Grèves et mouvements sociaux"
+        ],
+        [
+            null,
+            "Hygiène et sécurité au travail"
+        ],
+        [
+            null,
+            "Indépendance des médias"
+        ],
+        [
+            null,
+            "Intelligence artificielle"
+        ],
+        [
+            null,
+            "Licenciements et restructurations"
+        ],
+        [
+            null,
+            "Négociations collectives"
+        ],
+        [
+            null,
+            "Précarité de l'emploi"
+        ],
+        [
+            null,
+            "Protection sociale"
+        ],
+        [
+            null,
+            "Qualité de l'information"
+        ],
+        [
+            null,
+            "Relations employeur-employé"
+        ],
+        [
+            null,
+            "Rémunération et avantages sociaux"
+        ],
+        [
+            null,
+            "Retraites"
+        ],
+        [
+            null,
+            "Temps de travail"
+        ],
+        [
+            null,
+            "Violences et harcèlement au travail"
+        ],
+        [
+            null,
+            "Conditions de vie au travail"
+        ],
+        [
+            null,
+            "Évolution numérique"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "Syndicats professionnels"
+        ],
+        [
+            null,
+            "Conditions de travail"
+        ],
+        [
+            null,
+            "Dialogue social"
+        ],
+        [
+            null,
+            "Droits des travailleurs"
+        ],
+        [
+            null,
+            "Formation professionnelle"
+        ],
+        [
+            null,
+            "Grèves et mouvements sociaux"
+        ],
+        [
+            null,
+            "Hygiène et sécurité au travail"
+        ],
+        [
+            null,
+            "Licenciements et restructurations"
+        ],
+        [
+            null,
+            "Négociations collectives"
+        ],
+        [
+            null,
+            "Précarité de l'emploi"
+        ],
+        [
+            null,
+            "Protection sociale"
+        ],
+        [
+            null,
+            "Rémunération et salaires"
+        ],
+        [
+            null,
+            "Représentation des salariés"
+        ],
+        [
+            null,
+            "Retraites"
+        ],
+        [
+            null,
+            "Temps de travail"
+        ],
+        [
+            null,
+            "Violences et harcèlement au travail"
+        ],
+        [
+            null,
+            "Conditions de vie au travail"
+        ],
+        [
+            null,
+            "Relations employeur-employé"
+        ],
+        [
+            null,
+            "Avantages sociaux"
+        ],
+        [
+            null,
+            "Promotion professionnelle"
+        ],
+        [
+            null,
+            "Conciliation vie professionnelle-vie personnelle"
+        ],
+        [
+            null,
+            "Autres"
+        ]
+    ]
+}

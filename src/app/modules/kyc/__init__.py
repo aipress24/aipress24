@@ -6,7 +6,13 @@ from __future__ import annotations
 
 from flask import Blueprint
 
-blueprint = Blueprint("kyc", __name__, url_prefix="/kyc", template_folder="templates")
+blueprint = Blueprint(
+    "kyc",
+    __name__,
+    url_prefix="/kyc",
+    template_folder="templates",
+    static_folder="static",
+)
 route = blueprint.route
 get = blueprint.get
 post = blueprint.post

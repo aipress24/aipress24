@@ -1,0 +1,522 @@
+[
+    {
+        "value": "FRO;100 Tórshavn",
+        "label": "100 Tórshavn"
+    },
+    {
+        "value": "FRO;110 Tórshavn",
+        "label": "110 Tórshavn"
+    },
+    {
+        "value": "FRO;160 Argir",
+        "label": "160 Argir"
+    },
+    {
+        "value": "FRO;165 Argir",
+        "label": "165 Argir"
+    },
+    {
+        "value": "FRO;175 Kirkjubøur",
+        "label": "175 Kirkjubøur"
+    },
+    {
+        "value": "FRO;176 Velbastadur",
+        "label": "176 Velbastadur"
+    },
+    {
+        "value": "FRO;177 Sydradalur, Streymoy",
+        "label": "177 Sydradalur, Streymoy"
+    },
+    {
+        "value": "FRO;178 Nordradalur",
+        "label": "178 Nordradalur"
+    },
+    {
+        "value": "FRO;180 Kaldbak",
+        "label": "180 Kaldbak"
+    },
+    {
+        "value": "FRO;185 Kaldbaksbotnur",
+        "label": "185 Kaldbaksbotnur"
+    },
+    {
+        "value": "FRO;186 Sund",
+        "label": "186 Sund"
+    },
+    {
+        "value": "FRO;187 Hvitanes",
+        "label": "187 Hvitanes"
+    },
+    {
+        "value": "FRO;188 Hoyvik",
+        "label": "188 Hoyvik"
+    },
+    {
+        "value": "FRO;210 Sandur",
+        "label": "210 Sandur"
+    },
+    {
+        "value": "FRO;215 Sandur",
+        "label": "215 Sandur"
+    },
+    {
+        "value": "FRO;220 Skálavik",
+        "label": "220 Skálavik"
+    },
+    {
+        "value": "FRO;230 Húsavik",
+        "label": "230 Húsavik"
+    },
+    {
+        "value": "FRO;235 Dalur",
+        "label": "235 Dalur"
+    },
+    {
+        "value": "FRO;236 Skarvanes",
+        "label": "236 Skarvanes"
+    },
+    {
+        "value": "FRO;240 Skopun",
+        "label": "240 Skopun"
+    },
+    {
+        "value": "FRO;260 Skúvoy",
+        "label": "260 Skúvoy"
+    },
+    {
+        "value": "FRO;270 Nólsoy",
+        "label": "270 Nólsoy"
+    },
+    {
+        "value": "FRO;280 Hestur",
+        "label": "280 Hestur"
+    },
+    {
+        "value": "FRO;285 Koltur",
+        "label": "285 Koltur"
+    },
+    {
+        "value": "FRO;286 Stóra Dimun",
+        "label": "286 Stóra Dimun"
+    },
+    {
+        "value": "FRO;330 Stykkid",
+        "label": "330 Stykkid"
+    },
+    {
+        "value": "FRO;335 Leynar",
+        "label": "335 Leynar"
+    },
+    {
+        "value": "FRO;336 Skællingur",
+        "label": "336 Skællingur"
+    },
+    {
+        "value": "FRO;340 Kvivik",
+        "label": "340 Kvivik"
+    },
+    {
+        "value": "FRO;350 Vestmanna",
+        "label": "350 Vestmanna"
+    },
+    {
+        "value": "FRO;355 Vestmanna",
+        "label": "355 Vestmanna"
+    },
+    {
+        "value": "FRO;358 Válur",
+        "label": "358 Válur"
+    },
+    {
+        "value": "FRO;360 Sandavágur",
+        "label": "360 Sandavágur"
+    },
+    {
+        "value": "FRO;370 Midvágur",
+        "label": "370 Midvágur"
+    },
+    {
+        "value": "FRO;375 Midvágur",
+        "label": "375 Midvágur"
+    },
+    {
+        "value": "FRO;380 Sørvágur",
+        "label": "380 Sørvágur"
+    },
+    {
+        "value": "FRO;385 Vatnsoyrar",
+        "label": "385 Vatnsoyrar"
+    },
+    {
+        "value": "FRO;386 Bøur",
+        "label": "386 Bøur"
+    },
+    {
+        "value": "FRO;387 Gásadalur",
+        "label": "387 Gásadalur"
+    },
+    {
+        "value": "FRO;388 Mykines",
+        "label": "388 Mykines"
+    },
+    {
+        "value": "FRO;400 Oyrarbakki",
+        "label": "400 Oyrarbakki"
+    },
+    {
+        "value": "FRO;405 Oyrarbakki",
+        "label": "405 Oyrarbakki"
+    },
+    {
+        "value": "FRO;410 Kollafjørdur",
+        "label": "410 Kollafjørdur"
+    },
+    {
+        "value": "FRO;415 Oyrareingir",
+        "label": "415 Oyrareingir"
+    },
+    {
+        "value": "FRO;416 Signabøur",
+        "label": "416 Signabøur"
+    },
+    {
+        "value": "FRO;420 Hósvik",
+        "label": "420 Hósvik"
+    },
+    {
+        "value": "FRO;430 Hvalvik",
+        "label": "430 Hvalvik"
+    },
+    {
+        "value": "FRO;435 Streymnes",
+        "label": "435 Streymnes"
+    },
+    {
+        "value": "FRO;436 Saksun",
+        "label": "436 Saksun"
+    },
+    {
+        "value": "FRO;437 Nesvik",
+        "label": "437 Nesvik"
+    },
+    {
+        "value": "FRO;438 Langasandur",
+        "label": "438 Langasandur"
+    },
+    {
+        "value": "FRO;440 Haldarsvik",
+        "label": "440 Haldarsvik"
+    },
+    {
+        "value": "FRO;445 Tjørnuvik",
+        "label": "445 Tjørnuvik"
+    },
+    {
+        "value": "FRO;450 Oyri",
+        "label": "450 Oyri"
+    },
+    {
+        "value": "FRO;460 Nordskáli",
+        "label": "460 Nordskáli"
+    },
+    {
+        "value": "FRO;465 Svináir",
+        "label": "465 Svináir"
+    },
+    {
+        "value": "FRO;466 Ljósá",
+        "label": "466 Ljósá"
+    },
+    {
+        "value": "FRO;470 Eidi",
+        "label": "470 Eidi"
+    },
+    {
+        "value": "FRO;475 Funningur",
+        "label": "475 Funningur"
+    },
+    {
+        "value": "FRO;476 Gjógv",
+        "label": "476 Gjógv"
+    },
+    {
+        "value": "FRO;477 Funningsfjørdur",
+        "label": "477 Funningsfjørdur"
+    },
+    {
+        "value": "FRO;478 Elduvik",
+        "label": "478 Elduvik"
+    },
+    {
+        "value": "FRO;480 Skáli",
+        "label": "480 Skáli"
+    },
+    {
+        "value": "FRO;485 Skálafjørdur",
+        "label": "485 Skálafjørdur"
+    },
+    {
+        "value": "FRO;490 Strendur",
+        "label": "490 Strendur"
+    },
+    {
+        "value": "FRO;494 Innan Glyvur",
+        "label": "494 Innan Glyvur"
+    },
+    {
+        "value": "FRO;495 Kolbanargjógv",
+        "label": "495 Kolbanargjógv"
+    },
+    {
+        "value": "FRO;496 Morskranes",
+        "label": "496 Morskranes"
+    },
+    {
+        "value": "FRO;497 Selatrad",
+        "label": "497 Selatrad"
+    },
+    {
+        "value": "FRO;510 Gøta",
+        "label": "510 Gøta"
+    },
+    {
+        "value": "FRO;511 Gøtugjógv",
+        "label": "511 Gøtugjógv"
+    },
+    {
+        "value": "FRO;512 Nordragøta",
+        "label": "512 Nordragøta"
+    },
+    {
+        "value": "FRO;513 Sydrugøta",
+        "label": "513 Sydrugøta"
+    },
+    {
+        "value": "FRO;515 Gøta",
+        "label": "515 Gøta"
+    },
+    {
+        "value": "FRO;520 Leirvik",
+        "label": "520 Leirvik"
+    },
+    {
+        "value": "FRO;530 Fuglafjørdur",
+        "label": "530 Fuglafjørdur"
+    },
+    {
+        "value": "FRO;535 Fuglafjørdur",
+        "label": "535 Fuglafjørdur"
+    },
+    {
+        "value": "FRO;600 Saltangará",
+        "label": "600 Saltangará"
+    },
+    {
+        "value": "FRO;610 Saltangará",
+        "label": "610 Saltangará"
+    },
+    {
+        "value": "FRO;620 Runavik",
+        "label": "620 Runavik"
+    },
+    {
+        "value": "FRO;625 Glyvrar",
+        "label": "625 Glyvrar"
+    },
+    {
+        "value": "FRO;626 Lambareidi",
+        "label": "626 Lambareidi"
+    },
+    {
+        "value": "FRO;627 Lambi",
+        "label": "627 Lambi"
+    },
+    {
+        "value": "FRO;640 Rituvik",
+        "label": "640 Rituvik"
+    },
+    {
+        "value": "FRO;645 Æduvik",
+        "label": "645 Æduvik"
+    },
+    {
+        "value": "FRO;650 Toftir",
+        "label": "650 Toftir"
+    },
+    {
+        "value": "FRO;655 Nes, Eysturoy",
+        "label": "655 Nes, Eysturoy"
+    },
+    {
+        "value": "FRO;656 Saltnes",
+        "label": "656 Saltnes"
+    },
+    {
+        "value": "FRO;660 Søldarfjørdur",
+        "label": "660 Søldarfjørdur"
+    },
+    {
+        "value": "FRO;665 Skipanes",
+        "label": "665 Skipanes"
+    },
+    {
+        "value": "FRO;666 Gøtueidi",
+        "label": "666 Gøtueidi"
+    },
+    {
+        "value": "FRO;690 Oyndarfjørdur",
+        "label": "690 Oyndarfjørdur"
+    },
+    {
+        "value": "FRO;695 Hellur",
+        "label": "695 Hellur"
+    },
+    {
+        "value": "FRO;700 Klaksvik",
+        "label": "700 Klaksvik"
+    },
+    {
+        "value": "FRO;710 Klaksvík",
+        "label": "710 Klaksvík"
+    },
+    {
+        "value": "FRO;725 Nordoyri",
+        "label": "725 Nordoyri"
+    },
+    {
+        "value": "FRO;726 Ánir",
+        "label": "726 Ánir"
+    },
+    {
+        "value": "FRO;727 Árnafjørdur",
+        "label": "727 Árnafjørdur"
+    },
+    {
+        "value": "FRO;730 Norddepil",
+        "label": "730 Norddepil"
+    },
+    {
+        "value": "FRO;735 Depil",
+        "label": "735 Depil"
+    },
+    {
+        "value": "FRO;736 Nordtoftir",
+        "label": "736 Nordtoftir"
+    },
+    {
+        "value": "FRO;737 Múli",
+        "label": "737 Múli"
+    },
+    {
+        "value": "FRO;740 Hvannasund",
+        "label": "740 Hvannasund"
+    },
+    {
+        "value": "FRO;750 Vidareidi",
+        "label": "750 Vidareidi"
+    },
+    {
+        "value": "FRO;765 Svinoy",
+        "label": "765 Svinoy"
+    },
+    {
+        "value": "FRO;766 Kirkja",
+        "label": "766 Kirkja"
+    },
+    {
+        "value": "FRO;767 Hattarvik",
+        "label": "767 Hattarvik"
+    },
+    {
+        "value": "FRO;780 Kunoy",
+        "label": "780 Kunoy"
+    },
+    {
+        "value": "FRO;785 Haraldssund",
+        "label": "785 Haraldssund"
+    },
+    {
+        "value": "FRO;795 Sydradalur, Kalsoy",
+        "label": "795 Sydradalur, Kalsoy"
+    },
+    {
+        "value": "FRO;796 Húsar",
+        "label": "796 Húsar"
+    },
+    {
+        "value": "FRO;797 Mikladalur",
+        "label": "797 Mikladalur"
+    },
+    {
+        "value": "FRO;798 Trøllanes",
+        "label": "798 Trøllanes"
+    },
+    {
+        "value": "FRO;800 Tvøroyri",
+        "label": "800 Tvøroyri"
+    },
+    {
+        "value": "FRO;810 Tvøroyri",
+        "label": "810 Tvøroyri"
+    },
+    {
+        "value": "FRO;825 Frodba",
+        "label": "825 Frodba"
+    },
+    {
+        "value": "FRO;826 Trongisvágur",
+        "label": "826 Trongisvágur"
+    },
+    {
+        "value": "FRO;827 Øravik",
+        "label": "827 Øravik"
+    },
+    {
+        "value": "FRO;850 Hvalba",
+        "label": "850 Hvalba"
+    },
+    {
+        "value": "FRO;860 Sandvik",
+        "label": "860 Sandvik"
+    },
+    {
+        "value": "FRO;870 Fámjin",
+        "label": "870 Fámjin"
+    },
+    {
+        "value": "FRO;900 Vágur",
+        "label": "900 Vágur"
+    },
+    {
+        "value": "FRO;910 Vágur",
+        "label": "910 Vágur"
+    },
+    {
+        "value": "FRO;925 Nes, Vágur",
+        "label": "925 Nes, Vágur"
+    },
+    {
+        "value": "FRO;926 Lopra",
+        "label": "926 Lopra"
+    },
+    {
+        "value": "FRO;927 Akrar",
+        "label": "927 Akrar"
+    },
+    {
+        "value": "FRO;928 Vikarbyrgi",
+        "label": "928 Vikarbyrgi"
+    },
+    {
+        "value": "FRO;950 Porkeri",
+        "label": "950 Porkeri"
+    },
+    {
+        "value": "FRO;960 Hov",
+        "label": "960 Hov"
+    },
+    {
+        "value": "FRO;970 Sumba",
+        "label": "970 Sumba"
+    }
+]

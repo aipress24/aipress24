@@ -1,0 +1,2914 @@
+[
+    {
+        "value": "PAN;01001 Bocas Del Toro (Cabecera)",
+        "label": "01001 Bocas Del Toro (Cabecera)"
+    },
+    {
+        "value": "PAN;01002 Bastimentos",
+        "label": "01002 Bastimentos"
+    },
+    {
+        "value": "PAN;01003 Punta Laurel",
+        "label": "01003 Punta Laurel"
+    },
+    {
+        "value": "PAN;01004 Cauchero",
+        "label": "01004 Cauchero"
+    },
+    {
+        "value": "PAN;01005 Tierra Oscura",
+        "label": "01005 Tierra Oscura"
+    },
+    {
+        "value": "PAN;01006 Changuinola (Cabec)",
+        "label": "01006 Changuinola (Cabec)"
+    },
+    {
+        "value": "PAN;01007 Almirante",
+        "label": "01007 Almirante"
+    },
+    {
+        "value": "PAN;01008 Guabito",
+        "label": "01008 Guabito"
+    },
+    {
+        "value": "PAN;01009 El Teribe",
+        "label": "01009 El Teribe"
+    },
+    {
+        "value": "PAN;01010 Valle Del Risco",
+        "label": "01010 Valle Del Risco"
+    },
+    {
+        "value": "PAN;01011 El Empalme",
+        "label": "01011 El Empalme"
+    },
+    {
+        "value": "PAN;01012 Las Tablas",
+        "label": "01012 Las Tablas"
+    },
+    {
+        "value": "PAN;01013 Chiriqui Grande (Cabec)",
+        "label": "01013 Chiriqui Grande (Cabec)"
+    },
+    {
+        "value": "PAN;01014 Punta Robalo",
+        "label": "01014 Punta Robalo"
+    },
+    {
+        "value": "PAN;01015 Miramar",
+        "label": "01015 Miramar"
+    },
+    {
+        "value": "PAN;01016 Punta Peða",
+        "label": "01016 Punta Peða"
+    },
+    {
+        "value": "PAN;01017 Rambala",
+        "label": "01017 Rambala"
+    },
+    {
+        "value": "PAN;02001 Anton (Cabec)",
+        "label": "02001 Anton (Cabec)"
+    },
+    {
+        "value": "PAN;02002 Cabuya",
+        "label": "02002 Cabuya"
+    },
+    {
+        "value": "PAN;02003 El Chiru",
+        "label": "02003 El Chiru"
+    },
+    {
+        "value": "PAN;02004 El Retiro",
+        "label": "02004 El Retiro"
+    },
+    {
+        "value": "PAN;02005 El Valle",
+        "label": "02005 El Valle"
+    },
+    {
+        "value": "PAN;02006 Juan Diaz",
+        "label": "02006 Juan Diaz"
+    },
+    {
+        "value": "PAN;02007 Rio Hato",
+        "label": "02007 Rio Hato"
+    },
+    {
+        "value": "PAN;02008 San Juan De Dios",
+        "label": "02008 San Juan De Dios"
+    },
+    {
+        "value": "PAN;02009 Santa Rita",
+        "label": "02009 Santa Rita"
+    },
+    {
+        "value": "PAN;02010 Caballero",
+        "label": "02010 Caballero"
+    },
+    {
+        "value": "PAN;02011 Penonome (Cabec)",
+        "label": "02011 Penonome (Cabec)"
+    },
+    {
+        "value": "PAN;02012 Caðaberal",
+        "label": "02012 Caðaberal"
+    },
+    {
+        "value": "PAN;02013 Cocle",
+        "label": "02013 Cocle"
+    },
+    {
+        "value": "PAN;02014 Chiriqui Arriba",
+        "label": "02014 Chiriqui Arriba"
+    },
+    {
+        "value": "PAN;02015 El Coco",
+        "label": "02015 El Coco"
+    },
+    {
+        "value": "PAN;02016 Pajonal",
+        "label": "02016 Pajonal"
+    },
+    {
+        "value": "PAN;02017 Rio Grande",
+        "label": "02017 Rio Grande"
+    },
+    {
+        "value": "PAN;02018 Rio Indio",
+        "label": "02018 Rio Indio"
+    },
+    {
+        "value": "PAN;02019 Toabre",
+        "label": "02019 Toabre"
+    },
+    {
+        "value": "PAN;02020 Tulu",
+        "label": "02020 Tulu"
+    },
+    {
+        "value": "PAN;02021 La Pintada (Cabec)",
+        "label": "02021 La Pintada (Cabec)"
+    },
+    {
+        "value": "PAN;02022 El Harino",
+        "label": "02022 El Harino"
+    },
+    {
+        "value": "PAN;02023 El Potrero",
+        "label": "02023 El Potrero"
+    },
+    {
+        "value": "PAN;02024 Llano Grande",
+        "label": "02024 Llano Grande"
+    },
+    {
+        "value": "PAN;02025 Piedras Gordas",
+        "label": "02025 Piedras Gordas"
+    },
+    {
+        "value": "PAN;02026 Las Lomas",
+        "label": "02026 Las Lomas"
+    },
+    {
+        "value": "PAN;02027 Nata (Cabec)",
+        "label": "02027 Nata (Cabec)"
+    },
+    {
+        "value": "PAN;02028 Capellania",
+        "label": "02028 Capellania"
+    },
+    {
+        "value": "PAN;02029 El Caðo",
+        "label": "02029 El Caðo"
+    },
+    {
+        "value": "PAN;02030 Guzman",
+        "label": "02030 Guzman"
+    },
+    {
+        "value": "PAN;02031 Las Huacas",
+        "label": "02031 Las Huacas"
+    },
+    {
+        "value": "PAN;02032 Toza",
+        "label": "02032 Toza"
+    },
+    {
+        "value": "PAN;02033 Ola (Cabec)",
+        "label": "02033 Ola (Cabec)"
+    },
+    {
+        "value": "PAN;02034 El Cope",
+        "label": "02034 El Cope"
+    },
+    {
+        "value": "PAN;02035 El Palmar",
+        "label": "02035 El Palmar"
+    },
+    {
+        "value": "PAN;02036 El Picacho",
+        "label": "02036 El Picacho"
+    },
+    {
+        "value": "PAN;02037 La Pava",
+        "label": "02037 La Pava"
+    },
+    {
+        "value": "PAN;02038 Aguadulce (Cabec)",
+        "label": "02038 Aguadulce (Cabec)"
+    },
+    {
+        "value": "PAN;02039 El Cristo",
+        "label": "02039 El Cristo"
+    },
+    {
+        "value": "PAN;02040 El Roble",
+        "label": "02040 El Roble"
+    },
+    {
+        "value": "PAN;02041 Pocri",
+        "label": "02041 Pocri"
+    },
+    {
+        "value": "PAN;02042 Barrios Unidos",
+        "label": "02042 Barrios Unidos"
+    },
+    {
+        "value": "PAN;02043 El Valle",
+        "label": "02043 El Valle"
+    },
+    {
+        "value": "PAN;03001 Barrio Norte",
+        "label": "03001 Barrio Norte"
+    },
+    {
+        "value": "PAN;03002 Barrio Sur",
+        "label": "03002 Barrio Sur"
+    },
+    {
+        "value": "PAN;03003 Buena Vista",
+        "label": "03003 Buena Vista"
+    },
+    {
+        "value": "PAN;03004 Cativa",
+        "label": "03004 Cativa"
+    },
+    {
+        "value": "PAN;03005 Ciricito",
+        "label": "03005 Ciricito"
+    },
+    {
+        "value": "PAN;03006 Cristobal",
+        "label": "03006 Cristobal"
+    },
+    {
+        "value": "PAN;03007 Escobal",
+        "label": "03007 Escobal"
+    },
+    {
+        "value": "PAN;03008 Limon",
+        "label": "03008 Limon"
+    },
+    {
+        "value": "PAN;03009 Nueva Providencia",
+        "label": "03009 Nueva Providencia"
+    },
+    {
+        "value": "PAN;03010 Puerto Pilon",
+        "label": "03010 Puerto Pilon"
+    },
+    {
+        "value": "PAN;03011 Sabanitas",
+        "label": "03011 Sabanitas"
+    },
+    {
+        "value": "PAN;03012 Salamanca",
+        "label": "03012 Salamanca"
+    },
+    {
+        "value": "PAN;03013 San Juan",
+        "label": "03013 San Juan"
+    },
+    {
+        "value": "PAN;03014 Santa Rosa",
+        "label": "03014 Santa Rosa"
+    },
+    {
+        "value": "PAN;03015 Nuevo Chagres (Cabec)",
+        "label": "03015 Nuevo Chagres (Cabec)"
+    },
+    {
+        "value": "PAN;03016 Achiote",
+        "label": "03016 Achiote"
+    },
+    {
+        "value": "PAN;03017 El Guabo",
+        "label": "03017 El Guabo"
+    },
+    {
+        "value": "PAN;03018 La Encantada",
+        "label": "03018 La Encantada"
+    },
+    {
+        "value": "PAN;03019 Palmas Bellas",
+        "label": "03019 Palmas Bellas"
+    },
+    {
+        "value": "PAN;03020 Piða",
+        "label": "03020 Piða"
+    },
+    {
+        "value": "PAN;03021 Salud",
+        "label": "03021 Salud"
+    },
+    {
+        "value": "PAN;03022 Miguel De La Borda (Cabec)",
+        "label": "03022 Miguel De La Borda (Cabec)"
+    },
+    {
+        "value": "PAN;03023 Cocle Del Norte",
+        "label": "03023 Cocle Del Norte"
+    },
+    {
+        "value": "PAN;03024 El Guasimo",
+        "label": "03024 El Guasimo"
+    },
+    {
+        "value": "PAN;03025 Gobea",
+        "label": "03025 Gobea"
+    },
+    {
+        "value": "PAN;03026 Rio Indio",
+        "label": "03026 Rio Indio"
+    },
+    {
+        "value": "PAN;03027 San Jose Del General",
+        "label": "03027 San Jose Del General"
+    },
+    {
+        "value": "PAN;03028 Portobelo (Cabec)",
+        "label": "03028 Portobelo (Cabec)"
+    },
+    {
+        "value": "PAN;03029 Cacique",
+        "label": "03029 Cacique"
+    },
+    {
+        "value": "PAN;03030 Garrote",
+        "label": "03030 Garrote"
+    },
+    {
+        "value": "PAN;03031 Isla Grande",
+        "label": "03031 Isla Grande"
+    },
+    {
+        "value": "PAN;03032 Maria Chiquita",
+        "label": "03032 Maria Chiquita"
+    },
+    {
+        "value": "PAN;03033 Palenque (Cabec)",
+        "label": "03033 Palenque (Cabec)"
+    },
+    {
+        "value": "PAN;03034 Cuango",
+        "label": "03034 Cuango"
+    },
+    {
+        "value": "PAN;03035 Miramar",
+        "label": "03035 Miramar"
+    },
+    {
+        "value": "PAN;03036 Nombre De Dios",
+        "label": "03036 Nombre De Dios"
+    },
+    {
+        "value": "PAN;03037 Palmira",
+        "label": "03037 Palmira"
+    },
+    {
+        "value": "PAN;03038 Playa Chiquita",
+        "label": "03038 Playa Chiquita"
+    },
+    {
+        "value": "PAN;03039 Santa Isabel",
+        "label": "03039 Santa Isabel"
+    },
+    {
+        "value": "PAN;03040 Viento Frio",
+        "label": "03040 Viento Frio"
+    },
+    {
+        "value": "PAN;03041 Colon",
+        "label": "03041 Colon"
+    },
+    {
+        "value": "PAN;03042 Bahia La Mina",
+        "label": "03042 Bahia La Mina"
+    },
+    {
+        "value": "PAN;03046 El Espinar",
+        "label": "03046 El Espinar"
+    },
+    {
+        "value": "PAN;03047 Manzanillo",
+        "label": "03047 Manzanillo"
+    },
+    {
+        "value": "PAN;03049 Porto Belo",
+        "label": "03049 Porto Belo"
+    },
+    {
+        "value": "PAN;03050 Zona Libre",
+        "label": "03050 Zona Libre"
+    },
+    {
+        "value": "PAN;04001 David (Cabec)",
+        "label": "04001 David (Cabec)"
+    },
+    {
+        "value": "PAN;04002 Bijagual",
+        "label": "04002 Bijagual"
+    },
+    {
+        "value": "PAN;04003 Cochea",
+        "label": "04003 Cochea"
+    },
+    {
+        "value": "PAN;04004 Chiriqui",
+        "label": "04004 Chiriqui"
+    },
+    {
+        "value": "PAN;04005 Guaca",
+        "label": "04005 Guaca"
+    },
+    {
+        "value": "PAN;04006 Las Lomas",
+        "label": "04006 Las Lomas"
+    },
+    {
+        "value": "PAN;04007 Pedregal",
+        "label": "04007 Pedregal"
+    },
+    {
+        "value": "PAN;04008 San Carlos",
+        "label": "04008 San Carlos"
+    },
+    {
+        "value": "PAN;04009 San Pablo Nuevo",
+        "label": "04009 San Pablo Nuevo"
+    },
+    {
+        "value": "PAN;04010 San Pablo Viejo",
+        "label": "04010 San Pablo Viejo"
+    },
+    {
+        "value": "PAN;04011 Puerto Armuelles (Cabec)",
+        "label": "04011 Puerto Armuelles (Cabec)"
+    },
+    {
+        "value": "PAN;04012 Limones",
+        "label": "04012 Limones"
+    },
+    {
+        "value": "PAN;04013 Progreso",
+        "label": "04013 Progreso"
+    },
+    {
+        "value": "PAN;04014 Baco",
+        "label": "04014 Baco"
+    },
+    {
+        "value": "PAN;04015 Rodolfo Aguilar",
+        "label": "04015 Rodolfo Aguilar"
+    },
+    {
+        "value": "PAN;04016 La Concepcion (Cabec)",
+        "label": "04016 La Concepcion (Cabec)"
+    },
+    {
+        "value": "PAN;04017 Aserrio De Gariche",
+        "label": "04017 Aserrio De Gariche"
+    },
+    {
+        "value": "PAN;04018 Bugaba",
+        "label": "04018 Bugaba"
+    },
+    {
+        "value": "PAN;04019 Cerro Punta",
+        "label": "04019 Cerro Punta"
+    },
+    {
+        "value": "PAN;04020 Gomez",
+        "label": "04020 Gomez"
+    },
+    {
+        "value": "PAN;04021 La Estrella",
+        "label": "04021 La Estrella"
+    },
+    {
+        "value": "PAN;04022 San Andres",
+        "label": "04022 San Andres"
+    },
+    {
+        "value": "PAN;04023 Santa Marta",
+        "label": "04023 Santa Marta"
+    },
+    {
+        "value": "PAN;04024 Santa Rosa",
+        "label": "04024 Santa Rosa"
+    },
+    {
+        "value": "PAN;04025 Santo Domingo",
+        "label": "04025 Santo Domingo"
+    },
+    {
+        "value": "PAN;04026 Sortova",
+        "label": "04026 Sortova"
+    },
+    {
+        "value": "PAN;04027 Volcan",
+        "label": "04027 Volcan"
+    },
+    {
+        "value": "PAN;04028 El Bongo",
+        "label": "04028 El Bongo"
+    },
+    {
+        "value": "PAN;04029 Alanje (Cabec)",
+        "label": "04029 Alanje (Cabec)"
+    },
+    {
+        "value": "PAN;04030 Divala",
+        "label": "04030 Divala"
+    },
+    {
+        "value": "PAN;04031 Guarumal",
+        "label": "04031 Guarumal"
+    },
+    {
+        "value": "PAN;04032 Palo Grande",
+        "label": "04032 Palo Grande"
+    },
+    {
+        "value": "PAN;04033 Querevalo",
+        "label": "04033 Querevalo"
+    },
+    {
+        "value": "PAN;04034 Santo Tomas",
+        "label": "04034 Santo Tomas"
+    },
+    {
+        "value": "PAN;04035 Canta Gallo",
+        "label": "04035 Canta Gallo"
+    },
+    {
+        "value": "PAN;04036 Nuevo Mexico",
+        "label": "04036 Nuevo Mexico"
+    },
+    {
+        "value": "PAN;04037 Boqueron (Cabec)",
+        "label": "04037 Boqueron (Cabec)"
+    },
+    {
+        "value": "PAN;04038 Bagala",
+        "label": "04038 Bagala"
+    },
+    {
+        "value": "PAN;04039 Cordillera",
+        "label": "04039 Cordillera"
+    },
+    {
+        "value": "PAN;04040 Guabal",
+        "label": "04040 Guabal"
+    },
+    {
+        "value": "PAN;04041 Guayabal",
+        "label": "04041 Guayabal"
+    },
+    {
+        "value": "PAN;04042 Paraiso",
+        "label": "04042 Paraiso"
+    },
+    {
+        "value": "PAN;04043 Pedregal",
+        "label": "04043 Pedregal"
+    },
+    {
+        "value": "PAN;04044 Tijeras",
+        "label": "04044 Tijeras"
+    },
+    {
+        "value": "PAN;04045 Rio Sereno (Cabec)",
+        "label": "04045 Rio Sereno (Cabec)"
+    },
+    {
+        "value": "PAN;04046 Breðon",
+        "label": "04046 Breðon"
+    },
+    {
+        "value": "PAN;04047 Caðas Gordas",
+        "label": "04047 Caðas Gordas"
+    },
+    {
+        "value": "PAN;04048 Monte Lirio",
+        "label": "04048 Monte Lirio"
+    },
+    {
+        "value": "PAN;04049 Plaza De Caisan",
+        "label": "04049 Plaza De Caisan"
+    },
+    {
+        "value": "PAN;04050 Santa Cruz",
+        "label": "04050 Santa Cruz"
+    },
+    {
+        "value": "PAN;04051 Santa Clara",
+        "label": "04051 Santa Clara"
+    },
+    {
+        "value": "PAN;04052 Dominical",
+        "label": "04052 Dominical"
+    },
+    {
+        "value": "PAN;04053 Bajo Boquete (Cabec)",
+        "label": "04053 Bajo Boquete (Cabec)"
+    },
+    {
+        "value": "PAN;04054 Caldera",
+        "label": "04054 Caldera"
+    },
+    {
+        "value": "PAN;04055 Palmira",
+        "label": "04055 Palmira"
+    },
+    {
+        "value": "PAN;04056 Alto Boquete",
+        "label": "04056 Alto Boquete"
+    },
+    {
+        "value": "PAN;04057 Jaramillo",
+        "label": "04057 Jaramillo"
+    },
+    {
+        "value": "PAN;04058 Los Naranjos",
+        "label": "04058 Los Naranjos"
+    },
+    {
+        "value": "PAN;04059 Dolega (Cabec)",
+        "label": "04059 Dolega (Cabec)"
+    },
+    {
+        "value": "PAN;04060 Dos Rios",
+        "label": "04060 Dos Rios"
+    },
+    {
+        "value": "PAN;04061 Los Anastacios",
+        "label": "04061 Los Anastacios"
+    },
+    {
+        "value": "PAN;04062 Potrerillos",
+        "label": "04062 Potrerillos"
+    },
+    {
+        "value": "PAN;04063 Potrerillos Abajo",
+        "label": "04063 Potrerillos Abajo"
+    },
+    {
+        "value": "PAN;04064 Rovira",
+        "label": "04064 Rovira"
+    },
+    {
+        "value": "PAN;04065 Tinajas",
+        "label": "04065 Tinajas"
+    },
+    {
+        "value": "PAN;04066 Los Algarrobos",
+        "label": "04066 Los Algarrobos"
+    },
+    {
+        "value": "PAN;04067 Gualaca (Cabec)",
+        "label": "04067 Gualaca (Cabec)"
+    },
+    {
+        "value": "PAN;04068 Hornito",
+        "label": "04068 Hornito"
+    },
+    {
+        "value": "PAN;04069 Los Angeles",
+        "label": "04069 Los Angeles"
+    },
+    {
+        "value": "PAN;04070 Paja De Sombrero",
+        "label": "04070 Paja De Sombrero"
+    },
+    {
+        "value": "PAN;04071 Rincon",
+        "label": "04071 Rincon"
+    },
+    {
+        "value": "PAN;04072 Remedios (Cabec)",
+        "label": "04072 Remedios (Cabec)"
+    },
+    {
+        "value": "PAN;04073 El Nancito",
+        "label": "04073 El Nancito"
+    },
+    {
+        "value": "PAN;04074 El Porvenir",
+        "label": "04074 El Porvenir"
+    },
+    {
+        "value": "PAN;04075 El Puerto",
+        "label": "04075 El Puerto"
+    },
+    {
+        "value": "PAN;04076 Santa Lucia",
+        "label": "04076 Santa Lucia"
+    },
+    {
+        "value": "PAN;04077 Horconcitos (Cabec)",
+        "label": "04077 Horconcitos (Cabec)"
+    },
+    {
+        "value": "PAN;04078 Boca Chica",
+        "label": "04078 Boca Chica"
+    },
+    {
+        "value": "PAN;04079 Boca Del Monte",
+        "label": "04079 Boca Del Monte"
+    },
+    {
+        "value": "PAN;04080 San Juan",
+        "label": "04080 San Juan"
+    },
+    {
+        "value": "PAN;04081 San Lorenzo",
+        "label": "04081 San Lorenzo"
+    },
+    {
+        "value": "PAN;04082 Tole(Cabec)",
+        "label": "04082 Tole(Cabec)"
+    },
+    {
+        "value": "PAN;04083 Cerro Viejo",
+        "label": "04083 Cerro Viejo"
+    },
+    {
+        "value": "PAN;04084 Lasjas De Tole",
+        "label": "04084 Lasjas De Tole"
+    },
+    {
+        "value": "PAN;04085 Potrero De Caða",
+        "label": "04085 Potrero De Caða"
+    },
+    {
+        "value": "PAN;04086 Quebrada De Piedra",
+        "label": "04086 Quebrada De Piedra"
+    },
+    {
+        "value": "PAN;04087 Cbella Vista",
+        "label": "04087 Cbella Vista"
+    },
+    {
+        "value": "PAN;04088 El Cristo",
+        "label": "04088 El Cristo"
+    },
+    {
+        "value": "PAN;04089 Justo Fidel Palacios",
+        "label": "04089 Justo Fidel Palacios"
+    },
+    {
+        "value": "PAN;04090 Veladero",
+        "label": "04090 Veladero"
+    },
+    {
+        "value": "PAN;04091 Las Lajas (Cabec)",
+        "label": "04091 Las Lajas (Cabec)"
+    },
+    {
+        "value": "PAN;04092 Juay",
+        "label": "04092 Juay"
+    },
+    {
+        "value": "PAN;04093 San Felix",
+        "label": "04093 San Felix"
+    },
+    {
+        "value": "PAN;04094 Lajas Adentro",
+        "label": "04094 Lajas Adentro"
+    },
+    {
+        "value": "PAN;04095 Santa Cruz",
+        "label": "04095 Santa Cruz"
+    },
+    {
+        "value": "PAN;05001 Chitre (Cabec)",
+        "label": "05001 Chitre (Cabec)"
+    },
+    {
+        "value": "PAN;05002 La Arena",
+        "label": "05002 La Arena"
+    },
+    {
+        "value": "PAN;05003 Monagrillo",
+        "label": "05003 Monagrillo"
+    },
+    {
+        "value": "PAN;05004 San Uan Bautista",
+        "label": "05004 San Uan Bautista"
+    },
+    {
+        "value": "PAN;05005 Llano Bonito",
+        "label": "05005 Llano Bonito"
+    },
+    {
+        "value": "PAN;05006 Los Pozos (Cabec)",
+        "label": "05006 Los Pozos (Cabec)"
+    },
+    {
+        "value": "PAN;05007 Capuri",
+        "label": "05007 Capuri"
+    },
+    {
+        "value": "PAN;05008 El Calabacito",
+        "label": "05008 El Calabacito"
+    },
+    {
+        "value": "PAN;05009 El Cedro",
+        "label": "05009 El Cedro"
+    },
+    {
+        "value": "PAN;05010 La Arena",
+        "label": "05010 La Arena"
+    },
+    {
+        "value": "PAN;05011 La Pitaloza",
+        "label": "05011 La Pitaloza"
+    },
+    {
+        "value": "PAN;05012 Los Cerritos",
+        "label": "05012 Los Cerritos"
+    },
+    {
+        "value": "PAN;05013 Los Cerros De Paja",
+        "label": "05013 Los Cerros De Paja"
+    },
+    {
+        "value": "PAN;05014 Las Llanas",
+        "label": "05014 Las Llanas"
+    },
+    {
+        "value": "PAN;05015 Parita (Cabec)",
+        "label": "05015 Parita (Cabec)"
+    },
+    {
+        "value": "PAN;05016 Cabuya",
+        "label": "05016 Cabuya"
+    },
+    {
+        "value": "PAN;05017 Los Castillos",
+        "label": "05017 Los Castillos"
+    },
+    {
+        "value": "PAN;05018 Llana De La Cruz",
+        "label": "05018 Llana De La Cruz"
+    },
+    {
+        "value": "PAN;05019 Paris",
+        "label": "05019 Paris"
+    },
+    {
+        "value": "PAN;05020 Portobelillo",
+        "label": "05020 Portobelillo"
+    },
+    {
+        "value": "PAN;05021 Potuga",
+        "label": "05021 Potuga"
+    },
+    {
+        "value": "PAN;05022 Pese (Cabec)",
+        "label": "05022 Pese (Cabec)"
+    },
+    {
+        "value": "PAN;05023 Las Cabras",
+        "label": "05023 Las Cabras"
+    },
+    {
+        "value": "PAN;05024 El Pajaro",
+        "label": "05024 El Pajaro"
+    },
+    {
+        "value": "PAN;05025 El Barrero",
+        "label": "05025 El Barrero"
+    },
+    {
+        "value": "PAN;05026 El Pedregoso",
+        "label": "05026 El Pedregoso"
+    },
+    {
+        "value": "PAN;05027 El Ciruelo",
+        "label": "05027 El Ciruelo"
+    },
+    {
+        "value": "PAN;05028 Sabanagrande",
+        "label": "05028 Sabanagrande"
+    },
+    {
+        "value": "PAN;05029 Rincon Hondo",
+        "label": "05029 Rincon Hondo"
+    },
+    {
+        "value": "PAN;05030 Las Minas (Cabec)",
+        "label": "05030 Las Minas (Cabec)"
+    },
+    {
+        "value": "PAN;05031 Chepo",
+        "label": "05031 Chepo"
+    },
+    {
+        "value": "PAN;05032 Chumical",
+        "label": "05032 Chumical"
+    },
+    {
+        "value": "PAN;05033 El Toro",
+        "label": "05033 El Toro"
+    },
+    {
+        "value": "PAN;05034 Leones",
+        "label": "05034 Leones"
+    },
+    {
+        "value": "PAN;05035 Quebrada Del Rosario",
+        "label": "05035 Quebrada Del Rosario"
+    },
+    {
+        "value": "PAN;05036 El Ciprian",
+        "label": "05036 El Ciprian"
+    },
+    {
+        "value": "PAN;05037 Ocu (Cabec)",
+        "label": "05037 Ocu (Cabec)"
+    },
+    {
+        "value": "PAN;05038 Cerro Largo",
+        "label": "05038 Cerro Largo"
+    },
+    {
+        "value": "PAN;05039 Los Llanos",
+        "label": "05039 Los Llanos"
+    },
+    {
+        "value": "PAN;05040 Llano Grande",
+        "label": "05040 Llano Grande"
+    },
+    {
+        "value": "PAN;05041 Peðas Chatas",
+        "label": "05041 Peðas Chatas"
+    },
+    {
+        "value": "PAN;05042 El Tijera",
+        "label": "05042 El Tijera"
+    },
+    {
+        "value": "PAN;05043 Menchaca",
+        "label": "05043 Menchaca"
+    },
+    {
+        "value": "PAN;05044 Santa Maria (Cabec)",
+        "label": "05044 Santa Maria (Cabec)"
+    },
+    {
+        "value": "PAN;05045 Chupampa",
+        "label": "05045 Chupampa"
+    },
+    {
+        "value": "PAN;05046 El Rincon",
+        "label": "05046 El Rincon"
+    },
+    {
+        "value": "PAN;05047 El Limon",
+        "label": "05047 El Limon"
+    },
+    {
+        "value": "PAN;05048 Los Canelos",
+        "label": "05048 Los Canelos"
+    },
+    {
+        "value": "PAN;05050 Chepo",
+        "label": "05050 Chepo"
+    },
+    {
+        "value": "PAN;06001 Las Tablas (Cabec)",
+        "label": "06001 Las Tablas (Cabec)"
+    },
+    {
+        "value": "PAN;06002 Bajo Corral",
+        "label": "06002 Bajo Corral"
+    },
+    {
+        "value": "PAN;06003 Bayano",
+        "label": "06003 Bayano"
+    },
+    {
+        "value": "PAN;06004 Carate",
+        "label": "06004 Carate"
+    },
+    {
+        "value": "PAN;06005 El Cocal",
+        "label": "06005 El Cocal"
+    },
+    {
+        "value": "PAN;06006 El Manantial",
+        "label": "06006 El Manantial"
+    },
+    {
+        "value": "PAN;06007 El Muðoz",
+        "label": "06007 El Muðoz"
+    },
+    {
+        "value": "PAN;06008 El Pedregoso",
+        "label": "06008 El Pedregoso"
+    },
+    {
+        "value": "PAN;06009 La Laja",
+        "label": "06009 La Laja"
+    },
+    {
+        "value": "PAN;06010 La Miel",
+        "label": "06010 La Miel"
+    },
+    {
+        "value": "PAN;06011 La Palma",
+        "label": "06011 La Palma"
+    },
+    {
+        "value": "PAN;06012 La Tiza",
+        "label": "06012 La Tiza"
+    },
+    {
+        "value": "PAN;06013 Las Palmitas",
+        "label": "06013 Las Palmitas"
+    },
+    {
+        "value": "PAN;06014 Las Tablas Abajo",
+        "label": "06014 Las Tablas Abajo"
+    },
+    {
+        "value": "PAN;06015 Nuario",
+        "label": "06015 Nuario"
+    },
+    {
+        "value": "PAN;06016 Palmira",
+        "label": "06016 Palmira"
+    },
+    {
+        "value": "PAN;06017 Peða Blanca",
+        "label": "06017 Peða Blanca"
+    },
+    {
+        "value": "PAN;06018 Rio Hondo",
+        "label": "06018 Rio Hondo"
+    },
+    {
+        "value": "PAN;06019 San Jose",
+        "label": "06019 San Jose"
+    },
+    {
+        "value": "PAN;06020 San Miguel",
+        "label": "06020 San Miguel"
+    },
+    {
+        "value": "PAN;06021 Santo Domingo",
+        "label": "06021 Santo Domingo"
+    },
+    {
+        "value": "PAN;06022 El Sesteadero",
+        "label": "06022 El Sesteadero"
+    },
+    {
+        "value": "PAN;06023 Valle Rico",
+        "label": "06023 Valle Rico"
+    },
+    {
+        "value": "PAN;06024 Vallerriquito",
+        "label": "06024 Vallerriquito"
+    },
+    {
+        "value": "PAN;06025 Pocri (Cabec)",
+        "label": "06025 Pocri (Cabec)"
+    },
+    {
+        "value": "PAN;06026 El Caðafistulo",
+        "label": "06026 El Caðafistulo"
+    },
+    {
+        "value": "PAN;06027 Lajaminas",
+        "label": "06027 Lajaminas"
+    },
+    {
+        "value": "PAN;06028 Paraiso",
+        "label": "06028 Paraiso"
+    },
+    {
+        "value": "PAN;06029 Paritilla",
+        "label": "06029 Paritilla"
+    },
+    {
+        "value": "PAN;06030 Guarare",
+        "label": "06030 Guarare"
+    },
+    {
+        "value": "PAN;06031 El Espinal",
+        "label": "06031 El Espinal"
+    },
+    {
+        "value": "PAN;06032 El Macano",
+        "label": "06032 El Macano"
+    },
+    {
+        "value": "PAN;06033 Guarare Arriba",
+        "label": "06033 Guarare Arriba"
+    },
+    {
+        "value": "PAN;06034 El Enea",
+        "label": "06034 El Enea"
+    },
+    {
+        "value": "PAN;06035 La Pasera",
+        "label": "06035 La Pasera"
+    },
+    {
+        "value": "PAN;06036 Las Trancas",
+        "label": "06036 Las Trancas"
+    },
+    {
+        "value": "PAN;06037 Llano Abajo",
+        "label": "06037 Llano Abajo"
+    },
+    {
+        "value": "PAN;06038 El Hato",
+        "label": "06038 El Hato"
+    },
+    {
+        "value": "PAN;06039 Perales",
+        "label": "06039 Perales"
+    },
+    {
+        "value": "PAN;06040 La Villa De Los Santos",
+        "label": "06040 La Villa De Los Santos"
+    },
+    {
+        "value": "PAN;06041 El Guasimo",
+        "label": "06041 El Guasimo"
+    },
+    {
+        "value": "PAN;06042 La Colorada",
+        "label": "06042 La Colorada"
+    },
+    {
+        "value": "PAN;06043 La Espigadilla",
+        "label": "06043 La Espigadilla"
+    },
+    {
+        "value": "PAN;06044 Las Cruces",
+        "label": "06044 Las Cruces"
+    },
+    {
+        "value": "PAN;06045 Las Guabas",
+        "label": "06045 Las Guabas"
+    },
+    {
+        "value": "PAN;06046 Los Angeles",
+        "label": "06046 Los Angeles"
+    },
+    {
+        "value": "PAN;06047 Los Olivos",
+        "label": "06047 Los Olivos"
+    },
+    {
+        "value": "PAN;06048 Llano Largo",
+        "label": "06048 Llano Largo"
+    },
+    {
+        "value": "PAN;06049 Sabanagrande",
+        "label": "06049 Sabanagrande"
+    },
+    {
+        "value": "PAN;06050 Santa Ana",
+        "label": "06050 Santa Ana"
+    },
+    {
+        "value": "PAN;06051 Tres Quebradas",
+        "label": "06051 Tres Quebradas"
+    },
+    {
+        "value": "PAN;06052 Villa Lourdes",
+        "label": "06052 Villa Lourdes"
+    },
+    {
+        "value": "PAN;06053 Agua Buena",
+        "label": "06053 Agua Buena"
+    },
+    {
+        "value": "PAN;06054 Macaracas (Cabec)",
+        "label": "06054 Macaracas (Cabec)"
+    },
+    {
+        "value": "PAN;06055 Bahia Honda",
+        "label": "06055 Bahia Honda"
+    },
+    {
+        "value": "PAN;06056 Bajos De Guerra",
+        "label": "06056 Bajos De Guerra"
+    },
+    {
+        "value": "PAN;06057 Corozal",
+        "label": "06057 Corozal"
+    },
+    {
+        "value": "PAN;06058 Chupa",
+        "label": "06058 Chupa"
+    },
+    {
+        "value": "PAN;06059 El Cedro",
+        "label": "06059 El Cedro"
+    },
+    {
+        "value": "PAN;06060 Espino Amarillo",
+        "label": "06060 Espino Amarillo"
+    },
+    {
+        "value": "PAN;06061 La Mesa",
+        "label": "06061 La Mesa"
+    },
+    {
+        "value": "PAN;06062 Las Palmas",
+        "label": "06062 Las Palmas"
+    },
+    {
+        "value": "PAN;06063 Llano De Piedra",
+        "label": "06063 Llano De Piedra"
+    },
+    {
+        "value": "PAN;06064 Mogollon",
+        "label": "06064 Mogollon"
+    },
+    {
+        "value": "PAN;06065 Pedasi (Cabec)",
+        "label": "06065 Pedasi (Cabec)"
+    },
+    {
+        "value": "PAN;06066 Los Asientos",
+        "label": "06066 Los Asientos"
+    },
+    {
+        "value": "PAN;06067 Mariabe",
+        "label": "06067 Mariabe"
+    },
+    {
+        "value": "PAN;06068 Purio",
+        "label": "06068 Purio"
+    },
+    {
+        "value": "PAN;06069 Oria Arriba",
+        "label": "06069 Oria Arriba"
+    },
+    {
+        "value": "PAN;06070 Tonosi (Cabec)",
+        "label": "06070 Tonosi (Cabec)"
+    },
+    {
+        "value": "PAN;06071 Altos De Guerra",
+        "label": "06071 Altos De Guerra"
+    },
+    {
+        "value": "PAN;06072 Caðas",
+        "label": "06072 Caðas"
+    },
+    {
+        "value": "PAN;06073 El Bebedero",
+        "label": "06073 El Bebedero"
+    },
+    {
+        "value": "PAN;06074 El Cacao",
+        "label": "06074 El Cacao"
+    },
+    {
+        "value": "PAN;06075 El Cortezo",
+        "label": "06075 El Cortezo"
+    },
+    {
+        "value": "PAN;06076 Flores",
+        "label": "06076 Flores"
+    },
+    {
+        "value": "PAN;06077 Guanico",
+        "label": "06077 Guanico"
+    },
+    {
+        "value": "PAN;06078 La Tronosa",
+        "label": "06078 La Tronosa"
+    },
+    {
+        "value": "PAN;07001 Arraijan (Cabec)",
+        "label": "07001 Arraijan (Cabec)"
+    },
+    {
+        "value": "PAN;07002 Juan D. Arosemena",
+        "label": "07002 Juan D. Arosemena"
+    },
+    {
+        "value": "PAN;07003 Nuevo Emperador",
+        "label": "07003 Nuevo Emperador"
+    },
+    {
+        "value": "PAN;07004 Santa Clara",
+        "label": "07004 Santa Clara"
+    },
+    {
+        "value": "PAN;07005 Veracruz",
+        "label": "07005 Veracruz"
+    },
+    {
+        "value": "PAN;07006 Vista Alegre",
+        "label": "07006 Vista Alegre"
+    },
+    {
+        "value": "PAN;07007 Burunga",
+        "label": "07007 Burunga"
+    },
+    {
+        "value": "PAN;07008 Cerro Silvestre",
+        "label": "07008 Cerro Silvestre"
+    },
+    {
+        "value": "PAN;07009 Capira",
+        "label": "07009 Capira"
+    },
+    {
+        "value": "PAN;07010 Caimito",
+        "label": "07010 Caimito"
+    },
+    {
+        "value": "PAN;07011 Campana",
+        "label": "07011 Campana"
+    },
+    {
+        "value": "PAN;07012 Cermeðo",
+        "label": "07012 Cermeðo"
+    },
+    {
+        "value": "PAN;07013 Ciri De Los Sotos",
+        "label": "07013 Ciri De Los Sotos"
+    },
+    {
+        "value": "PAN;07014 Ciri Grande",
+        "label": "07014 Ciri Grande"
+    },
+    {
+        "value": "PAN;07015 El Cacao",
+        "label": "07015 El Cacao"
+    },
+    {
+        "value": "PAN;07016 La Trinidad",
+        "label": "07016 La Trinidad"
+    },
+    {
+        "value": "PAN;07017 Las Ollas Arriba",
+        "label": "07017 Las Ollas Arriba"
+    },
+    {
+        "value": "PAN;07018 Lidice",
+        "label": "07018 Lidice"
+    },
+    {
+        "value": "PAN;07019 Viila Carmen",
+        "label": "07019 Viila Carmen"
+    },
+    {
+        "value": "PAN;07020 Villa Rosario",
+        "label": "07020 Villa Rosario"
+    },
+    {
+        "value": "PAN;07021 Santa Rosa",
+        "label": "07021 Santa Rosa"
+    },
+    {
+        "value": "PAN;07022 Chame (Cabec)",
+        "label": "07022 Chame (Cabec)"
+    },
+    {
+        "value": "PAN;07023 Bejuco",
+        "label": "07023 Bejuco"
+    },
+    {
+        "value": "PAN;07024 Cbuenos Aires",
+        "label": "07024 Cbuenos Aires"
+    },
+    {
+        "value": "PAN;07025 Cabuya",
+        "label": "07025 Cabuya"
+    },
+    {
+        "value": "PAN;07026 Chica",
+        "label": "07026 Chica"
+    },
+    {
+        "value": "PAN;07027 El Libano",
+        "label": "07027 El Libano"
+    },
+    {
+        "value": "PAN;07028 Las Lajas",
+        "label": "07028 Las Lajas"
+    },
+    {
+        "value": "PAN;07029 Nueva Gorgona",
+        "label": "07029 Nueva Gorgona"
+    },
+    {
+        "value": "PAN;07030 Punta Chame",
+        "label": "07030 Punta Chame"
+    },
+    {
+        "value": "PAN;07031 Sajalices",
+        "label": "07031 Sajalices"
+    },
+    {
+        "value": "PAN;07032 Sora",
+        "label": "07032 Sora"
+    },
+    {
+        "value": "PAN;07033 San Carlos /Cabec)",
+        "label": "07033 San Carlos /Cabec)"
+    },
+    {
+        "value": "PAN;07034 El Espino",
+        "label": "07034 El Espino"
+    },
+    {
+        "value": "PAN;07035 El Higo",
+        "label": "07035 El Higo"
+    },
+    {
+        "value": "PAN;07036 Guayabito",
+        "label": "07036 Guayabito"
+    },
+    {
+        "value": "PAN;07037 La Ermita",
+        "label": "07037 La Ermita"
+    },
+    {
+        "value": "PAN;07038 La Laguna",
+        "label": "07038 La Laguna"
+    },
+    {
+        "value": "PAN;07039 Las Uvas",
+        "label": "07039 Las Uvas"
+    },
+    {
+        "value": "PAN;07040 Los Llanitos",
+        "label": "07040 Los Llanitos"
+    },
+    {
+        "value": "PAN;07041 San Jose",
+        "label": "07041 San Jose"
+    },
+    {
+        "value": "PAN;07042 San Miguel /Cabec)",
+        "label": "07042 San Miguel /Cabec)"
+    },
+    {
+        "value": "PAN;07043 La Ensenada",
+        "label": "07043 La Ensenada"
+    },
+    {
+        "value": "PAN;07044 La Esmeralda",
+        "label": "07044 La Esmeralda"
+    },
+    {
+        "value": "PAN;07045 La Guinea",
+        "label": "07045 La Guinea"
+    },
+    {
+        "value": "PAN;07046 Pedro Gonzalez",
+        "label": "07046 Pedro Gonzalez"
+    },
+    {
+        "value": "PAN;07047 Saboga",
+        "label": "07047 Saboga"
+    },
+    {
+        "value": "PAN;07048 Chepo (Cabec)",
+        "label": "07048 Chepo (Cabec)"
+    },
+    {
+        "value": "PAN;07049 Carita",
+        "label": "07049 Carita"
+    },
+    {
+        "value": "PAN;07050 Chepillo",
+        "label": "07050 Chepillo"
+    },
+    {
+        "value": "PAN;07051 El Llano",
+        "label": "07051 El Llano"
+    },
+    {
+        "value": "PAN;07052 Las Margaritas",
+        "label": "07052 Las Margaritas"
+    },
+    {
+        "value": "PAN;07053 Sta. Cruz De Chinina",
+        "label": "07053 Sta. Cruz De Chinina"
+    },
+    {
+        "value": "PAN;07054 Torti",
+        "label": "07054 Torti"
+    },
+    {
+        "value": "PAN;07055 Chiman (Cabec)",
+        "label": "07055 Chiman (Cabec)"
+    },
+    {
+        "value": "PAN;07056 Brujas",
+        "label": "07056 Brujas"
+    },
+    {
+        "value": "PAN;07057 Gonzalo Vasquez",
+        "label": "07057 Gonzalo Vasquez"
+    },
+    {
+        "value": "PAN;07058 Union Santeða",
+        "label": "07058 Union Santeða"
+    },
+    {
+        "value": "PAN;07059 Pasiga",
+        "label": "07059 Pasiga"
+    },
+    {
+        "value": "PAN;07060 Taboga",
+        "label": "07060 Taboga"
+    },
+    {
+        "value": "PAN;07061 Otoque Occidente",
+        "label": "07061 Otoque Occidente"
+    },
+    {
+        "value": "PAN;07062 Otoque Oriente",
+        "label": "07062 Otoque Oriente"
+    },
+    {
+        "value": "PAN;07063 Madungandi",
+        "label": "07063 Madungandi"
+    },
+    {
+        "value": "PAN;07064 Barrio Balboa",
+        "label": "07064 Barrio Balboa"
+    },
+    {
+        "value": "PAN;07065 Barrio Colon",
+        "label": "07065 Barrio Colon"
+    },
+    {
+        "value": "PAN;07066 Amador",
+        "label": "07066 Amador"
+    },
+    {
+        "value": "PAN;07067 Arosemena",
+        "label": "07067 Arosemena"
+    },
+    {
+        "value": "PAN;07068 El Arado",
+        "label": "07068 El Arado"
+    },
+    {
+        "value": "PAN;07069 El Coco",
+        "label": "07069 El Coco"
+    },
+    {
+        "value": "PAN;07070 Feuillet",
+        "label": "07070 Feuillet"
+    },
+    {
+        "value": "PAN;07071 Guadalupe",
+        "label": "07071 Guadalupe"
+    },
+    {
+        "value": "PAN;07072 Herrera",
+        "label": "07072 Herrera"
+    },
+    {
+        "value": "PAN;07073 Hurtado",
+        "label": "07073 Hurtado"
+    },
+    {
+        "value": "PAN;07074 Iturralde",
+        "label": "07074 Iturralde"
+    },
+    {
+        "value": "PAN;07075 La Represa",
+        "label": "07075 La Represa"
+    },
+    {
+        "value": "PAN;07076 Los Diaz",
+        "label": "07076 Los Diaz"
+    },
+    {
+        "value": "PAN;07077 Mendoza",
+        "label": "07077 Mendoza"
+    },
+    {
+        "value": "PAN;07078 Obaldia",
+        "label": "07078 Obaldia"
+    },
+    {
+        "value": "PAN;07079 Playa Leonapuerto Caimito",
+        "label": "07079 Playa Leonapuerto Caimito"
+    },
+    {
+        "value": "PAN;07080 Santa Rita",
+        "label": "07080 Santa Rita"
+    },
+    {
+        "value": "PAN;07081 Amelia D. De Icaza",
+        "label": "07081 Amelia D. De Icaza"
+    },
+    {
+        "value": "PAN;07082 Belisario Porras",
+        "label": "07082 Belisario Porras"
+    },
+    {
+        "value": "PAN;07083 Jose D. Espinar",
+        "label": "07083 Jose D. Espinar"
+    },
+    {
+        "value": "PAN;07084 Mateo Iturralde",
+        "label": "07084 Mateo Iturralde"
+    },
+    {
+        "value": "PAN;07085 Victoriano Lorenzo",
+        "label": "07085 Victoriano Lorenzo"
+    },
+    {
+        "value": "PAN;07086 Arnulfo Arias",
+        "label": "07086 Arnulfo Arias"
+    },
+    {
+        "value": "PAN;07087 Belisario Frias",
+        "label": "07087 Belisario Frias"
+    },
+    {
+        "value": "PAN;07088 Omar Torrijos",
+        "label": "07088 Omar Torrijos"
+    },
+    {
+        "value": "PAN;07089 Rufina Alfaro",
+        "label": "07089 Rufina Alfaro"
+    },
+    {
+        "value": "PAN;07090 San Felipe",
+        "label": "07090 San Felipe"
+    },
+    {
+        "value": "PAN;07091 El Chorrillo",
+        "label": "07091 El Chorrillo"
+    },
+    {
+        "value": "PAN;07092 Santa Ana",
+        "label": "07092 Santa Ana"
+    },
+    {
+        "value": "PAN;07093 Calidonia",
+        "label": "07093 Calidonia"
+    },
+    {
+        "value": "PAN;07094 Curundu",
+        "label": "07094 Curundu"
+    },
+    {
+        "value": "PAN;07095 Betania",
+        "label": "07095 Betania"
+    },
+    {
+        "value": "PAN;07096 Bella Vista",
+        "label": "07096 Bella Vista"
+    },
+    {
+        "value": "PAN;07097 Pueblo Nuevo",
+        "label": "07097 Pueblo Nuevo"
+    },
+    {
+        "value": "PAN;07098 Ancon",
+        "label": "07098 Ancon"
+    },
+    {
+        "value": "PAN;07099 San Fransisco",
+        "label": "07099 San Fransisco"
+    },
+    {
+        "value": "PAN;07100 Rio Abajo",
+        "label": "07100 Rio Abajo"
+    },
+    {
+        "value": "PAN;07101 Juan Diaz",
+        "label": "07101 Juan Diaz"
+    },
+    {
+        "value": "PAN;07102 Pedregal",
+        "label": "07102 Pedregal"
+    },
+    {
+        "value": "PAN;07103 Chilibre",
+        "label": "07103 Chilibre"
+    },
+    {
+        "value": "PAN;07104 Las Cumbres",
+        "label": "07104 Las Cumbres"
+    },
+    {
+        "value": "PAN;07105 Pacora",
+        "label": "07105 Pacora"
+    },
+    {
+        "value": "PAN;07106 San Martin",
+        "label": "07106 San Martin"
+    },
+    {
+        "value": "PAN;07107 Tocumen",
+        "label": "07107 Tocumen"
+    },
+    {
+        "value": "PAN;07109 24 De Diciembre",
+        "label": "07109 24 De Diciembre"
+    },
+    {
+        "value": "PAN;07110 Parque Lefevre",
+        "label": "07110 Parque Lefevre"
+    },
+    {
+        "value": "PAN;07112 Vaca Monte",
+        "label": "07112 Vaca Monte"
+    },
+    {
+        "value": "PAN;07113 24 Diciembre",
+        "label": "07113 24 Diciembre"
+    },
+    {
+        "value": "PAN;07114 Aeropuerto De Tocumen",
+        "label": "07114 Aeropuerto De Tocumen"
+    },
+    {
+        "value": "PAN;07115 Alameda",
+        "label": "07115 Alameda"
+    },
+    {
+        "value": "PAN;07116 Albrook",
+        "label": "07116 Albrook"
+    },
+    {
+        "value": "PAN;07117 Alta Mira",
+        "label": "07117 Alta Mira"
+    },
+    {
+        "value": "PAN;07118 Alto Del Chace",
+        "label": "07118 Alto Del Chace"
+    },
+    {
+        "value": "PAN;07119 Altos De Curundu",
+        "label": "07119 Altos De Curundu"
+    },
+    {
+        "value": "PAN;07120 Altos De Tocumen",
+        "label": "07120 Altos De Tocumen"
+    },
+    {
+        "value": "PAN;07121 Altos Del Crisol",
+        "label": "07121 Altos Del Crisol"
+    },
+    {
+        "value": "PAN;07122 Altos Del Hipodromo",
+        "label": "07122 Altos Del Hipodromo"
+    },
+    {
+        "value": "PAN;07124 Arcoiris",
+        "label": "07124 Arcoiris"
+    },
+    {
+        "value": "PAN;07125 Arraijan",
+        "label": "07125 Arraijan"
+    },
+    {
+        "value": "PAN;07126 Ato Pintado Urbanización",
+        "label": "07126 Ato Pintado Urbanización"
+    },
+    {
+        "value": "PAN;07127 Ave. Balboa",
+        "label": "07127 Ave. Balboa"
+    },
+    {
+        "value": "PAN;07128 Belen",
+        "label": "07128 Belen"
+    },
+    {
+        "value": "PAN;07129 Bello Horizonte",
+        "label": "07129 Bello Horizonte"
+    },
+    {
+        "value": "PAN;07131 Boca La Caja",
+        "label": "07131 Boca La Caja"
+    },
+    {
+        "value": "PAN;07132 Cabulla",
+        "label": "07132 Cabulla"
+    },
+    {
+        "value": "PAN;07134 Campo Alegre",
+        "label": "07134 Campo Alegre"
+    },
+    {
+        "value": "PAN;07135 Cardenas",
+        "label": "07135 Cardenas"
+    },
+    {
+        "value": "PAN;07136 Carrasquilla",
+        "label": "07136 Carrasquilla"
+    },
+    {
+        "value": "PAN;07137 Catedral",
+        "label": "07137 Catedral"
+    },
+    {
+        "value": "PAN;07138 Cerro Batea",
+        "label": "07138 Cerro Batea"
+    },
+    {
+        "value": "PAN;07139 Cerro Viento",
+        "label": "07139 Cerro Viento"
+    },
+    {
+        "value": "PAN;07140 Chame",
+        "label": "07140 Chame"
+    },
+    {
+        "value": "PAN;07141 Chilibre",
+        "label": "07141 Chilibre"
+    },
+    {
+        "value": "PAN;07142 Chorrillo",
+        "label": "07142 Chorrillo"
+    },
+    {
+        "value": "PAN;07143 Ciudad Radial",
+        "label": "07143 Ciudad Radial"
+    },
+    {
+        "value": "PAN;07144 Clayton",
+        "label": "07144 Clayton"
+    },
+    {
+        "value": "PAN;07145 Coco Solo",
+        "label": "07145 Coco Solo"
+    },
+    {
+        "value": "PAN;07146 Cocoli",
+        "label": "07146 Cocoli"
+    },
+    {
+        "value": "PAN;07147 Colinas Del Golf",
+        "label": "07147 Colinas Del Golf"
+    },
+    {
+        "value": "PAN;07148 Concepcion",
+        "label": "07148 Concepcion"
+    },
+    {
+        "value": "PAN;07149 Coquira",
+        "label": "07149 Coquira"
+    },
+    {
+        "value": "PAN;07150 Coronado",
+        "label": "07150 Coronado"
+    },
+    {
+        "value": "PAN;07151 Cuatro Altos",
+        "label": "07151 Cuatro Altos"
+    },
+    {
+        "value": "PAN;07153 Diablo",
+        "label": "07153 Diablo"
+    },
+    {
+        "value": "PAN;07154 Don Bosco",
+        "label": "07154 Don Bosco"
+    },
+    {
+        "value": "PAN;07155 El Bosque",
+        "label": "07155 El Bosque"
+    },
+    {
+        "value": "PAN;07156 El Cangrejo",
+        "label": "07156 El Cangrejo"
+    },
+    {
+        "value": "PAN;07157 El Carmen",
+        "label": "07157 El Carmen"
+    },
+    {
+        "value": "PAN;07158 El Ingenio",
+        "label": "07158 El Ingenio"
+    },
+    {
+        "value": "PAN;07159 El Milagro",
+        "label": "07159 El Milagro"
+    },
+    {
+        "value": "PAN;07160 El Pantanal",
+        "label": "07160 El Pantanal"
+    },
+    {
+        "value": "PAN;07162 Gatun",
+        "label": "07162 Gatun"
+    },
+    {
+        "value": "PAN;07163 Gonzalillo",
+        "label": "07163 Gonzalillo"
+    },
+    {
+        "value": "PAN;07164 Jardin Olimpico",
+        "label": "07164 Jardin Olimpico"
+    },
+    {
+        "value": "PAN;07165 Jose De Espinar",
+        "label": "07165 Jose De Espinar"
+    },
+    {
+        "value": "PAN;07166 La Boca",
+        "label": "07166 La Boca"
+    },
+    {
+        "value": "PAN;07167 La Cresta",
+        "label": "07167 La Cresta"
+    },
+    {
+        "value": "PAN;07168 La Doña",
+        "label": "07168 La Doña"
+    },
+    {
+        "value": "PAN;07169 La Pradera",
+        "label": "07169 La Pradera"
+    },
+    {
+        "value": "PAN;07170 Las Acacias",
+        "label": "07170 Las Acacias"
+    },
+    {
+        "value": "PAN;07172 Las Mercedes",
+        "label": "07172 Las Mercedes"
+    },
+    {
+        "value": "PAN;07173 Llano Bonito",
+        "label": "07173 Llano Bonito"
+    },
+    {
+        "value": "PAN;07174 Los Andes",
+        "label": "07174 Los Andes"
+    },
+    {
+        "value": "PAN;07175 Los Caobos",
+        "label": "07175 Los Caobos"
+    },
+    {
+        "value": "PAN;07176 Los Cerilla",
+        "label": "07176 Los Cerilla"
+    },
+    {
+        "value": "PAN;07177 Los Robles",
+        "label": "07177 Los Robles"
+    },
+    {
+        "value": "PAN;07178 Mano De Piedra",
+        "label": "07178 Mano De Piedra"
+    },
+    {
+        "value": "PAN;07179 Marbella",
+        "label": "07179 Marbella"
+    },
+    {
+        "value": "PAN;07181 Miraflores",
+        "label": "07181 Miraflores"
+    },
+    {
+        "value": "PAN;07182 Monte Oscuro",
+        "label": "07182 Monte Oscuro"
+    },
+    {
+        "value": "PAN;07183 Monterrico",
+        "label": "07183 Monterrico"
+    },
+    {
+        "value": "PAN;07184 Nuevo San Juan",
+        "label": "07184 Nuevo San Juan"
+    },
+    {
+        "value": "PAN;07185 Obarrio",
+        "label": "07185 Obarrio"
+    },
+    {
+        "value": "PAN;07187 Pan De Azucar",
+        "label": "07187 Pan De Azucar"
+    },
+    {
+        "value": "PAN;07188 Panama Viejo",
+        "label": "07188 Panama Viejo"
+    },
+    {
+        "value": "PAN;07190 Perejil",
+        "label": "07190 Perejil"
+    },
+    {
+        "value": "PAN;07192 Punta Paitilla",
+        "label": "07192 Punta Paitilla"
+    },
+    {
+        "value": "PAN;07194 Rio Abajo Ato Pintado",
+        "label": "07194 Rio Abajo Ato Pintado"
+    },
+    {
+        "value": "PAN;07195 Rodman",
+        "label": "07195 Rodman"
+    },
+    {
+        "value": "PAN;07196 San Francisco",
+        "label": "07196 San Francisco"
+    },
+    {
+        "value": "PAN;07197 San Isidro",
+        "label": "07197 San Isidro"
+    },
+    {
+        "value": "PAN;07198 Santa Librada",
+        "label": "07198 Santa Librada"
+    },
+    {
+        "value": "PAN;07199 Santa Maria",
+        "label": "07199 Santa Maria"
+    },
+    {
+        "value": "PAN;07200 Terminal",
+        "label": "07200 Terminal"
+    },
+    {
+        "value": "PAN;07202 Torrijos-Carter",
+        "label": "07202 Torrijos-Carter"
+    },
+    {
+        "value": "PAN;07203 Urb. Dos Mares",
+        "label": "07203 Urb. Dos Mares"
+    },
+    {
+        "value": "PAN;07204 Urbanizacion Nuevoreparto Chanis",
+        "label": "07204 Urbanizacion Nuevoreparto Chanis"
+    },
+    {
+        "value": "PAN;07205 Veranillo",
+        "label": "07205 Veranillo"
+    },
+    {
+        "value": "PAN;07206 Via España",
+        "label": "07206 Via España"
+    },
+    {
+        "value": "PAN;07207 Viejo Veranillo",
+        "label": "07207 Viejo Veranillo"
+    },
+    {
+        "value": "PAN;07208 Villa Caceres",
+        "label": "07208 Villa Caceres"
+    },
+    {
+        "value": "PAN;07209 Villa De La Fuente",
+        "label": "07209 Villa De La Fuente"
+    },
+    {
+        "value": "PAN;07210 Villa Saita",
+        "label": "07210 Villa Saita"
+    },
+    {
+        "value": "PAN;07211 Villa Unida",
+        "label": "07211 Villa Unida"
+    },
+    {
+        "value": "PAN;07212 Vista Hermosa",
+        "label": "07212 Vista Hermosa"
+    },
+    {
+        "value": "PAN;07213 El Bosque",
+        "label": "07213 El Bosque"
+    },
+    {
+        "value": "PAN;07215 Mañanitas",
+        "label": "07215 Mañanitas"
+    },
+    {
+        "value": "PAN;07216 Nueva California",
+        "label": "07216 Nueva California"
+    },
+    {
+        "value": "PAN;07217 Rana De Oro",
+        "label": "07217 Rana De Oro"
+    },
+    {
+        "value": "PAN;07218 Residencial La Castellana",
+        "label": "07218 Residencial La Castellana"
+    },
+    {
+        "value": "PAN;07219 San Cristobal",
+        "label": "07219 San Cristobal"
+    },
+    {
+        "value": "PAN;07220 San Joaquin",
+        "label": "07220 San Joaquin"
+    },
+    {
+        "value": "PAN;07221 San Pedro",
+        "label": "07221 San Pedro"
+    },
+    {
+        "value": "PAN;07222 San Sebastian",
+        "label": "07222 San Sebastian"
+    },
+    {
+        "value": "PAN;07223 Santa Monica",
+        "label": "07223 Santa Monica"
+    },
+    {
+        "value": "PAN;07224 Urb. Remon Cantera",
+        "label": "07224 Urb. Remon Cantera"
+    },
+    {
+        "value": "PAN;07225 Urbanizacion Balmoral",
+        "label": "07225 Urbanizacion Balmoral"
+    },
+    {
+        "value": "PAN;07226 Urbanizacion Tere Mar",
+        "label": "07226 Urbanizacion Tere Mar"
+    },
+    {
+        "value": "PAN;07227 Villa Flor",
+        "label": "07227 Villa Flor"
+    },
+    {
+        "value": "PAN;07228 Villa Lobos",
+        "label": "07228 Villa Lobos"
+    },
+    {
+        "value": "PAN;07229 Villa Lucre",
+        "label": "07229 Villa Lucre"
+    },
+    {
+        "value": "PAN;08002 La Colorada",
+        "label": "08002 La Colorada"
+    },
+    {
+        "value": "PAN;08003 La Peða",
+        "label": "08003 La Peða"
+    },
+    {
+        "value": "PAN;08004 La Raya Sta. Maria",
+        "label": "08004 La Raya Sta. Maria"
+    },
+    {
+        "value": "PAN;08005 Ponuga",
+        "label": "08005 Ponuga"
+    },
+    {
+        "value": "PAN;08006 San Pedro Del Espino",
+        "label": "08006 San Pedro Del Espino"
+    },
+    {
+        "value": "PAN;08007 Canto Del Llano",
+        "label": "08007 Canto Del Llano"
+    },
+    {
+        "value": "PAN;08008 Los Algarrobos",
+        "label": "08008 Los Algarrobos"
+    },
+    {
+        "value": "PAN;08009 Carlos Santana",
+        "label": "08009 Carlos Santana"
+    },
+    {
+        "value": "PAN;08010 Edwin Fabrega",
+        "label": "08010 Edwin Fabrega"
+    },
+    {
+        "value": "PAN;08011 San Martin De Porres",
+        "label": "08011 San Martin De Porres"
+    },
+    {
+        "value": "PAN;08012 Urraca",
+        "label": "08012 Urraca"
+    },
+    {
+        "value": "PAN;08013 La Mesa (Cabec)",
+        "label": "08013 La Mesa (Cabec)"
+    },
+    {
+        "value": "PAN;08014 Bisvalles",
+        "label": "08014 Bisvalles"
+    },
+    {
+        "value": "PAN;08015 Boro",
+        "label": "08015 Boro"
+    },
+    {
+        "value": "PAN;08016 Llano Grande",
+        "label": "08016 Llano Grande"
+    },
+    {
+        "value": "PAN;08017 San Bartolo",
+        "label": "08017 San Bartolo"
+    },
+    {
+        "value": "PAN;08018 Los Milagros",
+        "label": "08018 Los Milagros"
+    },
+    {
+        "value": "PAN;08019 Sona (Cabec)",
+        "label": "08019 Sona (Cabec)"
+    },
+    {
+        "value": "PAN;08020 Bahia Honda",
+        "label": "08020 Bahia Honda"
+    },
+    {
+        "value": "PAN;08021 Calidonia",
+        "label": "08021 Calidonia"
+    },
+    {
+        "value": "PAN;08022 Cative",
+        "label": "08022 Cative"
+    },
+    {
+        "value": "PAN;08023 El Maraðon",
+        "label": "08023 El Maraðon"
+    },
+    {
+        "value": "PAN;08024 Guarumal",
+        "label": "08024 Guarumal"
+    },
+    {
+        "value": "PAN;08025 La Soledad",
+        "label": "08025 La Soledad"
+    },
+    {
+        "value": "PAN;08026 Quebrada De Oro",
+        "label": "08026 Quebrada De Oro"
+    },
+    {
+        "value": "PAN;08027 Rio Grande",
+        "label": "08027 Rio Grande"
+    },
+    {
+        "value": "PAN;08028 Rodeo Viejo",
+        "label": "08028 Rodeo Viejo"
+    },
+    {
+        "value": "PAN;08029 Calobre (Cabec)",
+        "label": "08029 Calobre (Cabec)"
+    },
+    {
+        "value": "PAN;08030 Barnizal",
+        "label": "08030 Barnizal"
+    },
+    {
+        "value": "PAN;08031 Chitra",
+        "label": "08031 Chitra"
+    },
+    {
+        "value": "PAN;08032 El Cocla",
+        "label": "08032 El Cocla"
+    },
+    {
+        "value": "PAN;08033 El Potrero",
+        "label": "08033 El Potrero"
+    },
+    {
+        "value": "PAN;08034 La Laguna",
+        "label": "08034 La Laguna"
+    },
+    {
+        "value": "PAN;08035 La Raya De Calobre",
+        "label": "08035 La Raya De Calobre"
+    },
+    {
+        "value": "PAN;08036 La Tetilla",
+        "label": "08036 La Tetilla"
+    },
+    {
+        "value": "PAN;08037 La Yeguada",
+        "label": "08037 La Yeguada"
+    },
+    {
+        "value": "PAN;08038 Las Guias",
+        "label": "08038 Las Guias"
+    },
+    {
+        "value": "PAN;08039 Monjaras",
+        "label": "08039 Monjaras"
+    },
+    {
+        "value": "PAN;08040 San Jose",
+        "label": "08040 San Jose"
+    },
+    {
+        "value": "PAN;08041 San Fransisco (Cabec)",
+        "label": "08041 San Fransisco (Cabec)"
+    },
+    {
+        "value": "PAN;08042 Corra Falso",
+        "label": "08042 Corra Falso"
+    },
+    {
+        "value": "PAN;08043 Los Hatillos",
+        "label": "08043 Los Hatillos"
+    },
+    {
+        "value": "PAN;08044 Remance",
+        "label": "08044 Remance"
+    },
+    {
+        "value": "PAN;08045 San Juan",
+        "label": "08045 San Juan"
+    },
+    {
+        "value": "PAN;08046 San Jose",
+        "label": "08046 San Jose"
+    },
+    {
+        "value": "PAN;08047 Santa Fe (Cabec)",
+        "label": "08047 Santa Fe (Cabec)"
+    },
+    {
+        "value": "PAN;08048 Calovebora",
+        "label": "08048 Calovebora"
+    },
+    {
+        "value": "PAN;08049 El Alto",
+        "label": "08049 El Alto"
+    },
+    {
+        "value": "PAN;08050 El Cuay",
+        "label": "08050 El Cuay"
+    },
+    {
+        "value": "PAN;08051 El Pantano",
+        "label": "08051 El Pantano"
+    },
+    {
+        "value": "PAN;08052 Gatuncito",
+        "label": "08052 Gatuncito"
+    },
+    {
+        "value": "PAN;08053 Rio Luis",
+        "label": "08053 Rio Luis"
+    },
+    {
+        "value": "PAN;08054 Atalaya (Cabec)",
+        "label": "08054 Atalaya (Cabec)"
+    },
+    {
+        "value": "PAN;08055 El Barrito",
+        "label": "08055 El Barrito"
+    },
+    {
+        "value": "PAN;08056 La Montaðuela",
+        "label": "08056 La Montaðuela"
+    },
+    {
+        "value": "PAN;08057 San Antonio",
+        "label": "08057 San Antonio"
+    },
+    {
+        "value": "PAN;08058 La Carrillo",
+        "label": "08058 La Carrillo"
+    },
+    {
+        "value": "PAN;08059 Montijo (Cabec)",
+        "label": "08059 Montijo (Cabec)"
+    },
+    {
+        "value": "PAN;08060 Gobernadora",
+        "label": "08060 Gobernadora"
+    },
+    {
+        "value": "PAN;08061 La Garcena",
+        "label": "08061 La Garcena"
+    },
+    {
+        "value": "PAN;08062 Leones",
+        "label": "08062 Leones"
+    },
+    {
+        "value": "PAN;08063 Pilon",
+        "label": "08063 Pilon"
+    },
+    {
+        "value": "PAN;08064 Union Del Norte",
+        "label": "08064 Union Del Norte"
+    },
+    {
+        "value": "PAN;08065 Costa Hermosa",
+        "label": "08065 Costa Hermosa"
+    },
+    {
+        "value": "PAN;08066 Cebaco",
+        "label": "08066 Cebaco"
+    },
+    {
+        "value": "PAN;08067 Rio De Jesus (Cabec)",
+        "label": "08067 Rio De Jesus (Cabec)"
+    },
+    {
+        "value": "PAN;08068 Las Huacas",
+        "label": "08068 Las Huacas"
+    },
+    {
+        "value": "PAN;08069 Los Castillos",
+        "label": "08069 Los Castillos"
+    },
+    {
+        "value": "PAN;08070 Utira",
+        "label": "08070 Utira"
+    },
+    {
+        "value": "PAN;08071 Catorce De Noviembre",
+        "label": "08071 Catorce De Noviembre"
+    },
+    {
+        "value": "PAN;08072 Llano De Cativa",
+        "label": "08072 Llano De Cativa"
+    },
+    {
+        "value": "PAN;08073 Arena",
+        "label": "08073 Arena"
+    },
+    {
+        "value": "PAN;08074 Quebro",
+        "label": "08074 Quebro"
+    },
+    {
+        "value": "PAN;08075 Tebario",
+        "label": "08075 Tebario"
+    },
+    {
+        "value": "PAN;08076 El Cacao",
+        "label": "08076 El Cacao"
+    },
+    {
+        "value": "PAN;08077 Caðazas (Cabec)",
+        "label": "08077 Caðazas (Cabec)"
+    },
+    {
+        "value": "PAN;08078 Cerro De Plata",
+        "label": "08078 Cerro De Plata"
+    },
+    {
+        "value": "PAN;08079 Los Valles",
+        "label": "08079 Los Valles"
+    },
+    {
+        "value": "PAN;08080 San Marcelo",
+        "label": "08080 San Marcelo"
+    },
+    {
+        "value": "PAN;08081 El Picador",
+        "label": "08081 El Picador"
+    },
+    {
+        "value": "PAN;08082 San Jose",
+        "label": "08082 San Jose"
+    },
+    {
+        "value": "PAN;08083 El Aromillo",
+        "label": "08083 El Aromillo"
+    },
+    {
+        "value": "PAN;08084 Las Palmas (Cabec)",
+        "label": "08084 Las Palmas (Cabec)"
+    },
+    {
+        "value": "PAN;08085 Cerro De Casa",
+        "label": "08085 Cerro De Casa"
+    },
+    {
+        "value": "PAN;08086 Corozal",
+        "label": "08086 Corozal"
+    },
+    {
+        "value": "PAN;08087 El Maria",
+        "label": "08087 El Maria"
+    },
+    {
+        "value": "PAN;08088 El Prado",
+        "label": "08088 El Prado"
+    },
+    {
+        "value": "PAN;08089 El Rincon",
+        "label": "08089 El Rincon"
+    },
+    {
+        "value": "PAN;08090 Lola",
+        "label": "08090 Lola"
+    },
+    {
+        "value": "PAN;08091 Pixvae",
+        "label": "08091 Pixvae"
+    },
+    {
+        "value": "PAN;08092 Puerto Vidal",
+        "label": "08092 Puerto Vidal"
+    },
+    {
+        "value": "PAN;08093 Zapotillo",
+        "label": "08093 Zapotillo"
+    },
+    {
+        "value": "PAN;08094 San Martin De Porres",
+        "label": "08094 San Martin De Porres"
+    },
+    {
+        "value": "PAN;08095 Vigui",
+        "label": "08095 Vigui"
+    },
+    {
+        "value": "PAN;09001 Aligandi",
+        "label": "09001 Aligandi"
+    },
+    {
+        "value": "PAN;09002 Nargana",
+        "label": "09002 Nargana"
+    },
+    {
+        "value": "PAN;09003 Puerto Obaldia",
+        "label": "09003 Puerto Obaldia"
+    },
+    {
+        "value": "PAN;09004 Tibuala",
+        "label": "09004 Tibuala"
+    },
+    {
+        "value": "PAN;10001 Bisisra",
+        "label": "10001 Bisisra"
+    },
+    {
+        "value": "PAN;10002 Buri",
+        "label": "10002 Buri"
+    },
+    {
+        "value": "PAN;10003 Kankitu",
+        "label": "10003 Kankitu"
+    },
+    {
+        "value": "PAN;10004 Guariviara",
+        "label": "10004 Guariviara"
+    },
+    {
+        "value": "PAN;10005 Guaroni",
+        "label": "10005 Guaroni"
+    },
+    {
+        "value": "PAN;10006 Mununi",
+        "label": "10006 Mununi"
+    },
+    {
+        "value": "PAN;10007 Piedra Roja",
+        "label": "10007 Piedra Roja"
+    },
+    {
+        "value": "PAN;10008 Tuwai",
+        "label": "10008 Tuwai"
+    },
+    {
+        "value": "PAN;10009 Man Creek",
+        "label": "10009 Man Creek"
+    },
+    {
+        "value": "PAN;10010 Kusapin",
+        "label": "10010 Kusapin"
+    },
+    {
+        "value": "PAN;10011 Calovebora",
+        "label": "10011 Calovebora"
+    },
+    {
+        "value": "PAN;10012 Bahia Azul",
+        "label": "10012 Bahia Azul"
+    },
+    {
+        "value": "PAN;10013 Rio Chiriqui",
+        "label": "10013 Rio Chiriqui"
+    },
+    {
+        "value": "PAN;10014 Loma Yuca",
+        "label": "10014 Loma Yuca"
+    },
+    {
+        "value": "PAN;10015 Tobobe",
+        "label": "10015 Tobobe"
+    },
+    {
+        "value": "PAN;10016 Valle Bonito",
+        "label": "10016 Valle Bonito"
+    },
+    {
+        "value": "PAN;10017 Soloy",
+        "label": "10017 Soloy"
+    },
+    {
+        "value": "PAN;10018 Boca De Balsa",
+        "label": "10018 Boca De Balsa"
+    },
+    {
+        "value": "PAN;10019 Cerro Banco",
+        "label": "10019 Cerro Banco"
+    },
+    {
+        "value": "PAN;10020 Cerro De Patena",
+        "label": "10020 Cerro De Patena"
+    },
+    {
+        "value": "PAN;10021 Camaron Arriba",
+        "label": "10021 Camaron Arriba"
+    },
+    {
+        "value": "PAN;10022 Emplanada De Corcha",
+        "label": "10022 Emplanada De Corcha"
+    },
+    {
+        "value": "PAN;10023 Namnoni",
+        "label": "10023 Namnoni"
+    },
+    {
+        "value": "PAN;10024 Niba",
+        "label": "10024 Niba"
+    },
+    {
+        "value": "PAN;10025 Hato Pilon",
+        "label": "10025 Hato Pilon"
+    },
+    {
+        "value": "PAN;10026 Cascabel",
+        "label": "10026 Cascabel"
+    },
+    {
+        "value": "PAN;10027 Hato Corotu",
+        "label": "10027 Hato Corotu"
+    },
+    {
+        "value": "PAN;10028 Hato Culantro",
+        "label": "10028 Hato Culantro"
+    },
+    {
+        "value": "PAN;10029 Hato Jobo",
+        "label": "10029 Hato Jobo"
+    },
+    {
+        "value": "PAN;10030 Hato Juli",
+        "label": "10030 Hato Juli"
+    },
+    {
+        "value": "PAN;10031 Quebrada De Loro",
+        "label": "10031 Quebrada De Loro"
+    },
+    {
+        "value": "PAN;10032 Salto Dupi",
+        "label": "10032 Salto Dupi"
+    },
+    {
+        "value": "PAN;10033 Cerro Iglesias",
+        "label": "10033 Cerro Iglesias"
+    },
+    {
+        "value": "PAN;10034 Lajero",
+        "label": "10034 Lajero"
+    },
+    {
+        "value": "PAN;10035 Hato Chami",
+        "label": "10035 Hato Chami"
+    },
+    {
+        "value": "PAN;10036 Susama",
+        "label": "10036 Susama"
+    },
+    {
+        "value": "PAN;10037 Jadeberi",
+        "label": "10037 Jadeberi"
+    },
+    {
+        "value": "PAN;10038 Chichica",
+        "label": "10038 Chichica"
+    },
+    {
+        "value": "PAN;10039 Alto Caballero",
+        "label": "10039 Alto Caballero"
+    },
+    {
+        "value": "PAN;10040 Bagama",
+        "label": "10040 Bagama"
+    },
+    {
+        "value": "PAN;10041 Cerro Caða",
+        "label": "10041 Cerro Caða"
+    },
+    {
+        "value": "PAN;10042 Cerro Puerco",
+        "label": "10042 Cerro Puerco"
+    },
+    {
+        "value": "PAN;10043 Krua",
+        "label": "10043 Krua"
+    },
+    {
+        "value": "PAN;10044 Maraca",
+        "label": "10044 Maraca"
+    },
+    {
+        "value": "PAN;10045 Nibra",
+        "label": "10045 Nibra"
+    },
+    {
+        "value": "PAN;10046 Peða Blanca",
+        "label": "10046 Peða Blanca"
+    },
+    {
+        "value": "PAN;10047 Roka",
+        "label": "10047 Roka"
+    },
+    {
+        "value": "PAN;10048 Sitio Prado",
+        "label": "10048 Sitio Prado"
+    },
+    {
+        "value": "PAN;10049 Umani",
+        "label": "10049 Umani"
+    },
+    {
+        "value": "PAN;10050 Buenos Aires",
+        "label": "10050 Buenos Aires"
+    },
+    {
+        "value": "PAN;10051 Agua De Salud",
+        "label": "10051 Agua De Salud"
+    },
+    {
+        "value": "PAN;10052 Alto De Jesus",
+        "label": "10052 Alto De Jesus"
+    },
+    {
+        "value": "PAN;10053 Cerro Pelado",
+        "label": "10053 Cerro Pelado"
+    },
+    {
+        "value": "PAN;10054 El Bale",
+        "label": "10054 El Bale"
+    },
+    {
+        "value": "PAN;10055 El Paredon",
+        "label": "10055 El Paredon"
+    },
+    {
+        "value": "PAN;10056 El Piro",
+        "label": "10056 El Piro"
+    },
+    {
+        "value": "PAN;10057 Guayabito",
+        "label": "10057 Guayabito"
+    },
+    {
+        "value": "PAN;10058 Guibale",
+        "label": "10058 Guibale"
+    },
+    {
+        "value": "PAN;11001 Wargandi",
+        "label": "11001 Wargandi"
+    },
+    {
+        "value": "PAN;12001 La Palma (Cabec)",
+        "label": "12001 La Palma (Cabec)"
+    },
+    {
+        "value": "PAN;12002 Camoganti",
+        "label": "12002 Camoganti"
+    },
+    {
+        "value": "PAN;12003 Chepigana",
+        "label": "12003 Chepigana"
+    },
+    {
+        "value": "PAN;12004 Garachine",
+        "label": "12004 Garachine"
+    },
+    {
+        "value": "PAN;12005 Jaque",
+        "label": "12005 Jaque"
+    },
+    {
+        "value": "PAN;12006 Puerto Piða",
+        "label": "12006 Puerto Piða"
+    },
+    {
+        "value": "PAN;12007 Rio Congo",
+        "label": "12007 Rio Congo"
+    },
+    {
+        "value": "PAN;12008 Rio Iglesias",
+        "label": "12008 Rio Iglesias"
+    },
+    {
+        "value": "PAN;12009 Sambu",
+        "label": "12009 Sambu"
+    },
+    {
+        "value": "PAN;12010 Seteganti",
+        "label": "12010 Seteganti"
+    },
+    {
+        "value": "PAN;12011 Taimati",
+        "label": "12011 Taimati"
+    },
+    {
+        "value": "PAN;12012 Tucuti",
+        "label": "12012 Tucuti"
+    },
+    {
+        "value": "PAN;12013 Agua Fria",
+        "label": "12013 Agua Fria"
+    },
+    {
+        "value": "PAN;12014 Cucunati",
+        "label": "12014 Cucunati"
+    },
+    {
+        "value": "PAN;12015 Rio Congo Arriba",
+        "label": "12015 Rio Congo Arriba"
+    },
+    {
+        "value": "PAN;12016 Santa Fe",
+        "label": "12016 Santa Fe"
+    },
+    {
+        "value": "PAN;12017 Jingurudo",
+        "label": "12017 Jingurudo"
+    },
+    {
+        "value": "PAN;12018 Rio Sabalo",
+        "label": "12018 Rio Sabalo"
+    },
+    {
+        "value": "PAN;12019 El Real S. M. (Cabec)",
+        "label": "12019 El Real S. M. (Cabec)"
+    },
+    {
+        "value": "PAN;12020 Boca De Chupe",
+        "label": "12020 Boca De Chupe"
+    },
+    {
+        "value": "PAN;12021 Paya",
+        "label": "12021 Paya"
+    },
+    {
+        "value": "PAN;12022 Pinogana",
+        "label": "12022 Pinogana"
+    },
+    {
+        "value": "PAN;12023 Pucuro",
+        "label": "12023 Pucuro"
+    },
+    {
+        "value": "PAN;12024 Yape",
+        "label": "12024 Yape"
+    },
+    {
+        "value": "PAN;12025 Yaviza",
+        "label": "12025 Yaviza"
+    },
+    {
+        "value": "PAN;12026 Meteti",
+        "label": "12026 Meteti"
+    },
+    {
+        "value": "PAN;12027 Cirilo Guaynora",
+        "label": "12027 Cirilo Guaynora"
+    },
+    {
+        "value": "PAN;12028 Lajas Blancas",
+        "label": "12028 Lajas Blancas"
+    },
+    {
+        "value": "PAN;12029 Manuel Ortega",
+        "label": "12029 Manuel Ortega"
+    }
+]

@@ -1,0 +1,367 @@
+{% extends "_base.html" %} {% block style %}
+<style>
+  .tab {
+    display: none;
+  }
+
+  .step1,
+  .step2 {
+    height: 18px;
+    width: 18px;
+    margin: 0 2px;
+    background-color: #bbbbbb;
+    border: none;
+    border-radius: 50%;
+    display: inline-block;
+    opacity: 0.5;
+  }
+
+  .step1.active,
+  .step2.active {
+    opacity: 1;
+  }
+
+  .step1.finish,
+  .step2.finish {
+    background-color: #04aa6d;
+  }
+
+  /* Mark input boxes that gets an error on validation: */
+  .invalid {
+    background-color: #ffdddd !important;
+  }
+</style>
+{% endblock %} {% block main %}
+
+<script>
+  var currentTab = 0; // Current tab is set to be the first tab (0)
+
+  function showTab(index) {
+    // This function will display the specified tab of the form ...
+    var tabs = document.getElementsByClassName('tab');
+    tabs[index].style.display = 'block';
+    // ... and fix the Previous/Next buttons:
+    elems = document.getElementsByClassName('previous_but');
+    if (index === 0) {
+      for (i = 0; i < elems.length; i++) {
+        elems[i].style.display = 'none';
+      }
+    } else {
+      for (i = 0; i < elems.length; i++) {
+        elems[i].style.display = 'inline';
+      }
+    }
+    nexts = document.getElementsByClassName('next_but');
+    if (index === tabs.length - 1) {
+      for (i = 0; i < nexts.length; i++) {
+        nexts[i].innerHTML = 'Valider';
+      }
+    } else {
+      for (i = 0; i < nexts.length; i++) {
+        nexts[i].innerHTML = 'Suivant';
+      }
+    }
+    fixStepIndicator(index);
+    // set_input_on_change();
+    // set_select_on_change();
+  }
+
+  function nextPrev(inc) {
+    // This function will figure out which tab to display
+    var tabs = document.getElementsByClassName('tab');
+    // Exit the function if any field in the current tab is invalid:
+    if (inc === 1 && !pre_validate()) {
+      return false;
+    }
+    if (currentTab > 0 || inc === 1) {
+      // Hide the current tab:
+      tabs[currentTab].style.display = 'none';
+    }
+    // Increase or decrease the current tab by 1:
+    currentTab = currentTab + inc;
+    if (currentTab < 0) currentTab = 0;
+    // if you have reached the end of the form... :
+    if (currentTab >= tabs.length) {
+      //...the form gets submitted:
+      document.getElementById('kycform').submit();
+      return false;
+    }
+    // Otherwise, display the correct tab:
+    showTab(currentTab);
+  }
+
+  function pre_validate_input(evt) {
+    var inp;
+    var valid = true;
+    if (evt.target) {
+      inp = evt.target;
+    } else {
+      inp = evt;
+    }
+    // if (inp.name == 'photo') {
+    // alert('in photo');
+    // }
+    if (inp.classList.contains('xinvalid')) {
+      valid = false;
+      return valid;
+    }
+
+    if (!inp.checkValidity() && !inp.classList.contains('data_photo')) {
+      // if (inp.name == 'photo') {
+      // alert('no valid in photo');
+      // }
+      inp.classList.add('invalid');
+      valid = false;
+      return valid;
+    } else {
+      inp.classList.remove('invalid');
+    }
+    // if (inp.classList.contains('data_photo')) alert('still');
+
+    if (inp.classList.contains('data_photo') && inp.value.length > 0) {
+      // alert('photo jpg');
+      let ext = inp.value.split('.').pop().toLowerCase();
+      if (!['jpg', 'jpeg', 'png', 'pdf'].includes(ext)) {
+        inp.classList.add('invalid');
+        valid = false;
+        return valid;
+      } else {
+        inp.classList.remove('invalid');
+      }
+    }
+    // if (inp.classList.contains('data_photo')) alert('still2');
+    if (inp.hasAttribute('required')) {
+      // if (inp.classList.contains('data_photo')) alert('required');
+      // if (inp.classList.contains('data_photo')) alert(inp.value);
+      if (inp.value === '') {
+        if (
+          inp.classList.contains('data_photo') &&
+          inp.classList.contains('preloaded')
+        ) {
+          // alert('PRELOADED');
+          inp.classList.remove('invalid');
+        } else {
+          inp.classList.add('invalid');
+          // alert('invalid');
+          valid = false;
+        }
+      } else {
+        // alert('ok');
+        // alert(inp.value);
+        inp.classList.remove('invalid');
+      }
+    }
+    // if (inp.classList.contains('data_photo')) {
+    //   alert('still3');
+    //   alert(valid);
+    // }
+    return valid;
+  }
+
+  function pre_validate_select(evt) {
+    var sel;
+    var valid = true;
+    if (evt.target) {
+      sel = evt.target;
+    } else {
+      sel = evt;
+    }
+
+    if (sel.hasAttribute('required')) {
+      // assuming we use tom-select
+      let control = sel.tomselect;
+
+      if (!control.getValue() || control.getValue().length === 0) {
+        //if (sel.selectedIndex === 0) {
+        sel.classList.add('invalid');
+        let nodes = sel.nextSibling.childNodes;
+        for (var i = 0; i < nodes.length; i++) {
+          if (nodes[i].classList.contains('ts-control')) {
+            nodes[i].classList.add('invalid');
+          }
+        }
+        valid = false;
+      } else {
+        sel.classList.remove('invalid');
+        let nodes = sel.nextSibling.childNodes;
+        for (var i = 0; i < nodes.length; i++) {
+          if (nodes[i].classList.contains('ts-control')) {
+            nodes[i].classList.remove('invalid');
+          }
+        }
+      }
+    }
+    return valid;
+  }
+
+  function set_input_on_change() {
+    var i, inputs, tabs;
+    tabs = document.getElementsByClassName('tab');
+    inputs = tabs[currentTab].getElementsByTagName('input');
+    for (i = 0; i < inputs.length; i++) {
+      inputs[i].onchange = pre_validate_input;
+    }
+    tareas = tabs[currentTab].getElementsByTagName('textarea');
+    for (i = 0; i < tareas.length; i++) {
+      tareas[i].onchange = pre_validate_input;
+    }
+  }
+
+  function set_select_on_change() {
+    var i, selects, tabs;
+    tabs = document.getElementsByClassName('tab');
+    selects = tabs[currentTab].getElementsByTagName('select');
+    for (i = 0; i < selects.length; i++) {
+      selects[i].onchange = pre_validate_select;
+    }
+  }
+
+  function pre_validate() {
+    // This function deals with validation of the form fields
+    var tabs, inputs, selects, i, valid;
+    valid = true;
+    tabs = document.getElementsByClassName('tab');
+    inputs = tabs[currentTab].getElementsByTagName('input');
+    tareas = tabs[currentTab].getElementsByTagName('textarea');
+    selects = tabs[currentTab].getElementsByTagName('select');
+    // A loop that checks every input field in the current tab:
+    for (i = 0; i < inputs.length; i++) {
+      if (!pre_validate_input(inputs[i])) valid = false;
+    }
+    for (i = 0; i < tareas.length; i++) {
+      if (!pre_validate_input(tareas[i])) valid = false;
+    }
+    for (i = 0; i < selects.length; i++) {
+      if (!pre_validate_select(selects[i])) valid = false;
+    }
+    // If the valid status is true, mark the step as finished and valid:
+    if (valid) {
+      const steps1 = tabs[currentTab].getElementsByClassName('step1');
+      const steps2 = tabs[currentTab].getElementsByClassName('step2');
+      steps1[currentTab].classList.add('finish');
+      steps2[currentTab].classList.add('finish');
+    }
+    return valid; // return the valid status
+  }
+
+  function fixStepIndicator(index) {
+    var i, tabs, steps1, steps2;
+    tabs = document.getElementsByClassName('tab');
+    steps1 = tabs[index].getElementsByClassName('step1');
+    steps2 = tabs[index].getElementsByClassName('step2');
+    for (i = 0; i < steps1.length; i++) {
+      steps1[i].classList.remove('active');
+    }
+    for (i = 0; i < steps2.length; i++) {
+      steps2[i].classList.remove('active');
+    }
+    //... and adds the "active" class to the current step:
+    steps1[index].classList.add('active');
+    steps2[index].classList.add('active');
+  }
+
+  window.onload = function init_onload() {
+    showTab(0);
+  };
+</script>
+
+<div class="py-10 px-4">
+  <div class="mx-auto lg:max-w-7xl p-6 lg:p-8 bg-white rounded-xl">
+    <div class="mx-auto max-w-2xl">
+      <div class="content">
+        <h2 class="mt-8 mb-4">{{ form.kyc_description }} <br /></h2>
+
+        <!-- global x-data in form required by validation plugin: -->
+        <form
+          x-data
+          id="kycform"
+          method="post"
+          novalidate
+          enctype="multipart/form-data"
+          class="was-validated">
+          {{ form.csrf_token }} {% for group in form.kyc_order if group[1] %} {%
+          set tab_index = loop.index %}
+
+          <div class="tab">
+            <div x-show="{{ tab_index }} < 4">
+              <ul>
+                <li>Les champs suivis d'un (*) sont obligatoires.</li>
+                <li>
+                  Vous pouvez saisir une partie d'un mot pour rechercher dans
+                  les listes proposées.
+                </li>
+              </ul>
+            </div>
+
+            <div
+              x-show="{{ tab_index }} < 4"
+              class="mt-6 flex items-center justify-end gap-x-6">
+              <input
+                type="button"
+                class="previous_but inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                id="prevBtnTop{{tab_index}}"
+                value="Précédent"
+                onclick="nextPrev(-1)" />
+
+              <input
+                type="button"
+                class="next_but inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                id="nextBtnTop{{tab_index}}"
+                value="Suivant"
+                onclick="nextPrev(1)" />
+            </div>
+
+            <div style="text-align: center; margin-top: 40px">
+              {% for group in form.kyc_order if group[1] %}
+              <span class="step1"></span>
+              {% endfor %}
+            </div>
+
+            <div class="my-8">
+              <fieldset class="border border-solid border-gray-500 p-4">
+                <legend>{{ group[0] }}</legend>
+                {% for name in group[1] %}
+                <div>
+                  {{ render_field(form[name]) }}
+                  <!--
+                  {% if form[name].errors %}
+                  <ul class="errors">
+                    {% for error in form[name].errors %}
+                    <li>{{ error }}</li>
+                    {% endfor %}
+                  </ul>
+                  {% endif %}
+                  -->
+                </div>
+                {% endfor %}
+              </fieldset>
+            </div>
+
+            <div class="mt-6 flex items-center justify-end gap-x-6">
+              <input
+                type="button"
+                class="previous_but inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                id="prevBtn{{tab_index}}"
+                value="Précédent"
+                onclick="nextPrev(-1)" />
+              <input
+                type="button"
+                class="next_but inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                id="nextBtn{{tab_index}}"
+                value="Suivant"
+                onclick="nextPrev(1)" />
+            </div>
+
+            <div style="text-align: center; margin-top: 40px">
+              {% for group in form.kyc_order if group[1] %}
+              <span class="step2"></span>
+              {% endfor %}
+            </div>
+          </div>
+          {% endfor %}
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

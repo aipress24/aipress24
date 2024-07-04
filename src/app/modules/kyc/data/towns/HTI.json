@@ -1,0 +1,946 @@
+[
+    {
+        "value": "HTI;HT1110 Cap-Haïtien (la ville)",
+        "label": "HT1110 Cap-Haïtien (la ville)"
+    },
+    {
+        "value": "HTI;HT1111 Bande-du-Nord (quartier du Cap)",
+        "label": "HT1111 Bande-du-Nord (quartier du Cap)"
+    },
+    {
+        "value": "HTI;HT1112 Labadie (quartier du Cap)",
+        "label": "HT1112 Labadie (quartier du Cap)"
+    },
+    {
+        "value": "HTI;HT1113 Haut-du-Cap (quartier du Cap)",
+        "label": "HT1113 Haut-du-Cap (quartier du Cap)"
+    },
+    {
+        "value": "HTI;HT1114 Petite-Anse",
+        "label": "HT1114 Petite-Anse"
+    },
+    {
+        "value": "HTI;HT1120 Quartier-Morin",
+        "label": "HT1120 Quartier-Morin"
+    },
+    {
+        "value": "HTI;HT1130 Limonade",
+        "label": "HT1130 Limonade"
+    },
+    {
+        "value": "HTI;HT1210 Acul-du-Nord",
+        "label": "HT1210 Acul-du-Nord"
+    },
+    {
+        "value": "HTI;HT1211 La Soufrière",
+        "label": "HT1211 La Soufrière"
+    },
+    {
+        "value": "HTI;HT1220 Plaine-du-Nord",
+        "label": "HT1220 Plaine-du-Nord"
+    },
+    {
+        "value": "HTI;HT1221 Robillard",
+        "label": "HT1221 Robillard"
+    },
+    {
+        "value": "HTI;HT1230 Milot",
+        "label": "HT1230 Milot"
+    },
+    {
+        "value": "HTI;HT1231 Carrefour-des-Pères",
+        "label": "HT1231 Carrefour-des-Pères"
+    },
+    {
+        "value": "HTI;HT1310 Grande-Rivière-du-Nord",
+        "label": "HT1310 Grande-Rivière-du-Nord"
+    },
+    {
+        "value": "HTI;HT1320 Barbon",
+        "label": "HT1320 Barbon"
+    },
+    {
+        "value": "HTI;HT1410 Saint-Raphaël",
+        "label": "HT1410 Saint-Raphaël"
+    },
+    {
+        "value": "HTI;HT1420 Dondon",
+        "label": "HT1420 Dondon"
+    },
+    {
+        "value": "HTI;HT1430 Ranquitte",
+        "label": "HT1430 Ranquitte"
+    },
+    {
+        "value": "HTI;HT1440 Pignon",
+        "label": "HT1440 Pignon"
+    },
+    {
+        "value": "HTI;HT1450 La Victoire",
+        "label": "HT1450 La Victoire"
+    },
+    {
+        "value": "HTI;HT1510 Borgne",
+        "label": "HT1510 Borgne"
+    },
+    {
+        "value": "HTI;HT1511 Petit-Bourg-de-Borgne",
+        "label": "HT1511 Petit-Bourg-de-Borgne"
+    },
+    {
+        "value": "HTI;HT1517 Côte-de-Fer et Fond",
+        "label": "HT1517 Côte-de-Fer et Fond"
+    },
+    {
+        "value": "HTI;HT1520 Port-Margot",
+        "label": "HT1520 Port-Margot"
+    },
+    {
+        "value": "HTI;HT1521 Bayeux",
+        "label": "HT1521 Bayeux"
+    },
+    {
+        "value": "HTI;HT1522 Margot",
+        "label": "HT1522 Margot"
+    },
+    {
+        "value": "HTI;HT1610 Limbé",
+        "label": "HT1610 Limbé"
+    },
+    {
+        "value": "HTI;HT1611 Camp-Coq",
+        "label": "HT1611 Camp-Coq"
+    },
+    {
+        "value": "HTI;HT1620 Bas-Limbé",
+        "label": "HT1620 Bas-Limbé"
+    },
+    {
+        "value": "HTI;HT1710 Plaisance",
+        "label": "HT1710 Plaisance"
+    },
+    {
+        "value": "HTI;HT1720 Pilate",
+        "label": "HT1720 Pilate"
+    },
+    {
+        "value": "HTI;HT1723 Ravine-Trompette",
+        "label": "HT1723 Ravine-Trompette"
+    },
+    {
+        "value": "HTI;HT2110 Fort-Liberté",
+        "label": "HT2110 Fort-Liberté"
+    },
+    {
+        "value": "HTI;HT2111 Dérac",
+        "label": "HT2111 Dérac"
+    },
+    {
+        "value": "HTI;HT2112 Acul Samedi",
+        "label": "HT2112 Acul Samedi"
+    },
+    {
+        "value": "HTI;HT2120 Ferrier",
+        "label": "HT2120 Ferrier"
+    },
+    {
+        "value": "HTI;HT2121 Maribahoux",
+        "label": "HT2121 Maribahoux"
+    },
+    {
+        "value": "HTI;HT2130 Perches",
+        "label": "HT2130 Perches"
+    },
+    {
+        "value": "HTI;HT2210 Ouanaminthe",
+        "label": "HT2210 Ouanaminthe"
+    },
+    {
+        "value": "HTI;HT2220 Capotille",
+        "label": "HT2220 Capotille"
+    },
+    {
+        "value": "HTI;HT2230 Mont-Organisé",
+        "label": "HT2230 Mont-Organisé"
+    },
+    {
+        "value": "HTI;HT2310 Trou-duNord",
+        "label": "HT2310 Trou-duNord"
+    },
+    {
+        "value": "HTI;HT2320 Sainte-Suzanne",
+        "label": "HT2320 Sainte-Suzanne"
+    },
+    {
+        "value": "HTI;HT2321 Dupity",
+        "label": "HT2321 Dupity"
+    },
+    {
+        "value": "HTI;HT2330 Terrier-Rouge",
+        "label": "HT2330 Terrier-Rouge"
+    },
+    {
+        "value": "HTI;HT2331 Phaëton",
+        "label": "HT2331 Phaëton"
+    },
+    {
+        "value": "HTI;HT2332 Paulette",
+        "label": "HT2332 Paulette"
+    },
+    {
+        "value": "HTI;HT2340 Caracol",
+        "label": "HT2340 Caracol"
+    },
+    {
+        "value": "HTI;HT2410 Vallières",
+        "label": "HT2410 Vallières"
+    },
+    {
+        "value": "HTI;HT2411 Grosse-Roche",
+        "label": "HT2411 Grosse-Roche"
+    },
+    {
+        "value": "HTI;HT2420 Carice",
+        "label": "HT2420 Carice"
+    },
+    {
+        "value": "HTI;HT2430 Mombin-Crochu",
+        "label": "HT2430 Mombin-Crochu"
+    },
+    {
+        "value": "HTI;HT2431 Bois-Laurence",
+        "label": "HT2431 Bois-Laurence"
+    },
+    {
+        "value": "HTI;HT3110 Port-de-Paix",
+        "label": "HT3110 Port-de-Paix"
+    },
+    {
+        "value": "HTI;HT3111 La Pointe",
+        "label": "HT3111 La Pointe"
+    },
+    {
+        "value": "HTI;HT3120 La Tortue",
+        "label": "HT3120 La Tortue"
+    },
+    {
+        "value": "HTI;HT3121 Pointe des Oiseaux",
+        "label": "HT3121 Pointe des Oiseaux"
+    },
+    {
+        "value": "HTI;HT3122 Mare Rouge",
+        "label": "HT3122 Mare Rouge"
+    },
+    {
+        "value": "HTI;HT3130 Bassin-Bleu",
+        "label": "HT3130 Bassin-Bleu"
+    },
+    {
+        "value": "HTI;HT3140 Chansolme",
+        "label": "HT3140 Chansolme"
+    },
+    {
+        "value": "HTI;HT3210 Saint-Louis-du-Nord",
+        "label": "HT3210 Saint-Louis-du-Nord"
+    },
+    {
+        "value": "HTI;HT3211 Bonneau",
+        "label": "HT3211 Bonneau"
+    },
+    {
+        "value": "HTI;HT3212 Guichard",
+        "label": "HT3212 Guichard"
+    },
+    {
+        "value": "HTI;HT3220 Anse-à-Foleur",
+        "label": "HT3220 Anse-à-Foleur"
+    },
+    {
+        "value": "HTI;HT3310 Môle-Saint-Nicolas",
+        "label": "HT3310 Môle-Saint-Nicolas"
+    },
+    {
+        "value": "HTI;HT3320 Bombardopolis",
+        "label": "HT3320 Bombardopolis"
+    },
+    {
+        "value": "HTI;HT3330 Baie-de-Henne",
+        "label": "HT3330 Baie-de-Henne"
+    },
+    {
+        "value": "HTI;HT3340 Jean-Rabel",
+        "label": "HT3340 Jean-Rabel"
+    },
+    {
+        "value": "HTI;HT3408 Puits Blain",
+        "label": "HT3408 Puits Blain"
+    },
+    {
+        "value": "HTI;HT4110 Gonaïves",
+        "label": "HT4110 Gonaïves"
+    },
+    {
+        "value": "HTI;HT4111 Petite Rivière de l’Artibonite",
+        "label": "HT4111 Petite Rivière de l’Artibonite"
+    },
+    {
+        "value": "HTI;HT4120 Ennery",
+        "label": "HT4120 Ennery"
+    },
+    {
+        "value": "HTI;HT4130 L'Estère",
+        "label": "HT4130 L'Estère"
+    },
+    {
+        "value": "HTI;HT4210 Gros Morne",
+        "label": "HT4210 Gros Morne"
+    },
+    {
+        "value": "HTI;HT4220 Terre-Neuve",
+        "label": "HT4220 Terre-Neuve"
+    },
+    {
+        "value": "HTI;HT4230 Anse-Rouge",
+        "label": "HT4230 Anse-Rouge"
+    },
+    {
+        "value": "HTI;HT4231 Sources Chaudes",
+        "label": "HT4231 Sources Chaudes"
+    },
+    {
+        "value": "HTI;HT4310 Saint-Marc",
+        "label": "HT4310 Saint-Marc"
+    },
+    {
+        "value": "HTI;HT4311 Montrouis",
+        "label": "HT4311 Montrouis"
+    },
+    {
+        "value": "HTI;HT4320 Verrettes",
+        "label": "HT4320 Verrettes"
+    },
+    {
+        "value": "HTI;HT4321 Désarmes",
+        "label": "HT4321 Désarmes"
+    },
+    {
+        "value": "HTI;HT4322 Deschapelles",
+        "label": "HT4322 Deschapelles"
+    },
+    {
+        "value": "HTI;HT4323 Liancourt",
+        "label": "HT4323 Liancourt"
+    },
+    {
+        "value": "HTI;HT4410 Dessalines (Marchand-Dessalines)",
+        "label": "HT4410 Dessalines (Marchand-Dessalines)"
+    },
+    {
+        "value": "HTI;HT4420 Petite-Rivière-de-l’Artibonite",
+        "label": "HT4420 Petite-Rivière-de-l’Artibonite"
+    },
+    {
+        "value": "HTI;HT4421 Savane à Roches",
+        "label": "HT4421 Savane à Roches"
+    },
+    {
+        "value": "HTI;HT4430 Grande-Saline",
+        "label": "HT4430 Grande-Saline"
+    },
+    {
+        "value": "HTI;HT4440 Desdunes",
+        "label": "HT4440 Desdunes"
+    },
+    {
+        "value": "HTI;HT4510 Marmelade",
+        "label": "HT4510 Marmelade"
+    },
+    {
+        "value": "HTI;HT4520 Saint-Michel-de-l’Attalaye",
+        "label": "HT4520 Saint-Michel-de-l’Attalaye"
+    },
+    {
+        "value": "HTI;HT4530 Moreau Paye",
+        "label": "HT4530 Moreau Paye"
+    },
+    {
+        "value": "HTI;HT5110 Hinche",
+        "label": "HT5110 Hinche"
+    },
+    {
+        "value": "HTI;HT5111 Los Palis",
+        "label": "HT5111 Los Palis"
+    },
+    {
+        "value": "HTI;HT5120 Maïssade",
+        "label": "HT5120 Maïssade"
+    },
+    {
+        "value": "HTI;HT5121 Louverture",
+        "label": "HT5121 Louverture"
+    },
+    {
+        "value": "HTI;HT5130 Thomonde",
+        "label": "HT5130 Thomonde"
+    },
+    {
+        "value": "HTI;HT5140 Cerca-Carvajal",
+        "label": "HT5140 Cerca-Carvajal"
+    },
+    {
+        "value": "HTI;HT5210 Mirebalais",
+        "label": "HT5210 Mirebalais"
+    },
+    {
+        "value": "HTI;HT5211 Dufailly",
+        "label": "HT5211 Dufailly"
+    },
+    {
+        "value": "HTI;HT5220 Saut-d’Eau",
+        "label": "HT5220 Saut-d’Eau"
+    },
+    {
+        "value": "HTI;HT5230 Boucan-Carré",
+        "label": "HT5230 Boucan-Carré"
+    },
+    {
+        "value": "HTI;HT5231 Péligre",
+        "label": "HT5231 Péligre"
+    },
+    {
+        "value": "HTI;HT5310 Lascahobas",
+        "label": "HT5310 Lascahobas"
+    },
+    {
+        "value": "HTI;HT5320 Belladère",
+        "label": "HT5320 Belladère"
+    },
+    {
+        "value": "HTI;HT5321 Baptiste",
+        "label": "HT5321 Baptiste"
+    },
+    {
+        "value": "HTI;HT5330 Savanette",
+        "label": "HT5330 Savanette"
+    },
+    {
+        "value": "HTI;HT5410 Cerca-la-Source",
+        "label": "HT5410 Cerca-la-Source"
+    },
+    {
+        "value": "HTI;HT5411 Saltadère",
+        "label": "HT5411 Saltadère"
+    },
+    {
+        "value": "HTI;HT5412 Lamielle",
+        "label": "HT5412 Lamielle"
+    },
+    {
+        "value": "HTI;HT5420 Thomassique",
+        "label": "HT5420 Thomassique"
+    },
+    {
+        "value": "HTI;HT6110 Port-au-Prince",
+        "label": "HT6110 Port-au-Prince"
+    },
+    {
+        "value": "HTI;HT6111 Bel-Air et Bourdon",
+        "label": "HT6111 Bel-Air et Bourdon"
+    },
+    {
+        "value": "HTI;HT6113 Turgeau",
+        "label": "HT6113 Turgeau"
+    },
+    {
+        "value": "HTI;HT6114 Bois Verna",
+        "label": "HT6114 Bois Verna"
+    },
+    {
+        "value": "HTI;HT6115 Lalue",
+        "label": "HT6115 Lalue"
+    },
+    {
+        "value": "HTI;HT6116 Carrefour Feuilles",
+        "label": "HT6116 Carrefour Feuilles"
+    },
+    {
+        "value": "HTI;HT6117 Morne de l’Hôpital",
+        "label": "HT6117 Morne de l’Hôpital"
+    },
+    {
+        "value": "HTI;HT6118 Bolosse",
+        "label": "HT6118 Bolosse"
+    },
+    {
+        "value": "HTI;HT6119 Martissant et Fontamara",
+        "label": "HT6119 Martissant et Fontamara"
+    },
+    {
+        "value": "HTI;HT6120 Delmas",
+        "label": "HT6120 Delmas"
+    },
+    {
+        "value": "HTI;HT6121 Varreux",
+        "label": "HT6121 Varreux"
+    },
+    {
+        "value": "HTI;HT6122 Cité soleil",
+        "label": "HT6122 Cité soleil"
+    },
+    {
+        "value": "HTI;HT6123 Maïs Gâté, Tabarre zone",
+        "label": "HT6123 Maïs Gâté, Tabarre zone"
+    },
+    {
+        "value": "HTI;HT6123 Tabarre (zone1)",
+        "label": "HT6123 Tabarre (zone1)"
+    },
+    {
+        "value": "HTI;HT6124 Petite Place Cazeau, Tabarre zone",
+        "label": "HT6124 Petite Place Cazeau, Tabarre zone"
+    },
+    {
+        "value": "HTI;HT6124 Tabarre (zone2)",
+        "label": "HT6124 Tabarre (zone2)"
+    },
+    {
+        "value": "HTI;HT6125 Croix-des-Missions",
+        "label": "HT6125 Croix-des-Missions"
+    },
+    {
+        "value": "HTI;HT6130 Carrefour",
+        "label": "HT6130 Carrefour"
+    },
+    {
+        "value": "HTI;HT6131 Bizoton",
+        "label": "HT6131 Bizoton"
+    },
+    {
+        "value": "HTI;HT6132 Diquini, Thor",
+        "label": "HT6132 Diquini, Thor"
+    },
+    {
+        "value": "HTI;HT6133 Côte-Page, Mahotière",
+        "label": "HT6133 Côte-Page, Mahotière"
+    },
+    {
+        "value": "HTI;HT6134 Arcachon",
+        "label": "HT6134 Arcachon"
+    },
+    {
+        "value": "HTI;HT6134 Warney",
+        "label": "HT6134 Warney"
+    },
+    {
+        "value": "HTI;HT6135 Brochette",
+        "label": "HT6135 Brochette"
+    },
+    {
+        "value": "HTI;HT6136 Lamentin",
+        "label": "HT6136 Lamentin"
+    },
+    {
+        "value": "HTI;HT6136 Mariani",
+        "label": "HT6136 Mariani"
+    },
+    {
+        "value": "HTI;HT6136 Merger",
+        "label": "HT6136 Merger"
+    },
+    {
+        "value": "HTI;HT6140 Pétion-Ville",
+        "label": "HT6140 Pétion-Ville"
+    },
+    {
+        "value": "HTI;HT6141 Frères, pergnier,peguy-ville",
+        "label": "HT6141 Frères, pergnier,peguy-ville"
+    },
+    {
+        "value": "HTI;HT6142 Pèlerin",
+        "label": "HT6142 Pèlerin"
+    },
+    {
+        "value": "HTI;HT6143 Tête de l’Eau",
+        "label": "HT6143 Tête de l’Eau"
+    },
+    {
+        "value": "HTI;HT6144 Laboule",
+        "label": "HT6144 Laboule"
+    },
+    {
+        "value": "HTI;HT6145 Thomassin",
+        "label": "HT6145 Thomassin"
+    },
+    {
+        "value": "HTI;HT6146 Fermathe",
+        "label": "HT6146 Fermathe"
+    },
+    {
+        "value": "HTI;HT6147 Pergnier",
+        "label": "HT6147 Pergnier"
+    },
+    {
+        "value": "HTI;HT6150 Kenscoff",
+        "label": "HT6150 Kenscoff"
+    },
+    {
+        "value": "HTI;HT6160 Gressier",
+        "label": "HT6160 Gressier"
+    },
+    {
+        "value": "HTI;HT6210 Léogâne",
+        "label": "HT6210 Léogâne"
+    },
+    {
+        "value": "HTI;HT6211 Trouin",
+        "label": "HT6211 Trouin"
+    },
+    {
+        "value": "HTI;HT6212 Orangers",
+        "label": "HT6212 Orangers"
+    },
+    {
+        "value": "HTI;HT6220 PetitGoâve",
+        "label": "HT6220 PetitGoâve"
+    },
+    {
+        "value": "HTI;HT6221 Vialet",
+        "label": "HT6221 Vialet"
+    },
+    {
+        "value": "HTI;HT6230 Grand Goâve",
+        "label": "HT6230 Grand Goâve"
+    },
+    {
+        "value": "HTI;HT6310 Croix-des-Bouquets",
+        "label": "HT6310 Croix-des-Bouquets"
+    },
+    {
+        "value": "HTI;HT6311 Santo",
+        "label": "HT6311 Santo"
+    },
+    {
+        "value": "HTI;HT6312 Bon Repos",
+        "label": "HT6312 Bon Repos"
+    },
+    {
+        "value": "HTI;HT6320 Thomazeau",
+        "label": "HT6320 Thomazeau"
+    },
+    {
+        "value": "HTI;HT6330 Cornillon",
+        "label": "HT6330 Cornillon"
+    },
+    {
+        "value": "HTI;HT6330 Ganthier",
+        "label": "HT6330 Ganthier"
+    },
+    {
+        "value": "HTI;HT6331 Fonds Parisien et Galette Bonbon",
+        "label": "HT6331 Fonds Parisien et Galette Bonbon"
+    },
+    {
+        "value": "HTI;HT6340 Fonds Verettes",
+        "label": "HT6340 Fonds Verettes"
+    },
+    {
+        "value": "HTI;HT6410 Arcahaie",
+        "label": "HT6410 Arcahaie"
+    },
+    {
+        "value": "HTI;HT6411 Saintard",
+        "label": "HT6411 Saintard"
+    },
+    {
+        "value": "HTI;HT6420 Cabaret",
+        "label": "HT6420 Cabaret"
+    },
+    {
+        "value": "HTI;HT6421 Casale",
+        "label": "HT6421 Casale"
+    },
+    {
+        "value": "HTI;HT6510 Anse à Galets (La Gonâve)",
+        "label": "HT6510 Anse à Galets (La Gonâve)"
+    },
+    {
+        "value": "HTI;HT6520 Pointe à Raquette (La Gonâve)",
+        "label": "HT6520 Pointe à Raquette (La Gonâve)"
+    },
+    {
+        "value": "HTI;HT7110 Jérémie",
+        "label": "HT7110 Jérémie"
+    },
+    {
+        "value": "HTI;HT7111 Léon",
+        "label": "HT7111 Léon"
+    },
+    {
+        "value": "HTI;HT7112 Marfranc",
+        "label": "HT7112 Marfranc"
+    },
+    {
+        "value": "HTI;HT7120 Abricots",
+        "label": "HT7120 Abricots"
+    },
+    {
+        "value": "HTI;HT7130 Bonbon",
+        "label": "HT7130 Bonbon"
+    },
+    {
+        "value": "HTI;HT7140 Moron",
+        "label": "HT7140 Moron"
+    },
+    {
+        "value": "HTI;HT7141 Sources Chaudes",
+        "label": "HT7141 Sources Chaudes"
+    },
+    {
+        "value": "HTI;HT7150 Chambellan",
+        "label": "HT7150 Chambellan"
+    },
+    {
+        "value": "HTI;HT7210 Anse-d’Hainault",
+        "label": "HT7210 Anse-d’Hainault"
+    },
+    {
+        "value": "HTI;HT7220 Dame-Marie",
+        "label": "HT7220 Dame-Marie"
+    },
+    {
+        "value": "HTI;HT7221 Lesson",
+        "label": "HT7221 Lesson"
+    },
+    {
+        "value": "HTI;HT7230 Les Irois",
+        "label": "HT7230 Les Irois"
+    },
+    {
+        "value": "HTI;HT7231 Carcasse",
+        "label": "HT7231 Carcasse"
+    },
+    {
+        "value": "HTI;HT7310 Corail",
+        "label": "HT7310 Corail"
+    },
+    {
+        "value": "HTI;HT7320 Roseaux",
+        "label": "HT7320 Roseaux"
+    },
+    {
+        "value": "HTI;HT7330 Beaumont",
+        "label": "HT7330 Beaumont"
+    },
+    {
+        "value": "HTI;HT7340 Pestel",
+        "label": "HT7340 Pestel"
+    },
+    {
+        "value": "HTI;HT7410 Miragoâne",
+        "label": "HT7410 Miragoâne"
+    },
+    {
+        "value": "HTI;HT7411 Saint-Michel-du-Sud",
+        "label": "HT7411 Saint-Michel-du-Sud"
+    },
+    {
+        "value": "HTI;HT7412 Paillant",
+        "label": "HT7412 Paillant"
+    },
+    {
+        "value": "HTI;HT7413 Fonds-des-Nègres",
+        "label": "HT7413 Fonds-des-Nègres"
+    },
+    {
+        "value": "HTI;HT7420 Petite-Rivière-de-Nippes",
+        "label": "HT7420 Petite-Rivière-de-Nippes"
+    },
+    {
+        "value": "HTI;HT7510 Anse-à-Veau",
+        "label": "HT7510 Anse-à-Veau"
+    },
+    {
+        "value": "HTI;HT7520 Baradères",
+        "label": "HT7520 Baradères"
+    },
+    {
+        "value": "HTI;HT7521 Grand-Boucan",
+        "label": "HT7521 Grand-Boucan"
+    },
+    {
+        "value": "HTI;HT7530 Petit-Trou-de-Nippes",
+        "label": "HT7530 Petit-Trou-de-Nippes"
+    },
+    {
+        "value": "HTI;HT7540 L’Asile",
+        "label": "HT7540 L’Asile"
+    },
+    {
+        "value": "HTI;HT8110 Les Cayes",
+        "label": "HT8110 Les Cayes"
+    },
+    {
+        "value": "HTI;HT8120 Torbeck",
+        "label": "HT8120 Torbeck"
+    },
+    {
+        "value": "HTI;HT8121 puits Blain",
+        "label": "HT8121 puits Blain"
+    },
+    {
+        "value": "HTI;HT8122 Ducis",
+        "label": "HT8122 Ducis"
+    },
+    {
+        "value": "HTI;HT8130 Chantal",
+        "label": "HT8130 Chantal"
+    },
+    {
+        "value": "HTI;HT8140 Camp Perrin",
+        "label": "HT8140 Camp Perrin"
+    },
+    {
+        "value": "HTI;HT8150 Maniche",
+        "label": "HT8150 Maniche"
+    },
+    {
+        "value": "HTI;HT8160 L’Ïle à Vaches",
+        "label": "HT8160 L’Ïle à Vaches"
+    },
+    {
+        "value": "HTI;HT8210 Port-Salut",
+        "label": "HT8210 Port-Salut"
+    },
+    {
+        "value": "HTI;HT8220 Saint Jean du Sud",
+        "label": "HT8220 Saint Jean du Sud"
+    },
+    {
+        "value": "HTI;HT8230 Arniquet",
+        "label": "HT8230 Arniquet"
+    },
+    {
+        "value": "HTI;HT8310 Aquin",
+        "label": "HT8310 Aquin"
+    },
+    {
+        "value": "HTI;HT8311 Fond-Des-Blancs",
+        "label": "HT8311 Fond-Des-Blancs"
+    },
+    {
+        "value": "HTI;HT8312 Vieux Bourg d’Aquin",
+        "label": "HT8312 Vieux Bourg d’Aquin"
+    },
+    {
+        "value": "HTI;HT8313 La Colline",
+        "label": "HT8313 La Colline"
+    },
+    {
+        "value": "HTI;HT8320 Saint Louis du Sud",
+        "label": "HT8320 Saint Louis du Sud"
+    },
+    {
+        "value": "HTI;HT8330 Cavaillon",
+        "label": "HT8330 Cavaillon"
+    },
+    {
+        "value": "HTI;HT8410 Côteaux",
+        "label": "HT8410 Côteaux"
+    },
+    {
+        "value": "HTI;HT8411 Damassin",
+        "label": "HT8411 Damassin"
+    },
+    {
+        "value": "HTI;HT8412 La Côte",
+        "label": "HT8412 La Côte"
+    },
+    {
+        "value": "HTI;HT8420 Port à Piment",
+        "label": "HT8420 Port à Piment"
+    },
+    {
+        "value": "HTI;HT8430 Roche à Bateau",
+        "label": "HT8430 Roche à Bateau"
+    },
+    {
+        "value": "HTI;HT8510 Chardonnières",
+        "label": "HT8510 Chardonnières"
+    },
+    {
+        "value": "HTI;HT8511 Randel",
+        "label": "HT8511 Randel"
+    },
+    {
+        "value": "HTI;HT8520 Les Anglais",
+        "label": "HT8520 Les Anglais"
+    },
+    {
+        "value": "HTI;HT8530 Tiburon",
+        "label": "HT8530 Tiburon"
+    },
+    {
+        "value": "HTI;HT8531 Cahonane",
+        "label": "HT8531 Cahonane"
+    },
+    {
+        "value": "HTI;HT9110 Jacmel",
+        "label": "HT9110 Jacmel"
+    },
+    {
+        "value": "HTI;HT9111 Marbial",
+        "label": "HT9111 Marbial"
+    },
+    {
+        "value": "HTI;HT9120 Marigot",
+        "label": "HT9120 Marigot"
+    },
+    {
+        "value": "HTI;HT9121 Seguin",
+        "label": "HT9121 Seguin"
+    },
+    {
+        "value": "HTI;HT9130 Cayes Jacmel",
+        "label": "HT9130 Cayes Jacmel"
+    },
+    {
+        "value": "HTI;HT9140 La Vallée de Jacmel",
+        "label": "HT9140 La Vallée de Jacmel"
+    },
+    {
+        "value": "HTI;HT9210 Bainet",
+        "label": "HT9210 Bainet"
+    },
+    {
+        "value": "HTI;HT9220 Côtes de Fer",
+        "label": "HT9220 Côtes de Fer"
+    },
+    {
+        "value": "HTI;HT9310 Belle-Anse",
+        "label": "HT9310 Belle-Anse"
+    },
+    {
+        "value": "HTI;HT9311 Mapou",
+        "label": "HT9311 Mapou"
+    },
+    {
+        "value": "HTI;HT9320 Grand Gosier",
+        "label": "HT9320 Grand Gosier"
+    },
+    {
+        "value": "HTI;HT9321 Bodarie",
+        "label": "HT9321 Bodarie"
+    },
+    {
+        "value": "HTI;HT9330 Thiotte",
+        "label": "HT9330 Thiotte"
+    },
+    {
+        "value": "HTI;HT9340 Anse à Pitre",
+        "label": "HT9340 Anse à Pitre"
+    },
+    {
+        "value": "HTI;HT9341 Banane",
+        "label": "HT9341 Banane"
+    }
+]

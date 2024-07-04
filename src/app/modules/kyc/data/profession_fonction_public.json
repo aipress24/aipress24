@@ -1,0 +1,1724 @@
+{
+    "field1": [
+        [
+            "PRÉSIDENCE DE LA RÉPUBLIQUE",
+            "PRÉSIDENCE DE LA RÉPUBLIQUE"
+        ],
+        [
+            "GOUVERNEMENT",
+            "GOUVERNEMENT"
+        ],
+        [
+            "PARLEMENT",
+            "PARLEMENT"
+        ],
+        [
+            "COLLECTIVITÉS LOCALES",
+            "COLLECTIVITÉS LOCALES"
+        ],
+        [
+            "PRÉFECTURES",
+            "PRÉFECTURES"
+        ],
+        [
+            "POLICE-GENDARMERIE-POLICE MUINICIPALE",
+            "POLICE-GENDARMERIE-POLICE MUINICIPALE"
+        ],
+        [
+            "DÉFENSE",
+            "DÉFENSE"
+        ],
+        [
+            "ÉDUCATION",
+            "ÉDUCATION"
+        ],
+        [
+            "AMBASSADES",
+            "AMBASSADES"
+        ],
+        [
+            "CHAMBRES CONSULAIRES",
+            "CHAMBRES CONSULAIRES"
+        ],
+        [
+            "JUSTICE",
+            "JUSTICE"
+        ],
+        [
+            "SANTÉ PUBLIQUE",
+            "SANTÉ PUBLIQUE"
+        ],
+        [
+            "SÉCURITÉ CIVILE",
+            "SÉCURITÉ CIVILE"
+        ]
+    ],
+    "field2": {
+        "PRÉSIDENCE DE LA RÉPUBLIQUE": [
+            [
+                "PRÉSIDENCE DE LA RÉPUBLIQUE;Président de la République",
+                "PRÉSIDENCE DE LA RÉPUBLIQUE / Président de la République"
+            ],
+            [
+                "PRÉSIDENCE DE LA RÉPUBLIQUE;Secrétaire général de la Présidence",
+                "PRÉSIDENCE DE LA RÉPUBLIQUE / Secrétaire général de la Présidence"
+            ],
+            [
+                "PRÉSIDENCE DE LA RÉPUBLIQUE;Directeur de cabinet",
+                "PRÉSIDENCE DE LA RÉPUBLIQUE / Directeur de cabinet"
+            ],
+            [
+                "PRÉSIDENCE DE LA RÉPUBLIQUE;Conseiller spécial",
+                "PRÉSIDENCE DE LA RÉPUBLIQUE / Conseiller spécial"
+            ],
+            [
+                "PRÉSIDENCE DE LA RÉPUBLIQUE;Conseiller politique",
+                "PRÉSIDENCE DE LA RÉPUBLIQUE / Conseiller politique"
+            ],
+            [
+                "PRÉSIDENCE DE LA RÉPUBLIQUE;Conseiller diplomatique",
+                "PRÉSIDENCE DE LA RÉPUBLIQUE / Conseiller diplomatique"
+            ],
+            [
+                "PRÉSIDENCE DE LA RÉPUBLIQUE;Conseiller en communication",
+                "PRÉSIDENCE DE LA RÉPUBLIQUE / Conseiller en communication"
+            ],
+            [
+                "PRÉSIDENCE DE LA RÉPUBLIQUE;Conseiller juridique",
+                "PRÉSIDENCE DE LA RÉPUBLIQUE / Conseiller juridique"
+            ],
+            [
+                "PRÉSIDENCE DE LA RÉPUBLIQUE;Conseiller économique",
+                "PRÉSIDENCE DE LA RÉPUBLIQUE / Conseiller économique"
+            ],
+            [
+                "PRÉSIDENCE DE LA RÉPUBLIQUE;Conseiller social et culturel",
+                "PRÉSIDENCE DE LA RÉPUBLIQUE / Conseiller social et culturel"
+            ],
+            [
+                "PRÉSIDENCE DE LA RÉPUBLIQUE;Porte-parole de la Présidence",
+                "PRÉSIDENCE DE LA RÉPUBLIQUE / Porte-parole de la Présidence"
+            ],
+            [
+                "PRÉSIDENCE DE LA RÉPUBLIQUE;Chef du protocole",
+                "PRÉSIDENCE DE LA RÉPUBLIQUE / Chef du protocole"
+            ],
+            [
+                "PRÉSIDENCE DE LA RÉPUBLIQUE;Attaché de presse",
+                "PRÉSIDENCE DE LA RÉPUBLIQUE / Attaché de presse"
+            ],
+            [
+                "PRÉSIDENCE DE LA RÉPUBLIQUE;Chargé de mission",
+                "PRÉSIDENCE DE LA RÉPUBLIQUE / Chargé de mission"
+            ],
+            [
+                "PRÉSIDENCE DE LA RÉPUBLIQUE;Conseiller en sécurité",
+                "PRÉSIDENCE DE LA RÉPUBLIQUE / Conseiller en sécurité"
+            ],
+            [
+                "PRÉSIDENCE DE LA RÉPUBLIQUE;Conseiller en affaires étrangères",
+                "PRÉSIDENCE DE LA RÉPUBLIQUE / Conseiller en affaires étrangères"
+            ],
+            [
+                "PRÉSIDENCE DE LA RÉPUBLIQUE;Conseiller en politique intérieure",
+                "PRÉSIDENCE DE LA RÉPUBLIQUE / Conseiller en politique intérieure"
+            ],
+            [
+                "PRÉSIDENCE DE LA RÉPUBLIQUE;Conseiller en stratégie",
+                "PRÉSIDENCE DE LA RÉPUBLIQUE / Conseiller en stratégie"
+            ],
+            [
+                "PRÉSIDENCE DE LA RÉPUBLIQUE;Conseiller en environnement",
+                "PRÉSIDENCE DE LA RÉPUBLIQUE / Conseiller en environnement"
+            ],
+            [
+                "PRÉSIDENCE DE LA RÉPUBLIQUE;Conseiller en éducation et recherche",
+                "PRÉSIDENCE DE LA RÉPUBLIQUE / Conseiller en éducation et recherche"
+            ],
+            [
+                "PRÉSIDENCE DE LA RÉPUBLIQUE;Autres",
+                "PRÉSIDENCE DE LA RÉPUBLIQUE / Autres"
+            ]
+        ],
+        "GOUVERNEMENT": [
+            [
+                "GOUVERNEMENT;Premier ministre",
+                "GOUVERNEMENT / Premier ministre"
+            ],
+            [
+                "GOUVERNEMENT;Ministre",
+                "GOUVERNEMENT / Ministre"
+            ],
+            [
+                "GOUVERNEMENT;Secrétaire d’Etat",
+                "GOUVERNEMENT / Secrétaire d’Etat"
+            ],
+            [
+                "GOUVERNEMENT;Directeur.trice de cabinet",
+                "GOUVERNEMENT / Directeur.trice de cabinet"
+            ],
+            [
+                "GOUVERNEMENT;Conseiller.ère spécial.e",
+                "GOUVERNEMENT / Conseiller.ère spécial.e"
+            ],
+            [
+                "GOUVERNEMENT;Conseiller.ère technique",
+                "GOUVERNEMENT / Conseiller.ère technique"
+            ],
+            [
+                "GOUVERNEMENT;Attaché.e de presse",
+                "GOUVERNEMENT / Attaché.e de presse"
+            ],
+            [
+                "GOUVERNEMENT;Autres",
+                "GOUVERNEMENT / Autres"
+            ]
+        ],
+        "PARLEMENT": [
+            [
+                "PARLEMENT;Président.e de l'Assemblée nationale",
+                "PARLEMENT / Président.e de l'Assemblée nationale"
+            ],
+            [
+                "PARLEMENT;Vice-président.e de l'Assemblée nationale",
+                "PARLEMENT / Vice-président.e de l'Assemblée nationale"
+            ],
+            [
+                "PARLEMENT;Président.e du Sénat",
+                "PARLEMENT / Président.e du Sénat"
+            ],
+            [
+                "PARLEMENT;Vice-président.e du Sénat",
+                "PARLEMENT / Vice-président.e du Sénat"
+            ],
+            [
+                "PARLEMENT;Secrétaire général.e de l'Assemblée nationale",
+                "PARLEMENT / Secrétaire général.e de l'Assemblée nationale"
+            ],
+            [
+                "PARLEMENT;Secrétaire général.e du Sénat",
+                "PARLEMENT / Secrétaire général.e du Sénat"
+            ],
+            [
+                "PARLEMENT;Président.e de commission parlementaire",
+                "PARLEMENT / Président.e de commission parlementaire"
+            ],
+            [
+                "PARLEMENT;Vice-président.e de commission parlementaire",
+                "PARLEMENT / Vice-président.e de commission parlementaire"
+            ],
+            [
+                "PARLEMENT;Secrétaire de commission parlementaire",
+                "PARLEMENT / Secrétaire de commission parlementaire"
+            ],
+            [
+                "PARLEMENT;Rapporteur.e de commission parlementaire",
+                "PARLEMENT / Rapporteur.e de commission parlementaire"
+            ],
+            [
+                "PARLEMENT;Membre de commission parlementaire",
+                "PARLEMENT / Membre de commission parlementaire"
+            ],
+            [
+                "PARLEMENT;Député.e",
+                "PARLEMENT / Député.e"
+            ],
+            [
+                "PARLEMENT;Sénateur.trice",
+                "PARLEMENT / Sénateur.trice"
+            ],
+            [
+                "PARLEMENT;Secrétaire parlementaire",
+                "PARLEMENT / Secrétaire parlementaire"
+            ],
+            [
+                "PARLEMENT;Porte-parole parlementaire",
+                "PARLEMENT / Porte-parole parlementaire"
+            ],
+            [
+                "PARLEMENT;Membre de groupe parlementaire",
+                "PARLEMENT / Membre de groupe parlementaire"
+            ],
+            [
+                "PARLEMENT;Chef.fe de groupe parlementaire",
+                "PARLEMENT / Chef.fe de groupe parlementaire"
+            ],
+            [
+                "PARLEMENT;Questeur",
+                "PARLEMENT / Questeur"
+            ],
+            [
+                "PARLEMENT;Autres",
+                "PARLEMENT / Autres"
+            ]
+        ],
+        "COLLECTIVITÉS LOCALES": [
+            [
+                "COLLECTIVITÉS LOCALES;Président du Conseil régional",
+                "COLLECTIVITÉS LOCALES / Président du Conseil régional"
+            ],
+            [
+                "COLLECTIVITÉS LOCALES;Vice-président du conseil régional",
+                "COLLECTIVITÉS LOCALES / Vice-président du conseil régional"
+            ],
+            [
+                "COLLECTIVITÉS LOCALES;Conseiller régional",
+                "COLLECTIVITÉS LOCALES / Conseiller régional"
+            ],
+            [
+                "COLLECTIVITÉS LOCALES;Président du conseil départemental",
+                "COLLECTIVITÉS LOCALES / Président du conseil départemental"
+            ],
+            [
+                "COLLECTIVITÉS LOCALES;Vice-président du conseil départemental",
+                "COLLECTIVITÉS LOCALES / Vice-président du conseil départemental"
+            ],
+            [
+                "COLLECTIVITÉS LOCALES;Conseiller départemental",
+                "COLLECTIVITÉS LOCALES / Conseiller départemental"
+            ],
+            [
+                "COLLECTIVITÉS LOCALES;Maire",
+                "COLLECTIVITÉS LOCALES / Maire"
+            ],
+            [
+                "COLLECTIVITÉS LOCALES;Premier adjoint au maire",
+                "COLLECTIVITÉS LOCALES / Premier adjoint au maire"
+            ],
+            [
+                "COLLECTIVITÉS LOCALES;Adjoint au maire",
+                "COLLECTIVITÉS LOCALES / Adjoint au maire"
+            ],
+            [
+                "COLLECTIVITÉS LOCALES;Conseiller municipal",
+                "COLLECTIVITÉS LOCALES / Conseiller municipal"
+            ],
+            [
+                "COLLECTIVITÉS LOCALES;Conseiller communautaire",
+                "COLLECTIVITÉS LOCALES / Conseiller communautaire"
+            ],
+            [
+                "COLLECTIVITÉS LOCALES;Président de l'intercommunalité",
+                "COLLECTIVITÉS LOCALES / Président de l'intercommunalité"
+            ],
+            [
+                "COLLECTIVITÉS LOCALES;Vice-président de l'intercommunalité",
+                "COLLECTIVITÉS LOCALES / Vice-président de l'intercommunalité"
+            ],
+            [
+                "COLLECTIVITÉS LOCALES;Conseiller communautaire",
+                "COLLECTIVITÉS LOCALES / Conseiller communautaire"
+            ],
+            [
+                "COLLECTIVITÉS LOCALES;Président du conseil municipal des jeunes",
+                "COLLECTIVITÉS LOCALES / Président du conseil municipal des jeunes"
+            ],
+            [
+                "COLLECTIVITÉS LOCALES;Conseiller municipal des jeunes",
+                "COLLECTIVITÉS LOCALES / Conseiller municipal des jeunes"
+            ],
+            [
+                "COLLECTIVITÉS LOCALES;Président du conseil de quartier",
+                "COLLECTIVITÉS LOCALES / Président du conseil de quartier"
+            ],
+            [
+                "COLLECTIVITÉS LOCALES;Conseiller de quartier",
+                "COLLECTIVITÉS LOCALES / Conseiller de quartier"
+            ],
+            [
+                "COLLECTIVITÉS LOCALES;Président de la métropole",
+                "COLLECTIVITÉS LOCALES / Président de la métropole"
+            ],
+            [
+                "COLLECTIVITÉS LOCALES;Vice-président de la métropole",
+                "COLLECTIVITÉS LOCALES / Vice-président de la métropole"
+            ],
+            [
+                "COLLECTIVITÉS LOCALES;Autres",
+                "COLLECTIVITÉS LOCALES / Autres"
+            ]
+        ],
+        "PRÉFECTURES": [
+            [
+                "PRÉFECTURES;Préfet",
+                "PRÉFECTURES / Préfet"
+            ],
+            [
+                "PRÉFECTURES;Secrétaire général de la préfecture",
+                "PRÉFECTURES / Secrétaire général de la préfecture"
+            ],
+            [
+                "PRÉFECTURES;Directeur de cabinet du préfet",
+                "PRÉFECTURES / Directeur de cabinet du préfet"
+            ],
+            [
+                "PRÉFECTURES;Sous-préfet",
+                "PRÉFECTURES / Sous-préfet"
+            ],
+            [
+                "PRÉFECTURES;Secrétaire général de sous-préfecture",
+                "PRÉFECTURES / Secrétaire général de sous-préfecture"
+            ],
+            [
+                "PRÉFECTURES;Directeur de cabinet du sous-préfet",
+                "PRÉFECTURES / Directeur de cabinet du sous-préfet"
+            ],
+            [
+                "PRÉFECTURES;Chef de cabinet du préfet",
+                "PRÉFECTURES / Chef de cabinet du préfet"
+            ],
+            [
+                "PRÉFECTURES;Chef de cabinet du sous-préfet",
+                "PRÉFECTURES / Chef de cabinet du sous-préfet"
+            ],
+            [
+                "PRÉFECTURES;Directeur des services de la préfecture",
+                "PRÉFECTURES / Directeur des services de la préfecture"
+            ],
+            [
+                "PRÉFECTURES;Directeur des services de la sous-préfecture",
+                "PRÉFECTURES / Directeur des services de la sous-préfecture"
+            ],
+            [
+                "PRÉFECTURES;Conseiller de préfecture",
+                "PRÉFECTURES / Conseiller de préfecture"
+            ],
+            [
+                "PRÉFECTURES;Conseiller technique du préfet",
+                "PRÉFECTURES / Conseiller technique du préfet"
+            ],
+            [
+                "PRÉFECTURES;Attaché de préfecture",
+                "PRÉFECTURES / Attaché de préfecture"
+            ],
+            [
+                "PRÉFECTURES;Attaché principal de préfecture",
+                "PRÉFECTURES / Attaché principal de préfecture"
+            ],
+            [
+                "PRÉFECTURES;Agent de préfecture",
+                "PRÉFECTURES / Agent de préfecture"
+            ],
+            [
+                "PRÉFECTURES;Agent administratif de préfecture",
+                "PRÉFECTURES / Agent administratif de préfecture"
+            ],
+            [
+                "PRÉFECTURES;Agent technique de préfecture",
+                "PRÉFECTURES / Agent technique de préfecture"
+            ],
+            [
+                "PRÉFECTURES;Chargé de mission préfecture",
+                "PRÉFECTURES / Chargé de mission préfecture"
+            ],
+            [
+                "PRÉFECTURES;Autres",
+                "PRÉFECTURES / Autres"
+            ]
+        ],
+        "POLICE-GENDARMERIE-POLICE MUINICIPALE": [
+            [
+                "POLICE-GENDARMERIE-POLICE MUINICIPALE;Adjudant de gendarmerie",
+                "POLICE-GENDARMERIE-POLICE MUINICIPALE / Adjudant de gendarmerie"
+            ],
+            [
+                "POLICE-GENDARMERIE-POLICE MUINICIPALE;Adjudant-chef de gendarmerie",
+                "POLICE-GENDARMERIE-POLICE MUINICIPALE / Adjudant-chef de gendarmerie"
+            ],
+            [
+                "POLICE-GENDARMERIE-POLICE MUINICIPALE;Brigadier de police",
+                "POLICE-GENDARMERIE-POLICE MUINICIPALE / Brigadier de police"
+            ],
+            [
+                "POLICE-GENDARMERIE-POLICE MUINICIPALE;Brigadier-chef de police",
+                "POLICE-GENDARMERIE-POLICE MUINICIPALE / Brigadier-chef de police"
+            ],
+            [
+                "POLICE-GENDARMERIE-POLICE MUINICIPALE;Chef de la police municipale",
+                "POLICE-GENDARMERIE-POLICE MUINICIPALE / Chef de la police municipale"
+            ],
+            [
+                "POLICE-GENDARMERIE-POLICE MUINICIPALE;Commandant de gendarmerie",
+                "POLICE-GENDARMERIE-POLICE MUINICIPALE / Commandant de gendarmerie"
+            ],
+            [
+                "POLICE-GENDARMERIE-POLICE MUINICIPALE;Commissaire de police",
+                "POLICE-GENDARMERIE-POLICE MUINICIPALE / Commissaire de police"
+            ],
+            [
+                "POLICE-GENDARMERIE-POLICE MUINICIPALE;Directeur départemental de la police municipale (DDPM)",
+                "POLICE-GENDARMERIE-POLICE MUINICIPALE / Directeur départemental de la police municipale (DDPM)"
+            ],
+            [
+                "POLICE-GENDARMERIE-POLICE MUINICIPALE;Directeur départemental de la police municipale adjoint (DDPM adjoint)",
+                "POLICE-GENDARMERIE-POLICE MUINICIPALE / Directeur départemental de la police municipale adjoint (DDPM adjoint)"
+            ],
+            [
+                "POLICE-GENDARMERIE-POLICE MUINICIPALE;Directeur départemental de la sécurité publique (DDSP)",
+                "POLICE-GENDARMERIE-POLICE MUINICIPALE / Directeur départemental de la sécurité publique (DDSP)"
+            ],
+            [
+                "POLICE-GENDARMERIE-POLICE MUINICIPALE;Directeur départemental de la sécurité publique adjoint (DDSP adjoint)",
+                "POLICE-GENDARMERIE-POLICE MUINICIPALE / Directeur départemental de la sécurité publique adjoint (DDSP adjoint)"
+            ],
+            [
+                "POLICE-GENDARMERIE-POLICE MUINICIPALE;Gardien de la paix",
+                "POLICE-GENDARMERIE-POLICE MUINICIPALE / Gardien de la paix"
+            ],
+            [
+                "POLICE-GENDARMERIE-POLICE MUINICIPALE;Gendarme",
+                "POLICE-GENDARMERIE-POLICE MUINICIPALE / Gendarme"
+            ],
+            [
+                "POLICE-GENDARMERIE-POLICE MUINICIPALE;Gendarme adjoint volontaire (GAV)",
+                "POLICE-GENDARMERIE-POLICE MUINICIPALE / Gendarme adjoint volontaire (GAV)"
+            ],
+            [
+                "POLICE-GENDARMERIE-POLICE MUINICIPALE;Lieutenant de gendarmerie",
+                "POLICE-GENDARMERIE-POLICE MUINICIPALE / Lieutenant de gendarmerie"
+            ],
+            [
+                "POLICE-GENDARMERIE-POLICE MUINICIPALE;Officier de police judiciaire (OPJ)",
+                "POLICE-GENDARMERIE-POLICE MUINICIPALE / Officier de police judiciaire (OPJ)"
+            ],
+            [
+                "POLICE-GENDARMERIE-POLICE MUINICIPALE;Préfet de police",
+                "POLICE-GENDARMERIE-POLICE MUINICIPALE / Préfet de police"
+            ],
+            [
+                "POLICE-GENDARMERIE-POLICE MUINICIPALE;Réserviste de la gendarmerie nationale",
+                "POLICE-GENDARMERIE-POLICE MUINICIPALE / Réserviste de la gendarmerie nationale"
+            ],
+            [
+                "POLICE-GENDARMERIE-POLICE MUINICIPALE;Réserviste de la police nationale",
+                "POLICE-GENDARMERIE-POLICE MUINICIPALE / Réserviste de la police nationale"
+            ],
+            [
+                "POLICE-GENDARMERIE-POLICE MUINICIPALE;Autres",
+                "POLICE-GENDARMERIE-POLICE MUINICIPALE / Autres"
+            ]
+        ],
+        "DÉFENSE": [
+            [
+                "DÉFENSE;Adjudant",
+                "DÉFENSE / Adjudant"
+            ],
+            [
+                "DÉFENSE;Adjudant-chef",
+                "DÉFENSE / Adjudant-chef"
+            ],
+            [
+                "DÉFENSE;Amiral",
+                "DÉFENSE / Amiral"
+            ],
+            [
+                "DÉFENSE;Brigadier",
+                "DÉFENSE / Brigadier"
+            ],
+            [
+                "DÉFENSE;Brigadier-chef",
+                "DÉFENSE / Brigadier-chef"
+            ],
+            [
+                "DÉFENSE;Capitaine",
+                "DÉFENSE / Capitaine"
+            ],
+            [
+                "DÉFENSE;Capitaine de corvette",
+                "DÉFENSE / Capitaine de corvette"
+            ],
+            [
+                "DÉFENSE;Capitaine de frégate",
+                "DÉFENSE / Capitaine de frégate"
+            ],
+            [
+                "DÉFENSE;Capitaine de vaisseau",
+                "DÉFENSE / Capitaine de vaisseau"
+            ],
+            [
+                "DÉFENSE;Caporal",
+                "DÉFENSE / Caporal"
+            ],
+            [
+                "DÉFENSE;Caporal-chef",
+                "DÉFENSE / Caporal-chef"
+            ],
+            [
+                "DÉFENSE;Cavalier",
+                "DÉFENSE / Cavalier"
+            ],
+            [
+                "DÉFENSE;Chef d'agrès",
+                "DÉFENSE / Chef d'agrès"
+            ],
+            [
+                "DÉFENSE;Chef d'État-Major des Armées (CEMA)",
+                "DÉFENSE / Chef d'État-Major des Armées (CEMA)"
+            ],
+            [
+                "DÉFENSE;Chef de centre",
+                "DÉFENSE / Chef de centre"
+            ],
+            [
+                "DÉFENSE;Colonel",
+                "DÉFENSE / Colonel"
+            ],
+            [
+                "DÉFENSE;Commandant",
+                "DÉFENSE / Commandant"
+            ],
+            [
+                "DÉFENSE;Conducteur d'engin",
+                "DÉFENSE / Conducteur d'engin"
+            ],
+            [
+                "DÉFENSE;Contre-amiral",
+                "DÉFENSE / Contre-amiral"
+            ],
+            [
+                "DÉFENSE;Dentiste militaire",
+                "DÉFENSE / Dentiste militaire"
+            ],
+            [
+                "DÉFENSE;Directeur départemental adjoint des services d'incendie et de secours (DDIS adjoint)",
+                "DÉFENSE / Directeur départemental adjoint des services d'incendie et de secours (DDIS adjoint)"
+            ],
+            [
+                "DÉFENSE;Directeur départemental des services d'incendie et de secours (DDIS)",
+                "DÉFENSE / Directeur départemental des services d'incendie et de secours (DDIS)"
+            ],
+            [
+                "DÉFENSE;Enseigne de vaisseau de deuxième classe",
+                "DÉFENSE / Enseigne de vaisseau de deuxième classe"
+            ],
+            [
+                "DÉFENSE;Enseigne de vaisseau de première classe",
+                "DÉFENSE / Enseigne de vaisseau de première classe"
+            ],
+            [
+                "DÉFENSE;Formateur",
+                "DÉFENSE / Formateur"
+            ],
+            [
+                "DÉFENSE;Général d'armée",
+                "DÉFENSE / Général d'armée"
+            ],
+            [
+                "DÉFENSE;Général de brigade",
+                "DÉFENSE / Général de brigade"
+            ],
+            [
+                "DÉFENSE;Général de corps d'armée",
+                "DÉFENSE / Général de corps d'armée"
+            ],
+            [
+                "DÉFENSE;Général de division",
+                "DÉFENSE / Général de division"
+            ],
+            [
+                "DÉFENSE;Infirmier militaire",
+                "DÉFENSE / Infirmier militaire"
+            ],
+            [
+                "DÉFENSE;Infirmier-Pompier",
+                "DÉFENSE / Infirmier-Pompier"
+            ],
+            [
+                "DÉFENSE;Lieutenant",
+                "DÉFENSE / Lieutenant"
+            ],
+            [
+                "DÉFENSE;Lieutenant de vaisseau",
+                "DÉFENSE / Lieutenant de vaisseau"
+            ],
+            [
+                "DÉFENSE;Lieutenant-Colonel",
+                "DÉFENSE / Lieutenant-Colonel"
+            ],
+            [
+                "DÉFENSE;Maître",
+                "DÉFENSE / Maître"
+            ],
+            [
+                "DÉFENSE;Maître principal",
+                "DÉFENSE / Maître principal"
+            ],
+            [
+                "DÉFENSE;Maréchal des logis",
+                "DÉFENSE / Maréchal des logis"
+            ],
+            [
+                "DÉFENSE;Marin",
+                "DÉFENSE / Marin"
+            ],
+            [
+                "DÉFENSE;Marin pompier de la flotte (MPF)",
+                "DÉFENSE / Marin pompier de la flotte (MPF)"
+            ],
+            [
+                "DÉFENSE;Matelot de deuxième classe",
+                "DÉFENSE / Matelot de deuxième classe"
+            ],
+            [
+                "DÉFENSE;Matelot de première classe",
+                "DÉFENSE / Matelot de première classe"
+            ],
+            [
+                "DÉFENSE;Mécanicien navigant",
+                "DÉFENSE / Mécanicien navigant"
+            ],
+            [
+                "DÉFENSE;Mécanicien navigant instructeur",
+                "DÉFENSE / Mécanicien navigant instructeur"
+            ],
+            [
+                "DÉFENSE;Médecin militaire",
+                "DÉFENSE / Médecin militaire"
+            ],
+            [
+                "DÉFENSE;Médecin-Pompier",
+                "DÉFENSE / Médecin-Pompier"
+            ],
+            [
+                "DÉFENSE;Ministre des Armées",
+                "DÉFENSE / Ministre des Armées"
+            ],
+            [
+                "DÉFENSE;Navigateur",
+                "DÉFENSE / Navigateur"
+            ],
+            [
+                "DÉFENSE;Navigateur d'essai",
+                "DÉFENSE / Navigateur d'essai"
+            ],
+            [
+                "DÉFENSE;Navigateur instructeur",
+                "DÉFENSE / Navigateur instructeur"
+            ],
+            [
+                "DÉFENSE;Officier",
+                "DÉFENSE / Officier"
+            ],
+            [
+                "DÉFENSE;Officier marinier",
+                "DÉFENSE / Officier marinier"
+            ],
+            [
+                "DÉFENSE;Opérateur de système d'armes",
+                "DÉFENSE / Opérateur de système d'armes"
+            ],
+            [
+                "DÉFENSE;Pharmacien militaire",
+                "DÉFENSE / Pharmacien militaire"
+            ],
+            [
+                "DÉFENSE;Pilote d'essai",
+                "DÉFENSE / Pilote d'essai"
+            ],
+            [
+                "DÉFENSE;Pilote d'hélicoptère",
+                "DÉFENSE / Pilote d'hélicoptère"
+            ],
+            [
+                "DÉFENSE;Pilote de bombardier",
+                "DÉFENSE / Pilote de bombardier"
+            ],
+            [
+                "DÉFENSE;Pilote de chasse",
+                "DÉFENSE / Pilote de chasse"
+            ],
+            [
+                "DÉFENSE;Pilote de combat aérien",
+                "DÉFENSE / Pilote de combat aérien"
+            ],
+            [
+                "DÉFENSE;Pilote de drones",
+                "DÉFENSE / Pilote de drones"
+            ],
+            [
+                "DÉFENSE;Pilote de liaison",
+                "DÉFENSE / Pilote de liaison"
+            ],
+            [
+                "DÉFENSE;Pilote de missions spéciales",
+                "DÉFENSE / Pilote de missions spéciales"
+            ],
+            [
+                "DÉFENSE;Pilote de ravitaillement en vol",
+                "DÉFENSE / Pilote de ravitaillement en vol"
+            ],
+            [
+                "DÉFENSE;Pilote de reconnaissance",
+                "DÉFENSE / Pilote de reconnaissance"
+            ],
+            [
+                "DÉFENSE;Pilote de surveillance",
+                "DÉFENSE / Pilote de surveillance"
+            ],
+            [
+                "DÉFENSE;Pilote de transport",
+                "DÉFENSE / Pilote de transport"
+            ],
+            [
+                "DÉFENSE;Pilote instructeur",
+                "DÉFENSE / Pilote instructeur"
+            ],
+            [
+                "DÉFENSE;Premier maître",
+                "DÉFENSE / Premier maître"
+            ],
+            [
+                "DÉFENSE;Président de la République (Chef des Armées)",
+                "DÉFENSE / Président de la République (Chef des Armées)"
+            ],
+            [
+                "DÉFENSE;Quartier-maître de deuxième classe",
+                "DÉFENSE / Quartier-maître de deuxième classe"
+            ],
+            [
+                "DÉFENSE;Quartier-maître de première classe",
+                "DÉFENSE / Quartier-maître de première classe"
+            ],
+            [
+                "DÉFENSE;Sapeur-Pompier",
+                "DÉFENSE / Sapeur-Pompier"
+            ],
+            [
+                "DÉFENSE;Second maître",
+                "DÉFENSE / Second maître"
+            ],
+            [
+                "DÉFENSE;Secouriste",
+                "DÉFENSE / Secouriste"
+            ],
+            [
+                "DÉFENSE;Sergent",
+                "DÉFENSE / Sergent"
+            ],
+            [
+                "DÉFENSE;Sergent-chef",
+                "DÉFENSE / Sergent-chef"
+            ],
+            [
+                "DÉFENSE;Soldat de deuxième classe",
+                "DÉFENSE / Soldat de deuxième classe"
+            ],
+            [
+                "DÉFENSE;Soldat de première classe",
+                "DÉFENSE / Soldat de première classe"
+            ],
+            [
+                "DÉFENSE;Sous-officier",
+                "DÉFENSE / Sous-officier"
+            ],
+            [
+                "DÉFENSE;Spécialiste",
+                "DÉFENSE / Spécialiste"
+            ],
+            [
+                "DÉFENSE;Technicien",
+                "DÉFENSE / Technicien"
+            ],
+            [
+                "DÉFENSE;Vétérinaire militaire",
+                "DÉFENSE / Vétérinaire militaire"
+            ],
+            [
+                "DÉFENSE;Vice-amiral",
+                "DÉFENSE / Vice-amiral"
+            ]
+        ],
+        "ÉDUCATION": [
+            [
+                "ÉDUCATION;Assistant d'éducation (AED)",
+                "ÉDUCATION / Assistant d'éducation (AED)"
+            ],
+            [
+                "ÉDUCATION;Assistant de vie scolaire (AVS)",
+                "ÉDUCATION / Assistant de vie scolaire (AVS)"
+            ],
+            [
+                "ÉDUCATION;Attaché de coopération éducative",
+                "ÉDUCATION / Attaché de coopération éducative"
+            ],
+            [
+                "ÉDUCATION;Attaché de recherche et d'enseignement",
+                "ÉDUCATION / Attaché de recherche et d'enseignement"
+            ],
+            [
+                "ÉDUCATION;Bibliothécaire",
+                "ÉDUCATION / Bibliothécaire"
+            ],
+            [
+                "ÉDUCATION;Chargé de mission",
+                "ÉDUCATION / Chargé de mission"
+            ],
+            [
+                "ÉDUCATION;Chargé de recherche",
+                "ÉDUCATION / Chargé de recherche"
+            ],
+            [
+                "ÉDUCATION;Chef d'établissement scolaire (proviseur, principal)",
+                "ÉDUCATION / Chef d'établissement scolaire (proviseur, principal)"
+            ],
+            [
+                "ÉDUCATION;Chercheur",
+                "ÉDUCATION / Chercheur"
+            ],
+            [
+                "ÉDUCATION;Conseiller d'éducation populaire et de jeunesse (CEPJ)",
+                "ÉDUCATION / Conseiller d'éducation populaire et de jeunesse (CEPJ)"
+            ],
+            [
+                "ÉDUCATION;Conseiller d'orientation-psychologue (COP)",
+                "ÉDUCATION / Conseiller d'orientation-psychologue (COP)"
+            ],
+            [
+                "ÉDUCATION;Conseiller en formation continue",
+                "ÉDUCATION / Conseiller en formation continue"
+            ],
+            [
+                "ÉDUCATION;Conseiller principal d'éducation (CPE)",
+                "ÉDUCATION / Conseiller principal d'éducation (CPE)"
+            ],
+            [
+                "ÉDUCATION;Conseiller technique",
+                "ÉDUCATION / Conseiller technique"
+            ],
+            [
+                "ÉDUCATION;Directeur académique des services de l'Éducation nationale (DASEN)",
+                "ÉDUCATION / Directeur académique des services de l'Éducation nationale (DASEN)"
+            ],
+            [
+                "ÉDUCATION;Directeur d'école",
+                "ÉDUCATION / Directeur d'école"
+            ],
+            [
+                "ÉDUCATION;Directeur de recherche",
+                "ÉDUCATION / Directeur de recherche"
+            ],
+            [
+                "ÉDUCATION;Enseignant",
+                "ÉDUCATION / Enseignant"
+            ],
+            [
+                "ÉDUCATION;Formateur",
+                "ÉDUCATION / Formateur"
+            ],
+            [
+                "ÉDUCATION;Ingénieur de recherche",
+                "ÉDUCATION / Ingénieur de recherche"
+            ],
+            [
+                "ÉDUCATION;Inspecteur d'académie - Inspecteur pédagogique régional (IA-IPR)",
+                "ÉDUCATION / Inspecteur d'académie - Inspecteur pédagogique régional (IA-IPR)"
+            ],
+            [
+                "ÉDUCATION;Maître de conférences",
+                "ÉDUCATION / Maître de conférences"
+            ],
+            [
+                "ÉDUCATION;Ministre de l'Éducation nationale",
+                "ÉDUCATION / Ministre de l'Éducation nationale"
+            ],
+            [
+                "ÉDUCATION;Personnel administratif et technique",
+                "ÉDUCATION / Personnel administratif et technique"
+            ],
+            [
+                "ÉDUCATION;Personnel de bibliothèque",
+                "ÉDUCATION / Personnel de bibliothèque"
+            ],
+            [
+                "ÉDUCATION;Personnel de la restauration scolaire",
+                "ÉDUCATION / Personnel de la restauration scolaire"
+            ],
+            [
+                "ÉDUCATION;Personnel de laboratoire",
+                "ÉDUCATION / Personnel de laboratoire"
+            ],
+            [
+                "ÉDUCATION;Personnel de surveillance et de sécurité",
+                "ÉDUCATION / Personnel de surveillance et de sécurité"
+            ],
+            [
+                "ÉDUCATION;Professeur agrégé",
+                "ÉDUCATION / Professeur agrégé"
+            ],
+            [
+                "ÉDUCATION;Professeur certifié",
+                "ÉDUCATION / Professeur certifié"
+            ],
+            [
+                "ÉDUCATION;Professeur de lycée professionnel (PLP)",
+                "ÉDUCATION / Professeur de lycée professionnel (PLP)"
+            ],
+            [
+                "ÉDUCATION;Professeur des écoles",
+                "ÉDUCATION / Professeur des écoles"
+            ],
+            [
+                "ÉDUCATION;Professeur des universités",
+                "ÉDUCATION / Professeur des universités"
+            ],
+            [
+                "ÉDUCATION;Recteur d'académie",
+                "ÉDUCATION / Recteur d'académie"
+            ],
+            [
+                "ÉDUCATION;Responsable pédagogique",
+                "ÉDUCATION / Responsable pédagogique"
+            ],
+            [
+                "ÉDUCATION;Technicien de recherche",
+                "ÉDUCATION / Technicien de recherche"
+            ],
+            [
+                "ÉDUCATION;Autres",
+                "ÉDUCATION / Autres"
+            ]
+        ],
+        "AMBASSADES": [
+            [
+                "AMBASSADES;Ambassadeur",
+                "AMBASSADES / Ambassadeur"
+            ],
+            [
+                "AMBASSADES;Attaché administratif",
+                "AMBASSADES / Attaché administratif"
+            ],
+            [
+                "AMBASSADES;Attaché commercial",
+                "AMBASSADES / Attaché commercial"
+            ],
+            [
+                "AMBASSADES;Attaché consulaire",
+                "AMBASSADES / Attaché consulaire"
+            ],
+            [
+                "AMBASSADES;Attaché culturel",
+                "AMBASSADES / Attaché culturel"
+            ],
+            [
+                "AMBASSADES;Attaché de communication",
+                "AMBASSADES / Attaché de communication"
+            ],
+            [
+                "AMBASSADES;Attaché de coopération",
+                "AMBASSADES / Attaché de coopération"
+            ],
+            [
+                "AMBASSADES;Attaché de défense",
+                "AMBASSADES / Attaché de défense"
+            ],
+            [
+                "AMBASSADES;Attaché de langue",
+                "AMBASSADES / Attaché de langue"
+            ],
+            [
+                "AMBASSADES;Attaché de presse",
+                "AMBASSADES / Attaché de presse"
+            ],
+            [
+                "AMBASSADES;Attaché de programme de coopération",
+                "AMBASSADES / Attaché de programme de coopération"
+            ],
+            [
+                "AMBASSADES;Attaché de recherche et d'enseignement",
+                "AMBASSADES / Attaché de recherche et d'enseignement"
+            ],
+            [
+                "AMBASSADES;Attaché de sécurité civile",
+                "AMBASSADES / Attaché de sécurité civile"
+            ],
+            [
+                "AMBASSADES;Attaché de sécurité intérieure",
+                "AMBASSADES / Attaché de sécurité intérieure"
+            ],
+            [
+                "AMBASSADES;Attaché des services généraux",
+                "AMBASSADES / Attaché des services généraux"
+            ],
+            [
+                "AMBASSADES;Attaché économique",
+                "AMBASSADES / Attaché économique"
+            ],
+            [
+                "AMBASSADES;Attaché financier",
+                "AMBASSADES / Attaché financier"
+            ],
+            [
+                "AMBASSADES;Attaché informatique",
+                "AMBASSADES / Attaché informatique"
+            ],
+            [
+                "AMBASSADES;Attaché technique",
+                "AMBASSADES / Attaché technique"
+            ],
+            [
+                "AMBASSADES;Conseiller",
+                "AMBASSADES / Conseiller"
+            ],
+            [
+                "AMBASSADES;Conseiller culturel",
+                "AMBASSADES / Conseiller culturel"
+            ],
+            [
+                "AMBASSADES;Conseiller de coopération et d'action culturelle (COCAC)",
+                "AMBASSADES / Conseiller de coopération et d'action culturelle (COCAC)"
+            ],
+            [
+                "AMBASSADES;Conseiller de presse",
+                "AMBASSADES / Conseiller de presse"
+            ],
+            [
+                "AMBASSADES;Conseiller économique",
+                "AMBASSADES / Conseiller économique"
+            ],
+            [
+                "AMBASSADES;Conseiller juridique",
+                "AMBASSADES / Conseiller juridique"
+            ],
+            [
+                "AMBASSADES;Conseiller politique",
+                "AMBASSADES / Conseiller politique"
+            ],
+            [
+                "AMBASSADES;Ministre conseiller",
+                "AMBASSADES / Ministre conseiller"
+            ],
+            [
+                "AMBASSADES;Premier conseiller",
+                "AMBASSADES / Premier conseiller"
+            ],
+            [
+                "AMBASSADES;Secrétaire de chancellerie",
+                "AMBASSADES / Secrétaire de chancellerie"
+            ],
+            [
+                "AMBASSADES;Autres",
+                "AMBASSADES / Autres"
+            ]
+        ],
+        "CHAMBRES CONSULAIRES": [
+            [
+                "CHAMBRES CONSULAIRES;Directeur des services de la Chambre de commerce et d'industrie (CCI)",
+                "CHAMBRES CONSULAIRES / Directeur des services de la Chambre de commerce et d'industrie (CCI)"
+            ],
+            [
+                "CHAMBRES CONSULAIRES;Directeur des services de la Chambre d'agriculture",
+                "CHAMBRES CONSULAIRES / Directeur des services de la Chambre d'agriculture"
+            ],
+            [
+                "CHAMBRES CONSULAIRES;Directeur des services de la Chambre des métiers et de l'artisanat (CMA)",
+                "CHAMBRES CONSULAIRES / Directeur des services de la Chambre des métiers et de l'artisanat (CMA)"
+            ],
+            [
+                "CHAMBRES CONSULAIRES;Directeur général de la CCI",
+                "CHAMBRES CONSULAIRES / Directeur général de la CCI"
+            ],
+            [
+                "CHAMBRES CONSULAIRES;Directeur général de la Chambre d'agriculture",
+                "CHAMBRES CONSULAIRES / Directeur général de la Chambre d'agriculture"
+            ],
+            [
+                "CHAMBRES CONSULAIRES;Directeur général de la CMA",
+                "CHAMBRES CONSULAIRES / Directeur général de la CMA"
+            ],
+            [
+                "CHAMBRES CONSULAIRES;Membre élu de la CCI",
+                "CHAMBRES CONSULAIRES / Membre élu de la CCI"
+            ],
+            [
+                "CHAMBRES CONSULAIRES;Membre élu de la Chambre d'agriculture",
+                "CHAMBRES CONSULAIRES / Membre élu de la Chambre d'agriculture"
+            ],
+            [
+                "CHAMBRES CONSULAIRES;Membre élu de la CMA",
+                "CHAMBRES CONSULAIRES / Membre élu de la CMA"
+            ],
+            [
+                "CHAMBRES CONSULAIRES;Président de la Chambre d'agriculture",
+                "CHAMBRES CONSULAIRES / Président de la Chambre d'agriculture"
+            ],
+            [
+                "CHAMBRES CONSULAIRES;Président de la CCI",
+                "CHAMBRES CONSULAIRES / Président de la CCI"
+            ],
+            [
+                "CHAMBRES CONSULAIRES;Président de la CMA",
+                "CHAMBRES CONSULAIRES / Président de la CMA"
+            ],
+            [
+                "CHAMBRES CONSULAIRES;Secrétaire général de la CCI",
+                "CHAMBRES CONSULAIRES / Secrétaire général de la CCI"
+            ],
+            [
+                "CHAMBRES CONSULAIRES;Secrétaire général de la Chambre d'agriculture",
+                "CHAMBRES CONSULAIRES / Secrétaire général de la Chambre d'agriculture"
+            ],
+            [
+                "CHAMBRES CONSULAIRES;Secrétaire général de la CMA",
+                "CHAMBRES CONSULAIRES / Secrétaire général de la CMA"
+            ],
+            [
+                "CHAMBRES CONSULAIRES;Trésorier de la CCI",
+                "CHAMBRES CONSULAIRES / Trésorier de la CCI"
+            ],
+            [
+                "CHAMBRES CONSULAIRES;Trésorier de la Chambre d'agriculture",
+                "CHAMBRES CONSULAIRES / Trésorier de la Chambre d'agriculture"
+            ],
+            [
+                "CHAMBRES CONSULAIRES;Trésorier de la CMA",
+                "CHAMBRES CONSULAIRES / Trésorier de la CMA"
+            ],
+            [
+                "CHAMBRES CONSULAIRES;Vice-président de la CCI",
+                "CHAMBRES CONSULAIRES / Vice-président de la CCI"
+            ],
+            [
+                "CHAMBRES CONSULAIRES;Vice-président de la Chambre d'agriculture",
+                "CHAMBRES CONSULAIRES / Vice-président de la Chambre d'agriculture"
+            ],
+            [
+                "CHAMBRES CONSULAIRES;Vice-président de la CMA",
+                "CHAMBRES CONSULAIRES / Vice-président de la CMA"
+            ]
+        ],
+        "JUSTICE": [
+            [
+                "JUSTICE;Administrateur judiciaire",
+                "JUSTICE / Administrateur judiciaire"
+            ],
+            [
+                "JUSTICE;Agent de probation",
+                "JUSTICE / Agent de probation"
+            ],
+            [
+                "JUSTICE;Avocat",
+                "JUSTICE / Avocat"
+            ],
+            [
+                "JUSTICE;Avocat général",
+                "JUSTICE / Avocat général"
+            ],
+            [
+                "JUSTICE;Avoué",
+                "JUSTICE / Avoué"
+            ],
+            [
+                "JUSTICE;Commissaire de justice",
+                "JUSTICE / Commissaire de justice"
+            ],
+            [
+                "JUSTICE;Conseiller juridique",
+                "JUSTICE / Conseiller juridique"
+            ],
+            [
+                "JUSTICE;Conseiller pénitentiaire d'insertion et de probation",
+                "JUSTICE / Conseiller pénitentiaire d'insertion et de probation"
+            ],
+            [
+                "JUSTICE;Contrôleur judiciaire",
+                "JUSTICE / Contrôleur judiciaire"
+            ],
+            [
+                "JUSTICE;Directeur de greffe",
+                "JUSTICE / Directeur de greffe"
+            ],
+            [
+                "JUSTICE;Directeur de la protection judiciaire de la jeunesse",
+                "JUSTICE / Directeur de la protection judiciaire de la jeunesse"
+            ],
+            [
+                "JUSTICE;Directeur de prison",
+                "JUSTICE / Directeur de prison"
+            ],
+            [
+                "JUSTICE;Directeur des services pénitentiaires",
+                "JUSTICE / Directeur des services pénitentiaires"
+            ],
+            [
+                "JUSTICE;Enquêteur social",
+                "JUSTICE / Enquêteur social"
+            ],
+            [
+                "JUSTICE;Expert judiciaire",
+                "JUSTICE / Expert judiciaire"
+            ],
+            [
+                "JUSTICE;Greffier",
+                "JUSTICE / Greffier"
+            ],
+            [
+                "JUSTICE;Huissier de justice",
+                "JUSTICE / Huissier de justice"
+            ],
+            [
+                "JUSTICE;Inspecteur des services judiciaires",
+                "JUSTICE / Inspecteur des services judiciaires"
+            ],
+            [
+                "JUSTICE;Interprète judiciaire",
+                "JUSTICE / Interprète judiciaire"
+            ],
+            [
+                "JUSTICE;Juge",
+                "JUSTICE / Juge"
+            ],
+            [
+                "JUSTICE;Juge aux affaires familiales",
+                "JUSTICE / Juge aux affaires familiales"
+            ],
+            [
+                "JUSTICE;Juge aux enfants",
+                "JUSTICE / Juge aux enfants"
+            ],
+            [
+                "JUSTICE;Juge de l'application des peines",
+                "JUSTICE / Juge de l'application des peines"
+            ],
+            [
+                "JUSTICE;Juge de l'exécution",
+                "JUSTICE / Juge de l'exécution"
+            ],
+            [
+                "JUSTICE;Juge des contentieux de la protection",
+                "JUSTICE / Juge des contentieux de la protection"
+            ],
+            [
+                "JUSTICE;Juge des libertés et de la détention",
+                "JUSTICE / Juge des libertés et de la détention"
+            ],
+            [
+                "JUSTICE;Juge d'instruction",
+                "JUSTICE / Juge d'instruction"
+            ],
+            [
+                "JUSTICE;Juge d'instance",
+                "JUSTICE / Juge d'instance"
+            ],
+            [
+                "JUSTICE;Juge pénal",
+                "JUSTICE / Juge pénal"
+            ],
+            [
+                "JUSTICE;Magistrat",
+                "JUSTICE / Magistrat"
+            ],
+            [
+                "JUSTICE;Médiateur judiciaire",
+                "JUSTICE / Médiateur judiciaire"
+            ],
+            [
+                "JUSTICE;Notaire",
+                "JUSTICE / Notaire"
+            ],
+            [
+                "JUSTICE;Officier de police judiciaire",
+                "JUSTICE / Officier de police judiciaire"
+            ],
+            [
+                "JUSTICE;Parajuriste",
+                "JUSTICE / Parajuriste"
+            ],
+            [
+                "JUSTICE;Procureur",
+                "JUSTICE / Procureur"
+            ],
+            [
+                "JUSTICE;Procureur adjoint",
+                "JUSTICE / Procureur adjoint"
+            ],
+            [
+                "JUSTICE;Procureur de la République",
+                "JUSTICE / Procureur de la République"
+            ],
+            [
+                "JUSTICE;Procureur général",
+                "JUSTICE / Procureur général"
+            ],
+            [
+                "JUSTICE;Responsable de la médiation pénale",
+                "JUSTICE / Responsable de la médiation pénale"
+            ],
+            [
+                "JUSTICE;Secrétaire de parquet",
+                "JUSTICE / Secrétaire de parquet"
+            ],
+            [
+                "JUSTICE;Secrétaire juridique",
+                "JUSTICE / Secrétaire juridique"
+            ],
+            [
+                "JUSTICE;Substitut du procureur",
+                "JUSTICE / Substitut du procureur"
+            ],
+            [
+                "JUSTICE;Surveillant pénitentiaire",
+                "JUSTICE / Surveillant pénitentiaire"
+            ],
+            [
+                "JUSTICE;Technicien de greffe",
+                "JUSTICE / Technicien de greffe"
+            ],
+            [
+                "JUSTICE;Technicien de l'information juridique",
+                "JUSTICE / Technicien de l'information juridique"
+            ],
+            [
+                "JUSTICE;Traducteur juridique",
+                "JUSTICE / Traducteur juridique"
+            ],
+            [
+                "JUSTICE;Vice-président de tribunal",
+                "JUSTICE / Vice-président de tribunal"
+            ],
+            [
+                "JUSTICE;Victimologue",
+                "JUSTICE / Victimologue"
+            ],
+            [
+                "JUSTICE;Volontaire en service civique dans le domaine judiciaire",
+                "JUSTICE / Volontaire en service civique dans le domaine judiciaire"
+            ],
+            [
+                "JUSTICE;Zootechnicien judiciaire",
+                "JUSTICE / Zootechnicien judiciaire"
+            ]
+        ],
+        "SANTÉ PUBLIQUE": [
+            [
+                "SANTÉ PUBLIQUE;Aide-soignant",
+                "SANTÉ PUBLIQUE / Aide-soignant"
+            ],
+            [
+                "SANTÉ PUBLIQUE;Ambulancier",
+                "SANTÉ PUBLIQUE / Ambulancier"
+            ],
+            [
+                "SANTÉ PUBLIQUE;Assistant de régulation médicale (ARM)",
+                "SANTÉ PUBLIQUE / Assistant de régulation médicale (ARM)"
+            ],
+            [
+                "SANTÉ PUBLIQUE;Assistant dentaire",
+                "SANTÉ PUBLIQUE / Assistant dentaire"
+            ],
+            [
+                "SANTÉ PUBLIQUE;Assistant en pharmacie",
+                "SANTÉ PUBLIQUE / Assistant en pharmacie"
+            ],
+            [
+                "SANTÉ PUBLIQUE;Assistant social",
+                "SANTÉ PUBLIQUE / Assistant social"
+            ],
+            [
+                "SANTÉ PUBLIQUE;Audioprothésiste",
+                "SANTÉ PUBLIQUE / Audioprothésiste"
+            ],
+            [
+                "SANTÉ PUBLIQUE;Auxiliaire de puériculture",
+                "SANTÉ PUBLIQUE / Auxiliaire de puériculture"
+            ],
+            [
+                "SANTÉ PUBLIQUE;Brancardier",
+                "SANTÉ PUBLIQUE / Brancardier"
+            ],
+            [
+                "SANTÉ PUBLIQUE;Cadre de santé",
+                "SANTÉ PUBLIQUE / Cadre de santé"
+            ],
+            [
+                "SANTÉ PUBLIQUE;Cardiologue",
+                "SANTÉ PUBLIQUE / Cardiologue"
+            ],
+            [
+                "SANTÉ PUBLIQUE;Chirurgien-dentiste",
+                "SANTÉ PUBLIQUE / Chirurgien-dentiste"
+            ],
+            [
+                "SANTÉ PUBLIQUE;Diététicien",
+                "SANTÉ PUBLIQUE / Diététicien"
+            ],
+            [
+                "SANTÉ PUBLIQUE;Directeur des soins",
+                "SANTÉ PUBLIQUE / Directeur des soins"
+            ],
+            [
+                "SANTÉ PUBLIQUE;Ergothérapeute",
+                "SANTÉ PUBLIQUE / Ergothérapeute"
+            ],
+            [
+                "SANTÉ PUBLIQUE;Gériatre",
+                "SANTÉ PUBLIQUE / Gériatre"
+            ],
+            [
+                "SANTÉ PUBLIQUE;Gynécologue-obstétricien",
+                "SANTÉ PUBLIQUE / Gynécologue-obstétricien"
+            ],
+            [
+                "SANTÉ PUBLIQUE;Infirmier",
+                "SANTÉ PUBLIQUE / Infirmier"
+            ],
+            [
+                "SANTÉ PUBLIQUE;Infirmier anesthésiste",
+                "SANTÉ PUBLIQUE / Infirmier anesthésiste"
+            ],
+            [
+                "SANTÉ PUBLIQUE;Infirmier de bloc opératoire",
+                "SANTÉ PUBLIQUE / Infirmier de bloc opératoire"
+            ],
+            [
+                "SANTÉ PUBLIQUE;Kinésithérapeute",
+                "SANTÉ PUBLIQUE / Kinésithérapeute"
+            ],
+            [
+                "SANTÉ PUBLIQUE;Manipulateur en électroradiologie médicale (MERM)",
+                "SANTÉ PUBLIQUE / Manipulateur en électroradiologie médicale (MERM)"
+            ],
+            [
+                "SANTÉ PUBLIQUE;Médecin",
+                "SANTÉ PUBLIQUE / Médecin"
+            ],
+            [
+                "SANTÉ PUBLIQUE;Opticien-lunetier",
+                "SANTÉ PUBLIQUE / Opticien-lunetier"
+            ],
+            [
+                "SANTÉ PUBLIQUE;Orthophoniste",
+                "SANTÉ PUBLIQUE / Orthophoniste"
+            ],
+            [
+                "SANTÉ PUBLIQUE;Orthoptiste",
+                "SANTÉ PUBLIQUE / Orthoptiste"
+            ],
+            [
+                "SANTÉ PUBLIQUE;Pédiatre",
+                "SANTÉ PUBLIQUE / Pédiatre"
+            ],
+            [
+                "SANTÉ PUBLIQUE;Pharmacien",
+                "SANTÉ PUBLIQUE / Pharmacien"
+            ],
+            [
+                "SANTÉ PUBLIQUE;Pharmacien biologiste",
+                "SANTÉ PUBLIQUE / Pharmacien biologiste"
+            ],
+            [
+                "SANTÉ PUBLIQUE;Podologue",
+                "SANTÉ PUBLIQUE / Podologue"
+            ],
+            [
+                "SANTÉ PUBLIQUE;Préparateur en pharmacie hospitalière",
+                "SANTÉ PUBLIQUE / Préparateur en pharmacie hospitalière"
+            ],
+            [
+                "SANTÉ PUBLIQUE;Prothésiste dentaire",
+                "SANTÉ PUBLIQUE / Prothésiste dentaire"
+            ],
+            [
+                "SANTÉ PUBLIQUE;Psychiatre",
+                "SANTÉ PUBLIQUE / Psychiatre"
+            ],
+            [
+                "SANTÉ PUBLIQUE;Psychologue",
+                "SANTÉ PUBLIQUE / Psychologue"
+            ],
+            [
+                "SANTÉ PUBLIQUE;Psychomotricien",
+                "SANTÉ PUBLIQUE / Psychomotricien"
+            ],
+            [
+                "SANTÉ PUBLIQUE;Radiophysicien",
+                "SANTÉ PUBLIQUE / Radiophysicien"
+            ],
+            [
+                "SANTÉ PUBLIQUE;Sage-femme",
+                "SANTÉ PUBLIQUE / Sage-femme"
+            ],
+            [
+                "SANTÉ PUBLIQUE;Secrétaire médical",
+                "SANTÉ PUBLIQUE / Secrétaire médical"
+            ],
+            [
+                "SANTÉ PUBLIQUE;Technicien de laboratoire d'analyses médicales",
+                "SANTÉ PUBLIQUE / Technicien de laboratoire d'analyses médicales"
+            ],
+            [
+                "SANTÉ PUBLIQUE;Technicien de laboratoire médical",
+                "SANTÉ PUBLIQUE / Technicien de laboratoire médical"
+            ],
+            [
+                "SANTÉ PUBLIQUE;Autres",
+                "SANTÉ PUBLIQUE / Autres"
+            ]
+        ],
+        "SÉCURITÉ CIVILE": [
+            [
+                "SÉCURITÉ CIVILE;Agent de prévention",
+                "SÉCURITÉ CIVILE / Agent de prévention"
+            ],
+            [
+                "SÉCURITÉ CIVILE;Agent de sécurité incendie",
+                "SÉCURITÉ CIVILE / Agent de sécurité incendie"
+            ],
+            [
+                "SÉCURITÉ CIVILE;Analyste de risques",
+                "SÉCURITÉ CIVILE / Analyste de risques"
+            ],
+            [
+                "SÉCURITÉ CIVILE;Chef d'équipe de secours",
+                "SÉCURITÉ CIVILE / Chef d'équipe de secours"
+            ],
+            [
+                "SÉCURITÉ CIVILE;Chef de centre de secours",
+                "SÉCURITÉ CIVILE / Chef de centre de secours"
+            ],
+            [
+                "SÉCURITÉ CIVILE;Chef de mission de sécurité civile",
+                "SÉCURITÉ CIVILE / Chef de mission de sécurité civile"
+            ],
+            [
+                "SÉCURITÉ CIVILE;Chef de poste de secours",
+                "SÉCURITÉ CIVILE / Chef de poste de secours"
+            ],
+            [
+                "SÉCURITÉ CIVILE;Coordinateur de crise",
+                "SÉCURITÉ CIVILE / Coordinateur de crise"
+            ],
+            [
+                "SÉCURITÉ CIVILE;Coordinateur de sécurité civile",
+                "SÉCURITÉ CIVILE / Coordinateur de sécurité civile"
+            ],
+            [
+                "SÉCURITÉ CIVILE;Délégué de sécurité civile",
+                "SÉCURITÉ CIVILE / Délégué de sécurité civile"
+            ],
+            [
+                "SÉCURITÉ CIVILE;Directeur des opérations de secours",
+                "SÉCURITÉ CIVILE / Directeur des opérations de secours"
+            ],
+            [
+                "SÉCURITÉ CIVILE;Directeur de la sécurité civile",
+                "SÉCURITÉ CIVILE / Directeur de la sécurité civile"
+            ],
+            [
+                "SÉCURITÉ CIVILE;Évaluateur de risques",
+                "SÉCURITÉ CIVILE / Évaluateur de risques"
+            ],
+            [
+                "SÉCURITÉ CIVILE;Expert en gestion de crise",
+                "SÉCURITÉ CIVILE / Expert en gestion de crise"
+            ],
+            [
+                "SÉCURITÉ CIVILE;Formateur en sécurité civile",
+                "SÉCURITÉ CIVILE / Formateur en sécurité civile"
+            ],
+            [
+                "SÉCURITÉ CIVILE;Instructeur de secourisme",
+                "SÉCURITÉ CIVILE / Instructeur de secourisme"
+            ],
+            [
+                "SÉCURITÉ CIVILE;Médecin de la sécurité civile",
+                "SÉCURITÉ CIVILE / Médecin de la sécurité civile"
+            ],
+            [
+                "SÉCURITÉ CIVILE;Officier de la sécurité civile",
+                "SÉCURITÉ CIVILE / Officier de la sécurité civile"
+            ],
+            [
+                "SÉCURITÉ CIVILE;Opérateur de télécommunications d'urgence",
+                "SÉCURITÉ CIVILE / Opérateur de télécommunications d'urgence"
+            ],
+            [
+                "SÉCURITÉ CIVILE;Planificateur d'urgence",
+                "SÉCURITÉ CIVILE / Planificateur d'urgence"
+            ],
+            [
+                "SÉCURITÉ CIVILE;Pompiers",
+                "SÉCURITÉ CIVILE / Pompiers"
+            ],
+            [
+                "SÉCURITÉ CIVILE;Prévisionniste de risques naturels",
+                "SÉCURITÉ CIVILE / Prévisionniste de risques naturels"
+            ],
+            [
+                "SÉCURITÉ CIVILE;Psychologue de l'urgence",
+                "SÉCURITÉ CIVILE / Psychologue de l'urgence"
+            ],
+            [
+                "SÉCURITÉ CIVILE;Responsable de l'intervention d'urgence",
+                "SÉCURITÉ CIVILE / Responsable de l'intervention d'urgence"
+            ],
+            [
+                "SÉCURITÉ CIVILE;Responsable de la logistique de secours",
+                "SÉCURITÉ CIVILE / Responsable de la logistique de secours"
+            ],
+            [
+                "SÉCURITÉ CIVILE;Responsable de la planification d'urgence",
+                "SÉCURITÉ CIVILE / Responsable de la planification d'urgence"
+            ],
+            [
+                "SÉCURITÉ CIVILE;Responsable des opérations d'urgence",
+                "SÉCURITÉ CIVILE / Responsable des opérations d'urgence"
+            ],
+            [
+                "SÉCURITÉ CIVILE;Responsable du matériel de secours",
+                "SÉCURITÉ CIVILE / Responsable du matériel de secours"
+            ],
+            [
+                "SÉCURITÉ CIVILE;Responsable du recrutement de secouristes",
+                "SÉCURITÉ CIVILE / Responsable du recrutement de secouristes"
+            ],
+            [
+                "SÉCURITÉ CIVILE;Responsable prévention des risques",
+                "SÉCURITÉ CIVILE / Responsable prévention des risques"
+            ],
+            [
+                "SÉCURITÉ CIVILE;Sapeur-pompiers",
+                "SÉCURITÉ CIVILE / Sapeur-pompiers"
+            ],
+            [
+                "SÉCURITÉ CIVILE;Secouriste",
+                "SÉCURITÉ CIVILE / Secouriste"
+            ],
+            [
+                "SÉCURITÉ CIVILE;Spécialiste en communication de crise",
+                "SÉCURITÉ CIVILE / Spécialiste en communication de crise"
+            ],
+            [
+                "SÉCURITÉ CIVILE;Spécialiste en déminage",
+                "SÉCURITÉ CIVILE / Spécialiste en déminage"
+            ],
+            [
+                "SÉCURITÉ CIVILE;Spécialiste en gestion des catastrophes",
+                "SÉCURITÉ CIVILE / Spécialiste en gestion des catastrophes"
+            ],
+            [
+                "SÉCURITÉ CIVILE;Spécialiste en logistique humanitaire",
+                "SÉCURITÉ CIVILE / Spécialiste en logistique humanitaire"
+            ],
+            [
+                "SÉCURITÉ CIVILE;Spécialiste en recherche et sauvetage",
+                "SÉCURITÉ CIVILE / Spécialiste en recherche et sauvetage"
+            ],
+            [
+                "SÉCURITÉ CIVILE;Technicien de sécurité civile",
+                "SÉCURITÉ CIVILE / Technicien de sécurité civile"
+            ],
+            [
+                "SÉCURITÉ CIVILE;Technicien en gestion de crise",
+                "SÉCURITÉ CIVILE / Technicien en gestion de crise"
+            ],
+            [
+                "SÉCURITÉ CIVILE;Volontaire de la sécurité civile",
+                "SÉCURITÉ CIVILE / Volontaire de la sécurité civile"
+            ],
+            [
+                "SÉCURITÉ CIVILE;Autres",
+                "SÉCURITÉ CIVILE / Autres"
+            ]
+        ]
+    }
+}

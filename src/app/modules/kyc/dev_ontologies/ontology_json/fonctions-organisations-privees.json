@@ -1,0 +1,2321 @@
+{
+    "table": [
+        [
+            "DIRECTION GÉNÉRALE"
+        ],
+        [
+            null,
+            "Co-fondatreur.trice"
+        ],
+        [
+            null,
+            "Co-gérant.e"
+        ],
+        [
+            null,
+            "Consultant.e.e en management"
+        ],
+        [
+            null,
+            "Consultant.e.e en stratégie"
+        ],
+        [
+            null,
+            "Directeur.rice.trice général.e (DG)"
+        ],
+        [
+            null,
+            "Directeur.rice.trice général.e adjoint.e (DGA)"
+        ],
+        [
+            null,
+            "Fondateur.trice"
+        ],
+        [
+            null,
+            "Gérant.e"
+        ],
+        [
+            null,
+            "Président.e"
+        ],
+        [
+            null,
+            "Président.e du Conseil de surveillance"
+        ],
+        [
+            null,
+            "Président.e du Directoire"
+        ],
+        [
+            null,
+            "Président.e-Directeur.rice.trice général.e (PDG)"
+        ],
+        [
+            null,
+            "Secrétaire général.e (SG)"
+        ],
+        [
+            null,
+            "Vice-président.e (VP)"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "DIRECTION COMMERCIALE"
+        ],
+        [
+            null,
+            "Chef.fe de marché"
+        ],
+        [
+            null,
+            "Chef.fe de secteur"
+        ],
+        [
+            null,
+            "Chef.fe des ventes"
+        ],
+        [
+            null,
+            "Consultant.e.e en stratégie de ventes"
+        ],
+        [
+            null,
+            "Directeur.rice régional des ventes"
+        ],
+        [
+            null,
+            "Directeur.rice.trice commercial.e"
+        ],
+        [
+            null,
+            "Directeur.rice.trice des opérations commerciales"
+        ],
+        [
+            null,
+            "Directeur.rice.trice des ventes"
+        ],
+        [
+            null,
+            "Responsable commercial"
+        ],
+        [
+            null,
+            "Responsable des ventes"
+        ],
+        [
+            null,
+            "Responsable des ventes B2B (entreprises à entreprises)"
+        ],
+        [
+            null,
+            "Responsable des ventes B2C (entreprises à consommateurs)"
+        ],
+        [
+            null,
+            "Responsable des ventes de détail"
+        ],
+        [
+            null,
+            "Responsable des ventes directes"
+        ],
+        [
+            null,
+            "Responsable des ventes en ligne (e-commerce)"
+        ],
+        [
+            null,
+            "Responsable des ventes indirectes"
+        ],
+        [
+            null,
+            "Responsable des ventes internationales"
+        ],
+        [
+            null,
+            "Responsable des ventes spécialisées"
+        ],
+        [
+            null,
+            "Responsable des ventes stratégiques"
+        ],
+        [
+            null,
+            "Responsable des ventes techniques"
+        ],
+        [
+            null,
+            "Responsable grands comptes"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "DIRECTION DE LA COMMUNICATION"
+        ],
+        [
+            null,
+            "Chargé.e.e de la communication corporate"
+        ],
+        [
+            null,
+            "Chargé.e.e de la communication de crise"
+        ],
+        [
+            null,
+            "Chargé.e.e de la communication de marque"
+        ],
+        [
+            null,
+            "Chargé.e.e de la communication événementielle"
+        ],
+        [
+            null,
+            "Chargé.e.e de la communication externe digitale"
+        ],
+        [
+            null,
+            "Chargé.e.e de la communication financière"
+        ],
+        [
+            null,
+            "Chargé.e.e de la communication interne digitale"
+        ],
+        [
+            null,
+            "Chargé.e.e de la communication produit"
+        ],
+        [
+            null,
+            "Chargé.e.e des médias sociaux"
+        ],
+        [
+            null,
+            "Chargé.e.e des relations institutionnelles"
+        ],
+        [
+            null,
+            "Chargé.e.e des relations presse"
+        ],
+        [
+            null,
+            "Chargé.e.e des relations publiques"
+        ],
+        [
+            null,
+            "Chargé.e.e des relations publiques et événementielles"
+        ],
+        [
+            null,
+            "Chargé.e.e du marketing digital"
+        ],
+        [
+            null,
+            "Consultant.e.e en communication"
+        ],
+        [
+            null,
+            "Directeur.rice.trice de la communication"
+        ],
+        [
+            null,
+            "Responsable de la communication audiovisuelle"
+        ],
+        [
+            null,
+            "Responsable de la communication externe"
+        ],
+        [
+            null,
+            "Responsable de la communication interne"
+        ],
+        [
+            null,
+            "Responsable de la communication visuelle"
+        ],
+        [
+            null,
+            "Responsable des partenariats"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "DIRECTION ACHATS"
+        ],
+        [
+            null,
+            "Acheteur.e"
+        ],
+        [
+            null,
+            "Acheteur.e senior"
+        ],
+        [
+            null,
+            "Category manager"
+        ],
+        [
+            null,
+            "Chef.fe de groupe achats"
+        ],
+        [
+            null,
+            "Chef.fe de projet achats"
+        ],
+        [
+            null,
+            "Consultant.e.e en stratégie d’achats"
+        ],
+        [
+            null,
+            "Directeur.rice.trice des achats"
+        ],
+        [
+            null,
+            "Responsable des achats"
+        ],
+        [
+            null,
+            "Responsable des achats de services"
+        ],
+        [
+            null,
+            "Responsable des achats directs"
+        ],
+        [
+            null,
+            "Responsable des achats durables"
+        ],
+        [
+            null,
+            "Responsable des achats indirects"
+        ],
+        [
+            null,
+            "Responsable des achats informatiques"
+        ],
+        [
+            null,
+            "Responsable des achats internationaux"
+        ],
+        [
+            null,
+            "Responsable des achats logistiques"
+        ],
+        [
+            null,
+            "Responsable des achats publics"
+        ],
+        [
+            null,
+            "Responsable des achats stratégiques"
+        ],
+        [
+            null,
+            "Responsable des achats techniques"
+        ],
+        [
+            null,
+            "Responsable des approvisionnements"
+        ],
+        [
+            null,
+            "Responsable des contrats et des négociation"
+        ],
+        [
+            null,
+            "Responsable des relations fournisseurs"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "DIRECTION ADMINISTRATIVE"
+        ],
+        [
+            null,
+            "Directeur.rice.trice administratif"
+        ],
+        [
+            null,
+            "Directeur.rice.trice administratif et financier (DAF)"
+        ],
+        [
+            null,
+            "Directeur.rice.trice de l'administration des ventes"
+        ],
+        [
+            null,
+            "Directeur.rice.trice de l'administration du personnel"
+        ],
+        [
+            null,
+            "Directeur.rice.trice de la logistique"
+        ],
+        [
+            null,
+            "Directeur.rice.trice des achats et des approvisionnements"
+        ],
+        [
+            null,
+            "Directeur.rice.trice des affaires juridiques"
+        ],
+        [
+            null,
+            "Directeur.rice.trice des finances"
+        ],
+        [
+            null,
+            "Directeur.rice.trice des ressources humaines (DRH)"
+        ],
+        [
+            null,
+            "Directeur.rice.trice des services généraux"
+        ],
+        [
+            null,
+            "Responsable administratif"
+        ],
+        [
+            null,
+            "Responsable administratif et financier"
+        ],
+        [
+            null,
+            "Responsable de l'administration des ventes"
+        ],
+        [
+            null,
+            "Responsable de l'administration du personnel"
+        ],
+        [
+            null,
+            "Responsable de la logistique"
+        ],
+        [
+            null,
+            "Responsable des achats et des approvisionnements"
+        ],
+        [
+            null,
+            "Responsable des ressources humaines (RRH)"
+        ],
+        [
+            null,
+            "Responsable des services généraux"
+        ],
+        [
+            null,
+            "Responsable financier"
+        ],
+        [
+            null,
+            "Responsable juridique"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "DIRECTION ARTISTIQUE"
+        ],
+        [
+            null,
+            "Consultant.e.e en stratégie artistique"
+        ],
+        [
+            null,
+            "Curateur.rice"
+        ],
+        [
+            null,
+            "Directeur.rice·rice artistique"
+        ],
+        [
+            null,
+            "Directeur.rice·rice de l'Esthétiquee"
+        ],
+        [
+            null,
+            "Directeur.rice·rice de l'Image"
+        ],
+        [
+            null,
+            "Directeur.rice·rice de la Communication Visuelle"
+        ],
+        [
+            null,
+            "Directeur.rice·rice de la Conception"
+        ],
+        [
+            null,
+            "Directeur.rice·rice de la Création"
+        ],
+        [
+            null,
+            "Directeur.rice·rice de la Créativité"
+        ],
+        [
+            null,
+            "Directeur.rice·rice de la Production Artistique"
+        ],
+        [
+            null,
+            "Directeur.rice·rice de la Réalisation Artistique"
+        ],
+        [
+            null,
+            "Directeur.rice·rice de la Scénographie"
+        ],
+        [
+            null,
+            "Expert artistique"
+        ],
+        [
+            null,
+            "Responsable Artistique"
+        ],
+        [
+            null,
+            "Responsable de l'Esthétique"
+        ],
+        [
+            null,
+            "Responsable de l'Image"
+        ],
+        [
+            null,
+            "Responsable de la Communication Visuelle"
+        ],
+        [
+            null,
+            "Responsable de la Conception"
+        ],
+        [
+            null,
+            "Responsable de la Création"
+        ],
+        [
+            null,
+            "Responsable de la Créativité"
+        ],
+        [
+            null,
+            "Responsable de la Production Artistique"
+        ],
+        [
+            null,
+            "Responsable de la Réalisation Artistique"
+        ],
+        [
+            null,
+            "Responsable de la Scénographie"
+        ],
+        [
+            null,
+            "Autre"
+        ],
+        [
+            "DIRECTION ENVIRONNEMENT"
+        ],
+        [
+            null,
+            "Consultant.e.e en stratégie environnementale"
+        ],
+        [
+            null,
+            "Directeur.rice·rice de l'Écologie Industrielle et de l'Économie Circulaire"
+        ],
+        [
+            null,
+            "Directeur.rice·rice de l'Énergie et des Ressources Naturelles"
+        ],
+        [
+            null,
+            "Directeur.rice·rice de l'Environnement"
+        ],
+        [
+            null,
+            "Directeur.rice·rice de la Conformité Réglementgaire Environnementale"
+        ],
+        [
+            null,
+            "Directeur.rice·rice de la Gestion des Risques Environnementaux"
+        ],
+        [
+            null,
+            "Directeur.rice·rice de la Gestion Environnementale"
+        ],
+        [
+            null,
+            "Directeur.rice·rice de la Protection de l'Environnement"
+        ],
+        [
+            null,
+            "Directeur.rice·rice de la Qualité Environnementale"
+        ],
+        [
+            null,
+            "Directeur.rice·rice de la Stratégie Environnementale"
+        ],
+        [
+            null,
+            "Directeur.rice·rice du Développement Durable et de l'Environnement"
+        ],
+        [
+            null,
+            "Responsable de l'Écologie Industrielle et de l'Économie Circulaire"
+        ],
+        [
+            null,
+            "Responsable de l'Énergie et des Ressources Naturelles"
+        ],
+        [
+            null,
+            "Responsable de l'Environnement"
+        ],
+        [
+            null,
+            "Responsable de la Conformité Réglementaire Environnementale"
+        ],
+        [
+            null,
+            "Responsable de la Gestion des Risques Environnementaux"
+        ],
+        [
+            null,
+            "Responsable de la Gestion Environnementale"
+        ],
+        [
+            null,
+            "Responsable de la Protection de l'Environnement"
+        ],
+        [
+            null,
+            "Responsable de la Qualité Environnementale"
+        ],
+        [
+            null,
+            "Responsable de la Stratégie Environnementale"
+        ],
+        [
+            null,
+            "Responsable du Développement Durable et de l'Environnement"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "DIRECTION FINANCIÈRE"
+        ],
+        [
+            null,
+            "Analyste financier.ère"
+        ],
+        [
+            null,
+            "Auditeur.e financier.ère"
+        ],
+        [
+            null,
+            "Comptable analytique"
+        ],
+        [
+            null,
+            "Comptable clients"
+        ],
+        [
+            null,
+            "Comptable fournisseurs"
+        ],
+        [
+            null,
+            "Comptable général.e"
+        ],
+        [
+            null,
+            "Consultant.e.e en stratégie financière"
+        ],
+        [
+            null,
+            "Contrôleur.e financier.ère"
+        ],
+        [
+            null,
+            "Directeur.rice.rice financier.ère (CFO - Chief Financial Officer)"
+        ],
+        [
+            null,
+            "Expert-comptable"
+        ],
+        [
+            null,
+            "Responsable de la comptabilité"
+        ],
+        [
+            null,
+            "Responsable de la consolidation financière"
+        ],
+        [
+            null,
+            "Responsable de la fiscalité"
+        ],
+        [
+            null,
+            "Responsable de la gestion des risques financiers"
+        ],
+        [
+            null,
+            "Responsable de la trésorerie"
+        ],
+        [
+            null,
+            "Responsable du budget"
+        ],
+        [
+            null,
+            "Responsable du contrôle de gestion"
+        ],
+        [
+            null,
+            "Responsable du reporting financier"
+        ],
+        [
+            null,
+            "Responsable des investissements industriels"
+        ],
+        [
+            null,
+            "Responsable des investissements en innovation"
+        ],
+        [
+            null,
+            "Responsable des prises de participation dans des sociétés"
+        ],
+        [
+            null,
+            "Responsable financier"
+        ],
+        [
+            null,
+            "Trésorier.ière"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "DIRECTION DE LA GESTION DES RISQUES"
+        ],
+        [
+            null,
+            "Analyste de risque crédit"
+        ],
+        [
+            null,
+            "Analyste de risque de marché"
+        ],
+        [
+            null,
+            "Analyste de risque opérationnel"
+        ],
+        [
+            null,
+            "Analyste en gestion des risques"
+        ],
+        [
+            null,
+            "Auditeur interne"
+        ],
+        [
+            null,
+            "Chargé.e de conformité"
+        ],
+        [
+            null,
+            "Chargé.e de gestion des risques"
+        ],
+        [
+            null,
+            "Chargé.e de la sécurité des systèmes d'information"
+        ],
+        [
+            null,
+            "Chef de projet en gestion des risques"
+        ],
+        [
+            null,
+            "Consultant.e en gestion des risques"
+        ],
+        [
+            null,
+            "Contrôleur des risques"
+        ],
+        [
+            null,
+            "Coordinateur de gestion des crises"
+        ],
+        [
+            null,
+            "Directeur.rice de la conformité réglementaire"
+        ],
+        [
+            null,
+            "Directeur.rice de la gestion des risques"
+        ],
+        [
+            null,
+            "Directeur.rice de la sécurité de l'information"
+        ],
+        [
+            null,
+            "Directeur.rice des audits"
+        ],
+        [
+            null,
+            "Directeur.rice des risques financiers"
+        ],
+        [
+            null,
+            "Directeur.rice des risques opérationnels"
+        ],
+        [
+            null,
+            "Gestionnaire de crise"
+        ],
+        [
+            null,
+            "Gestionnaire de la continuité des activités"
+        ],
+        [
+            null,
+            "Gestionnaire de la sécurité de l'information"
+        ],
+        [
+            null,
+            "Ingénieur en sécurité informatique"
+        ],
+        [
+            null,
+            "Responsable de la conformité"
+        ],
+        [
+            null,
+            "Responsable de la sécurité des systèmes d'information"
+        ],
+        [
+            null,
+            "Responsable des audits internes"
+        ],
+        [
+            null,
+            "Responsable des risques d'entreprise"
+        ],
+        [
+            null,
+            "Responsable des risques environnementaux"
+        ],
+        [
+            null,
+            "Responsable des risques stratégiques"
+        ],
+        [
+            null,
+            "Responsable du contrôle interne"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "DIRECTION DES INVESTISSEMENTS"
+        ],
+        [
+            null,
+            "Analyste de crédit"
+        ],
+        [
+            null,
+            "Analyste d'investissement"
+        ],
+        [
+            null,
+            "Analyste financier"
+        ],
+        [
+            null,
+            "Chargé.e d'affaires en investissement"
+        ],
+        [
+            null,
+            "Chargé.e d'investissement"
+        ],
+        [
+            null,
+            "Chef de projet d'investissement"
+        ],
+        [
+            null,
+            "Conseiller en investissement"
+        ],
+        [
+            null,
+            "Contrôleur financier"
+        ],
+        [
+            null,
+            "Directeur.rice d'investissement"
+        ],
+        [
+            null,
+            "Directeur.rice de la gestion d'actifs"
+        ],
+        [
+            null,
+            "Directeur.rice de la stratégie d'investissement"
+        ],
+        [
+            null,
+            "Directeur.rice des fusions et acquisitions"
+        ],
+        [
+            null,
+            "Gestionnaire de portefeuille"
+        ],
+        [
+            null,
+            "Gestionnaire des actifs"
+        ],
+        [
+            null,
+            "Gestionnaire des risques d'investissement"
+        ],
+        [
+            null,
+            "Ingénieur financier"
+        ],
+        [
+            null,
+            "Juriste en droit des investissements"
+        ],
+        [
+            null,
+            "Responsable de la conformité des investissements"
+        ],
+        [
+            null,
+            "Responsable de la stratégie financière"
+        ],
+        [
+            null,
+            "Responsable des analyses de marché"
+        ],
+        [
+            null,
+            "Responsable des investissements immobiliers"
+        ],
+        [
+            null,
+            "Responsable des relations investisseurs"
+        ],
+        [
+            null,
+            "Responsable du développement des affaires"
+        ],
+        [
+            null,
+            "Responsable du financement de projets"
+        ],
+        [
+            null,
+            "Responsable du suivi des investissements"
+        ],
+        [
+            null,
+            "Spécialiste en fusions et acquisitions"
+        ],
+        [
+            null,
+            "Trader"
+        ],
+        [
+            null,
+            "Trésorier"
+        ],
+        [
+            null,
+            "Vice-président des investissements"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "DIRECTION JURIDIQUE"
+        ],
+        [
+            null,
+            "Avocat·e d'entreprise"
+        ],
+        [
+            null,
+            "Conseiller·ère Juridique"
+        ],
+        [
+            null,
+            "Directeur.rice·rice de la Compliance"
+        ],
+        [
+            null,
+            "Directeur.rice·rice de la Gestion des Risques Juridiques"
+        ],
+        [
+            null,
+            "Directeur.rice·rice de la Propriété Intellectuelle"
+        ],
+        [
+            null,
+            "Directeur.rice·rice des Affaires Juridiques"
+        ],
+        [
+            null,
+            "Directeur.rice·rice des Contentieux"
+        ],
+        [
+            null,
+            "Directeur.rice·rice des Contrats"
+        ],
+        [
+            null,
+            "Directeur.rice·rice des Opérations Juridiques"
+        ],
+        [
+            null,
+            "Directeur.rice·rice Juridique"
+        ],
+        [
+            null,
+            "Juriste d'entreprise"
+        ],
+        [
+            null,
+            "Responsable de la Compliance"
+        ],
+        [
+            null,
+            "Responsable de la Conformité et de la Réglementation"
+        ],
+        [
+            null,
+            "Responsable de la Gestion des Risques Juridiques"
+        ],
+        [
+            null,
+            "Responsable de la Propriété Intellectuelle"
+        ],
+        [
+            null,
+            "Responsable des Affaires Juridiques"
+        ],
+        [
+            null,
+            "Responsable des Contentieux"
+        ],
+        [
+            null,
+            "Responsable des Contrats"
+        ],
+        [
+            null,
+            "Responsable des Opérations Juridiques"
+        ],
+        [
+            null,
+            "Responsable Juridique"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "DIRECTION LOGISTIQUE"
+        ],
+        [
+            null,
+            "Consultant.e.e en stratégie logistique"
+        ],
+        [
+            null,
+            "Directeur.rice.rice des opérations logistiques"
+        ],
+        [
+            null,
+            "Directeur.rice.rice logistique"
+        ],
+        [
+            null,
+            "Responsable de la chaîne logistique"
+        ],
+        [
+            null,
+            "Responsable de la coordination des flux"
+        ],
+        [
+            null,
+            "Responsable de la distribution"
+        ],
+        [
+            null,
+            "Responsable de la gestion des stocks"
+        ],
+        [
+            null,
+            "Responsable de la gestion des transports"
+        ],
+        [
+            null,
+            "Responsable de la logistique inverse"
+        ],
+        [
+            null,
+            "Responsable de la logistique urbaine"
+        ],
+        [
+            null,
+            "Responsable de la planification logistique"
+        ],
+        [
+            null,
+            "Responsable des achats logistiques"
+        ],
+        [
+            null,
+            "Responsable des approvisionnements"
+        ],
+        [
+            null,
+            "Responsable des expéditions"
+        ],
+        [
+            null,
+            "Responsable des flux internationaux"
+        ],
+        [
+            null,
+            "Responsable des opérations douanières"
+        ],
+        [
+            null,
+            "Responsable des opérations logistiques"
+        ],
+        [
+            null,
+            "Responsable des retours"
+        ],
+        [
+            null,
+            "Responsable des transports"
+        ],
+        [
+            null,
+            "Responsable entrepôt"
+        ],
+        [
+            null,
+            "Responsable logistique"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "DIRECTION MARKETING"
+        ],
+        [
+            null,
+            "Analyste de marché"
+        ],
+        [
+            null,
+            "Assistant marketing"
+        ],
+        [
+            null,
+            "Brand manager"
+        ],
+        [
+            null,
+            "Chargé.e de communication"
+        ],
+        [
+            null,
+            "Chargé.e de marketing direct"
+        ],
+        [
+            null,
+            "Chargé.e de marketing digital"
+        ],
+        [
+            null,
+            "Chef de produit"
+        ],
+        [
+            null,
+            "Chef de projet marketing"
+        ],
+        [
+            null,
+            "Chef de publicité"
+        ],
+        [
+            null,
+            "Chef des ventes"
+        ],
+        [
+            null,
+            "Community manager"
+        ],
+        [
+            null,
+            "Concepteur-rédacteur"
+        ],
+        [
+            null,
+            "Consultant.e marketing"
+        ],
+        [
+            null,
+            "Coordinateur marketing"
+        ],
+        [
+            null,
+            "Data Analyst Marketing"
+        ],
+        [
+            null,
+            "Directeur.rice de la communication"
+        ],
+        [
+            null,
+            "Directeur.rice de la stratégie marketing"
+        ],
+        [
+            null,
+            "Directeur.rice des études marketing"
+        ],
+        [
+            null,
+            "Directeur.rice des partenariats"
+        ],
+        [
+            null,
+            "Directeur.rice du marketing"
+        ],
+        [
+            null,
+            "Directeur.rice du marketing digital"
+        ],
+        [
+            null,
+            "Directeur.rice marketing produit"
+        ],
+        [
+            null,
+            "Éditeur de contenu"
+        ],
+        [
+            null,
+            "Expert en référencement (SEO/SEM)"
+        ],
+        [
+            null,
+            "Graphiste"
+        ],
+        [
+            null,
+            "Gestionnaire de base de données marketing"
+        ],
+        [
+            null,
+            "Gestionnaire de campagne marketing"
+        ],
+        [
+            null,
+            "Gestionnaire de communauté"
+        ],
+        [
+            null,
+            "Gestionnaire de contenu"
+        ],
+        [
+            null,
+            "Growth hacker"
+        ],
+        [
+            null,
+            "Manager des ventes"
+        ],
+        [
+            null,
+            "Média planner"
+        ],
+        [
+            null,
+            "Responsable CRM (Customer Relationship Management)"
+        ],
+        [
+            null,
+            "Responsable de la fidélisation"
+        ],
+        [
+            null,
+            "Responsable de la stratégie de contenu"
+        ],
+        [
+            null,
+            "Responsable des études de marché"
+        ],
+        [
+            null,
+            "Responsable des relations publiques"
+        ],
+        [
+            null,
+            "Responsable du marketing automation"
+        ],
+        [
+            null,
+            "Responsable e-commerce"
+        ],
+        [
+            null,
+            "Responsable événementiel"
+        ],
+        [
+            null,
+            "Responsable marketing B2B"
+        ],
+        [
+            null,
+            "Responsable marketing B2C"
+        ],
+        [
+            null,
+            "Responsable marketing mobile"
+        ],
+        [
+            null,
+            "Responsable merchandising"
+        ],
+        [
+            null,
+            "Responsable partenariat"
+        ],
+        [
+            null,
+            "Responsable publicité en ligne"
+        ],
+        [
+            null,
+            "Responsable réseaux sociaux"
+        ],
+        [
+            null,
+            "Responsable sponsoring"
+        ],
+        [
+            null,
+            "Responsable veille stratégique"
+        ],
+        [
+            null,
+            "Webmarketer"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "DIRECTION PRODUCTION"
+        ],
+        [
+            null,
+            "Agent.e de fabrication"
+        ],
+        [
+            null,
+            "Chef.fe d'atelier"
+        ],
+        [
+            null,
+            "Chef.fe de production"
+        ],
+        [
+            null,
+            "Conducteur.trice de ligne de production"
+        ],
+        [
+            null,
+            "Consultant.e.e en stratégie de production"
+        ],
+        [
+            null,
+            "Directeur.rice.trice de la production"
+        ],
+        [
+            null,
+            "Directeur.rice.trice des opérations"
+        ],
+        [
+            null,
+            "Ingénieur.e de production"
+        ],
+        [
+            null,
+            "Ingénieure méthodes"
+        ],
+        [
+            null,
+            "Opérateur.trice de machines-outils"
+        ],
+        [
+            null,
+            "Opérateur.trice de production"
+        ],
+        [
+            null,
+            "Pilote de ligne automatisée"
+        ],
+        [
+            null,
+            "Responsable de la chaîne d'approvisionnement"
+        ],
+        [
+            null,
+            "Responsable de la logistique de production"
+        ],
+        [
+            null,
+            "Responsable de la maintenance industrielle"
+        ],
+        [
+            null,
+            "Responsable de la planification de la production"
+        ],
+        [
+            null,
+            "Responsable de la production"
+        ],
+        [
+            null,
+            "Responsable de la qualité de la production"
+        ],
+        [
+            null,
+            "Responsable des opérations"
+        ],
+        [
+            null,
+            "Superviseur.e de production"
+        ],
+        [
+            null,
+            "Technicien.ne de production"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "DIRECTION PUBLICITÉ"
+        ],
+        [
+            null,
+            "Consultant.e en investissements publicitaires"
+        ],
+        [
+            null,
+            "Directeur.rice·rice de la Communication Publicitaire"
+        ],
+        [
+            null,
+            "Directeur.rice·rice de la Création Publicitaire"
+        ],
+        [
+            null,
+            "Directeur.rice·rice de la Créativité Publicitaire"
+        ],
+        [
+            null,
+            "Directeur.rice·rice de la Planification Publicitaire"
+        ],
+        [
+            null,
+            "Directeur.rice·rice de la Production Publicitaire"
+        ],
+        [
+            null,
+            "Directeur.rice·rice de la Publicité"
+        ],
+        [
+            null,
+            "Directeur.rice·rice des Achats Média"
+        ],
+        [
+            null,
+            "Directeur.rice·rice des Campagnes Publicitaires"
+        ],
+        [
+            null,
+            "Directeur.rice·rice des Médias"
+        ],
+        [
+            null,
+            "Directeur.rice·rice des Stratégies Publicitaires"
+        ],
+        [
+            null,
+            "Responsable de la Communication Publicitaire"
+        ],
+        [
+            null,
+            "Responsable de la Création Publicitaire"
+        ],
+        [
+            null,
+            "Responsable de la Créativité Publicitaire"
+        ],
+        [
+            null,
+            "Responsable de la Planification Publicitaire"
+        ],
+        [
+            null,
+            "Responsable de la Production Publicitaire"
+        ],
+        [
+            null,
+            "Responsable de la Publicité"
+        ],
+        [
+            null,
+            "Responsable des Achats Média"
+        ],
+        [
+            null,
+            "Responsable des Campagnes Publicitaires"
+        ],
+        [
+            null,
+            "Responsable des Médias"
+        ],
+        [
+            null,
+            "Responsable des Stratégies Publicitaires"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "DIRECTION R&D&INNOVATION "
+        ],
+        [
+            null,
+            "Analyste de données"
+        ],
+        [
+            null,
+            "Chef.fe de projet développement"
+        ],
+        [
+            null,
+            "Chef.fe de projet innovation"
+        ],
+        [
+            null,
+            "Chef.fe de projet R&D"
+        ],
+        [
+            null,
+            "Chercheur.e"
+        ],
+        [
+            null,
+            "Concepteur.trice de produits"
+        ],
+        [
+            null,
+            "Consultant.e.e en stratégie de recherche, développement et innovation"
+        ],
+        [
+            null,
+            "Designer.e industriel.le"
+        ],
+        [
+            null,
+            "Directeur.rice.rice de la recherche, développement et innovation (R&D&I)"
+        ],
+        [
+            null,
+            "Expert.e en intelligence artificielle"
+        ],
+        [
+            null,
+            "Gestionnaire de portefeuille de projets R&D&I"
+        ],
+        [
+            null,
+            "Ingénieur.e de recherche"
+        ],
+        [
+            null,
+            "Ingénieur.e développement produit"
+        ],
+        [
+            null,
+            "Ingénieur.e R&D informatique"
+        ],
+        [
+            null,
+            "Responsable de l'innovation"
+        ],
+        [
+            null,
+            "Responsable de la recherche"
+        ],
+        [
+            null,
+            "Responsable de la veille technologique"
+        ],
+        [
+            null,
+            "Responsable du développement"
+        ],
+        [
+            null,
+            "Responsable du laboratoire de R&D"
+        ],
+        [
+            null,
+            "Technicien.ne de développement"
+        ],
+        [
+            null,
+            "Technicien.ne de recherche"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "DIRECTION RSE"
+        ],
+        [
+            null,
+            "Consultant.e.e RSE"
+        ],
+        [
+            null,
+            "Directeur.rice·rice de l'Éthique et de la Conformité"
+        ],
+        [
+            null,
+            "Directeur.rice·rice de l'Innovation Sociale"
+        ],
+        [
+            null,
+            "Directeur.rice·rice de la Communication RSE"
+        ],
+        [
+            null,
+            "Directeur.rice·rice de la Gouvernance d'entreprise"
+        ],
+        [
+            null,
+            "Directeur.rice·rice de la Performance Sociétale"
+        ],
+        [
+            null,
+            "Directeur.rice·rice de la Responsabilité Sociétale des Entreprises (RSE)"
+        ],
+        [
+            null,
+            "Directeur.rice·rice de la Sensibilisation et de l'Éducation RSE"
+        ],
+        [
+            null,
+            "Directeur.rice·rice de la Stratégie RSE"
+        ],
+        [
+            null,
+            "Directeur.rice·rice de la Transformation responsable"
+        ],
+        [
+            null,
+            "Directeur.rice·rice du Développement Durable"
+        ],
+        [
+            null,
+            "Responsable de l'Éthique et de la Conformité"
+        ],
+        [
+            null,
+            "Responsable de l'Innovation Sociale"
+        ],
+        [
+            null,
+            "Responsable de la Communication RSE"
+        ],
+        [
+            null,
+            "Responsable de la Gouvernance d'entreprise"
+        ],
+        [
+            null,
+            "Responsable de la Performance Sociétale"
+        ],
+        [
+            null,
+            "Responsable de la RSE"
+        ],
+        [
+            null,
+            "Responsable de la Sensibilisation et de l'Éducation RSE"
+        ],
+        [
+            null,
+            "Responsable de la Stratégie RSE"
+        ],
+        [
+            null,
+            "Responsable de la Transformation responsable"
+        ],
+        [
+            null,
+            "Responsable du Développement Durable"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "DIRECTION RESSOURCES HUMAINES"
+        ],
+        [
+            null,
+            "Consultant.e.e RH"
+        ],
+        [
+            null,
+            "Directeur.rice·rice de la Communication interne"
+        ],
+        [
+            null,
+            "Directeur.rice·rice de la Diversité et de l'Inclusion"
+        ],
+        [
+            null,
+            "Directeur.rice·rice de la Formation et du Développement des Compétences"
+        ],
+        [
+            null,
+            "Directeur.rice·rice de la Gestion des Carrières"
+        ],
+        [
+            null,
+            "Directeur.rice·rice de la Gestion des Talents"
+        ],
+        [
+            null,
+            "Directeur.rice·rice de la Qualité de vie et des condition de travail (QVCT)"
+        ],
+        [
+            null,
+            "Directeur.rice·rice de la Santé et Sécurité au travail"
+        ],
+        [
+            null,
+            "Directeur.rice·rice des Ressources humaines (DRH)"
+        ],
+        [
+            null,
+            "Directeur.rice·rice du Développement des Ressources humaines (DDRH)"
+        ],
+        [
+            null,
+            "Directeur.rice·rice du Recrutement et de la Sélection"
+        ],
+        [
+            null,
+            "Responsable de la Communication interne"
+        ],
+        [
+            null,
+            "Responsable de la Diversité et de l'Inclusion"
+        ],
+        [
+            null,
+            "Responsable de la Formation et du Développement des Compétences"
+        ],
+        [
+            null,
+            "Responsable de la Gestion des Carrières"
+        ],
+        [
+            null,
+            "Responsable de la Gestion des Talents"
+        ],
+        [
+            null,
+            "Responsable de la Qualité de vie au travail"
+        ],
+        [
+            null,
+            "Responsable de la Santé et Sécurité au travail"
+        ],
+        [
+            null,
+            "Responsable des Ressources humaines (RRH)"
+        ],
+        [
+            null,
+            "Responsable du Développement des Ressources humaines (RDRH)"
+        ],
+        [
+            null,
+            "Responsable du Recrutement et de la Sélection"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "DIRECTION DES SERVICES"
+        ],
+        [
+            null,
+            "Analyste de service client"
+        ],
+        [
+            null,
+            "Chargé.e de clientèle"
+        ],
+        [
+            null,
+            "Chargé.e de relation client"
+        ],
+        [
+            null,
+            "Chef de projet services"
+        ],
+        [
+            null,
+            "Chef du service client"
+        ],
+        [
+            null,
+            "Consultant.e en service client"
+        ],
+        [
+            null,
+            "Coordinateur de service client"
+        ],
+        [
+            null,
+            "Directeur.rice de l'expérience client"
+        ],
+        [
+            null,
+            "Directeur.rice de la relation client"
+        ],
+        [
+            null,
+            "Directeur.rice des opérations de service"
+        ],
+        [
+            null,
+            "Directeur.rice des services"
+        ],
+        [
+            null,
+            "Formateur service client"
+        ],
+        [
+            null,
+            "Gestionnaire de contrats de service"
+        ],
+        [
+            null,
+            "Gestionnaire de la satisfaction client"
+        ],
+        [
+            null,
+            "Gestionnaire de service après-vente (SAV)"
+        ],
+        [
+            null,
+            "Manager de service client"
+        ],
+        [
+            null,
+            "Planificateur de services"
+        ],
+        [
+            null,
+            "Responsable de l'expérience client"
+        ],
+        [
+            null,
+            "Responsable de la fidélisation client"
+        ],
+        [
+            null,
+            "Responsable de la qualité de service"
+        ],
+        [
+            null,
+            "Responsable des centres d'appels"
+        ],
+        [
+            null,
+            "Responsable des opérations de service"
+        ],
+        [
+            null,
+            "Responsable des services techniques"
+        ],
+        [
+            null,
+            "Responsable du service après-vente (SAV)"
+        ],
+        [
+            null,
+            "Responsable support client"
+        ],
+        [
+            null,
+            "Responsable téléservices"
+        ],
+        [
+            null,
+            "Spécialiste de la formation client"
+        ],
+        [
+            null,
+            "Superviseur de service client"
+        ],
+        [
+            null,
+            "Technicien de service sur site"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "DIRECTION DES SYSTÈMES D’INFORMATION"
+        ],
+        [
+            null,
+            "Analyste de données"
+        ],
+        [
+            null,
+            "Data Scientist"
+        ],
+        [
+            null,
+            "Consultant.e.e en stratégie des systèmes d’information"
+        ],
+        [
+            null,
+            "Directeur.rice·rice de l'Architecture des Systèmes d'Information"
+        ],
+        [
+            null,
+            "Directeur.rice·rice de l'Exploitation des Systèmes d'Information"
+        ],
+        [
+            null,
+            "Directeur.rice·rice de l'Intelligence Artificielle (IA)"
+        ],
+        [
+            null,
+            "Directeur.rice·rice de la Cybersécurité"
+        ],
+        [
+            null,
+            "Directeur.rice·rice de la Gouvernance des Systèmes d'Information"
+        ],
+        [
+            null,
+            "Directeur.rice·rice de la Sécurité des Systèmes d'Information (SSI)"
+        ],
+        [
+            null,
+            "Directeur.rice·rice de la Transformation Numérique"
+        ],
+        [
+            null,
+            "Directeur.rice·rice des Opérations IT"
+        ],
+        [
+            null,
+            "Directeur.rice·rice des Systèmes d'Information (DSI)"
+        ],
+        [
+            null,
+            "Directeur.rice·rice du Big Data"
+        ],
+        [
+            null,
+            "Directeur.rice·rice Informatique"
+        ],
+        [
+            null,
+            "Responsable de l'Architecture des Systèmes d'Information"
+        ],
+        [
+            null,
+            "Responsable de l'Exploitation des Systèmes d'Information"
+        ],
+        [
+            null,
+            "Responsable de l'Intelligence Artificielle (IA)"
+        ],
+        [
+            null,
+            "Responsable de la Cybersécurité"
+        ],
+        [
+            null,
+            "Responsable de la Gouvernance des Systèmes d'Information"
+        ],
+        [
+            null,
+            "Responsable de la Sécurité des Systèmes d'Information (RSSI)"
+        ],
+        [
+            null,
+            "Responsable de la Transformation Numérique"
+        ],
+        [
+            null,
+            "Responsable des Opérations IT"
+        ],
+        [
+            null,
+            "Responsable des Systèmes d'Information"
+        ],
+        [
+            null,
+            "Responsable du Big Data"
+        ],
+        [
+            null,
+            "Responsable Informatique"
+        ],
+        [
+            "DIRECTION SÉCURITÉ & SANTÉ AU TRAVAIL"
+        ],
+        [
+            null,
+            "Consultant.e.e en sécurité et santé au travail"
+        ],
+        [
+            null,
+            "Directeur.rice·rice de la Gestion de la Santé et de la Sécurité au Travail"
+        ],
+        [
+            null,
+            "Directeur.rice·rice de la Gestion des Risques Professionnels"
+        ],
+        [
+            null,
+            "Directeur.rice·rice de la Hygiène Industrielle"
+        ],
+        [
+            null,
+            "Directeur.rice·rice de la Médecine du Travail"
+        ],
+        [
+            null,
+            "Directeur.rice·rice de la Prévention des Risques Professionnels"
+        ],
+        [
+            null,
+            "Directeur.rice·rice de la Prévention et de la Protection"
+        ],
+        [
+            null,
+            "Directeur.rice·rice de la Santé au Travail"
+        ],
+        [
+            null,
+            "Directeur.rice·rice de la Sécurité au Travail"
+        ],
+        [
+            null,
+            "Directeur.rice·rice de la Sécurité Industrielle"
+        ],
+        [
+            null,
+            "Directeur.rice·rice Santé-Sécurité au Travail (SST)"
+        ],
+        [
+            null,
+            "Ergonome du poste de travail"
+        ],
+        [
+            null,
+            "Responsable de la Gestion de la Santé et de la Sécurité au Travail"
+        ],
+        [
+            null,
+            "Responsable de la Gestion des Risques Professionnels"
+        ],
+        [
+            null,
+            "Responsable de la Hygiène Industrielle"
+        ],
+        [
+            null,
+            "Responsable de la Médecine du Travail"
+        ],
+        [
+            null,
+            "Responsable de la Prévention des Risques Professionnels"
+        ],
+        [
+            null,
+            "Responsable de la Prévention et de la Protection"
+        ],
+        [
+            null,
+            "Responsable de la Santé au Travail"
+        ],
+        [
+            null,
+            "Responsable de la Sécurité au Travail"
+        ],
+        [
+            null,
+            "Responsable de la Sécurité Industrielle"
+        ],
+        [
+            null,
+            "Responsable Santé-Sécurité au Travail (SST)"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "DIRECTION SÛRETÉ-SÉCURITÉ"
+        ],
+        [
+            null,
+            "Consultant.e.e en sécurité-sûreté"
+        ],
+        [
+            null,
+            "Directeur.rice·rice de la Continuité des Activités"
+        ],
+        [
+            null,
+            "Directeur.rice·rice de la Cyberdéfense"
+        ],
+        [
+            null,
+            "Directeur.rice·rice de la Cyberprévention"
+        ],
+        [
+            null,
+            "Directeur.rice·rice de la Gestion des Risques"
+        ],
+        [
+            null,
+            "Directeur.rice·rice de la Prévention et de la Protection"
+        ],
+        [
+            null,
+            "Directeur.rice·rice de la Sécurité"
+        ],
+        [
+            null,
+            "Directeur.rice·rice de la Sécurité des Systèmes de Sécurité électronique"
+        ],
+        [
+            null,
+            "Directeur.rice·rice de la Sécurité Informatique"
+        ],
+        [
+            null,
+            "Directeur.rice·rice de la Sécurité Physique"
+        ],
+        [
+            null,
+            "Directeur.rice·rice de la Sûreté"
+        ],
+        [
+            null,
+            "Directeur.rice·rice Sécurité-Sûreté"
+        ],
+        [
+            null,
+            "Responsable de la Continuité des Activités"
+        ],
+        [
+            null,
+            "Responsable de la Cyberdéfense"
+        ],
+        [
+            null,
+            "Responsable de la Cyberprévention"
+        ],
+        [
+            null,
+            "Responsable de la Gestion des Risques"
+        ],
+        [
+            null,
+            "Responsable de la Prévention et de la Protection"
+        ],
+        [
+            null,
+            "Responsable de la Sécurité"
+        ],
+        [
+            null,
+            "Responsable de la Sécurité des Systèmes de Sécurité électronique"
+        ],
+        [
+            null,
+            "Responsable de la Sécurité Informatique"
+        ],
+        [
+            null,
+            "Responsable de la Sécurité Physique"
+        ],
+        [
+            null,
+            "Responsable de la Sûreté"
+        ],
+        [
+            null,
+            "Responsable Sécurité-Sûreté"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "DIRECTION TRANSPORTS"
+        ],
+        [
+            null,
+            "Consultant.e.e en stratégie de transport"
+        ],
+        [
+            null,
+            "Directeur.rice·rice de la logistique des transports"
+        ],
+        [
+            null,
+            "Directeur.rice·rice des opérations de transport"
+        ],
+        [
+            null,
+            "Directeur.rice·rice des services de transport"
+        ],
+        [
+            null,
+            "Directeur.rice·rice des transports"
+        ],
+        [
+            null,
+            "Exploitant.e"
+        ],
+        [
+            null,
+            "Formateur.trice à l’éco-conduite"
+        ],
+        [
+            null,
+            "Responsable de l'exploitation des transports"
+        ],
+        [
+            null,
+            "Responsable de la distribution des marchandises"
+        ],
+        [
+            null,
+            "Responsable de la gestion des flottes"
+        ],
+        [
+            null,
+            "Responsable de la logistique des transports"
+        ],
+        [
+            null,
+            "Responsable de la planification des transports"
+        ],
+        [
+            null,
+            "Responsable de la qualité de service des transports"
+        ],
+        [
+            null,
+            "Responsable de la réglementation des transports"
+        ],
+        [
+            null,
+            "Responsable de la sécurité des transports"
+        ],
+        [
+            null,
+            "Responsable de la tarification des transports"
+        ],
+        [
+            null,
+            "Responsable des affrètements"
+        ],
+        [
+            null,
+            "Responsable des opérations de transport"
+        ],
+        [
+            null,
+            "Responsable des relations avec les transporteurs"
+        ],
+        [
+            null,
+            "Responsable des services de transport"
+        ],
+        [
+            null,
+            "Responsable des systèmes d'information transport"
+        ],
+        [
+            null,
+            "Responsable des transports"
+        ],
+        [
+            null,
+            "Responsable du développement durable des transports"
+        ],
+        [
+            null,
+            "Autres"
+        ]
+    ]
+}

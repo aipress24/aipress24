@@ -1,0 +1,175 @@
+{
+    "table": [
+        [
+            "Types d’organisation"
+        ],
+        [
+            null,
+            "Agence de presse"
+        ],
+        [
+            null,
+            "Association de Journalistes"
+        ],
+        [
+            null,
+            "Chaîne d'information en continu"
+        ],
+        [
+            null,
+            "Chaîne de radio"
+        ],
+        [
+            null,
+            "Chaîne de radio institutionnelle"
+        ],
+        [
+            null,
+            "Chaîne de télévision"
+        ],
+        [
+            null,
+            "Chaîne de télévision institutionnelle"
+        ],
+        [
+            null,
+            "Club de la Presse"
+        ],
+        [
+            null,
+            "Editeur de magazines"
+        ],
+        [
+            null,
+            "Editeur de presse quotidienne"
+        ],
+        [
+            null,
+            "Editeur de revue professionnelles"
+        ],
+        [
+            null,
+            "Editeur de revues spécialisées"
+        ],
+        [
+            null,
+            "Editeur de service de presse en ligne (SPEL)"
+        ],
+        [
+            null,
+            "Editeur de Webzines"
+        ],
+        [
+            null,
+            "Fanzine"
+        ],
+        [
+            null,
+            "Fédération d’Agences de Presse"
+        ],
+        [
+            null,
+            "Journaliste en Micro-Entreprise avec carte de presse"
+        ],
+        [
+            null,
+            "Journaliste en Micro-entreprise sans carte de presse"
+        ],
+        [
+            null,
+            "Magazine hebdomadaire"
+        ],
+        [
+            null,
+            "Magazine hebdomadaire national"
+        ],
+        [
+            null,
+            "Portail d'information en ligne"
+        ],
+        [
+            null,
+            "Presse écrite"
+        ],
+        [
+            null,
+            "Presse en ligne"
+        ],
+        [
+            null,
+            "Presse quotidienne spécialisée"
+        ],
+        [
+            null,
+            "Radio "
+        ],
+        [
+            null,
+            "Régie publicitaire"
+        ],
+        [
+            null,
+            "Société de post-production"
+        ],
+        [
+            null,
+            "Société de production audiovisuelle"
+        ],
+        [
+            null,
+            "Société de production de contenus numériques"
+        ],
+        [
+            null,
+            "Société de production de documentaires"
+        ],
+        [
+            null,
+            "Société de production de podcasts"
+        ],
+        [
+            null,
+            "Société de production radiophonique"
+        ],
+        [
+            null,
+            "Société de production télévisuelle"
+        ],
+        [
+            null,
+            "Studio de création numérique"
+        ],
+        [
+            null,
+            "Studio de design graphique"
+        ],
+        [
+            null,
+            "Syndicat d’Agences de Presse"
+        ],
+        [
+            null,
+            "Syndicat de médias"
+        ],
+        [
+            null,
+            "Syndicat de Publications de presse"
+        ],
+        [
+            null,
+            "TV"
+        ],
+        [
+            null,
+            "WebRadio"
+        ],
+        [
+            null,
+            "WebTV"
+        ],
+        [
+            null,
+            "Autres"
+        ]
+    ]
+}

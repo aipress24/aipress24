@@ -1,0 +1,2392 @@
+{
+    "field1": [
+        [
+            "DIRECTION GÉNÉRALE",
+            "DIRECTION GÉNÉRALE"
+        ],
+        [
+            "DIRECTION COMMERCIALE",
+            "DIRECTION COMMERCIALE"
+        ],
+        [
+            "DIRECTION DE LA COMMUNICATION",
+            "DIRECTION DE LA COMMUNICATION"
+        ],
+        [
+            "DIRECTION ACHATS",
+            "DIRECTION ACHATS"
+        ],
+        [
+            "DIRECTION ADMINISTRATIVE",
+            "DIRECTION ADMINISTRATIVE"
+        ],
+        [
+            "DIRECTION ARTISTIQUE",
+            "DIRECTION ARTISTIQUE"
+        ],
+        [
+            "DIRECTION ENVIRONNEMENT",
+            "DIRECTION ENVIRONNEMENT"
+        ],
+        [
+            "DIRECTION FINANCIÈRE",
+            "DIRECTION FINANCIÈRE"
+        ],
+        [
+            "DIRECTION DE LA GESTION DES RISQUES",
+            "DIRECTION DE LA GESTION DES RISQUES"
+        ],
+        [
+            "DIRECTION DES INVESTISSEMENTS",
+            "DIRECTION DES INVESTISSEMENTS"
+        ],
+        [
+            "DIRECTION JURIDIQUE",
+            "DIRECTION JURIDIQUE"
+        ],
+        [
+            "DIRECTION LOGISTIQUE",
+            "DIRECTION LOGISTIQUE"
+        ],
+        [
+            "DIRECTION MARKETING",
+            "DIRECTION MARKETING"
+        ],
+        [
+            "DIRECTION PRODUCTION",
+            "DIRECTION PRODUCTION"
+        ],
+        [
+            "DIRECTION PUBLICITÉ",
+            "DIRECTION PUBLICITÉ"
+        ],
+        [
+            "DIRECTION R&D&INNOVATION",
+            "DIRECTION R&D&INNOVATION"
+        ],
+        [
+            "DIRECTION RSE",
+            "DIRECTION RSE"
+        ],
+        [
+            "DIRECTION RESSOURCES HUMAINES",
+            "DIRECTION RESSOURCES HUMAINES"
+        ],
+        [
+            "DIRECTION DES SERVICES",
+            "DIRECTION DES SERVICES"
+        ],
+        [
+            "DIRECTION DES SYSTÈMES D’INFORMATION",
+            "DIRECTION DES SYSTÈMES D’INFORMATION"
+        ],
+        [
+            "DIRECTION SÉCURITÉ & SANTÉ AU TRAVAIL",
+            "DIRECTION SÉCURITÉ & SANTÉ AU TRAVAIL"
+        ],
+        [
+            "DIRECTION SÛRETÉ-SÉCURITÉ",
+            "DIRECTION SÛRETÉ-SÉCURITÉ"
+        ],
+        [
+            "DIRECTION TRANSPORTS",
+            "DIRECTION TRANSPORTS"
+        ]
+    ],
+    "field2": {
+        "DIRECTION GÉNÉRALE": [
+            [
+                "DIRECTION GÉNÉRALE;Co-fondatreur.trice",
+                "DIRECTION GÉNÉRALE / Co-fondatreur.trice"
+            ],
+            [
+                "DIRECTION GÉNÉRALE;Co-gérant.e",
+                "DIRECTION GÉNÉRALE / Co-gérant.e"
+            ],
+            [
+                "DIRECTION GÉNÉRALE;Consultant.e.e en management",
+                "DIRECTION GÉNÉRALE / Consultant.e.e en management"
+            ],
+            [
+                "DIRECTION GÉNÉRALE;Consultant.e.e en stratégie",
+                "DIRECTION GÉNÉRALE / Consultant.e.e en stratégie"
+            ],
+            [
+                "DIRECTION GÉNÉRALE;Directeur.rice.trice général.e (DG)",
+                "DIRECTION GÉNÉRALE / Directeur.rice.trice général.e (DG)"
+            ],
+            [
+                "DIRECTION GÉNÉRALE;Directeur.rice.trice général.e adjoint.e (DGA)",
+                "DIRECTION GÉNÉRALE / Directeur.rice.trice général.e adjoint.e (DGA)"
+            ],
+            [
+                "DIRECTION GÉNÉRALE;Fondateur.trice",
+                "DIRECTION GÉNÉRALE / Fondateur.trice"
+            ],
+            [
+                "DIRECTION GÉNÉRALE;Gérant.e",
+                "DIRECTION GÉNÉRALE / Gérant.e"
+            ],
+            [
+                "DIRECTION GÉNÉRALE;Président.e",
+                "DIRECTION GÉNÉRALE / Président.e"
+            ],
+            [
+                "DIRECTION GÉNÉRALE;Président.e du Conseil de surveillance",
+                "DIRECTION GÉNÉRALE / Président.e du Conseil de surveillance"
+            ],
+            [
+                "DIRECTION GÉNÉRALE;Président.e du Directoire",
+                "DIRECTION GÉNÉRALE / Président.e du Directoire"
+            ],
+            [
+                "DIRECTION GÉNÉRALE;Président.e-Directeur.rice.trice général.e (PDG)",
+                "DIRECTION GÉNÉRALE / Président.e-Directeur.rice.trice général.e (PDG)"
+            ],
+            [
+                "DIRECTION GÉNÉRALE;Secrétaire général.e (SG)",
+                "DIRECTION GÉNÉRALE / Secrétaire général.e (SG)"
+            ],
+            [
+                "DIRECTION GÉNÉRALE;Vice-président.e (VP)",
+                "DIRECTION GÉNÉRALE / Vice-président.e (VP)"
+            ],
+            [
+                "DIRECTION GÉNÉRALE;Autres",
+                "DIRECTION GÉNÉRALE / Autres"
+            ]
+        ],
+        "DIRECTION COMMERCIALE": [
+            [
+                "DIRECTION COMMERCIALE;Chef.fe de marché",
+                "DIRECTION COMMERCIALE / Chef.fe de marché"
+            ],
+            [
+                "DIRECTION COMMERCIALE;Chef.fe de secteur",
+                "DIRECTION COMMERCIALE / Chef.fe de secteur"
+            ],
+            [
+                "DIRECTION COMMERCIALE;Chef.fe des ventes",
+                "DIRECTION COMMERCIALE / Chef.fe des ventes"
+            ],
+            [
+                "DIRECTION COMMERCIALE;Consultant.e.e en stratégie de ventes",
+                "DIRECTION COMMERCIALE / Consultant.e.e en stratégie de ventes"
+            ],
+            [
+                "DIRECTION COMMERCIALE;Directeur.rice régional des ventes",
+                "DIRECTION COMMERCIALE / Directeur.rice régional des ventes"
+            ],
+            [
+                "DIRECTION COMMERCIALE;Directeur.rice.trice commercial.e",
+                "DIRECTION COMMERCIALE / Directeur.rice.trice commercial.e"
+            ],
+            [
+                "DIRECTION COMMERCIALE;Directeur.rice.trice des opérations commerciales",
+                "DIRECTION COMMERCIALE / Directeur.rice.trice des opérations commerciales"
+            ],
+            [
+                "DIRECTION COMMERCIALE;Directeur.rice.trice des ventes",
+                "DIRECTION COMMERCIALE / Directeur.rice.trice des ventes"
+            ],
+            [
+                "DIRECTION COMMERCIALE;Responsable commercial",
+                "DIRECTION COMMERCIALE / Responsable commercial"
+            ],
+            [
+                "DIRECTION COMMERCIALE;Responsable des ventes",
+                "DIRECTION COMMERCIALE / Responsable des ventes"
+            ],
+            [
+                "DIRECTION COMMERCIALE;Responsable des ventes B2B (entreprises à entreprises)",
+                "DIRECTION COMMERCIALE / Responsable des ventes B2B (entreprises à entreprises)"
+            ],
+            [
+                "DIRECTION COMMERCIALE;Responsable des ventes B2C (entreprises à consommateurs)",
+                "DIRECTION COMMERCIALE / Responsable des ventes B2C (entreprises à consommateurs)"
+            ],
+            [
+                "DIRECTION COMMERCIALE;Responsable des ventes de détail",
+                "DIRECTION COMMERCIALE / Responsable des ventes de détail"
+            ],
+            [
+                "DIRECTION COMMERCIALE;Responsable des ventes directes",
+                "DIRECTION COMMERCIALE / Responsable des ventes directes"
+            ],
+            [
+                "DIRECTION COMMERCIALE;Responsable des ventes en ligne (e-commerce)",
+                "DIRECTION COMMERCIALE / Responsable des ventes en ligne (e-commerce)"
+            ],
+            [
+                "DIRECTION COMMERCIALE;Responsable des ventes indirectes",
+                "DIRECTION COMMERCIALE / Responsable des ventes indirectes"
+            ],
+            [
+                "DIRECTION COMMERCIALE;Responsable des ventes internationales",
+                "DIRECTION COMMERCIALE / Responsable des ventes internationales"
+            ],
+            [
+                "DIRECTION COMMERCIALE;Responsable des ventes spécialisées",
+                "DIRECTION COMMERCIALE / Responsable des ventes spécialisées"
+            ],
+            [
+                "DIRECTION COMMERCIALE;Responsable des ventes stratégiques",
+                "DIRECTION COMMERCIALE / Responsable des ventes stratégiques"
+            ],
+            [
+                "DIRECTION COMMERCIALE;Responsable des ventes techniques",
+                "DIRECTION COMMERCIALE / Responsable des ventes techniques"
+            ],
+            [
+                "DIRECTION COMMERCIALE;Responsable grands comptes",
+                "DIRECTION COMMERCIALE / Responsable grands comptes"
+            ],
+            [
+                "DIRECTION COMMERCIALE;Autres",
+                "DIRECTION COMMERCIALE / Autres"
+            ]
+        ],
+        "DIRECTION DE LA COMMUNICATION": [
+            [
+                "DIRECTION DE LA COMMUNICATION;Chargé.e.e de la communication corporate",
+                "DIRECTION DE LA COMMUNICATION / Chargé.e.e de la communication corporate"
+            ],
+            [
+                "DIRECTION DE LA COMMUNICATION;Chargé.e.e de la communication de crise",
+                "DIRECTION DE LA COMMUNICATION / Chargé.e.e de la communication de crise"
+            ],
+            [
+                "DIRECTION DE LA COMMUNICATION;Chargé.e.e de la communication de marque",
+                "DIRECTION DE LA COMMUNICATION / Chargé.e.e de la communication de marque"
+            ],
+            [
+                "DIRECTION DE LA COMMUNICATION;Chargé.e.e de la communication événementielle",
+                "DIRECTION DE LA COMMUNICATION / Chargé.e.e de la communication événementielle"
+            ],
+            [
+                "DIRECTION DE LA COMMUNICATION;Chargé.e.e de la communication externe digitale",
+                "DIRECTION DE LA COMMUNICATION / Chargé.e.e de la communication externe digitale"
+            ],
+            [
+                "DIRECTION DE LA COMMUNICATION;Chargé.e.e de la communication financière",
+                "DIRECTION DE LA COMMUNICATION / Chargé.e.e de la communication financière"
+            ],
+            [
+                "DIRECTION DE LA COMMUNICATION;Chargé.e.e de la communication interne digitale",
+                "DIRECTION DE LA COMMUNICATION / Chargé.e.e de la communication interne digitale"
+            ],
+            [
+                "DIRECTION DE LA COMMUNICATION;Chargé.e.e de la communication produit",
+                "DIRECTION DE LA COMMUNICATION / Chargé.e.e de la communication produit"
+            ],
+            [
+                "DIRECTION DE LA COMMUNICATION;Chargé.e.e des médias sociaux",
+                "DIRECTION DE LA COMMUNICATION / Chargé.e.e des médias sociaux"
+            ],
+            [
+                "DIRECTION DE LA COMMUNICATION;Chargé.e.e des relations institutionnelles",
+                "DIRECTION DE LA COMMUNICATION / Chargé.e.e des relations institutionnelles"
+            ],
+            [
+                "DIRECTION DE LA COMMUNICATION;Chargé.e.e des relations presse",
+                "DIRECTION DE LA COMMUNICATION / Chargé.e.e des relations presse"
+            ],
+            [
+                "DIRECTION DE LA COMMUNICATION;Chargé.e.e des relations publiques",
+                "DIRECTION DE LA COMMUNICATION / Chargé.e.e des relations publiques"
+            ],
+            [
+                "DIRECTION DE LA COMMUNICATION;Chargé.e.e des relations publiques et événementielles",
+                "DIRECTION DE LA COMMUNICATION / Chargé.e.e des relations publiques et événementielles"
+            ],
+            [
+                "DIRECTION DE LA COMMUNICATION;Chargé.e.e du marketing digital",
+                "DIRECTION DE LA COMMUNICATION / Chargé.e.e du marketing digital"
+            ],
+            [
+                "DIRECTION DE LA COMMUNICATION;Consultant.e.e en communication",
+                "DIRECTION DE LA COMMUNICATION / Consultant.e.e en communication"
+            ],
+            [
+                "DIRECTION DE LA COMMUNICATION;Directeur.rice.trice de la communication",
+                "DIRECTION DE LA COMMUNICATION / Directeur.rice.trice de la communication"
+            ],
+            [
+                "DIRECTION DE LA COMMUNICATION;Responsable de la communication audiovisuelle",
+                "DIRECTION DE LA COMMUNICATION / Responsable de la communication audiovisuelle"
+            ],
+            [
+                "DIRECTION DE LA COMMUNICATION;Responsable de la communication externe",
+                "DIRECTION DE LA COMMUNICATION / Responsable de la communication externe"
+            ],
+            [
+                "DIRECTION DE LA COMMUNICATION;Responsable de la communication interne",
+                "DIRECTION DE LA COMMUNICATION / Responsable de la communication interne"
+            ],
+            [
+                "DIRECTION DE LA COMMUNICATION;Responsable de la communication visuelle",
+                "DIRECTION DE LA COMMUNICATION / Responsable de la communication visuelle"
+            ],
+            [
+                "DIRECTION DE LA COMMUNICATION;Responsable des partenariats",
+                "DIRECTION DE LA COMMUNICATION / Responsable des partenariats"
+            ],
+            [
+                "DIRECTION DE LA COMMUNICATION;Autres",
+                "DIRECTION DE LA COMMUNICATION / Autres"
+            ]
+        ],
+        "DIRECTION ACHATS": [
+            [
+                "DIRECTION ACHATS;Acheteur.e",
+                "DIRECTION ACHATS / Acheteur.e"
+            ],
+            [
+                "DIRECTION ACHATS;Acheteur.e senior",
+                "DIRECTION ACHATS / Acheteur.e senior"
+            ],
+            [
+                "DIRECTION ACHATS;Category manager",
+                "DIRECTION ACHATS / Category manager"
+            ],
+            [
+                "DIRECTION ACHATS;Chef.fe de groupe achats",
+                "DIRECTION ACHATS / Chef.fe de groupe achats"
+            ],
+            [
+                "DIRECTION ACHATS;Chef.fe de projet achats",
+                "DIRECTION ACHATS / Chef.fe de projet achats"
+            ],
+            [
+                "DIRECTION ACHATS;Consultant.e.e en stratégie d’achats",
+                "DIRECTION ACHATS / Consultant.e.e en stratégie d’achats"
+            ],
+            [
+                "DIRECTION ACHATS;Directeur.rice.trice des achats",
+                "DIRECTION ACHATS / Directeur.rice.trice des achats"
+            ],
+            [
+                "DIRECTION ACHATS;Responsable des achats",
+                "DIRECTION ACHATS / Responsable des achats"
+            ],
+            [
+                "DIRECTION ACHATS;Responsable des achats de services",
+                "DIRECTION ACHATS / Responsable des achats de services"
+            ],
+            [
+                "DIRECTION ACHATS;Responsable des achats directs",
+                "DIRECTION ACHATS / Responsable des achats directs"
+            ],
+            [
+                "DIRECTION ACHATS;Responsable des achats durables",
+                "DIRECTION ACHATS / Responsable des achats durables"
+            ],
+            [
+                "DIRECTION ACHATS;Responsable des achats indirects",
+                "DIRECTION ACHATS / Responsable des achats indirects"
+            ],
+            [
+                "DIRECTION ACHATS;Responsable des achats informatiques",
+                "DIRECTION ACHATS / Responsable des achats informatiques"
+            ],
+            [
+                "DIRECTION ACHATS;Responsable des achats internationaux",
+                "DIRECTION ACHATS / Responsable des achats internationaux"
+            ],
+            [
+                "DIRECTION ACHATS;Responsable des achats logistiques",
+                "DIRECTION ACHATS / Responsable des achats logistiques"
+            ],
+            [
+                "DIRECTION ACHATS;Responsable des achats publics",
+                "DIRECTION ACHATS / Responsable des achats publics"
+            ],
+            [
+                "DIRECTION ACHATS;Responsable des achats stratégiques",
+                "DIRECTION ACHATS / Responsable des achats stratégiques"
+            ],
+            [
+                "DIRECTION ACHATS;Responsable des achats techniques",
+                "DIRECTION ACHATS / Responsable des achats techniques"
+            ],
+            [
+                "DIRECTION ACHATS;Responsable des approvisionnements",
+                "DIRECTION ACHATS / Responsable des approvisionnements"
+            ],
+            [
+                "DIRECTION ACHATS;Responsable des contrats et des négociation",
+                "DIRECTION ACHATS / Responsable des contrats et des négociation"
+            ],
+            [
+                "DIRECTION ACHATS;Responsable des relations fournisseurs",
+                "DIRECTION ACHATS / Responsable des relations fournisseurs"
+            ],
+            [
+                "DIRECTION ACHATS;Autres",
+                "DIRECTION ACHATS / Autres"
+            ]
+        ],
+        "DIRECTION ADMINISTRATIVE": [
+            [
+                "DIRECTION ADMINISTRATIVE;Directeur.rice.trice administratif",
+                "DIRECTION ADMINISTRATIVE / Directeur.rice.trice administratif"
+            ],
+            [
+                "DIRECTION ADMINISTRATIVE;Directeur.rice.trice administratif et financier (DAF)",
+                "DIRECTION ADMINISTRATIVE / Directeur.rice.trice administratif et financier (DAF)"
+            ],
+            [
+                "DIRECTION ADMINISTRATIVE;Directeur.rice.trice de l'administration des ventes",
+                "DIRECTION ADMINISTRATIVE / Directeur.rice.trice de l'administration des ventes"
+            ],
+            [
+                "DIRECTION ADMINISTRATIVE;Directeur.rice.trice de l'administration du personnel",
+                "DIRECTION ADMINISTRATIVE / Directeur.rice.trice de l'administration du personnel"
+            ],
+            [
+                "DIRECTION ADMINISTRATIVE;Directeur.rice.trice de la logistique",
+                "DIRECTION ADMINISTRATIVE / Directeur.rice.trice de la logistique"
+            ],
+            [
+                "DIRECTION ADMINISTRATIVE;Directeur.rice.trice des achats et des approvisionnements",
+                "DIRECTION ADMINISTRATIVE / Directeur.rice.trice des achats et des approvisionnements"
+            ],
+            [
+                "DIRECTION ADMINISTRATIVE;Directeur.rice.trice des affaires juridiques",
+                "DIRECTION ADMINISTRATIVE / Directeur.rice.trice des affaires juridiques"
+            ],
+            [
+                "DIRECTION ADMINISTRATIVE;Directeur.rice.trice des finances",
+                "DIRECTION ADMINISTRATIVE / Directeur.rice.trice des finances"
+            ],
+            [
+                "DIRECTION ADMINISTRATIVE;Directeur.rice.trice des ressources humaines (DRH)",
+                "DIRECTION ADMINISTRATIVE / Directeur.rice.trice des ressources humaines (DRH)"
+            ],
+            [
+                "DIRECTION ADMINISTRATIVE;Directeur.rice.trice des services généraux",
+                "DIRECTION ADMINISTRATIVE / Directeur.rice.trice des services généraux"
+            ],
+            [
+                "DIRECTION ADMINISTRATIVE;Responsable administratif",
+                "DIRECTION ADMINISTRATIVE / Responsable administratif"
+            ],
+            [
+                "DIRECTION ADMINISTRATIVE;Responsable administratif et financier",
+                "DIRECTION ADMINISTRATIVE / Responsable administratif et financier"
+            ],
+            [
+                "DIRECTION ADMINISTRATIVE;Responsable de l'administration des ventes",
+                "DIRECTION ADMINISTRATIVE / Responsable de l'administration des ventes"
+            ],
+            [
+                "DIRECTION ADMINISTRATIVE;Responsable de l'administration du personnel",
+                "DIRECTION ADMINISTRATIVE / Responsable de l'administration du personnel"
+            ],
+            [
+                "DIRECTION ADMINISTRATIVE;Responsable de la logistique",
+                "DIRECTION ADMINISTRATIVE / Responsable de la logistique"
+            ],
+            [
+                "DIRECTION ADMINISTRATIVE;Responsable des achats et des approvisionnements",
+                "DIRECTION ADMINISTRATIVE / Responsable des achats et des approvisionnements"
+            ],
+            [
+                "DIRECTION ADMINISTRATIVE;Responsable des ressources humaines (RRH)",
+                "DIRECTION ADMINISTRATIVE / Responsable des ressources humaines (RRH)"
+            ],
+            [
+                "DIRECTION ADMINISTRATIVE;Responsable des services généraux",
+                "DIRECTION ADMINISTRATIVE / Responsable des services généraux"
+            ],
+            [
+                "DIRECTION ADMINISTRATIVE;Responsable financier",
+                "DIRECTION ADMINISTRATIVE / Responsable financier"
+            ],
+            [
+                "DIRECTION ADMINISTRATIVE;Responsable juridique",
+                "DIRECTION ADMINISTRATIVE / Responsable juridique"
+            ],
+            [
+                "DIRECTION ADMINISTRATIVE;Autres",
+                "DIRECTION ADMINISTRATIVE / Autres"
+            ]
+        ],
+        "DIRECTION ARTISTIQUE": [
+            [
+                "DIRECTION ARTISTIQUE;Consultant.e.e en stratégie artistique",
+                "DIRECTION ARTISTIQUE / Consultant.e.e en stratégie artistique"
+            ],
+            [
+                "DIRECTION ARTISTIQUE;Curateur.rice",
+                "DIRECTION ARTISTIQUE / Curateur.rice"
+            ],
+            [
+                "DIRECTION ARTISTIQUE;Directeur.rice·rice artistique",
+                "DIRECTION ARTISTIQUE / Directeur.rice·rice artistique"
+            ],
+            [
+                "DIRECTION ARTISTIQUE;Directeur.rice·rice de l'Esthétiquee",
+                "DIRECTION ARTISTIQUE / Directeur.rice·rice de l'Esthétiquee"
+            ],
+            [
+                "DIRECTION ARTISTIQUE;Directeur.rice·rice de l'Image",
+                "DIRECTION ARTISTIQUE / Directeur.rice·rice de l'Image"
+            ],
+            [
+                "DIRECTION ARTISTIQUE;Directeur.rice·rice de la Communication Visuelle",
+                "DIRECTION ARTISTIQUE / Directeur.rice·rice de la Communication Visuelle"
+            ],
+            [
+                "DIRECTION ARTISTIQUE;Directeur.rice·rice de la Conception",
+                "DIRECTION ARTISTIQUE / Directeur.rice·rice de la Conception"
+            ],
+            [
+                "DIRECTION ARTISTIQUE;Directeur.rice·rice de la Création",
+                "DIRECTION ARTISTIQUE / Directeur.rice·rice de la Création"
+            ],
+            [
+                "DIRECTION ARTISTIQUE;Directeur.rice·rice de la Créativité",
+                "DIRECTION ARTISTIQUE / Directeur.rice·rice de la Créativité"
+            ],
+            [
+                "DIRECTION ARTISTIQUE;Directeur.rice·rice de la Production Artistique",
+                "DIRECTION ARTISTIQUE / Directeur.rice·rice de la Production Artistique"
+            ],
+            [
+                "DIRECTION ARTISTIQUE;Directeur.rice·rice de la Réalisation Artistique",
+                "DIRECTION ARTISTIQUE / Directeur.rice·rice de la Réalisation Artistique"
+            ],
+            [
+                "DIRECTION ARTISTIQUE;Directeur.rice·rice de la Scénographie",
+                "DIRECTION ARTISTIQUE / Directeur.rice·rice de la Scénographie"
+            ],
+            [
+                "DIRECTION ARTISTIQUE;Expert artistique",
+                "DIRECTION ARTISTIQUE / Expert artistique"
+            ],
+            [
+                "DIRECTION ARTISTIQUE;Responsable Artistique",
+                "DIRECTION ARTISTIQUE / Responsable Artistique"
+            ],
+            [
+                "DIRECTION ARTISTIQUE;Responsable de l'Esthétique",
+                "DIRECTION ARTISTIQUE / Responsable de l'Esthétique"
+            ],
+            [
+                "DIRECTION ARTISTIQUE;Responsable de l'Image",
+                "DIRECTION ARTISTIQUE / Responsable de l'Image"
+            ],
+            [
+                "DIRECTION ARTISTIQUE;Responsable de la Communication Visuelle",
+                "DIRECTION ARTISTIQUE / Responsable de la Communication Visuelle"
+            ],
+            [
+                "DIRECTION ARTISTIQUE;Responsable de la Conception",
+                "DIRECTION ARTISTIQUE / Responsable de la Conception"
+            ],
+            [
+                "DIRECTION ARTISTIQUE;Responsable de la Création",
+                "DIRECTION ARTISTIQUE / Responsable de la Création"
+            ],
+            [
+                "DIRECTION ARTISTIQUE;Responsable de la Créativité",
+                "DIRECTION ARTISTIQUE / Responsable de la Créativité"
+            ],
+            [
+                "DIRECTION ARTISTIQUE;Responsable de la Production Artistique",
+                "DIRECTION ARTISTIQUE / Responsable de la Production Artistique"
+            ],
+            [
+                "DIRECTION ARTISTIQUE;Responsable de la Réalisation Artistique",
+                "DIRECTION ARTISTIQUE / Responsable de la Réalisation Artistique"
+            ],
+            [
+                "DIRECTION ARTISTIQUE;Responsable de la Scénographie",
+                "DIRECTION ARTISTIQUE / Responsable de la Scénographie"
+            ],
+            [
+                "DIRECTION ARTISTIQUE;Autre",
+                "DIRECTION ARTISTIQUE / Autre"
+            ]
+        ],
+        "DIRECTION ENVIRONNEMENT": [
+            [
+                "DIRECTION ENVIRONNEMENT;Consultant.e.e en stratégie environnementale",
+                "DIRECTION ENVIRONNEMENT / Consultant.e.e en stratégie environnementale"
+            ],
+            [
+                "DIRECTION ENVIRONNEMENT;Directeur.rice·rice de l'Écologie Industrielle et de l'Économie Circulaire",
+                "DIRECTION ENVIRONNEMENT / Directeur.rice·rice de l'Écologie Industrielle et de l'Économie Circulaire"
+            ],
+            [
+                "DIRECTION ENVIRONNEMENT;Directeur.rice·rice de l'Énergie et des Ressources Naturelles",
+                "DIRECTION ENVIRONNEMENT / Directeur.rice·rice de l'Énergie et des Ressources Naturelles"
+            ],
+            [
+                "DIRECTION ENVIRONNEMENT;Directeur.rice·rice de l'Environnement",
+                "DIRECTION ENVIRONNEMENT / Directeur.rice·rice de l'Environnement"
+            ],
+            [
+                "DIRECTION ENVIRONNEMENT;Directeur.rice·rice de la Conformité Réglementgaire Environnementale",
+                "DIRECTION ENVIRONNEMENT / Directeur.rice·rice de la Conformité Réglementgaire Environnementale"
+            ],
+            [
+                "DIRECTION ENVIRONNEMENT;Directeur.rice·rice de la Gestion des Risques Environnementaux",
+                "DIRECTION ENVIRONNEMENT / Directeur.rice·rice de la Gestion des Risques Environnementaux"
+            ],
+            [
+                "DIRECTION ENVIRONNEMENT;Directeur.rice·rice de la Gestion Environnementale",
+                "DIRECTION ENVIRONNEMENT / Directeur.rice·rice de la Gestion Environnementale"
+            ],
+            [
+                "DIRECTION ENVIRONNEMENT;Directeur.rice·rice de la Protection de l'Environnement",
+                "DIRECTION ENVIRONNEMENT / Directeur.rice·rice de la Protection de l'Environnement"
+            ],
+            [
+                "DIRECTION ENVIRONNEMENT;Directeur.rice·rice de la Qualité Environnementale",
+                "DIRECTION ENVIRONNEMENT / Directeur.rice·rice de la Qualité Environnementale"
+            ],
+            [
+                "DIRECTION ENVIRONNEMENT;Directeur.rice·rice de la Stratégie Environnementale",
+                "DIRECTION ENVIRONNEMENT / Directeur.rice·rice de la Stratégie Environnementale"
+            ],
+            [
+                "DIRECTION ENVIRONNEMENT;Directeur.rice·rice du Développement Durable et de l'Environnement",
+                "DIRECTION ENVIRONNEMENT / Directeur.rice·rice du Développement Durable et de l'Environnement"
+            ],
+            [
+                "DIRECTION ENVIRONNEMENT;Responsable de l'Écologie Industrielle et de l'Économie Circulaire",
+                "DIRECTION ENVIRONNEMENT / Responsable de l'Écologie Industrielle et de l'Économie Circulaire"
+            ],
+            [
+                "DIRECTION ENVIRONNEMENT;Responsable de l'Énergie et des Ressources Naturelles",
+                "DIRECTION ENVIRONNEMENT / Responsable de l'Énergie et des Ressources Naturelles"
+            ],
+            [
+                "DIRECTION ENVIRONNEMENT;Responsable de l'Environnement",
+                "DIRECTION ENVIRONNEMENT / Responsable de l'Environnement"
+            ],
+            [
+                "DIRECTION ENVIRONNEMENT;Responsable de la Conformité Réglementaire Environnementale",
+                "DIRECTION ENVIRONNEMENT / Responsable de la Conformité Réglementaire Environnementale"
+            ],
+            [
+                "DIRECTION ENVIRONNEMENT;Responsable de la Gestion des Risques Environnementaux",
+                "DIRECTION ENVIRONNEMENT / Responsable de la Gestion des Risques Environnementaux"
+            ],
+            [
+                "DIRECTION ENVIRONNEMENT;Responsable de la Gestion Environnementale",
+                "DIRECTION ENVIRONNEMENT / Responsable de la Gestion Environnementale"
+            ],
+            [
+                "DIRECTION ENVIRONNEMENT;Responsable de la Protection de l'Environnement",
+                "DIRECTION ENVIRONNEMENT / Responsable de la Protection de l'Environnement"
+            ],
+            [
+                "DIRECTION ENVIRONNEMENT;Responsable de la Qualité Environnementale",
+                "DIRECTION ENVIRONNEMENT / Responsable de la Qualité Environnementale"
+            ],
+            [
+                "DIRECTION ENVIRONNEMENT;Responsable de la Stratégie Environnementale",
+                "DIRECTION ENVIRONNEMENT / Responsable de la Stratégie Environnementale"
+            ],
+            [
+                "DIRECTION ENVIRONNEMENT;Responsable du Développement Durable et de l'Environnement",
+                "DIRECTION ENVIRONNEMENT / Responsable du Développement Durable et de l'Environnement"
+            ],
+            [
+                "DIRECTION ENVIRONNEMENT;Autres",
+                "DIRECTION ENVIRONNEMENT / Autres"
+            ]
+        ],
+        "DIRECTION FINANCIÈRE": [
+            [
+                "DIRECTION FINANCIÈRE;Analyste financier.ère",
+                "DIRECTION FINANCIÈRE / Analyste financier.ère"
+            ],
+            [
+                "DIRECTION FINANCIÈRE;Auditeur.e financier.ère",
+                "DIRECTION FINANCIÈRE / Auditeur.e financier.ère"
+            ],
+            [
+                "DIRECTION FINANCIÈRE;Comptable analytique",
+                "DIRECTION FINANCIÈRE / Comptable analytique"
+            ],
+            [
+                "DIRECTION FINANCIÈRE;Comptable clients",
+                "DIRECTION FINANCIÈRE / Comptable clients"
+            ],
+            [
+                "DIRECTION FINANCIÈRE;Comptable fournisseurs",
+                "DIRECTION FINANCIÈRE / Comptable fournisseurs"
+            ],
+            [
+                "DIRECTION FINANCIÈRE;Comptable général.e",
+                "DIRECTION FINANCIÈRE / Comptable général.e"
+            ],
+            [
+                "DIRECTION FINANCIÈRE;Consultant.e.e en stratégie financière",
+                "DIRECTION FINANCIÈRE / Consultant.e.e en stratégie financière"
+            ],
+            [
+                "DIRECTION FINANCIÈRE;Contrôleur.e financier.ère",
+                "DIRECTION FINANCIÈRE / Contrôleur.e financier.ère"
+            ],
+            [
+                "DIRECTION FINANCIÈRE;Directeur.rice.rice financier.ère (CFO - Chief Financial Officer)",
+                "DIRECTION FINANCIÈRE / Directeur.rice.rice financier.ère (CFO - Chief Financial Officer)"
+            ],
+            [
+                "DIRECTION FINANCIÈRE;Expert-comptable",
+                "DIRECTION FINANCIÈRE / Expert-comptable"
+            ],
+            [
+                "DIRECTION FINANCIÈRE;Responsable de la comptabilité",
+                "DIRECTION FINANCIÈRE / Responsable de la comptabilité"
+            ],
+            [
+                "DIRECTION FINANCIÈRE;Responsable de la consolidation financière",
+                "DIRECTION FINANCIÈRE / Responsable de la consolidation financière"
+            ],
+            [
+                "DIRECTION FINANCIÈRE;Responsable de la fiscalité",
+                "DIRECTION FINANCIÈRE / Responsable de la fiscalité"
+            ],
+            [
+                "DIRECTION FINANCIÈRE;Responsable de la gestion des risques financiers",
+                "DIRECTION FINANCIÈRE / Responsable de la gestion des risques financiers"
+            ],
+            [
+                "DIRECTION FINANCIÈRE;Responsable de la trésorerie",
+                "DIRECTION FINANCIÈRE / Responsable de la trésorerie"
+            ],
+            [
+                "DIRECTION FINANCIÈRE;Responsable du budget",
+                "DIRECTION FINANCIÈRE / Responsable du budget"
+            ],
+            [
+                "DIRECTION FINANCIÈRE;Responsable du contrôle de gestion",
+                "DIRECTION FINANCIÈRE / Responsable du contrôle de gestion"
+            ],
+            [
+                "DIRECTION FINANCIÈRE;Responsable du reporting financier",
+                "DIRECTION FINANCIÈRE / Responsable du reporting financier"
+            ],
+            [
+                "DIRECTION FINANCIÈRE;Responsable des investissements industriels",
+                "DIRECTION FINANCIÈRE / Responsable des investissements industriels"
+            ],
+            [
+                "DIRECTION FINANCIÈRE;Responsable des investissements en innovation",
+                "DIRECTION FINANCIÈRE / Responsable des investissements en innovation"
+            ],
+            [
+                "DIRECTION FINANCIÈRE;Responsable des prises de participation dans des sociétés",
+                "DIRECTION FINANCIÈRE / Responsable des prises de participation dans des sociétés"
+            ],
+            [
+                "DIRECTION FINANCIÈRE;Responsable financier",
+                "DIRECTION FINANCIÈRE / Responsable financier"
+            ],
+            [
+                "DIRECTION FINANCIÈRE;Trésorier.ière",
+                "DIRECTION FINANCIÈRE / Trésorier.ière"
+            ],
+            [
+                "DIRECTION FINANCIÈRE;Autres",
+                "DIRECTION FINANCIÈRE / Autres"
+            ]
+        ],
+        "DIRECTION DE LA GESTION DES RISQUES": [
+            [
+                "DIRECTION DE LA GESTION DES RISQUES;Analyste de risque crédit",
+                "DIRECTION DE LA GESTION DES RISQUES / Analyste de risque crédit"
+            ],
+            [
+                "DIRECTION DE LA GESTION DES RISQUES;Analyste de risque de marché",
+                "DIRECTION DE LA GESTION DES RISQUES / Analyste de risque de marché"
+            ],
+            [
+                "DIRECTION DE LA GESTION DES RISQUES;Analyste de risque opérationnel",
+                "DIRECTION DE LA GESTION DES RISQUES / Analyste de risque opérationnel"
+            ],
+            [
+                "DIRECTION DE LA GESTION DES RISQUES;Analyste en gestion des risques",
+                "DIRECTION DE LA GESTION DES RISQUES / Analyste en gestion des risques"
+            ],
+            [
+                "DIRECTION DE LA GESTION DES RISQUES;Auditeur interne",
+                "DIRECTION DE LA GESTION DES RISQUES / Auditeur interne"
+            ],
+            [
+                "DIRECTION DE LA GESTION DES RISQUES;Chargé.e de conformité",
+                "DIRECTION DE LA GESTION DES RISQUES / Chargé.e de conformité"
+            ],
+            [
+                "DIRECTION DE LA GESTION DES RISQUES;Chargé.e de gestion des risques",
+                "DIRECTION DE LA GESTION DES RISQUES / Chargé.e de gestion des risques"
+            ],
+            [
+                "DIRECTION DE LA GESTION DES RISQUES;Chargé.e de la sécurité des systèmes d'information",
+                "DIRECTION DE LA GESTION DES RISQUES / Chargé.e de la sécurité des systèmes d'information"
+            ],
+            [
+                "DIRECTION DE LA GESTION DES RISQUES;Chef de projet en gestion des risques",
+                "DIRECTION DE LA GESTION DES RISQUES / Chef de projet en gestion des risques"
+            ],
+            [
+                "DIRECTION DE LA GESTION DES RISQUES;Consultant.e en gestion des risques",
+                "DIRECTION DE LA GESTION DES RISQUES / Consultant.e en gestion des risques"
+            ],
+            [
+                "DIRECTION DE LA GESTION DES RISQUES;Contrôleur des risques",
+                "DIRECTION DE LA GESTION DES RISQUES / Contrôleur des risques"
+            ],
+            [
+                "DIRECTION DE LA GESTION DES RISQUES;Coordinateur de gestion des crises",
+                "DIRECTION DE LA GESTION DES RISQUES / Coordinateur de gestion des crises"
+            ],
+            [
+                "DIRECTION DE LA GESTION DES RISQUES;Directeur.rice de la conformité réglementaire",
+                "DIRECTION DE LA GESTION DES RISQUES / Directeur.rice de la conformité réglementaire"
+            ],
+            [
+                "DIRECTION DE LA GESTION DES RISQUES;Directeur.rice de la gestion des risques",
+                "DIRECTION DE LA GESTION DES RISQUES / Directeur.rice de la gestion des risques"
+            ],
+            [
+                "DIRECTION DE LA GESTION DES RISQUES;Directeur.rice de la sécurité de l'information",
+                "DIRECTION DE LA GESTION DES RISQUES / Directeur.rice de la sécurité de l'information"
+            ],
+            [
+                "DIRECTION DE LA GESTION DES RISQUES;Directeur.rice des audits",
+                "DIRECTION DE LA GESTION DES RISQUES / Directeur.rice des audits"
+            ],
+            [
+                "DIRECTION DE LA GESTION DES RISQUES;Directeur.rice des risques financiers",
+                "DIRECTION DE LA GESTION DES RISQUES / Directeur.rice des risques financiers"
+            ],
+            [
+                "DIRECTION DE LA GESTION DES RISQUES;Directeur.rice des risques opérationnels",
+                "DIRECTION DE LA GESTION DES RISQUES / Directeur.rice des risques opérationnels"
+            ],
+            [
+                "DIRECTION DE LA GESTION DES RISQUES;Gestionnaire de crise",
+                "DIRECTION DE LA GESTION DES RISQUES / Gestionnaire de crise"
+            ],
+            [
+                "DIRECTION DE LA GESTION DES RISQUES;Gestionnaire de la continuité des activités",
+                "DIRECTION DE LA GESTION DES RISQUES / Gestionnaire de la continuité des activités"
+            ],
+            [
+                "DIRECTION DE LA GESTION DES RISQUES;Gestionnaire de la sécurité de l'information",
+                "DIRECTION DE LA GESTION DES RISQUES / Gestionnaire de la sécurité de l'information"
+            ],
+            [
+                "DIRECTION DE LA GESTION DES RISQUES;Ingénieur en sécurité informatique",
+                "DIRECTION DE LA GESTION DES RISQUES / Ingénieur en sécurité informatique"
+            ],
+            [
+                "DIRECTION DE LA GESTION DES RISQUES;Responsable de la conformité",
+                "DIRECTION DE LA GESTION DES RISQUES / Responsable de la conformité"
+            ],
+            [
+                "DIRECTION DE LA GESTION DES RISQUES;Responsable de la sécurité des systèmes d'information",
+                "DIRECTION DE LA GESTION DES RISQUES / Responsable de la sécurité des systèmes d'information"
+            ],
+            [
+                "DIRECTION DE LA GESTION DES RISQUES;Responsable des audits internes",
+                "DIRECTION DE LA GESTION DES RISQUES / Responsable des audits internes"
+            ],
+            [
+                "DIRECTION DE LA GESTION DES RISQUES;Responsable des risques d'entreprise",
+                "DIRECTION DE LA GESTION DES RISQUES / Responsable des risques d'entreprise"
+            ],
+            [
+                "DIRECTION DE LA GESTION DES RISQUES;Responsable des risques environnementaux",
+                "DIRECTION DE LA GESTION DES RISQUES / Responsable des risques environnementaux"
+            ],
+            [
+                "DIRECTION DE LA GESTION DES RISQUES;Responsable des risques stratégiques",
+                "DIRECTION DE LA GESTION DES RISQUES / Responsable des risques stratégiques"
+            ],
+            [
+                "DIRECTION DE LA GESTION DES RISQUES;Responsable du contrôle interne",
+                "DIRECTION DE LA GESTION DES RISQUES / Responsable du contrôle interne"
+            ],
+            [
+                "DIRECTION DE LA GESTION DES RISQUES;Autres",
+                "DIRECTION DE LA GESTION DES RISQUES / Autres"
+            ]
+        ],
+        "DIRECTION DES INVESTISSEMENTS": [
+            [
+                "DIRECTION DES INVESTISSEMENTS;Analyste de crédit",
+                "DIRECTION DES INVESTISSEMENTS / Analyste de crédit"
+            ],
+            [
+                "DIRECTION DES INVESTISSEMENTS;Analyste d'investissement",
+                "DIRECTION DES INVESTISSEMENTS / Analyste d'investissement"
+            ],
+            [
+                "DIRECTION DES INVESTISSEMENTS;Analyste financier",
+                "DIRECTION DES INVESTISSEMENTS / Analyste financier"
+            ],
+            [
+                "DIRECTION DES INVESTISSEMENTS;Chargé.e d'affaires en investissement",
+                "DIRECTION DES INVESTISSEMENTS / Chargé.e d'affaires en investissement"
+            ],
+            [
+                "DIRECTION DES INVESTISSEMENTS;Chargé.e d'investissement",
+                "DIRECTION DES INVESTISSEMENTS / Chargé.e d'investissement"
+            ],
+            [
+                "DIRECTION DES INVESTISSEMENTS;Chef de projet d'investissement",
+                "DIRECTION DES INVESTISSEMENTS / Chef de projet d'investissement"
+            ],
+            [
+                "DIRECTION DES INVESTISSEMENTS;Conseiller en investissement",
+                "DIRECTION DES INVESTISSEMENTS / Conseiller en investissement"
+            ],
+            [
+                "DIRECTION DES INVESTISSEMENTS;Contrôleur financier",
+                "DIRECTION DES INVESTISSEMENTS / Contrôleur financier"
+            ],
+            [
+                "DIRECTION DES INVESTISSEMENTS;Directeur.rice d'investissement",
+                "DIRECTION DES INVESTISSEMENTS / Directeur.rice d'investissement"
+            ],
+            [
+                "DIRECTION DES INVESTISSEMENTS;Directeur.rice de la gestion d'actifs",
+                "DIRECTION DES INVESTISSEMENTS / Directeur.rice de la gestion d'actifs"
+            ],
+            [
+                "DIRECTION DES INVESTISSEMENTS;Directeur.rice de la stratégie d'investissement",
+                "DIRECTION DES INVESTISSEMENTS / Directeur.rice de la stratégie d'investissement"
+            ],
+            [
+                "DIRECTION DES INVESTISSEMENTS;Directeur.rice des fusions et acquisitions",
+                "DIRECTION DES INVESTISSEMENTS / Directeur.rice des fusions et acquisitions"
+            ],
+            [
+                "DIRECTION DES INVESTISSEMENTS;Gestionnaire de portefeuille",
+                "DIRECTION DES INVESTISSEMENTS / Gestionnaire de portefeuille"
+            ],
+            [
+                "DIRECTION DES INVESTISSEMENTS;Gestionnaire des actifs",
+                "DIRECTION DES INVESTISSEMENTS / Gestionnaire des actifs"
+            ],
+            [
+                "DIRECTION DES INVESTISSEMENTS;Gestionnaire des risques d'investissement",
+                "DIRECTION DES INVESTISSEMENTS / Gestionnaire des risques d'investissement"
+            ],
+            [
+                "DIRECTION DES INVESTISSEMENTS;Ingénieur financier",
+                "DIRECTION DES INVESTISSEMENTS / Ingénieur financier"
+            ],
+            [
+                "DIRECTION DES INVESTISSEMENTS;Juriste en droit des investissements",
+                "DIRECTION DES INVESTISSEMENTS / Juriste en droit des investissements"
+            ],
+            [
+                "DIRECTION DES INVESTISSEMENTS;Responsable de la conformité des investissements",
+                "DIRECTION DES INVESTISSEMENTS / Responsable de la conformité des investissements"
+            ],
+            [
+                "DIRECTION DES INVESTISSEMENTS;Responsable de la stratégie financière",
+                "DIRECTION DES INVESTISSEMENTS / Responsable de la stratégie financière"
+            ],
+            [
+                "DIRECTION DES INVESTISSEMENTS;Responsable des analyses de marché",
+                "DIRECTION DES INVESTISSEMENTS / Responsable des analyses de marché"
+            ],
+            [
+                "DIRECTION DES INVESTISSEMENTS;Responsable des investissements immobiliers",
+                "DIRECTION DES INVESTISSEMENTS / Responsable des investissements immobiliers"
+            ],
+            [
+                "DIRECTION DES INVESTISSEMENTS;Responsable des relations investisseurs",
+                "DIRECTION DES INVESTISSEMENTS / Responsable des relations investisseurs"
+            ],
+            [
+                "DIRECTION DES INVESTISSEMENTS;Responsable du développement des affaires",
+                "DIRECTION DES INVESTISSEMENTS / Responsable du développement des affaires"
+            ],
+            [
+                "DIRECTION DES INVESTISSEMENTS;Responsable du financement de projets",
+                "DIRECTION DES INVESTISSEMENTS / Responsable du financement de projets"
+            ],
+            [
+                "DIRECTION DES INVESTISSEMENTS;Responsable du suivi des investissements",
+                "DIRECTION DES INVESTISSEMENTS / Responsable du suivi des investissements"
+            ],
+            [
+                "DIRECTION DES INVESTISSEMENTS;Spécialiste en fusions et acquisitions",
+                "DIRECTION DES INVESTISSEMENTS / Spécialiste en fusions et acquisitions"
+            ],
+            [
+                "DIRECTION DES INVESTISSEMENTS;Trader",
+                "DIRECTION DES INVESTISSEMENTS / Trader"
+            ],
+            [
+                "DIRECTION DES INVESTISSEMENTS;Trésorier",
+                "DIRECTION DES INVESTISSEMENTS / Trésorier"
+            ],
+            [
+                "DIRECTION DES INVESTISSEMENTS;Vice-président des investissements",
+                "DIRECTION DES INVESTISSEMENTS / Vice-président des investissements"
+            ],
+            [
+                "DIRECTION DES INVESTISSEMENTS;Autres",
+                "DIRECTION DES INVESTISSEMENTS / Autres"
+            ]
+        ],
+        "DIRECTION JURIDIQUE": [
+            [
+                "DIRECTION JURIDIQUE;Avocat·e d'entreprise",
+                "DIRECTION JURIDIQUE / Avocat·e d'entreprise"
+            ],
+            [
+                "DIRECTION JURIDIQUE;Conseiller·ère Juridique",
+                "DIRECTION JURIDIQUE / Conseiller·ère Juridique"
+            ],
+            [
+                "DIRECTION JURIDIQUE;Directeur.rice·rice de la Compliance",
+                "DIRECTION JURIDIQUE / Directeur.rice·rice de la Compliance"
+            ],
+            [
+                "DIRECTION JURIDIQUE;Directeur.rice·rice de la Gestion des Risques Juridiques",
+                "DIRECTION JURIDIQUE / Directeur.rice·rice de la Gestion des Risques Juridiques"
+            ],
+            [
+                "DIRECTION JURIDIQUE;Directeur.rice·rice de la Propriété Intellectuelle",
+                "DIRECTION JURIDIQUE / Directeur.rice·rice de la Propriété Intellectuelle"
+            ],
+            [
+                "DIRECTION JURIDIQUE;Directeur.rice·rice des Affaires Juridiques",
+                "DIRECTION JURIDIQUE / Directeur.rice·rice des Affaires Juridiques"
+            ],
+            [
+                "DIRECTION JURIDIQUE;Directeur.rice·rice des Contentieux",
+                "DIRECTION JURIDIQUE / Directeur.rice·rice des Contentieux"
+            ],
+            [
+                "DIRECTION JURIDIQUE;Directeur.rice·rice des Contrats",
+                "DIRECTION JURIDIQUE / Directeur.rice·rice des Contrats"
+            ],
+            [
+                "DIRECTION JURIDIQUE;Directeur.rice·rice des Opérations Juridiques",
+                "DIRECTION JURIDIQUE / Directeur.rice·rice des Opérations Juridiques"
+            ],
+            [
+                "DIRECTION JURIDIQUE;Directeur.rice·rice Juridique",
+                "DIRECTION JURIDIQUE / Directeur.rice·rice Juridique"
+            ],
+            [
+                "DIRECTION JURIDIQUE;Juriste d'entreprise",
+                "DIRECTION JURIDIQUE / Juriste d'entreprise"
+            ],
+            [
+                "DIRECTION JURIDIQUE;Responsable de la Compliance",
+                "DIRECTION JURIDIQUE / Responsable de la Compliance"
+            ],
+            [
+                "DIRECTION JURIDIQUE;Responsable de la Conformité et de la Réglementation",
+                "DIRECTION JURIDIQUE / Responsable de la Conformité et de la Réglementation"
+            ],
+            [
+                "DIRECTION JURIDIQUE;Responsable de la Gestion des Risques Juridiques",
+                "DIRECTION JURIDIQUE / Responsable de la Gestion des Risques Juridiques"
+            ],
+            [
+                "DIRECTION JURIDIQUE;Responsable de la Propriété Intellectuelle",
+                "DIRECTION JURIDIQUE / Responsable de la Propriété Intellectuelle"
+            ],
+            [
+                "DIRECTION JURIDIQUE;Responsable des Affaires Juridiques",
+                "DIRECTION JURIDIQUE / Responsable des Affaires Juridiques"
+            ],
+            [
+                "DIRECTION JURIDIQUE;Responsable des Contentieux",
+                "DIRECTION JURIDIQUE / Responsable des Contentieux"
+            ],
+            [
+                "DIRECTION JURIDIQUE;Responsable des Contrats",
+                "DIRECTION JURIDIQUE / Responsable des Contrats"
+            ],
+            [
+                "DIRECTION JURIDIQUE;Responsable des Opérations Juridiques",
+                "DIRECTION JURIDIQUE / Responsable des Opérations Juridiques"
+            ],
+            [
+                "DIRECTION JURIDIQUE;Responsable Juridique",
+                "DIRECTION JURIDIQUE / Responsable Juridique"
+            ],
+            [
+                "DIRECTION JURIDIQUE;Autres",
+                "DIRECTION JURIDIQUE / Autres"
+            ]
+        ],
+        "DIRECTION LOGISTIQUE": [
+            [
+                "DIRECTION LOGISTIQUE;Consultant.e.e en stratégie logistique",
+                "DIRECTION LOGISTIQUE / Consultant.e.e en stratégie logistique"
+            ],
+            [
+                "DIRECTION LOGISTIQUE;Directeur.rice.rice des opérations logistiques",
+                "DIRECTION LOGISTIQUE / Directeur.rice.rice des opérations logistiques"
+            ],
+            [
+                "DIRECTION LOGISTIQUE;Directeur.rice.rice logistique",
+                "DIRECTION LOGISTIQUE / Directeur.rice.rice logistique"
+            ],
+            [
+                "DIRECTION LOGISTIQUE;Responsable de la chaîne logistique",
+                "DIRECTION LOGISTIQUE / Responsable de la chaîne logistique"
+            ],
+            [
+                "DIRECTION LOGISTIQUE;Responsable de la coordination des flux",
+                "DIRECTION LOGISTIQUE / Responsable de la coordination des flux"
+            ],
+            [
+                "DIRECTION LOGISTIQUE;Responsable de la distribution",
+                "DIRECTION LOGISTIQUE / Responsable de la distribution"
+            ],
+            [
+                "DIRECTION LOGISTIQUE;Responsable de la gestion des stocks",
+                "DIRECTION LOGISTIQUE / Responsable de la gestion des stocks"
+            ],
+            [
+                "DIRECTION LOGISTIQUE;Responsable de la gestion des transports",
+                "DIRECTION LOGISTIQUE / Responsable de la gestion des transports"
+            ],
+            [
+                "DIRECTION LOGISTIQUE;Responsable de la logistique inverse",
+                "DIRECTION LOGISTIQUE / Responsable de la logistique inverse"
+            ],
+            [
+                "DIRECTION LOGISTIQUE;Responsable de la logistique urbaine",
+                "DIRECTION LOGISTIQUE / Responsable de la logistique urbaine"
+            ],
+            [
+                "DIRECTION LOGISTIQUE;Responsable de la planification logistique",
+                "DIRECTION LOGISTIQUE / Responsable de la planification logistique"
+            ],
+            [
+                "DIRECTION LOGISTIQUE;Responsable des achats logistiques",
+                "DIRECTION LOGISTIQUE / Responsable des achats logistiques"
+            ],
+            [
+                "DIRECTION LOGISTIQUE;Responsable des approvisionnements",
+                "DIRECTION LOGISTIQUE / Responsable des approvisionnements"
+            ],
+            [
+                "DIRECTION LOGISTIQUE;Responsable des expéditions",
+                "DIRECTION LOGISTIQUE / Responsable des expéditions"
+            ],
+            [
+                "DIRECTION LOGISTIQUE;Responsable des flux internationaux",
+                "DIRECTION LOGISTIQUE / Responsable des flux internationaux"
+            ],
+            [
+                "DIRECTION LOGISTIQUE;Responsable des opérations douanières",
+                "DIRECTION LOGISTIQUE / Responsable des opérations douanières"
+            ],
+            [
+                "DIRECTION LOGISTIQUE;Responsable des opérations logistiques",
+                "DIRECTION LOGISTIQUE / Responsable des opérations logistiques"
+            ],
+            [
+                "DIRECTION LOGISTIQUE;Responsable des retours",
+                "DIRECTION LOGISTIQUE / Responsable des retours"
+            ],
+            [
+                "DIRECTION LOGISTIQUE;Responsable des transports",
+                "DIRECTION LOGISTIQUE / Responsable des transports"
+            ],
+            [
+                "DIRECTION LOGISTIQUE;Responsable entrepôt",
+                "DIRECTION LOGISTIQUE / Responsable entrepôt"
+            ],
+            [
+                "DIRECTION LOGISTIQUE;Responsable logistique",
+                "DIRECTION LOGISTIQUE / Responsable logistique"
+            ],
+            [
+                "DIRECTION LOGISTIQUE;Autres",
+                "DIRECTION LOGISTIQUE / Autres"
+            ]
+        ],
+        "DIRECTION MARKETING": [
+            [
+                "DIRECTION MARKETING;Analyste de marché",
+                "DIRECTION MARKETING / Analyste de marché"
+            ],
+            [
+                "DIRECTION MARKETING;Assistant marketing",
+                "DIRECTION MARKETING / Assistant marketing"
+            ],
+            [
+                "DIRECTION MARKETING;Brand manager",
+                "DIRECTION MARKETING / Brand manager"
+            ],
+            [
+                "DIRECTION MARKETING;Chargé.e de communication",
+                "DIRECTION MARKETING / Chargé.e de communication"
+            ],
+            [
+                "DIRECTION MARKETING;Chargé.e de marketing direct",
+                "DIRECTION MARKETING / Chargé.e de marketing direct"
+            ],
+            [
+                "DIRECTION MARKETING;Chargé.e de marketing digital",
+                "DIRECTION MARKETING / Chargé.e de marketing digital"
+            ],
+            [
+                "DIRECTION MARKETING;Chef de produit",
+                "DIRECTION MARKETING / Chef de produit"
+            ],
+            [
+                "DIRECTION MARKETING;Chef de projet marketing",
+                "DIRECTION MARKETING / Chef de projet marketing"
+            ],
+            [
+                "DIRECTION MARKETING;Chef de publicité",
+                "DIRECTION MARKETING / Chef de publicité"
+            ],
+            [
+                "DIRECTION MARKETING;Chef des ventes",
+                "DIRECTION MARKETING / Chef des ventes"
+            ],
+            [
+                "DIRECTION MARKETING;Community manager",
+                "DIRECTION MARKETING / Community manager"
+            ],
+            [
+                "DIRECTION MARKETING;Concepteur-rédacteur",
+                "DIRECTION MARKETING / Concepteur-rédacteur"
+            ],
+            [
+                "DIRECTION MARKETING;Consultant.e marketing",
+                "DIRECTION MARKETING / Consultant.e marketing"
+            ],
+            [
+                "DIRECTION MARKETING;Coordinateur marketing",
+                "DIRECTION MARKETING / Coordinateur marketing"
+            ],
+            [
+                "DIRECTION MARKETING;Data Analyst Marketing",
+                "DIRECTION MARKETING / Data Analyst Marketing"
+            ],
+            [
+                "DIRECTION MARKETING;Directeur.rice de la communication",
+                "DIRECTION MARKETING / Directeur.rice de la communication"
+            ],
+            [
+                "DIRECTION MARKETING;Directeur.rice de la stratégie marketing",
+                "DIRECTION MARKETING / Directeur.rice de la stratégie marketing"
+            ],
+            [
+                "DIRECTION MARKETING;Directeur.rice des études marketing",
+                "DIRECTION MARKETING / Directeur.rice des études marketing"
+            ],
+            [
+                "DIRECTION MARKETING;Directeur.rice des partenariats",
+                "DIRECTION MARKETING / Directeur.rice des partenariats"
+            ],
+            [
+                "DIRECTION MARKETING;Directeur.rice du marketing",
+                "DIRECTION MARKETING / Directeur.rice du marketing"
+            ],
+            [
+                "DIRECTION MARKETING;Directeur.rice du marketing digital",
+                "DIRECTION MARKETING / Directeur.rice du marketing digital"
+            ],
+            [
+                "DIRECTION MARKETING;Directeur.rice marketing produit",
+                "DIRECTION MARKETING / Directeur.rice marketing produit"
+            ],
+            [
+                "DIRECTION MARKETING;Éditeur de contenu",
+                "DIRECTION MARKETING / Éditeur de contenu"
+            ],
+            [
+                "DIRECTION MARKETING;Expert en référencement (SEO/SEM)",
+                "DIRECTION MARKETING / Expert en référencement (SEO/SEM)"
+            ],
+            [
+                "DIRECTION MARKETING;Graphiste",
+                "DIRECTION MARKETING / Graphiste"
+            ],
+            [
+                "DIRECTION MARKETING;Gestionnaire de base de données marketing",
+                "DIRECTION MARKETING / Gestionnaire de base de données marketing"
+            ],
+            [
+                "DIRECTION MARKETING;Gestionnaire de campagne marketing",
+                "DIRECTION MARKETING / Gestionnaire de campagne marketing"
+            ],
+            [
+                "DIRECTION MARKETING;Gestionnaire de communauté",
+                "DIRECTION MARKETING / Gestionnaire de communauté"
+            ],
+            [
+                "DIRECTION MARKETING;Gestionnaire de contenu",
+                "DIRECTION MARKETING / Gestionnaire de contenu"
+            ],
+            [
+                "DIRECTION MARKETING;Growth hacker",
+                "DIRECTION MARKETING / Growth hacker"
+            ],
+            [
+                "DIRECTION MARKETING;Manager des ventes",
+                "DIRECTION MARKETING / Manager des ventes"
+            ],
+            [
+                "DIRECTION MARKETING;Média planner",
+                "DIRECTION MARKETING / Média planner"
+            ],
+            [
+                "DIRECTION MARKETING;Responsable CRM (Customer Relationship Management)",
+                "DIRECTION MARKETING / Responsable CRM (Customer Relationship Management)"
+            ],
+            [
+                "DIRECTION MARKETING;Responsable de la fidélisation",
+                "DIRECTION MARKETING / Responsable de la fidélisation"
+            ],
+            [
+                "DIRECTION MARKETING;Responsable de la stratégie de contenu",
+                "DIRECTION MARKETING / Responsable de la stratégie de contenu"
+            ],
+            [
+                "DIRECTION MARKETING;Responsable des études de marché",
+                "DIRECTION MARKETING / Responsable des études de marché"
+            ],
+            [
+                "DIRECTION MARKETING;Responsable des relations publiques",
+                "DIRECTION MARKETING / Responsable des relations publiques"
+            ],
+            [
+                "DIRECTION MARKETING;Responsable du marketing automation",
+                "DIRECTION MARKETING / Responsable du marketing automation"
+            ],
+            [
+                "DIRECTION MARKETING;Responsable e-commerce",
+                "DIRECTION MARKETING / Responsable e-commerce"
+            ],
+            [
+                "DIRECTION MARKETING;Responsable événementiel",
+                "DIRECTION MARKETING / Responsable événementiel"
+            ],
+            [
+                "DIRECTION MARKETING;Responsable marketing B2B",
+                "DIRECTION MARKETING / Responsable marketing B2B"
+            ],
+            [
+                "DIRECTION MARKETING;Responsable marketing B2C",
+                "DIRECTION MARKETING / Responsable marketing B2C"
+            ],
+            [
+                "DIRECTION MARKETING;Responsable marketing mobile",
+                "DIRECTION MARKETING / Responsable marketing mobile"
+            ],
+            [
+                "DIRECTION MARKETING;Responsable merchandising",
+                "DIRECTION MARKETING / Responsable merchandising"
+            ],
+            [
+                "DIRECTION MARKETING;Responsable partenariat",
+                "DIRECTION MARKETING / Responsable partenariat"
+            ],
+            [
+                "DIRECTION MARKETING;Responsable publicité en ligne",
+                "DIRECTION MARKETING / Responsable publicité en ligne"
+            ],
+            [
+                "DIRECTION MARKETING;Responsable réseaux sociaux",
+                "DIRECTION MARKETING / Responsable réseaux sociaux"
+            ],
+            [
+                "DIRECTION MARKETING;Responsable sponsoring",
+                "DIRECTION MARKETING / Responsable sponsoring"
+            ],
+            [
+                "DIRECTION MARKETING;Responsable veille stratégique",
+                "DIRECTION MARKETING / Responsable veille stratégique"
+            ],
+            [
+                "DIRECTION MARKETING;Webmarketer",
+                "DIRECTION MARKETING / Webmarketer"
+            ],
+            [
+                "DIRECTION MARKETING;Autres",
+                "DIRECTION MARKETING / Autres"
+            ]
+        ],
+        "DIRECTION PRODUCTION": [
+            [
+                "DIRECTION PRODUCTION;Agent.e de fabrication",
+                "DIRECTION PRODUCTION / Agent.e de fabrication"
+            ],
+            [
+                "DIRECTION PRODUCTION;Chef.fe d'atelier",
+                "DIRECTION PRODUCTION / Chef.fe d'atelier"
+            ],
+            [
+                "DIRECTION PRODUCTION;Chef.fe de production",
+                "DIRECTION PRODUCTION / Chef.fe de production"
+            ],
+            [
+                "DIRECTION PRODUCTION;Conducteur.trice de ligne de production",
+                "DIRECTION PRODUCTION / Conducteur.trice de ligne de production"
+            ],
+            [
+                "DIRECTION PRODUCTION;Consultant.e.e en stratégie de production",
+                "DIRECTION PRODUCTION / Consultant.e.e en stratégie de production"
+            ],
+            [
+                "DIRECTION PRODUCTION;Directeur.rice.trice de la production",
+                "DIRECTION PRODUCTION / Directeur.rice.trice de la production"
+            ],
+            [
+                "DIRECTION PRODUCTION;Directeur.rice.trice des opérations",
+                "DIRECTION PRODUCTION / Directeur.rice.trice des opérations"
+            ],
+            [
+                "DIRECTION PRODUCTION;Ingénieur.e de production",
+                "DIRECTION PRODUCTION / Ingénieur.e de production"
+            ],
+            [
+                "DIRECTION PRODUCTION;Ingénieure méthodes",
+                "DIRECTION PRODUCTION / Ingénieure méthodes"
+            ],
+            [
+                "DIRECTION PRODUCTION;Opérateur.trice de machines-outils",
+                "DIRECTION PRODUCTION / Opérateur.trice de machines-outils"
+            ],
+            [
+                "DIRECTION PRODUCTION;Opérateur.trice de production",
+                "DIRECTION PRODUCTION / Opérateur.trice de production"
+            ],
+            [
+                "DIRECTION PRODUCTION;Pilote de ligne automatisée",
+                "DIRECTION PRODUCTION / Pilote de ligne automatisée"
+            ],
+            [
+                "DIRECTION PRODUCTION;Responsable de la chaîne d'approvisionnement",
+                "DIRECTION PRODUCTION / Responsable de la chaîne d'approvisionnement"
+            ],
+            [
+                "DIRECTION PRODUCTION;Responsable de la logistique de production",
+                "DIRECTION PRODUCTION / Responsable de la logistique de production"
+            ],
+            [
+                "DIRECTION PRODUCTION;Responsable de la maintenance industrielle",
+                "DIRECTION PRODUCTION / Responsable de la maintenance industrielle"
+            ],
+            [
+                "DIRECTION PRODUCTION;Responsable de la planification de la production",
+                "DIRECTION PRODUCTION / Responsable de la planification de la production"
+            ],
+            [
+                "DIRECTION PRODUCTION;Responsable de la production",
+                "DIRECTION PRODUCTION / Responsable de la production"
+            ],
+            [
+                "DIRECTION PRODUCTION;Responsable de la qualité de la production",
+                "DIRECTION PRODUCTION / Responsable de la qualité de la production"
+            ],
+            [
+                "DIRECTION PRODUCTION;Responsable des opérations",
+                "DIRECTION PRODUCTION / Responsable des opérations"
+            ],
+            [
+                "DIRECTION PRODUCTION;Superviseur.e de production",
+                "DIRECTION PRODUCTION / Superviseur.e de production"
+            ],
+            [
+                "DIRECTION PRODUCTION;Technicien.ne de production",
+                "DIRECTION PRODUCTION / Technicien.ne de production"
+            ],
+            [
+                "DIRECTION PRODUCTION;Autres",
+                "DIRECTION PRODUCTION / Autres"
+            ]
+        ],
+        "DIRECTION PUBLICITÉ": [
+            [
+                "DIRECTION PUBLICITÉ;Consultant.e en investissements publicitaires",
+                "DIRECTION PUBLICITÉ / Consultant.e en investissements publicitaires"
+            ],
+            [
+                "DIRECTION PUBLICITÉ;Directeur.rice·rice de la Communication Publicitaire",
+                "DIRECTION PUBLICITÉ / Directeur.rice·rice de la Communication Publicitaire"
+            ],
+            [
+                "DIRECTION PUBLICITÉ;Directeur.rice·rice de la Création Publicitaire",
+                "DIRECTION PUBLICITÉ / Directeur.rice·rice de la Création Publicitaire"
+            ],
+            [
+                "DIRECTION PUBLICITÉ;Directeur.rice·rice de la Créativité Publicitaire",
+                "DIRECTION PUBLICITÉ / Directeur.rice·rice de la Créativité Publicitaire"
+            ],
+            [
+                "DIRECTION PUBLICITÉ;Directeur.rice·rice de la Planification Publicitaire",
+                "DIRECTION PUBLICITÉ / Directeur.rice·rice de la Planification Publicitaire"
+            ],
+            [
+                "DIRECTION PUBLICITÉ;Directeur.rice·rice de la Production Publicitaire",
+                "DIRECTION PUBLICITÉ / Directeur.rice·rice de la Production Publicitaire"
+            ],
+            [
+                "DIRECTION PUBLICITÉ;Directeur.rice·rice de la Publicité",
+                "DIRECTION PUBLICITÉ / Directeur.rice·rice de la Publicité"
+            ],
+            [
+                "DIRECTION PUBLICITÉ;Directeur.rice·rice des Achats Média",
+                "DIRECTION PUBLICITÉ / Directeur.rice·rice des Achats Média"
+            ],
+            [
+                "DIRECTION PUBLICITÉ;Directeur.rice·rice des Campagnes Publicitaires",
+                "DIRECTION PUBLICITÉ / Directeur.rice·rice des Campagnes Publicitaires"
+            ],
+            [
+                "DIRECTION PUBLICITÉ;Directeur.rice·rice des Médias",
+                "DIRECTION PUBLICITÉ / Directeur.rice·rice des Médias"
+            ],
+            [
+                "DIRECTION PUBLICITÉ;Directeur.rice·rice des Stratégies Publicitaires",
+                "DIRECTION PUBLICITÉ / Directeur.rice·rice des Stratégies Publicitaires"
+            ],
+            [
+                "DIRECTION PUBLICITÉ;Responsable de la Communication Publicitaire",
+                "DIRECTION PUBLICITÉ / Responsable de la Communication Publicitaire"
+            ],
+            [
+                "DIRECTION PUBLICITÉ;Responsable de la Création Publicitaire",
+                "DIRECTION PUBLICITÉ / Responsable de la Création Publicitaire"
+            ],
+            [
+                "DIRECTION PUBLICITÉ;Responsable de la Créativité Publicitaire",
+                "DIRECTION PUBLICITÉ / Responsable de la Créativité Publicitaire"
+            ],
+            [
+                "DIRECTION PUBLICITÉ;Responsable de la Planification Publicitaire",
+                "DIRECTION PUBLICITÉ / Responsable de la Planification Publicitaire"
+            ],
+            [
+                "DIRECTION PUBLICITÉ;Responsable de la Production Publicitaire",
+                "DIRECTION PUBLICITÉ / Responsable de la Production Publicitaire"
+            ],
+            [
+                "DIRECTION PUBLICITÉ;Responsable de la Publicité",
+                "DIRECTION PUBLICITÉ / Responsable de la Publicité"
+            ],
+            [
+                "DIRECTION PUBLICITÉ;Responsable des Achats Média",
+                "DIRECTION PUBLICITÉ / Responsable des Achats Média"
+            ],
+            [
+                "DIRECTION PUBLICITÉ;Responsable des Campagnes Publicitaires",
+                "DIRECTION PUBLICITÉ / Responsable des Campagnes Publicitaires"
+            ],
+            [
+                "DIRECTION PUBLICITÉ;Responsable des Médias",
+                "DIRECTION PUBLICITÉ / Responsable des Médias"
+            ],
+            [
+                "DIRECTION PUBLICITÉ;Responsable des Stratégies Publicitaires",
+                "DIRECTION PUBLICITÉ / Responsable des Stratégies Publicitaires"
+            ],
+            [
+                "DIRECTION PUBLICITÉ;Autres",
+                "DIRECTION PUBLICITÉ / Autres"
+            ]
+        ],
+        "DIRECTION R&D&INNOVATION": [
+            [
+                "DIRECTION R&D&INNOVATION;Analyste de données",
+                "DIRECTION R&D&INNOVATION / Analyste de données"
+            ],
+            [
+                "DIRECTION R&D&INNOVATION;Chef.fe de projet développement",
+                "DIRECTION R&D&INNOVATION / Chef.fe de projet développement"
+            ],
+            [
+                "DIRECTION R&D&INNOVATION;Chef.fe de projet innovation",
+                "DIRECTION R&D&INNOVATION / Chef.fe de projet innovation"
+            ],
+            [
+                "DIRECTION R&D&INNOVATION;Chef.fe de projet R&D",
+                "DIRECTION R&D&INNOVATION / Chef.fe de projet R&D"
+            ],
+            [
+                "DIRECTION R&D&INNOVATION;Chercheur.e",
+                "DIRECTION R&D&INNOVATION / Chercheur.e"
+            ],
+            [
+                "DIRECTION R&D&INNOVATION;Concepteur.trice de produits",
+                "DIRECTION R&D&INNOVATION / Concepteur.trice de produits"
+            ],
+            [
+                "DIRECTION R&D&INNOVATION;Consultant.e.e en stratégie de recherche, développement et innovation",
+                "DIRECTION R&D&INNOVATION / Consultant.e.e en stratégie de recherche, développement et innovation"
+            ],
+            [
+                "DIRECTION R&D&INNOVATION;Designer.e industriel.le",
+                "DIRECTION R&D&INNOVATION / Designer.e industriel.le"
+            ],
+            [
+                "DIRECTION R&D&INNOVATION;Directeur.rice.rice de la recherche, développement et innovation (R&D&I)",
+                "DIRECTION R&D&INNOVATION / Directeur.rice.rice de la recherche, développement et innovation (R&D&I)"
+            ],
+            [
+                "DIRECTION R&D&INNOVATION;Expert.e en intelligence artificielle",
+                "DIRECTION R&D&INNOVATION / Expert.e en intelligence artificielle"
+            ],
+            [
+                "DIRECTION R&D&INNOVATION;Gestionnaire de portefeuille de projets R&D&I",
+                "DIRECTION R&D&INNOVATION / Gestionnaire de portefeuille de projets R&D&I"
+            ],
+            [
+                "DIRECTION R&D&INNOVATION;Ingénieur.e de recherche",
+                "DIRECTION R&D&INNOVATION / Ingénieur.e de recherche"
+            ],
+            [
+                "DIRECTION R&D&INNOVATION;Ingénieur.e développement produit",
+                "DIRECTION R&D&INNOVATION / Ingénieur.e développement produit"
+            ],
+            [
+                "DIRECTION R&D&INNOVATION;Ingénieur.e R&D informatique",
+                "DIRECTION R&D&INNOVATION / Ingénieur.e R&D informatique"
+            ],
+            [
+                "DIRECTION R&D&INNOVATION;Responsable de l'innovation",
+                "DIRECTION R&D&INNOVATION / Responsable de l'innovation"
+            ],
+            [
+                "DIRECTION R&D&INNOVATION;Responsable de la recherche",
+                "DIRECTION R&D&INNOVATION / Responsable de la recherche"
+            ],
+            [
+                "DIRECTION R&D&INNOVATION;Responsable de la veille technologique",
+                "DIRECTION R&D&INNOVATION / Responsable de la veille technologique"
+            ],
+            [
+                "DIRECTION R&D&INNOVATION;Responsable du développement",
+                "DIRECTION R&D&INNOVATION / Responsable du développement"
+            ],
+            [
+                "DIRECTION R&D&INNOVATION;Responsable du laboratoire de R&D",
+                "DIRECTION R&D&INNOVATION / Responsable du laboratoire de R&D"
+            ],
+            [
+                "DIRECTION R&D&INNOVATION;Technicien.ne de développement",
+                "DIRECTION R&D&INNOVATION / Technicien.ne de développement"
+            ],
+            [
+                "DIRECTION R&D&INNOVATION;Technicien.ne de recherche",
+                "DIRECTION R&D&INNOVATION / Technicien.ne de recherche"
+            ],
+            [
+                "DIRECTION R&D&INNOVATION;Autres",
+                "DIRECTION R&D&INNOVATION / Autres"
+            ]
+        ],
+        "DIRECTION RSE": [
+            [
+                "DIRECTION RSE;Consultant.e.e RSE",
+                "DIRECTION RSE / Consultant.e.e RSE"
+            ],
+            [
+                "DIRECTION RSE;Directeur.rice·rice de l'Éthique et de la Conformité",
+                "DIRECTION RSE / Directeur.rice·rice de l'Éthique et de la Conformité"
+            ],
+            [
+                "DIRECTION RSE;Directeur.rice·rice de l'Innovation Sociale",
+                "DIRECTION RSE / Directeur.rice·rice de l'Innovation Sociale"
+            ],
+            [
+                "DIRECTION RSE;Directeur.rice·rice de la Communication RSE",
+                "DIRECTION RSE / Directeur.rice·rice de la Communication RSE"
+            ],
+            [
+                "DIRECTION RSE;Directeur.rice·rice de la Gouvernance d'entreprise",
+                "DIRECTION RSE / Directeur.rice·rice de la Gouvernance d'entreprise"
+            ],
+            [
+                "DIRECTION RSE;Directeur.rice·rice de la Performance Sociétale",
+                "DIRECTION RSE / Directeur.rice·rice de la Performance Sociétale"
+            ],
+            [
+                "DIRECTION RSE;Directeur.rice·rice de la Responsabilité Sociétale des Entreprises (RSE)",
+                "DIRECTION RSE / Directeur.rice·rice de la Responsabilité Sociétale des Entreprises (RSE)"
+            ],
+            [
+                "DIRECTION RSE;Directeur.rice·rice de la Sensibilisation et de l'Éducation RSE",
+                "DIRECTION RSE / Directeur.rice·rice de la Sensibilisation et de l'Éducation RSE"
+            ],
+            [
+                "DIRECTION RSE;Directeur.rice·rice de la Stratégie RSE",
+                "DIRECTION RSE / Directeur.rice·rice de la Stratégie RSE"
+            ],
+            [
+                "DIRECTION RSE;Directeur.rice·rice de la Transformation responsable",
+                "DIRECTION RSE / Directeur.rice·rice de la Transformation responsable"
+            ],
+            [
+                "DIRECTION RSE;Directeur.rice·rice du Développement Durable",
+                "DIRECTION RSE / Directeur.rice·rice du Développement Durable"
+            ],
+            [
+                "DIRECTION RSE;Responsable de l'Éthique et de la Conformité",
+                "DIRECTION RSE / Responsable de l'Éthique et de la Conformité"
+            ],
+            [
+                "DIRECTION RSE;Responsable de l'Innovation Sociale",
+                "DIRECTION RSE / Responsable de l'Innovation Sociale"
+            ],
+            [
+                "DIRECTION RSE;Responsable de la Communication RSE",
+                "DIRECTION RSE / Responsable de la Communication RSE"
+            ],
+            [
+                "DIRECTION RSE;Responsable de la Gouvernance d'entreprise",
+                "DIRECTION RSE / Responsable de la Gouvernance d'entreprise"
+            ],
+            [
+                "DIRECTION RSE;Responsable de la Performance Sociétale",
+                "DIRECTION RSE / Responsable de la Performance Sociétale"
+            ],
+            [
+                "DIRECTION RSE;Responsable de la RSE",
+                "DIRECTION RSE / Responsable de la RSE"
+            ],
+            [
+                "DIRECTION RSE;Responsable de la Sensibilisation et de l'Éducation RSE",
+                "DIRECTION RSE / Responsable de la Sensibilisation et de l'Éducation RSE"
+            ],
+            [
+                "DIRECTION RSE;Responsable de la Stratégie RSE",
+                "DIRECTION RSE / Responsable de la Stratégie RSE"
+            ],
+            [
+                "DIRECTION RSE;Responsable de la Transformation responsable",
+                "DIRECTION RSE / Responsable de la Transformation responsable"
+            ],
+            [
+                "DIRECTION RSE;Responsable du Développement Durable",
+                "DIRECTION RSE / Responsable du Développement Durable"
+            ],
+            [
+                "DIRECTION RSE;Autres",
+                "DIRECTION RSE / Autres"
+            ]
+        ],
+        "DIRECTION RESSOURCES HUMAINES": [
+            [
+                "DIRECTION RESSOURCES HUMAINES;Consultant.e.e RH",
+                "DIRECTION RESSOURCES HUMAINES / Consultant.e.e RH"
+            ],
+            [
+                "DIRECTION RESSOURCES HUMAINES;Directeur.rice·rice de la Communication interne",
+                "DIRECTION RESSOURCES HUMAINES / Directeur.rice·rice de la Communication interne"
+            ],
+            [
+                "DIRECTION RESSOURCES HUMAINES;Directeur.rice·rice de la Diversité et de l'Inclusion",
+                "DIRECTION RESSOURCES HUMAINES / Directeur.rice·rice de la Diversité et de l'Inclusion"
+            ],
+            [
+                "DIRECTION RESSOURCES HUMAINES;Directeur.rice·rice de la Formation et du Développement des Compétences",
+                "DIRECTION RESSOURCES HUMAINES / Directeur.rice·rice de la Formation et du Développement des Compétences"
+            ],
+            [
+                "DIRECTION RESSOURCES HUMAINES;Directeur.rice·rice de la Gestion des Carrières",
+                "DIRECTION RESSOURCES HUMAINES / Directeur.rice·rice de la Gestion des Carrières"
+            ],
+            [
+                "DIRECTION RESSOURCES HUMAINES;Directeur.rice·rice de la Gestion des Talents",
+                "DIRECTION RESSOURCES HUMAINES / Directeur.rice·rice de la Gestion des Talents"
+            ],
+            [
+                "DIRECTION RESSOURCES HUMAINES;Directeur.rice·rice de la Qualité de vie et des condition de travail (QVCT)",
+                "DIRECTION RESSOURCES HUMAINES / Directeur.rice·rice de la Qualité de vie et des condition de travail (QVCT)"
+            ],
+            [
+                "DIRECTION RESSOURCES HUMAINES;Directeur.rice·rice de la Santé et Sécurité au travail",
+                "DIRECTION RESSOURCES HUMAINES / Directeur.rice·rice de la Santé et Sécurité au travail"
+            ],
+            [
+                "DIRECTION RESSOURCES HUMAINES;Directeur.rice·rice des Ressources humaines (DRH)",
+                "DIRECTION RESSOURCES HUMAINES / Directeur.rice·rice des Ressources humaines (DRH)"
+            ],
+            [
+                "DIRECTION RESSOURCES HUMAINES;Directeur.rice·rice du Développement des Ressources humaines (DDRH)",
+                "DIRECTION RESSOURCES HUMAINES / Directeur.rice·rice du Développement des Ressources humaines (DDRH)"
+            ],
+            [
+                "DIRECTION RESSOURCES HUMAINES;Directeur.rice·rice du Recrutement et de la Sélection",
+                "DIRECTION RESSOURCES HUMAINES / Directeur.rice·rice du Recrutement et de la Sélection"
+            ],
+            [
+                "DIRECTION RESSOURCES HUMAINES;Responsable de la Communication interne",
+                "DIRECTION RESSOURCES HUMAINES / Responsable de la Communication interne"
+            ],
+            [
+                "DIRECTION RESSOURCES HUMAINES;Responsable de la Diversité et de l'Inclusion",
+                "DIRECTION RESSOURCES HUMAINES / Responsable de la Diversité et de l'Inclusion"
+            ],
+            [
+                "DIRECTION RESSOURCES HUMAINES;Responsable de la Formation et du Développement des Compétences",
+                "DIRECTION RESSOURCES HUMAINES / Responsable de la Formation et du Développement des Compétences"
+            ],
+            [
+                "DIRECTION RESSOURCES HUMAINES;Responsable de la Gestion des Carrières",
+                "DIRECTION RESSOURCES HUMAINES / Responsable de la Gestion des Carrières"
+            ],
+            [
+                "DIRECTION RESSOURCES HUMAINES;Responsable de la Gestion des Talents",
+                "DIRECTION RESSOURCES HUMAINES / Responsable de la Gestion des Talents"
+            ],
+            [
+                "DIRECTION RESSOURCES HUMAINES;Responsable de la Qualité de vie au travail",
+                "DIRECTION RESSOURCES HUMAINES / Responsable de la Qualité de vie au travail"
+            ],
+            [
+                "DIRECTION RESSOURCES HUMAINES;Responsable de la Santé et Sécurité au travail",
+                "DIRECTION RESSOURCES HUMAINES / Responsable de la Santé et Sécurité au travail"
+            ],
+            [
+                "DIRECTION RESSOURCES HUMAINES;Responsable des Ressources humaines (RRH)",
+                "DIRECTION RESSOURCES HUMAINES / Responsable des Ressources humaines (RRH)"
+            ],
+            [
+                "DIRECTION RESSOURCES HUMAINES;Responsable du Développement des Ressources humaines (RDRH)",
+                "DIRECTION RESSOURCES HUMAINES / Responsable du Développement des Ressources humaines (RDRH)"
+            ],
+            [
+                "DIRECTION RESSOURCES HUMAINES;Responsable du Recrutement et de la Sélection",
+                "DIRECTION RESSOURCES HUMAINES / Responsable du Recrutement et de la Sélection"
+            ],
+            [
+                "DIRECTION RESSOURCES HUMAINES;Autres",
+                "DIRECTION RESSOURCES HUMAINES / Autres"
+            ]
+        ],
+        "DIRECTION DES SERVICES": [
+            [
+                "DIRECTION DES SERVICES;Analyste de service client",
+                "DIRECTION DES SERVICES / Analyste de service client"
+            ],
+            [
+                "DIRECTION DES SERVICES;Chargé.e de clientèle",
+                "DIRECTION DES SERVICES / Chargé.e de clientèle"
+            ],
+            [
+                "DIRECTION DES SERVICES;Chargé.e de relation client",
+                "DIRECTION DES SERVICES / Chargé.e de relation client"
+            ],
+            [
+                "DIRECTION DES SERVICES;Chef de projet services",
+                "DIRECTION DES SERVICES / Chef de projet services"
+            ],
+            [
+                "DIRECTION DES SERVICES;Chef du service client",
+                "DIRECTION DES SERVICES / Chef du service client"
+            ],
+            [
+                "DIRECTION DES SERVICES;Consultant.e en service client",
+                "DIRECTION DES SERVICES / Consultant.e en service client"
+            ],
+            [
+                "DIRECTION DES SERVICES;Coordinateur de service client",
+                "DIRECTION DES SERVICES / Coordinateur de service client"
+            ],
+            [
+                "DIRECTION DES SERVICES;Directeur.rice de l'expérience client",
+                "DIRECTION DES SERVICES / Directeur.rice de l'expérience client"
+            ],
+            [
+                "DIRECTION DES SERVICES;Directeur.rice de la relation client",
+                "DIRECTION DES SERVICES / Directeur.rice de la relation client"
+            ],
+            [
+                "DIRECTION DES SERVICES;Directeur.rice des opérations de service",
+                "DIRECTION DES SERVICES / Directeur.rice des opérations de service"
+            ],
+            [
+                "DIRECTION DES SERVICES;Directeur.rice des services",
+                "DIRECTION DES SERVICES / Directeur.rice des services"
+            ],
+            [
+                "DIRECTION DES SERVICES;Formateur service client",
+                "DIRECTION DES SERVICES / Formateur service client"
+            ],
+            [
+                "DIRECTION DES SERVICES;Gestionnaire de contrats de service",
+                "DIRECTION DES SERVICES / Gestionnaire de contrats de service"
+            ],
+            [
+                "DIRECTION DES SERVICES;Gestionnaire de la satisfaction client",
+                "DIRECTION DES SERVICES / Gestionnaire de la satisfaction client"
+            ],
+            [
+                "DIRECTION DES SERVICES;Gestionnaire de service après-vente (SAV)",
+                "DIRECTION DES SERVICES / Gestionnaire de service après-vente (SAV)"
+            ],
+            [
+                "DIRECTION DES SERVICES;Manager de service client",
+                "DIRECTION DES SERVICES / Manager de service client"
+            ],
+            [
+                "DIRECTION DES SERVICES;Planificateur de services",
+                "DIRECTION DES SERVICES / Planificateur de services"
+            ],
+            [
+                "DIRECTION DES SERVICES;Responsable de l'expérience client",
+                "DIRECTION DES SERVICES / Responsable de l'expérience client"
+            ],
+            [
+                "DIRECTION DES SERVICES;Responsable de la fidélisation client",
+                "DIRECTION DES SERVICES / Responsable de la fidélisation client"
+            ],
+            [
+                "DIRECTION DES SERVICES;Responsable de la qualité de service",
+                "DIRECTION DES SERVICES / Responsable de la qualité de service"
+            ],
+            [
+                "DIRECTION DES SERVICES;Responsable des centres d'appels",
+                "DIRECTION DES SERVICES / Responsable des centres d'appels"
+            ],
+            [
+                "DIRECTION DES SERVICES;Responsable des opérations de service",
+                "DIRECTION DES SERVICES / Responsable des opérations de service"
+            ],
+            [
+                "DIRECTION DES SERVICES;Responsable des services techniques",
+                "DIRECTION DES SERVICES / Responsable des services techniques"
+            ],
+            [
+                "DIRECTION DES SERVICES;Responsable du service après-vente (SAV)",
+                "DIRECTION DES SERVICES / Responsable du service après-vente (SAV)"
+            ],
+            [
+                "DIRECTION DES SERVICES;Responsable support client",
+                "DIRECTION DES SERVICES / Responsable support client"
+            ],
+            [
+                "DIRECTION DES SERVICES;Responsable téléservices",
+                "DIRECTION DES SERVICES / Responsable téléservices"
+            ],
+            [
+                "DIRECTION DES SERVICES;Spécialiste de la formation client",
+                "DIRECTION DES SERVICES / Spécialiste de la formation client"
+            ],
+            [
+                "DIRECTION DES SERVICES;Superviseur de service client",
+                "DIRECTION DES SERVICES / Superviseur de service client"
+            ],
+            [
+                "DIRECTION DES SERVICES;Technicien de service sur site",
+                "DIRECTION DES SERVICES / Technicien de service sur site"
+            ],
+            [
+                "DIRECTION DES SERVICES;Autres",
+                "DIRECTION DES SERVICES / Autres"
+            ]
+        ],
+        "DIRECTION DES SYSTÈMES D’INFORMATION": [
+            [
+                "DIRECTION DES SYSTÈMES D’INFORMATION;Analyste de données",
+                "DIRECTION DES SYSTÈMES D’INFORMATION / Analyste de données"
+            ],
+            [
+                "DIRECTION DES SYSTÈMES D’INFORMATION;Data Scientist",
+                "DIRECTION DES SYSTÈMES D’INFORMATION / Data Scientist"
+            ],
+            [
+                "DIRECTION DES SYSTÈMES D’INFORMATION;Consultant.e.e en stratégie des systèmes d’information",
+                "DIRECTION DES SYSTÈMES D’INFORMATION / Consultant.e.e en stratégie des systèmes d’information"
+            ],
+            [
+                "DIRECTION DES SYSTÈMES D’INFORMATION;Directeur.rice·rice de l'Architecture des Systèmes d'Information",
+                "DIRECTION DES SYSTÈMES D’INFORMATION / Directeur.rice·rice de l'Architecture des Systèmes d'Information"
+            ],
+            [
+                "DIRECTION DES SYSTÈMES D’INFORMATION;Directeur.rice·rice de l'Exploitation des Systèmes d'Information",
+                "DIRECTION DES SYSTÈMES D’INFORMATION / Directeur.rice·rice de l'Exploitation des Systèmes d'Information"
+            ],
+            [
+                "DIRECTION DES SYSTÈMES D’INFORMATION;Directeur.rice·rice de l'Intelligence Artificielle (IA)",
+                "DIRECTION DES SYSTÈMES D’INFORMATION / Directeur.rice·rice de l'Intelligence Artificielle (IA)"
+            ],
+            [
+                "DIRECTION DES SYSTÈMES D’INFORMATION;Directeur.rice·rice de la Cybersécurité",
+                "DIRECTION DES SYSTÈMES D’INFORMATION / Directeur.rice·rice de la Cybersécurité"
+            ],
+            [
+                "DIRECTION DES SYSTÈMES D’INFORMATION;Directeur.rice·rice de la Gouvernance des Systèmes d'Information",
+                "DIRECTION DES SYSTÈMES D’INFORMATION / Directeur.rice·rice de la Gouvernance des Systèmes d'Information"
+            ],
+            [
+                "DIRECTION DES SYSTÈMES D’INFORMATION;Directeur.rice·rice de la Sécurité des Systèmes d'Information (SSI)",
+                "DIRECTION DES SYSTÈMES D’INFORMATION / Directeur.rice·rice de la Sécurité des Systèmes d'Information (SSI)"
+            ],
+            [
+                "DIRECTION DES SYSTÈMES D’INFORMATION;Directeur.rice·rice de la Transformation Numérique",
+                "DIRECTION DES SYSTÈMES D’INFORMATION / Directeur.rice·rice de la Transformation Numérique"
+            ],
+            [
+                "DIRECTION DES SYSTÈMES D’INFORMATION;Directeur.rice·rice des Opérations IT",
+                "DIRECTION DES SYSTÈMES D’INFORMATION / Directeur.rice·rice des Opérations IT"
+            ],
+            [
+                "DIRECTION DES SYSTÈMES D’INFORMATION;Directeur.rice·rice des Systèmes d'Information (DSI)",
+                "DIRECTION DES SYSTÈMES D’INFORMATION / Directeur.rice·rice des Systèmes d'Information (DSI)"
+            ],
+            [
+                "DIRECTION DES SYSTÈMES D’INFORMATION;Directeur.rice·rice du Big Data",
+                "DIRECTION DES SYSTÈMES D’INFORMATION / Directeur.rice·rice du Big Data"
+            ],
+            [
+                "DIRECTION DES SYSTÈMES D’INFORMATION;Directeur.rice·rice Informatique",
+                "DIRECTION DES SYSTÈMES D’INFORMATION / Directeur.rice·rice Informatique"
+            ],
+            [
+                "DIRECTION DES SYSTÈMES D’INFORMATION;Responsable de l'Architecture des Systèmes d'Information",
+                "DIRECTION DES SYSTÈMES D’INFORMATION / Responsable de l'Architecture des Systèmes d'Information"
+            ],
+            [
+                "DIRECTION DES SYSTÈMES D’INFORMATION;Responsable de l'Exploitation des Systèmes d'Information",
+                "DIRECTION DES SYSTÈMES D’INFORMATION / Responsable de l'Exploitation des Systèmes d'Information"
+            ],
+            [
+                "DIRECTION DES SYSTÈMES D’INFORMATION;Responsable de l'Intelligence Artificielle (IA)",
+                "DIRECTION DES SYSTÈMES D’INFORMATION / Responsable de l'Intelligence Artificielle (IA)"
+            ],
+            [
+                "DIRECTION DES SYSTÈMES D’INFORMATION;Responsable de la Cybersécurité",
+                "DIRECTION DES SYSTÈMES D’INFORMATION / Responsable de la Cybersécurité"
+            ],
+            [
+                "DIRECTION DES SYSTÈMES D’INFORMATION;Responsable de la Gouvernance des Systèmes d'Information",
+                "DIRECTION DES SYSTÈMES D’INFORMATION / Responsable de la Gouvernance des Systèmes d'Information"
+            ],
+            [
+                "DIRECTION DES SYSTÈMES D’INFORMATION;Responsable de la Sécurité des Systèmes d'Information (RSSI)",
+                "DIRECTION DES SYSTÈMES D’INFORMATION / Responsable de la Sécurité des Systèmes d'Information (RSSI)"
+            ],
+            [
+                "DIRECTION DES SYSTÈMES D’INFORMATION;Responsable de la Transformation Numérique",
+                "DIRECTION DES SYSTÈMES D’INFORMATION / Responsable de la Transformation Numérique"
+            ],
+            [
+                "DIRECTION DES SYSTÈMES D’INFORMATION;Responsable des Opérations IT",
+                "DIRECTION DES SYSTÈMES D’INFORMATION / Responsable des Opérations IT"
+            ],
+            [
+                "DIRECTION DES SYSTÈMES D’INFORMATION;Responsable des Systèmes d'Information",
+                "DIRECTION DES SYSTÈMES D’INFORMATION / Responsable des Systèmes d'Information"
+            ],
+            [
+                "DIRECTION DES SYSTÈMES D’INFORMATION;Responsable du Big Data",
+                "DIRECTION DES SYSTÈMES D’INFORMATION / Responsable du Big Data"
+            ],
+            [
+                "DIRECTION DES SYSTÈMES D’INFORMATION;Responsable Informatique",
+                "DIRECTION DES SYSTÈMES D’INFORMATION / Responsable Informatique"
+            ]
+        ],
+        "DIRECTION SÉCURITÉ & SANTÉ AU TRAVAIL": [
+            [
+                "DIRECTION SÉCURITÉ & SANTÉ AU TRAVAIL;Consultant.e.e en sécurité et santé au travail",
+                "DIRECTION SÉCURITÉ & SANTÉ AU TRAVAIL / Consultant.e.e en sécurité et santé au travail"
+            ],
+            [
+                "DIRECTION SÉCURITÉ & SANTÉ AU TRAVAIL;Directeur.rice·rice de la Gestion de la Santé et de la Sécurité au Travail",
+                "DIRECTION SÉCURITÉ & SANTÉ AU TRAVAIL / Directeur.rice·rice de la Gestion de la Santé et de la Sécurité au Travail"
+            ],
+            [
+                "DIRECTION SÉCURITÉ & SANTÉ AU TRAVAIL;Directeur.rice·rice de la Gestion des Risques Professionnels",
+                "DIRECTION SÉCURITÉ & SANTÉ AU TRAVAIL / Directeur.rice·rice de la Gestion des Risques Professionnels"
+            ],
+            [
+                "DIRECTION SÉCURITÉ & SANTÉ AU TRAVAIL;Directeur.rice·rice de la Hygiène Industrielle",
+                "DIRECTION SÉCURITÉ & SANTÉ AU TRAVAIL / Directeur.rice·rice de la Hygiène Industrielle"
+            ],
+            [
+                "DIRECTION SÉCURITÉ & SANTÉ AU TRAVAIL;Directeur.rice·rice de la Médecine du Travail",
+                "DIRECTION SÉCURITÉ & SANTÉ AU TRAVAIL / Directeur.rice·rice de la Médecine du Travail"
+            ],
+            [
+                "DIRECTION SÉCURITÉ & SANTÉ AU TRAVAIL;Directeur.rice·rice de la Prévention des Risques Professionnels",
+                "DIRECTION SÉCURITÉ & SANTÉ AU TRAVAIL / Directeur.rice·rice de la Prévention des Risques Professionnels"
+            ],
+            [
+                "DIRECTION SÉCURITÉ & SANTÉ AU TRAVAIL;Directeur.rice·rice de la Prévention et de la Protection",
+                "DIRECTION SÉCURITÉ & SANTÉ AU TRAVAIL / Directeur.rice·rice de la Prévention et de la Protection"
+            ],
+            [
+                "DIRECTION SÉCURITÉ & SANTÉ AU TRAVAIL;Directeur.rice·rice de la Santé au Travail",
+                "DIRECTION SÉCURITÉ & SANTÉ AU TRAVAIL / Directeur.rice·rice de la Santé au Travail"
+            ],
+            [
+                "DIRECTION SÉCURITÉ & SANTÉ AU TRAVAIL;Directeur.rice·rice de la Sécurité au Travail",
+                "DIRECTION SÉCURITÉ & SANTÉ AU TRAVAIL / Directeur.rice·rice de la Sécurité au Travail"
+            ],
+            [
+                "DIRECTION SÉCURITÉ & SANTÉ AU TRAVAIL;Directeur.rice·rice de la Sécurité Industrielle",
+                "DIRECTION SÉCURITÉ & SANTÉ AU TRAVAIL / Directeur.rice·rice de la Sécurité Industrielle"
+            ],
+            [
+                "DIRECTION SÉCURITÉ & SANTÉ AU TRAVAIL;Directeur.rice·rice Santé-Sécurité au Travail (SST)",
+                "DIRECTION SÉCURITÉ & SANTÉ AU TRAVAIL / Directeur.rice·rice Santé-Sécurité au Travail (SST)"
+            ],
+            [
+                "DIRECTION SÉCURITÉ & SANTÉ AU TRAVAIL;Ergonome du poste de travail",
+                "DIRECTION SÉCURITÉ & SANTÉ AU TRAVAIL / Ergonome du poste de travail"
+            ],
+            [
+                "DIRECTION SÉCURITÉ & SANTÉ AU TRAVAIL;Responsable de la Gestion de la Santé et de la Sécurité au Travail",
+                "DIRECTION SÉCURITÉ & SANTÉ AU TRAVAIL / Responsable de la Gestion de la Santé et de la Sécurité au Travail"
+            ],
+            [
+                "DIRECTION SÉCURITÉ & SANTÉ AU TRAVAIL;Responsable de la Gestion des Risques Professionnels",
+                "DIRECTION SÉCURITÉ & SANTÉ AU TRAVAIL / Responsable de la Gestion des Risques Professionnels"
+            ],
+            [
+                "DIRECTION SÉCURITÉ & SANTÉ AU TRAVAIL;Responsable de la Hygiène Industrielle",
+                "DIRECTION SÉCURITÉ & SANTÉ AU TRAVAIL / Responsable de la Hygiène Industrielle"
+            ],
+            [
+                "DIRECTION SÉCURITÉ & SANTÉ AU TRAVAIL;Responsable de la Médecine du Travail",
+                "DIRECTION SÉCURITÉ & SANTÉ AU TRAVAIL / Responsable de la Médecine du Travail"
+            ],
+            [
+                "DIRECTION SÉCURITÉ & SANTÉ AU TRAVAIL;Responsable de la Prévention des Risques Professionnels",
+                "DIRECTION SÉCURITÉ & SANTÉ AU TRAVAIL / Responsable de la Prévention des Risques Professionnels"
+            ],
+            [
+                "DIRECTION SÉCURITÉ & SANTÉ AU TRAVAIL;Responsable de la Prévention et de la Protection",
+                "DIRECTION SÉCURITÉ & SANTÉ AU TRAVAIL / Responsable de la Prévention et de la Protection"
+            ],
+            [
+                "DIRECTION SÉCURITÉ & SANTÉ AU TRAVAIL;Responsable de la Santé au Travail",
+                "DIRECTION SÉCURITÉ & SANTÉ AU TRAVAIL / Responsable de la Santé au Travail"
+            ],
+            [
+                "DIRECTION SÉCURITÉ & SANTÉ AU TRAVAIL;Responsable de la Sécurité au Travail",
+                "DIRECTION SÉCURITÉ & SANTÉ AU TRAVAIL / Responsable de la Sécurité au Travail"
+            ],
+            [
+                "DIRECTION SÉCURITÉ & SANTÉ AU TRAVAIL;Responsable de la Sécurité Industrielle",
+                "DIRECTION SÉCURITÉ & SANTÉ AU TRAVAIL / Responsable de la Sécurité Industrielle"
+            ],
+            [
+                "DIRECTION SÉCURITÉ & SANTÉ AU TRAVAIL;Responsable Santé-Sécurité au Travail (SST)",
+                "DIRECTION SÉCURITÉ & SANTÉ AU TRAVAIL / Responsable Santé-Sécurité au Travail (SST)"
+            ],
+            [
+                "DIRECTION SÉCURITÉ & SANTÉ AU TRAVAIL;Autres",
+                "DIRECTION SÉCURITÉ & SANTÉ AU TRAVAIL / Autres"
+            ]
+        ],
+        "DIRECTION SÛRETÉ-SÉCURITÉ": [
+            [
+                "DIRECTION SÛRETÉ-SÉCURITÉ;Consultant.e.e en sécurité-sûreté",
+                "DIRECTION SÛRETÉ-SÉCURITÉ / Consultant.e.e en sécurité-sûreté"
+            ],
+            [
+                "DIRECTION SÛRETÉ-SÉCURITÉ;Directeur.rice·rice de la Continuité des Activités",
+                "DIRECTION SÛRETÉ-SÉCURITÉ / Directeur.rice·rice de la Continuité des Activités"
+            ],
+            [
+                "DIRECTION SÛRETÉ-SÉCURITÉ;Directeur.rice·rice de la Cyberdéfense",
+                "DIRECTION SÛRETÉ-SÉCURITÉ / Directeur.rice·rice de la Cyberdéfense"
+            ],
+            [
+                "DIRECTION SÛRETÉ-SÉCURITÉ;Directeur.rice·rice de la Cyberprévention",
+                "DIRECTION SÛRETÉ-SÉCURITÉ / Directeur.rice·rice de la Cyberprévention"
+            ],
+            [
+                "DIRECTION SÛRETÉ-SÉCURITÉ;Directeur.rice·rice de la Gestion des Risques",
+                "DIRECTION SÛRETÉ-SÉCURITÉ / Directeur.rice·rice de la Gestion des Risques"
+            ],
+            [
+                "DIRECTION SÛRETÉ-SÉCURITÉ;Directeur.rice·rice de la Prévention et de la Protection",
+                "DIRECTION SÛRETÉ-SÉCURITÉ / Directeur.rice·rice de la Prévention et de la Protection"
+            ],
+            [
+                "DIRECTION SÛRETÉ-SÉCURITÉ;Directeur.rice·rice de la Sécurité",
+                "DIRECTION SÛRETÉ-SÉCURITÉ / Directeur.rice·rice de la Sécurité"
+            ],
+            [
+                "DIRECTION SÛRETÉ-SÉCURITÉ;Directeur.rice·rice de la Sécurité des Systèmes de Sécurité électronique",
+                "DIRECTION SÛRETÉ-SÉCURITÉ / Directeur.rice·rice de la Sécurité des Systèmes de Sécurité électronique"
+            ],
+            [
+                "DIRECTION SÛRETÉ-SÉCURITÉ;Directeur.rice·rice de la Sécurité Informatique",
+                "DIRECTION SÛRETÉ-SÉCURITÉ / Directeur.rice·rice de la Sécurité Informatique"
+            ],
+            [
+                "DIRECTION SÛRETÉ-SÉCURITÉ;Directeur.rice·rice de la Sécurité Physique",
+                "DIRECTION SÛRETÉ-SÉCURITÉ / Directeur.rice·rice de la Sécurité Physique"
+            ],
+            [
+                "DIRECTION SÛRETÉ-SÉCURITÉ;Directeur.rice·rice de la Sûreté",
+                "DIRECTION SÛRETÉ-SÉCURITÉ / Directeur.rice·rice de la Sûreté"
+            ],
+            [
+                "DIRECTION SÛRETÉ-SÉCURITÉ;Directeur.rice·rice Sécurité-Sûreté",
+                "DIRECTION SÛRETÉ-SÉCURITÉ / Directeur.rice·rice Sécurité-Sûreté"
+            ],
+            [
+                "DIRECTION SÛRETÉ-SÉCURITÉ;Responsable de la Continuité des Activités",
+                "DIRECTION SÛRETÉ-SÉCURITÉ / Responsable de la Continuité des Activités"
+            ],
+            [
+                "DIRECTION SÛRETÉ-SÉCURITÉ;Responsable de la Cyberdéfense",
+                "DIRECTION SÛRETÉ-SÉCURITÉ / Responsable de la Cyberdéfense"
+            ],
+            [
+                "DIRECTION SÛRETÉ-SÉCURITÉ;Responsable de la Cyberprévention",
+                "DIRECTION SÛRETÉ-SÉCURITÉ / Responsable de la Cyberprévention"
+            ],
+            [
+                "DIRECTION SÛRETÉ-SÉCURITÉ;Responsable de la Gestion des Risques",
+                "DIRECTION SÛRETÉ-SÉCURITÉ / Responsable de la Gestion des Risques"
+            ],
+            [
+                "DIRECTION SÛRETÉ-SÉCURITÉ;Responsable de la Prévention et de la Protection",
+                "DIRECTION SÛRETÉ-SÉCURITÉ / Responsable de la Prévention et de la Protection"
+            ],
+            [
+                "DIRECTION SÛRETÉ-SÉCURITÉ;Responsable de la Sécurité",
+                "DIRECTION SÛRETÉ-SÉCURITÉ / Responsable de la Sécurité"
+            ],
+            [
+                "DIRECTION SÛRETÉ-SÉCURITÉ;Responsable de la Sécurité des Systèmes de Sécurité électronique",
+                "DIRECTION SÛRETÉ-SÉCURITÉ / Responsable de la Sécurité des Systèmes de Sécurité électronique"
+            ],
+            [
+                "DIRECTION SÛRETÉ-SÉCURITÉ;Responsable de la Sécurité Informatique",
+                "DIRECTION SÛRETÉ-SÉCURITÉ / Responsable de la Sécurité Informatique"
+            ],
+            [
+                "DIRECTION SÛRETÉ-SÉCURITÉ;Responsable de la Sécurité Physique",
+                "DIRECTION SÛRETÉ-SÉCURITÉ / Responsable de la Sécurité Physique"
+            ],
+            [
+                "DIRECTION SÛRETÉ-SÉCURITÉ;Responsable de la Sûreté",
+                "DIRECTION SÛRETÉ-SÉCURITÉ / Responsable de la Sûreté"
+            ],
+            [
+                "DIRECTION SÛRETÉ-SÉCURITÉ;Responsable Sécurité-Sûreté",
+                "DIRECTION SÛRETÉ-SÉCURITÉ / Responsable Sécurité-Sûreté"
+            ],
+            [
+                "DIRECTION SÛRETÉ-SÉCURITÉ;Autres",
+                "DIRECTION SÛRETÉ-SÉCURITÉ / Autres"
+            ]
+        ],
+        "DIRECTION TRANSPORTS": [
+            [
+                "DIRECTION TRANSPORTS;Consultant.e.e en stratégie de transport",
+                "DIRECTION TRANSPORTS / Consultant.e.e en stratégie de transport"
+            ],
+            [
+                "DIRECTION TRANSPORTS;Directeur.rice·rice de la logistique des transports",
+                "DIRECTION TRANSPORTS / Directeur.rice·rice de la logistique des transports"
+            ],
+            [
+                "DIRECTION TRANSPORTS;Directeur.rice·rice des opérations de transport",
+                "DIRECTION TRANSPORTS / Directeur.rice·rice des opérations de transport"
+            ],
+            [
+                "DIRECTION TRANSPORTS;Directeur.rice·rice des services de transport",
+                "DIRECTION TRANSPORTS / Directeur.rice·rice des services de transport"
+            ],
+            [
+                "DIRECTION TRANSPORTS;Directeur.rice·rice des transports",
+                "DIRECTION TRANSPORTS / Directeur.rice·rice des transports"
+            ],
+            [
+                "DIRECTION TRANSPORTS;Exploitant.e",
+                "DIRECTION TRANSPORTS / Exploitant.e"
+            ],
+            [
+                "DIRECTION TRANSPORTS;Formateur.trice à l’éco-conduite",
+                "DIRECTION TRANSPORTS / Formateur.trice à l’éco-conduite"
+            ],
+            [
+                "DIRECTION TRANSPORTS;Responsable de l'exploitation des transports",
+                "DIRECTION TRANSPORTS / Responsable de l'exploitation des transports"
+            ],
+            [
+                "DIRECTION TRANSPORTS;Responsable de la distribution des marchandises",
+                "DIRECTION TRANSPORTS / Responsable de la distribution des marchandises"
+            ],
+            [
+                "DIRECTION TRANSPORTS;Responsable de la gestion des flottes",
+                "DIRECTION TRANSPORTS / Responsable de la gestion des flottes"
+            ],
+            [
+                "DIRECTION TRANSPORTS;Responsable de la logistique des transports",
+                "DIRECTION TRANSPORTS / Responsable de la logistique des transports"
+            ],
+            [
+                "DIRECTION TRANSPORTS;Responsable de la planification des transports",
+                "DIRECTION TRANSPORTS / Responsable de la planification des transports"
+            ],
+            [
+                "DIRECTION TRANSPORTS;Responsable de la qualité de service des transports",
+                "DIRECTION TRANSPORTS / Responsable de la qualité de service des transports"
+            ],
+            [
+                "DIRECTION TRANSPORTS;Responsable de la réglementation des transports",
+                "DIRECTION TRANSPORTS / Responsable de la réglementation des transports"
+            ],
+            [
+                "DIRECTION TRANSPORTS;Responsable de la sécurité des transports",
+                "DIRECTION TRANSPORTS / Responsable de la sécurité des transports"
+            ],
+            [
+                "DIRECTION TRANSPORTS;Responsable de la tarification des transports",
+                "DIRECTION TRANSPORTS / Responsable de la tarification des transports"
+            ],
+            [
+                "DIRECTION TRANSPORTS;Responsable des affrètements",
+                "DIRECTION TRANSPORTS / Responsable des affrètements"
+            ],
+            [
+                "DIRECTION TRANSPORTS;Responsable des opérations de transport",
+                "DIRECTION TRANSPORTS / Responsable des opérations de transport"
+            ],
+            [
+                "DIRECTION TRANSPORTS;Responsable des relations avec les transporteurs",
+                "DIRECTION TRANSPORTS / Responsable des relations avec les transporteurs"
+            ],
+            [
+                "DIRECTION TRANSPORTS;Responsable des services de transport",
+                "DIRECTION TRANSPORTS / Responsable des services de transport"
+            ],
+            [
+                "DIRECTION TRANSPORTS;Responsable des systèmes d'information transport",
+                "DIRECTION TRANSPORTS / Responsable des systèmes d'information transport"
+            ],
+            [
+                "DIRECTION TRANSPORTS;Responsable des transports",
+                "DIRECTION TRANSPORTS / Responsable des transports"
+            ],
+            [
+                "DIRECTION TRANSPORTS;Responsable du développement durable des transports",
+                "DIRECTION TRANSPORTS / Responsable du développement durable des transports"
+            ],
+            [
+                "DIRECTION TRANSPORTS;Autres",
+                "DIRECTION TRANSPORTS / Autres"
+            ]
+        ]
+    }
+}

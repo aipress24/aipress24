@@ -6,7 +6,8 @@ from __future__ import annotations
 
 from app.flask.lib.pages import page
 from app.models.auth import User
-from app.modules.kyc.models import MembershipApplication
+
+# from app.modules.kyc.models import MembershipApplication
 
 from .. import table as t
 from .base import AdminListPage
@@ -25,7 +26,8 @@ class ApplicationsTable(t.Table):
 
 
 class ApplicationDataSource(t.DataSource):
-    model_class = MembershipApplication
+    # model_class = MembershipApplication
+    model_class = User
 
     def add_search_filter(self, stmt):
         if self.search:

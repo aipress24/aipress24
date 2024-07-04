@@ -1,0 +1,6622 @@
+[
+    {
+        "value": "CAN;A0A Southeastern Avalon Peninsula (Ferryland)",
+        "label": "A0A Southeastern Avalon Peninsula (Ferryland)"
+    },
+    {
+        "value": "CAN;A0B Western Avalon Peninsula (Argentia)",
+        "label": "A0B Western Avalon Peninsula (Argentia)"
+    },
+    {
+        "value": "CAN;A0C Bonavista Peninsula (Bonavista)",
+        "label": "A0C Bonavista Peninsula (Bonavista)"
+    },
+    {
+        "value": "CAN;A0E Burin Peninsula (Marystown)",
+        "label": "A0E Burin Peninsula (Marystown)"
+    },
+    {
+        "value": "CAN;A0G Northeast Newfoundland (Lewisporte)",
+        "label": "A0G Northeast Newfoundland (Lewisporte)"
+    },
+    {
+        "value": "CAN;A0H Central Newfoundland (Bishops Falls)",
+        "label": "A0H Central Newfoundland (Bishops Falls)"
+    },
+    {
+        "value": "CAN;A0J Northern Newfoundland (Springdale)",
+        "label": "A0J Northern Newfoundland (Springdale)"
+    },
+    {
+        "value": "CAN;A0K Northwest Newfoundland/Eastern Labrador (Mary's Harbour)",
+        "label": "A0K Northwest Newfoundland/Eastern Labrador (Mary's Harbour)"
+    },
+    {
+        "value": "CAN;A0L Western Newfoundland (Lark Harbour)",
+        "label": "A0L Western Newfoundland (Lark Harbour)"
+    },
+    {
+        "value": "CAN;A0M Southwestern Newfoundland (Channel-Port aux Basques)",
+        "label": "A0M Southwestern Newfoundland (Channel-Port aux Basques)"
+    },
+    {
+        "value": "CAN;A0N Port au Port Peninsula region (St. George's)",
+        "label": "A0N Port au Port Peninsula region (St. George's)"
+    },
+    {
+        "value": "CAN;A0P Central Labrador (Happy Valley-Goose Bay)",
+        "label": "A0P Central Labrador (Happy Valley-Goose Bay)"
+    },
+    {
+        "value": "CAN;A0R North/Western Labrador (Churchill Falls)",
+        "label": "A0R North/Western Labrador (Churchill Falls)"
+    },
+    {
+        "value": "CAN;A1A St. John's North",
+        "label": "A1A St. John's North"
+    },
+    {
+        "value": "CAN;A1B St. John's Northwest Newfoundland & Labrador Provincial Government",
+        "label": "A1B St. John's Northwest Newfoundland & Labrador Provincial Government"
+    },
+    {
+        "value": "CAN;A1C St. John's North Central",
+        "label": "A1C St. John's North Central"
+    },
+    {
+        "value": "CAN;A1E St. John's Central",
+        "label": "A1E St. John's Central"
+    },
+    {
+        "value": "CAN;A1G St. John's South",
+        "label": "A1G St. John's South"
+    },
+    {
+        "value": "CAN;A1H St. John's Southwest",
+        "label": "A1H St. John's Southwest"
+    },
+    {
+        "value": "CAN;A1K Torbay",
+        "label": "A1K Torbay"
+    },
+    {
+        "value": "CAN;A1L Paradise",
+        "label": "A1L Paradise"
+    },
+    {
+        "value": "CAN;A1M Portugal Cove-St. Philips",
+        "label": "A1M Portugal Cove-St. Philips"
+    },
+    {
+        "value": "CAN;A1N Mount Pearl",
+        "label": "A1N Mount Pearl"
+    },
+    {
+        "value": "CAN;A1S Goulds",
+        "label": "A1S Goulds"
+    },
+    {
+        "value": "CAN;A1V Gander",
+        "label": "A1V Gander"
+    },
+    {
+        "value": "CAN;A1W Manuels",
+        "label": "A1W Manuels"
+    },
+    {
+        "value": "CAN;A1X Conception Bay",
+        "label": "A1X Conception Bay"
+    },
+    {
+        "value": "CAN;A1Y Carbonear",
+        "label": "A1Y Carbonear"
+    },
+    {
+        "value": "CAN;A2A Grand Falls",
+        "label": "A2A Grand Falls"
+    },
+    {
+        "value": "CAN;A2B Windsor",
+        "label": "A2B Windsor"
+    },
+    {
+        "value": "CAN;A2H Corner Brook",
+        "label": "A2H Corner Brook"
+    },
+    {
+        "value": "CAN;A2N Stephenville",
+        "label": "A2N Stephenville"
+    },
+    {
+        "value": "CAN;A2V Labrador City",
+        "label": "A2V Labrador City"
+    },
+    {
+        "value": "CAN;A5A Clarenville",
+        "label": "A5A Clarenville"
+    },
+    {
+        "value": "CAN;A8A Deer Lake",
+        "label": "A8A Deer Lake"
+    },
+    {
+        "value": "CAN;B0C North Victoria County (Dingwall)",
+        "label": "B0C North Victoria County (Dingwall)"
+    },
+    {
+        "value": "CAN;B0E West Cape Breton Island (Baddeck)",
+        "label": "B0E West Cape Breton Island (Baddeck)"
+    },
+    {
+        "value": "CAN;B0H Canso region (Havre Boucher)",
+        "label": "B0H Canso region (Havre Boucher)"
+    },
+    {
+        "value": "CAN;B0J Mainland east shore (Lunenburg)",
+        "label": "B0J Mainland east shore (Lunenburg)"
+    },
+    {
+        "value": "CAN;B0K Southern Northumberland Strait (Pictou)",
+        "label": "B0K Southern Northumberland Strait (Pictou)"
+    },
+    {
+        "value": "CAN;B0L Isthmus of Chignecto (River Hébert)",
+        "label": "B0L Isthmus of Chignecto (River Hébert)"
+    },
+    {
+        "value": "CAN;B0M Cobequid Bay north shore (Springhill)",
+        "label": "B0M Cobequid Bay north shore (Springhill)"
+    },
+    {
+        "value": "CAN;B0N Hants County (Shubenacadie)",
+        "label": "B0N Hants County (Shubenacadie)"
+    },
+    {
+        "value": "CAN;B0P Kings County (Kingston)",
+        "label": "B0P Kings County (Kingston)"
+    },
+    {
+        "value": "CAN;B0R West Lunenburg County (New Germany)",
+        "label": "B0R West Lunenburg County (New Germany)"
+    },
+    {
+        "value": "CAN;B0S West Annapolis County (Middleton)",
+        "label": "B0S West Annapolis County (Middleton)"
+    },
+    {
+        "value": "CAN;B0T Queens County (Shelburne)",
+        "label": "B0T Queens County (Shelburne)"
+    },
+    {
+        "value": "CAN;B0V Digby Neck (Digby)",
+        "label": "B0V Digby Neck (Digby)"
+    },
+    {
+        "value": "CAN;B0W Southwest Mainland (Weymouth)",
+        "label": "B0W Southwest Mainland (Weymouth)"
+    },
+    {
+        "value": "CAN;B1A Glace Bay",
+        "label": "B1A Glace Bay"
+    },
+    {
+        "value": "CAN;B1B Port Morien",
+        "label": "B1B Port Morien"
+    },
+    {
+        "value": "CAN;B1C Louisbourg",
+        "label": "B1C Louisbourg"
+    },
+    {
+        "value": "CAN;B1E Reserve Mines",
+        "label": "B1E Reserve Mines"
+    },
+    {
+        "value": "CAN;B1G Dominion",
+        "label": "B1G Dominion"
+    },
+    {
+        "value": "CAN;B1H New Waterford",
+        "label": "B1H New Waterford"
+    },
+    {
+        "value": "CAN;B1J East Bay",
+        "label": "B1J East Bay"
+    },
+    {
+        "value": "CAN;B1K Marion Bridge",
+        "label": "B1K Marion Bridge"
+    },
+    {
+        "value": "CAN;B1L Sydney Southwest",
+        "label": "B1L Sydney Southwest"
+    },
+    {
+        "value": "CAN;B1M Sydney East",
+        "label": "B1M Sydney East"
+    },
+    {
+        "value": "CAN;B1N Sydney North",
+        "label": "B1N Sydney North"
+    },
+    {
+        "value": "CAN;B1P Sydney North Central",
+        "label": "B1P Sydney North Central"
+    },
+    {
+        "value": "CAN;B1R Sydney West",
+        "label": "B1R Sydney West"
+    },
+    {
+        "value": "CAN;B1S Sydney Central",
+        "label": "B1S Sydney Central"
+    },
+    {
+        "value": "CAN;B1T Christmas Island",
+        "label": "B1T Christmas Island"
+    },
+    {
+        "value": "CAN;B1V North Sydney North",
+        "label": "B1V North Sydney North"
+    },
+    {
+        "value": "CAN;B1W Eskasoni",
+        "label": "B1W Eskasoni"
+    },
+    {
+        "value": "CAN;B1X Big Bras d'Or",
+        "label": "B1X Big Bras d'Or"
+    },
+    {
+        "value": "CAN;B1Y Alder Point",
+        "label": "B1Y Alder Point"
+    },
+    {
+        "value": "CAN;B2A North Sydney South Central",
+        "label": "B2A North Sydney South Central"
+    },
+    {
+        "value": "CAN;B2C Iona",
+        "label": "B2C Iona"
+    },
+    {
+        "value": "CAN;B2E Loch Lomond",
+        "label": "B2E Loch Lomond"
+    },
+    {
+        "value": "CAN;B2G Antigonish",
+        "label": "B2G Antigonish"
+    },
+    {
+        "value": "CAN;B2H New Glasgow",
+        "label": "B2H New Glasgow"
+    },
+    {
+        "value": "CAN;B2J Fourchu",
+        "label": "B2J Fourchu"
+    },
+    {
+        "value": "CAN;B2N Truro",
+        "label": "B2N Truro"
+    },
+    {
+        "value": "CAN;B2R Waverley",
+        "label": "B2R Waverley"
+    },
+    {
+        "value": "CAN;B2S Lantz",
+        "label": "B2S Lantz"
+    },
+    {
+        "value": "CAN;B2T Enfield",
+        "label": "B2T Enfield"
+    },
+    {
+        "value": "CAN;B2V Dartmouth Morris Lake",
+        "label": "B2V Dartmouth Morris Lake"
+    },
+    {
+        "value": "CAN;B2W Dartmouth East Central",
+        "label": "B2W Dartmouth East Central"
+    },
+    {
+        "value": "CAN;B2X Dartmouth North Central",
+        "label": "B2X Dartmouth North Central"
+    },
+    {
+        "value": "CAN;B2Y Dartmouth South Central",
+        "label": "B2Y Dartmouth South Central"
+    },
+    {
+        "value": "CAN;B2Z Dartmouth East",
+        "label": "B2Z Dartmouth East"
+    },
+    {
+        "value": "CAN;B3A Dartmouth Southwest",
+        "label": "B3A Dartmouth Southwest"
+    },
+    {
+        "value": "CAN;B3B Dartmouth Northwest",
+        "label": "B3B Dartmouth Northwest"
+    },
+    {
+        "value": "CAN;B3E Porters Lake",
+        "label": "B3E Porters Lake"
+    },
+    {
+        "value": "CAN;B3G Eastern Passage",
+        "label": "B3G Eastern Passage"
+    },
+    {
+        "value": "CAN;B3H Halifax Lower Harbour",
+        "label": "B3H Halifax Lower Harbour"
+    },
+    {
+        "value": "CAN;B3J Halifax Mid-Harbour Nova Scotia Provincial Government",
+        "label": "B3J Halifax Mid-Harbour Nova Scotia Provincial Government"
+    },
+    {
+        "value": "CAN;B3K Halifax Upper Harbour",
+        "label": "B3K Halifax Upper Harbour"
+    },
+    {
+        "value": "CAN;B3L Halifax Central",
+        "label": "B3L Halifax Central"
+    },
+    {
+        "value": "CAN;B3M Halifax Bedford Basin",
+        "label": "B3M Halifax Bedford Basin"
+    },
+    {
+        "value": "CAN;B3N Halifax South Central",
+        "label": "B3N Halifax South Central"
+    },
+    {
+        "value": "CAN;B3P Halifax North West Arm",
+        "label": "B3P Halifax North West Arm"
+    },
+    {
+        "value": "CAN;B3R Halifax South",
+        "label": "B3R Halifax South"
+    },
+    {
+        "value": "CAN;B3S Halifax West",
+        "label": "B3S Halifax West"
+    },
+    {
+        "value": "CAN;B3T Lakeside",
+        "label": "B3T Lakeside"
+    },
+    {
+        "value": "CAN;B3V Harrietsfield",
+        "label": "B3V Harrietsfield"
+    },
+    {
+        "value": "CAN;B3Z Tantallon",
+        "label": "B3Z Tantallon"
+    },
+    {
+        "value": "CAN;B4A Bedford Southeast",
+        "label": "B4A Bedford Southeast"
+    },
+    {
+        "value": "CAN;B4B Bedford Northwest",
+        "label": "B4B Bedford Northwest"
+    },
+    {
+        "value": "CAN;B4C Lower Sackville South",
+        "label": "B4C Lower Sackville South"
+    },
+    {
+        "value": "CAN;B4E Lower Sackville West",
+        "label": "B4E Lower Sackville West"
+    },
+    {
+        "value": "CAN;B4G Lower Sackville North",
+        "label": "B4G Lower Sackville North"
+    },
+    {
+        "value": "CAN;B4H Amherst",
+        "label": "B4H Amherst"
+    },
+    {
+        "value": "CAN;B4N Kentville",
+        "label": "B4N Kentville"
+    },
+    {
+        "value": "CAN;B4P Wolfville",
+        "label": "B4P Wolfville"
+    },
+    {
+        "value": "CAN;B4R Coldbrook",
+        "label": "B4R Coldbrook"
+    },
+    {
+        "value": "CAN;B4V Bridgewater",
+        "label": "B4V Bridgewater"
+    },
+    {
+        "value": "CAN;B5A Yarmouth",
+        "label": "B5A Yarmouth"
+    },
+    {
+        "value": "CAN;B6L Truro",
+        "label": "B6L Truro"
+    },
+    {
+        "value": "CAN;B9A Port Hawkesbury",
+        "label": "B9A Port Hawkesbury"
+    },
+    {
+        "value": "CAN;C0A Kings and Queens counties (Elmira)",
+        "label": "C0A Kings and Queens counties (Elmira)"
+    },
+    {
+        "value": "CAN;C0A Montague",
+        "label": "C0A Montague"
+    },
+    {
+        "value": "CAN;C0B Prince County (Portage)",
+        "label": "C0B Prince County (Portage)"
+    },
+    {
+        "value": "CAN;C1A Charlottetown Southeast Prince Edward Island Provincial Government",
+        "label": "C1A Charlottetown Southeast Prince Edward Island Provincial Government"
+    },
+    {
+        "value": "CAN;C1B Stratford",
+        "label": "C1B Stratford"
+    },
+    {
+        "value": "CAN;C1C Charlottetown North",
+        "label": "C1C Charlottetown North"
+    },
+    {
+        "value": "CAN;C1E Charlottetown West",
+        "label": "C1E Charlottetown West"
+    },
+    {
+        "value": "CAN;C1N Summerside",
+        "label": "C1N Summerside"
+    },
+    {
+        "value": "CAN;E1A Dieppe Moncton East",
+        "label": "E1A Dieppe Moncton East"
+    },
+    {
+        "value": "CAN;E1B Riverview",
+        "label": "E1B Riverview"
+    },
+    {
+        "value": "CAN;E1C Moncton Central",
+        "label": "E1C Moncton Central"
+    },
+    {
+        "value": "CAN;E1E Moncton West",
+        "label": "E1E Moncton West"
+    },
+    {
+        "value": "CAN;E1G Moncton Northwest",
+        "label": "E1G Moncton Northwest"
+    },
+    {
+        "value": "CAN;E1H Lakeville, Shediac Bridge",
+        "label": "E1H Lakeville, Shediac Bridge"
+    },
+    {
+        "value": "CAN;E1J Coverdale",
+        "label": "E1J Coverdale"
+    },
+    {
+        "value": "CAN;E1N Miramichi South",
+        "label": "E1N Miramichi South"
+    },
+    {
+        "value": "CAN;E1V Miramichi North",
+        "label": "E1V Miramichi North"
+    },
+    {
+        "value": "CAN;E1W Caraquet",
+        "label": "E1W Caraquet"
+    },
+    {
+        "value": "CAN;E1X Tracadie-Sheila",
+        "label": "E1X Tracadie-Sheila"
+    },
+    {
+        "value": "CAN;E2A Bathurst",
+        "label": "E2A Bathurst"
+    },
+    {
+        "value": "CAN;E2E Rothesay, Quispamsis",
+        "label": "E2E Rothesay, Quispamsis"
+    },
+    {
+        "value": "CAN;E2G Quispamsis",
+        "label": "E2G Quispamsis"
+    },
+    {
+        "value": "CAN;E2H Saint John Northeast, Renforth",
+        "label": "E2H Saint John Northeast, Renforth"
+    },
+    {
+        "value": "CAN;E2J Saint John East",
+        "label": "E2J Saint John East"
+    },
+    {
+        "value": "CAN;E2K Saint John North",
+        "label": "E2K Saint John North"
+    },
+    {
+        "value": "CAN;E2L Saint John Central",
+        "label": "E2L Saint John Central"
+    },
+    {
+        "value": "CAN;E2M Saint John West",
+        "label": "E2M Saint John West"
+    },
+    {
+        "value": "CAN;E2N Saint John Lakewood",
+        "label": "E2N Saint John Lakewood"
+    },
+    {
+        "value": "CAN;E2P Saint John Red Head",
+        "label": "E2P Saint John Red Head"
+    },
+    {
+        "value": "CAN;E2R Saint John Grandview",
+        "label": "E2R Saint John Grandview"
+    },
+    {
+        "value": "CAN;E2S Saint John Loch Lomond",
+        "label": "E2S Saint John Loch Lomond"
+    },
+    {
+        "value": "CAN;E2V Oromocto",
+        "label": "E2V Oromocto"
+    },
+    {
+        "value": "CAN;E3A Fredericton North",
+        "label": "E3A Fredericton North"
+    },
+    {
+        "value": "CAN;E3B Fredericton South New Brunswick Provincial Government",
+        "label": "E3B Fredericton South New Brunswick Provincial Government"
+    },
+    {
+        "value": "CAN;E3C Fredericton Southwest, New Maryland",
+        "label": "E3C Fredericton Southwest, New Maryland"
+    },
+    {
+        "value": "CAN;E3E Kingsclear",
+        "label": "E3E Kingsclear"
+    },
+    {
+        "value": "CAN;E3G Fredericton",
+        "label": "E3G Fredericton"
+    },
+    {
+        "value": "CAN;E3L St. Stephen",
+        "label": "E3L St. Stephen"
+    },
+    {
+        "value": "CAN;E3N Campbellton",
+        "label": "E3N Campbellton"
+    },
+    {
+        "value": "CAN;E3V Edmundston",
+        "label": "E3V Edmundston"
+    },
+    {
+        "value": "CAN;E3Y Grand Falls Northeast",
+        "label": "E3Y Grand Falls Northeast"
+    },
+    {
+        "value": "CAN;E3Z Grand Falls Central",
+        "label": "E3Z Grand Falls Central"
+    },
+    {
+        "value": "CAN;E4A Bathurst",
+        "label": "E4A Bathurst"
+    },
+    {
+        "value": "CAN;E4B Minto",
+        "label": "E4B Minto"
+    },
+    {
+        "value": "CAN;E4C Youngs Cove",
+        "label": "E4C Youngs Cove"
+    },
+    {
+        "value": "CAN;E4E Sussex",
+        "label": "E4E Sussex"
+    },
+    {
+        "value": "CAN;E4G Smiths Creek",
+        "label": "E4G Smiths Creek"
+    },
+    {
+        "value": "CAN;E4H Hillsborough",
+        "label": "E4H Hillsborough"
+    },
+    {
+        "value": "CAN;E4J Salisbury",
+        "label": "E4J Salisbury"
+    },
+    {
+        "value": "CAN;E4K Dorchester",
+        "label": "E4K Dorchester"
+    },
+    {
+        "value": "CAN;E4L Sackville",
+        "label": "E4L Sackville"
+    },
+    {
+        "value": "CAN;E4M Bayfield",
+        "label": "E4M Bayfield"
+    },
+    {
+        "value": "CAN;E4N Cap-Pelé",
+        "label": "E4N Cap-Pelé"
+    },
+    {
+        "value": "CAN;E4P Shediac",
+        "label": "E4P Shediac"
+    },
+    {
+        "value": "CAN;E4R Cocagne",
+        "label": "E4R Cocagne"
+    },
+    {
+        "value": "CAN;E4S Bouctouche",
+        "label": "E4S Bouctouche"
+    },
+    {
+        "value": "CAN;E4T Bass River",
+        "label": "E4T Bass River"
+    },
+    {
+        "value": "CAN;E4V Saint-Antoine",
+        "label": "E4V Saint-Antoine"
+    },
+    {
+        "value": "CAN;E4W Richibucto",
+        "label": "E4W Richibucto"
+    },
+    {
+        "value": "CAN;E4X St-Louis-de-Kent",
+        "label": "E4X St-Louis-de-Kent"
+    },
+    {
+        "value": "CAN;E4Y Rogersville",
+        "label": "E4Y Rogersville"
+    },
+    {
+        "value": "CAN;E4Z Petitcodiac",
+        "label": "E4Z Petitcodiac"
+    },
+    {
+        "value": "CAN;E5A Moores Mills",
+        "label": "E5A Moores Mills"
+    },
+    {
+        "value": "CAN;E5B St. Andrews",
+        "label": "E5B St. Andrews"
+    },
+    {
+        "value": "CAN;E5C St. George",
+        "label": "E5C St. George"
+    },
+    {
+        "value": "CAN;E5E Campobello Island",
+        "label": "E5E Campobello Island"
+    },
+    {
+        "value": "CAN;E5G Grand Manan Island",
+        "label": "E5G Grand Manan Island"
+    },
+    {
+        "value": "CAN;E5H Pennfield",
+        "label": "E5H Pennfield"
+    },
+    {
+        "value": "CAN;E5J Lepreau",
+        "label": "E5J Lepreau"
+    },
+    {
+        "value": "CAN;E5K Grand Bay-Westfield",
+        "label": "E5K Grand Bay-Westfield"
+    },
+    {
+        "value": "CAN;E5L Fredericton Junction",
+        "label": "E5L Fredericton Junction"
+    },
+    {
+        "value": "CAN;E5M Gagetown",
+        "label": "E5M Gagetown"
+    },
+    {
+        "value": "CAN;E5N Hampton",
+        "label": "E5N Hampton"
+    },
+    {
+        "value": "CAN;E5P Apohaqui",
+        "label": "E5P Apohaqui"
+    },
+    {
+        "value": "CAN;E5R St. Martins",
+        "label": "E5R St. Martins"
+    },
+    {
+        "value": "CAN;E5S Kingston",
+        "label": "E5S Kingston"
+    },
+    {
+        "value": "CAN;E5T Norton",
+        "label": "E5T Norton"
+    },
+    {
+        "value": "CAN;E5V Deer Island",
+        "label": "E5V Deer Island"
+    },
+    {
+        "value": "CAN;E6A Boiestown",
+        "label": "E6A Boiestown"
+    },
+    {
+        "value": "CAN;E6B Stanley",
+        "label": "E6B Stanley"
+    },
+    {
+        "value": "CAN;E6C Durham Bridge",
+        "label": "E6C Durham Bridge"
+    },
+    {
+        "value": "CAN;E6E Millville",
+        "label": "E6E Millville"
+    },
+    {
+        "value": "CAN;E6G Nackawic",
+        "label": "E6G Nackawic"
+    },
+    {
+        "value": "CAN;E6H Canterbury",
+        "label": "E6H Canterbury"
+    },
+    {
+        "value": "CAN;E6J McAdam",
+        "label": "E6J McAdam"
+    },
+    {
+        "value": "CAN;E6K Harvey",
+        "label": "E6K Harvey"
+    },
+    {
+        "value": "CAN;E6L Burtts Corner",
+        "label": "E6L Burtts Corner"
+    },
+    {
+        "value": "CAN;E7A Baker Brook",
+        "label": "E7A Baker Brook"
+    },
+    {
+        "value": "CAN;E7B Saint-Jacques",
+        "label": "E7B Saint-Jacques"
+    },
+    {
+        "value": "CAN;E7C Saint-Basile",
+        "label": "E7C Saint-Basile"
+    },
+    {
+        "value": "CAN;E7E Saint-Leonard",
+        "label": "E7E Saint-Leonard"
+    },
+    {
+        "value": "CAN;E7G Plaster Rock",
+        "label": "E7G Plaster Rock"
+    },
+    {
+        "value": "CAN;E7H Perth-Andover",
+        "label": "E7H Perth-Andover"
+    },
+    {
+        "value": "CAN;E7J Bath",
+        "label": "E7J Bath"
+    },
+    {
+        "value": "CAN;E7K Centreville",
+        "label": "E7K Centreville"
+    },
+    {
+        "value": "CAN;E7L Florenceville",
+        "label": "E7L Florenceville"
+    },
+    {
+        "value": "CAN;E7M Woodstock",
+        "label": "E7M Woodstock"
+    },
+    {
+        "value": "CAN;E7N Debec",
+        "label": "E7N Debec"
+    },
+    {
+        "value": "CAN;E7P Hartland",
+        "label": "E7P Hartland"
+    },
+    {
+        "value": "CAN;E8A Saint-Quentin",
+        "label": "E8A Saint-Quentin"
+    },
+    {
+        "value": "CAN;E8B Kedgwick",
+        "label": "E8B Kedgwick"
+    },
+    {
+        "value": "CAN;E8C Dalhousie",
+        "label": "E8C Dalhousie"
+    },
+    {
+        "value": "CAN;E8E Balmoral",
+        "label": "E8E Balmoral"
+    },
+    {
+        "value": "CAN;E8G Belledune",
+        "label": "E8G Belledune"
+    },
+    {
+        "value": "CAN;E8J Petit-Rocher",
+        "label": "E8J Petit-Rocher"
+    },
+    {
+        "value": "CAN;E8K Beresford",
+        "label": "E8K Beresford"
+    },
+    {
+        "value": "CAN;E8L Allardville",
+        "label": "E8L Allardville"
+    },
+    {
+        "value": "CAN;E8M Saint-Isidore",
+        "label": "E8M Saint-Isidore"
+    },
+    {
+        "value": "CAN;E8N Grande-Anse",
+        "label": "E8N Grande-Anse"
+    },
+    {
+        "value": "CAN;E8P Inkerman",
+        "label": "E8P Inkerman"
+    },
+    {
+        "value": "CAN;E8R Paquetville",
+        "label": "E8R Paquetville"
+    },
+    {
+        "value": "CAN;E8S Shippagan",
+        "label": "E8S Shippagan"
+    },
+    {
+        "value": "CAN;E8T Lamèque",
+        "label": "E8T Lamèque"
+    },
+    {
+        "value": "CAN;E9A Baie-Sainte-Anne",
+        "label": "E9A Baie-Sainte-Anne"
+    },
+    {
+        "value": "CAN;E9B Blackville",
+        "label": "E9B Blackville"
+    },
+    {
+        "value": "CAN;E9C Doaktown",
+        "label": "E9C Doaktown"
+    },
+    {
+        "value": "CAN;E9E Red Bank",
+        "label": "E9E Red Bank"
+    },
+    {
+        "value": "CAN;E9G Neguac",
+        "label": "E9G Neguac"
+    },
+    {
+        "value": "CAN;E9H Brantville",
+        "label": "E9H Brantville"
+    },
+    {
+        "value": "CAN;G0A Capitale-Nationale (Stoneham)",
+        "label": "G0A Capitale-Nationale (Stoneham)"
+    },
+    {
+        "value": "CAN;G0B Cap-aux-Meules",
+        "label": "G0B Cap-aux-Meules"
+    },
+    {
+        "value": "CAN;G0C Gaspésie-Sud (New Richmond)",
+        "label": "G0C Gaspésie-Sud (New Richmond)"
+    },
+    {
+        "value": "CAN;G0E Gaspésie-Nord (Grande-Vallée)",
+        "label": "G0E Gaspésie-Nord (Grande-Vallée)"
+    },
+    {
+        "value": "CAN;G0G Côte-Nord/Anticosti (Schefferville)",
+        "label": "G0G Côte-Nord/Anticosti (Schefferville)"
+    },
+    {
+        "value": "CAN;G0H Manicouagan (Baie-Trinité)",
+        "label": "G0H Manicouagan (Baie-Trinité)"
+    },
+    {
+        "value": "CAN;G0J Gaspésie-Ouest (Causapscal)",
+        "label": "G0J Gaspésie-Ouest (Causapscal)"
+    },
+    {
+        "value": "CAN;G0K Bas-St-Laurent-Est (Sainte-Luce)",
+        "label": "G0K Bas-St-Laurent-Est (Sainte-Luce)"
+    },
+    {
+        "value": "CAN;G0L Bas-St-Laurent-Ouest (Trois-Pistoles)",
+        "label": "G0L Bas-St-Laurent-Ouest (Trois-Pistoles)"
+    },
+    {
+        "value": "CAN;G0M Région de Beauce (Saint-Prosper-De-Dorchester)",
+        "label": "G0M Région de Beauce (Saint-Prosper-De-Dorchester)"
+    },
+    {
+        "value": "CAN;G0N Chaudière-Sud (Disraeli)",
+        "label": "G0N Chaudière-Sud (Disraeli)"
+    },
+    {
+        "value": "CAN;G0P Centre-du-Québec-Est (Saint-Valère)",
+        "label": "G0P Centre-du-Québec-Est (Saint-Valère)"
+    },
+    {
+        "value": "CAN;G0R Appalaches (La Pocatière)",
+        "label": "G0R Appalaches (La Pocatière)"
+    },
+    {
+        "value": "CAN;G0S Chaudière-Nord (Saint-Joseph-De-Beauce)",
+        "label": "G0S Chaudière-Nord (Saint-Joseph-De-Beauce)"
+    },
+    {
+        "value": "CAN;G0T Le Fjord (Forestville)",
+        "label": "G0T Le Fjord (Forestville)"
+    },
+    {
+        "value": "CAN;G0V Saguenay-Lac-St-Jean (Alouette)",
+        "label": "G0V Saguenay-Lac-St-Jean (Alouette)"
+    },
+    {
+        "value": "CAN;G0W Région de Mistassini (Chambord)",
+        "label": "G0W Région de Mistassini (Chambord)"
+    },
+    {
+        "value": "CAN;G0X Mauricie (Parent)",
+        "label": "G0X Mauricie (Parent)"
+    },
+    {
+        "value": "CAN;G0Y L'Erable (Nantes)",
+        "label": "G0Y L'Erable (Nantes)"
+    },
+    {
+        "value": "CAN;G0Z Centre-du-Québec-Nord (Daveluyville)",
+        "label": "G0Z Centre-du-Québec-Nord (Daveluyville)"
+    },
+    {
+        "value": "CAN;G1A Quebec Provincial Government",
+        "label": "G1A Quebec Provincial Government"
+    },
+    {
+        "value": "CAN;G1B Beauport North",
+        "label": "G1B Beauport North"
+    },
+    {
+        "value": "CAN;G1C Beauport Central",
+        "label": "G1C Beauport Central"
+    },
+    {
+        "value": "CAN;G1E Beauport South",
+        "label": "G1E Beauport South"
+    },
+    {
+        "value": "CAN;G1G Jean-Talon Southeast",
+        "label": "G1G Jean-Talon Southeast"
+    },
+    {
+        "value": "CAN;G1H Charlesbourg South",
+        "label": "G1H Charlesbourg South"
+    },
+    {
+        "value": "CAN;G1J Quebec City Lower Riverbank",
+        "label": "G1J Quebec City Lower Riverbank"
+    },
+    {
+        "value": "CAN;G1K Quebec City Mid-Riverbank",
+        "label": "G1K Quebec City Mid-Riverbank"
+    },
+    {
+        "value": "CAN;G1L Quebec City Northeast",
+        "label": "G1L Quebec City Northeast"
+    },
+    {
+        "value": "CAN;G1M Quebec City North Central",
+        "label": "G1M Quebec City North Central"
+    },
+    {
+        "value": "CAN;G1N Quebec City South Central",
+        "label": "G1N Quebec City South Central"
+    },
+    {
+        "value": "CAN;G1P Quebec City West",
+        "label": "G1P Quebec City West"
+    },
+    {
+        "value": "CAN;G1R Quebec City East",
+        "label": "G1R Quebec City East"
+    },
+    {
+        "value": "CAN;G1S Quebec City South",
+        "label": "G1S Quebec City South"
+    },
+    {
+        "value": "CAN;G1T Quebec City Upper Riverbank",
+        "label": "G1T Quebec City Upper Riverbank"
+    },
+    {
+        "value": "CAN;G1V Sainte-Foy Northeast",
+        "label": "G1V Sainte-Foy Northeast"
+    },
+    {
+        "value": "CAN;G1W Sainte-Foy Southeast",
+        "label": "G1W Sainte-Foy Southeast"
+    },
+    {
+        "value": "CAN;G1X Sainte-Foy West",
+        "label": "G1X Sainte-Foy West"
+    },
+    {
+        "value": "CAN;G1Y Cap-Rouge",
+        "label": "G1Y Cap-Rouge"
+    },
+    {
+        "value": "CAN;G2A Loretteville North",
+        "label": "G2A Loretteville North"
+    },
+    {
+        "value": "CAN;G2B Loretteville South",
+        "label": "G2B Loretteville South"
+    },
+    {
+        "value": "CAN;G2C Quebec City Northwest",
+        "label": "G2C Quebec City Northwest"
+    },
+    {
+        "value": "CAN;G2E L'Ancienne-Lorette Northeast",
+        "label": "G2E L'Ancienne-Lorette Northeast"
+    },
+    {
+        "value": "CAN;G2G L'Ancienne-Lorette Southwest",
+        "label": "G2G L'Ancienne-Lorette Southwest"
+    },
+    {
+        "value": "CAN;G2J Quebec City Inner North",
+        "label": "G2J Quebec City Inner North"
+    },
+    {
+        "value": "CAN;G2K Quebec City Outer North",
+        "label": "G2K Quebec City Outer North"
+    },
+    {
+        "value": "CAN;G2L Charlesbourg North",
+        "label": "G2L Charlesbourg North"
+    },
+    {
+        "value": "CAN;G2M Jean-Talon Northeast",
+        "label": "G2M Jean-Talon Northeast"
+    },
+    {
+        "value": "CAN;G2N Jean-Talon West",
+        "label": "G2N Jean-Talon West"
+    },
+    {
+        "value": "CAN;G3A St-Augustin-De-Desmaures",
+        "label": "G3A St-Augustin-De-Desmaures"
+    },
+    {
+        "value": "CAN;G3B Lac-Beauport",
+        "label": "G3B Lac-Beauport"
+    },
+    {
+        "value": "CAN;G3C Stoneham-et-Tewkesbury",
+        "label": "G3C Stoneham-et-Tewkesbury"
+    },
+    {
+        "value": "CAN;G3E Saint-Émile",
+        "label": "G3E Saint-Émile"
+    },
+    {
+        "value": "CAN;G3G Lac-Saint-Charles",
+        "label": "G3G Lac-Saint-Charles"
+    },
+    {
+        "value": "CAN;G3H Pont-Rouge",
+        "label": "G3H Pont-Rouge"
+    },
+    {
+        "value": "CAN;G3J Val-Bélair North",
+        "label": "G3J Val-Bélair North"
+    },
+    {
+        "value": "CAN;G3K Val-Bélair South",
+        "label": "G3K Val-Bélair South"
+    },
+    {
+        "value": "CAN;G3L Saint-Raymond",
+        "label": "G3L Saint-Raymond"
+    },
+    {
+        "value": "CAN;G3M Donnacona",
+        "label": "G3M Donnacona"
+    },
+    {
+        "value": "CAN;G3N Sainte-Catherine-de-la-Jacques-Cartier",
+        "label": "G3N Sainte-Catherine-de-la-Jacques-Cartier"
+    },
+    {
+        "value": "CAN;G3S Shannon",
+        "label": "G3S Shannon"
+    },
+    {
+        "value": "CAN;G3Z Baie-Saint-Paul",
+        "label": "G3Z Baie-Saint-Paul"
+    },
+    {
+        "value": "CAN;G4A Clermont",
+        "label": "G4A Clermont"
+    },
+    {
+        "value": "CAN;G4R Sept-Îles Southeast",
+        "label": "G4R Sept-Îles Southeast"
+    },
+    {
+        "value": "CAN;G4S Sept-Îles Northwest",
+        "label": "G4S Sept-Îles Northwest"
+    },
+    {
+        "value": "CAN;G4T Les Îles-De-La-Madeleine",
+        "label": "G4T Les Îles-De-La-Madeleine"
+    },
+    {
+        "value": "CAN;G4V Sainte-Anne-Des-Monts",
+        "label": "G4V Sainte-Anne-Des-Monts"
+    },
+    {
+        "value": "CAN;G4W Matane",
+        "label": "G4W Matane"
+    },
+    {
+        "value": "CAN;G4X Gaspé",
+        "label": "G4X Gaspé"
+    },
+    {
+        "value": "CAN;G4Z Baie-Comeau Northeast",
+        "label": "G4Z Baie-Comeau Northeast"
+    },
+    {
+        "value": "CAN;G5A La Malbaie",
+        "label": "G5A La Malbaie"
+    },
+    {
+        "value": "CAN;G5B Port-Cartier",
+        "label": "G5B Port-Cartier"
+    },
+    {
+        "value": "CAN;G5C Baie-Comeau Southwest",
+        "label": "G5C Baie-Comeau Southwest"
+    },
+    {
+        "value": "CAN;G5H Mont-Joli",
+        "label": "G5H Mont-Joli"
+    },
+    {
+        "value": "CAN;G5J Amqui",
+        "label": "G5J Amqui"
+    },
+    {
+        "value": "CAN;G5L Rimouski Central",
+        "label": "G5L Rimouski Central"
+    },
+    {
+        "value": "CAN;G5M Rimouski Northeast",
+        "label": "G5M Rimouski Northeast"
+    },
+    {
+        "value": "CAN;G5N Rimouski Southwest",
+        "label": "G5N Rimouski Southwest"
+    },
+    {
+        "value": "CAN;G5R Rivière-du-Loup",
+        "label": "G5R Rivière-du-Loup"
+    },
+    {
+        "value": "CAN;G5T Degelis",
+        "label": "G5T Degelis"
+    },
+    {
+        "value": "CAN;G5V Montmagny",
+        "label": "G5V Montmagny"
+    },
+    {
+        "value": "CAN;G5X Beauceville",
+        "label": "G5X Beauceville"
+    },
+    {
+        "value": "CAN;G5Y Saint-Georges Central",
+        "label": "G5Y Saint-Georges Central"
+    },
+    {
+        "value": "CAN;G5Z Saint-Georges Southeast",
+        "label": "G5Z Saint-Georges Southeast"
+    },
+    {
+        "value": "CAN;G6A Saint-Georges Northwest",
+        "label": "G6A Saint-Georges Northwest"
+    },
+    {
+        "value": "CAN;G6B Lac-Megantic",
+        "label": "G6B Lac-Megantic"
+    },
+    {
+        "value": "CAN;G6C Pintendre",
+        "label": "G6C Pintendre"
+    },
+    {
+        "value": "CAN;G6E Sainte-Marie",
+        "label": "G6E Sainte-Marie"
+    },
+    {
+        "value": "CAN;G6G Thetford Mines",
+        "label": "G6G Thetford Mines"
+    },
+    {
+        "value": "CAN;G6H Black Lake",
+        "label": "G6H Black Lake"
+    },
+    {
+        "value": "CAN;G6J Saint-Etienne-De-Lauzon",
+        "label": "G6J Saint-Etienne-De-Lauzon"
+    },
+    {
+        "value": "CAN;G6K Saint-Redempteur",
+        "label": "G6K Saint-Redempteur"
+    },
+    {
+        "value": "CAN;G6L Plessisville",
+        "label": "G6L Plessisville"
+    },
+    {
+        "value": "CAN;G6P Victoriaville Central",
+        "label": "G6P Victoriaville Central"
+    },
+    {
+        "value": "CAN;G6R Victoriaville South",
+        "label": "G6R Victoriaville South"
+    },
+    {
+        "value": "CAN;G6S Victoriaville East",
+        "label": "G6S Victoriaville East"
+    },
+    {
+        "value": "CAN;G6T Victoriaville Northwest",
+        "label": "G6T Victoriaville Northwest"
+    },
+    {
+        "value": "CAN;G6V Lévis North",
+        "label": "G6V Lévis North"
+    },
+    {
+        "value": "CAN;G6W Lévis South",
+        "label": "G6W Lévis South"
+    },
+    {
+        "value": "CAN;G6X Charny",
+        "label": "G6X Charny"
+    },
+    {
+        "value": "CAN;G6Y Lévis",
+        "label": "G6Y Lévis"
+    },
+    {
+        "value": "CAN;G6Z Saint-Jean-Chrysostome",
+        "label": "G6Z Saint-Jean-Chrysostome"
+    },
+    {
+        "value": "CAN;G7A Saint-Nicolas",
+        "label": "G7A Saint-Nicolas"
+    },
+    {
+        "value": "CAN;G7B La Baie",
+        "label": "G7B La Baie"
+    },
+    {
+        "value": "CAN;G7G Chicoutimi North",
+        "label": "G7G Chicoutimi North"
+    },
+    {
+        "value": "CAN;G7H Chicoutimi East",
+        "label": "G7H Chicoutimi East"
+    },
+    {
+        "value": "CAN;G7J Chicoutimi West",
+        "label": "G7J Chicoutimi West"
+    },
+    {
+        "value": "CAN;G7K Chicoutimi Southwest",
+        "label": "G7K Chicoutimi Southwest"
+    },
+    {
+        "value": "CAN;G7N Laterrière",
+        "label": "G7N Laterrière"
+    },
+    {
+        "value": "CAN;G7P Saint-Ambroise",
+        "label": "G7P Saint-Ambroise"
+    },
+    {
+        "value": "CAN;G7S Jonquière Northeast",
+        "label": "G7S Jonquière Northeast"
+    },
+    {
+        "value": "CAN;G7T Jonquière Southeast",
+        "label": "G7T Jonquière Southeast"
+    },
+    {
+        "value": "CAN;G7X Jonquière Central",
+        "label": "G7X Jonquière Central"
+    },
+    {
+        "value": "CAN;G7Y Jonquière Southwest",
+        "label": "G7Y Jonquière Southwest"
+    },
+    {
+        "value": "CAN;G7Z Jonquière Northwest",
+        "label": "G7Z Jonquière Northwest"
+    },
+    {
+        "value": "CAN;G8A Jonquière West",
+        "label": "G8A Jonquière West"
+    },
+    {
+        "value": "CAN;G8B Alma Southeast",
+        "label": "G8B Alma Southeast"
+    },
+    {
+        "value": "CAN;G8C Alma Southwest",
+        "label": "G8C Alma Southwest"
+    },
+    {
+        "value": "CAN;G8E Alma North",
+        "label": "G8E Alma North"
+    },
+    {
+        "value": "CAN;G8G Métabetchouan-Lac-a-la-Croix",
+        "label": "G8G Métabetchouan-Lac-a-la-Croix"
+    },
+    {
+        "value": "CAN;G8H Roberval",
+        "label": "G8H Roberval"
+    },
+    {
+        "value": "CAN;G8J Saint-Prime",
+        "label": "G8J Saint-Prime"
+    },
+    {
+        "value": "CAN;G8K Saint-Félicien",
+        "label": "G8K Saint-Félicien"
+    },
+    {
+        "value": "CAN;G8L Dolbeau-Mistassini",
+        "label": "G8L Dolbeau-Mistassini"
+    },
+    {
+        "value": "CAN;G8M Albanel",
+        "label": "G8M Albanel"
+    },
+    {
+        "value": "CAN;G8N Hébertville",
+        "label": "G8N Hébertville"
+    },
+    {
+        "value": "CAN;G8P Chibougamau",
+        "label": "G8P Chibougamau"
+    },
+    {
+        "value": "CAN;G8T Cap-de-la-Madeleine Central and southeast",
+        "label": "G8T Cap-de-la-Madeleine Central and southeast"
+    },
+    {
+        "value": "CAN;G8V Cap-de-la-Madeleine Northeast",
+        "label": "G8V Cap-de-la-Madeleine Northeast"
+    },
+    {
+        "value": "CAN;G8W Cap-de-la-Madeleine West",
+        "label": "G8W Cap-de-la-Madeleine West"
+    },
+    {
+        "value": "CAN;G8Y Trois-Rivières Central",
+        "label": "G8Y Trois-Rivières Central"
+    },
+    {
+        "value": "CAN;G8Z Trois-Rivières Northeast",
+        "label": "G8Z Trois-Rivières Northeast"
+    },
+    {
+        "value": "CAN;G9A Trois-Rivières East",
+        "label": "G9A Trois-Rivières East"
+    },
+    {
+        "value": "CAN;G9B Trois-Rivières South",
+        "label": "G9B Trois-Rivières South"
+    },
+    {
+        "value": "CAN;G9C Trois-Rivières West",
+        "label": "G9C Trois-Rivières West"
+    },
+    {
+        "value": "CAN;G9H Becancour",
+        "label": "G9H Becancour"
+    },
+    {
+        "value": "CAN;G9N Shawinigan Central",
+        "label": "G9N Shawinigan Central"
+    },
+    {
+        "value": "CAN;G9P Shawinigan Southeast",
+        "label": "G9P Shawinigan Southeast"
+    },
+    {
+        "value": "CAN;G9R Shawinigan Northwest",
+        "label": "G9R Shawinigan Northwest"
+    },
+    {
+        "value": "CAN;G9T Grand-Mère",
+        "label": "G9T Grand-Mère"
+    },
+    {
+        "value": "CAN;G9X La Tuque",
+        "label": "G9X La Tuque"
+    },
+    {
+        "value": "CAN;H0H Reserved (Santa Claus)",
+        "label": "H0H Reserved (Santa Claus)"
+    },
+    {
+        "value": "CAN;H0M Akwesasne Region (Akwesasne)",
+        "label": "H0M Akwesasne Region (Akwesasne)"
+    },
+    {
+        "value": "CAN;H1A Pointe-Aux-Trembles",
+        "label": "H1A Pointe-Aux-Trembles"
+    },
+    {
+        "value": "CAN;H1B Montreal East",
+        "label": "H1B Montreal East"
+    },
+    {
+        "value": "CAN;H1C Rivière-des-Prairies Northeast",
+        "label": "H1C Rivière-des-Prairies Northeast"
+    },
+    {
+        "value": "CAN;H1E Rivière-Des-Prairies Southwest",
+        "label": "H1E Rivière-Des-Prairies Southwest"
+    },
+    {
+        "value": "CAN;H1G Montreal North North",
+        "label": "H1G Montreal North North"
+    },
+    {
+        "value": "CAN;H1H Montreal North South",
+        "label": "H1H Montreal North South"
+    },
+    {
+        "value": "CAN;H1J Anjou West",
+        "label": "H1J Anjou West"
+    },
+    {
+        "value": "CAN;H1K Anjou East",
+        "label": "H1K Anjou East"
+    },
+    {
+        "value": "CAN;H1L Mercier North",
+        "label": "H1L Mercier North"
+    },
+    {
+        "value": "CAN;H1M Mercier West",
+        "label": "H1M Mercier West"
+    },
+    {
+        "value": "CAN;H1N Mercier Southeast",
+        "label": "H1N Mercier Southeast"
+    },
+    {
+        "value": "CAN;H1P Saint-Léonard North",
+        "label": "H1P Saint-Léonard North"
+    },
+    {
+        "value": "CAN;H1R Saint-Léonard West",
+        "label": "H1R Saint-Léonard West"
+    },
+    {
+        "value": "CAN;H1S Saint-Léonard Southeast",
+        "label": "H1S Saint-Léonard Southeast"
+    },
+    {
+        "value": "CAN;H1T Rosemont North",
+        "label": "H1T Rosemont North"
+    },
+    {
+        "value": "CAN;H1V Maisonneuve",
+        "label": "H1V Maisonneuve"
+    },
+    {
+        "value": "CAN;H1W Hochelaga",
+        "label": "H1W Hochelaga"
+    },
+    {
+        "value": "CAN;H1X Rosemont Central",
+        "label": "H1X Rosemont Central"
+    },
+    {
+        "value": "CAN;H1Y Rosemont South",
+        "label": "H1Y Rosemont South"
+    },
+    {
+        "value": "CAN;H1Z Saint-Michel West",
+        "label": "H1Z Saint-Michel West"
+    },
+    {
+        "value": "CAN;H2A Saint-Michel East",
+        "label": "H2A Saint-Michel East"
+    },
+    {
+        "value": "CAN;H2B Ahuntsic North",
+        "label": "H2B Ahuntsic North"
+    },
+    {
+        "value": "CAN;H2C Ahuntsic Central",
+        "label": "H2C Ahuntsic Central"
+    },
+    {
+        "value": "CAN;H2E Villeray Northeast",
+        "label": "H2E Villeray Northeast"
+    },
+    {
+        "value": "CAN;H2G Petite-Patrie Northeast",
+        "label": "H2G Petite-Patrie Northeast"
+    },
+    {
+        "value": "CAN;H2H Plateau Mont-Royal North",
+        "label": "H2H Plateau Mont-Royal North"
+    },
+    {
+        "value": "CAN;H2J Plateau Mont-Royal North Central",
+        "label": "H2J Plateau Mont-Royal North Central"
+    },
+    {
+        "value": "CAN;H2K Centre-Sud North",
+        "label": "H2K Centre-Sud North"
+    },
+    {
+        "value": "CAN;H2L Centre-Sud South",
+        "label": "H2L Centre-Sud South"
+    },
+    {
+        "value": "CAN;H2M Ahuntsic East",
+        "label": "H2M Ahuntsic East"
+    },
+    {
+        "value": "CAN;H2N Ahuntsic Southeast",
+        "label": "H2N Ahuntsic Southeast"
+    },
+    {
+        "value": "CAN;H2P Villeray West",
+        "label": "H2P Villeray West"
+    },
+    {
+        "value": "CAN;H2R Villeray Southeast",
+        "label": "H2R Villeray Southeast"
+    },
+    {
+        "value": "CAN;H2S Petite-Patrie Southwest",
+        "label": "H2S Petite-Patrie Southwest"
+    },
+    {
+        "value": "CAN;H2T Plateau Mont-Royal West",
+        "label": "H2T Plateau Mont-Royal West"
+    },
+    {
+        "value": "CAN;H2V Outremont",
+        "label": "H2V Outremont"
+    },
+    {
+        "value": "CAN;H2W Plateau Mont-Royal South Central",
+        "label": "H2W Plateau Mont-Royal South Central"
+    },
+    {
+        "value": "CAN;H2X Plateau Mont-Royal Southeast",
+        "label": "H2X Plateau Mont-Royal Southeast"
+    },
+    {
+        "value": "CAN;H2Y Old Montreal",
+        "label": "H2Y Old Montreal"
+    },
+    {
+        "value": "CAN;H2Z Downtown Montreal Northeast",
+        "label": "H2Z Downtown Montreal Northeast"
+    },
+    {
+        "value": "CAN;H3A Downtown Montreal North",
+        "label": "H3A Downtown Montreal North"
+    },
+    {
+        "value": "CAN;H3B Downtown Montreal East",
+        "label": "H3B Downtown Montreal East"
+    },
+    {
+        "value": "CAN;H3C Griffintown (Includes Île Notre-Dame & Île Sainte-Hélène)",
+        "label": "H3C Griffintown (Includes Île Notre-Dame & Île Sainte-Hélène)"
+    },
+    {
+        "value": "CAN;H3E L'Île-Des-Soeurs",
+        "label": "H3E L'Île-Des-Soeurs"
+    },
+    {
+        "value": "CAN;H3G Downtown Montreal Southeast",
+        "label": "H3G Downtown Montreal Southeast"
+    },
+    {
+        "value": "CAN;H3H Downtown Montreal South & West",
+        "label": "H3H Downtown Montreal South & West"
+    },
+    {
+        "value": "CAN;H3J Petite-Bourgogne",
+        "label": "H3J Petite-Bourgogne"
+    },
+    {
+        "value": "CAN;H3K Pointe-Saint-Charles",
+        "label": "H3K Pointe-Saint-Charles"
+    },
+    {
+        "value": "CAN;H3L Ahuntsic Southwest",
+        "label": "H3L Ahuntsic Southwest"
+    },
+    {
+        "value": "CAN;H3M Cartierville Northeast",
+        "label": "H3M Cartierville Northeast"
+    },
+    {
+        "value": "CAN;H3N Parc-Extension",
+        "label": "H3N Parc-Extension"
+    },
+    {
+        "value": "CAN;H3P Mount Royal North",
+        "label": "H3P Mount Royal North"
+    },
+    {
+        "value": "CAN;H3R Mount Royal Central",
+        "label": "H3R Mount Royal Central"
+    },
+    {
+        "value": "CAN;H3S Côte-des-Neiges North",
+        "label": "H3S Côte-des-Neiges North"
+    },
+    {
+        "value": "CAN;H3T Côte-des-Neiges Northeast",
+        "label": "H3T Côte-des-Neiges Northeast"
+    },
+    {
+        "value": "CAN;H3V Côte-des-Neiges East",
+        "label": "H3V Côte-des-Neiges East"
+    },
+    {
+        "value": "CAN;H3W Côte-des-Neiges Southwest",
+        "label": "H3W Côte-des-Neiges Southwest"
+    },
+    {
+        "value": "CAN;H3X Hampstead",
+        "label": "H3X Hampstead"
+    },
+    {
+        "value": "CAN;H3Y Westmount West",
+        "label": "H3Y Westmount West"
+    },
+    {
+        "value": "CAN;H3Z Westmount East",
+        "label": "H3Z Westmount East"
+    },
+    {
+        "value": "CAN;H4A Notre-Dame-de-Grâce Northeast",
+        "label": "H4A Notre-Dame-de-Grâce Northeast"
+    },
+    {
+        "value": "CAN;H4B Notre-Dame-de-Grâce Southwest",
+        "label": "H4B Notre-Dame-de-Grâce Southwest"
+    },
+    {
+        "value": "CAN;H4C Saint-Henri",
+        "label": "H4C Saint-Henri"
+    },
+    {
+        "value": "CAN;H4E Ville Émard",
+        "label": "H4E Ville Émard"
+    },
+    {
+        "value": "CAN;H4G Verdun North",
+        "label": "H4G Verdun North"
+    },
+    {
+        "value": "CAN;H4H Verdun South",
+        "label": "H4H Verdun South"
+    },
+    {
+        "value": "CAN;H4J Cartierville Central",
+        "label": "H4J Cartierville Central"
+    },
+    {
+        "value": "CAN;H4K Cartierville Southwest",
+        "label": "H4K Cartierville Southwest"
+    },
+    {
+        "value": "CAN;H4L Saint-Laurent Inner Northeast",
+        "label": "H4L Saint-Laurent Inner Northeast"
+    },
+    {
+        "value": "CAN;H4M Saint-Laurent East",
+        "label": "H4M Saint-Laurent East"
+    },
+    {
+        "value": "CAN;H4N Saint-Laurent Outer Northeast",
+        "label": "H4N Saint-Laurent Outer Northeast"
+    },
+    {
+        "value": "CAN;H4P Mount Royal South",
+        "label": "H4P Mount Royal South"
+    },
+    {
+        "value": "CAN;H4R Saint-Laurent Central",
+        "label": "H4R Saint-Laurent Central"
+    },
+    {
+        "value": "CAN;H4S Saint-Laurent Southwest",
+        "label": "H4S Saint-Laurent Southwest"
+    },
+    {
+        "value": "CAN;H4T Saint-Laurent Southeast",
+        "label": "H4T Saint-Laurent Southeast"
+    },
+    {
+        "value": "CAN;H4V Côte-Saint-Luc East",
+        "label": "H4V Côte-Saint-Luc East"
+    },
+    {
+        "value": "CAN;H4W Côte-Saint-Luc West",
+        "label": "H4W Côte-Saint-Luc West"
+    },
+    {
+        "value": "CAN;H4X Montreal West",
+        "label": "H4X Montreal West"
+    },
+    {
+        "value": "CAN;H4Y Dorval Central",
+        "label": "H4Y Dorval Central"
+    },
+    {
+        "value": "CAN;H4Z Tour de la Bourse",
+        "label": "H4Z Tour de la Bourse"
+    },
+    {
+        "value": "CAN;H5A Place Bonaventure",
+        "label": "H5A Place Bonaventure"
+    },
+    {
+        "value": "CAN;H5B Place Desjardins",
+        "label": "H5B Place Desjardins"
+    },
+    {
+        "value": "CAN;H7A Duvernay-Est",
+        "label": "H7A Duvernay-Est"
+    },
+    {
+        "value": "CAN;H7B Saint-Franþois",
+        "label": "H7B Saint-Franþois"
+    },
+    {
+        "value": "CAN;H7C Saint-Vincent-de-Paul",
+        "label": "H7C Saint-Vincent-de-Paul"
+    },
+    {
+        "value": "CAN;H7E Duvernay",
+        "label": "H7E Duvernay"
+    },
+    {
+        "value": "CAN;H7G Pont-Viau",
+        "label": "H7G Pont-Viau"
+    },
+    {
+        "value": "CAN;H7H Auteuil West",
+        "label": "H7H Auteuil West"
+    },
+    {
+        "value": "CAN;H7J Auteuil Northeast",
+        "label": "H7J Auteuil Northeast"
+    },
+    {
+        "value": "CAN;H7K Auteuil South",
+        "label": "H7K Auteuil South"
+    },
+    {
+        "value": "CAN;H7L Sainte-Rose",
+        "label": "H7L Sainte-Rose"
+    },
+    {
+        "value": "CAN;H7M Vimont",
+        "label": "H7M Vimont"
+    },
+    {
+        "value": "CAN;H7N Laval-des-Rapides",
+        "label": "H7N Laval-des-Rapides"
+    },
+    {
+        "value": "CAN;H7P Fabreville",
+        "label": "H7P Fabreville"
+    },
+    {
+        "value": "CAN;H7R Laval-sur-le-Lac",
+        "label": "H7R Laval-sur-le-Lac"
+    },
+    {
+        "value": "CAN;H7S Chomedey Northeast",
+        "label": "H7S Chomedey Northeast"
+    },
+    {
+        "value": "CAN;H7T Chomedey Northwest",
+        "label": "H7T Chomedey Northwest"
+    },
+    {
+        "value": "CAN;H7V Chomedey East",
+        "label": "H7V Chomedey East"
+    },
+    {
+        "value": "CAN;H7W Chomedey South",
+        "label": "H7W Chomedey South"
+    },
+    {
+        "value": "CAN;H7X Sainte-Dorothée",
+        "label": "H7X Sainte-Dorothée"
+    },
+    {
+        "value": "CAN;H7Y Îles-Laval",
+        "label": "H7Y Îles-Laval"
+    },
+    {
+        "value": "CAN;H8N LaSalle Northwest",
+        "label": "H8N LaSalle Northwest"
+    },
+    {
+        "value": "CAN;H8P LaSalle Southeast",
+        "label": "H8P LaSalle Southeast"
+    },
+    {
+        "value": "CAN;H8R Saint-Pierre",
+        "label": "H8R Saint-Pierre"
+    },
+    {
+        "value": "CAN;H8S Lachine East",
+        "label": "H8S Lachine East"
+    },
+    {
+        "value": "CAN;H8T Lachine West",
+        "label": "H8T Lachine West"
+    },
+    {
+        "value": "CAN;H8Y Roxboro",
+        "label": "H8Y Roxboro"
+    },
+    {
+        "value": "CAN;H8Z Pierrefonds",
+        "label": "H8Z Pierrefonds"
+    },
+    {
+        "value": "CAN;H9A Dollard-Des-Ormeaux Northwest",
+        "label": "H9A Dollard-Des-Ormeaux Northwest"
+    },
+    {
+        "value": "CAN;H9B Dollard-Des-Ormeaux East",
+        "label": "H9B Dollard-Des-Ormeaux East"
+    },
+    {
+        "value": "CAN;H9C L'Île Bizard Northeast",
+        "label": "H9C L'Île Bizard Northeast"
+    },
+    {
+        "value": "CAN;H9E L'Île-Bizard Southwest",
+        "label": "H9E L'Île-Bizard Southwest"
+    },
+    {
+        "value": "CAN;H9G Dollard-Des-Ormeaux Southwest",
+        "label": "H9G Dollard-Des-Ormeaux Southwest"
+    },
+    {
+        "value": "CAN;H9H Sainte-Geneviève",
+        "label": "H9H Sainte-Geneviève"
+    },
+    {
+        "value": "CAN;H9J Kirkland",
+        "label": "H9J Kirkland"
+    },
+    {
+        "value": "CAN;H9K Senneville",
+        "label": "H9K Senneville"
+    },
+    {
+        "value": "CAN;H9P Dorval Outskirts",
+        "label": "H9P Dorval Outskirts"
+    },
+    {
+        "value": "CAN;H9R Pointe-Claire",
+        "label": "H9R Pointe-Claire"
+    },
+    {
+        "value": "CAN;H9S L'Île-Dorval",
+        "label": "H9S L'Île-Dorval"
+    },
+    {
+        "value": "CAN;H9W Beaconsfield",
+        "label": "H9W Beaconsfield"
+    },
+    {
+        "value": "CAN;H9X Sainte-Anne-De-Bellevue",
+        "label": "H9X Sainte-Anne-De-Bellevue"
+    },
+    {
+        "value": "CAN;J0A Centre-du-Québec-Sud (Warwick)",
+        "label": "J0A Centre-du-Québec-Sud (Warwick)"
+    },
+    {
+        "value": "CAN;J0B Estrie-Est (Stanstead)",
+        "label": "J0B Estrie-Est (Stanstead)"
+    },
+    {
+        "value": "CAN;J0C Centre-du-Québec-Ouest (Saint-Bonaventure)",
+        "label": "J0C Centre-du-Québec-Ouest (Saint-Bonaventure)"
+    },
+    {
+        "value": "CAN;J0E Estrie-Ouest (Fulford)",
+        "label": "J0E Estrie-Ouest (Fulford)"
+    },
+    {
+        "value": "CAN;J0G Bois-Francs-Nord (Odanak)",
+        "label": "J0G Bois-Francs-Nord (Odanak)"
+    },
+    {
+        "value": "CAN;J0H Bois-Francs-Sud (Saint-Nazaire-D'Acton)",
+        "label": "J0H Bois-Francs-Sud (Saint-Nazaire-D'Acton)"
+    },
+    {
+        "value": "CAN;J0J Montérégie-Est (Bedford)",
+        "label": "J0J Montérégie-Est (Bedford)"
+    },
+    {
+        "value": "CAN;J0K Lanaudière-Nord (Saint-Esprit)",
+        "label": "J0K Lanaudière-Nord (Saint-Esprit)"
+    },
+    {
+        "value": "CAN;J0L Montérégie-Nord (Saint-Antoine-Sur-Richelieu)",
+        "label": "J0L Montérégie-Nord (Saint-Antoine-Sur-Richelieu)"
+    },
+    {
+        "value": "CAN;J0M Nunavik (Kuujjuaq)",
+        "label": "J0M Nunavik (Kuujjuaq)"
+    },
+    {
+        "value": "CAN;J0N Région d'Oka (Oka)",
+        "label": "J0N Région d'Oka (Oka)"
+    },
+    {
+        "value": "CAN;J0P Vaudreuil-Soulanges (Coteau-du-Lac)",
+        "label": "J0P Vaudreuil-Soulanges (Coteau-du-Lac)"
+    },
+    {
+        "value": "CAN;J0R Lanaudière-Sud (Prévost)",
+        "label": "J0R Lanaudière-Sud (Prévost)"
+    },
+    {
+        "value": "CAN;J0S Montérégie-Ouest (Saint-Anicet)",
+        "label": "J0S Montérégie-Ouest (Saint-Anicet)"
+    },
+    {
+        "value": "CAN;J0T Laurentides-Nord (Montcalm)",
+        "label": "J0T Laurentides-Nord (Montcalm)"
+    },
+    {
+        "value": "CAN;J0V Laurentides-Sud (Chénéville)",
+        "label": "J0V Laurentides-Sud (Chénéville)"
+    },
+    {
+        "value": "CAN;J0W Outaouais-Nord (Ferme-Neuve)",
+        "label": "J0W Outaouais-Nord (Ferme-Neuve)"
+    },
+    {
+        "value": "CAN;J0X Outaouais-Sud (Thurso)",
+        "label": "J0X Outaouais-Sud (Thurso)"
+    },
+    {
+        "value": "CAN;J0Y Abitibi-Témiscamingue-Est (Radisson)",
+        "label": "J0Y Abitibi-Témiscamingue-Est (Radisson)"
+    },
+    {
+        "value": "CAN;J0Z Abitibi-Témiscamingue-Ouest (Guigues)",
+        "label": "J0Z Abitibi-Témiscamingue-Ouest (Guigues)"
+    },
+    {
+        "value": "CAN;J1A Coaticook",
+        "label": "J1A Coaticook"
+    },
+    {
+        "value": "CAN;J1C Bromptonville",
+        "label": "J1C Bromptonville"
+    },
+    {
+        "value": "CAN;J1E Sherbrooke Northeast",
+        "label": "J1E Sherbrooke Northeast"
+    },
+    {
+        "value": "CAN;J1G Sherbrooke East",
+        "label": "J1G Sherbrooke East"
+    },
+    {
+        "value": "CAN;J1H Sherbrooke Central",
+        "label": "J1H Sherbrooke Central"
+    },
+    {
+        "value": "CAN;J1J Sherbrooke North",
+        "label": "J1J Sherbrooke North"
+    },
+    {
+        "value": "CAN;J1K Sherbrooke West",
+        "label": "J1K Sherbrooke West"
+    },
+    {
+        "value": "CAN;J1L Sherbrooke Northwest",
+        "label": "J1L Sherbrooke Northwest"
+    },
+    {
+        "value": "CAN;J1M Sherbrooke Southeast",
+        "label": "J1M Sherbrooke Southeast"
+    },
+    {
+        "value": "CAN;J1N Rock Forest",
+        "label": "J1N Rock Forest"
+    },
+    {
+        "value": "CAN;J1R Saint-Élie-d'Orford",
+        "label": "J1R Saint-Élie-d'Orford"
+    },
+    {
+        "value": "CAN;J1S Windsor",
+        "label": "J1S Windsor"
+    },
+    {
+        "value": "CAN;J1T Asbestos",
+        "label": "J1T Asbestos"
+    },
+    {
+        "value": "CAN;J1X Magog",
+        "label": "J1X Magog"
+    },
+    {
+        "value": "CAN;J1Z Saint-Cyrille-De-Wendover",
+        "label": "J1Z Saint-Cyrille-De-Wendover"
+    },
+    {
+        "value": "CAN;J2A Drummondville Southeast",
+        "label": "J2A Drummondville Southeast"
+    },
+    {
+        "value": "CAN;J2B Drummondville South",
+        "label": "J2B Drummondville South"
+    },
+    {
+        "value": "CAN;J2C Drummondville Central",
+        "label": "J2C Drummondville Central"
+    },
+    {
+        "value": "CAN;J2E Drummondville Northwest",
+        "label": "J2E Drummondville Northwest"
+    },
+    {
+        "value": "CAN;J2G Granby Central",
+        "label": "J2G Granby Central"
+    },
+    {
+        "value": "CAN;J2H Granby East",
+        "label": "J2H Granby East"
+    },
+    {
+        "value": "CAN;J2J Granby West",
+        "label": "J2J Granby West"
+    },
+    {
+        "value": "CAN;J2K Cowansville",
+        "label": "J2K Cowansville"
+    },
+    {
+        "value": "CAN;J2L Bromont",
+        "label": "J2L Bromont"
+    },
+    {
+        "value": "CAN;J2M Shefford",
+        "label": "J2M Shefford"
+    },
+    {
+        "value": "CAN;J2N Farnham",
+        "label": "J2N Farnham"
+    },
+    {
+        "value": "CAN;J2R Saint-Hyacinthe Northwest",
+        "label": "J2R Saint-Hyacinthe Northwest"
+    },
+    {
+        "value": "CAN;J2S Saint-Hyacinthe Southwest",
+        "label": "J2S Saint-Hyacinthe Southwest"
+    },
+    {
+        "value": "CAN;J2T Saint-Hyacinthe East",
+        "label": "J2T Saint-Hyacinthe East"
+    },
+    {
+        "value": "CAN;J2W Saint-Luc",
+        "label": "J2W Saint-Luc"
+    },
+    {
+        "value": "CAN;J2X Saint-Jean-sur-Richelieu East",
+        "label": "J2X Saint-Jean-sur-Richelieu East"
+    },
+    {
+        "value": "CAN;J2Y Saint-Jean-sur-Richelieu West",
+        "label": "J2Y Saint-Jean-sur-Richelieu West"
+    },
+    {
+        "value": "CAN;J3A Saint-Jean-sur-Richelieu North",
+        "label": "J3A Saint-Jean-sur-Richelieu North"
+    },
+    {
+        "value": "CAN;J3B Saint-Jean-sur-Richelieu Central",
+        "label": "J3B Saint-Jean-sur-Richelieu Central"
+    },
+    {
+        "value": "CAN;J3E Sainte-Julie",
+        "label": "J3E Sainte-Julie"
+    },
+    {
+        "value": "CAN;J3G Beloeil West",
+        "label": "J3G Beloeil West"
+    },
+    {
+        "value": "CAN;J3H Beloeil East",
+        "label": "J3H Beloeil East"
+    },
+    {
+        "value": "CAN;J3L Chambly",
+        "label": "J3L Chambly"
+    },
+    {
+        "value": "CAN;J3M Marieville",
+        "label": "J3M Marieville"
+    },
+    {
+        "value": "CAN;J3N Saint-Basile-Le-Grand",
+        "label": "J3N Saint-Basile-Le-Grand"
+    },
+    {
+        "value": "CAN;J3P Sorel Central",
+        "label": "J3P Sorel Central"
+    },
+    {
+        "value": "CAN;J3R Sorel Southwest",
+        "label": "J3R Sorel Southwest"
+    },
+    {
+        "value": "CAN;J3T Nicolet",
+        "label": "J3T Nicolet"
+    },
+    {
+        "value": "CAN;J3V Saint-Bruno",
+        "label": "J3V Saint-Bruno"
+    },
+    {
+        "value": "CAN;J3X Varennes",
+        "label": "J3X Varennes"
+    },
+    {
+        "value": "CAN;J3Y Saint-Hubert Central",
+        "label": "J3Y Saint-Hubert Central"
+    },
+    {
+        "value": "CAN;J3Z Saint-Hubert East",
+        "label": "J3Z Saint-Hubert East"
+    },
+    {
+        "value": "CAN;J4B Boucherville",
+        "label": "J4B Boucherville"
+    },
+    {
+        "value": "CAN;J4G Longueuil North",
+        "label": "J4G Longueuil North"
+    },
+    {
+        "value": "CAN;J4H Longueuil West",
+        "label": "J4H Longueuil West"
+    },
+    {
+        "value": "CAN;J4J Longueuil Central",
+        "label": "J4J Longueuil Central"
+    },
+    {
+        "value": "CAN;J4K Longueuil Southwest",
+        "label": "J4K Longueuil Southwest"
+    },
+    {
+        "value": "CAN;J4L Longueuil Southeast",
+        "label": "J4L Longueuil Southeast"
+    },
+    {
+        "value": "CAN;J4M Longueuil East",
+        "label": "J4M Longueuil East"
+    },
+    {
+        "value": "CAN;J4N Longueuil Northeast",
+        "label": "J4N Longueuil Northeast"
+    },
+    {
+        "value": "CAN;J4P Saint-Lambert North",
+        "label": "J4P Saint-Lambert North"
+    },
+    {
+        "value": "CAN;J4R Saint-Lambert Central",
+        "label": "J4R Saint-Lambert Central"
+    },
+    {
+        "value": "CAN;J4S Saint-Lambert South",
+        "label": "J4S Saint-Lambert South"
+    },
+    {
+        "value": "CAN;J4T Saint-Hubert West",
+        "label": "J4T Saint-Hubert West"
+    },
+    {
+        "value": "CAN;J4V Greenfield Park",
+        "label": "J4V Greenfield Park"
+    },
+    {
+        "value": "CAN;J4W Brossard Northwest",
+        "label": "J4W Brossard Northwest"
+    },
+    {
+        "value": "CAN;J4X Brossard Southwest",
+        "label": "J4X Brossard Southwest"
+    },
+    {
+        "value": "CAN;J4Y Brossard South",
+        "label": "J4Y Brossard South"
+    },
+    {
+        "value": "CAN;J4Z Brossard Northeast",
+        "label": "J4Z Brossard Northeast"
+    },
+    {
+        "value": "CAN;J5A Saint-Constant",
+        "label": "J5A Saint-Constant"
+    },
+    {
+        "value": "CAN;J5B Delson",
+        "label": "J5B Delson"
+    },
+    {
+        "value": "CAN;J5C Sainte-Catherine",
+        "label": "J5C Sainte-Catherine"
+    },
+    {
+        "value": "CAN;J5J Saint-Sophie",
+        "label": "J5J Saint-Sophie"
+    },
+    {
+        "value": "CAN;J5K Saint-Colomban",
+        "label": "J5K Saint-Colomban"
+    },
+    {
+        "value": "CAN;J5L Saint-Jérôme West",
+        "label": "J5L Saint-Jérôme West"
+    },
+    {
+        "value": "CAN;J5M Saint-Lin-Laurentides",
+        "label": "J5M Saint-Lin-Laurentides"
+    },
+    {
+        "value": "CAN;J5R La Prairie",
+        "label": "J5R La Prairie"
+    },
+    {
+        "value": "CAN;J5T Lavaltrie",
+        "label": "J5T Lavaltrie"
+    },
+    {
+        "value": "CAN;J5V Louiseville",
+        "label": "J5V Louiseville"
+    },
+    {
+        "value": "CAN;J5W L'Assomption",
+        "label": "J5W L'Assomption"
+    },
+    {
+        "value": "CAN;J5X L'Épiphanie",
+        "label": "J5X L'Épiphanie"
+    },
+    {
+        "value": "CAN;J5Y Repentigny Northeast",
+        "label": "J5Y Repentigny Northeast"
+    },
+    {
+        "value": "CAN;J5Z Repentigny West",
+        "label": "J5Z Repentigny West"
+    },
+    {
+        "value": "CAN;J6A Repentigny South",
+        "label": "J6A Repentigny South"
+    },
+    {
+        "value": "CAN;J6E Joliette",
+        "label": "J6E Joliette"
+    },
+    {
+        "value": "CAN;J6J Châteauguay North",
+        "label": "J6J Châteauguay North"
+    },
+    {
+        "value": "CAN;J6K Châteauguay South",
+        "label": "J6K Châteauguay South"
+    },
+    {
+        "value": "CAN;J6N Beauharnois",
+        "label": "J6N Beauharnois"
+    },
+    {
+        "value": "CAN;J6R Mercier",
+        "label": "J6R Mercier"
+    },
+    {
+        "value": "CAN;J6S Salaberry-de-Valleyfield North",
+        "label": "J6S Salaberry-de-Valleyfield North"
+    },
+    {
+        "value": "CAN;J6T Salaberry-de-Valleyfield South",
+        "label": "J6T Salaberry-de-Valleyfield South"
+    },
+    {
+        "value": "CAN;J6V Terrebonne East",
+        "label": "J6V Terrebonne East"
+    },
+    {
+        "value": "CAN;J6W Terrebonne Central",
+        "label": "J6W Terrebonne Central"
+    },
+    {
+        "value": "CAN;J6X Terrebonne Northwest",
+        "label": "J6X Terrebonne Northwest"
+    },
+    {
+        "value": "CAN;J6Y Terrebonne Southwest",
+        "label": "J6Y Terrebonne Southwest"
+    },
+    {
+        "value": "CAN;J6Z Sainte-Thérèse-de-Blainville Northeast",
+        "label": "J6Z Sainte-Thérèse-de-Blainville Northeast"
+    },
+    {
+        "value": "CAN;J7A Sainte-Thérèse-de-Blainville East",
+        "label": "J7A Sainte-Thérèse-de-Blainville East"
+    },
+    {
+        "value": "CAN;J7B Sainte-Thérèse-de-Blainville North",
+        "label": "J7B Sainte-Thérèse-de-Blainville North"
+    },
+    {
+        "value": "CAN;J7C Sainte-Thérèse-de-Blainville Northwest",
+        "label": "J7C Sainte-Thérèse-de-Blainville Northwest"
+    },
+    {
+        "value": "CAN;J7E Sainte-Thérèse-de-Blainville Central",
+        "label": "J7E Sainte-Thérèse-de-Blainville Central"
+    },
+    {
+        "value": "CAN;J7G Sainte-Thérèse-de-Blainville South",
+        "label": "J7G Sainte-Thérèse-de-Blainville South"
+    },
+    {
+        "value": "CAN;J7H Sainte-Thérèse-de-Blainville Southwest",
+        "label": "J7H Sainte-Thérèse-de-Blainville Southwest"
+    },
+    {
+        "value": "CAN;J7J Mirabel Northeast",
+        "label": "J7J Mirabel Northeast"
+    },
+    {
+        "value": "CAN;J7K Mascouche Extremities",
+        "label": "J7K Mascouche Extremities"
+    },
+    {
+        "value": "CAN;J7L Mascouche Central",
+        "label": "J7L Mascouche Central"
+    },
+    {
+        "value": "CAN;J7M La Plaine",
+        "label": "J7M La Plaine"
+    },
+    {
+        "value": "CAN;J7N Mirabel Southwest",
+        "label": "J7N Mirabel Southwest"
+    },
+    {
+        "value": "CAN;J7P Saint-Eustache Northeast",
+        "label": "J7P Saint-Eustache Northeast"
+    },
+    {
+        "value": "CAN;J7R Saint-Eustache Southwest",
+        "label": "J7R Saint-Eustache Southwest"
+    },
+    {
+        "value": "CAN;J7T Vaudreuil-Dorion RCM",
+        "label": "J7T Vaudreuil-Dorion RCM"
+    },
+    {
+        "value": "CAN;J7V Vaudreuil-Dorion",
+        "label": "J7V Vaudreuil-Dorion"
+    },
+    {
+        "value": "CAN;J7W Pincourt",
+        "label": "J7W Pincourt"
+    },
+    {
+        "value": "CAN;J7X Valleyfield",
+        "label": "J7X Valleyfield"
+    },
+    {
+        "value": "CAN;J7Y Saint-Jérôme North",
+        "label": "J7Y Saint-Jérôme North"
+    },
+    {
+        "value": "CAN;J7Z Saint-Jérôme Southeast",
+        "label": "J7Z Saint-Jérôme Southeast"
+    },
+    {
+        "value": "CAN;J8A Saint-Hippolyte",
+        "label": "J8A Saint-Hippolyte"
+    },
+    {
+        "value": "CAN;J8B Sainte-Adèle",
+        "label": "J8B Sainte-Adèle"
+    },
+    {
+        "value": "CAN;J8C Sainte-Agathe-Des-Monts",
+        "label": "J8C Sainte-Agathe-Des-Monts"
+    },
+    {
+        "value": "CAN;J8E Mont-Tremblant",
+        "label": "J8E Mont-Tremblant"
+    },
+    {
+        "value": "CAN;J8G Chatham",
+        "label": "J8G Chatham"
+    },
+    {
+        "value": "CAN;J8H Lachute",
+        "label": "J8H Lachute"
+    },
+    {
+        "value": "CAN;J8L Buckingham",
+        "label": "J8L Buckingham"
+    },
+    {
+        "value": "CAN;J8M Masson-Angers",
+        "label": "J8M Masson-Angers"
+    },
+    {
+        "value": "CAN;J8N Val-des-Monts",
+        "label": "J8N Val-des-Monts"
+    },
+    {
+        "value": "CAN;J8P Gatineau Southeast",
+        "label": "J8P Gatineau Southeast"
+    },
+    {
+        "value": "CAN;J8R Gatineau Northeast",
+        "label": "J8R Gatineau Northeast"
+    },
+    {
+        "value": "CAN;J8T Gatineau Southwest",
+        "label": "J8T Gatineau Southwest"
+    },
+    {
+        "value": "CAN;J8V Gatineau Northwest",
+        "label": "J8V Gatineau Northwest"
+    },
+    {
+        "value": "CAN;J8X Hull Southeast",
+        "label": "J8X Hull Southeast"
+    },
+    {
+        "value": "CAN;J8Y Hull Central",
+        "label": "J8Y Hull Central"
+    },
+    {
+        "value": "CAN;J8Z Hull North",
+        "label": "J8Z Hull North"
+    },
+    {
+        "value": "CAN;J9A Hull Southwest",
+        "label": "J9A Hull Southwest"
+    },
+    {
+        "value": "CAN;J9B Chelsea",
+        "label": "J9B Chelsea"
+    },
+    {
+        "value": "CAN;J9E Maniwaki",
+        "label": "J9E Maniwaki"
+    },
+    {
+        "value": "CAN;J9H Aylmer South",
+        "label": "J9H Aylmer South"
+    },
+    {
+        "value": "CAN;J9J Aylmer North",
+        "label": "J9J Aylmer North"
+    },
+    {
+        "value": "CAN;J9L Mont-Laurier",
+        "label": "J9L Mont-Laurier"
+    },
+    {
+        "value": "CAN;J9P Val-d'Or",
+        "label": "J9P Val-d'Or"
+    },
+    {
+        "value": "CAN;J9T Amos",
+        "label": "J9T Amos"
+    },
+    {
+        "value": "CAN;J9V Ville-Marie",
+        "label": "J9V Ville-Marie"
+    },
+    {
+        "value": "CAN;J9X Rouyn-Noranda South",
+        "label": "J9X Rouyn-Noranda South"
+    },
+    {
+        "value": "CAN;J9Y Rouyn-Noranda North",
+        "label": "J9Y Rouyn-Noranda North"
+    },
+    {
+        "value": "CAN;J9Z La Sarre",
+        "label": "J9Z La Sarre"
+    },
+    {
+        "value": "CAN;K0A National Capital Region (Almonte)",
+        "label": "K0A National Capital Region (Almonte)"
+    },
+    {
+        "value": "CAN;K0B Prescott and Russell United Counties (Alfred)",
+        "label": "K0B Prescott and Russell United Counties (Alfred)"
+    },
+    {
+        "value": "CAN;K0C Stormont, Dundas and Glengarry United Counties (Alexandria)",
+        "label": "K0C Stormont, Dundas and Glengarry United Counties (Alexandria)"
+    },
+    {
+        "value": "CAN;K0E South Leeds and Grenville United Counties (Prescott)",
+        "label": "K0E South Leeds and Grenville United Counties (Prescott)"
+    },
+    {
+        "value": "CAN;K0G Rideau Lakes area (Kemptville)",
+        "label": "K0G Rideau Lakes area (Kemptville)"
+    },
+    {
+        "value": "CAN;K0H Frontenac County, Addington County, Loyalist Shores and Southwest Leeds (Inverary)",
+        "label": "K0H Frontenac County, Addington County, Loyalist Shores and Southwest Leeds (Inverary)"
+    },
+    {
+        "value": "CAN;K0J Renfrew County and Lanark Highlands Township (Deep River)",
+        "label": "K0J Renfrew County and Lanark Highlands Township (Deep River)"
+    },
+    {
+        "value": "CAN;K0K Quinte Shores, East Northumberland County & Prince Edward County (Picton)",
+        "label": "K0K Quinte Shores, East Northumberland County & Prince Edward County (Picton)"
+    },
+    {
+        "value": "CAN;K0L Peterborough County and North Hastings County (Lakefield)",
+        "label": "K0L Peterborough County and North Hastings County (Lakefield)"
+    },
+    {
+        "value": "CAN;K0M Kawartha lakes and Haliburton County (Bobcaygeon)",
+        "label": "K0M Kawartha lakes and Haliburton County (Bobcaygeon)"
+    },
+    {
+        "value": "CAN;K1A Government of Canada Ottawa and Gatineau offices",
+        "label": "K1A Government of Canada Ottawa and Gatineau offices"
+    },
+    {
+        "value": "CAN;K1B Gloucester (Blackburn Hamlet / Pine View)",
+        "label": "K1B Gloucester (Blackburn Hamlet / Pine View)"
+    },
+    {
+        "value": "CAN;K1C Gloucester (West Orleans)",
+        "label": "K1C Gloucester (West Orleans)"
+    },
+    {
+        "value": "CAN;K1E Orleans (Queenswood)",
+        "label": "K1E Orleans (Queenswood)"
+    },
+    {
+        "value": "CAN;K1G Ottawa (Riverview / Hawthorne)",
+        "label": "K1G Ottawa (Riverview / Hawthorne)"
+    },
+    {
+        "value": "CAN;K1H Ottawa (Alta Vista)",
+        "label": "K1H Ottawa (Alta Vista)"
+    },
+    {
+        "value": "CAN;K1J Gloucester (Beacon Hill / Cyrville)",
+        "label": "K1J Gloucester (Beacon Hill / Cyrville)"
+    },
+    {
+        "value": "CAN;K1K Ottawa (Overbrook)",
+        "label": "K1K Ottawa (Overbrook)"
+    },
+    {
+        "value": "CAN;K1L Ottawa (Vanier)",
+        "label": "K1L Ottawa (Vanier)"
+    },
+    {
+        "value": "CAN;K1M Ottawa (Rockcliffe Park / New Edinburgh)",
+        "label": "K1M Ottawa (Rockcliffe Park / New Edinburgh)"
+    },
+    {
+        "value": "CAN;K1N Ottawa (Lower Town / Sandy Hill / University of Ottawa)",
+        "label": "K1N Ottawa (Lower Town / Sandy Hill / University of Ottawa)"
+    },
+    {
+        "value": "CAN;K1P Ottawa (Parliament Hill)",
+        "label": "K1P Ottawa (Parliament Hill)"
+    },
+    {
+        "value": "CAN;K1R Ottawa (West Downtown area)",
+        "label": "K1R Ottawa (West Downtown area)"
+    },
+    {
+        "value": "CAN;K1S Ottawa (The Glebe / Ottawa South / Ottawa East)",
+        "label": "K1S Ottawa (The Glebe / Ottawa South / Ottawa East)"
+    },
+    {
+        "value": "CAN;K1T Gloucester (Blossom Park / Hunt Club East / Leitrim)",
+        "label": "K1T Gloucester (Blossom Park / Hunt Club East / Leitrim)"
+    },
+    {
+        "value": "CAN;K1V Ottawa (Riverside Park / Hunt Club West / Riverside South / YOW)",
+        "label": "K1V Ottawa (Riverside Park / Hunt Club West / Riverside South / YOW)"
+    },
+    {
+        "value": "CAN;K1W Gloucester (South Orleans)",
+        "label": "K1W Gloucester (South Orleans)"
+    },
+    {
+        "value": "CAN;K1X Gloucester South",
+        "label": "K1X Gloucester South"
+    },
+    {
+        "value": "CAN;K1Y Ottawa West",
+        "label": "K1Y Ottawa West"
+    },
+    {
+        "value": "CAN;K1Z Ottawa (Westboro)",
+        "label": "K1Z Ottawa (Westboro)"
+    },
+    {
+        "value": "CAN;K2A Ottawa (Highland Park / Carlingwood)",
+        "label": "K2A Ottawa (Highland Park / Carlingwood)"
+    },
+    {
+        "value": "CAN;K2B Ottawa (Britannia / Pinecrest)",
+        "label": "K2B Ottawa (Britannia / Pinecrest)"
+    },
+    {
+        "value": "CAN;K2C Ottawa (Queensway / Copeland / Carlington / Carleton Heights)",
+        "label": "K2C Ottawa (Queensway / Copeland / Carlington / Carleton Heights)"
+    },
+    {
+        "value": "CAN;K2E Nepean East",
+        "label": "K2E Nepean East"
+    },
+    {
+        "value": "CAN;K2G Nepean (Davidson Heights)",
+        "label": "K2G Nepean (Davidson Heights)"
+    },
+    {
+        "value": "CAN;K2H Nepean (Bells Corners)",
+        "label": "K2H Nepean (Bells Corners)"
+    },
+    {
+        "value": "CAN;K2J Nepean (Barrhaven)",
+        "label": "K2J Nepean (Barrhaven)"
+    },
+    {
+        "value": "CAN;K2K Kanata (Beaverbrook / South March)",
+        "label": "K2K Kanata (Beaverbrook / South March)"
+    },
+    {
+        "value": "CAN;K2L Kanata (Katimavik-Hazeldean / Glen Cairn)",
+        "label": "K2L Kanata (Katimavik-Hazeldean / Glen Cairn)"
+    },
+    {
+        "value": "CAN;K2M Kanata (Bridlewood)",
+        "label": "K2M Kanata (Bridlewood)"
+    },
+    {
+        "value": "CAN;K2P Ottawa (Centre Town)",
+        "label": "K2P Ottawa (Centre Town)"
+    },
+    {
+        "value": "CAN;K2R Nepean (Fallowfield Village / Cedarhill Estates / Orchard Estates)",
+        "label": "K2R Nepean (Fallowfield Village / Cedarhill Estates / Orchard Estates)"
+    },
+    {
+        "value": "CAN;K2S Stittsville",
+        "label": "K2S Stittsville"
+    },
+    {
+        "value": "CAN;K2T Kanata (Marchwood)",
+        "label": "K2T Kanata (Marchwood)"
+    },
+    {
+        "value": "CAN;K2V Kanata (Terry Fox / Palladium)",
+        "label": "K2V Kanata (Terry Fox / Palladium)"
+    },
+    {
+        "value": "CAN;K2W Kanata (North March)",
+        "label": "K2W Kanata (North March)"
+    },
+    {
+        "value": "CAN;K4A Orleans (Fallingbrook)",
+        "label": "K4A Orleans (Fallingbrook)"
+    },
+    {
+        "value": "CAN;K4B Cumberland Township",
+        "label": "K4B Cumberland Township"
+    },
+    {
+        "value": "CAN;K4C Cumberland",
+        "label": "K4C Cumberland"
+    },
+    {
+        "value": "CAN;K4K Rockland",
+        "label": "K4K Rockland"
+    },
+    {
+        "value": "CAN;K4M Manotick",
+        "label": "K4M Manotick"
+    },
+    {
+        "value": "CAN;K4P Greely",
+        "label": "K4P Greely"
+    },
+    {
+        "value": "CAN;K4R Russell",
+        "label": "K4R Russell"
+    },
+    {
+        "value": "CAN;K6A Hawkesbury",
+        "label": "K6A Hawkesbury"
+    },
+    {
+        "value": "CAN;K6H Cornwall East",
+        "label": "K6H Cornwall East"
+    },
+    {
+        "value": "CAN;K6J Cornwall West",
+        "label": "K6J Cornwall West"
+    },
+    {
+        "value": "CAN;K6K Cornwall North",
+        "label": "K6K Cornwall North"
+    },
+    {
+        "value": "CAN;K6T Elizabethtown",
+        "label": "K6T Elizabethtown"
+    },
+    {
+        "value": "CAN;K6V Brockville",
+        "label": "K6V Brockville"
+    },
+    {
+        "value": "CAN;K7A Smiths Falls",
+        "label": "K7A Smiths Falls"
+    },
+    {
+        "value": "CAN;K7C Carleton Place",
+        "label": "K7C Carleton Place"
+    },
+    {
+        "value": "CAN;K7G Gananoque",
+        "label": "K7G Gananoque"
+    },
+    {
+        "value": "CAN;K7H Perth",
+        "label": "K7H Perth"
+    },
+    {
+        "value": "CAN;K7K Kingston (SW Pittsburgh Township)",
+        "label": "K7K Kingston (SW Pittsburgh Township)"
+    },
+    {
+        "value": "CAN;K7L Kingston (Downtown)",
+        "label": "K7L Kingston (Downtown)"
+    },
+    {
+        "value": "CAN;K7M Kingston (Reddendale / Cataraqui / Collins Bay)",
+        "label": "K7M Kingston (Reddendale / Cataraqui / Collins Bay)"
+    },
+    {
+        "value": "CAN;K7N Amherstview",
+        "label": "K7N Amherstview"
+    },
+    {
+        "value": "CAN;K7P Kingston (Westbrook / Cataraqui Woods / Cedarwood)",
+        "label": "K7P Kingston (Westbrook / Cataraqui Woods / Cedarwood)"
+    },
+    {
+        "value": "CAN;K7R Napanee",
+        "label": "K7R Napanee"
+    },
+    {
+        "value": "CAN;K7S Arnprior",
+        "label": "K7S Arnprior"
+    },
+    {
+        "value": "CAN;K7V Renfrew",
+        "label": "K7V Renfrew"
+    },
+    {
+        "value": "CAN;K8A Pembroke Central and northern subdivisions",
+        "label": "K8A Pembroke Central and northern subdivisions"
+    },
+    {
+        "value": "CAN;K8B Pembroke (Pleasant View / Fairview)",
+        "label": "K8B Pembroke (Pleasant View / Fairview)"
+    },
+    {
+        "value": "CAN;K8H Petawawa",
+        "label": "K8H Petawawa"
+    },
+    {
+        "value": "CAN;K8N Belleville East",
+        "label": "K8N Belleville East"
+    },
+    {
+        "value": "CAN;K8P Belleville West",
+        "label": "K8P Belleville West"
+    },
+    {
+        "value": "CAN;K8R Belleville (SE Sidney Township / Avondale)",
+        "label": "K8R Belleville (SE Sidney Township / Avondale)"
+    },
+    {
+        "value": "CAN;K8V Trenton",
+        "label": "K8V Trenton"
+    },
+    {
+        "value": "CAN;K9A Cobourg",
+        "label": "K9A Cobourg"
+    },
+    {
+        "value": "CAN;K9H Peterborough North",
+        "label": "K9H Peterborough North"
+    },
+    {
+        "value": "CAN;K9J Peterborough South",
+        "label": "K9J Peterborough South"
+    },
+    {
+        "value": "CAN;K9K Peterborough (Fairbairn Meadows / Jackson Heights)",
+        "label": "K9K Peterborough (Fairbairn Meadows / Jackson Heights)"
+    },
+    {
+        "value": "CAN;K9L Peterborough (Terra View Heights / Woodland Acres / Donwood)",
+        "label": "K9L Peterborough (Terra View Heights / Woodland Acres / Donwood)"
+    },
+    {
+        "value": "CAN;K9V Lindsay",
+        "label": "K9V Lindsay"
+    },
+    {
+        "value": "CAN;L0A West Northumberland County (Millbrook)",
+        "label": "L0A West Northumberland County (Millbrook)"
+    },
+    {
+        "value": "CAN;L0B East Durham Regional Municipality (Orono)",
+        "label": "L0B East Durham Regional Municipality (Orono)"
+    },
+    {
+        "value": "CAN;L0C West Durham Regional Municipality (Sunderland)",
+        "label": "L0C West Durham Regional Municipality (Sunderland)"
+    },
+    {
+        "value": "CAN;L0E Lake Simcoe Southeast Shore (Sutton West)",
+        "label": "L0E Lake Simcoe Southeast Shore (Sutton West)"
+    },
+    {
+        "value": "CAN;L0G Ontario Centre (Queensville)",
+        "label": "L0G Ontario Centre (Queensville)"
+    },
+    {
+        "value": "CAN;L0H Whitby Region (Gormley)",
+        "label": "L0H Whitby Region (Gormley)"
+    },
+    {
+        "value": "CAN;L0J North Peel Regional Municipality (Kleinburg)",
+        "label": "L0J North Peel Regional Municipality (Kleinburg)"
+    },
+    {
+        "value": "CAN;L0K Lake Simcoe North Shore (Coldwater)",
+        "label": "L0K Lake Simcoe North Shore (Coldwater)"
+    },
+    {
+        "value": "CAN;L0L Lake Simcoe West Shore (Oro)",
+        "label": "L0L Lake Simcoe West Shore (Oro)"
+    },
+    {
+        "value": "CAN;L0M Georgian Bay South Shore (Angus)",
+        "label": "L0M Georgian Bay South Shore (Angus)"
+    },
+    {
+        "value": "CAN;L0N Dufferin County (Shelburne)",
+        "label": "L0N Dufferin County (Shelburne)"
+    },
+    {
+        "value": "CAN;L0P Halton Regional Municipality (Campbellville)",
+        "label": "L0P Halton Regional Municipality (Campbellville)"
+    },
+    {
+        "value": "CAN;L0R East Haldimand County (Waterdown)",
+        "label": "L0R East Haldimand County (Waterdown)"
+    },
+    {
+        "value": "CAN;L0S Niagara Regional Municipality (Fonthill)",
+        "label": "L0S Niagara Regional Municipality (Fonthill)"
+    },
+    {
+        "value": "CAN;L1A Port Hope",
+        "label": "L1A Port Hope"
+    },
+    {
+        "value": "CAN;L1B Bowmanville East",
+        "label": "L1B Bowmanville East"
+    },
+    {
+        "value": "CAN;L1C Bowmanville West",
+        "label": "L1C Bowmanville West"
+    },
+    {
+        "value": "CAN;L1E Courtice",
+        "label": "L1E Courtice"
+    },
+    {
+        "value": "CAN;L1G Oshawa Central",
+        "label": "L1G Oshawa Central"
+    },
+    {
+        "value": "CAN;L1H Oshawa Southeast",
+        "label": "L1H Oshawa Southeast"
+    },
+    {
+        "value": "CAN;L1J Oshawa Southwest",
+        "label": "L1J Oshawa Southwest"
+    },
+    {
+        "value": "CAN;L1K Oshawa East",
+        "label": "L1K Oshawa East"
+    },
+    {
+        "value": "CAN;L1L Oshawa North",
+        "label": "L1L Oshawa North"
+    },
+    {
+        "value": "CAN;L1M Whitby North",
+        "label": "L1M Whitby North"
+    },
+    {
+        "value": "CAN;L1N Whitby Southeast",
+        "label": "L1N Whitby Southeast"
+    },
+    {
+        "value": "CAN;L1P Whitby Southwest",
+        "label": "L1P Whitby Southwest"
+    },
+    {
+        "value": "CAN;L1R Whitby Central",
+        "label": "L1R Whitby Central"
+    },
+    {
+        "value": "CAN;L1S Ajax Southwest",
+        "label": "L1S Ajax Southwest"
+    },
+    {
+        "value": "CAN;L1T Ajax Northwest",
+        "label": "L1T Ajax Northwest"
+    },
+    {
+        "value": "CAN;L1V Pickering Southwest",
+        "label": "L1V Pickering Southwest"
+    },
+    {
+        "value": "CAN;L1W Pickering South",
+        "label": "L1W Pickering South"
+    },
+    {
+        "value": "CAN;L1X Pickering Central",
+        "label": "L1X Pickering Central"
+    },
+    {
+        "value": "CAN;L1Y Pickering North",
+        "label": "L1Y Pickering North"
+    },
+    {
+        "value": "CAN;L1Z Ajax East",
+        "label": "L1Z Ajax East"
+    },
+    {
+        "value": "CAN;L2A Fort Erie",
+        "label": "L2A Fort Erie"
+    },
+    {
+        "value": "CAN;L2E Niagara Falls Central",
+        "label": "L2E Niagara Falls Central"
+    },
+    {
+        "value": "CAN;L2G Niagara Falls Southeast",
+        "label": "L2G Niagara Falls Southeast"
+    },
+    {
+        "value": "CAN;L2H Niagara Falls West",
+        "label": "L2H Niagara Falls West"
+    },
+    {
+        "value": "CAN;L2J Niagara Falls North",
+        "label": "L2J Niagara Falls North"
+    },
+    {
+        "value": "CAN;L2M St. Catharines Northeast",
+        "label": "L2M St. Catharines Northeast"
+    },
+    {
+        "value": "CAN;L2N St. Catharines Northwest",
+        "label": "L2N St. Catharines Northwest"
+    },
+    {
+        "value": "CAN;L2P St. Catharines East",
+        "label": "L2P St. Catharines East"
+    },
+    {
+        "value": "CAN;L2R St. Catharines Central",
+        "label": "L2R St. Catharines Central"
+    },
+    {
+        "value": "CAN;L2S St. Catharines Southwest",
+        "label": "L2S St. Catharines Southwest"
+    },
+    {
+        "value": "CAN;L2T St. Catharines South",
+        "label": "L2T St. Catharines South"
+    },
+    {
+        "value": "CAN;L2V St. Catharines Southeast",
+        "label": "L2V St. Catharines Southeast"
+    },
+    {
+        "value": "CAN;L2W St. Catharines West",
+        "label": "L2W St. Catharines West"
+    },
+    {
+        "value": "CAN;L3B Welland East",
+        "label": "L3B Welland East"
+    },
+    {
+        "value": "CAN;L3C Welland West",
+        "label": "L3C Welland West"
+    },
+    {
+        "value": "CAN;L3K Port Colborne",
+        "label": "L3K Port Colborne"
+    },
+    {
+        "value": "CAN;L3M Grimsby",
+        "label": "L3M Grimsby"
+    },
+    {
+        "value": "CAN;L3P Markham Central",
+        "label": "L3P Markham Central"
+    },
+    {
+        "value": "CAN;L3R Markham Outer Southwest",
+        "label": "L3R Markham Outer Southwest"
+    },
+    {
+        "value": "CAN;L3S Markham Southeast",
+        "label": "L3S Markham Southeast"
+    },
+    {
+        "value": "CAN;L3T Thornhill East",
+        "label": "L3T Thornhill East"
+    },
+    {
+        "value": "CAN;L3V Orillia",
+        "label": "L3V Orillia"
+    },
+    {
+        "value": "CAN;L3X Newmarket Southwest",
+        "label": "L3X Newmarket Southwest"
+    },
+    {
+        "value": "CAN;L3Y Newmarket Northeast",
+        "label": "L3Y Newmarket Northeast"
+    },
+    {
+        "value": "CAN;L3Z Bradford",
+        "label": "L3Z Bradford"
+    },
+    {
+        "value": "CAN;L4A Stouffville",
+        "label": "L4A Stouffville"
+    },
+    {
+        "value": "CAN;L4B Richmond Hill Southeast",
+        "label": "L4B Richmond Hill Southeast"
+    },
+    {
+        "value": "CAN;L4C Richmond Hill Southwest",
+        "label": "L4C Richmond Hill Southwest"
+    },
+    {
+        "value": "CAN;L4E Richmond Hill North",
+        "label": "L4E Richmond Hill North"
+    },
+    {
+        "value": "CAN;L4G Aurora",
+        "label": "L4G Aurora"
+    },
+    {
+        "value": "CAN;L4H Woodbridge North",
+        "label": "L4H Woodbridge North"
+    },
+    {
+        "value": "CAN;L4J Thornhill West",
+        "label": "L4J Thornhill West"
+    },
+    {
+        "value": "CAN;L4K Concord",
+        "label": "L4K Concord"
+    },
+    {
+        "value": "CAN;L4L Woodbridge South",
+        "label": "L4L Woodbridge South"
+    },
+    {
+        "value": "CAN;L4M Barrie North",
+        "label": "L4M Barrie North"
+    },
+    {
+        "value": "CAN;L4N Barrie South",
+        "label": "L4N Barrie South"
+    },
+    {
+        "value": "CAN;L4P Keswick",
+        "label": "L4P Keswick"
+    },
+    {
+        "value": "CAN;L4R Midland",
+        "label": "L4R Midland"
+    },
+    {
+        "value": "CAN;L4S Richmond Hill Central",
+        "label": "L4S Richmond Hill Central"
+    },
+    {
+        "value": "CAN;L4T Mississauga (Malton)",
+        "label": "L4T Mississauga (Malton)"
+    },
+    {
+        "value": "CAN;L4V Mississauga (Wildwood)",
+        "label": "L4V Mississauga (Wildwood)"
+    },
+    {
+        "value": "CAN;L4W Mississauga (Matheson / East Rathwood)",
+        "label": "L4W Mississauga (Matheson / East Rathwood)"
+    },
+    {
+        "value": "CAN;L4X Mississauga (East Applewood / East Dixie / NE Lakeview)",
+        "label": "L4X Mississauga (East Applewood / East Dixie / NE Lakeview)"
+    },
+    {
+        "value": "CAN;L4Y Mississauga (West Applewood / West Dixie / NW Lakeview)",
+        "label": "L4Y Mississauga (West Applewood / West Dixie / NW Lakeview)"
+    },
+    {
+        "value": "CAN;L4Z Mississauga (West Rathwood / East Hurontario / SE Gateway)",
+        "label": "L4Z Mississauga (West Rathwood / East Hurontario / SE Gateway)"
+    },
+    {
+        "value": "CAN;L5A Mississauga (Mississauga Valleys / East Cooksville)",
+        "label": "L5A Mississauga (Mississauga Valleys / East Cooksville)"
+    },
+    {
+        "value": "CAN;L5B Mississauga (West Cooksville / Fairview / City Centre / East Creditview)",
+        "label": "L5B Mississauga (West Cooksville / Fairview / City Centre / East Creditview)"
+    },
+    {
+        "value": "CAN;L5C Mississauga (West Creditview / Mavis / Erindale)",
+        "label": "L5C Mississauga (West Creditview / Mavis / Erindale)"
+    },
+    {
+        "value": "CAN;L5E Mississauga (Central Lakeview)",
+        "label": "L5E Mississauga (Central Lakeview)"
+    },
+    {
+        "value": "CAN;L5G Mississauga (SW Lakeview / Mineola / East Port Credit)",
+        "label": "L5G Mississauga (SW Lakeview / Mineola / East Port Credit)"
+    },
+    {
+        "value": "CAN;L5H Mississauga (West Port Credit / Lorne Park / East Sheridan)",
+        "label": "L5H Mississauga (West Port Credit / Lorne Park / East Sheridan)"
+    },
+    {
+        "value": "CAN;L5J Mississauga (Clarkson / Southdown)",
+        "label": "L5J Mississauga (Clarkson / Southdown)"
+    },
+    {
+        "value": "CAN;L5K Mississauga (West Sheridan)",
+        "label": "L5K Mississauga (West Sheridan)"
+    },
+    {
+        "value": "CAN;L5L Mississauga (Erin Mills / Western Business Park)",
+        "label": "L5L Mississauga (Erin Mills / Western Business Park)"
+    },
+    {
+        "value": "CAN;L5M Mississauga (Churchill Meadows / Central Erin Mills / South Streetsville)",
+        "label": "L5M Mississauga (Churchill Meadows / Central Erin Mills / South Streetsville)"
+    },
+    {
+        "value": "CAN;L5N Mississauga (Lisgar / Meadowvale)",
+        "label": "L5N Mississauga (Lisgar / Meadowvale)"
+    },
+    {
+        "value": "CAN;L5P Mississauga (YYZ)",
+        "label": "L5P Mississauga (YYZ)"
+    },
+    {
+        "value": "CAN;L5R Mississauga (West Hurontario / SW Gateway)",
+        "label": "L5R Mississauga (West Hurontario / SW Gateway)"
+    },
+    {
+        "value": "CAN;L5S Mississauga (Cardiff / NE Gateway)",
+        "label": "L5S Mississauga (Cardiff / NE Gateway)"
+    },
+    {
+        "value": "CAN;L5T Mississauga (Courtney Park / East Gateway)",
+        "label": "L5T Mississauga (Courtney Park / East Gateway)"
+    },
+    {
+        "value": "CAN;L5V Mississauga (East Credit)",
+        "label": "L5V Mississauga (East Credit)"
+    },
+    {
+        "value": "CAN;L5W Mississauga (Meadowvale Village / West Gateway)",
+        "label": "L5W Mississauga (Meadowvale Village / West Gateway)"
+    },
+    {
+        "value": "CAN;L6A Maple",
+        "label": "L6A Maple"
+    },
+    {
+        "value": "CAN;L6B Markham East",
+        "label": "L6B Markham East"
+    },
+    {
+        "value": "CAN;L6C Markham Northwest",
+        "label": "L6C Markham Northwest"
+    },
+    {
+        "value": "CAN;L6E Markham Northeast",
+        "label": "L6E Markham Northeast"
+    },
+    {
+        "value": "CAN;L6G Markham Inner Southwest",
+        "label": "L6G Markham Inner Southwest"
+    },
+    {
+        "value": "CAN;L6H Oakville North",
+        "label": "L6H Oakville North"
+    },
+    {
+        "value": "CAN;L6J Oakville Northeast",
+        "label": "L6J Oakville Northeast"
+    },
+    {
+        "value": "CAN;L6K Oakville East",
+        "label": "L6K Oakville East"
+    },
+    {
+        "value": "CAN;L6L Oakville South",
+        "label": "L6L Oakville South"
+    },
+    {
+        "value": "CAN;L6M Oakville West",
+        "label": "L6M Oakville West"
+    },
+    {
+        "value": "CAN;L6P Brampton North",
+        "label": "L6P Brampton North"
+    },
+    {
+        "value": "CAN;L6R Brampton Northwest",
+        "label": "L6R Brampton Northwest"
+    },
+    {
+        "value": "CAN;L6S Brampton North Central",
+        "label": "L6S Brampton North Central"
+    },
+    {
+        "value": "CAN;L6T Brampton East",
+        "label": "L6T Brampton East"
+    },
+    {
+        "value": "CAN;L6V Brampton Central",
+        "label": "L6V Brampton Central"
+    },
+    {
+        "value": "CAN;L6W Brampton Southeast",
+        "label": "L6W Brampton Southeast"
+    },
+    {
+        "value": "CAN;L6X Brampton Southwest",
+        "label": "L6X Brampton Southwest"
+    },
+    {
+        "value": "CAN;L6Y Brampton South",
+        "label": "L6Y Brampton South"
+    },
+    {
+        "value": "CAN;L6Z Brampton West Central",
+        "label": "L6Z Brampton West Central"
+    },
+    {
+        "value": "CAN;L7A Brampton West",
+        "label": "L7A Brampton West"
+    },
+    {
+        "value": "CAN;L7B King City",
+        "label": "L7B King City"
+    },
+    {
+        "value": "CAN;L7C Caledon",
+        "label": "L7C Caledon"
+    },
+    {
+        "value": "CAN;L7E Bolton",
+        "label": "L7E Bolton"
+    },
+    {
+        "value": "CAN;L7G Georgetown",
+        "label": "L7G Georgetown"
+    },
+    {
+        "value": "CAN;L7J Acton",
+        "label": "L7J Acton"
+    },
+    {
+        "value": "CAN;L7K Caledon Village",
+        "label": "L7K Caledon Village"
+    },
+    {
+        "value": "CAN;L7L Burlington Northeast",
+        "label": "L7L Burlington Northeast"
+    },
+    {
+        "value": "CAN;L7M Burlington North",
+        "label": "L7M Burlington North"
+    },
+    {
+        "value": "CAN;L7N Burlington East",
+        "label": "L7N Burlington East"
+    },
+    {
+        "value": "CAN;L7P Burlington West",
+        "label": "L7P Burlington West"
+    },
+    {
+        "value": "CAN;L7R Burlington Southeast",
+        "label": "L7R Burlington Southeast"
+    },
+    {
+        "value": "CAN;L7S Burlington South",
+        "label": "L7S Burlington South"
+    },
+    {
+        "value": "CAN;L7T Burlington Southwest",
+        "label": "L7T Burlington Southwest"
+    },
+    {
+        "value": "CAN;L8B Waterdown",
+        "label": "L8B Waterdown"
+    },
+    {
+        "value": "CAN;L8E Hamilton (Confederation Park / Nashdale / East Kentley / Riverdale / Lakely / Grayside / North Stoney Creek)",
+        "label": "L8E Hamilton (Confederation Park / Nashdale / East Kentley / Riverdale / Lakely / Grayside / North Stoney Creek)"
+    },
+    {
+        "value": "CAN;L8G Hamilton (Greenford / North Gershome / West Stoney Creek)",
+        "label": "L8G Hamilton (Greenford / North Gershome / West Stoney Creek)"
+    },
+    {
+        "value": "CAN;L8H Hamilton (West Kentley / McQuesten / Parkview / Hamilton Beach / East Industrial Sector / Normanhurst / Homeside / East Crown Point)",
+        "label": "L8H Hamilton (West Kentley / McQuesten / Parkview / Hamilton Beach / East Industrial Sector / Normanhurst / Homeside / East Crown Point)"
+    },
+    {
+        "value": "CAN;L8J Hamilton (East Albion Falls / South Stoney Creek)",
+        "label": "L8J Hamilton (East Albion Falls / South Stoney Creek)"
+    },
+    {
+        "value": "CAN;L8K Hamilton (East Delta / Bartonville / Glenview / Rosedale / Lower King's Forest / Red Hill / Corman / Vincent / South Gershome)",
+        "label": "L8K Hamilton (East Delta / Bartonville / Glenview / Rosedale / Lower King's Forest / Red Hill / Corman / Vincent / South Gershome)"
+    },
+    {
+        "value": "CAN;L8L Hamilton (West Industrial Sector / West Crown Point / North Stipley / North Gibson / Landsdale / Keith / North End / Beasley)",
+        "label": "L8L Hamilton (West Industrial Sector / West Crown Point / North Stipley / North Gibson / Landsdale / Keith / North End / Beasley)"
+    },
+    {
+        "value": "CAN;L8M Hamilton (West Delta / Blakeley / South Stipley / South Gibson / St. Clair)",
+        "label": "L8M Hamilton (West Delta / Blakeley / South Stipley / South Gibson / St. Clair)"
+    },
+    {
+        "value": "CAN;L8N Hamilton (Stinson / Corktown)",
+        "label": "L8N Hamilton (Stinson / Corktown)"
+    },
+    {
+        "value": "CAN;L8P Hamilton (Durand / Kirkendall / Chedoke Park)",
+        "label": "L8P Hamilton (Durand / Kirkendall / Chedoke Park)"
+    },
+    {
+        "value": "CAN;L8R Hamilton (Central / Strathcona / South Dundurn)",
+        "label": "L8R Hamilton (Central / Strathcona / South Dundurn)"
+    },
+    {
+        "value": "CAN;L8S Hamilton (Westdale / Cootes Paradise / Ainslie Wood)",
+        "label": "L8S Hamilton (Westdale / Cootes Paradise / Ainslie Wood)"
+    },
+    {
+        "value": "CAN;L8T Hamilton (Sherwood / Huntington / Upper King's Forest / Lisgar / Berrisfield / Hampton Heights / Sunninghill)",
+        "label": "L8T Hamilton (Sherwood / Huntington / Upper King's Forest / Lisgar / Berrisfield / Hampton Heights / Sunninghill)"
+    },
+    {
+        "value": "CAN;L8V Hamilton (Raleigh / Macassa / Lawfield / Thorner / Burkholme / Eastmount)",
+        "label": "L8V Hamilton (Raleigh / Macassa / Lawfield / Thorner / Burkholme / Eastmount)"
+    },
+    {
+        "value": "CAN;L8W Hamilton (West Albion Falls / Hannon / Rymal / Trenholme / Quinndale / Templemead / Broughton / Eleanor / Randall / Rushdale / Butler / East Chappel)",
+        "label": "L8W Hamilton (West Albion Falls / Hannon / Rymal / Trenholme / Quinndale / Templemead / Broughton / Eleanor / Randall / Rushdale / Butler / East Chappel)"
+    },
+    {
+        "value": "CAN;L9A Hamilton (Crerar / Bruleville / Hill Park / Inch Park / Centremount / Balfour / Greeningdon / Jerome)",
+        "label": "L9A Hamilton (Crerar / Bruleville / Hill Park / Inch Park / Centremount / Balfour / Greeningdon / Jerome)"
+    },
+    {
+        "value": "CAN;L9B Hamilton (Barnstown / West Chappel / Allison / Ryckmans / Mewburn / Sheldon / Falkirk / Carpenter / Kennedy / Southwest Outskirts)",
+        "label": "L9B Hamilton (Barnstown / West Chappel / Allison / Ryckmans / Mewburn / Sheldon / Falkirk / Carpenter / Kennedy / Southwest Outskirts)"
+    },
+    {
+        "value": "CAN;L9C Hamilton (Southam / Bonnington / Yeoville / Kernighan / Gourley / Rolston / Buchanan / Mohawk / Westcliffe / Gilbert / Gilkson / Gurnett / Fessenden / Mountview)",
+        "label": "L9C Hamilton (Southam / Bonnington / Yeoville / Kernighan / Gourley / Rolston / Buchanan / Mohawk / Westcliffe / Gilbert / Gilkson / Gurnett / Fessenden / Mountview)"
+    },
+    {
+        "value": "CAN;L9E Milton",
+        "label": "L9E Milton"
+    },
+    {
+        "value": "CAN;L9G Ancaster West",
+        "label": "L9G Ancaster West"
+    },
+    {
+        "value": "CAN;L9H Dundas",
+        "label": "L9H Dundas"
+    },
+    {
+        "value": "CAN;L9J Barrie",
+        "label": "L9J Barrie"
+    },
+    {
+        "value": "CAN;L9K Ancaster East",
+        "label": "L9K Ancaster East"
+    },
+    {
+        "value": "CAN;L9L Port Perry",
+        "label": "L9L Port Perry"
+    },
+    {
+        "value": "CAN;L9M Penetanguishene",
+        "label": "L9M Penetanguishene"
+    },
+    {
+        "value": "CAN;L9N Holland Landing",
+        "label": "L9N Holland Landing"
+    },
+    {
+        "value": "CAN;L9P Uxbridge",
+        "label": "L9P Uxbridge"
+    },
+    {
+        "value": "CAN;L9R Alliston",
+        "label": "L9R Alliston"
+    },
+    {
+        "value": "CAN;L9S Innisfil",
+        "label": "L9S Innisfil"
+    },
+    {
+        "value": "CAN;L9T Milton",
+        "label": "L9T Milton"
+    },
+    {
+        "value": "CAN;L9V Orangeville North",
+        "label": "L9V Orangeville North"
+    },
+    {
+        "value": "CAN;L9W Orangeville South",
+        "label": "L9W Orangeville South"
+    },
+    {
+        "value": "CAN;L9X Barrie",
+        "label": "L9X Barrie"
+    },
+    {
+        "value": "CAN;L9X Midhurst",
+        "label": "L9X Midhurst"
+    },
+    {
+        "value": "CAN;L9X Minesing",
+        "label": "L9X Minesing"
+    },
+    {
+        "value": "CAN;L9X Springwater",
+        "label": "L9X Springwater"
+    },
+    {
+        "value": "CAN;L9Y Collingwood",
+        "label": "L9Y Collingwood"
+    },
+    {
+        "value": "CAN;L9Z Wasaga Beach",
+        "label": "L9Z Wasaga Beach"
+    },
+    {
+        "value": "CAN;M1B Scarborough (Malvern / Rouge River)",
+        "label": "M1B Scarborough (Malvern / Rouge River)"
+    },
+    {
+        "value": "CAN;M1C Scarborough (Rouge Hill / Port Union / Highland Creek)",
+        "label": "M1C Scarborough (Rouge Hill / Port Union / Highland Creek)"
+    },
+    {
+        "value": "CAN;M1E Scarborough (Guildwood / Morningside / Ellesmere)",
+        "label": "M1E Scarborough (Guildwood / Morningside / Ellesmere)"
+    },
+    {
+        "value": "CAN;M1G Scarborough (Woburn)",
+        "label": "M1G Scarborough (Woburn)"
+    },
+    {
+        "value": "CAN;M1H Scarborough (Cedarbrae)",
+        "label": "M1H Scarborough (Cedarbrae)"
+    },
+    {
+        "value": "CAN;M1J Scarborough (Eglinton)",
+        "label": "M1J Scarborough (Eglinton)"
+    },
+    {
+        "value": "CAN;M1K Scarborough (Kennedy Park / Ionview / East Birchmount Park)",
+        "label": "M1K Scarborough (Kennedy Park / Ionview / East Birchmount Park)"
+    },
+    {
+        "value": "CAN;M1L Scarborough (The Golden Mile / Clairlea / Oakridge / Birchmount Park East)",
+        "label": "M1L Scarborough (The Golden Mile / Clairlea / Oakridge / Birchmount Park East)"
+    },
+    {
+        "value": "CAN;M1M Scarborough (Cliffside / Cliffcrest / Scarborough Village West)",
+        "label": "M1M Scarborough (Cliffside / Cliffcrest / Scarborough Village West)"
+    },
+    {
+        "value": "CAN;M1N Scarborough (Birch Cliff / Cliffside West)",
+        "label": "M1N Scarborough (Birch Cliff / Cliffside West)"
+    },
+    {
+        "value": "CAN;M1P Scarborough (Dorset Park / Wexford Heights / Scarborough Town Centre)",
+        "label": "M1P Scarborough (Dorset Park / Wexford Heights / Scarborough Town Centre)"
+    },
+    {
+        "value": "CAN;M1R Scarborough (Wexford / Maryvale)",
+        "label": "M1R Scarborough (Wexford / Maryvale)"
+    },
+    {
+        "value": "CAN;M1S Scarborough (Agincourt)",
+        "label": "M1S Scarborough (Agincourt)"
+    },
+    {
+        "value": "CAN;M1T Scarborough (Clarks Corners / Tam O'Shanter / Sullivan)",
+        "label": "M1T Scarborough (Clarks Corners / Tam O'Shanter / Sullivan)"
+    },
+    {
+        "value": "CAN;M1V Scarborough (Milliken / Agincourt North / Steeles East / L'Amoreaux East)",
+        "label": "M1V Scarborough (Milliken / Agincourt North / Steeles East / L'Amoreaux East)"
+    },
+    {
+        "value": "CAN;M1W Scarborough (Steeles West / L'Amoreaux West)",
+        "label": "M1W Scarborough (Steeles West / L'Amoreaux West)"
+    },
+    {
+        "value": "CAN;M1X Scarborough (Upper Rouge)",
+        "label": "M1X Scarborough (Upper Rouge)"
+    },
+    {
+        "value": "CAN;M2H North York (Hillcrest Village)",
+        "label": "M2H North York (Hillcrest Village)"
+    },
+    {
+        "value": "CAN;M2J North York (Fairview / Henry Farm / Oriole)",
+        "label": "M2J North York (Fairview / Henry Farm / Oriole)"
+    },
+    {
+        "value": "CAN;M2K North York (Bayview Village)",
+        "label": "M2K North York (Bayview Village)"
+    },
+    {
+        "value": "CAN;M2L North York (York Mills / Silver Hills)",
+        "label": "M2L North York (York Mills / Silver Hills)"
+    },
+    {
+        "value": "CAN;M2M Willowdale East (Newtonbrook)",
+        "label": "M2M Willowdale East (Newtonbrook)"
+    },
+    {
+        "value": "CAN;M2N Willowdale South",
+        "label": "M2N Willowdale South"
+    },
+    {
+        "value": "CAN;M2P North York (York Mills West)",
+        "label": "M2P North York (York Mills West)"
+    },
+    {
+        "value": "CAN;M2R Willowdale West",
+        "label": "M2R Willowdale West"
+    },
+    {
+        "value": "CAN;M3A North York (York Heights / Victoria Village / Parkway East)",
+        "label": "M3A North York (York Heights / Victoria Village / Parkway East)"
+    },
+    {
+        "value": "CAN;M3B Don Mills North",
+        "label": "M3B Don Mills North"
+    },
+    {
+        "value": "CAN;M3C Don Mills South (Flemingdon Park)",
+        "label": "M3C Don Mills South (Flemingdon Park)"
+    },
+    {
+        "value": "CAN;M3H North York (Armour Heights / Wilson Heights / Downsview North)",
+        "label": "M3H North York (Armour Heights / Wilson Heights / Downsview North)"
+    },
+    {
+        "value": "CAN;M3J North York (Northwood Park / York University)",
+        "label": "M3J North York (Northwood Park / York University)"
+    },
+    {
+        "value": "CAN;M3K Downsview East (CFB Toronto)",
+        "label": "M3K Downsview East (CFB Toronto)"
+    },
+    {
+        "value": "CAN;M3L Downsview West",
+        "label": "M3L Downsview West"
+    },
+    {
+        "value": "CAN;M3M Downsview Central",
+        "label": "M3M Downsview Central"
+    },
+    {
+        "value": "CAN;M3N North York (Jane and Finch)",
+        "label": "M3N North York (Jane and Finch)"
+    },
+    {
+        "value": "CAN;M4A North York (Sweeney Park / Wigmore Park)",
+        "label": "M4A North York (Sweeney Park / Wigmore Park)"
+    },
+    {
+        "value": "CAN;M4B East York (Parkview Hill / Woodbine Gardens)",
+        "label": "M4B East York (Parkview Hill / Woodbine Gardens)"
+    },
+    {
+        "value": "CAN;M4C East York (Woodbine Heights)",
+        "label": "M4C East York (Woodbine Heights)"
+    },
+    {
+        "value": "CAN;M4E East Toronto (The Beaches)",
+        "label": "M4E East Toronto (The Beaches)"
+    },
+    {
+        "value": "CAN;M4G East York (Leaside)",
+        "label": "M4G East York (Leaside)"
+    },
+    {
+        "value": "CAN;M4H East York (Thorncliffe Park)",
+        "label": "M4H East York (Thorncliffe Park)"
+    },
+    {
+        "value": "CAN;M4J East Toronto (The Danforth East)",
+        "label": "M4J East Toronto (The Danforth East)"
+    },
+    {
+        "value": "CAN;M4K East Toronto (The Danforth West / Riverdale)",
+        "label": "M4K East Toronto (The Danforth West / Riverdale)"
+    },
+    {
+        "value": "CAN;M4L East Toronto (India Bazaar / The Beaches West)",
+        "label": "M4L East Toronto (India Bazaar / The Beaches West)"
+    },
+    {
+        "value": "CAN;M4M East Toronto (Studio District)",
+        "label": "M4M East Toronto (Studio District)"
+    },
+    {
+        "value": "CAN;M4N Central Toronto (Lawrence Park East)",
+        "label": "M4N Central Toronto (Lawrence Park East)"
+    },
+    {
+        "value": "CAN;M4P Central Toronto (Davisville North)",
+        "label": "M4P Central Toronto (Davisville North)"
+    },
+    {
+        "value": "CAN;M4R Central Toronto (North Toronto West)",
+        "label": "M4R Central Toronto (North Toronto West)"
+    },
+    {
+        "value": "CAN;M4S Central Toronto (Davisville)",
+        "label": "M4S Central Toronto (Davisville)"
+    },
+    {
+        "value": "CAN;M4T Central Toronto (Moore Park / Summerhill East)",
+        "label": "M4T Central Toronto (Moore Park / Summerhill East)"
+    },
+    {
+        "value": "CAN;M4V Central Toronto (Summerhill West / Rathnelly / South Hill / Forest Hill SE / Deer Park)",
+        "label": "M4V Central Toronto (Summerhill West / Rathnelly / South Hill / Forest Hill SE / Deer Park)"
+    },
+    {
+        "value": "CAN;M4W Downtown Toronto (Rosedale)",
+        "label": "M4W Downtown Toronto (Rosedale)"
+    },
+    {
+        "value": "CAN;M4X Downtown Toronto (St. James Town / Cabbagetown)",
+        "label": "M4X Downtown Toronto (St. James Town / Cabbagetown)"
+    },
+    {
+        "value": "CAN;M4Y Downtown Toronto (Church and Wellesley)",
+        "label": "M4Y Downtown Toronto (Church and Wellesley)"
+    },
+    {
+        "value": "CAN;M5A Toronto",
+        "label": "M5A Toronto"
+    },
+    {
+        "value": "CAN;M5B Downtown Toronto (Ryerson)",
+        "label": "M5B Downtown Toronto (Ryerson)"
+    },
+    {
+        "value": "CAN;M5C Downtown Toronto (St. James Park)",
+        "label": "M5C Downtown Toronto (St. James Park)"
+    },
+    {
+        "value": "CAN;M5E Downtown Toronto (Berczy Park)",
+        "label": "M5E Downtown Toronto (Berczy Park)"
+    },
+    {
+        "value": "CAN;M5G Downtown Toronto (Central Bay Street)",
+        "label": "M5G Downtown Toronto (Central Bay Street)"
+    },
+    {
+        "value": "CAN;M5H Downtown Toronto (Richmond / Adelaide / King)",
+        "label": "M5H Downtown Toronto (Richmond / Adelaide / King)"
+    },
+    {
+        "value": "CAN;M5J Downtown Toronto (Harbourfront East / Union Station / Toronto Island)",
+        "label": "M5J Downtown Toronto (Harbourfront East / Union Station / Toronto Island)"
+    },
+    {
+        "value": "CAN;M5K Downtown Toronto (Toronto Dominion Centre / Design Exchange)",
+        "label": "M5K Downtown Toronto (Toronto Dominion Centre / Design Exchange)"
+    },
+    {
+        "value": "CAN;M5L Downtown Toronto (Commerce Court / Victoria Hotel)",
+        "label": "M5L Downtown Toronto (Commerce Court / Victoria Hotel)"
+    },
+    {
+        "value": "CAN;M5M North York (Bedford Park / Lawrence Park West / Lawrence Manor East)",
+        "label": "M5M North York (Bedford Park / Lawrence Park West / Lawrence Manor East)"
+    },
+    {
+        "value": "CAN;M5N Central Toronto (Roselawn)",
+        "label": "M5N Central Toronto (Roselawn)"
+    },
+    {
+        "value": "CAN;M5P Central Toronto (Forest Hill North & West)",
+        "label": "M5P Central Toronto (Forest Hill North & West)"
+    },
+    {
+        "value": "CAN;M5R Central Toronto (The Annex / North Midtown / Yorkville)",
+        "label": "M5R Central Toronto (The Annex / North Midtown / Yorkville)"
+    },
+    {
+        "value": "CAN;M5S Downtown Toronto (University of Toronto / Harbord)",
+        "label": "M5S Downtown Toronto (University of Toronto / Harbord)"
+    },
+    {
+        "value": "CAN;M5T Downtown Toronto (Kensington Market / Chinatown / Grange Park)",
+        "label": "M5T Downtown Toronto (Kensington Market / Chinatown / Grange Park)"
+    },
+    {
+        "value": "CAN;M5V Downtown Toronto (CN Tower / King and Spadina / Railway Lands / Harbourfront West / Bathurst Quay / South Niagara / YTZ)",
+        "label": "M5V Downtown Toronto (CN Tower / King and Spadina / Railway Lands / Harbourfront West / Bathurst Quay / South Niagara / YTZ)"
+    },
+    {
+        "value": "CAN;M5W Downtown Toronto Stn A PO Boxes 25 The Esplanade (Enclave of M5E)",
+        "label": "M5W Downtown Toronto Stn A PO Boxes 25 The Esplanade (Enclave of M5E)"
+    },
+    {
+        "value": "CAN;M5X Downtown Toronto (Underground city)",
+        "label": "M5X Downtown Toronto (Underground city)"
+    },
+    {
+        "value": "CAN;M6A North York (Lawrence Manor / Lawrence Heights)",
+        "label": "M6A North York (Lawrence Manor / Lawrence Heights)"
+    },
+    {
+        "value": "CAN;M6B North York (Glencairn)",
+        "label": "M6B North York (Glencairn)"
+    },
+    {
+        "value": "CAN;M6C York (Cedarvale)",
+        "label": "M6C York (Cedarvale)"
+    },
+    {
+        "value": "CAN;M6E York (Fairbank / Oakwood)",
+        "label": "M6E York (Fairbank / Oakwood)"
+    },
+    {
+        "value": "CAN;M6G Downtown Toronto (Christie)",
+        "label": "M6G Downtown Toronto (Christie)"
+    },
+    {
+        "value": "CAN;M6H West Toronto (Dufferin / Dovercourt Village)",
+        "label": "M6H West Toronto (Dufferin / Dovercourt Village)"
+    },
+    {
+        "value": "CAN;M6J West Toronto (Rua Aþores / Trinity)",
+        "label": "M6J West Toronto (Rua Aþores / Trinity)"
+    },
+    {
+        "value": "CAN;M6K West Toronto (Brockton / Parkdale Village / Exhibition Place)",
+        "label": "M6K West Toronto (Brockton / Parkdale Village / Exhibition Place)"
+    },
+    {
+        "value": "CAN;M6L North York (North Park / Maple Leaf Park / Upwood Park)",
+        "label": "M6L North York (North Park / Maple Leaf Park / Upwood Park)"
+    },
+    {
+        "value": "CAN;M6M York (Del Ray / Keelsdale / Mount Dennis / Silverthorne)",
+        "label": "M6M York (Del Ray / Keelsdale / Mount Dennis / Silverthorne)"
+    },
+    {
+        "value": "CAN;M6N York (Runnymede / The Junction North)",
+        "label": "M6N York (Runnymede / The Junction North)"
+    },
+    {
+        "value": "CAN;M6P West Toronto (High Park / The Junction South)",
+        "label": "M6P West Toronto (High Park / The Junction South)"
+    },
+    {
+        "value": "CAN;M6R West Toronto (Parkdale / Roncesvalles Village)",
+        "label": "M6R West Toronto (Parkdale / Roncesvalles Village)"
+    },
+    {
+        "value": "CAN;M6S West Toronto (Bloor West Village / Swansea)",
+        "label": "M6S West Toronto (Bloor West Village / Swansea)"
+    },
+    {
+        "value": "CAN;M7A Queen's Park Ontario Provincial Government",
+        "label": "M7A Queen's Park Ontario Provincial Government"
+    },
+    {
+        "value": "CAN;M7Y East Toronto Business Reply Mail Processing Centre 969 Eastern (Enclave of M4L)",
+        "label": "M7Y East Toronto Business Reply Mail Processing Centre 969 Eastern (Enclave of M4L)"
+    },
+    {
+        "value": "CAN;M8V Etobicoke (New Toronto / Mimico South / Humber Bay Shores)",
+        "label": "M8V Etobicoke (New Toronto / Mimico South / Humber Bay Shores)"
+    },
+    {
+        "value": "CAN;M8W Etobicoke (Alderwood / Long Branch)",
+        "label": "M8W Etobicoke (Alderwood / Long Branch)"
+    },
+    {
+        "value": "CAN;M8X Etobicoke (The Kingsway / Montgomery Road / Old Mill North)",
+        "label": "M8X Etobicoke (The Kingsway / Montgomery Road / Old Mill North)"
+    },
+    {
+        "value": "CAN;M8Y Etobicoke (Old Mill South / King's Mill Park / Sunnylea / Humber Bay / Mimico NE / The Queensway East / Royal York South East / Kingsway Park South East)",
+        "label": "M8Y Etobicoke (Old Mill South / King's Mill Park / Sunnylea / Humber Bay / Mimico NE / The Queensway East / Royal York South East / Kingsway Park South East)"
+    },
+    {
+        "value": "CAN;M8Z Etobicoke (Mimico NW / The Queensway West / South of Bloor / Kingsway Park South West / Royal York South West)",
+        "label": "M8Z Etobicoke (Mimico NW / The Queensway West / South of Bloor / Kingsway Park South West / Royal York South West)"
+    },
+    {
+        "value": "CAN;M9A Etobicoke (Islington Avenue)",
+        "label": "M9A Etobicoke (Islington Avenue)"
+    },
+    {
+        "value": "CAN;M9B Etobicoke (West Deane Park / Princess Gardens / Martin Grove / Islington / Cloverdale)",
+        "label": "M9B Etobicoke (West Deane Park / Princess Gardens / Martin Grove / Islington / Cloverdale)"
+    },
+    {
+        "value": "CAN;M9C Etobicoke (Eringate / Bloordale Gardens / Old Burnhamthorpe / Markland Woods)",
+        "label": "M9C Etobicoke (Eringate / Bloordale Gardens / Old Burnhamthorpe / Markland Woods)"
+    },
+    {
+        "value": "CAN;M9L North York (Humber Summit)",
+        "label": "M9L North York (Humber Summit)"
+    },
+    {
+        "value": "CAN;M9M North York (Humberlea / Emery)",
+        "label": "M9M North York (Humberlea / Emery)"
+    },
+    {
+        "value": "CAN;M9N Weston",
+        "label": "M9N Weston"
+    },
+    {
+        "value": "CAN;M9P Etobicoke (Westmount)",
+        "label": "M9P Etobicoke (Westmount)"
+    },
+    {
+        "value": "CAN;M9R Etobicoke (Kingsview Village / St. Phillips / Martin Grove Gardens / Richview Gardens)",
+        "label": "M9R Etobicoke (Kingsview Village / St. Phillips / Martin Grove Gardens / Richview Gardens)"
+    },
+    {
+        "value": "CAN;M9V Etobicoke (South Steeles / Silverstone / Humbergate / Jamestown / Mount Olive / Beaumond Heights / Thistletown / Albion Gardens)",
+        "label": "M9V Etobicoke (South Steeles / Silverstone / Humbergate / Jamestown / Mount Olive / Beaumond Heights / Thistletown / Albion Gardens)"
+    },
+    {
+        "value": "CAN;M9W Etobicoke Northwest (Clairville / Humberwood / Woodbine Downs / West Humber / Kipling Heights / Rexdale / Elms / Tandridge / Old Rexdale)",
+        "label": "M9W Etobicoke Northwest (Clairville / Humberwood / Woodbine Downs / West Humber / Kipling Heights / Rexdale / Elms / Tandridge / Old Rexdale)"
+    },
+    {
+        "value": "CAN;N0A West Haldimand (Port Dover)",
+        "label": "N0A West Haldimand (Port Dover)"
+    },
+    {
+        "value": "CAN;N0B Wellington (Elora)",
+        "label": "N0B Wellington (Elora)"
+    },
+    {
+        "value": "CAN;N0C Georgian Bay Southwest Shore (Dundalk)",
+        "label": "N0C Georgian Bay Southwest Shore (Dundalk)"
+    },
+    {
+        "value": "CAN;N0E Brant and Norfolk (Waterford)",
+        "label": "N0E Brant and Norfolk (Waterford)"
+    },
+    {
+        "value": "CAN;N0G Huron (Wingham)",
+        "label": "N0G Huron (Wingham)"
+    },
+    {
+        "value": "CAN;N0H Bruce Peninsula (Wiarton)",
+        "label": "N0H Bruce Peninsula (Wiarton)"
+    },
+    {
+        "value": "CAN;N0J Oxford (Norwich)",
+        "label": "N0J Oxford (Norwich)"
+    },
+    {
+        "value": "CAN;N0K Perth (Mitchell)",
+        "label": "N0K Perth (Mitchell)"
+    },
+    {
+        "value": "CAN;N0L Elgin (Dorchester)",
+        "label": "N0L Elgin (Dorchester)"
+    },
+    {
+        "value": "CAN;N0M Middlesex (Clinton)",
+        "label": "N0M Middlesex (Clinton)"
+    },
+    {
+        "value": "CAN;N0N Lambton (Forest)",
+        "label": "N0N Lambton (Forest)"
+    },
+    {
+        "value": "CAN;N0P Kent (Blenheim)",
+        "label": "N0P Kent (Blenheim)"
+    },
+    {
+        "value": "CAN;N0R Essex (Belle River)",
+        "label": "N0R Essex (Belle River)"
+    },
+    {
+        "value": "CAN;N1A Dunnville",
+        "label": "N1A Dunnville"
+    },
+    {
+        "value": "CAN;N1C Guelph South",
+        "label": "N1C Guelph South"
+    },
+    {
+        "value": "CAN;N1E Guelph North",
+        "label": "N1E Guelph North"
+    },
+    {
+        "value": "CAN;N1G Guelph Central",
+        "label": "N1G Guelph Central"
+    },
+    {
+        "value": "CAN;N1H Guelph Northwest",
+        "label": "N1H Guelph Northwest"
+    },
+    {
+        "value": "CAN;N1K Guelph West",
+        "label": "N1K Guelph West"
+    },
+    {
+        "value": "CAN;N1L Guelph East",
+        "label": "N1L Guelph East"
+    },
+    {
+        "value": "CAN;N1M Fergus",
+        "label": "N1M Fergus"
+    },
+    {
+        "value": "CAN;N1P Cambridge South",
+        "label": "N1P Cambridge South"
+    },
+    {
+        "value": "CAN;N1R Cambridge Central",
+        "label": "N1R Cambridge Central"
+    },
+    {
+        "value": "CAN;N1S Cambridge Southwest",
+        "label": "N1S Cambridge Southwest"
+    },
+    {
+        "value": "CAN;N1T Cambridge East",
+        "label": "N1T Cambridge East"
+    },
+    {
+        "value": "CAN;N2A Kitchener East",
+        "label": "N2A Kitchener East"
+    },
+    {
+        "value": "CAN;N2B Kitchener Northeast",
+        "label": "N2B Kitchener Northeast"
+    },
+    {
+        "value": "CAN;N2C Kitchener South Central",
+        "label": "N2C Kitchener South Central"
+    },
+    {
+        "value": "CAN;N2E Kitchener Southwest",
+        "label": "N2E Kitchener Southwest"
+    },
+    {
+        "value": "CAN;N2G Kitchener Central",
+        "label": "N2G Kitchener Central"
+    },
+    {
+        "value": "CAN;N2H Kitchener North Central",
+        "label": "N2H Kitchener North Central"
+    },
+    {
+        "value": "CAN;N2J Waterloo Southeast",
+        "label": "N2J Waterloo Southeast"
+    },
+    {
+        "value": "CAN;N2K Kitchener North",
+        "label": "N2K Kitchener North"
+    },
+    {
+        "value": "CAN;N2L Waterloo South",
+        "label": "N2L Waterloo South"
+    },
+    {
+        "value": "CAN;N2M Kitchener Northwest",
+        "label": "N2M Kitchener Northwest"
+    },
+    {
+        "value": "CAN;N2N Kitchener West",
+        "label": "N2N Kitchener West"
+    },
+    {
+        "value": "CAN;N2P Kitchener Southeast",
+        "label": "N2P Kitchener Southeast"
+    },
+    {
+        "value": "CAN;N2R Kitchener South",
+        "label": "N2R Kitchener South"
+    },
+    {
+        "value": "CAN;N2T Waterloo Southwest",
+        "label": "N2T Waterloo Southwest"
+    },
+    {
+        "value": "CAN;N2V Waterloo Northwest",
+        "label": "N2V Waterloo Northwest"
+    },
+    {
+        "value": "CAN;N2Z Kincardine",
+        "label": "N2Z Kincardine"
+    },
+    {
+        "value": "CAN;N3A Baden",
+        "label": "N3A Baden"
+    },
+    {
+        "value": "CAN;N3B Elmira",
+        "label": "N3B Elmira"
+    },
+    {
+        "value": "CAN;N3C Cambridge Northeast",
+        "label": "N3C Cambridge Northeast"
+    },
+    {
+        "value": "CAN;N3E Cambridge Northwest",
+        "label": "N3E Cambridge Northwest"
+    },
+    {
+        "value": "CAN;N3H Cambridge West",
+        "label": "N3H Cambridge West"
+    },
+    {
+        "value": "CAN;N3L Paris",
+        "label": "N3L Paris"
+    },
+    {
+        "value": "CAN;N3P Brantford Northeast",
+        "label": "N3P Brantford Northeast"
+    },
+    {
+        "value": "CAN;N3R Brantford Central",
+        "label": "N3R Brantford Central"
+    },
+    {
+        "value": "CAN;N3S Brantford Southeast",
+        "label": "N3S Brantford Southeast"
+    },
+    {
+        "value": "CAN;N3T Brantford Southwest",
+        "label": "N3T Brantford Southwest"
+    },
+    {
+        "value": "CAN;N3V Brantford Northwest",
+        "label": "N3V Brantford Northwest"
+    },
+    {
+        "value": "CAN;N3W Caledonia",
+        "label": "N3W Caledonia"
+    },
+    {
+        "value": "CAN;N3Y Simcoe",
+        "label": "N3Y Simcoe"
+    },
+    {
+        "value": "CAN;N4B Delhi",
+        "label": "N4B Delhi"
+    },
+    {
+        "value": "CAN;N4G Tillsonburg",
+        "label": "N4G Tillsonburg"
+    },
+    {
+        "value": "CAN;N4K Owen Sound",
+        "label": "N4K Owen Sound"
+    },
+    {
+        "value": "CAN;N4L Meaford",
+        "label": "N4L Meaford"
+    },
+    {
+        "value": "CAN;N4N Hanover",
+        "label": "N4N Hanover"
+    },
+    {
+        "value": "CAN;N4S Woodstock Central",
+        "label": "N4S Woodstock Central"
+    },
+    {
+        "value": "CAN;N4T Woodstock North",
+        "label": "N4T Woodstock North"
+    },
+    {
+        "value": "CAN;N4V Woodstock South",
+        "label": "N4V Woodstock South"
+    },
+    {
+        "value": "CAN;N4W Listowel",
+        "label": "N4W Listowel"
+    },
+    {
+        "value": "CAN;N4X St. Mary's",
+        "label": "N4X St. Mary's"
+    },
+    {
+        "value": "CAN;N4Z Stratford South",
+        "label": "N4Z Stratford South"
+    },
+    {
+        "value": "CAN;N5A Stratford North",
+        "label": "N5A Stratford North"
+    },
+    {
+        "value": "CAN;N5C Ingersoll",
+        "label": "N5C Ingersoll"
+    },
+    {
+        "value": "CAN;N5H Aylmer",
+        "label": "N5H Aylmer"
+    },
+    {
+        "value": "CAN;N5L Port Stanley",
+        "label": "N5L Port Stanley"
+    },
+    {
+        "value": "CAN;N5P St. Thomas North",
+        "label": "N5P St. Thomas North"
+    },
+    {
+        "value": "CAN;N5R St. Thomas South",
+        "label": "N5R St. Thomas South"
+    },
+    {
+        "value": "CAN;N5V London (YXU / North and East Argyle / East Huron Heights)",
+        "label": "N5V London (YXU / North and East Argyle / East Huron Heights)"
+    },
+    {
+        "value": "CAN;N5W London East (SW Argyle / Hamilton Road)",
+        "label": "N5W London East (SW Argyle / Hamilton Road)"
+    },
+    {
+        "value": "CAN;N5X London (Fanshawe / Stoneybrook / Stoney Creek / Uplands / East Masonville)",
+        "label": "N5X London (Fanshawe / Stoneybrook / Stoney Creek / Uplands / East Masonville)"
+    },
+    {
+        "value": "CAN;N5Y London (West Huron Heights / Carling)",
+        "label": "N5Y London (West Huron Heights / Carling)"
+    },
+    {
+        "value": "CAN;N5Z London (Glen Cairn)",
+        "label": "N5Z London (Glen Cairn)"
+    },
+    {
+        "value": "CAN;N6A London North (UWO)",
+        "label": "N6A London North (UWO)"
+    },
+    {
+        "value": "CAN;N6B London Central",
+        "label": "N6B London Central"
+    },
+    {
+        "value": "CAN;N6C London South (East Highland / North White Oaks / North Westminster)",
+        "label": "N6C London South (East Highland / North White Oaks / North Westminster)"
+    },
+    {
+        "value": "CAN;N6E London (South White Oaks / Central Westminster / East Longwoods / West Brockley)",
+        "label": "N6E London (South White Oaks / Central Westminster / East Longwoods / West Brockley)"
+    },
+    {
+        "value": "CAN;N6G London (Sunningdale / West Masonville / Medway / NE Hyde Park / East Fox Hollow)",
+        "label": "N6G London (Sunningdale / West Masonville / Medway / NE Hyde Park / East Fox Hollow)"
+    },
+    {
+        "value": "CAN;N6H London West (Central Hyde Park / Oakridge)",
+        "label": "N6H London West (Central Hyde Park / Oakridge)"
+    },
+    {
+        "value": "CAN;N6J London (Southcrest / East Westmount / West Highland)",
+        "label": "N6J London (Southcrest / East Westmount / West Highland)"
+    },
+    {
+        "value": "CAN;N6K London (Riverbend / Woodhull / North Sharon Creek / Byron / West Westmount)",
+        "label": "N6K London (Riverbend / Woodhull / North Sharon Creek / Byron / West Westmount)"
+    },
+    {
+        "value": "CAN;N6L London (East Tempo)",
+        "label": "N6L London (East Tempo)"
+    },
+    {
+        "value": "CAN;N6M London (Jackson / Old Victoria / Bradley / North Highbury)",
+        "label": "N6M London (Jackson / Old Victoria / Bradley / North Highbury)"
+    },
+    {
+        "value": "CAN;N6N London (South Highbury / Glanworth / East Brockley / SE Westminster)",
+        "label": "N6N London (South Highbury / Glanworth / East Brockley / SE Westminster)"
+    },
+    {
+        "value": "CAN;N6P London (Talbot / Lambeth / West Tempo / South Sharon Creek)",
+        "label": "N6P London (Talbot / Lambeth / West Tempo / South Sharon Creek)"
+    },
+    {
+        "value": "CAN;N7A Goderich",
+        "label": "N7A Goderich"
+    },
+    {
+        "value": "CAN;N7G Strathroy",
+        "label": "N7G Strathroy"
+    },
+    {
+        "value": "CAN;N7L Chatham Northwest",
+        "label": "N7L Chatham Northwest"
+    },
+    {
+        "value": "CAN;N7M Chatham Southeast",
+        "label": "N7M Chatham Southeast"
+    },
+    {
+        "value": "CAN;N7S Sarnia Central",
+        "label": "N7S Sarnia Central"
+    },
+    {
+        "value": "CAN;N7T Sarnia Southwest",
+        "label": "N7T Sarnia Southwest"
+    },
+    {
+        "value": "CAN;N7V Sarnia Northwest",
+        "label": "N7V Sarnia Northwest"
+    },
+    {
+        "value": "CAN;N7W Sarnia Southeast",
+        "label": "N7W Sarnia Southeast"
+    },
+    {
+        "value": "CAN;N7X Sarnia Northeast",
+        "label": "N7X Sarnia Northeast"
+    },
+    {
+        "value": "CAN;N8A Wallaceburg",
+        "label": "N8A Wallaceburg"
+    },
+    {
+        "value": "CAN;N8H Leamington",
+        "label": "N8H Leamington"
+    },
+    {
+        "value": "CAN;N8M Essex",
+        "label": "N8M Essex"
+    },
+    {
+        "value": "CAN;N8N Tecumseh Outskirts",
+        "label": "N8N Tecumseh Outskirts"
+    },
+    {
+        "value": "CAN;N8P Windsor (East Riverside)",
+        "label": "N8P Windsor (East Riverside)"
+    },
+    {
+        "value": "CAN;N8R Windsor (East Forest Glade)",
+        "label": "N8R Windsor (East Forest Glade)"
+    },
+    {
+        "value": "CAN;N8S Windsor (Riverside)",
+        "label": "N8S Windsor (Riverside)"
+    },
+    {
+        "value": "CAN;N8T Windsor (West Forest Glade / East Fontainbleu)",
+        "label": "N8T Windsor (West Forest Glade / East Fontainbleu)"
+    },
+    {
+        "value": "CAN;N8V Tecumseh (YQG)",
+        "label": "N8V Tecumseh (YQG)"
+    },
+    {
+        "value": "CAN;N8W Windsor (South Walkerville / West Fontainbleu / Walker Farm / Devonshire)",
+        "label": "N8W Windsor (South Walkerville / West Fontainbleu / Walker Farm / Devonshire)"
+    },
+    {
+        "value": "CAN;N8X Windsor South Central (West Walkerville / Remington Park)",
+        "label": "N8X Windsor South Central (West Walkerville / Remington Park)"
+    },
+    {
+        "value": "CAN;N8Y Windsor East (East Walkerville)",
+        "label": "N8Y Windsor East (East Walkerville)"
+    },
+    {
+        "value": "CAN;N9A Windsor (City Centre / NW Walkerville)",
+        "label": "N9A Windsor (City Centre / NW Walkerville)"
+    },
+    {
+        "value": "CAN;N9B Windsor (University / South Cameron)",
+        "label": "N9B Windsor (University / South Cameron)"
+    },
+    {
+        "value": "CAN;N9C Windsor (Sandwich / Ojibway / West Malden)",
+        "label": "N9C Windsor (Sandwich / Ojibway / West Malden)"
+    },
+    {
+        "value": "CAN;N9E Windsor South (East Malden)",
+        "label": "N9E Windsor South (East Malden)"
+    },
+    {
+        "value": "CAN;N9G Windsor (Roseland)",
+        "label": "N9G Windsor (Roseland)"
+    },
+    {
+        "value": "CAN;N9H La Salle East",
+        "label": "N9H La Salle East"
+    },
+    {
+        "value": "CAN;N9J La Salle West",
+        "label": "N9J La Salle West"
+    },
+    {
+        "value": "CAN;N9K Tecumseh Central",
+        "label": "N9K Tecumseh Central"
+    },
+    {
+        "value": "CAN;N9V Amherstburg",
+        "label": "N9V Amherstburg"
+    },
+    {
+        "value": "CAN;N9Y Kingsville",
+        "label": "N9Y Kingsville"
+    },
+    {
+        "value": "CAN;P0A Nipissing Central (Burk's Falls)",
+        "label": "P0A Nipissing Central (Burk's Falls)"
+    },
+    {
+        "value": "CAN;P0B Nipissing South (Utterson)",
+        "label": "P0B Nipissing South (Utterson)"
+    },
+    {
+        "value": "CAN;P0C Parry Sound Mid-Shore (Bala)",
+        "label": "P0C Parry Sound Mid-Shore (Bala)"
+    },
+    {
+        "value": "CAN;P0E Parry Sound South Shore (Kilworthy)",
+        "label": "P0E Parry Sound South Shore (Kilworthy)"
+    },
+    {
+        "value": "CAN;P0G Parry Sound North Shore (Nobel)",
+        "label": "P0G Parry Sound North Shore (Nobel)"
+    },
+    {
+        "value": "CAN;P0H Nipissing North (Callander)",
+        "label": "P0H Nipissing North (Callander)"
+    },
+    {
+        "value": "CAN;P0J Timiskaming South (Temiskaming Shores)",
+        "label": "P0J Timiskaming South (Temiskaming Shores)"
+    },
+    {
+        "value": "CAN;P0K Timiskaming North (Iroquois Falls A)",
+        "label": "P0K Timiskaming North (Iroquois Falls A)"
+    },
+    {
+        "value": "CAN;P0L Cochrane Region (Hearst)",
+        "label": "P0L Cochrane Region (Hearst)"
+    },
+    {
+        "value": "CAN;P0M Algoma, Sudbury District and Greater Sudbury (Chelmsford)",
+        "label": "P0M Algoma, Sudbury District and Greater Sudbury (Chelmsford)"
+    },
+    {
+        "value": "CAN;P0N Timmins Region (South Porcupine)",
+        "label": "P0N Timmins Region (South Porcupine)"
+    },
+    {
+        "value": "CAN;P0P Manitoulin (Little Current)",
+        "label": "P0P Manitoulin (Little Current)"
+    },
+    {
+        "value": "CAN;P0R Algoma Southwest (Blind River)",
+        "label": "P0R Algoma Southwest (Blind River)"
+    },
+    {
+        "value": "CAN;P0S Lake Superior East Shore (Wawa)",
+        "label": "P0S Lake Superior East Shore (Wawa)"
+    },
+    {
+        "value": "CAN;P0T Lake Superior North Shore (Marathon)",
+        "label": "P0T Lake Superior North Shore (Marathon)"
+    },
+    {
+        "value": "CAN;P0V Northwestern Ontario (Red Lake)",
+        "label": "P0V Northwestern Ontario (Red Lake)"
+    },
+    {
+        "value": "CAN;P0W Rainy River Region (Emo)",
+        "label": "P0W Rainy River Region (Emo)"
+    },
+    {
+        "value": "CAN;P0X Kenora Region (Keewatin)",
+        "label": "P0X Kenora Region (Keewatin)"
+    },
+    {
+        "value": "CAN;P0Y Lake of the Woods East Shore (Ingolf)",
+        "label": "P0Y Lake of the Woods East Shore (Ingolf)"
+    },
+    {
+        "value": "CAN;P1A North Bay South",
+        "label": "P1A North Bay South"
+    },
+    {
+        "value": "CAN;P1B North Bay Central",
+        "label": "P1B North Bay Central"
+    },
+    {
+        "value": "CAN;P1C North Bay North",
+        "label": "P1C North Bay North"
+    },
+    {
+        "value": "CAN;P1H Huntsville",
+        "label": "P1H Huntsville"
+    },
+    {
+        "value": "CAN;P1L Bracebridge",
+        "label": "P1L Bracebridge"
+    },
+    {
+        "value": "CAN;P1P Gravenhurst",
+        "label": "P1P Gravenhurst"
+    },
+    {
+        "value": "CAN;P2A Parry Sound",
+        "label": "P2A Parry Sound"
+    },
+    {
+        "value": "CAN;P2B Sturgeon Falls",
+        "label": "P2B Sturgeon Falls"
+    },
+    {
+        "value": "CAN;P2N Kirkland Lake",
+        "label": "P2N Kirkland Lake"
+    },
+    {
+        "value": "CAN;P3A Greater Sudbury (New Sudbury)",
+        "label": "P3A Greater Sudbury (New Sudbury)"
+    },
+    {
+        "value": "CAN;P3B Greater Sudbury (Downtown / Minnow Lake)",
+        "label": "P3B Greater Sudbury (Downtown / Minnow Lake)"
+    },
+    {
+        "value": "CAN;P3C Greater Sudbury (Gatchell / West End / Little Britain)",
+        "label": "P3C Greater Sudbury (Gatchell / West End / Little Britain)"
+    },
+    {
+        "value": "CAN;P3E Greater Sudbury (Robinson / Lockerby)",
+        "label": "P3E Greater Sudbury (Robinson / Lockerby)"
+    },
+    {
+        "value": "CAN;P3G Greater Sudbury (Lo-Ellen / McFarlane Lake)",
+        "label": "P3G Greater Sudbury (Lo-Ellen / McFarlane Lake)"
+    },
+    {
+        "value": "CAN;P3L Greater Sudbury (Garson)",
+        "label": "P3L Greater Sudbury (Garson)"
+    },
+    {
+        "value": "CAN;P3N Greater Sudbury (Val Caron)",
+        "label": "P3N Greater Sudbury (Val Caron)"
+    },
+    {
+        "value": "CAN;P3P Greater Sudbury (Hanmer)",
+        "label": "P3P Greater Sudbury (Hanmer)"
+    },
+    {
+        "value": "CAN;P3Y Greater Sudbury (Lively)",
+        "label": "P3Y Greater Sudbury (Lively)"
+    },
+    {
+        "value": "CAN;P4N Timmins Southeast",
+        "label": "P4N Timmins Southeast"
+    },
+    {
+        "value": "CAN;P4P Timmins North",
+        "label": "P4P Timmins North"
+    },
+    {
+        "value": "CAN;P4R Timmins West",
+        "label": "P4R Timmins West"
+    },
+    {
+        "value": "CAN;P5A Elliot Lake",
+        "label": "P5A Elliot Lake"
+    },
+    {
+        "value": "CAN;P5E Espanola",
+        "label": "P5E Espanola"
+    },
+    {
+        "value": "CAN;P5N Kapuskasing",
+        "label": "P5N Kapuskasing"
+    },
+    {
+        "value": "CAN;P6A Sault Ste. Marie East",
+        "label": "P6A Sault Ste. Marie East"
+    },
+    {
+        "value": "CAN;P6B Sault Ste. Marie Central",
+        "label": "P6B Sault Ste. Marie Central"
+    },
+    {
+        "value": "CAN;P6C Sault Ste. Marie North",
+        "label": "P6C Sault Ste. Marie North"
+    },
+    {
+        "value": "CAN;P7A Thunder Bay Northeast",
+        "label": "P7A Thunder Bay Northeast"
+    },
+    {
+        "value": "CAN;P7B Thunder Bay North Central",
+        "label": "P7B Thunder Bay North Central"
+    },
+    {
+        "value": "CAN;P7C Thunder Bay Central",
+        "label": "P7C Thunder Bay Central"
+    },
+    {
+        "value": "CAN;P7E Thunder Bay South Central",
+        "label": "P7E Thunder Bay South Central"
+    },
+    {
+        "value": "CAN;P7G Thunder Bay North",
+        "label": "P7G Thunder Bay North"
+    },
+    {
+        "value": "CAN;P7J Thunder Bay South",
+        "label": "P7J Thunder Bay South"
+    },
+    {
+        "value": "CAN;P7K Thunder Bay West",
+        "label": "P7K Thunder Bay West"
+    },
+    {
+        "value": "CAN;P7L Neebing",
+        "label": "P7L Neebing"
+    },
+    {
+        "value": "CAN;P8N Dryden",
+        "label": "P8N Dryden"
+    },
+    {
+        "value": "CAN;P8T Sioux Lookout",
+        "label": "P8T Sioux Lookout"
+    },
+    {
+        "value": "CAN;P9A Fort Frances",
+        "label": "P9A Fort Frances"
+    },
+    {
+        "value": "CAN;P9N Kenora",
+        "label": "P9N Kenora"
+    },
+    {
+        "value": "CAN;R0A Southeastern Manitoba (Lorette)",
+        "label": "R0A Southeastern Manitoba (Lorette)"
+    },
+    {
+        "value": "CAN;R0B Northern Manitoba (Norway House)",
+        "label": "R0B Northern Manitoba (Norway House)"
+    },
+    {
+        "value": "CAN;R0C North Interlake (Stonewall)",
+        "label": "R0C North Interlake (Stonewall)"
+    },
+    {
+        "value": "CAN;R0E Eastern Manitoba (Beausejour)",
+        "label": "R0E Eastern Manitoba (Beausejour)"
+    },
+    {
+        "value": "CAN;R0G South Central Manitoba (Altona)",
+        "label": "R0G South Central Manitoba (Altona)"
+    },
+    {
+        "value": "CAN;R0H South Interlake (MacGregor)",
+        "label": "R0H South Interlake (MacGregor)"
+    },
+    {
+        "value": "CAN;R0J Riding Mountain (Neepawa)",
+        "label": "R0J Riding Mountain (Neepawa)"
+    },
+    {
+        "value": "CAN;R0K Brandon Region (Killarney)",
+        "label": "R0K Brandon Region (Killarney)"
+    },
+    {
+        "value": "CAN;R0L Western Manitoba (Swan River)",
+        "label": "R0L Western Manitoba (Swan River)"
+    },
+    {
+        "value": "CAN;R0M Southwestern Manitoba (Virden)",
+        "label": "R0M Southwestern Manitoba (Virden)"
+    },
+    {
+        "value": "CAN;R1A Selkirk",
+        "label": "R1A Selkirk"
+    },
+    {
+        "value": "CAN;R1B Lockport",
+        "label": "R1B Lockport"
+    },
+    {
+        "value": "CAN;R1C Narol",
+        "label": "R1C Narol"
+    },
+    {
+        "value": "CAN;R1N Portage la Prairie",
+        "label": "R1N Portage la Prairie"
+    },
+    {
+        "value": "CAN;R2C Winnipeg (Transcona)",
+        "label": "R2C Winnipeg (Transcona)"
+    },
+    {
+        "value": "CAN;R2E East St. Paul",
+        "label": "R2E East St. Paul"
+    },
+    {
+        "value": "CAN;R2G Winnipeg (River East North)",
+        "label": "R2G Winnipeg (River East North)"
+    },
+    {
+        "value": "CAN;R2H Winnipeg (St. Boniface NW)",
+        "label": "R2H Winnipeg (St. Boniface NW)"
+    },
+    {
+        "value": "CAN;R2J Winnipeg (St. Boniface NE)",
+        "label": "R2J Winnipeg (St. Boniface NE)"
+    },
+    {
+        "value": "CAN;R2K Winnipeg (River East Central)",
+        "label": "R2K Winnipeg (River East Central)"
+    },
+    {
+        "value": "CAN;R2L Winnipeg (River East South)",
+        "label": "R2L Winnipeg (River East South)"
+    },
+    {
+        "value": "CAN;R2M Winnipeg (St. Vital North)",
+        "label": "R2M Winnipeg (St. Vital North)"
+    },
+    {
+        "value": "CAN;R2N Winnipeg (St. Vital SW)",
+        "label": "R2N Winnipeg (St. Vital SW)"
+    },
+    {
+        "value": "CAN;R2P Winnipeg (Seven Oaks West)",
+        "label": "R2P Winnipeg (Seven Oaks West)"
+    },
+    {
+        "value": "CAN;R2R Winnipeg (Inkster West)",
+        "label": "R2R Winnipeg (Inkster West)"
+    },
+    {
+        "value": "CAN;R2V Winnipeg (Seven Oaks East)",
+        "label": "R2V Winnipeg (Seven Oaks East)"
+    },
+    {
+        "value": "CAN;R2W Winnipeg (Point Douglas East)",
+        "label": "R2W Winnipeg (Point Douglas East)"
+    },
+    {
+        "value": "CAN;R2X Winnipeg (Point Douglas West / Inkster East)",
+        "label": "R2X Winnipeg (Point Douglas West / Inkster East)"
+    },
+    {
+        "value": "CAN;R2Y Winnipeg (St. James-Assiniboia NW)",
+        "label": "R2Y Winnipeg (St. James-Assiniboia NW)"
+    },
+    {
+        "value": "CAN;R3A Winnipeg (Centennial)",
+        "label": "R3A Winnipeg (Centennial)"
+    },
+    {
+        "value": "CAN;R3B Winnipeg (Chinatown / Civic Centre / Exchange District)",
+        "label": "R3B Winnipeg (Chinatown / Civic Centre / Exchange District)"
+    },
+    {
+        "value": "CAN;R3C Winnipeg (Broadway / The Forks / Portage and Main) Manitoba Provincial Government",
+        "label": "R3C Winnipeg (Broadway / The Forks / Portage and Main) Manitoba Provincial Government"
+    },
+    {
+        "value": "CAN;R3E Winnipeg (Sargent Park / Daniel McIntyre / Inkster SE)",
+        "label": "R3E Winnipeg (Sargent Park / Daniel McIntyre / Inkster SE)"
+    },
+    {
+        "value": "CAN;R3G Winnipeg (Minto / St. Mathews / Wolseley)",
+        "label": "R3G Winnipeg (Minto / St. Mathews / Wolseley)"
+    },
+    {
+        "value": "CAN;R3H Winnipeg (St. James-Assiniboia NE / YWG)",
+        "label": "R3H Winnipeg (St. James-Assiniboia NE / YWG)"
+    },
+    {
+        "value": "CAN;R3J Winnipeg (St. James-Assiniboia SE)",
+        "label": "R3J Winnipeg (St. James-Assiniboia SE)"
+    },
+    {
+        "value": "CAN;R3K Winnipeg (St. James-Assiniboia SW)",
+        "label": "R3K Winnipeg (St. James-Assiniboia SW)"
+    },
+    {
+        "value": "CAN;R3L Winnipeg (River Heights East)",
+        "label": "R3L Winnipeg (River Heights East)"
+    },
+    {
+        "value": "CAN;R3M Winnipeg (River Heights Central)",
+        "label": "R3M Winnipeg (River Heights Central)"
+    },
+    {
+        "value": "CAN;R3N Winnipeg (River Heights West)",
+        "label": "R3N Winnipeg (River Heights West)"
+    },
+    {
+        "value": "CAN;R3P Winnipeg (Fort Garry NW / Tuxedo)",
+        "label": "R3P Winnipeg (Fort Garry NW / Tuxedo)"
+    },
+    {
+        "value": "CAN;R3R Winnipeg (Assiniboine South / Betsworth)",
+        "label": "R3R Winnipeg (Assiniboine South / Betsworth)"
+    },
+    {
+        "value": "CAN;R3S Winnipeg (Wilkes South)",
+        "label": "R3S Winnipeg (Wilkes South)"
+    },
+    {
+        "value": "CAN;R3T Winnipeg (Fort Garry NE / University of Manitoba)",
+        "label": "R3T Winnipeg (Fort Garry NE / University of Manitoba)"
+    },
+    {
+        "value": "CAN;R3V Winnipeg (Fort Garry South)",
+        "label": "R3V Winnipeg (Fort Garry South)"
+    },
+    {
+        "value": "CAN;R3W Winnipeg (Grassie / Pequis)",
+        "label": "R3W Winnipeg (Grassie / Pequis)"
+    },
+    {
+        "value": "CAN;R3X Winnipeg (St. Boniface South / St. Vital SE)",
+        "label": "R3X Winnipeg (St. Boniface South / St. Vital SE)"
+    },
+    {
+        "value": "CAN;R3Y Winnipeg (Fort Garry West)",
+        "label": "R3Y Winnipeg (Fort Garry West)"
+    },
+    {
+        "value": "CAN;R4A West St. Paul",
+        "label": "R4A West St. Paul"
+    },
+    {
+        "value": "CAN;R4G Oak Bluff",
+        "label": "R4G Oak Bluff"
+    },
+    {
+        "value": "CAN;R4H Headingley East",
+        "label": "R4H Headingley East"
+    },
+    {
+        "value": "CAN;R4J Headingley West",
+        "label": "R4J Headingley West"
+    },
+    {
+        "value": "CAN;R4K Cartier",
+        "label": "R4K Cartier"
+    },
+    {
+        "value": "CAN;R4L St. Francois Xavier",
+        "label": "R4L St. Francois Xavier"
+    },
+    {
+        "value": "CAN;R5A St. Adolphe",
+        "label": "R5A St. Adolphe"
+    },
+    {
+        "value": "CAN;R5G Steinbach",
+        "label": "R5G Steinbach"
+    },
+    {
+        "value": "CAN;R5H Ste. Anne",
+        "label": "R5H Ste. Anne"
+    },
+    {
+        "value": "CAN;R5K Lorette",
+        "label": "R5K Lorette"
+    },
+    {
+        "value": "CAN;R6M Morden",
+        "label": "R6M Morden"
+    },
+    {
+        "value": "CAN;R6W Winkler",
+        "label": "R6W Winkler"
+    },
+    {
+        "value": "CAN;R7A Brandon Southeast",
+        "label": "R7A Brandon Southeast"
+    },
+    {
+        "value": "CAN;R7B Brandon Southwest",
+        "label": "R7B Brandon Southwest"
+    },
+    {
+        "value": "CAN;R7C Brandon North",
+        "label": "R7C Brandon North"
+    },
+    {
+        "value": "CAN;R7N Dauphin",
+        "label": "R7N Dauphin"
+    },
+    {
+        "value": "CAN;R8A Flin Flon",
+        "label": "R8A Flin Flon"
+    },
+    {
+        "value": "CAN;R8N Thompson",
+        "label": "R8N Thompson"
+    },
+    {
+        "value": "CAN;R9A The Pas",
+        "label": "R9A The Pas"
+    },
+    {
+        "value": "CAN;S0A Yorkton Region (Melville)",
+        "label": "S0A Yorkton Region (Melville)"
+    },
+    {
+        "value": "CAN;S0C Southeastern Saskatchewan (Carlyle)",
+        "label": "S0C Southeastern Saskatchewan (Carlyle)"
+    },
+    {
+        "value": "CAN;S0E Eastern Saskatchewan (Melfort)",
+        "label": "S0E Eastern Saskatchewan (Melfort)"
+    },
+    {
+        "value": "CAN;S0G South Central Saskatchewan (Fort Qu'Appelle)",
+        "label": "S0G South Central Saskatchewan (Fort Qu'Appelle)"
+    },
+    {
+        "value": "CAN;S0H Southern Saskatchewan (Assiniboia)",
+        "label": "S0H Southern Saskatchewan (Assiniboia)"
+    },
+    {
+        "value": "CAN;S0J Northern Saskatchewan (La Ronge)",
+        "label": "S0J Northern Saskatchewan (La Ronge)"
+    },
+    {
+        "value": "CAN;S0K Central Saskatchewan (Humboldt)",
+        "label": "S0K Central Saskatchewan (Humboldt)"
+    },
+    {
+        "value": "CAN;S0L Western Saskatchewan (Kindersley)",
+        "label": "S0L Western Saskatchewan (Kindersley)"
+    },
+    {
+        "value": "CAN;S0M Northwestern Saskatchewan (Battleford)",
+        "label": "S0M Northwestern Saskatchewan (Battleford)"
+    },
+    {
+        "value": "CAN;S0N Southwestern Saskatchewan (Maple Creek)",
+        "label": "S0N Southwestern Saskatchewan (Maple Creek)"
+    },
+    {
+        "value": "CAN;S0P Northeastern Saskatchewan (Creighton)",
+        "label": "S0P Northeastern Saskatchewan (Creighton)"
+    },
+    {
+        "value": "CAN;S2V Buena Vista",
+        "label": "S2V Buena Vista"
+    },
+    {
+        "value": "CAN;S3N Yorkton",
+        "label": "S3N Yorkton"
+    },
+    {
+        "value": "CAN;S4A Estevan",
+        "label": "S4A Estevan"
+    },
+    {
+        "value": "CAN;S4H Weyburn",
+        "label": "S4H Weyburn"
+    },
+    {
+        "value": "CAN;S4K Rm Of Sherwood",
+        "label": "S4K Rm Of Sherwood"
+    },
+    {
+        "value": "CAN;S4L Regina East",
+        "label": "S4L Regina East"
+    },
+    {
+        "value": "CAN;S4M Regina",
+        "label": "S4M Regina"
+    },
+    {
+        "value": "CAN;S4N Regina Northeast and East Central",
+        "label": "S4N Regina Northeast and East Central"
+    },
+    {
+        "value": "CAN;S4P Regina Central",
+        "label": "S4P Regina Central"
+    },
+    {
+        "value": "CAN;S4R Regina North Central",
+        "label": "S4R Regina North Central"
+    },
+    {
+        "value": "CAN;S4S Regina South Saskatchewan Provincial Government",
+        "label": "S4S Regina South Saskatchewan Provincial Government"
+    },
+    {
+        "value": "CAN;S4T Regina West",
+        "label": "S4T Regina West"
+    },
+    {
+        "value": "CAN;S4V Regina Southeast",
+        "label": "S4V Regina Southeast"
+    },
+    {
+        "value": "CAN;S4W Regina Southwest",
+        "label": "S4W Regina Southwest"
+    },
+    {
+        "value": "CAN;S4X Regina Northwest",
+        "label": "S4X Regina Northwest"
+    },
+    {
+        "value": "CAN;S4Y Regina Outer Northwest",
+        "label": "S4Y Regina Outer Northwest"
+    },
+    {
+        "value": "CAN;S4Z Regina Northeast",
+        "label": "S4Z Regina Northeast"
+    },
+    {
+        "value": "CAN;S6H Moose Jaw Southeast",
+        "label": "S6H Moose Jaw Southeast"
+    },
+    {
+        "value": "CAN;S6J Moose Jaw Northeast",
+        "label": "S6J Moose Jaw Northeast"
+    },
+    {
+        "value": "CAN;S6K Moose Jaw West",
+        "label": "S6K Moose Jaw West"
+    },
+    {
+        "value": "CAN;S6V Prince Albert Central",
+        "label": "S6V Prince Albert Central"
+    },
+    {
+        "value": "CAN;S6W Prince Albert Southwest",
+        "label": "S6W Prince Albert Southwest"
+    },
+    {
+        "value": "CAN;S6X Prince Albert East",
+        "label": "S6X Prince Albert East"
+    },
+    {
+        "value": "CAN;S7H Saskatoon East Central",
+        "label": "S7H Saskatoon East Central"
+    },
+    {
+        "value": "CAN;S7J Saskatoon South Central",
+        "label": "S7J Saskatoon South Central"
+    },
+    {
+        "value": "CAN;S7K Saskatoon North Central",
+        "label": "S7K Saskatoon North Central"
+    },
+    {
+        "value": "CAN;S7L Saskatoon West",
+        "label": "S7L Saskatoon West"
+    },
+    {
+        "value": "CAN;S7M Saskatoon Southwest",
+        "label": "S7M Saskatoon Southwest"
+    },
+    {
+        "value": "CAN;S7N Saskatoon Northeast Central",
+        "label": "S7N Saskatoon Northeast Central"
+    },
+    {
+        "value": "CAN;S7P Saskatoon North",
+        "label": "S7P Saskatoon North"
+    },
+    {
+        "value": "CAN;S7R Saskatoon Northwest",
+        "label": "S7R Saskatoon Northwest"
+    },
+    {
+        "value": "CAN;S7S Saskatoon Northeast",
+        "label": "S7S Saskatoon Northeast"
+    },
+    {
+        "value": "CAN;S7T Saskatoon South",
+        "label": "S7T Saskatoon South"
+    },
+    {
+        "value": "CAN;S7V Saskatoon Southeast",
+        "label": "S7V Saskatoon Southeast"
+    },
+    {
+        "value": "CAN;S7W Saskatoon",
+        "label": "S7W Saskatoon"
+    },
+    {
+        "value": "CAN;S9A North Battleford",
+        "label": "S9A North Battleford"
+    },
+    {
+        "value": "CAN;S9H Swift Current",
+        "label": "S9H Swift Current"
+    },
+    {
+        "value": "CAN;S9V Lloydminster",
+        "label": "S9V Lloydminster"
+    },
+    {
+        "value": "CAN;S9X Meadow Lake",
+        "label": "S9X Meadow Lake"
+    },
+    {
+        "value": "CAN;T0A Eastern Alberta (St. Paul)",
+        "label": "T0A Eastern Alberta (St. Paul)"
+    },
+    {
+        "value": "CAN;T0B Wainwright Region (Tofield)",
+        "label": "T0B Wainwright Region (Tofield)"
+    },
+    {
+        "value": "CAN;T0C Central Alberta (Stettler)",
+        "label": "T0C Central Alberta (Stettler)"
+    },
+    {
+        "value": "CAN;T0E Western Alberta (Jasper)",
+        "label": "T0E Western Alberta (Jasper)"
+    },
+    {
+        "value": "CAN;T0G North Central Alberta (Slave Lake)",
+        "label": "T0G North Central Alberta (Slave Lake)"
+    },
+    {
+        "value": "CAN;T0H Northwestern Alberta (High Level)",
+        "label": "T0H Northwestern Alberta (High Level)"
+    },
+    {
+        "value": "CAN;T0J Southeastern Alberta (Drumheller)",
+        "label": "T0J Southeastern Alberta (Drumheller)"
+    },
+    {
+        "value": "CAN;T0K International Border Region (Cardston)",
+        "label": "T0K International Border Region (Cardston)"
+    },
+    {
+        "value": "CAN;T0L Kananaskis Country (Claresholm)",
+        "label": "T0L Kananaskis Country (Claresholm)"
+    },
+    {
+        "value": "CAN;T0M Central Foothills (Sundre)",
+        "label": "T0M Central Foothills (Sundre)"
+    },
+    {
+        "value": "CAN;T0P Northeastern Alberta (Fort Chipewyan)",
+        "label": "T0P Northeastern Alberta (Fort Chipewyan)"
+    },
+    {
+        "value": "CAN;T0V Remote Northeast (Fitzgerald)",
+        "label": "T0V Remote Northeast (Fitzgerald)"
+    },
+    {
+        "value": "CAN;T1A Medicine Hat Central",
+        "label": "T1A Medicine Hat Central"
+    },
+    {
+        "value": "CAN;T1B Medicine Hat South",
+        "label": "T1B Medicine Hat South"
+    },
+    {
+        "value": "CAN;T1C Medicine Hat North",
+        "label": "T1C Medicine Hat North"
+    },
+    {
+        "value": "CAN;T1G Taber",
+        "label": "T1G Taber"
+    },
+    {
+        "value": "CAN;T1H Lethbridge North",
+        "label": "T1H Lethbridge North"
+    },
+    {
+        "value": "CAN;T1J Lethbridge West and Central",
+        "label": "T1J Lethbridge West and Central"
+    },
+    {
+        "value": "CAN;T1K Lethbridge Southeast",
+        "label": "T1K Lethbridge Southeast"
+    },
+    {
+        "value": "CAN;T1L Banff",
+        "label": "T1L Banff"
+    },
+    {
+        "value": "CAN;T1M Coaldale",
+        "label": "T1M Coaldale"
+    },
+    {
+        "value": "CAN;T1P Strathmore",
+        "label": "T1P Strathmore"
+    },
+    {
+        "value": "CAN;T1R Brooks",
+        "label": "T1R Brooks"
+    },
+    {
+        "value": "CAN;T1S Okotoks",
+        "label": "T1S Okotoks"
+    },
+    {
+        "value": "CAN;T1V High River",
+        "label": "T1V High River"
+    },
+    {
+        "value": "CAN;T1W Canmore",
+        "label": "T1W Canmore"
+    },
+    {
+        "value": "CAN;T1X Chestermere",
+        "label": "T1X Chestermere"
+    },
+    {
+        "value": "CAN;T1Y Calgary (Rundle / Whitehorn / Monterey Park)",
+        "label": "T1Y Calgary (Rundle / Whitehorn / Monterey Park)"
+    },
+    {
+        "value": "CAN;T1Z Rocky View",
+        "label": "T1Z Rocky View"
+    },
+    {
+        "value": "CAN;T2A Calgary (Penbrooke Meadows / Marlborough)",
+        "label": "T2A Calgary (Penbrooke Meadows / Marlborough)"
+    },
+    {
+        "value": "CAN;T2B Calgary (Forest Lawn / Dover / Erin Woods)",
+        "label": "T2B Calgary (Forest Lawn / Dover / Erin Woods)"
+    },
+    {
+        "value": "CAN;T2C Calgary (Lynnwood Ridge / Ogden / Foothills Industrial / Great Plains)",
+        "label": "T2C Calgary (Lynnwood Ridge / Ogden / Foothills Industrial / Great Plains)"
+    },
+    {
+        "value": "CAN;T2E Calgary (Bridgeland / Greenview / Zoo / YYC)",
+        "label": "T2E Calgary (Bridgeland / Greenview / Zoo / YYC)"
+    },
+    {
+        "value": "CAN;T2G Calgary (Inglewood / Burnsland / Chinatown / East Victoria Park / Saddledome)",
+        "label": "T2G Calgary (Inglewood / Burnsland / Chinatown / East Victoria Park / Saddledome)"
+    },
+    {
+        "value": "CAN;T2H Calgary (Highfield / Burns Industrial)",
+        "label": "T2H Calgary (Highfield / Burns Industrial)"
+    },
+    {
+        "value": "CAN;T2J Calgary (Queensland Downs / Lake Bonavista / Willow Park / Acadia)",
+        "label": "T2J Calgary (Queensland Downs / Lake Bonavista / Willow Park / Acadia)"
+    },
+    {
+        "value": "CAN;T2K Calgary (Thornecliffe / Tuxedo)",
+        "label": "T2K Calgary (Thornecliffe / Tuxedo)"
+    },
+    {
+        "value": "CAN;T2L Calgary (Brentwood / Collingwood / Nose Hill)",
+        "label": "T2L Calgary (Brentwood / Collingwood / Nose Hill)"
+    },
+    {
+        "value": "CAN;T2M Calgary (Mount Pleasant / Capitol Hill / Banff Trail)",
+        "label": "T2M Calgary (Mount Pleasant / Capitol Hill / Banff Trail)"
+    },
+    {
+        "value": "CAN;T2N Calgary (Kensington / Westmont / Parkdale / University)",
+        "label": "T2N Calgary (Kensington / Westmont / Parkdale / University)"
+    },
+    {
+        "value": "CAN;T2P Calgary (City Centre / Calgary Tower)",
+        "label": "T2P Calgary (City Centre / Calgary Tower)"
+    },
+    {
+        "value": "CAN;T2R Calgary (Connaught / West Victoria Park)",
+        "label": "T2R Calgary (Connaught / West Victoria Park)"
+    },
+    {
+        "value": "CAN;T2S Calgary (Elbow Park / Britannia / Parkhill / Mission)",
+        "label": "T2S Calgary (Elbow Park / Britannia / Parkhill / Mission)"
+    },
+    {
+        "value": "CAN;T2T Calgary South (Altadore / Bankview / Richmond)",
+        "label": "T2T Calgary South (Altadore / Bankview / Richmond)"
+    },
+    {
+        "value": "CAN;T2V Calgary (Oak Ridge / Haysboro / Kingsland / Windsor Park)",
+        "label": "T2V Calgary (Oak Ridge / Haysboro / Kingsland / Windsor Park)"
+    },
+    {
+        "value": "CAN;T2W Calgary (Braeside / Woodbine)",
+        "label": "T2W Calgary (Braeside / Woodbine)"
+    },
+    {
+        "value": "CAN;T2X Calgary (Midnapore / Sundance)",
+        "label": "T2X Calgary (Midnapore / Sundance)"
+    },
+    {
+        "value": "CAN;T2Y Calgary (Millrise / Somerset / Bridlewood / Evergreen)",
+        "label": "T2Y Calgary (Millrise / Somerset / Bridlewood / Evergreen)"
+    },
+    {
+        "value": "CAN;T2Z Calgary (Douglas Glen / McKenzie Lake / Copperfield / East Shepard)",
+        "label": "T2Z Calgary (Douglas Glen / McKenzie Lake / Copperfield / East Shepard)"
+    },
+    {
+        "value": "CAN;T3A Calgary (Dalhousie / Edgemont / Hamptons / Hidden Valley)",
+        "label": "T3A Calgary (Dalhousie / Edgemont / Hamptons / Hidden Valley)"
+    },
+    {
+        "value": "CAN;T3B Calgary (Montgomery / Bowness / Silver Springs / Greenwood)",
+        "label": "T3B Calgary (Montgomery / Bowness / Silver Springs / Greenwood)"
+    },
+    {
+        "value": "CAN;T3C Calgary (Rosscarrock / Wildwood / Shaganappi / Sunalta)",
+        "label": "T3C Calgary (Rosscarrock / Wildwood / Shaganappi / Sunalta)"
+    },
+    {
+        "value": "CAN;T3E Calgary (Lakeview / Glendale / Killarney / Glamorgan)",
+        "label": "T3E Calgary (Lakeview / Glendale / Killarney / Glamorgan)"
+    },
+    {
+        "value": "CAN;T3G Calgary (Hawkwood / Arbour Lake / Royal Oak / Rocky Ridge)",
+        "label": "T3G Calgary (Hawkwood / Arbour Lake / Royal Oak / Rocky Ridge)"
+    },
+    {
+        "value": "CAN;T3H Calgary (Discovery Ridge / Signal Hill / Aspen Woods / Patterson / Cougar Ridge)",
+        "label": "T3H Calgary (Discovery Ridge / Signal Hill / Aspen Woods / Patterson / Cougar Ridge)"
+    },
+    {
+        "value": "CAN;T3J Calgary (Martindale / Taradale / Falconridge / Saddle Ridge)",
+        "label": "T3J Calgary (Martindale / Taradale / Falconridge / Saddle Ridge)"
+    },
+    {
+        "value": "CAN;T3K Calgary (Sandstone / Harvest Hills / Coventry Hills / Panorama Hills / Beddington)",
+        "label": "T3K Calgary (Sandstone / Harvest Hills / Coventry Hills / Panorama Hills / Beddington)"
+    },
+    {
+        "value": "CAN;T3L Calgary (Tuscany / Scenic Acres)",
+        "label": "T3L Calgary (Tuscany / Scenic Acres)"
+    },
+    {
+        "value": "CAN;T3M Calgary (Cranston)",
+        "label": "T3M Calgary (Cranston)"
+    },
+    {
+        "value": "CAN;T3N Calgary Northeast",
+        "label": "T3N Calgary Northeast"
+    },
+    {
+        "value": "CAN;T3P Calgary (Symons Valley)",
+        "label": "T3P Calgary (Symons Valley)"
+    },
+    {
+        "value": "CAN;T3R Calgary Northwest",
+        "label": "T3R Calgary Northwest"
+    },
+    {
+        "value": "CAN;T3S Calgary",
+        "label": "T3S Calgary"
+    },
+    {
+        "value": "CAN;T3Z Redwood Meadows",
+        "label": "T3Z Redwood Meadows"
+    },
+    {
+        "value": "CAN;T4A Airdrie East",
+        "label": "T4A Airdrie East"
+    },
+    {
+        "value": "CAN;T4B Airdrie West",
+        "label": "T4B Airdrie West"
+    },
+    {
+        "value": "CAN;T4C Cochrane",
+        "label": "T4C Cochrane"
+    },
+    {
+        "value": "CAN;T4E Red Deer County",
+        "label": "T4E Red Deer County"
+    },
+    {
+        "value": "CAN;T4G Innisfail",
+        "label": "T4G Innisfail"
+    },
+    {
+        "value": "CAN;T4H Olds",
+        "label": "T4H Olds"
+    },
+    {
+        "value": "CAN;T4J Ponoka",
+        "label": "T4J Ponoka"
+    },
+    {
+        "value": "CAN;T4L Lacombe",
+        "label": "T4L Lacombe"
+    },
+    {
+        "value": "CAN;T4M Blackfalds",
+        "label": "T4M Blackfalds"
+    },
+    {
+        "value": "CAN;T4N Red Deer Central",
+        "label": "T4N Red Deer Central"
+    },
+    {
+        "value": "CAN;T4P Red Deer North",
+        "label": "T4P Red Deer North"
+    },
+    {
+        "value": "CAN;T4R Red Deer South",
+        "label": "T4R Red Deer South"
+    },
+    {
+        "value": "CAN;T4S Sylvan Lake",
+        "label": "T4S Sylvan Lake"
+    },
+    {
+        "value": "CAN;T4T Rocky Mountain House",
+        "label": "T4T Rocky Mountain House"
+    },
+    {
+        "value": "CAN;T4V Camrose",
+        "label": "T4V Camrose"
+    },
+    {
+        "value": "CAN;T4X Beaumont",
+        "label": "T4X Beaumont"
+    },
+    {
+        "value": "CAN;T5A Edmonton (West Clareview / East Londonderry)",
+        "label": "T5A Edmonton (West Clareview / East Londonderry)"
+    },
+    {
+        "value": "CAN;T5B Edmonton (East North Central / West Beverly)",
+        "label": "T5B Edmonton (East North Central / West Beverly)"
+    },
+    {
+        "value": "CAN;T5C Edmonton (Central Londonderry)",
+        "label": "T5C Edmonton (Central Londonderry)"
+    },
+    {
+        "value": "CAN;T5E Edmonton (West Londonderry / East Calder)",
+        "label": "T5E Edmonton (West Londonderry / East Calder)"
+    },
+    {
+        "value": "CAN;T5G Edmonton (North Central / Queen Mary Park / YXD)",
+        "label": "T5G Edmonton (North Central / Queen Mary Park / YXD)"
+    },
+    {
+        "value": "CAN;T5H Edmonton (North and East Downtown Fringe)",
+        "label": "T5H Edmonton (North and East Downtown Fringe)"
+    },
+    {
+        "value": "CAN;T5J Edmonton (North Downtown)",
+        "label": "T5J Edmonton (North Downtown)"
+    },
+    {
+        "value": "CAN;T5K Edmonton (South Downtown / South Downtown Fringe)",
+        "label": "T5K Edmonton (South Downtown / South Downtown Fringe)"
+    },
+    {
+        "value": "CAN;T5L Edmonton (North Westmount / West Calder / East Mistatim)",
+        "label": "T5L Edmonton (North Westmount / West Calder / East Mistatim)"
+    },
+    {
+        "value": "CAN;T5M Edmonton (South Westmount / Groat Estate / East Northwest Industrial)",
+        "label": "T5M Edmonton (South Westmount / Groat Estate / East Northwest Industrial)"
+    },
+    {
+        "value": "CAN;T5N Edmonton (Glenora / SW Downtown Fringe)",
+        "label": "T5N Edmonton (Glenora / SW Downtown Fringe)"
+    },
+    {
+        "value": "CAN;T5P Edmonton (North Jasper Place)",
+        "label": "T5P Edmonton (North Jasper Place)"
+    },
+    {
+        "value": "CAN;T5R Edmonton (Central Jasper Place / Buena Vista)",
+        "label": "T5R Edmonton (Central Jasper Place / Buena Vista)"
+    },
+    {
+        "value": "CAN;T5S Edmonton (West Northwest Industrial / Winterburn)",
+        "label": "T5S Edmonton (West Northwest Industrial / Winterburn)"
+    },
+    {
+        "value": "CAN;T5T Edmonton West (West Jasper Place / West Edmonton Mall)",
+        "label": "T5T Edmonton West (West Jasper Place / West Edmonton Mall)"
+    },
+    {
+        "value": "CAN;T5V Edmonton (Central Mistatim)",
+        "label": "T5V Edmonton (Central Mistatim)"
+    },
+    {
+        "value": "CAN;T5W Edmonton (Central Beverly)",
+        "label": "T5W Edmonton (Central Beverly)"
+    },
+    {
+        "value": "CAN;T5X Edmonton (East Castledowns)",
+        "label": "T5X Edmonton (East Castledowns)"
+    },
+    {
+        "value": "CAN;T5Y Edmonton (Landbank / Oliver / East Lake District)",
+        "label": "T5Y Edmonton (Landbank / Oliver / East Lake District)"
+    },
+    {
+        "value": "CAN;T5Z Edmonton (West Lake District)",
+        "label": "T5Z Edmonton (West Lake District)"
+    },
+    {
+        "value": "CAN;T6A Edmonton (North Capilano)",
+        "label": "T6A Edmonton (North Capilano)"
+    },
+    {
+        "value": "CAN;T6B Edmonton (SE Capilano / West Southeast Industrial / East Bonnie Doon)",
+        "label": "T6B Edmonton (SE Capilano / West Southeast Industrial / East Bonnie Doon)"
+    },
+    {
+        "value": "CAN;T6C Edmonton (Central Bonnie Doon)",
+        "label": "T6C Edmonton (Central Bonnie Doon)"
+    },
+    {
+        "value": "CAN;T6E Edmonton (South Bonnie Doon / East University)",
+        "label": "T6E Edmonton (South Bonnie Doon / East University)"
+    },
+    {
+        "value": "CAN;T6G Edmonton (West University / Strathcona Place)",
+        "label": "T6G Edmonton (West University / Strathcona Place)"
+    },
+    {
+        "value": "CAN;T6H Edmonton (Southgate / North Riverbend)",
+        "label": "T6H Edmonton (Southgate / North Riverbend)"
+    },
+    {
+        "value": "CAN;T6J Edmonton (Kaskitayo)",
+        "label": "T6J Edmonton (Kaskitayo)"
+    },
+    {
+        "value": "CAN;T6K Edmonton (West Mill Woods)",
+        "label": "T6K Edmonton (West Mill Woods)"
+    },
+    {
+        "value": "CAN;T6L Edmonton (East Mill Woods)",
+        "label": "T6L Edmonton (East Mill Woods)"
+    },
+    {
+        "value": "CAN;T6M Edmonton Southwest",
+        "label": "T6M Edmonton Southwest"
+    },
+    {
+        "value": "CAN;T6N Edmonton (South Industrial)",
+        "label": "T6N Edmonton (South Industrial)"
+    },
+    {
+        "value": "CAN;T6P Edmonton (East Southeast Industrial / South Clover Bar)",
+        "label": "T6P Edmonton (East Southeast Industrial / South Clover Bar)"
+    },
+    {
+        "value": "CAN;T6R Edmonton (Riverbend)",
+        "label": "T6R Edmonton (Riverbend)"
+    },
+    {
+        "value": "CAN;T6S Edmonton (North Clover Bar)",
+        "label": "T6S Edmonton (North Clover Bar)"
+    },
+    {
+        "value": "CAN;T6T Edmonton (Meadows)",
+        "label": "T6T Edmonton (Meadows)"
+    },
+    {
+        "value": "CAN;T6V Edmonton (West Castledowns)",
+        "label": "T6V Edmonton (West Castledowns)"
+    },
+    {
+        "value": "CAN;T6W Edmonton (Heritage Valley)",
+        "label": "T6W Edmonton (Heritage Valley)"
+    },
+    {
+        "value": "CAN;T6X Edmonton (Ellerslie)",
+        "label": "T6X Edmonton (Ellerslie)"
+    },
+    {
+        "value": "CAN;T7A Drayton Valley",
+        "label": "T7A Drayton Valley"
+    },
+    {
+        "value": "CAN;T7E Edson",
+        "label": "T7E Edson"
+    },
+    {
+        "value": "CAN;T7N Barrhead",
+        "label": "T7N Barrhead"
+    },
+    {
+        "value": "CAN;T7P Westlock",
+        "label": "T7P Westlock"
+    },
+    {
+        "value": "CAN;T7S Whitecourt",
+        "label": "T7S Whitecourt"
+    },
+    {
+        "value": "CAN;T7V Hinton",
+        "label": "T7V Hinton"
+    },
+    {
+        "value": "CAN;T7X Spruce Grove North",
+        "label": "T7X Spruce Grove North"
+    },
+    {
+        "value": "CAN;T7Y Spruce Grove South",
+        "label": "T7Y Spruce Grove South"
+    },
+    {
+        "value": "CAN;T7Z Stony Plain",
+        "label": "T7Z Stony Plain"
+    },
+    {
+        "value": "CAN;T8A Sherwood Park West",
+        "label": "T8A Sherwood Park West"
+    },
+    {
+        "value": "CAN;T8B Sherwood Park Outer Southwest",
+        "label": "T8B Sherwood Park Outer Southwest"
+    },
+    {
+        "value": "CAN;T8C Sherwood Park Inner Southwest",
+        "label": "T8C Sherwood Park Inner Southwest"
+    },
+    {
+        "value": "CAN;T8E Sherwood Park Central",
+        "label": "T8E Sherwood Park Central"
+    },
+    {
+        "value": "CAN;T8G Sherwood Park East",
+        "label": "T8G Sherwood Park East"
+    },
+    {
+        "value": "CAN;T8H Sherwood Park Northwest",
+        "label": "T8H Sherwood Park Northwest"
+    },
+    {
+        "value": "CAN;T8L Fort Saskatchewan",
+        "label": "T8L Fort Saskatchewan"
+    },
+    {
+        "value": "CAN;T8N St. Albert",
+        "label": "T8N St. Albert"
+    },
+    {
+        "value": "CAN;T8R Morinville",
+        "label": "T8R Morinville"
+    },
+    {
+        "value": "CAN;T8S Peace River",
+        "label": "T8S Peace River"
+    },
+    {
+        "value": "CAN;T8T St. Albert",
+        "label": "T8T St. Albert"
+    },
+    {
+        "value": "CAN;T8V Grande Prairie Central",
+        "label": "T8V Grande Prairie Central"
+    },
+    {
+        "value": "CAN;T8W Grande Prairie South",
+        "label": "T8W Grande Prairie South"
+    },
+    {
+        "value": "CAN;T8X Grande Prairie East",
+        "label": "T8X Grande Prairie East"
+    },
+    {
+        "value": "CAN;T9A Wetaskiwin",
+        "label": "T9A Wetaskiwin"
+    },
+    {
+        "value": "CAN;T9C Vegreville",
+        "label": "T9C Vegreville"
+    },
+    {
+        "value": "CAN;T9E Leduc",
+        "label": "T9E Leduc"
+    },
+    {
+        "value": "CAN;T9G Devon",
+        "label": "T9G Devon"
+    },
+    {
+        "value": "CAN;T9H Fort McMurray Outer Central",
+        "label": "T9H Fort McMurray Outer Central"
+    },
+    {
+        "value": "CAN;T9J Fort McMurray Inner Central",
+        "label": "T9J Fort McMurray Inner Central"
+    },
+    {
+        "value": "CAN;T9K Fort McMurray Northwest",
+        "label": "T9K Fort McMurray Northwest"
+    },
+    {
+        "value": "CAN;T9M Cold Lake",
+        "label": "T9M Cold Lake"
+    },
+    {
+        "value": "CAN;T9N Bonnyville",
+        "label": "T9N Bonnyville"
+    },
+    {
+        "value": "CAN;T9S Athabasca",
+        "label": "T9S Athabasca"
+    },
+    {
+        "value": "CAN;T9V Lloydminster",
+        "label": "T9V Lloydminster"
+    },
+    {
+        "value": "CAN;T9W Wainwright",
+        "label": "T9W Wainwright"
+    },
+    {
+        "value": "CAN;T9X Vermilion",
+        "label": "T9X Vermilion"
+    },
+    {
+        "value": "CAN;V0A Upper Columbia Region (Golden)",
+        "label": "V0A Upper Columbia Region (Golden)"
+    },
+    {
+        "value": "CAN;V0B East Kootenays (Fernie)",
+        "label": "V0B East Kootenays (Fernie)"
+    },
+    {
+        "value": "CAN;V0C Northern British Columbia (Fort Nelson)",
+        "label": "V0C Northern British Columbia (Fort Nelson)"
+    },
+    {
+        "value": "CAN;V0E Central Okanagan and High Country (Revelstoke)",
+        "label": "V0E Central Okanagan and High Country (Revelstoke)"
+    },
+    {
+        "value": "CAN;V0G West Kootenays (Rossland)",
+        "label": "V0G West Kootenays (Rossland)"
+    },
+    {
+        "value": "CAN;V0H South Okanagan (Summerland)",
+        "label": "V0H South Okanagan (Summerland)"
+    },
+    {
+        "value": "CAN;V0J Omineca and Yellowhead (Smithers)",
+        "label": "V0J Omineca and Yellowhead (Smithers)"
+    },
+    {
+        "value": "CAN;V0K Cariboo and West Okanagan (100 Mile House)",
+        "label": "V0K Cariboo and West Okanagan (100 Mile House)"
+    },
+    {
+        "value": "CAN;V0L Chilcotin (Alexis Creek)",
+        "label": "V0L Chilcotin (Alexis Creek)"
+    },
+    {
+        "value": "CAN;V0M Harrison Lake Region (Agassiz)",
+        "label": "V0M Harrison Lake Region (Agassiz)"
+    },
+    {
+        "value": "CAN;V0N North Island, Sunshine Coast, and Southern Gulf Islands (Whistler)",
+        "label": "V0N North Island, Sunshine Coast, and Southern Gulf Islands (Whistler)"
+    },
+    {
+        "value": "CAN;V0P North Central Island and Bute Inlet Region (Gold River)",
+        "label": "V0P North Central Island and Bute Inlet Region (Gold River)"
+    },
+    {
+        "value": "CAN;V0R Central Island (Chemainus)",
+        "label": "V0R Central Island (Chemainus)"
+    },
+    {
+        "value": "CAN;V0S Juan de Fuca Shore (Sooke)",
+        "label": "V0S Juan de Fuca Shore (Sooke)"
+    },
+    {
+        "value": "CAN;V0T Inside Passage and the Queen Charlottes (Queen Charlotte City)",
+        "label": "V0T Inside Passage and the Queen Charlottes (Queen Charlotte City)"
+    },
+    {
+        "value": "CAN;V0V Lower Skeena (Port Edward)",
+        "label": "V0V Lower Skeena (Port Edward)"
+    },
+    {
+        "value": "CAN;V0W Atlin Region (Atlin)",
+        "label": "V0W Atlin Region (Atlin)"
+    },
+    {
+        "value": "CAN;V0X Similkameen (Hope)",
+        "label": "V0X Similkameen (Hope)"
+    },
+    {
+        "value": "CAN;V1A Kimberley",
+        "label": "V1A Kimberley"
+    },
+    {
+        "value": "CAN;V1B Vernon East",
+        "label": "V1B Vernon East"
+    },
+    {
+        "value": "CAN;V1C Cranbrook",
+        "label": "V1C Cranbrook"
+    },
+    {
+        "value": "CAN;V1E Salmon Arm",
+        "label": "V1E Salmon Arm"
+    },
+    {
+        "value": "CAN;V1G Dawson Creek",
+        "label": "V1G Dawson Creek"
+    },
+    {
+        "value": "CAN;V1H Vernon West",
+        "label": "V1H Vernon West"
+    },
+    {
+        "value": "CAN;V1J Fort St. John",
+        "label": "V1J Fort St. John"
+    },
+    {
+        "value": "CAN;V1K Merritt",
+        "label": "V1K Merritt"
+    },
+    {
+        "value": "CAN;V1L Nelson",
+        "label": "V1L Nelson"
+    },
+    {
+        "value": "CAN;V1M Langley Township North",
+        "label": "V1M Langley Township North"
+    },
+    {
+        "value": "CAN;V1N Castlegar",
+        "label": "V1N Castlegar"
+    },
+    {
+        "value": "CAN;V1P Kelowna East",
+        "label": "V1P Kelowna East"
+    },
+    {
+        "value": "CAN;V1R Trail",
+        "label": "V1R Trail"
+    },
+    {
+        "value": "CAN;V1S Kamloops Southwest",
+        "label": "V1S Kamloops Southwest"
+    },
+    {
+        "value": "CAN;V1T Vernon Central",
+        "label": "V1T Vernon Central"
+    },
+    {
+        "value": "CAN;V1V Kelowna North",
+        "label": "V1V Kelowna North"
+    },
+    {
+        "value": "CAN;V1W Kelowna Southwest",
+        "label": "V1W Kelowna Southwest"
+    },
+    {
+        "value": "CAN;V1X Kelowna East Central",
+        "label": "V1X Kelowna East Central"
+    },
+    {
+        "value": "CAN;V1Y Kelowna Central",
+        "label": "V1Y Kelowna Central"
+    },
+    {
+        "value": "CAN;V1Z Kelowna West",
+        "label": "V1Z Kelowna West"
+    },
+    {
+        "value": "CAN;V2A Penticton",
+        "label": "V2A Penticton"
+    },
+    {
+        "value": "CAN;V2B Kamloops Northwest",
+        "label": "V2B Kamloops Northwest"
+    },
+    {
+        "value": "CAN;V2C Kamloops Central and Southeast",
+        "label": "V2C Kamloops Central and Southeast"
+    },
+    {
+        "value": "CAN;V2E Kamloops South and West",
+        "label": "V2E Kamloops South and West"
+    },
+    {
+        "value": "CAN;V2G Williams Lake",
+        "label": "V2G Williams Lake"
+    },
+    {
+        "value": "CAN;V2H Kamloops North",
+        "label": "V2H Kamloops North"
+    },
+    {
+        "value": "CAN;V2J Quesnel",
+        "label": "V2J Quesnel"
+    },
+    {
+        "value": "CAN;V2K Prince George North",
+        "label": "V2K Prince George North"
+    },
+    {
+        "value": "CAN;V2L Prince George East Central",
+        "label": "V2L Prince George East Central"
+    },
+    {
+        "value": "CAN;V2M Prince George West Central",
+        "label": "V2M Prince George West Central"
+    },
+    {
+        "value": "CAN;V2N Prince George South",
+        "label": "V2N Prince George South"
+    },
+    {
+        "value": "CAN;V2P Chilliwack Central",
+        "label": "V2P Chilliwack Central"
+    },
+    {
+        "value": "CAN;V2R Chilliwack West",
+        "label": "V2R Chilliwack West"
+    },
+    {
+        "value": "CAN;V2S Abbotsford Southeast",
+        "label": "V2S Abbotsford Southeast"
+    },
+    {
+        "value": "CAN;V2T Abbotsford Southwest",
+        "label": "V2T Abbotsford Southwest"
+    },
+    {
+        "value": "CAN;V2V Mission East",
+        "label": "V2V Mission East"
+    },
+    {
+        "value": "CAN;V2W Maple Ridge East",
+        "label": "V2W Maple Ridge East"
+    },
+    {
+        "value": "CAN;V2X Maple Ridge West",
+        "label": "V2X Maple Ridge West"
+    },
+    {
+        "value": "CAN;V2Y Langley Township Northwest",
+        "label": "V2Y Langley Township Northwest"
+    },
+    {
+        "value": "CAN;V2Z Langley Township Southwest",
+        "label": "V2Z Langley Township Southwest"
+    },
+    {
+        "value": "CAN;V3A Langley City",
+        "label": "V3A Langley City"
+    },
+    {
+        "value": "CAN;V3B Port Coquitlam Central",
+        "label": "V3B Port Coquitlam Central"
+    },
+    {
+        "value": "CAN;V3C Port Coquitlam South",
+        "label": "V3C Port Coquitlam South"
+    },
+    {
+        "value": "CAN;V3E Port Coquitlam North",
+        "label": "V3E Port Coquitlam North"
+    },
+    {
+        "value": "CAN;V3G Abbotsford East",
+        "label": "V3G Abbotsford East"
+    },
+    {
+        "value": "CAN;V3H Port Moody",
+        "label": "V3H Port Moody"
+    },
+    {
+        "value": "CAN;V3J Coquitlam North",
+        "label": "V3J Coquitlam North"
+    },
+    {
+        "value": "CAN;V3K Coquitlam South",
+        "label": "V3K Coquitlam South"
+    },
+    {
+        "value": "CAN;V3L New Westminster Northeast",
+        "label": "V3L New Westminster Northeast"
+    },
+    {
+        "value": "CAN;V3M New Westminster Southwest (Includes Annacis Island)",
+        "label": "V3M New Westminster Southwest (Includes Annacis Island)"
+    },
+    {
+        "value": "CAN;V3N Burnaby (East Big Bend / Stride Avenue / Edmonds / Cariboo-Armstrong)",
+        "label": "V3N Burnaby (East Big Bend / Stride Avenue / Edmonds / Cariboo-Armstrong)"
+    },
+    {
+        "value": "CAN;V3R Surrey North",
+        "label": "V3R Surrey North"
+    },
+    {
+        "value": "CAN;V3S Surrey East",
+        "label": "V3S Surrey East"
+    },
+    {
+        "value": "CAN;V3T Surrey Inner Northwest",
+        "label": "V3T Surrey Inner Northwest"
+    },
+    {
+        "value": "CAN;V3V Surrey Outer Northwest",
+        "label": "V3V Surrey Outer Northwest"
+    },
+    {
+        "value": "CAN;V3W Surrey Upper West",
+        "label": "V3W Surrey Upper West"
+    },
+    {
+        "value": "CAN;V3X Surrey Lower West",
+        "label": "V3X Surrey Lower West"
+    },
+    {
+        "value": "CAN;V3Y Pitt Meadows",
+        "label": "V3Y Pitt Meadows"
+    },
+    {
+        "value": "CAN;V3Z Surrey",
+        "label": "V3Z Surrey"
+    },
+    {
+        "value": "CAN;V4A Surrey Southwest",
+        "label": "V4A Surrey Southwest"
+    },
+    {
+        "value": "CAN;V4B White Rock",
+        "label": "V4B White Rock"
+    },
+    {
+        "value": "CAN;V4C Delta Northeast",
+        "label": "V4C Delta Northeast"
+    },
+    {
+        "value": "CAN;V4E Delta East",
+        "label": "V4E Delta East"
+    },
+    {
+        "value": "CAN;V4G Delta East Central",
+        "label": "V4G Delta East Central"
+    },
+    {
+        "value": "CAN;V4K Delta Central",
+        "label": "V4K Delta Central"
+    },
+    {
+        "value": "CAN;V4L Delta Southeast",
+        "label": "V4L Delta Southeast"
+    },
+    {
+        "value": "CAN;V4M Delta Southwest",
+        "label": "V4M Delta Southwest"
+    },
+    {
+        "value": "CAN;V4N Surrey Northeast",
+        "label": "V4N Surrey Northeast"
+    },
+    {
+        "value": "CAN;V4P Surrey South",
+        "label": "V4P Surrey South"
+    },
+    {
+        "value": "CAN;V4R Maple Ridge Northwest",
+        "label": "V4R Maple Ridge Northwest"
+    },
+    {
+        "value": "CAN;V4S Mission West",
+        "label": "V4S Mission West"
+    },
+    {
+        "value": "CAN;V4T Westbank",
+        "label": "V4T Westbank"
+    },
+    {
+        "value": "CAN;V4V Winfield",
+        "label": "V4V Winfield"
+    },
+    {
+        "value": "CAN;V4W Langley Township East",
+        "label": "V4W Langley Township East"
+    },
+    {
+        "value": "CAN;V4X Abbotsford West",
+        "label": "V4X Abbotsford West"
+    },
+    {
+        "value": "CAN;V4Z Chilliwack East",
+        "label": "V4Z Chilliwack East"
+    },
+    {
+        "value": "CAN;V5A Burnaby (Government Road / Lake City / SFU / Burnaby Mountain)",
+        "label": "V5A Burnaby (Government Road / Lake City / SFU / Burnaby Mountain)"
+    },
+    {
+        "value": "CAN;V5B Burnaby (Parkcrest-Aubrey / Ardingley-Sprott)",
+        "label": "V5B Burnaby (Parkcrest-Aubrey / Ardingley-Sprott)"
+    },
+    {
+        "value": "CAN;V5C Burnaby (Burnaby Heights / Willingdon Heights / West Central Valley)",
+        "label": "V5C Burnaby (Burnaby Heights / Willingdon Heights / West Central Valley)"
+    },
+    {
+        "value": "CAN;V5E Burnaby (Lakeview-Mayfield / Richmond Park / Kingsway-Beresford)",
+        "label": "V5E Burnaby (Lakeview-Mayfield / Richmond Park / Kingsway-Beresford)"
+    },
+    {
+        "value": "CAN;V5G Burnaby (Cascade-Schou / Douglas-Gilpin)",
+        "label": "V5G Burnaby (Cascade-Schou / Douglas-Gilpin)"
+    },
+    {
+        "value": "CAN;V5H Burnaby (Maywood / Marlborough / Oakalla / Windsor)",
+        "label": "V5H Burnaby (Maywood / Marlborough / Oakalla / Windsor)"
+    },
+    {
+        "value": "CAN;V5J Burnaby (Suncrest / Sussex-Nelson / Clinton-Glenwood / West Big Bend)",
+        "label": "V5J Burnaby (Suncrest / Sussex-Nelson / Clinton-Glenwood / West Big Bend)"
+    },
+    {
+        "value": "CAN;V5K Vancouver (North Hastings-Sunrise)",
+        "label": "V5K Vancouver (North Hastings-Sunrise)"
+    },
+    {
+        "value": "CAN;V5L Vancouver (North Grandview-Woodlands)",
+        "label": "V5L Vancouver (North Grandview-Woodlands)"
+    },
+    {
+        "value": "CAN;V5M Vancouver (South Hastings-Sunrise / North Renfrew-Collingwood)",
+        "label": "V5M Vancouver (South Hastings-Sunrise / North Renfrew-Collingwood)"
+    },
+    {
+        "value": "CAN;V5N Vancouver (South Grandview-Woodlands / NE Kensington)",
+        "label": "V5N Vancouver (South Grandview-Woodlands / NE Kensington)"
+    },
+    {
+        "value": "CAN;V5P Vancouver (SE Kensington / Victoria-Fraserview)",
+        "label": "V5P Vancouver (SE Kensington / Victoria-Fraserview)"
+    },
+    {
+        "value": "CAN;V5R Vancouver (South Renfrew-Collingwood)",
+        "label": "V5R Vancouver (South Renfrew-Collingwood)"
+    },
+    {
+        "value": "CAN;V5S Vancouver (Killarney)",
+        "label": "V5S Vancouver (Killarney)"
+    },
+    {
+        "value": "CAN;V5T Vancouver (East Mount Pleasant)",
+        "label": "V5T Vancouver (East Mount Pleasant)"
+    },
+    {
+        "value": "CAN;V5V Vancouver (West Kensington / NE Riley Park-Little Mountain)",
+        "label": "V5V Vancouver (West Kensington / NE Riley Park-Little Mountain)"
+    },
+    {
+        "value": "CAN;V5W Vancouver (SE Riley Park-Little Mountain / SW Kensington / NE Oakridge / North Sunset)",
+        "label": "V5W Vancouver (SE Riley Park-Little Mountain / SW Kensington / NE Oakridge / North Sunset)"
+    },
+    {
+        "value": "CAN;V5X Vancouver (SE Oakridge / East Marpole / South Sunset)",
+        "label": "V5X Vancouver (SE Oakridge / East Marpole / South Sunset)"
+    },
+    {
+        "value": "CAN;V5Y Vancouver (West Mount Pleasant / West Riley Park-Little Mountain)",
+        "label": "V5Y Vancouver (West Mount Pleasant / West Riley Park-Little Mountain)"
+    },
+    {
+        "value": "CAN;V5Z Vancouver (East Fairview / South Cambie)",
+        "label": "V5Z Vancouver (East Fairview / South Cambie)"
+    },
+    {
+        "value": "CAN;V6A Vancouver (Strathcona / Chinatown / Downtown Eastside)",
+        "label": "V6A Vancouver (Strathcona / Chinatown / Downtown Eastside)"
+    },
+    {
+        "value": "CAN;V6B Vancouver (NE Downtown / Harbour Centre / Gastown / Yaletown)",
+        "label": "V6B Vancouver (NE Downtown / Harbour Centre / Gastown / Yaletown)"
+    },
+    {
+        "value": "CAN;V6C Vancouver (Waterfront / Coal Harbour / Canada Place)",
+        "label": "V6C Vancouver (Waterfront / Coal Harbour / Canada Place)"
+    },
+    {
+        "value": "CAN;V6E Vancouver (South West End)",
+        "label": "V6E Vancouver (South West End)"
+    },
+    {
+        "value": "CAN;V6G Vancouver (North West End / Stanley Park)",
+        "label": "V6G Vancouver (North West End / Stanley Park)"
+    },
+    {
+        "value": "CAN;V6H Vancouver (West Fairview / Granville Island / NE Shaughnessy)",
+        "label": "V6H Vancouver (West Fairview / Granville Island / NE Shaughnessy)"
+    },
+    {
+        "value": "CAN;V6J Vancouver (NW Shaughnessy / East Kitsilano / Quilchena)",
+        "label": "V6J Vancouver (NW Shaughnessy / East Kitsilano / Quilchena)"
+    },
+    {
+        "value": "CAN;V6K Vancouver (Central Kitsilano)",
+        "label": "V6K Vancouver (Central Kitsilano)"
+    },
+    {
+        "value": "CAN;V6L Vancouver (NW Arbutus Ridge)",
+        "label": "V6L Vancouver (NW Arbutus Ridge)"
+    },
+    {
+        "value": "CAN;V6M Vancouver (South Shaughnessy / NW Oakridge / NE Kerrisdale / SE Arbutus Ridge)",
+        "label": "V6M Vancouver (South Shaughnessy / NW Oakridge / NE Kerrisdale / SE Arbutus Ridge)"
+    },
+    {
+        "value": "CAN;V6N Vancouver (Dunbar-Southlands / Musqueam)",
+        "label": "V6N Vancouver (Dunbar-Southlands / Musqueam)"
+    },
+    {
+        "value": "CAN;V6P Vancouver (SE Kerrisdale / SW Oakridge / West Marpole)",
+        "label": "V6P Vancouver (SE Kerrisdale / SW Oakridge / West Marpole)"
+    },
+    {
+        "value": "CAN;V6R Vancouver (West Kitsilano / Jericho)",
+        "label": "V6R Vancouver (West Kitsilano / Jericho)"
+    },
+    {
+        "value": "CAN;V6S Vancouver (Chaldecutt / South University Endowment Lands)",
+        "label": "V6S Vancouver (Chaldecutt / South University Endowment Lands)"
+    },
+    {
+        "value": "CAN;V6T Vancouver (UBC)",
+        "label": "V6T Vancouver (UBC)"
+    },
+    {
+        "value": "CAN;V6V Richmond Northeast",
+        "label": "V6V Richmond Northeast"
+    },
+    {
+        "value": "CAN;V6W Richmond Southeast",
+        "label": "V6W Richmond Southeast"
+    },
+    {
+        "value": "CAN;V6X Richmond North",
+        "label": "V6X Richmond North"
+    },
+    {
+        "value": "CAN;V6Y Richmond Central",
+        "label": "V6Y Richmond Central"
+    },
+    {
+        "value": "CAN;V6Z Vancouver (SW Downtown)",
+        "label": "V6Z Vancouver (SW Downtown)"
+    },
+    {
+        "value": "CAN;V7A Richmond South",
+        "label": "V7A Richmond South"
+    },
+    {
+        "value": "CAN;V7B Richmond (Sea Island / YVR)",
+        "label": "V7B Richmond (Sea Island / YVR)"
+    },
+    {
+        "value": "CAN;V7C Richmond West",
+        "label": "V7C Richmond West"
+    },
+    {
+        "value": "CAN;V7E Richmond Southwest",
+        "label": "V7E Richmond Southwest"
+    },
+    {
+        "value": "CAN;V7G North Vancouver Outer East",
+        "label": "V7G North Vancouver Outer East"
+    },
+    {
+        "value": "CAN;V7H North Vancouver Inner East",
+        "label": "V7H North Vancouver Inner East"
+    },
+    {
+        "value": "CAN;V7J North Vancouver East Central",
+        "label": "V7J North Vancouver East Central"
+    },
+    {
+        "value": "CAN;V7K North Vancouver North Central",
+        "label": "V7K North Vancouver North Central"
+    },
+    {
+        "value": "CAN;V7L North Vancouver South Central",
+        "label": "V7L North Vancouver South Central"
+    },
+    {
+        "value": "CAN;V7M North Vancouver Southwest Central",
+        "label": "V7M North Vancouver Southwest Central"
+    },
+    {
+        "value": "CAN;V7N North Vancouver Northwest Central",
+        "label": "V7N North Vancouver Northwest Central"
+    },
+    {
+        "value": "CAN;V7P North Vancouver Southwest",
+        "label": "V7P North Vancouver Southwest"
+    },
+    {
+        "value": "CAN;V7R North Vancouver Northwest",
+        "label": "V7R North Vancouver Northwest"
+    },
+    {
+        "value": "CAN;V7S West Vancouver North",
+        "label": "V7S West Vancouver North"
+    },
+    {
+        "value": "CAN;V7T West Vancouver Southeast",
+        "label": "V7T West Vancouver Southeast"
+    },
+    {
+        "value": "CAN;V7V West Vancouver South",
+        "label": "V7V West Vancouver South"
+    },
+    {
+        "value": "CAN;V7W West Vancouver West",
+        "label": "V7W West Vancouver West"
+    },
+    {
+        "value": "CAN;V7X Vancouver (Bentall Centre)",
+        "label": "V7X Vancouver (Bentall Centre)"
+    },
+    {
+        "value": "CAN;V7Y Vancouver (Pacific Centre)",
+        "label": "V7Y Vancouver (Pacific Centre)"
+    },
+    {
+        "value": "CAN;V8A Powell River",
+        "label": "V8A Powell River"
+    },
+    {
+        "value": "CAN;V8B Squamish",
+        "label": "V8B Squamish"
+    },
+    {
+        "value": "CAN;V8C Kitimat",
+        "label": "V8C Kitimat"
+    },
+    {
+        "value": "CAN;V8E Whistler",
+        "label": "V8E Whistler"
+    },
+    {
+        "value": "CAN;V8G Terrace",
+        "label": "V8G Terrace"
+    },
+    {
+        "value": "CAN;V8J Prince Rupert",
+        "label": "V8J Prince Rupert"
+    },
+    {
+        "value": "CAN;V8K Saltspring Island",
+        "label": "V8K Saltspring Island"
+    },
+    {
+        "value": "CAN;V8L Sidney",
+        "label": "V8L Sidney"
+    },
+    {
+        "value": "CAN;V8M Central Saanich",
+        "label": "V8M Central Saanich"
+    },
+    {
+        "value": "CAN;V8N Saanich East",
+        "label": "V8N Saanich East"
+    },
+    {
+        "value": "CAN;V8P Saanich Southeast",
+        "label": "V8P Saanich Southeast"
+    },
+    {
+        "value": "CAN;V8R Oak Bay North",
+        "label": "V8R Oak Bay North"
+    },
+    {
+        "value": "CAN;V8S Oak Bay South",
+        "label": "V8S Oak Bay South"
+    },
+    {
+        "value": "CAN;V8T Victoria North",
+        "label": "V8T Victoria North"
+    },
+    {
+        "value": "CAN;V8V Victoria South",
+        "label": "V8V Victoria South"
+    },
+    {
+        "value": "CAN;V8W Victoria Central British Columbia Provincial Government",
+        "label": "V8W Victoria Central British Columbia Provincial Government"
+    },
+    {
+        "value": "CAN;V8X Saanich South",
+        "label": "V8X Saanich South"
+    },
+    {
+        "value": "CAN;V8Y Saanich North",
+        "label": "V8Y Saanich North"
+    },
+    {
+        "value": "CAN;V8Z Saanich Central",
+        "label": "V8Z Saanich Central"
+    },
+    {
+        "value": "CAN;V9A Esquimalt",
+        "label": "V9A Esquimalt"
+    },
+    {
+        "value": "CAN;V9B Highlands",
+        "label": "V9B Highlands"
+    },
+    {
+        "value": "CAN;V9C Metchosin",
+        "label": "V9C Metchosin"
+    },
+    {
+        "value": "CAN;V9E Saanich West",
+        "label": "V9E Saanich West"
+    },
+    {
+        "value": "CAN;V9G Ladysmith",
+        "label": "V9G Ladysmith"
+    },
+    {
+        "value": "CAN;V9H Campbell River Outskirts",
+        "label": "V9H Campbell River Outskirts"
+    },
+    {
+        "value": "CAN;V9J Courtenay Northern Outskirts",
+        "label": "V9J Courtenay Northern Outskirts"
+    },
+    {
+        "value": "CAN;V9K Qualicum Beach",
+        "label": "V9K Qualicum Beach"
+    },
+    {
+        "value": "CAN;V9L Duncan",
+        "label": "V9L Duncan"
+    },
+    {
+        "value": "CAN;V9M Comox",
+        "label": "V9M Comox"
+    },
+    {
+        "value": "CAN;V9N Courtenay Central",
+        "label": "V9N Courtenay Central"
+    },
+    {
+        "value": "CAN;V9P Parksville",
+        "label": "V9P Parksville"
+    },
+    {
+        "value": "CAN;V9R Nanaimo South",
+        "label": "V9R Nanaimo South"
+    },
+    {
+        "value": "CAN;V9S Nanaimo Central",
+        "label": "V9S Nanaimo Central"
+    },
+    {
+        "value": "CAN;V9T Nanaimo North",
+        "label": "V9T Nanaimo North"
+    },
+    {
+        "value": "CAN;V9V Nanaimo Northwest",
+        "label": "V9V Nanaimo Northwest"
+    },
+    {
+        "value": "CAN;V9W Campbell River Central",
+        "label": "V9W Campbell River Central"
+    },
+    {
+        "value": "CAN;V9X Cedar",
+        "label": "V9X Cedar"
+    },
+    {
+        "value": "CAN;V9Y Port Alberni",
+        "label": "V9Y Port Alberni"
+    },
+    {
+        "value": "CAN;V9Z Sooke",
+        "label": "V9Z Sooke"
+    },
+    {
+        "value": "CAN;X0A Outer Nunavut (Iqaluit)",
+        "label": "X0A Outer Nunavut (Iqaluit)"
+    },
+    {
+        "value": "CAN;X0B Central Nunavut (Cambridge Bay)",
+        "label": "X0B Central Nunavut (Cambridge Bay)"
+    },
+    {
+        "value": "CAN;X0C Inner Nunavut (Rankin Inlet)",
+        "label": "X0C Inner Nunavut (Rankin Inlet)"
+    },
+    {
+        "value": "CAN;X0E Central Northwest Territories (Inuvik)",
+        "label": "X0E Central Northwest Territories (Inuvik)"
+    },
+    {
+        "value": "CAN;X0G Southwestern Northwest Territories (Fort Liard)",
+        "label": "X0G Southwestern Northwest Territories (Fort Liard)"
+    },
+    {
+        "value": "CAN;X1A Yellowknife",
+        "label": "X1A Yellowknife"
+    },
+    {
+        "value": "CAN;Y0A Southeastern Yukon (Watson Lake)",
+        "label": "Y0A Southeastern Yukon (Watson Lake)"
+    },
+    {
+        "value": "CAN;Y0B Central Yukon (Dawson City)",
+        "label": "Y0B Central Yukon (Dawson City)"
+    },
+    {
+        "value": "CAN;Y1A Whitehorse",
+        "label": "Y1A Whitehorse"
+    }
+]

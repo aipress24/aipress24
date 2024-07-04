@@ -1,0 +1,109 @@
+{% extends "_base.html" %} {% block main %}
+
+<style>
+  input.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+</style>
+
+<div class="py-10 px-4">
+  <div class="mx-auto lg:max-w-7xl p-6 lg:p-8 bg-white rounded-xl">
+    <div class="mx-auto max-w-2xl">
+      <div class="content">
+        <div
+          class="p-3 border-2 rounded border-solid border-gray-500 border-opacity-100">
+          <h2 class="mt-0 mb-4">Vos renseignements:</h2>
+          <p>
+            Si vous validez ces renseignements, vous recevrez bientôt un mail
+            confirmant votre inscription, après approbation de notre équipe.
+          </p>
+          <p>Si vous annulez, vos données seront effacées.</p>
+        </div>
+
+        <div class="mt-12 flex items-center justify-end gap-x-6">
+          <input
+            type="button"
+            class="{{ gcudisabled }} inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+            id="valid1"
+            name="validation1"
+            value="Valider"
+            onclick="window.location.href = '{{ url_for('.done_page') }}' ; " />
+
+          <input
+            type="button"
+            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            id="modify1"
+            name="modify1"
+            value="Précédent"
+            onclick="window.location.href = '{{ url_for('.modify_page') }}' ; " />
+
+          <input
+            type="button"
+            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-400"
+            id="cancel1"
+            name="cancel1"
+            value="Annuler"
+            onclick="window.location.href = '{{ url_for('.undone_page') }}' ; " />
+        </div>
+
+        {{ gcudisabledmsg | safe }}
+
+        <div class="pt-8">
+          <h2>Profil</h2>
+          <p class="py-4 font-bold text-lg">{{ profile_description }}</p>
+        </div>
+
+        <div class="py-6 space-y-8">
+          {% for group in groups %}
+          <div>
+            <h2 class="font-bold pb-4">{{ group.label }}</h2>
+
+            <ul>
+              {% for id in group.ids %} {% set key = id_key[id] %}
+              <li>
+                {{ labels[key] | safe }} :
+                <span class="font-semibold"> {{ results[key] }} </span>
+                {% if key in images %}
+                <img
+                  class="ml-6 max-w-32 max-h-32"
+                  src="{{ url_for('.images_page', filename=images[key]) }}" />
+                {% endif %}
+              </li>
+              {% endfor %}
+            </ul>
+          </div>
+          {% endfor %}
+        </div>
+
+        <div class="mt-6 flex items-center justify-end gap-x-6">
+          <input
+            type="button"
+            class="{{ gcudisabled }} inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+            id="valid1"
+            name="validation2"
+            value="Valider"
+            onclick="window.location.href = '{{ url_for('.done_page') }}' ; " />
+
+          <input
+            type="button"
+            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            id="modify2"
+            name="modify2"
+            value="Précédent"
+            onclick="window.location.href = '{{ url_for('.modify_page') }}' ; " />
+
+          <input
+            type="button"
+            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-400"
+            id="cancel2"
+            name="cancel2"
+            value="Annuler"
+            onclick="window.location.href = '{{ url_for('.undone_page') }}' ; " />
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

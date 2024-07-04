@@ -1,0 +1,5302 @@
+[
+    {
+        "value": "MAR;11022 Arbaa Shoul",
+        "label": "11022 Arbaa Shoul"
+    },
+    {
+        "value": "MAR;11023 El Arjate",
+        "label": "11023 El Arjate"
+    },
+    {
+        "value": "MAR;11052 Bouknadel",
+        "label": "11052 Bouknadel"
+    },
+    {
+        "value": "MAR;12013 Ain Attig",
+        "label": "12013 Ain Attig"
+    },
+    {
+        "value": "MAR;12025 Mers El Kheir",
+        "label": "12025 Mers El Kheir"
+    },
+    {
+        "value": "MAR;12050 Skhirate",
+        "label": "12050 Skhirate"
+    },
+    {
+        "value": "MAR;12072 Sebbah",
+        "label": "12072 Sebbah"
+    },
+    {
+        "value": "MAR;12100 Ain El Aouda",
+        "label": "12100 Ain El Aouda"
+    },
+    {
+        "value": "MAR;12122 Oumazza",
+        "label": "12122 Oumazza"
+    },
+    {
+        "value": "MAR;12123 El Menzeh",
+        "label": "12123 El Menzeh"
+    },
+    {
+        "value": "MAR;12152 Sidi Yahia Zaers",
+        "label": "12152 Sidi Yahia Zaers"
+    },
+    {
+        "value": "MAR;12200 Tamesna",
+        "label": "12200 Tamesna"
+    },
+    {
+        "value": "MAR;13000 Benslimane",
+        "label": "13000 Benslimane"
+    },
+    {
+        "value": "MAR;13003 Fedalate",
+        "label": "13003 Fedalate"
+    },
+    {
+        "value": "MAR;13022 Bennabet",
+        "label": "13022 Bennabet"
+    },
+    {
+        "value": "MAR;13024 El Krassi",
+        "label": "13024 El Krassi"
+    },
+    {
+        "value": "MAR;13025 Tnine Oulad Ali",
+        "label": "13025 Tnine Oulad Ali"
+    },
+    {
+        "value": "MAR;13026 Ziaida",
+        "label": "13026 Ziaida"
+    },
+    {
+        "value": "MAR;13032 Soualem Et Tirs",
+        "label": "13032 Soualem Et Tirs"
+    },
+    {
+        "value": "MAR;13033 Moulaine El Oued",
+        "label": "13033 Moulaine El Oued"
+    },
+    {
+        "value": "MAR;13072 El Mansouria",
+        "label": "13072 El Mansouria"
+    },
+    {
+        "value": "MAR;13100 Bouznika",
+        "label": "13100 Bouznika"
+    },
+    {
+        "value": "MAR;13162 Sidi Bettache",
+        "label": "13162 Sidi Bettache"
+    },
+    {
+        "value": "MAR;13202 Mellila",
+        "label": "13202 Mellila"
+    },
+    {
+        "value": "MAR;13322 Ahlaf",
+        "label": "13322 Ahlaf"
+    },
+    {
+        "value": "MAR;14005 Souk Tleta El Gharb",
+        "label": "14005 Souk Tleta El Gharb"
+    },
+    {
+        "value": "MAR;14022 Ben Mansour",
+        "label": "14022 Ben Mansour"
+    },
+    {
+        "value": "MAR;14023 El Morhrane",
+        "label": "14023 El Morhrane"
+    },
+    {
+        "value": "MAR;14025 Sidi Taibi",
+        "label": "14025 Sidi Taibi"
+    },
+    {
+        "value": "MAR;14026 Ain Ariss",
+        "label": "14026 Ain Ariss"
+    },
+    {
+        "value": "MAR;14046 M'Saada",
+        "label": "14046 M'Saada"
+    },
+    {
+        "value": "MAR;14052 Allal Tazi",
+        "label": "14052 Allal Tazi"
+    },
+    {
+        "value": "MAR;14053 Mnasra",
+        "label": "14053 Mnasra"
+    },
+    {
+        "value": "MAR;14102 Arbaoua",
+        "label": "14102 Arbaoua"
+    },
+    {
+        "value": "MAR;14110 Mehdya",
+        "label": "14110 Mehdya"
+    },
+    {
+        "value": "MAR;14122 Sidi Boubker El Haj",
+        "label": "14122 Sidi Boubker El Haj"
+    },
+    {
+        "value": "MAR;14123 Oued El Makhazine",
+        "label": "14123 Oued El Makhazine"
+    },
+    {
+        "value": "MAR;14152 Lalla Mimouna",
+        "label": "14152 Lalla Mimouna"
+    },
+    {
+        "value": "MAR;14200 Sidi Slimane",
+        "label": "14200 Sidi Slimane"
+    },
+    {
+        "value": "MAR;14222 Dar Bel Amri",
+        "label": "14222 Dar Bel Amri"
+    },
+    {
+        "value": "MAR;14223 Sfafaa",
+        "label": "14223 Sfafaa"
+    },
+    {
+        "value": "MAR;14224 Azghar",
+        "label": "14224 Azghar"
+    },
+    {
+        "value": "MAR;14225 Ouled Ben Hammadi",
+        "label": "14225 Ouled Ben Hammadi"
+    },
+    {
+        "value": "MAR;14250 Sidi Yahya El Gharb",
+        "label": "14250 Sidi Yahya El Gharb"
+    },
+    {
+        "value": "MAR;14300 Souk El Arbaa Du Rharb",
+        "label": "14300 Souk El Arbaa Du Rharb"
+    },
+    {
+        "value": "MAR;14302 Moulay Bouselham",
+        "label": "14302 Moulay Bouselham"
+    },
+    {
+        "value": "MAR;14322 Karia Benaouda",
+        "label": "14322 Karia Benaouda"
+    },
+    {
+        "value": "MAR;14323 Sidi Mohamed El Ahmar",
+        "label": "14323 Sidi Mohamed El Ahmar"
+    },
+    {
+        "value": "MAR;14325 Chouafaa",
+        "label": "14325 Chouafaa"
+    },
+    {
+        "value": "MAR;15003 Khemis Ait Yaddine",
+        "label": "15003 Khemis Ait Yaddine"
+    },
+    {
+        "value": "MAR;15004 Sfassif",
+        "label": "15004 Sfassif"
+    },
+    {
+        "value": "MAR;15005 Sidi Allal Lemsedder",
+        "label": "15005 Sidi Allal Lemsedder"
+    },
+    {
+        "value": "MAR;15022 El Hammam Jbel Doum",
+        "label": "15022 El Hammam Jbel Doum"
+    },
+    {
+        "value": "MAR;15023 Had Ait Mimoun",
+        "label": "15023 Had Ait Mimoun"
+    },
+    {
+        "value": "MAR;15024 Had Ait Ouribel",
+        "label": "15024 Had Ait Ouribel"
+    },
+    {
+        "value": "MAR;15025 Souk Sebt Oued Beht",
+        "label": "15025 Souk Sebt Oued Beht"
+    },
+    {
+        "value": "MAR;15026 El Kensara",
+        "label": "15026 El Kensara"
+    },
+    {
+        "value": "MAR;15032 Majmaa Tolba",
+        "label": "15032 Majmaa Tolba"
+    },
+    {
+        "value": "MAR;15033 Sidi El Rhandour",
+        "label": "15033 Sidi El Rhandour"
+    },
+    {
+        "value": "MAR;15052 Sebt Ait Ikkou",
+        "label": "15052 Sebt Ait Ikkou"
+    },
+    {
+        "value": "MAR;15053 Maaziz",
+        "label": "15053 Maaziz"
+    },
+    {
+        "value": "MAR;15072 Moulay Driss Arhbal",
+        "label": "15072 Moulay Driss Arhbal"
+    },
+    {
+        "value": "MAR;15073 Souk Jemaa Houderrane",
+        "label": "15073 Souk Jemaa Houderrane"
+    },
+    {
+        "value": "MAR;15102 Oulmes",
+        "label": "15102 Oulmes"
+    },
+    {
+        "value": "MAR;15122 Boukchmir",
+        "label": "15122 Boukchmir"
+    },
+    {
+        "value": "MAR;15123 Tarmilet",
+        "label": "15123 Tarmilet"
+    },
+    {
+        "value": "MAR;15124 Ait Ichou",
+        "label": "15124 Ait Ichou"
+    },
+    {
+        "value": "MAR;15150 Rommani",
+        "label": "15150 Rommani"
+    },
+    {
+        "value": "MAR;15152 Ain Sbit",
+        "label": "15152 Ain Sbit"
+    },
+    {
+        "value": "MAR;15153 Had Brachoua",
+        "label": "15153 Had Brachoua"
+    },
+    {
+        "value": "MAR;15154 Zhiliga",
+        "label": "15154 Zhiliga"
+    },
+    {
+        "value": "MAR;15172 Had Rhoualem",
+        "label": "15172 Had Rhoualem"
+    },
+    {
+        "value": "MAR;15173 Jemaa Moul Leblad",
+        "label": "15173 Jemaa Moul Leblad"
+    },
+    {
+        "value": "MAR;15174 Marchouch",
+        "label": "15174 Marchouch"
+    },
+    {
+        "value": "MAR;15175 Khemis Nkheila",
+        "label": "15175 Khemis Nkheila"
+    },
+    {
+        "value": "MAR;15202 Sidi Abderrazak",
+        "label": "15202 Sidi Abderrazak"
+    },
+    {
+        "value": "MAR;15252 Sidi Allal El Bahraoui",
+        "label": "15252 Sidi Allal El Bahraoui"
+    },
+    {
+        "value": "MAR;15272 Souk Tnine Moghane",
+        "label": "15272 Souk Tnine Moghane"
+    },
+    {
+        "value": "MAR;15273 Sidi Boukhalkhal",
+        "label": "15273 Sidi Boukhalkhal"
+    },
+    {
+        "value": "MAR;15352 Tiddas",
+        "label": "15352 Tiddas"
+    },
+    {
+        "value": "MAR;15400 Tiflet",
+        "label": "15400 Tiflet"
+    },
+    {
+        "value": "MAR;15422 Ain Johra",
+        "label": "15422 Ain Johra"
+    },
+    {
+        "value": "MAR;15423 Khemis Sidi Yahia",
+        "label": "15423 Khemis Sidi Yahia"
+    },
+    {
+        "value": "MAR;15424 Mkam Tolba",
+        "label": "15424 Mkam Tolba"
+    },
+    {
+        "value": "MAR;15425 Ait Belkacem",
+        "label": "15425 Ait Belkacem"
+    },
+    {
+        "value": "MAR;16000 Sidi-Kacem",
+        "label": "16000 Sidi-Kacem"
+    },
+    {
+        "value": "MAR;16004 Sidi Bousber",
+        "label": "16004 Sidi Bousber"
+    },
+    {
+        "value": "MAR;16010 Dar Gueddari",
+        "label": "16010 Dar Gueddari"
+    },
+    {
+        "value": "MAR;16020 Jorf El Melha",
+        "label": "16020 Jorf El Melha"
+    },
+    {
+        "value": "MAR;16022 Bir Taleb",
+        "label": "16022 Bir Taleb"
+    },
+    {
+        "value": "MAR;16023 Zagota",
+        "label": "16023 Zagota"
+    },
+    {
+        "value": "MAR;16024 Zirara",
+        "label": "16024 Zirara"
+    },
+    {
+        "value": "MAR;16026 Dar Laaslouji",
+        "label": "16026 Dar Laaslouji"
+    },
+    {
+        "value": "MAR;16032 Sidi Ahmed Cherif",
+        "label": "16032 Sidi Ahmed Cherif"
+    },
+    {
+        "value": "MAR;16033 Chbanate",
+        "label": "16033 Chbanate"
+    },
+    {
+        "value": "MAR;16050 Had Kourt",
+        "label": "16050 Had Kourt"
+    },
+    {
+        "value": "MAR;16052 Ain Deffali",
+        "label": "16052 Ain Deffali"
+    },
+    {
+        "value": "MAR;16072 Sidi Azzouz",
+        "label": "16072 Sidi Azzouz"
+    },
+    {
+        "value": "MAR;16102 Khenichet",
+        "label": "16102 Khenichet"
+    },
+    {
+        "value": "MAR;16150 Mechra Bel Ksiri",
+        "label": "16150 Mechra Bel Ksiri"
+    },
+    {
+        "value": "MAR;16172 Jemaa Haouafate",
+        "label": "16172 Jemaa Haouafate"
+    },
+    {
+        "value": "MAR;16173 Nouirate",
+        "label": "16173 Nouirate"
+    },
+    {
+        "value": "MAR;16174 Sefsaf",
+        "label": "16174 Sefsaf"
+    },
+    {
+        "value": "MAR;16175 Sidi Al Kamel",
+        "label": "16175 Sidi Al Kamel"
+    },
+    {
+        "value": "MAR;16200 Ouezzane",
+        "label": "16200 Ouezzane"
+    },
+    {
+        "value": "MAR;16202 Sidi Redouane",
+        "label": "16202 Sidi Redouane"
+    },
+    {
+        "value": "MAR;16222 Ain Dorij",
+        "label": "16222 Ain Dorij"
+    },
+    {
+        "value": "MAR;16223 Sebt Rmel",
+        "label": "16223 Sebt Rmel"
+    },
+    {
+        "value": "MAR;16224 Bni Quolla",
+        "label": "16224 Bni Quolla"
+    },
+    {
+        "value": "MAR;16225 Ounnana",
+        "label": "16225 Ounnana"
+    },
+    {
+        "value": "MAR;16252 Teroual",
+        "label": "16252 Teroual"
+    },
+    {
+        "value": "MAR;16324 Sidi Ammar El Hadi",
+        "label": "16324 Sidi Ammar El Hadi"
+    },
+    {
+        "value": "MAR;22000 Azilal",
+        "label": "22000 Azilal"
+    },
+    {
+        "value": "MAR;22002 Zaouia Ahensal",
+        "label": "22002 Zaouia Ahensal"
+    },
+    {
+        "value": "MAR;22022 Skatt",
+        "label": "22022 Skatt"
+    },
+    {
+        "value": "MAR;22052 Afourer",
+        "label": "22052 Afourer"
+    },
+    {
+        "value": "MAR;22072 Ait Ouarda",
+        "label": "22072 Ait Ouarda"
+    },
+    {
+        "value": "MAR;22102 Ait Attab",
+        "label": "22102 Ait Attab"
+    },
+    {
+        "value": "MAR;22122 Taounza",
+        "label": "22122 Taounza"
+    },
+    {
+        "value": "MAR;22152 Ait Mhamed",
+        "label": "22152 Ait Mhamed"
+    },
+    {
+        "value": "MAR;22172 Igmir",
+        "label": "22172 Igmir"
+    },
+    {
+        "value": "MAR;22202 Bine El Ouidane",
+        "label": "22202 Bine El Ouidane"
+    },
+    {
+        "value": "MAR;22250 Bzou",
+        "label": "22250 Bzou"
+    },
+    {
+        "value": "MAR;22272 Aghbalou Zaouia",
+        "label": "22272 Aghbalou Zaouia"
+    },
+    {
+        "value": "MAR;22273 Imadahen",
+        "label": "22273 Imadahen"
+    },
+    {
+        "value": "MAR;22274 Rfala",
+        "label": "22274 Rfala"
+    },
+    {
+        "value": "MAR;22300 Demnate",
+        "label": "22300 Demnate"
+    },
+    {
+        "value": "MAR;22322 Ait Blal",
+        "label": "22322 Ait Blal"
+    },
+    {
+        "value": "MAR;22323 Ait Tamlil",
+        "label": "22323 Ait Tamlil"
+    },
+    {
+        "value": "MAR;22324 Anzou",
+        "label": "22324 Anzou"
+    },
+    {
+        "value": "MAR;22325 Tidili Fetouaka",
+        "label": "22325 Tidili Fetouaka"
+    },
+    {
+        "value": "MAR;22326 Tifni",
+        "label": "22326 Tifni"
+    },
+    {
+        "value": "MAR;22352 Tislit",
+        "label": "22352 Tislit"
+    },
+    {
+        "value": "MAR;22353 Foum Jemaa",
+        "label": "22353 Foum Jemaa"
+    },
+    {
+        "value": "MAR;22372 Bni Hassane",
+        "label": "22372 Bni Hassane"
+    },
+    {
+        "value": "MAR;22373 Tabia",
+        "label": "22373 Tabia"
+    },
+    {
+        "value": "MAR;22402 Ouaouizarht",
+        "label": "22402 Ouaouizarht"
+    },
+    {
+        "value": "MAR;22452 Tabannt",
+        "label": "22452 Tabannt"
+    },
+    {
+        "value": "MAR;22472 Abachkou",
+        "label": "22472 Abachkou"
+    },
+    {
+        "value": "MAR;22502 Taguelft",
+        "label": "22502 Taguelft"
+    },
+    {
+        "value": "MAR;22522 Ait Tamejoute",
+        "label": "22522 Ait Tamejoute"
+    },
+    {
+        "value": "MAR;22523 Arbaa Ouakabli",
+        "label": "22523 Arbaa Ouakabli"
+    },
+    {
+        "value": "MAR;22552 Tanannt",
+        "label": "22552 Tanannt"
+    },
+    {
+        "value": "MAR;22572 Ait Taguella",
+        "label": "22572 Ait Taguella"
+    },
+    {
+        "value": "MAR;22573 Arbaa Ou Aoula",
+        "label": "22573 Arbaa Ou Aoula"
+    },
+    {
+        "value": "MAR;22574 Bouantar",
+        "label": "22574 Bouantar"
+    },
+    {
+        "value": "MAR;22575 Khemis Majden",
+        "label": "22575 Khemis Majden"
+    },
+    {
+        "value": "MAR;22576 Ouzoud",
+        "label": "22576 Ouzoud"
+    },
+    {
+        "value": "MAR;22602 Tilougguite",
+        "label": "22602 Tilougguite"
+    },
+    {
+        "value": "MAR;22622 Anergui",
+        "label": "22622 Anergui"
+    },
+    {
+        "value": "MAR;22652 Bni Ayat",
+        "label": "22652 Bni Ayat"
+    },
+    {
+        "value": "MAR;22702 Tnine Timoulilt",
+        "label": "22702 Tnine Timoulilt"
+    },
+    {
+        "value": "MAR;23005 Bni Oukil",
+        "label": "23005 Bni Oukil"
+    },
+    {
+        "value": "MAR;23006 Foum Oudi",
+        "label": "23006 Foum Oudi"
+    },
+    {
+        "value": "MAR;23022 Laayayta",
+        "label": "23022 Laayayta"
+    },
+    {
+        "value": "MAR;23023 M'Ghila",
+        "label": "23023 M'Ghila"
+    },
+    {
+        "value": "MAR;23052 Arhbala",
+        "label": "23052 Arhbala"
+    },
+    {
+        "value": "MAR;23072 Boutfarda",
+        "label": "23072 Boutfarda"
+    },
+    {
+        "value": "MAR;23073 Tizi Nisly",
+        "label": "23073 Tizi Nisly"
+    },
+    {
+        "value": "MAR;23102 Dar Ould Zidouh",
+        "label": "23102 Dar Ould Zidouh"
+    },
+    {
+        "value": "MAR;23122 Had Oulad Boumoussa",
+        "label": "23122 Had Oulad Boumoussa"
+    },
+    {
+        "value": "MAR;23150 El Ksiba",
+        "label": "23150 El Ksiba"
+    },
+    {
+        "value": "MAR;23200 Fquih Ben Salah",
+        "label": "23200 Fquih Ben Salah"
+    },
+    {
+        "value": "MAR;23222 El Krifate",
+        "label": "23222 El Krifate"
+    },
+    {
+        "value": "MAR;23223 Hal El Marbaa",
+        "label": "23223 Hal El Marbaa"
+    },
+    {
+        "value": "MAR;23224 Khemis Bni Chagdal",
+        "label": "23224 Khemis Bni Chagdal"
+    },
+    {
+        "value": "MAR;23225 Oulad Hassoun",
+        "label": "23225 Oulad Hassoun"
+    },
+    {
+        "value": "MAR;23226 Ouled Abdellah",
+        "label": "23226 Ouled Abdellah"
+    },
+    {
+        "value": "MAR;23252 Foum El Anser",
+        "label": "23252 Foum El Anser"
+    },
+    {
+        "value": "MAR;23272 Fechtala",
+        "label": "23272 Fechtala"
+    },
+    {
+        "value": "MAR;23302 Had Bradia",
+        "label": "23302 Had Bradia"
+    },
+    {
+        "value": "MAR;23322 Lahlalma",
+        "label": "23322 Lahlalma"
+    },
+    {
+        "value": "MAR;23323 Oulad Ali Loued",
+        "label": "23323 Oulad Ali Loued"
+    },
+    {
+        "value": "MAR;23324 Oulad Driss Bradia",
+        "label": "23324 Oulad Driss Bradia"
+    },
+    {
+        "value": "MAR;23350 Kasba Tadla",
+        "label": "23350 Kasba Tadla"
+    },
+    {
+        "value": "MAR;23372 Guettaya",
+        "label": "23372 Guettaya"
+    },
+    {
+        "value": "MAR;23373 Oulad Said El Oued",
+        "label": "23373 Oulad Said El Oued"
+    },
+    {
+        "value": "MAR;23374 Ouled Youssef",
+        "label": "23374 Ouled Youssef"
+    },
+    {
+        "value": "MAR;23375 Semguet",
+        "label": "23375 Semguet"
+    },
+    {
+        "value": "MAR;23376 Douar Ait Ali",
+        "label": "23376 Douar Ait Ali"
+    },
+    {
+        "value": "MAR;23400 Oulad Ayad",
+        "label": "23400 Oulad Ayad"
+    },
+    {
+        "value": "MAR;23452 Ouled Mbarek",
+        "label": "23452 Ouled Mbarek"
+    },
+    {
+        "value": "MAR;23502 Ouled Yaiche",
+        "label": "23502 Ouled Yaiche"
+    },
+    {
+        "value": "MAR;23522 El Bazzaza",
+        "label": "23522 El Bazzaza"
+    },
+    {
+        "value": "MAR;23523 Zouair",
+        "label": "23523 Zouair"
+    },
+    {
+        "value": "MAR;23550 Sebt Oulad Nemma",
+        "label": "23550 Sebt Oulad Nemma"
+    },
+    {
+        "value": "MAR;23572 El Krazza",
+        "label": "23572 El Krazza"
+    },
+    {
+        "value": "MAR;23573 Oulad Bourahmoune",
+        "label": "23573 Oulad Bourahmoune"
+    },
+    {
+        "value": "MAR;23574 Sidi Aissa",
+        "label": "23574 Sidi Aissa"
+    },
+    {
+        "value": "MAR;23575 Ouled Zmam",
+        "label": "23575 Ouled Zmam"
+    },
+    {
+        "value": "MAR;23602 Sidi Jaber",
+        "label": "23602 Sidi Jaber"
+    },
+    {
+        "value": "MAR;23652 Taghzirt",
+        "label": "23652 Taghzirt"
+    },
+    {
+        "value": "MAR;23672 Feryata",
+        "label": "23672 Feryata"
+    },
+    {
+        "value": "MAR;23673 Rhorm El Alem",
+        "label": "23673 Rhorm El Alem"
+    },
+    {
+        "value": "MAR;23674 Tanorha",
+        "label": "23674 Tanorha"
+    },
+    {
+        "value": "MAR;23700 Zaouiat Cheikh",
+        "label": "23700 Zaouiat Cheikh"
+    },
+    {
+        "value": "MAR;24003 Moulay Abdellah",
+        "label": "24003 Moulay Abdellah"
+    },
+    {
+        "value": "MAR;24004 Ouled Amrane",
+        "label": "24004 Ouled Amrane"
+    },
+    {
+        "value": "MAR;24005 Sidi Bouzid",
+        "label": "24005 Sidi Bouzid"
+    },
+    {
+        "value": "MAR;24022 Oulad Aissa",
+        "label": "24022 Oulad Aissa"
+    },
+    {
+        "value": "MAR;24023 Oulad Hassine",
+        "label": "24023 Oulad Hassine"
+    },
+    {
+        "value": "MAR;24024 Sidi Moussa Plage",
+        "label": "24024 Sidi Moussa Plage"
+    },
+    {
+        "value": "MAR;24025 Jorf Lasfar",
+        "label": "24025 Jorf Lasfar"
+    },
+    {
+        "value": "MAR;24026 Kridid",
+        "label": "24026 Kridid"
+    },
+    {
+        "value": "MAR;24032 Sidi Abed",
+        "label": "24032 Sidi Abed"
+    },
+    {
+        "value": "MAR;24052 Arbaa Aounate",
+        "label": "24052 Arbaa Aounate"
+    },
+    {
+        "value": "MAR;24072 Khemis Ksiba",
+        "label": "24072 Khemis Ksiba"
+    },
+    {
+        "value": "MAR;24073 Matrann",
+        "label": "24073 Matrann"
+    },
+    {
+        "value": "MAR;24074 Tleta Boulaouane",
+        "label": "24074 Tleta Boulaouane"
+    },
+    {
+        "value": "MAR;24100 Azemmour",
+        "label": "24100 Azemmour"
+    },
+    {
+        "value": "MAR;24122 Boucedra",
+        "label": "24122 Boucedra"
+    },
+    {
+        "value": "MAR;24123 Haouzia",
+        "label": "24123 Haouzia"
+    },
+    {
+        "value": "MAR;24124 Mhaioula",
+        "label": "24124 Mhaioula"
+    },
+    {
+        "value": "MAR;24150 Lbir Jdid",
+        "label": "24150 Lbir Jdid"
+    },
+    {
+        "value": "MAR;24172 Arbaa Chtouka",
+        "label": "24172 Arbaa Chtouka"
+    },
+    {
+        "value": "MAR;24173 Oulja Des Chiadma",
+        "label": "24173 Oulja Des Chiadma"
+    },
+    {
+        "value": "MAR;24175 Tnine Chtouka",
+        "label": "24175 Tnine Chtouka"
+    },
+    {
+        "value": "MAR;24200 Khemis Des Zemamra",
+        "label": "24200 Khemis Des Zemamra"
+    },
+    {
+        "value": "MAR;24222 Laaouissate",
+        "label": "24222 Laaouissate"
+    },
+    {
+        "value": "MAR;24223 El Hagagcha",
+        "label": "24223 El Hagagcha"
+    },
+    {
+        "value": "MAR;24224 Lamnakra El Haddada",
+        "label": "24224 Lamnakra El Haddada"
+    },
+    {
+        "value": "MAR;24225 Oulad Ben Chaoui",
+        "label": "24225 Oulad Ben Chaoui"
+    },
+    {
+        "value": "MAR;24226 Saniat Benrkik",
+        "label": "24226 Saniat Benrkik"
+    },
+    {
+        "value": "MAR;24232 Zaouiat Ben Hamdoune",
+        "label": "24232 Zaouiat Ben Hamdoune"
+    },
+    {
+        "value": "MAR;24252 Oualidia",
+        "label": "24252 Oualidia"
+    },
+    {
+        "value": "MAR;24272 Oulad Rhanem",
+        "label": "24272 Oulad Rhanem"
+    },
+    {
+        "value": "MAR;24302 Ouled Frej",
+        "label": "24302 Ouled Frej"
+    },
+    {
+        "value": "MAR;24322 Khemis Mtouh",
+        "label": "24322 Khemis Mtouh"
+    },
+    {
+        "value": "MAR;24323 Oulad Hamdane",
+        "label": "24323 Oulad Hamdane"
+    },
+    {
+        "value": "MAR;24324 Oulad Sidi Ali Ben Youssef",
+        "label": "24324 Oulad Sidi Ali Ben Youssef"
+    },
+    {
+        "value": "MAR;24350 Sidi Bennour",
+        "label": "24350 Sidi Bennour"
+    },
+    {
+        "value": "MAR;24352 Sebt Beni Hlal",
+        "label": "24352 Sebt Beni Hlal"
+    },
+    {
+        "value": "MAR;24372 Mtal",
+        "label": "24372 Mtal"
+    },
+    {
+        "value": "MAR;24373 El Mechrek",
+        "label": "24373 El Mechrek"
+    },
+    {
+        "value": "MAR;24402 Sidi Smail",
+        "label": "24402 Sidi Smail"
+    },
+    {
+        "value": "MAR;24422 Sebt Saiss",
+        "label": "24422 Sebt Saiss"
+    },
+    {
+        "value": "MAR;24452 Tnine Gharbia",
+        "label": "24452 Tnine Gharbia"
+    },
+    {
+        "value": "MAR;25003 Sebt Beni Yakhlef",
+        "label": "25003 Sebt Beni Yakhlef"
+    },
+    {
+        "value": "MAR;25022 El Fokra",
+        "label": "25022 El Fokra"
+    },
+    {
+        "value": "MAR;25023 Ouled Abdoun",
+        "label": "25023 Ouled Abdoun"
+    },
+    {
+        "value": "MAR;25060 Bejaad",
+        "label": "25060 Bejaad"
+    },
+    {
+        "value": "MAR;25072 Boukhrisse",
+        "label": "25072 Boukhrisse"
+    },
+    {
+        "value": "MAR;25073 Oulad Gouaouch",
+        "label": "25073 Oulad Gouaouch"
+    },
+    {
+        "value": "MAR;25100 Boujniba",
+        "label": "25100 Boujniba"
+    },
+    {
+        "value": "MAR;25152 Boulanouar",
+        "label": "25152 Boulanouar"
+    },
+    {
+        "value": "MAR;25202 El Gueffaf",
+        "label": "25202 El Gueffaf"
+    },
+    {
+        "value": "MAR;25252 Had Bni Batao",
+        "label": "25252 Had Bni Batao"
+    },
+    {
+        "value": "MAR;25272 Tleta Beni Zrantil",
+        "label": "25272 Tleta Beni Zrantil"
+    },
+    {
+        "value": "MAR;25300 Hattane",
+        "label": "25300 Hattane"
+    },
+    {
+        "value": "MAR;25322 Mfassis",
+        "label": "25322 Mfassis"
+    },
+    {
+        "value": "MAR;25323 Oulad Azzouz",
+        "label": "25323 Oulad Azzouz"
+    },
+    {
+        "value": "MAR;25350 Oued Zem",
+        "label": "25350 Oued Zem"
+    },
+    {
+        "value": "MAR;25372 Arbaa Maadna",
+        "label": "25372 Arbaa Maadna"
+    },
+    {
+        "value": "MAR;25373 Bir Mezoui",
+        "label": "25373 Bir Mezoui"
+    },
+    {
+        "value": "MAR;25374 Bni Smir",
+        "label": "25374 Bni Smir"
+    },
+    {
+        "value": "MAR;25375 Jemaa Oulad Aissa",
+        "label": "25375 Jemaa Oulad Aissa"
+    },
+    {
+        "value": "MAR;25376 Kasbat Troch",
+        "label": "25376 Kasbat Troch"
+    },
+    {
+        "value": "MAR;25382 Oulad Fennane",
+        "label": "25382 Oulad Fennane"
+    },
+    {
+        "value": "MAR;25383 Sebt Dechra Braksa",
+        "label": "25383 Sebt Dechra Braksa"
+    },
+    {
+        "value": "MAR;25402 Ouled Boughadi",
+        "label": "25402 Ouled Boughadi"
+    },
+    {
+        "value": "MAR;25422 Ait Ammar",
+        "label": "25422 Ait Ammar"
+    },
+    {
+        "value": "MAR;25423 Oulad Ftata",
+        "label": "25423 Oulad Ftata"
+    },
+    {
+        "value": "MAR;25424 Tleta Gnadiz",
+        "label": "25424 Tleta Gnadiz"
+    },
+    {
+        "value": "MAR;25452 Tachreft",
+        "label": "25452 Tachreft"
+    },
+    {
+        "value": "MAR;25472 Ain Kicher",
+        "label": "25472 Ain Kicher"
+    },
+    {
+        "value": "MAR;25502 Tleta Chougrane",
+        "label": "25502 Tleta Chougrane"
+    },
+    {
+        "value": "MAR;25522 Rouached",
+        "label": "25522 Rouached"
+    },
+    {
+        "value": "MAR;26000 Settat",
+        "label": "26000 Settat"
+    },
+    {
+        "value": "MAR;26006 Settat Bir Baouch",
+        "label": "26006 Settat Bir Baouch"
+    },
+    {
+        "value": "MAR;26022 Ain Nzarh",
+        "label": "26022 Ain Nzarh"
+    },
+    {
+        "value": "MAR;26023 Had Mzoura",
+        "label": "26023 Had Mzoura"
+    },
+    {
+        "value": "MAR;26024 Sebt Oulad Friha",
+        "label": "26024 Sebt Oulad Friha"
+    },
+    {
+        "value": "MAR;26026 Sidi El Aidi",
+        "label": "26026 Sidi El Aidi"
+    },
+    {
+        "value": "MAR;26050 Ben Ahmed",
+        "label": "26050 Ben Ahmed"
+    },
+    {
+        "value": "MAR;26072 Mgarto",
+        "label": "26072 Mgarto"
+    },
+    {
+        "value": "MAR;26073 Oulad Mhamed",
+        "label": "26073 Oulad Mhamed"
+    },
+    {
+        "value": "MAR;26074 Sidi Dahbi",
+        "label": "26074 Sidi Dahbi"
+    },
+    {
+        "value": "MAR;26100 Berrechid",
+        "label": "26100 Berrechid"
+    },
+    {
+        "value": "MAR;26122 Riah",
+        "label": "26122 Riah"
+    },
+    {
+        "value": "MAR;26152 Bni Khloug",
+        "label": "26152 Bni Khloug"
+    },
+    {
+        "value": "MAR;26172 Dar Chaffai",
+        "label": "26172 Dar Chaffai"
+    },
+    {
+        "value": "MAR;26173 Oulad N'Jima",
+        "label": "26173 Oulad N'Jima"
+    },
+    {
+        "value": "MAR;26174 Sidi Ahmed El Khadir",
+        "label": "26174 Sidi Ahmed El Khadir"
+    },
+    {
+        "value": "MAR;26175 Sidi Rahhal Plage",
+        "label": "26175 Sidi Rahhal Plage"
+    },
+    {
+        "value": "MAR;26202 Deroua Oulad Ziane",
+        "label": "26202 Deroua Oulad Ziane"
+    },
+    {
+        "value": "MAR;26232 Tleta Oulad Sghir",
+        "label": "26232 Tleta Oulad Sghir"
+    },
+    {
+        "value": "MAR;26250 El Borouj",
+        "label": "26250 El Borouj"
+    },
+    {
+        "value": "MAR;26272 Arba Oulad Bou Ali",
+        "label": "26272 Arba Oulad Bou Ali"
+    },
+    {
+        "value": "MAR;26273 Krakra",
+        "label": "26273 Krakra"
+    },
+    {
+        "value": "MAR;26274 Oulad Belkacem",
+        "label": "26274 Oulad Belkacem"
+    },
+    {
+        "value": "MAR;26275 Oulad Driss",
+        "label": "26275 Oulad Driss"
+    },
+    {
+        "value": "MAR;26276 Oulad Hammou",
+        "label": "26276 Oulad Hammou"
+    },
+    {
+        "value": "MAR;26300 El Gara",
+        "label": "26300 El Gara"
+    },
+    {
+        "value": "MAR;26352 Guisser",
+        "label": "26352 Guisser"
+    },
+    {
+        "value": "MAR;26372 Rima",
+        "label": "26372 Rima"
+    },
+    {
+        "value": "MAR;26402 Had Soualem",
+        "label": "26402 Had Soualem"
+    },
+    {
+        "value": "MAR;26422 Oulad Ziane",
+        "label": "26422 Oulad Ziane"
+    },
+    {
+        "value": "MAR;26450 Oulad Abbou",
+        "label": "26450 Oulad Abbou"
+    },
+    {
+        "value": "MAR;26472 Oued Bers",
+        "label": "26472 Oued Bers"
+    },
+    {
+        "value": "MAR;26473 Rhnimiyne",
+        "label": "26473 Rhnimiyne"
+    },
+    {
+        "value": "MAR;26474 Sidi Said Maachou",
+        "label": "26474 Sidi Said Maachou"
+    },
+    {
+        "value": "MAR;26502 Oulad Said",
+        "label": "26502 Oulad Said"
+    },
+    {
+        "value": "MAR;26522 Khemis Gdana",
+        "label": "26522 Khemis Gdana"
+    },
+    {
+        "value": "MAR;26552 Ras El Ain",
+        "label": "26552 Ras El Ain"
+    },
+    {
+        "value": "MAR;26572 Oued Naanaa",
+        "label": "26572 Oued Naanaa"
+    },
+    {
+        "value": "MAR;26573 Douar Ouled Naceur",
+        "label": "26573 Douar Ouled Naceur"
+    },
+    {
+        "value": "MAR;26600 Sidi Hajjaj",
+        "label": "26600 Sidi Hajjaj"
+    },
+    {
+        "value": "MAR;26622 Mrizig",
+        "label": "26622 Mrizig"
+    },
+    {
+        "value": "MAR;26623 Tleta Oulad Fares",
+        "label": "26623 Tleta Oulad Fares"
+    },
+    {
+        "value": "MAR;26652 Sidi Rahhal Chaouia",
+        "label": "26652 Sidi Rahhal Chaouia"
+    },
+    {
+        "value": "MAR;26672 Imfout",
+        "label": "26672 Imfout"
+    },
+    {
+        "value": "MAR;26673 Mechra Ben Abbou",
+        "label": "26673 Mechra Ben Abbou"
+    },
+    {
+        "value": "MAR;26674 Tleta Ain Blal",
+        "label": "26674 Tleta Ain Blal"
+    },
+    {
+        "value": "MAR;26675 Tnine Toualet",
+        "label": "26675 Tnine Toualet"
+    },
+    {
+        "value": "MAR;26676 Zemamra Chaouia",
+        "label": "26676 Zemamra Chaouia"
+    },
+    {
+        "value": "MAR;26700 Tleta Loulad",
+        "label": "26700 Tleta Loulad"
+    },
+    {
+        "value": "MAR;26722 Nkhila",
+        "label": "26722 Nkhila"
+    },
+    {
+        "value": "MAR;27123 Souk Jemaa Sidi El Ayachi",
+        "label": "27123 Souk Jemaa Sidi El Ayachi"
+    },
+    {
+        "value": "MAR;27182 Bouskoura",
+        "label": "27182 Bouskoura"
+    },
+    {
+        "value": "MAR;27222 Ben Abid",
+        "label": "27222 Ben Abid"
+    },
+    {
+        "value": "MAR;27223 Dar Bouazza",
+        "label": "27223 Dar Bouazza"
+    },
+    {
+        "value": "MAR;28630 Ain Harrouda",
+        "label": "28630 Ain Harrouda"
+    },
+    {
+        "value": "MAR;28814 Sidi Moussa Ben Ali",
+        "label": "28814 Sidi Moussa Ben Ali"
+    },
+    {
+        "value": "MAR;28815 Beni Yakhlef",
+        "label": "28815 Beni Yakhlef"
+    },
+    {
+        "value": "MAR;29002 Casa Aeroport Mohamed V",
+        "label": "29002 Casa Aeroport Mohamed V"
+    },
+    {
+        "value": "MAR;29003 Casablanca Aeroport Mohamed V Terminal",
+        "label": "29003 Casablanca Aeroport Mohamed V Terminal"
+    },
+    {
+        "value": "MAR;29004 Casa Lahraouyine",
+        "label": "29004 Casa Lahraouyine"
+    },
+    {
+        "value": "MAR;29490 Mediouna",
+        "label": "29490 Mediouna"
+    },
+    {
+        "value": "MAR;29640 Tit Mellil",
+        "label": "29640 Tit Mellil"
+    },
+    {
+        "value": "MAR;29672 Oued Hassar",
+        "label": "29672 Oued Hassar"
+    },
+    {
+        "value": "MAR;30023 Oulad Ettayeb",
+        "label": "30023 Oulad Ettayeb"
+    },
+    {
+        "value": "MAR;30205 Sidi Harazem",
+        "label": "30205 Sidi Harazem"
+    },
+    {
+        "value": "MAR;31000 Sefrou",
+        "label": "31000 Sefrou"
+    },
+    {
+        "value": "MAR;31002 Azzaba",
+        "label": "31002 Azzaba"
+    },
+    {
+        "value": "MAR;31003 El Aderj",
+        "label": "31003 El Aderj"
+    },
+    {
+        "value": "MAR;31004 Tazouta",
+        "label": "31004 Tazouta"
+    },
+    {
+        "value": "MAR;31022 Aioun Sename",
+        "label": "31022 Aioun Sename"
+    },
+    {
+        "value": "MAR;31023 Arhbalou Akorare",
+        "label": "31023 Arhbalou Akorare"
+    },
+    {
+        "value": "MAR;31024 Sidi Youssef Ben Ahmed Senhaja",
+        "label": "31024 Sidi Youssef Ben Ahmed Senhaja"
+    },
+    {
+        "value": "MAR;31025 Sidi Lahcen El Youssi",
+        "label": "31025 Sidi Lahcen El Youssi"
+    },
+    {
+        "value": "MAR;31026 Dar El Hamra",
+        "label": "31026 Dar El Hamra"
+    },
+    {
+        "value": "MAR;31032 Tafajight",
+        "label": "31032 Tafajight"
+    },
+    {
+        "value": "MAR;31052 Ain Cheggag",
+        "label": "31052 Ain Cheggag"
+    },
+    {
+        "value": "MAR;31100 Bhalil",
+        "label": "31100 Bhalil"
+    },
+    {
+        "value": "MAR;31152 Bir Tamtam",
+        "label": "31152 Bir Tamtam"
+    },
+    {
+        "value": "MAR;31200 El Menzel",
+        "label": "31200 El Menzel"
+    },
+    {
+        "value": "MAR;31202 Ouled M'Koudou",
+        "label": "31202 Ouled M'Koudou"
+    },
+    {
+        "value": "MAR;31222 Mtarnargha",
+        "label": "31222 Mtarnargha"
+    },
+    {
+        "value": "MAR;31223 Zaouia Bougrine",
+        "label": "31223 Zaouia Bougrine"
+    },
+    {
+        "value": "MAR;31250 Imouzzer Kandar",
+        "label": "31250 Imouzzer Kandar"
+    },
+    {
+        "value": "MAR;31272 Ait Sebaa",
+        "label": "31272 Ait Sebaa"
+    },
+    {
+        "value": "MAR;31273 Zaouiat El Kermate",
+        "label": "31273 Zaouiat El Kermate"
+    },
+    {
+        "value": "MAR;31350 Ribate El Kheir",
+        "label": "31350 Ribate El Kheir"
+    },
+    {
+        "value": "MAR;31372 Ighezren",
+        "label": "31372 Ighezren"
+    },
+    {
+        "value": "MAR;32000 Al Hoceima",
+        "label": "32000 Al Hoceima"
+    },
+    {
+        "value": "MAR;32003 Ait Youssef Ou Ali",
+        "label": "32003 Ait Youssef Ou Ali"
+    },
+    {
+        "value": "MAR;32004 Arbaa Taourirt",
+        "label": "32004 Arbaa Taourirt"
+    },
+    {
+        "value": "MAR;32006 Rouadi",
+        "label": "32006 Rouadi"
+    },
+    {
+        "value": "MAR;32013 Senada",
+        "label": "32013 Senada"
+    },
+    {
+        "value": "MAR;32014 Torres De Alcala",
+        "label": "32014 Torres De Alcala"
+    },
+    {
+        "value": "MAR;32022 Ait Kamra",
+        "label": "32022 Ait Kamra"
+    },
+    {
+        "value": "MAR;32023 Chakrane",
+        "label": "32023 Chakrane"
+    },
+    {
+        "value": "MAR;32024 Izemmouren",
+        "label": "32024 Izemmouren"
+    },
+    {
+        "value": "MAR;32050 Bni Bouayach",
+        "label": "32050 Bni Bouayach"
+    },
+    {
+        "value": "MAR;32072 Nekkour",
+        "label": "32072 Nekkour"
+    },
+    {
+        "value": "MAR;32102 Bni Boufrah",
+        "label": "32102 Bni Boufrah"
+    },
+    {
+        "value": "MAR;32122 Beni Gmil Mestassa",
+        "label": "32122 Beni Gmil Mestassa"
+    },
+    {
+        "value": "MAR;32152 Bni Hadifa",
+        "label": "32152 Bni Hadifa"
+    },
+    {
+        "value": "MAR;32172 Bni Abdallah",
+        "label": "32172 Bni Abdallah"
+    },
+    {
+        "value": "MAR;32202 Imrabten",
+        "label": "32202 Imrabten"
+    },
+    {
+        "value": "MAR;32250 Imzouren",
+        "label": "32250 Imzouren"
+    },
+    {
+        "value": "MAR;32253 Troukout",
+        "label": "32253 Troukout"
+    },
+    {
+        "value": "MAR;32302 Issaguen",
+        "label": "32302 Issaguen"
+    },
+    {
+        "value": "MAR;32322 Ikaouen",
+        "label": "32322 Ikaouen"
+    },
+    {
+        "value": "MAR;32323 Ketama",
+        "label": "32323 Ketama"
+    },
+    {
+        "value": "MAR;32324 Tabarannt",
+        "label": "32324 Tabarannt"
+    },
+    {
+        "value": "MAR;32325 Taghzout",
+        "label": "32325 Taghzout"
+    },
+    {
+        "value": "MAR;32326 Tizi Tchen",
+        "label": "32326 Tizi Tchen"
+    },
+    {
+        "value": "MAR;32350 Targuist",
+        "label": "32350 Targuist"
+    },
+    {
+        "value": "MAR;32352 Bni Ammart",
+        "label": "32352 Bni Ammart"
+    },
+    {
+        "value": "MAR;32372 Ain Benabbou",
+        "label": "32372 Ain Benabbou"
+    },
+    {
+        "value": "MAR;32373 Bni Bounsar",
+        "label": "32373 Bni Bounsar"
+    },
+    {
+        "value": "MAR;32374 Bni Bchir",
+        "label": "32374 Bni Bchir"
+    },
+    {
+        "value": "MAR;32375 Sidi Bouzineb",
+        "label": "32375 Sidi Bouzineb"
+    },
+    {
+        "value": "MAR;33000 Boulemane",
+        "label": "33000 Boulemane"
+    },
+    {
+        "value": "MAR;33002 Enjil",
+        "label": "33002 Enjil"
+    },
+    {
+        "value": "MAR;33022 Achlouj",
+        "label": "33022 Achlouj"
+    },
+    {
+        "value": "MAR;33023 Enjil Ait Lahcen",
+        "label": "33023 Enjil Ait Lahcen"
+    },
+    {
+        "value": "MAR;33024 Ifkirne",
+        "label": "33024 Ifkirne"
+    },
+    {
+        "value": "MAR;33025 Tafraoute Ait Ali Oulahcen",
+        "label": "33025 Tafraoute Ait Ali Oulahcen"
+    },
+    {
+        "value": "MAR;33052 Ait Hamza",
+        "label": "33052 Ait Hamza"
+    },
+    {
+        "value": "MAR;33053 Almis Guigou",
+        "label": "33053 Almis Guigou"
+    },
+    {
+        "value": "MAR;33102 El Mers",
+        "label": "33102 El Mers"
+    },
+    {
+        "value": "MAR;33122 Ait Abdallah Boukhamouj",
+        "label": "33122 Ait Abdallah Boukhamouj"
+    },
+    {
+        "value": "MAR;33152 Imouzzer Marmoucha",
+        "label": "33152 Imouzzer Marmoucha"
+    },
+    {
+        "value": "MAR;33172 Ait Bazza",
+        "label": "33172 Ait Bazza"
+    },
+    {
+        "value": "MAR;33173 Ait El Mane",
+        "label": "33173 Ait El Mane"
+    },
+    {
+        "value": "MAR;33174 Almis Marmoucha",
+        "label": "33174 Almis Marmoucha"
+    },
+    {
+        "value": "MAR;33175 Ouaoulzemt",
+        "label": "33175 Ouaoulzemt"
+    },
+    {
+        "value": "MAR;33176 Talzemt",
+        "label": "33176 Talzemt"
+    },
+    {
+        "value": "MAR;33202 Ksabi",
+        "label": "33202 Ksabi"
+    },
+    {
+        "value": "MAR;33250 Missour",
+        "label": "33250 Missour"
+    },
+    {
+        "value": "MAR;33272 Oulad Sghir",
+        "label": "33272 Oulad Sghir"
+    },
+    {
+        "value": "MAR;33273 Ouizeght",
+        "label": "33273 Ouizeght"
+    },
+    {
+        "value": "MAR;33300 Outat El Haj",
+        "label": "33300 Outat El Haj"
+    },
+    {
+        "value": "MAR;33302 Ouled Ali",
+        "label": "33302 Ouled Ali"
+    },
+    {
+        "value": "MAR;33303 Tindit",
+        "label": "33303 Tindit"
+    },
+    {
+        "value": "MAR;33322 Fritissa",
+        "label": "33322 Fritissa"
+    },
+    {
+        "value": "MAR;33323 Tissaf",
+        "label": "33323 Tissaf"
+    },
+    {
+        "value": "MAR;33324 El Orjane",
+        "label": "33324 El Orjane"
+    },
+    {
+        "value": "MAR;33352 Skoura Seghrouchen",
+        "label": "33352 Skoura Seghrouchen"
+    },
+    {
+        "value": "MAR;33372 Taghroute",
+        "label": "33372 Taghroute"
+    },
+    {
+        "value": "MAR;34000 Taounate",
+        "label": "34000 Taounate"
+    },
+    {
+        "value": "MAR;34002 Khlalfa",
+        "label": "34002 Khlalfa"
+    },
+    {
+        "value": "MAR;34003 Ain Mediouna",
+        "label": "34003 Ain Mediouna"
+    },
+    {
+        "value": "MAR;34004 Bni Oulid",
+        "label": "34004 Bni Oulid"
+    },
+    {
+        "value": "MAR;34005 Bni Korra",
+        "label": "34005 Bni Korra"
+    },
+    {
+        "value": "MAR;34006 Bouhouda",
+        "label": "34006 Bouhouda"
+    },
+    {
+        "value": "MAR;34012 Bouarous",
+        "label": "34012 Bouarous"
+    },
+    {
+        "value": "MAR;34013 Tafrannt",
+        "label": "34013 Tafrannt"
+    },
+    {
+        "value": "MAR;34014 Tabouda",
+        "label": "34014 Tabouda"
+    },
+    {
+        "value": "MAR;34022 Bab Ouandar",
+        "label": "34022 Bab Ouandar"
+    },
+    {
+        "value": "MAR;34023 El Haddada",
+        "label": "34023 El Haddada"
+    },
+    {
+        "value": "MAR;34024 Galaz",
+        "label": "34024 Galaz"
+    },
+    {
+        "value": "MAR;34025 Mezraoua",
+        "label": "34025 Mezraoua"
+    },
+    {
+        "value": "MAR;34026 Rghioua",
+        "label": "34026 Rghioua"
+    },
+    {
+        "value": "MAR;34032 Quallaline",
+        "label": "34032 Quallaline"
+    },
+    {
+        "value": "MAR;34033 Moulay Bouchta",
+        "label": "34033 Moulay Bouchta"
+    },
+    {
+        "value": "MAR;34034 Sgoura",
+        "label": "34034 Sgoura"
+    },
+    {
+        "value": "MAR;34035 Beni Selmane",
+        "label": "34035 Beni Selmane"
+    },
+    {
+        "value": "MAR;34036 Sidi El Mokhfi",
+        "label": "34036 Sidi El Mokhfi"
+    },
+    {
+        "value": "MAR;34042 Timezgana",
+        "label": "34042 Timezgana"
+    },
+    {
+        "value": "MAR;34043 Zrizer",
+        "label": "34043 Zrizer"
+    },
+    {
+        "value": "MAR;34044 Ourtzarh",
+        "label": "34044 Ourtzarh"
+    },
+    {
+        "value": "MAR;34050 Karia Ba Mohamed",
+        "label": "34050 Karia Ba Mohamed"
+    },
+    {
+        "value": "MAR;34072 Bouchabel",
+        "label": "34072 Bouchabel"
+    },
+    {
+        "value": "MAR;34073 Jbabra",
+        "label": "34073 Jbabra"
+    },
+    {
+        "value": "MAR;34074 Loulja",
+        "label": "34074 Loulja"
+    },
+    {
+        "value": "MAR;34075 Mkannssa",
+        "label": "34075 Mkannssa"
+    },
+    {
+        "value": "MAR;34076 Rhouazi",
+        "label": "34076 Rhouazi"
+    },
+    {
+        "value": "MAR;34082 Sidi El Abed",
+        "label": "34082 Sidi El Abed"
+    },
+    {
+        "value": "MAR;34083 Moulay Abdelkrim",
+        "label": "34083 Moulay Abdelkrim"
+    },
+    {
+        "value": "MAR;34100 Ghafsai",
+        "label": "34100 Ghafsai"
+    },
+    {
+        "value": "MAR;34102 Retba",
+        "label": "34102 Retba"
+    },
+    {
+        "value": "MAR;34122 Ain Barda",
+        "label": "34122 Ain Barda"
+    },
+    {
+        "value": "MAR;34123 Klaia",
+        "label": "34123 Klaia"
+    },
+    {
+        "value": "MAR;34124 Oulad Salah",
+        "label": "34124 Oulad Salah"
+    },
+    {
+        "value": "MAR;34125 Tamesnite",
+        "label": "34125 Tamesnite"
+    },
+    {
+        "value": "MAR;34126 Lamkmmel",
+        "label": "34126 Lamkmmel"
+    },
+    {
+        "value": "MAR;34132 Tnine Zghariyine",
+        "label": "34132 Tnine Zghariyine"
+    },
+    {
+        "value": "MAR;34133 Sidi Haj Mhamed",
+        "label": "34133 Sidi Haj Mhamed"
+    },
+    {
+        "value": "MAR;34150 Thar Es-Souk",
+        "label": "34150 Thar Es-Souk"
+    },
+    {
+        "value": "MAR;34172 Beni Ounjil Tafraoute",
+        "label": "34172 Beni Ounjil Tafraoute"
+    },
+    {
+        "value": "MAR;34173 Tamedit",
+        "label": "34173 Tamedit"
+    },
+    {
+        "value": "MAR;34200 Tissa",
+        "label": "34200 Tissa"
+    },
+    {
+        "value": "MAR;34222 Ain Legdeh",
+        "label": "34222 Ain Legdeh"
+    },
+    {
+        "value": "MAR;34223 El Bessabssa",
+        "label": "34223 El Bessabssa"
+    },
+    {
+        "value": "MAR;34224 Messassa",
+        "label": "34224 Messassa"
+    },
+    {
+        "value": "MAR;34225 Oued Jemaa",
+        "label": "34225 Oued Jemaa"
+    },
+    {
+        "value": "MAR;34226 Outa Bouabane",
+        "label": "34226 Outa Bouabane"
+    },
+    {
+        "value": "MAR;34232 Ras El Oued",
+        "label": "34232 Ras El Oued"
+    },
+    {
+        "value": "MAR;34233 Sidi Mhamed Ben Lahcen",
+        "label": "34233 Sidi Mhamed Ben Lahcen"
+    },
+    {
+        "value": "MAR;34252 Ain Aicha",
+        "label": "34252 Ain Aicha"
+    },
+    {
+        "value": "MAR;34272 Ain Maatouf",
+        "label": "34272 Ain Maatouf"
+    },
+    {
+        "value": "MAR;34273 Oulad Daoud",
+        "label": "34273 Oulad Daoud"
+    },
+    {
+        "value": "MAR;35000 Taza",
+        "label": "35000 Taza"
+    },
+    {
+        "value": "MAR;35002 Arbaa Beni Ftah",
+        "label": "35002 Arbaa Beni Ftah"
+    },
+    {
+        "value": "MAR;35003 Bab El Mrouj",
+        "label": "35003 Bab El Mrouj"
+    },
+    {
+        "value": "MAR;35004 Bab Marzouka",
+        "label": "35004 Bab Marzouka"
+    },
+    {
+        "value": "MAR;35005 Beni Lennt",
+        "label": "35005 Beni Lennt"
+    },
+    {
+        "value": "MAR;35006 Meknassa Acharqia",
+        "label": "35006 Meknassa Acharqia"
+    },
+    {
+        "value": "MAR;35012 Merhraoua",
+        "label": "35012 Merhraoua"
+    },
+    {
+        "value": "MAR;35013 Sebt Bni Frassen",
+        "label": "35013 Sebt Bni Frassen"
+    },
+    {
+        "value": "MAR;35014 Taineste",
+        "label": "35014 Taineste"
+    },
+    {
+        "value": "MAR;35022 Bab Bouidir",
+        "label": "35022 Bab Bouidir"
+    },
+    {
+        "value": "MAR;35023 Bechiyine",
+        "label": "35023 Bechiyine"
+    },
+    {
+        "value": "MAR;35024 Beni Ali",
+        "label": "35024 Beni Ali"
+    },
+    {
+        "value": "MAR;35025 Gueldamane",
+        "label": "35025 Gueldamane"
+    },
+    {
+        "value": "MAR;35026 Msoun",
+        "label": "35026 Msoun"
+    },
+    {
+        "value": "MAR;35036 Touahar",
+        "label": "35036 Touahar"
+    },
+    {
+        "value": "MAR;35042 Had Oulad Zbair",
+        "label": "35042 Had Oulad Zbair"
+    },
+    {
+        "value": "MAR;35043 Houara Oulad Rahho",
+        "label": "35043 Houara Oulad Rahho"
+    },
+    {
+        "value": "MAR;35044 Kahf El Rhar",
+        "label": "35044 Kahf El Rhar"
+    },
+    {
+        "value": "MAR;35045 Tnine Taifa",
+        "label": "35045 Tnine Taifa"
+    },
+    {
+        "value": "MAR;35046 Oulad Chrif",
+        "label": "35046 Oulad Chrif"
+    },
+    {
+        "value": "MAR;35050 Aknoul",
+        "label": "35050 Aknoul"
+    },
+    {
+        "value": "MAR;35052 Ajdir",
+        "label": "35052 Ajdir"
+    },
+    {
+        "value": "MAR;35053 Boured",
+        "label": "35053 Boured"
+    },
+    {
+        "value": "MAR;35055 Oulad Bourima",
+        "label": "35055 Oulad Bourima"
+    },
+    {
+        "value": "MAR;35056 Tlata Traiba",
+        "label": "35056 Tlata Traiba"
+    },
+    {
+        "value": "MAR;35062 Tazarine Msara",
+        "label": "35062 Tazarine Msara"
+    },
+    {
+        "value": "MAR;35072 Jbarna",
+        "label": "35072 Jbarna"
+    },
+    {
+        "value": "MAR;35073 Tighezratine",
+        "label": "35073 Tighezratine"
+    },
+    {
+        "value": "MAR;35074 Ain El Hamra",
+        "label": "35074 Ain El Hamra"
+    },
+    {
+        "value": "MAR;35075 Inahnahen",
+        "label": "35075 Inahnahen"
+    },
+    {
+        "value": "MAR;35100 Guercif",
+        "label": "35100 Guercif"
+    },
+    {
+        "value": "MAR;35102 Berkine",
+        "label": "35102 Berkine"
+    },
+    {
+        "value": "MAR;35103 Mahirija",
+        "label": "35103 Mahirija"
+    },
+    {
+        "value": "MAR;35104 Mezguitem",
+        "label": "35104 Mezguitem"
+    },
+    {
+        "value": "MAR;35105 Saka",
+        "label": "35105 Saka"
+    },
+    {
+        "value": "MAR;35122 Rchida",
+        "label": "35122 Rchida"
+    },
+    {
+        "value": "MAR;35123 Tighza",
+        "label": "35123 Tighza"
+    },
+    {
+        "value": "MAR;35124 Assebbab",
+        "label": "35124 Assebbab"
+    },
+    {
+        "value": "MAR;35125 Ras Laksar",
+        "label": "35125 Ras Laksar"
+    },
+    {
+        "value": "MAR;35152 Had Msila",
+        "label": "35152 Had Msila"
+    },
+    {
+        "value": "MAR;35172 El Gouzat",
+        "label": "35172 El Gouzat"
+    },
+    {
+        "value": "MAR;35202 Bouzemlane",
+        "label": "35202 Bouzemlane"
+    },
+    {
+        "value": "MAR;35203 Matmata",
+        "label": "35203 Matmata"
+    },
+    {
+        "value": "MAR;35222 Ain Boumassay",
+        "label": "35222 Ain Boumassay"
+    },
+    {
+        "value": "MAR;35223 Aoura",
+        "label": "35223 Aoura"
+    },
+    {
+        "value": "MAR;35224 Oulad Ayyad",
+        "label": "35224 Oulad Ayyad"
+    },
+    {
+        "value": "MAR;35225 Zaouia Sidi Abdejlil",
+        "label": "35225 Zaouia Sidi Abdejlil"
+    },
+    {
+        "value": "MAR;35250 Oued Amlil",
+        "label": "35250 Oued Amlil"
+    },
+    {
+        "value": "MAR;35272 Beni Mgara",
+        "label": "35272 Beni Mgara"
+    },
+    {
+        "value": "MAR;35273 Bouchfaa",
+        "label": "35273 Bouchfaa"
+    },
+    {
+        "value": "MAR;35274 Bouhlou",
+        "label": "35274 Bouhlou"
+    },
+    {
+        "value": "MAR;35275 Kaouane",
+        "label": "35275 Kaouane"
+    },
+    {
+        "value": "MAR;35300 Tahla",
+        "label": "35300 Tahla"
+    },
+    {
+        "value": "MAR;35322 Ain El Fendel",
+        "label": "35322 Ain El Fendel"
+    },
+    {
+        "value": "MAR;35323 Ifrane Ait Assou",
+        "label": "35323 Ifrane Ait Assou"
+    },
+    {
+        "value": "MAR;35324 Sidi Ali Bennacer",
+        "label": "35324 Sidi Ali Bennacer"
+    },
+    {
+        "value": "MAR;35325 Smiaa",
+        "label": "35325 Smiaa"
+    },
+    {
+        "value": "MAR;35352 Tizi Ouzli",
+        "label": "35352 Tizi Ouzli"
+    },
+    {
+        "value": "MAR;35372 Sidi Ali Bourakba",
+        "label": "35372 Sidi Ali Bourakba"
+    },
+    {
+        "value": "MAR;35402 Zerarda",
+        "label": "35402 Zerarda"
+    },
+    {
+        "value": "MAR;35422 Kassarat",
+        "label": "35422 Kassarat"
+    },
+    {
+        "value": "MAR;35423 Oued El Maleh",
+        "label": "35423 Oued El Maleh"
+    },
+    {
+        "value": "MAR;35424 Oued Lahmar",
+        "label": "35424 Oued Lahmar"
+    },
+    {
+        "value": "MAR;36104 Sebaa Rouadi",
+        "label": "36104 Sebaa Rouadi"
+    },
+    {
+        "value": "MAR;36122 Ain Chkef",
+        "label": "36122 Ain Chkef"
+    },
+    {
+        "value": "MAR;36123 Hamria",
+        "label": "36123 Hamria"
+    },
+    {
+        "value": "MAR;36124 Laajajra",
+        "label": "36124 Laajajra"
+    },
+    {
+        "value": "MAR;36125 Mikkes",
+        "label": "36125 Mikkes"
+    },
+    {
+        "value": "MAR;36126 Souk Sebt Oulad Mimoun",
+        "label": "36126 Souk Sebt Oulad Mimoun"
+    },
+    {
+        "value": "MAR;36150 Moulay Yacoub",
+        "label": "36150 Moulay Yacoub"
+    },
+    {
+        "value": "MAR;36152 Sidi Ahmed El Bernoussi",
+        "label": "36152 Sidi Ahmed El Bernoussi"
+    },
+    {
+        "value": "MAR;36172 Sidi Daoud",
+        "label": "36172 Sidi Daoud"
+    },
+    {
+        "value": "MAR;36222 Ain Kansara",
+        "label": "36222 Ain Kansara"
+    },
+    {
+        "value": "MAR;40023 Chouiter",
+        "label": "40023 Chouiter"
+    },
+    {
+        "value": "MAR;40026 Mrabtine",
+        "label": "40026 Mrabtine"
+    },
+    {
+        "value": "MAR;40062 Oued Lahjar",
+        "label": "40062 Oued Lahjar"
+    },
+    {
+        "value": "MAR;40063 Oulad Belaaguid",
+        "label": "40063 Oulad Belaaguid"
+    },
+    {
+        "value": "MAR;40064 Oulad Dlim",
+        "label": "40064 Oulad Dlim"
+    },
+    {
+        "value": "MAR;40065 Tassoultante",
+        "label": "40065 Tassoultante"
+    },
+    {
+        "value": "MAR;40152 Kettara",
+        "label": "40152 Kettara"
+    },
+    {
+        "value": "MAR;40172 Nzalat El Harmel",
+        "label": "40172 Nzalat El Harmel"
+    },
+    {
+        "value": "MAR;40173 Had Mnabha",
+        "label": "40173 Had Mnabha"
+    },
+    {
+        "value": "MAR;40202 Sidi Zouine",
+        "label": "40202 Sidi Zouine"
+    },
+    {
+        "value": "MAR;40253 Tnine Oudaya",
+        "label": "40253 Tnine Oudaya"
+    },
+    {
+        "value": "MAR;40272 Sebt Ait Imour",
+        "label": "40272 Sebt Ait Imour"
+    },
+    {
+        "value": "MAR;40273 Oukaimeden",
+        "label": "40273 Oukaimeden"
+    },
+    {
+        "value": "MAR;40300 Tamensourt",
+        "label": "40300 Tamensourt"
+    },
+    {
+        "value": "MAR;41000 Chichaoua",
+        "label": "41000 Chichaoua"
+    },
+    {
+        "value": "MAR;41022 Mzoudia",
+        "label": "41022 Mzoudia"
+    },
+    {
+        "value": "MAR;41023 Saidate",
+        "label": "41023 Saidate"
+    },
+    {
+        "value": "MAR;41024 Zaouia Nouaceur",
+        "label": "41024 Zaouia Nouaceur"
+    },
+    {
+        "value": "MAR;41025 Ahdil",
+        "label": "41025 Ahdil"
+    },
+    {
+        "value": "MAR;41050 Imintanoute",
+        "label": "41050 Imintanoute"
+    },
+    {
+        "value": "MAR;41072 Asserratou",
+        "label": "41072 Asserratou"
+    },
+    {
+        "value": "MAR;41073 Bouaboute",
+        "label": "41073 Bouaboute"
+    },
+    {
+        "value": "MAR;41074 Lalla Aziza",
+        "label": "41074 Lalla Aziza"
+    },
+    {
+        "value": "MAR;41075 Taouloukout",
+        "label": "41075 Taouloukout"
+    },
+    {
+        "value": "MAR;41076 Timezguadiouine",
+        "label": "41076 Timezguadiouine"
+    },
+    {
+        "value": "MAR;41082 Ouad Lbour",
+        "label": "41082 Ouad Lbour"
+    },
+    {
+        "value": "MAR;41083 Ichamraren",
+        "label": "41083 Ichamraren"
+    },
+    {
+        "value": "MAR;41084 Afalla Issen",
+        "label": "41084 Afalla Issen"
+    },
+    {
+        "value": "MAR;41102 Ait Hadi",
+        "label": "41102 Ait Hadi"
+    },
+    {
+        "value": "MAR;41152 Sidi Mokhtar",
+        "label": "41152 Sidi Mokhtar"
+    },
+    {
+        "value": "MAR;41202 Arbaa Douirane",
+        "label": "41202 Arbaa Douirane"
+    },
+    {
+        "value": "MAR;41222 Boulaouane",
+        "label": "41222 Boulaouane"
+    },
+    {
+        "value": "MAR;41223 Guemassa",
+        "label": "41223 Guemassa"
+    },
+    {
+        "value": "MAR;41224 Had Mjatt",
+        "label": "41224 Had Mjatt"
+    },
+    {
+        "value": "MAR;41225 Sebt Mzouda",
+        "label": "41225 Sebt Mzouda"
+    },
+    {
+        "value": "MAR;41226 Zaouiat Annahlia",
+        "label": "41226 Zaouiat Annahlia"
+    },
+    {
+        "value": "MAR;42050 Ait Ourir",
+        "label": "42050 Ait Ourir"
+    },
+    {
+        "value": "MAR;42051 Had Abadallah Rhiate",
+        "label": "42051 Had Abadallah Rhiate"
+    },
+    {
+        "value": "MAR;42072 Abadou",
+        "label": "42072 Abadou"
+    },
+    {
+        "value": "MAR;42073 Ait Aadel",
+        "label": "42073 Ait Aadel"
+    },
+    {
+        "value": "MAR;42074 Arbaa Tirhedouine",
+        "label": "42074 Arbaa Tirhedouine"
+    },
+    {
+        "value": "MAR;42075 Had Zerkten",
+        "label": "42075 Had Zerkten"
+    },
+    {
+        "value": "MAR;42076 Taddart",
+        "label": "42076 Taddart"
+    },
+    {
+        "value": "MAR;42082 Ait Faska",
+        "label": "42082 Ait Faska"
+    },
+    {
+        "value": "MAR;42083 Ait Sidi Daoud",
+        "label": "42083 Ait Sidi Daoud"
+    },
+    {
+        "value": "MAR;42084 Tazzarte",
+        "label": "42084 Tazzarte"
+    },
+    {
+        "value": "MAR;42085 Tidili Mesfioua",
+        "label": "42085 Tidili Mesfioua"
+    },
+    {
+        "value": "MAR;42086 Touama",
+        "label": "42086 Touama"
+    },
+    {
+        "value": "MAR;42102 Tizguine",
+        "label": "42102 Tizguine"
+    },
+    {
+        "value": "MAR;42103 Amizmiz",
+        "label": "42103 Amizmiz"
+    },
+    {
+        "value": "MAR;42122 Azgour",
+        "label": "42122 Azgour"
+    },
+    {
+        "value": "MAR;42123 Assif El Mal",
+        "label": "42123 Assif El Mal"
+    },
+    {
+        "value": "MAR;42124 Anougal",
+        "label": "42124 Anougal"
+    },
+    {
+        "value": "MAR;42152 Asni",
+        "label": "42152 Asni"
+    },
+    {
+        "value": "MAR;42172 Imgdal",
+        "label": "42172 Imgdal"
+    },
+    {
+        "value": "MAR;42173 Ouirgane",
+        "label": "42173 Ouirgane"
+    },
+    {
+        "value": "MAR;42174 Moulay Brahim",
+        "label": "42174 Moulay Brahim"
+    },
+    {
+        "value": "MAR;42202 Lalla Takarkouste",
+        "label": "42202 Lalla Takarkouste"
+    },
+    {
+        "value": "MAR;42252 Rhmate",
+        "label": "42252 Rhmate"
+    },
+    {
+        "value": "MAR;42272 Tamazouzte",
+        "label": "42272 Tamazouzte"
+    },
+    {
+        "value": "MAR;42302 Tahanaoute",
+        "label": "42302 Tahanaoute"
+    },
+    {
+        "value": "MAR;42312 Tameslouhte",
+        "label": "42312 Tameslouhte"
+    },
+    {
+        "value": "MAR;42353 Tleta Nyacoub",
+        "label": "42353 Tleta Nyacoub"
+    },
+    {
+        "value": "MAR;42402 Igoudar",
+        "label": "42402 Igoudar"
+    },
+    {
+        "value": "MAR;42452 Tnine Ourika",
+        "label": "42452 Tnine Ourika"
+    },
+    {
+        "value": "MAR;42472 Aghbalou",
+        "label": "42472 Aghbalou"
+    },
+    {
+        "value": "MAR;43000 El Kelaa Des Sraghna",
+        "label": "43000 El Kelaa Des Sraghna"
+    },
+    {
+        "value": "MAR;43022 El Hydana",
+        "label": "43022 El Hydana"
+    },
+    {
+        "value": "MAR;43023 Mayate",
+        "label": "43023 Mayate"
+    },
+    {
+        "value": "MAR;43024 Oulad Yacoub",
+        "label": "43024 Oulad Yacoub"
+    },
+    {
+        "value": "MAR;43025 Sebt Ounasdass",
+        "label": "43025 Sebt Ounasdass"
+    },
+    {
+        "value": "MAR;43026 Oulad Zarrad",
+        "label": "43026 Oulad Zarrad"
+    },
+    {
+        "value": "MAR;43052 El Aamria",
+        "label": "43052 El Aamria"
+    },
+    {
+        "value": "MAR;43072 Ain Igli",
+        "label": "43072 Ain Igli"
+    },
+    {
+        "value": "MAR;43073 Chtaiba",
+        "label": "43073 Chtaiba"
+    },
+    {
+        "value": "MAR;43074 Dechra",
+        "label": "43074 Dechra"
+    },
+    {
+        "value": "MAR;43075 Pont Tassaoute",
+        "label": "43075 Pont Tassaoute"
+    },
+    {
+        "value": "MAR;43076 Oulad Aamer",
+        "label": "43076 Oulad Aamer"
+    },
+    {
+        "value": "MAR;43082 Sidi El Hattab",
+        "label": "43082 Sidi El Hattab"
+    },
+    {
+        "value": "MAR;43083 Oulad Msabbel",
+        "label": "43083 Oulad Msabbel"
+    },
+    {
+        "value": "MAR;43100 Laattaouia",
+        "label": "43100 Laattaouia"
+    },
+    {
+        "value": "MAR;43122 Bouya Omar",
+        "label": "43122 Bouya Omar"
+    },
+    {
+        "value": "MAR;43123 Dzouz",
+        "label": "43123 Dzouz"
+    },
+    {
+        "value": "MAR;43124 Had Fraita",
+        "label": "43124 Had Fraita"
+    },
+    {
+        "value": "MAR;43125 Laatmna Srarhna",
+        "label": "43125 Laatmna Srarhna"
+    },
+    {
+        "value": "MAR;43150 Ben Guerir",
+        "label": "43150 Ben Guerir"
+    },
+    {
+        "value": "MAR;43153 Benguerir Base Militaire",
+        "label": "43153 Benguerir Base Militaire"
+    },
+    {
+        "value": "MAR;43154 Tnine Bouchane",
+        "label": "43154 Tnine Bouchane"
+    },
+    {
+        "value": "MAR;43172 Jemaa El Ma Bared",
+        "label": "43172 Jemaa El Ma Bared"
+    },
+    {
+        "value": "MAR;43173 Sebt Brikyine",
+        "label": "43173 Sebt Brikyine"
+    },
+    {
+        "value": "MAR;43174 Oulad Aamer Tizmarine",
+        "label": "43174 Oulad Aamer Tizmarine"
+    },
+    {
+        "value": "MAR;43175 Ait Hammou",
+        "label": "43175 Ait Hammou"
+    },
+    {
+        "value": "MAR;43176 Oulad Hassoune Hamri",
+        "label": "43176 Oulad Hassoune Hamri"
+    },
+    {
+        "value": "MAR;43202 Had Ras El Ain",
+        "label": "43202 Had Ras El Ain"
+    },
+    {
+        "value": "MAR;43222 Akerma",
+        "label": "43222 Akerma"
+    },
+    {
+        "value": "MAR;43223 Jaidate",
+        "label": "43223 Jaidate"
+    },
+    {
+        "value": "MAR;43252 Sahrij",
+        "label": "43252 Sahrij"
+    },
+    {
+        "value": "MAR;43272 Louad Lakhdar",
+        "label": "43272 Louad Lakhdar"
+    },
+    {
+        "value": "MAR;43273 Ouargui",
+        "label": "43273 Ouargui"
+    },
+    {
+        "value": "MAR;43274 Sidi Aissa Ben Slimane",
+        "label": "43274 Sidi Aissa Ben Slimane"
+    },
+    {
+        "value": "MAR;43275 Sidi Driss",
+        "label": "43275 Sidi Driss"
+    },
+    {
+        "value": "MAR;43276 Tleta Mzem",
+        "label": "43276 Tleta Mzem"
+    },
+    {
+        "value": "MAR;43302 Nzalate Laadim",
+        "label": "43302 Nzalate Laadim"
+    },
+    {
+        "value": "MAR;43303 Sidi Bou Othmane",
+        "label": "43303 Sidi Bou Othmane"
+    },
+    {
+        "value": "MAR;43322 Sidi Boubker",
+        "label": "43322 Sidi Boubker"
+    },
+    {
+        "value": "MAR;43323 Tnine Mhara",
+        "label": "43323 Tnine Mhara"
+    },
+    {
+        "value": "MAR;43324 Lamharra",
+        "label": "43324 Lamharra"
+    },
+    {
+        "value": "MAR;43350 Sidi Rahhal",
+        "label": "43350 Sidi Rahhal"
+    },
+    {
+        "value": "MAR;43372 Zemrane",
+        "label": "43372 Zemrane"
+    },
+    {
+        "value": "MAR;43402 Skhour Rehamna",
+        "label": "43402 Skhour Rehamna"
+    },
+    {
+        "value": "MAR;43422 Had Jaafra",
+        "label": "43422 Had Jaafra"
+    },
+    {
+        "value": "MAR;43423 Sidi Abdallah",
+        "label": "43423 Sidi Abdallah"
+    },
+    {
+        "value": "MAR;43424 Sidi Ghanem",
+        "label": "43424 Sidi Ghanem"
+    },
+    {
+        "value": "MAR;43450 Tamallalt",
+        "label": "43450 Tamallalt"
+    },
+    {
+        "value": "MAR;43472 Ejjouala",
+        "label": "43472 Ejjouala"
+    },
+    {
+        "value": "MAR;43473 Jbiel",
+        "label": "43473 Jbiel"
+    },
+    {
+        "value": "MAR;43474 Zemrane Cherqia",
+        "label": "43474 Zemrane Cherqia"
+    },
+    {
+        "value": "MAR;44000 Essaouira",
+        "label": "44000 Essaouira"
+    },
+    {
+        "value": "MAR;44003 Had Draa",
+        "label": "44003 Had Draa"
+    },
+    {
+        "value": "MAR;44004 Zaouia Ben Hmida",
+        "label": "44004 Zaouia Ben Hmida"
+    },
+    {
+        "value": "MAR;44005 Arbaa Ida Ougourd",
+        "label": "44005 Arbaa Ida Ougourd"
+    },
+    {
+        "value": "MAR;44053 Smimou",
+        "label": "44053 Smimou"
+    },
+    {
+        "value": "MAR;44060 Ait Daoud",
+        "label": "44060 Ait Daoud"
+    },
+    {
+        "value": "MAR;44072 Ida Ouazza",
+        "label": "44072 Ida Ouazza"
+    },
+    {
+        "value": "MAR;44073 Sebt Meknafa",
+        "label": "44073 Sebt Meknafa"
+    },
+    {
+        "value": "MAR;44074 Tafedna",
+        "label": "44074 Tafedna"
+    },
+    {
+        "value": "MAR;44075 Tidzi",
+        "label": "44075 Tidzi"
+    },
+    {
+        "value": "MAR;44076 Tnine Imi Ntlit",
+        "label": "44076 Tnine Imi Ntlit"
+    },
+    {
+        "value": "MAR;44082 Sidi Ahmed Essayeh",
+        "label": "44082 Sidi Ahmed Essayeh"
+    },
+    {
+        "value": "MAR;44083 Assais",
+        "label": "44083 Assais"
+    },
+    {
+        "value": "MAR;44102 Taftecht",
+        "label": "44102 Taftecht"
+    },
+    {
+        "value": "MAR;44122 Had Mramer",
+        "label": "44122 Had Mramer"
+    },
+    {
+        "value": "MAR;44123 Lamzilate",
+        "label": "44123 Lamzilate"
+    },
+    {
+        "value": "MAR;44124 Mejji",
+        "label": "44124 Mejji"
+    },
+    {
+        "value": "MAR;44125 Sidi Kaouki",
+        "label": "44125 Sidi Kaouki"
+    },
+    {
+        "value": "MAR;44126 Akermoud",
+        "label": "44126 Akermoud"
+    },
+    {
+        "value": "MAR;44132 Khemis Takate",
+        "label": "44132 Khemis Takate"
+    },
+    {
+        "value": "MAR;44133 Ounagha",
+        "label": "44133 Ounagha"
+    },
+    {
+        "value": "MAR;44134 Sidi Ishaq",
+        "label": "44134 Sidi Ishaq"
+    },
+    {
+        "value": "MAR;44150 Talmest",
+        "label": "44150 Talmest"
+    },
+    {
+        "value": "MAR;44200 Tamanar",
+        "label": "44200 Tamanar"
+    },
+    {
+        "value": "MAR;44222 Arbaa Ida Ou Trouma",
+        "label": "44222 Arbaa Ida Ou Trouma"
+    },
+    {
+        "value": "MAR;44223 Ida Ou Guelloul",
+        "label": "44223 Ida Ou Guelloul"
+    },
+    {
+        "value": "MAR;44224 Sebt Imghade",
+        "label": "44224 Sebt Imghade"
+    },
+    {
+        "value": "MAR;44225 Timzguida Ouftas",
+        "label": "44225 Timzguida Ouftas"
+    },
+    {
+        "value": "MAR;44226 Ida Ou Kazzou",
+        "label": "44226 Ida Ou Kazzou"
+    },
+    {
+        "value": "MAR;44250 Tlata Hanchane",
+        "label": "44250 Tlata Hanchane"
+    },
+    {
+        "value": "MAR;44252 Bizdad",
+        "label": "44252 Bizdad"
+    },
+    {
+        "value": "MAR;44272 Sebt Korimate",
+        "label": "44272 Sebt Korimate"
+    },
+    {
+        "value": "MAR;44273 Ain Zelten",
+        "label": "44273 Ain Zelten"
+    },
+    {
+        "value": "MAR;44274 Khemis Meskala",
+        "label": "44274 Khemis Meskala"
+    },
+    {
+        "value": "MAR;44275 Tnine Ida Ou Zemzem",
+        "label": "44275 Tnine Ida Ou Zemzem"
+    },
+    {
+        "value": "MAR;44276 Mouarid",
+        "label": "44276 Mouarid"
+    },
+    {
+        "value": "MAR;45000 Ouarzazate",
+        "label": "45000 Ouarzazate"
+    },
+    {
+        "value": "MAR;45006 Ouarzazate Tarmigt",
+        "label": "45006 Ouarzazate Tarmigt"
+    },
+    {
+        "value": "MAR;45022 Ghessate",
+        "label": "45022 Ghessate"
+    },
+    {
+        "value": "MAR;45023 Tabourahte",
+        "label": "45023 Tabourahte"
+    },
+    {
+        "value": "MAR;45024 Tiouine",
+        "label": "45024 Tiouine"
+    },
+    {
+        "value": "MAR;45025 Guernane",
+        "label": "45025 Guernane"
+    },
+    {
+        "value": "MAR;45102 Amerzgane",
+        "label": "45102 Amerzgane"
+    },
+    {
+        "value": "MAR;45122 Ait Ben Haddou",
+        "label": "45122 Ait Ben Haddou"
+    },
+    {
+        "value": "MAR;45123 Imini",
+        "label": "45123 Imini"
+    },
+    {
+        "value": "MAR;45124 Tamdakhte",
+        "label": "45124 Tamdakhte"
+    },
+    {
+        "value": "MAR;45150 Boumalne Dades",
+        "label": "45150 Boumalne Dades"
+    },
+    {
+        "value": "MAR;45172 Ait Sedrate Jbel",
+        "label": "45172 Ait Sedrate Jbel"
+    },
+    {
+        "value": "MAR;45173 Ait Youl",
+        "label": "45173 Ait Youl"
+    },
+    {
+        "value": "MAR;45174 Ait Sedrate Jbel El Oulia",
+        "label": "45174 Ait Sedrate Jbel El Oulia"
+    },
+    {
+        "value": "MAR;45200 Kalaat M'Gouna",
+        "label": "45200 Kalaat M'Gouna"
+    },
+    {
+        "value": "MAR;45222 Ait Ridi",
+        "label": "45222 Ait Ridi"
+    },
+    {
+        "value": "MAR;45223 Ait Sedrate Sahl Charkia",
+        "label": "45223 Ait Sedrate Sahl Charkia"
+    },
+    {
+        "value": "MAR;45224 Taberkhachte",
+        "label": "45224 Taberkhachte"
+    },
+    {
+        "value": "MAR;45252 Talouet",
+        "label": "45252 Talouet"
+    },
+    {
+        "value": "MAR;45253 Ighrem Nougdal",
+        "label": "45253 Ighrem Nougdal"
+    },
+    {
+        "value": "MAR;45272 Douar Sour",
+        "label": "45272 Douar Sour"
+    },
+    {
+        "value": "MAR;45273 Anmiter Ounilla",
+        "label": "45273 Anmiter Ounilla"
+    },
+    {
+        "value": "MAR;45302 Ikniouen",
+        "label": "45302 Ikniouen"
+    },
+    {
+        "value": "MAR;45352 Khemis Dades",
+        "label": "45352 Khemis Dades"
+    },
+    {
+        "value": "MAR;45372 Zaouit El Bir",
+        "label": "45372 Zaouit El Bir"
+    },
+    {
+        "value": "MAR;45452 Msemrir",
+        "label": "45452 Msemrir"
+    },
+    {
+        "value": "MAR;45472 Oussikis Ait Azza",
+        "label": "45472 Oussikis Ait Azza"
+    },
+    {
+        "value": "MAR;45473 Tilmi",
+        "label": "45473 Tilmi"
+    },
+    {
+        "value": "MAR;45502 Skoura Ahl Al Oust",
+        "label": "45502 Skoura Ahl Al Oust"
+    },
+    {
+        "value": "MAR;45522 Idelsane",
+        "label": "45522 Idelsane"
+    },
+    {
+        "value": "MAR;45523 Imassine",
+        "label": "45523 Imassine"
+    },
+    {
+        "value": "MAR;45652 Tarhzoute Nait Atta",
+        "label": "45652 Tarhzoute Nait Atta"
+    },
+    {
+        "value": "MAR;45672 Ait El Farsi",
+        "label": "45672 Ait El Farsi"
+    },
+    {
+        "value": "MAR;45750 Taznakht",
+        "label": "45750 Taznakht"
+    },
+    {
+        "value": "MAR;45772 Anzal",
+        "label": "45772 Anzal"
+    },
+    {
+        "value": "MAR;45773 Asdif",
+        "label": "45773 Asdif"
+    },
+    {
+        "value": "MAR;45774 Bouazzer",
+        "label": "45774 Bouazzer"
+    },
+    {
+        "value": "MAR;45775 Khouzama",
+        "label": "45775 Khouzama"
+    },
+    {
+        "value": "MAR;45800 Tinghir",
+        "label": "45800 Tinghir"
+    },
+    {
+        "value": "MAR;45822 Imider",
+        "label": "45822 Imider"
+    },
+    {
+        "value": "MAR;45823 Ouaklim",
+        "label": "45823 Ouaklim"
+    },
+    {
+        "value": "MAR;45824 Toudgha El Oulia",
+        "label": "45824 Toudgha El Oulia"
+    },
+    {
+        "value": "MAR;45825 Toudgha El Soufla",
+        "label": "45825 Toudgha El Soufla"
+    },
+    {
+        "value": "MAR;45852 Toundoute",
+        "label": "45852 Toundoute"
+    },
+    {
+        "value": "MAR;45872 Imi Noulaouen",
+        "label": "45872 Imi Noulaouen"
+    },
+    {
+        "value": "MAR;46006 Had Harara",
+        "label": "46006 Had Harara"
+    },
+    {
+        "value": "MAR;46022 Arbaa Khattazakarne",
+        "label": "46022 Arbaa Khattazakarne"
+    },
+    {
+        "value": "MAR;46023 Beddouza",
+        "label": "46023 Beddouza"
+    },
+    {
+        "value": "MAR;46024 Sidi Tiji",
+        "label": "46024 Sidi Tiji"
+    },
+    {
+        "value": "MAR;46025 Souira Kedima",
+        "label": "46025 Souira Kedima"
+    },
+    {
+        "value": "MAR;46026 Dar Si Aissa",
+        "label": "46026 Dar Si Aissa"
+    },
+    {
+        "value": "MAR;46034 Souk Eyr",
+        "label": "46034 Souk Eyr"
+    },
+    {
+        "value": "MAR;46035 Ouled Selmane",
+        "label": "46035 Ouled Selmane"
+    },
+    {
+        "value": "MAR;46052 Tleta Irhoud",
+        "label": "46052 Tleta Irhoud"
+    },
+    {
+        "value": "MAR;46053 Chemmaia",
+        "label": "46053 Chemmaia"
+    },
+    {
+        "value": "MAR;46072 Atiamim",
+        "label": "46072 Atiamim"
+    },
+    {
+        "value": "MAR;46073 Jdour",
+        "label": "46073 Jdour"
+    },
+    {
+        "value": "MAR;46074 Lakhoualqa",
+        "label": "46074 Lakhoualqa"
+    },
+    {
+        "value": "MAR;46075 Ras El Ain Ahmar",
+        "label": "46075 Ras El Ain Ahmar"
+    },
+    {
+        "value": "MAR;46076 Sidi Chiker",
+        "label": "46076 Sidi Chiker"
+    },
+    {
+        "value": "MAR;46082 Jnane Bouih",
+        "label": "46082 Jnane Bouih"
+    },
+    {
+        "value": "MAR;46100 Jamaat Shaim",
+        "label": "46100 Jamaat Shaim"
+    },
+    {
+        "value": "MAR;46122 Labkhati",
+        "label": "46122 Labkhati"
+    },
+    {
+        "value": "MAR;46123 Moul Bergui",
+        "label": "46123 Moul Bergui"
+    },
+    {
+        "value": "MAR;46124 Tleta Sidi Aissa",
+        "label": "46124 Tleta Sidi Aissa"
+    },
+    {
+        "value": "MAR;46125 Lamsabih",
+        "label": "46125 Lamsabih"
+    },
+    {
+        "value": "MAR;46150 Sebt Gzoula",
+        "label": "46150 Sebt Gzoula"
+    },
+    {
+        "value": "MAR;46172 Atouabet",
+        "label": "46172 Atouabet"
+    },
+    {
+        "value": "MAR;46173 Khemis Nga",
+        "label": "46173 Khemis Nga"
+    },
+    {
+        "value": "MAR;46174 Tnine Rhiate",
+        "label": "46174 Tnine Rhiate"
+    },
+    {
+        "value": "MAR;46175 Lamrasla",
+        "label": "46175 Lamrasla"
+    },
+    {
+        "value": "MAR;46202 Sidi Ahmed",
+        "label": "46202 Sidi Ahmed"
+    },
+    {
+        "value": "MAR;46252 Tleta Sidi Bouguedra",
+        "label": "46252 Tleta Sidi Bouguedra"
+    },
+    {
+        "value": "MAR;46300 Youssoufia",
+        "label": "46300 Youssoufia"
+    },
+    {
+        "value": "MAR;46322 Esbiaat",
+        "label": "46322 Esbiaat"
+    },
+    {
+        "value": "MAR;47050 Agdz",
+        "label": "47050 Agdz"
+    },
+    {
+        "value": "MAR;47072 Ait Saoun",
+        "label": "47072 Ait Saoun"
+    },
+    {
+        "value": "MAR;47073 Tamezmoute",
+        "label": "47073 Tamezmoute"
+    },
+    {
+        "value": "MAR;47074 Tanssifte",
+        "label": "47074 Tanssifte"
+    },
+    {
+        "value": "MAR;47075 Zaouia Kadiria",
+        "label": "47075 Zaouia Kadiria"
+    },
+    {
+        "value": "MAR;47076 Afra",
+        "label": "47076 Afra"
+    },
+    {
+        "value": "MAR;47402 Mhamid",
+        "label": "47402 Mhamid"
+    },
+    {
+        "value": "MAR;47422 Oulad Driss El Ghouzlane",
+        "label": "47422 Oulad Driss El Ghouzlane"
+    },
+    {
+        "value": "MAR;47552 Tagounite",
+        "label": "47552 Tagounite"
+    },
+    {
+        "value": "MAR;47572 El Blida",
+        "label": "47572 El Blida"
+    },
+    {
+        "value": "MAR;47573 Nesrate",
+        "label": "47573 Nesrate"
+    },
+    {
+        "value": "MAR;47574 Zaouit Sidi Salah",
+        "label": "47574 Zaouit Sidi Salah"
+    },
+    {
+        "value": "MAR;47602 Tamegroute",
+        "label": "47602 Tamegroute"
+    },
+    {
+        "value": "MAR;47622 Fezouata",
+        "label": "47622 Fezouata"
+    },
+    {
+        "value": "MAR;47702 Nkob",
+        "label": "47702 Nkob"
+    },
+    {
+        "value": "MAR;47703 Tazzarine",
+        "label": "47703 Tazzarine"
+    },
+    {
+        "value": "MAR;47722 Tarhbalte",
+        "label": "47722 Tarhbalte"
+    },
+    {
+        "value": "MAR;47723 Ait Ouallal",
+        "label": "47723 Ait Ouallal"
+    },
+    {
+        "value": "MAR;47724 Taftechna",
+        "label": "47724 Taftechna"
+    },
+    {
+        "value": "MAR;47725 Douar Site",
+        "label": "47725 Douar Site"
+    },
+    {
+        "value": "MAR;47900 Zagora",
+        "label": "47900 Zagora"
+    },
+    {
+        "value": "MAR;47922 Bni Zoli",
+        "label": "47922 Bni Zoli"
+    },
+    {
+        "value": "MAR;47923 Ternata",
+        "label": "47923 Ternata"
+    },
+    {
+        "value": "MAR;47924 Tinzouline",
+        "label": "47924 Tinzouline"
+    },
+    {
+        "value": "MAR;47925 Bouzeroual",
+        "label": "47925 Bouzeroual"
+    },
+    {
+        "value": "MAR;47926 Bleida",
+        "label": "47926 Bleida"
+    },
+    {
+        "value": "MAR;50022 Ain El Orma",
+        "label": "50022 Ain El Orma"
+    },
+    {
+        "value": "MAR;50023 Ain Kerma",
+        "label": "50023 Ain Kerma"
+    },
+    {
+        "value": "MAR;50024 Ait Aissa Addi",
+        "label": "50024 Ait Aissa Addi"
+    },
+    {
+        "value": "MAR;50025 Oued Rommane",
+        "label": "50025 Oued Rommane"
+    },
+    {
+        "value": "MAR;50026 Ait Rahhou Mjatt",
+        "label": "50026 Ait Rahhou Mjatt"
+    },
+    {
+        "value": "MAR;50044 Zoualet",
+        "label": "50044 Zoualet"
+    },
+    {
+        "value": "MAR;50046 Bridia",
+        "label": "50046 Bridia"
+    },
+    {
+        "value": "MAR;50052 Ain Jemaa",
+        "label": "50052 Ain Jemaa"
+    },
+    {
+        "value": "MAR;50102 El Hadj Kaddour",
+        "label": "50102 El Hadj Kaddour"
+    },
+    {
+        "value": "MAR;50110 Toulal",
+        "label": "50110 Toulal"
+    },
+    {
+        "value": "MAR;50122 Sidi Slimane Mjatt",
+        "label": "50122 Sidi Slimane Mjatt"
+    },
+    {
+        "value": "MAR;50152 Tnine Mhaya",
+        "label": "50152 Tnine Mhaya"
+    },
+    {
+        "value": "MAR;50300 Boufakrane",
+        "label": "50300 Boufakrane"
+    },
+    {
+        "value": "MAR;50352 Nzalate Bni Ammar",
+        "label": "50352 Nzalate Bni Ammar"
+    },
+    {
+        "value": "MAR;50372 Beni Ammar",
+        "label": "50372 Beni Ammar"
+    },
+    {
+        "value": "MAR;50373 Kermat Ben Salem",
+        "label": "50373 Kermat Ben Salem"
+    },
+    {
+        "value": "MAR;50374 Moussaoua",
+        "label": "50374 Moussaoua"
+    },
+    {
+        "value": "MAR;50375 Mrhassiyne",
+        "label": "50375 Mrhassiyne"
+    },
+    {
+        "value": "MAR;50376 Sidi Ali Benhamdouche",
+        "label": "50376 Sidi Ali Benhamdouche"
+    },
+    {
+        "value": "MAR;50382 Volubilis",
+        "label": "50382 Volubilis"
+    },
+    {
+        "value": "MAR;50383 Hafrat Ben Taybi",
+        "label": "50383 Hafrat Ben Taybi"
+    },
+    {
+        "value": "MAR;51000 El Hajeb",
+        "label": "51000 El Hajeb"
+    },
+    {
+        "value": "MAR;51025 Ait Yaazem",
+        "label": "51025 Ait Yaazem"
+    },
+    {
+        "value": "MAR;51026 Bouderbala",
+        "label": "51026 Bouderbala"
+    },
+    {
+        "value": "MAR;51032 Ras Jerri",
+        "label": "51032 Ras Jerri"
+    },
+    {
+        "value": "MAR;51050 Agourai",
+        "label": "51050 Agourai"
+    },
+    {
+        "value": "MAR;51052 Sebt Jehjouh",
+        "label": "51052 Sebt Jehjouh"
+    },
+    {
+        "value": "MAR;51100 Ain Taoujdate",
+        "label": "51100 Ain Taoujdate"
+    },
+    {
+        "value": "MAR;51123 Bittit",
+        "label": "51123 Bittit"
+    },
+    {
+        "value": "MAR;51124 Laqsir",
+        "label": "51124 Laqsir"
+    },
+    {
+        "value": "MAR;51150 Sabaa Aiyoun",
+        "label": "51150 Sabaa Aiyoun"
+    },
+    {
+        "value": "MAR;51172 Oued Al Jadidah",
+        "label": "51172 Oued Al Jadidah"
+    },
+    {
+        "value": "MAR;52000 Errachidia",
+        "label": "52000 Errachidia"
+    },
+    {
+        "value": "MAR;52002 Asrir Oued Ferkla",
+        "label": "52002 Asrir Oued Ferkla"
+    },
+    {
+        "value": "MAR;52022 Ait Othman",
+        "label": "52022 Ait Othman"
+    },
+    {
+        "value": "MAR;52023 Chorfa Mdarhra",
+        "label": "52023 Chorfa Mdarhra"
+    },
+    {
+        "value": "MAR;52024 Kheng",
+        "label": "52024 Kheng"
+    },
+    {
+        "value": "MAR;52025 Meski",
+        "label": "52025 Meski"
+    },
+    {
+        "value": "MAR;52052 Zrigate",
+        "label": "52052 Zrigate"
+    },
+    {
+        "value": "MAR;52053 Aoufous",
+        "label": "52053 Aoufous"
+    },
+    {
+        "value": "MAR;52072 Douira",
+        "label": "52072 Douira"
+    },
+    {
+        "value": "MAR;52073 Oulad Chaker",
+        "label": "52073 Oulad Chaker"
+    },
+    {
+        "value": "MAR;52102 Assoul",
+        "label": "52102 Assoul"
+    },
+    {
+        "value": "MAR;52122 Ait Hani",
+        "label": "52122 Ait Hani"
+    },
+    {
+        "value": "MAR;52150 Boudnib",
+        "label": "52150 Boudnib"
+    },
+    {
+        "value": "MAR;52172 Ksar Sahli",
+        "label": "52172 Ksar Sahli"
+    },
+    {
+        "value": "MAR;52173 Tazougarte",
+        "label": "52173 Tazougarte"
+    },
+    {
+        "value": "MAR;52200 Arfoud",
+        "label": "52200 Arfoud"
+    },
+    {
+        "value": "MAR;52202 Merzouga",
+        "label": "52202 Merzouga"
+    },
+    {
+        "value": "MAR;52222 Mfiss",
+        "label": "52222 Mfiss"
+    },
+    {
+        "value": "MAR;52223 Sifa Arab Sebbah Ziz",
+        "label": "52223 Sifa Arab Sebbah Ziz"
+    },
+    {
+        "value": "MAR;52224 Taouz",
+        "label": "52224 Taouz"
+    },
+    {
+        "value": "MAR;52225 Hannabou",
+        "label": "52225 Hannabou"
+    },
+    {
+        "value": "MAR;52250 Goulmima",
+        "label": "52250 Goulmima"
+    },
+    {
+        "value": "MAR;52252 Tilouine",
+        "label": "52252 Tilouine"
+    },
+    {
+        "value": "MAR;52272 Amelago",
+        "label": "52272 Amelago"
+    },
+    {
+        "value": "MAR;52273 Tamhrach Rheriss",
+        "label": "52273 Tamhrach Rheriss"
+    },
+    {
+        "value": "MAR;52302 Gourrama",
+        "label": "52302 Gourrama"
+    },
+    {
+        "value": "MAR;52350 Jorf",
+        "label": "52350 Jorf"
+    },
+    {
+        "value": "MAR;52372 Fazna",
+        "label": "52372 Fazna"
+    },
+    {
+        "value": "MAR;52400 Er-Rich",
+        "label": "52400 Er-Rich"
+    },
+    {
+        "value": "MAR;52402 Guers Tiallaline",
+        "label": "52402 Guers Tiallaline"
+    },
+    {
+        "value": "MAR;52403 Imilchil",
+        "label": "52403 Imilchil"
+    },
+    {
+        "value": "MAR;52422 Amouguer",
+        "label": "52422 Amouguer"
+    },
+    {
+        "value": "MAR;52423 Mzizil Tillechte",
+        "label": "52423 Mzizil Tillechte"
+    },
+    {
+        "value": "MAR;52424 Nzala Ait Izdeg",
+        "label": "52424 Nzala Ait Izdeg"
+    },
+    {
+        "value": "MAR;52425 Zaouia Sidi Hamza",
+        "label": "52425 Zaouia Sidi Hamza"
+    },
+    {
+        "value": "MAR;52426 Agdal Imilchil",
+        "label": "52426 Agdal Imilchil"
+    },
+    {
+        "value": "MAR;52432 Outerbat",
+        "label": "52432 Outerbat"
+    },
+    {
+        "value": "MAR;52433 Bou Azmou",
+        "label": "52433 Bou Azmou"
+    },
+    {
+        "value": "MAR;52434 Sidi Aayad",
+        "label": "52434 Sidi Aayad"
+    },
+    {
+        "value": "MAR;52450 Rissani",
+        "label": "52450 Rissani"
+    },
+    {
+        "value": "MAR;52452 Alnif",
+        "label": "52452 Alnif"
+    },
+    {
+        "value": "MAR;52453 Seffalate",
+        "label": "52453 Seffalate"
+    },
+    {
+        "value": "MAR;52472 Bni Mhammed",
+        "label": "52472 Bni Mhammed"
+    },
+    {
+        "value": "MAR;52473 Hssyia",
+        "label": "52473 Hssyia"
+    },
+    {
+        "value": "MAR;52474 Mssici",
+        "label": "52474 Mssici"
+    },
+    {
+        "value": "MAR;52475 Sidi Ali Tafraout",
+        "label": "52475 Sidi Ali Tafraout"
+    },
+    {
+        "value": "MAR;52476 Jbiyel",
+        "label": "52476 Jbiyel"
+    },
+    {
+        "value": "MAR;52482 Achbarou",
+        "label": "52482 Achbarou"
+    },
+    {
+        "value": "MAR;52502 Tadirhoust",
+        "label": "52502 Tadirhoust"
+    },
+    {
+        "value": "MAR;52522 Timezguite",
+        "label": "52522 Timezguite"
+    },
+    {
+        "value": "MAR;52600 Tinejdad",
+        "label": "52600 Tinejdad"
+    },
+    {
+        "value": "MAR;52602 Mellab",
+        "label": "52602 Mellab"
+    },
+    {
+        "value": "MAR;52622 Arhbalou Nkerdouss",
+        "label": "52622 Arhbalou Nkerdouss"
+    },
+    {
+        "value": "MAR;52623 Touroug",
+        "label": "52623 Touroug"
+    },
+    {
+        "value": "MAR;53000 Ifrane",
+        "label": "53000 Ifrane"
+    },
+    {
+        "value": "MAR;53022 Ait Hamad Ribaa",
+        "label": "53022 Ait Hamad Ribaa"
+    },
+    {
+        "value": "MAR;53023 Dayat Aoua",
+        "label": "53023 Dayat Aoua"
+    },
+    {
+        "value": "MAR;53024 Zaouia Ait Sidi Abdesslam",
+        "label": "53024 Zaouia Ait Sidi Abdesslam"
+    },
+    {
+        "value": "MAR;53052 Ain Leuh",
+        "label": "53052 Ain Leuh"
+    },
+    {
+        "value": "MAR;53100 Azrou",
+        "label": "53100 Azrou"
+    },
+    {
+        "value": "MAR;53102 Sidi Addi",
+        "label": "53102 Sidi Addi"
+    },
+    {
+        "value": "MAR;53103 Souk El Had Oued Ifrane",
+        "label": "53103 Souk El Had Oued Ifrane"
+    },
+    {
+        "value": "MAR;53104 Timahdite",
+        "label": "53104 Timahdite"
+    },
+    {
+        "value": "MAR;53122 Ait Yahia Ou Alla",
+        "label": "53122 Ait Yahia Ou Alla"
+    },
+    {
+        "value": "MAR;53123 Ben Smim",
+        "label": "53123 Ben Smim"
+    },
+    {
+        "value": "MAR;53124 Ougmas",
+        "label": "53124 Ougmas"
+    },
+    {
+        "value": "MAR;54002 Kaf Nsour",
+        "label": "54002 Kaf Nsour"
+    },
+    {
+        "value": "MAR;54003 Tighessaline",
+        "label": "54003 Tighessaline"
+    },
+    {
+        "value": "MAR;54022 El Hri",
+        "label": "54022 El Hri"
+    },
+    {
+        "value": "MAR;54023 Sidi Bouabbed",
+        "label": "54023 Sidi Bouabbed"
+    },
+    {
+        "value": "MAR;54052 Aguelmouss",
+        "label": "54052 Aguelmouss"
+    },
+    {
+        "value": "MAR;54102 Ouaoumana",
+        "label": "54102 Ouaoumana"
+    },
+    {
+        "value": "MAR;54103 Ait Ishak",
+        "label": "54103 Ait Ishak"
+    },
+    {
+        "value": "MAR;54152 Aghbalou Nserdane",
+        "label": "54152 Aghbalou Nserdane"
+    },
+    {
+        "value": "MAR;54153 Ain Aicha Ait Saadelli",
+        "label": "54153 Ain Aicha Ait Saadelli"
+    },
+    {
+        "value": "MAR;54154 Boumia",
+        "label": "54154 Boumia"
+    },
+    {
+        "value": "MAR;54202 Sidi Yahya Ou Saad",
+        "label": "54202 Sidi Yahya Ou Saad"
+    },
+    {
+        "value": "MAR;54203 El Kebab",
+        "label": "54203 El Kebab"
+    },
+    {
+        "value": "MAR;54222 Ait Hnini",
+        "label": "54222 Ait Hnini"
+    },
+    {
+        "value": "MAR;54252 Itzer",
+        "label": "54252 Itzer"
+    },
+    {
+        "value": "MAR;54272 Ait Oufella",
+        "label": "54272 Ait Oufella"
+    },
+    {
+        "value": "MAR;54273 Tamayouste",
+        "label": "54273 Tamayouste"
+    },
+    {
+        "value": "MAR;54302 Kerrouchen",
+        "label": "54302 Kerrouchen"
+    },
+    {
+        "value": "MAR;54350 Midelt",
+        "label": "54350 Midelt"
+    },
+    {
+        "value": "MAR;54352 Bouayache",
+        "label": "54352 Bouayache"
+    },
+    {
+        "value": "MAR;54372 Ait Oumghar",
+        "label": "54372 Ait Oumghar"
+    },
+    {
+        "value": "MAR;54373 Mibladen",
+        "label": "54373 Mibladen"
+    },
+    {
+        "value": "MAR;54374 Taakit",
+        "label": "54374 Taakit"
+    },
+    {
+        "value": "MAR;54375 Zaida",
+        "label": "54375 Zaida"
+    },
+    {
+        "value": "MAR;54376 Taghzoute Chorafa",
+        "label": "54376 Taghzoute Chorafa"
+    },
+    {
+        "value": "MAR;54402 Souk Had Bouhsoussen",
+        "label": "54402 Souk Had Bouhsoussen"
+    },
+    {
+        "value": "MAR;54403 Moulay Bouazza",
+        "label": "54403 Moulay Bouazza"
+    },
+    {
+        "value": "MAR;54423 Souk Sebt Ait Rahou",
+        "label": "54423 Souk Sebt Ait Rahou"
+    },
+    {
+        "value": "MAR;54424 Souk Tnine Ait Boukhayyou",
+        "label": "54424 Souk Tnine Ait Boukhayyou"
+    },
+    {
+        "value": "MAR;54425 Sidi Mhamed Ben Mbarek",
+        "label": "54425 Sidi Mhamed Ben Mbarek"
+    },
+    {
+        "value": "MAR;54450 M'Rirt",
+        "label": "54450 M'Rirt"
+    },
+    {
+        "value": "MAR;54452 El Hammam",
+        "label": "54452 El Hammam"
+    },
+    {
+        "value": "MAR;54472 Jbel Aouama",
+        "label": "54472 Jbel Aouama"
+    },
+    {
+        "value": "MAR;54473 Oum Rabia",
+        "label": "54473 Oum Rabia"
+    },
+    {
+        "value": "MAR;54502 Tounfite",
+        "label": "54502 Tounfite"
+    },
+    {
+        "value": "MAR;54522 Agoudim",
+        "label": "54522 Agoudim"
+    },
+    {
+        "value": "MAR;54523 Sidi Yahia O Youssef",
+        "label": "54523 Sidi Yahia O Youssef"
+    },
+    {
+        "value": "MAR;54524 Anemzi",
+        "label": "54524 Anemzi"
+    },
+    {
+        "value": "MAR;60005 Ain Es Sfa",
+        "label": "60005 Ain Es Sfa"
+    },
+    {
+        "value": "MAR;60006 El Bessara",
+        "label": "60006 El Bessara"
+    },
+    {
+        "value": "MAR;60023 Aereport Oujda Angad",
+        "label": "60023 Aereport Oujda Angad"
+    },
+    {
+        "value": "MAR;60024 Zoudj Bghal",
+        "label": "60024 Zoudj Bghal"
+    },
+    {
+        "value": "MAR;60025 Mesteferki",
+        "label": "60025 Mesteferki"
+    },
+    {
+        "value": "MAR;60032 Oujda Bni Oukil",
+        "label": "60032 Oujda Bni Oukil"
+    },
+    {
+        "value": "MAR;60070 Naima",
+        "label": "60070 Naima"
+    },
+    {
+        "value": "MAR;60350 Bni Drar",
+        "label": "60350 Bni Drar"
+    },
+    {
+        "value": "MAR;61000 Figuig",
+        "label": "61000 Figuig"
+    },
+    {
+        "value": "MAR;61052 Ain Chouater",
+        "label": "61052 Ain Chouater"
+    },
+    {
+        "value": "MAR;61102 Beni Tajjite",
+        "label": "61102 Beni Tajjite"
+    },
+    {
+        "value": "MAR;61122 Ait Ahmad Ou Haddou",
+        "label": "61122 Ait Ahmad Ou Haddou"
+    },
+    {
+        "value": "MAR;61152 Bouanane",
+        "label": "61152 Bouanane"
+    },
+    {
+        "value": "MAR;61200 Bouarfa",
+        "label": "61200 Bouarfa"
+    },
+    {
+        "value": "MAR;61222 Ain Echchair",
+        "label": "61222 Ain Echchair"
+    },
+    {
+        "value": "MAR;61223 Mengoub",
+        "label": "61223 Mengoub"
+    },
+    {
+        "value": "MAR;61252 Talsinnt",
+        "label": "61252 Talsinnt"
+    },
+    {
+        "value": "MAR;61272 Anoual Bouchaouen",
+        "label": "61272 Anoual Bouchaouen"
+    },
+    {
+        "value": "MAR;61273 Boumeriem",
+        "label": "61273 Boumeriem"
+    },
+    {
+        "value": "MAR;61302 Tendrara",
+        "label": "61302 Tendrara"
+    },
+    {
+        "value": "MAR;62022 Aazanen",
+        "label": "62022 Aazanen"
+    },
+    {
+        "value": "MAR;62023 Bouarg",
+        "label": "62023 Bouarg"
+    },
+    {
+        "value": "MAR;62024 Farkhana",
+        "label": "62024 Farkhana"
+    },
+    {
+        "value": "MAR;62025 Mechra Klila",
+        "label": "62025 Mechra Klila"
+    },
+    {
+        "value": "MAR;62026 Taouima",
+        "label": "62026 Taouima"
+    },
+    {
+        "value": "MAR;62050 Bni Ansar",
+        "label": "62050 Bni Ansar"
+    },
+    {
+        "value": "MAR;62102 Ben Tib",
+        "label": "62102 Ben Tib"
+    },
+    {
+        "value": "MAR;62122 Tizirhine",
+        "label": "62122 Tizirhine"
+    },
+    {
+        "value": "MAR;62123 Talilit",
+        "label": "62123 Talilit"
+    },
+    {
+        "value": "MAR;62152 Boudinar",
+        "label": "62152 Boudinar"
+    },
+    {
+        "value": "MAR;62172 Oulad Amghar",
+        "label": "62172 Oulad Amghar"
+    },
+    {
+        "value": "MAR;62202 Dar Kebdani",
+        "label": "62202 Dar Kebdani"
+    },
+    {
+        "value": "MAR;62252 Ain Zorah",
+        "label": "62252 Ain Zorah"
+    },
+    {
+        "value": "MAR;62253 Driouch",
+        "label": "62253 Driouch"
+    },
+    {
+        "value": "MAR;62272 Oulad Boubker",
+        "label": "62272 Oulad Boubker"
+    },
+    {
+        "value": "MAR;62302 Had Bni Chiker",
+        "label": "62302 Had Bni Chiker"
+    },
+    {
+        "value": "MAR;62352 Kariat Arkmane",
+        "label": "62352 Kariat Arkmane"
+    },
+    {
+        "value": "MAR;62402 Khemis Temsamane",
+        "label": "62402 Khemis Temsamane"
+    },
+    {
+        "value": "MAR;62422 Ajermounas",
+        "label": "62422 Ajermounas"
+    },
+    {
+        "value": "MAR;62452 Mhajer",
+        "label": "62452 Mhajer"
+    },
+    {
+        "value": "MAR;62502 Midar",
+        "label": "62502 Midar"
+    },
+    {
+        "value": "MAR;62522 Kaceta",
+        "label": "62522 Kaceta"
+    },
+    {
+        "value": "MAR;62523 Tleta Tazlaft",
+        "label": "62523 Tleta Tazlaft"
+    },
+    {
+        "value": "MAR;62550 Al Aaroui",
+        "label": "62550 Al Aaroui"
+    },
+    {
+        "value": "MAR;62602 Ras El Ma",
+        "label": "62602 Ras El Ma"
+    },
+    {
+        "value": "MAR;62650 Zeghanghane",
+        "label": "62650 Zeghanghane"
+    },
+    {
+        "value": "MAR;62672 Beni Bou Ifrour",
+        "label": "62672 Beni Bou Ifrour"
+    },
+    {
+        "value": "MAR;62673 Ihaddadene",
+        "label": "62673 Ihaddadene"
+    },
+    {
+        "value": "MAR;62702 Selouane",
+        "label": "62702 Selouane"
+    },
+    {
+        "value": "MAR;62752 Tafersite",
+        "label": "62752 Tafersite"
+    },
+    {
+        "value": "MAR;62802 Tiztoutine",
+        "label": "62802 Tiztoutine"
+    },
+    {
+        "value": "MAR;62822 Afsou",
+        "label": "62822 Afsou"
+    },
+    {
+        "value": "MAR;62852 Tleta Jbel",
+        "label": "62852 Tleta Jbel"
+    },
+    {
+        "value": "MAR;62872 Bni Sidel Louta",
+        "label": "62872 Bni Sidel Louta"
+    },
+    {
+        "value": "MAR;62900 Zaio",
+        "label": "62900 Zaio"
+    },
+    {
+        "value": "MAR;62902 Hassi Berkane",
+        "label": "62902 Hassi Berkane"
+    },
+    {
+        "value": "MAR;62922 Oulad Daoud Zkhanine",
+        "label": "62922 Oulad Daoud Zkhanine"
+    },
+    {
+        "value": "MAR;63050 Ahfir",
+        "label": "63050 Ahfir"
+    },
+    {
+        "value": "MAR;63072 Arhbal",
+        "label": "63072 Arhbal"
+    },
+    {
+        "value": "MAR;63200 Ain Erreggada",
+        "label": "63200 Ain Erreggada"
+    },
+    {
+        "value": "MAR;63250 Aklim",
+        "label": "63250 Aklim"
+    },
+    {
+        "value": "MAR;63303 Madagh",
+        "label": "63303 Madagh"
+    },
+    {
+        "value": "MAR;63322 Zayest",
+        "label": "63322 Zayest"
+    },
+    {
+        "value": "MAR;63323 Zegzel",
+        "label": "63323 Zegzel"
+    },
+    {
+        "value": "MAR;63324 Laatmna",
+        "label": "63324 Laatmna"
+    },
+    {
+        "value": "MAR;63600 Saidia",
+        "label": "63600 Saidia"
+    },
+    {
+        "value": "MAR;63652 Sidi Bouhouria",
+        "label": "63652 Sidi Bouhouria"
+    },
+    {
+        "value": "MAR;63672 Rislane",
+        "label": "63672 Rislane"
+    },
+    {
+        "value": "MAR;63752 Taforhalt",
+        "label": "63752 Taforhalt"
+    },
+    {
+        "value": "MAR;64022 Oued El Heimer",
+        "label": "64022 Oued El Heimer"
+    },
+    {
+        "value": "MAR;64100 Ain Bni Mathar",
+        "label": "64100 Ain Bni Mathar"
+    },
+    {
+        "value": "MAR;64122 Merija",
+        "label": "64122 Merija"
+    },
+    {
+        "value": "MAR;64123 Ouled Ghziyel",
+        "label": "64123 Ouled Ghziyel"
+    },
+    {
+        "value": "MAR;64152 Ain El Guenfouda",
+        "label": "64152 Ain El Guenfouda"
+    },
+    {
+        "value": "MAR;64500 Hassi Blal",
+        "label": "64500 Hassi Blal"
+    },
+    {
+        "value": "MAR;64550 Jerada",
+        "label": "64550 Jerada"
+    },
+    {
+        "value": "MAR;64572 El Aouinet",
+        "label": "64572 El Aouinet"
+    },
+    {
+        "value": "MAR;64573 Guefait",
+        "label": "64573 Guefait"
+    },
+    {
+        "value": "MAR;64850 Touissit",
+        "label": "64850 Touissit"
+    },
+    {
+        "value": "MAR;64872 Tiouli",
+        "label": "64872 Tiouli"
+    },
+    {
+        "value": "MAR;64902 Zellidja Boubker",
+        "label": "64902 Zellidja Boubker"
+    },
+    {
+        "value": "MAR;65400 Debdou",
+        "label": "65400 Debdou"
+    },
+    {
+        "value": "MAR;65450 El Aioune",
+        "label": "65450 El Aioune"
+    },
+    {
+        "value": "MAR;65472 Mechra Hoummadi",
+        "label": "65472 Mechra Hoummadi"
+    },
+    {
+        "value": "MAR;65473 Mestigmer",
+        "label": "65473 Mestigmer"
+    },
+    {
+        "value": "MAR;65474 Tancherfi",
+        "label": "65474 Tancherfi"
+    },
+    {
+        "value": "MAR;65800 Taourirt",
+        "label": "65800 Taourirt"
+    },
+    {
+        "value": "MAR;65822 Sidi Lahcen",
+        "label": "65822 Sidi Lahcen"
+    },
+    {
+        "value": "MAR;65823 Melg El Ouidane",
+        "label": "65823 Melg El Ouidane"
+    },
+    {
+        "value": "MAR;70022 Foum El Oued",
+        "label": "70022 Foum El Oued"
+    },
+    {
+        "value": "MAR;70023 Dcheira Tafoudart",
+        "label": "70023 Dcheira Tafoudart"
+    },
+    {
+        "value": "MAR;70050 Tarfaya",
+        "label": "70050 Tarfaya"
+    },
+    {
+        "value": "MAR;70072 Daoura",
+        "label": "70072 Daoura"
+    },
+    {
+        "value": "MAR;70073 Akhfennir",
+        "label": "70073 Akhfennir"
+    },
+    {
+        "value": "MAR;71000 Boujdour",
+        "label": "71000 Boujdour"
+    },
+    {
+        "value": "MAR;72000 Es-Semara",
+        "label": "72000 Es-Semara"
+    },
+    {
+        "value": "MAR;73000 Dakhla",
+        "label": "73000 Dakhla"
+    },
+    {
+        "value": "MAR;74002 Aousserd",
+        "label": "74002 Aousserd"
+    },
+    {
+        "value": "MAR;80022 Taghazoute",
+        "label": "80022 Taghazoute"
+    },
+    {
+        "value": "MAR;80023 Tamraght",
+        "label": "80023 Tamraght"
+    },
+    {
+        "value": "MAR;80302 Amskroud",
+        "label": "80302 Amskroud"
+    },
+    {
+        "value": "MAR;80303 Imouzzer Ida Ou Tanane",
+        "label": "80303 Imouzzer Ida Ou Tanane"
+    },
+    {
+        "value": "MAR;80322 Aksri",
+        "label": "80322 Aksri"
+    },
+    {
+        "value": "MAR;80323 Idmine",
+        "label": "80323 Idmine"
+    },
+    {
+        "value": "MAR;80324 Tiqqi",
+        "label": "80324 Tiqqi"
+    },
+    {
+        "value": "MAR;80325 Aziar",
+        "label": "80325 Aziar"
+    },
+    {
+        "value": "MAR;80326 Tadrart",
+        "label": "80326 Tadrart"
+    },
+    {
+        "value": "MAR;80502 Tamri",
+        "label": "80502 Tamri"
+    },
+    {
+        "value": "MAR;80522 Sebt Assaka",
+        "label": "80522 Sebt Assaka"
+    },
+    {
+        "value": "MAR;80750 Aourir",
+        "label": "80750 Aourir"
+    },
+    {
+        "value": "MAR;81000 Guelmim",
+        "label": "81000 Guelmim"
+    },
+    {
+        "value": "MAR;81003 Fask",
+        "label": "81003 Fask"
+    },
+    {
+        "value": "MAR;81005 Ksabi Ait Lahcen",
+        "label": "81005 Ksabi Ait Lahcen"
+    },
+    {
+        "value": "MAR;81006 Zag",
+        "label": "81006 Zag"
+    },
+    {
+        "value": "MAR;81010 Assa",
+        "label": "81010 Assa"
+    },
+    {
+        "value": "MAR;81022 Aouinate Ait Oussa",
+        "label": "81022 Aouinate Ait Oussa"
+    },
+    {
+        "value": "MAR;81023 Aouinate Tourkoz",
+        "label": "81023 Aouinate Tourkoz"
+    },
+    {
+        "value": "MAR;81024 Abainou",
+        "label": "81024 Abainou"
+    },
+    {
+        "value": "MAR;81025 Afereket Ait Yassine",
+        "label": "81025 Afereket Ait Yassine"
+    },
+    {
+        "value": "MAR;81026 Asrir Azouafit",
+        "label": "81026 Asrir Azouafit"
+    },
+    {
+        "value": "MAR;81032 Targa Wassay",
+        "label": "81032 Targa Wassay"
+    },
+    {
+        "value": "MAR;81033 Imi Nfast",
+        "label": "81033 Imi Nfast"
+    },
+    {
+        "value": "MAR;81034 Rass Oumlil",
+        "label": "81034 Rass Oumlil"
+    },
+    {
+        "value": "MAR;81035 Labouirat",
+        "label": "81035 Labouirat"
+    },
+    {
+        "value": "MAR;81036 Al Mahbass",
+        "label": "81036 Al Mahbass"
+    },
+    {
+        "value": "MAR;81042 Labiar",
+        "label": "81042 Labiar"
+    },
+    {
+        "value": "MAR;81043 Tilouine Assaka",
+        "label": "81043 Tilouine Assaka"
+    },
+    {
+        "value": "MAR;81044 Tighmert Azouafit",
+        "label": "81044 Tighmert Azouafit"
+    },
+    {
+        "value": "MAR;81050 Bouizakarne",
+        "label": "81050 Bouizakarne"
+    },
+    {
+        "value": "MAR;81052 Tagante",
+        "label": "81052 Tagante"
+    },
+    {
+        "value": "MAR;81053 Timoulay",
+        "label": "81053 Timoulay"
+    },
+    {
+        "value": "MAR;81072 Ait Boufoulne",
+        "label": "81072 Ait Boufoulne"
+    },
+    {
+        "value": "MAR;81102 Ifrane Atlas Seghir",
+        "label": "81102 Ifrane Atlas Seghir"
+    },
+    {
+        "value": "MAR;81122 Amsra",
+        "label": "81122 Amsra"
+    },
+    {
+        "value": "MAR;81123 Tankert",
+        "label": "81123 Tankert"
+    },
+    {
+        "value": "MAR;81152 Tarhjijt",
+        "label": "81152 Tarhjijt"
+    },
+    {
+        "value": "MAR;81172 Tnine Adai",
+        "label": "81172 Tnine Adai"
+    },
+    {
+        "value": "MAR;82000 Tan Tan",
+        "label": "82000 Tan Tan"
+    },
+    {
+        "value": "MAR;82010 El Ouatia",
+        "label": "82010 El Ouatia"
+    },
+    {
+        "value": "MAR;82022 Abteh",
+        "label": "82022 Abteh"
+    },
+    {
+        "value": "MAR;82023 M'Sied",
+        "label": "82023 M'Sied"
+    },
+    {
+        "value": "MAR;83000 Taroudannt",
+        "label": "83000 Taroudannt"
+    },
+    {
+        "value": "MAR;83022 Ahmar",
+        "label": "83022 Ahmar"
+    },
+    {
+        "value": "MAR;83023 Had Imoulass",
+        "label": "83023 Had Imoulass"
+    },
+    {
+        "value": "MAR;83024 Mechraa El Ain",
+        "label": "83024 Mechraa El Ain"
+    },
+    {
+        "value": "MAR;83025 Sebt Tafraoute",
+        "label": "83025 Sebt Tafraoute"
+    },
+    {
+        "value": "MAR;83026 Sidi Borja",
+        "label": "83026 Sidi Borja"
+    },
+    {
+        "value": "MAR;83032 Had Menizla",
+        "label": "83032 Had Menizla"
+    },
+    {
+        "value": "MAR;83034 Ida Ou Moumen",
+        "label": "83034 Ida Ou Moumen"
+    },
+    {
+        "value": "MAR;83035 Tazzemmourte",
+        "label": "83035 Tazzemmourte"
+    },
+    {
+        "value": "MAR;83036 Tlata Ait Taleb",
+        "label": "83036 Tlata Ait Taleb"
+    },
+    {
+        "value": "MAR;83042 Zaouiat Sidi Tahar",
+        "label": "83042 Zaouiat Sidi Tahar"
+    },
+    {
+        "value": "MAR;83052 Aoulouz",
+        "label": "83052 Aoulouz"
+    },
+    {
+        "value": "MAR;83072 El Faid",
+        "label": "83072 El Faid"
+    },
+    {
+        "value": "MAR;83073 Iouzioua Ou Neine",
+        "label": "83073 Iouzioua Ou Neine"
+    },
+    {
+        "value": "MAR;83074 Tisrasse",
+        "label": "83074 Tisrasse"
+    },
+    {
+        "value": "MAR;83102 Argana",
+        "label": "83102 Argana"
+    },
+    {
+        "value": "MAR;83122 Khemis Bigoudine",
+        "label": "83122 Khemis Bigoudine"
+    },
+    {
+        "value": "MAR;83123 Imilmaiss",
+        "label": "83123 Imilmaiss"
+    },
+    {
+        "value": "MAR;83152 Askaoun",
+        "label": "83152 Askaoun"
+    },
+    {
+        "value": "MAR;83172 Ahl Tifnoute",
+        "label": "83172 Ahl Tifnoute"
+    },
+    {
+        "value": "MAR;83173 Iguidi",
+        "label": "83173 Iguidi"
+    },
+    {
+        "value": "MAR;83174 Taouyalte",
+        "label": "83174 Taouyalte"
+    },
+    {
+        "value": "MAR;83175 Toubkal",
+        "label": "83175 Toubkal"
+    },
+    {
+        "value": "MAR;83200 Ait Iaaza",
+        "label": "83200 Ait Iaaza"
+    },
+    {
+        "value": "MAR;83222 Ait Igas",
+        "label": "83222 Ait Igas"
+    },
+    {
+        "value": "MAR;83223 Nouara",
+        "label": "83223 Nouara"
+    },
+    {
+        "value": "MAR;83224 Tioute",
+        "label": "83224 Tioute"
+    },
+    {
+        "value": "MAR;83225 Azrar",
+        "label": "83225 Azrar"
+    },
+    {
+        "value": "MAR;83250 Irherm",
+        "label": "83250 Irherm"
+    },
+    {
+        "value": "MAR;83252 Ait Abdallah",
+        "label": "83252 Ait Abdallah"
+    },
+    {
+        "value": "MAR;83253 Sebt Tataoute",
+        "label": "83253 Sebt Tataoute"
+    },
+    {
+        "value": "MAR;83272 Had Imaouen",
+        "label": "83272 Had Imaouen"
+    },
+    {
+        "value": "MAR;83273 Oulkadi",
+        "label": "83273 Oulkadi"
+    },
+    {
+        "value": "MAR;83274 Tantamt",
+        "label": "83274 Tantamt"
+    },
+    {
+        "value": "MAR;83275 Tleta Nihit",
+        "label": "83275 Tleta Nihit"
+    },
+    {
+        "value": "MAR;83276 Tnine Addar",
+        "label": "83276 Tnine Addar"
+    },
+    {
+        "value": "MAR;83282 Tnine Touflaazt",
+        "label": "83282 Tnine Touflaazt"
+    },
+    {
+        "value": "MAR;83283 Ouzoune",
+        "label": "83283 Ouzoune"
+    },
+    {
+        "value": "MAR;83284 Tindine",
+        "label": "83284 Tindine"
+    },
+    {
+        "value": "MAR;83300 Oulad Berhil",
+        "label": "83300 Oulad Berhil"
+    },
+    {
+        "value": "MAR;83322 Dar Bahbaz",
+        "label": "83322 Dar Bahbaz"
+    },
+    {
+        "value": "MAR;83323 Had Igli",
+        "label": "83323 Had Igli"
+    },
+    {
+        "value": "MAR;83324 Khemis Arazane",
+        "label": "83324 Khemis Arazane"
+    },
+    {
+        "value": "MAR;83325 Khemis Talagjount",
+        "label": "83325 Khemis Talagjount"
+    },
+    {
+        "value": "MAR;83326 Tnine Ida Ou Gailal",
+        "label": "83326 Tnine Ida Ou Gailal"
+    },
+    {
+        "value": "MAR;83332 Tnine Tigouga",
+        "label": "83332 Tnine Tigouga"
+    },
+    {
+        "value": "MAR;83333 Toughmart",
+        "label": "83333 Toughmart"
+    },
+    {
+        "value": "MAR;83334 Sidi Ouaaziz",
+        "label": "83334 Sidi Ouaaziz"
+    },
+    {
+        "value": "MAR;83350 Oulad Teima",
+        "label": "83350 Oulad Teima"
+    },
+    {
+        "value": "MAR;83372 El Koudia",
+        "label": "83372 El Koudia"
+    },
+    {
+        "value": "MAR;83374 Issen",
+        "label": "83374 Issen"
+    },
+    {
+        "value": "MAR;83375 Ksiba Ahl Rmel",
+        "label": "83375 Ksiba Ahl Rmel"
+    },
+    {
+        "value": "MAR;83376 Sebt Kfifate",
+        "label": "83376 Sebt Kfifate"
+    },
+    {
+        "value": "MAR;83382 Sidi Ahmed Ou Amar",
+        "label": "83382 Sidi Ahmed Ou Amar"
+    },
+    {
+        "value": "MAR;83383 Sidi Boumoussa",
+        "label": "83383 Sidi Boumoussa"
+    },
+    {
+        "value": "MAR;83384 Sidi Moussa",
+        "label": "83384 Sidi Moussa"
+    },
+    {
+        "value": "MAR;83400 Sebt El Guerdane",
+        "label": "83400 Sebt El Guerdane"
+    },
+    {
+        "value": "MAR;83422 Arbaa Assads",
+        "label": "83422 Arbaa Assads"
+    },
+    {
+        "value": "MAR;83423 Lakhnafif",
+        "label": "83423 Lakhnafif"
+    },
+    {
+        "value": "MAR;83424 Lamhadi",
+        "label": "83424 Lamhadi"
+    },
+    {
+        "value": "MAR;83425 Tidsi Nissendalene",
+        "label": "83425 Tidsi Nissendalene"
+    },
+    {
+        "value": "MAR;83452 Tafingoult",
+        "label": "83452 Tafingoult"
+    },
+    {
+        "value": "MAR;83472 Ouneine",
+        "label": "83472 Ouneine"
+    },
+    {
+        "value": "MAR;83500 Taliouine",
+        "label": "83500 Taliouine"
+    },
+    {
+        "value": "MAR;83522 Arbaa Assais",
+        "label": "83522 Arbaa Assais"
+    },
+    {
+        "value": "MAR;83523 Assaki",
+        "label": "83523 Assaki"
+    },
+    {
+        "value": "MAR;83524 Irhil Nourhou",
+        "label": "83524 Irhil Nourhou"
+    },
+    {
+        "value": "MAR;83525 Sidi Hsaine",
+        "label": "83525 Sidi Hsaine"
+    },
+    {
+        "value": "MAR;83526 Tassousfi",
+        "label": "83526 Tassousfi"
+    },
+    {
+        "value": "MAR;83532 Agadir Melloul",
+        "label": "83532 Agadir Melloul"
+    },
+    {
+        "value": "MAR;83533 Tizgzaouine",
+        "label": "83533 Tizgzaouine"
+    },
+    {
+        "value": "MAR;84000 Tata",
+        "label": "84000 Tata"
+    },
+    {
+        "value": "MAR;84022 Akka Ighane",
+        "label": "84022 Akka Ighane"
+    },
+    {
+        "value": "MAR;84023 Khemis Addis",
+        "label": "84023 Khemis Addis"
+    },
+    {
+        "value": "MAR;84024 Oum El Guerdane",
+        "label": "84024 Oum El Guerdane"
+    },
+    {
+        "value": "MAR;84025 Tlata Tagmoute",
+        "label": "84025 Tlata Tagmoute"
+    },
+    {
+        "value": "MAR;84026 Ibn Yacoub",
+        "label": "84026 Ibn Yacoub"
+    },
+    {
+        "value": "MAR;84050 Akka",
+        "label": "84050 Akka"
+    },
+    {
+        "value": "MAR;84052 Khemis Issafen",
+        "label": "84052 Khemis Issafen"
+    },
+    {
+        "value": "MAR;84053 Tissint",
+        "label": "84053 Tissint"
+    },
+    {
+        "value": "MAR;84072 Ait Ouabelli",
+        "label": "84072 Ait Ouabelli"
+    },
+    {
+        "value": "MAR;84073 Kasbat Sidi Abdellah Ben Mbarek",
+        "label": "84073 Kasbat Sidi Abdellah Ben Mbarek"
+    },
+    {
+        "value": "MAR;84074 Tizouinine",
+        "label": "84074 Tizouinine"
+    },
+    {
+        "value": "MAR;84075 Tizaghte",
+        "label": "84075 Tizaghte"
+    },
+    {
+        "value": "MAR;84076 Aguinane",
+        "label": "84076 Aguinane"
+    },
+    {
+        "value": "MAR;84100 Fam El Hisn",
+        "label": "84100 Fam El Hisn"
+    },
+    {
+        "value": "MAR;84122 Aguerd Tamanart",
+        "label": "84122 Aguerd Tamanart"
+    },
+    {
+        "value": "MAR;84150 Foum Zguid",
+        "label": "84150 Foum Zguid"
+    },
+    {
+        "value": "MAR;84172 Allougoum",
+        "label": "84172 Allougoum"
+    },
+    {
+        "value": "MAR;84173 Lakhriouia",
+        "label": "84173 Lakhriouia"
+    },
+    {
+        "value": "MAR;84174 Tlite",
+        "label": "84174 Tlite"
+    },
+    {
+        "value": "MAR;85000 Tiznit",
+        "label": "85000 Tiznit"
+    },
+    {
+        "value": "MAR;85002 Arbaa Sahel",
+        "label": "85002 Arbaa Sahel"
+    },
+    {
+        "value": "MAR;85003 Sebt Ouijjane",
+        "label": "85003 Sebt Ouijjane"
+    },
+    {
+        "value": "MAR;85004 Tnine Aglou",
+        "label": "85004 Tnine Aglou"
+    },
+    {
+        "value": "MAR;85022 El Maader El Kebir",
+        "label": "85022 El Maader El Kebir"
+    },
+    {
+        "value": "MAR;85023 Had Raggada",
+        "label": "85023 Had Raggada"
+    },
+    {
+        "value": "MAR;85024 Ighir Melloulen",
+        "label": "85024 Ighir Melloulen"
+    },
+    {
+        "value": "MAR;85025 Oulad Jerrar",
+        "label": "85025 Oulad Jerrar"
+    },
+    {
+        "value": "MAR;85026 Laouina",
+        "label": "85026 Laouina"
+    },
+    {
+        "value": "MAR;85032 Aglou Plage",
+        "label": "85032 Aglou Plage"
+    },
+    {
+        "value": "MAR;85033 Toubouzar",
+        "label": "85033 Toubouzar"
+    },
+    {
+        "value": "MAR;85034 El Kreima",
+        "label": "85034 El Kreima"
+    },
+    {
+        "value": "MAR;85035 Assaka",
+        "label": "85035 Assaka"
+    },
+    {
+        "value": "MAR;85042 Ighrem Oulad Jerrar",
+        "label": "85042 Ighrem Oulad Jerrar"
+    },
+    {
+        "value": "MAR;85043 Ouled Noummeur",
+        "label": "85043 Ouled Noummeur"
+    },
+    {
+        "value": "MAR;85044 Bouzerz",
+        "label": "85044 Bouzerz"
+    },
+    {
+        "value": "MAR;85052 Ait Erkha",
+        "label": "85052 Ait Erkha"
+    },
+    {
+        "value": "MAR;85072 Sidi Abdellah Ou Belaid",
+        "label": "85072 Sidi Abdellah Ou Belaid"
+    },
+    {
+        "value": "MAR;85102 Tirhmi",
+        "label": "85102 Tirhmi"
+    },
+    {
+        "value": "MAR;85103 Anezi",
+        "label": "85103 Anezi"
+    },
+    {
+        "value": "MAR;85122 Aday Almezouarte",
+        "label": "85122 Aday Almezouarte"
+    },
+    {
+        "value": "MAR;85123 Arba Ait Ahmed",
+        "label": "85123 Arba Ait Ahmed"
+    },
+    {
+        "value": "MAR;85124 Tafraout El Mouloud",
+        "label": "85124 Tafraout El Mouloud"
+    },
+    {
+        "value": "MAR;85125 Tifermite",
+        "label": "85125 Tifermite"
+    },
+    {
+        "value": "MAR;85126 Tlata Ida Gougmar",
+        "label": "85126 Tlata Ida Gougmar"
+    },
+    {
+        "value": "MAR;85132 Zaouia Sidi Ahmed Ou Moussa",
+        "label": "85132 Zaouia Sidi Ahmed Ou Moussa"
+    },
+    {
+        "value": "MAR;85133 Ait Issafen",
+        "label": "85133 Ait Issafen"
+    },
+    {
+        "value": "MAR;85134 Jemaa Ida Oussemlal",
+        "label": "85134 Jemaa Ida Oussemlal"
+    },
+    {
+        "value": "MAR;85152 Arbaa Ras Mouka",
+        "label": "85152 Arbaa Ras Mouka"
+    },
+    {
+        "value": "MAR;85172 Ait Brahim Ou Youssef",
+        "label": "85172 Ait Brahim Ou Youssef"
+    },
+    {
+        "value": "MAR;85200 Sidi Ifni",
+        "label": "85200 Sidi Ifni"
+    },
+    {
+        "value": "MAR;85203 Sbouya",
+        "label": "85203 Sbouya"
+    },
+    {
+        "value": "MAR;85252 Jemaa Ntighirt",
+        "label": "85252 Jemaa Ntighirt"
+    },
+    {
+        "value": "MAR;85272 Anfeg",
+        "label": "85272 Anfeg"
+    },
+    {
+        "value": "MAR;85273 Sebt Ennabour",
+        "label": "85273 Sebt Ennabour"
+    },
+    {
+        "value": "MAR;85274 Ibdar",
+        "label": "85274 Ibdar"
+    },
+    {
+        "value": "MAR;85275 Boutrouch",
+        "label": "85275 Boutrouch"
+    },
+    {
+        "value": "MAR;85302 Mesti",
+        "label": "85302 Mesti"
+    },
+    {
+        "value": "MAR;85352 Mirleft",
+        "label": "85352 Mirleft"
+    },
+    {
+        "value": "MAR;85402 Sebt Bounaamane",
+        "label": "85402 Sebt Bounaamane"
+    },
+    {
+        "value": "MAR;85422 Sidi Bouabdelli",
+        "label": "85422 Sidi Bouabdelli"
+    },
+    {
+        "value": "MAR;85423 Tafraoute Nait Daoud",
+        "label": "85423 Tafraoute Nait Daoud"
+    },
+    {
+        "value": "MAR;85450 Tafraout",
+        "label": "85450 Tafraout"
+    },
+    {
+        "value": "MAR;85452 Had Tahala",
+        "label": "85452 Had Tahala"
+    },
+    {
+        "value": "MAR;85472 Anameur",
+        "label": "85472 Anameur"
+    },
+    {
+        "value": "MAR;85473 Had Affela Irhir",
+        "label": "85473 Had Affela Irhir"
+    },
+    {
+        "value": "MAR;85474 Izerbi",
+        "label": "85474 Izerbi"
+    },
+    {
+        "value": "MAR;85475 Ou Mesnate",
+        "label": "85475 Ou Mesnate"
+    },
+    {
+        "value": "MAR;85476 Tanfit Ait Oumzil",
+        "label": "85476 Tanfit Ait Oumzil"
+    },
+    {
+        "value": "MAR;85482 Tleta Tidli",
+        "label": "85482 Tleta Tidli"
+    },
+    {
+        "value": "MAR;85483 Tizoughane",
+        "label": "85483 Tizoughane"
+    },
+    {
+        "value": "MAR;85484 Khemis Ait Oufka",
+        "label": "85484 Khemis Ait Oufka"
+    },
+    {
+        "value": "MAR;85485 Tnine Tarsouat",
+        "label": "85485 Tnine Tarsouat"
+    },
+    {
+        "value": "MAR;85486 Tleta Tassrirt",
+        "label": "85486 Tleta Tassrirt"
+    },
+    {
+        "value": "MAR;85502 Tiourhza",
+        "label": "85502 Tiourhza"
+    },
+    {
+        "value": "MAR;85522 Arbaa Ait Abdellah",
+        "label": "85522 Arbaa Ait Abdellah"
+    },
+    {
+        "value": "MAR;85550 Tleta El Akhsass",
+        "label": "85550 Tleta El Akhsass"
+    },
+    {
+        "value": "MAR;85572 Sidi Hsaine Ou Ali",
+        "label": "85572 Sidi Hsaine Ou Ali"
+    },
+    {
+        "value": "MAR;85602 Tnine Amellou",
+        "label": "85602 Tnine Amellou"
+    },
+    {
+        "value": "MAR;85622 Tangarfa",
+        "label": "85622 Tangarfa"
+    },
+    {
+        "value": "MAR;86150 Ait Melloul",
+        "label": "86150 Ait Melloul"
+    },
+    {
+        "value": "MAR;86356 Lqliaa",
+        "label": "86356 Lqliaa"
+    },
+    {
+        "value": "MAR;86602 Temsia",
+        "label": "86602 Temsia"
+    },
+    {
+        "value": "MAR;86603 Agadir Aereport",
+        "label": "86603 Agadir Aereport"
+    },
+    {
+        "value": "MAR;86622 Souk El Had Oulad Dahou",
+        "label": "86622 Souk El Had Oulad Dahou"
+    },
+    {
+        "value": "MAR;87052 Ait Amira",
+        "label": "87052 Ait Amira"
+    },
+    {
+        "value": "MAR;87100 Ait Baha",
+        "label": "87100 Ait Baha"
+    },
+    {
+        "value": "MAR;87112 Sidi Bouaz",
+        "label": "87112 Sidi Bouaz"
+    },
+    {
+        "value": "MAR;87113 Timezguida Ouasrir",
+        "label": "87113 Timezguida Ouasrir"
+    },
+    {
+        "value": "MAR;87122 Had Targa Ntouchka",
+        "label": "87122 Had Targa Ntouchka"
+    },
+    {
+        "value": "MAR;87123 Hallate",
+        "label": "87123 Hallate"
+    },
+    {
+        "value": "MAR;87124 Imi El Had Tasguedelft",
+        "label": "87124 Imi El Had Tasguedelft"
+    },
+    {
+        "value": "MAR;87125 Jemaa Takouchte",
+        "label": "87125 Jemaa Takouchte"
+    },
+    {
+        "value": "MAR;87126 Sidi Abdellah El Bouchouari",
+        "label": "87126 Sidi Abdellah El Bouchouari"
+    },
+    {
+        "value": "MAR;87132 Ait Ouadrim",
+        "label": "87132 Ait Ouadrim"
+    },
+    {
+        "value": "MAR;87133 Khemis Ait Moussa",
+        "label": "87133 Khemis Ait Moussa"
+    },
+    {
+        "value": "MAR;87200 Biougra",
+        "label": "87200 Biougra"
+    },
+    {
+        "value": "MAR;87222 Imi Mqourn",
+        "label": "87222 Imi Mqourn"
+    },
+    {
+        "value": "MAR;87223 Oued Essafa",
+        "label": "87223 Oued Essafa"
+    },
+    {
+        "value": "MAR;87252 Had Ait Belfaa",
+        "label": "87252 Had Ait Belfaa"
+    },
+    {
+        "value": "MAR;87272 Inchaden",
+        "label": "87272 Inchaden"
+    },
+    {
+        "value": "MAR;87273 Sebt Ait Milk",
+        "label": "87273 Sebt Ait Milk"
+    },
+    {
+        "value": "MAR;87274 Sidi Bibi",
+        "label": "87274 Sidi Bibi"
+    },
+    {
+        "value": "MAR;87402 Khmis Ida Ou Gnidif",
+        "label": "87402 Khmis Ida Ou Gnidif"
+    },
+    {
+        "value": "MAR;87422 Aguerd Ntezke",
+        "label": "87422 Aguerd Ntezke"
+    },
+    {
+        "value": "MAR;87423 Imhilen",
+        "label": "87423 Imhilen"
+    },
+    {
+        "value": "MAR;87452 Massa",
+        "label": "87452 Massa"
+    },
+    {
+        "value": "MAR;87472 Sidi Rbat",
+        "label": "87472 Sidi Rbat"
+    },
+    {
+        "value": "MAR;87473 Massa Tassila",
+        "label": "87473 Massa Tassila"
+    },
+    {
+        "value": "MAR;87552 Tanalt",
+        "label": "87552 Tanalt"
+    },
+    {
+        "value": "MAR;87572 Tlata Ou Guenz",
+        "label": "87572 Tlata Ou Guenz"
+    },
+    {
+        "value": "MAR;87702 Tnine Hilala",
+        "label": "87702 Tnine Hilala"
+    },
+    {
+        "value": "MAR;90025 Hajr Enhal",
+        "label": "90025 Hajr Enhal"
+    },
+    {
+        "value": "MAR;90036 Sebt Zeniate",
+        "label": "90036 Sebt Zeniate"
+    },
+    {
+        "value": "MAR;90050 Assilah",
+        "label": "90050 Assilah"
+    },
+    {
+        "value": "MAR;90052 Dar Chaoui",
+        "label": "90052 Dar Chaoui"
+    },
+    {
+        "value": "MAR;90054 Tnine Sidi El Yamani",
+        "label": "90054 Tnine Sidi El Yamani"
+    },
+    {
+        "value": "MAR;90072 Bghaghza",
+        "label": "90072 Bghaghza"
+    },
+    {
+        "value": "MAR;90102 Gzenaya",
+        "label": "90102 Gzenaya"
+    },
+    {
+        "value": "MAR;90302 Had Rharbia",
+        "label": "90302 Had Rharbia"
+    },
+    {
+        "value": "MAR;91000 Chefchaouen",
+        "label": "91000 Chefchaouen"
+    },
+    {
+        "value": "MAR;91002 Bab Taza",
+        "label": "91002 Bab Taza"
+    },
+    {
+        "value": "MAR;91003 Steha",
+        "label": "91003 Steha"
+    },
+    {
+        "value": "MAR;91022 Ain Beida",
+        "label": "91022 Ain Beida"
+    },
+    {
+        "value": "MAR;91023 Asifane",
+        "label": "91023 Asifane"
+    },
+    {
+        "value": "MAR;91024 Asjen",
+        "label": "91024 Asjen"
+    },
+    {
+        "value": "MAR;91025 Beni Rzen",
+        "label": "91025 Beni Rzen"
+    },
+    {
+        "value": "MAR;91026 Brikcha",
+        "label": "91026 Brikcha"
+    },
+    {
+        "value": "MAR;91032 Derkoul",
+        "label": "91032 Derkoul"
+    },
+    {
+        "value": "MAR;91033 Fifi",
+        "label": "91033 Fifi"
+    },
+    {
+        "value": "MAR;91034 Beni Bouzra",
+        "label": "91034 Beni Bouzra"
+    },
+    {
+        "value": "MAR;91035 Kaa Asrass",
+        "label": "91035 Kaa Asrass"
+    },
+    {
+        "value": "MAR;91036 Tassift",
+        "label": "91036 Tassift"
+    },
+    {
+        "value": "MAR;91042 Derdera",
+        "label": "91042 Derdera"
+    },
+    {
+        "value": "MAR;91043 Had Rhdir Krouch",
+        "label": "91043 Had Rhdir Krouch"
+    },
+    {
+        "value": "MAR;91044 Talembote",
+        "label": "91044 Talembote"
+    },
+    {
+        "value": "MAR;91045 Tanacob",
+        "label": "91045 Tanacob"
+    },
+    {
+        "value": "MAR;91046 Tlata Assifane",
+        "label": "91046 Tlata Assifane"
+    },
+    {
+        "value": "MAR;91052 Bab Berret",
+        "label": "91052 Bab Berret"
+    },
+    {
+        "value": "MAR;91072 Tamorote",
+        "label": "91072 Tamorote"
+    },
+    {
+        "value": "MAR;91073 Iouane",
+        "label": "91073 Iouane"
+    },
+    {
+        "value": "MAR;91102 Bni Ahmed",
+        "label": "91102 Bni Ahmed"
+    },
+    {
+        "value": "MAR;91122 El Melha",
+        "label": "91122 El Melha"
+    },
+    {
+        "value": "MAR;91123 Bni Ahmed Gharbia",
+        "label": "91123 Bni Ahmed Gharbia"
+    },
+    {
+        "value": "MAR;91124 Mansoura",
+        "label": "91124 Mansoura"
+    },
+    {
+        "value": "MAR;91152 Mokrisset",
+        "label": "91152 Mokrisset"
+    },
+    {
+        "value": "MAR;91153 Jebha",
+        "label": "91153 Jebha"
+    },
+    {
+        "value": "MAR;91172 Bni Smih",
+        "label": "91172 Bni Smih"
+    },
+    {
+        "value": "MAR;91173 Amtar",
+        "label": "91173 Amtar"
+    },
+    {
+        "value": "MAR;91174 Ouaouzgane",
+        "label": "91174 Ouaouzgane"
+    },
+    {
+        "value": "MAR;91202 Zoumi",
+        "label": "91202 Zoumi"
+    },
+    {
+        "value": "MAR;92000 Larache",
+        "label": "92000 Larache"
+    },
+    {
+        "value": "MAR;92002 Sebt Bni Garfet",
+        "label": "92002 Sebt Bni Garfet"
+    },
+    {
+        "value": "MAR;92022 Arbaa Ayacha",
+        "label": "92022 Arbaa Ayacha"
+    },
+    {
+        "value": "MAR;92023 Sidi Ali",
+        "label": "92023 Sidi Ali"
+    },
+    {
+        "value": "MAR;92024 Zaaroura",
+        "label": "92024 Zaaroura"
+    },
+    {
+        "value": "MAR;92052 Al Aouamra",
+        "label": "92052 Al Aouamra"
+    },
+    {
+        "value": "MAR;92072 Zouada",
+        "label": "92072 Zouada"
+    },
+    {
+        "value": "MAR;92102 Khemis Sahel",
+        "label": "92102 Khemis Sahel"
+    },
+    {
+        "value": "MAR;92150 Ksar El Kebir",
+        "label": "92150 Ksar El Kebir"
+    },
+    {
+        "value": "MAR;92172 Mecherah",
+        "label": "92172 Mecherah"
+    },
+    {
+        "value": "MAR;92173 Souk Tolba",
+        "label": "92173 Souk Tolba"
+    },
+    {
+        "value": "MAR;92202 Tatoufet",
+        "label": "92202 Tatoufet"
+    },
+    {
+        "value": "MAR;92252 Tlata Rissana",
+        "label": "92252 Tlata Rissana"
+    },
+    {
+        "value": "MAR;92272 Rissana Janoubia",
+        "label": "92272 Rissana Janoubia"
+    },
+    {
+        "value": "MAR;93015 Asmaten",
+        "label": "93015 Asmaten"
+    },
+    {
+        "value": "MAR;93022 Azla",
+        "label": "93022 Azla"
+    },
+    {
+        "value": "MAR;93023 Beni Yder",
+        "label": "93023 Beni Yder"
+    },
+    {
+        "value": "MAR;93024 Dar Ben Saddouk",
+        "label": "93024 Dar Ben Saddouk"
+    },
+    {
+        "value": "MAR;93026 El Fendeq",
+        "label": "93026 El Fendeq"
+    },
+    {
+        "value": "MAR;93032 Zaouia Sidi Kacem",
+        "label": "93032 Zaouia Sidi Kacem"
+    },
+    {
+        "value": "MAR;93033 Jemaa El Oued",
+        "label": "93033 Jemaa El Oued"
+    },
+    {
+        "value": "MAR;93034 Moulay Abdesslam",
+        "label": "93034 Moulay Abdesslam"
+    },
+    {
+        "value": "MAR;93052 Bni Karrich Fouki",
+        "label": "93052 Bni Karrich Fouki"
+    },
+    {
+        "value": "MAR;93100 Fnidq",
+        "label": "93100 Fnidq"
+    },
+    {
+        "value": "MAR;93150 Martil",
+        "label": "93150 Martil"
+    },
+    {
+        "value": "MAR;93200 M'Diq",
+        "label": "93200 M'Diq"
+    },
+    {
+        "value": "MAR;93250 Oued Laou",
+        "label": "93250 Oued Laou"
+    },
+    {
+        "value": "MAR;94022 Bahraouiyne Tanja",
+        "label": "94022 Bahraouiyne Tanja"
+    },
+    {
+        "value": "MAR;94023 Bahriyne El Aouama",
+        "label": "94023 Bahriyne El Aouama"
+    },
+    {
+        "value": "MAR;94025 El Borch",
+        "label": "94025 El Borch"
+    },
+    {
+        "value": "MAR;94026 Zoco Jemis De Anyera",
+        "label": "94026 Zoco Jemis De Anyera"
+    },
+    {
+        "value": "MAR;94031 Hakkama",
+        "label": "94031 Hakkama"
+    },
+    {
+        "value": "MAR;94053 Melloussa",
+        "label": "94053 Melloussa"
+    },
+    {
+        "value": "MAR;94122 Tarhremt",
+        "label": "94122 Tarhremt"
+    },
+    {
+        "value": "MAR;94152 Ksar Sghir",
+        "label": "94152 Ksar Sghir"
+    }
+]

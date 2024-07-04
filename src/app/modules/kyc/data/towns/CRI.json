@@ -1,0 +1,1890 @@
+[
+    {
+        "value": "CRI;10101 Carmen",
+        "label": "10101 Carmen"
+    },
+    {
+        "value": "CRI;10102 Merced",
+        "label": "10102 Merced"
+    },
+    {
+        "value": "CRI;10103 Hospital",
+        "label": "10103 Hospital"
+    },
+    {
+        "value": "CRI;10104 Catedral",
+        "label": "10104 Catedral"
+    },
+    {
+        "value": "CRI;10105 Zapote",
+        "label": "10105 Zapote"
+    },
+    {
+        "value": "CRI;10106 San Francisco de Dos Ríos",
+        "label": "10106 San Francisco de Dos Ríos"
+    },
+    {
+        "value": "CRI;10107 Uruca",
+        "label": "10107 Uruca"
+    },
+    {
+        "value": "CRI;10108 Mata Redonda",
+        "label": "10108 Mata Redonda"
+    },
+    {
+        "value": "CRI;10109 Pavas",
+        "label": "10109 Pavas"
+    },
+    {
+        "value": "CRI;10110 Hatillo",
+        "label": "10110 Hatillo"
+    },
+    {
+        "value": "CRI;10111 San Sebastián",
+        "label": "10111 San Sebastián"
+    },
+    {
+        "value": "CRI;10201 Escazú",
+        "label": "10201 Escazú"
+    },
+    {
+        "value": "CRI;10202 San Antonio",
+        "label": "10202 San Antonio"
+    },
+    {
+        "value": "CRI;10203 San Rafael",
+        "label": "10203 San Rafael"
+    },
+    {
+        "value": "CRI;10301 Desamparados",
+        "label": "10301 Desamparados"
+    },
+    {
+        "value": "CRI;10302 San Miguel",
+        "label": "10302 San Miguel"
+    },
+    {
+        "value": "CRI;10303 San Juan de Dios",
+        "label": "10303 San Juan de Dios"
+    },
+    {
+        "value": "CRI;10304 San Rafael Arriba",
+        "label": "10304 San Rafael Arriba"
+    },
+    {
+        "value": "CRI;10305 San Antonio",
+        "label": "10305 San Antonio"
+    },
+    {
+        "value": "CRI;10306 Frailes",
+        "label": "10306 Frailes"
+    },
+    {
+        "value": "CRI;10307 Patarrá",
+        "label": "10307 Patarrá"
+    },
+    {
+        "value": "CRI;10308 San Cristóbal",
+        "label": "10308 San Cristóbal"
+    },
+    {
+        "value": "CRI;10309 Rosario",
+        "label": "10309 Rosario"
+    },
+    {
+        "value": "CRI;10310 Damas",
+        "label": "10310 Damas"
+    },
+    {
+        "value": "CRI;10311 San Rafael Abajo",
+        "label": "10311 San Rafael Abajo"
+    },
+    {
+        "value": "CRI;10312 Gravilias",
+        "label": "10312 Gravilias"
+    },
+    {
+        "value": "CRI;10313 Los Guido",
+        "label": "10313 Los Guido"
+    },
+    {
+        "value": "CRI;10401 Santiago",
+        "label": "10401 Santiago"
+    },
+    {
+        "value": "CRI;10402 Mercedes Sur",
+        "label": "10402 Mercedes Sur"
+    },
+    {
+        "value": "CRI;10403 Barbacoas",
+        "label": "10403 Barbacoas"
+    },
+    {
+        "value": "CRI;10404 Grifo Alto",
+        "label": "10404 Grifo Alto"
+    },
+    {
+        "value": "CRI;10405 San Rafael",
+        "label": "10405 San Rafael"
+    },
+    {
+        "value": "CRI;10406 Candelarita",
+        "label": "10406 Candelarita"
+    },
+    {
+        "value": "CRI;10407 Desamparaditos",
+        "label": "10407 Desamparaditos"
+    },
+    {
+        "value": "CRI;10408 San Antonio",
+        "label": "10408 San Antonio"
+    },
+    {
+        "value": "CRI;10409 Chires",
+        "label": "10409 Chires"
+    },
+    {
+        "value": "CRI;10501 San Marcos",
+        "label": "10501 San Marcos"
+    },
+    {
+        "value": "CRI;10502 San Lorenzo",
+        "label": "10502 San Lorenzo"
+    },
+    {
+        "value": "CRI;10503 San Carlos",
+        "label": "10503 San Carlos"
+    },
+    {
+        "value": "CRI;10601 Aserrí",
+        "label": "10601 Aserrí"
+    },
+    {
+        "value": "CRI;10602 Tarbaca",
+        "label": "10602 Tarbaca"
+    },
+    {
+        "value": "CRI;10603 Vuelta de Jorco",
+        "label": "10603 Vuelta de Jorco"
+    },
+    {
+        "value": "CRI;10604 San Gabriel",
+        "label": "10604 San Gabriel"
+    },
+    {
+        "value": "CRI;10605 Legua",
+        "label": "10605 Legua"
+    },
+    {
+        "value": "CRI;10606 Monterrey",
+        "label": "10606 Monterrey"
+    },
+    {
+        "value": "CRI;10607 Salitrillos",
+        "label": "10607 Salitrillos"
+    },
+    {
+        "value": "CRI;10701 Colón",
+        "label": "10701 Colón"
+    },
+    {
+        "value": "CRI;10702 Guayabo",
+        "label": "10702 Guayabo"
+    },
+    {
+        "value": "CRI;10703 Tabarcia",
+        "label": "10703 Tabarcia"
+    },
+    {
+        "value": "CRI;10704 Piedras Negras",
+        "label": "10704 Piedras Negras"
+    },
+    {
+        "value": "CRI;10705 Picagres",
+        "label": "10705 Picagres"
+    },
+    {
+        "value": "CRI;10801 Guadalupe",
+        "label": "10801 Guadalupe"
+    },
+    {
+        "value": "CRI;10802 San Francisco",
+        "label": "10802 San Francisco"
+    },
+    {
+        "value": "CRI;10803 Calle Blancos",
+        "label": "10803 Calle Blancos"
+    },
+    {
+        "value": "CRI;10804 Mata de Plátano",
+        "label": "10804 Mata de Plátano"
+    },
+    {
+        "value": "CRI;10805 Ipís",
+        "label": "10805 Ipís"
+    },
+    {
+        "value": "CRI;10806 Rancho Redondo",
+        "label": "10806 Rancho Redondo"
+    },
+    {
+        "value": "CRI;10807 Purral",
+        "label": "10807 Purral"
+    },
+    {
+        "value": "CRI;10901 Santa Ana",
+        "label": "10901 Santa Ana"
+    },
+    {
+        "value": "CRI;10902 Salitral",
+        "label": "10902 Salitral"
+    },
+    {
+        "value": "CRI;10903 Pozos",
+        "label": "10903 Pozos"
+    },
+    {
+        "value": "CRI;10904 Uruca",
+        "label": "10904 Uruca"
+    },
+    {
+        "value": "CRI;10905 Piedades",
+        "label": "10905 Piedades"
+    },
+    {
+        "value": "CRI;10906 Brasil",
+        "label": "10906 Brasil"
+    },
+    {
+        "value": "CRI;11001 Alajuelita",
+        "label": "11001 Alajuelita"
+    },
+    {
+        "value": "CRI;11002 San Josecito",
+        "label": "11002 San Josecito"
+    },
+    {
+        "value": "CRI;11003 San Antonio",
+        "label": "11003 San Antonio"
+    },
+    {
+        "value": "CRI;11004 Concepción",
+        "label": "11004 Concepción"
+    },
+    {
+        "value": "CRI;11005 San Felipe",
+        "label": "11005 San Felipe"
+    },
+    {
+        "value": "CRI;11101 San Isidro",
+        "label": "11101 San Isidro"
+    },
+    {
+        "value": "CRI;11102 San Rafael",
+        "label": "11102 San Rafael"
+    },
+    {
+        "value": "CRI;11103 Dulce Nombre de Jesús",
+        "label": "11103 Dulce Nombre de Jesús"
+    },
+    {
+        "value": "CRI;11104 Patalillo",
+        "label": "11104 Patalillo"
+    },
+    {
+        "value": "CRI;11105 Cascajal",
+        "label": "11105 Cascajal"
+    },
+    {
+        "value": "CRI;11201 San Ignacio",
+        "label": "11201 San Ignacio"
+    },
+    {
+        "value": "CRI;11202 Guaitil",
+        "label": "11202 Guaitil"
+    },
+    {
+        "value": "CRI;11203 Palmichal",
+        "label": "11203 Palmichal"
+    },
+    {
+        "value": "CRI;11204 Cangrejal",
+        "label": "11204 Cangrejal"
+    },
+    {
+        "value": "CRI;11205 Sabanillas",
+        "label": "11205 Sabanillas"
+    },
+    {
+        "value": "CRI;11301 San Juan",
+        "label": "11301 San Juan"
+    },
+    {
+        "value": "CRI;11302 Cinco Esquinas",
+        "label": "11302 Cinco Esquinas"
+    },
+    {
+        "value": "CRI;11303 Anselmo Llorente",
+        "label": "11303 Anselmo Llorente"
+    },
+    {
+        "value": "CRI;11304 León XIII",
+        "label": "11304 León XIII"
+    },
+    {
+        "value": "CRI;11305 Colima",
+        "label": "11305 Colima"
+    },
+    {
+        "value": "CRI;11401 San Vicente",
+        "label": "11401 San Vicente"
+    },
+    {
+        "value": "CRI;11402 San Jerónimo",
+        "label": "11402 San Jerónimo"
+    },
+    {
+        "value": "CRI;11403 La Trinidad",
+        "label": "11403 La Trinidad"
+    },
+    {
+        "value": "CRI;11501 San Pedro",
+        "label": "11501 San Pedro"
+    },
+    {
+        "value": "CRI;11502 Sabanilla",
+        "label": "11502 Sabanilla"
+    },
+    {
+        "value": "CRI;11503 Mercedes",
+        "label": "11503 Mercedes"
+    },
+    {
+        "value": "CRI;11504 San Rafael",
+        "label": "11504 San Rafael"
+    },
+    {
+        "value": "CRI;11601 San Pablo",
+        "label": "11601 San Pablo"
+    },
+    {
+        "value": "CRI;11602 San Pedro",
+        "label": "11602 San Pedro"
+    },
+    {
+        "value": "CRI;11603 San Juan de Mata",
+        "label": "11603 San Juan de Mata"
+    },
+    {
+        "value": "CRI;11604 San Luis",
+        "label": "11604 San Luis"
+    },
+    {
+        "value": "CRI;11605 Carara",
+        "label": "11605 Carara"
+    },
+    {
+        "value": "CRI;11701 Santa María",
+        "label": "11701 Santa María"
+    },
+    {
+        "value": "CRI;11702 Jardín",
+        "label": "11702 Jardín"
+    },
+    {
+        "value": "CRI;11703 Copey",
+        "label": "11703 Copey"
+    },
+    {
+        "value": "CRI;11801 Curridabat",
+        "label": "11801 Curridabat"
+    },
+    {
+        "value": "CRI;11802 Granadilla",
+        "label": "11802 Granadilla"
+    },
+    {
+        "value": "CRI;11803 Sánchez",
+        "label": "11803 Sánchez"
+    },
+    {
+        "value": "CRI;11804 Tirrases",
+        "label": "11804 Tirrases"
+    },
+    {
+        "value": "CRI;11901 San Isidro de El General",
+        "label": "11901 San Isidro de El General"
+    },
+    {
+        "value": "CRI;11902 El General",
+        "label": "11902 El General"
+    },
+    {
+        "value": "CRI;11903 Daniel Flores",
+        "label": "11903 Daniel Flores"
+    },
+    {
+        "value": "CRI;11904 Rivas",
+        "label": "11904 Rivas"
+    },
+    {
+        "value": "CRI;11905 San Pedro",
+        "label": "11905 San Pedro"
+    },
+    {
+        "value": "CRI;11906 Platanares",
+        "label": "11906 Platanares"
+    },
+    {
+        "value": "CRI;11907 Pejibaye",
+        "label": "11907 Pejibaye"
+    },
+    {
+        "value": "CRI;11908 Cajón",
+        "label": "11908 Cajón"
+    },
+    {
+        "value": "CRI;11909 Barú",
+        "label": "11909 Barú"
+    },
+    {
+        "value": "CRI;11910 Río Nuevo",
+        "label": "11910 Río Nuevo"
+    },
+    {
+        "value": "CRI;11911 Páramo",
+        "label": "11911 Páramo"
+    },
+    {
+        "value": "CRI;12001 San Pablo",
+        "label": "12001 San Pablo"
+    },
+    {
+        "value": "CRI;12002 San Andrés",
+        "label": "12002 San Andrés"
+    },
+    {
+        "value": "CRI;12003 Llano Bonito",
+        "label": "12003 Llano Bonito"
+    },
+    {
+        "value": "CRI;12004 San Isidro",
+        "label": "12004 San Isidro"
+    },
+    {
+        "value": "CRI;12005 Santa Cruz",
+        "label": "12005 Santa Cruz"
+    },
+    {
+        "value": "CRI;12006 San Antonio",
+        "label": "12006 San Antonio"
+    },
+    {
+        "value": "CRI;20101 Alajuela",
+        "label": "20101 Alajuela"
+    },
+    {
+        "value": "CRI;20102 San José",
+        "label": "20102 San José"
+    },
+    {
+        "value": "CRI;20103 Carrizal",
+        "label": "20103 Carrizal"
+    },
+    {
+        "value": "CRI;20104 San Antonio",
+        "label": "20104 San Antonio"
+    },
+    {
+        "value": "CRI;20105 Guácima",
+        "label": "20105 Guácima"
+    },
+    {
+        "value": "CRI;20106 San Isidro",
+        "label": "20106 San Isidro"
+    },
+    {
+        "value": "CRI;20107 Sabanilla",
+        "label": "20107 Sabanilla"
+    },
+    {
+        "value": "CRI;20108 San Rafael",
+        "label": "20108 San Rafael"
+    },
+    {
+        "value": "CRI;20109 Río Segundo",
+        "label": "20109 Río Segundo"
+    },
+    {
+        "value": "CRI;20110 Desamparados",
+        "label": "20110 Desamparados"
+    },
+    {
+        "value": "CRI;20111 Turrúcares",
+        "label": "20111 Turrúcares"
+    },
+    {
+        "value": "CRI;20112 Tambor",
+        "label": "20112 Tambor"
+    },
+    {
+        "value": "CRI;20113 Garita",
+        "label": "20113 Garita"
+    },
+    {
+        "value": "CRI;20114 Sarapiquí",
+        "label": "20114 Sarapiquí"
+    },
+    {
+        "value": "CRI;20201 San Ramón",
+        "label": "20201 San Ramón"
+    },
+    {
+        "value": "CRI;20202 Santiago",
+        "label": "20202 Santiago"
+    },
+    {
+        "value": "CRI;20203 San Juan",
+        "label": "20203 San Juan"
+    },
+    {
+        "value": "CRI;20204 Piedades Norte",
+        "label": "20204 Piedades Norte"
+    },
+    {
+        "value": "CRI;20205 Piedades Sur",
+        "label": "20205 Piedades Sur"
+    },
+    {
+        "value": "CRI;20206 San Rafael",
+        "label": "20206 San Rafael"
+    },
+    {
+        "value": "CRI;20207 San Isidro",
+        "label": "20207 San Isidro"
+    },
+    {
+        "value": "CRI;20208 Ángeles",
+        "label": "20208 Ángeles"
+    },
+    {
+        "value": "CRI;20209 Alfaro",
+        "label": "20209 Alfaro"
+    },
+    {
+        "value": "CRI;20210 Volio",
+        "label": "20210 Volio"
+    },
+    {
+        "value": "CRI;20211 Concepción",
+        "label": "20211 Concepción"
+    },
+    {
+        "value": "CRI;20212 Zapotal",
+        "label": "20212 Zapotal"
+    },
+    {
+        "value": "CRI;20213 Peñas Blancas",
+        "label": "20213 Peñas Blancas"
+    },
+    {
+        "value": "CRI;20301 Grecia",
+        "label": "20301 Grecia"
+    },
+    {
+        "value": "CRI;20302 San Isidro",
+        "label": "20302 San Isidro"
+    },
+    {
+        "value": "CRI;20303 San José",
+        "label": "20303 San José"
+    },
+    {
+        "value": "CRI;20304 San Roque",
+        "label": "20304 San Roque"
+    },
+    {
+        "value": "CRI;20305 Tacares",
+        "label": "20305 Tacares"
+    },
+    {
+        "value": "CRI;20306 Río Cuarto",
+        "label": "20306 Río Cuarto"
+    },
+    {
+        "value": "CRI;20307 Puente de Piedra",
+        "label": "20307 Puente de Piedra"
+    },
+    {
+        "value": "CRI;20308 Bolívar",
+        "label": "20308 Bolívar"
+    },
+    {
+        "value": "CRI;20401 San Mateo",
+        "label": "20401 San Mateo"
+    },
+    {
+        "value": "CRI;20402 Desmonte",
+        "label": "20402 Desmonte"
+    },
+    {
+        "value": "CRI;20403 Jesús María",
+        "label": "20403 Jesús María"
+    },
+    {
+        "value": "CRI;20501 Atenas",
+        "label": "20501 Atenas"
+    },
+    {
+        "value": "CRI;20502 Jesús",
+        "label": "20502 Jesús"
+    },
+    {
+        "value": "CRI;20503 Mercedes",
+        "label": "20503 Mercedes"
+    },
+    {
+        "value": "CRI;20504 San Isidro",
+        "label": "20504 San Isidro"
+    },
+    {
+        "value": "CRI;20505 Concepción",
+        "label": "20505 Concepción"
+    },
+    {
+        "value": "CRI;20506 San José",
+        "label": "20506 San José"
+    },
+    {
+        "value": "CRI;20507 Santa Eulalia",
+        "label": "20507 Santa Eulalia"
+    },
+    {
+        "value": "CRI;20508 Escobal",
+        "label": "20508 Escobal"
+    },
+    {
+        "value": "CRI;20601 Naranjo",
+        "label": "20601 Naranjo"
+    },
+    {
+        "value": "CRI;20602 San Miguel",
+        "label": "20602 San Miguel"
+    },
+    {
+        "value": "CRI;20603 San José",
+        "label": "20603 San José"
+    },
+    {
+        "value": "CRI;20604 Cirrí Sur",
+        "label": "20604 Cirrí Sur"
+    },
+    {
+        "value": "CRI;20605 San Jerónimo",
+        "label": "20605 San Jerónimo"
+    },
+    {
+        "value": "CRI;20606 San Juan",
+        "label": "20606 San Juan"
+    },
+    {
+        "value": "CRI;20607 El Rosario",
+        "label": "20607 El Rosario"
+    },
+    {
+        "value": "CRI;20608 Palmitos",
+        "label": "20608 Palmitos"
+    },
+    {
+        "value": "CRI;20701 Palmares",
+        "label": "20701 Palmares"
+    },
+    {
+        "value": "CRI;20702 Zaragoza",
+        "label": "20702 Zaragoza"
+    },
+    {
+        "value": "CRI;20703 Buenos Aires",
+        "label": "20703 Buenos Aires"
+    },
+    {
+        "value": "CRI;20704 Santiago",
+        "label": "20704 Santiago"
+    },
+    {
+        "value": "CRI;20705 Candelaria",
+        "label": "20705 Candelaria"
+    },
+    {
+        "value": "CRI;20706 Esquipulas",
+        "label": "20706 Esquipulas"
+    },
+    {
+        "value": "CRI;20707 La Granja",
+        "label": "20707 La Granja"
+    },
+    {
+        "value": "CRI;20801 San Pedro",
+        "label": "20801 San Pedro"
+    },
+    {
+        "value": "CRI;20802 San Juan",
+        "label": "20802 San Juan"
+    },
+    {
+        "value": "CRI;20804 Carrillos",
+        "label": "20804 Carrillos"
+    },
+    {
+        "value": "CRI;20805 Sabana Redonda",
+        "label": "20805 Sabana Redonda"
+    },
+    {
+        "value": "CRI;20901 Orotina",
+        "label": "20901 Orotina"
+    },
+    {
+        "value": "CRI;20902 El Mastate",
+        "label": "20902 El Mastate"
+    },
+    {
+        "value": "CRI;20903 Hacienda Vieja",
+        "label": "20903 Hacienda Vieja"
+    },
+    {
+        "value": "CRI;20904 Coyolar",
+        "label": "20904 Coyolar"
+    },
+    {
+        "value": "CRI;20905 La Ceiba",
+        "label": "20905 La Ceiba"
+    },
+    {
+        "value": "CRI;21001 Quesada",
+        "label": "21001 Quesada"
+    },
+    {
+        "value": "CRI;21002 Florencia",
+        "label": "21002 Florencia"
+    },
+    {
+        "value": "CRI;21003 Buenavista",
+        "label": "21003 Buenavista"
+    },
+    {
+        "value": "CRI;21004 Aguas Zarcas",
+        "label": "21004 Aguas Zarcas"
+    },
+    {
+        "value": "CRI;21005 Venecia",
+        "label": "21005 Venecia"
+    },
+    {
+        "value": "CRI;21006 Pital",
+        "label": "21006 Pital"
+    },
+    {
+        "value": "CRI;21007 La Fortuna",
+        "label": "21007 La Fortuna"
+    },
+    {
+        "value": "CRI;21008 La Tigra",
+        "label": "21008 La Tigra"
+    },
+    {
+        "value": "CRI;21009 La Palmera",
+        "label": "21009 La Palmera"
+    },
+    {
+        "value": "CRI;21010 Venado",
+        "label": "21010 Venado"
+    },
+    {
+        "value": "CRI;21011 Cutris",
+        "label": "21011 Cutris"
+    },
+    {
+        "value": "CRI;21012 Monterrey",
+        "label": "21012 Monterrey"
+    },
+    {
+        "value": "CRI;21013 Pocosol",
+        "label": "21013 Pocosol"
+    },
+    {
+        "value": "CRI;21101 Zarcero",
+        "label": "21101 Zarcero"
+    },
+    {
+        "value": "CRI;21102 Laguna",
+        "label": "21102 Laguna"
+    },
+    {
+        "value": "CRI;21103 Tapesco",
+        "label": "21103 Tapesco"
+    },
+    {
+        "value": "CRI;21104 Guadalupe",
+        "label": "21104 Guadalupe"
+    },
+    {
+        "value": "CRI;21105 Palmira",
+        "label": "21105 Palmira"
+    },
+    {
+        "value": "CRI;21106 Zapote",
+        "label": "21106 Zapote"
+    },
+    {
+        "value": "CRI;21107 Brisas",
+        "label": "21107 Brisas"
+    },
+    {
+        "value": "CRI;21201 Sarchí Norte",
+        "label": "21201 Sarchí Norte"
+    },
+    {
+        "value": "CRI;21202 Sarchí Sur",
+        "label": "21202 Sarchí Sur"
+    },
+    {
+        "value": "CRI;21203 Toro Amarillo",
+        "label": "21203 Toro Amarillo"
+    },
+    {
+        "value": "CRI;21204 San Pedro",
+        "label": "21204 San Pedro"
+    },
+    {
+        "value": "CRI;21205 Rodríguez",
+        "label": "21205 Rodríguez"
+    },
+    {
+        "value": "CRI;21301 Upala",
+        "label": "21301 Upala"
+    },
+    {
+        "value": "CRI;21302 Aguas Claras",
+        "label": "21302 Aguas Claras"
+    },
+    {
+        "value": "CRI;21303 San José o Pizote",
+        "label": "21303 San José o Pizote"
+    },
+    {
+        "value": "CRI;21304 Bijagua",
+        "label": "21304 Bijagua"
+    },
+    {
+        "value": "CRI;21305 Delicias",
+        "label": "21305 Delicias"
+    },
+    {
+        "value": "CRI;21306 Dos Ríos",
+        "label": "21306 Dos Ríos"
+    },
+    {
+        "value": "CRI;21307 Yolillal",
+        "label": "21307 Yolillal"
+    },
+    {
+        "value": "CRI;21401 Los Chiles",
+        "label": "21401 Los Chiles"
+    },
+    {
+        "value": "CRI;21402 Caño Negro",
+        "label": "21402 Caño Negro"
+    },
+    {
+        "value": "CRI;21403 El Amparo",
+        "label": "21403 El Amparo"
+    },
+    {
+        "value": "CRI;21404 San Jorge",
+        "label": "21404 San Jorge"
+    },
+    {
+        "value": "CRI;21501 San Rafael",
+        "label": "21501 San Rafael"
+    },
+    {
+        "value": "CRI;21502 Buenavista",
+        "label": "21502 Buenavista"
+    },
+    {
+        "value": "CRI;21503 Cote",
+        "label": "21503 Cote"
+    },
+    {
+        "value": "CRI;21504 Katira",
+        "label": "21504 Katira"
+    },
+    {
+        "value": "CRI;30101 Oriental",
+        "label": "30101 Oriental"
+    },
+    {
+        "value": "CRI;30102 Occidental",
+        "label": "30102 Occidental"
+    },
+    {
+        "value": "CRI;30103 Carmen",
+        "label": "30103 Carmen"
+    },
+    {
+        "value": "CRI;30104 San Nicolás",
+        "label": "30104 San Nicolás"
+    },
+    {
+        "value": "CRI;30105 Aguacaliente o San Francisco",
+        "label": "30105 Aguacaliente o San Francisco"
+    },
+    {
+        "value": "CRI;30106 Guadalupe o Arenilla",
+        "label": "30106 Guadalupe o Arenilla"
+    },
+    {
+        "value": "CRI;30107 Corralillo",
+        "label": "30107 Corralillo"
+    },
+    {
+        "value": "CRI;30108 Tierra Blanca",
+        "label": "30108 Tierra Blanca"
+    },
+    {
+        "value": "CRI;30109 Dulce Nombre",
+        "label": "30109 Dulce Nombre"
+    },
+    {
+        "value": "CRI;30110 Llano Grande",
+        "label": "30110 Llano Grande"
+    },
+    {
+        "value": "CRI;30111 Quebradilla",
+        "label": "30111 Quebradilla"
+    },
+    {
+        "value": "CRI;30201 Paraíso",
+        "label": "30201 Paraíso"
+    },
+    {
+        "value": "CRI;30202 Santiago",
+        "label": "30202 Santiago"
+    },
+    {
+        "value": "CRI;30203 Orosi",
+        "label": "30203 Orosi"
+    },
+    {
+        "value": "CRI;30204 Cachí",
+        "label": "30204 Cachí"
+    },
+    {
+        "value": "CRI;30205 Llanos de Santa Lucía",
+        "label": "30205 Llanos de Santa Lucía"
+    },
+    {
+        "value": "CRI;30301 Tres Ríos",
+        "label": "30301 Tres Ríos"
+    },
+    {
+        "value": "CRI;30302 San Diego",
+        "label": "30302 San Diego"
+    },
+    {
+        "value": "CRI;30303 San Juan",
+        "label": "30303 San Juan"
+    },
+    {
+        "value": "CRI;30304 San Rafael",
+        "label": "30304 San Rafael"
+    },
+    {
+        "value": "CRI;30305 Concepción",
+        "label": "30305 Concepción"
+    },
+    {
+        "value": "CRI;30306 Dulce Nombre",
+        "label": "30306 Dulce Nombre"
+    },
+    {
+        "value": "CRI;30307 San Ramón",
+        "label": "30307 San Ramón"
+    },
+    {
+        "value": "CRI;30308 Río Azul",
+        "label": "30308 Río Azul"
+    },
+    {
+        "value": "CRI;30401 Juan Viñas",
+        "label": "30401 Juan Viñas"
+    },
+    {
+        "value": "CRI;30402 Tucurrique",
+        "label": "30402 Tucurrique"
+    },
+    {
+        "value": "CRI;30403 Pejibaye",
+        "label": "30403 Pejibaye"
+    },
+    {
+        "value": "CRI;30501 Turrialba",
+        "label": "30501 Turrialba"
+    },
+    {
+        "value": "CRI;30502 La Suiza",
+        "label": "30502 La Suiza"
+    },
+    {
+        "value": "CRI;30503 Peralta",
+        "label": "30503 Peralta"
+    },
+    {
+        "value": "CRI;30504 Santa Cruz",
+        "label": "30504 Santa Cruz"
+    },
+    {
+        "value": "CRI;30505 Santa Teresita",
+        "label": "30505 Santa Teresita"
+    },
+    {
+        "value": "CRI;30506 Pavones",
+        "label": "30506 Pavones"
+    },
+    {
+        "value": "CRI;30507 Tuis",
+        "label": "30507 Tuis"
+    },
+    {
+        "value": "CRI;30508 Tayutic",
+        "label": "30508 Tayutic"
+    },
+    {
+        "value": "CRI;30509 Santa Rosa",
+        "label": "30509 Santa Rosa"
+    },
+    {
+        "value": "CRI;30510 Tres Equis",
+        "label": "30510 Tres Equis"
+    },
+    {
+        "value": "CRI;30511 La Isabel",
+        "label": "30511 La Isabel"
+    },
+    {
+        "value": "CRI;30512 Chirripó",
+        "label": "30512 Chirripó"
+    },
+    {
+        "value": "CRI;30601 Pacayas",
+        "label": "30601 Pacayas"
+    },
+    {
+        "value": "CRI;30602 Cervantes",
+        "label": "30602 Cervantes"
+    },
+    {
+        "value": "CRI;30603 Capellades",
+        "label": "30603 Capellades"
+    },
+    {
+        "value": "CRI;30701 San Rafael",
+        "label": "30701 San Rafael"
+    },
+    {
+        "value": "CRI;30702 Cot",
+        "label": "30702 Cot"
+    },
+    {
+        "value": "CRI;30703 Potrero Cerrado",
+        "label": "30703 Potrero Cerrado"
+    },
+    {
+        "value": "CRI;30704 Cipreses",
+        "label": "30704 Cipreses"
+    },
+    {
+        "value": "CRI;30705 Santa Rosa",
+        "label": "30705 Santa Rosa"
+    },
+    {
+        "value": "CRI;30801 El Tejar",
+        "label": "30801 El Tejar"
+    },
+    {
+        "value": "CRI;30802 San Isidro",
+        "label": "30802 San Isidro"
+    },
+    {
+        "value": "CRI;30803 Tobosi",
+        "label": "30803 Tobosi"
+    },
+    {
+        "value": "CRI;30804 Patio de Agua",
+        "label": "30804 Patio de Agua"
+    },
+    {
+        "value": "CRI;40101 Heredia",
+        "label": "40101 Heredia"
+    },
+    {
+        "value": "CRI;40102 Mercedes",
+        "label": "40102 Mercedes"
+    },
+    {
+        "value": "CRI;40103 San Francisco",
+        "label": "40103 San Francisco"
+    },
+    {
+        "value": "CRI;40104 Ulloa",
+        "label": "40104 Ulloa"
+    },
+    {
+        "value": "CRI;40105 Varablanca",
+        "label": "40105 Varablanca"
+    },
+    {
+        "value": "CRI;40201 Barva",
+        "label": "40201 Barva"
+    },
+    {
+        "value": "CRI;40202 San Pedro",
+        "label": "40202 San Pedro"
+    },
+    {
+        "value": "CRI;40203 San Pablo",
+        "label": "40203 San Pablo"
+    },
+    {
+        "value": "CRI;40204 San Roque",
+        "label": "40204 San Roque"
+    },
+    {
+        "value": "CRI;40205 Santa Lucía",
+        "label": "40205 Santa Lucía"
+    },
+    {
+        "value": "CRI;40206 San José de la Montaña",
+        "label": "40206 San José de la Montaña"
+    },
+    {
+        "value": "CRI;40301 Santo Domingo",
+        "label": "40301 Santo Domingo"
+    },
+    {
+        "value": "CRI;40302 San Vicente",
+        "label": "40302 San Vicente"
+    },
+    {
+        "value": "CRI;40303 San Miguel",
+        "label": "40303 San Miguel"
+    },
+    {
+        "value": "CRI;40304 Paracito",
+        "label": "40304 Paracito"
+    },
+    {
+        "value": "CRI;40305 Santo Tomás",
+        "label": "40305 Santo Tomás"
+    },
+    {
+        "value": "CRI;40306 Santa Rosa",
+        "label": "40306 Santa Rosa"
+    },
+    {
+        "value": "CRI;40307 Tures",
+        "label": "40307 Tures"
+    },
+    {
+        "value": "CRI;40308 Pará",
+        "label": "40308 Pará"
+    },
+    {
+        "value": "CRI;40401 Santa Bárbara",
+        "label": "40401 Santa Bárbara"
+    },
+    {
+        "value": "CRI;40402 San Pedro",
+        "label": "40402 San Pedro"
+    },
+    {
+        "value": "CRI;40403 San Juan",
+        "label": "40403 San Juan"
+    },
+    {
+        "value": "CRI;40404 Jesús",
+        "label": "40404 Jesús"
+    },
+    {
+        "value": "CRI;40405 Santo Domingo",
+        "label": "40405 Santo Domingo"
+    },
+    {
+        "value": "CRI;40406 Purabá",
+        "label": "40406 Purabá"
+    },
+    {
+        "value": "CRI;40501 San Rafael",
+        "label": "40501 San Rafael"
+    },
+    {
+        "value": "CRI;40502 San Josecito",
+        "label": "40502 San Josecito"
+    },
+    {
+        "value": "CRI;40503 Santiago",
+        "label": "40503 Santiago"
+    },
+    {
+        "value": "CRI;40504 Ángeles",
+        "label": "40504 Ángeles"
+    },
+    {
+        "value": "CRI;40505 Concepción",
+        "label": "40505 Concepción"
+    },
+    {
+        "value": "CRI;40601 San Isidro",
+        "label": "40601 San Isidro"
+    },
+    {
+        "value": "CRI;40602 San José",
+        "label": "40602 San José"
+    },
+    {
+        "value": "CRI;40603 Concepción",
+        "label": "40603 Concepción"
+    },
+    {
+        "value": "CRI;40604 San Francisco",
+        "label": "40604 San Francisco"
+    },
+    {
+        "value": "CRI;40701 San Antonio",
+        "label": "40701 San Antonio"
+    },
+    {
+        "value": "CRI;40702 La Ribera",
+        "label": "40702 La Ribera"
+    },
+    {
+        "value": "CRI;40703 La Asunción",
+        "label": "40703 La Asunción"
+    },
+    {
+        "value": "CRI;40801 San Joaquín",
+        "label": "40801 San Joaquín"
+    },
+    {
+        "value": "CRI;40802 Barrantes",
+        "label": "40802 Barrantes"
+    },
+    {
+        "value": "CRI;40803 Llorente",
+        "label": "40803 Llorente"
+    },
+    {
+        "value": "CRI;40901 San Pablo",
+        "label": "40901 San Pablo"
+    },
+    {
+        "value": "CRI;40902 Rincón de Sabanilla",
+        "label": "40902 Rincón de Sabanilla"
+    },
+    {
+        "value": "CRI;41001 Puerto Viejo",
+        "label": "41001 Puerto Viejo"
+    },
+    {
+        "value": "CRI;41002 La Virgen",
+        "label": "41002 La Virgen"
+    },
+    {
+        "value": "CRI;41003 Las Horquetas",
+        "label": "41003 Las Horquetas"
+    },
+    {
+        "value": "CRI;41004 Llanuras del Gaspar",
+        "label": "41004 Llanuras del Gaspar"
+    },
+    {
+        "value": "CRI;41005 Cureña",
+        "label": "41005 Cureña"
+    },
+    {
+        "value": "CRI;50101 Liberia",
+        "label": "50101 Liberia"
+    },
+    {
+        "value": "CRI;50102 Cañas Dulces",
+        "label": "50102 Cañas Dulces"
+    },
+    {
+        "value": "CRI;50103 Mayorga",
+        "label": "50103 Mayorga"
+    },
+    {
+        "value": "CRI;50104 Nacascolo",
+        "label": "50104 Nacascolo"
+    },
+    {
+        "value": "CRI;50105 Curubandé",
+        "label": "50105 Curubandé"
+    },
+    {
+        "value": "CRI;50201 Nicoya",
+        "label": "50201 Nicoya"
+    },
+    {
+        "value": "CRI;50202 Mansión",
+        "label": "50202 Mansión"
+    },
+    {
+        "value": "CRI;50203 San Antonio",
+        "label": "50203 San Antonio"
+    },
+    {
+        "value": "CRI;50204 Quebrada Honda",
+        "label": "50204 Quebrada Honda"
+    },
+    {
+        "value": "CRI;50205 Sámara",
+        "label": "50205 Sámara"
+    },
+    {
+        "value": "CRI;50206 Nosara",
+        "label": "50206 Nosara"
+    },
+    {
+        "value": "CRI;50207 Belén de Nosarita",
+        "label": "50207 Belén de Nosarita"
+    },
+    {
+        "value": "CRI;50301 Santa Cruz",
+        "label": "50301 Santa Cruz"
+    },
+    {
+        "value": "CRI;50302 Bolsón",
+        "label": "50302 Bolsón"
+    },
+    {
+        "value": "CRI;50303 Veintisiete de Abril",
+        "label": "50303 Veintisiete de Abril"
+    },
+    {
+        "value": "CRI;50304 Tempate",
+        "label": "50304 Tempate"
+    },
+    {
+        "value": "CRI;50305 Cartagena",
+        "label": "50305 Cartagena"
+    },
+    {
+        "value": "CRI;50306 Cuajiniquil",
+        "label": "50306 Cuajiniquil"
+    },
+    {
+        "value": "CRI;50307 Diriá",
+        "label": "50307 Diriá"
+    },
+    {
+        "value": "CRI;50308 Cabo Velas",
+        "label": "50308 Cabo Velas"
+    },
+    {
+        "value": "CRI;50309 Tamarindo",
+        "label": "50309 Tamarindo"
+    },
+    {
+        "value": "CRI;50401 Bagaces",
+        "label": "50401 Bagaces"
+    },
+    {
+        "value": "CRI;50402 La Fortuna",
+        "label": "50402 La Fortuna"
+    },
+    {
+        "value": "CRI;50403 Mogote",
+        "label": "50403 Mogote"
+    },
+    {
+        "value": "CRI;50404 Río Naranjo",
+        "label": "50404 Río Naranjo"
+    },
+    {
+        "value": "CRI;50501 Filadelfia",
+        "label": "50501 Filadelfia"
+    },
+    {
+        "value": "CRI;50502 Palmira",
+        "label": "50502 Palmira"
+    },
+    {
+        "value": "CRI;50503 Sardinal",
+        "label": "50503 Sardinal"
+    },
+    {
+        "value": "CRI;50504 Belén",
+        "label": "50504 Belén"
+    },
+    {
+        "value": "CRI;50601 Cañas",
+        "label": "50601 Cañas"
+    },
+    {
+        "value": "CRI;50602 Palmira",
+        "label": "50602 Palmira"
+    },
+    {
+        "value": "CRI;50603 San Miguel",
+        "label": "50603 San Miguel"
+    },
+    {
+        "value": "CRI;50604 Bebedero",
+        "label": "50604 Bebedero"
+    },
+    {
+        "value": "CRI;50605 Porozal",
+        "label": "50605 Porozal"
+    },
+    {
+        "value": "CRI;50701 Las Juntas",
+        "label": "50701 Las Juntas"
+    },
+    {
+        "value": "CRI;50702 Sierra",
+        "label": "50702 Sierra"
+    },
+    {
+        "value": "CRI;50703 San Juan",
+        "label": "50703 San Juan"
+    },
+    {
+        "value": "CRI;50704 Colorado",
+        "label": "50704 Colorado"
+    },
+    {
+        "value": "CRI;50801 Tilarán",
+        "label": "50801 Tilarán"
+    },
+    {
+        "value": "CRI;50802 Quebrada Grande",
+        "label": "50802 Quebrada Grande"
+    },
+    {
+        "value": "CRI;50803 Tronadora",
+        "label": "50803 Tronadora"
+    },
+    {
+        "value": "CRI;50804 Santa Rosa",
+        "label": "50804 Santa Rosa"
+    },
+    {
+        "value": "CRI;50805 Líbano",
+        "label": "50805 Líbano"
+    },
+    {
+        "value": "CRI;50806 Tierras Morenas",
+        "label": "50806 Tierras Morenas"
+    },
+    {
+        "value": "CRI;50807 Arenal",
+        "label": "50807 Arenal"
+    },
+    {
+        "value": "CRI;50901 Carmona",
+        "label": "50901 Carmona"
+    },
+    {
+        "value": "CRI;50902 Santa Rita",
+        "label": "50902 Santa Rita"
+    },
+    {
+        "value": "CRI;50903 Zapotal",
+        "label": "50903 Zapotal"
+    },
+    {
+        "value": "CRI;50904 San Pablo",
+        "label": "50904 San Pablo"
+    },
+    {
+        "value": "CRI;50905 Porvenir",
+        "label": "50905 Porvenir"
+    },
+    {
+        "value": "CRI;50906 Bejuco",
+        "label": "50906 Bejuco"
+    },
+    {
+        "value": "CRI;51001 La Cruz",
+        "label": "51001 La Cruz"
+    },
+    {
+        "value": "CRI;51002 Santa Cecilia",
+        "label": "51002 Santa Cecilia"
+    },
+    {
+        "value": "CRI;51003 La Garita",
+        "label": "51003 La Garita"
+    },
+    {
+        "value": "CRI;51004 Santa Elena",
+        "label": "51004 Santa Elena"
+    },
+    {
+        "value": "CRI;51101 Hojancha",
+        "label": "51101 Hojancha"
+    },
+    {
+        "value": "CRI;51102 Monte Romo",
+        "label": "51102 Monte Romo"
+    },
+    {
+        "value": "CRI;51103 Puerto Carrillo",
+        "label": "51103 Puerto Carrillo"
+    },
+    {
+        "value": "CRI;51104 Huacas",
+        "label": "51104 Huacas"
+    },
+    {
+        "value": "CRI;60101 Puntarenas",
+        "label": "60101 Puntarenas"
+    },
+    {
+        "value": "CRI;60102 Pitahaya",
+        "label": "60102 Pitahaya"
+    },
+    {
+        "value": "CRI;60103 Chomes",
+        "label": "60103 Chomes"
+    },
+    {
+        "value": "CRI;60104 Lepanto",
+        "label": "60104 Lepanto"
+    },
+    {
+        "value": "CRI;60105 Paquera",
+        "label": "60105 Paquera"
+    },
+    {
+        "value": "CRI;60106 Manzanillo",
+        "label": "60106 Manzanillo"
+    },
+    {
+        "value": "CRI;60107 Guacimal",
+        "label": "60107 Guacimal"
+    },
+    {
+        "value": "CRI;60108 Barranca",
+        "label": "60108 Barranca"
+    },
+    {
+        "value": "CRI;60109 Monte Verde",
+        "label": "60109 Monte Verde"
+    },
+    {
+        "value": "CRI;60110 Isla Del Coco",
+        "label": "60110 Isla Del Coco"
+    },
+    {
+        "value": "CRI;60111 Cóbano",
+        "label": "60111 Cóbano"
+    },
+    {
+        "value": "CRI;60112 Chacarita",
+        "label": "60112 Chacarita"
+    },
+    {
+        "value": "CRI;60113 Chira",
+        "label": "60113 Chira"
+    },
+    {
+        "value": "CRI;60114 Acapulco",
+        "label": "60114 Acapulco"
+    },
+    {
+        "value": "CRI;60115 El Roble",
+        "label": "60115 El Roble"
+    },
+    {
+        "value": "CRI;60116 Arancibia",
+        "label": "60116 Arancibia"
+    },
+    {
+        "value": "CRI;60201 Espíritu Santo",
+        "label": "60201 Espíritu Santo"
+    },
+    {
+        "value": "CRI;60202 San Juan Grande",
+        "label": "60202 San Juan Grande"
+    },
+    {
+        "value": "CRI;60203 Macacona",
+        "label": "60203 Macacona"
+    },
+    {
+        "value": "CRI;60204 San Rafael",
+        "label": "60204 San Rafael"
+    },
+    {
+        "value": "CRI;60205 San Jerónimo",
+        "label": "60205 San Jerónimo"
+    },
+    {
+        "value": "CRI;60301 Buenos Aires",
+        "label": "60301 Buenos Aires"
+    },
+    {
+        "value": "CRI;60302 Volcán",
+        "label": "60302 Volcán"
+    },
+    {
+        "value": "CRI;60303 Potrero Grande",
+        "label": "60303 Potrero Grande"
+    },
+    {
+        "value": "CRI;60304 Boruca",
+        "label": "60304 Boruca"
+    },
+    {
+        "value": "CRI;60305 Pilas",
+        "label": "60305 Pilas"
+    },
+    {
+        "value": "CRI;60306 Colinas",
+        "label": "60306 Colinas"
+    },
+    {
+        "value": "CRI;60307 Chánguena",
+        "label": "60307 Chánguena"
+    },
+    {
+        "value": "CRI;60308 Biolley",
+        "label": "60308 Biolley"
+    },
+    {
+        "value": "CRI;60309 Brunka",
+        "label": "60309 Brunka"
+    },
+    {
+        "value": "CRI;60401 Miramar",
+        "label": "60401 Miramar"
+    },
+    {
+        "value": "CRI;60402 La Unión",
+        "label": "60402 La Unión"
+    },
+    {
+        "value": "CRI;60403 San Isidro",
+        "label": "60403 San Isidro"
+    },
+    {
+        "value": "CRI;60501 Puerto Cortés",
+        "label": "60501 Puerto Cortés"
+    },
+    {
+        "value": "CRI;60502 Palmar",
+        "label": "60502 Palmar"
+    },
+    {
+        "value": "CRI;60503 Sierpe",
+        "label": "60503 Sierpe"
+    },
+    {
+        "value": "CRI;60504 Bahía Ballena",
+        "label": "60504 Bahía Ballena"
+    },
+    {
+        "value": "CRI;60505 Piedras Blancas",
+        "label": "60505 Piedras Blancas"
+    },
+    {
+        "value": "CRI;60601 Quepos",
+        "label": "60601 Quepos"
+    },
+    {
+        "value": "CRI;60602 Savegre",
+        "label": "60602 Savegre"
+    },
+    {
+        "value": "CRI;60603 Naranjito",
+        "label": "60603 Naranjito"
+    },
+    {
+        "value": "CRI;60701 Golfito",
+        "label": "60701 Golfito"
+    },
+    {
+        "value": "CRI;60702 Puerto Jiménez",
+        "label": "60702 Puerto Jiménez"
+    },
+    {
+        "value": "CRI;60703 Guaycará",
+        "label": "60703 Guaycará"
+    },
+    {
+        "value": "CRI;60704 Pavón",
+        "label": "60704 Pavón"
+    },
+    {
+        "value": "CRI;60801 San Vito",
+        "label": "60801 San Vito"
+    },
+    {
+        "value": "CRI;60802 Sabalito",
+        "label": "60802 Sabalito"
+    },
+    {
+        "value": "CRI;60803 Aguabuena",
+        "label": "60803 Aguabuena"
+    },
+    {
+        "value": "CRI;60804 Limoncito",
+        "label": "60804 Limoncito"
+    },
+    {
+        "value": "CRI;60805 Pittier",
+        "label": "60805 Pittier"
+    },
+    {
+        "value": "CRI;60901 Parrita",
+        "label": "60901 Parrita"
+    },
+    {
+        "value": "CRI;61001 Corredor",
+        "label": "61001 Corredor"
+    },
+    {
+        "value": "CRI;61002 La Cuesta",
+        "label": "61002 La Cuesta"
+    },
+    {
+        "value": "CRI;61003 Canoas",
+        "label": "61003 Canoas"
+    },
+    {
+        "value": "CRI;61004 Laurel",
+        "label": "61004 Laurel"
+    },
+    {
+        "value": "CRI;61101 Jacó",
+        "label": "61101 Jacó"
+    },
+    {
+        "value": "CRI;61102 Tárcoles",
+        "label": "61102 Tárcoles"
+    },
+    {
+        "value": "CRI;70101 Limón",
+        "label": "70101 Limón"
+    },
+    {
+        "value": "CRI;70102 Valle La Estrella",
+        "label": "70102 Valle La Estrella"
+    },
+    {
+        "value": "CRI;70103 Río Blanco",
+        "label": "70103 Río Blanco"
+    },
+    {
+        "value": "CRI;70104 Matama",
+        "label": "70104 Matama"
+    },
+    {
+        "value": "CRI;70201 Guápiles",
+        "label": "70201 Guápiles"
+    },
+    {
+        "value": "CRI;70202 Jiménez",
+        "label": "70202 Jiménez"
+    },
+    {
+        "value": "CRI;70203 Rita",
+        "label": "70203 Rita"
+    },
+    {
+        "value": "CRI;70204 Roxana",
+        "label": "70204 Roxana"
+    },
+    {
+        "value": "CRI;70205 Cariari",
+        "label": "70205 Cariari"
+    },
+    {
+        "value": "CRI;70206 Colorado",
+        "label": "70206 Colorado"
+    },
+    {
+        "value": "CRI;70301 Siquirres",
+        "label": "70301 Siquirres"
+    },
+    {
+        "value": "CRI;70302 Pacuarito",
+        "label": "70302 Pacuarito"
+    },
+    {
+        "value": "CRI;70303 Florida",
+        "label": "70303 Florida"
+    },
+    {
+        "value": "CRI;70304 Germania",
+        "label": "70304 Germania"
+    },
+    {
+        "value": "CRI;70305 El Cairo",
+        "label": "70305 El Cairo"
+    },
+    {
+        "value": "CRI;70306 Alegría",
+        "label": "70306 Alegría"
+    },
+    {
+        "value": "CRI;70401 Bratsi",
+        "label": "70401 Bratsi"
+    },
+    {
+        "value": "CRI;70402 Sixaola",
+        "label": "70402 Sixaola"
+    },
+    {
+        "value": "CRI;70403 Cahuita",
+        "label": "70403 Cahuita"
+    },
+    {
+        "value": "CRI;70404 Telire",
+        "label": "70404 Telire"
+    },
+    {
+        "value": "CRI;70501 Matina",
+        "label": "70501 Matina"
+    },
+    {
+        "value": "CRI;70502 Batán",
+        "label": "70502 Batán"
+    },
+    {
+        "value": "CRI;70503 Carrandi",
+        "label": "70503 Carrandi"
+    },
+    {
+        "value": "CRI;70601 Guácimo",
+        "label": "70601 Guácimo"
+    },
+    {
+        "value": "CRI;70602 Mercedes",
+        "label": "70602 Mercedes"
+    },
+    {
+        "value": "CRI;70603 Pocora",
+        "label": "70603 Pocora"
+    },
+    {
+        "value": "CRI;70604 Río Jiménez",
+        "label": "70604 Río Jiménez"
+    },
+    {
+        "value": "CRI;70605 Duacarí",
+        "label": "70605 Duacarí"
+    }
+]

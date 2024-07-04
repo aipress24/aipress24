@@ -1,0 +1,62 @@
+
+<style type="text/css">
+    /* style to display the error message */
+    .error-msg {
+        color: red;
+    }
+</style>
+
+<div
+    class="col-span-12 w-full"
+>
+  <div
+    x-data="{
+    result: '',
+    usedmailerror: '',
+    usedmail: false,
+    testEmail() {
+        this.result = '';
+        this.usedmail = false;
+        this.usedmailerror = '';
+        this.$refs.inputmail.classList.remove('xinvalid');
+        let newemail = this.$refs.inputmail.value;
+        var url = `/kyc/test_mail/${newemail}`;
+        fetch(url)
+            .then(response => response.text())
+            .then((text) => {
+                this.result = text;
+                if (this.result === 'ok'){
+                    this.usedmail = false;
+                    this.usedmailerror = '';
+                    if ($validate.isComplete(this.$refs.inputmail))
+                    {
+                        $validate.toggleError(this.$refs.inputmail,true)
+                    };
+                }else{
+                    console.log('mail already used');
+                    this.usedmail = true;
+                    this.usedmailerror = ' Adresse non permise';
+                    this.$refs.inputmail.classList.add('xinvalid');
+                    $validate.toggleError(this.$refs.inputmail, false);
+                };
+            });
+    }
+    }"
+    >
+    <input
+        class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm sm:text-sm sm:leading-6 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600"
+        id="{{ field.id }}"
+        name="{{ field.name }}"
+        {% if field.flags.required %}required{% endif %}
+        x-init="val='{{ field.data if field.data }}' || ''; $el.value=val"
+        type="email" x-validate.email
+        x-ref="inputmail"
+        x-on:change="testEmail"
+        data-error-msg=' Entrez une adresse email valide'
+    />
+    <template x-if="usedmail">
+        <p class="error-msg" x-text="usedmailerror">
+        </p>
+    </template>
+  </div>
+</div>

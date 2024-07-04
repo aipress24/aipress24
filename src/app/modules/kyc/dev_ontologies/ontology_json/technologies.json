@@ -1,0 +1,571 @@
+{
+    "table": [
+        [
+            "ADMINISTRATION PUBLIQUE"
+        ],
+        [
+            null,
+            "Analyse des données pour les politiques publiques"
+        ],
+        [
+            null,
+            "Analyse des sentiments pour évaluer les réactions citoyennes"
+        ],
+        [
+            null,
+            "Analytique prédictive pour les besoins futurs"
+        ],
+        [
+            null,
+            "Applications de promotion de l'éducation civique"
+        ],
+        [
+            null,
+            "Applications de santé publique et de suivi des maladies"
+        ],
+        [
+            null,
+            "Applications de tourisme et de culture pour les gouvernements locaux"
+        ],
+        [
+            null,
+            "Applications mobiles gouvernementales"
+        ],
+        [
+            null,
+            "Applications pour le développement économique local"
+        ],
+        [
+            null,
+            "Automatisation des processus administratifs"
+        ],
+        [
+            null,
+            "Blockchain pour la gouvernance et la transparence"
+        ],
+        [
+            null,
+            "Chatbots pour le service Usagers des administrations"
+        ],
+        [
+            null,
+            "Cybersécurité des infrastructures critiques"
+        ],
+        [
+            null,
+            "Cybersécurité pour les institutions gouvernementales"
+        ],
+        [
+            null,
+            "Gestion électronique des documents (GED)"
+        ],
+        [
+            null,
+            "Intelligence Artificielle (IA) pour la prise de décision"
+        ],
+        [
+            null,
+            "Intelligence émotionnelle pour améliorer les interactions avec les citoyens"
+        ],
+        [
+            null,
+            "IoT pour la gestion des infrastructures publiques"
+        ],
+        [
+            null,
+            "Outils de prévision des besoins en logement"
+        ],
+        [
+            null,
+            "Outils de suivi des performances gouvernementales et des administrations"
+        ],
+        [
+            null,
+            "Plateformes de données ouvertes"
+        ],
+        [
+            null,
+            "Plateformes de formation en ligne pour les employés gouvernementaux"
+        ],
+        [
+            null,
+            "Plateformes de gestion des impôts et des taxes"
+        ],
+        [
+            null,
+            "Plateformes de gestion des subventions et des aides publiques"
+        ],
+        [
+            null,
+            "Plateformes de participation citoyenne en ligne"
+        ],
+        [
+            null,
+            "Plates-formes de gestion des licences et des permis"
+        ],
+        [
+            null,
+            "Portails d’administration électronique"
+        ],
+        [
+            null,
+            "Réalité augmentée (AR) pour la formation et l'assistance"
+        ],
+        [
+            null,
+            "Réseaux sociaux pour l'engagement citoyen"
+        ],
+        [
+            null,
+            "Services de certification numérique"
+        ],
+        [
+            null,
+            "Solutions de gestion des déchets urbains"
+        ],
+        [
+            null,
+            "Solutions de gestion des élections"
+        ],
+        [
+            null,
+            "Solutions de gestion des parcs et des espaces publics"
+        ],
+        [
+            null,
+            "Solutions de gestion des plaintes et des requêtes des citoyens"
+        ],
+        [
+            null,
+            "Solutions de gestion des services sociaux et de santé mentale"
+        ],
+        [
+            null,
+            "Solutions de gestion des transports publics"
+        ],
+        [
+            null,
+            "Solutions de mobilité intelligente pour les villes"
+        ],
+        [
+            null,
+            "Systèmes de gestion de la relation citoyenne (CRM)"
+        ],
+        [
+            null,
+            "Systèmes de gestion des données géospatiales"
+        ],
+        [
+            null,
+            "Systèmes de gestion des finances publiques"
+        ],
+        [
+            null,
+            "Systèmes de gestion des ressources humaines des administrations"
+        ],
+        [
+            null,
+            "Systèmes de gestion des ressources naturelles et de l'environnement"
+        ],
+        [
+            null,
+            "Systèmes de gestion des urgences et des catastrophes"
+        ],
+        [
+            null,
+            "Systèmes de surveillance des frontières et de contrôle de l'immigration"
+        ],
+        [
+            null,
+            "Technologies de collaboration en temps réel"
+        ],
+        [
+            null,
+            "Technologies de gestion des services d'urgence médicale"
+        ],
+        [
+            null,
+            "Technologies de suivi de la qualité de l'air et de l'eau"
+        ],
+        [
+            null,
+            "Technologies de suivi des dépenses publiques"
+        ],
+        [
+            null,
+            "Technologies de surveillance et de gestion du trafic"
+        ],
+        [
+            null,
+            "Technologies de vérification d'identité"
+        ],
+        [
+            null,
+            "Technologies de vote électronique et de gouvernance participative"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [
+            "AÉRONAUTIQUE"
+        ],
+        [
+            null,
+            "Aéronefs à ultra-long rayon d'action"
+        ],
+        [
+            null,
+            "Aéronefs électriques"
+        ],
+        [
+            null,
+            "Aéronefs sans pilote (drones) pour diverses applications"
+        ],
+        [
+            null,
+            "Aérostructures légères et résistantes"
+        ],
+        [
+            null,
+            "Aides à la navigation basés sur l'IA"
+        ],
+        [
+            null,
+            "Ailes morphables"
+        ],
+        [
+            null,
+            "Alimentation électrique aéroportée"
+        ],
+        [
+            null,
+            "Amélioration de l'efficacité des aéroports"
+        ],
+        [
+            null,
+            "Amélioration de la conception des sièges d'avion"
+        ],
+        [
+            null,
+            "Amélioration des performances aérodynamiques"
+        ],
+        [
+            null,
+            "Analyse des données de vol en temps réel"
+        ],
+        [
+            null,
+            "Avionique intégrée et informatique en nuage"
+        ],
+        [
+            null,
+            "Ballons dirigeables géants"
+        ],
+        [
+            null,
+            "Carburants alternatifs durables (SAF)"
+        ],
+        [
+            null,
+            "Cockpits virtuels"
+        ],
+        [
+            null,
+            "Commandes de vol électriques"
+        ],
+        [
+            null,
+            "Conception d'aéronefs par impression 3D"
+        ],
+        [
+            null,
+            "Contrôle de la qualité de l'air cabine"
+        ],
+        [
+            null,
+            "Contrôle de vol autonome"
+        ],
+        [
+            null,
+            "Détection et d'évitement des oiseaux"
+        ],
+        [
+            null,
+            "Gestion de la sécurité aérienne basée sur l'IA"
+        ],
+        [
+            null,
+            "Gestion des passagers"
+        ],
+        [
+            null,
+            "Inspection des avions par drone"
+        ],
+        [
+            null,
+            "Intelligence Artificielle pour la gestion du trafic aérien"
+        ],
+        [
+            null,
+            "Logistique aéronautique"
+        ],
+        [
+            null,
+            "Maintenance prédictive"
+        ],
+        [
+            null,
+            "Matériaux autocicatrisants pour les aérostructures"
+        ],
+        [
+            null,
+            "Matériaux composites avancés"
+        ],
+        [
+            null,
+            "Moteurs à propulsion hybride"
+        ],
+        [
+            null,
+            "Propulsion à énergie solaire"
+        ],
+        [
+            null,
+            "Propulsion à hydrogène"
+        ],
+        [
+            null,
+            "Propulsion tout électrique"
+        ],
+        [
+            null,
+            "Réacteurs à haut rendement"
+        ],
+        [
+            null,
+            "Réduction de la consommation de carburant"
+        ],
+        [
+            null,
+            "Réduction de la turbulence aéroportée"
+        ],
+        [
+            null,
+            "Réduction des émissions de CO2 des avions"
+        ],
+        [
+            null,
+            "Réduction du bruit des avions"
+        ],
+        [
+            null,
+            "Réseaux de communication aéronautique avancés"
+        ],
+        [
+            null,
+            "Simulateurs de vol"
+        ],
+        [
+            null,
+            "Surveillance du trafic aérien"
+        ],
+        [
+            null,
+            "Systèmes d'atterrissage et de décollage verticaux (VTOL)"
+        ],
+        [
+            null,
+            "Systèmes d'avertissement et de prévention des collisions"
+        ],
+        [
+            null,
+            "Systèmes d'éclairage aéronautique avancés"
+        ],
+        [
+            null,
+            "Systèmes de communication satellitaire en vol"
+        ],
+        [
+            null,
+            "Systèmes de détection des turbulences"
+        ],
+        [
+            null,
+            "Systèmes de réduction de la traînée"
+        ],
+        [
+            null,
+            "Autres"
+        ],
+        [],
+        [
+            "AGRICULTURE"
+        ],
+        [
+            "ARTS PLASTIQUES"
+        ],
+        [
+            "ARTS DE LA SCÈNE"
+        ],
+        [
+            "AUTO-MOTO"
+        ],
+        [
+            "BTP"
+        ],
+        [
+            "BANDE DESSINÉE"
+        ],
+        [
+            "BANQUE, ASSURANCE, FINANCE"
+        ],
+        [
+            "BIOTECHNOLOGIES"
+        ],
+        [
+            "CHIMIE"
+        ],
+        [
+            "CINÉMA, ANIMATION"
+        ],
+        [
+            "COMMERCE"
+        ],
+        [
+            "COMMUNICATION"
+        ],
+        [
+            "COMPTABILITÉ"
+        ],
+        [
+            "COSMÉTIQUES"
+        ],
+        [
+            "DÉFENSE"
+        ],
+        [
+            "DISTRIBUTION"
+        ],
+        [
+            "DROIT & JUSTICE"
+        ],
+        [
+            "ÉNERGIES"
+        ],
+        [
+            "ENSEIGNEMENT"
+        ],
+        [
+            "ENVIRONNEMENT"
+        ],
+        [
+            "HÔTELLERIE, RESTAURATION"
+        ],
+        [
+            "INDUSTRIE AGROALIMENTAIRE"
+        ],
+        [
+            "INDUSTRIES MÉCANIQUES"
+        ],
+        [
+            "INDUSTRIE MINIÈRE"
+        ],
+        [
+            "INDUSTRIE PHARMACEUTIQUE"
+        ],
+        [
+            "INDUSTRIE PÉTROLIÈRE & GAZIÈRE"
+        ],
+        [
+            "INGÉNIERIE"
+        ],
+        [
+            "JEUX VIDÉO"
+        ],
+        [
+            "LOGISTIQUE"
+        ],
+        [
+            "LOISIRS"
+        ],
+        [
+            "MARKETING"
+        ],
+        [
+            "MATÉRIAUX"
+        ],
+        [
+            "MÉTIERS D’ART"
+        ],
+        [
+            "MOBILITÉS"
+        ],
+        [
+            "MODE"
+        ],
+        [
+            "MUSIQUE"
+        ],
+        [
+            "NUMÉRIQUE"
+        ],
+        [
+            "PRESSE & MÉDIAS"
+        ],
+        [
+            "POLITIQUE"
+        ],
+        [
+            "PUBLICITÉ"
+        ],
+        [
+            "RECHERCHE & INNOVATION"
+        ],
+        [
+            "SANTÉ"
+        ],
+        [
+            "SÉCURITÉ CIVILE"
+        ],
+        [
+            "SERVICES À LA PERSONNE"
+        ],
+        [
+            "SERVICES AUX ENTREPRISES"
+        ],
+        [
+            "SIDÉRURGIE"
+        ],
+        [
+            "SOCIAL"
+        ],
+        [
+            "SPATIAL"
+        ],
+        [
+            "SPORTS"
+        ],
+        [
+            "ROBOTIQUE"
+        ],
+        [
+            "SÛRETÉ, SÉCURITÉ"
+        ],
+        [
+            "SYNDICALISME"
+        ],
+        [
+            "TÉLÉCOMMUNICATIONS"
+        ],
+        [
+            "TOURISME"
+        ],
+        [
+            "TRANSPORTS"
+        ],
+        [
+            "VOYAGES"
+        ]
+    ]
+}

@@ -1,0 +1,11 @@
+{% extends "_base.html" %} {% block main %}
+<div class="py-10 px-4">
+  <div class="mx-auto lg:max-w-7xl p-6 lg:p-8 bg-white rounded-xl">
+    <div class="mx-auto max-w-2xl">
+      <div class="content">L'enregistrement de votre demande a échoué.</div>
+      <div class="content">Le message d'erreur:</div>
+      <div class="content">{{ msg_error }}</div>
+    </div>
+  </div>
+</div>
+{% endblock %}

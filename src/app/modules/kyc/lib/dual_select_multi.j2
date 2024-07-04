@@ -1,0 +1,126 @@
+<script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
+
+<div>
+
+<div
+    x-data="{
+      multiple: true,
+      create: false,
+      all_options: {{ field.get_dual_tom_choices_for_js() }},
+      value: {{ field.get_data() }},
+      options: null,
+      new_val: [],
+      last_val: [],
+      current_val: [],
+      second_list: null,
+      second_choices: null,
+      second_value: {{ field.get_data2() }},
+      init() {
+        this.$nextTick(() => {
+          let choices = new TomSelect(this.$refs.select, {
+             create: this.create,
+             createOnBlur: true,
+             maxOptions: null,
+             maxItems: null,
+             options: this.all_options.field1,
+             preload: false,
+             labelField: 'label',
+             searchField: ['label'],
+             diacritics: true,
+             plugins: {
+		      remove_button:{
+			     title:'Retirer',
+		      }
+        	 }
+             });
+
+          let second_choices = new TomSelect(this.$refs.second_select, {
+             create: this.create,
+             createOnBlur: true,
+             maxOptions: null,
+             maxItems: null,
+             preload: false,
+             labelField: 'label',
+             searchField: ['label'],
+             diacritics: true,
+             plugins: {
+		      remove_button:{
+			     title:'Retirer',
+		      }
+        	 }
+             });
+
+          second_choices.disable()
+
+          let refreshChoices = () => {
+             let selection = JSON.parse(JSON.stringify(this.value));
+             console.log('in refreshChoices()');
+             console.log(selection);
+
+             if (selection && JSON.stringify(selection) !== JSON.stringify(this.last_val)) {
+                this.last_val = selection;
+                this.second_list = [];
+                for (const el of this.all_options.field2) {
+                    const key = el.value.split(';')[0];
+                    if (selection.includes(key)) {
+                        this.second_list.push(el);
+                    };
+                };
+                displaySecondList();
+            };
+          };
+
+          let displaySecondList = () => {
+             console.log('in displaySecondList');
+             if (this.current_val === this.last_val) return;
+             console.log('new second list updating');
+             second_choices.clear();
+             second_choices.clearOptions();
+             second_choices.addOptions(this.second_list);
+             second_choices.refreshOptions(this.second_list);
+             second_choices.enable();
+             this.current_val = this.last_val;
+          };
+
+          if (this.value.length > 0) {
+            choices.setValue(this.value, false);
+          };
+
+          this.$refs.select.addEventListener('change', () => {
+            this.value = choices.getValue();
+            refreshChoices();
+          });
+
+          this.$watch('value', () => refreshChoices());
+          this.$watch('options', () => refreshChoices());
+
+          refreshChoices();
+          second_choices.setValue(this.second_value, false);
+        })
+      }
+    }"
+    class="col-span-12 w-full"
+>
+
+  <select
+      id="{{ field.id }}"
+      name="{{ field.name }}"
+      {% if field.flags.required %}required{% endif %}
+      x-ref="select"
+  >
+  </select>
+
+<div class="min-h-10 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm placeholder:text-gray-400 sm:text-sm sm:leading-6" >
+{{ field.label2 }}
+<br>
+<select
+    x-ref="second_select"
+    id="{{field.id2}}"
+    name="{{field.name2}}"
+    {% if field.flags.required %}required{% endif %}
+>
+</select>
+</div>
+
+</div>
+</div>

@@ -1,0 +1,710 @@
+[
+    {
+        "value": "PRI;00601 Adjuntas",
+        "label": "00601 Adjuntas"
+    },
+    {
+        "value": "PRI;00602 Aguada",
+        "label": "00602 Aguada"
+    },
+    {
+        "value": "PRI;00603 Aguadilla",
+        "label": "00603 Aguadilla"
+    },
+    {
+        "value": "PRI;00604 Aguadilla",
+        "label": "00604 Aguadilla"
+    },
+    {
+        "value": "PRI;00605 Aguadilla",
+        "label": "00605 Aguadilla"
+    },
+    {
+        "value": "PRI;00606 Maricao",
+        "label": "00606 Maricao"
+    },
+    {
+        "value": "PRI;00610 Anasco",
+        "label": "00610 Anasco"
+    },
+    {
+        "value": "PRI;00611 Angeles",
+        "label": "00611 Angeles"
+    },
+    {
+        "value": "PRI;00612 Arecibo",
+        "label": "00612 Arecibo"
+    },
+    {
+        "value": "PRI;00613 Arecibo",
+        "label": "00613 Arecibo"
+    },
+    {
+        "value": "PRI;00614 Arecibo",
+        "label": "00614 Arecibo"
+    },
+    {
+        "value": "PRI;00616 Bajadero",
+        "label": "00616 Bajadero"
+    },
+    {
+        "value": "PRI;00617 Barceloneta",
+        "label": "00617 Barceloneta"
+    },
+    {
+        "value": "PRI;00622 Boqueron",
+        "label": "00622 Boqueron"
+    },
+    {
+        "value": "PRI;00623 Cabo Rojo",
+        "label": "00623 Cabo Rojo"
+    },
+    {
+        "value": "PRI;00624 Penuelas",
+        "label": "00624 Penuelas"
+    },
+    {
+        "value": "PRI;00627 Camuy",
+        "label": "00627 Camuy"
+    },
+    {
+        "value": "PRI;00631 Castaner",
+        "label": "00631 Castaner"
+    },
+    {
+        "value": "PRI;00636 Rosario",
+        "label": "00636 Rosario"
+    },
+    {
+        "value": "PRI;00637 Sabana Grande",
+        "label": "00637 Sabana Grande"
+    },
+    {
+        "value": "PRI;00638 Ciales",
+        "label": "00638 Ciales"
+    },
+    {
+        "value": "PRI;00641 Utuado",
+        "label": "00641 Utuado"
+    },
+    {
+        "value": "PRI;00646 Dorado",
+        "label": "00646 Dorado"
+    },
+    {
+        "value": "PRI;00647 Ensenada",
+        "label": "00647 Ensenada"
+    },
+    {
+        "value": "PRI;00650 Florida",
+        "label": "00650 Florida"
+    },
+    {
+        "value": "PRI;00652 Garrochales",
+        "label": "00652 Garrochales"
+    },
+    {
+        "value": "PRI;00653 Guanica",
+        "label": "00653 Guanica"
+    },
+    {
+        "value": "PRI;00656 Guayanilla",
+        "label": "00656 Guayanilla"
+    },
+    {
+        "value": "PRI;00659 Hatillo",
+        "label": "00659 Hatillo"
+    },
+    {
+        "value": "PRI;00660 Hormigueros",
+        "label": "00660 Hormigueros"
+    },
+    {
+        "value": "PRI;00662 Isabela",
+        "label": "00662 Isabela"
+    },
+    {
+        "value": "PRI;00664 Jayuya",
+        "label": "00664 Jayuya"
+    },
+    {
+        "value": "PRI;00667 Lajas",
+        "label": "00667 Lajas"
+    },
+    {
+        "value": "PRI;00669 Lares",
+        "label": "00669 Lares"
+    },
+    {
+        "value": "PRI;00670 Las Marias",
+        "label": "00670 Las Marias"
+    },
+    {
+        "value": "PRI;00674 Manati",
+        "label": "00674 Manati"
+    },
+    {
+        "value": "PRI;00676 Moca",
+        "label": "00676 Moca"
+    },
+    {
+        "value": "PRI;00677 Rincon",
+        "label": "00677 Rincon"
+    },
+    {
+        "value": "PRI;00678 Quebradillas",
+        "label": "00678 Quebradillas"
+    },
+    {
+        "value": "PRI;00680 Mayaguez",
+        "label": "00680 Mayaguez"
+    },
+    {
+        "value": "PRI;00681 Mayaguez",
+        "label": "00681 Mayaguez"
+    },
+    {
+        "value": "PRI;00682 Mayaguez",
+        "label": "00682 Mayaguez"
+    },
+    {
+        "value": "PRI;00683 San German",
+        "label": "00683 San German"
+    },
+    {
+        "value": "PRI;00685 San Sebastian",
+        "label": "00685 San Sebastian"
+    },
+    {
+        "value": "PRI;00687 Morovis",
+        "label": "00687 Morovis"
+    },
+    {
+        "value": "PRI;00688 Sabana Hoyos",
+        "label": "00688 Sabana Hoyos"
+    },
+    {
+        "value": "PRI;00690 San Antonio",
+        "label": "00690 San Antonio"
+    },
+    {
+        "value": "PRI;00692 Vega Alta",
+        "label": "00692 Vega Alta"
+    },
+    {
+        "value": "PRI;00693 Vega Baja",
+        "label": "00693 Vega Baja"
+    },
+    {
+        "value": "PRI;00694 Vega Baja",
+        "label": "00694 Vega Baja"
+    },
+    {
+        "value": "PRI;00698 Yauco",
+        "label": "00698 Yauco"
+    },
+    {
+        "value": "PRI;00703 Aguas Buenas",
+        "label": "00703 Aguas Buenas"
+    },
+    {
+        "value": "PRI;00704 Aguirre",
+        "label": "00704 Aguirre"
+    },
+    {
+        "value": "PRI;00705 Aibonito",
+        "label": "00705 Aibonito"
+    },
+    {
+        "value": "PRI;00707 Maunabo",
+        "label": "00707 Maunabo"
+    },
+    {
+        "value": "PRI;00714 Arroyo",
+        "label": "00714 Arroyo"
+    },
+    {
+        "value": "PRI;00715 Mercedita",
+        "label": "00715 Mercedita"
+    },
+    {
+        "value": "PRI;00716 Ponce",
+        "label": "00716 Ponce"
+    },
+    {
+        "value": "PRI;00717 Ponce",
+        "label": "00717 Ponce"
+    },
+    {
+        "value": "PRI;00718 Naguabo",
+        "label": "00718 Naguabo"
+    },
+    {
+        "value": "PRI;00719 Naranjito",
+        "label": "00719 Naranjito"
+    },
+    {
+        "value": "PRI;00720 Orocovis",
+        "label": "00720 Orocovis"
+    },
+    {
+        "value": "PRI;00721 Palmer",
+        "label": "00721 Palmer"
+    },
+    {
+        "value": "PRI;00723 Patillas",
+        "label": "00723 Patillas"
+    },
+    {
+        "value": "PRI;00725 Caguas",
+        "label": "00725 Caguas"
+    },
+    {
+        "value": "PRI;00726 Caguas",
+        "label": "00726 Caguas"
+    },
+    {
+        "value": "PRI;00727 Caguas",
+        "label": "00727 Caguas"
+    },
+    {
+        "value": "PRI;00728 Ponce",
+        "label": "00728 Ponce"
+    },
+    {
+        "value": "PRI;00729 Canovanas",
+        "label": "00729 Canovanas"
+    },
+    {
+        "value": "PRI;00730 Ponce",
+        "label": "00730 Ponce"
+    },
+    {
+        "value": "PRI;00731 Ponce",
+        "label": "00731 Ponce"
+    },
+    {
+        "value": "PRI;00732 Ponce",
+        "label": "00732 Ponce"
+    },
+    {
+        "value": "PRI;00733 Ponce",
+        "label": "00733 Ponce"
+    },
+    {
+        "value": "PRI;00734 Ponce",
+        "label": "00734 Ponce"
+    },
+    {
+        "value": "PRI;00735 Ceiba",
+        "label": "00735 Ceiba"
+    },
+    {
+        "value": "PRI;00736 Cayey",
+        "label": "00736 Cayey"
+    },
+    {
+        "value": "PRI;00737 Cayey",
+        "label": "00737 Cayey"
+    },
+    {
+        "value": "PRI;00738 Fajardo",
+        "label": "00738 Fajardo"
+    },
+    {
+        "value": "PRI;00739 Cidra",
+        "label": "00739 Cidra"
+    },
+    {
+        "value": "PRI;00740 Puerto Real",
+        "label": "00740 Puerto Real"
+    },
+    {
+        "value": "PRI;00741 Punta Santiago",
+        "label": "00741 Punta Santiago"
+    },
+    {
+        "value": "PRI;00742 Roosevelt Roads",
+        "label": "00742 Roosevelt Roads"
+    },
+    {
+        "value": "PRI;00744 Rio Blanco",
+        "label": "00744 Rio Blanco"
+    },
+    {
+        "value": "PRI;00745 Rio Grande",
+        "label": "00745 Rio Grande"
+    },
+    {
+        "value": "PRI;00751 Salinas",
+        "label": "00751 Salinas"
+    },
+    {
+        "value": "PRI;00754 San Lorenzo",
+        "label": "00754 San Lorenzo"
+    },
+    {
+        "value": "PRI;00757 Santa Isabel",
+        "label": "00757 Santa Isabel"
+    },
+    {
+        "value": "PRI;00765 Vieques",
+        "label": "00765 Vieques"
+    },
+    {
+        "value": "PRI;00766 Villalba",
+        "label": "00766 Villalba"
+    },
+    {
+        "value": "PRI;00767 Yabucoa",
+        "label": "00767 Yabucoa"
+    },
+    {
+        "value": "PRI;00769 Coamo",
+        "label": "00769 Coamo"
+    },
+    {
+        "value": "PRI;00771 Las Piedras",
+        "label": "00771 Las Piedras"
+    },
+    {
+        "value": "PRI;00772 Loiza",
+        "label": "00772 Loiza"
+    },
+    {
+        "value": "PRI;00773 Luquillo",
+        "label": "00773 Luquillo"
+    },
+    {
+        "value": "PRI;00775 Culebra",
+        "label": "00775 Culebra"
+    },
+    {
+        "value": "PRI;00777 Juncos",
+        "label": "00777 Juncos"
+    },
+    {
+        "value": "PRI;00778 Gurabo",
+        "label": "00778 Gurabo"
+    },
+    {
+        "value": "PRI;00780 Coto Laurel",
+        "label": "00780 Coto Laurel"
+    },
+    {
+        "value": "PRI;00782 Comerio",
+        "label": "00782 Comerio"
+    },
+    {
+        "value": "PRI;00783 Corozal",
+        "label": "00783 Corozal"
+    },
+    {
+        "value": "PRI;00784 Guayama",
+        "label": "00784 Guayama"
+    },
+    {
+        "value": "PRI;00785 Guayama",
+        "label": "00785 Guayama"
+    },
+    {
+        "value": "PRI;00786 La Plata",
+        "label": "00786 La Plata"
+    },
+    {
+        "value": "PRI;00791 Humacao",
+        "label": "00791 Humacao"
+    },
+    {
+        "value": "PRI;00792 Humacao",
+        "label": "00792 Humacao"
+    },
+    {
+        "value": "PRI;00794 Barranquitas",
+        "label": "00794 Barranquitas"
+    },
+    {
+        "value": "PRI;00795 Juana Diaz",
+        "label": "00795 Juana Diaz"
+    },
+    {
+        "value": "PRI;00901 San Juan",
+        "label": "00901 San Juan"
+    },
+    {
+        "value": "PRI;00902 San Juan",
+        "label": "00902 San Juan"
+    },
+    {
+        "value": "PRI;00906 San Juan",
+        "label": "00906 San Juan"
+    },
+    {
+        "value": "PRI;00907 San Juan",
+        "label": "00907 San Juan"
+    },
+    {
+        "value": "PRI;00908 San Juan",
+        "label": "00908 San Juan"
+    },
+    {
+        "value": "PRI;00909 San Juan",
+        "label": "00909 San Juan"
+    },
+    {
+        "value": "PRI;00910 San Juan",
+        "label": "00910 San Juan"
+    },
+    {
+        "value": "PRI;00911 San Juan",
+        "label": "00911 San Juan"
+    },
+    {
+        "value": "PRI;00912 San Juan",
+        "label": "00912 San Juan"
+    },
+    {
+        "value": "PRI;00913 San Juan",
+        "label": "00913 San Juan"
+    },
+    {
+        "value": "PRI;00914 San Juan",
+        "label": "00914 San Juan"
+    },
+    {
+        "value": "PRI;00915 San Juan",
+        "label": "00915 San Juan"
+    },
+    {
+        "value": "PRI;00916 San Juan",
+        "label": "00916 San Juan"
+    },
+    {
+        "value": "PRI;00917 San Juan",
+        "label": "00917 San Juan"
+    },
+    {
+        "value": "PRI;00918 San Juan",
+        "label": "00918 San Juan"
+    },
+    {
+        "value": "PRI;00919 San Juan",
+        "label": "00919 San Juan"
+    },
+    {
+        "value": "PRI;00920 San Juan",
+        "label": "00920 San Juan"
+    },
+    {
+        "value": "PRI;00921 San Juan",
+        "label": "00921 San Juan"
+    },
+    {
+        "value": "PRI;00922 San Juan",
+        "label": "00922 San Juan"
+    },
+    {
+        "value": "PRI;00923 San Juan",
+        "label": "00923 San Juan"
+    },
+    {
+        "value": "PRI;00924 San Juan",
+        "label": "00924 San Juan"
+    },
+    {
+        "value": "PRI;00925 San Juan",
+        "label": "00925 San Juan"
+    },
+    {
+        "value": "PRI;00926 San Juan",
+        "label": "00926 San Juan"
+    },
+    {
+        "value": "PRI;00927 San Juan",
+        "label": "00927 San Juan"
+    },
+    {
+        "value": "PRI;00928 San Juan",
+        "label": "00928 San Juan"
+    },
+    {
+        "value": "PRI;00929 San Juan",
+        "label": "00929 San Juan"
+    },
+    {
+        "value": "PRI;00930 San Juan",
+        "label": "00930 San Juan"
+    },
+    {
+        "value": "PRI;00931 San Juan",
+        "label": "00931 San Juan"
+    },
+    {
+        "value": "PRI;00933 San Juan",
+        "label": "00933 San Juan"
+    },
+    {
+        "value": "PRI;00934 Fort Buchanan",
+        "label": "00934 Fort Buchanan"
+    },
+    {
+        "value": "PRI;00935 San Juan",
+        "label": "00935 San Juan"
+    },
+    {
+        "value": "PRI;00936 San Juan",
+        "label": "00936 San Juan"
+    },
+    {
+        "value": "PRI;00937 San Juan",
+        "label": "00937 San Juan"
+    },
+    {
+        "value": "PRI;00938 San Juan",
+        "label": "00938 San Juan"
+    },
+    {
+        "value": "PRI;00939 San Juan",
+        "label": "00939 San Juan"
+    },
+    {
+        "value": "PRI;00940 San Juan",
+        "label": "00940 San Juan"
+    },
+    {
+        "value": "PRI;00949 Toa Baja",
+        "label": "00949 Toa Baja"
+    },
+    {
+        "value": "PRI;00950 Toa Baja",
+        "label": "00950 Toa Baja"
+    },
+    {
+        "value": "PRI;00951 Toa Baja",
+        "label": "00951 Toa Baja"
+    },
+    {
+        "value": "PRI;00952 Sabana Seca",
+        "label": "00952 Sabana Seca"
+    },
+    {
+        "value": "PRI;00953 Toa Alta",
+        "label": "00953 Toa Alta"
+    },
+    {
+        "value": "PRI;00954 Toa Alta",
+        "label": "00954 Toa Alta"
+    },
+    {
+        "value": "PRI;00955 San Juan",
+        "label": "00955 San Juan"
+    },
+    {
+        "value": "PRI;00956 Bayamon",
+        "label": "00956 Bayamon"
+    },
+    {
+        "value": "PRI;00957 Bayamon",
+        "label": "00957 Bayamon"
+    },
+    {
+        "value": "PRI;00958 Bayamon",
+        "label": "00958 Bayamon"
+    },
+    {
+        "value": "PRI;00959 Bayamon",
+        "label": "00959 Bayamon"
+    },
+    {
+        "value": "PRI;00960 Bayamon",
+        "label": "00960 Bayamon"
+    },
+    {
+        "value": "PRI;00961 Bayamon",
+        "label": "00961 Bayamon"
+    },
+    {
+        "value": "PRI;00962 Catano",
+        "label": "00962 Catano"
+    },
+    {
+        "value": "PRI;00963 Catano",
+        "label": "00963 Catano"
+    },
+    {
+        "value": "PRI;00965 Guaynabo",
+        "label": "00965 Guaynabo"
+    },
+    {
+        "value": "PRI;00966 Guaynabo",
+        "label": "00966 Guaynabo"
+    },
+    {
+        "value": "PRI;00968 Guaynabo",
+        "label": "00968 Guaynabo"
+    },
+    {
+        "value": "PRI;00969 Guaynabo",
+        "label": "00969 Guaynabo"
+    },
+    {
+        "value": "PRI;00970 Guaynabo",
+        "label": "00970 Guaynabo"
+    },
+    {
+        "value": "PRI;00971 Guaynabo",
+        "label": "00971 Guaynabo"
+    },
+    {
+        "value": "PRI;00975 San Juan",
+        "label": "00975 San Juan"
+    },
+    {
+        "value": "PRI;00976 Trujillo Alto",
+        "label": "00976 Trujillo Alto"
+    },
+    {
+        "value": "PRI;00977 Trujillo Alto",
+        "label": "00977 Trujillo Alto"
+    },
+    {
+        "value": "PRI;00978 St Just",
+        "label": "00978 St Just"
+    },
+    {
+        "value": "PRI;00979 Carolina",
+        "label": "00979 Carolina"
+    },
+    {
+        "value": "PRI;00981 Carolina",
+        "label": "00981 Carolina"
+    },
+    {
+        "value": "PRI;00982 Carolina",
+        "label": "00982 Carolina"
+    },
+    {
+        "value": "PRI;00983 Carolina",
+        "label": "00983 Carolina"
+    },
+    {
+        "value": "PRI;00984 Carolina",
+        "label": "00984 Carolina"
+    },
+    {
+        "value": "PRI;00985 Carolina",
+        "label": "00985 Carolina"
+    },
+    {
+        "value": "PRI;00986 Carolina",
+        "label": "00986 Carolina"
+    },
+    {
+        "value": "PRI;00987 Carolina",
+        "label": "00987 Carolina"
+    },
+    {
+        "value": "PRI;00988 Carolina",
+        "label": "00988 Carolina"
+    }
+]

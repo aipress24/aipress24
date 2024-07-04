@@ -1,0 +1,37 @@
+{
+    "table": [
+        [
+            "Presse culturelle"
+        ],
+        [
+            "Presse d’information générale"
+        ],
+        [
+            "Presse économique et financière"
+        ],
+        [
+            "Presse grand public spécialisée"
+        ],
+        [
+            "Presse professionnelle"
+        ],
+        [
+            "Presse quotidienne"
+        ],
+        [
+            "Presse régionale"
+        ],
+        [
+            "Presse satirique"
+        ],
+        [
+            "Presse scientifique"
+        ],
+        [
+            "Presse sportive"
+        ],
+        [
+            "Autres"
+        ]
+    ]
+}

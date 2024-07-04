@@ -64,7 +64,7 @@ class SessionService:
         """Set a value in the user's session by key."""
         user = self.auth_service.get_user()
         repo = container.get(SessionRepository)
-        session, _created = repo.get_or_create(user_id=user.id)
+        session, _created = repo.get_or_upsert(user_id=user.id)
         session.set(key, value)
         repo.add(session, auto_commit=True)
 
