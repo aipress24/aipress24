@@ -14,10 +14,12 @@ from app.modules.kyc.ontologies import (
     zip_code_city_list,
 )
 
+DATA_MODULE = "app.modules.kyc.data"
+
 
 def _read_content(ontology: str) -> list | dict:
     filename = f"{ontology}.json"
-    return json.loads(rso.files("app.data").joinpath(filename).read_text())
+    return json.loads(rso.files(DATA_MODULE).joinpath(filename).read_text())
 
 
 def unicity_keys(content: list) -> bool:
@@ -39,7 +41,7 @@ def total_values(content: dict) -> int:
 def test_all_files_exist():
     for ontology in ONTOLOGY_MAP.values():
         filename = f"{ontology}.json"
-        assert rso.files("app.data").joinpath(filename).is_file()
+        assert rso.files(DATA_MODULE).joinpath(filename).is_file()
 
 
 def test_civilite():
@@ -301,7 +303,7 @@ def test_pays():
     assert isinstance(content, list)
     assert len([item for item in content if not isinstance(item, list)]) == 0
     assert len([item for item in content if not item]) == 0
-    assert content[0] == ["ZAF", "Afrique du Sud"]
+    assert content[0] == ["FRA", "France"]
     assert content[-1] == ["MHL", "Îles Marshall"]
     assert content[-2] == ["MNP", "Îles Mariannes du Nord"]
     assert len(content) == 81
@@ -550,7 +552,7 @@ def test_langue():
     assert isinstance(content, list)
     assert len([item for item in content if not isinstance(item, list)]) == 0
     assert len([item for item in content if not item]) == 0
-    assert content[0] == ["Afrikaans", "Afrikaans"]
+    assert content[0] == ["Français", "Français"]
     assert content[-1] == ["Zoulou", "Zoulou"]
     assert len(content) == 180
     assert unicity_keys(content)

@@ -25,7 +25,7 @@ def test_single_user(db: SQLAlchemy) -> None:
     assert score == 0
 
 
-@pytest.mark.skip()
+@pytest.mark.skip
 def test_two_users(db: SQLAlchemy) -> None:
     joe = User(email="joe@example.com")
     jim = User(email="jim@example.com")
@@ -57,7 +57,7 @@ def test_single_org(db: SQLAlchemy) -> None:
     assert score == 0
 
 
-@pytest.mark.skip()
+@pytest.mark.skip
 def test_record(db: SQLAlchemy) -> None:
     joe = User(email="joe@example.com")
     jim = User(email="jim@example.com")

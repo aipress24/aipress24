@@ -13,9 +13,9 @@ from app.modules.kyc.survey_dataclass import Profile
 from app.modules.kyc.views import MODEL_FILENAME
 
 
-@pytest.fixture()
+@pytest.fixture
 def model_source() -> Path:
-    return Path(__file__).parent.parent / MODEL_FILENAME
+    return Path(__file__).parent.parent / "kyc_models" / MODEL_FILENAME
 
 
 def test_model_exists(model_source):

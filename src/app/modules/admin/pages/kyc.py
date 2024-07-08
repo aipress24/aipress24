@@ -7,11 +7,12 @@ from __future__ import annotations
 from app.flask.lib.pages import page
 from app.models.auth import User
 
-# from app.modules.kyc.models import MembershipApplication
-
 from .. import table as t
 from .base import AdminListPage
 from .home import AdminHomePage
+
+# from app.modules.kyc.models import MembershipApplication
+
 
 TABLE_COLUMNS = [
     {"name": "first_name", "label": "Prénom", "width": 50},

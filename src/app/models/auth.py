@@ -80,7 +80,9 @@ class User(Addressable, UserMixin, Base):
     # remove _password_hash when going to bcrypt
     _password_hash: Mapped[str | None] = mapped_column(sa.String(64))
 
-    date_submit: Mapped[sa.DateTime] = mapped_column(sa.DateTime, server_default=func.now())
+    date_submit: Mapped[sa.DateTime] = mapped_column(
+        sa.DateTime, server_default=func.now()
+    )
     user_valid: Mapped[bool] = mapped_column(default=False)
     user_date_valid: Mapped[sa.DateTime] = mapped_column(
         sa.DateTime, server_default=func.now()
@@ -257,6 +259,7 @@ class KYCProfile(Base):
     date_update: Mapped[DateTime] = mapped_column(
         DateTime, nullable=True, onupdate=func.now()
     )
+
 
 # class User2(Base):
 #     #
