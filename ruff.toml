@@ -64,6 +64,7 @@ lint.ignore = [
     #
     "BLE001", # Do not catch blind exception
     "C901", # Function too complex
+    "CPY001", # Copyrite header not found
     "ERA001", # [*] Found commented-out code
     "N801",
     "PLR2004", # Magic value used in comparison

@@ -4,6 +4,8 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 
 def default_info_pro() -> dict[str, str | list]:
     return {
@@ -103,3 +105,22 @@ def populate_json_field(field_name: str, results: dict) -> dict:
         if key in keys:
             base[key] = value
     return base
+
+
+def populate_form_data(
+    category: str, content: dict[str, Any], data: dict[str, Any]
+) -> None:
+    match category:
+        case "info_professionnelle":
+            default_fct = default_info_pro
+        case "match_making":
+            default_fct = default_match_making
+        case "hobbies":
+            default_fct = default_hobbies
+        case "business_wall":
+            default_fct = default_business_wall
+        case _:
+            raise ValueError(f"Unknow category: {category}")
+    base: dict[str, Any] = default_fct()
+    data.update(base)
+    data.update(content)

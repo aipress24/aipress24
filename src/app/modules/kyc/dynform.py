@@ -547,7 +547,11 @@ def _fill_managed_data(form: FlaskForm, managed_data: dict[str, Any]) -> None:
             wt_field.data = value
 
 
-def generate_form(profile: Profile, form_data: dict | None = None) -> FlaskForm:
+def generate_form(
+    profile: Profile,
+    form_data: dict | None = None,
+    mode_edition: bool = False,
+) -> FlaskForm:
     """The form contains several Fields and sub titles information.
 
     Form.kyc_order = [
@@ -555,7 +559,11 @@ def generate_form(profile: Profile, form_data: dict | None = None) -> FlaskForm:
         (group2.label, [fieldnam.., ])
     ]
 
+    If edition is True, do not show fields for email and password.
+
     """
+
+    no_edit_fields = {"email", "password"}
 
     class DynForm(FlaskForm):
         pass
@@ -570,6 +578,9 @@ def generate_form(profile: Profile, form_data: dict | None = None) -> FlaskForm:
         group_ordered_fields = []
         for profile_field, code in group.fields:
             profile_key, _ = _split_profile_field(profile_field.type)
+            if mode_edition and profile_key in no_edit_fields:
+                continue
+            # print(f"/// {profile_field} {profile_key}", file=sys.stderr)
             field_fct = FIELD_TYPE_SELECTOR.get(profile_key)
             # print(f"/// {profile_field} {profile_key} {field_fct}", file=sys.stderr)
             if not field_fct:  # until we provide all custom fields classes

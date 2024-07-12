@@ -13,6 +13,7 @@ from typing import Any
 
 from flask import (
     current_app,
+    g,
     jsonify,
     redirect,
     render_template,
@@ -21,19 +22,22 @@ from flask import (
     session,
     url_for,
 )
+from flask_login import current_user
 from flask_wtf import FlaskForm
 from sqlalchemy.exc import IntegrityError
+from svcs.flask import container
 from werkzeug import Response
 from wtforms import Field
 
 from app.flask.extensions import db
-from app.models.auth import KYCProfile, User
+from app.models.auth import KYCProfile, Role, User
+from app.models.repositories import RoleRepository
 
 from . import blueprint, kyc_models
 from .dynform import TAG_LABELS, generate_form
 from .field_label import requires_value, values_to_label
 from .ontologies import zip_code_city_list
-from .populate_profile import populate_json_field
+from .populate_profile import populate_form_data, populate_json_field
 from .renderer import render_field
 from .resized import resized
 from .survey_dataclass import Profile
@@ -58,8 +62,31 @@ def zip_towns(country_code: str):
     return jsonify(zip_code_city_list(country_code))
 
 
+def _load_user_data_in_form() -> None:
+    user = g.user
+    profile = user.profile
+    print("////////////edit user:", user, file=sys.stderr)
+    if not profile:
+        # fake user at the moment
+        print("//////////// generate empty profile", file=sys.stderr)
+        profile = KYCProfile(
+            profile_id="P002",
+            info_professionnelle=populate_json_field("info_professionnelle", {}),
+            match_making=populate_json_field("match_making", {}),
+            hobbies=populate_json_field("hobbies", {}),
+            business_wall=populate_json_field("business_wall", {}),
+        )
+        user.profile = profile
+
+    session["profile_id"] = profile.profile_id
+    session["form_raw_results"] = _populate_from_logged_user()
+    session["modify_form"] = True
+
+
 @blueprint.route("/profile", methods=("GET", "POST"))
 def profile_page() -> str | Response:
+    if current_user.is_authenticated:
+        _load_user_data_in_form()
     profile_id = session.get("profile_id", "")
     # print(request.method, file=sys.stderr)
     if request.method == "GET":
@@ -243,13 +270,17 @@ def _parse_valid_form(form: FlaskForm, profile_id: str) -> None:
 def wizard_page(profile_id: str):
     form_data = None
     modify_form = bool(session.get("modify_form"))
+
     # form = generate_form(_get_profile(profile_id))
     if modify_form and request.method == "GET":
         # print("modify_form", file=sys.stderr)
         form_data = session["form_raw_results"]
-        form = generate_form(_get_profile(profile_id), form_data)
+        print("////////////edit form_data", form_data, file=sys.stderr)
+        form = generate_form(
+            _get_profile(profile_id), form_data, mode_edition=modify_form
+        )
     else:
-        form = generate_form(_get_profile(profile_id))
+        form = generate_form(_get_profile(profile_id), mode_edition=modify_form)
 
     # print(f"WIZARD request method {request.method}", file=sys.stderr)
     # print(f"WIZARD profile:{profile_id}  {modify_form=}", file=sys.stderr)
@@ -391,7 +422,7 @@ def modify_page():
     return redirect(url_for(".profile_page"))
 
 
-def _civilie_to_gender(civilite: str) -> str:
+def _civilite_to_gender(civilite: str) -> str:
     match civilite:
         case "Monsieur":
             gender = "M"
@@ -400,6 +431,35 @@ def _civilie_to_gender(civilite: str) -> str:
         case _:
             gender = "?"
     return gender
+
+
+def _gender_to_civilite(gender: str) -> str:
+    match gender:
+        case "M":
+            gender = "Monsieur"
+        case "F":
+            gender = "Madame"
+        case _:
+            gender = "Non renseigné"
+    return gender
+
+
+def _guess_organisation_name(results: dict) -> str:
+    for field in ("nom_media", "nom_media_insti", "nom_agence_rp", "nom_orga"):
+        value = results.get(field, "")
+        # fixme: nom_media is a list of string, not a string
+        if isinstance(value, list) and value:
+            value = value[0]
+        value = str(value).strip()
+        if value:
+            return value
+    return ""
+
+
+def _role_from_name(name: str) -> Role:
+    role_repo = container.get(RoleRepository)
+    roles_map = {role.name: role for role in role_repo.list()}
+    return roles_map.get(name, roles_map["GUEST"])
 
 
 def make_kyc_user_record() -> User:
@@ -428,14 +488,14 @@ def make_kyc_user_record() -> User:
     )
 
     user = User(
-        last_name=results.get("nom", ""),
-        first_name=results.get("prenom", ""),
+        last_name=results.get("last_name", ""),
+        first_name=results.get("first_name", ""),
         photo=photo,
         photo_filename=photo_filename,
         photo_carte_presse=photo_carte_presse,
         photo_carte_presse_filename=photo_carte_presse_filename,
         pseudo=results.get("pseudo", ""),
-        gender=_civilie_to_gender(results.get("civilite", "")),
+        gender=_civilite_to_gender(results.get("civilite", "")),
         email=results.get("email", ""),
         email_secours=results.get("email_secours", ""),
         tel_mobile=results.get("tel_mobile", ""),
@@ -443,16 +503,86 @@ def make_kyc_user_record() -> User:
         fs_uniquifier=fs_uniquifier,
         user_valid=False,
         user_valid_comment="Utilisateur à valider",
+        # duplicated: from KYCProfile
+        hobbies=results.get("hobbies", ""),
+        organisation_name=_guess_organisation_name(results),
     )
 
     user.profile = profile
+
+    # debug: add some role
+    user.roles.append(_role_from_name("EXPERT"))
+    user.active = True
+
     return user
 
 
+def _update_current_user(user: User) -> None:
+    results = session.get("form_raw_results", {})
+    photo_blob_id = results.get("photo", None)
+    photo_filename, photo_uuid, photo = pop_tmp_blob(photo_blob_id)
+    carte_presse_blob_id = results.get("photo_carte_presse", None)
+    (
+        photo_carte_presse_filename,
+        photo_carte_presse_filename_uuid,
+        photo_carte_presse,
+    ) = pop_tmp_blob(carte_presse_blob_id)
+
+    _remove_tmp_data(photo_uuid)
+    _remove_tmp_data(photo_carte_presse_filename_uuid)
+
+    profile = user.profile
+    if not profile:
+        # fake user at the moment
+        print("//////////// generate empty profile", file=sys.stderr)
+        profile = KYCProfile(
+            profile_id="P002",
+            info_professionnelle=populate_json_field("info_professionnelle", {}),
+            match_making=populate_json_field("match_making", {}),
+            hobbies=populate_json_field("hobbies", {}),
+            business_wall=populate_json_field("business_wall", {}),
+        )
+        user.profile = profile
+
+    profile.profile_id = session.get("profile_id", "")
+    profile.info_professionnelle = populate_json_field("info_professionnelle", results)
+    profile.match_making = populate_json_field("match_making", results)
+    profile.hobbies = populate_json_field("hobbies", results)
+    profile.business_wall = populate_json_field("business_wall", results)
+
+    user.last_name = results.get("last_name", "")
+    user.first_name = results.get("first_name", "")
+    user.photo = photo
+    user.photo_filename = photo_filename
+    user.photo_carte_presse = photo_carte_presse
+    user.photo_carte_presse_filename = photo_carte_presse_filename
+    user.pseudo = results.get("pseudo", "")
+    user.gender = _civilite_to_gender(results.get("civilite", ""))
+    # email=results.get("email", ""),
+    # email_secours=results.get("email_secours", "")
+    user.tel_mobile = results.get("tel_mobile", "")
+    # password=results.get("password", ""),  # to be hashed by bcrypt
+    user.user_valid = False
+    user.user_valid_comment = "Utilisateur à valider"
+    # duplicated: from KYCProfile
+    user.hobbies = results.get("hobbies", "")
+    user.organisation_name = _guess_organisation_name(results)
+
+    user.active = True
+
+
 def export_kyc_data() -> str:
+    if current_user.is_authenticated:
+        return _update_current_user_data()
+    else:
+        return _store_user_data()
+
+
+def _store_user_data() -> str:
     user = make_kyc_user_record()
     db_session = db.session
-    db_session.add(user)
+    db_session.merge(user)
+    # db_session.add(user)
     error = ""
     try:
         db_session.commit()
@@ -460,6 +590,59 @@ def export_kyc_data() -> str:
         db_session.rollback()
         error = str(e)
     return error
+
+
+def _update_current_user_data() -> str:
+    db_session = db.session
+    user = User.query.get(current_user.id)
+    _update_current_user(user)
+    error = ""
+    try:
+        db_session.commit()
+    except IntegrityError as e:
+        db_session.rollback()
+        error = str(e)
+    return error
+
+
+def _store_tmp_blob_from_user(content: bytes, filename: str) -> tuple[str, int]:
+    blob_id = store_tmp_blob(filename, content)
+    print(f"Store: {blob_id} {filename} {len(content)}", file=sys.stderr)
+    return filename, blob_id
+
+
+def _populate_from_logged_user() -> dict[str, Any]:
+    user = g.user
+    profile = user.profile
+    data: dict[str, Any] = {}
+    # debug: photos to be extracted as blobs
+    blob_id_photo = store_tmp_blob(user.photo_filename, user.photo)
+    data["photo"] = blob_id_photo
+    data["photo_filename"] = user.photo_filename
+
+    blob_id_carte = store_tmp_blob(
+        user.photo_carte_presse_filename, user.photo_carte_presse
+    )
+    data["photo_carte_presse"] = blob_id_carte
+    data["photo_carte_presse_filename"] = user.photo_carte_presse_filename
+
+    data["last_name"] = user.last_name
+    data["first_name"] = user.first_name
+    data["pseudo"] = user.pseudo
+    data["civilite"] = _gender_to_civilite(user.gender)
+    data["email"] = user.email
+    data["email_secours"] = user.email_secours
+    data["tel_mobile"] = user.tel_mobile
+    data["password"] = ""
+    data["fs_uniquifier"] = user.fs_uniquifier
+    data["hobbies"] = profile.hobbies["hobbies"]
+
+    populate_form_data("info_professionnelle", profile.info_professionnelle, data)
+    populate_form_data("match_making", profile.match_making, data)
+    populate_form_data("hobbies", profile.hobbies, data)
+    populate_form_data("business_wall", profile.business_wall, data)
+
+    return data
 
 
 def load_model() -> dict[str, Any]:

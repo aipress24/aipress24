@@ -4,7 +4,7 @@
 
 [tool.poetry]
 name = "aipress24-flask"
-version = "2024.07.03.2"
+version = "2024.07.11.1"
 description = ""
 authors = ["Stefane Fermigier <sf@abilian.com>"]
 
@@ -328,6 +328,11 @@ DEP002 = [
     'pluggy',
     # Can be removed (I think)
     'dramatiq-pg',
+    # Used by the WTForms
+    'email-validator',
+    'dnspython',
+    # Used by a script
+    'buildstr',
 ]
 # X imported but declared as a dev dependency
 DEP004 = ['hypothesis', 'openpyxl', "flask_debugtoolbar"]

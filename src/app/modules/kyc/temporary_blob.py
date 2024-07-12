@@ -11,6 +11,8 @@ from app.models.kyc_tmp_blob import KYCTmpBlob
 
 
 def store_tmp_blob(filename: str, content: bytes) -> int:
+    if not content or not filename:
+        return 0
     blob = KYCTmpBlob(
         name=filename,
         uuid=uuid4().hex,

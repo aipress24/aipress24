@@ -17,7 +17,7 @@
     {% if field.flags.required %}required{% endif %}
     x-init="val='{{ field.data if field.data }}' || ''; $el.value=val"
     type="tel" x-validate
-    pattern="^\s*\+?[0-9]{9,12}\s*$"
+    pattern="^\s*\+?[0-9 ]{9,17}\s*$"
     data-error-msg=' Entrez un numéro de téléphone valide'
     />
   </div>

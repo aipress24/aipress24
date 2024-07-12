@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import random
+import urllib.request
 
 from mimesis import Person
 from mimesis.enums import Gender
@@ -31,6 +32,16 @@ class UserGenerator(BaseGenerator):
         super().__post_init__()
         self.person_faker = Person(self.locale)
 
+    @staticmethod
+    def _load_photo_profil(user: User) -> None:
+        try:
+            user.photo = urllib.request.urlopen(  # noqa: S310
+                user.profile_image_url
+            ).read()
+            user.photo_filename = user.profile_image_url
+        except Exception as e:
+            print(e)
+
     def make_obj(self) -> User:
         datastore = security.datastore
         user: User = datastore.create_user()
@@ -45,6 +56,8 @@ class UserGenerator(BaseGenerator):
         user.email = self.person_faker.email(unique=True)
         user.telephone = self.person_faker.telephone()
 
+        user.tel_mobile = self.person_faker.telephone()
+
         job_titles = ROLES + ROLES + ROLES + [faker.job() for i in range(1, 100)]
         user.job_title = random.choice(job_titles)
 
@@ -54,6 +67,7 @@ class UserGenerator(BaseGenerator):
         user.hobbies = self.generate_html(0, 3)
 
         user.profile_image_url = self.get_profile_image(user)
+        self._load_photo_profil(user)
         user.cover_image_url = random.choice(COVER_IMAGES)
 
         user.status = random.choice(USER_STATUS)

@@ -12,7 +12,7 @@ from splinter.driver.flaskclient import FlaskClient
 from .utils import create_stuff, login
 
 
-@pytest.fixture()
+@pytest.fixture
 def browser(app, db: SQLAlchemy) -> Browser:
     create_stuff(db)
     browser = Browser("flask", app=app)

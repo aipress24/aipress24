@@ -61,7 +61,8 @@
             <h2 class="font-bold pb-4">{{ group.label }}</h2>
 
             <ul>
-              {% for id in group.ids %} {% set key = id_key[id] %}
+              {% for id in group.ids %} {% if id in id_key %}{% set key =
+              id_key[id] %} {% if key in labels %}
               <li>
                 {{ labels[key] | safe }} :
                 <span class="font-semibold"> {{ results[key] }} </span>
@@ -71,7 +72,7 @@
                   src="{{ url_for('.images_page', filename=images[key]) }}" />
                 {% endif %}
               </li>
-              {% endfor %}
+              {% endif %} {% endif %} {% endfor %}
             </ul>
           </div>
           {% endfor %}

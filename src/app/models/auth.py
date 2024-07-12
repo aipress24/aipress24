@@ -65,12 +65,12 @@ class User(Addressable, UserMixin, Base):
     id: Mapped[int] = mapped_column(primary_key=True)
 
     # username: Mapped[str] = mapped_column(index=True, unique=True)
-    email: Mapped[str] = mapped_column(unique=True)
+    email: Mapped[str] = mapped_column(unique=True, nullable=True)
     email_valid: Mapped[bool] = mapped_column(default=False)
     email_date_valid: Mapped[sa.DateTime] = mapped_column(
         sa.DateTime, server_default=func.now()
     )
-    email_secours: Mapped[str] = mapped_column(sa.String, default="")
+    email_secours: Mapped[str] = mapped_column(sa.String, nullable=True)
     email_secours_valid: Mapped[bool] = mapped_column(default=False)
     email_secours_date_valid: Mapped[sa.DateTime] = mapped_column(
         sa.DateTime, server_default=func.now()
@@ -114,9 +114,9 @@ class User(Addressable, UserMixin, Base):
         sa.Enum(CommunityEnum), nullable=True
     )
 
-    gender: Mapped[str] = mapped_column(sa.Unicode(1), default="?")
-    first_name: Mapped[str] = mapped_column(sa.Unicode(64), default="")
-    last_name: Mapped[str] = mapped_column(sa.Unicode(64), default="")
+    gender: Mapped[str] = mapped_column(sa.String(1), default="?")
+    first_name: Mapped[str] = mapped_column(sa.String(64), default="")
+    last_name: Mapped[str] = mapped_column(sa.String(64), default="")
 
     photo: Mapped[bytes] = mapped_column(sa.LargeBinary, nullable=True)
     photo_filename: Mapped[str] = mapped_column(sa.String, default="")
@@ -128,6 +128,7 @@ class User(Addressable, UserMixin, Base):
     job_description: Mapped[str] = mapped_column(default="")
     bio: Mapped[str] = mapped_column(default="")
     education: Mapped[str] = mapped_column(default="")
+    # hobbies currently duplicated from PKYCProfile:
     hobbies: Mapped[str] = mapped_column(default="")
 
     tel_mobile: Mapped[str] = mapped_column(sa.String, default="")
@@ -139,6 +140,8 @@ class User(Addressable, UserMixin, Base):
     organisation_id: Mapped[int | None] = mapped_column(
         sa.BigInteger, sa.ForeignKey("crp_organisation.id", name="fk_aut_user_org_id")
     )
+
+    # per order: nom_media, nom_media_insti, nom_agence_rp, nom_orga,
     organisation_name: Mapped[str] = mapped_column(default="")
 
     # TODO
