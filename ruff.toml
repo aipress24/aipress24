@@ -81,4 +81,5 @@ lint.ignore = [
     "TCH001", # Move import into a type-checking block
     "TCH002", # Move import into a type-checking block
     "TCH003", # Move import into a type-checking block
+    "DOC501", # Raised exception missing from docstring
 ]
