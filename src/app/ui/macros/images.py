@@ -42,8 +42,8 @@ def profile_image(user: User, size=24, **kw):
 
     cls += [f"h-{size}", f"w-{size}", "rounded-full"]
 
-    community_primary = user.community_primary
-    match community_primary:
+    community = user.community
+    match community:
         case CommunityEnum.PRESS_MEDIA:
             cls += ["border-red-500"]
         case CommunityEnum.COMMUNICANTS:
@@ -55,40 +55,15 @@ def profile_image(user: User, size=24, **kw):
         case CommunityEnum.ACADEMICS:
             cls += ["border-orange-500"]
         case _:
-            raise RuntimeError(f"Unknown community: {community_primary}")
+            raise RuntimeError(f"Unknown community: {community}")
 
-    community_secondary = user.community_secondary
     if size < 12:
-        if community_secondary:
-            ring_size = "border-1"
-        else:
-            ring_size = "border-2"
-
+        ring_size = "border-2"
     else:  # noqa: PLR5501
-        if community_secondary:
-            ring_size = "border-2"
-        else:
-            ring_size = "border-4"
+        ring_size = "border-4"
 
     cls += [ring_size]
 
     img = f"""<img class="{" ".join(cls)}" src="{url}" alt="" />"""
 
-    if community_secondary is None:
-        return Markup(img)
-
-    match community_secondary:
-        case CommunityEnum.PRESS_MEDIA:
-            cls = "border-red-500"
-        case CommunityEnum.COMMUNICANTS:
-            cls = "border-blue-500"
-        case CommunityEnum.LEADERS_EXPERTS:
-            cls = "border-yellow-500"
-        case CommunityEnum.TRANSFORMERS:
-            cls = "border-green-500"
-        case CommunityEnum.ACADEMICS:
-            cls = "border-orange-500"
-        case _:
-            raise RuntimeError(f"Unknown community: {community_secondary}")
-
-    return Markup(f"""<div class="rounded-full {cls}">{img}</div>""")
+    return Markup(img)

@@ -18,7 +18,11 @@ class TaxonomyEntry(IdMixin, Base):
     __tablename__ = "tax_taxonomy"
 
     #: the name of this entity (i.e. entry)
-    name: Mapped[str] = mapped_column(index=True)
+    name: Mapped[str] = mapped_column()
+    category: Mapped[str] = mapped_column()
+    # value, unique value used by HTML Select
+    value: Mapped[str] = mapped_column(index=True)
+    seq: Mapped[int] = mapped_column()
 
     #: the name of the taxonomy it belongs to ("subject", "sector", etc.)
     taxonomy_name: Mapped[str]

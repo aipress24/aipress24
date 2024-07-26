@@ -107,11 +107,8 @@ class User(Addressable, UserMixin, Base):
         sa.DateTime, server_default=func.now()
     )
 
-    community_primary: Mapped[CommunityEnum] = mapped_column(
+    community: Mapped[CommunityEnum] = mapped_column(
         sa.Enum(CommunityEnum), default=CommunityEnum.PRESS_MEDIA
-    )
-    community_secondary: Mapped[CommunityEnum | None] = mapped_column(
-        sa.Enum(CommunityEnum), nullable=True
     )
 
     gender: Mapped[str] = mapped_column(sa.String(1), default="?")
@@ -216,10 +213,7 @@ class User(Addressable, UserMixin, Base):
 
     @property
     def communities(self) -> set[str]:
-        if self.community_secondary:
-            return {self.community_primary, self.community_secondary}
-        else:
-            return {self.community_primary}
+        return {self.community}
 
     # Override Flask-Security
     def has_role(self, role: str | RoleEnum | Role) -> bool:
@@ -255,6 +249,8 @@ class KYCProfile(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey("aut_user.id"))
     user: Mapped[User] = relationship(back_populates="profile")
     profile_id: Mapped[str] = mapped_column(String, default="")
+    profile_label: Mapped[str] = mapped_column(String, default="")
+    profile_community: Mapped[str] = mapped_column(String, default="")
     info_professionnelle: Mapped[dict] = mapped_column(JSON, default="{}")
     match_making: Mapped[dict] = mapped_column(JSON, default="{}")
     hobbies: Mapped[dict] = mapped_column(JSON, default="{}")

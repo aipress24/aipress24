@@ -20,7 +20,19 @@ def get_taxonomy(name) -> list[str]:
     # return [(r.id, r.name) for r in result]
 
 
-def create_entry(taxonomy_name: str, name: str) -> None:
+def create_entry(
+    taxonomy_name: str,
+    name: str,
+    category: str = "",
+    value: str = "",
+    seq: int = 0,
+) -> None:
     """Create a new entry in a taxonomy."""
-    entry = TaxonomyEntry(taxonomy_name=taxonomy_name, name=name)
+    entry = TaxonomyEntry(
+        taxonomy_name=taxonomy_name,
+        name=name,
+        category=category,
+        value=value,
+        seq=seq,
+    )
     db.session.add(entry)

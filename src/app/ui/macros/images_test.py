@@ -15,8 +15,7 @@ from app.ui.macros.images import org_logo, profile_image
 
 def test_profile_image(db: SQLAlchemy) -> None:
     user = Mock(User)
-    user.community_primary = CommunityEnum.PRESS_MEDIA
-    user.community_secondary = CommunityEnum.COMMUNICANTS
+    user.community = CommunityEnum.PRESS_MEDIA
 
     tag = profile_image(user, size=24)
 

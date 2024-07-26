@@ -34,6 +34,7 @@ from app.models.auth import KYCProfile, Role, User
 from app.models.repositories import RoleRepository
 
 from . import blueprint, kyc_models
+from .community_role import kyc_community_to_enum, user_role_from_community
 from .dynform import TAG_LABELS, generate_form
 from .field_label import requires_value, values_to_label
 from .ontologies import zip_code_city_list
@@ -479,8 +480,13 @@ def make_kyc_user_record() -> User:
 
     fs_uniquifier = results.get("fs_uniquifier") or uuid.uuid4().hex
 
+    profile_id = session.get("profile_id", "")
+    survey_profile = _get_profile(profile_id)
+
     profile = KYCProfile(
-        profile_id=session.get("profile_id", ""),
+        profile_id=survey_profile.id,
+        profile_label=survey_profile.label,
+        profile_community=survey_profile.community,
         info_professionnelle=populate_json_field("info_professionnelle", results),
         match_making=populate_json_field("match_making", results),
         hobbies=populate_json_field("hobbies", results),
@@ -510,8 +516,13 @@ def make_kyc_user_record() -> User:
 
     user.profile = profile
 
+    user_community = kyc_community_to_enum(survey_profile.community)
+    if user_community:
+        user.community = user_community
+        user_role_from_community(user)
     # debug: add some role
-    user.roles.append(_role_from_name("EXPERT"))
+    # user.roles.append(_role_from_name("EXPERT"))
+    #
     user.active = True
 
     return user
@@ -533,10 +544,14 @@ def _update_current_user(user: User) -> None:
 
     profile = user.profile
     if not profile:
+        profile_id = "P002"  # aka PRESS_MEDIA journaliste salarié
+        survey_profile = _get_profile(profile_id)
         # fake user at the moment
         print("//////////// generate empty profile", file=sys.stderr)
         profile = KYCProfile(
-            profile_id="P002",
+            profile_id=survey_profile.id,
+            profile_label=survey_profile.label,
+            profile_community=survey_profile.community,
             info_professionnelle=populate_json_field("info_professionnelle", {}),
             match_making=populate_json_field("match_making", {}),
             hobbies=populate_json_field("hobbies", {}),
@@ -544,7 +559,11 @@ def _update_current_user(user: User) -> None:
         )
         user.profile = profile
 
-    profile.profile_id = session.get("profile_id", "")
+    profile_id = session.get("profile_id", "")
+    survey_profile = _get_profile(profile_id)
+    profile.profile_id = survey_profile.id
+    profile.profile_label = survey_profile.label
+    profile.profile_community = survey_profile.community
     profile.info_professionnelle = populate_json_field("info_professionnelle", results)
     profile.match_making = populate_json_field("match_making", results)
     profile.hobbies = populate_json_field("hobbies", results)
@@ -567,6 +586,11 @@ def _update_current_user(user: User) -> None:
     # duplicated: from KYCProfile
     user.hobbies = results.get("hobbies", "")
     user.organisation_name = _guess_organisation_name(results)
+
+    user_community = kyc_community_to_enum(survey_profile.community)
+    if user_community:
+        user.community = user_community
+        user_role_from_community(user)
 
     user.active = True
 

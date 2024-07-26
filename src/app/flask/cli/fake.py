@@ -21,7 +21,7 @@ from app.models.auth import CommunityEnum, RoleEnum, User
 from ...models.repositories import RoleRepository, UserRepository
 from . import util
 from .bootstrap import PASSWORD, bootstrap_boxes, bootstrap_roles
-from .ontologies import _import_ontologies
+from .gen_ontologies import import_ontologies_content
 
 
 #
@@ -71,7 +71,7 @@ def db_setup(clean: bool) -> None:
 def bootstrap():
     bootstrap_roles()
     bootstrap_boxes()
-    _import_ontologies()
+    import_ontologies_content()
 
 
 COMMUNITY_TO_ROLE = {
@@ -92,12 +92,8 @@ def fix_roles():
         user.email = f"u{i}@aipress24.com"
         user.password = hash_password(PASSWORD)
 
-        role = roles_map[COMMUNITY_TO_ROLE[user.community_primary].name]
+        role = roles_map[COMMUNITY_TO_ROLE[user.community].name]
         user.roles.append(role)
-
-        if user.community_secondary:
-            role = roles_map[COMMUNITY_TO_ROLE[user.community_secondary].name]
-            user.roles.append(role)
 
     db.session.commit()
     db.session.expunge_all()
@@ -114,12 +110,8 @@ def check_roles():
     user_repo = container.get(UserRepository)
     for user in user_repo.list():
         roles = []
-        role = roles_map[COMMUNITY_TO_ROLE[user.community_primary].name]
+        role = roles_map[COMMUNITY_TO_ROLE[user.community].name]
         roles.append(role)
-
-        if user.community_secondary:
-            role = roles_map[COMMUNITY_TO_ROLE[user.community_secondary].name]
-            roles.append(role)
 
         for role in roles:
             assert user.has_role(role.name)

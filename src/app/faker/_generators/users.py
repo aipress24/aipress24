@@ -78,9 +78,7 @@ class UserGenerator(BaseGenerator):
 
         user.geoloc = fake_geoloc()
 
-        user.community_primary = random.choice(list(CommunityEnum))
-        if random.randint(0, 1):
-            user.community_secondary = random.choice(list(CommunityEnum))
+        user.community = random.choice(list(CommunityEnum))
 
         self.make_wallet(user)
 
