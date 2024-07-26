@@ -4,8 +4,11 @@
 
 from __future__ import annotations
 
-import json
-from importlib import resources as rso
+import functools
+
+from app.services.countries import get_full_countries
+from app.services.taxonomies import get_full_taxonomy, get_taxonomy_dual_select
+from app.services.zip_code import get_zip_code_country
 
 # dictionary from field type name to ontology DB table:
 ONTOLOGY_MAP = {
@@ -56,8 +59,22 @@ ONTOLOGY_MAP = {
     # Compétences en Journalisme:
     "multi_competences_journalisme": "journalisme_competence",
     # Compétences:
-    "multi_competences": "competence",
+    "multi_competences": "competence_expert",
     "multi_langues": "langue",
+}
+
+ONTOLOGY_DB_LIST = {
+    "agence_rp",
+    "civilite",
+    "competence_expert",
+    "journalisme_competence",
+    "journalisme_fonction",
+    "langue",
+    "media_type",
+    "medias",
+    "newsrooms",
+    "taille_organisation",
+    "type_agence_rp",
 }
 
 
@@ -65,12 +82,13 @@ def _sibling_module(module: str) -> str:
     return __name__.rsplit(".", 1)[0] + module
 
 
+@functools.cache
 def get_ontology_content(ontology: str) -> list | dict:
-    filename = f"{ontology}.json"
-    content = json.loads(
-        rso.files(_sibling_module(".data")).joinpath(filename).read_text()
-    )
-    return content
+    if ontology == "pays":
+        return get_full_countries()
+    elif ontology in ONTOLOGY_DB_LIST:
+        return get_full_taxonomy(ontology)
+    return get_taxonomy_dual_select(ontology)
 
 
 def get_choices(field_type: str) -> list | dict:
@@ -82,12 +100,9 @@ def ontology_for_pays() -> list | dict:
     return get_choices("country_pays")
 
 
+@functools.cache
 def zip_code_city_list(country_code: str) -> list:
-    filename = f"{country_code}.json"
-    content = json.loads(
-        rso.files(_sibling_module(".data.towns")).joinpath(filename).read_text()
-    )
-    return content
+    return get_zip_code_country(country_code)
 
 
 def label_from_value_list(ontology: str, value: str) -> str:

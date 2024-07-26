@@ -59,7 +59,7 @@ def profile_image(user: User, size=24, **kw):
 
     if size < 12:
         ring_size = "border-2"
-    else:  # noqa: PLR5501
+    else:
         ring_size = "border-4"
 
     cls += [ring_size]

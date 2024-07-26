@@ -6,8 +6,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from flask.cli import with_appcontext
-from flask_super.cli import group
 from slugify import slugify
 
 from app.flask.extensions import db

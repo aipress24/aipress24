@@ -18,16 +18,16 @@ from slugify import slugify
 
 from app.flask.extensions import db
 from app.services.countries import create_country_entry
-from app.services.taxonomies import create_entry
+from app.services.taxonomies import check_taxonomy_exist, create_entry, update_entry
 from app.services.zip_code import create_zip_code_entry
 
 # format for HTML selects
 VALUE_LABEL_MODE = False
 
 # required: use a.ods document
-ONTOLOGY_SRC = Path("data/Ontologies-35.ods")
-COUNTRY_SRC = Path("gen_ontologies/extra_json/pays.json")
-ZIP_CODE_SRC = Path("gen_ontologies/extra_json/towns")
+ONTOLOGY_SRC = Path("data/Ontologies-36.ods")
+COUNTRY_SRC = Path("country_zip_code/pays.json")
+ZIP_CODE_SRC = Path("country_zip_code/towns")
 
 
 # Secteurs → `sectors`
@@ -123,6 +123,14 @@ def import_ontologies() -> None:
 
 
 def import_ontologies_content() -> None:
+    import_taxonomies()
+    import_countries()
+    import_zip_codes()
+
+    db.session.commit()
+
+
+def import_taxonomies() -> None:
     raw_ontologies = parse_source_ontologies()
     for taxonomy_name, slug in TAXO_NAME_ONTOLOGIE_SLUG:
         print(taxonomy_name, slug)
@@ -130,26 +138,49 @@ def import_ontologies_content() -> None:
         converter = converter_class(raw_ontologies)
         converter.run()
         values = converter.export()
+        _update_or_create(taxonomy_name, values)
+
+
+def _category_from_value(value: str) -> str:
+    if ";" in value:
+        return value.split(";")[0].strip()
+    return ""
+
+
+def _update_or_create(taxonomy_name, values) -> None:
+    # Check that the taxonomy_name is present in DB
+    if check_taxonomy_exist(taxonomy_name):
+        updated = _update_entries(taxonomy_name, values)
+        print(f"    - updated values: {updated}")
+    else:
+        print("    - new taxonomy")
         _create_entries(taxonomy_name, values)
 
-    import_countries()
-    import_zip_codes()
 
-    db.session.commit()
+def _update_entries(taxonomy_name, values) -> int:
+    seq: int = 0
+    updated: int = 0
+    for value, name in values:
+        seq += 10
+        if update_entry(
+            taxonomy_name=taxonomy_name,
+            name=name,
+            category=_category_from_value(value),
+            value=value,
+            seq=seq,
+        ):
+            updated += 1
+    return updated
 
 
 def _create_entries(taxonomy_name, values) -> None:
     seq: int = 0
     for value, name in values:
-        if ";" in value:
-            category = value.split(";")[0].strip()
-        else:
-            category = ""
         seq += 10
         create_entry(
             taxonomy_name=taxonomy_name,
             name=name,
-            category=category,
+            category=_category_from_value(value),
             value=value,
             seq=seq,
         )
@@ -189,22 +220,19 @@ def import_zip_codes() -> None:
     print("importing zip codes")
     for path in ZIP_CODE_SRC.glob("*.json"):
         iso3 = path.stem
-        seq: int = 0
         for item in json.loads(path.read_text()):
             name = item["name"]
             zip_code = item["zip_code"]
             value = f"{iso3};{zip_code} {name}"
             label = f"{zip_code} {name}"
-            seq += 10
             create_zip_code_entry(
                 iso3=iso3,
                 zip_code=zip_code,
                 name=name,
                 value=value,
                 label=label,
-                seq=seq,
             )
-        print(f"import zip codes: {iso3} {int(seq / 10)}")
+        print(f"import zip codes: {iso3}")
 
 
 def get_converter(ontology_name: str) -> Any:  # noqa:PLR0915
@@ -468,17 +496,17 @@ class BaseConvert:
         """
         if VALUE_LABEL_MODE:
             result = []
-            for group, data in self._buffer:
+            for _group, data in self._buffer:
                 extended = [
-                    {"optgroup": group, "value": f"{group};{label}", "label": label}
+                    {"optgroup": _group, "value": f"{_group};{label}", "label": label}
                     for label in data
                 ]
                 result.extend(extended)
         else:
             result = {}
-            for group, data in self._buffer:
-                extended = [(f"{group};{label}", label) for label in data]
-                result[group] = extended
+            for _group, data in self._buffer:
+                extended = [(f"{_group};{label}", label) for label in data]
+                result[_group] = extended
 
         self._buffer = result
 
@@ -500,25 +528,25 @@ class BaseConvert:
         if VALUE_LABEL_MODE:
             field1 = [{"value": group, "label": group} for group, _ in self._buffer]
             field2 = []
-            for group, data in self._buffer:
+            for _group, data in self._buffer:
                 extended = [
                     {
-                        "optgroup": group,
-                        "value": f"{group};{label}",
-                        "label": f"{group} / {label}",
+                        "optgroup": _group,
+                        "value": f"{_group};{label}",
+                        "label": f"{_group} / {label}",
                     }
                     for label in data
                 ]
                 field2.extend(extended)
 
         else:
-            field1 = [(group, group) for group, _ in self._buffer]
+            field1 = [(_group, _group) for _group, _ in self._buffer]
             field2 = {}
-            for group, data in self._buffer:
+            for _group, data in self._buffer:
                 extended = [
-                    (f"{group};{label}", f"{group} / {label}") for label in data
+                    (f"{_group};{label}", f"{_group} / {label}") for label in data
                 ]
-                field2[group] = extended
+                field2[_group] = extended
         self._buffer = {"field1": field1, "field2": field2}
 
     def save(self) -> None:

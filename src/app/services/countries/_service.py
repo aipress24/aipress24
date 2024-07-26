@@ -27,6 +27,13 @@ def get_countries() -> list[str]:
     return [r.name for r in result]
 
 
+def get_full_countries() -> list[tuple[str, str]]:
+    """Get list of countries (code and name) from the database."""
+    query = select(CountryEntry).order_by(CountryEntry.seq)
+    results = db.session.scalars(query).all()
+    return [(row.iso3, row.name) for row in results]
+
+
 def create_country_entry(
     iso3: str,
     name: str,

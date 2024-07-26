@@ -14,4 +14,4 @@ def test_zip_code(db: SQLAlchemy) -> None:
     db.session.flush()
 
     zip_code_list = get_zip_code_country("FRA")
-    # assert
+    assert zip_code_list == [("75018", "Paris", "", "")]

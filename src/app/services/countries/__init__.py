@@ -4,6 +4,11 @@
 
 from __future__ import annotations
 
-from ._service import create_country_entry, get_countries, get_country
+from ._service import (
+    create_country_entry,
+    get_countries,
+    get_country,
+    get_full_countries,
+)
 
-__all__ = ["create_country_entry", "get_countries", "get_country"]
+__all__ = ["create_country_entry", "get_countries", "get_country", "get_full_countries"]

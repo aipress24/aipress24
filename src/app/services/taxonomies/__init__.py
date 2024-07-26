@@ -4,6 +4,20 @@
 
 from __future__ import annotations
 
-from ._service import create_entry, get_taxonomy
+from ._service import (
+    check_taxonomy_exist,
+    create_entry,
+    get_full_taxonomy,
+    get_taxonomy,
+    get_taxonomy_dual_select,
+    update_entry,
+)
 
-__all__ = ["create_entry", "get_taxonomy"]
+__all__ = [
+    "check_taxonomy_exist",
+    "create_entry",
+    "get_full_taxonomy",
+    "get_taxonomy",
+    "get_taxonomy_dual_select",
+    "update_entry",
+]
