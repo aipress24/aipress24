@@ -8,6 +8,7 @@ from app.flask.routing import url_for
 
 from .others import (
     PrefContactOptionsPage,
+    PrefEditProfilePage,
     PrefIntegrationPage,
     PrefInterestsPage,
     PrefNotificationPage,
@@ -20,6 +21,7 @@ MENU = [
     PrefProfilePage,
     PrefPasswordPage,
     PrefSecurityPage,
+    PrefEditProfilePage,
     PrefInterestsPage,
     PrefContactOptionsPage,
     PrefNotificationPage,
@@ -30,11 +32,15 @@ MENU = [
 def make_menu(name: str):
     menu = []
     for page_class in MENU:
+        if hasattr(page_class, "url_string"):
+            href = url_for(page_class.url_string)
+        else:
+            href = url_for(f".{page_class.name}")
         d = {
             "name": page_class.name,
             "label": page_class.label,
             "icon": page_class.icon,
-            "href": url_for(f".{page_class.name}"),
+            "href": href,
             "current": name == page_class.name,
         }
         menu.append(d)

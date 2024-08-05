@@ -45,6 +45,16 @@ class BaseGenerator(ABC):
             if len(title) < 150:
                 return title
 
+    def generate_text(self, max_length: int = 300) -> str:
+        target = random.randint(int(max_length / 3), max_length)
+        text = self.text_faker.sentence()
+        while len(text) < target:
+            new = text + " " + self.text_faker.sentence()
+            if len(new) > target:
+                return text
+            text = new
+        return text[:max_length]
+
     def generate_html(self, min_sentences=5, max_sentences=15):
         num_paragraphs = random.randint(min_sentences, max_sentences)
         paragraphs = [self.generate_html_p() for i in range(num_paragraphs)]

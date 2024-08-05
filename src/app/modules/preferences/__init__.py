@@ -4,9 +4,10 @@
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import cast
 
-from flask import Blueprint
+from flask import Blueprint, current_app, send_from_directory
 from flask_login import current_user
 from werkzeug.exceptions import Unauthorized
 
@@ -16,6 +17,12 @@ blueprint = Blueprint(
     "preferences", __name__, url_prefix="/preferences", template_folder="templates"
 )
 route = blueprint.route
+
+
+@blueprint.route("/images/<path:filename>")
+def images_page(filename):
+    images_dir = Path(current_app.instance_path) / "images"
+    return send_from_directory(images_dir, filename)
 
 
 @blueprint.before_request

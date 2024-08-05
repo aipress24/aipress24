@@ -4,6 +4,18 @@
 
 from __future__ import annotations
 
-from ._service import create_zip_code_entry, get_zip_code_country
+from ._service import (
+    check_zip_code_exist,
+    create_zip_code_entry,
+    get_full_zip_code_country,
+    get_zip_code_country,
+    update_zip_code_entry,
+)
 
-__all__ = ["create_zip_code_entry", "get_zip_code_country"]
+__all__ = [
+    "check_zip_code_exist",
+    "create_zip_code_entry",
+    "get_full_zip_code_country",
+    "get_zip_code_country",
+    "update_zip_code_entry",
+]

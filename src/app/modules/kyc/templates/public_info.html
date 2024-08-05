@@ -1,0 +1,37 @@
+{% extends "_base.html" %} {% block main %}
+
+<div class="py-10 px-4">
+  <div class="mx-auto lg:max-w-7xl p-6 lg:p-8 bg-white rounded-xl">
+    <div class="mx-auto max-w-2xl">
+      <div class="content">
+        <div class="pt-8">
+          <h2>Profil</h2>
+          <p class="py-4 font-bold text-lg">{{ profile_description }}</p>
+        </div>
+
+        <div class="py-6 space-y-8">
+          {% for group in groups %}
+          <div>
+            <h2 class="font-bold pb-4">{{ group.label }}</h2>
+
+            <ul>
+              {% for id in group.ids %}
+              <li>
+                {{ labels[id] | safe }} :
+                <span class="font-semibold"> {{ results[id] }} </span>
+                {% if id in images %}
+                <img
+                  class="ml-6 max-w-32 max-h-32"
+                  src="{{ url_for('.images_page', filename=images[id]) }}" />
+                {% endif %}
+              </li>
+              {% endfor %}
+            </ul>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

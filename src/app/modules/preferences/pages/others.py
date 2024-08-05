@@ -11,6 +11,16 @@ from .home import PrefHomePage
 
 
 @page
+class PrefEditProfilePage(BasePreferencesPage):
+    parent = PrefHomePage
+    name = "profile_page"
+    url_string = "kyc.profile_page"
+    label = "Mofification du profil"
+    template = ""
+    icon = "clipboard-document-list"
+
+
+@page
 class PrefPasswordPage(BasePreferencesPage):
     parent = PrefHomePage
     name = "password"

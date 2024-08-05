@@ -121,10 +121,31 @@ KEY_LABEL_MAP = {
 }
 
 
-def requires_value(key: str) -> bool:
-    return key in KEY_LABEL_MAP
+def _oui_non(flag: bool) -> str:
+    if flag:
+        return "Oui"
+    return "Non"
 
 
-def values_to_label(data: str | list, key: str) -> str:
-    function, ontology_name = KEY_LABEL_MAP[key]
-    return function(data, key, ontology_name)
+def _format_list_results(data: list | str | bool, key: str) -> str:
+    if isinstance(data, list):
+        value = ", ".join(data)
+    elif isinstance(data, bool):
+        value = _oui_non(data)
+    else:  # str
+        value = data
+    if key == "password":
+        # Minimal security
+        try:
+            value = "*" * len(value)
+        except TypeError:
+            value = ""
+    return value
+
+
+def data_to_label(data: str | list, key: str) -> str:
+    if key in KEY_LABEL_MAP:
+        function, ontology_name = KEY_LABEL_MAP[key]
+        return function(data, key, ontology_name)
+    else:
+        return _format_list_results(data, key)

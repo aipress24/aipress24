@@ -14,6 +14,8 @@ from app.flask.extensions import db
 from app.models.admin import Promotion
 from app.models.auth import Role, RoleEnum
 
+from .ontologies import import_ontologies_content
+
 PASSWORD = "pass"
 
 BOX_SLUGS = [
@@ -37,8 +39,13 @@ BOX_BODY = "..."
 @command()
 @with_appcontext
 def bootstrap() -> None:
+    bootstrap_function()
+
+
+def bootstrap_function() -> None:
     bootstrap_roles()
     bootstrap_boxes()
+    import_ontologies_content()
 
 
 def bootstrap_roles():

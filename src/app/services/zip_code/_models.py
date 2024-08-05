@@ -20,5 +20,5 @@ class ZipCodeEntry(IdMixin, Base):
     iso3: Mapped[str] = mapped_column()
     zip_code: Mapped[str] = mapped_column()
     name: Mapped[str] = mapped_column()
-    value: Mapped[str] = mapped_column()
+    value: Mapped[str] = mapped_column(index=True)
     label: Mapped[str] = mapped_column()

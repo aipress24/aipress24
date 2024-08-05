@@ -4,13 +4,10 @@
 
 from __future__ import annotations
 
-import wtforms as wtf
-from flask import g
-from flask_wtf import FlaskForm
 from werkzeug.utils import redirect
 
-from app.flask.extensions import db
 from app.flask.lib.pages import page
+from app.modules.kyc.views import public_info_context
 
 from .base import BasePreferencesPage
 from .home import PrefHomePage
@@ -20,33 +17,12 @@ from .home import PrefHomePage
 class PrefProfilePage(BasePreferencesPage):
     parent = PrefHomePage
     name = "profile"
-    label = "Profil"
-    template = "pages/preferences/profile.j2"
+    label = "Profil public"
+    template = "pages/preferences/public-profile.j2"
     icon = "user-circle"
 
     def context(self):
-        form = PrefProfileForm(obj=g.user)
-        return {
-            "form": form,
-        }
+        return public_info_context()
 
     def post(self):
-        form = PrefProfileForm(obj=g.user)
-        # TODO
-        # result = form.validate()
-        form.populate_obj(g.user)
-        db.session.commit()
         return redirect(self.url)
-
-
-class PrefProfileForm(FlaskForm):
-    first_name = wtf.StringField("Prénom")
-    last_name = wtf.StringField("Nom")
-
-    organisation_name = wtf.StringField("Organisation")
-    job_title = wtf.StringField("Fonction")
-    job_description = wtf.TextAreaField("Fonction détaillée")
-
-    bio = wtf.TextAreaField("Bio")
-    education = wtf.TextAreaField("Cursus")
-    hobbies = wtf.TextAreaField("Intérêts / hobbies")

@@ -33,23 +33,32 @@ from .lib.valid_password import ValidPassword
 from .lib.valid_tel import ValidTel
 from .lib.valid_url import ValidURL
 from .ontologies import get_choices
-from .survey_dataclass import Field as ParserField
-from .survey_dataclass import Profile
+from .survey_dataclass import Profile, SurveyField
 from .temporary_blob import pop_tmp_blob
 
 MAX_TEXTAREA = 1500
-TAG_AREA_SIZE = f"(maximum {MAX_TEXTAREA} caractères)"
+MAX_TEXTAREA300 = 300
+TAG_AREA_SIZE = f"(maximum {MAX_TEXTAREA} signes)"
+TAG_AREA300_SIZE = f"(maximum {MAX_TEXTAREA300} signes)"
 TAG_FREE_ELEMENT = "(vous pouvez ajouter un nouvel élément à la liste proposée)"
 TAG_MANDATORY = "(*)"
 TAG_MANY_CHOICES = "(plusieurs choix possibles)"
 TAG_PHOTO_FORMAT = "(format JPG, PNG ou PDF, taille maximum de 2MB)"
+TAG_PUBLIC = "(information pouvant être publique)"
 TAG_LABELS = (
     TAG_AREA_SIZE,
+    TAG_AREA300_SIZE,
     TAG_FREE_ELEMENT,
     TAG_MANDATORY,
     TAG_MANY_CHOICES,
     TAG_PHOTO_FORMAT,
 )
+
+
+def _filter_public_info(description: str, public: bool) -> str:
+    if public:
+        return f"{description} {TAG_PUBLIC}"
+    return description
 
 
 def _filter_mandatory_label(description: str, code: str) -> str:
@@ -64,6 +73,10 @@ def _filter_many_choices(description: str) -> str:
 
 def _filter_max_textarea_size(description: str) -> str:
     return f"{description} {TAG_AREA_SIZE}"
+
+
+def _filter_max_textarea300_size(description: str) -> str:
+    return f"{description} {TAG_AREA300_SIZE}"
 
 
 def _filter_photo_format(description: str) -> str:
@@ -85,7 +98,7 @@ def _filter_mandatory_validator(code: str) -> list:
     return [validators.Optional()]
 
 
-def custom_bool_field(field: ParserField, code: str, param: str = "") -> Field:
+def custom_bool_field(field: SurveyField, code: str, param: str = "") -> Field:
     validators_list = [validators.Optional()]
     code = ""
     return BooleanField(
@@ -108,7 +121,7 @@ def _get_part(strlist: list[str], idx: int) -> str:
         return ""
 
 
-def custom_bool_link_field(field: ParserField, code: str, param: str = "") -> Field:
+def custom_bool_link_field(field: SurveyField, code: str, param: str = "") -> Field:
     validators_list = [validators.Optional()]
     code = ""
     parts = field.description.split(";")
@@ -129,12 +142,14 @@ def custom_bool_link_field(field: ParserField, code: str, param: str = "") -> Fi
     )
 
 
-def custom_string_field(field: ParserField, code: str, param: str = "") -> Field:
+def custom_string_field(field: SurveyField, code: str, param: str = "") -> Field:
     validators_list = _filter_mandatory_validator(code)
     validators_list.append(validators.Length(max=80))
+    label = _filter_public_info(field.description, field.public_allow)
+    label = _filter_mandatory_label(label, code)
     return StringField(
         name=field.name,
-        label=_filter_mandatory_label(field.description, code),
+        label=label,
         id=field.id,
         validators=validators_list,
         render_kw={
@@ -145,9 +160,10 @@ def custom_string_field(field: ParserField, code: str, param: str = "") -> Field
     )
 
 
-def custom_photo_field(field: ParserField, code: str, param: str = "") -> Field:
+def custom_photo_field(field: SurveyField, code: str, param: str = "") -> Field:
     # validators_list = _filter_mandatory_validator(code)
     label = _filter_photo_format(field.description)
+    label = _filter_public_info(label, field.public_allow)
     label = _filter_mandatory_label(label, code)
     return ValidImageField(
         name=field.name,
@@ -163,12 +179,14 @@ def custom_photo_field(field: ParserField, code: str, param: str = "") -> Field:
     )
 
 
-def custom_email_field(field: ParserField, code: str, param: str = "") -> Field:
+def custom_email_field(field: SurveyField, code: str, param: str = "") -> Field:
     validators_list = _filter_mandatory_validator(code)
     validators_list.append(validators.Email())
+    label = _filter_public_info(field.description, field.public_allow)
+    label = _filter_mandatory_label(label, code)
     return ValidEmail(
         name=field.name,
-        label=_filter_mandatory_label(field.description, code),
+        label=label,
         id=field.id,
         validators=validators_list,
         render_kw={
@@ -179,12 +197,14 @@ def custom_email_field(field: ParserField, code: str, param: str = "") -> Field:
     )
 
 
-def custom_tel_field(field: ParserField, code: str, param: str = "") -> Field:
+def custom_tel_field(field: SurveyField, code: str, param: str = "") -> Field:
     validators_list = _filter_mandatory_validator(code)
     validators_list.append(validators.Length(max=20))
+    label = _filter_public_info(field.description, field.public_allow)
+    label = _filter_mandatory_label(label, code)
     return ValidTel(
         name=field.name,
-        label=_filter_mandatory_label(field.description, code),
+        label=label,
         id=field.id,
         validators=validators_list,
         render_kw={
@@ -195,11 +215,13 @@ def custom_tel_field(field: ParserField, code: str, param: str = "") -> Field:
     )
 
 
-def custom_password_field(field: ParserField, code: str, param: str = "") -> Field:
+def custom_password_field(field: SurveyField, code: str, param: str = "") -> Field:
     validators_list = _filter_mandatory_validator(code)
+    label = _filter_public_info(field.description, field.public_allow)
+    label = _filter_mandatory_label(label, code)
     return ValidPassword(
         name=field.name,
-        label=_filter_mandatory_label(field.description, code),
+        label=label,
         id=field.id,
         validators=validators_list,
         render_kw={
@@ -210,12 +232,14 @@ def custom_password_field(field: ParserField, code: str, param: str = "") -> Fie
     )
 
 
-def custom_postcode_field(field: ParserField, code: str, param: str = "") -> Field:
+def custom_postcode_field(field: SurveyField, code: str, param: str = "") -> Field:
     validators_list = _filter_mandatory_validator(code)
     validators_list.append(validators.Length(max=80))
+    label = _filter_public_info(field.description, field.public_allow)
+    label = _filter_mandatory_label(label, code)
     return StringField(
         name=field.name,
-        label=_filter_mandatory_label(field.description, code),
+        label=label,
         id=field.id,
         validators=validators_list,
         render_kw={
@@ -226,12 +250,14 @@ def custom_postcode_field(field: ParserField, code: str, param: str = "") -> Fie
     )
 
 
-def custom_url_field(field: ParserField, code: str, param: str = "") -> Field:
+def custom_url_field(field: SurveyField, code: str, param: str = "") -> Field:
     validators_list = _filter_mandatory_validator(code)
     validators_list.append(validators.Length(max=80))
+    label = _filter_public_info(field.description, field.public_allow)
+    label = _filter_mandatory_label(label, code)
     return ValidURL(
         name=field.name,
-        label=_filter_mandatory_label(field.description, code),
+        label=label,
         id=field.id,
         validators=validators_list,
         render_kw={
@@ -242,10 +268,11 @@ def custom_url_field(field: ParserField, code: str, param: str = "") -> Field:
     )
 
 
-def custom_textarea_field(field: ParserField, code: str, param: str = "") -> Field:
+def custom_textarea_field(field: SurveyField, code: str, param: str = "") -> Field:
     validators_list = _filter_mandatory_validator(code)
     validators_list.append(validators.Length(max=MAX_TEXTAREA))
     label = _filter_max_textarea_size(field.description)
+    label = _filter_public_info(label, field.public_allow)
     label = _filter_mandatory_label(label, code)
     return TextAreaField(
         name=field.name,
@@ -253,6 +280,29 @@ def custom_textarea_field(field: ParserField, code: str, param: str = "") -> Fie
         id=field.id,
         validators=validators_list,
         render_kw={
+            "rows": "5",
+            "maxlength": MAX_TEXTAREA,
+            "kyc_type": "string",
+            "kyc_code": code,
+            "kyc_message": field.upper_message,
+        },
+    )
+
+
+def custom_textarea300_field(field: SurveyField, code: str, param: str = "") -> Field:
+    validators_list = _filter_mandatory_validator(code)
+    validators_list.append(validators.Length(max=MAX_TEXTAREA300))
+    label = _filter_max_textarea300_size(field.description)
+    label = _filter_public_info(label, field.public_allow)
+    label = _filter_mandatory_label(label, code)
+    return TextAreaField(
+        name=field.name,
+        label=label,
+        id=field.id,
+        validators=validators_list,
+        render_kw={
+            "rows": "3",
+            "maxlength": MAX_TEXTAREA300,
             "kyc_type": "string",
             "kyc_code": code,
             "kyc_message": field.upper_message,
@@ -269,11 +319,13 @@ def _fake_ontology_ajax(param: str) -> list[tuple]:
     return choices
 
 
-def custom_list_field(field: ParserField, code: str, param: str) -> Field:
+def custom_list_field(field: SurveyField, code: str, param: str) -> Field:
     validators_list = _filter_mandatory_validator(code)
+    label = _filter_public_info(field.description, field.public_allow)
+    label = _filter_mandatory_label(label, code)
     return SelectOneField(
         name=field.name,
-        label=_filter_mandatory_label(field.description, code),
+        label=label,
         id=field.id,
         choices=get_choices(param),
         validators=validators_list,
@@ -285,15 +337,17 @@ def custom_list_field(field: ParserField, code: str, param: str) -> Field:
     )
 
 
-def custom_country_field(field: ParserField, code: str, param: str) -> Field:
+def custom_country_field(field: SurveyField, code: str, param: str) -> Field:
     validators_list = _filter_mandatory_validator(code)
     label, _, label2 = field.description.partition(";")
     label = label.strip()
+    label = _filter_public_info(label, field.public_allow)
+    label = _filter_mandatory_label(label, code)
     label2 = label2.strip()
     return CountrySelectField(
         name=field.name,
         name2=f"{field.name}_detail",
-        label=_filter_mandatory_label(label, code),
+        label=label,
         id=field.id,
         id2=f"{field.id}_detail",
         label2=_filter_mandatory_label(label2, code),
@@ -308,11 +362,13 @@ def custom_country_field(field: ParserField, code: str, param: str) -> Field:
     )
 
 
-def custom_list_free_field(field: ParserField, code: str, param: str) -> Field:
+def custom_list_free_field(field: SurveyField, code: str, param: str) -> Field:
     """This list allows a free text for content not in the proposed list."""
+    label = _filter_public_info(field.description, field.public_allow)
+    label = _filter_mandatory_label(label, code)
     return SelectOneFreeField(
         name=field.name,
-        label=_filter_mandatory_label_free(field.description, code),
+        label=label,
         id=field.id,
         choices=get_choices(param),
         render_kw={
@@ -323,14 +379,15 @@ def custom_list_free_field(field: ParserField, code: str, param: str) -> Field:
     )
 
 
-def custom_ajax_field(field: ParserField, code: str, param: str) -> Field:
+def custom_ajax_field(field: SurveyField, code: str, param: str) -> Field:
     # TODO: load ontology
     choices = _fake_ontology_ajax(param)
-
     validators_list = _filter_mandatory_validator(code)
+    label = _filter_public_info(field.description, field.public_allow)
+    label = _filter_mandatory_label(label, code)
     return SelectField(
         name=field.name,
-        label=_filter_mandatory_label(field.description, code),
+        label=label,
         id=field.id,
         choices=choices,
         validators=validators_list,
@@ -342,20 +399,21 @@ def custom_ajax_field(field: ParserField, code: str, param: str) -> Field:
     )
 
 
-def custom_multi_free_field(field: ParserField, code: str, param: str) -> Field:
+def custom_multi_free_field(field: SurveyField, code: str, param: str) -> Field:
     # there is no "optgroup" version for multiple/free
     return _custom_multi_free_field_simple(field, code, param)
 
 
-def custom_multi_field(field: ParserField, code: str, param: str) -> Field:
+def custom_multi_field(field: SurveyField, code: str, param: str) -> Field:
     if isinstance(get_choices(param), list):
         return _custom_multi_field_simple(field, code, param)
     return _custom_multi_field_optgroup(field, code, param)
 
 
-def _custom_multi_field_simple(field: ParserField, code: str, param: str) -> Field:
+def _custom_multi_field_simple(field: SurveyField, code: str, param: str) -> Field:
     validators_list = _filter_mandatory_validator(code)  # buggy?
-    label = _filter_many_choices(field.description)
+    label = _filter_public_info(field.description, field.public_allow)
+    label = _filter_many_choices(label)
     label = _filter_mandatory_label(label, code)
     return SelectMultiSimpleField(
         name=field.name,
@@ -371,9 +429,10 @@ def _custom_multi_field_simple(field: ParserField, code: str, param: str) -> Fie
     )
 
 
-def _custom_multi_free_field_simple(field: ParserField, code: str, param: str) -> Field:
+def _custom_multi_free_field_simple(field: SurveyField, code: str, param: str) -> Field:
     validators_list = _filter_mandatory_validator(code)
-    label = _filter_many_choices(field.description)
+    label = _filter_public_info(field.description, field.public_allow)
+    label = _filter_many_choices(label)
     label = _filter_mandatory_label(label, code)
     return SelectMultiSimpleFreeField(
         name=field.name,
@@ -390,9 +449,10 @@ def _custom_multi_free_field_simple(field: ParserField, code: str, param: str) -
     )
 
 
-def _custom_multi_field_optgroup(field: ParserField, code: str, param: str) -> Field:
+def _custom_multi_field_optgroup(field: SurveyField, code: str, param: str) -> Field:
     validators_list = _filter_mandatory_validator(code)  # buggy?
-    label = _filter_many_choices(field.description)
+    label = _filter_public_info(field.description, field.public_allow)
+    label = _filter_many_choices(label)
     label = _filter_mandatory_label(label, code)
     return SelectMultiOptgroupField(
         name=field.name,
@@ -408,11 +468,12 @@ def _custom_multi_field_optgroup(field: ParserField, code: str, param: str) -> F
     )
 
 
-def custom_dual_multi_field(field: ParserField, code: str, param: str) -> Field:
+def custom_dual_multi_field(field: SurveyField, code: str, param: str) -> Field:
     #  {'Associations': ['Actions humanitaires', 'Communication et sensibilisatio ...
     validators_list = _filter_mandatory_validator(code)
     label, _, label2 = field.description.partition(";")
-    label = _filter_many_choices(label.strip())
+    label = _filter_public_info(label.strip(), field.public_allow)
+    label = _filter_many_choices(label)
     label = _filter_mandatory_label(label, code)
     label2 = _filter_many_choices(label2.strip())
     label2 = _filter_mandatory_label(label2, code)
@@ -436,11 +497,12 @@ def custom_dual_multi_field(field: ParserField, code: str, param: str) -> Field:
 
 
 def custom_multi_opt_field(
-    field: ParserField, mandatory_flag: str, param: str
+    field: SurveyField, mandatory_flag: str, param: str
 ) -> Field:
     choices = get_choices(param)
     validators_list = _filter_mandatory_validator(mandatory_flag)
-    label = _filter_many_choices(field.description)
+    label = _filter_public_info(field.description, field.public_allow)
+    label = _filter_many_choices(label)
     label = _filter_mandatory_label(label, mandatory_flag)
     return SelectMultipleField(
         name=field.name,
@@ -461,6 +523,7 @@ FIELD_TYPE_SELECTOR: Mapping[str, Callable] = {
     "boolink": custom_bool_link_field,
     "string": custom_string_field,
     "textarea": custom_textarea_field,
+    "textarea300": custom_textarea300_field,
     "photo": custom_photo_field,
     "email": custom_email_field,
     "tel": custom_tel_field,
@@ -576,7 +639,7 @@ def generate_form(
     kyc_order = []
     for group in profile.groups:
         group_ordered_fields = []
-        for profile_field, code in group.fields:
+        for profile_field, code in group.survey_fields:
             profile_key, _ = _split_profile_field(profile_field.type)
             if mode_edition and profile_key in no_edit_fields:
                 continue

@@ -28,13 +28,15 @@ class Profile:
 @attr.mutable
 class Group:
     label: str = ""
-    fields: list[tuple[Field, str]] = attr.field(factory=list)
+    survey_fields: list[tuple[SurveyField, str]] = attr.field(factory=list)
 
 
 @attr.mutable
-class Field:
+class SurveyField:
     id: str = ""
     name: str = ""
+    public_allow: bool = False
+    public_default: bool = False
     type: str = ""
     description: str = ""
     upper_message: str = ""

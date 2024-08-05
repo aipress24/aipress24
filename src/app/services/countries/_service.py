@@ -4,11 +4,18 @@
 
 from __future__ import annotations
 
+import sys
+
 from sqlalchemy import select
 
 from app.flask.extensions import db
 
 from ._models import CountryEntry
+
+
+def check_countries_exist() -> bool:
+    """Return existence of any row in the countries table"""
+    return db.session.query(CountryEntry).first() is not None
 
 
 def get_country(iso3: str) -> str:
@@ -32,6 +39,34 @@ def get_full_countries() -> list[tuple[str, str]]:
     query = select(CountryEntry).order_by(CountryEntry.seq)
     results = db.session.scalars(query).all()
     return [(row.iso3, row.name) for row in results]
+
+
+def update_country_entry(
+    iso3: str,
+    name: str,
+    seq: int = 0,
+) -> bool:
+    """Update an entry if necessary."""
+    query = select(CountryEntry).filter(CountryEntry.iso3 == iso3)
+    result = db.session.execute(query).scalar()
+    if not result:
+        create_country_entry(iso3, name, seq)
+        return True
+    if result.iso3 == iso3 and result.name == name and result.seq == seq:
+        # unchanged item
+        # print("/////////////////// no change", file=sys.stderr)
+        return False
+    # update required
+    print(
+        f"    update: {result.iso3}, {result.name}, {result.seq} ->  {iso3}, {name}, {seq}",
+        file=sys.stderr,
+    )
+
+    result.iso3 = iso3
+    result.name = name
+    result.seq = seq
+
+    return True
 
 
 def create_country_entry(

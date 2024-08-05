@@ -7,7 +7,6 @@ from __future__ import annotations
 import base64
 import sys
 import uuid
-from importlib import resources as rso
 from pathlib import Path
 from typing import Any
 
@@ -33,23 +32,22 @@ from app.flask.extensions import db
 from app.models.auth import KYCProfile, Role, User
 from app.models.repositories import RoleRepository
 
-from . import blueprint, kyc_models
+from . import blueprint
 from .community_role import kyc_community_to_enum, user_role_from_community
 from .dynform import TAG_LABELS, generate_form
-from .field_label import requires_value, values_to_label
+from .field_label import data_to_label
 from .ontologies import zip_code_city_list
 from .populate_profile import populate_form_data, populate_json_field
 from .renderer import render_field
 from .resized import resized
-from .survey_dataclass import Profile
+from .survey_dataclass import SurveyField
+from .survey_model import get_survey_model, get_survey_profile
 from .temporary_blob import delete_tmp_blob, pop_tmp_blob, read_tmp_blob, store_tmp_blob
-from .xls_parser import XLSParser
 
 # python 3.12
 # type ListVal = list[dict[str, str]]
 
 DEBUG_USE_DB = True
-MODEL_FILENAME = "MVP-2-KYC-Commons-22_dev.xlsx"
 
 
 @blueprint.route("/", methods=("GET", "POST"))
@@ -63,10 +61,10 @@ def zip_towns(country_code: str):
     return jsonify(zip_code_city_list(country_code))
 
 
-def _load_user_data_in_form() -> None:
+def load_kyc_profile_data() -> tuple[str, dict]:
     user = g.user
     profile = user.profile
-    print("////////////edit user:", user, file=sys.stderr)
+    print("//////////// loading user:", user, file=sys.stderr)
     if not profile:
         # fake user at the moment
         print("//////////// generate empty profile", file=sys.stderr)
@@ -78,16 +76,21 @@ def _load_user_data_in_form() -> None:
             business_wall=populate_json_field("business_wall", {}),
         )
         user.profile = profile
+    return (profile.profile_id, _populate_from_logged_user())
 
-    session["profile_id"] = profile.profile_id
-    session["form_raw_results"] = _populate_from_logged_user()
+
+def _load_user_data_in_session() -> None:
+    profile_id, data = load_kyc_profile_data()
+    session["profile_id"] = profile_id
+    session["form_raw_results"] = data
     session["modify_form"] = True
 
 
 @blueprint.route("/profile", methods=("GET", "POST"))
 def profile_page() -> str | Response:
+    survey = get_survey_model()
     if current_user.is_authenticated:
-        _load_user_data_in_form()
+        _load_user_data_in_session()
     profile_id = session.get("profile_id", "")
     # print(request.method, file=sys.stderr)
     if request.method == "GET":
@@ -98,7 +101,7 @@ def profile_page() -> str | Response:
     # post
     try:
         profile_id = request.form["profile"]
-        profile = _get_profile(profile_id)
+        profile = get_survey_profile(profile_id)
     except Exception:
         profile = None
         profile_id = session.get("profile_id", "")
@@ -109,17 +112,11 @@ def profile_page() -> str | Response:
     return make_form(profile_id=profile.id)
 
 
-def _get_profile(profile_id: str) -> Profile:
-    for profile in survey["profiles"]:
-        if profile.id == profile_id:
-            return profile
-    raise ValueError(f"unknown profile: {profile_id}")
-
-
 def make_form(profile_id: str):
     # print(f"profile:{profile_id}", file=sys.stderr)
-    profile = _get_profile(profile_id)
-    if profile is None:
+    try:
+        profile = get_survey_profile(profile_id)
+    except ValueError:
         return redirect(url_for(".profile_page"))
     return redirect(url_for(".wizard_page", profile_id=profile.id))
 
@@ -140,28 +137,6 @@ def _log_invalid_form(form):
                 print(f"field {name2!r}: not found", file=sys.stderr)
 
 
-def _oui_non(flag: bool) -> str:
-    if flag:
-        return "Oui"
-    return "Non"
-
-
-def _format_list_results(data: list | str | bool, key: str) -> str:
-    if isinstance(data, list):
-        value = ", ".join(data)
-    elif isinstance(data, bool):
-        value = _oui_non(data)
-    else:  # str
-        value = data
-    if key == "password":
-        # Minimal security
-        try:
-            value = "*" * len(value)
-        except TypeError:
-            value = ""
-    return value
-
-
 def _parse_request_form(key: str) -> list[str]:
     dict_list = request.form.to_dict(flat=False)
     return dict_list.get(key, [])
@@ -180,13 +155,22 @@ def _parse_result(
     else:
         # read secondary data from request results
         data = _parse_request_form(key)
-
-    if requires_value(key):
-        label = values_to_label(data, key)
-    else:
-        label = _format_list_results(data, key)
+    label = data_to_label(data, key)
     form_results[key] = label
     form_raw_results[key] = data
+
+
+def _parse_raw_result(
+    form_results: dict[str, Any],
+    form_raw_results: dict[str, Any],
+    key: str = "",
+) -> None:
+    try:
+        data = form_raw_results[key]
+    except KeyError:
+        return
+    label = data_to_label(data, key)
+    form_results[key] = label
 
 
 def _filter_out_label_tags(name: Any) -> str:
@@ -196,8 +180,9 @@ def _filter_out_label_tags(name: Any) -> str:
 
 
 def _display_all_possible_fields() -> None:
-    for field in survey["fields"].values():
-        print(field.id, field.name, field.type, file=sys.stderr)
+    survey = get_survey_model()
+    for survey_fields in survey["survey_fields"].values():
+        print(survey_fields.id, survey_fields.name, survey_fields.type, file=sys.stderr)
 
 
 def _store_tmp_blob_preload(key: str) -> tuple[str, int]:
@@ -271,17 +256,14 @@ def _parse_valid_form(form: FlaskForm, profile_id: str) -> None:
 def wizard_page(profile_id: str):
     form_data = None
     modify_form = bool(session.get("modify_form"))
-
-    # form = generate_form(_get_profile(profile_id))
+    profile = get_survey_profile(profile_id)
     if modify_form and request.method == "GET":
         # print("modify_form", file=sys.stderr)
         form_data = session["form_raw_results"]
         print("////////////edit form_data", form_data, file=sys.stderr)
-        form = generate_form(
-            _get_profile(profile_id), form_data, mode_edition=modify_form
-        )
+        form = generate_form(profile, form_data, mode_edition=modify_form)
     else:
-        form = generate_form(_get_profile(profile_id), mode_edition=modify_form)
+        form = generate_form(profile, mode_edition=modify_form)
 
     # print(f"WIZARD request method {request.method}", file=sys.stderr)
     # print(f"WIZARD profile:{profile_id}  {modify_form=}", file=sys.stderr)
@@ -321,6 +303,8 @@ def _get_diabled_flag_msg(raw_results) -> tuple[str, str]:
 
 
 def _write_tmp_data(data: bytes, uuid: str) -> None:
+    if not uuid:
+        return
     images_dir = Path(current_app.instance_path) / "images"
     images_dir.mkdir(parents=True, exist_ok=True)
     path = images_dir / uuid
@@ -352,28 +336,20 @@ def validation_page():
     id_key = session.get("form_id_key", {"nothing": "nothing"})
     images = {}
     session["modify_form"] = False
-    profile = _get_profile(session["profile_id"])
+    profile = get_survey_profile(session["profile_id"])
     groups = []
     for group in profile.groups:
         group_content: dict[str, Any] = {"label": group.label}
         ids = []
-        for field, code in group.fields:
+        for survey_field, code in group.survey_fields:
             if code in {"?", "N"}:
                 continue
-            ids.append(field.id)
+            ids.append(survey_field.id)
             # add possible sub field
-            sub_id = f"{field.id}_detail"
+            sub_id = f"{survey_field.id}_detail"
             if sub_id in id_key:
                 ids.append(sub_id)
-            if field.type == "photo":
-                filename, uuid, data = read_tmp_blob(raw_results.get(field.name, ""))
-                _write_tmp_data(data, uuid)
-                if _allowed_image_suffix(filename):
-                    # images[field.name] = (
-                    #     "data:image/jpeg;base64,"
-                    #     + base64.standard_b64encode(data).decode()
-                    # )
-                    images[field.name] = uuid
+            collect_photo_blob(images, raw_results, survey_field)
         group_content["ids"] = ids
         groups.append(group_content)
 
@@ -423,31 +399,9 @@ def modify_page():
     return redirect(url_for(".profile_page"))
 
 
-def _civilite_to_gender(civilite: str) -> str:
-    match civilite:
-        case "Monsieur":
-            gender = "M"
-        case "Madame":
-            gender = "F"
-        case _:
-            gender = "?"
-    return gender
-
-
-def _gender_to_civilite(gender: str) -> str:
-    match gender:
-        case "M":
-            gender = "Monsieur"
-        case "F":
-            gender = "Madame"
-        case _:
-            gender = "Non renseigné"
-    return gender
-
-
 def _guess_organisation_name(results: dict) -> str:
-    for field in ("nom_media", "nom_media_insti", "nom_agence_rp", "nom_orga"):
-        value = results.get(field, "")
+    for field_name in ("nom_media", "nom_media_insti", "nom_agence_rp", "nom_orga"):
+        value = results.get(field_name, "")
         # fixme: nom_media is a list of string, not a string
         if isinstance(value, list) and value:
             value = value[0]
@@ -481,7 +435,7 @@ def make_kyc_user_record() -> User:
     fs_uniquifier = results.get("fs_uniquifier") or uuid.uuid4().hex
 
     profile_id = session.get("profile_id", "")
-    survey_profile = _get_profile(profile_id)
+    survey_profile = get_survey_profile(profile_id)
 
     profile = KYCProfile(
         profile_id=survey_profile.id,
@@ -501,7 +455,8 @@ def make_kyc_user_record() -> User:
         photo_carte_presse=photo_carte_presse,
         photo_carte_presse_filename=photo_carte_presse_filename,
         pseudo=results.get("pseudo", ""),
-        gender=_civilite_to_gender(results.get("civilite", "")),
+        gender=results.get("civilite", ""),
+        presentation=results.get("presentation", ""),
         email=results.get("email", ""),
         email_secours=results.get("email_secours", ""),
         tel_mobile=results.get("tel_mobile", ""),
@@ -545,7 +500,7 @@ def _update_current_user(user: User) -> None:
     profile = user.profile
     if not profile:
         profile_id = "P002"  # aka PRESS_MEDIA journaliste salarié
-        survey_profile = _get_profile(profile_id)
+        survey_profile = get_survey_profile(profile_id)
         # fake user at the moment
         print("//////////// generate empty profile", file=sys.stderr)
         profile = KYCProfile(
@@ -560,7 +515,7 @@ def _update_current_user(user: User) -> None:
         user.profile = profile
 
     profile_id = session.get("profile_id", "")
-    survey_profile = _get_profile(profile_id)
+    survey_profile = get_survey_profile(profile_id)
     profile.profile_id = survey_profile.id
     profile.profile_label = survey_profile.label
     profile.profile_community = survey_profile.community
@@ -576,7 +531,8 @@ def _update_current_user(user: User) -> None:
     user.photo_carte_presse = photo_carte_presse
     user.photo_carte_presse_filename = photo_carte_presse_filename
     user.pseudo = results.get("pseudo", "")
-    user.gender = _civilite_to_gender(results.get("civilite", ""))
+    user.gender = results.get("civilite", "")
+    user.presentation = results.get("presentation", "")
     # email=results.get("email", ""),
     # email_secours=results.get("email_secours", "")
     user.tel_mobile = results.get("tel_mobile", "")
@@ -592,6 +548,7 @@ def _update_current_user(user: User) -> None:
         user.community = user_community
         user_role_from_community(user)
 
+    # check wether we need user.active or user.user_valid
     user.active = True
 
 
@@ -653,7 +610,8 @@ def _populate_from_logged_user() -> dict[str, Any]:
     data["last_name"] = user.last_name
     data["first_name"] = user.first_name
     data["pseudo"] = user.pseudo
-    data["civilite"] = _gender_to_civilite(user.gender)
+    data["civilite"] = user.gender
+    data["presentation"] = user.presentation
     data["email"] = user.email
     data["email_secours"] = user.email_secours
     data["tel_mobile"] = user.tel_mobile
@@ -667,13 +625,6 @@ def _populate_from_logged_user() -> dict[str, Any]:
     populate_form_data("business_wall", profile.business_wall, data)
 
     return data
-
-
-def load_model() -> dict[str, Any]:
-    parser = XLSParser()
-    xls_file = rso.files(kyc_models) / MODEL_FILENAME
-    parser.parse(xls_file)
-    return parser.model
 
 
 @blueprint.route("/test_mail/<email>", methods=["GET"])
@@ -692,4 +643,76 @@ def email_already_used(email: str) -> bool:
     return bool(exists_main) or bool(exists_secours)
 
 
-survey = load_model()
+def format_kyc_data(kyc_data: dict[str, Any]) -> dict[str, Any]:
+    # raw_results = session["form_raw_results"]
+    return {key: data_to_label(value, key) for key, value in kyc_data.items()}
+
+
+def collect_photo_blob(
+    images: dict,
+    kyc_data: dict[str, Any],
+    survey_field: SurveyField,
+) -> None:
+    if survey_field.type != "photo":
+        return
+    filename, uuid, data = read_tmp_blob(kyc_data.get(survey_field.name, ""))
+    _write_tmp_data(data, uuid)
+    if _allowed_image_suffix(filename):
+        images[survey_field.name] = uuid
+        images[survey_field.id] = uuid
+
+
+def public_info_context() -> dict[str, Any]:
+    if not current_user.is_authenticated:
+        raise ValueError("No currently authenticated user")
+    profile_id, kyc_data = load_kyc_profile_data()
+    survey_profile = get_survey_profile(profile_id)
+    results = format_kyc_data(kyc_data)
+    field_labels = {}
+    images = {}
+    groups = []
+    id_results = {}
+    for group in survey_profile.groups:
+        group_content: dict[str, Any] = {"label": group.label}
+        ids = []
+        for survey_field, code in group.survey_fields:
+            if code in {"?", "N"}:
+                continue
+            if not survey_field.public_allow:
+                continue
+            if not survey_field.public_default:
+                continue
+            ids.append(survey_field.id)  # F001
+            # add possible sub field
+            sub_id = f"{survey_field.id}_detail"
+            sub_name = f"{survey_field.name}_detail"
+            if sub_name in results:
+                ids.append(sub_id)
+                # split field labelds
+                label1, label2 = survey_field.description.split(";")
+                label1 = label1.strip()
+                label2 = label2.strip()
+                field_labels[survey_field.id] = label1
+                field_labels[sub_id] = label2
+                id_results[sub_id] = results.get(sub_name, "")
+            else:
+                field_labels[survey_field.id] = survey_field.description
+            id_results[survey_field.id] = results[survey_field.name]
+            collect_photo_blob(images, kyc_data, survey_field)
+        if not ids:
+            continue
+        group_content["ids"] = ids
+        groups.append(group_content)
+    return {
+        "results": id_results,
+        "labels": field_labels,
+        "profile_description": survey_profile.description,
+        "groups": groups,
+        "images": images,
+    }
+
+
+@blueprint.route("/public_info")
+def public_info_page() -> str | Response:
+    ctx = public_info_context()
+    return render_template("public_info.html", **ctx)

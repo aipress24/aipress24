@@ -1,0 +1,35 @@
+{% extends "pages/preferences/_base.j2" %}
+
+{% block main %}
+    <div class="px-2 lg:col-span-9">
+      <div class="content">
+        <div class="pt-8">
+          <h2>Profil public</h2>
+          <p class="py-4 font-bold text-lg">{{ profile_description }}</p>
+        </div>
+
+        <div class="py-2 space-y-4">
+          {% for group in groups %}
+          <div>
+            <h3 class="font-bold pb-4">{{ group.label }}</h3>
+
+            <ul>
+              {% for id in group.ids %}
+              <li>
+                {{ labels[id] | safe }} :
+                {% if id in images %}
+                <img
+                  class="ml-6 max-w-32 max-h-32"
+                  src="{{ url_for('.images_page', filename=images[id]) }}" />
+                {% else %}
+                    <span class="font-semibold"> {{ results[id] }} </span>
+                {% endif %}
+              </li>
+              {% endfor %}
+            </ul>
+          </div>
+          {% endfor %}
+        </div>
+    </div>
+  </div>
+{% endblock %}

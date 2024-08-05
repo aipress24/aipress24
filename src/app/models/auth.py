@@ -76,9 +76,9 @@ class User(Addressable, UserMixin, Base):
         sa.DateTime, server_default=func.now()
     )
 
-    password: Mapped[str | None] = mapped_column(sa.String(64))
+    password: Mapped[str | None] = mapped_column()
     # remove _password_hash when going to bcrypt
-    _password_hash: Mapped[str | None] = mapped_column(sa.String(64))
+    # _password_hash: Mapped[str | None] = mapped_column(sa.String(64))
 
     date_submit: Mapped[sa.DateTime] = mapped_column(
         sa.DateTime, server_default=func.now()
@@ -112,6 +112,7 @@ class User(Addressable, UserMixin, Base):
     )
 
     gender: Mapped[str] = mapped_column(sa.String(1), default="?")
+    presentation: Mapped[str] = mapped_column(sa.String, default="")
     first_name: Mapped[str] = mapped_column(sa.String(64), default="")
     last_name: Mapped[str] = mapped_column(sa.String(64), default="")
 

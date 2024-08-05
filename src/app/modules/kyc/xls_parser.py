@@ -9,7 +9,7 @@ from typing import Any
 
 from openpyxl.reader.excel import load_workbook
 
-from .survey_dataclass import Communities, Field, Group, ModelLoader, Profile
+from .survey_dataclass import Communities, Group, ModelLoader, Profile, SurveyField
 
 COLOR_CODES = {
     "FF32CD32": "M",  # Mandatory
@@ -21,16 +21,18 @@ ROW_FIELDS = 5
 ROW_COMMUNITY = 1
 ROW_PROFILE = 2
 COL_LABEL = 0
-COL_MESSAGE = 1
-COL_ID = 2
-COL_TYPE = 3
-COL_COMMENT = 4
-COL_PROFILE = 5
+COL_PUBLIC_ALLOW = 1
+COL_PUBLIC_DEFAULT = 2
+COL_MESSAGE = 3
+COL_ID = 4
+COL_TYPE = 5
+COL_COMMENT = 6
+COL_PROFILE = 7
 
 
 class XLSParser(ModelLoader):
     def __init__(self) -> None:
-        self.fields: dict[str, Field] = {}
+        self.survey_fields: dict[str, SurveyField] = {}
         self.profiles: list[Profile] = []
         self.communities: Communities = Communities()
 
@@ -49,7 +51,7 @@ class XLSParser(ModelLoader):
     def model(self) -> dict[str, Any]:
         return {
             "communities": self.communities,
-            "fields": self.fields,
+            "survey_fields": self.survey_fields,
             "profiles": self.profiles,
         }
 
@@ -79,8 +81,8 @@ class XLSParser(ModelLoader):
                 if code == "N":
                     continue
                 profile_current_group = profile.groups[-1]
-                field = self.fields[field_id]
-                profile_current_group.fields.append((field, code))
+                field = self.survey_fields[field_id]
+                profile_current_group.survey_fields.append((field, code))
 
     def dump(self):
         print("# Modèle KYC")
@@ -92,6 +94,8 @@ class XLSParser(ModelLoader):
         field_i = 0
         for row in rows[ROW_FIELDS:]:
             field_description = row[COL_LABEL].value
+            field_public_allow = bool((row[COL_PUBLIC_ALLOW].value or "").strip())
+            field_public_default = bool((row[COL_PUBLIC_DEFAULT].value or "").strip())
             field_message = row[COL_MESSAGE].value
             field_name = row[COL_ID].value
             field_type = row[COL_TYPE].value
@@ -99,14 +103,16 @@ class XLSParser(ModelLoader):
                 continue
             field_i += 1
             field_id = f"F{field_i:03}"
-            field = Field(
+            field = SurveyField(
                 id=field_id,
                 name=field_name,
+                public_allow=field_public_allow,
+                public_default=field_public_default,
                 type=field_type,
                 description=field_description,
                 upper_message=field_message,
             )
-            self.fields[field_id] = field
+            self.survey_fields[field_id] = field
 
     def read_profiles(self, rows) -> None:
         for i, cell in enumerate(rows[ROW_PROFILE][COL_PROFILE:]):
@@ -135,7 +141,7 @@ class XLSParser(ModelLoader):
         print()
         print("## Fields")
         print()
-        for field in self.fields.values():
+        for field in self.survey_fields.values():
             print(f"### {field.id}")
             print()
             print(field.description)
@@ -152,7 +158,7 @@ class XLSParser(ModelLoader):
             print()
             for group in profile.groups:
                 print(f"grouo: {group.label}")
-                for field, code in group.fields:
+                for field, code in group.survey_fields:
                     if code in {"?", "N"}:
                         continue
                     print(f"- {field.id}({code}): {field.description}")

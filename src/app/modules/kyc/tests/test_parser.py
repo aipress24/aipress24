@@ -10,7 +10,7 @@ import pytest
 
 from app.modules.kyc import xls_parser
 from app.modules.kyc.survey_dataclass import Profile
-from app.modules.kyc.views import MODEL_FILENAME
+from app.modules.kyc.survey_model import MODEL_FILENAME
 
 
 @pytest.fixture

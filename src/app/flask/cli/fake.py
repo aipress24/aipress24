@@ -20,8 +20,7 @@ from app.models.auth import CommunityEnum, RoleEnum, User
 
 from ...models.repositories import RoleRepository, UserRepository
 from . import util
-from .bootstrap import PASSWORD, bootstrap_boxes, bootstrap_roles
-from .gen_ontologies import import_ontologies_content
+from .bootstrap import PASSWORD, bootstrap_function
 
 
 #
@@ -35,7 +34,7 @@ def fake(clean) -> None:
     db_setup(clean)
 
     print(green("Bootstrapping master data..."))
-    bootstrap()
+    bootstrap_function()
 
     print(green("Generating fake data..."))
     faker = FakerService(db)
@@ -66,12 +65,6 @@ def db_setup(clean: bool) -> None:
     if len(users) > 0:
         print(red("Database is not empty:"))
         return
-
-
-def bootstrap():
-    bootstrap_roles()
-    bootstrap_boxes()
-    import_ontologies_content()
 
 
 COMMUNITY_TO_ROLE = {
