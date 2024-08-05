@@ -5,6 +5,7 @@
 preview = true
 
 exclude = [
+    "src/app/modules/wip/crud/cbvs/_forms.py",
     "src/app/modules/superadmin",
     "src/app/modules/wallet",
     "scripts/",
@@ -43,7 +44,10 @@ lint.ignore = [
     #
     "A001", # Variable `...` is shadowing a python builtin
     "A002", # Argument `...` is shadowing a python builtin
+    "A004", # `...` is shadowing a python builtin
+    "A005", # `...` is shadowing a python builtin
     "B019", # Use of `functools.lru_cache` or `functools.cache` on methods can lead to memory leaks
+    "DOC201", # `return` is not documented in docstring
     "E501", # line too long
     "FLY002", # Consider f-string instead of string join
     "I001", # Import block is un-sorted or un-formatted
