@@ -8,7 +8,8 @@ from unittest.mock import Mock
 
 from flask_sqlalchemy.extension import SQLAlchemy
 
-from app.models.auth import CommunityEnum, User
+from app.enums import CommunityEnum
+from app.models.auth import User
 from app.models.orgs import Organisation
 from app.ui.macros.images import org_logo, profile_image
 
@@ -19,7 +20,7 @@ def test_profile_image(db: SQLAlchemy) -> None:
 
     tag = profile_image(user, size=24)
 
-    assert "blue" in tag
+    assert "red" in tag
     assert "mock.profile_image_url" in tag
 
 

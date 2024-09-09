@@ -4,6 +4,8 @@
 
 from __future__ import annotations
 
+from flask import url_for as url_for_orig
+
 from app.flask.lib.pages import page
 from app.flask.routing import url_for
 from app.models.auth import User
@@ -40,13 +42,14 @@ class UserDataSource(t.DataSource):
         result = []
         for obj in objects:
             record = {
-                "$url": url_for(obj),
+                "$url": url_for(obj),  # strange, obj like a str?
                 "id": obj.id,
+                "show": url_for_orig(".show_profile", uid=obj.id),
                 # "username": obj.username,
                 "name": obj.full_name,
                 "email": obj.email,
                 "job_title": obj.job_title,
-                "organisation_name": obj.organisation_name,
+                "organisation_name": obj.profile.organisation_name,
                 "status": obj.status,
                 "karma": f"{obj.karma:0.1f}",
             }

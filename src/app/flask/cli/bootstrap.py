@@ -16,8 +16,6 @@ from app.models.auth import Role, RoleEnum
 
 from .ontologies import import_ontologies_content
 
-PASSWORD = "pass"
-
 BOX_SLUGS = [
     "wire/1",
     "wire/2",
@@ -52,11 +50,11 @@ def bootstrap_roles():
     db_session = container.get(scoped_session)
 
     print("Creating roles...")
-    roles = []
-    for _role in RoleEnum:
-        role = Role(name=_role.name, description=_role.value)
+    # roles = []
+    for role_enum in RoleEnum:
+        role = Role(name=role_enum.name, description=role_enum.value)
         db_session.add(role)
-        roles.append(role)
+        # roles.append(role)
 
     db_session.commit()
 

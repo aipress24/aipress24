@@ -13,9 +13,10 @@ from app.services.sessions import SessionService
 
 class FakeUser:
     id = 1
+    is_authenticated = True
 
 
-def test_session(db: SQLAlchemy) -> None:
+def test_session_with_authenticated_user(db: SQLAlchemy) -> None:
     g.user = FakeUser()
 
     session_service = container.get(SessionService)

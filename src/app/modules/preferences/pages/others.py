@@ -39,24 +39,6 @@ class PrefSecurityPage(BasePreferencesPage):
 
 
 @page
-class PrefInterestsPage(BasePreferencesPage):
-    parent = PrefHomePage
-    name = "interests"
-    label = "Centres d'intérêts"
-    template = "pages/preferences/placeholder.j2"
-    icon = "clipboard-document-check"
-
-
-@page
-class PrefContactOptionsPage(BasePreferencesPage):
-    parent = PrefHomePage
-    name = "contact-options"
-    label = "Options de contact"
-    template = "pages/preferences/pref-contact.j2"
-    icon = "at-symbol"
-
-
-@page
 class PrefNotificationPage(BasePreferencesPage):
     parent = PrefHomePage
     name = "notification"

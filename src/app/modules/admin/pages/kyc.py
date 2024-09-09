@@ -38,12 +38,11 @@ class ApplicationDataSource(t.DataSource):
     def make_records(self, objects) -> list[dict]:
         result = []
         for obj in objects:
-            data = obj.data or {}
             record = {
                 "$url": "",
                 "id": obj.id,
-                "first_name": data.get("first_name", "Inconnu"),
-                "last_name": data.get("last_name", "Inconnu"),
+                "first_name": obj.first_name,
+                "last_name": obj.last_name,
             }
             result.append(record)
         return result

@@ -9,7 +9,15 @@ from typing import Any
 
 from openpyxl.reader.excel import load_workbook
 
-from .survey_dataclass import Communities, Group, ModelLoader, Profile, SurveyField
+from app.enums import CommunityEnum, ContactTypeEnum
+
+from .survey_dataclass import (
+    Group,
+    ModelLoader,
+    SurveyCommunities,
+    SurveyField,
+    SurveyProfile,
+)
 
 COLOR_CODES = {
     "FF32CD32": "M",  # Mandatory
@@ -17,24 +25,50 @@ COLOR_CODES = {
     "FFC9211E": "N",  # No
 }
 
-ROW_FIELDS = 5
+ROW_FIELDS = 6
 ROW_COMMUNITY = 1
 ROW_PROFILE = 2
+ROW_CONTACT = 3
 COL_LABEL = 0
-COL_PUBLIC_ALLOW = 1
+COL_PUBLIC_MAXI = 1
 COL_PUBLIC_DEFAULT = 2
-COL_MESSAGE = 3
-COL_ID = 4
-COL_TYPE = 5
-COL_COMMENT = 6
-COL_PROFILE = 7
+COL_PUBLIC_MINI = 3
+COL_VALIDATE_CHANGES = 4
+COL_MESSAGE = 5
+COL_ORGANISATION = 6
+COL_ID = 7
+COL_TYPE = 8
+COL_COMMENT = 9
+COL_PROFILE = 10
+
+
+KYC_COMMUNITY_TO_ENUM: dict[str, CommunityEnum] = {  # type: ignore
+    "press & media": CommunityEnum.PRESS_MEDIA,
+    "press relations": CommunityEnum.COMMUNICANTS,
+    "leaders & experts": CommunityEnum.LEADERS_EXPERTS,
+    "transformers": CommunityEnum.TRANSFORMERS,
+    "academics": CommunityEnum.ACADEMICS,
+}
+
+
+def kyc_community_to_enum(kyc_community: str) -> CommunityEnum:
+    return KYC_COMMUNITY_TO_ENUM[kyc_community.lower().strip()]
+
+
+def kyc_contact_type_to_enum(kyc_contact_type: str) -> ContactTypeEnum:
+    key = kyc_contact_type.upper().strip()
+    return ContactTypeEnum[key]
+
+
+def _cell_to_bool(cell) -> bool:
+    return bool((cell.value or "").strip())
 
 
 class XLSParser(ModelLoader):
     def __init__(self) -> None:
         self.survey_fields: dict[str, SurveyField] = {}
-        self.profiles: list[Profile] = []
-        self.communities: Communities = Communities()
+        self.survey_profiles: list[SurveyProfile] = []
+        self.survey_communities: SurveyCommunities = SurveyCommunities()
 
     def parse(self, source: Path | str) -> None:
         wb = load_workbook(source)
@@ -50,9 +84,9 @@ class XLSParser(ModelLoader):
     @property
     def model(self) -> dict[str, Any]:
         return {
-            "communities": self.communities,
+            "communities": self.survey_communities,
             "survey_fields": self.survey_fields,
-            "profiles": self.profiles,
+            "profiles": self.survey_profiles,
         }
 
     def parse_fields(self, rows) -> None:
@@ -64,9 +98,9 @@ class XLSParser(ModelLoader):
             if field_type == "title":
                 # it's a group title
                 for i, _cell in enumerate(row[COL_PROFILE:]):
-                    if i >= len(self.profiles):
+                    if i >= len(self.survey_profiles):
                         break
-                    profile = self.profiles[i]
+                    profile = self.survey_profiles[i]
                     profile.groups.append(Group(label=field_description))
                 continue
             if not field_name:
@@ -74,9 +108,9 @@ class XLSParser(ModelLoader):
             field_i += 1
             field_id = f"F{field_i:03}"
             for i, cell in enumerate(row[COL_PROFILE:]):
-                if i >= len(self.profiles):
+                if i >= len(self.survey_profiles):
                     break
-                profile = self.profiles[i]
+                profile = self.survey_profiles[i]
                 code = COLOR_CODES.get(cell.fill.fgColor.rgb, "?")
                 if code == "N":
                     continue
@@ -94,9 +128,12 @@ class XLSParser(ModelLoader):
         field_i = 0
         for row in rows[ROW_FIELDS:]:
             field_description = row[COL_LABEL].value
-            field_public_allow = bool((row[COL_PUBLIC_ALLOW].value or "").strip())
-            field_public_default = bool((row[COL_PUBLIC_DEFAULT].value or "").strip())
+            field_public_maxi = _cell_to_bool(row[COL_PUBLIC_MAXI])
+            field_public_default = _cell_to_bool(row[COL_PUBLIC_DEFAULT])
+            field_public_mini = _cell_to_bool(row[COL_PUBLIC_MINI])
+            field_validate_changes = _cell_to_bool(row[COL_VALIDATE_CHANGES])
             field_message = row[COL_MESSAGE].value
+            field_is_organisation = _cell_to_bool(row[COL_ORGANISATION])
             field_name = row[COL_ID].value
             field_type = row[COL_TYPE].value
             if not field_name or field_type == "title":
@@ -106,8 +143,11 @@ class XLSParser(ModelLoader):
             field = SurveyField(
                 id=field_id,
                 name=field_name,
-                public_allow=field_public_allow,
+                public_maxi=field_public_maxi,
                 public_default=field_public_default,
+                public_mini=field_public_mini,
+                validate_changes=field_validate_changes,
+                is_organisation=field_is_organisation,
                 type=field_type,
                 description=field_description,
                 upper_message=field_message,
@@ -120,22 +160,30 @@ class XLSParser(ModelLoader):
             if not description or not description.strip():
                 break
             id = f"P{i + 1:03}"
-            profile = Profile(id=id, description=description)
-            self.profiles.append(profile)
-        nb_profiles = len(self.profiles)
+            profile = SurveyProfile(id=id, description=description)
+            self.survey_profiles.append(profile)
+        nb_profiles = len(self.survey_profiles)
         community = ""
         for i, cell in enumerate(rows[ROW_COMMUNITY][COL_PROFILE:]):
             if i >= nb_profiles:
                 break
             if cell.value:
-                community = cell.value
-            profile = self.profiles[i]
+                community = kyc_community_to_enum(cell.value)
+            profile = self.survey_profiles[i]
             profile.community = community
 
+        for i, cell in enumerate(rows[ROW_CONTACT][COL_PROFILE:]):
+            if i >= nb_profiles:
+                break
+            if cell.value:
+                contact_type = kyc_contact_type_to_enum(cell.value)
+            profile = self.survey_profiles[i]
+            profile.contact_type = contact_type
+
     def build_communities(self) -> None:
-        self.communities = Communities()
-        for profile in self.profiles:
-            self.communities.add_profile(profile)
+        self.survey_communities = SurveyCommunities()
+        for profile in self.survey_profiles:
+            self.survey_communities.add_profile(profile)
 
     def dump_fields(self):
         print()
@@ -151,7 +199,7 @@ class XLSParser(ModelLoader):
         print()
         print("## Profiles")
         print()
-        for profile in self.profiles:
+        for profile in self.survey_profiles:
             print(f"### {profile.community} - {profile.id}")
             print()
             print(profile.description)

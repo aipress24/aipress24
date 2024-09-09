@@ -24,7 +24,7 @@
               name="search"
               id="search"
               class="block py-2 w-full pl-10 sm:text-sm border border-gray-400 hover:bg-gray-50 rounded-md"
-              placeholder="Chercher (par nom, prénom, code postal, etc.)"
+              placeholder="Chercher (par nom, prénom, organisation, code postal, etc.)"
               wire:model.lazy="search"
           />
         </div>
@@ -77,7 +77,7 @@
                     <p class="text-sm text-gray-500 truncate">
                       {{ member.job_title }}
                       @
-                      {{ member.organisation_name }}
+                      {{ member.profile.organisation_name }}
                     </p>
                   </div>
                 </a>

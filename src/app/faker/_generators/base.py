@@ -55,6 +55,10 @@ class BaseGenerator(ABC):
             text = new
         return text[:max_length]
 
+    def generate_words(self, number: int = 1) -> str:
+        words = [self.text_faker.word() for i in range(number)]
+        return " ".join(words)
+
     def generate_html(self, min_sentences=5, max_sentences=15):
         num_paragraphs = random.randint(min_sentences, max_sentences)
         paragraphs = [self.generate_html_p() for i in range(num_paragraphs)]
@@ -71,6 +75,10 @@ class BaseGenerator(ABC):
             k1 = "women"
         k2 = randint(0, 99)
         return f"https://randomuser.me/api/portraits/{k1}/{k2}.jpg"
+
+    @staticmethod
+    def get_lego_image() -> str:
+        return f"https://randomuser.me/api/portraits/lego/{randint(0, 9)}.jpg"
 
     def generate_date(self, past=True, future=False):
         """Generate a random date, by default in the past."""

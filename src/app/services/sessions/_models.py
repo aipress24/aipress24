@@ -19,6 +19,7 @@ class Session(IdMixin, Base):
     """Model for storing user server-side sessions."""
 
     user_id: Mapped[int] = mapped_column(nullable=True, index=True)
+    session_id: Mapped[str] = mapped_column(nullable=True, index=True)
     _data: Mapped[str] = mapped_column(nullable=True)
 
     def __contains__(self, item) -> bool:

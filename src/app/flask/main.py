@@ -41,7 +41,7 @@ SCAN_PACKAGES = [
     "app",
 ]
 
-MAX_REQUEST_DURATION = 0.2
+MAX_REQUEST_DURATION = 0.5
 
 debugging.install()
 

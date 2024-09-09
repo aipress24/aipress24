@@ -161,17 +161,19 @@ class SearchBackend:
         return self._adapt(obj)
 
     @adapt.register
-    def _(self, obj: User):
-        d = self._adapt(obj)
-        d["title"] = obj.first_name + " " + obj.last_name
-        d["summary"] = obj.job_title
-        d["text"] = " ".join(
+    def _(self, user: User):
+        data = self._adapt(user)
+        data["title"] = user.first_name + " " + user.last_name
+        data["summary"] = user.job_title
+        match_making = user.profile.match_making
+        data["text"] = " ".join(
             [
-                obj.job_title,
-                obj.job_description,
-                obj.bio,
-                obj.education,
-                obj.hobbies,
+                user.job_title,
+                user.profile.presentation,
+                match_making["experiences"],
+                match_making["experiences"],
+                match_making["formations"],
+                match_making["hobbies"],
             ]
         )
-        return d
+        return data

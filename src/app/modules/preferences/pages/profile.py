@@ -7,7 +7,7 @@ from __future__ import annotations
 from werkzeug.utils import redirect
 
 from app.flask.lib.pages import page
-from app.modules.kyc.views import public_info_context
+from app.modules.kyc.views import profil_groups_initial_level
 
 from .base import BasePreferencesPage
 from .home import PrefHomePage
@@ -17,12 +17,12 @@ from .home import PrefHomePage
 class PrefProfilePage(BasePreferencesPage):
     parent = PrefHomePage
     name = "profile"
-    label = "Profil public"
+    label = "Visibilité du profil public"
     template = "pages/preferences/public-profile.j2"
     icon = "user-circle"
 
     def context(self):
-        return public_info_context()
+        return profil_groups_initial_level()
 
     def post(self):
         return redirect(self.url)

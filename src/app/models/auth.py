@@ -6,6 +6,8 @@ from __future__ import annotations
 
 import typing
 import uuid
+from copy import deepcopy
+from typing import Any
 
 import sqlalchemy as sa
 from aenum import StrEnum
@@ -13,6 +15,9 @@ from flask_security import RoleMixin, UserMixin
 from sqlalchemy import JSON, DateTime, ForeignKey, String, orm
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
+
+from app.enums import CommunityEnum, ContactTypeEnum
+from app.modules.kyc.survey_model import get_survey_profile
 
 from .base import Base
 from .geoloc import GeoLocation
@@ -33,14 +38,6 @@ class RoleEnum(StrEnum):
     EXPERT = "expert"
     ACADEMIC = "academic"
     TRANSFORMER = "transformer"
-
-
-class CommunityEnum(StrEnum):
-    PRESS_MEDIA = "Press & Media"
-    COMMUNICANTS = "Communicants"
-    LEADERS_EXPERTS = "Leaders & Experts"
-    TRANSFORMERS = "Transformers"
-    ACADEMICS = "Academics"
 
 
 roles_users = sa.Table(
@@ -112,7 +109,6 @@ class User(Addressable, UserMixin, Base):
     )
 
     gender: Mapped[str] = mapped_column(sa.String(1), default="?")
-    presentation: Mapped[str] = mapped_column(sa.String, default="")
     first_name: Mapped[str] = mapped_column(sa.String(64), default="")
     last_name: Mapped[str] = mapped_column(sa.String(64), default="")
 
@@ -120,14 +116,9 @@ class User(Addressable, UserMixin, Base):
     photo_filename: Mapped[str] = mapped_column(sa.String, default="")
     photo_carte_presse: Mapped[bytes] = mapped_column(sa.LargeBinary, nullable=True)
     photo_carte_presse_filename: Mapped[str] = mapped_column(sa.String, default="")
-    pseudo: Mapped[str] = mapped_column(sa.String, default="")
 
     job_title: Mapped[str] = mapped_column(default="")
-    job_description: Mapped[str] = mapped_column(default="")
-    bio: Mapped[str] = mapped_column(default="")
-    education: Mapped[str] = mapped_column(default="")
-    # hobbies currently duplicated from PKYCProfile:
-    hobbies: Mapped[str] = mapped_column(default="")
+    # job_description: Mapped[str] = mapped_column(default="")
 
     tel_mobile: Mapped[str] = mapped_column(sa.String, default="")
     tel_mobile_valid: Mapped[bool] = mapped_column(default=False)
@@ -138,9 +129,6 @@ class User(Addressable, UserMixin, Base):
     organisation_id: Mapped[int | None] = mapped_column(
         sa.BigInteger, sa.ForeignKey("crp_organisation.id", name="fk_aut_user_org_id")
     )
-
-    # per order: nom_media, nom_media_insti, nom_agence_rp, nom_orga,
-    organisation_name: Mapped[str] = mapped_column(default="")
 
     # TODO
     # geoloc_id = sa.Column(sa.Integer, sa.ForeignKey("geo_loc.id"), nullable=True)
@@ -231,6 +219,12 @@ class User(Addressable, UserMixin, Base):
             case _:
                 raise ValueError(f"Invalid role: {role}")
 
+    def add_role(self, role: Role) -> bool:
+        if self.has_role(role):
+            return False
+        self.roles.append(role)
+        return True
+
 
 class Role(Base, RoleMixin):
     __tablename__ = "aut_role"
@@ -252,13 +246,148 @@ class KYCProfile(Base):
     profile_id: Mapped[str] = mapped_column(String, default="")
     profile_label: Mapped[str] = mapped_column(String, default="")
     profile_community: Mapped[str] = mapped_column(String, default="")
+    contact_type: Mapped[str] = mapped_column(String, default="")
+    display_level: Mapped[int] = mapped_column(sa.Integer, default=1)
+    # organisation_name: per order: nom_media, nom_media_insti, nom_agence_rp, nom_orga,
+    organisation_name: Mapped[str] = mapped_column(String, default="")
+    presentation: Mapped[str] = mapped_column(sa.String, default="")
+    show_contact_details: Mapped[str] = mapped_column(JSON, default="{}")
+    info_personnelle: Mapped[dict] = mapped_column(JSON, default="{}")
     info_professionnelle: Mapped[dict] = mapped_column(JSON, default="{}")
     match_making: Mapped[dict] = mapped_column(JSON, default="{}")
-    hobbies: Mapped[dict] = mapped_column(JSON, default="{}")
     business_wall: Mapped[dict] = mapped_column(JSON, default="{}")
     date_update: Mapped[DateTime] = mapped_column(
         DateTime, nullable=True, onupdate=func.now()
     )
+
+    def get_value(self, field_name: str) -> Any:
+        if field_name in KYCProfile.__dict__:
+            return getattr(self, field_name)
+        if field_name in self.show_contact_details:
+            return self.show_contact_details[field_name]
+        if field_name in self.info_professionnelle:
+            return self.info_professionnelle[field_name]
+        if field_name in self.info_personnelle:
+            return self.info_personnelle[field_name]
+        if field_name in self.match_making:
+            return self.match_making[field_name]
+        if field_name in self.business_wall:
+            return self.business_wall[field_name]
+        return ""
+
+    def update_json_field(self, json_field: str, key: str, value: Any) -> None:
+        tmp = deepcopy(getattr(self, json_field))
+        tmp[key] = value
+        setattr(self, json_field, tmp)
+
+    def set_value(self, field_name: str, value: Any) -> None:
+        if field_name in KYCProfile.__dict__:
+            setattr(self, field_name, value)
+            return
+        elif field_name in self.show_contact_details:
+            self.update_json_field("show_contact_details", field_name, value)
+        elif field_name in self.info_professionnelle:
+            self.update_json_field("info_professionnelle", field_name, value)
+        elif field_name in self.info_personnelle:
+            self.update_json_field("info_personnelle", field_name, value)
+        elif field_name in self.match_making:
+            self.update_json_field("match_making", field_name, value)
+        elif field_name in self.business_wall:
+            self.update_json_field("business_wall", field_name, value)
+
+    @property
+    def organisation_field_name_origin(self) -> str:
+        survey_profile = get_survey_profile(self.profile_id)
+        return survey_profile.organisation_field
+
+    def deduce_organisation_name(self) -> None:
+        field_name = self.organisation_field_name_origin
+        if field_name:
+            value = self.get_value(field_name)
+            if isinstance(value, list):
+                if value:
+                    value = value[0]
+                else:
+                    value = ""
+            self.organisation_name = value
+        else:
+            self.organisation_name = ""
+
+    def induce_organisation_name(self, name: str) -> None:
+        """Change Profile dependant organisation name field (and then the resulting
+        organisation_name)
+        """
+        field_name = self.organisation_field_name_origin
+        if field_name:
+            current_value = self.get_value(field_name)
+            if isinstance(current_value, list):
+                if name:
+                    new_value = [name]
+                else:
+                    new_value = []
+            else:
+                new_value = name
+            self.set_value(field_name, new_value)
+            self.organisation_name = name
+        else:
+            self.organisation_name = ""
+
+    # unused
+    # def contact_detail_visible_from(
+    #     self,
+    #     mobile_or_email: str,
+    #     contact_type: str | ContactTypeEnum,
+    # ) -> bool:
+    #     if mobile_or_email not in {"mobile", "email"}:
+    #         return False
+    #     if isinstance(contact_type, ContactTypeEnum):
+    #         key = f"{mobile_or_email}_{contact_type.name}"
+    #     else:
+    #         key = f"{mobile_or_email}_{contact_type}"
+    #     return bool(self.show_contact_details.get(key))
+
+    def all_contact_details(self) -> dict[str, Any]:
+        """Return dict of contact deatails stored in DB for use
+        in the multiple checkbox form of preferences.
+
+        Data structure:
+
+        {
+        ...,
+        "ETUDIANT":{
+              "label": "Etudiants",
+              "mobile_key": "mobile_ETUDIANT",
+              "mobile": "checked",
+              "email_key": "email_ETUDIANT",
+              "email": "", # unchecked
+            },
+        ...
+        }
+        """
+
+        def checked(flag: bool) -> str:
+            if flag:
+                return "checked"
+            return ""
+
+        data = {}
+        contact_details = self.show_contact_details
+        for contact_type in ContactTypeEnum:
+            data[contact_type.name] = {}
+            data[contact_type.name]["label"] = str(contact_type)
+            for mode in ("mobile", "email"):
+                key = f"{mode}_{contact_type.name}"
+                data[contact_type.name][f"{mode}_key"] = key
+                data[contact_type.name][mode] = checked(bool(contact_details.get(key)))
+        return data
+
+    def parse_form_contact_details(self, data: dict[str, str]) -> None:
+        contact_details = deepcopy(self.show_contact_details)
+        for contact_type in ContactTypeEnum:
+            for mode in ("mobile", "email"):
+                key = f"{mode}_{contact_type.name}"
+                contact_details[key] = bool(data.get(key))
+        self.show_contact_details = contact_details
 
 
 # class User2(Base):

@@ -9,7 +9,7 @@ from pathlib import Path
 import pytest
 
 from app.modules.kyc import xls_parser
-from app.modules.kyc.survey_dataclass import Profile
+from app.modules.kyc.survey_dataclass import SurveyProfile
 from app.modules.kyc.survey_model import MODEL_FILENAME
 
 
@@ -41,5 +41,5 @@ def test_parse_content(model_source):
     profiles = [p for p in result["profiles"] if p.id == "P003"]
     assert profiles
     profile3 = profiles[0]
-    assert isinstance(profile3, Profile)
+    assert isinstance(profile3, SurveyProfile)
     assert profile3.id == "P003"

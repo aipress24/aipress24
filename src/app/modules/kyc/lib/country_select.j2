@@ -50,7 +50,6 @@
              if (this.value && this.value.length === 3 && this.new_val !== this.value) {
                 this.loading = true;
                 this.new_val = this.value;
-                console.log(this.new_val);
                 var url = `/kyc/towns/${this.new_val}`;
                 console.log(url);
                 fetch(url)
@@ -58,6 +57,9 @@
                       .then(data => {
                         this.cities = data;
                         this.loading = false;
+                      })
+                      .catch(function(error) {
+                        console.log(error)
                       });
             };
           };
@@ -87,7 +89,7 @@
           this.$watch('cities', () => displayCities());
 
           refreshChoices();
-          zip_choices.setValue(this.zip_value, false);
+          // zip_choices.setValue(this.zip_value, false);
         })
       }
     }"

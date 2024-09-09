@@ -12,17 +12,19 @@ from app.services.roles import has_role
 from .contents import AdminContentsPage
 from .dashboard import AdminDashboardPage
 from .groups import AdminGroupsPage
-from .kyc import AdminKycPage
 from .moderation import AdminModerationPage
 from .orgs import AdminOrgsPage
 from .promotions import AdminPromotionsPage
 from .system import AdminSystemPage
+
+# from .kyc import AdminKycPage
 from .transactions import AdminTransactionsPage
 from .users import AdminUsersPage
 
 MENU = [
     AdminDashboardPage,
-    AdminKycPage,
+    # TestMemberPage,
+    # AdminKycPage,
     AdminUsersPage,
     AdminGroupsPage,
     AdminOrgsPage,

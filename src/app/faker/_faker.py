@@ -99,9 +99,13 @@ class FakerService:
         organisations = self.repository["organisations"]
         users = self.repository["users"]
         for user in users:
+            # only 50% of user in official organisation
+            if random.randint(1, 2) == 2:
+                continue
             organisation = sample(organisations)
             user.organisation_id = organisation.id
-            user.organisation_name = organisation.name
+            profile = user.profile
+            profile.induce_organisation_name(organisation.name)
 
         self.session.flush()
 

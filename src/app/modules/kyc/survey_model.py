@@ -9,10 +9,10 @@ from importlib import resources as rso
 from typing import Any
 
 from . import kyc_models
-from .survey_dataclass import Profile
+from .survey_dataclass import SurveyProfile
 from .xls_parser import XLSParser
 
-MODEL_FILENAME = "MVP-2-KYC-Commons-24_dev.xlsx"
+MODEL_FILENAME = "MVP-2-KYC-Commons-28_dev.xlsx"
 
 
 def load_survey_model() -> dict[str, Any]:
@@ -35,7 +35,8 @@ def get_survey_model() -> dict[str, Any]:
     return survey
 
 
-def get_survey_profile(profile_id: str) -> Profile:
+@cache
+def get_survey_profile(profile_id: str) -> SurveyProfile:
     for profile in survey["profiles"]:
         if profile.id == profile_id:
             return profile

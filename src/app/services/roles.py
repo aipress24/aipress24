@@ -7,7 +7,8 @@ from __future__ import annotations
 from collections.abc import Sequence
 from enum import Enum
 
-from app.models.auth import CommunityEnum, User
+from app.enums import CommunityEnum
+from app.models.auth import User
 
 
 class Role(int, Enum):
@@ -27,7 +28,7 @@ def has_role(user: User, role: int | str | Role | Sequence[str] | set[str]) -> b
 
     # FIXME: a reformuler
     match role:
-        case "admin":
+        case "ADMIN":
             return user.has_role(role)
 
         case str(role_str):

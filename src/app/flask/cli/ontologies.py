@@ -34,7 +34,7 @@ from app.services.zip_code import (
 VALUE_LABEL_MODE = False
 
 # required: use a.ods document
-ONTOLOGY_SRC = Path("data/Ontologies-36.ods")
+ONTOLOGY_SRC = Path("data/Ontologies-38.ods")
 COUNTRY_SRC = Path("country_zip_code/pays.json")
 ZIP_CODE_SRC = Path("country_zip_code/towns")
 
@@ -52,7 +52,11 @@ TAXO_NAME_ONTOLOGIE_SLUG = [
     ("genres-com", "news-com-genres"),
     ("technologies", "technologies"),  # probably not completed
     ("mode_remuneration", "modes-de-remuneration"),  # probably not completed
-    ("type_contenu", "types-et-taille-des-contenus-ed"),  # probably not completed
+    (
+        "type_contenu",
+        "types-des-contenus-editoriaux",
+    ),  # probably not completed
+    ("taille_contenu", "tailles-des-contenus-editoriaux"),  # probably not completed
     # used in html select
     ("media_type", "types-de-presse-medias"),
     ("organisation", "types-dorganisation"),
@@ -65,20 +69,20 @@ TAXO_NAME_ONTOLOGIE_SLUG = [
     ("interet_politique", "centres-d-interet-politiques-ad"),
     ("journalisme_competence", "competences-en-journalisme"),
     ("langue", "langues"),
-    ("medias", "types-dentreprises-de-presse"),
+    ("medias", "types-dentreprises-de-presse-medias"),
     ("metier", "metiers"),
     ("newsrooms", "newsrooms"),
     ("profession_fonction_asso", "fonctions-associations-syndicat"),
     ("profession_fonction_prive", "fonctions-organisations-privees"),
     ("profession_fonction_public", "fonctions-politiques-administra"),
     ("secteur_detaille", "secteurs-detailles"),
-    ("taille_organisation", "tailles-dorganisation"),
-    ("transformation_majeure", "trasnitions-majeures"),
+    ("taille_organisation", "tailles-des-organisations"),
+    ("transformation_majeure", "transformations-majeures"),
     ("type_agence_rp", "types-agences-rp"),
+    ("groupes_cotes", "groupes-cotes"),
 ]
 
-#     "pays": "pays.json",
-
+TAXO_NOT_FROM_FILE = {"geolocalisation", "feuille31", "civilite"}
 
 # Special case, this ontology is not from the .ods file and behave
 # differently (because we expect to keep the 'M' or 'F' gender
@@ -95,7 +99,7 @@ def ontologies() -> None:
     pass
 
 
-def parse_source_ontologies() -> dict:
+def parse_source_ontologies() -> dict[str, Any]:
     """step1 : convert the ods source -> python dictionary."""
     if not ONTOLOGY_SRC.is_file():
         raise FileNotFoundError(f"Please add the missing {ONTOLOGY_SRC} file.")
@@ -112,6 +116,22 @@ def parse_source_ontologies() -> dict:
             table_list = table_list[1:]
         result[slug] = {"name": name, "slug": slug, "table": table_list}
     return result
+
+
+def _check_tables_found(raw_ontologies: dict[str, Any]) -> None:
+    print("Ontologies in file / known:")
+    known = {t[1] for t in TAXO_NAME_ONTOLOGIE_SLUG}
+    all_known = known | TAXO_NOT_FROM_FILE
+    seen = set()
+    for slug in raw_ontologies:
+        if slug in all_known:
+            print("  ok: ", slug)
+            seen.add(slug)
+        else:
+            print(" new: ", slug)
+    missing = known - seen - TAXO_NOT_FROM_FILE
+    if missing:
+        print("MISSING ontology:", missing)
 
 
 def print_ontologies() -> None:
@@ -141,13 +161,18 @@ def import_ontologies_content() -> None:
 
 def import_taxonomies() -> None:
     raw_ontologies = parse_source_ontologies()
+    _check_tables_found(raw_ontologies)
     for taxonomy_name, slug in TAXO_NAME_ONTOLOGIE_SLUG:
-        print(taxonomy_name, slug)
-        converter_class = get_converter(slug)
-        converter = converter_class(raw_ontologies)
-        converter.run()
-        values = converter.export()
-        _update_or_create_taxonomy(taxonomy_name, values)
+        try:
+            print(f"{taxonomy_name=}  {slug=}")
+            converter_class = get_converter(slug)
+            converter = converter_class(raw_ontologies)
+            converter.run()
+            values = converter.export()
+            _update_or_create_taxonomy(taxonomy_name, values)
+        except KeyError as e:
+            print("************** Probable missing ontology for", taxonomy_name)
+            print(e)
 
 
 def _category_from_value(value: str) -> str:
@@ -314,7 +339,7 @@ def get_converter(ontology_name: str) -> Any:  # noqa:PLR0915
             converter_class = CiviliteConverter
         case "newsrooms":
             converter_class = NewsroomsConverter
-        case "types-dentreprises-de-presse":
+        case "types-dentreprises-de-presse-medias":
             converter_class = MediasConverter
         case "types-de-presse-medias":
             converter_class = MediaTypeConverter
@@ -326,7 +351,7 @@ def get_converter(ontology_name: str) -> Any:  # noqa:PLR0915
             converter_class = TypeAgenceRPFonctionConverter
         case "types-dorganisation":
             converter_class = OrganisationConverter
-        case "tailles-dorganisation":
+        case "tailles-des-organisations":
             converter_class = TailleOrganisationConverter
         case "fonctions-politiques-administra":
             converter_class = FonctionPublicConverter
@@ -350,8 +375,8 @@ def get_converter(ontology_name: str) -> Any:  # noqa:PLR0915
             converter_class = CompetenceExpertConverter
         case "langues":
             converter_class = LangueConverter
-        case "trasnitions-majeures":
-            converter_class = TransitionMajeureConverter
+        case "transformations-majeures":
+            converter_class = TransformationsMajeuresConverter
         # taxonomies
         case "news-secteurs":
             converter_class = NewsSecteursConverter
@@ -368,8 +393,14 @@ def get_converter(ontology_name: str) -> Any:  # noqa:PLR0915
             converter_class = TechnologiesConverter
         case "modes-de-remuneration":
             converter_class = ModeRemunerationConverter
-        case "types-et-taille-des-contenus-ed":
+        # case "types-et-taille-des-contenus-ed":
+        #     converter_class = TypeContenuConverter
+        case "types-des-contenus-editoriaux":
             converter_class = TypeContenuConverter
+        case "tailles-des-contenus-editoriaux":
+            converter_class = TailleContenuConverter
+        case "groupes-cotes":
+            converter_class = GroupesCotesConverter
         case _:
             converter_class = None
     if not converter_class:
@@ -679,7 +710,7 @@ class NewsroomsConverter(BaseConvert):
 
 
 class MediasConverter(BaseConvert):
-    ontology: str = "types-dentreprises-de-presse"
+    ontology: str = "types-dentreprises-de-presse-medias"
     strip_content = BaseConvert.strip_content_second
     export = BaseConvert.export_list
 
@@ -716,7 +747,7 @@ class OrganisationConverter(BaseConvert):
 
 
 class TailleOrganisationConverter(BaseConvert):
-    ontology: str = "tailles-dorganisation"
+    ontology: str = "tailles-des-organisations"
     strip_content = BaseConvert.strip_content_second
     export = BaseConvert.export_list
 
@@ -765,8 +796,8 @@ class InteretAssoConverter(FonctionPublicConverter):
     ontology: str = "centres-d-interet-associations"
 
 
-class TransitionMajeureConverter(FonctionPublicConverter):
-    ontology: str = "trasnitions-majeures"
+class TransformationsMajeuresConverter(FonctionPublicConverter):
+    ontology: str = "transformations-majeures"
 
 
 class MetierConverter(FonctionPublicConverter):
@@ -817,8 +848,22 @@ class ModeRemunerationConverter(BaseConvert):
     export = BaseConvert.export_list
 
 
-class TypeContenuConverter(FonctionPublicConverter):
-    ontology: str = "types-et-taille-des-contenus-ed"
+class TypeContenuConverter(BaseConvert):
+    ontology: str = "types-des-contenus-editoriaux"
+    strip_content = BaseConvert.strip_content_second
+    export = BaseConvert.export_list
+
+
+class TailleContenuConverter(BaseConvert):
+    ontology: str = "tailles-des-contenus-editoriaux"
+    strip_content = BaseConvert.strip_content_second
+    export = BaseConvert.export_list
+
+
+class GroupesCotesConverter(BaseConvert):
+    ontology: str = "groupes-cotes"
+    strip_content = BaseConvert.strip_content_no_first
+    export = BaseConvert.export_list
 
 
 class LangueConverter(BaseConvert):

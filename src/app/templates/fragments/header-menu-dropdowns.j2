@@ -122,11 +122,7 @@
         :aria-controls="$id('dropdown-button')"
     >
       <span class="sr-only">Open user menu</span>
-      <img
-          class="h-8 w-8 rounded-full"
-          src="{{ g.user.profile_image_url }}"
-          alt=""
-      />
+      {{ profile_image(g.user, size=8) }}
     </button>
 
     <!-- Panel -->

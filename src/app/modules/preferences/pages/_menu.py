@@ -6,11 +6,11 @@ from __future__ import annotations
 
 from app.flask.routing import url_for
 
+from .contact import PrefContactOptionsPage
+from .interest import PrefInterestsPage
 from .others import (
-    PrefContactOptionsPage,
     PrefEditProfilePage,
     PrefIntegrationPage,
-    PrefInterestsPage,
     PrefNotificationPage,
     PrefPasswordPage,
     PrefSecurityPage,

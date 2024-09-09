@@ -15,7 +15,7 @@ from sqlalchemy.sql.functions import count
 
 from app.flask.extensions import db
 from app.flask.sqla import get_multi
-from app.models.auth import User
+from app.models.auth import KYCProfile, User
 from app.models.geoloc import GeoLocation
 
 from ..common import Directory
@@ -52,6 +52,7 @@ class MembersList(BaseList):
         return or_(
             User.first_name.ilike(f"%{self.search}%"),
             User.last_name.ilike(f"%{self.search}%"),
+            User.profile.has(KYCProfile.organisation_name.ilike(f"%{self.search}%")),
         )
 
     def get_filters(self):

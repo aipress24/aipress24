@@ -67,13 +67,13 @@ def _import_ontologies() -> None:
 # @with_appcontext
 # def dump() -> None:
 #     pass
-    # dump_voc("rubriques", voc.PRESS_SECTIONS, 1)
-    # dump_voc("genres", voc.GENRES, 1)
-    #
-    # dump_voc("competences", voc.COMPETENCIES, 2)
-    # dump_voc("secteurs", voc.SECTORS, 2)
-    # dump_voc("jobs", voc.JOBS, 2)
-    # dump_voc("sujets", voc.MEDIA_TOPICS, 2)
+#     dump_voc("rubriques", voc.PRESS_SECTIONS, 1)
+#     dump_voc("genres", voc.GENRES, 1)
+#
+#     dump_voc("competences", voc.COMPETENCIES, 2)
+#     dump_voc("secteurs", voc.SECTORS, 2)
+#     dump_voc("jobs", voc.JOBS, 2)
+#     dump_voc("sujets", voc.MEDIA_TOPICS, 2)
 
 
 def process_1_level(ws, start_at=3):

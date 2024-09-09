@@ -48,6 +48,14 @@ def get_full_taxonomy(name: str, category: str = "") -> list[tuple[str, str]]:
     return [(row.value, row.name) for row in results]
 
 
+def get_full_taxonomy_category_value(name: str) -> list[tuple[str, str]]:
+    """Get a taxonomy from the database, with categories."""
+    T = TaxonomyEntry  # noqa: N806
+    query = select(T).where(T.taxonomy_name == name).order_by(T.seq)
+    results = db.session.scalars(query).all()
+    return [(row.category, row.value) for row in results]
+
+
 def get_taxonomy_dual_select(
     name: str,
 ) -> dict[str, Any]:

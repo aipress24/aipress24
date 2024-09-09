@@ -1,35 +1,102 @@
 {% extends "pages/preferences/_base.j2" %}
 
 {% block main %}
-    <div class="px-2 lg:col-span-9">
-      <div class="content">
-        <div class="pt-8">
-          <h2>Profil public</h2>
-          <p class="py-4 font-bold text-lg">{{ profile_description }}</p>
-        </div>
+  <div class="p-4 lg:col-span-9">
+    <div
+        class="content"
+        x-data="{
+            public_level: {{ display_level }},
+            new_level: {{ display_level }},
+            loading: false,
+            first_load: true,
+            profile_groups: {
+                groups: [],
+                labels: {},
+                urls: {}
+            },
+            public_label: {
+                0: 'Informations minimales',
+                1: 'Informations suffisantes (niveau recommandé)',
+                2: 'Informations détaillées',
+            },
 
-        <div class="py-2 space-y-4">
-          {% for group in groups %}
+            init() {
+                let refresh_groups = () => {
+                    this.loading = true;
+                    this.profile_data = {};
+                    var url = `/kyc/profil_groups/${this.new_level}`;
+                    fetch(url)
+                        .then((response) => response.json())
+                        .then((data) => {
+                            this.profile_data = data;
+                            this.public_level = this.new_level;
+                            this.loading = false;
+                        });
+                };
+
+                this.$watch('new_level', () => refresh_groups());
+
+                refresh_groups();
+            },
+        }">
+      <div>
+        <h2 class="pb-6">Visibilité de votre profil public</h2>
+
+        <p>Réglez le niveau de visibilité de votre profil public.</p>
+
+        <div class="px-4 py-2">
+          <input
+              class="w-60"
+              type="range"
+              x-model="new_level"
+              min="0"
+              max="2"
+              steps="3"/>
+          <br/>
+          <strong x-text="public_label[new_level]"></strong>
+        </div>
+      </div>
+
+      <hr>
+
+      <h3>Voici comment apparaitra votre profil aux autres utilisateurs&nbsp;:</h3>
+      <p>Les champs "E-mail de connexion" et "Tel mobile" peuvent être masqués en fonction
+      des communautés, voir dans le menu à gauche "Options de contact"</p>
+
+      <div class="pt-4">
+        <h3>Communauté</h3>
+        <p class="pl-4 pt-2 text-lg">{{ profile_community }}</p>
+        <p class="pl-4 text-lg">{{ profile_label }}</p>
+      </div>
+
+      <div class="space-y-3">
+
+        <template x-for="group in profile_data['kycgroups']">
           <div>
-            <h3 class="font-bold pb-4">{{ group.label }}</h3>
+            <h3 class="font-bold pt-2 pb-1" x-text="group.label"></h3>
 
             <ul>
-              {% for id in group.ids %}
-              <li>
-                {{ labels[id] | safe }} :
-                {% if id in images %}
-                <img
-                  class="ml-6 max-w-32 max-h-32"
-                  src="{{ url_for('.images_page', filename=images[id]) }}" />
-                {% else %}
-                    <span class="font-semibold"> {{ results[id] }} </span>
-                {% endif %}
-              </li>
-              {% endfor %}
+              <template x-for="idx in group.ids">
+                <li>
+                  <div class="font-semibold" x-text="profile_data['labels'][idx] + ':'"></div>
+
+                  <template x-if="profile_data['urls'][idx]">
+                    <img class="ml-6 max-w-32 max-h-32"
+                         :src="profile_data['urls'][idx]"
+                         alt=""/>
+                  </template>
+
+                  <template x-if="!(profile_data['urls'][idx])">
+                    <span x-text="profile_data['results'][idx]">
+                    </span>
+                  </template>
+                </li>
+              </template>
             </ul>
           </div>
-          {% endfor %}
-        </div>
+        </template>
+
+      </div>
     </div>
   </div>
 {% endblock %}

@@ -6,7 +6,8 @@ from __future__ import annotations
 
 from svcs.flask import container
 
-from app.models.auth import CommunityEnum, RoleEnum, User
+from app.enums import CommunityEnum
+from app.models.auth import RoleEnum, User
 from app.models.repositories import RoleRepository
 
 COMMUNITY_TO_ROLE = {
@@ -17,29 +18,29 @@ COMMUNITY_TO_ROLE = {
     CommunityEnum.ACADEMICS: RoleEnum.ACADEMIC,
 }
 
-KYC_COMMUNITY_TO_ENUM = {
-    "press & media": CommunityEnum.PRESS_MEDIA,
-    "press relations": CommunityEnum.COMMUNICANTS,
-    "leaders & experts": CommunityEnum.LEADERS_EXPERTS,
-    "transformers": CommunityEnum.TRANSFORMERS,
-    "academics": CommunityEnum.ACADEMICS,
-}
 
-
-def kyc_community_to_enum(kyc_community: str) -> CommunityEnum | None:
-    return KYC_COMMUNITY_TO_ENUM.get(kyc_community.lower().strip())
-
-
-def community_to_role_enum(community: str | CommunityEnum) -> str:
-    """Return RoleEnum.name derivating from from CommunityEnum.name ."""
-    return COMMUNITY_TO_ROLE[community].name
-
-
-def user_role_from_community(user: User, community: str | None = None) -> None:
+def generate_roles_map() -> dict[str, RoleEnum]:
     role_repo = container.get(RoleRepository)
-    roles_map = {role.name: role for role in role_repo.list()}
+    return {role.name: role for role in role_repo.list()}
+
+
+def community_to_role_name(community: str | CommunityEnum) -> str:
+    """Return RoleEnum.name derivating from from CommunityEnum.name ."""
+    return COMMUNITY_TO_ROLE[community].name  # type: ignore
+
+
+def community_to_role_enum(
+    role_map: dict[str, RoleEnum], community: str | CommunityEnum
+) -> RoleEnum:
+    return role_map[community_to_role_name(community)]
+
+
+def append_user_role_from_community(
+    role_map: dict[str, RoleEnum],
+    user: User,
+    community: str | CommunityEnum | None = None,
+) -> None:
     if not community:
         community = user.community
-    role = roles_map[community_to_role_enum(community)]
-    if not user.has_role(role):
-        user.roles.append(role)
+    role = community_to_role_enum(role_map, community)
+    user.add_role(role)

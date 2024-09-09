@@ -33,7 +33,7 @@ from .lib.valid_password import ValidPassword
 from .lib.valid_tel import ValidTel
 from .lib.valid_url import ValidURL
 from .ontologies import get_choices
-from .survey_dataclass import Profile, SurveyField
+from .survey_dataclass import SurveyField, SurveyProfile
 from .temporary_blob import pop_tmp_blob
 
 MAX_TEXTAREA = 1500
@@ -145,7 +145,7 @@ def custom_bool_link_field(field: SurveyField, code: str, param: str = "") -> Fi
 def custom_string_field(field: SurveyField, code: str, param: str = "") -> Field:
     validators_list = _filter_mandatory_validator(code)
     validators_list.append(validators.Length(max=80))
-    label = _filter_public_info(field.description, field.public_allow)
+    label = _filter_public_info(field.description, field.public_maxi)
     label = _filter_mandatory_label(label, code)
     return StringField(
         name=field.name,
@@ -163,7 +163,7 @@ def custom_string_field(field: SurveyField, code: str, param: str = "") -> Field
 def custom_photo_field(field: SurveyField, code: str, param: str = "") -> Field:
     # validators_list = _filter_mandatory_validator(code)
     label = _filter_photo_format(field.description)
-    label = _filter_public_info(label, field.public_allow)
+    label = _filter_public_info(label, field.public_maxi)
     label = _filter_mandatory_label(label, code)
     return ValidImageField(
         name=field.name,
@@ -182,7 +182,7 @@ def custom_photo_field(field: SurveyField, code: str, param: str = "") -> Field:
 def custom_email_field(field: SurveyField, code: str, param: str = "") -> Field:
     validators_list = _filter_mandatory_validator(code)
     validators_list.append(validators.Email())
-    label = _filter_public_info(field.description, field.public_allow)
+    label = _filter_public_info(field.description, field.public_maxi)
     label = _filter_mandatory_label(label, code)
     return ValidEmail(
         name=field.name,
@@ -200,7 +200,7 @@ def custom_email_field(field: SurveyField, code: str, param: str = "") -> Field:
 def custom_tel_field(field: SurveyField, code: str, param: str = "") -> Field:
     validators_list = _filter_mandatory_validator(code)
     validators_list.append(validators.Length(max=20))
-    label = _filter_public_info(field.description, field.public_allow)
+    label = _filter_public_info(field.description, field.public_maxi)
     label = _filter_mandatory_label(label, code)
     return ValidTel(
         name=field.name,
@@ -217,7 +217,7 @@ def custom_tel_field(field: SurveyField, code: str, param: str = "") -> Field:
 
 def custom_password_field(field: SurveyField, code: str, param: str = "") -> Field:
     validators_list = _filter_mandatory_validator(code)
-    label = _filter_public_info(field.description, field.public_allow)
+    label = _filter_public_info(field.description, field.public_maxi)
     label = _filter_mandatory_label(label, code)
     return ValidPassword(
         name=field.name,
@@ -235,7 +235,7 @@ def custom_password_field(field: SurveyField, code: str, param: str = "") -> Fie
 def custom_postcode_field(field: SurveyField, code: str, param: str = "") -> Field:
     validators_list = _filter_mandatory_validator(code)
     validators_list.append(validators.Length(max=80))
-    label = _filter_public_info(field.description, field.public_allow)
+    label = _filter_public_info(field.description, field.public_maxi)
     label = _filter_mandatory_label(label, code)
     return StringField(
         name=field.name,
@@ -253,7 +253,7 @@ def custom_postcode_field(field: SurveyField, code: str, param: str = "") -> Fie
 def custom_url_field(field: SurveyField, code: str, param: str = "") -> Field:
     validators_list = _filter_mandatory_validator(code)
     validators_list.append(validators.Length(max=80))
-    label = _filter_public_info(field.description, field.public_allow)
+    label = _filter_public_info(field.description, field.public_maxi)
     label = _filter_mandatory_label(label, code)
     return ValidURL(
         name=field.name,
@@ -272,7 +272,7 @@ def custom_textarea_field(field: SurveyField, code: str, param: str = "") -> Fie
     validators_list = _filter_mandatory_validator(code)
     validators_list.append(validators.Length(max=MAX_TEXTAREA))
     label = _filter_max_textarea_size(field.description)
-    label = _filter_public_info(label, field.public_allow)
+    label = _filter_public_info(label, field.public_maxi)
     label = _filter_mandatory_label(label, code)
     return TextAreaField(
         name=field.name,
@@ -293,7 +293,7 @@ def custom_textarea300_field(field: SurveyField, code: str, param: str = "") -> 
     validators_list = _filter_mandatory_validator(code)
     validators_list.append(validators.Length(max=MAX_TEXTAREA300))
     label = _filter_max_textarea300_size(field.description)
-    label = _filter_public_info(label, field.public_allow)
+    label = _filter_public_info(label, field.public_maxi)
     label = _filter_mandatory_label(label, code)
     return TextAreaField(
         name=field.name,
@@ -321,7 +321,7 @@ def _fake_ontology_ajax(param: str) -> list[tuple]:
 
 def custom_list_field(field: SurveyField, code: str, param: str) -> Field:
     validators_list = _filter_mandatory_validator(code)
-    label = _filter_public_info(field.description, field.public_allow)
+    label = _filter_public_info(field.description, field.public_maxi)
     label = _filter_mandatory_label(label, code)
     return SelectOneField(
         name=field.name,
@@ -341,7 +341,7 @@ def custom_country_field(field: SurveyField, code: str, param: str) -> Field:
     validators_list = _filter_mandatory_validator(code)
     label, _, label2 = field.description.partition(";")
     label = label.strip()
-    label = _filter_public_info(label, field.public_allow)
+    label = _filter_public_info(label, field.public_maxi)
     label = _filter_mandatory_label(label, code)
     label2 = label2.strip()
     return CountrySelectField(
@@ -364,7 +364,7 @@ def custom_country_field(field: SurveyField, code: str, param: str) -> Field:
 
 def custom_list_free_field(field: SurveyField, code: str, param: str) -> Field:
     """This list allows a free text for content not in the proposed list."""
-    label = _filter_public_info(field.description, field.public_allow)
+    label = _filter_public_info(field.description, field.public_maxi)
     label = _filter_mandatory_label(label, code)
     return SelectOneFreeField(
         name=field.name,
@@ -383,7 +383,7 @@ def custom_ajax_field(field: SurveyField, code: str, param: str) -> Field:
     # TODO: load ontology
     choices = _fake_ontology_ajax(param)
     validators_list = _filter_mandatory_validator(code)
-    label = _filter_public_info(field.description, field.public_allow)
+    label = _filter_public_info(field.description, field.public_maxi)
     label = _filter_mandatory_label(label, code)
     return SelectField(
         name=field.name,
@@ -412,7 +412,7 @@ def custom_multi_field(field: SurveyField, code: str, param: str) -> Field:
 
 def _custom_multi_field_simple(field: SurveyField, code: str, param: str) -> Field:
     validators_list = _filter_mandatory_validator(code)  # buggy?
-    label = _filter_public_info(field.description, field.public_allow)
+    label = _filter_public_info(field.description, field.public_maxi)
     label = _filter_many_choices(label)
     label = _filter_mandatory_label(label, code)
     return SelectMultiSimpleField(
@@ -431,7 +431,7 @@ def _custom_multi_field_simple(field: SurveyField, code: str, param: str) -> Fie
 
 def _custom_multi_free_field_simple(field: SurveyField, code: str, param: str) -> Field:
     validators_list = _filter_mandatory_validator(code)
-    label = _filter_public_info(field.description, field.public_allow)
+    label = _filter_public_info(field.description, field.public_maxi)
     label = _filter_many_choices(label)
     label = _filter_mandatory_label(label, code)
     return SelectMultiSimpleFreeField(
@@ -451,7 +451,7 @@ def _custom_multi_free_field_simple(field: SurveyField, code: str, param: str) -
 
 def _custom_multi_field_optgroup(field: SurveyField, code: str, param: str) -> Field:
     validators_list = _filter_mandatory_validator(code)  # buggy?
-    label = _filter_public_info(field.description, field.public_allow)
+    label = _filter_public_info(field.description, field.public_maxi)
     label = _filter_many_choices(label)
     label = _filter_mandatory_label(label, code)
     return SelectMultiOptgroupField(
@@ -472,7 +472,7 @@ def custom_dual_multi_field(field: SurveyField, code: str, param: str) -> Field:
     #  {'Associations': ['Actions humanitaires', 'Communication et sensibilisatio ...
     validators_list = _filter_mandatory_validator(code)
     label, _, label2 = field.description.partition(";")
-    label = _filter_public_info(label.strip(), field.public_allow)
+    label = _filter_public_info(label.strip(), field.public_maxi)
     label = _filter_many_choices(label)
     label = _filter_mandatory_label(label, code)
     label2 = _filter_many_choices(label2.strip())
@@ -501,7 +501,7 @@ def custom_multi_opt_field(
 ) -> Field:
     choices = get_choices(param)
     validators_list = _filter_mandatory_validator(mandatory_flag)
-    label = _filter_public_info(field.description, field.public_allow)
+    label = _filter_public_info(field.description, field.public_maxi)
     label = _filter_many_choices(label)
     label = _filter_mandatory_label(label, mandatory_flag)
     return SelectMultipleField(
@@ -611,7 +611,7 @@ def _fill_managed_data(form: FlaskForm, managed_data: dict[str, Any]) -> None:
 
 
 def generate_form(
-    profile: Profile,
+    profile: SurveyProfile,
     form_data: dict | None = None,
     mode_edition: bool = False,
 ) -> FlaskForm:

@@ -8,9 +8,11 @@ from __future__ import annotations
 
 from markupsafe import Markup
 
+from app.enums import CommunityEnum
 from app.flask.lib.macros import macro
-from app.models.auth import CommunityEnum, User
+from app.models.auth import User
 from app.models.orgs import Organisation
+from app.modules.kyc.views import profile_photo_local_url
 
 
 @macro
@@ -38,9 +40,11 @@ def org_logo(org: Organisation, size=24, **kw):
 @macro
 def profile_image(user: User, size=24, **kw):
     cls = kw.get("class", "").split(" ")
-    url = user.profile_image_url
+    # url = user.profile_image_url
+    # quick fix to merge KYC images and faker images urls
+    url = profile_photo_local_url(user)
 
-    cls += [f"h-{size}", f"w-{size}", "rounded-full"]
+    cls += [f"h-{size}", f"w-{size}", "object-cover", "rounded-full"]
 
     community = user.community
     match community:

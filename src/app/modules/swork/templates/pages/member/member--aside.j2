@@ -48,7 +48,11 @@
                   </p>
                   <p class="text-sm text-gray-500 truncate">
                     {{ follower.job_title }}
-                    <a href="{{ url_for(follower.organisation) }}">@{{ follower.organisation.name }}</a>
+                    {% if follower.organisation %}
+                      <a href="{{ url_for(follower.organisation) }}">@{{ follower.organisation.name }}</a>
+                    {% else %}
+                      @{{ follower.profile.organisation_name }}
+                    {% endif %}
                   </p>
                 </div>
                 <div>

@@ -6,6 +6,26 @@ from __future__ import annotations
 
 from typing import Any
 
+from app.enums import ContactTypeEnum
+
+
+def default_show_contact_details() -> dict[str, str | bool]:
+    data = {}
+    for contact_type in ContactTypeEnum:
+        data[f"email_{contact_type.name}"] = False
+        data[f"mobile_{contact_type.name}"] = False
+    return data
+
+
+def default_info_perso() -> dict[str, str | bool]:
+    return {
+        "pseudo": "",
+        "no_carte_presse": "",
+        "macaron_hebergement": False,
+        "macaron_repas": False,
+        "macaron_verre": False,
+    }
+
 
 def default_info_pro() -> dict[str, str | list]:
     return {
@@ -45,6 +65,7 @@ def default_match_making() -> dict[str, str | list]:
         "competences_journalisme": [],
         "experiences": "",
         "formations": "",
+        "hobbies": "",
         "interet_ass_syn": [],
         "interet_ass_syn_detail": [],
         "interet_org_priv": [],
@@ -65,15 +86,6 @@ def default_match_making() -> dict[str, str | list]:
     }
 
 
-def default_hobbies() -> dict[str, str | bool]:
-    return {
-        "hobbies": "",
-        "macaron_hebergement": False,
-        "macaron_repas": False,
-        "macaron_verre": False,
-    }
-
-
 def default_business_wall() -> dict[str, bool]:
     return {
         "trigger_academics": False,
@@ -87,19 +99,25 @@ def default_business_wall() -> dict[str, bool]:
     }
 
 
-def populate_json_field(field_name: str, results: dict) -> dict:
-    match field_name:
+def _default_dict(category: str) -> dict[str, Any]:
+    match category:
+        case "show_contact_details":
+            default_fct = default_show_contact_details
+        case "info_personnelle":
+            default_fct = default_info_perso
         case "info_professionnelle":
             default_fct = default_info_pro
         case "match_making":
             default_fct = default_match_making
-        case "hobbies":
-            default_fct = default_hobbies
         case "business_wall":
             default_fct = default_business_wall
         case _:
-            raise ValueError(f"Unknow field: {field_name}")
-    base = default_fct()
+            raise ValueError(f"Unknow category: {category}")
+    return default_fct()
+
+
+def populate_json_field(field_name: str, results: dict) -> dict[str, Any]:
+    base: dict[str, Any] = _default_dict(field_name)
     keys = set(base.keys())
     for key, value in results.items():
         if key in keys:
@@ -108,19 +126,10 @@ def populate_json_field(field_name: str, results: dict) -> dict:
 
 
 def populate_form_data(
-    category: str, content: dict[str, Any], data: dict[str, Any]
+    category: str,
+    content: dict[str, Any],
+    data: dict[str, Any],
 ) -> None:
-    match category:
-        case "info_professionnelle":
-            default_fct = default_info_pro
-        case "match_making":
-            default_fct = default_match_making
-        case "hobbies":
-            default_fct = default_hobbies
-        case "business_wall":
-            default_fct = default_business_wall
-        case _:
-            raise ValueError(f"Unknow category: {category}")
-    base: dict[str, Any] = default_fct()
+    base: dict[str, Any] = _default_dict(category)
     data.update(base)
     data.update(content)

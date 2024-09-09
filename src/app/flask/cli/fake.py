@@ -8,7 +8,6 @@ import click
 from cleez.colors import dim, green, red
 from flask import current_app
 from flask.cli import with_appcontext
-from flask_security import hash_password
 from flask_super.cli import command
 from flask_super.registry import lookup
 from svcs.flask import container
@@ -16,11 +15,16 @@ from svcs.flask import container
 from app.faker import FakerScript, FakerService
 from app.flask.extensions import db
 from app.flask.sqla import get_multi
-from app.models.auth import CommunityEnum, RoleEnum, User
+from app.models.auth import User
+from app.modules.kyc.community_role import (
+    append_user_role_from_community,
+    community_to_role_enum,
+    generate_roles_map,
+)
 
-from ...models.repositories import RoleRepository, UserRepository
+from ...models.repositories import UserRepository
 from . import util
-from .bootstrap import PASSWORD, bootstrap_function
+from .bootstrap import bootstrap_function
 
 
 #
@@ -42,6 +46,7 @@ def fake(clean) -> None:
 
     print(green("Fixing roles on users..."))
     fix_roles()
+    create_admins()
     check_roles()
 
     print(green("Running additional faking scripts..."))
@@ -67,26 +72,12 @@ def db_setup(clean: bool) -> None:
         return
 
 
-COMMUNITY_TO_ROLE = {
-    CommunityEnum.PRESS_MEDIA: RoleEnum.PRESS_MEDIA,
-    CommunityEnum.COMMUNICANTS: RoleEnum.PRESS_RELATIONS,
-    CommunityEnum.LEADERS_EXPERTS: RoleEnum.EXPERT,
-    CommunityEnum.TRANSFORMERS: RoleEnum.TRANSFORMER,
-    CommunityEnum.ACADEMICS: RoleEnum.ACADEMIC,
-}
-
-
 def fix_roles():
-    role_repo = container.get(RoleRepository)
-    roles_map = {role.name: role for role in role_repo.list()}
-
     user_repo = container.get(UserRepository)
-    for i, user in enumerate(user_repo.list()):
-        user.email = f"u{i}@aipress24.com"
-        user.password = hash_password(PASSWORD)
-
-        role = roles_map[COMMUNITY_TO_ROLE[user.community].name]
-        user.roles.append(role)
+    role_map = generate_roles_map()
+    for user in user_repo.list():
+        append_user_role_from_community(role_map, user)
+        # user.roles.append(role_map["ADMIN"])
 
     db.session.commit()
     db.session.expunge_all()
@@ -96,14 +87,27 @@ def fix_roles():
         assert len(user.roles) > 0
 
 
-def check_roles():
-    role_repo = container.get(RoleRepository)
-    roles_map = {role.name: role for role in role_repo.list()}
-
+def create_admins():
     user_repo = container.get(UserRepository)
+    role_map = generate_roles_map()
+    role_admin = role_map["ADMIN"]
+    for idx in (1, 2, 3, 4, 5):
+        user = user_repo.get_one(email=f"u{idx}@aipress24.com")
+        user.add_role(role_admin)
+        print(user, "granted role ADMIN")
+
+    db.session.commit()
+    db.session.expunge_all()
+
+
+def check_roles():
+    user_repo = container.get(UserRepository)
+    role_map = generate_roles_map()
+
     for user in user_repo.list():
+        # fixme: this checks only one role
         roles = []
-        role = roles_map[COMMUNITY_TO_ROLE[user.community].name]
+        role = community_to_role_enum(role_map, user.community)
         roles.append(role)
 
         for role in roles:
