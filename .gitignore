@@ -9,6 +9,7 @@
 .hypothesis/
 
 # Runtime
+/instance
 /src/instance/
 /vite/dist/assets/
 
