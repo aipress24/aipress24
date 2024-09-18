@@ -34,7 +34,7 @@ TABS = [
     {"id": "followers", "label": "Abonnés"},
 ]
 
-MODE_FIELD = {
+MASK_FIELDS = {
     "email": "email",
     "mobile": "tel_mobile",
 }
@@ -90,7 +90,7 @@ class MemberPage(BaseSworkPage):
         mask_fields = MaskFields()
         contact_type = g.user.profile.contact_type
         user_allow = self.user.profile.show_contact_details
-        for mode, field in MODE_FIELD.items():
+        for mode, field in MASK_FIELDS.items():
             key = f"{mode}_{contact_type}"
             if not user_allow.get(key):
                 mask_fields.add_field(field)
@@ -109,7 +109,7 @@ class MemberPage(BaseSworkPage):
             return mask_fields
         member_is_follower = None
         for mode in ("email", "mobile"):
-            if MODE_FIELD[mode] not in mask_fields.masked:
+            if MASK_FIELDS[mode] not in mask_fields.masked:
                 # visibility already allowed
                 mask_fields.add_message(f"{mode} already allowed")
                 continue
@@ -128,7 +128,7 @@ class MemberPage(BaseSworkPage):
                 mask_fields.add_message(f"{mode}: member is not a follower")
                 continue
             # remove mode from mask fields to allow visibility:
-            mask_fields.remove_field(MODE_FIELD[mode])
+            mask_fields.remove_field(MASK_FIELDS[mode])
             mask_fields.add_message(f"{mode}: allowed because followee")
         return mask_fields
 

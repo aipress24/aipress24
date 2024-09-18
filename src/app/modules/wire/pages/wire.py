@@ -76,14 +76,12 @@ class WirePage(Page):
         tabs = []
         for tab in get_tabs():
             tab_id = tab.id
-            tabs.append(
-                {
-                    "id": tab_id,
-                    "label": tab.label,
-                    "href": url_for(".wire", tab=tab_id),
-                    "current": tab.is_active,
-                }
-            )
+            tabs.append({
+                "id": tab_id,
+                "label": tab.label,
+                "href": url_for(".wire", tab=tab_id),
+                "current": tab.is_active,
+            })
         return tabs
 
     def get_posts(self):

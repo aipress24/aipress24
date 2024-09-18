@@ -16,13 +16,12 @@ from sqlalchemy.sql import func
 from app.enums import ContactTypeEnum
 from app.faker._constants import COVER_IMAGES
 from app.faker._geo import fake_geoloc
-from app.flask.extensions import db, security
+from app.flask.extensions import security
 from app.models.auth import KYCProfile, User
 from app.modules.kyc.ontologies import zip_code_city_list
 from app.modules.kyc.populate_profile import populate_json_field
 from app.modules.kyc.survey_model import get_survey_profile, get_survey_profile_ids
 from app.modules.kyc.unofficial_orgs import store_unoff_orga
-from app.modules.wallet.models import IndividualWallet
 from app.services.taxonomies import get_full_taxonomy, get_full_taxonomy_category_value
 from app.settings.vocabularies.user import USER_STATUS
 
@@ -355,6 +354,15 @@ class UserGenerator(BaseGenerator):
             data[f"mobile_{contact_type.name}"] = bool(random.randint(0, 1))
         profile.show_contact_details = data
 
+    def _make_random_validation(self, user: User, _profile: KYCProfile) -> None:
+        # advanced feature for faker would be default depending on user's community
+        if (random.randint(1, 3)) == 1:
+            user.active = False
+            user.user_valid_comment = "Nouvel utilisateur à valider"
+        else:
+            user.active = True
+            user.user_valid_comment = "Utilisateur validé"
+
     @staticmethod
     def _load_photo_profil(user: User) -> None:
         try:
@@ -430,6 +438,7 @@ class UserGenerator(BaseGenerator):
                 #     print("-- not found:", name)
 
         self._make_random_contact_details(user, profile)
+        self._make_random_validation(user, profile)
 
         # non official organisation:
         # later, 50% of users will have an official organisation
@@ -440,7 +449,7 @@ class UserGenerator(BaseGenerator):
 
         # job_titles = ROLES + ROLES + ROLES + [faker.job() for i in range(1, 100)]
         # user.job_title = random.choice(job_titles)
-        user.job_title = survey_profile.label
+        # user.job_title = survey_profile.label
 
         # user.job_description = self.generate_html(1, 4)
         # user.job_description = ""  ~ replaced by user.presentation
@@ -457,19 +466,5 @@ class UserGenerator(BaseGenerator):
 
         user.community = survey_profile.community
 
-        self.make_wallet(user)
-
         self.users += [user]
         return user
-
-    # def make_username(self) -> str:
-    #     while True:
-    #         username = self.person_faker.username(drange=(0, 1000))
-    #         if username not in {u.username for u in self.users}:
-    #             break
-    #     return username
-
-    def make_wallet(self, user: User) -> None:
-        balance = random.randint(0, 1000)
-        wallet = IndividualWallet(user=user, balance=balance)
-        db.session.add(wallet)

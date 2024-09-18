@@ -57,12 +57,10 @@ class SearchBackend:
         port = current_app.config.get("TYPESENSE_PORT", 8108)
         api_key = current_app.config["TYPESENSE_API_KEY"]
         nodes = [{"host": host, "port": port, "protocol": "http"}]
-        return typesense.Client(
-            {
-                "nodes": nodes,
-                "api_key": api_key,
-            }
-        )
+        return typesense.Client({
+            "nodes": nodes,
+            "api_key": api_key,
+        })
 
     def get_collection(self, name) -> Collection:
         client = self.get_client()
@@ -166,14 +164,12 @@ class SearchBackend:
         data["title"] = user.first_name + " " + user.last_name
         data["summary"] = user.job_title
         match_making = user.profile.match_making
-        data["text"] = " ".join(
-            [
-                user.job_title,
-                user.profile.presentation,
-                match_making["experiences"],
-                match_making["experiences"],
-                match_making["formations"],
-                match_making["hobbies"],
-            ]
-        )
+        data["text"] = " ".join([
+            user.job_title,
+            user.profile.presentation,
+            match_making["experiences"],
+            match_making["experiences"],
+            match_making["formations"],
+            match_making["hobbies"],
+        ])
         return data

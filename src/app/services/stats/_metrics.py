@@ -11,7 +11,8 @@ from sqlalchemy import func, select
 
 from app.flask.extensions import db
 from app.models.content import BaseContent
-from app.modules.wallet.models import WalletTransaction
+
+# from app.modules.wallet.models import WalletTransaction
 
 
 class Metric:
@@ -49,34 +50,34 @@ class CountContents(Metric):
         return float(db.session.scalar(stmt) or 0)
 
 
-@register
-class CountTransactions(Metric):
-    id = "count_transactions"
+# @register
+# class CountTransactions(Metric):
+#     id = "count_transactions"
 
-    def compute(self, start_date, end_date) -> float:
-        start = arrow.get(start_date)
-        end = arrow.get(end_date)
+#     def compute(self, start_date, end_date) -> float:
+#         start = arrow.get(start_date)
+#         end = arrow.get(end_date)
 
-        stmt = (
-            select(func.count())
-            .where(WalletTransaction.timestamp >= start)
-            .where(WalletTransaction.timestamp <= end)
-        )
-        return float(db.session.scalar(stmt) or 0)
+#         stmt = (
+#             select(func.count())
+#             .where(WalletTransaction.timestamp >= start)
+#             .where(WalletTransaction.timestamp <= end)
+#         )
+#         return float(db.session.scalar(stmt) or 0)
 
 
-@register
-class AmountTransactions(Metric):
-    id = "amount_transactions"
-    name = "Montant des transactions"
+# @register
+# class AmountTransactions(Metric):
+#     id = "amount_transactions"
+#     name = "Montant des transactions"
 
-    def compute(self, start_date, end_date) -> float:
-        start = arrow.get(start_date)
-        end = arrow.get(end_date)
+#     def compute(self, start_date, end_date) -> float:
+#         start = arrow.get(start_date)
+#         end = arrow.get(end_date)
 
-        stmt = (
-            select(func.sum(WalletTransaction.amount))
-            .where(WalletTransaction.timestamp >= start)
-            .where(WalletTransaction.timestamp <= end)
-        )
-        return float(db.session.scalar(stmt) or 0)
+#         stmt = (
+#             select(func.sum(WalletTransaction.amount))
+#             .where(WalletTransaction.timestamp >= start)
+#             .where(WalletTransaction.timestamp <= end)
+#         )
+#         return float(db.session.scalar(stmt) or 0)

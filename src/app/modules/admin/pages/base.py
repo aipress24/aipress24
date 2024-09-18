@@ -9,6 +9,7 @@ import abc
 from app.flask.lib.pages import Page
 
 from .. import table as t
+from .. import table_no_all as tna
 
 
 class BaseAdminPage(Page, abc.ABC):
@@ -28,6 +29,17 @@ class BaseAdminPage(Page, abc.ABC):
 class AdminListPage(BaseAdminPage):
     ds_class: type[t.DataSource]
     table_class: type[t.Table]
+
+    def context(self):
+        ds = self.ds_class()
+        records = ds.records()
+        table = self.table_class(records)
+        return {"table": table}
+
+
+class AdminListNoAllPage(BaseAdminPage):
+    ds_class: type[tna.DataSource]
+    table_class: type[tna.TableNoAll]
 
     def context(self):
         ds = self.ds_class()

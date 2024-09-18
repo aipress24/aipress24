@@ -31,7 +31,13 @@ from wtforms import Field
 
 from app.enums import CommunityEnum
 from app.flask.extensions import db
-from app.models.auth import KYCProfile, Role, User
+from app.models.auth import (
+    KYCProfile,
+    Role,
+    User,
+    clone_user,
+    merge_values_from_other_user,
+)
 from app.models.repositories import RoleRepository
 from app.modules.swork.pages.masked_fields import MaskFields
 from app.services.sessions import SessionService
@@ -51,7 +57,6 @@ from .temporary_blob import delete_tmp_blob, pop_tmp_blob, read_tmp_blob, store_
 # python 3.12
 # type ListVal = list[dict[str, str]]
 
-DEBUG_USE_DB = True
 # if MASKED_DATA set to "", the field label does not appear on
 # profile page
 MASKED_DATA = "*****"
@@ -71,6 +76,8 @@ def zip_towns(country_code: str):
 def _load_user_data_in_session() -> None:
     user = g.user
     profile = user.profile
+    # warning: no need to clone so early
+    # cloned_user = clone_user(user)
     kyc_data = _populate_kyc_data_from_user(user)
     session_service = container.get(SessionService)
     session_service.set("profile_id", profile.profile_id)
@@ -168,19 +175,6 @@ def _parse_result(
     label = data_to_label(data, key)
     form_results[key] = label
     form_raw_results[key] = data
-
-
-# def _parse_raw_result(
-#     form_results: dict[str, Any],
-#     form_raw_results: dict[str, Any],
-#     key: str = "",
-# ) -> None:
-#     try:
-#         data = form_raw_results[key]
-#     except KeyError:
-#         return
-#     label = data_to_label(data, key)
-#     form_results[key] = label
 
 
 def _filter_out_label_tags(name: Any) -> str:
@@ -392,9 +386,7 @@ def done_page():
     raw_results = session_service.get("form_raw_results", {"nothing": "nothing"})
     if not raw_results.get("validation_gcu", False):
         return redirect(url_for(".undone_page"))
-    msg_error: str = ""
-    if DEBUG_USE_DB:
-        msg_error = export_kyc_data()
+    msg_error = export_kyc_data()
     if msg_error:
         return render_template("db_error.html", msg_error=msg_error)
     else:
@@ -438,9 +430,10 @@ def _role_from_name(name: str) -> Role:
     return roles_map.get(name, roles_map["GUEST"])
 
 
-def make_kyc_user_record() -> User:
-    """Make a User record NON valid at this stage: it will require a validation step.
+def _make_new_kyc_user_record() -> User:
+    """Make a User record for newly created user.
 
+    user is not valid at this stage: it will require a validation step.
     Source of data is the "form_raw_results" of the session.
     """
     session_service = container.get(SessionService)
@@ -490,8 +483,10 @@ def make_kyc_user_record() -> User:
         tel_mobile=results.get("tel_mobile", ""),
         password=results.get("password", ""),  # to be hashed by bcrypt
         fs_uniquifier=fs_uniquifier,
-        user_valid=False,
-        user_valid_comment="Utilisateur à valider",
+        is_clone=False,
+        # is_cloned=False,
+        active=False,
+        user_valid_comment="Nouvel utilisateur à valider",
         gcu_acceptation=results.get("validation_gcu", False),
     )
 
@@ -501,13 +496,34 @@ def make_kyc_user_record() -> User:
     append_user_role_from_community(generate_roles_map(), user)
     # debug: add some role
     # user.roles.append(_role_from_name("EXPERT"))
-    #
-    user.active = True
 
     return user
 
 
-def _update_current_user(user: User) -> None:
+def _set_default_kyc_profile(user: User) -> None:
+    """Add an empty KYCProfile to the user.
+
+    Should never be needed on coherent DB.
+    """
+    profile_id = "P002"  # aka PRESS_MEDIA journaliste salarié
+    survey_profile = get_survey_profile(profile_id)
+    # fake user at the moment
+    print("//////////// generate empty profile", file=sys.stderr)
+    profile = KYCProfile(
+        profile_id=survey_profile.id,
+        profile_label=survey_profile.label,
+        profile_community=survey_profile.community.name,
+        contact_type=survey_profile.contact_type.name,
+        show_contact_details=populate_json_field("show_contact_details", {}),
+        info_personnelle=populate_json_field("info_personnelle", {}),
+        info_professionnelle=populate_json_field("info_professionnelle", {}),
+        match_making=populate_json_field("match_making", {}),
+        business_wall=populate_json_field("business_wall", {}),
+    )
+    user.profile = profile
+
+
+def _update_from_current_user(orig_user: User) -> User:
     session_service = container.get(SessionService)
     results = session_service.get("form_raw_results", {})
     photo_blob_id = results.get("photo", None)
@@ -522,25 +538,14 @@ def _update_current_user(user: User) -> None:
     _remove_tmp_data(photo_uuid)
     _remove_tmp_data(photo_carte_presse_filename_uuid)
 
-    profile = user.profile
-    if not profile:
-        profile_id = "P002"  # aka PRESS_MEDIA journaliste salarié
-        survey_profile = get_survey_profile(profile_id)
-        # fake user at the moment
-        print("//////////// generate empty profile", file=sys.stderr)
-        profile = KYCProfile(
-            profile_id=survey_profile.id,
-            profile_label=survey_profile.label,
-            profile_community=survey_profile.community.name,
-            contact_type=survey_profile.contact_type.name,
-            show_contact_details=populate_json_field("show_contact_details", {}),
-            info_personnelle=populate_json_field("info_personnelle", {}),
-            info_professionnelle=populate_json_field("info_professionnelle", {}),
-            match_making=populate_json_field("match_making", {}),
-            business_wall=populate_json_field("business_wall", {}),
-        )
-        user.profile = profile
+    if not orig_user.profile:  # should never happen
+        _set_default_kyc_profile(orig_user)
 
+    # now clone the origin user
+    cloned_user = clone_user(orig_user)
+    # orig_user.is_cloned = True
+
+    profile = cloned_user.profile
     profile_id = session_service.get("profile_id", "")
     survey_profile = get_survey_profile(profile_id)
     profile.profile_id = survey_profile.id
@@ -556,45 +561,40 @@ def _update_current_user(user: User) -> None:
     profile.match_making = populate_json_field("match_making", results)
     profile.business_wall = populate_json_field("business_wall", results)
 
-    user.last_name = results.get("last_name", "")
-    user.first_name = results.get("first_name", "")
-    user.photo = photo
-    user.photo_filename = photo_filename
+    cloned_user.last_name = results.get("last_name", "")
+    cloned_user.first_name = results.get("first_name", "")
+    cloned_user.photo = photo
+    cloned_user.photo_filename = photo_filename
 
     # remove hard coded URL from faker:
-    user.profile_image_url = ""
+    cloned_user.profile_image_url = ""
 
-    user.photo_carte_presse = photo_carte_presse
-    user.photo_carte_presse_filename = photo_carte_presse_filename
-    user.gender = results.get("civilite", "")
+    cloned_user.photo_carte_presse = photo_carte_presse
+    cloned_user.photo_carte_presse_filename = photo_carte_presse_filename
+    cloned_user.gender = results.get("civilite", "")
     # email=results.get("email", ""),
     # email_secours=results.get("email_secours", "")
-    user.tel_mobile = results.get("tel_mobile", "")
-    # password=results.get("password", ""),  # to be hashed by bcrypt
-    user.user_valid = False
-    user.user_valid_comment = "Utilisateur à valider"
+    cloned_user.tel_mobile = results.get("tel_mobile", "")
     for k, v in results.items():
         print("/////////////", k, v, file=sys.stderr)
-    user.gcu_acceptation = results.get("validation_gcu", False)
-    print("/////////////", user.gcu_acceptation, file=sys.stderr)
+    cloned_user.gcu_acceptation = results.get("validation_gcu", False)
     # duplicated: from KYCProfile
 
-    user.community = survey_profile.community
-    append_user_role_from_community(generate_roles_map(), user)
+    cloned_user.community = survey_profile.community
+    append_user_role_from_community(generate_roles_map(), cloned_user)
 
-    # check wether we need user.active or user.user_valid
-    user.active = True
+    return cloned_user
 
 
 def export_kyc_data() -> str:
     if current_user.is_authenticated:
         return _update_current_user_data()
     else:
-        return _store_user_data()
+        return _store_new_user_data()
 
 
-def _store_user_data() -> str:
-    user = make_kyc_user_record()
+def _store_new_user_data() -> str:
+    user = _make_new_kyc_user_record()
     db_session = db.session
     db_session.merge(user)
     # db_session.add(user)
@@ -607,10 +607,42 @@ def _store_user_data() -> str:
     return error
 
 
+def _validation_requirement_fields(orig_user: User, cloned_user: User) -> list[str]:
+    """If the differences between both user are on critical fields, validation
+    is required.
+    """
+    critical = ("first_name", "last_name", "gender")
+    critical_modified_fields = []
+    for key in critical:
+        if getattr(orig_user, key) != getattr(cloned_user, key):
+            critical_modified_fields.append(key)
+    return critical_modified_fields
+
+
 def _update_current_user_data() -> str:
     db_session = db.session
-    user = User.query.get(current_user.id)
-    _update_current_user(user)
+    orig_user = User.query.get(current_user.id)
+    print("updating user:", orig_user, file=sys.stderr)
+    cloned_user = _update_from_current_user(orig_user)
+    critical_modified_fields = _validation_requirement_fields(orig_user, cloned_user)
+    if critical_modified_fields:
+        cloned_user.active = False
+        modified_text = " ,".join(critical_modified_fields)
+        cloned_user.user_valid_comment = (
+            f"Modifications demandant une validation: {modified_text}"
+        )
+        print(
+            f"#### {cloned_user} validation required: {modified_text}", file=sys.stderr
+        )
+        db_session.merge(cloned_user)  # add the cloned user to DB
+        # orig_user is unchanged from modifs, but will be saved with the is_cloned
+        # informations
+    else:
+        # forget cloned_user
+        merge_values_from_other_user(orig_user, cloned_user)
+        # db_session.delete(cloned_user) # not in DB
+        db_session.merge(orig_user)  # add the cloned user to DB
+        cloned_user = None
     error = ""
     try:
         db_session.commit()

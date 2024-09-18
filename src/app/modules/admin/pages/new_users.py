@@ -5,33 +5,40 @@
 from __future__ import annotations
 
 from flask import url_for as url_for_orig
+from sqlalchemy import false, select
 
 from app.flask.lib.pages import page
 from app.flask.routing import url_for
 from app.models.auth import User
 
-from .. import table as t
-from .base import AdminListPage
+from .. import table_no_all as t
+from .base import AdminListNoAllPage
 from .home import AdminHomePage
 
 TABLE_COLUMNS = [
-    {"name": "email", "label": "E-mail", "width": 50},
-    {"name": "karma", "label": "Perf.", "width": 50, "align": "right"},
     {"name": "name", "label": "Nom", "width": 50},
-    {"name": "job_title", "label": "Job", "width": 50},
     {"name": "organisation_name", "label": "Org.", "width": 50},
-    {"name": "status", "label": "Statut", "width": 50},
+    {"name": "job_title", "label": "Job", "width": 50},
+    {"name": "email", "label": "E-mail", "width": 50},
 ]
 
 
-class UsersTable(t.Table):
+class NewUsersTable(t.TableNoAll):
     def compose(self):
         for col in TABLE_COLUMNS:
             yield t.Column(**col)
 
 
-class UserDataSource(t.DataSource):
+class NewUserDataSource(t.DataSource):
     model_class = User
+
+    def get_base_select(self) -> select:
+        return (
+            select(User)
+            .where(User.active == false(), User.is_clone == false())
+            .offset(self.offset)
+            .limit(self.limit)
+        )
 
     def add_search_filter(self, stmt):
         if self.search:
@@ -44,28 +51,25 @@ class UserDataSource(t.DataSource):
             record = {
                 "$url": url_for(obj),  # strange, obj like a str?
                 "id": obj.id,
-                "show": url_for_orig(".show_profile", uid=obj.id),
-                # "username": obj.username,
+                "validation": url_for_orig(".validation_profile", uid=obj.id),
                 "name": obj.full_name,
                 "email": obj.email_backup or obj.email,
                 "job_title": obj.job_title,
                 "organisation_name": obj.profile.organisation_name,
-                "status": obj.status,
-                "karma": f"{obj.karma:0.1f}",
             }
             result.append(record)
         return result
 
 
 @page
-class AdminUsersPage(AdminListPage):
-    name = "users"
-    label = "Utilisateurs"
-    title = "Utilisateurs"
+class AdminNewUsersPage(AdminListNoAllPage):
+    name = "new_users"
+    label = "Inscriptions"
+    title = "Utilisateurs à valider"
     icon = "users"
 
-    template = "admin/pages/generic_table.j2"
+    template = "admin/pages/generic_table_no_all.j2"
     parent = AdminHomePage
 
-    ds_class = UserDataSource
-    table_class = UsersTable
+    ds_class = NewUserDataSource
+    table_class = NewUsersTable

@@ -123,9 +123,7 @@ class EventPage(Page):
         db.session.commit()
 
         response = make_response(str(self.event.like_count))
-        response.headers["HX-Trigger"] = json.dumps(
-            {
-                "showToast": message,
-            }
-        )
+        response.headers["HX-Trigger"] = json.dumps({
+            "showToast": message,
+        })
         return response

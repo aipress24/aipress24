@@ -13,12 +13,13 @@ from .contents import AdminContentsPage
 from .dashboard import AdminDashboardPage
 from .groups import AdminGroupsPage
 from .moderation import AdminModerationPage
+from .modif_users import AdminModifUsersPage
+from .new_users import AdminNewUsersPage
 from .orgs import AdminOrgsPage
 from .promotions import AdminPromotionsPage
 from .system import AdminSystemPage
 
-# from .kyc import AdminKycPage
-from .transactions import AdminTransactionsPage
+# from .transactions import AdminTransactionsPage
 from .users import AdminUsersPage
 
 MENU = [
@@ -26,9 +27,11 @@ MENU = [
     # TestMemberPage,
     # AdminKycPage,
     AdminUsersPage,
+    AdminNewUsersPage,
+    AdminModifUsersPage,
     AdminGroupsPage,
     AdminOrgsPage,
-    AdminTransactionsPage,
+    # AdminTransactionsPage,
     AdminPromotionsPage,
     AdminContentsPage,
     AdminModerationPage,

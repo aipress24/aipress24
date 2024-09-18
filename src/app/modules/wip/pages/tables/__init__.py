@@ -5,9 +5,10 @@
 from __future__ import annotations
 
 from .contents import RecentContentsTable
-from .transactions import RecentTransactionsTable
+
+# from .transactions import RecentTransactionsTable
 
 __all__ = [
     "RecentContentsTable",
-    "RecentTransactionsTable",
+    # "RecentTransactionsTable",
 ]

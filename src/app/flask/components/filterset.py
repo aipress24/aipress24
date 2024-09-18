@@ -28,13 +28,11 @@ class FilterSet:
     def get_filters(self):
         result = []
         for filter in self.filters:
-            result.append(
-                {
-                    "id": filter.name,
-                    "label": filter.label,
-                    "options": filter.options,
-                }
-            )
+            result.append({
+                "id": filter.name,
+                "label": filter.label,
+                "options": filter.options,
+            })
         return result
 
 
@@ -51,12 +49,10 @@ class Filter:
     def init(self, objects, options=None) -> None:
         if options is not None:
             for option in options:
-                self.options.append(
-                    {
-                        "id": option,
-                        "label": option,
-                    }
-                )
+                self.options.append({
+                    "id": option,
+                    "label": option,
+                })
             return
 
         def getter(obj):
@@ -64,24 +60,20 @@ class Filter:
 
         options = list(objects | p.map(getter) | p.sort | p.dedup)
         for option in options:
-            self.options.append(
-                {
-                    "id": option,
-                    "label": option,
-                }
-            )
+            self.options.append({
+                "id": option,
+                "label": option,
+            })
 
 
 class Sorter:
     def __init__(self, options) -> None:
         self.options = []
         for option in options:
-            self.options.append(
-                {
-                    "id": f"sort:{option[0]}",
-                    "label": option[1],
-                }
-            )
+            self.options.append({
+                "id": f"sort:{option[0]}",
+                "label": option[1],
+            })
 
     @property
     def current(self):

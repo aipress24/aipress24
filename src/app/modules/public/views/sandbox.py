@@ -49,11 +49,9 @@ def sandbox():
         "breadcrumbs": [],
     }
     response = make_response(render_template("layout/private.j2", **ctx))
-    response.headers["HX-Trigger"] = json.dumps(
-        {
-            "showToast": "I am a toaster message!",
-        }
-    )
+    response.headers["HX-Trigger"] = json.dumps({
+        "showToast": "I am a toaster message!",
+    })
     return response
 
 
@@ -82,12 +80,10 @@ def sandboxx():
         "breadcrumbs": [],
     }
     response = make_response(render_template("layout/private.j2", **ctx))
-    response.headers["HX-Trigger"] = json.dumps(
-        {
-            "ticketCounterHasChanged": "-",
-            "showToast": "I am a toaster message!",
-        }
-    )
+    response.headers["HX-Trigger"] = json.dumps({
+        "ticketCounterHasChanged": "-",
+        "showToast": "I am a toaster message!",
+    })
     return response
 
 

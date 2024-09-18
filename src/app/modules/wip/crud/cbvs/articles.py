@@ -79,19 +79,15 @@ class ArticlesTable(BaseTable):
             },
         ]
         if item.status == ArticleStatus.DRAFT:
-            actions.append(
-                {
-                    "label": "Publier",
-                    "url": self.url_for(item, "publish"),
-                }
-            )
+            actions.append({
+                "label": "Publier",
+                "url": self.url_for(item, "publish"),
+            })
         else:
-            actions.append(
-                {
-                    "label": "Dépublier",
-                    "url": self.url_for(item, "unpublish"),
-                }
-            )
+            actions.append({
+                "label": "Dépublier",
+                "url": self.url_for(item, "unpublish"),
+            })
         actions += [
             {
                 "label": "Supprimer",

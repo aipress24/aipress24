@@ -12,7 +12,8 @@ from typing import Any
 import sqlalchemy as sa
 from aenum import StrEnum
 from flask_security import RoleMixin, UserMixin
-from sqlalchemy import JSON, DateTime, ForeignKey, String, orm
+from sqlalchemy import JSON, DateTime, ForeignKey, orm
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
 
@@ -62,25 +63,21 @@ class User(Addressable, UserMixin, Base):
     id: Mapped[int] = mapped_column(primary_key=True)
 
     # username: Mapped[str] = mapped_column(index=True, unique=True)
-    email: Mapped[str] = mapped_column(unique=True, nullable=True)
-    email_valid: Mapped[bool] = mapped_column(default=False)
-    email_date_valid: Mapped[sa.DateTime] = mapped_column(
-        sa.DateTime, server_default=func.now()
-    )
+    email: Mapped[str] = mapped_column(sa.String, unique=True, nullable=True)
+    # copy of email for clone:
+    email_backup: Mapped[str] = mapped_column(sa.String, nullable=True, default="")
     email_secours: Mapped[str] = mapped_column(sa.String, nullable=True)
-    email_secours_valid: Mapped[bool] = mapped_column(default=False)
-    email_secours_date_valid: Mapped[sa.DateTime] = mapped_column(
-        sa.DateTime, server_default=func.now()
-    )
 
     password: Mapped[str | None] = mapped_column()
-    # remove _password_hash when going to bcrypt
-    # _password_hash: Mapped[str | None] = mapped_column(sa.String(64))
+
+    is_clone: Mapped[bool] = mapped_column(default=False)
+    # is_cloned: Mapped[bool] = mapped_column(default=False)  # usefull ?
+    # security: not sure about id=0
+    cloned_user_id: Mapped[int] = mapped_column(default=0)
 
     date_submit: Mapped[sa.DateTime] = mapped_column(
         sa.DateTime, server_default=func.now()
     )
-    user_valid: Mapped[bool] = mapped_column(default=False)
     user_date_valid: Mapped[sa.DateTime] = mapped_column(
         sa.DateTime, server_default=func.now()
     )
@@ -92,9 +89,9 @@ class User(Addressable, UserMixin, Base):
     # from flask-security
     last_login_at: Mapped[sa.DateTime] = mapped_column(sa.DateTime, nullable=True)
     current_login_at: Mapped[sa.DateTime] = mapped_column(sa.DateTime, nullable=True)
-    last_login_ip: Mapped[str] = mapped_column(sa.DateTime, nullable=True)
+    last_login_ip: Mapped[str] = mapped_column(sa.String, default="", nullable=True)
     current_login_ip: Mapped[str] = mapped_column(sa.String, default="")
-    login_count: Mapped[int] = mapped_column(sa.String, default=0)
+    login_count: Mapped[int] = mapped_column(sa.Integer, default=0)
     # Flask Security
     active: Mapped[bool] = mapped_column(default=False)
     fs_uniquifier: Mapped[str] = mapped_column(sa.String(64), unique=True)
@@ -117,7 +114,7 @@ class User(Addressable, UserMixin, Base):
     photo_carte_presse: Mapped[bytes] = mapped_column(sa.LargeBinary, nullable=True)
     photo_carte_presse_filename: Mapped[str] = mapped_column(sa.String, default="")
 
-    job_title: Mapped[str] = mapped_column(default="")
+    # job_title: Mapped[str] = mapped_column(default="")
     # job_description: Mapped[str] = mapped_column(default="")
 
     tel_mobile: Mapped[str] = mapped_column(sa.String, default="")
@@ -157,8 +154,10 @@ class User(Addressable, UserMixin, Base):
         secondary=roles_users,
         backref=orm.backref("users", lazy="dynamic"),
     )
-    wallet = relationship("IndividualWallet", uselist=False, back_populates="user")
-    profile: Mapped[KYCProfile] = relationship(back_populates="user")
+    profile: Mapped[KYCProfile] = relationship(
+        back_populates="user",
+        cascade="save-update, merge, delete, delete-orphan",
+    )
 
     class AdminMeta:
         id = {"required": True, "read_only": True}
@@ -204,6 +203,10 @@ class User(Addressable, UserMixin, Base):
     def communities(self) -> set[str]:
         return {self.community}
 
+    @hybrid_property
+    def job_title(self) -> str:
+        return self.profile.profile_label
+
     # Override Flask-Security
     def has_role(self, role: str | RoleEnum | Role) -> bool:
         """Returns `True` if the user identifies with the specified role.
@@ -241,15 +244,15 @@ class KYCProfile(Base):
     __tablename__ = "kyc_profile"
 
     id: Mapped[int] = mapped_column(primary_key=True, unique=True, autoincrement=True)
-    user_id: Mapped[int] = mapped_column(ForeignKey("aut_user.id"))
+    user_id: Mapped[int] = mapped_column(ForeignKey("aut_user.id", ondelete="CASCADE"))
     user: Mapped[User] = relationship(back_populates="profile")
-    profile_id: Mapped[str] = mapped_column(String, default="")
-    profile_label: Mapped[str] = mapped_column(String, default="")
-    profile_community: Mapped[str] = mapped_column(String, default="")
-    contact_type: Mapped[str] = mapped_column(String, default="")
+    profile_id: Mapped[str] = mapped_column(sa.String, default="")
+    profile_label: Mapped[str] = mapped_column(sa.String, default="")
+    profile_community: Mapped[str] = mapped_column(sa.String, default="")
+    contact_type: Mapped[str] = mapped_column(sa.String, default="")
     display_level: Mapped[int] = mapped_column(sa.Integer, default=1)
     # organisation_name: per order: nom_media, nom_media_insti, nom_agence_rp, nom_orga,
-    organisation_name: Mapped[str] = mapped_column(String, default="")
+    organisation_name: Mapped[str] = mapped_column(sa.String, default="")
     presentation: Mapped[str] = mapped_column(sa.String, default="")
     show_contact_details: Mapped[str] = mapped_column(JSON, default="{}")
     info_personnelle: Mapped[dict] = mapped_column(JSON, default="{}")
@@ -388,6 +391,152 @@ class KYCProfile(Base):
                 key = f"{mode}_{contact_type.name}"
                 contact_details[key] = bool(data.get(key))
         self.show_contact_details = contact_details
+
+
+def clone_user(orig_user: User) -> User:
+    """Return a clone from the orig_user.
+
+    The orig_user is unchanged by this function.
+    # the orig_user.is_cloned to be set separately.
+    """
+    # do not clone a clone:
+    if orig_user.is_clone:
+        return orig_user
+    # if orig_user.is_cloned:
+    #     raise ValueError(
+    #         f"User already cloned {orig_user.is_cloned} {orig_user}"
+    #     )  # useful ?
+    # security choosing to map all attri-butes one by one for now,
+    # even if costly for mainatiance
+    cloned_profile = clone_kycprofile(orig_user.profile)
+    cloned_user = User(
+        # id  # undefined at this point, autogenerated
+        email=f"fake_{orig_user.id}@example.com",
+        email_backup=orig_user.email,
+        email_secours=orig_user.email_secours,  # no unicity on that field
+        is_clone=True,
+        # is_cloned=False,  # only original can be cloned
+        cloned_user_id=orig_user.id,
+        # date_submit automated by DB
+        user_date_valid=orig_user.user_date_valid,
+        user_valid_comment=orig_user.user_valid_comment,  # previous comment if any ?
+        user_date_update=orig_user.user_date_update,
+        # from flask-security
+        last_login_at=orig_user.last_login_at,
+        current_login_at=orig_user.current_login_at,
+        last_login_ip=orig_user.last_login_ip,
+        current_login_ip=orig_user.current_login_ip,
+        login_count=orig_user.login_count,
+        active=False,  # Do not activate clone
+        fs_uniquifier=uuid.uuid4().hex,
+        gcu_acceptation=orig_user.gcu_acceptation,
+        gcu_acceptation_date=orig_user.gcu_acceptation_date,
+        # actual user fields:
+        community=orig_user.community,
+        gender=orig_user.gender,
+        first_name=orig_user.first_name,
+        last_name=orig_user.last_name,
+        photo=orig_user.photo,
+        photo_filename=orig_user.photo_filename,
+        photo_carte_presse=orig_user.photo_carte_presse,
+        photo_carte_presse_filename=orig_user.photo_carte_presse_filename,
+        # job_title=orig_user.job_title,
+        tel_mobile=orig_user.tel_mobile,
+        tel_mobile_valid=orig_user.tel_mobile_valid,
+        tel_mobile_date_valid=orig_user.tel_mobile_date_valid,
+        organisation_id=orig_user.organisation_id,
+        geoloc_id=orig_user.geoloc_id,
+        # geoloc  # check if needed
+        profile_image_url=orig_user.profile_image_url,
+        cover_image_url=orig_user.cover_image_url,
+        status=orig_user.status,
+        karma=orig_user.karma,
+        organisation=orig_user.organisation,  # to verify: not to appear in members list ! maybe not for clone
+        roles=orig_user.roles,  # maybe not for clone, only when merging ?
+    )
+    cloned_user.profile = cloned_profile
+    return cloned_user
+
+
+def merge_values_from_other_user(orig_user: User, modified_user: User) -> None:
+    """Merge changes from (modified) cloned user.
+
+    The function also reset the is_cloned flag of orig_user.
+    """
+    new_kyc_profile = clone_kycprofile(modified_user.profile)
+
+    orig_user.email = modified_user.email_backup
+    orig_user.email_backup = ""
+    orig_user.email_secours = modified_user.email_secours
+    orig_user.is_clone = False
+    # orig_user.is_cloned = False  # clone will be dismissed
+    orig_user.cloned_user_id = 0  # clone will be dismissed
+    # date_submit automated by DB
+    orig_user.user_date_valid = modified_user.user_date_valid
+    orig_user.user_valid_comment = modified_user.user_valid_comment
+    orig_user.user_date_update = modified_user.user_date_update
+    # from flask-security
+    orig_user.last_login_at = modified_user.last_login_at
+    orig_user.current_login_at = modified_user.current_login_at
+    orig_user.last_login_ip = modified_user.last_login_ip
+    orig_user.current_login_ip = modified_user.current_login_ip
+    orig_user.login_count = modified_user.login_count
+    orig_user.active = (
+        modified_user.active
+    )  # user is considered as validated at this stage
+    # unchanged orig_user.fs_uniquifier
+    orig_user.gcu_acceptation = modified_user.gcu_acceptation
+    orig_user.gcu_acceptation_date = modified_user.gcu_acceptation_date
+    # actual user fields:
+    orig_user.community = modified_user.community
+    orig_user.gender = modified_user.gender
+    orig_user.first_name = modified_user.first_name
+    orig_user.last_name = modified_user.last_name
+    orig_user.photo = modified_user.photo
+    orig_user.photo_filename = modified_user.photo_filename
+    orig_user.photo_carte_presse = modified_user.photo_carte_presse
+    orig_user.photo_carte_presse_filename = modified_user.photo_carte_presse_filename
+    # orig_user.job_title = modified_user.job_title
+    orig_user.tel_mobile = modified_user.tel_mobile
+    orig_user.tel_mobile_valid = modified_user.tel_mobile_valid
+    orig_user.tel_mobile_date_valid = modified_user.tel_mobile_date_valid
+    orig_user.organisation_id = modified_user.organisation_id
+    orig_user.geoloc_id = modified_user.geoloc_id
+    # geoloc  # check if needed
+    orig_user.profile_image_url = modified_user.profile_image_url
+    orig_user.cover_image_url = modified_user.cover_image_url
+    orig_user.status = modified_user.status
+    orig_user.karma = modified_user.karma
+    orig_user.organisation = modified_user.organisation
+    orig_user.roles = modified_user.roles  # maybe not for clone, only when merging
+
+    # orig_user.profile = modified_user.profile
+    orig_user.profile = new_kyc_profile
+
+
+def clone_kycprofile(orig_profile: KYCProfile) -> KYCProfile:
+    """Return a duplicate a KYCProfile.
+
+    Does not duplicate id, user_id, user, date_update fields.
+    Does not store information if object is an original or clone.
+    """
+    return KYCProfile(
+        # id  # undefined at this point, autogenerated
+        # user_id # undefined at this point, generated when put on user
+        # user # undefined at this point, generated when put on user
+        profile_id=orig_profile.profile_id,
+        profile_label=orig_profile.profile_label,
+        profile_community=orig_profile.profile_community,
+        contact_type=orig_profile.contact_type,
+        display_level=orig_profile.display_level,
+        organisation_name=orig_profile.organisation_name,
+        presentation=orig_profile.presentation,
+        show_contact_details=orig_profile.show_contact_details,
+        info_personnelle=orig_profile.info_personnelle,
+        info_professionnelle=orig_profile.info_professionnelle,
+        match_making=orig_profile.match_making,
+        business_wall=orig_profile.business_wall,
+    )
 
 
 # class User2(Base):

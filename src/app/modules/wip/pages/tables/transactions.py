@@ -4,14 +4,7 @@
 
 from __future__ import annotations
 
-from attr import define
-from flask import g
-from sqlalchemy import or_, select
-
-from app.flask.extensions import db
-from app.models.auth import User
-from app.modules.wallet.models import WalletTransaction
-from app.modules.wip.components import DataSource, Table
+# from app.modules.wallet.models import WalletTransaction
 
 # language=jinja2
 ROW_TEMPLATE = """
@@ -43,42 +36,42 @@ ROW_TEMPLATE = """
 """
 
 
-class RecentTransactionsDataSource(DataSource):
-    def query(self):
-        user: User = g.user
-        wallet = user.wallet
-        if not user.wallet:
-            return select(WalletTransaction).where(False)
+# class RecentTransactionsDataSource(DataSource):
+#     def query(self):
+#         user: User = g.user
+#         wallet = user.wallet
+#         if not user.wallet:
+#             return select(WalletTransaction).where(False)
 
-        return (
-            select(WalletTransaction)
-            .where(
-                or_(
-                    WalletTransaction.from_wallet_id == wallet.id,
-                    WalletTransaction.to_wallet_id == wallet.id,
-                )
-            )
-            .order_by(WalletTransaction.timestamp.desc())
-            .limit(10)
-        )
+#         return (
+#             select(WalletTransaction)
+#             .where(
+#                 or_(
+#                     WalletTransaction.from_wallet_id == wallet.id,
+#                     WalletTransaction.to_wallet_id == wallet.id,
+#                 )
+#             )
+#             .order_by(WalletTransaction.timestamp.desc())
+#             .limit(10)
+#         )
 
-    def get_items(self):
-        query = self.query().limit(10)
-        return list(db.session.scalars(query))
+#     def get_items(self):
+#         query = self.query().limit(10)
+#         return list(db.session.scalars(query))
 
-    def get_count(self):
-        # FIXME:
-        return len(list(db.session.scalars(self.query())))
+#     def get_count(self):
+#         # FIXME:
+#         return len(list(db.session.scalars(self.query())))
 
 
-@define
-class RecentTransactionsTable(Table):
-    id = "recent-transactions-table"
-    columns = [
-        {"name": "label", "label": "Transaction"},
-        {"name": "amount", "label": "Montant"},
-        {"name": "status", "label": "Statut"},
-        {"name": "timestamp", "label": "Date"},
-    ]
-    row_template = ROW_TEMPLATE
-    data_source = RecentTransactionsDataSource()
+# @define
+# class RecentTransactionsTable(Table):
+#     id = "recent-transactions-table"
+#     columns = [
+#         {"name": "label", "label": "Transaction"},
+#         {"name": "amount", "label": "Montant"},
+#         {"name": "status", "label": "Statut"},
+#         {"name": "timestamp", "label": "Date"},
+#     ]
+#     row_template = ROW_TEMPLATE
+#     data_source = RecentTransactionsDataSource()

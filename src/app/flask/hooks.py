@@ -90,6 +90,7 @@ def authenticate_user() -> None:
     else:
         print(f"Found user {user_email}")
     login_user(user, force=True)
+    db.session.commit()
     g.user = user
 
 

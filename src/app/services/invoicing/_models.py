@@ -47,21 +47,17 @@ class Invoice(IdMixin, Timestamped, Base):
     def to_csv(self):
         with StringIO() as csvfile:
             write = csv.writer(csvfile)
-            write.writerow(
-                [
-                    "description",
-                    "quantity",
-                    "unit_price (EUR)",
-                    "total (EUR)",
-                ]
-            )
+            write.writerow([
+                "description",
+                "quantity",
+                "unit_price (EUR)",
+                "total (EUR)",
+            ])
             for line in self.lines:
-                write.writerow(
-                    [
-                        line.description,
-                        line.quantity,
-                        line.unit_price / 100,
-                        line.total / 100,
-                    ]
-                )
+                write.writerow([
+                    line.description,
+                    line.quantity,
+                    line.unit_price / 100,
+                    line.total / 100,
+                ])
             return csvfile.getvalue()

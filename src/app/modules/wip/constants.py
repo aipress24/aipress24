@@ -13,7 +13,6 @@ MENU = [
     "page:app.modules.wip.pages.opportunities.OpportunitiesPage",
     "page:app.modules.wip.pages.business_wall.BusinessWallPage",
     "page:app.modules.wip.pages.delegate.DelegatePage",
-    "page:app.modules.wip.pages.business.BusinessPage",
     "page:app.modules.wip.pages.billing.BillingPage",
     "page:app.modules.wip.pages.performance.PerformancePage",
 ]

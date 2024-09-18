@@ -70,7 +70,7 @@ class FilterByJobTitle(Filter):
     def apply(self, stmt, state):
         active_options = self.active_options(state)
         if active_options:
-            stmt = stmt.where(User.job_title.in_(active_options))
+            stmt = stmt.where(User.profile.profile_label.in_(active_options))
 
         return stmt
 

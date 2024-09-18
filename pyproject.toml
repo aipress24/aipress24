@@ -4,7 +4,7 @@
 
 [tool.poetry]
 name = "aipress24-flask"
-version = "2024.08.07.2"
+version = "2024.09.12.1"
 description = ""
 authors = ["Stefane Fermigier <sf@abilian.com>"]
 
@@ -86,9 +86,10 @@ psycopg2-binary = "^2.9.9"
 python-iso639 = "^2024.1.2"
 
 # Prod
-gunicorn = "^22"
+gunicorn = "^23"
 honcho = "^1.1.0"
-# sentry-sdk = "^2"
+hyperdx-opentelemetry = "^0.1.0"
+sentry-sdk = "^2"
 
 # CLI
 rich = "^13.7.0"
@@ -128,7 +129,7 @@ pytest = "^8"
 hypothesis = "^6.92.8"
 
 # Fake data generators (used currently in prod, will be removed later)
-faker = "^26"
+faker = "^28"
 mimesis = "^17"
 
 # PDF generation
@@ -182,12 +183,9 @@ python-dateutil = "^2.8.2"
 requests = "^2.31.0"
 yarl = "^1.9.4"
 aenum = "^3.1.15"
-
-
 buildstr = "^0.1.1"
 odfdo = "^3.7.10"
 odsparsator = "^1.10.0"
-
 
 [tool.poetry.group.dev.dependencies]
 # Main QA tools
@@ -229,7 +227,7 @@ types-pytz = "^2024"
 types-pyyaml = "^6"
 types-redis = "^4"
 types-requests = "^2"
-types-setuptools = "^71"
+types-setuptools = "^74"
 types-toml = "^0.10"
 
 # More linters / typecheckers / tools
@@ -267,7 +265,7 @@ cssselect = "*"
 
 # More tools
 sqlalchemy-data-model-visualizer = "^0.1.3"
-deptry = "^0.18"
+deptry = "^0.20"
 shed = "^2024.1.1"
 buildstr = "^0.1.1"
 splinter = "^0.21.0"
@@ -340,6 +338,10 @@ DEP002 = [
     'dnspython',
     # Used by a script
     'buildstr',
+    # Used by hyperdx
+    'hyperdx-opentelemetry',
+    # Used in production
+    'sentry-sdk',
 ]
 # X imported but declared as a dev dependency
 DEP004 = ['hypothesis', 'openpyxl', "flask_debugtoolbar"]

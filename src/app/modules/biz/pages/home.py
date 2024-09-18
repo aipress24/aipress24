@@ -114,9 +114,8 @@ class BizHomePage(Page):
         match current_tab:
             case "stories":
                 stmt = (
-                    sa.select(MarketplaceContent).where(
-                        MarketplaceContent.status == PublicationStatus.PUBLIC
-                    )
+                    sa.select(MarketplaceContent)
+                    .where(MarketplaceContent.status == PublicationStatus.PUBLIC)
                     # .order_by(order)
                     # .options(selectinload(Article.owner))
                     .limit(30)
@@ -141,14 +140,12 @@ class BizHomePage(Page):
         tabs = []
         for tab in TABS:
             tab_id = tab["id"]
-            tabs.append(
-                {
-                    "id": tab_id,
-                    "label": tab["label"],
-                    "href": url_for(".biz", current_tab=tab_id),
-                    "current": tab_id == current_tab,
-                }
-            )
+            tabs.append({
+                "id": tab_id,
+                "label": tab["label"],
+                "href": url_for(".biz", current_tab=tab_id),
+                "current": tab_id == current_tab,
+            })
         return tabs
 
 
