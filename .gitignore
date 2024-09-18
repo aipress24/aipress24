@@ -9,9 +9,9 @@
 .hypothesis/
 
 # Runtime
-/instance
 /src/instance/
 /vite/dist/assets/
+/vite/dist/
 
 # Secret
 /.env
@@ -31,6 +31,11 @@ env
 node_modules/
 .devenv*
 devenv.local.nix
+/src/app/modules/kyc/data/*.json
+/src/app/modules/kyc/data/towns/*.json
+/gen_ontologies/full_content.json
+/gen_ontologies/ontology_json
+/gen_ontologies/*.ods
 
 # More
 /.clever.json

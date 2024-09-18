@@ -110,6 +110,7 @@ tidy: clean
 ## Format source code
 format:
 	black --target-version py311 src tests scripts migrations docker e2e_playwright *.py
+	ruff format src tests scripts migrations docker e2e_playwright *.py
 	isort src tests scripts migrations docker e2e_playwright *.py
 
 ## Cleanup code (using autoflake)
@@ -122,6 +123,14 @@ cleanup-code:
 .PHONY: build
 build:
 	flask vite build
+
+.PHONY: bootstrap
+bootstrap:
+	flask bootstrap
+
+.PHONY: ontologies
+ontologies:
+		flask ontologies import
 
 .PHONY: fake
 ## Generate fake data

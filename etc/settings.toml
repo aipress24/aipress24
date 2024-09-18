@@ -28,6 +28,11 @@ SECURITY_PASSWORD_COMPLEXITY_CHECKER = "zxcvbn"
 SECURITY_PASSWORD_CHECK_BREACHED = "strict"
 
 SECURITY_EMAIL_SENDER = "contact@aipress24.com"
+
+# flask_security
+SECURITY_TRACKABLE = true
+SECURITY_CHANGEABLE = true
+
 # SECURITY_USER_IDENTITY_ATTRIBUTES = "TODO"
 
 SESSION_COOKIE_SAMESITE = "Lax"
@@ -63,7 +68,7 @@ MAIL_SERVER = "mail.gandi.net"
 
 # For Scaleway
 #MAIL_SERVER = "smtp.tem.scw.cloud"
-#MAIL_USERNAME = ""
+#MAIL_USERNAME = "cab48075-4f3c-407b-95e6-c086b435c16e"
 
 
 #S3_BUCKET_NAME = "aipress24-public"
@@ -83,61 +88,61 @@ S3_PUBLIC_URL = "https://aipress24-images.s3.gra.io.cloud.ovh.net/"
 
 [default.CONTENT_SECURITY_POLICY]
 default-src = "'none'"
-img-src = [ "*", "data:" ]
+img-src = ["*", "data:"]
 font-src = [
-  "'self'",
-  "data:",
-  # TODO: remove
-  "https://cdnjs.cloudflare.com/",
-  "https://fonts.gstatic.com/",
-  "https://use.fontawesome.com/",
+    "'self'",
+    "data:",
+    # TODO: remove
+    "https://cdnjs.cloudflare.com/",
+    "https://fonts.gstatic.com/",
+    "https://use.fontawesome.com/",
 ]
 style-src = [
-  "'self'",
-  "'unsafe-inline'",
-  # TODO: remove
-  "https://cdnjs.cloudflare.com/",
-  "https://fonts.googleapis.com/",
-  "https://cdn.jsdelivr.net/",
-#  "https://stackpath.bootstrapcdn.com/",
-  "https://use.fontawesome.com/",
-  "https://rsms.me/",
+    "'self'",
+    "'unsafe-inline'",
+    # TODO: remove
+    "https://cdnjs.cloudflare.com/",
+    "https://fonts.googleapis.com/",
+    "https://cdn.jsdelivr.net/",
+    #  "https://stackpath.bootstrapcdn.com/",
+    "https://use.fontawesome.com/",
+    "https://rsms.me/",
 ]
 connect-src = [
-  "'self'",
-  "https://sentry.io/",
-  "https://shynet.aipress24.com/",
-  "https://cdn.userfront.com/",
-  "https://api.userfront.com/",
-  "https://api.anymod.com",
+    "'self'",
+    "https://sentry.io/",
+    "https://shynet.aipress24.com/",
+    "https://cdn.userfront.com/",
+    "https://api.userfront.com/",
+    "https://api.anymod.com",
 ]
 object-src = "'none'"
 script-src = [
-  "'self'",
-  "'unsafe-inline'",
-  "'unsafe-eval'",
-  # Used
-  "https://sentry.io/",
-  # Userfront
-  "https://api.userfront.com/",
-  "https://cdn.userfront.com/",
-  "https://api.anymod.com",
-  "https://shynet.aipress24.com/",
-  # TODO: remove
-  "https://cdn.jsdelivr.net/",
-  " https://cdnjs.cloudflare.com/",
-  #
-  #  "https://www.googletagmanager.com/",
-  #  "https://www.google-analytics.com/",
-  #  "https://www.google.com/",
-  #  "https://www.gstatic.com/",
-  #  "https://cdnjs.cloudflare.com/",
-  #  "https://code.jquery.com/",
-  #  "https://maxcdn.bootstrapcdn.com/",
-  #  "https://stackpath.bootstrapcdn.com/",
+    "'self'",
+    "'unsafe-inline'",
+    "'unsafe-eval'",
+    # Used
+    "https://sentry.io/",
+    # Userfront
+    "https://api.userfront.com/",
+    "https://cdn.userfront.com/",
+    "https://api.anymod.com",
+    "https://shynet.aipress24.com/",
+    # TODO: remove
+    "https://cdn.jsdelivr.net/",
+    " https://cdnjs.cloudflare.com/",
+    #
+    #  "https://www.googletagmanager.com/",
+    #  "https://www.google-analytics.com/",
+    #  "https://www.google.com/",
+    #  "https://www.gstatic.com/",
+    #  "https://cdnjs.cloudflare.com/",
+    #  "https://code.jquery.com/",
+    #  "https://maxcdn.bootstrapcdn.com/",
+    #  "https://stackpath.bootstrapcdn.com/",
 ]
-worker-src = [ "'self'", "blob:" ]
-frame-src = [ "'self'", "blob:", "https://www.google.com/" ]
+worker-src = ["'self'", "blob:"]
+frame-src = ["'self'", "blob:", "https://www.google.com/"]
 base-uri = "'none'"
 form-action = "'self'"
 

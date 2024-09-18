@@ -4,35 +4,13 @@
 
 """gunicorn WSGI server configuration."""
 
-import os
 from multiprocessing import cpu_count
 
-NODEJS_VERSION = "v18.16.0"
-NODEJS_URL = (
-    f"https://nodejs.org/dist/{NODEJS_VERSION}/node-{NODEJS_VERSION}-linux-x64.tar.xz"
-)
+from hyperdx.opentelemetry import configure_opentelemetry
 
 
-# def on_starting(server):
-#     """Executes code before the master process is initialized"""
-#
-#     if "DYNO" in os.environ:
-#         run(f"curl {NODEJS_URL} > /tmp/nodejs.tar.xz")
-#         run("tar --xz -xf /tmp/nodejs.tar.xz")
-#         run(
-#             f"ln -s /app/node-{NODEJS_VERSION}-linux-x64/bin/npm /app/.heroku/python/bin"
-#         )
-#         run(
-#             f"ln -s /app/node-{NODEJS_VERSION}-linux-x64/bin/node /app/.heroku/python/bin"
-#         )
-#
-#     run("flask vite install")
-#     run("flask vite build")
-
-
-def run(cmd):
-    print(f"$ {cmd}")
-    os.system(cmd)
+def post_fork(server, worker):
+    configure_opentelemetry()
 
 
 def max_workers():
