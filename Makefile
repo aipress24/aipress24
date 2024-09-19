@@ -15,7 +15,12 @@ help:
 
 ## Run tests
 test:
+	@make test-sqlite test-postgres
+
+test-sqlite:
 	TEST_DATABASE_URI="sqlite:///:memory:" pytest
+
+test-postgres:
 	pytest
 
 test-with-sqla-warnings:
