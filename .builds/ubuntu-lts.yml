@@ -35,10 +35,12 @@ tasks:
   - test: |
       cd aipress24
       poetry run make test-sqlite
+      # TODO: test with postgresql
 
   - nox: |
       cd aipress24
-      poetry run nox
+      TEST_DATABASE_URI="sqlite:///:memory:" poetry run nox
+      # TODO: postgres
 
 #triggers:
 #  - action: email
