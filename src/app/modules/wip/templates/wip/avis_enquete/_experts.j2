@@ -32,9 +32,12 @@
                   class="hover:underline"
                   href="{{ url_for(expert) }}">{{ expert.name }}</a>
               </td>
-              <td><a
-                  class="hover:underline"
-                  href="{{ url_for(organisation) }}">{{ organisation.name }}</a>
+              <td>
+                {% if organisation %}
+                  <a
+                    class="hover:underline"
+                    href="{{ url_for(organisation) }}">{{ organisation.name }}</a>
+                {% endif %}
               </td>
               <td>{{ expert.job_title }}</td>
             </tr>

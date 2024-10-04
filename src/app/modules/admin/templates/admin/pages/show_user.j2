@@ -3,37 +3,50 @@
 {% block main %}
 
 <div class="py-6 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-<h2 class="text-xl font-medium mb-2">Données techniques</h2>
-<div>
-    <dt class="text-sm font-medium text-gray-500"> User.id </dt>
-    <dd class="mb-2 text-sm text-gray-900">
-        {{ user.id }}
-    </dd>
-</div>
-<div>
-    <dt class="text-sm font-medium text-gray-500">Date de soumission du formulaire</dt>
-    <dd class="mb-2 text-sm text-gray-900">
-        {{ user.date_submit }}
-    </dd>
-</div>
-<div>
-    <dt class="text-sm font-medium text-gray-500">Date de validation</dt>
-    <dd class="mb-2 text-sm text-gray-900">
-        {{ user.user_date_valid }}
-    </dd>
-</div>
-<div>
-    <dt class="text-sm font-medium text-gray-500">Commentaire de validation</dt>
-    <dd class="mb-2 text-sm text-gray-900">
-        {{ user.user_valid_comment }}
-    </dd>
-</div>
-<div>
-    <dt class="text-sm font-medium text-gray-500">Date de dernière connexion</dt>
-    <dd class="mb-2 text-sm text-gray-900">
-        {{ user.last_login_at }}
-    </dd>
-</div>
+    <h2 class="text-xl font-medium mb-2">Données techniques</h2>
+    <div>
+        <dt class="text-sm font-medium text-gray-500">Identifiant technique (User.id)</dt>
+        <dd class="mb-2 text-sm text-gray-900">
+            {{ user.id }}
+        </dd>
+    </div>
+    <div>
+        <dt class="text-sm font-medium text-gray-500">Date de soumission du formulaire d'inscription</dt>
+        <dd class="mb-2 text-sm text-gray-900">
+            {{ user.date_submit.strftime('%d %b %G %H:%M') }}
+        </dd>
+    </div>
+    <div>
+        <dt class="text-sm font-medium text-gray-500">Date de validation</dt>
+        <dd class="mb-2 text-sm text-gray-900">
+            {{ user.user_date_valid.strftime('%d %b %G %H:%M') }}
+        </dd>
+    </div>
+    <div>
+        <dt class="text-sm font-medium text-gray-500">Commentaire de validation</dt>
+        <dd class="mb-2 text-sm text-gray-900">
+            {{ user.user_valid_comment }}
+        </dd>
+    </div>
+    <div>
+        <dt class="text-sm font-medium text-gray-500">Date de dernière connexion</dt>
+        <dd class="mb-2 text-sm text-gray-900">
+            {% if user.last_login_at %}
+                {{ user.last_login_at.strftime('%d %b %G %H:%M') }}
+            {% else %}
+                Jamais connecté
+            {% endif %}
+        </dd>
+    </div>
+    <div class="mt-12 flex items-center justify-end gap-x-6">
+        <button
+            type="button"
+            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-400"
+            id="deactivate"
+            hx-post="/admin/show_user/{{user.id}}"
+            hx-vals='{"action": "deactivate"}'
+        >Désactiver l'utilisateur</button>
+    </div>
 </div>
 <hr>
 

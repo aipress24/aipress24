@@ -10,6 +10,7 @@
 
 # Runtime
 /src/instance/
+/instance
 /vite/dist/assets/
 /vite/dist/
 

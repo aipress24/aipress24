@@ -1,0 +1,23 @@
+{% extends "layout/private.j2" %}
+
+{% block content %}
+  <div
+      class="max-w-3xl mx-auto sm:px-6 lg:max-w-7xl lg:px-8 lg:grid lg:grid-cols-12 lg:gap-8"
+  >
+    {% include "pages/_swork_menu.j2" %}
+
+    <main class="lg:col-span-9 xl:col-span-7 my-8 bg-white rounded-lg shadow">
+      {{ component("organisations-list") }}
+    </main>
+
+    <aside class="hidden xl:block xl:col-span-3 mt-8">
+      <div class="sticky top-4 space-y-4">
+
+        {% from "macros/promo.j2" import promo_box with context %}
+        {{ promo_box("swork/1") }}
+        {{ promo_box("swork/2") }}
+      </div>
+    </aside>
+
+  </div>
+{% endblock %}

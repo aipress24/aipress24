@@ -8,7 +8,7 @@ from typing import Any
 
 from app.models.auth import User
 from app.models.content import Article, Event, Image, PressRelease
-from app.models.orgs import Organisation
+from app.models.organisation import Organisation
 from app.modules.swork.models import Group
 
 COLLECTIONS: list[dict[str, Any]] = [

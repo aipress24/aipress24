@@ -10,6 +10,7 @@ from flask import current_app
 from flask.cli import with_appcontext
 from flask_super.cli import command
 from flask_super.registry import lookup
+from sqlalchemy.exc import NoResultFound
 from svcs.flask import container
 
 from app.faker import FakerScript, FakerService
@@ -91,10 +92,12 @@ def create_admins():
     user_repo = container.get(UserRepository)
     role_map = generate_roles_map()
     role_admin = role_map["ADMIN"]
-    for idx in (1, 2, 3, 4, 5):
-        user = user_repo.get_one(email=f"u{idx}@aipress24.com")
+    for idx in range(1, 51):
+        try:
+            user = user_repo.get_one(email=f"u{idx}@aipress24.com")
+        except NoResultFound:
+            continue
         user.add_role(role_admin)
-        print(user, "granted role ADMIN")
 
     db.session.commit()
     db.session.expunge_all()

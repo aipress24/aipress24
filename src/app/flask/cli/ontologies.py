@@ -6,23 +6,30 @@
 from __future__ import annotations
 
 import json
+from copy import deepcopy
 from operator import itemgetter
 from pathlib import Path
 from typing import Any
 
 from flask.cli import with_appcontext
 from flask_super.cli import group
-from odfdo.element import deepcopy
 from odsparsator import odsparsator
 from slugify import slugify
 
+from app.enums import OrganisationFamilyEnum
 from app.flask.extensions import db
+from app.models.organisation_light import LightOrganisation
 from app.services.countries import (
     check_countries_exist,
     create_country_entry,
     update_country_entry,
 )
-from app.services.taxonomies import check_taxonomy_exist, create_entry, update_entry
+from app.services.taxonomies import (
+    check_taxonomy_exist,
+    create_entry,
+    get_taxonomy,
+    update_entry,
+)
 from app.services.zip_code import (
     check_zip_code_exist,
     create_zip_code_entry,
@@ -34,7 +41,7 @@ from app.services.zip_code import (
 VALUE_LABEL_MODE = False
 
 # required: use a.ods document
-ONTOLOGY_SRC = Path("data/Ontologies-38.ods")
+ONTOLOGY_SRC = Path("data/Ontologies-41.ods")
 COUNTRY_SRC = Path("country_zip_code/pays.json")
 ZIP_CODE_SRC = Path("country_zip_code/towns")
 
@@ -44,7 +51,7 @@ ZIP_CODE_SRC = Path("country_zip_code/towns")
 # Genres → `genres`
 # Type d'info → `topics`
 TAXO_NAME_ONTOLOGIE_SLUG = [
-    ("sectors", "news-secteurs"),
+    ("news_sectors", "news-secteurs"),
     ("sections", "news-rubriques"),
     ("topics", "news-types-dinfo"),
     ("genres", "news-genres"),
@@ -59,7 +66,7 @@ TAXO_NAME_ONTOLOGIE_SLUG = [
     ("taille_contenu", "tailles-des-contenus-editoriaux"),  # probably not completed
     # used in html select
     ("media_type", "types-de-presse-medias"),
-    ("organisation", "types-dorganisation"),
+    ("type_organisation_detail", "types-dorganisation"),
     ("journalisme_fonction", "fonctions-du-journalisme"),
     ("agence_rp", "agencesrp"),
     ("civilite", "civilite"),
@@ -69,9 +76,9 @@ TAXO_NAME_ONTOLOGIE_SLUG = [
     ("interet_politique", "centres-d-interet-politiques-ad"),
     ("journalisme_competence", "competences-en-journalisme"),
     ("langue", "langues"),
-    ("medias", "types-dentreprises-de-presse-medias"),
+    ("type_entreprises_medias", "types-dentreprises-de-presse-medias"),
     ("metier", "metiers"),
-    ("newsrooms", "newsrooms"),
+    ("orga_newsrooms", "newsrooms"),
     ("profession_fonction_asso", "fonctions-associations-syndicat"),
     ("profession_fonction_prive", "fonctions-organisations-privees"),
     ("profession_fonction_public", "fonctions-politiques-administra"),
@@ -80,6 +87,11 @@ TAXO_NAME_ONTOLOGIE_SLUG = [
     ("transformation_majeure", "transformations-majeures"),
     ("type_agence_rp", "types-agences-rp"),
     ("groupes_cotes", "groupes-cotes"),
+    ("etablissements_sup", "etabenseignsup"),
+    ("competences_generales", "competencesgenerales"),
+    ("tetieres_secteurs", "listestetieressecteurs"),
+    ("niveaux_etudes", "niveaux-d-etude"),
+    ("matieres_etudiees", "matieresetudiees"),
 ]
 
 TAXO_NOT_FROM_FILE = {"geolocalisation", "feuille31", "civilite"}
@@ -155,8 +167,76 @@ def import_ontologies_content() -> None:
     import_taxonomies()
     import_countries()
     import_zip_codes()
+    merge_organisations()
 
     db.session.commit()
+
+
+def merge_organisations():
+    _merge_newsrooms_organisations()
+    _merge_pr_agency_organisations()
+    _merge_other_organisations()
+
+
+def _merge_other_organisations():
+    """Merge into organisations /family 'autre' the content of the
+    "groupes_cotes" taxonomy
+    """
+    count = 0
+    companies = get_taxonomy("groupes_cotes")
+    print(f"Merging OrganisationLight: {len(companies)} groupes_cotes")
+    for name in companies:
+        if (
+            db.session.query(LightOrganisation)
+            .where(LightOrganisation.name == name)
+            .first()
+        ):
+            continue
+        family = OrganisationFamilyEnum.AUTRE
+        db.session.add(LightOrganisation(name=name, family=family.name))
+        count += 1
+    print(f"Merging OrganisationLight: {count} added")
+
+
+def _merge_newsrooms_organisations():
+    """Merge into organisations /family 'media' the content of the
+    "orga_newsrooms" taxonomy
+    """
+    count = 0
+    medias = get_taxonomy("orga_newsrooms")
+    print(f"Merging OrganisationLight: {len(medias)} orga_newsrooms")
+    for name in medias:
+        if (
+            db.session.query(LightOrganisation)
+            .where(LightOrganisation.name == name)
+            .first()
+        ):
+            continue
+        # sub families AG_PRESSE and SYNDIC not detected here:
+        family = OrganisationFamilyEnum.MEDIA
+        db.session.add(LightOrganisation(name=name, family=family.name))
+        count += 1
+    print(f"Merging OrganisationLight: {count} added")
+
+
+def _merge_pr_agency_organisations():
+    """Merge into organisations /family 'PR' (press relations) the content
+    of the "agence_rp" taxonomy
+    """
+    count = 0
+    agencies = get_taxonomy("agence_rp")
+    print(f"Merging OrganisationLight: {len(agencies)} agence_rp")
+    for name in agencies:
+        if (
+            db.session.query(LightOrganisation)
+            .where(LightOrganisation.name == name)
+            .first()
+        ):
+            continue
+        family = OrganisationFamilyEnum.RP
+        db.session.add(LightOrganisation(name=name, family=family.name))
+        count += 1
+    print(f"Merging OrganisationLight: {count} added")
 
 
 def import_taxonomies() -> None:
@@ -333,14 +413,14 @@ def _create_zip_code_entries(iso3: str, zip_code_list: list) -> None:
         )
 
 
-def get_converter(ontology_name: str) -> Any:  # noqa:PLR0915
-    match ontology_name:
+def get_converter(ontology_slug: str) -> Any:  # noqa:PLR0915
+    match ontology_slug:
         case "civilite":
             converter_class = CiviliteConverter
         case "newsrooms":
-            converter_class = NewsroomsConverter
+            converter_class = OrgaNewsroomsConverter
         case "types-dentreprises-de-presse-medias":
-            converter_class = MediasConverter
+            converter_class = TypeEntrepriseMediasConverter
         case "types-de-presse-medias":
             converter_class = MediaTypeConverter
         case "fonctions-du-journalisme":
@@ -350,7 +430,7 @@ def get_converter(ontology_name: str) -> Any:  # noqa:PLR0915
         case "types-agences-rp":
             converter_class = TypeAgenceRPFonctionConverter
         case "types-dorganisation":
-            converter_class = OrganisationConverter
+            converter_class = TypesOrganisationConverter
         case "tailles-des-organisations":
             converter_class = TailleOrganisationConverter
         case "fonctions-politiques-administra":
@@ -401,15 +481,25 @@ def get_converter(ontology_name: str) -> Any:  # noqa:PLR0915
             converter_class = TailleContenuConverter
         case "groupes-cotes":
             converter_class = GroupesCotesConverter
+        case "etabenseignsup":
+            converter_class = EtablissementsSuperieurs
+        case "competencesgenerales":
+            converter_class = CompetencesGenerales
+        case "listestetieressecteurs":
+            converter_class = TetieresSecteurs
+        case "niveaux-d-etude":
+            converter_class = NiveauxEtudes
+        case "matieresetudiees":
+            converter_class = MatieresEtudiees
         case _:
             converter_class = None
     if not converter_class:
-        raise ValueError(f"No converter found for {ontology_name}")
+        raise ValueError(f"No converter found for {ontology_slug}")
     return converter_class
 
 
 class BaseConvert:
-    ontology: str = "ontology_name"
+    ontology_slug: str = "ontology_slug"
     onto_source_dir: Path = Path("./ontology_json")
     extra_source_dir: Path = Path("./extra_json")
     towns_source_dir: Path = Path("./extra_json/towns")
@@ -421,7 +511,7 @@ class BaseConvert:
         self.raw_ontologies = raw_ontologies
 
     def run(self) -> None:
-        print(f"{self.ontology} generation")
+        print(f"{self.ontology_slug} generation")
         self.read_dict()
         self.strip_content()
         self.generate()
@@ -439,7 +529,7 @@ class BaseConvert:
     sort = no_sort
 
     def read_dict(self) -> None:
-        content = self.raw_ontologies[self.ontology]
+        content = self.raw_ontologies[self.ontology_slug]
         if isinstance(content, dict):
             self._buffer = content["table"]
         elif isinstance(content, list):
@@ -545,7 +635,7 @@ class BaseConvert:
               ...
             ]
 
-        organisation
+        type organisation
         """
         current_optgroup: str = ""
         group_list: list[str] = []
@@ -596,7 +686,7 @@ class BaseConvert:
         """Base optgroup format:
         [{"optgroup": group, "value": value, "label": label}, ... ]
 
-        organisation
+        type organisation
         """
         if VALUE_LABEL_MODE:
             result = []
@@ -654,7 +744,7 @@ class BaseConvert:
         self._buffer = {"field1": field1, "field2": field2}
 
     def save(self) -> None:
-        filename = f"{self.ontology}.json"
+        filename = f"{self.ontology_slug}.json"
         destination = self.dest_dir / filename
         self.dest_dir.mkdir(parents=True, exist_ok=True)
         destination.write_text(
@@ -694,60 +784,60 @@ class BaseConvert:
 
 
 class CiviliteConverter(BaseConvert):
-    ontology: str = "civilite"
+    ontology_slug: str = "civilite"
     export = BaseConvert.export_list
 
     def run(self) -> None:
         self._buffer = deepcopy(CIVILITE_ONTOLOGY)
 
 
-class NewsroomsConverter(BaseConvert):
-    ontology: str = "newsrooms"
+class OrgaNewsroomsConverter(BaseConvert):
+    ontology_slug: str = "newsrooms"
     strip_content = BaseConvert.strip_content_no_first_newsrooms
     generate = BaseConvert.generate_value_label_newsrooms
     sort = BaseConvert.sort_per_label
     export = BaseConvert.export_list
 
 
-class MediasConverter(BaseConvert):
-    ontology: str = "types-dentreprises-de-presse-medias"
+class TypeEntrepriseMediasConverter(BaseConvert):
+    ontology_slug: str = "types-dentreprises-de-presse-medias"
     strip_content = BaseConvert.strip_content_second
     export = BaseConvert.export_list
 
 
 class MediaTypeConverter(BaseConvert):
-    ontology: str = "types-de-presse-medias"
+    ontology_slug: str = "types-de-presse-medias"
     export = BaseConvert.export_list
 
 
 class JournalismeFonctionConverter(BaseConvert):
-    ontology: str = "fonctions-du-journalisme"
+    ontology_slug: str = "fonctions-du-journalisme"
     export = BaseConvert.export_list
 
 
 class AgenceRPFonctionConverter(BaseConvert):
-    ontology: str = "agencesrp"
+    ontology_slug: str = "agencesrp"
     strip_content = BaseConvert.strip_content_agence
     sort = BaseConvert.sort_per_label
     export = BaseConvert.export_list
 
 
 class TypeAgenceRPFonctionConverter(BaseConvert):
-    ontology: str = "types-agences-rp"
+    ontology_slug: str = "types-agences-rp"
     export = BaseConvert.export_list
 
 
-class OrganisationConverter(BaseConvert):
+class TypesOrganisationConverter(BaseConvert):
     """Dual field."""
 
-    ontology: str = "types-dorganisation"
+    ontology_slug: str = "types-dorganisation"
     strip_content = BaseConvert.strip_content_optgroup
     # generate = BaseConvert.generate_optgroup_value_label
     generate = BaseConvert.generate_dual_value_label
 
 
 class TailleOrganisationConverter(BaseConvert):
-    ontology: str = "tailles-des-organisations"
+    ontology_slug: str = "tailles-des-organisations"
     strip_content = BaseConvert.strip_content_second
     export = BaseConvert.export_list
 
@@ -767,107 +857,130 @@ class FonctionPublicConverter(BaseConvert):
         }
     """
 
-    ontology: str = "fonctions-politiques-administra"
+    ontology_slug: str = "fonctions-politiques-administra"
     strip_content = BaseConvert.strip_content_optgroup
     generate = BaseConvert.generate_dual_value_label
 
 
 class FonctionPriveConverter(FonctionPublicConverter):
-    ontology: str = "fonctions-organisations-privees"
+    ontology_slug: str = "fonctions-organisations-privees"
 
 
 class FonctionAssoConverter(FonctionPublicConverter):
-    ontology: str = "fonctions-associations-syndicat"
+    ontology_slug: str = "fonctions-associations-syndicat"
 
 
 class SecteurDetailleConverter(FonctionPublicConverter):
-    ontology: str = "secteurs-detailles"
+    ontology_slug: str = "secteurs-detailles"
 
 
 class InteretPolitiqueConverter(FonctionPublicConverter):
-    ontology: str = "centres-d-interet-politiques-ad"
+    ontology_slug: str = "centres-d-interet-politiques-ad"
 
 
 class InteretOrgaConverter(FonctionPublicConverter):
-    ontology: str = "centres-d-interet-organisations"
+    ontology_slug: str = "centres-d-interet-organisations"
 
 
 class InteretAssoConverter(FonctionPublicConverter):
-    ontology: str = "centres-d-interet-associations"
+    ontology_slug: str = "centres-d-interet-associations"
 
 
 class TransformationsMajeuresConverter(FonctionPublicConverter):
-    ontology: str = "transformations-majeures"
+    ontology_slug: str = "transformations-majeures"
 
 
 class MetierConverter(FonctionPublicConverter):
-    ontology: str = "metiers"
+    ontology_slug: str = "metiers"
 
 
 class JournalismeCompetenceConverter(BaseConvert):
-    ontology: str = "competences-en-journalisme"
+    ontology_slug: str = "competences-en-journalisme"
     export = BaseConvert.export_list
 
 
 class CompetenceExpertConverter(BaseConvert):
-    ontology: str = "competencesexperts"
+    ontology_slug: str = "competencesexperts"
     export = BaseConvert.export_list
 
 
 class NewsSecteursConverter(FonctionPublicConverter):
-    ontology: str = "news-secteurs"
+    ontology_slug: str = "news-secteurs"
 
 
 class NewsRubriquesConverter(BaseConvert):
-    ontology: str = "news-rubriques"
+    ontology_slug: str = "news-rubriques"
     export = BaseConvert.export_list
 
 
 class NewsTypeInfoConverter(FonctionPublicConverter):
-    ontology: str = "news-types-dinfo"
+    ontology_slug: str = "news-types-dinfo"
 
 
 class NewsGenresConverter(BaseConvert):
-    ontology: str = "news-genres"
+    ontology_slug: str = "news-genres"
     strip_content = BaseConvert.strip_content_second
     export = BaseConvert.export_list
 
 
 class NewsComGenresConverter(BaseConvert):
-    ontology: str = "news-com-genres"
+    ontology_slug: str = "news-com-genres"
     export = BaseConvert.export_list
 
 
 class TechnologiesConverter(FonctionPublicConverter):
-    ontology: str = "technologies"
+    ontology_slug: str = "technologies"
 
 
 class ModeRemunerationConverter(BaseConvert):
-    ontology: str = "modes-de-remuneration"
+    ontology_slug: str = "modes-de-remuneration"
     strip_content = BaseConvert.strip_content_second
     export = BaseConvert.export_list
 
 
 class TypeContenuConverter(BaseConvert):
-    ontology: str = "types-des-contenus-editoriaux"
+    ontology_slug: str = "types-des-contenus-editoriaux"
     strip_content = BaseConvert.strip_content_second
     export = BaseConvert.export_list
 
 
 class TailleContenuConverter(BaseConvert):
-    ontology: str = "tailles-des-contenus-editoriaux"
+    ontology_slug: str = "tailles-des-contenus-editoriaux"
     strip_content = BaseConvert.strip_content_second
     export = BaseConvert.export_list
 
 
 class GroupesCotesConverter(BaseConvert):
-    ontology: str = "groupes-cotes"
+    ontology_slug: str = "groupes-cotes"
     strip_content = BaseConvert.strip_content_no_first
     export = BaseConvert.export_list
 
 
+class EtablissementsSuperieurs(FonctionPublicConverter):
+    ontology_slug: str = "etabenseignsup"
+
+
+class CompetencesGenerales(FonctionPublicConverter):
+    ontology_slug: str = "competencesgenerales"
+
+
+class TetieresSecteurs(BaseConvert):
+    ontology_slug: str = "listestetieressecteurs"
+    export = BaseConvert.export_list
+
+
+class NiveauxEtudes(BaseConvert):
+    ontology_slug: str = "niveaux-d-etude"
+    export = BaseConvert.export_list
+
+
+class MatieresEtudiees(BaseConvert):
+    ontology_slug: str = "matieresetudiees"
+    export = BaseConvert.export_list
+
+
 class LangueConverter(BaseConvert):
-    ontology: str = "langues"
+    ontology_slug: str = "langues"
     strip_content = BaseConvert.strip_content_second
     export = BaseConvert.export_list
 

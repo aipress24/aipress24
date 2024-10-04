@@ -48,7 +48,7 @@ class ArticleGenerator(BaseGenerator):
         article.genre = random.choice(voc.get_genres())
         article.topic = random.choice(voc.get_topics())
         article.section = random.choice(voc.get_sections())
-        article.sector = random.choice(voc.get_sectors())
+        article.sector = random.choice(voc.get_news_sectors())
 
         article.published_at = self.generate_date()
         article.created_at = article.published_at
@@ -109,7 +109,7 @@ class PressReleaseGenerator(BaseGenerator):
 
         press_release.status = random.choice(["draft", "public"])
         press_release.category = random.choice(POST_CATEGORIES)
-        press_release.sector = random.choice(voc.get_sectors())
+        press_release.sector = random.choice(voc.get_news_sectors())
         press_release.image_url = random.choice(POST_IMAGES)
 
         press_release.published_at = self.generate_date()

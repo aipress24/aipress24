@@ -4,6 +4,19 @@
 
 # flake8: noqa: F401
 
+"""
+Forms descriptions for the content objects in the WIP module.
+
+Each form is described as a dictionary with the following keys:
+
+- "label": ...
+- "model_class": ...
+- "group": { ... }
+- "field": { ... }
+
+These dictionaries are used to generate WTForms classes by the `generate-forms3.py` script.
+"""
+
 from __future__ import annotations
 
 from .article import article_form

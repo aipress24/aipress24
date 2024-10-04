@@ -43,7 +43,7 @@ class EditorialProductGenerator(BaseGenerator):
         # Generate metadata
         product.genre = random.choice(voc.get_genres())
         product.section = random.choice(voc.get_sections())
-        product.sector = random.choice(voc.get_sectors())
+        product.sector = random.choice(voc.get_news_sectors())
         product.topic = random.choice(voc.get_topics())
 
         product.published_at = self.generate_date()

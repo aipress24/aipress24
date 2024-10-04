@@ -11,6 +11,7 @@ from attr import define
 from flask import current_app, g, make_response, request
 from sqlalchemy import func, select
 
+from app.enums import OrganisationFamilyEnum
 from app.flask.extensions import db
 from app.flask.lib.pages import page
 from app.flask.lib.toaster import toast
@@ -19,12 +20,12 @@ from app.flask.sqla import get_multi, get_obj
 from app.models.auth import User
 from app.models.content import Article, Event, PressRelease
 from app.models.lifecycle import PublicationStatus
-from app.models.orgs import Organisation, OrganisationType
+from app.models.organisation import Organisation
 from app.services.activity_stream import get_timeline
 from app.services.social_graph import adapt
 
 from .base import BaseSworkPage
-from .organisations import OrgsPage
+from .light_orgs import OrgsPage
 
 
 @page
@@ -119,7 +120,7 @@ class OrgContactsTab(Tab):
         return f"Contacts ({count})"
 
     def guard(self):
-        return self.org.type != OrganisationType.AUTO
+        return True
 
 
 class OrgPublicationsTab(Tab):
@@ -140,8 +141,8 @@ class OrgPublicationsTab(Tab):
 
     def guard(self) -> bool:
         return self.org.type in {
-            OrganisationType.MEDIA,
-            OrganisationType.AGENCY,
+            OrganisationFamilyEnum.MEDIA,
+            OrganisationFamilyEnum.AG_PRESSE,
         }
 
 
@@ -150,14 +151,14 @@ class OrgPressBookTab(Tab):
     label = "Press Book (0)"
 
     def guard(self):
-        return self.org.type != OrganisationType.AUTO
+        return True
 
 
 class OrgPressReleasesTab(Tab):
     id = "press-releases"
 
     def guard(self):
-        return self.org.type != OrganisationType.AUTO
+        return True
 
     @property
     def label(self) -> str:
@@ -175,7 +176,7 @@ class OrgEventsTab(Tab):
     id = "events"
 
     def guard(self):
-        return self.org.type != OrganisationType.AUTO
+        return True
 
     @property
     def label(self) -> str:
@@ -249,10 +250,7 @@ class OrgVM(ViewModel):
         return members
 
     def get_logo_url(self):
-        if self.org.type == OrganisationType.AUTO:
-            return "/static/img/logo-page-non-officielle.png"
-        else:
-            return self.org.logo_url
+        return self.org.logo_url
 
     def get_screenshot_url(self):
         if not self.org.screenshot_id:

@@ -15,7 +15,7 @@ from sqlalchemy_utils import ArrowType
 
 from app.models.base import Base
 from app.models.mixins import IdMixin, LifeCycleMixin, Owned
-from app.models.orgs import Organisation
+from app.models.organisation import Organisation
 from app.modules.wip.models.newsroom._base import NewsMetadataMixin, NewsroomCommonMixin
 
 

@@ -51,7 +51,7 @@ def default_info_pro() -> dict[str, str | list]:
         "taille_orga": "",
         "tel_standard": "",
         "type_agence_rp": [],
-        "type_media": [],
+        "type_entreprise_media": [],
         "type_orga": [],
         "type_orga_detail": [],
         "type_presse_et_media": [],

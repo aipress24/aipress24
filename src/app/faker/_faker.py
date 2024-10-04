@@ -33,17 +33,17 @@ sample = random.choice
 
 FAKERS_SETTINGS = [
     # SWORK
-    ("users", UserGenerator, 500),
-    ("groups", GroupGenerator, 50),
-    ("organisations", OrgGenerator, 60),
+    ("users", UserGenerator, 50),
+    ("groups", GroupGenerator, 10),
+    ("organisations", OrgGenerator, 30),
     # Content
-    ("events", EventGenerator, 500),
+    ("events", EventGenerator, 50),
     # ("articles", ArticleGenerator, 500),
     # ("photos", PhotoGenerator, 100),
-    ("press-releases", PressReleaseGenerator, 200),
+    ("press-releases", PressReleaseGenerator, 50),
     # Social
     # ("comments", CommentGenerator, 1000),
-    ("posts", PostGenerator, 1000),
+    ("posts", PostGenerator, 100),
     # Biz
     ("editorial-products", EditorialProductGenerator, 100),
 ]

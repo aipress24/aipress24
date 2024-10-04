@@ -18,7 +18,7 @@ from app.flask.sqla import get_multi
 from app.models.auth import User
 from app.models.content import EditorialContent, Event, PressRelease
 from app.models.mixins import Addressable
-from app.models.orgs import Organisation
+from app.models.organisation import Organisation
 
 CLASSES_TO_FIX = [
     Event,

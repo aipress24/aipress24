@@ -12,8 +12,8 @@ from .home import SworkHomePage
 
 @page
 class OrgsPage(BaseSworkPage):
-    name = "orgs"
+    name = "light_orgs"
     path = "/orgs/"
     label = "Organisations"
-    template = "pages/orgs.j2"
+    template = "pages/light_orgs.j2"
     parent = SworkHomePage

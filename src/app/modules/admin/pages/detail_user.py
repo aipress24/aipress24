@@ -4,8 +4,11 @@
 
 from __future__ import annotations
 
-from flask import g
+from datetime import datetime, timezone
 
+from flask import Response, g, request
+
+from app.flask.extensions import db
 from app.flask.lib.pages import page
 
 # from app.flask.routing import url_for
@@ -15,7 +18,7 @@ from app.modules.kyc.views import admin_info_context
 
 from .. import blueprint
 from .base import AdminListPage
-from .home import AdminHomePage
+from .users import AdminUsersPage
 
 # from typing import Any
 
@@ -24,14 +27,13 @@ from .home import AdminHomePage
 
 @page
 class ShowUser(AdminListPage):
-    name = "member"
+    name = "show_member"
     label = "Informations sur l'utilisateur"
     title = "Informations sur l'utilisateur"
     icon = "clipboard-document-check"
-    path = "/members/<uid>"
-
+    path = "/show_user/<uid>"
     template = "admin/pages/show_user.j2"
-    parent = AdminHomePage
+    parent = AdminUsersPage
 
     def __init__(self, uid: str = ""):
         if not uid:  # test
@@ -43,15 +45,30 @@ class ShowUser(AdminListPage):
 
     def context(self):
         context = admin_info_context(self.user)
-        context.update(
-            {
-                "user": self.user,
-            }
-        )
+        context.update({
+            "user": self.user,
+        })
         return context
 
+    def post(self):
+        action = request.form["action"]
+        if action == "deactivate":
+            self._deactive_profile()
+        # no validation
+        response = Response("")
+        response.headers["HX-Redirect"] = AdminUsersPage().url
+        return response
 
-@blueprint.route("/profile/<uid>")
+    def _deactive_profile(self) -> None:
+        self.user.active = False
+        self.user.user_valid_comment = "Utilisateur désactivé"
+        self.user.user_date_valid = datetime.now(timezone.utc)
+        db_session = db.session
+        db_session.merge(self.user)
+        db_session.commit()
+
+
+@blueprint.route("/show_user/<uid>")
 def show_profile(uid: str):
     member = ShowUser(uid)
     return member.render()

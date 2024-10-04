@@ -29,7 +29,7 @@ class EventGenerator(BaseGenerator):
 
         event.location = random.choice(LOCATION)
         event.category = random.choice(POST_CATEGORIES)
-        event.sector = random.choice(voc.get_sectors())
+        event.sector = random.choice(voc.get_news_sectors())
         event.image_url = random.choice(POST_IMAGES)
 
         event.start_date = self.generate_date(future=True)

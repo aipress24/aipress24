@@ -136,7 +136,7 @@ DEPTS = {
     "17": "Charente-Maritime",
     "18": "Cher",
     "19": "Corrèze",
-    "21": "Cote d'Or",
+    "21": "Côte-d'Or",
     "22": "Côtes-d'Armor",
     "23": "Creuse",
     "24": "Dordogne",

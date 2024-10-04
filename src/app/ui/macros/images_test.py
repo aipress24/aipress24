@@ -10,7 +10,7 @@ from flask_sqlalchemy.extension import SQLAlchemy
 
 from app.enums import CommunityEnum
 from app.models.auth import User
-from app.models.orgs import Organisation
+from app.models.organisation import Organisation
 from app.ui.macros.images import org_logo, profile_image
 
 

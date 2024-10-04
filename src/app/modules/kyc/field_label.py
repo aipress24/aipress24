@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from .ontologies import get_ontology_content, zip_code_city_list
+from .ontology_loader import get_ontology_content, zip_code_city_list
 
 
 def find_label(content: list, val: str) -> str:
@@ -87,8 +87,9 @@ KEY_LABEL_MAP = {
     "langues": (label_from_values_simple, "langue"),
     "metier": (label_from_values_dual_first, "metier"),
     "metier_detail": (label_from_values_dual_second, "metier"),
-    "nom_group_com": (label_from_values_simple, "agence_rp"),
-    "nom_media": (label_from_values_simple, "newsrooms"),
+    # "nom_group_com": (label_from_values_simple, "agence_rp"),
+    # "nom_agence_rp": (label_from_values_simple, "agence_rp"),
+    # "nom_media": (label_from_values_simple, "orga_newsrooms"),
     "pays_zip_ville": (label_from_values_simple, "pays"),
     "pays_zip_ville_detail": (label_from_values_cities, ""),
     "secteurs_activite_detailles": (label_from_values_dual_first, "secteur_detaille"),
@@ -114,9 +115,9 @@ KEY_LABEL_MAP = {
     "interet_pol_adm": (label_from_values_dual_first, "interet_politique"),
     "interet_pol_adm_detail": (label_from_values_dual_second, "interet_politique"),
     "type_agence_rp": (label_from_values_simple, "type_agence_rp"),
-    "type_media": (label_from_values_simple, "medias"),
-    "type_orga": (label_from_values_dual_first, "organisation"),
-    "type_orga_detail": (label_from_values_dual_second, "organisation"),
+    "type_entreprise_media": (label_from_values_simple, "type_entreprises_medias"),
+    "type_orga": (label_from_values_dual_first, "type_organisation_detail"),
+    "type_orga_detail": (label_from_values_dual_second, "type_organisation_detail"),
     "type_presse_et_media": (label_from_values_simple, "media_type"),
 }
 

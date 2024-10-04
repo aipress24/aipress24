@@ -11,8 +11,8 @@ from app.services.taxonomies import get_taxonomy
 
 __all__ = [
     "get_genres",
+    "get_news_sectors",
     "get_sections",
-    "get_sectors",
     "get_topics",
 ]
 
@@ -21,8 +21,8 @@ def get_sections():
     return get_vocab("sections")
 
 
-def get_sectors():
-    return get_vocab("sectors")
+def get_news_sectors():
+    return get_vocab("news_sectors")
 
 
 def get_genres():

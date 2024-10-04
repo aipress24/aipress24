@@ -50,6 +50,11 @@ USER_MENU = [
         "endpoint": "biz.purchases",
     },
     {
+        "label": "Administration",
+        "endpoint": "admin.index",
+        "roles": {"admin"},
+    },
+    {
         "label": "Déconnexion",
         "endpoint": "iam.logout",
     },

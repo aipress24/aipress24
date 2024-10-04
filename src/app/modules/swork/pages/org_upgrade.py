@@ -4,7 +4,7 @@
 
 # from app.flask.lib.pages import Page
 # from app.flask.sqla import get_obj
-# from app.models.orgs import Organisation
+# from app.models.organisation import Organisation
 #
 # from .organisations import OrgsPage, OrgVM
 #

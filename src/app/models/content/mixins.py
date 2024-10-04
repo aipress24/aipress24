@@ -49,7 +49,7 @@ class Publishable:
 
     @declared_attr
     def publisher(cls):
-        from app.models.orgs import Organisation
+        from app.models.organisation import Organisation
 
         return orm.relationship(Organisation, foreign_keys=[cls.publisher_id])
 

@@ -13,15 +13,18 @@ from mimesis import Internet, Person
 from mimesis.enums import Gender
 from sqlalchemy.sql import func
 
-from app.enums import ContactTypeEnum
+from app.enums import ContactTypeEnum, OrganisationFamilyEnum
 from app.faker._constants import COVER_IMAGES
 from app.faker._geo import fake_geoloc
 from app.flask.extensions import security
 from app.models.auth import KYCProfile, User
-from app.modules.kyc.ontologies import zip_code_city_list
+from app.modules.kyc.ontology_loader import zip_code_city_list
+from app.modules.kyc.organisation_utils import (
+    get_organisation_family,
+    store_light_organisation,
+)
 from app.modules.kyc.populate_profile import populate_json_field
 from app.modules.kyc.survey_model import get_survey_profile, get_survey_profile_ids
-from app.modules.kyc.unofficial_orgs import store_unoff_orga
 from app.services.taxonomies import get_full_taxonomy, get_full_taxonomy_category_value
 from app.settings.vocabularies.user import USER_STATUS
 
@@ -44,6 +47,11 @@ def _get_full_taxo(taxonomy: str) -> list[tuple[str, str]]:
 @functools.cache
 def _get_full_taxo_category_value(taxonomy: str) -> list[tuple[str, str]]:
     return get_full_taxonomy_category_value(taxonomy)
+
+
+@functools.cache
+def _get_full_organisation_family(family: OrganisationFamilyEnum) -> list[str]:
+    return get_organisation_family(family)
 
 
 def random_profile_id() -> str:
@@ -140,50 +148,73 @@ class UserGenerator(BaseGenerator):
         word = self.generate_words(1)
         profile.info_professionnelle["nom_adm"] = f"{word.capitalize()} Administration"
 
-    def _random_nom_media_instit(self, _user: User, profile: KYCProfile) -> None:
-        word = self.generate_words(1)
-        profile.info_professionnelle["nom_media_instit"] = (
-            f"{word.capitalize()} Media Inst"
+    def _random_type_media(self, _user: User, profile: KYCProfile) -> None:
+        profile.info_professionnelle["type_entreprise_media"] = list(
+            {
+                random.choice(_get_full_taxo("type_entreprises_medias"))[0]
+                for _ in range(random.randint(1, 3))
+            }
         )
+
+    def _random_type_presse_et_media(self, _user: User, profile: KYCProfile) -> None:
+        profile.info_professionnelle["type_presse_et_media"] = list(
+            {
+                random.choice(_get_full_taxo("media_type"))[0]
+                for _ in range(random.randint(1, 3))
+            }
+        )
+
+    def _random_fonctions_journalisme(self, _user: User, profile: KYCProfile) -> None:
+        profile.info_professionnelle["fonctions_journalisme"] = list(
+            {
+                random.choice(_get_full_taxo("journalisme_fonction"))[0]
+                for _ in range(random.randint(1, 5))
+            }
+        )
+
+    def _random_nom_orga(self, _user: User, profile: KYCProfile) -> None:
+        organisations = _get_full_organisation_family(OrganisationFamilyEnum.AUTRE)
+        if not organisations or random.randint(1, 4) == 1:
+            name = self.generate_words(1)
+            name = f"{name.capitalize()} Organisation"
+        else:
+            name = random.choice(organisations)
+        profile.info_professionnelle["nom_orga"] = name
 
     def _random_nom_media(self, _user: User, profile: KYCProfile) -> None:
         # special case: several possible free or from list but first one taken
         # as organisation_name
-        profile.info_professionnelle["nom_media"] = list({
-            random.choice(_get_full_taxo("newsrooms"))[0]
-            for _ in range(random.randint(1, 3))
-        })
+        def _nom_media() -> str:
+            medias = _get_full_organisation_family(OrganisationFamilyEnum.MEDIA)
+            if not medias or random.randint(1, 4) == 1:
+                name = self.generate_words(1)
+                name = f"{name.capitalize()} Média"
+            else:
+                name = random.choice(medias)
+            return name
 
-    def _random_type_media(self, _user: User, profile: KYCProfile) -> None:
-        profile.info_professionnelle["type_media"] = list({
-            random.choice(_get_full_taxo("medias"))[0]
-            for _ in range(random.randint(1, 3))
-        })
+        profile.info_professionnelle["nom_media"] = list(
+            {_nom_media() for _ in range(random.randint(1, 3))}
+        )
 
-    def _random_type_presse_et_media(self, _user: User, profile: KYCProfile) -> None:
-        profile.info_professionnelle["type_presse_et_media"] = list({
-            random.choice(_get_full_taxo("media_type"))[0]
-            for _ in range(random.randint(1, 3))
-        })
-
-    def _random_fonctions_journalisme(self, _user: User, profile: KYCProfile) -> None:
-        profile.info_professionnelle["fonctions_journalisme"] = list({
-            random.choice(_get_full_taxo("journalisme_fonction"))[0]
-            for _ in range(random.randint(1, 5))
-        })
-
-    def _random_nom_orga(self, _user: User, profile: KYCProfile) -> None:
+    def _random_nom_media_instit(self, _user: User, profile: KYCProfile) -> None:
         word = self.generate_words(1)
-        profile.info_professionnelle["nom_orga"] = f"{word.capitalize()} Organisation"
-
-    def _random_nom_group_com(self, _user: User, profile: KYCProfile) -> None:
-        profile.info_professionnelle["nom_group_com"] = random.choice(
-            _get_full_taxo("agence_rp")
-        )[0]
+        profile.info_professionnelle["nom_media_instit"] = (
+            f"{word.capitalize()} Média Inst"
+        )
 
     def _random_nom_agence_rp(self, _user: User, profile: KYCProfile) -> None:
+        agencies = _get_full_organisation_family(OrganisationFamilyEnum.RP)
+        if not agencies or random.randint(1, 4) == 1:
+            name = self.generate_words(1)
+            name = f"{name.capitalize()} PR Agency"
+        else:
+            name = random.choice(agencies)
+        profile.info_professionnelle["nom_agence_rp"] = name
+
+    def _random_nom_group_com(self, _user: User, profile: KYCProfile) -> None:
         word = self.generate_words(1)
-        profile.info_professionnelle["nom_agence_rp"] = f"{word.capitalize()} RP"
+        profile.info_professionnelle["nom_group_com"] = f"{word.capitalize()} PR Group"
 
     def _random_langues(self, _user: User, profile: KYCProfile) -> None:
         profile.match_making["langues"] = [
@@ -207,19 +238,23 @@ class UserGenerator(BaseGenerator):
         user.gcu_acceptation_date = func.now()
 
     def _random_competences_journalisme(self, _user: User, profile: KYCProfile) -> None:
-        profile.match_making["competences_journalisme"] = list({
-            random.choice(_get_full_taxo("journalisme_competence"))[0]
-            for _ in range(random.randint(1, 8))
-        })
+        profile.match_making["competences_journalisme"] = list(
+            {
+                random.choice(_get_full_taxo("journalisme_competence"))[0]
+                for _ in range(random.randint(1, 8))
+            }
+        )
 
     def _random_competences(self, _user: User, profile: KYCProfile) -> None:
-        profile.match_making["competences"] = list({
-            random.choice(_get_full_taxo("competence_expert"))[0]
-            for _ in range(random.randint(1, 5))
-        })
+        profile.match_making["competences"] = list(
+            {
+                random.choice(_get_full_taxo("competence_expert"))[0]
+                for _ in range(random.randint(1, 5))
+            }
+        )
 
     def _random_type_orga(self, _user: User, profile: KYCProfile) -> None:
-        taxo = _get_full_taxo_category_value("organisation")
+        taxo = _get_full_taxo_category_value("type_organisation_detail")
         categ_values = list({random.choice(taxo) for _ in range(random.randint(1, 5))})
         categories = list({cv[0] for cv in categ_values})
         values = list({cv[1] for cv in categ_values})
@@ -227,10 +262,12 @@ class UserGenerator(BaseGenerator):
         profile.info_professionnelle["type_orga_detail"] = values
 
     def _random_type_agence_rp(self, _user: User, profile: KYCProfile) -> None:
-        profile.info_professionnelle["type_agence_rp"] = list({
-            random.choice(_get_full_taxo("type_agence_rp"))[0]
-            for _ in range(random.randint(1, 3))
-        })
+        profile.info_professionnelle["type_agence_rp"] = list(
+            {
+                random.choice(_get_full_taxo("type_agence_rp"))[0]
+                for _ in range(random.randint(1, 3))
+            }
+        )
 
     def _random_metier(self, _user: User, profile: KYCProfile) -> None:
         taxo = _get_full_taxo_category_value("metier")
@@ -354,9 +391,14 @@ class UserGenerator(BaseGenerator):
             data[f"mobile_{contact_type.name}"] = bool(random.randint(0, 1))
         profile.show_contact_details = data
 
-    def _make_random_validation(self, user: User, _profile: KYCProfile) -> None:
+    def _make_random_validation(
+        self,
+        user: User,
+        _profile: KYCProfile,
+        counter: int,
+    ) -> None:
         # advanced feature for faker would be default depending on user's community
-        if (random.randint(1, 3)) == 1:
+        if counter > 50 and (random.randint(1, 5)) == 1:
             user.active = False
             user.user_valid_comment = "Nouvel utilisateur à valider"
         else:
@@ -385,7 +427,8 @@ class UserGenerator(BaseGenerator):
                 orga = ""
         else:
             orga = current_value
-        store_unoff_orga(orga)
+        family = profile.organisation_family
+        store_light_organisation(orga, family)
         profile.deduce_organisation_name()
 
     def make_obj(self) -> User:
@@ -438,7 +481,7 @@ class UserGenerator(BaseGenerator):
                 #     print("-- not found:", name)
 
         self._make_random_contact_details(user, profile)
-        self._make_random_validation(user, profile)
+        self._make_random_validation(user, profile, self.counter)
 
         # non official organisation:
         # later, 50% of users will have an official organisation

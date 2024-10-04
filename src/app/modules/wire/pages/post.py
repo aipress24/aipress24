@@ -11,6 +11,7 @@ from attr import field, frozen
 from flask import g, request
 from werkzeug import Response
 
+from app.enums import OrganisationFamilyEnum
 from app.flask.extensions import db
 from app.flask.lib.pages import Page, page
 from app.flask.lib.view_model import Wrapper
@@ -19,7 +20,7 @@ from app.flask.sqla import get_obj
 from app.models.auth import User
 
 # from app.models.content import Article, BaseContent, PressRelease
-from app.models.orgs import Organisation, OrganisationType
+from app.models.organisation import Organisation
 from app.modules.swork.models import Comment
 from app.modules.wire.models import ArticlePost
 from app.services.tagging import get_tags
@@ -128,11 +129,11 @@ class PostMixin:
         publisher = self.publisher
         if publisher:
             match publisher.type:
-                case OrganisationType.MEDIA:
+                case OrganisationFamilyEnum.MEDIA:
                     publisher_type = "Publié par (Média)"
-                case OrganisationType.AGENCY:
+                case OrganisationFamilyEnum.AG_PRESSE:
                     publisher_type = "Publié par (Agence)"
-                case OrganisationType.COM:
+                case OrganisationFamilyEnum.RP:
                     publisher_type = "Publié par (Agence RP)"
                 case _:
                     publisher_type = "Publié par"
@@ -177,16 +178,18 @@ class ArticleVM(Wrapper, PostMixin):
         publisher_type = self.get_publisher_type()
 
         extra_attrs = super().extra_attrs()
-        extra_attrs.update({
-            "age": age,
-            "author": UserVM(post.owner),
-            "publisher_type": publisher_type,
-            #
-            "comments": self.get_comments(),
-            "tags": get_tags(article),
-            #
-            "_url": url_for(post),
-        })
+        extra_attrs.update(
+            {
+                "age": age,
+                "author": UserVM(post.owner),
+                "publisher_type": publisher_type,
+                #
+                "comments": self.get_comments(),
+                "tags": get_tags(article),
+                #
+                "_url": url_for(post),
+            }
+        )
         return extra_attrs
 
     def get_comments(self) -> list[Comment]:

@@ -12,10 +12,11 @@ from flask import g, session
 from pipe import groupby
 from sqlalchemy.orm import selectinload
 
+from app.enums import OrganisationFamilyEnum
 from app.flask.sqla import get_multi
 from app.models.auth import User
 from app.models.lifecycle import PublicationStatus
-from app.models.orgs import Organisation, OrganisationType
+from app.models.organisation import Organisation
 from app.services.social_graph import adapt
 
 from ..models import ArticlePost
@@ -107,7 +108,7 @@ class AgenciesTab(Tab):
         orgs: list[Organisation] = adapt(g.user).get_followees(cls=Organisation)
         journalists = set()
         for org in orgs:
-            if org.type == OrganisationType.AGENCY:
+            if org.type == OrganisationFamilyEnum.AG_PRESSE:
                 journalists.update(list(org.members))
         return journalists
 
@@ -121,7 +122,7 @@ class MediasTab(Tab):
         orgs: list[Organisation] = adapt(g.user).get_followees(cls=Organisation)
         journalists = set()
         for org in orgs:
-            if org.type == OrganisationType.MEDIA:
+            if org.type == OrganisationFamilyEnum.MEDIA:
                 journalists.update(list(org.members))
         return journalists
 

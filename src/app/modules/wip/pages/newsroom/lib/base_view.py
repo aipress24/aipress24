@@ -73,6 +73,6 @@ class View:
             "genres": voc.get_genres(),
             "topics": voc.get_topics(),
             "sections": voc.get_sections(),
-            "sectors": voc.get_sectors(),
+            "news_sectors": voc.get_news_sectors(),
             "locations": ["TODO"],
         }

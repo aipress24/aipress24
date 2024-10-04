@@ -90,7 +90,7 @@ develop:
 
 ## Run (dev) server
 run:
-	python scripts/generate-forms3.py
+	# python scripts/generate-forms3.py
 	honcho -f Procfile-dev start
 
 ## Run server under gunicorn

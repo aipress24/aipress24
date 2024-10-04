@@ -79,6 +79,7 @@ class Page:
         context.update(page=self, breadcrumbs=self.breadcrumbs)
 
         page_ctx = self.context()
+
         if isinstance(page_ctx, Response):
             return page_ctx
 
@@ -86,7 +87,10 @@ class Page:
         if "page" not in ctx:
             ctx["page"] = self
         if "title" not in ctx:
-            ctx["title"] = self.label
+            if hasattr(self, "title"):
+                ctx["title"] = self.title
+            else:
+                ctx["title"] = self.label
 
         return self.content(ctx)
 

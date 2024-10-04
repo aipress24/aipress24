@@ -17,7 +17,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
 
-from app.enums import CommunityEnum, ContactTypeEnum
+from app.enums import CommunityEnum, ContactTypeEnum, OrganisationFamilyEnum
 from app.modules.kyc.survey_model import get_survey_profile
 
 from .base import Base
@@ -27,7 +27,14 @@ from .geoloc import GeoLocation
 from .mixins import Addressable
 
 if typing.TYPE_CHECKING:
-    from .orgs import Organisation
+    from .organisation import Organisation
+
+FIELD_TO_ORGA_FAMILY = {
+    "nom_media": OrganisationFamilyEnum.MEDIA,
+    "nom_media_instit": OrganisationFamilyEnum.INSTIT,
+    "nom_agence_rp": OrganisationFamilyEnum.RP,
+    "nom_orga": OrganisationFamilyEnum.AUTRE,
+}
 
 
 class RoleEnum(StrEnum):
@@ -95,6 +102,7 @@ class User(Addressable, UserMixin, Base):
     # Flask Security
     active: Mapped[bool] = mapped_column(default=False)
     fs_uniquifier: Mapped[str] = mapped_column(sa.String(64), unique=True)
+    deleted: Mapped[bool] = mapped_column(default=False)
 
     gcu_acceptation: Mapped[bool] = mapped_column(default=False)
     gcu_acceptation_date: Mapped[sa.DateTime] = mapped_column(
@@ -254,7 +262,7 @@ class KYCProfile(Base):
     # organisation_name: per order: nom_media, nom_media_insti, nom_agence_rp, nom_orga,
     organisation_name: Mapped[str] = mapped_column(sa.String, default="")
     presentation: Mapped[str] = mapped_column(sa.String, default="")
-    show_contact_details: Mapped[str] = mapped_column(JSON, default="{}")
+    show_contact_details: Mapped[dict] = mapped_column(JSON, default="{}")
     info_personnelle: Mapped[dict] = mapped_column(JSON, default="{}")
     info_professionnelle: Mapped[dict] = mapped_column(JSON, default="{}")
     match_making: Mapped[dict] = mapped_column(JSON, default="{}")
@@ -302,6 +310,14 @@ class KYCProfile(Base):
     def organisation_field_name_origin(self) -> str:
         survey_profile = get_survey_profile(self.profile_id)
         return survey_profile.organisation_field
+
+    @property
+    def organisation_family(self) -> OrganisationFamilyEnum:
+        survey_profile = get_survey_profile(self.profile_id)
+        family = FIELD_TO_ORGA_FAMILY.get(
+            survey_profile.organisation_field, OrganisationFamilyEnum.AUTRE
+        )
+        return family  # type:ignore
 
     def deduce_organisation_name(self) -> None:
         field_name = self.organisation_field_name_origin

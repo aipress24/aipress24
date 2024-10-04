@@ -14,7 +14,7 @@ def get_choices(key: str):
         case "genre":
             return voc.get_genres()
         case "sector":
-            return voc.get_sectors()
+            return voc.get_news_sectors()
         case "topic":
             return voc.get_topics()
         case "section":

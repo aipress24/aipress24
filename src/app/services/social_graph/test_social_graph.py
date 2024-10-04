@@ -8,7 +8,7 @@ from flask_sqlalchemy import SQLAlchemy
 
 from app.models.auth import User
 from app.models.content.textual import Article
-from app.models.orgs import Organisation
+from app.models.organisation import Organisation
 
 from . import adapt
 

@@ -10,7 +10,8 @@ from flask_super.decorators import service
 from app.flask.extensions import db
 from app.flask.routing import url_for
 from app.models.auth import User
-from app.models.orgs import Organisation
+from app.models.organisation import Organisation
+from app.models.organisation_light import LightOrganisation
 from app.modules.swork.models import Group
 
 from ._models import Activity, ActivityType
@@ -97,6 +98,9 @@ def _get_type(obj) -> str:
 
         case Organisation():
             return "Organisation"
+
+        case LightOrganisation():
+            return "LightOrganisation"
 
         case User():
             return "User"

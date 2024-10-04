@@ -9,6 +9,7 @@ from abc import abstractmethod
 from collections.abc import Generator
 
 from attr import frozen
+from devtools import debug
 from flask import Flask, flash, redirect, render_template, request
 from flask_classful import route
 from flask_super.registry import register
@@ -27,30 +28,6 @@ from app.services.taxonomies import get_taxonomy
 from ._base import BaseWipView
 from ._forms import AvisEnqueteForm
 from ._table import BaseTable
-
-SELECTORS = [
-    "secteur",
-    "direction",
-    "expertise",
-    "domaine",
-    "metier",
-    "type_organisation",
-    "region",
-    "departement",
-    "ville",
-]
-
-
-# NB:
-#     ("sectors", "NEWS-Secteurs", "level2", 3),
-#     ("sections", "NEWS-Rubriques", "level1", 4),
-#     ("topics", "NEWS-Types_d'info", "level2", 4),
-#     ("genres", "NEWS-Genres", "level1", 4),
-#     # Not used yet
-#     ("genres-com", "NEWS-COM-Genres", "level1", 5),
-#     ("media_type", "Types_de_presse_et_médias", "level1", 3),
-#     ("organisation_type", "Types_d'organisation", "level1", 4),
-#     ("job", "Fonctions_du_journalisme", "level1", 2),
 
 
 class AvisEnqueteTable(BaseTable):
@@ -278,11 +255,10 @@ class SearchForm:
     def _get_selectors(self):
         return [
             SecteurSelector(self),
-            DirectionSelector(self),
-            ExpertiseSelector(self),
-            DomaineSelector(self),
             MetierSelector(self),
+            FonctionSelector(self),
             TypeOrganisationSelector(self),
+            TailleOrganisationSelector(self),
             RegionSelector(self),
             DepartementSelector(self),
             VilleSelector(self),
@@ -326,37 +302,25 @@ class Selector(abc.ABC):
             options.add(option)
         return sorted(options)
 
+    def _get_values_from_experts(self, attr, key) -> set[str]:
+        experts = self.form.all_experts
+        debug(experts[0].profile)
+        values = set()
+        for expert in experts:
+            if attr in {"match_making", "info_professionnelle"}:
+                field = getattr(expert.profile, attr)
+                values |= set(field[key])
+            else:
+                ...  # TODO
+        return values
+
 
 class SecteurSelector(Selector):
     id = "secteur"
     label = "Secteur d'activité"
 
     def get_values(self):
-        return get_taxonomy("sectors")
-
-
-class DirectionSelector(Selector):
-    id = "direction"
-    label = "Direction"
-
-    def get_values(self):
-        return get_taxonomy("direction")
-
-
-class ExpertiseSelector(Selector):
-    id = "expertise"
-    label = "Expertise"
-
-    def get_values(self):
-        return get_taxonomy("expertise")
-
-
-class DomaineSelector(Selector):
-    id = "domaine"
-    label = "Domaine"
-
-    def get_values(self):
-        return get_taxonomy("domaine")
+        return get_taxonomy("news_sectors")
 
 
 class MetierSelector(Selector):
@@ -364,7 +328,32 @@ class MetierSelector(Selector):
     label = "Métier"
 
     def get_values(self):
-        return {e.job_title for e in self.form.all_experts}
+        return self._get_values_from_experts("match_making", "metier")
+
+
+class FonctionSelector(Selector):
+    id = "fonction"
+    label = "Fonction"
+
+    def get_values(self):
+        v1 = self._get_values_from_experts(
+            "info_professionnelle", "fonctions_ass_syn_detail"
+        )
+        v2 = self._get_values_from_experts(
+            "info_professionnelle", "fonctions_pol_adm_detail"
+        )
+        v3 = self._get_values_from_experts(
+            "info_professionnelle", "fonctions_org_priv_detail"
+        )
+        return v1 | v2 | v3
+
+
+class TailleOrganisationSelector(Selector):
+    id = "taille_organisation"
+    label = "Taille de l 'organisation"
+
+    def get_values(self):
+        return self._get_values_from_experts("info_professionnelle", "taille_orga")
 
 
 class TypeOrganisationSelector(Selector):
@@ -372,7 +361,7 @@ class TypeOrganisationSelector(Selector):
     label = "Type d'organisation"
 
     def get_values(self):
-        return get_taxonomy("organisation_type")
+        return self._get_values_from_experts("info_professionnelle", "type_orga_detail")
 
 
 class RegionSelector(Selector):

@@ -39,22 +39,14 @@ OtherOrganisationPage -up-|> OrganisationPage
 from __future__ import annotations
 
 import sqlalchemy as sa
-from aenum import StrEnum
 from slugify import slugify
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from app.enums import OrganisationFamilyEnum
 from app.models.auth import User
 from app.models.base import Base
 from app.models.geoloc import GeoLocation
 from app.models.mixins import Addressable, IdMixin, LifeCycleMixin, Owned
-
-
-class OrganisationType(StrEnum):
-    AUTO = "Auto"
-    MEDIA = "Media"
-    AGENCY = "Agency"
-    COM = "Communication"
-    OTHER = "Other"
 
 
 class Organisation(IdMixin, LifeCycleMixin, Owned, Addressable, Base):
@@ -115,10 +107,9 @@ class Organisation(IdMixin, LifeCycleMixin, Owned, Addressable, Base):
 
     # geoloc_id = sa.Column(sa.Integer, sa.ForeignKey("geo_loc.id"), nullable=True)
     # geoloc = sa.orm.relationship(GeoLocation)
-
     #
-    type: Mapped[OrganisationType] = mapped_column(
-        sa.Enum(OrganisationType), default=OrganisationType.OTHER, index=True
+    type: Mapped[OrganisationFamilyEnum] = mapped_column(
+        sa.Enum(OrganisationFamilyEnum), default=OrganisationFamilyEnum.AUTRE, index=True
     )
 
     karma: Mapped[int] = mapped_column(default=0)

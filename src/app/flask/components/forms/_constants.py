@@ -12,7 +12,7 @@ __all__ = ["get_choices"]
 def get_choices():
     return {
         "genre": voc.get_genres(),
-        "sector": voc.get_sectors(),
+        "sector": voc.get_news_sectors(),
         "topic": voc.get_topics(),
         "section": voc.get_sections(),
         "language": voc.LANGUAGES,

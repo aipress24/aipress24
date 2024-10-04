@@ -10,7 +10,7 @@ from svcs.flask import container
 
 from app.flask.extensions import db
 from app.flask.lib.jobs import Job
-from app.models.orgs import Organisation
+from app.models.organisation import Organisation
 from app.services.screenshots import ScreenshotService
 from app.services.web import check_url
 

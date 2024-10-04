@@ -5,12 +5,13 @@
 from __future__ import annotations
 
 from copy import deepcopy
-from typing import Any
+from typing import Any, cast
 
-from flask import request
+from flask import g, request
 from flask_super.decorators import service
 
 from app.flask.routing import url_for
+from app.models.auth import User
 from app.settings.menus import CREATE_MENU, MAIN_MENU, USER_MENU
 
 MENUS = {
@@ -42,7 +43,8 @@ def make_menu(menu_specs: list[dict[str, Any]]) -> list[dict[str, Any]]:
     menu = []
     for spec in menu_specs:
         entry = _make_menu_entry(spec)
-        menu.append(entry)
+        if entry:
+            menu.append(entry)
 
     active_entries = [e for e in menu if e["active"]]
     active_entries.sort(key=lambda e: len(e["url"].split("/")), reverse=True)
@@ -52,23 +54,33 @@ def make_menu(menu_specs: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return menu
 
 
-def _make_menu_entry(spec):
+def _make_menu_entry(spec) -> dict[str, Any] | None:
+    """Make a menu entry from a specification."""
     path = request.path
-    # user = cast(User, g.user)
+    user = cast(User, g.user)
 
     endpoint = spec["endpoint"]
-    # roles: set[str] = spec.get("roles", set())
-    # if roles:
-    #     if has_role(user, roles):
-    #         pass
+
+    roles: set[str] = spec.get("roles", set())
+
+    # Hack: has_role from app.services.roles is currently broken
+    def has_role(user: User, role: str) -> bool:
+        return any(r.name.lower() == role for r in user.roles)
+
+    if roles and not any(has_role(user, role) for role in roles):
+        return None
+
     if endpoint == "#" or endpoint.startswith("/"):
         url = endpoint
     else:
         url = url_for(endpoint)
 
-    entry = deepcopy(spec)
-    entry["url"] = url
-    entry["active"] = path.startswith(url)
-    entry["tooltip"] = spec.get("tooltip", "")
+    if url:
+        entry = deepcopy(spec)
+        entry["url"] = url
+        entry["active"] = path.startswith(url)
+        entry["tooltip"] = spec.get("tooltip", "")
+        return entry
 
-    return entry
+    else:
+        return None

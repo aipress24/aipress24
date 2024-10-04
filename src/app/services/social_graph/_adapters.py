@@ -16,7 +16,7 @@ from app.lib.adapter import Adapter
 from app.models.auth import User
 from app.models.content.base import BaseContent
 from app.models.mixins import IdMixin
-from app.models.orgs import Organisation
+from app.models.organisation import Organisation
 
 from ..activity_stream import ActivityType, post_activity
 from .models import following_orgs_table, following_users_table, likes_table

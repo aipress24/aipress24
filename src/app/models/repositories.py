@@ -7,7 +7,7 @@ from __future__ import annotations
 from flask_super.decorators import service
 
 from app.models.auth import Role, User
-from app.models.orgs import Organisation
+from app.models.organisation import Organisation
 from app.modules.wip.models.newsroom import (
     Article,
     AvisEnquete,

@@ -8,7 +8,7 @@ import arrow
 from sqlalchemy.orm import scoped_session
 
 from app.models.auth import User
-from app.models.orgs import Organisation
+from app.models.organisation import Organisation
 
 from ..article import Article
 

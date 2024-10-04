@@ -11,7 +11,7 @@ from markupsafe import Markup
 from app.enums import CommunityEnum
 from app.flask.lib.macros import macro
 from app.models.auth import User
-from app.models.orgs import Organisation
+from app.models.organisation import Organisation
 from app.modules.kyc.views import profile_photo_local_url
 
 

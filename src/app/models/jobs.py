@@ -37,7 +37,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base
 from .mixins import IdMixin, LifeCycleMixin, Owned
-from .orgs import Organisation
+from .organisation import Organisation
 
 
 class JobPost(IdMixin, LifeCycleMixin, Owned, Base):

@@ -24,3 +24,12 @@ class ContactTypeEnum(StrEnum):
     ENSEIGNANT = "Enseignants"
     ETUDIANT = "Etudiants"
     FOLLOWEE = "Personnes suivies"
+
+
+class OrganisationFamilyEnum(StrEnum):
+    MEDIA = "Médias"  # including AG_PRESSE and SYNDIC
+    AG_PRESSE = "Agences de presse"  # not detected in KYC structure
+    SYNDIC = "Syndicats ou fédérations"  # not detected in KYC structure
+    INSTIT = "Médias institutionnels"
+    RP = "RP agencies"
+    AUTRE = "Autres"

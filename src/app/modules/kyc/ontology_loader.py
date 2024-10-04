@@ -6,17 +6,20 @@ from __future__ import annotations
 
 import functools
 
+from app.enums import OrganisationFamilyEnum
 from app.services.countries import get_full_countries
 from app.services.taxonomies import get_full_taxonomy, get_taxonomy_dual_select
 from app.services.zip_code import get_zip_code_country
+
+from .organisation_utils import get_organisation_choices_family
 
 # dictionary from field type name to ontology DB table:
 ONTOLOGY_MAP = {
     "list_civilite": "civilite",
     # "listfree_newsrooms": "newsrooms",
-    "multifree_newsrooms": "newsrooms",
+    # "multifree_newsrooms": "orga_newsrooms",
     # Types d’Entreprise de Presse ou de Média:
-    "multi_medias": "medias",
+    "multi_type_entreprise_medias": "type_entreprises_medias",
     # "list_medias": "medias",
     # Types de presse & Média:
     # "list_type_media": "media_type",
@@ -24,12 +27,12 @@ ONTOLOGY_MAP = {
     # Fonctions du journalisme:
     "multi_fonctions_journalisme": "journalisme_fonction",
     # Agences RP (à venir):
-    "list_agences_rp": "agence_rp",
+    # "list_agences_rp": "agence_rp",
     # "list_type_agences_rp": "type_agence_rp",
     "multi_type_agences_rp": "type_agence_rp",
     # Type d’Organisation:
     # "list_type_orga": "organisation",
-    "multidual_type_orga": "organisation",
+    "multidual_type_orga": "type_organisation_detail",
     # Taille de l’Organisation:
     "list_taille_orga": "taille_organisation",
     # Fonctions professionnelle:
@@ -63,23 +66,31 @@ ONTOLOGY_MAP = {
     "multi_langues": "langue",
 }
 
+ORGANISATION_TO_FAMILLE_MAP = {
+    "listfree_nom_agence_rp": OrganisationFamilyEnum.RP,
+    "listfree_nom_media_instit": OrganisationFamilyEnum.INSTIT,
+    "listfree_nom_orga": OrganisationFamilyEnum.AUTRE,
+    "multifree_newsrooms": OrganisationFamilyEnum.MEDIA,
+    # DEDIA includes AG_PRESSE and SYNDIC
+}
+
 ONTOLOGY_DB_LIST = {
-    "agence_rp",
+    # "agence_rp",
     "civilite",
     "competence_expert",
     "journalisme_competence",
     "journalisme_fonction",
     "langue",
     "media_type",
-    "medias",
-    "newsrooms",
+    "type_entreprises_medias",
+    "orga_newsrooms",
     "taille_organisation",
     "type_agence_rp",
 }
 
 
-def _sibling_module(module: str) -> str:
-    return __name__.rsplit(".", 1)[0] + module
+# def _sibling_module(module: str) -> str:
+#     return __name__.rsplit(".", 1)[0] + module
 
 
 @functools.cache
@@ -93,11 +104,15 @@ def get_ontology_content(ontology: str) -> list | dict:
 
 def get_choices(field_type: str) -> list | dict:
     ontology = ONTOLOGY_MAP.get(field_type)
-    return get_ontology_content(ontology)
+    if ontology:
+        return get_ontology_content(ontology)
+    # must be an oarganisation name
+    family = ORGANISATION_TO_FAMILLE_MAP.get(field_type, OrganisationFamilyEnum.AUTRE)
+    return get_organisation_choices_family(family)  # type: ignore
 
 
-def ontology_for_pays() -> list | dict:
-    return get_choices("country_pays")
+# def ontology_for_pays() -> list | dict:
+#     return get_choices("country_pays")
 
 
 @functools.cache
@@ -105,11 +120,11 @@ def zip_code_city_list(country_code: str) -> list:
     return get_zip_code_country(country_code)
 
 
-def label_from_value_list(ontology: str, value: str) -> str:
-    content = get_ontology_content(ontology)
-    if not isinstance(content, list):
-        raise TypeError(ontology)
-    for item in content:
-        if item[0] == value:
-            return item[1]
-    return ""
+# def label_from_value_list(ontology: str, value: str) -> str:
+#     content = get_ontology_content(ontology)
+#     if not isinstance(content, list):
+#         raise TypeError(ontology)
+#     for item in content:
+#         if item[0] == value:
+#             return item[1]
+#     return ""

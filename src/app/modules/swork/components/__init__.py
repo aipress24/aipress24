@@ -4,16 +4,19 @@
 
 from __future__ import annotations
 
-from app.flask.lib.pywire import register_wired_component
+# from app.flask.lib.pywire import register_wired_component
 
-from .groups_list import GroupsList
-from .members_list import MembersList
-from .organisations_list import OrganisationsList
-from .selector import Selector
+# from .bwall_list import BWallList
+# from .groups_list import GroupsList
+# from .light_orgs_list import LightOrgsList
+# from .members_list import MembersList
+# from .selector import Selector
 
 
 def register(app) -> None:
-    register_wired_component(app, MembersList)
-    register_wired_component(app, OrganisationsList)
-    register_wired_component(app, GroupsList)
-    register_wired_component(app, Selector)
+    ...
+    # register_wired_component(app, MembersList)
+    # register_wired_component(app, LightOrgsList)
+    # register_wired_component(app, BWallList)
+    # register_wired_component(app, GroupsList)
+    # register_wired_component(app, Selector)

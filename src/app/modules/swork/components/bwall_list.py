@@ -24,7 +24,7 @@ from .base import BaseList, Filter, FilterByCity, FilterByDept
 
 
 @register
-class OrganisationsList(BaseList):
+class BWallList(BaseList):
     def context(self):
         org_count = self.get_org_count()
         orgs = self.get_orgs()
@@ -83,13 +83,17 @@ class OrganisationsList(BaseList):
 class FilterByCategory(Filter):
     id = "category"
     label = "Categorie"
-    options = [str(x) for x in OrganisationFamilyEnum]  # type: ignore
-    org_type_map = {str(x): x for x in OrganisationFamilyEnum}  # type: ignore
+    options = [
+        "Agences",
+        "Médias",
+        "Cabinets de RP",
+        "Autres",
+    ]
 
     def apply(self, stmt, state):
         active_options = self.active_options(state)
-        type_map = self.org_type_map
-        types = [type_map[option] for option in active_options]
+        org_type_map = {str(x): x for x in OrganisationFamilyEnum}  # type: ignore
+        types = [org_type_map[option] for option in active_options]
 
         if types:
             stmt = stmt.where(Organisation.type.in_(types))

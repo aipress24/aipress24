@@ -11,7 +11,7 @@ from flask_super.registry import lookup
 
 from app.lib.names import fqdn, to_snake_case
 
-from ._components import WiredComponent, component_registry
+from ._components import StaticComponent, WiredComponent, component_registry
 from ._components2 import Component, ComponentCaller
 
 # Dict class-name -> class
@@ -66,4 +66,7 @@ def register_wired_component(app, component_cls) -> None:
 def register_wired_components(app) -> None:
     components = lookup(WiredComponent)
     for component in components:
+        register_wired_component(app, component)
+    static_components = lookup(StaticComponent)
+    for component in static_components:
         register_wired_component(app, component)

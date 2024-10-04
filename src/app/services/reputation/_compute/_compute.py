@@ -7,8 +7,9 @@ from __future__ import annotations
 from collections.abc import Callable
 from functools import singledispatch
 
+from app.enums import OrganisationFamilyEnum
 from app.models.auth import User
-from app.models.orgs import Organisation, OrganisationType
+from app.models.organisation import Organisation
 from app.services.roles import Role, has_role
 
 from ._constants import (
@@ -50,9 +51,13 @@ def compute_reputation_user(user: User) -> dict[str, Real]:
 def compute_reputation_org(org: Organisation) -> dict[str, Real]:
     """Compute the reputation of an organisation."""
     match org.type:
-        case OrganisationType.MEDIA | OrganisationType.AGENCY:
+        case (
+            OrganisationFamilyEnum.MEDIA
+            | OrganisationFamilyEnum.AG_PRESSE
+            | OrganisationFamilyEnum.SYNDIC
+        ):
             spec = REPUT_MEDIA_SPEC
-        case OrganisationType.COM:
+        case OrganisationFamilyEnum.RP:
             spec = REPUT_COM_SPEC
         case _:
             spec = REPUT_GENERIC_ORG_SPEC

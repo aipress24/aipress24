@@ -15,13 +15,13 @@ from loguru import logger
 from svcs.flask import container
 
 import app.settings.vocabularies as voc
+from app.enums import OrganisationFamilyEnum
 from app.faker._constants import POST_IMAGES
 from app.faker._generators.util import random_wikinews_article
 from app.faker._scripts.base import FakerScript
 from app.flask.extensions import db
 from app.models.auth import RoleEnum, User
 from app.models.lifecycle import PublicationStatus
-from app.models.orgs import OrganisationType
 from app.models.repositories import OrganisationRepository, UserRepository
 from app.modules.wip.models.newsroom import (
     Article,
@@ -39,7 +39,7 @@ MAX_COUNT = 10
 
 @functools.lru_cache
 def get_medias():
-    media_type = OrganisationType.MEDIA
+    media_type = OrganisationFamilyEnum.MEDIA
     org_repo = container.get(OrganisationRepository)
     return org_repo.list(type=media_type)
 
@@ -84,7 +84,7 @@ class BaseScript(FakerScript, abc.ABC):
         obj.genre = random.choice(voc.get_genres())
         obj.topic = random.choice(voc.get_topics())
         obj.section = random.choice(voc.get_sections())
-        obj.sector = random.choice(voc.get_sectors())
+        obj.sector = random.choice(voc.get_news_sectors())
 
 
 @register

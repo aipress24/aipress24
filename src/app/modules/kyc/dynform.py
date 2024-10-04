@@ -32,7 +32,7 @@ from .lib.valid_image import ValidImageField
 from .lib.valid_password import ValidPassword
 from .lib.valid_tel import ValidTel
 from .lib.valid_url import ValidURL
-from .ontologies import get_choices
+from .ontology_loader import get_choices
 from .survey_dataclass import SurveyField, SurveyProfile
 from .temporary_blob import pop_tmp_blob
 
@@ -371,6 +371,7 @@ def custom_list_free_field(field: SurveyField, code: str, param: str) -> Field:
         label=label,
         id=field.id,
         choices=get_choices(param),
+        validate_choice=False,  # or free input is not accepted
         render_kw={
             "kyc_type": "string",
             "kyc_code": code,
@@ -531,8 +532,8 @@ FIELD_TYPE_SELECTOR: Mapping[str, Callable] = {
     "postcode": custom_postcode_field,
     "url": custom_url_field,
     "list": custom_list_field,
-    "listfree": custom_list_free_field,  # currently unused
-    "multifree": custom_multi_free_field,  # used only for 'newsrooms'
+    "listfree": custom_list_free_field,  # used for nom_orga, nom_media_instit, nom_agence_rp
+    "multifree": custom_multi_free_field,  # used only for 'orga_newsrooms' / nom_media
     "multi": custom_multi_field,
     "multidual": custom_dual_multi_field,
     "multiopt": custom_multi_opt_field,

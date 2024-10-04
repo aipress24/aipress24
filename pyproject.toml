@@ -1,17 +1,25 @@
-
 #
 # SPDX-License-Identifier: AGPL-3.0-only
+#
+
+[project]
+name = "aipress24-flask"
+requires-python = ">=3.10"
+
+[build-system]
+requires = ["poetry-core>=1.0.0", "nodeenv", "devtools"]
+build-backend = "poetry.core.masonry.api"
+
+# -----------------------------------------------------------------------------
 
 [tool.poetry]
 name = "aipress24-flask"
-version = "2024.09.12.1"
+version = "2024.10.04.2"
 description = ""
 authors = ["Stefane Fermigier <sf@abilian.com>"]
 
 packages = [{ include = "app", from = "src" }]
 exclude = ["**/test_*.py", "**/*_test.py", "**/tests.py"]
-
-# -----------------------------------------------------------------------------
 
 [tool.poetry.dependencies]
 python = "^3.10"
@@ -31,7 +39,7 @@ blinker = "^1.7.0"
 # Flask extensions
 flask-babel = "^4.0.0"
 flask-classful = "^0.16.0"
-flask-htmx = "^0.3"
+flask-htmx = "^0.4"
 flask-login = "^0.6.2"
 flask-mailman = "^1.0.0"
 flask-migrate = "^4.0.5"
@@ -76,7 +84,7 @@ tomli = "^2.0.1"
 # ORM & Database
 sqlalchemy = "^2.0.25"
 sqlalchemy-utils = "^0.41.1"
-advanced-alchemy = "^0.19"
+advanced-alchemy = "^0.20"
 psycopg2-binary = "^2.9.9"
 # Next...
 # psycopg = "^3"
@@ -108,7 +116,7 @@ typesense = "^0.21"
 beautifulsoup4 = "^4.12.2"
 
 # Payments ?
-stripe = "^10"
+stripe = "^11"
 
 # More deps
 loguru = "^0.7.2"
@@ -130,8 +138,8 @@ pytest = "^8"
 hypothesis = "^6.92.8"
 
 # Fake data generators (used currently in prod, will be removed later)
-faker = "^28"
-mimesis = "^17"
+faker = "^30"
+mimesis = "^18"
 
 # PDF generation
 weasyprint = "^62"
@@ -229,7 +237,7 @@ types-pytz = "^2024"
 types-pyyaml = "^6"
 types-redis = "^4"
 types-requests = "^2"
-types-setuptools = "^74"
+types-setuptools = "^75"
 types-toml = "^0.10"
 
 # More linters / typecheckers / tools
@@ -272,10 +280,6 @@ shed = "^2024.1.1"
 buildstr = "^0.1.1"
 splinter = "^0.21.0"
 infer-types = "^1.0.0"
-
-[build-system]
-requires = ["poetry-core>=1.0.0", "nodeenv", "devtools"]
-build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.build]
 generate-setup-file = false
@@ -344,6 +348,8 @@ DEP002 = [
     'hyperdx-opentelemetry',
     # Used in production
     'sentry-sdk',
+    # Used by odsparsator
+    'odfdo',
 ]
 # X imported but declared as a dev dependency
 DEP004 = ['hypothesis', 'openpyxl', "flask_debugtoolbar"]
@@ -401,7 +407,6 @@ exclude_dirs = [
     "src/app/faker",
     "conftest.py",
 ]
-
 
 # -----------------------------------------------------------------------------
 

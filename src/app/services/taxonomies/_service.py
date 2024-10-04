@@ -26,24 +26,22 @@ def check_taxonomy_exist(taxonomy_name: str) -> bool:
 
 def get_taxonomy(name) -> list[str]:
     """Get a taxonomy from the database."""
+    # TODO: ne retourner que les valeurs qui correspondent à un utilisateur existant
     T = TaxonomyEntry  # noqa: N806
     query = select(T).where(T.taxonomy_name == name).order_by(T.name)
     result = db.session.execute(query).scalars()
     return [r.name for r in result]
-    # return [(r.id, r.name) for r in result]
 
 
 def get_full_taxonomy(name: str, category: str = "") -> list[tuple[str, str]]:
     """Get a taxonomy from the database."""
     T = TaxonomyEntry  # noqa: N806
+    query = select(T)
     if category:
-        query = (
-            select(T)
-            .where(T.taxonomy_name == name, T.category == category)
-            .order_by(T.seq)
-        )
+        query = query.where(T.taxonomy_name == name, T.category == category)
     else:
-        query = select(T).where(T.taxonomy_name == name).order_by(T.seq)
+        query = query.where(T.taxonomy_name == name)
+    query = query.order_by(T.seq)
     results = db.session.scalars(query).all()
     return [(row.value, row.name) for row in results]
 

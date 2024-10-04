@@ -7,15 +7,16 @@ from __future__ import annotations
 from functools import singledispatch
 from typing import Any
 
+from app.enums import OrganisationFamilyEnum
 from app.models.meta import get_label
-from app.models.orgs import OrganisationType
 
 LABELS = {
-    OrganisationType.AUTO: "Non-officialisée",
-    OrganisationType.MEDIA: "Média",
-    OrganisationType.COM: "Agence de Com'",
-    OrganisationType.OTHER: "Autre",
-    OrganisationType.AGENCY: "Agence de Presse",
+    OrganisationFamilyEnum.MEDIA: "Média",
+    OrganisationFamilyEnum.AG_PRESSE: "Agence de presse",  # not detected in KYC structure
+    OrganisationFamilyEnum.SYNDIC: "Syndicat ou fédération",  # not detected in KYC structure
+    OrganisationFamilyEnum.INSTIT: "Média institutionnel",
+    OrganisationFamilyEnum.RP: "RP agency",
+    OrganisationFamilyEnum.AUTRE: "Autre",
 }
 
 
@@ -25,5 +26,5 @@ def make_label(obj: Any) -> str:
 
 
 @make_label.register
-def _make_label(obj: OrganisationType) -> str:
+def _make_label(obj: OrganisationFamilyEnum) -> str:
     return LABELS[obj]

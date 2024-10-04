@@ -15,7 +15,7 @@ class PrefEditProfilePage(BasePreferencesPage):
     parent = PrefHomePage
     name = "profile_page"
     url_string = "kyc.profile_page"
-    label = "Mofification du profil"
+    label = "Modification du profil"
     template = ""
     icon = "clipboard-document-list"
 

@@ -9,7 +9,7 @@ import sqlalchemy as sa
 from app.models.auth import User
 from app.models.base import Base
 from app.models.content.base import BaseContent
-from app.models.orgs import Organisation
+from app.models.organisation import Organisation
 
 #
 # Tables for many-to-many relationships

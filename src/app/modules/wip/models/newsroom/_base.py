@@ -10,7 +10,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.auth import User
 from app.models.mixins import IdMixin, LifeCycleMixin, Owned
-from app.models.orgs import Organisation
+from app.models.organisation import Organisation
 
 
 class NewsroomCommonMixin(IdMixin, LifeCycleMixin, Owned):

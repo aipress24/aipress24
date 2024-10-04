@@ -46,7 +46,7 @@ from . import blueprint
 from .community_role import append_user_role_from_community, generate_roles_map
 from .dynform import TAG_LABELS, generate_form
 from .field_label import data_to_label
-from .ontologies import zip_code_city_list
+from .ontology_loader import zip_code_city_list
 from .populate_profile import populate_form_data, populate_json_field
 from .renderer import render_field
 from .resized import resized
@@ -575,8 +575,8 @@ def _update_from_current_user(orig_user: User) -> User:
     # email=results.get("email", ""),
     # email_secours=results.get("email_secours", "")
     cloned_user.tel_mobile = results.get("tel_mobile", "")
-    for k, v in results.items():
-        print("/////////////", k, v, file=sys.stderr)
+    # for k, v in results.items():
+    #     print("/////////////", k, v, file=sys.stderr)
     cloned_user.gcu_acceptation = results.get("validation_gcu", False)
     # duplicated: from KYCProfile
 
@@ -622,9 +622,10 @@ def _validation_requirement_fields(orig_user: User, cloned_user: User) -> list[s
 def _update_current_user_data() -> str:
     db_session = db.session
     orig_user = User.query.get(current_user.id)
-    print("updating user:", orig_user, file=sys.stderr)
+    print("//Updating// updating user:", orig_user, file=sys.stderr)
     cloned_user = _update_from_current_user(orig_user)
     critical_modified_fields = _validation_requirement_fields(orig_user, cloned_user)
+    print("//critical_modified_fields//", critical_modified_fields, file=sys.stderr)
     if critical_modified_fields:
         cloned_user.active = False
         modified_text = " ,".join(critical_modified_fields)
@@ -640,6 +641,7 @@ def _update_current_user_data() -> str:
     else:
         # forget cloned_user
         merge_values_from_other_user(orig_user, cloned_user)
+        orig_user.active = True
         # db_session.delete(cloned_user) # not in DB
         db_session.merge(orig_user)  # add the cloned user to DB
         cloned_user = None

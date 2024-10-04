@@ -35,7 +35,7 @@ def logout():
     cookies = request.cookies
     pp(dict(cookies))
     logout_user()
-    response = redirect(url_for("iam.login"))
+    response = redirect(url_for("public.home"))
     response.set_cookie(constants.JWT_COOKIE, "", expires=0)
     response.set_cookie("access.zn5r464b", "", expires=0)
     response.set_cookie("id.zn5r464b", "", expires=0)

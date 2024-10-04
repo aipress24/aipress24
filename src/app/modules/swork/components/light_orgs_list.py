@@ -16,20 +16,25 @@ from app.enums import OrganisationFamilyEnum
 from app.flask.extensions import db
 from app.flask.lib.view_model import ViewModel
 from app.flask.sqla import get_multi
-from app.models.geoloc import GeoLocation
-from app.models.organisation import Organisation
+from app.models.organisation_light import (
+    LIGHT_ORGS_FAMILY_LABEL,
+    LIGHT_ORGS_TYPE_MAP,
+    LightOrganisation,
+)
 
 from ..common import Directory
-from .base import BaseList, Filter, FilterByCity, FilterByDept
+from .base import BaseList, Filter
+
+# from app.models.geoloc import GeoLocation
 
 
 @register
-class OrganisationsList(BaseList):
+class LightOrgsList(BaseList):
     def context(self):
         org_count = self.get_org_count()
         orgs = self.get_orgs()
 
-        directory = OrgsDirectory(orgs)
+        directory = LightOrgsDirectory(orgs)
 
         return {
             "search": self.search,
@@ -40,23 +45,22 @@ class OrganisationsList(BaseList):
         }
 
     def get_org_count(self) -> int:
-        stmt = select(count(Organisation.id))
+        stmt = select(count(LightOrganisation.name))
         return db.session.scalar(stmt) or 0
 
-    def get_orgs(self) -> list[Organisation]:
+    def get_orgs(self) -> list[LightOrganisation]:
         stmt = self.make_stmt()
         return list(db.session.scalars(stmt))
 
     def get_base_statement(self) -> Select:
         return (
-            select(Organisation)
-            .join(GeoLocation)
-            .order_by(Organisation.name)
-            .limit(100)
+            select(LightOrganisation)
+            # .join(GeoLocation)
+            .order_by(LightOrganisation.name).limit(100)
         )
 
     def search_clause(self, search):
-        return Organisation.name.ilike(f"%{search}%")
+        return LightOrganisation.name.ilike(f"%{search}%")
 
     # def apply_search(self, stmt: Select) -> Select:
     #     search = self.search.strip()
@@ -75,64 +79,65 @@ class OrganisationsList(BaseList):
     #     return stmt
 
     def get_filters(self):
-        stmt = select(Organisation)
-        orgs: list[Organisation] = get_multi(Organisation, stmt)
+        stmt = select(LightOrganisation)
+        orgs: list[LightOrganisation] = get_multi(LightOrganisation, stmt)
         return make_filters(orgs)
 
 
-class FilterByCategory(Filter):
+class FilterByFamily(Filter):
     id = "category"
-    label = "Categorie"
-    options = [str(x) for x in OrganisationFamilyEnum]  # type: ignore
-    org_type_map = {str(x): x for x in OrganisationFamilyEnum}  # type: ignore
+    label = "Catégorie"
+    options = [str(x) for x in OrganisationFamilyEnum]
 
     def apply(self, stmt, state):
         active_options = self.active_options(state)
-        type_map = self.org_type_map
+        type_map = LIGHT_ORGS_TYPE_MAP
         types = [type_map[option] for option in active_options]
 
         if types:
-            stmt = stmt.where(Organisation.type.in_(types))
+            stmt = stmt.where(LightOrganisation.family.in_(types))
 
         return stmt
 
 
-class FilterBySector(Filter):
-    id = "sector"
-    label = "Secteur"
-    options = [
-        "Secteur 1",
-        "Secteur 2",
-        "Secteur 3",
-        "Secteur 4",
-        "Secteur 5",
-    ]
+# class FilterBySector(Filter):
+#     id = "sector"
+#     label = "Secteur"
+#     options = [
+#         "Secteur 1",
+#         "Secteur 2",
+#         "Secteur 3",
+#         "Secteur 4",
+#         "Secteur 5",
+#     ]
 
-    def apply(self, stmt, state):
-        return stmt
+#     def apply(self, stmt, state):
+#         return stmt
 
 
-def make_filters(orgs: list[Organisation]):
+def make_filters(orgs: list[LightOrganisation]):
     return [
-        FilterByCategory(orgs),
-        FilterBySector(orgs),
-        FilterByCity(orgs),
-        FilterByDept(orgs),
+        FilterByFamily(orgs),
     ]
 
 
 @define
-class OrgVM(ViewModel):
+class LightOrgVM(ViewModel):
+    family_label_map = LIGHT_ORGS_FAMILY_LABEL
+
     @property
     def org(self):
-        return cast(Organisation, self._model)
+        return cast(LightOrganisation, self._model)
 
     def extra_attrs(self):
-        return {"logo_url": self.get_logo_url()}
+        return {
+            "logo_url": self.get_logo_url(),
+            "family_label": self.family_label_map[self.org.family],
+        }
 
     def get_logo_url(self) -> str:
-        return self.org.logo_url
+        return "/static/img/logo-page-non-officielle.png"
 
 
-class OrgsDirectory(Directory):
-    vm_class = OrgVM
+class LightOrgsDirectory(Directory):
+    vm_class = LightOrgVM

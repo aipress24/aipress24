@@ -9,7 +9,8 @@ from pathlib import Path
 
 from mimesis import Person
 
-from app.models.orgs import Organisation, OrganisationType
+from app.enums import OrganisationFamilyEnum
+from app.models.organisation import Organisation
 
 from .._constants import COVER_IMAGES, ORGANISATIONS
 from .._geo import fake_geoloc
@@ -33,7 +34,7 @@ class OrgGenerator(BaseGenerator):
                 break
 
         org = Organisation(name=name)
-        org.type = random.choice(list(OrganisationType))
+        org.type = random.choice(list(OrganisationFamilyEnum))  # type: ignore
         org.description = self.generate_html(min_sentences=1, max_sentences=3)
         org.owner_id = random.choice(users).id
 
@@ -50,7 +51,7 @@ class OrgGenerator(BaseGenerator):
         org.geoloc = fake_geoloc()
 
         #
-        if org.type == OrganisationType.AGENCY:
+        if org.type == OrganisationFamilyEnum.AG_PRESSE:
             org.agree_cppap = random.random() < 0.5
             match random.randint(0, 3):
                 case 0:

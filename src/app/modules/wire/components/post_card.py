@@ -17,7 +17,7 @@ from app.lib.html import remove_markup
 from app.models.auth import User
 
 # from app.models.content import Article, PressRelease, TextEditorialContent
-from app.models.orgs import Organisation
+from app.models.organisation import Organisation
 from app.modules.wire.models import ArticlePost
 
 

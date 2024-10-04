@@ -39,6 +39,10 @@ def markup_component(name: str, *args, **kwargs) -> Markup:
             return Markup(component_instance._initial_render())
 
     for component_cls in COMPONENTS.values():
+        import sys
+
+        print("markup_component,", component_cls, file=sys.stderr)
+
         component_name = to_kebab_case(component_cls.__name__)
         if name != component_name:
             continue
