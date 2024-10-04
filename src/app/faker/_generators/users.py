@@ -149,28 +149,22 @@ class UserGenerator(BaseGenerator):
         profile.info_professionnelle["nom_adm"] = f"{word.capitalize()} Administration"
 
     def _random_type_media(self, _user: User, profile: KYCProfile) -> None:
-        profile.info_professionnelle["type_entreprise_media"] = list(
-            {
-                random.choice(_get_full_taxo("type_entreprises_medias"))[0]
-                for _ in range(random.randint(1, 3))
-            }
-        )
+        profile.info_professionnelle["type_entreprise_media"] = list({
+            random.choice(_get_full_taxo("type_entreprises_medias"))[0]
+            for _ in range(random.randint(1, 3))
+        })
 
     def _random_type_presse_et_media(self, _user: User, profile: KYCProfile) -> None:
-        profile.info_professionnelle["type_presse_et_media"] = list(
-            {
-                random.choice(_get_full_taxo("media_type"))[0]
-                for _ in range(random.randint(1, 3))
-            }
-        )
+        profile.info_professionnelle["type_presse_et_media"] = list({
+            random.choice(_get_full_taxo("media_type"))[0]
+            for _ in range(random.randint(1, 3))
+        })
 
     def _random_fonctions_journalisme(self, _user: User, profile: KYCProfile) -> None:
-        profile.info_professionnelle["fonctions_journalisme"] = list(
-            {
-                random.choice(_get_full_taxo("journalisme_fonction"))[0]
-                for _ in range(random.randint(1, 5))
-            }
-        )
+        profile.info_professionnelle["fonctions_journalisme"] = list({
+            random.choice(_get_full_taxo("journalisme_fonction"))[0]
+            for _ in range(random.randint(1, 5))
+        })
 
     def _random_nom_orga(self, _user: User, profile: KYCProfile) -> None:
         organisations = _get_full_organisation_family(OrganisationFamilyEnum.AUTRE)
@@ -193,9 +187,9 @@ class UserGenerator(BaseGenerator):
                 name = random.choice(medias)
             return name
 
-        profile.info_professionnelle["nom_media"] = list(
-            {_nom_media() for _ in range(random.randint(1, 3))}
-        )
+        profile.info_professionnelle["nom_media"] = list({
+            _nom_media() for _ in range(random.randint(1, 3))
+        })
 
     def _random_nom_media_instit(self, _user: User, profile: KYCProfile) -> None:
         word = self.generate_words(1)
@@ -238,20 +232,16 @@ class UserGenerator(BaseGenerator):
         user.gcu_acceptation_date = func.now()
 
     def _random_competences_journalisme(self, _user: User, profile: KYCProfile) -> None:
-        profile.match_making["competences_journalisme"] = list(
-            {
-                random.choice(_get_full_taxo("journalisme_competence"))[0]
-                for _ in range(random.randint(1, 8))
-            }
-        )
+        profile.match_making["competences_journalisme"] = list({
+            random.choice(_get_full_taxo("journalisme_competence"))[0]
+            for _ in range(random.randint(1, 8))
+        })
 
     def _random_competences(self, _user: User, profile: KYCProfile) -> None:
-        profile.match_making["competences"] = list(
-            {
-                random.choice(_get_full_taxo("competence_expert"))[0]
-                for _ in range(random.randint(1, 5))
-            }
-        )
+        profile.match_making["competences"] = list({
+            random.choice(_get_full_taxo("competence_expert"))[0]
+            for _ in range(random.randint(1, 5))
+        })
 
     def _random_type_orga(self, _user: User, profile: KYCProfile) -> None:
         taxo = _get_full_taxo_category_value("type_organisation_detail")
@@ -262,12 +252,10 @@ class UserGenerator(BaseGenerator):
         profile.info_professionnelle["type_orga_detail"] = values
 
     def _random_type_agence_rp(self, _user: User, profile: KYCProfile) -> None:
-        profile.info_professionnelle["type_agence_rp"] = list(
-            {
-                random.choice(_get_full_taxo("type_agence_rp"))[0]
-                for _ in range(random.randint(1, 3))
-            }
-        )
+        profile.info_professionnelle["type_agence_rp"] = list({
+            random.choice(_get_full_taxo("type_agence_rp"))[0]
+            for _ in range(random.randint(1, 3))
+        })
 
     def _random_metier(self, _user: User, profile: KYCProfile) -> None:
         taxo = _get_full_taxo_category_value("metier")

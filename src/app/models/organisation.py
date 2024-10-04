@@ -109,7 +109,9 @@ class Organisation(IdMixin, LifeCycleMixin, Owned, Addressable, Base):
     # geoloc = sa.orm.relationship(GeoLocation)
     #
     type: Mapped[OrganisationFamilyEnum] = mapped_column(
-        sa.Enum(OrganisationFamilyEnum), default=OrganisationFamilyEnum.AUTRE, index=True
+        sa.Enum(OrganisationFamilyEnum),
+        default=OrganisationFamilyEnum.AUTRE,
+        index=True,
     )
 
     karma: Mapped[int] = mapped_column(default=0)

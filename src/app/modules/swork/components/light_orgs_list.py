@@ -56,7 +56,8 @@ class LightOrgsList(BaseList):
         return (
             select(LightOrganisation)
             # .join(GeoLocation)
-            .order_by(LightOrganisation.name).limit(100)
+            .order_by(LightOrganisation.name)
+            .limit(100)
         )
 
     def search_clause(self, search):

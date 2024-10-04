@@ -178,18 +178,16 @@ class ArticleVM(Wrapper, PostMixin):
         publisher_type = self.get_publisher_type()
 
         extra_attrs = super().extra_attrs()
-        extra_attrs.update(
-            {
-                "age": age,
-                "author": UserVM(post.owner),
-                "publisher_type": publisher_type,
-                #
-                "comments": self.get_comments(),
-                "tags": get_tags(article),
-                #
-                "_url": url_for(post),
-            }
-        )
+        extra_attrs.update({
+            "age": age,
+            "author": UserVM(post.owner),
+            "publisher_type": publisher_type,
+            #
+            "comments": self.get_comments(),
+            "tags": get_tags(article),
+            #
+            "_url": url_for(post),
+        })
         return extra_attrs
 
     def get_comments(self) -> list[Comment]:
