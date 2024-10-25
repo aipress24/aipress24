@@ -174,7 +174,6 @@ doc:
 
 ## Update dependencies
 update-deps:
-	pip install -qU pip setuptools wheel
 	poetry update
 	poetry export -f requirements.txt > requirements.txt
 	poetry show -o
