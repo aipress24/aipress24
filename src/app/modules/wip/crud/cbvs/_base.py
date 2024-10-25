@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import abc
 
-from arrow import utcnow
+from arrow import now
 from flask import flash, g, redirect, request, url_for
 from flask_classful import FlaskView, route
 from lxml import etree
@@ -14,6 +14,7 @@ from svcs.flask import container
 from werkzeug import Response
 from wtforms import Form as WTForm
 
+from app.constants import LOCAL_TZ
 from app.flask.lib.breadcrumbs import BreadCrumb
 from app.flask.lib.templates import templated
 from app.flask.lib.wtforms.renderer import FormRenderer
@@ -198,7 +199,7 @@ class BaseWipView(FlaskView, abc.ABC):
             flash(self.msg_delete_ko)
             return redirect(self._url_for("index"))
 
-        model.deleted_at = utcnow()
+        model.deleted_at = now(LOCAL_TZ)
         repo.update(model, auto_commit=True)
 
         flash(self.msg_delete_ok)

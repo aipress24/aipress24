@@ -4,10 +4,11 @@
 
 from __future__ import annotations
 
-from arrow import utcnow
+from arrow import now
 from devtools import debug
 from sqlalchemy import select
 
+from app.constants import LOCAL_TZ
 from app.flask.extensions import db
 from app.modules.wip.models.newsroom import Article
 from app.signals import article_published, article_unpublished
@@ -23,7 +24,7 @@ def on_publish(article: Article):
         post = ArticlePost()
         post.newsroom_id = article.id
         post.created_at = article.created_at
-        post.published_at = utcnow()
+        post.published_at = now(LOCAL_TZ)
 
     post.status = PostStatus.PUBLIC
 

@@ -51,7 +51,7 @@
                     {% if follower.organisation %}
                       <a href="{{ url_for(follower.organisation) }}">@{{ follower.organisation.name }}</a>
                     {% else %}
-                      @{{ follower.profile.organisation_name }}
+                      @{{ follower.organisation_name }}
                     {% endif %}
                   </p>
                 </div>

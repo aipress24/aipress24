@@ -42,7 +42,7 @@ class UserDataSource(GenericUserDataSource):
         stmt = stmt.filter(
             User.active == true(),
             User.is_clone == false(),
-            User.deleted == false(),
+            User.deleted_at.is_(None),
         )
         stmt = cls.add_search_filter(stmt)
         return db.session.scalar(stmt)
@@ -54,7 +54,7 @@ class UserDataSource(GenericUserDataSource):
             .where(
                 User.active == true(),
                 User.is_clone == false(),
-                User.deleted == false(),
+                User.deleted_at.is_(None),
             )
             .order_by(nulls_last(desc(User.last_login_at)))
             .offset(cls.offset)
@@ -71,9 +71,9 @@ class UserDataSource(GenericUserDataSource):
                 "show": url_for_orig(".show_profile", uid=obj.id),
                 # "username": obj.username,
                 "name": obj.full_name,
-                "email": obj.email_backup or obj.email,
+                "email": obj.email_safe_copy or obj.email,
                 "job_title": obj.job_title,
-                "organisation_name": obj.profile.organisation_name,
+                "organisation_name": obj.organisation_name,
                 "status": obj.status,
                 "karma": f"{obj.karma:0.1f}",
             }

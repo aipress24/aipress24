@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Any
 from uuid import uuid4
 
+from arrow import now
 from flask import (
     current_app,
     g,
@@ -34,6 +35,7 @@ from app.constants import (
     LABEL_INSCRIPTION_NOUVELLE,
     LABEL_MODIFICATION_MAJEURE,
     LABEL_MODIFICATION_MINEURE,
+    LOCAL_TZ,
 )
 from app.enums import CommunityEnum
 from app.flask.extensions import db
@@ -58,7 +60,7 @@ from .ontology_loader import zip_code_city_list
 from .populate_profile import populate_form_data, populate_json_field
 from .renderer import render_field
 from .resized import resized
-from .survey_dataclass import SurveyField, SurveyProfile
+from .survey_dataclass import SurveyField
 from .survey_model import get_survey_fields, get_survey_model, get_survey_profile
 from .temporary_blob import delete_tmp_blob, pop_tmp_blob, read_tmp_blob, store_tmp_blob
 
@@ -420,16 +422,16 @@ def modify_page():
     return redirect(url_for(".profile_page"))
 
 
-def _guess_organisation_name(results: dict, profile_id: str) -> str:
-    survey_profile: SurveyProfile = get_survey_profile(profile_id)
-    field_name = survey_profile.organisation_field
-    if not field_name:
-        return ""
-    value = results.get(field_name, "")
-    # fixme: nom_media is a list of string, not a string
-    if isinstance(value, list) and value:
-        value = value[0]
-    return str(value).strip()
+# def _guess_organisation_name(results: dict, profile_id: str) -> str:
+#     survey_profile: SurveyProfile = get_survey_profile(profile_id)
+#     field_name = survey_profile.organisation_field
+#     if not field_name:
+#         return ""
+#     value = results.get(field_name, "")
+#     # fixme: nom_media is a list of string, not a string
+#     if isinstance(value, list) and value:
+#         value = value[0]
+#     return str(value).strip()
 
 
 def _role_from_name(name: str) -> Role:
@@ -468,7 +470,6 @@ def _make_new_kyc_user_record() -> User:
         profile_label=survey_profile.label,
         profile_community=survey_profile.community.name,
         contact_type=survey_profile.contact_type.name,
-        organisation_name=_guess_organisation_name(results, survey_profile.id),
         presentation=results.get("presentation", ""),
         # not in KYC, so default values (via populate):
         show_contact_details=populate_json_field("show_contact_details", {}),
@@ -494,7 +495,7 @@ def _make_new_kyc_user_record() -> User:
         is_clone=False,
         # is_cloned=False,
         active=False,
-        user_valid_comment=LABEL_INSCRIPTION_NOUVELLE,
+        validation_status=LABEL_INSCRIPTION_NOUVELLE,
         gcu_acceptation=results.get("validation_gcu", False),
     )
 
@@ -560,7 +561,6 @@ def _update_from_current_user(orig_user: User) -> User:
     profile.profile_label = survey_profile.label
     profile.profile_community = survey_profile.community.name
     profile.contact_type = survey_profile.contact_type.name
-    profile.organisation_name = _guess_organisation_name(results, profile_id)
     profile.presentation = results.get("presentation", "")
     # not in KYC -> no update
     # profile.show_contact_details=populate_json_field("show_contact_details", {}),
@@ -654,7 +654,8 @@ def _update_current_user_data() -> str:
     if critical_modified_fields:
         cloned_user.active = False
         modified_text = _modified_fields_as_label(critical_modified_fields)
-        cloned_user.user_valid_comment = f"{LABEL_MODIFICATION_MAJEURE} {modified_text}"
+        cloned_user.validation_status = f"{LABEL_MODIFICATION_MAJEURE} {modified_text}"
+        cloned_user.modified_at = now(LOCAL_TZ)
         print(
             f"#### {cloned_user} validation required: {modified_text}", file=sys.stderr
         )
@@ -663,12 +664,14 @@ def _update_current_user_data() -> str:
         # informations
     else:
         # forget cloned_user
-        cloned_user.user_valid_comment = LABEL_MODIFICATION_MINEURE
+        cloned_user.validation_status = LABEL_MODIFICATION_MINEURE
         merge_values_from_other_user(orig_user, cloned_user)
         auto_orga = store_user_auto_organisation(orig_user)
         if auto_orga:
             orig_user.organisation_id = auto_orga.id
         orig_user.active = True
+        orig_user.modified_at = now(LOCAL_TZ)
+        orig_user.validated_at = now(LOCAL_TZ)
         # db_session.delete(cloned_user) # not in DB
         db_session.merge(orig_user)  # add the cloned user to DB
         cloned_user = None
@@ -705,7 +708,7 @@ def _populate_kyc_data_from_user(user: User) -> dict[str, Any]:
     data["first_name"] = user.first_name
     data["civilite"] = user.gender
     data["presentation"] = user.profile.presentation
-    data["email"] = user.email_backup or user.email
+    data["email"] = user.email_safe_copy or user.email
     data["email_secours"] = user.email_secours
     data["tel_mobile"] = user.tel_mobile
     data["password"] = ""

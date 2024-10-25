@@ -20,7 +20,7 @@ from .home import AdminHomePage
 TABLE_COLUMNS = [
     {"name": "name", "label": "Nom", "width": 50},
     {"name": "organisation_name", "label": "Org.", "width": 50},
-    {"name": "date_submit", "label": "Inscription", "width": 35},
+    {"name": "submited_at", "label": "Inscription", "width": 35},
     {"name": "job_title", "label": "Job", "width": 50},
     {"name": "email", "label": "E-mail", "width": 50},
 ]
@@ -42,7 +42,7 @@ class NewUserDataSource(GenericUserDataSource):
         stmt = stmt.filter(
             User.active == false(),
             User.is_clone == false(),
-            User.deleted == false(),
+            User.deleted_at.is_(None),
         )
         stmt = cls.add_search_filter(stmt)
         return db.session.scalar(stmt)
@@ -54,9 +54,9 @@ class NewUserDataSource(GenericUserDataSource):
             .where(
                 User.active == false(),
                 User.is_clone == false(),
-                User.deleted == false(),
+                User.deleted_at.is_(None),
             )
-            .order_by(nulls_last(desc(User.date_submit)))
+            .order_by(nulls_last(desc(User.submited_at)))
             .offset(cls.offset)
             .limit(cls.limit)
         )
@@ -70,10 +70,10 @@ class NewUserDataSource(GenericUserDataSource):
                 "id": obj.id,
                 "show": url_for_orig(".validation_profile", uid=obj.id),
                 "name": obj.full_name,
-                "email": obj.email_backup or obj.email,
+                "email": obj.email_safe_copy or obj.email,
                 "job_title": obj.job_title,
-                "organisation_name": obj.profile.organisation_name,
-                "date_submit": obj.date_submit.strftime("%d %b %G %H:%M"),
+                "organisation_name": obj.organisation_name,
+                "submited_at": obj.submited_at.strftime("%d %b %G %H:%M"),
             }
             result.append(record)
         return result

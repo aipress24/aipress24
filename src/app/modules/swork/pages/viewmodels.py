@@ -53,7 +53,7 @@ class UserVM(ViewModel):
 
         return {
             "name": user.full_name,
-            "organisation_name": user.profile.organisation_name,
+            "organisation_name": user.organisation_name,
             "image_url": user.profile_image_url,
             "is_following": adapt(g.user).is_following(user),
             "followers": self.get_followers(),

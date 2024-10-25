@@ -43,7 +43,7 @@ class ModifUserDataSource(NewUserDataSource):
         stmt = stmt.filter(
             User.active == false(),
             User.is_clone == true(),
-            User.deleted == false(),
+            User.deleted_at.is_(None),
         )
         stmt = cls.add_search_filter(stmt)
         return db.session.scalar(stmt)
@@ -55,7 +55,7 @@ class ModifUserDataSource(NewUserDataSource):
             .where(
                 User.active == false(),
                 User.is_clone == true(),
-                User.deleted == false(),
+                User.deleted_at.is_(None),
             )
             .order_by(nulls_last(desc(User.last_login_at)))
             .offset(cls.offset)
@@ -71,9 +71,9 @@ class ModifUserDataSource(NewUserDataSource):
                 "id": obj.id,
                 "show": url_for_orig(".validation_profile", uid=obj.id),
                 "name": obj.full_name,
-                "email": obj.email_backup or obj.email,
-                "organisation_name": obj.profile.organisation_name,
-                "last_login_at": obj.date_submit.strftime("%d %b %G %H:%M"),
+                "email": obj.email_safe_copy or obj.email,
+                "organisation_name": obj.organisation_name,
+                "last_login_at": obj.submited_at.strftime("%d %b %G %H:%M"),
             }
             result.append(record)
         return result

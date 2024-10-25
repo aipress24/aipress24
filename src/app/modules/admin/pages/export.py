@@ -4,12 +4,13 @@
 
 from __future__ import annotations
 
-from copy import deepcopy
+from collections import namedtuple
 from datetime import datetime, timedelta
 from io import BytesIO
 from typing import Any
 from zoneinfo import ZoneInfo
 
+from arrow import Arrow
 from flask import send_file
 from odsgenerator import odsgenerator
 from sqlalchemy import desc, false, nulls_last, select, true
@@ -17,178 +18,12 @@ from sqlalchemy import desc, false, nulls_last, select, true
 from app.constants import BW_TRIGGER_LABEL, LABEL_INSCRIPTION_VALIDEE
 from app.flask.extensions import db
 from app.flask.lib.pages import Page, page
-from app.models.auth import User
+from app.models.auth import KYCProfile, User
 
 from .. import blueprint
 from .home import AdminHomePage
 
-ODS_INSCRIPTIONS_BASE = {
-    "body": [
-        {
-            "name": "inscriptions",
-            "table": [
-                {"row": ["AIPress24"], "style": "bold"},
-                {
-                    "row": ["Statistiques d’inscriptions depuis le "],
-                    "style": "default_table_row",
-                },
-                {"row": [], "style": "default_table_row"},
-                {"row": [], "style": "default_table_row"},
-                {
-                    "row": [
-                        {"style": "ce1", "value": "Inscription"},
-                        {"style": "ce1", "value": "Validation"},
-                        {"style": "ce1", "value": "Commentaire"},
-                        {"style": "ce1", "value": "BW validé"},
-                        {"style": "ce1", "value": "Profil"},
-                        {"style": "ce1", "value": "Nom"},
-                        {"style": "ce1", "value": "Prénom"},
-                        {"style": "ce1", "value": "Civilité"},
-                        {"style": "ce1", "value": "Pseudo"},
-                        {"style": "ce1", "value": "Carte Presse"},
-                        {"style": "ce1", "value": "Email"},
-                        {"style": "ce1", "value": "Mobile"},
-                        {"style": "ce1", "value": "Ok repas"},
-                        {"style": "ce1", "value": "Ok verre"},
-                        {"style": "ce1", "value": "Présentation"},
-                        {"style": "ce1", "value": "Organisation"},
-                        {"style": "ce1", "value": "Compétences"},
-                        {"style": "ce1", "value": "Compétences journalisme"},
-                        {"style": "ce1", "value": "Expériences"},
-                        {"style": "ce1", "value": "Formations"},
-                        {"style": "ce1", "value": "Langues"},
-                        {"style": "ce1", "value": "Métier"},
-                        {"style": "ce1", "value": "Métier détail"},
-                    ],
-                    "style": "default_table_row",
-                },
-            ],
-            "width": [
-                "2.9cm",
-                "2.9cm",
-                "5cm",
-                "4cm",
-                "12cm",
-                "4cm",
-                "4cm",
-                "1.4cm",
-                "4cm",
-                "4cm",
-                "6cm",
-                "3cm",
-                "1.4cm",
-                "1.4cm",
-                "12cm",
-                "4cm",
-                "8cm",
-                "8cm",
-                "8cm",
-                "8cm",
-                "6cm",
-                "8cm",
-                "8cm",
-            ],
-        },
-    ],
-    "styles": [
-        {
-            "definition": '<style:style style:family="table-cell" style:parent-style-name="Default">\n  <style:table-cell-properties fo:background-color="#eeeeee"/>\n  <style:text-properties fo:font-weight="bold" style:font-weight-asian="bold" style:font-weight-complex="bold"/>\n</style:style>\n',
-            "name": "ce1",
-        },
-        {
-            "definition": '<style:style style:family="table-cell" style:parent-style-name="Default">\n  <style:table-cell-properties style:text-align-source="fix" style:repeat-content="false"/>\n  <style:paragraph-properties fo:text-align="start" fo:margin-left="0.101cm"/>\n  <style:text-properties fo:font-size="8pt" style:font-size-asian="8pt" style:font-size-complex="8pt"/>\n</style:style>\n',
-            "name": "ce3",
-        },
-        {
-            "definition": '<style:style style:family="table-row">\n  <style:table-row-properties style:row-height="0.452cm" fo:break-before="auto" style:use-optimal-row-height="true"/>\n</style:style>\n',
-            "name": "default_table_row",
-        },
-    ],
-}
-
-ODS_MODIFICATIONS_BASE = {
-    "body": [
-        {
-            "name": "inscriptions",
-            "table": [
-                {"row": ["AIPress24"], "style": "bold"},
-                {
-                    "row": ["Statistiques d’inscriptions depuis le "],
-                    "style": "default_table_row",
-                },
-                {"row": [], "style": "default_table_row"},
-                {"row": [], "style": "default_table_row"},
-                {
-                    "row": [
-                        {"style": "ce1", "value": "Inscription"},
-                        {"style": "ce1", "value": "Validation"},
-                        {"style": "ce1", "value": "Commentaire"},
-                        {"style": "ce1", "value": "BW validé"},
-                        {"style": "ce1", "value": "Profil"},
-                        {"style": "ce1", "value": "Nom"},
-                        {"style": "ce1", "value": "Prénom"},
-                        {"style": "ce1", "value": "Civilité"},
-                        {"style": "ce1", "value": "Pseudo"},
-                        {"style": "ce1", "value": "Carte Presse"},
-                        {"style": "ce1", "value": "Email"},
-                        {"style": "ce1", "value": "Mobile"},
-                        {"style": "ce1", "value": "Ok repas"},
-                        {"style": "ce1", "value": "Ok verre"},
-                        {"style": "ce1", "value": "Présentation"},
-                        {"style": "ce1", "value": "Organisation"},
-                        {"style": "ce1", "value": "Compétences"},
-                        {"style": "ce1", "value": "Compétences journalisme"},
-                        {"style": "ce1", "value": "Expériences"},
-                        {"style": "ce1", "value": "Formations"},
-                        {"style": "ce1", "value": "Langues"},
-                        {"style": "ce1", "value": "Métier"},
-                        {"style": "ce1", "value": "Métier détail"},
-                    ],
-                    "style": "default_table_row",
-                },
-            ],
-            "width": [
-                "2.9cm",
-                "2.9cm",
-                "5cm",
-                "4cm",
-                "12cm",
-                "4cm",
-                "4cm",
-                "1.4cm",
-                "4cm",
-                "4cm",
-                "6cm",
-                "3cm",
-                "1.4cm",
-                "1.4cm",
-                "12cm",
-                "4cm",
-                "8cm",
-                "8cm",
-                "8cm",
-                "8cm",
-                "6cm",
-                "8cm",
-                "8cm",
-            ],
-        },
-    ],
-    "styles": [
-        {
-            "definition": '<style:style style:family="table-cell" style:parent-style-name="Default">\n  <style:table-cell-properties fo:background-color="#eeeeee"/>\n  <style:text-properties fo:font-weight="bold" style:font-weight-asian="bold" style:font-weight-complex="bold"/>\n</style:style>\n',
-            "name": "ce1",
-        },
-        {
-            "definition": '<style:style style:family="table-cell" style:parent-style-name="Default">\n  <style:table-cell-properties style:text-align-source="fix" style:repeat-content="false"/>\n  <style:paragraph-properties fo:text-align="start" fo:margin-left="0.101cm"/>\n  <style:text-properties fo:font-size="8pt" style:font-size-asian="8pt" style:font-size-complex="8pt"/>\n</style:style>\n',
-            "name": "ce3",
-        },
-        {
-            "definition": '<style:style style:family="table-row">\n  <style:table-row-properties style:row-height="0.452cm" fo:break-before="auto" style:use-optimal-row-height="true"/>\n</style:style>\n',
-            "name": "default_table_row",
-        },
-    ],
-}
+FieldColumn = namedtuple("FieldColumn", "name header width")  # noqa: PYI024
 
 
 @page
@@ -214,164 +49,433 @@ class AdminExportPage(Page):
         }
 
 
-def new_inscriptions_users(start_date: datetime) -> list[User]:
-    stmt = (
-        select(User)
-        .where(
-            # all users, wether inscription validated or not :
-            # User.active == false(),
-            User.is_clone == false(),
-            User.deleted == false(),
-            User.date_submit >= start_date,
+class ExporterInscriptions:
+    sheet_name = "Inscriptions"
+    columns = [
+        # "submited_at",
+        # "validated_at",
+        "validation_status",
+        "bw_trigger",
+        "profile_label",
+        "last_name",
+        "first_name",
+        "gender",
+        "pseudo",
+        "no_carte_presse",
+        "email",
+        "tel_mobile",
+        "macaron_repas",
+        "macaron_verre",
+        "presentation",
+        "organisation_name",
+        "competences",
+        "competences_journalisme",
+        "experiences",
+        "formations",
+        "langues",
+        "metier",
+        "metier_detail",
+    ]
+
+    def __init__(self) -> None:
+        self.date_now: datetime = None  # type: ignore
+        self.start_date: datetime = None  # type: ignore
+        self.document: bytes = b""
+        self.columns_definition: dict[str, FieldColumn] = {}
+        self.sheet = {"name": self.sheet_name, "table": []}
+
+    @property
+    def title(self) -> str:
+        dt = self.start_date.strftime("%d/%m/%Y")
+        return f"Demandes d'inscriptions depuis le {dt}"
+
+    @property
+    def filename(self) -> str:
+        return f"inscriptions_depuis_{self.start_date.strftime('%Y-%m-%d')}.ods"
+
+    def run(self) -> None:
+        self.make_sheet()
+        content = {"body": [self.sheet]}
+        self.document = odsgenerator.ods_bytes(content)
+
+    def do_start_date(self) -> None:
+        self.date_now = datetime.today().astimezone(ZoneInfo("Europe/Paris"))
+        start = self.date_now - timedelta(days=31)
+        self.start_date = start.replace(hour=0, minute=0, second=0, microsecond=0)
+
+    def init_columns_definition(self) -> None:
+        text3 = "3cm"
+        text4 = "4cm"
+        text5 = "5cm"
+        text6 = "6cm"
+        text8 = "8cm"
+        text12 = "12cm"
+        short = "1.4cm"
+        small = "2cm"
+        fields = [
+            FieldColumn("bw_trigger", "BW validé", text5),
+            FieldColumn("competences", "Compétences", text8),
+            FieldColumn("competences_journalisme", "Compétences journalisme", text8),
+            FieldColumn("submited_at", "Inscription", text3),
+            FieldColumn("email", "Email", text6),
+            FieldColumn("experiences", "Expériences", text12),
+            FieldColumn("first_name", "Prénom", text4),
+            FieldColumn("formations", "Formations", text12),
+            FieldColumn("gender", "Civilité", short),
+            FieldColumn("id", "ID", short),
+            FieldColumn("langues", "Langues", text8),
+            FieldColumn("last_login_at", "Last login", text3),
+            FieldColumn("last_name", "Nom", text4),
+            FieldColumn("macaron_hebergement", "Hébergement", small),
+            FieldColumn("macaron_repas", "Repas", small),
+            FieldColumn("macaron_verre", "Verre", small),
+            FieldColumn("metier", "Métier", text8),
+            FieldColumn("metier_detail", "Métier détail", text8),
+            FieldColumn("no_carte_presse", "Carte Presse", text4),
+            FieldColumn("organisation_name", "Organisation", text5),
+            FieldColumn("presentation", "Présentation", text12),
+            FieldColumn("profile_label", "Profil", text12),
+            FieldColumn("pseudo", "Pseudo", text4),
+            FieldColumn("roles", "Rôles", text3),
+            FieldColumn("tel_mobile", "Mobile", text3),
+            FieldColumn("validated_at", "Validation", text3),
+            FieldColumn("validation_status", "Commentaire", text5),
+        ]
+        self.columns_definition = {f.name: f for f in fields}
+
+    @staticmethod
+    def list_to_str(list_or_str: list | str | Any) -> str:
+        if isinstance(list_or_str, list):
+            return ", ".join(str(x) for x in list_or_str)
+        return str(list_or_str)
+
+    def cell_value(
+        self,
+        user: User,
+        profile: KYCProfile,
+        name: str,
+    ) -> str | datetime | int | bool:
+        match name:
+            case (
+                "id"
+                | "validation_status"
+                | "last_login_at"
+                | "login_count"
+                | "gcu_acceptation"
+                | "gcu_acceptation_date"
+                | "last_name"
+                | "first_name"
+                | "gender"
+                | "email"
+                | "email_secours"
+                | "tel_mobile"
+                | "status"
+                | "karma"
+                | "organisation_name"
+            ):
+                value = getattr(user, name)
+            case "submited_at":
+                value = user.submited_at
+                if isinstance(value, Arrow):
+                    value = value.datetime
+            case "validated_at":
+                value = user.validated_at
+                if isinstance(value, Arrow):
+                    value = value.datetime
+            case "modified_at":
+                value = user.modified_at
+                if isinstance(value, Arrow):
+                    value = value.datetime
+            case "roles":
+                value = [x.name for x in getattr(user, name)]
+            case "profile_label" | "presentation":
+                value = getattr(profile, name)
+            case (
+                "pseudo"
+                | "no_carte_presse"
+                | "macaron_hebergement"
+                | "macaron_repas"
+                | "macaron_verre"
+            ):
+                value = profile.info_personnelle.get(name)
+            case (
+                "adresse_pro"
+                | "compl_adresse_pro"
+                | "fonctions_ass_syn"
+                | "fonctions_ass_syn_detail"
+                | "fonctions_journalisme"
+                | "fonctions_org_priv"
+                | "fonctions_org_priv_detail"
+                | "fonctions_pol_adm"
+                | "fonctions_pol_adm_detail"
+                | "ligne_directe"
+                | "nom_adm"
+                | "nom_agence_rp"
+                | "nom_group_com"
+                | "nom_groupe_presse"
+                | "nom_media"
+                | "nom_media_instit"
+                | "nom_orga"
+                | "pays_zip_ville"
+                | "pays_zip_ville_detail"
+                | "taille_orga"
+                | "tel_standard"
+                | "type_agence_rp"
+                | "type_entreprise_media"
+                | "type_orga"
+                | "type_orga_detail"
+                | "type_presse_et_media"
+                | "url_site_web"
+            ):
+                value = profile.info_professionnelle.get(name)
+            case (
+                "competences"
+                | "competences_journalisme"
+                | "experiences"
+                | "formations"
+                | "hobbies"
+                | "interet_ass_syn"
+                | "interet_ass_syn_detail"
+                | "interet_org_priv"
+                | "interet_org_priv_detail"
+                | "interet_pol_adm"
+                | "interet_pol_adm_detail"
+                | "langues"
+                | "metier"
+                | "metier_detail"
+                | "secteurs_activite_detailles"
+                | "secteurs_activite_detailles_detail"
+                | "secteurs_activite_medias"
+                | "secteurs_activite_medias_detail"
+                | "secteurs_activite_rp"
+                | "secteurs_activite_rp_detail"
+                | "transformation_majeure"
+                | "transformation_majeure_detail"
+            ):
+                value = profile.match_making.get(name)
+            case "bw_trigger":
+                value = [
+                    BW_TRIGGER_LABEL.get(x, x) for x in profile.get_all_bw_trigger()
+                ]
+            case _:
+                raise KeyError(f"cell_value() Inconsistent key: {name}")
+        if isinstance(value, list):
+            return self.list_to_str(value)
+        return value
+
+    def do_top_info(self) -> None:
+        self.sheet["table"].extend(
+            [
+                {"row": ["AIPress24"], "style": "bold"},
+                {
+                    "row": [
+                        {
+                            "value": self.title,
+                            "style": "bold",
+                        }
+                    ],
+                    "style": "default_table_row",
+                },
+                {"row": [], "style": "default_table_row"},
+                {
+                    "row": [
+                        {"value": "Date export:"},
+                        {"value": self.date_now.isoformat(" ", "minutes")},
+                    ],
+                    "style": "default_table_row",
+                },
+                {"row": [], "style": "default_table_row"},
+            ]
         )
-        .order_by(nulls_last(desc(User.date_submit)))
-    )
-    return list(db.session.scalars(stmt))
 
+    def do_header_line(self) -> None:
+        row = [
+            {
+                "style": "bold_left_bg_gray_grid_06pt",
+                "value": self.columns_definition[name].header,
+            }
+            for name in self.columns
+        ]
+        self.sheet["table"].append({"row": row, "style": "default_table_row"})
 
-def new_modifications_users(start_date: datetime) -> list[User]:
-    stmt = (
-        select(User)
-        .where(
-            User.active == true(),
-            User.is_clone == false(),
-            User.deleted == false(),
-            User.user_date_update >= start_date,
-            User.user_valid_comment != LABEL_INSCRIPTION_VALIDEE,
+    def fetch_data(self) -> list[User]:
+        stmt = (
+            select(User)
+            .where(
+                # all users, wether inscription validated or not :
+                # User.active == false(),
+                User.is_clone == false(),
+                User.deleted_at.is_(None),
+                User.submited_at >= self.start_date,
+            )
+            .order_by(nulls_last(desc(User.submited_at)))
         )
-        .order_by(nulls_last(desc(User.user_date_update)))
-    )
-    return list(db.session.scalars(stmt))
+        return list(db.session.scalars(stmt))
+
+    def user_row(self, user: User) -> dict[str, Any]:
+        profile = user.profile
+        row = [self.cell_value(user, profile, name) for name in self.columns]
+        return {"row": row, "style": "default_table_row"}
+
+    def do_content_lines(self) -> None:
+        for user in self.fetch_data():
+            self.sheet["table"].append(self.user_row(user))
+
+    def do_columns_width(self) -> None:
+        self.sheet["width"] = [
+            self.columns_definition[name].width for name in self.columns
+        ]
+
+    def make_sheet(self) -> None:
+        self.do_start_date()
+        self.init_columns_definition()
+        self.do_top_info()
+        self.do_header_line()
+        self.do_content_lines()
+        self.do_columns_width()
 
 
-def list_to_str(list_or_str: list | str | Any) -> str:
-    if isinstance(list_or_str, list):
-        return ", ".join(str(x) for x in list_or_str)
-    return str(list_or_str)
-
-
-def user_row_data(user: User) -> list[Any]:
-    profile = user.profile
-    return [
-        user.date_submit,
-        user.user_date_valid,
-        user.user_valid_comment,
-        BW_TRIGGER_LABEL.get(profile.get_first_bw_trigger(), ""),
-        # profile.get_first_bw_trigger().replace("trigger_", "").replace("_", " "),
-        profile.profile_label,
-        user.last_name,
-        user.first_name,
-        user.gender,
-        profile.info_personnelle["pseudo"],
-        profile.info_personnelle["no_carte_presse"],
-        user.email,
-        user.tel_mobile,
-        profile.info_personnelle["macaron_repas"],
-        profile.info_personnelle["macaron_verre"],
-        profile.presentation,
-        profile.organisation_name,
-        list_to_str(profile.match_making["competences"]),
-        list_to_str(profile.match_making["competences_journalisme"]),
-        list_to_str(profile.match_making["experiences"]),
-        list_to_str(profile.match_making["formations"]),
-        list_to_str(profile.match_making["langues"]),
-        list_to_str(profile.match_making["metier"]),
-        list_to_str(profile.match_making["metier_detail"]),
+class ExporterModifications(ExporterInscriptions):
+    sheet_name = "Modifications"
+    columns = [
+        "submited_at",
+        "validated_at",
+        "validation_status",
+        "bw_trigger",
+        "profile_label",
+        "last_name",
+        "first_name",
+        "gender",
+        "pseudo",
+        "no_carte_presse",
+        "email",
+        "tel_mobile",
+        "macaron_repas",
+        "macaron_verre",
+        "presentation",
+        "organisation_name",
+        "competences",
+        "competences_journalisme",
+        "experiences",
+        "formations",
+        "langues",
+        "metier",
+        "metier_detail",
     ]
 
+    @property
+    def title(self) -> str:
+        dt = self.start_date.strftime("%d/%m/%Y")
+        return f"Modification importantes depuis le {dt}"
 
-def make_row(user: User) -> dict[str, Any]:
-    row = user_row_data(user)
-    return {"row": row, "style": "default_table_row"}
+    @property
+    def filename(self) -> str:
+        return f"modifications_depuis_{self.start_date.strftime('%Y-%m-%d')}.ods"
+
+    def fetch_data(self) -> list[User]:
+        stmt = (
+            select(User)
+            .where(
+                User.active == true(),
+                User.is_clone == false(),
+                User.deleted_at.is_(None),
+                User.modified_at >= self.start_date,
+                User.validation_status != LABEL_INSCRIPTION_VALIDEE,
+            )
+            .order_by(nulls_last(desc(User.modified_at)))
+        )
+        return list(db.session.scalars(stmt))
 
 
-def fill_content_inscriptions(
-    base: dict[str, Any], start_date: datetime, date_now: datetime
-) -> None:
-    table = base["body"][0]["table"]  # list of row
-    date_string = start_date.strftime("%d/%m/%Y")
-    table[1]["row"] = [
-        {"value": f"Demandes d'inscriptions depuis le {date_string}", "style": "bold"}
+class ExporterUsers(ExporterInscriptions):
+    sheet_name = "Utilisateurs"
+    columns = [
+        "submited_at",
+        "validated_at",
+        "last_login_at",
+        "bw_trigger",
+        "profile_label",
+        "last_name",
+        "first_name",
+        "gender",
+        "pseudo",
+        "id",
+        "roles",
+        "no_carte_presse",
+        "email",
+        "tel_mobile",
+        "macaron_repas",
+        "macaron_verre",
+        "macaron_hebergement",
+        "presentation",
+        "organisation_name",
+        "competences",
+        "competences_journalisme",
+        "experiences",
+        "formations",
+        "langues",
+        "metier",
+        "metier_detail",
     ]
-    table[2]["row"] = [
-        {
-            "value": date_now.isoformat(" ", "minutes"),
-            "style": "ce3",
-        }
-    ]
-    for user in new_inscriptions_users(start_date):
-        table.append(make_row(user))
 
+    @property
+    def title(self) -> str:
+        return "Utilisateurs"
 
-def fill_content_modifications(
-    base: dict[str, Any], start_date: datetime, date_now: datetime
-) -> None:
-    table = base["body"][0]["table"]  # list of row
-    date_string = start_date.strftime("%d/%m/%Y")
-    table[1]["row"] = [
-        {"value": f"Modification importantes depuis le {date_string}", "style": "bold"}
-    ]
-    table[2]["row"] = [
-        {
-            "value": date_now.isoformat(" ", "minutes"),
-            "style": "ce3",
-        }
-    ]
-    for user in new_modifications_users(start_date):
-        table.append(make_row(user))
+    @property
+    def filename(self) -> str:
+        return f"utilisateurs_{self.start_date.strftime('%Y-%m-%d')}.ods"
 
-
-def export_inscription_since(start_date: datetime, date_now: datetime) -> bytes:
-    base = deepcopy(ODS_INSCRIPTIONS_BASE)
-    fill_content_inscriptions(base, start_date, date_now)
-    return odsgenerator.ods_bytes(base)
-
-
-def export_modification_since(start_date: datetime, date_now: datetime) -> bytes:
-    base = deepcopy(ODS_MODIFICATIONS_BASE)
-    fill_content_modifications(base, start_date, date_now)
-    return odsgenerator.ods_bytes(base)
-
-
-def export_inscription() -> tuple[bytes, str]:
-    date_now = datetime.today().astimezone(ZoneInfo("Europe/Paris"))
-    start_date = date_now - timedelta(days=31)
-    start_date.replace(hour=0, minute=0, second=0, microsecond=0)
-    filename = f"inscriptions_depuis_{start_date.strftime('%Y-%m-%d')}.ods"
-    document = export_inscription_since(start_date, date_now)
-    return document, filename
-
-
-def export_modification() -> tuple[bytes, str]:
-    date_now = datetime.today().astimezone(ZoneInfo("Europe/Paris"))
-    start_date = date_now - timedelta(days=31)
-    start_date.replace(hour=0, minute=0, second=0, microsecond=0)
-    filename = f"modifications_depuis_{start_date.strftime('%Y-%m-%d')}.ods"
-    document = export_modification_since(start_date, date_now)
-    return document, filename
+    def fetch_data(self) -> list[User]:
+        stmt = (
+            select(User)
+            .where(
+                User.active == true(),
+                User.is_clone == false(),
+                User.deleted_at.is_(None),
+            )
+            .order_by(nulls_last(User.last_name))
+        )
+        return list(db.session.scalars(stmt))
 
 
 @blueprint.route("/export_inscription")
 def export_inscription_route():
-    document, filename = export_inscription()
-    stream = BytesIO(document)
+    generator = ExporterInscriptions()
+    generator.run()
+    stream = BytesIO(generator.document)
     stream.seek(0)
     return send_file(
         stream,
         mimetype="application/vnd.oasis.opendocument.spreadsheet",
-        download_name=filename,
+        download_name=generator.filename,
         as_attachment=True,
     )
 
 
 @blueprint.route("/export_modification")
 def export_modification_route():
-    document, filename = export_modification()
-    stream = BytesIO(document)
+    generator = ExporterModifications()
+    generator.run()
+    stream = BytesIO(generator.document)
     stream.seek(0)
     return send_file(
         stream,
         mimetype="application/vnd.oasis.opendocument.spreadsheet",
-        download_name=filename,
+        download_name=generator.filename,
+        as_attachment=True,
+    )
+
+
+@blueprint.route("/export_users")
+def export_users_route():
+    generator = ExporterUsers()
+    generator.run()
+    stream = BytesIO(generator.document)
+    stream.seek(0)
+    return send_file(
+        stream,
+        mimetype="application/vnd.oasis.opendocument.spreadsheet",
+        download_name=generator.filename,
         as_attachment=True,
     )

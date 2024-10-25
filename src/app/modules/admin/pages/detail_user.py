@@ -4,11 +4,11 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
-
+from arrow import now
 from flask import Response, g, request
 
-from app.constants import LABEL_COMPTE_DESACTIVE
+from app.constants import LABEL_COMPTE_DESACTIVE, LOCAL_TZ
+from app.enums import RoleEnum
 from app.flask.extensions import db
 from app.flask.lib.pages import page
 
@@ -16,8 +16,10 @@ from app.flask.lib.pages import page
 from app.flask.sqla import get_obj
 from app.models.auth import User
 from app.modules.kyc.views import admin_info_context
+from app.services.roles import add_role
 
 from .. import blueprint
+from ..utils import remove_user_organisation
 from .base import AdminListPage
 from .users import AdminUsersPage
 
@@ -46,27 +48,73 @@ class ShowUser(AdminListPage):
 
     def context(self):
         context = admin_info_context(self.user)
-        context.update({
-            "user": self.user,
-        })
+        context.update({"user": self.user, "org": self.user.organisation})
         return context
 
     def post(self):
         action = request.form["action"]
-        if action == "deactivate":
-            self._deactive_profile()
-        # no validation
-        response = Response("")
-        response.headers["HX-Redirect"] = AdminUsersPage().url
+        match action:
+            case "deactivate":
+                self._deactive_profile()
+                response = Response("")
+                response.headers["HX-Redirect"] = AdminUsersPage().url
+            case "remove_org":
+                self._remove_organisation()
+                response = Response("")
+                response.headers["HX-Redirect"] = self.url
+            case "toggle-manager":
+                label = self._toggle_manager()
+                response = Response(label)
+            case "toggle-leader":
+                label = self._toggle_leader()
+                response = Response(label)
+            case _:
+                response = Response("")
+                response.headers["HX-Redirect"] = AdminUsersPage().url
         return response
 
     def _deactive_profile(self) -> None:
         self.user.active = False
-        self.user.user_valid_comment = LABEL_COMPTE_DESACTIVE
-        self.user.user_date_valid = datetime.now(timezone.utc)
+        self.user.validation_status = LABEL_COMPTE_DESACTIVE
+        self.user.validated_at = now(LOCAL_TZ)
         db_session = db.session
         db_session.merge(self.user)
         db_session.commit()
+
+    def _remove_organisation(self) -> None:
+        remove_user_organisation(self.user)
+
+    def _toggle_manager(self) -> str:
+        if not self.user.organisation or self.user.organisation.is_auto:
+            # not allowed for AUTO organisations.
+            # This method call should never happen.
+            return ""
+        if self.user.is_manager:
+            self.user.remove_role(RoleEnum.MANAGER)
+            label = "Ajouter 'manager'"
+        else:
+            add_role(self.user, RoleEnum.MANAGER)
+            label = "Retirer 'manager'"
+        db_session = db.session
+        db_session.merge(self.user)
+        db_session.commit()
+        return label
+
+    def _toggle_leader(self) -> str:
+        if not self.user.organisation or self.user.organisation.is_auto:
+            # not allowed for AUTO organisations.
+            # This method call should never happen.
+            return ""
+        if self.user.is_leader:
+            self.user.remove_role(RoleEnum.LEADER)
+            label = "Ajouter 'dirigeant'"
+        else:
+            add_role(self.user, RoleEnum.LEADER)
+            label = "Retirer 'dirigeant'"
+        db_session = db.session
+        db_session.merge(self.user)
+        db_session.commit()
+        return label
 
 
 @blueprint.route("/show_user/<uid>")

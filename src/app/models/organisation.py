@@ -38,9 +38,13 @@ OtherOrganisationPage -up-|> OrganisationPage
 
 from __future__ import annotations
 
+import arrow
 import sqlalchemy as sa
 from slugify import slugify
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.sql import func
+from sqlalchemy_utils import ArrowType
+from sqlalchemy_utils.functions.orm import hybrid_property
 
 from app.enums import OrganisationTypeEnum
 from app.models.auth import User
@@ -100,8 +104,23 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
     siren: Mapped[str] = mapped_column(default="")
     tva: Mapped[str] = mapped_column(default="")
 
+    tel_standard: Mapped[str] = mapped_column(default="")
+    taille_orga: Mapped[str] = mapped_column(default="")  # ccf ontologies
+
+    # question :
+    # le type d'organisation (cf ONTOLOGIES/Types d'organisation)
+    # -> ce n'est pas pour les medias/agencies...'
+    # le secteur d’activité (cf ONTOLOGIES/Secteurs détaillés) ;
+    # -> uniquement pour presse / media ?
+    #  + question unicité...
+
     description: Mapped[str] = mapped_column(default="")
     metiers: Mapped[str] = mapped_column(default="")
+    # from LifeCycleMixin : created_at
+    # from LifeCycleMixin : deleted_at
+    modified_at: Mapped[arrow.Arrow | None] = mapped_column(
+        ArrowType, nullable=True, onupdate=func.now()
+    )
 
     # name = sa.Column(sa.UnicodeText, nullable=False)
     # slug = sa.Column(sa.UnicodeText, nullable=False)
@@ -117,6 +136,7 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
         index=True,
     )
 
+    status: Mapped[str] = mapped_column(default="")
     karma: Mapped[int] = mapped_column(default=0)
 
     # Web presence
@@ -161,6 +181,18 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
     @property
     def is_auto(self) -> bool:
         return self.type == OrganisationTypeEnum.AUTO
+
+    @property
+    def is_agency(self) -> bool:
+        return self.type == OrganisationTypeEnum.AGENCY
+
+    @hybrid_property
+    def managers(self) -> list[User]:
+        return [user for user in self.members if user.is_manager]
+
+    @hybrid_property
+    def leaders(self) -> list[User]:
+        return [user for user in self.members if user.is_leader]
 
 
 # class OrgFullProfile(Base):

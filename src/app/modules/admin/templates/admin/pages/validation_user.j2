@@ -13,7 +13,7 @@
     <div>
         <dt class="text-sm font-medium text-gray-500">Date de soumission du formulaire d'inscription</dt>
         <dd class="mb-2 text-sm text-gray-900">
-            {{ user.date_submit.strftime('%d %b %G %H:%M') }}
+            {{ user.submited_at.strftime('%d %b %G %H:%M') }}
         </dd>
     </div>
     <div>
@@ -29,14 +29,14 @@
     <div>
         <dt class="text-sm font-medium text-gray-500">Commentaire de validation</dt>
         <dd class="mb-2 text-sm text-gray-900">
-            {{ user.user_valid_comment }}
+            {{ user.validation_status }}
         </dd>
     </div>
     <div>
         <dt class="text-sm font-medium text-gray-500">Date de validation</dt>
         <dd class="mb-2 text-sm text-gray-900">
-            {% if user.user_date_valid %}
-                {{ user.user_date_valid.strftime('%d %b %G %H:%M') }}
+            {% if user.validated_at %}
+                {{ user.validated_at.strftime('%d %b %G %H:%M') }}
             {% else %}
                 Jamais validé
             {% endif %}

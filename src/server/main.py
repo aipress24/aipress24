@@ -36,7 +36,7 @@ def serve(port: int = PORT, debug: bool = DEBUG, log_level: LogLevels = LOG_LEVE
     granian.Granian(
         target="server.main:create_app",
         factory=True,
-        address="0.0.0.0",
+        address="0.0.0.0",  # noqa: S104
         port=port,
         interface=Interfaces.ASGI,
         log_dictconfig={"root": {"level": "INFO"}} if not debug else {},

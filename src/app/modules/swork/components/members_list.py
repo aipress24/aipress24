@@ -17,6 +17,7 @@ from app.flask.extensions import db
 from app.flask.sqla import get_multi
 from app.models.auth import KYCProfile, User
 from app.models.mixins import Addressable
+from app.models.organisation import Organisation
 
 from ..common import Directory
 from .base import BaseList, Filter
@@ -51,7 +52,7 @@ class MembersList(BaseList):
         return or_(
             User.first_name.ilike(f"%{self.search}%"),
             User.last_name.ilike(f"%{self.search}%"),
-            User.profile.has(KYCProfile.organisation_name.ilike(f"%{self.search}%")),
+            User.organisation.has(Organisation.name.ilike(f"%{self.search}%")),
         )
 
     def apply_search(self, stmt: Select) -> Select:
@@ -70,7 +71,7 @@ class MembersList(BaseList):
                 or_(
                     User.first_name.ilike(f"%{search}%"),
                     User.last_name.ilike(f"%{search}%"),
-                    User.profile.has(KYCProfile.organisation_name.ilike(f"%{search}%")),
+                    User.organisation.has(Organisation.name.ilike(f"%{search}%")),
                 )
             )
 

@@ -8,6 +8,7 @@ import arrow
 from attr import define
 from sqlalchemy import select
 
+from app.constants import LOCAL_TZ
 from app.flask.extensions import db
 from app.flask.lib.pages import page
 from app.services.stats._models import StatsRecord
@@ -99,7 +100,7 @@ class Widget:
 
         labels = []
         data = []
-        now = arrow.utcnow()
+        now = arrow.now(LOCAL_TZ)
         one_year_ago = now.shift(years=-1).date()
         for record in records:
             if record.date < one_year_ago:

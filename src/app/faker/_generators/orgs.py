@@ -15,6 +15,7 @@ from app.models.organisation import Organisation
 from .._constants import COVER_IMAGES, ORGANISATIONS
 from .._geo import fake_geoloc
 from .base import BaseGenerator, faker
+from .users import random_taille_orga
 
 
 class OrgGenerator(BaseGenerator):
@@ -51,8 +52,14 @@ class OrgGenerator(BaseGenerator):
         org.github_url = faker.url()
         org.linkedin_url = faker.url()
 
-        id = random.randint(1, 14)
-        org.logo_url = f"/static/tmp/logos/{id}.png"
+        org.siren = str(random.randint(100000000, 999999999))
+        org.tva = f"FR {random.randint(10, 99)} {org.siren}"
+        org.tel_standard = self.person_faker.telephone()
+        org.taille_orga = random_taille_orga()
+        org.karma = random.randint(1, 10)
+
+        idx = random.randint(1, 14)
+        org.logo_url = f"/static/tmp/logos/{idx}.png"
         org.cover_image_url = random.choice(COVER_IMAGES)
         fake_geoloc(org)
 

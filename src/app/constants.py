@@ -16,12 +16,15 @@ from __future__ import annotations
 #     "Rédacteur.trice en chef",
 # }
 
+LOCAL_TZ = "Europe/paris"
+
 LABEL_COMPTE_DESACTIVE = "Compte utilisateur désactivé"
 LABEL_INSCRIPTION_NOUVELLE = "Nouvelle inscription à valider"
 LABEL_INSCRIPTION_VALIDEE = "Inscription validée"
 LABEL_MODIFICATION_MAJEURE = "Modifications demandant validation:"
 LABEL_MODIFICATION_MINEURE = "Modifications mineures"
 LABEL_MODIFICATION_VALIDEE = "Modifications validées"
+LABEL_MODIFICATION_ORGANISATION = "Modification de l'organisation"
 
 BW_TRIGGER_LABEL = {
     "trigger_media_agence_de_presse": "Trigger Agences de presse",

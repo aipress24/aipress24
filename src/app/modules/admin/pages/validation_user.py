@@ -9,10 +9,15 @@ import uuid
 from datetime import datetime, timezone
 from typing import Any
 
+from arrow import now
 from flask import Response, g, request
 from loguru import logger
 
-from app.constants import LABEL_INSCRIPTION_VALIDEE, LABEL_MODIFICATION_VALIDEE
+from app.constants import (
+    LABEL_INSCRIPTION_VALIDEE,
+    LABEL_MODIFICATION_VALIDEE,
+    LOCAL_TZ,
+)
 from app.flask.extensions import db
 from app.flask.lib.pages import page
 from app.flask.sqla import get_obj
@@ -88,16 +93,18 @@ class ValidationUser(BaseAdminPage):
         if trigger:
             media_satus = {
                 "bw_trigger": True,
-                "bw_organisation": profile.organisation_name or "aucune?",
+                "bw_organisation": self.user.organisation_name or "aucune?",
             }
         context.update(media_satus)
 
     def context(self):
         context = admin_info_context(self.user)
         self.detect_business_wall_trigger(context)
-        context.update({
-            "user": self.user,
-        })
+        context.update(
+            {
+                "user": self.user,
+            }
+        )
         return context
 
     def post(self):
@@ -113,14 +120,14 @@ class ValidationUser(BaseAdminPage):
 
     def _validate_profile(self) -> None:
         # either a clone (modification) or plain user (creation)
-        if self.user.email_backup:
+        if self.user.email_safe_copy:
             self._validate_profile_modified()
         else:
             self._validate_profile_created()
 
     def _reject_profile(self) -> None:
         # shoud not be a clone: a plain new user (creation)
-        self.user.deleted = True
+        self.user.deleted_at = now(LOCAL_TZ)
         self.user.active = False
         # we need to free the rejectd user email because
         # it's a 'unique' field'
@@ -153,9 +160,9 @@ class ValidationUser(BaseAdminPage):
         auto_organisation = store_user_auto_organisation(orig_user)
         if auto_organisation:
             orig_user.organisation_id = auto_organisation.id
-        orig_user.user_valid_comment = LABEL_MODIFICATION_VALIDEE
+        orig_user.validation_status = LABEL_MODIFICATION_VALIDEE
         orig_user.active = True
-        orig_user.user_date_valid = datetime.now(timezone.utc)
+        orig_user.validated_at = datetime.now(timezone.utc)
 
         db_session = db.session
         db_session.merge(orig_user)
@@ -169,8 +176,8 @@ class ValidationUser(BaseAdminPage):
         if auto_organisation:
             self.user.organisation_id = auto_organisation.id
         self.user.active = True
-        self.user.user_valid_comment = LABEL_INSCRIPTION_VALIDEE
-        self.user.user_date_valid = datetime.now(timezone.utc)
+        self.user.validation_status = LABEL_INSCRIPTION_VALIDEE
+        self.user.validated_at = now(LOCAL_TZ)
         db_session = db.session
         db_session.merge(self.user)
         db_session.commit()

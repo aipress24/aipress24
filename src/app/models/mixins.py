@@ -58,8 +58,8 @@ class LifeCycleMixin:
 
 # @sa.event.listens_for(LifeCycleMixin, "before_update", propagate=True)
 # def lifecycle_before_update(_mapper, _connection, target) -> None:
-#     # TODO: if target.updated_at is None -> target.created_at (or something)
-#     # target.updated_at = arrow.now()
+#     # TODO: if target.modified_at is None -> target.created_at (or something)
+#     # target.modified_at = arrow.now()
 #     target.modified_at = arrow.now()
 
 

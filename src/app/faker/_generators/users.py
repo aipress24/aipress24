@@ -8,12 +8,17 @@ import functools
 import random
 import urllib.request
 
+from arrow import now
 from flask_security import hash_password
 from mimesis import Internet, Person
 from mimesis.enums import Gender
 from sqlalchemy.sql import func
 
-from app.constants import LABEL_INSCRIPTION_NOUVELLE, LABEL_INSCRIPTION_VALIDEE
+from app.constants import (
+    LABEL_INSCRIPTION_NOUVELLE,
+    LABEL_INSCRIPTION_VALIDEE,
+    LOCAL_TZ,
+)
 from app.enums import ContactTypeEnum, OrganisationTypeEnum
 from app.faker._constants import COVER_IMAGES
 from app.faker._geo import fake_geoloc
@@ -42,6 +47,10 @@ GLOBAL_COUNTER = {"no_carte_presse": 0}
 COMMON_PWD = "AAAABBBB-1"
 PERCENT_USERS_WITH_AUTO_ORGANISATION = 50
 AUTO_ORGANISATIONS_NAMES = set()
+
+
+def random_taille_orga() -> str:
+    return random.choice(_get_full_taxo("taille_organisation"))[0]
 
 
 @functools.cache
@@ -128,9 +137,7 @@ class UserGenerator(BaseGenerator):
         profile.business_wall["trigger_transformers"] = bool(random.randint(0, 1))
 
     def _random_taille_orga(self, _user: User, profile: KYCProfile) -> None:
-        profile.info_professionnelle["taille_orga"] = random.choice(
-            _get_full_taxo("taille_organisation")
-        )[0]
+        profile.info_professionnelle["taille_orga"] = random_taille_orga()
 
     def _random_tel_mobile(self, user: User, _profile: KYCProfile) -> None:
         user.tel_mobile = self.person_faker.telephone()
@@ -167,22 +174,28 @@ class UserGenerator(BaseGenerator):
         profile.info_professionnelle["nom_adm"] = f"{word.capitalize()} Administration"
 
     def _random_type_entreprise_media(self, _user: User, profile: KYCProfile) -> None:
-        profile.info_professionnelle["type_entreprise_media"] = list({
-            random.choice(_get_full_taxo("type_entreprises_medias"))[0]
-            for _ in range(random.randint(1, 3))
-        })
+        profile.info_professionnelle["type_entreprise_media"] = list(
+            {
+                random.choice(_get_full_taxo("type_entreprises_medias"))[0]
+                for _ in range(random.randint(1, 3))
+            }
+        )
 
     def _random_type_presse_et_media(self, _user: User, profile: KYCProfile) -> None:
-        profile.info_professionnelle["type_presse_et_media"] = list({
-            random.choice(_get_full_taxo("media_type"))[0]
-            for _ in range(random.randint(1, 3))
-        })
+        profile.info_professionnelle["type_presse_et_media"] = list(
+            {
+                random.choice(_get_full_taxo("media_type"))[0]
+                for _ in range(random.randint(1, 3))
+            }
+        )
 
     def _random_fonctions_journalisme(self, _user: User, profile: KYCProfile) -> None:
-        profile.info_professionnelle["fonctions_journalisme"] = list({
-            random.choice(_get_full_taxo("journalisme_fonction"))[0]
-            for _ in range(random.randint(1, 5))
-        })
+        profile.info_professionnelle["fonctions_journalisme"] = list(
+            {
+                random.choice(_get_full_taxo("journalisme_fonction"))[0]
+                for _ in range(random.randint(1, 5))
+            }
+        )
 
     def _random_nom_orga(self, _user: User, profile: KYCProfile) -> None:
         organisations = _get_full_organisation_family(OrganisationTypeEnum.OTHER)
@@ -211,9 +224,9 @@ class UserGenerator(BaseGenerator):
             AUTO_ORGANISATIONS_NAMES.add(name)
             return name
 
-        profile.info_professionnelle["nom_media"] = list({
-            _nom_media() for _ in range(random.randint(1, 3))
-        })
+        profile.info_professionnelle["nom_media"] = list(
+            {_nom_media() for _ in range(random.randint(1, 3))}
+        )
 
     def _random_nom_media_instit(self, _user: User, profile: KYCProfile) -> None:
         name = _use_known_organisation_name()
@@ -261,16 +274,20 @@ class UserGenerator(BaseGenerator):
         user.gcu_acceptation_date = func.now()
 
     def _random_competences_journalisme(self, _user: User, profile: KYCProfile) -> None:
-        profile.match_making["competences_journalisme"] = list({
-            random.choice(_get_full_taxo("journalisme_competence"))[0]
-            for _ in range(random.randint(1, 8))
-        })
+        profile.match_making["competences_journalisme"] = list(
+            {
+                random.choice(_get_full_taxo("journalisme_competence"))[0]
+                for _ in range(random.randint(1, 8))
+            }
+        )
 
     def _random_competences(self, _user: User, profile: KYCProfile) -> None:
-        profile.match_making["competences"] = list({
-            random.choice(_get_full_taxo("competence_expert"))[0]
-            for _ in range(random.randint(1, 5))
-        })
+        profile.match_making["competences"] = list(
+            {
+                random.choice(_get_full_taxo("competence_expert"))[0]
+                for _ in range(random.randint(1, 5))
+            }
+        )
 
     def _random_type_orga(self, _user: User, profile: KYCProfile) -> None:
         taxo = _get_full_taxo_category_value("type_organisation_detail")
@@ -281,10 +298,12 @@ class UserGenerator(BaseGenerator):
         profile.info_professionnelle["type_orga_detail"] = values
 
     def _random_type_agence_rp(self, _user: User, profile: KYCProfile) -> None:
-        profile.info_professionnelle["type_agence_rp"] = list({
-            random.choice(_get_full_taxo("type_agence_rp"))[0]
-            for _ in range(random.randint(1, 3))
-        })
+        profile.info_professionnelle["type_agence_rp"] = list(
+            {
+                random.choice(_get_full_taxo("type_agence_rp"))[0]
+                for _ in range(random.randint(1, 3))
+            }
+        )
 
     def _random_metier(self, _user: User, profile: KYCProfile) -> None:
         taxo = _get_full_taxo_category_value("metier")
@@ -417,10 +436,11 @@ class UserGenerator(BaseGenerator):
         # advanced feature for faker would be default depending on user's community
         if counter > 50 and (random.randint(1, 5)) == 1:
             user.active = False
-            user.user_valid_comment = LABEL_INSCRIPTION_NOUVELLE
+            user.validation_status = LABEL_INSCRIPTION_NOUVELLE
         else:
             user.active = True
-            user.user_valid_comment = LABEL_INSCRIPTION_VALIDEE
+            user.validation_status = LABEL_INSCRIPTION_VALIDEE
+            user.validated_at = now(LOCAL_TZ)
 
     @staticmethod
     def _load_photo_profil(user: User) -> None:

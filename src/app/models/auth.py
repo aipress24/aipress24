@@ -9,20 +9,23 @@ import uuid
 from copy import deepcopy
 from typing import Any
 
+import arrow
 import sqlalchemy as sa
 from flask_security import RoleMixin, UserMixin
 from sqlalchemy import JSON, DateTime, ForeignKey, orm
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
+from sqlalchemy_utils import ArrowType
 
+from app.constants import LOCAL_TZ
 from app.enums import ContactTypeEnum, OrganisationTypeEnum, RoleEnum
 from app.modules.kyc.survey_model import get_survey_profile
 
 from .base import Base
 
 # from app.services.security import check_password_hash, generate_password_hash
-from .mixins import Addressable
+from .mixins import Addressable, LifeCycleMixin
 
 # from .geoloc import GeoLocation
 
@@ -54,7 +57,7 @@ roles_users = sa.Table(
 )
 
 
-class User(Addressable, UserMixin, Base):
+class User(LifeCycleMixin, Addressable, UserMixin, Base):
     __tablename__ = "aut_user"
 
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -62,7 +65,7 @@ class User(Addressable, UserMixin, Base):
     # username: Mapped[str] = mapped_column(index=True, unique=True)
     email: Mapped[str] = mapped_column(sa.String, unique=True, nullable=True)
     # copy of email for clone:
-    email_backup: Mapped[str] = mapped_column(sa.String, nullable=True, default="")
+    email_safe_copy: Mapped[str] = mapped_column(sa.String, nullable=True, default="")
     email_secours: Mapped[str] = mapped_column(sa.String, nullable=True)
 
     password: Mapped[str | None] = mapped_column()
@@ -72,15 +75,17 @@ class User(Addressable, UserMixin, Base):
     # security: not sure about id=0
     cloned_user_id: Mapped[int] = mapped_column(default=0)
 
-    date_submit: Mapped[sa.DateTime] = mapped_column(
-        sa.DateTime, server_default=func.now()
+    submited_at: Mapped[arrow.Arrow] = mapped_column(
+        ArrowType, default=arrow.now(LOCAL_TZ)
     )
-    user_date_valid: Mapped[sa.DateTime] = mapped_column(
-        sa.DateTime, server_default=func.now()
+    validated_at: Mapped[arrow.Arrow | None] = mapped_column(
+        ArrowType, nullable=True, default=None
     )
-    user_valid_comment: Mapped[str] = mapped_column(sa.String, default="")
-    user_date_update: Mapped[sa.DateTime] = mapped_column(
-        sa.DateTime, nullable=True, onupdate=func.now()
+    validation_status: Mapped[str] = mapped_column(sa.String, default="")
+    # from LifeCycleMixin : created_at
+    # from LifeCycleMixin : deleted_at
+    modified_at: Mapped[arrow.Arrow | None] = mapped_column(
+        ArrowType, nullable=True, onupdate=func.now()
     )
 
     # from flask-security
@@ -92,8 +97,6 @@ class User(Addressable, UserMixin, Base):
     # Flask Security
     active: Mapped[bool] = mapped_column(default=False)
     fs_uniquifier: Mapped[str] = mapped_column(sa.String(64), unique=True)
-
-    deleted: Mapped[bool] = mapped_column(default=False)
 
     gcu_acceptation: Mapped[bool] = mapped_column(default=False)
     gcu_acceptation_date: Mapped[sa.DateTime] = mapped_column(
@@ -113,9 +116,8 @@ class User(Addressable, UserMixin, Base):
     # job_description: Mapped[str] = mapped_column(default="")
 
     tel_mobile: Mapped[str] = mapped_column(sa.String, default="")
-    tel_mobile_valid: Mapped[bool] = mapped_column(default=False)
-    tel_mobile_date_valid: Mapped[sa.DateTime] = mapped_column(
-        sa.DateTime, server_default=func.now()
+    tel_mobile_validated_at: Mapped[arrow.Arrow | None] = mapped_column(
+        ArrowType, nullable=True, default=None
     )
 
     organisation_id: Mapped[int | None] = mapped_column(
@@ -198,6 +200,12 @@ class User(Addressable, UserMixin, Base):
     def job_title(self) -> str:
         return self.profile.profile_label
 
+    @hybrid_property
+    def organisation_name(self) -> str:
+        if self.organisation:
+            return self.organisation.name
+        return ""
+
     def first_community(self) -> RoleEnum:
         for community in (
             RoleEnum.PRESS_MEDIA,
@@ -231,6 +239,32 @@ class User(Addressable, UserMixin, Base):
         self.roles.append(role)
         return True
 
+    def remove_role(self, role: str | RoleEnum | Role) -> None:
+        """Remove the role of the user role list."""
+        match role:
+            case Role():
+                self.roles.remove(role)
+            case RoleEnum():
+                for current in self.roles:
+                    if role.name == current.name:
+                        self.roles.remove(current)
+                        break
+            case str():
+                for current in self.roles:
+                    if role == current.name:
+                        self.roles.remove(current)
+                        break
+            case _:
+                raise ValueError(f"Invalid role: {role}")
+
+    @property
+    def is_manager(self) -> bool:
+        return self.has_role(RoleEnum.MANAGER)
+
+    @property
+    def is_leader(self) -> bool:
+        return self.has_role(RoleEnum.LEADER)
+
 
 class Role(Base, RoleMixin):
     __tablename__ = "aut_role"
@@ -254,8 +288,6 @@ class KYCProfile(Base):
     profile_community: Mapped[str] = mapped_column(sa.String, default="")
     contact_type: Mapped[str] = mapped_column(sa.String, default="")
     display_level: Mapped[int] = mapped_column(sa.Integer, default=1)
-    # organisation_name: per order: nom_media, nom_media_insti, nom_agence_rp, nom_orga,
-    organisation_name: Mapped[str] = mapped_column(sa.String, default="")
     presentation: Mapped[str] = mapped_column(sa.String, default="")
     show_contact_details: Mapped[dict] = mapped_column(JSON, default="{}")
     info_personnelle: Mapped[dict] = mapped_column(JSON, default="{}")
@@ -289,13 +321,17 @@ class KYCProfile(Base):
             return ""
         return value
 
+    def get_all_bw_trigger(self) -> list[str]:
+        """Return names of all business_wall trigger with True value."""
+        return [key for key, val in self.business_wall.items() if val]
+
     def get_first_bw_trigger(self) -> str:
         """Return name of the business_wall trigger with True value,
         or an empty string
         """
-        for key, val in self.business_wall.items():
-            if val:
-                return key
+        triggers = self.get_all_bw_trigger()
+        if triggers:
+            return triggers[0]
         return ""
 
     def update_json_field(self, json_field: str, key: str, value: Any) -> None:
@@ -332,17 +368,18 @@ class KYCProfile(Base):
         return family  # type:ignore
 
     def deduce_organisation_name(self) -> None:
-        field_name = self.organisation_field_name_origin
-        if field_name:
-            value = self.get_value(field_name)
-            if isinstance(value, list):
-                if value:
-                    value = value[0]
-                else:
-                    value = ""
-            self.organisation_name = value
-        else:
-            self.organisation_name = ""
+        return
+        # field_name = self.organisation_field_name_origin
+        # if field_name:
+        #     value = self.get_value(field_name)
+        #     if isinstance(value, list):
+        #         if value:
+        #             value = value[0]
+        #         else:
+        #             value = ""
+        #     self.organisation_name = value
+        # else:
+        #     self.organisation_name = ""
 
     def induce_organisation_name(self, name: str) -> None:
         """Change Profile dependant organisation name field (and then the resulting
@@ -359,9 +396,6 @@ class KYCProfile(Base):
             else:
                 new_value = name
             self.set_value(field_name, new_value)
-            self.organisation_name = name
-        else:
-            self.organisation_name = ""
 
     # unused
     # def contact_detail_visible_from(
@@ -440,15 +474,16 @@ def clone_user(orig_user: User) -> User:
     cloned_user = User(
         # id  # undefined at this point, autogenerated
         email=f"fake_{uuid.uuid4().hex}@example.com",
-        email_backup=orig_user.email,
+        email_safe_copy=orig_user.email,
         email_secours=orig_user.email_secours,  # no unicity on that field
         is_clone=True,
         # is_cloned=False,  # only original can be cloned
         cloned_user_id=orig_user.id,
-        # date_submit automated by DB
-        user_date_valid=orig_user.user_date_valid,
-        user_valid_comment=orig_user.user_valid_comment,  # previous comment if any ?
-        user_date_update=orig_user.user_date_update,
+        # submited_at automated by DB
+        validated_at=orig_user.validated_at,
+        validation_status=orig_user.validation_status,  # previous comment if any ?
+        created_at=orig_user.created_at,
+        modified_at=orig_user.modified_at,
         # from flask-security
         last_login_at=orig_user.last_login_at,
         current_login_at=orig_user.current_login_at,
@@ -469,8 +504,7 @@ def clone_user(orig_user: User) -> User:
         photo_carte_presse_filename=orig_user.photo_carte_presse_filename,
         # job_title=orig_user.job_title,
         tel_mobile=orig_user.tel_mobile,
-        tel_mobile_valid=orig_user.tel_mobile_valid,
-        tel_mobile_date_valid=orig_user.tel_mobile_date_valid,
+        tel_mobile_validated_at=orig_user.tel_mobile_validated_at,
         organisation_id=orig_user.organisation_id,
         profile_image_url=orig_user.profile_image_url,
         cover_image_url=orig_user.cover_image_url,
@@ -492,16 +526,17 @@ def merge_values_from_other_user(orig_user: User, modified_user: User) -> None:
     """
     new_kyc_profile = clone_kycprofile(modified_user.profile)
 
-    orig_user.email = modified_user.email_backup
-    orig_user.email_backup = ""
+    orig_user.email = modified_user.email_safe_copy
+    orig_user.email_safe_copy = ""
     orig_user.email_secours = modified_user.email_secours
     orig_user.is_clone = False
     # orig_user.is_cloned = False  # clone will be dismissed
     orig_user.cloned_user_id = 0  # clone will be dismissed
-    # date_submit automated by DB
-    orig_user.user_date_valid = modified_user.user_date_valid
-    orig_user.user_valid_comment = modified_user.user_valid_comment
-    orig_user.user_date_update = modified_user.user_date_update
+    # submited_at automated by DB
+    orig_user.validated_at = modified_user.validated_at
+    orig_user.validation_status = modified_user.validation_status
+    orig_user.created_at = modified_user.created_at
+    orig_user.modified_at = modified_user.modified_at
     # from flask-security
     orig_user.last_login_at = modified_user.last_login_at
     orig_user.current_login_at = modified_user.current_login_at
@@ -524,8 +559,7 @@ def merge_values_from_other_user(orig_user: User, modified_user: User) -> None:
     orig_user.photo_carte_presse_filename = modified_user.photo_carte_presse_filename
     # orig_user.job_title = modified_user.job_title
     orig_user.tel_mobile = modified_user.tel_mobile
-    orig_user.tel_mobile_valid = modified_user.tel_mobile_valid
-    orig_user.tel_mobile_date_valid = modified_user.tel_mobile_date_valid
+    orig_user.tel_mobile_validated_at = modified_user.tel_mobile_validated_at
     orig_user.organisation_id = modified_user.organisation_id
     # orig_user.geoloc_id = modified_user.geoloc_id
     # geoloc  # check if needed
@@ -558,7 +592,6 @@ def clone_kycprofile(orig_profile: KYCProfile) -> KYCProfile:
         profile_community=orig_profile.profile_community,
         contact_type=orig_profile.contact_type,
         display_level=orig_profile.display_level,
-        organisation_name=orig_profile.organisation_name,
         presentation=orig_profile.presentation,
         show_contact_details=orig_profile.show_contact_details,
         info_personnelle=orig_profile.info_personnelle,

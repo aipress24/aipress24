@@ -1,0 +1,299 @@
+{% extends "admin/layout/_base.j2" %}
+
+{% block main %}
+
+<div class="py-6 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+    <h2 class="text-xl font-medium mb-2">Données techniques</h2>
+    <div>
+        <dt class="text-sm font-medium text-gray-500">Identifiant technique (Org.id)</dt>
+        <dd class="mb-2 text-sm text-gray-900">
+            {{ org.id }}
+        </dd>
+    </div>
+    <div>
+        <dt class="text-sm font-medium text-gray-500">Date de création</dt>
+        <dd class="mb-2 text-sm text-gray-900">
+            {% if org.created_at %}
+              {{ org.created_at.strftime('%d %b %G %H:%M %Z') }}
+            {% else %}
+              aucune
+            {% endif %}
+        </dd>
+    </div>
+    <div>
+        <dt class="text-sm font-medium text-gray-500">Date de modification</dt>
+        <dd class="mb-2 text-sm text-gray-900">
+          {% if org.modified_at %}
+            {{ org.modified_at.strftime('%d %b %G %H:%M %Z') }}
+          {% else %}
+            aucune
+          {% endif %}
+        </dd>
+    </div>
+    <div class="mt-12 flex items-center justify-end gap-x-6">
+        <button
+          type="button"
+          id="change_email_button"
+          data-modal-target="change_email_modal"
+          data-modal-toggle="change_email_modal"
+          class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-400"
+        >Modification des utilisateurs</button>
+        <button
+          type="button"
+          id="add_email_button"
+          data-modal-target="add_email_modal"
+          data-modal-toggle="add_email_modal"
+          class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-500 hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-400"
+        >Ajout d'utilisateurs</button>
+    </div>
+</div>
+
+<div id="add_email_modal"
+  data-modal-backdrop="static"
+  tabindex="-1"
+  aria-hidden="true"
+  class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+  <div class="relative p-4 w-full max-w-screen-sm max-h-full">
+    <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+      <h4 class="pl-2 text-l font-semibold text-gray-900   dark:text-white"
+      >Adresses mail à ajouter
+      </h4>
+      <div class="p-2">
+        <form class="space-y-4" action="#">
+          <div>
+            <textarea name="content" id="content"
+              class="block p-2 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300
+              placeholder:text-gray-900
+              focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:gray-100"
+              rows="6"
+              autofocus="off"
+              placeholder="Saisir les emails séparés par des espaces ou sauts"
+            ></textarea>
+          </div>
+          <div class="mt-12 flex items-center justify-end gap-x-6">
+            <button
+              type="submit"
+              hx-post="/admin/show_org/{{org.id}}"
+              hx-vals='{"action": "add_emails"}'
+              data-modal-hide="add_email_modal"
+              class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-500 hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-400"
+            >Valider</button>
+            <button data-modal-hide="add_email_modal" type="button"
+              class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-400"
+            >Annuler</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="change_email_modal"
+  data-modal-backdrop="static"
+  tabindex="-1"
+  aria-hidden="true"
+  class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+  <div class="relative p-4 w-full max-w-screen-sm max-h-full">
+    <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+      <h4 class="pl-2 text-l font-semibold text-gray-900   dark:text-white"
+      >Modification des utilisateurs de l'organisation
+      </h4>
+      <div class="p-2">
+        <form class="space-y-4" action="#">
+          <div>
+            <textarea name="content" id="content"
+              class="block p-2 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300
+              placeholder:text-gray-900
+              focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:gray-100"
+              rows="6"
+              autofocus="off"
+            >{{ org.members|join('\n', attribute='email') }}</textarea>
+          </div>
+          <div class="mt-12 flex items-center justify-end gap-x-6">
+            <button
+              type="submit"
+              hx-post="/admin/show_org/{{org.id}}"
+              hx-vals='{"action": "change_emails"}'
+              data-modal-hide="change_email_modal"
+              class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-500 hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-400"
+            >Valider</button>
+            <button data-modal-hide="change_email_modal"
+              type="button"
+              class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-400"
+            >Annuler</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr>
+
+<div class="py-6 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+  <div>
+    <h2 class="text-xl font-medium mb-2">Profil de l'organisation</h2>
+    <div>
+      <dt class="pt-2 text-sm font-medium text-gray-500">
+        Nom
+      </dt>
+      <dd>
+        <h3 class="text-xl font-medium mb-2">{{org.name}}</h3>
+      </dd>
+    </div>
+    <div>
+      <dt class="pt-2 text-sm font-medium text-gray-500">
+        Type
+      </dt>
+      <dd>
+        <div class="mt-1 text-sm text-gray-900">{{ org.type| label }}</div>
+      </dd>
+    </div>
+    {% if not org.is_auto %}
+      <div>
+        <dt class="pt-2 text-sm font-medium text-gray-500">
+          Logo
+        </dt>
+        <dd>
+          <img
+              class="h-24 w-24 ring-2 ring-gray-100 sm:h-32 sm:w-32"
+              src="{{ org.logo_url }}"
+              alt=""
+          />
+        </dd>
+      </div>
+    {%endif %}
+
+    {% if org.is_agency %}
+      <div>
+        <dt class="pt-2 text-sm font-medium text-gray-500">
+          Agréée CPPAP
+        </dt>
+        <dd>
+            <div class="mt-1 text-sm text-gray-900">{{ 'oui' if org.agree_cppap else 'non' }}</div>
+        </dd>
+      </div>
+      <div>
+        <dt class="pt-2 text-sm font-medium text-gray-500">
+          Membre du SAPI
+        </dt>
+        <dd>
+            <div class="mt-1 text-sm text-gray-900">{{ 'oui' if org.membre_sapi else 'non' }}</div>
+        </dd>
+      </div>
+      <div>
+        <dt class="pt-2 text-sm font-medium text-gray-500">
+          Membre du SATEV
+        </dt>
+        <dd>
+            <div class="mt-1 text-sm text-gray-900">{{ 'oui' if org.membre_satev else 'non' }}</div>
+        </dd>
+      </div>
+      <div>
+        <dt class="pt-2 text-sm font-medium text-gray-500">
+          Membre du SAPHIR
+        </dt>
+        <dd>
+            <div class="mt-1 text-sm text-gray-900">{{ 'oui' if org.membre_saphir else 'non' }}</div>
+        </dd>
+      </div>
+    {%endif %}
+
+    <div>
+      <dt class="pt-2 text-sm font-medium text-gray-500">
+        Nombre de membres
+      </dt>
+      <dd>
+          <div class="mt-1 text-sm text-gray-900">{{ org.count_members }}</div>
+      </dd>
+    </div>
+
+    {% if not org.is_auto %}
+      <div>
+        <dt class="pt-2 text-sm font-medium text-gray-500">
+          Managers
+        </dt>
+        <dd>
+          {% if org.managers %}
+            {% for user in org.managers %}
+              <div class="mt-1 text-sm text-gray-900">{{ user.email }}</div>
+            {% endfor %}
+          {% else %}
+              <div class="mt-1 text-sm text-gray-900"> aucun </div>
+          {% endif %}
+        </dd>
+      </div>
+
+      <div>
+        <dt class="pt-2 text-sm font-medium text-gray-500">
+          Dirigeants
+        </dt>
+        <dd>
+          {% if org.leaders %}
+            {% for user in org.leaders %}
+              <div class="mt-1 text-sm text-gray-900">{{ user.email }}</div>
+            {% endfor %}
+          {% else %}
+              <div class="mt-1 text-sm text-gray-900"> aucun </div>
+          {% endif %}
+        </dd>
+      </div>
+
+      <div>
+        <dt class="pt-2 text-sm font-medium text-gray-500">
+          Adresse
+        </dt>
+        <dd>
+            <div class="mt-1 text-sm text-gray-900">{{ (org.address_formatted or 'aucune') }}</div>
+        </dd>
+      </div>
+      <div>
+        <dt class="pt-2 text-sm font-medium text-gray-500">
+          SIREN
+        </dt>
+        <dd>
+            <div class="mt-1 text-sm text-gray-900">{{ (org.siren or 'aucun') }}</div>
+        </dd>
+      </div>
+      <div>
+        <dt class="pt-2 text-sm font-medium text-gray-500">
+          Numéro de TVA intracommunautaire
+        </dt>
+        <dd>
+            <div class="mt-1 text-sm text-gray-900">{{ (org.tva or 'aucun') }}</div>
+        </dd>
+      </div>
+
+      <div>
+        <dt class="pt-2 text-sm font-medium text-gray-500">
+          Réputation sur le site
+        </dt>
+        <dd>
+            <div class="mt-1 text-sm text-gray-900">{{ org.karma }}</div>
+        </dd>
+      </div>
+
+      <div>
+        <dt class="pt-2 text-sm font-medium text-gray-500">
+          Domaine
+        </dt>
+        <dd>
+            <div class="mt-1 text-sm text-gray-900">{{ org.domain }}</div>
+        </dd>
+      </div>
+
+      <div>
+        <dt class="pt-2 text-sm font-medium text-gray-500">
+          Site web
+        </dt>
+        <dd class="text-gray-900">
+          <a href="{{ org.site_url }}" target="_blank"
+             class="text-blue-600 underline">{{ org.site_url }}</a>
+        </dd>
+      </div>
+    {% endif %}
+
+  </div>
+</div>
+
+{% endblock %}

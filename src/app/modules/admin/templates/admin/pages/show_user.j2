@@ -13,26 +13,30 @@
     <div>
         <dt class="text-sm font-medium text-gray-500">Date de soumission du formulaire d'inscription</dt>
         <dd class="mb-2 text-sm text-gray-900">
-            {{ user.date_submit.strftime('%d %b %G %H:%M') }}
+            {{ user.submited_at.strftime('%d %b %G %H:%M %Z') }}
         </dd>
     </div>
     <div>
         <dt class="text-sm font-medium text-gray-500">Date de validation</dt>
         <dd class="mb-2 text-sm text-gray-900">
-            {{ user.user_date_valid.strftime('%d %b %G %H:%M') }}
+            {% if user.validated_at %}
+              {{ user.validated_at.strftime('%d %b %G %H:%M %Z') }}
+            {% else %}
+              Jamais validé
+            {% endif %}
         </dd>
     </div>
     <div>
         <dt class="text-sm font-medium text-gray-500">Commentaire de validation</dt>
         <dd class="mb-2 text-sm text-gray-900">
-            {{ user.user_valid_comment }}
+            {{ user.validation_status }}
         </dd>
     </div>
     <div>
         <dt class="text-sm font-medium text-gray-500">Date de dernière connexion</dt>
         <dd class="mb-2 text-sm text-gray-900">
             {% if user.last_login_at %}
-                {{ user.last_login_at.strftime('%d %b %G %H:%M') }}
+                {{ user.last_login_at.strftime('%d %b %G %H:%M %Z') }}
             {% else %}
                 Jamais connecté
             {% endif %}
@@ -46,7 +50,64 @@
             hx-post="/admin/show_user/{{user.id}}"
             hx-vals='{"action": "deactivate"}'
         >Désactiver l'utilisateur</button>
+        <button
+            type="button"
+            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-400"
+            id="remove_org"
+            hx-post="/admin/show_user/{{user.id}}"
+            hx-vals='{"action": "remove_org"}'
+        >Supprimer l'organisation</button>
+        <!-- <button
+            type="button"
+            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-500 hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-400"
+            id="set_org"
+            hx-post="/admin/show_user/{{user.id}}"
+            hx-vals='{"action": "set_org"}'
+        >Affecter une organisation</button> -->
     </div>
+
+    {% if org and not org.is_auto %}
+      <div
+          class="mt-6 flex flex-col justify-end gap-x-6 space-y-2 sm:flex-row sm:space-y-0 sm:space-x-4"
+      >
+        <button
+            type="button"
+            class="aui-button"
+            hx-post="/admin/show_user/{{user.id}}"
+            hx-vals='{"action": "toggle-leader"}'
+            hx-target="#leader-{{ user.id }}"
+            hx-swap="innerHTML"
+        >
+          {% if user.is_leader %}
+            {% set label="Retirer 'dirigeant'" %}
+          {% else %}
+            {% set label="Ajouter 'dirigeant'" %}
+          {% endif %}
+
+          <span id="leader-{{ user.id }}" class="font-medium text-gray-900">
+            {{ label }}
+          </span>
+        </button>
+        <button
+            type="button"
+            class="aui-button"
+            hx-post="/admin/show_user/{{user.id}}"
+            hx-vals='{"action": "toggle-manager"}'
+            hx-target="#manager-{{ user.id }}"
+            hx-swap="innerHTML"
+        >
+          {% if user.is_manager %}
+            {% set label="Retirer 'manager'" %}
+          {% else %}
+            {% set label="Ajouter 'manager'" %}
+          {% endif %}
+
+          <span id="manager-{{ user.id }}" class="font-medium text-gray-900">
+            {{ label }}
+          </span>
+        </button>
+      </div>
+    {% endif %}
 </div>
 <hr>
 

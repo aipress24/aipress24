@@ -4,52 +4,36 @@
 
 from __future__ import annotations
 
-from app.flask.lib.pages import page
-from app.flask.routing import url_for
-from app.models.organisation import Organisation
+from flask import Response, request
 
-from .. import table as t
-from .base import AdminListPage
+from app.flask.lib.pages import page
+
+from ..table import Column, GenericOrgDataSource, Table
+from .base import BaseAdminPage
 from .home import AdminHomePage
 
 TABLE_COLUMNS = [
     {"name": "name", "label": "Nom", "width": 50},
-    {"name": "num_members", "label": "# membres", "width": 50, "align": "right"},
-    {"name": "status", "label": "Statut", "width": 50},
-    {"name": "karma", "label": "Réput.", "width": 50, "align": "right"},
+    {"name": "type", "label": "type", "width": 20},
+    {"name": "karma", "label": "Réputation", "width": 8},
 ]
 
 
-class OrgsTable(t.Table):
+class OrgsTable(Table):
+    url_label = "Détail"
+    all_search = False
+
     def compose(self):
         for col in TABLE_COLUMNS:
-            yield t.Column(**col)
+            yield Column(**col)
 
 
-class OrgDataSource(t.DataSource):
-    model_class = Organisation
-
-    def add_search_filter(self, stmt):
-        if self.search:
-            stmt = stmt.filter(Organisation.name.ilike(f"{self.search}%"))
-        return stmt
-
-    def make_records(self, objects) -> list[dict]:
-        result = []
-        for obj in objects:
-            record = {
-                "$url": url_for(obj),
-                "id": obj.id,
-                "name": obj.name,
-                "num_members": 0,
-                "karma": obj.karma,
-            }
-            result.append(record)
-        return result
+class OrgDataSource(GenericOrgDataSource):
+    pass
 
 
 @page
-class AdminOrgsPage(AdminListPage):
+class AdminOrgsPage(BaseAdminPage):
     name = "orgs"
     label = "Organisations"
     title = "Organisations"
@@ -61,59 +45,49 @@ class AdminOrgsPage(AdminListPage):
     ds_class = OrgDataSource
     table_class = OrgsTable
 
-    #
-    # # def context(self):
-    # #     table = {
-    # #         "columns": TABLE_COLUMNS,
-    # #         "data_source": url_for(".groups__json_data"),
-    # #     }
-    # #     return {"table": table}
-    #
-    # def context(self):
-    #     groups = self.get_data()
-    #     table = OrgsTable(groups)
-    #     return {"table": table}
-    #
-    # def get_data(self) -> list[dict]:
-    #     stmt = select(Organisation).limit(20)
-    #     objects: list[Organisation] = list(get_multi(Organisation, stmt))
-    #     data = [
-    #         {
-    #             "$url": url_for(obj),
-    #             "id": obj.id,
-    #             "name": obj.name,
-    #             "num_members": 0,
-    #             "karma": obj.karma,
-    #         }
-    #         for obj in objects
-    #     ]
-    #     return data
-    #
-    # @expose
-    # def json_data(self):
-    #     args = parser.parse(json_data_args, request, location="query")
-    #     search = args["search"].lower()
-    #
-    #     stmt = select(func.count()).select_from(Organisation)
-    #
-    #     if search:
-    #         stmt = stmt.filter(Organisation.name.ilike(f"{search}%"))
-    #     total: int = db.session.scalar(stmt)
-    #
-    #     stmt = select(Organisation).offset(args["offset"]).limit(args["limit"])
-    #     if search:
-    #         stmt = stmt.filter(Organisation.name.ilike(f"{search}%"))
-    #     objects: list[Organisation] = list(get_multi(Organisation, stmt))
-    #
-    #     data = [
-    #         {
-    #             "$url": url_for(obj),
-    #             "id": obj.id,
-    #             "name": obj.name,
-    #             "num_members": obj.num_members,
-    #             "status": obj.status,
-    #             "karma": obj.karma,
-    #         }
-    #         for obj in objects
-    #     ]
-    #     return jsonify(data=data, total=total)
+    def context(self):
+        records = self.ds_class.records()
+        table = self.table_class(records)
+        table.start = self.ds_class.offset + 1
+        table.end = self.ds_class.offset + self.ds_class.limit
+        count = self.ds_class.count()
+        table.end = min(self.ds_class.offset + self.ds_class.limit, count)
+        table.count = count
+        table.searching = self.ds_class.search
+        return {
+            "table": table,
+        }
+
+    def hx_post(self) -> str | Response:
+        action = request.form.get("action")
+        search_string = request.form.get("search")
+        if action:
+            if action == "next":
+                self.ds_class.inc()
+                response = Response("")
+                response.headers["HX-Redirect"] = self.url
+                return response
+            if action == "previous":
+                self.ds_class.dec()
+                response = Response("")
+                response.headers["HX-Redirect"] = self.url
+                return response
+        if search_string:
+            if search_string != self.ds_class.search:
+                self.ds_class.first_page()
+            self.ds_class.search = search_string
+            response = Response("")
+            response.headers["HX-Redirect"] = self.url
+            return response
+        else:
+            if self.ds_class.search:
+                self.ds_class.first_page()
+            self.ds_class.search = ""
+            response = Response("")
+            response.headers["HX-Redirect"] = self.url
+            return response
+
+        # no validation
+        response = Response("")
+        response.headers["HX-Redirect"] = AdminHomePage().url
+        return response
