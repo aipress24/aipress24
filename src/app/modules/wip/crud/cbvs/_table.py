@@ -56,37 +56,42 @@ def make_datasource(model_class: type, q: str) -> BaseDataSource:
 
 class BaseTable(Table):
     id = "articles-table"
-    columns = [
-        {
-            "name": "titre",
-            "label": "Titre",
-            "class": "max-w-0 w-full truncate",
-        },
-        {
-            "name": "media",
-            "label": "Média",
-            "class": "max-w-12",
-            "render": get_name,
-        },
-        {
-            "name": "statut",
-            "label": "Statut",
-        },
-        {
-            "name": "created_at",
-            "label": "Création",
-        },
-        {
-            "name": "$actions",
-            "label": "",
-        },
-    ]
     q: str
     data_source: BaseDataSource
 
     def __init__(self, model_class, q=""):
         self.q = q
         self.data_source = make_datasource(model_class, q)
+
+    def get_columns(self):
+        if hasattr(self, "columns"):
+            return self.columns
+
+        return [
+            {
+                "name": "titre",
+                "label": "Titre",
+                "class": "max-w-0 w-full truncate",
+            },
+            {
+                "name": "media",
+                "label": "Média",
+                "class": "max-w-12",
+                "render": self.get_media_name,
+            },
+            {
+                "name": "statut",
+                "label": "Statut",
+            },
+            {
+                "name": "created_at",
+                "label": "Création",
+            },
+            {
+                "name": "$actions",
+                "label": "",
+            },
+        ]
 
     def get_actions(self, item):
         return [
@@ -103,3 +108,6 @@ class BaseTable(Table):
                 "url": self.url_for(item, "delete"),
             },
         ]
+
+    def get_media_name(self, obj):
+        return obj.media.name if obj.media else ""

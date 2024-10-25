@@ -8,7 +8,6 @@ from __future__ import annotations
 
 # from .bwall_list import BWallList
 # from .groups_list import GroupsList
-# from .light_orgs_list import LightOrgsList
 # from .members_list import MembersList
 # from .selector import Selector
 
@@ -16,7 +15,6 @@ from __future__ import annotations
 def register(app) -> None:
     ...
     # register_wired_component(app, MembersList)
-    # register_wired_component(app, LightOrgsList)
     # register_wired_component(app, BWallList)
     # register_wired_component(app, GroupsList)
     # register_wired_component(app, Selector)

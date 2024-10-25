@@ -58,7 +58,12 @@ def label_from_values_cities(data: str | list, key: str, _ontology: str) -> str:
         data = [data]
     results = []
     for value in data:
-        country_code, _ = value.split(";")
+        if not value.strip():
+            continue
+        try:
+            country_code, _ = value.split(" / ")
+        except ValueError:
+            continue
         cities = zip_code_city_list(country_code)
         results.append(find_label_city(cities, value))
     return ", ".join(results)

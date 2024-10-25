@@ -1,0 +1,19 @@
+{% extends "admin/layout/_base.j2" %}
+
+{% block main %}
+<div>
+    <p class="text-sm font-medium pb-6">
+    Exports des données en format .ods :</p>
+</div>
+<div>
+    - <a class="text-sm font-medium text-indigo-800 underline pl-1"
+    href="{{ url_for('admin.export_inscription_route') }}">
+    Inscriptions depuis un mois </a>
+</div>
+<div>
+    - <a class="text-sm font-medium text-indigo-800 underline pl-1"
+    href="{{ url_for('admin.export_modification_route') }}">
+    Modifications validées depuis un mois </a>
+</div>
+
+{% endblock %}

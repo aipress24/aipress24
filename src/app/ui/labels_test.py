@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from app.enums import OrganisationFamilyEnum
+from app.enums import OrganisationTypeEnum
 from app.ui.labels import make_label
 
 
@@ -14,6 +14,6 @@ class A:
 
 
 def test_labels() -> None:
-    assert make_label(OrganisationFamilyEnum.AG_PRESSE) == "Agence de presse"
+    assert make_label(OrganisationTypeEnum.AGENCY) == "Agence de presse"
     assert make_label("foo") == "???"
     assert make_label(A()) == "A"

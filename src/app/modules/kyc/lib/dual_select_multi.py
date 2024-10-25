@@ -19,14 +19,14 @@ def convert_dual_choices_js(choices: dict) -> dict:
     #
     {
         "field1": [ ('Associations','Associations'), ...]
-        "field2": [ ( 'Associations;Actions humanitaires',
+        "field2": [ ( 'Associations /Actions humanitaires',
                       'Associations / Actions humanitaires'), ...
     }
 
     Output:
     {
         "field1": [ {"value": 'Associations', "label": 'Associations'} ...
-        "field2": [ {"value": 'Associations;Actions humanitaires',  "label":
+        "field2": [ {"value": 'Associations / Actions humanitaires',  "label":
             'Associations / Actions humanitaires'}, ...
     }
     """
@@ -84,7 +84,7 @@ class DualSelectField(SelectMultipleField):
         Output:
         {
             "field1": [ {"value": 'Associations', "label": 'Associations'} ...
-            "field2": [ {"value": 'Associations;Actions humanitaires',  "label":
+            "field2": [ {"value": 'Associations / Actions humanitaires',  "label":
                 'Associations / Actions humanitaires'} ...
         }
         """

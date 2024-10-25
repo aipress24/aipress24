@@ -5,13 +5,17 @@
 from __future__ import annotations
 
 import sqlalchemy as sa
-from sqlalchemy import ForeignKey
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.auth import User
 from app.models.base import Base
-from app.models.geoloc import GeoLocation
-from app.models.mixins import IdMixin, LifeCycleMixin, Owned, UserFeedbackMixin
+from app.models.mixins import (
+    Addressable,
+    IdMixin,
+    LifeCycleMixin,
+    Owned,
+    UserFeedbackMixin,
+)
 
 
 class Post(IdMixin, Owned, LifeCycleMixin, UserFeedbackMixin, Base):
@@ -27,7 +31,7 @@ class Comment(IdMixin, Owned, LifeCycleMixin, Base):
     object_id: Mapped[str] = mapped_column(index=True)
 
 
-class Group(IdMixin, Owned, LifeCycleMixin, Base):
+class Group(IdMixin, Owned, LifeCycleMixin, Addressable, Base):
     __tablename__ = "soc_group"
 
     name: Mapped[str] = mapped_column(index=True)
@@ -39,9 +43,6 @@ class Group(IdMixin, Owned, LifeCycleMixin, Base):
 
     num_members: Mapped[int] = mapped_column(default=0)
     num_posts: Mapped[int] = mapped_column(default=0)
-
-    geoloc_id: Mapped[int] = mapped_column(ForeignKey(GeoLocation.id))
-    geoloc: Mapped[GeoLocation] = relationship(GeoLocation)
 
     class AdminMeta:
         list_fields = ["name", "num_members", "karma"]

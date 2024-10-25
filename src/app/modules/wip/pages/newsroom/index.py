@@ -8,6 +8,7 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import scoped_session
 from svcs.flask import container
 
+from app.enums import RoleEnum
 from app.flask.lib.pages import page
 from app.flask.routing import url_for
 from app.models.mixins import Owned
@@ -19,7 +20,6 @@ from app.modules.wip.models.newsroom import (
     Sujet,
 )
 from app.services.auth import AuthService
-from app.services.roles import Role
 
 from ..base import BaseWipPage
 from ..home import HomePage
@@ -79,7 +79,7 @@ class NewsroomPage(BaseWipPage):
     title = "Newsroom (espace de rédaction)"
     icon = "rocket-launch"
 
-    allowed_roles = [Role.PRESS_MEDIA, Role.ACADEMIC]
+    allowed_roles = [RoleEnum.PRESS_MEDIA, RoleEnum.ACADEMIC]
 
     template = "wip/pages/newsroom.j2"
     parent = HomePage

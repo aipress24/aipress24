@@ -18,14 +18,13 @@ from app.flask.sqla import get_multi
 from app.models.auth import User
 from app.models.content import EditorialContent, Event, PressRelease
 from app.models.mixins import Addressable
-from app.models.organisation import Organisation
 
 CLASSES_TO_FIX = [
     Event,
     PressRelease,
     EditorialContent,
     User,
-    Organisation,
+    # Organisation,
 ]
 
 
@@ -57,7 +56,7 @@ class BanoJob(Job):
         street = choice(self.streets)
         obj.address = street["name"]
         obj.city = street["city"]
-        obj.postal_code = street["postcode"]
+        obj.zip_code = street["postcode"]
         obj.region = street["region"]
         obj.departement = street["departement"]
         obj.geo_lat = street["lat"]

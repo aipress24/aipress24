@@ -1,5 +1,4 @@
 <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
-
 <div
     x-data="{
       multiple: true,
@@ -24,6 +23,7 @@
         	 },
              });
 
+          choices.addOption({value: this.value, label: this.value}, user_created=false);
           choices.setValue(this.value, true);
 
           this.$refs.select.addEventListener('change', () => {

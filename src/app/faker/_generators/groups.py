@@ -27,6 +27,6 @@ class GroupGenerator(BaseGenerator):
         group.logo_url = f"/static/tmp/logos/{id}.png"
         group.cover_image_url = random.choice(COVER_IMAGES)
 
-        group.geoloc = fake_geoloc()
+        fake_geoloc(group)
 
         return group

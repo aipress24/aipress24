@@ -42,14 +42,13 @@ import sqlalchemy as sa
 from slugify import slugify
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.enums import OrganisationFamilyEnum
+from app.enums import OrganisationTypeEnum
 from app.models.auth import User
 from app.models.base import Base
-from app.models.geoloc import GeoLocation
-from app.models.mixins import Addressable, IdMixin, LifeCycleMixin, Owned
+from app.models.mixins import Addressable, IdMixin, LifeCycleMixin
 
 
-class Organisation(IdMixin, LifeCycleMixin, Owned, Addressable, Base):
+class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
     """
     -ID: int[1] {id. readOnly. unique}
     -Nom: String[I]
@@ -84,6 +83,14 @@ class Organisation(IdMixin, LifeCycleMixin, Owned, Addressable, Base):
     -DemandessPassées: Dernande[0..n] {ordered}
     -Offres: Offre[0..n] {ordered}
     -OffresPassées: Offre[0..n] {ordered}
+
+    ...
+
+    Remarques:
+        - pas de SIRET
+
+        Ajouts:
+            - tva
     """
 
     __tablename__ = "crp_organisation"
@@ -91,6 +98,7 @@ class Organisation(IdMixin, LifeCycleMixin, Owned, Addressable, Base):
     name: Mapped[str]
     slug: Mapped[str]
     siren: Mapped[str] = mapped_column(default="")
+    tva: Mapped[str] = mapped_column(default="")
 
     description: Mapped[str] = mapped_column(default="")
     metiers: Mapped[str] = mapped_column(default="")
@@ -100,17 +108,12 @@ class Organisation(IdMixin, LifeCycleMixin, Owned, Addressable, Base):
     # siren = sa.Column(sa.UnicodeText, default="")
     # description = sa.Column(sa.UnicodeText, default="")
 
-    geoloc_id: Mapped[int] = mapped_column(
-        sa.BigInteger, sa.ForeignKey("geo_loc.id"), nullable=True
-    )
-    geoloc: Mapped[GeoLocation] = relationship(GeoLocation)
-
     # geoloc_id = sa.Column(sa.Integer, sa.ForeignKey("geo_loc.id"), nullable=True)
     # geoloc = sa.orm.relationship(GeoLocation)
     #
-    type: Mapped[OrganisationFamilyEnum] = mapped_column(
-        sa.Enum(OrganisationFamilyEnum),
-        default=OrganisationFamilyEnum.AUTRE,
+    type: Mapped[OrganisationTypeEnum] = mapped_column(
+        sa.Enum(OrganisationTypeEnum),
+        default=OrganisationTypeEnum.AUTO,
         index=True,
     )
 
@@ -151,6 +154,13 @@ class Organisation(IdMixin, LifeCycleMixin, Owned, Addressable, Base):
         super().__init__(**kwargs)
         if "slug" not in kwargs:
             self.slug = slugify(self.name)
+
+    def __repr__(self):
+        return f"<Organisation {self.name}>"
+
+    @property
+    def is_auto(self) -> bool:
+        return self.type == OrganisationTypeEnum.AUTO
 
 
 # class OrgFullProfile(Base):

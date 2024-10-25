@@ -39,7 +39,7 @@ class WireCommonMixin(IdMixin, LifeCycleMixin, Owned):
 
     image_caption: Mapped[str] = mapped_column(default="")
     image_copyright: Mapped[str] = mapped_column(default="")
-    image_id: Mapped[int | None]
+    image_id: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
     image_url: Mapped[str] = mapped_column(default="")
 
     @orm.declared_attr

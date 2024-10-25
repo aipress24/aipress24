@@ -11,7 +11,7 @@ from attr import define
 from flask import current_app, g, make_response, request
 from sqlalchemy import func, select
 
-from app.enums import OrganisationFamilyEnum
+from app.enums import OrganisationTypeEnum
 from app.flask.extensions import db
 from app.flask.lib.pages import page
 from app.flask.lib.toaster import toast
@@ -25,13 +25,13 @@ from app.services.activity_stream import get_timeline
 from app.services.social_graph import adapt
 
 from .base import BaseSworkPage
-from .light_orgs import OrgsPage
+from .organisations import OrgsPage
 
 
 @page
 class OrgPage(BaseSworkPage):
     name = "org"
-    path = "/orgs/<id>"
+    path = "/organisations/<id>"
     template = "pages/org.j2"
 
     parent = OrgsPage
@@ -41,7 +41,7 @@ class OrgPage(BaseSworkPage):
         self.org = get_obj(id, Organisation)
 
     @property
-    def label(self):
+    def label(self) -> str:
         return self.org.name
 
     def context(self):
@@ -120,7 +120,7 @@ class OrgContactsTab(Tab):
         return f"Contacts ({count})"
 
     def guard(self):
-        return True
+        return True  # allow to see members of AUTO organisations
 
 
 class OrgPublicationsTab(Tab):
@@ -141,8 +141,8 @@ class OrgPublicationsTab(Tab):
 
     def guard(self) -> bool:
         return self.org.type in {
-            OrganisationFamilyEnum.MEDIA,
-            OrganisationFamilyEnum.AG_PRESSE,
+            OrganisationTypeEnum.MEDIA,
+            OrganisationTypeEnum.AGENCY,
         }
 
 
@@ -151,14 +151,14 @@ class OrgPressBookTab(Tab):
     label = "Press Book (0)"
 
     def guard(self):
-        return True
+        return not self.org.is_auto
 
 
 class OrgPressReleasesTab(Tab):
     id = "press-releases"
 
     def guard(self):
-        return True
+        return not self.org.is_auto
 
     @property
     def label(self) -> str:
@@ -176,7 +176,7 @@ class OrgEventsTab(Tab):
     id = "events"
 
     def guard(self):
-        return True
+        return not self.org.is_auto
 
     @property
     def label(self) -> str:
@@ -239,7 +239,7 @@ class OrgVM(ViewModel):
             "publications": self.get_publications(),
             "is_following": adapt(g.user).is_following(self.org),
             "timeline": timeline,
-            "address_formatted": self.org.format_adress(),
+            "address_formatted": self.org.formatted_address,
         }
 
     def get_members(self):
@@ -250,7 +250,10 @@ class OrgVM(ViewModel):
         return members
 
     def get_logo_url(self):
-        return self.org.logo_url
+        if self.org.is_auto:
+            return "/static/img/logo-page-non-officielle.png"
+        else:
+            return self.org.logo_url
 
     def get_screenshot_url(self):
         if not self.org.screenshot_id:

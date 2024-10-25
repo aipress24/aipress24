@@ -11,12 +11,6 @@ from pathlib import Path
 from flask import render_template_string
 from loguru import logger
 
-try:
-    from weasyprint import HTML
-except (ImportError, OSError):
-    logger.exception("WeasyPrint not installed properly, PDF generation will not work")
-    HTML = None
-
 
 @singledispatch
 def to_pdf(obj, template=None) -> bytes:
@@ -25,6 +19,15 @@ def to_pdf(obj, template=None) -> bytes:
 
 
 def generate_pdf(data: dict, template: str | Path) -> bytes:
+    # Lazy import because WeasyPrint is not always installed
+    try:
+        from weasyprint import HTML
+    except (ImportError, OSError):
+        logger.exception(
+            "WeasyPrint not installed properly, PDF generation will not work"
+        )
+        HTML = None  # noqa: N806
+
     if not HTML:
         return b""
 

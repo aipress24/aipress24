@@ -15,12 +15,12 @@ from loguru import logger
 from svcs.flask import container
 
 import app.settings.vocabularies as voc
-from app.enums import OrganisationFamilyEnum
+from app.enums import OrganisationTypeEnum, RoleEnum
 from app.faker._constants import POST_IMAGES
 from app.faker._generators.util import random_wikinews_article
 from app.faker._scripts.base import FakerScript
 from app.flask.extensions import db
-from app.models.auth import RoleEnum, User
+from app.models.auth import User
 from app.models.lifecycle import PublicationStatus
 from app.models.repositories import OrganisationRepository, UserRepository
 from app.modules.wip.models.newsroom import (
@@ -39,7 +39,7 @@ MAX_COUNT = 10
 
 @functools.lru_cache
 def get_medias():
-    media_type = OrganisationFamilyEnum.MEDIA
+    media_type = OrganisationTypeEnum.MEDIA
     org_repo = container.get(OrganisationRepository)
     return org_repo.list(type=media_type)
 

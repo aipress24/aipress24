@@ -5,17 +5,19 @@
 from __future__ import annotations
 
 import sys
+import uuid
 from datetime import datetime, timezone
+from typing import Any
 
 from flask import Response, g, request
 from loguru import logger
-from sqlalchemy import exc
 
+from app.constants import LABEL_INSCRIPTION_VALIDEE, LABEL_MODIFICATION_VALIDEE
 from app.flask.extensions import db
 from app.flask.lib.pages import page
 from app.flask.sqla import get_obj
 from app.models.auth import User, merge_values_from_other_user
-from app.modules.kyc.organisation_utils import store_light_organisation
+from app.modules.kyc.organisation_utils import store_user_auto_organisation
 from app.modules.kyc.views import admin_info_context
 
 from .. import blueprint
@@ -40,8 +42,59 @@ class ValidationUser(BaseAdminPage):
         # self.user = get_obj(id, User, options=options)
         self.user = get_obj(uid, User)
 
+    # def detect_direction_media_status(self, context: dict[str, Any]) -> None:
+    #     """Detect if the validated user as status of Direction :
+    #     - from declared profile (Dirigean Média, Dirigenta Média instit?)
+    #     OR
+    #     - from "fonction du journalisme" + profil Média
+    #       - Dir de la publication
+    #       - Dir a/s carte de presse AP/Média
+    #       - Rédact chef
+    #     AND check business wall trigger
+    #     """
+    #     media_satus = {"direction_media": False, "direction_media_comment": ""}
+    #     is_direction = False
+    #     is_media = False
+    #     is_trigger = False
+
+    #     profile = self.user.profile
+
+    #     if (profile.profile_label in DIRECTION_PROFILE_LABELS) or (
+    #         profile.get_first_value("fonctions_journalisme")
+    #         in DIRECTION_FONCTIONS_JOURNALISME
+    #     ):
+    #         is_direction = True
+
+    #     nom_media = profile.get_first_value("nom_media")
+    #     if nom_media:
+    #         is_media = True
+
+    #     if profile.get_value("trigger_media_agence_de_presse") or profile.get_value(
+    #         "trigger_media_media"
+    #     ):
+    #         is_trigger = True
+
+    #     if is_direction and is_media and is_trigger:
+    #         media_satus = {
+    #             "direction_media": True,
+    #             "direction_media_comment": f'Direction du média: "{nom_media}"',
+    #         }
+    #     context.update(media_satus)
+
+    def detect_business_wall_trigger(self, context: dict[str, Any]) -> None:
+        media_satus = {"bw_trigger": False, "bw_organisation": ""}
+        profile = self.user.profile
+        trigger = profile.get_first_bw_trigger()
+        if trigger:
+            media_satus = {
+                "bw_trigger": True,
+                "bw_organisation": profile.organisation_name or "aucune?",
+            }
+        context.update(media_satus)
+
     def context(self):
         context = admin_info_context(self.user)
+        self.detect_business_wall_trigger(context)
         context.update({
             "user": self.user,
         })
@@ -64,26 +117,6 @@ class ValidationUser(BaseAdminPage):
             self._validate_profile_modified()
         else:
             self._validate_profile_created()
-        self._store_organisation_name()
-
-    def _store_organisation_name(self) -> None:
-        """Remember the organisation name in list of organisation
-        (media, rp, instit, autre)"""
-        profile = self.user.profile
-        orga_field_name = profile.organisation_field_name_origin
-        current_value = profile.get_value(orga_field_name)
-        if isinstance(current_value, list):  # newsroom is a list
-            if current_value:
-                name = current_value[0]
-            else:
-                name = ""
-        else:
-            name = current_value
-        name = name.strip()
-        if not name:
-            return
-        family = profile.organisation_family  # select the target family
-        store_light_organisation(name, family)
 
     def _reject_profile(self) -> None:
         # shoud not be a clone: a plain new user (creation)
@@ -91,7 +124,7 @@ class ValidationUser(BaseAdminPage):
         self.user.active = False
         # we need to free the rejectd user email because
         # it's a 'unique' field'
-        self.user.email = f"fake_{self.user.id}@example.com"
+        self.user.email = f"fake_{uuid.uuid4().hex}@example.com"
         db_session = db.session
         db_session.merge(self.user)
         db_session.commit()
@@ -100,24 +133,27 @@ class ValidationUser(BaseAdminPage):
         print(msg, file=sys.stderr)
         # self._try_really_delete()
 
-    def _try_really_delete(self):
-        try:
-            db_session = db.session
-            db_session.delete(self.user)
-            db_session.commit()
-        except exc.SQLAlchemyError as e:
-            # Should be psycopg2.errors.ForeignKeyViolation
-            # because that user has recodres in BaseContent (publications...)
-            logger.warning(
-                f"Impossible to delete user {self.user.id} {self.user.email}"
-            )
-            logger.warning(e)
+    # def _try_really_delete(self):
+    #     try:
+    #         db_session = db.session
+    #         db_session.delete(self.user)
+    #         db_session.commit()
+    #     except exc.SQLAlchemyError as e:
+    #         # Should be psycopg2.errors.ForeignKeyViolation
+    #         # because that user has recodres in BaseContent (publications...)
+    #         logger.warning(
+    #             f"Impossible to delete user {self.user.id} {self.user.email}"
+    #         )
+    #         logger.warning(e)
 
     def _validate_profile_modified(self) -> None:
         # user is a clone of orig user
         orig_user = get_obj(self.user.cloned_user_id, User)
         merge_values_from_other_user(orig_user, self.user)
-        orig_user.user_valid_comment = "Modifications validées"
+        auto_organisation = store_user_auto_organisation(orig_user)
+        if auto_organisation:
+            orig_user.organisation_id = auto_organisation.id
+        orig_user.user_valid_comment = LABEL_MODIFICATION_VALIDEE
         orig_user.active = True
         orig_user.user_date_valid = datetime.now(timezone.utc)
 
@@ -129,10 +165,12 @@ class ValidationUser(BaseAdminPage):
 
     def _validate_profile_created(self) -> None:
         # user is a plain new User
+        auto_organisation = store_user_auto_organisation(self.user)
+        if auto_organisation:
+            self.user.organisation_id = auto_organisation.id
         self.user.active = True
-        self.user.user_valid_comment = "Nouvel utilisateur validé"
+        self.user.user_valid_comment = LABEL_INSCRIPTION_VALIDEE
         self.user.user_date_valid = datetime.now(timezone.utc)
-
         db_session = db.session
         db_session.merge(self.user)
         db_session.commit()

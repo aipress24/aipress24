@@ -9,7 +9,7 @@ import re
 from sqlalchemy.sql import Select
 
 from app.flask.lib.pywire import WiredComponent
-from app.models.geoloc import GeoLocation
+from app.models.mixins import Addressable
 
 
 class BaseList(WiredComponent):
@@ -49,9 +49,9 @@ class BaseList(WiredComponent):
 
         m = re.search("([0-9][0-9][0-9][0-9][0-9])", search)
         if m:
-            postal_code = m.group(1)
-            search = search.replace(postal_code, "").strip()
-            stmt = stmt.where(GeoLocation.postal_code == postal_code)
+            zip_code = m.group(1)
+            search = search.replace(zip_code, "").strip()
+            stmt = stmt.where(Addressable.zip_code == zip_code)
 
         if search:
             stmt = stmt.where(self.search_clause(search))
@@ -85,7 +85,8 @@ class Filter:
             return
 
         if callable(selector):
-            self.options = sorted({selector(obj) for obj in objects})
+            options = sorted({selector(obj) for obj in objects})
+            self.options = [opt for opt in options if opt]
         elif isinstance(selector, str):
             self.options = sorted({getattr(o, selector) for o in objects})
         else:
@@ -107,14 +108,14 @@ class FilterByCity(Filter):
     label = "Ville"
 
     def selector(self, obj) -> str:
-        if obj.geoloc:
-            return obj.geoloc.city_name
+        if isinstance(obj, Addressable):
+            return str(obj.city)
         return ""
 
     def apply(self, stmt, state):
         active_options = self.active_options(state)
         if active_options:
-            return stmt.where(GeoLocation.city_name.in_(active_options))
+            return stmt.where(Addressable.city.in_(active_options))
         return stmt
 
 
@@ -123,12 +124,12 @@ class FilterByDept(Filter):
     label = "Département"
 
     def selector(self, obj) -> str:
-        if obj.geoloc:
-            return obj.geoloc.dept_code
+        if isinstance(obj, Addressable):
+            return str(obj.dept_code)
         return ""
 
     def apply(self, stmt, state):
         active_options = self.active_options(state)
         if active_options:
-            return stmt.where(GeoLocation.dept_code.in_(active_options))
+            return stmt.where(Addressable.dept_code.in_(active_options))
         return stmt

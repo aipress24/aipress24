@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 from arrow import utcnow
+from devtools import debug
 from sqlalchemy import select
 
 from app.flask.extensions import db
@@ -17,12 +18,14 @@ from .models import ArticlePost, PostStatus
 @article_published.connect
 def on_publish(article: Article):
     print(f"Received 'Article published': {article.title}")
-    post = ArticlePost()
-    post.newsroom_id = article.id
-    post.created_at = article.created_at
+    post = get_post(article)
+    if not post:
+        post = ArticlePost()
+        post.newsroom_id = article.id
+        post.created_at = article.created_at
+        post.published_at = utcnow()
 
     post.status = PostStatus.PUBLIC
-    post.published_at = utcnow()
 
     update_post(post, article)
 
@@ -49,8 +52,20 @@ def update_post(post: ArticlePost, article: Article):
     post.owner_id = article.owner_id
 
     # post.image_id = article.image_id
-    post.image_caption = article.image_caption
-    post.image_copyright = article.image_copyright
+    images = article.sorted_images
+    debug(images)
+
+    if images:
+        image = images[0]
+        post.image_id = image.id
+        post.image_url = image.url
+        post.image_caption = image.caption
+        post.image_copyright = image.copyright
+    else:
+        post.image_id = None
+        post.image_url = ""
+        post.image_caption = ""
+        post.image_copyright = ""
 
     # Metadata
     post.genre = article.genre

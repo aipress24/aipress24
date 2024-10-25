@@ -58,7 +58,7 @@ def test_followers_users(db: SQLAlchemy) -> None:
 
 def test_followers_orgs(db: SQLAlchemy) -> None:
     _joe = User(email="joe@example.com")
-    _org = Organisation(name="xxx", owner=_joe)
+    _org = Organisation(name="xxx")
     db.session.add(_joe)
     db.session.add(_org)
     db.session.flush()

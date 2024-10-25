@@ -35,8 +35,8 @@
               <td>
                 {% if organisation %}
                   <a
-                    class="hover:underline"
-                    href="{{ url_for(organisation) }}">{{ organisation.name }}</a>
+                      class="hover:underline"
+                      href="{{ url_for(organisation) }}">{{ organisation.name }}</a>
                 {% endif %}
               </td>
               <td>{{ expert.job_title }}</td>
@@ -49,7 +49,7 @@
       <div class="mt-8">
         <input
             hx-post=""
-            hx-target="body"
+            hx-target="#main"
             type="submit"
             class="aui-button"
             name="action:add" value="Valider / mettre à jour la sélection">
@@ -88,9 +88,12 @@
                 class="hover:underline"
                 href="{{ url_for(expert) }}">{{ expert.name }}</a>
             </td>
-            <td><a
-                class="hover:underline"
-                href="{{ url_for(organisation) }}">{{ organisation.name }}</a>
+            <td>
+              {% if organisation %}
+                <a
+                    class="hover:underline"
+                    href="{{ url_for(organisation) }}">{{ organisation.name }}</a>
+              {% endif %}
             </td>
             <td>{{ expert.job_title }}</td>
           </tr>
@@ -102,7 +105,7 @@
     <div class="mt-8">
       <input
           hx-post=""
-          hx-target="body"
+          hx-target="#main"
           type="submit"
           name="action:update"
           class="aui-button mr-4"

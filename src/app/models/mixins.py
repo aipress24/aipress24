@@ -87,22 +87,39 @@ class Addressable:
     city: Mapped[str] = mapped_column(default="")
     region: Mapped[str] = mapped_column(default="")
     departement: Mapped[str] = mapped_column(default="")
+    country: Mapped[str] = mapped_column(default="")
 
     # Codes
     dept_code: Mapped[str] = mapped_column(default="")
     region_code: Mapped[str] = mapped_column(default="")
-    postal_code: Mapped[str] = mapped_column(default="")
+    zip_code: Mapped[str] = mapped_column(default="")
     country_code: Mapped[str] = mapped_column(default="")
 
     geo_lat: Mapped[Decimal] = mapped_column(sa.DECIMAL(11, 7), default=0)
     geo_lng: Mapped[Decimal] = mapped_column(sa.DECIMAL(11, 7), default=0)
 
     @property
-    def country(self) -> str:
-        return "France"
+    def formatted_address(self) -> str:
+        return ", ".join(
+            x for x in (self.address, self.zip_code, self.city, self.country) if x
+        )
 
-    def format_adress(self) -> str:
-        return f"{self.address}, {self.postal_code} {self.city}, {self.country}"
+    @property
+    def addr_attributes(self) -> list[str]:
+        # can use obj.__mapper__.attrs.keys()
+        return [
+            "address",
+            "city",
+            "region",
+            "departement",
+            "country",
+            "dept_code",
+            "region_code",
+            "zip_code",
+            "country_code",
+            "geo_lat",
+            "geo_lng",
+        ]
 
 
 def filter_by_loc(stmt: orm.Query, loc: str, cls: type[Addressable]) -> orm.Query:

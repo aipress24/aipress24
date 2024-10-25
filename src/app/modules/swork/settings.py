@@ -16,19 +16,9 @@ SWORK_MENU = [
         "icon": "users",
     },
     {
-        "endpoint": "swork.light_orgs",
+        "endpoint": "swork.organisations",
         "label": "Organisations",
         "icon": "building-office",
-    },
-    {
-        "endpoint": "swork.business_wall",
-        "label": "Business Wall",
-        "icon": "building-office",
-    },
-    {
-        "endpoint": "swork.groups",
-        "label": "Groupes",
-        "icon": "user-group",
     },
     {
         "endpoint": "swork.parrainages",

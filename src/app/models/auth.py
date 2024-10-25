@@ -10,42 +10,32 @@ from copy import deepcopy
 from typing import Any
 
 import sqlalchemy as sa
-from aenum import StrEnum
 from flask_security import RoleMixin, UserMixin
 from sqlalchemy import JSON, DateTime, ForeignKey, orm
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
 
-from app.enums import CommunityEnum, ContactTypeEnum, OrganisationFamilyEnum
+from app.enums import ContactTypeEnum, OrganisationTypeEnum, RoleEnum
 from app.modules.kyc.survey_model import get_survey_profile
 
 from .base import Base
-from .geoloc import GeoLocation
 
 # from app.services.security import check_password_hash, generate_password_hash
 from .mixins import Addressable
+
+# from .geoloc import GeoLocation
+
 
 if typing.TYPE_CHECKING:
     from .organisation import Organisation
 
 FIELD_TO_ORGA_FAMILY = {
-    "nom_media": OrganisationFamilyEnum.MEDIA,
-    "nom_media_instit": OrganisationFamilyEnum.INSTIT,
-    "nom_agence_rp": OrganisationFamilyEnum.RP,
-    "nom_orga": OrganisationFamilyEnum.AUTRE,
+    "nom_media": OrganisationTypeEnum.MEDIA,
+    "nom_media_instit": OrganisationTypeEnum.OTHER,
+    "nom_agence_rp": OrganisationTypeEnum.COM,
+    "nom_orga": OrganisationTypeEnum.OTHER,
 }
-
-
-class RoleEnum(StrEnum):
-    ADMIN = "admin"
-    GUEST = "guest"
-
-    PRESS_MEDIA = "journalist"
-    PRESS_RELATIONS = "press_relations"
-    EXPERT = "expert"
-    ACADEMIC = "academic"
-    TRANSFORMER = "transformer"
 
 
 roles_users = sa.Table(
@@ -102,15 +92,12 @@ class User(Addressable, UserMixin, Base):
     # Flask Security
     active: Mapped[bool] = mapped_column(default=False)
     fs_uniquifier: Mapped[str] = mapped_column(sa.String(64), unique=True)
+
     deleted: Mapped[bool] = mapped_column(default=False)
 
     gcu_acceptation: Mapped[bool] = mapped_column(default=False)
     gcu_acceptation_date: Mapped[sa.DateTime] = mapped_column(
         sa.DateTime, server_default=func.now()
-    )
-
-    community: Mapped[CommunityEnum] = mapped_column(
-        sa.Enum(CommunityEnum), default=CommunityEnum.PRESS_MEDIA
     )
 
     gender: Mapped[str] = mapped_column(sa.String(1), default="?")
@@ -137,10 +124,10 @@ class User(Addressable, UserMixin, Base):
 
     # TODO
     # geoloc_id = sa.Column(sa.Integer, sa.ForeignKey("geo_loc.id"), nullable=True)
-    geoloc_id: Mapped[int | None] = mapped_column(
-        sa.BigInteger, sa.ForeignKey("geo_loc.id")
-    )
-    geoloc = relationship(GeoLocation)
+    # geoloc_id: Mapped[int | None] = mapped_column(
+    #     sa.BigInteger, sa.ForeignKey("geo_loc.id")
+    # )
+    # geoloc = relationship(GeoLocation)
 
     # TODO: use content repository
     profile_image_url: Mapped[str] = mapped_column(default="")
@@ -207,13 +194,21 @@ class User(Addressable, UserMixin, Base):
     def __repr__(self) -> str:
         return f"<User {self.email}>"
 
-    @property
-    def communities(self) -> set[str]:
-        return {self.community}
-
     @hybrid_property
     def job_title(self) -> str:
         return self.profile.profile_label
+
+    def first_community(self) -> RoleEnum:
+        for community in (
+            RoleEnum.PRESS_MEDIA,
+            RoleEnum.PRESS_RELATIONS,
+            RoleEnum.EXPERT,
+            RoleEnum.TRANSFORMER,
+            RoleEnum.ACADEMIC,
+        ):
+            if community.name in (role.name for role in self.roles):
+                return community
+        raise RuntimeError(f"Unknown community for {self}")
 
     # Override Flask-Security
     def has_role(self, role: str | RoleEnum | Role) -> bool:
@@ -286,6 +281,23 @@ class KYCProfile(Base):
             return self.business_wall[field_name]
         return ""
 
+    def get_first_value(self, field_name: str) -> str:
+        value = self.get_value(field_name)
+        if isinstance(value, list):
+            if value:
+                return value[0]
+            return ""
+        return value
+
+    def get_first_bw_trigger(self) -> str:
+        """Return name of the business_wall trigger with True value,
+        or an empty string
+        """
+        for key, val in self.business_wall.items():
+            if val:
+                return key
+        return ""
+
     def update_json_field(self, json_field: str, key: str, value: Any) -> None:
         tmp = deepcopy(getattr(self, json_field))
         tmp[key] = value
@@ -312,10 +324,10 @@ class KYCProfile(Base):
         return survey_profile.organisation_field
 
     @property
-    def organisation_family(self) -> OrganisationFamilyEnum:
+    def organisation_family(self) -> OrganisationTypeEnum:
         survey_profile = get_survey_profile(self.profile_id)
         family = FIELD_TO_ORGA_FAMILY.get(
-            survey_profile.organisation_field, OrganisationFamilyEnum.AUTRE
+            survey_profile.organisation_field, OrganisationTypeEnum.OTHER
         )
         return family  # type:ignore
 
@@ -427,7 +439,7 @@ def clone_user(orig_user: User) -> User:
     cloned_profile = clone_kycprofile(orig_user.profile)
     cloned_user = User(
         # id  # undefined at this point, autogenerated
-        email=f"fake_{orig_user.id}@example.com",
+        email=f"fake_{uuid.uuid4().hex}@example.com",
         email_backup=orig_user.email,
         email_secours=orig_user.email_secours,  # no unicity on that field
         is_clone=True,
@@ -448,7 +460,6 @@ def clone_user(orig_user: User) -> User:
         gcu_acceptation=orig_user.gcu_acceptation,
         gcu_acceptation_date=orig_user.gcu_acceptation_date,
         # actual user fields:
-        community=orig_user.community,
         gender=orig_user.gender,
         first_name=orig_user.first_name,
         last_name=orig_user.last_name,
@@ -461,8 +472,6 @@ def clone_user(orig_user: User) -> User:
         tel_mobile_valid=orig_user.tel_mobile_valid,
         tel_mobile_date_valid=orig_user.tel_mobile_date_valid,
         organisation_id=orig_user.organisation_id,
-        geoloc_id=orig_user.geoloc_id,
-        # geoloc  # check if needed
         profile_image_url=orig_user.profile_image_url,
         cover_image_url=orig_user.cover_image_url,
         status=orig_user.status,
@@ -470,6 +479,8 @@ def clone_user(orig_user: User) -> User:
         organisation=orig_user.organisation,  # to verify: not to appear in members list ! maybe not for clone
         roles=orig_user.roles,  # maybe not for clone, only when merging ?
     )
+    for key in orig_user.addr_attributes:
+        setattr(cloned_user, key, getattr(orig_user, key))
     cloned_user.profile = cloned_profile
     return cloned_user
 
@@ -504,7 +515,6 @@ def merge_values_from_other_user(orig_user: User, modified_user: User) -> None:
     orig_user.gcu_acceptation = modified_user.gcu_acceptation
     orig_user.gcu_acceptation_date = modified_user.gcu_acceptation_date
     # actual user fields:
-    orig_user.community = modified_user.community
     orig_user.gender = modified_user.gender
     orig_user.first_name = modified_user.first_name
     orig_user.last_name = modified_user.last_name
@@ -517,7 +527,7 @@ def merge_values_from_other_user(orig_user: User, modified_user: User) -> None:
     orig_user.tel_mobile_valid = modified_user.tel_mobile_valid
     orig_user.tel_mobile_date_valid = modified_user.tel_mobile_date_valid
     orig_user.organisation_id = modified_user.organisation_id
-    orig_user.geoloc_id = modified_user.geoloc_id
+    # orig_user.geoloc_id = modified_user.geoloc_id
     # geoloc  # check if needed
     orig_user.profile_image_url = modified_user.profile_image_url
     orig_user.cover_image_url = modified_user.cover_image_url
@@ -525,6 +535,9 @@ def merge_values_from_other_user(orig_user: User, modified_user: User) -> None:
     orig_user.karma = modified_user.karma
     orig_user.organisation = modified_user.organisation
     orig_user.roles = modified_user.roles  # maybe not for clone, only when merging
+
+    for key in modified_user.addr_attributes:
+        setattr(orig_user, key, getattr(modified_user, key))
 
     # orig_user.profile = modified_user.profile
     orig_user.profile = new_kyc_profile

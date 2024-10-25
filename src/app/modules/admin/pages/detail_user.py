@@ -8,6 +8,7 @@ from datetime import datetime, timezone
 
 from flask import Response, g, request
 
+from app.constants import LABEL_COMPTE_DESACTIVE
 from app.flask.extensions import db
 from app.flask.lib.pages import page
 
@@ -61,7 +62,7 @@ class ShowUser(AdminListPage):
 
     def _deactive_profile(self) -> None:
         self.user.active = False
-        self.user.user_valid_comment = "Utilisateur désactivé"
+        self.user.user_valid_comment = LABEL_COMPTE_DESACTIVE
         self.user.user_date_valid = datetime.now(timezone.utc)
         db_session = db.session
         db_session.merge(self.user)

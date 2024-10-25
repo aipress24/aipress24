@@ -29,6 +29,12 @@ from svcs.flask import container
 from werkzeug import Response
 from wtforms import Field
 
+from app.constants import (
+    BW_TRIGGER_LABEL,
+    LABEL_INSCRIPTION_NOUVELLE,
+    LABEL_MODIFICATION_MAJEURE,
+    LABEL_MODIFICATION_MINEURE,
+)
 from app.enums import CommunityEnum
 from app.flask.extensions import db
 from app.models.auth import (
@@ -39,11 +45,13 @@ from app.models.auth import (
     merge_values_from_other_user,
 )
 from app.models.repositories import RoleRepository
+from app.modules.kyc.organisation_utils import store_user_auto_organisation
 from app.modules.swork.pages.masked_fields import MaskFields
+from app.services.roles import generate_roles_map
 from app.services.sessions import SessionService
 
 from . import blueprint
-from .community_role import append_user_role_from_community, generate_roles_map
+from .community_role import append_user_role_from_community
 from .dynform import TAG_LABELS, generate_form
 from .field_label import data_to_label
 from .ontology_loader import zip_code_city_list
@@ -51,7 +59,7 @@ from .populate_profile import populate_form_data, populate_json_field
 from .renderer import render_field
 from .resized import resized
 from .survey_dataclass import SurveyField, SurveyProfile
-from .survey_model import get_survey_model, get_survey_profile
+from .survey_model import get_survey_fields, get_survey_model, get_survey_profile
 from .temporary_blob import delete_tmp_blob, pop_tmp_blob, read_tmp_blob, store_tmp_blob
 
 # python 3.12
@@ -486,14 +494,15 @@ def _make_new_kyc_user_record() -> User:
         is_clone=False,
         # is_cloned=False,
         active=False,
-        user_valid_comment="Nouvel utilisateur à valider",
+        user_valid_comment=LABEL_INSCRIPTION_NOUVELLE,
         gcu_acceptation=results.get("validation_gcu", False),
     )
 
     user.profile = profile
 
-    user.community = survey_profile.community
-    append_user_role_from_community(generate_roles_map(), user)
+    append_user_role_from_community(
+        generate_roles_map(), user, survey_profile.community
+    )
     # debug: add some role
     # user.roles.append(_role_from_name("EXPERT"))
 
@@ -508,7 +517,6 @@ def _set_default_kyc_profile(user: User) -> None:
     profile_id = "P002"  # aka PRESS_MEDIA journaliste salarié
     survey_profile = get_survey_profile(profile_id)
     # fake user at the moment
-    print("//////////// generate empty profile", file=sys.stderr)
     profile = KYCProfile(
         profile_id=survey_profile.id,
         profile_label=survey_profile.label,
@@ -580,8 +588,10 @@ def _update_from_current_user(orig_user: User) -> User:
     cloned_user.gcu_acceptation = results.get("validation_gcu", False)
     # duplicated: from KYCProfile
 
-    cloned_user.community = survey_profile.community
-    append_user_role_from_community(generate_roles_map(), cloned_user)
+    # cloned_user.community = survey_profile.community
+    append_user_role_from_community(
+        generate_roles_map(), cloned_user, survey_profile.community
+    )
 
     return cloned_user
 
@@ -611,12 +621,28 @@ def _validation_requirement_fields(orig_user: User, cloned_user: User) -> list[s
     """If the differences between both user are on critical fields, validation
     is required.
     """
-    critical = ("first_name", "last_name", "gender")
+    convert = {"civilite": "gender"}
+
+    def _get_value(user: User, field_name: str) -> Any:
+        if field_name.startswith("trigger"):
+            profile = user.profile
+            return profile.business_wall[field_name]
+        key = convert.get(field_name, field_name)
+        return getattr(user, key)
+
+    critical = [field.name for field in get_survey_fields() if field.validate_changes]
     critical_modified_fields = []
-    for key in critical:
-        if getattr(orig_user, key) != getattr(cloned_user, key):
-            critical_modified_fields.append(key)
+    for key_name in critical:
+        if _get_value(orig_user, key_name) != _get_value(cloned_user, key_name):
+            critical_modified_fields.append(convert.get(key_name, key_name))
     return critical_modified_fields
+
+
+def _modified_fields_as_label(attr_names: list[str]) -> str:
+    convert = {"civilite": "gender"}
+    names = [convert.get(x, x) for x in attr_names]
+    names = [BW_TRIGGER_LABEL.get(x, x) for x in names]
+    return " ,".join(names)
 
 
 def _update_current_user_data() -> str:
@@ -625,13 +651,10 @@ def _update_current_user_data() -> str:
     print("//Updating// updating user:", orig_user, file=sys.stderr)
     cloned_user = _update_from_current_user(orig_user)
     critical_modified_fields = _validation_requirement_fields(orig_user, cloned_user)
-    print("//critical_modified_fields//", critical_modified_fields, file=sys.stderr)
     if critical_modified_fields:
         cloned_user.active = False
-        modified_text = " ,".join(critical_modified_fields)
-        cloned_user.user_valid_comment = (
-            f"Modifications demandant une validation: {modified_text}"
-        )
+        modified_text = _modified_fields_as_label(critical_modified_fields)
+        cloned_user.user_valid_comment = f"{LABEL_MODIFICATION_MAJEURE} {modified_text}"
         print(
             f"#### {cloned_user} validation required: {modified_text}", file=sys.stderr
         )
@@ -640,7 +663,11 @@ def _update_current_user_data() -> str:
         # informations
     else:
         # forget cloned_user
+        cloned_user.user_valid_comment = LABEL_MODIFICATION_MINEURE
         merge_values_from_other_user(orig_user, cloned_user)
+        auto_orga = store_user_auto_organisation(orig_user)
+        if auto_orga:
+            orig_user.organisation_id = auto_orga.id
         orig_user.active = True
         # db_session.delete(cloned_user) # not in DB
         db_session.merge(orig_user)  # add the cloned user to DB
@@ -678,7 +705,7 @@ def _populate_kyc_data_from_user(user: User) -> dict[str, Any]:
     data["first_name"] = user.first_name
     data["civilite"] = user.gender
     data["presentation"] = user.profile.presentation
-    data["email"] = user.email
+    data["email"] = user.email_backup or user.email
     data["email_secours"] = user.email_secours
     data["tel_mobile"] = user.tel_mobile
     data["password"] = ""

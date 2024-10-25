@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+import re
 from typing import cast
 
 from attr import define
@@ -12,15 +13,15 @@ from sqlalchemy import select
 from sqlalchemy.sql import Select
 from sqlalchemy.sql.functions import count
 
-from app.enums import OrganisationFamilyEnum
+from app.enums import OrganisationTypeEnum
 from app.flask.extensions import db
 from app.flask.lib.view_model import ViewModel
 from app.flask.sqla import get_multi
-from app.models.geoloc import GeoLocation
+from app.models.mixins import Addressable
 from app.models.organisation import Organisation
 
 from ..common import Directory
-from .base import BaseList, Filter, FilterByCity, FilterByDept
+from .base import BaseList, Filter
 
 
 @register
@@ -28,7 +29,6 @@ class OrganisationsList(BaseList):
     def context(self):
         org_count = self.get_org_count()
         orgs = self.get_orgs()
-
         directory = OrgsDirectory(orgs)
 
         return {
@@ -48,31 +48,26 @@ class OrganisationsList(BaseList):
         return list(db.session.scalars(stmt))
 
     def get_base_statement(self) -> Select:
-        return (
-            select(Organisation)
-            .join(GeoLocation)
-            .order_by(Organisation.name)
-            .limit(100)
-        )
+        return select(Organisation).order_by(Organisation.name).limit(100)
 
     def search_clause(self, search):
         return Organisation.name.ilike(f"%{search}%")
 
-    # def apply_search(self, stmt: Select) -> Select:
-    #     search = self.search.strip()
-    #     if not search:
-    #         return stmt
-    #
-    #     m = re.search("([0-9][0-9][0-9][0-9][0-9])", search)
-    #     if m:
-    #         postal_code = m.group(1)
-    #         search = search.replace(postal_code, "").strip()
-    #         stmt = stmt.where(GeoLocation.postal_code == postal_code)
-    #
-    #     if search:
-    #         stmt = stmt.where(Organisation.name.ilike(f"%{search}%"))
-    #
-    #     return stmt
+    def apply_search(self, stmt: Select) -> Select:
+        search = self.search.strip()
+        if not search:
+            return stmt
+
+        m = re.search("([0-9]+)", search)
+        if m:
+            zip_code = m.group(1)
+            search = search.replace(zip_code, "").strip()
+            stmt = stmt.where(Organisation.zip_code.ilike(f"%{zip_code}%"))
+
+        if search:
+            stmt = stmt.where(Organisation.name.ilike(f"%{search}%"))
+
+        return stmt
 
     def get_filters(self):
         stmt = select(Organisation)
@@ -80,44 +75,87 @@ class OrganisationsList(BaseList):
         return make_filters(orgs)
 
 
-class FilterByCategory(Filter):
-    id = "category"
-    label = "Categorie"
-    options = [str(x) for x in OrganisationFamilyEnum]  # type: ignore
-    org_type_map = {str(x): x for x in OrganisationFamilyEnum}  # type: ignore
+class FilterByDeptOrm(Filter):
+    id = "dept"
+    label = "Département"
+
+    def selector(self, obj) -> str:
+        if isinstance(obj, Addressable):
+            return str(obj.dept_code)
+        return ""
 
     def apply(self, stmt, state):
         active_options = self.active_options(state)
-        type_map = self.org_type_map
-        types = [type_map[option] for option in active_options]
-
-        if types:
-            stmt = stmt.where(Organisation.type.in_(types))
-
-        return stmt
+        if not active_options:
+            return stmt
+        return stmt.where(Organisation.dept_code.in_(active_options))
 
 
-class FilterBySector(Filter):
-    id = "sector"
-    label = "Secteur"
-    options = [
-        "Secteur 1",
-        "Secteur 2",
-        "Secteur 3",
-        "Secteur 4",
-        "Secteur 5",
-    ]
+class FilterByCityOrm(Filter):
+    id = "city"
+    label = "Ville"
+
+    def selector(self, obj) -> str:
+        if isinstance(obj, Addressable):
+            return str(obj.city)
+        return ""
 
     def apply(self, stmt, state):
+        active_options = self.active_options(state)
+        if not active_options:
+            return stmt
+        return stmt.where(Organisation.city.in_(active_options))
+
+
+class FilterByCategory(Filter):
+    id = "category"
+    label = "Categorie"
+    # options = [
+    #     "Agences",
+    #     "Médias",
+    #     "PR agencies",
+    #     "Autres",
+    # ]
+    org_type_map = {
+        "Agences de presse": OrganisationTypeEnum.AGENCY,
+        "Médias": OrganisationTypeEnum.MEDIA,
+        "PR agencies": OrganisationTypeEnum.COM,
+        "Autres": OrganisationTypeEnum.OTHER,
+        "Non officialisées": OrganisationTypeEnum.AUTO,
+    }
+    options = list(org_type_map.keys())
+    # options = [str(x) for x in OrganisationTypeEnum]  # type: ignore
+    # org_type_map = {str(x): x for x in OrganisationTypeEnum}  # type: ignore
+
+    def apply(self, stmt, state):
+        active_options = self.active_options(state)
+        types = [self.org_type_map[option] for option in active_options]
+        if types:
+            stmt = stmt.where(Organisation.type.in_(types))
         return stmt
+
+
+# class FilterBySector(Filter):
+#     id = "sector"
+#     label = "Secteur"
+#     options = [
+#         "Secteur 1",
+#         "Secteur 2",
+#         "Secteur 3",
+#         "Secteur 4",
+#         "Secteur 5",
+#     ]
+
+#     def apply(self, stmt, state):
+#         return stmt
 
 
 def make_filters(orgs: list[Organisation]):
     return [
         FilterByCategory(orgs),
-        FilterBySector(orgs),
-        FilterByCity(orgs),
-        FilterByDept(orgs),
+        # FilterBySector(orgs),
+        FilterByCityOrm(orgs),
+        FilterByDeptOrm(orgs),
     ]
 
 
@@ -131,7 +169,10 @@ class OrgVM(ViewModel):
         return {"logo_url": self.get_logo_url()}
 
     def get_logo_url(self) -> str:
-        return self.org.logo_url
+        if self.org.is_auto:
+            return "/static/img/logo-page-non-officielle.png"
+        else:
+            return self.org.logo_url
 
 
 class OrgsDirectory(Directory):

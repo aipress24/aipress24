@@ -4,11 +4,8 @@
 
 from __future__ import annotations
 
-from svcs.flask import container
-
-from app.enums import CommunityEnum
-from app.models.auth import RoleEnum, User
-from app.models.repositories import RoleRepository
+from app.enums import CommunityEnum, RoleEnum
+from app.models.auth import Role, User
 
 COMMUNITY_TO_ROLE = {
     CommunityEnum.PRESS_MEDIA: RoleEnum.PRESS_MEDIA,
@@ -19,28 +16,23 @@ COMMUNITY_TO_ROLE = {
 }
 
 
-def generate_roles_map() -> dict[str, RoleEnum]:
-    role_repo = container.get(RoleRepository)
-    return {role.name: role for role in role_repo.list()}
-
-
 def community_to_role_name(community: str | CommunityEnum) -> str:
     """Return RoleEnum.name derivating from from CommunityEnum.name ."""
-    return COMMUNITY_TO_ROLE[community].name  # type: ignore
+    if isinstance(community, CommunityEnum):
+        return COMMUNITY_TO_ROLE[community].name  # type: ignore
+    return COMMUNITY_TO_ROLE[CommunityEnum[community]].name  # type: ignore
 
 
 def community_to_role_enum(
-    role_map: dict[str, RoleEnum], community: str | CommunityEnum
-) -> RoleEnum:
+    role_map: dict[str, Role], community: str | CommunityEnum
+) -> Role:
     return role_map[community_to_role_name(community)]
 
 
 def append_user_role_from_community(
-    role_map: dict[str, RoleEnum],
+    role_map: dict[str, Role],
     user: User,
-    community: str | CommunityEnum | None = None,
+    community: str | CommunityEnum,
 ) -> None:
-    if not community:
-        community = user.community
     role = community_to_role_enum(role_map, community)
     user.add_role(role)

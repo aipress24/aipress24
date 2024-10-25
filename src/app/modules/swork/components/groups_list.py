@@ -10,7 +10,6 @@ from sqlalchemy.sql.functions import count
 
 from app.flask.extensions import db
 from app.flask.sqla import get_multi
-from app.models.geoloc import GeoLocation
 
 from ..common import Directory
 from ..models import Group
@@ -42,7 +41,6 @@ class GroupsList(BaseList):
     def get_base_statement(self):
         return (
             select(Group)
-            .join(GeoLocation)
             .where(Group.privacy == "public")
             .order_by(Group.name)
             .limit(100)

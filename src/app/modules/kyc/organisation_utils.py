@@ -6,43 +6,132 @@ from __future__ import annotations
 
 from sqlalchemy import select
 
-from app.enums import OrganisationFamilyEnum
+from app.enums import OrganisationTypeEnum
 from app.flask.extensions import db
-from app.models.organisation_light import LightOrganisation
+from app.models.auth import User
+from app.models.organisation import Organisation
 
 
 def get_organisation_family(
-    family: OrganisationFamilyEnum = OrganisationFamilyEnum.AUTRE,  # type: ignore
+    family: OrganisationTypeEnum = OrganisationTypeEnum.AUTO,  # type: ignore
 ) -> list[str]:
-    """Get list of light organisation of specified family"""
+    """Get list of Organisation of specified family."""
     query = (
-        select(LightOrganisation)
-        .where(LightOrganisation.family == family.name)
-        .order_by(LightOrganisation.name)
+        select(Organisation)
+        .where(Organisation.type == family)
+        .order_by(Organisation.name)
+    )
+    result = db.session.execute(query).scalars()
+    return [org.name for org in result]
+
+
+def get_organisation_for_noms_medias() -> list[str]:
+    """Get list of Organisation of MEDIA AGENCY and AUTO families.
+
+    List not filtered for duplicates.
+    (Then will add the required ontologie if needed, there or in a later stage)
+    """
+    query = select(Organisation).where(
+        Organisation.type.in_([
+            OrganisationTypeEnum.MEDIA,
+            OrganisationTypeEnum.AGENCY,
+            OrganisationTypeEnum.AUTO,
+        ])
+    )
+    result = db.session.execute(query).scalars()
+    return [org.name for org in result]
+
+
+def get_organisation_for_noms_orgas() -> list[str]:
+    """Get list of Organisation of OTHER and AUTO families.
+
+    List not filtered for duplicates.
+    (Then will add the required ontologie if needed, there or in a later stage)
+    """
+    query = select(Organisation).where(
+        Organisation.type.in_([
+            OrganisationTypeEnum.OTHER,
+            OrganisationTypeEnum.AUTO,
+        ])
+    )
+    result = db.session.execute(query).scalars()
+    return [org.name for org in result]
+
+
+def get_organisation_for_noms_com() -> list[str]:
+    """Get list of Organisation of COM and AUTO families.
+
+    List not filtered for duplicates.
+    (Then will add the required ontologie if needed, there or in a later stage)
+    """
+    query = select(Organisation).where(
+        Organisation.type.in_([
+            OrganisationTypeEnum.COM,
+            OrganisationTypeEnum.AUTO,
+        ])
     )
     result = db.session.execute(query).scalars()
     return [org.name for org in result]
 
 
 def get_organisation_choices_family(
-    family: OrganisationFamilyEnum = OrganisationFamilyEnum.AUTRE,  # type: ignore
+    family: OrganisationTypeEnum = OrganisationTypeEnum.AUTO,  # type: ignore
 ) -> list[tuple[str, str]]:
     """Get list of light organisations of specified famille in HTML select format"""
     return [(name, name) for name in get_organisation_family(family)]
 
 
-def store_light_organisation(
+def store_user_auto_organisation(user: User) -> Organisation | None:
+    """Store the User AUTO organisation if the organisation does not exists."""
+    profile = user.profile
+    orga_field_name = profile.organisation_field_name_origin
+    current_value = profile.get_value(orga_field_name)
+    if isinstance(current_value, list):  # newsrooms is a list
+        if current_value:
+            name = current_value[0]
+        else:
+            name = ""
+    else:
+        name = current_value
+    name = name.strip()
+    if not name:
+        return None
+    # family = profile.organisation_family  # select the target family
+    return store_auto_organisation(name)
+
+
+def store_auto_organisation(
     name: str = "",
-    family: OrganisationFamilyEnum = OrganisationFamilyEnum.AUTRE,  # type: ignore
-) -> bool:
+    # family: OrganisationTypeEnum = OrganisationTypeEnum.AUTO,  # type: ignore
+    db_session: object | None = None,
+) -> Organisation | None:
+    """Store a new AUTO organisation if the organisation does not exists.
+
+    Return: created or existent Auto Organisation, or None if fail to create (empty name)
+
+    2 possible situations:
+        - the organisation already exists, either as a registered (MEDIA? COM...) or AUTO
+            -> if of type AUTO, return the existent Organisation
+            -> if of any other type, create a AUTO organisation (of same name)
+        - the organisation does not exists
+            -> create a new one with type "AUTO"
+    """
     name = str(name).strip()
     if not name:
-        return False
-    db_session = db.session
-    query = select(LightOrganisation).where(LightOrganisation.name == name)
-    found_orga_light = db.session.execute(query).scalar()
-    if found_orga_light:
-        return False
-    db_session.add(LightOrganisation(name=name, family=family.name))
+        return None
+    if db_session is None:
+        db_session = db.session
+    query = (
+        select(Organisation).where(
+            Organisation.name == name, Organisation.type == OrganisationTypeEnum.AUTO
+        )
+        # .where(Organisation.type.in_([family, OrganisationTypeEnum.AUTO]))
+    )
+    found_organisation = db.session.execute(query).scalar()
+    if found_organisation:
+        return found_organisation
+    # No Organisatin with both same type and name exists: save
+    created_organisation = Organisation(name=name, type=OrganisationTypeEnum.AUTO)
+    db_session.add(created_organisation)
     db_session.commit()
-    return True
+    return created_organisation

@@ -13,18 +13,21 @@ from mimesis import Internet, Person
 from mimesis.enums import Gender
 from sqlalchemy.sql import func
 
-from app.enums import ContactTypeEnum, OrganisationFamilyEnum
+from app.constants import LABEL_INSCRIPTION_NOUVELLE, LABEL_INSCRIPTION_VALIDEE
+from app.enums import ContactTypeEnum, OrganisationTypeEnum
 from app.faker._constants import COVER_IMAGES
 from app.faker._geo import fake_geoloc
 from app.flask.extensions import security
 from app.models.auth import KYCProfile, User
+from app.modules.kyc.community_role import append_user_role_from_community
 from app.modules.kyc.ontology_loader import zip_code_city_list
 from app.modules.kyc.organisation_utils import (
     get_organisation_family,
-    store_light_organisation,
+    store_auto_organisation,
 )
 from app.modules.kyc.populate_profile import populate_json_field
 from app.modules.kyc.survey_model import get_survey_profile, get_survey_profile_ids
+from app.services.roles import Role, generate_roles_map
 from app.services.taxonomies import get_full_taxonomy, get_full_taxonomy_category_value
 from app.settings.vocabularies.user import USER_STATUS
 
@@ -37,6 +40,13 @@ GENDERS = {
 
 GLOBAL_COUNTER = {"no_carte_presse": 0}
 COMMON_PWD = "AAAABBBB-1"
+PERCENT_USERS_WITH_AUTO_ORGANISATION = 50
+AUTO_ORGANISATIONS_NAMES = set()
+
+
+@functools.cache
+def _role_map() -> dict[str, Role]:
+    return generate_roles_map()
 
 
 @functools.cache
@@ -50,12 +60,20 @@ def _get_full_taxo_category_value(taxonomy: str) -> list[tuple[str, str]]:
 
 
 @functools.cache
-def _get_full_organisation_family(family: OrganisationFamilyEnum) -> list[str]:
+def _get_full_organisation_family(family: OrganisationTypeEnum) -> list[str]:
     return get_organisation_family(family)
 
 
 def random_profile_id() -> str:
     return random.choice(get_survey_profile_ids())
+
+
+def _use_known_organisation_name() -> str | None:
+    if not AUTO_ORGANISATIONS_NAMES:
+        return None
+    if random.randint(1, 100) <= 50:
+        return None
+    return random.choice(list(AUTO_ORGANISATIONS_NAMES))
 
 
 class UserGenerator(BaseGenerator):
@@ -148,7 +166,7 @@ class UserGenerator(BaseGenerator):
         word = self.generate_words(1)
         profile.info_professionnelle["nom_adm"] = f"{word.capitalize()} Administration"
 
-    def _random_type_media(self, _user: User, profile: KYCProfile) -> None:
+    def _random_type_entreprise_media(self, _user: User, profile: KYCProfile) -> None:
         profile.info_professionnelle["type_entreprise_media"] = list({
             random.choice(_get_full_taxo("type_entreprises_medias"))[0]
             for _ in range(random.randint(1, 3))
@@ -167,24 +185,30 @@ class UserGenerator(BaseGenerator):
         })
 
     def _random_nom_orga(self, _user: User, profile: KYCProfile) -> None:
-        organisations = _get_full_organisation_family(OrganisationFamilyEnum.AUTRE)
+        organisations = _get_full_organisation_family(OrganisationTypeEnum.OTHER)
         if not organisations or random.randint(1, 4) == 1:
-            name = self.generate_words(1)
-            name = f"{name.capitalize()} Organisation"
+            name = _use_known_organisation_name()
+            if not name:
+                name = self.generate_words(1)
+                name = f"{name.capitalize()} Organisation"
         else:
             name = random.choice(organisations)
+        AUTO_ORGANISATIONS_NAMES.add(name)
         profile.info_professionnelle["nom_orga"] = name
 
     def _random_nom_media(self, _user: User, profile: KYCProfile) -> None:
         # special case: several possible free or from list but first one taken
         # as organisation_name
         def _nom_media() -> str:
-            medias = _get_full_organisation_family(OrganisationFamilyEnum.MEDIA)
+            medias = _get_full_organisation_family(OrganisationTypeEnum.MEDIA)
             if not medias or random.randint(1, 4) == 1:
-                name = self.generate_words(1)
-                name = f"{name.capitalize()} Média"
+                name = _use_known_organisation_name()
+                if not name:
+                    name = self.generate_words(1)
+                    name = f"{name.capitalize()} Média"
             else:
                 name = random.choice(medias)
+            AUTO_ORGANISATIONS_NAMES.add(name)
             return name
 
         profile.info_professionnelle["nom_media"] = list({
@@ -192,18 +216,23 @@ class UserGenerator(BaseGenerator):
         })
 
     def _random_nom_media_instit(self, _user: User, profile: KYCProfile) -> None:
-        word = self.generate_words(1)
-        profile.info_professionnelle["nom_media_instit"] = (
-            f"{word.capitalize()} Média Inst"
-        )
+        name = _use_known_organisation_name()
+        if not name:
+            word = self.generate_words(1)
+            name = f"{word.capitalize()} Média Inst"
+        AUTO_ORGANISATIONS_NAMES.add(name)
+        profile.info_professionnelle["nom_media_instit"] = name
 
     def _random_nom_agence_rp(self, _user: User, profile: KYCProfile) -> None:
-        agencies = _get_full_organisation_family(OrganisationFamilyEnum.RP)
+        agencies = _get_full_organisation_family(OrganisationTypeEnum.COM)
         if not agencies or random.randint(1, 4) == 1:
-            name = self.generate_words(1)
-            name = f"{name.capitalize()} PR Agency"
+            name = _use_known_organisation_name()
+            if not name:
+                name = self.generate_words(1)
+                name = f"{name.capitalize()} PR Agency"
         else:
             name = random.choice(agencies)
+        AUTO_ORGANISATIONS_NAMES.add(name)
         profile.info_professionnelle["nom_agence_rp"] = name
 
     def _random_nom_group_com(self, _user: User, profile: KYCProfile) -> None:
@@ -388,10 +417,10 @@ class UserGenerator(BaseGenerator):
         # advanced feature for faker would be default depending on user's community
         if counter > 50 and (random.randint(1, 5)) == 1:
             user.active = False
-            user.user_valid_comment = "Nouvel utilisateur à valider"
+            user.user_valid_comment = LABEL_INSCRIPTION_NOUVELLE
         else:
             user.active = True
-            user.user_valid_comment = "Utilisateur validé"
+            user.user_valid_comment = LABEL_INSCRIPTION_VALIDEE
 
     @staticmethod
     def _load_photo_profil(user: User) -> None:
@@ -404,24 +433,31 @@ class UserGenerator(BaseGenerator):
         except Exception as e:
             print(e)
 
-    def _make_non_official_orga(self, profile) -> None:
-        """Generate random non official organisation"""
+    def _make_non_official_orga(self, user: User, profile: KYCProfile) -> None:
+        """Generate random non official organisation from user infos."""
         orga_field_name = profile.organisation_field_name_origin
         current_value = profile.get_value(orga_field_name)
         if isinstance(current_value, list):
             if current_value:
-                orga = current_value[0]
+                organisation_name = current_value[0]
             else:
-                orga = ""
+                organisation_name = ""
         else:
-            orga = current_value
-        family = profile.organisation_family
-        store_light_organisation(orga, family)
+            organisation_name = current_value
+        if not organisation_name:  # user without organisation
+            return
+        # family = profile.organisation_family
+        # store AUTO organisation
+        # allow organisation of same name
+        auto_organisation = store_auto_organisation(organisation_name)
+        if auto_organisation:
+            user.organisation_id = auto_organisation.id
+        # store organisation name in user profile
         profile.deduce_organisation_name()
 
     def make_obj(self) -> User:
         datastore = security.datastore
-        user: User = datastore.create_user()
+        user: User = datastore.create_user()  # type:ignore
 
         self.counter += 1
 
@@ -459,22 +495,48 @@ class UserGenerator(BaseGenerator):
             "presentation",
         }
 
-        for field in survey_profile.fields(mandatory=False):
+        field_related_to_organisation = {
+            "nom_media",  # organisation name
+            "nom_media_instit",  # organisation name
+            "nom_agence_rp",  # organisation name
+            "nom_orga",  # organisation name
+            "nom_groupe_presse",
+            "type_entreprise_media",
+            "type_presse_et_media",
+            "nom_group_com",
+            "type_agence_rp",
+            "nom_adm",
+            "type_orga",
+            "taille_orga",
+            "pays_zip_ville",
+            "adresse_pro",
+            "compl_adresse_pro",
+            "tel_standard",
+            "ligne_directe",
+            "url_site_web",
+        }
+
+        user_with_auto_org = (
+            random.randint(1, 100) <= PERCENT_USERS_WITH_AUTO_ORGANISATION
+        )
+
+        for field in survey_profile.fields(only_mandatory=False):
             name = field.name
+            if not user_with_auto_org and name in field_related_to_organisation:
+                continue
             if name not in field_done:
                 method = getattr(self, f"_random_{name}", None)
                 if method:
                     method(user, profile)
-                # else:
-                #     print("-- not found:", name)
+                else:
+                    print("-- not found:", name)
 
         self._make_random_contact_details(user, profile)
         self._make_random_validation(user, profile, self.counter)
 
         # non official organisation:
-        # later, 50% of users will have an official organisation
-        # (see generate_fake_org_membership)
-        self._make_non_official_orga(profile)
+        if user_with_auto_org:
+            self._make_non_official_orga(user, profile)
 
         user.profile = profile
 
@@ -493,9 +555,10 @@ class UserGenerator(BaseGenerator):
         user.karma = random.randint(0, 100)
         user.mojo = random.randint(0, 1000)
 
-        user.geoloc = fake_geoloc()
+        fake_geoloc(user)
 
-        user.community = survey_profile.community
+        # user.community = survey_profile.community
+        append_user_role_from_community(_role_map(), user, survey_profile.community)
 
         self.users += [user]
         return user

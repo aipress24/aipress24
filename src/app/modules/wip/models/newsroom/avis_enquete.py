@@ -68,8 +68,8 @@ class AvisEnquete(
     date_parution_prevue: Mapped[datetime] = mapped_column(ArrowType)
 
     # Type d’avis (Avis d’enquête, Appel à témoin, Appel à expert)
-    type_avis: Mapped[str] = (
-        mapped_column(sa.Enum(TypeAvis), default=TypeAvis.AVIS_D_ENQUETE),
+    type_avis: Mapped[str] = mapped_column(
+        sa.Enum(TypeAvis), default=TypeAvis.AVIS_D_ENQUETE
     )
 
 

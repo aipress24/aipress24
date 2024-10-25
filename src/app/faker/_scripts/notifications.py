@@ -12,8 +12,9 @@ from flask_super.registry import register
 from loguru import logger
 from svcs.flask import container
 
+from app.enums import RoleEnum
 from app.faker._scripts.base import FakerScript
-from app.models.auth import RoleEnum, User
+from app.models.auth import User
 from app.models.repositories import UserRepository
 from app.services.notifications import Notification, NotificationService
 

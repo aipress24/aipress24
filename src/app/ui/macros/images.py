@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from markupsafe import Markup
 
-from app.enums import CommunityEnum
+from app.enums import RoleEnum
 from app.flask.lib.macros import macro
 from app.models.auth import User
 from app.models.organisation import Organisation
@@ -45,18 +45,17 @@ def profile_image(user: User, size=24, **kw):
     url = profile_photo_local_url(user)
 
     cls += [f"h-{size}", f"w-{size}", "object-cover", "rounded-full"]
-
-    community = user.community
+    community = user.first_community()
     match community:
-        case CommunityEnum.PRESS_MEDIA:
+        case RoleEnum.PRESS_MEDIA:
             cls += ["border-red-500"]
-        case CommunityEnum.COMMUNICANTS:
+        case RoleEnum.PRESS_RELATIONS:
             cls += ["border-blue-500"]
-        case CommunityEnum.LEADERS_EXPERTS:
+        case RoleEnum.EXPERT:
             cls += ["border-yellow-500"]
-        case CommunityEnum.TRANSFORMERS:
+        case RoleEnum.TRANSFORMER:
             cls += ["border-green-500"]
-        case CommunityEnum.ACADEMICS:
+        case RoleEnum.ACADEMIC:
             cls += ["border-orange-500"]
         case _:
             raise RuntimeError(f"Unknown community: {community}")

@@ -5,13 +5,22 @@
 from __future__ import annotations
 
 import functools
+from collections.abc import Callable
 
-from app.enums import OrganisationFamilyEnum
+from app.enums import OrganisationTypeEnum
 from app.services.countries import get_full_countries
-from app.services.taxonomies import get_full_taxonomy, get_taxonomy_dual_select
+from app.services.taxonomies import (
+    get_full_taxonomy,
+    get_taxonomy,
+    get_taxonomy_dual_select,
+)
 from app.services.zip_code import get_zip_code_country
 
-from .organisation_utils import get_organisation_choices_family
+from .organisation_utils import (
+    get_organisation_for_noms_com,
+    get_organisation_for_noms_medias,
+    get_organisation_for_noms_orgas,
+)
 
 # dictionary from field type name to ontology DB table:
 ONTOLOGY_MAP = {
@@ -66,13 +75,15 @@ ONTOLOGY_MAP = {
     "multi_langues": "langue",
 }
 
-ORGANISATION_TO_FAMILLE_MAP = {
-    "listfree_nom_agence_rp": OrganisationFamilyEnum.RP,
-    "listfree_nom_media_instit": OrganisationFamilyEnum.INSTIT,
-    "listfree_nom_orga": OrganisationFamilyEnum.AUTRE,
-    "multifree_newsrooms": OrganisationFamilyEnum.MEDIA,
-    # DEDIA includes AG_PRESSE and SYNDIC
+ORGANISATION_TO_FAMILY_MAP = {
+    "listfree_nom_agence_rp": OrganisationTypeEnum.COM,
+    "listfree_nom_media_instit": OrganisationTypeEnum.OTHER,
+    "listfree_nom_orga": OrganisationTypeEnum.OTHER,
+    "multifree_newsrooms": OrganisationTypeEnum.MEDIA,
+    # MEDIA includes AGENCY and SYNDIC
 }
+
+# agence_rp orga_newsrooms groupes_cotes
 
 ONTOLOGY_DB_LIST = {
     # "agence_rp",
@@ -89,8 +100,45 @@ ONTOLOGY_DB_LIST = {
 }
 
 
-# def _sibling_module(module: str) -> str:
-#     return __name__.rsplit(".", 1)[0] + module
+def to_label_value(func: Callable) -> Callable:
+    def wrapper() -> list:
+        return [(name, name) for name in sorted(set(func()))]
+
+    return wrapper
+
+
+@to_label_value
+def nom_media_choices() -> list[str]:
+    """Return list of ontology "orga_newsrooms" + names of Organisations of
+    families MEDIA AGENCY and AUTO.
+    """
+    return get_taxonomy("orga_newsrooms") + get_organisation_for_noms_medias()
+
+
+@to_label_value
+def nom_media_instit_choices() -> list[str]:
+    """Return list of ontology "groupes_cotes" + names of Organisations of
+    families OTHER and AUTO.
+    """
+    return get_taxonomy("groupes_cotes") + get_organisation_for_noms_orgas()
+
+
+@to_label_value
+def nom_agence_rp_choices() -> list[str]:
+    """Return list of ontology "agence_rp" + names of Organisations of
+    families COM and AUTO.
+    """
+    return get_taxonomy("agence_rp") + get_organisation_for_noms_com()
+
+
+@to_label_value
+def nom_orga_choices() -> list[str]:
+    """Return list of ontology "groupes_cotes" + names of Organisations of
+    families OTHER and AUTO.
+
+    Nota: same list as nom_media_instit_choices
+    """
+    return get_taxonomy("groupes_cotes") + get_organisation_for_noms_orgas()
 
 
 @functools.cache
@@ -106,13 +154,15 @@ def get_choices(field_type: str) -> list | dict:
     ontology = ONTOLOGY_MAP.get(field_type)
     if ontology:
         return get_ontology_content(ontology)
-    # must be an oarganisation name
-    family = ORGANISATION_TO_FAMILLE_MAP.get(field_type, OrganisationFamilyEnum.AUTRE)
-    return get_organisation_choices_family(family)  # type: ignore
-
-
-# def ontology_for_pays() -> list | dict:
-#     return get_choices("country_pays")
+    # must be an organisation name:
+    choices_map = {
+        "listfree_nom_agence_rp": nom_agence_rp_choices,
+        "listfree_nom_media_instit": nom_media_instit_choices,
+        "listfree_nom_orga": nom_orga_choices,
+        "multifree_newsrooms": nom_media_choices,
+    }
+    # content = to_label_value(choices_map[field_type])()
+    return choices_map[field_type]()
 
 
 @functools.cache

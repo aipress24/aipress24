@@ -26,7 +26,7 @@ if TYPE_CHECKING:
 class Publishable:
     """Publishable mixin."""
 
-    # __table__: sa.Table
+    __table__: sa.Table
 
     @declared_attr
     def status(cls):

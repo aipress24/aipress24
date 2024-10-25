@@ -8,10 +8,11 @@ import random
 from typing import cast
 
 import app.settings.vocabularies as voc
+from app.enums import RoleEnum
 from app.faker._constants import POST_IMAGES
 from app.models.lifecycle import PublicationStatus
 from app.modules.biz.models import EditorialProduct
-from app.services.roles import Role, has_role
+from app.services.roles import has_role
 
 from .base import BaseGenerator
 from .util import random_wikinews_article
@@ -20,7 +21,7 @@ from .util import random_wikinews_article
 class EditorialProductGenerator(BaseGenerator):
     def make_obj(self) -> EditorialProduct:
         users = self.repository["users"]
-        journalists = [u for u in users if has_role(u, Role.PRESS_MEDIA)]
+        journalists = [u for u in users if has_role(u, RoleEnum.PRESS_MEDIA)]
 
         product = EditorialProduct()
 

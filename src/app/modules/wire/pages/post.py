@@ -11,7 +11,7 @@ from attr import field, frozen
 from flask import g, request
 from werkzeug import Response
 
-from app.enums import OrganisationFamilyEnum
+from app.enums import OrganisationTypeEnum
 from app.flask.extensions import db
 from app.flask.lib.pages import Page, page
 from app.flask.lib.view_model import Wrapper
@@ -129,12 +129,12 @@ class PostMixin:
         publisher = self.publisher
         if publisher:
             match publisher.type:
-                case OrganisationFamilyEnum.MEDIA:
+                case OrganisationTypeEnum.MEDIA:
                     publisher_type = "Publié par (Média)"
-                case OrganisationFamilyEnum.AG_PRESSE:
-                    publisher_type = "Publié par (Agence)"
-                case OrganisationFamilyEnum.RP:
-                    publisher_type = "Publié par (Agence RP)"
+                case OrganisationTypeEnum.AGENCY:
+                    publisher_type = "Publié par (Agence de presse)"
+                case OrganisationTypeEnum.COM:
+                    publisher_type = "Publié par (PR Agency)"
                 case _:
                     publisher_type = "Publié par"
         else:

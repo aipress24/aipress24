@@ -33,17 +33,17 @@ sample = random.choice
 
 FAKERS_SETTINGS = [
     # SWORK
-    ("users", UserGenerator, 50),
-    ("groups", GroupGenerator, 10),
-    ("organisations", OrgGenerator, 30),
+    ("users", UserGenerator, 500),  # 500
+    ("groups", GroupGenerator, 50),  # 50
+    ("organisations", OrgGenerator, 60),  # 60
     # Content
-    ("events", EventGenerator, 50),
+    ("events", EventGenerator, 500),  # 500
     # ("articles", ArticleGenerator, 500),
     # ("photos", PhotoGenerator, 100),
-    ("press-releases", PressReleaseGenerator, 50),
+    ("press-releases", PressReleaseGenerator, 200),  # 200
     # Social
     # ("comments", CommentGenerator, 1000),
-    ("posts", PostGenerator, 100),
+    ("posts", PostGenerator, 500),  # 1000
     # Biz
     ("editorial-products", EditorialProductGenerator, 100),
 ]
@@ -99,6 +99,9 @@ class FakerService:
         organisations = self.repository["organisations"]
         users = self.repository["users"]
         for user in users:
+            # if user already got a AUTO organisation, keep it
+            if user.organisation_id:
+                continue
             # only 50% of user in official organisation
             if random.randint(1, 2) == 2:
                 continue

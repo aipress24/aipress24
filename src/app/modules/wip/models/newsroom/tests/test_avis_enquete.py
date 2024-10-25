@@ -19,7 +19,7 @@ def test_avis_enquete(db_session: scoped_session) -> None:
     joe = User(email="joe@example.com")
     jim = User(email="jim@example.com")
 
-    media = Organisation(name="Le Journal", owner=joe)
+    media = Organisation(name="Le Journal")
 
     db_session.add_all([joe, jim, media])
     db_session.flush()

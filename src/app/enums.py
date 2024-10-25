@@ -7,6 +7,21 @@ from __future__ import annotations
 from aenum import StrEnum
 
 
+class RoleEnum(StrEnum):
+    ADMIN = "admin"
+    GUEST = "guest"
+
+    # for BW organisations
+    LEADER = "leader"
+    MANAGER = "manager"
+
+    PRESS_MEDIA = "journalist"
+    PRESS_RELATIONS = "press_relations"
+    EXPERT = "expert"
+    ACADEMIC = "academic"
+    TRANSFORMER = "transformer"
+
+
 class CommunityEnum(StrEnum):
     PRESS_MEDIA = "Press & Media"
     COMMUNICANTS = "Communicants"
@@ -26,10 +41,19 @@ class ContactTypeEnum(StrEnum):
     FOLLOWEE = "Personnes suivies"
 
 
-class OrganisationFamilyEnum(StrEnum):
-    MEDIA = "Médias"  # including AG_PRESSE and SYNDIC
-    AG_PRESSE = "Agences de presse"  # not detected in KYC structure
-    SYNDIC = "Syndicats ou fédérations"  # not detected in KYC structure
-    INSTIT = "Médias institutionnels"
-    RP = "RP agencies"
-    AUTRE = "Autres"
+class OrganisationTypeEnum(StrEnum):
+    AUTO = "Auto"  # user created, aka no actual type
+    MEDIA = "Media"  # "Médias"  , not including AGENCY
+    AGENCY = "Agency"  # "Agences de presse"  # not detected in KYC structure
+    COM = "Communication"  # "PR agencies"
+    OTHER = "Other"  # general companies, and "Médias institutionnels"
+
+
+# LIGHT_ORGS_FAMILY_LABEL = {
+#     "MEDIA": "Média",
+#     "AG_PRESSE": "Agence de presse",  # , not detected in KYC structure
+#     "SYNDIC": "Syndicat ou fédération",  # not detected in KYC structure
+#     "INSTIT": "Média institutionnel",
+#     "PR": "PR agency",
+#     "AUTRE": "Autre",
+# }

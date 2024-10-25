@@ -44,14 +44,14 @@ class SurveyProfile:
                     break
         return self._organisation_field_cache
 
-    def fields(self, mandatory: bool = False) -> Iterator[SurveyField]:
+    def fields(self, only_mandatory: bool = False) -> Iterator[SurveyField]:
         """Iterator on list of SurveyField of the profile.
 
         If mandatory, return only mandatory fields (code "M").
         """
         for group in self.groups:
             for survey_field, code in group.survey_fields:
-                if not mandatory or code == "M":
+                if not only_mandatory or code == "M":
                     yield survey_field
 
 

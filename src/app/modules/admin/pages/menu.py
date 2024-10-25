@@ -11,7 +11,9 @@ from app.services.roles import has_role
 
 from .contents import AdminContentsPage
 from .dashboard import AdminDashboardPage
-from .groups import AdminGroupsPage
+
+# from .groups import AdminGroupsPage
+from .export import AdminExportPage
 from .moderation import AdminModerationPage
 from .modif_users import AdminModifUsersPage
 from .new_users import AdminNewUsersPage
@@ -29,13 +31,14 @@ MENU = [
     AdminUsersPage,
     AdminNewUsersPage,
     AdminModifUsersPage,
-    AdminGroupsPage,
+    # AdminGroupsPage,
     AdminOrgsPage,
     # AdminTransactionsPage,
     AdminPromotionsPage,
     AdminContentsPage,
     AdminModerationPage,
     AdminSystemPage,
+    AdminExportPage,
 ]
 
 

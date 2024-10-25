@@ -9,6 +9,7 @@ from typing import cast
 from flask import Flask, flash, g, redirect, render_template, request, send_file
 from flask_classful import route
 from flask_super.registry import register
+from markupsafe import Markup
 from sqlalchemy_utils.types.arrow import arrow
 from svcs.flask import container
 from werkzeug.exceptions import NotFound
@@ -24,41 +25,49 @@ from app.signals import article_published, article_unpublished
 
 from ._base import BaseWipView
 from ._forms import ArticleForm
-from ._table import BaseTable, get_name
+from ._table import BaseTable
 
 
 class ArticlesTable(BaseTable):
     id = "articles-table"
 
-    columns = [
-        {
-            "name": "titre",
-            "label": "Titre",
-            "class": "max-w-0 w-full truncate",
-        },
-        {
-            "name": "media",
-            "label": "Média",
-            "class": "max-w-48 truncate",
-            "render": get_name,
-        },
-        {
-            "name": "status",
-            "label": "Statut",
-        },
-        {
-            "name": "created_at",
-            "label": "Création",
-            "class": "max-w-48 truncate",
-        },
-        {
-            "name": "$actions",
-            "label": "",
-        },
-    ]
-
     def __init__(self, q=""):
+        self.columns = self.get_columns()
         super().__init__(Article, q)
+
+    def get_columns(self):
+        return [
+            {
+                "name": "titre",
+                "label": "Titre",
+                "class": "max-w-0 w-full truncate",
+                "render": self.get_title_with_link,
+            },
+            {
+                "name": "media",
+                "label": "Média",
+                "class": "max-w-48 truncate",
+                "render": self.get_media_name,
+            },
+            {
+                "name": "status",
+                "label": "Statut",
+            },
+            {
+                "name": "created_at",
+                "label": "Création",
+                "class": "max-w-48 truncate",
+            },
+            {
+                "name": "$actions",
+                "label": "",
+            },
+        ]
+
+    def get_title_with_link(self, obj: Article):
+        return Markup(
+            f'<a href="{url_for("ArticlesWipView:get", id=obj.id)}">{obj.title}</a>'
+        )
 
     def url_for(self, obj, _action="get", **kwargs):
         return url_for(f"ArticlesWipView:{_action}", id=obj.id, **kwargs)

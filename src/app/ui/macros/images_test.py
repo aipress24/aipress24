@@ -8,7 +8,7 @@ from unittest.mock import Mock
 
 from flask_sqlalchemy.extension import SQLAlchemy
 
-from app.enums import CommunityEnum
+from app.enums import RoleEnum
 from app.models.auth import User
 from app.models.organisation import Organisation
 from app.ui.macros.images import org_logo, profile_image
@@ -16,7 +16,7 @@ from app.ui.macros.images import org_logo, profile_image
 
 def test_profile_image(db: SQLAlchemy) -> None:
     user = Mock(User)
-    user.community = CommunityEnum.PRESS_MEDIA
+    user.add_role(RoleEnum.PRESS_MEDIA)
 
     tag = profile_image(user, size=24)
 

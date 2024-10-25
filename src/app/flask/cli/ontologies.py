@@ -11,25 +11,21 @@ from operator import itemgetter
 from pathlib import Path
 from typing import Any
 
-from flask.cli import with_appcontext
+from flask.cli import with_appcontext  # type: ignore
 from flask_super.cli import group
 from odsparsator import odsparsator
 from slugify import slugify
 
-from app.enums import OrganisationFamilyEnum
+# from app.enums import OrganisationTypeEnum
 from app.flask.extensions import db
-from app.models.organisation_light import LightOrganisation
+
+# from app.models.organisation_light import LightOrganisation
 from app.services.countries import (
     check_countries_exist,
     create_country_entry,
     update_country_entry,
 )
-from app.services.taxonomies import (
-    check_taxonomy_exist,
-    create_entry,
-    get_taxonomy,
-    update_entry,
-)
+from app.services.taxonomies import check_taxonomy_exist, create_entry, update_entry
 from app.services.zip_code import (
     check_zip_code_exist,
     create_zip_code_entry,
@@ -173,70 +169,71 @@ def import_ontologies_content() -> None:
 
 
 def merge_organisations():
-    _merge_newsrooms_organisations()
-    _merge_pr_agency_organisations()
-    _merge_other_organisations()
+    pass
+    # _merge_newsrooms_organisations()
+    # _merge_pr_agency_organisations()
+    # _merge_other_organisations()
 
 
-def _merge_other_organisations():
-    """Merge into organisations /family 'autre' the content of the
-    "groupes_cotes" taxonomy
-    """
-    count = 0
-    companies = get_taxonomy("groupes_cotes")
-    print(f"Merging OrganisationLight: {len(companies)} groupes_cotes")
-    for name in companies:
-        if (
-            db.session.query(LightOrganisation)
-            .where(LightOrganisation.name == name)
-            .first()
-        ):
-            continue
-        family = OrganisationFamilyEnum.AUTRE
-        db.session.add(LightOrganisation(name=name, family=family.name))
-        count += 1
-    print(f"Merging OrganisationLight: {count} added")
+# def _merge_other_organisations():
+#     """Merge into organisations /family 'autre' the content of the
+#     "groupes_cotes" taxonomy
+#     """
+#     count = 0
+#     companies = get_taxonomy("groupes_cotes")
+#     print(f"Merging OrganisationLight: {len(companies)} groupes_cotes")
+#     for name in companies:
+#         if (
+#             db.session.query(LightOrganisation)
+#             .where(LightOrganisation.name == name)
+#             .first()
+#         ):
+#             continue
+#         family = OrganisationTypeEnum.AUTRE
+#         db.session.add(LightOrganisation(name=name, family=family.name))
+#         count += 1
+#     print(f"Merging OrganisationLight: {count} added")
 
 
-def _merge_newsrooms_organisations():
-    """Merge into organisations /family 'media' the content of the
-    "orga_newsrooms" taxonomy
-    """
-    count = 0
-    medias = get_taxonomy("orga_newsrooms")
-    print(f"Merging OrganisationLight: {len(medias)} orga_newsrooms")
-    for name in medias:
-        if (
-            db.session.query(LightOrganisation)
-            .where(LightOrganisation.name == name)
-            .first()
-        ):
-            continue
-        # sub families AG_PRESSE and SYNDIC not detected here:
-        family = OrganisationFamilyEnum.MEDIA
-        db.session.add(LightOrganisation(name=name, family=family.name))
-        count += 1
-    print(f"Merging OrganisationLight: {count} added")
+# def _merge_newsrooms_organisations():
+#     """Merge into organisations /family 'media' the content of the
+#     "orga_newsrooms" taxonomy
+#     """
+#     count = 0
+#     medias = get_taxonomy("orga_newsrooms")
+#     print(f"Merging OrganisationLight: {len(medias)} orga_newsrooms")
+#     for name in medias:
+#         if (
+#             db.session.query(LightOrganisation)
+#             .where(LightOrganisation.name == name)
+#             .first()
+#         ):
+#             continue
+#         # sub families AGENCY and SYNDIC not detected here:
+#         family = OrganisationTypeEnum.MEDIA
+#         db.session.add(LightOrganisation(name=name, family=family.name))
+#         count += 1
+#     print(f"Merging OrganisationLight: {count} added")
 
 
-def _merge_pr_agency_organisations():
-    """Merge into organisations /family 'PR' (press relations) the content
-    of the "agence_rp" taxonomy
-    """
-    count = 0
-    agencies = get_taxonomy("agence_rp")
-    print(f"Merging OrganisationLight: {len(agencies)} agence_rp")
-    for name in agencies:
-        if (
-            db.session.query(LightOrganisation)
-            .where(LightOrganisation.name == name)
-            .first()
-        ):
-            continue
-        family = OrganisationFamilyEnum.RP
-        db.session.add(LightOrganisation(name=name, family=family.name))
-        count += 1
-    print(f"Merging OrganisationLight: {count} added")
+# def _merge_pr_agency_organisations():
+#     """Merge into organisations /family 'PR' (press relations) the content
+#     of the "agence_rp" taxonomy
+#     """
+#     count = 0
+#     agencies = get_taxonomy("agence_rp")
+#     print(f"Merging OrganisationLight: {len(agencies)} agence_rp")
+#     for name in agencies:
+#         if (
+#             db.session.query(LightOrganisation)
+#             .where(LightOrganisation.name == name)
+#             .first()
+#         ):
+#             continue
+#         family = OrganisationTypeEnum.RP
+#         db.session.add(LightOrganisation(name=name, family=family.name))
+#         count += 1
+#     print(f"Merging OrganisationLight: {count} added")
 
 
 def import_taxonomies() -> None:
@@ -256,8 +253,8 @@ def import_taxonomies() -> None:
 
 
 def _category_from_value(value: str) -> str:
-    if ";" in value:
-        return value.split(";")[0].strip()
+    if "/" in value:
+        return value.split("/")[0].strip()
     return ""
 
 
@@ -362,7 +359,7 @@ def import_zip_codes() -> None:
         for item in json.loads(path.read_text()):
             zip_code = item["zip_code"]
             name = item["name"]
-            value = f"{iso3};{zip_code} {name}"
+            value = f"{iso3} / {zip_code} {name}"
             label = f"{zip_code} {name}"
             zip_code_list.append((zip_code, name, value, label))
         zip_code_list.sort()
@@ -676,7 +673,7 @@ class BaseConvert:
 
     def generate_value_label_newsrooms(self) -> None:
         self._buffer = [
-            {"value": f"{item[0]};{item[1]}", "label": f"{item[0]} ({item[1]})"}
+            {"value": f"{item[0]} / {item[1]}", "label": f"{item[0]} / {item[1]})"}
             for item in self._buffer
         ]
         if not VALUE_LABEL_MODE:
@@ -692,14 +689,14 @@ class BaseConvert:
             result = []
             for _group, data in self._buffer:
                 extended = [
-                    {"optgroup": _group, "value": f"{_group};{label}", "label": label}
+                    {"optgroup": _group, "value": f"{_group} / {label}", "label": label}
                     for label in data
                 ]
                 result.extend(extended)
         else:
             result = {}
             for _group, data in self._buffer:
-                extended = [(f"{_group};{label}", label) for label in data]
+                extended = [(f"{_group} / {label}", label) for label in data]
                 result[_group] = extended
 
         self._buffer = result
@@ -709,7 +706,7 @@ class BaseConvert:
         {
             "field1": [ {"value": 'Associations', "label": 'Associations'} ...
             "field2": [ {"optgroup": "Associations",
-                            "value": 'Associations;Actions humanitaires',
+                            "value": 'Associations / Actions humanitaires',
                             "label": 'Associations / Actions humanitaires'
                         }, ...
         }
@@ -726,7 +723,7 @@ class BaseConvert:
                 extended = [
                     {
                         "optgroup": _group,
-                        "value": f"{_group};{label}",
+                        "value": f"{_group} / {label}",
                         "label": f"{_group} / {label}",
                     }
                     for label in data
@@ -738,7 +735,7 @@ class BaseConvert:
             field2 = {}
             for _group, data in self._buffer:
                 extended = [
-                    (f"{_group};{label}", f"{_group} / {label}") for label in data
+                    (f"{_group} / {label}", f"{_group} / {label}") for label in data
                 ]
                 field2[_group] = extended
         self._buffer = {"field1": field1, "field2": field2}
@@ -758,8 +755,10 @@ class BaseConvert:
         For optgroup kind of ontologies, returned formats:
 
         [
-            ('ARTS, CULTURE, MEDIAS;Architecture', 'ARTS, CULTURE, MEDIAS / Architecture'), ('ARTS, CULTURE, MEDIAS;Artisanat d’art', 'ARTS, CULTURE, MEDIAS / Artisanat d’art'), ('ARTS, CULTURE, MEDIAS;Art vidéo', 'ARTS, CULTURE, MEDIAS / Art vidéo'),
-            ('ARTS, CULTURE, MEDIAS;Arts textiles, Haute-couture', 'ARTS, CULTURE, MEDIAS / Arts textiles, Haute-couture')
+            ('ARTS, CULTURE, MEDIAS / Architecture', 'ARTS, CULTURE, MEDIAS / Architecture'),
+            ('ARTS, CULTURE, MEDIAS / Artisanat d’art', 'ARTS, CULTURE, MEDIAS / Artisanat d’art'),
+            ('ARTS, CULTURE, MEDIAS / Art vidéo', 'ARTS, CULTURE, MEDIAS / Art vidéo'),
+            ('ARTS, CULTURE, MEDIAS / Arts textiles, Haute-couture', 'ARTS, CULTURE, MEDIAS / Arts textiles, Haute-couture')
             ...
         ]
         """
@@ -851,7 +850,7 @@ class FonctionPublicConverter(BaseConvert):
         {
             "field1": [ {"value": 'Associations', "label": 'Associations'} ...
             "field2": [ {"optgroup": "Associations",
-                         "value": 'Associations;Actions humanitaires',
+                         "value": 'Associations / Actions humanitaires',
                          "label": 'Associations / Actions humanitaires'
                         }, ...
         }
@@ -1007,7 +1006,7 @@ class LangueConverter(BaseConvert):
 #         country_code = path.stem
 #         result = [
 #             {
-#                 "value": f"{country_code};{city['zip_code']} {city['name']}",
+#                 "value": f"{country_code} / {city['zip_code']} {city['name']}",
 #                 "label": f"{city['zip_code']} {city['name']}",
 #             }
 #             for city in content

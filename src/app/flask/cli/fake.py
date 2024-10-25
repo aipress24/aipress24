@@ -17,11 +17,7 @@ from app.faker import FakerScript, FakerService
 from app.flask.extensions import db
 from app.flask.sqla import get_multi
 from app.models.auth import User
-from app.modules.kyc.community_role import (
-    append_user_role_from_community,
-    community_to_role_enum,
-    generate_roles_map,
-)
+from app.services.roles import generate_roles_map
 
 from ...models.repositories import UserRepository
 from . import util
@@ -48,7 +44,6 @@ def fake(clean) -> None:
     print(green("Fixing roles on users..."))
     fix_roles()
     create_admins()
-    check_roles()
 
     print(green("Running additional faking scripts..."))
     run_fake_scripts()
@@ -75,13 +70,6 @@ def db_setup(clean: bool) -> None:
 
 def fix_roles():
     user_repo = container.get(UserRepository)
-    role_map = generate_roles_map()
-    for user in user_repo.list():
-        append_user_role_from_community(role_map, user)
-        # user.roles.append(role_map["ADMIN"])
-
-    db.session.commit()
-    db.session.expunge_all()
 
     for user in user_repo.list():
         assert user.email.endswith("aipress24.com")
@@ -101,21 +89,6 @@ def create_admins():
 
     db.session.commit()
     db.session.expunge_all()
-
-
-def check_roles():
-    user_repo = container.get(UserRepository)
-    role_map = generate_roles_map()
-
-    for user in user_repo.list():
-        # fixme: this checks only one role
-        roles = []
-        role = community_to_role_enum(role_map, user.community)
-        roles.append(role)
-
-        for role in roles:
-            assert user.has_role(role.name)
-            assert user.has_role(role)
 
 
 def run_fake_scripts():

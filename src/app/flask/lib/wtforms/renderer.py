@@ -4,8 +4,10 @@
 
 from __future__ import annotations
 
+from datetime import datetime
 from typing import Any
 
+from arrow import Arrow
 from attr import frozen
 from case_convert import kebab_case
 from flask import current_app
@@ -197,7 +199,7 @@ class FormRenderer:
             class_ += " input-error"
 
         if self.mode == "view":
-            field_str = field.data
+            field_str = self.render_field_value(field.data)
         else:
             field_str = field(**{"class": class_})
 
@@ -231,3 +233,18 @@ class FormRenderer:
                 group["fields"].append(self.form[field_id])
             groups.append(group)
         return groups
+
+    def render_field_value(self, value: Any):
+        match value:
+            case None:
+                return ""
+            case bool():
+                return "Oui" if value else "Non"
+            case str():
+                return value
+            case datetime():
+                return value.strftime("%d/%m/%Y à %H:%M")
+            case Arrow():
+                return value.strftime("%d/%m/%Y à %H:%M")
+            case _:
+                return str(value)

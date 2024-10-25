@@ -9,7 +9,7 @@ from pathlib import Path
 
 from mimesis import Person
 
-from app.enums import OrganisationFamilyEnum
+from app.enums import OrganisationTypeEnum
 from app.models.organisation import Organisation
 
 from .._constants import COVER_IMAGES, ORGANISATIONS
@@ -18,26 +18,33 @@ from .base import BaseGenerator, faker
 
 
 class OrgGenerator(BaseGenerator):
+    """Generate BW official organisation."""
+
     def __post_init__(self) -> None:
         super().__post_init__()
         self.person_faker = Person(self.locale)
 
     def make_obj(self):
-        users = self.repository["users"]
+        def _random_name() -> str:
+            while True:
+                if random.random() < 0.5:
+                    name = faker.company()
+                else:
+                    name = random.choice(ORGANISATIONS)
+                if name not in {org.name for org in self.objects}:
+                    break
+            return name
 
-        while True:
-            if random.random() < 0.5:
-                name = faker.company()
-            else:
-                name = random.choice(ORGANISATIONS)
-            if name not in [org.name for org in self.objects]:
-                break
+        def _random_non_auto_type() -> OrganisationTypeEnum:
+            while True:
+                family = random.choice(list(OrganisationTypeEnum))  #
+                if family != OrganisationTypeEnum.AUTO:
+                    break
+            return family
 
-        org = Organisation(name=name)
-        org.type = random.choice(list(OrganisationFamilyEnum))  # type: ignore
+        org = Organisation(name=_random_name(), type=_random_non_auto_type())
+
         org.description = self.generate_html(min_sentences=1, max_sentences=3)
-        org.owner_id = random.choice(users).id
-
         org.domain = faker.domain_name()
         org.site_url = fake_agency_url()
         org.jobs_url = faker.url()
@@ -47,11 +54,9 @@ class OrgGenerator(BaseGenerator):
         id = random.randint(1, 14)
         org.logo_url = f"/static/tmp/logos/{id}.png"
         org.cover_image_url = random.choice(COVER_IMAGES)
+        fake_geoloc(org)
 
-        org.geoloc = fake_geoloc()
-
-        #
-        if org.type == OrganisationFamilyEnum.AG_PRESSE:
+        if org.type == OrganisationTypeEnum.AGENCY:
             org.agree_cppap = random.random() < 0.5
             match random.randint(0, 3):
                 case 0:

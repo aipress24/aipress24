@@ -94,7 +94,7 @@ class Row:
         for column in self.table.columns:
             if column["name"] == "$actions":
                 continue
-            cell = Cell(self.table, column, self.item)
+            cell = Cell(column, self.item)
             result.append(cell)
         return result
 
@@ -104,14 +104,13 @@ class Row:
 
 @define
 class Cell:
-    table: Table
     column: dict[str, Any]
     item: Any
 
     def render(self) -> str:
         value = getattr(self.item, self.column["name"])
         if "render" in self.column:
-            return self.column["render"](value)
+            return self.column["render"](self.item)
         match value:
             case True:
                 return Markup('<i class="fas fa-check text-green-500"></i>')

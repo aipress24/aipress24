@@ -13,11 +13,14 @@ from devtools import debug
 from flask import Flask, flash, redirect, render_template, request
 from flask_classful import route
 from flask_super.registry import register
+from lxml import etree
 from sqlalchemy.orm import scoped_session
 from svcs.flask import container
 
+from app.enums import RoleEnum
+from app.flask.extensions import htmx
 from app.flask.routing import url_for
-from app.models.auth import RoleEnum, User
+from app.models.auth import User
 from app.models.repositories import AvisEnqueteRepository, UserRepository
 from app.modules.wip.models.newsroom import AvisEnquete
 from app.services.geonames import get_dept_name, is_dept_in_region
@@ -128,7 +131,13 @@ class AvisEnqueteWipView(BaseWipView):
             "model": model,
         }
 
-        return render_template("wip/avis_enquete/ciblage.j2", **ctx)
+        html = render_template("wip/avis_enquete/ciblage.j2", **ctx)
+        if htmx:
+            parser = etree.HTMLParser()
+            tree = etree.fromstring(html, parser)  # noqa: S320
+            node = tree.xpath('//*[@id="main"]')[0]
+            html = etree.tounicode(node, method="html")
+        return html
 
     def envoyer_avis_enquete(self, model, selected_experts):
         notification_service = container.get(NotificationService)
@@ -395,15 +404,14 @@ class VilleSelector(Selector):
         selected_users = self.form.all_experts
         cities = set()
         for user in selected_users:
-            if not user.geoloc:
-                continue
-            dept_code = user.geoloc.dept_code
+            dept_code = user.dept_code
             dept_name = get_dept_name(dept_code)
             if dept_name != selected_dept:
                 continue
 
-            city = user.geoloc.city_name
-            cities.add(city)
+            city = user.city
+            if city:
+                cities.add(city)
 
         return cities
 

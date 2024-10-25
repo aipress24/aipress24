@@ -10,9 +10,10 @@ from rich import print
 from sqlalchemy.orm import scoped_session
 from svcs.flask import container
 
+from app.enums import RoleEnum
 from app.flask.extensions import db
 from app.models.admin import Promotion
-from app.models.auth import Role, RoleEnum
+from app.models.auth import Role
 
 from .ontologies import import_ontologies_content
 

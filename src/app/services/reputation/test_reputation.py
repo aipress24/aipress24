@@ -48,7 +48,7 @@ def test_two_users(db: SQLAlchemy) -> None:
 
 def test_single_org(db: SQLAlchemy) -> None:
     joe = User(email="joe@example.com")
-    org = Organisation(name="xxx", owner=joe)
+    org = Organisation(name="xxx")
     db.session.add(joe)
     db.session.add(org)
     db.session.flush()

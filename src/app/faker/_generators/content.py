@@ -9,13 +9,14 @@ import random
 from pathlib import Path
 
 import app.settings.vocabularies as voc
+from app.enums import RoleEnum
 from app.faker._constants import LOCATION, POST_CATEGORIES, POST_IMAGES
 from app.flask.extensions import db
 from app.models.content import PressRelease
 from app.models.content.multimedia import Image
 from app.models.content.textual import Article
 from app.models.lifecycle import PublicationStatus
-from app.services.roles import Role, has_role
+from app.services.roles import has_role
 from app.services.tagging import add_tag
 
 from .base import BaseGenerator
@@ -27,7 +28,7 @@ class ArticleGenerator(BaseGenerator):
         users = self.repository["users"]
         orgs = self.repository["organisations"]
 
-        journalists = [u for u in users if has_role(u, Role.PRESS_MEDIA)]
+        journalists = [u for u in users if has_role(u, RoleEnum.PRESS_MEDIA)]
 
         article = Article()
 
@@ -68,7 +69,7 @@ class PhotoGenerator(BaseGenerator):
     def make_obj(self) -> Image:
         users = self.repository["users"]
         orgs = self.repository["organisations"]
-        journalists = [u for u in users if has_role(u, Role.PRESS_MEDIA)]
+        journalists = [u for u in users if has_role(u, RoleEnum.PRESS_MEDIA)]
 
         photo = Image()
         photo.title = self.generate_short_title()

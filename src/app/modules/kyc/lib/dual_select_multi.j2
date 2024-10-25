@@ -61,7 +61,7 @@
                 this.last_val = selection;
                 this.second_list = [];
                 for (const el of this.all_options.field2) {
-                    const key = el.value.split(';')[0];
+                    const key = el.value.split(' / ')[0];
                     if (selection.includes(key)) {
                         this.second_list.push(el);
                     };

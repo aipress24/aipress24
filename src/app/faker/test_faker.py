@@ -10,8 +10,9 @@ from flask.testing import FlaskClient
 from flask_sqlalchemy import SQLAlchemy
 from flask_super.registry import lookup
 
+from app.enums import RoleEnum
 from app.faker import FakerService
-from app.services.roles import Role, has_role
+from app.services.roles import has_role
 
 from ._faker import FAKER_TEST_SETTINGS
 from ._scripts.base import FakerScript
@@ -35,7 +36,7 @@ def test_faker(db: SQLAlchemy, client: FlaskClient) -> None:
     assert article.published_at is not None
 
     user0 = users[0]
-    assert has_role(user0, Role.PRESS_MEDIA)
+    assert has_role(user0, RoleEnum.PRESS_MEDIA)
 
     # FIXME
     # user1 = users[1]
