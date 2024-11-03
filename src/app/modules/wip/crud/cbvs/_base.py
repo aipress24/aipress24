@@ -9,13 +9,13 @@ import abc
 from arrow import now
 from flask import flash, g, redirect, request, url_for
 from flask_classful import FlaskView, route
-from lxml import etree
 from svcs.flask import container
 from werkzeug import Response
 from wtforms import Form as WTForm
 
 from app.constants import LOCAL_TZ
 from app.flask.lib.breadcrumbs import BreadCrumb
+from app.flask.lib.htmx import extract_fragment
 from app.flask.lib.templates import templated
 from app.flask.lib.wtforms.renderer import FormRenderer
 from app.modules.wip.crud.cbvs._table import BaseTable
@@ -81,10 +81,8 @@ class BaseWipView(FlaskView, abc.ABC):
 
     def htmx(self) -> str:
         html = self.index().render()
-        parser = etree.HTMLParser()
-        tree = etree.fromstring(html, parser)  # noqa: S320
-        node = tree.xpath(f'//*[@id="{self.table_id}"]')[0]
-        return etree.tostring(node)
+        html = extract_fragment(html, id=self.table_id)
+        return html
 
     def _make_table(self, q="") -> BaseTable:
         table = self.table_class(q)

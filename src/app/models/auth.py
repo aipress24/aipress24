@@ -265,6 +265,11 @@ class User(LifeCycleMixin, Addressable, UserMixin, Base):
     def is_leader(self) -> bool:
         return self.has_role(RoleEnum.LEADER)
 
+    def is_member(self, org_id: int) -> bool:
+        if not self.organisation_id:
+            return False
+        return self.organisation_id == org_id
+
 
 class Role(Base, RoleMixin):
     __tablename__ = "aut_role"

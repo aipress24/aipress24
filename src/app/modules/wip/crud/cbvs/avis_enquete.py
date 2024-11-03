@@ -9,16 +9,14 @@ from abc import abstractmethod
 from collections.abc import Generator
 
 from attr import frozen
-from devtools import debug
-from flask import Flask, flash, redirect, render_template, request
+from flask import Flask, Response, flash, render_template, request
 from flask_classful import route
 from flask_super.registry import register
-from lxml import etree
 from sqlalchemy.orm import scoped_session
 from svcs.flask import container
 
 from app.enums import RoleEnum
-from app.flask.extensions import htmx
+from app.flask.lib.htmx import extract_fragment
 from app.flask.routing import url_for
 from app.models.auth import User
 from app.models.repositories import AvisEnqueteRepository, UserRepository
@@ -106,19 +104,26 @@ class AvisEnqueteWipView(BaseWipView):
         form = SearchForm()
         action = form.get_action()
 
-        if action == "confirm":
-            self.envoyer_avis_enquete(model, form.get_selected_experts())
-            flash(
-                "Votre avis d'enquête a été envoyé aux contacts sélectionnés", "success"
-            )
-            return redirect(url_for("AvisEnqueteWipView:index"))
-
-        if action == "update":
-            form.update_experts()
-        elif action == "add":
-            form.add_experts()
-
-        form.save_state()
+        match action:
+            case "confirm":
+                self.envoyer_avis_enquete(model, form.get_selected_experts())
+                flash(
+                    "Votre avis d'enquête a été envoyé aux contacts sélectionnés",
+                    "success",
+                )
+                response = Response("")
+                response.headers["HX-Redirect"] = url_for("AvisEnqueteWipView:index")
+                return response
+            case "update":
+                form.update_experts()
+                form.save_state()
+            case "add":
+                form.add_experts()
+                form.save_state()
+            case "":
+                pass
+            case _:
+                raise ValueError(f"Invalid action: {action}")
 
         experts = form.get_selectable_experts()
         selected_experts = form.get_selected_experts()
@@ -132,11 +137,7 @@ class AvisEnqueteWipView(BaseWipView):
         }
 
         html = render_template("wip/avis_enquete/ciblage.j2", **ctx)
-        if htmx:
-            parser = etree.HTMLParser()
-            tree = etree.fromstring(html, parser)  # noqa: S320
-            node = tree.xpath('//*[@id="main"]')[0]
-            html = etree.tounicode(node, method="html")
+        html = extract_fragment(html, "main")
         return html
 
     def envoyer_avis_enquete(self, model, selected_experts):
@@ -313,7 +314,7 @@ class Selector(abc.ABC):
 
     def _get_values_from_experts(self, attr, key) -> set[str]:
         experts = self.form.all_experts
-        debug(experts[0].profile)
+        # debug(experts[0].profile)
         values = set()
         for expert in experts:
             if attr in {"match_making", "info_professionnelle"}:

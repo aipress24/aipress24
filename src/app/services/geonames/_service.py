@@ -257,14 +257,17 @@ REGIONS = {
 }
 
 
-def is_dept_in_region(dept_name, region_name):
+def is_dept_in_region(dept_name: str, region_name: str) -> bool:
     dept_to_code = {v: k for k, v in DEPTS.items()}
 
-    dept_code = dept_to_code[dept_name]
-    region_code = DEPT_TO_REGION[dept_code]
+    try:
+        dept_code = dept_to_code[dept_name]
+        region_code = DEPT_TO_REGION[dept_code]
 
-    return region_name == REGIONS[region_code]
+        return region_name == REGIONS[region_code]
+    except KeyError:
+        return False
 
 
-def get_dept_name(dept_code):
+def get_dept_name(dept_code: str) -> str:
     return DEPTS[dept_code]

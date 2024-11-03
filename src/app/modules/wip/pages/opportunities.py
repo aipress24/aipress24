@@ -7,11 +7,10 @@ from __future__ import annotations
 from attr import frozen
 from devtools import debug
 from flask import g, request
-from lxml import etree
 from svcs.flask import container
 from werkzeug import Response
 
-from app.flask.extensions import htmx
+from app.flask.lib.htmx import extract_fragment
 from app.flask.lib.pages import page
 from app.models.auth import User
 from app.models.repositories import ContactAvisEnqueteRepository
@@ -82,13 +81,7 @@ class MediaOpportunityPage(BaseWipPage):
         debug(dict(**request.args), dict(**request.form))
 
         html = self.render()
-
-        if htmx:
-            parser = etree.HTMLParser()
-            tree = etree.fromstring(html, parser)  # noqa: S320
-            node = tree.xpath('//*[@id="form"]')[0]
-            html = etree.tounicode(node, method="html")
-
+        html = extract_fragment(html, id="form")
         return html
 
     post = get

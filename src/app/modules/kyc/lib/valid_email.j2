@@ -20,7 +20,7 @@
         this.usedmailerror = '';
         this.$refs.inputmail.classList.remove('xinvalid');
         let newemail = this.$refs.inputmail.value;
-        var url = `/kyc/test_mail/${newemail}`;
+        var url = `/kyc/check_mail/${newemail}`;
         fetch(url)
             .then(response => response.text())
             .then((text) => {
@@ -49,7 +49,8 @@
         name="{{ field.name }}"
         {% if field.flags.required %}required{% endif %}
         x-init="val='{{ field.data if field.data }}' || ''; $el.value=val"
-        type="email" x-validate.email
+        type="email" 
+        x-validate.email
         x-ref="inputmail"
         x-on:change="testEmail"
         data-error-msg=' Entrez une adresse email valide'

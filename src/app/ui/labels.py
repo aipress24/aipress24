@@ -10,7 +10,7 @@ from typing import Any
 from app.enums import OrganisationTypeEnum
 from app.models.meta import get_label
 
-LABELS = {
+LABELS_ORGANISATION_TYPE = {
     OrganisationTypeEnum.AUTO: "Non officialisée",
     OrganisationTypeEnum.MEDIA: "Média",
     OrganisationTypeEnum.COM: "PR agency",
@@ -28,4 +28,4 @@ def make_label(obj: Any) -> str:
 
 @make_label.register
 def _make_label(obj: OrganisationTypeEnum) -> str:
-    return LABELS[obj]
+    return LABELS_ORGANISATION_TYPE[obj]

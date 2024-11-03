@@ -112,6 +112,40 @@ def set_user_organisation(user: User, organisation: Organisation) -> str:
     return commit_session(db_session)
 
 
+def gc_organisation(organisation: Organisation | None) -> bool:
+    """If the provided Organisation is of type AUTO and has no member: delete it.
+
+    Return True is deletion occured.
+    """
+    if not organisation or not organisation.is_auto or len(organisation.members) > 0:
+        return False
+    # AUTO organisation with zero member: felete it
+    db_session = db.session
+    db_session.delete(organisation)
+    db_session.commit()
+    return True
+
+
+def gc_all_auto_organisations() -> int:
+    """Garbage collect all Organisation of type AUTO with no member.
+
+    Return True is deletion occured.
+    """
+    db_session = db.session
+    stmt = select(Organisation).where(
+        Organisation.deleted_at.is_(None),
+        Organisation.type == OrganisationTypeEnum.AUTO,
+        ~Organisation.members.any(),
+    )
+    empty_orgs = db_session.scalars(stmt)
+    counter = 0
+    for organisation in empty_orgs:
+        db_session.delete(organisation)
+        counter += 1
+    db_session.commit()
+    return counter
+
+
 def remove_user_organisation(user: User) -> str:
     db_session = db.session
     _remove_user_organisation(user)
@@ -120,8 +154,9 @@ def remove_user_organisation(user: User) -> str:
     user.modified_at = dt_now
     user.validated_at = dt_now
     user.validation_status = LABEL_MODIFICATION_ORGANISATION
-
     db_session.merge(user)
+    db_session.flush()
+    db_session.commit()
     return commit_session(db_session)
 
 

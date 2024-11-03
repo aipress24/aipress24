@@ -24,6 +24,7 @@ from app.flask.extensions import db
 from app.flask.routing import url_for
 from app.models.auth import User
 from app.models.organisation import Organisation
+from app.ui.labels import LABELS_ORGANISATION_TYPE
 from app.ui.macros.icon import icon
 
 __all__ = ["Column", "Table"]
@@ -271,7 +272,7 @@ class GenericOrgDataSource:
                 "show": url_for_orig(".show_org", uid=obj.id),
                 "name": obj.name,
                 "karma": obj.karma,
-                "type": obj.type,
+                "type": LABELS_ORGANISATION_TYPE.get(obj.type, obj.type),
             }
             result.append(record)
         return result

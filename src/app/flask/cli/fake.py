@@ -17,6 +17,7 @@ from app.faker import FakerScript, FakerService
 from app.flask.extensions import db
 from app.flask.sqla import get_multi
 from app.models.auth import User
+from app.modules.admin.utils import gc_all_auto_organisations
 from app.services.roles import generate_roles_map
 
 from ...models.repositories import UserRepository
@@ -49,6 +50,9 @@ def fake(clean) -> None:
     run_fake_scripts()
 
     db.session.commit()
+
+    counter = gc_all_auto_organisations()
+    print(green(f"Empty AUTO organisations removed: {counter}"))
 
 
 def db_setup(clean: bool) -> None:

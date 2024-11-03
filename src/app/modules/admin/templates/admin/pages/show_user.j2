@@ -45,18 +45,22 @@
     <div class="mt-12 flex items-center justify-end gap-x-6">
         <button
             type="button"
-            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-400"
             id="deactivate"
-            hx-post="/admin/show_user/{{user.id}}"
-            hx-vals='{"action": "deactivate"}'
+            data-modal-target="confirm_deactivate_user"
+            data-modal-toggle="confirm_deactivate_user"
+            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-400"
         >Désactiver l'utilisateur</button>
         <button
             type="button"
-            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-400"
+            {% if not org %}
+            disabled
+            {% endif %}
             id="remove_org"
-            hx-post="/admin/show_user/{{user.id}}"
-            hx-vals='{"action": "remove_org"}'
-        >Supprimer l'organisation</button>
+            data-modal-target="confirm_remove_org"
+            data-modal-toggle="confirm_remove_org"
+
+            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-400 disabled:opacity-50"
+        >Exclure de l'organisation</button>
         <!-- <button
             type="button"
             class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-500 hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-400"
@@ -70,45 +74,121 @@
       <div
           class="mt-6 flex flex-col justify-end gap-x-6 space-y-2 sm:flex-row sm:space-y-0 sm:space-x-4"
       >
-        <button
-            type="button"
-            class="aui-button"
+        <label class="inline-flex items-left cursor-pointer">
+          <input
+            type="checkbox"
+            value="true"
+            class="sr-only peer"
+            {% if user.is_leader %}
+              checked
+            {% endif %}
             hx-post="/admin/show_user/{{user.id}}"
             hx-vals='{"action": "toggle-leader"}'
-            hx-target="#leader-{{ user.id }}"
-            hx-swap="innerHTML"
-        >
-          {% if user.is_leader %}
-            {% set label="Retirer 'dirigeant'" %}
-          {% else %}
-            {% set label="Ajouter 'dirigeant'" %}
-          {% endif %}
-
-          <span id="leader-{{ user.id }}" class="font-medium text-gray-900">
-            {{ label }}
+            hx-trigger="change"
+          >
+          <div class="relative w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+          <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300"
+          >Rôle dirigeant de l'organisation
           </span>
-        </button>
-        <button
-            type="button"
-            class="aui-button"
+        </label>
+
+        <label class="inline-flex items-left cursor-pointer">
+          <input
+            type="checkbox"
+            value=""
+            class="sr-only peer"
+            {% if user.is_manager %}
+              checked
+            {% endif %}
             hx-post="/admin/show_user/{{user.id}}"
             hx-vals='{"action": "toggle-manager"}'
-            hx-target="#manager-{{ user.id }}"
-            hx-swap="innerHTML"
-        >
-          {% if user.is_manager %}
-            {% set label="Retirer 'manager'" %}
-          {% else %}
-            {% set label="Ajouter 'manager'" %}
-          {% endif %}
-
-          <span id="manager-{{ user.id }}" class="font-medium text-gray-900">
-            {{ label }}
+            hx-trigger="change"
+          >
+          <div class="relative w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+          <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300"
+          >Rôle manager du BW de l'organisation
           </span>
-        </button>
+        </label>
       </div>
     {% endif %}
 </div>
+
+<div id="confirm_deactivate_user"
+  data-modal-backdrop="static"
+  tabindex="-1"
+  aria-hidden="true"
+  class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+  <div class="relative p-4 w-full max-w-md max-h-full">
+    <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+      <div class="p-4 md:p-5 text-center">
+        <svg class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+        </svg>
+        <h3 class="mb-1 text-lg font-normal text-gray-500 dark:text-gray-400"
+        >Confirmer la désactivation de l'utilisateur&nbsp;?
+        </h3>
+        <p class="pl-14 pt-1 pb-1 mb-4 text-left ">
+            nom: {{user.name}}<br/>
+            email: {{user.email}}<br/>
+            {% if org %}
+              organisation: {{org.name}} ({{org.type| label}})
+            {% endif %}
+        </p>
+        <button
+          data-modal-hide="confirm_deactivate_user"
+          type="button"
+          hx-post="/admin/show_user/{{user.id}}"
+          hx-vals='{"action": "deactivate"}'
+          class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center"
+        >Oui, désactiver</button>
+        <button
+          data-modal-hide="confirm_deactivate_user"
+          type="button"
+          class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
+        >Annuler</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="confirm_remove_org"
+  data-modal-backdrop="static"
+  tabindex="-1"
+  aria-hidden="true"
+  class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+  <div class="relative p-4 w-full max-w-md max-h-full">
+    <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+      <div class="p-4 md:p-5 text-center">
+        <svg class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+        </svg>
+        <h3 class="mb-1 text-lg font-normal text-gray-500 dark:text-gray-400"
+        >Confirmer l'exclusion de l'organisation&nbsp;?
+        </h3>
+        <p class="pl-14 pt-1 pb-1 mb-4 text-left ">
+            nom: {{user.name}}<br/>
+            email: {{user.email}}<br/>
+            {% if org %}
+              organisation: {{org.name}} ({{org.type| label}})
+            {% endif %}
+        </p>
+        <button
+          data-modal-hide="confirm_remove_org"
+          type="button"
+          hx-post="/admin/show_user/{{user.id}}"
+          hx-vals='{"action": "remove_org"}'
+          class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center"
+        >Oui, exclure</button>
+        <button
+          data-modal-hide="confirm_remove_org"
+          type="button"
+          class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
+        >Annuler</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <hr>
 
 <div class="py-6 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">

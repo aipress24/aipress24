@@ -16,7 +16,7 @@ from __future__ import annotations
 #     "Rédacteur.trice en chef",
 # }
 
-LOCAL_TZ = "Europe/paris"
+LOCAL_TZ = "Europe/Paris"
 
 LABEL_COMPTE_DESACTIVE = "Compte utilisateur désactivé"
 LABEL_INSCRIPTION_NOUVELLE = "Nouvelle inscription à valider"

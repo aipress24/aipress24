@@ -74,7 +74,11 @@ class RecentContentsDataSource(DataSource):
 
 
 def get_name(obj):
-    return obj.name if obj else ""
+    # FIXME: temp hack
+    try:
+        return obj.name if obj else ""
+    except:  # noqa: E722
+        return ""
 
 
 @define

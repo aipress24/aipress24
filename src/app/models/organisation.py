@@ -101,8 +101,8 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
 
     name: Mapped[str]
     slug: Mapped[str]
-    siren: Mapped[str] = mapped_column(default="")
-    tva: Mapped[str] = mapped_column(default="")
+    siren: Mapped[str] = mapped_column(nullable=True, unique=True)
+    tva: Mapped[str] = mapped_column(nullable=True, unique=True)
 
     tel_standard: Mapped[str] = mapped_column(default="")
     taille_orga: Mapped[str] = mapped_column(default="")  # ccf ontologies

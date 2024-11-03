@@ -24,8 +24,11 @@ from flask import (
     url_for,
 )
 from flask_login import current_user
+from flask_sqlalchemy.session import Session
 from flask_wtf import FlaskForm
+from sqlalchemy import func, or_
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import scoped_session
 from svcs.flask import container
 from werkzeug import Response
 from wtforms import Field
@@ -47,7 +50,8 @@ from app.models.auth import (
     merge_values_from_other_user,
 )
 from app.models.repositories import RoleRepository
-from app.modules.kyc.organisation_utils import store_user_auto_organisation
+from app.modules.admin.utils import gc_all_auto_organisations
+from app.modules.kyc.organisation_utils import retrieve_user_organisation
 from app.modules.swork.pages.masked_fields import MaskFields
 from app.services.roles import generate_roles_map
 from app.services.sessions import SessionService
@@ -617,7 +621,7 @@ def _store_new_user_data() -> str:
     return error
 
 
-def _validation_requirement_fields(orig_user: User, cloned_user: User) -> list[str]:
+def _get_critical_modified_fields(orig_user: User, cloned_user: User) -> list[str]:
     """If the differences between both user are on critical fields, validation
     is required.
     """
@@ -645,36 +649,19 @@ def _modified_fields_as_label(attr_names: list[str]) -> str:
     return " ,".join(names)
 
 
-def _update_current_user_data() -> str:
-    db_session = db.session
-    orig_user = User.query.get(current_user.id)
-    print("//Updating// updating user:", orig_user, file=sys.stderr)
-    cloned_user = _update_from_current_user(orig_user)
-    critical_modified_fields = _validation_requirement_fields(orig_user, cloned_user)
-    if critical_modified_fields:
-        cloned_user.active = False
-        modified_text = _modified_fields_as_label(critical_modified_fields)
-        cloned_user.validation_status = f"{LABEL_MODIFICATION_MAJEURE} {modified_text}"
-        cloned_user.modified_at = now(LOCAL_TZ)
-        print(
-            f"#### {cloned_user} validation required: {modified_text}", file=sys.stderr
-        )
-        db_session.merge(cloned_user)  # add the cloned user to DB
-        # orig_user is unchanged from modifs, but will be saved with the is_cloned
-        # informations
-    else:
-        # forget cloned_user
-        cloned_user.validation_status = LABEL_MODIFICATION_MINEURE
-        merge_values_from_other_user(orig_user, cloned_user)
-        auto_orga = store_user_auto_organisation(orig_user)
-        if auto_orga:
-            orig_user.organisation_id = auto_orga.id
-        orig_user.active = True
-        orig_user.modified_at = now(LOCAL_TZ)
-        orig_user.validated_at = now(LOCAL_TZ)
-        # db_session.delete(cloned_user) # not in DB
-        db_session.merge(orig_user)  # add the cloned user to DB
-        cloned_user = None
+def _modification_validation_required(
+    db_session: scoped_session[Session],
+    cloned_user: User,
+    critical_modified_fields: list[str],
+) -> str:
+    cloned_user.active = False
+    modified_text = _modified_fields_as_label(critical_modified_fields)
+    cloned_user.validation_status = f"{LABEL_MODIFICATION_MAJEURE} {modified_text}"
+    cloned_user.modified_at = now(LOCAL_TZ)
+    print(f"#### {cloned_user} validation required: {modified_text}", file=sys.stderr)
+    db_session.merge(cloned_user)  # add the cloned user to DB
+    # orig_user is unchanged from modifs, but will be saved with the is_cloned
+    # informations
     error = ""
     try:
         db_session.commit()
@@ -682,6 +669,50 @@ def _update_current_user_data() -> str:
         db_session.rollback()
         error = str(e)
     return error
+
+
+def _minor_modification_validated(
+    db_session: scoped_session[Session],
+    orig_user: User,
+    cloned_user: User,
+    critical_modified_fields: list[str],
+) -> str:
+    # forget cloned_user
+    cloned_user.validation_status = LABEL_MODIFICATION_MINEURE
+    merge_values_from_other_user(orig_user, cloned_user)
+    auto_or_inviting_organisation = retrieve_user_organisation(orig_user)
+    if auto_or_inviting_organisation:
+        orig_user.organisation_id = auto_or_inviting_organisation.id
+    orig_user.active = True
+    orig_user.modified_at = now(LOCAL_TZ)
+    orig_user.validated_at = now(LOCAL_TZ)
+    db_session.merge(orig_user)  # store the cloned user to DB
+    cloned_user = None
+    error = ""
+    try:
+        db_session.commit()
+    except IntegrityError as e:
+        db_session.rollback()
+        error = str(e)
+    # maybe some auto organisation is orphan:
+    gc_all_auto_organisations()
+    return error
+
+
+def _update_current_user_data() -> str:
+    db_session = db.session
+    orig_user = User.query.get(current_user.id)
+    print("//Updating// updating user:", orig_user, file=sys.stderr)
+    cloned_user = _update_from_current_user(orig_user)
+    critical_modified_fields = _get_critical_modified_fields(orig_user, cloned_user)
+    if critical_modified_fields:
+        return _modification_validation_required(
+            db_session, cloned_user, critical_modified_fields
+        )
+    else:
+        return _minor_modification_validated(
+            db_session, orig_user, cloned_user, critical_modified_fields
+        )
 
 
 def _store_tmp_blob_from_user(content: bytes, filename: str) -> tuple[str, int]:
@@ -724,8 +755,8 @@ def _populate_kyc_data_from_user(user: User) -> dict[str, Any]:
     return data
 
 
-@blueprint.route("/test_mail/<email>", methods=["GET"])
-def test_mail(email: str):
+@blueprint.route("/check_mail/<email>", methods=["GET"])
+def check_mail(email: str):
     new_email = email.strip()
     if not new_email:
         return ""
@@ -735,9 +766,14 @@ def test_mail(email: str):
 
 
 def email_already_used(email: str) -> bool:
-    exists_main = db.session.query(User).filter(User.email == email).first()
-    exists_secours = db.session.query(User).filter(User.email_secours == email).first()
-    return bool(exists_main) or bool(exists_secours)
+    email = email.lower()
+    return bool(
+        db.session.query(User).filter(
+            or_(
+                func.lower(User.email) == email, func.lower(User.email_secours) == email
+            ).first()
+        )
+    )
 
 
 def format_kyc_data(kyc_data: dict[str, Any]) -> dict[str, Any]:

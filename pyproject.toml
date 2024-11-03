@@ -14,7 +14,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "aipress24-flask"
-version = "2024.10.18.1"
+version = "2024.11.03.1"
 description = ""
 authors = ["Stefane Fermigier <sf@abilian.com>"]
 
@@ -92,7 +92,7 @@ tomli = "^2.0.1"
 # ORM & Database
 sqlalchemy = "^2.0.25"
 sqlalchemy-utils = "^0.41.1"
-advanced-alchemy = "^0.21"
+advanced-alchemy = "^0.22"
 psycopg2-binary = "^2.9.9"
 # Next...
 # psycopg = "^3"
@@ -215,7 +215,7 @@ asgiref = "^3.8"
 
 [tool.poetry.group.dev.dependencies]
 # Main QA tools
-abilian-devtools = "^0.6"
+abilian-devtools = "^0.7"
 
 #
 flask-debugtoolbar = "^0.16"
@@ -229,6 +229,7 @@ pijnu = "20160727"
 # More flake8 plugins
 flake8-requirements = "^2.0.1"
 flake8-use-pathlib = "^0.3.0"
+flake8-ecocode = "*"
 # tryceratops = "^2.0.0"
 
 # Testing & automation

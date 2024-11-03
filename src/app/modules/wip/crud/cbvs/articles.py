@@ -32,7 +32,7 @@ class ArticlesTable(BaseTable):
     id = "articles-table"
 
     def __init__(self, q=""):
-        self.columns = self.get_columns()
+        # self.columns = self.get_columns()
         super().__init__(Article, q)
 
     def get_columns(self):

@@ -39,6 +39,7 @@ class OrgPage(BaseSworkPage):
     def __init__(self, id: str):
         self.args = {"id": id}
         self.org = get_obj(id, Organisation)
+        self.soc_user = adapt(g.user)
 
     @property
     def label(self) -> str:
@@ -47,8 +48,18 @@ class OrgPage(BaseSworkPage):
     def context(self):
         vm = OrgVM(self.org)
         tabs = list(self.get_tabs())
+        if (
+            self.org.type.name != "AUTO"
+            and self.soc_user.user.is_member(self.org.id)
+            and self.soc_user.user.is_manager
+        ):
+            is_manager = True
+        else:
+            is_manager = False
         return {
             "org": vm,
+            "is_member": self.soc_user.user.is_member(self.org.id),
+            "is_manager": is_manager,
             "tabs": tabs,
         }
 
@@ -68,7 +79,7 @@ class OrgPage(BaseSworkPage):
                 return ""
 
     def toggle_follow(self):
-        user = adapt(g.user)
+        user = self.soc_user
         org = self.org
         if user.is_following(org):
             user.unfollow(org)

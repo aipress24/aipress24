@@ -78,6 +78,20 @@
       </div>
     {% endif %}
 
+    {% if is_member %}
+      {% if is_manager %}
+        <div class="px-8 pt-2">
+          <p class="text-xl text-orange-700">
+            Vous êtes manager de cette organisation</p>
+        </div>
+      {% else %}
+        <div class="px-8 pt-2">
+          <p class="text-xl text-green-700">
+            Vous êtes membre de cette organisation</p>
+        </div>
+      {% endif %}
+    {% endif %}
+
     {% include "pages/org/org--tabs.j2" %}
 
   </article>

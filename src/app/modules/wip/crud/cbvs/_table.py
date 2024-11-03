@@ -59,14 +59,15 @@ class BaseTable(Table):
     q: str
     data_source: BaseDataSource
 
-    def __init__(self, model_class, q=""):
+    def __init__(self, model_class: type, q: str = ""):
         self.q = q
         self.data_source = make_datasource(model_class, q)
 
-    def get_columns(self):
-        if hasattr(self, "columns"):
-            return self.columns
+    @property
+    def columns(self):
+        return self.get_columns()
 
+    def get_columns(self):
         return [
             {
                 "name": "titre",

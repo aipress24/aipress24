@@ -4,11 +4,13 @@
 
 from __future__ import annotations
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 
 from app.enums import OrganisationTypeEnum
 from app.flask.extensions import db
+from app.flask.sqla import get_obj
 from app.models.auth import User
+from app.models.invitation import Invitation
 from app.models.organisation import Organisation
 
 
@@ -81,8 +83,10 @@ def get_organisation_choices_family(
     return [(name, name) for name in get_organisation_family(family)]
 
 
-def store_user_auto_organisation(user: User) -> Organisation | None:
-    """Store the User AUTO organisation if the organisation does not exists."""
+def retrieve_user_organisation(user: User) -> Organisation | None:
+    """Return the User's organisation, either official if invited, or auto or
+    create a new User AUTO organisation if the organisation does not exists.
+    """
     profile = user.profile
     orga_field_name = profile.organisation_field_name_origin
     current_value = profile.get_value(orga_field_name)
@@ -97,7 +101,22 @@ def store_user_auto_organisation(user: User) -> Organisation | None:
     if not name:
         return None
     # family = profile.organisation_family  # select the target family
+    inviting_orgs = find_inviting_organisations(user.email)
+    for org in inviting_orgs:
+        if org.name.lower() == name.lower():
+            return org
     return store_auto_organisation(name)
+
+
+def find_inviting_organisations(mail: str) -> list[Organisation]:
+    """Return the list of all Oganisation with an invitation for provided email."""
+    if not mail or "@" not in mail:
+        return []
+    stmt = select(Invitation).where(func.lower(Invitation.email) == mail.lower())
+    invitations = db.session.scalars(stmt)
+    if not invitations:
+        return []
+    return [get_obj(i.organisation_id, Organisation) for i in invitations]
 
 
 def store_auto_organisation(

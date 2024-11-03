@@ -19,7 +19,7 @@ from app.modules.kyc.views import admin_info_context
 from app.services.roles import add_role
 
 from .. import blueprint
-from ..utils import remove_user_organisation
+from ..utils import gc_organisation, remove_user_organisation
 from .base import AdminListPage
 from .users import AdminUsersPage
 
@@ -63,11 +63,11 @@ class ShowUser(AdminListPage):
                 response = Response("")
                 response.headers["HX-Redirect"] = self.url
             case "toggle-manager":
-                label = self._toggle_manager()
-                response = Response(label)
+                self._toggle_manager()
+                response = Response("")
             case "toggle-leader":
-                label = self._toggle_leader()
-                response = Response(label)
+                self._toggle_leader()
+                response = Response("")
             case _:
                 response = Response("")
                 response.headers["HX-Redirect"] = AdminUsersPage().url
@@ -82,39 +82,35 @@ class ShowUser(AdminListPage):
         db_session.commit()
 
     def _remove_organisation(self) -> None:
+        previous_organisation = self.user.organisation
         remove_user_organisation(self.user)
+        gc_organisation(previous_organisation)
 
-    def _toggle_manager(self) -> str:
+    def _toggle_manager(self) -> None:
         if not self.user.organisation or self.user.organisation.is_auto:
             # not allowed for AUTO organisations.
             # This method call should never happen.
-            return ""
+            return
         if self.user.is_manager:
             self.user.remove_role(RoleEnum.MANAGER)
-            label = "Ajouter 'manager'"
         else:
             add_role(self.user, RoleEnum.MANAGER)
-            label = "Retirer 'manager'"
         db_session = db.session
         db_session.merge(self.user)
         db_session.commit()
-        return label
 
-    def _toggle_leader(self) -> str:
+    def _toggle_leader(self) -> None:
         if not self.user.organisation or self.user.organisation.is_auto:
             # not allowed for AUTO organisations.
             # This method call should never happen.
-            return ""
+            return
         if self.user.is_leader:
             self.user.remove_role(RoleEnum.LEADER)
-            label = "Ajouter 'dirigeant'"
         else:
             add_role(self.user, RoleEnum.LEADER)
-            label = "Retirer 'dirigeant'"
         db_session = db.session
         db_session.merge(self.user)
         db_session.commit()
-        return label
 
 
 @blueprint.route("/show_user/<uid>")

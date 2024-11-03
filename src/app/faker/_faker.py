@@ -17,8 +17,10 @@ from mimesis.locales import Locale
 from sqlalchemy.orm import scoped_session
 
 from app.models.base import Base
+from app.modules.admin.invitations import invite_users
 from app.modules.events.models import participation_table
 from app.modules.swork.models import Comment, group_members_table
+from app.services.roles import add_role
 from app.services.social_graph import adapt
 
 from ._generators.biz import EditorialProductGenerator
@@ -86,6 +88,7 @@ class FakerService:
 
     def generate_fake_relationships(self) -> None:
         self.generate_fake_org_membership()
+        self.generate_fake_invitations()
         self.generate_fake_group_membership()
         self.generate_fake_followers_for_users()
         self.generate_fake_followers_for_orgs()
@@ -99,17 +102,37 @@ class FakerService:
         organisations = self.repository["organisations"]
         users = self.repository["users"]
         for user in users:
-            # if user already got a AUTO organisation, keep it
-            if user.organisation_id:
+            # if user already got a AUTO organisation, keep it at 80%
+            # this will test the garbage collector
+            if user.organisation_id and random.randint(1, 100) <= 80:
                 continue
-            # only 50% of user in official organisation
-            if random.randint(1, 2) == 2:
+            # only 80% of user in official organisation
+            if random.randint(1, 100) <= 20:
                 continue
             organisation = sample(organisations)
+            # add an invitation
+            invite_users(user.email, organisation.id)
             user.organisation_id = organisation.id
             profile = user.profile
             profile.induce_organisation_name(organisation.name)
+            self.session.flush()
+            if len(organisation.members) == 1:
+                add_role(user, "MANAGER")
+                add_role(user, "LEADER")
+            elif random.randint(1, 100) <= 30:
+                # 30% of other members become manager too
+                add_role(user, "MANAGER")
 
+        self.session.flush()
+
+    def generate_fake_invitations(self) -> None:
+        organisations = self.repository["organisations"]
+        users = self.repository["users"]
+        for organisation in organisations:
+            # generate 5 random invitations for each org
+            for _i in range(5):
+                user = sample(users)
+                invite_users(user.email, organisation.id)
         self.session.flush()
 
     def generate_fake_followers_for_users(self) -> None:

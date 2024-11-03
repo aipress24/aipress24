@@ -1,7 +1,7 @@
 {% extends "wip/layout/_base.j2" %}
 
 {% macro render_selector(selector) %}
-  <div class="my-4">
+  <div class="my-4 mr-4">
     <label
         for="{{ selector.id }}"
         class="block text-sm font-medium leading-6 text-gray-900"
@@ -11,7 +11,7 @@
           hx-post=""
           name="{{ selector.id }}"
           id="{{ selector.id }}"
-          class="block w-full lg:w-1/2 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
+          class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
         {% for option in selector.options %}
           <option {{ option.selected }}>{{ option.label }}</option>
         {% endfor %}
@@ -23,15 +23,17 @@
 {% block body_class %}bg-gray-50{% endblock %}
 
 {% block body_content %}
-  <div id="main" >
+  <div id="main">
     <h2 class="aui-title">
       Cibler les personnes à contacter
     </h2>
 
     <form hx-target="#main">
-      {% for selector in form.selectors %}
-        {{ render_selector(selector) }}
-      {% endfor %}
+      <div class="grid lg:grid-cols-2">
+        {% for selector in form.selectors %}
+          {{ render_selector(selector) }}
+        {% endfor %}
+      </div>
     </form>
 
     {% include "wip/avis_enquete/_experts.j2" %}

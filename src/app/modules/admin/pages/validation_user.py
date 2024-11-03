@@ -22,7 +22,8 @@ from app.flask.extensions import db
 from app.flask.lib.pages import page
 from app.flask.sqla import get_obj
 from app.models.auth import User, merge_values_from_other_user
-from app.modules.kyc.organisation_utils import store_user_auto_organisation
+from app.modules.admin.utils import gc_all_auto_organisations
+from app.modules.kyc.organisation_utils import retrieve_user_organisation
 from app.modules.kyc.views import admin_info_context
 
 from .. import blueprint
@@ -100,11 +101,9 @@ class ValidationUser(BaseAdminPage):
     def context(self):
         context = admin_info_context(self.user)
         self.detect_business_wall_trigger(context)
-        context.update(
-            {
-                "user": self.user,
-            }
-        )
+        context.update({
+            "user": self.user,
+        })
         return context
 
     def post(self):
@@ -138,6 +137,8 @@ class ValidationUser(BaseAdminPage):
         msg = f"User marked as deleted {self.user.id} {self.user.email}"
         logger.info(msg)
         print(msg, file=sys.stderr)
+        # maybe some auto organisation is orphan:
+        gc_all_auto_organisations()
         # self._try_really_delete()
 
     # def _try_really_delete(self):
@@ -157,7 +158,7 @@ class ValidationUser(BaseAdminPage):
         # user is a clone of orig user
         orig_user = get_obj(self.user.cloned_user_id, User)
         merge_values_from_other_user(orig_user, self.user)
-        auto_organisation = store_user_auto_organisation(orig_user)
+        auto_organisation = retrieve_user_organisation(orig_user)
         if auto_organisation:
             orig_user.organisation_id = auto_organisation.id
         orig_user.validation_status = LABEL_MODIFICATION_VALIDEE
@@ -169,10 +170,12 @@ class ValidationUser(BaseAdminPage):
         db_session.delete(self.user)
         # db_session.add(user)
         db_session.commit()
+        # maybe some previous AUTO organisation is orphan
+        gc_all_auto_organisations()
 
     def _validate_profile_created(self) -> None:
         # user is a plain new User
-        auto_organisation = store_user_auto_organisation(self.user)
+        auto_organisation = retrieve_user_organisation(self.user)
         if auto_organisation:
             self.user.organisation_id = auto_organisation.id
         self.user.active = True
