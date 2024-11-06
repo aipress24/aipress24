@@ -9,7 +9,7 @@ from pathlib import Path
 
 from mimesis import Person
 
-from app.enums import OrganisationTypeEnum
+from app.enums import BWTypeEnum, OrganisationTypeEnum
 from app.models.organisation import Organisation
 
 from .._constants import COVER_IMAGES, ORGANISATIONS
@@ -45,7 +45,7 @@ class OrgGenerator(BaseGenerator):
 
         org = Organisation(name=_random_name(), type=_random_non_auto_type())
 
-        org.description = self.generate_html(min_sentences=1, max_sentences=3)
+        org.description = self.generate_text(max_length=1200)
         org.domain = faker.domain_name()
         org.site_url = fake_agency_url()
         org.jobs_url = faker.url()
@@ -72,6 +72,25 @@ class OrgGenerator(BaseGenerator):
                     org.membre_satev = True
                 case 2:
                     org.membre_saphir = True
+
+        # official oraganisation have a subscription to a BW
+        match org.type:
+            case OrganisationTypeEnum.AUTO:
+                pass
+            case OrganisationTypeEnum.MEDIA:
+                org.bw_type = BWTypeEnum.MEDIA
+            case OrganisationTypeEnum.AGENCY:
+                org.bw_type = BWTypeEnum.AGENCY
+            case OrganisationTypeEnum.COM:
+                org.bw_type = BWTypeEnum.COM
+            case OrganisationTypeEnum.OTHER:
+                org.bw_type = random.choice((
+                    BWTypeEnum.CORPORATE,
+                    BWTypeEnum.PRESSUNION,
+                    BWTypeEnum.ORGANISATION,
+                    BWTypeEnum.TRANSFORMER,
+                    BWTypeEnum.ACADEMICS,
+                ))
 
         return org
 

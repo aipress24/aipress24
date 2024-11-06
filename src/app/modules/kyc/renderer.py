@@ -69,12 +69,12 @@ def render_field(field: Field) -> str:
 
 
 def _upper_message(field: Field) -> str:
-    render_kw = getattr(field, "render_kw", {})
+    render_kw = getattr(field, "render_kw", {}) or {}
     return (render_kw.get("kyc_message") or "").strip()
 
 
 def _field_type(field: Field) -> str:
-    render_kw = getattr(field, "render_kw", {})
+    render_kw = getattr(field, "render_kw", {}) or {}
     return render_kw.get("kyc_type", "string")
 
 

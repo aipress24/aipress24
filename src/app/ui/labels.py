@@ -7,7 +7,7 @@ from __future__ import annotations
 from functools import singledispatch
 from typing import Any
 
-from app.enums import OrganisationTypeEnum
+from app.enums import BWTypeEnum, OrganisationTypeEnum
 from app.models.meta import get_label
 
 LABELS_ORGANISATION_TYPE = {
@@ -20,6 +20,17 @@ LABELS_ORGANISATION_TYPE = {
     # OrganisationTypeEnum.INSTIT: "Média institutionnel",
 }
 
+LABELS_BW_TYPE = {
+    BWTypeEnum.AGENCY: "Agence de presse",
+    BWTypeEnum.MEDIA: "Média",
+    BWTypeEnum.CORPORATE: "Média institutionnel",
+    BWTypeEnum.PRESSUNION: "Syndicat ou fédération",
+    BWTypeEnum.COM: "PR agency",
+    BWTypeEnum.ORGANISATION: "Organisation autre",
+    BWTypeEnum.TRANSFORMER: "Transformer",
+    BWTypeEnum.ACADEMICS: "Academics",
+}
+
 
 @singledispatch
 def make_label(obj: Any) -> str:
@@ -29,3 +40,8 @@ def make_label(obj: Any) -> str:
 @make_label.register
 def _make_label(obj: OrganisationTypeEnum) -> str:
     return LABELS_ORGANISATION_TYPE[obj]
+
+
+@make_label.register
+def _make_label(obj: BWTypeEnum) -> str:
+    return LABELS_BW_TYPE[obj]

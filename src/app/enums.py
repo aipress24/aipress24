@@ -49,11 +49,12 @@ class OrganisationTypeEnum(StrEnum):
     OTHER = "Other"  # general companies, and "Médias institutionnels"
 
 
-# LIGHT_ORGS_FAMILY_LABEL = {
-#     "MEDIA": "Média",
-#     "AG_PRESSE": "Agence de presse",  # , not detected in KYC structure
-#     "SYNDIC": "Syndicat ou fédération",  # not detected in KYC structure
-#     "INSTIT": "Média institutionnel",
-#     "PR": "PR agency",
-#     "AUTRE": "Autre",
-# }
+class BWTypeEnum(StrEnum):
+    AGENCY = "BW Agencies"
+    MEDIA = "BW Medias"
+    CORPORATE = "BW Corporate Medias"
+    PRESSUNION = "BW Press Union"
+    COM = "BW PR Agencies"
+    ORGANISATION = "BW Organisations"
+    TRANSFORMER = "BW Transformers"
+    ACADEMICS = "BW Academics"

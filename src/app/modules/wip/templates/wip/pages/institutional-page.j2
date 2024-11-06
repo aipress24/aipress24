@@ -1,13 +1,76 @@
 {% extends "wip/layout/_base.j2" %}
 
-{% block body_content %}
-  <div class="prose">
-    <p>
-      Votre niveau d'abonnement actuel ne vous permet pas de gérer votre page
-      institutionnelle.
-    </p>
+<style>
+/* Mark input boxes that gets an error on validation: */
+.invalid {
+  background-color: #ffdddd !important;
+}
+</style>
 
-    <p>Suivez <a href="#">ce lien</a> pour vous abonner à l'offre AIpress24 PRO, et pouvoir
+
+{% block body_content %}
+  {% if not allow_editing %}
+    <div class="prose">
+      <p>
+        Votre niveau d'abonnement actuel ne vous permet pas de gérer votre page
+        institutionnelle.
+      </p>
+
+      <p>Suivez <a href="#">ce lien</a> pour vous abonner à l'offre AIpress24 PRO, et pouvoir
       ainsi éditer votre page institutionnelle.</p>
-  </div>
+    </div>
+  {% else %}
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="sm:flex sm:items-end sm:space-x-5">
+        <div class="flex">
+          <img
+              class="h-24 w-24 ring-2 ring-gray-100 sm:h-32 sm:w-32"
+              src="{{ org.logo_url }}"
+              alt="logo_url"
+          />
+        </div>
+        <div
+            class="mt-6 sm:flex-1 sm:min-w-0 sm:flex sm:items-center sm:justify-end sm:space-x-6 sm:pb-1"
+        >
+          <div class="2xl:block mt-6 min-w-0 flex-1">
+            <h1 class="text-2xl font-bold text-gray-900 truncate">
+              {{ org_name }}
+            </h1>
+          </div>
+        </div>
+      </div>
+    </div>
+    <hr>
+    <p class="p-4">
+      Type d'abonnement BW&nbsp;: {{org_bw_type |label}}
+    </p>
+  <!-- form -->
+  <form
+    x-data
+    id="kycform"
+    method="post"
+    enctype="multipart/form-data"
+    >
+    {{ form.csrf_token }}
+    <div class="my-4">
+      <fieldset class="border border-solid border-gray-500 p-4">
+        <legend>Informations sur l'organisation</legend>
+        {% for field in form %}
+          {% if field.name != "csrf_token" %}
+            <div>
+              {{ render_field(field) }}
+            </div>
+          {% endif %}
+        {% endfor %}
+      </fieldset>
+    </div>
+
+    <input
+      type="submit"
+      id="valid"
+      value="Valider"
+      class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+      />
+  </form>
+  {% endif %}
 {% endblock %}

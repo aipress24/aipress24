@@ -46,7 +46,7 @@ from sqlalchemy.sql import func
 from sqlalchemy_utils import ArrowType
 from sqlalchemy_utils.functions.orm import hybrid_property
 
-from app.enums import OrganisationTypeEnum
+from app.enums import BWTypeEnum, OrganisationTypeEnum
 from app.models.auth import User
 from app.models.base import Base
 from app.models.mixins import Addressable, IdMixin, LifeCycleMixin
@@ -99,13 +99,35 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
 
     __tablename__ = "crp_organisation"
 
-    name: Mapped[str]
+    name: Mapped[str]  # nom officiel de l'organisation
     slug: Mapped[str]
     siren: Mapped[str] = mapped_column(nullable=True, unique=True)
     tva: Mapped[str] = mapped_column(nullable=True, unique=True)
 
     tel_standard: Mapped[str] = mapped_column(default="")
     taille_orga: Mapped[str] = mapped_column(default="")  # ccf ontologies
+
+    # Nom et coordonnées directes du dirigeant
+    # Préférer "Contact officiel" ?
+    # -> champ descriptif ?
+    leader_name: Mapped[str] = mapped_column(default="")
+    leader_coords: Mapped[str] = mapped_column(default="")
+
+    # Nom et coordonnées directes du payeur
+    # -> champ descriptif ?
+    payer_name: Mapped[str] = mapped_column(default="")
+    payer_coords: Mapped[str] = mapped_column(default="")
+
+    #  Adresse du siège social ;
+    #  Code postal ;
+    # Géolocalisation : macro-région, pays, région, département, ville (ONTOLOGIES/Géolocalisation) ;
+
+    # secteurs d’activité : ONTOLOGIES/Secteur détaillés
+    # métiers : ONTOLOGIES/Domaines & Métiers ;
+    # nombre de salariés  : ONTOLOGIES/Tailles des Organisations ;
+    # nombre de salariés  : ONTOLOGIES/Tailles des Organisations ;
+
+    # Principaux événements organisés
 
     # question :
     # le type d'organisation (cf ONTOLOGIES/Types d'organisation)
@@ -118,14 +140,10 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
     metiers: Mapped[str] = mapped_column(default="")
     # from LifeCycleMixin : created_at
     # from LifeCycleMixin : deleted_at
+
     modified_at: Mapped[arrow.Arrow | None] = mapped_column(
         ArrowType, nullable=True, onupdate=func.now()
     )
-
-    # name = sa.Column(sa.UnicodeText, nullable=False)
-    # slug = sa.Column(sa.UnicodeText, nullable=False)
-    # siren = sa.Column(sa.UnicodeText, default="")
-    # description = sa.Column(sa.UnicodeText, default="")
 
     # geoloc_id = sa.Column(sa.Integer, sa.ForeignKey("geo_loc.id"), nullable=True)
     # geoloc = sa.orm.relationship(GeoLocation)
@@ -134,6 +152,11 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
         sa.Enum(OrganisationTypeEnum),
         default=OrganisationTypeEnum.AUTO,
         index=True,
+    )
+
+    bw_type: Mapped[BWTypeEnum] = mapped_column(
+        sa.Enum(BWTypeEnum),
+        nullable=True,
     )
 
     status: Mapped[str] = mapped_column(default="")
