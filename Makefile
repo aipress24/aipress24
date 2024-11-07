@@ -105,6 +105,7 @@ clean:
 
 ## Cleanup harder
 tidy: clean
+	rm -rf .venv
 	rm -rf vite/dist
 	rm -rf vite/node_modules
 
