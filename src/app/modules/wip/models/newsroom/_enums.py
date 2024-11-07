@@ -4,10 +4,10 @@
 
 from __future__ import annotations
 
-from enum import Enum
+from enum import StrEnum
 
 
-class TypeAvis(str, Enum):
+class TypeAvis(StrEnum):
     AVIS_D_ENQUETE = "Avis d’enquête"
     APPEL_A_TEMOIN = "Appel à témoin"
     APPEL_A_EXPERT = "Appel à expert"

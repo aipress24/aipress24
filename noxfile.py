@@ -8,14 +8,13 @@ nox.options.sessions = ["lint", "test"]
 nox.options.reuse_existing_virtualenvs = True
 
 # NB: first one is the default
-PYTHON_VERSIONS = ["3.10", "3.11", "3.12"]
+PYTHON_VERSIONS = ["3.12", "3.11", "3.10"]
 
 
 @nox.session(python=PYTHON_VERSIONS)
 def test(session: nox.Session) -> None:
     session.install("poetry")
     session.run("poetry", "install")
-    # session.run("pip", "check")
     session.run("pytest")
 
 
@@ -23,7 +22,6 @@ def test(session: nox.Session) -> None:
 def lint(session: nox.Session) -> None:
     session.install("poetry")
     session.run("poetry", "install")
-    # session.run("pip", "check")
     session.run("poetry", "run", "make", "lint")
 
 
@@ -31,5 +29,4 @@ def lint(session: nox.Session) -> None:
 def check_prod(session: nox.Session) -> None:
     session.install("poetry")
     session.run("poetry", "install", "--only", "main")
-    # session.run("pip", "check")
     session.run("flask inspect")

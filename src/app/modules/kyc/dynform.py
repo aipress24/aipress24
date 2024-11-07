@@ -570,18 +570,16 @@ def _collect_managed_data(form: FlaskForm, form_data: dict[str, Any]) -> dict[st
             wt_field = getattr(form, key)
         except AttributeError:
             continue
-        if isinstance(wt_field, (CountrySelectField, DualSelectField)):
+        if isinstance(wt_field, CountrySelectField | DualSelectField):
             # now apply also to second field *_detail, store as a tuple of 2 values
             managed_data[key] = (value, form_data.get(f"{key}_detail", []))
         elif isinstance(
             wt_field,
-            (
-                StringField,
-                BooleanField,
-                SelectField,
-                TextAreaField,
-                SelectMultipleField,
-            ),
+            StringField
+            | BooleanField
+            | SelectField
+            | TextAreaField
+            | SelectMultipleField,
         ):
             managed_data[key] = value
         elif isinstance(wt_field, ValidImageField):
@@ -599,7 +597,7 @@ def _collect_managed_data(form: FlaskForm, form_data: dict[str, Any]) -> dict[st
 def _fill_managed_data(form: FlaskForm, managed_data: dict[str, Any]) -> None:
     for key, value in managed_data.items():
         wt_field = getattr(form, key)
-        if isinstance(wt_field, (CountrySelectField, DualSelectField)):
+        if isinstance(wt_field, CountrySelectField | DualSelectField):
             # apply also to second field *_detail
             first, second = value
             wt_field.data = first

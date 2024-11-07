@@ -53,12 +53,12 @@ test-e2e-prod:
 
 ##
 lint/ruff:
-	ruff check src tests
+	ruff check
 
 ## Lint source code and check typing
 lint:
 	adt check
-	ruff check src tests
+	ruff check
 	lint-imports
 	deptry src
 	vulture --min-confidence 80 src
@@ -114,7 +114,7 @@ tidy: clean
 
 ## Format source code
 format:
-	black --target-version py311 src tests scripts migrations docker e2e_playwright *.py
+	# black --target-version py311 src tests scripts migrations docker e2e_playwright *.py
 	ruff format src tests scripts migrations docker e2e_playwright *.py
 	isort src tests scripts migrations docker e2e_playwright *.py
 

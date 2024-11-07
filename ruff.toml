@@ -3,6 +3,7 @@
 #
 
 preview = true
+target-version = "py310"
 
 exclude = [
     "src/app/modules/wip/crud/cbvs/_forms.py",
@@ -14,7 +15,7 @@ exclude = [
     "not-used-yet/",
     #
     "docker/run.py",
-    "e2e_playwright/conftest.py",
+    "e2e_playwright/*.py",
     "features/steps/steps.py",
     "gunicorn.conf.py",
     "icons/tasks.py",
@@ -24,6 +25,9 @@ exclude = [
 lint.select = ["ALL"]
 
 lint.ignore = [
+    # False positive, don't remove
+    "ISC001", # "may cause conflicts when used with the formatter"
+    # Later...
     "ANN",  # flake8-annotations
     "ARG",  # flake8-unused-arguments
     "COM",  # flake8-commas

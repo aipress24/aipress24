@@ -49,13 +49,13 @@ def app() -> Flask:
     return app
 
 
-@pytest.fixture()
+@pytest.fixture
 def app_context(app) -> AppContext:
     with app.app_context() as ctx:
         yield ctx
 
 
-@pytest.fixture()
+@pytest.fixture
 def clean_database(app_context: AppContext) -> Iterator[SQLAlchemy]:
     """Return a fresh db for each test."""
     from app.flask.extensions import db as _db
@@ -68,7 +68,7 @@ def clean_database(app_context: AppContext) -> Iterator[SQLAlchemy]:
     cleanup_db(_db)
 
 
-@pytest.fixture()
+@pytest.fixture
 def db(app_context: AppContext, app: Flask) -> Iterator[SQLAlchemy]:
     """Return a fresh db for each test."""
     from app.flask.extensions import db as _db
@@ -81,12 +81,12 @@ def db(app_context: AppContext, app: Flask) -> Iterator[SQLAlchemy]:
     cleanup_db(_db)
 
 
-@pytest.fixture()
+@pytest.fixture
 def db_session(clean_database) -> scoped_session:
     return container.get(scoped_session)
 
 
-@pytest.fixture()
+@pytest.fixture
 def client(app: Flask, db_session: scoped_session) -> FlaskClient:
     """Return a Web client, used for testing, bound to a DB session."""
     return app.test_client()

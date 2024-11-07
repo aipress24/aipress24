@@ -375,7 +375,7 @@ def _update_or_create_zip_code(iso3: str, zip_code_list: list) -> None:
         else:
             print("pb ", iso3)
             print(current_zip_codes)
-            for a, b in zip(current_zip_codes, zip_code_list):
+            for a, b in zip(current_zip_codes, zip_code_list, strict=False):
                 if a != b:
                     print(a, b, "\n")
             updated = _update_zip_code_entries(iso3, zip_code_list)

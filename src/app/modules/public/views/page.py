@@ -15,8 +15,7 @@ from .. import blueprint
 
 @blueprint.route("/page/<path:path>")
 def page(path: str):
-    if path.endswith("/"):
-        path = path[:-1]
+    path = path.removesuffix("/")
 
     root = Path(current_app.root_path).parent.parent.parent / "static-pages"
     html_file = root / (path + ".html")
