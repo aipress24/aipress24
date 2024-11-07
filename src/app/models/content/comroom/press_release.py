@@ -24,12 +24,13 @@ class PressRelease(
     id: Mapped[int] = mapped_column(sa.ForeignKey(BaseContent.id), primary_key=True)
 
     # Inherited:
-    # - title = sa.Column(sa.UnicodeText, nullable=False, default="")
-    # - content = sa.Column(sa.UnicodeText, nullable=False, default="")
-    # - summary = sa.Column(sa.UnicodeText, nullable=False, default="")
+    # - title
+    # - content
+    # - summary
 
     # "About us" section
     about: Mapped[str] = mapped_column(default="", info={"group": "contents"})
+
     release_datetime: Mapped[Arrow] = mapped_column(
         ArrowType, default=arrow.now, info={"group": "dates"}
     )
