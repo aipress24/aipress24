@@ -1,4 +1,4 @@
-# Copyright (c) 2021-2024 - Abilian SAS & TCA
+# Copyright (c) 2021-2024, Abilian SAS & TCA
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
@@ -33,6 +33,7 @@ class ValidImageField(FileField):
         self.preload_filename = kwargs.pop("filename", "")
         self.preload_filesize = kwargs.pop("filesize", 0)
         self.is_required = kwargs.pop("is_required", False)
+        self.readonly = kwargs.pop("readonly", False)
         super().__init__(**kwargs)
         self.multiple = False
 

@@ -1,3 +1,4 @@
+# Copyright (c) 2024, Abilian SAS & TCA
 import granian
 from asgiref.wsgi import WsgiToAsgi
 from granian.constants import Interfaces, Loops

@@ -1,5 +1,4 @@
 <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
-
 <div
     x-data="{
       multiple: false,
@@ -32,6 +31,9 @@
           };
 
           refreshChoices();
+
+          if ({{ field.lock }})
+            choices.lock();
 
           this.$refs.select.addEventListener('change', () => {
             this.value = choices.getValue();

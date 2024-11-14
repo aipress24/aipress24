@@ -48,8 +48,9 @@
         id="{{ field.id }}"
         name="{{ field.name }}"
         {% if field.flags.required %}required{% endif %}
+        {% if field.readonly %}readonly{% endif %}
         x-init="val='{{ field.data if field.data }}' || ''; $el.value=val"
-        type="email" 
+        type="email"
         x-validate.email
         x-ref="inputmail"
         x-on:change="testEmail"

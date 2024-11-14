@@ -1,5 +1,4 @@
 <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
-
 <div>
 
 <div
@@ -34,15 +33,16 @@
           let zip_choices = new TomSelect(this.$refs.zip_select, {
              create: this.create,
              createOnBlur: true,
-             maxOptions: null,
+             maxOptions: 1000,
              maxItems: 1,
              preload: false,
              labelField: 'label',
              searchField: ['label'],
              diacritics: true,
+             placeholder: 'Caractères de la ville ou du code postal'
              });
 
-          zip_choices.disable()
+          zip_choices.disable();
 
           let refreshChoices = () => {
              let selection = [this.value];
@@ -68,19 +68,27 @@
           };
 
           let displayCities = () => {
-             console.log('in displayCities ' + this.current_val + ' -> ' + this.new_val);
-             if (this.current_val === this.new_val) return;
-             console.log('new cities fetched');
-             zip_choices.clear();
-             zip_choices.clearOptions();
-             zip_choices.addOptions(this.cities);
-             zip_choices.refreshOptions(this.cities);
-             zip_choices.enable();
-             this.current_val = this.new_val;
-             if (this.first_load){
-               zip_choices.setValue(this.zip_value);
-               this.first_load = false;
-             };
+            console.log('in displayCities ' + this.current_val + ' -> ' + this.new_val);
+            if (this.current_val === this.new_val) {
+              zip_choices.enable();
+            } else {
+              console.log('new cities fetched');
+              zip_choices.clear();
+              zip_choices.clearOptions();
+              zip_choices.addOptions(this.cities);
+              zip_choices.refreshOptions(this.cities);
+              zip_choices.enable();
+              this.current_val = this.new_val;
+            };
+            if (this.first_load){
+              zip_choices.setValue(this.zip_value);
+              this.first_load = false;
+            };
+            if ({{ field.lock }}) {
+              zip_choices.lock();
+            } else {
+              zip_choices.unlock();
+            };
           };
 
           this.$refs.select.addEventListener('change', () => {
@@ -94,6 +102,15 @@
 
           refreshChoices();
           // zip_choices.setValue(this.zip_value, false);
+
+          if ({{ field.lock }}) {
+            choices.lock();
+            zip_choices.setValue(this.zip_value, false);
+            zip_choices.lock();
+          }else{
+            choices.unlock();
+            zip_choices.unlock();
+          };
         })
       }
     }"

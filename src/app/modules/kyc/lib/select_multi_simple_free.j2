@@ -26,6 +26,9 @@
           choices.addOption({value: this.value, label: this.value}, user_created=false);
           choices.setValue(this.value, true);
 
+          if ({{ field.lock }})
+            choices.lock();
+
           this.$refs.select.addEventListener('change', () => {
             this.value = choices.getValue();
           });

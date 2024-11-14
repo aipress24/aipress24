@@ -1,4 +1,4 @@
-# Copyright (c) 2021-2024 - Abilian SAS & TCA
+# Copyright (c) 2021-2024, Abilian SAS & TCA
 # Copyright (c) 2022, DjaoDjin inc.
 #
 # SPDX-License-Identifier: AGPL-3.0-only

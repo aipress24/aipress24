@@ -1,4 +1,4 @@
-# Copyright (c) 2021-2024 - Abilian SAS & TCA
+# Copyright (c) 2021-2024, Abilian SAS & TCA
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
@@ -44,7 +44,7 @@ GENDERS = {
 }
 
 GLOBAL_COUNTER = {"no_carte_presse": 0}
-COMMON_PWD = "AAAABBBB-1"
+COMMON_PWD = "AAAABBBB-1"  # noqa: S105
 PERCENT_USERS_WITH_AUTO_ORGANISATION = 50
 AUTO_ORGANISATIONS_NAMES = set()
 
@@ -457,7 +457,8 @@ class UserGenerator(BaseGenerator):
         # family = profile.organisation_family
         # store AUTO organisation
         # allow organisation of same name
-        auto_organisation = store_auto_organisation(organisation_name)
+        user.profile = profile
+        auto_organisation = store_auto_organisation(user, organisation_name)
         if auto_organisation:
             user.organisation_id = auto_organisation.id
         # store organisation name in user profile

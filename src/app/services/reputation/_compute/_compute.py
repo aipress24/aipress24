@@ -1,4 +1,4 @@
-# Copyright (c) 2021-2024 - Abilian SAS & TCA
+# Copyright (c) 2021-2024, Abilian SAS & TCA
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
@@ -26,13 +26,13 @@ from ._types import Real, Spec
 @singledispatch
 def compute_reputation(obj: User | Organisation) -> dict[str, Real]:
     """Compute the reputation of a user / org."""
-    if isinstance(obj, User):
-        return compute_reputation_user(obj)
-    elif isinstance(obj, Organisation):
-        return compute_reputation_org(obj)
-    else:
-        # Should not happen
-        return {"total": 0}
+    match obj:
+        case User():
+            return compute_reputation_user(obj)
+        case Organisation():
+            return compute_reputation_org(obj)
+        case _:
+            return {"total": 0}
 
 
 @compute_reputation.register
@@ -41,10 +41,11 @@ def compute_reputation_user(user: User) -> dict[str, Real]:
     if has_role(user, RoleEnum.PRESS_MEDIA):
         # TODO: ajouter le rôle "redac' chef"
         return compute_reputation_with_spec(user, REPUT_JOURNALIST_SPEC)
-    elif has_role(user, [RoleEnum.PRESS_RELATIONS, RoleEnum.EXPERT]):
+
+    if has_role(user, [RoleEnum.PRESS_RELATIONS, RoleEnum.EXPERT]):
         return compute_reputation_with_spec(user, REPUT_GENERIC_USER_SPEC)
-    else:
-        return {"total": 0}
+
+    return {"total": 0}
 
 
 @compute_reputation.register

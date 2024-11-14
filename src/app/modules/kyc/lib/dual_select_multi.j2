@@ -96,6 +96,11 @@
 
           refreshChoices();
           second_choices.setValue(this.second_value, false);
+
+          if ({{ field.lock }}) {
+              choices.lock();
+              second_choices.lock();
+            };
         })
       }
     }"

@@ -1,8 +1,10 @@
-# Copyright (c) 2021-2024 - Abilian SAS & TCA
+# Copyright (c) 2021-2024, Abilian SAS & TCA
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
 from __future__ import annotations
+
+from typing import Any
 
 from sqlalchemy import func, select
 
@@ -83,10 +85,7 @@ def get_organisation_choices_family(
     return [(name, name) for name in get_organisation_family(family)]
 
 
-def retrieve_user_organisation(user: User) -> Organisation | None:
-    """Return the User's organisation, either official if invited, or auto or
-    create a new User AUTO organisation if the organisation does not exists.
-    """
+def _find_kyc_organisation_name(user: User) -> str:
     profile = user.profile
     orga_field_name = profile.organisation_field_name_origin
     current_value = profile.get_value(orga_field_name)
@@ -97,15 +96,25 @@ def retrieve_user_organisation(user: User) -> Organisation | None:
             name = ""
     else:
         name = current_value
-    name = name.strip()
-    if not name:
+    return name.strip()
+
+
+def retrieve_user_organisation(user: User) -> Organisation | None:
+    """Return the User's organisation, either official if invited, or auto or
+    create a new User AUTO organisation if the organisation does not exists.
+    """
+
+    org_name = _find_kyc_organisation_name(user)
+    if not org_name:
         return None
     # family = profile.organisation_family  # select the target family
     inviting_orgs = find_inviting_organisations(user.email)
     for org in inviting_orgs:
-        if org.name.lower() == name.lower():
+        if org.name.lower() == org_name.lower():
+            # We found an official BW organisation inviting this user:
             return org
-    return store_auto_organisation(name)
+    # store a new AUTO organisation
+    return store_auto_organisation(user, org_name=org_name)
 
 
 def find_inviting_organisations(mail: str) -> list[Organisation]:
@@ -120,7 +129,8 @@ def find_inviting_organisations(mail: str) -> list[Organisation]:
 
 
 def store_auto_organisation(
-    name: str = "",
+    user: User,
+    org_name: str | None = None,
     # family: OrganisationTypeEnum = OrganisationTypeEnum.AUTO,  # type: ignore
     db_session: object | None = None,
 ) -> Organisation | None:
@@ -135,22 +145,79 @@ def store_auto_organisation(
         - the organisation does not exists
             -> create a new one with type "AUTO"
     """
-    name = str(name).strip()
-    if not name:
+
+    def _secteur_activite(info: dict[str, Any]) -> list[str]:
+        return (
+            info["secteurs_activite_detailles"]
+            or info["secteurs_activite_medias"]
+            or info["secteurs_activite_rp"]
+        )
+
+    def _secteur_activite_detail(info: dict[str, Any]) -> list[str]:
+        return (
+            info["secteurs_activite_detailles_detail"]
+            or info["secteurs_activite_medias_detail"]
+            or info["secteurs_activite_rp_detail"]
+        )
+
+    if org_name is None:
+        # store_auto_organisation() can be called without providing the organisation na
+        org_name = _find_kyc_organisation_name(user)
+    org_name = str(org_name).strip()
+    if not org_name:
         return None
+    # identificatin of AUTO organisation is:
+    # - organisation name
+    # - le secteur d’activité (cf ONTOLOGIES/Secteurs détaillés) ;
+    # -> org.secteurs_activite, secteurs_activite_detail
+    # - le type d'organisation (cf ONTOLOGIES/Types d'organisation) ;
+    # -> type_organisation, type_organisation_detail
+    # - la taille de l’organisation (cf ONTOLOGIES / Taille des organisations) ;
+    # -> taille_orga
+    # - la géolocalisation (code postal, commune) du siège social ;
+    # -> pays_zip_ville, pays_zip_ville_detail
+    # - et type == AUTO
+    profile = user.profile
+    info_pro = profile.info_professionnelle
+    info_mm = profile.match_making
+    secteurs_activite = _secteur_activite(info_mm)
+    secteurs_activite_detail = _secteur_activite_detail(info_mm)
+
     if db_session is None:
         db_session = db.session
-    query = (
-        select(Organisation).where(
-            Organisation.name == name, Organisation.type == OrganisationTypeEnum.AUTO
-        )
-        # .where(Organisation.type.in_([family, OrganisationTypeEnum.AUTO]))
+    query = select(Organisation).where(
+        Organisation.name == org_name, Organisation.type == OrganisationTypeEnum.AUTO
     )
-    found_organisation = db.session.execute(query).scalar()
-    if found_organisation:
-        return found_organisation
-    # No Organisatin with both same type and name exists: save
-    created_organisation = Organisation(name=name, type=OrganisationTypeEnum.AUTO)
+    found_organisations = db.session.execute(query).scalars()
+
+    matching_org = None
+    for org in found_organisations:
+        if (
+            org.secteurs_activite == secteurs_activite  # noqa:PLR0916
+            and org.secteurs_activite_detail == secteurs_activite_detail
+            and org.type_organisation == info_pro["type_orga"]
+            and org.type_organisation_detail == info_pro["type_orga_detail"]
+            and org.taille_orga == info_pro["taille_orga"]
+            and org.pays_zip_ville == info_pro["pays_zip_ville"]
+            and org.pays_zip_ville_detail == info_pro["pays_zip_ville_detail"]
+        ):
+            matching_org = org
+            break
+
+    if matching_org:
+        return matching_org
+    # No Organisatin with both same type and other params found:
+    created_organisation = Organisation(
+        name=org_name,
+        type=OrganisationTypeEnum.AUTO,
+        secteurs_activite=secteurs_activite,
+        secteurs_activite_detail=secteurs_activite_detail,
+        type_organisation=info_pro["type_orga"],
+        type_organisation_detail=info_pro["type_orga_detail"],
+        taille_orga=info_pro["taille_orga"],
+        pays_zip_ville=info_pro["pays_zip_ville"],
+        pays_zip_ville_detail=info_pro["pays_zip_ville_detail"],
+    )
     db_session.add(created_organisation)
     db_session.commit()
     return created_organisation

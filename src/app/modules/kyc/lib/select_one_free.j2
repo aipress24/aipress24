@@ -33,6 +33,9 @@
 
           refreshChoices();
 
+          if ({{ field.lock }})
+            choices.lock();
+
           this.$refs.select.addEventListener('change', () => {
             this.value = choices.getValue();
           });

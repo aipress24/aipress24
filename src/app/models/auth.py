@@ -1,4 +1,4 @@
-# Copyright (c) 2021-2024 - Abilian SAS & TCA
+# Copyright (c) 2021-2024, Abilian SAS & TCA
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
@@ -294,11 +294,11 @@ class KYCProfile(Base):
     contact_type: Mapped[str] = mapped_column(sa.String, default="")
     display_level: Mapped[int] = mapped_column(sa.Integer, default=1)
     presentation: Mapped[str] = mapped_column(sa.String, default="")
-    show_contact_details: Mapped[dict] = mapped_column(JSON, default="{}")
-    info_personnelle: Mapped[dict] = mapped_column(JSON, default="{}")
-    info_professionnelle: Mapped[dict] = mapped_column(JSON, default="{}")
-    match_making: Mapped[dict] = mapped_column(JSON, default="{}")
-    business_wall: Mapped[dict] = mapped_column(JSON, default="{}")
+    show_contact_details: Mapped[dict] = mapped_column(JSON, default=dict)
+    info_personnelle: Mapped[dict] = mapped_column(JSON, default=dict)
+    info_professionnelle: Mapped[dict] = mapped_column(JSON, default=dict)
+    match_making: Mapped[dict] = mapped_column(JSON, default=dict)
+    business_wall: Mapped[dict] = mapped_column(JSON, default=dict)
     date_update: Mapped[DateTime] = mapped_column(
         DateTime, nullable=True, onupdate=func.now()
     )

@@ -1,3 +1,4 @@
+# Copyright (c) 2024, Abilian SAS & TCA
 import sys
 
 from .main import serve

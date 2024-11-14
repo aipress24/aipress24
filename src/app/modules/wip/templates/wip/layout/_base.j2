@@ -1,34 +1,6 @@
 {% extends "layout/private.j2" %}
 
-<!-- choices.js CSS -->
-<link rel="stylesheet" href="/kyc/static/css/choices.css" />
 
-<!-- tom-select.js CSS -->
-<link rel="stylesheet" href="/kyc/static/css/tom-select.css" />
-
-<!-- Favicons -->
-<link rel="icon" href="/static/icon/icon-192x192.png" />
-<link rel="shortcut icon" href="/static/icon/icon-192x192.png" />
-
-<!-- Alpine Plugins -->
-<script
-  defer
-  src="https://unpkg.com/@alpinejs/focus@3.x.x/dist/cdn.min.js"></script>
-
-<script
-  defer
-  src="https://unpkg.com/@colinaut/alpinejs-plugin-simple-validate@1/dist/alpine.validate.min.js"></script>
-
-<!-- Alpine Core -->
-<script
-  defer
-  src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js">
-</script>
-<script defer src="https://unpkg.com/hyperscript.org@0.9.4"></script>
-<script>
-  window.data = {};
-  window.toasts = [];
-</script>
 
 {% block content %}
   <div class="py-10">

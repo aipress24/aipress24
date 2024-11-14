@@ -1,4 +1,4 @@
-# Copyright (c) 2021-2024 - Abilian SAS & TCA
+# Copyright (c) 2021-2024, Abilian SAS & TCA
 #
 # SPDX-License-Identifier: AGPL-3.0-onlyfrom __future__ import annotations
 
@@ -98,19 +98,27 @@ def _filter_mandatory_validator(code: str) -> list:
     return [validators.Optional()]
 
 
-def custom_bool_field(field: SurveyField, code: str, param: str = "") -> Field:
+def custom_bool_field(
+    field: SurveyField,
+    mandatory_code: str = "",
+    param: str = "",
+    readonly: bool = False,
+) -> Field:
     validators_list = [validators.Optional()]
-    code = ""
+    mandatory_code = ""  # because different meaning on boolean widget
+    render_kw: dict[str, Any] = {
+        "kyc_type": "boolean",
+        "kyc_code": mandatory_code,
+        "kyc_message": field.upper_message,
+    }
+    if readonly:
+        render_kw["disabled"] = ""
     return BooleanField(
         name=field.name,
         label=Markup(field.description),
         id=field.id,
         validators=validators_list,
-        render_kw={
-            "kyc_type": "boolean",
-            "kyc_code": code,
-            "kyc_message": field.upper_message,
-        },
+        render_kw=render_kw,
     )
 
 
@@ -121,192 +129,285 @@ def _get_part(strlist: list[str], idx: int) -> str:
         return ""
 
 
-def custom_bool_link_field(field: SurveyField, code: str, param: str = "") -> Field:
+def custom_bool_link_field(
+    field: SurveyField,
+    mandatory_code: str = "",
+    param: str = "",
+    readonly: bool = False,
+) -> Field:
     validators_list = [validators.Optional()]
-    code = ""
+    mandatory_code = ""
     parts = field.description.split(";")
     message = _get_part(parts, 0)
     url = _get_part(parts, 1)
     ref = _get_part(parts, 2)
     label = f'{message} <a href="{url}" target="_blank">{ref}</a>'
+    render_kw: dict[str, Any] = {
+        "kyc_type": "boolean",
+        "kyc_code": mandatory_code,
+        "kyc_message": field.upper_message,
+    }
+    if readonly:
+        render_kw["disabled"] = ""
     return BooleanField(
         name=field.name,
         label=Markup(label),
         id=field.id,
         validators=validators_list,
-        render_kw={
-            "kyc_type": "boolean",
-            "kyc_code": code,
-            "kyc_message": field.upper_message,
-        },
+        render_kw=render_kw,
     )
 
 
-def custom_string_field(field: SurveyField, code: str, param: str = "") -> Field:
-    validators_list = _filter_mandatory_validator(code)
+def custom_string_field(
+    field: SurveyField,
+    mandatory_code: str = "",
+    param: str = "",
+    readonly: bool = False,
+) -> Field:
+    if readonly:
+        mandatory_code = ""
+    validators_list = _filter_mandatory_validator(mandatory_code)
     validators_list.append(validators.Length(max=80))
     label = _filter_public_info(field.description, field.public_maxi)
-    label = _filter_mandatory_label(label, code)
+    label = _filter_mandatory_label(label, mandatory_code)
+    render_kw: dict[str, Any] = {
+        "kyc_type": "string",
+        "kyc_code": mandatory_code,
+        "kyc_message": field.upper_message,
+    }
+    if readonly:
+        render_kw["readonly"] = True
     return StringField(
         name=field.name,
         label=label,
         id=field.id,
         validators=validators_list,
-        render_kw={
-            "kyc_type": "string",
-            "kyc_code": code,
-            "kyc_message": field.upper_message,
-        },
+        render_kw=render_kw,
     )
 
 
-def custom_photo_field(field: SurveyField, code: str, param: str = "") -> Field:
+def custom_photo_field(
+    field: SurveyField,
+    mandatory_code: str = "",
+    param: str = "",
+    readonly: bool = False,
+) -> Field:
+    if readonly:
+        mandatory_code = ""
     # validators_list = _filter_mandatory_validator(code)
     label = _filter_photo_format(field.description)
     label = _filter_public_info(label, field.public_maxi)
-    label = _filter_mandatory_label(label, code)
+    label = _filter_mandatory_label(label, mandatory_code)
+    render_kw: dict[str, Any] = {
+        "kyc_type": "photo",
+        "kyc_code": mandatory_code,
+        "kyc_message": field.upper_message,
+    }
     return ValidImageField(
         name=field.name,
         label=label,
         id=field.id,
         # validators=validators_list,
-        is_required=_is_required(code),
-        render_kw={
-            "kyc_type": "photo",
-            "kyc_code": code,
-            "kyc_message": field.upper_message,
-        },
+        is_required=_is_required(mandatory_code),
+        render_kw=render_kw,
+        readonly=1 if readonly else 0,
     )
 
 
-def custom_email_field(field: SurveyField, code: str, param: str = "") -> Field:
-    validators_list = _filter_mandatory_validator(code)
+def custom_email_field(
+    field: SurveyField,
+    mandatory_code: str = "",
+    param: str = "",
+    readonly: bool = False,
+) -> Field:
+    if readonly:
+        mandatory_code = ""
+    validators_list = _filter_mandatory_validator(mandatory_code)
     validators_list.append(validators.Email())
     label = _filter_public_info(field.description, field.public_maxi)
-    label = _filter_mandatory_label(label, code)
+    label = _filter_mandatory_label(label, mandatory_code)
+    render_kw: dict[str, Any] = {
+        "kyc_type": "email",
+        "kyc_code": mandatory_code,
+        "kyc_message": field.upper_message,
+    }
     return ValidEmail(
         name=field.name,
         label=label,
         id=field.id,
         validators=validators_list,
-        render_kw={
-            "kyc_type": "email",
-            "kyc_code": code,
-            "kyc_message": field.upper_message,
-        },
+        render_kw=render_kw,
+        readonly=1 if readonly else 0,
     )
 
 
-def custom_tel_field(field: SurveyField, code: str, param: str = "") -> Field:
-    validators_list = _filter_mandatory_validator(code)
+def custom_tel_field(
+    field: SurveyField,
+    mandatory_code: str = "",
+    param: str = "",
+    readonly: bool = False,
+) -> Field:
+    if readonly:
+        mandatory_code = ""
+    validators_list = _filter_mandatory_validator(mandatory_code)
     validators_list.append(validators.Length(max=20))
     label = _filter_public_info(field.description, field.public_maxi)
-    label = _filter_mandatory_label(label, code)
+    label = _filter_mandatory_label(label, mandatory_code)
+    render_kw: dict[str, Any] = {
+        "kyc_type": "tel",
+        "kyc_code": mandatory_code,
+        "kyc_message": field.upper_message,
+    }
     return ValidTel(
         name=field.name,
         label=label,
         id=field.id,
         validators=validators_list,
-        render_kw={
-            "kyc_type": "tel",
-            "kyc_code": code,
-            "kyc_message": field.upper_message,
-        },
+        render_kw=render_kw,
+        readonly=1 if readonly else 0,
     )
 
 
-def custom_password_field(field: SurveyField, code: str, param: str = "") -> Field:
-    validators_list = _filter_mandatory_validator(code)
+def custom_password_field(
+    field: SurveyField,
+    mandatory_code: str = "",
+    param: str = "",
+    readonly: bool = False,
+) -> Field:
+    if readonly:
+        mandatory_code = ""
+    validators_list = _filter_mandatory_validator(mandatory_code)
     label = _filter_public_info(field.description, field.public_maxi)
-    label = _filter_mandatory_label(label, code)
+    label = _filter_mandatory_label(label, mandatory_code)
+    render_kw: dict[str, Any] = {
+        "kyc_type": "password",
+        "kyc_code": mandatory_code,
+        "kyc_message": field.upper_message,
+    }
     return ValidPassword(
         name=field.name,
         label=label,
         id=field.id,
         validators=validators_list,
-        render_kw={
-            "kyc_type": "password",
-            "kyc_code": code,
-            "kyc_message": field.upper_message,
-        },
+        render_kw=render_kw,
+        readonly=1 if readonly else 0,
     )
 
 
-def custom_postcode_field(field: SurveyField, code: str, param: str = "") -> Field:
-    validators_list = _filter_mandatory_validator(code)
+def custom_postcode_field(
+    field: SurveyField,
+    mandatory_code: str = "",
+    param: str = "",
+    readonly: bool = False,
+) -> Field:
+    if readonly:
+        mandatory_code = ""
+    validators_list = _filter_mandatory_validator(mandatory_code)
     validators_list.append(validators.Length(max=80))
     label = _filter_public_info(field.description, field.public_maxi)
-    label = _filter_mandatory_label(label, code)
+    label = _filter_mandatory_label(label, mandatory_code)
+    render_kw: dict[str, Any] = {
+        "kyc_type": "postcode",
+        "kyc_code": mandatory_code,
+        "kyc_message": field.upper_message,
+    }
+    if readonly:
+        render_kw["readonly"] = True
     return StringField(
         name=field.name,
         label=label,
         id=field.id,
         validators=validators_list,
-        render_kw={
-            "kyc_type": "postcode",
-            "kyc_code": code,
-            "kyc_message": field.upper_message,
-        },
+        render_kw=render_kw,
     )
 
 
-def custom_url_field(field: SurveyField, code: str, param: str = "") -> Field:
-    validators_list = _filter_mandatory_validator(code)
+def custom_url_field(
+    field: SurveyField,
+    mandatory_code: str,
+    param: str = "",
+    readonly: bool = False,
+) -> Field:
+    if readonly:
+        mandatory_code = ""
+    validators_list = _filter_mandatory_validator(mandatory_code)
     validators_list.append(validators.Length(max=80))
     label = _filter_public_info(field.description, field.public_maxi)
-    label = _filter_mandatory_label(label, code)
+    label = _filter_mandatory_label(label, mandatory_code)
+    render_kw: dict[str, Any] = {
+        "kyc_type": "url",
+        "kyc_code": mandatory_code,
+        "kyc_message": field.upper_message,
+    }
     return ValidURL(
         name=field.name,
         label=label,
         id=field.id,
         validators=validators_list,
-        render_kw={
-            "kyc_type": "url",
-            "kyc_code": code,
-            "kyc_message": field.upper_message,
-        },
+        render_kw=render_kw,
+        readonly=1 if readonly else 0,
     )
 
 
-def custom_textarea_field(field: SurveyField, code: str, param: str = "") -> Field:
-    validators_list = _filter_mandatory_validator(code)
+def custom_textarea_field(
+    field: SurveyField,
+    mandatory_code: str = "",
+    param: str = "",
+    readonly: bool = False,
+) -> Field:
+    if readonly:
+        mandatory_code = ""
+    validators_list = _filter_mandatory_validator(mandatory_code)
     validators_list.append(validators.Length(max=MAX_TEXTAREA))
     label = _filter_max_textarea_size(field.description)
     label = _filter_public_info(label, field.public_maxi)
-    label = _filter_mandatory_label(label, code)
+    label = _filter_mandatory_label(label, mandatory_code)
+    render_kw: dict[str, Any] = {
+        "rows": "5",
+        "maxlength": MAX_TEXTAREA,
+        "kyc_type": "string",
+        "kyc_code": mandatory_code,
+        "kyc_message": field.upper_message,
+    }
+    if readonly:
+        render_kw["readonly"] = True
     return TextAreaField(
         name=field.name,
         label=label,
         id=field.id,
         validators=validators_list,
-        render_kw={
-            "rows": "5",
-            "maxlength": MAX_TEXTAREA,
-            "kyc_type": "string",
-            "kyc_code": code,
-            "kyc_message": field.upper_message,
-        },
+        render_kw=render_kw,
     )
 
 
-def custom_textarea300_field(field: SurveyField, code: str, param: str = "") -> Field:
-    validators_list = _filter_mandatory_validator(code)
+def custom_textarea300_field(
+    field: SurveyField,
+    mandatory_code: str = "",
+    param: str = "",
+    readonly: bool = False,
+) -> Field:
+    if readonly:
+        mandatory_code = ""
+    validators_list = _filter_mandatory_validator(mandatory_code)
     validators_list.append(validators.Length(max=MAX_TEXTAREA300))
     label = _filter_max_textarea300_size(field.description)
     label = _filter_public_info(label, field.public_maxi)
-    label = _filter_mandatory_label(label, code)
+    label = _filter_mandatory_label(label, mandatory_code)
+    render_kw: dict[str, Any] = {
+        "rows": "3",
+        "maxlength": MAX_TEXTAREA300,
+        "kyc_type": "string",
+        "kyc_code": mandatory_code,
+        "kyc_message": field.upper_message,
+    }
+    if readonly:
+        render_kw["readonly"] = True
     return TextAreaField(
         name=field.name,
         label=label,
         id=field.id,
         validators=validators_list,
-        render_kw={
-            "rows": "3",
-            "maxlength": MAX_TEXTAREA300,
-            "kyc_type": "string",
-            "kyc_code": code,
-            "kyc_message": field.upper_message,
-        },
+        render_kw=render_kw,
     )
 
 
@@ -319,122 +420,189 @@ def _fake_ontology_ajax(param: str) -> list[tuple]:
     return choices
 
 
-def custom_list_field(field: SurveyField, code: str, param: str) -> Field:
-    validators_list = _filter_mandatory_validator(code)
+def custom_list_field(
+    field: SurveyField,
+    mandatory_code: str = "",
+    param: str = "",
+    readonly: bool = False,
+) -> Field:
+    if readonly:
+        mandatory_code = ""
+    validators_list = _filter_mandatory_validator(mandatory_code)
     label = _filter_public_info(field.description, field.public_maxi)
-    label = _filter_mandatory_label(label, code)
+    label = _filter_mandatory_label(label, mandatory_code)
+    render_kw: dict[str, Any] = {
+        "kyc_type": "string",
+        "kyc_code": mandatory_code,
+        "kyc_message": field.upper_message,
+    }
     return SelectOneField(
         name=field.name,
         label=label,
         id=field.id,
         choices=get_choices(param),
         validators=validators_list,
-        render_kw={
-            "kyc_type": "string",
-            "kyc_code": code,
-            "kyc_message": field.upper_message,
-        },
+        render_kw=render_kw,
+        readonly=1 if readonly else 0,
     )
 
 
-def custom_country_field(field: SurveyField, code: str, param: str) -> Field:
-    validators_list = _filter_mandatory_validator(code)
+def custom_country_field(
+    field: SurveyField,
+    mandatory_code: str = "",
+    param: str = "",
+    readonly: bool = False,
+) -> Field:
+    if readonly:
+        mandatory_code = ""
+    validators_list = _filter_mandatory_validator(mandatory_code)
     label, _, label2 = field.description.partition(";")
     label = label.strip()
     label = _filter_public_info(label, field.public_maxi)
-    label = _filter_mandatory_label(label, code)
+    label = _filter_mandatory_label(label, mandatory_code)
     label2 = label2.strip()
+    render_kw: dict[str, Any] = {
+        "kyc_type": "string",
+        "kyc_code": mandatory_code,
+        "kyc_message": field.upper_message,
+    }
     return CountrySelectField(
         name=field.name,
         name2=f"{field.name}_detail",
         label=label,
         id=field.id,
         id2=f"{field.id}_detail",
-        label2=_filter_mandatory_label(label2, code),
+        label2=_filter_mandatory_label(label2, mandatory_code),
         choices=get_choices(param),
         validators=validators_list,
         validate_choice=False,
-        render_kw={
-            "kyc_type": "string",
-            "kyc_code": code,
-            "kyc_message": field.upper_message,
-        },
+        render_kw=render_kw,
+        readonly=1 if readonly else 0,
     )
 
 
-def custom_list_free_field(field: SurveyField, code: str, param: str) -> Field:
+def custom_list_free_field(
+    field: SurveyField,
+    mandatory_code: str = "",
+    param: str = "",
+    readonly: bool = False,
+) -> Field:
     """This list allows a free text for content not in the proposed list."""
+    if readonly:
+        mandatory_code = ""
     label = _filter_public_info(field.description, field.public_maxi)
-    label = _filter_mandatory_label(label, code)
+    label = _filter_mandatory_label(label, mandatory_code)
+    render_kw: dict[str, Any] = {
+        "kyc_type": "string",
+        "kyc_code": mandatory_code,
+        "kyc_message": field.upper_message,
+    }
     return SelectOneFreeField(
         name=field.name,
         label=label,
         id=field.id,
         choices=get_choices(param),
         validate_choice=False,  # or free input is not accepted
-        render_kw={
-            "kyc_type": "string",
-            "kyc_code": code,
-            "kyc_message": field.upper_message,
-        },
+        render_kw=render_kw,
+        readonly=1 if readonly else 0,
     )
 
 
-def custom_ajax_field(field: SurveyField, code: str, param: str) -> Field:
+def custom_ajax_field(
+    field: SurveyField,
+    mandatory_code: str = "",
+    param: str = "",
+    readonly: bool = False,
+) -> Field:
+    if readonly:
+        mandatory_code = ""
     # TODO: load ontology
     choices = _fake_ontology_ajax(param)
-    validators_list = _filter_mandatory_validator(code)
+    validators_list = _filter_mandatory_validator(mandatory_code)
     label = _filter_public_info(field.description, field.public_maxi)
-    label = _filter_mandatory_label(label, code)
+    label = _filter_mandatory_label(label, mandatory_code)
+    render_kw: dict[str, Any] = {
+        "kyc_type": "string",
+        "kyc_code": mandatory_code,
+        "kyc_message": field.upper_message,
+    }
+    # readonly not implemented
     return SelectField(
         name=field.name,
         label=label,
         id=field.id,
         choices=choices,
         validators=validators_list,
-        render_kw={
-            "kyc_type": "string",
-            "kyc_code": code,
-            "kyc_message": field.upper_message,
-        },
+        render_kw=render_kw,
     )
 
 
-def custom_multi_free_field(field: SurveyField, code: str, param: str) -> Field:
+def custom_multi_free_field(
+    field: SurveyField,
+    mandatory_code: str = "",
+    param: str = "",
+    readonly: bool = False,
+) -> Field:
     # there is no "optgroup" version for multiple/free
-    return _custom_multi_free_field_simple(field, code, param)
+    return _custom_multi_free_field_simple(field, mandatory_code, param, readonly)
 
 
-def custom_multi_field(field: SurveyField, code: str, param: str) -> Field:
+def custom_multi_field(
+    field: SurveyField,
+    mandatory_code: str = "",
+    param: str = "",
+    readonly: bool = False,
+) -> Field:
     if isinstance(get_choices(param), list):
-        return _custom_multi_field_simple(field, code, param)
-    return _custom_multi_field_optgroup(field, code, param)
+        return _custom_multi_field_simple(field, mandatory_code, param, readonly)
+    return _custom_multi_field_optgroup(field, mandatory_code, param, readonly)
 
 
-def _custom_multi_field_simple(field: SurveyField, code: str, param: str) -> Field:
-    validators_list = _filter_mandatory_validator(code)  # buggy?
+def _custom_multi_field_simple(
+    field: SurveyField,
+    mandatory_code: str = "",
+    param: str = "",
+    readonly: bool = False,
+) -> Field:
+    if readonly:
+        mandatory_code = ""
+    validators_list = _filter_mandatory_validator(mandatory_code)  # buggy?
     label = _filter_public_info(field.description, field.public_maxi)
     label = _filter_many_choices(label)
-    label = _filter_mandatory_label(label, code)
+    label = _filter_mandatory_label(label, mandatory_code)
+    render_kw: dict[str, Any] = {
+        "kyc_type": "string",
+        "kyc_code": mandatory_code,
+        "kyc_message": field.upper_message,
+    }
     return SelectMultiSimpleField(
         name=field.name,
         label=label,
         id=field.id,
         choices=get_choices(param),
         validators=validators_list,
-        render_kw={
-            "kyc_type": "string",
-            "kyc_code": code,
-            "kyc_message": field.upper_message,
-        },
+        render_kw=render_kw,
+        readonly=1 if readonly else 0,
     )
 
 
-def _custom_multi_free_field_simple(field: SurveyField, code: str, param: str) -> Field:
-    validators_list = _filter_mandatory_validator(code)
+def _custom_multi_free_field_simple(
+    field: SurveyField,
+    mandatory_code: str = "",
+    param: str = "",
+    readonly: bool = False,
+) -> Field:
+    if readonly:
+        mandatory_code = ""
+    validators_list = _filter_mandatory_validator(mandatory_code)
     label = _filter_public_info(field.description, field.public_maxi)
     label = _filter_many_choices(label)
-    label = _filter_mandatory_label(label, code)
+    label = _filter_mandatory_label(label, mandatory_code)
+    render_kw = {
+        "kyc_type": "string",
+        "kyc_code": mandatory_code,
+        "kyc_message": field.upper_message,
+    }
     return SelectMultiSimpleFreeField(
         name=field.name,
         label=label,
@@ -442,42 +610,60 @@ def _custom_multi_free_field_simple(field: SurveyField, code: str, param: str) -
         validate_choice=False,
         validators=validators_list,
         choices=get_choices(param),
-        render_kw={
-            "kyc_type": "string",
-            "kyc_code": code,
-            "kyc_message": field.upper_message,
-        },
+        render_kw=render_kw,
+        readonly=1 if readonly else 0,
     )
 
 
-def _custom_multi_field_optgroup(field: SurveyField, code: str, param: str) -> Field:
-    validators_list = _filter_mandatory_validator(code)  # buggy?
+def _custom_multi_field_optgroup(
+    field: SurveyField,
+    mandatory_code: str = "",
+    param: str = "",
+    readonly: bool = False,
+) -> Field:
+    if readonly:
+        mandatory_code = ""
+    validators_list = _filter_mandatory_validator(mandatory_code)  # buggy?
     label = _filter_public_info(field.description, field.public_maxi)
     label = _filter_many_choices(label)
-    label = _filter_mandatory_label(label, code)
+    label = _filter_mandatory_label(label, mandatory_code)
+    render_kw = {
+        "kyc_type": "string",
+        "kyc_code": mandatory_code,
+        "kyc_message": field.upper_message,
+    }
     return SelectMultiOptgroupField(
         name=field.name,
         label=label,
         id=field.id,
         choices=get_choices(param),
         validators=validators_list,
-        render_kw={
-            "kyc_type": "string",
-            "kyc_code": code,
-            "kyc_message": field.upper_message,
-        },
+        render_kw=render_kw,
+        readonly=1 if readonly else 0,
     )
 
 
-def custom_dual_multi_field(field: SurveyField, code: str, param: str) -> Field:
+def custom_dual_multi_field(
+    field: SurveyField,
+    mandatory_code: str = "",
+    param: str = "",
+    readonly: bool = False,
+) -> Field:
     #  {'Associations': ['Actions humanitaires', 'Communication et sensibilisatio ...
-    validators_list = _filter_mandatory_validator(code)
+    if readonly:
+        mandatory_code = ""
+    validators_list = _filter_mandatory_validator(mandatory_code)
     label, _, label2 = field.description.partition(";")
     label = _filter_public_info(label.strip(), field.public_maxi)
     label = _filter_many_choices(label)
-    label = _filter_mandatory_label(label, code)
+    label = _filter_mandatory_label(label, mandatory_code)
     label2 = _filter_many_choices(label2.strip())
-    label2 = _filter_mandatory_label(label2, code)
+    label2 = _filter_mandatory_label(label2, mandatory_code)
+    render_kw: dict[str, Any] = {
+        "kyc_type": "string",
+        "kyc_code": mandatory_code,
+        "kyc_message": field.upper_message,
+    }
     return DualSelectField(
         name=field.name,
         name2=f"{field.name}_detail",
@@ -489,33 +675,38 @@ def custom_dual_multi_field(field: SurveyField, code: str, param: str) -> Field:
         # validators=validators_list,
         validate_choice=False,
         validators=validators_list,
-        render_kw={
-            "kyc_type": "string",
-            "kyc_code": code,
-            "kyc_message": field.upper_message,
-        },
+        render_kw=render_kw,
+        readonly=1 if readonly else 0,
     )
 
 
 def custom_multi_opt_field(
-    field: SurveyField, mandatory_flag: str, param: str
+    field: SurveyField,
+    mandatory_code: str = "",
+    param: str = "",
+    readonly: bool = False,
 ) -> Field:
+    if readonly:
+        mandatory_code = ""
     choices = get_choices(param)
-    validators_list = _filter_mandatory_validator(mandatory_flag)
+    validators_list = _filter_mandatory_validator(mandatory_code)
     label = _filter_public_info(field.description, field.public_maxi)
     label = _filter_many_choices(label)
-    label = _filter_mandatory_label(label, mandatory_flag)
+    label = _filter_mandatory_label(label, mandatory_code)
+    render_kw: dict[str, Any] = {
+        "kyc_type": "string",
+        "kyc_code": mandatory_code,
+        "kyc_message": field.upper_message,
+    }
+    # readonly non implemented
     return SelectMultipleField(
         name=field.name,
         label=label,
         id=field.id,
         choices=choices,
         validators=validators_list,
-        render_kw={
-            "kyc_type": "string",
-            "kyc_code": mandatory_flag,
-            "kyc_message": field.upper_message,
-        },
+        render_kw=render_kw,
+        # readonly=1 if readonly else 0,
     )
 
 

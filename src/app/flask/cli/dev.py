@@ -1,4 +1,4 @@
-# Copyright (c) 2021-2024 - Abilian SAS & TCA
+# Copyright (c) 2021-2024, Abilian SAS & TCA
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
@@ -92,7 +92,7 @@ def send_test_email():
     message.send()
 
 
-@command(short_help="Load DB")
+@command(short_help="Load DB from a dump")
 @with_appcontext
 def load_db() -> None:
     try:

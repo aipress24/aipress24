@@ -1,3 +1,4 @@
+# Copyright (c) 2024, Abilian SAS & TCA
 from __future__ import annotations
 
 from starlette.applications import Starlette

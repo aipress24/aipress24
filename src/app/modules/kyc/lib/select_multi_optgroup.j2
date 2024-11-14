@@ -37,6 +37,11 @@
 
           this.$watch('value', () => refreshChoices());
           this.$watch('options', () => refreshChoices());
+
+          if ({{ field.lock }}) {
+              choices.lock();
+              second_choices.lock();
+            };
         })
       }
     }"

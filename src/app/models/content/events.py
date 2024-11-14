@@ -1,4 +1,4 @@
-# Copyright (c) 2021-2024 - Abilian SAS & TCA
+# Copyright (c) 2021-2024, Abilian SAS & TCA
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
@@ -95,7 +95,7 @@ class PublicEvent(Event):
 
     class Meta:
         type_id = "public"
-        type_label = "Salons/Colloques"
+        type_label = "Salon/Colloque"
 
 
 class PressEvent(Event):

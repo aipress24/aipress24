@@ -1,4 +1,4 @@
-# Copyright (c) 2021-2024 - Abilian SAS & TCA
+# Copyright (c) 2021-2024, Abilian SAS & TCA
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
@@ -53,6 +53,7 @@ class SelectMultiSimpleFreeField(SelectMultipleField):
         self,
         **kwargs,
     ):
+        self.lock = kwargs.pop("readonly", False)
         super().__init__(**kwargs)
         self.multiple = True
         self.create = True

@@ -1,4 +1,4 @@
-# Copyright (c) 2021-2024 - Abilian SAS & TCA
+# Copyright (c) 2021-2024, Abilian SAS & TCA
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
@@ -46,8 +46,8 @@ def default_info_pro() -> dict[str, str | list]:
         "nom_media": [],
         "nom_media_instit": "",
         "nom_orga": "",
-        "pays_zip_ville": [],
-        "pays_zip_ville_detail": [],
+        "pays_zip_ville": "",
+        "pays_zip_ville_detail": "",
         "taille_orga": "",
         "tel_standard": "",
         "type_agence_rp": [],

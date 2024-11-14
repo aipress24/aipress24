@@ -15,6 +15,7 @@
     id="{{ field.id }}"
     name="{{ field.name }}"
     {% if field.flags.required %}required{% endif %}
+    {% if field.readonly %}readonly{% endif %}
     x-init="val='{{ field.data if field.data }}' || ''; $el.value=val"
     type="tel" x-validate
     pattern="^\s*\+?[0-9 ]{9,17}\s*$"

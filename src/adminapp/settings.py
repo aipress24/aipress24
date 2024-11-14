@@ -1,3 +1,4 @@
+# Copyright (c) 2024, Abilian SAS & TCA
 from granian.log import LogLevels
 from starlette.config import Config
 

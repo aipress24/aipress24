@@ -4,13 +4,15 @@
   <article>
     <!-- Profile header -->
     <div>
-      <div>
-        <img
+      {% if org.cover_image_url %}
+        <div>
+          <img
             class="h-32 w-full object-cover lg:h-48"
             src="{{ org.cover_image_url }}"
             alt=""
-        />
-      </div>
+          />
+        </div>
+      {% endif %}
 
       <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="-mt-12 sm:-mt-16 sm:flex sm:items-end sm:space-x-5">
@@ -82,7 +84,7 @@
       {% if is_manager %}
         <div class="px-8 pt-2">
           <p class="text-xl text-orange-700">
-            Vous êtes manager de cette organisation</p>
+            Vous êtes manager du BW de cette organisation</p>
         </div>
       {% else %}
         <div class="px-8 pt-2">

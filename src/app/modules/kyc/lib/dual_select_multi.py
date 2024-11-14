@@ -1,4 +1,4 @@
-# Copyright (c) 2021-2024 - Abilian SAS & TCA
+# Copyright (c) 2021-2024, Abilian SAS & TCA
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
@@ -69,6 +69,7 @@ class DualSelectField(SelectMultipleField):
         self.id2 = kwargs.pop("id2", "")
         self.name2 = kwargs.pop("name2", "")
         self.label2 = kwargs.pop("label2", "")
+        self.lock = kwargs.pop("readonly", False)
         super().__init__(**kwargs)
         self.multiple = True
         self.create = False

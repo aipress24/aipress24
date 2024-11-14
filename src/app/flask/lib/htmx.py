@@ -1,3 +1,4 @@
+# Copyright (c) 2024, Abilian SAS & TCA
 from lxml import etree
 
 from app.flask.extensions import htmx

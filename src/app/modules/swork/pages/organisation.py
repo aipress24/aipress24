@@ -1,4 +1,4 @@
-# Copyright (c) 2021-2024 - Abilian SAS & TCA
+# Copyright (c) 2021-2024, Abilian SAS & TCA
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
@@ -21,6 +21,7 @@ from app.models.auth import User
 from app.models.content import Article, Event, PressRelease
 from app.models.lifecycle import PublicationStatus
 from app.models.organisation import Organisation
+from app.modules.kyc.field_label import label_from_values_cities_as_list
 from app.services.activity_stream import get_timeline
 from app.services.social_graph import adapt
 
@@ -245,12 +246,22 @@ class OrgVM(ViewModel):
         return {
             "members": self.get_members(),
             "logo_url": self.get_logo_url(),
+            # "cover_image_url": self.get_cover_image_url(),
             "screenshot_url": self.get_screenshot_url(),
             "press_releases": self.get_press_releases(),
             "publications": self.get_publications(),
             "is_following": adapt(g.user).is_following(self.org),
             "timeline": timeline,
             "address_formatted": self.org.formatted_address,
+            "type_organisation": self.get_type_organisation(),
+            "taille_orga": self.org.taille_orga,
+            "country_zip_city": "\n".join(
+                label_from_values_cities_as_list([
+                    self.org.pays_zip_ville,
+                    self.org.pays_zip_ville_detail,
+                ])
+            ),
+            "secteurs_activite": self.get_secteurs_activite(),
         }
 
     def get_members(self):
@@ -265,6 +276,12 @@ class OrgVM(ViewModel):
             return "/static/img/logo-page-non-officielle.png"
         else:
             return self.org.logo_url
+
+    def get_cover_image_url(self):
+        if self.org.is_auto:
+            return ""
+        else:
+            return self.org.cover_image_url
 
     def get_screenshot_url(self):
         if not self.org.screenshot_id:
@@ -292,3 +309,15 @@ class OrgVM(ViewModel):
         )
         articles = get_multi(Article, stmt)
         return list(articles)
+
+    def get_type_organisation(self) -> str:
+        return "\n".join((
+            ", ".join(self.org.type_organisation),
+            ", ".join(self.org.type_organisation_detail),
+        ))
+
+    def get_secteurs_activite(self) -> str:
+        return "\n".join((
+            ", ".join(self.org.secteurs_activite),
+            ", ".join(self.org.secteurs_activite_detail),
+        ))

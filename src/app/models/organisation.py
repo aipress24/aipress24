@@ -1,4 +1,4 @@
-# Copyright (c) 2021-2024 - Abilian SAS & TCA
+# Copyright (c) 2021-2024, Abilian SAS & TCA
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
@@ -41,6 +41,7 @@ from __future__ import annotations
 import arrow
 import sqlalchemy as sa
 from slugify import slugify
+from sqlalchemy import JSON
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
 from sqlalchemy_utils import ArrowType
@@ -103,6 +104,7 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
     slug: Mapped[str]
     siren: Mapped[str] = mapped_column(nullable=True, unique=True)
     tva: Mapped[str] = mapped_column(nullable=True, unique=True)
+    media_name: Mapped[str] = mapped_column(default="")  # nom officiel du titre (média)
 
     tel_standard: Mapped[str] = mapped_column(default="")
     taille_orga: Mapped[str] = mapped_column(default="")  # ccf ontologies
@@ -137,7 +139,8 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
     #  + question unicité...
 
     description: Mapped[str] = mapped_column(default="")
-    metiers: Mapped[str] = mapped_column(default="")
+    metiers: Mapped[dict] = mapped_column(JSON, default=list)
+    metiers_detail: Mapped[dict] = mapped_column(JSON, default=list)
     # from LifeCycleMixin : created_at
     # from LifeCycleMixin : deleted_at
 
@@ -187,11 +190,33 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
     # no_siren = sa.Column(sa.UnicodeText, default="")
     # no_tva = sa.Column(sa.UnicodeText, default="")
 
+    pays_zip_ville: Mapped[str] = mapped_column(default="")
+    pays_zip_ville_detail: Mapped[str] = mapped_column(default="")
+
     # Specifique aux agences de presse
     agree_cppap: Mapped[bool] = mapped_column(default=False)
     membre_sapi: Mapped[bool] = mapped_column(default=False)
     membre_satev: Mapped[bool] = mapped_column(default=False)
     membre_saphir: Mapped[bool] = mapped_column(default=False)
+    agree_arcom: Mapped[bool] = mapped_column(default=False)
+
+    number_cppap: Mapped[str] = mapped_column(default="")
+
+    secteurs_activite: Mapped[dict] = mapped_column(JSON, default=list)
+    secteurs_activite_detail: Mapped[dict] = mapped_column(JSON, default=list)
+    secteurs_activite_couverts: Mapped[dict] = mapped_column(JSON, default=list)
+    secteurs_activite_couverts_detail: Mapped[dict] = mapped_column(JSON, default=list)
+    type_organisation: Mapped[dict] = mapped_column(JSON, default=list)
+    type_organisation_detail: Mapped[dict] = mapped_column(JSON, default=list)
+    main_events: Mapped[str] = mapped_column(default="")
+    main_customers: Mapped[str] = mapped_column(default="")
+    main_prizes: Mapped[str] = mapped_column(default="")
+    positionnement_editorial: Mapped[str] = mapped_column(default="")
+    audience_cible: Mapped[str] = mapped_column(default="")
+    tirage: Mapped[str] = mapped_column(default="")
+    frequence_publication: Mapped[str] = mapped_column(default="")
+    metiers_presse: Mapped[dict] = mapped_column(JSON, default=list)
+    type_entreprise_media: Mapped[dict] = mapped_column(JSON, default=list)
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)

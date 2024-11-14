@@ -1,4 +1,4 @@
-# Copyright (c) 2021-2024 - Abilian SAS & TCA
+# Copyright (c) 2021-2024, Abilian SAS & TCA
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
@@ -7,7 +7,6 @@ from __future__ import annotations
 from unittest import skip
 
 import pytest
-from devtools import debug
 
 from app.modules.kyc.field_label import data_to_label
 
@@ -15,8 +14,7 @@ from app.modules.kyc.field_label import data_to_label
 @skip
 def test_field_label_unknown(app, db):
     with pytest.raises(KeyError):
-        result = data_to_label("something", "unknown_field")
-        debug(result)
+        _result = data_to_label("something", "unknown_field")
 
 
 def test_civilite(app, db):

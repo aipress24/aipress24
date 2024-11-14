@@ -1,4 +1,4 @@
-# Copyright (c) 2021-2024 - Abilian SAS & TCA
+# Copyright (c) 2021-2024, Abilian SAS & TCA
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
@@ -52,7 +52,7 @@ def label_from_values_dual_second(data: str | list, key: str, ontology: str) -> 
     return labels_string(data, onto_list)
 
 
-def label_from_values_cities(data: str | list, key: str, _ontology: str) -> str:
+def label_from_values_cities_as_list(data: str | list) -> list[str]:
     """Special case for zipcode/cities."""
     if isinstance(data, str):
         data = [data]
@@ -66,7 +66,12 @@ def label_from_values_cities(data: str | list, key: str, _ontology: str) -> str:
             continue
         cities = zip_code_city_list(country_code)
         results.append(find_label_city(cities, value))
-    return ", ".join(results)
+    return results
+
+
+def label_from_values_cities(data: str | list, _key: str, _ontology: str) -> str:
+    """Special case for zipcode/cities."""
+    return ", ".join(label_from_values_cities_as_list(data))
 
 
 KEY_LABEL_MAP = {

@@ -1,3 +1,4 @@
+# Copyright (c) 2024, Abilian SAS & TCA
 import granian
 from granian.constants import Interfaces, Loops
 

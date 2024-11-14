@@ -1,4 +1,4 @@
-# Copyright (c) 2021-2024 - Abilian SAS & TCA
+# Copyright (c) 2021-2024, Abilian SAS & TCA
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
@@ -27,6 +27,7 @@ class ValidPassword(StringField):
         self,
         **kwargs,
     ):
+        self.readonly = kwargs.pop("readonly", False)
         super().__init__(**kwargs)
 
     def get_data(self) -> str:
