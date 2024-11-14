@@ -24,23 +24,23 @@ packages:
 
 tasks:
   - setup: |
-      sudo pip install --break-system-packages \
-            -U pip setuptools wheel poetry nox
+      curl -LsSf https://astral.sh/uv/install.sh | sh
       cd aipress24
-      poetry install
+      uv sync
+      uvx poetry install
 
   - lint: |
       cd aipress24
-      poetry run make lint
+      uv run make lint
 
   - test: |
       cd aipress24
-      poetry run make test-sqlite
+      uv run make test-sqlite
       # TODO: test with postgresql
 
   - nox: |
       cd aipress24
-      TEST_DATABASE_URI="sqlite:///:memory:" poetry run nox
+      TEST_DATABASE_URI="sqlite:///:memory:" uv run nox
       # TODO: postgres
 
 #triggers:
