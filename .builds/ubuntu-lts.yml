@@ -25,20 +25,24 @@ packages:
 tasks:
   - setup: |
       curl -LsSf https://astral.sh/uv/install.sh | sh
+      source ~/.local/bin/env
       cd aipress24
       uv sync
       uvx poetry install
 
   - lint: |
+      source ~/.local/bin/env
       cd aipress24
       uv run make lint
 
   - test: |
+      source ~/.local/bin/env
       cd aipress24
       uv run make test-sqlite
       # TODO: test with postgresql
 
   - nox: |
+      source ~/.local/bin/env
       cd aipress24
       TEST_DATABASE_URI="sqlite:///:memory:" uv run nox
       # TODO: postgres
