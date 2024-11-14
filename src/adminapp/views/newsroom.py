@@ -1,4 +1,6 @@
 # Copyright (c) 2024, Abilian SAS & TCA
+from __future__ import annotations
+
 from sqladmin import Admin, ModelView, action
 from starlette.requests import Request
 from starlette.responses import RedirectResponse

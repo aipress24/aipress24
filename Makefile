@@ -111,9 +111,7 @@ tidy: clean
 
 ## Format source code
 format:
-	# black --target-version py311 src tests scripts migrations docker e2e_playwright *.py
-	ruff format src tests scripts migrations docker e2e_playwright *.py
-	isort src tests scripts migrations docker e2e_playwright *.py
+	ruff format
 
 ## Cleanup code (using autoflake)
 cleanup-code:

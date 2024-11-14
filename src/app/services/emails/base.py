@@ -28,7 +28,8 @@ class EmailTemplate:
         elif self.template_html:
             return render_template_string(self.template_html, **self.kwargs)
         else:
-            raise ValueError("No template")
+            msg = "No template"
+            raise ValueError(msg)
 
     def send(self):
         ...

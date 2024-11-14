@@ -71,7 +71,8 @@ class TemplateResponse(Response):
             case Path(template_path):
                 return render_template(template_path, **self.context)
             case _:
-                raise ValueError("template_name or template_str must be provided")
+                msg = "template_name or template_str must be provided"
+                raise ValueError(msg)
 
     def enrich_context(self, context: dict[str, Any] | None = None) -> dict[str, Any]:
         new_context = deepcopy(context or {})

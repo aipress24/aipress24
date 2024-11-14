@@ -63,10 +63,10 @@ class User(LifeCycleMixin, Addressable, UserMixin, Base):
     id: Mapped[int] = mapped_column(primary_key=True)
 
     # username: Mapped[str] = mapped_column(index=True, unique=True)
-    email: Mapped[str] = mapped_column(sa.String, unique=True, nullable=True)
+    email: Mapped[str] = mapped_column(unique=True, nullable=True)
     # copy of email for clone:
-    email_safe_copy: Mapped[str] = mapped_column(sa.String, nullable=True, default="")
-    email_secours: Mapped[str] = mapped_column(sa.String, nullable=True)
+    email_safe_copy: Mapped[str] = mapped_column(nullable=True, default="")
+    email_secours: Mapped[str] = mapped_column(nullable=True)
 
     password: Mapped[str | None] = mapped_column()
 
@@ -81,7 +81,7 @@ class User(LifeCycleMixin, Addressable, UserMixin, Base):
     validated_at: Mapped[arrow.Arrow | None] = mapped_column(
         ArrowType, nullable=True, default=None
     )
-    validation_status: Mapped[str] = mapped_column(sa.String, default="")
+    validation_status: Mapped[str] = mapped_column(default="")
     # from LifeCycleMixin : created_at
     # from LifeCycleMixin : deleted_at
     modified_at: Mapped[arrow.Arrow | None] = mapped_column(
@@ -91,8 +91,8 @@ class User(LifeCycleMixin, Addressable, UserMixin, Base):
     # from flask-security
     last_login_at: Mapped[sa.DateTime] = mapped_column(sa.DateTime, nullable=True)
     current_login_at: Mapped[sa.DateTime] = mapped_column(sa.DateTime, nullable=True)
-    last_login_ip: Mapped[str] = mapped_column(sa.String, default="", nullable=True)
-    current_login_ip: Mapped[str] = mapped_column(sa.String, default="")
+    last_login_ip: Mapped[str] = mapped_column(default="", nullable=True)
+    current_login_ip: Mapped[str] = mapped_column(default="")
     login_count: Mapped[int] = mapped_column(sa.Integer, default=0)
     # Flask Security
     active: Mapped[bool] = mapped_column(default=False)
@@ -108,14 +108,14 @@ class User(LifeCycleMixin, Addressable, UserMixin, Base):
     last_name: Mapped[str] = mapped_column(sa.String(64), default="")
 
     photo: Mapped[bytes] = mapped_column(sa.LargeBinary, nullable=True)
-    photo_filename: Mapped[str] = mapped_column(sa.String, default="")
+    photo_filename: Mapped[str] = mapped_column(default="")
     photo_carte_presse: Mapped[bytes] = mapped_column(sa.LargeBinary, nullable=True)
-    photo_carte_presse_filename: Mapped[str] = mapped_column(sa.String, default="")
+    photo_carte_presse_filename: Mapped[str] = mapped_column(default="")
 
     # job_title: Mapped[str] = mapped_column(default="")
     # job_description: Mapped[str] = mapped_column(default="")
 
-    tel_mobile: Mapped[str] = mapped_column(sa.String, default="")
+    tel_mobile: Mapped[str] = mapped_column(default="")
     tel_mobile_validated_at: Mapped[arrow.Arrow | None] = mapped_column(
         ArrowType, nullable=True, default=None
     )
@@ -216,7 +216,8 @@ class User(LifeCycleMixin, Addressable, UserMixin, Base):
         ):
             if community.name in (role.name for role in self.roles):
                 return community
-        raise RuntimeError(f"Unknown community for {self}")
+        msg = f"Unknown community for {self}"
+        raise RuntimeError(msg)
 
     # Override Flask-Security
     def has_role(self, role: str | RoleEnum | Role) -> bool:
@@ -231,7 +232,8 @@ class User(LifeCycleMixin, Addressable, UserMixin, Base):
             case str():
                 return role in (role.name for role in self.roles)
             case _:
-                raise ValueError(f"Invalid role: {role}")
+                msg = f"Invalid role: {role}"
+                raise ValueError(msg)
 
     def add_role(self, role: Role) -> bool:
         if self.has_role(role):
@@ -255,7 +257,8 @@ class User(LifeCycleMixin, Addressable, UserMixin, Base):
                         self.roles.remove(current)
                         break
             case _:
-                raise ValueError(f"Invalid role: {role}")
+                msg = f"Invalid role: {role}"
+                raise ValueError(msg)
 
     @property
     def is_manager(self) -> bool:
@@ -288,13 +291,13 @@ class KYCProfile(Base):
     id: Mapped[int] = mapped_column(primary_key=True, unique=True, autoincrement=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("aut_user.id", ondelete="CASCADE"))
     user: Mapped[User] = relationship(back_populates="profile")
-    profile_id: Mapped[str] = mapped_column(sa.String, default="")
-    profile_code: Mapped[str] = mapped_column(sa.String, default="")
-    profile_label: Mapped[str] = mapped_column(sa.String, default="")
-    profile_community: Mapped[str] = mapped_column(sa.String, default="")
-    contact_type: Mapped[str] = mapped_column(sa.String, default="")
+    profile_id: Mapped[str] = mapped_column(default="")
+    profile_code: Mapped[str] = mapped_column(default="")
+    profile_label: Mapped[str] = mapped_column(default="")
+    profile_community: Mapped[str] = mapped_column(default="")
+    contact_type: Mapped[str] = mapped_column(default="")
     display_level: Mapped[int] = mapped_column(sa.Integer, default=1)
-    presentation: Mapped[str] = mapped_column(sa.String, default="")
+    presentation: Mapped[str] = mapped_column(default="")
     show_contact_details: Mapped[dict] = mapped_column(JSON, default=dict)
     info_personnelle: Mapped[dict] = mapped_column(JSON, default=dict)
     info_professionnelle: Mapped[dict] = mapped_column(JSON, default=dict)

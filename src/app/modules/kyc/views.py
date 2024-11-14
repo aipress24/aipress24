@@ -858,7 +858,8 @@ def _public_group_info(level: int) -> dict[str, Any]:
     level can be 0, 1 or 2
     """
     if not current_user.is_authenticated:
-        raise ValueError("No currently authenticated user")
+        msg = "No currently authenticated user"
+        raise ValueError(msg)
 
     # direct change of display_level value
     level = _update_profile_display_level(level)
@@ -993,7 +994,8 @@ def _admin_group_info_profile(
 
 def profil_groups_initial_level() -> dict[str, Any]:
     if not current_user.is_authenticated:
-        raise ValueError("No currently authenticated user")
+        msg = "No currently authenticated user"
+        raise ValueError(msg)
     user = g.user
     profile = user.profile
     return {

@@ -37,7 +37,8 @@ class PostCard(Component):
             #     return PressReleaseVM(self.post)
 
             case _:
-                raise ValueError(f"Unsupported post type: {type(self.post)}")
+                msg = f"Unsupported post type: {type(self.post)}"
+                raise ValueError(msg)
 
 
 @frozen

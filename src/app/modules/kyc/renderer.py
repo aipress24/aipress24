@@ -1,12 +1,15 @@
 # Copyright (c) 2021-2024, Abilian SAS & TCA
 #
 # SPDX-License-Identifier: AGPL-3.0-only
+from __future__ import annotations
 
 from functools import singledispatch
 
 from markupsafe import Markup
-from webbits.html import h as H  # noqa
-from webbits.html import html
+from webbits.html import (
+    h as H,  # noqa
+    html,
+)
 from wtforms.fields.core import Field
 
 ring_class = "ring-1 ring-inset ring-gray-300"

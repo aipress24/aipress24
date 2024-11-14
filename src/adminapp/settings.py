@@ -1,4 +1,6 @@
 # Copyright (c) 2024, Abilian SAS & TCA
+from __future__ import annotations
+
 from granian.log import LogLevels
 from starlette.config import Config
 

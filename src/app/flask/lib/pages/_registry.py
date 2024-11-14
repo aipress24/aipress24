@@ -70,7 +70,8 @@ def _find_blueprint(page_cls: type[Page]) -> Blueprint:
         if hasattr(module, "blueprint"):
             return module.blueprint
 
-    raise RuntimeError(f"No blueprint found for page: {page_cls}")
+    msg = f"No blueprint found for page: {page_cls}"
+    raise RuntimeError(msg)
 
 
 def _register_page(blueprint: Blueprint, page_class):

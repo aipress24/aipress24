@@ -1,4 +1,6 @@
 # Copyright (c) 2024, Abilian SAS & TCA
+from __future__ import annotations
+
 from sqladmin import Admin, ModelView
 
 from app.modules.wire.models import ArticlePost

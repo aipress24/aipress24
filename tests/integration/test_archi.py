@@ -9,6 +9,8 @@ Ref/tuto:
 - https://xebia.com/blog/how-to-tame-your-python-codebase/
 """
 
+from __future__ import annotations
+
 from pytest_archon import archrule
 
 

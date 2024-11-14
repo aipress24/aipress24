@@ -40,7 +40,8 @@ def get_survey_profile(profile_id: str) -> SurveyProfile:
     for profile in survey["profiles"]:
         if profile.id == profile_id:
             return profile
-    raise ValueError(f"Unknown profile: {profile_id}")
+    msg = f"Unknown profile: {profile_id}"
+    raise ValueError(msg)
 
 
 @cache

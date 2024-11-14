@@ -116,7 +116,8 @@ class BusinessWallPage(BaseWipPage):
             case BWTypeEnum.ACADEMICS:
                 return self.form_academics()
             case _:
-                raise ValueError('Unknown organisation bw_type "{self.org.bw_type}"')
+                msg = 'Unknown organisation bw_type "{self.org.bw_type}"'
+                raise ValueError(msg)
 
     def form_none(self) -> FlaskForm:
         """Empty form (actually unused by the template)."""

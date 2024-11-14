@@ -59,7 +59,8 @@ def has_role(
         case set():
             return any(user.has_role(r) for r in role)
         case _:
-            raise ValueError(f"Match failed on user {user} and role {role}")
+            msg = f"Match failed on user {user} and role {role}"
+            raise ValueError(msg)
 
 
 # def has_community(user: User, community: str | CommunityEnum) -> bool:

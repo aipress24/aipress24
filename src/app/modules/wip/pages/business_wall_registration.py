@@ -173,5 +173,6 @@ class BusinessWallRegistrationPage(BaseWipPage):
                 allow.add(BWTypeEnum.ORGANISATION)
                 allow.add(BWTypeEnum.TRANSFORMER)
             case _:
-                raise ValueError(f"Bad org.type: {family!r}")
+                msg = f"Bad org.type: {family!r}"
+                raise ValueError(msg)
         return allow

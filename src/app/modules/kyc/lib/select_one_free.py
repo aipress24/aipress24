@@ -31,7 +31,8 @@ def convert_to_tom_optgroups_js(choices: list | dict) -> list:
             optgroups.append({"value": group, "label": group})
         return optgroups
     else:
-        raise TypeError("choices must be a list or a dict")
+        msg = "choices must be a list or a dict"
+        raise TypeError(msg)
 
 
 def _dict_to_group_tom_choices(choices: dict) -> list:

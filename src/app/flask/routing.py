@@ -16,7 +16,8 @@ from app.models.content.multimedia import Image
 def url_for(obj, _ns: str = "", **_kw):
     if hasattr(obj, "_url"):
         return obj._url
-    raise RuntimeError(f"Illegal argument for 'url_for': {obj} (type: {type(obj)})")
+    msg = f"Illegal argument for 'url_for': {obj} (type: {type(obj)})"
+    raise RuntimeError(msg)
 
 
 @url_for.register
@@ -33,7 +34,8 @@ def url_for_str(name: str, _ns: str = "", **kw) -> str:
 def url_for_dict(d: dict, _ns: str = "", **_kw) -> str:
     if "_url" in d:
         return d["_url"]
-    raise RuntimeError(f"Illegal argument for 'url_for': {d} (type: {type(d)})")
+    msg = f"Illegal argument for 'url_for': {d} (type: {type(d)})"
+    raise RuntimeError(msg)
 
 
 # TEMP

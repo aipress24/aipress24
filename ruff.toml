@@ -26,54 +26,57 @@ lint.select = ["ALL"]
 
 lint.ignore = [
     # Later...
-    "ANN",  # flake8-annotations
-    "ARG",  # flake8-unused-arguments
-    "COM",  # flake8-commas
-    "D",    # pydocstyle
-    "EM",   # flake8-errmsg
-    "FBT",  # flake8-boolean-trap
-    "FIX",  # flake8-fixme
-    "INP",  # flake8-no-pep420
+    "ANN", # flake8-annotations
+    "ARG", # flake8-unused-arguments
+    "COM", # flake8-commas
+    "D", # pydocstyle
+    "FBT", # flake8-boolean-trap
+    "FIX", # flake8-fixme
+    "INP", # flake8-no-pep420
     "PERF", # Perflint
-    "PGH",  # pygrep-hooks
-    "SLF",  # flake8-self
-    "TD",   # flake8-todos
-    "TRY",  # tryceratops
+    "PGH", # pygrep-hooks
+    "SLF", # flake8-self
+    "TD", # flake8-todos
+    "TRY", # tryceratops
     # False positive, don't remove
-    "B019",   # Use of `functools.lru_cache` or `functools.cache` on methods can lead to memory leaks
+    "B019", # Use of `functools.lru_cache` or `functools.cache` on methods can lead to memory leaks
     "ISC001", # "may cause conflicts when used with the formatter"
-    "N805",    # First argument of a method should be named `self`
-    "RUF001",  # String contains ambiguous unicode character
-    "RUF002",  # Docstring contains ambiguous unicode character
-    "RUF003",  # Comment contains ambiguous unicode character
+    "N805", # First argument of a method should be named `self`
+    "RUF001", # String contains ambiguous unicode character
+    "RUF002", # Docstring contains ambiguous unicode character
+    "RUF003", # Comment contains ambiguous unicode character
     "PLR2044", # Line w/ empty comment
     "PLR6301", # Method could be a function
     "PLR2004", # Magic value used in comparison
     "PLW1514", # `pathlib.Path(...).read_text` without explicit `encoding` argument
     "PLW3201", # Bad or misspelled dunder method name
-    "RET504",  # Unnecessary variable assignment before `return` statement
-    "SIM108",  # Use ternary operator
+    "RET504", # Unnecessary variable assignment before `return` statement
+    "SIM108", # Use ternary operator
+    "S101",    # Use of `assert` detected
     # Fixable ?
-    "A00",   # `...` is shadowing a python builtin
-    "BLE001",  # Do not catch blind exception
-    "C901",    # Function too complex
+    "A00", # `...` is shadowing a python builtin
+    "BLE001", # Do not catch blind exception
+    "C901", # Function too complex
     "DOC201", # `return` is not documented in docstring
     "DOC402", # `yield` is not documented in docstring
-    "DOC501",  # Raised exception missing from docstring
-    "E501",    # line too long
-    "ERA001",  # Found commented-out code
+    "DOC501", # Raised exception missing from docstring
+    "E501", # line too long
+    "ERA001", # Found commented-out code
     "PLC0415", # `import` should be at the top-level of a file
     "PLR0911", # Too many return statements
     "PLR0912", # Too many branches
-    "RET505",  # Unnecessary `else` after `return` statement
-    "RUF012",  # Mutable class attributes should be annotated with `typing.ClassVar`
-    "S101",    # Use of `assert` detected
-    "S311",    # Standard pseudo-random generators are not suitable for cryptographic purposes
-    "S404",    # `subprocess` module is possibly insecure
-    "S603",    # Using subprocess
-    "T201",    # `print` found
-    "TCH001",  # Move import into a type-checking block
-    "TCH002",  # Move import into a type-checking block
-    "TCH003",  # Move import into a type-checking block
-    "TID252",  # Relative imports from parent modules are banned
+    "RET505", # Unnecessary `else` after `return` statement
+    "RUF012", # Mutable class attributes should be annotated with `typing.ClassVar`
+    "S311", # Standard pseudo-random generators are not suitable for cryptographic purposes
+    "S404", # `subprocess` module is possibly insecure
+    "S603", # Using subprocess
+    "T201", # `print` found
+    "TCH001", # Move import into a type-checking block
+    "TCH002", # Move import into a type-checking block
+    "TCH003", # Move import into a type-checking block
+    "TID252", # Relative imports from parent modules are banned
 ]
+
+[lint.isort]
+combine-as-imports = true
+required-imports = ["from __future__ import annotations"]

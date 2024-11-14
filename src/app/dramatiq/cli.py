@@ -9,8 +9,10 @@ from pathlib import Path
 
 import click
 import dramatiq
-from dramatiq.cli import main as dramatiq_worker
-from dramatiq.cli import make_argument_parser as dramatiq_argument_parser
+from dramatiq.cli import (
+    main as dramatiq_worker,
+    make_argument_parser as dramatiq_argument_parser,
+)
 from flask import current_app
 from flask.cli import with_appcontext
 from flask_super.cli import group

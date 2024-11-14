@@ -90,7 +90,8 @@ class Filter:
         elif isinstance(selector, str):
             self.options = sorted({getattr(o, selector) for o in objects})
         else:
-            raise TypeError(f"Invalid selector: {selector}")
+            msg = f"Invalid selector: {selector}"
+            raise TypeError(msg)
 
     def apply(self, stmt, state):
         raise NotImplementedError

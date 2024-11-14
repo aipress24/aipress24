@@ -21,7 +21,8 @@ def get_obj(id: int | str, cls: type, options=None):
         case int():
             pass
         case _:
-            raise NotFound(f"Can't match id {id}")
+            msg = f"Can't match id {id}"
+            raise NotFound(msg)
 
     stmt = select(cls).where(cls.id == id)  # type: ignore
     if options:

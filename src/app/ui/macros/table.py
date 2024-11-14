@@ -66,7 +66,8 @@ def make_columns(columns):
             case {"name": _name, "label": _label, **__}:
                 result.append(item)
             case _:
-                raise ValueError(f"Can't match value {item}")
+                msg = f"Can't match value {item}"
+                raise ValueError(msg)
 
     return result
 
@@ -84,7 +85,8 @@ def format_value(obj):
         case {"value": obj}:
             return format_value(obj)
         case _:
-            raise ValueError(f"Can't match value {obj}")
+            msg = f"Can't match value {obj}"
+            raise ValueError(msg)
 
 
 @macro

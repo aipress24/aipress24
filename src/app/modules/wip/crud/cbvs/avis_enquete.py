@@ -123,7 +123,8 @@ class AvisEnqueteWipView(BaseWipView):
             case "":
                 pass
             case _:
-                raise ValueError(f"Invalid action: {action}")
+                msg = f"Invalid action: {action}"
+                raise ValueError(msg)
 
         experts = form.get_selectable_experts()
         selected_experts = form.get_selected_experts()

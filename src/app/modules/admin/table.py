@@ -14,8 +14,7 @@ from typing import Any
 
 import webargs
 from attr import define
-from flask import request
-from flask import url_for as url_for_orig
+from flask import request, url_for as url_for_orig
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from sqlalchemy import false, func, nulls_last, or_, select
 from webargs.flaskparser import parser

@@ -165,7 +165,8 @@ class XLSParser(ModelLoader):
             id = f"P{i + 1:03}"
             profile_code = rows[ROW_PROFILE_CODE][cell.column - 1].value
             if profile_code not in PROFILE_CODES:
-                raise ValueError(f"Bad profile code {profile_code!r}")
+                msg = f"Bad profile code {profile_code!r}"
+                raise ValueError(msg)
             profile = SurveyProfile(id=id, description=description, code=profile_code)
             self.survey_profiles.append(profile)
         nb_profiles = len(self.survey_profiles)

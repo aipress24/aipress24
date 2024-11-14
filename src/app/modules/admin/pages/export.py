@@ -311,7 +311,8 @@ class ExporterInscriptions:
                     BW_TRIGGER_LABEL.get(x, x) for x in profile.get_all_bw_trigger()
                 ]
             case _:
-                raise KeyError(f"cell_value() Inconsistent key: {name}")
+                msg = f"cell_value() Inconsistent key: {name}"
+                raise KeyError(msg)
         if isinstance(value, list):
             return self.list_to_str(value)
         return value
@@ -682,7 +683,8 @@ class ExporterOrganisations:
             case "nb_members":
                 value = len(org.members)
             case _:
-                raise KeyError(f"cell_value() Inconsistent key: {name}")
+                msg = f"cell_value() Inconsistent key: {name}"
+                raise KeyError(msg)
         if isinstance(value, list):
             return self.list_to_str(value)
         return value

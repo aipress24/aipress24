@@ -67,7 +67,8 @@ class SearchBackend:
         with contextlib.suppress(typesense.exceptions.ObjectNotFound):
             if collection := client.collections[name]:
                 return collection
-        raise ValueError(f"Unknown collection: {name}")
+        msg = f"Unknown collection: {name}"
+        raise ValueError(msg)
 
     def make_schema(self) -> None:
         client = self.get_client()
@@ -114,7 +115,8 @@ class SearchBackend:
                 continue
             if isinstance(obj, cls):
                 return name
-        raise ValueError(f"Unknown collection for {obj}")
+        msg = f"Unknown collection for {obj}"
+        raise ValueError(msg)
 
     @staticmethod
     def _adapt(obj):

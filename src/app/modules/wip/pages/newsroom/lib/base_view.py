@@ -47,7 +47,8 @@ class View:
             case "POST":
                 return self.post_context()
             case _:
-                raise NotFound(f"Method {method} not available")
+                msg = f"Method {method} not available"
+                raise NotFound(msg)
 
     def get_context(self):
         raise NotImplementedError
