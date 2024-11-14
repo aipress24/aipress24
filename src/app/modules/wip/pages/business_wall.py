@@ -56,7 +56,6 @@ class BusinessWallPage(BaseWipPage):
         allow_editing = has_bw_org and self.user.is_manager
         self.readonly = not allow_editing
         self.form = self.generate_form() if self.org else FlaskForm()
-
         return {
             "org": self.org,
             "org_name": self.org.name if self.org else "",
@@ -69,10 +68,27 @@ class BusinessWallPage(BaseWipPage):
             "form": self.form,
         }
 
-    def post(self) -> str | Response:
-        results = request.form.to_dict(flat=False)
-        self.merge_form(results)
-        return self.render()
+    # def post(self) -> str | Response:
+    #     results = request.form.to_dict(flat=False)
+    #     self.merge_form(results)
+    #     return self.render()
+
+    def hx_post(self) -> str | Response:
+        action = request.form.get("action")
+        if action:
+            if action == "change_bw_data":
+                results = request.form.to_dict(flat=False)
+                self.merge_form(results)
+                response = Response("")
+                response.headers["HX-Redirect"] = self.url
+                return response
+            if action == "reload_bw_data":
+                response = Response("")
+                response.headers["HX-Redirect"] = self.url
+                return response
+        response = Response("")
+        response.headers["HX-Redirect"] = self.url
+        return response
 
     def generate_form(self) -> tuple[FlaskForm, list[str]]:
         """The form contains several Fields and sub titles information.

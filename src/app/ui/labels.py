@@ -21,14 +21,14 @@ LABELS_ORGANISATION_TYPE = {
 }
 
 LABELS_BW_TYPE = {
-    BWTypeEnum.AGENCY: "Agence de presse",
-    BWTypeEnum.MEDIA: "Média",
-    BWTypeEnum.CORPORATE: "Média institutionnel",
-    BWTypeEnum.PRESSUNION: "Syndicat ou fédération",
-    BWTypeEnum.COM: "PR agency",
-    BWTypeEnum.ORGANISATION: "Organisation autre",
-    BWTypeEnum.TRANSFORMER: "Transformer",
-    BWTypeEnum.ACADEMICS: "Academics",
+    BWTypeEnum.AGENCY: str(BWTypeEnum.AGENCY),
+    BWTypeEnum.MEDIA: str(BWTypeEnum.MEDIA),
+    BWTypeEnum.CORPORATE: str(BWTypeEnum.CORPORATE),
+    BWTypeEnum.PRESSUNION: str(BWTypeEnum.PRESSUNION),
+    BWTypeEnum.COM: str(BWTypeEnum.COM),
+    BWTypeEnum.ORGANISATION: str(BWTypeEnum.ORGANISATION),
+    BWTypeEnum.TRANSFORMER: str(BWTypeEnum.TRANSFORMER),
+    BWTypeEnum.ACADEMICS: str(BWTypeEnum.ACADEMICS),
 }
 
 

@@ -289,6 +289,7 @@ class KYCProfile(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey("aut_user.id", ondelete="CASCADE"))
     user: Mapped[User] = relationship(back_populates="profile")
     profile_id: Mapped[str] = mapped_column(sa.String, default="")
+    profile_code: Mapped[str] = mapped_column(sa.String, default="")
     profile_label: Mapped[str] = mapped_column(sa.String, default="")
     profile_community: Mapped[str] = mapped_column(sa.String, default="")
     contact_type: Mapped[str] = mapped_column(sa.String, default="")
@@ -593,6 +594,7 @@ def clone_kycprofile(orig_profile: KYCProfile) -> KYCProfile:
         # user_id # undefined at this point, generated when put on user
         # user # undefined at this point, generated when put on user
         profile_id=orig_profile.profile_id,
+        profile_code=orig_profile.profile_code,
         profile_label=orig_profile.profile_label,
         profile_community=orig_profile.profile_community,
         contact_type=orig_profile.contact_type,

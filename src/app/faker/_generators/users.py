@@ -482,6 +482,7 @@ class UserGenerator(BaseGenerator):
 
         profile = KYCProfile(
             profile_id=survey_profile.id,
+            profile_code=survey_profile.code,
             profile_label=survey_profile.label,
             profile_community=survey_profile.community.name,
             contact_type=survey_profile.contact_type.name,

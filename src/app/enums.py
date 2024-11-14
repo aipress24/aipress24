@@ -50,11 +50,11 @@ class OrganisationTypeEnum(StrEnum):
 
 
 class BWTypeEnum(StrEnum):
-    AGENCY = "BW Agencies"
-    MEDIA = "BW Medias"
-    CORPORATE = "BW Corporate Medias"
-    PRESSUNION = "BW Press Union"
-    COM = "BW PR Agencies"
-    ORGANISATION = "BW Organisations"
-    TRANSFORMER = "BW Transformers"
-    ACADEMICS = "BW Academics"
+    AGENCY = "Business Wall for Agencies"
+    MEDIA = "Business Wall for Medias"
+    CORPORATE = "Business Wall for Corporate Medias"
+    PRESSUNION = "Business Wall for Press Union"
+    COM = "Business Wall for PR Agencies"
+    ORGANISATION = "Business Wall for Organisations"
+    TRANSFORMER = "Business Wall for Transformers"
+    ACADEMICS = "Business Wall for Academics"
