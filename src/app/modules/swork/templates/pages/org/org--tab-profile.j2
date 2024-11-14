@@ -1,0 +1,35 @@
+<div x-show="tab === 'profile'">
+  <h2 class="text-lg font-medium mb-2">Profil</h2>
+
+  {% set type = org.type | label %}
+
+  <dl class="mt-2 border-t border-b border-gray-200 divide-y divide-gray-200">
+    {{ line("Type", type) }}
+    {% if type == "Agence de Presse" %}
+      {{ line("Agréée CPPAP", org.agree_cppap) }}
+      {{ line("Membre du SAPI", org.membre_sapi) }}
+      {{ line("Membre du SATEV", org.membre_satev) }}
+      {{ line("Membre du SAPHIR", org.membre_saphir) }}
+    {% endif %}
+    {{ line("Nombre d'employés / membres", org.members | length) }}
+    {% if not org.is_auto %}
+      {{ line("Nombre de communiqués", org.press_releases | length) }}
+      {{ line("Nombre de likes", 0) }}
+    {% endif %}
+  </dl>
+
+  {% if  not org.is_auto %}
+    <h2 class="text-lg font-medium mt-6 mb-2">Coordonnées</h2>
+    <dl class="mt-2 border-t border-b border-gray-200 divide-y divide-gray-200">
+      {{ line("Site web", org.site_url) }}
+      {{ line("Adresse du siège social", org.address_formatted) }}
+    </dl>
+    {{ line_long("Description", org.description) }}
+  {% endif %}
+
+  {{ line_long("Type d&apos;organisation", org.type_organisation) }}
+  {{ line("Taille d&apos;organisation", org.taille_orga) }}
+  {{ line_long("Pays, code postal et ville", org.country_zip_city) }}
+  {{ line_long("Secteurs d&apos;activité", org.secteurs_activite) }}
+
+</div>

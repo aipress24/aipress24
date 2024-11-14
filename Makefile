@@ -1,10 +1,6 @@
 .PHONY: all
 all: lint/ruff test lint
 
-PROD_URL:=https://aipress24.herokuapp.com
-# Same for now
-DEMO_URL:=https://aipress24.herokuapp.com
-
 help:
 	@adt help-make
 
@@ -109,6 +105,7 @@ clean:
 
 ## Cleanup harder
 tidy: clean
+	rm -rf .venv
 	rm -rf vite/dist
 	rm -rf vite/node_modules
 
@@ -170,7 +167,7 @@ doc:
 #
 # Dependencies
 #
-.PHONY: update-deps
+.PHONY: update-deps poetry.lock
 
 ## Update dependencies
 update-deps:
@@ -184,33 +181,9 @@ poetry.lock: pyproject.toml
 
 
 #
-# Heroku & Clever
+# Deploy
 #
-
-## Deploy to Heroku
-deploy-heroku:
-	poetry export -f requirements.txt > requirements.txt
-	git diff --quiet
-	flask vite build
-	-git commit vite/dist -n -m "rebuild vite assets"
-	adt bump-version daily
-	git push heroku main
-
-## Deploy to Heroku (uncluding the database)
-deploy-heroku-full:
-	make deploy-heroku
-	make deploy-heroku-db
-
-## Deploy DB to Heroku
-deploy-heroku-db:
-	echo "DROP SCHEMA public CASCADE; CREATE SCHEMA public;" \
-		| heroku pg:psql postgresql-dimensional-84632 --app aipress24
-	# echo "GRANT ALL ON SCHEMA public TO postgres; GRANT ALL ON SCHEMA public TO public;" \
-	#	| heroku pg:psql postgresql-dimensional-84632 --app aipress24
-	pg_dump aipress24 > tmp/db.sql
-	heroku pg:psql postgresql-dimensional-84632 --app aipress24 < tmp/db.sql
-	rm -f tmp/db.sql
-
+.PHONY: deploy-hop3
 
 ## Deploy top HOP3
 deploy-hop3:
