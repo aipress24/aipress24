@@ -41,11 +41,16 @@ tasks:
       uv run make test-sqlite
       # TODO: test with postgresql
 
-  - nox: |
+  - nox-test: |
       source ~/.local/bin/env
       cd aipress24
-      TEST_DATABASE_URI="sqlite:///:memory:" uv run nox
+      TEST_DATABASE_URI="sqlite:///:memory:" uv run nox -e test-3.12
       # TODO: postgres
+
+  - nox-lint: |
+      source ~/.local/bin/env
+      cd aipress24
+      uv run nox -e lint
 
 #triggers:
 #  - action: email
