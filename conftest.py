@@ -1,4 +1,4 @@
-# Copyright (c) 2021-2024 - Abilian SAS & TCA
+# Copyright (c) 2021-2024, Abilian SAS & TCA
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
@@ -26,8 +26,8 @@ from app.flask.main import create_app
 
 
 class TestConfig:
-    SECRET_KEY = "changeme"
-    SECURITY_PASSWORD_SALT = "changeme"
+    SECRET_KEY = "changeme"  # noqa: S105
+    SECURITY_PASSWORD_SALT = "changeme"  # noqa: S105
     DEBUG = False
     DEBUG_TB_ENABLED = False
 
