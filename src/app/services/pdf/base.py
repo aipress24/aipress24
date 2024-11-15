@@ -15,7 +15,8 @@ from loguru import logger
 @singledispatch
 def to_pdf(obj, template=None) -> bytes:
     """Transform an object to PDF."""
-    raise NotImplementedError(f"Cannot transform {obj} to PDF")
+    msg = f"Cannot transform {obj} to PDF"
+    raise NotImplementedError(msg)
 
 
 def generate_pdf(data: dict, template: str | Path) -> bytes:

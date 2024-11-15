@@ -12,7 +12,7 @@ from . import kyc_models
 from .survey_dataclass import SurveyField, SurveyProfile
 from .xls_parser import XLSParser
 
-MODEL_FILENAME = "MVP-2-KYC-Commons-30.xlsx"
+MODEL_FILENAME = "MVP-2-KYC-Commons-31.xlsx"
 
 
 def load_survey_model() -> dict[str, Any]:
@@ -40,7 +40,8 @@ def get_survey_profile(profile_id: str) -> SurveyProfile:
     for profile in survey["profiles"]:
         if profile.id == profile_id:
             return profile
-    raise ValueError(f"Unknown profile: {profile_id}")
+    msg = f"Unknown profile: {profile_id}"
+    raise ValueError(msg)
 
 
 @cache

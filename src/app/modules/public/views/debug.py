@@ -22,7 +22,8 @@ from .. import blueprint
 def check_unsecure():
     unsecure = current_app.config.get("UNSECURE", False)
     if not unsecure:
-        raise Forbidden("This is not an unsecure environment")
+        msg = "This is not an unsecure environment"
+        raise Forbidden(msg)
 
 
 @blueprint.get("/version/")
@@ -45,13 +46,15 @@ def backdoor():
 def backdoor_login(role):
     role = role.upper()
     check_unsecure()
-    users = db.session.query(User).all()
+    users = db.session.query(User).order_by(User.id).all()
     for user in users:
         if user.has_role(role):
             login_user(user)
             db.session.commit()
             return redirect(url_for("wire.wire"))
-    raise NotFound(f"Role {role} not found")
+
+    msg = f"Role {role} not found"
+    raise NotFound(msg)
 
 
 @blueprint.get("/debug/")

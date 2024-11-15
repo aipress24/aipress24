@@ -69,7 +69,8 @@ class BlobService:
             case Path():
                 file = file_or_path_or_data.open("rb")
             case _:
-                raise ValueError(f"Unsupported type {type(file_or_path_or_data)}")
+                msg = f"Unsupported type {type(file_or_path_or_data)}"
+                raise ValueError(msg)
 
         blob = Blob(id=blob_id, name="", size=blob_path.stat().st_size, mime_type="")
         return blob

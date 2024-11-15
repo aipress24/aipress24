@@ -58,7 +58,8 @@ def profile_image(user: User, size=24, **kw):
         case RoleEnum.ACADEMIC:
             cls += ["border-orange-500"]
         case _:
-            raise RuntimeError(f"Unknown community: {community}")
+            msg = f"Unknown community: {community}"
+            raise RuntimeError(msg)
 
     if size < 12:
         ring_size = "border-2"

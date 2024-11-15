@@ -30,7 +30,8 @@ class PrefInterestsPage(BasePreferencesPage):
 
     def post(self):
         if not current_user.is_authenticated:
-            raise ValueError("No currently authenticated user")
+            msg = "No currently authenticated user"
+            raise ValueError(msg)
         if request.form.get("submit") == "cancel":
             return redirect(url_for(f".{self.name}"))
 

@@ -9,6 +9,7 @@ from typing import Any
 
 from openpyxl.reader.excel import load_workbook
 
+from app.constants import PROFILE_CODES
 from app.enums import CommunityEnum, ContactTypeEnum
 
 from .survey_dataclass import (
@@ -25,10 +26,12 @@ COLOR_CODES = {
     "FFC9211E": "N",  # No
 }
 
-ROW_FIELDS = 6
+ROW_FIELDS = 7
 ROW_COMMUNITY = 1
 ROW_PROFILE = 2
-ROW_CONTACT = 3
+ROW_PROFILE_CODE = 3
+ROW_CONTACT = 4
+
 COL_LABEL = 0
 COL_PUBLIC_MAXI = 1
 COL_PUBLIC_DEFAULT = 2
@@ -160,7 +163,11 @@ class XLSParser(ModelLoader):
             if not description or not description.strip():
                 break
             id = f"P{i + 1:03}"
-            profile = SurveyProfile(id=id, description=description)
+            profile_code = rows[ROW_PROFILE_CODE][cell.column - 1].value
+            if profile_code not in PROFILE_CODES:
+                msg = f"Bad profile code {profile_code!r}"
+                raise ValueError(msg)
+            profile = SurveyProfile(id=id, description=description, code=profile_code)
             self.survey_profiles.append(profile)
         nb_profiles = len(self.survey_profiles)
         community = ""

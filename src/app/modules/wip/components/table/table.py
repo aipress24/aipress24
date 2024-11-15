@@ -168,7 +168,8 @@ def get_template(parent: Any, name: str = "") -> Template:
                 Path(inspect.getfile(parent.__class__)).parent / template_name
             )
         case _:
-            raise ValueError(f"Invalid parent type: {type(parent)}")
+            msg = f"Invalid parent type: {type(parent)}"
+            raise ValueError(msg)
 
     jinja_env: Environment = current_app.jinja_env
     return jinja_env.from_string(template_file.read_text())

@@ -62,6 +62,7 @@ def make_menu(name):
             case type():
                 menu.append(make_entry(line, name))
             case _:
-                raise ValueError(f"Match failed on {line}")
+                msg = f"Match failed on {line}"
+                raise ValueError(msg)
 
     return menu

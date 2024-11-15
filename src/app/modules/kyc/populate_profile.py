@@ -112,7 +112,8 @@ def _default_dict(category: str) -> dict[str, Any]:
         case "business_wall":
             default_fct = default_business_wall
         case _:
-            raise ValueError(f"Unknow category: {category}")
+            msg = f"Unknow category: {category}"
+            raise ValueError(msg)
     return default_fct()
 
 

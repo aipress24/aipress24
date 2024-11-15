@@ -19,6 +19,7 @@ from app.enums import CommunityEnum, ContactTypeEnum
 class SurveyProfile:
     id: str = ""
     description: str = ""
+    code: str = ""
     community: CommunityEnum = ""
     contact_type: ContactTypeEnum = ""
     groups: list[Group] = attr.field(factory=list)

@@ -3,8 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 from __future__ import annotations
 
-from flask import Response, request
-from flask import url_for as url_for_orig
+from flask import Response, request, url_for as url_for_orig
 from sqlalchemy import desc, false, func, nulls_last, select, true
 
 from app.flask.extensions import db

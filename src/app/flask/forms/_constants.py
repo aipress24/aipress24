@@ -24,4 +24,5 @@ def get_choices(key: str):
         case "copyright-mention":
             return voc.COPYRIGHT_MENTIONS
         case _:
-            raise ValueError(f"Invalid key: {key}")
+            msg = f"Invalid key: {key}"
+            raise ValueError(msg)

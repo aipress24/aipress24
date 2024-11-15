@@ -95,7 +95,8 @@ class Form:
                 break
         else:
             field_type = field_spec["type"]
-            raise ValueError(f"Unknown field type: {field_type} for field: {field_id}")
+            msg = f"Unknown field type: {field_type} for field: {field_id}"
+            raise ValueError(msg)
 
         field_cls = cast(type[Field], field_cls)
 

@@ -102,8 +102,11 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
 
     name: Mapped[str]  # nom officiel de l'organisation
     slug: Mapped[str]
-    siren: Mapped[str] = mapped_column(nullable=True, unique=True)
-    tva: Mapped[str] = mapped_column(nullable=True, unique=True)
+    # note: adding unique=True to siren and TVA breaks session.merge(), this would
+    # requiting a composite key, thus requiring to provide sien and tva on all requests
+    # involding the id of the organisation
+    siren: Mapped[str] = mapped_column(nullable=True)
+    tva: Mapped[str] = mapped_column(nullable=True)
     media_name: Mapped[str] = mapped_column(default="")  # nom officiel du titre (média)
 
     tel_standard: Mapped[str] = mapped_column(default="")

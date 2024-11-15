@@ -102,7 +102,8 @@ def _get_type(obj) -> str:
             return "User"
 
         case _:
-            raise TypeError(f"Uknown object type: {type(obj)}")
+            msg = f"Uknown object type: {type(obj)}"
+            raise TypeError(msg)
 
 
 def _get_msg(activity: Activity) -> str:
@@ -124,6 +125,7 @@ def _get_msg(activity: Activity) -> str:
             msg = f"{actor_name} ne suit plus {object_name}"
 
         case [_, _]:
-            raise TypeError(f"Uknown activity type: {activity.type}/{object_type}")
+            msg = f"Uknown activity type: {activity.type}/{object_type}"
+            raise TypeError(msg)
 
     return msg

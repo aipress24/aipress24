@@ -78,6 +78,7 @@ class ContentsPage(BaseWipPage):
             case Mode.CREATE:
                 view = CreateView()
             case _:
-                raise NotFound(f"Can't match mode {mode}")
+                msg = f"Can't match mode {mode}"
+                raise NotFound(msg)
 
         return view

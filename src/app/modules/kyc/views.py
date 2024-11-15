@@ -471,6 +471,7 @@ def _make_new_kyc_user_record() -> User:
 
     profile = KYCProfile(
         profile_id=survey_profile.id,
+        profile_code=survey_profile.code,
         profile_label=survey_profile.label,
         profile_community=survey_profile.community.name,
         contact_type=survey_profile.contact_type.name,
@@ -524,6 +525,7 @@ def _set_default_kyc_profile(user: User) -> None:
     # fake user at the moment
     profile = KYCProfile(
         profile_id=survey_profile.id,
+        profile_code=survey_profile.code,
         profile_label=survey_profile.label,
         profile_community=survey_profile.community.name,
         contact_type=survey_profile.contact_type.name,
@@ -562,6 +564,7 @@ def _update_from_current_user(orig_user: User) -> User:
     profile_id = session_service.get("profile_id", "")
     survey_profile = get_survey_profile(profile_id)
     profile.profile_id = survey_profile.id
+    profile.profile_code = survey_profile.code
     profile.profile_label = survey_profile.label
     profile.profile_community = survey_profile.community.name
     profile.contact_type = survey_profile.contact_type.name
@@ -855,7 +858,8 @@ def _public_group_info(level: int) -> dict[str, Any]:
     level can be 0, 1 or 2
     """
     if not current_user.is_authenticated:
-        raise ValueError("No currently authenticated user")
+        msg = "No currently authenticated user"
+        raise ValueError(msg)
 
     # direct change of display_level value
     level = _update_profile_display_level(level)
@@ -990,7 +994,8 @@ def _admin_group_info_profile(
 
 def profil_groups_initial_level() -> dict[str, Any]:
     if not current_user.is_authenticated:
-        raise ValueError("No currently authenticated user")
+        msg = "No currently authenticated user"
+        raise ValueError(msg)
     user = g.user
     profile = user.profile
     return {

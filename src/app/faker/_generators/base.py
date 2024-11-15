@@ -92,4 +92,5 @@ class BaseGenerator(ABC):
                     days=randint(-365, 365), hours=randint(-24, 24)
                 )
             case _:
-                raise ValueError(f"Illegal arguments: {(past, future)}")
+                msg = f"Illegal arguments: {(past, future)}"
+                raise ValueError(msg)

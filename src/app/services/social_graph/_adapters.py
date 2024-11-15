@@ -151,7 +151,8 @@ class SocialUser(FollowableAdapter):
 
         subject = self.user
         if subject == object:
-            raise SocialGraphError("User can't follow themself")
+            msg = "User can't follow themself"
+            raise SocialGraphError(msg)
 
         stmt = sa.insert(table).values(followee_id=object.id, follower_id=subject.id)
         db.session.execute(stmt)

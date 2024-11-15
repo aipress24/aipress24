@@ -110,7 +110,8 @@ def ontologies() -> None:
 def parse_source_ontologies() -> dict[str, Any]:
     """step1 : convert the ods source -> python dictionary."""
     if not ONTOLOGY_SRC.is_file():
-        raise FileNotFoundError(f"Please add the missing {ONTOLOGY_SRC} file.")
+        msg = f"Please add the missing {ONTOLOGY_SRC} file."
+        raise FileNotFoundError(msg)
     content = odsparsator.ods_to_python(
         input_path=ONTOLOGY_SRC,
         export_minimal=True,
@@ -491,7 +492,8 @@ def get_converter(ontology_slug: str) -> Any:  # noqa:PLR0915
         case _:
             converter_class = None
     if not converter_class:
-        raise ValueError(f"No converter found for {ontology_slug}")
+        msg = f"No converter found for {ontology_slug}"
+        raise ValueError(msg)
     return converter_class
 
 

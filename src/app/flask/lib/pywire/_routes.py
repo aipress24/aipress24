@@ -33,7 +33,8 @@ def livewire_message(component):
         func_name = f"livewire_{update_type}"
         func = globals().get(func_name)
         if not func:
-            raise ValueError(f"Unknown update type: {update['type']}")
+            msg = f"Unknown update type: {update['type']}"
+            raise ValueError(msg)
 
         func(component_instance, payload)
 

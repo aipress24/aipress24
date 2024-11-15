@@ -47,7 +47,8 @@ class ItemPage(Page):
             # case PressRelease():
             #     self.view_model = PressReleaseVM(self.item)
             case _:
-                raise TypeError(f"Unknown item type: {self.item}")
+                msg = f"Unknown item type: {self.item}"
+                raise TypeError(msg)
 
     @property
     def label(self):
@@ -61,7 +62,8 @@ class ItemPage(Page):
             # case PressRelease():
             #     return "pages/press-release.j2"
             case _:
-                raise TypeError(f"Unknown item type: {self.item}")
+                msg = f"Unknown item type: {self.item}"
+                raise TypeError(msg)
 
     def context(self):
         return {

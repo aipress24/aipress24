@@ -9,6 +9,8 @@ These tests need a database with some fake data and/or a real config
 (i.e. don't work with the testing config)
 """
 
+from __future__ import annotations
+
 import pytest
 from flask import Flask
 from splinter import Browser
