@@ -1,0 +1,2178 @@
+[
+    {
+        "name": "Centro de Los Heroes",
+        "zip_code": "10101"
+    },
+    {
+        "name": "Mata Hambre",
+        "zip_code": "10102"
+    },
+    {
+        "name": "Zona Universitaria",
+        "zip_code": "10103"
+    },
+    {
+        "name": "San Geronimo",
+        "zip_code": "10104"
+    },
+    {
+        "name": "Ciudad Universitaria",
+        "zip_code": "10105"
+    },
+    {
+        "name": "Los Robles",
+        "zip_code": "10106"
+    },
+    {
+        "name": "El Vergel",
+        "zip_code": "10107"
+    },
+    {
+        "name": "Esperilla",
+        "zip_code": "10107"
+    },
+    {
+        "name": "El Manguito",
+        "zip_code": "10108"
+    },
+    {
+        "name": "Esperilla",
+        "zip_code": "10108"
+    },
+    {
+        "name": "La Julia",
+        "zip_code": "10109"
+    },
+    {
+        "name": "El Embajador",
+        "zip_code": "10110"
+    },
+    {
+        "name": "Bella Vista",
+        "zip_code": "10111"
+    },
+    {
+        "name": "Bella Vista",
+        "zip_code": "10112"
+    },
+    {
+        "name": "Sarasota",
+        "zip_code": "10113"
+    },
+    {
+        "name": "Mirador Norte",
+        "zip_code": "10114"
+    },
+    {
+        "name": "Atala",
+        "zip_code": "10115"
+    },
+    {
+        "name": "Rocamar",
+        "zip_code": "10115"
+    },
+    {
+        "name": "El Portal",
+        "zip_code": "10115"
+    },
+    {
+        "name": "30 de Mayo",
+        "zip_code": "10116"
+    },
+    {
+        "name": "Ciudad Gandera",
+        "zip_code": "10116"
+    },
+    {
+        "name": "Ensanche La Paz",
+        "zip_code": "10117"
+    },
+    {
+        "name": "Hoduras",
+        "zip_code": "10117"
+    },
+    {
+        "name": "Costa Brava",
+        "zip_code": "10118"
+    },
+    {
+        "name": "Antillas",
+        "zip_code": "10118"
+    },
+    {
+        "name": "Los Arrecifes",
+        "zip_code": "10118"
+    },
+    {
+        "name": "El Cacique",
+        "zip_code": "10118"
+    },
+    {
+        "name": "Naco",
+        "zip_code": "10119"
+    },
+    {
+        "name": "La Yuca",
+        "zip_code": "10120"
+    },
+    {
+        "name": "Arboleda (Naco)",
+        "zip_code": "10121"
+    },
+    {
+        "name": "Naco",
+        "zip_code": "10122"
+    },
+    {
+        "name": "Centro Olimpico",
+        "zip_code": "10122"
+    },
+    {
+        "name": "Naco",
+        "zip_code": "10123"
+    },
+    {
+        "name": "Naco",
+        "zip_code": "10124"
+    },
+    {
+        "name": "Lopez de Vega",
+        "zip_code": "10125"
+    },
+    {
+        "name": "Paraiso",
+        "zip_code": "10126"
+    },
+    {
+        "name": "Piantini",
+        "zip_code": "10127"
+    },
+    {
+        "name": "Carmelita",
+        "zip_code": "10128"
+    },
+    {
+        "name": "Urbanizacion Fernandez",
+        "zip_code": "10129"
+    },
+    {
+        "name": "Julieta Morales",
+        "zip_code": "10130"
+    },
+    {
+        "name": "Los Praditos",
+        "zip_code": "10130"
+    },
+    {
+        "name": "Los Prados",
+        "zip_code": "10131"
+    },
+    {
+        "name": "Los Prados",
+        "zip_code": "10132"
+    },
+    {
+        "name": "Castellana",
+        "zip_code": "10133"
+    },
+    {
+        "name": "San Geronimo",
+        "zip_code": "10134"
+    },
+    {
+        "name": "Encarnacion",
+        "zip_code": "10135"
+    },
+    {
+        "name": "Urb. Las Praderas",
+        "zip_code": "10135"
+    },
+    {
+        "name": "Ciudad Moderna",
+        "zip_code": "10135"
+    },
+    {
+        "name": "Residencial Rosmil",
+        "zip_code": "10136"
+    },
+    {
+        "name": "Los Restauradores",
+        "zip_code": "10137"
+    },
+    {
+        "name": "Manganagua",
+        "zip_code": "10138"
+    },
+    {
+        "name": "Los Millones",
+        "zip_code": "10139"
+    },
+    {
+        "name": "Los Millones",
+        "zip_code": "10140"
+    },
+    {
+        "name": "Los Millones",
+        "zip_code": "10141"
+    },
+    {
+        "name": "Los Millones",
+        "zip_code": "10142"
+    },
+    {
+        "name": "Estela Marina ( Los Millones).",
+        "zip_code": "10143"
+    },
+    {
+        "name": "Los Millones",
+        "zip_code": "10144"
+    },
+    {
+        "name": "Ensanche Quisqueya",
+        "zip_code": "10145"
+    },
+    {
+        "name": "Ensanche Quisqueya",
+        "zip_code": "10146"
+    },
+    {
+        "name": "Evaristo Morales",
+        "zip_code": "10147"
+    },
+    {
+        "name": "Piantini",
+        "zip_code": "10148"
+    },
+    {
+        "name": "El Millon",
+        "zip_code": "10149"
+    },
+    {
+        "name": "Piantini",
+        "zip_code": "10150"
+    },
+    {
+        "name": "Don Bosco",
+        "zip_code": "10201"
+    },
+    {
+        "name": "Don Bosco",
+        "zip_code": "10202"
+    },
+    {
+        "name": "Miraflores",
+        "zip_code": "10203"
+    },
+    {
+        "name": "Gazcue ( Plaza de La Cultura )",
+        "zip_code": "10204"
+    },
+    {
+        "name": "Gazcue",
+        "zip_code": "10205"
+    },
+    {
+        "name": "Ensanche Independencia",
+        "zip_code": "10206"
+    },
+    {
+        "name": "La Primavera",
+        "zip_code": "10207"
+    },
+    {
+        "name": "Ciudad Nueva",
+        "zip_code": "10208"
+    },
+    {
+        "name": "Ensanche Lugo",
+        "zip_code": "10209"
+    },
+    {
+        "name": "Zona Colonial",
+        "zip_code": "10210"
+    },
+    {
+        "name": "San Lazaro",
+        "zip_code": "10211"
+    },
+    {
+        "name": "San Miguel",
+        "zip_code": "10212"
+    },
+    {
+        "name": "Borojol",
+        "zip_code": "10213"
+    },
+    {
+        "name": "Villa Francisca",
+        "zip_code": "10214"
+    },
+    {
+        "name": "Villa Francisca",
+        "zip_code": "10215"
+    },
+    {
+        "name": "San Carlos",
+        "zip_code": "10216"
+    },
+    {
+        "name": "San Carlos",
+        "zip_code": "10217"
+    },
+    {
+        "name": "Reparto Aguedita ( Gazcue)",
+        "zip_code": "10218"
+    },
+    {
+        "name": "Mejoramiento Social",
+        "zip_code": "10301"
+    },
+    {
+        "name": "La Fuente",
+        "zip_code": "10302"
+    },
+    {
+        "name": "Maria Auxiliadora",
+        "zip_code": "10302"
+    },
+    {
+        "name": "San Martin de Porres",
+        "zip_code": "10302"
+    },
+    {
+        "name": "Guachupita",
+        "zip_code": "10302"
+    },
+    {
+        "name": "La Cienaga",
+        "zip_code": "10303"
+    },
+    {
+        "name": "Domingo Savio",
+        "zip_code": "10304"
+    },
+    {
+        "name": "Los Guandules",
+        "zip_code": "10304"
+    },
+    {
+        "name": "27 de Febrero",
+        "zip_code": "10305"
+    },
+    {
+        "name": "Maria Auxiliadora",
+        "zip_code": "10305"
+    },
+    {
+        "name": "Agua Dulce",
+        "zip_code": "10305"
+    },
+    {
+        "name": "Mejoramiento Social",
+        "zip_code": "10306"
+    },
+    {
+        "name": "Villa Maria",
+        "zip_code": "10307"
+    },
+    {
+        "name": "Villa Consuelo",
+        "zip_code": "10308"
+    },
+    {
+        "name": "Villa Consuelo",
+        "zip_code": "10309"
+    },
+    {
+        "name": "Ensanche Luperon",
+        "zip_code": "10401"
+    },
+    {
+        "name": "Ensanche Espaillat",
+        "zip_code": "10402"
+    },
+    {
+        "name": "Gualey",
+        "zip_code": "10403"
+    },
+    {
+        "name": "24 de Abril",
+        "zip_code": "10404"
+    },
+    {
+        "name": "Simon Bolivar",
+        "zip_code": "10405"
+    },
+    {
+        "name": "Ensanche Luperon",
+        "zip_code": "10406"
+    },
+    {
+        "name": "Capotillo",
+        "zip_code": "10407"
+    },
+    {
+        "name": "La Zurza",
+        "zip_code": "10408"
+    },
+    {
+        "name": "Villas Agricolas",
+        "zip_code": "10409"
+    },
+    {
+        "name": "La Caridad",
+        "zip_code": "10410"
+    },
+    {
+        "name": "Villas Agricolas",
+        "zip_code": "10410"
+    },
+    {
+        "name": "El Ensanchito",
+        "zip_code": "10411"
+    },
+    {
+        "name": "Villa Juana",
+        "zip_code": "10412"
+    },
+    {
+        "name": "Villa Juana",
+        "zip_code": "10413"
+    },
+    {
+        "name": "El Caliche",
+        "zip_code": "10501"
+    },
+    {
+        "name": "Trueva",
+        "zip_code": "10501"
+    },
+    {
+        "name": "Cristo Rey",
+        "zip_code": "10501"
+    },
+    {
+        "name": "Santa Rosa",
+        "zip_code": "10502"
+    },
+    {
+        "name": "Yaquito",
+        "zip_code": "10502"
+    },
+    {
+        "name": "La Cuarenta",
+        "zip_code": "10502"
+    },
+    {
+        "name": "Las Flores",
+        "zip_code": "10502"
+    },
+    {
+        "name": "Parque Isabela",
+        "zip_code": "10503"
+    },
+    {
+        "name": "La Isabela",
+        "zip_code": "10503"
+    },
+    {
+        "name": "Isabel Villas",
+        "zip_code": "10504"
+    },
+    {
+        "name": "Cerro de Arroyo Hdo.",
+        "zip_code": "10504"
+    },
+    {
+        "name": "Cuesta Hermosa III",
+        "zip_code": "10504"
+    },
+    {
+        "name": "Cuesta Brava",
+        "zip_code": "10505"
+    },
+    {
+        "name": "La Meseta",
+        "zip_code": "10505"
+    },
+    {
+        "name": "Fundacion",
+        "zip_code": "10505"
+    },
+    {
+        "name": "Pista de Motocros La Yuca",
+        "zip_code": "10505"
+    },
+    {
+        "name": "Buena Vista",
+        "zip_code": "10505"
+    },
+    {
+        "name": "Manzano",
+        "zip_code": "10505"
+    },
+    {
+        "name": "Urb. Puerta de Hierro",
+        "zip_code": "10505"
+    },
+    {
+        "name": "Arroyo Manzano",
+        "zip_code": "10505"
+    },
+    {
+        "name": "Altos de Arroyo Hondo II",
+        "zip_code": "10506"
+    },
+    {
+        "name": "Los Arroyos",
+        "zip_code": "10507"
+    },
+    {
+        "name": "Cuesta Hermosa",
+        "zip_code": "10507"
+    },
+    {
+        "name": "Lomas de Arroyo Hondo",
+        "zip_code": "10507"
+    },
+    {
+        "name": "Colinas de Arroyo Hondo",
+        "zip_code": "10507"
+    },
+    {
+        "name": "La Puya",
+        "zip_code": "10507"
+    },
+    {
+        "name": "Los Pinos",
+        "zip_code": "10508"
+    },
+    {
+        "name": "La Aldaba",
+        "zip_code": "10508"
+    },
+    {
+        "name": "El Pino",
+        "zip_code": "10508"
+    },
+    {
+        "name": "La Agustinita",
+        "zip_code": "10509"
+    },
+    {
+        "name": "Carmen Amelia",
+        "zip_code": "10509"
+    },
+    {
+        "name": "Los Caminos",
+        "zip_code": "10510"
+    },
+    {
+        "name": "Viejo Arroyo Hondo",
+        "zip_code": "10510"
+    },
+    {
+        "name": "La Fe",
+        "zip_code": "10511"
+    },
+    {
+        "name": "La Fe",
+        "zip_code": "10512"
+    },
+    {
+        "name": "Ens. Kennedy",
+        "zip_code": "10513"
+    },
+    {
+        "name": "Cachiman",
+        "zip_code": "10514"
+    },
+    {
+        "name": "Ens. La Fe",
+        "zip_code": "10514"
+    },
+    {
+        "name": "Barrio Obrero",
+        "zip_code": "10515"
+    },
+    {
+        "name": "La Agustina",
+        "zip_code": "10516"
+    },
+    {
+        "name": "Lanna Gautier",
+        "zip_code": "10516"
+    },
+    {
+        "name": "La Cementera",
+        "zip_code": "10516"
+    },
+    {
+        "name": "Constelacion",
+        "zip_code": "10601"
+    },
+    {
+        "name": "Los Proceres",
+        "zip_code": "10601"
+    },
+    {
+        "name": "Los Jardines del Norte",
+        "zip_code": "10602"
+    },
+    {
+        "name": "Las Villas",
+        "zip_code": "10603"
+    },
+    {
+        "name": "Los Rios",
+        "zip_code": "10604"
+    },
+    {
+        "name": "La Esperanza",
+        "zip_code": "10604"
+    },
+    {
+        "name": "Altos de Arroyo Hdo. I",
+        "zip_code": "10605"
+    },
+    {
+        "name": "Altos de Arroyo Hdo. III",
+        "zip_code": "10605"
+    },
+    {
+        "name": "Cerros de Arroyo Hdo III",
+        "zip_code": "10605"
+    },
+    {
+        "name": "Colinas del Seminario",
+        "zip_code": "10606"
+    },
+    {
+        "name": "Residencial La Yuca",
+        "zip_code": "10606"
+    },
+    {
+        "name": "La Ceiba",
+        "zip_code": "10607"
+    },
+    {
+        "name": "Los Guayabos",
+        "zip_code": "10607"
+    },
+    {
+        "name": "El Condado",
+        "zip_code": "10607"
+    },
+    {
+        "name": "Villa Claudia",
+        "zip_code": "10607"
+    },
+    {
+        "name": "Don Honorio",
+        "zip_code": "10607"
+    },
+    {
+        "name": "Pradera Hermosa",
+        "zip_code": "10608"
+    },
+    {
+        "name": "Los Pinos",
+        "zip_code": "10608"
+    },
+    {
+        "name": "Villa Marina",
+        "zip_code": "10608"
+    },
+    {
+        "name": "Villa Elena",
+        "zip_code": "10608"
+    },
+    {
+        "name": "Las Colinas",
+        "zip_code": "10608"
+    },
+    {
+        "name": "Batey Palmarejo",
+        "zip_code": "10701"
+    },
+    {
+        "name": "Lotificacion Vista Verde",
+        "zip_code": "10701"
+    },
+    {
+        "name": "La Redencion",
+        "zip_code": "10701"
+    },
+    {
+        "name": "Pantoja",
+        "zip_code": "10701"
+    },
+    {
+        "name": "La Isabela",
+        "zip_code": "10701"
+    },
+    {
+        "name": "Colinas del Norte",
+        "zip_code": "10701"
+    },
+    {
+        "name": "Los Girasoles",
+        "zip_code": "10702"
+    },
+    {
+        "name": "Reparto Samaria",
+        "zip_code": "10702"
+    },
+    {
+        "name": "Urb. Brisa del Norte",
+        "zip_code": "10702"
+    },
+    {
+        "name": "Palma Real",
+        "zip_code": "10702"
+    },
+    {
+        "name": "Reparto Miguelina",
+        "zip_code": "10702"
+    },
+    {
+        "name": "Urbanizacion Palma Real",
+        "zip_code": "10702"
+    },
+    {
+        "name": "Los Angeles",
+        "zip_code": "10702"
+    },
+    {
+        "name": "Los Peralejos",
+        "zip_code": "10702"
+    },
+    {
+        "name": "Lebron",
+        "zip_code": "10801"
+    },
+    {
+        "name": "Barrio La Fe",
+        "zip_code": "10801"
+    },
+    {
+        "name": "Invi",
+        "zip_code": "10801"
+    },
+    {
+        "name": "El Tamarindo",
+        "zip_code": "10801"
+    },
+    {
+        "name": "Barrio La Esperanza",
+        "zip_code": "10801"
+    },
+    {
+        "name": "Barrio Chavon",
+        "zip_code": "10801"
+    },
+    {
+        "name": "Los Alcarrizos",
+        "zip_code": "10801"
+    },
+    {
+        "name": "Barrio La Torre",
+        "zip_code": "10801"
+    },
+    {
+        "name": "Barrio La Union",
+        "zip_code": "10801"
+    },
+    {
+        "name": "Obras Publicas",
+        "zip_code": "10801"
+    },
+    {
+        "name": "Los Libertadores",
+        "zip_code": "10802"
+    },
+    {
+        "name": "Valle Encantado",
+        "zip_code": "10802"
+    },
+    {
+        "name": "Barrio Gran Poder de Dios",
+        "zip_code": "10802"
+    },
+    {
+        "name": "Barrio La Piña",
+        "zip_code": "10802"
+    },
+    {
+        "name": "Barrio Landia",
+        "zip_code": "10802"
+    },
+    {
+        "name": "La Piñita",
+        "zip_code": "10802"
+    },
+    {
+        "name": "Barrio Paraiso",
+        "zip_code": "10802"
+    },
+    {
+        "name": "La Compuerta",
+        "zip_code": "10802"
+    },
+    {
+        "name": "Los Alcarrizos III",
+        "zip_code": "10802"
+    },
+    {
+        "name": "Zona Franca de Los Alcarrizos",
+        "zip_code": "10802"
+    },
+    {
+        "name": "Los Americanos",
+        "zip_code": "10802"
+    },
+    {
+        "name": "Villa San Felipe",
+        "zip_code": "10802"
+    },
+    {
+        "name": "24 de Abril",
+        "zip_code": "10803"
+    },
+    {
+        "name": "Varia",
+        "zip_code": "10803"
+    },
+    {
+        "name": "Barrio Las Mercedes",
+        "zip_code": "10803"
+    },
+    {
+        "name": "El Chucho",
+        "zip_code": "10803"
+    },
+    {
+        "name": "Savica",
+        "zip_code": "10803"
+    },
+    {
+        "name": "Urbanizacion Las Mercedes",
+        "zip_code": "10803"
+    },
+    {
+        "name": "La Cienaga",
+        "zip_code": "10804"
+    },
+    {
+        "name": "Villas Naco",
+        "zip_code": "10804"
+    },
+    {
+        "name": "El Catorce",
+        "zip_code": "10804"
+    },
+    {
+        "name": "La Concordia",
+        "zip_code": "10804"
+    },
+    {
+        "name": "Altos del Oeste",
+        "zip_code": "10804"
+    },
+    {
+        "name": "Palmarejito",
+        "zip_code": "10805"
+    },
+    {
+        "name": "Nuevo Amanecer",
+        "zip_code": "10805"
+    },
+    {
+        "name": "Ciudad Codiana",
+        "zip_code": "10805"
+    },
+    {
+        "name": "Pueblo Nuevo",
+        "zip_code": "10805"
+    },
+    {
+        "name": "Las Crorias",
+        "zip_code": "10805"
+    },
+    {
+        "name": "Barrio Progreso",
+        "zip_code": "10805"
+    },
+    {
+        "name": "Barrio Arenoso",
+        "zip_code": "10805"
+    },
+    {
+        "name": "Nuevo Horizonte",
+        "zip_code": "10805"
+    },
+    {
+        "name": "Cerros de Palmarejo",
+        "zip_code": "10805"
+    },
+    {
+        "name": "Urb. San Rafael",
+        "zip_code": "10805"
+    },
+    {
+        "name": "Puerto Rico",
+        "zip_code": "10805"
+    },
+    {
+        "name": "El Caliche",
+        "zip_code": "10901"
+    },
+    {
+        "name": "Urb. Las Palmas",
+        "zip_code": "10901"
+    },
+    {
+        "name": "Urb. Olimpo",
+        "zip_code": "10901"
+    },
+    {
+        "name": "Villa Aura",
+        "zip_code": "10901"
+    },
+    {
+        "name": "Alameda",
+        "zip_code": "10902"
+    },
+    {
+        "name": "Batey Bienvenido",
+        "zip_code": "10902"
+    },
+    {
+        "name": "Residencial Alameda",
+        "zip_code": "10902"
+    },
+    {
+        "name": "Manoguayabo",
+        "zip_code": "10902"
+    },
+    {
+        "name": "San Miguel",
+        "zip_code": "10902"
+    },
+    {
+        "name": "Buenas Noches",
+        "zip_code": "10902"
+    },
+    {
+        "name": "Bella Colina",
+        "zip_code": "10902"
+    },
+    {
+        "name": "Hato Nuevo",
+        "zip_code": "10902"
+    },
+    {
+        "name": "La Venta",
+        "zip_code": "10902"
+    },
+    {
+        "name": "Residencial Almendra",
+        "zip_code": "10902"
+    },
+    {
+        "name": "Villa Peravia",
+        "zip_code": "10902"
+    },
+    {
+        "name": "Barrio Antillano",
+        "zip_code": "10902"
+    },
+    {
+        "name": "Rivera del Haina",
+        "zip_code": "10903"
+    },
+    {
+        "name": "Paraiso del Caribe",
+        "zip_code": "10903"
+    },
+    {
+        "name": "Bayona",
+        "zip_code": "10903"
+    },
+    {
+        "name": "Villa Nazaret",
+        "zip_code": "10903"
+    },
+    {
+        "name": "Ens. Ivan Guzman Klan",
+        "zip_code": "10904"
+    },
+    {
+        "name": "El Abanico de Herrera",
+        "zip_code": "10904"
+    },
+    {
+        "name": "Lotificacion Engombe",
+        "zip_code": "10904"
+    },
+    {
+        "name": "El Palmar",
+        "zip_code": "10904"
+    },
+    {
+        "name": "Rosa Maria",
+        "zip_code": "10904"
+    },
+    {
+        "name": "Residencial Loyola",
+        "zip_code": "10904"
+    },
+    {
+        "name": "Engome",
+        "zip_code": "10904"
+    },
+    {
+        "name": "Ciudad Agraria",
+        "zip_code": "10905"
+    },
+    {
+        "name": "Las Caobitas",
+        "zip_code": "10905"
+    },
+    {
+        "name": "Las Caobas",
+        "zip_code": "10905"
+    },
+    {
+        "name": "Zona Industrial de Herrera",
+        "zip_code": "11001"
+    },
+    {
+        "name": "Barrio Enriquillo",
+        "zip_code": "11002"
+    },
+    {
+        "name": "Barrio Holguin",
+        "zip_code": "11002"
+    },
+    {
+        "name": "Duarte",
+        "zip_code": "11003"
+    },
+    {
+        "name": "Las Palmas",
+        "zip_code": "11003"
+    },
+    {
+        "name": "Barrio Buenos Aires",
+        "zip_code": "11003"
+    },
+    {
+        "name": "Juan Pablo Duarte",
+        "zip_code": "11003"
+    },
+    {
+        "name": "Galaxia",
+        "zip_code": "11004"
+    },
+    {
+        "name": "Urb. El Rosal",
+        "zip_code": "11004"
+    },
+    {
+        "name": "Luz Divina",
+        "zip_code": "11004"
+    },
+    {
+        "name": "La Rosa",
+        "zip_code": "11004"
+    },
+    {
+        "name": "San Francisco",
+        "zip_code": "11004"
+    },
+    {
+        "name": "Barrio Josue",
+        "zip_code": "11005"
+    },
+    {
+        "name": "Barrio Libertador",
+        "zip_code": "11005"
+    },
+    {
+        "name": "Ens. Paraiso",
+        "zip_code": "11005"
+    },
+    {
+        "name": "Herrera",
+        "zip_code": "11005"
+    },
+    {
+        "name": "Atlantida",
+        "zip_code": "11101"
+    },
+    {
+        "name": "Barrio Invi",
+        "zip_code": "11101"
+    },
+    {
+        "name": "16 de Agosto",
+        "zip_code": "11101"
+    },
+    {
+        "name": "Aesa",
+        "zip_code": "11101"
+    },
+    {
+        "name": "Residencial Jose Contreras",
+        "zip_code": "11102"
+    },
+    {
+        "name": "Costa Caribe",
+        "zip_code": "11102"
+    },
+    {
+        "name": "Gacela",
+        "zip_code": "11102"
+    },
+    {
+        "name": "Buenos Aires del",
+        "zip_code": "11102"
+    },
+    {
+        "name": "Mirador",
+        "zip_code": "11102"
+    },
+    {
+        "name": "Nordesa III",
+        "zip_code": "11103"
+    },
+    {
+        "name": "Km.",
+        "zip_code": "11103"
+    },
+    {
+        "name": "Miramar",
+        "zip_code": "11103"
+    },
+    {
+        "name": "Las Acacias",
+        "zip_code": "11104"
+    },
+    {
+        "name": "Mar Azul",
+        "zip_code": "11104"
+    },
+    {
+        "name": "Jardines del Sur",
+        "zip_code": "11105"
+    },
+    {
+        "name": "Dominicanos Ausentes",
+        "zip_code": "11105"
+    },
+    {
+        "name": "Km.",
+        "zip_code": "11105"
+    },
+    {
+        "name": "San Jose",
+        "zip_code": "11105"
+    },
+    {
+        "name": "Tropicana",
+        "zip_code": "11105"
+    },
+    {
+        "name": "Loteria",
+        "zip_code": "11106"
+    },
+    {
+        "name": "Resd. Enriquillo",
+        "zip_code": "11106"
+    },
+    {
+        "name": "San Miguel",
+        "zip_code": "11106"
+    },
+    {
+        "name": "Luz Consuelo",
+        "zip_code": "11107"
+    },
+    {
+        "name": "El Pedregal",
+        "zip_code": "11107"
+    },
+    {
+        "name": "Sandra",
+        "zip_code": "11107"
+    },
+    {
+        "name": "Sandra I",
+        "zip_code": "11107"
+    },
+    {
+        "name": "Los Cacicazgos",
+        "zip_code": "11108"
+    },
+    {
+        "name": "Mirador Sur",
+        "zip_code": "11109"
+    },
+    {
+        "name": "Los Maestros",
+        "zip_code": "11110"
+    },
+    {
+        "name": "Renacimiento",
+        "zip_code": "11111"
+    },
+    {
+        "name": "Urb. Real",
+        "zip_code": "11112"
+    },
+    {
+        "name": "Renacimiento",
+        "zip_code": "11112"
+    },
+    {
+        "name": "Zona Industrial de Herrera",
+        "zip_code": "11113"
+    },
+    {
+        "name": "Res. Santo Domingo",
+        "zip_code": "11114"
+    },
+    {
+        "name": "Ensanche Altagracia",
+        "zip_code": "11114"
+    },
+    {
+        "name": "El Café",
+        "zip_code": "11115"
+    },
+    {
+        "name": "Colinas de Canaan",
+        "zip_code": "11115"
+    },
+    {
+        "name": "Barrio Paraiso",
+        "zip_code": "11115"
+    },
+    {
+        "name": "Villas del Café",
+        "zip_code": "11116"
+    },
+    {
+        "name": "12 de Haina",
+        "zip_code": "11116"
+    },
+    {
+        "name": "Residencial Canaan",
+        "zip_code": "11116"
+    },
+    {
+        "name": "La Placeta",
+        "zip_code": "11117"
+    },
+    {
+        "name": "Costa Verde",
+        "zip_code": "11117"
+    },
+    {
+        "name": "Puerto de Haina",
+        "zip_code": "11117"
+    },
+    {
+        "name": "Manresa",
+        "zip_code": "11117"
+    },
+    {
+        "name": "Costa Azul",
+        "zip_code": "11117"
+    },
+    {
+        "name": "Villa Nueva",
+        "zip_code": "11201"
+    },
+    {
+        "name": "Villa Mella",
+        "zip_code": "11201"
+    },
+    {
+        "name": "Jardines de Genovena",
+        "zip_code": "11201"
+    },
+    {
+        "name": "Vista Bella",
+        "zip_code": "11201"
+    },
+    {
+        "name": "Haras Nacionales",
+        "zip_code": "11201"
+    },
+    {
+        "name": "Marañon",
+        "zip_code": "11201"
+    },
+    {
+        "name": "Rep. Villa Maria",
+        "zip_code": "11201"
+    },
+    {
+        "name": "Urb. Sarah Gabriela",
+        "zip_code": "11201"
+    },
+    {
+        "name": "Valle Verde",
+        "zip_code": "11201"
+    },
+    {
+        "name": "Villa Carmela",
+        "zip_code": "11201"
+    },
+    {
+        "name": "El Mamey",
+        "zip_code": "11201"
+    },
+    {
+        "name": "Villa Satelite",
+        "zip_code": "11201"
+    },
+    {
+        "name": "Marañon II",
+        "zip_code": "11202"
+    },
+    {
+        "name": "Carlos Alvarez",
+        "zip_code": "11202"
+    },
+    {
+        "name": "Urb. El Remanso",
+        "zip_code": "11202"
+    },
+    {
+        "name": "Res. El Dorado",
+        "zip_code": "11202"
+    },
+    {
+        "name": "Ensanche Paraiso",
+        "zip_code": "11202"
+    },
+    {
+        "name": "Mata Los Indios",
+        "zip_code": "11202"
+    },
+    {
+        "name": "Barrio Nuevo",
+        "zip_code": "11203"
+    },
+    {
+        "name": "Urb. Primavera",
+        "zip_code": "11203"
+    },
+    {
+        "name": "Colonia de Los Doctores",
+        "zip_code": "11203"
+    },
+    {
+        "name": "Maria Isabela",
+        "zip_code": "11203"
+    },
+    {
+        "name": "Urb. Santa Cruz",
+        "zip_code": "11204"
+    },
+    {
+        "name": "El Fundo",
+        "zip_code": "11204"
+    },
+    {
+        "name": "Los Conucos",
+        "zip_code": "11204"
+    },
+    {
+        "name": "Suriel",
+        "zip_code": "11204"
+    },
+    {
+        "name": "Isabela",
+        "zip_code": "11205"
+    },
+    {
+        "name": "Urb. Maximo Gomez",
+        "zip_code": "11205"
+    },
+    {
+        "name": "Santa Cruz",
+        "zip_code": "11205"
+    },
+    {
+        "name": "Res. Sol de Luz",
+        "zip_code": "11205"
+    },
+    {
+        "name": "El Torito",
+        "zip_code": "11205"
+    },
+    {
+        "name": "Zona Industrial de La Isabela",
+        "zip_code": "11205"
+    },
+    {
+        "name": "Cerros de Buena Vista I",
+        "zip_code": "11206"
+    },
+    {
+        "name": "Cerros de Buena Vista II",
+        "zip_code": "11206"
+    },
+    {
+        "name": "De Villa Mella",
+        "zip_code": "11206"
+    },
+    {
+        "name": "Zona Industrial de Villa Mella",
+        "zip_code": "11206"
+    },
+    {
+        "name": "Ceuta",
+        "zip_code": "11206"
+    },
+    {
+        "name": "La Javilla",
+        "zip_code": "11207"
+    },
+    {
+        "name": "El Eden",
+        "zip_code": "11207"
+    },
+    {
+        "name": "Reparto Rudima",
+        "zip_code": "11207"
+    },
+    {
+        "name": "Cruz Grande (Villa Mella Y Sabana Perdida )",
+        "zip_code": "11207"
+    },
+    {
+        "name": "Radiante",
+        "zip_code": "11207"
+    },
+    {
+        "name": "La Antena",
+        "zip_code": "11207"
+    },
+    {
+        "name": "Campechito II",
+        "zip_code": "11207"
+    },
+    {
+        "name": "Guaricanos",
+        "zip_code": "11301"
+    },
+    {
+        "name": "Nueva Isabela",
+        "zip_code": "11301"
+    },
+    {
+        "name": "Modelo",
+        "zip_code": "11301"
+    },
+    {
+        "name": "Proyecto Ciudad",
+        "zip_code": "11301"
+    },
+    {
+        "name": "Barrio Norte",
+        "zip_code": "11301"
+    },
+    {
+        "name": "Los Casabes",
+        "zip_code": "11302"
+    },
+    {
+        "name": "Ponce",
+        "zip_code": "11302"
+    },
+    {
+        "name": "Proyecto Bnv",
+        "zip_code": "11302"
+    },
+    {
+        "name": "Altos del Parque",
+        "zip_code": "11302"
+    },
+    {
+        "name": "Las Palmeras",
+        "zip_code": "11302"
+    },
+    {
+        "name": "Jacagua",
+        "zip_code": "11302"
+    },
+    {
+        "name": "Barrio Nuevo",
+        "zip_code": "11302"
+    },
+    {
+        "name": "Barrio Hnas. Mirabal",
+        "zip_code": "11302"
+    },
+    {
+        "name": "Lotes Y Servicios",
+        "zip_code": "11401"
+    },
+    {
+        "name": "El Majagual",
+        "zip_code": "11401"
+    },
+    {
+        "name": "Barrio Nuevo",
+        "zip_code": "11402"
+    },
+    {
+        "name": "Res. Noelia",
+        "zip_code": "11402"
+    },
+    {
+        "name": "La Mina",
+        "zip_code": "11402"
+    },
+    {
+        "name": "Altos de Chavon",
+        "zip_code": "11402"
+    },
+    {
+        "name": "El Milloncito",
+        "zip_code": "11402"
+    },
+    {
+        "name": "Villa Esperanza",
+        "zip_code": "11402"
+    },
+    {
+        "name": "Cerros de La Yuca",
+        "zip_code": "11402"
+    },
+    {
+        "name": "Los Palmares",
+        "zip_code": "11403"
+    },
+    {
+        "name": "Libertad",
+        "zip_code": "11403"
+    },
+    {
+        "name": "Progreso",
+        "zip_code": "11403"
+    },
+    {
+        "name": "Urb. Charles de Gaulle",
+        "zip_code": "11403"
+    },
+    {
+        "name": "Sabana Perdida",
+        "zip_code": "11404"
+    },
+    {
+        "name": "Ensanche Cristal",
+        "zip_code": "11404"
+    },
+    {
+        "name": "Cerros de Sabana Perdida",
+        "zip_code": "11404"
+    },
+    {
+        "name": "2 de Enero",
+        "zip_code": "11404"
+    },
+    {
+        "name": "Sabana Centro",
+        "zip_code": "11404"
+    },
+    {
+        "name": "Altos de Sabana Perdida",
+        "zip_code": "11404"
+    },
+    {
+        "name": "Colinas del Ozama",
+        "zip_code": "11404"
+    },
+    {
+        "name": "La Barquita",
+        "zip_code": "11404"
+    },
+    {
+        "name": "Loteria",
+        "zip_code": "11405"
+    },
+    {
+        "name": "Salome Ureña",
+        "zip_code": "11405"
+    },
+    {
+        "name": "Enrriquillo",
+        "zip_code": "11405"
+    },
+    {
+        "name": "Los Coordinadores",
+        "zip_code": "11405"
+    },
+    {
+        "name": "Villa Blanca",
+        "zip_code": "11405"
+    },
+    {
+        "name": "Ensanche Ozama",
+        "zip_code": "11501"
+    },
+    {
+        "name": "Molinuevo",
+        "zip_code": "11502"
+    },
+    {
+        "name": "Ens. Alma Rosa (Lado Oeste)",
+        "zip_code": "11503"
+    },
+    {
+        "name": "Jardines de Alma Rosa",
+        "zip_code": "11503"
+    },
+    {
+        "name": "Ens. Alma Rosa (Lado Este)",
+        "zip_code": "11504"
+    },
+    {
+        "name": "Villa Faro",
+        "zip_code": "11505"
+    },
+    {
+        "name": "Urb. Italia",
+        "zip_code": "11506"
+    },
+    {
+        "name": "El Rosal",
+        "zip_code": "11506"
+    },
+    {
+        "name": "Alma Rosa II",
+        "zip_code": "11506"
+    },
+    {
+        "name": "Ivette",
+        "zip_code": "11506"
+    },
+    {
+        "name": "Savica",
+        "zip_code": "11507"
+    },
+    {
+        "name": "Ralma",
+        "zip_code": "11507"
+    },
+    {
+        "name": "Vecinos Unidos",
+        "zip_code": "11508"
+    },
+    {
+        "name": "Loteria",
+        "zip_code": "11508"
+    },
+    {
+        "name": "Urb. Amanda",
+        "zip_code": "11508"
+    },
+    {
+        "name": "Paraiso Oriental",
+        "zip_code": "11508"
+    },
+    {
+        "name": "Franconia",
+        "zip_code": "11508"
+    },
+    {
+        "name": "La Esperanza",
+        "zip_code": "11508"
+    },
+    {
+        "name": "Hamarap",
+        "zip_code": "11509"
+    },
+    {
+        "name": "Isabel",
+        "zip_code": "11509"
+    },
+    {
+        "name": "Alpes I",
+        "zip_code": "11509"
+    },
+    {
+        "name": "Mi Sueño",
+        "zip_code": "11509"
+    },
+    {
+        "name": "Res. Oriente",
+        "zip_code": "11509"
+    },
+    {
+        "name": "Sol Naciente",
+        "zip_code": "11509"
+    },
+    {
+        "name": "Bello Campo",
+        "zip_code": "11509"
+    },
+    {
+        "name": "El Brisal",
+        "zip_code": "11510"
+    },
+    {
+        "name": "Mendoza",
+        "zip_code": "11510"
+    },
+    {
+        "name": "Carolina",
+        "zip_code": "11510"
+    },
+    {
+        "name": "Res. del Este",
+        "zip_code": "11510"
+    },
+    {
+        "name": "Mi Hogar",
+        "zip_code": "11510"
+    },
+    {
+        "name": "Rep. Alma Rosa",
+        "zip_code": "11511"
+    },
+    {
+        "name": "Las Palmas",
+        "zip_code": "11511"
+    },
+    {
+        "name": "Duarte",
+        "zip_code": "11512"
+    },
+    {
+        "name": "Cancino II",
+        "zip_code": "11512"
+    },
+    {
+        "name": "Los Trinitarios",
+        "zip_code": "11512"
+    },
+    {
+        "name": "Mandinga",
+        "zip_code": "11512"
+    },
+    {
+        "name": "Cancino I",
+        "zip_code": "11512"
+    },
+    {
+        "name": "Narcisa",
+        "zip_code": "11512"
+    },
+    {
+        "name": "Res. Lomisa",
+        "zip_code": "11513"
+    },
+    {
+        "name": "Cabirma del Este I",
+        "zip_code": "11513"
+    },
+    {
+        "name": "Res. Idalia A I",
+        "zip_code": "11514"
+    },
+    {
+        "name": "Prados del Cachon",
+        "zip_code": "11515"
+    },
+    {
+        "name": "El Cachon",
+        "zip_code": "11515"
+    },
+    {
+        "name": "Lucerna",
+        "zip_code": "11516"
+    },
+    {
+        "name": "Cancino",
+        "zip_code": "11516"
+    },
+    {
+        "name": "Colinas del Este",
+        "zip_code": "11517"
+    },
+    {
+        "name": "El Cachon de La Rubia",
+        "zip_code": "11517"
+    },
+    {
+        "name": "Vista Hermosa",
+        "zip_code": "11517"
+    },
+    {
+        "name": "Cancino Adentro",
+        "zip_code": "11517"
+    },
+    {
+        "name": "Res. Don Oscar",
+        "zip_code": "11517"
+    },
+    {
+        "name": "San Pablo II",
+        "zip_code": "11518"
+    },
+    {
+        "name": "Res. Amapola",
+        "zip_code": "11518"
+    },
+    {
+        "name": "Altos de Cancino",
+        "zip_code": "11519"
+    },
+    {
+        "name": "Pueblo Nuevo",
+        "zip_code": "11601"
+    },
+    {
+        "name": "Calero",
+        "zip_code": "11601"
+    },
+    {
+        "name": "Simonico",
+        "zip_code": "11602"
+    },
+    {
+        "name": "Villa Duarte",
+        "zip_code": "11602"
+    },
+    {
+        "name": "La Francia",
+        "zip_code": "11602"
+    },
+    {
+        "name": "San Souci",
+        "zip_code": "11603"
+    },
+    {
+        "name": "Los Molinos",
+        "zip_code": "11603"
+    },
+    {
+        "name": "Parque del Este I",
+        "zip_code": "11603"
+    },
+    {
+        "name": "Faro A Colon",
+        "zip_code": "11604"
+    },
+    {
+        "name": "Parque Mirador Este",
+        "zip_code": "11604"
+    },
+    {
+        "name": "Res. Parque del Este",
+        "zip_code": "11604"
+    },
+    {
+        "name": "Maquiteria",
+        "zip_code": "11604"
+    },
+    {
+        "name": "Los Tres Ojos",
+        "zip_code": "11605"
+    },
+    {
+        "name": "Villa Olimpica",
+        "zip_code": "11606"
+    },
+    {
+        "name": "Las Americas",
+        "zip_code": "11606"
+    },
+    {
+        "name": "Tropical del Este",
+        "zip_code": "11704"
+    },
+    {
+        "name": "Corales del Sur",
+        "zip_code": "11704"
+    },
+    {
+        "name": "Res. Teresa",
+        "zip_code": "11704"
+    },
+    {
+        "name": "Arismar",
+        "zip_code": "11705"
+    },
+    {
+        "name": "Marbella III",
+        "zip_code": "11705"
+    },
+    {
+        "name": "Los Frailes",
+        "zip_code": "11705"
+    },
+    {
+        "name": "Los Frailes II",
+        "zip_code": "11706"
+    },
+    {
+        "name": "San Bartolo",
+        "zip_code": "11706"
+    },
+    {
+        "name": "Reparto Caribe",
+        "zip_code": "11706"
+    },
+    {
+        "name": "Villa Eloisa",
+        "zip_code": "11707"
+    },
+    {
+        "name": "Villa Adela",
+        "zip_code": "11707"
+    },
+    {
+        "name": "Lotificacion del Este",
+        "zip_code": "11707"
+    },
+    {
+        "name": "Mirador Este",
+        "zip_code": "11708"
+    },
+    {
+        "name": "Los Molinos",
+        "zip_code": "11801"
+    },
+    {
+        "name": "Ana Virginia",
+        "zip_code": "11801"
+    },
+    {
+        "name": "Los Trinitarios II",
+        "zip_code": "11801"
+    },
+    {
+        "name": "Issfapol",
+        "zip_code": "11801"
+    },
+    {
+        "name": "Rep. Villa Carmen",
+        "zip_code": "11802"
+    },
+    {
+        "name": "Invivienda",
+        "zip_code": "11802"
+    },
+    {
+        "name": "Trabajadores",
+        "zip_code": "11802"
+    },
+    {
+        "name": "Ciudad de Los Trabajadores",
+        "zip_code": "11802"
+    },
+    {
+        "name": "Villa Carmen",
+        "zip_code": "11802"
+    },
+    {
+        "name": "Eugenio M. de Hostos",
+        "zip_code": "11802"
+    },
+    {
+        "name": "Barrio Brisa de Charles",
+        "zip_code": "11803"
+    },
+    {
+        "name": "Brisa del Eden",
+        "zip_code": "11803"
+    },
+    {
+        "name": "San Jose de Mendoza",
+        "zip_code": "11803"
+    },
+    {
+        "name": "Res. Clarimar",
+        "zip_code": "11803"
+    },
+    {
+        "name": "Nuevo Amanecer",
+        "zip_code": "11804"
+    },
+    {
+        "name": "Res. Fernandez Oriental",
+        "zip_code": "11804"
+    },
+    {
+        "name": "Res. Mirador del Este",
+        "zip_code": "11804"
+    },
+    {
+        "name": "Amarilis III",
+        "zip_code": "11804"
+    },
+    {
+        "name": "Buena Ventura II",
+        "zip_code": "11805"
+    },
+    {
+        "name": "Barrio John F. Kennedy",
+        "zip_code": "11805"
+    },
+    {
+        "name": "Los Restauradores",
+        "zip_code": "11805"
+    },
+    {
+        "name": "Villa Esfuerzo",
+        "zip_code": "11805"
+    },
+    {
+        "name": "Zona Franca Industrial de Herrera",
+        "zip_code": "11806"
+    },
+    {
+        "name": "Ciudad del Almirante I",
+        "zip_code": "11806"
+    },
+    {
+        "name": "Ciudad del Almirante II",
+        "zip_code": "11806"
+    },
+    {
+        "name": "Parque Ind. Nueva Isabela",
+        "zip_code": "11807"
+    },
+    {
+        "name": "Invi Cea",
+        "zip_code": "11807"
+    },
+    {
+        "name": "Los Pinos",
+        "zip_code": "11807"
+    },
+    {
+        "name": "Urb. Ana T. Balaguer",
+        "zip_code": "11807"
+    },
+    {
+        "name": "Hainamosa",
+        "zip_code": "11807"
+    },
+    {
+        "name": "Invimosa",
+        "zip_code": "11807"
+    },
+    {
+        "name": "Nuevo Renacer",
+        "zip_code": "11807"
+    },
+    {
+        "name": "Batey Piragua",
+        "zip_code": "11808"
+    },
+    {
+        "name": "Batey La Balsa",
+        "zip_code": "11808"
+    },
+    {
+        "name": "Sabaneta",
+        "zip_code": "11808"
+    },
+    {
+        "name": "Barrio Paraiso",
+        "zip_code": "11809"
+    },
+    {
+        "name": "Los Rosales",
+        "zip_code": "11809"
+    },
+    {
+        "name": "Cabirma del Este II",
+        "zip_code": "11809"
+    },
+    {
+        "name": "El Tamarindo",
+        "zip_code": "11809"
+    },
+    {
+        "name": "Residencial Don Oscar",
+        "zip_code": "11809"
+    },
+    {
+        "name": "Los Mina Sur",
+        "zip_code": "11901"
+    },
+    {
+        "name": "Pidoca",
+        "zip_code": "11901"
+    },
+    {
+        "name": "La Milagrosa",
+        "zip_code": "11901"
+    },
+    {
+        "name": "Felicidad",
+        "zip_code": "11902"
+    },
+    {
+        "name": "San Antonio",
+        "zip_code": "11902"
+    },
+    {
+        "name": "Vietnan",
+        "zip_code": "11902"
+    },
+    {
+        "name": "Katanga",
+        "zip_code": "11903"
+    },
+    {
+        "name": "Los Mina Norte",
+        "zip_code": "11903"
+    },
+    {
+        "name": "Rosario Sanchez",
+        "zip_code": "11904"
+    },
+    {
+        "name": "Cerros del Ozama",
+        "zip_code": "11904"
+    },
+    {
+        "name": "Puerto Rico",
+        "zip_code": "11904"
+    },
+    {
+        "name": "Francisco del",
+        "zip_code": "11904"
+    },
+    {
+        "name": "Las Frutas",
+        "zip_code": "11904"
+    },
+    {
+        "name": "Los 3 Brazos",
+        "zip_code": "11905"
+    },
+    {
+        "name": "Mil Flores",
+        "zip_code": "11905"
+    },
+    {
+        "name": "Las Enfermeras",
+        "zip_code": "11906"
+    },
+    {
+        "name": "Los Mina Viejo",
+        "zip_code": "11906"
+    }
+]

@@ -1,0 +1,4622 @@
+[
+    {
+        "name": "Beograd",
+        "zip_code": "11000"
+    },
+    {
+        "name": "Brograd",
+        "zip_code": "11031"
+    },
+    {
+        "name": "Zemun",
+        "zip_code": "11080"
+    },
+    {
+        "name": "Kaluđerica",
+        "zip_code": "11130"
+    },
+    {
+        "name": "Rušanj",
+        "zip_code": "11194"
+    },
+    {
+        "name": "Borča",
+        "zip_code": "11211"
+    },
+    {
+        "name": "Ovča",
+        "zip_code": "11212"
+    },
+    {
+        "name": "Padinska Skela",
+        "zip_code": "11213"
+    },
+    {
+        "name": "Slanci",
+        "zip_code": "11215"
+    },
+    {
+        "name": "Beli Potok",
+        "zip_code": "11223"
+    },
+    {
+        "name": "Vrčin",
+        "zip_code": "11224"
+    },
+    {
+        "name": "Zuce",
+        "zip_code": "11225"
+    },
+    {
+        "name": "Pinosava",
+        "zip_code": "11226"
+    },
+    {
+        "name": "Ripanj",
+        "zip_code": "11232"
+    },
+    {
+        "name": "Ralja",
+        "zip_code": "11233"
+    },
+    {
+        "name": "Mali Požarevac",
+        "zip_code": "11235"
+    },
+    {
+        "name": "Ostružnica",
+        "zip_code": "11251"
+    },
+    {
+        "name": "Sremčica",
+        "zip_code": "11253"
+    },
+    {
+        "name": "Umka",
+        "zip_code": "11260"
+    },
+    {
+        "name": "Mala Moštanica",
+        "zip_code": "11261"
+    },
+    {
+        "name": "Velika Moštanica",
+        "zip_code": "11262"
+    },
+    {
+        "name": "Surčin",
+        "zip_code": "11271"
+    },
+    {
+        "name": "Dobanovci",
+        "zip_code": "11272"
+    },
+    {
+        "name": "Boljevci",
+        "zip_code": "11275"
+    },
+    {
+        "name": "Jakovo",
+        "zip_code": "11276"
+    },
+    {
+        "name": "Ugrinovci",
+        "zip_code": "11277"
+    },
+    {
+        "name": "Bečmen",
+        "zip_code": "11279"
+    },
+    {
+        "name": "Progar",
+        "zip_code": "11280"
+    },
+    {
+        "name": "Altina",
+        "zip_code": "11283"
+    },
+    {
+        "name": "Smederevo",
+        "zip_code": "11300"
+    },
+    {
+        "name": "Grocka",
+        "zip_code": "11306"
+    },
+    {
+        "name": "Boleč",
+        "zip_code": "11307"
+    },
+    {
+        "name": "Begaljica",
+        "zip_code": "11308"
+    },
+    {
+        "name": "Leštane",
+        "zip_code": "11309"
+    },
+    {
+        "name": "Lipe",
+        "zip_code": "11310"
+    },
+    {
+        "name": "Radinac",
+        "zip_code": "11311"
+    },
+    {
+        "name": "Mihajlovac",
+        "zip_code": "11312"
+    },
+    {
+        "name": "Mala Krsna",
+        "zip_code": "11313"
+    },
+    {
+        "name": "Osipaonica",
+        "zip_code": "11314"
+    },
+    {
+        "name": "Saraorci",
+        "zip_code": "11315"
+    },
+    {
+        "name": "Golobok",
+        "zip_code": "11316"
+    },
+    {
+        "name": "Lozovik",
+        "zip_code": "11317"
+    },
+    {
+        "name": "Miloševac",
+        "zip_code": "11318"
+    },
+    {
+        "name": "Krnjevo",
+        "zip_code": "11319"
+    },
+    {
+        "name": "Velika Plana",
+        "zip_code": "11320"
+    },
+    {
+        "name": "Lugavčina",
+        "zip_code": "11321"
+    },
+    {
+        "name": "Skobalj",
+        "zip_code": "11322"
+    },
+    {
+        "name": "Veliko Orašje",
+        "zip_code": "11323"
+    },
+    {
+        "name": "Staro Selo",
+        "zip_code": "11324"
+    },
+    {
+        "name": "Markovac",
+        "zip_code": "11325"
+    },
+    {
+        "name": "Vodanj",
+        "zip_code": "11328"
+    },
+    {
+        "name": "Vranovo",
+        "zip_code": "11329"
+    },
+    {
+        "name": "Vinča",
+        "zip_code": "11351"
+    },
+    {
+        "name": "Mladenovac",
+        "zip_code": "11400"
+    },
+    {
+        "name": "Međulužje",
+        "zip_code": "11405"
+    },
+    {
+        "name": "Vlaška",
+        "zip_code": "11406"
+    },
+    {
+        "name": "Selevac",
+        "zip_code": "11407"
+    },
+    {
+        "name": "Velika Krsna",
+        "zip_code": "11408"
+    },
+    {
+        "name": "Kovačevac",
+        "zip_code": "11409"
+    },
+    {
+        "name": "Ratari",
+        "zip_code": "11411"
+    },
+    {
+        "name": "Jagnjilo",
+        "zip_code": "11412"
+    },
+    {
+        "name": "Pružatovac",
+        "zip_code": "11413"
+    },
+    {
+        "name": "Velika Ivanča",
+        "zip_code": "11414"
+    },
+    {
+        "name": "Koraćica",
+        "zip_code": "11415"
+    },
+    {
+        "name": "Smederevska Palanka",
+        "zip_code": "11420"
+    },
+    {
+        "name": "Azanja",
+        "zip_code": "11423"
+    },
+    {
+        "name": "Kusadak",
+        "zip_code": "11425"
+    },
+    {
+        "name": "Meljak",
+        "zip_code": "11426"
+    },
+    {
+        "name": "Vranić",
+        "zip_code": "11427"
+    },
+    {
+        "name": "Umčari",
+        "zip_code": "11430"
+    },
+    {
+        "name": "Kolari",
+        "zip_code": "11431"
+    },
+    {
+        "name": "Drugovac",
+        "zip_code": "11432"
+    },
+    {
+        "name": "Šepšin",
+        "zip_code": "11433"
+    },
+    {
+        "name": "Sopot",
+        "zip_code": "11450"
+    },
+    {
+        "name": "Rogača (Sopot)",
+        "zip_code": "11453"
+    },
+    {
+        "name": "Sibnica",
+        "zip_code": "11454"
+    },
+    {
+        "name": "Barajevo",
+        "zip_code": "11460"
+    },
+    {
+        "name": "Beljina",
+        "zip_code": "11461"
+    },
+    {
+        "name": "Veliki Borak",
+        "zip_code": "11462"
+    },
+    {
+        "name": "Banatski Dvor",
+        "zip_code": "11467"
+    },
+    {
+        "name": "Obrenovac",
+        "zip_code": "11500"
+    },
+    {
+        "name": "Barič",
+        "zip_code": "11504"
+    },
+    {
+        "name": "Zabrežje",
+        "zip_code": "11505"
+    },
+    {
+        "name": "Draževac",
+        "zip_code": "11506"
+    },
+    {
+        "name": "Stubline",
+        "zip_code": "11507"
+    },
+    {
+        "name": "Grabovac",
+        "zip_code": "11508"
+    },
+    {
+        "name": "Skela",
+        "zip_code": "11509"
+    },
+    {
+        "name": "Lazarevac",
+        "zip_code": "11550"
+    },
+    {
+        "name": "Vreoci",
+        "zip_code": "11560"
+    },
+    {
+        "name": "Dudovica",
+        "zip_code": "11561"
+    },
+    {
+        "name": "Junkovac",
+        "zip_code": "11562"
+    },
+    {
+        "name": "Veliki Crljeni",
+        "zip_code": "11563"
+    },
+    {
+        "name": "Stepojevac",
+        "zip_code": "11564"
+    },
+    {
+        "name": "Baroševac",
+        "zip_code": "11565"
+    },
+    {
+        "name": "Rudovci",
+        "zip_code": "11566"
+    },
+    {
+        "name": "Mirosaljci",
+        "zip_code": "11567"
+    },
+    {
+        "name": "Požarevac",
+        "zip_code": "12000"
+    },
+    {
+        "name": "Bradarac",
+        "zip_code": "12206"
+    },
+    {
+        "name": "Dubravica",
+        "zip_code": "12207"
+    },
+    {
+        "name": "Kostolac",
+        "zip_code": "12208"
+    },
+    {
+        "name": "Kličevac",
+        "zip_code": "12209"
+    },
+    {
+        "name": "Veliko Gradište",
+        "zip_code": "12220"
+    },
+    {
+        "name": "Majilovac",
+        "zip_code": "12221"
+    },
+    {
+        "name": "Braničevo",
+        "zip_code": "12222"
+    },
+    {
+        "name": "Golubac",
+        "zip_code": "12223"
+    },
+    {
+        "name": "Dobra",
+        "zip_code": "12224"
+    },
+    {
+        "name": "Topolovnik",
+        "zip_code": "12226"
+    },
+    {
+        "name": "Bare",
+        "zip_code": "12227"
+    },
+    {
+        "name": "Vinci",
+        "zip_code": "12229"
+    },
+    {
+        "name": "Brnjica",
+        "zip_code": "12230"
+    },
+    {
+        "name": "Kučevo",
+        "zip_code": "12240"
+    },
+    {
+        "name": "Neresnica",
+        "zip_code": "12242"
+    },
+    {
+        "name": "Srednjevo",
+        "zip_code": "12253"
+    },
+    {
+        "name": "Rabrovo",
+        "zip_code": "12254"
+    },
+    {
+        "name": "Duboka",
+        "zip_code": "12255"
+    },
+    {
+        "name": "Voluja",
+        "zip_code": "12256"
+    },
+    {
+        "name": "Turija (Kučevo)",
+        "zip_code": "12257"
+    },
+    {
+        "name": "Klenje",
+        "zip_code": "12258"
+    },
+    {
+        "name": "Petrovac na Mlavi",
+        "zip_code": "12300"
+    },
+    {
+        "name": "Ranovac",
+        "zip_code": "12304"
+    },
+    {
+        "name": "Kladurovo",
+        "zip_code": "12304"
+    },
+    {
+        "name": "Melnica",
+        "zip_code": "12305"
+    },
+    {
+        "name": "Veliko Laole",
+        "zip_code": "12306"
+    },
+    {
+        "name": "Burovac",
+        "zip_code": "12307"
+    },
+    {
+        "name": "Oreškovica",
+        "zip_code": "12308"
+    },
+    {
+        "name": "Vezičevo",
+        "zip_code": "12309"
+    },
+    {
+        "name": "Šetonje",
+        "zip_code": "12309"
+    },
+    {
+        "name": "Malo Crniće",
+        "zip_code": "12311"
+    },
+    {
+        "name": "Smoljinac",
+        "zip_code": "12312"
+    },
+    {
+        "name": "Boževac",
+        "zip_code": "12313"
+    },
+    {
+        "name": "Rašanac",
+        "zip_code": "12315"
+    },
+    {
+        "name": "Krepoljin",
+        "zip_code": "12316"
+    },
+    {
+        "name": "Osanica",
+        "zip_code": "12317"
+    },
+    {
+        "name": "Vukovac",
+        "zip_code": "12318"
+    },
+    {
+        "name": "Žagubica",
+        "zip_code": "12320"
+    },
+    {
+        "name": "Laznica",
+        "zip_code": "12321"
+    },
+    {
+        "name": "Suvi Do",
+        "zip_code": "12322"
+    },
+    {
+        "name": "Aleksandrovac",
+        "zip_code": "12370"
+    },
+    {
+        "name": "Poljana",
+        "zip_code": "12372"
+    },
+    {
+        "name": "Simićevo",
+        "zip_code": "12373"
+    },
+    {
+        "name": "Žabari",
+        "zip_code": "12374"
+    },
+    {
+        "name": "Porodin",
+        "zip_code": "12375"
+    },
+    {
+        "name": "Lipljan",
+        "zip_code": "14000"
+    },
+    {
+        "name": "Valjevo",
+        "zip_code": "14000"
+    },
+    {
+        "name": "Brankovina",
+        "zip_code": "14201"
+    },
+    {
+        "name": "Rajković",
+        "zip_code": "14202"
+    },
+    {
+        "name": "Dračić",
+        "zip_code": "14203"
+    },
+    {
+        "name": "Divčibare",
+        "zip_code": "14204"
+    },
+    {
+        "name": "Lelić",
+        "zip_code": "14205"
+    },
+    {
+        "name": "Poćuta",
+        "zip_code": "14206"
+    },
+    {
+        "name": "Pecka",
+        "zip_code": "14207"
+    },
+    {
+        "name": "Ub",
+        "zip_code": "14210"
+    },
+    {
+        "name": "Radljevo",
+        "zip_code": "14211"
+    },
+    {
+        "name": "Brgule",
+        "zip_code": "14212"
+    },
+    {
+        "name": "Pambukovica",
+        "zip_code": "14213"
+    },
+    {
+        "name": "Banjani",
+        "zip_code": "14214"
+    },
+    {
+        "name": "Popučke",
+        "zip_code": "14221"
+    },
+    {
+        "name": "Divci",
+        "zip_code": "14222"
+    },
+    {
+        "name": "Slovac",
+        "zip_code": "14223"
+    },
+    {
+        "name": "Lajkovac",
+        "zip_code": "14224"
+    },
+    {
+        "name": "Bogovađa",
+        "zip_code": "14225"
+    },
+    {
+        "name": "Jabučje",
+        "zip_code": "14226"
+    },
+    {
+        "name": "Ljig",
+        "zip_code": "14240"
+    },
+    {
+        "name": "Mionica",
+        "zip_code": "14242"
+    },
+    {
+        "name": "Gornja Toplica",
+        "zip_code": "14243"
+    },
+    {
+        "name": "Brežđe",
+        "zip_code": "14244"
+    },
+    {
+        "name": "Slavkovica",
+        "zip_code": "14245"
+    },
+    {
+        "name": "Belanovica",
+        "zip_code": "14246"
+    },
+    {
+        "name": "Pričević",
+        "zip_code": "14251"
+    },
+    {
+        "name": "Kamenica",
+        "zip_code": "14252"
+    },
+    {
+        "name": "Osečina",
+        "zip_code": "14253"
+    },
+    {
+        "name": "Komirić",
+        "zip_code": "14254"
+    },
+    {
+        "name": "Stave",
+        "zip_code": "14255"
+    },
+    {
+        "name": "Šabac",
+        "zip_code": "15000"
+    },
+    {
+        "name": "Mačvanski Pričinović",
+        "zip_code": "15211"
+    },
+    {
+        "name": "Drenovac",
+        "zip_code": "15212"
+    },
+    {
+        "name": "Orid",
+        "zip_code": "15213"
+    },
+    {
+        "name": "Debrc",
+        "zip_code": "15214"
+    },
+    {
+        "name": "Provo",
+        "zip_code": "15215"
+    },
+    {
+        "name": "Koceljeva",
+        "zip_code": "15220"
+    },
+    {
+        "name": "Svileuva",
+        "zip_code": "15221"
+    },
+    {
+        "name": "Kamenica",
+        "zip_code": "15222"
+    },
+    {
+        "name": "Cerovac",
+        "zip_code": "15224"
+    },
+    {
+        "name": "Vladimirci",
+        "zip_code": "15225"
+    },
+    {
+        "name": "Draginje",
+        "zip_code": "15226"
+    },
+    {
+        "name": "Donje Crniljevo",
+        "zip_code": "15227"
+    },
+    {
+        "name": "Varna",
+        "zip_code": "15232"
+    },
+    {
+        "name": "Metlić",
+        "zip_code": "15233"
+    },
+    {
+        "name": "Tekeriš",
+        "zip_code": "15234"
+    },
+    {
+        "name": "Dobrić",
+        "zip_code": "15235"
+    },
+    {
+        "name": "Loznica",
+        "zip_code": "15300"
+    },
+    {
+        "name": "Korenita",
+        "zip_code": "15302"
+    },
+    {
+        "name": "Tršić",
+        "zip_code": "15303"
+    },
+    {
+        "name": "Petlovača",
+        "zip_code": "15304"
+    },
+    {
+        "name": "Lipolist",
+        "zip_code": "15305"
+    },
+    {
+        "name": "Prnjavor",
+        "zip_code": "15306"
+    },
+    {
+        "name": "Lešnica",
+        "zip_code": "15307"
+    },
+    {
+        "name": "Jadranska Lešnica",
+        "zip_code": "15308"
+    },
+    {
+        "name": "Brezjak",
+        "zip_code": "15309"
+    },
+    {
+        "name": "Ribari",
+        "zip_code": "15310"
+    },
+    {
+        "name": "Draginac",
+        "zip_code": "15311"
+    },
+    {
+        "name": "Zavlaka",
+        "zip_code": "15312"
+    },
+    {
+        "name": "Bela Crkva",
+        "zip_code": "15313"
+    },
+    {
+        "name": "Krupanj",
+        "zip_code": "15314"
+    },
+    {
+        "name": "Zajača",
+        "zip_code": "15315"
+    },
+    {
+        "name": "Banja Koviljača",
+        "zip_code": "15316"
+    },
+    {
+        "name": "Donja Borina",
+        "zip_code": "15317"
+    },
+    {
+        "name": "Mali Zvornik",
+        "zip_code": "15318"
+    },
+    {
+        "name": "Uzovnica",
+        "zip_code": "15319"
+    },
+    {
+        "name": "Ljubovija",
+        "zip_code": "15320"
+    },
+    {
+        "name": "Radalj",
+        "zip_code": "15321"
+    },
+    {
+        "name": "Velika Reka",
+        "zip_code": "15322"
+    },
+    {
+        "name": "Donja Orovica",
+        "zip_code": "15323"
+    },
+    {
+        "name": "Drlače",
+        "zip_code": "15324"
+    },
+    {
+        "name": "Lipnički Šor",
+        "zip_code": "15341"
+    },
+    {
+        "name": "Rainovača",
+        "zip_code": "15342"
+    },
+    {
+        "name": "Bogatić",
+        "zip_code": "15350"
+    },
+    {
+        "name": "Zminjak",
+        "zip_code": "15352"
+    },
+    {
+        "name": "Majur",
+        "zip_code": "15353"
+    },
+    {
+        "name": "Štitar",
+        "zip_code": "15354"
+    },
+    {
+        "name": "Crna Bara",
+        "zip_code": "15355"
+    },
+    {
+        "name": "Glušci",
+        "zip_code": "15356"
+    },
+    {
+        "name": "Klenje",
+        "zip_code": "15357"
+    },
+    {
+        "name": "Badovinci",
+        "zip_code": "15358"
+    },
+    {
+        "name": "Dublje",
+        "zip_code": "15359"
+    },
+    {
+        "name": "Banovo Polje",
+        "zip_code": "15362"
+    },
+    {
+        "name": "Leskovac",
+        "zip_code": "16000"
+    },
+    {
+        "name": "Manojlovce",
+        "zip_code": "16201"
+    },
+    {
+        "name": "Vučje",
+        "zip_code": "16203"
+    },
+    {
+        "name": "Miroševce",
+        "zip_code": "16204"
+    },
+    {
+        "name": "Bojnik",
+        "zip_code": "16205"
+    },
+    {
+        "name": "Kosančić",
+        "zip_code": "16206"
+    },
+    {
+        "name": "Vlasotince",
+        "zip_code": "16210"
+    },
+    {
+        "name": "Guberevac (Leskovac)",
+        "zip_code": "16211"
+    },
+    {
+        "name": "Svođe",
+        "zip_code": "16212"
+    },
+    {
+        "name": "Sastav Reka",
+        "zip_code": "16213"
+    },
+    {
+        "name": "Crna Trava",
+        "zip_code": "16215"
+    },
+    {
+        "name": "Grdelica",
+        "zip_code": "16220"
+    },
+    {
+        "name": "Velika Grabovnica",
+        "zip_code": "16221"
+    },
+    {
+        "name": "Predejane",
+        "zip_code": "16222"
+    },
+    {
+        "name": "Ruplje",
+        "zip_code": "16223"
+    },
+    {
+        "name": "Lebane",
+        "zip_code": "16230"
+    },
+    {
+        "name": "Turekovac",
+        "zip_code": "16231"
+    },
+    {
+        "name": "Bošnjace",
+        "zip_code": "16232"
+    },
+    {
+        "name": "Orane",
+        "zip_code": "16233"
+    },
+    {
+        "name": "Klajić",
+        "zip_code": "16236"
+    },
+    {
+        "name": "Medveđa",
+        "zip_code": "16240"
+    },
+    {
+        "name": "Gornji Brestovac",
+        "zip_code": "16244"
+    },
+    {
+        "name": "Sijarinska Banja",
+        "zip_code": "16246"
+    },
+    {
+        "name": "Tulare",
+        "zip_code": "16247"
+    },
+    {
+        "name": "Lece",
+        "zip_code": "16248"
+    },
+    {
+        "name": "Pečanjevce",
+        "zip_code": "16251"
+    },
+    {
+        "name": "Razgojna",
+        "zip_code": "16252"
+    },
+    {
+        "name": "Brestovac",
+        "zip_code": "16253"
+    },
+    {
+        "name": "Vranje",
+        "zip_code": "17501"
+    },
+    {
+        "name": "Vlase",
+        "zip_code": "17507"
+    },
+    {
+        "name": "Sveti Ilija",
+        "zip_code": "17508"
+    },
+    {
+        "name": "Vladičin Han",
+        "zip_code": "17510"
+    },
+    {
+        "name": "Priboj Vranjski",
+        "zip_code": "17511"
+    },
+    {
+        "name": "Stubal",
+        "zip_code": "17512"
+    },
+    {
+        "name": "Lepenica",
+        "zip_code": "17513"
+    },
+    {
+        "name": "Džep",
+        "zip_code": "17514"
+    },
+    {
+        "name": "Bujanovac",
+        "zip_code": "17520"
+    },
+    {
+        "name": "Ristovac",
+        "zip_code": "17521"
+    },
+    {
+        "name": "Biljača",
+        "zip_code": "17522"
+    },
+    {
+        "name": "Preševo",
+        "zip_code": "17523"
+    },
+    {
+        "name": "Klenike",
+        "zip_code": "17524"
+    },
+    {
+        "name": "Trgovište",
+        "zip_code": "17525"
+    },
+    {
+        "name": "Donji Stajevac",
+        "zip_code": "17526"
+    },
+    {
+        "name": "Veliki Trnovac",
+        "zip_code": "17528"
+    },
+    {
+        "name": "Muhovac",
+        "zip_code": "17529"
+    },
+    {
+        "name": "Surdulica",
+        "zip_code": "17530"
+    },
+    {
+        "name": "Suvojnica",
+        "zip_code": "17530"
+    },
+    {
+        "name": "Jelašnica",
+        "zip_code": "17531"
+    },
+    {
+        "name": "Vlasina Okruglica",
+        "zip_code": "17532"
+    },
+    {
+        "name": "Vlasina Rid",
+        "zip_code": "17533"
+    },
+    {
+        "name": "Vlasina Stojkovićevo",
+        "zip_code": "17534"
+    },
+    {
+        "name": "Klisura",
+        "zip_code": "17535"
+    },
+    {
+        "name": "Božica",
+        "zip_code": "17537"
+    },
+    {
+        "name": "Gornja Lisina",
+        "zip_code": "17538"
+    },
+    {
+        "name": "Bosilegrad",
+        "zip_code": "17540"
+    },
+    {
+        "name": "Vranjska Banja",
+        "zip_code": "17541"
+    },
+    {
+        "name": "Kriva Feja",
+        "zip_code": "17543"
+    },
+    {
+        "name": "Donja Ljubata",
+        "zip_code": "17544"
+    },
+    {
+        "name": "Korbevac",
+        "zip_code": "17545"
+    },
+    {
+        "name": "Bistar",
+        "zip_code": "17546"
+    },
+    {
+        "name": "Donje Tlamino",
+        "zip_code": "17547"
+    },
+    {
+        "name": "Radovnica",
+        "zip_code": "17561"
+    },
+    {
+        "name": "Niš",
+        "zip_code": "18000"
+    },
+    {
+        "name": "Lalinac",
+        "zip_code": "18201"
+    },
+    {
+        "name": "Gornja Toponica",
+        "zip_code": "18202"
+    },
+    {
+        "name": "Sečanica",
+        "zip_code": "18203"
+    },
+    {
+        "name": "Gornji Matejevac",
+        "zip_code": "18204"
+    },
+    {
+        "name": "Niška Banja",
+        "zip_code": "18205"
+    },
+    {
+        "name": "Jelašnica",
+        "zip_code": "18206"
+    },
+    {
+        "name": "Malča",
+        "zip_code": "18207"
+    },
+    {
+        "name": "Guševac",
+        "zip_code": "18208"
+    },
+    {
+        "name": "Medoševac",
+        "zip_code": "18209"
+    },
+    {
+        "name": "Žitkovac",
+        "zip_code": "18210"
+    },
+    {
+        "name": "Trupale",
+        "zip_code": "18211"
+    },
+    {
+        "name": "Tešica",
+        "zip_code": "18212"
+    },
+    {
+        "name": "Trnjane",
+        "zip_code": "18213"
+    },
+    {
+        "name": "Kulina",
+        "zip_code": "18214"
+    },
+    {
+        "name": "Veliko Bonjince",
+        "zip_code": "18215"
+    },
+    {
+        "name": "Korman",
+        "zip_code": "18216"
+    },
+    {
+        "name": "Ljuberađa",
+        "zip_code": "18217"
+    },
+    {
+        "name": "Grejač",
+        "zip_code": "18219"
+    },
+    {
+        "name": "Aleksinac",
+        "zip_code": "18220"
+    },
+    {
+        "name": "Vrćenovica",
+        "zip_code": "18221"
+    },
+    {
+        "name": "Veliki Drenovac",
+        "zip_code": "18222"
+    },
+    {
+        "name": "Draževac",
+        "zip_code": "18223"
+    },
+    {
+        "name": "Rutevac",
+        "zip_code": "18224"
+    },
+    {
+        "name": "Katun Božički",
+        "zip_code": "18225"
+    },
+    {
+        "name": "Aleksinački Rudnik",
+        "zip_code": "18226"
+    },
+    {
+        "name": "Subotinac",
+        "zip_code": "18227"
+    },
+    {
+        "name": "Lužane",
+        "zip_code": "18228"
+    },
+    {
+        "name": "Mozgovo",
+        "zip_code": "18229"
+    },
+    {
+        "name": "Soko Banja",
+        "zip_code": "18230"
+    },
+    {
+        "name": "Čitluk",
+        "zip_code": "18232"
+    },
+    {
+        "name": "Jošanica",
+        "zip_code": "18234"
+    },
+    {
+        "name": "Šarbanovac",
+        "zip_code": "18235"
+    },
+    {
+        "name": "Vrmdža",
+        "zip_code": "18236"
+    },
+    {
+        "name": "Dugo Polje",
+        "zip_code": "18237"
+    },
+    {
+        "name": "Gadžin Han",
+        "zip_code": "18240"
+    },
+    {
+        "name": "Gornji Barbeš",
+        "zip_code": "18241"
+    },
+    {
+        "name": "Donji Dušnik",
+        "zip_code": "18242"
+    },
+    {
+        "name": "Zaplanjska Toponica",
+        "zip_code": "18244"
+    },
+    {
+        "name": "Lički Hanovi",
+        "zip_code": "18245"
+    },
+    {
+        "name": "Ravna Dubrava",
+        "zip_code": "18246"
+    },
+    {
+        "name": "Novo Selo",
+        "zip_code": "18250"
+    },
+    {
+        "name": "Mramor",
+        "zip_code": "18251"
+    },
+    {
+        "name": "Merošina",
+        "zip_code": "18252"
+    },
+    {
+        "name": "Jugbogdanovac",
+        "zip_code": "18253"
+    },
+    {
+        "name": "Donje Međurovo",
+        "zip_code": "18254"
+    },
+    {
+        "name": "Pukovac",
+        "zip_code": "18255"
+    },
+    {
+        "name": "Balajinac",
+        "zip_code": "18257"
+    },
+    {
+        "name": "Jovanovac",
+        "zip_code": "18258"
+    },
+    {
+        "name": "Popovac",
+        "zip_code": "18260"
+    },
+    {
+        "name": "Ćurlina",
+        "zip_code": "18262"
+    },
+    {
+        "name": "Pirot",
+        "zip_code": "18300"
+    },
+    {
+        "name": "Crnoklište",
+        "zip_code": "18304"
+    },
+    {
+        "name": "Visoka Ržana",
+        "zip_code": "18306"
+    },
+    {
+        "name": "Krupac",
+        "zip_code": "18307"
+    },
+    {
+        "name": "Gnjilan",
+        "zip_code": "18309"
+    },
+    {
+        "name": "Bela Palanka",
+        "zip_code": "18310"
+    },
+    {
+        "name": "Sićevo",
+        "zip_code": "18311"
+    },
+    {
+        "name": "Ostrovica",
+        "zip_code": "18312"
+    },
+    {
+        "name": "Crvena Reka",
+        "zip_code": "18313"
+    },
+    {
+        "name": "Dolac",
+        "zip_code": "18314"
+    },
+    {
+        "name": "Babin Kal",
+        "zip_code": "18315"
+    },
+    {
+        "name": "Dimitrovgrad",
+        "zip_code": "18320"
+    },
+    {
+        "name": "Gradina",
+        "zip_code": "18321"
+    },
+    {
+        "name": "Sukovo",
+        "zip_code": "18322"
+    },
+    {
+        "name": "Smilovci",
+        "zip_code": "18323"
+    },
+    {
+        "name": "Kamenica",
+        "zip_code": "18324"
+    },
+    {
+        "name": "Poganovo",
+        "zip_code": "18326"
+    },
+    {
+        "name": "Babušnica",
+        "zip_code": "18330"
+    },
+    {
+        "name": "Strelac",
+        "zip_code": "18332"
+    },
+    {
+        "name": "Zvonce",
+        "zip_code": "18333"
+    },
+    {
+        "name": "Temska",
+        "zip_code": "18355"
+    },
+    {
+        "name": "Svrljig",
+        "zip_code": "18360"
+    },
+    {
+        "name": "Prekonoga",
+        "zip_code": "18365"
+    },
+    {
+        "name": "Niševac",
+        "zip_code": "18366"
+    },
+    {
+        "name": "Burdimo",
+        "zip_code": "18368"
+    },
+    {
+        "name": "Prokuplje",
+        "zip_code": "18400"
+    },
+    {
+        "name": "Velika Plana",
+        "zip_code": "18403"
+    },
+    {
+        "name": "Donja Rečica",
+        "zip_code": "18404"
+    },
+    {
+        "name": "Džigolj",
+        "zip_code": "18405"
+    },
+    {
+        "name": "Dubovo",
+        "zip_code": "18406"
+    },
+    {
+        "name": "Žitni Potok",
+        "zip_code": "18407"
+    },
+    {
+        "name": "Dobri Do",
+        "zip_code": "18408"
+    },
+    {
+        "name": "Kruševica",
+        "zip_code": "18409"
+    },
+    {
+        "name": "Doljevac",
+        "zip_code": "18410"
+    },
+    {
+        "name": "Belotinac",
+        "zip_code": "18411"
+    },
+    {
+        "name": "Žitorađa",
+        "zip_code": "18412"
+    },
+    {
+        "name": "Pejkovac",
+        "zip_code": "18413"
+    },
+    {
+        "name": "Donje Crnatovo",
+        "zip_code": "18414"
+    },
+    {
+        "name": "Malošište",
+        "zip_code": "18415"
+    },
+    {
+        "name": "Čečina",
+        "zip_code": "18417"
+    },
+    {
+        "name": "Blace",
+        "zip_code": "18420"
+    },
+    {
+        "name": "Donja Trnava",
+        "zip_code": "18421"
+    },
+    {
+        "name": "Mala Plana",
+        "zip_code": "18423"
+    },
+    {
+        "name": "Beloljin",
+        "zip_code": "18424"
+    },
+    {
+        "name": "Gornja Draguša",
+        "zip_code": "18425"
+    },
+    {
+        "name": "Barbatovac",
+        "zip_code": "18426"
+    },
+    {
+        "name": "Kuršumlija",
+        "zip_code": "18430"
+    },
+    {
+        "name": "Barlovo",
+        "zip_code": "18432"
+    },
+    {
+        "name": "Prolom Banja",
+        "zip_code": "18433"
+    },
+    {
+        "name": "Kuršumlijska Banja",
+        "zip_code": "18435"
+    },
+    {
+        "name": "Merćez",
+        "zip_code": "18436"
+    },
+    {
+        "name": "Lukovska Banja",
+        "zip_code": "18437"
+    },
+    {
+        "name": "Žuč",
+        "zip_code": "18438"
+    },
+    {
+        "name": "Rača",
+        "zip_code": "18440"
+    },
+    {
+        "name": "Merdare",
+        "zip_code": "18445"
+    },
+    {
+        "name": "Zaječar",
+        "zip_code": "19000"
+    },
+    {
+        "name": "Metovnica",
+        "zip_code": "19204"
+    },
+    {
+        "name": "Gradskovo",
+        "zip_code": "19205"
+    },
+    {
+        "name": "Veliki Izvor",
+        "zip_code": "19206"
+    },
+    {
+        "name": "Lubnica",
+        "zip_code": "19208"
+    },
+    {
+        "name": "Mali Jasenovac",
+        "zip_code": "19209"
+    },
+    {
+        "name": "Bor",
+        "zip_code": "19210"
+    },
+    {
+        "name": "Donja Bela Reka",
+        "zip_code": "19213"
+    },
+    {
+        "name": "Rgotina",
+        "zip_code": "19214"
+    },
+    {
+        "name": "Zlot",
+        "zip_code": "19215"
+    },
+    {
+        "name": "Brestovačka Banja",
+        "zip_code": "19216"
+    },
+    {
+        "name": "Krivelj",
+        "zip_code": "19219"
+    },
+    {
+        "name": "Donji Milanovac",
+        "zip_code": "19220"
+    },
+    {
+        "name": "Slatina",
+        "zip_code": "19221"
+    },
+    {
+        "name": "Klokočevac",
+        "zip_code": "19222"
+    },
+    {
+        "name": "Koprivnica",
+        "zip_code": "19223"
+    },
+    {
+        "name": "Salaš",
+        "zip_code": "19224"
+    },
+    {
+        "name": "Sikole",
+        "zip_code": "19225"
+    },
+    {
+        "name": "Oštrelj",
+        "zip_code": "19226"
+    },
+    {
+        "name": "Zvezdan",
+        "zip_code": "19227"
+    },
+    {
+        "name": "Gamzigradska Banja",
+        "zip_code": "19228"
+    },
+    {
+        "name": "Borski Brestovac",
+        "zip_code": "19229"
+    },
+    {
+        "name": "Podgorac",
+        "zip_code": "19233"
+    },
+    {
+        "name": "Luka",
+        "zip_code": "19234"
+    },
+    {
+        "name": "Velika Jasikova",
+        "zip_code": "19235"
+    },
+    {
+        "name": "Majdanpek",
+        "zip_code": "19250"
+    },
+    {
+        "name": "Rudna Glava",
+        "zip_code": "19257"
+    },
+    {
+        "name": "Vlaole",
+        "zip_code": "19258"
+    },
+    {
+        "name": "Negotin",
+        "zip_code": "19300"
+    },
+    {
+        "name": "Štubik",
+        "zip_code": "19303"
+    },
+    {
+        "name": "Jabukovac",
+        "zip_code": "19304"
+    },
+    {
+        "name": "Urovica",
+        "zip_code": "19305"
+    },
+    {
+        "name": "Trnjane",
+        "zip_code": "19306"
+    },
+    {
+        "name": "Plavna",
+        "zip_code": "19307"
+    },
+    {
+        "name": "Negotin",
+        "zip_code": "19310"
+    },
+    {
+        "name": "Nikoličevo",
+        "zip_code": "19311"
+    },
+    {
+        "name": "Vražogrnac",
+        "zip_code": "19312"
+    },
+    {
+        "name": "Brusnik",
+        "zip_code": "19313"
+    },
+    {
+        "name": "Rajac",
+        "zip_code": "19314"
+    },
+    {
+        "name": "Braćevac",
+        "zip_code": "19315"
+    },
+    {
+        "name": "Kobišnica",
+        "zip_code": "19316"
+    },
+    {
+        "name": "Mokranja",
+        "zip_code": "19317"
+    },
+    {
+        "name": "Rogljevo",
+        "zip_code": "19318"
+    },
+    {
+        "name": "Kladovo",
+        "zip_code": "19320"
+    },
+    {
+        "name": "Podvrška",
+        "zip_code": "19321"
+    },
+    {
+        "name": "Mihajlovac",
+        "zip_code": "19322"
+    },
+    {
+        "name": "Brza Palanka",
+        "zip_code": "19323"
+    },
+    {
+        "name": "Tekija",
+        "zip_code": "19325"
+    },
+    {
+        "name": "Sip",
+        "zip_code": "19326"
+    },
+    {
+        "name": "Grabovica",
+        "zip_code": "19327"
+    },
+    {
+        "name": "Velesnica",
+        "zip_code": "19328"
+    },
+    {
+        "name": "Korbovo",
+        "zip_code": "19329"
+    },
+    {
+        "name": "Prahovo",
+        "zip_code": "19330"
+    },
+    {
+        "name": "Radujevac",
+        "zip_code": "19334"
+    },
+    {
+        "name": "Dušanovac",
+        "zip_code": "19335"
+    },
+    {
+        "name": "Minićevo",
+        "zip_code": "19340"
+    },
+    {
+        "name": "Grljan",
+        "zip_code": "19341"
+    },
+    {
+        "name": "Grlište",
+        "zip_code": "19342"
+    },
+    {
+        "name": "Lenovac",
+        "zip_code": "19343"
+    },
+    {
+        "name": "Vratarnica",
+        "zip_code": "19344"
+    },
+    {
+        "name": "Donje Zuniče",
+        "zip_code": "19345"
+    },
+    {
+        "name": "Mali Izvor",
+        "zip_code": "19347"
+    },
+    {
+        "name": "Knjaževac",
+        "zip_code": "19350"
+    },
+    {
+        "name": "Donja Kamenica",
+        "zip_code": "19352"
+    },
+    {
+        "name": "Kalna",
+        "zip_code": "19353"
+    },
+    {
+        "name": "Podvis",
+        "zip_code": "19362"
+    },
+    {
+        "name": "Beli Potok",
+        "zip_code": "19366"
+    },
+    {
+        "name": "Vasilj",
+        "zip_code": "19367"
+    },
+    {
+        "name": "Vina",
+        "zip_code": "19368"
+    },
+    {
+        "name": "Bučje",
+        "zip_code": "19369"
+    },
+    {
+        "name": "Boljevac",
+        "zip_code": "19370"
+    },
+    {
+        "name": "Lukovo",
+        "zip_code": "19371"
+    },
+    {
+        "name": "Bogovina",
+        "zip_code": "19372"
+    },
+    {
+        "name": "Šarbanovac",
+        "zip_code": "19373"
+    },
+    {
+        "name": "Krivi Vir",
+        "zip_code": "19375"
+    },
+    {
+        "name": "Sumrakovac",
+        "zip_code": "19376"
+    },
+    {
+        "name": "Savinac",
+        "zip_code": "19377"
+    },
+    {
+        "name": "Osnić",
+        "zip_code": "19378"
+    },
+    {
+        "name": "Novi Sad",
+        "zip_code": "21102"
+    },
+    {
+        "name": "Petrovaradin",
+        "zip_code": "21131"
+    },
+    {
+        "name": "Rumenka",
+        "zip_code": "21201"
+    },
+    {
+        "name": "Veternik",
+        "zip_code": "21203"
+    },
+    {
+        "name": "Sremski Karlovci",
+        "zip_code": "21205"
+    },
+    {
+        "name": "Ledinci",
+        "zip_code": "21207"
+    },
+    {
+        "name": "Sremska Kamenica",
+        "zip_code": "21208"
+    },
+    {
+        "name": "Bukovac",
+        "zip_code": "21209"
+    },
+    {
+        "name": "Kisač",
+        "zip_code": "21211"
+    },
+    {
+        "name": "Stepanovićevo",
+        "zip_code": "21212"
+    },
+    {
+        "name": "Zmajevo",
+        "zip_code": "21213"
+    },
+    {
+        "name": "Sirig",
+        "zip_code": "21214"
+    },
+    {
+        "name": "Turija",
+        "zip_code": "21215"
+    },
+    {
+        "name": "Nadalj",
+        "zip_code": "21216"
+    },
+    {
+        "name": "Bačko Gradište",
+        "zip_code": "21217"
+    },
+    {
+        "name": "Bečej",
+        "zip_code": "21220"
+    },
+    {
+        "name": "Radičević",
+        "zip_code": "21225"
+    },
+    {
+        "name": "Bačko Petrovo Selo",
+        "zip_code": "21226"
+    },
+    {
+        "name": "Mileševo",
+        "zip_code": "21227"
+    },
+    {
+        "name": "Žabalj",
+        "zip_code": "21230"
+    },
+    {
+        "name": "Čenej",
+        "zip_code": "21233"
+    },
+    {
+        "name": "Bački Jarak",
+        "zip_code": "21234"
+    },
+    {
+        "name": "Temerin",
+        "zip_code": "21235"
+    },
+    {
+        "name": "Temerin",
+        "zip_code": "21236"
+    },
+    {
+        "name": "Gospođinci",
+        "zip_code": "21237"
+    },
+    {
+        "name": "Čurug",
+        "zip_code": "21238"
+    },
+    {
+        "name": "Đurđevo",
+        "zip_code": "21239"
+    },
+    {
+        "name": "Titel",
+        "zip_code": "21240"
+    },
+    {
+        "name": "Kać",
+        "zip_code": "21241"
+    },
+    {
+        "name": "Budisava",
+        "zip_code": "21242"
+    },
+    {
+        "name": "Kovilj",
+        "zip_code": "21243"
+    },
+    {
+        "name": "Šajkaš",
+        "zip_code": "21244"
+    },
+    {
+        "name": "Mošorin",
+        "zip_code": "21245"
+    },
+    {
+        "name": "Vilovo",
+        "zip_code": "21246"
+    },
+    {
+        "name": "Gardinovci",
+        "zip_code": "21247"
+    },
+    {
+        "name": "Lok",
+        "zip_code": "21248"
+    },
+    {
+        "name": "Rakovac",
+        "zip_code": "21299"
+    },
+    {
+        "name": "Beočin",
+        "zip_code": "21300"
+    },
+    {
+        "name": "Čerević",
+        "zip_code": "21311"
+    },
+    {
+        "name": "Banoštor",
+        "zip_code": "21312"
+    },
+    {
+        "name": "Susek",
+        "zip_code": "21313"
+    },
+    {
+        "name": "Neštin",
+        "zip_code": "21314"
+    },
+    {
+        "name": "Lug",
+        "zip_code": "21315"
+    },
+    {
+        "name": "Bačka Palanka",
+        "zip_code": "21400"
+    },
+    {
+        "name": "Futog",
+        "zip_code": "21410"
+    },
+    {
+        "name": "Begeč",
+        "zip_code": "21411"
+    },
+    {
+        "name": "Gložan",
+        "zip_code": "21412"
+    },
+    {
+        "name": "Čelarevo",
+        "zip_code": "21413"
+    },
+    {
+        "name": "Bač",
+        "zip_code": "21420"
+    },
+    {
+        "name": "Karađorđevo",
+        "zip_code": "21421"
+    },
+    {
+        "name": "Mladenovo",
+        "zip_code": "21422"
+    },
+    {
+        "name": "Obrovac",
+        "zip_code": "21423"
+    },
+    {
+        "name": "Tovariševo",
+        "zip_code": "21424"
+    },
+    {
+        "name": "Selenča",
+        "zip_code": "21425"
+    },
+    {
+        "name": "Vajska",
+        "zip_code": "21426"
+    },
+    {
+        "name": "Bođani",
+        "zip_code": "21427"
+    },
+    {
+        "name": "Plavna",
+        "zip_code": "21428"
+    },
+    {
+        "name": "Bačko Novo Selo",
+        "zip_code": "21429"
+    },
+    {
+        "name": "Nova Gajdobra",
+        "zip_code": "21431"
+    },
+    {
+        "name": "Gajdobra",
+        "zip_code": "21432"
+    },
+    {
+        "name": "Silbaš",
+        "zip_code": "21433"
+    },
+    {
+        "name": "Parage",
+        "zip_code": "21434"
+    },
+    {
+        "name": "Vrbas",
+        "zip_code": "21460"
+    },
+    {
+        "name": "Bačko Dobro Polje",
+        "zip_code": "21465"
+    },
+    {
+        "name": "Kucura",
+        "zip_code": "21466"
+    },
+    {
+        "name": "Savino Selo",
+        "zip_code": "21467"
+    },
+    {
+        "name": "Despotovo",
+        "zip_code": "21468"
+    },
+    {
+        "name": "Pivnice",
+        "zip_code": "21469"
+    },
+    {
+        "name": "Bački Petrovac",
+        "zip_code": "21470"
+    },
+    {
+        "name": "Ravno Selo",
+        "zip_code": "21471"
+    },
+    {
+        "name": "Kulpin",
+        "zip_code": "21472"
+    },
+    {
+        "name": "Maglić",
+        "zip_code": "21473"
+    },
+    {
+        "name": "Srbobran",
+        "zip_code": "21480"
+    },
+    {
+        "name": "Sremska Mitrovica",
+        "zip_code": "22000"
+    },
+    {
+        "name": "Zasavica",
+        "zip_code": "22201"
+    },
+    {
+        "name": "Mačvanska Mitrovica",
+        "zip_code": "22202"
+    },
+    {
+        "name": "Noćaj",
+        "zip_code": "22203"
+    },
+    {
+        "name": "Salaš Noćajski",
+        "zip_code": "22204"
+    },
+    {
+        "name": "Ravnje",
+        "zip_code": "22205"
+    },
+    {
+        "name": "Ležimir",
+        "zip_code": "22207"
+    },
+    {
+        "name": "Manđelos",
+        "zip_code": "22208"
+    },
+    {
+        "name": "Veliki Radinci",
+        "zip_code": "22211"
+    },
+    {
+        "name": "Bešenovo",
+        "zip_code": "22212"
+    },
+    {
+        "name": "Grgurevci",
+        "zip_code": "22213"
+    },
+    {
+        "name": "Bosut",
+        "zip_code": "22217"
+    },
+    {
+        "name": "Laćarak",
+        "zip_code": "22221"
+    },
+    {
+        "name": "Martinci",
+        "zip_code": "22222"
+    },
+    {
+        "name": "Kuzmin",
+        "zip_code": "22223"
+    },
+    {
+        "name": "Kukujevci",
+        "zip_code": "22224"
+    },
+    {
+        "name": "Bačinci",
+        "zip_code": "22225"
+    },
+    {
+        "name": "Erdevik",
+        "zip_code": "22230"
+    },
+    {
+        "name": "Čalma",
+        "zip_code": "22231"
+    },
+    {
+        "name": "Divoš",
+        "zip_code": "22232"
+    },
+    {
+        "name": "Šid",
+        "zip_code": "22239"
+    },
+    {
+        "name": "Vašica",
+        "zip_code": "22241"
+    },
+    {
+        "name": "Berkasovo",
+        "zip_code": "22242"
+    },
+    {
+        "name": "Sot",
+        "zip_code": "22243"
+    },
+    {
+        "name": "Adaševci",
+        "zip_code": "22244"
+    },
+    {
+        "name": "Morović",
+        "zip_code": "22245"
+    },
+    {
+        "name": "Višnjićevo",
+        "zip_code": "22246"
+    },
+    {
+        "name": "Sremska Rača",
+        "zip_code": "22247"
+    },
+    {
+        "name": "Jamena",
+        "zip_code": "22248"
+    },
+    {
+        "name": "Ilinci",
+        "zip_code": "22250"
+    },
+    {
+        "name": "Batrovci",
+        "zip_code": "22251"
+    },
+    {
+        "name": "Bingula",
+        "zip_code": "22253"
+    },
+    {
+        "name": "Bikić Do",
+        "zip_code": "22254"
+    },
+    {
+        "name": "Ljuba",
+        "zip_code": "22255"
+    },
+    {
+        "name": "Molovin",
+        "zip_code": "22256"
+    },
+    {
+        "name": "Privina Glava",
+        "zip_code": "22257"
+    },
+    {
+        "name": "Gibarac",
+        "zip_code": "22258"
+    },
+    {
+        "name": "Stara Pazova",
+        "zip_code": "22300"
+    },
+    {
+        "name": "Novi Banovci",
+        "zip_code": "22304"
+    },
+    {
+        "name": "Stari Banovci",
+        "zip_code": "22305"
+    },
+    {
+        "name": "Belegiš",
+        "zip_code": "22306"
+    },
+    {
+        "name": "Surduk",
+        "zip_code": "22307"
+    },
+    {
+        "name": "Golubinci",
+        "zip_code": "22308"
+    },
+    {
+        "name": "Šimanovci",
+        "zip_code": "22310"
+    },
+    {
+        "name": "Vojka",
+        "zip_code": "22313"
+    },
+    {
+        "name": "Krnješevci",
+        "zip_code": "22314"
+    },
+    {
+        "name": "Inđija",
+        "zip_code": "22320"
+    },
+    {
+        "name": "Ljukovo",
+        "zip_code": "22321"
+    },
+    {
+        "name": "Novi Karlovci",
+        "zip_code": "22322"
+    },
+    {
+        "name": "Novi Slankamen",
+        "zip_code": "22323"
+    },
+    {
+        "name": "Beška",
+        "zip_code": "22324"
+    },
+    {
+        "name": "Krčedin",
+        "zip_code": "22325"
+    },
+    {
+        "name": "Čortanovci",
+        "zip_code": "22326"
+    },
+    {
+        "name": "Maradik",
+        "zip_code": "22327"
+    },
+    {
+        "name": "Krušedol",
+        "zip_code": "22328"
+    },
+    {
+        "name": "Stari Slankamen",
+        "zip_code": "22329"
+    },
+    {
+        "name": "Nova Pazova",
+        "zip_code": "22330"
+    },
+    {
+        "name": "Ruma",
+        "zip_code": "22400"
+    },
+    {
+        "name": "Putinci",
+        "zip_code": "22404"
+    },
+    {
+        "name": "Stejanovci",
+        "zip_code": "22405"
+    },
+    {
+        "name": "Irig",
+        "zip_code": "22406"
+    },
+    {
+        "name": "Vrdnik",
+        "zip_code": "22408"
+    },
+    {
+        "name": "Pećinci",
+        "zip_code": "22410"
+    },
+    {
+        "name": "Kraljevci",
+        "zip_code": "22411"
+    },
+    {
+        "name": "Dobrinci",
+        "zip_code": "22412"
+    },
+    {
+        "name": "Sremski Mihaljevci",
+        "zip_code": "22413"
+    },
+    {
+        "name": "Subotište",
+        "zip_code": "22414"
+    },
+    {
+        "name": "Ogar",
+        "zip_code": "22416"
+    },
+    {
+        "name": "Obrež",
+        "zip_code": "22417"
+    },
+    {
+        "name": "Ašanja",
+        "zip_code": "22418"
+    },
+    {
+        "name": "Kupinovo",
+        "zip_code": "22419"
+    },
+    {
+        "name": "Platičevo",
+        "zip_code": "22420"
+    },
+    {
+        "name": "Buđanovci",
+        "zip_code": "22421"
+    },
+    {
+        "name": "Nikinci",
+        "zip_code": "22422"
+    },
+    {
+        "name": "Grabovci",
+        "zip_code": "22423"
+    },
+    {
+        "name": "Klenak",
+        "zip_code": "22424"
+    },
+    {
+        "name": "Šašinci",
+        "zip_code": "22425"
+    },
+    {
+        "name": "Jarak",
+        "zip_code": "22426"
+    },
+    {
+        "name": "Hrtkovci",
+        "zip_code": "22427"
+    },
+    {
+        "name": "Popinci",
+        "zip_code": "22428"
+    },
+    {
+        "name": "Voganj",
+        "zip_code": "22429"
+    },
+    {
+        "name": "Sibač",
+        "zip_code": "22440"
+    },
+    {
+        "name": "Deč",
+        "zip_code": "22441"
+    },
+    {
+        "name": "Prhovo",
+        "zip_code": "22442"
+    },
+    {
+        "name": "Karlovčić",
+        "zip_code": "22443"
+    },
+    {
+        "name": "Zrenjanin",
+        "zip_code": "23101"
+    },
+    {
+        "name": "Mihajlovo",
+        "zip_code": "23202"
+    },
+    {
+        "name": "Ečka",
+        "zip_code": "23203"
+    },
+    {
+        "name": "Stajićevo",
+        "zip_code": "23204"
+    },
+    {
+        "name": "Belo Blato",
+        "zip_code": "23205"
+    },
+    {
+        "name": "Mužlja",
+        "zip_code": "23206"
+    },
+    {
+        "name": "Aradac",
+        "zip_code": "23207"
+    },
+    {
+        "name": "Elemir",
+        "zip_code": "23208"
+    },
+    {
+        "name": "Taraš",
+        "zip_code": "23209"
+    },
+    {
+        "name": "Žitište",
+        "zip_code": "23210"
+    },
+    {
+        "name": "Klek",
+        "zip_code": "23211"
+    },
+    {
+        "name": "Ravni Topolovac",
+        "zip_code": "23212"
+    },
+    {
+        "name": "Torda",
+        "zip_code": "23214"
+    },
+    {
+        "name": "Čestereg",
+        "zip_code": "23215"
+    },
+    {
+        "name": "Banatsko Karađorđevo",
+        "zip_code": "23216"
+    },
+    {
+        "name": "Aleksandrovo",
+        "zip_code": "23217"
+    },
+    {
+        "name": "Nova Crnja",
+        "zip_code": "23218"
+    },
+    {
+        "name": "Vojvoda Stepa",
+        "zip_code": "23219"
+    },
+    {
+        "name": "Srpska Crnja",
+        "zip_code": "23220"
+    },
+    {
+        "name": "Radojevo",
+        "zip_code": "23221"
+    },
+    {
+        "name": "Toba",
+        "zip_code": "23222"
+    },
+    {
+        "name": "Lukino Selo",
+        "zip_code": "23224"
+    },
+    {
+        "name": "Jaša Tomić",
+        "zip_code": "23230"
+    },
+    {
+        "name": "Krajišnik",
+        "zip_code": "23231"
+    },
+    {
+        "name": "Begejci",
+        "zip_code": "23232"
+    },
+    {
+        "name": "Srpski Itebej",
+        "zip_code": "23233"
+    },
+    {
+        "name": "Međa",
+        "zip_code": "23234"
+    },
+    {
+        "name": "Hetin",
+        "zip_code": "23235"
+    },
+    {
+        "name": "Novi Itebej",
+        "zip_code": "23236"
+    },
+    {
+        "name": "Banatsko Višnjićevo",
+        "zip_code": "23237"
+    },
+    {
+        "name": "Sečanj",
+        "zip_code": "23240"
+    },
+    {
+        "name": "Lazarevo",
+        "zip_code": "23241"
+    },
+    {
+        "name": "Banatski Despotovac",
+        "zip_code": "23242"
+    },
+    {
+        "name": "Botoš",
+        "zip_code": "23243"
+    },
+    {
+        "name": "Sutjeska",
+        "zip_code": "23244"
+    },
+    {
+        "name": "Neuzina",
+        "zip_code": "23245"
+    },
+    {
+        "name": "Jarkovac",
+        "zip_code": "23250"
+    },
+    {
+        "name": "Banatska Dubica",
+        "zip_code": "23251"
+    },
+    {
+        "name": "Boka",
+        "zip_code": "23252"
+    },
+    {
+        "name": "Konak",
+        "zip_code": "23253"
+    },
+    {
+        "name": "Šurjan",
+        "zip_code": "23254"
+    },
+    {
+        "name": "Zlatica",
+        "zip_code": "23255"
+    },
+    {
+        "name": "Perlez",
+        "zip_code": "23260"
+    },
+    {
+        "name": "Lukićevo",
+        "zip_code": "23261"
+    },
+    {
+        "name": "Tomaševac",
+        "zip_code": "23262"
+    },
+    {
+        "name": "Orlovat",
+        "zip_code": "23263"
+    },
+    {
+        "name": "Farkaždin",
+        "zip_code": "23264"
+    },
+    {
+        "name": "Knićanin",
+        "zip_code": "23265"
+    },
+    {
+        "name": "Čenta",
+        "zip_code": "23266"
+    },
+    {
+        "name": "Melenci",
+        "zip_code": "23270"
+    },
+    {
+        "name": "Kumane",
+        "zip_code": "23271"
+    },
+    {
+        "name": "Novi Bečej",
+        "zip_code": "23272"
+    },
+    {
+        "name": "Novo Miloševo",
+        "zip_code": "23273"
+    },
+    {
+        "name": "Bočar",
+        "zip_code": "23274"
+    },
+    {
+        "name": "Kikinda",
+        "zip_code": "23300"
+    },
+    {
+        "name": "Mokrin",
+        "zip_code": "23305"
+    },
+    {
+        "name": "Nakovo",
+        "zip_code": "23311"
+    },
+    {
+        "name": "Banatsko Veliko Selo",
+        "zip_code": "23312"
+    },
+    {
+        "name": "Novi Kozarci",
+        "zip_code": "23313"
+    },
+    {
+        "name": "Rusko Selo",
+        "zip_code": "23314"
+    },
+    {
+        "name": "Banatska Topola",
+        "zip_code": "23315"
+    },
+    {
+        "name": "Bašaid",
+        "zip_code": "23316"
+    },
+    {
+        "name": "Čoka",
+        "zip_code": "23320"
+    },
+    {
+        "name": "Iđoš",
+        "zip_code": "23323"
+    },
+    {
+        "name": "Sajan",
+        "zip_code": "23324"
+    },
+    {
+        "name": "Padej",
+        "zip_code": "23325"
+    },
+    {
+        "name": "Ostojićevo",
+        "zip_code": "23326"
+    },
+    {
+        "name": "Jazovo",
+        "zip_code": "23327"
+    },
+    {
+        "name": "Crna Bara",
+        "zip_code": "23328"
+    },
+    {
+        "name": "Vrbica",
+        "zip_code": "23329"
+    },
+    {
+        "name": "Novi Kneževac",
+        "zip_code": "23330"
+    },
+    {
+        "name": "Sanad",
+        "zip_code": "23331"
+    },
+    {
+        "name": "Banatsko Aranđelovo",
+        "zip_code": "23332"
+    },
+    {
+        "name": "Majdan",
+        "zip_code": "23333"
+    },
+    {
+        "name": "Srpski Krstur",
+        "zip_code": "23334"
+    },
+    {
+        "name": "Đala",
+        "zip_code": "23335"
+    },
+    {
+        "name": "Subotica",
+        "zip_code": "24000"
+    },
+    {
+        "name": "Kelebija",
+        "zip_code": "24104"
+    },
+    {
+        "name": "Bikovo",
+        "zip_code": "24206"
+    },
+    {
+        "name": "Orom",
+        "zip_code": "24207"
+    },
+    {
+        "name": "Bajmok",
+        "zip_code": "24210"
+    },
+    {
+        "name": "Mišićevo",
+        "zip_code": "24211"
+    },
+    {
+        "name": "Đurđin",
+        "zip_code": "24213"
+    },
+    {
+        "name": "Tavankut",
+        "zip_code": "24214"
+    },
+    {
+        "name": "Ljutovo",
+        "zip_code": "24215"
+    },
+    {
+        "name": "Mala Bosna",
+        "zip_code": "24217"
+    },
+    {
+        "name": "Čantavir",
+        "zip_code": "24220"
+    },
+    {
+        "name": "Višnjevac",
+        "zip_code": "24222"
+    },
+    {
+        "name": "Novi Žednik",
+        "zip_code": "24223"
+    },
+    {
+        "name": "Stari Žednik",
+        "zip_code": "24224"
+    },
+    {
+        "name": "Bačka Topola",
+        "zip_code": "24300"
+    },
+    {
+        "name": "Karađorđevo",
+        "zip_code": "24308"
+    },
+    {
+        "name": "Mali Beograd",
+        "zip_code": "24309"
+    },
+    {
+        "name": "Njegoševo",
+        "zip_code": "24311"
+    },
+    {
+        "name": "Gunaroš",
+        "zip_code": "24312"
+    },
+    {
+        "name": "Pobeda",
+        "zip_code": "24313"
+    },
+    {
+        "name": "Mali Iđoš",
+        "zip_code": "24321"
+    },
+    {
+        "name": "Lovćenac",
+        "zip_code": "24322"
+    },
+    {
+        "name": "Feketić",
+        "zip_code": "24323"
+    },
+    {
+        "name": "Panonija",
+        "zip_code": "24330"
+    },
+    {
+        "name": "Bajša",
+        "zip_code": "24331"
+    },
+    {
+        "name": "Stara Moravica",
+        "zip_code": "24340"
+    },
+    {
+        "name": "Krivaja",
+        "zip_code": "24341"
+    },
+    {
+        "name": "Pačir",
+        "zip_code": "24342"
+    },
+    {
+        "name": "Bački Sokolac",
+        "zip_code": "24343"
+    },
+    {
+        "name": "Orešković",
+        "zip_code": "24344"
+    },
+    {
+        "name": "Novo Orahovo",
+        "zip_code": "24351"
+    },
+    {
+        "name": "Tornjoš",
+        "zip_code": "24352"
+    },
+    {
+        "name": "Senta",
+        "zip_code": "24400"
+    },
+    {
+        "name": "Gornji Breg",
+        "zip_code": "24406"
+    },
+    {
+        "name": "Kevi",
+        "zip_code": "24407"
+    },
+    {
+        "name": "Bogaraš",
+        "zip_code": "24408"
+    },
+    {
+        "name": "Horgoš",
+        "zip_code": "24410"
+    },
+    {
+        "name": "Palić",
+        "zip_code": "24413"
+    },
+    {
+        "name": "Hajdukovo",
+        "zip_code": "24415"
+    },
+    {
+        "name": "Bački Vinogradi",
+        "zip_code": "24415"
+    },
+    {
+        "name": "Male Pijace",
+        "zip_code": "24416"
+    },
+    {
+        "name": "Martonoš",
+        "zip_code": "24417"
+    },
+    {
+        "name": "Šupljak",
+        "zip_code": "24418"
+    },
+    {
+        "name": "Kanjiža",
+        "zip_code": "24420"
+    },
+    {
+        "name": "Adorjan",
+        "zip_code": "24425"
+    },
+    {
+        "name": "Trešnjevac",
+        "zip_code": "24426"
+    },
+    {
+        "name": "Totovo Selo",
+        "zip_code": "24427"
+    },
+    {
+        "name": "Ada",
+        "zip_code": "24430"
+    },
+    {
+        "name": "Mol",
+        "zip_code": "24435"
+    },
+    {
+        "name": "Utrine",
+        "zip_code": "24437"
+    },
+    {
+        "name": "Sombor",
+        "zip_code": "25101"
+    },
+    {
+        "name": "Čonoplja",
+        "zip_code": "25210"
+    },
+    {
+        "name": "Svetozar Miletić",
+        "zip_code": "25211"
+    },
+    {
+        "name": "Aleksa Šantić",
+        "zip_code": "25212"
+    },
+    {
+        "name": "Crvenka",
+        "zip_code": "25220"
+    },
+    {
+        "name": "Kljajićevo",
+        "zip_code": "25221"
+    },
+    {
+        "name": "Telečka",
+        "zip_code": "25222"
+    },
+    {
+        "name": "Sivac",
+        "zip_code": "25223"
+    },
+    {
+        "name": "Nova Crvenka",
+        "zip_code": "25224"
+    },
+    {
+        "name": "Kruščić",
+        "zip_code": "25225"
+    },
+    {
+        "name": "Kula",
+        "zip_code": "25230"
+    },
+    {
+        "name": "Lipar",
+        "zip_code": "25232"
+    },
+    {
+        "name": "Ruski Krstur",
+        "zip_code": "25233"
+    },
+    {
+        "name": "Lalić",
+        "zip_code": "25234"
+    },
+    {
+        "name": "Stapar",
+        "zip_code": "25240"
+    },
+    {
+        "name": "Bački Brestovac",
+        "zip_code": "25242"
+    },
+    {
+        "name": "Doroslovo",
+        "zip_code": "25243"
+    },
+    {
+        "name": "Srpski Miletić",
+        "zip_code": "25244"
+    },
+    {
+        "name": "Bogojevo",
+        "zip_code": "25245"
+    },
+    {
+        "name": "Odžaci",
+        "zip_code": "25250"
+    },
+    {
+        "name": "Bački Gračac",
+        "zip_code": "25252"
+    },
+    {
+        "name": "Ratkovo",
+        "zip_code": "25253"
+    },
+    {
+        "name": "Deronje",
+        "zip_code": "25254"
+    },
+    {
+        "name": "Karavukovo",
+        "zip_code": "25255"
+    },
+    {
+        "name": "Apatin",
+        "zip_code": "25260"
+    },
+    {
+        "name": "Kupusina",
+        "zip_code": "25262"
+    },
+    {
+        "name": "Prigrevica",
+        "zip_code": "25263"
+    },
+    {
+        "name": "Sonta",
+        "zip_code": "25264"
+    },
+    {
+        "name": "Svilojevo",
+        "zip_code": "25265"
+    },
+    {
+        "name": "Bezdan",
+        "zip_code": "25270"
+    },
+    {
+        "name": "Bački Monoštor",
+        "zip_code": "25272"
+    },
+    {
+        "name": "Kolut",
+        "zip_code": "25274"
+    },
+    {
+        "name": "Bački Breg",
+        "zip_code": "25275"
+    },
+    {
+        "name": "Riđica",
+        "zip_code": "25280"
+    },
+    {
+        "name": "Gakovo",
+        "zip_code": "25282"
+    },
+    {
+        "name": "Rastina",
+        "zip_code": "25283"
+    },
+    {
+        "name": "Stanišić",
+        "zip_code": "25284"
+    },
+    {
+        "name": "Pančevo",
+        "zip_code": "26101"
+    },
+    {
+        "name": "Jabuka",
+        "zip_code": "26201"
+    },
+    {
+        "name": "Glogonj",
+        "zip_code": "26202"
+    },
+    {
+        "name": "Sefkerin",
+        "zip_code": "26203"
+    },
+    {
+        "name": "Opovo",
+        "zip_code": "26204"
+    },
+    {
+        "name": "Baranda",
+        "zip_code": "26205"
+    },
+    {
+        "name": "Sakule",
+        "zip_code": "26206"
+    },
+    {
+        "name": "Idvor",
+        "zip_code": "26207"
+    },
+    {
+        "name": "Kovačica",
+        "zip_code": "26210"
+    },
+    {
+        "name": "Kačarevo",
+        "zip_code": "26212"
+    },
+    {
+        "name": "Crepaja",
+        "zip_code": "26213"
+    },
+    {
+        "name": "Debeljača",
+        "zip_code": "26214"
+    },
+    {
+        "name": "Padina",
+        "zip_code": "26215"
+    },
+    {
+        "name": "Uzdin",
+        "zip_code": "26216"
+    },
+    {
+        "name": "Kovin",
+        "zip_code": "26220"
+    },
+    {
+        "name": "Bavanište",
+        "zip_code": "26222"
+    },
+    {
+        "name": "Gaj",
+        "zip_code": "26223"
+    },
+    {
+        "name": "Dubovac",
+        "zip_code": "26224"
+    },
+    {
+        "name": "Deliblato",
+        "zip_code": "26225"
+    },
+    {
+        "name": "Mramorak",
+        "zip_code": "26226"
+    },
+    {
+        "name": "Dolovo",
+        "zip_code": "26227"
+    },
+    {
+        "name": "Skorenovac",
+        "zip_code": "26228"
+    },
+    {
+        "name": "Pločica",
+        "zip_code": "26229"
+    },
+    {
+        "name": "Omoljica",
+        "zip_code": "26230"
+    },
+    {
+        "name": "Starčevo",
+        "zip_code": "26232"
+    },
+    {
+        "name": "Ivanovo",
+        "zip_code": "26233"
+    },
+    {
+        "name": "Banatski Brestovac",
+        "zip_code": "26234"
+    },
+    {
+        "name": "Vršac",
+        "zip_code": "26300"
+    },
+    {
+        "name": "Alibunar",
+        "zip_code": "26310"
+    },
+    {
+        "name": "Banatsko Novo Selo",
+        "zip_code": "26314"
+    },
+    {
+        "name": "Vladimirovac",
+        "zip_code": "26315"
+    },
+    {
+        "name": "Devojački Bunar",
+        "zip_code": "26316"
+    },
+    {
+        "name": "Banatski Karlovac",
+        "zip_code": "26320"
+    },
+    {
+        "name": "Nikolinci",
+        "zip_code": "26322"
+    },
+    {
+        "name": "Crvena Crkva",
+        "zip_code": "26323"
+    },
+    {
+        "name": "Banatska Palanka",
+        "zip_code": "26324"
+    },
+    {
+        "name": "Banatska Subotica",
+        "zip_code": "26327"
+    },
+    {
+        "name": "Dupljaja",
+        "zip_code": "26328"
+    },
+    {
+        "name": "Kajtasovo",
+        "zip_code": "26329"
+    },
+    {
+        "name": "Uljma",
+        "zip_code": "26330"
+    },
+    {
+        "name": "Ritiševo",
+        "zip_code": "26331"
+    },
+    {
+        "name": "Vlajkovac",
+        "zip_code": "26332"
+    },
+    {
+        "name": "Pavliš",
+        "zip_code": "26333"
+    },
+    {
+        "name": "Veliko Središte",
+        "zip_code": "26334"
+    },
+    {
+        "name": "Gudurica",
+        "zip_code": "26335"
+    },
+    {
+        "name": "Kuštilj",
+        "zip_code": "26336"
+    },
+    {
+        "name": "Vatin",
+        "zip_code": "26337"
+    },
+    {
+        "name": "Vojvodinci",
+        "zip_code": "26338"
+    },
+    {
+        "name": "Bela Crkva",
+        "zip_code": "26340"
+    },
+    {
+        "name": "Izbište",
+        "zip_code": "26343"
+    },
+    {
+        "name": "Zagajica",
+        "zip_code": "26344"
+    },
+    {
+        "name": "Straža",
+        "zip_code": "26345"
+    },
+    {
+        "name": "Jasenovo",
+        "zip_code": "26346"
+    },
+    {
+        "name": "Grebenac",
+        "zip_code": "26347"
+    },
+    {
+        "name": "Vračev Gaj",
+        "zip_code": "26348"
+    },
+    {
+        "name": "Kusić",
+        "zip_code": "26349"
+    },
+    {
+        "name": "Samoš",
+        "zip_code": "26350"
+    },
+    {
+        "name": "Seleuš",
+        "zip_code": "26351"
+    },
+    {
+        "name": "Ilandža",
+        "zip_code": "26352"
+    },
+    {
+        "name": "Novi Kozjak",
+        "zip_code": "26353"
+    },
+    {
+        "name": "Dobrica",
+        "zip_code": "26354"
+    },
+    {
+        "name": "Plandište",
+        "zip_code": "26360"
+    },
+    {
+        "name": "Lokve",
+        "zip_code": "26361"
+    },
+    {
+        "name": "Janošik",
+        "zip_code": "26362"
+    },
+    {
+        "name": "Jermenovci",
+        "zip_code": "26363"
+    },
+    {
+        "name": "Margita",
+        "zip_code": "26364"
+    },
+    {
+        "name": "Veliki Gaj",
+        "zip_code": "26365"
+    },
+    {
+        "name": "Velika Greda",
+        "zip_code": "26366"
+    },
+    {
+        "name": "Barice",
+        "zip_code": "26367"
+    },
+    {
+        "name": "Kupinik",
+        "zip_code": "26368"
+    },
+    {
+        "name": "Hajdučica",
+        "zip_code": "26370"
+    },
+    {
+        "name": "Stari Lec",
+        "zip_code": "26371"
+    },
+    {
+        "name": "Miletićevo",
+        "zip_code": "26373"
+    },
+    {
+        "name": "Užice",
+        "zip_code": "31000"
+    },
+    {
+        "name": "Lunovo Selo",
+        "zip_code": "31203"
+    },
+    {
+        "name": "Karan (Užice)",
+        "zip_code": "31204"
+    },
+    {
+        "name": "Sevojno",
+        "zip_code": "31205"
+    },
+    {
+        "name": "Ravni",
+        "zip_code": "31206"
+    },
+    {
+        "name": "Sirogojno",
+        "zip_code": "31207"
+    },
+    {
+        "name": "Rožanstvo",
+        "zip_code": "31208"
+    },
+    {
+        "name": "Ljubiš",
+        "zip_code": "31209"
+    },
+    {
+        "name": "Požega",
+        "zip_code": "31210"
+    },
+    {
+        "name": "Ježevica",
+        "zip_code": "31213"
+    },
+    {
+        "name": "Gornja Dobrinja",
+        "zip_code": "31214"
+    },
+    {
+        "name": "Jelen Do",
+        "zip_code": "31215"
+    },
+    {
+        "name": "Arilje",
+        "zip_code": "31230"
+    },
+    {
+        "name": "Kruščica",
+        "zip_code": "31233"
+    },
+    {
+        "name": "Brekovo",
+        "zip_code": "31234"
+    },
+    {
+        "name": "Divljaka",
+        "zip_code": "31236"
+    },
+    {
+        "name": "Roge",
+        "zip_code": "31237"
+    },
+    {
+        "name": "Bioska",
+        "zip_code": "31241"
+    },
+    {
+        "name": "Kremna",
+        "zip_code": "31242"
+    },
+    {
+        "name": "Mokra Gora",
+        "zip_code": "31243"
+    },
+    {
+        "name": "Šljivovica",
+        "zip_code": "31244"
+    },
+    {
+        "name": "Bajina Bašta",
+        "zip_code": "31250"
+    },
+    {
+        "name": "Mitrovac",
+        "zip_code": "31251"
+    },
+    {
+        "name": "Zlodol",
+        "zip_code": "31253"
+    },
+    {
+        "name": "Kostojevići",
+        "zip_code": "31254"
+    },
+    {
+        "name": "Rogačica",
+        "zip_code": "31255"
+    },
+    {
+        "name": "Perućac",
+        "zip_code": "31256"
+    },
+    {
+        "name": "Kaluđerske Bare",
+        "zip_code": "31257"
+    },
+    {
+        "name": "Bačevci",
+        "zip_code": "31258"
+    },
+    {
+        "name": "Kosjerić",
+        "zip_code": "31260"
+    },
+    {
+        "name": "Seča Reka",
+        "zip_code": "31262"
+    },
+    {
+        "name": "Varda",
+        "zip_code": "31263"
+    },
+    {
+        "name": "Ražana",
+        "zip_code": "31265"
+    },
+    {
+        "name": "Prijepolje",
+        "zip_code": "31300"
+    },
+    {
+        "name": "Brodarevo",
+        "zip_code": "31305"
+    },
+    {
+        "name": "Jabuka",
+        "zip_code": "31306"
+    },
+    {
+        "name": "Aljinovići",
+        "zip_code": "31307"
+    },
+    {
+        "name": "Čajetina",
+        "zip_code": "31310"
+    },
+    {
+        "name": "Bela Zemlja",
+        "zip_code": "31311"
+    },
+    {
+        "name": "Mačkat",
+        "zip_code": "31312"
+    },
+    {
+        "name": "Gostilje",
+        "zip_code": "31313"
+    },
+    {
+        "name": "Jablanica",
+        "zip_code": "31314"
+    },
+    {
+        "name": "Zlatibor",
+        "zip_code": "31315"
+    },
+    {
+        "name": "Draglica",
+        "zip_code": "31317"
+    },
+    {
+        "name": "Kokin Brod",
+        "zip_code": "31318"
+    },
+    {
+        "name": "Jasenovo",
+        "zip_code": "31319"
+    },
+    {
+        "name": "Nova Varoš",
+        "zip_code": "31320"
+    },
+    {
+        "name": "Božetići",
+        "zip_code": "31322"
+    },
+    {
+        "name": "Bistrica",
+        "zip_code": "31325"
+    },
+    {
+        "name": "Priboj",
+        "zip_code": "31330"
+    },
+    {
+        "name": "Sastavci",
+        "zip_code": "31335"
+    },
+    {
+        "name": "Banja (Priboj)",
+        "zip_code": "31337"
+    },
+    {
+        "name": "Čačak",
+        "zip_code": "32000"
+    },
+    {
+        "name": "Trbušani",
+        "zip_code": "32205"
+    },
+    {
+        "name": "Mrčajevci",
+        "zip_code": "32210"
+    },
+    {
+        "name": "Preljina",
+        "zip_code": "32212"
+    },
+    {
+        "name": "Bresnica",
+        "zip_code": "32213"
+    },
+    {
+        "name": "Gornja Trepča",
+        "zip_code": "32215"
+    },
+    {
+        "name": "Ježevica",
+        "zip_code": "32222"
+    },
+    {
+        "name": "Zablaće",
+        "zip_code": "32223"
+    },
+    {
+        "name": "Mršinci",
+        "zip_code": "32224"
+    },
+    {
+        "name": "Goričani",
+        "zip_code": "32225"
+    },
+    {
+        "name": "Guča",
+        "zip_code": "32230"
+    },
+    {
+        "name": "Goračići",
+        "zip_code": "32232"
+    },
+    {
+        "name": "Viča",
+        "zip_code": "32233"
+    },
+    {
+        "name": "Kaona",
+        "zip_code": "32234"
+    },
+    {
+        "name": "Kotraža",
+        "zip_code": "32235"
+    },
+    {
+        "name": "Lučani",
+        "zip_code": "32240"
+    },
+    {
+        "name": "Ovčar Banja",
+        "zip_code": "32242"
+    },
+    {
+        "name": "Markovica",
+        "zip_code": "32243"
+    },
+    {
+        "name": "Ivanjica",
+        "zip_code": "32250"
+    },
+    {
+        "name": "Bukovica",
+        "zip_code": "32251"
+    },
+    {
+        "name": "Prilički Kiseljak",
+        "zip_code": "32252"
+    },
+    {
+        "name": "Brezova",
+        "zip_code": "32253"
+    },
+    {
+        "name": "Vionica",
+        "zip_code": "32254"
+    },
+    {
+        "name": "Međurečje",
+        "zip_code": "32255"
+    },
+    {
+        "name": "Bratljevo",
+        "zip_code": "32256"
+    },
+    {
+        "name": "Kovilje",
+        "zip_code": "32257"
+    },
+    {
+        "name": "Kušići",
+        "zip_code": "32258"
+    },
+    {
+        "name": "Bele Vode",
+        "zip_code": "32259"
+    },
+    {
+        "name": "Gornji Milanovac",
+        "zip_code": "32300"
+    },
+    {
+        "name": "Brđani",
+        "zip_code": "32303"
+    },
+    {
+        "name": "Takovo",
+        "zip_code": "32304"
+    },
+    {
+        "name": "Beršići",
+        "zip_code": "32305"
+    },
+    {
+        "name": "Gornji Banjani",
+        "zip_code": "32306"
+    },
+    {
+        "name": "Brezna",
+        "zip_code": "32307"
+    },
+    {
+        "name": "Pranjani",
+        "zip_code": "32308"
+    },
+    {
+        "name": "Šilopaj",
+        "zip_code": "32311"
+    },
+    {
+        "name": "Boljkovci",
+        "zip_code": "32312"
+    },
+    {
+        "name": "Rudnik",
+        "zip_code": "32313"
+    },
+    {
+        "name": "Ugrinovci",
+        "zip_code": "32314"
+    },
+    {
+        "name": "Vraćevšnica",
+        "zip_code": "32315"
+    },
+    {
+        "name": "Kragujevac",
+        "zip_code": "34000"
+    },
+    {
+        "name": "Grošnica",
+        "zip_code": "34202"
+    },
+    {
+        "name": "Ilićevo",
+        "zip_code": "34203"
+    },
+    {
+        "name": "Divostin",
+        "zip_code": "34204"
+    },
+    {
+        "name": "Bare",
+        "zip_code": "34205"
+    },
+    {
+        "name": "Gornja Sabanta",
+        "zip_code": "34206"
+    },
+    {
+        "name": "Erdeč",
+        "zip_code": "34207"
+    },
+    {
+        "name": "Maršić",
+        "zip_code": "34209"
+    },
+    {
+        "name": "Rača Kragujevačka",
+        "zip_code": "34210"
+    },
+    {
+        "name": "Jovanovac",
+        "zip_code": "34211"
+    },
+    {
+        "name": "Malo Krčmare",
+        "zip_code": "34212"
+    },
+    {
+        "name": "Sipić",
+        "zip_code": "34213"
+    },
+    {
+        "name": "Đurđevo",
+        "zip_code": "34215"
+    },
+    {
+        "name": "Male Pčelice",
+        "zip_code": "34216"
+    },
+    {
+        "name": "Bukurovac",
+        "zip_code": "34217"
+    },
+    {
+        "name": "Lapovo",
+        "zip_code": "34220"
+    },
+    {
+        "name": "Korman",
+        "zip_code": "34224"
+    },
+    {
+        "name": "Resnik",
+        "zip_code": "34225"
+    },
+    {
+        "name": "Badnjevac",
+        "zip_code": "34226"
+    },
+    {
+        "name": "Batočina",
+        "zip_code": "34227"
+    },
+    {
+        "name": "Brzan",
+        "zip_code": "34228"
+    },
+    {
+        "name": "Žirovnica",
+        "zip_code": "34229"
+    },
+    {
+        "name": "Gruža",
+        "zip_code": "34230"
+    },
+    {
+        "name": "Dragobraća",
+        "zip_code": "34231"
+    },
+    {
+        "name": "Guberevac",
+        "zip_code": "34232"
+    },
+    {
+        "name": "Knić",
+        "zip_code": "34240"
+    },
+    {
+        "name": "Bumbarevo Brdo",
+        "zip_code": "34242"
+    },
+    {
+        "name": "Toponica",
+        "zip_code": "34243"
+    },
+    {
+        "name": "Zabojnica",
+        "zip_code": "34244"
+    },
+    {
+        "name": "Aranđelovac",
+        "zip_code": "34300"
+    },
+    {
+        "name": "Bukovik",
+        "zip_code": "34301"
+    },
+    {
+        "name": "Ranilović",
+        "zip_code": "34302"
+    },
+    {
+        "name": "Banja",
+        "zip_code": "34304"
+    },
+    {
+        "name": "Darosava",
+        "zip_code": "34305"
+    },
+    {
+        "name": "Venčane",
+        "zip_code": "34306"
+    },
+    {
+        "name": "Stojnik",
+        "zip_code": "34307"
+    },
+    {
+        "name": "Orašac",
+        "zip_code": "34308"
+    },
+    {
+        "name": "Jelovik",
+        "zip_code": "34309"
+    },
+    {
+        "name": "Topola",
+        "zip_code": "34310"
+    },
+    {
+        "name": "Belosavci",
+        "zip_code": "34312"
+    },
+    {
+        "name": "Natalinci",
+        "zip_code": "34313"
+    },
+    {
+        "name": "Donja Šatornja",
+        "zip_code": "34314"
+    },
+    {
+        "name": "Jarmenovci",
+        "zip_code": "34318"
+    },
+    {
+        "name": "Cerovac",
+        "zip_code": "34321"
+    },
+    {
+        "name": "Desimirovac",
+        "zip_code": "34321"
+    },
+    {
+        "name": "Čumić",
+        "zip_code": "34322"
+    },
+    {
+        "name": "Stragari",
+        "zip_code": "34323"
+    },
+    {
+        "name": "Gornja Trnava",
+        "zip_code": "34324"
+    },
+    {
+        "name": "Lužnice",
+        "zip_code": "34325"
+    },
+    {
+        "name": "Jagodina",
+        "zip_code": "35000"
+    },
+    {
+        "name": "Siokovac",
+        "zip_code": "35203"
+    },
+    {
+        "name": "Bagrdan",
+        "zip_code": "35204"
+    },
+    {
+        "name": "Jovac",
+        "zip_code": "35205"
+    },
+    {
+        "name": "Raševica",
+        "zip_code": "35206"
+    },
+    {
+        "name": "Potočac",
+        "zip_code": "35207"
+    },
+    {
+        "name": "Vojska",
+        "zip_code": "35208"
+    },
+    {
+        "name": "Subotica (Kod Svilajnca)",
+        "zip_code": "35209"
+    },
+    {
+        "name": "Svilajnac",
+        "zip_code": "35210"
+    },
+    {
+        "name": "Sedlare",
+        "zip_code": "35211"
+    },
+    {
+        "name": "Plažane",
+        "zip_code": "35212"
+    },
+    {
+        "name": "Despotovac",
+        "zip_code": "35213"
+    },
+    {
+        "name": "Stenjevac",
+        "zip_code": "35215"
+    },
+    {
+        "name": "Bobovo",
+        "zip_code": "35217"
+    },
+    {
+        "name": "Končarevo",
+        "zip_code": "35219"
+    },
+    {
+        "name": "Ribare",
+        "zip_code": "35220"
+    },
+    {
+        "name": "Veliki Popović",
+        "zip_code": "35223"
+    },
+    {
+        "name": "Medveđa",
+        "zip_code": "35224"
+    },
+    {
+        "name": "Kušiljevo",
+        "zip_code": "35226"
+    },
+    {
+        "name": "Krušar",
+        "zip_code": "35227"
+    },
+    {
+        "name": "Supska",
+        "zip_code": "35228"
+    },
+    {
+        "name": "Ćuprija",
+        "zip_code": "35230"
+    },
+    {
+        "name": "Senje",
+        "zip_code": "35233"
+    },
+    {
+        "name": "Senjski Rudnik",
+        "zip_code": "35234"
+    },
+    {
+        "name": "Mijatovac",
+        "zip_code": "35236"
+    },
+    {
+        "name": "Resavica",
+        "zip_code": "35237"
+    },
+    {
+        "name": "Jasenovo",
+        "zip_code": "35241"
+    },
+    {
+        "name": "Kolare",
+        "zip_code": "35242"
+    },
+    {
+        "name": "Plana",
+        "zip_code": "35247"
+    },
+    {
+        "name": "Trešnjevica",
+        "zip_code": "35248"
+    },
+    {
+        "name": "Paraćin",
+        "zip_code": "35250"
+    },
+    {
+        "name": "Popovac",
+        "zip_code": "35254"
+    },
+    {
+        "name": "Donja Mutnica",
+        "zip_code": "35255"
+    },
+    {
+        "name": "Sikirica",
+        "zip_code": "35256"
+    },
+    {
+        "name": "Drenovac",
+        "zip_code": "35257"
+    },
+    {
+        "name": "Donje Vidovo",
+        "zip_code": "35258"
+    },
+    {
+        "name": "Svojnovo",
+        "zip_code": "35259"
+    },
+    {
+        "name": "Rekovac",
+        "zip_code": "35260"
+    },
+    {
+        "name": "Glavinci",
+        "zip_code": "35261"
+    },
+    {
+        "name": "Dragoševac",
+        "zip_code": "35262"
+    },
+    {
+        "name": "Belušić",
+        "zip_code": "35263"
+    },
+    {
+        "name": "Prevešt",
+        "zip_code": "35264"
+    },
+    {
+        "name": "Dragovo",
+        "zip_code": "35265"
+    },
+    {
+        "name": "Oparić",
+        "zip_code": "35267"
+    },
+    {
+        "name": "Miloševo",
+        "zip_code": "35268"
+    },
+    {
+        "name": "Strižilo",
+        "zip_code": "35269"
+    },
+    {
+        "name": "Majur",
+        "zip_code": "35270"
+    },
+    {
+        "name": "Novo Lanište",
+        "zip_code": "35271"
+    },
+    {
+        "name": "Dragocvet",
+        "zip_code": "35272"
+    },
+    {
+        "name": "Bunar",
+        "zip_code": "35273"
+    },
+    {
+        "name": "Loćika",
+        "zip_code": "35274"
+    },
+    {
+        "name": "Kraljevo",
+        "zip_code": "36000"
+    },
+    {
+        "name": "Mataruška Banja",
+        "zip_code": "36201"
+    },
+    {
+        "name": "Samaila",
+        "zip_code": "36202"
+    },
+    {
+        "name": "Adrani",
+        "zip_code": "36203"
+    },
+    {
+        "name": "Lađevci",
+        "zip_code": "36204"
+    },
+    {
+        "name": "Roćevići",
+        "zip_code": "36205"
+    },
+    {
+        "name": "Vitanovac",
+        "zip_code": "36206"
+    },
+    {
+        "name": "Vitkovac",
+        "zip_code": "36207"
+    },
+    {
+        "name": "Sirča",
+        "zip_code": "36208"
+    },
+    {
+        "name": "Vrnjačka Banja",
+        "zip_code": "36210"
+    },
+    {
+        "name": "Ratina",
+        "zip_code": "36212"
+    },
+    {
+        "name": "Vrba",
+        "zip_code": "36214"
+    },
+    {
+        "name": "Podunavci",
+        "zip_code": "36215"
+    },
+    {
+        "name": "Novo Selo",
+        "zip_code": "36216"
+    },
+    {
+        "name": "Vrnjci",
+        "zip_code": "36217"
+    },
+    {
+        "name": "Čukojevac",
+        "zip_code": "36220"
+    },
+    {
+        "name": "Žiča",
+        "zip_code": "36221"
+    },
+    {
+        "name": "Rudno",
+        "zip_code": "36222"
+    },
+    {
+        "name": "Novi Pazar",
+        "zip_code": "36300"
+    },
+    {
+        "name": "Deževa",
+        "zip_code": "36305"
+    },
+    {
+        "name": "Lukare",
+        "zip_code": "36306"
+    },
+    {
+        "name": "Delimeđe",
+        "zip_code": "36307"
+    },
+    {
+        "name": "Sopoćani",
+        "zip_code": "36308"
+    },
+    {
+        "name": "Ribariće",
+        "zip_code": "36309"
+    },
+    {
+        "name": "Sjenica",
+        "zip_code": "36310"
+    },
+    {
+        "name": "Štavalj",
+        "zip_code": "36311"
+    },
+    {
+        "name": "Duga Poljana",
+        "zip_code": "36312"
+    },
+    {
+        "name": "Ugao",
+        "zip_code": "36313"
+    },
+    {
+        "name": "Štitare",
+        "zip_code": "36314"
+    },
+    {
+        "name": "Bare",
+        "zip_code": "36315"
+    },
+    {
+        "name": "Tutin",
+        "zip_code": "36320"
+    },
+    {
+        "name": "Crkvine",
+        "zip_code": "36321"
+    },
+    {
+        "name": "Konarevo",
+        "zip_code": "36340"
+    },
+    {
+        "name": "Bogutovac",
+        "zip_code": "36341"
+    },
+    {
+        "name": "Ušće",
+        "zip_code": "36342"
+    },
+    {
+        "name": "Studenica",
+        "zip_code": "36343"
+    },
+    {
+        "name": "Baljevac na Ibru",
+        "zip_code": "36344"
+    },
+    {
+        "name": "Jošanička Banja",
+        "zip_code": "36345"
+    },
+    {
+        "name": "Brvenik",
+        "zip_code": "36346"
+    },
+    {
+        "name": "Raška",
+        "zip_code": "36350"
+    },
+    {
+        "name": "Rudnica",
+        "zip_code": "36353"
+    },
+    {
+        "name": "Kopaonik",
+        "zip_code": "36354"
+    },
+    {
+        "name": "Kruševac",
+        "zip_code": "37000"
+    },
+    {
+        "name": "Parunovac",
+        "zip_code": "37201"
+    },
+    {
+        "name": "Đunis",
+        "zip_code": "37202"
+    },
+    {
+        "name": "Zdravinje",
+        "zip_code": "37203"
+    },
+    {
+        "name": "Veliki Šiljegovac",
+        "zip_code": "37204"
+    },
+    {
+        "name": "Ribarska Banja",
+        "zip_code": "37205"
+    },
+    {
+        "name": "Dvorane",
+        "zip_code": "37206"
+    },
+    {
+        "name": "Čitluk",
+        "zip_code": "37208"
+    },
+    {
+        "name": "Velika Lomnica",
+        "zip_code": "37209"
+    },
+    {
+        "name": "Ćićevac",
+        "zip_code": "37210"
+    },
+    {
+        "name": "Stalać",
+        "zip_code": "37212"
+    },
+    {
+        "name": "Vitoševac",
+        "zip_code": "37213"
+    },
+    {
+        "name": "Pojate",
+        "zip_code": "37214"
+    },
+    {
+        "name": "Ražanj",
+        "zip_code": "37215"
+    },
+    {
+        "name": "Novi Bračin",
+        "zip_code": "37216"
+    },
+    {
+        "name": "Skorica",
+        "zip_code": "37218"
+    },
+    {
+        "name": "Brus",
+        "zip_code": "37220"
+    },
+    {
+        "name": "Gornji Stepoš",
+        "zip_code": "37221"
+    },
+    {
+        "name": "Kupci",
+        "zip_code": "37222"
+    },
+    {
+        "name": "Razbojna",
+        "zip_code": "37223"
+    },
+    {
+        "name": "Lepenac",
+        "zip_code": "37224"
+    },
+    {
+        "name": "Brzeće",
+        "zip_code": "37225"
+    },
+    {
+        "name": "Blaževo",
+        "zip_code": "37226"
+    },
+    {
+        "name": "Milentija",
+        "zip_code": "37227"
+    },
+    {
+        "name": "Zlatari",
+        "zip_code": "37228"
+    },
+    {
+        "name": "Aleksandrovac",
+        "zip_code": "37230"
+    },
+    {
+        "name": "Pepeljevac",
+        "zip_code": "37231"
+    },
+    {
+        "name": "Velika Vrbnica",
+        "zip_code": "37233"
+    },
+    {
+        "name": "Gornji Stupanj",
+        "zip_code": "37234"
+    },
+    {
+        "name": "Trnavci",
+        "zip_code": "37235"
+    },
+    {
+        "name": "Rataje",
+        "zip_code": "37236"
+    },
+    {
+        "name": "Ploča",
+        "zip_code": "37237"
+    },
+    {
+        "name": "Pleš",
+        "zip_code": "37238"
+    },
+    {
+        "name": "Šljivovo",
+        "zip_code": "37239"
+    },
+    {
+        "name": "Trstenik",
+        "zip_code": "37240"
+    },
+    {
+        "name": "Stopanja",
+        "zip_code": "37242"
+    },
+    {
+        "name": "Počekovina",
+        "zip_code": "37243"
+    },
+    {
+        "name": "Medveđa",
+        "zip_code": "37244"
+    },
+    {
+        "name": "Velika Drenova",
+        "zip_code": "37245"
+    },
+    {
+        "name": "Milutovac",
+        "zip_code": "37246"
+    },
+    {
+        "name": "Globoder",
+        "zip_code": "37251"
+    },
+    {
+        "name": "Jasika",
+        "zip_code": "37252"
+    },
+    {
+        "name": "Bela Voda",
+        "zip_code": "37253"
+    },
+    {
+        "name": "Konjuh",
+        "zip_code": "37254"
+    },
+    {
+        "name": "Kukljin",
+        "zip_code": "37255"
+    },
+    {
+        "name": "Kaonik",
+        "zip_code": "37256"
+    },
+    {
+        "name": "Padež",
+        "zip_code": "37257"
+    },
+    {
+        "name": "Donji Krčin",
+        "zip_code": "37258"
+    },
+    {
+        "name": "Ribare",
+        "zip_code": "37259"
+    },
+    {
+        "name": "Varvarin",
+        "zip_code": "37260"
+    },
+    {
+        "name": "Bošnjane",
+        "zip_code": "37262"
+    },
+    {
+        "name": "Bačina",
+        "zip_code": "37265"
+    },
+    {
+        "name": "Obrež",
+        "zip_code": "37266"
+    },
+    {
+        "name": "Dašnica",
+        "zip_code": "37271"
+    },
+    {
+        "name": "Kriva Reka",
+        "zip_code": "37282"
+    }
+]

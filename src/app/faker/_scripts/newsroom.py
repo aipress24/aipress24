@@ -159,8 +159,7 @@ class AvisEnqueteFakerScript(BaseScript):
 
         obj.status = random.choice(list(PublicationStatus))
 
-        wikinews_d = random_wikinews_article()
-        obj.content = wikinews_d["html"]
+        obj.content = faker.text(5)
 
         # article.subheader = faker(2)
         obj.summary = " ".join(faker.sentences(3))
@@ -216,8 +215,7 @@ class ArticlesFakerScript(BaseScript):
 
         obj.status = random.choice(list(ArticleStatus))
 
-        wikinews_d = random_wikinews_article()
-        obj.content = wikinews_d["html"]
+        obj.content = faker.text(5)
 
         # article.subheader = faker(2)
         obj.summary = " ".join(faker.sentences(3))

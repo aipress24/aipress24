@@ -38,8 +38,8 @@ VALUE_LABEL_MODE = False
 
 # required: use a.ods document
 ONTOLOGY_SRC = Path("data/Ontologies-41.ods")
-COUNTRY_SRC = Path("country_zip_code/pays.json")
-ZIP_CODE_SRC = Path("country_zip_code/towns")
+COUNTRY_SRC = Path("data/country_zip_code/pays.json")
+ZIP_CODE_SRC = Path("data/country_zip_code/towns")
 
 
 # Secteurs → `sectors`

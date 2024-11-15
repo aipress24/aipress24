@@ -34,10 +34,9 @@ class ArticleGenerator(BaseGenerator):
 
         article.status = random.choice(list(PublicationStatus))
 
-        wikinews_d = random_wikinews_article()
-        article.title = wikinews_d["title"]
-        article.content = wikinews_d["html"]
-        categories = wikinews_d["categories"]
+        article.title = self.text_faker.text(1)
+        article.content = self.text_faker.text(5)
+        categories = []
 
         article.subheader = self.text_faker.text(2)
         article.summary = self.text_faker.text(random.randint(1, 2))

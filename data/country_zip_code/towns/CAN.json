@@ -1,0 +1,6622 @@
+[
+    {
+        "name": "Eastern Alberta (St. Paul)",
+        "zip_code": "T0A"
+    },
+    {
+        "name": "Wainwright Region (Tofield)",
+        "zip_code": "T0B"
+    },
+    {
+        "name": "Central Alberta (Stettler)",
+        "zip_code": "T0C"
+    },
+    {
+        "name": "Western Alberta (Jasper)",
+        "zip_code": "T0E"
+    },
+    {
+        "name": "North Central Alberta (Slave Lake)",
+        "zip_code": "T0G"
+    },
+    {
+        "name": "Northwestern Alberta (High Level)",
+        "zip_code": "T0H"
+    },
+    {
+        "name": "Southeastern Alberta (Drumheller)",
+        "zip_code": "T0J"
+    },
+    {
+        "name": "International Border Region (Cardston)",
+        "zip_code": "T0K"
+    },
+    {
+        "name": "Kananaskis Country (Claresholm)",
+        "zip_code": "T0L"
+    },
+    {
+        "name": "Central Foothills (Sundre)",
+        "zip_code": "T0M"
+    },
+    {
+        "name": "Northeastern Alberta (Fort Chipewyan)",
+        "zip_code": "T0P"
+    },
+    {
+        "name": "Remote Northeast (Fitzgerald)",
+        "zip_code": "T0V"
+    },
+    {
+        "name": "Medicine Hat Central",
+        "zip_code": "T1A"
+    },
+    {
+        "name": "Medicine Hat South",
+        "zip_code": "T1B"
+    },
+    {
+        "name": "Medicine Hat North",
+        "zip_code": "T1C"
+    },
+    {
+        "name": "Taber",
+        "zip_code": "T1G"
+    },
+    {
+        "name": "Lethbridge North",
+        "zip_code": "T1H"
+    },
+    {
+        "name": "Lethbridge West and Central",
+        "zip_code": "T1J"
+    },
+    {
+        "name": "Lethbridge Southeast",
+        "zip_code": "T1K"
+    },
+    {
+        "name": "Banff",
+        "zip_code": "T1L"
+    },
+    {
+        "name": "Coaldale",
+        "zip_code": "T1M"
+    },
+    {
+        "name": "Strathmore",
+        "zip_code": "T1P"
+    },
+    {
+        "name": "Brooks",
+        "zip_code": "T1R"
+    },
+    {
+        "name": "Okotoks",
+        "zip_code": "T1S"
+    },
+    {
+        "name": "High River",
+        "zip_code": "T1V"
+    },
+    {
+        "name": "Canmore",
+        "zip_code": "T1W"
+    },
+    {
+        "name": "Chestermere",
+        "zip_code": "T1X"
+    },
+    {
+        "name": "Calgary (Rundle / Whitehorn / Monterey Park)",
+        "zip_code": "T1Y"
+    },
+    {
+        "name": "Rocky View",
+        "zip_code": "T1Z"
+    },
+    {
+        "name": "Calgary (Penbrooke Meadows / Marlborough)",
+        "zip_code": "T2A"
+    },
+    {
+        "name": "Calgary (Forest Lawn / Dover / Erin Woods)",
+        "zip_code": "T2B"
+    },
+    {
+        "name": "Calgary (Lynnwood Ridge / Ogden / Foothills Industrial / Great Plains)",
+        "zip_code": "T2C"
+    },
+    {
+        "name": "Calgary (Bridgeland / Greenview / Zoo / YYC)",
+        "zip_code": "T2E"
+    },
+    {
+        "name": "Calgary (Inglewood / Burnsland / Chinatown / East Victoria Park / Saddledome)",
+        "zip_code": "T2G"
+    },
+    {
+        "name": "Calgary (Highfield / Burns Industrial)",
+        "zip_code": "T2H"
+    },
+    {
+        "name": "Calgary (Queensland Downs / Lake Bonavista / Willow Park / Acadia)",
+        "zip_code": "T2J"
+    },
+    {
+        "name": "Calgary (Thornecliffe / Tuxedo)",
+        "zip_code": "T2K"
+    },
+    {
+        "name": "Calgary (Brentwood / Collingwood / Nose Hill)",
+        "zip_code": "T2L"
+    },
+    {
+        "name": "Calgary (Mount Pleasant / Capitol Hill / Banff Trail)",
+        "zip_code": "T2M"
+    },
+    {
+        "name": "Calgary (Kensington / Westmont / Parkdale / University)",
+        "zip_code": "T2N"
+    },
+    {
+        "name": "Calgary (City Centre / Calgary Tower)",
+        "zip_code": "T2P"
+    },
+    {
+        "name": "Calgary (Connaught / West Victoria Park)",
+        "zip_code": "T2R"
+    },
+    {
+        "name": "Calgary (Elbow Park / Britannia / Parkhill / Mission)",
+        "zip_code": "T2S"
+    },
+    {
+        "name": "Calgary South (Altadore / Bankview / Richmond)",
+        "zip_code": "T2T"
+    },
+    {
+        "name": "Calgary (Oak Ridge / Haysboro / Kingsland / Windsor Park)",
+        "zip_code": "T2V"
+    },
+    {
+        "name": "Calgary (Braeside / Woodbine)",
+        "zip_code": "T2W"
+    },
+    {
+        "name": "Calgary (Midnapore / Sundance)",
+        "zip_code": "T2X"
+    },
+    {
+        "name": "Calgary (Millrise / Somerset / Bridlewood / Evergreen)",
+        "zip_code": "T2Y"
+    },
+    {
+        "name": "Calgary (Douglas Glen / McKenzie Lake / Copperfield / East Shepard)",
+        "zip_code": "T2Z"
+    },
+    {
+        "name": "Calgary (Dalhousie / Edgemont / Hamptons / Hidden Valley)",
+        "zip_code": "T3A"
+    },
+    {
+        "name": "Calgary (Montgomery / Bowness / Silver Springs / Greenwood)",
+        "zip_code": "T3B"
+    },
+    {
+        "name": "Calgary (Rosscarrock / Wildwood / Shaganappi / Sunalta)",
+        "zip_code": "T3C"
+    },
+    {
+        "name": "Calgary (Lakeview / Glendale / Killarney / Glamorgan)",
+        "zip_code": "T3E"
+    },
+    {
+        "name": "Calgary (Hawkwood / Arbour Lake / Royal Oak / Rocky Ridge)",
+        "zip_code": "T3G"
+    },
+    {
+        "name": "Calgary (Discovery Ridge / Signal Hill / Aspen Woods / Patterson / Cougar Ridge)",
+        "zip_code": "T3H"
+    },
+    {
+        "name": "Calgary (Martindale / Taradale / Falconridge / Saddle Ridge)",
+        "zip_code": "T3J"
+    },
+    {
+        "name": "Calgary (Sandstone / Harvest Hills / Coventry Hills / Panorama Hills / Beddington)",
+        "zip_code": "T3K"
+    },
+    {
+        "name": "Calgary (Tuscany / Scenic Acres)",
+        "zip_code": "T3L"
+    },
+    {
+        "name": "Calgary (Cranston)",
+        "zip_code": "T3M"
+    },
+    {
+        "name": "Calgary Northeast",
+        "zip_code": "T3N"
+    },
+    {
+        "name": "Calgary (Symons Valley)",
+        "zip_code": "T3P"
+    },
+    {
+        "name": "Calgary Northwest",
+        "zip_code": "T3R"
+    },
+    {
+        "name": "Calgary",
+        "zip_code": "T3S"
+    },
+    {
+        "name": "Redwood Meadows",
+        "zip_code": "T3Z"
+    },
+    {
+        "name": "Airdrie East",
+        "zip_code": "T4A"
+    },
+    {
+        "name": "Airdrie West",
+        "zip_code": "T4B"
+    },
+    {
+        "name": "Cochrane",
+        "zip_code": "T4C"
+    },
+    {
+        "name": "Red Deer County",
+        "zip_code": "T4E"
+    },
+    {
+        "name": "Innisfail",
+        "zip_code": "T4G"
+    },
+    {
+        "name": "Olds",
+        "zip_code": "T4H"
+    },
+    {
+        "name": "Ponoka",
+        "zip_code": "T4J"
+    },
+    {
+        "name": "Lacombe",
+        "zip_code": "T4L"
+    },
+    {
+        "name": "Blackfalds",
+        "zip_code": "T4M"
+    },
+    {
+        "name": "Red Deer Central",
+        "zip_code": "T4N"
+    },
+    {
+        "name": "Red Deer North",
+        "zip_code": "T4P"
+    },
+    {
+        "name": "Red Deer South",
+        "zip_code": "T4R"
+    },
+    {
+        "name": "Sylvan Lake",
+        "zip_code": "T4S"
+    },
+    {
+        "name": "Rocky Mountain House",
+        "zip_code": "T4T"
+    },
+    {
+        "name": "Camrose",
+        "zip_code": "T4V"
+    },
+    {
+        "name": "Beaumont",
+        "zip_code": "T4X"
+    },
+    {
+        "name": "Edmonton (West Clareview / East Londonderry)",
+        "zip_code": "T5A"
+    },
+    {
+        "name": "Edmonton (East North Central / West Beverly)",
+        "zip_code": "T5B"
+    },
+    {
+        "name": "Edmonton (Central Londonderry)",
+        "zip_code": "T5C"
+    },
+    {
+        "name": "Edmonton (West Londonderry / East Calder)",
+        "zip_code": "T5E"
+    },
+    {
+        "name": "Edmonton (North Central / Queen Mary Park / YXD)",
+        "zip_code": "T5G"
+    },
+    {
+        "name": "Edmonton (North and East Downtown Fringe)",
+        "zip_code": "T5H"
+    },
+    {
+        "name": "Edmonton (North Downtown)",
+        "zip_code": "T5J"
+    },
+    {
+        "name": "Edmonton (South Downtown / South Downtown Fringe)",
+        "zip_code": "T5K"
+    },
+    {
+        "name": "Edmonton (North Westmount / West Calder / East Mistatim)",
+        "zip_code": "T5L"
+    },
+    {
+        "name": "Edmonton (South Westmount / Groat Estate / East Northwest Industrial)",
+        "zip_code": "T5M"
+    },
+    {
+        "name": "Edmonton (Glenora / SW Downtown Fringe)",
+        "zip_code": "T5N"
+    },
+    {
+        "name": "Edmonton (North Jasper Place)",
+        "zip_code": "T5P"
+    },
+    {
+        "name": "Edmonton (Central Jasper Place / Buena Vista)",
+        "zip_code": "T5R"
+    },
+    {
+        "name": "Edmonton (West Northwest Industrial / Winterburn)",
+        "zip_code": "T5S"
+    },
+    {
+        "name": "Edmonton West (West Jasper Place / West Edmonton Mall)",
+        "zip_code": "T5T"
+    },
+    {
+        "name": "Edmonton (Central Mistatim)",
+        "zip_code": "T5V"
+    },
+    {
+        "name": "Edmonton (Central Beverly)",
+        "zip_code": "T5W"
+    },
+    {
+        "name": "Edmonton (East Castledowns)",
+        "zip_code": "T5X"
+    },
+    {
+        "name": "Edmonton (Landbank / Oliver / East Lake District)",
+        "zip_code": "T5Y"
+    },
+    {
+        "name": "Edmonton (West Lake District)",
+        "zip_code": "T5Z"
+    },
+    {
+        "name": "Edmonton (North Capilano)",
+        "zip_code": "T6A"
+    },
+    {
+        "name": "Edmonton (SE Capilano / West Southeast Industrial / East Bonnie Doon)",
+        "zip_code": "T6B"
+    },
+    {
+        "name": "Edmonton (Central Bonnie Doon)",
+        "zip_code": "T6C"
+    },
+    {
+        "name": "Edmonton (South Bonnie Doon / East University)",
+        "zip_code": "T6E"
+    },
+    {
+        "name": "Edmonton (West University / Strathcona Place)",
+        "zip_code": "T6G"
+    },
+    {
+        "name": "Edmonton (Southgate / North Riverbend)",
+        "zip_code": "T6H"
+    },
+    {
+        "name": "Edmonton (Kaskitayo)",
+        "zip_code": "T6J"
+    },
+    {
+        "name": "Edmonton (West Mill Woods)",
+        "zip_code": "T6K"
+    },
+    {
+        "name": "Edmonton (East Mill Woods)",
+        "zip_code": "T6L"
+    },
+    {
+        "name": "Edmonton Southwest",
+        "zip_code": "T6M"
+    },
+    {
+        "name": "Edmonton (South Industrial)",
+        "zip_code": "T6N"
+    },
+    {
+        "name": "Edmonton (East Southeast Industrial / South Clover Bar)",
+        "zip_code": "T6P"
+    },
+    {
+        "name": "Edmonton (Riverbend)",
+        "zip_code": "T6R"
+    },
+    {
+        "name": "Edmonton (North Clover Bar)",
+        "zip_code": "T6S"
+    },
+    {
+        "name": "Edmonton (Meadows)",
+        "zip_code": "T6T"
+    },
+    {
+        "name": "Edmonton (West Castledowns)",
+        "zip_code": "T6V"
+    },
+    {
+        "name": "Edmonton (Heritage Valley)",
+        "zip_code": "T6W"
+    },
+    {
+        "name": "Edmonton (Ellerslie)",
+        "zip_code": "T6X"
+    },
+    {
+        "name": "Drayton Valley",
+        "zip_code": "T7A"
+    },
+    {
+        "name": "Edson",
+        "zip_code": "T7E"
+    },
+    {
+        "name": "Barrhead",
+        "zip_code": "T7N"
+    },
+    {
+        "name": "Westlock",
+        "zip_code": "T7P"
+    },
+    {
+        "name": "Whitecourt",
+        "zip_code": "T7S"
+    },
+    {
+        "name": "Hinton",
+        "zip_code": "T7V"
+    },
+    {
+        "name": "Spruce Grove North",
+        "zip_code": "T7X"
+    },
+    {
+        "name": "Spruce Grove South",
+        "zip_code": "T7Y"
+    },
+    {
+        "name": "Stony Plain",
+        "zip_code": "T7Z"
+    },
+    {
+        "name": "Sherwood Park West",
+        "zip_code": "T8A"
+    },
+    {
+        "name": "Sherwood Park Outer Southwest",
+        "zip_code": "T8B"
+    },
+    {
+        "name": "Sherwood Park Inner Southwest",
+        "zip_code": "T8C"
+    },
+    {
+        "name": "Sherwood Park Central",
+        "zip_code": "T8E"
+    },
+    {
+        "name": "Sherwood Park East",
+        "zip_code": "T8G"
+    },
+    {
+        "name": "Sherwood Park Northwest",
+        "zip_code": "T8H"
+    },
+    {
+        "name": "Fort Saskatchewan",
+        "zip_code": "T8L"
+    },
+    {
+        "name": "St. Albert",
+        "zip_code": "T8N"
+    },
+    {
+        "name": "Morinville",
+        "zip_code": "T8R"
+    },
+    {
+        "name": "Peace River",
+        "zip_code": "T8S"
+    },
+    {
+        "name": "St. Albert",
+        "zip_code": "T8T"
+    },
+    {
+        "name": "Grande Prairie Central",
+        "zip_code": "T8V"
+    },
+    {
+        "name": "Grande Prairie South",
+        "zip_code": "T8W"
+    },
+    {
+        "name": "Grande Prairie East",
+        "zip_code": "T8X"
+    },
+    {
+        "name": "Wetaskiwin",
+        "zip_code": "T9A"
+    },
+    {
+        "name": "Vegreville",
+        "zip_code": "T9C"
+    },
+    {
+        "name": "Leduc",
+        "zip_code": "T9E"
+    },
+    {
+        "name": "Devon",
+        "zip_code": "T9G"
+    },
+    {
+        "name": "Fort McMurray Outer Central",
+        "zip_code": "T9H"
+    },
+    {
+        "name": "Fort McMurray Inner Central",
+        "zip_code": "T9J"
+    },
+    {
+        "name": "Fort McMurray Northwest",
+        "zip_code": "T9K"
+    },
+    {
+        "name": "Cold Lake",
+        "zip_code": "T9M"
+    },
+    {
+        "name": "Bonnyville",
+        "zip_code": "T9N"
+    },
+    {
+        "name": "Athabasca",
+        "zip_code": "T9S"
+    },
+    {
+        "name": "Lloydminster",
+        "zip_code": "T9V"
+    },
+    {
+        "name": "Wainwright",
+        "zip_code": "T9W"
+    },
+    {
+        "name": "Vermilion",
+        "zip_code": "T9X"
+    },
+    {
+        "name": "Vancouver (North Hastings-Sunrise)",
+        "zip_code": "V5K"
+    },
+    {
+        "name": "Vancouver (North Grandview-Woodlands)",
+        "zip_code": "V5L"
+    },
+    {
+        "name": "Vancouver (South Hastings-Sunrise / North Renfrew-Collingwood)",
+        "zip_code": "V5M"
+    },
+    {
+        "name": "Vancouver (South Grandview-Woodlands / NE Kensington)",
+        "zip_code": "V5N"
+    },
+    {
+        "name": "Vancouver (SE Kensington / Victoria-Fraserview)",
+        "zip_code": "V5P"
+    },
+    {
+        "name": "Vancouver (South Renfrew-Collingwood)",
+        "zip_code": "V5R"
+    },
+    {
+        "name": "Vancouver (Killarney)",
+        "zip_code": "V5S"
+    },
+    {
+        "name": "Vancouver (East Mount Pleasant)",
+        "zip_code": "V5T"
+    },
+    {
+        "name": "Vancouver (West Kensington / NE Riley Park-Little Mountain)",
+        "zip_code": "V5V"
+    },
+    {
+        "name": "Vancouver (SE Riley Park-Little Mountain / SW Kensington / NE Oakridge / North Sunset)",
+        "zip_code": "V5W"
+    },
+    {
+        "name": "Vancouver (SE Oakridge / East Marpole / South Sunset)",
+        "zip_code": "V5X"
+    },
+    {
+        "name": "Vancouver (West Mount Pleasant / West Riley Park-Little Mountain)",
+        "zip_code": "V5Y"
+    },
+    {
+        "name": "Vancouver (East Fairview / South Cambie)",
+        "zip_code": "V5Z"
+    },
+    {
+        "name": "Vancouver (Strathcona / Chinatown / Downtown Eastside)",
+        "zip_code": "V6A"
+    },
+    {
+        "name": "Vancouver (NE Downtown / Harbour Centre / Gastown / Yaletown)",
+        "zip_code": "V6B"
+    },
+    {
+        "name": "Vancouver (Waterfront / Coal Harbour / Canada Place)",
+        "zip_code": "V6C"
+    },
+    {
+        "name": "Vancouver (South West End)",
+        "zip_code": "V6E"
+    },
+    {
+        "name": "Vancouver (North West End / Stanley Park)",
+        "zip_code": "V6G"
+    },
+    {
+        "name": "Vancouver (West Fairview / Granville Island / NE Shaughnessy)",
+        "zip_code": "V6H"
+    },
+    {
+        "name": "Vancouver (NW Shaughnessy / East Kitsilano / Quilchena)",
+        "zip_code": "V6J"
+    },
+    {
+        "name": "Vancouver (Central Kitsilano)",
+        "zip_code": "V6K"
+    },
+    {
+        "name": "Vancouver (NW Arbutus Ridge)",
+        "zip_code": "V6L"
+    },
+    {
+        "name": "Vancouver (South Shaughnessy / NW Oakridge / NE Kerrisdale / SE Arbutus Ridge)",
+        "zip_code": "V6M"
+    },
+    {
+        "name": "Vancouver (Dunbar-Southlands / Musqueam)",
+        "zip_code": "V6N"
+    },
+    {
+        "name": "Vancouver (SE Kerrisdale / SW Oakridge / West Marpole)",
+        "zip_code": "V6P"
+    },
+    {
+        "name": "Vancouver (West Kitsilano / Jericho)",
+        "zip_code": "V6R"
+    },
+    {
+        "name": "Vancouver (Chaldecutt / South University Endowment Lands)",
+        "zip_code": "V6S"
+    },
+    {
+        "name": "Vancouver (UBC)",
+        "zip_code": "V6T"
+    },
+    {
+        "name": "Vancouver (SW Downtown)",
+        "zip_code": "V6Z"
+    },
+    {
+        "name": "North Vancouver Outer East",
+        "zip_code": "V7G"
+    },
+    {
+        "name": "North Vancouver Inner East",
+        "zip_code": "V7H"
+    },
+    {
+        "name": "North Vancouver East Central",
+        "zip_code": "V7J"
+    },
+    {
+        "name": "North Vancouver North Central",
+        "zip_code": "V7K"
+    },
+    {
+        "name": "North Vancouver South Central",
+        "zip_code": "V7L"
+    },
+    {
+        "name": "North Vancouver Southwest Central",
+        "zip_code": "V7M"
+    },
+    {
+        "name": "North Vancouver Northwest Central",
+        "zip_code": "V7N"
+    },
+    {
+        "name": "North Vancouver Southwest",
+        "zip_code": "V7P"
+    },
+    {
+        "name": "North Vancouver Northwest",
+        "zip_code": "V7R"
+    },
+    {
+        "name": "West Vancouver North",
+        "zip_code": "V7S"
+    },
+    {
+        "name": "West Vancouver Southeast",
+        "zip_code": "V7T"
+    },
+    {
+        "name": "West Vancouver South",
+        "zip_code": "V7V"
+    },
+    {
+        "name": "West Vancouver West",
+        "zip_code": "V7W"
+    },
+    {
+        "name": "Vancouver (Bentall Centre)",
+        "zip_code": "V7X"
+    },
+    {
+        "name": "Vancouver (Pacific Centre)",
+        "zip_code": "V7Y"
+    },
+    {
+        "name": "Upper Columbia Region (Golden)",
+        "zip_code": "V0A"
+    },
+    {
+        "name": "East Kootenays (Fernie)",
+        "zip_code": "V0B"
+    },
+    {
+        "name": "Northern British Columbia (Fort Nelson)",
+        "zip_code": "V0C"
+    },
+    {
+        "name": "Central Okanagan and High Country (Revelstoke)",
+        "zip_code": "V0E"
+    },
+    {
+        "name": "West Kootenays (Rossland)",
+        "zip_code": "V0G"
+    },
+    {
+        "name": "South Okanagan (Summerland)",
+        "zip_code": "V0H"
+    },
+    {
+        "name": "Omineca and Yellowhead (Smithers)",
+        "zip_code": "V0J"
+    },
+    {
+        "name": "Cariboo and West Okanagan (100 Mile House)",
+        "zip_code": "V0K"
+    },
+    {
+        "name": "Chilcotin (Alexis Creek)",
+        "zip_code": "V0L"
+    },
+    {
+        "name": "Harrison Lake Region (Agassiz)",
+        "zip_code": "V0M"
+    },
+    {
+        "name": "North Island, Sunshine Coast, and Southern Gulf Islands (Whistler)",
+        "zip_code": "V0N"
+    },
+    {
+        "name": "North Central Island and Bute Inlet Region (Gold River)",
+        "zip_code": "V0P"
+    },
+    {
+        "name": "Central Island (Chemainus)",
+        "zip_code": "V0R"
+    },
+    {
+        "name": "Juan de Fuca Shore (Sooke)",
+        "zip_code": "V0S"
+    },
+    {
+        "name": "Inside Passage and the Queen Charlottes (Queen Charlotte City)",
+        "zip_code": "V0T"
+    },
+    {
+        "name": "Lower Skeena (Port Edward)",
+        "zip_code": "V0V"
+    },
+    {
+        "name": "Atlin Region (Atlin)",
+        "zip_code": "V0W"
+    },
+    {
+        "name": "Similkameen (Hope)",
+        "zip_code": "V0X"
+    },
+    {
+        "name": "Kimberley",
+        "zip_code": "V1A"
+    },
+    {
+        "name": "Vernon East",
+        "zip_code": "V1B"
+    },
+    {
+        "name": "Cranbrook",
+        "zip_code": "V1C"
+    },
+    {
+        "name": "Salmon Arm",
+        "zip_code": "V1E"
+    },
+    {
+        "name": "Dawson Creek",
+        "zip_code": "V1G"
+    },
+    {
+        "name": "Vernon West",
+        "zip_code": "V1H"
+    },
+    {
+        "name": "Fort St. John",
+        "zip_code": "V1J"
+    },
+    {
+        "name": "Merritt",
+        "zip_code": "V1K"
+    },
+    {
+        "name": "Nelson",
+        "zip_code": "V1L"
+    },
+    {
+        "name": "Langley Township North",
+        "zip_code": "V1M"
+    },
+    {
+        "name": "Castlegar",
+        "zip_code": "V1N"
+    },
+    {
+        "name": "Kelowna East",
+        "zip_code": "V1P"
+    },
+    {
+        "name": "Trail",
+        "zip_code": "V1R"
+    },
+    {
+        "name": "Kamloops Southwest",
+        "zip_code": "V1S"
+    },
+    {
+        "name": "Vernon Central",
+        "zip_code": "V1T"
+    },
+    {
+        "name": "Kelowna North",
+        "zip_code": "V1V"
+    },
+    {
+        "name": "Kelowna Southwest",
+        "zip_code": "V1W"
+    },
+    {
+        "name": "Kelowna East Central",
+        "zip_code": "V1X"
+    },
+    {
+        "name": "Kelowna Central",
+        "zip_code": "V1Y"
+    },
+    {
+        "name": "Kelowna West",
+        "zip_code": "V1Z"
+    },
+    {
+        "name": "Penticton",
+        "zip_code": "V2A"
+    },
+    {
+        "name": "Kamloops Northwest",
+        "zip_code": "V2B"
+    },
+    {
+        "name": "Kamloops Central and Southeast",
+        "zip_code": "V2C"
+    },
+    {
+        "name": "Kamloops South and West",
+        "zip_code": "V2E"
+    },
+    {
+        "name": "Williams Lake",
+        "zip_code": "V2G"
+    },
+    {
+        "name": "Kamloops North",
+        "zip_code": "V2H"
+    },
+    {
+        "name": "Quesnel",
+        "zip_code": "V2J"
+    },
+    {
+        "name": "Prince George North",
+        "zip_code": "V2K"
+    },
+    {
+        "name": "Prince George East Central",
+        "zip_code": "V2L"
+    },
+    {
+        "name": "Prince George West Central",
+        "zip_code": "V2M"
+    },
+    {
+        "name": "Prince George South",
+        "zip_code": "V2N"
+    },
+    {
+        "name": "Chilliwack Central",
+        "zip_code": "V2P"
+    },
+    {
+        "name": "Chilliwack West",
+        "zip_code": "V2R"
+    },
+    {
+        "name": "Abbotsford Southeast",
+        "zip_code": "V2S"
+    },
+    {
+        "name": "Abbotsford Southwest",
+        "zip_code": "V2T"
+    },
+    {
+        "name": "Mission East",
+        "zip_code": "V2V"
+    },
+    {
+        "name": "Maple Ridge East",
+        "zip_code": "V2W"
+    },
+    {
+        "name": "Maple Ridge West",
+        "zip_code": "V2X"
+    },
+    {
+        "name": "Langley Township Northwest",
+        "zip_code": "V2Y"
+    },
+    {
+        "name": "Langley Township Southwest",
+        "zip_code": "V2Z"
+    },
+    {
+        "name": "Langley City",
+        "zip_code": "V3A"
+    },
+    {
+        "name": "Port Coquitlam Central",
+        "zip_code": "V3B"
+    },
+    {
+        "name": "Port Coquitlam South",
+        "zip_code": "V3C"
+    },
+    {
+        "name": "Port Coquitlam North",
+        "zip_code": "V3E"
+    },
+    {
+        "name": "Abbotsford East",
+        "zip_code": "V3G"
+    },
+    {
+        "name": "Port Moody",
+        "zip_code": "V3H"
+    },
+    {
+        "name": "Coquitlam North",
+        "zip_code": "V3J"
+    },
+    {
+        "name": "Coquitlam South",
+        "zip_code": "V3K"
+    },
+    {
+        "name": "New Westminster Northeast",
+        "zip_code": "V3L"
+    },
+    {
+        "name": "New Westminster Southwest (Includes Annacis Island)",
+        "zip_code": "V3M"
+    },
+    {
+        "name": "Burnaby (East Big Bend / Stride Avenue / Edmonds / Cariboo-Armstrong)",
+        "zip_code": "V3N"
+    },
+    {
+        "name": "Surrey North",
+        "zip_code": "V3R"
+    },
+    {
+        "name": "Surrey East",
+        "zip_code": "V3S"
+    },
+    {
+        "name": "Surrey Inner Northwest",
+        "zip_code": "V3T"
+    },
+    {
+        "name": "Surrey Outer Northwest",
+        "zip_code": "V3V"
+    },
+    {
+        "name": "Surrey Upper West",
+        "zip_code": "V3W"
+    },
+    {
+        "name": "Surrey Lower West",
+        "zip_code": "V3X"
+    },
+    {
+        "name": "Pitt Meadows",
+        "zip_code": "V3Y"
+    },
+    {
+        "name": "Surrey",
+        "zip_code": "V3Z"
+    },
+    {
+        "name": "Surrey Southwest",
+        "zip_code": "V4A"
+    },
+    {
+        "name": "White Rock",
+        "zip_code": "V4B"
+    },
+    {
+        "name": "Delta Northeast",
+        "zip_code": "V4C"
+    },
+    {
+        "name": "Delta East",
+        "zip_code": "V4E"
+    },
+    {
+        "name": "Delta East Central",
+        "zip_code": "V4G"
+    },
+    {
+        "name": "Delta Central",
+        "zip_code": "V4K"
+    },
+    {
+        "name": "Delta Southeast",
+        "zip_code": "V4L"
+    },
+    {
+        "name": "Delta Southwest",
+        "zip_code": "V4M"
+    },
+    {
+        "name": "Surrey Northeast",
+        "zip_code": "V4N"
+    },
+    {
+        "name": "Surrey South",
+        "zip_code": "V4P"
+    },
+    {
+        "name": "Maple Ridge Northwest",
+        "zip_code": "V4R"
+    },
+    {
+        "name": "Mission West",
+        "zip_code": "V4S"
+    },
+    {
+        "name": "Westbank",
+        "zip_code": "V4T"
+    },
+    {
+        "name": "Winfield",
+        "zip_code": "V4V"
+    },
+    {
+        "name": "Langley Township East",
+        "zip_code": "V4W"
+    },
+    {
+        "name": "Abbotsford West",
+        "zip_code": "V4X"
+    },
+    {
+        "name": "Chilliwack East",
+        "zip_code": "V4Z"
+    },
+    {
+        "name": "Burnaby (Government Road / Lake City / SFU / Burnaby Mountain)",
+        "zip_code": "V5A"
+    },
+    {
+        "name": "Burnaby (Parkcrest-Aubrey / Ardingley-Sprott)",
+        "zip_code": "V5B"
+    },
+    {
+        "name": "Burnaby (Burnaby Heights / Willingdon Heights / West Central Valley)",
+        "zip_code": "V5C"
+    },
+    {
+        "name": "Burnaby (Lakeview-Mayfield / Richmond Park / Kingsway-Beresford)",
+        "zip_code": "V5E"
+    },
+    {
+        "name": "Burnaby (Cascade-Schou / Douglas-Gilpin)",
+        "zip_code": "V5G"
+    },
+    {
+        "name": "Burnaby (Maywood / Marlborough / Oakalla / Windsor)",
+        "zip_code": "V5H"
+    },
+    {
+        "name": "Burnaby (Suncrest / Sussex-Nelson / Clinton-Glenwood / West Big Bend)",
+        "zip_code": "V5J"
+    },
+    {
+        "name": "Richmond Northeast",
+        "zip_code": "V6V"
+    },
+    {
+        "name": "Richmond Southeast",
+        "zip_code": "V6W"
+    },
+    {
+        "name": "Richmond North",
+        "zip_code": "V6X"
+    },
+    {
+        "name": "Richmond Central",
+        "zip_code": "V6Y"
+    },
+    {
+        "name": "Richmond South",
+        "zip_code": "V7A"
+    },
+    {
+        "name": "Richmond (Sea Island / YVR)",
+        "zip_code": "V7B"
+    },
+    {
+        "name": "Richmond West",
+        "zip_code": "V7C"
+    },
+    {
+        "name": "Richmond Southwest",
+        "zip_code": "V7E"
+    },
+    {
+        "name": "Powell River",
+        "zip_code": "V8A"
+    },
+    {
+        "name": "Squamish",
+        "zip_code": "V8B"
+    },
+    {
+        "name": "Kitimat",
+        "zip_code": "V8C"
+    },
+    {
+        "name": "Whistler",
+        "zip_code": "V8E"
+    },
+    {
+        "name": "Terrace",
+        "zip_code": "V8G"
+    },
+    {
+        "name": "Prince Rupert",
+        "zip_code": "V8J"
+    },
+    {
+        "name": "Saltspring Island",
+        "zip_code": "V8K"
+    },
+    {
+        "name": "Sidney",
+        "zip_code": "V8L"
+    },
+    {
+        "name": "Central Saanich",
+        "zip_code": "V8M"
+    },
+    {
+        "name": "Saanich East",
+        "zip_code": "V8N"
+    },
+    {
+        "name": "Saanich Southeast",
+        "zip_code": "V8P"
+    },
+    {
+        "name": "Oak Bay North",
+        "zip_code": "V8R"
+    },
+    {
+        "name": "Oak Bay South",
+        "zip_code": "V8S"
+    },
+    {
+        "name": "Victoria North",
+        "zip_code": "V8T"
+    },
+    {
+        "name": "Victoria South",
+        "zip_code": "V8V"
+    },
+    {
+        "name": "Victoria Central British Columbia Provincial Government",
+        "zip_code": "V8W"
+    },
+    {
+        "name": "Saanich South",
+        "zip_code": "V8X"
+    },
+    {
+        "name": "Saanich North",
+        "zip_code": "V8Y"
+    },
+    {
+        "name": "Saanich Central",
+        "zip_code": "V8Z"
+    },
+    {
+        "name": "Esquimalt",
+        "zip_code": "V9A"
+    },
+    {
+        "name": "Highlands",
+        "zip_code": "V9B"
+    },
+    {
+        "name": "Metchosin",
+        "zip_code": "V9C"
+    },
+    {
+        "name": "Saanich West",
+        "zip_code": "V9E"
+    },
+    {
+        "name": "Ladysmith",
+        "zip_code": "V9G"
+    },
+    {
+        "name": "Campbell River Outskirts",
+        "zip_code": "V9H"
+    },
+    {
+        "name": "Courtenay Northern Outskirts",
+        "zip_code": "V9J"
+    },
+    {
+        "name": "Qualicum Beach",
+        "zip_code": "V9K"
+    },
+    {
+        "name": "Duncan",
+        "zip_code": "V9L"
+    },
+    {
+        "name": "Comox",
+        "zip_code": "V9M"
+    },
+    {
+        "name": "Courtenay Central",
+        "zip_code": "V9N"
+    },
+    {
+        "name": "Parksville",
+        "zip_code": "V9P"
+    },
+    {
+        "name": "Nanaimo South",
+        "zip_code": "V9R"
+    },
+    {
+        "name": "Nanaimo Central",
+        "zip_code": "V9S"
+    },
+    {
+        "name": "Nanaimo North",
+        "zip_code": "V9T"
+    },
+    {
+        "name": "Nanaimo Northwest",
+        "zip_code": "V9V"
+    },
+    {
+        "name": "Campbell River Central",
+        "zip_code": "V9W"
+    },
+    {
+        "name": "Cedar",
+        "zip_code": "V9X"
+    },
+    {
+        "name": "Port Alberni",
+        "zip_code": "V9Y"
+    },
+    {
+        "name": "Sooke",
+        "zip_code": "V9Z"
+    },
+    {
+        "name": "Lorette",
+        "zip_code": "R5K"
+    },
+    {
+        "name": "Southeastern Manitoba (Lorette)",
+        "zip_code": "R0A"
+    },
+    {
+        "name": "Northern Manitoba (Norway House)",
+        "zip_code": "R0B"
+    },
+    {
+        "name": "North Interlake (Stonewall)",
+        "zip_code": "R0C"
+    },
+    {
+        "name": "Eastern Manitoba (Beausejour)",
+        "zip_code": "R0E"
+    },
+    {
+        "name": "South Central Manitoba (Altona)",
+        "zip_code": "R0G"
+    },
+    {
+        "name": "South Interlake (MacGregor)",
+        "zip_code": "R0H"
+    },
+    {
+        "name": "Riding Mountain (Neepawa)",
+        "zip_code": "R0J"
+    },
+    {
+        "name": "Brandon Region (Killarney)",
+        "zip_code": "R0K"
+    },
+    {
+        "name": "Western Manitoba (Swan River)",
+        "zip_code": "R0L"
+    },
+    {
+        "name": "Southwestern Manitoba (Virden)",
+        "zip_code": "R0M"
+    },
+    {
+        "name": "Selkirk",
+        "zip_code": "R1A"
+    },
+    {
+        "name": "Lockport",
+        "zip_code": "R1B"
+    },
+    {
+        "name": "Narol",
+        "zip_code": "R1C"
+    },
+    {
+        "name": "Portage la Prairie",
+        "zip_code": "R1N"
+    },
+    {
+        "name": "Winnipeg (Transcona)",
+        "zip_code": "R2C"
+    },
+    {
+        "name": "East St. Paul",
+        "zip_code": "R2E"
+    },
+    {
+        "name": "Winnipeg (River East North)",
+        "zip_code": "R2G"
+    },
+    {
+        "name": "Winnipeg (St. Boniface NW)",
+        "zip_code": "R2H"
+    },
+    {
+        "name": "Winnipeg (St. Boniface NE)",
+        "zip_code": "R2J"
+    },
+    {
+        "name": "Winnipeg (River East Central)",
+        "zip_code": "R2K"
+    },
+    {
+        "name": "Winnipeg (River East South)",
+        "zip_code": "R2L"
+    },
+    {
+        "name": "Winnipeg (St. Vital North)",
+        "zip_code": "R2M"
+    },
+    {
+        "name": "Winnipeg (St. Vital SW)",
+        "zip_code": "R2N"
+    },
+    {
+        "name": "Winnipeg (Seven Oaks West)",
+        "zip_code": "R2P"
+    },
+    {
+        "name": "Winnipeg (Inkster West)",
+        "zip_code": "R2R"
+    },
+    {
+        "name": "Winnipeg (Seven Oaks East)",
+        "zip_code": "R2V"
+    },
+    {
+        "name": "Winnipeg (Point Douglas East)",
+        "zip_code": "R2W"
+    },
+    {
+        "name": "Winnipeg (Point Douglas West / Inkster East)",
+        "zip_code": "R2X"
+    },
+    {
+        "name": "Winnipeg (St. James-Assiniboia NW)",
+        "zip_code": "R2Y"
+    },
+    {
+        "name": "Winnipeg (Centennial)",
+        "zip_code": "R3A"
+    },
+    {
+        "name": "Winnipeg (Chinatown / Civic Centre / Exchange District)",
+        "zip_code": "R3B"
+    },
+    {
+        "name": "Winnipeg (Broadway / The Forks / Portage and Main) Manitoba Provincial Government",
+        "zip_code": "R3C"
+    },
+    {
+        "name": "Winnipeg (Sargent Park / Daniel McIntyre / Inkster SE)",
+        "zip_code": "R3E"
+    },
+    {
+        "name": "Winnipeg (Minto / St. Mathews / Wolseley)",
+        "zip_code": "R3G"
+    },
+    {
+        "name": "Winnipeg (St. James-Assiniboia NE / YWG)",
+        "zip_code": "R3H"
+    },
+    {
+        "name": "Winnipeg (St. James-Assiniboia SE)",
+        "zip_code": "R3J"
+    },
+    {
+        "name": "Winnipeg (St. James-Assiniboia SW)",
+        "zip_code": "R3K"
+    },
+    {
+        "name": "Winnipeg (River Heights East)",
+        "zip_code": "R3L"
+    },
+    {
+        "name": "Winnipeg (River Heights Central)",
+        "zip_code": "R3M"
+    },
+    {
+        "name": "Winnipeg (River Heights West)",
+        "zip_code": "R3N"
+    },
+    {
+        "name": "Winnipeg (Fort Garry NW / Tuxedo)",
+        "zip_code": "R3P"
+    },
+    {
+        "name": "Winnipeg (Assiniboine South / Betsworth)",
+        "zip_code": "R3R"
+    },
+    {
+        "name": "Winnipeg (Wilkes South)",
+        "zip_code": "R3S"
+    },
+    {
+        "name": "Winnipeg (Fort Garry NE / University of Manitoba)",
+        "zip_code": "R3T"
+    },
+    {
+        "name": "Winnipeg (Fort Garry South)",
+        "zip_code": "R3V"
+    },
+    {
+        "name": "Winnipeg (Grassie / Pequis)",
+        "zip_code": "R3W"
+    },
+    {
+        "name": "Winnipeg (St. Boniface South / St. Vital SE)",
+        "zip_code": "R3X"
+    },
+    {
+        "name": "Winnipeg (Fort Garry West)",
+        "zip_code": "R3Y"
+    },
+    {
+        "name": "West St. Paul",
+        "zip_code": "R4A"
+    },
+    {
+        "name": "Oak Bluff",
+        "zip_code": "R4G"
+    },
+    {
+        "name": "Headingley East",
+        "zip_code": "R4H"
+    },
+    {
+        "name": "Headingley West",
+        "zip_code": "R4J"
+    },
+    {
+        "name": "Cartier",
+        "zip_code": "R4K"
+    },
+    {
+        "name": "St. Francois Xavier",
+        "zip_code": "R4L"
+    },
+    {
+        "name": "St. Adolphe",
+        "zip_code": "R5A"
+    },
+    {
+        "name": "Steinbach",
+        "zip_code": "R5G"
+    },
+    {
+        "name": "Ste. Anne",
+        "zip_code": "R5H"
+    },
+    {
+        "name": "Morden",
+        "zip_code": "R6M"
+    },
+    {
+        "name": "Winkler",
+        "zip_code": "R6W"
+    },
+    {
+        "name": "Brandon Southeast",
+        "zip_code": "R7A"
+    },
+    {
+        "name": "Brandon Southwest",
+        "zip_code": "R7B"
+    },
+    {
+        "name": "Brandon North",
+        "zip_code": "R7C"
+    },
+    {
+        "name": "Dauphin",
+        "zip_code": "R7N"
+    },
+    {
+        "name": "Flin Flon",
+        "zip_code": "R8A"
+    },
+    {
+        "name": "Thompson",
+        "zip_code": "R8N"
+    },
+    {
+        "name": "The Pas",
+        "zip_code": "R9A"
+    },
+    {
+        "name": "Dieppe Moncton East",
+        "zip_code": "E1A"
+    },
+    {
+        "name": "Riverview",
+        "zip_code": "E1B"
+    },
+    {
+        "name": "Moncton Central",
+        "zip_code": "E1C"
+    },
+    {
+        "name": "Moncton West",
+        "zip_code": "E1E"
+    },
+    {
+        "name": "Moncton Northwest",
+        "zip_code": "E1G"
+    },
+    {
+        "name": "Lakeville, Shediac Bridge",
+        "zip_code": "E1H"
+    },
+    {
+        "name": "Coverdale",
+        "zip_code": "E1J"
+    },
+    {
+        "name": "Miramichi South",
+        "zip_code": "E1N"
+    },
+    {
+        "name": "Miramichi North",
+        "zip_code": "E1V"
+    },
+    {
+        "name": "Caraquet",
+        "zip_code": "E1W"
+    },
+    {
+        "name": "Tracadie-Sheila",
+        "zip_code": "E1X"
+    },
+    {
+        "name": "Bathurst",
+        "zip_code": "E2A"
+    },
+    {
+        "name": "Rothesay, Quispamsis",
+        "zip_code": "E2E"
+    },
+    {
+        "name": "Quispamsis",
+        "zip_code": "E2G"
+    },
+    {
+        "name": "Saint John Northeast, Renforth",
+        "zip_code": "E2H"
+    },
+    {
+        "name": "Saint John East",
+        "zip_code": "E2J"
+    },
+    {
+        "name": "Saint John North",
+        "zip_code": "E2K"
+    },
+    {
+        "name": "Saint John Central",
+        "zip_code": "E2L"
+    },
+    {
+        "name": "Saint John West",
+        "zip_code": "E2M"
+    },
+    {
+        "name": "Saint John Lakewood",
+        "zip_code": "E2N"
+    },
+    {
+        "name": "Saint John Red Head",
+        "zip_code": "E2P"
+    },
+    {
+        "name": "Saint John Grandview",
+        "zip_code": "E2R"
+    },
+    {
+        "name": "Saint John Loch Lomond",
+        "zip_code": "E2S"
+    },
+    {
+        "name": "Oromocto",
+        "zip_code": "E2V"
+    },
+    {
+        "name": "Fredericton North",
+        "zip_code": "E3A"
+    },
+    {
+        "name": "Fredericton South New Brunswick Provincial Government",
+        "zip_code": "E3B"
+    },
+    {
+        "name": "Fredericton Southwest, New Maryland",
+        "zip_code": "E3C"
+    },
+    {
+        "name": "Kingsclear",
+        "zip_code": "E3E"
+    },
+    {
+        "name": "Fredericton",
+        "zip_code": "E3G"
+    },
+    {
+        "name": "St. Stephen",
+        "zip_code": "E3L"
+    },
+    {
+        "name": "Campbellton",
+        "zip_code": "E3N"
+    },
+    {
+        "name": "Edmundston",
+        "zip_code": "E3V"
+    },
+    {
+        "name": "Grand Falls Northeast",
+        "zip_code": "E3Y"
+    },
+    {
+        "name": "Grand Falls Central",
+        "zip_code": "E3Z"
+    },
+    {
+        "name": "Bathurst",
+        "zip_code": "E4A"
+    },
+    {
+        "name": "Minto",
+        "zip_code": "E4B"
+    },
+    {
+        "name": "Youngs Cove",
+        "zip_code": "E4C"
+    },
+    {
+        "name": "Sussex",
+        "zip_code": "E4E"
+    },
+    {
+        "name": "Smiths Creek",
+        "zip_code": "E4G"
+    },
+    {
+        "name": "Hillsborough",
+        "zip_code": "E4H"
+    },
+    {
+        "name": "Salisbury",
+        "zip_code": "E4J"
+    },
+    {
+        "name": "Dorchester",
+        "zip_code": "E4K"
+    },
+    {
+        "name": "Sackville",
+        "zip_code": "E4L"
+    },
+    {
+        "name": "Bayfield",
+        "zip_code": "E4M"
+    },
+    {
+        "name": "Cap-Pelé",
+        "zip_code": "E4N"
+    },
+    {
+        "name": "Shediac",
+        "zip_code": "E4P"
+    },
+    {
+        "name": "Cocagne",
+        "zip_code": "E4R"
+    },
+    {
+        "name": "Bouctouche",
+        "zip_code": "E4S"
+    },
+    {
+        "name": "Bass River",
+        "zip_code": "E4T"
+    },
+    {
+        "name": "Saint-Antoine",
+        "zip_code": "E4V"
+    },
+    {
+        "name": "Richibucto",
+        "zip_code": "E4W"
+    },
+    {
+        "name": "St-Louis-de-Kent",
+        "zip_code": "E4X"
+    },
+    {
+        "name": "Rogersville",
+        "zip_code": "E4Y"
+    },
+    {
+        "name": "Petitcodiac",
+        "zip_code": "E4Z"
+    },
+    {
+        "name": "Moores Mills",
+        "zip_code": "E5A"
+    },
+    {
+        "name": "St. Andrews",
+        "zip_code": "E5B"
+    },
+    {
+        "name": "St. George",
+        "zip_code": "E5C"
+    },
+    {
+        "name": "Campobello Island",
+        "zip_code": "E5E"
+    },
+    {
+        "name": "Grand Manan Island",
+        "zip_code": "E5G"
+    },
+    {
+        "name": "Pennfield",
+        "zip_code": "E5H"
+    },
+    {
+        "name": "Lepreau",
+        "zip_code": "E5J"
+    },
+    {
+        "name": "Grand Bay-Westfield",
+        "zip_code": "E5K"
+    },
+    {
+        "name": "Fredericton Junction",
+        "zip_code": "E5L"
+    },
+    {
+        "name": "Gagetown",
+        "zip_code": "E5M"
+    },
+    {
+        "name": "Hampton",
+        "zip_code": "E5N"
+    },
+    {
+        "name": "Apohaqui",
+        "zip_code": "E5P"
+    },
+    {
+        "name": "St. Martins",
+        "zip_code": "E5R"
+    },
+    {
+        "name": "Kingston",
+        "zip_code": "E5S"
+    },
+    {
+        "name": "Norton",
+        "zip_code": "E5T"
+    },
+    {
+        "name": "Deer Island",
+        "zip_code": "E5V"
+    },
+    {
+        "name": "Boiestown",
+        "zip_code": "E6A"
+    },
+    {
+        "name": "Stanley",
+        "zip_code": "E6B"
+    },
+    {
+        "name": "Durham Bridge",
+        "zip_code": "E6C"
+    },
+    {
+        "name": "Millville",
+        "zip_code": "E6E"
+    },
+    {
+        "name": "Nackawic",
+        "zip_code": "E6G"
+    },
+    {
+        "name": "Canterbury",
+        "zip_code": "E6H"
+    },
+    {
+        "name": "McAdam",
+        "zip_code": "E6J"
+    },
+    {
+        "name": "Harvey",
+        "zip_code": "E6K"
+    },
+    {
+        "name": "Burtts Corner",
+        "zip_code": "E6L"
+    },
+    {
+        "name": "Baker Brook",
+        "zip_code": "E7A"
+    },
+    {
+        "name": "Saint-Jacques",
+        "zip_code": "E7B"
+    },
+    {
+        "name": "Saint-Basile",
+        "zip_code": "E7C"
+    },
+    {
+        "name": "Saint-Leonard",
+        "zip_code": "E7E"
+    },
+    {
+        "name": "Plaster Rock",
+        "zip_code": "E7G"
+    },
+    {
+        "name": "Perth-Andover",
+        "zip_code": "E7H"
+    },
+    {
+        "name": "Bath",
+        "zip_code": "E7J"
+    },
+    {
+        "name": "Centreville",
+        "zip_code": "E7K"
+    },
+    {
+        "name": "Florenceville",
+        "zip_code": "E7L"
+    },
+    {
+        "name": "Woodstock",
+        "zip_code": "E7M"
+    },
+    {
+        "name": "Debec",
+        "zip_code": "E7N"
+    },
+    {
+        "name": "Hartland",
+        "zip_code": "E7P"
+    },
+    {
+        "name": "Saint-Quentin",
+        "zip_code": "E8A"
+    },
+    {
+        "name": "Kedgwick",
+        "zip_code": "E8B"
+    },
+    {
+        "name": "Dalhousie",
+        "zip_code": "E8C"
+    },
+    {
+        "name": "Balmoral",
+        "zip_code": "E8E"
+    },
+    {
+        "name": "Belledune",
+        "zip_code": "E8G"
+    },
+    {
+        "name": "Petit-Rocher",
+        "zip_code": "E8J"
+    },
+    {
+        "name": "Beresford",
+        "zip_code": "E8K"
+    },
+    {
+        "name": "Allardville",
+        "zip_code": "E8L"
+    },
+    {
+        "name": "Saint-Isidore",
+        "zip_code": "E8M"
+    },
+    {
+        "name": "Grande-Anse",
+        "zip_code": "E8N"
+    },
+    {
+        "name": "Inkerman",
+        "zip_code": "E8P"
+    },
+    {
+        "name": "Paquetville",
+        "zip_code": "E8R"
+    },
+    {
+        "name": "Shippagan",
+        "zip_code": "E8S"
+    },
+    {
+        "name": "Lamèque",
+        "zip_code": "E8T"
+    },
+    {
+        "name": "Baie-Sainte-Anne",
+        "zip_code": "E9A"
+    },
+    {
+        "name": "Blackville",
+        "zip_code": "E9B"
+    },
+    {
+        "name": "Doaktown",
+        "zip_code": "E9C"
+    },
+    {
+        "name": "Red Bank",
+        "zip_code": "E9E"
+    },
+    {
+        "name": "Neguac",
+        "zip_code": "E9G"
+    },
+    {
+        "name": "Brantville",
+        "zip_code": "E9H"
+    },
+    {
+        "name": "Southeastern Avalon Peninsula (Ferryland)",
+        "zip_code": "A0A"
+    },
+    {
+        "name": "Western Avalon Peninsula (Argentia)",
+        "zip_code": "A0B"
+    },
+    {
+        "name": "Bonavista Peninsula (Bonavista)",
+        "zip_code": "A0C"
+    },
+    {
+        "name": "Burin Peninsula (Marystown)",
+        "zip_code": "A0E"
+    },
+    {
+        "name": "Northeast Newfoundland (Lewisporte)",
+        "zip_code": "A0G"
+    },
+    {
+        "name": "Central Newfoundland (Bishops Falls)",
+        "zip_code": "A0H"
+    },
+    {
+        "name": "Northern Newfoundland (Springdale)",
+        "zip_code": "A0J"
+    },
+    {
+        "name": "Northwest Newfoundland/Eastern Labrador (Mary's Harbour)",
+        "zip_code": "A0K"
+    },
+    {
+        "name": "Western Newfoundland (Lark Harbour)",
+        "zip_code": "A0L"
+    },
+    {
+        "name": "Southwestern Newfoundland (Channel-Port aux Basques)",
+        "zip_code": "A0M"
+    },
+    {
+        "name": "Port au Port Peninsula region (St. George's)",
+        "zip_code": "A0N"
+    },
+    {
+        "name": "Central Labrador (Happy Valley-Goose Bay)",
+        "zip_code": "A0P"
+    },
+    {
+        "name": "North/Western Labrador (Churchill Falls)",
+        "zip_code": "A0R"
+    },
+    {
+        "name": "St. John's North",
+        "zip_code": "A1A"
+    },
+    {
+        "name": "St. John's Northwest Newfoundland & Labrador Provincial Government",
+        "zip_code": "A1B"
+    },
+    {
+        "name": "St. John's North Central",
+        "zip_code": "A1C"
+    },
+    {
+        "name": "St. John's Central",
+        "zip_code": "A1E"
+    },
+    {
+        "name": "St. John's South",
+        "zip_code": "A1G"
+    },
+    {
+        "name": "St. John's Southwest",
+        "zip_code": "A1H"
+    },
+    {
+        "name": "Torbay",
+        "zip_code": "A1K"
+    },
+    {
+        "name": "Paradise",
+        "zip_code": "A1L"
+    },
+    {
+        "name": "Portugal Cove-St. Philips",
+        "zip_code": "A1M"
+    },
+    {
+        "name": "Mount Pearl",
+        "zip_code": "A1N"
+    },
+    {
+        "name": "Goulds",
+        "zip_code": "A1S"
+    },
+    {
+        "name": "Gander",
+        "zip_code": "A1V"
+    },
+    {
+        "name": "Manuels",
+        "zip_code": "A1W"
+    },
+    {
+        "name": "Conception Bay",
+        "zip_code": "A1X"
+    },
+    {
+        "name": "Carbonear",
+        "zip_code": "A1Y"
+    },
+    {
+        "name": "Grand Falls",
+        "zip_code": "A2A"
+    },
+    {
+        "name": "Windsor",
+        "zip_code": "A2B"
+    },
+    {
+        "name": "Corner Brook",
+        "zip_code": "A2H"
+    },
+    {
+        "name": "Stephenville",
+        "zip_code": "A2N"
+    },
+    {
+        "name": "Labrador City",
+        "zip_code": "A2V"
+    },
+    {
+        "name": "Clarenville",
+        "zip_code": "A5A"
+    },
+    {
+        "name": "Deer Lake",
+        "zip_code": "A8A"
+    },
+    {
+        "name": "North Victoria County (Dingwall)",
+        "zip_code": "B0C"
+    },
+    {
+        "name": "West Cape Breton Island (Baddeck)",
+        "zip_code": "B0E"
+    },
+    {
+        "name": "Canso region (Havre Boucher)",
+        "zip_code": "B0H"
+    },
+    {
+        "name": "Mainland east shore (Lunenburg)",
+        "zip_code": "B0J"
+    },
+    {
+        "name": "Southern Northumberland Strait (Pictou)",
+        "zip_code": "B0K"
+    },
+    {
+        "name": "Isthmus of Chignecto (River Hébert)",
+        "zip_code": "B0L"
+    },
+    {
+        "name": "Cobequid Bay north shore (Springhill)",
+        "zip_code": "B0M"
+    },
+    {
+        "name": "Hants County (Shubenacadie)",
+        "zip_code": "B0N"
+    },
+    {
+        "name": "Kings County (Kingston)",
+        "zip_code": "B0P"
+    },
+    {
+        "name": "West Lunenburg County (New Germany)",
+        "zip_code": "B0R"
+    },
+    {
+        "name": "West Annapolis County (Middleton)",
+        "zip_code": "B0S"
+    },
+    {
+        "name": "Queens County (Shelburne)",
+        "zip_code": "B0T"
+    },
+    {
+        "name": "Digby Neck (Digby)",
+        "zip_code": "B0V"
+    },
+    {
+        "name": "Southwest Mainland (Weymouth)",
+        "zip_code": "B0W"
+    },
+    {
+        "name": "Glace Bay",
+        "zip_code": "B1A"
+    },
+    {
+        "name": "Port Morien",
+        "zip_code": "B1B"
+    },
+    {
+        "name": "Louisbourg",
+        "zip_code": "B1C"
+    },
+    {
+        "name": "Reserve Mines",
+        "zip_code": "B1E"
+    },
+    {
+        "name": "Dominion",
+        "zip_code": "B1G"
+    },
+    {
+        "name": "New Waterford",
+        "zip_code": "B1H"
+    },
+    {
+        "name": "East Bay",
+        "zip_code": "B1J"
+    },
+    {
+        "name": "Marion Bridge",
+        "zip_code": "B1K"
+    },
+    {
+        "name": "Sydney Southwest",
+        "zip_code": "B1L"
+    },
+    {
+        "name": "Sydney East",
+        "zip_code": "B1M"
+    },
+    {
+        "name": "Sydney North",
+        "zip_code": "B1N"
+    },
+    {
+        "name": "Sydney North Central",
+        "zip_code": "B1P"
+    },
+    {
+        "name": "Sydney West",
+        "zip_code": "B1R"
+    },
+    {
+        "name": "Sydney Central",
+        "zip_code": "B1S"
+    },
+    {
+        "name": "Christmas Island",
+        "zip_code": "B1T"
+    },
+    {
+        "name": "North Sydney North",
+        "zip_code": "B1V"
+    },
+    {
+        "name": "Eskasoni",
+        "zip_code": "B1W"
+    },
+    {
+        "name": "Big Bras d'Or",
+        "zip_code": "B1X"
+    },
+    {
+        "name": "Alder Point",
+        "zip_code": "B1Y"
+    },
+    {
+        "name": "North Sydney South Central",
+        "zip_code": "B2A"
+    },
+    {
+        "name": "Iona",
+        "zip_code": "B2C"
+    },
+    {
+        "name": "Loch Lomond",
+        "zip_code": "B2E"
+    },
+    {
+        "name": "Antigonish",
+        "zip_code": "B2G"
+    },
+    {
+        "name": "New Glasgow",
+        "zip_code": "B2H"
+    },
+    {
+        "name": "Fourchu",
+        "zip_code": "B2J"
+    },
+    {
+        "name": "Truro",
+        "zip_code": "B2N"
+    },
+    {
+        "name": "Waverley",
+        "zip_code": "B2R"
+    },
+    {
+        "name": "Lantz",
+        "zip_code": "B2S"
+    },
+    {
+        "name": "Enfield",
+        "zip_code": "B2T"
+    },
+    {
+        "name": "Dartmouth Morris Lake",
+        "zip_code": "B2V"
+    },
+    {
+        "name": "Dartmouth East Central",
+        "zip_code": "B2W"
+    },
+    {
+        "name": "Dartmouth North Central",
+        "zip_code": "B2X"
+    },
+    {
+        "name": "Dartmouth South Central",
+        "zip_code": "B2Y"
+    },
+    {
+        "name": "Dartmouth East",
+        "zip_code": "B2Z"
+    },
+    {
+        "name": "Dartmouth Southwest",
+        "zip_code": "B3A"
+    },
+    {
+        "name": "Dartmouth Northwest",
+        "zip_code": "B3B"
+    },
+    {
+        "name": "Porters Lake",
+        "zip_code": "B3E"
+    },
+    {
+        "name": "Eastern Passage",
+        "zip_code": "B3G"
+    },
+    {
+        "name": "Halifax Lower Harbour",
+        "zip_code": "B3H"
+    },
+    {
+        "name": "Halifax Mid-Harbour Nova Scotia Provincial Government",
+        "zip_code": "B3J"
+    },
+    {
+        "name": "Halifax Upper Harbour",
+        "zip_code": "B3K"
+    },
+    {
+        "name": "Halifax Central",
+        "zip_code": "B3L"
+    },
+    {
+        "name": "Halifax Bedford Basin",
+        "zip_code": "B3M"
+    },
+    {
+        "name": "Halifax South Central",
+        "zip_code": "B3N"
+    },
+    {
+        "name": "Halifax North West Arm",
+        "zip_code": "B3P"
+    },
+    {
+        "name": "Halifax South",
+        "zip_code": "B3R"
+    },
+    {
+        "name": "Halifax West",
+        "zip_code": "B3S"
+    },
+    {
+        "name": "Lakeside",
+        "zip_code": "B3T"
+    },
+    {
+        "name": "Harrietsfield",
+        "zip_code": "B3V"
+    },
+    {
+        "name": "Tantallon",
+        "zip_code": "B3Z"
+    },
+    {
+        "name": "Bedford Southeast",
+        "zip_code": "B4A"
+    },
+    {
+        "name": "Bedford Northwest",
+        "zip_code": "B4B"
+    },
+    {
+        "name": "Lower Sackville South",
+        "zip_code": "B4C"
+    },
+    {
+        "name": "Lower Sackville West",
+        "zip_code": "B4E"
+    },
+    {
+        "name": "Lower Sackville North",
+        "zip_code": "B4G"
+    },
+    {
+        "name": "Amherst",
+        "zip_code": "B4H"
+    },
+    {
+        "name": "Kentville",
+        "zip_code": "B4N"
+    },
+    {
+        "name": "Wolfville",
+        "zip_code": "B4P"
+    },
+    {
+        "name": "Coldbrook",
+        "zip_code": "B4R"
+    },
+    {
+        "name": "Bridgewater",
+        "zip_code": "B4V"
+    },
+    {
+        "name": "Yarmouth",
+        "zip_code": "B5A"
+    },
+    {
+        "name": "Truro",
+        "zip_code": "B6L"
+    },
+    {
+        "name": "Port Hawkesbury",
+        "zip_code": "B9A"
+    },
+    {
+        "name": "Central Northwest Territories (Inuvik)",
+        "zip_code": "X0E"
+    },
+    {
+        "name": "Southwestern Northwest Territories (Fort Liard)",
+        "zip_code": "X0G"
+    },
+    {
+        "name": "Yellowknife",
+        "zip_code": "X1A"
+    },
+    {
+        "name": "Outer Nunavut (Iqaluit)",
+        "zip_code": "X0A"
+    },
+    {
+        "name": "Central Nunavut (Cambridge Bay)",
+        "zip_code": "X0B"
+    },
+    {
+        "name": "Inner Nunavut (Rankin Inlet)",
+        "zip_code": "X0C"
+    },
+    {
+        "name": "Algoma Southwest (Blind River)",
+        "zip_code": "P0R"
+    },
+    {
+        "name": "Brantford Northeast",
+        "zip_code": "N3P"
+    },
+    {
+        "name": "Brantford Central",
+        "zip_code": "N3R"
+    },
+    {
+        "name": "Brantford Southeast",
+        "zip_code": "N3S"
+    },
+    {
+        "name": "Brantford Southwest",
+        "zip_code": "N3T"
+    },
+    {
+        "name": "Brantford Northwest",
+        "zip_code": "N3V"
+    },
+    {
+        "name": "Dufferin County (Shelburne)",
+        "zip_code": "L0N"
+    },
+    {
+        "name": "Frontenac County, Addington County, Loyalist Shores and Southwest Leeds (Inverary)",
+        "zip_code": "K0H"
+    },
+    {
+        "name": "Halton Regional Municipality (Campbellville)",
+        "zip_code": "L0P"
+    },
+    {
+        "name": "Milton",
+        "zip_code": "L9E"
+    },
+    {
+        "name": "Hamilton (Confederation Park / Nashdale / East Kentley / Riverdale / Lakely / Grayside / North Stoney Creek)",
+        "zip_code": "L8E"
+    },
+    {
+        "name": "Hamilton (Greenford / North Gershome / West Stoney Creek)",
+        "zip_code": "L8G"
+    },
+    {
+        "name": "Hamilton (West Kentley / McQuesten / Parkview / Hamilton Beach / East Industrial Sector / Normanhurst / Homeside / East Crown Point)",
+        "zip_code": "L8H"
+    },
+    {
+        "name": "Hamilton (East Albion Falls / South Stoney Creek)",
+        "zip_code": "L8J"
+    },
+    {
+        "name": "Hamilton (East Delta / Bartonville / Glenview / Rosedale / Lower King's Forest / Red Hill / Corman / Vincent / South Gershome)",
+        "zip_code": "L8K"
+    },
+    {
+        "name": "Hamilton (West Industrial Sector / West Crown Point / North Stipley / North Gibson / Landsdale / Keith / North End / Beasley)",
+        "zip_code": "L8L"
+    },
+    {
+        "name": "Hamilton (West Delta / Blakeley / South Stipley / South Gibson / St. Clair)",
+        "zip_code": "L8M"
+    },
+    {
+        "name": "Hamilton (Stinson / Corktown)",
+        "zip_code": "L8N"
+    },
+    {
+        "name": "Hamilton (Durand / Kirkendall / Chedoke Park)",
+        "zip_code": "L8P"
+    },
+    {
+        "name": "Hamilton (Central / Strathcona / South Dundurn)",
+        "zip_code": "L8R"
+    },
+    {
+        "name": "Hamilton (Westdale / Cootes Paradise / Ainslie Wood)",
+        "zip_code": "L8S"
+    },
+    {
+        "name": "Hamilton (Sherwood / Huntington / Upper King's Forest / Lisgar / Berrisfield / Hampton Heights / Sunninghill)",
+        "zip_code": "L8T"
+    },
+    {
+        "name": "Hamilton (Raleigh / Macassa / Lawfield / Thorner / Burkholme / Eastmount)",
+        "zip_code": "L8V"
+    },
+    {
+        "name": "Hamilton (West Albion Falls / Hannon / Rymal / Trenholme / Quinndale / Templemead / Broughton / Eleanor / Randall / Rushdale / Butler / East Chappel)",
+        "zip_code": "L8W"
+    },
+    {
+        "name": "Hamilton (Crerar / Bruleville / Hill Park / Inch Park / Centremount / Balfour / Greeningdon / Jerome)",
+        "zip_code": "L9A"
+    },
+    {
+        "name": "Hamilton (Barnstown / West Chappel / Allison / Ryckmans / Mewburn / Sheldon / Falkirk / Carpenter / Kennedy / Southwest Outskirts)",
+        "zip_code": "L9B"
+    },
+    {
+        "name": "Hamilton (Southam / Bonnington / Yeoville / Kernighan / Gourley / Rolston / Buchanan / Mohawk / Westcliffe / Gilbert / Gilkson / Gurnett / Fessenden / Mountview)",
+        "zip_code": "L9C"
+    },
+    {
+        "name": "Peterborough County and North Hastings County (Lakefield)",
+        "zip_code": "K0L"
+    },
+    {
+        "name": "Renfrew County and Lanark Highlands Township (Deep River)",
+        "zip_code": "K0J"
+    },
+    {
+        "name": "Downsview East (CFB Toronto)",
+        "zip_code": "M3K"
+    },
+    {
+        "name": "East Toronto (The Beaches)",
+        "zip_code": "M4E"
+    },
+    {
+        "name": "East Toronto (The Danforth East)",
+        "zip_code": "M4J"
+    },
+    {
+        "name": "East Toronto (The Danforth West / Riverdale)",
+        "zip_code": "M4K"
+    },
+    {
+        "name": "East Toronto (India Bazaar / The Beaches West)",
+        "zip_code": "M4L"
+    },
+    {
+        "name": "East Toronto (Studio District)",
+        "zip_code": "M4M"
+    },
+    {
+        "name": "Central Toronto (Lawrence Park East)",
+        "zip_code": "M4N"
+    },
+    {
+        "name": "Central Toronto (Davisville North)",
+        "zip_code": "M4P"
+    },
+    {
+        "name": "Central Toronto (North Toronto West)",
+        "zip_code": "M4R"
+    },
+    {
+        "name": "Central Toronto (Davisville)",
+        "zip_code": "M4S"
+    },
+    {
+        "name": "Central Toronto (Moore Park / Summerhill East)",
+        "zip_code": "M4T"
+    },
+    {
+        "name": "Central Toronto (Summerhill West / Rathnelly / South Hill / Forest Hill SE / Deer Park)",
+        "zip_code": "M4V"
+    },
+    {
+        "name": "Downtown Toronto (Rosedale)",
+        "zip_code": "M4W"
+    },
+    {
+        "name": "Downtown Toronto (St. James Town / Cabbagetown)",
+        "zip_code": "M4X"
+    },
+    {
+        "name": "Downtown Toronto (Church and Wellesley)",
+        "zip_code": "M4Y"
+    },
+    {
+        "name": "Toronto",
+        "zip_code": "M5A"
+    },
+    {
+        "name": "Downtown Toronto (Ryerson)",
+        "zip_code": "M5B"
+    },
+    {
+        "name": "Downtown Toronto (St. James Park)",
+        "zip_code": "M5C"
+    },
+    {
+        "name": "Downtown Toronto (Berczy Park)",
+        "zip_code": "M5E"
+    },
+    {
+        "name": "Downtown Toronto (Central Bay Street)",
+        "zip_code": "M5G"
+    },
+    {
+        "name": "Downtown Toronto (Richmond / Adelaide / King)",
+        "zip_code": "M5H"
+    },
+    {
+        "name": "Downtown Toronto (Harbourfront East / Union Station / Toronto Island)",
+        "zip_code": "M5J"
+    },
+    {
+        "name": "Downtown Toronto (Toronto Dominion Centre / Design Exchange)",
+        "zip_code": "M5K"
+    },
+    {
+        "name": "Downtown Toronto (Commerce Court / Victoria Hotel)",
+        "zip_code": "M5L"
+    },
+    {
+        "name": "Central Toronto (Roselawn)",
+        "zip_code": "M5N"
+    },
+    {
+        "name": "Central Toronto (Forest Hill North & West)",
+        "zip_code": "M5P"
+    },
+    {
+        "name": "Central Toronto (The Annex / North Midtown / Yorkville)",
+        "zip_code": "M5R"
+    },
+    {
+        "name": "Downtown Toronto (University of Toronto / Harbord)",
+        "zip_code": "M5S"
+    },
+    {
+        "name": "Downtown Toronto (Kensington Market / Chinatown / Grange Park)",
+        "zip_code": "M5T"
+    },
+    {
+        "name": "Downtown Toronto (CN Tower / King and Spadina / Railway Lands / Harbourfront West / Bathurst Quay / South Niagara / YTZ)",
+        "zip_code": "M5V"
+    },
+    {
+        "name": "Downtown Toronto Stn A PO Boxes 25 The Esplanade (Enclave of M5E)",
+        "zip_code": "M5W"
+    },
+    {
+        "name": "Downtown Toronto (Underground city)",
+        "zip_code": "M5X"
+    },
+    {
+        "name": "Downtown Toronto (Christie)",
+        "zip_code": "M6G"
+    },
+    {
+        "name": "West Toronto (Dufferin / Dovercourt Village)",
+        "zip_code": "M6H"
+    },
+    {
+        "name": "West Toronto (Rua Aþores / Trinity)",
+        "zip_code": "M6J"
+    },
+    {
+        "name": "West Toronto (Brockton / Parkdale Village / Exhibition Place)",
+        "zip_code": "M6K"
+    },
+    {
+        "name": "West Toronto (High Park / The Junction South)",
+        "zip_code": "M6P"
+    },
+    {
+        "name": "West Toronto (Parkdale / Roncesvalles Village)",
+        "zip_code": "M6R"
+    },
+    {
+        "name": "West Toronto (Bloor West Village / Swansea)",
+        "zip_code": "M6S"
+    },
+    {
+        "name": "East Toronto Business Reply Mail Processing Centre 969 Eastern (Enclave of M4L)",
+        "zip_code": "M7Y"
+    },
+    {
+        "name": "Etobicoke (New Toronto / Mimico South / Humber Bay Shores)",
+        "zip_code": "M8V"
+    },
+    {
+        "name": "Government of Canada Ottawa and Gatineau offices",
+        "zip_code": "K1A"
+    },
+    {
+        "name": "Ottawa (Riverview / Hawthorne)",
+        "zip_code": "K1G"
+    },
+    {
+        "name": "Ottawa (Alta Vista)",
+        "zip_code": "K1H"
+    },
+    {
+        "name": "Ottawa (Overbrook)",
+        "zip_code": "K1K"
+    },
+    {
+        "name": "Ottawa (Vanier)",
+        "zip_code": "K1L"
+    },
+    {
+        "name": "Ottawa (Rockcliffe Park / New Edinburgh)",
+        "zip_code": "K1M"
+    },
+    {
+        "name": "Ottawa (Lower Town / Sandy Hill / University of Ottawa)",
+        "zip_code": "K1N"
+    },
+    {
+        "name": "Ottawa (Parliament Hill)",
+        "zip_code": "K1P"
+    },
+    {
+        "name": "Ottawa (West Downtown area)",
+        "zip_code": "K1R"
+    },
+    {
+        "name": "Ottawa (The Glebe / Ottawa South / Ottawa East)",
+        "zip_code": "K1S"
+    },
+    {
+        "name": "Ottawa (Riverside Park / Hunt Club West / Riverside South / YOW)",
+        "zip_code": "K1V"
+    },
+    {
+        "name": "Ottawa West",
+        "zip_code": "K1Y"
+    },
+    {
+        "name": "Ottawa (Westboro)",
+        "zip_code": "K1Z"
+    },
+    {
+        "name": "Ottawa (Highland Park / Carlingwood)",
+        "zip_code": "K2A"
+    },
+    {
+        "name": "Ottawa (Britannia / Pinecrest)",
+        "zip_code": "K2B"
+    },
+    {
+        "name": "Ottawa (Queensway / Copeland / Carlington / Carleton Heights)",
+        "zip_code": "K2C"
+    },
+    {
+        "name": "Ottawa (Centre Town)",
+        "zip_code": "K2P"
+    },
+    {
+        "name": "National Capital Region (Almonte)",
+        "zip_code": "K0A"
+    },
+    {
+        "name": "Prescott and Russell United Counties (Alfred)",
+        "zip_code": "K0B"
+    },
+    {
+        "name": "Stormont, Dundas and Glengarry United Counties (Alexandria)",
+        "zip_code": "K0C"
+    },
+    {
+        "name": "South Leeds and Grenville United Counties (Prescott)",
+        "zip_code": "K0E"
+    },
+    {
+        "name": "Rideau Lakes area (Kemptville)",
+        "zip_code": "K0G"
+    },
+    {
+        "name": "Quinte Shores, East Northumberland County & Prince Edward County (Picton)",
+        "zip_code": "K0K"
+    },
+    {
+        "name": "Kawartha lakes and Haliburton County (Bobcaygeon)",
+        "zip_code": "K0M"
+    },
+    {
+        "name": "Gloucester (Blackburn Hamlet / Pine View)",
+        "zip_code": "K1B"
+    },
+    {
+        "name": "Gloucester (West Orleans)",
+        "zip_code": "K1C"
+    },
+    {
+        "name": "Orleans (Queenswood)",
+        "zip_code": "K1E"
+    },
+    {
+        "name": "Gloucester (Beacon Hill / Cyrville)",
+        "zip_code": "K1J"
+    },
+    {
+        "name": "Gloucester (Blossom Park / Hunt Club East / Leitrim)",
+        "zip_code": "K1T"
+    },
+    {
+        "name": "Gloucester (South Orleans)",
+        "zip_code": "K1W"
+    },
+    {
+        "name": "Gloucester South",
+        "zip_code": "K1X"
+    },
+    {
+        "name": "Nepean East",
+        "zip_code": "K2E"
+    },
+    {
+        "name": "Nepean (Davidson Heights)",
+        "zip_code": "K2G"
+    },
+    {
+        "name": "Nepean (Bells Corners)",
+        "zip_code": "K2H"
+    },
+    {
+        "name": "Nepean (Barrhaven)",
+        "zip_code": "K2J"
+    },
+    {
+        "name": "Kanata (Beaverbrook / South March)",
+        "zip_code": "K2K"
+    },
+    {
+        "name": "Kanata (Katimavik-Hazeldean / Glen Cairn)",
+        "zip_code": "K2L"
+    },
+    {
+        "name": "Kanata (Bridlewood)",
+        "zip_code": "K2M"
+    },
+    {
+        "name": "Nepean (Fallowfield Village / Cedarhill Estates / Orchard Estates)",
+        "zip_code": "K2R"
+    },
+    {
+        "name": "Stittsville",
+        "zip_code": "K2S"
+    },
+    {
+        "name": "Kanata (Marchwood)",
+        "zip_code": "K2T"
+    },
+    {
+        "name": "Kanata (Terry Fox / Palladium)",
+        "zip_code": "K2V"
+    },
+    {
+        "name": "Kanata (North March)",
+        "zip_code": "K2W"
+    },
+    {
+        "name": "Orleans (Fallingbrook)",
+        "zip_code": "K4A"
+    },
+    {
+        "name": "Cumberland Township",
+        "zip_code": "K4B"
+    },
+    {
+        "name": "Cumberland",
+        "zip_code": "K4C"
+    },
+    {
+        "name": "Rockland",
+        "zip_code": "K4K"
+    },
+    {
+        "name": "Manotick",
+        "zip_code": "K4M"
+    },
+    {
+        "name": "Greely",
+        "zip_code": "K4P"
+    },
+    {
+        "name": "Russell",
+        "zip_code": "K4R"
+    },
+    {
+        "name": "Hawkesbury",
+        "zip_code": "K6A"
+    },
+    {
+        "name": "Cornwall East",
+        "zip_code": "K6H"
+    },
+    {
+        "name": "Cornwall West",
+        "zip_code": "K6J"
+    },
+    {
+        "name": "Cornwall North",
+        "zip_code": "K6K"
+    },
+    {
+        "name": "Elizabethtown",
+        "zip_code": "K6T"
+    },
+    {
+        "name": "Brockville",
+        "zip_code": "K6V"
+    },
+    {
+        "name": "Smiths Falls",
+        "zip_code": "K7A"
+    },
+    {
+        "name": "Carleton Place",
+        "zip_code": "K7C"
+    },
+    {
+        "name": "Gananoque",
+        "zip_code": "K7G"
+    },
+    {
+        "name": "Perth",
+        "zip_code": "K7H"
+    },
+    {
+        "name": "Kingston (SW Pittsburgh Township)",
+        "zip_code": "K7K"
+    },
+    {
+        "name": "Kingston (Downtown)",
+        "zip_code": "K7L"
+    },
+    {
+        "name": "Kingston (Reddendale / Cataraqui / Collins Bay)",
+        "zip_code": "K7M"
+    },
+    {
+        "name": "Amherstview",
+        "zip_code": "K7N"
+    },
+    {
+        "name": "Kingston (Westbrook / Cataraqui Woods / Cedarwood)",
+        "zip_code": "K7P"
+    },
+    {
+        "name": "Napanee",
+        "zip_code": "K7R"
+    },
+    {
+        "name": "Arnprior",
+        "zip_code": "K7S"
+    },
+    {
+        "name": "Renfrew",
+        "zip_code": "K7V"
+    },
+    {
+        "name": "Pembroke Central and northern subdivisions",
+        "zip_code": "K8A"
+    },
+    {
+        "name": "Pembroke (Pleasant View / Fairview)",
+        "zip_code": "K8B"
+    },
+    {
+        "name": "Petawawa",
+        "zip_code": "K8H"
+    },
+    {
+        "name": "Belleville East",
+        "zip_code": "K8N"
+    },
+    {
+        "name": "Belleville West",
+        "zip_code": "K8P"
+    },
+    {
+        "name": "Belleville (SE Sidney Township / Avondale)",
+        "zip_code": "K8R"
+    },
+    {
+        "name": "Trenton",
+        "zip_code": "K8V"
+    },
+    {
+        "name": "Cobourg",
+        "zip_code": "K9A"
+    },
+    {
+        "name": "Peterborough North",
+        "zip_code": "K9H"
+    },
+    {
+        "name": "Peterborough South",
+        "zip_code": "K9J"
+    },
+    {
+        "name": "Peterborough (Fairbairn Meadows / Jackson Heights)",
+        "zip_code": "K9K"
+    },
+    {
+        "name": "Peterborough (Terra View Heights / Woodland Acres / Donwood)",
+        "zip_code": "K9L"
+    },
+    {
+        "name": "Lindsay",
+        "zip_code": "K9V"
+    },
+    {
+        "name": "West Northumberland County (Millbrook)",
+        "zip_code": "L0A"
+    },
+    {
+        "name": "East Durham Regional Municipality (Orono)",
+        "zip_code": "L0B"
+    },
+    {
+        "name": "West Durham Regional Municipality (Sunderland)",
+        "zip_code": "L0C"
+    },
+    {
+        "name": "Lake Simcoe Southeast Shore (Sutton West)",
+        "zip_code": "L0E"
+    },
+    {
+        "name": "Ontario Centre (Queensville)",
+        "zip_code": "L0G"
+    },
+    {
+        "name": "Whitby Region (Gormley)",
+        "zip_code": "L0H"
+    },
+    {
+        "name": "North Peel Regional Municipality (Kleinburg)",
+        "zip_code": "L0J"
+    },
+    {
+        "name": "Lake Simcoe North Shore (Coldwater)",
+        "zip_code": "L0K"
+    },
+    {
+        "name": "Lake Simcoe West Shore (Oro)",
+        "zip_code": "L0L"
+    },
+    {
+        "name": "Georgian Bay South Shore (Angus)",
+        "zip_code": "L0M"
+    },
+    {
+        "name": "East Haldimand County (Waterdown)",
+        "zip_code": "L0R"
+    },
+    {
+        "name": "Niagara Regional Municipality (Fonthill)",
+        "zip_code": "L0S"
+    },
+    {
+        "name": "Port Hope",
+        "zip_code": "L1A"
+    },
+    {
+        "name": "Bowmanville East",
+        "zip_code": "L1B"
+    },
+    {
+        "name": "Bowmanville West",
+        "zip_code": "L1C"
+    },
+    {
+        "name": "Courtice",
+        "zip_code": "L1E"
+    },
+    {
+        "name": "Oshawa Central",
+        "zip_code": "L1G"
+    },
+    {
+        "name": "Oshawa Southeast",
+        "zip_code": "L1H"
+    },
+    {
+        "name": "Oshawa Southwest",
+        "zip_code": "L1J"
+    },
+    {
+        "name": "Oshawa East",
+        "zip_code": "L1K"
+    },
+    {
+        "name": "Oshawa North",
+        "zip_code": "L1L"
+    },
+    {
+        "name": "Whitby North",
+        "zip_code": "L1M"
+    },
+    {
+        "name": "Whitby Southeast",
+        "zip_code": "L1N"
+    },
+    {
+        "name": "Whitby Southwest",
+        "zip_code": "L1P"
+    },
+    {
+        "name": "Whitby Central",
+        "zip_code": "L1R"
+    },
+    {
+        "name": "Ajax Southwest",
+        "zip_code": "L1S"
+    },
+    {
+        "name": "Ajax Northwest",
+        "zip_code": "L1T"
+    },
+    {
+        "name": "Pickering Southwest",
+        "zip_code": "L1V"
+    },
+    {
+        "name": "Pickering South",
+        "zip_code": "L1W"
+    },
+    {
+        "name": "Pickering Central",
+        "zip_code": "L1X"
+    },
+    {
+        "name": "Pickering North",
+        "zip_code": "L1Y"
+    },
+    {
+        "name": "Ajax East",
+        "zip_code": "L1Z"
+    },
+    {
+        "name": "Fort Erie",
+        "zip_code": "L2A"
+    },
+    {
+        "name": "Niagara Falls Central",
+        "zip_code": "L2E"
+    },
+    {
+        "name": "Niagara Falls Southeast",
+        "zip_code": "L2G"
+    },
+    {
+        "name": "Niagara Falls West",
+        "zip_code": "L2H"
+    },
+    {
+        "name": "Niagara Falls North",
+        "zip_code": "L2J"
+    },
+    {
+        "name": "St. Catharines Northeast",
+        "zip_code": "L2M"
+    },
+    {
+        "name": "St. Catharines Northwest",
+        "zip_code": "L2N"
+    },
+    {
+        "name": "St. Catharines East",
+        "zip_code": "L2P"
+    },
+    {
+        "name": "St. Catharines Central",
+        "zip_code": "L2R"
+    },
+    {
+        "name": "St. Catharines Southwest",
+        "zip_code": "L2S"
+    },
+    {
+        "name": "St. Catharines South",
+        "zip_code": "L2T"
+    },
+    {
+        "name": "St. Catharines Southeast",
+        "zip_code": "L2V"
+    },
+    {
+        "name": "St. Catharines West",
+        "zip_code": "L2W"
+    },
+    {
+        "name": "Welland East",
+        "zip_code": "L3B"
+    },
+    {
+        "name": "Welland West",
+        "zip_code": "L3C"
+    },
+    {
+        "name": "Port Colborne",
+        "zip_code": "L3K"
+    },
+    {
+        "name": "Grimsby",
+        "zip_code": "L3M"
+    },
+    {
+        "name": "Markham Central",
+        "zip_code": "L3P"
+    },
+    {
+        "name": "Markham Outer Southwest",
+        "zip_code": "L3R"
+    },
+    {
+        "name": "Markham Southeast",
+        "zip_code": "L3S"
+    },
+    {
+        "name": "Thornhill East",
+        "zip_code": "L3T"
+    },
+    {
+        "name": "Orillia",
+        "zip_code": "L3V"
+    },
+    {
+        "name": "Newmarket Southwest",
+        "zip_code": "L3X"
+    },
+    {
+        "name": "Newmarket Northeast",
+        "zip_code": "L3Y"
+    },
+    {
+        "name": "Bradford",
+        "zip_code": "L3Z"
+    },
+    {
+        "name": "Stouffville",
+        "zip_code": "L4A"
+    },
+    {
+        "name": "Richmond Hill Southeast",
+        "zip_code": "L4B"
+    },
+    {
+        "name": "Richmond Hill Southwest",
+        "zip_code": "L4C"
+    },
+    {
+        "name": "Richmond Hill North",
+        "zip_code": "L4E"
+    },
+    {
+        "name": "Aurora",
+        "zip_code": "L4G"
+    },
+    {
+        "name": "Woodbridge North",
+        "zip_code": "L4H"
+    },
+    {
+        "name": "Thornhill West",
+        "zip_code": "L4J"
+    },
+    {
+        "name": "Concord",
+        "zip_code": "L4K"
+    },
+    {
+        "name": "Woodbridge South",
+        "zip_code": "L4L"
+    },
+    {
+        "name": "Barrie North",
+        "zip_code": "L4M"
+    },
+    {
+        "name": "Barrie South",
+        "zip_code": "L4N"
+    },
+    {
+        "name": "Keswick",
+        "zip_code": "L4P"
+    },
+    {
+        "name": "Midland",
+        "zip_code": "L4R"
+    },
+    {
+        "name": "Richmond Hill Central",
+        "zip_code": "L4S"
+    },
+    {
+        "name": "Mississauga (Malton)",
+        "zip_code": "L4T"
+    },
+    {
+        "name": "Mississauga (Wildwood)",
+        "zip_code": "L4V"
+    },
+    {
+        "name": "Mississauga (Matheson / East Rathwood)",
+        "zip_code": "L4W"
+    },
+    {
+        "name": "Mississauga (East Applewood / East Dixie / NE Lakeview)",
+        "zip_code": "L4X"
+    },
+    {
+        "name": "Mississauga (West Applewood / West Dixie / NW Lakeview)",
+        "zip_code": "L4Y"
+    },
+    {
+        "name": "Mississauga (West Rathwood / East Hurontario / SE Gateway)",
+        "zip_code": "L4Z"
+    },
+    {
+        "name": "Mississauga (Mississauga Valleys / East Cooksville)",
+        "zip_code": "L5A"
+    },
+    {
+        "name": "Mississauga (West Cooksville / Fairview / City Centre / East Creditview)",
+        "zip_code": "L5B"
+    },
+    {
+        "name": "Mississauga (West Creditview / Mavis / Erindale)",
+        "zip_code": "L5C"
+    },
+    {
+        "name": "Mississauga (Central Lakeview)",
+        "zip_code": "L5E"
+    },
+    {
+        "name": "Mississauga (SW Lakeview / Mineola / East Port Credit)",
+        "zip_code": "L5G"
+    },
+    {
+        "name": "Mississauga (West Port Credit / Lorne Park / East Sheridan)",
+        "zip_code": "L5H"
+    },
+    {
+        "name": "Mississauga (Clarkson / Southdown)",
+        "zip_code": "L5J"
+    },
+    {
+        "name": "Mississauga (West Sheridan)",
+        "zip_code": "L5K"
+    },
+    {
+        "name": "Mississauga (Erin Mills / Western Business Park)",
+        "zip_code": "L5L"
+    },
+    {
+        "name": "Mississauga (Churchill Meadows / Central Erin Mills / South Streetsville)",
+        "zip_code": "L5M"
+    },
+    {
+        "name": "Mississauga (Lisgar / Meadowvale)",
+        "zip_code": "L5N"
+    },
+    {
+        "name": "Mississauga (YYZ)",
+        "zip_code": "L5P"
+    },
+    {
+        "name": "Mississauga (West Hurontario / SW Gateway)",
+        "zip_code": "L5R"
+    },
+    {
+        "name": "Mississauga (Cardiff / NE Gateway)",
+        "zip_code": "L5S"
+    },
+    {
+        "name": "Mississauga (Courtney Park / East Gateway)",
+        "zip_code": "L5T"
+    },
+    {
+        "name": "Mississauga (East Credit)",
+        "zip_code": "L5V"
+    },
+    {
+        "name": "Mississauga (Meadowvale Village / West Gateway)",
+        "zip_code": "L5W"
+    },
+    {
+        "name": "Maple",
+        "zip_code": "L6A"
+    },
+    {
+        "name": "Markham East",
+        "zip_code": "L6B"
+    },
+    {
+        "name": "Markham Northwest",
+        "zip_code": "L6C"
+    },
+    {
+        "name": "Markham Northeast",
+        "zip_code": "L6E"
+    },
+    {
+        "name": "Markham Inner Southwest",
+        "zip_code": "L6G"
+    },
+    {
+        "name": "Oakville North",
+        "zip_code": "L6H"
+    },
+    {
+        "name": "Oakville Northeast",
+        "zip_code": "L6J"
+    },
+    {
+        "name": "Oakville East",
+        "zip_code": "L6K"
+    },
+    {
+        "name": "Oakville South",
+        "zip_code": "L6L"
+    },
+    {
+        "name": "Oakville West",
+        "zip_code": "L6M"
+    },
+    {
+        "name": "Brampton North",
+        "zip_code": "L6P"
+    },
+    {
+        "name": "Brampton Northwest",
+        "zip_code": "L6R"
+    },
+    {
+        "name": "Brampton North Central",
+        "zip_code": "L6S"
+    },
+    {
+        "name": "Brampton East",
+        "zip_code": "L6T"
+    },
+    {
+        "name": "Brampton Central",
+        "zip_code": "L6V"
+    },
+    {
+        "name": "Brampton Southeast",
+        "zip_code": "L6W"
+    },
+    {
+        "name": "Brampton Southwest",
+        "zip_code": "L6X"
+    },
+    {
+        "name": "Brampton South",
+        "zip_code": "L6Y"
+    },
+    {
+        "name": "Brampton West Central",
+        "zip_code": "L6Z"
+    },
+    {
+        "name": "Brampton West",
+        "zip_code": "L7A"
+    },
+    {
+        "name": "King City",
+        "zip_code": "L7B"
+    },
+    {
+        "name": "Caledon",
+        "zip_code": "L7C"
+    },
+    {
+        "name": "Bolton",
+        "zip_code": "L7E"
+    },
+    {
+        "name": "Georgetown",
+        "zip_code": "L7G"
+    },
+    {
+        "name": "Acton",
+        "zip_code": "L7J"
+    },
+    {
+        "name": "Caledon Village",
+        "zip_code": "L7K"
+    },
+    {
+        "name": "Burlington Northeast",
+        "zip_code": "L7L"
+    },
+    {
+        "name": "Burlington North",
+        "zip_code": "L7M"
+    },
+    {
+        "name": "Burlington East",
+        "zip_code": "L7N"
+    },
+    {
+        "name": "Burlington West",
+        "zip_code": "L7P"
+    },
+    {
+        "name": "Burlington Southeast",
+        "zip_code": "L7R"
+    },
+    {
+        "name": "Burlington South",
+        "zip_code": "L7S"
+    },
+    {
+        "name": "Burlington Southwest",
+        "zip_code": "L7T"
+    },
+    {
+        "name": "Waterdown",
+        "zip_code": "L8B"
+    },
+    {
+        "name": "Ancaster West",
+        "zip_code": "L9G"
+    },
+    {
+        "name": "Dundas",
+        "zip_code": "L9H"
+    },
+    {
+        "name": "Barrie",
+        "zip_code": "L9J"
+    },
+    {
+        "name": "Ancaster East",
+        "zip_code": "L9K"
+    },
+    {
+        "name": "Port Perry",
+        "zip_code": "L9L"
+    },
+    {
+        "name": "Penetanguishene",
+        "zip_code": "L9M"
+    },
+    {
+        "name": "Holland Landing",
+        "zip_code": "L9N"
+    },
+    {
+        "name": "Uxbridge",
+        "zip_code": "L9P"
+    },
+    {
+        "name": "Alliston",
+        "zip_code": "L9R"
+    },
+    {
+        "name": "Innisfil",
+        "zip_code": "L9S"
+    },
+    {
+        "name": "Milton",
+        "zip_code": "L9T"
+    },
+    {
+        "name": "Orangeville North",
+        "zip_code": "L9V"
+    },
+    {
+        "name": "Orangeville South",
+        "zip_code": "L9W"
+    },
+    {
+        "name": "Barrie",
+        "zip_code": "L9X"
+    },
+    {
+        "name": "Minesing",
+        "zip_code": "L9X"
+    },
+    {
+        "name": "Midhurst",
+        "zip_code": "L9X"
+    },
+    {
+        "name": "Springwater",
+        "zip_code": "L9X"
+    },
+    {
+        "name": "Collingwood",
+        "zip_code": "L9Y"
+    },
+    {
+        "name": "Wasaga Beach",
+        "zip_code": "L9Z"
+    },
+    {
+        "name": "Scarborough (Malvern / Rouge River)",
+        "zip_code": "M1B"
+    },
+    {
+        "name": "Scarborough (Rouge Hill / Port Union / Highland Creek)",
+        "zip_code": "M1C"
+    },
+    {
+        "name": "Scarborough (Guildwood / Morningside / Ellesmere)",
+        "zip_code": "M1E"
+    },
+    {
+        "name": "Scarborough (Woburn)",
+        "zip_code": "M1G"
+    },
+    {
+        "name": "Scarborough (Cedarbrae)",
+        "zip_code": "M1H"
+    },
+    {
+        "name": "Scarborough (Eglinton)",
+        "zip_code": "M1J"
+    },
+    {
+        "name": "Scarborough (Kennedy Park / Ionview / East Birchmount Park)",
+        "zip_code": "M1K"
+    },
+    {
+        "name": "Scarborough (The Golden Mile / Clairlea / Oakridge / Birchmount Park East)",
+        "zip_code": "M1L"
+    },
+    {
+        "name": "Scarborough (Cliffside / Cliffcrest / Scarborough Village West)",
+        "zip_code": "M1M"
+    },
+    {
+        "name": "Scarborough (Birch Cliff / Cliffside West)",
+        "zip_code": "M1N"
+    },
+    {
+        "name": "Scarborough (Dorset Park / Wexford Heights / Scarborough Town Centre)",
+        "zip_code": "M1P"
+    },
+    {
+        "name": "Scarborough (Wexford / Maryvale)",
+        "zip_code": "M1R"
+    },
+    {
+        "name": "Scarborough (Agincourt)",
+        "zip_code": "M1S"
+    },
+    {
+        "name": "Scarborough (Clarks Corners / Tam O'Shanter / Sullivan)",
+        "zip_code": "M1T"
+    },
+    {
+        "name": "Scarborough (Milliken / Agincourt North / Steeles East / L'Amoreaux East)",
+        "zip_code": "M1V"
+    },
+    {
+        "name": "Scarborough (Steeles West / L'Amoreaux West)",
+        "zip_code": "M1W"
+    },
+    {
+        "name": "Scarborough (Upper Rouge)",
+        "zip_code": "M1X"
+    },
+    {
+        "name": "North York (Hillcrest Village)",
+        "zip_code": "M2H"
+    },
+    {
+        "name": "North York (Fairview / Henry Farm / Oriole)",
+        "zip_code": "M2J"
+    },
+    {
+        "name": "North York (Bayview Village)",
+        "zip_code": "M2K"
+    },
+    {
+        "name": "North York (York Mills / Silver Hills)",
+        "zip_code": "M2L"
+    },
+    {
+        "name": "Willowdale East (Newtonbrook)",
+        "zip_code": "M2M"
+    },
+    {
+        "name": "Willowdale South",
+        "zip_code": "M2N"
+    },
+    {
+        "name": "North York (York Mills West)",
+        "zip_code": "M2P"
+    },
+    {
+        "name": "Willowdale West",
+        "zip_code": "M2R"
+    },
+    {
+        "name": "North York (York Heights / Victoria Village / Parkway East)",
+        "zip_code": "M3A"
+    },
+    {
+        "name": "Don Mills North",
+        "zip_code": "M3B"
+    },
+    {
+        "name": "Don Mills South (Flemingdon Park)",
+        "zip_code": "M3C"
+    },
+    {
+        "name": "North York (Armour Heights / Wilson Heights / Downsview North)",
+        "zip_code": "M3H"
+    },
+    {
+        "name": "North York (Northwood Park / York University)",
+        "zip_code": "M3J"
+    },
+    {
+        "name": "Downsview West",
+        "zip_code": "M3L"
+    },
+    {
+        "name": "Downsview Central",
+        "zip_code": "M3M"
+    },
+    {
+        "name": "North York (Jane and Finch)",
+        "zip_code": "M3N"
+    },
+    {
+        "name": "North York (Sweeney Park / Wigmore Park)",
+        "zip_code": "M4A"
+    },
+    {
+        "name": "East York (Parkview Hill / Woodbine Gardens)",
+        "zip_code": "M4B"
+    },
+    {
+        "name": "East York (Woodbine Heights)",
+        "zip_code": "M4C"
+    },
+    {
+        "name": "East York (Leaside)",
+        "zip_code": "M4G"
+    },
+    {
+        "name": "East York (Thorncliffe Park)",
+        "zip_code": "M4H"
+    },
+    {
+        "name": "North York (Bedford Park / Lawrence Park West / Lawrence Manor East)",
+        "zip_code": "M5M"
+    },
+    {
+        "name": "North York (Lawrence Manor / Lawrence Heights)",
+        "zip_code": "M6A"
+    },
+    {
+        "name": "North York (Glencairn)",
+        "zip_code": "M6B"
+    },
+    {
+        "name": "York (Cedarvale)",
+        "zip_code": "M6C"
+    },
+    {
+        "name": "York (Fairbank / Oakwood)",
+        "zip_code": "M6E"
+    },
+    {
+        "name": "North York (North Park / Maple Leaf Park / Upwood Park)",
+        "zip_code": "M6L"
+    },
+    {
+        "name": "York (Del Ray / Keelsdale / Mount Dennis / Silverthorne)",
+        "zip_code": "M6M"
+    },
+    {
+        "name": "York (Runnymede / The Junction North)",
+        "zip_code": "M6N"
+    },
+    {
+        "name": "Queen's Park Ontario Provincial Government",
+        "zip_code": "M7A"
+    },
+    {
+        "name": "Etobicoke (Alderwood / Long Branch)",
+        "zip_code": "M8W"
+    },
+    {
+        "name": "Etobicoke (The Kingsway / Montgomery Road / Old Mill North)",
+        "zip_code": "M8X"
+    },
+    {
+        "name": "Etobicoke (Old Mill South / King's Mill Park / Sunnylea / Humber Bay / Mimico NE / The Queensway East / Royal York South East / Kingsway Park South East)",
+        "zip_code": "M8Y"
+    },
+    {
+        "name": "Etobicoke (Mimico NW / The Queensway West / South of Bloor / Kingsway Park South West / Royal York South West)",
+        "zip_code": "M8Z"
+    },
+    {
+        "name": "Etobicoke (Islington Avenue)",
+        "zip_code": "M9A"
+    },
+    {
+        "name": "Etobicoke (West Deane Park / Princess Gardens / Martin Grove / Islington / Cloverdale)",
+        "zip_code": "M9B"
+    },
+    {
+        "name": "Etobicoke (Eringate / Bloordale Gardens / Old Burnhamthorpe / Markland Woods)",
+        "zip_code": "M9C"
+    },
+    {
+        "name": "North York (Humber Summit)",
+        "zip_code": "M9L"
+    },
+    {
+        "name": "North York (Humberlea / Emery)",
+        "zip_code": "M9M"
+    },
+    {
+        "name": "Weston",
+        "zip_code": "M9N"
+    },
+    {
+        "name": "Etobicoke (Westmount)",
+        "zip_code": "M9P"
+    },
+    {
+        "name": "Etobicoke (Kingsview Village / St. Phillips / Martin Grove Gardens / Richview Gardens)",
+        "zip_code": "M9R"
+    },
+    {
+        "name": "Etobicoke (South Steeles / Silverstone / Humbergate / Jamestown / Mount Olive / Beaumond Heights / Thistletown / Albion Gardens)",
+        "zip_code": "M9V"
+    },
+    {
+        "name": "Etobicoke Northwest (Clairville / Humberwood / Woodbine Downs / West Humber / Kipling Heights / Rexdale / Elms / Tandridge / Old Rexdale)",
+        "zip_code": "M9W"
+    },
+    {
+        "name": "West Haldimand (Port Dover)",
+        "zip_code": "N0A"
+    },
+    {
+        "name": "Wellington (Elora)",
+        "zip_code": "N0B"
+    },
+    {
+        "name": "Georgian Bay Southwest Shore (Dundalk)",
+        "zip_code": "N0C"
+    },
+    {
+        "name": "Brant and Norfolk (Waterford)",
+        "zip_code": "N0E"
+    },
+    {
+        "name": "Huron (Wingham)",
+        "zip_code": "N0G"
+    },
+    {
+        "name": "Bruce Peninsula (Wiarton)",
+        "zip_code": "N0H"
+    },
+    {
+        "name": "Oxford (Norwich)",
+        "zip_code": "N0J"
+    },
+    {
+        "name": "Perth (Mitchell)",
+        "zip_code": "N0K"
+    },
+    {
+        "name": "Elgin (Dorchester)",
+        "zip_code": "N0L"
+    },
+    {
+        "name": "Middlesex (Clinton)",
+        "zip_code": "N0M"
+    },
+    {
+        "name": "Lambton (Forest)",
+        "zip_code": "N0N"
+    },
+    {
+        "name": "Kent (Blenheim)",
+        "zip_code": "N0P"
+    },
+    {
+        "name": "Essex (Belle River)",
+        "zip_code": "N0R"
+    },
+    {
+        "name": "Dunnville",
+        "zip_code": "N1A"
+    },
+    {
+        "name": "Guelph South",
+        "zip_code": "N1C"
+    },
+    {
+        "name": "Guelph North",
+        "zip_code": "N1E"
+    },
+    {
+        "name": "Guelph Central",
+        "zip_code": "N1G"
+    },
+    {
+        "name": "Guelph Northwest",
+        "zip_code": "N1H"
+    },
+    {
+        "name": "Guelph West",
+        "zip_code": "N1K"
+    },
+    {
+        "name": "Guelph East",
+        "zip_code": "N1L"
+    },
+    {
+        "name": "Fergus",
+        "zip_code": "N1M"
+    },
+    {
+        "name": "Cambridge South",
+        "zip_code": "N1P"
+    },
+    {
+        "name": "Cambridge Central",
+        "zip_code": "N1R"
+    },
+    {
+        "name": "Cambridge Southwest",
+        "zip_code": "N1S"
+    },
+    {
+        "name": "Cambridge East",
+        "zip_code": "N1T"
+    },
+    {
+        "name": "Kitchener East",
+        "zip_code": "N2A"
+    },
+    {
+        "name": "Kitchener Northeast",
+        "zip_code": "N2B"
+    },
+    {
+        "name": "Kitchener South Central",
+        "zip_code": "N2C"
+    },
+    {
+        "name": "Kitchener Southwest",
+        "zip_code": "N2E"
+    },
+    {
+        "name": "Kitchener Central",
+        "zip_code": "N2G"
+    },
+    {
+        "name": "Kitchener North Central",
+        "zip_code": "N2H"
+    },
+    {
+        "name": "Waterloo Southeast",
+        "zip_code": "N2J"
+    },
+    {
+        "name": "Kitchener North",
+        "zip_code": "N2K"
+    },
+    {
+        "name": "Waterloo South",
+        "zip_code": "N2L"
+    },
+    {
+        "name": "Kitchener Northwest",
+        "zip_code": "N2M"
+    },
+    {
+        "name": "Kitchener West",
+        "zip_code": "N2N"
+    },
+    {
+        "name": "Kitchener Southeast",
+        "zip_code": "N2P"
+    },
+    {
+        "name": "Kitchener South",
+        "zip_code": "N2R"
+    },
+    {
+        "name": "Waterloo Southwest",
+        "zip_code": "N2T"
+    },
+    {
+        "name": "Waterloo Northwest",
+        "zip_code": "N2V"
+    },
+    {
+        "name": "Kincardine",
+        "zip_code": "N2Z"
+    },
+    {
+        "name": "Baden",
+        "zip_code": "N3A"
+    },
+    {
+        "name": "Elmira",
+        "zip_code": "N3B"
+    },
+    {
+        "name": "Cambridge Northeast",
+        "zip_code": "N3C"
+    },
+    {
+        "name": "Cambridge Northwest",
+        "zip_code": "N3E"
+    },
+    {
+        "name": "Cambridge West",
+        "zip_code": "N3H"
+    },
+    {
+        "name": "Paris",
+        "zip_code": "N3L"
+    },
+    {
+        "name": "Caledonia",
+        "zip_code": "N3W"
+    },
+    {
+        "name": "Simcoe",
+        "zip_code": "N3Y"
+    },
+    {
+        "name": "Delhi",
+        "zip_code": "N4B"
+    },
+    {
+        "name": "Tillsonburg",
+        "zip_code": "N4G"
+    },
+    {
+        "name": "Owen Sound",
+        "zip_code": "N4K"
+    },
+    {
+        "name": "Meaford",
+        "zip_code": "N4L"
+    },
+    {
+        "name": "Hanover",
+        "zip_code": "N4N"
+    },
+    {
+        "name": "Woodstock Central",
+        "zip_code": "N4S"
+    },
+    {
+        "name": "Woodstock North",
+        "zip_code": "N4T"
+    },
+    {
+        "name": "Woodstock South",
+        "zip_code": "N4V"
+    },
+    {
+        "name": "Listowel",
+        "zip_code": "N4W"
+    },
+    {
+        "name": "St. Mary's",
+        "zip_code": "N4X"
+    },
+    {
+        "name": "Stratford South",
+        "zip_code": "N4Z"
+    },
+    {
+        "name": "Stratford North",
+        "zip_code": "N5A"
+    },
+    {
+        "name": "Ingersoll",
+        "zip_code": "N5C"
+    },
+    {
+        "name": "Aylmer",
+        "zip_code": "N5H"
+    },
+    {
+        "name": "Port Stanley",
+        "zip_code": "N5L"
+    },
+    {
+        "name": "St. Thomas North",
+        "zip_code": "N5P"
+    },
+    {
+        "name": "St. Thomas South",
+        "zip_code": "N5R"
+    },
+    {
+        "name": "London (YXU / North and East Argyle / East Huron Heights)",
+        "zip_code": "N5V"
+    },
+    {
+        "name": "London East (SW Argyle / Hamilton Road)",
+        "zip_code": "N5W"
+    },
+    {
+        "name": "London (Fanshawe / Stoneybrook / Stoney Creek / Uplands / East Masonville)",
+        "zip_code": "N5X"
+    },
+    {
+        "name": "London (West Huron Heights / Carling)",
+        "zip_code": "N5Y"
+    },
+    {
+        "name": "London (Glen Cairn)",
+        "zip_code": "N5Z"
+    },
+    {
+        "name": "London North (UWO)",
+        "zip_code": "N6A"
+    },
+    {
+        "name": "London Central",
+        "zip_code": "N6B"
+    },
+    {
+        "name": "London South (East Highland / North White Oaks / North Westminster)",
+        "zip_code": "N6C"
+    },
+    {
+        "name": "London (South White Oaks / Central Westminster / East Longwoods / West Brockley)",
+        "zip_code": "N6E"
+    },
+    {
+        "name": "London (Sunningdale / West Masonville / Medway / NE Hyde Park / East Fox Hollow)",
+        "zip_code": "N6G"
+    },
+    {
+        "name": "London West (Central Hyde Park / Oakridge)",
+        "zip_code": "N6H"
+    },
+    {
+        "name": "London (Southcrest / East Westmount / West Highland)",
+        "zip_code": "N6J"
+    },
+    {
+        "name": "London (Riverbend / Woodhull / North Sharon Creek / Byron / West Westmount)",
+        "zip_code": "N6K"
+    },
+    {
+        "name": "London (East Tempo)",
+        "zip_code": "N6L"
+    },
+    {
+        "name": "London (Jackson / Old Victoria / Bradley / North Highbury)",
+        "zip_code": "N6M"
+    },
+    {
+        "name": "London (South Highbury / Glanworth / East Brockley / SE Westminster)",
+        "zip_code": "N6N"
+    },
+    {
+        "name": "London (Talbot / Lambeth / West Tempo / South Sharon Creek)",
+        "zip_code": "N6P"
+    },
+    {
+        "name": "Goderich",
+        "zip_code": "N7A"
+    },
+    {
+        "name": "Strathroy",
+        "zip_code": "N7G"
+    },
+    {
+        "name": "Chatham Northwest",
+        "zip_code": "N7L"
+    },
+    {
+        "name": "Chatham Southeast",
+        "zip_code": "N7M"
+    },
+    {
+        "name": "Sarnia Central",
+        "zip_code": "N7S"
+    },
+    {
+        "name": "Sarnia Southwest",
+        "zip_code": "N7T"
+    },
+    {
+        "name": "Sarnia Northwest",
+        "zip_code": "N7V"
+    },
+    {
+        "name": "Sarnia Southeast",
+        "zip_code": "N7W"
+    },
+    {
+        "name": "Sarnia Northeast",
+        "zip_code": "N7X"
+    },
+    {
+        "name": "Wallaceburg",
+        "zip_code": "N8A"
+    },
+    {
+        "name": "Leamington",
+        "zip_code": "N8H"
+    },
+    {
+        "name": "Essex",
+        "zip_code": "N8M"
+    },
+    {
+        "name": "Tecumseh Outskirts",
+        "zip_code": "N8N"
+    },
+    {
+        "name": "Windsor (East Riverside)",
+        "zip_code": "N8P"
+    },
+    {
+        "name": "Windsor (East Forest Glade)",
+        "zip_code": "N8R"
+    },
+    {
+        "name": "Windsor (Riverside)",
+        "zip_code": "N8S"
+    },
+    {
+        "name": "Windsor (West Forest Glade / East Fontainbleu)",
+        "zip_code": "N8T"
+    },
+    {
+        "name": "Tecumseh (YQG)",
+        "zip_code": "N8V"
+    },
+    {
+        "name": "Windsor (South Walkerville / West Fontainbleu / Walker Farm / Devonshire)",
+        "zip_code": "N8W"
+    },
+    {
+        "name": "Windsor South Central (West Walkerville / Remington Park)",
+        "zip_code": "N8X"
+    },
+    {
+        "name": "Windsor East (East Walkerville)",
+        "zip_code": "N8Y"
+    },
+    {
+        "name": "Windsor (City Centre / NW Walkerville)",
+        "zip_code": "N9A"
+    },
+    {
+        "name": "Windsor (University / South Cameron)",
+        "zip_code": "N9B"
+    },
+    {
+        "name": "Windsor (Sandwich / Ojibway / West Malden)",
+        "zip_code": "N9C"
+    },
+    {
+        "name": "Windsor South (East Malden)",
+        "zip_code": "N9E"
+    },
+    {
+        "name": "Windsor (Roseland)",
+        "zip_code": "N9G"
+    },
+    {
+        "name": "La Salle East",
+        "zip_code": "N9H"
+    },
+    {
+        "name": "La Salle West",
+        "zip_code": "N9J"
+    },
+    {
+        "name": "Tecumseh Central",
+        "zip_code": "N9K"
+    },
+    {
+        "name": "Amherstburg",
+        "zip_code": "N9V"
+    },
+    {
+        "name": "Kingsville",
+        "zip_code": "N9Y"
+    },
+    {
+        "name": "Nipissing Central (Burk's Falls)",
+        "zip_code": "P0A"
+    },
+    {
+        "name": "Nipissing South (Utterson)",
+        "zip_code": "P0B"
+    },
+    {
+        "name": "Parry Sound Mid-Shore (Bala)",
+        "zip_code": "P0C"
+    },
+    {
+        "name": "Parry Sound South Shore (Kilworthy)",
+        "zip_code": "P0E"
+    },
+    {
+        "name": "Parry Sound North Shore (Nobel)",
+        "zip_code": "P0G"
+    },
+    {
+        "name": "Nipissing North (Callander)",
+        "zip_code": "P0H"
+    },
+    {
+        "name": "Timiskaming South (Temiskaming Shores)",
+        "zip_code": "P0J"
+    },
+    {
+        "name": "Timiskaming North (Iroquois Falls A)",
+        "zip_code": "P0K"
+    },
+    {
+        "name": "Cochrane Region (Hearst)",
+        "zip_code": "P0L"
+    },
+    {
+        "name": "Algoma, Sudbury District and Greater Sudbury (Chelmsford)",
+        "zip_code": "P0M"
+    },
+    {
+        "name": "Timmins Region (South Porcupine)",
+        "zip_code": "P0N"
+    },
+    {
+        "name": "Manitoulin (Little Current)",
+        "zip_code": "P0P"
+    },
+    {
+        "name": "Lake Superior East Shore (Wawa)",
+        "zip_code": "P0S"
+    },
+    {
+        "name": "Lake Superior North Shore (Marathon)",
+        "zip_code": "P0T"
+    },
+    {
+        "name": "Northwestern Ontario (Red Lake)",
+        "zip_code": "P0V"
+    },
+    {
+        "name": "Rainy River Region (Emo)",
+        "zip_code": "P0W"
+    },
+    {
+        "name": "Kenora Region (Keewatin)",
+        "zip_code": "P0X"
+    },
+    {
+        "name": "Lake of the Woods East Shore (Ingolf)",
+        "zip_code": "P0Y"
+    },
+    {
+        "name": "North Bay South",
+        "zip_code": "P1A"
+    },
+    {
+        "name": "North Bay Central",
+        "zip_code": "P1B"
+    },
+    {
+        "name": "North Bay North",
+        "zip_code": "P1C"
+    },
+    {
+        "name": "Huntsville",
+        "zip_code": "P1H"
+    },
+    {
+        "name": "Bracebridge",
+        "zip_code": "P1L"
+    },
+    {
+        "name": "Gravenhurst",
+        "zip_code": "P1P"
+    },
+    {
+        "name": "Parry Sound",
+        "zip_code": "P2A"
+    },
+    {
+        "name": "Sturgeon Falls",
+        "zip_code": "P2B"
+    },
+    {
+        "name": "Kirkland Lake",
+        "zip_code": "P2N"
+    },
+    {
+        "name": "Greater Sudbury (New Sudbury)",
+        "zip_code": "P3A"
+    },
+    {
+        "name": "Greater Sudbury (Downtown / Minnow Lake)",
+        "zip_code": "P3B"
+    },
+    {
+        "name": "Greater Sudbury (Gatchell / West End / Little Britain)",
+        "zip_code": "P3C"
+    },
+    {
+        "name": "Greater Sudbury (Robinson / Lockerby)",
+        "zip_code": "P3E"
+    },
+    {
+        "name": "Greater Sudbury (Lo-Ellen / McFarlane Lake)",
+        "zip_code": "P3G"
+    },
+    {
+        "name": "Greater Sudbury (Garson)",
+        "zip_code": "P3L"
+    },
+    {
+        "name": "Greater Sudbury (Val Caron)",
+        "zip_code": "P3N"
+    },
+    {
+        "name": "Greater Sudbury (Hanmer)",
+        "zip_code": "P3P"
+    },
+    {
+        "name": "Greater Sudbury (Lively)",
+        "zip_code": "P3Y"
+    },
+    {
+        "name": "Timmins Southeast",
+        "zip_code": "P4N"
+    },
+    {
+        "name": "Timmins North",
+        "zip_code": "P4P"
+    },
+    {
+        "name": "Timmins West",
+        "zip_code": "P4R"
+    },
+    {
+        "name": "Elliot Lake",
+        "zip_code": "P5A"
+    },
+    {
+        "name": "Espanola",
+        "zip_code": "P5E"
+    },
+    {
+        "name": "Kapuskasing",
+        "zip_code": "P5N"
+    },
+    {
+        "name": "Sault Ste. Marie East",
+        "zip_code": "P6A"
+    },
+    {
+        "name": "Sault Ste. Marie Central",
+        "zip_code": "P6B"
+    },
+    {
+        "name": "Sault Ste. Marie North",
+        "zip_code": "P6C"
+    },
+    {
+        "name": "Thunder Bay Northeast",
+        "zip_code": "P7A"
+    },
+    {
+        "name": "Thunder Bay North Central",
+        "zip_code": "P7B"
+    },
+    {
+        "name": "Thunder Bay Central",
+        "zip_code": "P7C"
+    },
+    {
+        "name": "Thunder Bay South Central",
+        "zip_code": "P7E"
+    },
+    {
+        "name": "Thunder Bay North",
+        "zip_code": "P7G"
+    },
+    {
+        "name": "Thunder Bay South",
+        "zip_code": "P7J"
+    },
+    {
+        "name": "Thunder Bay West",
+        "zip_code": "P7K"
+    },
+    {
+        "name": "Neebing",
+        "zip_code": "P7L"
+    },
+    {
+        "name": "Dryden",
+        "zip_code": "P8N"
+    },
+    {
+        "name": "Sioux Lookout",
+        "zip_code": "P8T"
+    },
+    {
+        "name": "Fort Frances",
+        "zip_code": "P9A"
+    },
+    {
+        "name": "Kenora",
+        "zip_code": "P9N"
+    },
+    {
+        "name": "Prince County (Portage)",
+        "zip_code": "C0B"
+    },
+    {
+        "name": "Kings and Queens counties (Elmira)",
+        "zip_code": "C0A"
+    },
+    {
+        "name": "Montague",
+        "zip_code": "C0A"
+    },
+    {
+        "name": "Charlottetown Southeast Prince Edward Island Provincial Government",
+        "zip_code": "C1A"
+    },
+    {
+        "name": "Stratford",
+        "zip_code": "C1B"
+    },
+    {
+        "name": "Charlottetown North",
+        "zip_code": "C1C"
+    },
+    {
+        "name": "Charlottetown West",
+        "zip_code": "C1E"
+    },
+    {
+        "name": "Summerside",
+        "zip_code": "C1N"
+    },
+    {
+        "name": "Matane",
+        "zip_code": "G4W"
+    },
+    {
+        "name": "Mont-Joli",
+        "zip_code": "G5H"
+    },
+    {
+        "name": "Amqui",
+        "zip_code": "G5J"
+    },
+    {
+        "name": "Rimouski Central",
+        "zip_code": "G5L"
+    },
+    {
+        "name": "Rimouski Northeast",
+        "zip_code": "G5M"
+    },
+    {
+        "name": "Rimouski Southwest",
+        "zip_code": "G5N"
+    },
+    {
+        "name": "Rivière-du-Loup",
+        "zip_code": "G5R"
+    },
+    {
+        "name": "Saint-Ambroise",
+        "zip_code": "G7P"
+    },
+    {
+        "name": "Alma Southeast",
+        "zip_code": "G8B"
+    },
+    {
+        "name": "Alma Southwest",
+        "zip_code": "G8C"
+    },
+    {
+        "name": "Alma North",
+        "zip_code": "G8E"
+    },
+    {
+        "name": "Roberval",
+        "zip_code": "G8H"
+    },
+    {
+        "name": "Saint-Prime",
+        "zip_code": "G8J"
+    },
+    {
+        "name": "Saint-Félicien",
+        "zip_code": "G8K"
+    },
+    {
+        "name": "Dolbeau-Mistassini",
+        "zip_code": "G8L"
+    },
+    {
+        "name": "Albanel",
+        "zip_code": "G8M"
+    },
+    {
+        "name": "Hébertville",
+        "zip_code": "G8N"
+    },
+    {
+        "name": "Capitale-Nationale (Stoneham)",
+        "zip_code": "G0A"
+    },
+    {
+        "name": "Quebec Provincial Government",
+        "zip_code": "G1A"
+    },
+    {
+        "name": "Quebec City Lower Riverbank",
+        "zip_code": "G1J"
+    },
+    {
+        "name": "Quebec City Mid-Riverbank",
+        "zip_code": "G1K"
+    },
+    {
+        "name": "Quebec City Northeast",
+        "zip_code": "G1L"
+    },
+    {
+        "name": "Quebec City North Central",
+        "zip_code": "G1M"
+    },
+    {
+        "name": "Quebec City South Central",
+        "zip_code": "G1N"
+    },
+    {
+        "name": "Quebec City West",
+        "zip_code": "G1P"
+    },
+    {
+        "name": "Quebec City East",
+        "zip_code": "G1R"
+    },
+    {
+        "name": "Quebec City South",
+        "zip_code": "G1S"
+    },
+    {
+        "name": "Quebec City Upper Riverbank",
+        "zip_code": "G1T"
+    },
+    {
+        "name": "Quebec City Northwest",
+        "zip_code": "G2C"
+    },
+    {
+        "name": "L'Ancienne-Lorette Northeast",
+        "zip_code": "G2E"
+    },
+    {
+        "name": "Quebec City Inner North",
+        "zip_code": "G2J"
+    },
+    {
+        "name": "Quebec City Outer North",
+        "zip_code": "G2K"
+    },
+    {
+        "name": "Lac-Beauport",
+        "zip_code": "G3B"
+    },
+    {
+        "name": "Stoneham-et-Tewkesbury",
+        "zip_code": "G3C"
+    },
+    {
+        "name": "Pont-Rouge",
+        "zip_code": "G3H"
+    },
+    {
+        "name": "Donnacona",
+        "zip_code": "G3M"
+    },
+    {
+        "name": "Sainte-Catherine-de-la-Jacques-Cartier",
+        "zip_code": "G3N"
+    },
+    {
+        "name": "Shannon",
+        "zip_code": "G3S"
+    },
+    {
+        "name": "Baie-Saint-Paul",
+        "zip_code": "G3Z"
+    },
+    {
+        "name": "Clermont",
+        "zip_code": "G4A"
+    },
+    {
+        "name": "La Malbaie",
+        "zip_code": "G5A"
+    },
+    {
+        "name": "Mauricie (Parent)",
+        "zip_code": "G0X"
+    },
+    {
+        "name": "La Tuque",
+        "zip_code": "G9X"
+    },
+    {
+        "name": "Louiseville",
+        "zip_code": "J5V"
+    },
+    {
+        "name": "Estrie-Est (Stanstead)",
+        "zip_code": "J0B"
+    },
+    {
+        "name": "Windsor",
+        "zip_code": "J1S"
+    },
+    {
+        "name": "Asbestos",
+        "zip_code": "J1T"
+    },
+    {
+        "name": "Magog",
+        "zip_code": "J1X"
+    },
+    {
+        "name": "Montreal East",
+        "zip_code": "H1B"
+    },
+    {
+        "name": "Montreal North North",
+        "zip_code": "H1G"
+    },
+    {
+        "name": "Montreal North South",
+        "zip_code": "H1H"
+    },
+    {
+        "name": "Old Montreal",
+        "zip_code": "H2Y"
+    },
+    {
+        "name": "Downtown Montreal Northeast",
+        "zip_code": "H2Z"
+    },
+    {
+        "name": "Downtown Montreal North",
+        "zip_code": "H3A"
+    },
+    {
+        "name": "Downtown Montreal East",
+        "zip_code": "H3B"
+    },
+    {
+        "name": "Downtown Montreal Southeast",
+        "zip_code": "H3G"
+    },
+    {
+        "name": "Downtown Montreal South & West",
+        "zip_code": "H3H"
+    },
+    {
+        "name": "Hampstead",
+        "zip_code": "H3X"
+    },
+    {
+        "name": "Westmount West",
+        "zip_code": "H3Y"
+    },
+    {
+        "name": "Westmount East",
+        "zip_code": "H3Z"
+    },
+    {
+        "name": "Côte-Saint-Luc West",
+        "zip_code": "H4W"
+    },
+    {
+        "name": "Montreal West",
+        "zip_code": "H4X"
+    },
+    {
+        "name": "Kirkland",
+        "zip_code": "H9J"
+    },
+    {
+        "name": "Dorval Outskirts",
+        "zip_code": "H9P"
+    },
+    {
+        "name": "Pointe-Claire",
+        "zip_code": "H9R"
+    },
+    {
+        "name": "Beaconsfield",
+        "zip_code": "H9W"
+    },
+    {
+        "name": "Outaouais-Sud (Thurso)",
+        "zip_code": "J0X"
+    },
+    {
+        "name": "Val-des-Monts",
+        "zip_code": "J8N"
+    },
+    {
+        "name": "Chelsea",
+        "zip_code": "J9B"
+    },
+    {
+        "name": "Maniwaki",
+        "zip_code": "J9E"
+    },
+    {
+        "name": "Abitibi-Témiscamingue-Ouest (Guigues)",
+        "zip_code": "J0Z"
+    },
+    {
+        "name": "Val-d'Or",
+        "zip_code": "J9P"
+    },
+    {
+        "name": "Amos",
+        "zip_code": "J9T"
+    },
+    {
+        "name": "Ville-Marie",
+        "zip_code": "J9V"
+    },
+    {
+        "name": "La Sarre",
+        "zip_code": "J9Z"
+    },
+    {
+        "name": "Côte-Nord/Anticosti (Schefferville)",
+        "zip_code": "G0G"
+    },
+    {
+        "name": "Sept-Îles Northwest",
+        "zip_code": "G4S"
+    },
+    {
+        "name": "Port-Cartier",
+        "zip_code": "G5B"
+    },
+    {
+        "name": "Chibougamau",
+        "zip_code": "G8P"
+    },
+    {
+        "name": "Gaspé",
+        "zip_code": "G4X"
+    },
+    {
+        "name": "Montmagny",
+        "zip_code": "G5V"
+    },
+    {
+        "name": "Beauceville",
+        "zip_code": "G5X"
+    },
+    {
+        "name": "Saint-Georges Central",
+        "zip_code": "G5Y"
+    },
+    {
+        "name": "Saint-Georges Southeast",
+        "zip_code": "G5Z"
+    },
+    {
+        "name": "Saint-Georges Northwest",
+        "zip_code": "G6A"
+    },
+    {
+        "name": "Sainte-Marie",
+        "zip_code": "G6E"
+    },
+    {
+        "name": "Thetford Mines",
+        "zip_code": "G6G"
+    },
+    {
+        "name": "Lévis North",
+        "zip_code": "G6V"
+    },
+    {
+        "name": "Lévis South",
+        "zip_code": "G6W"
+    },
+    {
+        "name": "Lévis",
+        "zip_code": "G6Y"
+    },
+    {
+        "name": "Laval-des-Rapides",
+        "zip_code": "H7N"
+    },
+    {
+        "name": "Laval-sur-le-Lac",
+        "zip_code": "H7R"
+    },
+    {
+        "name": "Lanaudière-Nord (Saint-Esprit)",
+        "zip_code": "J0K"
+    },
+    {
+        "name": "Saint-Lin-Laurentides",
+        "zip_code": "J5M"
+    },
+    {
+        "name": "Lavaltrie",
+        "zip_code": "J5T"
+    },
+    {
+        "name": "L'Épiphanie",
+        "zip_code": "J5X"
+    },
+    {
+        "name": "Repentigny Northeast",
+        "zip_code": "J5Y"
+    },
+    {
+        "name": "Repentigny West",
+        "zip_code": "J5Z"
+    },
+    {
+        "name": "Repentigny South",
+        "zip_code": "J6A"
+    },
+    {
+        "name": "Terrebonne East",
+        "zip_code": "J6V"
+    },
+    {
+        "name": "Terrebonne Central",
+        "zip_code": "J6W"
+    },
+    {
+        "name": "Terrebonne Northwest",
+        "zip_code": "J6X"
+    },
+    {
+        "name": "Terrebonne Southwest",
+        "zip_code": "J6Y"
+    },
+    {
+        "name": "Mascouche Extremities",
+        "zip_code": "J7K"
+    },
+    {
+        "name": "Mascouche Central",
+        "zip_code": "J7L"
+    },
+    {
+        "name": "Laurentides-Nord (Montcalm)",
+        "zip_code": "J0T"
+    },
+    {
+        "name": "Saint-Colomban",
+        "zip_code": "J5K"
+    },
+    {
+        "name": "Saint-Jérôme West",
+        "zip_code": "J5L"
+    },
+    {
+        "name": "Sainte-Thérèse-de-Blainville Central",
+        "zip_code": "J7E"
+    },
+    {
+        "name": "Saint-Eustache Northeast",
+        "zip_code": "J7P"
+    },
+    {
+        "name": "Saint-Eustache Southwest",
+        "zip_code": "J7R"
+    },
+    {
+        "name": "Saint-Jérôme North",
+        "zip_code": "J7Y"
+    },
+    {
+        "name": "Saint-Jérôme Southeast",
+        "zip_code": "J7Z"
+    },
+    {
+        "name": "Saint-Hippolyte",
+        "zip_code": "J8A"
+    },
+    {
+        "name": "Sainte-Adèle",
+        "zip_code": "J8B"
+    },
+    {
+        "name": "Mont-Tremblant",
+        "zip_code": "J8E"
+    },
+    {
+        "name": "Lachute",
+        "zip_code": "J8H"
+    },
+    {
+        "name": "Mont-Laurier",
+        "zip_code": "J9L"
+    },
+    {
+        "name": "Montérégie-Est (Bedford)",
+        "zip_code": "J0J"
+    },
+    {
+        "name": "Montérégie-Nord (Saint-Antoine-Sur-Richelieu)",
+        "zip_code": "J0L"
+    },
+    {
+        "name": "Montérégie-Ouest (Saint-Anicet)",
+        "zip_code": "J0S"
+    },
+    {
+        "name": "Granby Central",
+        "zip_code": "J2G"
+    },
+    {
+        "name": "Granby East",
+        "zip_code": "J2H"
+    },
+    {
+        "name": "Granby West",
+        "zip_code": "J2J"
+    },
+    {
+        "name": "Cowansville",
+        "zip_code": "J2K"
+    },
+    {
+        "name": "Bromont",
+        "zip_code": "J2L"
+    },
+    {
+        "name": "Shefford",
+        "zip_code": "J2M"
+    },
+    {
+        "name": "Farnham",
+        "zip_code": "J2N"
+    },
+    {
+        "name": "Saint-Hyacinthe Northwest",
+        "zip_code": "J2R"
+    },
+    {
+        "name": "Saint-Hyacinthe Southwest",
+        "zip_code": "J2S"
+    },
+    {
+        "name": "Saint-Hyacinthe East",
+        "zip_code": "J2T"
+    },
+    {
+        "name": "Saint-Jean-sur-Richelieu East",
+        "zip_code": "J2X"
+    },
+    {
+        "name": "Saint-Jean-sur-Richelieu West",
+        "zip_code": "J2Y"
+    },
+    {
+        "name": "Saint-Jean-sur-Richelieu North",
+        "zip_code": "J3A"
+    },
+    {
+        "name": "Saint-Jean-sur-Richelieu Central",
+        "zip_code": "J3B"
+    },
+    {
+        "name": "Sainte-Julie",
+        "zip_code": "J3E"
+    },
+    {
+        "name": "Beloeil West",
+        "zip_code": "J3G"
+    },
+    {
+        "name": "Chambly",
+        "zip_code": "J3L"
+    },
+    {
+        "name": "Marieville",
+        "zip_code": "J3M"
+    },
+    {
+        "name": "Varennes",
+        "zip_code": "J3X"
+    },
+    {
+        "name": "Boucherville",
+        "zip_code": "J4B"
+    },
+    {
+        "name": "Saint-Lambert North",
+        "zip_code": "J4P"
+    },
+    {
+        "name": "Saint-Lambert Central",
+        "zip_code": "J4R"
+    },
+    {
+        "name": "Saint-Lambert South",
+        "zip_code": "J4S"
+    },
+    {
+        "name": "Brossard Northwest",
+        "zip_code": "J4W"
+    },
+    {
+        "name": "Brossard Southwest",
+        "zip_code": "J4X"
+    },
+    {
+        "name": "Brossard South",
+        "zip_code": "J4Y"
+    },
+    {
+        "name": "Brossard Northeast",
+        "zip_code": "J4Z"
+    },
+    {
+        "name": "Saint-Constant",
+        "zip_code": "J5A"
+    },
+    {
+        "name": "Delson",
+        "zip_code": "J5B"
+    },
+    {
+        "name": "Sainte-Catherine",
+        "zip_code": "J5C"
+    },
+    {
+        "name": "La Prairie",
+        "zip_code": "J5R"
+    },
+    {
+        "name": "Châteauguay North",
+        "zip_code": "J6J"
+    },
+    {
+        "name": "Châteauguay South",
+        "zip_code": "J6K"
+    },
+    {
+        "name": "Beauharnois",
+        "zip_code": "J6N"
+    },
+    {
+        "name": "Mercier",
+        "zip_code": "J6R"
+    },
+    {
+        "name": "Salaberry-de-Valleyfield North",
+        "zip_code": "J6S"
+    },
+    {
+        "name": "Salaberry-de-Valleyfield South",
+        "zip_code": "J6T"
+    },
+    {
+        "name": "Vaudreuil-Dorion",
+        "zip_code": "J7V"
+    },
+    {
+        "name": "Centre-du-Québec-Est (Saint-Valère)",
+        "zip_code": "G0P"
+    },
+    {
+        "name": "Centre-du-Québec-Nord (Daveluyville)",
+        "zip_code": "G0Z"
+    },
+    {
+        "name": "Plessisville",
+        "zip_code": "G6L"
+    },
+    {
+        "name": "Victoriaville Central",
+        "zip_code": "G6P"
+    },
+    {
+        "name": "Victoriaville Northwest",
+        "zip_code": "G6T"
+    },
+    {
+        "name": "Centre-du-Québec-Sud (Warwick)",
+        "zip_code": "J0A"
+    },
+    {
+        "name": "Centre-du-Québec-Ouest (Saint-Bonaventure)",
+        "zip_code": "J0C"
+    },
+    {
+        "name": "Drummondville Southeast",
+        "zip_code": "J2A"
+    },
+    {
+        "name": "Drummondville Central",
+        "zip_code": "J2C"
+    },
+    {
+        "name": "Drummondville Northwest",
+        "zip_code": "J2E"
+    },
+    {
+        "name": "Nicolet",
+        "zip_code": "J3T"
+    },
+    {
+        "name": "Cap-aux-Meules",
+        "zip_code": "G0B"
+    },
+    {
+        "name": "Gaspésie-Sud (New Richmond)",
+        "zip_code": "G0C"
+    },
+    {
+        "name": "Gaspésie-Nord (Grande-Vallée)",
+        "zip_code": "G0E"
+    },
+    {
+        "name": "Manicouagan (Baie-Trinité)",
+        "zip_code": "G0H"
+    },
+    {
+        "name": "Gaspésie-Ouest (Causapscal)",
+        "zip_code": "G0J"
+    },
+    {
+        "name": "Bas-St-Laurent-Est (Sainte-Luce)",
+        "zip_code": "G0K"
+    },
+    {
+        "name": "Bas-St-Laurent-Ouest (Trois-Pistoles)",
+        "zip_code": "G0L"
+    },
+    {
+        "name": "Région de Beauce (Saint-Prosper-De-Dorchester)",
+        "zip_code": "G0M"
+    },
+    {
+        "name": "Chaudière-Sud (Disraeli)",
+        "zip_code": "G0N"
+    },
+    {
+        "name": "Appalaches (La Pocatière)",
+        "zip_code": "G0R"
+    },
+    {
+        "name": "Chaudière-Nord (Saint-Joseph-De-Beauce)",
+        "zip_code": "G0S"
+    },
+    {
+        "name": "Le Fjord (Forestville)",
+        "zip_code": "G0T"
+    },
+    {
+        "name": "Saguenay-Lac-St-Jean (Alouette)",
+        "zip_code": "G0V"
+    },
+    {
+        "name": "Région de Mistassini (Chambord)",
+        "zip_code": "G0W"
+    },
+    {
+        "name": "L'Erable (Nantes)",
+        "zip_code": "G0Y"
+    },
+    {
+        "name": "Beauport North",
+        "zip_code": "G1B"
+    },
+    {
+        "name": "Beauport Central",
+        "zip_code": "G1C"
+    },
+    {
+        "name": "Beauport South",
+        "zip_code": "G1E"
+    },
+    {
+        "name": "Jean-Talon Southeast",
+        "zip_code": "G1G"
+    },
+    {
+        "name": "Charlesbourg South",
+        "zip_code": "G1H"
+    },
+    {
+        "name": "Sainte-Foy Northeast",
+        "zip_code": "G1V"
+    },
+    {
+        "name": "Sainte-Foy Southeast",
+        "zip_code": "G1W"
+    },
+    {
+        "name": "Sainte-Foy West",
+        "zip_code": "G1X"
+    },
+    {
+        "name": "Cap-Rouge",
+        "zip_code": "G1Y"
+    },
+    {
+        "name": "Loretteville North",
+        "zip_code": "G2A"
+    },
+    {
+        "name": "Loretteville South",
+        "zip_code": "G2B"
+    },
+    {
+        "name": "L'Ancienne-Lorette Southwest",
+        "zip_code": "G2G"
+    },
+    {
+        "name": "Charlesbourg North",
+        "zip_code": "G2L"
+    },
+    {
+        "name": "Jean-Talon Northeast",
+        "zip_code": "G2M"
+    },
+    {
+        "name": "Jean-Talon West",
+        "zip_code": "G2N"
+    },
+    {
+        "name": "St-Augustin-De-Desmaures",
+        "zip_code": "G3A"
+    },
+    {
+        "name": "Saint-Émile",
+        "zip_code": "G3E"
+    },
+    {
+        "name": "Lac-Saint-Charles",
+        "zip_code": "G3G"
+    },
+    {
+        "name": "Val-Bélair North",
+        "zip_code": "G3J"
+    },
+    {
+        "name": "Val-Bélair South",
+        "zip_code": "G3K"
+    },
+    {
+        "name": "Saint-Raymond",
+        "zip_code": "G3L"
+    },
+    {
+        "name": "Sept-Îles Southeast",
+        "zip_code": "G4R"
+    },
+    {
+        "name": "Les Îles-De-La-Madeleine",
+        "zip_code": "G4T"
+    },
+    {
+        "name": "Sainte-Anne-Des-Monts",
+        "zip_code": "G4V"
+    },
+    {
+        "name": "Baie-Comeau Northeast",
+        "zip_code": "G4Z"
+    },
+    {
+        "name": "Baie-Comeau Southwest",
+        "zip_code": "G5C"
+    },
+    {
+        "name": "Degelis",
+        "zip_code": "G5T"
+    },
+    {
+        "name": "Lac-Megantic",
+        "zip_code": "G6B"
+    },
+    {
+        "name": "Pintendre",
+        "zip_code": "G6C"
+    },
+    {
+        "name": "Black Lake",
+        "zip_code": "G6H"
+    },
+    {
+        "name": "Saint-Etienne-De-Lauzon",
+        "zip_code": "G6J"
+    },
+    {
+        "name": "Saint-Redempteur",
+        "zip_code": "G6K"
+    },
+    {
+        "name": "Victoriaville South",
+        "zip_code": "G6R"
+    },
+    {
+        "name": "Victoriaville East",
+        "zip_code": "G6S"
+    },
+    {
+        "name": "Charny",
+        "zip_code": "G6X"
+    },
+    {
+        "name": "Saint-Jean-Chrysostome",
+        "zip_code": "G6Z"
+    },
+    {
+        "name": "Saint-Nicolas",
+        "zip_code": "G7A"
+    },
+    {
+        "name": "La Baie",
+        "zip_code": "G7B"
+    },
+    {
+        "name": "Chicoutimi North",
+        "zip_code": "G7G"
+    },
+    {
+        "name": "Chicoutimi East",
+        "zip_code": "G7H"
+    },
+    {
+        "name": "Chicoutimi West",
+        "zip_code": "G7J"
+    },
+    {
+        "name": "Chicoutimi Southwest",
+        "zip_code": "G7K"
+    },
+    {
+        "name": "Laterrière",
+        "zip_code": "G7N"
+    },
+    {
+        "name": "Jonquière Northeast",
+        "zip_code": "G7S"
+    },
+    {
+        "name": "Jonquière Southeast",
+        "zip_code": "G7T"
+    },
+    {
+        "name": "Jonquière Central",
+        "zip_code": "G7X"
+    },
+    {
+        "name": "Jonquière Southwest",
+        "zip_code": "G7Y"
+    },
+    {
+        "name": "Jonquière Northwest",
+        "zip_code": "G7Z"
+    },
+    {
+        "name": "Jonquière West",
+        "zip_code": "G8A"
+    },
+    {
+        "name": "Métabetchouan-Lac-a-la-Croix",
+        "zip_code": "G8G"
+    },
+    {
+        "name": "Cap-de-la-Madeleine Central and southeast",
+        "zip_code": "G8T"
+    },
+    {
+        "name": "Cap-de-la-Madeleine Northeast",
+        "zip_code": "G8V"
+    },
+    {
+        "name": "Cap-de-la-Madeleine West",
+        "zip_code": "G8W"
+    },
+    {
+        "name": "Trois-Rivières Central",
+        "zip_code": "G8Y"
+    },
+    {
+        "name": "Trois-Rivières Northeast",
+        "zip_code": "G8Z"
+    },
+    {
+        "name": "Trois-Rivières East",
+        "zip_code": "G9A"
+    },
+    {
+        "name": "Trois-Rivières South",
+        "zip_code": "G9B"
+    },
+    {
+        "name": "Trois-Rivières West",
+        "zip_code": "G9C"
+    },
+    {
+        "name": "Becancour",
+        "zip_code": "G9H"
+    },
+    {
+        "name": "Shawinigan Central",
+        "zip_code": "G9N"
+    },
+    {
+        "name": "Shawinigan Southeast",
+        "zip_code": "G9P"
+    },
+    {
+        "name": "Shawinigan Northwest",
+        "zip_code": "G9R"
+    },
+    {
+        "name": "Grand-Mère",
+        "zip_code": "G9T"
+    },
+    {
+        "name": "Reserved (Santa Claus)",
+        "zip_code": "H0H"
+    },
+    {
+        "name": "Akwesasne Region (Akwesasne)",
+        "zip_code": "H0M"
+    },
+    {
+        "name": "Pointe-Aux-Trembles",
+        "zip_code": "H1A"
+    },
+    {
+        "name": "Rivière-des-Prairies Northeast",
+        "zip_code": "H1C"
+    },
+    {
+        "name": "Rivière-Des-Prairies Southwest",
+        "zip_code": "H1E"
+    },
+    {
+        "name": "Anjou West",
+        "zip_code": "H1J"
+    },
+    {
+        "name": "Anjou East",
+        "zip_code": "H1K"
+    },
+    {
+        "name": "Mercier North",
+        "zip_code": "H1L"
+    },
+    {
+        "name": "Mercier West",
+        "zip_code": "H1M"
+    },
+    {
+        "name": "Mercier Southeast",
+        "zip_code": "H1N"
+    },
+    {
+        "name": "Saint-Léonard North",
+        "zip_code": "H1P"
+    },
+    {
+        "name": "Saint-Léonard West",
+        "zip_code": "H1R"
+    },
+    {
+        "name": "Saint-Léonard Southeast",
+        "zip_code": "H1S"
+    },
+    {
+        "name": "Rosemont North",
+        "zip_code": "H1T"
+    },
+    {
+        "name": "Maisonneuve",
+        "zip_code": "H1V"
+    },
+    {
+        "name": "Hochelaga",
+        "zip_code": "H1W"
+    },
+    {
+        "name": "Rosemont Central",
+        "zip_code": "H1X"
+    },
+    {
+        "name": "Rosemont South",
+        "zip_code": "H1Y"
+    },
+    {
+        "name": "Saint-Michel West",
+        "zip_code": "H1Z"
+    },
+    {
+        "name": "Saint-Michel East",
+        "zip_code": "H2A"
+    },
+    {
+        "name": "Ahuntsic North",
+        "zip_code": "H2B"
+    },
+    {
+        "name": "Ahuntsic Central",
+        "zip_code": "H2C"
+    },
+    {
+        "name": "Villeray Northeast",
+        "zip_code": "H2E"
+    },
+    {
+        "name": "Petite-Patrie Northeast",
+        "zip_code": "H2G"
+    },
+    {
+        "name": "Plateau Mont-Royal North",
+        "zip_code": "H2H"
+    },
+    {
+        "name": "Plateau Mont-Royal North Central",
+        "zip_code": "H2J"
+    },
+    {
+        "name": "Centre-Sud North",
+        "zip_code": "H2K"
+    },
+    {
+        "name": "Centre-Sud South",
+        "zip_code": "H2L"
+    },
+    {
+        "name": "Ahuntsic East",
+        "zip_code": "H2M"
+    },
+    {
+        "name": "Ahuntsic Southeast",
+        "zip_code": "H2N"
+    },
+    {
+        "name": "Villeray West",
+        "zip_code": "H2P"
+    },
+    {
+        "name": "Villeray Southeast",
+        "zip_code": "H2R"
+    },
+    {
+        "name": "Petite-Patrie Southwest",
+        "zip_code": "H2S"
+    },
+    {
+        "name": "Plateau Mont-Royal West",
+        "zip_code": "H2T"
+    },
+    {
+        "name": "Outremont",
+        "zip_code": "H2V"
+    },
+    {
+        "name": "Plateau Mont-Royal South Central",
+        "zip_code": "H2W"
+    },
+    {
+        "name": "Plateau Mont-Royal Southeast",
+        "zip_code": "H2X"
+    },
+    {
+        "name": "Griffintown (Includes Île Notre-Dame & Île Sainte-Hélène)",
+        "zip_code": "H3C"
+    },
+    {
+        "name": "L'Île-Des-Soeurs",
+        "zip_code": "H3E"
+    },
+    {
+        "name": "Petite-Bourgogne",
+        "zip_code": "H3J"
+    },
+    {
+        "name": "Pointe-Saint-Charles",
+        "zip_code": "H3K"
+    },
+    {
+        "name": "Ahuntsic Southwest",
+        "zip_code": "H3L"
+    },
+    {
+        "name": "Cartierville Northeast",
+        "zip_code": "H3M"
+    },
+    {
+        "name": "Parc-Extension",
+        "zip_code": "H3N"
+    },
+    {
+        "name": "Mount Royal North",
+        "zip_code": "H3P"
+    },
+    {
+        "name": "Mount Royal Central",
+        "zip_code": "H3R"
+    },
+    {
+        "name": "Côte-des-Neiges North",
+        "zip_code": "H3S"
+    },
+    {
+        "name": "Côte-des-Neiges Northeast",
+        "zip_code": "H3T"
+    },
+    {
+        "name": "Côte-des-Neiges East",
+        "zip_code": "H3V"
+    },
+    {
+        "name": "Côte-des-Neiges Southwest",
+        "zip_code": "H3W"
+    },
+    {
+        "name": "Notre-Dame-de-Grâce Northeast",
+        "zip_code": "H4A"
+    },
+    {
+        "name": "Notre-Dame-de-Grâce Southwest",
+        "zip_code": "H4B"
+    },
+    {
+        "name": "Saint-Henri",
+        "zip_code": "H4C"
+    },
+    {
+        "name": "Ville Émard",
+        "zip_code": "H4E"
+    },
+    {
+        "name": "Verdun North",
+        "zip_code": "H4G"
+    },
+    {
+        "name": "Verdun South",
+        "zip_code": "H4H"
+    },
+    {
+        "name": "Cartierville Central",
+        "zip_code": "H4J"
+    },
+    {
+        "name": "Cartierville Southwest",
+        "zip_code": "H4K"
+    },
+    {
+        "name": "Saint-Laurent Inner Northeast",
+        "zip_code": "H4L"
+    },
+    {
+        "name": "Saint-Laurent East",
+        "zip_code": "H4M"
+    },
+    {
+        "name": "Saint-Laurent Outer Northeast",
+        "zip_code": "H4N"
+    },
+    {
+        "name": "Mount Royal South",
+        "zip_code": "H4P"
+    },
+    {
+        "name": "Saint-Laurent Central",
+        "zip_code": "H4R"
+    },
+    {
+        "name": "Saint-Laurent Southwest",
+        "zip_code": "H4S"
+    },
+    {
+        "name": "Saint-Laurent Southeast",
+        "zip_code": "H4T"
+    },
+    {
+        "name": "Côte-Saint-Luc East",
+        "zip_code": "H4V"
+    },
+    {
+        "name": "Dorval Central",
+        "zip_code": "H4Y"
+    },
+    {
+        "name": "Tour de la Bourse",
+        "zip_code": "H4Z"
+    },
+    {
+        "name": "Place Bonaventure",
+        "zip_code": "H5A"
+    },
+    {
+        "name": "Place Desjardins",
+        "zip_code": "H5B"
+    },
+    {
+        "name": "Duvernay-Est",
+        "zip_code": "H7A"
+    },
+    {
+        "name": "Saint-Franþois",
+        "zip_code": "H7B"
+    },
+    {
+        "name": "Saint-Vincent-de-Paul",
+        "zip_code": "H7C"
+    },
+    {
+        "name": "Duvernay",
+        "zip_code": "H7E"
+    },
+    {
+        "name": "Pont-Viau",
+        "zip_code": "H7G"
+    },
+    {
+        "name": "Auteuil West",
+        "zip_code": "H7H"
+    },
+    {
+        "name": "Auteuil Northeast",
+        "zip_code": "H7J"
+    },
+    {
+        "name": "Auteuil South",
+        "zip_code": "H7K"
+    },
+    {
+        "name": "Sainte-Rose",
+        "zip_code": "H7L"
+    },
+    {
+        "name": "Vimont",
+        "zip_code": "H7M"
+    },
+    {
+        "name": "Fabreville",
+        "zip_code": "H7P"
+    },
+    {
+        "name": "Chomedey Northeast",
+        "zip_code": "H7S"
+    },
+    {
+        "name": "Chomedey Northwest",
+        "zip_code": "H7T"
+    },
+    {
+        "name": "Chomedey East",
+        "zip_code": "H7V"
+    },
+    {
+        "name": "Chomedey South",
+        "zip_code": "H7W"
+    },
+    {
+        "name": "Sainte-Dorothée",
+        "zip_code": "H7X"
+    },
+    {
+        "name": "Îles-Laval",
+        "zip_code": "H7Y"
+    },
+    {
+        "name": "LaSalle Northwest",
+        "zip_code": "H8N"
+    },
+    {
+        "name": "LaSalle Southeast",
+        "zip_code": "H8P"
+    },
+    {
+        "name": "Saint-Pierre",
+        "zip_code": "H8R"
+    },
+    {
+        "name": "Lachine East",
+        "zip_code": "H8S"
+    },
+    {
+        "name": "Lachine West",
+        "zip_code": "H8T"
+    },
+    {
+        "name": "Roxboro",
+        "zip_code": "H8Y"
+    },
+    {
+        "name": "Pierrefonds",
+        "zip_code": "H8Z"
+    },
+    {
+        "name": "Dollard-Des-Ormeaux Northwest",
+        "zip_code": "H9A"
+    },
+    {
+        "name": "Dollard-Des-Ormeaux East",
+        "zip_code": "H9B"
+    },
+    {
+        "name": "L'Île Bizard Northeast",
+        "zip_code": "H9C"
+    },
+    {
+        "name": "L'Île-Bizard Southwest",
+        "zip_code": "H9E"
+    },
+    {
+        "name": "Dollard-Des-Ormeaux Southwest",
+        "zip_code": "H9G"
+    },
+    {
+        "name": "Sainte-Geneviève",
+        "zip_code": "H9H"
+    },
+    {
+        "name": "Senneville",
+        "zip_code": "H9K"
+    },
+    {
+        "name": "L'Île-Dorval",
+        "zip_code": "H9S"
+    },
+    {
+        "name": "Sainte-Anne-De-Bellevue",
+        "zip_code": "H9X"
+    },
+    {
+        "name": "Estrie-Ouest (Fulford)",
+        "zip_code": "J0E"
+    },
+    {
+        "name": "Bois-Francs-Nord (Odanak)",
+        "zip_code": "J0G"
+    },
+    {
+        "name": "Bois-Francs-Sud (Saint-Nazaire-D'Acton)",
+        "zip_code": "J0H"
+    },
+    {
+        "name": "Nunavik (Kuujjuaq)",
+        "zip_code": "J0M"
+    },
+    {
+        "name": "Région d'Oka (Oka)",
+        "zip_code": "J0N"
+    },
+    {
+        "name": "Vaudreuil-Soulanges (Coteau-du-Lac)",
+        "zip_code": "J0P"
+    },
+    {
+        "name": "Lanaudière-Sud (Prévost)",
+        "zip_code": "J0R"
+    },
+    {
+        "name": "Laurentides-Sud (Chénéville)",
+        "zip_code": "J0V"
+    },
+    {
+        "name": "Outaouais-Nord (Ferme-Neuve)",
+        "zip_code": "J0W"
+    },
+    {
+        "name": "Abitibi-Témiscamingue-Est (Radisson)",
+        "zip_code": "J0Y"
+    },
+    {
+        "name": "Coaticook",
+        "zip_code": "J1A"
+    },
+    {
+        "name": "Bromptonville",
+        "zip_code": "J1C"
+    },
+    {
+        "name": "Sherbrooke Northeast",
+        "zip_code": "J1E"
+    },
+    {
+        "name": "Sherbrooke East",
+        "zip_code": "J1G"
+    },
+    {
+        "name": "Sherbrooke Central",
+        "zip_code": "J1H"
+    },
+    {
+        "name": "Sherbrooke North",
+        "zip_code": "J1J"
+    },
+    {
+        "name": "Sherbrooke West",
+        "zip_code": "J1K"
+    },
+    {
+        "name": "Sherbrooke Northwest",
+        "zip_code": "J1L"
+    },
+    {
+        "name": "Sherbrooke Southeast",
+        "zip_code": "J1M"
+    },
+    {
+        "name": "Rock Forest",
+        "zip_code": "J1N"
+    },
+    {
+        "name": "Saint-Élie-d'Orford",
+        "zip_code": "J1R"
+    },
+    {
+        "name": "Saint-Cyrille-De-Wendover",
+        "zip_code": "J1Z"
+    },
+    {
+        "name": "Drummondville South",
+        "zip_code": "J2B"
+    },
+    {
+        "name": "Saint-Luc",
+        "zip_code": "J2W"
+    },
+    {
+        "name": "Beloeil East",
+        "zip_code": "J3H"
+    },
+    {
+        "name": "Saint-Basile-Le-Grand",
+        "zip_code": "J3N"
+    },
+    {
+        "name": "Sorel Central",
+        "zip_code": "J3P"
+    },
+    {
+        "name": "Sorel Southwest",
+        "zip_code": "J3R"
+    },
+    {
+        "name": "Saint-Bruno",
+        "zip_code": "J3V"
+    },
+    {
+        "name": "Saint-Hubert Central",
+        "zip_code": "J3Y"
+    },
+    {
+        "name": "Saint-Hubert East",
+        "zip_code": "J3Z"
+    },
+    {
+        "name": "Longueuil North",
+        "zip_code": "J4G"
+    },
+    {
+        "name": "Longueuil West",
+        "zip_code": "J4H"
+    },
+    {
+        "name": "Longueuil Central",
+        "zip_code": "J4J"
+    },
+    {
+        "name": "Longueuil Southwest",
+        "zip_code": "J4K"
+    },
+    {
+        "name": "Longueuil Southeast",
+        "zip_code": "J4L"
+    },
+    {
+        "name": "Longueuil East",
+        "zip_code": "J4M"
+    },
+    {
+        "name": "Longueuil Northeast",
+        "zip_code": "J4N"
+    },
+    {
+        "name": "Saint-Hubert West",
+        "zip_code": "J4T"
+    },
+    {
+        "name": "Greenfield Park",
+        "zip_code": "J4V"
+    },
+    {
+        "name": "Saint-Sophie",
+        "zip_code": "J5J"
+    },
+    {
+        "name": "L'Assomption",
+        "zip_code": "J5W"
+    },
+    {
+        "name": "Joliette",
+        "zip_code": "J6E"
+    },
+    {
+        "name": "Sainte-Thérèse-de-Blainville Northeast",
+        "zip_code": "J6Z"
+    },
+    {
+        "name": "Sainte-Thérèse-de-Blainville East",
+        "zip_code": "J7A"
+    },
+    {
+        "name": "Sainte-Thérèse-de-Blainville North",
+        "zip_code": "J7B"
+    },
+    {
+        "name": "Sainte-Thérèse-de-Blainville Northwest",
+        "zip_code": "J7C"
+    },
+    {
+        "name": "Sainte-Thérèse-de-Blainville South",
+        "zip_code": "J7G"
+    },
+    {
+        "name": "Sainte-Thérèse-de-Blainville Southwest",
+        "zip_code": "J7H"
+    },
+    {
+        "name": "Mirabel Northeast",
+        "zip_code": "J7J"
+    },
+    {
+        "name": "La Plaine",
+        "zip_code": "J7M"
+    },
+    {
+        "name": "Mirabel Southwest",
+        "zip_code": "J7N"
+    },
+    {
+        "name": "Vaudreuil-Dorion RCM",
+        "zip_code": "J7T"
+    },
+    {
+        "name": "Pincourt",
+        "zip_code": "J7W"
+    },
+    {
+        "name": "Valleyfield",
+        "zip_code": "J7X"
+    },
+    {
+        "name": "Sainte-Agathe-Des-Monts",
+        "zip_code": "J8C"
+    },
+    {
+        "name": "Chatham",
+        "zip_code": "J8G"
+    },
+    {
+        "name": "Buckingham",
+        "zip_code": "J8L"
+    },
+    {
+        "name": "Masson-Angers",
+        "zip_code": "J8M"
+    },
+    {
+        "name": "Gatineau Southeast",
+        "zip_code": "J8P"
+    },
+    {
+        "name": "Gatineau Northeast",
+        "zip_code": "J8R"
+    },
+    {
+        "name": "Gatineau Southwest",
+        "zip_code": "J8T"
+    },
+    {
+        "name": "Gatineau Northwest",
+        "zip_code": "J8V"
+    },
+    {
+        "name": "Hull Southeast",
+        "zip_code": "J8X"
+    },
+    {
+        "name": "Hull Central",
+        "zip_code": "J8Y"
+    },
+    {
+        "name": "Hull North",
+        "zip_code": "J8Z"
+    },
+    {
+        "name": "Hull Southwest",
+        "zip_code": "J9A"
+    },
+    {
+        "name": "Aylmer South",
+        "zip_code": "J9H"
+    },
+    {
+        "name": "Aylmer North",
+        "zip_code": "J9J"
+    },
+    {
+        "name": "Rouyn-Noranda South",
+        "zip_code": "J9X"
+    },
+    {
+        "name": "Rouyn-Noranda North",
+        "zip_code": "J9Y"
+    },
+    {
+        "name": "Yorkton Region (Melville)",
+        "zip_code": "S0A"
+    },
+    {
+        "name": "Southeastern Saskatchewan (Carlyle)",
+        "zip_code": "S0C"
+    },
+    {
+        "name": "Eastern Saskatchewan (Melfort)",
+        "zip_code": "S0E"
+    },
+    {
+        "name": "South Central Saskatchewan (Fort Qu'Appelle)",
+        "zip_code": "S0G"
+    },
+    {
+        "name": "Southern Saskatchewan (Assiniboia)",
+        "zip_code": "S0H"
+    },
+    {
+        "name": "Northern Saskatchewan (La Ronge)",
+        "zip_code": "S0J"
+    },
+    {
+        "name": "Central Saskatchewan (Humboldt)",
+        "zip_code": "S0K"
+    },
+    {
+        "name": "Western Saskatchewan (Kindersley)",
+        "zip_code": "S0L"
+    },
+    {
+        "name": "Northwestern Saskatchewan (Battleford)",
+        "zip_code": "S0M"
+    },
+    {
+        "name": "Southwestern Saskatchewan (Maple Creek)",
+        "zip_code": "S0N"
+    },
+    {
+        "name": "Northeastern Saskatchewan (Creighton)",
+        "zip_code": "S0P"
+    },
+    {
+        "name": "Buena Vista",
+        "zip_code": "S2V"
+    },
+    {
+        "name": "Yorkton",
+        "zip_code": "S3N"
+    },
+    {
+        "name": "Estevan",
+        "zip_code": "S4A"
+    },
+    {
+        "name": "Weyburn",
+        "zip_code": "S4H"
+    },
+    {
+        "name": "Rm Of Sherwood",
+        "zip_code": "S4K"
+    },
+    {
+        "name": "Regina East",
+        "zip_code": "S4L"
+    },
+    {
+        "name": "Regina",
+        "zip_code": "S4M"
+    },
+    {
+        "name": "Regina Northeast and East Central",
+        "zip_code": "S4N"
+    },
+    {
+        "name": "Regina Central",
+        "zip_code": "S4P"
+    },
+    {
+        "name": "Regina North Central",
+        "zip_code": "S4R"
+    },
+    {
+        "name": "Regina South Saskatchewan Provincial Government",
+        "zip_code": "S4S"
+    },
+    {
+        "name": "Regina West",
+        "zip_code": "S4T"
+    },
+    {
+        "name": "Regina Southeast",
+        "zip_code": "S4V"
+    },
+    {
+        "name": "Regina Southwest",
+        "zip_code": "S4W"
+    },
+    {
+        "name": "Regina Northwest",
+        "zip_code": "S4X"
+    },
+    {
+        "name": "Regina Outer Northwest",
+        "zip_code": "S4Y"
+    },
+    {
+        "name": "Regina Northeast",
+        "zip_code": "S4Z"
+    },
+    {
+        "name": "Moose Jaw Southeast",
+        "zip_code": "S6H"
+    },
+    {
+        "name": "Moose Jaw Northeast",
+        "zip_code": "S6J"
+    },
+    {
+        "name": "Moose Jaw West",
+        "zip_code": "S6K"
+    },
+    {
+        "name": "Prince Albert Central",
+        "zip_code": "S6V"
+    },
+    {
+        "name": "Prince Albert Southwest",
+        "zip_code": "S6W"
+    },
+    {
+        "name": "Prince Albert East",
+        "zip_code": "S6X"
+    },
+    {
+        "name": "Saskatoon East Central",
+        "zip_code": "S7H"
+    },
+    {
+        "name": "Saskatoon South Central",
+        "zip_code": "S7J"
+    },
+    {
+        "name": "Saskatoon North Central",
+        "zip_code": "S7K"
+    },
+    {
+        "name": "Saskatoon West",
+        "zip_code": "S7L"
+    },
+    {
+        "name": "Saskatoon Southwest",
+        "zip_code": "S7M"
+    },
+    {
+        "name": "Saskatoon Northeast Central",
+        "zip_code": "S7N"
+    },
+    {
+        "name": "Saskatoon North",
+        "zip_code": "S7P"
+    },
+    {
+        "name": "Saskatoon Northwest",
+        "zip_code": "S7R"
+    },
+    {
+        "name": "Saskatoon Northeast",
+        "zip_code": "S7S"
+    },
+    {
+        "name": "Saskatoon South",
+        "zip_code": "S7T"
+    },
+    {
+        "name": "Saskatoon Southeast",
+        "zip_code": "S7V"
+    },
+    {
+        "name": "Saskatoon",
+        "zip_code": "S7W"
+    },
+    {
+        "name": "North Battleford",
+        "zip_code": "S9A"
+    },
+    {
+        "name": "Swift Current",
+        "zip_code": "S9H"
+    },
+    {
+        "name": "Lloydminster",
+        "zip_code": "S9V"
+    },
+    {
+        "name": "Meadow Lake",
+        "zip_code": "S9X"
+    },
+    {
+        "name": "Southeastern Yukon (Watson Lake)",
+        "zip_code": "Y0A"
+    },
+    {
+        "name": "Central Yukon (Dawson City)",
+        "zip_code": "Y0B"
+    },
+    {
+        "name": "Whitehorse",
+        "zip_code": "Y1A"
+    }
+]
