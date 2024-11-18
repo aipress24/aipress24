@@ -20,7 +20,6 @@ from app.services.roles import has_role
 from app.services.tagging import add_tag
 
 from .base import BaseGenerator
-from .util import random_wikinews_article
 
 
 class ArticleGenerator(BaseGenerator):

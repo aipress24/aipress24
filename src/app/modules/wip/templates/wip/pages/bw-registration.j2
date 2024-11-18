@@ -2,22 +2,22 @@
 
 {% block body_content %}
 <div class="border border-gray-500">
-  profile utilisateur: {{user_profile}}<br>
+  DEBUG:<br>
+  profil utilisateur: {{user_profile}}<br>
   org.type: {{org.type}}<br>
   BW actuel: {{org_bw_type}}<br>
-  BW possible: {{allow_bw}}<br>
-
+  BW possible: {{allow_bw_string}}<br>
 </div>
-  {% if org_bw_type%}
-    <div class="prose">
-      <p>
-        Votre niveau d'abonnement actuel est: {{ org_bw_type }}
-      </p>
-    </div>
-  {% else %}
-  <div class="prose">
+  {% if org_bw_type %}
+  <div class="mt-2 mb-2 font-bold italic text-gray-800">
     <p>
-      Vous n'avez aucun abonnement en cours.
+      Votre abonnement Aipress24 PRO actuel est: {{ org_bw_type }}
+    </p>
+  </div>
+  {% else %}
+  <div class="mt-2 mb-2 font-bold italic text-gray-800">
+    <p>
+      Vous n'avez aucun abonnement Aipress24 PRO en cours.
     </p>
   </div>
   {% endif %}
@@ -41,6 +41,210 @@
           </h1>
         </div>
       </div>
+    </div>
+    <div class="mt-2 sm:flex sm:items-end sm:space-x-5">
+
+      {% if "MEDIA" in allow_bw_names %}
+      <div class="mt-3 mb-2">
+        <h2 class="mb-1 font-bold text-gray-800">{{ product_bw['MEDIA'] }}</h2>
+        <div class="pt-1 pb-2 text-gray-600">
+          <p>
+            {{ description_bw["MEDIA"] }}
+          </p>
+          <p>
+            Tarif: {{ price_bw["MEDIA"] }}
+          </p>
+          <div class="pl-6 pt-4 left">
+            <button
+              type="button"
+              {% if org_bw_type_name == 'MEDIA' %} disabled {% endif %}
+              hx-post="/wip/org-registration"
+              hx-vals='{"action": "register", "subscription": "MEDIA"}'
+              class="mt-2 items-center px-8 py-1 border border-transparent text-xs font-small rounded-md shadow-sm text-white focus:outline-none focus:ring-2 focus:ring-offset-2
+              bg-indigo-500 hover:bg-indigo-600   focus:ring-indigo-400
+              disabled:bg-slate-500 disabled:hover:bg-slate-600 disabled:focus:ring-slate-400 disabled:opacity-50
+              {% if org_bw_type == 'MEDIA' %} disabled {% endif %}>
+              "
+            >S&apos;abonner à «{{ product_bw['MEDIA'] }}»</button>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      {% if "AGENCY" in allow_bw_names %}
+      <div class="mt-3 mb-2">
+        <h2 class="mb-1 font-bold text-gray-800">{{ product_bw['AGENCY'] }}</h2>
+        <div class="pt-1 pb-2 text-gray-600">
+          <p>
+            {{ description_bw["AGENCY"] }}
+          </p>
+          <p>
+            Tarif: {{ price_bw["AGENCY"] }}
+          </p>
+          <div class="pl-6 pt-4 left">
+            <button
+              type="button"
+              {% if org_bw_type_name == 'AGENCY' %} disabled {% endif %}
+              hx-post="/wip/org-registration"
+              hx-vals='{"action": "register", "subscription": "AGENCY"}'
+              class="mt-2 items-center px-8 py-1 border border-transparent text-xs font-small rounded-md shadow-sm text-white focus:outline-none focus:ring-2 focus:ring-offset-2
+              bg-indigo-500 hover:bg-indigo-600   focus:ring-indigo-400
+              disabled:bg-slate-500 disabled:hover:bg-slate-600 disabled:focus:ring-slate-400 disabled:opacity-50"
+            >S&apos;abonner à «{{ product_bw['AGENCY'] }}»</button>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      {% if "PRESSUNION" in allow_bw_names %}
+      <div class="mt-3 mb-2">
+        <h2 class="mb-1 font-bold text-gray-800">{{ product_bw['PRESSUNION'] }}</h2>
+        <div class="pt-1 pb-2 text-gray-600">
+          <p>
+            {{ description_bw["PRESSUNION"] }}
+          </p>
+          <p>
+            Tarif: {{ price_bw["PRESSUNION"] }}
+          </p>
+          <div class="pl-6 pt-4 left">
+            <button
+              type="button"
+              {% if org_bw_type_name == 'PRESSUNION' %} disabled {% endif %}
+              hx-post="/wip/org-registration"
+              hx-vals='{"action": "register", "subscription": "PRESSUNION"}'
+              class="mt-2 items-center px-8 py-1 border border-transparent text-xs font-small rounded-md shadow-sm text-white focus:outline-none focus:ring-2 focus:ring-offset-2
+              bg-indigo-500 hover:bg-indigo-600   focus:ring-indigo-400
+              disabled:bg-slate-500 disabled:hover:bg-slate-600 disabled:focus:ring-slate-400 disabled:opacity-50"
+            >S&apos;abonner à «{{ product_bw['PRESSUNION'] }}»</button>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      {% if "COM" in allow_bw_names %}
+      <div class="mt-3 mb-2">
+        <h2 class="mb-1 font-bold text-gray-800">{{ product_bw_long['COM'] }}</h2>
+        <div class="pt-1 pb-2 text-gray-600">
+          <p>
+            {{ description_bw["COM"] }}
+          </p>
+          <p>
+            Tarif: {{ price_bw["COM"] }}
+          </p>
+          <div class="pl-6 pt-4 left">
+            <button
+              type="button"
+              {% if org_bw_type_name == 'COM' %} disabled {% endif %}
+              hx-post="/wip/org-registration"
+              hx-vals='{"action": "register", "subscription": "COM"}'
+              class="mt-2 items-center px-8 py-1 border border-transparent text-xs font-small rounded-md shadow-sm text-white focus:outline-none focus:ring-2 focus:ring-offset-2
+              bg-indigo-500 hover:bg-indigo-600   focus:ring-indigo-400
+              disabled:bg-slate-500 disabled:hover:bg-slate-600 disabled:focus:ring-slate-400 disabled:opacity-50"
+            >S&apos;abonner à «{{ product_bw['COM'] }}»</button>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      {% if "CORPORATE" in allow_bw_names %}
+      <div class="mt-3 mb-2">
+        <h2 class="mb-1 font-bold text-gray-800">{{ product_bw['CORPORATE'] }}</h2>
+        <div class="pt-1 pb-2 text-gray-600">
+          <p>
+            {{ description_bw["CORPORATE"] }}
+          </p>
+          <p>
+            Tarif: {{ price_bw["CORPORATE"] }}
+          </p>
+          <div class="pl-6 pt-4 left">
+            <button
+              type="button"
+              {% if org_bw_type_name == 'CORPORATE' %} disabled {% endif %}
+              hx-post="/wip/org-registration"
+              hx-vals='{"action": "register", "subscription": "CORPORATE"}'
+              class="mt-2 items-center px-8 py-1 border border-transparent text-xs font-small rounded-md shadow-sm text-white focus:outline-none focus:ring-2 focus:ring-offset-2
+              bg-indigo-500 hover:bg-indigo-600   focus:ring-indigo-400
+              disabled:bg-slate-500 disabled:hover:bg-slate-600 disabled:focus:ring-slate-400 disabled:opacity-50"
+            >S&apos;abonner à «{{ product_bw['CORPORATE'] }}»</button>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      {% if "ORGANISATION" in allow_bw_names %}
+      <div class="mt-3 mb-2">
+        <h2 class="mb-1 font-bold text-gray-800">{{ product_bw['ORGANISATION'] }}</h2>
+        <div class="pt-1 pb-2 text-gray-600">
+          <p>
+            {{ description_bw["ORGANISATION"] }}
+          </p>
+          <p>
+            Tarif: {{ price_bw["ORGANISATION"] }}
+          </p>
+          <div class="pl-6 pt-4 left">
+            <button
+              type="button"
+              {% if org_bw_type_name == 'ORGANISATION' %} disabled {% endif %}
+              hx-post="/wip/org-registration"
+              hx-vals='{"action": "register", "subscription": "ORGANISATION"}'
+              class="mt-2 items-center px-8 py-1 border border-transparent text-xs font-small rounded-md shadow-sm text-white focus:outline-none focus:ring-2 focus:ring-offset-2
+              bg-indigo-500 hover:bg-indigo-600   focus:ring-indigo-400
+              disabled:bg-slate-500 disabled:hover:bg-slate-600 disabled:focus:ring-slate-400 disabled:opacity-50"
+            >S&apos;abonner à «{{ product_bw['ORGANISATION'] }}»</button>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      {% if "TRANSFORMER" in allow_bw_names %}
+      <div class="mt-3 mb-2">
+        <h2 class="mb-1 font-bold text-gray-800">{{ product_bw['TRANSFORMER'] }}</h2>
+        <div class="pt-1 pb-2 text-gray-600">
+          <p>
+            {{ description_bw["TRANSFORMER"] }}
+          </p>
+          <p>
+            Tarif: {{ price_bw["TRANSFORMER"] }}
+          </p>
+          <div class="pl-6 pt-4 left">
+            <button
+              type="button"
+              {% if org_bw_type_name == 'TRANSFORMER' %} disabled {% endif %}
+              hx-post="/wip/org-registration"
+              hx-vals='{"action": "register", "subscription": "TRANSFORMER"}'
+              class="mt-2 items-center px-8 py-1 border border-transparent text-xs font-small rounded-md shadow-sm text-white focus:outline-none focus:ring-2 focus:ring-offset-2
+              bg-indigo-500 hover:bg-indigo-600   focus:ring-indigo-400
+              disabled:bg-slate-500 disabled:hover:bg-slate-600 disabled:focus:ring-slate-400 disabled:opacity-50"
+            >S&apos;abonner à «{{ product_bw['TRANSFORMER'] }}»</button>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      {% if "ACADEMICS" in allow_bw_names %}
+      <div class="mt-3 mb-2">
+        <h2 class="mb-1 font-bold text-gray-800">{{ product_bw['ACADEMICS'] }}</h2>
+        <div class="pt-1 pb-2 text-gray-600">
+          <p>
+            {{ description_bw["ACADEMICS"] }}
+          </p>
+          <p>
+            Tarif: {{ price_bw["ACADEMICS"] }}
+          </p>
+          <div class="pl-6 pt-4 left">
+            <button
+              type="button"
+              {% if org_bw_type_name == 'ACADEMICS' %} disabled {% endif %}
+              hx-post="/wip/org-registration"
+              hx-vals='{"action": "register", "subscription": "ACADEMICS"}'
+              class="mt-2 items-center px-8 py-1 border border-transparent text-xs font-small rounded-md shadow-sm text-white focus:outline-none focus:ring-2 focus:ring-offset-2
+              bg-indigo-500 hover:bg-indigo-600   focus:ring-indigo-400
+              disabled:bg-slate-500 disabled:hover:bg-slate-600 disabled:focus:ring-slate-400 disabled:opacity-50"
+            >S&apos;abonner à «{{ product_bw['ACADEMICS'] }}»</button>
+          </div>
+        </div>
+      </div>
+      {% endif %}
     </div>
   </div>
 

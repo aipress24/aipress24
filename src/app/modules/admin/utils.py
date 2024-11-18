@@ -179,3 +179,10 @@ def set_user_organisation_from_ids(user_id: int, org_id: int) -> str:
     db_session.merge(user)
     db_session.merge(organisation)
     return commit_session(db_session)
+
+
+def toggle_org_active(org: Organisation) -> None:
+    db_session = db.session
+    org.active = not org.active
+    db_session.merge(org)
+    db_session.commit()

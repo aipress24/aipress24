@@ -11,9 +11,16 @@ from flask_wtf import FlaskForm
 from werkzeug import Response
 from wtforms import Field
 
-from app.enums import BWTypeEnum, OrganisationTypeEnum
+from app.enums import BWTypeEnum
 from app.flask.extensions import db
 from app.flask.lib.pages import page
+from app.modules.admin.invitations import emails_invited_to_organisation
+from app.modules.admin.org_email_utils import (
+    change_invitations_emails,
+    change_leaders_emails,
+    change_managers_emails,
+    change_members_emails,
+)
 from app.modules.kyc.dynform import (
     custom_bool_field,
     custom_country_field,
@@ -52,7 +59,7 @@ class BusinessWallPage(BaseWipPage):
         self.readonly: bool = False
 
     def context(self) -> dict[str, Any]:
-        has_bw_org = self.org and self.org.type != OrganisationTypeEnum.AUTO
+        has_bw_org = self.org and not self.org.is_auto_or_inactive
         allow_editing = has_bw_org and self.user.is_manager
         self.readonly = not allow_editing
         self.form = self.generate_form() if self.org else FlaskForm()
@@ -64,30 +71,62 @@ class BusinessWallPage(BaseWipPage):
             "allow_editing": allow_editing,
             "is_manager": self.user.is_manager,
             "is_leader": self.user.is_leader,
+            "members": list(self.org.members),
+            "count_members": len(self.org.members),
+            "managers": self.org.managers,
+            "leaders": self.org.leaders,
+            "invitations_emails": emails_invited_to_organisation(self.org.id),
+            "address_formatted": self.org.formatted_address,
             "render_field": render_field,
             "form": self.form,
         }
 
-    # def post(self) -> str | Response:
-    #     results = request.form.to_dict(flat=False)
-    #     self.merge_form(results)
-    #     return self.render()
+    def post(self) -> str | Response:
+        """Non hx post.
 
-    def hx_post(self) -> str | Response:
+        Used for submitting a form requiring in-page WTFom validation.
+        """
+        form = request.form
+        if "change_bw_data" in form:
+            results = form.to_dict(flat=False)
+            self.merge_form(results)
+            return self.render()
+
         action = request.form.get("action")
-        if action:
-            if action == "change_bw_data":
-                results = request.form.to_dict(flat=False)
-                self.merge_form(results)
+        match action:
+            case "change_emails":
+                raw_mails = request.form["content"]
+                change_members_emails(self.org, raw_mails)
+                response = Response("")
+                response.headers["HX-Redirect"] = self.url
+            case "change_managers_emails":
+                raw_mails = request.form["content"]
+                change_managers_emails(self.org, raw_mails, keep_one=True)
+                response = Response("")
+                response.headers["HX-Redirect"] = self.url
+            case "change_leaders_emails":
+                raw_mails = request.form["content"]
+                change_leaders_emails(self.org, raw_mails)
+                response = Response("")
+                response.headers["HX-Redirect"] = self.url
+            case "change_invitations_emails":
+                raw_mails = request.form["content"]
+                change_invitations_emails(self.org, raw_mails)
+                response = Response("")
+                response.headers["HX-Redirect"] = self.url
+            # case "change_bw_data":
+            #     results = request.form.to_dict(flat=False)
+            #     self.merge_form(results)
+            #     response = Response("")
+            #     response.headers["HX-Redirect"] = self.url
+            #     return response
+            case "reload_bw_data":
                 response = Response("")
                 response.headers["HX-Redirect"] = self.url
                 return response
-            if action == "reload_bw_data":
+            case _:
                 response = Response("")
                 response.headers["HX-Redirect"] = self.url
-                return response
-        response = Response("")
-        response.headers["HX-Redirect"] = self.url
         return response
 
     def generate_form(self) -> tuple[FlaskForm, list[str]]:
@@ -176,9 +215,11 @@ class BusinessWallPage(BaseWipPage):
         BWDynForm.payer_coords = textarea_field(
             "payer_coords", "Coordonées du payeur", True, self.readonly
         )
-
         BWDynForm.description = textarea_field(
             "description", "Description", True, self.readonly
+        )
+        BWDynForm.tel_standard = tel_field(
+            "tel_standard", "Téléphone (standard)", True, self.readonly
         )
         BWDynForm.pays_zip_ville = country_code_field(
             "pays_zip_ville",
@@ -186,10 +227,6 @@ class BusinessWallPage(BaseWipPage):
             False,
             ontology_map="country_pays",
             readonly=self.readonly,
-        )
-
-        BWDynForm.tel_standard = tel_field(
-            "tel_standard", "Téléphone (standard)", True, self.readonly
         )
         BWDynForm.taille_orga = list_field(
             "taille_orga",

@@ -50,7 +50,7 @@ class OrgPage(BaseSworkPage):
         vm = OrgVM(self.org)
         tabs = list(self.get_tabs())
         if (
-            self.org.type.name != "AUTO"
+            not self.org.is_auto_or_inactive
             and self.soc_user.user.is_member(self.org.id)
             and self.soc_user.user.is_manager
         ):

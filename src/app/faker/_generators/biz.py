@@ -15,7 +15,6 @@ from app.modules.biz.models import EditorialProduct
 from app.services.roles import has_role
 
 from .base import BaseGenerator
-from .util import random_wikinews_article
 
 
 class EditorialProductGenerator(BaseGenerator):

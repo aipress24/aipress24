@@ -10,7 +10,10 @@ from flask import g, request
 from werkzeug import Response
 
 from app.enums import BWTypeEnum, OrganisationTypeEnum, RoleEnum
+from app.flask.extensions import db
 from app.flask.lib.pages import page
+from app.modules.admin.invitations import invite_users
+from app.modules.admin.org_email_utils import add_managers_emails
 from app.modules.kyc.renderer import render_field
 from app.services.roles import has_role
 
@@ -19,48 +22,91 @@ from .home import HomePage
 
 __all__ = ["BusinessWallRegistrationPage"]
 
+# The "open to all employees" comment below means that we decided to loosely the possibility
+# to any employee of an organisation to create the relevant BW. So the only remaining empty profil
+# is for students.
+# To reverse this change: just use empty lists on the lines with that comment.
 PROFILE_CODE_TO_BW_TYPE: dict[str, list[BWTypeEnum]] = {
     "PM_DIR": [BWTypeEnum.MEDIA, BWTypeEnum.AGENCY],
-    "PM_JR_CP_SAL": [],
-    "PM_JR_PIG": [],
+    "PM_JR_CP_SAL": [BWTypeEnum.MEDIA, BWTypeEnum.AGENCY],  # open to all employees
+    "PM_JR_PIG": [BWTypeEnum.MEDIA, BWTypeEnum.AGENCY],  # open to all employees
     "PM_JR_CP_ME": [BWTypeEnum.MEDIA, BWTypeEnum.AGENCY],
     "PM_JR_ME": [BWTypeEnum.MEDIA, BWTypeEnum.AGENCY],
     "PM_DIR_INST": [BWTypeEnum.CORPORATE],
-    "PM_JR_INST": [],
+    "PM_JR_INST": [BWTypeEnum.CORPORATE],  # open to all employees
     "PM_DIR_SYND": [BWTypeEnum.PRESSUNION],
     "PR_DIR": [BWTypeEnum.COM],
-    "PR_CS": [],
+    "PR_CS": [BWTypeEnum.COM],  # open to all employees
     "PR_CS_IND": [BWTypeEnum.COM],
     "PR_DIR_COM": [BWTypeEnum.ORGANISATION],
-    "PR_CS_COM": [],
+    "PR_CS_COM": [BWTypeEnum.ORGANISATION],  # open to all employees
     "XP_DIR_ANY": [BWTypeEnum.ORGANISATION],
-    "XP_ANY": [],
-    "XP_PR": [],
+    "XP_ANY": [BWTypeEnum.ORGANISATION],  # open to all employees
+    "XP_PR": [BWTypeEnum.ORGANISATION],  # open to all employees
     "XP_IND": [BWTypeEnum.ORGANISATION],
     "XP_DIR_SU": [BWTypeEnum.ORGANISATION],
     "XP_INV_PUB": [BWTypeEnum.ORGANISATION],
     "XP_DIR_EVT": [BWTypeEnum.ORGANISATION],
     "TP_DIR_ORG": [BWTypeEnum.TRANSFORMER],
-    "TR_CS_ORG": [],
-    "TR_CS_ORG_PR": [],
+    "TR_CS_ORG": [BWTypeEnum.TRANSFORMER],  # open to all employees
+    "TR_CS_ORG_PR": [BWTypeEnum.TRANSFORMER],  # open to all employees
     "TR_CS_ORG_IND": [BWTypeEnum.TRANSFORMER],
     "TR_DIR_SU_ORG": [BWTypeEnum.TRANSFORMER],
     "TR_INV_ORG": [BWTypeEnum.TRANSFORMER],
     "TR_DIR_POLE": [BWTypeEnum.TRANSFORMER],
     "AC_DIR": [BWTypeEnum.ACADEMICS],
     "AC_DIR_JR": [BWTypeEnum.ACADEMICS],
-    "AC_ENS": [],
-    "AC_DOC": [],
-    "AC_ST": [],
+    "AC_ENS": [BWTypeEnum.ACADEMICS],  # open to all employees
+    "AC_DOC": [BWTypeEnum.ACADEMICS],  # open to all employees
+    "AC_ST": [],  # open to all employees except students
     "AC_ST_ENT": [BWTypeEnum.ACADEMICS],
+}
+
+
+# this dict could be replaced later by actual queries:
+PRODUCT_BW = {
+    "MEDIA": "Business Wall for Medias",
+    "AGENCY": "Business Wall for Press Agencies",
+    "PRESSUNION": "Business Wall for Press Unions",
+    "COM": "Business Wall for PR Agencies",
+    "CORPORATE": "Business Wall for Corporates",
+    "ORGANISATION": "Business Wall for Organisations",
+    "TRANSFORMER": "Business Wall for Transformers",
+    "ACADEMICS": "Business Wall for Academics",
+}
+
+PRODUCT_BW_LONG = {x: f"Abonnement {PRODUCT_BW[x]}" for x in PRODUCT_BW}
+
+# this dict could be replaced later by actual queries:
+PRICE_BW = {
+    "MEDIA": "gratuit",
+    "AGENCY": "gratuit",
+    "PRESSUNION": "gratuit",
+    "COM": "un certain prix",
+    "CORPORATE": "un certain prix",
+    "ORGANISATION": "un certain prix",
+    "TRANSFORMER": "un certain prix",
+    "ACADEMICS": "un certain prix",
+}
+
+# this dict could be replaced later by actual queries:
+DESCRIPTION_BW = {
+    "MEDIA": "Pour les médias, permet d'acheter des contenus.",
+    "AGENCY": "Pour les agences de presse, permet de vendre des contenus.",
+    "PRESSUNION": "Pour les syndicats professionnels",
+    "COM": "Pour les PR agencies et agences de relations publiques, permet de diffuser des press release.",
+    "CORPORATE": "Pour les médias institutionnels, permet d'être au coeur de l'information.",
+    "ORGANISATION": "Pour les organisations, permet d'être au coeur de l'information.",
+    "TRANSFORMER": "Pour les Transformers, permet d'être au coeur de l'information.",
+    "ACADEMICS": "Pour le corps académique, permet d'être au coeur de l'information.",
 }
 
 
 @page
 class BusinessWallRegistrationPage(BaseWipPage):
     name = "org-registration"
-    label = "Abonnement à l'offre AIpress24 PRO"
-    title = "Abonnement à l'offre AIpress24 PRO"  # type: ignore
+    label = "Abonnement à l'offre Aipress24 PRO"
+    title = "Abonnement à l'offre Aipress24 PRO"  # type: ignore
     icon = "building-library"
 
     template = "wip/pages/bw-registration.j2"
@@ -69,19 +115,26 @@ class BusinessWallRegistrationPage(BaseWipPage):
     def __init__(self):
         self.user = g.user
         self.org = self.user.organisation  # Organisation or None
-        self.allowed_subs: set[BWTypeEnum] = set()
+        self.allowed_subs: set[BWTypeEnum] = self.find_allowed_subscription()
 
     def context(self) -> dict[str, Any]:
         has_bw_org = self.org and self.org.type != OrganisationTypeEnum.AUTO
-        self.allowed_subs = self.find_allowed_subscription()
-        allowed_list = ", ".join(str(x) for x in sorted(self.allowed_subs))
+        allowed_list_str = ", ".join(str(x) for x in sorted(self.allowed_subs))
         return {
             "org": self.org,
             "org_name": self.org.name if self.org else "",
-            "org_bw_type": str(self.org.bw_type) if self.org else "",
+            "org_bw_type": str(self.org.bw_type or "") if self.org else "",
+            "org_bw_type_name": self.org.bw_type.name
+            if (self.org and self.org.bw_type)
+            else "",
             "user_profile": self.user.profile.profile_label,
-            "allow_bw": allowed_list,
+            "allow_bw_string": allowed_list_str,
+            "allow_bw_names": {x.name for x in self.allowed_subs},
             "has_bw_org": has_bw_org,
+            "product_bw": PRODUCT_BW,
+            "product_bw_long": PRODUCT_BW_LONG,
+            "description_bw": DESCRIPTION_BW,
+            "price_bw": PRICE_BW,
             "logo_url": self.get_logo_url(),
             "render_field": render_field,
         }
@@ -103,16 +156,53 @@ class BusinessWallRegistrationPage(BaseWipPage):
                 response = Response("")
                 response.headers["HX-Redirect"] = self.url
                 return response
+            if action == "register":
+                bw_type = request.form.get("subscription", "")
+                self.do_register(bw_type)
+                response = Response("")
+                # response.headers["HX-Redirect"] = url_for(".org-profile")
+                response.headers["HX-Redirect"] = self.url
+                return response
         response = Response("")
         response.headers["HX-Redirect"] = self.url
         return response
 
+    def do_register(self, bw_type: str) -> None:
+        if bw_type not in {x.name for x in self.allowed_subs}:
+            return
+        self._change_organisation_bw_type(bw_type)
+        # user is already member of the organisation, now will be the
+        add_managers_emails(self.org, self.user.email)
+        # also add the new manager to invitations
+        invite_users(self.user.email, self.org.id)
+
+    def _change_organisation_bw_type(self, bw_type: str) -> None:
+        bw_type_enum = BWTypeEnum[bw_type]
+        self.org.bw_type = bw_type_enum
+        if self.org.type == OrganisationTypeEnum.AUTO:
+            # quick fix
+            if bw_type == "MEDIA":
+                self.org.type = OrganisationTypeEnum.MEDIA
+            elif bw_type == "AGENCY":
+                self.org.type = OrganisationTypeEnum.AGENCY
+            elif bw_type == "COM":
+                self.org.type = OrganisationTypeEnum.COM
+            else:
+                self.org.type = OrganisationTypeEnum.OTHER
+            # ensure org is active
+            self.org.active = True
+        db_session = db.session
+        db_session.merge(self.org)
+        db_session.commit()
+
     def find_allowed_subscription(self) -> set[BWTypeEnum]:
-        return (
-            self.user_role_to_allowed_subscription()
-            & self.organisation_type_to_allowed_subscription()
-            & self.user_profile_to_allowed_subscription()
-        )
+        return self.user_profile_to_allowed_subscription()
+        # here more strict filtering about the allowed BW categories:
+        # return (
+        #     self.user_role_to_allowed_subscription()
+        #     & self.organisation_type_to_allowed_subscription()
+        #     & self.user_profile_to_allowed_subscription()
+        # )
 
     def user_profile_to_allowed_subscription(self) -> set[BWTypeEnum]:
         profile = self.user.profile

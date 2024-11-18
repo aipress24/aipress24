@@ -24,7 +24,6 @@ from app.services.roles import add_role
 from app.services.social_graph import adapt
 
 from ._generators.biz import EditorialProductGenerator
-from ._generators.content import PressReleaseGenerator
 from ._generators.events import EventGenerator
 from ._generators.groups import GroupGenerator
 from ._generators.orgs import OrgGenerator

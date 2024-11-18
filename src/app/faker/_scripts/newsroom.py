@@ -17,7 +17,6 @@ from svcs.flask import container
 import app.settings.vocabularies as voc
 from app.enums import OrganisationTypeEnum, RoleEnum
 from app.faker._constants import POST_IMAGES
-from app.faker._generators.util import random_wikinews_article
 from app.faker._scripts.base import FakerScript
 from app.flask.extensions import db
 from app.models.auth import User

@@ -16,8 +16,7 @@
         institutionnelle.
       </p>
 
-      <p>Suivez <a href="{{ url_for('wip.org-registration') }}">ce lien</a> pour vous abonner à l'offre AIpress24 PRO, et pouvoir
-      ainsi éditer votre page institutionnelle.</p>
+      <p>Allez sur la page <a href="{{ url_for('wip.org-registration') }}">Abonnement à l'offre Aipress24 PRO</a> pour vous abonner, et pouvoir ainsi éditer votre page institutionnelle.</p>
     </div>
   {% else %}
     {% if is_manager %}
@@ -54,10 +53,214 @@
         </div>
       </div>
     </div>
-    <hr>
-    <p class="p-4">
+    <hr class="mt-2">
+    <p class="p-2">
       Type d'abonnement BW&nbsp;: {{org_bw_type |label}}
     </p>
+
+    {% if is_manager %}
+    <div class="mt-4 flex items-center justify-end gap-x-6">
+      <button
+        type="button"
+        id="list_leaders_button"
+        data-modal-target="list_leaders_modal"
+        data-modal-toggle="list_leaders_modal"
+        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-400"
+      >Liste dirigeants</button>
+      <button
+        type="button"
+        id="list_managers_button"
+        data-modal-target="list_managers_modal"
+        data-modal-toggle="list_managers_modal"
+        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-400"
+      >Liste managers</button>
+      <button
+        type="button"
+        id="list_users_button"
+        data-modal-target="list_users_modal"
+        data-modal-toggle="list_users_modal"
+        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-400"
+      >Liste membres</button>
+      <button
+          type="button"
+          id="list_invitations_button"
+          data-modal-target="list_invitations_modal"
+          data-modal-toggle="list_invitations_modal"
+          class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-500 hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-400"
+      >Liste invitations</button>
+    </div>
+    <div id="list_users_modal"
+      data-modal-backdrop="static"
+      tabindex="-1"
+      aria-hidden="true"
+      class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+      <div class="relative p-4 w-full max-w-screen-sm max-h-full">
+        <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+          <h4 class="pl-2 text-lg font-semibold text-gray-900   dark:text-white"
+          >Liste des membres du Business Wall de l'organisation
+          </h4>
+          <p class="bg-white rounded-lg shadow dark:bg-gray-700 pl-2 pr-2 pt-1 text-sm text-gray-900  dark:text-white"
+          >Pour modifier la liste des membres du Business Wall de l'organisation, ajouter ou retirer un email.
+            Attention: adhésion ou radiation directe sans invitation préalable.
+            Les membres doivent être des utilisateurs déjà inscrits dans Aipress24.
+          </p>
+          <div class="p-2">
+            <form class="space-y-4" action="#">
+              <div>
+                <textarea name="content" id="content"
+                  class="block p-2 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300
+                  placeholder:text-gray-900
+                  focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:gray-100"
+                  rows="6"
+                >{{ members|sort(attribute='email')|join('\n', attribute='email') }}</textarea>
+              </div>
+              <div class="mt-12 flex items-center justify-end gap-x-6">
+                <button
+                  type="submit"
+                  hx-post='/wip/org-profile'
+                  hx-vals='{"action": "change_emails"}'
+                  data-modal-hide="list_users_modal"
+                  class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-500 hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-400"
+                >Valider</button>
+                <button data-modal-hide="list_users_modal"
+                  type="button"
+                  class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-400"
+                >Annuler</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="list_managers_modal"
+      data-modal-backdrop="static"
+      tabindex="-1"
+      aria-hidden="true"
+      class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+      <div class="relative p-4 w-full max-w-screen-sm max-h-full">
+        <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+          <h4 class="pl-2 text-lg font-semibold text-gray-900   dark:text-white"
+          >Liste des managers du Business Wall de l'organisation
+          </h4>
+          <p class="bg-white rounded-lg shadow dark:bg-gray-700 pl-2 pr-2 pt-1 text-sm text-gray-900  dark:text-white"
+          >Pour modifier la liste des managers du Business Wall, ajouter ou retirer un email. Les managers doivent déjà faire partie de l'organisation.
+          </p>
+          <div class="p-2">
+            <form class="space-y-4" action="#">
+              <div>
+                <textarea name="content" id="content"
+                  class="block p-2 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300
+                  placeholder:text-gray-900
+                  focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:gray-100"
+                  rows="6"
+                >{{ managers|sort(attribute='email')|join('\n', attribute='email') }}</textarea>
+              </div>
+              <div class="mt-12 flex items-center justify-end gap-x-6">
+                <button
+                  type="submit"
+                  hx-post='/wip/org-profile'
+                  hx-vals='{"action": "change_managers_emails"}'
+                  data-modal-hide="list_managers_modal"
+                  class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-500 hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-400"
+                >Valider</button>
+                <button data-modal-hide="list_managers_modal"
+                  type="button"
+                  class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-400"
+                >Annuler</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+
+    <div id="list_leaders_modal"
+      data-modal-backdrop="static"
+      tabindex="-1"
+      aria-hidden="true"
+      class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+      <div class="relative p-4 w-full max-w-screen-sm max-h-full">
+        <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+          <h4 class="pl-2 text-lg font-semibold text-gray-900   dark:text-white"
+          >Liste des dirigeants de l'organisation
+          </h4>
+          <p class="bg-white rounded-lg shadow dark:bg-gray-700 pl-2 pr-2 pt-1 text-sm text-gray-900  dark:text-white"
+          >Pour modifier la listes des dirigeants, ajouter ou retirer un email. Les dirigeants doivent déjà faire partie de l'organisation.
+          </p>
+          <div class="p-2">
+            <form class="space-y-4" action="#">
+              <div>
+                <textarea name="content" id="content"
+                  class="block p-2 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300
+                  placeholder:text-gray-900
+                  focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:gray-100"
+                  rows="6"
+                >{{ leaders|sort(attribute='email')|join('\n', attribute='email') }}</textarea>
+              </div>
+              <div class="mt-12 flex items-center justify-end gap-x-6">
+                <button
+                  type="submit"
+                  hx-post='/wip/org-profile'
+                  hx-vals='{"action": "change_leaders_emails"}'
+                  data-modal-hide="list_leaders_modal"
+                  class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-500 hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-400"
+                >Valider</button>
+                <button data-modal-hide="list_leaders_modal"
+                  type="button"
+                  class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-400"
+                >Annuler</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="list_invitations_modal"
+      data-modal-backdrop="static"
+      tabindex="-1"
+      aria-hidden="true"
+      class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+      <div class="relative p-4 w-full max-w-screen-sm max-h-full">
+        <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+          <h4 class="pl-2 text-lg font-semibold text-gray-900   dark:text-white"
+          >Liste des invitations à rejoindre le Business Wall de l'organisation
+          </h4>
+          <p class="bg-white rounded-lg shadow dark:bg-gray-700 pl-2 pr-2 pt-1 text-sm text-gray-900  dark:text-white"
+          >Pour modifier la liste des invitations, ajouter ou retirer un email.
+            L'invitation autorise un utilisateur actuel ou futur de Aipress24 à rejoindre le Business Wall de l'organisation.
+          </p>
+          <div class="p-2">
+            <form class="space-y-4" action="#">
+              <div>
+                <textarea name="content" id="content"
+                  class="block p-2 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300
+                  placeholder:text-gray-900
+                  focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:gray-100"
+                  rows="6"
+                >{{ invitations_emails|sort|join('\n') }}</textarea>
+              </div>
+              <div class="mt-12 flex items-center justify-end gap-x-6">
+                <button
+                  type="submit"
+                  hx-post='/wip/org-profile'
+                  hx-vals='{"action": "change_invitations_emails"}'
+                  data-modal-hide="list_invitations_modal"
+                  class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-500 hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-400"
+                >Valider</button>
+                <button data-modal-hide="list_invitations_modal"
+                  type="button"
+                  class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-400"
+                >Annuler</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
   <!-- form -->
   <form
     x-data
@@ -118,10 +321,9 @@
             </p>
             <button
               type="submit"
+              name="change_bw_data"
               form="bwform"
               data-modal-hide="confirm_valid_popup"
-              hx-post="/wip/org-profile"
-              hx-vals='{"action": "change_bw_data"}'
               hx-include="bwform"
               id="confirm"
               class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center"

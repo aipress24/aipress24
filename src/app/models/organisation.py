@@ -164,6 +164,10 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
         sa.Enum(BWTypeEnum),
         nullable=True,
     )
+    # active flag : by default organisations are active, they can be
+    # deactivated by site admin or when they lose their BW registration
+    # In that case they become like "AUTO" orgs as regards display of pages
+    active: Mapped[bool] = mapped_column(default=True)
 
     status: Mapped[str] = mapped_column(default="")
     karma: Mapped[int] = mapped_column(default=0)
@@ -232,6 +236,10 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
     @property
     def is_auto(self) -> bool:
         return self.type == OrganisationTypeEnum.AUTO
+
+    @property
+    def is_auto_or_inactive(self) -> bool:
+        return self.type == OrganisationTypeEnum.AUTO or not self.active
 
     @property
     def is_agency(self) -> bool:
