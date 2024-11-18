@@ -42,7 +42,7 @@ FAKERS_SETTINGS = [
     ("events", EventGenerator, 500),  # 500
     # ("articles", ArticleGenerator, 500),
     # ("photos", PhotoGenerator, 100),
-    ("press-releases", PressReleaseGenerator, 200),  # 200
+    # ("press-releases", PressReleaseGenerator, 200),  # 200
     # Social
     # ("comments", CommentGenerator, 1000),
     ("posts", PostGenerator, 500),  # 1000

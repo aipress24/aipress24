@@ -1,0 +1,7846 @@
+[
+    {
+        "name": "San Vicente",
+        "zip_code": "20000"
+    },
+    {
+        "name": "San Francisco",
+        "zip_code": "20200"
+    },
+    {
+        "name": "Limite Contestado",
+        "zip_code": "40200"
+    },
+    {
+        "name": "Sarandi De Yacuy",
+        "zip_code": "50200"
+    },
+    {
+        "name": "Paguero",
+        "zip_code": "55000"
+    },
+    {
+        "name": "Artigas",
+        "zip_code": "55000"
+    },
+    {
+        "name": "Tamandua",
+        "zip_code": "55000"
+    },
+    {
+        "name": "Paso Campamento",
+        "zip_code": "55000"
+    },
+    {
+        "name": "Taruman",
+        "zip_code": "55000"
+    },
+    {
+        "name": "Cerro San Eugenio",
+        "zip_code": "55000"
+    },
+    {
+        "name": "Fagundez",
+        "zip_code": "55000"
+    },
+    {
+        "name": "Sarandi De Cuaro",
+        "zip_code": "55000"
+    },
+    {
+        "name": "Colonia Jose Artigas",
+        "zip_code": "55000"
+    },
+    {
+        "name": "Chiflero",
+        "zip_code": "55000"
+    },
+    {
+        "name": "Diego Lamas",
+        "zip_code": "55000"
+    },
+    {
+        "name": "Catalan Grande",
+        "zip_code": "55000"
+    },
+    {
+        "name": "Javier De Viana",
+        "zip_code": "55000"
+    },
+    {
+        "name": "Paso De Ramos",
+        "zip_code": "55000"
+    },
+    {
+        "name": "Sequeira",
+        "zip_code": "55000"
+    },
+    {
+        "name": "Pintado",
+        "zip_code": "55000"
+    },
+    {
+        "name": "Cerro Signorelli",
+        "zip_code": "55000"
+    },
+    {
+        "name": "Guyubira",
+        "zip_code": "55000"
+    },
+    {
+        "name": "Cerro Ejido",
+        "zip_code": "55000"
+    },
+    {
+        "name": "Meneses",
+        "zip_code": "55000"
+    },
+    {
+        "name": "Estiba",
+        "zip_code": "55000"
+    },
+    {
+        "name": "Paso De Leon",
+        "zip_code": "55000"
+    },
+    {
+        "name": "Catalan Volcan",
+        "zip_code": "55000"
+    },
+    {
+        "name": "Pintado Grande",
+        "zip_code": "55000"
+    },
+    {
+        "name": "Bernabe Rivera",
+        "zip_code": "55000"
+    },
+    {
+        "name": "Paso Farias",
+        "zip_code": "55000"
+    },
+    {
+        "name": "Cerrito",
+        "zip_code": "55000"
+    },
+    {
+        "name": "Rincon De Pacheco",
+        "zip_code": "55000"
+    },
+    {
+        "name": "Cuaro",
+        "zip_code": "55000"
+    },
+    {
+        "name": "Palma Sola",
+        "zip_code": "55000"
+    },
+    {
+        "name": "Camaño",
+        "zip_code": "55000"
+    },
+    {
+        "name": "Pintadito",
+        "zip_code": "55000"
+    },
+    {
+        "name": "Patitas",
+        "zip_code": "55000"
+    },
+    {
+        "name": "Topador",
+        "zip_code": "55000"
+    },
+    {
+        "name": "Zanja Aruera",
+        "zip_code": "55000"
+    },
+    {
+        "name": "Baltasar Brum",
+        "zip_code": "55000"
+    },
+    {
+        "name": "Colonia Pintado",
+        "zip_code": "55000"
+    },
+    {
+        "name": "Piedra Pintada",
+        "zip_code": "55000"
+    },
+    {
+        "name": "La Bolsa",
+        "zip_code": "55000"
+    },
+    {
+        "name": "Bella Union",
+        "zip_code": "55100"
+    },
+    {
+        "name": "Colonia Estrella",
+        "zip_code": "55100"
+    },
+    {
+        "name": "Calnu",
+        "zip_code": "55100"
+    },
+    {
+        "name": "Lenguazo",
+        "zip_code": "55100"
+    },
+    {
+        "name": "Cainza Campo",
+        "zip_code": "55100"
+    },
+    {
+        "name": "Tomas Gomensoro",
+        "zip_code": "55100"
+    },
+    {
+        "name": "Colonia Viñar",
+        "zip_code": "55100"
+    },
+    {
+        "name": "Port. De Hierro Y Campodonico",
+        "zip_code": "55100"
+    },
+    {
+        "name": "Mones Quintela",
+        "zip_code": "55100"
+    },
+    {
+        "name": "Franquia",
+        "zip_code": "55100"
+    },
+    {
+        "name": "Coronado",
+        "zip_code": "55100"
+    },
+    {
+        "name": "Cainsa",
+        "zip_code": "55100"
+    },
+    {
+        "name": "Paso De La Cruz",
+        "zip_code": "55100"
+    },
+    {
+        "name": "Las Piedras",
+        "zip_code": "55100"
+    },
+    {
+        "name": "Paredon",
+        "zip_code": "55100"
+    },
+    {
+        "name": "Colonia Palma",
+        "zip_code": "55100"
+    },
+    {
+        "name": "Cuareim",
+        "zip_code": "55100"
+    },
+    {
+        "name": "Colonia España",
+        "zip_code": "55100"
+    },
+    {
+        "name": "Shangrila",
+        "zip_code": "15000"
+    },
+    {
+        "name": "El Bosque",
+        "zip_code": "15000"
+    },
+    {
+        "name": "Empalme Nicolich",
+        "zip_code": "15000"
+    },
+    {
+        "name": "Lagomar",
+        "zip_code": "15000"
+    },
+    {
+        "name": "Parque Carrasco",
+        "zip_code": "15000"
+    },
+    {
+        "name": "Colonia Nicolich",
+        "zip_code": "15000"
+    },
+    {
+        "name": "Parque Miramar",
+        "zip_code": "15000"
+    },
+    {
+        "name": "Lago Jardin Del Bosque",
+        "zip_code": "15000"
+    },
+    {
+        "name": "Paso Carrasco",
+        "zip_code": "15000"
+    },
+    {
+        "name": "Santa Teresita",
+        "zip_code": "15000"
+    },
+    {
+        "name": "Aeropuerto Internacional De Carrasco",
+        "zip_code": "15000"
+    },
+    {
+        "name": "Barra De Carrasco",
+        "zip_code": "15000"
+    },
+    {
+        "name": "San Jose De Carrasco",
+        "zip_code": "15000"
+    },
+    {
+        "name": "Barrio Obrero",
+        "zip_code": "15000"
+    },
+    {
+        "name": "Villa Juana",
+        "zip_code": "15100"
+    },
+    {
+        "name": "Salinas",
+        "zip_code": "15100"
+    },
+    {
+        "name": "Marindia",
+        "zip_code": "15100"
+    },
+    {
+        "name": "Rincon De Pando",
+        "zip_code": "15100"
+    },
+    {
+        "name": "Pinamar",
+        "zip_code": "15100"
+    },
+    {
+        "name": "Fortin De Santa Rosa",
+        "zip_code": "15100"
+    },
+    {
+        "name": "Neptunia",
+        "zip_code": "15100"
+    },
+    {
+        "name": "Pine Park",
+        "zip_code": "15100"
+    },
+    {
+        "name": "Pinamar Y Pinepark",
+        "zip_code": "15100"
+    },
+    {
+        "name": "Las Toscas",
+        "zip_code": "15200"
+    },
+    {
+        "name": "Estacion Atlantida",
+        "zip_code": "15200"
+    },
+    {
+        "name": "La Chinchilla",
+        "zip_code": "15200"
+    },
+    {
+        "name": "City Golf",
+        "zip_code": "15200"
+    },
+    {
+        "name": "Villa Argentina",
+        "zip_code": "15200"
+    },
+    {
+        "name": "Atlantida",
+        "zip_code": "15200"
+    },
+    {
+        "name": "Guazuvira",
+        "zip_code": "15300"
+    },
+    {
+        "name": "Estacion La Floresta",
+        "zip_code": "15300"
+    },
+    {
+        "name": "Parque Del Plata",
+        "zip_code": "15300"
+    },
+    {
+        "name": "La Floresta",
+        "zip_code": "15300"
+    },
+    {
+        "name": "Guazuvira Nuevo",
+        "zip_code": "15300"
+    },
+    {
+        "name": "Las Vegas",
+        "zip_code": "15300"
+    },
+    {
+        "name": "Bello Horizonte",
+        "zip_code": "15300"
+    },
+    {
+        "name": "Costa Azul",
+        "zip_code": "15300"
+    },
+    {
+        "name": "San Luis",
+        "zip_code": "15400"
+    },
+    {
+        "name": "B.H.U.",
+        "zip_code": "15400"
+    },
+    {
+        "name": "El Galeon",
+        "zip_code": "15400"
+    },
+    {
+        "name": "Cuchilla Alta",
+        "zip_code": "15400"
+    },
+    {
+        "name": "Capilla De Cella",
+        "zip_code": "15400"
+    },
+    {
+        "name": "Biarritz",
+        "zip_code": "15400"
+    },
+    {
+        "name": "Jaureguiberry",
+        "zip_code": "15400"
+    },
+    {
+        "name": "Santa Ana",
+        "zip_code": "15400"
+    },
+    {
+        "name": "Piedras De Afilar",
+        "zip_code": "15400"
+    },
+    {
+        "name": "Estacion Piedras De Afilar",
+        "zip_code": "15400"
+    },
+    {
+        "name": "Araminda",
+        "zip_code": "15400"
+    },
+    {
+        "name": "Argentino",
+        "zip_code": "15400"
+    },
+    {
+        "name": "Santa Lucia Del Este",
+        "zip_code": "15400"
+    },
+    {
+        "name": "Los Titanes",
+        "zip_code": "15400"
+    },
+    {
+        "name": "Cuchilla Alta Y El Galeon",
+        "zip_code": "15400"
+    },
+    {
+        "name": "La Tuna",
+        "zip_code": "15400"
+    },
+    {
+        "name": "Colinas De Carrasco",
+        "zip_code": "15500"
+    },
+    {
+        "name": "Joaquin Suarez",
+        "zip_code": "15500"
+    },
+    {
+        "name": "Quinta Los Horneros",
+        "zip_code": "15500"
+    },
+    {
+        "name": "Cumbres De Carrasco",
+        "zip_code": "15500"
+    },
+    {
+        "name": "Capitan Juan Antonio Artigas",
+        "zip_code": "15500"
+    },
+    {
+        "name": "Villa El Tato",
+        "zip_code": "15500"
+    },
+    {
+        "name": "Rincon De Carrasco",
+        "zip_code": "15500"
+    },
+    {
+        "name": "Fracc Sobre Ruta",
+        "zip_code": "15500"
+    },
+    {
+        "name": "Villa Aeroparque",
+        "zip_code": "15500"
+    },
+    {
+        "name": "Puntas De Cañada Grande",
+        "zip_code": "15600"
+    },
+    {
+        "name": "Jardines De Pando",
+        "zip_code": "15600"
+    },
+    {
+        "name": "Olmos",
+        "zip_code": "15600"
+    },
+    {
+        "name": "Las Ranas",
+        "zip_code": "15600"
+    },
+    {
+        "name": "Costa De Pando Olmos",
+        "zip_code": "15600"
+    },
+    {
+        "name": "La Palmita",
+        "zip_code": "15600"
+    },
+    {
+        "name": "Viejo Molino San Bernardo",
+        "zip_code": "15600"
+    },
+    {
+        "name": "Cueva Del Tigre",
+        "zip_code": "15600"
+    },
+    {
+        "name": "Cañada Grande",
+        "zip_code": "15600"
+    },
+    {
+        "name": "Piedritas De Suarez",
+        "zip_code": "15600"
+    },
+    {
+        "name": "Empalme Olmos",
+        "zip_code": "15600"
+    },
+    {
+        "name": "Estanque De Pando",
+        "zip_code": "15600"
+    },
+    {
+        "name": "Sosa Diaz",
+        "zip_code": "15600"
+    },
+    {
+        "name": "La Montañesa",
+        "zip_code": "15600"
+    },
+    {
+        "name": "Dr. Francisco Soca",
+        "zip_code": "15600"
+    },
+    {
+        "name": "Pando",
+        "zip_code": "15600"
+    },
+    {
+        "name": "Piedra Del Toro",
+        "zip_code": "15600"
+    },
+    {
+        "name": "Villa Marina",
+        "zip_code": "15700"
+    },
+    {
+        "name": "Toledo",
+        "zip_code": "15700"
+    },
+    {
+        "name": "Seis Hermanos",
+        "zip_code": "15700"
+    },
+    {
+        "name": "Barrio Los Panoramas",
+        "zip_code": "15700"
+    },
+    {
+        "name": "Los Hornos",
+        "zip_code": "15700"
+    },
+    {
+        "name": "Villa Huertos De Toledo",
+        "zip_code": "15700"
+    },
+    {
+        "name": "Villa Fortuna",
+        "zip_code": "15700"
+    },
+    {
+        "name": "Barrio Santa Rita",
+        "zip_code": "15700"
+    },
+    {
+        "name": "Villa Juanita",
+        "zip_code": "15700"
+    },
+    {
+        "name": "Barrio Villa Murcia",
+        "zip_code": "15700"
+    },
+    {
+        "name": "Barrio Traverso",
+        "zip_code": "15700"
+    },
+    {
+        "name": "San Andres",
+        "zip_code": "15700"
+    },
+    {
+        "name": "Villa Molfino",
+        "zip_code": "15700"
+    },
+    {
+        "name": "Villa Los Alpes",
+        "zip_code": "15700"
+    },
+    {
+        "name": "Villa Valverde",
+        "zip_code": "15700"
+    },
+    {
+        "name": "Villa San Felipe",
+        "zip_code": "15700"
+    },
+    {
+        "name": "Villa Prados De Toledo",
+        "zip_code": "15700"
+    },
+    {
+        "name": "Barrio Pretti",
+        "zip_code": "15700"
+    },
+    {
+        "name": "Fracc. Cno. Andaluz Y R.",
+        "zip_code": "15700"
+    },
+    {
+        "name": "Nataly",
+        "zip_code": "15700"
+    },
+    {
+        "name": "Casarino",
+        "zip_code": "15700"
+    },
+    {
+        "name": "Puntas De Toledo",
+        "zip_code": "15700"
+    },
+    {
+        "name": "Lomas De Toledo",
+        "zip_code": "15700"
+    },
+    {
+        "name": "Villa Hadita",
+        "zip_code": "15700"
+    },
+    {
+        "name": "Villa Crespo",
+        "zip_code": "15700"
+    },
+    {
+        "name": "Barrio Benzo",
+        "zip_code": "15700"
+    },
+    {
+        "name": "Villa San Jose",
+        "zip_code": "15700"
+    },
+    {
+        "name": "Barrio Artigas",
+        "zip_code": "15700"
+    },
+    {
+        "name": "Lomas De Solymar",
+        "zip_code": "15800"
+    },
+    {
+        "name": "Solymar",
+        "zip_code": "15800"
+    },
+    {
+        "name": "Las Higueritas",
+        "zip_code": "15800"
+    },
+    {
+        "name": "Barrio San Cristobal",
+        "zip_code": "15800"
+    },
+    {
+        "name": "El Bosque De Solymar",
+        "zip_code": "15800"
+    },
+    {
+        "name": "Pinares De Solymar",
+        "zip_code": "15800"
+    },
+    {
+        "name": "Medanos De Solymar",
+        "zip_code": "15800"
+    },
+    {
+        "name": "Colinas De Solymar",
+        "zip_code": "15800"
+    },
+    {
+        "name": "La Asuncion",
+        "zip_code": "15800"
+    },
+    {
+        "name": "Montes De Solymar",
+        "zip_code": "15800"
+    },
+    {
+        "name": "Parque De Solymar",
+        "zip_code": "15800"
+    },
+    {
+        "name": "Altos De La Tahona",
+        "zip_code": "15800"
+    },
+    {
+        "name": "Carmel",
+        "zip_code": "15800"
+    },
+    {
+        "name": "El Pinar",
+        "zip_code": "15800"
+    },
+    {
+        "name": "Lomas De Carrasco",
+        "zip_code": "15800"
+    },
+    {
+        "name": "Haras Del Lago",
+        "zip_code": "15800"
+    },
+    {
+        "name": "Ciudad De La Costa",
+        "zip_code": "15800"
+    },
+    {
+        "name": "Quintas Del Bosque",
+        "zip_code": "15800"
+    },
+    {
+        "name": "Vista Linda",
+        "zip_code": "15900"
+    },
+    {
+        "name": "La Paz",
+        "zip_code": "15900"
+    },
+    {
+        "name": "Progreso",
+        "zip_code": "15900"
+    },
+    {
+        "name": "El Colorado",
+        "zip_code": "15900"
+    },
+    {
+        "name": "Colorado Chico",
+        "zip_code": "15900"
+    },
+    {
+        "name": "Villa Foresti",
+        "zip_code": "15900"
+    },
+    {
+        "name": "Puntas De Canelon Chico",
+        "zip_code": "15900"
+    },
+    {
+        "name": "Camino Dodera",
+        "zip_code": "15900"
+    },
+    {
+        "name": "Parada Cabrera",
+        "zip_code": "15900"
+    },
+    {
+        "name": "Cuchilla De Sierra",
+        "zip_code": "15900"
+    },
+    {
+        "name": "Poquitos",
+        "zip_code": "15900"
+    },
+    {
+        "name": "Santos Lugares",
+        "zip_code": "15900"
+    },
+    {
+        "name": "Barrio Remanso",
+        "zip_code": "15900"
+    },
+    {
+        "name": "Barrio La Lucha",
+        "zip_code": "15900"
+    },
+    {
+        "name": "Costa Y Guillamon",
+        "zip_code": "15900"
+    },
+    {
+        "name": "Villa Paz S.A.",
+        "zip_code": "15900"
+    },
+    {
+        "name": "Canelon Chico De Progreso",
+        "zip_code": "15900"
+    },
+    {
+        "name": "Barrio Copola",
+        "zip_code": "15900"
+    },
+    {
+        "name": "Paso Del Colorado",
+        "zip_code": "15900"
+    },
+    {
+        "name": "Instituto Adventista",
+        "zip_code": "15900"
+    },
+    {
+        "name": "Canelon Chico Al Centro",
+        "zip_code": "15900"
+    },
+    {
+        "name": "Fracc. Progreso",
+        "zip_code": "15900"
+    },
+    {
+        "name": "Villa Felicidad",
+        "zip_code": "15900"
+    },
+    {
+        "name": "El Dorado",
+        "zip_code": "15900"
+    },
+    {
+        "name": "Villa San Cono",
+        "zip_code": "15900"
+    },
+    {
+        "name": "Las Piedras",
+        "zip_code": "15900"
+    },
+    {
+        "name": "Sauce De Solis",
+        "zip_code": "30100"
+    },
+    {
+        "name": "Canelon Chico",
+        "zip_code": "90000"
+    },
+    {
+        "name": "Las Violetas",
+        "zip_code": "90000"
+    },
+    {
+        "name": "La Paloma",
+        "zip_code": "90000"
+    },
+    {
+        "name": "Paso De Las Toscas",
+        "zip_code": "90000"
+    },
+    {
+        "name": "Canelones",
+        "zip_code": "90000"
+    },
+    {
+        "name": "Canelon Grande De Pacheco",
+        "zip_code": "90000"
+    },
+    {
+        "name": "Camino De La Cadena",
+        "zip_code": "90000"
+    },
+    {
+        "name": "Villa Arejo",
+        "zip_code": "90000"
+    },
+    {
+        "name": "Mataojo",
+        "zip_code": "90000"
+    },
+    {
+        "name": "Paso Del Medio",
+        "zip_code": "90000"
+    },
+    {
+        "name": "Juanico",
+        "zip_code": "90000"
+    },
+    {
+        "name": "Paso De Cuello",
+        "zip_code": "90000"
+    },
+    {
+        "name": "Paso Palomeque",
+        "zip_code": "90000"
+    },
+    {
+        "name": "Empalme Dogliotti",
+        "zip_code": "90000"
+    },
+    {
+        "name": "Murialdo",
+        "zip_code": "90000"
+    },
+    {
+        "name": "Melgarejo",
+        "zip_code": "90000"
+    },
+    {
+        "name": "Rincon Del Gigante",
+        "zip_code": "90000"
+    },
+    {
+        "name": "Paso Espinosa",
+        "zip_code": "90000"
+    },
+    {
+        "name": "Echevarria",
+        "zip_code": "90000"
+    },
+    {
+        "name": "Villa Encantada",
+        "zip_code": "90100"
+    },
+    {
+        "name": "Campo Militar",
+        "zip_code": "90100"
+    },
+    {
+        "name": "Rincon De Portezuelo",
+        "zip_code": "90100"
+    },
+    {
+        "name": "Puntas De Brujas",
+        "zip_code": "90100"
+    },
+    {
+        "name": "Colorado Y Brujas",
+        "zip_code": "90100"
+    },
+    {
+        "name": "Cerrillos Al Oeste",
+        "zip_code": "90100"
+    },
+    {
+        "name": "Parador Tajes",
+        "zip_code": "90100"
+    },
+    {
+        "name": "Camino Lloveras",
+        "zip_code": "90100"
+    },
+    {
+        "name": "Melilla",
+        "zip_code": "90100"
+    },
+    {
+        "name": "Cerrillos Al Sur",
+        "zip_code": "90100"
+    },
+    {
+        "name": "Sofia Santos",
+        "zip_code": "90100"
+    },
+    {
+        "name": "Las Brujas",
+        "zip_code": "90100"
+    },
+    {
+        "name": "Puente De Brujas",
+        "zip_code": "90100"
+    },
+    {
+        "name": "Esquina Gonzalez",
+        "zip_code": "90100"
+    },
+    {
+        "name": "Rincon Del Colorado",
+        "zip_code": "90100"
+    },
+    {
+        "name": "Barrancas Coloradas",
+        "zip_code": "90100"
+    },
+    {
+        "name": "Paso Del Bote",
+        "zip_code": "90100"
+    },
+    {
+        "name": "Los Cerrillos",
+        "zip_code": "90100"
+    },
+    {
+        "name": "Aguas Corrientes",
+        "zip_code": "90200"
+    },
+    {
+        "name": "Los Ceibos",
+        "zip_code": "90200"
+    },
+    {
+        "name": "Santa Lucia",
+        "zip_code": "90200"
+    },
+    {
+        "name": "Paso De Pache",
+        "zip_code": "90200"
+    },
+    {
+        "name": "Margat",
+        "zip_code": "90200"
+    },
+    {
+        "name": "Paso De Los Francos",
+        "zip_code": "90200"
+    },
+    {
+        "name": "Paso Del Sordo",
+        "zip_code": "90200"
+    },
+    {
+        "name": "Cañada De Montaño",
+        "zip_code": "90200"
+    },
+    {
+        "name": "Paso De Los Alamos",
+        "zip_code": "90200"
+    },
+    {
+        "name": "Cuchilla Verde",
+        "zip_code": "90200"
+    },
+    {
+        "name": "Rincon De Vidal",
+        "zip_code": "90200"
+    },
+    {
+        "name": "Rincon De Velazquez",
+        "zip_code": "90200"
+    },
+    {
+        "name": "Cañada Prudencio",
+        "zip_code": "91100"
+    },
+    {
+        "name": "Vejigas De Tala",
+        "zip_code": "91100"
+    },
+    {
+        "name": "Vejigas De San Ramon",
+        "zip_code": "91100"
+    },
+    {
+        "name": "Rincon Del Conde",
+        "zip_code": "91100"
+    },
+    {
+        "name": "Costa Del Tala Norte",
+        "zip_code": "91100"
+    },
+    {
+        "name": "San Ramon",
+        "zip_code": "91100"
+    },
+    {
+        "name": "Costas Del Colorado Este",
+        "zip_code": "91200"
+    },
+    {
+        "name": "Arenal",
+        "zip_code": "91200"
+    },
+    {
+        "name": "Costa Del Tala Este",
+        "zip_code": "91200"
+    },
+    {
+        "name": "Paso De Los Difuntos",
+        "zip_code": "91200"
+    },
+    {
+        "name": "El Cuadro",
+        "zip_code": "91200"
+    },
+    {
+        "name": "Costa De Pando San Bautista",
+        "zip_code": "91200"
+    },
+    {
+        "name": "San Bautista",
+        "zip_code": "91200"
+    },
+    {
+        "name": "Puntas De Cochengo",
+        "zip_code": "91200"
+    },
+    {
+        "name": "Puntas De Las Violetas",
+        "zip_code": "91200"
+    },
+    {
+        "name": "El Colorado San Bautista",
+        "zip_code": "91200"
+    },
+    {
+        "name": "Pueblo Castellanos",
+        "zip_code": "91200"
+    },
+    {
+        "name": "Costas Del Colorado",
+        "zip_code": "91300"
+    },
+    {
+        "name": "San Antonio",
+        "zip_code": "91300"
+    },
+    {
+        "name": "Paso De La Cadena",
+        "zip_code": "91300"
+    },
+    {
+        "name": "Cañada Cardozo",
+        "zip_code": "91300"
+    },
+    {
+        "name": "Barra Del Tala",
+        "zip_code": "91300"
+    },
+    {
+        "name": "Costas Del Tala",
+        "zip_code": "91300"
+    },
+    {
+        "name": "Canelon Grande Norte",
+        "zip_code": "91300"
+    },
+    {
+        "name": "Puntas De Cañada Cardozo",
+        "zip_code": "91300"
+    },
+    {
+        "name": "Costa De Pando San Jacinto",
+        "zip_code": "91400"
+    },
+    {
+        "name": "Canelon Grande",
+        "zip_code": "91400"
+    },
+    {
+        "name": "Puntas De Pantanoso",
+        "zip_code": "91400"
+    },
+    {
+        "name": "Santa Rosa",
+        "zip_code": "91400"
+    },
+    {
+        "name": "Paso De La Paloma",
+        "zip_code": "91400"
+    },
+    {
+        "name": "Costa Del Pantanoso",
+        "zip_code": "91400"
+    },
+    {
+        "name": "Puntas De Pantanoso Este",
+        "zip_code": "91400"
+    },
+    {
+        "name": "Pantanoso Del Sauce",
+        "zip_code": "91500"
+    },
+    {
+        "name": "Puntas De Mata Siete",
+        "zip_code": "91500"
+    },
+    {
+        "name": "Ponce Mata Siete",
+        "zip_code": "91500"
+    },
+    {
+        "name": "San Pedro",
+        "zip_code": "91500"
+    },
+    {
+        "name": "Costa Del Sauce",
+        "zip_code": "91500"
+    },
+    {
+        "name": "Blanco",
+        "zip_code": "91500"
+    },
+    {
+        "name": "Sauce",
+        "zip_code": "91500"
+    },
+    {
+        "name": "Cuchilla De Rocha",
+        "zip_code": "91500"
+    },
+    {
+        "name": "Empalme Sauce",
+        "zip_code": "91500"
+    },
+    {
+        "name": "Cuchilla De Machin",
+        "zip_code": "91500"
+    },
+    {
+        "name": "Cruz De Los Caminos",
+        "zip_code": "91500"
+    },
+    {
+        "name": "Pantanoso",
+        "zip_code": "91500"
+    },
+    {
+        "name": "Villa Nueva",
+        "zip_code": "91500"
+    },
+    {
+        "name": "Totoral Del Sauce",
+        "zip_code": "91500"
+    },
+    {
+        "name": "Mata Siete",
+        "zip_code": "91500"
+    },
+    {
+        "name": "Rancherios De Ponce",
+        "zip_code": "91500"
+    },
+    {
+        "name": "Carrasco Del Sauce",
+        "zip_code": "91500"
+    },
+    {
+        "name": "Barrio Del Libertador",
+        "zip_code": "91500"
+    },
+    {
+        "name": "Barra De La Pedrera",
+        "zip_code": "91600"
+    },
+    {
+        "name": "Costa De Pando",
+        "zip_code": "91600"
+    },
+    {
+        "name": "Puntas De Pedrera",
+        "zip_code": "91600"
+    },
+    {
+        "name": "Costas De Solis",
+        "zip_code": "91600"
+    },
+    {
+        "name": "Cochengo",
+        "zip_code": "91600"
+    },
+    {
+        "name": "Piedra Sola",
+        "zip_code": "91600"
+    },
+    {
+        "name": "Estacion Pedrera",
+        "zip_code": "91600"
+    },
+    {
+        "name": "Estacion Tapia",
+        "zip_code": "91600"
+    },
+    {
+        "name": "Talita",
+        "zip_code": "91600"
+    },
+    {
+        "name": "San Jacinto",
+        "zip_code": "91600"
+    },
+    {
+        "name": "Solis Chico",
+        "zip_code": "91700"
+    },
+    {
+        "name": "Cuchilla De Zeballos",
+        "zip_code": "91700"
+    },
+    {
+        "name": "Montes",
+        "zip_code": "91700"
+    },
+    {
+        "name": "Solis Chico De Migues",
+        "zip_code": "91700"
+    },
+    {
+        "name": "Sauce Solo De Migues",
+        "zip_code": "91700"
+    },
+    {
+        "name": "La Totora",
+        "zip_code": "91700"
+    },
+    {
+        "name": "Cuchilla Cabo De Hornos",
+        "zip_code": "91700"
+    },
+    {
+        "name": "Sarandi De Migues",
+        "zip_code": "91700"
+    },
+    {
+        "name": "Pedernal Grande",
+        "zip_code": "91700"
+    },
+    {
+        "name": "Puntas Del Arenal",
+        "zip_code": "91700"
+    },
+    {
+        "name": "Migues",
+        "zip_code": "91700"
+    },
+    {
+        "name": "Estacion Migues",
+        "zip_code": "91700"
+    },
+    {
+        "name": "Sauce Solo De Montes",
+        "zip_code": "91700"
+    },
+    {
+        "name": "El Colorado De Migues",
+        "zip_code": "91700"
+    },
+    {
+        "name": "Sauce Solo",
+        "zip_code": "91700"
+    },
+    {
+        "name": "Paso Rivero De Vejigas",
+        "zip_code": "91800"
+    },
+    {
+        "name": "Feliciano",
+        "zip_code": "91800"
+    },
+    {
+        "name": "Macana",
+        "zip_code": "91800"
+    },
+    {
+        "name": "Costas De Pedernal",
+        "zip_code": "91800"
+    },
+    {
+        "name": "Vejigas",
+        "zip_code": "91800"
+    },
+    {
+        "name": "Piedritas",
+        "zip_code": "91800"
+    },
+    {
+        "name": "Paso De La Salamanca",
+        "zip_code": "91800"
+    },
+    {
+        "name": "Pedernal Chico",
+        "zip_code": "91800"
+    },
+    {
+        "name": "Pedernal",
+        "zip_code": "91800"
+    },
+    {
+        "name": "Puntas De Vejigas",
+        "zip_code": "91800"
+    },
+    {
+        "name": "Tala",
+        "zip_code": "91800"
+    },
+    {
+        "name": "Nutrias",
+        "zip_code": "91800"
+    },
+    {
+        "name": "Colonia Treinta Y Tres Orientales",
+        "zip_code": "96100"
+    },
+    {
+        "name": "Bolivar",
+        "zip_code": "96200"
+    },
+    {
+        "name": "Costas De Santa Lucia",
+        "zip_code": "96200"
+    },
+    {
+        "name": "Esperanza",
+        "zip_code": "35300"
+    },
+    {
+        "name": "Cuchilla Del Carmen",
+        "zip_code": "35300"
+    },
+    {
+        "name": "Arevalo",
+        "zip_code": "35300"
+    },
+    {
+        "name": "Laguna Del Junco",
+        "zip_code": "36100"
+    },
+    {
+        "name": "Tupambae",
+        "zip_code": "36100"
+    },
+    {
+        "name": "Rincon De Suarez",
+        "zip_code": "36200"
+    },
+    {
+        "name": "Quebracho",
+        "zip_code": "36200"
+    },
+    {
+        "name": "Los Cerros",
+        "zip_code": "36200"
+    },
+    {
+        "name": "Cerro De Las Cuentas",
+        "zip_code": "36200"
+    },
+    {
+        "name": "Piñeiro",
+        "zip_code": "36200"
+    },
+    {
+        "name": "Sanchez",
+        "zip_code": "36200"
+    },
+    {
+        "name": "Paso De Los Carros",
+        "zip_code": "36200"
+    },
+    {
+        "name": "Wenceslao Silvera",
+        "zip_code": "36200"
+    },
+    {
+        "name": "Puntas De Tacuari",
+        "zip_code": "36200"
+    },
+    {
+        "name": "Rincon De Py",
+        "zip_code": "36200"
+    },
+    {
+        "name": "Coimbra",
+        "zip_code": "36200"
+    },
+    {
+        "name": "Tres Islas",
+        "zip_code": "36200"
+    },
+    {
+        "name": "Las Limas",
+        "zip_code": "36200"
+    },
+    {
+        "name": "Rincon De La Urbana",
+        "zip_code": "36200"
+    },
+    {
+        "name": "Calera De Recalde",
+        "zip_code": "36200"
+    },
+    {
+        "name": "Aguirre",
+        "zip_code": "36200"
+    },
+    {
+        "name": "Rincon De Contreras",
+        "zip_code": "36200"
+    },
+    {
+        "name": "Fraile Muerto",
+        "zip_code": "36200"
+    },
+    {
+        "name": "Ganen",
+        "zip_code": "36200"
+    },
+    {
+        "name": "Toledo",
+        "zip_code": "36200"
+    },
+    {
+        "name": "Paso De Las Tropas",
+        "zip_code": "37000"
+    },
+    {
+        "name": "Tres Boliches",
+        "zip_code": "37000"
+    },
+    {
+        "name": "Guazunambi",
+        "zip_code": "37000"
+    },
+    {
+        "name": "Acegua",
+        "zip_code": "37000"
+    },
+    {
+        "name": "Cuchilla Peralta",
+        "zip_code": "37000"
+    },
+    {
+        "name": "Barrio Lopez Benitez",
+        "zip_code": "37000"
+    },
+    {
+        "name": "Puntas De La Mina",
+        "zip_code": "37000"
+    },
+    {
+        "name": "La Gloria",
+        "zip_code": "37000"
+    },
+    {
+        "name": "Berachi",
+        "zip_code": "37000"
+    },
+    {
+        "name": "Granja De Acegua",
+        "zip_code": "37000"
+    },
+    {
+        "name": "Paso De Las Yeguas",
+        "zip_code": "37000"
+    },
+    {
+        "name": "Paso De La Cruz",
+        "zip_code": "37000"
+    },
+    {
+        "name": "Escuela De Agronomia",
+        "zip_code": "37000"
+    },
+    {
+        "name": "Panteon",
+        "zip_code": "37000"
+    },
+    {
+        "name": "Asperezas",
+        "zip_code": "37000"
+    },
+    {
+        "name": "Soto Goro",
+        "zip_code": "37000"
+    },
+    {
+        "name": "Montecito",
+        "zip_code": "37000"
+    },
+    {
+        "name": "Barrio La Vinchuca",
+        "zip_code": "37000"
+    },
+    {
+        "name": "Rincon De Los Coroneles",
+        "zip_code": "37000"
+    },
+    {
+        "name": "Puntas De Palleros",
+        "zip_code": "37000"
+    },
+    {
+        "name": "Puntas De Amarillo",
+        "zip_code": "37000"
+    },
+    {
+        "name": "Rincon De Tacuari",
+        "zip_code": "37000"
+    },
+    {
+        "name": "La Micaela",
+        "zip_code": "37000"
+    },
+    {
+        "name": "Mazangano",
+        "zip_code": "37000"
+    },
+    {
+        "name": "Buena Vista",
+        "zip_code": "37000"
+    },
+    {
+        "name": "La Mina",
+        "zip_code": "37000"
+    },
+    {
+        "name": "Arbolito",
+        "zip_code": "37000"
+    },
+    {
+        "name": "Hipodromo",
+        "zip_code": "37000"
+    },
+    {
+        "name": "Caserio Las Cañas",
+        "zip_code": "37000"
+    },
+    {
+        "name": "Peñarol",
+        "zip_code": "37000"
+    },
+    {
+        "name": "Maria Isabel",
+        "zip_code": "37000"
+    },
+    {
+        "name": "Amarillo",
+        "zip_code": "37000"
+    },
+    {
+        "name": "Infiernillo",
+        "zip_code": "37000"
+    },
+    {
+        "name": "Arachania",
+        "zip_code": "37000"
+    },
+    {
+        "name": "Nando",
+        "zip_code": "37000"
+    },
+    {
+        "name": "Misterio",
+        "zip_code": "37000"
+    },
+    {
+        "name": "Santa Teresa",
+        "zip_code": "37000"
+    },
+    {
+        "name": "Rodriguez",
+        "zip_code": "37000"
+    },
+    {
+        "name": "La Pedrera",
+        "zip_code": "37000"
+    },
+    {
+        "name": "Villa Viñoles",
+        "zip_code": "37000"
+    },
+    {
+        "name": "Casa De Las Cronicas",
+        "zip_code": "37000"
+    },
+    {
+        "name": "Campamento",
+        "zip_code": "37000"
+    },
+    {
+        "name": "Cañitas",
+        "zip_code": "37000"
+    },
+    {
+        "name": "Cementerio",
+        "zip_code": "37000"
+    },
+    {
+        "name": "Centurion",
+        "zip_code": "37000"
+    },
+    {
+        "name": "Corral De Piedra",
+        "zip_code": "37000"
+    },
+    {
+        "name": "Cañada Sarandi",
+        "zip_code": "37000"
+    },
+    {
+        "name": "Bañado De Medina",
+        "zip_code": "37000"
+    },
+    {
+        "name": "Cuchilla Del Paraiso",
+        "zip_code": "37000"
+    },
+    {
+        "name": "Puntas De Molles",
+        "zip_code": "37000"
+    },
+    {
+        "name": "Colonia Ceres",
+        "zip_code": "37000"
+    },
+    {
+        "name": "Sauce De Conventos",
+        "zip_code": "37000"
+    },
+    {
+        "name": "Colonia Orozco",
+        "zip_code": "37000"
+    },
+    {
+        "name": "Colonia Maria Teresa",
+        "zip_code": "37000"
+    },
+    {
+        "name": "Sarandi De Acegua",
+        "zip_code": "37000"
+    },
+    {
+        "name": "Cruz De Piedra",
+        "zip_code": "37000"
+    },
+    {
+        "name": "Saldañas",
+        "zip_code": "37000"
+    },
+    {
+        "name": "Chacras De Melo",
+        "zip_code": "37000"
+    },
+    {
+        "name": "Granja Pallero",
+        "zip_code": "37000"
+    },
+    {
+        "name": "Cuchilla De Melo",
+        "zip_code": "37000"
+    },
+    {
+        "name": "San Diego",
+        "zip_code": "37000"
+    },
+    {
+        "name": "Melo",
+        "zip_code": "37000"
+    },
+    {
+        "name": "Minuano De Acegua",
+        "zip_code": "37000"
+    },
+    {
+        "name": "Duraznero",
+        "zip_code": "37000"
+    },
+    {
+        "name": "Cuchilla Cambota",
+        "zip_code": "37000"
+    },
+    {
+        "name": "Isidoro Noblia",
+        "zip_code": "37000"
+    },
+    {
+        "name": "Ramon Trigo",
+        "zip_code": "37000"
+    },
+    {
+        "name": "Rincon De Paiva",
+        "zip_code": "37000"
+    },
+    {
+        "name": "Puente Negro",
+        "zip_code": "37000"
+    },
+    {
+        "name": "Conventos",
+        "zip_code": "37000"
+    },
+    {
+        "name": "Falda De Sierra De Los Rios",
+        "zip_code": "37000"
+    },
+    {
+        "name": "Paso Melo",
+        "zip_code": "37000"
+    },
+    {
+        "name": "Ñangapire",
+        "zip_code": "37000"
+    },
+    {
+        "name": "Mangrullo",
+        "zip_code": "37000"
+    },
+    {
+        "name": "Sarandi De Yaguaron",
+        "zip_code": "37100"
+    },
+    {
+        "name": "Uruguay",
+        "zip_code": "37100"
+    },
+    {
+        "name": "Placido Rosas",
+        "zip_code": "37100"
+    },
+    {
+        "name": "Rincon De Los Olivera",
+        "zip_code": "37100"
+    },
+    {
+        "name": "San Servando",
+        "zip_code": "37100"
+    },
+    {
+        "name": "Puntas Del Sauce",
+        "zip_code": "37100"
+    },
+    {
+        "name": "Arroyo Malo",
+        "zip_code": "37100"
+    },
+    {
+        "name": "Picada De Maya",
+        "zip_code": "37100"
+    },
+    {
+        "name": "Barra Del Tacuari",
+        "zip_code": "37100"
+    },
+    {
+        "name": "Cañada De Santos",
+        "zip_code": "37100"
+    },
+    {
+        "name": "Cañada Grande",
+        "zip_code": "37100"
+    },
+    {
+        "name": "La Coronilla",
+        "zip_code": "37100"
+    },
+    {
+        "name": "Rio Branco",
+        "zip_code": "37100"
+    },
+    {
+        "name": "Sarandi De Barcelo",
+        "zip_code": "37100"
+    },
+    {
+        "name": "Picada De Salome",
+        "zip_code": "37100"
+    },
+    {
+        "name": "Presidente Doctor Getulio Vargas",
+        "zip_code": "37100"
+    },
+    {
+        "name": "Arrozal Rosales",
+        "zip_code": "37100"
+    },
+    {
+        "name": "Arrozal Cesarone",
+        "zip_code": "37100"
+    },
+    {
+        "name": "Bañado De Las Pajas",
+        "zip_code": "37100"
+    },
+    {
+        "name": "Garao",
+        "zip_code": "37100"
+    },
+    {
+        "name": "Lago Merin",
+        "zip_code": "37100"
+    },
+    {
+        "name": "Poblado Uruguay",
+        "zip_code": "37100"
+    },
+    {
+        "name": "Barra Del Sauce",
+        "zip_code": "37100"
+    },
+    {
+        "name": "Paso Pereira",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Piedra Alta",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Cañada Brava",
+        "zip_code": "97000"
+    },
+    {
+        "name": "El Bañado",
+        "zip_code": "70000"
+    },
+    {
+        "name": "Santa Rosa",
+        "zip_code": "70000"
+    },
+    {
+        "name": "El Semillero",
+        "zip_code": "70000"
+    },
+    {
+        "name": "El General",
+        "zip_code": "70000"
+    },
+    {
+        "name": "Riachuelo",
+        "zip_code": "70000"
+    },
+    {
+        "name": "Minas De Narancio",
+        "zip_code": "70000"
+    },
+    {
+        "name": "Cerros De San Juan",
+        "zip_code": "70000"
+    },
+    {
+        "name": "Punta Francesa",
+        "zip_code": "70000"
+    },
+    {
+        "name": "Conchillas",
+        "zip_code": "70000"
+    },
+    {
+        "name": "Puntas De San Pedro",
+        "zip_code": "70000"
+    },
+    {
+        "name": "El Ensueño",
+        "zip_code": "70000"
+    },
+    {
+        "name": "Quinton",
+        "zip_code": "70000"
+    },
+    {
+        "name": "Juan Carlos Caseros",
+        "zip_code": "70000"
+    },
+    {
+        "name": "Puerto Ingles",
+        "zip_code": "70000"
+    },
+    {
+        "name": "La Estanzuela",
+        "zip_code": "70000"
+    },
+    {
+        "name": "Estancia Anchorena",
+        "zip_code": "70000"
+    },
+    {
+        "name": "Colonia Del Sacramento",
+        "zip_code": "70000"
+    },
+    {
+        "name": "Artilleros",
+        "zip_code": "70000"
+    },
+    {
+        "name": "San Pedro Norte",
+        "zip_code": "70000"
+    },
+    {
+        "name": "Martin Chico De Conchillas",
+        "zip_code": "70000"
+    },
+    {
+        "name": "Radial Hernandez",
+        "zip_code": "70000"
+    },
+    {
+        "name": "Real De Vera",
+        "zip_code": "70000"
+    },
+    {
+        "name": "San Pedro De Arriba",
+        "zip_code": "70000"
+    },
+    {
+        "name": "Piedra De Los Indios",
+        "zip_code": "70000"
+    },
+    {
+        "name": "San Pedro",
+        "zip_code": "70000"
+    },
+    {
+        "name": "Reducto",
+        "zip_code": "70000"
+    },
+    {
+        "name": "Santa Ana",
+        "zip_code": "70000"
+    },
+    {
+        "name": "El Caño",
+        "zip_code": "70000"
+    },
+    {
+        "name": "Puerto Platero",
+        "zip_code": "70000"
+    },
+    {
+        "name": "La Horqueta",
+        "zip_code": "70000"
+    },
+    {
+        "name": "El Quinton",
+        "zip_code": "70000"
+    },
+    {
+        "name": "Laguna De Los Patos",
+        "zip_code": "70000"
+    },
+    {
+        "name": "Estacion Experimental  La Estanzuela",
+        "zip_code": "70000"
+    },
+    {
+        "name": "Curupi",
+        "zip_code": "70100"
+    },
+    {
+        "name": "Lomas De Carmelo",
+        "zip_code": "70100"
+    },
+    {
+        "name": "Zagarzazu",
+        "zip_code": "70100"
+    },
+    {
+        "name": "Colonia Arrue",
+        "zip_code": "70100"
+    },
+    {
+        "name": "Costas De Juan Gonzalez",
+        "zip_code": "70100"
+    },
+    {
+        "name": "Costa De Vacas",
+        "zip_code": "70100"
+    },
+    {
+        "name": "El Faro",
+        "zip_code": "70100"
+    },
+    {
+        "name": "Caserio El Cerro",
+        "zip_code": "70100"
+    },
+    {
+        "name": "Viboras",
+        "zip_code": "70100"
+    },
+    {
+        "name": "El Chileno",
+        "zip_code": "70100"
+    },
+    {
+        "name": "Cerro Carmelo",
+        "zip_code": "70100"
+    },
+    {
+        "name": "Buena Hora",
+        "zip_code": "70100"
+    },
+    {
+        "name": "Martin Chico",
+        "zip_code": "70100"
+    },
+    {
+        "name": "El Cerro",
+        "zip_code": "70100"
+    },
+    {
+        "name": "Juan Gonzalez",
+        "zip_code": "70100"
+    },
+    {
+        "name": "Viboras Y Vacas",
+        "zip_code": "70100"
+    },
+    {
+        "name": "Carmelo",
+        "zip_code": "70100"
+    },
+    {
+        "name": "Colonia Estrella",
+        "zip_code": "70100"
+    },
+    {
+        "name": "Puntas Del Rosario",
+        "zip_code": "70200"
+    },
+    {
+        "name": "Rosario",
+        "zip_code": "70200"
+    },
+    {
+        "name": "Colonia Peirano",
+        "zip_code": "70200"
+    },
+    {
+        "name": "Colonia Talice",
+        "zip_code": "70200"
+    },
+    {
+        "name": "La Paz",
+        "zip_code": "70200"
+    },
+    {
+        "name": "Paso Morlan",
+        "zip_code": "70200"
+    },
+    {
+        "name": "Costa Del Navarro",
+        "zip_code": "70200"
+    },
+    {
+        "name": "Radial Rosario",
+        "zip_code": "70200"
+    },
+    {
+        "name": "Rosario Y Colla",
+        "zip_code": "70200"
+    },
+    {
+        "name": "Puerto Rosario",
+        "zip_code": "70200"
+    },
+    {
+        "name": "Costas De Polonia",
+        "zip_code": "70200"
+    },
+    {
+        "name": "Barker",
+        "zip_code": "70200"
+    },
+    {
+        "name": "Pastoreo",
+        "zip_code": "70200"
+    },
+    {
+        "name": "Minuano Y Sauce",
+        "zip_code": "70200"
+    },
+    {
+        "name": "Puerto Concordia",
+        "zip_code": "70200"
+    },
+    {
+        "name": "Paso Quicho",
+        "zip_code": "70200"
+    },
+    {
+        "name": "Terminal",
+        "zip_code": "70200"
+    },
+    {
+        "name": "Costa De Colla Al Este",
+        "zip_code": "70200"
+    },
+    {
+        "name": "Tres Esquinas",
+        "zip_code": "70200"
+    },
+    {
+        "name": "Barker Norte",
+        "zip_code": "70200"
+    },
+    {
+        "name": "Media Agua",
+        "zip_code": "70200"
+    },
+    {
+        "name": "Barrio Mendaña",
+        "zip_code": "70300"
+    },
+    {
+        "name": "Costa De Rosario",
+        "zip_code": "70300"
+    },
+    {
+        "name": "Colonia Española",
+        "zip_code": "70300"
+    },
+    {
+        "name": "Colonia Quevedo",
+        "zip_code": "70300"
+    },
+    {
+        "name": "Bonjour",
+        "zip_code": "70300"
+    },
+    {
+        "name": "Playa Parant",
+        "zip_code": "70300"
+    },
+    {
+        "name": "Campamento Artigas",
+        "zip_code": "70300"
+    },
+    {
+        "name": "Nueva Helvecia",
+        "zip_code": "70300"
+    },
+    {
+        "name": "Santa Regina",
+        "zip_code": "70300"
+    },
+    {
+        "name": "Blanca Arena",
+        "zip_code": "70300"
+    },
+    {
+        "name": "Boca Del Rosario",
+        "zip_code": "70300"
+    },
+    {
+        "name": "Barrancas Coloradas",
+        "zip_code": "70300"
+    },
+    {
+        "name": "La Sierra",
+        "zip_code": "70300"
+    },
+    {
+        "name": "Brisas Del Plata",
+        "zip_code": "70300"
+    },
+    {
+        "name": "Cufre",
+        "zip_code": "70300"
+    },
+    {
+        "name": "Paso De La Quinta",
+        "zip_code": "70300"
+    },
+    {
+        "name": "Los Pinos",
+        "zip_code": "70300"
+    },
+    {
+        "name": "Resguardo Cufre",
+        "zip_code": "70300"
+    },
+    {
+        "name": "Playa Britopolis",
+        "zip_code": "70300"
+    },
+    {
+        "name": "Rincon Del Rey",
+        "zip_code": "70300"
+    },
+    {
+        "name": "Barrio Olimpico",
+        "zip_code": "70300"
+    },
+    {
+        "name": "Playa Fomento",
+        "zip_code": "70300"
+    },
+    {
+        "name": "Cerros Negros",
+        "zip_code": "70300"
+    },
+    {
+        "name": "Playa Azul",
+        "zip_code": "70300"
+    },
+    {
+        "name": "Picada De Benitez",
+        "zip_code": "70300"
+    },
+    {
+        "name": "Concordia",
+        "zip_code": "70300"
+    },
+    {
+        "name": "Colonia Valdense",
+        "zip_code": "70400"
+    },
+    {
+        "name": "Chico Torino",
+        "zip_code": "70400"
+    },
+    {
+        "name": "Tomas Bell",
+        "zip_code": "70500"
+    },
+    {
+        "name": "Juan Lacaze",
+        "zip_code": "70500"
+    },
+    {
+        "name": "Colonia Cosmopolita",
+        "zip_code": "70500"
+    },
+    {
+        "name": "Boca Del Rosario Oeste",
+        "zip_code": "70500"
+    },
+    {
+        "name": "Paraje Minuano",
+        "zip_code": "70500"
+    },
+    {
+        "name": "Arrivillaga",
+        "zip_code": "70500"
+    },
+    {
+        "name": "Villa Pancha",
+        "zip_code": "70500"
+    },
+    {
+        "name": "Puntas De Melo",
+        "zip_code": "70600"
+    },
+    {
+        "name": "Puntas Del Sauce",
+        "zip_code": "70600"
+    },
+    {
+        "name": "Tarariras",
+        "zip_code": "70600"
+    },
+    {
+        "name": "Costa De Tarariras",
+        "zip_code": "70600"
+    },
+    {
+        "name": "Paso Antolin",
+        "zip_code": "70600"
+    },
+    {
+        "name": "Puntas Del Riachuelo",
+        "zip_code": "70600"
+    },
+    {
+        "name": "San Luis",
+        "zip_code": "70600"
+    },
+    {
+        "name": "San Luis De Tarariras",
+        "zip_code": "70600"
+    },
+    {
+        "name": "San Juan",
+        "zip_code": "70600"
+    },
+    {
+        "name": "San Luis Sanchez",
+        "zip_code": "70600"
+    },
+    {
+        "name": "Paso Hospital",
+        "zip_code": "70600"
+    },
+    {
+        "name": "Polancos",
+        "zip_code": "70700"
+    },
+    {
+        "name": "Las Flores",
+        "zip_code": "70700"
+    },
+    {
+        "name": "Belgrano Norte",
+        "zip_code": "70700"
+    },
+    {
+        "name": "Nueva Palmira",
+        "zip_code": "70700"
+    },
+    {
+        "name": "Belgrano Sur",
+        "zip_code": "70700"
+    },
+    {
+        "name": "El Cuadro",
+        "zip_code": "70800"
+    },
+    {
+        "name": "Paso Hospital Manantiales",
+        "zip_code": "70800"
+    },
+    {
+        "name": "Costas De San Juan",
+        "zip_code": "70800"
+    },
+    {
+        "name": "Piedras Blancas",
+        "zip_code": "70800"
+    },
+    {
+        "name": "Colonia Miguelete",
+        "zip_code": "70800"
+    },
+    {
+        "name": "Molles De Miguelete",
+        "zip_code": "70800"
+    },
+    {
+        "name": "Colonia Sarandi",
+        "zip_code": "70800"
+    },
+    {
+        "name": "Las Chispas",
+        "zip_code": "70800"
+    },
+    {
+        "name": "Puntas De Juan Gonzalez",
+        "zip_code": "70800"
+    },
+    {
+        "name": "San Roque",
+        "zip_code": "70800"
+    },
+    {
+        "name": "Gil",
+        "zip_code": "70800"
+    },
+    {
+        "name": "Cerro De Las Armas",
+        "zip_code": "70800"
+    },
+    {
+        "name": "Sarandi Campana",
+        "zip_code": "70800"
+    },
+    {
+        "name": "Miguelete De Conchillas",
+        "zip_code": "70800"
+    },
+    {
+        "name": "Puntas De San Juan",
+        "zip_code": "70800"
+    },
+    {
+        "name": "Ombues De Lavalle",
+        "zip_code": "70800"
+    },
+    {
+        "name": "Manantiales",
+        "zip_code": "70800"
+    },
+    {
+        "name": "Campana",
+        "zip_code": "70800"
+    },
+    {
+        "name": "Zunin",
+        "zip_code": "75200"
+    },
+    {
+        "name": "Florencio Sanchez",
+        "zip_code": "75200"
+    },
+    {
+        "name": "Piedra Chata",
+        "zip_code": "75200"
+    },
+    {
+        "name": "Juan Jackson",
+        "zip_code": "75200"
+    },
+    {
+        "name": "Paso Birriel",
+        "zip_code": "75200"
+    },
+    {
+        "name": "Parada Sur",
+        "zip_code": "45100"
+    },
+    {
+        "name": "Pueblo Centenario",
+        "zip_code": "45100"
+    },
+    {
+        "name": "Sarandi De La China",
+        "zip_code": "45100"
+    },
+    {
+        "name": "Molles Chico",
+        "zip_code": "45100"
+    },
+    {
+        "name": "Parish",
+        "zip_code": "45100"
+    },
+    {
+        "name": "Palmar De Porrua",
+        "zip_code": "65100"
+    },
+    {
+        "name": "Estacion Chileno",
+        "zip_code": "97000"
+    },
+    {
+        "name": "Villa Del Carmen",
+        "zip_code": "97000"
+    },
+    {
+        "name": "Aguas Buenas",
+        "zip_code": "97000"
+    },
+    {
+        "name": "Verdun",
+        "zip_code": "97000"
+    },
+    {
+        "name": "La Alegria",
+        "zip_code": "97000"
+    },
+    {
+        "name": "Puglia",
+        "zip_code": "97000"
+    },
+    {
+        "name": "Caballero",
+        "zip_code": "97000"
+    },
+    {
+        "name": "Los Agregados",
+        "zip_code": "97000"
+    },
+    {
+        "name": "La Paloma",
+        "zip_code": "97000"
+    },
+    {
+        "name": "Cerro Convento",
+        "zip_code": "97000"
+    },
+    {
+        "name": "Mouriño",
+        "zip_code": "97000"
+    },
+    {
+        "name": "San Jose De Las Cañas",
+        "zip_code": "97000"
+    },
+    {
+        "name": "Maria Cejas",
+        "zip_code": "97000"
+    },
+    {
+        "name": "San Jorge",
+        "zip_code": "97000"
+    },
+    {
+        "name": "Las Tunas",
+        "zip_code": "97000"
+    },
+    {
+        "name": "Santa Bernardina",
+        "zip_code": "97000"
+    },
+    {
+        "name": "Rincon De Cuadra",
+        "zip_code": "97000"
+    },
+    {
+        "name": "Las Cañas",
+        "zip_code": "97000"
+    },
+    {
+        "name": "Barrancas Coloradas",
+        "zip_code": "97000"
+    },
+    {
+        "name": "Salinas",
+        "zip_code": "97000"
+    },
+    {
+        "name": "Baygorria",
+        "zip_code": "97000"
+    },
+    {
+        "name": "Chileno",
+        "zip_code": "97000"
+    },
+    {
+        "name": "Maestre Campo",
+        "zip_code": "97000"
+    },
+    {
+        "name": "Durazno",
+        "zip_code": "97000"
+    },
+    {
+        "name": "Sarandi De Rio Negro",
+        "zip_code": "97000"
+    },
+    {
+        "name": "Tejera",
+        "zip_code": "97000"
+    },
+    {
+        "name": "Capilla De Farruco",
+        "zip_code": "97000"
+    },
+    {
+        "name": "Mariscala Del Carmen",
+        "zip_code": "97000"
+    },
+    {
+        "name": "Las Palmas",
+        "zip_code": "97000"
+    },
+    {
+        "name": "Chileno Grande (Aguero)",
+        "zip_code": "97000"
+    },
+    {
+        "name": "Feliciano",
+        "zip_code": "97000"
+    },
+    {
+        "name": "Pueblo De Alvarez",
+        "zip_code": "97000"
+    },
+    {
+        "name": "Costa De Cuadra",
+        "zip_code": "97000"
+    },
+    {
+        "name": "Ceibal",
+        "zip_code": "97000"
+    },
+    {
+        "name": "Carlos Reyles",
+        "zip_code": "97000"
+    },
+    {
+        "name": "Cerrezuelo",
+        "zip_code": "97000"
+    },
+    {
+        "name": "Salinas Chico",
+        "zip_code": "97000"
+    },
+    {
+        "name": "Batovi",
+        "zip_code": "97000"
+    },
+    {
+        "name": "Rolon",
+        "zip_code": "97000"
+    },
+    {
+        "name": "Ombues De Oribe",
+        "zip_code": "97000"
+    },
+    {
+        "name": "Paso Real De Carpinteria",
+        "zip_code": "97000"
+    },
+    {
+        "name": "Blanquillo",
+        "zip_code": "97000"
+    },
+    {
+        "name": "La Mazamorra",
+        "zip_code": "97000"
+    },
+    {
+        "name": "Villasboas",
+        "zip_code": "97000"
+    },
+    {
+        "name": "Puntas De Carpinteria",
+        "zip_code": "97000"
+    },
+    {
+        "name": "Municipio De Durazno",
+        "zip_code": "97000"
+    },
+    {
+        "name": "Chacras De Durazno",
+        "zip_code": "97000"
+    },
+    {
+        "name": "Sauce De Herrera",
+        "zip_code": "97000"
+    },
+    {
+        "name": "Abella",
+        "zip_code": "97000"
+    },
+    {
+        "name": "Paso Tejera",
+        "zip_code": "97000"
+    },
+    {
+        "name": "Los Tapes",
+        "zip_code": "97000"
+    },
+    {
+        "name": "Blanquillo Al Oeste",
+        "zip_code": "97000"
+    },
+    {
+        "name": "Chileno Chico",
+        "zip_code": "97000"
+    },
+    {
+        "name": "Molles De Quinteros",
+        "zip_code": "97000"
+    },
+    {
+        "name": "Las Acacias",
+        "zip_code": "97000"
+    },
+    {
+        "name": "Sandu Chico",
+        "zip_code": "97000"
+    },
+    {
+        "name": "Paso Ramirez",
+        "zip_code": "97000"
+    },
+    {
+        "name": "Higueras De Carpinteria",
+        "zip_code": "97000"
+    },
+    {
+        "name": "Barrio Duran",
+        "zip_code": "97000"
+    },
+    {
+        "name": "Fonseca",
+        "zip_code": "97000"
+    },
+    {
+        "name": "Cuchilla De Ramirez",
+        "zip_code": "97000"
+    },
+    {
+        "name": "Cuchilla Del Rincon",
+        "zip_code": "97000"
+    },
+    {
+        "name": "Rincon De Los Tapes",
+        "zip_code": "97000"
+    },
+    {
+        "name": "Arroyo De Los Perros",
+        "zip_code": "97000"
+    },
+    {
+        "name": "Puntas De Malbajar",
+        "zip_code": "98000"
+    },
+    {
+        "name": "Elias Regules",
+        "zip_code": "98000"
+    },
+    {
+        "name": "Malbajar Este",
+        "zip_code": "98000"
+    },
+    {
+        "name": "Rossell Y Rius",
+        "zip_code": "98000"
+    },
+    {
+        "name": "Malbajar Oeste",
+        "zip_code": "98000"
+    },
+    {
+        "name": "Paso De Aguirre",
+        "zip_code": "98000"
+    },
+    {
+        "name": "Puntas De Herrera",
+        "zip_code": "98000"
+    },
+    {
+        "name": "Sarandi Del Yi",
+        "zip_code": "98000"
+    },
+    {
+        "name": "Mariscala",
+        "zip_code": "98000"
+    },
+    {
+        "name": "Tala De Mariscala",
+        "zip_code": "98000"
+    },
+    {
+        "name": "Paso De Castro",
+        "zip_code": "98000"
+    },
+    {
+        "name": "Paso Del Medio Las Palmas",
+        "zip_code": "98000"
+    },
+    {
+        "name": "De Dios",
+        "zip_code": "98000"
+    },
+    {
+        "name": "Puntas De Sarandi",
+        "zip_code": "85000"
+    },
+    {
+        "name": "La Guardia",
+        "zip_code": "85000"
+    },
+    {
+        "name": "Chacras De Borghi",
+        "zip_code": "85000"
+    },
+    {
+        "name": "Juan Jose Castro",
+        "zip_code": "85000"
+    },
+    {
+        "name": "Pueblo Pintos",
+        "zip_code": "85000"
+    },
+    {
+        "name": "El Coronilla",
+        "zip_code": "85000"
+    },
+    {
+        "name": "Cerro Colorado",
+        "zip_code": "85000"
+    },
+    {
+        "name": "Ismael Cortinas",
+        "zip_code": "85000"
+    },
+    {
+        "name": "Villa Pastora",
+        "zip_code": "85000"
+    },
+    {
+        "name": "Puntas De Marincho",
+        "zip_code": "85000"
+    },
+    {
+        "name": "El Totoral",
+        "zip_code": "85000"
+    },
+    {
+        "name": "Santa Adelaida",
+        "zip_code": "85000"
+    },
+    {
+        "name": "Sarandi",
+        "zip_code": "85000"
+    },
+    {
+        "name": "Puntas Del Sauce",
+        "zip_code": "85000"
+    },
+    {
+        "name": "Trinidad",
+        "zip_code": "85000"
+    },
+    {
+        "name": "Arenal Chico",
+        "zip_code": "85000"
+    },
+    {
+        "name": "Cuchilla De Villasboas",
+        "zip_code": "85000"
+    },
+    {
+        "name": "Rincon Del Palacio",
+        "zip_code": "85000"
+    },
+    {
+        "name": "Villasboas",
+        "zip_code": "85000"
+    },
+    {
+        "name": "Puntas De San Jose",
+        "zip_code": "85000"
+    },
+    {
+        "name": "Los Puentes",
+        "zip_code": "85000"
+    },
+    {
+        "name": "Puntas De Chamanga",
+        "zip_code": "85000"
+    },
+    {
+        "name": "San Gregorio De Flores",
+        "zip_code": "85000"
+    },
+    {
+        "name": "La Alianza",
+        "zip_code": "85000"
+    },
+    {
+        "name": "Cañada Amilivia",
+        "zip_code": "85000"
+    },
+    {
+        "name": "Costas Del Tala",
+        "zip_code": "85000"
+    },
+    {
+        "name": "Paso  De Lugo",
+        "zip_code": "85000"
+    },
+    {
+        "name": "Costas De San Jose",
+        "zip_code": "85000"
+    },
+    {
+        "name": "Colonia Alemana",
+        "zip_code": "85000"
+    },
+    {
+        "name": "Andresito",
+        "zip_code": "85000"
+    },
+    {
+        "name": "Arroyo Malo",
+        "zip_code": "85000"
+    },
+    {
+        "name": "Chacras",
+        "zip_code": "85000"
+    },
+    {
+        "name": "Paso Hondo",
+        "zip_code": "85000"
+    },
+    {
+        "name": "La Casilla",
+        "zip_code": "85000"
+    },
+    {
+        "name": "Marincho",
+        "zip_code": "85000"
+    },
+    {
+        "name": "Arenal Grande",
+        "zip_code": "85000"
+    },
+    {
+        "name": "Ferrizo",
+        "zip_code": "85000"
+    },
+    {
+        "name": "Talas De Maciel",
+        "zip_code": "94100"
+    },
+    {
+        "name": "Puntas Del Corral De Piedra",
+        "zip_code": "94100"
+    },
+    {
+        "name": "Ahogados",
+        "zip_code": "94100"
+    },
+    {
+        "name": "La Cordobesa",
+        "zip_code": "97000"
+    },
+    {
+        "name": "Nico Perez",
+        "zip_code": "34200"
+    },
+    {
+        "name": "Puntas De Illescas",
+        "zip_code": "34200"
+    },
+    {
+        "name": "Arrayan",
+        "zip_code": "34200"
+    },
+    {
+        "name": "Molles Del Pescado",
+        "zip_code": "34200"
+    },
+    {
+        "name": "Pueblo De Los Morochos",
+        "zip_code": "35100"
+    },
+    {
+        "name": "San Pedro De Timote",
+        "zip_code": "94000"
+    },
+    {
+        "name": "La Cruz",
+        "zip_code": "94000"
+    },
+    {
+        "name": "Florida",
+        "zip_code": "94000"
+    },
+    {
+        "name": "San Gabriel",
+        "zip_code": "94000"
+    },
+    {
+        "name": "San Juan",
+        "zip_code": "94000"
+    },
+    {
+        "name": "Costas Del Pintado",
+        "zip_code": "94000"
+    },
+    {
+        "name": "Cerros De Florida",
+        "zip_code": "94000"
+    },
+    {
+        "name": "Costas De Arias",
+        "zip_code": "94000"
+    },
+    {
+        "name": "Dr. A. Gallinal",
+        "zip_code": "94000"
+    },
+    {
+        "name": "Berrondo",
+        "zip_code": "94000"
+    },
+    {
+        "name": "Santa Teresa",
+        "zip_code": "94000"
+    },
+    {
+        "name": "Juncal",
+        "zip_code": "94000"
+    },
+    {
+        "name": "Paso Calleros",
+        "zip_code": "94000"
+    },
+    {
+        "name": "Tala De Castro",
+        "zip_code": "94000"
+    },
+    {
+        "name": "Chacras Del Pintado",
+        "zip_code": "94000"
+    },
+    {
+        "name": "San Geronimo",
+        "zip_code": "94000"
+    },
+    {
+        "name": "Cerro De La Macana",
+        "zip_code": "94000"
+    },
+    {
+        "name": "Chacras De Florida",
+        "zip_code": "94000"
+    },
+    {
+        "name": "Costa De La Cruz",
+        "zip_code": "94000"
+    },
+    {
+        "name": "Urioste",
+        "zip_code": "94000"
+    },
+    {
+        "name": "Tornero",
+        "zip_code": "94000"
+    },
+    {
+        "name": "Puntas De Calleros",
+        "zip_code": "94000"
+    },
+    {
+        "name": "Hernandarias",
+        "zip_code": "94000"
+    },
+    {
+        "name": "Colonia Sanchez",
+        "zip_code": "94000"
+    },
+    {
+        "name": "Las Piedritas",
+        "zip_code": "94000"
+    },
+    {
+        "name": "Costa De Arias",
+        "zip_code": "94000"
+    },
+    {
+        "name": "Molles Del Timote",
+        "zip_code": "94000"
+    },
+    {
+        "name": "Pantanoso De Castro",
+        "zip_code": "94000"
+    },
+    {
+        "name": "Palermo",
+        "zip_code": "94000"
+    },
+    {
+        "name": "Candil",
+        "zip_code": "94000"
+    },
+    {
+        "name": "La Macana",
+        "zip_code": "94000"
+    },
+    {
+        "name": "Talita",
+        "zip_code": "94000"
+    },
+    {
+        "name": "Villa Vieja",
+        "zip_code": "94000"
+    },
+    {
+        "name": "Tala De Maciel",
+        "zip_code": "94100"
+    },
+    {
+        "name": "Piedras Coloradas",
+        "zip_code": "94100"
+    },
+    {
+        "name": "Villa Hipica",
+        "zip_code": "94100"
+    },
+    {
+        "name": "Puntas De Sauce De Maciel",
+        "zip_code": "94100"
+    },
+    {
+        "name": "Sarandi Grande",
+        "zip_code": "94100"
+    },
+    {
+        "name": "Puntas De Maciel",
+        "zip_code": "94100"
+    },
+    {
+        "name": "Calleri",
+        "zip_code": "94100"
+    },
+    {
+        "name": "Sauce De Maciel",
+        "zip_code": "94100"
+    },
+    {
+        "name": "Costa Del Tala",
+        "zip_code": "94100"
+    },
+    {
+        "name": "Costas De Maciel",
+        "zip_code": "94100"
+    },
+    {
+        "name": "Cuchilla Santo Domingo",
+        "zip_code": "94100"
+    },
+    {
+        "name": "Costa De Parana",
+        "zip_code": "94100"
+    },
+    {
+        "name": "Corral De Piedra",
+        "zip_code": "94100"
+    },
+    {
+        "name": "Caserio La Fundacion",
+        "zip_code": "94100"
+    },
+    {
+        "name": "Puntas De Sarandi",
+        "zip_code": "94100"
+    },
+    {
+        "name": "La Cimbra",
+        "zip_code": "94100"
+    },
+    {
+        "name": "Arroyo De Los Negros",
+        "zip_code": "94100"
+    },
+    {
+        "name": "Pintado",
+        "zip_code": "94100"
+    },
+    {
+        "name": "Polanco Del Yi",
+        "zip_code": "94100"
+    },
+    {
+        "name": "Paso Vela",
+        "zip_code": "95100"
+    },
+    {
+        "name": "25 De Mayo",
+        "zip_code": "95100"
+    },
+    {
+        "name": "Paso De Los Novillos",
+        "zip_code": "95100"
+    },
+    {
+        "name": "Costas De Santa Lucia Chico",
+        "zip_code": "95200"
+    },
+    {
+        "name": "Cardal",
+        "zip_code": "95200"
+    },
+    {
+        "name": "Independencia",
+        "zip_code": "95300"
+    },
+    {
+        "name": "25 De Agosto",
+        "zip_code": "95400"
+    },
+    {
+        "name": "Arroyo Pelado",
+        "zip_code": "95500"
+    },
+    {
+        "name": "Mendoza Grande",
+        "zip_code": "95500"
+    },
+    {
+        "name": "Puente De Mendoza",
+        "zip_code": "95500"
+    },
+    {
+        "name": "Rincon De Vignoli",
+        "zip_code": "95500"
+    },
+    {
+        "name": "Mendoza Chico",
+        "zip_code": "95600"
+    },
+    {
+        "name": "Costas Del Santa Lucia Grande",
+        "zip_code": "96100"
+    },
+    {
+        "name": "Chamizo",
+        "zip_code": "96100"
+    },
+    {
+        "name": "Chamizo Chico",
+        "zip_code": "96100"
+    },
+    {
+        "name": "Costas De Chamizo",
+        "zip_code": "96100"
+    },
+    {
+        "name": "Arroyo Chamizo",
+        "zip_code": "96200"
+    },
+    {
+        "name": "Costas De Chamizo Grande",
+        "zip_code": "96200"
+    },
+    {
+        "name": "Puntas De La Escobilla",
+        "zip_code": "96200"
+    },
+    {
+        "name": "Puntas Del Arroyo Latorre",
+        "zip_code": "96200"
+    },
+    {
+        "name": "La Escobilla",
+        "zip_code": "96200"
+    },
+    {
+        "name": "Fray Marcos",
+        "zip_code": "96200"
+    },
+    {
+        "name": "Arroyo Latorre",
+        "zip_code": "96200"
+    },
+    {
+        "name": "Puntas De Chamizo",
+        "zip_code": "96300"
+    },
+    {
+        "name": "Vignoli",
+        "zip_code": "96300"
+    },
+    {
+        "name": "Casupa",
+        "zip_code": "96300"
+    },
+    {
+        "name": "Costas Del Amarillo",
+        "zip_code": "96300"
+    },
+    {
+        "name": "Reboledo",
+        "zip_code": "96400"
+    },
+    {
+        "name": "Piedra Campana",
+        "zip_code": "96400"
+    },
+    {
+        "name": "Puntas De Chamame",
+        "zip_code": "96500"
+    },
+    {
+        "name": "Alejandro Gallinal",
+        "zip_code": "96500"
+    },
+    {
+        "name": "Paso Real De Mansavillagra",
+        "zip_code": "96500"
+    },
+    {
+        "name": "Arteaga",
+        "zip_code": "96500"
+    },
+    {
+        "name": "Puntas De Mansavillagra",
+        "zip_code": "96500"
+    },
+    {
+        "name": "Sauce De Villanueva",
+        "zip_code": "97000"
+    },
+    {
+        "name": "Goñi",
+        "zip_code": "97000"
+    },
+    {
+        "name": "Sauce Del Yi",
+        "zip_code": "97000"
+    },
+    {
+        "name": "Rincon De Los Camilos",
+        "zip_code": "97000"
+    },
+    {
+        "name": "Arroyo Monzon",
+        "zip_code": "98000"
+    },
+    {
+        "name": "La Victoria",
+        "zip_code": "98000"
+    },
+    {
+        "name": "Capilla Del Sauce",
+        "zip_code": "98000"
+    },
+    {
+        "name": "Tabare",
+        "zip_code": "98000"
+    },
+    {
+        "name": "Barra Sauce De Mansavillagra",
+        "zip_code": "98000"
+    },
+    {
+        "name": "Barra Molles Del Timote",
+        "zip_code": "98000"
+    },
+    {
+        "name": "Estacion Capilla Del Sauce",
+        "zip_code": "98000"
+    },
+    {
+        "name": "Montecoral",
+        "zip_code": "98000"
+    },
+    {
+        "name": "Costa De Illescas",
+        "zip_code": "98000"
+    },
+    {
+        "name": "Ferrer",
+        "zip_code": "98000"
+    },
+    {
+        "name": "Santa Clara",
+        "zip_code": "98000"
+    },
+    {
+        "name": "Chingolas",
+        "zip_code": "98000"
+    },
+    {
+        "name": "Rincon Sauce Del Yi",
+        "zip_code": "98000"
+    },
+    {
+        "name": "Chilcas",
+        "zip_code": "98000"
+    },
+    {
+        "name": "Mansavillagra",
+        "zip_code": "98000"
+    },
+    {
+        "name": "La Palma",
+        "zip_code": "98000"
+    },
+    {
+        "name": "Puente De Marmaraja",
+        "zip_code": "20500"
+    },
+    {
+        "name": "Pororo",
+        "zip_code": "20500"
+    },
+    {
+        "name": "Paso De Los Troncos",
+        "zip_code": "20500"
+    },
+    {
+        "name": "Marmaraja",
+        "zip_code": "20500"
+    },
+    {
+        "name": "Santa Lucia",
+        "zip_code": "30000"
+    },
+    {
+        "name": "El Soldado",
+        "zip_code": "30000"
+    },
+    {
+        "name": "Velazquez",
+        "zip_code": "30000"
+    },
+    {
+        "name": "Vejigas",
+        "zip_code": "30000"
+    },
+    {
+        "name": "Costas Del Soldado",
+        "zip_code": "30000"
+    },
+    {
+        "name": "Polanco Sur",
+        "zip_code": "30000"
+    },
+    {
+        "name": "El Alto",
+        "zip_code": "30000"
+    },
+    {
+        "name": "Barriga Negra",
+        "zip_code": "30000"
+    },
+    {
+        "name": "San Francisco De Las Sierras",
+        "zip_code": "30000"
+    },
+    {
+        "name": "Rincon De Silva",
+        "zip_code": "30000"
+    },
+    {
+        "name": "Abra De Zabaleta",
+        "zip_code": "30000"
+    },
+    {
+        "name": "Soldado",
+        "zip_code": "30000"
+    },
+    {
+        "name": "Arroyo De Los Patos",
+        "zip_code": "30000"
+    },
+    {
+        "name": "Manguera Azul",
+        "zip_code": "30000"
+    },
+    {
+        "name": "Barra De Los Chanchos",
+        "zip_code": "30000"
+    },
+    {
+        "name": "Ombues De Bentancor",
+        "zip_code": "30000"
+    },
+    {
+        "name": "El Tigre",
+        "zip_code": "30000"
+    },
+    {
+        "name": "Canteras Del Verdun",
+        "zip_code": "30000"
+    },
+    {
+        "name": "Barrancas",
+        "zip_code": "30000"
+    },
+    {
+        "name": "Puntas De Barriga Negra",
+        "zip_code": "30000"
+    },
+    {
+        "name": "Verdun",
+        "zip_code": "30000"
+    },
+    {
+        "name": "Espuelitas",
+        "zip_code": "30000"
+    },
+    {
+        "name": "Puntas De Polanco",
+        "zip_code": "30000"
+    },
+    {
+        "name": "Valle De Solis",
+        "zip_code": "30000"
+    },
+    {
+        "name": "Barrio La Coronilla - Ancap",
+        "zip_code": "30000"
+    },
+    {
+        "name": "Casupa Chico",
+        "zip_code": "30000"
+    },
+    {
+        "name": "Los Tapes",
+        "zip_code": "30000"
+    },
+    {
+        "name": "Arroyo Del Medio",
+        "zip_code": "30000"
+    },
+    {
+        "name": "Arequita",
+        "zip_code": "30000"
+    },
+    {
+        "name": "Estacion Solis",
+        "zip_code": "30000"
+    },
+    {
+        "name": "Roldan",
+        "zip_code": "30000"
+    },
+    {
+        "name": "Puntas De San Francisco",
+        "zip_code": "30000"
+    },
+    {
+        "name": "Chamame",
+        "zip_code": "30000"
+    },
+    {
+        "name": "Villa Del Rosario",
+        "zip_code": "30000"
+    },
+    {
+        "name": "Tapes Grande",
+        "zip_code": "30000"
+    },
+    {
+        "name": "Molles De Aigua",
+        "zip_code": "30000"
+    },
+    {
+        "name": "Paso De Mesa",
+        "zip_code": "30000"
+    },
+    {
+        "name": "Puntas Del Perdido",
+        "zip_code": "30000"
+    },
+    {
+        "name": "Puntas De Vejigas",
+        "zip_code": "30000"
+    },
+    {
+        "name": "Puntas De Los Chanchos",
+        "zip_code": "30000"
+    },
+    {
+        "name": "Estacion Ortiz",
+        "zip_code": "30000"
+    },
+    {
+        "name": "Sierras Blancas",
+        "zip_code": "30000"
+    },
+    {
+        "name": "Tapes Chico",
+        "zip_code": "30000"
+    },
+    {
+        "name": "Ortiz Castro",
+        "zip_code": "30000"
+    },
+    {
+        "name": "Marco De Los Reyes",
+        "zip_code": "30000"
+    },
+    {
+        "name": "Estacion Andreoni",
+        "zip_code": "30000"
+    },
+    {
+        "name": "El Perdido",
+        "zip_code": "30000"
+    },
+    {
+        "name": "Costa Del Lenguazo",
+        "zip_code": "30000"
+    },
+    {
+        "name": "Blanes Viale",
+        "zip_code": "30000"
+    },
+    {
+        "name": "Consejo Del Niño",
+        "zip_code": "30000"
+    },
+    {
+        "name": "Puntas De Solis",
+        "zip_code": "30000"
+    },
+    {
+        "name": "Campanero",
+        "zip_code": "30000"
+    },
+    {
+        "name": "Colon",
+        "zip_code": "30000"
+    },
+    {
+        "name": "Villa Serrana",
+        "zip_code": "30000"
+    },
+    {
+        "name": "Piraraja",
+        "zip_code": "30000"
+    },
+    {
+        "name": "Rincon De Mariscala",
+        "zip_code": "30000"
+    },
+    {
+        "name": "Cerro Pelado",
+        "zip_code": "30000"
+    },
+    {
+        "name": "Minas",
+        "zip_code": "30000"
+    },
+    {
+        "name": "La Plata",
+        "zip_code": "30000"
+    },
+    {
+        "name": "Mariscala",
+        "zip_code": "30000"
+    },
+    {
+        "name": "La Cuchilla",
+        "zip_code": "30000"
+    },
+    {
+        "name": "Ladrillos",
+        "zip_code": "30000"
+    },
+    {
+        "name": "Higueritas",
+        "zip_code": "30000"
+    },
+    {
+        "name": "Polanco Norte",
+        "zip_code": "30000"
+    },
+    {
+        "name": "Polanco",
+        "zip_code": "30000"
+    },
+    {
+        "name": "Las Achiras",
+        "zip_code": "30000"
+    },
+    {
+        "name": "Solis",
+        "zip_code": "30000"
+    },
+    {
+        "name": "Puntas De Santa Lucia",
+        "zip_code": "30000"
+    },
+    {
+        "name": "Aguas Blancas",
+        "zip_code": "30100"
+    },
+    {
+        "name": "Solis De Mataojo",
+        "zip_code": "30100"
+    },
+    {
+        "name": "Paso Arbelo",
+        "zip_code": "30100"
+    },
+    {
+        "name": "Costas De Corrales",
+        "zip_code": "30300"
+    },
+    {
+        "name": "Retamosa",
+        "zip_code": "30300"
+    },
+    {
+        "name": "Molles De Cañada Grande",
+        "zip_code": "30300"
+    },
+    {
+        "name": "Carnales",
+        "zip_code": "30300"
+    },
+    {
+        "name": "Aramendia",
+        "zip_code": "30300"
+    },
+    {
+        "name": "Alonso",
+        "zip_code": "30300"
+    },
+    {
+        "name": "Gutierrez",
+        "zip_code": "30300"
+    },
+    {
+        "name": "Rincon De Cebollati",
+        "zip_code": "30300"
+    },
+    {
+        "name": "Azucar",
+        "zip_code": "30300"
+    },
+    {
+        "name": "19 De Junio",
+        "zip_code": "30300"
+    },
+    {
+        "name": "Sarandi De Gutierrez",
+        "zip_code": "30300"
+    },
+    {
+        "name": "Jose Pedro Varela",
+        "zip_code": "30300"
+    },
+    {
+        "name": "Molles Del Sauce",
+        "zip_code": "34100"
+    },
+    {
+        "name": "Zapican",
+        "zip_code": "34100"
+    },
+    {
+        "name": "Sauce De Olimar Chico",
+        "zip_code": "34100"
+    },
+    {
+        "name": "Illescas",
+        "zip_code": "34200"
+    },
+    {
+        "name": "Jose Batlle Y Ordoñez",
+        "zip_code": "34200"
+    },
+    {
+        "name": "Larrosa",
+        "zip_code": "34200"
+    },
+    {
+        "name": "Godoy",
+        "zip_code": "34200"
+    },
+    {
+        "name": "Solis Grande",
+        "zip_code": "91700"
+    },
+    {
+        "name": "Gaetan (Cuchilla De Carbajal)",
+        "zip_code": "96300"
+    },
+    {
+        "name": "Arenas De Jose Ignacio",
+        "zip_code": "20000"
+    },
+    {
+        "name": "La Barra",
+        "zip_code": "20000"
+    },
+    {
+        "name": "San Rafael - El Placer",
+        "zip_code": "20000"
+    },
+    {
+        "name": "La Sonrisa",
+        "zip_code": "20000"
+    },
+    {
+        "name": "Laguna Blanca",
+        "zip_code": "20000"
+    },
+    {
+        "name": "Barrio Kennedy",
+        "zip_code": "20000"
+    },
+    {
+        "name": "Faro Jose Ignacio",
+        "zip_code": "20000"
+    },
+    {
+        "name": "Puntas De Pan De Azucar",
+        "zip_code": "20000"
+    },
+    {
+        "name": "San Juan Del Este",
+        "zip_code": "20000"
+    },
+    {
+        "name": "Faro Jose Ignacio Norte",
+        "zip_code": "20000"
+    },
+    {
+        "name": "Barra Del Sauce",
+        "zip_code": "20000"
+    },
+    {
+        "name": "Los Corchos",
+        "zip_code": "20000"
+    },
+    {
+        "name": "Rincon Del Indio",
+        "zip_code": "20000"
+    },
+    {
+        "name": "La Juanita",
+        "zip_code": "20000"
+    },
+    {
+        "name": "Lago De Los Cisnes",
+        "zip_code": "20000"
+    },
+    {
+        "name": "Pinares - Las Delicias",
+        "zip_code": "20000"
+    },
+    {
+        "name": "Rincon De Los Sosa",
+        "zip_code": "20000"
+    },
+    {
+        "name": "Laguna Del Sauce",
+        "zip_code": "20000"
+    },
+    {
+        "name": "Los Aromos",
+        "zip_code": "20000"
+    },
+    {
+        "name": "Puntas De Mataojo",
+        "zip_code": "20000"
+    },
+    {
+        "name": "Portezuelo",
+        "zip_code": "20000"
+    },
+    {
+        "name": "Sauce De Portezuelo",
+        "zip_code": "20000"
+    },
+    {
+        "name": "Canteras De Marelli",
+        "zip_code": "20000"
+    },
+    {
+        "name": "Maldonado",
+        "zip_code": "20000"
+    },
+    {
+        "name": "Ocean Park",
+        "zip_code": "20000"
+    },
+    {
+        "name": "Buenos Aires",
+        "zip_code": "20000"
+    },
+    {
+        "name": "La Capuera",
+        "zip_code": "20000"
+    },
+    {
+        "name": "Zanja Del Tigre",
+        "zip_code": "20000"
+    },
+    {
+        "name": "Sarandi Del Mataojo",
+        "zip_code": "20000"
+    },
+    {
+        "name": "Mataojo",
+        "zip_code": "20000"
+    },
+    {
+        "name": "Las Cumbres",
+        "zip_code": "20000"
+    },
+    {
+        "name": "Punta Ballena",
+        "zip_code": "20000"
+    },
+    {
+        "name": "Chihuahua",
+        "zip_code": "20000"
+    },
+    {
+        "name": "Cerro Pelado",
+        "zip_code": "20000"
+    },
+    {
+        "name": "Villa Delia",
+        "zip_code": "20000"
+    },
+    {
+        "name": "Eden Rock",
+        "zip_code": "20000"
+    },
+    {
+        "name": "El Chorro",
+        "zip_code": "20000"
+    },
+    {
+        "name": "Barrio Hipodromo",
+        "zip_code": "20000"
+    },
+    {
+        "name": "El Tesoro",
+        "zip_code": "20000"
+    },
+    {
+        "name": "Punta Del Este",
+        "zip_code": "20000"
+    },
+    {
+        "name": "El Eden",
+        "zip_code": "20000"
+    },
+    {
+        "name": "Balneario Buenos Aires",
+        "zip_code": "20000"
+    },
+    {
+        "name": "Santa Monica",
+        "zip_code": "20000"
+    },
+    {
+        "name": "Manantiales",
+        "zip_code": "20000"
+    },
+    {
+        "name": "Las Flores",
+        "zip_code": "20200"
+    },
+    {
+        "name": "Solis",
+        "zip_code": "20200"
+    },
+    {
+        "name": "Bella Vista",
+        "zip_code": "20200"
+    },
+    {
+        "name": "Playa Grande",
+        "zip_code": "20200"
+    },
+    {
+        "name": "Barra De Portezuelo",
+        "zip_code": "20200"
+    },
+    {
+        "name": "Colonia J. Suarez",
+        "zip_code": "20200"
+    },
+    {
+        "name": "Punta Colorada",
+        "zip_code": "20200"
+    },
+    {
+        "name": "Piriapolis",
+        "zip_code": "20200"
+    },
+    {
+        "name": "Playa Verde",
+        "zip_code": "20200"
+    },
+    {
+        "name": "Las Flores - Estacion",
+        "zip_code": "20200"
+    },
+    {
+        "name": "La Falda",
+        "zip_code": "20200"
+    },
+    {
+        "name": "Playa Hermosa",
+        "zip_code": "20200"
+    },
+    {
+        "name": "Punta Negra",
+        "zip_code": "20200"
+    },
+    {
+        "name": "Pueblo Solis",
+        "zip_code": "20300"
+    },
+    {
+        "name": "Nueva Carrara",
+        "zip_code": "20300"
+    },
+    {
+        "name": "Gerona",
+        "zip_code": "20300"
+    },
+    {
+        "name": "Pan De Azucar",
+        "zip_code": "20300"
+    },
+    {
+        "name": "Ruta 37 Y",
+        "zip_code": "20300"
+    },
+    {
+        "name": "Puntas De La Sierra",
+        "zip_code": "20300"
+    },
+    {
+        "name": "Cerros Azules",
+        "zip_code": "20300"
+    },
+    {
+        "name": "Gregorio Aznarez",
+        "zip_code": "20300"
+    },
+    {
+        "name": "La Sierra",
+        "zip_code": "20300"
+    },
+    {
+        "name": "Parque Medina",
+        "zip_code": "20400"
+    },
+    {
+        "name": "Los Ceibos",
+        "zip_code": "20400"
+    },
+    {
+        "name": "Abra De Perdomo",
+        "zip_code": "20400"
+    },
+    {
+        "name": "Corte De La Leña",
+        "zip_code": "20400"
+    },
+    {
+        "name": "Arroyito De Medina",
+        "zip_code": "20400"
+    },
+    {
+        "name": "Carape",
+        "zip_code": "20400"
+    },
+    {
+        "name": "Partido Oeste",
+        "zip_code": "20400"
+    },
+    {
+        "name": "Guardia Vieja",
+        "zip_code": "20400"
+    },
+    {
+        "name": "Alfaro",
+        "zip_code": "20400"
+    },
+    {
+        "name": "Carlos Cal",
+        "zip_code": "20400"
+    },
+    {
+        "name": "Jose Ignacio",
+        "zip_code": "20400"
+    },
+    {
+        "name": "Pago De La Paja",
+        "zip_code": "20400"
+    },
+    {
+        "name": "Garzon",
+        "zip_code": "20400"
+    },
+    {
+        "name": "Cañada De La Cruz",
+        "zip_code": "20400"
+    },
+    {
+        "name": "Cañada Bellaca",
+        "zip_code": "20400"
+    },
+    {
+        "name": "Puntas De Jose Ignacio",
+        "zip_code": "20400"
+    },
+    {
+        "name": "Puntas Del Campanera",
+        "zip_code": "20400"
+    },
+    {
+        "name": "Molles De Garzon",
+        "zip_code": "20400"
+    },
+    {
+        "name": "Partido Norte",
+        "zip_code": "20400"
+    },
+    {
+        "name": "San Carlos",
+        "zip_code": "20400"
+    },
+    {
+        "name": "Las Cañas",
+        "zip_code": "20400"
+    },
+    {
+        "name": "Paso De La Cantera",
+        "zip_code": "20400"
+    },
+    {
+        "name": "El Quijote",
+        "zip_code": "20400"
+    },
+    {
+        "name": "Costas De Jose Ignacio",
+        "zip_code": "20400"
+    },
+    {
+        "name": "Valdivia",
+        "zip_code": "20500"
+    },
+    {
+        "name": "Salamanca",
+        "zip_code": "20500"
+    },
+    {
+        "name": "Paso De Los Talas",
+        "zip_code": "20500"
+    },
+    {
+        "name": "Coronilla",
+        "zip_code": "20500"
+    },
+    {
+        "name": "Sauce De Aigua",
+        "zip_code": "20500"
+    },
+    {
+        "name": "Sarandi De Aigua",
+        "zip_code": "20500"
+    },
+    {
+        "name": "Alferez",
+        "zip_code": "20500"
+    },
+    {
+        "name": "Aigua",
+        "zip_code": "20500"
+    },
+    {
+        "name": "Los Talas",
+        "zip_code": "27300"
+    },
+    {
+        "name": "Rincon De Aparicio",
+        "zip_code": "27300"
+    },
+    {
+        "name": "Abra De Castellanos",
+        "zip_code": "30100"
+    },
+    {
+        "name": "Puerto",
+        "zip_code": "11000"
+    },
+    {
+        "name": "Ciudad Vieja",
+        "zip_code": "11000"
+    },
+    {
+        "name": "Barrio Sur",
+        "zip_code": "11100"
+    },
+    {
+        "name": "Centro",
+        "zip_code": "11100"
+    },
+    {
+        "name": "Cordon",
+        "zip_code": "11200"
+    },
+    {
+        "name": "Palermo",
+        "zip_code": "11200"
+    },
+    {
+        "name": "Parque Rodo",
+        "zip_code": "11200"
+    },
+    {
+        "name": "Punta Carretas",
+        "zip_code": "11300"
+    },
+    {
+        "name": "Pocitos",
+        "zip_code": "11300"
+    },
+    {
+        "name": "Malvin",
+        "zip_code": "11400"
+    },
+    {
+        "name": "Union",
+        "zip_code": "11400"
+    },
+    {
+        "name": "Malvin Norte",
+        "zip_code": "11400"
+    },
+    {
+        "name": "Punta Gorda",
+        "zip_code": "11400"
+    },
+    {
+        "name": "Carrasco",
+        "zip_code": "11500"
+    },
+    {
+        "name": "Carrasco Norte",
+        "zip_code": "11500"
+    },
+    {
+        "name": "Buceo",
+        "zip_code": "11600"
+    },
+    {
+        "name": "La Blanqueada",
+        "zip_code": "11600"
+    },
+    {
+        "name": "Pque Batlle Villa Dolores",
+        "zip_code": "11600"
+    },
+    {
+        "name": "Larrañaga",
+        "zip_code": "11600"
+    },
+    {
+        "name": "Aires Puros",
+        "zip_code": "11700"
+    },
+    {
+        "name": "Brazo Oriental",
+        "zip_code": "11700"
+    },
+    {
+        "name": "Prado Nueva Savona",
+        "zip_code": "11700"
+    },
+    {
+        "name": "Atahualpa",
+        "zip_code": "11700"
+    },
+    {
+        "name": "Capurro Bella Vista",
+        "zip_code": "11800"
+    },
+    {
+        "name": "La Comercial",
+        "zip_code": "11800"
+    },
+    {
+        "name": "Aguada",
+        "zip_code": "11800"
+    },
+    {
+        "name": "Jacinto Vera",
+        "zip_code": "11800"
+    },
+    {
+        "name": "Villa Muñoz Retiro",
+        "zip_code": "11800"
+    },
+    {
+        "name": "Tres Cruces",
+        "zip_code": "11800"
+    },
+    {
+        "name": "Figurita",
+        "zip_code": "11800"
+    },
+    {
+        "name": "Reducto",
+        "zip_code": "11800"
+    },
+    {
+        "name": "Belvedere",
+        "zip_code": "11900"
+    },
+    {
+        "name": "Tres Ombues Pblo Victoria",
+        "zip_code": "11900"
+    },
+    {
+        "name": "La Teja",
+        "zip_code": "11900"
+    },
+    {
+        "name": "Nuevo Paris",
+        "zip_code": "11900"
+    },
+    {
+        "name": "Mercado Modelo Y Bolivar",
+        "zip_code": "12000"
+    },
+    {
+        "name": "Castro Castellanos",
+        "zip_code": "12000"
+    },
+    {
+        "name": "Ituzaingo",
+        "zip_code": "12000"
+    },
+    {
+        "name": "Villa Española",
+        "zip_code": "12000"
+    },
+    {
+        "name": "Maroñas Parque Guarani",
+        "zip_code": "12100"
+    },
+    {
+        "name": "Las Canteras",
+        "zip_code": "12100"
+    },
+    {
+        "name": "Las Acacias",
+        "zip_code": "12300"
+    },
+    {
+        "name": "Piedras Blancas",
+        "zip_code": "12300"
+    },
+    {
+        "name": "Cerrito",
+        "zip_code": "12300"
+    },
+    {
+        "name": "Casavalle",
+        "zip_code": "12300"
+    },
+    {
+        "name": "Manga",
+        "zip_code": "12300"
+    },
+    {
+        "name": "Manga Toledo Chico",
+        "zip_code": "12400"
+    },
+    {
+        "name": "Colon Sureste Abayuba",
+        "zip_code": "12400"
+    },
+    {
+        "name": "Peñarol Lavalleja",
+        "zip_code": "12400"
+    },
+    {
+        "name": "Colon Centro Y Noroeste",
+        "zip_code": "12500"
+    },
+    {
+        "name": "Lezica Melilla",
+        "zip_code": "12500"
+    },
+    {
+        "name": "Paso De La Arena",
+        "zip_code": "12700"
+    },
+    {
+        "name": "Casabo Pajas Blancas",
+        "zip_code": "12800"
+    },
+    {
+        "name": "La Paloma Tomkinson",
+        "zip_code": "12800"
+    },
+    {
+        "name": "Cerro",
+        "zip_code": "12800"
+    },
+    {
+        "name": "Sayago",
+        "zip_code": "12900"
+    },
+    {
+        "name": "Paso De Las Duranas",
+        "zip_code": "12900"
+    },
+    {
+        "name": "Conciliacion",
+        "zip_code": "12900"
+    },
+    {
+        "name": "Villa Garcia Manga Rural",
+        "zip_code": "13000"
+    },
+    {
+        "name": "Jardines Del Hipodromo",
+        "zip_code": "13000"
+    },
+    {
+        "name": "Punta Rieles Bella Italia",
+        "zip_code": "13000"
+    },
+    {
+        "name": "Bañados De Carrasco",
+        "zip_code": "13000"
+    },
+    {
+        "name": "Flor De Maroñas",
+        "zip_code": "13000"
+    },
+    {
+        "name": "Toledo Chico",
+        "zip_code": "15700"
+    },
+    {
+        "name": "Piedra Sola",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Tambores",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Chapicuy",
+        "zip_code": "50000"
+    },
+    {
+        "name": "Bella Vista",
+        "zip_code": "50000"
+    },
+    {
+        "name": "Tomas Paz",
+        "zip_code": "50000"
+    },
+    {
+        "name": "Parada Dayman",
+        "zip_code": "50000"
+    },
+    {
+        "name": "San Mauricio",
+        "zip_code": "50000"
+    },
+    {
+        "name": "El Duraznal",
+        "zip_code": "60000"
+    },
+    {
+        "name": "El Eucaliptus",
+        "zip_code": "60000"
+    },
+    {
+        "name": "Porvenir",
+        "zip_code": "60000"
+    },
+    {
+        "name": "Nuevo Paysandu",
+        "zip_code": "60000"
+    },
+    {
+        "name": "Puntas De Las Isletas",
+        "zip_code": "60000"
+    },
+    {
+        "name": "La Paz (Ruta 3 Km. 346)",
+        "zip_code": "60000"
+    },
+    {
+        "name": "Chacras De Paysandu Norte",
+        "zip_code": "60000"
+    },
+    {
+        "name": "Cuchilla De Buricayupi",
+        "zip_code": "60000"
+    },
+    {
+        "name": "Parada Pandule",
+        "zip_code": "60000"
+    },
+    {
+        "name": "Etchemendi",
+        "zip_code": "60000"
+    },
+    {
+        "name": "Colonia Paysandu",
+        "zip_code": "60000"
+    },
+    {
+        "name": "El Horno",
+        "zip_code": "60000"
+    },
+    {
+        "name": "Chacras De Paysandu",
+        "zip_code": "60000"
+    },
+    {
+        "name": "Guayabos",
+        "zip_code": "60000"
+    },
+    {
+        "name": "San Felix",
+        "zip_code": "60000"
+    },
+    {
+        "name": "Carumbe",
+        "zip_code": "60000"
+    },
+    {
+        "name": "San Miguel",
+        "zip_code": "60000"
+    },
+    {
+        "name": "Cangue",
+        "zip_code": "60000"
+    },
+    {
+        "name": "Puntas De Gualeguay",
+        "zip_code": "60000"
+    },
+    {
+        "name": "Tres Bocas",
+        "zip_code": "60000"
+    },
+    {
+        "name": "Cerro Chato",
+        "zip_code": "60000"
+    },
+    {
+        "name": "El Chaco",
+        "zip_code": "60000"
+    },
+    {
+        "name": "Pueblo Esperanza",
+        "zip_code": "60000"
+    },
+    {
+        "name": "La Tentacion",
+        "zip_code": "60000"
+    },
+    {
+        "name": "Sauce Del Buricayupi",
+        "zip_code": "60000"
+    },
+    {
+        "name": "Puntas De Buricayupi",
+        "zip_code": "60000"
+    },
+    {
+        "name": "Estacion Porvenir",
+        "zip_code": "60000"
+    },
+    {
+        "name": "Constancia",
+        "zip_code": "60000"
+    },
+    {
+        "name": "Costa De Sacra",
+        "zip_code": "60000"
+    },
+    {
+        "name": "El Tarugo",
+        "zip_code": "60000"
+    },
+    {
+        "name": "Paso De Los Carros",
+        "zip_code": "60000"
+    },
+    {
+        "name": "Queguayar",
+        "zip_code": "60000"
+    },
+    {
+        "name": "Colonia Uruguaya",
+        "zip_code": "60000"
+    },
+    {
+        "name": "Queguay Grande",
+        "zip_code": "60000"
+    },
+    {
+        "name": "Puntas De Cangue",
+        "zip_code": "60000"
+    },
+    {
+        "name": "Colonia Las Delicias",
+        "zip_code": "60000"
+    },
+    {
+        "name": "Orgoroso",
+        "zip_code": "60000"
+    },
+    {
+        "name": "Las Palmas",
+        "zip_code": "60000"
+    },
+    {
+        "name": "Colonia Cangue",
+        "zip_code": "60000"
+    },
+    {
+        "name": "Pueblo Federacion",
+        "zip_code": "60000"
+    },
+    {
+        "name": "Puntas De Bacacua",
+        "zip_code": "60000"
+    },
+    {
+        "name": "Chacras De Paysandu Sur",
+        "zip_code": "60000"
+    },
+    {
+        "name": "Cuchilla San Jose",
+        "zip_code": "60000"
+    },
+    {
+        "name": "Molles Grande",
+        "zip_code": "60000"
+    },
+    {
+        "name": "Soto",
+        "zip_code": "60000"
+    },
+    {
+        "name": "La Lata Ruta 3 (Km. 375)",
+        "zip_code": "60000"
+    },
+    {
+        "name": "Cañada Del Pueblo",
+        "zip_code": "60000"
+    },
+    {
+        "name": "Perico Moreno",
+        "zip_code": "60000"
+    },
+    {
+        "name": "San Francisco",
+        "zip_code": "60000"
+    },
+    {
+        "name": "Casa Blanca",
+        "zip_code": "60000"
+    },
+    {
+        "name": "Valdez",
+        "zip_code": "60000"
+    },
+    {
+        "name": "Paysandu",
+        "zip_code": "60000"
+    },
+    {
+        "name": "Al Sur De Arroyo Sacra",
+        "zip_code": "60000"
+    },
+    {
+        "name": "Rabon",
+        "zip_code": "60000"
+    },
+    {
+        "name": "Sauce Del Queguay",
+        "zip_code": "60000"
+    },
+    {
+        "name": "Zeballos",
+        "zip_code": "60000"
+    },
+    {
+        "name": "Araujo",
+        "zip_code": "60000"
+    },
+    {
+        "name": "Sauce De Abajo",
+        "zip_code": "60000"
+    },
+    {
+        "name": "Lorenzo Geyres",
+        "zip_code": "60000"
+    },
+    {
+        "name": "Gallinal",
+        "zip_code": "60000"
+    },
+    {
+        "name": "Piñera",
+        "zip_code": "60100"
+    },
+    {
+        "name": "Cuchilla De Fuego",
+        "zip_code": "60100"
+    },
+    {
+        "name": "Morato (Tres Arboles)",
+        "zip_code": "60100"
+    },
+    {
+        "name": "Pueblo Alonzo",
+        "zip_code": "60100"
+    },
+    {
+        "name": "Colonia Juncal",
+        "zip_code": "60100"
+    },
+    {
+        "name": "Guichon",
+        "zip_code": "60100"
+    },
+    {
+        "name": "Beisso",
+        "zip_code": "60100"
+    },
+    {
+        "name": "Termas De Almiron",
+        "zip_code": "60100"
+    },
+    {
+        "name": "Villa Maria (Tiatucura)",
+        "zip_code": "60100"
+    },
+    {
+        "name": "Arbolito (Totoral)",
+        "zip_code": "60100"
+    },
+    {
+        "name": "Termas De Guaviyu",
+        "zip_code": "60200"
+    },
+    {
+        "name": "Parada Rivas",
+        "zip_code": "60200"
+    },
+    {
+        "name": "Guaviyu De Quebracho",
+        "zip_code": "60200"
+    },
+    {
+        "name": "Colonia Arroyo Malo",
+        "zip_code": "60200"
+    },
+    {
+        "name": "Palmar Del Quebracho",
+        "zip_code": "60200"
+    },
+    {
+        "name": "Arroyo Malo",
+        "zip_code": "60200"
+    },
+    {
+        "name": "Santa Kilda",
+        "zip_code": "60200"
+    },
+    {
+        "name": "Quebracho",
+        "zip_code": "60200"
+    },
+    {
+        "name": "Colonia Santa Blanca",
+        "zip_code": "60200"
+    },
+    {
+        "name": "Puntas De Arroyo Negro",
+        "zip_code": "60300"
+    },
+    {
+        "name": "Las Flores",
+        "zip_code": "60300"
+    },
+    {
+        "name": "Piedras Coloradas",
+        "zip_code": "60300"
+    },
+    {
+        "name": "Arroyo Negro",
+        "zip_code": "60300"
+    },
+    {
+        "name": "Rolon",
+        "zip_code": "45100"
+    },
+    {
+        "name": "Isla De Arguelles",
+        "zip_code": "45100"
+    },
+    {
+        "name": "Santa Rosa",
+        "zip_code": "45100"
+    },
+    {
+        "name": "La Coronilla",
+        "zip_code": "45100"
+    },
+    {
+        "name": "Sarandi De Navarro",
+        "zip_code": "45100"
+    },
+    {
+        "name": "La Palma",
+        "zip_code": "45100"
+    },
+    {
+        "name": "El Progreso",
+        "zip_code": "45100"
+    },
+    {
+        "name": "Estacion Francia",
+        "zip_code": "45100"
+    },
+    {
+        "name": "Paso De Soca",
+        "zip_code": "45100"
+    },
+    {
+        "name": "Santa Elisa",
+        "zip_code": "60000"
+    },
+    {
+        "name": "Uleste",
+        "zip_code": "60000"
+    },
+    {
+        "name": "Arroyo Negro",
+        "zip_code": "60000"
+    },
+    {
+        "name": "Palmar Grande",
+        "zip_code": "60100"
+    },
+    {
+        "name": "Merinos",
+        "zip_code": "60100"
+    },
+    {
+        "name": "Los Mellizos",
+        "zip_code": "60100"
+    },
+    {
+        "name": "Puntas De Averias",
+        "zip_code": "60100"
+    },
+    {
+        "name": "Algorta",
+        "zip_code": "60400"
+    },
+    {
+        "name": "Tres Quintas",
+        "zip_code": "61100"
+    },
+    {
+        "name": "San Javier",
+        "zip_code": "61100"
+    },
+    {
+        "name": "El Abrojal",
+        "zip_code": "65000"
+    },
+    {
+        "name": "Caracoles",
+        "zip_code": "65000"
+    },
+    {
+        "name": "Pte. San Martin",
+        "zip_code": "65000"
+    },
+    {
+        "name": "Cañitas",
+        "zip_code": "65000"
+    },
+    {
+        "name": "Los Ranchos",
+        "zip_code": "65000"
+    },
+    {
+        "name": "Las Fracciones",
+        "zip_code": "65000"
+    },
+    {
+        "name": "Las Cañas",
+        "zip_code": "65000"
+    },
+    {
+        "name": "Nuevo Berlin",
+        "zip_code": "65000"
+    },
+    {
+        "name": "Porton Haedo",
+        "zip_code": "65000"
+    },
+    {
+        "name": "San Lorenzo",
+        "zip_code": "65000"
+    },
+    {
+        "name": "Las Margaritas",
+        "zip_code": "65000"
+    },
+    {
+        "name": "Ombucitos",
+        "zip_code": "65000"
+    },
+    {
+        "name": "Fray Bentos",
+        "zip_code": "65000"
+    },
+    {
+        "name": "Yaguarete",
+        "zip_code": "65000"
+    },
+    {
+        "name": "Barrio Anglo",
+        "zip_code": "65000"
+    },
+    {
+        "name": "Paso De Balbuena",
+        "zip_code": "65100"
+    },
+    {
+        "name": "Sarandi",
+        "zip_code": "65100"
+    },
+    {
+        "name": "Paso De Los Cobres",
+        "zip_code": "65100"
+    },
+    {
+        "name": "La Florida",
+        "zip_code": "65100"
+    },
+    {
+        "name": "Colonia John F. Kennedy",
+        "zip_code": "65100"
+    },
+    {
+        "name": "Santa Isabel",
+        "zip_code": "65100"
+    },
+    {
+        "name": "Villa General Borges",
+        "zip_code": "65100"
+    },
+    {
+        "name": "Las Flores",
+        "zip_code": "65100"
+    },
+    {
+        "name": "Mataojo",
+        "zip_code": "65100"
+    },
+    {
+        "name": "Colonia El Ombu",
+        "zip_code": "65100"
+    },
+    {
+        "name": "Young",
+        "zip_code": "65100"
+    },
+    {
+        "name": "Sauce",
+        "zip_code": "65100"
+    },
+    {
+        "name": "Menafra",
+        "zip_code": "65100"
+    },
+    {
+        "name": "Valle De Soba",
+        "zip_code": "65100"
+    },
+    {
+        "name": "Bellaco",
+        "zip_code": "65100"
+    },
+    {
+        "name": "Pueblo Grecco",
+        "zip_code": "65100"
+    },
+    {
+        "name": "La Union",
+        "zip_code": "65100"
+    },
+    {
+        "name": "El Surco",
+        "zip_code": "65100"
+    },
+    {
+        "name": "Pauru",
+        "zip_code": "65100"
+    },
+    {
+        "name": "Don Esteban",
+        "zip_code": "65100"
+    },
+    {
+        "name": "Estancia Vichadero",
+        "zip_code": "65100"
+    },
+    {
+        "name": "Tres Bocas",
+        "zip_code": "65100"
+    },
+    {
+        "name": "Molles De Porrua",
+        "zip_code": "65100"
+    },
+    {
+        "name": "Paso De Leopoldo",
+        "zip_code": "65100"
+    },
+    {
+        "name": "Sanchez Chico",
+        "zip_code": "65100"
+    },
+    {
+        "name": "Sanchez",
+        "zip_code": "65100"
+    },
+    {
+        "name": "Villa Maria",
+        "zip_code": "65100"
+    },
+    {
+        "name": "Los Arrayanes",
+        "zip_code": "75000"
+    },
+    {
+        "name": "La Arena",
+        "zip_code": "97000"
+    },
+    {
+        "name": "Paso Lapuente",
+        "zip_code": "40000"
+    },
+    {
+        "name": "Santa Teresa",
+        "zip_code": "40000"
+    },
+    {
+        "name": "Barra De Ataques",
+        "zip_code": "40000"
+    },
+    {
+        "name": "Cuchilla De Tres Cerros",
+        "zip_code": "40000"
+    },
+    {
+        "name": "Arroyo Sauzal",
+        "zip_code": "40000"
+    },
+    {
+        "name": "Cerro Chapeu",
+        "zip_code": "40000"
+    },
+    {
+        "name": "La Caillava",
+        "zip_code": "40000"
+    },
+    {
+        "name": "Curticeiras",
+        "zip_code": "40000"
+    },
+    {
+        "name": "Cruz De San Pedro",
+        "zip_code": "40000"
+    },
+    {
+        "name": "Guaviyu",
+        "zip_code": "40000"
+    },
+    {
+        "name": "Batovi",
+        "zip_code": "40000"
+    },
+    {
+        "name": "Paso Ataques",
+        "zip_code": "40000"
+    },
+    {
+        "name": "Platon",
+        "zip_code": "40000"
+    },
+    {
+        "name": "Rivera",
+        "zip_code": "40000"
+    },
+    {
+        "name": "Lagos Del Norte",
+        "zip_code": "40000"
+    },
+    {
+        "name": "Cerro Caqueiro",
+        "zip_code": "40000"
+    },
+    {
+        "name": "Ataques",
+        "zip_code": "40000"
+    },
+    {
+        "name": "La Pedrera",
+        "zip_code": "40000"
+    },
+    {
+        "name": "Tres Cruces",
+        "zip_code": "40000"
+    },
+    {
+        "name": "Puntas De Corrales",
+        "zip_code": "40000"
+    },
+    {
+        "name": "Sauce De Batovi",
+        "zip_code": "40000"
+    },
+    {
+        "name": "Lagunon",
+        "zip_code": "40000"
+    },
+    {
+        "name": "Paso Serpa",
+        "zip_code": "40000"
+    },
+    {
+        "name": "Villa Indart",
+        "zip_code": "40000"
+    },
+    {
+        "name": "Cuchilla Mangueras",
+        "zip_code": "40000"
+    },
+    {
+        "name": "Paso Del Lagunon",
+        "zip_code": "40000"
+    },
+    {
+        "name": "Mandubi",
+        "zip_code": "40000"
+    },
+    {
+        "name": "Barrio Recreo",
+        "zip_code": "40000"
+    },
+    {
+        "name": "Bañado Del Chaja",
+        "zip_code": "40000"
+    },
+    {
+        "name": "Capon Alto",
+        "zip_code": "40000"
+    },
+    {
+        "name": "Tres Puentes",
+        "zip_code": "40000"
+    },
+    {
+        "name": "Paso Del Tapado",
+        "zip_code": "40000"
+    },
+    {
+        "name": "Puntas De Cuñapiru",
+        "zip_code": "40000"
+    },
+    {
+        "name": "Puntas Del Yaguari",
+        "zip_code": "40000"
+    },
+    {
+        "name": "Yaguari",
+        "zip_code": "40000"
+    },
+    {
+        "name": "Santa Isabel",
+        "zip_code": "40000"
+    },
+    {
+        "name": "Cerro Solito",
+        "zip_code": "40000"
+    },
+    {
+        "name": "Cerrillada",
+        "zip_code": "40000"
+    },
+    {
+        "name": "Zanja Honda De Tranqueras",
+        "zip_code": "40100"
+    },
+    {
+        "name": "Lunarejo",
+        "zip_code": "40100"
+    },
+    {
+        "name": "Buena Union",
+        "zip_code": "40100"
+    },
+    {
+        "name": "Los Potreros",
+        "zip_code": "40100"
+    },
+    {
+        "name": "Paso De La Arena",
+        "zip_code": "40100"
+    },
+    {
+        "name": "Cerro Alegre",
+        "zip_code": "40100"
+    },
+    {
+        "name": "Rincon De Moraes",
+        "zip_code": "40100"
+    },
+    {
+        "name": "Tranqueras",
+        "zip_code": "40100"
+    },
+    {
+        "name": "Piedras Blancas",
+        "zip_code": "40100"
+    },
+    {
+        "name": "Sauzal",
+        "zip_code": "40100"
+    },
+    {
+        "name": "Puntas Del Sauzal",
+        "zip_code": "40100"
+    },
+    {
+        "name": "Paso De La Calera",
+        "zip_code": "40100"
+    },
+    {
+        "name": "Paso De Ataques",
+        "zip_code": "40100"
+    },
+    {
+        "name": "La Palma",
+        "zip_code": "40100"
+    },
+    {
+        "name": "Parada Medina",
+        "zip_code": "40100"
+    },
+    {
+        "name": "Masoller",
+        "zip_code": "40200"
+    },
+    {
+        "name": "Minas De Corrales",
+        "zip_code": "41100"
+    },
+    {
+        "name": "Cuchilla De Yaguari",
+        "zip_code": "41100"
+    },
+    {
+        "name": "Laureles",
+        "zip_code": "41100"
+    },
+    {
+        "name": "Cuñapiru",
+        "zip_code": "41100"
+    },
+    {
+        "name": "Las Flores",
+        "zip_code": "41100"
+    },
+    {
+        "name": "Santa Ernestina",
+        "zip_code": "41100"
+    },
+    {
+        "name": "Rincon De Roland",
+        "zip_code": "41100"
+    },
+    {
+        "name": "Coronilla De Corrales",
+        "zip_code": "41100"
+    },
+    {
+        "name": "Berruti",
+        "zip_code": "41100"
+    },
+    {
+        "name": "Cerros De La Calera",
+        "zip_code": "41100"
+    },
+    {
+        "name": "Carpinteria",
+        "zip_code": "41100"
+    },
+    {
+        "name": "Blanquillos",
+        "zip_code": "41100"
+    },
+    {
+        "name": "Cerro Blanco De Cuñapiru",
+        "zip_code": "41100"
+    },
+    {
+        "name": "Cerro Pelado",
+        "zip_code": "41100"
+    },
+    {
+        "name": "Curtume",
+        "zip_code": "41100"
+    },
+    {
+        "name": "La Calera",
+        "zip_code": "41100"
+    },
+    {
+        "name": "Paso Casildo",
+        "zip_code": "41100"
+    },
+    {
+        "name": "Segarra",
+        "zip_code": "41100"
+    },
+    {
+        "name": "Costas De Cuñapiru",
+        "zip_code": "41100"
+    },
+    {
+        "name": "Buena Orden Al Norte",
+        "zip_code": "41100"
+    },
+    {
+        "name": "Rincon De Los Castillos",
+        "zip_code": "41100"
+    },
+    {
+        "name": "Minas De Cuñapiru (Usinas)",
+        "zip_code": "41100"
+    },
+    {
+        "name": "San Gregorio",
+        "zip_code": "41100"
+    },
+    {
+        "name": "Cerro Pelado Al Este",
+        "zip_code": "41100"
+    },
+    {
+        "name": "Minas De Zapucay",
+        "zip_code": "41100"
+    },
+    {
+        "name": "Arroyo Blanco",
+        "zip_code": "41200"
+    },
+    {
+        "name": "Paso De Arriera",
+        "zip_code": "41200"
+    },
+    {
+        "name": "Cerros Blancos",
+        "zip_code": "41200"
+    },
+    {
+        "name": "Paso Amarillo",
+        "zip_code": "41200"
+    },
+    {
+        "name": "Chirca De Caraguata",
+        "zip_code": "41200"
+    },
+    {
+        "name": "Amarillo",
+        "zip_code": "41200"
+    },
+    {
+        "name": "La Chilca",
+        "zip_code": "41200"
+    },
+    {
+        "name": "Abrojal",
+        "zip_code": "41200"
+    },
+    {
+        "name": "Puntas De Abrojal",
+        "zip_code": "41200"
+    },
+    {
+        "name": "Rincon De Amarillo",
+        "zip_code": "41200"
+    },
+    {
+        "name": "Pueblo De Los Santos",
+        "zip_code": "41200"
+    },
+    {
+        "name": "Pueblo Socorro",
+        "zip_code": "41200"
+    },
+    {
+        "name": "Coronilla",
+        "zip_code": "41200"
+    },
+    {
+        "name": "Zanja Honda",
+        "zip_code": "41200"
+    },
+    {
+        "name": "Moirones",
+        "zip_code": "41200"
+    },
+    {
+        "name": "El Palmito",
+        "zip_code": "41200"
+    },
+    {
+        "name": "La Cerrillada",
+        "zip_code": "41200"
+    },
+    {
+        "name": "Alborada",
+        "zip_code": "41200"
+    },
+    {
+        "name": "Paso Del Puerto",
+        "zip_code": "41200"
+    },
+    {
+        "name": "Cerro Chato",
+        "zip_code": "41200"
+    },
+    {
+        "name": "Vichadero",
+        "zip_code": "41200"
+    },
+    {
+        "name": "Caraguata",
+        "zip_code": "41200"
+    },
+    {
+        "name": "Hospital",
+        "zip_code": "41200"
+    },
+    {
+        "name": "Paso De Frontera",
+        "zip_code": "41200"
+    },
+    {
+        "name": "Rincon De Yaguari",
+        "zip_code": "41200"
+    },
+    {
+        "name": "El Ceibo",
+        "zip_code": "41200"
+    },
+    {
+        "name": "Rincon De Rodriguez",
+        "zip_code": "41200"
+    },
+    {
+        "name": "Rincon De Tres Cerros",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Tres Cerros",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Rincon De Diniz",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Paso De Gaire",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Manuel Diaz",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Garzon Al Medio",
+        "zip_code": "27000"
+    },
+    {
+        "name": "Kilometro",
+        "zip_code": "27000"
+    },
+    {
+        "name": "La Sierra",
+        "zip_code": "27000"
+    },
+    {
+        "name": "El Canelon",
+        "zip_code": "27000"
+    },
+    {
+        "name": "India Muerta",
+        "zip_code": "27000"
+    },
+    {
+        "name": "Lomas",
+        "zip_code": "27000"
+    },
+    {
+        "name": "Garzon Arriba",
+        "zip_code": "27000"
+    },
+    {
+        "name": "Puerto De Los Botes",
+        "zip_code": "27000"
+    },
+    {
+        "name": "La Centinela",
+        "zip_code": "27000"
+    },
+    {
+        "name": "Sauce De Rocha",
+        "zip_code": "27000"
+    },
+    {
+        "name": "Paso Doña Rosa",
+        "zip_code": "27000"
+    },
+    {
+        "name": "Paralle",
+        "zip_code": "27000"
+    },
+    {
+        "name": "Sarandi De La India Muerta",
+        "zip_code": "27000"
+    },
+    {
+        "name": "Sierra De Los Rocha",
+        "zip_code": "27000"
+    },
+    {
+        "name": "Puntas De Don Carlos",
+        "zip_code": "27000"
+    },
+    {
+        "name": "19 De Abril",
+        "zip_code": "27000"
+    },
+    {
+        "name": "Picada Tolosa",
+        "zip_code": "27000"
+    },
+    {
+        "name": "Arbolito",
+        "zip_code": "27000"
+    },
+    {
+        "name": "La Ribiera",
+        "zip_code": "27000"
+    },
+    {
+        "name": "Rocha",
+        "zip_code": "27000"
+    },
+    {
+        "name": "Cuchilla De Garzon",
+        "zip_code": "27000"
+    },
+    {
+        "name": "Los Cerrillos",
+        "zip_code": "27000"
+    },
+    {
+        "name": "Garzon Abajo",
+        "zip_code": "27000"
+    },
+    {
+        "name": "Capacho",
+        "zip_code": "27100"
+    },
+    {
+        "name": "Barrancas De La Coronilla",
+        "zip_code": "27100"
+    },
+    {
+        "name": "La Fortaleza De Santa Teresa",
+        "zip_code": "27100"
+    },
+    {
+        "name": "La Coronilla",
+        "zip_code": "27100"
+    },
+    {
+        "name": "Puimayen",
+        "zip_code": "27100"
+    },
+    {
+        "name": "Chuy",
+        "zip_code": "27100"
+    },
+    {
+        "name": "Los Indios",
+        "zip_code": "27100"
+    },
+    {
+        "name": "Palmares De La Coronilla",
+        "zip_code": "27100"
+    },
+    {
+        "name": "Barra Del Chuy",
+        "zip_code": "27100"
+    },
+    {
+        "name": "Barrio Carpacho",
+        "zip_code": "27100"
+    },
+    {
+        "name": "18 De Julio",
+        "zip_code": "27100"
+    },
+    {
+        "name": "Barrio Pereira",
+        "zip_code": "27100"
+    },
+    {
+        "name": "Fortin De San Miguel",
+        "zip_code": "27100"
+    },
+    {
+        "name": "Samuel",
+        "zip_code": "27100"
+    },
+    {
+        "name": "Palmar",
+        "zip_code": "27200"
+    },
+    {
+        "name": "Punta Palmar",
+        "zip_code": "27200"
+    },
+    {
+        "name": "Barrio Torres",
+        "zip_code": "27200"
+    },
+    {
+        "name": "Cerro De Pescadores",
+        "zip_code": "27200"
+    },
+    {
+        "name": "Puente Valizas",
+        "zip_code": "27200"
+    },
+    {
+        "name": "Paso Del Bañado",
+        "zip_code": "27200"
+    },
+    {
+        "name": "Castillos",
+        "zip_code": "27200"
+    },
+    {
+        "name": "Rincon De Los Olivera",
+        "zip_code": "27200"
+    },
+    {
+        "name": "Cabo Polonio",
+        "zip_code": "27200"
+    },
+    {
+        "name": "Plano",
+        "zip_code": "27200"
+    },
+    {
+        "name": "La Esmeralda",
+        "zip_code": "27200"
+    },
+    {
+        "name": "Vuelta Del Palmar",
+        "zip_code": "27200"
+    },
+    {
+        "name": "Rincon De Valizas",
+        "zip_code": "27200"
+    },
+    {
+        "name": "Palmar De Castillos",
+        "zip_code": "27200"
+    },
+    {
+        "name": "Barra De Valizas",
+        "zip_code": "27200"
+    },
+    {
+        "name": "Cerro De Los Rocha",
+        "zip_code": "27200"
+    },
+    {
+        "name": "Barrio Cardozo",
+        "zip_code": "27200"
+    },
+    {
+        "name": "Punta Del Diablo",
+        "zip_code": "27200"
+    },
+    {
+        "name": "Aguas Dulces",
+        "zip_code": "27200"
+    },
+    {
+        "name": "Oratorio",
+        "zip_code": "27200"
+    },
+    {
+        "name": "Velazquez",
+        "zip_code": "27300"
+    },
+    {
+        "name": "Paso Del Ombu",
+        "zip_code": "27300"
+    },
+    {
+        "name": "Quebracho",
+        "zip_code": "27300"
+    },
+    {
+        "name": "Isla Negra",
+        "zip_code": "27300"
+    },
+    {
+        "name": "Barrio Porvenir",
+        "zip_code": "27300"
+    },
+    {
+        "name": "Cuchilla Del Arbolito",
+        "zip_code": "27300"
+    },
+    {
+        "name": "Los Ajos",
+        "zip_code": "27300"
+    },
+    {
+        "name": "Costas De Cebollati",
+        "zip_code": "27300"
+    },
+    {
+        "name": "Empalme De Velazquez",
+        "zip_code": "27300"
+    },
+    {
+        "name": "San Luis Al Medio",
+        "zip_code": "27300"
+    },
+    {
+        "name": "El Chimango",
+        "zip_code": "27300"
+    },
+    {
+        "name": "Lascano",
+        "zip_code": "27300"
+    },
+    {
+        "name": "Abra De Alferez",
+        "zip_code": "27300"
+    },
+    {
+        "name": "Cebollati",
+        "zip_code": "27300"
+    },
+    {
+        "name": "Punta Cebollati",
+        "zip_code": "27300"
+    },
+    {
+        "name": "Paso De Lopez",
+        "zip_code": "27300"
+    },
+    {
+        "name": "La Tuna",
+        "zip_code": "27300"
+    },
+    {
+        "name": "Alferez",
+        "zip_code": "27300"
+    },
+    {
+        "name": "Colonia Greissing",
+        "zip_code": "27300"
+    },
+    {
+        "name": "Barra Isla Negra",
+        "zip_code": "27300"
+    },
+    {
+        "name": "Pueblo Nuevo",
+        "zip_code": "27400"
+    },
+    {
+        "name": "San Sebastian De La Pedrera",
+        "zip_code": "27400"
+    },
+    {
+        "name": "La Pedrera",
+        "zip_code": "27400"
+    },
+    {
+        "name": "Antoniopolis",
+        "zip_code": "27400"
+    },
+    {
+        "name": "La Aguada",
+        "zip_code": "27400"
+    },
+    {
+        "name": "Tajamares De La Pedrera",
+        "zip_code": "27400"
+    },
+    {
+        "name": "Punta Rubia",
+        "zip_code": "27400"
+    },
+    {
+        "name": "San Antonio",
+        "zip_code": "27400"
+    },
+    {
+        "name": "Puerto La Paloma",
+        "zip_code": "27400"
+    },
+    {
+        "name": "La Aguada Y Costa Azul",
+        "zip_code": "27400"
+    },
+    {
+        "name": "San Sebastian",
+        "zip_code": "27400"
+    },
+    {
+        "name": "Arachania",
+        "zip_code": "27400"
+    },
+    {
+        "name": "Oceania Del Polonio",
+        "zip_code": "27400"
+    },
+    {
+        "name": "Balneario Pueblo Nuevo",
+        "zip_code": "27400"
+    },
+    {
+        "name": "Costa Azul",
+        "zip_code": "27400"
+    },
+    {
+        "name": "Cuchilla De Guaviyu",
+        "zip_code": "50000"
+    },
+    {
+        "name": "Parada Herreria",
+        "zip_code": "50000"
+    },
+    {
+        "name": "La Bolsa",
+        "zip_code": "50000"
+    },
+    {
+        "name": "Pueblo Cayetano",
+        "zip_code": "50000"
+    },
+    {
+        "name": "Biassini",
+        "zip_code": "50000"
+    },
+    {
+        "name": "Carumbe",
+        "zip_code": "50000"
+    },
+    {
+        "name": "Sauce Chico",
+        "zip_code": "50000"
+    },
+    {
+        "name": "Bordenave",
+        "zip_code": "50000"
+    },
+    {
+        "name": "Parque Jose Luis",
+        "zip_code": "50000"
+    },
+    {
+        "name": "Pepe Nuñez",
+        "zip_code": "50000"
+    },
+    {
+        "name": "Colonia Lavalleja",
+        "zip_code": "50000"
+    },
+    {
+        "name": "Cerros De Vera",
+        "zip_code": "50000"
+    },
+    {
+        "name": "Cerrilladas De Saucedo",
+        "zip_code": "50000"
+    },
+    {
+        "name": "Corralito",
+        "zip_code": "50000"
+    },
+    {
+        "name": "Cuchilla Del Salto",
+        "zip_code": "50000"
+    },
+    {
+        "name": "Talas De Itapebi",
+        "zip_code": "50000"
+    },
+    {
+        "name": "Pueblo Ramos",
+        "zip_code": "50000"
+    },
+    {
+        "name": "Cerrillada",
+        "zip_code": "50000"
+    },
+    {
+        "name": "Osimani Y Llerena",
+        "zip_code": "50000"
+    },
+    {
+        "name": "Colonia Osimani",
+        "zip_code": "50000"
+    },
+    {
+        "name": "La Caballada",
+        "zip_code": "50000"
+    },
+    {
+        "name": "Nueva Hesperides",
+        "zip_code": "50000"
+    },
+    {
+        "name": "Paso Del Parque Del Dayman",
+        "zip_code": "50000"
+    },
+    {
+        "name": "Colonia 18 De Julio",
+        "zip_code": "50000"
+    },
+    {
+        "name": "Pueblo Farias",
+        "zip_code": "50000"
+    },
+    {
+        "name": "Pueblo Quintana",
+        "zip_code": "50000"
+    },
+    {
+        "name": "La Viticola",
+        "zip_code": "50000"
+    },
+    {
+        "name": "Paso  Valega",
+        "zip_code": "50000"
+    },
+    {
+        "name": "Paso De Las Piedras De Arerungua",
+        "zip_code": "50000"
+    },
+    {
+        "name": "Sopas",
+        "zip_code": "50000"
+    },
+    {
+        "name": "Colonia Rubio",
+        "zip_code": "50000"
+    },
+    {
+        "name": "Los Orientales",
+        "zip_code": "50000"
+    },
+    {
+        "name": "El Mellado",
+        "zip_code": "50000"
+    },
+    {
+        "name": "Zanja De Alcain",
+        "zip_code": "50000"
+    },
+    {
+        "name": "Itapebi",
+        "zip_code": "50000"
+    },
+    {
+        "name": "Paso Fialho",
+        "zip_code": "50000"
+    },
+    {
+        "name": "Corral De Piedra",
+        "zip_code": "50000"
+    },
+    {
+        "name": "Las Flores",
+        "zip_code": "50000"
+    },
+    {
+        "name": "Tropezon",
+        "zip_code": "50000"
+    },
+    {
+        "name": "Zanja Del Tigre",
+        "zip_code": "50000"
+    },
+    {
+        "name": "Russo",
+        "zip_code": "50000"
+    },
+    {
+        "name": "Balneario Albisu",
+        "zip_code": "50000"
+    },
+    {
+        "name": "Celeste",
+        "zip_code": "50000"
+    },
+    {
+        "name": "Saucedo",
+        "zip_code": "50000"
+    },
+    {
+        "name": "Sarandi De Arapey",
+        "zip_code": "50000"
+    },
+    {
+        "name": "Olivera",
+        "zip_code": "50000"
+    },
+    {
+        "name": "Tropiezo",
+        "zip_code": "50000"
+    },
+    {
+        "name": "Paso Del Potrero",
+        "zip_code": "50000"
+    },
+    {
+        "name": "Toro Negro",
+        "zip_code": "50000"
+    },
+    {
+        "name": "Valentin Grande",
+        "zip_code": "50000"
+    },
+    {
+        "name": "Garibaldi",
+        "zip_code": "50000"
+    },
+    {
+        "name": "Campo De Todos",
+        "zip_code": "50000"
+    },
+    {
+        "name": "Puntas De Valentin",
+        "zip_code": "50000"
+    },
+    {
+        "name": "Lluveras",
+        "zip_code": "50000"
+    },
+    {
+        "name": "Laureles",
+        "zip_code": "50000"
+    },
+    {
+        "name": "Salto",
+        "zip_code": "50000"
+    },
+    {
+        "name": "Ferreira",
+        "zip_code": "50000"
+    },
+    {
+        "name": "Mataojo Grande",
+        "zip_code": "50000"
+    },
+    {
+        "name": "Paso Del Tapado",
+        "zip_code": "50000"
+    },
+    {
+        "name": "Rincon De Valentin",
+        "zip_code": "50000"
+    },
+    {
+        "name": "Arenitas Blancas",
+        "zip_code": "50000"
+    },
+    {
+        "name": "Paso Nuevo Del Arapey",
+        "zip_code": "50000"
+    },
+    {
+        "name": "Termas Del Dayman",
+        "zip_code": "50000"
+    },
+    {
+        "name": "Termas Del Arapey",
+        "zip_code": "50000"
+    },
+    {
+        "name": "Palomas",
+        "zip_code": "50000"
+    },
+    {
+        "name": "Guaviyu De Arapey",
+        "zip_code": "50000"
+    },
+    {
+        "name": "Cerro Chato",
+        "zip_code": "50000"
+    },
+    {
+        "name": "San Antonio",
+        "zip_code": "50000"
+    },
+    {
+        "name": "Mataojito",
+        "zip_code": "50000"
+    },
+    {
+        "name": "Paso Cementerio",
+        "zip_code": "50000"
+    },
+    {
+        "name": "Colonia Itapebi",
+        "zip_code": "50000"
+    },
+    {
+        "name": "Pueblo Fernandez",
+        "zip_code": "50000"
+    },
+    {
+        "name": "Chacras De Constitucion",
+        "zip_code": "50100"
+    },
+    {
+        "name": "El Espinillar",
+        "zip_code": "50100"
+    },
+    {
+        "name": "Constitucion",
+        "zip_code": "50100"
+    },
+    {
+        "name": "Yacuy",
+        "zip_code": "50200"
+    },
+    {
+        "name": "Belen",
+        "zip_code": "50200"
+    },
+    {
+        "name": "Chacras De Belen",
+        "zip_code": "50200"
+    },
+    {
+        "name": "Bella Vista",
+        "zip_code": "80000"
+    },
+    {
+        "name": "Cañada Grande",
+        "zip_code": "80000"
+    },
+    {
+        "name": "Tabarez",
+        "zip_code": "80000"
+    },
+    {
+        "name": "Rocho",
+        "zip_code": "80000"
+    },
+    {
+        "name": "Paso De Cames",
+        "zip_code": "80000"
+    },
+    {
+        "name": "Paso Del Carreton",
+        "zip_code": "80000"
+    },
+    {
+        "name": "Mundo Azul Aguirre",
+        "zip_code": "80000"
+    },
+    {
+        "name": "Puntas De Gregorio",
+        "zip_code": "80000"
+    },
+    {
+        "name": "Costas Del Sauce",
+        "zip_code": "80000"
+    },
+    {
+        "name": "Laurel",
+        "zip_code": "80000"
+    },
+    {
+        "name": "Perico Perez",
+        "zip_code": "80000"
+    },
+    {
+        "name": "Jesus Maria",
+        "zip_code": "80000"
+    },
+    {
+        "name": "Fajina",
+        "zip_code": "80000"
+    },
+    {
+        "name": "Pachina",
+        "zip_code": "80000"
+    },
+    {
+        "name": "Tala De Pereira",
+        "zip_code": "80000"
+    },
+    {
+        "name": "Rincon De Nazareth",
+        "zip_code": "80000"
+    },
+    {
+        "name": "Puntas De Laurel",
+        "zip_code": "80000"
+    },
+    {
+        "name": "Cagancha Chico",
+        "zip_code": "80000"
+    },
+    {
+        "name": "Rincon De Arias",
+        "zip_code": "80000"
+    },
+    {
+        "name": "Bañado",
+        "zip_code": "80000"
+    },
+    {
+        "name": "Fajardo",
+        "zip_code": "80000"
+    },
+    {
+        "name": "Gonzalez",
+        "zip_code": "80000"
+    },
+    {
+        "name": "Paso Del Rey",
+        "zip_code": "80000"
+    },
+    {
+        "name": "Tranquera Colorada",
+        "zip_code": "80000"
+    },
+    {
+        "name": "Panta",
+        "zip_code": "80000"
+    },
+    {
+        "name": "Mundo Azul",
+        "zip_code": "80000"
+    },
+    {
+        "name": "Paso De Mas",
+        "zip_code": "80000"
+    },
+    {
+        "name": "Puntas De Cagancha",
+        "zip_code": "80000"
+    },
+    {
+        "name": "Cuchilla De Pereira",
+        "zip_code": "80000"
+    },
+    {
+        "name": "Arroyo Llano",
+        "zip_code": "80000"
+    },
+    {
+        "name": "Mahoma",
+        "zip_code": "80000"
+    },
+    {
+        "name": "Rincon Del Pino",
+        "zip_code": "80000"
+    },
+    {
+        "name": "Escudero",
+        "zip_code": "80000"
+    },
+    {
+        "name": "Colonia America",
+        "zip_code": "80000"
+    },
+    {
+        "name": "San Gregorio",
+        "zip_code": "80000"
+    },
+    {
+        "name": "Puntas De Chamizo",
+        "zip_code": "80000"
+    },
+    {
+        "name": "Cuchilla Seca",
+        "zip_code": "80000"
+    },
+    {
+        "name": "Carreta Quemada",
+        "zip_code": "80000"
+    },
+    {
+        "name": "Mal Abrigo",
+        "zip_code": "80000"
+    },
+    {
+        "name": "Arroyo De La Virgen",
+        "zip_code": "80000"
+    },
+    {
+        "name": "Villa Maria",
+        "zip_code": "80000"
+    },
+    {
+        "name": "Coronilla",
+        "zip_code": "80000"
+    },
+    {
+        "name": "Raigon",
+        "zip_code": "80000"
+    },
+    {
+        "name": "Juncal",
+        "zip_code": "80000"
+    },
+    {
+        "name": "Cruz De Los Caminos",
+        "zip_code": "80000"
+    },
+    {
+        "name": "Zanja Honda",
+        "zip_code": "80000"
+    },
+    {
+        "name": "Puntas De Cañada Grande",
+        "zip_code": "80000"
+    },
+    {
+        "name": "Juan Soler",
+        "zip_code": "80000"
+    },
+    {
+        "name": "Pantanoso",
+        "zip_code": "80000"
+    },
+    {
+        "name": "San Jose De Mayo",
+        "zip_code": "80000"
+    },
+    {
+        "name": "Chamizo",
+        "zip_code": "80000"
+    },
+    {
+        "name": "Pavon",
+        "zip_code": "80000"
+    },
+    {
+        "name": "La Casilla",
+        "zip_code": "80000"
+    },
+    {
+        "name": "Kiyu - Ordeig",
+        "zip_code": "80100"
+    },
+    {
+        "name": "Sauce Chico",
+        "zip_code": "80100"
+    },
+    {
+        "name": "Cololo Tinosa",
+        "zip_code": "80100"
+    },
+    {
+        "name": "Colonia Italia",
+        "zip_code": "80100"
+    },
+    {
+        "name": "Sauce",
+        "zip_code": "80100"
+    },
+    {
+        "name": "Colonia Juan Maria Perez",
+        "zip_code": "80100"
+    },
+    {
+        "name": "Libertad",
+        "zip_code": "80100"
+    },
+    {
+        "name": "Rincon De Buschental",
+        "zip_code": "80100"
+    },
+    {
+        "name": "Puntas De Valdez",
+        "zip_code": "80100"
+    },
+    {
+        "name": "Costa Del Mauricio",
+        "zip_code": "80100"
+    },
+    {
+        "name": "Radial Ruta",
+        "zip_code": "80100"
+    },
+    {
+        "name": "Orillas Del Plata",
+        "zip_code": "80100"
+    },
+    {
+        "name": "Valdez Chico",
+        "zip_code": "80100"
+    },
+    {
+        "name": "Puntas De Tropa Vieja",
+        "zip_code": "80100"
+    },
+    {
+        "name": "Paso De Las Piedras",
+        "zip_code": "80200"
+    },
+    {
+        "name": "Mangrullo",
+        "zip_code": "80200"
+    },
+    {
+        "name": "Costas De Pereira",
+        "zip_code": "80200"
+    },
+    {
+        "name": "Rafael Perazza",
+        "zip_code": "80200"
+    },
+    {
+        "name": "Colonia Fernandez Crespo",
+        "zip_code": "80200"
+    },
+    {
+        "name": "Colonia San Joaquin",
+        "zip_code": "80200"
+    },
+    {
+        "name": "Ecilda Paullier",
+        "zip_code": "80300"
+    },
+    {
+        "name": "Boca Del Cufre",
+        "zip_code": "80300"
+    },
+    {
+        "name": "Scavino",
+        "zip_code": "80300"
+    },
+    {
+        "name": "La Boyada",
+        "zip_code": "80300"
+    },
+    {
+        "name": "Rincon De Cufre",
+        "zip_code": "80300"
+    },
+    {
+        "name": "Rincon De Arazati",
+        "zip_code": "80300"
+    },
+    {
+        "name": "Colonia Delta",
+        "zip_code": "80300"
+    },
+    {
+        "name": "Picada Gambetta",
+        "zip_code": "80300"
+    },
+    {
+        "name": "Estacion Rodriguez",
+        "zip_code": "80400"
+    },
+    {
+        "name": "Rincon De La Torre",
+        "zip_code": "80400"
+    },
+    {
+        "name": "Tropezon",
+        "zip_code": "80400"
+    },
+    {
+        "name": "La Cuchilla",
+        "zip_code": "80400"
+    },
+    {
+        "name": "Cuchilla Del Vichadero",
+        "zip_code": "80400"
+    },
+    {
+        "name": "Cagancha",
+        "zip_code": "80400"
+    },
+    {
+        "name": "Delta El Tigre",
+        "zip_code": "80500"
+    },
+    {
+        "name": "Ceramicas Del Sur",
+        "zip_code": "80500"
+    },
+    {
+        "name": "Santa Monica",
+        "zip_code": "80500"
+    },
+    {
+        "name": "San Fernando",
+        "zip_code": "80500"
+    },
+    {
+        "name": "Ciudad Del Plata",
+        "zip_code": "80500"
+    },
+    {
+        "name": "Playa Pascual",
+        "zip_code": "80500"
+    },
+    {
+        "name": "Autodromo Nacional",
+        "zip_code": "80500"
+    },
+    {
+        "name": "Penino",
+        "zip_code": "80500"
+    },
+    {
+        "name": "San Fernando Chico",
+        "zip_code": "80500"
+    },
+    {
+        "name": "Villa Rives",
+        "zip_code": "80500"
+    },
+    {
+        "name": "Villa Olimpica",
+        "zip_code": "80500"
+    },
+    {
+        "name": "Monte Grande",
+        "zip_code": "80500"
+    },
+    {
+        "name": "Parque Postel",
+        "zip_code": "80500"
+    },
+    {
+        "name": "Parque Postel Cnel. Adrian Medina",
+        "zip_code": "80500"
+    },
+    {
+        "name": "Tropas Viejas",
+        "zip_code": "80500"
+    },
+    {
+        "name": "Colonia Wilson",
+        "zip_code": "80500"
+    },
+    {
+        "name": "Safici",
+        "zip_code": "80500"
+    },
+    {
+        "name": "Rincon De La Bolsa",
+        "zip_code": "80500"
+    },
+    {
+        "name": "Paso Del Guaycuru",
+        "zip_code": "85000"
+    },
+    {
+        "name": "Guaycuru",
+        "zip_code": "85000"
+    },
+    {
+        "name": "Rincon De Albano",
+        "zip_code": "90200"
+    },
+    {
+        "name": "Capurro",
+        "zip_code": "90200"
+    },
+    {
+        "name": "18 De Julio",
+        "zip_code": "90200"
+    },
+    {
+        "name": "Paso Belastiqui",
+        "zip_code": "90200"
+    },
+    {
+        "name": "Colonia Dr. Bernardo Etchepare",
+        "zip_code": "90200"
+    },
+    {
+        "name": "Ituzaingo",
+        "zip_code": "90200"
+    },
+    {
+        "name": "Perseverano",
+        "zip_code": "70100"
+    },
+    {
+        "name": "Lares",
+        "zip_code": "70100"
+    },
+    {
+        "name": "Castillos",
+        "zip_code": "70100"
+    },
+    {
+        "name": "Puntas De Arenales",
+        "zip_code": "70700"
+    },
+    {
+        "name": "Villa Alejandrina",
+        "zip_code": "70700"
+    },
+    {
+        "name": "Agraciada",
+        "zip_code": "70700"
+    },
+    {
+        "name": "Santa Blanca",
+        "zip_code": "75000"
+    },
+    {
+        "name": "El Tala",
+        "zip_code": "75000"
+    },
+    {
+        "name": "San Dios",
+        "zip_code": "75000"
+    },
+    {
+        "name": "Villa Darwin",
+        "zip_code": "75000"
+    },
+    {
+        "name": "Chacras De Mercedes",
+        "zip_code": "75000"
+    },
+    {
+        "name": "Cololo",
+        "zip_code": "75000"
+    },
+    {
+        "name": "Asencio",
+        "zip_code": "75000"
+    },
+    {
+        "name": "Progreso",
+        "zip_code": "75000"
+    },
+    {
+        "name": "Bequelo",
+        "zip_code": "75000"
+    },
+    {
+        "name": "Unidad Cooperaria No",
+        "zip_code": "75000"
+    },
+    {
+        "name": "Palmar",
+        "zip_code": "75000"
+    },
+    {
+        "name": "Cerro Vera",
+        "zip_code": "75000"
+    },
+    {
+        "name": "Cerro Alegre",
+        "zip_code": "75000"
+    },
+    {
+        "name": "Sarandi Chico",
+        "zip_code": "75000"
+    },
+    {
+        "name": "Grito De Asencio",
+        "zip_code": "75000"
+    },
+    {
+        "name": "La Tabla",
+        "zip_code": "75000"
+    },
+    {
+        "name": "Rincon De Cololo",
+        "zip_code": "75000"
+    },
+    {
+        "name": "Colonia Diaz",
+        "zip_code": "75000"
+    },
+    {
+        "name": "Azotea De Vera",
+        "zip_code": "75000"
+    },
+    {
+        "name": "Mercedes",
+        "zip_code": "75000"
+    },
+    {
+        "name": "Rincon De Ruiz",
+        "zip_code": "75100"
+    },
+    {
+        "name": "Paso De La Arena",
+        "zip_code": "75100"
+    },
+    {
+        "name": "La Concordia",
+        "zip_code": "75100"
+    },
+    {
+        "name": "Palo Solo",
+        "zip_code": "75100"
+    },
+    {
+        "name": "Chacras De Dolores",
+        "zip_code": "75100"
+    },
+    {
+        "name": "Espinillo",
+        "zip_code": "75100"
+    },
+    {
+        "name": "Maciel",
+        "zip_code": "75100"
+    },
+    {
+        "name": "Paso De Ramos",
+        "zip_code": "75100"
+    },
+    {
+        "name": "Costa Del Aguila",
+        "zip_code": "75100"
+    },
+    {
+        "name": "Villa Soriano",
+        "zip_code": "75100"
+    },
+    {
+        "name": "Las Maulas",
+        "zip_code": "75100"
+    },
+    {
+        "name": "Rincon De Cañada Nieto",
+        "zip_code": "75100"
+    },
+    {
+        "name": "Colonia Concordia",
+        "zip_code": "75100"
+    },
+    {
+        "name": "Corralito",
+        "zip_code": "75100"
+    },
+    {
+        "name": "Cañada Magallanes",
+        "zip_code": "75100"
+    },
+    {
+        "name": "Bizcocho",
+        "zip_code": "75100"
+    },
+    {
+        "name": "La Palma",
+        "zip_code": "75100"
+    },
+    {
+        "name": "Cuatro Bocas De Buena Vista",
+        "zip_code": "75100"
+    },
+    {
+        "name": "Buena Vista",
+        "zip_code": "75100"
+    },
+    {
+        "name": "La Loma",
+        "zip_code": "75100"
+    },
+    {
+        "name": "Cañada Paraguaya",
+        "zip_code": "75100"
+    },
+    {
+        "name": "Arenal Chico",
+        "zip_code": "75100"
+    },
+    {
+        "name": "Dolores",
+        "zip_code": "75100"
+    },
+    {
+        "name": "Cañada Nieto",
+        "zip_code": "75100"
+    },
+    {
+        "name": "Puntas Del Tala",
+        "zip_code": "75200"
+    },
+    {
+        "name": "Cardona",
+        "zip_code": "75200"
+    },
+    {
+        "name": "Arroyo Grande",
+        "zip_code": "75200"
+    },
+    {
+        "name": "Cuchilla Del Perdido",
+        "zip_code": "75200"
+    },
+    {
+        "name": "Colonia Larrañaga",
+        "zip_code": "75200"
+    },
+    {
+        "name": "Monzon",
+        "zip_code": "75200"
+    },
+    {
+        "name": "Colonia Uruguaya",
+        "zip_code": "75200"
+    },
+    {
+        "name": "Lata Del Perdido",
+        "zip_code": "75200"
+    },
+    {
+        "name": "Bajos Del Perdido",
+        "zip_code": "75200"
+    },
+    {
+        "name": "La Laguna",
+        "zip_code": "75200"
+    },
+    {
+        "name": "Cueva Del Tigre",
+        "zip_code": "75200"
+    },
+    {
+        "name": "Puntas De San Salvador",
+        "zip_code": "75200"
+    },
+    {
+        "name": "Egaña",
+        "zip_code": "75200"
+    },
+    {
+        "name": "Colonia Santa Clara",
+        "zip_code": "75200"
+    },
+    {
+        "name": "Risso",
+        "zip_code": "75200"
+    },
+    {
+        "name": "Duraznito",
+        "zip_code": "75200"
+    },
+    {
+        "name": "Costas Del Perdido",
+        "zip_code": "75200"
+    },
+    {
+        "name": "Altos Del Perdido",
+        "zip_code": "75200"
+    },
+    {
+        "name": "Santa Catalina",
+        "zip_code": "75300"
+    },
+    {
+        "name": "Arroyo Del Medio",
+        "zip_code": "75300"
+    },
+    {
+        "name": "Zanja Honda",
+        "zip_code": "75300"
+    },
+    {
+        "name": "Puntas De Durazno",
+        "zip_code": "75400"
+    },
+    {
+        "name": "San Martin",
+        "zip_code": "75400"
+    },
+    {
+        "name": "Parada Suarez",
+        "zip_code": "75400"
+    },
+    {
+        "name": "Jose Enrique Rodo",
+        "zip_code": "75400"
+    },
+    {
+        "name": "Cuchilla Del Corralito",
+        "zip_code": "75400"
+    },
+    {
+        "name": "Coquimbo",
+        "zip_code": "75500"
+    },
+    {
+        "name": "Palmitas",
+        "zip_code": "75500"
+    },
+    {
+        "name": "Olivera",
+        "zip_code": "75500"
+    },
+    {
+        "name": "Garula",
+        "zip_code": "75500"
+    },
+    {
+        "name": "El Aguila",
+        "zip_code": "75500"
+    },
+    {
+        "name": "Pedro Chico",
+        "zip_code": "75500"
+    },
+    {
+        "name": "Once Cerros",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Punta De Carretera",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Los Rosas",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Valle Eden",
+        "zip_code": "45000"
+    },
+    {
+        "name": "La Bolsa",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Villa Ansina",
+        "zip_code": "45000"
+    },
+    {
+        "name": "La Aldea",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Rincon De La Aldea",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Cuchilla De La Palma",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Tres Guitarras",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Cerro Del Arbolito",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Picada De Cuello",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Tierras Coloradas",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Puntas De Cinco Sauces",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Barrio Lopez",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Cerro Batovi",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Frigorifico Modelo",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Las Pajas",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Paso De Las Flores",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Tacuarembo Chico",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Pampa",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Barrio Santangelo",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Las Toscas De Caraguata",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Ataque",
+        "zip_code": "45000"
+    },
+    {
+        "name": "La Palma",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Cruz De Los Caminos",
+        "zip_code": "45000"
+    },
+    {
+        "name": "La Hilera",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Montevideo Chico",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Bañado De Rocha",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Lambare",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Cerro De Pastoreo",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Los Garcia",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Paso Del Cerro",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Minuano",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Colman",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Achar",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Laureles",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Los Feos",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Rincon De La Laguna",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Rincon De La Bolsa",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Cerro De Pereira",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Las Chircas",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Pueblo De Arriba",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Cañas",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Rivera Chico",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Rincon De Los Machado",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Paso De Ceferino",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Zapara",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Paso De Las Carretas",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Paso Bonilla",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Pueblo Del Barro",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Rincon De Giloca",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Cuchilla De La Casa De Piedra",
+        "zip_code": "45000"
+    },
+    {
+        "name": "San Joaquin",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Rincon De Zamora",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Coyo Martinez",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Barrio La Matutina",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Sauce Solo Del Rio Negro",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Cuchilla De Laureles",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Clavijo",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Bañado De Cañas",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Laura",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Costas De Tres Cruces",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Cinco Sauces",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Costas De Caraguata",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Paso Livindo",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Turupi",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Paso Hondo",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Paso De Los Novillos",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Caraguata Al Norte",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Barrio Libertad",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Los Malavares",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Paso Del Medio",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Tacuarembo",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Paso De Perez",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Arroyo Del Medio",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Rincon De Pereira",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Barrio Torres",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Pueblo Clavijo",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Cerros De Clara",
+        "zip_code": "45000"
+    },
+    {
+        "name": "El Empalme",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Paso Victor",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Los Semper",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Charata",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Los Ortices",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Los Cuadrados",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Balneario Ipora",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Rincon De Freitas",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Curtina",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Larrayos",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Paso De Las Toscas",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Los Rosanos",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Cuchilla Del Ombu",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Blanquillos",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Sauce Solo",
+        "zip_code": "45000"
+    },
+    {
+        "name": "La Pedrera",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Sauce De Batovi",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Clara",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Martinote",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Las Arenas",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Heriberto",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Los Coitinhos",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Zapucay",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Los Gomez",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Zambullon",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Los Furtados",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Los Vazquez",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Sauce De Tranqueras",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Los Rodriguez",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Chamberlain",
+        "zip_code": "45100"
+    },
+    {
+        "name": "Cardoso",
+        "zip_code": "45100"
+    },
+    {
+        "name": "Cardozo Chico",
+        "zip_code": "45100"
+    },
+    {
+        "name": "Churchill",
+        "zip_code": "45100"
+    },
+    {
+        "name": "Paso De Los Toros",
+        "zip_code": "45100"
+    },
+    {
+        "name": "Estacion Menendez",
+        "zip_code": "45100"
+    },
+    {
+        "name": "Cuchilla De Peralta",
+        "zip_code": "45100"
+    },
+    {
+        "name": "Rincon Del Bonete",
+        "zip_code": "45100"
+    },
+    {
+        "name": "Los Cerros",
+        "zip_code": "45200"
+    },
+    {
+        "name": "Los Laureles",
+        "zip_code": "45200"
+    },
+    {
+        "name": "San Benito",
+        "zip_code": "45200"
+    },
+    {
+        "name": "Carpinteria",
+        "zip_code": "45200"
+    },
+    {
+        "name": "San Gregorio De Polanco",
+        "zip_code": "45200"
+    },
+    {
+        "name": "Cerro Chato",
+        "zip_code": "45200"
+    },
+    {
+        "name": "Puntas De Laureles",
+        "zip_code": "45200"
+    },
+    {
+        "name": "Cañada Del Estado",
+        "zip_code": "45200"
+    },
+    {
+        "name": "Panteon",
+        "zip_code": "30300"
+    },
+    {
+        "name": "Paso Del Sauce",
+        "zip_code": "30300"
+    },
+    {
+        "name": "Sauce De Corrales",
+        "zip_code": "30300"
+    },
+    {
+        "name": "El Bellaco",
+        "zip_code": "30300"
+    },
+    {
+        "name": "Corrales De Cebollati",
+        "zip_code": "30300"
+    },
+    {
+        "name": "Maria Albina",
+        "zip_code": "30300"
+    },
+    {
+        "name": "Bañado De Oro",
+        "zip_code": "31100"
+    },
+    {
+        "name": "Arrocera Los Ceibos",
+        "zip_code": "31100"
+    },
+    {
+        "name": "Vergara",
+        "zip_code": "31100"
+    },
+    {
+        "name": "Costas Del Sarandi",
+        "zip_code": "31100"
+    },
+    {
+        "name": "Paso De Piriz",
+        "zip_code": "31100"
+    },
+    {
+        "name": "Siete Casas",
+        "zip_code": "31100"
+    },
+    {
+        "name": "Arrozal Treinta Y Tres",
+        "zip_code": "31100"
+    },
+    {
+        "name": "Arrocera Las Palmas",
+        "zip_code": "31100"
+    },
+    {
+        "name": "Cuchilla De Olmos",
+        "zip_code": "31100"
+    },
+    {
+        "name": "Arrocera Mini",
+        "zip_code": "31100"
+    },
+    {
+        "name": "Arrocera Zapata",
+        "zip_code": "31100"
+    },
+    {
+        "name": "Arrocera El Tigre",
+        "zip_code": "31100"
+    },
+    {
+        "name": "Cañada De Las Piedras",
+        "zip_code": "33000"
+    },
+    {
+        "name": "Paso Ancho",
+        "zip_code": "33000"
+    },
+    {
+        "name": "Paso De La Laguna",
+        "zip_code": "33000"
+    },
+    {
+        "name": "Verde Alto",
+        "zip_code": "33000"
+    },
+    {
+        "name": "Villa Passano",
+        "zip_code": "33000"
+    },
+    {
+        "name": "El Catete",
+        "zip_code": "33000"
+    },
+    {
+        "name": "Villa Sara",
+        "zip_code": "33000"
+    },
+    {
+        "name": "Mendizabal",
+        "zip_code": "33000"
+    },
+    {
+        "name": "La Calavera",
+        "zip_code": "33000"
+    },
+    {
+        "name": "Las Chacras",
+        "zip_code": "33000"
+    },
+    {
+        "name": "Julio Maria Sanz",
+        "zip_code": "33000"
+    },
+    {
+        "name": "Cerro Pelado",
+        "zip_code": "33000"
+    },
+    {
+        "name": "Acosta",
+        "zip_code": "33000"
+    },
+    {
+        "name": "Treinta Y Tres",
+        "zip_code": "33000"
+    },
+    {
+        "name": "Cañada Chica",
+        "zip_code": "33000"
+    },
+    {
+        "name": "Los Ceibos",
+        "zip_code": "33000"
+    },
+    {
+        "name": "La Calera",
+        "zip_code": "33000"
+    },
+    {
+        "name": "Avestruz Chico",
+        "zip_code": "33000"
+    },
+    {
+        "name": "Barrio Abreu",
+        "zip_code": "33000"
+    },
+    {
+        "name": "Lechiguana De Corrales",
+        "zip_code": "33000"
+    },
+    {
+        "name": "Maria Isabel",
+        "zip_code": "33000"
+    },
+    {
+        "name": "Yerbal Chico",
+        "zip_code": "33000"
+    },
+    {
+        "name": "Yerbalito",
+        "zip_code": "33000"
+    },
+    {
+        "name": "Arrocera Santa Fe",
+        "zip_code": "33000"
+    },
+    {
+        "name": "Gral. Enrique Martinez",
+        "zip_code": "33000"
+    },
+    {
+        "name": "Rincon",
+        "zip_code": "33000"
+    },
+    {
+        "name": "Ejido De Treinta Y Tres",
+        "zip_code": "33000"
+    },
+    {
+        "name": "Cipa Olimar",
+        "zip_code": "33000"
+    },
+    {
+        "name": "Sierra Del Yerbal",
+        "zip_code": "33000"
+    },
+    {
+        "name": "Puntas De Los Ceibos",
+        "zip_code": "33000"
+    },
+    {
+        "name": "Higuerones",
+        "zip_code": "33000"
+    },
+    {
+        "name": "Costas Del Arroyo Malo",
+        "zip_code": "33000"
+    },
+    {
+        "name": "Puntas Del Oro",
+        "zip_code": "33000"
+    },
+    {
+        "name": "Rincon De Gadea",
+        "zip_code": "33000"
+    },
+    {
+        "name": "Cuchilla De Dionisio",
+        "zip_code": "33000"
+    },
+    {
+        "name": "Arrocera Procipa",
+        "zip_code": "33000"
+    },
+    {
+        "name": "Arrocera Bonomo",
+        "zip_code": "33000"
+    },
+    {
+        "name": "Rincon De Iguini",
+        "zip_code": "33000"
+    },
+    {
+        "name": "Poblado Alonzo",
+        "zip_code": "33000"
+    },
+    {
+        "name": "La Lata",
+        "zip_code": "33000"
+    },
+    {
+        "name": "Cañada Del Sauce",
+        "zip_code": "33000"
+    },
+    {
+        "name": "Arrayanes De Corral De Cebollati",
+        "zip_code": "33000"
+    },
+    {
+        "name": "Rincon De Quintana",
+        "zip_code": "33000"
+    },
+    {
+        "name": "Palo A Pique",
+        "zip_code": "33000"
+    },
+    {
+        "name": "Mate Dulce",
+        "zip_code": "33000"
+    },
+    {
+        "name": "Cerros De Amaro",
+        "zip_code": "33000"
+    },
+    {
+        "name": "Rincon De Los Francos",
+        "zip_code": "33000"
+    },
+    {
+        "name": "Puntas De Leoncho",
+        "zip_code": "33000"
+    },
+    {
+        "name": "Arrayanes De Cebollati",
+        "zip_code": "33000"
+    },
+    {
+        "name": "Puntas De Quebracho",
+        "zip_code": "33000"
+    },
+    {
+        "name": "Molles De Olimar",
+        "zip_code": "33000"
+    },
+    {
+        "name": "Arrocera Los Teros",
+        "zip_code": "33000"
+    },
+    {
+        "name": "Cipa Cebollati",
+        "zip_code": "33000"
+    },
+    {
+        "name": "Cipa Secador",
+        "zip_code": "33000"
+    },
+    {
+        "name": "Puntas Del Parao",
+        "zip_code": "33000"
+    },
+    {
+        "name": "Olimar Grande",
+        "zip_code": "33000"
+    },
+    {
+        "name": "Paso De Averias",
+        "zip_code": "35100"
+    },
+    {
+        "name": "Valentines",
+        "zip_code": "35100"
+    },
+    {
+        "name": "Paso De La Atahona",
+        "zip_code": "35100"
+    },
+    {
+        "name": "Noques De Olimar Chico",
+        "zip_code": "35100"
+    },
+    {
+        "name": "Rincon De Urtubey",
+        "zip_code": "35100"
+    },
+    {
+        "name": "Las Pavas",
+        "zip_code": "35100"
+    },
+    {
+        "name": "El Carmen",
+        "zip_code": "35200"
+    },
+    {
+        "name": "Cerro Chato",
+        "zip_code": "35200"
+    },
+    {
+        "name": "Santa Clara De Olimar",
+        "zip_code": "35300"
+    },
+    {
+        "name": "Arrocera Rincon",
+        "zip_code": "37100"
+    },
+    {
+        "name": "Arrocera La Querencia",
+        "zip_code": "37100"
+    },
+    {
+        "name": "Costas De Tacuari",
+        "zip_code": "37100"
+    },
+    {
+        "name": "Arrocera La Catumbera",
+        "zip_code": "37100"
+    },
+    {
+        "name": "Arrocera San Fernando",
+        "zip_code": "37100"
+    }
+]

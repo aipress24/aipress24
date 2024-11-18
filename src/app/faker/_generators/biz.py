@@ -28,10 +28,8 @@ class EditorialProductGenerator(BaseGenerator):
         # cast to work around a mypy bug
         product.status = cast(PublicationStatus, random.choice(list(PublicationStatus)))
 
-        wikinews_d = random_wikinews_article()
-        product.title = wikinews_d["title"]
-
-        product.content = wikinews_d["html"]
+        product.title = self.text_faker.text(1)
+        product.content = self.text_faker.text(5)
 
         product.description = self.text_faker.text(2)
         product.image_url = random.choice(POST_IMAGES)

@@ -1,0 +1,1386 @@
+[
+    {
+        "name": "Valparaíso",
+        "zip_code": "2340000"
+    },
+    {
+        "name": "Casablanca",
+        "zip_code": "2480000"
+    },
+    {
+        "name": "Quintero",
+        "zip_code": "2490000"
+    },
+    {
+        "name": "Puchuncaví",
+        "zip_code": "2500000"
+    },
+    {
+        "name": "Concón",
+        "zip_code": "2510000"
+    },
+    {
+        "name": "Viña Del Mar",
+        "zip_code": "2520000"
+    },
+    {
+        "name": "Juan Fernández",
+        "zip_code": "2600000"
+    },
+    {
+        "name": "Isla De Pascua",
+        "zip_code": "2770000"
+    },
+    {
+        "name": "Los Andes",
+        "zip_code": "2100000"
+    },
+    {
+        "name": "San Esteban",
+        "zip_code": "2120000"
+    },
+    {
+        "name": "Calle Larga",
+        "zip_code": "2130000"
+    },
+    {
+        "name": "Rinconada",
+        "zip_code": "2140000"
+    },
+    {
+        "name": "La Ligua",
+        "zip_code": "2030000"
+    },
+    {
+        "name": "Petorca",
+        "zip_code": "2040000"
+    },
+    {
+        "name": "Cabildo",
+        "zip_code": "2050000"
+    },
+    {
+        "name": "Zapallar",
+        "zip_code": "2060000"
+    },
+    {
+        "name": "Papudo",
+        "zip_code": "2070000"
+    },
+    {
+        "name": "Quillota",
+        "zip_code": "2260000"
+    },
+    {
+        "name": "La Cruz",
+        "zip_code": "2280000"
+    },
+    {
+        "name": "Calera",
+        "zip_code": "2290000"
+    },
+    {
+        "name": "Nogales",
+        "zip_code": "2300000"
+    },
+    {
+        "name": "Hijuelas",
+        "zip_code": "2310000"
+    },
+    {
+        "name": "San Antonio",
+        "zip_code": "2660000"
+    },
+    {
+        "name": "Cartagena",
+        "zip_code": "2680000"
+    },
+    {
+        "name": "El Tabo",
+        "zip_code": "2690000"
+    },
+    {
+        "name": "El Quisco",
+        "zip_code": "2700000"
+    },
+    {
+        "name": "Algarrobo",
+        "zip_code": "2710000"
+    },
+    {
+        "name": "Santo Domingo",
+        "zip_code": "2720000"
+    },
+    {
+        "name": "San Felipe",
+        "zip_code": "2170000"
+    },
+    {
+        "name": "Putaendo",
+        "zip_code": "2190000"
+    },
+    {
+        "name": "Santa María",
+        "zip_code": "2200000"
+    },
+    {
+        "name": "Panquehue",
+        "zip_code": "2210000"
+    },
+    {
+        "name": "Llaillay",
+        "zip_code": "2220000"
+    },
+    {
+        "name": "Catemu",
+        "zip_code": "2230000"
+    },
+    {
+        "name": "Limache",
+        "zip_code": "2240000"
+    },
+    {
+        "name": "Olmué",
+        "zip_code": "2330000"
+    },
+    {
+        "name": "Quilpue",
+        "zip_code": "2430000"
+    },
+    {
+        "name": "Villa Alemana",
+        "zip_code": "6500000"
+    },
+    {
+        "name": "Coyhaique",
+        "zip_code": "5950000"
+    },
+    {
+        "name": "Lago Verde",
+        "zip_code": "5960000"
+    },
+    {
+        "name": "Aysén",
+        "zip_code": "6000000"
+    },
+    {
+        "name": "Cisnes",
+        "zip_code": "6010000"
+    },
+    {
+        "name": "Guaitecas",
+        "zip_code": "6020000"
+    },
+    {
+        "name": "Cochrane",
+        "zip_code": "6100000"
+    },
+    {
+        "name": "O’Higgins",
+        "zip_code": "6110000"
+    },
+    {
+        "name": "Tortel",
+        "zip_code": "6120000"
+    },
+    {
+        "name": "Chile Chico",
+        "zip_code": "6050000"
+    },
+    {
+        "name": "Río Ibanez",
+        "zip_code": "6060000"
+    },
+    {
+        "name": "Antofagasta",
+        "zip_code": "1240000"
+    },
+    {
+        "name": "Taltal",
+        "zip_code": "1300000"
+    },
+    {
+        "name": "Mejillones",
+        "zip_code": "1310000"
+    },
+    {
+        "name": "Sierra Gorda",
+        "zip_code": "1320000"
+    },
+    {
+        "name": "Calama",
+        "zip_code": "1390000"
+    },
+    {
+        "name": "San Pedro De Atacama",
+        "zip_code": "1410000"
+    },
+    {
+        "name": "Ollague",
+        "zip_code": "1420000"
+    },
+    {
+        "name": "Tocopilla",
+        "zip_code": "1340000"
+    },
+    {
+        "name": "María Elena",
+        "zip_code": "1360000"
+    },
+    {
+        "name": "Temuco",
+        "zip_code": "4780000"
+    },
+    {
+        "name": "Padre Las Casas",
+        "zip_code": "4850000"
+    },
+    {
+        "name": "Lautaro",
+        "zip_code": "4860000"
+    },
+    {
+        "name": "Perquenco",
+        "zip_code": "4870000"
+    },
+    {
+        "name": "Vilcún",
+        "zip_code": "4880000"
+    },
+    {
+        "name": "Cunco",
+        "zip_code": "4890000"
+    },
+    {
+        "name": "Melipeuco",
+        "zip_code": "4900000"
+    },
+    {
+        "name": "Curarrehue",
+        "zip_code": "4910000"
+    },
+    {
+        "name": "Pucón",
+        "zip_code": "4920000"
+    },
+    {
+        "name": "Villarrica",
+        "zip_code": "4930000"
+    },
+    {
+        "name": "Freire",
+        "zip_code": "4940000"
+    },
+    {
+        "name": "Pitrufquén",
+        "zip_code": "4950000"
+    },
+    {
+        "name": "Gorbea",
+        "zip_code": "4960000"
+    },
+    {
+        "name": "Loncoche",
+        "zip_code": "4970000"
+    },
+    {
+        "name": "Toltén",
+        "zip_code": "4980000"
+    },
+    {
+        "name": "Teodoro Schmidt",
+        "zip_code": "4990000"
+    },
+    {
+        "name": "Saavedra",
+        "zip_code": "5000000"
+    },
+    {
+        "name": "Carahue",
+        "zip_code": "5010000"
+    },
+    {
+        "name": "Nueva Imperial",
+        "zip_code": "5020000"
+    },
+    {
+        "name": "Galvarino",
+        "zip_code": "5030000"
+    },
+    {
+        "name": "Chol Chol",
+        "zip_code": "5040000"
+    },
+    {
+        "name": "Angol",
+        "zip_code": "4650000"
+    },
+    {
+        "name": "Renaico",
+        "zip_code": "4670000"
+    },
+    {
+        "name": "Collipulli",
+        "zip_code": "4680000"
+    },
+    {
+        "name": "Lonquimay",
+        "zip_code": "4690000"
+    },
+    {
+        "name": "Curacautín",
+        "zip_code": "4700000"
+    },
+    {
+        "name": "Ercilla",
+        "zip_code": "4710000"
+    },
+    {
+        "name": "Victoria",
+        "zip_code": "4720000"
+    },
+    {
+        "name": "Traiguén",
+        "zip_code": "4730000"
+    },
+    {
+        "name": "Lumaco",
+        "zip_code": "4740000"
+    },
+    {
+        "name": "Purén",
+        "zip_code": "4750000"
+    },
+    {
+        "name": "Los Sauces",
+        "zip_code": "4760000"
+    },
+    {
+        "name": "Copiapó",
+        "zip_code": "1530000"
+    },
+    {
+        "name": "Caldera",
+        "zip_code": "1570000"
+    },
+    {
+        "name": "Tierra Amarilla",
+        "zip_code": "1580000"
+    },
+    {
+        "name": "Chañaral",
+        "zip_code": "1490000"
+    },
+    {
+        "name": "Diego De Almagro",
+        "zip_code": "1500000"
+    },
+    {
+        "name": "Vallenar",
+        "zip_code": "1610000"
+    },
+    {
+        "name": "Freirina",
+        "zip_code": "1630000"
+    },
+    {
+        "name": "Huasco",
+        "zip_code": "1640000"
+    },
+    {
+        "name": "Alto Del Carmen",
+        "zip_code": "1650000"
+    },
+    {
+        "name": "Concepción",
+        "zip_code": "4030000"
+    },
+    {
+        "name": "Chiguayante",
+        "zip_code": "4100000"
+    },
+    {
+        "name": "San Pedro De La Paz",
+        "zip_code": "4130000"
+    },
+    {
+        "name": "Penco",
+        "zip_code": "4150000"
+    },
+    {
+        "name": "Tomé",
+        "zip_code": "4160000"
+    },
+    {
+        "name": "Florida",
+        "zip_code": "4170000"
+    },
+    {
+        "name": "Hualqui",
+        "zip_code": "4180000"
+    },
+    {
+        "name": "Coronel",
+        "zip_code": "4190000"
+    },
+    {
+        "name": "Lota",
+        "zip_code": "4210000"
+    },
+    {
+        "name": "Santa Juana",
+        "zip_code": "4230000"
+    },
+    {
+        "name": "Talcahuano",
+        "zip_code": "4260000"
+    },
+    {
+        "name": "Hualpén",
+        "zip_code": "4600000"
+    },
+    {
+        "name": "Lebu",
+        "zip_code": "4350000"
+    },
+    {
+        "name": "Arauco",
+        "zip_code": "4360000"
+    },
+    {
+        "name": "Curanilahue",
+        "zip_code": "4370000"
+    },
+    {
+        "name": "Los Alamos",
+        "zip_code": "4380000"
+    },
+    {
+        "name": "Canete",
+        "zip_code": "4390000"
+    },
+    {
+        "name": "Contulmo",
+        "zip_code": "4400000"
+    },
+    {
+        "name": "Tirua",
+        "zip_code": "4410000"
+    },
+    {
+        "name": "Los Angeles",
+        "zip_code": "4440000"
+    },
+    {
+        "name": "Cabrero",
+        "zip_code": "4470000"
+    },
+    {
+        "name": "Tucapel",
+        "zip_code": "4480000"
+    },
+    {
+        "name": "Antuco",
+        "zip_code": "4490000"
+    },
+    {
+        "name": "Quilleco",
+        "zip_code": "4500000"
+    },
+    {
+        "name": "Santa Bárbara",
+        "zip_code": "4510000"
+    },
+    {
+        "name": "Quilaco",
+        "zip_code": "4520000"
+    },
+    {
+        "name": "Mulchén",
+        "zip_code": "4530000"
+    },
+    {
+        "name": "Negrete",
+        "zip_code": "4540000"
+    },
+    {
+        "name": "Nacimiento",
+        "zip_code": "4550000"
+    },
+    {
+        "name": "Laja",
+        "zip_code": "4560000"
+    },
+    {
+        "name": "San Rosendo",
+        "zip_code": "4570000"
+    },
+    {
+        "name": "Yumbel",
+        "zip_code": "4580000"
+    },
+    {
+        "name": "Alto Biobío",
+        "zip_code": "4590000"
+    },
+    {
+        "name": "Chillán",
+        "zip_code": "3780000"
+    },
+    {
+        "name": "Chillán Viejo",
+        "zip_code": "3820000"
+    },
+    {
+        "name": "San Carlos",
+        "zip_code": "3840000"
+    },
+    {
+        "name": "Niquén",
+        "zip_code": "3850000"
+    },
+    {
+        "name": "San Fabián",
+        "zip_code": "3860000"
+    },
+    {
+        "name": "Coihueco",
+        "zip_code": "3870000"
+    },
+    {
+        "name": "Pinto",
+        "zip_code": "3880000"
+    },
+    {
+        "name": "San Ignacio",
+        "zip_code": "3890000"
+    },
+    {
+        "name": "El Carmen",
+        "zip_code": "3900000"
+    },
+    {
+        "name": "Pemuco",
+        "zip_code": "3910000"
+    },
+    {
+        "name": "Yungay",
+        "zip_code": "3920000"
+    },
+    {
+        "name": "Bulnes",
+        "zip_code": "3930000"
+    },
+    {
+        "name": "Quillón",
+        "zip_code": "3940000"
+    },
+    {
+        "name": "Ranquil",
+        "zip_code": "3950000"
+    },
+    {
+        "name": "Portezuelo",
+        "zip_code": "3960000"
+    },
+    {
+        "name": "Coelemu",
+        "zip_code": "3970000"
+    },
+    {
+        "name": "Treguaco",
+        "zip_code": "3980000"
+    },
+    {
+        "name": "Cobquecura",
+        "zip_code": "3990000"
+    },
+    {
+        "name": "Quirihue",
+        "zip_code": "4000000"
+    },
+    {
+        "name": "Ninhue",
+        "zip_code": "4010000"
+    },
+    {
+        "name": "San Nicolás",
+        "zip_code": "4020000"
+    },
+    {
+        "name": "La Serena",
+        "zip_code": "1700000"
+    },
+    {
+        "name": "La Higuera",
+        "zip_code": "1740000"
+    },
+    {
+        "name": "Andacollo",
+        "zip_code": "1750000"
+    },
+    {
+        "name": "Vicuña",
+        "zip_code": "1760000"
+    },
+    {
+        "name": "Paiguano",
+        "zip_code": "1770000"
+    },
+    {
+        "name": "Coquimbo",
+        "zip_code": "1780000"
+    },
+    {
+        "name": "Illapel",
+        "zip_code": "1930000"
+    },
+    {
+        "name": "Los Vilos",
+        "zip_code": "1940000"
+    },
+    {
+        "name": "Salamanca",
+        "zip_code": "1950000"
+    },
+    {
+        "name": "Canela",
+        "zip_code": "1960000"
+    },
+    {
+        "name": "Ovalle",
+        "zip_code": "1840000"
+    },
+    {
+        "name": "Río Hurtado",
+        "zip_code": "1870000"
+    },
+    {
+        "name": "Monte Patria",
+        "zip_code": "1880000"
+    },
+    {
+        "name": "Combarbalá",
+        "zip_code": "1890000"
+    },
+    {
+        "name": "Punitaqui",
+        "zip_code": "1900000"
+    },
+    {
+        "name": "Rancagua",
+        "zip_code": "2820000"
+    },
+    {
+        "name": "Graneros",
+        "zip_code": "2880000"
+    },
+    {
+        "name": "Mostazal",
+        "zip_code": "2890000"
+    },
+    {
+        "name": "Codegua",
+        "zip_code": "2900000"
+    },
+    {
+        "name": "Machalí",
+        "zip_code": "2910000"
+    },
+    {
+        "name": "Olivar",
+        "zip_code": "2920000"
+    },
+    {
+        "name": "Requinoa",
+        "zip_code": "2930000"
+    },
+    {
+        "name": "Rengo",
+        "zip_code": "2940000"
+    },
+    {
+        "name": "Malloa",
+        "zip_code": "2950000"
+    },
+    {
+        "name": "Quinta De Tilcoco",
+        "zip_code": "2960000"
+    },
+    {
+        "name": "San Vicente",
+        "zip_code": "2970000"
+    },
+    {
+        "name": "Pichidegua",
+        "zip_code": "2980000"
+    },
+    {
+        "name": "Peumo",
+        "zip_code": "2990000"
+    },
+    {
+        "name": "Coltauco",
+        "zip_code": "3000000"
+    },
+    {
+        "name": "Coinco",
+        "zip_code": "3010000"
+    },
+    {
+        "name": "Doñihue",
+        "zip_code": "3020000"
+    },
+    {
+        "name": "Las Cabras",
+        "zip_code": "3030000"
+    },
+    {
+        "name": "Pichilemu",
+        "zip_code": "3220000"
+    },
+    {
+        "name": "Navidad",
+        "zip_code": "3230000"
+    },
+    {
+        "name": "Litueche",
+        "zip_code": "3240000"
+    },
+    {
+        "name": "La Estrella",
+        "zip_code": "3250000"
+    },
+    {
+        "name": "Marchihue",
+        "zip_code": "3260000"
+    },
+    {
+        "name": "Paredones",
+        "zip_code": "3270000"
+    },
+    {
+        "name": "San Fernando",
+        "zip_code": "3070000"
+    },
+    {
+        "name": "Chimbarongo",
+        "zip_code": "3090000"
+    },
+    {
+        "name": "Placilla",
+        "zip_code": "3100000"
+    },
+    {
+        "name": "Nancagua",
+        "zip_code": "3110000"
+    },
+    {
+        "name": "Chépica",
+        "zip_code": "3120000"
+    },
+    {
+        "name": "Santa Cruz",
+        "zip_code": "3130000"
+    },
+    {
+        "name": "Lolol",
+        "zip_code": "3140000"
+    },
+    {
+        "name": "Pumanque",
+        "zip_code": "3150000"
+    },
+    {
+        "name": "Palmilla",
+        "zip_code": "3160000"
+    },
+    {
+        "name": "Peralillo",
+        "zip_code": "3170000"
+    },
+    {
+        "name": "Punta Arenas",
+        "zip_code": "6200000"
+    },
+    {
+        "name": "Río Verde",
+        "zip_code": "6240000"
+    },
+    {
+        "name": "Laguna Blanca",
+        "zip_code": "6250000"
+    },
+    {
+        "name": "San Gregorio",
+        "zip_code": "6260000"
+    },
+    {
+        "name": "Cabo De Hornos",
+        "zip_code": "6350000"
+    },
+    {
+        "name": "Antártica",
+        "zip_code": "6360000"
+    },
+    {
+        "name": "Porvenir",
+        "zip_code": "6300000"
+    },
+    {
+        "name": "Primavera",
+        "zip_code": "6310000"
+    },
+    {
+        "name": "Timaukel",
+        "zip_code": "6320000"
+    },
+    {
+        "name": "Natales",
+        "zip_code": "6160000"
+    },
+    {
+        "name": "Torres Del Paine",
+        "zip_code": "6170000"
+    },
+    {
+        "name": "Talca",
+        "zip_code": "3460000"
+    },
+    {
+        "name": "San Rafael",
+        "zip_code": "3490000"
+    },
+    {
+        "name": "Pelarco",
+        "zip_code": "3500000"
+    },
+    {
+        "name": "Río Claro",
+        "zip_code": "3510000"
+    },
+    {
+        "name": "San Clemente",
+        "zip_code": "3520000"
+    },
+    {
+        "name": "Maule",
+        "zip_code": "3530000"
+    },
+    {
+        "name": "Empedrado",
+        "zip_code": "3540000"
+    },
+    {
+        "name": "Pencahue",
+        "zip_code": "3550000"
+    },
+    {
+        "name": "Constitución",
+        "zip_code": "3560000"
+    },
+    {
+        "name": "Curepto",
+        "zip_code": "3570000"
+    },
+    {
+        "name": "Cauquenes",
+        "zip_code": "3690000"
+    },
+    {
+        "name": "Pelluhue",
+        "zip_code": "3710000"
+    },
+    {
+        "name": "Chanco",
+        "zip_code": "3720000"
+    },
+    {
+        "name": "Curicó",
+        "zip_code": "3340000"
+    },
+    {
+        "name": "Teno",
+        "zip_code": "3360000"
+    },
+    {
+        "name": "Romeral",
+        "zip_code": "3370000"
+    },
+    {
+        "name": "Molina",
+        "zip_code": "3380000"
+    },
+    {
+        "name": "Sagrada Familia",
+        "zip_code": "3390000"
+    },
+    {
+        "name": "Hualañé",
+        "zip_code": "3400000"
+    },
+    {
+        "name": "Licantén",
+        "zip_code": "3410000"
+    },
+    {
+        "name": "Vichuquén",
+        "zip_code": "3420000"
+    },
+    {
+        "name": "Rauco",
+        "zip_code": "3430000"
+    },
+    {
+        "name": "Linares",
+        "zip_code": "3580000"
+    },
+    {
+        "name": "Yerbas Buenas",
+        "zip_code": "3600000"
+    },
+    {
+        "name": "Colbún",
+        "zip_code": "3610000"
+    },
+    {
+        "name": "Longaví",
+        "zip_code": "3620000"
+    },
+    {
+        "name": "Parral",
+        "zip_code": "3630000"
+    },
+    {
+        "name": "Retiro",
+        "zip_code": "3640000"
+    },
+    {
+        "name": "Villa Alegre",
+        "zip_code": "3650000"
+    },
+    {
+        "name": "San Javier",
+        "zip_code": "3660000"
+    },
+    {
+        "name": "Providencia",
+        "zip_code": "7500000"
+    },
+    {
+        "name": "Las Condes",
+        "zip_code": "7550000"
+    },
+    {
+        "name": "Vitacura",
+        "zip_code": "7630000"
+    },
+    {
+        "name": "Lo Barnechea",
+        "zip_code": "7690000"
+    },
+    {
+        "name": "Ñuñoa",
+        "zip_code": "7750000"
+    },
+    {
+        "name": "Macul",
+        "zip_code": "7810000"
+    },
+    {
+        "name": "La Reina",
+        "zip_code": "7850000"
+    },
+    {
+        "name": "Penalolén",
+        "zip_code": "7910000"
+    },
+    {
+        "name": "La Cisterna",
+        "zip_code": "7970000"
+    },
+    {
+        "name": "El Bosque",
+        "zip_code": "8010000"
+    },
+    {
+        "name": "La Florida",
+        "zip_code": "8240000"
+    },
+    {
+        "name": "Santiago",
+        "zip_code": "8320000"
+    },
+    {
+        "name": "Independencia",
+        "zip_code": "8380000"
+    },
+    {
+        "name": "Recoleta",
+        "zip_code": "8420000"
+    },
+    {
+        "name": "Pedro Aguirre Cerda",
+        "zip_code": "8460000"
+    },
+    {
+        "name": "Quinta Normal",
+        "zip_code": "8500000"
+    },
+    {
+        "name": "Conchalí",
+        "zip_code": "8540000"
+    },
+    {
+        "name": "Huechuraba",
+        "zip_code": "8580000"
+    },
+    {
+        "name": "Renca",
+        "zip_code": "8640000"
+    },
+    {
+        "name": "Quilicura",
+        "zip_code": "8700000"
+    },
+    {
+        "name": "La Granja",
+        "zip_code": "8780000"
+    },
+    {
+        "name": "La Pintana",
+        "zip_code": "8820000"
+    },
+    {
+        "name": "San Ramón",
+        "zip_code": "8860000"
+    },
+    {
+        "name": "San Miguel",
+        "zip_code": "8900000"
+    },
+    {
+        "name": "San Joaquín",
+        "zip_code": "8940000"
+    },
+    {
+        "name": "Lo Prado",
+        "zip_code": "8980000"
+    },
+    {
+        "name": "Pudahuel",
+        "zip_code": "9020000"
+    },
+    {
+        "name": "Cerro Navia",
+        "zip_code": "9080000"
+    },
+    {
+        "name": "Lo Espejo",
+        "zip_code": "9120000"
+    },
+    {
+        "name": "Estación Central",
+        "zip_code": "9160000"
+    },
+    {
+        "name": "Cerrillos",
+        "zip_code": "9200000"
+    },
+    {
+        "name": "Maipu",
+        "zip_code": "9250000"
+    },
+    {
+        "name": "Puente Alto",
+        "zip_code": "8150000"
+    },
+    {
+        "name": "San Jose De Maipo",
+        "zip_code": "9460000"
+    },
+    {
+        "name": "Pirque",
+        "zip_code": "9480000"
+    },
+    {
+        "name": "Colina",
+        "zip_code": "9340000"
+    },
+    {
+        "name": "Lampa",
+        "zip_code": "9380000"
+    },
+    {
+        "name": "Tiltil",
+        "zip_code": "9420000"
+    },
+    {
+        "name": "San Bernardo",
+        "zip_code": "8050000"
+    },
+    {
+        "name": "Buin",
+        "zip_code": "9500000"
+    },
+    {
+        "name": "Paine",
+        "zip_code": "9540000"
+    },
+    {
+        "name": "Calera De Tango",
+        "zip_code": "9560000"
+    },
+    {
+        "name": "Melipilla",
+        "zip_code": "9580000"
+    },
+    {
+        "name": "María Pinto",
+        "zip_code": "9620000"
+    },
+    {
+        "name": "Curacaví",
+        "zip_code": "9630000"
+    },
+    {
+        "name": "Alhue",
+        "zip_code": "9650000"
+    },
+    {
+        "name": "San Pedro",
+        "zip_code": "9660000"
+    },
+    {
+        "name": "Talagante",
+        "zip_code": "9670000"
+    },
+    {
+        "name": "Padre Hurtado",
+        "zip_code": "9710000"
+    },
+    {
+        "name": "Peñaflor",
+        "zip_code": "9750000"
+    },
+    {
+        "name": "Isla De Maipo",
+        "zip_code": "9790000"
+    },
+    {
+        "name": "El Monte",
+        "zip_code": "9810000"
+    },
+    {
+        "name": "Puerto Montt",
+        "zip_code": "5480000"
+    },
+    {
+        "name": "Puerto Varas",
+        "zip_code": "5550000"
+    },
+    {
+        "name": "Cochamo",
+        "zip_code": "5560000"
+    },
+    {
+        "name": "Calbuco",
+        "zip_code": "5570000"
+    },
+    {
+        "name": "Maullín",
+        "zip_code": "5580000"
+    },
+    {
+        "name": "Los Muermos",
+        "zip_code": "5590000"
+    },
+    {
+        "name": "Fresia",
+        "zip_code": "5600000"
+    },
+    {
+        "name": "Llanquihue",
+        "zip_code": "5610000"
+    },
+    {
+        "name": "Frutillar",
+        "zip_code": "5620000"
+    },
+    {
+        "name": "Castro",
+        "zip_code": "5700000"
+    },
+    {
+        "name": "Ancud",
+        "zip_code": "5710000"
+    },
+    {
+        "name": "Quemchi",
+        "zip_code": "5720000"
+    },
+    {
+        "name": "Dalcahue",
+        "zip_code": "5730000"
+    },
+    {
+        "name": "Curaco De Vélez",
+        "zip_code": "5740000"
+    },
+    {
+        "name": "Quinchao",
+        "zip_code": "5750000"
+    },
+    {
+        "name": "Puqueldón",
+        "zip_code": "5760000"
+    },
+    {
+        "name": "Chonchi",
+        "zip_code": "5770000"
+    },
+    {
+        "name": "Queilen",
+        "zip_code": "5780000"
+    },
+    {
+        "name": "Quellón",
+        "zip_code": "5790000"
+    },
+    {
+        "name": "Osorno",
+        "zip_code": "5290000"
+    },
+    {
+        "name": "San Pablo",
+        "zip_code": "5350000"
+    },
+    {
+        "name": "Puyehue",
+        "zip_code": "5360000"
+    },
+    {
+        "name": "Puerto Octay",
+        "zip_code": "5370000"
+    },
+    {
+        "name": "Purranque",
+        "zip_code": "5380000"
+    },
+    {
+        "name": "Río Negro",
+        "zip_code": "5390000"
+    },
+    {
+        "name": "San Juan De La Costa",
+        "zip_code": "5400000"
+    },
+    {
+        "name": "Chaitén",
+        "zip_code": "5850000"
+    },
+    {
+        "name": "Hualaihue",
+        "zip_code": "5860000"
+    },
+    {
+        "name": "Futaleufú",
+        "zip_code": "5870000"
+    },
+    {
+        "name": "Palena",
+        "zip_code": "5880000"
+    },
+    {
+        "name": "Iquique",
+        "zip_code": "1100000"
+    },
+    {
+        "name": "Alto Hospicio",
+        "zip_code": "1130000"
+    },
+    {
+        "name": "Huara",
+        "zip_code": "1140000"
+    },
+    {
+        "name": "Camina",
+        "zip_code": "1150000"
+    },
+    {
+        "name": "Colchane",
+        "zip_code": "1160000"
+    },
+    {
+        "name": "Pica",
+        "zip_code": "1170000"
+    },
+    {
+        "name": "Pozo Almonte",
+        "zip_code": "1180000"
+    },
+    {
+        "name": "Arica",
+        "zip_code": "1000000"
+    },
+    {
+        "name": "Camarones",
+        "zip_code": "1040000"
+    },
+    {
+        "name": "Putre",
+        "zip_code": "1070000"
+    },
+    {
+        "name": "General Lagos",
+        "zip_code": "1080000"
+    },
+    {
+        "name": "Valdivia",
+        "zip_code": "5090000"
+    },
+    {
+        "name": "Mariquina",
+        "zip_code": "5150000"
+    },
+    {
+        "name": "Lanco",
+        "zip_code": "5160000"
+    },
+    {
+        "name": "Los Lagos",
+        "zip_code": "5170000"
+    },
+    {
+        "name": "Corral",
+        "zip_code": "5190000"
+    },
+    {
+        "name": "Mafil",
+        "zip_code": "5200000"
+    },
+    {
+        "name": "Panguipulli",
+        "zip_code": "5210000"
+    },
+    {
+        "name": "Paillaco",
+        "zip_code": "5230000"
+    },
+    {
+        "name": "Futrono",
+        "zip_code": "5180000"
+    },
+    {
+        "name": "La Unión",
+        "zip_code": "5220000"
+    },
+    {
+        "name": "Río Bueno",
+        "zip_code": "5240000"
+    },
+    {
+        "name": "Lago Ranco",
+        "zip_code": "5250000"
+    }
+]

@@ -19,7 +19,6 @@
 
 # Other
 /tmp
-/data
 /static-old
 /front-old
 /sandbox
@@ -53,6 +52,3 @@ OLD/
 /src/app/modules/auth
 /src/app/sandbox
 /src/app/modules/public/templates/sandbox/
-
-#
-/data/
