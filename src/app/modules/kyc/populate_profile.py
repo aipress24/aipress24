@@ -39,10 +39,10 @@ def default_info_pro() -> dict[str, str | list]:
         "fonctions_pol_adm": [],
         "fonctions_pol_adm_detail": [],
         "ligne_directe": "",
-        "nom_adm": "",
+        "nom_adm": "",  #
         "nom_agence_rp": "",
-        "nom_group_com": "",
-        "nom_groupe_presse": "",
+        "nom_group_com": "",  #
+        "nom_groupe_presse": "",  #
         "nom_media": [],
         "nom_media_instit": "",
         "nom_orga": "",
@@ -51,7 +51,7 @@ def default_info_pro() -> dict[str, str | list]:
         "taille_orga": "",
         "tel_standard": "",
         "type_agence_rp": [],
-        "type_entreprise_media": [],
+        "type_entreprise_media": [],  #
         "type_orga": [],
         "type_orga_detail": [],
         "type_presse_et_media": [],

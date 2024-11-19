@@ -108,9 +108,9 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
     siren: Mapped[str] = mapped_column(nullable=True)
     tva: Mapped[str] = mapped_column(nullable=True)
     media_name: Mapped[str] = mapped_column(default="")  # nom officiel du titre (média)
-    nom_groupe_presse: Mapped[str] = mapped_column(
+    nom_groupe: Mapped[str] = mapped_column(
         default=""
-    )  # nom officiel du titre (média, agence presse)
+    )  # nom officiel du titre (média, agence presse) pour les media ou aggency
 
     tel_standard: Mapped[str] = mapped_column(default="")
     taille_orga: Mapped[str] = mapped_column(default="")  # ccf ontologies
@@ -227,6 +227,7 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
     frequence_publication: Mapped[str] = mapped_column(default="")
     metiers_presse: Mapped[dict] = mapped_column(JSON, default=list)
     type_entreprise_media: Mapped[dict] = mapped_column(JSON, default=list)
+    type_agence_rp: Mapped[dict] = mapped_column(JSON, default=list)
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)

@@ -8,7 +8,8 @@ from typing import Any
 
 from sqlalchemy import func, select
 
-from app.enums import OrganisationTypeEnum
+from app.constants import PROFILE_CODE_TO_BW_TYPE
+from app.enums import BWTypeEnum, OrganisationTypeEnum
 from app.flask.extensions import db
 from app.flask.sqla import get_obj
 from app.models.auth import User
@@ -134,6 +135,66 @@ def find_inviting_organisations(mail: str) -> list[Organisation]:
     return [get_obj(i.organisation_id, Organisation) for i in invitations]
 
 
+def specialize_organization_type(
+    org: Organisation, profile_code: str, info_pro: dict[str, Any]
+) -> None:
+    allowed_bw_types = set(PROFILE_CODE_TO_BW_TYPE.get(profile_code, []))
+    # nom_groupe for the different types of organisations
+    nom_groupe = ""
+    if profile_code in {"PM_DIR", "PM_JR_CP_SAL", "PM_JR_PIG"}:
+        nom_groupe = info_pro["nom_groupe_presse"]
+    elif profile_code in {"PR_DIR", "PR_CS"}:
+        nom_groupe = info_pro["nom_groupe_com"]
+    elif profile_code in {
+        "PR_DIR_COM",
+        "PR_CS_COM",
+        "XP_DIR_ANY",
+        "XP_ANY",
+        "XP_PR",
+        "XP_INV_PUB",
+        "XP_DIR_EVT",
+        "TP_DIR_ORG",
+        "TR_CS_ORG",
+        "TR_CS_ORG_PR",
+        "TR_INV_ORG",
+        "AC_DIR",
+        "AC_DIR_JR",
+        "AC_ENS",
+    }:
+        nom_groupe = info_pro["nom_adm"]
+    org.nom_groupe = nom_groupe
+
+    # media name
+    media_name = ""
+    if {BWTypeEnum.MEDIA, BWTypeEnum.AGENCY, BWTypeEnum.PRESSUNION} & allowed_bw_types:
+        media_name = info_pro["nom_media"][0] if info_pro["nom_media"] else ""
+    elif BWTypeEnum.CORPORATE in allowed_bw_types:
+        media_name = info_pro["nom_media_instit"]
+    org.media_name = media_name
+
+    # type_entreprise_media
+    type_entreprise_media = []
+    if {BWTypeEnum.MEDIA, BWTypeEnum.AGENCY} & allowed_bw_types:
+        type_entreprise_media = info_pro["type_entreprise_media"]
+    org.type_entreprise_media = type_entreprise_media
+
+    # type_presse_et_media
+    type_presse_et_media = []
+    if {BWTypeEnum.MEDIA, BWTypeEnum.AGENCY, BWTypeEnum.CORPORATE} & allowed_bw_types:
+        type_presse_et_media = info_pro["type_presse_et_media"]
+    org.type_presse_et_media = type_presse_et_media
+
+    # type_agence_rp
+    type_agence_rp = []
+    if profile_code in {
+        "PR_DIR",
+        "PR_CS",
+        "PR_CS_IND",
+    }:
+        type_agence_rp = info_pro["type_agence_rp"]
+    org.type_agence_rp = type_agence_rp
+
+
 def store_auto_organisation(
     user: User,
     org_name: str | None = None,
@@ -184,7 +245,7 @@ def store_auto_organisation(
     # -> pays_zip_ville, pays_zip_ville_detail
     # - et type == AUTO
     profile = user.profile
-    info_pro = profile.info_professionnelle
+    info_pro: dict[str, Any] = profile.info_professionnelle
     info_mm = profile.match_making
     secteurs_activite = _secteur_activite(info_mm)
     secteurs_activite_detail = _secteur_activite_detail(info_mm)
@@ -224,6 +285,9 @@ def store_auto_organisation(
         pays_zip_ville=info_pro["pays_zip_ville"],
         pays_zip_ville_detail=info_pro["pays_zip_ville_detail"],
     )
+
+    specialize_organization_type(created_organisation, profile.profile_code, info_pro)
+
     db_session.add(created_organisation)
     db_session.commit()
     return created_organisation

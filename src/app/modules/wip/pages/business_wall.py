@@ -171,14 +171,17 @@ class BusinessWallPage(BaseWipPage):
         )
 
         BWDynForm.name = string_field(
-            "nom_groupe_presse",
-            "Nom du groupe de presse, d’édition ou de média",
+            "nom_groupe",
+            "Nom du groupe de presse, d’édition ou de média, ou de l'administration",
             True,
             self.readonly,
         )
 
         BWDynForm.media_name = string_field(
-            "media_name", "Nom officiel du titre", False, self.readonly
+            "media_name",
+            "Nom de l’agence de presse, du journal, du magazine, du média ou du SPEL, Syndicat de presse ou de médias, de l’association de journalistes, du club de la presse ou de l’école de journalisme",
+            False,
+            self.readonly,
         )
         BWDynForm.siren = string_field("siren", "Numéro SIREN", True, self.readonly)
         BWDynForm.tva = string_field(
@@ -546,6 +549,7 @@ class BusinessWallPage(BaseWipPage):
         org.secteurs_activite_couverts_detail = _parse_list(
             "secteurs_activite_couverts_detail"
         )
+        org.type_agence_rp = _parse_list("type_agence_rp")
         org.type_organisation = _parse_list("type_organisation")
         org.type_organisation_detail = _parse_list("type_organisation_detail")
         org.leader_name = _parse_first("leader_name")
