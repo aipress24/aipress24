@@ -129,7 +129,7 @@ class BusinessWallPage(BaseWipPage):
                 response.headers["HX-Redirect"] = self.url
         return response
 
-    def generate_form(self) -> tuple[FlaskForm, list[str]]:
+    def generate_form(self) -> FlaskForm:
         """The form contains several Fields and sub titles information.
 
             (group1.label, [fieldname_1 fieldname_2, ...]),
@@ -160,7 +160,7 @@ class BusinessWallPage(BaseWipPage):
 
     def form_none(self) -> FlaskForm:
         """Empty form (actually unused by the template)."""
-        return FlaskForm, []
+        return FlaskForm()
 
     def form_agency(self) -> FlaskForm:
         return self.test_form()
