@@ -36,11 +36,13 @@ def get_organisation_for_noms_medias() -> list[str]:
     (Then will add the required ontologie if needed, there or in a later stage)
     """
     query = select(Organisation).where(
-        Organisation.type.in_([
-            OrganisationTypeEnum.MEDIA,
-            OrganisationTypeEnum.AGENCY,
-            OrganisationTypeEnum.AUTO,
-        ])
+        Organisation.type.in_(
+            [
+                OrganisationTypeEnum.MEDIA,
+                OrganisationTypeEnum.AGENCY,
+                OrganisationTypeEnum.AUTO,
+            ]
+        )
     )
     result = db.session.execute(query).scalars()
     return [org.name for org in result]
@@ -53,10 +55,12 @@ def get_organisation_for_noms_orgas() -> list[str]:
     (Then will add the required ontologie if needed, there or in a later stage)
     """
     query = select(Organisation).where(
-        Organisation.type.in_([
-            OrganisationTypeEnum.OTHER,
-            OrganisationTypeEnum.AUTO,
-        ])
+        Organisation.type.in_(
+            [
+                OrganisationTypeEnum.OTHER,
+                OrganisationTypeEnum.AUTO,
+            ]
+        )
     )
     result = db.session.execute(query).scalars()
     return [org.name for org in result]
@@ -69,10 +73,12 @@ def get_organisation_for_noms_com() -> list[str]:
     (Then will add the required ontologie if needed, there or in a later stage)
     """
     query = select(Organisation).where(
-        Organisation.type.in_([
-            OrganisationTypeEnum.COM,
-            OrganisationTypeEnum.AUTO,
-        ])
+        Organisation.type.in_(
+            [
+                OrganisationTypeEnum.COM,
+                OrganisationTypeEnum.AUTO,
+            ]
+        )
     )
     result = db.session.execute(query).scalars()
     return [org.name for org in result]

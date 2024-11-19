@@ -108,6 +108,9 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
     siren: Mapped[str] = mapped_column(nullable=True)
     tva: Mapped[str] = mapped_column(nullable=True)
     media_name: Mapped[str] = mapped_column(default="")  # nom officiel du titre (média)
+    nom_groupe_presse: Mapped[str] = mapped_column(
+        default=""
+    )  # nom officiel du titre (média, agence presse)
 
     tel_standard: Mapped[str] = mapped_column(default="")
     taille_orga: Mapped[str] = mapped_column(default="")  # ccf ontologies
