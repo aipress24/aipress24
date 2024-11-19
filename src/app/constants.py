@@ -4,6 +4,8 @@
 
 from __future__ import annotations
 
+from .enums import BWTypeEnum
+
 # DIRECTION_PROFILE_LABELS = {
 #     "Dirigeant.e d’une Agence de presse, d’un journal, d’un magazine, d’un média ou d’un SPEL reconnus par la CPPAP ou l’ARCOM"
 # }
@@ -71,4 +73,44 @@ PROFILE_CODES = {
     "AC_DOC",
     "AC_ST",
     "AC_ST_ENT",
+}
+
+# The "open to all employees" comment below means that we decided to loosely the possibility
+# to any employee of an organisation to create the relevant BW. So the only remaining empty profil
+# is for students.
+# To reverse this change: just use empty lists on the lines with that comment.
+PROFILE_CODE_TO_BW_TYPE: dict[str, list[BWTypeEnum]] = {
+    "PM_DIR": [BWTypeEnum.MEDIA, BWTypeEnum.AGENCY],
+    "PM_JR_CP_SAL": [BWTypeEnum.MEDIA, BWTypeEnum.AGENCY],  # open to all employees
+    "PM_JR_PIG": [BWTypeEnum.MEDIA, BWTypeEnum.AGENCY],  # open to all employees
+    "PM_JR_CP_ME": [BWTypeEnum.MEDIA, BWTypeEnum.AGENCY],
+    "PM_JR_ME": [BWTypeEnum.MEDIA, BWTypeEnum.AGENCY],
+    "PM_DIR_INST": [BWTypeEnum.CORPORATE],
+    "PM_JR_INST": [BWTypeEnum.CORPORATE],  # open to all employees
+    "PM_DIR_SYND": [BWTypeEnum.PRESSUNION],
+    "PR_DIR": [BWTypeEnum.COM],
+    "PR_CS": [BWTypeEnum.COM],  # open to all employees
+    "PR_CS_IND": [BWTypeEnum.COM],
+    "PR_DIR_COM": [BWTypeEnum.ORGANISATION],
+    "PR_CS_COM": [BWTypeEnum.ORGANISATION],  # open to all employees
+    "XP_DIR_ANY": [BWTypeEnum.ORGANISATION],
+    "XP_ANY": [BWTypeEnum.ORGANISATION],  # open to all employees
+    "XP_PR": [BWTypeEnum.ORGANISATION],  # open to all employees
+    "XP_IND": [BWTypeEnum.ORGANISATION],
+    "XP_DIR_SU": [BWTypeEnum.ORGANISATION],
+    "XP_INV_PUB": [BWTypeEnum.ORGANISATION],
+    "XP_DIR_EVT": [BWTypeEnum.ORGANISATION],
+    "TP_DIR_ORG": [BWTypeEnum.TRANSFORMER],
+    "TR_CS_ORG": [BWTypeEnum.TRANSFORMER],  # open to all employees
+    "TR_CS_ORG_PR": [BWTypeEnum.TRANSFORMER],  # open to all employees
+    "TR_CS_ORG_IND": [BWTypeEnum.TRANSFORMER],
+    "TR_DIR_SU_ORG": [BWTypeEnum.TRANSFORMER],
+    "TR_INV_ORG": [BWTypeEnum.TRANSFORMER],
+    "TR_DIR_POLE": [BWTypeEnum.TRANSFORMER],
+    "AC_DIR": [BWTypeEnum.ACADEMICS],
+    "AC_DIR_JR": [BWTypeEnum.ACADEMICS],
+    "AC_ENS": [BWTypeEnum.ACADEMICS],  # open to all employees
+    "AC_DOC": [BWTypeEnum.ACADEMICS],  # open to all employees
+    "AC_ST": [],  # open to all employees except students
+    "AC_ST_ENT": [BWTypeEnum.ACADEMICS],
 }
