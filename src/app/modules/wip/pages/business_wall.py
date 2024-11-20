@@ -533,27 +533,34 @@ class BusinessWallPage(BaseWipPage):
         org.media_name = _parse_first("media_name")
         org.siren = _parse_first("siren")
         org.tva = _parse_first("tva")
-        org.description = _parse_first("description")
+        org.nom_groupe = _parse_first("nom_groupe")
+        org.description = _parse_first("description")  #
         org.pays_zip_ville = _parse_first("pays_zip_ville")
         org.pays_zip_ville_detail = _parse_first("pays_zip_ville_detail")
-        org.tel_standard = _parse_first("tel_standard")
-        org.taille_orga = _parse_first("taille_orga")
-        org.type_entreprise_media = _parse_list("type_entreprise_media")
-        org.metiers = _parse_list("metiers")
-        org.metiers_detail = _parse_list("metiers_detail")
+        org.tel_standard = _parse_first("tel_standard")  #
+        org.taille_orga = _parse_first("taille_orga")  #
+        org.metiers = _parse_list("metiers")  #
+        org.metiers_detail = _parse_list("metiers_detail")  #
+        org.secteurs_activite_medias = _parse_list("secteurs_activite_medias")
+        org.secteurs_activite_medias_detail = _parse_list(
+            "secteurs_activite_medias_detail"
+        )
+        org.secteurs_activite_rp = _parse_list("secteurs_activite_rp")
+        org.secteurs_activite_rp_detail = _parse_list("secteurs_activite_rp_detail")
         org.secteurs_activite = _parse_list("secteurs_activite")
         org.secteurs_activite_detail = _parse_list("secteurs_activite_detail")
-        org.secteurs_activite_couverts = _parse_list("secteurs_activite_couverts")
-        org.secteurs_activite_couverts_detail = _parse_list(
-            "secteurs_activite_couverts_detail"
-        )
-        org.type_agence_rp = _parse_list("type_agence_rp")
+
         org.type_organisation = _parse_list("type_organisation")
         org.type_organisation_detail = _parse_list("type_organisation_detail")
-        org.leader_name = _parse_first("leader_name")
-        org.leader_coords = _parse_first("leader_coords")
-        org.payer_name = _parse_first("payer_name")
-        org.payer_coords = _parse_first("payer_coords")
+        org.type_entreprise_media = _parse_list("type_agence_rp")
+        org.type_presse_et_media = _parse_list("type_presse_et_media")
+        org.type_agence_rp = _parse_list("type_agence_rp")
+
+        org.leader_name = _parse_first("leader_name")  #
+        org.leader_coords = _parse_first("leader_coords")  #
+        org.payer_name = _parse_first("payer_name")  #
+        org.payer_coords = _parse_first("payer_coords")  #
+
         org.main_events = _parse_first("main_events")
         org.main_customers = _parse_first("main_customers")
         org.main_prizes = _parse_first("main_prizes")
@@ -563,11 +570,12 @@ class BusinessWallPage(BaseWipPage):
         org.frequence_publication = _parse_first("frequence_publication")
         org.metiers_presse = _parse_list("metiers_presse")
 
-        org.agree_arcom = _parse_bool("agree_arcom")
-        org.agree_cppap = _parse_bool("agree_cppap")
-        org.number_cppap = _parse_first("number_cppap")
-        org.membre_satev = _parse_bool("membre_satev")
-        org.membre_saphir = _parse_bool("membre_saphir")
+        org.agree_arcom = _parse_bool("agree_arcom")  #
+        org.agree_cppap = _parse_bool("agree_cppap")  #
+        org.number_cppap = _parse_first("number_cppap")  #
+        org.membre_satev = _parse_bool("membre_satev")  #
+        org.membre_sapi = _parse_bool("membre_sapi")  #
+        org.membre_saphir = _parse_bool("membre_saphir")  #
         org.domain = _parse_first("domain")
         org.site_url = _parse_first("site_url")
         org.jobs_url = _parse_first("jobs_url")
