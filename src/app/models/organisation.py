@@ -212,10 +212,15 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
 
     number_cppap: Mapped[str] = mapped_column(default="")
 
+    secteurs_activite_medias: Mapped[dict] = mapped_column(JSON, default=list)
+    secteurs_activite_medias_detail: Mapped[dict] = mapped_column(JSON, default=list)
+
+    secteurs_activite_rp: Mapped[dict] = mapped_column(JSON, default=list)
+    secteurs_activite_rp_detail: Mapped[dict] = mapped_column(JSON, default=list)
+
     secteurs_activite: Mapped[dict] = mapped_column(JSON, default=list)
     secteurs_activite_detail: Mapped[dict] = mapped_column(JSON, default=list)
-    secteurs_activite_couverts: Mapped[dict] = mapped_column(JSON, default=list)
-    secteurs_activite_couverts_detail: Mapped[dict] = mapped_column(JSON, default=list)
+
     type_organisation: Mapped[dict] = mapped_column(JSON, default=list)
     type_organisation_detail: Mapped[dict] = mapped_column(JSON, default=list)
     main_events: Mapped[str] = mapped_column(default="")
@@ -227,6 +232,7 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
     frequence_publication: Mapped[str] = mapped_column(default="")
     metiers_presse: Mapped[dict] = mapped_column(JSON, default=list)
     type_entreprise_media: Mapped[dict] = mapped_column(JSON, default=list)
+    type_presse_et_media: Mapped[dict] = mapped_column(JSON, default=list)
     type_agence_rp: Mapped[dict] = mapped_column(JSON, default=list)
 
     def __init__(self, **kwargs) -> None:

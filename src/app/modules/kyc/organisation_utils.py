@@ -135,8 +135,11 @@ def find_inviting_organisations(mail: str) -> list[Organisation]:
     return [get_obj(i.organisation_id, Organisation) for i in invitations]
 
 
-def specialize_organization_type(
-    org: Organisation, profile_code: str, info_pro: dict[str, Any]
+def specialize_organization_type(  # noqa:PLR0915
+    org: Organisation,
+    profile_code: str,
+    info_pro: dict[str, Any],
+    info_mm: dict[str, Any],
 ) -> None:
     allowed_bw_types = set(PROFILE_CODE_TO_BW_TYPE.get(profile_code, []))
     # nom_groupe for the different types of organisations
@@ -166,7 +169,11 @@ def specialize_organization_type(
 
     # media name
     media_name = ""
-    if {BWTypeEnum.MEDIA, BWTypeEnum.AGENCY, BWTypeEnum.PRESSUNION} & allowed_bw_types:
+    if {
+        BWTypeEnum.MEDIA,
+        BWTypeEnum.AGENCY,
+        BWTypeEnum.PRESSUNION,
+    } & allowed_bw_types:
         media_name = info_pro["nom_media"][0] if info_pro["nom_media"] else ""
     elif BWTypeEnum.CORPORATE in allowed_bw_types:
         media_name = info_pro["nom_media_instit"]
@@ -174,13 +181,20 @@ def specialize_organization_type(
 
     # type_entreprise_media
     type_entreprise_media = []
-    if {BWTypeEnum.MEDIA, BWTypeEnum.AGENCY} & allowed_bw_types:
+    if {
+        BWTypeEnum.MEDIA,
+        BWTypeEnum.AGENCY,
+    } & allowed_bw_types:
         type_entreprise_media = info_pro["type_entreprise_media"]
     org.type_entreprise_media = type_entreprise_media
 
     # type_presse_et_media
     type_presse_et_media = []
-    if {BWTypeEnum.MEDIA, BWTypeEnum.AGENCY, BWTypeEnum.CORPORATE} & allowed_bw_types:
+    if {
+        BWTypeEnum.MEDIA,
+        BWTypeEnum.AGENCY,
+        BWTypeEnum.CORPORATE,
+    } & allowed_bw_types:
         type_presse_et_media = info_pro["type_presse_et_media"]
     org.type_presse_et_media = type_presse_et_media
 
@@ -193,6 +207,67 @@ def specialize_organization_type(
     }:
         type_agence_rp = info_pro["type_agence_rp"]
     org.type_agence_rp = type_agence_rp
+
+    # type_orga
+    type_organisation = []
+    type_organisation_detail = []
+    if {
+        BWTypeEnum.ORGANISATION,
+        BWTypeEnum.TRANSFORMER,
+        BWTypeEnum.ACADEMICS,
+    } & allowed_bw_types:
+        type_organisation = info_pro["type_orga"]
+        type_organisation_detail = info_pro["type_orga_detail"]
+    org.type_organisation = type_organisation
+    org.type_organisation_detail = type_organisation_detail
+
+    secteurs_activite_medias = []
+    secteurs_activite_medias_detail = []
+    if {
+        BWTypeEnum.MEDIA,
+        BWTypeEnum.AGENCY,
+    } & allowed_bw_types:
+        secteurs_activite_medias = info_mm["secteurs_activite_medias"]
+        secteurs_activite_medias_detail = info_mm["secteurs_activite_medias_detail"]
+    org.secteurs_activite_medias = secteurs_activite_medias
+    org.secteurs_activite_medias_detail = secteurs_activite_medias_detail
+
+    secteurs_activite_rp = []
+    secteurs_activite_rp_detail = []
+    if profile_code in {
+        "PR_DIR",
+        "PR_CS",
+        "PR_CS_IND",
+        "PR_DIR_COM",
+        "PR_CS_COM",
+    }:
+        secteurs_activite_rp = info_mm["secteurs_activite_rp"]
+        secteurs_activite_rp_detail = info_mm["secteurs_activite_rp_detail"]
+    org.secteurs_activite_rp = secteurs_activite_rp
+    org.secteurs_activite_rp_detail = secteurs_activite_rp_detail
+
+    secteurs_activite = []
+    secteurs_activite_detail = []
+    if {
+        BWTypeEnum.COM,
+        BWTypeEnum.ORGANISATION,
+        BWTypeEnum.TRANSFORMER,
+        BWTypeEnum.ACADEMICS,
+    } & allowed_bw_types:
+        secteurs_activite = info_mm["secteurs_activite_detailles"]
+        secteurs_activite_detail = info_mm["secteurs_activite_detailles_detail"]
+    org.secteurs_activite = secteurs_activite
+    org.secteurs_activite_detail = secteurs_activite_detail
+
+    # metiers_presse
+    # metiers_presse = []
+    # if {
+    #     BWTypeEnum.MEDIA,
+    #     BWTypeEnum.AGENCY,
+    #     BWTypeEnum.CORPORATE,
+    # } & allowed_bw_types:
+    #     type_presse_et_media = info_pro["type_presse_et_media"]
+    # org.metiers_presse = metiers_presse
 
 
 def store_auto_organisation(
@@ -246,7 +321,7 @@ def store_auto_organisation(
     # - et type == AUTO
     profile = user.profile
     info_pro: dict[str, Any] = profile.info_professionnelle
-    info_mm = profile.match_making
+    info_mm: dict[str, Any] = profile.match_making
     secteurs_activite = _secteur_activite(info_mm)
     secteurs_activite_detail = _secteur_activite_detail(info_mm)
 
@@ -277,16 +352,15 @@ def store_auto_organisation(
     created_organisation = Organisation(
         name=org_name,
         type=OrganisationTypeEnum.AUTO,
-        secteurs_activite=secteurs_activite,
-        secteurs_activite_detail=secteurs_activite_detail,
-        type_organisation=info_pro["type_orga"],
-        type_organisation_detail=info_pro["type_orga_detail"],
         taille_orga=info_pro["taille_orga"],
         pays_zip_ville=info_pro["pays_zip_ville"],
         pays_zip_ville_detail=info_pro["pays_zip_ville_detail"],
+        tel_standard=info_pro["tel_standard"],
     )
 
-    specialize_organization_type(created_organisation, profile.profile_code, info_pro)
+    specialize_organization_type(
+        created_organisation, profile.profile_code, info_pro, info_mm
+    )
 
     db_session.add(created_organisation)
     db_session.commit()

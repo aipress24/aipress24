@@ -322,10 +322,8 @@ class BusinessWallPage(BaseWipPage):
         )
         form = BWDynForm(obj=self.org)
         form.metiers.data2 = self.org.metiers_detail
+
         form.secteurs_activite.data2 = self.org.secteurs_activite_detail
-        form.secteurs_activite_couverts.data2 = (
-            self.org.secteurs_activite_couverts_detail
-        )
         form.type_organisation.data2 = self.org.type_organisation_detail
         form.pays_zip_ville.data2 = self.org.pays_zip_ville_detail
 
@@ -430,13 +428,13 @@ class BusinessWallPage(BaseWipPage):
             "multidual_secteurs_detail",
             self.readonly,
         )
-        BWDynForm.secteurs_activite_couverts = dual_multi_field(
-            "secteurs_activite_couverts",
-            "Secteurs d’activité couverts par votre organisation; Sous secteurs",
-            True,
-            "multidual_secteurs_detail",
-            self.readonly,
-        )
+        # BWDynForm.secteurs_activite_couverts = dual_multi_field(
+        #     "secteurs_activite_couverts",
+        #     "Secteurs d’activité couverts par votre organisation; Sous secteurs",
+        #     True,
+        #     "multidual_secteurs_detail",
+        #     self.readonly,
+        # )
         BWDynForm.type_organisation = dual_multi_field(
             "type_organisation",
             "Type d'organisation; Détail",
