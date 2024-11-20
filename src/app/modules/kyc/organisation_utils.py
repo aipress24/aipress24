@@ -135,7 +135,7 @@ def find_inviting_organisations(mail: str) -> list[Organisation]:
     return [get_obj(i.organisation_id, Organisation) for i in invitations]
 
 
-def specialize_organization_type(  # noqa:PLR0915
+def specialize_organization_type(
     org: Organisation,
     profile_code_str: str,
     info_pro: dict[str, Any],
@@ -171,18 +171,6 @@ def specialize_organization_type(  # noqa:PLR0915
     }:
         nom_groupe = info_pro["nom_adm"]
     org.nom_groupe = nom_groupe
-
-    # media name
-    media_name = ""
-    if {
-        BWTypeEnum.MEDIA,
-        BWTypeEnum.AGENCY,
-        BWTypeEnum.PRESSUNION,
-    } & allowed_bw_types:
-        media_name = info_pro["nom_media"][0] if info_pro["nom_media"] else ""
-    elif BWTypeEnum.CORPORATE in allowed_bw_types:
-        media_name = info_pro["nom_media_instit"]
-    org.media_name = media_name
 
     # type_entreprise_media
     type_entreprise_media = []
@@ -263,16 +251,6 @@ def specialize_organization_type(  # noqa:PLR0915
         secteurs_activite_detail = info_mm["secteurs_activite_detailles_detail"]
     org.secteurs_activite = secteurs_activite
     org.secteurs_activite_detail = secteurs_activite_detail
-
-    # metiers_presse
-    # metiers_presse = []
-    # if {
-    #     BWTypeEnum.MEDIA,
-    #     BWTypeEnum.AGENCY,
-    #     BWTypeEnum.CORPORATE,
-    # } & allowed_bw_types:
-    #     type_presse_et_media = info_pro["type_presse_et_media"]
-    # org.metiers_presse = metiers_presse
 
 
 def store_auto_organisation(

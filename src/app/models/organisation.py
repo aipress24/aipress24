@@ -107,7 +107,6 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
     # involding the id of the organisation
     siren: Mapped[str] = mapped_column(nullable=True)  #
     tva: Mapped[str] = mapped_column(nullable=True)  #
-    media_name: Mapped[str] = mapped_column(default="")  # nom officiel du titre (média)
     nom_groupe: Mapped[str] = mapped_column(
         default=""
     )  # nom officiel du titre (média, agence presse) pour les media ou aggency, ou adm
@@ -258,19 +257,6 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
     @hybrid_property
     def leaders(self) -> list[User]:
         return [user for user in self.members if user.is_leader]
-
-
-# class OrgFullProfile(Base):
-#     __tablename__ = "crp_org_full_profile"
-#
-#     id = sa.Column(sa.Integer, sa.ForeignKey("crp_organisation.id"), primary_key=True)
-#     organisation = sa.orm.relationship(Organisation, back_populates="full_profile")
-#
-#     presentation = sa.Column(sa.UnicodeText, default="")
-#
-#     no_siret = sa.Column(sa.UnicodeText, default="")
-#     no_siren = sa.Column(sa.UnicodeText, default="")
-#     no_tva = sa.Column(sa.UnicodeText, default="")
 
 
 __1 = """
