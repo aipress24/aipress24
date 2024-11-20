@@ -144,7 +144,7 @@ def specialize_organization_type(
     if profile_code in {"PM_DIR", "PM_JR_CP_SAL", "PM_JR_PIG"}:
         nom_groupe = info_pro["nom_groupe_presse"]
     elif profile_code in {"PR_DIR", "PR_CS"}:
-        nom_groupe = info_pro["nom_groupe_com"]
+        nom_groupe = info_pro["nom_group_com"]
     elif profile_code in {
         "PR_DIR_COM",
         "PR_CS_COM",
