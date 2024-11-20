@@ -4,6 +4,8 @@
 
 from __future__ import annotations
 
+from enum import Enum
+
 from aenum import StrEnum
 
 
@@ -58,3 +60,40 @@ class BWTypeEnum(StrEnum):
     ORGANISATION = "Business Wall for Organisations"
     TRANSFORMER = "Business Wall for Transformers"
     ACADEMICS = "Business Wall for Academics"
+
+
+# 33 Profiles of users
+class ProfileEnum(Enum):
+    PM_DIR = "PM_DIR"
+    PM_JR_CP_SAL = "PM_JR_CP_SAL"
+    PM_JR_PIG = "PM_JR_PIG"
+    PM_JR_CP_ME = "PM_JR_CP_ME"
+    PM_JR_ME = "PM_JR_ME"
+    PM_DIR_INST = "PM_DIR_INST"
+    PM_JR_INST = "PM_JR_INST"
+    PM_DIR_SYND = "PM_DIR_SYND"
+    PR_DIR = "PR_DIR"
+    PR_CS = "PR_CS"
+    PR_CS_IND = "PR_CS_IND"
+    PR_DIR_COM = "PR_DIR_COM"
+    PR_CS_COM = "PR_CS_COM"
+    XP_DIR_ANY = "XP_DIR_ANY"
+    XP_ANY = "XP_ANY"
+    XP_PR = "XP_PR"
+    XP_IND = "XP_IND"
+    XP_DIR_SU = "XP_DIR_SU"
+    XP_INV_PUB = "XP_INV_PUB"
+    XP_DIR_EVT = "XP_DIR_EVT"
+    TP_DIR_ORG = "TP_DIR_ORG"
+    TR_CS_ORG = "TR_CS_ORG"
+    TR_CS_ORG_PR = "TR_CS_ORG_PR"
+    TR_CS_ORG_IND = "TR_CS_ORG_IND"
+    TR_DIR_SU_ORG = "TR_DIR_SU_ORG"
+    TR_INV_ORG = "TR_INV_ORG"
+    TR_DIR_POLE = "TR_DIR_POLE"
+    AC_DIR = "AC_DIR"
+    AC_DIR_JR = "AC_DIR_JR"
+    AC_ENS = "AC_ENS"
+    AC_DOC = "AC_DOC"
+    AC_ST = "AC_ST"
+    AC_ST_ENT = "AC_ST_ENT"

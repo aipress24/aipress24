@@ -9,7 +9,7 @@ from typing import Any
 from sqlalchemy import func, select
 
 from app.constants import PROFILE_CODE_TO_BW_TYPE
-from app.enums import BWTypeEnum, OrganisationTypeEnum
+from app.enums import BWTypeEnum, OrganisationTypeEnum, ProfileEnum
 from app.flask.extensions import db
 from app.flask.sqla import get_obj
 from app.models.auth import User
@@ -137,32 +137,37 @@ def find_inviting_organisations(mail: str) -> list[Organisation]:
 
 def specialize_organization_type(  # noqa:PLR0915
     org: Organisation,
-    profile_code: str,
+    profile_code_str: str,
     info_pro: dict[str, Any],
     info_mm: dict[str, Any],
 ) -> None:
+    profile_code = ProfileEnum[profile_code_str]
     allowed_bw_types = set(PROFILE_CODE_TO_BW_TYPE.get(profile_code, []))
     # nom_groupe for the different types of organisations
     nom_groupe = ""
-    if profile_code in {"PM_DIR", "PM_JR_CP_SAL", "PM_JR_PIG"}:
+    if profile_code in {
+        ProfileEnum.PM_DIR,
+        ProfileEnum.PM_JR_CP_SAL,
+        ProfileEnum.PM_JR_PIG,
+    }:
         nom_groupe = info_pro["nom_groupe_presse"]
-    elif profile_code in {"PR_DIR", "PR_CS"}:
+    elif profile_code in {ProfileEnum.PR_DIR, ProfileEnum.PR_CS}:
         nom_groupe = info_pro["nom_group_com"]
     elif profile_code in {
-        "PR_DIR_COM",
-        "PR_CS_COM",
-        "XP_DIR_ANY",
-        "XP_ANY",
-        "XP_PR",
-        "XP_INV_PUB",
-        "XP_DIR_EVT",
-        "TP_DIR_ORG",
-        "TR_CS_ORG",
-        "TR_CS_ORG_PR",
-        "TR_INV_ORG",
-        "AC_DIR",
-        "AC_DIR_JR",
-        "AC_ENS",
+        ProfileEnum.PR_DIR_COM,
+        ProfileEnum.PR_CS_COM,
+        ProfileEnum.XP_DIR_ANY,
+        ProfileEnum.XP_ANY,
+        ProfileEnum.XP_PR,
+        ProfileEnum.XP_INV_PUB,
+        ProfileEnum.XP_DIR_EVT,
+        ProfileEnum.TP_DIR_ORG,
+        ProfileEnum.TR_CS_ORG,
+        ProfileEnum.TR_CS_ORG_PR,
+        ProfileEnum.TR_INV_ORG,
+        ProfileEnum.AC_DIR,
+        ProfileEnum.AC_DIR_JR,
+        ProfileEnum.AC_ENS,
     }:
         nom_groupe = info_pro["nom_adm"]
     org.nom_groupe = nom_groupe
@@ -201,9 +206,9 @@ def specialize_organization_type(  # noqa:PLR0915
     # type_agence_rp
     type_agence_rp = []
     if profile_code in {
-        "PR_DIR",
-        "PR_CS",
-        "PR_CS_IND",
+        ProfileEnum.PR_DIR,
+        ProfileEnum.PR_CS,
+        ProfileEnum.PR_CS_IND,
     }:
         type_agence_rp = info_pro["type_agence_rp"]
     org.type_agence_rp = type_agence_rp
@@ -235,11 +240,11 @@ def specialize_organization_type(  # noqa:PLR0915
     secteurs_activite_rp = []
     secteurs_activite_rp_detail = []
     if profile_code in {
-        "PR_DIR",
-        "PR_CS",
-        "PR_CS_IND",
-        "PR_DIR_COM",
-        "PR_CS_COM",
+        ProfileEnum.PR_DIR,
+        ProfileEnum.PR_CS,
+        ProfileEnum.PR_CS_IND,
+        ProfileEnum.PR_DIR_COM,
+        ProfileEnum.PR_CS_COM,
     }:
         secteurs_activite_rp = info_mm["secteurs_activite_rp"]
         secteurs_activite_rp_detail = info_mm["secteurs_activite_rp_detail"]

@@ -12,14 +12,14 @@ from typing import Any
 
 import attr
 
-from app.enums import CommunityEnum, ContactTypeEnum
+from app.enums import CommunityEnum, ContactTypeEnum, ProfileEnum
 
 
 @attr.mutable
 class SurveyProfile:
     id: str = ""
     description: str = ""
-    code: str = ""
+    code: ProfileEnum = ""
     community: CommunityEnum = ""
     contact_type: ContactTypeEnum = ""
     groups: list[Group] = attr.field(factory=list)

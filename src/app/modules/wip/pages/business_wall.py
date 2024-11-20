@@ -11,7 +11,7 @@ from flask_wtf import FlaskForm
 from werkzeug import Response
 from wtforms import Field
 
-from app.enums import BWTypeEnum
+from app.enums import BWTypeEnum, ProfileEnum
 from app.flask.extensions import db
 from app.flask.lib.pages import page
 from app.modules.admin.invitations import emails_invited_to_organisation
@@ -163,19 +163,35 @@ class BusinessWallPage(BaseWipPage):
         return FlaskForm()
 
     def form_agency(self) -> FlaskForm:
+        profile = self.user.profile
+        profile_code = ProfileEnum[profile.profile_code]
+
         class BWDynForm(FlaskForm):
             pass
 
         BWDynForm.name = string_field(
-            "name", "Nom de l'organisation", True, self.readonly
+            "name",
+            description=(
+                "Nom de l’agence de presse, du journal, du magazine, du média "
+                "ou du SPEL, Syndicat de presse ou de médias, de l’association "
+                "de journalistes, du club de la presse ou de l’école de "
+                "journalisme"
+            ),
+            mandatory=True,
+            readonly=self.readonly,
         )
 
-        BWDynForm.name = string_field(
-            "nom_groupe",
-            "Nom du groupe de presse, d’édition ou de média, ou de l'administration",
-            True,
-            self.readonly,
-        )
+        if profile_code in {
+            ProfileEnum.PM_DIR,
+            ProfileEnum.PM_JR_CP_SAL,
+            ProfileEnum.PM_JR_PIG,
+        }:
+            BWDynForm.name = string_field(
+                "nom_groupe",
+                "Nom du groupe de presse, d’édition ou de média",
+                False,
+                self.readonly,
+            )
 
         BWDynForm.media_name = string_field(
             "media_name",

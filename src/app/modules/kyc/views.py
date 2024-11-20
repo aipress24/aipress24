@@ -426,18 +426,6 @@ def modify_page():
     return redirect(url_for(".profile_page"))
 
 
-# def _guess_organisation_name(results: dict, profile_id: str) -> str:
-#     survey_profile: SurveyProfile = get_survey_profile(profile_id)
-#     field_name = survey_profile.organisation_field
-#     if not field_name:
-#         return ""
-#     value = results.get(field_name, "")
-#     # fixme: nom_media is a list of string, not a string
-#     if isinstance(value, list) and value:
-#         value = value[0]
-#     return str(value).strip()
-
-
 def _role_from_name(name: str) -> Role:
     role_repo = container.get(RoleRepository)
     roles_map = {role.name: role for role in role_repo.list()}
@@ -471,7 +459,7 @@ def _make_new_kyc_user_record() -> User:
 
     profile = KYCProfile(
         profile_id=survey_profile.id,
-        profile_code=survey_profile.code,
+        profile_code=survey_profile.code.name,
         profile_label=survey_profile.label,
         profile_community=survey_profile.community.name,
         contact_type=survey_profile.contact_type.name,
@@ -525,7 +513,7 @@ def _set_default_kyc_profile(user: User) -> None:
     # fake user at the moment
     profile = KYCProfile(
         profile_id=survey_profile.id,
-        profile_code=survey_profile.code,
+        profile_code=survey_profile.code.name,
         profile_label=survey_profile.label,
         profile_community=survey_profile.community.name,
         contact_type=survey_profile.contact_type.name,
@@ -564,7 +552,7 @@ def _update_from_current_user(orig_user: User) -> User:
     profile_id = session_service.get("profile_id", "")
     survey_profile = get_survey_profile(profile_id)
     profile.profile_id = survey_profile.id
-    profile.profile_code = survey_profile.code
+    profile.profile_code = survey_profile.code.name
     profile.profile_label = survey_profile.label
     profile.profile_community = survey_profile.community.name
     profile.contact_type = survey_profile.contact_type.name

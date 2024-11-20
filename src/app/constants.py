@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from .enums import BWTypeEnum
+from .enums import BWTypeEnum, ProfileEnum
 
 # DIRECTION_PROFILE_LABELS = {
 #     "Dirigeant.e d’une Agence de presse, d’un journal, d’un magazine, d’un média ou d’un SPEL reconnus par la CPPAP ou l’ARCOM"
@@ -39,78 +39,48 @@ BW_TRIGGER_LABEL = {
     "trigger_academics_entrepreneur": "Trigger Entrepreneurs academics",
 }
 
-PROFILE_CODES = {
-    "PM_DIR",
-    "PM_JR_CP_SAL",
-    "PM_JR_PIG",
-    "PM_JR_CP_ME",
-    "PM_JR_ME",
-    "PM_DIR_INST",
-    "PM_JR_INST",
-    "PM_DIR_SYND",
-    "PR_DIR",
-    "PR_CS",
-    "PR_CS_IND",
-    "PR_DIR_COM",
-    "PR_CS_COM",
-    "XP_DIR_ANY",
-    "XP_ANY",
-    "XP_PR",
-    "XP_IND",
-    "XP_DIR_SU",
-    "XP_INV_PUB",
-    "XP_DIR_EVT",
-    "TP_DIR_ORG",
-    "TR_CS_ORG",
-    "TR_CS_ORG_PR",
-    "TR_CS_ORG_IND",
-    "TR_DIR_SU_ORG",
-    "TR_INV_ORG",
-    "TR_DIR_POLE",
-    "AC_DIR",
-    "AC_DIR_JR",
-    "AC_ENS",
-    "AC_DOC",
-    "AC_ST",
-    "AC_ST_ENT",
-}
-
 # The "open to all employees" comment below means that we decided to loosely the possibility
 # to any employee of an organisation to create the relevant BW. So the only remaining empty profil
 # is for students.
 # To reverse this change: just use empty lists on the lines with that comment.
-PROFILE_CODE_TO_BW_TYPE: dict[str, list[BWTypeEnum]] = {
-    "PM_DIR": [BWTypeEnum.MEDIA, BWTypeEnum.AGENCY],
-    "PM_JR_CP_SAL": [BWTypeEnum.MEDIA, BWTypeEnum.AGENCY],  # open to all employees
-    "PM_JR_PIG": [BWTypeEnum.MEDIA, BWTypeEnum.AGENCY],  # open to all employees
-    "PM_JR_CP_ME": [BWTypeEnum.MEDIA, BWTypeEnum.AGENCY],
-    "PM_JR_ME": [BWTypeEnum.MEDIA, BWTypeEnum.AGENCY],
-    "PM_DIR_INST": [BWTypeEnum.CORPORATE],
-    "PM_JR_INST": [BWTypeEnum.CORPORATE],  # open to all employees
-    "PM_DIR_SYND": [BWTypeEnum.PRESSUNION],
-    "PR_DIR": [BWTypeEnum.COM],
-    "PR_CS": [BWTypeEnum.COM],  # open to all employees
-    "PR_CS_IND": [BWTypeEnum.COM],
-    "PR_DIR_COM": [BWTypeEnum.ORGANISATION],
-    "PR_CS_COM": [BWTypeEnum.ORGANISATION],  # open to all employees
-    "XP_DIR_ANY": [BWTypeEnum.ORGANISATION],
-    "XP_ANY": [BWTypeEnum.ORGANISATION],  # open to all employees
-    "XP_PR": [BWTypeEnum.ORGANISATION],  # open to all employees
-    "XP_IND": [BWTypeEnum.ORGANISATION],
-    "XP_DIR_SU": [BWTypeEnum.ORGANISATION],
-    "XP_INV_PUB": [BWTypeEnum.ORGANISATION],
-    "XP_DIR_EVT": [BWTypeEnum.ORGANISATION],
-    "TP_DIR_ORG": [BWTypeEnum.TRANSFORMER],
-    "TR_CS_ORG": [BWTypeEnum.TRANSFORMER],  # open to all employees
-    "TR_CS_ORG_PR": [BWTypeEnum.TRANSFORMER],  # open to all employees
-    "TR_CS_ORG_IND": [BWTypeEnum.TRANSFORMER],
-    "TR_DIR_SU_ORG": [BWTypeEnum.TRANSFORMER],
-    "TR_INV_ORG": [BWTypeEnum.TRANSFORMER],
-    "TR_DIR_POLE": [BWTypeEnum.TRANSFORMER],
-    "AC_DIR": [BWTypeEnum.ACADEMICS],
-    "AC_DIR_JR": [BWTypeEnum.ACADEMICS],
-    "AC_ENS": [BWTypeEnum.ACADEMICS],  # open to all employees
-    "AC_DOC": [BWTypeEnum.ACADEMICS],  # open to all employees
-    "AC_ST": [],  # open to all employees except students
-    "AC_ST_ENT": [BWTypeEnum.ACADEMICS],
+PROFILE_CODE_TO_BW_TYPE: dict[ProfileEnum, list[BWTypeEnum]] = {
+    ProfileEnum.PM_DIR: [BWTypeEnum.MEDIA, BWTypeEnum.AGENCY],
+    ProfileEnum.PM_JR_CP_SAL: [
+        BWTypeEnum.MEDIA,
+        BWTypeEnum.AGENCY,
+    ],  # open to all employees
+    ProfileEnum.PM_JR_PIG: [
+        BWTypeEnum.MEDIA,
+        BWTypeEnum.AGENCY,
+    ],  # open to all employees
+    ProfileEnum.PM_JR_CP_ME: [BWTypeEnum.MEDIA, BWTypeEnum.AGENCY],
+    ProfileEnum.PM_JR_ME: [BWTypeEnum.MEDIA, BWTypeEnum.AGENCY],
+    ProfileEnum.PM_DIR_INST: [BWTypeEnum.CORPORATE],
+    ProfileEnum.PM_JR_INST: [BWTypeEnum.CORPORATE],  # open to all employees
+    ProfileEnum.PM_DIR_SYND: [BWTypeEnum.PRESSUNION],
+    ProfileEnum.PR_DIR: [BWTypeEnum.COM],
+    ProfileEnum.PR_CS: [BWTypeEnum.COM],  # open to all employees
+    ProfileEnum.PR_CS_IND: [BWTypeEnum.COM],
+    ProfileEnum.PR_DIR_COM: [BWTypeEnum.ORGANISATION],
+    ProfileEnum.PR_CS_COM: [BWTypeEnum.ORGANISATION],  # open to all employees
+    ProfileEnum.XP_DIR_ANY: [BWTypeEnum.ORGANISATION],
+    ProfileEnum.XP_ANY: [BWTypeEnum.ORGANISATION],  # open to all employees
+    ProfileEnum.XP_PR: [BWTypeEnum.ORGANISATION],  # open to all employees
+    ProfileEnum.XP_IND: [BWTypeEnum.ORGANISATION],
+    ProfileEnum.XP_DIR_SU: [BWTypeEnum.ORGANISATION],
+    ProfileEnum.XP_INV_PUB: [BWTypeEnum.ORGANISATION],
+    ProfileEnum.XP_DIR_EVT: [BWTypeEnum.ORGANISATION],
+    ProfileEnum.TP_DIR_ORG: [BWTypeEnum.TRANSFORMER],
+    ProfileEnum.TR_CS_ORG: [BWTypeEnum.TRANSFORMER],  # open to all employees
+    ProfileEnum.TR_CS_ORG_PR: [BWTypeEnum.TRANSFORMER],  # open to all employees
+    ProfileEnum.TR_CS_ORG_IND: [BWTypeEnum.TRANSFORMER],
+    ProfileEnum.TR_DIR_SU_ORG: [BWTypeEnum.TRANSFORMER],
+    ProfileEnum.TR_INV_ORG: [BWTypeEnum.TRANSFORMER],
+    ProfileEnum.TR_DIR_POLE: [BWTypeEnum.TRANSFORMER],
+    ProfileEnum.AC_DIR: [BWTypeEnum.ACADEMICS],
+    ProfileEnum.AC_DIR_JR: [BWTypeEnum.ACADEMICS],
+    ProfileEnum.AC_ENS: [BWTypeEnum.ACADEMICS],  # open to all employees
+    ProfileEnum.AC_DOC: [BWTypeEnum.ACADEMICS],  # open to all employees
+    ProfileEnum.AC_ST: [],  # open to all employees except students
+    ProfileEnum.AC_ST_ENT: [BWTypeEnum.ACADEMICS],
 }

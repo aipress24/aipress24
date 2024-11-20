@@ -10,7 +10,7 @@ from flask import g, request
 from werkzeug import Response
 
 from app.constants import PROFILE_CODE_TO_BW_TYPE
-from app.enums import BWTypeEnum, OrganisationTypeEnum, RoleEnum
+from app.enums import BWTypeEnum, OrganisationTypeEnum, ProfileEnum, RoleEnum
 from app.flask.extensions import db
 from app.flask.lib.pages import page
 from app.modules.admin.invitations import invite_users
@@ -166,7 +166,7 @@ class BusinessWallRegistrationPage(BaseWipPage):
 
     def user_profile_to_allowed_subscription(self) -> set[BWTypeEnum]:
         profile = self.user.profile
-        profile_code = profile.profile_code
+        profile_code = ProfileEnum[profile.profile_code]
         return set(PROFILE_CODE_TO_BW_TYPE.get(profile_code, []))
 
     def user_role_to_allowed_subscription(self) -> set[BWTypeEnum]:
