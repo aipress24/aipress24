@@ -15,7 +15,7 @@ exclude = [
     "not-used-yet/",
     #
     "docker/run.py",
-    "e2e_playwright/*.py",
+    "tests-e2e/",
     "features/steps/steps.py",
     "gunicorn.conf.py",
     "icons/tasks.py",
@@ -67,6 +67,7 @@ lint.ignore = [
     "PLR0912", # Too many branches
     "RET505", # Unnecessary `else` after `return` statement
     "RUF012", # Mutable class attributes should be annotated with `typing.ClassVar`
+    "RUF035", # Unsafe use of `markupsafe.Markup` detected
     "S311", # Standard pseudo-random generators are not suitable for cryptographic purposes
     "S404", # `subprocess` module is possibly insecure
     "S603", # Using subprocess
