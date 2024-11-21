@@ -129,7 +129,7 @@ def find_inviting_organisations(mail: str) -> list[Organisation]:
     return [get_obj(i.organisation_id, Organisation) for i in invitations]
 
 
-def specialize_organization_type(
+def specialize_organization_type(  # noqa: PLR0915 PLR0914
     org: Organisation,
     profile_code_str: str,
     info_pro: dict[str, Any],
@@ -245,6 +245,16 @@ def specialize_organization_type(
         secteurs_activite_detail = info_mm["secteurs_activite_detailles_detail"]
     org.secteurs_activite = secteurs_activite
     org.secteurs_activite_detail = secteurs_activite_detail
+
+    transformation_majeure = []
+    transformation_majeure_detail = []
+    if {
+        BWTypeEnum.TRANSFORMER,
+    } & allowed_bw_types:
+        transformation_majeure = info_mm["transformation_majeure"]
+        transformation_majeure_detail = info_mm["transformation_majeure_detail"]
+    org.transformation_majeure = transformation_majeure
+    org.transformation_majeure_detail = transformation_majeure_detail
 
 
 def store_auto_organisation(
