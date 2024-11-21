@@ -25,7 +25,7 @@ def create_app():
 
     app = Starlette(
         routes=[
-            Mount("/admin/", app=admin_app),
+            Mount("/db/", app=admin_app),
             Mount("/", app=flask_app),
         ]
     )

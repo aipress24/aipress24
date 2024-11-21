@@ -13,7 +13,7 @@ engine = create_async_engine(
 
 
 def create_admin(app):
-    admin = Admin(app, engine)
+    admin = Admin(app, engine, base_url="/db")
 
     kyc.register(admin)
     newsroom.register(admin)
