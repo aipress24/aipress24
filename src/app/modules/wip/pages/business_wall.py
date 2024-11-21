@@ -63,6 +63,10 @@ class BusinessWallPage(BaseWipPage):
         allow_editing = has_bw_org and self.user.is_manager
         self.readonly = not allow_editing
         self.form = self.generate_form() if self.org else FlaskForm()
+        if self.org:
+            members = list(self.org.members)
+        else:
+            members = []
         return {
             "org": self.org,
             "org_name": self.org.name if self.org else "",
@@ -71,12 +75,14 @@ class BusinessWallPage(BaseWipPage):
             "allow_editing": allow_editing,
             "is_manager": self.user.is_manager,
             "is_leader": self.user.is_leader,
-            "members": list(self.org.members),
-            "count_members": len(self.org.members),
-            "managers": self.org.managers,
-            "leaders": self.org.leaders,
-            "invitations_emails": emails_invited_to_organisation(self.org.id),
-            "address_formatted": self.org.formatted_address,
+            "members": members,
+            "count_members": len(members),
+            "managers": self.org.managers if self.org else [],
+            "leaders": self.org.leaders if self.org else [],
+            "invitations_emails": (
+                emails_invited_to_organisation(self.org.id) if self.org else []
+            ),
+            "address_formatted": self.org.formatted_address if self.org else "",
             "render_field": render_field,
             "form": self.form,
         }

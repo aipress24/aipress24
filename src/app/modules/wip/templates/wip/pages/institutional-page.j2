@@ -11,12 +11,17 @@
 {% block body_content %}
   {% if not has_bw_org %}
     <div class="prose">
+      {% if org %}
       <p>
         Votre niveau d'abonnement actuel ne vous permet pas de gérer votre page
         institutionnelle.
       </p>
-
       <p>Allez sur la page <a href="{{ url_for('wip.org-registration') }}">Abonnement à l'offre Aipress24 PRO</a> pour vous abonner, et pouvoir ainsi éditer votre page institutionnelle.</p>
+      {% else %}
+      <p>
+        Aucune organisation n'est renseignée.
+      </p>
+      {% endif %}
     </div>
   {% else %}
     {% if is_manager %}
