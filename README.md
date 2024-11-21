@@ -34,7 +34,7 @@ AIpress24 aims to revolutionize the media industry by offering a suite of tools 
 
 ### Development
 
-Assuming you have `poetry` installed, to get started with AIpress24, follow these steps:
+Assuming you have Python (version 3.12 or 3.13) and `poetry` installed, to get started with AIpress24, follow these steps:
 
 
 1. **Clone the Repository**:
@@ -46,14 +46,23 @@ Assuming you have `poetry` installed, to get started with AIpress24, follow thes
     ```bash
     cd aipress24
     poetry shell
-    poetry install
+    make develop
     ```
-3. **Run the Application**:
+3. **Set environment variables**:
+    ```bash
+    cp .env.sample .env
+    ```
+    And then edit `.env` to set the environment variables to your liking.
+3. **Create fake data**:
+    ```bash
+    make fake
+    ```
+4. **Run the Application**:
     Start the development server.
     ```bash
     make run
     ```
-4. **Open Your Browser**:
+5**Open Your Browser**:
     Open your browser and go to `http://localhost:5000` to see the application in action.
 
 
@@ -75,15 +84,10 @@ docker run -p 8108:8108 -v/srv/typesense-server-data-1c/:/data -d typesense/type
 
 ```bash
 poetry install
-poetry run make test
+poetry run make lint
+poetry run make test-sqlite
+poetry run nox
 ```
-
-### Deploying demo (to Hop3)
-
-```bash
-make deploy-hop3
-```
-
 
 ## Contributing
 
