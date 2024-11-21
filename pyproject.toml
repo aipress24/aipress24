@@ -15,7 +15,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "aipress24-flask"
-version = "2024.11.20.2"
+version = "2024.11.21.1"
 description = ""
 authors = ["Stefane Fermigier <sf@abilian.com>"]
 
