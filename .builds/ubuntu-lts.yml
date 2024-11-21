@@ -44,7 +44,7 @@ tasks:
   - nox-test: |
       source ~/.local/bin/env
       cd aipress24
-      TEST_DATABASE_URI="sqlite:///:memory:" uv run nox -e test-3.12
+      uv run nox -e test-3.12
       # TODO: postgres
 
   - nox-lint: |
