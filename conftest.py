@@ -37,7 +37,8 @@ class TestConfig:
         if db_uri := os.environ.get("TEST_DATABASE_URI"):
             self.SQLALCHEMY_DATABASE_URI = db_uri
         else:
-            self.SQLALCHEMY_DATABASE_URI = "postgresql://localhost/aipress24_test"
+            self.SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
+            # self.SQLALCHEMY_DATABASE_URI = "postgresql://localhost/aipress24_test"
 
 
 #
