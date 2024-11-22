@@ -68,13 +68,14 @@ lint.ignore = [
     "RET505", # Unnecessary `else` after `return` statement
     "RUF012", # Mutable class attributes should be annotated with `typing.ClassVar`
     "RUF035", # Unsafe use of `markupsafe.Markup` detected
+    "RUF039", # Unsafe use of `markupsafe.Markup` detected
     "S311", # Standard pseudo-random generators are not suitable for cryptographic purposes
     "S404", # `subprocess` module is possibly insecure
     "S603", # Using subprocess
     "T201", # `print` found
-    "TCH001", # Move import into a type-checking block
-    "TCH002", # Move import into a type-checking block
-    "TCH003", # Move import into a type-checking block
+    "TC001", # Move import into a type-checking block
+    "TC002", # Move import into a type-checking block
+    "TC003", # Move import into a type-checking block
     "TID252", # Relative imports from parent modules are banned
 ]
 

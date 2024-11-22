@@ -218,6 +218,8 @@ asgiref = "^3.8"
 # Main QA tools
 abilian-devtools = "^0.7"
 
+ruff = "^0.8"
+
 #
 flask-debugtoolbar = "^0.16"
 

@@ -17,7 +17,7 @@ test-sqlite:
 	pytest
 
 test-postgres:
-	TEST_DATABASE_URI=""postgresql://localhost/aipress24_test"" pytest
+	TEST_DATABASE_URI="postgresql://localhost/aipress24_test" pytest
 
 test-with-sqla-warnings:
 	SQLALCHEMY_WARN_20=1 pytest -W always::DeprecationWarning
@@ -165,17 +165,12 @@ doc:
 #
 # Dependencies
 #
-.PHONY: update-deps poetry.lock
+.PHONY: update-deps
 
 ## Update dependencies
 update-deps:
 	poetry update
-	poetry export -f requirements.txt > requirements.txt
 	poetry show -o
-
-poetry.lock: pyproject.toml
-	poetry update
-	poetry export -f requirements.txt > requirements.txt
 
 
 #
