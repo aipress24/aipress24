@@ -4,23 +4,18 @@
 
 from __future__ import annotations
 
-from pathlib import Path
-
-from flask import current_app
 from wtforms import widgets
 from wtforms.fields.choices import SelectField
 
 from app.flask.forms import get_choices
 
+from .base import BaseWidget
 
-class RichSelectWidget(widgets.Select):
+
+class RichSelectWidget(widgets.Select, BaseWidget):
     def __call__(self, field: RichSelectField, **kwargs):
-        template = self.get_template()
+        template = self.get_template("rich_select.j2")
         return template.render(field=field)
-
-    def get_template(self):
-        template_path = Path(__file__).parent / "rich_select.j2"
-        return current_app.jinja_env.from_string(template_path.read_text())
 
 
 class RichSelectField(SelectField):
