@@ -60,7 +60,7 @@ class MembersList(BaseList):
         if not search:
             return stmt
 
-        m = re.search("([0-9]+)", search)
+        m = re.search(r"([0-9]+)", search)
         if m:
             zip_code = m.group(1)
             search = search.replace(zip_code, "").strip()
