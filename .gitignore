@@ -10,8 +10,9 @@
 
 # Runtime
 /src/instance/
-/vite/dist/assets/
-/vite/dist/
+
+# /vite/dist/assets/
+# /vite/dist/
 
 # Secret
 /.env
