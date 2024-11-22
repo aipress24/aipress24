@@ -32,13 +32,15 @@
   <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
 
     <div class="sm:flex sm:items-end sm:space-x-5">
-      <div class="flex">
-        <img
+      {% if org.logo_url %}
+        <div class="flex">
+          <img
             class="h-24 w-24 ring-2 ring-gray-100 sm:h-32 sm:w-32"
-            src="{{ logo_url }}"
-            alt="logo_url"
-        />
-      </div>
+            src="{{ org.logo_url }}"
+            alt="Logo de l&apos;organisation"
+          />
+        </div>
+      {% endif %}
       <div
           class="mt-6 sm:flex-1 sm:min-w-0 sm:flex sm:items-center sm:justify-end sm:space-x-6 sm:pb-1"
       >
