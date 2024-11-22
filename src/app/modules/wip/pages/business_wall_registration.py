@@ -90,6 +90,7 @@ class BusinessWallRegistrationPage(BaseWipPage):
                 self.org.bw_type.name if (self.org and self.org.bw_type) else ""
             ),
             "user_profile": self.user.profile.profile_label,
+            "is_manager": self.user.is_manager,
             "allow_bw_string": allowed_list_str,
             "allow_bw_names": {x.name for x in self.allowed_subs},
             "is_auto": is_auto,
@@ -112,19 +113,27 @@ class BusinessWallRegistrationPage(BaseWipPage):
             return self.org.logo_url
 
     def hx_post(self) -> str | Response:
-        action = request.form.get("action")
+        action = request.form.get("action", "")
         if action:
-            if action == "change_bw_data":
+            if action in {"change_bw_data", "reload_bw_data"}:
                 response = Response("")
                 response.headers["HX-Redirect"] = self.url
                 return response
-            if action == "reload_bw_data":
-                response = Response("")
-                response.headers["HX-Redirect"] = self.url
-                return response
-            if action == "register":
+            elif action == "register":
                 bw_type = request.form.get("subscription", "")
                 self.do_register(bw_type)
+                response = Response("")
+                # response.headers["HX-Redirect"] = url_for(".org-profile")
+                response.headers["HX-Redirect"] = self.url
+                return response
+            elif action == "suspend":
+                self.do_suspend()
+                response = Response("")
+                # response.headers["HX-Redirect"] = url_for(".org-profile")
+                response.headers["HX-Redirect"] = self.url
+                return response
+            elif action == "restore":
+                self.do_restore()
                 response = Response("")
                 # response.headers["HX-Redirect"] = url_for(".org-profile")
                 response.headers["HX-Redirect"] = self.url
@@ -141,6 +150,22 @@ class BusinessWallRegistrationPage(BaseWipPage):
         add_managers_emails(self.org, self.user.email)
         # also add the new manager to invitations
         invite_users(self.user.email, self.org.id)
+
+    def do_suspend(self) -> None:
+        if not self.org.active:
+            return
+        db_session = db.session
+        self.org.active = False
+        db_session.merge(self.org)
+        db_session.commit()
+
+    def do_restore(self) -> None:
+        if self.org.active:
+            return
+        db_session = db.session
+        self.org.active = True
+        db_session.merge(self.org)
+        db_session.commit()
 
     def _change_organisation_bw_type(self, bw_type: str) -> None:
         bw_type_enum = BWTypeEnum[bw_type]
