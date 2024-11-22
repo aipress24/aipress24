@@ -46,6 +46,7 @@ def main():
     print("Creating assets")
     sh("flask vite install")
     sh("flask vite build")
+    sh("ls ./vite/dist/assets/")
     print()
 
     print("Migrating database")
