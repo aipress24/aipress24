@@ -10,8 +10,16 @@
     x-id="['trix']"
     @trix-change="value = $refs.input.value"
 >
-  <input :id="$id('trix')" type="hidden" x-ref="input" name="{{ field.id }}" value="{{ field.get_value() }}">
+  <input
+    :id="$id('trix')"
+    type="hidden"
+    x-ref="input"
+    name="{{ field.id }}"
+    value="{{ field.get_value() }}">
 
   <!-- Optional .prose class added to utilize Tailwind's Typography Plugin for styling -->
-  <trix-editor x-ref="trix" :input="$id('trix')" class="prose bg-white min-h-48"></trix-editor>
+  <trix-editor
+    x-ref="trix"
+    :input="$id('trix')"
+    class="prose bg-white min-h-48"></trix-editor>
 </div>

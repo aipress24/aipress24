@@ -18,7 +18,7 @@ from app.services.tagging._models import TagApplication  # noqa: PLC2701
 
 
 def db_is_sqlite() -> bool:
-    return "sqlite" in os.environ.get("TEST_DATABASE_URI", "")
+    return "sqlite" in os.environ.get("TEST_DATABASE_URI", "sqlite")
 
 
 @pytest.mark.skipif(db_is_sqlite(), reason="sqlite does not support cascading")

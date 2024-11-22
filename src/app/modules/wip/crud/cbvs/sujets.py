@@ -45,6 +45,7 @@ class SujetsWipView(BaseWipView):
     label_list = "Liste des sujets"
     label_new = "Créer un sujet"
     label_edit = "Modifier le sujet"
+    label_view = "Voir le sujet"
 
     table_id = "sujet-table-body"
 

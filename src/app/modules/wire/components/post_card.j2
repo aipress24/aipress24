@@ -29,7 +29,7 @@
   <a href="{{ url_for(post) }}" data-testid="article">
     <img class="w-full lg:h-64 object-cover"
          src="{{ post.image_url }}"
-         alt="{{ post.image_caption }}"
+         alt="{{ post.image_caption }} - {{ post.image_copyright }}"
          data-tooltip-target="post-{{ post.id }}-tooltip"
          data-tooltip-placement="bottom"
     />

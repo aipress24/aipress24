@@ -1,4 +1,4 @@
-# AIPress24
+# Aipress24
 
 # Troubleshooting / FAQ Guide
 
@@ -10,7 +10,7 @@ Some common issues and solutions when deploying.
 
 - Error message: `urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate`
 
-- Run the followin commands:
+- Run the following commands:
 
 ```
 pip install certifi

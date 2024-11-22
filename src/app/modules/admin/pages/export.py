@@ -319,7 +319,7 @@ class ExporterInscriptions:
 
     def do_top_info(self) -> None:
         self.sheet["table"].extend([
-            {"row": ["AIPress24"], "style": "bold"},
+            {"row": ["Aipress24"], "style": "bold"},
             {
                 "row": [
                     {
@@ -691,7 +691,7 @@ class ExporterOrganisations:
 
     def do_top_info(self) -> None:
         self.sheet["table"].extend([
-            {"row": ["AIPress24"], "style": "bold"},
+            {"row": ["Aaipress24"], "style": "bold"},
             {
                 "row": [
                     {

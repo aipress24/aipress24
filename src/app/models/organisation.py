@@ -215,6 +215,10 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
     secteurs_activite_rp_detail: Mapped[dict] = mapped_column(JSON, default=list)
     secteurs_activite: Mapped[dict] = mapped_column(JSON, default=list)
     secteurs_activite_detail: Mapped[dict] = mapped_column(JSON, default=list)
+
+    transformation_majeure: Mapped[dict] = mapped_column(JSON, default=list)
+    transformation_majeure_detail: Mapped[dict] = mapped_column(JSON, default=list)
+
     type_organisation: Mapped[dict] = mapped_column(JSON, default=list)  #
     type_organisation_detail: Mapped[dict] = mapped_column(JSON, default=list)  #
     type_entreprise_media: Mapped[dict] = mapped_column(JSON, default=list)

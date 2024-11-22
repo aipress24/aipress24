@@ -1,6 +1,6 @@
-# AIPress24
+# Aipress24
 
-Welcome to the AIpress24 project! AIpress24 is an innovative, open-source digital platform designed to transform the way journalists, news agencies, and media professionals collaborate and monetize their work. Developed by Techno-Chroniqueurs Associés, with the technical expertise of Abilian, AIpress24 provides a comprehensive B2B environment tailored to the needs of the information and innovation sectors.
+Welcome to the Aipress24 project! Aipress24 is an innovative, open-source digital platform designed to transform the way journalists, news agencies, and media professionals collaborate and monetize their work. Developed by [Techno-Chroniqueurs Associés](https://agencetca.info/), with the technical expertise of Abilian, Aipress24 provides a comprehensive B2B environment tailored to the needs of the information and innovation sectors.
 
 > [!WARNING]
 > This code is still evolving quickly, and not meant for production yet.
@@ -18,7 +18,7 @@ Welcome to the AIpress24 project! AIpress24 is an innovative, open-source digita
 
 ## Introduction
 
-AIpress24 aims to revolutionize the media industry by offering a suite of tools that enhance productivity, foster community interaction, and create new revenue streams for journalists and media organizations. Our mission is to support journalism and innovation by providing a platform that facilitates content creation, collaboration, and distribution.
+Aipress24 aims to revolutionize the media industry by offering a suite of tools that enhance productivity, foster community interaction, and create new revenue streams for journalists and media organizations. Our mission is to support journalism and innovation by providing a platform that facilitates content creation, collaboration, and distribution.
 
 ## Features
 
@@ -34,7 +34,7 @@ AIpress24 aims to revolutionize the media industry by offering a suite of tools 
 
 ### Development
 
-Assuming you have `poetry` installed, to get started with AIpress24, follow these steps:
+Assuming you have Python (version 3.12 or 3.13) and `poetry` installed, to get started with Aipress24, follow these steps:
 
 
 1. **Clone the Repository**:
@@ -46,14 +46,23 @@ Assuming you have `poetry` installed, to get started with AIpress24, follow thes
     ```bash
     cd aipress24
     poetry shell
-    poetry install
+    make develop
     ```
-3. **Run the Application**:
+3. **Set environment variables**:
+    ```bash
+    cp .env.sample .env
+    ```
+    And then edit `.env` to set the environment variables to your liking.
+3. **Create fake data**:
+    ```bash
+    make fake
+    ```
+4. **Run the Application**:
     Start the development server.
     ```bash
     make run
     ```
-4. **Open Your Browser**:
+5**Open Your Browser**:
     Open your browser and go to `http://localhost:5000` to see the application in action.
 
 
@@ -75,15 +84,10 @@ docker run -p 8108:8108 -v/srv/typesense-server-data-1c/:/data -d typesense/type
 
 ```bash
 poetry install
-poetry run make test
+poetry run make lint
+poetry run make test-sqlite
+poetry run nox
 ```
-
-### Deploying demo (to Hop3)
-
-```bash
-make deploy-hop3
-```
-
 
 ## Contributing
 
@@ -91,7 +95,7 @@ We welcome contributions from the community! Whether you're a developer, designe
 
 - **Submit Issues**: If you find bugs or have feature requests, please submit an issue on our GitHub repository.
 - **Fork the Repository**: Make changes in your own fork, and submit a pull request when you're ready.
-- **Join Discussions**: Participate in discussions on our forums or GitHub issues to help shape the future of AIpress24.
+- **Join Discussions**: Participate in discussions on our forums or GitHub issues to help shape the future of Aipress24.
 - **Documentation**: Help improve our documentation by contributing to our Wiki or README files.
 
 ### Development Environment
@@ -120,7 +124,7 @@ To set up your development environment, ensure you have Node.js and npm installe
 
 ## Architecture
 
-AIpress24 is built using modern web technologies to ensure scalability, security, and performance:
+Aipress24 is built using modern web technologies to ensure scalability, security, and performance:
 
 - **Frontend**: Developed using HTMX and TailwindCSS for a responsive and interactive user interface.
 - **Backend**: Powered by Python, with a PostgreSQL database for data management.
@@ -133,11 +137,11 @@ AIpress24 is built using modern web technologies to ensure scalability, security
 Join our growing community of contributors and users! Stay updated and participate in discussions:
 
 - **Discussions**: Participate in discussions on our GitHub repository and share your feedback, or join the Aipress24.com community as a "Transformer" (when the platform is open).
-- **Meetups**: Attend our virtual meetups and webinars to learn more about AIpress24 and how you can contribute.
+- **Meetups**: Attend our virtual meetups and webinars to learn more about Aipress24 and how you can contribute.
 
 ## License
 
-AIpress24 is licensed under the AGPL-3.0 License, except for vendored code.
+Aipress24 is licensed under the AGPL-3.0 License, except for vendored code.
 See the [LICENSE](LICENSE) file for more information.
 
 Here is the REUSE summary as of 2024/06/17:
@@ -199,7 +203,7 @@ docker run --rm secscan/nikto -h $APP_ROOT_URL
 
 ### Deploy to Hop3
 
-For experimental deployment to Hop3, you can use the following commands:
+For experimental deployment to [Hop3](https://hop3.cloud/), you can use the following commands:
 
 ```bash
 export HOP3="YOUR_HOP3_HOST"
@@ -218,4 +222,4 @@ hop config:set FLASK_SQLALCHEMY_DATABASE_URI=sqlite:////home/hop3/data/aipress24
 
 ---
 
-Thank you for your interest in AIpress24! We are excited to have you join our mission to support journalism and innovation through open-source technology. If you have any questions or need further assistance, please feel free to reach out to us through our community channels.
+Thank you for your interest in Aipress24! We are excited to have you join our mission to support journalism and innovation through open-source technology. If you have any questions or need further assistance, please feel free to reach out to us through our community channels.

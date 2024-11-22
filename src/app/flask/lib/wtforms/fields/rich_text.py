@@ -4,13 +4,12 @@
 
 from __future__ import annotations
 
-from pathlib import Path
-
-from flask import current_app
 from wtforms.fields.simple import StringField
 
+from .base import BaseWidget
 
-class RichTextWidget:
+
+class RichTextWidget(BaseWidget):
     """
     Renders a multi-line text area.
 
@@ -32,15 +31,11 @@ class RichTextWidget:
     #     )
 
     def __call__(self, field: RichTextField, **kwargs):
-        template = self.get_template()
+        template = self.get_template("rich_text.j2")
         ctx = {
             "field": field,
         }
         return template.render(**ctx)
-
-    def get_template(self):
-        template_path = Path(__file__).parent / "rich_text.j2"
-        return current_app.jinja_env.from_string(template_path.read_text())
 
 
 class RichTextField(StringField):

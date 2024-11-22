@@ -14,10 +14,10 @@ test:
 	@make test-sqlite test-postgres
 
 test-sqlite:
-	TEST_DATABASE_URI="sqlite:///:memory:" pytest
+	pytest
 
 test-postgres:
-	pytest
+	TEST_DATABASE_URI=""postgresql://localhost/aipress24_test"" pytest
 
 test-with-sqla-warnings:
 	SQLALCHEMY_WARN_20=1 pytest -W always::DeprecationWarning

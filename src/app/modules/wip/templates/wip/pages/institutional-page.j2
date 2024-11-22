@@ -7,41 +7,35 @@
 }
 </style>
 
-
 {% block body_content %}
   {% if not has_bw_org %}
     <div class="prose">
+      {% if org %}
       <p>
         Votre niveau d'abonnement actuel ne vous permet pas de gérer votre page
         institutionnelle.
       </p>
-
       <p>Allez sur la page <a href="{{ url_for('wip.org-registration') }}">Abonnement à l'offre Aipress24 PRO</a> pour vous abonner, et pouvoir ainsi éditer votre page institutionnelle.</p>
+      {% else %}
+      <p>
+        Aucune organisation n'est renseignée.
+      </p>
+      {% endif %}
     </div>
   {% else %}
-    {% if is_manager %}
-      <div class="prose">
-        <p class="mb-2">
-          Vous pouvez modifier les informations sur cette page (vous êtes manager du BW de votre organisation).
-        </p>
-      </div>
-    {% else %}
-      <div class="prose">
-        <p class="mb-2">
-          Modifications non permises (vous n'êtes pas manager du BW de votre organisation).
-        </p>
-      </div>
-    {% endif %}
+
     <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
 
       <div class="sm:flex sm:items-end sm:space-x-5">
-        <div class="flex">
-          <img
+        {% if org.logo_url %}
+          <div class="flex">
+            <img
               class="h-24 w-24 ring-2 ring-gray-100 sm:h-32 sm:w-32"
               src="{{ org.logo_url }}"
-              alt="logo_url"
-          />
-        </div>
+              alt="Logo de l&apos;organisation"
+            />
+          </div>
+        {% endif %}
         <div
             class="mt-6 sm:flex-1 sm:min-w-0 sm:flex sm:items-center sm:justify-end sm:space-x-6 sm:pb-1"
         >
@@ -89,6 +83,42 @@
           class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-500 hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-400"
       >Liste invitations</button>
     </div>
+    {% endif %}
+
+    {% if is_manager %}
+      <div class="prose">
+        <p class='mt-6 p-2'>
+          Vous pouvez modifier les informations sur l'organisation (vous êtes manager du BW de votre organisation).
+        </p>
+      </div>
+    {% else %}
+      <div class="prose">
+        <p class='mt-6'>
+          Modifications non permises (vous n'êtes pas manager du BW de votre organisation).
+        </p>
+      </div>
+    {% endif %}
+
+    {% if is_manager %}
+    <div class="flex items-center justify-end gap-x-6">
+      <button
+        type="submit"
+        form="bwform"
+        hx-post="/wip/org-profile"
+        hx-vals='{"action": "reload_bw_data"}'
+        id="reload"
+        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+      >Annuler les changements</button>
+      <button
+        type="button"
+        id="prevalid"
+        data-modal-target="confirm_valid_popup"
+        data-modal-toggle="confirm_valid_popup"
+        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+    >Valider les changements</button>
+    </div>
+
+
     <div id="list_users_modal"
       data-modal-backdrop="static"
       tabindex="-1"
@@ -269,7 +299,7 @@
     enctype="multipart/form-data"
     >
     {{ form.csrf_token }}
-    <div class="my-4">
+    <div class="my-1">
       <fieldset class="border border-solid border-gray-500 p-4">
         <legend>Informations sur l'organisation</legend>
         {% for field in form %}
@@ -288,12 +318,12 @@
           form="bwform"
           hx-post="/wip/org-profile"
           hx-vals='{"action": "reload_bw_data"}'
-          id="reload"
+          id="reload2"
           class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
         >Annuler les changements</button>
         <button
           type="button"
-          id="prevalid"
+          id="prevalid2"
           data-modal-target="confirm_valid_popup"
           data-modal-toggle="confirm_valid_popup"
           class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
@@ -329,10 +359,14 @@
               class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center"
             >Oui, valider</button>
             <button
-              data-modal-hide="confirm_valid_popup"
+              type="submit"
+              form="bwform"
+              hx-post="/wip/org-profile"
+              hx-vals='{"action": "reload_bw_data"}'
               id="novalid"
+              data-modal-hide="confirm_valid_popup"
               class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
-            >Annuler</button>
+            >Annuler les changements</button>
           </div>
         </div>
       </div>

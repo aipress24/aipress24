@@ -42,6 +42,7 @@ class CommandesWipView(BaseWipView):
     label_main = "Newsroom: commandes"
     label_list = "Liste des commandes"
     label_new = "Créer une commande"
+    label_view = "Voir la commande"
     label_edit = "Modifier la commande"
     table_id = "commande-table-body"
 
