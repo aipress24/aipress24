@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vite App</title>
+    <script type="module" crossorigin src="/assets/index-92e6649b.js"></script>
+    <link rel="stylesheet" href="/assets/index-6ce51c3d.css">
+  </head>
+
+  <body>
+    HELLO!
+    <div
+      x-data="{
+        value: '',
+        init() {
+            const toolbarOptions = [
+              ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
+              ['blockquote', 'code-block'],
+
+              [{ 'header': 1 }, { 'header': 2 }],               // custom button values
+              [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+              [{ 'script': 'sub'}, { 'script': 'super' }],      // superscript/subscript
+              [{ 'indent': '-1'}, { 'indent': '+1' }],          // outdent/indent
+              [{ 'direction': 'rtl' }],                         // text direction
+
+              [{ 'size': ['small', false, 'large', 'huge'] }],  // custom dropdown
+              [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+
+              [{ 'color': [] }, { 'background': [] }],          // dropdown with defaults from theme
+              [{ 'font': [] }],
+              [{ 'align': [] }],
+
+              ['image', 'link'],
+
+              ['clean'],                                         // remove formatting button
+            ];
+            let quill = new Quill(this.$refs.quill, {
+              modules: {
+                toolbar: toolbarOptions
+              },
+              theme: 'snow'
+            })
+
+            quill.root.innerHTML = this.value
+
+            quill.on('text-change', () => {
+                this.value = quill.root.innerHTML
+            })
+        },
+    }"
+    >
+      <div x-ref="quill"></div>
+    </div>
+
+    
+  </body>
+</html>
