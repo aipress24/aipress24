@@ -8,7 +8,7 @@ Vous êtes un/une attaché(e) de presse travaillant :
 - soit dans le département communication d’une entreprise (chez l’annonceur) ou d’une institution ;
 - soit en indépendant(e).
 
-Sur AIPress24, vous pouvez publier :
+Sur Aipress24, vous pouvez publier :
 
 - des communiqués de presse ;
 - des dossiers de presse ;
