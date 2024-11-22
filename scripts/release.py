@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-
 # Copyright (c) 2021-2024, Abilian SAS & TCA
 #
 # SPDX-License-Identifier: AGPL-3.0-only
@@ -49,15 +48,8 @@ def install_npm():
         sh([nodeenv_command, "--force", install_dir])
 
 
-# Before running
-# sh("scripts/build-assets.py")
 install_npm()
 
 sh("flask db upgrade")
 sh("flask vite install")
 sh("flask vite build")
-
-# Run the web server
-# sh(f"gunicorn -b 0.0.0.0:{PORT} wsgi:app")
-print(f"Running server on port {PORT}")
-sh(f"python -m server {PORT}")

@@ -1,4 +1,7 @@
-web: ./runner.py
+# Procfile used by PaaS operators like Heroku, Hop3, etc.
+
+release: scripts/release.py
+web: python -m server
 
 # web: honcho -f Procfile.heroku start
 # web: gunicorn -w4 -b 0.0.0.0:$PORT 'wsgi:create_app()'

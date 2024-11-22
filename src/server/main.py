@@ -16,7 +16,10 @@ config = Config()
 
 PORT = config("PORT", cast=int, default=5000)
 DEBUG = config("FLASK_DEBUG", cast=bool, default=False)
-LOG_LEVEL = LogLevels.debug
+if DEBUG:
+    LOG_LEVEL = LogLevels.debug
+else:
+    LOG_LEVEL = LogLevels.info
 
 
 def create_app():

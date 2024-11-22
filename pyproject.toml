@@ -296,13 +296,13 @@ deptry = ">=0.20"
 buildstr = "^0.1.1"
 splinter = "^0.21.0"
 infer-types = "^1.0.0"
+flynt = "^1.0.1"
 
 #[tool.poetry.build]
 #generate-setup-file = false
 #script = "scripts/pre-build.py"
 
 # -----------------------------------------------------------------------------
-flynt = "^1.0.1"
 
 [tool.pytest]
 python_files = "test_*.py *_test.py tests.py"
