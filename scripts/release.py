@@ -9,6 +9,7 @@ from __future__ import annotations
 import logging
 import os
 import shlex
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -17,7 +18,8 @@ logger = logging.getLogger()
 
 PROJECT_ROOT = Path(__file__).parent.parent
 NODEENV = "nodeenv"
-DEFAULT_VENV_PATH = PROJECT_ROOT / ".venv"
+
+VENV_PATH = Path(shutil.which("flask")).parent.parent
 
 PORT = os.environ.get("PORT", 5000)
 
@@ -30,13 +32,13 @@ def sh(cmd: list | str):
 
 
 def install_npm():
-    if (DEFAULT_VENV_PATH / "bin" / "npm").exists():
+    if (VENV_PATH / "bin" / "npm").exists():
         return
 
-    found_in_local_venv = (DEFAULT_VENV_PATH / "bin" / NODEENV).exists()
+    found_in_local_venv = (VENV_PATH / "bin" / NODEENV).exists()
     if found_in_local_venv:
         logger.info("`nodeenv` command found in local venv.")
-        install_dir = DEFAULT_VENV_PATH
+        install_dir = VENV_PATH
         nodeenv_command = f"{install_dir}/bin/{NODEENV}"
     else:
         logger.info("`nodeenv` command not found in local venv.")
