@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from wtforms.fields.simple import StringField
 
-from app.flask.lib.wtforms.fields.base import BaseWidget
+from .base import BaseWidget
 
 
 class RichTextWidget(BaseWidget):
