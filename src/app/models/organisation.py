@@ -247,6 +247,14 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
         return self.type == OrganisationTypeEnum.AUTO
 
     @property
+    def is_bw_active(self) -> bool:
+        return self.type != OrganisationTypeEnum.AUTO and self.active
+
+    @property
+    def is_bw_inactive(self) -> bool:
+        return self.type != OrganisationTypeEnum.AUTO and not self.active
+
+    @property
     def is_auto_or_inactive(self) -> bool:
         return self.type == OrganisationTypeEnum.AUTO or not self.active
 

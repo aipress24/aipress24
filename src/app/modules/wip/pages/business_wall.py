@@ -59,10 +59,12 @@ class BusinessWallPage(BaseWipPage):
         self.readonly: bool = False
 
     def context(self) -> dict[str, Any]:
-        has_bw_org = self.org and not self.org.is_auto_or_inactive
-        allow_editing = has_bw_org and self.user.is_manager
+        is_auto = self.org and self.org.is_auto
+        is_bw_active = self.org and self.org.is_bw_active
+        is_bw_inactive = self.org and self.org.is_bw_inactive
+        allow_editing = is_bw_active and self.user.is_manager
         self.readonly = not allow_editing
-        self.form = self.generate_form() if self.org else FlaskForm()
+        self.form = self.generate_form() if is_bw_active else FlaskForm()
         if self.org:
             members = list(self.org.members)
         else:
@@ -71,7 +73,9 @@ class BusinessWallPage(BaseWipPage):
             "org": self.org,
             "org_name": self.org.name if self.org else "",
             "org_bw_type": self.org.bw_type if self.org else "",
-            "has_bw_org": has_bw_org,
+            "is_auto": is_auto,
+            "is_bw_active": is_bw_active,
+            "is_bw_inactive": is_bw_inactive,
             "allow_editing": allow_editing,
             "is_manager": self.user.is_manager,
             "is_leader": self.user.is_leader,

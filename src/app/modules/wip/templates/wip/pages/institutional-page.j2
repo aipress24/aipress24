@@ -8,24 +8,33 @@
 </style>
 
 {% block body_content %}
-  {% if not has_bw_org %}
+  {% if not org %}
     <div class="prose">
-      {% if org %}
+      <p>
+        Aucune organisation n'est renseignée.
+      </p>
+    </div>
+  {% elif is_auto %}
+    <div class="prose">
       <p>
         Votre niveau d'abonnement actuel ne vous permet pas de gérer votre page
         institutionnelle.
       </p>
-      <p>Allez sur la page <a href="{{ url_for('wip.org-registration') }}">Abonnement à l'offre Aipress24 PRO</a> pour vous abonner, et pouvoir ainsi éditer votre page institutionnelle.</p>
-      {% else %}
       <p>
-        Aucune organisation n'est renseignée.
+        Allez sur la page <a href="{{ url_for('wip.org-registration') }}">Abonnement à l'offre Aipress24 PRO</a> pour vous abonner, et pouvoir ainsi éditer votre page institutionnelle.
       </p>
-      {% endif %}
+    </div>
+  {% elif is_bw_inactive %}
+    <div class="prose">
+      <p>
+        Espace non disponible car l’organisation a suspendu son abonnement.
+      </p>
+      <p>
+        Pour réactiver votre abonnement, allez sur la page <a href="{{ url_for('wip.org-registration') }}">Abonnement à l'offre Aipress24 PRO</a>.
+      </p>
     </div>
   {% else %}
-
     <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-
       <div class="sm:flex sm:items-end sm:space-x-5">
         {% if org.logo_url %}
           <div class="flex">
@@ -49,7 +58,7 @@
     </div>
     <hr class="mt-2">
     <p class="p-2">
-      Type d'abonnement BW&nbsp;: {{org_bw_type |label}}
+      Type d'abonnement BW&nbsp;: «{{org_bw_type |label}}»
     </p>
 
     {% if is_manager %}

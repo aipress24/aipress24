@@ -78,7 +78,9 @@ class BusinessWallRegistrationPage(BaseWipPage):
         self.allowed_subs: set[BWTypeEnum] = self.find_allowed_subscription()
 
     def context(self) -> dict[str, Any]:
-        has_bw_org = self.org and self.org.type != OrganisationTypeEnum.AUTO
+        is_auto = self.org and self.org.is_auto
+        is_bw_active = self.org and self.org.is_bw_active
+        is_bw_inactive = self.org and self.org.is_bw_inactive
         allowed_list_str = ", ".join(str(x) for x in sorted(self.allowed_subs))
         return {
             "org": self.org,
@@ -90,7 +92,9 @@ class BusinessWallRegistrationPage(BaseWipPage):
             "user_profile": self.user.profile.profile_label,
             "allow_bw_string": allowed_list_str,
             "allow_bw_names": {x.name for x in self.allowed_subs},
-            "has_bw_org": has_bw_org,
+            "is_auto": is_auto,
+            "is_bw_active": is_bw_active,
+            "is_bw_inactive": is_bw_inactive,
             "product_bw": PRODUCT_BW,
             "product_bw_long": PRODUCT_BW_LONG,
             "description_bw": DESCRIPTION_BW,
@@ -99,7 +103,9 @@ class BusinessWallRegistrationPage(BaseWipPage):
             "render_field": render_field,
         }
 
-    def get_logo_url(self):
+    def get_logo_url(self) -> str:
+        if not self.org:
+            return ""
         if self.org.is_auto:
             return "/static/img/logo-page-non-officielle.png"
         else:
