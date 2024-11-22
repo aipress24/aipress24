@@ -21,7 +21,13 @@
         institutionnelle.
       </p>
       <p>
-        Allez sur la page <a href="{{ url_for('wip.org-registration') }}">Abonnement à l'offre Aipress24 PRO</a> pour vous abonner, et pouvoir ainsi éditer votre page institutionnelle.
+        Allez sur la page
+        <a
+          class="hover:underline focus:outline-none focus:underline text-primary-600 hover:text-primary-500 text-sm font-medium"
+          href="{{ url_for('wip.org-registration') }}">
+            Abonnement à l'offre Aipress24 PRO
+        </a>
+        pour vous abonner, et pouvoir ainsi éditer votre page institutionnelle.
       </p>
     </div>
   {% elif is_bw_inactive %}
@@ -30,7 +36,12 @@
         Espace non disponible car l’organisation a suspendu son abonnement.
       </p>
       <p>
-        Pour réactiver votre abonnement, allez sur la page <a href="{{ url_for('wip.org-registration') }}">Abonnement à l'offre Aipress24 PRO</a>.
+        Pour réactiver votre abonnement, allez sur la page
+        <a
+          class="hover:underline focus:outline-none focus:underline text-primary-600 hover:text-primary-500 text-sm font-medium"
+          href="{{ url_for('wip.org-registration') }}">
+            Abonnement à l'offre Aipress24 PRO
+        </a>.
       </p>
     </div>
   {% else %}
@@ -58,7 +69,11 @@
     </div>
     <hr class="mt-2">
     <p class="p-2">
-      Type d'abonnement BW&nbsp;: «{{org_bw_type |label}}»
+      Type d'abonnement BW&nbsp;: «{{org_bw_type |label}}».
+      {% if is_manager %}
+      <a class="hover:underline focus:outline-none focus:underline text-primary-600 hover:text-primary-500 text-sm font-medium"
+        href="{{ url_for('wip.org-registration') }}">Gestion de l&apos;abonnement</a>.
+      {% endif%}
     </p>
 
     {% if is_manager %}
