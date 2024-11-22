@@ -52,6 +52,9 @@ def install_npm():
 
 install_npm()
 
+for k in sorted(os.environ):
+    print(f"{k}={os.environ[k]}")
+
 sh("flask db upgrade")
 sh("flask vite install")
 sh("flask vite build")
