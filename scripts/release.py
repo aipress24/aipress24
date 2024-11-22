@@ -11,17 +11,9 @@ import os
 import shlex
 import shutil
 import subprocess
-import sys
 from pathlib import Path
 
 logger = logging.getLogger()
-
-PROJECT_ROOT = Path(__file__).parent.parent
-NODEENV = "nodeenv"
-
-VENV_PATH = Path(shutil.which("flask")).parent.parent
-
-PORT = os.environ.get("PORT", 5000)
 
 
 def sh(cmd: list | str):
@@ -32,29 +24,33 @@ def sh(cmd: list | str):
 
 
 def install_npm():
-    if (VENV_PATH / "bin" / "npm").exists():
+    venv_path = Path(shutil.which("flask")).parent.parent
+
+    if (venv_path / "bin" / "npm").exists():
         return
 
-    found_in_local_venv = (VENV_PATH / "bin" / NODEENV).exists()
-    if found_in_local_venv:
-        logger.info("`nodeenv` command found in local venv.")
-        install_dir = VENV_PATH
-        nodeenv_command = f"{install_dir}/bin/{NODEENV}"
-    else:
-        logger.info("`nodeenv` command not found in local venv.")
-        install_dir = Path(os.environ.get("VIRTUAL_ENV", sys.prefix))
-        nodeenv_command = NODEENV
-
-    if not (install_dir / "bin" / "npm").exists():
-        logger.info("Installing Node environment to %s:", install_dir)
-        sh([nodeenv_command, "--force", install_dir])
+    logger.info("Installing Node environment to %s:", venv_path)
+    sh(["nodeenv", "--force", venv_path])
 
 
-install_npm()
+def main():
+    print("Environment variables:")
+    for k in sorted(os.environ):
+        print(f"{k}={os.environ[k]}")
+    print()
 
-for k in sorted(os.environ):
-    print(f"{k}={os.environ[k]}")
+    print("Installing npm")
+    install_npm()
+    print()
 
-sh("flask db upgrade")
-sh("flask vite install")
-sh("flask vite build")
+    print("Creating assets")
+    sh("flask vite install")
+    sh("flask vite build")
+    print()
+
+    print("Migrating database")
+    sh("flask db upgrade")
+    print()
+
+
+main()
