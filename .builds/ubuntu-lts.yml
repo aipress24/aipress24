@@ -24,6 +24,7 @@ packages:
 
 tasks:
   - setup: |
+      sudo pip install --break-system-packages -U uv nox
       cd aipress24
       uv sync
       uvx poetry install
