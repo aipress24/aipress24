@@ -151,6 +151,7 @@ faker = ">=30"
 mimesis = ">=18"
 
 # PDF generation
+# Pinned to 62 because of Pillow.
 weasyprint = "^62"
 
 # Security / auth
