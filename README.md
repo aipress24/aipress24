@@ -1,6 +1,9 @@
 # Aipress24
 
-Welcome to the Aipress24 project! Aipress24 is an innovative, open-source digital platform designed to transform the way journalists, news agencies, and media professionals collaborate and monetize their work. Developed by [Techno-Chroniqueurs Associés](https://agencetca.info/), with the technical expertise of Abilian, Aipress24 provides a comprehensive B2B environment tailored to the needs of the information and innovation sectors.
+Welcome to the Aipress24 project! Aipress24 is an innovative, open-source digital platform designed to transform the way
+journalists, news agencies, and media professionals collaborate and monetize their work. Developed
+by [Techno-Chroniqueurs Associés](https://agencetca.info/), with the technical expertise of Abilian, Aipress24 provides
+a comprehensive B2B environment tailored to the needs of the information and innovation sectors.
 
 > [!WARNING]
 > This code is still evolving quickly, and not meant for production yet.
@@ -8,23 +11,43 @@ Welcome to the Aipress24 project! Aipress24 is an innovative, open-source digita
 
 ## Table of Contents
 
+<!-- toc -->
+
 - [Introduction](#introduction)
 - [Features](#features)
-- [Getting Started](#getting-started)
+- [Getting Started / Installation](#getting-started--installation)
+    * [Development](#development)
+    * [Third party libraries & services](#third-party-libraries--services)
+    * [Testing](#testing)
 - [Contributing](#contributing)
+    * [Development Environment](#development-environment)
 - [Architecture](#architecture)
 - [Community](#community)
 - [License](#license)
+- [Technology used](#technology-used)
+    * [Back-end](#back-end)
+    * [AI](#ai)
+    * [Front-end](#front-end)
+    * [Build / dev tools](#build--dev-tools)
+- [Security](#security)
+- [Deployment](#deployment)
+    * [Deploy to Hop3](#deploy-to-hop3)
+
+<!-- tocstop -->
 
 ## Introduction
 
-Aipress24 aims to revolutionize the media industry by offering a suite of tools that enhance productivity, foster community interaction, and create new revenue streams for journalists and media organizations. Our mission is to support journalism and innovation by providing a platform that facilitates content creation, collaboration, and distribution.
+Aipress24 aims to revolutionize the media industry by offering a suite of tools that enhance productivity, foster
+community interaction, and create new revenue streams for journalists and media organizations. Our mission is to support
+journalism and innovation by providing a platform that facilitates content creation, collaboration, and distribution.
 
 ## Features
 
-- **Collaborative Newsroom**: A digital workspace where journalists can create, edit, and publish content collaboratively.
+- **Collaborative Newsroom**: A digital workspace where journalists can create, edit, and publish content
+  collaboratively.
 - **Professional Social Network**: Connect with other media professionals, share insights, and build your network.
-- **Marketplace**: Sell and purchase editorial products and services, including articles, reports, and multimedia content.
+- **Marketplace**: Sell and purchase editorial products and services, including articles, reports, and multimedia
+  content.
 - **Content Management**: Advanced tools for managing articles, press releases, event schedules, and more.
 - **Event Scheduling**: Organize and manage media events, press conferences, and interviews.
 - **Reputational Performance Index (IRP)**: Evaluate journalists based on their interactions and contributions.
@@ -34,15 +57,15 @@ Aipress24 aims to revolutionize the media industry by offering a suite of tools 
 
 ### Development
 
-Assuming you have Python (version 3.12 or 3.13) and `poetry` installed, to get started with Aipress24, follow these steps:
-
+Assuming you have Python (version 3.12 or 3.13) and `poetry` installed, to get started with Aipress24, follow these
+steps:
 
 1. **Clone the Repository**:
     ```bash
     git clone https://github.com/aipress24/aipress24.git
     ```
 2. **Install Dependencies**:
-    Navigate to the project directory and install the necessary dependencies.
+   Navigate to the project directory and install the necessary dependencies.
     ```bash
     cd aipress24
     poetry shell
@@ -52,19 +75,19 @@ Assuming you have Python (version 3.12 or 3.13) and `poetry` installed, to get s
     ```bash
     cp .env.sample .env
     ```
-    And then edit `.env` to set the environment variables to your liking.
+   And then edit `.env` to set the environment variables to your liking.
 3. **Create fake data**:
     ```bash
     make fake
     ```
 4. **Run the Application**:
-    Start the development server.
+   Start the development server.
     ```bash
     make run
     ```
-5**Open Your Browser**:
-    Open your browser and go to `http://localhost:5000` to see the application in action.
 
+5**Open Your Browser**:
+Open your browser and go to `http://localhost:5000` to see the application in action.
 
 ### Third party libraries & services
 
@@ -91,7 +114,8 @@ poetry run nox
 
 ## Contributing
 
-We welcome contributions from the community! Whether you're a developer, designer, journalist, or simply someone passionate about media and innovation, there are many ways to get involved:
+We welcome contributions from the community! Whether you're a developer, designer, journalist, or simply someone
+passionate about media and innovation, there are many ways to get involved:
 
 - **Submit Issues**: If you find bugs or have feature requests, please submit an issue on our GitHub repository.
 - **Fork the Repository**: Make changes in your own fork, and submit a pull request when you're ready.
@@ -100,7 +124,8 @@ We welcome contributions from the community! Whether you're a developer, designe
 
 ### Development Environment
 
-To set up your development environment, ensure you have Node.js and npm installed. We recommend using the latest LTS version of Node.js.
+To set up your development environment, ensure you have Node.js and npm installed. We recommend using the latest LTS
+version of Node.js.
 
 1. **Fork the Repository**: Click the "Fork" button at the top of the repository page on GitHub.
 2. **Clone Your Fork**: Clone your fork to your local machine.
@@ -136,7 +161,8 @@ Aipress24 is built using modern web technologies to ensure scalability, security
 
 Join our growing community of contributors and users! Stay updated and participate in discussions:
 
-- **Discussions**: Participate in discussions on our GitHub repository and share your feedback, or join the Aipress24.com community as a "Transformer" (when the platform is open).
+- **Discussions**: Participate in discussions on our GitHub repository and share your feedback, or join the
+  Aipress24.com community as a "Transformer" (when the platform is open).
 - **Meetups**: Attend our virtual meetups and webinars to learn more about Aipress24 and how you can contribute.
 
 ## License
@@ -148,7 +174,8 @@ Here is the REUSE summary as of 2024/06/17:
 
 > * Bad licenses: 0
 > * Deprecated licenses: 0
->  * Licenses without file extension: 0
+    >
+* Licenses without file extension: 0
 > * Missing licenses: 0
 > * Unused licenses: 0
 > * Used licenses: MIT, LicenseRef-ARR, ISC, AGPL-3.0-only
@@ -201,6 +228,30 @@ docker run --rm secscan/nikto -h $APP_ROOT_URL
 
 ## Deployment
 
+### Deploy to Heroku
+
+To deploy Aipress24 to Heroku, you can use the following commands:
+
+```bash
+heroku create my-aipress24 # Use your own app name
+heroku addons:create heroku-postgresql:essential-0
+heroku addons:create heroku-redis:mini
+# heroku addons:create typesense:free # Not yet available
+heroku config:set FLASK_APP=aipress24
+heroku config:set FLASK_ENV=production
+heroku config:set FLASK_SECRET_KEY=$(openssl rand -hex 16)
+heroku config:set FLASK_SQLALCHEMY_DATABASE_URI=$(heroku config:get DATABASE_URL)
+heroku config:set FLASK_REDIS_URL=$(heroku config:get REDIS_URL)
+# heroku config:set FLASK_TYPESENSE_URL=$(heroku config:get TYPESENSE_URL)
+# heroku config:set FLASK_TYPESENSE_KEY=$(heroku config:get TYPESENSE_KEY)
+heroku config:set FLASK_MAIL_SERVER=smtp.sendgrid.net
+heroku config:set FLASK_MAIL_PORT=587
+heroku config:set FLASK_MAIL_USE_TLS=1
+heroku config:set FLASK_MAIL_USERNAME=apikey
+heroku config:set FLASK_MAIL_PASSWORD=YOUR_SENDGRID_API_KEY
+heroku config:set FLASK_MAIL_DEFAULT_SENDER=YOUR_SENDGRID_EMAIL
+```
+
 ### Deploy to Hop3
 
 For experimental deployment to [Hop3](https://hop3.cloud/), you can use the following commands:
@@ -222,4 +273,6 @@ hop config:set FLASK_SQLALCHEMY_DATABASE_URI=sqlite:////home/hop3/data/aipress24
 
 ---
 
-Thank you for your interest in Aipress24! We are excited to have you join our mission to support journalism and innovation through open-source technology. If you have any questions or need further assistance, please feel free to reach out to us through our community channels.
+Thank you for your interest in Aipress24! We are excited to have you join our mission to support journalism and
+innovation through open-source technology. If you have any questions or need further assistance, please feel free to
+reach out to us through our community channels.
