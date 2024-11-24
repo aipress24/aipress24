@@ -117,7 +117,7 @@ poetry run nox
 We welcome contributions from the community! Whether you're a developer, designer, journalist, or simply someone
 passionate about media and innovation, there are many ways to get involved:
 
-- **Submit Issues**: If you find bugs or have feature requests, please submit an issue on our GitHub repository.
+- **Submit Issues**: If you find bugs or have feature requests, please submit an issue on our GitHub repository [issue tracker](https://github.com/aipress24/aipress24/issues).
 - **Fork the Repository**: Make changes in your own fork, and submit a pull request when you're ready.
 - **Join Discussions**: Participate in discussions on our forums or GitHub issues to help shape the future of Aipress24.
 - **Documentation**: Help improve our documentation by contributing to our Wiki or README files.
@@ -147,7 +147,130 @@ version of Node.js.
     ```
 7. **Create a Pull Request**: Go to the original repository and create a pull request from your fork.
 
-## Architecture
+
+### Tooling
+
+Besides the `uv` tool, we use the following tools to maintain the codebase:
+
+- **ruff**: A modern, flexible, and efficient way to manage Python environments.
+- **black**: The uncompromising Python code formatter.
+- **isort**: A Python utility / library to sort imports.
+- **flake8**: A Python tool that glues together pep8, pyflakes, mccabe, and third-party plugins to check the style and quality of some Python code.
+- **mypy**: An optional static type checker for Python.
+- **pyright**: A static type checker for Python that runs in the background.
+- **pytest**: A framework that makes it easy to write small tests, yet scales to support complex functional testing for applications and libraries.
+- **beartype**: A runtime type-checker for Python functions.
+- **typeguard**: Run-time type checking for Python functions.
+- **nox**: A flexible test automation tool that automates testing in multiple Python environments.
+
+We orchestrate these tools using `make`, the standard build tool on Unix-like systems, which provides shortcuts for common tasks based on these tools:
+
+The provided `Makefile` orchestrates various tasks to streamline development, testing, formatting, and maintenance workflows. Here’s a high-level overview of the key functionalities it provides:
+
+- **`develop`**: Installs development dependencies, activates pre-commit hooks, and configures Git for rebase workflows by default.
+- **`install-deps`**: Ensures the project's dependencies are synced and up-to-date using `uv sync`.
+- **`update-deps`**: Updates the project's dependencies to the latest compatible versions using `uv sync -U`.
+- **`activate-pre-commit`**: Installs pre-commit hooks to automatically enforce coding standards during commits.
+- **`configure-git`**: Sets Git to use rebase workflows automatically when pulling branches.
+- **`test`**: Runs Python unit tests using `pytest`.
+- **`test-randomly`**: Executes tests in a randomized order to uncover order-dependent issues.
+- **`test-e2e`**: Placeholder for running end-to-end tests (not yet implemented).
+- **`test-with-coverage`**: Runs tests and generates a coverage report for the specified package.
+- **`test-with-typeguard`**: Verifies runtime type checking for the package using `Typeguard`.
+- **`lint`**: Performs linting and type-checking using `adt check` to ensure code quality.
+- **`format`**: Formats code to meet the style guide using `docformatter` for documentation strings and `adt format` for general formatting.
+- **`clean`**: Cleans up temporary files, cache directories, and build artifacts, leaving the repository in a pristine state.
+- **`help`**: Displays available `make` commands and their descriptions, leveraging `adt help-make`.
+
+The full list of available commands can be viewed by running `make help`.
+
+
+### Contribution Guidelines
+
+1. **Fork the Repository**: Create a fork of the repository in your own GitHub/GitLab account.
+2. **Create a Feature Branch**: Make a new branch in your fork for the feature or bugfix you plan to work on.
+3. **Follow the Code Style**: Adhere to the project's code style guidelines (see below).
+4. **Add Tests**: Ensure your changes are covered by appropriate unit and integration tests.
+5. **Document Changes**: Update relevant sections in the documentation, including this README if necessary.
+6. **Submit a Pull Request**: Open a pull request against the `main` branch of this repository with a clear description of your changes.
+
+### Code Style
+
+We use **PEP 8** as the basis for our code style, with additional configurations provided by:
+
+- **Black**: Ensures consistent formatting.
+- **Ruff**: Handles linting and static analysis.
+- **isort**: Organizes imports.
+
+To apply formatting and linting, simply run:
+
+```bash
+ruff format
+ruff . --fix
+black .
+isort .
+```
+
+Or, better yet, use the provided `Makefile` shortcuts:
+
+- `make format`: Apply formatting.
+
+### Testing
+
+Tests are critical to maintaining the quality and reliability of the codebase. We encourage contributors to:
+
+- Add **unit tests** for new or modified functionalities.
+- Write **integration tests** for changes that affect multiple components.
+
+
+#### `pytest`
+
+Run all tests using:
+
+```bash
+pytest
+```
+
+For test coverage, use:
+
+```bash
+pytest --cov=aipress24
+```
+
+The `Makefile` provides shortcuts for common testing tasks:
+
+- `make test`: Run all tests.
+- `make test-randomly`: Run tests in random order.
+- `make test-with-coverage`: Run tests with coverage report.
+- `make test-with-typeguard`: Run tests with typeguard enabled.
+- `make test-with-beartype`: Run tests with beartype enabled.
+- `make lint`: Run linters and static analysis.
+
+### Documentation
+
+All new features or changes should be documented. The documentation should include:
+
+- **Code Comments**: Explain non-trivial parts of the code.
+- **README Updates**: Update this file for any major changes in functionality or usage.
+- **Changelog**: Add a note in the upcoming changelog (to be implemented).
+
+### Pull Request Process
+
+To ensure a smooth review process:
+
+1. Make sure your branch is **up to date** with the `main` branch.
+2. Ensure all tests pass and there are no linting or formatting issues.
+3. Provide a clear and concise description of the changes in your pull request, including any relevant issue numbers.
+4. Be responsive to reviewer feedback and address any requested changes promptly.
+
+
+### Code of Conduct
+
+This project adheres to the [PSF Code of Conduct](https://policies.python.org/python.org/code-of-conduct/). By participating, you agree to abide by its terms. Please be respectful and collaborative in all interactions.
+
+For further details, see the `[CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md)` file in the repository.
+
+### Architecture
 
 Aipress24 is built using modern web technologies to ensure scalability, security, and performance:
 
@@ -157,7 +280,7 @@ Aipress24 is built using modern web technologies to ensure scalability, security
 - **Storage**: Amazon S3 compatible open-source solutions like Minio or Ceph for object storage.
 - **Security**: Implements best practices for security, including bcrypt for password hashing and proactive monitoring.
 
-## Community
+### Community
 
 Join our growing community of contributors and users! Stay updated and participate in discussions:
 
