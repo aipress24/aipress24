@@ -112,6 +112,7 @@ tidy: clean
 ## Format source code
 format:
 	ruff format
+	markdown-toc -i README.md
 
 ## Cleanup code (using autoflake)
 cleanup-code:
