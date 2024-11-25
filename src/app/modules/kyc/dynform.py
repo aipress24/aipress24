@@ -13,6 +13,7 @@ from markupsafe import Markup
 from wtforms import (
     BooleanField,
     Field,
+    IntegerField,
     SelectField,
     SelectMultipleField,
     StringField,
@@ -178,6 +179,34 @@ def custom_string_field(
     if readonly:
         render_kw["readonly"] = True
     return StringField(
+        name=field.name,
+        label=label,
+        id=field.id,
+        validators=validators_list,
+        render_kw=render_kw,
+    )
+
+
+def custom_int_field(
+    field: SurveyField,
+    mandatory_code: str = "",
+    param: str = "",
+    readonly: bool = False,
+) -> Field:
+    if readonly:
+        mandatory_code = ""
+    validators_list = _filter_mandatory_validator(mandatory_code)
+    validators_list.append(validators.NumberRange(min=0, max=999999))
+    label = _filter_public_info(field.description, field.public_maxi)
+    label = _filter_mandatory_label(label, mandatory_code)
+    render_kw: dict[str, Any] = {
+        "kyc_type": "int",
+        "kyc_code": mandatory_code,
+        "kyc_message": field.upper_message,
+    }
+    if readonly:
+        render_kw["readonly"] = True
+    return IntegerField(
         name=field.name,
         label=label,
         id=field.id,

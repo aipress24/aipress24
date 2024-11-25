@@ -226,6 +226,7 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
     type_agence_rp: Mapped[dict] = mapped_column(JSON, default=list)
 
     main_events: Mapped[str] = mapped_column(default="")  #
+    number_customers: Mapped[int] = mapped_column(default=0)  #
     main_customers: Mapped[str] = mapped_column(default="")  #
     main_prizes: Mapped[str] = mapped_column(default="")  #
     positionnement_editorial: Mapped[str] = mapped_column(default="")  #

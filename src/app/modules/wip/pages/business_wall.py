@@ -25,6 +25,7 @@ from app.modules.kyc.dynform import (
     custom_bool_field,
     custom_country_field,
     custom_dual_multi_field,
+    custom_int_field,
     custom_list_field,
     custom_multi_field,
     custom_string_field,
@@ -290,6 +291,9 @@ class BusinessWallPage(BaseWipPage):
         BWDynForm.main_events = textarea_field(
             "main_events", "Principaux Events organisés", False, self.readonly
         )
+        BWDynForm.number_customers = int_field(
+            "number_customers", "Nombre de clients", False, self.readonly
+        )
         BWDynForm.main_customers = textarea_field(
             "main_customers", "Principales références clients", False, self.readonly
         )
@@ -474,6 +478,9 @@ class BusinessWallPage(BaseWipPage):
         BWDynForm.main_events = textarea_field(
             "main_events", "Principaux Events organisés", False, self.readonly
         )
+        BWDynForm.number_customers = int_field(
+            "number_customers", "Nombre de clients", False, self.readonly
+        )
         BWDynForm.main_customers = textarea_field(
             "main_customers", "Principales références clients", False, self.readonly
         )
@@ -653,6 +660,9 @@ class BusinessWallPage(BaseWipPage):
         BWDynForm.main_events = textarea_field(
             "main_events", "Principaux Events organisés", False, self.readonly
         )
+        BWDynForm.number_customers = int_field(
+            "number_customers", "Nombre de clients", False, self.readonly
+        )
         BWDynForm.main_customers = textarea_field(
             "main_customers", "Principales références clients", False, self.readonly
         )
@@ -824,6 +834,9 @@ class BusinessWallPage(BaseWipPage):
 
         BWDynForm.main_events = textarea_field(
             "main_events", "Principaux Events organisés", False, self.readonly
+        )
+        BWDynForm.number_customers = int_field(
+            "number_customers", "Nombre de clients", False, self.readonly
         )
         BWDynForm.main_customers = textarea_field(
             "main_customers", "Principales références clients", False, self.readonly
@@ -1002,6 +1015,9 @@ class BusinessWallPage(BaseWipPage):
 
         BWDynForm.main_events = textarea_field(
             "main_events", "Principaux Events organisés", False, self.readonly
+        )
+        BWDynForm.number_customers = int_field(
+            "number_customers", "Nombre de clients", True, self.readonly
         )
         BWDynForm.main_customers = textarea_field(
             "main_customers", "Principales références clients", False, self.readonly
@@ -1191,6 +1207,9 @@ class BusinessWallPage(BaseWipPage):
 
         BWDynForm.main_events = textarea_field(
             "main_events", "Principaux Events organisés", False, self.readonly
+        )
+        BWDynForm.number_customers = int_field(
+            "number_customers", "Nombre de clients", False, self.readonly
         )
         BWDynForm.main_customers = textarea_field(
             "main_customers", "Principales références clients", False, self.readonly
@@ -1382,6 +1401,9 @@ class BusinessWallPage(BaseWipPage):
         BWDynForm.main_events = textarea_field(
             "main_events", "Principaux Events organisés", False, self.readonly
         )
+        BWDynForm.number_customers = int_field(
+            "number_customers", "Nombre de clients", False, self.readonly
+        )
         BWDynForm.main_customers = textarea_field(
             "main_customers", "Principales références clients", False, self.readonly
         )
@@ -1560,6 +1582,9 @@ class BusinessWallPage(BaseWipPage):
         BWDynForm.main_events = textarea_field(
             "main_events", "Principaux Events organisés", False, self.readonly
         )
+        BWDynForm.number_customers = int_field(
+            "number_customers", "Nombre de clients", False, self.readonly
+        )
         BWDynForm.main_customers = textarea_field(
             "main_customers", "Principales références clients", False, self.readonly
         )
@@ -1713,6 +1738,16 @@ def string_field(
     )
     mandatory_code = "M" if mandatory else ""
     return custom_string_field(
+        survey_field, mandatory_code=mandatory_code, readonly=readonly
+    )
+
+
+def int_field(
+    name="", description="", mandatory: bool = False, readonly: bool = False
+) -> Field:
+    survey_field = SurveyField(id=name, name=name, type="int", description=description)
+    mandatory_code = "M" if mandatory else ""
+    return custom_int_field(
         survey_field, mandatory_code=mandatory_code, readonly=readonly
     )
 
