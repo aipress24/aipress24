@@ -30,16 +30,26 @@ from app.modules.kyc.survey_dataclass import SurveyField
 class BWFormGenerator:
     def __init__(
         self,
-        user: User,
+        user: User | None = None,
         org: Organisation | None = None,
         readonly: bool = False,
     ) -> None:
-        self.user = user
-        if org is None:
-            org = self.user.organisation  # Organisation or None
-        self.org = org
-        self.readonly: bool = False
-        self.form = None
+        if user:
+            self.org = user.organisation
+            if not self.org.creator_profile_code:
+                profile = user.profile
+                self.org.creator_profile_code = profile.profile_code
+        else:
+            if org is None:
+                msg = "Missing user or organisation argument"
+                raise ValueError(msg)
+            self.org = org
+        try:
+            self.profile_code = ProfileEnum[self.org.creator_profile_code]
+        except KeyError:
+            # fixme, choose a not-so-far profile for current BW type
+            self.profile_code = ProfileEnum.PM_DIR
+        self.readonly: bool = readonly
 
     def generate(self) -> FlaskForm:
         """The form contains several Fields and sub titles information.
@@ -77,9 +87,6 @@ class BWFormGenerator:
         return FlaskForm()
 
     def form_agency(self) -> FlaskForm:
-        profile = self.user.profile
-        profile_code = ProfileEnum[profile.profile_code]
-
         class BWDynForm(FlaskForm):
             pass
 
@@ -95,7 +102,7 @@ class BWFormGenerator:
             readonly=self.readonly,
         )
 
-        if profile_code in {
+        if self.profile_code in {
             ProfileEnum.PM_DIR,
             ProfileEnum.PM_JR_CP_SAL,
             ProfileEnum.PM_JR_PIG,
@@ -264,9 +271,6 @@ class BWFormGenerator:
         return form
 
     def form_media(self) -> FlaskForm:
-        profile = self.user.profile
-        profile_code = ProfileEnum[profile.profile_code]
-
         class BWDynForm(FlaskForm):
             pass
 
@@ -282,7 +286,7 @@ class BWFormGenerator:
             readonly=self.readonly,
         )
 
-        if profile_code in {
+        if self.profile_code in {
             ProfileEnum.PM_DIR,
             ProfileEnum.PM_JR_CP_SAL,
             ProfileEnum.PM_JR_PIG,
@@ -451,9 +455,6 @@ class BWFormGenerator:
         return form
 
     def form_corporate(self) -> FlaskForm:
-        profile = self.user.profile
-        profile_code = ProfileEnum[profile.profile_code]
-
         class BWDynForm(FlaskForm):
             pass
 
@@ -464,7 +465,7 @@ class BWFormGenerator:
             readonly=self.readonly,
         )
 
-        if profile_code in {
+        if self.profile_code in {
             ProfileEnum.PM_DIR,
             ProfileEnum.PM_JR_CP_SAL,
             ProfileEnum.PM_JR_PIG,
@@ -633,9 +634,6 @@ class BWFormGenerator:
         return form
 
     def form_pressunion(self) -> FlaskForm:
-        # profile = self.user.profile
-        # profile_code = ProfileEnum[profile.profile_code]
-
         class BWDynForm(FlaskForm):
             pass
 
@@ -808,9 +806,6 @@ class BWFormGenerator:
         return form
 
     def form_com(self) -> FlaskForm:
-        profile = self.user.profile
-        profile_code = ProfileEnum[profile.profile_code]
-
         class BWDynForm(FlaskForm):
             pass
 
@@ -821,7 +816,7 @@ class BWFormGenerator:
             readonly=self.readonly,
         )
 
-        if profile_code in {
+        if self.profile_code in {
             ProfileEnum.PR_DIR,
             ProfileEnum.PR_CS,
         }:
@@ -989,9 +984,6 @@ class BWFormGenerator:
         return form
 
     def form_organisation(self) -> FlaskForm:
-        profile = self.user.profile
-        profile_code = ProfileEnum[profile.profile_code]
-
         class BWDynForm(FlaskForm):
             pass
 
@@ -1002,7 +994,7 @@ class BWFormGenerator:
             readonly=self.readonly,
         )
 
-        if profile_code not in {
+        if self.profile_code not in {
             ProfileEnum.XP_IND,
             ProfileEnum.XP_DIR_SU,
         }:
@@ -1088,7 +1080,7 @@ class BWFormGenerator:
             "multidual_metiers",
             self.readonly,
         )
-        if profile_code in {
+        if self.profile_code in {
             ProfileEnum.PR_DIR_COM,
             ProfileEnum.PR_CS_COM,
         }:
@@ -1174,7 +1166,7 @@ class BWFormGenerator:
         form.pays_zip_ville.data2 = self.org.pays_zip_ville_detail
         form.metiers.data2 = self.org.metiers_detail
         # form.secteurs_activite_medias.data2 = self.org.secteurs_activite_medias_detail
-        if profile_code in {
+        if self.profile_code in {
             ProfileEnum.PR_DIR_COM,
             ProfileEnum.PR_CS_COM,
         }:
@@ -1185,9 +1177,6 @@ class BWFormGenerator:
         return form
 
     def form_transformer(self) -> FlaskForm:
-        profile = self.user.profile
-        profile_code = ProfileEnum[profile.profile_code]
-
         class BWDynForm(FlaskForm):
             pass
 
@@ -1198,7 +1187,7 @@ class BWFormGenerator:
             readonly=self.readonly,
         )
 
-        if profile_code not in {
+        if self.profile_code not in {
             ProfileEnum.TR_CS_ORG_IND,
             ProfileEnum.TR_DIR_SU_ORG,
             ProfileEnum.TR_DIR_POLE,
@@ -1374,9 +1363,6 @@ class BWFormGenerator:
         return form
 
     def form_academics(self) -> FlaskForm:
-        profile = self.user.profile
-        profile_code = ProfileEnum[profile.profile_code]
-
         class BWDynForm(FlaskForm):
             pass
 
@@ -1387,7 +1373,7 @@ class BWFormGenerator:
             readonly=self.readonly,
         )
 
-        if profile_code not in {
+        if self.profile_code not in {
             ProfileEnum.AC_DOC,
             ProfileEnum.AC_ST,
             ProfileEnum.AC_ST_ENT,

@@ -52,8 +52,11 @@ class BusinessWallPage(BaseWipPage):
         is_bw_inactive = self.org and self.org.is_bw_inactive
         allow_editing = is_bw_active and self.user.is_manager
         self.readonly = not allow_editing
-        self.bwform = BWFormGenerator(self.user, self.org, self.readonly)
-        self.form = self.bwform.generate() if is_bw_active else FlaskForm()
+        if is_bw_active:
+            form_generator = BWFormGenerator(user=self.user, readonly=self.readonly)
+            self.form = form_generator.generate()
+        else:
+            self.foem = FlaskForm()
         if self.org:
             members = list(self.org.members)
         else:

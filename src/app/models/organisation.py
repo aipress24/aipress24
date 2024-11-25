@@ -166,6 +166,9 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
         sa.Enum(BWTypeEnum),
         nullable=True,
     )
+
+    creator_profile_code: Mapped[str] = mapped_column(default="")
+
     # active flag : by default organisations are active, they can be
     # deactivated by site admin or when they lose their BW registration
     # In that case they become like "AUTO" orgs as regards display of pages

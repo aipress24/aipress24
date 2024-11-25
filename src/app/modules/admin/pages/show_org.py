@@ -15,6 +15,8 @@ from app.flask.lib.view_model import ViewModel
 # from app.flask.routing import url_for
 from app.flask.sqla import get_obj
 from app.models.organisation import Organisation
+from app.modules.kyc.renderer import render_field
+from app.modules.wip.pages.business_wall_form import BWFormGenerator
 
 from .. import blueprint
 from ..invitations import emails_invited_to_organisation
@@ -48,7 +50,14 @@ class ShowOrg(AdminListPage):
         self.org = get_obj(uid, Organisation)
 
     def context(self):
-        return {"org": OrgVM(self.org)}
+        if self.org and not self.org.is_auto:
+            form_generator = BWFormGenerator(org=self.org, readonly=True)
+            self.form = form_generator.generate()
+        return {
+            "org": OrgVM(self.org),
+            "render_field": render_field,
+            "form": self.form,
+        }
 
     def post(self):
         action = request.form["action"]
