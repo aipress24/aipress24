@@ -7,7 +7,7 @@
 .eggs/
 .venv
 .hypothesis/
-
+.ropeproject/
 # Runtime
 /src/instance/
 
