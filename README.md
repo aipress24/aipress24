@@ -196,7 +196,7 @@ The full list of available commands can be viewed by running `make help`.
 
 ### Code Style
 
-We use **PEP 8** as the basis for our code style, with additional configurations provided by:
+We use **PEP 8** as the basis for our code style. In practice, most of the code formatting is handled by the following tools:
 
 - **Black**: Ensures consistent formatting.
 - **Ruff**: Handles linting and static analysis.
@@ -205,11 +205,13 @@ We use **PEP 8** as the basis for our code style, with additional configurations
 To apply formatting and linting, simply run:
 
 ```bash
-ruff format
-ruff . --fix
 black .
 isort .
+ruff format
+ruff . --fix
 ```
+
+(`ruff` last as it may conflict with some of the changes made by `black` and `isort`.)
 
 Or, better yet, use the provided `Makefile` shortcuts:
 
