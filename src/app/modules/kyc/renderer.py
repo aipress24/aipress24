@@ -14,23 +14,45 @@ from wtforms.fields.core import Field
 
 ring_class = "ring-1 ring-inset ring-gray-300"
 focus_class = "focus:ring-2 focus:ring-inset focus:ring-indigo-600"
-field_class = (
-    f"block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm "
-    f"placeholder:text-gray-400 sm:text-sm sm:leading-6 {ring_class} {focus_class}"
+ring_class_ro = "ring-1 ring-inset ring-gray-100"
+focus_class_ro = "focus:ring-0 focus:ring-inset focus:ring-gray-100"
+
+DEFAULT_CSS = (
+    "block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm "
+    "placeholder:text-gray-400 sm:text-sm sm:leading-6 "
+    f"{ring_class} {focus_class}"
 )
-DEFAULT_CSS = field_class
+DEFAULT_CSS_RO = (
+    "block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm "
+    "placeholder:text-gray-400 sm:text-sm sm:leading-6 "
+    f"{ring_class_ro} {focus_class_ro}"
+)
 CSS_CLASS = {
     "boolean": (
         "w-4 h-4 border-2 border-blue-500 rounded-sm bg-white mt-1 "
         "shrink-0 checked:bg-blue-800 checked:border-2"
     ),
-    "string": field_class,
+    "string": DEFAULT_CSS,
     "photo": DEFAULT_CSS,
     "email": DEFAULT_CSS,
     "tel": DEFAULT_CSS,
     "password": DEFAULT_CSS,
     "code": DEFAULT_CSS,
     "url": DEFAULT_CSS,
+}
+
+CSS_CLASS_RO = {
+    "boolean": (
+        "w-4 h-4 border-2 border-gray-500 rounded-sm bg-white mt-1 "
+        "checked:bg-gray-800 checked:border-2"
+    ),
+    "string": DEFAULT_CSS_RO,
+    "photo": DEFAULT_CSS_RO,
+    "email": DEFAULT_CSS_RO,
+    "tel": DEFAULT_CSS_RO,
+    "password": DEFAULT_CSS_RO,
+    "code": DEFAULT_CSS_RO,
+    "url": DEFAULT_CSS_RO,
 }
 
 
@@ -95,6 +117,12 @@ def _is_mandatory_field(field: Field) -> bool:
 
 @singledispatch
 def _render_field(field: Field) -> Markup:
-    css_class = CSS_CLASS.get(_field_type(field), DEFAULT_CSS)
+    render_kw = getattr(field, "render_kw", {}) or {}
+    readonly = render_kw.get("readonly", "")
+
+    if readonly:
+        css_class = CSS_CLASS_RO.get(_field_type(field), DEFAULT_CSS_RO)
+    else:
+        css_class = CSS_CLASS.get(_field_type(field), DEFAULT_CSS)
 
     return Markup(field(**{"class": css_class}))
