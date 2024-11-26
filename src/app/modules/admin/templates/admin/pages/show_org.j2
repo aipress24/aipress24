@@ -295,11 +295,21 @@
         Logo
       </dt>
       <dd>
-        <img
-            class="h-24 w-24 ring-2 ring-gray-100 sm:h-32 sm:w-32"
-            src="{{ org.logo_url }}"
-            alt=""
-        />
+        {% if org.logo_url %}
+          <div class="flex">
+            <img
+              class="h-24 w-24 ring-2 ring-gray-100 sm:h-32 sm:w-32"
+              src="{{ org.logo_url }}"
+              alt="Logo de l&apos;organisation"
+            />
+          </div>
+        {% else %}
+          <div class="flex">
+            <div class="mt-1 mb-2 text-sm text-gray-900">
+              (URL du logo vide)
+            </div>
+          </div>
+        {% endif %}
       </dd>
     </div>
 <form
