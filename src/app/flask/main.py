@@ -30,6 +30,7 @@ from app.flask.lib.pywire import (
     register_wired_components,
 )
 from app.flask.security import register_oauth_providers
+from app.services.stripe.products import check_stripe_api_key
 from app.ui.labels import make_label
 
 # Where we're looking for blueprints
@@ -99,6 +100,9 @@ def register_all(app: Flask) -> None:
     from app.dramatiq.setup import init_dramatiq
 
     init_dramatiq(app)
+
+    if not check_stripe_api_key(app):
+        debug("STRIPE_API_KEY not found in config")
 
 
 def register_debug_hooks(app: Flask) -> None:

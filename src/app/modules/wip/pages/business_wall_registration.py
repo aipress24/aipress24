@@ -4,9 +4,10 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, NamedTuple
 
 from flask import g, request
+from stripe import Product
 from werkzeug import Response
 
 from app.constants import PROFILE_CODE_TO_BW_TYPE
@@ -17,6 +18,7 @@ from app.modules.admin.invitations import invite_users
 from app.modules.admin.org_email_utils import add_managers_emails
 from app.modules.kyc.renderer import render_field
 from app.services.roles import has_role
+from app.services.stripe.products import fetch_product_list
 
 from .base import BaseWipPage
 from .home import HomePage
@@ -62,6 +64,15 @@ DESCRIPTION_BW = {
 }
 
 
+class ProdInfo(NamedTuple):
+    """Extract from Stripe Product aimed to secure display."""
+
+    id: str
+    name: str
+    description: str
+    features: str
+
+
 @page
 class BusinessWallRegistrationPage(BaseWipPage):
     name = "org-registration"
@@ -76,12 +87,32 @@ class BusinessWallRegistrationPage(BaseWipPage):
         self.user = g.user
         self.org = self.user.organisation  # Organisation or None
         self.allowed_subs: set[BWTypeEnum] = self.find_allowed_subscription()
+        self.products = []
+        self.prod_info = []
+
+    def _load_prod_info(self, prod: Product) -> None:
+        if not prod.active:
+            return
+        features = "<br>".join(
+            x.get("name") for x in prod.marketing_features if x.get("name")
+        )
+        pinfo = ProdInfo(
+            id=prod.id, name=prod.name, description=prod.description, features=features
+        )
+        self.prod_info.append(pinfo)
+
+    def load_product_infos(self) -> None:
+        self.products = fetch_product_list()
+        self.prod_info = []
+        for prod in self.products:
+            self._load_prod_info(prod)
 
     def context(self) -> dict[str, Any]:
         is_auto = self.org and self.org.is_auto
         is_bw_active = self.org and self.org.is_bw_active
         is_bw_inactive = self.org and self.org.is_bw_inactive
         allowed_list_str = ", ".join(str(x) for x in sorted(self.allowed_subs))
+        self.load_product_infos()
         return {
             "org": self.org,
             "org_name": self.org.name if self.org else "",
@@ -100,6 +131,7 @@ class BusinessWallRegistrationPage(BaseWipPage):
             "product_bw_long": PRODUCT_BW_LONG,
             "description_bw": DESCRIPTION_BW,
             "price_bw": PRICE_BW,
+            "prods": self.prod_info,
             "logo_url": self.get_logo_url(),
             "render_field": render_field,
         }

@@ -9,6 +9,15 @@
   BW possible: {{allow_bw_string}}<br>
   is_manager: {{is_manager}}<br>
   is_bw_active: {{is_bw_active}}<br>
+  <br>
+  Produits:<br>
+  {% for prod in prods %}
+    <strong>name: </strong>{{prod.name}}<br>
+    <strong>id: </strong>{{prod.id}}<br>
+    <strong>description: </strong>{{prod.description}}<br>
+    <strong>features: </strong>{{prod.features}}<br>
+    <hr class="mt-4">
+  {% endfor %}
 </div>
 {% if org %}
   <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
