@@ -31,8 +31,8 @@ from app.flask.lib.pywire import (
 )
 from app.flask.security import register_oauth_providers
 from app.services.stripe.products import (
-    check_stripe_secret_key,
     check_stripe_public_key,
+    check_stripe_secret_key,
 )
 from app.ui.labels import make_label
 
