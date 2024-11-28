@@ -175,13 +175,19 @@ class BusinessWallRegistrationPage(BaseWipPage):
         return response
 
     def do_register(self, bw_type: str) -> None:
+        if bw_type == "SPECIAL":
+            return self.stripe_subscription()
         if bw_type not in {x.name for x in self.allowed_subs}:
-            return
+            return None
         self._change_organisation_bw_type(bw_type)
         # user is already member of the organisation, now will be the
         add_managers_emails(self.org, self.user.email)
         # also add the new manager to invitations
         invite_users(self.user.email, self.org.id)
+        return None
+
+    def stripe_subscription(self) -> None:
+        return
 
     def do_suspend(self) -> None:
         if not self.org.active:

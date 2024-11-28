@@ -9,15 +9,21 @@ from flask import Flask, current_app
 from stripe import Product
 
 
-def check_stripe_api_key(app: Flask) -> bool:
-    if not app.config.get("STRIPE_API_KEY"):
+def check_stripe_secret_key(app: Flask) -> bool:
+    if not app.config.get("STRIPE_SECRET_KEY"):
         return False
-    return bool(app.config["STRIPE_API_KEY"])
+    return bool(app.config["STRIPE_SECRET_KEY"])
+
+
+def check_stripe_public_key(app: Flask) -> bool:
+    if not app.config.get("STRIPE_PUBLIC_KEY"):
+        return False
+    return bool(app.config["STRIPE_PUBLIC_KEY"])
 
 
 def _load_api_key() -> bool:
     config = current_app.config
-    api_key = config.get("STRIPE_API_KEY")
+    api_key = config.get("STRIPE_SECRET_KEY")
     if not api_key:
         return False
     stripe.api_key = api_key
@@ -26,7 +32,7 @@ def _load_api_key() -> bool:
 
 def fetch_product_list() -> list[Product]:
     results: list[Product] = []
-    if not _load_api_key:
+    if not _load_api_key():
         return results
     remote_list = stripe.Product.list(active=True)
     remote_prods = remote_list.get("data", [])
