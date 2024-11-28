@@ -245,14 +245,15 @@ class ArticlesWipView(BaseWipView):
         images = article.sorted_images
         assert [im.position for im in images] == list(range(len(images)))
 
-        if direction == "up":
-            prev_image = images[image.position - 1]
-            image.position -= 1
-            prev_image.position += 1
-        elif direction == "down":
-            next_image = images[image.position + 1]
-            image.position += 1
-            next_image.position -= 1
+        match direction:
+            case "up":
+                prev_image = images[image.position - 1]
+                image.position -= 1
+                prev_image.position += 1
+            case "down":
+                next_image = images[image.position + 1]
+                image.position += 1
+                next_image.position -= 1
 
         db.session.commit()
 
