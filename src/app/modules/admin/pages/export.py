@@ -318,27 +318,29 @@ class ExporterInscriptions:
         return value
 
     def do_top_info(self) -> None:
-        self.sheet["table"].extend([
-            {"row": ["Aipress24"], "style": "bold"},
-            {
-                "row": [
-                    {
-                        "value": self.title,
-                        "style": "bold",
-                    }
-                ],
-                "style": "default_table_row",
-            },
-            {"row": [], "style": "default_table_row"},
-            {
-                "row": [
-                    {"value": "Date export:"},
-                    {"value": self.date_now.isoformat(" ", "minutes")},
-                ],
-                "style": "default_table_row",
-            },
-            {"row": [], "style": "default_table_row"},
-        ])
+        self.sheet["table"].extend(
+            [
+                {"row": ["Aipress24"], "style": "bold"},
+                {
+                    "row": [
+                        {
+                            "value": self.title,
+                            "style": "bold",
+                        }
+                    ],
+                    "style": "default_table_row",
+                },
+                {"row": [], "style": "default_table_row"},
+                {
+                    "row": [
+                        {"value": "Date export:"},
+                        {"value": self.date_now.isoformat(" ", "minutes")},
+                    ],
+                    "style": "default_table_row",
+                },
+                {"row": [], "style": "default_table_row"},
+            ]
+        )
 
     def do_header_line(self) -> None:
         row = [
@@ -547,11 +549,7 @@ class ExporterOrganisations:
         "membre_sapi",
         "membre_satev",
         "membre_saphir",
-        "domain",
         "site_url",
-        "jobs_url",
-        "github_url",
-        "linkedin_url",
         "logo_url",
         "cover_image_url",
         "members",
@@ -607,11 +605,7 @@ class ExporterOrganisations:
             FieldColumn("metiers", "Métiers", text8),
             FieldColumn("status", "Statut", text8),
             FieldColumn("karma", "Réputation", small),
-            FieldColumn("domain", "Domain", text3),
             FieldColumn("site_url", "URL site", text4),
-            FieldColumn("jobs_url", "URL jobs", text4),
-            FieldColumn("github_url", "URL github", text4),
-            FieldColumn("linkedin_url", "URL linkedin", text4),
             FieldColumn("logo_url", "URL logo", text4),
             FieldColumn("cover_image_url", "URL cover", text4),
             FieldColumn("nb_members", "Nb membres", small),
@@ -646,12 +640,7 @@ class ExporterOrganisations:
                 | "metiers"
                 | "status"
                 | "karma"
-                | "domain"
                 | "site_url"
-                | "jobs_url"
-                | "github_url"
-                | "jobs_url"
-                | "linkedin_url"
                 | "logo_url"
                 | "cover_image_url"
                 | "agree_cppap"
@@ -690,27 +679,29 @@ class ExporterOrganisations:
         return value
 
     def do_top_info(self) -> None:
-        self.sheet["table"].extend([
-            {"row": ["Aaipress24"], "style": "bold"},
-            {
-                "row": [
-                    {
-                        "value": self.title,
-                        "style": "bold",
-                    }
-                ],
-                "style": "default_table_row",
-            },
-            {"row": [], "style": "default_table_row"},
-            {
-                "row": [
-                    {"value": "Date export:"},
-                    {"value": self.date_now.isoformat(" ", "minutes")},
-                ],
-                "style": "default_table_row",
-            },
-            {"row": [], "style": "default_table_row"},
-        ])
+        self.sheet["table"].extend(
+            [
+                {"row": ["Aaipress24"], "style": "bold"},
+                {
+                    "row": [
+                        {
+                            "value": self.title,
+                            "style": "bold",
+                        }
+                    ],
+                    "style": "default_table_row",
+                },
+                {"row": [], "style": "default_table_row"},
+                {
+                    "row": [
+                        {"value": "Date export:"},
+                        {"value": self.date_now.isoformat(" ", "minutes")},
+                    ],
+                    "style": "default_table_row",
+                },
+                {"row": [], "style": "default_table_row"},
+            ]
+        )
 
     def do_header_line(self) -> None:
         row = [

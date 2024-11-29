@@ -240,18 +240,8 @@ class BWFormGenerator:
             "membre_saphir", "Membre du SAPHIR", False, self.readonly
         )
 
-        BWDynForm.domain = string_field("domain", "Domaine", False, self.readonly)
         BWDynForm.site_url = url_field(
             "site_url", "URL du site (web)", False, self.readonly
-        )
-        BWDynForm.jobs_url = url_field(
-            "jobs_url", "URL du site (emplois)", False, self.readonly
-        )
-        BWDynForm.github_url = url_field(
-            "github_url", "URL du site (github)", False, self.readonly
-        )
-        BWDynForm.linkedin_url = url_field(
-            "linkedin_url", "URL du site (linkedin)", False, self.readonly
         )
         BWDynForm.logo_url = string_field(
             "logo_url", "URL du logo de l'organisation", False, self.readonly
@@ -424,18 +414,8 @@ class BWFormGenerator:
             "membre_saphir", "Membre du SAPHIR", False, self.readonly
         )
 
-        BWDynForm.domain = string_field("domain", "Domaine", False, self.readonly)
         BWDynForm.site_url = url_field(
             "site_url", "URL du site (web)", False, self.readonly
-        )
-        BWDynForm.jobs_url = url_field(
-            "jobs_url", "URL du site (emplois)", False, self.readonly
-        )
-        BWDynForm.github_url = url_field(
-            "github_url", "URL du site (github)", False, self.readonly
-        )
-        BWDynForm.linkedin_url = url_field(
-            "linkedin_url", "URL du site (linkedin)", False, self.readonly
         )
         BWDynForm.logo_url = string_field(
             "logo_url", "URL du logo de l'organisation", False, self.readonly
@@ -603,18 +583,8 @@ class BWFormGenerator:
             "membre_saphir", "Membre du SAPHIR", False, self.readonly
         )
 
-        BWDynForm.domain = string_field("domain", "Domaine", False, self.readonly)
         BWDynForm.site_url = url_field(
             "site_url", "URL du site (web)", False, self.readonly
-        )
-        BWDynForm.jobs_url = url_field(
-            "jobs_url", "URL du site (emplois)", False, self.readonly
-        )
-        BWDynForm.github_url = url_field(
-            "github_url", "URL du site (github)", False, self.readonly
-        )
-        BWDynForm.linkedin_url = url_field(
-            "linkedin_url", "URL du site (linkedin)", False, self.readonly
         )
         BWDynForm.logo_url = string_field(
             "logo_url", "URL du logo de l'organisation", False, self.readonly
@@ -775,18 +745,8 @@ class BWFormGenerator:
             "membre_saphir", "Membre du SAPHIR", False, self.readonly
         )
 
-        BWDynForm.domain = string_field("domain", "Domaine", False, self.readonly)
         BWDynForm.site_url = url_field(
             "site_url", "URL du site (web)", False, self.readonly
-        )
-        BWDynForm.jobs_url = url_field(
-            "jobs_url", "URL du site (emplois)", False, self.readonly
-        )
-        BWDynForm.github_url = url_field(
-            "github_url", "URL du site (github)", False, self.readonly
-        )
-        BWDynForm.linkedin_url = url_field(
-            "linkedin_url", "URL du site (linkedin)", False, self.readonly
         )
         BWDynForm.logo_url = string_field(
             "logo_url", "URL du logo de l'organisation", False, self.readonly
@@ -953,18 +913,8 @@ class BWFormGenerator:
             "membre_saphir", "Membre du SAPHIR", False, self.readonly
         )
 
-        BWDynForm.domain = string_field("domain", "Domaine", False, self.readonly)
         BWDynForm.site_url = url_field(
             "site_url", "URL du site (web)", False, self.readonly
-        )
-        BWDynForm.jobs_url = url_field(
-            "jobs_url", "URL du site (emplois)", False, self.readonly
-        )
-        BWDynForm.github_url = url_field(
-            "github_url", "URL du site (github)", False, self.readonly
-        )
-        BWDynForm.linkedin_url = url_field(
-            "linkedin_url", "URL du site (linkedin)", False, self.readonly
         )
         BWDynForm.logo_url = string_field(
             "logo_url", "URL du logo de l'organisation", False, self.readonly
@@ -1142,18 +1092,8 @@ class BWFormGenerator:
             "membre_saphir", "Membre du SAPHIR", False, self.readonly
         )
 
-        BWDynForm.domain = string_field("domain", "Domaine", False, self.readonly)
         BWDynForm.site_url = url_field(
             "site_url", "URL du site (web)", False, self.readonly
-        )
-        BWDynForm.jobs_url = url_field(
-            "jobs_url", "URL du site (emplois)", False, self.readonly
-        )
-        BWDynForm.github_url = url_field(
-            "github_url", "URL du site (github)", False, self.readonly
-        )
-        BWDynForm.linkedin_url = url_field(
-            "linkedin_url", "URL du site (linkedin)", False, self.readonly
         )
         BWDynForm.logo_url = string_field(
             "logo_url", "URL du logo de l'organisation", False, self.readonly
@@ -1332,18 +1272,8 @@ class BWFormGenerator:
             "membre_saphir", "Membre du SAPHIR", False, self.readonly
         )
 
-        BWDynForm.domain = string_field("domain", "Domaine", False, self.readonly)
         BWDynForm.site_url = url_field(
             "site_url", "URL du site (web)", False, self.readonly
-        )
-        BWDynForm.jobs_url = url_field(
-            "jobs_url", "URL du site (emplois)", False, self.readonly
-        )
-        BWDynForm.github_url = url_field(
-            "github_url", "URL du site (github)", False, self.readonly
-        )
-        BWDynForm.linkedin_url = url_field(
-            "linkedin_url", "URL du site (linkedin)", False, self.readonly
         )
         BWDynForm.logo_url = string_field(
             "logo_url", "URL du logo de l'organisation", False, self.readonly
@@ -1510,18 +1440,8 @@ class BWFormGenerator:
             "membre_saphir", "Membre du SAPHIR", False, self.readonly
         )
 
-        BWDynForm.domain = string_field("domain", "Domaine", False, self.readonly)
         BWDynForm.site_url = url_field(
             "site_url", "URL du site (web)", False, self.readonly
-        )
-        BWDynForm.jobs_url = url_field(
-            "jobs_url", "URL du site (emplois)", False, self.readonly
-        )
-        BWDynForm.github_url = url_field(
-            "github_url", "URL du site (github)", False, self.readonly
-        )
-        BWDynForm.linkedin_url = url_field(
-            "linkedin_url", "URL du site (linkedin)", False, self.readonly
         )
         BWDynForm.logo_url = string_field(
             "logo_url", "URL du logo de l'organisation", False, self.readonly
@@ -1618,11 +1538,7 @@ def merge_org_results(  # noqa: PLR0915
     org.membre_satev = _parse_bool("membre_satev")  #
     org.membre_sapi = _parse_bool("membre_sapi")  #
     org.membre_saphir = _parse_bool("membre_saphir")  #
-    org.domain = _parse_first("domain")
     org.site_url = _parse_first("site_url")
-    org.jobs_url = _parse_first("jobs_url")
-    org.github_url = _parse_first("github_url")
-    org.linkedin_url = _parse_first("linkedin_url")
     org.logo_url = _parse_first("logo_url")
     org.cover_image_url = _parse_first("cover_image_url")
 

@@ -46,11 +46,7 @@ class OrgGenerator(BaseGenerator):
         org = Organisation(name=_random_name(), type=_random_non_auto_type())
 
         org.description = self.generate_text(max_length=1200)
-        org.domain = faker.domain_name()
         org.site_url = fake_agency_url()
-        org.jobs_url = faker.url()
-        org.github_url = faker.url()
-        org.linkedin_url = faker.url()
 
         org.siren = str(random.randint(100000000, 999999999))
         org.tva = f"FR {random.randint(10, 99)} {org.siren}"
@@ -84,13 +80,15 @@ class OrgGenerator(BaseGenerator):
             case OrganisationTypeEnum.COM:
                 org.bw_type = BWTypeEnum.COM
             case OrganisationTypeEnum.OTHER:
-                org.bw_type = random.choice((
-                    BWTypeEnum.CORPORATE,
-                    BWTypeEnum.PRESSUNION,
-                    BWTypeEnum.ORGANISATION,
-                    BWTypeEnum.TRANSFORMER,
-                    BWTypeEnum.ACADEMICS,
-                ))
+                org.bw_type = random.choice(
+                    (
+                        BWTypeEnum.CORPORATE,
+                        BWTypeEnum.PRESSUNION,
+                        BWTypeEnum.ORGANISATION,
+                        BWTypeEnum.TRANSFORMER,
+                        BWTypeEnum.ACADEMICS,
+                    )
+                )
 
         return org
 

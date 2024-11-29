@@ -178,11 +178,7 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
     karma: Mapped[int] = mapped_column(default=0)
 
     # Web presence
-    domain: Mapped[str] = mapped_column(default="")
     site_url: Mapped[str] = mapped_column(default="")
-    jobs_url: Mapped[str] = mapped_column(default="")
-    github_url: Mapped[str] = mapped_column(default="")
-    linkedin_url: Mapped[str] = mapped_column(default="")
 
     # Pictures
     logo_url: Mapped[str] = mapped_column(default="")
