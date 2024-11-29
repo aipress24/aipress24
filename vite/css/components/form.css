@@ -7,6 +7,6 @@
 }
 
 .aip-form trix-editor {
-    /*@apply h-96;*/
+    @apply min-h-96;
     width: 100%;
 }
