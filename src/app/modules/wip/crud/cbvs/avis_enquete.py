@@ -7,6 +7,7 @@ from __future__ import annotations
 import abc
 from abc import abstractmethod
 from collections.abc import Generator
+import unicodedata
 
 from attr import frozen
 from flask import Flask, Response, flash, render_template, request
@@ -311,7 +312,19 @@ class Selector(abc.ABC):
                 selected = ""
             option = Option(value, value, selected)
             options.add(option)
-        return sorted(options)
+        return sorted(options, key=self.sorter)
+
+    def sorter(self, option: Option) -> str:
+        def remove_diacritics(input_str):
+            # Normalize the string to decompose characters with diacritics
+            normalized_str = unicodedata.normalize("NFKD", input_str)
+            # Filter out non-ASCII characters
+            ascii_str = "".join(
+                c for c in normalized_str if unicodedata.category(c) != "Mn"
+            )
+            return ascii_str
+
+        return remove_diacritics(option.label)
 
     def _get_values_from_experts(self, attr, key) -> set[str]:
         experts = self.form.all_experts
