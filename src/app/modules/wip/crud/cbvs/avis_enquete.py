@@ -5,9 +5,9 @@
 from __future__ import annotations
 
 import abc
+import unicodedata
 from abc import abstractmethod
 from collections.abc import Generator
-import unicodedata
 
 from attr import frozen
 from flask import Flask, Response, flash, render_template, request
