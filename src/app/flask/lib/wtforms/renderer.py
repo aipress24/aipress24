@@ -108,6 +108,15 @@ FORM_VIEW_TEMPLATE = """
   {% for group in groups %}
     {{ renderer.render_group(group) }}
   {% endfor %}
+
+  <div class="pt-5">
+    <div class="flex justify-end">
+      <a href=".."
+          class="button ~neutral">
+        Retour
+      </a>
+    </div>
+  </div>
 </div>
 """
 
