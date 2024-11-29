@@ -45,9 +45,11 @@ FORM_TEMPLATE = """
 
   <div class="pt-5">
     <div class="flex justify-end">
-      <a href=".." class="button ~neutral">
+      <button
+          name="_action" value="cancel" type="submit"
+          class="button ~neutral">
         Annuler
-      </a>
+      </button>
 
       <button
           name="_action" value="submit" type="submit"
