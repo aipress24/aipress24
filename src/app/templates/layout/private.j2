@@ -5,41 +5,38 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>{{ title }} - AIpress24</title>
 
-
   <!-- choices.js CSS -->
-  <link rel="stylesheet" href="/kyc/static/css/choices.css" />
+  <link rel="stylesheet" href="/kyc/static/css/choices.css"/>
 
   <!-- tom-select.js CSS -->
-  <link rel="stylesheet" href="/kyc/static/css/tom-select.css" />
+  <link rel="stylesheet" href="/kyc/static/css/tom-select.css"/>
 
   <script defer src="https://unpkg.com/hyperscript.org@0.9.4"></script>
+
   <!-- <script>
     //window.data = {};
     //window.toasts = [];
   </script> -->
 
-
-
-  <!-- Alpine Plugins -->
+  <!-- Alpine & Plugins -->
   <script
-    defer
-    src="https://unpkg.com/@alpinejs/focus@3.x.x/dist/cdn.min.js"></script>
-
+      defer
+      src="https://unpkg.com/@alpinejs/focus@3.x.x/dist/cdn.min.js"></script>
   <script
-    defer
-    src="https://unpkg.com/@colinaut/alpinejs-plugin-simple-validate@1/dist/alpine.validate.min.js"></script>
+      defer
+      src="https://unpkg.com/@colinaut/alpinejs-plugin-simple-validate@1/dist/alpine.validate.min.js"></script>
 
   <!-- Favicons -->
   <link rel="icon" href="/static/icon/icon-192x192.png"/>
   <link rel="shortcut icon" href="/static/icon/icon-192x192.png"/>
 
+  <script
+      src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.min.js"></script>
+
   <script>
     window.data = {{ json_data | tojson }};
     window.toasts = {{ get_flashed_messages() | tojson }};
   </script>
-
-  <script
-      src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.min.js"></script>
 
   {{ vite_tags() }}
 
@@ -58,6 +55,15 @@
 {% include "fragments/footer.j2" %}
 {% include "fragments/toaster.j2" %}
 {% include "fragments/stats.j2" %}
+
+<!-- HTMX + Flowbite -->
+<script>
+  document.addEventListener('htmx:afterSwap', (event) => {
+    // Probably not needed.
+    // window.Alpine.initTree(event.target);
+    initFlowbite();
+  });
+</script>
 
 </body>
 </html>

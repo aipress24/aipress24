@@ -8,7 +8,6 @@ import "@/trix.js";
 
 import "@/vendor/alpine-components.js";
 
-import Livewire from "@/vendor/livewire";
 import setupLivewire from "@/livewire.js";
 import initTrix from "@/trix";
 import imageViewer from "@/image-upload";
