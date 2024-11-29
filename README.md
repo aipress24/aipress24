@@ -291,6 +291,105 @@ Aipress24 is built using modern web technologies to ensure scalability, security
 - **Storage**: Amazon S3 compatible open-source solutions like Minio or Ceph for object storage.
 - **Security**: Implements best practices for security, including bcrypt for password hashing and proactive monitoring.
 
+### Tentative Roadmap
+
+#### Q4 2024
+
+1. **Finalize Core Platform Stabilization**
+    - Refactor and stabilize the data model to ensure compatibility with future updates.
+2. **News Portal MVP**
+    - Launch the news portal with basic features for publishing, viewing, and ranking articles.
+3. **Social Interaction Features**
+    - Deploy Like, Share, and Comment functionality with customizable settings for authors.
+    - Implement metrics for content popularity and interaction (e.g., views, shares, purchases).
+4. **Business Wall Subscriptions**
+    - Complete Business Wall subscription system for PR professionals, organizations, and media.
+
+#### Q1 2025
+
+1. **Marketplace for Journalists**
+    - Launch a marketplace for selling articles, multimedia content, and intellectual property licenses.
+2. **Content Management Tools**
+    - Add advanced tools for categorizing, tagging, and managing articles.
+    - Enable bulk publishing and scheduling for agencies.
+3. **Matchmaking System**
+    - Develop AI-driven matchmaking for connecting journalists, PR professionals, and experts.
+    - Allow filters for specific sectors, regions, or topics.
+4. **ERP Integration**
+    - Integrate Dolibarr ERP for managing organizational finances.
+
+#### Q2 2025
+
+1. **Reputational Performance Index (IRP)**
+    - Introduce IRP to measure journalist contributions based on metrics like engagement and content quality.
+    - Provide organization-specific IRP settings to customize evaluation criteria.
+2. **ActivityPub Integration**
+    - Begin pilot integration with ActivityPub to enable federated content sharing across instances.
+    - Build connectors for interoperability with Mastodon, Mobilizon, and other platforms.
+3. **Press and Media Tools**
+    - Develop advanced analytics for organizations to track content performance and audience reach.
+    - Launch tools for submitting requests for interviews or expert commentary.
+4. **Improved Payment System for the Marketplace**
+    - Integrate GNU Taler for secure micropayments and wallet management.
+
+#### Q3 2025
+
+1. **Federation Architecture**
+    - Establish framework for hosting multiple instances of AIpress24.
+    - Define governance models for federated instances to ensure interoperability.
+2. **Personalized RSS Feeds**
+    - Enable users to generate personalized RSS feeds for curated content distribution.
+3. **Advanced Security Features**
+    - Implement data encryption for sensitive information and enhance user role management.
+    - Develop GDPR-compliant privacy settings for data storage and sharing.
+
+#### Q4 2025
+
+1. **AI-Powered Content Insights**
+    - Deploy AI tools to provide trend analysis, topic suggestions, and content recommendations.
+    - Implement NLP-based tools for summary generation and keyword extraction.
+2. **Enhanced Marketplace Features**
+    - Launch custom workflows for agencies managing large volumes of content.
+    - Introduce modules for pricing and payment tracking with GNU Taler.
+3. **Custom API for Third-Party Tools**
+    - Release API endpoints for integrating external tools (e.g., newsroom software, analytics platforms).
+
+#### S1 2026
+
+1. **Certification and Badging**
+    - Implement “Source Agency” and “Certified Author” badges to verify content authenticity.
+    - Align certifications with Journalism Trust Initiative (JTI) standards.
+2. **Multimedia Content Expansion**
+    - Introduce support for podcasts, video content, and interactive visualizations.
+    - Enable monetization and licensing of multimedia formats on the marketplace.
+3. **Event Scheduling Module**
+    - Launch event tools for managing press conferences, interviews, and live streams.
+4. **Federated Governance**
+    - Formalize federated governance structure, with committees for ethics, development, and community feedback.
+    - Develop dashboards for instance administrators to monitor performance and compliance.
+5. **Localization and Regional Adaptations**
+    - Roll out support for multilingual interfaces and localized content recommendations.
+    - Deploy region-specific adaptations of payment systems, including GNU Taler integrations.
+
+#### S2 2026
+
+1. **Global Scaling**
+    - Support the creation and management of new federated instances in key global regions.
+    - Develop automated tools for onboarding local administrators and partners.
+2. **Open Plugin Ecosystem**
+    - Introduce plugin support for extending platform features, based on frameworks like Pluggy.
+    - Provide SDK and documentation for developers to create custom extensions.
+3. **Advanced Analytics and Reporting**
+    - Enable organizations to generate detailed reports on engagement, financial performance, and IRP metrics.
+4. **Full ActivityPub Integration**
+    - Complete integration of ActivityPub for seamless inter-instance and inter-platform content sharing.
+5. **Social Graph and Networking**
+    - Build a professional social graph for networking between journalists, PR professionals, and organizations.
+    - Add tools for tracking professional connections and collaboration history.
+6. **Accessibility Improvements**
+    - Enhance accessibility features, including WCAG-compliant UI improvements.
+
+
 ### Community
 
 Join our growing community of contributors and users! Stay updated and participate in discussions:
