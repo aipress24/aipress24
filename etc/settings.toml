@@ -127,10 +127,12 @@ script-src = [
     "https://api.userfront.com/",
     "https://cdn.userfront.com/",
     "https://api.anymod.com",
+    # Analytics
     "https://shynet.aipress24.com/",
-    # TODO: remove
+    # CDNs - TODO: remove
     "https://cdn.jsdelivr.net/",
-    " https://cdnjs.cloudflare.com/",
+    "https://cdnjs.cloudflare.com/",
+    "https://unpkg.com/",
     #
     #  "https://www.googletagmanager.com/",
     #  "https://www.google-analytics.com/",
