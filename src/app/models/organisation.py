@@ -38,6 +38,8 @@ OtherOrganisationPage -up-|> OrganisationPage
 
 from __future__ import annotations
 
+from datetime import datetime, timezone
+
 import arrow
 import sqlalchemy as sa
 from slugify import slugify
@@ -173,6 +175,9 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
     # deactivated by site admin or when they lose their BW registration
     # In that case they become like "AUTO" orgs as regards display of pages
     active: Mapped[bool] = mapped_column(default=True)
+    validity_date: Mapped[datetime] = mapped_column(
+        ArrowType, default=datetime(2000, 1, 1, tzinfo=timezone.utc)
+    )
 
     status: Mapped[str] = mapped_column(default="")
     karma: Mapped[int] = mapped_column(default=0)
@@ -249,6 +254,15 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
     @property
     def is_bw_active(self) -> bool:
         return self.type != OrganisationTypeEnum.AUTO and self.active
+
+    @property
+    def is_bw_valid_date(self) -> bool:
+        """Return True if the BW validity date is in the future."""
+        return (
+            self.type != OrganisationTypeEnum.AUTO
+            and self.active
+            and self.validity_date.date() >= datetime.now(tz=timezone.utc).date()
+        )
 
     @property
     def is_bw_inactive(self) -> bool:
