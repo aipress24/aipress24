@@ -92,7 +92,7 @@ FIELD_TEMPLATE = """
     {% endif %}
   </label>
 
-  <div class="flex rounded-md shadow-sm">
+  <div class="rounded-md shadow-sm">
     {{ field }}
   </div>
 </div>
@@ -142,7 +142,7 @@ FIELD_VIEW_TEMPLATE = """
     <span class="aui-label-text">{{ label }}</span>
   </label>
 
-  <div class="flex rounded-md shadow-sm">
+  <div class="rounded-md shadow-sm">
     {{ field }}
   </div>
 </div>
