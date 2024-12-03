@@ -11,11 +11,21 @@
   is_bw_active: {{is_bw_active}}<br>
   <br>
   Produits:<br>
-  {% for prod in prods %}
+  {% for prod in prod_info %}
     <strong>name: </strong>{{prod.name}}<br>
     <strong>id: </strong>{{prod.id}}<br>
     <strong>description: </strong>{{prod.description}}<br>
-    <strong>features: </strong>{{prod.features}}<br>
+    <strong>features:</strong><br>
+    <ul class="list-disc pl-6">
+      {% for feat in prod.features %}
+      <li>{{feat}}</li>
+      {% endfor %}
+    </ul>
+    <strong>default_price: </strong>{{prod.default_price}}<br>
+    <strong>metadata: </strong>{{prod.metadata}}<br>
+    <strong>tax_code: </strong>{{prod.tax_code}}<br>
+    <strong>images: </strong>{{prod.images}}<br>
+    <strong>url: </strong>{{prod.url}}<br>
     <hr class="mt-4">
   {% endfor %}
 </div>

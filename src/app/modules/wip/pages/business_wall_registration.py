@@ -70,7 +70,12 @@ class ProdInfo(NamedTuple):
     id: str
     name: str
     description: str
-    features: str
+    features: list[str]
+    default_price: Any
+    metadata: dict[str, str]
+    tax_code: str
+    images: list[str]
+    url: str
 
 
 @page
@@ -93,11 +98,19 @@ class BusinessWallRegistrationPage(BaseWipPage):
     def _load_prod_info(self, prod: Product) -> None:
         if not prod.active:
             return
-        features = "<br>".join(
-            x.get("name") for x in prod.marketing_features if x.get("name")
-        )
+
         pinfo = ProdInfo(
-            id=prod.id, name=prod.name, description=prod.description, features=features
+            id=prod.id,
+            name=prod.name,
+            description=prod.description or "",
+            features=[
+                str(x.get("name")) for x in prod.marketing_features if x.get("name")
+            ],
+            default_price=prod.default_price,
+            metadata=prod.metadata,
+            tax_code=str(prod.tax_code),
+            images=prod.images,
+            url=prod.url or "",
         )
         self.prod_info.append(pinfo)
 
@@ -131,7 +144,7 @@ class BusinessWallRegistrationPage(BaseWipPage):
             "product_bw_long": PRODUCT_BW_LONG,
             "description_bw": DESCRIPTION_BW,
             "price_bw": PRICE_BW,
-            "prods": self.prod_info,
+            "prod_info": self.prod_info,
             "logo_url": self.get_logo_url(),
             "render_field": render_field,
         }
