@@ -6,20 +6,23 @@ from __future__ import annotations
 
 from typing import Any, NamedTuple
 
+import stripe
 from flask import g, request
-from stripe import Product
+from flask.templating import render_template
 from werkzeug import Response
 
 from app.constants import PROFILE_CODE_TO_BW_TYPE
 from app.enums import BWTypeEnum, OrganisationTypeEnum, ProfileEnum, RoleEnum
 from app.flask.extensions import db
 from app.flask.lib.pages import page
+from app.flask.routing import url_for
 from app.modules.admin.invitations import invite_users
 from app.modules.admin.org_email_utils import add_managers_emails
 from app.modules.kyc.renderer import render_field
 from app.services.roles import has_role
 from app.services.stripe.products import fetch_product_list
 
+from .. import blueprint
 from .base import BaseWipPage
 from .home import HomePage
 
@@ -63,6 +66,8 @@ DESCRIPTION_BW = {
     "ACADEMICS": "Pour le corps académique, permet d'être au coeur de l'information.",
 }
 
+stripe.api_key = "sk_test_51QBcSJIyzOgen8Oq9gOBAIGOJD9LGDri6zsaLcmZNyuT9ljJcMGBOqMswlCK5lCxqGU1AB1Yctn480d2t83vT15T00NiK0YJ1Z"
+
 
 class ProdInfo(NamedTuple):
     """Extract from Stripe Product aimed to secure display."""
@@ -92,10 +97,10 @@ class BusinessWallRegistrationPage(BaseWipPage):
         self.user = g.user
         self.org = self.user.organisation  # Organisation or None
         self.allowed_subs: set[BWTypeEnum] = self.find_allowed_subscription()
-        self.products = []
+        self.products = {}
         self.prod_info = []
 
-    def _load_prod_info(self, prod: Product) -> None:
+    def _load_prod_info(self, prod: stripe.Product) -> None:
         if not prod.active:
             return
 
@@ -115,10 +120,31 @@ class BusinessWallRegistrationPage(BaseWipPage):
         self.prod_info.append(pinfo)
 
     def load_product_infos(self) -> None:
-        self.products = fetch_product_list()
+        self.products = {p.id: p for p in fetch_product_list()}
         self.prod_info = []
-        for prod in self.products:
+        for prod in self.products.values():
             self._load_prod_info(prod)
+
+    def filter_bw_subscriptions(self) -> None:
+        meta_bw = {
+            "AGENCY": "media",
+            "MEDIA": "media",
+            "CORPORATE": "organisation",
+            "PRESSUNION": "organisation",
+            "COM": "com",
+            "ORGANISATION": "organisation",
+            "TRANSFORMER": "organisation",
+            "ACADEMICS": "organisation",
+        }
+
+        allowed_bw = {meta_bw[x.name] for x in self.allowed_subs}
+        self.allowed_prod = []
+        for prod in self.prod_info:
+            meta = prod.metadata
+            bw = meta.get("BW", "none")
+            if bw not in allowed_bw:
+                continue
+            self.allowed_prod.append(prod)
 
     def context(self) -> dict[str, Any]:
         is_auto = self.org and self.org.is_auto
@@ -126,6 +152,7 @@ class BusinessWallRegistrationPage(BaseWipPage):
         is_bw_inactive = self.org and self.org.is_bw_inactive
         allowed_list_str = ", ".join(str(x) for x in sorted(self.allowed_subs))
         self.load_product_infos()
+        self.filter_bw_subscriptions()
         return {
             "org": self.org,
             "org_name": self.org.name if self.org else "",
@@ -145,6 +172,7 @@ class BusinessWallRegistrationPage(BaseWipPage):
             "description_bw": DESCRIPTION_BW,
             "price_bw": PRICE_BW,
             "prod_info": self.prod_info,
+            "allowed_prod": self.allowed_prod,
             "logo_url": self.get_logo_url(),
             "render_field": render_field,
         }
@@ -183,24 +211,70 @@ class BusinessWallRegistrationPage(BaseWipPage):
                 # response.headers["HX-Redirect"] = url_for(".org-profile")
                 response.headers["HX-Redirect"] = self.url
                 return response
+            elif action == "stripe_register":
+                prod_id = request.form.get("subscription", "")
+                checkout_session = self.checkout_register_stripe(prod_id)
+                import sys
+
+                print("////////", checkout_session.url, file=sys.stderr)
+
+                # return redirect(checkout_session.url, code=303)
+                # response = redirect(checkout_session.url, code=303)
+                response = Response("")
+                response.headers["HX-Redirect"] = checkout_session.url
+                return response
+
         response = Response("")
         response.headers["HX-Redirect"] = self.url
         return response
 
+    def checkout_register_stripe(self, prod_id: str):
+        import sys
+
+        self.load_product_infos()
+        prod = self.products[prod_id]
+        success_url = url_for(".stripe_success", _external=True)
+        cancel_url = url_for(".stripe_cancel", _external=True)
+        print("// success_url:", success_url, file=sys.stderr)
+        print("// cancel_url:", cancel_url, file=sys.stderr)
+        try:
+            checkout_session = stripe.checkout.Session.create(
+                line_items=[
+                    {
+                        # Provide the exact Price ID (for example, pr_1234) of the product you want to sell
+                        "price": prod.default_price,
+                        # "quantity": 1,
+                        "quantity": 1,
+                        # "product_data": {"name": "Business Wall for Organization"},
+                    },
+                ],
+                tax_id_collection={"enabled": True},
+                mode="subscription",
+                success_url=success_url,
+                cancel_url=cancel_url,
+                automatic_tax={"enabled": True},
+            )
+        except Exception as e:
+
+            print("// Stripe CO error:", str(e), file=sys.stderr)
+            return str(e)
+
+        return checkout_session
+
     def do_register(self, bw_type: str) -> None:
-        if bw_type == "SPECIAL":
-            return self.stripe_subscription()
+        # if bw_type == "SPECIAL":
+        #     return self.stripe_subscription()
         if bw_type not in {x.name for x in self.allowed_subs}:
-            return None
+            return
         self._change_organisation_bw_type(bw_type)
         # user is already member of the organisation, now will be the
         add_managers_emails(self.org, self.user.email)
         # also add the new manager to invitations
         invite_users(self.user.email, self.org.id)
-        return None
-
-    def stripe_subscription(self) -> None:
         return
+
+    # def stripe_subscription(self) -> None:
+    #     return
 
     def do_suspend(self) -> None:
         if not self.org.active:
@@ -308,3 +382,13 @@ class BusinessWallRegistrationPage(BaseWipPage):
                 msg = f"Bad org.type: {family!r}"
                 raise ValueError(msg)
         return allow
+
+
+@blueprint.route("/success")
+def stripe_success():
+    return render_template("success.html")
+
+
+@blueprint.route("/cancel")
+def stripe_cancel():
+    return render_template("cancel.html")
