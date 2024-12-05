@@ -152,6 +152,7 @@ class BusinessWallRegistrationPage(BaseWipPage):
         is_bw_inactive = self.org and self.org.is_bw_inactive
         allowed_list_str = ", ".join(str(x) for x in sorted(self.allowed_subs))
         self.load_product_infos()
+        debug_display_prod_info = [p for p in self.prod_info if "BW" in p.metadata]
         self.filter_bw_subscriptions()
         return {
             "org": self.org,
@@ -171,7 +172,7 @@ class BusinessWallRegistrationPage(BaseWipPage):
             "product_bw_long": PRODUCT_BW_LONG,
             "description_bw": DESCRIPTION_BW,
             "price_bw": PRICE_BW,
-            "prod_info": self.prod_info,
+            "prod_info": debug_display_prod_info,
             "allowed_prod": self.allowed_prod,
             "logo_url": self.get_logo_url(),
             "render_field": render_field,
@@ -214,12 +215,6 @@ class BusinessWallRegistrationPage(BaseWipPage):
             elif action == "stripe_register":
                 prod_id = request.form.get("subscription", "")
                 checkout_session = self.checkout_register_stripe(prod_id)
-                import sys
-
-                print("////////", checkout_session.url, file=sys.stderr)
-
-                # return redirect(checkout_session.url, code=303)
-                # response = redirect(checkout_session.url, code=303)
                 response = Response("")
                 response.headers["HX-Redirect"] = checkout_session.url
                 return response
@@ -229,16 +224,14 @@ class BusinessWallRegistrationPage(BaseWipPage):
         return response
 
     def checkout_register_stripe(self, prod_id: str):
-        import sys
-
         self.load_product_infos()
         prod = self.products[prod_id]
         success_url = url_for(".stripe_success", _external=True)
         cancel_url = url_for(".stripe_cancel", _external=True)
-        print("// success_url:", success_url, file=sys.stderr)
-        print("// cancel_url:", cancel_url, file=sys.stderr)
         try:
             checkout_session = stripe.checkout.Session.create(
+                client_reference_id=str(self.org.id),
+                customer_email=self.user.email,
                 line_items=[
                     {
                         # Provide the exact Price ID (for example, pr_1234) of the product you want to sell
@@ -248,6 +241,28 @@ class BusinessWallRegistrationPage(BaseWipPage):
                         # "product_data": {"name": "Business Wall for Organization"},
                     },
                 ],
+                custom_text={
+                    "submit": {
+                        "message": f"Abonnement pour l'organisation «{self.org.name}»"
+                    },
+                    # "after_submit": {
+                    #     "message": f"after_submit, Un text pour {self.org.name}"
+                    # },
+                },
+                custom_fields=[
+                    {
+                        "key": "name",
+                        "type": "text",
+                        "label": {"custom": "Nom de l'organisation", "type": "custom"},
+                        "text": {
+                            "default_value": self.org.name,
+                            "maximum_length": 80,
+                            "minimum_length": 1,
+                            # "value": "",
+                        },
+                    },
+                ],
+                currency="eur",
                 tax_id_collection={"enabled": True},
                 mode="subscription",
                 success_url=success_url,
@@ -255,6 +270,7 @@ class BusinessWallRegistrationPage(BaseWipPage):
                 automatic_tax={"enabled": True},
             )
         except Exception as e:
+            import sys
 
             print("// Stripe CO error:", str(e), file=sys.stderr)
             return str(e)
@@ -386,7 +402,16 @@ class BusinessWallRegistrationPage(BaseWipPage):
 
 @blueprint.route("/success")
 def stripe_success():
-    return render_template("success.html")
+    import sys
+
+    print("//// url", request.url, file=sys.stderr)
+    print("//// headers", request.headers, file=sys.stderr)
+    print("//// args", request.args, file=sys.stderr)
+    print("//// data ", request.data, file=sys.stderr)
+    print("//// form", request.form, file=sys.stderr)
+    print("//// endpoint", request.endpoint, file=sys.stderr)
+    print("//// method", request.method, file=sys.stderr)
+    return render_template("success.html", file=sys.stderr)
 
 
 @blueprint.route("/cancel")
