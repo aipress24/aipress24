@@ -406,21 +406,15 @@ class BusinessWallRegistrationPage(BaseWipPage):
 
 @blueprint.route("/success")
 def stripe_success():
-    # import sys
-
-    # print("//// url", request.url, file=sys.stderr)
-    # print("//// headers", request.headers, file=sys.stderr)
-    # print("//// args", request.args, file=sys.stderr)
-    # print("//// data ", request.data, file=sys.stderr)
-    # print("//// form", request.form, file=sys.stderr)
-    # print("//// endpoint", request.endpoint, file=sys.stderr)
-    # print("//// method", request.method, file=sys.stderr)
     session_id = request.args.get("session_id")
-    session = stripe.checkout.Session.retrieve(session_id)
-    customer = stripe.Customer.retrieve(session.customer)
+    session = stripe.checkout.Session.retrieve(
+        session_id,
+        expand=["customer", "line_items"],
+    )
     session_json = json.dumps(session, sort_keys=True, ensure_ascii=False, indent=2)
     session_dict = json.loads(session_json)
-    return render_template("success.j2", customer=customer, session=session_dict)
+    products = [item["price"]["product"] for item in session_dict["line_items"]["data"]]
+    return render_template("success.j2", session=session_dict, products=products)
 
 
 @blueprint.route("/cancel")
