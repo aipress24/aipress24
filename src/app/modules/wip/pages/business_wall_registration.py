@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+import json
 from typing import Any, NamedTuple
 
 import stripe
@@ -226,7 +227,10 @@ class BusinessWallRegistrationPage(BaseWipPage):
     def checkout_register_stripe(self, prod_id: str):
         self.load_product_infos()
         prod = self.products[prod_id]
-        success_url = url_for(".stripe_success", _external=True)
+        success_url = (
+            url_for(".stripe_success", _external=True)
+            + "?session_id={CHECKOUT_SESSION_ID}"
+        )
         cancel_url = url_for(".stripe_cancel", _external=True)
         try:
             checkout_session = stripe.checkout.Session.create(
@@ -402,18 +406,24 @@ class BusinessWallRegistrationPage(BaseWipPage):
 
 @blueprint.route("/success")
 def stripe_success():
-    import sys
+    # import sys
 
-    print("//// url", request.url, file=sys.stderr)
-    print("//// headers", request.headers, file=sys.stderr)
-    print("//// args", request.args, file=sys.stderr)
-    print("//// data ", request.data, file=sys.stderr)
-    print("//// form", request.form, file=sys.stderr)
-    print("//// endpoint", request.endpoint, file=sys.stderr)
-    print("//// method", request.method, file=sys.stderr)
-    return render_template("success.html", file=sys.stderr)
+    # print("//// url", request.url, file=sys.stderr)
+    # print("//// headers", request.headers, file=sys.stderr)
+    # print("//// args", request.args, file=sys.stderr)
+    # print("//// data ", request.data, file=sys.stderr)
+    # print("//// form", request.form, file=sys.stderr)
+    # print("//// endpoint", request.endpoint, file=sys.stderr)
+    # print("//// method", request.method, file=sys.stderr)
+    session_id = request.args.get("session_id")
+    session = stripe.checkout.Session.retrieve(session_id)
+    customer = stripe.Customer.retrieve(session.customer)
+    session_json = json.dumps(session, sort_keys=True, ensure_ascii=False, indent=2)
+    session_dict = json.loads(session_json)
+    return render_template("success.j2", customer=customer, session=session_dict)
 
 
 @blueprint.route("/cancel")
 def stripe_cancel():
-    return render_template("cancel.html")
+    # no valid session when canceled ...
+    return render_template("cancel.j2")
