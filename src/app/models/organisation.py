@@ -175,6 +175,7 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
     # deactivated by site admin or when they lose their BW registration
     # In that case they become like "AUTO" orgs as regards display of pages
     active: Mapped[bool] = mapped_column(default=True)
+    stripe_product_id: Mapped[str] = mapped_column(default="")
     validity_date: Mapped[datetime] = mapped_column(
         ArrowType, default=datetime(2000, 1, 1, tzinfo=timezone.utc)
     )

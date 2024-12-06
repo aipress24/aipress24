@@ -4,9 +4,11 @@
 
 from __future__ import annotations
 
+from datetime import datetime, timezone
 from typing import Any, NamedTuple
 
 import stripe
+from dateutil.relativedelta import relativedelta
 from flask import g, request
 from werkzeug import Response
 
@@ -64,8 +66,6 @@ DESCRIPTION_BW = {
     "ACADEMICS": "Pour le corps académique, permet d'être au coeur de l'information.",
 }
 
-stripe.api_key = "sk_test_51QBcSJIyzOgen8Oq9gOBAIGOJD9LGDri6zsaLcmZNyuT9ljJcMGBOqMswlCK5lCxqGU1AB1Yctn480d2t83vT15T00NiK0YJ1Z"
-
 
 class ProdInfo(NamedTuple):
     """Extract from Stripe Product aimed to secure display."""
@@ -94,7 +94,7 @@ class BusinessWallRegistrationPage(BaseWipPage):
     def __init__(self):
         self.user = g.user
         self.org = self.user.organisation  # Organisation or None
-        self.allowed_subs: set[BWTypeEnum] = self.find_allowed_subscription()
+        self.allowed_subs: list[BWTypeEnum] = self.find_allowed_subscription()
         self.products = {}
         self.prod_info = []
         self.subscription_info: dict[str, Any] | None = None
@@ -193,13 +193,6 @@ class BusinessWallRegistrationPage(BaseWipPage):
                 response = Response("")
                 response.headers["HX-Redirect"] = self.url
                 return response
-            elif action == "register":
-                bw_type = request.form.get("subscription", "")
-                self.do_register(bw_type)
-                response = Response("")
-                # response.headers["HX-Redirect"] = url_for(".org-profile")
-                response.headers["HX-Redirect"] = self.url
-                return response
             elif action == "suspend":
                 self.do_suspend()
                 response = Response("")
@@ -254,6 +247,14 @@ class BusinessWallRegistrationPage(BaseWipPage):
                         "session": "",
                         "products": "",
                     }
+                    products = [
+                        item["price"]["product"]
+                        for item in session["line_items"]["data"]
+                    ]
+                    if products:
+                        first_prod_id = products[0]
+                        product = stripe.Product.retrieve(first_prod_id)
+                        self.do_register(product)
         return self.render()
 
         # Currently for debug :
@@ -348,20 +349,15 @@ class BusinessWallRegistrationPage(BaseWipPage):
 
         return checkout_session
 
-    def do_register(self, bw_type: str) -> None:
-        # if bw_type == "SPECIAL":
-        #     return self.stripe_subscription()
-        if bw_type not in {x.name for x in self.allowed_subs}:
-            return
-        self._change_organisation_bw_type(bw_type)
+    def do_register(self, product: stripe.Product) -> None:
+        term = product.metadata.get("term", "annuel")
+        # FIXME: now way to have more precise thing here:
+        bw_type = self.allowed_subs[0]
+        self._change_organisation_bw_type(bw_type, term, product.id)
         # user is already member of the organisation, now will be the
         add_managers_emails(self.org, self.user.email)
         # also add the new manager to invitations
         invite_users(self.user.email, self.org.id)
-        return
-
-    # def stripe_subscription(self) -> None:
-    #     return
 
     def do_suspend(self) -> None:
         if not self.org.active:
@@ -379,9 +375,11 @@ class BusinessWallRegistrationPage(BaseWipPage):
         db_session.merge(self.org)
         db_session.commit()
 
-    def _change_organisation_bw_type(self, bw_type: str) -> None:
-        bw_type_enum = BWTypeEnum[bw_type]
-        self.org.bw_type = bw_type_enum
+    def _change_organisation_bw_type(
+        self, bw_type: BWTypeEnum, term: str, prod_id: str
+    ) -> None:
+        # bw_type_enum = BWTypeEnum[bw_type]
+        self.org.bw_type = bw_type
         if self.org.type == OrganisationTypeEnum.AUTO:
             # quick fix
             if bw_type == "MEDIA":
@@ -394,12 +392,19 @@ class BusinessWallRegistrationPage(BaseWipPage):
                 self.org.type = OrganisationTypeEnum.OTHER
             # ensure org is active
             self.org.active = True
+        now = datetime.now(timezone.utc)
+        if term == "mensuel":
+            self.org.validity_date = now + relativedelta(months=1)
+        else:  # assuming "annuel"
+            self.org.validity_date = now + relativedelta(year=1)
+        self.org.stripe_product_id = prod_id
+
         db_session = db.session
         db_session.merge(self.org)
         db_session.commit()
 
-    def find_allowed_subscription(self) -> set[BWTypeEnum]:
-        return self.user_profile_to_allowed_subscription()
+    def find_allowed_subscription(self) -> list[BWTypeEnum]:
+        return list(self.user_profile_to_allowed_subscription())
         # here more strict filtering about the allowed BW categories:
         # return (
         #     self.user_role_to_allowed_subscription()
