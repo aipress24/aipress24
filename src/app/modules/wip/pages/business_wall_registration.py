@@ -350,10 +350,7 @@ class BusinessWallRegistrationPage(BaseWipPage):
         return checkout_session
 
     def do_register(self, product: stripe.Product) -> None:
-        term = product.metadata.get("term", "annuel")
-        # FIXME: now way to have more precise thing here:
-        bw_type = self.allowed_subs[0]
-        self._change_organisation_bw_type(bw_type, term, product.id)
+        self._change_organisation_bw_type(product)
         # user is already member of the organisation, now will be the
         add_managers_emails(self.org, self.user.email)
         # also add the new manager to invitations
@@ -375,29 +372,38 @@ class BusinessWallRegistrationPage(BaseWipPage):
         db_session.merge(self.org)
         db_session.commit()
 
-    def _change_organisation_bw_type(
-        self, bw_type: BWTypeEnum, term: str, prod_id: str
-    ) -> None:
+    def _change_organisation_bw_type(self, product: stripe.Product) -> None:
+        # meta_bw = {
+        #     "AGENCY": "media",
+        #     "MEDIA": "media",
+        #     "CORPORATE": "organisation",
+        #     "PRESSUNION": "organisation",
+        #     "COM": "com",
+        #     "ORGANISATION": "organisation",
+        #     "TRANSFORMER": "organisation",
+        #     "ACADEMICS": "organisation",
+        # }
+        bw_prod = product.metadata.get("BW", "none")
+        term = product.metameta.get("TERM", "annuel")
+
         # bw_type_enum = BWTypeEnum[bw_type]
-        self.org.bw_type = bw_type
-        if self.org.type == OrganisationTypeEnum.AUTO:
-            # quick fix
-            if bw_type == "MEDIA":
-                self.org.type = OrganisationTypeEnum.MEDIA
-            elif bw_type == "AGENCY":
-                self.org.type = OrganisationTypeEnum.AGENCY
-            elif bw_type == "COM":
-                self.org.type = OrganisationTypeEnum.COM
-            else:
-                self.org.type = OrganisationTypeEnum.OTHER
-            # ensure org is active
-            self.org.active = True
+        # FIXME self.org.bw_type = bw_type
+        if bw_prod == "media":
+            self.org.type = OrganisationTypeEnum.MEDIA
+        elif bw_prod == "agency":
+            self.org.type = OrganisationTypeEnum.AGENCY
+        elif bw_prod == "com":
+            self.org.type = OrganisationTypeEnum.COM
+        else:
+            self.org.type = OrganisationTypeEnum.OTHER
+        # ensure org is active
+        self.org.active = True
         now = datetime.now(timezone.utc)
         if term == "mensuel":
             self.org.validity_date = now + relativedelta(months=1)
         else:  # assuming "annuel"
             self.org.validity_date = now + relativedelta(year=1)
-        self.org.stripe_product_id = prod_id
+        self.org.stripe_product_id = product.id
 
         db_session = db.session
         db_session.merge(self.org)
