@@ -4,12 +4,10 @@
 
 from __future__ import annotations
 
-import json
 from typing import Any, NamedTuple
 
 import stripe
 from flask import g, request
-from flask.templating import render_template
 from werkzeug import Response
 
 from app.constants import PROFILE_CODE_TO_BW_TYPE
@@ -23,7 +21,6 @@ from app.modules.kyc.renderer import render_field
 from app.services.roles import has_role
 from app.services.stripe.products import fetch_product_list
 
-from .. import blueprint
 from .base import BaseWipPage
 from .home import HomePage
 
@@ -100,6 +97,7 @@ class BusinessWallRegistrationPage(BaseWipPage):
         self.allowed_subs: set[BWTypeEnum] = self.find_allowed_subscription()
         self.products = {}
         self.prod_info = []
+        self.subscription_info: dict[str, Any] | None = None
 
     def _load_prod_info(self, prod: stripe.Product) -> None:
         if not prod.active:
@@ -175,6 +173,7 @@ class BusinessWallRegistrationPage(BaseWipPage):
             "price_bw": PRICE_BW,
             "prod_info": debug_display_prod_info,
             "allowed_prod": self.allowed_prod,
+            "subscription_info": self.subscription_info,
             "logo_url": self.get_logo_url(),
             "render_field": render_field,
         }
@@ -224,14 +223,82 @@ class BusinessWallRegistrationPage(BaseWipPage):
         response.headers["HX-Redirect"] = self.url
         return response
 
+    def get(self) -> str | Response:
+        return self.hx_get()
+
+    def hx_get(self) -> str | Response:
+        session_id = request.args.get("session_id")
+        if session_id:
+            # context of a Stripe subscription
+
+            if session_id == "canceled":
+                self.subscription_info = {
+                    "msg": "Commande annulée.",
+                    "session": "",
+                    "products": "",
+                }
+            else:
+                try:
+                    session = stripe.checkout.Session.retrieve(
+                        session_id,
+                        expand=["customer", "line_items"],
+                    )
+                except Exception:
+                    session = None
+                # security check on valid session id.
+                # A better solution would be to use a web hook feature and not a GET call back
+                if session and session.customer_email == self.user.email:
+                    # Success response of a checkout
+                    self.subscription_info = {
+                        "msg": "Commande enregistrée.",
+                        "session": "",
+                        "products": "",
+                    }
+        return self.render()
+
+        # Currently for debug :
+        # session = stripe.checkout.Session.retrieve(
+        #     session_id,
+        #     expand=["customer", "line_items"],
+        # )
+        # session_json = json.dumps(session, sort_keys=True, ensure_ascii=False, indent=2)
+        # session_dict = json.loads(session_json)
+        # products = [
+        #     item["price"]["product"] for item in session_dict["line_items"]["data"]
+        # ]
+
+        #     "session": session_dict,
+        #     "products": products,
+        # }
+
+        # For debug, add this to the template :
+        # {% set session = subscription_info.session %}
+        # {% set products = subscription_info.products %}
+        # {% if session %}
+        #   <div>session.client_reference_id (Organisation.id):{{session.client_reference_id}}</div>
+        #   <div>session.custom_fields[0]:{{session.custom_fields[0]}}</div>
+        #   <div>session.customer_email:{{session.customer_email}}</div>
+        #   <div>session.mode:{{session.mode}}</div>
+        #   <div>session.invoice:{{session.invoice}}</div>
+        #   <div>session.payment_status:{{session.payment_status}}</div>
+        #   <div>session.status:{{session.status}}</div>
+        #   <div>session.subscription:{{session.subscription}}</div>
+        #   <div>session.customer:{{session.customer}}</div>
+        #   <div>session.line_items:{{session.line_items}}</div>
+        #   <div>list of products ids:
+        #   {% for prod in products %}
+        #     <div>product id: {{prod}}</div>
+        #   {% endfor %}
+        # {% endif %}
+
     def checkout_register_stripe(self, prod_id: str):
         self.load_product_infos()
         prod = self.products[prod_id]
         success_url = (
-            url_for(".stripe_success", _external=True)
+            url_for(f".{self.name}", _external=True)
             + "?session_id={CHECKOUT_SESSION_ID}"
         )
-        cancel_url = url_for(".stripe_cancel", _external=True)
+        cancel_url = url_for(f".{self.name}", _external=True) + "?session_id=canceled"
         try:
             checkout_session = stripe.checkout.Session.create(
                 client_reference_id=str(self.org.id),
@@ -402,22 +469,3 @@ class BusinessWallRegistrationPage(BaseWipPage):
                 msg = f"Bad org.type: {family!r}"
                 raise ValueError(msg)
         return allow
-
-
-@blueprint.route("/success")
-def stripe_success():
-    session_id = request.args.get("session_id")
-    session = stripe.checkout.Session.retrieve(
-        session_id,
-        expand=["customer", "line_items"],
-    )
-    session_json = json.dumps(session, sort_keys=True, ensure_ascii=False, indent=2)
-    session_dict = json.loads(session_json)
-    products = [item["price"]["product"] for item in session_dict["line_items"]["data"]]
-    return render_template("success.j2", session=session_dict, products=products)
-
-
-@blueprint.route("/cancel")
-def stripe_cancel():
-    # no valid session when canceled ...
-    return render_template("cancel.j2")
