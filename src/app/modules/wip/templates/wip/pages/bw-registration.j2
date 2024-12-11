@@ -97,24 +97,24 @@
   </div>
   {% endif %}
 
+
+  {% if subscription_info %}
+    <div class="mt-6">
+      <h1 class="text-xl font-bold text-red-900 truncate">
+        {{ subscription_info.msg }}
+      </h1>
+    </div>
+  {% endif %}
+
+
+  {% if allowed_prod %}
   <div class="mt-6">
     <h1 class="text-xl font-bold text-gray-900 truncate">
       Abonnements à Aipress PRO&nbsp:
     </h1>
   </div>
 
-  {% if subscription_info %}
-
-    <div class="mt-6">
-      <h1 class="text-xl font-bold text-red-900 truncate">
-        {{ subscription_info.msg }}
-      </h1>
-    </div>
-
-  {% endif %}
-
   <div class="mt-2 ml-4 sm:flex sm:items-end sm:space-x-5">
-
     {% for prod in allowed_prod %}
     <div class="mt-3 mb-2">
       <h2 class="mb-1 font-bold text-gray-800">{{  prod.name }} (Stripe)</h2>
@@ -135,7 +135,17 @@
       </div>
     </div>
     {% endfor %}
-   </div>
+  </div>
+  {% else %}
+  <div class="mt-2 mb-2 font-bold italic text-gray-800">
+    <p>
+      Aucune formule d'abonnement n'est disponible.
+    </p>
+    <p>
+      debug: {{ allowed_subs }}
+    </p>
+  </div>
+  {% endif %}
 
 {% else %}
   <div class="prose">

@@ -94,9 +94,11 @@ class BusinessWallRegistrationPage(BaseWipPage):
     def __init__(self):
         self.user = g.user
         self.org = self.user.organisation  # Organisation or None
-        self.allowed_subs: list[BWTypeEnum] = self.find_allowed_subscription()
-        self.products = {}
+        # liste des BWTypeEnum (parmi 8) en fonctin du profil utilisateur:
+        self.allowed_subs: list[BWTypeEnum] = self.find_profile_allowed_subscription()
+        self.stripe_products = {}
         self.prod_info = []
+        # retour d'infomration sur l'abonnement acheté:
         self.subscription_info: dict[str, Any] | None = None
 
     def _load_prod_info(self, prod: stripe.Product) -> None:
@@ -119,9 +121,9 @@ class BusinessWallRegistrationPage(BaseWipPage):
         self.prod_info.append(pinfo)
 
     def load_product_infos(self) -> None:
-        self.products = {p.id: p for p in fetch_product_list()}
+        self.stripe_products = {p.id: p for p in fetch_product_list()}
         self.prod_info = []
-        for prod in self.products.values():
+        for prod in self.stripe_products.values():
             self._load_prod_info(prod)
 
     def filter_bw_subscriptions(self) -> None:
@@ -135,7 +137,7 @@ class BusinessWallRegistrationPage(BaseWipPage):
             "TRANSFORMER": "organisation",
             "ACADEMICS": "organisation",
         }
-
+        # convert the 8 detail types to 3 subscriptions type:
         allowed_bw = {meta_bw[x.name] for x in self.allowed_subs}
         self.allowed_prod = []
         for prod in self.prod_info:
@@ -174,6 +176,7 @@ class BusinessWallRegistrationPage(BaseWipPage):
             "prod_info": debug_display_prod_info,
             "allowed_prod": self.allowed_prod,
             "subscription_info": self.subscription_info,
+            "allowed_subs": self.allowed_subs,  # information for debug
             "logo_url": self.get_logo_url(),
             "render_field": render_field,
         }
@@ -294,7 +297,7 @@ class BusinessWallRegistrationPage(BaseWipPage):
 
     def checkout_register_stripe(self, prod_id: str):
         self.load_product_infos()
-        prod = self.products[prod_id]
+        prod = self.stripe_products[prod_id]
         success_url = (
             url_for(f".{self.name}", _external=True)
             + "?session_id={CHECKOUT_SESSION_ID}"
@@ -384,7 +387,7 @@ class BusinessWallRegistrationPage(BaseWipPage):
         #     "ACADEMICS": "organisation",
         # }
         bw_prod = product.metadata.get("BW", "none")
-        term = product.metameta.get("TERM", "annuel")
+        term = product.metadata.get("TERM", "annuel")
 
         # bw_type_enum = BWTypeEnum[bw_type]
         # FIXME self.org.bw_type = bw_type
@@ -409,7 +412,7 @@ class BusinessWallRegistrationPage(BaseWipPage):
         db_session.merge(self.org)
         db_session.commit()
 
-    def find_allowed_subscription(self) -> list[BWTypeEnum]:
+    def find_profile_allowed_subscription(self) -> list[BWTypeEnum]:
         return list(self.user_profile_to_allowed_subscription())
         # here more strict filtering about the allowed BW categories:
         # return (
@@ -421,6 +424,8 @@ class BusinessWallRegistrationPage(BaseWipPage):
     def user_profile_to_allowed_subscription(self) -> set[BWTypeEnum]:
         profile = self.user.profile
         profile_code = ProfileEnum[profile.profile_code]
+        # profile_code:  ProfileEnum.XP_DIR_SU
+        # {<BWTypeEnum.ORGANISATION: 'Business Wall for Organisations'>}
         return set(PROFILE_CODE_TO_BW_TYPE.get(profile_code, []))
 
     def user_role_to_allowed_subscription(self) -> set[BWTypeEnum]:
