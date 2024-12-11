@@ -325,6 +325,10 @@ Aipress24 is built using modern web technologies to ensure scalability, security
     - Allow filters for specific sectors, regions, or topics.
 4. **ERP Integration**
     - Integrate Dolibarr ERP for managing organizational finances.
+5. **Cloud Deployment**
+    - Package as a Nix / NixOS application for easy deployment on cloud platforms.
+    - Support deployment on Hop3.
+    - Refactor blob storage to support S3-compatible solutions.
 
 #### Q2 2025
 
