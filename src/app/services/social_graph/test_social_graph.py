@@ -14,100 +14,100 @@ from . import adapt
 
 
 def test_followers_users(db: SQLAlchemy) -> None:
-    _joe = User(email="joe@example.com")
-    _jim = User(email="jim@example.com")
-    db.session.add(_joe)
-    db.session.add(_jim)
+    joe = User(email="joe@example.com")
+    jim = User(email="jim@example.com")
+    db.session.add(joe)
+    db.session.add(jim)
     db.session.flush()
 
-    joe = adapt(_joe)
-    jim = adapt(_jim)
+    social_joe = adapt(joe)
+    social_jim = adapt(jim)
 
-    assert not joe.is_following(jim)
-    assert not jim.is_following(joe)
-    assert joe.num_followers() == 0
-    assert joe.num_followees() == 0
-    assert jim.num_followers() == 0
-    assert jim.num_followees() == 0
+    assert not social_joe.is_following(social_jim)
+    assert not social_jim.is_following(social_joe)
+    assert social_joe.num_followers() == 0
+    assert social_joe.num_followees() == 0
+    assert social_jim.num_followers() == 0
+    assert social_jim.num_followees() == 0
 
-    joe.follow(jim)
+    social_joe.follow(social_jim)
     db.session.flush()
 
-    assert joe.is_following(jim)
-    assert not joe.is_following(joe)
-    assert joe.num_followers() == 0
-    assert joe.num_followees() == 1
-    assert jim.num_followers() == 1
-    assert jim.num_followees() == 0
+    assert social_joe.is_following(social_jim)
+    assert not social_joe.is_following(social_joe)
+    assert social_joe.num_followers() == 0
+    assert social_joe.num_followees() == 1
+    assert social_jim.num_followers() == 1
+    assert social_jim.num_followees() == 0
 
-    assert len(jim.get_followers()) == 1
-    assert len(jim.get_followees()) == 0
-    assert len(joe.get_followers()) == 0
-    assert len(joe.get_followees()) == 1
+    assert len(social_jim.get_followers()) == 1
+    assert len(social_jim.get_followees()) == 0
+    assert len(social_joe.get_followers()) == 0
+    assert len(social_joe.get_followees()) == 1
 
-    joe.unfollow(jim)
+    social_joe.unfollow(social_jim)
     db.session.flush()
 
-    assert not joe.is_following(jim)
-    assert not jim.is_following(joe)
-    assert joe.num_followers() == 0
-    assert joe.num_followees() == 0
-    assert jim.num_followers() == 0
-    assert jim.num_followees() == 0
+    assert not social_joe.is_following(social_jim)
+    assert not social_jim.is_following(social_joe)
+    assert social_joe.num_followers() == 0
+    assert social_joe.num_followees() == 0
+    assert social_jim.num_followers() == 0
+    assert social_jim.num_followees() == 0
 
 
 def test_followers_orgs(db: SQLAlchemy) -> None:
-    _joe = User(email="joe@example.com")
-    _org = Organisation(name="xxx")
-    db.session.add(_joe)
-    db.session.add(_org)
+    joe = User(email="joe@example.com")
+    org = Organisation(name="xxx")
+    db.session.add(joe)
+    db.session.add(org)
     db.session.flush()
 
-    joe = adapt(_joe)
-    org = adapt(_org)
+    social_joe = adapt(joe)
+    social_org = adapt(org)
 
-    assert not joe.is_following(org)
-    assert org.num_followers() == 0
-    assert joe.num_followees(cls=Organisation) == 0
+    assert not social_joe.is_following(social_org)
+    assert social_org.num_followers() == 0
+    assert social_joe.num_followees(cls=Organisation) == 0
 
-    joe.follow(org)
+    social_joe.follow(social_org)
     db.session.flush()
 
-    assert joe.is_following(org)
-    assert org.num_followers() == 1
-    assert len(org.get_followers()) == 1
-    assert joe.num_followees(cls=Organisation) == 1
-    assert joe.num_followees(cls=User) == 0
+    assert social_joe.is_following(social_org)
+    assert social_org.num_followers() == 1
+    assert len(social_org.get_followers()) == 1
+    assert social_joe.num_followees(cls=Organisation) == 1
+    assert social_joe.num_followees(cls=User) == 0
 
-    joe.unfollow(org)
+    social_joe.unfollow(social_org)
     db.session.flush()
 
-    assert not joe.is_following(org)
-    assert org.num_followers() == 0
-    assert joe.num_followees(cls=Organisation) == 0
-    assert joe.num_followees(cls=User) == 0
+    assert not social_joe.is_following(social_org)
+    assert social_org.num_followers() == 0
+    assert social_joe.num_followees(cls=Organisation) == 0
+    assert social_joe.num_followees(cls=User) == 0
 
 
 def test_likes(db: SQLAlchemy) -> None:
-    _joe = User(email="joe@example.com")
-    _jim = User(email="jim@example.com")
-    _article = Article(owner=_jim)
-    db.session.add(_article)
-    db.session.add(_joe)
+    joe = User(email="joe@example.com")
+    jim = User(email="jim@example.com")
+    article = Article(owner=jim)
+    db.session.add(article)
+    db.session.add(joe)
     db.session.flush()
 
-    joe = adapt(_joe)
+    social_joe = adapt(joe)
     # jim = adapt(_jim)
-    article = adapt(_article)
+    social_article = adapt(article)
 
-    assert article.num_likes() == 0
+    assert social_article.num_likes() == 0
 
-    joe.like(article)
+    social_joe.like(social_article)
     db.session.flush()
 
-    assert article.num_likes() == 1
+    assert social_article.num_likes() == 1
 
-    joe.unlike(article)
+    social_joe.unlike(social_article)
     db.session.flush()
 
-    assert article.num_likes() == 0
+    assert social_article.num_likes() == 0
