@@ -2,6 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
+
 ## [2024.12.06.1] - 2024-12-06
 
 ### 🔧 Maintenance
@@ -13,16 +14,6 @@ All notable changes to this project will be documented in this file.
 - Renamed variables for clarity and maintainability.
 - Set BICUBIC as the default interpolation method for image resizing.
 
-## [2024.12.02.2] - 2024-12-02
-
-### 🐛 Bug Fixes
-- Resolved product storage issue in the application.
-
-### 🚀 Features
-- Added functionality to store subscribed product IDs in the `Organisation` class.
-
-### 🚜 Refactor
-- Simplified Stripe subscription handling by removing custom templates for success and cancel pages, using the main template instead.
 
 ## [2024.12.02.1] - 2024-12-02
 
@@ -32,22 +23,15 @@ All notable changes to this project will be documented in this file.
   - `validity_date` for subscription checks.
   - `is_bw_valid_date` to validate subscriptions.
 - Implemented a free registration workflow for media-related cases.
+- Added functionality to store subscribed product IDs in the `Organisation` class.
 
 ### 🐛 Bug Fixes
 - Removed unused URL attributes (e.g., `github_url`, `linkedin_url`) from `Organisation`.
-
-## [2024.11.29.3] - 2024-11-29
-
-### 🐛 Bug Fixes
-- Resolved issues related to CSS rendering for `htmx` and Alpine.js interactions.
+- Resolved product storage issue in the application.
 
 ### 🚜 Refactor
-- Improved JavaScript code organization and readability.
+- Simplified Stripe subscription handling by removing custom templates for success and cancel pages, using the main template instead.
 
-## [2024.11.29.2] - 2024-11-29
-
-### 📚 Documentation
-- Updated README with a tentative roadmap for the project's future development.
 
 ## [2024.11.29.1] - 2024-11-29
 
@@ -60,30 +44,175 @@ All notable changes to this project will be documented in this file.
 - Enhanced BW form rendering:
   - Improved UI consistency.
   - Streamlined generation and management for admin pages.
+- Improved JavaScript code organization and readability.
 
 ### 🐛 Bug Fixes
 - Adjusted placeholder text in KYC forms for better usability.
+- Resolved issues related to CSS rendering for `htmx` and Alpine.js interactions.
 
-## [2024.11.22.5] - 2024-11-22
+### 📚 Documentation
+- Updated README with a tentative roadmap for the project's future development.
 
-### 🔧 Maintenance
-- Dependency updates and minor cleanup tasks.
 
-## [2024.11.22.1] - 2024-11-22
+## [2024.11.22.3] - 2024-11-22
 
 ### 🚀 Features
-- Added functionality to toggle registration status on the BW registration page.
-- Introduced a link from BW pages to registration sections.
+- Added buttons on the BW (Business Wall) registration page to allow users to register their organisations and automatically become managers of the newly created organisations.
+- Implemented toggles on the admin page to manage the `Organisation.active` status.
+- Introduced the `Organisation.is_auto_or_inactive` property for state-based validations.
+- Added the `Organisation.active` attribute for enhanced organisation state tracking.
 
 ### 🐛 Bug Fixes
 - Ensured BW registration pages do not display logos if unavailable.
 - Improved regex validation rules.
+- Ensured organisation-specific forms do not crash when fields are empty or optional.
+- Corrected and unified label conventions:
+  - "Business Wall for Agencies" → "Business Wall for Press Agencies."
+  - "AIpress24 PRO" → "Aipress24 PRO."
 
 ### 🚜 Refactor
 - Enhanced BW page UI for detecting and managing `org.bw_type` and `org.active` states.
 - Improved labels and admin page controls.
+- Renamed and reorganized imports across multiple modules to improve code readability and maintainability.
+- Moved admin utility functions from `admin/pages/show_org.py` to `admin/utils.py`.
+- Simplified SQLAlchemy models, including making certain fields like SIREN and TVA non-unique.
 
-(...)
+
+## [2024.11.18.1] - 2024-11-18
+
+### 🚀 Features
+- Added dynamic fields and validation popups to BW forms for better user experience and control.
+- Enhanced the BW form to dynamically show or hide fields based on user roles (managers vs. others).
+
+### 🐛 Bug Fixes
+- Improved validation of fields and ensured placeholders are consistent across forms.
+- Fixed issues where non-manager users were restricted from viewing some BW details.
+
+
+## [2024.11.04.1] - 2024-11-04
+
+### 🚀 Features
+- Introduced `BWTypeEnum` to manage different subscription types for Business Wall (BW) organisations.
+- Enhanced organisation forms to dynamically display all BW fields.
+- Added export functionality to include emails of members, leaders, and managers in `.ods` format.
+- Introduced invitation management:
+  - Added an invitation button "Rejoindre."
+  - Enabled multiple invitations per user.
+  - Automatic garbage collection of orphaned `AUTO` organisations.
+
+### 🐛 Bug Fixes
+- Made `SIREN` and `TVA` fields in the `Organisation` class nullable and unique.
+- Improved descriptions in the admin organisation modal windows.
+
+### 🚜 Refactor
+- Updated `Organisation` models to include new fields like `bw_type` for better categorisation and tracking.
+- Improved the management of Business Wall subscriptions through simplified forms and validation logic.
+- Simplified member counting logic for organisations.
+- Enhanced invitation handling and organisation cleanup when users or their roles change.
+
+
+## [2024.10.29.6] - 2024-10-29
+
+### 🚀 Features
+- Added modal confirmations for:
+  - User removal from organisations.
+  - User deactivation in the admin interface.
+
+### 🐛 Bug Fixes
+- Corrected button labels and improved the selector logic on admin pages.
+
+
+## [2024.10.25.1] - 2024-10-25
+
+### 🚀 Features
+- Added an admin button to list invitations for organisations.
+- Enhanced user invitations by allowing automatic organisation assignment based on invitation email.
+
+### 🐛 Bug Fixes
+- Improved uniqueness checks for email-based invitations.
+
+
+## [2024.10.18.1] - 2024-10-18
+
+### 🚀 Features
+- Introduced the ability to manage lists of organisation managers and leaders via the admin interface.
+- Enabled detailed views for organisations on the admin page.
+
+### 🐛 Bug Fixes
+- Fixed placeholder display issues in organisation forms.
+
+### 🚜 Refactor
+- Renamed `PreInscription` to `Invitation` for clarity.
+- Streamlined exports and data presentation in `.ods` reports.
+
+
+## [2024.10.10.1] - 2024-10-10
+
+### 🚀 Features
+- Added functionality to detect media direction during validation stages.
+
+### 💅 UI/UX
+- Improved design for newsroom cards.
+
+
+## [2024.10.04.4] - 2024-10-04
+
+### 🚀 Features
+- Added light organisation pages with filtering capabilities by organisation family.
+
+### 🚜 Refactor
+- Replaced `OrganisationTypeEnum` with `OrganisationFamilyEnum` for clearer classification.
+- Reorganised organisation-related models and constants.
+
+
+## [2024.09.27.1] - 2024-09-27
+
+### 🚀 Features
+- Enhanced newsroom functionalities:
+  - Integrated taxonomy for `orga_newsrooms`.
+  - Added matchmaking features for newsroom queries.
+
+### 🐛 Bug Fixes
+- Resolved UI issues in newsroom pagination.
+
+
+## [2024.09.12.1] - 2024-09-12
+
+### 🚀 Features
+- Added dynamic forms for BW (Business Wall) registration, supporting custom attributes and roles.
+- Introduced validation triggers for specific modifications.
+
+### 🐛 Bug Fixes
+- Corrected issues with user role assignments and BW modifications.
+
+
+## [2024.08.29.1] - 2024-08-29
+
+### 🚀 Features
+- Added user preferences for email and phone visibility.
+- Updated ontologies for improved integration with KYC forms.
+
+### 🐛 Bug Fixes
+- Improved visibility and help messages in user profiles.
+
+
+## [2024.08.07.1] - 2024-08-07
+
+### 🚀 Features
+- Enhanced organisation handling:
+  - Automatic completion of organisation names.
+  - Improved support for non-standard organisation types.
+
+### 💅 UI/UX
+- Tweaked profile and organisation-related form designs.
+
+
+## [2024.07.19.1] - 2024-07-19
+
+### 🚜 Refactor
+- Optimised the loading and updating of zip code and country data for KYC forms.
+- Streamlined ontology management processes.
+
 
 ## [2024.07.11.1] - 2024-07-11
 
