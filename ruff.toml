@@ -51,8 +51,10 @@ lint.ignore = [
     "PLW1514", # `pathlib.Path(...).read_text` without explicit `encoding` argument
     "PLW3201", # Bad or misspelled dunder method name
     "RET504", # Unnecessary variable assignment before `return` statement
+    "RUF052", # This one is really stupid
     "SIM108", # Use ternary operator
-    "S101",    # Use of `assert` detected
+    "S101", # Use of `assert` detected
+    "TC006", # Add quotes to type expression
     # Fixable ?
     "A00", # `...` is shadowing a python builtin
     "BLE001", # Do not catch blind exception
