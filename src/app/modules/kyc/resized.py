@@ -18,8 +18,8 @@ def resized(src: bytes, max_size: int = 800) -> bytes:
         ratio = min(max_size / orig_size[0], max_size / orig_size[1])
         if ratio > 1.0:
             return src
-        size = (int(round(orig_size[0] * ratio)), int(round(orig_size[1] * ratio)))
-        img = img.resize(size, Image.BICUBIC)
+        size = (round(orig_size[0] * ratio), round(orig_size[1] * ratio))
+        img = img.resize(size)
         with io.BytesIO() as dest_bytes:
             img.save(dest_bytes, format="JPEG", quality=95)
             return dest_bytes.getvalue()
