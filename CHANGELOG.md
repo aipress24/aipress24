@@ -2,6 +2,89 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2024.12.06.1] - 2024-12-06
+
+### 🔧 Maintenance
+- Updated dependencies to the latest versions.
+- General cleanup and updates to the repository.
+
+### 🚜 Refactor
+- Adjusted ruff configuration.
+- Renamed variables for clarity and maintainability.
+- Set BICUBIC as the default interpolation method for image resizing.
+
+## [2024.12.02.2] - 2024-12-02
+
+### 🐛 Bug Fixes
+- Resolved product storage issue in the application.
+
+### 🚀 Features
+- Added functionality to store subscribed product IDs in the `Organisation` class.
+
+### 🚜 Refactor
+- Simplified Stripe subscription handling by removing custom templates for success and cancel pages, using the main template instead.
+
+## [2024.12.02.1] - 2024-12-02
+
+### 🚀 Features
+- Enhanced Stripe integration to retrieve product details and subscriptions.
+- Introduced new fields in the `Organisation` class:
+  - `validity_date` for subscription checks.
+  - `is_bw_valid_date` to validate subscriptions.
+- Implemented a free registration workflow for media-related cases.
+
+### 🐛 Bug Fixes
+- Removed unused URL attributes (e.g., `github_url`, `linkedin_url`) from `Organisation`.
+
+## [2024.11.29.3] - 2024-11-29
+
+### 🐛 Bug Fixes
+- Resolved issues related to CSS rendering for `htmx` and Alpine.js interactions.
+
+### 🚜 Refactor
+- Improved JavaScript code organization and readability.
+
+## [2024.11.29.2] - 2024-11-29
+
+### 📚 Documentation
+- Updated README with a tentative roadmap for the project's future development.
+
+## [2024.11.29.1] - 2024-11-29
+
+### 🚀 Features
+- Integrated Stripe keys for enhanced payment processing.
+- Implemented UI updates to display available product descriptions from Stripe.
+- Added a new field `Organisation.number_customers` to track customer data.
+
+### 🚜 Refactor
+- Enhanced BW form rendering:
+  - Improved UI consistency.
+  - Streamlined generation and management for admin pages.
+
+### 🐛 Bug Fixes
+- Adjusted placeholder text in KYC forms for better usability.
+
+## [2024.11.22.5] - 2024-11-22
+
+### 🔧 Maintenance
+- Dependency updates and minor cleanup tasks.
+
+## [2024.11.22.1] - 2024-11-22
+
+### 🚀 Features
+- Added functionality to toggle registration status on the BW registration page.
+- Introduced a link from BW pages to registration sections.
+
+### 🐛 Bug Fixes
+- Ensured BW registration pages do not display logos if unavailable.
+- Improved regex validation rules.
+
+### 🚜 Refactor
+- Enhanced BW page UI for detecting and managing `org.bw_type` and `org.active` states.
+- Improved labels and admin page controls.
+
+(...)
+
 ## [2024.07.11.1] - 2024-07-11
 
 ### <!-- 0 -->🚀 Features
