@@ -133,6 +133,6 @@ class AdminNewUsersPage(BaseAdminPage):
             return response
 
         # no validation
-        response = Response("")
-        response.headers["HX-Redirect"] = AdminHomePage().url
-        return response
+        # response = Response("")
+        # response.headers["HX-Redirect"] = AdminHomePage().url
+        # return response
