@@ -9,25 +9,19 @@ from app.flask.routing import url_for
 from .contact import PrefContactOptionsPage
 from .interest import PrefInterestsPage
 from .org_invitation import PrefInvitationsPage
-from .others import (
-    PrefEditProfilePage,
-    PrefIntegrationPage,
-    PrefNotificationPage,
-    PrefPasswordPage,
-    PrefSecurityPage,
-)
+from .others import PrefEditProfilePage, PrefPasswordPage
 from .profile import PrefProfilePage
 
 MENU = [
     PrefProfilePage,
     PrefPasswordPage,
-    PrefSecurityPage,
     PrefInvitationsPage,
     PrefEditProfilePage,
     PrefInterestsPage,
     PrefContactOptionsPage,
-    PrefNotificationPage,
-    PrefIntegrationPage,
+    # PrefSecurityPage,
+    # PrefNotificationPage,
+    # PrefIntegrationPage,
 ]
 
 

@@ -64,10 +64,10 @@ _CREATE_MENU = [
     #
     # Pour les journalistes
     #
-    {
-        "label": "Rédiger un article",
-        "type": "article",
-    },
+    # {
+    #     "label": "Rédiger un article",
+    #     "type": "article",
+    # },
     # {
     #     "label": "Créer un sujet",
     #     "type": "newsroom:sujet",
