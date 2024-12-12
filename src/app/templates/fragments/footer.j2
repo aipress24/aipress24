@@ -1,46 +1,52 @@
-<footer class="bg-white dark:bg-gray-800">
-  <div class="max-w-screen-xl p-4 py-6 mx-auto lg:py-10 md:p-6">
-    <div class="text-sm grid grid-cols-2 gap-8 lg:grid-cols-4">
-      {% for section in settings.FOOTER_MENU %}
-        <div>
-          <h3
-              class="mb-6 font-semibold text-gray-900 uppercase dark:text-white"
-          >
-            {{ section.label }}
-          </h3>
-          <ul class="text-gray-500 dark:text-gray-400">
-            {% for item in section['items'] %}
-              <li class="mb-4">
-                <a href="{{ item.url }}" class="hover:underline"
-                >{{ item.label }}</a>
-              </li>
-            {% endfor %}
-          </ul>
+<footer class="bg-white text-sm">
+  <div class="mx-auto max-w-screen-xl space-y-8 px-4 py-10 sm:px-6 lg:px-8">
+    <div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
+      <div>
+        <div class="text-teal-600">
+          <img class="h-12 w-auto"
+               src="/static/img/aipress24-logo-small.png"
+               alt="">
         </div>
-      {% endfor %}
-    </div>
 
-    <hr class="my-4 border-gray-200 sm:mx-auto dark:border-gray-700 lg:my-6"/>
+        <p class="mt-4 max-w-xs text-gray-500">
+          AIpress24 : Une plateforme open source conçue pour centraliser et professionnaliser les relations entre
+          experts, communicants, entreprises et journalistes, en facilitant la diffusion de contenus éditoriaux et
+          l'accès à l'écosystème médiatique.
+        </p>
 
-    <div class="text-center text-sm">
-      <a
-          href="/"
-          class="flex items-center justify-center mb-4 text-2xl font-semibold text-gray-900 dark:text-white"
-      >
-        Aipress24
-      </a>
-
-      <div class="block text-sm text-center text-gray-500 dark:text-gray-400">
-        © 2022-2024 <a class="underline" href="https://agencetca.info/">Agence TCA</a>.
-        Tous droits réservés.
-        Application réalisée par <a class="underline" href="https://abilian.com">Abilian</a>.
-        <br class="my-2">
-        Version: {{ app_version }}.
-        Temps de génération: {{ "%.3f" | format(g.timer.elapsed()) }}s.
+        <ul class="mt-4 flex gap-6">
+          {% include "fragments/footer-logos.j2" %}
+        </ul>
       </div>
 
-      {% include "fragments/footer-logos.j2" %}
+      <div class="grid grid-cols-3 gap-8 lg:col-span-2 lg:grid-cols-3">
 
+        {% for section in settings.FOOTER_MENU %}
+          <div>
+            <h3
+                class="mb-6 font-semibold text-gray-900 uppercase dark:text-white"
+            >
+              {{ section.label }}
+            </h3>
+            <ul class="text-gray-500 dark:text-gray-400">
+              {% for item in section['items'] %}
+                <li class="mb-4">
+                  <a href="{{ item.url }}" class="hover:underline"
+                  >{{ item.label }}</a>
+                </li>
+              {% endfor %}
+            </ul>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="text-gray-500 dark:text-gray-400">
+      © 2022-2024 <a class="underline" href="https://agencetca.info/">Agence TCA</a>.
+      Tous droits réservés.
+      Application réalisée par <a class="underline" href="https://abilian.com">Abilian</a>.
+      Version: {{ app_version }}.
+      Temps de génération: {{ "%.3f" | format(g.timer.elapsed()) }}s.
     </div>
   </div>
 </footer>

@@ -18,32 +18,6 @@ SOCIAL_LINKS = [
 
 FOOTER_MENU = [
     {
-        "label": "Société",
-        "items": [
-            {
-                "label": "Qui sommes-nous?",
-                "url": "/page/a-propos/",
-            },
-            {
-                "label": "Ils nous soutiennent",
-                "url": "#",
-            },
-        ],
-    },
-    {
-        "label": "Juridique",
-        "items": [
-            {
-                "label": "Politique de confidentialité",
-                "url": "/page/confidentialite/",
-            },
-            {
-                "label": "Conditions d'utilisation",
-                "url": "#",
-            },
-        ],
-    },
-    {
         "label": "Notre offre",
         "items": [
             {
@@ -65,14 +39,35 @@ FOOTER_MENU = [
         ],
     },
     {
-        "label": "Contacts",
+        "label": "Juridique",
         "items": [
             {
-                "label": "Mail",
+                "label": "Politique de confidentialité",
+                "url": "/page/confidentialite/",
+            },
+            {
+                "label": "Conditions d'utilisation",
+                "url": "#",
+            },
+        ],
+    },
+    {
+        "label": "Société",
+        "items": [
+            {
+                "label": "Qui sommes-nous?",
+                "url": "/page/a-propos/",
+            },
+            {
+                "label": "Ils nous soutiennent",
+                "url": "#",
+            },
+            {
+                "label": "Contact mail",
                 "url": "/page/contact#mail",
             },
             {
-                "label": "Téléphone",
+                "label": "Contact téléphone",
                 "url": "/page/contact#tel",
             },
         ],
