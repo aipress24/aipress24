@@ -53,17 +53,10 @@
 {% endblock %}
 
 {% include "fragments/footer.j2" %}
+
 {% include "fragments/toaster.j2" %}
 {% include "fragments/stats.j2" %}
-
-<!-- HTMX + Flowbite -->
-<script>
-  document.addEventListener('htmx:afterSwap', (event) => {
-    // Probably not needed.
-    // window.Alpine.initTree(event.target);
-    initFlowbite();
-  });
-</script>
+{% include "fragments/end.j2" %}
 
 </body>
 </html>

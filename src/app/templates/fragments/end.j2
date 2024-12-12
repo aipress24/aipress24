@@ -1,0 +1,13 @@
+<!-- HTMX + Flowbite -->
+<script>
+  document.addEventListener('htmx:afterSwap', (event) => {
+    // Probably not needed.
+    // window.Alpine.initTree(event.target);
+    initFlowbite();
+  });
+</script>
+
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+  lucide.createIcons();
+</script>

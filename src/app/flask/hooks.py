@@ -24,6 +24,7 @@ from app.modules.iam.constants import API_KEY, JKS, JWT_COOKIE
 from app.services.menus import MenuService
 from app.services.notifications import NotificationService
 from app.services.promotions import get_promotion
+from app.settings import get_settings
 
 TIMEOUT = 5
 
@@ -113,6 +114,7 @@ def inject_extra_context():
         "app_version": version,
         "menus": menu_service,
         "get_notifications": get_notifications,
+        "settings": get_settings(),
     }
 
 

@@ -1,0 +1,14 @@
+<ul class="flex justify-center mt-5 space-x-5">
+  {% for link in settings.SOCIAL_LINKS %}
+    <li>
+      <a
+          href="{{ link.url }}"
+          class="text-gray-500 hover:text-gray-900 dark:hover:text-white dark:text-gray-400"
+      >
+        <i
+            class="w-5 h-5 flex-shrink-0"
+            data-lucide="{{ link.icon }}"></i>
+      </a>
+    </li>
+  {% endfor %}
+</ul>

@@ -80,15 +80,13 @@ class OrgGenerator(BaseGenerator):
             case OrganisationTypeEnum.COM:
                 org.bw_type = BWTypeEnum.COM
             case OrganisationTypeEnum.OTHER:
-                org.bw_type = random.choice(
-                    (
-                        BWTypeEnum.CORPORATE,
-                        BWTypeEnum.PRESSUNION,
-                        BWTypeEnum.ORGANISATION,
-                        BWTypeEnum.TRANSFORMER,
-                        BWTypeEnum.ACADEMICS,
-                    )
-                )
+                org.bw_type = random.choice((
+                    BWTypeEnum.CORPORATE,
+                    BWTypeEnum.PRESSUNION,
+                    BWTypeEnum.ORGANISATION,
+                    BWTypeEnum.TRANSFORMER,
+                    BWTypeEnum.ACADEMICS,
+                ))
 
         return org
 
