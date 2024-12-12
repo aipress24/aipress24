@@ -1,0 +1,92 @@
+<!-- image -->
+{#{% if post.image_url %}#}
+{#  <a href="{{ url_for(post) }}" data-testid="article">#}
+{#    <img class="w-full lg:h-64 object-cover"#}
+{#         src="{{ post.image_url }}"#}
+{#         alt="{{ post.image_caption }} - {{ post.image_copyright }}"#}
+{#         data-tooltip-target="post-{{ post.id }}-tooltip"#}
+{#         data-tooltip-placement="bottom"#}
+{#    />#}
+{#  </a>#}
+{#  {% if post.image_caption or post.image_copyright %}#}
+{#    <div id="post-{{ post.id }}-tooltip" role="tooltip"#}
+{#         class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">#}
+{#      {{ post.image_caption }}#}
+{#      {{ post.image_copyright }}#}
+{#      <div class="tooltip-arrow" data-popper-arrow></div>#}
+{#    </div>#}
+{#  {% endif %}#}
+{#{% endif %}#}
+
+
+<div
+    x-data='carousel({{ alpine_data | tojson }})'
+    class="relative w-full overflow-hidden">
+
+  {% set cls="absolute top-1/2 z-20 flex rounded-full -translate-y-1/2 items-center justify-center bg-gray-300/30 p-2 text-neutral-800 transition hover:bg-gray-300/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black active:outline-offset-0 dark:bg-neutral-950/40 dark:text-neutral-300 dark:hover:bg-neutral-950/60 dark:focus-visible:outline-white" %}
+
+  <!-- previous button -->
+  <button
+      type="button"
+      class="{{ cls }} left-5"
+      aria-label="previous slide"
+      x-on:click="previous()">
+    <i data-lucide="chevron-left"></i>
+  </button>
+
+  <!-- next button -->
+  <button
+      type="button"
+      class="{{ cls }} right-5"
+      aria-label="next slide"
+      x-on:click="next()">
+    <i data-lucide="chevron-right"></i>
+  </button>
+
+  <!-- slides -->
+  <div class="relative {{ img_class }} w-full">
+    <template x-for="(slide, index) in slides">
+      <div
+          x-show="currentSlideIndex == index + 1"
+          class="absolute inset-0"
+          x-transition.opacity.duration.1000ms>
+        <a href="{{ url_for(post) }}">
+          <img
+              class="absolute w-full h-full inset-0 object-cover text-neutral-600 dark:text-neutral-300"
+              x-bind:src="slide.imgSrc"
+              x-bind:alt="slide.imgAlt"
+              x-bind:data-tooltip-target="'post-{{ post.id }}-' + slide.id + '-tooltip'"
+              x-bind:data-tooltip-placement="bottom"
+              alt=""
+              src=""
+          />
+        </a>
+      </div>
+    </template>
+  </div>
+
+  <!-- indicators -->
+  <div
+      class="absolute rounded-md bottom-3 md:bottom-5 left-1/2 z-20 flex -translate-x-1/2 gap-4 md:gap-3 bg-white/75 px-1.5 py-1 md:px-2 dark:bg-neutral-950/75"
+      role="group" aria-label="slides">
+    <template x-for="(slide, index) in slides">
+      <button
+          class="size-2 cursor-pointer rounded-full transition bg-neutral-600 dark:bg-neutral-300"
+          x-on:click="currentSlideIndex = index + 1"
+          x-bind:class="[currentSlideIndex === index + 1 ? 'bg-neutral-600 dark:bg-neutral-300' : 'bg-neutral-600/50 dark:bg-neutral-300/50']"
+          x-bind:aria-label="'slide ' + (index + 1)"></button>
+    </template>
+  </div>
+</div>
+
+{% for slide in slides %}
+  {% if slide.imgAlt %}
+    <div
+        id="post-{{ post.id }}-{{ slide.id }}-tooltip"
+        role="tooltip"
+        class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+      {{ slide.imgAlt }}
+      <div class="tooltip-arrow" data-popper-arrow></div>
+    </div>
+  {% endif %}
+{% endfor %}

@@ -24,25 +24,7 @@
   </div>
 </div>
 
-<!-- image -->
-{% if post.image_url %}
-  <a href="{{ url_for(post) }}" data-testid="article">
-    <img class="w-full lg:h-64 object-cover"
-         src="{{ post.image_url }}"
-         alt="{{ post.image_caption }} - {{ post.image_copyright }}"
-         data-tooltip-target="post-{{ post.id }}-tooltip"
-         data-tooltip-placement="bottom"
-    />
-  </a>
-  {% if post.image_caption or post.image_copyright %}
-    <div id="post-{{ post.id }}-tooltip" role="tooltip"
-         class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
-      {{ post.image_caption }}
-      {{ post.image_copyright }}
-      <div class="tooltip-arrow" data-popper-arrow></div>
-    </div>
-  {% endif %}
-{% endif %}
+{{ carousel(post) }}
 
 <!-- text -->
 <div>

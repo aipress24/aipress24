@@ -1,7 +1,7 @@
 <div
     class="md:flex md:items-center md:justify-between md:space-x-4 lg:border-b lg:pb-6"
 >
-  <div class="">
+  <div class="w-full">
     <h1 class="aui-title">
       {{ article.title }}
     </h1>
@@ -18,9 +18,15 @@
       {% endif %}
     </p>
 
-    <img class="w-full my-4 rounded" src="{{ article.image_url }}" alt=""/>
+    {#    <img#}
+    {#        class="my-4 rounded"#}
+    {#        src="{{ article.image_url }}"#}
+    {#        alt=""/>#}
+    <div class="my-4">
+      {{ carousel(article, img_class="min-h-96") }}
+    </div>
 
-    <div class="mt-5 content">
+    <div class="mt-5 content overflow-hidden">
       {{ article.content }}
     </div>
   </div>
