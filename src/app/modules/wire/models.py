@@ -33,6 +33,7 @@ class WireCommonMixin(IdMixin, LifeCycleMixin, Owned):
     )
 
     published_at: Mapped[datetime | None] = mapped_column(ArrowType, nullable=True)
+    last_updated_at: Mapped[datetime | None] = mapped_column(ArrowType, nullable=True)
     expires_at: Mapped[datetime | None] = mapped_column(ArrowType, nullable=True)
 
     publisher_id: Mapped[int | None] = mapped_column(ForeignKey(Organisation.id))

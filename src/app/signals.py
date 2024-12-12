@@ -11,6 +11,7 @@ document_created = signal("document-created")
 document_updated = signal("document-updated")
 article_published = signal("article-published")
 article_unpublished = signal("article-unpublished")
+article_updated = signal("article-updated")
 
 # Initialisation signals
 after_config = signal("after-config")

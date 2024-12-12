@@ -11,7 +11,7 @@ from sqlalchemy import select
 from app.constants import LOCAL_TZ
 from app.flask.extensions import db
 from app.modules.wip.models.newsroom import Article
-from app.signals import article_published, article_unpublished
+from app.signals import article_published, article_unpublished, article_updated
 
 from .models import ArticlePost, PostStatus
 
@@ -46,16 +46,30 @@ def on_unpublish(article: Article):
     db.session.commit()
 
 
+@article_updated.connect
+def on_update(article: Article):
+    print(f"Received 'Article updated': {article.title}")
+    post = get_post(article)
+    if not post:
+        # Article not published yet, nothing to do
+        return
+
+    print(f"Updating post: {post}")
+    update_post(post, article)
+    post.last_updated_at = now(LOCAL_TZ)
+
+    db.session.add(post)
+    db.session.commit()
+
+
 def update_post(post: ArticlePost, article: Article):
     post.title = article.title
     post.summary = article.chapo
     post.content = article.contenu
     post.owner_id = article.owner_id
 
-    # post.image_id = article.image_id
+    # TODO: remove
     images = article.sorted_images
-    debug(images)
-
     if images:
         image = images[0]
         post.image_id = image.id

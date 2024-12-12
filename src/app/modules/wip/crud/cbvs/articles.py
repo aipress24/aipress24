@@ -21,7 +21,7 @@ from app.modules.wip.models.newsroom import Article
 from app.modules.wip.models.newsroom.article import ArticleStatus, Image
 from app.services.blobs import BlobService
 from app.settings.constants import MAX_IMAGE_SIZE
-from app.signals import article_published, article_unpublished
+from app.signals import article_published, article_unpublished, article_updated
 
 from ._base import BaseWipView
 from ._forms import ArticleForm
@@ -138,6 +138,7 @@ class ArticlesWipView(BaseWipView):
             model.status = ArticleStatus.PUBLIC
             if g.user.organisation_id:
                 model.publisher_id = g.user.organisation_id
+        article_updated.send(model)
 
     def publish(self, id: int):
         repo = self._get_repo()
