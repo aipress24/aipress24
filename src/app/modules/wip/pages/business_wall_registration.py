@@ -393,12 +393,17 @@ class BusinessWallRegistrationPage(BaseWipPage):
         # FIXME self.org.bw_type = bw_type
         if bw_prod == "media":
             self.org.type = OrganisationTypeEnum.MEDIA
+            bw_type = "MEDIA"
         elif bw_prod == "agency":
             self.org.type = OrganisationTypeEnum.AGENCY
+            bw_type = "AGENCY"
         elif bw_prod == "com":
             self.org.type = OrganisationTypeEnum.COM
+            bw_type = "COM"
         else:
             self.org.type = OrganisationTypeEnum.OTHER
+            bw_type = "ORGANISATION"
+        self.org.bw_type = bw_type
         # ensure org is active
         self.org.active = True
         now = datetime.now(timezone.utc)
