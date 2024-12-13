@@ -6,6 +6,7 @@ preview = true
 target-version = "py310"
 
 exclude = [
+    "migrations/",
     "src/app/modules/wip/crud/cbvs/_forms.py",
     "src/app/modules/superadmin",
     "src/app/modules/wallet",
