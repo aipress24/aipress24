@@ -5,7 +5,6 @@
 from __future__ import annotations
 
 from arrow import now
-from devtools import debug
 from sqlalchemy import select
 
 from app.constants import LOCAL_TZ
