@@ -102,9 +102,8 @@ steps:
     ```bash
     make run
     ```
-
-5**Open Your Browser**:
-Open your browser and go to `http://localhost:5000` to see the application in action.
+5. **Open Your Browser**:
+   Open your browser and go to `http://localhost:5000` to see the application in action.
 
 ### Third party libraries & services
 
