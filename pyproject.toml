@@ -4,6 +4,7 @@
 
 [project]
 name = "aipress24-flask"
+version = "2024.12.13.1"
 # Don't support 3.13 yet
 requires-python = ">=3.12,<3.13"
 
@@ -17,7 +18,10 @@ build-backend = "poetry.core.masonry.api"
 name = "aipress24-flask"
 version = "2024.12.13.1"
 description = ""
-authors = ["Stefane Fermigier <sf@abilian.com>"]
+authors = [
+    "Abilian SAS <contact@abilian.com>",
+    "Techno Chroniqueurs Associés <erick@agencetca.info>",
+]
 
 packages = [
     { include = "app", from = "src" },
