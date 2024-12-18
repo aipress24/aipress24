@@ -4,10 +4,13 @@
 
 from __future__ import annotations
 
+import json
+import sys
 from datetime import datetime, timezone
 from typing import Any, NamedTuple
 
 import stripe
+from arrow import Arrow
 from dateutil.relativedelta import relativedelta
 from flask import g, request
 from werkzeug import Response
@@ -21,7 +24,7 @@ from app.modules.admin.invitations import invite_users
 from app.modules.admin.org_email_utils import add_managers_emails
 from app.modules.kyc.renderer import render_field
 from app.services.roles import has_role
-from app.services.stripe.products import fetch_product_list
+from app.services.stripe.products import fetch_product_list, load_stripe_api_key
 
 from .base import BaseWipPage
 from .home import HomePage
@@ -79,6 +82,27 @@ class ProdInfo(NamedTuple):
     tax_code: str
     images: list[str]
     url: str
+
+
+class SubscriptionInfo(NamedTuple):
+    """Extract from Stripe Product aimed to secure display."""
+
+    id: str
+    created: Arrow
+    current_period_end: Arrow
+    current_period_start: Arrow
+    status: bool  # 'active'
+
+
+def _parse_subscription(subscription: dict[str, Any]) -> SubscriptionInfo:
+    """Return meaningful data from Stripe huge Subscription object."""
+    return SubscriptionInfo(
+        id=subscription.id,
+        created=Arrow.fromtimestamp(subscription.created),
+        current_period_end=Arrow.fromtimestamp(subscription.current_period_end),
+        current_period_start=Arrow.fromtimestamp(subscription.current_period_start),
+        status=subscription.status == "active",
+    )
 
 
 @page
@@ -224,41 +248,77 @@ class BusinessWallRegistrationPage(BaseWipPage):
 
     def hx_get(self) -> str | Response:
         session_id = request.args.get("session_id")
-        if session_id:
-            # context of a Stripe subscription
 
-            if session_id == "canceled":
-                self.subscription_info = {
-                    "msg": "Commande annulée.",
-                    "session": "",
-                    "products": "",
-                }
-            else:
-                try:
-                    session = stripe.checkout.Session.retrieve(
-                        session_id,
-                        expand=["customer", "line_items"],
-                    )
-                except Exception:
-                    session = None
-                # security check on valid session id.
-                # A better solution would be to use a web hook feature and not a GET call back
-                if session and session.customer_email == self.user.email:
-                    # Success response of a checkout
-                    self.subscription_info = {
-                        "msg": "Commande enregistrée.",
-                        "session": "",
-                        "products": "",
-                    }
-                    products = [
-                        item["price"]["product"]
-                        for item in session["line_items"]["data"]
-                    ]
-                    if products:
-                        first_prod_id = products[0]
-                        product = stripe.Product.retrieve(first_prod_id)
-                        self.do_register(product)
+        if not session_id:
+            return self.render()
+        if not load_stripe_api_key():
+            msg = "hx_get(): No stripe api key"
+            print("Error:", msg, file=sys.stderr)
+            raise ValueError(msg)
+
+        # context of a Stripe subscription
+        if session_id == "canceled":
+            self.subscription_info = {
+                "msg": "Commande annulée.",
+                "session": "",
+                "products": "",
+            }
+        else:
+            self._register_stripe_subscription(session_id)
         return self.render()
+
+    @staticmethod
+    def _retrieve_session(session_id: str) -> stripe.checkout.Session | None:
+        try:
+            session = stripe.checkout.Session.retrieve(
+                session_id,
+                expand=[
+                    "customer",
+                    "line_items",
+                ],
+            )
+        except Exception as e:
+            session = None
+            print("Error in _retrieve_session():", e, file=sys.stderr)
+        return session
+
+    @staticmethod
+    def _retrieve_subscription(subscription_id: str) -> stripe.Subscription | None:
+        try:
+            subscription = stripe.Subscription.retrieve(subscription_id)
+        except Exception as e:
+            subscription = None
+            print("Error in _retrieve_subscription():", e, file=sys.stderr)
+        return subscription
+
+    def _register_stripe_subscription(self, session_id: str) -> None:
+        session = self._retrieve_session(session_id)
+        if session and session.customer_email == self.user.email:
+            # session_json = json.dumps(
+            # session, sort_keys=True, ensure_ascii=False, indent=2
+            # )
+            # session_dict = json.loads(session_json)
+            # shall we store the checkout ? Or keep it in Stripe.
+            # print("///Session", pformat(dict(session_dict)), file=sys.stderr)
+            # Success response of a checkout
+            self.subscription_info = {
+                "msg": "Commande enregistrée.",
+                "session": "",
+                "products": "",
+            }
+            # select product
+            products = [
+                item["price"]["product"] for item in session["line_items"]["data"]
+            ]
+            if products:
+                first_prod_id = products[0]
+                product = stripe.Product.retrieve(first_prod_id)
+            else:
+                return
+            subscription = self._retrieve_subscription(session["subscription"])
+            if not subscription:
+                return
+            self.do_register(product, subscription)
 
         # Currently for debug :
         # session = stripe.checkout.Session.retrieve(
@@ -352,8 +412,12 @@ class BusinessWallRegistrationPage(BaseWipPage):
 
         return checkout_session
 
-    def do_register(self, product: stripe.Product) -> None:
-        self._change_organisation_bw_type(product)
+    def do_register(
+        self,
+        product: stripe.Product,
+        subscription: stripe.Subscription,
+    ) -> None:
+        self._store_bw_subescription(product, subscription)
         # user is already member of the organisation, now will be the
         add_managers_emails(self.org, self.user.email)
         # also add the new manager to invitations
@@ -375,7 +439,11 @@ class BusinessWallRegistrationPage(BaseWipPage):
         db_session.merge(self.org)
         db_session.commit()
 
-    def _change_organisation_bw_type(self, product: stripe.Product) -> None:
+    def _store_bw_subescription(
+        self,
+        product: stripe.Product,
+        subscription: stripe.Subscription,
+    ) -> None:
         # meta_bw = {
         #     "AGENCY": "media",
         #     "MEDIA": "media",
@@ -386,6 +454,14 @@ class BusinessWallRegistrationPage(BaseWipPage):
         #     "TRANSFORMER": "organisation",
         #     "ACADEMICS": "organisation",
         # }
+
+        subscription_json = json.dumps(
+            subscription, sort_keys=True, ensure_ascii=False, indent=2
+        )
+        subscription_dict = json.loads(subscription_json)
+        # print("///Subscription", pformat(dict(subscription_dict)), file=sys.stderr)
+        subscription_info = _parse_subscription(subscription_dict)
+
         bw_prod = product.metadata.get("BW", "none")
         term = product.metadata.get("TERM", "annuel")
 
@@ -412,6 +488,13 @@ class BusinessWallRegistrationPage(BaseWipPage):
         else:  # assuming "annuel"
             self.org.validity_date = now + relativedelta(year=1)
         self.org.stripe_product_id = product.id
+        self.org.stripe_subscription_id = subscription_info.id
+        self.org.stripe_subs_creation_date = subscription_info.created
+        self.org.validity_date = subscription_info.current_period_end
+        self.org.stripe_subs_current_period_start = (
+            subscription_info.current_period_start
+        )
+        self.org.active = subscription_info.status
 
         db_session = db.session
         db_session.merge(self.org)
