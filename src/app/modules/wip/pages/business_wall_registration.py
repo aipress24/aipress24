@@ -191,7 +191,6 @@ class BusinessWallRegistrationPage(BaseWipPage):
     def _update_organisation_subscription_info(
         self, subscription_info: SubscriptionInfo
     ) -> None:
-
         print("////////", subscription_info, file=sys.stderr)
         self.org.stripe_subscription_id = subscription_info.id
         self.org.stripe_subs_creation_date = subscription_info.created

@@ -114,6 +114,14 @@ format:
 	ruff format
 	markdown-toc -i README.md
 
+## Safe fixes
+fix:
+	ruff check --fix
+
+## Unsafe fixes
+fix-hard:
+	ruff check --fix --unsafe-fixes
+
 ## Cleanup code (using autoflake)
 cleanup-code:
 	autoflake -i -r --remove-all-unused-imports --remove-unused-variables --ignore-init-module-imports src
