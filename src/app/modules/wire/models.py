@@ -38,10 +38,11 @@ class WireCommonMixin(IdMixin, LifeCycleMixin, Owned):
 
     publisher_id: Mapped[int | None] = mapped_column(ForeignKey(Organisation.id))
 
-    image_caption: Mapped[str] = mapped_column(default="")
-    image_copyright: Mapped[str] = mapped_column(default="")
     image_id: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
-    image_url: Mapped[str] = mapped_column(default="")
+
+    # image_caption: Mapped[str] = mapped_column(default="")
+    # image_copyright: Mapped[str] = mapped_column(default="")
+    # image_url: Mapped[str] = mapped_column(default="")
 
     @orm.declared_attr
     def publisher(cls):
