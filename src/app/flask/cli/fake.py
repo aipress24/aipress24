@@ -46,8 +46,8 @@ def fake(clean) -> None:
     fix_roles()
     create_admins()
 
-    print(green("Running additional faking scripts..."))
-    run_fake_scripts()
+    # print(green("Running additional faking scripts..."))
+    # run_fake_scripts()
 
     db.session.commit()
 
