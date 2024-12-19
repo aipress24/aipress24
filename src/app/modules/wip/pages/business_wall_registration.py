@@ -4,7 +4,6 @@
 
 from __future__ import annotations
 
-import json
 import sys
 from datetime import datetime, timezone
 from typing import Any, NamedTuple
@@ -94,7 +93,7 @@ class SubscriptionInfo(NamedTuple):
     status: bool  # 'active'
 
 
-def _parse_subscription(subscription: dict[str, Any]) -> SubscriptionInfo:
+def _parse_subscription(subscription: stripe.Subscription) -> SubscriptionInfo:
     """Return meaningful data from Stripe huge Subscription object."""
     return SubscriptionInfo(
         id=subscription.id,
@@ -171,14 +170,53 @@ class BusinessWallRegistrationPage(BaseWipPage):
                 continue
             self.allowed_prod.append(prod)
 
+    def update_bw_subscription_state(self) -> None:
+        if not self.org or self.org.is_bw_inactive:
+            return
+        # verify current subscription is still active on Stripe Reference
+        load_stripe_api_key()
+        subscription = self._retrieve_subscription(self.org.stripe_subscription_id)
+        if subscription:
+            subscription_info = _parse_subscription(subscription)
+            self._update_organisation_subscription_info(subscription_info)
+            db_session = db.session
+            db_session.merge(self.org)
+            db_session.commit()
+        else:
+            # bad stripe_product_id ?  expired subscription ?
+            # keep stripe_product_id and other infos, but let update flag to
+            # inactive
+            self.do_suspend_locally()
+
+    def _update_organisation_subscription_info(
+        self, subscription_info: SubscriptionInfo
+    ) -> None:
+
+        print("////////", subscription_info, file=sys.stderr)
+        self.org.stripe_subscription_id = subscription_info.id
+        self.org.stripe_subs_creation_date = subscription_info.created
+        self.org.validity_date = subscription_info.current_period_end
+        self.org.stripe_subs_current_period_start = (
+            subscription_info.current_period_start
+        )
+        self.org.active = subscription_info.status
+
     def context(self) -> dict[str, Any]:
+        self.update_bw_subscription_state()
         is_auto = self.org and self.org.is_auto
         is_bw_active = self.org and self.org.is_bw_active
         is_bw_inactive = self.org and self.org.is_bw_inactive
-        allowed_list_str = ", ".join(str(x) for x in sorted(self.allowed_subs))
-        self.load_product_infos()
-        debug_display_prod_info = [p for p in self.prod_info if "BW" in p.metadata]
-        self.filter_bw_subscriptions()
+        if is_bw_inactive:
+            allowed_list_str = ", ".join(str(x) for x in sorted(self.allowed_subs))
+            self.load_product_infos()
+            debug_display_prod_info = [p for p in self.prod_info if "BW" in p.metadata]
+            self.filter_bw_subscriptions()
+        else:
+            # do not propose a subscription
+            allowed_list_str = ""
+            debug_display_prod_info = []
+            self.allowed_prod = []
+
         return {
             "org": self.org,
             "org_name": self.org.name if self.org else "",
@@ -221,7 +259,7 @@ class BusinessWallRegistrationPage(BaseWipPage):
                 response.headers["HX-Redirect"] = self.url
                 return response
             elif action == "suspend":
-                self.do_suspend()
+                self.do_suspend_subscription()
                 response = Response("")
                 # response.headers["HX-Redirect"] = url_for(".org-profile")
                 response.headers["HX-Redirect"] = self.url
@@ -423,13 +461,22 @@ class BusinessWallRegistrationPage(BaseWipPage):
         # also add the new manager to invitations
         invite_users(self.user.email, self.org.id)
 
-    def do_suspend(self) -> None:
+    def do_suspend_locally(self) -> None:
         if not self.org.active:
             return
         db_session = db.session
         self.org.active = False
         db_session.merge(self.org)
         db_session.commit()
+
+    def do_suspend_subscription(self) -> None:
+        if not self.org or self.org.is_bw_inactive:
+            return
+        stripe.Subscription.modify(
+            self.org.stripe_subscription_id,
+            cancel_at_period_end=True,
+        )
+        self.do_suspend_locally()
 
     def do_restore(self) -> None:
         if self.org.active:
@@ -487,14 +534,9 @@ class BusinessWallRegistrationPage(BaseWipPage):
             self.org.validity_date = now + relativedelta(months=1)
         else:  # assuming "annuel"
             self.org.validity_date = now + relativedelta(year=1)
+
         self.org.stripe_product_id = product.id
-        self.org.stripe_subscription_id = subscription_info.id
-        self.org.stripe_subs_creation_date = subscription_info.created
-        self.org.validity_date = subscription_info.current_period_end
-        self.org.stripe_subs_current_period_start = (
-            subscription_info.current_period_start
-        )
-        self.org.active = subscription_info.status
+        self._update_organisation_subscription_info(subscription_info)
 
         db_session = db.session
         db_session.merge(self.org)
