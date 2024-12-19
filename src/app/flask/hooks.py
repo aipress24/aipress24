@@ -6,22 +6,17 @@ from __future__ import annotations
 
 import importlib.metadata
 
-import requests
 from devtools import debug
 from flask import Flask, current_app, g, redirect, request
-from flask_login import current_user, login_user
+from flask_login import current_user
 from flask_security.core import AnonymousUser
-from jose import jwt
-from sqlalchemy import select
 from svcs.flask import container
 from werkzeug.exceptions import Unauthorized
 
-from app.flask.extensions import db
 from app.flask.lib.proxies import unproxy
 from app.flask.routing import url_for
 from app.flask.sqla import get_obj
 from app.models.auth import User
-from app.modules.iam.constants import API_KEY, JKS, JWT_COOKIE
 from app.services.menus import MenuService
 from app.services.notifications import NotificationService
 from app.services.promotions import get_promotion
@@ -62,7 +57,6 @@ def authenticate_user() -> None:
 
     g.user = AnonymousUser()
     return
-
 
 
 def inject_extra_context():
