@@ -38,15 +38,15 @@ FAKERS_SETTINGS = [
     ("groups", GroupGenerator, 50),  # 50
     ("organisations", OrgGenerator, 60),  # 60
     # Content
-    ("events", EventGenerator, 500),  # 500
+    # ("events", EventGenerator, 500),  # 500
     # ("articles", ArticleGenerator, 500),
     # ("photos", PhotoGenerator, 100),
     # ("press-releases", PressReleaseGenerator, 200),  # 200
     # Social
     # ("comments", CommentGenerator, 1000),
-    ("posts", PostGenerator, 500),  # 1000
+    # ("posts", PostGenerator, 500),  # 1000
     # Biz
-    ("editorial-products", EditorialProductGenerator, 100),
+    # ("editorial-products", EditorialProductGenerator, 100),
 ]
 
 FAKER_TEST_SETTINGS = [
@@ -79,9 +79,9 @@ class FakerService:
             self.session.flush()
             self.repository[name] = objs
 
-        print(dim("Generating relationships..."))
-        self.generate_fake_relationships()
-        print(dim("Updating counts..."))
+        # print(dim("Generating relationships..."))
+        # self.generate_fake_relationships()
+        # print(dim("Updating counts..."))
         # self.update_counts()
         self.session.flush()
 
