@@ -114,6 +114,12 @@
     </h1>
   </div>
 
+  <script async src="https://js.stripe.com/v3/pricing-table.js"></script>
+  <stripe-pricing-table pricing-table-id="prctbl_1QXkgvIyzOgen8Oqh4jGs3eL"
+  publishable-key="pk_live_51QBcSJIyzOgen8OqklJqtVvJxcvv6Q97qpIffez2ElCDOYe1mi11iYSFYj7PLqH5ZDow238sCEeRPjD9cBJrjbCP00lyTkdXff">
+  </stripe-pricing-table>
+
+  <!--
   <div class="mt-2 ml-4 sm:flex sm:items-end sm:space-x-5">
     {% for prod in allowed_prod %}
     <div class="mt-3 mb-2">
@@ -136,15 +142,7 @@
     </div>
     {% endfor %}
   </div>
-  {% else %}
-  <div class="mt-2 mb-2 font-bold italic text-gray-800">
-    <p>
-      Aucune formule d'abonnement n'est disponible.
-    </p>
-    <p>
-      debug: {{ allowed_subs }}
-    </p>
-  </div>
+  -->
   {% endif %}
 
 {% else %}
