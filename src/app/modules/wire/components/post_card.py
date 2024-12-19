@@ -54,8 +54,6 @@ class ArticleVM(Wrapper):
     views: int = field(init=False)
 
     image_url: str = field(init=False)
-    image_caption: str = field(init=False)
-    image_copyright: str = field(init=False)
 
     def extra_attrs(self):
         post: ArticlePost = self._model
@@ -70,16 +68,12 @@ class ArticleVM(Wrapper):
             "replies": post.comment_count,
             "views": post.view_count,
             "image_url": self.get_image_url(),
-            "image_caption": post.image_caption,
-            "image_copyright": post.image_copyright,
             "_url": url_for(post),
         }
 
     def get_image_url(self):
         post = self._model
-        if post.image_url:
-            return post.image_url
-        elif post.image_id:
+        if post.image_id:
             return url_for("api.get_blob", id=post.image_id)
         else:
             return "/static/img/gray-texture.png"
