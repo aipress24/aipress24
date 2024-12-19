@@ -22,15 +22,21 @@ class PostStatus(StrEnum):
     ARCHIVED = auto()
 
 
+DRAFT = PostStatus.DRAFT
+
+
+class PublisherType(StrEnum):
+    AGENCY = auto()
+    MEDIA = auto()
+
+
 class WireCommonMixin(IdMixin, LifeCycleMixin, Owned):
     title: Mapped[str] = mapped_column(default="")
     content: Mapped[str] = mapped_column(default="")
     summary: Mapped[str] = mapped_column(default="")
 
     # Etat: Brouillon, Publié, Archivé
-    status: Mapped[PostStatus] = mapped_column(
-        Enum(PostStatus), default=PostStatus.DRAFT
-    )
+    status: Mapped[PostStatus] = mapped_column(Enum(PostStatus), default=DRAFT)
 
     published_at: Mapped[datetime | None] = mapped_column(ArrowType, nullable=True)
     last_updated_at: Mapped[datetime | None] = mapped_column(ArrowType, nullable=True)
@@ -40,16 +46,16 @@ class WireCommonMixin(IdMixin, LifeCycleMixin, Owned):
 
     image_id: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
 
-    # image_caption: Mapped[str] = mapped_column(default="")
-    # image_copyright: Mapped[str] = mapped_column(default="")
-    # image_url: Mapped[str] = mapped_column(default="")
-
     @orm.declared_attr
     def publisher(cls):
         return orm.relationship(Organisation, foreign_keys=[cls.publisher_id])
 
     # # Media
     # media_id: Mapped[int] = mapped_column(sa.BigInteger, sa.ForeignKey(Organisation.id))
+    #
+    # @orm.declared_attr
+    # def media(cls):
+    #     return orm.relationship(Organisation, foreign_keys=[cls.media_id])
     #
     # # Commanditaire
     # commanditaire_id: Mapped[int] = mapped_column(sa.BigInteger, sa.ForeignKey(User.id))
@@ -71,10 +77,6 @@ class WireCommonMixin(IdMixin, LifeCycleMixin, Owned):
     #
     # # Taille
     # taille_contenu: Mapped[str] = mapped_column(default="")
-    #
-    # @orm.declared_attr
-    # def media(cls):
-    #     return orm.relationship(Organisation, foreign_keys=[cls.media_id])
 
 
 class NewsMetadataMixin:
@@ -126,4 +128,14 @@ class ArticlePost(WireCommonMixin, NewsMetadataMixin, UserFeedbackMixin, Base):
     # id of the corresponding newsroom article (if any)
     newsroom_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
 
+    publisher_type: Mapped[PublisherType] = mapped_column(
+        Enum(PublisherType), default=PublisherType.MEDIA
+    )
+
+
+class PressReleasePost(WireCommonMixin, NewsMetadataMixin, UserFeedbackMixin, Base):
+    __tablename__ = "wir_press_release"
+
+    # id of the corresponding newsroom article (if any)
+    # newsroom_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     # newsroom_id: Mapped[int] = mapped_column(ForeignKey("nrm_article.id"), nullable=True)

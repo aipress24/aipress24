@@ -30,6 +30,11 @@ FILTER_SPECS = [
         "label": "Genre",
         "selector": "genre",
     },
+    {
+        "id": "section",
+        "label": "Thématique",
+        "selector": "section",
+    },
     # {
     #     "id": "type_presse",
     #     "label": "Type de presse",
@@ -48,11 +53,6 @@ FILTER_SPECS = [
     #     "id": "location",
     #     "label": "Localisation",
     #     "options": ["France", "Europe", "USA", "Chine", "..."],
-    # },
-    # {
-    #     "id": "language",
-    #     "label": "Langue",
-    #     "selector": "language",
     # },
 ]
 
