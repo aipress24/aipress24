@@ -17,6 +17,7 @@ from svcs.flask import container
 from werkzeug.exceptions import Unauthorized
 
 from app.flask.extensions import db
+from app.flask.lib.proxies import unproxy
 from app.flask.routing import url_for
 from app.flask.sqla import get_obj
 from app.models.auth import User
@@ -50,49 +51,53 @@ def handle_authentication_error(_e):
 def authenticate_user() -> None:
     if request.path.startswith("/static"):
         return
+
     if current_app.testing:
         g.user = get_obj(0, User)
         return
 
     if current_user.is_authenticated:
-        g.user = current_user._get_current_object()
+        g.user = unproxy(current_user)
         return
 
-    cookies = request.cookies
-    token = cookies.get(JWT_COOKIE)
-    if not token:
-        g.user = AnonymousUser()
-        return
+    g.user = AnonymousUser()
+    return
 
-    payload = jwt.decode(token, JKS, algorithms=["RS256"])
-    user_id = payload["userId"]
-    url = f"https://api.userfront.com/v0/users/{user_id}"
-    # debug(payload)
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {API_KEY}",
-    }
-    response = requests.get(url, headers=headers, timeout=TIMEOUT)
-    user_json = response.json()
-    user_email = user_json.get("email")
-    if not user_email:
-        g.user = AnonymousUser()
-        return
+    # cookies = request.cookies
+    # token = cookies.get(JWT_COOKIE)
+    # if not token:
+    #     g.user = AnonymousUser()
+    #     return
 
-    stmt = select(User).where(User.email == user_email)
-    result = db.session.execute(stmt)
-    user = result.scalar_one_or_none()
-    if not user:
-        print(f"Creating user {user_email}")
-        user = User(email=user_email)
-        debug(user.id)
-        db.session.add(user)
-        db.session.commit()
-    else:
-        print(f"Found user {user_email}")
-    login_user(user, force=True)
-    db.session.commit()
-    g.user = user
+    # payload = jwt.decode(token, JKS, algorithms=["RS256"])
+    # user_id = payload["userId"]
+    # url = f"https://api.userfront.com/v0/users/{user_id}"
+    # # debug(payload)
+    # headers = {
+    #     "Content-Type": "application/json",
+    #     "Authorization": f"Bearer {API_KEY}",
+    # }
+    # response = requests.get(url, headers=headers, timeout=TIMEOUT)
+    # user_json = response.json()
+    # user_email = user_json.get("email")
+    # if not user_email:
+    #     g.user = AnonymousUser()
+    #     return
+    #
+    # stmt = select(User).where(User.email == user_email)
+    # result = db.session.execute(stmt)
+    # user = result.scalar_one_or_none()
+    # if not user:
+    #     print(f"Creating user {user_email}")
+    #     user = User(email=user_email)
+    #     debug(user.id)
+    #     db.session.add(user)
+    #     db.session.commit()
+    # else:
+    #     print(f"Found user {user_email}")
+    # login_user(user, force=True)
+    # db.session.commit()
+    # g.user = user
 
 
 def inject_extra_context():
