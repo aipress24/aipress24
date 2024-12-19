@@ -41,7 +41,7 @@ class Filter:
     label: str
     options: list
 
-    def __init__(self, name: str, label: str) -> None:
+    def __init__(self   , name: str, label: str) -> None:
         self.name = name
         self.label = label
         self.options = []
