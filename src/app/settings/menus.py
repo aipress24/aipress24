@@ -34,7 +34,7 @@ MAIN_MENU = [
 
 USER_MENU = [
     {
-        "label": "Profil",
+        "label": "Mon profil",
         "endpoint": "swork.profile",
     },
     {
