@@ -2,6 +2,10 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
+"""
+This is not used yet.
+"""
+
 from __future__ import annotations
 
 from app.flask.lib.pages import page
