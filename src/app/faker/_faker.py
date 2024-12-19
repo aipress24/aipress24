@@ -10,7 +10,6 @@ from collections.abc import Sequence
 import rich
 import sqlalchemy as sa
 from attr import field, frozen
-from cleez.colors import dim
 from flask_sqlalchemy import SQLAlchemy
 from flask_sqlalchemy.session import Session
 from mimesis.locales import Locale
@@ -23,11 +22,8 @@ from app.modules.swork.models import Comment, group_members_table
 from app.services.roles import add_role
 from app.services.social_graph import adapt
 
-from ._generators.biz import EditorialProductGenerator
-from ._generators.events import EventGenerator
 from ._generators.groups import GroupGenerator
 from ._generators.orgs import OrgGenerator
-from ._generators.social import PostGenerator
 from ._generators.users import UserGenerator
 
 sample = random.choice
