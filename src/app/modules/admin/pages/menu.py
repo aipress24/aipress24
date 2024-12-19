@@ -9,19 +9,13 @@ from flask import g
 from app.flask.routing import url_for
 from app.services.roles import has_role
 
-from .contents import AdminContentsPage
 from .dashboard import AdminDashboardPage
-
-# from .groups import AdminGroupsPage
 from .export import AdminExportPage
-from .moderation import AdminModerationPage
 from .modif_users import AdminModifUsersPage
 from .new_users import AdminNewUsersPage
 from .orgs import AdminOrgsPage
 from .promotions import AdminPromotionsPage
 from .system import AdminSystemPage
-
-# from .transactions import AdminTransactionsPage
 from .users import AdminUsersPage
 
 MENU = [
@@ -35,8 +29,8 @@ MENU = [
     AdminOrgsPage,
     # AdminTransactionsPage,
     AdminPromotionsPage,
-    AdminContentsPage,
-    AdminModerationPage,
+    # AdminContentsPage,
+    # AdminModerationPage,
     AdminSystemPage,
     AdminExportPage,
 ]

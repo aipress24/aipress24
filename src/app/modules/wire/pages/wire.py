@@ -11,8 +11,8 @@ from app.flask.lib.pages import Page, page
 from app.flask.routing import url_for
 from app.services.tagging import get_tags
 
-from .filters import FilterBar
-from .tabs import get_tabs
+from ._filters import FilterBar
+from ._tabs import get_tabs
 
 NS = "wire"
 ONE_DAY = 60 * 60 * 24

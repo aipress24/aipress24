@@ -17,10 +17,10 @@ from app.flask.sqla import get_multi
 from app.models.auth import User
 from app.models.lifecycle import PublicationStatus
 from app.models.organisation import Organisation
+from app.modules.wire.models import ArticlePost
 from app.services.social_graph import adapt
 
-from ..models import ArticlePost
-from .filters import FilterBar
+from ._filters import FilterBar
 
 
 def get_tabs():

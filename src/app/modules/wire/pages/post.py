@@ -18,15 +18,13 @@ from app.flask.lib.view_model import Wrapper
 from app.flask.routing import url_for
 from app.flask.sqla import get_obj
 from app.models.auth import User
-
-# from app.models.content import Article, BaseContent, PressRelease
 from app.models.organisation import Organisation
 from app.modules.swork.models import Comment
 from app.modules.wire.models import ArticlePost
 from app.services.tagging import get_tags
 from app.services.tracking import record_view
 
-from .actions import post_comment, toggle_like
+from ._actions import post_comment, toggle_like
 from .wire import WirePage
 
 

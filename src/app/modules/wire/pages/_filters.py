@@ -12,8 +12,7 @@ from werkzeug.exceptions import BadRequest
 
 from app.flask.components.filterset import FilterSet
 from app.flask.sqla import get_multi
-from app.models.content import Article, PressRelease
-from app.models.lifecycle import PublicationStatus
+from app.modules.wire.models import ArticlePost, PostStatus
 
 FILTER_SPECS = [
     {
@@ -32,28 +31,28 @@ FILTER_SPECS = [
         "selector": "genre",
     },
     {
-        "id": "type_presse",
-        "label": "Type de presse",
-        "options": [
-            "Nationale",
-            "PQR",
-            "Hebdo",
-            "Mensuelle",
-            "TV",
-            "Radio",
-            "Web",
-            "Spécialisée",
-        ],
+        "id": "section",
+        "label": "Thématique",
+        "selector": "section",
     },
+    # {
+    #     "id": "type_presse",
+    #     "label": "Type de presse",
+    #     "options": [
+    #         "Nationale",
+    #         "PQR",
+    #         "Hebdo",
+    #         "Mensuelle",
+    #         "TV",
+    #         "Radio",
+    #         "Web",
+    #         "Spécialisée",
+    #     ],
+    # },
     # {
     #     "id": "location",
     #     "label": "Localisation",
     #     "options": ["France", "Europe", "USA", "Chine", "..."],
-    # },
-    # {
-    #     "id": "language",
-    #     "label": "Langue",
-    #     "selector": "language",
     # },
 ]
 
@@ -191,8 +190,8 @@ class FilterBar:
             return self.get_filters_for_articles()
 
     def get_filters_for_articles(self):
-        stmt = sa.select(Article).where(Article.status == PublicationStatus.PUBLIC)
-        articles = get_multi(Article, stmt)
+        stmt = sa.select(ArticlePost).where(ArticlePost.status == PostStatus.PUBLIC)
+        articles = get_multi(ArticlePost, stmt)
 
         filter_set = FilterSet(FILTER_SPECS)
         filter_set.init(articles)
@@ -200,12 +199,13 @@ class FilterBar:
         return filter_set.get_filters()
 
     def get_filters_for_com(self):
-        stmt = sa.select(PressRelease).where(
-            PressRelease.status == PublicationStatus.PUBLIC
-        )
-        press_releases = get_multi(PressRelease, stmt)
-
-        filter_set = FilterSet(FILTER_SPECS)
-        filter_set.init(press_releases)
-
-        return filter_set.get_filters()
+        return []
+        # stmt = sa.select(PressRelease).where(
+        #     PressRelease.status == PublicationStatus.PUBLIC
+        # )
+        # press_releases = get_multi(PressRelease, stmt)
+        #
+        # filter_set = FilterSet(FILTER_SPECS)
+        # filter_set.init(press_releases)
+        #
+        # return filter_set.get_filters()

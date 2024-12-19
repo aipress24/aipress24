@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+import operator
 from importlib.metadata import distributions
 from pathlib import Path
 from typing import cast
@@ -38,9 +39,9 @@ class AdminSystemPage(BaseAdminPage):
 
             sizes += [(size, distribution)]
 
-        sizes.sort(reverse=True)
+        sizes.sort(key=operator.itemgetter(0), reverse=True)
 
-        packages_info = []
+        packages_info = [("Size", "Name", "Version")]
         for size, distribution in sizes:
             name = distribution.metadata["Name"]
             version = distribution.metadata["Version"]
