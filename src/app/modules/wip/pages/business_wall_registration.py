@@ -455,12 +455,12 @@ class BusinessWallRegistrationPage(BaseWipPage):
         #     "ACADEMICS": "organisation",
         # }
 
-        subscription_json = json.dumps(
-            subscription, sort_keys=True, ensure_ascii=False, indent=2
-        )
-        subscription_dict = json.loads(subscription_json)
+        # subscription_json = json.dumps(
+        #     subscription, sort_keys=True, ensure_ascii=False, indent=2
+        # )
+        # subscription_dict = json.loads(subscription_json)
         # print("///Subscription", pformat(dict(subscription_dict)), file=sys.stderr)
-        subscription_info = _parse_subscription(subscription_dict)
+        subscription_info = _parse_subscription(subscription)
 
         bw_prod = product.metadata.get("BW", "none")
         term = product.metadata.get("TERM", "annuel")
