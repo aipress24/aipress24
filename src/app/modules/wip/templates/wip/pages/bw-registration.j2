@@ -108,16 +108,41 @@
 
 
   {% if allowed_prod %}
-  <div class="mt-6">
+  <div class="mt-6 mb-4">
     <h1 class="text-xl font-bold text-gray-900 truncate">
       Abonnements à Aipress PRO&nbsp:
     </h1>
   </div>
 
+  {% if org_bw_type_name == 'MEDIA' %}
   <script async src="https://js.stripe.com/v3/pricing-table.js"></script>
-  <stripe-pricing-table pricing-table-id="prctbl_1QXkgvIyzOgen8Oqh4jGs3eL"
-  publishable-key="pk_live_51QBcSJIyzOgen8OqklJqtVvJxcvv6Q97qpIffez2ElCDOYe1mi11iYSFYj7PLqH5ZDow238sCEeRPjD9cBJrjbCP00lyTkdXff">
+  <stripe-pricing-table
+    pricing-table-id="prctbl_1QXlbyIyzOgen8OqwSrrX15Z"
+    publishable-key="pk_test_51QBcSJIyzOgen8OqJbb50qceox4d9S55tCWLIqh16n0U1wkT7yeGHIJsw0yjxYt4hTzqmVfCq80GVPYdre0NRHPZ00GaziBzHW"
+    customer-email="{{customer_email}}"
+  >
   </stripe-pricing-table>
+
+  {% elif org_bw_type_name == 'ORGANISATION' %}
+  <script async src="https://js.stripe.com/v3/pricing-table.js"></script>
+  <stripe-pricing-table
+    pricing-table-id="prctbl_1QXllXIyzOgen8OqevzCzyUV"
+    publishable-key="pk_test_51QBcSJIyzOgen8OqJbb50qceox4d9S55tCWLIqh16n0U1wkT7yeGHIJsw0yjxYt4hTzqmVfCq80GVPYdre0NRHPZ00GaziBzHW"
+    customer-email="{{customer_email}}"
+  >
+  </stripe-pricing-table>
+
+  {% elif org_bw_type_name == 'COM' %}
+  <script async src="https://js.stripe.com/v3/pricing-table.js"></script>
+  <stripe-pricing-table
+    pricing-table-id="prctbl_1QXls0IyzOgen8OqYcgXiOct"
+    publishable-key="pk_test_51QBcSJIyzOgen8OqJbb50qceox4d9S55tCWLIqh16n0U1wkT7yeGHIJsw0yjxYt4hTzqmVfCq80GVPYdre0NRHPZ00GaziBzHW"
+    customer-email="{{customer_email}}"
+  >
+  </stripe-pricing-table>
+  {% else %}
+  not managed: {{ org_bw_type_name }}
+  {% endif %}
 
   <!--
   <div class="mt-2 ml-4 sm:flex sm:items-end sm:space-x-5">

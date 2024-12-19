@@ -225,6 +225,7 @@ class BusinessWallRegistrationPage(BaseWipPage):
                 self.org.bw_type.name if (self.org and self.org.bw_type) else ""
             ),
             "user_profile": self.user.profile.profile_label,
+            "customer_email": self.user.email,
             "is_manager": self.user.is_manager,
             "allow_bw_string": allowed_list_str,
             "allow_bw_names": {x.name for x in self.allowed_subs},
@@ -240,6 +241,10 @@ class BusinessWallRegistrationPage(BaseWipPage):
             "subscription_info": self.subscription_info,
             "allowed_subs": self.allowed_subs,  # information for debug
             "logo_url": self.get_logo_url(),
+            "success_url": (
+                url_for(f".{self.name}", _external=True)
+                + "?session_id={CHECKOUT_SESSION_ID}"
+            ),
             "render_field": render_field,
         }
 
