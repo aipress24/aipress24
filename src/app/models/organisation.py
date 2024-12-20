@@ -6,34 +6,6 @@
 '-----------------------------------------------------------------
 'Corporate pages / info
 '-----------------------------------------------------------------
-
-abstract class OrganisationPage {
-    +website_url URL
-    +linkedin_url URL
-    +siren_number SIREN
-    +mission HTML
-    +baseline string
-    +logo Image
-}
-OrganisationPage -up-|> BaseContent
-
-class MediaCompanyPage {
-    +NoAgreement: string
-    TODO contenu à définir
-}
-note bottom: Avec un numéro d agrément ou un numéro de Commission Paritaire
-
-MediaCompanyPage -up-|> OrganisationPage
-
-class CommunicationCompanyPage {
-    TODO contenu à définir
-}
-CommunicationCompanyPage -up-|> OrganisationPage
-
-class OtherOrganisationPage {
-    TODO contenu à définir
-}
-OtherOrganisationPage -up-|> OrganisationPage
 """
 
 from __future__ import annotations
@@ -57,42 +29,6 @@ from app.models.mixins import Addressable, IdMixin, LifeCycleMixin
 
 class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
     """
-    -ID: int[1] {id. readOnly. unique}
-    -Nom: String[I]
-    -Logo: Logo[0..I]
-    -Pays: String[1..+] {ordered}
-    -Téléphones: NumeroDeTelephone[0..1] {ordered. unique}
-    -Dirigeants: Collaborateur[1..1 {ordered}
-    -Collaborateurs: Collaborateur[0.1 {ordered}
-    -Départements: Département[0.1 {ordered}
-    -Filiales: Filiale[0..1] {ordered}
-    -BusinessUnits: BusinessUnit[0.1 {ordered}
-    -Agences: Age.nces[0..A] {ordered}
-
-    -PorteMonnaie: PorteMonnaieElectronique[0..1]
-
-    -ContactsPresse: ContactRelationPresse[0.1 {ordered}
-
-    -Actualités: Actualité[0.1 {ordered}
-
-    -Événements: Événeme.nt[0.1 {ordered}
-    -Attented: Événement[0.1 {ordered}
-
-    -GalleriePropriétaire: Image[0 {ordered}
-    -GalleriePartagée: Image[0.1 {ordered}
-    -Effectifs: int[1] = 0
-    -CotéEnBourse: Boolean[I]
-    -MarchésBoursiers: MarchéBoursier[0..A] {ordered}
-
-    -Réputation: Réputation[I]
-
-    -Demandes: Demande[0..n] {ordered}
-    -DemandessPassées: Dernande[0..n] {ordered}
-    -Offres: Offre[0..n] {ordered}
-    -OffresPassées: Offre[0..n] {ordered}
-
-    ...
-
     Remarques:
         - pas de SIRET
 
