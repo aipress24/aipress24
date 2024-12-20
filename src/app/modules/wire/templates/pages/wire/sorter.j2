@@ -51,7 +51,7 @@
       <div>
         {% set action = {'action': 'sort-by', 'id': "sorter", 'value': option.value} %}
         <a href="#"
-           hx-post="{{ request.url }}"
+           hx-post="{{ request.path }}"
            hx-target="#wire-main"
            hx-vals='{{ action|tojson }}'
 
