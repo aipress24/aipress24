@@ -133,9 +133,9 @@ class ArticlesWipView(BaseWipView):
     msg_delete_ko = "Vous n'êtes pas autorisé à supprimer cet article"
 
     def _post_update_model(self, model: Article):
-        if not model.published_at:
+        if not model.status:
+            model.status = ArticleStatus.DRAFT
             model.published_at = arrow.now("Europe/Paris")
-            model.status = ArticleStatus.PUBLIC
             if g.user.organisation_id:
                 model.publisher_id = g.user.organisation_id
         article_updated.send(model)

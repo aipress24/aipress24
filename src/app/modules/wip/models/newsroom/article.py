@@ -25,6 +25,9 @@ class ArticleStatus(StrEnum):
     ARCHIVED = auto()
 
 
+DRAFT = ArticleStatus.DRAFT
+
+
 class Article(
     NewsroomCommonMixin,
     NewsMetadataMixin,
@@ -56,9 +59,7 @@ class Article(
     # ------------------------------------------------------------
 
     # Etat: Brouillon, Publié, Archivé
-    status: Mapped[ArticleStatus] = mapped_column(
-        sa.Enum(ArticleStatus), default=ArticleStatus.DRAFT
-    )
+    status: Mapped[ArticleStatus] = mapped_column(sa.Enum(ArticleStatus), default=DRAFT)
 
     published_at: Mapped[datetime | None] = mapped_column(ArrowType, nullable=True)
     expired_at: Mapped[datetime | None] = mapped_column(ArrowType, nullable=True)
