@@ -140,7 +140,6 @@ class BaseWipView(FlaskView, abc.ABC):
 
         form.populate_obj(model)
         self._post_update_model(model)
-
         repo.add(model, auto_commit=True)
 
         flash("Enregistré")
