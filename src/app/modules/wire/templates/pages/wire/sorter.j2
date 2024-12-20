@@ -45,7 +45,7 @@
       x-on:click.outside="close($refs.button)"
       :id="$id('dropdown-button')"
       style="display: none;"
-      class="absolute left-0 mt-2 w-40 bg-white rounded shadow-md overflow-hidden"
+      class="absolute right-0 mt-2 w-40 z-50 bg-white rounded shadow-lg overflow-hidden"
   >
     {% for option in filter_bar.sorter.options %}
       <div>
