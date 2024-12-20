@@ -32,11 +32,7 @@
 
   <div class="flex space-x-3">
     <div class="flex-shrink-0">
-      <img
-          class="h-10 w-10 rounded-full"
-          src="{{ g.user.profile_image_url }}"
-          alt=""
-      />
+      {{ profile_image(g.user, size=12, class="h-10 w-10") }}
     </div>
 
     <div class="min-w-0 flex-1">
