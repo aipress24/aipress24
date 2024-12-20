@@ -2,22 +2,26 @@
   const entry_groups = {{ entry_groups | tojson }};
 </script>
 
-<div x-data="Components.menu({ open: false })" x-init="init()"
-     @keydown.escape.stop="open = false; focusButton()"
-     @click.away="onClickAway($event)"
-     class="flex-shrink-0 pr-2">
+<div
+    x-data="Components.menu({ open: false })"
+    x-init="init()"
+    @keydown.escape.stop="open = false; focusButton()"
+    @click.away="onClickAway($event)"
+    class="flex-shrink-0 pr-2">
 
-  <button type="button"
-          class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
-          id="pinned-project-options-menu-0-button" x-ref="button"
-          @click="onButtonClick()"
-          @keyup.space.prevent="onButtonEnter()"
-          @keydown.enter.prevent="onButtonEnter()"
-          @keydown.arrow-up.prevent="onArrowUp()"
-          @keydown.arrow-down.prevent="onArrowDown()"
-          aria-expanded="false"
-          aria-haspopup="true"
-          x-bind:aria-expanded="open.toString()"
+  <button
+      type="button"
+      class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
+      id="pinned-project-options-menu-0-button"
+      x-ref="button"
+      @click="onButtonClick()"
+      @keyup.space.prevent="onButtonEnter()"
+      @keydown.enter.prevent="onButtonEnter()"
+      @keydown.arrow-up.prevent="onArrowUp()"
+      @keydown.arrow-down.prevent="onArrowDown()"
+      aria-expanded="false"
+      aria-haspopup="true"
+      x-bind:aria-expanded="open.toString()"
   >
     <span class="sr-only">Open options</span>
     <svg class="h-5 w-5" x-description="Heroicon name: mini/ellipsis-vertical"
