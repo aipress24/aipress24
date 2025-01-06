@@ -157,7 +157,7 @@ mimesis = ">=18"
 
 # PDF generation
 # Pinned to 62 because of Pillow.
-weasyprint = "^62"
+weasyprint = "^63"
 
 # Security / auth
 zxcvbn = "^4.4.28"
@@ -214,7 +214,7 @@ odsgenerator = ">=1.11.0"
 
 # Admin app
 sqladmin = "^0.20"
-starlette = "^0.41"
+starlette = "^0.43"
 granian = {extras = ["reload"], version = "^1.6"}
 asyncpg = "^0.30"
 asgiref = "^3.8"
