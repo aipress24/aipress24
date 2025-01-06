@@ -40,7 +40,6 @@ class ContactTypeEnum(StrEnum):
     TRANSFORMER = "Transformers"
     ENSEIGNANT = "Enseignants"
     ETUDIANT = "Etudiants"
-    FOLLOWEE = "Personnes suivies"
 
 
 class OrganisationTypeEnum(StrEnum):
