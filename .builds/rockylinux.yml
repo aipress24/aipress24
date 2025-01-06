@@ -23,18 +23,8 @@ packages:
 tasks:
   - setup: |
       sudo pip3.12 install -U uv nox
-      cd aipress24
-      uv sync
-      uvx poetry install
-
-  - lint: |
-      cd aipress24
-      uv run make lint
-
-  - test: |
-      cd aipress24
-      uv run make test-sqlite
-      # TODO: test with postgresql
+      # cd aipress24
+      # uvx poetry install
 
   - nox-test: |
       cd aipress24
