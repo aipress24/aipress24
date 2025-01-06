@@ -2,6 +2,8 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
+from __future__ import annotations
+
 # from flask_security import RoleMixin, UserMixin
 # from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String
 # from sqlalchemy.orm import backref, relationship

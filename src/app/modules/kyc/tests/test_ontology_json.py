@@ -2,8 +2,9 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
-# from __future__ import annotations
+from __future__ import annotations
 
+# from __future__ import annotations
 # import json
 # from collections import Counter
 # from importlib import resources as rso

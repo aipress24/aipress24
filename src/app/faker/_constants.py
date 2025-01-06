@@ -2,8 +2,9 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
-# flake8: noqa
+from __future__ import annotations
 
+# flake8: noqa
 from __future__ import annotations
 
 ORGANISATIONS = [

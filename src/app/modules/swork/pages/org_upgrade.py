@@ -2,6 +2,8 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
+from __future__ import annotations
+
 # from app.flask.lib.pages import Page
 # from app.flask.sqla import get_obj
 # from app.models.organisation import Organisation
