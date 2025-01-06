@@ -1,6 +1,4 @@
-# Aipress24
-
-# Troubleshooting / FAQ Guide
+# Aipress24 - Troubleshooting / FAQ Guide
 
 Some common issues and solutions when deploying.
 

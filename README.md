@@ -1,9 +1,6 @@
 # Aipress24
 
-Welcome to the Aipress24 project! Aipress24 is an innovative, open-source digital platform designed to transform the way
-journalists, news agencies, and media professionals collaborate and monetize their work. Developed
-by [Techno-Chroniqueurs Associés](https://agencetca.info/), with the technical expertise of Abilian, Aipress24 provides
-a comprehensive B2B environment tailored to the needs of the information and innovation sectors.
+Welcome to the Aipress24 project! Aipress24 is an innovative, open-source digital platform designed to transform the way journalists, news agencies, and media professionals collaborate and monetize their work. Developed by [Techno-Chroniqueurs Associés](https://agencetca.info/), with the technical expertise of Abilian, Aipress24 provide a comprehensive B2B environment tailored to the needs of the information and innovation sectors.
 
 > [!WARNING]
 > This code is still evolving quickly, and not meant for production yet.
@@ -52,11 +49,21 @@ a comprehensive B2B environment tailored to the needs of the information and inn
 
 <!-- tocstop -->
 
+Additionals notes:
+
+- [CODE_OF_CONDUCT.md](notes/CODE_OF_CONDUCT.md) - Code of Conduct
+- [TROUBLESHOOTING.md](notes/TROUBLESHOOTING.md) - Troubleshooting guide
+- [PUBLIC_CODE_COMPLIANCE.md](notes/PUBLIC_CODE_COMPLIANCE.md) - Public Code Compliance self-assessment
+- [STANDARDS.md](notes/STANDARDS.md) - Standards used by Aipress24
+- [CHANGELOG.md](notes/CHANGELOG.md) - Changelog
+- [CITATION.cff](notes/CITATIONS.cff) - Citation file
+- [DCO.txt](notes/DCO.txt) - Developer Certificate of Origin
+
+See also the companion documentation repository: <https://github.com/aipress24/aipress24-doc> (not up-to-date yet).
+
 ## Introduction
 
-Aipress24 aims to revolutionize the media industry by offering a suite of tools that enhance productivity, foster
-community interaction, and create new revenue streams for journalists and media organizations. Our mission is to support
-journalism and innovation by providing a platform that facilitates content creation, collaboration, and distribution.
+Aipress24 aims to revolutionize the media industry by offering a suite of tools that enhance productivity, foster community interaction, and create new revenue streams for journalists and media organizations. Our mission is to support journalism and innovation by providing a platform that facilitates content creation, collaboration, and distribution.
 
 ## Features
 
@@ -140,8 +147,7 @@ passionate about media and innovation, there are many ways to get involved:
 
 ### Development Environment
 
-To set up your development environment, ensure you have Node.js and npm installed. We recommend using the latest LTS
-version of Node.js.
+To set up your development environment, ensure you have Node.js and npm installed. We recommend using the latest LTS version of Node.js.
 
 1. **Fork the Repository**: Click the "Fork" button at the top of the repository page on GitHub.
 2. **Clone Your Fork**: Clone your fork to your local machine.
@@ -214,9 +220,10 @@ The full list of available commands can be viewed by running `make help`.
 
 We use **PEP 8** as the basis for our code style. In practice, most of the code formatting is handled by the following tools:
 
-- **Black**: Ensures consistent formatting.
-- **Ruff**: Handles linting and static analysis.
-- **isort**: Organizes imports.
+- **Ruff**: Does most of the formatting, and also handles linting and static analysis.
+- **Black**: Ensures consistent formatting (currently phased out in favor of `ruff`).
+- **isort**: Organizes imports (currently phased out in favor of `ruff`).
+- **Pyupgrade**: Upgrades syntax to newer versions of Python.
 
 To apply formatting and linting, simply run:
 
@@ -286,7 +293,7 @@ To ensure a smooth review process:
 
 This project adheres to the [PSF Code of Conduct](https://policies.python.org/python.org/code-of-conduct/). By participating, you agree to abide by its terms. Please be respectful and collaborative in all interactions.
 
-For further details, see the `[CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md)` file in the repository.
+For further details, see the `[CODE_OF_CONDUCT.md](notes/CODE_OF_CONDUCT.md)` file in the repository.
 
 ### Architecture
 

@@ -1,0 +1,71 @@
+# This repository adheres to the publiccode.yml standard by including this
+# metadata file that makes public software easily discoverable.
+# More info at https://github.com/italia/publiccode.yml
+publiccodeYmlVersion: '0.2'
+platforms:
+  - web
+categories:
+  - applicant-tracking
+  - collaboration
+  - communications
+  - content-management
+name: Aipress24
+url: 'https://github.com/aipress24/aipress24'
+applicationSuite: Aipress24
+releaseDate: '2025-01-01'  # Not the actual date yet. FIXME.
+softwareVersion:  NA # No version number available yet. FIXME.
+logo: NA # No logo available yet. FIXME.
+monochromeLogo: NA
+softwareType: 'standalone/web'
+landingURL: 'https://github.com/aipress24/aipress24'  # Using the GitHub repository as the landing URL
+description:
+  en:
+    shortDescription: A collaborative digital platform for journalists, news agencies, and media professionals.
+    longDescription: |
+      Aipress24 is an innovative, open-source digital platform designed to transform the way journalists, news agencies, and media professionals collaborate and monetize their work. Developed by Techno-Chroniqueurs Associés, with the technical expertise of Abilian, Aipress24 provides a comprehensive B2B environment tailored to the needs of the information and innovation sectors.
+      Aipress24 aims to revolutionize the media industry by offering a suite of tools that enhance productivity, foster community interaction, and create new revenue streams for journalists and media organizations.
+    documentation: 'https://github.com/aipress24/aipress24/blob/master/README.md'
+    apiDocumentation:  '' # No specific API documentation available yet. FIXME
+    features:
+      - "Collaborative Newsroom: A digital workspace for collaborative content creation, editing, and publishing."
+      - "Professional Social Network: Connect with other media professionals, share insights, and build your network."
+      - "Marketplace: Sell and purchase editorial products and services."
+      - "Content Management: Advanced tools for managing articles, press releases, event schedules, and more."
+      - "Event Scheduling: Organize and manage media events, press conferences, and interviews."
+      - "Reputational Performance Index (IRP): Evaluate journalists based on their interactions and" contributions.
+      - "Secure and Transparent: Ensures secure transactions and interactions with rigorous verification of" professionals.
+    screenshots: [] # No screenshots available yet
+    videos: [] # No videos available yet
+    awards: [] # No awards yet
+legal:
+  license: 'agpl-3.0'
+  mainCopyrightOwner: 'Techno-Chroniqueurs Associés'
+  repoOwner: 'Techno-Chroniqueurs Associés'
+  authorsFile: '' # No explicit authors file, using contributors from GitHub. FIXME.
+  # licenseFile: 'https://github.com/aipress24/aipress24/blob/master/LICENSE'
+  #  genericCopyrightNotices: true
+localisation:
+  localisationReady: false
+  availableLanguages:
+    - en
+maintenance:
+  type: 'community'
+  contractors:
+    - name: 'Abilian'
+      website: 'https://abilian.com'
+      until: '2025-01-01'  # Not the actual date yet. FIXME.
+developmentStatus: 'beta'
+dependsOn:
+  open:
+    - name: 'Python'
+    - name: 'Flask'
+    - name: 'Dramatiq'
+    - name: 'SQLAlchemy'
+    - name: 'Typesense'
+    - name: 'Redis'
+    - name: 'PostgreSQL'
+    - name: 'TailwindCSS'
+    - name: 'AlpineJS'
+    - name: 'HTMX'
+#roadmap:
+#  en: 'https://github.com/aipress24/aipress24/blob/master/README.md#tentative-roadmap'
