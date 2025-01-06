@@ -12,8 +12,8 @@ from werkzeug.datastructures import ImmutableMultiDict
 from app.flask.components.forms import Form
 from app.flask.extensions import db
 from app.models.content import BaseContent
+from app.modules.wip.models.newsroom.article import ArticleStatus
 
-from ...models.newsroom.article import ArticleStatus
 from .base_view import View
 from .constants import DOC_CLASSES
 
