@@ -66,7 +66,7 @@ def drop_everything():
     # transaction.commit()
 
 
-def inspect() -> None:
+def show_tables() -> None:
     ins = sa.inspect(db.engine)
 
     table_names = sorted(ins.get_table_names())

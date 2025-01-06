@@ -37,11 +37,11 @@ def droptables() -> None:
     util.drop_tables()
     print("Dropped the database")
 
-    util.inspect()
+    util.show_tables()
 
 
 @db2.command()
 @with_appcontext
 def inspect() -> None:
     """Inspect the database schema."""
-    util.inspect()
+    util.show_tables()

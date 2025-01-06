@@ -64,7 +64,7 @@ def db_setup(clean: bool) -> None:
     print("... done")
 
     if current_app.debug:
-        util.inspect()
+        util.show_tables()
 
     users = get_multi(User)
     if len(users) > 0:
