@@ -112,6 +112,7 @@ tidy: clean
 ## Format source code
 format:
 	ruff format
+	ruff check --fix
 	markdown-toc -i README.md
 
 ## Safe fixes

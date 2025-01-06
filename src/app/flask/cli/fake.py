@@ -17,11 +17,11 @@ from app.faker import FakerScript, FakerService
 from app.flask.extensions import db
 from app.flask.sqla import get_multi
 from app.models.auth import User
+from app.models.repositories import UserRepository
 from app.modules.admin.utils import gc_all_auto_organisations
 from app.services.roles import generate_roles_map
 
-from ...models.repositories import UserRepository
-from . import util
+from . import db_util
 from .bootstrap import bootstrap_function
 
 
@@ -57,14 +57,14 @@ def fake(clean) -> None:
 
 def db_setup(clean: bool) -> None:
     if clean:
-        util.drop_tables()
+        db_util.drop_tables()
 
     print("Creating tables...")
     db.create_all()
     print("... done")
 
     if current_app.debug:
-        util.show_tables()
+        db_util.show_tables()
 
     users = get_multi(User)
     if len(users) > 0:

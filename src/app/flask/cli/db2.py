@@ -10,7 +10,7 @@ from rich import print
 
 from app.flask.extensions import db
 
-from . import util
+from . import db_util
 
 
 @group(short_help="Additional database commands")
@@ -34,14 +34,14 @@ def fix() -> None:
 @db2.command(short_help="Drop database")
 @with_appcontext
 def droptables() -> None:
-    util.drop_tables()
+    db_util.drop_tables()
     print("Dropped the database")
 
-    util.show_tables()
+    db_util.show_tables()
 
 
 @db2.command()
 @with_appcontext
 def inspect() -> None:
     """Inspect the database schema."""
-    util.show_tables()
+    db_util.show_tables()
