@@ -312,7 +312,7 @@ def _allowed_image_suffix(name: str) -> bool:
 
 
 def _get_diabled_flag_msg(raw_results: dict) -> tuple[str, str]:
-    if raw_results.get("validation_gcu", False):
+    if raw_results.get("validation_gcu"):
         return "", ""
     msg = (
         "Conditions Générales d&apos;Utilisation non validées, "
