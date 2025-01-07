@@ -143,8 +143,8 @@ passionate about media and innovation, there are many ways to get involved:
 
 - **Submit Issues**: If you find bugs or have feature requests, please submit an issue on our GitHub repository [issue tracker](https://github.com/aipress24/aipress24/issues).
 - **Fork the Repository**: Make changes in your own fork, and submit a pull request when you're ready.
-- **Join Discussions**: Participate in discussions on our forums or GitHub issues to help shape the future of Aipress24.
-- **Documentation**: Help improve our documentation by contributing to our Wiki or README files.
+- **Join Discussions**: Participate in discussions on our [forums](https://github.com/aipress24/aipress24/discussions) or GitHub [issues](https://github.com/aipress24/aipress24/issues) to help shape the future of Aipress24.
+- **Documentation**: Help improve our documentation by contributing to this README, the [notes](https://github.com/aipress24/aipress24/tree/main/notes) or the [documentation](https://github.com/aipress24/aipress24-doc).
 
 ### Development Environment
 

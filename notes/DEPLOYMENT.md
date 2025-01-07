@@ -15,10 +15,15 @@ You will need to set the following environment variables:
 - `FLASK_RQ_REDIS_URL`: same remark as for `DRAMATIC_REDIS_URL`.
 - `REDISCLOUD_URL`: see above.
 
-- `FLASK_MAIL_PASSWORD`: the password for the email account used to send emails.
-- `FLASK_SECRET_KEY`: a secret key for the Flask application. Should be a long random string.
 - `FLASK_SERVER_NAME`: the domain name for the application.
+- `FLASK_SECRET_KEY`: a secret key for the Flask application. Should be a long random string.
 - `FLASK_SECURITY_PASSWORD_SALT`: a salt for the Flask-Security password hashing. Should be a long random string.
+- `FLASK_MAIL_SERVER`: the SMTP server used to send emails.
+- `FLASK_MAIL_PORT`: the port for the SMTP server.
+- `FLASK_MAIL_USE_TLS`: set to `True` if the SMTP server uses TLS.
+- `FLASK_MAIL_USERNAME`: the email account used to send emails.
+- `FLASK_MAIL_PASSWORD`: the password for the email account used to send emails.
+- `FLASK_MAIL_DEFAULT_SENDER`: the default sender address for emails.
 
 - `PYTHONPATH`: should be set to `src` to allow the application to find the source code, on some platforms like Heroku (don't ask me why).
 
