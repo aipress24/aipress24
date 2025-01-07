@@ -14,9 +14,17 @@ USER app
 COPY pyproject.toml .
 COPY uv.lock .
 COPY README.md .
+
 COPY src src
-COPY wsgi.py .
+COPY migrations migrations
+COPY icons icons
+COPY vite/dist vite/dist
+COPY etc etc
 
 RUN uv sync
 
-CMD [".venv/bin/flask", "run"]
+#CMD [".venv/bin/flask", "run", "--port=8080"]
+#CMD ["/app/.venv/bin/gunicorn", "-w", "4", "-b", "0.0.0.0:8080", "wsgi:app"]
+
+ENV PORT=8080
+CMD ["/app/.venv/bin/python", "-m", "server"]
