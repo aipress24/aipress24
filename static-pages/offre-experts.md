@@ -2,19 +2,17 @@ title = "Notre offre pour les experts"
 
 ---
 
-Vous êtes une personne que les journalistes peuvent interviewer pour faire leurs enquêtes et qu’ils citent dans leurs articles.
+**Aipress24 : Votre visibilité médiatique, simplifiée**
 
-Vous n'avez pas forcément les moyens de vous offrir les services d’attachés de presse pour vous aider dans leurs relations avec la presse.
+Vous êtes un expert dans votre domaine et les médias sollicitent régulièrement votre expertise ? Aipress24 vous donne les moyens de gérer vos relations presse de manière autonome et efficace, même sans attaché de presse.
 
-AIpress24 vous offre la possibilité d’y remédier en vous permettant de publier vous-mêmes :
+**Aipress24 vous offre une plateforme intuitive pour :**
 
-- des communiqués de presse ;
-- des dossiers de presse ;
-- des études ;
-- des avis d’expert ;
-- des invitations à des événements de presse ;
-- des offres de stage ou d’emploi dans les relations de presse ou la communication ;
-- des opportunités de piges dans les relations de presse ou la communication ;
-- la page entreprise de leur organisation, leurs communiqués de presse et invitations de presse.
+*   **Partager votre expertise** : Publiez vos propres communiqués et dossiers de presse, études, avis d'expert et invitations à des événements.
+*   **Gagner en visibilité** :  Accédez aux "Avis d'enquête" et appels à témoins des journalistes et proposez vos interventions.
+*   **Maîtriser votre communication** :  Créez et gérez votre page entreprise (ou personnelle) sur Aipress24 pour une présence en ligne professionnelle.
+*   **Développer votre réseau** :  Entrez en contact direct avec des journalistes et élargissez votre audience.
 
-Vous pouvez aussi prendre connaissance des avis d’enquête et appels à témoins des journalistes pour être interviewés.
+**Aipress24** est une solution accessible qui vous permet de valoriser votre expertise et de vous positionner comme une source d'information fiable pour les médias. Prenez en main vos relations presse et faites entendre votre voix grâce à une plateforme conçue pour les experts comme vous.
+
+**Découvrez comment Aipress24 peut vous aider à rayonner dans les médias.**

@@ -2,36 +2,27 @@ title = "Notre offre pour les entreprises"
 
 ---
 
-- Maîtrisez l’identité et la communication de votre organisation sur AIpress24 vers votre seule page Officielle
+**Aipress24 : Propulsez votre influence médiatique**
 
-- Officialisez, consolidez et actualisez l’identité professionnelle et le rôle de vos collaborateurs sur Aipress24
+Votre entreprise mérite d'être sous les projecteurs. Aipress24 vous donne les clés pour briller dans les médias et maîtriser votre image.
 
-- Faites converger les différentes pages non officielles de votre organisation (via la fonctionnalité « Modifier mon profil » de chaque membre inscrit)
+**Imaginez...**
 
-- Présentez l’activité et les métiers de votre organisation. Les organisations peuvent coller leur traditionnel « About us » (Qui sommes-nous?)
+*   **Une vitrine officielle unique** : Rassemblez toute votre communication et l'identité de vos collaborateurs sous une seule bannière prestigieuse sur Aipress24. Fini les profils éparpillés, place à une présence forte et cohérente.
+*   **Vos collaborateurs, vos ambassadeurs** : Transformez vos équipes en porte-parole influents. Officialisez leurs rôles et expertise pour une visibilité accrue.
+*   **Soyez là où les journalistes vous cherchent** :  Renseignez vos informations clés (secteur, métiers, localisation...) pour être trouvé instantanément par les journalistes en quête d'experts comme vous.
+*   **Des opportunités médiatiques à portée de main** :  Décrochez des interviews exclusives grâce à notre service unique "Avis d'enquête" et répondez aux appels à témoins pertinents pour votre secteur.
+*   **Un contrôle total et simplifié** :  Gérez vos dépenses, déléguez des accès à vos équipes ou à votre agence RP, et pilotez votre communication en toute sérénité.
 
-- Indiquez le contact de la personne (ou des personnes) en charge de vos relations avec les journalistes. Actualisez cette liste pendant les périodes de congés.
+**Aipress24, c'est aussi :**
 
-- Renseignez les méta-données (activités, métiers, pays, code postal...) qui permettront aux journalistes de vous retrouver lorsqu’ils en ont besoin.
+*   **Une visibilité amplifiée** : Vos actualités, vos offres d'emploi, vos communiqués de presse, propulsés directement auprès des journalistes influents.
+*   **Un routage intelligent des demandes** : Les sollicitations des journalistes sont acheminées directement aux bons interlocuteurs dans votre entreprise.
+*   **Une gestion financière centralisée** : Un porte-monnaie électronique pour piloter vos dépenses et celles de vos collaborateurs, avec une transparence totale.
 
-- Multiplier vos opportunités de passer dans la presse et les médias grâce à notre service Avis d’enquête déposés par les journalistes
+**Ne laissez plus votre image au hasard. Prenez le contrôle de votre communication et devenez une référence incontournable dans votre secteur avec Aipress24.**
 
-- Consulter gratuitement les appels à experts et à témoins déposés par les journalistes
+**Vous cherchez un partenaire pour vous accompagner ?** Explorez notre liste d'agences RP partenaires ou lancez un appel d'offres directement sur la plateforme.
 
-- Affichez les derniers avis d’enquête pour lesquels vos salariés sont sollicités
+**Aipress24 : Votre succès médiatique commence ici.**
 
-- Centralisez et suivez la gestion des ventes et des consommations (achats de produits éditoriaux, abonnements à des services digitaux comme l’Avis d’enquête, extension de capacité de stockage, formations), par date, par collaborateur, par produit, par service
-
-- Centralisez la facturation de vos consommations sur AIpress24
-
-- Déléguez gratuitement la gestion de votre page officielle sur AIpress24 à vos collaborateurs ou à votre cabinet de relation presse.Si vous recherchez un prestataire consulter la liste des Cabinets de relations de presse (lien vers la page SWORK/Organisation/Cabinets de relations de presse) ou lancez un appel d’offres sur AIpress24 (BIZ/Projet/Appel d’offre/Cabinet de relations de presse)
-
-- Déléguez l’inscription collective de vos salariés habilités à opérer directement ou indirectement sur AIpress24 à votre responsable RH, votre responsable communication ou votre attaché de presse
-
-- Déléguez à la personne chargée de votre communication la publication de vos communiqués de presse et de vos justificatifs de publication
-
-- Routez vers la personne chargée de votre communication les demandes des journalistes pour interviewer vos salariés habilités à opérer sur AIpress24
-
-- Déléguez à votre comptable la gestion de votre porte-monnaie électronique Corporate (au niveau de l’organisation) et de des portes-monnaies électroniques Collaborateurs
-
-- Annoncez vos offres d’emploi et de stage
