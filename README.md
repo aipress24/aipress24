@@ -58,8 +58,9 @@ Additionals notes:
 - [CHANGELOG.md](notes/CHANGELOG.md) - Changelog
 - [CITATION.cff](notes/CITATIONS.cff) - Citation file
 - [DCO.txt](notes/DCO.txt) - Developer Certificate of Origin
+- [DEPLOYMENT.md](notes/DEPLOYMENT.md) - Deployment instructions (on cloud platforms or on-premises)
 
-See also the companion documentation repository: <https://github.com/aipress24/aipress24-doc> (not up-to-date yet).
+See also the companion documentation repository: <https://github.com/aipress24/aipress24-doc> (but it hasn't been kept up-to-date recently.).
 
 ## Introduction
 
@@ -479,7 +480,11 @@ docker run --rm secscan/nikto -h $APP_ROOT_URL
 
 ## Deployment
 
-### Deploy to Heroku
+See [DEPLOYMENT.md](notes/DEPLOYMENT.md) for deployment instructions on cloud platforms or on-premises.
+
+Older instrustions are below.
+
+### Deploy to Heroku (old instructions, TODO: update)
 
 To deploy Aipress24 to Heroku, you can use the following commands:
 
@@ -501,25 +506,6 @@ heroku config:set FLASK_MAIL_USE_TLS=1
 heroku config:set FLASK_MAIL_USERNAME=apikey
 heroku config:set FLASK_MAIL_PASSWORD=YOUR_SENDGRID_API_KEY
 heroku config:set FLASK_MAIL_DEFAULT_SENDER=YOUR_SENDGRID_EMAIL
-```
-
-### Deploy to Hop3
-
-For experimental deployment to [Hop3](https://hop3.cloud/), you can use the following commands:
-
-```bash
-export HOP3="YOUR_HOP3_HOST"
-export HOSTNAME="aipress24.YOUR_DOMAIN"
-# 1. Push SQLite database to
-scp data/aipress24.db root@$HOP3:~hop3/data/aipress24/
-# + run `chown hop3:www-data /home/hop3/data/aipress24/aipress24.db` on the server
-# 2. Only once
-git remote add hop3 hop3@$HOP3:aipress24
-# 3. Deploy
-git push hop3 master
-# 4. Needed only once
-hop config:set NGINX_SERVER_NAME=$HOSTNAME
-hop config:set FLASK_SQLALCHEMY_DATABASE_URI=sqlite:////home/hop3/data/aipress24/aipress24.db
 ```
 
 ---
