@@ -22,7 +22,7 @@ FOOTER_MENU = [
         "items": [
             {
                 "label": "Pour les journalistes",
-                "url": "/page/offre-entreprises/",
+                "url": "/page/offre-journalistes/",
             },
             {
                 "label": "Pour les communicants",
@@ -47,7 +47,7 @@ FOOTER_MENU = [
             },
             {
                 "label": "Conditions d'utilisation",
-                "url": "#",
+                "url": "/page/conditions/",
             },
         ],
     },
@@ -60,7 +60,7 @@ FOOTER_MENU = [
             },
             {
                 "label": "Ils nous soutiennent",
-                "url": "#",
+                "url": "/page/soutiens/",
             },
             {
                 "label": "Contact mail",

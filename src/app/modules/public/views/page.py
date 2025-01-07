@@ -43,4 +43,4 @@ def page(path: str):
         title = "Some title"
         return render_template("pages/generic-page.j2", content=html, title=title)
 
-    return render_template("pages/404.j2"), 404
+    return render_template("errors/404.j2"), 404

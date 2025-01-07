@@ -5,8 +5,6 @@
 from __future__ import annotations
 
 import importlib.metadata
-import json
-import os
 
 from flask import current_app, redirect, render_template, request, session
 from flask_security import login_user
@@ -20,6 +18,7 @@ from .. import blueprint
 
 
 def check_unsecure():
+    """Check the application is in "unsecure" mode, i.e. not in production."""
     unsecure = current_app.config.get("UNSECURE", False)
     if not unsecure:
         msg = "This is not an unsecure environment"
@@ -55,30 +54,3 @@ def backdoor_login(role):
 
     msg = f"Role {role} not found"
     raise NotFound(msg)
-
-
-@blueprint.get("/debug/")
-def debug():
-    check_unsecure()
-
-    def default(o) -> str:
-        return str(o)
-
-    config_ = dict(sorted(current_app.config.items()))
-    env_ = dict(sorted(os.environ.items()))
-
-    d = {"config": config_, "env": env_}
-    e = json.dumps(d, default=default, indent=2)
-    return e, 200, {"Content-Type": "application/json"}
-
-
-@blueprint.route("/debug2/")
-def debug2():
-    check_unsecure()
-
-    d = {
-        "SQLALCHEMY_DATABASE_URI": current_app.config["SQLALCHEMY_DATABASE_URI"],
-        "DB": str(db),
-        "DB_ENGINE": str(db.engine),
-    }
-    return json.dumps(d), 200, {"Content-Type": "application/json"}

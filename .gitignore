@@ -53,3 +53,6 @@ OLD/
 /src/app/modules/auth
 /src/app/sandbox
 /src/app/modules/public/templates/sandbox/
+
+# Not needed
+.github/workflows/fly-deploy.yml
