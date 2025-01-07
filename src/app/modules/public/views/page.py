@@ -33,11 +33,14 @@ def page(path: str):
         head = head.strip()
         metadata = toml.loads(head)
         title = metadata.get("title", "Some title")
-        cls = "py-20 max-w-5xl mx-auto prose lg:prose-lg xl:prose-xl"
+        cls = "py-20 max-w-4xl mx-4 lg:mx-auto"
         html = f"""
             <div class="{cls}">
-                <h1>{title}</h1>
-                {markdown(md)}
+                <h1 class="text-3xl font-bold mb-6">{title}</h1>
+
+                <div class="prose lg:prose-lg">
+                    {markdown(md)}
+                </div>
             </div>
         """
         title = "Some title"
