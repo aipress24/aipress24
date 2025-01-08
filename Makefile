@@ -180,6 +180,7 @@ doc:
 ## Update dependencies
 update-deps:
 	poetry update
+	pre-commit autoupdate
 	poetry show -o
 
 
