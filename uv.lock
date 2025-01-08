@@ -75,7 +75,6 @@ dependencies = [
     { name = "flask-wtf" },
     { name = "granian", extra = ["reload"] },
     { name = "gunicorn" },
-    { name = "honcho" },
     { name = "hyperdx-opentelemetry" },
     { name = "hypothesis" },
     { name = "jinja2" },
@@ -168,7 +167,6 @@ requires-dist = [
     { name = "flask-wtf", specifier = ">=1.2.1,<2.0.0" },
     { name = "granian", extras = ["reload"], specifier = ">=1.6,<2.0" },
     { name = "gunicorn", specifier = ">=23,<24" },
-    { name = "honcho", specifier = ">=2,<3" },
     { name = "hyperdx-opentelemetry", specifier = ">=0.2,<0.3" },
     { name = "hypothesis", specifier = ">=6.92.8,<7.0.0" },
     { name = "jinja2", specifier = ">=3.1.3,<4.0.0" },
@@ -202,7 +200,7 @@ requires-dist = [
     { name = "sqladmin", specifier = ">=0.20,<0.21" },
     { name = "sqlalchemy", specifier = ">=2.0.25,<3.0.0" },
     { name = "sqlalchemy-utils", specifier = ">=0.41.1,<0.42.0" },
-    { name = "starlette", specifier = ">=0.43,<0.44" },
+    { name = "starlette", specifier = ">=0.45,<0.46" },
     { name = "stripe", specifier = ">=11,<12" },
     { name = "svcs", specifier = ">=24.1.0,<25.0.0" },
     { name = "toml", specifier = ">=0.10.2,<0.11.0" },
@@ -1153,18 +1151,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/34/72/9614c465dc206155d93eff0ca20d42e1e35afc533971379482de953521a4/gunicorn-23.0.0.tar.gz", hash = "sha256:f014447a0101dc57e294f6c18ca6b40227a4c90e9bdb586042628030cba004ec", size = 375031 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/cb/7d/6dac2a6e1eba33ee43f318edbed4ff29151a49b5d37f080aad1e6469bca4/gunicorn-23.0.0-py3-none-any.whl", hash = "sha256:ec400d38950de4dfd418cff8328b2c8faed0edb0d517d3394e457c317908ca4d", size = 85029 },
-]
-
-[[package]]
-name = "honcho"
-version = "2.0.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "colorama", marker = "sys_platform == 'win32'" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/65/c8/d860888358bf5c8a6e7d78d1b508b59b0e255afd5655f243b8f65166dafd/honcho-2.0.0.tar.gz", hash = "sha256:af3815c03c634bf67d50f114253ea9fef72ecff26e4fd06b29234789ac5b8b2e", size = 45618 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/48/1c/25631fc359955569e63f5446dbb7022c320edf9846cbe892ee5113433a7e/honcho-2.0.0-py3-none-any.whl", hash = "sha256:56dcd04fc72d362a4befb9303b1a1a812cba5da283526fbc6509be122918ddf3", size = 22093 },
 ]
 
 [[package]]
@@ -2185,14 +2171,14 @@ wheels = [
 
 [[package]]
 name = "starlette"
-version = "0.43.0"
+version = "0.45.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "anyio" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/af/36/3a623a561dc8585a90973c8c0ed87511beebbe658c7e8f883fdab7ba55e1/starlette-0.43.0.tar.gz", hash = "sha256:d4887cfd776f8f925c1b140829da9f4c9b8d0973aa66a7cb2bcc48e9b3a69660", size = 2575219 }
+sdist = { url = "https://files.pythonhosted.org/packages/90/4f/e1c9f4ec3dae67a94c9285ed275355d5f7cf0f3a5c34538c8ae5412af550/starlette-0.45.2.tar.gz", hash = "sha256:bba1831d15ae5212b22feab2f218bab6ed3cd0fc2dc1d4442443bb1ee52260e0", size = 2574026 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/96/25/a94c01e7e3a72155bf2e1275f72bf2c1533d1c5adf7fc89d50c3ef16abd4/starlette-0.43.0-py3-none-any.whl", hash = "sha256:0e0a91f33c57b30820cbe0828f993df67f890f1e4ae48ed8080f24793446450c", size = 73291 },
+    { url = "https://files.pythonhosted.org/packages/aa/ab/fe4f57c83620b39dfc9e7687ebad59129ff05170b99422105019d9a65eec/starlette-0.45.2-py3-none-any.whl", hash = "sha256:4daec3356fb0cb1e723a5235e5beaf375d2259af27532958e2d79df549dad9da", size = 71505 },
 ]
 
 [[package]]

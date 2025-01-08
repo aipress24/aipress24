@@ -109,7 +109,6 @@ python-iso639 = "^2024.1.2"
 
 # Prod
 gunicorn = "^23"
-honcho = "^2"
 hyperdx-opentelemetry = "^0.2"
 sentry-sdk = "^2"
 
@@ -221,6 +220,9 @@ asgiref = "^3.8"
 
 
 [tool.poetry.group.dev.dependencies]
+# Used to run a development server
+honcho = "^2"
+
 # Main QA tools
 abilian-devtools = "^0.7"
 
