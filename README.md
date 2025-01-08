@@ -60,7 +60,7 @@ Additionals notes:
 - [DCO.txt](notes/DCO.txt) - Developer Certificate of Origin
 - [DEPLOYMENT.md](notes/DEPLOYMENT.md) - Deployment instructions (on cloud platforms or on-premises)
 
-See also the companion documentation repository: <https://github.com/aipress24/aipress24-doc> (but it hasn't been kept up-to-date recently.).
+See also the companion documentation <https://doc.aipress24.com/> and its source, the documentation repository: <https://github.com/aipress24/aipress24-doc>.
 
 ## Introduction
 
@@ -306,10 +306,15 @@ Aipress24 is built using modern web technologies to ensure scalability, security
 - **Storage**: Amazon S3 compatible open-source solutions like Minio or Ceph for object storage.
 - **Security**: Implements best practices for security, including bcrypt for password hashing and proactive monitoring.
 
+For more details, see: <https://doc.aipress24.com/dev/architecture/>
+
 ### Tentative Roadmap
 
 #### Q4 2024
 
+0. **Update Documentation**
+    - Update the documentation to reflect the latest changes and features.
+    - See: README, notes, <https://doc.aipress24.com/>
 1. **Finalize Core Platform Stabilization**
     - Refactor and stabilize the data model to ensure compatibility with future updates.
 2. **News Portal MVP**
@@ -328,10 +333,10 @@ Aipress24 is built using modern web technologies to ensure scalability, security
     - Add advanced tools for categorizing, tagging, and managing articles.
     - Enable bulk publishing and scheduling for agencies.
 3. **Matchmaking System**
-    - Develop AI-driven matchmaking for connecting journalists, PR professionals, and experts.
+    - Develop ML-driven matchmaking for connecting journalists, PR professionals, and experts.
     - Allow filters for specific sectors, regions, or topics.
 4. **ERP Integration**
-    - Integrate Dolibarr ERP for managing organizational finances.
+    - Integrate Dolibarr ERP for managing organizational finances. Cf. <https://doc.aipress24.com/dev/dolibarr/>.
 5. **Cloud Deployment**
     - Package as a Nix / NixOS application for easy deployment on cloud platforms.
     - Support deployment on Hop3.
