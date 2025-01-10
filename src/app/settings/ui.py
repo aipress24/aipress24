@@ -39,8 +39,12 @@ FOOTER_MENU = [
         ],
     },
     {
-        "label": "Juridique",
+        "label": "Documentation",
         "items": [
+            {
+                "label": "Guide utlisateur",
+                "url": "https://doc.aipress24.com/user/fr/",
+            },
             {
                 "label": "Politique de confidentialité",
                 "url": "/page/confidentialite/",
