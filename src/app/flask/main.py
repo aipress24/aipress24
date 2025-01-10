@@ -18,6 +18,7 @@ from loguru import logger
 from werkzeug.utils import find_modules, import_string
 
 from app.flask import debugging, services
+from app.flask.bootstrap import bootstrap_db
 from app.flask.config import setup_config
 from app.flask.extensions import register_extensions
 from app.flask.hooks import register_hooks
@@ -64,7 +65,8 @@ def create_app(config=None) -> Flask:
     register_all(app)
 
     # 4. Bootstrap data if needed
-    # bootstrap_data(app)
+    if app.config.get("BOOTSTRAP_DB"):
+        bootstrap_db(app)
 
     return app
 

@@ -44,8 +44,7 @@ Welcome to the Aipress24 project! Aipress24 is an innovative, open-source digita
   * [Build / dev tools](#build--dev-tools)
 - [Security](#security)
 - [Deployment](#deployment)
-  * [Deploy to Heroku](#deploy-to-heroku)
-  * [Deploy to Hop3](#deploy-to-hop3)
+  * [Deploy to Heroku (old instructions, TODO: update)](#deploy-to-heroku-old-instructions-todo-update)
 
 <!-- tocstop -->
 

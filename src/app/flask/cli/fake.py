@@ -14,6 +14,7 @@ from sqlalchemy.exc import NoResultFound
 from svcs.flask import container
 
 from app.faker import FakerScript, FakerService
+from app.flask.bootstrap import bootstrap_db
 from app.flask.extensions import db
 from app.flask.sqla import get_multi
 from app.models.auth import User
@@ -22,7 +23,6 @@ from app.modules.admin.utils import gc_all_auto_organisations
 from app.services.roles import generate_roles_map
 
 from . import db_util
-from .bootstrap import bootstrap_function
 
 
 #
@@ -36,7 +36,7 @@ def fake(clean) -> None:
     db_setup(clean)
 
     print(green("Bootstrapping master data..."))
-    bootstrap_function()
+    bootstrap_db(current_app)
 
     print(green("Generating fake data..."))
     faker = FakerService(db)

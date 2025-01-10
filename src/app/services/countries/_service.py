@@ -4,8 +4,6 @@
 
 from __future__ import annotations
 
-import sys
-
 from sqlalchemy import select
 
 from app.flask.extensions import db
@@ -41,26 +39,17 @@ def get_full_countries() -> list[tuple[str, str]]:
     return [(row.iso3, row.name) for row in results]
 
 
-def update_country_entry(
-    iso3: str,
-    name: str,
-    seq: int = 0,
-) -> bool:
+def update_country_entry(iso3: str, name: str, seq: int = 0) -> bool:
     """Update an entry if necessary."""
     query = select(CountryEntry).filter(CountryEntry.iso3 == iso3)
     result = db.session.execute(query).scalar()
+
     if not result:
         create_country_entry(iso3, name, seq)
         return True
+
     if result.iso3 == iso3 and result.name == name and result.seq == seq:
-        # unchanged item
-        # print("/////////////////// no change", file=sys.stderr)
         return False
-    # update required
-    print(
-        f"    update: {result.iso3}, {result.name}, {result.seq} ->  {iso3}, {name}, {seq}",
-        file=sys.stderr,
-    )
 
     result.iso3 = iso3
     result.name = name
@@ -69,15 +58,7 @@ def update_country_entry(
     return True
 
 
-def create_country_entry(
-    iso3: str,
-    name: str,
-    seq: int = 0,
-) -> None:
+def create_country_entry(iso3: str, name: str, seq: int = 0) -> None:
     """Create a new entry in the country table."""
-    entry = CountryEntry(
-        iso3=iso3,
-        name=name,
-        seq=seq,
-    )
+    entry = CountryEntry(iso3=iso3, name=name, seq=seq)
     db.session.add(entry)
