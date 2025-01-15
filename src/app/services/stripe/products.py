@@ -30,6 +30,11 @@ def load_stripe_api_key() -> bool:
     return True
 
 
+def get_stripe_public_key() -> str:
+    config = current_app.config
+    return config.get("STRIPE_SECRET_KEY") or ""
+
+
 def fetch_product_list() -> list[Product]:
     results: list[Product] = []
     if not load_stripe_api_key():
