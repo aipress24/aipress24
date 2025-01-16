@@ -35,7 +35,7 @@ exclude = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.11"
 
 # Flask
 flask = "^3.0.0"
@@ -206,7 +206,7 @@ yarl = "^1.9.4"
 openpyxl = "^3.1.2"
 defusedxml = "^0.7.1"
 # lxml fixed to 5.0.1 as required by openpyxl
-lxml = "==5.0.1"
+# lxml = "==5.0.1"
 odfdo = ">=3.7.10"
 odsparsator = ">=1.10.0"
 odsgenerator = ">=1.11.0"
