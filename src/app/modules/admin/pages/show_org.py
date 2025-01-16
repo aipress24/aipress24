@@ -50,9 +50,8 @@ class ShowOrg(AdminListPage):
         self.org = get_obj(uid, Organisation)
 
     def context(self):
-        if self.org and not self.org.is_auto:
-            form_generator = BWFormGenerator(org=self.org, readonly=True)
-            self.form = form_generator.generate()
+        form_generator = BWFormGenerator(org=self.org, readonly=True)
+        self.form = form_generator.generate()
         return {
             "org": OrgVM(self.org),
             "render_field": render_field,
