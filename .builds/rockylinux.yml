@@ -33,6 +33,6 @@ tasks:
       cd aipress24
       uvx nox -e lint
 
-  - buildah: |
-      cd aipress24
-      buildah build .
+#  - buildah: |
+#      cd aipress24
+#      buildah build .

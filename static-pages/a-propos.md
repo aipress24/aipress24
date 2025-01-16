@@ -1,4 +1,4 @@
-title = "A propos"
+title = "A propos d'Aipress24"
 
 ---
 
@@ -39,6 +39,8 @@ Imaginez une plateforme où l'information de qualité circule librement, où les
 
 **Un regard critique et éclairé.** Consciente des défis que soulève l'innovation (nanomatériaux, cybersécurité, intelligence artificielle...), l'Agence TCA apporte une analyse rigoureuse et experte, indispensable pour une information juste et équilibrée.
 
+<!--
 **L'alliance de la technologie et de l'expérience métier.** Aipress24 est développé techniquement par la société française Abilian, experte en solutions numériques innovantes.
 
 **TCA Presse et Abilian s'associent pour donner vie à Aipress24, une plateforme ambitieuse qui réinvente l'information et connecte ses acteurs pour un futur plus transparent, plus collaboratif et plus durable.**
+-->
