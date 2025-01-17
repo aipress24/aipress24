@@ -243,6 +243,7 @@ class BusinessWallRegistrationPage(BaseWipPage):
             "org_bw_type_name": org_bw_type_name,
             "user_profile": self.user.profile.profile_label,
             "customer_email": self.user.email,
+            "client_reference_id": str(self.org.id) if self.org else "",
             "is_manager": self.user.is_manager,
             "allow_bw_string": allowed_list_str,
             "allow_bw_names": {x.name for x in self.allowed_subs},
