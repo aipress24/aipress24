@@ -155,7 +155,7 @@ Okay, here's the revised "Development Environment" section, incorporating your f
 To set up your development environment for this primarily Python-based application, with some Node.js components for the frontend, ensure you have the following installed:
 
 -   **Python**: Version 3.12 or 3.13.
--   **Poetry**: For managing Python dependencies and virtual environments.
+-   **Poetry**: For managing Python dependencies and virtual environments. (**NB: we're currently phasing our Poerty for uv**)
 -   **Node.js**: We recommend using the latest LTS version for frontend development.
 -   **npm** or **Yarn** **Bun**: To manage Node.js packages.
 
@@ -167,7 +167,7 @@ Once you have these installed, follow these steps to set up your development env
     git clone ...
     ```
 
-2. Type `make develop` to install the necessary dependencies and set up the development environment.
+2. **Type `make develop`** to install the necessary dependencies and set up the development environment.
 
 
 ### Tooling
