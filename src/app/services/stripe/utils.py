@@ -21,6 +21,12 @@ def check_stripe_public_key(app: Flask) -> bool:
     return bool(app.config["STRIPE_PUBLIC_KEY"])
 
 
+def check_stripe_webhook_secret(app: Flask) -> bool:
+    if not app.config.get("STRIPE_WEBHOOK_SECRET"):
+        return False
+    return bool(app.config["STRIPE_WEBHOOK_SECRET"])
+
+
 def load_stripe_api_key() -> bool:
     config = current_app.config
     api_key = config.get("STRIPE_SECRET_KEY")

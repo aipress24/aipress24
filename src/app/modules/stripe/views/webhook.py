@@ -9,7 +9,7 @@ import sys
 import stripe
 from flask import request, session
 
-from app.services.stripe.products import get_stripe_webhook_secret
+from app.services.stripe.utils import get_stripe_webhook_secret
 
 from .. import blueprint
 

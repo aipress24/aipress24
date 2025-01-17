@@ -30,9 +30,10 @@ from app.flask.lib.pywire import (
     register_wired_components,
 )
 from app.flask.security import register_oauth_providers
-from app.services.stripe.products import (
+from app.services.stripe.utils import (
     check_stripe_public_key,
     check_stripe_secret_key,
+    check_stripe_webhook_secret,
 )
 from app.ui.labels import make_label
 
@@ -107,11 +108,17 @@ def register_all(app: Flask) -> None:
 
     init_dramatiq(app)
 
+    # Check completeness of Stripe configuration
+    _check_stripe_configuration(app)
+
+
+def _check_stripe_configuration(app: Flask) -> None:
     if not check_stripe_secret_key(app):
         debug("STRIPE_SECRET_KEY not found in config")
-
     if not check_stripe_public_key(app):
         debug("STRIPE_PUBLIC_KEY not found in config")
+    if not check_stripe_webhook_secret(app):
+        debug("STRIPE_WEBHOOK_SECRET not found in config")
 
 
 def register_debug_hooks(app: Flask) -> None:

@@ -23,7 +23,7 @@ from app.modules.admin.invitations import invite_users
 from app.modules.admin.org_email_utils import add_managers_emails
 from app.modules.kyc.renderer import render_field
 from app.services.roles import has_role
-from app.services.stripe.products import (
+from app.services.stripe.utils import (
     fetch_product_list,
     get_stripe_public_key,
     load_stripe_api_key,
