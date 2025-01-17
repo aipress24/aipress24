@@ -23,11 +23,8 @@ from app.modules.admin.invitations import invite_users
 from app.modules.admin.org_email_utils import add_managers_emails
 from app.modules.kyc.renderer import render_field
 from app.services.roles import has_role
-from app.services.stripe.utils import (
-    fetch_product_list,
-    get_stripe_public_key,
-    load_stripe_api_key,
-)
+from app.services.stripe.product import stripe_bw_subscription_dict
+from app.services.stripe.utils import get_stripe_public_key, load_stripe_api_key
 
 from .base import BaseWipPage
 from .home import HomePage
@@ -123,7 +120,7 @@ class BusinessWallRegistrationPage(BaseWipPage):
         self.org = self.user.organisation  # Organisation or None
         # liste des BWTypeEnum (parmi 8) en fonctin du profil utilisateur:
         self.allowed_subs: list[BWTypeEnum] = self.find_profile_allowed_subscription()
-        self.stripe_products = {}
+        self.stripe_bw_products: dict[str, stripe.Product] = {}
         self.prod_info = []
         # retour d'information sur l'abonnement acheté:
         self.subscription_info: dict[str, Any] | None = None
@@ -148,9 +145,9 @@ class BusinessWallRegistrationPage(BaseWipPage):
         self.prod_info.append(pinfo)
 
     def load_product_infos(self) -> None:
-        self.stripe_products = {p.id: p for p in fetch_product_list()}
+        self.stripe_bw_products = stripe_bw_subscription_dict()
         self.prod_info = []
-        for prod in self.stripe_products.values():
+        for prod in self.stripe_bw_products.values():
             self._load_prod_info(prod)
 
     def filter_bw_subscriptions(self) -> None:
@@ -423,7 +420,7 @@ class BusinessWallRegistrationPage(BaseWipPage):
 
     def checkout_register_stripe(self, prod_id: str):
         self.load_product_infos()
-        prod = self.stripe_products[prod_id]
+        prod = self.stripe_bw_products[prod_id]
         success_url = (
             url_for(f".{self.name}", _external=True)
             + "?session_id={CHECKOUT_SESSION_ID}"
