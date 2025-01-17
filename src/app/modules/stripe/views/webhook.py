@@ -7,7 +7,9 @@ from __future__ import annotations
 import sys
 
 import stripe
-from flask import current_app, request, session
+from flask import request, session
+
+from app.services.stripe.products import get_stripe_webhook_secret
 
 from .. import blueprint
 
@@ -19,20 +21,18 @@ from .. import blueprint
 
 @blueprint.route("/webhook", methods=["GET", "POST"])
 def webhooks():
-    config = current_app.config
-    webhook_secret = config.get("STRIPE_WEBHOOK_SECRET")
+    webhook_secret = get_stripe_webhook_secret()
     if not webhook_secret:
         msg = "STRIPE_WEBHOOK_SECRET is null"
         raise ValueError(msg)
     payload = request.data.decode("utf-8")
     received_sig = request.headers.get("Stripe-Signature", None)
-
     try:
         event = stripe.Webhook.construct_event(payload, received_sig, webhook_secret)
     except ValueError:
         print("Stripe webhook Error while decoding event!", file=sys.stderr)
         return "Bad payload", 400
-    except stripe.error.SignatureVerificationError:
+    except stripe.error.SignatureVerificationError:  # type:ignore
         print("Stripe webhook Invalid signature!", file=sys.stderr)
         return "Bad signature", 400
 

@@ -35,6 +35,11 @@ def get_stripe_public_key() -> str:
     return config.get("STRIPE_SECRET_KEY") or ""
 
 
+def get_stripe_webhook_secret() -> str:
+    config = current_app.config
+    return config.get("STRIPE_WEBHOOK_SECRET") or ""
+
+
 def fetch_product_list() -> list[Product]:
     results: list[Product] = []
     if not load_stripe_api_key():
