@@ -148,27 +148,26 @@ passionate about media and innovation, there are many ways to get involved:
 
 ### Development Environment
 
-To set up your development environment, ensure you have Node.js and npm installed. We recommend using the latest LTS version of Node.js.
+Okay, here's the revised "Development Environment" section, incorporating your feedback and focusing on the Python (with some NodeJS) nature of the application:
 
-1. **Fork the Repository**: Click the "Fork" button at the top of the repository page on GitHub.
-2. **Clone Your Fork**: Clone your fork to your local machine.
+### Development Environment
+
+To set up your development environment for this primarily Python-based application, with some Node.js components for the frontend, ensure you have the following installed:
+
+-   **Python**: Version 3.12 or 3.13.
+-   **Poetry**: For managing Python dependencies and virtual environments.
+-   **Node.js**: We recommend using the latest LTS version for frontend development.
+-   **npm** or **Yarn** **Bun**: To manage Node.js packages.
+
+Once you have these installed, follow these steps to set up your development environment:
+
+1. **Clone the Repository**: Clone the repository to your local machine using Git:
+
     ```bash
-    git clone https://github.com/aipress24/aipress24.git
+    git clone ...
     ```
-3. **Create a Branch**: Create a new branch for your feature or bugfix.
-    ```bash
-    git checkout -b feature/your-feature-name
-    ```
-4. **Make Changes**: Make your changes in your local repository.
-5. **Commit Changes**: Commit your changes with a meaningful commit message.
-    ```bash
-    git commit -m "Add feature: your feature name"
-    ```
-6. **Push Changes**: Push your changes to your fork on GitHub.
-    ```bash
-    git push origin feature/your-feature-name
-    ```
-7. **Create a Pull Request**: Go to the original repository and create a pull request from your fork.
+
+2. Type `make develop` to install the necessary dependencies and set up the development environment.
 
 
 ### Tooling
