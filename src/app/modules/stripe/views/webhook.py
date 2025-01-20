@@ -58,15 +58,40 @@ def unmanaged_event(event) -> None:
     )
 
 
-def on_checkout_session_completed(event):
+def on_checkout_session_completed(event) -> None:
     session.clear()
     print(f"on event:{event.id}, type={event.type}", file=sys.stderr)
     data = event.data
     data_obj = data.object
+    if not _filter_unknown_checkout(data_obj):
+        return
     _log_checkout_summary(data_obj)
     # maybe in future log all checkout informations ?
     # _store_full_checkout_information(data_obj)
     _register_subscription(data_obj)
+
+
+def _filter_unknown_checkout(data_obj: dict[str, Any]) -> bool:
+    def _check_pay_status() -> bool:
+        status = data_obj.get("payment_status", "")
+        if status != "paid":
+            print(f'Warning: payment_status: "{status}"', file=sys.stderr)
+            return False
+        return True
+
+    def _check_reference_id() -> bool:
+        if not data_obj.get("client_reference_id"):
+            print("Warning: no client_reference_id", file=sys.stderr)
+            return False
+        return True
+
+    def _check_subscription() -> bool:
+        if not data_obj.get("subscription"):
+            print("Warning: no subscription id", file=sys.stderr)
+            return False
+        return True
+
+    return _check_pay_status() and _check_reference_id() and _check_subscription()
 
 
 def _log_checkout_summary(data_obj: dict[str, Any]) -> None:
