@@ -21,7 +21,7 @@ COPY icons icons
 COPY vite/dist vite/dist
 COPY etc etc
 
-RUN uv sync
+RUN uv sync --frozen
 
 #CMD [".venv/bin/flask", "run", "--port=8080"]
 #CMD ["/app/.venv/bin/gunicorn", "-w", "4", "-b", "0.0.0.0:8080", "wsgi:app"]

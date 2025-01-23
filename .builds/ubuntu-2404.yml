@@ -27,7 +27,7 @@ tasks:
   - setup: |
       sudo pip install --break-system-packages -U uv nox
       cd aipress24
-      uv sync
+      uv sync --frozen
       uvx poetry install
 
   - lint: |
