@@ -18,6 +18,7 @@ Welcome to the Aipress24 project! Aipress24 is an innovative, open-source digita
   * [Testing](#testing)
 - [Contributing](#contributing)
   * [Development Environment](#development-environment)
+  * [Development Environment](#development-environment-1)
   * [Tooling](#tooling)
   * [Contribution Guidelines](#contribution-guidelines)
   * [Code Style](#code-style)
@@ -44,8 +45,7 @@ Welcome to the Aipress24 project! Aipress24 is an innovative, open-source digita
   * [Build / dev tools](#build--dev-tools)
 - [Security](#security)
 - [Deployment](#deployment)
-  * [Deploy to Heroku](#deploy-to-heroku)
-  * [Deploy to Hop3](#deploy-to-hop3)
+  * [Deploy to Heroku (old instructions, TODO: update)](#deploy-to-heroku-old-instructions-todo-update)
 
 <!-- tocstop -->
 
