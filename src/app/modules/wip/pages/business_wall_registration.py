@@ -212,9 +212,11 @@ class BusinessWallRegistrationPage(BaseWipPage):
         is_auto = self.org and self.org.is_auto
         is_bw_active = self.org and self.org.is_bw_active
         is_bw_inactive = self.org and self.org.is_bw_inactive
+        current_product_name = ""
+        # always load available products
+        self.load_product_infos()
         if is_auto or is_bw_inactive:
             allowed_list_str = ", ".join(str(x) for x in sorted(self.allowed_subs))
-            self.load_product_infos()
             debug_display_prod_info = [p for p in self.prod_info if "BW" in p.metadata]
             self.filter_bw_subscriptions()
         else:
@@ -222,6 +224,8 @@ class BusinessWallRegistrationPage(BaseWipPage):
             allowed_list_str = ""
             debug_display_prod_info = []
             self.allowed_prod = []
+            _current_product = self.stripe_bw_products.get(self.org.stripe_product_id)
+            current_product_name = _current_product.name if _current_product else ""
 
         org_bw_type_name = (
             self.org.bw_type.name if (self.org and self.org.bw_type) else ""
@@ -239,8 +243,8 @@ class BusinessWallRegistrationPage(BaseWipPage):
         return {
             "org": self.org,
             "org_name": self.org.name if self.org else "",
-            "org_bw_type": str(self.org.bw_type or "") if self.org else "",
             "org_bw_type_name": org_bw_type_name,
+            "current_product_name": current_product_name,
             "user_profile": self.user.profile.profile_label,
             "customer_email": self.user.email,
             "client_reference_id": str(self.org.id) if self.org else "",

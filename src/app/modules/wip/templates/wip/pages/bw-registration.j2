@@ -5,7 +5,6 @@
   DEBUG:<br>
   profil utilisateur: {{user_profile}}<br>
   org.type: {{org.type}}<br>
-  BW actuel: {{org_bw_type}}<br>
   BW possible: {{allow_bw_string}}<br>
   is_manager: {{is_manager}}<br>
   is_bw_active: {{is_bw_active}}<br>
@@ -56,7 +55,7 @@
   {% if is_bw_active %}
   <div class="mt-2 mb-2 font-bold italic text-gray-800">
     <p>
-      Votre abonnement Aipress24 PRO actuel est: «{{ org_bw_type }}»
+      Votre abonnement Aipress24 PRO actuel est: «{{ current_product_name }}»
     </p>
   </div>
   {% if is_manager %}
@@ -74,7 +73,7 @@
   {% elif is_bw_inactive %}
   <div class="mt-2 mb-2 font-bold italic text-gray-800">
     <p>
-      Votre abonnement Aipress24 PRO «{{ org_bw_type }}» est actuellement suspendu.
+      Votre abonnement Aipress24 PRO «{{ current_product_name }}» est actuellement suspendu.
     </p>
   </div>
     {% if is_manager %}
