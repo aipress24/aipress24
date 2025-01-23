@@ -14,6 +14,7 @@ exclude = [
     "doc/",
     "data/",
     "not-used-yet/",
+    "debug/",
     #
     "docker/run.py",
     "tests-e2e/",

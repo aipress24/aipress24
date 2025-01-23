@@ -7,6 +7,7 @@ from __future__ import annotations
 from flask.cli import with_appcontext
 from flask_super.cli import group
 from rich import print
+from sqlalchemy import text
 
 from app.flask.extensions import db
 
@@ -20,7 +21,7 @@ def db2() -> None:
 
 @db2.command(short_help="Initialize database")
 @with_appcontext
-def initdb() -> None:
+def create() -> None:
     db.create_all()
     print("Initialized the database")
 
@@ -33,11 +34,15 @@ def fix() -> None:
 
 @db2.command(short_help="Drop database")
 @with_appcontext
-def droptables() -> None:
-    db_util.drop_tables()
-    print("Dropped the database")
-
-    db_util.show_tables()
+def drop() -> None:
+    try:
+        with db.session.begin():
+            db.session.execute(text("DROP SCHEMA public CASCADE;"))
+            db.session.execute(text("CREATE SCHEMA public;"))
+        print("Schema 'public' recreated successfully.")
+    except Exception as e:
+        print(f"Error: {e}")
+        db.session.rollback()
 
 
 @db2.command()

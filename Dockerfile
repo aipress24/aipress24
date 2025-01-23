@@ -14,6 +14,7 @@ USER app
 COPY pyproject.toml .
 COPY uv.lock .
 COPY README.md .
+COPY wsgi.py .
 
 COPY src src
 COPY migrations migrations

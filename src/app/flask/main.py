@@ -64,8 +64,8 @@ def create_app(config=None) -> Flask:
     # 3. Perform registrations on app
     register_all(app)
 
-    # 4. Bootstrap data if needed
-    # bootstrap_data(app)
+    # 4. Create or init DB if needed
+    # create_tables(app)
 
     return app
 

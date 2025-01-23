@@ -24,6 +24,7 @@
 /front-old
 /sandbox
 /doc/site
+/debug/
 
 # Generated
 __pycache__/
