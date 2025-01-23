@@ -97,7 +97,6 @@
   </div>
   {% endif %}
 
-
   {% if subscription_info %}
     <div class="mt-6">
       <h1 class="text-xl font-bold text-red-900 truncate">
@@ -106,7 +105,6 @@
     </div>
   {% endif %}
 
-
   {% if allowed_prod %}
   <div class="mt-6 mb-4">
     <h1 class="text-xl font-bold text-gray-900 truncate">
@@ -114,35 +112,38 @@
     </h1>
   </div>
 
-  {% if org_bw_type_name == 'MEDIA' %}
-  <script async src="https://js.stripe.com/v3/pricing-table.js"></script>
-  <stripe-pricing-table
-    pricing-table-id="prctbl_1QXlbyIyzOgen8OqwSrrX15Z"
-    publishable-key="pk_test_51QBcSJIyzOgen8OqJbb50qceox4d9S55tCWLIqh16n0U1wkT7yeGHIJsw0yjxYt4hTzqmVfCq80GVPYdre0NRHPZ00GaziBzHW"
-    customer-email="{{customer_email}}"
-  >
-  </stripe-pricing-table>
+    {% if org_bw_type_name == 'MEDIA' %}
+    <script async src="https://js.stripe.com/v3/pricing-table.js"></script>
+    <stripe-pricing-table
+      pricing-table-id="prctbl_1QXlbyIyzOgen8OqwSrrX15Z"
+      publishable-key="{{public_key}}"
+      customer-email="{{customer_email}}"
+      client-reference-id="{{client_reference_id}}"
+    >
+    </stripe-pricing-table>
 
-  {% elif org_bw_type_name == 'ORGANISATION' %}
-  <script async src="https://js.stripe.com/v3/pricing-table.js"></script>
-  <stripe-pricing-table
-    pricing-table-id="prctbl_1QXllXIyzOgen8OqevzCzyUV"
-    publishable-key="pk_test_51QBcSJIyzOgen8OqJbb50qceox4d9S55tCWLIqh16n0U1wkT7yeGHIJsw0yjxYt4hTzqmVfCq80GVPYdre0NRHPZ00GaziBzHW"
-    customer-email="{{customer_email}}"
-  >
-  </stripe-pricing-table>
+    {% elif org_bw_type_name == 'ORGANISATION' %}
+    <script async src="https://js.stripe.com/v3/pricing-table.js"></script>
+    <stripe-pricing-table
+      pricing-table-id="prctbl_1QXllXIyzOgen8OqevzCzyUV"
+      publishable-key="{{public_key}}"
+      customer-email="{{customer_email}}"
+      client-reference-id="{{client_reference_id}}"
+    >
+    </stripe-pricing-table>
 
-  {% elif org_bw_type_name == 'COM' %}
-  <script async src="https://js.stripe.com/v3/pricing-table.js"></script>
-  <stripe-pricing-table
-    pricing-table-id="prctbl_1QXls0IyzOgen8OqYcgXiOct"
-    publishable-key="pk_test_51QBcSJIyzOgen8OqJbb50qceox4d9S55tCWLIqh16n0U1wkT7yeGHIJsw0yjxYt4hTzqmVfCq80GVPYdre0NRHPZ00GaziBzHW"
-    customer-email="{{customer_email}}"
-  >
-  </stripe-pricing-table>
-  {% else %}
-  not managed: {{ org_bw_type_name }}
-  {% endif %}
+    {% elif org_bw_type_name == 'COM' %}
+    <script async src="https://js.stripe.com/v3/pricing-table.js"></script>
+    <stripe-pricing-table
+      pricing-table-id="prctbl_1QXls0IyzOgen8OqYcgXiOct"
+      publishable-key="{{public_key}}"
+      customer-email="{{customer_email}}"
+      client-reference-id="{{client_reference_id}}"
+    >
+    </stripe-pricing-table>
+    {% else %}
+    not managed: {{ org_bw_type_name }}
+    {% endif %}
 
   <!--
   <div class="mt-2 ml-4 sm:flex sm:items-end sm:space-x-5">

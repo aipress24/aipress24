@@ -23,7 +23,8 @@ from app.modules.admin.invitations import invite_users
 from app.modules.admin.org_email_utils import add_managers_emails
 from app.modules.kyc.renderer import render_field
 from app.services.roles import has_role
-from app.services.stripe.products import fetch_product_list, load_stripe_api_key
+from app.services.stripe.product import stripe_bw_subscription_dict
+from app.services.stripe.utils import get_stripe_public_key, load_stripe_api_key
 
 from .base import BaseWipPage
 from .home import HomePage
@@ -119,9 +120,9 @@ class BusinessWallRegistrationPage(BaseWipPage):
         self.org = self.user.organisation  # Organisation or None
         # liste des BWTypeEnum (parmi 8) en fonctin du profil utilisateur:
         self.allowed_subs: list[BWTypeEnum] = self.find_profile_allowed_subscription()
-        self.stripe_products = {}
+        self.stripe_bw_products: dict[str, stripe.Product] = {}
         self.prod_info = []
-        # retour d'infomration sur l'abonnement acheté:
+        # retour d'information sur l'abonnement acheté:
         self.subscription_info: dict[str, Any] | None = None
 
     def _load_prod_info(self, prod: stripe.Product) -> None:
@@ -144,9 +145,9 @@ class BusinessWallRegistrationPage(BaseWipPage):
         self.prod_info.append(pinfo)
 
     def load_product_infos(self) -> None:
-        self.stripe_products = {p.id: p for p in fetch_product_list()}
+        self.stripe_bw_products = stripe_bw_subscription_dict()
         self.prod_info = []
-        for prod in self.stripe_products.values():
+        for prod in self.stripe_bw_products.values():
             self._load_prod_info(prod)
 
     def filter_bw_subscriptions(self) -> None:
@@ -162,6 +163,8 @@ class BusinessWallRegistrationPage(BaseWipPage):
         }
         # convert the 8 detail types to 3 subscriptions type:
         allowed_bw = {meta_bw[x.name] for x in self.allowed_subs}
+        # print("////  allowed_bw", allowed_bw, file=sys.stderr)
+
         self.allowed_prod = []
         for prod in self.prod_info:
             meta = prod.metadata
@@ -169,12 +172,17 @@ class BusinessWallRegistrationPage(BaseWipPage):
             if bw not in allowed_bw:
                 continue
             self.allowed_prod.append(prod)
+        # print("////  allowed_prod", self.allowed_prod, file=sys.stderr)
 
     def update_bw_subscription_state(self) -> None:
         if not self.org or self.org.is_bw_inactive:
             return
         # verify current subscription is still active on Stripe Reference
         load_stripe_api_key()
+        print(
+            self.org.stripe_subscription_id,
+            file=sys.stderr,
+        )
         subscription = self._retrieve_subscription(self.org.stripe_subscription_id)
         if subscription:
             subscription_info = _parse_subscription(subscription)
@@ -191,7 +199,6 @@ class BusinessWallRegistrationPage(BaseWipPage):
     def _update_organisation_subscription_info(
         self, subscription_info: SubscriptionInfo
     ) -> None:
-        print("////////", subscription_info, file=sys.stderr)
         self.org.stripe_subscription_id = subscription_info.id
         self.org.stripe_subs_creation_date = subscription_info.created
         self.org.validity_date = subscription_info.current_period_end
@@ -205,7 +212,7 @@ class BusinessWallRegistrationPage(BaseWipPage):
         is_auto = self.org and self.org.is_auto
         is_bw_active = self.org and self.org.is_bw_active
         is_bw_inactive = self.org and self.org.is_bw_inactive
-        if is_bw_inactive:
+        if is_auto or is_bw_inactive:
             allowed_list_str = ", ".join(str(x) for x in sorted(self.allowed_subs))
             self.load_product_infos()
             debug_display_prod_info = [p for p in self.prod_info if "BW" in p.metadata]
@@ -216,15 +223,27 @@ class BusinessWallRegistrationPage(BaseWipPage):
             debug_display_prod_info = []
             self.allowed_prod = []
 
+        org_bw_type_name = (
+            self.org.bw_type.name if (self.org and self.org.bw_type) else ""
+        )
+
+        # First time, if no self.org.bw_type, assume the first self.allowed_subs
+        # is allowed, so:
+        if not org_bw_type_name:
+            if self.allowed_subs:
+                allow_product = self.allowed_subs[0]
+                org_bw_type_name = allow_product.name
+            else:
+                org_bw_type_name = "ORGANISATION"
+
         return {
             "org": self.org,
             "org_name": self.org.name if self.org else "",
             "org_bw_type": str(self.org.bw_type or "") if self.org else "",
-            "org_bw_type_name": (
-                self.org.bw_type.name if (self.org and self.org.bw_type) else ""
-            ),
+            "org_bw_type_name": org_bw_type_name,
             "user_profile": self.user.profile.profile_label,
             "customer_email": self.user.email,
+            "client_reference_id": str(self.org.id) if self.org else "",
             "is_manager": self.user.is_manager,
             "allow_bw_string": allowed_list_str,
             "allow_bw_names": {x.name for x in self.allowed_subs},
@@ -240,6 +259,7 @@ class BusinessWallRegistrationPage(BaseWipPage):
             "subscription_info": self.subscription_info,
             "allowed_subs": self.allowed_subs,  # information for debug
             "logo_url": self.get_logo_url(),
+            "public_key": get_stripe_public_key(),
             "success_url": (
                 url_for(f".{self.name}", _external=True)
                 + "?session_id={CHECKOUT_SESSION_ID}"
@@ -326,6 +346,8 @@ class BusinessWallRegistrationPage(BaseWipPage):
 
     @staticmethod
     def _retrieve_subscription(subscription_id: str) -> stripe.Subscription | None:
+        if not subscription_id:
+            return None
         try:
             subscription = stripe.Subscription.retrieve(subscription_id)
         except Exception as e:
@@ -399,7 +421,7 @@ class BusinessWallRegistrationPage(BaseWipPage):
 
     def checkout_register_stripe(self, prod_id: str):
         self.load_product_infos()
-        prod = self.stripe_products[prod_id]
+        prod = self.stripe_bw_products[prod_id]
         success_url = (
             url_for(f".{self.name}", _external=True)
             + "?session_id={CHECKOUT_SESSION_ID}"
