@@ -100,7 +100,8 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
         index=True,
     )
 
-    # TO NOT USE, keep only organisation.type
+    # keep only organisation.type?
+    # -> mandatory for the organisation edit page
     bw_type: Mapped[BWTypeEnum] = mapped_column(
         sa.Enum(BWTypeEnum),
         nullable=True,

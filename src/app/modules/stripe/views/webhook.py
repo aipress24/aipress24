@@ -13,8 +13,10 @@ import stripe
 from arrow import Arrow
 from flask import request, session
 
-from app.enums import OrganisationTypeEnum
+from app.constants import PROFILE_CODE_TO_BW_TYPE
+from app.enums import BWTypeEnum, OrganisationTypeEnum, ProfileEnum
 from app.flask.extensions import db
+from app.models.auth import User
 from app.models.organisation import Organisation
 from app.modules.admin.invitations import invite_users
 from app.modules.admin.org_email_utils import add_managers_emails
@@ -195,7 +197,7 @@ def _register_bw_subscription(subinfo: SubscriptionInfo) -> None:
             f"organisation.id: {org.id},  client_reference_id: {subinfo.client_reference_id}"
         )
         return
-    _update_organisation_subscription_info(org, subinfo)
+    _update_organisation_subscription_info(user, org, subinfo)
     # user is already member of the organisation, ensure will be manager:
     add_managers_emails(org, user.email)
     info(f"{user} is now BW manager of {org.name}")
@@ -204,7 +206,9 @@ def _register_bw_subscription(subinfo: SubscriptionInfo) -> None:
 
 
 def _update_organisation_subscription_info(
-    org: Organisation, subinfo: SubscriptionInfo
+    user: User,
+    org: Organisation,
+    subinfo: SubscriptionInfo,
 ) -> None:
     # need to also update org.type from OrganisationTypeEnum.AUTO
     org.stripe_subscription_id = subinfo.subscription_id
@@ -216,10 +220,35 @@ def _update_organisation_subscription_info(
     )
     org.type = OrganisationTypeEnum[subinfo.org_type]
     org.active = True
+    org.bw_type = _guess_bw_type(user, org)
+
     db_session = db.session
     db_session.merge(org)
     db_session.commit()
     info(f"Organisation {org.name} subscribed to BW of type: {org.type}")
+
+
+def _guess_bw_type(user: User, org: Organisation) -> BWTypeEnum:
+    if not org.creator_profile_code:
+        profile = user.profile
+        org.creator_profile_code = profile.profile_code
+    try:
+        profile_code = ProfileEnum[org.creator_profile_code]
+    except KeyError:
+        # fixme, choose a not-so-far profile for current BW type
+        profile_code = ProfileEnum.PM_DIR
+
+    possible_bw = PROFILE_CODE_TO_BW_TYPE.get(profile_code, [])
+    if not possible_bw:
+        return BWTypeEnum.ORGANISATION
+    if len(possible_bw) == 1:
+        return possible_bw[0]
+    # here the only double possibility is:
+    # [BWTypeEnum.MEDIA, BWTypeEnum.AGENCY]
+    if org.type == "AGENCY":
+        return BWTypeEnum.AGENCY
+    else:
+        return BWTypeEnum.MEDIA
 
 
 def _get_bw_product(subinfo: SubscriptionInfo) -> stripe.Product | None:
