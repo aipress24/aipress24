@@ -42,6 +42,7 @@ class SubscriptionInfo:
     current_period_start: int = 0
     current_period_end: int = 0
     price_id: str = ""
+    name: str = ""
     nickname: str = ""
     interval: str = ""
     product_id: str = ""
@@ -163,17 +164,16 @@ def _parse_bw_subscription(subinfo: SubscriptionInfo) -> None:
         subinfo.org_type = bw_prod.upper()
     else:
         subinfo.org_type = "OTHER"
+    subinfo.name = stripe_bw_product.name
     info(
         f"Stripe subscription for BW {subinfo.subscription_id}",
         f"type: {subinfo.org_type}",
+        f'"{subinfo.name}"',
     )
-    _register_bw_subscription(subinfo, stripe_bw_product)
+    _register_bw_subscription(subinfo)
 
 
-def _register_bw_subscription(
-    subinfo: SubscriptionInfo,
-    stripe_bw_product: stripe.Product,
-) -> None:
+def _register_bw_subscription(subinfo: SubscriptionInfo) -> None:
     # here we need to retrieve user account
     user = get_user_per_email(subinfo.customer_email)
     if user is None:
@@ -208,6 +208,7 @@ def _update_organisation_subscription_info(
 ) -> None:
     # need to also update org.type from OrganisationTypeEnum.AUTO
     org.stripe_subscription_id = subinfo.subscription_id
+    org.stripe_product_id = subinfo.product_id
     org.stripe_subs_creation_date = Arrow.fromtimestamp(subinfo.created)
     org.validity_date = Arrow.fromtimestamp(subinfo.current_period_end)
     org.stripe_subs_current_period_start = Arrow.fromtimestamp(
