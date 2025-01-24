@@ -11,6 +11,9 @@ RUN chown -R app:app .
 
 USER app
 
+# Used only for bootstrapping
+COPY data data
+
 COPY pyproject.toml .
 COPY uv.lock .
 COPY README.md .

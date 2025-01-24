@@ -7,13 +7,16 @@ from __future__ import annotations
 from flask.cli import with_appcontext
 from flask_super.cli import command
 from rich import print
-from sqlalchemy.orm import scoped_session
+from sqlalchemy import select
 from svcs.flask import container
 
 from app.enums import RoleEnum
 from app.flask.extensions import db
 from app.models.admin import Promotion
 from app.models.auth import Role
+from app.models.repositories import RoleRepository
+from app.services.promotions import get_promotion
+from app.services.taxonomies import TaxonomyEntry
 
 from .ontologies import import_ontologies_content
 
@@ -43,25 +46,32 @@ def bootstrap() -> None:
 
 def bootstrap_function() -> None:
     bootstrap_roles()
-    bootstrap_boxes()
-    import_ontologies_content()
+    bootstrap_promotions()
+    bootstrap_ontologies()
 
 
 def bootstrap_roles():
-    db_session = container.get(scoped_session)
+    repo = container.get(RoleRepository)
+    roles = repo.list()
+    if roles:
+        print("Roles already exist, skipping creation.")
+        return
 
     print("Creating roles...")
-    # roles = []
     for role_enum in RoleEnum:
         role = Role(name=role_enum.name, description=role_enum.value)
-        db_session.add(role)
-        # roles.append(role)
-
-    db_session.commit()
+        repo.add(role, auto_commit=True)
 
 
-def bootstrap_boxes() -> None:
-    print("Creating marketing boxes..")
+def bootstrap_promotions() -> None:
+    print("Creating promotions..")
+    slug0 = BOX_SLUGS[0]
+    promo0 = get_promotion(slug0)
+    if promo0:
+        print("promotions already exist, skipping creation.")
+        return
+
+    print("Creating promotions...")
     for slug in BOX_SLUGS:
         if slug.endswith("1"):
             title = BOX_TITLE1
@@ -72,3 +82,14 @@ def bootstrap_boxes() -> None:
         db.session.add(promo)
 
     db.session.commit()
+
+
+def bootstrap_ontologies():
+    query = select(TaxonomyEntry)
+    result = db.session.execute(query).scalar()
+    if result:
+        print("Ontologies already exist, skipping creation.")
+        return
+
+    print("Creating ontologies...")
+    import_ontologies_content()

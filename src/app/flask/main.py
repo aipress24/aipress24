@@ -114,11 +114,11 @@ def register_all(app: Flask) -> None:
 
 def _check_stripe_configuration(app: Flask) -> None:
     if not check_stripe_secret_key(app):
-        debug("STRIPE_SECRET_KEY not found in config")
+        logger.debug("STRIPE_SECRET_KEY not found in config")
     if not check_stripe_public_key(app):
-        debug("STRIPE_PUBLIC_KEY not found in config")
+        logger.debug("STRIPE_PUBLIC_KEY not found in config")
     if not check_stripe_webhook_secret(app):
-        debug("STRIPE_WEBHOOK_SECRET not found in config")
+        logger.debug("STRIPE_WEBHOOK_SECRET not found in config")
 
 
 def register_debug_hooks(app: Flask) -> None:

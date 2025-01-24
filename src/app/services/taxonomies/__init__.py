@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+from ._models import TaxonomyEntry
 from ._service import (
     check_taxonomy_exist,
     create_entry,
@@ -15,6 +16,7 @@ from ._service import (
 )
 
 __all__ = [
+    "TaxonomyEntry",
     "check_taxonomy_exist",
     "create_entry",
     "get_full_taxonomy",
