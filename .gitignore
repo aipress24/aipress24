@@ -17,6 +17,7 @@
 # Secret
 /.env
 /etc/secrets.toml
+/debug/
 
 # Other
 /tmp
