@@ -5,7 +5,6 @@
 from __future__ import annotations
 
 import stripe
-import sys
 from flask import Flask, current_app
 from stripe import Product
 

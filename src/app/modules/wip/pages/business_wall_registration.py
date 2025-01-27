@@ -21,8 +21,8 @@ from app.modules.kyc.renderer import render_field
 from app.services.stripe.product import stripe_bw_subscription_dict
 from app.services.stripe.utils import (
     get_stripe_public_key,
-    load_stripe_api_key,
     load_pricing_table_id,
+    load_stripe_api_key,
 )
 
 from .base import BaseWipPage
