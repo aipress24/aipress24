@@ -59,6 +59,27 @@ class BusinessWallPage(BaseWipPage):
             _stripe_bw_products = stripe_bw_subscription_dict()
             _current_product = _stripe_bw_products.get(self.org.stripe_product_id)
             current_product_name = _current_product.name if _current_product else ""
+            if not current_product_name:
+                import sys
+
+                print("///// BusinessWallPage.context() BUG", file=sys.stderr)
+                print("/////   is_bw_active", is_bw_active, file=sys.stderr)
+                print(
+                    "/////   _stripe_bw_products keys",
+                    list(_stripe_bw_products.keys()),
+                    file=sys.stderr,
+                )
+                print(
+                    "/////   org.stripe_product_id",
+                    self.org.stripe_product_id,
+                    file=sys.stderr,
+                )
+                print("/////   _current_product", _current_product, file=sys.stderr)
+                print(
+                    "/////   current_product_name",
+                    current_product_name,
+                    file=sys.stderr,
+                )
             form_generator = BWFormGenerator(user=self.user, readonly=self.readonly)
             self.form = form_generator.generate()
         else:
