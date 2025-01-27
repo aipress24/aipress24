@@ -180,6 +180,7 @@ class BusinessWallRegistrationPage(BaseWipPage):
         # verify current subscription is still active on Stripe Reference
         load_stripe_api_key()
         print(
+            "//////// stripe_subscription_id",
             self.org.stripe_subscription_id,
             file=sys.stderr,
         )
@@ -298,40 +299,10 @@ class BusinessWallRegistrationPage(BaseWipPage):
                 # response.headers["HX-Redirect"] = url_for(".org-profile")
                 response.headers["HX-Redirect"] = self.url
                 return response
-            elif action == "stripe_register":
-                prod_id = request.form.get("subscription", "")
-                checkout_session = self.checkout_register_stripe(prod_id)
-                response = Response("")
-                response.headers["HX-Redirect"] = checkout_session.url
-                return response
 
         response = Response("")
         response.headers["HX-Redirect"] = self.url
         return response
-
-    def get(self) -> str | Response:
-        return self.hx_get()
-
-    def hx_get(self) -> str | Response:
-        session_id = request.args.get("session_id")
-
-        if not session_id:
-            return self.render()
-        if not load_stripe_api_key():
-            msg = "hx_get(): No stripe api key"
-            print("Error:", msg, file=sys.stderr)
-            raise ValueError(msg)
-
-        # context of a Stripe subscription
-        if session_id == "canceled":
-            self.subscription_info = {
-                "msg": "Commande annulée.",
-                "session": "",
-                "products": "",
-            }
-        else:
-            self._register_stripe_subscription(session_id)
-        return self.render()
 
     @staticmethod
     def _retrieve_session(session_id: str) -> stripe.checkout.Session | None:
@@ -359,138 +330,6 @@ class BusinessWallRegistrationPage(BaseWipPage):
             print("Error in _retrieve_subscription():", e, file=sys.stderr)
         return subscription
 
-    def _register_stripe_subscription(self, session_id: str) -> None:
-        session = self._retrieve_session(session_id)
-        if session and session.customer_email == self.user.email:
-            # session_json = json.dumps(
-            # session, sort_keys=True, ensure_ascii=False, indent=2
-            # )
-            # session_dict = json.loads(session_json)
-            # shall we store the checkout ? Or keep it in Stripe.
-            # print("///Session", pformat(dict(session_dict)), file=sys.stderr)
-            # Success response of a checkout
-            self.subscription_info = {
-                "msg": "Commande enregistrée.",
-                "session": "",
-                "products": "",
-            }
-            # select product
-            products = [
-                item["price"]["product"] for item in session["line_items"]["data"]
-            ]
-            if products:
-                first_prod_id = products[0]
-                product = stripe.Product.retrieve(first_prod_id)
-            else:
-                return
-            subscription = self._retrieve_subscription(session["subscription"])
-            if not subscription:
-                return
-            self.do_register(product, subscription)
-
-        # Currently for debug :
-        # session = stripe.checkout.Session.retrieve(
-        #     session_id,
-        #     expand=["customer", "line_items"],
-        # )
-        # session_json = json.dumps(session, sort_keys=True, ensure_ascii=False, indent=2)
-        # session_dict = json.loads(session_json)
-        # products = [
-        #     item["price"]["product"] for item in session_dict["line_items"]["data"]
-        # ]
-
-        #     "session": session_dict,
-        #     "products": products,
-        # }
-
-        # For debug, add this to the template :
-        # {% set session = subscription_info.session %}
-        # {% set products = subscription_info.products %}
-        # {% if session %}
-        #   <div>session.client_reference_id (Organisation.id):{{session.client_reference_id}}</div>
-        #   <div>session.custom_fields[0]:{{session.custom_fields[0]}}</div>
-        #   <div>session.customer_email:{{session.customer_email}}</div>
-        #   <div>session.mode:{{session.mode}}</div>
-        #   <div>session.invoice:{{session.invoice}}</div>
-        #   <div>session.payment_status:{{session.payment_status}}</div>
-        #   <div>session.status:{{session.status}}</div>
-        #   <div>session.subscription:{{session.subscription}}</div>
-        #   <div>session.customer:{{session.customer}}</div>
-        #   <div>session.line_items:{{session.line_items}}</div>
-        #   <div>list of products ids:
-        #   {% for prod in products %}
-        #     <div>product id: {{prod}}</div>
-        #   {% endfor %}
-        # {% endif %}
-
-    def checkout_register_stripe(self, prod_id: str):
-        self.load_product_infos()
-        prod = self.stripe_bw_products[prod_id]
-        success_url = (
-            url_for(f".{self.name}", _external=True)
-            + "?session_id={CHECKOUT_SESSION_ID}"
-        )
-        cancel_url = url_for(f".{self.name}", _external=True) + "?session_id=canceled"
-        try:
-            checkout_session = stripe.checkout.Session.create(
-                client_reference_id=str(self.org.id),
-                customer_email=self.user.email,
-                line_items=[
-                    {
-                        # Provide the exact Price ID (for example, pr_1234) of the product you want to sell
-                        "price": prod.default_price,
-                        # "quantity": 1,
-                        "quantity": 1,
-                        # "product_data": {"name": "Business Wall for Organization"},
-                    },
-                ],
-                custom_text={
-                    "submit": {
-                        "message": f"Abonnement pour l'organisation «{self.org.name}»"
-                    },
-                    # "after_submit": {
-                    #     "message": f"after_submit, Un text pour {self.org.name}"
-                    # },
-                },
-                custom_fields=[
-                    {
-                        "key": "name",
-                        "type": "text",
-                        "label": {"custom": "Nom de l'organisation", "type": "custom"},
-                        "text": {
-                            "default_value": self.org.name,
-                            "maximum_length": 80,
-                            "minimum_length": 1,
-                            # "value": "",
-                        },
-                    },
-                ],
-                currency="eur",
-                tax_id_collection={"enabled": True},
-                mode="subscription",
-                success_url=success_url,
-                cancel_url=cancel_url,
-                automatic_tax={"enabled": True},
-            )
-        except Exception as e:
-            import sys
-
-            print("// Stripe CO error:", str(e), file=sys.stderr)
-            return str(e)
-
-        return checkout_session
-
-    def do_register(
-        self,
-        product: stripe.Product,
-        subscription: stripe.Subscription,
-    ) -> None:
-        self._store_bw_subescription(product, subscription)
-        # user is already member of the organisation, now will be the
-        add_managers_emails(self.org, self.user.email)
-        # also add the new manager to invitations
-        invite_users(self.user.email, self.org.id)
-
     def do_suspend_locally(self) -> None:
         if not self.org.active:
             return
@@ -516,57 +355,6 @@ class BusinessWallRegistrationPage(BaseWipPage):
         db_session.merge(self.org)
         db_session.commit()
 
-    def _store_bw_subescription(
-        self,
-        product: stripe.Product,
-        subscription: stripe.Subscription,
-    ) -> None:
-        # meta_bw = {
-        #     "AGENCY": "media",
-        #     "MEDIA": "media",
-        #     "CORPORATE": "organisation",
-        #     "PRESSUNION": "organisation",
-        #     "COM": "com",
-        #     "ORGANISATION": "organisation",
-        #     "TRANSFORMER": "organisation",
-        #     "ACADEMICS": "organisation",
-        # }
-
-        # subscription_json = json.dumps(
-        #     subscription, sort_keys=True, ensure_ascii=False, indent=2
-        # )
-        # subscription_dict = json.loads(subscription_json)
-        # print("///Subscription", pformat(dict(subscription_dict)), file=sys.stderr)
-        subscription_info = _parse_subscription(subscription)
-
-        bw_prod = product.metadata.get("BW", "none")
-        term = product.metadata.get("TERM", "annuel")
-
-        # bw_type_enum = BWTypeEnum[bw_type]
-        # FIXME self.org.bw_type = bw_type
-        if bw_prod == "media":
-            self.org.type = OrganisationTypeEnum.MEDIA
-        elif bw_prod == "agency":
-            self.org.type = OrganisationTypeEnum.AGENCY
-        elif bw_prod == "com":
-            self.org.type = OrganisationTypeEnum.COM
-        else:
-            self.org.type = OrganisationTypeEnum.OTHER
-        # ensure org is active
-        self.org.active = True
-        now = datetime.now(timezone.utc)
-        if term == "mensuel":
-            self.org.validity_date = now + relativedelta(months=1)
-        else:  # assuming "annuel"
-            self.org.validity_date = now + relativedelta(year=1)
-
-        self.org.stripe_product_id = product.id
-        self._update_organisation_subscription_info(subscription_info)
-
-        db_session = db.session
-        db_session.merge(self.org)
-        db_session.commit()
-
     def find_profile_allowed_subscription(self) -> list[BWTypeEnum]:
         return list(self.user_profile_to_allowed_subscription())
         # here more strict filtering about the allowed BW categories:
@@ -583,60 +371,60 @@ class BusinessWallRegistrationPage(BaseWipPage):
         # {<BWTypeEnum.ORGANISATION: 'Business Wall for Organisations'>}
         return set(PROFILE_CODE_TO_BW_TYPE.get(profile_code, []))
 
-    def user_role_to_allowed_subscription(self) -> set[BWTypeEnum]:
-        allow: set[BWTypeEnum] = set()
-        if has_role(user=self.user, role=RoleEnum.PRESS_MEDIA):
-            allow.add(BWTypeEnum.AGENCY)
-            allow.add(BWTypeEnum.CORPORATE)
-            allow.add(BWTypeEnum.MEDIA)
-            allow.add(BWTypeEnum.ORGANISATION)
-            allow.add(BWTypeEnum.PRESSUNION)
-        if has_role(user=self.user, role=RoleEnum.PRESS_RELATIONS):
-            allow.add(BWTypeEnum.COM)
-            allow.add(BWTypeEnum.CORPORATE)
-            allow.add(BWTypeEnum.ORGANISATION)
-        if has_role(user=self.user, role=RoleEnum.EXPERT):
-            allow.add(BWTypeEnum.CORPORATE)
-            allow.add(BWTypeEnum.ORGANISATION)
-            allow.add(BWTypeEnum.TRANSFORMER)
-        if has_role(user=self.user, role=RoleEnum.TRANSFORMER):
-            allow.add(BWTypeEnum.TRANSFORMER)
-        if has_role(user=self.user, role=RoleEnum.ACADEMIC):
-            allow.add(BWTypeEnum.ACADEMICS)
-        return allow
+    # def user_role_to_allowed_subscription(self) -> set[BWTypeEnum]:
+    #     allow: set[BWTypeEnum] = set()
+    #     if has_role(user=self.user, role=RoleEnum.PRESS_MEDIA):
+    #         allow.add(BWTypeEnum.AGENCY)
+    #         allow.add(BWTypeEnum.CORPORATE)
+    #         allow.add(BWTypeEnum.MEDIA)
+    #         allow.add(BWTypeEnum.ORGANISATION)
+    #         allow.add(BWTypeEnum.PRESSUNION)
+    #     if has_role(user=self.user, role=RoleEnum.PRESS_RELATIONS):
+    #         allow.add(BWTypeEnum.COM)
+    #         allow.add(BWTypeEnum.CORPORATE)
+    #         allow.add(BWTypeEnum.ORGANISATION)
+    #     if has_role(user=self.user, role=RoleEnum.EXPERT):
+    #         allow.add(BWTypeEnum.CORPORATE)
+    #         allow.add(BWTypeEnum.ORGANISATION)
+    #         allow.add(BWTypeEnum.TRANSFORMER)
+    #     if has_role(user=self.user, role=RoleEnum.TRANSFORMER):
+    #         allow.add(BWTypeEnum.TRANSFORMER)
+    #     if has_role(user=self.user, role=RoleEnum.ACADEMIC):
+    #         allow.add(BWTypeEnum.ACADEMICS)
+    #     return allow
 
-    def organisation_type_to_allowed_subscription(self) -> set[BWTypeEnum]:
-        """AUTO organisation still not have type."""
-        if self.org.type == OrganisationTypeEnum.AUTO:
-            profile = self.user.profile
-            family = profile.organisation_family
-        else:
-            family = self.org.type
-        allow: set[BWTypeEnum] = set()
-        match family:
-            case OrganisationTypeEnum.AUTO:
-                pass  # should not happen
-            case OrganisationTypeEnum.MEDIA:
-                allow.add(BWTypeEnum.AGENCY)
-                allow.add(BWTypeEnum.CORPORATE)
-                allow.add(BWTypeEnum.MEDIA)
-                allow.add(BWTypeEnum.ORGANISATION)
-                allow.add(BWTypeEnum.PRESSUNION)
-            case OrganisationTypeEnum.AGENCY:
-                allow.add(BWTypeEnum.AGENCY)
-                allow.add(BWTypeEnum.CORPORATE)
-                allow.add(BWTypeEnum.ORGANISATION)
-                allow.add(BWTypeEnum.PRESSUNION)
-            case OrganisationTypeEnum.COM:
-                allow.add(BWTypeEnum.COM)
-                allow.add(BWTypeEnum.CORPORATE)
-                allow.add(BWTypeEnum.ORGANISATION)
-            case OrganisationTypeEnum.OTHER:
-                allow.add(BWTypeEnum.ACADEMICS)
-                allow.add(BWTypeEnum.CORPORATE)
-                allow.add(BWTypeEnum.ORGANISATION)
-                allow.add(BWTypeEnum.TRANSFORMER)
-            case _:
-                msg = f"Bad org.type: {family!r}"
-                raise ValueError(msg)
-        return allow
+    # def organisation_type_to_allowed_subscription(self) -> set[BWTypeEnum]:
+    #     """AUTO organisation still not have type."""
+    #     if self.org.type == OrganisationTypeEnum.AUTO:
+    #         profile = self.user.profile
+    #         family = profile.organisation_family
+    #     else:
+    #         family = self.org.type
+    #     allow: set[BWTypeEnum] = set()
+    #     match family:
+    #         case OrganisationTypeEnum.AUTO:
+    #             pass  # should not happen
+    #         case OrganisationTypeEnum.MEDIA:
+    #             allow.add(BWTypeEnum.AGENCY)
+    #             allow.add(BWTypeEnum.CORPORATE)
+    #             allow.add(BWTypeEnum.MEDIA)
+    #             allow.add(BWTypeEnum.ORGANISATION)
+    #             allow.add(BWTypeEnum.PRESSUNION)
+    #         case OrganisationTypeEnum.AGENCY:
+    #             allow.add(BWTypeEnum.AGENCY)
+    #             allow.add(BWTypeEnum.CORPORATE)
+    #             allow.add(BWTypeEnum.ORGANISATION)
+    #             allow.add(BWTypeEnum.PRESSUNION)
+    #         case OrganisationTypeEnum.COM:
+    #             allow.add(BWTypeEnum.COM)
+    #             allow.add(BWTypeEnum.CORPORATE)
+    #             allow.add(BWTypeEnum.ORGANISATION)
+    #         case OrganisationTypeEnum.OTHER:
+    #             allow.add(BWTypeEnum.ACADEMICS)
+    #             allow.add(BWTypeEnum.CORPORATE)
+    #             allow.add(BWTypeEnum.ORGANISATION)
+    #             allow.add(BWTypeEnum.TRANSFORMER)
+    #         case _:
+    #             msg = f"Bad org.type: {family!r}"
+    #             raise ValueError(msg)
+    #     return allow
