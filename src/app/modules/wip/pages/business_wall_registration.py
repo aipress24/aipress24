@@ -5,24 +5,19 @@
 from __future__ import annotations
 
 import sys
-from datetime import datetime, timezone
 from typing import Any, NamedTuple
 
 import stripe
 from arrow import Arrow
-from dateutil.relativedelta import relativedelta
 from flask import g, request
 from werkzeug import Response
 
 from app.constants import PROFILE_CODE_TO_BW_TYPE
-from app.enums import BWTypeEnum, OrganisationTypeEnum, ProfileEnum, RoleEnum
+from app.enums import BWTypeEnum, ProfileEnum
 from app.flask.extensions import db
 from app.flask.lib.pages import page
 from app.flask.routing import url_for
-from app.modules.admin.invitations import invite_users
-from app.modules.admin.org_email_utils import add_managers_emails
 from app.modules.kyc.renderer import render_field
-from app.services.roles import has_role
 from app.services.stripe.product import stripe_bw_subscription_dict
 from app.services.stripe.utils import get_stripe_public_key, load_stripe_api_key
 
@@ -67,6 +62,18 @@ DESCRIPTION_BW = {
     "ORGANISATION": "Pour les organisations, permet d'être au coeur de l'information.",
     "TRANSFORMER": "Pour les Transformers, permet d'être au coeur de l'information.",
     "ACADEMICS": "Pour le corps académique, permet d'être au coeur de l'information.",
+}
+
+# conversion table from the 8 detail types to 3 subscriptions type:
+ORG_TYPE_CONVERSION = {
+    "AGENCY": "media",
+    "MEDIA": "media",
+    "CORPORATE": "organisation",
+    "PRESSUNION": "organisation",
+    "COM": "com",
+    "ORGANISATION": "organisation",
+    "TRANSFORMER": "organisation",
+    "ACADEMICS": "organisation",
 }
 
 
@@ -151,18 +158,8 @@ class BusinessWallRegistrationPage(BaseWipPage):
             self._load_prod_info(prod)
 
     def filter_bw_subscriptions(self) -> None:
-        meta_bw = {
-            "AGENCY": "media",
-            "MEDIA": "media",
-            "CORPORATE": "organisation",
-            "PRESSUNION": "organisation",
-            "COM": "com",
-            "ORGANISATION": "organisation",
-            "TRANSFORMER": "organisation",
-            "ACADEMICS": "organisation",
-        }
         # convert the 8 detail types to 3 subscriptions type:
-        allowed_bw = {meta_bw[x.name] for x in self.allowed_subs}
+        allowed_bw = {ORG_TYPE_CONVERSION[x.name] for x in self.allowed_subs}
         # print("////  allowed_bw", allowed_bw, file=sys.stderr)
 
         self.allowed_prod = []
@@ -231,20 +228,25 @@ class BusinessWallRegistrationPage(BaseWipPage):
         org_bw_type_name = (
             self.org.bw_type.name if (self.org and self.org.bw_type) else ""
         )
+        # print("////  org_bw_type_name", org_bw_type_name, file=sys.stderr)
 
         # First time, if no self.org.bw_type, assume the first self.allowed_subs
         # is allowed, so:
         if not org_bw_type_name:
             if self.allowed_subs:
                 allow_product = self.allowed_subs[0]
-                org_bw_type_name = allow_product.name
+                org_bw_type_name = ORG_TYPE_CONVERSION.get(
+                    allow_product.name, "ORGANISATION"
+                )
             else:
                 org_bw_type_name = "ORGANISATION"
+
+        print("////  org_bw_type_name", org_bw_type_name, file=sys.stderr)
 
         return {
             "org": self.org,
             "org_name": self.org.name if self.org else "",
-            "org_bw_type_name": org_bw_type_name,
+            "org_bw_type_name": org_bw_type_name.upper(),
             "current_product_name": current_product_name,
             "user_profile": self.user.profile.profile_label,
             "customer_email": self.user.email,
