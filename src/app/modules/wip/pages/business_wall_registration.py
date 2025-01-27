@@ -19,7 +19,11 @@ from app.flask.lib.pages import page
 from app.flask.routing import url_for
 from app.modules.kyc.renderer import render_field
 from app.services.stripe.product import stripe_bw_subscription_dict
-from app.services.stripe.utils import get_stripe_public_key, load_stripe_api_key
+from app.services.stripe.utils import (
+    get_stripe_public_key,
+    load_stripe_api_key,
+    load_pricing_table_id,
+)
 
 from .base import BaseWipPage
 from .home import HomePage
@@ -240,13 +244,13 @@ class BusinessWallRegistrationPage(BaseWipPage):
                 )
             else:
                 org_bw_type_name = "ORGANISATION"
-
-        print("////  org_bw_type_name", org_bw_type_name, file=sys.stderr)
+        # print("////  org_bw_type_name", org_bw_type_name, file=sys.stderr)
 
         return {
             "org": self.org,
             "org_name": self.org.name if self.org else "",
             "org_bw_type_name": org_bw_type_name.upper(),
+            "pricing_table_id": load_pricing_table_id(org_bw_type_name),
             "current_product_name": current_product_name,
             "user_profile": self.user.profile.profile_label,
             "customer_email": self.user.email,

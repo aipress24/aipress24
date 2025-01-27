@@ -110,40 +110,18 @@
       Abonnements à Aipress PRO&nbsp:
     </h1>
   </div>
-
-    {% if org_bw_type_name == 'MEDIA' %}
-    <script async src="https://js.stripe.com/v3/pricing-table.js"></script>
-    <stripe-pricing-table
-      pricing-table-id="prctbl_1QXlbyIyzOgen8OqwSrrX15Z"
-      publishable-key="{{public_key}}"
-      customer-email="{{customer_email}}"
-      client-reference-id="{{client_reference_id}}"
-    >
-    </stripe-pricing-table>
-
-    {% elif org_bw_type_name == 'ORGANISATION' %}
-    <script async src="https://js.stripe.com/v3/pricing-table.js"></script>
-    <stripe-pricing-table
-      pricing-table-id="prctbl_1QXllXIyzOgen8OqevzCzyUV"
-      publishable-key="{{public_key}}"
-      customer-email="{{customer_email}}"
-      client-reference-id="{{client_reference_id}}"
-    >
-    </stripe-pricing-table>
-
-    {% elif org_bw_type_name == 'COM' %}
-    <script async src="https://js.stripe.com/v3/pricing-table.js"></script>
-    <stripe-pricing-table
-      pricing-table-id="prctbl_1QXls0IyzOgen8OqYcgXiOct"
-      publishable-key="{{public_key}}"
-      customer-email="{{customer_email}}"
-      client-reference-id="{{client_reference_id}}"
-    >
-    </stripe-pricing-table>
+    {% if pricing_table_id|length %}
+      <script async src="https://js.stripe.com/v3/pricing-table.js"></script>
+      <stripe-pricing-table
+        pricing-table-id="{{pricing_table_id}}"
+        publishable-key="{{public_key}}"
+        customer-email="{{customer_email}}"
+        client-reference-id="{{client_reference_id}}"
+      >
+      </stripe-pricing-table>
     {% else %}
-    Aucune formule d&apos;abonnement trouvée pour la catégorie {{ org_bw_type_name }}
+      Aucune formule d&apos;abonnement trouvée pour la catégorie {{ org_bw_type_name }}
     {% endif %}
-
   {% endif %}
 
 {% else %}

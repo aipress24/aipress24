@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import stripe
+import sys
 from flask import Flask, current_app
 from stripe import Product
 
@@ -57,3 +58,21 @@ def fetch_product_list() -> list[Product]:
         prod.update(rp)
         results.append(prod)
     return results
+
+
+def load_pricing_table_id(org_bw_type_name: str) -> str:
+    config = current_app.config
+    match org_bw_type_name.upper():
+        case "MEDIA":
+            pricing = config.get("STRIPE_PRICING_SUBS_MEDIA") or ""
+        case "COM":
+            pricing = config.get("STRIPE_PRICING_SUBS_COM") or ""
+        case "ORGANISATION":
+            pricing = config.get("STRIPE_PRICING_SUBS_ORGANISATION") or ""
+        case _:
+            pricing = ""
+    if not pricing:
+        print(
+            f'Warning: no Stripe pricing table found for org_bw_type_name "{org_bw_type_name}"'
+        )
+    return pricing
