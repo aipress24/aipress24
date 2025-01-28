@@ -22,17 +22,17 @@ packages:
 
 tasks:
   - setup: |
-      sudo pip3.12 install -U uv
+      sudo pip3.12 install -U uv nox
 
   - nox-test: |
       cd aipress24
-      uvx nox -e test-3.12
+      nox -e test-3.12
       # TODO: postgres
 
   - nox-lint: |
       cd aipress24
-      uvx nox -e lint
+      nox -e lint
 
-#  - buildah: |
-#      cd aipress24
-#      buildah build .
+  - buildah: |
+      cd aipress24
+      buildah build .
