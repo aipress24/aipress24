@@ -55,7 +55,14 @@
   {% if is_bw_active %}
   <div class="mt-2 mb-2 font-bold italic text-gray-800">
     <p>
-      Votre abonnement Aipress24 PRO actuel est: «{{ current_product_name }}»
+      Votre abonnement Aipress24 PRO actuel est&nbsp;: «{{ current_product_name }}»
+    </p>
+    <p>
+      Début de la période d&apos;abonnement&nbsp;: {{ org.stripe_subs_current_period_start.strftime('%d %b %G %H:%M') }}
+      <br>
+      Fin de la période de validité&nbsp;: {{ org.validity_date.strftime('%d %b %G %H:%M') }}
+      <br>
+      Référence de l&apos;abonnement&nbsp;: {{ org.stripe_subscription_id }}
     </p>
   </div>
   {% if is_manager %}
