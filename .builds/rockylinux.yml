@@ -21,8 +21,14 @@ packages:
 
 
 tasks:
+  - buildah: |
+      cd aipress24
+      buildah build .
+
   - setup: |
       sudo pip3.12 install -U uv nox
+      uv version
+      nox --version
 
   - nox-test: |
       cd aipress24
@@ -32,7 +38,3 @@ tasks:
   - nox-lint: |
       cd aipress24
       nox -e lint
-
-  - buildah: |
-      cd aipress24
-      buildah build .
