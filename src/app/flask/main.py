@@ -35,7 +35,7 @@ from app.services.stripe.utils import (
     check_stripe_secret_key,
     check_stripe_webhook_secret,
 )
-from app.ui.datetime_filter import make_localdt
+from app.ui.datetime_filter import make_localdt, make_naivedt
 from app.ui.labels import make_label
 
 # Where we're looking for blueprints
@@ -189,6 +189,7 @@ def register_perf_watcher(app: Flask) -> None:
 def register_filters(app: Flask) -> None:
     app.template_filter("label")(make_label)
     app.template_filter("localdt")(make_localdt)
+    app.template_filter("naivedt")(make_naivedt)
 
 
 def register_stripe(app: Flask) -> None:

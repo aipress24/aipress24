@@ -13,5 +13,11 @@ LOCALTZ = pytz.timezone("Europe/Paris")
 
 
 def make_localdt(value: datetime) -> str:
+    """Return formated datetime with local timezone adaptation from UTC."""
     local_dt = value.astimezone(LOCALTZ)
     return local_dt.strftime(FORMAT)
+
+
+def make_naivedt(value: datetime) -> str:
+    """Return formated datetime with no timezone adaptation."""
+    return value.strftime(FORMAT)

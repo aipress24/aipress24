@@ -14,7 +14,7 @@
         <dt class="text-sm font-medium text-gray-500">Date de création</dt>
         <dd class="mb-2 text-sm text-gray-900">
             {% if org.created_at %}
-              {{ org.created_at.strftime('%d %b %G %H:%M %Z') }}
+              {{ org.created_at| localdt }}
             {% else %}
               aucune
             {% endif %}
@@ -24,7 +24,7 @@
         <dt class="text-sm font-medium text-gray-500">Date de modification</dt>
         <dd class="mb-2 text-sm text-gray-900">
           {% if org.modified_at %}
-            {{ org.modified_at.strftime('%d %b %G %H:%M %Z') }}
+            {{ org.modified_at| naivedt }}
           {% else %}
             aucune
           {% endif %}
