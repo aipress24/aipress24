@@ -8,8 +8,10 @@ from datetime import datetime
 
 import pytz
 
+from app.constants import LOCAL_TZ
+
 FORMAT = "%d %b %G %H:%M"
-LOCALTZ = pytz.timezone("Europe/Paris")
+LOCALTZ = pytz.timezone(LOCAL_TZ)
 
 
 def make_localdt(value: datetime) -> str:
