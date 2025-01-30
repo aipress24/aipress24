@@ -61,8 +61,12 @@ class Article(
     # Etat: Brouillon, Publié, Archivé
     status: Mapped[ArticleStatus] = mapped_column(sa.Enum(ArticleStatus), default=DRAFT)
 
-    published_at: Mapped[datetime | None] = mapped_column(ArrowType(timezone=True), nullable=True)
-    expired_at: Mapped[datetime | None] = mapped_column(ArrowType(timezone=True), nullable=True)
+    published_at: Mapped[datetime | None] = mapped_column(
+        ArrowType(timezone=True), nullable=True
+    )
+    expired_at: Mapped[datetime | None] = mapped_column(
+        ArrowType(timezone=True), nullable=True
+    )
     publisher_id: Mapped[int | None] = mapped_column(
         sa.ForeignKey("crp_organisation.id")
     )

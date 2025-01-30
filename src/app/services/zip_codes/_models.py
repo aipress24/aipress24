@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 """
-Simple model for Zip Codes.
+Simple model for Countries and Zip Codes.
 """
 
 from __future__ import annotations
@@ -12,6 +12,14 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.base import Base
 from app.models.mixins import IdMixin
+
+
+class CountryEntry(IdMixin, Base):
+    __tablename__ = "zip_country"
+
+    iso3: Mapped[str] = mapped_column(index=True)
+    name: Mapped[str] = mapped_column()
+    seq: Mapped[int] = mapped_column()
 
 
 class ZipCodeEntry(IdMixin, Base):

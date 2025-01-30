@@ -5,8 +5,9 @@
 from __future__ import annotations
 
 import sys
+from collections.abc import Iterable
 
-from sqlalchemy import Sequence, select
+from sqlalchemy import select
 
 from app.flask.extensions import db
 
@@ -21,16 +22,6 @@ def check_zip_code_exist(iso3: str) -> bool:
     )
 
 
-def _select_all(iso3: str) -> Sequence[ZipCodeEntry]:
-    """Get list of all rows for a country."""
-    query = (
-        select(ZipCodeEntry)
-        .where(ZipCodeEntry.iso3 == iso3)
-        .order_by(ZipCodeEntry.zip_code, ZipCodeEntry.name)
-    )
-    return db.session.scalars(query).all()
-
-
 def get_zip_code_country(iso3: str) -> list[dict[str, str]]:
     """Get list of value/label for a country."""
     return [{"value": row.value, "label": row.label} for row in _select_all(iso3)]
@@ -39,6 +30,16 @@ def get_zip_code_country(iso3: str) -> list[dict[str, str]]:
 def get_full_zip_code_country(iso3: str) -> list[tuple[str, str, str, str]]:
     """Get list of aip_code/name/value/label for a country."""
     return [(row.zip_code, row.name, row.value, row.label) for row in _select_all(iso3)]
+
+
+def _select_all(iso3: str) -> Iterable[ZipCodeEntry]:
+    """Get list of all rows for a country."""
+    query = (
+        select(ZipCodeEntry)
+        .where(ZipCodeEntry.iso3 == iso3)
+        .order_by(ZipCodeEntry.zip_code, ZipCodeEntry.name)
+    )
+    return db.session.scalars(query).all()
 
 
 def update_zip_code_entry(

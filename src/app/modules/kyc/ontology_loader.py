@@ -8,13 +8,12 @@ import functools
 from collections.abc import Callable
 
 from app.enums import OrganisationTypeEnum
-from app.services.countries import get_full_countries
 from app.services.taxonomies import (
     get_full_taxonomy,
     get_taxonomy,
     get_taxonomy_dual_select,
 )
-from app.services.zip_code import get_zip_code_country
+from app.services.zip_codes import get_full_countries, get_zip_code_country
 
 from .organisation_utils import (
     get_organisation_for_noms_com,

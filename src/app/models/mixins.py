@@ -45,13 +45,17 @@ class Timestamped:
     """Should be used mostly for immutable objects, so timestamp value should
     be immutable."""
 
-    timestamp: Mapped[arrow.Arrow] = mapped_column(ArrowType(timezone=True), default=arrow.utcnow)
+    timestamp: Mapped[arrow.Arrow] = mapped_column(
+        ArrowType(timezone=True), default=arrow.utcnow
+    )
 
 
 class LifeCycleMixin:
     """For object that have a life cycle (create -> edit -> delete)"""
 
-    created_at: Mapped[arrow.Arrow] = mapped_column(ArrowType(timezone=True), default=arrow.utcnow)
+    created_at: Mapped[arrow.Arrow] = mapped_column(
+        ArrowType(timezone=True), default=arrow.utcnow
+    )
     modified_at: Mapped[arrow.Arrow | None] = mapped_column(ArrowType(timezone=True))
     deleted_at: Mapped[arrow.Arrow | None] = mapped_column(ArrowType(timezone=True))
 

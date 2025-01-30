@@ -89,8 +89,12 @@ class User(LifeCycleMixin, Addressable, UserMixin, Base):
     )
 
     # from flask-security
-    last_login_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True)
-    current_login_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True)
+    last_login_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    current_login_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
     last_login_ip: Mapped[str] = mapped_column(default="", nullable=True)
     current_login_ip: Mapped[str] = mapped_column(default="")
     login_count: Mapped[int] = mapped_column(sa.Integer, default=0)
