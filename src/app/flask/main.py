@@ -30,6 +30,7 @@ from app.flask.lib.pywire import (
     register_wired_components,
 )
 from app.flask.security import register_oauth_providers
+from app.flask.util import utcnow
 from app.services.stripe.utils import (
     check_stripe_public_key,
     check_stripe_secret_key,
@@ -58,6 +59,8 @@ def create_app(config=None) -> Flask:
 
     # 1: set up app.config properly
     setup_config(app, config)
+    # force flask-security to use non naive datetime
+    app.config["SECURITY_DATETIME_FACTORY"] = utcnow
 
     # 2: Scan to pre-register callbacks, services, etc.
     scan_packages(SCAN_PACKAGES)

@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import importlib.metadata
+from datetime import datetime, timezone
 from pathlib import Path
 
 from flask import current_app
@@ -16,3 +17,7 @@ def get_version() -> str:
 
 def get_home_path() -> Path:
     return (Path(current_app.root_path) / ".." / ".." / "..").resolve()
+
+
+def utcnow() -> datetime:
+    return datetime.now(timezone.utc)
