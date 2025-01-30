@@ -11,34 +11,17 @@ from operator import itemgetter
 from pathlib import Path
 from typing import Any
 
-from flask.cli import with_appcontext  # type: ignore
-from flask_super.cli import group
 from odsparsator import odsparsator
 from slugify import slugify
 
 # from app.enums import OrganisationTypeEnum
-from app.flask.extensions import db
 from app.services.taxonomies import check_taxonomy_exist, create_entry, update_entry
-
-# from app.models.organisation_light import LightOrganisation
-from app.services.zip_codes import (
-    check_countries_exist,
-    check_zip_code_exist,
-    create_country_entry,
-    create_zip_code_entry,
-    get_full_zip_code_country,
-    update_country_entry,
-    update_zip_code_entry,
-)
 
 # format for HTML selects
 VALUE_LABEL_MODE = False
 
 # required: use a.ods document
 ONTOLOGY_SRC = Path("data/Ontologies.ods")
-COUNTRY_SRC = Path("data/country_zip_code/pays.json")
-ZIP_CODE_SRC = Path("data/country_zip_code/towns")
-
 
 # Secteurs → `sectors`
 # Rubriques → `sections`
@@ -100,11 +83,6 @@ CIVILITE_ONTOLOGY = [
 ]
 
 
-@group(short_help="Manage ontologies/taxonomies/vocabularies")
-def ontologies() -> None:
-    pass
-
-
 def parse_source_ontologies() -> dict[str, Any]:
     """step1 : convert the ods source -> python dictionary."""
     if not ONTOLOGY_SRC.is_file():
@@ -150,89 +128,6 @@ def print_ontologies() -> None:
         converter.run()
         values = converter.export()
         print(values)
-
-
-@ontologies.command(name="import", short_help="Import ontologies")
-@with_appcontext
-def import_ontologies() -> None:
-    import_ontologies_content()
-
-
-def import_ontologies_content() -> None:
-    import_taxonomies()
-    import_countries()
-    import_zip_codes()
-    merge_organisations()
-
-    db.session.commit()
-
-
-def merge_organisations():
-    pass
-    # _merge_newsrooms_organisations()
-    # _merge_pr_agency_organisations()
-    # _merge_other_organisations()
-
-
-# def _merge_other_organisations():
-#     """Merge into organisations /family 'autre' the content of the
-#     "groupes_cotes" taxonomy
-#     """
-#     count = 0
-#     companies = get_taxonomy("groupes_cotes")
-#     print(f"Merging OrganisationLight: {len(companies)} groupes_cotes")
-#     for name in companies:
-#         if (
-#             db.session.query(LightOrganisation)
-#             .where(LightOrganisation.name == name)
-#             .first()
-#         ):
-#             continue
-#         family = OrganisationTypeEnum.AUTRE
-#         db.session.add(LightOrganisation(name=name, family=family.name))
-#         count += 1
-#     print(f"Merging OrganisationLight: {count} added")
-
-
-# def _merge_newsrooms_organisations():
-#     """Merge into organisations /family 'media' the content of the
-#     "orga_newsrooms" taxonomy
-#     """
-#     count = 0
-#     medias = get_taxonomy("orga_newsrooms")
-#     print(f"Merging OrganisationLight: {len(medias)} orga_newsrooms")
-#     for name in medias:
-#         if (
-#             db.session.query(LightOrganisation)
-#             .where(LightOrganisation.name == name)
-#             .first()
-#         ):
-#             continue
-#         # sub families AGENCY and SYNDIC not detected here:
-#         family = OrganisationTypeEnum.MEDIA
-#         db.session.add(LightOrganisation(name=name, family=family.name))
-#         count += 1
-#     print(f"Merging OrganisationLight: {count} added")
-
-
-# def _merge_pr_agency_organisations():
-#     """Merge into organisations /family 'PR' (press relations) the content
-#     of the "agence_rp" taxonomy
-#     """
-#     count = 0
-#     agencies = get_taxonomy("agence_rp")
-#     print(f"Merging OrganisationLight: {len(agencies)} agence_rp")
-#     for name in agencies:
-#         if (
-#             db.session.query(LightOrganisation)
-#             .where(LightOrganisation.name == name)
-#             .first()
-#         ):
-#             continue
-#         family = OrganisationTypeEnum.RP
-#         db.session.add(LightOrganisation(name=name, family=family.name))
-#         count += 1
-#     print(f"Merging OrganisationLight: {count} added")
 
 
 def import_taxonomies() -> None:
@@ -295,118 +190,6 @@ def _create_taxonomy_entries(taxonomy_name, values) -> None:
             seq=seq,
         )
         # print(taxonomy_name, "|", category, "|", value, "|", name)
-
-
-def import_countries() -> None:
-    put_top_of_list = ["FRA"]
-    data = json.loads(COUNTRY_SRC.read_text())
-    # filter agains actual countries having zip codes
-    country_list = [
-        (item["iso3"], item["name"])
-        for item in data
-        if ZIP_CODE_SRC.joinpath(f"{item['iso3']}.json").is_file()
-    ]
-    print(f"importing {len(country_list)} country names")
-    # fix order, put FRA first
-    for iso3 in put_top_of_list:
-        copy = [x for x in country_list if x[0] == iso3]
-        country_list = [x for x in country_list if x[0] != iso3]
-        country_list = copy + country_list
-    _update_or_create_countries(country_list)
-
-
-def _update_or_create_countries(country_list: list) -> None:
-    # Check that the countries table is present in DB
-    if check_countries_exist():
-        updated = _update_countries_entries(country_list)
-        print(f"    - updated values: {updated}")
-    else:
-        print("    - create countries")
-        _create_country_entries(country_list)
-
-
-def _update_countries_entries(country_list: list) -> int:
-    seq: int = 0
-    updated: int = 0
-    for iso3, name in country_list:
-        seq += 10
-        if update_country_entry(
-            iso3=iso3,
-            name=name,
-            seq=seq,
-        ):
-            updated += 1
-    return updated
-
-
-def _create_country_entries(country_list: list[str]) -> None:
-    seq: int = 0
-    for iso3, name in country_list:
-        seq += 10
-        create_country_entry(
-            iso3=iso3,
-            name=name,
-            seq=seq,
-        )
-
-
-def import_zip_codes() -> None:
-    print("importing zip codes")
-    for path in ZIP_CODE_SRC.glob("*.json"):
-        iso3 = path.stem
-        zip_code_list = []
-        for item in json.loads(path.read_text()):
-            zip_code = item["zip_code"]
-            name = item["name"]
-            value = f"{iso3} / {zip_code} {name}"
-            label = f"{zip_code} {name}"
-            zip_code_list.append((zip_code, name, value, label))
-        zip_code_list.sort()
-        _update_or_create_zip_code(iso3, zip_code_list)
-
-
-def _update_or_create_zip_code(iso3: str, zip_code_list: list) -> None:
-    # Check that the zip_code table is present in DB
-    if check_zip_code_exist(iso3):
-        current_zip_codes = get_full_zip_code_country(iso3)
-        if current_zip_codes == zip_code_list:
-            updated = "none"
-        else:
-            print("pb ", iso3)
-            print(current_zip_codes)
-            for a, b in zip(current_zip_codes, zip_code_list, strict=False):
-                if a != b:
-                    print(a, b, "\n")
-            updated = _update_zip_code_entries(iso3, zip_code_list)
-        print(f"    - {iso3} updated values: {updated}")
-    else:
-        print(f"    - create {iso3} zip codes")
-        _create_zip_code_entries(iso3, zip_code_list)
-
-
-def _update_zip_code_entries(iso3: str, zip_code_list: list) -> int:
-    updated: int = 0
-    for zip_code, name, value, label in zip_code_list:
-        if update_zip_code_entry(
-            iso3=iso3,
-            zip_code=zip_code,
-            name=name,
-            value=value,
-            label=label,
-        ):
-            updated += 1
-    return updated
-
-
-def _create_zip_code_entries(iso3: str, zip_code_list: list) -> None:
-    for zip_code, name, value, label in zip_code_list:
-        create_zip_code_entry(
-            iso3=iso3,
-            zip_code=zip_code,
-            name=name,
-            value=value,
-            label=label,
-        )
 
 
 def get_converter(ontology_slug: str) -> Any:  # noqa:PLR0915
@@ -995,30 +778,3 @@ class LangueConverter(BaseConvert):
                 copy = [x for x in self._buffer if x[0] == key]
                 self._buffer = [x for x in self._buffer if x[0] != key]
                 self._buffer = copy + self._buffer
-
-
-# def convert_cities_to_select():
-#     towns_source_dir = Path("./extra_json/towns")
-#     dest_dir = Path("./data/towns")
-#     dest_dir.mkdir(parents=True, exist_ok=True)
-#     for path in towns_source_dir.glob("*.json"):
-#         content = json.loads(path.read_text())
-#         country_code = path.stem
-#         result = [
-#             {
-#                 "value": f"{country_code} / {city['zip_code']} {city['name']}",
-#                 "label": f"{city['zip_code']} {city['name']}",
-#             }
-#             for city in content
-#         ]
-#         result = sorted(result, key=itemgetter("label"))
-#         destination = dest_dir / path.name
-#         destination.write_text(
-#             json.dumps(result, ensure_ascii=False, indent=4),
-#             encoding="utf8",
-#         )
-#         print(f"  saved to {path.name}  ({len(result)} lines)")
-
-
-if __name__ == "__main__":
-    print_ontologies()

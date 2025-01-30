@@ -7,18 +7,15 @@ from __future__ import annotations
 from flask.cli import with_appcontext
 from flask_super.cli import command
 from rich import print
-from sqlalchemy import select
 from svcs.flask import container
 
 from app.enums import RoleEnum
+from app.flask.bootstrap import import_countries, import_taxonomies, import_zip_codes
 from app.flask.extensions import db
 from app.models.admin import Promotion
 from app.models.auth import Role
 from app.models.repositories import RoleRepository
 from app.services.promotions import get_promotion
-from app.services.taxonomies import TaxonomyEntry
-
-from .ontologies import import_ontologies_content
 
 BOX_SLUGS = [
     "wire/1",
@@ -40,14 +37,20 @@ BOX_BODY = "..."
 #
 @command()
 @with_appcontext
+def bootstrap_cmd() -> None:
+    bootstrap()
+
+
 def bootstrap() -> None:
-    bootstrap_function()
-
-
-def bootstrap_function() -> None:
     bootstrap_roles()
     bootstrap_promotions()
-    bootstrap_ontologies()
+
+    import_taxonomies()
+
+    import_countries()
+    import_zip_codes()
+
+    db.session.commit()
 
 
 def bootstrap_roles():
@@ -84,12 +87,12 @@ def bootstrap_promotions() -> None:
     db.session.commit()
 
 
-def bootstrap_ontologies():
-    query = select(TaxonomyEntry)
-    result = db.session.execute(query).scalar()
-    if result:
-        print("Ontologies already exist, skipping creation.")
-        return
-
-    print("Creating ontologies...")
-    import_ontologies_content()
+# def bootstrap_ontologies():
+#     query = select(TaxonomyEntry)
+#     result = db.session.execute(query).scalar()
+#     if result:
+#         print("Ontologies already exist, skipping creation.")
+#         return
+#
+#     print("Creating ontologies...")
+#     import_ontologies_content()

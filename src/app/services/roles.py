@@ -12,14 +12,6 @@ from app.enums import RoleEnum
 from app.models.auth import Role, User
 from app.models.repositories import RoleRepository
 
-# from enum import Enum
-# class RoleInt(int, Enum):
-#     PRESS_MEDIA = 1
-#     PRESS_RELATIONS = 2
-#     EXPERT = 3
-#     TRANSFORMER = 4
-#     ACADEMIC = 5
-
 
 def generate_roles_map() -> dict[str, Role]:
     role_repo = container.get(RoleRepository)
@@ -61,59 +53,3 @@ def has_role(
         case _:
             msg = f"Match failed on user {user} and role {role}"
             raise ValueError(msg)
-
-
-# def has_community(user: User, community: str | CommunityEnum) -> bool:
-#     if user.is_anonymous:
-#         return False
-
-#     match community:
-#         case CommunityEnum():
-#             return community in user.communities
-#         case str():
-#             return CommunityEnum[community] in user.communities
-#         case _:
-#             raise ValueError(f"Match failed on user {user} and community {community}")
-
-
-# # FIXME: typing (int shouldn't be necessary)
-# def has_role(user: User, role: int | str | RoleInt | Sequence[str] | set[str]) -> bool:
-#     if user.is_anonymous:
-#         return False
-
-#     communities = user.communities
-
-#     # FIXME: a reformuler
-#     match role:
-#         case "ADMIN":
-#             return user.has_role(role)
-
-#         case str(role_str):
-#             role_enum = RoleInt[role_str.upper()]
-#             return has_role(user, role_enum)
-
-#         case [*roles]:
-#             # static analysis: ignore[undefined_name]
-#             return any(has_role(user, r) for r in roles)
-
-#         case set(roles):
-#             # static analysis: ignore[undefined_name]
-#             return any(has_role(user, r) for r in roles)
-
-#         case RoleInt.PRESS_MEDIA:
-#             return CommunityEnum.PRESS_MEDIA in communities
-
-#         case RoleInt.PRESS_RELATIONS:
-#             return CommunityEnum.COMMUNICANTS in communities
-
-#         case RoleInt.EXPERT:
-#             return CommunityEnum.LEADERS_EXPERTS in communities
-
-#         case RoleInt.TRANSFORMER:
-#             return CommunityEnum.TRANSFORMERS in communities
-
-#         case RoleInt.ACADEMIC:
-#             return CommunityEnum.ACADEMICS in communities
-
-#         case _:
-#             raise ValueError(f"Match failed on user {user} and role {role}")
