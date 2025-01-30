@@ -24,7 +24,6 @@
         <dt class="text-sm font-medium text-gray-500">Date de modification</dt>
         <dd class="mb-2 text-sm text-gray-900">
           {% if org.modified_at %}
-            {{ org.modified_at }}<br>
             {{ org.modified_at| localdt }}
           {% else %}
             aucune
