@@ -157,6 +157,8 @@ class BusinessWallRegistrationPage(BaseWipPage):
 
     def load_product_infos(self) -> None:
         self.stripe_bw_products = stripe_bw_subscription_dict()
+        if not self.stripe_bw_products:
+            print("Warning: no Stripe Product found for subscription", file=sys.stderr)
         self.prod_info = []
         for prod in self.stripe_bw_products.values():
             self._load_prod_info(prod)
@@ -167,6 +169,7 @@ class BusinessWallRegistrationPage(BaseWipPage):
         # print("////  allowed_bw", allowed_bw, file=sys.stderr)
 
         self.allowed_prod = []
+        # print("////  self.prod_info", self.prod_info, file=sys.stderr)
         for prod in self.prod_info:
             meta = prod.metadata
             bw = meta.get("BW", "none")
@@ -375,7 +378,15 @@ class BusinessWallRegistrationPage(BaseWipPage):
         profile_code = ProfileEnum[profile.profile_code]
         # profile_code:  ProfileEnum.XP_DIR_SU
         # {<BWTypeEnum.ORGANISATION: 'Business Wall for Organisations'>}
-        return set(PROFILE_CODE_TO_BW_TYPE.get(profile_code, []))
+        allow_subs = set(PROFILE_CODE_TO_BW_TYPE.get(profile_code, []))
+        # print(
+        #     "//// user_profile_to_allowed_subscription(): profile_code",
+        #     profile_code,
+        #     "->",
+        #     allow_subs,
+        #     file=sys.stderr,
+        # )
+        return allow_subs
 
     # def user_role_to_allowed_subscription(self) -> set[BWTypeEnum]:
     #     allow: set[BWTypeEnum] = set()

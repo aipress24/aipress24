@@ -4,6 +4,8 @@
 
 from __future__ import annotations
 
+import sys
+
 import stripe
 from flask import Flask, current_app
 from stripe import Product
@@ -31,6 +33,7 @@ def load_stripe_api_key() -> bool:
     config = current_app.config
     api_key = config.get("STRIPE_SECRET_KEY")
     if not api_key:
+        print("Warning: no STRIPE_SECRET_KEY found in configuration", file=sys.stderr)
         return False
     stripe.api_key = api_key
     return True
