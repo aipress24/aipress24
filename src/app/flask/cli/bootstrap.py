@@ -4,6 +4,11 @@
 
 from __future__ import annotations
 
+import subprocess
+import time
+from pathlib import Path
+
+from flask import current_app
 from flask.cli import with_appcontext
 from flask_super.cli import command
 from rich import print
@@ -31,26 +36,35 @@ BOX_TITLE1 = "AIpress24 vous informe"
 BOX_TITLE2 = "AIpress24 vous suggère"
 BOX_BODY = "..."
 
+DEFAULT_DATA_URL = "https://github.com/aipress24/aipress24-data.git"
+
 
 #
 # Other operational commands
 #
-@command()
+@command("bootstrap", short_help="Bootstrap the application database")
 @with_appcontext
 def bootstrap_cmd() -> None:
     bootstrap()
 
 
 def bootstrap() -> None:
+    if not Path("data").exists():
+        print("Downloading data...")
+        git_url = current_app.config.get("BOOTSTRAP_DATA_URL", DEFAULT_DATA_URL)
+        subprocess.run(["/usr/bin/git", "clone", git_url, "data"], check=False)
+
     bootstrap_roles()
     bootstrap_promotions()
 
+    t0 = time.time()
     import_taxonomies()
+    db.session.commit()
+    print(f"Ellapsed time: {time.time() - t0:.2f} seconds")
 
     import_countries()
     import_zip_codes()
-
-    db.session.commit()
+    print(f"Ellapsed time: {time.time() - t0:.2f} seconds")
 
 
 def bootstrap_roles():

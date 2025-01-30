@@ -8,16 +8,16 @@ from pathlib import Path
 
 from flask import send_from_directory
 
-from .. import blueprint
+from .. import get
 
 
-@blueprint.route("/cdn/<path:filename>")
+@get("/cdn/<path:filename>")
 def get_asset(filename):
     assets_dir = str(Path.cwd() / "cdn" / "dist")
     return send_from_directory(assets_dir, filename)
 
 
-# @blueprint.route("/src/assets/<path:filename>")
+# @get("/src/assets/<path:filename>")
 # def get_src_asset(filename):
 #     assets_dir = str(Path(os.getcwd()) / "front" / "src" / "assets")
 #     return send_from_directory(assets_dir, filename)

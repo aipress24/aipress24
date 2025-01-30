@@ -8,6 +8,10 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from sqlalchemy import delete
+
+from app.flask.extensions import db
+
 # from app.models.organisation_light import LightOrganisation
 from app.services.zip_codes import (
     check_countries_exist,
@@ -18,6 +22,7 @@ from app.services.zip_codes import (
     update_country_entry,
     update_zip_code_entry,
 )
+from app.services.zip_codes._models import CountryEntry, ZipCodeEntry, ZipCodeRepository
 
 # from app.enums import OrganisationTypeEnum
 
@@ -26,6 +31,66 @@ ZIP_CODE_SRC = Path("data/country_zip_code/towns")
 
 
 def import_countries() -> None:
+    db.session.execute(delete(CountryEntry))
+    db.session.commit()
+
+    data = json.loads(COUNTRY_SRC.read_text())
+    # filter agains actual countries having zip codes
+    country_list = [
+        (item["iso3"], item["name"])
+        for item in data
+        if ZIP_CODE_SRC.joinpath(f"{item['iso3']}.json").is_file()
+    ]
+    print(f"importing {len(country_list)} country names")
+
+    def sorter(country: tuple) -> str:
+        if country[0] == "FRA":
+            return "000"
+        return country[0]
+
+    country_list.sort(key=sorter)
+    for seq, country_tuple in enumerate(country_list):
+        country_entry = CountryEntry(
+            iso3=country_tuple[0], name=country_tuple[1], seq=seq
+        )
+        db.session.add(country_entry)
+
+    db.session.flush()
+
+
+def import_zip_codes() -> None:
+    db.session.execute(delete(ZipCodeEntry))
+    db.session.commit()
+
+    print("importing zip codes")
+    count = 0
+    repo = ZipCodeRepository(session=db.session)
+    for path in ZIP_CODE_SRC.glob("*.json"):
+        iso3 = path.stem
+        zip_codes = []
+        for item in json.loads(path.read_text()):
+            zip_code = item["zip_code"]
+            name = item["name"]
+            value = f"{iso3} / {zip_code} {name}"
+            label = f"{zip_code} {name}"
+            zip_code_entry = ZipCodeEntry(
+                iso3=iso3, zip_code=zip_code, name=name, value=value, label=label
+            )
+            zip_codes.append(zip_code_entry)
+            count += 1
+        repo.add_many(zip_codes)
+        db.session.flush()
+        print(f"{iso3} done - {count} zip codes imported")
+
+    print(f"imported {count} zip codes")
+
+
+#
+# Currently not used
+#
+
+
+def import_countries_old() -> None:
     put_top_of_list = ["FRA"]
     data = json.loads(COUNTRY_SRC.read_text())
     # filter agains actual countries having zip codes
@@ -40,6 +105,7 @@ def import_countries() -> None:
         copy = [x for x in country_list if x[0] == iso3]
         country_list = [x for x in country_list if x[0] != iso3]
         country_list = copy + country_list
+
     _update_or_create_countries(country_list)
 
 
@@ -78,7 +144,7 @@ def _create_country_entries(country_list: list[str]) -> None:
         )
 
 
-def import_zip_codes() -> None:
+def import_zip_codes_old() -> None:
     print("importing zip codes")
     for path in ZIP_CODE_SRC.glob("*.json"):
         iso3 = path.stem

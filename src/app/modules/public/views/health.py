@@ -10,16 +10,16 @@ from flask_login import current_user
 from app.services.healthcheck import healthcheck
 from app.typing import JsonDict
 
-from .. import blueprint
+from .. import get
 
 
-@blueprint.route("/health")
+@get("/health")
 def health() -> str:
     healthcheck()
     return "Healthy: OK"
 
 
-@blueprint.route("/test")
+@get("/test")
 def test():
     """This endpoint will be used by tests."""
     user = current_user

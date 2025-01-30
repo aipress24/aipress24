@@ -10,10 +10,10 @@ from app.flask.routing import url_for
 from app.flask.sqla import get_multi
 from app.models.content.textual import Article
 
-from .. import blueprint
+from .. import get
 
 
-@blueprint.route("/sitemap.xml")
+@get("/sitemap.xml")
 def sitemap():
     # stmt = (
     #     select(Article)

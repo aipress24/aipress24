@@ -12,6 +12,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.base import Base
 from app.models.mixins import IdMixin
+from app.services.repositories import Repository
 
 
 class CountryEntry(IdMixin, Base):
@@ -28,5 +29,9 @@ class ZipCodeEntry(IdMixin, Base):
     iso3: Mapped[str] = mapped_column()
     zip_code: Mapped[str] = mapped_column()
     name: Mapped[str] = mapped_column()
-    value: Mapped[str] = mapped_column(index=True)
+    value: Mapped[str] = mapped_column()
     label: Mapped[str] = mapped_column()
+
+
+class ZipCodeRepository(Repository[ZipCodeEntry]):
+    model_type = ZipCodeEntry

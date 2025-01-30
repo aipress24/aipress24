@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
-
 from __future__ import annotations
 
 import json
@@ -13,9 +12,15 @@ from typing import Any
 
 from odsparsator import odsparsator
 from slugify import slugify
+from sqlalchemy import delete
 
-# from app.enums import OrganisationTypeEnum
-from app.services.taxonomies import check_taxonomy_exist, create_entry, update_entry
+from app.flask.extensions import db
+from app.services.taxonomies import (
+    TaxonomyEntry,
+    check_taxonomy_exist,
+    create_entry,
+    update_entry,
+)
 
 # format for HTML selects
 VALUE_LABEL_MODE = False
@@ -83,7 +88,42 @@ CIVILITE_ONTOLOGY = [
 ]
 
 
-def parse_source_ontologies() -> dict[str, Any]:
+# Main function
+def import_taxonomies() -> None:
+    db.session.execute(delete(TaxonomyEntry))
+    db.session.commit()
+
+    raw_ontologies = _parse_source_ontologies()
+    _check_tables_found(raw_ontologies)
+    for taxonomy_name, slug in TAXO_NAME_ONTOLOGIE_SLUG:
+        try:
+            print(f"{taxonomy_name=}  {slug=}")
+            converter_class = get_converter(slug)
+            converter = converter_class(raw_ontologies)
+            converter.run()
+            values = converter.export()
+            _update_or_create_taxonomy(taxonomy_name, values)
+        except KeyError as e:
+            print("************** Probable missing ontology for", taxonomy_name)
+            print(e)
+
+
+# Used for debug
+def print_ontologies() -> None:
+    raw_ontologies = _parse_source_ontologies()
+    for taxonomy_name, slug in TAXO_NAME_ONTOLOGIE_SLUG:
+        print(taxonomy_name, slug)
+        converter_class = get_converter(slug)
+        converter = converter_class(raw_ontologies)
+        converter.run()
+        values = converter.export()
+        print(values)
+
+
+#
+# Internal functions
+#
+def _parse_source_ontologies() -> dict[str, Any]:
     """step1 : convert the ods source -> python dictionary."""
     if not ONTOLOGY_SRC.is_file():
         msg = f"Please add the missing {ONTOLOGY_SRC} file."
@@ -117,33 +157,6 @@ def _check_tables_found(raw_ontologies: dict[str, Any]) -> None:
     missing = known - seen - TAXO_NOT_FROM_FILE
     if missing:
         print("MISSING ontology:", missing)
-
-
-def print_ontologies() -> None:
-    raw_ontologies = parse_source_ontologies()
-    for taxonomy_name, slug in TAXO_NAME_ONTOLOGIE_SLUG:
-        print(taxonomy_name, slug)
-        converter_class = get_converter(slug)
-        converter = converter_class(raw_ontologies)
-        converter.run()
-        values = converter.export()
-        print(values)
-
-
-def import_taxonomies() -> None:
-    raw_ontologies = parse_source_ontologies()
-    _check_tables_found(raw_ontologies)
-    for taxonomy_name, slug in TAXO_NAME_ONTOLOGIE_SLUG:
-        try:
-            print(f"{taxonomy_name=}  {slug=}")
-            converter_class = get_converter(slug)
-            converter = converter_class(raw_ontologies)
-            converter.run()
-            values = converter.export()
-            _update_or_create_taxonomy(taxonomy_name, values)
-        except KeyError as e:
-            print("************** Probable missing ontology for", taxonomy_name)
-            print(e)
 
 
 def _category_from_value(value: str) -> str:

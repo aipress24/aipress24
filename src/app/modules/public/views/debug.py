@@ -14,7 +14,7 @@ from app.flask.extensions import db
 from app.flask.routing import url_for
 from app.models.auth import User
 
-from .. import blueprint
+from .. import get
 
 
 def check_unsecure():
@@ -25,12 +25,12 @@ def check_unsecure():
         raise Forbidden(msg)
 
 
-@blueprint.get("/version/")
+@get("/version/")
 def version():
     return importlib.metadata.version("aipress24-flask")
 
 
-@blueprint.get("/backdoor/")
+@get("/backdoor/")
 def backdoor():
     check_unsecure()
     session.clear()
@@ -41,7 +41,7 @@ def backdoor():
         return render_template("pages/backdoor.j2", title="Backdoor")
 
 
-@blueprint.get("/backdoor/<role>")
+@get("/backdoor/<role>")
 def backdoor_login(role):
     role = role.upper()
     check_unsecure()

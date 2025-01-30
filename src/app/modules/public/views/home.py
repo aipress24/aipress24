@@ -12,10 +12,10 @@ from flask_login import current_user
 from app.flask.routing import url_for
 from app.models.auth import User
 
-from .. import blueprint
+from .. import get
 
 
-@blueprint.route("/")
+@get("/")
 def home():
     user = cast(User, current_user)
     if not user.is_anonymous:
@@ -24,6 +24,6 @@ def home():
         return redirect(url_for("security.login"))
 
 
-@blueprint.route("/pricing/")
+@get("/pricing/")
 def pricing():
     return render_template("pages/pricing.j2")
