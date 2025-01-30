@@ -7,6 +7,7 @@ from __future__ import annotations
 import typing
 import uuid
 from copy import deepcopy
+from datetime import datetime
 from typing import Any
 
 import arrow
@@ -88,8 +89,8 @@ class User(LifeCycleMixin, Addressable, UserMixin, Base):
     )
 
     # from flask-security
-    last_login_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), nullable=True)
-    current_login_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), nullable=True)
+    last_login_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True)
+    current_login_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True)
     last_login_ip: Mapped[str] = mapped_column(default="", nullable=True)
     current_login_ip: Mapped[str] = mapped_column(default="")
     login_count: Mapped[int] = mapped_column(sa.Integer, default=0)
@@ -302,7 +303,7 @@ class KYCProfile(Base):
     info_professionnelle: Mapped[dict] = mapped_column(JSON, default=dict)
     match_making: Mapped[dict] = mapped_column(JSON, default=dict)
     business_wall: Mapped[dict] = mapped_column(JSON, default=dict)
-    date_update: Mapped[DateTime] = mapped_column(
+    date_update: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=True, onupdate=func.now()
     )
 
