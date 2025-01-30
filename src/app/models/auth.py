@@ -18,7 +18,6 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
 from sqlalchemy_utils import ArrowType
 
-from app.constants import LOCAL_TZ
 from app.enums import ContactTypeEnum, OrganisationTypeEnum, RoleEnum
 from app.modules.kyc.survey_model import get_survey_profile
 
@@ -76,21 +75,21 @@ class User(LifeCycleMixin, Addressable, UserMixin, Base):
     cloned_user_id: Mapped[int] = mapped_column(default=0)
 
     submited_at: Mapped[arrow.Arrow] = mapped_column(
-        ArrowType, default=arrow.now(LOCAL_TZ)
+        ArrowType(timezone=True), default=arrow.utcnow
     )
     validated_at: Mapped[arrow.Arrow | None] = mapped_column(
-        ArrowType, nullable=True, default=None
+        ArrowType(timezone=True), nullable=True, default=None
     )
     validation_status: Mapped[str] = mapped_column(default="")
     # from LifeCycleMixin : created_at
     # from LifeCycleMixin : deleted_at
     modified_at: Mapped[arrow.Arrow | None] = mapped_column(
-        ArrowType, nullable=True, onupdate=func.now()
+        ArrowType(timezone=True), nullable=True, onupdate=arrow.utcnow
     )
 
     # from flask-security
-    last_login_at: Mapped[sa.DateTime] = mapped_column(sa.DateTime, nullable=True)
-    current_login_at: Mapped[sa.DateTime] = mapped_column(sa.DateTime, nullable=True)
+    last_login_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), nullable=True)
+    current_login_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), nullable=True)
     last_login_ip: Mapped[str] = mapped_column(default="", nullable=True)
     current_login_ip: Mapped[str] = mapped_column(default="")
     login_count: Mapped[int] = mapped_column(sa.Integer, default=0)
@@ -99,8 +98,8 @@ class User(LifeCycleMixin, Addressable, UserMixin, Base):
     fs_uniquifier: Mapped[str] = mapped_column(sa.String(64), unique=True)
 
     gcu_acceptation: Mapped[bool] = mapped_column(default=False)
-    gcu_acceptation_date: Mapped[sa.DateTime] = mapped_column(
-        sa.DateTime, server_default=func.now()
+    gcu_acceptation_date: Mapped[arrow.Arrow] = mapped_column(
+        ArrowType(timezone=True), server_default=func.now()
     )
 
     gender: Mapped[str] = mapped_column(sa.String(1), default="?")
@@ -117,7 +116,7 @@ class User(LifeCycleMixin, Addressable, UserMixin, Base):
 
     tel_mobile: Mapped[str] = mapped_column(default="")
     tel_mobile_validated_at: Mapped[arrow.Arrow | None] = mapped_column(
-        ArrowType, nullable=True, default=None
+        ArrowType(timezone=True), nullable=True, default=None
     )
 
     organisation_id: Mapped[int | None] = mapped_column(
@@ -304,7 +303,7 @@ class KYCProfile(Base):
     match_making: Mapped[dict] = mapped_column(JSON, default=dict)
     business_wall: Mapped[dict] = mapped_column(JSON, default=dict)
     date_update: Mapped[DateTime] = mapped_column(
-        DateTime, nullable=True, onupdate=func.now()
+        DateTime(timezone=True), nullable=True, onupdate=func.now()
     )
 
     def get_value(self, field_name: str) -> Any:

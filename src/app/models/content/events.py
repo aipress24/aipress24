@@ -44,18 +44,18 @@ class Event(BaseContent, UserFeedbackMixin, Publishable, Searchable, Addressable
 
     # Or use datetimes?
     start_date: Mapped[ArrowType | None] = mapped_column(
-        ArrowType, info={"group": "dates"}
+        ArrowType(timezone=True), info={"group": "dates"}
     )
     end_date: Mapped[ArrowType | None] = mapped_column(
-        ArrowType, info={"group": "dates"}
+        ArrowType(timezone=True), info={"group": "dates"}
     )
 
     # FIXME
     start_time: Mapped[ArrowType | None] = mapped_column(
-        ArrowType, info={"group": "dates"}
+        ArrowType(timezone=True), info={"group": "dates"}
     )
     end_time: Mapped[ArrowType | None] = mapped_column(
-        ArrowType, info={"group": "dates"}
+        ArrowType(timezone=True), info={"group": "dates"}
     )
 
     # Classification

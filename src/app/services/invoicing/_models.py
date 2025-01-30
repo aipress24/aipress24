@@ -33,7 +33,7 @@ class Invoice(IdMixin, Timestamped, Base):
     __tablename__ = "inv_invoice"
 
     invoice_number: Mapped[str]
-    invoice_date: Mapped[arrow.Arrow] = mapped_column(ArrowType)
+    invoice_date: Mapped[arrow.Arrow] = mapped_column(ArrowType(timezone=True))
 
     owner_id: Mapped[int] = mapped_column(ForeignKey(User.id), nullable=False)
     owner: Mapped[User] = relationship(User, foreign_keys=[owner_id])

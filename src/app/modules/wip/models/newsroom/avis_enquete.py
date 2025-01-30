@@ -56,16 +56,16 @@ class AvisEnquete(
     # ------------------------------------------------------------
 
     # Début de l’enquête
-    date_debut_enquete: Mapped[datetime] = mapped_column(ArrowType)
+    date_debut_enquete: Mapped[datetime] = mapped_column(ArrowType(timezone=True))
 
     # Fin de l’enquête
-    date_fin_enquete: Mapped[datetime] = mapped_column(ArrowType)
+    date_fin_enquete: Mapped[datetime] = mapped_column(ArrowType(timezone=True))
 
     # Bouclage
-    date_bouclage: Mapped[datetime] = mapped_column(ArrowType)
+    date_bouclage: Mapped[datetime] = mapped_column(ArrowType(timezone=True))
 
     # Parution prévue
-    date_parution_prevue: Mapped[datetime] = mapped_column(ArrowType)
+    date_parution_prevue: Mapped[datetime] = mapped_column(ArrowType(timezone=True))
 
     # Type d’avis (Avis d’enquête, Appel à témoin, Appel à expert)
     type_avis: Mapped[str] = mapped_column(
@@ -94,5 +94,9 @@ class ContactAvisEnquete(IdMixin, Base):
     status: Mapped[str] = mapped_column(
         sa.Enum(StatutAvis), default=StatutAvis.EN_ATTENTE
     )
-    date_reponse: Mapped[datetime] = mapped_column(sa.DateTime, nullable=True)
-    date_rdv: Mapped[datetime] = mapped_column(sa.DateTime, nullable=True)
+    date_reponse: Mapped[datetime] = mapped_column(
+        sa.DateTime(timezone=True), nullable=True
+    )
+    date_rdv: Mapped[datetime] = mapped_column(
+        sa.DateTime(timezone=True), nullable=True
+    )

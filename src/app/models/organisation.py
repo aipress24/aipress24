@@ -17,7 +17,6 @@ import sqlalchemy as sa
 from slugify import slugify
 from sqlalchemy import JSON
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy.sql import func
 from sqlalchemy_utils import ArrowType
 from sqlalchemy_utils.functions.orm import hybrid_property
 
@@ -88,7 +87,7 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
     # from LifeCycleMixin : deleted_at
 
     modified_at: Mapped[arrow.Arrow | None] = mapped_column(
-        ArrowType, nullable=True, onupdate=func.now()
+        ArrowType(timezone=True), nullable=True, onupdate=arrow.utcnow
     )
 
     # geoloc_id = sa.Column(sa.Integer, sa.ForeignKey("geo_loc.id"), nullable=True)
@@ -116,16 +115,16 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
     stripe_product_id: Mapped[str] = mapped_column(default="")
     stripe_subscription_id: Mapped[str] = mapped_column(default="")
     stripe_subs_creation_date: Mapped[datetime] = mapped_column(
-        ArrowType, default=datetime(2000, 1, 1, tzinfo=timezone.utc)
+        ArrowType(timezone=True), default=datetime(2000, 1, 1, tzinfo=timezone.utc)
     )
     # stripe_subs_current_period_end: Mapped[datetime] = mapped_column(
     #     ArrowType, default=datetime(2000, 1, 1, tzinfo=timezone.utc)
     # )
     stripe_subs_current_period_start: Mapped[datetime] = mapped_column(
-        ArrowType, default=datetime(2000, 1, 1, tzinfo=timezone.utc)
+        ArrowType(timezone=True), default=datetime(2000, 1, 1, tzinfo=timezone.utc)
     )
     validity_date: Mapped[datetime] = mapped_column(
-        ArrowType, default=datetime(2000, 1, 1, tzinfo=timezone.utc)
+        ArrowType(timezone=True), default=datetime(2000, 1, 1, tzinfo=timezone.utc)
     )
 
     status: Mapped[str] = mapped_column(default="")

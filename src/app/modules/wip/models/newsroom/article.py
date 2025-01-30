@@ -44,15 +44,15 @@ class Article(
     # ------------------------------------------------------------
 
     # Parution prévue
-    date_parution_prevue: Mapped[datetime] = mapped_column(ArrowType)
+    date_parution_prevue: Mapped[datetime] = mapped_column(ArrowType(timezone=True))
 
     # Publié sur AIP24
     date_publication_aip24: Mapped[datetime | None] = mapped_column(
-        ArrowType, nullable=True
+        ArrowType(timezone=True), nullable=True
     )
 
     # Paiement
-    date_paiement: Mapped[datetime] = mapped_column(ArrowType)
+    date_paiement: Mapped[datetime] = mapped_column(ArrowType(timezone=True))
 
     # ------------------------------------------------------------
     # Copied from Publishable
@@ -61,8 +61,8 @@ class Article(
     # Etat: Brouillon, Publié, Archivé
     status: Mapped[ArticleStatus] = mapped_column(sa.Enum(ArticleStatus), default=DRAFT)
 
-    published_at: Mapped[datetime | None] = mapped_column(ArrowType, nullable=True)
-    expired_at: Mapped[datetime | None] = mapped_column(ArrowType, nullable=True)
+    published_at: Mapped[datetime | None] = mapped_column(ArrowType(timezone=True), nullable=True)
+    expired_at: Mapped[datetime | None] = mapped_column(ArrowType(timezone=True), nullable=True)
     publisher_id: Mapped[int | None] = mapped_column(
         sa.ForeignKey("crp_organisation.id")
     )

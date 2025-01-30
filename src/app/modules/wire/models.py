@@ -38,9 +38,9 @@ class WireCommonMixin(IdMixin, LifeCycleMixin, Owned):
     # Etat: Brouillon, Publié, Archivé
     status: Mapped[PostStatus] = mapped_column(Enum(PostStatus), default=DRAFT)
 
-    published_at: Mapped[datetime | None] = mapped_column(ArrowType, nullable=True)
-    last_updated_at: Mapped[datetime | None] = mapped_column(ArrowType, nullable=True)
-    expires_at: Mapped[datetime | None] = mapped_column(ArrowType, nullable=True)
+    published_at: Mapped[datetime | None] = mapped_column(ArrowType(timezone=True), nullable=True)
+    last_updated_at: Mapped[datetime | None] = mapped_column(ArrowType(timezone=True), nullable=True)
+    expires_at: Mapped[datetime | None] = mapped_column(ArrowType(timezone=True), nullable=True)
 
     publisher_id: Mapped[int | None] = mapped_column(ForeignKey(Organisation.id))
 

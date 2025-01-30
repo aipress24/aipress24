@@ -32,10 +32,10 @@ class PressRelease(
     about: Mapped[str] = mapped_column(default="", info={"group": "contents"})
 
     release_datetime: Mapped[Arrow] = mapped_column(
-        ArrowType, default=arrow.now, info={"group": "dates"}
+        ArrowType(timezone=True), default=arrow.utcnow, info={"group": "dates"}
     )
     embargo_datetime: Mapped[Arrow] = mapped_column(
-        ArrowType, default=arrow.now, info={"group": "dates"}
+        ArrowType(timezone=True), default=arrow.utcnow, info={"group": "dates"}
     )
 
     image_url: Mapped[str] = mapped_column(default="", info={"group": "header"})

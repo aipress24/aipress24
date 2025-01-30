@@ -45,15 +45,15 @@ class Timestamped:
     """Should be used mostly for immutable objects, so timestamp value should
     be immutable."""
 
-    timestamp: Mapped[arrow.Arrow] = mapped_column(ArrowType, default=arrow.now)
+    timestamp: Mapped[arrow.Arrow] = mapped_column(ArrowType(timezone=True), default=arrow.utcnow)
 
 
 class LifeCycleMixin:
     """For object that have a life cycle (create -> edit -> delete)"""
 
-    created_at: Mapped[arrow.Arrow] = mapped_column(ArrowType, default=arrow.now)
-    modified_at: Mapped[arrow.Arrow | None] = mapped_column(ArrowType)
-    deleted_at: Mapped[arrow.Arrow | None] = mapped_column(ArrowType)
+    created_at: Mapped[arrow.Arrow] = mapped_column(ArrowType(timezone=True), default=arrow.utcnow)
+    modified_at: Mapped[arrow.Arrow | None] = mapped_column(ArrowType(timezone=True))
+    deleted_at: Mapped[arrow.Arrow | None] = mapped_column(ArrowType(timezone=True))
 
 
 # @sa.event.listens_for(LifeCycleMixin, "before_update", propagate=True)

@@ -27,7 +27,7 @@ class JustifPublication(
     # ------------------------------------------------------------
 
     # Parution prévue
-    date_parution_prevue: Mapped[datetime] = mapped_column(sa.DateTime)
+    date_parution_prevue: Mapped[datetime] = mapped_column(sa.DateTime(timezone=True))
 
     # Publié sur AIP24
-    date_publication_aip24: Mapped[datetime] = mapped_column(sa.DateTime)
+    date_publication_aip24: Mapped[datetime] = mapped_column(sa.DateTime(timezone=True))
