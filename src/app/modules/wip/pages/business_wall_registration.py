@@ -232,9 +232,7 @@ class BusinessWallRegistrationPage(BaseWipPage):
             _current_product = self.stripe_bw_products.get(self.org.stripe_product_id)
             current_product_name = _current_product.name if _current_product else ""
 
-        org_bw_type_name = (
-            self.org.bw_type.name if (self.org and self.org.bw_type) else ""
-        )
+        org_bw_type_name = self.org.bw_type.name if is_bw_active else ""
         # print("////  org_bw_type_name", org_bw_type_name, file=sys.stderr)
 
         # First time, if no self.org.bw_type, assume the first self.allowed_subs
