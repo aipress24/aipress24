@@ -9,17 +9,19 @@ primary_region = 'cdg'
 [build]
 
 [deploy]
-# release_command = './.venv/bin/flask db upgrade'
+#release_command = './scripts/fly-release.sh'
+#release_command = 'bin/flask db upgrade'
 
 [http_service]
 internal_port = 8080
 force_https = true
-auto_stop_machines = 'stop'
+#auto_stop_machines = 'stop'
+auto_stop_machines = 'off'
 auto_start_machines = true
-min_machines_running = 0
+min_machines_running = 1
 processes = ['app']
 
 [[vm]]
-memory = '512mb'
+memory = '1gb'
 cpu_kind = 'shared'
 cpus = 1

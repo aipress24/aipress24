@@ -15,11 +15,14 @@ from flask_super import register_commands
 from flask_super.registry import lookup
 from flask_super.scanner import scan_packages
 from loguru import logger
+from sqlalchemy.orm import scoped_session
+from svcs.flask import container
 from werkzeug.utils import find_modules, import_string
 
 from app.flask import debugging, services
+from app.flask.cli.bootstrap import bootstrap
 from app.flask.config import setup_config
-from app.flask.extensions import register_extensions
+from app.flask.extensions import db, register_extensions
 from app.flask.hooks import register_hooks
 from app.flask.jinja import register_context_processors
 from app.flask.lib.macros import register_macros
@@ -69,7 +72,7 @@ def create_app(config=None) -> Flask:
     register_all(app)
 
     # 4. Create or init DB if needed
-    # create_tables(app)
+    # bootstrap_db(app)
 
     return app
 
@@ -202,3 +205,16 @@ def register_stripe(app: Flask) -> None:
 def register_extra_apps(app: Flask) -> None:
     pass
     # app.register_blueprint(rq_dashboard.blueprint, url_prefix="/rq")
+
+
+def bootstrap_db(app) -> None:
+    with app.app_context():
+        session = container.get(scoped_session)
+        try:
+            country_count = session.execute("SELECT COUNT(*) FROM zip_country").scalar()
+        except Exception:
+            country_count = 0
+            db.create_all()
+
+    if country_count == 0:
+        bootstrap()

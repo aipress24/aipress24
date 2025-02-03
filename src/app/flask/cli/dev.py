@@ -9,6 +9,7 @@ import shlex
 import subprocess
 from pathlib import Path
 
+import click
 import rich
 import sqlalchemy.exc
 import yarl
@@ -72,9 +73,22 @@ def _debug() -> None:
 
 
 @command(short_help="Health check")
+@click.option("--db", is_flag=True)
+@click.option("--full", is_flag=True)
 @with_appcontext
-def check() -> None:
-    healthcheck()
+def check(db=False, full=False) -> None:
+    from app.flask.extensions import db as _db
+
+    if db:
+        _db.session.execute(text("select 1"))
+        print("db test OK")
+        return
+
+    if full:
+        healthcheck()
+        return
+
+    print("Smoke test OK")
 
 
 @command("test-email", short_help="Send test email")

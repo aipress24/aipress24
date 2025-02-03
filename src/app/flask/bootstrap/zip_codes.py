@@ -8,12 +8,14 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import ijson
 from sqlalchemy import delete
 
 from app.flask.extensions import db
-
-# from app.models.organisation_light import LightOrganisation
 from app.services.zip_codes import (
+    CountryEntry,
+    ZipCodeEntry,
+    ZipCodeRepository,
     check_countries_exist,
     check_zip_code_exist,
     create_country_entry,
@@ -22,9 +24,6 @@ from app.services.zip_codes import (
     update_country_entry,
     update_zip_code_entry,
 )
-from app.services.zip_codes._models import CountryEntry, ZipCodeEntry, ZipCodeRepository
-
-# from app.enums import OrganisationTypeEnum
 
 COUNTRY_SRC = Path("data/country_zip_code/pays.json")
 ZIP_CODE_SRC = Path("data/country_zip_code/towns")
@@ -63,12 +62,19 @@ def import_zip_codes() -> None:
     db.session.commit()
 
     print("importing zip codes")
+    for path in ZIP_CODE_SRC.glob("*.json"):
+        import_zip_codes_for_country(path)
+
+
+def import_zip_codes_for_country(path: Path) -> None:
+    iso3 = path.stem
+    zip_codes = []
     count = 0
     repo = ZipCodeRepository(session=db.session)
-    for path in ZIP_CODE_SRC.glob("*.json"):
-        iso3 = path.stem
-        zip_codes = []
-        for item in json.loads(path.read_text()):
+    with path.open() as file:
+        parser = ijson.items(file, "item")
+
+        for item in parser:
             zip_code = item["zip_code"]
             name = item["name"]
             value = f"{iso3} / {zip_code} {name}"
@@ -78,11 +84,11 @@ def import_zip_codes() -> None:
             )
             zip_codes.append(zip_code_entry)
             count += 1
-        repo.add_many(zip_codes)
-        db.session.flush()
-        print(f"{iso3} done - {count} zip codes imported")
+            if len(zip_codes) >= 1000:
+                repo.add_many(zip_codes, auto_commit=True, auto_expunge=True)
+                zip_codes = []
 
-    print(f"imported {count} zip codes")
+        repo.add_many(zip_codes, auto_commit=True, auto_expunge=True)
 
 
 #

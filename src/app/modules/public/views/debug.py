@@ -4,8 +4,6 @@
 
 from __future__ import annotations
 
-import importlib.metadata
-
 from flask import current_app, redirect, render_template, request, session
 from flask_security import login_user
 from werkzeug.exceptions import Forbidden, NotFound
@@ -23,11 +21,6 @@ def check_unsecure():
     if not unsecure:
         msg = "This is not an unsecure environment"
         raise Forbidden(msg)
-
-
-@get("/version/")
-def version():
-    return importlib.metadata.version("aipress24-flask")
 
 
 @get("/backdoor/")

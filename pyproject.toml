@@ -61,7 +61,7 @@ dependencies = [
     "sqlalchemy<3.0.0,>=2.0.25",
     "sqlalchemy-utils<1.0.0,>=0.41.1",
     "advanced-alchemy>=0.23",
-    "psycopg2-binary<3.0.0,>=2.9.9",
+    "psycopg2<3.0.0,>=2.9.9",
     #
     "python-iso639<2025.0.0,>=2024.1.2",
     "gunicorn<24,>=23",
@@ -118,6 +118,8 @@ dependencies = [
     "granian[reload]<2.0,>=1.6",
     "asyncpg<1.0,>=0.30",
     "asgiref<4.0,>=3.8",
+    "ijson>=3.3.0",
+    "psutil>=6.1.1",
 ]
 description = ""
 

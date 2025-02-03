@@ -11,9 +11,6 @@ RUN chown -R app:app .
 
 USER app
 
-# Used only for bootstrapping
-COPY data data
-
 COPY pyproject.toml .
 COPY uv.lock .
 COPY README.md .
@@ -27,8 +24,10 @@ COPY etc etc
 
 RUN uv sync --frozen
 
-#CMD [".venv/bin/flask", "run", "--port=8080"]
-#CMD ["/app/.venv/bin/gunicorn", "-w", "4", "-b", "0.0.0.0:8080", "wsgi:app"]
+RUN uv pip list
+
+RUN ln -s .venv/bin bin
+RUN DATABASE_URL='sqlite:///' bin/flask check
 
 ENV PORT=8080
 CMD ["/app/.venv/bin/python", "-m", "server"]

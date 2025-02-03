@@ -38,6 +38,8 @@ BOX_BODY = "..."
 
 DEFAULT_DATA_URL = "https://github.com/aipress24/aipress24-data.git"
 
+BOOTSTRAP_DATA_PATH = Path("bootstrap_data")
+
 
 #
 # Other operational commands
@@ -49,10 +51,12 @@ def bootstrap_cmd() -> None:
 
 
 def bootstrap() -> None:
-    if not Path("data").exists():
+    if not BOOTSTRAP_DATA_PATH.exists():
         print("Downloading data...")
         git_url = current_app.config.get("BOOTSTRAP_DATA_URL", DEFAULT_DATA_URL)
-        subprocess.run(["/usr/bin/git", "clone", git_url, "data"], check=False)
+        subprocess.run(
+            ["/usr/bin/git", "clone", git_url, str(BOOTSTRAP_DATA_PATH)], check=False
+        )
 
     bootstrap_roles()
     bootstrap_promotions()
@@ -81,7 +85,6 @@ def bootstrap_roles():
 
 
 def bootstrap_promotions() -> None:
-    print("Creating promotions..")
     slug0 = BOX_SLUGS[0]
     promo0 = get_promotion(slug0)
     if promo0:

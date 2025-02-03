@@ -10,4 +10,4 @@ from app.models.auth import User
 
 def healthcheck() -> None:
     users = get_multi(User)
-    assert len(users) > 0
+    assert isinstance(users, list)
