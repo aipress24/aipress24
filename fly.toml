@@ -9,8 +9,7 @@ primary_region = 'cdg'
 [build]
 
 [deploy]
-#release_command = './scripts/fly-release.sh'
-#release_command = 'bin/flask db upgrade'
+release_command = '.venv/bin/flask db upgrade'
 
 [http_service]
 internal_port = 8080

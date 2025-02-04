@@ -102,14 +102,3 @@ def bootstrap_promotions() -> None:
         db.session.add(promo)
 
     db.session.commit()
-
-
-# def bootstrap_ontologies():
-#     query = select(TaxonomyEntry)
-#     result = db.session.execute(query).scalar()
-#     if result:
-#         print("Ontologies already exist, skipping creation.")
-#         return
-#
-#     print("Creating ontologies...")
-#     import_ontologies_content()

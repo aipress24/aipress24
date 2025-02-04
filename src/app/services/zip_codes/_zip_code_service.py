@@ -55,6 +55,7 @@ def update_zip_code_entry(
     if not result:
         create_zip_code_entry(iso3, zip_code, name, value, label)
         return True
+
     if (
         result.iso3 == iso3
         and result.zip_code == zip_code
@@ -64,6 +65,7 @@ def update_zip_code_entry(
         # unchanged item
         # print("/////////////////// no change", file=sys.stderr)
         return False
+
     # update required
     print(
         f"    update: {result.iso3}, {result.zip_code}, {result.name} ->  {iso3}, {zip_code}, {name}",
@@ -79,18 +81,10 @@ def update_zip_code_entry(
 
 
 def create_zip_code_entry(
-    iso3: str,
-    zip_code: str,
-    name: str,
-    value: str,
-    label: str,
+    iso3: str, zip_code: str, name: str, value: str, label: str
 ) -> None:
     """Create a new entry in the zip_code table."""
     entry = ZipCodeEntry(
-        iso3=iso3,
-        zip_code=zip_code,
-        name=name,
-        value=value,
-        label=label,
+        iso3=iso3, zip_code=zip_code, name=name, value=value, label=label
     )
     db.session.add(entry)

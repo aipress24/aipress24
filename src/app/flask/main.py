@@ -9,7 +9,6 @@ import time
 
 import stripe
 import svcs
-from devtools import debug
 from flask import Flask, Response, g, request, session
 from flask_super import register_commands
 from flask_super.registry import lookup
@@ -19,7 +18,7 @@ from sqlalchemy.orm import scoped_session
 from svcs.flask import container
 from werkzeug.utils import find_modules, import_string
 
-from app.flask import debugging, services
+from app.flask import services
 from app.flask.cli.bootstrap import bootstrap
 from app.flask.config import setup_config
 from app.flask.extensions import db, register_extensions
@@ -34,6 +33,8 @@ from app.flask.lib.pywire import (
 )
 from app.flask.security import register_oauth_providers
 from app.flask.util import utcnow
+from app.lib import debugging
+from app.lib.debugging import debug
 from app.services.stripe.utils import (
     check_stripe_public_key,
     check_stripe_secret_key,
@@ -70,9 +71,6 @@ def create_app(config=None) -> Flask:
 
     # 3. Perform registrations on app
     register_all(app)
-
-    # 4. Create or init DB if needed
-    # bootstrap_db(app)
 
     return app
 

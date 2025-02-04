@@ -25,8 +25,8 @@ from app.services.zip_codes import (
     update_zip_code_entry,
 )
 
-COUNTRY_SRC = Path("data/country_zip_code/pays.json")
-ZIP_CODE_SRC = Path("data/country_zip_code/towns")
+COUNTRY_SRC = Path("bootstrap_data/country_zip_code/pays.json")
+ZIP_CODE_SRC = Path("bootstrap_data/country_zip_code/towns")
 
 
 def import_countries() -> None:
@@ -63,6 +63,7 @@ def import_zip_codes() -> None:
 
     print("importing zip codes")
     for path in ZIP_CODE_SRC.glob("*.json"):
+        print(f"importing {path}")
         import_zip_codes_for_country(path)
 
 

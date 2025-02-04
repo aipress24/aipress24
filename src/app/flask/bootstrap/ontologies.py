@@ -26,7 +26,7 @@ from app.services.taxonomies import (
 VALUE_LABEL_MODE = False
 
 # required: use a.ods document
-ONTOLOGY_SRC = Path("data/Ontologies.ods")
+ONTOLOGY_SRC = Path("bootstrap_data/Ontologies.ods")
 
 # Secteurs → `sectors`
 # Rubriques → `sections`

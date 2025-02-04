@@ -6,7 +6,6 @@ from __future__ import annotations
 
 import os
 
-from devtools import debug
 from dynaconf import Dynaconf
 from flask import Flask
 from flask_super.initializers.logging import init_logging
@@ -65,9 +64,11 @@ def get_db_url(app):
 def dump_config(app: Flask) -> None:
     config_ = dict(sorted(app.config.items()))
     print("CONFIG:")
-    debug(config_)
+    for k, v in config_.items():
+        print(f"{k}: {v}")
     print()
 
     print("ENV:")
     env_ = dict(sorted(os.environ.items()))
-    debug(env_)
+    for k, v in env_.items():
+        print(f"{k}: {v}")

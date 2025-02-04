@@ -85,11 +85,7 @@ def create_entry(
 ) -> None:
     """Create a new entry in a taxonomy."""
     entry = TaxonomyEntry(
-        taxonomy_name=taxonomy_name,
-        name=name,
-        category=category,
-        value=value,
-        seq=seq,
+        taxonomy_name=taxonomy_name, name=name, category=category, value=value, seq=seq
     )
     db.session.add(entry)
 

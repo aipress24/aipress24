@@ -16,16 +16,14 @@ COPY uv.lock .
 COPY README.md .
 COPY wsgi.py .
 
-COPY src src
 COPY migrations migrations
 COPY icons icons
 COPY vite/dist vite/dist
 COPY etc etc
+COPY scripts scripts
+COPY src src
 
-RUN uv sync --frozen
-
-RUN uv pip list
-
+RUN uv sync --frozen --no-dev
 RUN ln -s .venv/bin bin
 RUN DATABASE_URL='sqlite:///' bin/flask check
 

@@ -36,7 +36,6 @@ def fake(clean) -> None:
     db_setup(clean)
 
     print(green("Bootstrapping master data..."))
-
     bootstrap()
 
     print(green("Generating fake data..."))
