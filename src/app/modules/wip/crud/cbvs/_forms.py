@@ -8,12 +8,7 @@ from wtforms import Form, validators
 from wtforms.fields.choices import SelectField
 from wtforms.fields.simple import StringField, TextAreaField
 
-from app.flask.lib.wtforms.fields import (
-    DateTimeField,
-    ImageField,
-    RichSelectField,
-    RichTextField,
-)
+from app.flask.lib.wtforms.fields import DateTimeField, RichSelectField, RichTextField
 
 
 class ArticleForm(Form):

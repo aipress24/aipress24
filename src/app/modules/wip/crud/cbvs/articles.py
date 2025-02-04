@@ -6,7 +6,16 @@ from __future__ import annotations
 
 from typing import cast
 
-from flask import Flask, flash, g, redirect, render_template, request, send_file
+from flask import (
+    Flask,
+    flash,
+    g,
+    make_response,
+    redirect,
+    render_template,
+    request,
+    send_file,
+)
 from flask_classful import route
 from flask_super.registry import register
 from markupsafe import Markup
@@ -15,6 +24,7 @@ from svcs.flask import container
 from werkzeug.exceptions import NotFound
 
 from app.flask.extensions import db
+from app.flask.lib.constants import EMPTY_PNG
 from app.flask.routing import url_for
 from app.models.repositories import ArticleRepository
 from app.modules.wip.models.newsroom import Article
@@ -218,8 +228,13 @@ class ArticlesWipView(BaseWipView):
             raise NotFound
 
         blob_service = container.get(BlobService)
-        blob_path = blob_service.get_path(image.blob_id)
-        return send_file(blob_path)
+        try:
+            blob_path = blob_service.get_path(image.blob_id)
+            return send_file(blob_path)
+        except FileNotFoundError:
+            response = make_response(EMPTY_PNG)
+            response.headers.set("Content-Type", "image/png")
+            return response
 
     @route("/<int:article_id>/images/<int:image_id>/delete", methods=["POST"])
     def delete_image(self, article_id: int, image_id: int):

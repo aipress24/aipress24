@@ -5,7 +5,6 @@
   DEBUG:<br>
   profil utilisateur: {{user_profile}}<br>
   org.type: {{org.type}}<br>
-  BW actuel: {{org_bw_type}}<br>
   BW possible: {{allow_bw_string}}<br>
   is_manager: {{is_manager}}<br>
   is_bw_active: {{is_bw_active}}<br>
@@ -56,25 +55,69 @@
   {% if is_bw_active %}
   <div class="mt-2 mb-2 font-bold italic text-gray-800">
     <p>
-      Votre abonnement Aipress24 PRO actuel est: «{{ org_bw_type }}»
+      Votre abonnement Aipress24 PRO actuel est&nbsp;: «{{ current_product_name }}»
+    </p>
+    <p>
+      Début de la période d&apos;abonnement&nbsp;: {{ org.stripe_subs_current_period_start| localdt }}
+      <br>
+      Fin de la période de validité&nbsp;: {{ org.validity_date| localdt }}
+      <br>
+      Référence de l&apos;abonnement&nbsp;: {{ org.stripe_subscription_id }}
     </p>
   </div>
   {% if is_manager %}
     <div class="pl-0 left">
       <button
         type="button"
-        hx-post="/wip/org-registration"
-        hx-vals='{"action": "suspend"}'
+        id="valid_suspend"
+        data-modal-target="confirm_suspend_popup"
+        data-modal-toggle="confirm_suspend_popup"
         class="mt-2 items-center px-8 py-1 border border-transparent text-xs font-small rounded-md shadow-sm text-white focus:outline-none focus:ring-2 focus:ring-offset-2
         bg-orange-500 hover:bg-orange-600   focus:ring-orange-400
         disabled:bg-slate-500 disabled:hover:bg-slate-600 disabled:focus:ring-slate-400 disabled:opacity-50"
-      >Suspendre l&apos;abonnement</button>
+    >Suspendre l&apos;abonnement</button>
+    </div>
+    <div id="confirm_suspend_popup"
+      data-modal-backdrop="static"
+      tabindex="-1"
+      aria-hidden="true"
+      class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+      <div class="relative p-4 w-full max-w-md max-h-full">
+        <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+          <div class="p-4 md:p-5 text-center">
+            <svg class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+            </svg>
+            <h3 class="mb-1 text-lg font-normal text-gray-500 dark:text-gray-400"
+            >Confirmer la suspension de l&apos;abonnement&nbsp;?
+            </h3>
+            <p class="pl-14 pt-1 pb-1 mb-4 text-left ">
+              organisation: {{ org_name }}
+            </p>
+            <button
+              type="button"
+              name="suspend_bw"
+              hx-post="/wip/org-registration"
+              hx-vals='{"action": "suspend"}'
+              data-modal-hide="confirm_suspend_popup"
+              id="confirm_suspend"
+              class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center"
+            >Oui, confirmer</button>
+            <button
+              type="button"
+              id="no_confirm_suspend"
+              data-modal-hide="confirm_suspend_popup"
+              class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
+            >Annuler</button>
+          </div>
+        </div>
+      </div>
     </div>
   {% endif %}
   {% elif is_bw_inactive %}
   <div class="mt-2 mb-2 font-bold italic text-gray-800">
     <p>
-      Votre abonnement Aipress24 PRO «{{ org_bw_type }}» est actuellement suspendu.
+      Votre abonnement Aipress24 PRO est actuellement suspendu.
     </p>
   </div>
     {% if is_manager %}
@@ -92,7 +135,7 @@
   {% else %}
   <div class="mt-2 mb-2 font-bold italic text-gray-800">
     <p>
-      Vous n'avez aucun abonnement Aipress24 PRO.
+      Vous n&apos;avez aucun abonnement Aipress24 PRO.
     </p>
   </div>
   {% endif %}
@@ -111,61 +154,18 @@
       Abonnements à Aipress PRO&nbsp:
     </h1>
   </div>
-
-    {% if org_bw_type_name == 'MEDIA' %}
-    <script async src="https://js.stripe.com/v3/pricing-table.js"></script>
-    <stripe-pricing-table
-      pricing-table-id="prctbl_1QXlbyIyzOgen8OqwSrrX15Z"
-      publishable-key="{{public_key}}"
-      customer-email="{{customer_email}}"
-    >
-    </stripe-pricing-table>
-
-    {% elif org_bw_type_name == 'ORGANISATION' %}
-    <script async src="https://js.stripe.com/v3/pricing-table.js"></script>
-    <stripe-pricing-table
-      pricing-table-id="prctbl_1QXllXIyzOgen8OqevzCzyUV"
-      publishable-key="{{public_key}}"
-      customer-email="{{customer_email}}"
-    >
-    </stripe-pricing-table>
-
-    {% elif org_bw_type_name == 'COM' %}
-    <script async src="https://js.stripe.com/v3/pricing-table.js"></script>
-    <stripe-pricing-table
-      pricing-table-id="prctbl_1QXls0IyzOgen8OqYcgXiOct"
-      publishable-key="{{public_key}}"
-      customer-email="{{customer_email}}"
-    >
-    </stripe-pricing-table>
+    {% if pricing_table_id|length %}
+      <script async src="https://js.stripe.com/v3/pricing-table.js"></script>
+      <stripe-pricing-table
+        pricing-table-id="{{pricing_table_id}}"
+        publishable-key="{{public_key}}"
+        customer-email="{{customer_email}}"
+        client-reference-id="{{client_reference_id}}"
+      >
+      </stripe-pricing-table>
     {% else %}
-    not managed: {{ org_bw_type_name }}
+      Aucune formule d&apos;abonnement trouvée pour la catégorie {{ org_bw_type_name }}
     {% endif %}
-
-  <!--
-  <div class="mt-2 ml-4 sm:flex sm:items-end sm:space-x-5">
-    {% for prod in allowed_prod %}
-    <div class="mt-3 mb-2">
-      <h2 class="mb-1 font-bold text-gray-800">{{  prod.name }} (Stripe)</h2>
-      <div class="pt-1 pb-2 text-gray-600">
-        <p>
-          {{ prod.description }}
-        </p>
-      <div class="pt-4 left">
-        <button
-          type="button"
-          hx-post="/wip/org-registration"
-          hx-vals='{"action": "stripe_register", "subscription": "{{prod.id}}" }'
-          class="mt-2 items-center px-8 py-1 border border-transparent text-xs font-small rounded-md shadow-sm text-white focus:outline-none focus:ring-2 focus:ring-offset-2
-          bg-sky-500 hover:bg-sky-600   focus:ring-sky-400
-          disabled:bg-slate-500 disabled:hover:bg-slate-600 disabled:focus:ring-slate-400 disabled:opacity-50
-          "
-        >S&apos;abonner à «{{ prod.name }}»</button>
-      </div>
-    </div>
-    {% endfor %}
-  </div>
-  -->
   {% endif %}
 
 {% else %}

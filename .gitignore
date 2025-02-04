@@ -17,6 +17,7 @@
 # Secret
 /.env
 /etc/secrets.toml
+/debug/
 
 # Other
 /tmp
@@ -24,6 +25,7 @@
 /front-old
 /sandbox
 /doc/site
+/debug/
 
 # Generated
 __pycache__/

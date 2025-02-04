@@ -10,12 +10,13 @@ from io import BytesIO
 from typing import Any
 from zoneinfo import ZoneInfo
 
+import pytz
 from arrow import Arrow
 from flask import send_file
 from odsgenerator import odsgenerator
 from sqlalchemy import desc, false, nulls_last, select, true
 
-from app.constants import BW_TRIGGER_LABEL, LABEL_INSCRIPTION_VALIDEE
+from app.constants import BW_TRIGGER_LABEL, LABEL_INSCRIPTION_VALIDEE, LOCAL_TZ
 from app.enums import OrganisationTypeEnum
 from app.flask.extensions import db
 from app.flask.lib.pages import Page, page
@@ -26,6 +27,12 @@ from .. import blueprint
 from .home import AdminHomePage
 
 FieldColumn = namedtuple("FieldColumn", "name header width")  # noqa: PYI024
+
+LOCALTZ = pytz.timezone(LOCAL_TZ)
+
+
+def as_naive_localtz(value: datetime) -> datetime:
+    return value.astimezone(LOCALTZ).replace(tzinfo=None)
 
 
 @page
@@ -101,7 +108,7 @@ class ExporterInscriptions:
         self.document = odsgenerator.ods_bytes(content)
 
     def do_start_date(self) -> None:
-        self.date_now = datetime.now(tz=ZoneInfo("Europe/Paris"))
+        self.date_now = datetime.now(tz=ZoneInfo(LOCAL_TZ))
         start = self.date_now - timedelta(days=31)
         self.start_date = start.replace(hour=0, minute=0, second=0, microsecond=0)
 
@@ -315,6 +322,8 @@ class ExporterInscriptions:
                 raise KeyError(msg)
         if isinstance(value, list):
             return self.list_to_str(value)
+        if isinstance(value, datetime):
+            value = as_naive_localtz(value)
         return value
 
     def do_top_info(self) -> None:
@@ -571,7 +580,7 @@ class ExporterOrganisations:
         return f"organisation_{self.date_now.strftime('%Y-%m-%d')}.ods"
 
     def run(self) -> None:
-        self.date_now = datetime.now(tz=ZoneInfo("Europe/Paris"))
+        self.date_now = datetime.now(tz=ZoneInfo(LOCAL_TZ))
         self.make_sheet()
         content = {"body": [self.sheet]}
         self.document = odsgenerator.ods_bytes(content)
@@ -674,6 +683,8 @@ class ExporterOrganisations:
                 raise KeyError(msg)
         if isinstance(value, list):
             return self.list_to_str(value)
+        if isinstance(value, datetime):
+            value = as_naive_localtz(value)
         return value
 
     def do_top_info(self) -> None:

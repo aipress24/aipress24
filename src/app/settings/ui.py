@@ -67,12 +67,8 @@ FOOTER_MENU = [
                 "url": "/page/soutiens/",
             },
             {
-                "label": "Contact mail",
-                "url": "/page/contact#mail",
-            },
-            {
-                "label": "Contact téléphone",
-                "url": "/page/contact#tel",
+                "label": "Contact",
+                "url": "/page/contact",
             },
         ],
     },

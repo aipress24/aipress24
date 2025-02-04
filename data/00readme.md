@@ -2,8 +2,8 @@ This directory contains data that are your to generate the initial state of the 
 
 1) Ontologies.
 
-The files "Ontologies-xx.ods" are the source of the ontologies. They are in the format of LibreOffice Calc.
+The file "Ontologies.ods" is the source of the ontologies, in the format of LibreOffice Calc.
 
-The licence for these files is CC BY-SA 4.0.
+The licence for this file is CC BY-SA 4.0.
 
-2) Fake data.
+2) Geographical data (mainly, ZIP codes)

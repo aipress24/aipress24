@@ -13,14 +13,14 @@
     <div>
         <dt class="text-sm font-medium text-gray-500">Date de soumission du formulaire d'inscription</dt>
         <dd class="mb-2 text-sm text-gray-900">
-            {{ user.submited_at.strftime('%d %b %G %H:%M %Z') }}
+            {{ user.submited_at| localdt }}
         </dd>
     </div>
     <div>
         <dt class="text-sm font-medium text-gray-500">Date de validation</dt>
         <dd class="mb-2 text-sm text-gray-900">
             {% if user.validated_at %}
-              {{ user.validated_at.strftime('%d %b %G %H:%M %Z') }}
+              {{ user.validated_at| localdt }}
             {% else %}
               Jamais validé
             {% endif %}
@@ -36,7 +36,7 @@
         <dt class="text-sm font-medium text-gray-500">Date de dernière connexion</dt>
         <dd class="mb-2 text-sm text-gray-900">
             {% if user.last_login_at %}
-                {{ user.last_login_at.strftime('%d %b %G %H:%M %Z') }}
+                {{ user.last_login_at| localdt }}
             {% else %}
                 Jamais connecté
             {% endif %}

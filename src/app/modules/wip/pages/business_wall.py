@@ -16,6 +16,8 @@ from app.modules.admin.org_email_utils import (
     change_members_emails,
 )
 from app.modules.kyc.renderer import render_field
+from app.services.stripe.product import stripe_bw_subscription_dict
+from app.services.stripe.utils import load_stripe_api_key
 
 from .base import BaseWipPage
 from .business_wall_form import BWFormGenerator, merge_org_results
@@ -53,10 +55,36 @@ class BusinessWallPage(BaseWipPage):
         allow_editing = is_bw_active and self.user.is_manager
         self.readonly = not allow_editing
         if is_bw_active:
+            load_stripe_api_key()
+            _stripe_bw_products = stripe_bw_subscription_dict()
+            _current_product = _stripe_bw_products.get(self.org.stripe_product_id)
+            current_product_name = _current_product.name if _current_product else ""
+            if not current_product_name:
+                import sys
+
+                print("///// BusinessWallPage.context() BUG", file=sys.stderr)
+                print("/////   is_bw_active", is_bw_active, file=sys.stderr)
+                print(
+                    "/////   _stripe_bw_products keys",
+                    list(_stripe_bw_products.keys()),
+                    file=sys.stderr,
+                )
+                print(
+                    "/////   org.stripe_product_id",
+                    self.org.stripe_product_id,
+                    file=sys.stderr,
+                )
+                print("/////   _current_product", _current_product, file=sys.stderr)
+                print(
+                    "/////   current_product_name",
+                    current_product_name,
+                    file=sys.stderr,
+                )
             form_generator = BWFormGenerator(user=self.user, readonly=self.readonly)
             self.form = form_generator.generate()
         else:
-            self.foem = FlaskForm()
+            current_product_name = ""
+            self.form = FlaskForm()
         if self.org:
             members = list(self.org.members)
         else:
@@ -64,7 +92,7 @@ class BusinessWallPage(BaseWipPage):
         return {
             "org": self.org,
             "org_name": self.org.name if self.org else "",
-            "org_bw_type": self.org.bw_type if self.org else "",
+            "current_product_name": current_product_name,
             "is_auto": is_auto,
             "is_bw_active": is_bw_active,
             "is_bw_inactive": is_bw_inactive,

@@ -10,8 +10,7 @@ from app.flask.extensions import db
 from app.models.admin import Promotion
 
 
-def get_promotion(slug: str) -> Promotion:
+def get_promotion(slug: str) -> Promotion | None:
     stmt = sa.select(Promotion).where(Promotion.slug == slug)
-    box = db.session.execute(stmt).scalar_one_or_none()
-    assert box
-    return box
+    promo = db.session.execute(stmt).scalar_one_or_none()
+    return promo

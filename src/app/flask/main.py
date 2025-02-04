@@ -31,10 +31,13 @@ from app.flask.lib.pywire import (
     register_wired_components,
 )
 from app.flask.security import register_oauth_providers
-from app.services.stripe.products import (
+from app.flask.util import utcnow
+from app.services.stripe.utils import (
     check_stripe_public_key,
     check_stripe_secret_key,
+    check_stripe_webhook_secret,
 )
+from app.ui.datetime_filter import make_localdt, make_naivedt
 from app.ui.labels import make_label
 
 # Where we're looking for blueprints
@@ -57,6 +60,8 @@ def create_app(config=None) -> Flask:
 
     # 1: set up app.config properly
     setup_config(app, config)
+    # force flask-security to use non naive datetime
+    app.config["SECURITY_DATETIME_FACTORY"] = utcnow
 
     # 2: Scan to pre-register callbacks, services, etc.
     scan_packages(SCAN_PACKAGES)
@@ -109,11 +114,17 @@ def register_all(app: Flask) -> None:
 
     init_dramatiq(app)
 
-    if not check_stripe_secret_key(app):
-        debug("STRIPE_SECRET_KEY not found in config")
+    # Check completeness of Stripe configuration
+    _check_stripe_configuration(app)
 
+
+def _check_stripe_configuration(app: Flask) -> None:
+    if not check_stripe_secret_key(app):
+        logger.debug("STRIPE_SECRET_KEY not found in config")
     if not check_stripe_public_key(app):
-        debug("STRIPE_PUBLIC_KEY not found in config")
+        logger.debug("STRIPE_PUBLIC_KEY not found in config")
+    if not check_stripe_webhook_secret(app):
+        logger.debug("STRIPE_WEBHOOK_SECRET not found in config")
 
 
 def register_debug_hooks(app: Flask) -> None:
@@ -182,6 +193,8 @@ def register_perf_watcher(app: Flask) -> None:
 
 def register_filters(app: Flask) -> None:
     app.template_filter("label")(make_label)
+    app.template_filter("localdt")(make_localdt)
+    app.template_filter("naivedt")(make_naivedt)
 
 
 def register_stripe(app: Flask) -> None:

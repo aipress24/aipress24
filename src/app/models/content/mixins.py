@@ -37,11 +37,11 @@ class Publishable:
 
     @declared_attr
     def published_at(cls):
-        return cls.__table__.c.get("published_at", sa.Column(ArrowType))
+        return cls.__table__.c.get("published_at", sa.Column(ArrowType(timezone=True)))
 
     @declared_attr
     def expired_at(cls):
-        return cls.__table__.c.get("expired_at", sa.Column(ArrowType))
+        return cls.__table__.c.get("expired_at", sa.Column(ArrowType(timezone=True)))
 
     @declared_attr
     def publisher_id(cls):

@@ -50,6 +50,20 @@ class BWFormGenerator:
             # fixme, choose a not-so-far profile for current BW type
             self.profile_code = ProfileEnum.PM_DIR
         self.readonly: bool = readonly
+        # self.bw_type: BWTypeEnum = self.guess_bw_type()
+
+    # def guess_bw_type(self) -> BWTypeEnum:
+    #     possible = PROFILE_CODE_TO_BW_TYPE.get(self.profile_code, [])
+    #     if not possible:
+    #         return BWTypeEnum.ORGANISATION
+    #     if len(possible) == 1:
+    #         return possible[0]
+    #     # here the only double possibility is:
+    #     # [BWTypeEnum.MEDIA, BWTypeEnum.AGENCY]
+    #     if self.org.type == "AGENCY":
+    #         return BWTypeEnum.AGENCY
+    #     else:
+    #         return BWTypeEnum.MEDIA
 
     def generate(self) -> FlaskForm:
         """The form contains several Fields and sub titles information.

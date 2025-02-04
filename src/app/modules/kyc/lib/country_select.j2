@@ -45,14 +45,13 @@
           zip_choices.disable();
 
           let refreshChoices = () => {
-             let selection = [this.value];
              const controller = new AbortController();
-             const timeoutId = setTimeout(() => controller.abort(), 10000)
+             const timeoutId = setTimeout(() => controller.abort(), 10000);
              choices.setValue(this.value, true);
              if (this.value && this.value.length === 3 && this.new_val !== this.value) {
                 this.loading = true;
                 this.new_val = this.value;
-                var url = `/kyc/towns/${this.new_val}`;
+                const url = `/kyc/towns/${this.new_val}`;
                 console.log(url);
                 fetch(url, { signal: controller.signal })
                       .then(response => response.json())
@@ -60,6 +59,7 @@
                         this.cities = data;
                         this.loading = false;
                         console.log('fetched ' + data.length);
+                        displayCities();
                       })
                       .catch(function(error) {
                         console.log(error)
@@ -107,7 +107,7 @@
             choices.lock();
             zip_choices.setValue(this.zip_value, false);
             zip_choices.lock();
-          }else{
+          } else {
             choices.unlock();
             zip_choices.unlock();
           };

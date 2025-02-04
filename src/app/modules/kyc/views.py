@@ -759,11 +759,13 @@ def check_mail(email: str):
 def email_already_used(email: str) -> bool:
     email = email.lower()
     return bool(
-        db.session.query(User).filter(
+        db.session.query(User)
+        .filter(
             or_(
                 func.lower(User.email) == email, func.lower(User.email_secours) == email
-            ).first()
+            )
         )
+        .first()
     )
 
 

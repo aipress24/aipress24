@@ -31,13 +31,13 @@ class Commande(
     # ------------------------------------------------------------
 
     # Limite de validité
-    date_limite_validite: Mapped[datetime] = mapped_column(sa.DateTime)
+    date_limite_validite: Mapped[datetime] = mapped_column(sa.DateTime(timezone=True))
 
     # Bouclage
-    date_bouclage: Mapped[datetime] = mapped_column(sa.DateTime)
+    date_bouclage: Mapped[datetime] = mapped_column(sa.DateTime(timezone=True))
 
     # Parution prévue
-    date_parution_prevue: Mapped[datetime] = mapped_column(sa.DateTime)
+    date_parution_prevue: Mapped[datetime] = mapped_column(sa.DateTime(timezone=True))
 
     # Paiement
-    date_paiement: Mapped[datetime] = mapped_column(sa.DateTime)
+    date_paiement: Mapped[datetime] = mapped_column(sa.DateTime(timezone=True))
