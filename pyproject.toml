@@ -120,6 +120,7 @@ dependencies = [
     "asgiref<4.0,>=3.8",
     # Extra
     "tenacity>=8.5.0",
+    "setuptools>=75.8.0",
 ]
 description = ""
 
