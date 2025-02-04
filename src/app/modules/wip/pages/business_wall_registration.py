@@ -4,7 +4,6 @@
 
 from __future__ import annotations
 
-import sys
 from typing import Any, NamedTuple
 
 import stripe
@@ -27,6 +26,7 @@ from app.services.stripe.utils import (
 
 from .base import BaseWipPage
 from .home import HomePage
+from .utils import info, warning
 
 __all__ = ["BusinessWallRegistrationPage"]
 
@@ -158,7 +158,7 @@ class BusinessWallRegistrationPage(BaseWipPage):
     def load_product_infos(self) -> None:
         self.stripe_bw_products = stripe_bw_subscription_dict()
         if not self.stripe_bw_products:
-            print("Warning: no Stripe Product found for subscription", file=sys.stderr)
+            warning("no Stripe Product found for subscription")
         self.prod_info = []
         for prod in self.stripe_bw_products.values():
             self._load_prod_info(prod)
@@ -183,12 +183,11 @@ class BusinessWallRegistrationPage(BaseWipPage):
             return
         # verify current subscription is still active on Stripe Reference
         load_stripe_api_key()
-        print(
+        info(
             "//////// stripe_subscription_id",
             self.org.stripe_subscription_id,
-            file=sys.stderr,
         )
-        subscription = self._retrieve_subscription(self.org.stripe_subscription_id)
+        subscription = self._retrieve_subscription()
         if subscription:
             subscription_info = _parse_subscription(subscription)
             self._update_organisation_subscription_info(subscription_info)
@@ -295,13 +294,13 @@ class BusinessWallRegistrationPage(BaseWipPage):
                 response.headers["HX-Redirect"] = self.url
                 return response
             elif action == "suspend":
-                self.do_suspend_subscription()
+                self.on_suspend_subscription()
                 response = Response("")
                 # response.headers["HX-Redirect"] = url_for(".org-profile")
                 response.headers["HX-Redirect"] = self.url
                 return response
             elif action == "restore":
-                self.do_restore()
+                self.on_restore_subscription()
                 response = Response("")
                 # response.headers["HX-Redirect"] = url_for(".org-profile")
                 response.headers["HX-Redirect"] = self.url
@@ -323,44 +322,97 @@ class BusinessWallRegistrationPage(BaseWipPage):
             )
         except Exception as e:
             session = None
-            print("Error in _retrieve_session():", e, file=sys.stderr)
+            warning("Error in _retrieve_session():", e)
         return session
 
-    @staticmethod
-    def _retrieve_subscription(subscription_id: str) -> stripe.Subscription | None:
-        if not subscription_id:
+    def _retrieve_subscription(self) -> stripe.Subscription | None:
+        if not self.org or not self.org.stripe_subscription_id:
             return None
         try:
-            subscription = stripe.Subscription.retrieve(subscription_id)
+            subscription = stripe.Subscription.retrieve(self.org.stripe_subscription_id)
         except Exception as e:
             subscription = None
-            print("Error in _retrieve_subscription():", e, file=sys.stderr)
+            warning(
+                f"Error: in _retrieve_subscription({self.org.stripe_subscription_id}):",
+                e,
+            )
         return subscription
 
     def do_suspend_locally(self) -> None:
-        if not self.org.active:
+        if not self.org or not self.org.active:
             return
         db_session = db.session
         self.org.active = False
         db_session.merge(self.org)
         db_session.commit()
 
-    def do_suspend_subscription(self) -> None:
-        if not self.org or self.org.is_bw_inactive:
+    def do_suspend_remotely(self) -> None:
+        subscription = self._retrieve_subscription()
+        if not subscription:
             return
-        stripe.Subscription.modify(
-            self.org.stripe_subscription_id,
-            cancel_at_period_end=True,
-        )
+        if subscription.status != "active":
+            info(
+                f"Subscription {self.org.stripe_subscription_id} status is: {subscription.status}",
+            )
+            return
+        try:
+            stripe.Subscription.modify(
+                self.org.stripe_subscription_id,
+                cancel_at_period_end=True,
+            )
+            info(
+                f"Subscription {self.org.stripe_subscription_id} -> cancel_at_period_end",
+            )
+        except Exception as e:
+            warning(
+                f"Error: in do_suspend_remotely({self.org.stripe_subscription_id}):",
+                e,
+            )
+
+    def on_suspend_subscription(self) -> None:
+        self.do_suspend_remotely()
         self.do_suspend_locally()
 
-    def do_restore(self) -> None:
-        if self.org.active:
+    def do_restore_locally(self) -> None:
+        if not self.org or self.org.active:
             return
         db_session = db.session
-        self.org.active = True
+        self.org.active = False
         db_session.merge(self.org)
         db_session.commit()
+
+    def do_restore_remotely(self) -> None:
+        subscription = self._retrieve_subscription()
+        if not subscription:
+            return
+        info(
+            f"Subscription {self.org.stripe_subscription_id} status is: {subscription.status}",
+        )
+        try:
+            if subscription.status == "active":
+                stripe.Subscription.modify(
+                    self.org.stripe_subscription_id,
+                    cancel_at_period_end=False,
+                )
+            else:
+                stripe.Subscription.modify(
+                    self.org.stripe_subscription_id,
+                    pause_collection=None,
+                    proration_behavior="always_invoice",
+                    cancel_at_period_end=False,
+                )
+            info(
+                f"Subscription {self.org.stripe_subscription_id} -> restored",
+            )
+        except Exception as e:
+            warning(
+                f"Error: in do_restore_remotely({self.org.stripe_subscription_id}):",
+                e,
+            )
+
+    def on_restore_subscription(self) -> None:
+        self.do_restore_remotely()
+        self.do_restore_locally()
 
     def find_profile_allowed_subscription(self) -> list[BWTypeEnum]:
         return list(self.user_profile_to_allowed_subscription())

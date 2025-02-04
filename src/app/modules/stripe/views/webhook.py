@@ -406,7 +406,7 @@ def _make_customer_subscription_info(
     # subinfo.currency = ""
     # subinfo.invoice_id = ""
     # subinfo.amount_total = Decimal(0)
-    _log_checkout_subinfo(subinfo)
+    _log_subscription_subinfo(subinfo)
     return subinfo
 
 
@@ -429,6 +429,15 @@ def _make_customer_subscription_info(
 #     # subinfo.currency = data_obj["currency"]
 #     # subinfo.amount_total = Decimal(data_obj["amount_total"]) / 100
 #     return subs
+
+
+def _log_subscription_subinfo(subinfo: SubscriptionInfo) -> None:
+    info(
+        f"BW subscription by: {subinfo.customer_email}\n"
+        f"    subscription: {subinfo.subscription_id}"
+        f"    org_type: {subinfo.org_type}"
+        f"    status: {subinfo.status}"
+    )
 
 
 def _log_checkout_subinfo(subinfo: SubscriptionInfo) -> None:
