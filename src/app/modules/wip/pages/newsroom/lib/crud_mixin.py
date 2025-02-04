@@ -7,7 +7,6 @@ from __future__ import annotations
 import enum
 from typing import Any
 
-from devtools import debug
 from flask import request
 from werkzeug.exceptions import NotFound
 
@@ -50,5 +49,4 @@ class CrudMixin:
                 raise NotFound(msg)
 
         ctx = view.context()
-        debug(ctx)
         return ctx

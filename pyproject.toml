@@ -51,7 +51,7 @@ dependencies = [
     "tomli<3.0.0,>=2.0.1",
     "loguru<1.0.0,>=0.7.2",
     "markdown<4.0.0,>=3.5.2",
-    "svcs<25.0.0,>=24.1.0",
+    "svcs>=24.1.0",
     "aenum<4.0.0,>=3.1.15",
     "buildstr<1.0.0,>=0.1.1",
     "case-convert<2.0.0,>=1.1.0",
@@ -65,7 +65,7 @@ dependencies = [
     #
     "python-iso639<2025.0.0,>=2024.1.2",
     "gunicorn<24,>=23",
-    "hyperdx-opentelemetry<1.0,>=0.2",
+    # "hyperdx-opentelemetry<1.0,>=0.2",
     "sentry-sdk<3,>=2",
     # CLI
     "rich<14.0.0,>=13.7.0",
@@ -118,6 +118,8 @@ dependencies = [
     "granian[reload]<2.0,>=1.6",
     "asyncpg<1.0,>=0.30",
     "asgiref<4.0,>=3.8",
+    # Extra
+    "tenacity>=8.5.0",
 ]
 description = ""
 
@@ -249,11 +251,13 @@ DEP002 = [
     # Used by a script
     'buildstr',
     # Used by hyperdx
-    'hyperdx-opentelemetry',
+    #    'hyperdx-opentelemetry',
     # Used in production
     'sentry-sdk',
     # Used by odsparsator
     'odfdo',
+    # Used vi 'flask packages'
+    'setuptools',
 ]
 # X imported but declared as a dev dependency
 DEP004 = ['hypothesis', 'openpyxl', "flask_debugtoolbar"]

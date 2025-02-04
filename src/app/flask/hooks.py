@@ -6,7 +6,6 @@ from __future__ import annotations
 
 import importlib.metadata
 
-from devtools import debug
 from flask import Flask, current_app, g, redirect, request
 from flask_login import current_user
 from flask_security.core import AnonymousUser
@@ -16,6 +15,7 @@ from werkzeug.exceptions import Unauthorized
 from app.flask.lib.proxies import unproxy
 from app.flask.routing import url_for
 from app.flask.sqla import get_obj
+from app.lib.debugging import debug
 from app.models.auth import User
 from app.services.menus import MenuService
 from app.services.notifications import NotificationService

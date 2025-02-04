@@ -4,17 +4,21 @@
 
 from __future__ import annotations
 
+import subprocess
+import sys
+
 from flask.cli import with_appcontext
 from flask_super.cli import group
 from rich import print
 from sqlalchemy import text
+from tenacity import retry, stop_after_attempt, wait_exponential
 
 from app.flask.extensions import db
 
 from . import db_util
 
 
-@group(short_help="Additional database commands")
+@group(short_help="Extra database commands")
 def db2() -> None:
     pass
 
@@ -50,3 +54,18 @@ def drop() -> None:
 def inspect() -> None:
     """Inspect the database schema."""
     db_util.show_tables()
+
+
+@db2.command()
+def upgrade() -> None:
+    """Run database migration."""
+    _upgrade()
+
+
+@retry(
+    stop=stop_after_attempt(5),
+    wait=wait_exponential(multiplier=1, max=10),
+)
+def _upgrade():
+    flask = sys.argv[0]
+    subprocess.run([flask, "db", "upgrade"], check=True)

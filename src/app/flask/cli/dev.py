@@ -4,10 +4,13 @@
 
 from __future__ import annotations
 
+import operator
 import os
 import shlex
 import subprocess
+from importlib.metadata import distributions
 from pathlib import Path
+from typing import cast
 
 import rich
 import sqlalchemy.exc
@@ -128,3 +131,28 @@ def load_db() -> None:
     print(shlex.join(cmd))
     print(list(Path("db").glob("*")))
     subprocess.run(cmd, env=env, check=True)
+
+
+@command(short_help="List installed packages")
+def packages() -> None:
+    sizes = []
+    for distribution in distributions():
+        size = 0
+        files = distribution.files or []
+        for file in files:
+            path = cast(Path, file.locate())
+            if not path.exists():
+                continue
+            size += path.stat().st_size
+
+        sizes += [(size, distribution)]
+
+    sizes.sort(key=operator.itemgetter(0), reverse=True)
+
+    packages_info = [("Size", "Name", "Version")]
+    for size, distribution in sizes:
+        name = distribution.metadata["Name"]
+        version = distribution.metadata["Version"]
+        size_str = f"{size / 1024 / 1024:.2f} MB"
+        packages_info += [(size_str, name, version)]
+        print(f"{size_str} {name} {version}")

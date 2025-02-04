@@ -21,7 +21,7 @@ from app.services.taxonomies import check_taxonomy_exist, create_entry, update_e
 VALUE_LABEL_MODE = False
 
 # required: use a.ods document
-ONTOLOGY_SRC = Path("data/Ontologies-41.ods")
+ONTOLOGY_SRC = Path("data/Ontologies.ods")
 
 
 # Secteurs → `sectors`
