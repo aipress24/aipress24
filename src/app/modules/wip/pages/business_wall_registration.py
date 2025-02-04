@@ -373,13 +373,46 @@ class BusinessWallRegistrationPage(BaseWipPage):
         self.do_suspend_remotely()
         self.do_suspend_locally()
 
-    def on_restore_subscription(self) -> None:
-        if self.org.active:
+    def do_restore_locally(self) -> None:
+        if not self.org or self.org.active:
             return
         db_session = db.session
-        self.org.active = True
+        self.org.active = False
         db_session.merge(self.org)
         db_session.commit()
+
+    def do_restore_remotely(self) -> None:
+        subscription = self._retrieve_subscription()
+        if not subscription:
+            return
+        info(
+            f"Subscription {self.org.stripe_subscription_id} status is: {subscription.status}",
+        )
+        try:
+            if subscription.status == "active":
+                stripe.Subscription.modify(
+                    self.org.stripe_subscription_id,
+                    cancel_at_period_end=False,
+                )
+            else:
+                stripe.Subscription.modify(
+                    self.org.stripe_subscription_id,
+                    pause_collection=None,
+                    proration_behavior="always_invoice",
+                    cancel_at_period_end=False,
+                )
+            info(
+                f"Subscription {self.org.stripe_subscription_id} -> restored",
+            )
+        except Exception as e:
+            warning(
+                f"Error: in do_restore_remotely({self.org.stripe_subscription_id}):",
+                e,
+            )
+
+    def on_restore_subscription(self) -> None:
+        self.do_restore_remotely()
+        self.do_restore_locally()
 
     def find_profile_allowed_subscription(self) -> list[BWTypeEnum]:
         return list(self.user_profile_to_allowed_subscription())
