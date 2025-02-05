@@ -113,6 +113,7 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
     # In that case they become like "AUTO" orgs as regards display of pages
     active: Mapped[bool] = mapped_column(default=True)
     stripe_product_id: Mapped[str] = mapped_column(default="")
+    stripe_product_quantity: Mapped[int] = mapped_column(default=0)
     stripe_subscription_id: Mapped[str] = mapped_column(default="")
     stripe_subs_creation_date: Mapped[datetime] = mapped_column(
         ArrowType(timezone=True), default=datetime(2000, 1, 1, tzinfo=timezone.utc)

@@ -50,6 +50,7 @@ class SubscriptionInfo:
     nickname: str = ""
     interval: str = ""
     product_id: str = ""
+    quantity: int = 0
     status: bool = False
 
 
@@ -381,8 +382,8 @@ def _make_customer_subscription_info(
     data_obj: dict[str, Any]
 ) -> SubscriptionInfo | None:
     subinfo = SubscriptionInfo()
-    # print("//////// data_obj", file=sys.stderr)
-    # print(data_obj, file=sys.stderr)
+    # info("//////// data_obj")
+    # info(pformat(data_obj))
 
     # security
     if data_obj.get("object") != "subscription":
@@ -401,6 +402,7 @@ def _make_customer_subscription_info(
     subinfo.created = data_obj["created"]
     subinfo.current_period_start = data_obj["current_period_start"]
     subinfo.current_period_end = data_obj["current_period_end"]
+    subinfo.quantity = data_obj["quantity"]
     subinfo.status = data_obj["status"] == "active"
     # subinfo.payment_status = ""
     # subinfo.currency = ""
@@ -436,18 +438,19 @@ def _log_subscription_subinfo(subinfo: SubscriptionInfo) -> None:
         f"BW subscription by: {subinfo.customer_email}\n"
         f"    subscription: {subinfo.subscription_id}"
         f"    org_type: {subinfo.org_type}"
+        f"    quantity: {subinfo.quantity}"
         f"    status: {subinfo.status}"
     )
 
 
-def _log_checkout_subinfo(subinfo: SubscriptionInfo) -> None:
-    info(
-        f"BW subscription by: {subinfo.customer_email} "
-        f"for org.id: {subinfo.client_reference_id}\n"
-        f"    payment: {subinfo.payment_status}, {subinfo.amount_total} "
-        f"{subinfo.currency}\n"
-        f"    subscription: {subinfo.subscription_id}, invoice: {subinfo.invoice_id}"
-    )
+# def _log_checkout_subinfo(subinfo: SubscriptionInfo) -> None:
+#     info(
+#         f"BW subscription by: {subinfo.customer_email} "
+#         f"for org.id: {subinfo.client_reference_id}\n"
+#         f"    payment: {subinfo.payment_status}, {subinfo.amount_total} "
+#         f"{subinfo.currency}\n"
+#         f"    subscription: {subinfo.subscription_id}, invoice: {subinfo.invoice_id}"
+#     )
 
 
 # def _parse_bw_subscription(subinfo: SubscriptionInfo) -> None:
@@ -509,6 +512,7 @@ def _update_organisation_subscription_info(
     # need to also update org.type from OrganisationTypeEnum.AUTO
     org.stripe_subscription_id = subinfo.subscription_id
     org.stripe_product_id = subinfo.product_id
+    org.stripe_product_quantity = subinfo.quantity
     org.stripe_subs_creation_date = Arrow.fromtimestamp(subinfo.created)  # type: ignore
     org.validity_date = Arrow.fromtimestamp(subinfo.current_period_end)  # type: ignore
     org.stripe_subs_current_period_start = Arrow.fromtimestamp(  # type: ignore
@@ -521,7 +525,10 @@ def _update_organisation_subscription_info(
     db_session = db.session
     db_session.merge(org)
     db_session.commit()
-    info(f"Organisation {org.name} subscribed to BW of type: {org.type}")
+    info(
+        f"Organisation {org.name} subscribed to BW of type: {org.type} "
+        f"(qty: {org.stripe_product_quantity})"
+    )
 
 
 def _guess_bw_type(user: User, org: Organisation) -> BWTypeEnum:

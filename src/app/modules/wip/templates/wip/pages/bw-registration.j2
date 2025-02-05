@@ -58,6 +58,8 @@
       Votre abonnement Aipress24 PRO actuel est&nbsp;: «{{ current_product_name }}»
     </p>
     <p>
+      Quantité&nbsp;: {{ org.stripe_product_quantity }}
+      <br>
       Début de la période d&apos;abonnement&nbsp;: {{ org.stripe_subs_current_period_start| localdt }}
       <br>
       Fin de la période de validité&nbsp;: {{ org.validity_date| localdt }}
