@@ -65,6 +65,16 @@
       Fin de la période de validité&nbsp;: {{ org.validity_date| localdt }}
       <br>
       Référence de l&apos;abonnement&nbsp;: {{ org.stripe_subscription_id }}
+      <br>
+      Facturation:&nbsp;:
+      {% if org.stripe_latest_invoice_url| length %}
+      <a href="{{ org.stripe_latest_invoice_url }}"
+         class="font-medium text-indigo-600 hover:text-indigo-500">
+         dernière facture sur le site Stripe
+      </a>
+      {% else %}
+        néant
+      {% endif %}
     </p>
   </div>
   {% if is_manager %}

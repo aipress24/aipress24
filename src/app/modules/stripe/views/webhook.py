@@ -46,6 +46,7 @@ class SubscriptionInfo:
     current_period_start: int = 0
     current_period_end: int = 0
     price_id: str = ""
+    latest_invoice_url: str = ""
     name: str = ""
     nickname: str = ""
     interval: str = ""
@@ -100,7 +101,23 @@ def retrieve_product(product_id: str) -> object:
     try:
         return stripe.Product.retrieve(product_id)
     except stripe.error.StripeError as e:
-        warning(f"Error retrieving Product: {e}")
+        warning(f"Error retrieving Product  ({product_id}): {e}")
+        return {}
+
+
+def retrieve_product_price(price_id: str) -> object:
+    try:
+        return stripe.Price.retrieve(price_id)
+    except stripe.error.StripeError as e:
+        warning(f"Error retrieving Price ({price_id}): {e}")
+        return {}
+
+
+def retrieve_invoice(invoice_id: str) -> object:
+    try:
+        return stripe.Invoice.retrieve(invoice_id)
+    except stripe.error.StripeError as e:
+        warning(f"Error retrieving Invoice ({invoice_id}): {e}")
         return {}
 
 
@@ -370,6 +387,16 @@ def _check_subscription_product(
     else:
         subinfo.org_type = "OTHER"
     subinfo.name = product.name
+    # info(pformat(product))
+    # price = retrieve_product_price(product["default_price"])
+    # info(pformat(price))
+    # info(pformat(data_obj))
+    latest_invoice = retrieve_invoice(data_obj["latest_invoice"])
+    # info(pformat(latest_invoice))
+    if latest_invoice:
+        subinfo.latest_invoice_url = latest_invoice["hosted_invoice_url"]
+    else:
+        subinfo.latest_invoice_url = ""
     info(
         f"Stripe subscription for BW {subinfo.subscription_id}",
         f"type: {subinfo.org_type}",
@@ -518,6 +545,7 @@ def _update_organisation_subscription_info(
     org.stripe_subs_current_period_start = Arrow.fromtimestamp(  # type: ignore
         subinfo.current_period_start
     )
+    org.stripe_latest_invoice_url = subinfo.latest_invoice_url
     org.type = OrganisationTypeEnum[subinfo.org_type]  # type: ignore
     org.active = True
     org.bw_type = _guess_bw_type(user, org)
