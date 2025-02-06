@@ -226,7 +226,7 @@ DEP002 = [
     # Used (implicitely) by Flask (I think)
     'python-dotenv',
     # Used (implicitely) by SQLA
-    'psycopg2-binary',
+    'psycopg2',
     "asyncpg",
     #
     'python-iso639',
