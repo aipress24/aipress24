@@ -5,7 +5,6 @@
 from __future__ import annotations
 
 from attr import frozen
-from devtools import debug
 from flask import g, request
 from svcs.flask import container
 from werkzeug import Response
@@ -78,8 +77,6 @@ class MediaOpportunityPage(BaseWipPage):
         self.args = {"id": id}
 
     def get(self) -> str | Response:
-        debug(dict(**request.args), dict(**request.form))
-
         html = self.render()
         html = extract_fragment(html, id="form")
         return html

@@ -10,10 +10,10 @@ import toml
 from flask import current_app, render_template
 from markdown import markdown
 
-from .. import blueprint
+from .. import get
 
 
-@blueprint.route("/page/<path:path>")
+@get("/page/<path:path>")
 def page(path: str):
     path = path.removesuffix("/")
 

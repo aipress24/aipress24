@@ -6,7 +6,11 @@
 
 from multiprocessing import cpu_count
 
-from hyperdx.opentelemetry import configure_opentelemetry
+try:
+    from hyperdx.opentelemetry import configure_opentelemetry
+except ImportError:
+    def configure_opentelemetry():
+        pass
 
 
 def post_fork(server, worker):

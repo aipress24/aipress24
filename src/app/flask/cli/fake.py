@@ -22,7 +22,7 @@ from app.modules.admin.utils import gc_all_auto_organisations
 from app.services.roles import generate_roles_map
 
 from . import db_util
-from .bootstrap import bootstrap_function
+from .bootstrap import bootstrap
 
 
 #
@@ -36,7 +36,7 @@ def fake(clean) -> None:
     db_setup(clean)
 
     print(green("Bootstrapping master data..."))
-    bootstrap_function()
+    bootstrap()
 
     print(green("Generating fake data..."))
     faker = FakerService(db)

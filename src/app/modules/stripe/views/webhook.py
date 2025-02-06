@@ -406,7 +406,7 @@ def _check_subscription_product(
 
 
 def _make_customer_subscription_info(
-    data_obj: dict[str, Any]
+    data_obj: dict[str, Any],
 ) -> SubscriptionInfo | None:
     subinfo = SubscriptionInfo()
     # info("//////// data_obj")
