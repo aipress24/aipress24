@@ -42,7 +42,7 @@ class BanoJob(Job):
         db.session.commit()
 
     def get_streets(self):
-        with Path("data/bano-streets-sample.json").open() as fd:
+        with Path("bootstrap_data/bano-streets-sample.json").open() as fd:
             return json.load(fd)
 
     def fix_class(self, cls: type[Addressable]) -> None:
