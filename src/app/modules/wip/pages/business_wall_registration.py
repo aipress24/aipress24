@@ -23,6 +23,7 @@ from app.services.stripe.utils import (
     load_pricing_table_id,
     load_stripe_api_key,
 )
+from app.services.stripe.retriever import retrieve_subscription
 
 from .base import BaseWipPage
 from .home import HomePage
@@ -310,33 +311,25 @@ class BusinessWallRegistrationPage(BaseWipPage):
         response.headers["HX-Redirect"] = self.url
         return response
 
-    @staticmethod
-    def _retrieve_session(session_id: str) -> stripe.checkout.Session | None:
-        try:
-            session = stripe.checkout.Session.retrieve(
-                session_id,
-                expand=[
-                    "customer",
-                    "line_items",
-                ],
-            )
-        except Exception as e:
-            session = None
-            warning("Error in _retrieve_session():", e)
-        return session
+    # @staticmethod
+    # def _retrieve_session(session_id: str) -> stripe.checkout.Session | None:
+    #     try:
+    #         session = stripe.checkout.Session.retrieve(
+    #             session_id,
+    #             expand=[
+    #                 "customer",
+    #                 "line_items",
+    #             ],
+    #         )
+    #     except Exception as e:
+    #         session = None
+    #         warning("Error in _retrieve_session():", e)
+    #     return session
 
     def _retrieve_subscription(self) -> stripe.Subscription | None:
         if not self.org or not self.org.stripe_subscription_id:
             return None
-        try:
-            subscription = stripe.Subscription.retrieve(self.org.stripe_subscription_id)
-        except Exception as e:
-            subscription = None
-            warning(
-                f"Error: in _retrieve_subscription({self.org.stripe_subscription_id}):",
-                e,
-            )
-        return subscription
+        return retrieve_subscription(self.org.stripe_subscription_id)
 
     def do_suspend_locally(self) -> None:
         if not self.org or not self.org.active:

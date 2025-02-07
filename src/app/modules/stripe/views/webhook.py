@@ -24,14 +24,14 @@ from app.modules.admin.invitations import invite_users
 from app.modules.admin.org_email_utils import add_managers_emails
 from app.modules.admin.utils import get_user_per_email
 from app.services.stripe.product import stripe_bw_subscription_dict
-from app.services.stripe.utils import get_stripe_webhook_secret, load_stripe_api_key
-
-from .. import blueprint
-from ..utils import (
+from app.services.stripe.retriever import (
     retrieve_customer,
     retrieve_invoice,
     retrieve_product,
 )
+from app.services.stripe.utils import get_stripe_webhook_secret, load_stripe_api_key
+
+from .. import blueprint
 
 
 @dataclass

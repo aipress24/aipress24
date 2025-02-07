@@ -24,10 +24,10 @@ def _stripe_object_retriever(
     klass: type[Customer | Event | Invoice | Price | Product | Session | Subscription],
 ) -> Callable:
     def retriever(
-        item_id: str,
+        item_id: str, **kwargs: Any
     ) -> Customer | Event | Invoice | Price | Product | Session | Subscription | None:
         try:
-            return klass.retrieve(item_id)
+            return klass.retrieve(item_id, **kwargs)
         except stripe.error.StripeError as e:  # type:ignore
             warning(
                 f"Error retrieving {klass.__name__} for id {item_id}: {e}"
