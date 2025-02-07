@@ -92,6 +92,6 @@ class OrgGenerator(BaseGenerator):
 
 
 def fake_agency_url():
-    lines = Path("data/sites-web.txt").read_text().split("\n")
+    lines = Path("bootstrap_data/sites-web.txt").read_text().split("\n")
     lines = [line for line in lines if line]
     return random.choice(lines)

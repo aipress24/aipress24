@@ -145,6 +145,7 @@ ontologies:
 .PHONY: fake
 ## Generate fake data
 fake:
+	flask fetch-bootstrap-data
 	flask fake --clean
 	flask job bano
 

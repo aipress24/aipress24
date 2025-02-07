@@ -47,10 +47,17 @@ BOOTSTRAP_DATA_PATH = Path("bootstrap_data")
 @command("bootstrap", short_help="Bootstrap the application database")
 @with_appcontext
 def bootstrap_cmd() -> None:
+    fetch_bootstrap_data()
     bootstrap()
 
 
-def bootstrap() -> None:
+@command("fetch-bootstrap-data", short_help="Fetch the bootstrap data")
+@with_appcontext
+def fetch_bootstrap_data_cmd() -> None:
+    fetch_bootstrap_data()
+
+
+def fetch_bootstrap_data() -> None:
     if not BOOTSTRAP_DATA_PATH.exists():
         print("Downloading data...")
         git_url = current_app.config.get("BOOTSTRAP_DATA_URL", DEFAULT_DATA_URL)
@@ -58,6 +65,8 @@ def bootstrap() -> None:
             ["/usr/bin/git", "clone", git_url, str(BOOTSTRAP_DATA_PATH)], check=False
         )
 
+
+def bootstrap() -> None:
     bootstrap_roles()
     bootstrap_promotions()
 
