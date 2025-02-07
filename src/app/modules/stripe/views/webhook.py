@@ -27,6 +27,11 @@ from app.services.stripe.product import stripe_bw_subscription_dict
 from app.services.stripe.utils import get_stripe_webhook_secret, load_stripe_api_key
 
 from .. import blueprint
+from ..utils import (
+    retrieve_customer,
+    retrieve_invoice,
+    retrieve_product,
+)
 
 
 @dataclass
@@ -87,38 +92,6 @@ def info(*args: Any) -> None:
 def warning(*args: Any) -> None:
     msg = " ".join(str(x) for x in args)
     print(f"Warning (Webhook): {msg}", file=sys.stderr)
-
-
-def retrieve_customer(customer_id: str) -> object:
-    try:
-        return stripe.Customer.retrieve(customer_id)
-    except stripe.error.StripeError as e:
-        warning(f"Error retrieving customer: {e}")
-        return {}
-
-
-def retrieve_product(product_id: str) -> object:
-    try:
-        return stripe.Product.retrieve(product_id)
-    except stripe.error.StripeError as e:
-        warning(f"Error retrieving Product  ({product_id}): {e}")
-        return {}
-
-
-def retrieve_product_price(price_id: str) -> object:
-    try:
-        return stripe.Price.retrieve(price_id)
-    except stripe.error.StripeError as e:
-        warning(f"Error retrieving Price ({price_id}): {e}")
-        return {}
-
-
-def retrieve_invoice(invoice_id: str) -> object:
-    try:
-        return stripe.Invoice.retrieve(invoice_id)
-    except stripe.error.StripeError as e:
-        warning(f"Error retrieving Invoice ({invoice_id}): {e}")
-        return {}
 
 
 @blueprint.route("/webhook", methods=["GET", "POST"])
@@ -388,7 +361,7 @@ def _check_subscription_product(
         subinfo.org_type = "OTHER"
     subinfo.name = product.name
     # info(pformat(product))
-    # price = retrieve_product_price(product["default_price"])
+    # price = retrieve_price(product["default_price"])
     # info(pformat(price))
     # info(pformat(data_obj))
     latest_invoice = retrieve_invoice(data_obj["latest_invoice"])
