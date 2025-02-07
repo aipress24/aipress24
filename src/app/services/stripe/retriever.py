@@ -29,9 +29,7 @@ def _stripe_object_retriever(
         try:
             return klass.retrieve(item_id, **kwargs)
         except stripe.error.StripeError as e:  # type:ignore
-            warning(
-                f"Error retrieving {klass.__name__} for id {item_id}: {e}"
-            )  # type:ignore
+            warning(f"Error retrieving {klass.__name__} for id {item_id}: {e}")  # type:ignore
             return None
 
     return retriever
