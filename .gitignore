@@ -26,6 +26,9 @@
 /sandbox
 /doc/site
 /debug/
+/users/
+/bootstrap_data/
+/db/
 
 # Generated
 __pycache__/

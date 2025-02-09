@@ -4,9 +4,14 @@
 
 from __future__ import annotations
 
+import shutil
 import subprocess
 import sys
+from urllib.parse import urlparse
 
+import click
+from devtools import debug
+from flask import current_app
 from flask.cli import with_appcontext
 from flask_super.cli import group
 from rich import print
@@ -69,3 +74,34 @@ def upgrade() -> None:
 def _upgrade():
     flask = sys.argv[0]
     subprocess.run([flask, "db", "upgrade"], check=True)
+
+
+@db2.command()
+@click.argument("filename")
+@with_appcontext
+def import_sql(filename: str) -> None:
+    """Import SQL file."""
+
+    sqlalchemy_url = current_app.config["SQLALCHEMY_DATABASE_URI"]
+
+    parsed_url = urlparse(sqlalchemy_url)
+    hostname = parsed_url.hostname
+    port = parsed_url.port
+    database = parsed_url.path.lstrip("/")
+    username = parsed_url.username
+    password = parsed_url.password
+    env = {
+        "PGHOST": hostname,
+        "PGPORT": str(port),
+        "PGDATABASE": database,
+    }
+    if password:
+        env["PGPASSWORD"] = password
+    if username:
+        env["PGUSER"] = username
+    debug(env)
+
+    pg_restore = shutil.which("pg_restore")
+    cmd = [pg_restore, "-d", database, filename]
+    print(" ".join(cmd))
+    subprocess.run(cmd, env=env, check=True)

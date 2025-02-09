@@ -64,6 +64,9 @@ class UserRepository(Repository[User]):
 class RoleRepository(Repository[Role]):
     model_type = Role
 
+    def get_by_name(self, name: str) -> Role:
+        return self.get_one(Role.name == name)
+
 
 #
 # Social models

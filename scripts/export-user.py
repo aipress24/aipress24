@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import yaml
+from yaml import SafeDumper, Dumper
 
 from app.flask.main import create_app
 
@@ -23,7 +24,21 @@ def export_user():
         print(f"{k}: {type(v)}, {size}")
         exported_data[k] = v
 
-    yaml.dump(exported_data, open("tmp/user.yaml", "w"))
+    yaml.dump(exported_data, open("tmp/user1.yaml", "w"), Dumper=Dumper)
+
+    profile = user.profile
+    data = vars(profile)
+    exported_data = {}
+    for k, v in sorted(data.items()):
+        if k.startswith("_"):
+            continue
+        try:
+            size = len(v)
+        except TypeError:
+            size = 1
+        print(f"{k}: {type(v)}, {size}")
+        exported_data[k] = v
+    yaml.dump(exported_data, open("tmp/user1-profile.yaml", "w"), Dumper=Dumper)
 
 
 if __name__ == "__main__":

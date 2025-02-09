@@ -293,12 +293,15 @@ class KYCProfile(Base):
     __tablename__ = "kyc_profile"
 
     id: Mapped[int] = mapped_column(primary_key=True, unique=True, autoincrement=True)
+
     user_id: Mapped[int] = mapped_column(ForeignKey("aut_user.id", ondelete="CASCADE"))
     user: Mapped[User] = relationship(back_populates="profile")
+
     profile_id: Mapped[str] = mapped_column(default="")
     profile_code: Mapped[str] = mapped_column(default="")
     profile_label: Mapped[str] = mapped_column(default="")
     profile_community: Mapped[str] = mapped_column(default="")
+
     contact_type: Mapped[str] = mapped_column(default="")
     display_level: Mapped[int] = mapped_column(sa.Integer, default=1)
     presentation: Mapped[str] = mapped_column(default="")

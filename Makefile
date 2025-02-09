@@ -136,11 +136,14 @@ build:
 
 .PHONY: bootstrap
 bootstrap:
+	flask db2 drop
+	flask db2 create
 	flask bootstrap
+	flask bootstrap-users
 
 .PHONY: ontologies
 ontologies:
-		flask ontologies import
+	flask ontologies import
 
 .PHONY: fake
 ## Generate fake data

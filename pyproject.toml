@@ -136,8 +136,8 @@ dev = [
     "abilian-devtools<1.0,>=0.7",
     "flask-debugtoolbar<1.0,>=0.16",
     # (Remove?)
-#    "openpyxl<4.0.0,>=3.1.2",
-#    "pijnu==20160727",
+    #    "openpyxl<4.0.0,>=3.1.2",
+    #    "pijnu==20160727",
     # More flake8 plugins
     "flake8-requirements<3.0.0,>=2.0.1",
     "flake8-use-pathlib<1.0.0,>=0.3.0",
@@ -182,6 +182,7 @@ dev = [
     "behave",
     "cssselect",
     "splinter<1.0.0,>=0.21.0",
+    "ruamel-yaml>=0.18.10",
 ]
 
 [build-system]

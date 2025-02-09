@@ -4,22 +4,27 @@
 
 from __future__ import annotations
 
+import decimal
 import subprocess
 import time
+import traceback
 from pathlib import Path
 
+import yaml
 from flask import current_app
 from flask.cli import with_appcontext
+from flask_security import hash_password
 from flask_super.cli import command
 from rich import print
+from sqlalchemy_utils.types.arrow import arrow
 from svcs.flask import container
 
 from app.enums import RoleEnum
 from app.flask.bootstrap import import_countries, import_taxonomies, import_zip_codes
 from app.flask.extensions import db
 from app.models.admin import Promotion
-from app.models.auth import Role
-from app.models.repositories import RoleRepository
+from app.models.auth import KYCProfile, Role, User
+from app.models.repositories import RoleRepository, UserRepository
 from app.services.promotions import get_promotion
 
 BOX_SLUGS = [
@@ -41,9 +46,68 @@ DEFAULT_DATA_URL = "https://github.com/aipress24/aipress24-data.git"
 BOOTSTRAP_DATA_PATH = Path("bootstrap_data")
 
 
+def decimal_constructor(loader, node):
+    value = loader.construct_scalar(node)
+    return decimal.Decimal(value)
+
+
+def arrow_constructor(loader, node):
+    value = loader.construct_scalar(node)
+    return arrow.get(value)
+
+
+yaml.SafeLoader.add_constructor("!decimal", decimal_constructor)
+yaml.SafeLoader.add_constructor("!arrow", arrow_constructor)
+
+
 #
 # Other operational commands
 #
+@command("bootstrap-users", short_help="Bootstrap users")
+@with_appcontext
+def bootstrap_users_cmd() -> None:
+    for path in Path("users").glob("*.yaml"):
+        try:
+            user = bootstrap_user(path)
+            print(f"Imported user {user.email} from file: {path}")
+        except Exception as e:
+            print(f"Error: {e}")
+            traceback.print_exc()
+            print("Could not import user from file: ", path)
+
+
+def bootstrap_user(path):
+    user_repo = UserRepository(session=db.session)
+    role_repo = RoleRepository(session=db.session)
+
+    data = yaml.load(path.open(), Loader=yaml.SafeLoader)
+
+    user_id = data["id"]
+    if user_repo.count(id=user_id):
+        user_repo.delete(user_id)
+
+    password = data.pop("_password")
+    role_name = data.pop("_role")
+    profile_data = data.pop("_profile")
+    is_admin = data.pop("_is_admin", False)
+
+    user = User(**data)
+    user.password = hash_password(password)
+
+    role = role_repo.get_by_name(role_name)
+    user.roles.append(role)
+    if is_admin:
+        admin_role = role_repo.get_by_name("ADMIN")
+        user.roles.append(admin_role)
+
+    profile = KYCProfile(**profile_data)
+    user.profile = profile
+
+    user_repo.add(user)
+    db.session.commit()
+    return user
+
+
 @command("bootstrap", short_help="Bootstrap the application database")
 @with_appcontext
 def bootstrap_cmd() -> None:
