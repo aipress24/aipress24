@@ -182,7 +182,7 @@ dev = [
     "behave",
     "cssselect",
     "splinter<1.0.0,>=0.21.0",
-    "ruamel-yaml>=0.18.10",
+    "pyyaml>=6.0.2",
 ]
 
 [build-system]
