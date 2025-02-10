@@ -7,7 +7,7 @@ from __future__ import annotations
 from typing import Any
 
 from app.models.auth import User
-from app.models.content import Article, Event, Image, PressRelease
+from app.models.content import Article, Event, PressRelease
 from app.models.organisation import Organisation
 from app.modules.swork.models import Group
 

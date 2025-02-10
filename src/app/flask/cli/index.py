@@ -4,15 +4,12 @@
 
 from __future__ import annotations
 
-import contextlib
-
 from devtools import debug
 from flask.cli import with_appcontext
 from flask_super.cli import group
 from rich import print
 
 from app.modules.search.backend import SearchBackend
-from typesense.exceptions import ObjectNotFound
 
 backend = SearchBackend()
 
@@ -71,4 +68,3 @@ def dump() -> None:
         #     # with contextlib.suppress(ObjectNotFound):
         #     #     print(document.retrieve())
         print()
-

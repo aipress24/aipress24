@@ -13,12 +13,12 @@ from attr import frozen
 from flask import current_app
 from loguru import logger
 from typesense.collection import Collection
+from typesense.exceptions import ObjectNotFound
 
 from app.flask.routing import url_for
 from app.models.auth import User
 from app.models.content import Article, PressRelease
 from app.services.tagging import get_tags
-from typesense.exceptions import ObjectNotFound
 
 from .constants import COLLECTIONS
 
@@ -167,12 +167,9 @@ class SearchBackend:
         data = self._adapt(user)
         data["title"] = user.first_name + " " + user.last_name
         data["summary"] = user.job_title
-        match_making = user.profile.match_making
         data["text"] = " ".join([
             user.job_title,
             user.profile.presentation,
-            # match_making["experiences"],
-            # match_making["formations"],
-            # match_making["hobbies"],
+            # TODO: add more fields
         ])
         return data

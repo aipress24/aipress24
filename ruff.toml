@@ -65,6 +65,7 @@ lint.ignore = [
     "DOC402", # `yield` is not documented in docstring
     "DOC501", # Raised exception missing from docstring
     "E501", # line too long
+    "FLY002", # Consider f"..." instead of string join
     "ERA001", # Found commented-out code
     "PLC0415", # `import` should be at the top-level of a file
     "PLR0911", # Too many return statements
