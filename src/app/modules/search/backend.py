@@ -9,7 +9,6 @@ from functools import singledispatchmethod
 from typing import Any
 
 import typesense
-import typesense.exceptions
 from attr import frozen
 from flask import current_app
 from loguru import logger
@@ -19,6 +18,7 @@ from app.flask.routing import url_for
 from app.models.auth import User
 from app.models.content import Article, PressRelease
 from app.services.tagging import get_tags
+from typesense.exceptions import ObjectNotFound
 
 from .constants import COLLECTIONS
 
@@ -64,7 +64,7 @@ class SearchBackend:
 
     def get_collection(self, name) -> Collection:
         client = self.get_client()
-        with contextlib.suppress(typesense.exceptions.ObjectNotFound):
+        with contextlib.suppress(ObjectNotFound):
             if collection := client.collections[name]:
                 return collection
         msg = f"Unknown collection: {name}"
@@ -75,7 +75,7 @@ class SearchBackend:
         for schema in SCHEMAS:
             name = schema["name"]
 
-            with contextlib.suppress(ValueError):
+            with contextlib.suppress(ObjectNotFound):
                 collection = self.get_collection(name)
                 collection.delete()
                 logger.info("Deleted collection: {}", name)
@@ -90,7 +90,9 @@ class SearchBackend:
             for obj in cls.query.all():
                 d = self.adapt(obj)
                 docs.append(d)
-            self.get_collection(name).documents.import_(docs)
+            if docs:
+                collection = self.get_collection(name)
+                collection.documents.import_(docs)
 
     def index_obj(self, obj) -> None:
         name = self._get_collection_name_for(obj)
@@ -169,9 +171,8 @@ class SearchBackend:
         data["text"] = " ".join([
             user.job_title,
             user.profile.presentation,
-            match_making["experiences"],
-            match_making["experiences"],
-            match_making["formations"],
-            match_making["hobbies"],
+            # match_making["experiences"],
+            # match_making["formations"],
+            # match_making["hobbies"],
         ])
         return data

@@ -25,19 +25,6 @@ COLLECTIONS: list[dict[str, Any]] = [
         "class": Article,
     },
     {
-        "name": "images",
-        "label": "Images",
-        "icon": "photograph",
-        "class": Image,
-    },
-    # {
-    #     "name": "videos",
-    #     "label": "Vidéos",
-    #     "icon": "film",
-    #     # TODO: video
-    #     "class": Image,
-    # },
-    {
         "name": "press-releases",
         "label": "Communiqués",
         "icon": "speaker-wave",

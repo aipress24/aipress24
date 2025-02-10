@@ -1,13 +1,15 @@
-# Copyright (c) 2021-2024, Abilian SAS & TCA
+# # Copyright (c) 2021-2024, Abilian SAS & TCA
+# #
+# # SPDX-License-Identifier: AGPL-3.0-only
 #
-# SPDX-License-Identifier: AGPL-3.0-only
-
-from __future__ import annotations
-
+# from __future__ import annotations
+#
 # from __future__ import annotations
 #
 # from dataclasses import dataclass, field
 #
+# from app.models.content import PressRelease
+# from app.modules.swork.models import Group
 # from flask import request
 # from sqlalchemy import func, select
 # from sqlalchemy.orm import selectinload
@@ -18,16 +20,11 @@ from __future__ import annotations
 # from app.flask.sqla import get_multi
 # from app.lib.fts import tokenize
 # from app.models.auth import User
-# from app.models.common import STATUS
-# from app.models.content.communication import PressRelease
 # from app.models.content.events import Event
 # from app.models.content.mixins import Searchable
 # from app.models.content.multimedia import Image
 # from app.models.content.textual import Article
 # from app.models.organisation import Organisation
-# from app.models.social import Group
-#
-# from .. import blueprint
 #
 #
 #
@@ -198,7 +195,7 @@ from __future__ import annotations
 #     def make_stmt(self):
 #         cls = self.cls
 #
-#         stmt = select(cls).where(cls.status == STATUS.PUBLIC)
+#         stmt = select(cls).where(cls.status == PUBLIC)
 #
 #         if hasattr(cls, "owner"):
 #             stmt = stmt.options(selectinload(cls.owner))

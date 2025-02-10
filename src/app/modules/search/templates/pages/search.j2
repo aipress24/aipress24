@@ -1,15 +1,20 @@
-<div class="max-w-3xl mx-auto sm:px-6 lg:max-w-4xl lg:px-8 my-10">
-  {% include "pages/search-top-bar.j2" %}
-</div>
+{% extends "layout/private.j2" %}
 
-<div
-    class="max-w-3xl mb-12 mx-auto sm:px-6 lg:max-w-7xl lg:px-8 lg:grid lg:grid-cols-12 lg:gap-8"
->
-  <main class="bg-white lg:col-span-8">
-    {% include "pages/search-main.j2" %}
-  </main>
+{% block content %}
 
-  <div class="bg-white p-4 lg:col-span-4">
-    {% include "pages/search-side-bar.j2" %}
+  <div class="max-w-3xl mx-auto sm:px-6 lg:max-w-4xl lg:px-8 my-10">
+    {% include "pages/search-top-bar.j2" %}
   </div>
-</div>
+
+  <div
+      class="max-w-3xl mb-12 mx-auto sm:px-6 lg:max-w-7xl lg:px-8 lg:grid lg:grid-cols-12 lg:gap-8"
+  >
+    <main class="bg-white lg:col-span-8">
+      {% include "pages/search-main.j2" %}
+    </main>
+
+    <div class="bg-white p-4 lg:col-span-4">
+      {% include "pages/search-side-bar.j2" %}
+    </div>
+  </div>
+{% endblock %}
