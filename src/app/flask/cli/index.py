@@ -7,13 +7,12 @@ from __future__ import annotations
 import json
 
 import click
-from app.modules.search.pages.search import SearchResults
-from devtools import debug
 from flask.cli import with_appcontext
 from flask_super.cli import group
 from rich import print
 
 from app.modules.search.backend import SearchBackend
+from app.modules.search.pages.search import SearchResults
 
 backend = SearchBackend()
 
@@ -71,9 +70,9 @@ def dump() -> None:
             print()
             continue
 
-        l = export.split("\n")
-        for i, line in enumerate(l):
-            data = json.loads(line)
+        json_lines = export.split("\n")
+        for json_line in json_lines:
+            data = json.loads(json_line)
             print(data)
         print()
 
