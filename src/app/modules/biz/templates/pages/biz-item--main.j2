@@ -42,7 +42,7 @@
            class="font-medium text-gray-900">{{ seller.full_name }}</a>,
         le
         {{ item.created_at.format("DD MMMM YYYY, à HH:mm", locale="fr") }}.
-        {% if item.created_at != item.modified_at %}
+        {% if item.modified_at and item.created_at != item.modified_at %}
           Dernière modification le
           {{ item.modified_at.format("DD MMMM YYYY, à HH:mm", locale="fr") }}.
         {% endif %}
