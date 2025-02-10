@@ -168,6 +168,8 @@ class SearchBackend:
         data["title"] = user.first_name + " " + user.last_name
         data["summary"] = user.job_title
         data["text"] = " ".join([
+            user.first_name,
+            user.last_name,
             user.job_title,
             user.profile.presentation,
             # TODO: add more fields

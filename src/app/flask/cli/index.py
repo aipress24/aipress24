@@ -4,6 +4,10 @@
 
 from __future__ import annotations
 
+import json
+
+import click
+from app.modules.search.pages.search import SearchResults
 from devtools import debug
 from flask.cli import with_appcontext
 from flask_super.cli import group
@@ -61,10 +65,26 @@ def dump() -> None:
         print("Collection:", collection_name)
         documents = client.collections[collection_name].documents
         export = documents.export()
-        debug(export)
-        # for document in client.collections[collection_name].documents:
-        #     # document_id = document.document_id
-        #     # print(document_id)
-        #     # with contextlib.suppress(ObjectNotFound):
-        #     #     print(document.retrieve())
+
+        if not export:
+            print("No documents")
+            print()
+            continue
+
+        l = export.split("\n")
+        for i, line in enumerate(l):
+            data = json.loads(line)
+            print(data)
         print()
+
+
+@index.command(short_help="Search")
+@click.argument("qs")
+@with_appcontext
+def search(qs) -> None:
+    filter = "all"
+    results = SearchResults(qs, filter)
+    for rs in results.result_sets:
+        print(rs.name, rs.count)
+        for hit in rs.hits:
+            print(hit)
