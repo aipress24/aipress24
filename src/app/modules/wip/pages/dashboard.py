@@ -42,7 +42,7 @@ class DashboardPage(BaseWipPage):
         draft = ArticleStatus.DRAFT
         return [
             Card(
-                "Articles publiées",
+                "Articles publiés",
                 "newspaper",
                 self.get_articles_count(public),
                 url_for("ArticlesWipView:index"),
