@@ -25,9 +25,12 @@
   </div>
 
   <span class="htmx-indicator">(Mise à jour en cours...)</span>
-
-  {% if "article" in request.url %}
+  {% if "articles" in request.url %}
     {% set new_url = "/wip/articles/new/" %}
+  {% elif "sujets" in request.url %}
+     {% set new_url = "/wip/sujets/new/" %}
+  {% elif "commandes" in request.url %}
+     {% set new_url = "/wip/commandes/new/" %}
   {% else %}
     {% set new_url = "/wip/avis-enquete/new/" %}
   {% endif %}
