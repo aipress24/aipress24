@@ -17,7 +17,7 @@ sujet_form = {
         "dates": {"label": "Dates-clés"},
     },
     "field": {
-        "title": {
+        "titre": {
             "label": "Titre",
             "group": "headers",
         },

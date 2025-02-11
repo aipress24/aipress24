@@ -156,9 +156,10 @@ class AvisEnqueteForm(Form):
 class SujetForm(Form):
 
     # Group: headers
-    title = StringField("Titre")
+    titre = StringField("Titre")
     contenu = TextAreaField("Brief")
-    media = SelectField("Média", render_kw={"width": 3})
+    # fixme: remove media for now
+    # media = SelectField("Média", render_kw={"width": 3})
 
     # Group: metadata
     genre = RichSelectField(
@@ -194,7 +195,9 @@ class SujetForm(Form):
 
     class Meta:
         groups = {
-            "headers": {"label": "", "fields": ["title", "contenu", "media"]},
+            "headers": {"label": "", "fields": ["titre", "contenu"]},
+            # fixme: remove "media" field for now
+            # "headers": {"label": "", "fields": ["titre", "contenu", "media"]},
             "metadata": {
                 "label": "Métadonnées",
                 "fields": ["genre", "section", "topic", "sector"],
