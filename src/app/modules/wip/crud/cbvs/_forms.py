@@ -209,7 +209,7 @@ class SujetForm(Form):
 class CommandeForm(Form):
 
     # Group: headers
-    title = StringField("Titre")
+    titre = StringField("Titre")
     contenu = TextAreaField("Brief")
 
     # Group: metadata
@@ -248,7 +248,7 @@ class CommandeForm(Form):
 
     class Meta:
         groups = {
-            "headers": {"label": "", "fields": ["title", "contenu"]},
+            "headers": {"label": "", "fields": ["titre", "contenu"]},
             "metadata": {
                 "label": "Métadonnées",
                 "fields": ["genre", "section", "topic", "sector"],
