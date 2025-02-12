@@ -125,6 +125,8 @@ dependencies = [
     "setuptools>=75.8.0",
     "pyyaml>=6.0.2",
     "schedule>=1.2.2",
+    "wakaq>=3.0.6",
+    "honcho>=2.0.0",
 ]
 description = ""
 
@@ -184,6 +186,7 @@ dev = [
     "behave",
     "cssselect",
     "splinter<1.0.0,>=0.21.0",
+    "q>=2.7",
 ]
 
 [build-system]

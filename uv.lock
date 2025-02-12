@@ -130,6 +130,7 @@ dependencies = [
     { name = "flask-wtf" },
     { name = "granian", extra = ["reload"] },
     { name = "gunicorn" },
+    { name = "honcho" },
     { name = "hypothesis" },
     { name = "ijson" },
     { name = "jinja2" },
@@ -173,6 +174,7 @@ dependencies = [
     { name = "toml" },
     { name = "tomli" },
     { name = "typesense" },
+    { name = "wakaq" },
     { name = "weasyprint" },
     { name = "webargs" },
     { name = "webbits" },
@@ -211,6 +213,7 @@ dev = [
     { name = "pytest-testmon" },
     { name = "pytest-watcher" },
     { name = "pyupgrade" },
+    { name = "q" },
     { name = "selenium" },
     { name = "splinter" },
     { name = "sqlalchemy-data-model-visualizer" },
@@ -272,6 +275,7 @@ requires-dist = [
     { name = "flask-wtf", specifier = ">=1.2.1,<2.0.0" },
     { name = "granian", extras = ["reload"], specifier = ">=1.6,<2.0" },
     { name = "gunicorn", specifier = ">=23,<24" },
+    { name = "honcho", specifier = ">=2.0.0" },
     { name = "hypothesis", specifier = ">=6.92.8,<7.0.0" },
     { name = "ijson", specifier = ">=3.3.0" },
     { name = "jinja2", specifier = ">=3.1.3,<4.0.0" },
@@ -315,6 +319,7 @@ requires-dist = [
     { name = "toml", specifier = ">=0.10.2,<1.0.0" },
     { name = "tomli", specifier = ">=2.0.1,<3.0.0" },
     { name = "typesense", specifier = ">=0.21,<1.0" },
+    { name = "wakaq", specifier = ">=3.0.6" },
     { name = "weasyprint", specifier = ">=63,<64" },
     { name = "webargs", specifier = ">=8.4.0,<9.0.0" },
     { name = "webbits", specifier = ">=0.1.2,<1.0.0" },
@@ -353,6 +358,7 @@ dev = [
     { name = "pytest-testmon", specifier = ">=2.1.0,<3.0.0" },
     { name = "pytest-watcher", specifier = ">=0.4,<1.0" },
     { name = "pyupgrade", specifier = ">=3.15.0,<4.0.0" },
+    { name = "q", specifier = ">=2.7" },
     { name = "selenium" },
     { name = "splinter", specifier = ">=0.21.0,<1.0.0" },
     { name = "sqlalchemy-data-model-visualizer", specifier = ">=0.1.3,<1.0.0" },
@@ -1065,6 +1071,19 @@ wheels = [
 [package.optional-dependencies]
 toml = [
     { name = "tomli", marker = "python_full_version <= '3.11'" },
+]
+
+[[package]]
+name = "croniter"
+version = "6.0.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "python-dateutil" },
+    { name = "pytz" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/ad/2f/44d1ae153a0e27be56be43465e5cb39b9650c781e001e7864389deb25090/croniter-6.0.0.tar.gz", hash = "sha256:37c504b313956114a983ece2c2b07790b1f1094fe9d81cc94739214748255577", size = 64481 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/07/4b/290b4c3efd6417a8b0c284896de19b1d5855e6dbdb97d2a35e68fa42de85/croniter-6.0.0-py2.py3-none-any.whl", hash = "sha256:2f878c3856f17896979b2a4379ba1f09c83e374931ea15cc835c5dd2eee9b368", size = 25468 },
 ]
 
 [[package]]
@@ -3306,6 +3325,15 @@ wheels = [
 ]
 
 [[package]]
+name = "q"
+version = "2.7"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/15/90/2649ecc3b4b335e62de4a0c3762c7cd7b2f77a023c5c00649f549cebb56c/q-2.7.tar.gz", hash = "sha256:8e0b792f6658ab9e1133b5ea17af1b530530e60124cf9743bc0fa051b8c64f4e", size = 7946 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/75/f0/ae942c0530d02092702211fd36d9a465e203f732789c84d0b96fbebe3039/q-2.7-py2.py3-none-any.whl", hash = "sha256:8388a3ef7e79b3b6224189e44ddba8dc1a6e9ed3212ce96f83f6056fa532459c", size = 10390 },
+]
+
+[[package]]
 name = "redis"
 version = "5.2.1"
 source = { registry = "https://pypi.org/simple" }
@@ -4108,6 +4136,18 @@ sdist = { url = "https://files.pythonhosted.org/packages/8e/25/925f35db758a0f919
 wheels = [
     { url = "https://files.pythonhosted.org/packages/a0/56/0cc15b8ff2613c1d5c3dc1f3f576ede1c43868c1bc2e5ccaa2d4bcd7974d/vulture-2.14-py2.py3-none-any.whl", hash = "sha256:d9a90dba89607489548a49d557f8bac8112bd25d3cbc8aeef23e860811bd5ed9", size = 28915 },
 ]
+
+[[package]]
+name = "wakaq"
+version = "3.0.6"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "click" },
+    { name = "croniter" },
+    { name = "psutil" },
+    { name = "redis" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/12/89/a30af8192d4510347f4c27caa0ae9dee14bd730d1e3ee56e016189db8a26/wakaq-3.0.6.tar.gz", hash = "sha256:eb1a03f889d64ce573af1c5ddc1c0dd33565bf868129f2c726626a0a015bdc21", size = 21670 }
 
 [[package]]
 name = "watchdog"

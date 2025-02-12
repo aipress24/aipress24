@@ -1,7 +1,12 @@
 vite: flask vite start
 backend: flask --debug run --reload
 
+# Queue stuff (wakaq)
+# redis: redis-server
+# worker: wakaq-worker --app='app.wakaq.tasks.wakaq'
+# scheduler: wakaq-scheduler --app='app.wakaq.tasks.wakaq'
+
+# Queue stuff (rq - obsolete)
 # scheduler: flask rq scheduler
 # worker: flask rq worker
 # scheduler: flask queue scheduler
-# worker: flask queue worker

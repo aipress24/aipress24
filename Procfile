@@ -3,6 +3,11 @@
 release: flask db upgrade
 web: python -m server
 
+# Processes for queues
+redis: redis-server
+worker: wakaq-worker --app='app.wakaq.tasks.wakaq'
+scheduler: wakaq-scheduler --app='app.wakaq.tasks.wakaq'
+
 # release: scripts/release.py
 # web: scripts/run.py
 # web: honcho -f Procfile.heroku start

@@ -13,7 +13,7 @@ from starlette.routing import Mount
 
 from adminapp.main import create_app as create_admin_app
 from app.flask.main import create_app as create_flask_app
-from server.scheduler import scheduler
+# from server.scheduler import scheduler
 
 config = Config()
 
@@ -41,8 +41,8 @@ def create_app():
 def serve(port: int = PORT, debug: bool = DEBUG, log_level: LogLevels = LOG_LEVEL):
     print("debug:", debug)
 
-    scheduler_thread = threading.Thread(target=scheduler)
-    scheduler_thread.start()
+    # scheduler_thread = threading.Thread(target=scheduler)
+    # scheduler_thread.start()
 
     reload = debug
     granian.Granian(

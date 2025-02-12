@@ -1,0 +1,10 @@
+version: "3.7"
+services:
+  typesense:
+    image: typesense/typesense:27.1  # Use the specific version.  Best practice.
+    ports:
+      - "8108:8108"
+    volumes:
+      - /tmp/data:/data  # Use absolute path on host (important for consistency)
+    command: --data-dir /data --api-key=<API_KEY>  # Use a placeholder for the API key
+    restart: unless-stopped # added a restart policy
