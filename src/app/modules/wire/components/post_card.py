@@ -15,6 +15,7 @@ from app.flask.lib.view_model import Wrapper
 from app.flask.routing import url_for
 from app.lib.html import remove_markup
 from app.models.auth import User
+from app.models.content.textual import Article
 
 # from app.models.content import Article, PressRelease, TextEditorialContent
 from app.models.organisation import Organisation
@@ -24,13 +25,16 @@ from app.modules.wire.models import ArticlePost
 @component
 @frozen
 class PostCard(Component):
-    post: ArticlePost  # | PressRelease
+    post: ArticlePost | Article  # | PressRelease
     show_author: bool = True
     class_: str = ""
 
     def get_post(self):
         match self.post:
             case ArticlePost():
+                return ArticleVM(self.post)
+
+            case Article():
                 return ArticleVM(self.post)
 
             # case PressRelease():

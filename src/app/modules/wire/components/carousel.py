@@ -30,10 +30,17 @@ class Carousel(Component):
         return self.get_slides()
 
     def get_slides(self):
-        article_id = self.post.newsroom_id
-        repo = container.get(ArticleRepository)
-        article = repo.get(article_id)
-        images: list[Image] = article.sorted_images
+        try:
+            article_id = self.post.newsroom_id
+            repo = container.get(ArticleRepository)
+            article = repo.get(article_id)
+        except AttributeError:
+            article = self.post
+
+        try:
+            images: list[Image] = article.sorted_images
+        except AttributeError:
+            images = []
 
         if not images:
             return [
