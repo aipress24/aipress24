@@ -20,9 +20,9 @@ SWORK_MENU = [
         "label": "Organisations",
         "icon": "building-office",
     },
-    {
-        "endpoint": "swork.parrainages",
-        "label": "Parrainages",
-        "icon": "heart",
-    },
+    # {
+    #     "endpoint": "swork.parrainages",
+    #     "label": "Parrainages",
+    #     "icon": "heart",
+    # },
 ]
