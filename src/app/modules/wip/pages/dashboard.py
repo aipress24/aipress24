@@ -9,6 +9,7 @@ from svcs.flask import container
 
 from app.flask.lib.pages import page
 from app.flask.routing import url_for
+from app.models.lifecycle import PublicationStatus
 from app.models.repositories import ArticleRepository
 from app.modules.wip.pages.tables import RecentContentsTable
 from app.services.auth import AuthService
@@ -17,8 +18,6 @@ from .base import BaseWipPage
 from .home import HomePage
 
 __all__ = ["DashboardPage"]
-
-from ..models.newsroom.article import ArticleStatus
 
 
 @page
@@ -38,8 +37,8 @@ class DashboardPage(BaseWipPage):
         }
 
     def get_cards(self):
-        public = ArticleStatus.PUBLIC
-        draft = ArticleStatus.DRAFT
+        public = PublicationStatus.PUBLIC
+        draft = PublicationStatus.DRAFT
         return [
             Card(
                 "Articles publiés",
@@ -61,7 +60,7 @@ class DashboardPage(BaseWipPage):
             ),
         ]
 
-    def get_articles_count(self, status: ArticleStatus):
+    def get_articles_count(self, status: PublicationStatus):
         repo = container.get(ArticleRepository)
         auth = container.get(AuthService)
         user = auth.get_user()

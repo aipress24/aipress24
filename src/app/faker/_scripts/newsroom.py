@@ -29,7 +29,6 @@ from app.modules.wip.models.newsroom import (
     ContactAvisEnquete,
     Sujet,
 )
-from app.modules.wip.models.newsroom.article import ArticleStatus
 
 faker = Faker("fr_FR")
 
@@ -212,7 +211,13 @@ class ArticlesFakerScript(BaseScript):
 
         self.add_metadata(obj)
 
-        obj.status = random.choice(list(ArticleStatus))
+        obj.status = random.choice(
+            [
+                PublicationStatus.DRAFT,
+                PublicationStatus.PUBLIC,
+                PublicationStatus.ARCHIVED,
+            ]
+        )
 
         obj.content = faker.text(5)
 

@@ -26,9 +26,10 @@ from werkzeug.exceptions import NotFound
 from app.flask.extensions import db
 from app.flask.lib.constants import EMPTY_PNG
 from app.flask.routing import url_for
+from app.models.lifecycle import PublicationStatus
 from app.models.repositories import ArticleRepository
 from app.modules.wip.models.newsroom import Article
-from app.modules.wip.models.newsroom.article import ArticleStatus, Image
+from app.modules.wip.models.newsroom.article import Image
 from app.services.blobs import BlobService
 from app.settings.constants import MAX_IMAGE_SIZE
 from app.signals import article_published, article_unpublished, article_updated
@@ -97,16 +98,20 @@ class ArticlesTable(BaseTable):
                 "url": self.url_for(item, "images"),
             },
         ]
-        if item.status == ArticleStatus.DRAFT:
-            actions.append({
-                "label": "Publier",
-                "url": self.url_for(item, "publish"),
-            })
+        if item.status == PublicationStatus.DRAFT:
+            actions.append(
+                {
+                    "label": "Publier",
+                    "url": self.url_for(item, "publish"),
+                }
+            )
         else:
-            actions.append({
-                "label": "Dépublier",
-                "url": self.url_for(item, "unpublish"),
-            })
+            actions.append(
+                {
+                    "label": "Dépublier",
+                    "url": self.url_for(item, "unpublish"),
+                }
+            )
         actions += [
             {
                 "label": "Supprimer",
@@ -144,7 +149,7 @@ class ArticlesWipView(BaseWipView):
 
     def _post_update_model(self, model: Article):
         if not model.status:
-            model.status = ArticleStatus.DRAFT
+            model.status = PublicationStatus.DRAFT
             model.published_at = arrow.now("Europe/Paris")
             if g.user.organisation_id:
                 model.publisher_id = g.user.organisation_id
@@ -153,7 +158,7 @@ class ArticlesWipView(BaseWipView):
     def publish(self, id: int):
         repo = self._get_repo()
         article = cast(Article, self._get_model(id))
-        article.status = ArticleStatus.PUBLIC
+        article.status = PublicationStatus.PUBLIC
         repo.update(article, auto_commit=True)
         flash("L'article a été publié")
         article_published.send(article)
@@ -162,7 +167,7 @@ class ArticlesWipView(BaseWipView):
     def unpublish(self, id: int):
         repo = self._get_repo()
         article = cast(Article, self._get_model(id))
-        article.status = ArticleStatus.DRAFT
+        article.status = PublicationStatus.DRAFT
         repo.update(article, auto_commit=True)
         flash("L'article a été dépublié")
         article_unpublished.send(article)

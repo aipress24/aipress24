@@ -8,24 +8,17 @@ from datetime import datetime
 from typing import ClassVar
 
 import sqlalchemy as sa
-from aenum import StrEnum, auto
 from sqlalchemy import orm
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy_utils import ArrowType
 
 from app.models.base import Base
+from app.models.lifecycle import PublicationStatus
 from app.models.mixins import IdMixin, LifeCycleMixin, Owned
 from app.models.organisation import Organisation
 from app.modules.wip.models.newsroom._base import NewsMetadataMixin, NewsroomCommonMixin
 
-
-class ArticleStatus(StrEnum):
-    DRAFT = auto()
-    PUBLIC = auto()
-    ARCHIVED = auto()
-
-
-DRAFT = ArticleStatus.DRAFT
+DRAFT = PublicationStatus.DRAFT
 
 
 class Article(
@@ -59,7 +52,7 @@ class Article(
     # ------------------------------------------------------------
 
     # Etat: Brouillon, Publié, Archivé
-    status: Mapped[ArticleStatus] = mapped_column(sa.Enum(ArticleStatus), default=DRAFT)
+    status: Mapped[PublicationStatus] = mapped_column(sa.Enum(PublicationStatus), default=DRAFT)
 
     published_at: Mapped[datetime | None] = mapped_column(
         ArrowType(timezone=True), nullable=True

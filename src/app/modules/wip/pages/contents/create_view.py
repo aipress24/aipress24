@@ -12,7 +12,7 @@ from werkzeug.datastructures import ImmutableMultiDict
 from app.flask.components.forms import Form
 from app.flask.extensions import db
 from app.models.content import BaseContent
-from app.modules.wip.models.newsroom.article import ArticleStatus
+from app.models.lifecycle import PublicationStatus
 
 from .base_view import View
 from .constants import DOC_CLASSES
@@ -52,7 +52,7 @@ class CreateView(View):
 
         # TEMP
         new_doc.published_at = arrow.now("Europe/Paris")
-        new_doc.status = ArticleStatus.PUBLIC
+        new_doc.status = PublicationStatus.PUBLIC
         if g.user.organisation_id:
             new_doc.publisher_id = g.user.organisation_id
 
