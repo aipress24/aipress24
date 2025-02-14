@@ -150,5 +150,5 @@ class UserVM(Wrapper):
             .order_by(Organisation.name)
         )
         result = db.session.scalar(stmt)
-        assert result
+        # assert result
         return result

@@ -58,9 +58,15 @@
         <p class="text-sm font-medium text-gray-900">
           {{ post.author.name }}
         </p>
-        <p class="text-sm text-gray-500 truncate">
-          {{ post.author.job_title }} @ {{ post.author.organisation.name }}
-        </p>
+        {% if post.author.organisation %}
+          <p class="text-sm text-gray-500 truncate">
+            {{ post.author.job_title }} @ {{ post.author.organisation.name }}
+          </p>
+        {% else %}
+          <p class="text-sm text-gray-500 truncate">
+            {{ post.author.job_title }}
+          </p>
+        {% endif%}
       </a>
     </div>
   </div>

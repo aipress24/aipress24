@@ -26,7 +26,14 @@ class Component:
         template = self._get_template()
 
         # There is a type declaration error in Flask
-        return Markup(render_template(template, **context))
+        try:
+            return Markup(render_template(template, **context))
+        except Exception as e:
+            import sys
+
+            print("--- Error on template for", self.__class__, file=sys.stderr)
+            print("---", e, file=sys.stderr)
+            raise
 
     def _get_context(self):
         context = {}
