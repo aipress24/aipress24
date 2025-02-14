@@ -4,9 +4,7 @@
 
 from __future__ import annotations
 
-import json
 import random
-from pathlib import Path
 
 import app.settings.vocabularies as voc
 from app.enums import RoleEnum
@@ -31,7 +29,13 @@ class ArticleGenerator(BaseGenerator):
 
         article = Article()
 
-        article.status = random.choice(list(PublicationStatus))
+        article.status = random.choice(
+            [
+                PublicationStatus.DRAFT,
+                PublicationStatus.PUBLIC,
+                PublicationStatus.ARCHIVED,
+            ]
+        )
 
         article.title = self.text_faker.text(1)
         article.content = self.text_faker.text(5)
@@ -82,12 +86,6 @@ class PhotoGenerator(BaseGenerator):
         return photo
 
 
-def random_press_release() -> dict[str, str]:
-    file_list = list(Path("data/pr").glob("*.json"))
-    with random.choice(file_list).open() as fd:
-        return json.load(fd)
-
-
 class PressReleaseGenerator(BaseGenerator):
     def make_obj(self) -> PressRelease:
         users = self.repository["users"]
@@ -96,12 +94,8 @@ class PressReleaseGenerator(BaseGenerator):
         press_release = PressRelease()
         press_release.owner_id = random.choice(users).id
 
-        d = random_press_release()
-        press_release.title = d["title"]
-        press_release.content = d["html"]
-
-        # Was:
-        # press_release.title = d.title
+        press_release.title = self.generate_short_title()
+        press_release.content = self.generate_text()
 
         press_release.summary = self.text_faker.text(random.randint(1, 2))
         press_release.location = random.choice(LOCATION)

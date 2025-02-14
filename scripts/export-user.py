@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 
 import yaml
-from yaml import SafeDumper, Dumper
-
-from app.flask.main import create_app
+from yaml import Dumper, SafeDumper
 
 from app.flask.extensions import db
+from app.flask.main import create_app
 from app.models.repositories import UserRepository
 
 
