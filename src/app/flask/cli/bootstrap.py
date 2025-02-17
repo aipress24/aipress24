@@ -51,13 +51,30 @@ def decimal_constructor(loader, node):
     return decimal.Decimal(value)
 
 
+def decimal_constructor_sequence(loader, node):
+    value = loader.construct_sequence(node)
+    return decimal.Decimal(value[0])
+
+
 def arrow_constructor(loader, node):
     value = loader.construct_scalar(node)
     return arrow.get(value)
 
 
+def arrow_constructor_mapping(loader, node):
+    value = loader.construct_mapping(node)
+    return arrow.get(value["_datetime"])
+
+
 yaml.SafeLoader.add_constructor("!decimal", decimal_constructor)
 yaml.SafeLoader.add_constructor("!arrow", arrow_constructor)
+yaml.SafeLoader.add_constructor(
+    "tag:yaml.org,2002:python/object:arrow.arrow.Arrow", arrow_constructor_mapping
+)
+yaml.SafeLoader.add_constructor(
+    "tag:yaml.org,2002:python/object/apply:decimal.Decimal",
+    decimal_constructor_sequence,
+)
 
 
 #
