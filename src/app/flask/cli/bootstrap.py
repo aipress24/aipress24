@@ -99,13 +99,19 @@ def bootstrap_user(path):
 
     data = yaml.load(path.open(), Loader=yaml.SafeLoader)
 
-    user_id = data["id"]
-    if user_repo.count(id=user_id):
-        user_repo.delete(user_id)
+    _is_merge = False
+    if "id" in data:
+        user_id = data["id"]
+        if user_repo.count(id=user_id):
+            _is_merge = True
+    if not _is_merge and "id" in data:
+        del data["id"]
 
     password = data.pop("_password")
     role_name = data.pop("_role")
     profile_data = data.pop("_profile")
+    if "id" in profile_data:
+        del profile_data["id"]
     is_admin = data.pop("_is_admin", False)
 
     user = User(**data)
@@ -120,7 +126,10 @@ def bootstrap_user(path):
     profile = KYCProfile(**profile_data)
     user.profile = profile
 
-    user_repo.add(user)
+    if _is_merge:
+        user_repo.update(user)
+    else:
+        user_repo.add(user)
     db.session.commit()
     return user
 
