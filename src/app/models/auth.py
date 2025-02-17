@@ -220,7 +220,7 @@ class User(LifeCycleMixin, Addressable, UserMixin, Base):
         ):
             if community.name in (role.name for role in self.roles):
                 return community
-        msg = f"Unknown community for {self}"
+        msg = f"Unknown community for {self}: {self.roles=}"
         raise RuntimeError(msg)
 
     # Override Flask-Security
