@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
+from __future__ import annotations
 
 import yaml
-from yaml import Dumper, SafeDumper
+from yaml import Dumper
 
 from app.flask.extensions import db
 from app.flask.main import create_app
