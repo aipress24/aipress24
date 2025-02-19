@@ -14,7 +14,6 @@ from app.flask.extensions import db
 from app.flask.lib.view_model import ViewModel
 from app.models.auth import User
 from app.models.content.textual import Article
-from app.models.lifecycle import PublicationStatus
 from app.services.social_graph import adapt
 
 from ..models import Group, group_members_table
@@ -87,9 +86,12 @@ class UserVM(ViewModel):
         posts = (
             db.session.query(Article)
             .filter(Article.owner_id == self.user.id)
-            .filter(Article.status == PublicationStatus.PUBLIC)
+            # .filter(Article.status == PublicationStatus.PUBLIC)
             .order_by(Article.published_at.desc())
             .all()
         )
+        import sys
+
+        print("/////////////", posts, file=sys.stderr)
         # Quick hack
         return PostVM.from_many(posts)

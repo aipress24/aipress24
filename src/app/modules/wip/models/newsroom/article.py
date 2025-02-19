@@ -52,7 +52,9 @@ class Article(
     # ------------------------------------------------------------
 
     # Etat: Brouillon, Publié, Archivé
-    status: Mapped[PublicationStatus] = mapped_column(sa.Enum(PublicationStatus), default=DRAFT)
+    status: Mapped[PublicationStatus] = mapped_column(
+        sa.Enum(PublicationStatus), default=DRAFT
+    )
 
     published_at: Mapped[datetime | None] = mapped_column(
         ArrowType(timezone=True), nullable=True
