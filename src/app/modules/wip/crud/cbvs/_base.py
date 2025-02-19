@@ -18,6 +18,7 @@ from app.flask.lib.breadcrumbs import BreadCrumb
 from app.flask.lib.htmx import extract_fragment
 from app.flask.lib.templates import templated
 from app.flask.lib.wtforms.renderer import FormRenderer
+from app.models.repositories import OrganisationRepository
 from app.modules.wip.crud.cbvs._table import BaseTable
 from app.modules.wip.menu import make_menu
 from app.services.blobs import BlobService
@@ -126,6 +127,8 @@ class BaseWipView(FlaskView, abc.ABC):
 
         form = self.form_class(form_data)
 
+        self._make_media_choices(form)
+
         if not form.validate():
             return self._view_ctx(form=form)
 
@@ -134,16 +137,28 @@ class BaseWipView(FlaskView, abc.ABC):
         else:
             model = self.model_class()
             model.owner = g.user
-            # FIXME
-            model.media = g.user.organisation
             model.commanditaire_id = g.user.id
+            org_repo = container.get(OrganisationRepository)
+            org_id = int(request.form.get("media"))
+            org = org_repo.get(org_id)
+            model.media_id = org_id
+
+            # media = org_repo.get())
+        import sys
 
         form.populate_obj(model)
         self._post_update_model(model)
+        print(f"////////  {model=}", file=sys.stderr)
+        print(f"////////  {model.media=}", file=sys.stderr)
+        print(f"////////  {model.media_id=}", file=sys.stderr)
+        print(f"////////  {org=}", file=sys.stderr)
         repo.add(model, auto_commit=True)
 
         flash("Enregistré")
         return redirect(self._url_for("index"))
+
+    def _make_media_choices(self, form) -> None:
+        """Implemented in subclass, if neeeded"""
 
     def _view_ctx(self, model=None, form=None, mode="edit", title=""):
         self.update_breadcrumbs(label=title)
@@ -152,6 +167,9 @@ class BaseWipView(FlaskView, abc.ABC):
             form = self.form_class(obj=model)
 
         endpoint = f"{self.__class__.__name__}:post"
+
+        self._make_media_choices(form)
+
         renderer = FormRenderer(
             form,
             model=model,

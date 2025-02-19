@@ -45,6 +45,11 @@ class ArticleForm(Form):
         render_kw={"width": 6},
         validators=[validators.InputRequired()],
     )
+    media = SelectField(
+        "Média",
+        render_kw={"width": 6},
+        validators=[validators.InputRequired()],
+    )
 
     # Group: copyright
     copyright = RichSelectField(
@@ -66,7 +71,7 @@ class ArticleForm(Form):
             "contenu": {"label": "Contenu de l'article", "fields": ["contenu"]},
             "metadata": {
                 "label": "Métadonnées de l'article",
-                "fields": ["genre", "section", "topic", "sector"],
+                "fields": ["genre", "section", "topic", "sector", "media"],
             },
             "copyright": {"label": "Copyright de l'article", "fields": ["copyright"]},
             "dates": {
