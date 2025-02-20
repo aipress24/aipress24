@@ -45,7 +45,7 @@ class ArticleForm(Form):
         render_kw={"width": 6},
         validators=[validators.InputRequired()],
     )
-    media = SelectField(
+    media_id = SelectField(
         "Média",
         render_kw={"width": 6},
         validators=[validators.InputRequired()],
@@ -71,7 +71,7 @@ class ArticleForm(Form):
             "contenu": {"label": "Contenu de l'article", "fields": ["contenu"]},
             "metadata": {
                 "label": "Métadonnées de l'article",
-                "fields": ["genre", "section", "topic", "sector", "media"],
+                "fields": ["genre", "section", "topic", "sector", "media_id"],
             },
             "copyright": {"label": "Copyright de l'article", "fields": ["copyright"]},
             "dates": {
