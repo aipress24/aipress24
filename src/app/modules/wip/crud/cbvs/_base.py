@@ -18,7 +18,6 @@ from app.flask.lib.breadcrumbs import BreadCrumb
 from app.flask.lib.htmx import extract_fragment
 from app.flask.lib.templates import templated
 from app.flask.lib.wtforms.renderer import FormRenderer
-from app.models.repositories import OrganisationRepository
 from app.modules.wip.crud.cbvs._table import BaseTable
 from app.modules.wip.menu import make_menu
 from app.services.blobs import BlobService
@@ -138,20 +137,13 @@ class BaseWipView(FlaskView, abc.ABC):
             model = self.model_class()
             model.owner = g.user
             model.commanditaire_id = g.user.id
-            org_repo = container.get(OrganisationRepository)
-            org_id = int(request.form.get("media"))
-            org = org_repo.get(org_id)
-            model.media_id = org_id
-
-            # media = org_repo.get())
-        import sys
+            org_id = int(request.form.get("media_id"))
+            model.media_id = int(org_id)
 
         form.populate_obj(model)
+        if model.media_id:
+            model.media_id = int(model.media_id)
         self._post_update_model(model)
-        print(f"////////  {model=}", file=sys.stderr)
-        print(f"////////  {model.media=}", file=sys.stderr)
-        print(f"////////  {model.media_id=}", file=sys.stderr)
-        print(f"////////  {org=}", file=sys.stderr)
         repo.add(model, auto_commit=True)
 
         flash("Enregistré")
