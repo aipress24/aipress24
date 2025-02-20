@@ -191,6 +191,11 @@ class SujetForm(Form):
         render_kw={"width": 6},
         validators=[validators.InputRequired()],
     )
+    media_id = SelectField(
+        "Média",
+        render_kw={"width": 6},
+        validators=[validators.InputRequired()],
+    )
 
     # Group: dates
     date_limite_validite = DateTimeField("Date/heure de début", render_kw={"width": 3})
@@ -201,11 +206,9 @@ class SujetForm(Form):
     class Meta:
         groups = {
             "headers": {"label": "", "fields": ["titre", "contenu"]},
-            # fixme: remove "media" field for now
-            # "headers": {"label": "", "fields": ["titre", "contenu", "media"]},
             "metadata": {
                 "label": "Métadonnées",
-                "fields": ["genre", "section", "topic", "sector"],
+                "fields": ["genre", "section", "topic", "sector", "media_id"],
             },
             "dates": {
                 "label": "Dates-clés",
