@@ -125,24 +125,29 @@ class ArticlesTable(BaseTable):
         return actions
 
 
-def get_media_organisations() -> list[tuple[int, str]]:
+def get_media_organisations(organisation_id: int | None) -> list[tuple[int, str]]:
     """Get list of Organisation and their ID of type MEDIA AGENCY and AUTO.
 
     List not filtered for duplicates.
     """
-    # repo = container.get("Organisation")
     query = select(Organisation).where(
         Organisation.type.in_(
             [
                 OrganisationTypeEnum.MEDIA,
                 OrganisationTypeEnum.AGENCY,
+                OrganisationTypeEnum.OTHER,
                 OrganisationTypeEnum.AUTO,
             ]
         )
     )
-    result = db.session.execute(query).scalars()
-
-    return sorted([(org.id, org.name) for org in result], key=itemgetter(1))
+    query_result = db.session.execute(query).scalars()
+    result = sorted([(org.id, org.name) for org in query_result], key=itemgetter(1))
+    if organisation_id:
+        query2 = select(Organisation).where(Organisation.id == organisation_id)
+        user_org = db.session.execute(query2).scalar()
+        if user_org:
+            result.insert(0, (user_org.id, user_org.name))
+    return result
 
 
 class ArticlesWipView(BaseWipView):
@@ -172,7 +177,7 @@ class ArticlesWipView(BaseWipView):
     msg_delete_ko = "Vous n'êtes pas autorisé à supprimer cet article"
 
     def _make_media_choices(self, form) -> None:
-        form.media_id.choices = get_media_organisations()
+        form.media_id.choices = get_media_organisations(g.user.organisation_id)
 
     def _post_update_model(self, model: Article):
         if not model.status:
