@@ -4,7 +4,6 @@
 
 from __future__ import annotations
 
-from operator import itemgetter
 from typing import cast
 
 from flask import (
@@ -20,17 +19,14 @@ from flask import (
 from flask_classful import route
 from flask_super.registry import register
 from markupsafe import Markup
-from sqlalchemy import select
 from sqlalchemy_utils.types.arrow import arrow
 from svcs.flask import container
 from werkzeug.exceptions import NotFound
 
-from app.enums import OrganisationTypeEnum
 from app.flask.extensions import db
 from app.flask.lib.constants import EMPTY_PNG
 from app.flask.routing import url_for
 from app.models.lifecycle import PublicationStatus
-from app.models.organisation import Organisation
 from app.models.repositories import ArticleRepository
 from app.modules.wip.models.newsroom import Article
 from app.modules.wip.models.newsroom.article import Image
@@ -125,31 +121,6 @@ class ArticlesTable(BaseTable):
         return actions
 
 
-def get_media_organisations(organisation_id: int | None) -> list[tuple[int, str]]:
-    """Get list of Organisation and their ID of type MEDIA AGENCY and AUTO.
-
-    List not filtered for duplicates.
-    """
-    query = select(Organisation).where(
-        Organisation.type.in_(
-            [
-                OrganisationTypeEnum.MEDIA,
-                OrganisationTypeEnum.AGENCY,
-                OrganisationTypeEnum.OTHER,
-                OrganisationTypeEnum.AUTO,
-            ]
-        )
-    )
-    query_result = db.session.execute(query).scalars()
-    result = sorted([(org.id, org.name) for org in query_result], key=itemgetter(1))
-    if organisation_id:
-        query2 = select(Organisation).where(Organisation.id == organisation_id)
-        user_org = db.session.execute(query2).scalar()
-        if user_org:
-            result.insert(0, (user_org.id, user_org.name))
-    return result
-
-
 class ArticlesWipView(BaseWipView):
     name = "articles"
 
@@ -177,7 +148,7 @@ class ArticlesWipView(BaseWipView):
     msg_delete_ko = "Vous n'êtes pas autorisé à supprimer cet article"
 
     def _make_media_choices(self, form) -> None:
-        form.media_id.choices = get_media_organisations(g.user.organisation_id)
+        form.media_id.choices = self.get_media_organisations()
 
     def _post_update_model(self, model: Article):
         if not model.status:

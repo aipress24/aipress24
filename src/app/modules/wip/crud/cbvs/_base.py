@@ -5,19 +5,24 @@
 from __future__ import annotations
 
 import abc
+from operator import itemgetter
 
 from arrow import now
 from flask import flash, g, redirect, request, url_for
 from flask_classful import FlaskView, route
+from sqlalchemy import select
 from svcs.flask import container
 from werkzeug import Response
 from wtforms import Form as WTForm
 
 from app.constants import LOCAL_TZ
+from app.enums import OrganisationTypeEnum
+from app.flask.extensions import db
 from app.flask.lib.breadcrumbs import BreadCrumb
 from app.flask.lib.htmx import extract_fragment
 from app.flask.lib.templates import templated
 from app.flask.lib.wtforms.renderer import FormRenderer
+from app.models.organisation import Organisation
 from app.modules.wip.crud.cbvs._table import BaseTable
 from app.modules.wip.menu import make_menu
 from app.services.blobs import BlobService
@@ -114,6 +119,32 @@ class BaseWipView(FlaskView, abc.ABC):
         model = self._get_model(id)
         title = f"{self.label_edit} '{model.title}'"
         return self._view_ctx(model, title=title)
+
+    def get_media_organisations(self) -> list[tuple[int, str]]:
+        """Get list of Organisation and their ID of type MEDIA AGENCY and AUTO.
+
+        List not filtered for duplicates.
+        """
+        query = select(Organisation).where(
+            Organisation.type.in_(
+                [
+                    OrganisationTypeEnum.MEDIA,
+                    OrganisationTypeEnum.AGENCY,
+                    OrganisationTypeEnum.OTHER,
+                    OrganisationTypeEnum.AUTO,
+                ]
+            )
+        )
+        query_result = db.session.execute(query).scalars()
+        result = sorted([(org.id, org.name) for org in query_result], key=itemgetter(1))
+        if g.user.organisation_id:
+            query2 = select(Organisation).where(
+                Organisation.id == g.user.organisation_id
+            )
+            user_org = db.session.execute(query2).scalar()
+            if user_org:
+                result.insert(0, (user_org.id, user_org.name))
+        return result
 
     @templated(UPDATE_TEMPLATE)
     def post(self) -> Response | dict:
