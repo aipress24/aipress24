@@ -51,6 +51,9 @@ class CommandesWipView(BaseWipView):
 
     icon = "newspaper"
 
+    def _make_media_choices(self, form) -> None:
+        form.media_id.choices = self.get_media_organisations()
+
 
 @register
 def register_on_app(app: Flask):
