@@ -96,6 +96,9 @@ class AvisEnqueteWipView(BaseWipView):
     msg_delete_ok = "L'avis d'enquête a été supprimé"
     msg_delete_ko = "Vous n'êtes pas autorisé à supprimer cet avis d'enquête"
 
+    def _make_media_choices(self, form) -> None:
+        form.media_id.choices = self.get_media_organisations()
+
     @route("/<id>/ciblage", methods=["GET", "POST"])
     def ciblage(self, id):
         model = self._get_model(id)

@@ -116,6 +116,11 @@ class AvisEnqueteForm(Form):
         render_kw={"width": 6},
         validators=[validators.InputRequired()],
     )
+    media_id = SelectField(
+        "Média",
+        render_kw={"width": 6},
+        validators=[validators.InputRequired()],
+    )
 
     # Group: dates
     date_debut_enquete = DateTimeField(
@@ -144,7 +149,7 @@ class AvisEnqueteForm(Form):
             "headers": {"label": "", "fields": ["titre", "contenu"]},
             "metadata": {
                 "label": "Métadonnées",
-                "fields": ["genre", "section", "topic", "sector"],
+                "fields": ["genre", "section", "topic", "sector", "media_id"],
             },
             "dates": {
                 "label": "Dates-clés",
@@ -248,6 +253,11 @@ class CommandeForm(Form):
         render_kw={"width": 6},
         validators=[validators.InputRequired()],
     )
+    media_id = SelectField(
+        "Média",
+        render_kw={"width": 6},
+        validators=[validators.InputRequired()],
+    )
 
     # Group: dates
     date_limite_validite = DateTimeField("Date/heure de début", render_kw={"width": 3})
@@ -262,7 +272,7 @@ class CommandeForm(Form):
             "headers": {"label": "", "fields": ["titre", "contenu"]},
             "metadata": {
                 "label": "Métadonnées",
-                "fields": ["genre", "section", "topic", "sector"],
+                "fields": ["genre", "section", "topic", "sector", "media_id"],
             },
             "dates": {
                 "label": "Dates-clés",

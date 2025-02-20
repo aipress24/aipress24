@@ -9,7 +9,7 @@ from app.lib.utils import merge_dicts
 from ._metadata import metadata
 
 avis_enquete_form = {
-    "label": "Article",
+    "label": "Avis d'enquête",
     "model_class": "app.models.newsroom.AvisEnquete",
     "group": {
         "headers": {"label": ""},
