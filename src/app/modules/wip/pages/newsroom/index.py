@@ -4,11 +4,14 @@
 
 from __future__ import annotations
 
+from typing import Any
+
+from flask import g
 from sqlalchemy import func, select
 from sqlalchemy.orm import scoped_session
 from svcs.flask import container
 
-from app.enums import RoleEnum
+from app.enums import ProfileEnum, RoleEnum
 from app.flask.lib.pages import page
 from app.flask.routing import url_for
 from app.models.mixins import Owned
@@ -23,6 +26,18 @@ from app.services.auth import AuthService
 
 from ..base import BaseWipPage
 from ..home import HomePage
+
+ALLOW_NEWSROOM_ARTICLE: set[ProfileEnum] = {
+    ProfileEnum.PM_DIR,
+    ProfileEnum.PM_JR_CP_SAL,
+    ProfileEnum.PM_JR_PIG,
+    ProfileEnum.PM_JR_CP_ME,
+    ProfileEnum.PM_JR_ME,
+    ProfileEnum.PM_DIR_INST,
+    ProfileEnum.PM_JR_INST,
+    ProfileEnum.PM_DIR_SYND,
+}
+
 
 MAIN_ITEMS = [
     # 1
@@ -84,8 +99,60 @@ class NewsroomPage(BaseWipPage):
     template = "wip/pages/newsroom.j2"
     parent = HomePage
 
-    def context(self):
+    @staticmethod
+    def _check_active_bw() -> bool:
+        org = g.user.organisation
+        if not org:
+            return False
+        return org.is_bw_active
+
+    @staticmethod
+    def _check_article_creation_per_journalist() -> bool:
+        """Only journalist can create or manage articles or sujets
+        in newsroom.
+        """
+        profile = g.user.profile
+        profile_enum = ProfileEnum[profile.profile_code]
+        return profile_enum in ALLOW_NEWSROOM_ARTICLE
+
+    def filter_articles_items(
+        self,
+        items: dict[str, Any],
+        flags: list[bool],
+    ) -> dict[str, Any]:
+        if not all(flags):
+            items = [item for item in items if item["id"] != "articles"]
+        return items
+
+    def filter_sujets_items(
+        self,
+        items: dict[str, Any],
+        flags: list[bool],
+    ) -> dict[str, Any]:
+        if not all(flags):
+            items = [item for item in items if item["id"] != "sujets"]
+        return items
+
+    def filter_avis_enquetes_items(
+        self,
+        items: dict[str, Any],
+        flags: list[bool],
+    ) -> dict[str, Any]:
+        if not all(flags):
+            items = [item for item in items if item["id"] != "avis_enquete"]
+        return items
+
+    def allowed_redaction_items(self) -> dict[str, Any]:
         items = MAIN_ITEMS.copy()
+        allow_bw = self._check_article_creation_per_journalist()
+        allow_journalist = self._check_article_creation_per_journalist()
+        items = self.filter_articles_items(items, [allow_bw, allow_journalist])
+        items = self.filter_sujets_items(items, [allow_bw, allow_journalist])
+        items = self.filter_avis_enquetes_items(items, [allow_bw, allow_journalist])
+        return items
+
+    def context(self):
+        items = self.allowed_redaction_items()
         for item in items:
             model_class = item["model_class"]
             item["count"] = str(self.item_count(model_class))
