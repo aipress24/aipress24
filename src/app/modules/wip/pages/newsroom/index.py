@@ -144,8 +144,8 @@ class NewsroomPage(BaseWipPage):
 
     def allowed_redaction_items(self) -> dict[str, Any]:
         items = MAIN_ITEMS.copy()
-        allow_bw = self._check_article_creation_per_journalist()
         allow_journalist = self._check_article_creation_per_journalist()
+        allow_bw = self._check_active_bw()
         items = self.filter_articles_items(items, [allow_bw, allow_journalist])
         items = self.filter_sujets_items(items, [allow_bw, allow_journalist])
         items = self.filter_avis_enquetes_items(items, [allow_bw, allow_journalist])
