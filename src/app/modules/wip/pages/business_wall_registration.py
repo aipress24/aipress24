@@ -155,6 +155,7 @@ class BusinessWallRegistrationPage(BaseWipPage):
             url=prod.url or "",
         )
         self.prod_info.append(pinfo)
+        info("/// available product:", prod.name, prod.metadata)
 
     def load_product_infos(self) -> None:
         self.stripe_bw_products = stripe_bw_subscription_dict()
@@ -167,7 +168,7 @@ class BusinessWallRegistrationPage(BaseWipPage):
     def filter_bw_subscriptions(self) -> None:
         # convert the 8 detail types to 3 subscriptions type:
         allowed_bw = {ORG_TYPE_CONVERSION[x.name] for x in self.allowed_subs}
-        # print("////  allowed_bw", allowed_bw, file=sys.stderr)
+        info("////  allowed_bw", allowed_bw)
 
         self.allowed_prod = []
         # print("////  self.prod_info", self.prod_info, file=sys.stderr)
@@ -177,7 +178,7 @@ class BusinessWallRegistrationPage(BaseWipPage):
             if bw not in allowed_bw:
                 continue
             self.allowed_prod.append(prod)
-        # print("////  allowed_prod", self.allowed_prod, file=sys.stderr)
+        info("////  allowed_prod", self.allowed_prod)
 
     def update_bw_subscription_state(self) -> None:
         if not self.org or self.org.is_bw_inactive:
@@ -245,7 +246,7 @@ class BusinessWallRegistrationPage(BaseWipPage):
                 )
             else:
                 org_bw_type_name = "ORGANISATION"
-        # print("////  org_bw_type_name", org_bw_type_name, file=sys.stderr)
+        info("////  org_bw_type_name", org_bw_type_name)
 
         return {
             "org": self.org,
