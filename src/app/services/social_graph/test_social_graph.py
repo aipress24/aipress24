@@ -91,6 +91,7 @@ def test_followers_orgs(db: SQLAlchemy) -> None:
 def test_likes(db: SQLAlchemy) -> None:
     joe = User(email="joe@example.com")
     article = ArticlePost(owner=joe)
+    article.newsroom_id = 42  # source Article.id
     db.session.add(article)
     db.session.add(joe)
     db.session.flush()
