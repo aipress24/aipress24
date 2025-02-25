@@ -18,13 +18,14 @@ from app.flask.lib.toaster import toast
 from app.flask.lib.view_model import ViewModel
 from app.flask.sqla import get_multi, get_obj
 from app.models.auth import User
-from app.models.content import Article, Event, PressRelease
+from app.models.content import Event
 from app.models.lifecycle import PublicationStatus
 from app.models.organisation import Organisation
 from app.modules.kyc.field_label import label_from_values_cities_as_list
 from app.services.activity_stream import get_timeline
 from app.services.social_graph import adapt
 
+from ...wire.models import ArticlePost, PressReleasePost
 from .base import BaseSworkPage
 from .organisations import OrgsPage
 
@@ -144,9 +145,9 @@ class OrgPublicationsTab(Tab):
     def label(self) -> str:
         stmt = (
             select(func.count())
-            .select_from(Article)
-            .where(Article.publisher_id == self.org.id)
-            .where(Article.status == PublicationStatus.PUBLIC)
+            .select_from(ArticlePost)
+            .where(ArticlePost.publisher_id == self.org.id)
+            .where(ArticlePost.status == PublicationStatus.PUBLIC)
         )
         count = db.session.execute(stmt).scalar()
         return f"Publications ({count})"
@@ -176,9 +177,9 @@ class OrgPressReleasesTab(Tab):
     def label(self) -> str:
         stmt = (
             select(func.count())
-            .select_from(PressRelease)
-            .where(PressRelease.publisher_id == self.org.id)
-            .where(PressRelease.status == PublicationStatus.PUBLIC)
+            .select_from(PressReleasePost)
+            .where(PressReleasePost.publisher_id == self.org.id)
+            .where(PressReleasePost.status == PublicationStatus.PUBLIC)
         )
         count = db.session.execute(stmt).scalar()
         return f"Communiqués ({count})"
@@ -296,18 +297,20 @@ class OrgVM(ViewModel):
         members = self.get_members()
         all_press_releases = set()
         for member in members:
-            stmt = select(PressRelease).where(PressRelease.owner_id == member.id)
-            press_releases = get_multi(PressRelease, stmt)
+            stmt = select(PressReleasePost).where(
+                PressReleasePost.owner_id == member.id
+            )
+            press_releases = get_multi(PressReleasePost, stmt)
             all_press_releases.update(press_releases)
         return list(all_press_releases)
 
     def get_publications(self):
         stmt = (
-            select(Article)
-            .where(Article.publisher_id == self.org.id)
-            .where(Article.status == PublicationStatus.PUBLIC)
+            select(ArticlePost)
+            .where(ArticlePost.publisher_id == self.org.id)
+            .where(ArticlePost.status == PublicationStatus.PUBLIC)
         )
-        articles = get_multi(Article, stmt)
+        articles = get_multi(ArticlePost, stmt)
         return list(articles)
 
     def get_type_organisation(self) -> str:

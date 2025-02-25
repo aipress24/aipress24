@@ -17,14 +17,14 @@ from typesense.exceptions import ObjectNotFound
 
 from app.flask.routing import url_for
 from app.models.auth import User
-from app.models.content import Article, PressRelease
+from app.modules.wire.models import ArticlePost, PressReleasePost
 from app.services.tagging import get_tags
 
 from .constants import COLLECTIONS
 
 CLASSES = {
-    "articles": Article,
-    "press-releases": PressRelease,
+    "articles": ArticlePost,
+    "press-releases": PressReleasePost,
 }
 
 DEFAULT_FIELDS = [

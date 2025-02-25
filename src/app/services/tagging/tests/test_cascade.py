@@ -11,8 +11,8 @@ from sqlalchemy import select
 from svcs.flask import container
 
 from app.models.auth import User
-from app.models.content import Article
 from app.models.repositories import ArticleRepository
+from app.modules.wire.models import ArticlePost
 from app.services.tagging import add_tag, get_tag_applications
 from app.services.tagging._models import TagApplication  # noqa: PLC2701
 
@@ -24,7 +24,7 @@ def db_is_sqlite() -> bool:
 @pytest.mark.skipif(db_is_sqlite(), reason="sqlite does not support cascading")
 def test_cascade(db_session) -> None:
     user = User(id=1, email="joe@example.com")
-    article = Article(owner=user)
+    article = ArticlePost(owner=user)
 
     article_repo = container.get(ArticleRepository)
     article_repo.add(article)

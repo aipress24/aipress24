@@ -123,16 +123,12 @@ class UserFeedbackMixin:
     def comment_count(cls):
         return Column(Integer, nullable=False, default=0)
 
-    # view_count: Mapped[int] = mapped_column(default=0)
-    # like_count: Mapped[int] = mapped_column(default=0)
-    # comment_count: Mapped[int] = mapped_column(default=0)
-
 
 class ArticlePost(WireCommonMixin, NewsMetadataMixin, UserFeedbackMixin, Base):
     __tablename__ = "wir_article"
 
     # id of the corresponding newsroom article (if any)
-    newsroom_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    newsroom_id: Mapped[int | None] = mapped_column(BigInteger, primary_key=True)
 
     publisher_type: Mapped[PublisherType] = mapped_column(
         Enum(PublisherType), default=PublisherType.MEDIA

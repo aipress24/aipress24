@@ -7,14 +7,14 @@ from __future__ import annotations
 from flask_sqlalchemy import SQLAlchemy
 
 from app.models.auth import User
-from app.models.content.textual import Article
 
+from ...modules.wire.models import ArticlePost
 from . import get_unique_view_count, get_view_count, record_view
 
 
 def test_view_counter(db: SQLAlchemy) -> None:
     joe = User(email="joe@example.com")
-    article = Article(owner=joe)
+    article = ArticlePost(owner=joe)
     db.session.add(article)
     db.session.add(joe)
     db.session.flush()

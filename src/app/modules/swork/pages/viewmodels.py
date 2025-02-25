@@ -13,7 +13,7 @@ from flask import g
 from app.flask.extensions import db
 from app.flask.lib.view_model import ViewModel
 from app.models.auth import User
-from app.models.content.textual import Article
+from app.modules.wire.models import ArticlePost
 from app.services.social_graph import adapt
 
 from ..models import Group, group_members_table
@@ -22,7 +22,7 @@ from ..models import Group, group_members_table
 @define
 class PostVM(ViewModel):
     def extra_attrs(self):
-        article = cast(Article, self._model)
+        article = cast(ArticlePost, self._model)
 
         if article.published_at:
             age = article.published_at.humanize(locale="fr")
@@ -84,10 +84,10 @@ class UserVM(ViewModel):
 
     def get_posts(self) -> list[PostVM]:
         posts = (
-            db.session.query(Article)
-            .filter(Article.owner_id == self.user.id)
+            db.session.query(ArticlePost)
+            .filter(ArticlePost.owner_id == self.user.id)
             # .filter(Article.status == PublicationStatus.PUBLIC)
-            .order_by(Article.published_at.desc())
+            .order_by(ArticlePost.published_at.desc())
             .all()
         )
         import sys

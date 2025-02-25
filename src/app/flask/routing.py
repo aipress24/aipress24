@@ -9,7 +9,6 @@ from functools import singledispatch
 from flask import url_for as url_for_orig
 
 from app.flask.lib.view_model import ViewModel
-from app.models.content.multimedia import Image
 
 
 @singledispatch
@@ -42,9 +41,3 @@ def url_for_dict(d: dict, _ns: str = "", **_kw) -> str:
 @url_for.register
 def url_for_none(_none: None, _ns: str = "", **_kw) -> str:
     return "#NONE"
-
-
-# TODO
-@url_for.register
-def url_for_image(_image: Image, _ns: str = "", **kw) -> str:
-    return "#TODO"

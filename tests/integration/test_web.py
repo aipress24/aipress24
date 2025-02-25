@@ -12,7 +12,7 @@ from flask_sqlalchemy import SQLAlchemy
 
 from app.flask.routing import url_for
 from app.models.auth import User
-from app.models.content.textual import Article
+from app.modules.wire.models import ArticlePost
 
 if typing.TYPE_CHECKING:
     from werkzeug.routing import Rule
@@ -100,10 +100,10 @@ def test_all_unparameterized_endpoints(
         assert res.status_code in {302, 200}, f"Request failed on {rule.rule}"
 
 
-def _create_stuff(db: SQLAlchemy) -> dict[str, User | Article]:
+def _create_stuff(db: SQLAlchemy) -> dict[str, User | ArticlePost]:
     owner = User(email="joe@example.com", id=0)
     db.session.add(owner)
-    article = Article(owner=owner)
+    article = ArticlePost(owner=owner)
     db.session.add(article)
     db.session.flush()
 

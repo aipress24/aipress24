@@ -211,13 +211,11 @@ class ArticlesFakerScript(BaseScript):
 
         self.add_metadata(obj)
 
-        obj.status = random.choice(
-            [
-                PublicationStatus.DRAFT,
-                PublicationStatus.PUBLIC,
-                PublicationStatus.ARCHIVED,
-            ]
-        )
+        obj.status = random.choice([
+            PublicationStatus.DRAFT,
+            PublicationStatus.PUBLIC,
+            PublicationStatus.ARCHIVED,
+        ])
 
         obj.content = faker.text(5)
 
