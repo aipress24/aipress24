@@ -17,6 +17,7 @@ def test_tags(db: SQLAlchemy) -> None:
     db.session.flush()
 
     article = ArticlePost(owner=joe)
+    article.newsroom_id = 42  # source Article.id
     db.session.add(article)
     db.session.flush()
 
