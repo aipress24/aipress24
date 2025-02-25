@@ -126,14 +126,12 @@ class BaseWipView(FlaskView, abc.ABC):
         List not filtered for duplicates.
         """
         query = select(Organisation).where(
-            Organisation.type.in_(
-                [
-                    OrganisationTypeEnum.MEDIA,
-                    OrganisationTypeEnum.AGENCY,
-                    OrganisationTypeEnum.OTHER,
-                    OrganisationTypeEnum.AUTO,
-                ]
-            )
+            Organisation.type.in_([
+                OrganisationTypeEnum.MEDIA,
+                OrganisationTypeEnum.AGENCY,
+                OrganisationTypeEnum.OTHER,
+                OrganisationTypeEnum.AUTO,
+            ])
         )
         query_result = db.session.execute(query).scalars()
         result = sorted([(org.id, org.name) for org in query_result], key=itemgetter(1))

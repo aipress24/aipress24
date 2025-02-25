@@ -7,7 +7,7 @@ from __future__ import annotations
 from flask_sqlalchemy import SQLAlchemy
 
 from app.models.auth import User
-from app.models.content.textual import Article
+from app.modules.wire.models import ArticlePost
 from app.services.tagging import add_tag, get_tag_applications, get_tags
 
 
@@ -16,7 +16,7 @@ def test_tags(db: SQLAlchemy) -> None:
     db.session.add(joe)
     db.session.flush()
 
-    article = Article(owner=joe)
+    article = ArticlePost(owner=joe)
     db.session.add(article)
     db.session.flush()
 

@@ -8,8 +8,7 @@ from functools import singledispatch
 
 from app.flask.routing import url_for
 from app.models.auth import User
-from app.models.content.events import Event
-from app.models.content.textual import Article
+from app.modules.wire.models import ArticlePost
 
 
 @singledispatch
@@ -41,10 +40,12 @@ def to_opengraph_generic(obj) -> dict[str, str]:
 
 
 @to_opengraph.register
-def _to_opengraph_article(obj: Article):
+def _to_opengraph_article(obj: ArticlePost):
     og_data = to_opengraph_generic(obj)
     og_data["og:type"] = "article"
-    og_data["og:image"] = obj.image_url
+
+    # TODO
+    # og_data["og:image"] = obj.image_url
 
     og_data["article:author"] = obj.owner.full_name
     og_data["article:section"] = obj.section
@@ -60,16 +61,17 @@ def _to_opengraph_article(obj: Article):
     return og_data
 
 
-@to_opengraph.register
-def _to_opengraph_event(obj: Event):
-    og_data = to_opengraph_generic(obj)
-    og_data["og:type"] = "article"
-    # og_data["og:image"] = obj.image_url
-
-    og_data["article:author"] = obj.owner.full_name
-    og_data["article:published_time"] = obj.created_at.isoformat()
-
-    return og_data
+# TODO
+# @to_opengraph.register
+# def _to_opengraph_event(obj: Event):
+#     og_data = to_opengraph_generic(obj)
+#     og_data["og:type"] = "article"
+#     # og_data["og:image"] = obj.image_url
+#
+#     og_data["article:author"] = obj.owner.full_name
+#     og_data["article:published_time"] = obj.created_at.isoformat()
+#
+#     return og_data
 
 
 @to_opengraph.register

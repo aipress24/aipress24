@@ -7,9 +7,9 @@ from __future__ import annotations
 from flask_sqlalchemy import SQLAlchemy
 
 from app.models.auth import User
-from app.models.content.textual import Article
 from app.models.organisation import Organisation
 
+from ...modules.wire.models import ArticlePost
 from . import adapt
 
 
@@ -90,8 +90,7 @@ def test_followers_orgs(db: SQLAlchemy) -> None:
 
 def test_likes(db: SQLAlchemy) -> None:
     joe = User(email="joe@example.com")
-    jim = User(email="jim@example.com")
-    article = Article(owner=jim)
+    article = ArticlePost(owner=joe)
     db.session.add(article)
     db.session.add(joe)
     db.session.flush()

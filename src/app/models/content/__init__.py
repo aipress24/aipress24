@@ -14,17 +14,13 @@ from .events import (
     PublicEvent,
     TrainingEvent,
 )
-from .multimedia import Image
-from .textual import Article
 
 __all__ = [
-    "Article",
     "BaseContent",
     "ContestEvent",
     "CultureEvent",
     "EditorialContent",
     "Event",
-    "Image",
     "PressEvent",
     "PressRelease",
     "PublicEvent",

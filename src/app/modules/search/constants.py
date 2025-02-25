@@ -7,9 +7,9 @@ from __future__ import annotations
 from typing import Any
 
 from app.models.auth import User
-from app.models.content import Article, Event, PressRelease
 from app.models.organisation import Organisation
 from app.modules.swork.models import Group
+from app.modules.wire.models import ArticlePost, PressReleasePost
 
 COLLECTIONS: list[dict[str, Any]] = [
     {
@@ -22,20 +22,21 @@ COLLECTIONS: list[dict[str, Any]] = [
         "name": "articles",
         "label": "Articles",
         "icon": "newspaper",
-        "class": Article,
+        "class": ArticlePost,
     },
     {
         "name": "press-releases",
         "label": "Communiqués",
         "icon": "speaker-wave",
-        "class": PressRelease,
+        "class": PressReleasePost,
     },
-    {
-        "name": "events",
-        "label": "Evénements",
-        "icon": "calendar",
-        "class": Event,
-    },
+    # TODO
+    # {
+    #     "name": "events",
+    #     "label": "Evénements",
+    #     "icon": "calendar",
+    #     "class": Event,
+    # },
     {
         "name": "members",
         "label": "Membres",

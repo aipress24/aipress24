@@ -22,7 +22,6 @@ from app.modules.swork.models import Comment, group_members_table
 from app.services.roles import add_role
 from app.services.social_graph import adapt
 
-from ._generators.content import ArticleGenerator, PhotoGenerator, PressReleaseGenerator
 from ._generators.groups import GroupGenerator
 from ._generators.orgs import OrgGenerator
 from ._generators.users import UserGenerator
@@ -36,9 +35,9 @@ FAKERS_SETTINGS = [
     ("organisations", OrgGenerator, 60),  # 60
     # Content
     # ("events", EventGenerator, 500),  # 500
-    ("articles", ArticleGenerator, 500),  # 500
-    ("photos", PhotoGenerator, 100),  # 100
-    ("press-releases", PressReleaseGenerator, 200),  # 200
+    # ("articles", ArticleGenerator, 500),  # 500
+    # ("photos", PhotoGenerator, 100),  # 100
+    # ("press-releases", PressReleaseGenerator, 200),  # 200
     # Social
     # ("comments", CommentGenerator, 1000),
     # ("posts", PostGenerator, 500),  # 1000

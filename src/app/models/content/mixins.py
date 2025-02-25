@@ -4,23 +4,14 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 import sqlalchemy as sa
-from sqlalchemy import event, orm
+from sqlalchemy import orm
 from sqlalchemy.orm import declared_attr, mapped_column
 from sqlalchemy_utils import ArrowType
 
 from app.lib.fts import tokenize
 from app.models.lifecycle import PublicationStatus
 from app.models.meta import get_meta_attr
-
-if TYPE_CHECKING:
-    from sqlalchemy.engine.base import Connection
-    from sqlalchemy.orm.mapper import Mapper
-
-    from app.models.content.base import BaseContent
-    from app.models.content.textual import Article
 
 
 class Publishable:
@@ -174,15 +165,15 @@ class Searchable:
         self._fts = " " + " ".join(words) + " "
 
 
-@event.listens_for(Searchable, "before_insert", propagate=True)
-def _searchable_before_insert(
-    _mapper: Mapper, _connection: Connection, target: BaseContent
-) -> None:
-    target._update_fts()
-
-
-@event.listens_for(Searchable, "before_update", propagate=True)
-def _searchable_before_update(
-    _mapper: Mapper, _connection: Connection, target: Article
-) -> None:
-    target._update_fts()
+# @event.listens_for(Searchable, "before_insert", propagate=True)
+# def _searchable_before_insert(
+#     _mapper: Mapper, _connection: Connection, target: BaseContent
+# ) -> None:
+#     target._update_fts()
+#
+#
+# @event.listens_for(Searchable, "before_update", propagate=True)
+# def _searchable_before_update(
+#     _mapper: Mapper, _connection: Connection, target: Article
+# ) -> None:
+#     target._update_fts()
