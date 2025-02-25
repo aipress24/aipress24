@@ -7,6 +7,7 @@ from __future__ import annotations
 import sqlalchemy as sa
 
 from app.flask.extensions import db
+from app.modules.wire.models import ArticlePost
 
 from ._models import TagApplication
 from .interfaces import Taggable
@@ -26,6 +27,8 @@ def add_tag(obj: Taggable, label: str, type: str = "manual") -> TagApplication:
     match obj:
         # case Article(id=id):
         #     tag.object_id = id
+        case ArticlePost(id=id):
+            tag.object_id = id
         case _:  # pragma: no cover
             raise NotImplementedError
 
