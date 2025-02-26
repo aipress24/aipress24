@@ -8,7 +8,12 @@ from wtforms import Form, validators
 from wtforms.fields.choices import SelectField
 from wtforms.fields.simple import StringField, TextAreaField
 
-from app.flask.lib.wtforms.fields import DateTimeField, RichSelectField, RichTextField
+from app.flask.lib.wtforms.fields import (
+    DateTimeField,
+    RichSelectField,
+    RichTextField,
+    SimpleRichSelectField,
+)
 
 
 class ArticleForm(Form):
@@ -45,7 +50,7 @@ class ArticleForm(Form):
         render_kw={"width": 6},
         validators=[validators.InputRequired()],
     )
-    media_id = SelectField(
+    media_id = SimpleRichSelectField(
         "Média",
         render_kw={"width": 6},
         validators=[validators.InputRequired()],
@@ -116,7 +121,7 @@ class AvisEnqueteForm(Form):
         render_kw={"width": 6},
         validators=[validators.InputRequired()],
     )
-    media_id = SelectField(
+    media_id = SimpleRichSelectField(
         "Média",
         render_kw={"width": 6},
         validators=[validators.InputRequired()],
@@ -196,7 +201,7 @@ class SujetForm(Form):
         render_kw={"width": 6},
         validators=[validators.InputRequired()],
     )
-    media_id = SelectField(
+    media_id = SimpleRichSelectField(
         "Média",
         render_kw={"width": 6},
         validators=[validators.InputRequired()],
@@ -253,7 +258,7 @@ class CommandeForm(Form):
         render_kw={"width": 6},
         validators=[validators.InputRequired()],
     )
-    media_id = SelectField(
+    media_id = SimpleRichSelectField(
         "Média",
         render_kw={"width": 6},
         validators=[validators.InputRequired()],

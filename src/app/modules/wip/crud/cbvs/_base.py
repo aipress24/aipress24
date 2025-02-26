@@ -120,28 +120,32 @@ class BaseWipView(FlaskView, abc.ABC):
         title = f"{self.label_edit} '{model.title}'"
         return self._view_ctx(model, title=title)
 
-    def get_media_organisations(self) -> list[tuple[int, str]]:
+    def get_media_organisations(self) -> list[tuple[str, str]]:
         """Get list of Organisation and their ID of type MEDIA AGENCY and AUTO.
 
         List not filtered for duplicates.
         """
         query = select(Organisation).where(
-            Organisation.type.in_([
-                OrganisationTypeEnum.MEDIA,
-                OrganisationTypeEnum.AGENCY,
-                OrganisationTypeEnum.OTHER,
-                OrganisationTypeEnum.AUTO,
-            ])
+            Organisation.type.in_(
+                [
+                    OrganisationTypeEnum.MEDIA,
+                    OrganisationTypeEnum.AGENCY,
+                    OrganisationTypeEnum.OTHER,
+                    OrganisationTypeEnum.AUTO,
+                ]
+            )
         )
         query_result = db.session.execute(query).scalars()
-        result = sorted([(org.id, org.name) for org in query_result], key=itemgetter(1))
+        result = sorted(
+            [(str(org.id), org.name) for org in query_result], key=itemgetter(1)
+        )
         if g.user.organisation_id:
             query2 = select(Organisation).where(
                 Organisation.id == g.user.organisation_id
             )
             user_org = db.session.execute(query2).scalar()
             if user_org:
-                result.insert(0, (user_org.id, user_org.name))
+                result.insert(0, (str(user_org.id), user_org.name))
         return result
 
     @templated(UPDATE_TEMPLATE)
