@@ -24,17 +24,6 @@ class PrefEditProfilePage(BasePreferencesPage):
 
 
 @page
-class PrefPasswordPage(BasePreferencesPage):
-    parent = PrefHomePage
-    name = "Mot de passe"
-    label = "Mot de passe"
-    icon = "key"
-
-    def get(self):
-        return redirect(url_for("security.change_password"))
-
-
-@page
 class PrefSecurityPage(BasePreferencesPage):
     parent = PrefHomePage
     name = "security"
