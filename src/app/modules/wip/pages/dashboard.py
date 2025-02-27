@@ -7,6 +7,7 @@ from __future__ import annotations
 from attr import frozen
 from svcs.flask import container
 
+from app.enums import RoleEnum
 from app.flask.lib.pages import page
 from app.flask.routing import url_for
 from app.models.lifecycle import PublicationStatus
@@ -28,6 +29,8 @@ class DashboardPage(BaseWipPage):
     icon = "chart-bar"
 
     parent = HomePage
+
+    allowed_roles = [RoleEnum.PRESS_MEDIA, RoleEnum.ACADEMIC]
 
     def context(self):
         return {
