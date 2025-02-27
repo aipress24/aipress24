@@ -8,7 +8,10 @@
           <div class="divide-y divide-gray-200 lg:grid lg:grid-cols-12 lg:divide-y-0 lg:divide-x">
             {% include "pages/preferences/left-menu.j2" %}
 
-            {% block main %}{% endblock %}
+            <div class="content mt-2 p-4 lg:p-6 lg:col-span-9">
+              {% block main %}
+              {% endblock %}
+            </div>
           </div>
         </div>
       </div>
