@@ -19,7 +19,6 @@ from app.modules.wip.models.newsroom import (
     Article,
     AvisEnquete,
     Commande,
-    JustifPublication,
     Sujet,
 )
 from app.services.auth import AuthService
