@@ -4,7 +4,10 @@
 
 from __future__ import annotations
 
+from werkzeug.utils import redirect
+
 from app.flask.lib.pages import page
+from app.flask.routing import url_for
 
 from .base import BasePreferencesPage
 from .home import PrefHomePage
@@ -23,10 +26,12 @@ class PrefEditProfilePage(BasePreferencesPage):
 @page
 class PrefPasswordPage(BasePreferencesPage):
     parent = PrefHomePage
-    name = "password"
+    name = "Mot de passe"
     label = "Mot de passe"
-    template = "pages/preferences/placeholder.j2"
     icon = "key"
+
+    def get(self):
+        return redirect(url_for("security.change_password"))
 
 
 @page
