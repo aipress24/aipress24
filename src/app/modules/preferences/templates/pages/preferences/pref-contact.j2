@@ -1,50 +1,45 @@
 {% extends "pages/preferences/_base.j2" %}
 
 {% block main %}
-  <div class="content p-4 lg:col-span-9">
-    <div>
-        <h2 class="pb-6">A qui accordez-vous le droit de vous contacter et comment ?</h1>
-    </div>
+  <h2>Options de contact</h2>
+
+  <h3>
+    A qui accordez-vous le droit de voir vos coordonnées ?
+  </h3>
+
+  <p>
+    Cochez les cases pour sélectionner les informations que vos contacts peuvent voir selon
+    leur catégorie.
+  </p>
+
+  <p class="text-sm text-gray-500">
+    (Attention, ces informations sont partagées avec les utilisateurs de la plateforme.)
+  </p>
+
+  <div class="mt-8">
     <form
-      class="divide-y divide-gray-200 lg:col-span-9"
-      action=""
-      method="POST"
+        class="mt-8 divide-y divide-gray-200 lg:col-span-9"
+        action=""
+        method="POST"
     >
-      <div class="pt-4">
-        <h3>
-          A qui accordez-vous le droit de vous envoyer des messages ? Cochez les cases (choix multiples).
-        </h3>
-      </div>
-      <br>
-      <div class="space-y-3">
-
-      <div class="pt-4">
-
-      <h3>
-        A qui accordez-vous le droit de voir vos coordonnées ? Cochez les cases
-        pour sélectionner les informations que vos contacts peuvent voir selon
-        leur catégorie.
-      </h3>
-      <p class="mt-1 text-sm text-gray-500">
-        Attention, ces informations sont partagées avec les utilisateurs de la plateforme.
-      </p>
-      </div>
-
       <div class="grid grid-cols-3 gap-4">
         <div>&nbsp;</div>
         <div>E-mail</div>
         <div>Mobile</div>
         {% for community in show.values() %}
-            <div>{{ community.label }}</div>
-            <div>
-            <input type="checkbox" id="{{ community.email_key }}" name="{{ community.email_key }}" {{ community.email }} >
-            </div>
-            <div>
-            <input type="checkbox" id="{{ community.mobile_key }}" name="{{ community.mobile_key }}" {{ community.mobile }} >
-            </div>
+          <div>{{ community.label }}</div>
+          <div>
+            <input
+                type="checkbox" id="{{ community.email_key }}" name="{{ community.email_key }}" {{ community.email }} >
+          </div>
+          <div>
+            <input
+                type="checkbox" id="{{ community.mobile_key }}"
+                name="{{ community.mobile_key }}" {{ community.mobile }} >
+          </div>
         {% endfor %}
-        </div>
       </div>
+
       <div class="mt-4 py-4 px-4 flex justify-end sm:px-6">
         <button
             type="submit"
@@ -52,7 +47,7 @@
             value="cancel"
             class="bg-white border border-gray-300 rounded-md shadow-sm py-2 px-4 inline-flex justify-center text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500"
         >
-            Cancel
+          Cancel
         </button>
         <button
             type="submit"
@@ -60,9 +55,10 @@
             value="save"
             class="ml-5 bg-sky-700 border border-transparent rounded-md shadow-sm py-2 px-4 inline-flex justify-center text-sm font-medium text-white hover:bg-sky-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500"
         >
-            Save
+          Save
         </button>
       </div>
     </form>
+
   </div>
 {% endblock %}
