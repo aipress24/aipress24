@@ -130,7 +130,7 @@ script-src = [
     "https://cdn.userfront.com/",
     "https://api.anymod.com",
     # Analytics
-    "https://shynet.aipress24.com/",
+    # TODO
     # CDNs - TODO: remove
     "https://cdn.jsdelivr.net/",
     "https://cdnjs.cloudflare.com/",
@@ -138,8 +138,16 @@ script-src = [
     # Stripe
     "https://js.stripe.com/"
 ]
-worker-src = ["'self'", "blob:"]
-frame-src = ["'self'", "blob:", "https://www.google.com/"]
+worker-src = [
+    "'self'",
+    "blob:",
+]
+frame-src = [
+    "'self'",
+    "blob:",
+    "https://www.google.com/",
+    "https://js.stripe.com/",
+]
 base-uri = "'none'"
 form-action = "'self'"
 
