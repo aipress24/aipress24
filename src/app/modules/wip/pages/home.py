@@ -4,8 +4,10 @@
 
 from __future__ import annotations
 
+from flask import g
 from werkzeug.utils import redirect
 
+from app.enums import RoleEnum
 from app.flask.lib.pages import page
 from app.flask.routing import url_for
 
@@ -20,4 +22,8 @@ class HomePage(BaseWipPage):
     label = "Work"
 
     def get(self):
-        return redirect(url_for(".dashboard"))
+        user = g.user
+        if user.has_role(RoleEnum.PRESS_MEDIA) or user.has_role(RoleEnum.ACADEMIC):
+            return redirect(url_for(".dashboard"))
+        else:
+            return redirect(url_for(".opportunities"))
