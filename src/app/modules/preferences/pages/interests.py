@@ -20,10 +20,10 @@ class PrefInterestsPage(BasePreferencesPage):
     parent = PrefHomePage
     name = "interests"
     label = "Centres d'intérêts"
-    template = "pages/preferences/interest.j2"
+    template = "pages/preferences/interests.j2"
     icon = "clipboard-document-check"
 
-    def context(self) -> dict[str, bool]:
+    def context(self) -> dict[str, str]:
         user = g.user
         profile = user.profile
         return {"hobbies": profile.get_value("hobbies")}
@@ -32,20 +32,14 @@ class PrefInterestsPage(BasePreferencesPage):
         if not current_user.is_authenticated:
             msg = "No currently authenticated user"
             raise ValueError(msg)
+
         if request.form.get("submit") == "cancel":
             return redirect(url_for(f".{self.name}"))
 
-        response = {}
-        for key, val in request.form.items():
-            response[key] = val
-        # search hobbies response
-        new_hobbies = response.get("hobbies")
-        if not new_hobbies:
-            return redirect(url_for(f".{self.name}"))
+        hobbies = request.form.get("hobbies", "")
         user = g.user
         profile = user.profile
-        profile.set_value("hobbies", new_hobbies)
-        db_session = db.session
-        db_session.merge(user)
-        db_session.commit()
+        profile.set_value("hobbies", hobbies)
+        db.session.merge(user)
+        db.session.commit()
         return redirect(self.url)
