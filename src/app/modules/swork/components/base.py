@@ -78,6 +78,10 @@ class Filter:
     options: list[str]
 
     def __init__(self, objects: list | None = None) -> None:
+        self.id = ""
+        self.label = ""
+        self.options = []
+
         if not objects:
             return
 
