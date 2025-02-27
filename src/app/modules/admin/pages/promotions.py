@@ -4,6 +4,9 @@
 
 from __future__ import annotations
 
+from devtools import debug
+from flask import request
+
 from app.flask.lib.pages import page
 
 from .base import BaseAdminPage
@@ -20,3 +23,12 @@ class AdminPromotionsPage(BaseAdminPage):
     icon = "speaker-wave"
 
     parent = AdminHomePage
+
+    def context(self):
+        return {
+        }
+
+    def post(self):
+        data = dict(request.form)
+        debug(data)
+        return
