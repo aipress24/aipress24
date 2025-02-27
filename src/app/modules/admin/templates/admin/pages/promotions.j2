@@ -1,31 +1,36 @@
 {% extends "admin/layout/_base.j2" %}
 
 {% block main %}
-  <div>
-    <select class="dui-select dui-select-primary w-full max-w-xs">
-      <option disabled selected>Choisissez la promo à éditer</option>
-      <option>Wire / promo 1</option>
-      <option>Wire / promo 2</option>
-      <option>Events / promo 1</option>
-      <option>Events / promo 2</option>
-      <option>Biz / promo 1</option>
-      <option>Biz / promo 2</option>
-      <option>Swork / promo 1</option>
-      <option>Swork / promo 2</option>
+  <form method="POST">
+
+    <div class="mb-2 font-semibold">Promo a éditer</div>
+
+    <select id="promo-select" name="promo" class="dui-select dui-select-primary w-full max-w-xs">
+      <option value="" disabled selected>Choisissez la promo à éditer</option>
+      <option value="wire-promo-1">Wire / promo 1</option>  <!-- Added values for form submission -->
+      <option value="wire-promo-2">Wire / promo 2</option>
+      <option value="events-promo-1">Events / promo 1</option>
+      <option value="events-promo-2">Events / promo 2</option>
+      <option value="biz-promo-1">Biz / promo 1</option>
+      <option value="biz-promo-2">Biz / promo 2</option>
+      <option value="swork-promo-1">Swork / promo 1</option>
+      <option value="swork-promo-2">Swork / promo 2</option>
     </select>
-  </div>
 
-  <div
-      x-data="{ value: '' }"
-      x-init="$refs.trix.editor.loadHTML(value)"
-      x-id="['trix']"
-      @trix-change="value = $refs.input.value"
-  >
-    <input :id="$id('trix')" type="hidden" x-ref="input">
+    <div class="mt-6 font-semibold">Texte de la promo</div>
 
-    <!-- Optional .prose class added to utilize Tailwind's Typography Plugin for styling -->
-    <trix-editor x-ref="trix" :input="$id('trix')" class="prose"></trix-editor>
+    <div
+        class="mt-2"
+        x-data="{ value: '' }"
+        x-init="$refs.trix.editor.loadHTML(value)"
+        x-id="['trix']"
+        @trix-change="value = $refs.input.value"
+    >
+      <input name="content" :id="$id('trix')" type="hidden" x-ref="input">
+      <!-- Optional .prose class added to utilize Tailwind's Typography Plugin for styling -->
+      <trix-editor x-ref="trix" :input="$id('trix')" class="prose"></trix-editor>
+    </div>
 
-    <div x-html="value"></div>
-  </div>
+    <input type="submit" value="Enregistrer" class="mt-6 dui-btn dui-btn-primary">
+  </form>
 {% endblock %}
