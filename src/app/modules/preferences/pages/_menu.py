@@ -7,7 +7,7 @@ from __future__ import annotations
 from app.flask.routing import url_for
 
 from .contact import PrefContactOptionsPage
-from .interest import PrefInterestsPage
+from .interests import PrefInterestsPage
 from .org_invitation import PrefInvitationsPage
 from .others import PrefEditProfilePage, PrefPasswordPage
 from .profile import PrefProfilePage
