@@ -77,13 +77,14 @@ MAIN_ITEMS = [
         "color": "bg-blue-600",
     },
     # 5
-    {
-        "id": "publications",
-        "model_class": JustifPublication,
-        "label": "Justificatifs de publication",
-        "nickname": "PU",
-        "color": "bg-orange-600",
-    },
+    # TODO LATER
+    # {
+    #     "id": "publications",
+    #     "model_class": JustifPublication,
+    #     "label": "Justificatifs de publication",
+    #     "nickname": "PU",
+    #     "color": "bg-orange-600",
+    # },
 ]
 
 
