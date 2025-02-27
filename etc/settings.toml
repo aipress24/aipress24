@@ -31,7 +31,10 @@ SECURITY_EMAIL_SENDER = "contact@aipress24.com"
 
 # flask_security
 SECURITY_TRACKABLE = true
+
 SECURITY_CHANGEABLE = true
+SECURITY_CHANGE_PASSWORD_TEMPLATE = "security/change_password.html"
+
 
 # SECURITY_USER_IDENTITY_ATTRIBUTES = "TODO"
 
