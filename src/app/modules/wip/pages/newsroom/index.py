@@ -101,7 +101,8 @@ class NewsroomPage(BaseWipPage):
     title = "Newsroom (espace de rédaction)"
     icon = "rocket-launch"
 
-    allowed_roles = [RoleEnum.PRESS_MEDIA, RoleEnum.ACADEMIC]
+    # allowed_roles = [RoleEnum.PRESS_MEDIA, RoleEnum.ACADEMIC]
+    allowed_roles = [RoleEnum.PRESS_MEDIA]
 
     template = "wip/pages/newsroom.j2"
     parent = HomePage
