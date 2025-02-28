@@ -32,8 +32,6 @@ ALLOW_NEWSROOM_ARTICLE: set[ProfileEnum] = {
     ProfileEnum.PM_JR_PIG,
     ProfileEnum.PM_JR_CP_ME,
     ProfileEnum.PM_JR_ME,
-    ProfileEnum.PM_DIR_INST,
-    ProfileEnum.PM_JR_INST,
     ProfileEnum.PM_DIR_SYND,
 }
 
