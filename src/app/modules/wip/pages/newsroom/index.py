@@ -35,6 +35,15 @@ ALLOW_NEWSROOM_ARTICLE: set[ProfileEnum] = {
     ProfileEnum.PM_DIR_SYND,
 }
 
+ALLOW_NEWSROOM_COMMAND: set[ProfileEnum] = {
+    ProfileEnum.PM_DIR,
+    ProfileEnum.PM_JR_CP_SAL,
+    ProfileEnum.PM_JR_PIG,
+    ProfileEnum.PM_JR_CP_ME,
+    ProfileEnum.PM_JR_ME,
+    ProfileEnum.PM_DIR_SYND,
+}
+
 
 MAIN_ITEMS = [
     # 1
@@ -113,6 +122,15 @@ class NewsroomPage(BaseWipPage):
         profile_enum = ProfileEnum[profile.profile_code]
         return profile_enum in ALLOW_NEWSROOM_ARTICLE
 
+    @staticmethod
+    def _check_command_creation_per_redac_chief() -> bool:
+        """Only Chief of redaction (and journalists) can create or
+        manage commandes in newsroom.
+        """
+        profile = g.user.profile
+        profile_enum = ProfileEnum[profile.profile_code]
+        return profile_enum in ALLOW_NEWSROOM_COMMAND
+
     def filter_articles_items(
         self,
         items: dict[str, Any],
@@ -140,13 +158,24 @@ class NewsroomPage(BaseWipPage):
             items = [item for item in items if item["id"] != "avis_enquete"]
         return items
 
+    def filter_avis_commandes_items(
+        self,
+        items: dict[str, Any],
+        flags: list[bool],
+    ) -> dict[str, Any]:
+        if not all(flags):
+            items = [item for item in items if item["id"] != "commandes"]
+        return items
+
     def allowed_redaction_items(self) -> dict[str, Any]:
         items = MAIN_ITEMS.copy()
         allow_journalist = self._check_article_creation_per_journalist()
+        allow_commands = self._check_command_creation_per_redac_chief()
         allow_bw = self._check_active_bw()
         items = self.filter_articles_items(items, [allow_bw, allow_journalist])
         items = self.filter_sujets_items(items, [allow_bw, allow_journalist])
         items = self.filter_avis_enquetes_items(items, [allow_bw, allow_journalist])
+        items = self.filter_avis_commandes_items(items, [allow_bw, allow_commands])
         return items
 
     def context(self):
