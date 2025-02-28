@@ -31,4 +31,5 @@ class AdminPromotionsPage(BaseAdminPage):
     def post(self):
         data = dict(request.form)
         debug(data)
-        return
+        # TODO
+        # return
