@@ -45,10 +45,11 @@ USER_MENU = [
         "label": "Performances",
         "endpoint": "wip.performance",
     },
-    {
-        "label": "Mes achats",
-        "endpoint": "biz.purchases",
-    },
+    # TODO
+    # {
+    #     "label": "Mes achats",
+    #     "endpoint": "biz.purchases",
+    # },
     {
         "label": "Administration",
         "endpoint": "admin.index",
