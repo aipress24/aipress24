@@ -17,8 +17,9 @@ from app.models.auth import User
 from app.models.content.base import BaseContent
 from app.models.mixins import IdMixin
 from app.models.organisation import Organisation
+from app.modules.wire.models import WireCommonMixin
+from app.services.activity_stream import ActivityType, post_activity
 
-from ..activity_stream import ActivityType, post_activity
 from .models import following_orgs_table, following_users_table, likes_table
 
 Followable: TypeAlias = Union[User, Organisation, "SocialUser", "SocialOrganisation"]
@@ -69,7 +70,7 @@ class FollowableAdapter(Adapter):
 
 
 class LikeableMixin:
-    content: BaseContent
+    content: WireCommonMixin
 
     def num_likes(self):
         stmt = sa.select(sa.func.count()).where(
@@ -219,16 +220,17 @@ class SocialOrganisation(FollowableAdapter, LikeableMixin):
 
 @define
 class SocialContent(Adapter, LikeableMixin):
-    content: BaseContent
+    content: WireCommonMixin
     _adaptee_id = "content"
 
     def __attrs_post_init__(self):
-        assert isinstance(self.content, BaseContent)
+        assert isinstance(self.content, WireCommonMixin)
 
 
 @singledispatch
 def adapt(obj):
-    raise NotImplementedError
+    msg = f"Adaptation of {obj} (of type {type(obj)} not implemented"
+    raise NotImplementedError(msg)
 
 
 @adapt.register
@@ -242,7 +244,7 @@ def adapt_org(org: Organisation) -> SocialOrganisation:
 
 
 @adapt.register
-def adapt_content(content: BaseContent) -> SocialContent:
+def adapt_post(content: WireCommonMixin) -> SocialContent:
     return adapter.adapt(content, SocialContent)
 
 
