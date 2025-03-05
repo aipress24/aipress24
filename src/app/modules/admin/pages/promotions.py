@@ -25,8 +25,7 @@ class AdminPromotionsPage(BaseAdminPage):
     parent = AdminHomePage
 
     def context(self):
-        return {
-        }
+        return {}
 
     def post(self):
         data = dict(request.form)
