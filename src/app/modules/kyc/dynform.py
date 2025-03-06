@@ -44,7 +44,7 @@ TAG_AREA300_SIZE = f"(maximum {MAX_TEXTAREA300} signes)"
 TAG_FREE_ELEMENT = "(vous pouvez ajouter un nouvel élément à la liste proposée)"
 TAG_MANDATORY = "(*)"
 TAG_MANY_CHOICES = "(plusieurs choix possibles)"
-TAG_PHOTO_FORMAT = "(format JPG, PNG ou PDF, taille maximum de 2MB)"
+TAG_PHOTO_FORMAT = "(format JPG ou PNG, taille maximum de 2MB)"
 TAG_PUBLIC = "(information pouvant être publique)"
 TAG_LABELS = (
     TAG_AREA_SIZE,

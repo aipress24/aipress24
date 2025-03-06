@@ -121,7 +121,7 @@
     if (inp.classList.contains('data_photo') && inp.value.length > 0) {
       // alert('photo jpg');
       let ext = inp.value.split('.').pop().toLowerCase();
-      if (!['jpg', 'jpeg', 'png', 'pdf'].includes(ext)) {
+      if (!['jpg', 'jpeg', 'png'].includes(ext)) {
         inp.classList.add('invalid');
         valid = false;
         return valid;
