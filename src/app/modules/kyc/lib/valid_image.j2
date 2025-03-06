@@ -21,7 +21,7 @@
             this.imgsrc = null;
             let file = this.$refs.myFile.files[0];
             if (!file) return;
-            if (file.type.indexOf('image/') !== 0 && file.type.indexOf('application/pdf') !== 0) return;
+            if (file.type.indexOf('image/') !== 0) return;
 
             this.image.size = Math.floor(file.size/1024);
             if (this.image.size > this.maxImageSize) {
@@ -36,15 +36,11 @@
                     let img = new Image();
                     img.onload = () => {
                         this.image.dimension = `(${img.width}x${img.height})`;
-					    this.imageLoaded = true;
-						this.imagePreloaded = false;
-				    };
+					              this.imageLoaded = true;
+						            this.imagePreloaded = false;
+				            };
                     img.src = evt.target.result;
                     this.imgsrc = evt.target.result;
-                } else if (file.type.indexOf('application/pdf') == 0) {
-                    this.image.dimension = '';
-                    this.imageLoaded = true;
-                    this.imagePreloaded = false;
                 };
             };
 
@@ -89,7 +85,7 @@
         name="{{ field.name }}"
         x-ref="myFile"
         x-on:change="selectedFile"
-        accept="image/png, image/jpeg, application/pdf"
+        accept="image/png, image/jpeg"
     >
     <input
         id=id="{{ field.id_preload_name() }}"
