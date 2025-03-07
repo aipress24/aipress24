@@ -35,6 +35,17 @@ class PrefPasswordPage(BasePreferencesPage):
 
 
 @page
+class PrefEmailPage(BasePreferencesPage):
+    parent = PrefHomePage
+    name = "Adresse email"
+    label = "Adresse email"
+    icon = "at-symbol"
+
+    def get(self):
+        return redirect(url_for("security.change_email"))
+
+
+@page
 class PrefSecurityPage(BasePreferencesPage):
     parent = PrefHomePage
     name = "security"

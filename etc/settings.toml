@@ -35,6 +35,12 @@ SECURITY_TRACKABLE = true
 SECURITY_CHANGEABLE = true
 SECURITY_CHANGE_PASSWORD_TEMPLATE = "security/change_password.html"
 
+SECURITY_CHANGE_EMAIL = true
+SECURITY_CHANGE_EMAIL_TEMPLATE = "security/change_email.html"
+# SECURITY_CHANGE_EMAIL_SUBJECT
+# SECURITY_POST_CHANGE_EMAIL_VIEW
+# SECURITY_CHANGE_EMAIL_ERROR_VIEW
+
 
 # SECURITY_USER_IDENTITY_ATTRIBUTES = "TODO"
 
@@ -136,12 +142,9 @@ script-src = [
     "https://cdnjs.cloudflare.com/",
     "https://unpkg.com/",
     # Stripe
-    "https://js.stripe.com/"
+    "https://js.stripe.com/",
 ]
-worker-src = [
-    "'self'",
-    "blob:",
-]
+worker-src = ["'self'", "blob:"]
 frame-src = [
     "'self'",
     "blob:",

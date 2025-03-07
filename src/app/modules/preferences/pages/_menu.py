@@ -9,12 +9,13 @@ from app.flask.routing import url_for
 from .contact import PrefContactOptionsPage
 from .interests import PrefInterestsPage
 from .org_invitation import PrefInvitationsPage
-from .others import PrefEditProfilePage, PrefPasswordPage
+from .others import PrefEditProfilePage, PrefEmailPage, PrefPasswordPage
 from .profile import PrefProfilePage
 
 MENU = [
     PrefProfilePage,
     PrefPasswordPage,
+    PrefEmailPage,
     PrefInvitationsPage,
     PrefEditProfilePage,
     PrefInterestsPage,
