@@ -1,0 +1,37 @@
+{% extends "security/base.html" %} {% from "security/_macros.html" import
+render_field_with_errors, render_field, render_field_errors %} {% block content
+%}
+
+<div class="mx-auto w-full max-w-sm lg:w-96">
+  <div>
+    <img
+      class="h-12 w-auto"
+      src="/static/img/aipress24-logo-small.png"
+      alt="AIpress24" />
+
+    <h2 class="mt-6 text-3xl font-bold text-gray-900">
+      Changement de l&apos;adresse email
+    </h2>
+  </div>
+
+  <h3>Un email de confirmation sera envoyé à cette nouvelle adresse email.</h3>
+
+  <div class="mt-8">
+    <div class="mt-6">
+      <form
+        action="{{ url_for_security('change_email') }}"
+        method="post"
+        name="change_email_form"
+        class="space-y-6">
+        {{ change_email_form.hidden_tag() }} {{
+        render_field_with_errors(change_email_form.email) }} {{
+        render_field_errors(change_email_form.csrf_token) }}
+        <input
+          type="submit"
+          class="mt-8 w-full button ~info @high"
+          value="Valider le nouvel email" />
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
