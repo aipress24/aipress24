@@ -101,7 +101,6 @@ class NewsroomPage(BaseWipPage):
     title = "Newsroom (espace de rédaction)"
     icon = "rocket-launch"
 
-    # allowed_roles = [RoleEnum.PRESS_MEDIA, RoleEnum.ACADEMIC]
     allowed_roles = [RoleEnum.PRESS_MEDIA]
 
     template = "wip/pages/newsroom.j2"
@@ -109,14 +108,17 @@ class NewsroomPage(BaseWipPage):
 
     @staticmethod
     def _check_active_bw() -> bool:
+        """True if the current user's organisation has an active Business Wall."""
         org = g.user.organisation
         if not org:
             return False
         return org.is_bw_active
 
     @staticmethod
-    def _check_article_creation_per_journalist() -> bool:
-        """Only journalist can create or manage articles or sujets
+    def _check_article_creation_by_journalist() -> bool:
+        """True if the current user is allowed to create articles.
+
+        Only journalists can create or manage articles or sujets
         in newsroom.
         """
         profile = g.user.profile
@@ -124,8 +126,8 @@ class NewsroomPage(BaseWipPage):
         return profile_enum in ALLOW_NEWSROOM_ARTICLE
 
     @staticmethod
-    def _check_command_creation_per_redac_chief() -> bool:
-        """Only Chief of redaction (and journalists) can create or
+    def _check_command_creation_by_redac_chief() -> bool:
+        """Only Chief editors (and journalists) can create or
         manage commandes in newsroom.
         """
         profile = g.user.profile
@@ -170,8 +172,8 @@ class NewsroomPage(BaseWipPage):
 
     def allowed_redaction_items(self) -> list[dict[str, Any]]:
         items = MAIN_ITEMS.copy()
-        allow_journalist = self._check_article_creation_per_journalist()
-        allow_commands = self._check_command_creation_per_redac_chief()
+        allow_journalist = self._check_article_creation_by_journalist()
+        allow_commands = self._check_command_creation_by_redac_chief()
         allow_bw = self._check_active_bw()
         items = self.filter_articles_items(items, [allow_bw, allow_journalist])
         items = self.filter_sujets_items(items, [allow_bw, allow_journalist])
