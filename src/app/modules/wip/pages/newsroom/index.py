@@ -134,41 +134,41 @@ class NewsroomPage(BaseWipPage):
 
     def filter_articles_items(
         self,
-        items: dict[str, Any],
+        items: list[dict[str, Any]],
         flags: list[bool],
-    ) -> dict[str, Any]:
+    ) -> list[dict[str, Any]]:
         if not all(flags):
             items = [item for item in items if item["id"] != "articles"]
         return items
 
     def filter_sujets_items(
         self,
-        items: dict[str, Any],
+        items: list[dict[str, Any]],
         flags: list[bool],
-    ) -> dict[str, Any]:
+    ) -> list[dict[str, Any]]:
         if not all(flags):
             items = [item for item in items if item["id"] != "sujets"]
         return items
 
     def filter_avis_enquetes_items(
         self,
-        items: dict[str, Any],
+        items: list[dict[str, Any]],
         flags: list[bool],
-    ) -> dict[str, Any]:
+    ) -> list[dict[str, Any]]:
         if not all(flags):
             items = [item for item in items if item["id"] != "avis_enquete"]
         return items
 
     def filter_avis_commandes_items(
         self,
-        items: dict[str, Any],
+        items: list[dict[str, Any]],
         flags: list[bool],
-    ) -> dict[str, Any]:
+    ) -> list[dict[str, Any]]:
         if not all(flags):
             items = [item for item in items if item["id"] != "commandes"]
         return items
 
-    def allowed_redaction_items(self) -> dict[str, Any]:
+    def allowed_redaction_items(self) -> list[dict[str, Any]]:
         items = MAIN_ITEMS.copy()
         allow_journalist = self._check_article_creation_per_journalist()
         allow_commands = self._check_command_creation_per_redac_chief()
@@ -201,4 +201,6 @@ class NewsroomPage(BaseWipPage):
             .select_from(model_class)
             .where(model_class.owner_id == user.id)
         )
-        return db_session.execute(stmt).scalar()
+        result = db_session.execute(stmt).scalar()
+        assert isinstance(result, int)
+        return result
