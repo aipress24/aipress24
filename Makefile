@@ -81,8 +81,8 @@ audit:
 
 ## Setup the development environment
 develop:
-	poetry install
-	flask vite install
+	uv sync
+	uv run flask vite install
 
 ## Run (dev) server
 run:
@@ -179,20 +179,21 @@ doc:
 #
 # Dependencies
 #
-.PHONY: update-deps
 
 ## Update dependencies
 update-deps:
-	poetry update
+	uv sync -U
 	pre-commit autoupdate
-	poetry show -o
+	uv pip list --outdated
 
+.PHONY: update-deps
 
 #
 # Deploy
 #
-.PHONY: deploy-hop3
 
 ## Deploy top HOP3
 deploy-hop3:
 	git push hop3 main
+
+.PHONY: deploy-hop3
