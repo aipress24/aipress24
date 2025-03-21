@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 import importlib.metadata
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 from flask import current_app
@@ -20,4 +20,4 @@ def get_home_path() -> Path:
 
 
 def utcnow() -> datetime:
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)

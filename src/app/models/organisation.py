@@ -10,7 +10,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import arrow
 import sqlalchemy as sa
@@ -117,16 +117,16 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
     stripe_subscription_id: Mapped[str] = mapped_column(default="")
     stripe_latest_invoice_url: Mapped[str] = mapped_column(default="")
     stripe_subs_creation_date: Mapped[datetime] = mapped_column(
-        ArrowType(timezone=True), default=datetime(2000, 1, 1, tzinfo=timezone.utc)
+        ArrowType(timezone=True), default=datetime(2000, 1, 1, tzinfo=UTC)
     )
     # stripe_subs_current_period_end: Mapped[datetime] = mapped_column(
     #     ArrowType, default=datetime(2000, 1, 1, tzinfo=timezone.utc)
     # )
     stripe_subs_current_period_start: Mapped[datetime] = mapped_column(
-        ArrowType(timezone=True), default=datetime(2000, 1, 1, tzinfo=timezone.utc)
+        ArrowType(timezone=True), default=datetime(2000, 1, 1, tzinfo=UTC)
     )
     validity_date: Mapped[datetime] = mapped_column(
-        ArrowType(timezone=True), default=datetime(2000, 1, 1, tzinfo=timezone.utc)
+        ArrowType(timezone=True), default=datetime(2000, 1, 1, tzinfo=UTC)
     )
 
     status: Mapped[str] = mapped_column(default="")
@@ -211,7 +211,7 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
         return (
             self.type != OrganisationTypeEnum.AUTO
             and self.active
-            and self.validity_date.date() >= datetime.now(tz=timezone.utc).date()
+            and self.validity_date.date() >= datetime.now(tz=UTC).date()
         )
 
     @property
