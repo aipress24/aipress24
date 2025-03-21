@@ -12,7 +12,7 @@ def extract_fragment(html: str, id: str = "", selector: str = "") -> str:
 
     try:
         parser = etree.HTMLParser()
-        tree = etree.fromstring(html, parser)  # noqa: S320
+        tree = etree.fromstring(html, parser)
         if id:
             selector = f'//*[@id="{id}"]'
         node = tree.xpath(selector)[0]

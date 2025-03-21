@@ -3,7 +3,7 @@
 #
 
 preview = true
-target-version = "py310"
+target-version = "py311"
 
 exclude = [
     "migrations/",
@@ -72,11 +72,11 @@ lint.ignore = [
     "PLR0912", # Too many branches
     "RET505", # Unnecessary `else` after `return` statement
     "RUF012", # Mutable class attributes should be annotated with `typing.ClassVar`
-    "RUF035", # Unsafe use of `markupsafe.Markup` detected
     "RUF039", # Unsafe use of `markupsafe.Markup` detected
     "S311", # Standard pseudo-random generators are not suitable for cryptographic purposes
     "S404", # `subprocess` module is possibly insecure
     "S603", # Using subprocess
+    "S704", # Unsafe use of `markupsafe.Markup` detected
     "T201", # `print` found
     "TC001", # Move import into a type-checking block
     "TC002", # Move import into a type-checking block

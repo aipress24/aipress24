@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import sys
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from arrow import now
@@ -163,7 +163,7 @@ class ValidationUser(BaseAdminPage):
             orig_user.organisation_id = auto_organisation.id
         orig_user.validation_status = LABEL_MODIFICATION_VALIDEE
         orig_user.active = True
-        orig_user.validated_at = datetime.now(timezone.utc)
+        orig_user.validated_at = datetime.now(UTC)
 
         db_session = db.session
         db_session.merge(orig_user)
