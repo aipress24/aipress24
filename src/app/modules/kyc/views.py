@@ -32,7 +32,7 @@ from sqlalchemy.orm import scoped_session
 from svcs.flask import container
 from werkzeug import Response
 from wtforms import Field
-
+from app.modules.kyc.lib.valid_password import ValidPassword
 from app.constants import (
     BW_TRIGGER_LABEL,
     LABEL_INSCRIPTION_NOUVELLE,
@@ -182,7 +182,10 @@ def _parse_result(
     if field:
         # direct access to main Field data
         key = field.name
-        data = field.data
+        if isinstance(field, ValidPassword):
+            data = field.data.strip()
+        else:
+            data = field.data
     else:
         # read secondary data from request results
         data = _parse_request_form(key)
