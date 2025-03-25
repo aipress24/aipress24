@@ -32,7 +32,7 @@ from sqlalchemy.orm import scoped_session
 from svcs.flask import container
 from werkzeug import Response
 from wtforms import Field
-from app.modules.kyc.lib.valid_password import ValidPassword
+
 from app.constants import (
     BW_TRIGGER_LABEL,
     LABEL_INSCRIPTION_NOUVELLE,
@@ -51,6 +51,7 @@ from app.models.auth import (
 )
 from app.models.repositories import RoleRepository
 from app.modules.admin.utils import gc_all_auto_organisations
+from app.modules.kyc.lib.valid_password import ValidPassword
 from app.modules.kyc.organisation_utils import retrieve_user_organisation
 from app.modules.swork.pages.masked_fields import MaskFields
 from app.services.roles import generate_roles_map
