@@ -12,6 +12,7 @@ from typing import Any
 from uuid import uuid4
 
 from arrow import now
+from email_validator import validate_email
 from flask import (
     current_app,
     g,
@@ -754,6 +755,10 @@ def _populate_kyc_data_from_user(user: User) -> dict[str, Any]:
 def check_mail(email: str):
     new_email = email.strip()
     if not new_email:
+        return ""
+    try:
+        validate_email(new_email)
+    except Exception:
         return ""
     if email_already_used(new_email):
         return ""
