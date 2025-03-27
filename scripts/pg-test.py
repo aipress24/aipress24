@@ -13,4 +13,6 @@ def sh(cmd):
 
 sh(["dropdb", "aipress24_test"])
 sh(["createdb", "aipress24_test"])
+
+sh(["pytest"])
 sh(["pytest"])
