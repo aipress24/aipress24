@@ -15,15 +15,15 @@ def sh(cmd) -> int:
 while True:
     sh(["dropdb", "aipress24_test"])
     sh(["createdb", "aipress24_test"])
+    sh(["uv", "sync", "--frozen"])
 
-    sh(["uv", "sync"])
+    # ignore first test run, just in case
+    sh(["pytest"])
+
     status_code = sh(["pytest"])
     print("### Status code:", status_code)
     if status_code == 0:
         sys.exit()
-
-    # status_code = sh(["pytest"])
-    # print("### Status code:", status_code)
 
     sh(["git", "checkout", "HEAD~1"])
     commit_id = subprocess.check_output(["git", "rev-parse", "HEAD"]).strip()
