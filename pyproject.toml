@@ -76,7 +76,7 @@ dependencies = [
     # Images
     "pillow<12,>=11",
     # Full text search
-    "typesense<1.0,>=0.21",
+    "typesense ~= 1.0",
     "beautifulsoup4<5.0,>=4.12",
     "stripe<12,>=11",
     # Queues
