@@ -314,7 +314,7 @@ requires-dist = [
     { name = "tenacity", specifier = ">=8.5.0" },
     { name = "toml", specifier = ">=0.10.2,<1.0.0" },
     { name = "tomli", specifier = ">=2.0.1,<3.0.0" },
-    { name = "typesense", specifier = ">=0.21,<1.0" },
+    { name = "typesense", specifier = "~=1.0" },
     { name = "weasyprint", specifier = ">=63,<64" },
     { name = "webargs", specifier = ">=8.4.0,<9.0.0" },
     { name = "webbits", specifier = ">=0.1.2,<1.0.0" },
@@ -4039,14 +4039,14 @@ wheels = [
 
 [[package]]
 name = "typesense"
-version = "0.21.0"
+version = "1.0.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "requests" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/73/c4/b9ee39e15503c7e284bdb8afb5f2b8d06ee06e7abc33ed56c17388ab24e6/typesense-0.21.0.tar.gz", hash = "sha256:24470525b577300bd81fe43029dddd9269b942b20b49236edf049f6ecead7c8e", size = 14030 }
+sdist = { url = "https://files.pythonhosted.org/packages/67/bf/3bfa71ccd801d0a4b06206b5d0bcf4f399204901865924e36fe7cbf459a6/typesense-1.0.3.tar.gz", hash = "sha256:5e80e0fc71fd8a4eff9d3b8d25e7c312db5e4d542b635d3eea96d87ed129cf33", size = 43136 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/88/2c/e3f25e6e2c5ddb0c8b6e78115f6acd1be3167da1bbe361ae0bcff5c90512/typesense-0.21.0-py3-none-any.whl", hash = "sha256:e4330f103a40af98ba2b0ffd817392a84a537e04816221c9a283faadea7718f0", size = 21143 },
+    { url = "https://files.pythonhosted.org/packages/51/42/9823c42f2b383deae16c1ecb27566d0b1054a28e31fad145bab62ff17897/typesense-1.0.3-py3-none-any.whl", hash = "sha256:b5976a8f6b9afb451ebbd4763778198ac8d62ecf401bc7cd702490171b36d2c9", size = 68283 },
 ]
 
 [[package]]
