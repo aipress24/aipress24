@@ -9,26 +9,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.auth import User
 from app.models.base import Base
-from app.models.mixins import (
-    Addressable,
-    IdMixin,
-    LifeCycleMixin,
-    Owned,
-    UserFeedbackMixin,
-)
-
-
-class Post(IdMixin, Owned, LifeCycleMixin, UserFeedbackMixin, Base):
-    __tablename__ = "soc_post"
-
-    content: Mapped[str] = mapped_column(default="")
-
-
-class Comment(IdMixin, Owned, LifeCycleMixin, Base):
-    __tablename__ = "soc_comment"
-
-    content: Mapped[str] = mapped_column(default="")
-    object_id: Mapped[str] = mapped_column(index=True)
+from app.models.mixins import Addressable, IdMixin, LifeCycleMixin, Owned
 
 
 class Group(IdMixin, Owned, LifeCycleMixin, Addressable, Base):

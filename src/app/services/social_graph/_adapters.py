@@ -14,10 +14,9 @@ from app.flask.extensions import db
 from app.lib import adapter
 from app.lib.adapter import Adapter
 from app.models.auth import User
-from app.models.content.base import BaseContent
+from app.models.base_content import BaseContent
 from app.models.mixins import IdMixin
 from app.models.organisation import Organisation
-from app.modules.wire.models import WireCommonMixin
 from app.services.activity_stream import ActivityType, post_activity
 
 from .models import following_orgs_table, following_users_table, likes_table
@@ -70,7 +69,7 @@ class FollowableAdapter(Adapter):
 
 
 class LikeableMixin:
-    content: WireCommonMixin
+    content: BaseContent
 
     def num_likes(self):
         stmt = sa.select(sa.func.count()).where(
@@ -220,11 +219,11 @@ class SocialOrganisation(FollowableAdapter, LikeableMixin):
 
 @define
 class SocialContent(Adapter, LikeableMixin):
-    content: WireCommonMixin
+    content: BaseContent
     _adaptee_id = "content"
 
     def __attrs_post_init__(self):
-        assert isinstance(self.content, WireCommonMixin)
+        assert isinstance(self.content, BaseContent)
 
 
 @singledispatch
@@ -244,7 +243,7 @@ def adapt_org(org: Organisation) -> SocialOrganisation:
 
 
 @adapt.register
-def adapt_post(content: WireCommonMixin) -> SocialContent:
+def adapt_post(content: BaseContent) -> SocialContent:
     return adapter.adapt(content, SocialContent)
 
 

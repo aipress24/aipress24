@@ -7,8 +7,8 @@ from __future__ import annotations
 from flask_sqlalchemy import SQLAlchemy
 
 from app.models.auth import User
+from app.modules.wire.models import ArticlePost
 
-from ...modules.wire.models import ArticlePost
 from . import get_unique_view_count, get_view_count, record_view
 
 

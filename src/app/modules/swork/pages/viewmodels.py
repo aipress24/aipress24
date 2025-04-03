@@ -13,10 +13,9 @@ from flask import g
 from app.flask.extensions import db
 from app.flask.lib.view_model import ViewModel
 from app.models.auth import User
+from app.modules.swork.models import Group, group_members_table
 from app.modules.wire.models import ArticlePost
 from app.services.social_graph import adapt
-
-from ..models import Group, group_members_table
 
 
 @define

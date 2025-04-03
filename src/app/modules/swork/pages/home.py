@@ -18,9 +18,9 @@ from app.flask.extensions import db
 from app.flask.lib.pages import expose, page
 from app.flask.routing import url_for
 from app.flask.sqla import get_multi
+from app.modules.swork.models import ShortPost as Post
 from app.services.social_graph import adapt
 
-from ..models import Post
 from .base import BaseSworkPage
 
 new_post_args = {

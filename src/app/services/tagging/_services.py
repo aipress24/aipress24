@@ -7,27 +7,19 @@ from __future__ import annotations
 import sqlalchemy as sa
 
 from app.flask.extensions import db
-from app.modules.wire.models import ArticlePost
+from app.modules.wire.models import ArticlePost, PressReleasePost
 
 from ._models import TagApplication
 from .interfaces import Taggable
 
-#
-# NOT USED
-#
-
 
 def add_tag(obj: Taggable, label: str, type: str = "manual") -> TagApplication:
-    # Prevent circular imports - Not sure how to do this better
-    # from app.models.content.textual import Article
-
     tag = TagApplication(type=type, label=label)
 
-    # TODO
     match obj:
-        # case Article(id=id):
-        #     tag.object_id = id
         case ArticlePost(id=id):
+            tag.object_id = id
+        case PressReleasePost(id=id):
             tag.object_id = id
         case _:  # pragma: no cover
             raise NotImplementedError
@@ -36,8 +28,6 @@ def add_tag(obj: Taggable, label: str, type: str = "manual") -> TagApplication:
 
 
 def get_tag_applications(obj) -> list[TagApplication]:
-    # type = obj.__class__.__name__.lower()
-    # object_id = f"{type}:{obj.id}"
     object_id = obj.id
     stmt = (
         sa.select(TagApplication)
@@ -58,6 +48,4 @@ def get_tags(obj) -> list:
             continue
         d[ta.label]["type"] = "manual"
 
-    # l = list(d.items())
-    # l.sort()
     return [t[1] for t in sorted(d.items())]

@@ -54,10 +54,18 @@ class LifeCycleMixin:
     """For object that have a life cycle (create -> edit -> delete)"""
 
     created_at: Mapped[arrow.Arrow] = mapped_column(
-        ArrowType(timezone=True), default=arrow.utcnow
+        ArrowType(timezone=True),
+        default=arrow.utcnow,
+        use_existing_column=True,
     )
-    modified_at: Mapped[arrow.Arrow | None] = mapped_column(ArrowType(timezone=True))
-    deleted_at: Mapped[arrow.Arrow | None] = mapped_column(ArrowType(timezone=True))
+    modified_at: Mapped[arrow.Arrow | None] = mapped_column(
+        ArrowType(timezone=True),
+        use_existing_column=True,
+    )
+    deleted_at: Mapped[arrow.Arrow | None] = mapped_column(
+        ArrowType(timezone=True),
+        use_existing_column=True,
+    )
 
 
 # @sa.event.listens_for(LifeCycleMixin, "before_update", propagate=True)
