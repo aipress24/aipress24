@@ -5,7 +5,8 @@
 from __future__ import annotations
 
 from app.flask.routing import url_for
-from app.models.content.events import Event
+
+from .models import Event
 
 
 @url_for.register

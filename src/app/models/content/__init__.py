@@ -4,26 +4,8 @@
 
 from __future__ import annotations
 
-from .base import BaseContent, EditorialContent, TextEditorialContent
-from .comroom import PressRelease
-from .events import (
-    ContestEvent,
-    CultureEvent,
-    Event,
-    PressEvent,
-    PublicEvent,
-    TrainingEvent,
-)
+from .base import BaseContent
 
 __all__ = [
     "BaseContent",
-    "ContestEvent",
-    "CultureEvent",
-    "EditorialContent",
-    "Event",
-    "PressEvent",
-    "PressRelease",
-    "PublicEvent",
-    "TextEditorialContent",
-    "TrainingEvent",
 ]

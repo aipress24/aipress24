@@ -16,8 +16,8 @@ from webargs.flaskparser import parser
 
 from app.flask.lib.pages import Page, page
 from app.flask.sqla import get_multi
-from app.models.content.events import Event
 from app.models.lifecycle import PublicationStatus
+from app.modules.events.models import Event
 
 calendar_args = {
     "month": webargs.fields.Str(load_default=""),

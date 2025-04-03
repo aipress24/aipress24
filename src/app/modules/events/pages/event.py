@@ -17,7 +17,7 @@ from app.flask.lib.pages import Page, page
 from app.flask.lib.view_model import ViewModel
 from app.flask.sqla import get_multi, get_obj
 from app.models.auth import User
-from app.models.content.events import Event
+from app.modules.events.models import Event
 from app.services.social_graph import adapt
 
 from ..services import get_participants

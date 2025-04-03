@@ -18,9 +18,9 @@ from app.flask.lib.toaster import toast
 from app.flask.lib.view_model import ViewModel
 from app.flask.sqla import get_multi, get_obj
 from app.models.auth import User
-from app.models.content import Event
 from app.models.lifecycle import PublicationStatus
 from app.models.organisation import Organisation
+from app.modules.events.models import Event
 from app.modules.kyc.field_label import label_from_values_cities_as_list
 from app.modules.wire.models import ArticlePost, PressReleasePost
 from app.services.activity_stream import get_timeline

@@ -22,10 +22,10 @@ from werkzeug.exceptions import BadRequest
 from app.flask.lib.pages import Page, page
 from app.flask.lib.view_model import ViewModel
 from app.flask.sqla import get_multi
-from app.models.content.events import EVENT_CLASSES, Event
 from app.models.lifecycle import PublicationStatus
 from app.models.meta import get_meta_attr
 from app.models.mixins import filter_by_loc
+from app.modules.events.models import EVENT_CLASSES, Event
 
 TABS = [
     {"id": cls.get_type_id(), "label": get_meta_attr(cls, "type_label")}
