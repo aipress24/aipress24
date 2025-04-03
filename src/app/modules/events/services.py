@@ -8,9 +8,8 @@ import sqlalchemy as sa
 
 from app.flask.extensions import db
 from app.models.auth import User
-from app.models.content.events import Event
 
-from .models import participation_table
+from .models import Event, participation_table
 
 
 #

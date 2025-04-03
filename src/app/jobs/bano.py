@@ -16,13 +16,14 @@ from app.flask.extensions import db
 from app.flask.lib.jobs import Job
 from app.flask.sqla import get_multi
 from app.models.auth import User
-from app.models.content import EditorialContent, Event, PressRelease
 from app.models.mixins import Addressable
+from app.modules.events.models import Event
+from app.modules.wire.models import PressReleasePost
 
 CLASSES_TO_FIX = [
     Event,
-    PressRelease,
-    EditorialContent,
+    PressReleasePost,
+    # EditorialContent,
     User,
     # Organisation,
 ]

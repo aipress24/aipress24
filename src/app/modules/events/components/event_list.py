@@ -7,7 +7,7 @@ from __future__ import annotations
 from attr import define
 
 from app.flask.lib.pywire import Component, component
-from app.models.content.events import Event
+from app.modules.events.models import Event
 
 
 @component

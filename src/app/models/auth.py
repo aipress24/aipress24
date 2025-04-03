@@ -29,7 +29,6 @@ from .mixins import Addressable, LifeCycleMixin
 
 # from .geoloc import GeoLocation
 
-
 if typing.TYPE_CHECKING:
     from .organisation import Organisation
 
@@ -39,7 +38,6 @@ FIELD_TO_ORGA_FAMILY = {
     "nom_agence_rp": OrganisationTypeEnum.COM,
     "nom_orga": OrganisationTypeEnum.OTHER,
 }
-
 
 roles_users = sa.Table(
     "aut_roles_users",
@@ -616,7 +614,6 @@ def clone_kycprofile(orig_profile: KYCProfile) -> KYCProfile:
         match_making=orig_profile.match_making,
         business_wall=orig_profile.business_wall,
     )
-
 
 # class User2(Base):
 #     #

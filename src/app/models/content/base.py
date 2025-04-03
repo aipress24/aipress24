@@ -41,16 +41,12 @@ TextEditorialContent -up-|> EditorialContent
 
 from __future__ import annotations
 
-import sqlalchemy as sa
-from sqlalchemy import BigInteger
 from sqlalchemy.orm import Mapped, declared_attr, mapped_column
 
 from app.lib.names import to_snake_case
-from app.services.tagging.interfaces import Taggable
 
 from ..base import Base
-from ..mixins import Addressable, IdMixin, LifeCycleMixin, Owned, UserFeedbackMixin
-from .mixins import ClassificationMixin, CopyrightMixin, Publishable, Searchable
+from ..mixins import IdMixin, LifeCycleMixin, Owned
 
 
 # Abstract
@@ -88,33 +84,3 @@ class BaseContent(IdMixin, LifeCycleMixin, Owned, Base):
         if len(title) > 20:
             title = title[0:20] + ".."
         return f"<{self.__class__.__name__} id={self.id} title={title!r}>"
-
-
-# Abstract
-class EditorialContent(
-    BaseContent,
-    UserFeedbackMixin,
-    Publishable,
-    ClassificationMixin,
-    CopyrightMixin,
-    Taggable,
-    Searchable,
-    Addressable,
-):
-    __tablename__ = "edt_editorial"
-
-    id: Mapped[int] = mapped_column(
-        BigInteger, sa.ForeignKey(BaseContent.id), primary_key=True
-    )
-
-    # TODO: should be URI
-    info_source: Mapped[str] = mapped_column(default="")
-
-
-# Abstract
-class TextEditorialContent(EditorialContent):
-    __tablename__ = "edt_text"
-
-    id: Mapped[int] = mapped_column(
-        BigInteger, sa.ForeignKey(EditorialContent.id), primary_key=True
-    )

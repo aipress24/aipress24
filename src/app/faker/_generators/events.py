@@ -8,8 +8,8 @@ import random
 
 import app.settings.vocabularies as voc
 from app.faker._constants import LOCATION, POST_CATEGORIES, POST_IMAGES
-from app.models.content.events import EVENT_CLASSES, Event
 from app.models.lifecycle import PublicationStatus
+from app.modules.events.models import EVENT_CLASSES, Event
 
 from .base import BaseGenerator
 

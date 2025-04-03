@@ -7,8 +7,8 @@ from __future__ import annotations
 from attr import define
 
 from app.flask.lib.pywire import Component, component
-from app.models.content.events import Event
 from app.models.meta import get_meta_attr
+from app.modules.events.models import Event
 
 LOGO_URL = "https://aipress24.demo.abilian.com/static/tmp/logos/1.png"
 
