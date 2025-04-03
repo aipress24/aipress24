@@ -129,7 +129,7 @@ class ArticlePost(WireCommonMixin, NewsMetadataMixin, UserFeedbackMixin, Base):
 
     # id of the corresponding newsroom article (if any)
     newsroom_id: Mapped[int | None] = mapped_column(
-        BigInteger, primary_key=True, autoincrement=True
+        BigInteger, index=True, nullable=True
     )
 
     publisher_type: Mapped[PublisherType] = mapped_column(
