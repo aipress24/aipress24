@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import random
 
-from app.modules.swork.models import Comment, Post
+from app.modules.swork.models import Comment, ShortPost as Post
 
 from .base import BaseGenerator
 

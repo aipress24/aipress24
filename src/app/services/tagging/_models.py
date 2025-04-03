@@ -4,8 +4,6 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 import sqlalchemy as sa
 from sqlalchemy import BigInteger
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -13,9 +11,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.models.auth import User
 from app.models.base import Base
 from app.models.mixins import IdMixin, Timestamped
-
-if TYPE_CHECKING:
-    from app.models.content import BaseContent
+from app.modules.wire.models import Post
 
 
 class TagApplication(Timestamped, IdMixin, Base):
@@ -28,9 +24,9 @@ class TagApplication(Timestamped, IdMixin, Base):
     type: Mapped[str] = mapped_column(default="auto")
 
     object_id: Mapped[int] = mapped_column(
-        BigInteger, sa.ForeignKey("cnt_base.id", ondelete="CASCADE")
+        BigInteger, sa.ForeignKey("frt_content.id", ondelete="CASCADE")
     )
-    object: Mapped[BaseContent] = relationship("BaseContent")
+    object: Mapped[Post] = relationship(Post)
 
     def __repr__(self) -> str:
         return f"<TagApplication {self.label!r} on {self.object_id}>"

@@ -7,11 +7,11 @@ from __future__ import annotations
 from datetime import datetime
 
 from aenum import StrEnum, auto
-from sqlalchemy import BigInteger, Column, Enum, ForeignKey, Integer, orm
+from sqlalchemy import BigInteger, Enum, ForeignKey, String, orm
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy_utils import ArrowType
 
-from app.models.base import Base
+from app.models.base_content import BaseContent
 from app.models.mixins import IdMixin, LifeCycleMixin, Owned
 from app.models.organisation import Organisation
 
@@ -31,9 +31,20 @@ class PublisherType(StrEnum):
 
 
 class WireCommonMixin(IdMixin, LifeCycleMixin, Owned):
-    title: Mapped[str] = mapped_column(default="")
-    content: Mapped[str] = mapped_column(default="")
-    summary: Mapped[str] = mapped_column(default="")
+    @orm.declared_attr
+    def title(cls):
+        # title: Mapped[str] = mapped_column(default="")
+        return mapped_column(String, default="")
+
+    @orm.declared_attr
+    def content(cls):
+        # content: Mapped[str] = mapped_column(default="")
+        return mapped_column(String, default="")
+
+    @orm.declared_attr
+    def summary(cls):
+        # summary: Mapped[str] = mapped_column(default="")
+        return mapped_column(String, default="")
 
     # Etat: Brouillon, Publié, Archivé
     status: Mapped[PostStatus] = mapped_column(Enum(PostStatus), default=DRAFT)
@@ -87,22 +98,22 @@ class WireCommonMixin(IdMixin, LifeCycleMixin, Owned):
 
 class NewsMetadataMixin:
     # NEWS-Genres
-    genre: Mapped[str] = mapped_column(default="")
+    genre: Mapped[str] = mapped_column(default="", use_existing_column=True)
 
     # NEWS-Rubriques
-    section: Mapped[str] = mapped_column(default="")
+    section: Mapped[str] = mapped_column(default="", use_existing_column=True)
 
     # NEWS-Types d’info / "Thémtique"
-    topic: Mapped[str] = mapped_column(default="")
+    topic: Mapped[str] = mapped_column(default="", use_existing_column=True)
 
     # NEWS-Secteurs
-    sector: Mapped[str] = mapped_column(default="")
+    sector: Mapped[str] = mapped_column(default="", use_existing_column=True)
 
     # Géo-localisation
-    geo_localisation: Mapped[str] = mapped_column(default="")
+    geo_localisation: Mapped[str] = mapped_column(default="", use_existing_column=True)
 
     # Langue
-    language: Mapped[str] = mapped_column(default="fr")
+    language: Mapped[str] = mapped_column(default="fr", use_existing_column=True)
 
     # Temp
     country = ""
@@ -110,22 +121,69 @@ class NewsMetadataMixin:
     city = ""
 
 
-class UserFeedbackMixin:
-    @orm.declared_attr
-    def view_count(cls):
-        return Column(Integer, nullable=False, default=0)
+class Post(BaseContent, LifeCycleMixin):
+    __mapper_args__ = {
+        "polymorphic_identity": "post",
+    }
+
+    title: Mapped[str] = mapped_column(default="", use_existing_column=True)
+    content: Mapped[str] = mapped_column(default="")
+    summary: Mapped[str] = mapped_column(default="")
+
+    # Etat: Brouillon, Publié, Archivé
+    status: Mapped[PostStatus] = mapped_column(Enum(PostStatus), default=DRAFT)
+
+    published_at: Mapped[datetime | None] = mapped_column(
+        ArrowType(timezone=True), nullable=True
+    )
+    last_updated_at: Mapped[datetime | None] = mapped_column(
+        ArrowType(timezone=True), nullable=True
+    )
+    expires_at: Mapped[datetime | None] = mapped_column(
+        ArrowType(timezone=True), nullable=True
+    )
+
+    publisher_id: Mapped[int | None] = mapped_column(ForeignKey(Organisation.id))
+
+    image_id: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
 
     @orm.declared_attr
-    def like_count(cls):
-        return Column(Integer, nullable=False, default=0)
+    def publisher(cls):
+        return orm.relationship(Organisation, foreign_keys=[cls.publisher_id])
 
-    @orm.declared_attr
-    def comment_count(cls):
-        return Column(Integer, nullable=False, default=0)
+    # # Media
+    # media_id: Mapped[int] = mapped_column(sa.BigInteger, sa.ForeignKey(Organisation.id))
+    #
+    # @orm.declared_attr
+    # def media(cls):
+    #     return orm.relationship(Organisation, foreign_keys=[cls.media_id])
+    #
+    # # Commanditaire
+    # commanditaire_id: Mapped[int] = mapped_column(sa.BigInteger, sa.ForeignKey(User.id))
+    #
+    # # Titre
+    # titre: Mapped[str] = mapped_column(default="")
+    #
+    # # Titre
+    # brief: Mapped[str] = mapped_column(default="")
+    #
+    # # N° d’édition
+    # numero_edition: Mapped[str] = mapped_column(default="")
+    #
+    # # Contenu
+    # contenu: Mapped[str] = mapped_column(default="")
+    #
+    # # Type
+    # type_contenu: Mapped[str] = mapped_column(default="")
+    #
+    # # Taille
+    # taille_contenu: Mapped[str] = mapped_column(default="")
 
 
-class ArticlePost(WireCommonMixin, NewsMetadataMixin, UserFeedbackMixin, Base):
-    __tablename__ = "wir_article"
+class ArticlePost(NewsMetadataMixin, Post):
+    __mapper_args__ = {
+        "polymorphic_identity": "article",
+    }
 
     # id of the corresponding newsroom article (if any)
     newsroom_id: Mapped[int | None] = mapped_column(
@@ -137,8 +195,10 @@ class ArticlePost(WireCommonMixin, NewsMetadataMixin, UserFeedbackMixin, Base):
     )
 
 
-class PressReleasePost(WireCommonMixin, NewsMetadataMixin, UserFeedbackMixin, Base):
-    __tablename__ = "wir_press_release"
+class PressReleasePost(NewsMetadataMixin, Post):
+    __mapper_args__ = {
+        "polymorphic_identity": "press_release",
+    }
 
     # id of the corresponding newsroom article (if any)
     # newsroom_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)

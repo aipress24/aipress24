@@ -8,7 +8,7 @@ import sqlalchemy as sa
 
 from app.models.auth import User
 from app.models.base import Base
-from app.models.content.base import BaseContent
+from app.models.base_content import BaseContent
 from app.models.organisation import Organisation
 
 #

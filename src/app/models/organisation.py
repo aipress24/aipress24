@@ -163,6 +163,7 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
     membre_saphir: Mapped[bool] = mapped_column(default=False)  #
     membre_sapi: Mapped[bool] = mapped_column(default=False)  #
     membre_satev: Mapped[bool] = mapped_column(default=False)  #
+
     secteurs_activite_medias: Mapped[dict] = mapped_column(JSON, default=list)
     secteurs_activite_medias_detail: Mapped[dict] = mapped_column(JSON, default=list)
     secteurs_activite_rp: Mapped[dict] = mapped_column(JSON, default=list)

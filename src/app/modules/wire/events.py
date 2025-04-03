@@ -10,9 +10,8 @@ from sqlalchemy import select
 from app.constants import LOCAL_TZ
 from app.flask.extensions import db
 from app.modules.wip.models.newsroom import Article
+from app.modules.wire.models import ArticlePost, PostStatus
 from app.signals import article_published, article_unpublished, article_updated
-
-from .models import ArticlePost, PostStatus
 
 
 @article_published.connect

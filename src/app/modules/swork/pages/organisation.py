@@ -22,10 +22,10 @@ from app.models.content import Event
 from app.models.lifecycle import PublicationStatus
 from app.models.organisation import Organisation
 from app.modules.kyc.field_label import label_from_values_cities_as_list
+from app.modules.wire.models import ArticlePost, PressReleasePost
 from app.services.activity_stream import get_timeline
 from app.services.social_graph import adapt
 
-from ...wire.models import ArticlePost, PressReleasePost
 from .base import BaseSworkPage
 from .organisations import OrgsPage
 
