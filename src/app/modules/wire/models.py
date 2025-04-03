@@ -128,7 +128,9 @@ class ArticlePost(WireCommonMixin, NewsMetadataMixin, UserFeedbackMixin, Base):
     __tablename__ = "wir_article"
 
     # id of the corresponding newsroom article (if any)
-    newsroom_id: Mapped[int | None] = mapped_column(BigInteger, primary_key=True)
+    newsroom_id: Mapped[int | None] = mapped_column(
+        BigInteger, primary_key=True, autoincrement=True
+    )
 
     publisher_type: Mapped[PublisherType] = mapped_column(
         Enum(PublisherType), default=PublisherType.MEDIA
