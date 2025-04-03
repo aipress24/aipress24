@@ -4,7 +4,6 @@
 
 from __future__ import annotations
 
-from authlib.integrations.flask_client import OAuth
 from flask import Flask
 from flask_babel import Babel
 from flask_htmx import HTMX
@@ -37,8 +36,6 @@ babel = Babel(default_locale="fr", default_timezone=PARIS_TZ)
 # wakaq = WakaQ()
 # session = Session()
 
-# OAuth is currently not used, actually.
-oauth = OAuth()
 security = Security()
 
 htmx = HTMX()
@@ -49,9 +46,8 @@ htmx = HTMX()
 
 
 def register_extensions(app: Flask) -> None:
-    logger.info("Registering all extensions")
+    logger.debug("Registering all extensions")
 
-    oauth.init_app(app)
     db.init_app(app)
     mail.init_app(app)
     babel.init_app(app)
