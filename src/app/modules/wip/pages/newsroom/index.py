@@ -101,13 +101,58 @@ class NewsroomPage(BaseWipPage):
     title = "Newsroom (espace de rédaction)"
     icon = "rocket-launch"
 
-    allowed_roles = [RoleEnum.PRESS_MEDIA]
+    # allowed_roles = [RoleEnum.PRESS_MEDIA]
 
     template = "wip/pages/newsroom.j2"
     parent = HomePage
 
+    def __acl__(self):
+        return [
+            ("Allow", RoleEnum.PRESS_MEDIA, "view"),
+            ("Deny", "Everyone", "view"),
+        ]
+
+    def context(self):
+        items = self.allowed_redaction_items()
+        for item in items:
+            model_class = item["model_class"]
+            item["count"] = str(self.item_count(model_class))
+            if endpoint := item.get("endpoint"):
+                item["href"] = url_for(endpoint)
+            else:
+                item["href"] = "#"
+
+        return {
+            "items": items,
+        }
+
+    def allowed_redaction_items(self) -> list[dict[str, Any]]:
+        items = MAIN_ITEMS.copy()
+
+        allow_journalist = self._check_article_creation_by_journalist()
+        allow_commands = self._check_command_creation_by_redac_chief()
+        has_bw = self._has_active_business_wall()
+
+        items = self.filter_articles_items(items, [has_bw, allow_journalist])
+        items = self.filter_sujets_items(items, [has_bw, allow_journalist])
+        items = self.filter_avis_enquetes_items(items, [has_bw, allow_journalist])
+        items = self.filter_avis_commandes_items(items, [has_bw, allow_commands])
+        return items
+
+    def item_count(self, model_class: type[Owned]) -> int:
+        db_session = container.get(scoped_session)
+        user = container.get(AuthService).get_user()
+        stmt = (
+            select(func.count())
+            .select_from(model_class)
+            .where(model_class.owner_id == user.id)
+        )
+        result = db_session.execute(stmt).scalar()
+        assert isinstance(result, int)
+        return result
+
     @staticmethod
-    def _check_active_bw() -> bool:
+    def _has_active_business_wall() -> bool:
         """True if the current user's organisation has an active Business Wall."""
         org = g.user.organisation
         if not org:
@@ -169,40 +214,3 @@ class NewsroomPage(BaseWipPage):
         if not all(flags):
             items = [item for item in items if item["id"] != "commandes"]
         return items
-
-    def allowed_redaction_items(self) -> list[dict[str, Any]]:
-        items = MAIN_ITEMS.copy()
-        allow_journalist = self._check_article_creation_by_journalist()
-        allow_commands = self._check_command_creation_by_redac_chief()
-        allow_bw = self._check_active_bw()
-        items = self.filter_articles_items(items, [allow_bw, allow_journalist])
-        items = self.filter_sujets_items(items, [allow_bw, allow_journalist])
-        items = self.filter_avis_enquetes_items(items, [allow_bw, allow_journalist])
-        items = self.filter_avis_commandes_items(items, [allow_bw, allow_commands])
-        return items
-
-    def context(self):
-        items = self.allowed_redaction_items()
-        for item in items:
-            model_class = item["model_class"]
-            item["count"] = str(self.item_count(model_class))
-            if endpoint := item.get("endpoint"):
-                item["href"] = url_for(endpoint)
-            else:
-                item["href"] = "#"
-
-        return {
-            "items": items,
-        }
-
-    def item_count(self, model_class: type[Owned]) -> int:
-        db_session = container.get(scoped_session)
-        user = container.get(AuthService).get_user()
-        stmt = (
-            select(func.count())
-            .select_from(model_class)
-            .where(model_class.owner_id == user.id)
-        )
-        result = db_session.execute(stmt).scalar()
-        assert isinstance(result, int)
-        return result
