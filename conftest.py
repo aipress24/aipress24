@@ -18,11 +18,15 @@ from flask import Flask
 from flask.ctx import AppContext
 from flask.testing import FlaskClient
 from flask_sqlalchemy import SQLAlchemy
+from loguru import logger
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import scoped_session
 from svcs.flask import container
 
 from app.flask.main import create_app
+
+# Silence logging in tests
+logger.configure(handlers=[])
 
 
 class TestConfig:
