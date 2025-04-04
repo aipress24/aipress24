@@ -128,6 +128,8 @@ description = ""
 
 [dependency-groups]
 dev = [
+    # Pinned for now
+    "ruff==0.11.2",
     # Used to run a development server
     "honcho>=2,<3",
     # Code generation
