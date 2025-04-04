@@ -57,7 +57,7 @@ USER_MENU = [
     },
     {
         "label": "Déconnexion",
-        "endpoint": "iam.logout",
+        "endpoint": "security.logout",
     },
 ]
 
