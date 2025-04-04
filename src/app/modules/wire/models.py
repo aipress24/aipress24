@@ -127,7 +127,7 @@ class Post(BaseContent, LifeCycleMixin):
     }
 
     title: Mapped[str] = mapped_column(default="", use_existing_column=True)
-    content: Mapped[str] = mapped_column(default="")
+    content: Mapped[str] = mapped_column(default="", use_existing_column=True)
     summary: Mapped[str] = mapped_column(default="")
 
     # Etat: Brouillon, Publié, Archivé
