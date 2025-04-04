@@ -31,10 +31,10 @@ from app.flask.lib.pywire import (
     register_pywire,
     register_wired_components,
 )
-from app.flask.security import register_oauth_providers
 from app.flask.util import utcnow
 from app.lib import debugging
 from app.lib.debugging import debug
+from app.logging import configure_logging
 from app.services.stripe.utils import (
     check_stripe_public_key,
     check_stripe_secret_key,
@@ -55,6 +55,7 @@ SCAN_PACKAGES = [
 MAX_REQUEST_DURATION = 0.5
 
 debugging.install()
+configure_logging()
 
 
 def create_app(config=None) -> Flask:
@@ -106,7 +107,7 @@ def register_all(app: Flask) -> None:
     register_everything_else(app)
 
     # Not used (yet?)
-    register_oauth_providers(app)
+    # register_oauth_providers(app)
 
     # Local imports bc import cycles
     from app.dramatiq.setup import init_dramatiq

@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from typing import Any
 
 from flask import render_template, render_template_string, url_for
@@ -27,6 +28,12 @@ class Page:
     # breadcrumbs: list = []
     breadcrumbs2: list = []
     icon: str | None = None
+
+    #
+    # Override in subclasses
+    #
+    def __acl__(self) -> Sequence[tuple]:
+        return []
 
     #
     # HTTP Methods

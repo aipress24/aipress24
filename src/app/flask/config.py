@@ -8,17 +8,28 @@ import os
 
 from dynaconf import Dynaconf
 from flask import Flask
-from flask_super.initializers.logging import init_logging
+from flask_super.initializers.logging import init_sentry
 from jinja2 import StrictUndefined
 
 __all__ = ["setup_config"]
+
+from loguru import logger
 
 
 def setup_config(app, config):
     configure_app(app, config)
     app.jinja_env.undefined = StrictUndefined
-
+    # Configure logging as soon as we have the config
     init_logging(app)
+
+
+def init_logging(app: Flask) -> None:
+    run_from_cli = app.config.get("RUN_FROM_CLI")
+    if run_from_cli and not app.debug:
+        # Disable logging output in CLI mode
+        logger.configure(handlers=[])
+    else:
+        init_sentry(app)
 
 
 def configure_app(app, config) -> None:
