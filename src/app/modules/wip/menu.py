@@ -48,6 +48,36 @@ def make_menu(current_name: str):
     return menu
 
 
+def is_user_allowed(page_cls: type[Page]) -> bool:
+    # Old style ACL
+    if hasattr(page_cls, "allowed_roles"):
+        roles = page_cls.allowed_roles
+        return has_role(g.user, roles)
+
+    # New style ACL (WIP)
+    user = g.user
+    page = page_cls()
+    acl = page.__acl__()
+    if not acl:
+        return True
+
+    for line in acl:
+        directive, role, _action = line
+        directive = directive.lower()
+        match directive:
+            case "deny":
+                return False
+            case "allow":
+                if has_role(user, role):
+                    return True
+            case _:
+                msg = f"Invalid directive {directive} in ACL for {page_cls}"
+                raise ValueError(msg)
+
+    # False by default?
+    return False
+
+
 def _get_class(key: str) -> type[Page]:
     module_name, class_name = key.split(":")[1].rsplit(".", 1)
     module = importlib.import_module(module_name)
