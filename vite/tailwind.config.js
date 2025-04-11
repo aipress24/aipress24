@@ -110,7 +110,7 @@ module.exports = {
     plugins: [
         require('@tailwindcss/typography'),
         require('daisyui'),
-        // require('a17t'),
+        require('a17t'),
         require('flowbite/plugin'),
         // Incompatible w/ Daisyui:
         require('@tailwindcss/forms'),
