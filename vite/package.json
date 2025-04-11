@@ -27,6 +27,7 @@
     "@alpinejs/collapse": "^3.14.9",
     "@alpinejs/focus": "^3.14.9",
     "@alpinejs/persist": "^3.14.9",
+    "a17t": "^0.10.1",
     "alpinejs": "^3.14.9",
     "core-js": "^3.41.0",
     "daisyui": "^4.12.14",
