@@ -77,14 +77,15 @@ def upgrade():
 
     # Drop old tables
     op.drop_table("wir_press_release")
-    op.drop_table("edt_text")
+    op.drop_table("wir_article")
     op.drop_table("edt_image")
     op.drop_table("edt_visual")
     op.drop_table("edt_multimedia")
+    op.drop_table("edt_article")
     op.drop_table("com_press_release")
+    op.drop_table("edt_text")
     op.drop_table("edt_editorial")
     op.drop_table("soc_post")
-    op.drop_table("wir_article")
     with op.batch_alter_table("soc_comment", schema=None) as batch_op:
         batch_op.drop_index("ix_soc_comment_object_id")
 
