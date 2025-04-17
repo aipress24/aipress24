@@ -615,6 +615,7 @@ def clone_kycprofile(orig_profile: KYCProfile) -> KYCProfile:
         business_wall=orig_profile.business_wall,
     )
 
+
 # class User2(Base):
 #     #
 #     password_hash = sa.Column(sa.String(64), nullable=False)

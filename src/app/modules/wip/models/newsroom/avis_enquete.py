@@ -15,7 +15,8 @@ from sqlalchemy_utils import ArrowType
 from app.models.auth import User
 from app.models.base import Base
 from app.models.mixins import IdMixin
-from app.modules.wip.models.newsroom._base import (
+
+from ._base import (
     CiblageMixin,
     NewsMetadataMixin,
     NewsroomCommonMixin,

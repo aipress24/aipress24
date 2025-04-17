@@ -12,8 +12,7 @@ from werkzeug import Response
 from app.flask.lib.htmx import extract_fragment
 from app.flask.lib.pages import page
 from app.models.auth import User
-from app.models.repositories import ContactAvisEnqueteRepository
-from app.modules.wip.models.newsroom import AvisEnquete
+from app.modules.wip.models import AvisEnquete, ContactAvisEnqueteRepository
 
 from .base import BaseWipPage
 from .home import HomePage

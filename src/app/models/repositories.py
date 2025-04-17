@@ -8,48 +8,7 @@ from flask_super.decorators import service
 
 from app.models.auth import Role, User
 from app.models.organisation import Organisation
-from app.modules.wip.models.newsroom import (
-    Article,
-    AvisEnquete,
-    Commande,
-    ContactAvisEnquete,
-    JustifPublication,
-    Sujet,
-)
 from app.services.repositories import Repository
-
-
-#
-# Newsroom models
-#
-@service
-class ArticleRepository(Repository[Article]):
-    model_type = Article
-
-
-@service
-class AvisEnqueteRepository(Repository[AvisEnquete]):
-    model_type = AvisEnquete
-
-
-@service
-class ContactAvisEnqueteRepository(Repository[ContactAvisEnquete]):
-    model_type = ContactAvisEnquete
-
-
-@service
-class SujetRepository(Repository[Sujet]):
-    model_type = Sujet
-
-
-@service
-class CommandeRepository(Repository[Commande]):
-    model_type = Commande
-
-
-@service
-class JustifPublicationRepository(Repository[JustifPublication]):
-    model_type = JustifPublication
 
 
 #

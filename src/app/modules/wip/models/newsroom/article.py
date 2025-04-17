@@ -16,7 +16,8 @@ from app.models.base import Base
 from app.models.lifecycle import PublicationStatus
 from app.models.mixins import IdMixin, LifeCycleMixin, Owned
 from app.models.organisation import Organisation
-from app.modules.wip.models.newsroom._base import NewsMetadataMixin, NewsroomCommonMixin
+
+from ._base import NewsMetadataMixin, NewsroomCommonMixin
 
 DRAFT = PublicationStatus.DRAFT
 

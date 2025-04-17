@@ -36,10 +36,8 @@ def make_menu(current_name: str):
     for key in MENU:
         cls = _get_class(key)
 
-        if hasattr(cls, "allowed_roles"):
-            roles = cls.allowed_roles
-            if not has_role(g.user, roles):
-                continue
+        if not is_user_allowed(cls):
+            continue
 
         entry = _make_entry(cls, current_name)
 

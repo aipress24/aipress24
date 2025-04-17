@@ -5,7 +5,7 @@ from sqladmin import Admin, ModelView, action
 from starlette.requests import Request
 from starlette.responses import RedirectResponse
 
-from app.modules.wip.models.newsroom import (
+from app.modules.wip.models import (
     Article,
     AvisEnquete,
     Commande,

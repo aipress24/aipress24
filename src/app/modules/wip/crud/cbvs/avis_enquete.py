@@ -20,8 +20,8 @@ from app.enums import RoleEnum
 from app.flask.lib.htmx import extract_fragment
 from app.flask.routing import url_for
 from app.models.auth import User
-from app.models.repositories import AvisEnqueteRepository, UserRepository
-from app.modules.wip.models.newsroom import AvisEnquete
+from app.models.repositories import UserRepository
+from app.modules.wip.models import AvisEnquete, AvisEnqueteRepository
 from app.services.geonames import get_dept_name, is_dept_in_region
 from app.services.notifications import NotificationService
 from app.services.sessions import SessionService

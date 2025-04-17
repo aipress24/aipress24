@@ -9,8 +9,7 @@ from svcs.flask import container
 
 from app.flask.lib.pywire import Component, component
 from app.flask.lib.types import JSON
-from app.models.repositories import ArticleRepository
-from app.modules.wip.models.newsroom.article import Image
+from app.modules.wip.models import ArticleRepository, Image
 from app.modules.wire.models import ArticlePost
 
 

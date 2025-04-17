@@ -8,8 +8,7 @@ from flask import Flask
 from flask_super.registry import register
 
 from app.flask.routing import url_for
-from app.models.repositories import CommandeRepository
-from app.modules.wip.models.newsroom import Commande
+from app.modules.wip.models import Commande, CommandeRepository
 
 from ._base import BaseWipView
 from ._forms import CommandeForm

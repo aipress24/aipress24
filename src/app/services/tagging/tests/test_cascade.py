@@ -11,7 +11,7 @@ from sqlalchemy import select
 from svcs.flask import container
 
 from app.models.auth import User
-from app.models.repositories import ArticleRepository
+from app.modules.wip.models import ArticleRepository
 from app.modules.wire.models import ArticlePost
 from app.services.tagging import add_tag, get_tag_applications
 from app.services.tagging._models import TagApplication  # noqa: PLC2701

@@ -11,7 +11,7 @@ from app.enums import RoleEnum
 from app.flask.lib.pages import page
 from app.flask.routing import url_for
 from app.models.lifecycle import PublicationStatus
-from app.models.repositories import ArticleRepository
+from app.modules.wip.models import ArticleRepository
 from app.modules.wip.pages.tables import RecentContentsTable
 from app.services.auth import AuthService
 
