@@ -8,8 +8,7 @@ from flask import Flask
 from flask_super.registry import register
 
 from app.flask.routing import url_for
-from app.models.repositories import SujetRepository
-from app.modules.wip.models.newsroom import Sujet
+from app.modules.wip.models import Sujet, SujetRepository
 
 from ._base import BaseWipView
 from ._forms import SujetForm

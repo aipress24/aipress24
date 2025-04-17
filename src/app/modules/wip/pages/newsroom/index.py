@@ -15,7 +15,7 @@ from app.enums import ProfileEnum, RoleEnum
 from app.flask.lib.pages import page
 from app.flask.routing import url_for
 from app.models.mixins import Owned
-from app.modules.wip.models.newsroom import (
+from app.modules.wip.models import (
     Article,
     AvisEnquete,
     Commande,
@@ -101,8 +101,6 @@ class NewsroomPage(BaseWipPage):
     title = "Newsroom (espace de rédaction)"
     icon = "rocket-launch"
 
-    # allowed_roles = [RoleEnum.PRESS_MEDIA]
-
     template = "wip/pages/newsroom.j2"
     parent = HomePage
 
@@ -127,7 +125,7 @@ class NewsroomPage(BaseWipPage):
         }
 
     def allowed_redaction_items(self) -> list[dict[str, Any]]:
-        items = MAIN_ITEMS.copy()
+        items = MAIN_ITEMS
 
         allow_journalist = self._check_article_creation_by_journalist()
         allow_commands = self._check_command_creation_by_redac_chief()

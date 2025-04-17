@@ -8,7 +8,7 @@ MENU = [
     "page:app.modules.wip.pages.dashboard.DashboardPage",
     # "cbv:app.modules.wip.crud.cbvs.articles.ArticlesWipView",
     "page:app.modules.wip.pages.newsroom.index.NewsroomPage",
-    # "page:app.modules.wip.pages.comroom.index.ComRoomPage",
+    "page:app.modules.wip.pages.comroom.index.ComRoomPage",
     # "page:app.modules.wip.pages.mail.MailPage",
     "page:app.modules.wip.pages.opportunities.OpportunitiesPage",
     "page:app.modules.wip.pages.business_wall.BusinessWallPage",

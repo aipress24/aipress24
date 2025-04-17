@@ -22,7 +22,7 @@ from app.flask.extensions import db
 from app.models.auth import User
 from app.models.lifecycle import PublicationStatus
 from app.models.repositories import OrganisationRepository, UserRepository
-from app.modules.wip.models.newsroom import (
+from app.modules.wip.models import (
     Article,
     AvisEnquete,
     Commande,

@@ -27,9 +27,7 @@ from app.flask.extensions import db
 from app.flask.lib.constants import EMPTY_PNG
 from app.flask.routing import url_for
 from app.models.lifecycle import PublicationStatus
-from app.models.repositories import ArticleRepository
-from app.modules.wip.models.newsroom import Article
-from app.modules.wip.models.newsroom.article import Image
+from app.modules.wip.models import Article, ArticleRepository, Image
 from app.services.blobs import BlobService
 from app.settings.constants import MAX_IMAGE_SIZE
 from app.signals import article_published, article_unpublished, article_updated

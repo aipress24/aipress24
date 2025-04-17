@@ -289,3 +289,87 @@ class CommandeForm(Form):
                 ],
             },
         }
+
+
+# --------------------------------------------------------------------------
+
+
+class CommuniqueForm(Form):
+
+    # Group: headers
+    titre = StringField("Titre", validators=[validators.InputRequired()])
+    chapo = TextAreaField("Chapô")
+
+    # Group: contenu
+    contenu = RichTextField("Contenu", validators=[validators.InputRequired()])
+
+    # Group: metadata
+    genre = RichSelectField(
+        "Genre",
+        key="genre",
+        render_kw={"width": 3},
+        validators=[validators.InputRequired()],
+    )
+    section = RichSelectField(
+        "Rubrique",
+        key="section",
+        render_kw={"width": 3},
+        validators=[validators.InputRequired()],
+    )
+    topic = RichSelectField(
+        "Thématique",
+        key="topic",
+        render_kw={"width": 6},
+        validators=[validators.InputRequired()],
+    )
+    sector = RichSelectField(
+        "Secteur",
+        key="sector",
+        render_kw={"width": 6},
+        validators=[validators.InputRequired()],
+    )
+    media_id = SimpleRichSelectField(
+        "Média",
+        render_kw={"width": 6},
+        validators=[validators.InputRequired()],
+    )
+
+    # Group: copyright
+    copyright = RichSelectField(
+        "Mention du copyright", key="copyright-mention", render_kw={"width": 3}
+    )
+
+    # Group: dates
+    date_parution_prevue = DateTimeField(
+        "Date/heure de parution prévue", render_kw={"width": 3}
+    )
+    date_publication_aip24 = DateTimeField(
+        "Date/heure de publication sur AIP24", render_kw={"width": 3}
+    )
+
+    class Meta:
+        groups = {
+            "headers": {
+                "label": "",
+                "fields": ["titre", "chapo"],
+            },
+            "contenu": {
+                "label": "Contenu de l'article",
+                "fields": ["contenu"],
+            },
+            "metadata": {
+                "label": "Métadonnées de l'article",
+                "fields": ["genre", "section", "topic", "sector", "media_id"],
+            },
+            "copyright": {
+                "label": "Copyright de l'article",
+                "fields": ["copyright"],
+            },
+            "dates": {
+                "label": "Dates-clés de l'article",
+                "fields": [
+                    "date_parution_prevue",
+                    "date_publication_aip24",
+                ],
+            },
+        }

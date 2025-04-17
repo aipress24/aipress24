@@ -10,7 +10,8 @@ import sqlalchemy as sa
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.base import Base
-from app.modules.wip.models.newsroom._base import (
+
+from ._base import (
     CiblageMixin,
     NewsMetadataMixin,
     NewsroomCommonMixin,
