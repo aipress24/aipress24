@@ -89,8 +89,5 @@ class UserVM(ViewModel):
             .order_by(ArticlePost.published_at.desc())
             .all()
         )
-        import sys
-
-        print("/////////////", posts, file=sys.stderr)
         # Quick hack
         return PostVM.from_many(posts)
