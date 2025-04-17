@@ -22,8 +22,8 @@ MAIN_ITEMS = [
     {
         "id": "communiques",
         "model_class": Communique,
-        "endpoint": "SujetsWipView:index",
-        "label": "Sujets",
+        "endpoint": "CommuniquesWipView:index",
+        "label": "Communiqués",
         "nickname": "CO",
         "color": "bg-pink-600",
     },
