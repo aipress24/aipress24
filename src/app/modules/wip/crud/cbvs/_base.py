@@ -92,6 +92,7 @@ class BaseWipView(FlaskView, abc.ABC):
     def _make_table(self, q="") -> BaseTable:
         table = self.table_class(q)
         table._action_url = self._url_for("htmx")
+        table._new_url = f"/wip/{self.route_base}/new/"
         return table
 
     # Exposed methods
@@ -112,7 +113,7 @@ class BaseWipView(FlaskView, abc.ABC):
 
     @templated(UPDATE_TEMPLATE)
     def new(self) -> dict:
-        return self._view_ctx(title="Création")
+        return self._view_ctx(title=self.label_new)
 
     @templated(UPDATE_TEMPLATE)
     def edit(self, id):
