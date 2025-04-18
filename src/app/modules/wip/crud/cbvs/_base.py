@@ -182,7 +182,8 @@ class BaseWipView(FlaskView, abc.ABC):
         return redirect(self._url_for("index"))
 
     def _make_media_choices(self, form) -> None:
-        """Implemented in subclass, if needed"""
+        if hasattr(form, "media_id"):
+            form.media_id.choices = self.get_media_organisations()
 
     def _view_ctx(self, model=None, form=None, mode="edit", title=""):
         self.update_breadcrumbs(label=title)
