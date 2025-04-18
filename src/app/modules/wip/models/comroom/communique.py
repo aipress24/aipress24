@@ -31,6 +31,10 @@ class Communique(IdMixin, LifeCycleMixin, Owned, Base):
     # owner_id...
     # owner...
 
+    # Contenu
+    chapo: Mapped[str] = mapped_column(default="")
+    contenu: Mapped[str] = mapped_column(default="")
+
     # Etat: Brouillon, Publié, Archivé...
     status: Mapped[PublicationStatus] = mapped_column(
         sa.Enum(PublicationStatus), default=DRAFT

@@ -51,9 +51,6 @@ class SujetsWipView(BaseWipView):
     msg_delete_ok = "Le sujet a été supprimé"
     msg_delete_ko = "Vous n'êtes pas autorisé à supprimer ce sujet"
 
-    def _make_media_choices(self, form) -> None:
-        form.media_id.choices = self.get_media_organisations()
-
 
 @register
 def register_on_app(app: Flask):

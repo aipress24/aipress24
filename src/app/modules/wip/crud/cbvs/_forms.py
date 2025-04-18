@@ -296,80 +296,78 @@ class CommandeForm(Form):
 
 class CommuniqueForm(Form):
 
-    # Group: headers
-    titre = StringField("Titre", validators=[validators.InputRequired()])
+    # --- Groupe: En-têtes ---
+    titre = StringField("Titre du communiqué", validators=[validators.InputRequired()])
+
+    # --- Groupe: Contenu ---
     chapo = TextAreaField("Chapô")
+    contenu = RichTextField("Contenu principal", validators=[validators.InputRequired()])
 
-    # Group: contenu
-    contenu = RichTextField("Contenu", validators=[validators.InputRequired()])
-
-    # Group: metadata
+    # --- Groupe: Métadonnées ---
     genre = RichSelectField(
-        "Genre",
+        "Genre (NEWS-Genre)",
         key="genre",
         render_kw={"width": 3},
         validators=[validators.InputRequired()],
     )
     section = RichSelectField(
-        "Rubrique",
+        "Rubrique (NEWS-Rubrique)",
         key="section",
         render_kw={"width": 3},
         validators=[validators.InputRequired()],
     )
     topic = RichSelectField(
-        "Thématique",
+        "Thématique (NEWS-Type)",
         key="topic",
         render_kw={"width": 6},
         validators=[validators.InputRequired()],
     )
     sector = RichSelectField(
-        "Secteur",
+        "Secteur (NEWS-Secteur)",
         key="sector",
         render_kw={"width": 6},
         validators=[validators.InputRequired()],
     )
-    media_id = SimpleRichSelectField(
-        "Média",
-        render_kw={"width": 6},
-        validators=[validators.InputRequired()],
-    )
+    # publisher_id = SimpleRichSelectField(
+    #     "Éditeur / Organisme",
+    #     render_kw={"width": 6},
+    #     validators=[validators.InputRequired()],
+    # )
 
-    # Group: copyright
-    copyright = RichSelectField(
-        "Mention du copyright", key="copyright-mention", render_kw={"width": 3}
+    # --- Groupe: Dates ---
+    embargoed_until = DateTimeField(
+        "Date/heure d'embargo (parution prévue)",
+        render_kw={"width": 3},
+        validators=[validators.Optional()],
+        format="%Y-%m-%dT%H:%M",
     )
-
-    # Group: dates
-    date_parution_prevue = DateTimeField(
-        "Date/heure de parution prévue", render_kw={"width": 3}
-    )
-    date_publication_aip24 = DateTimeField(
-        "Date/heure de publication sur AIP24", render_kw={"width": 3}
+    published_at = DateTimeField(
+        "Date/heure de publication effective",
+        render_kw={"width": 3},
+        validators=[validators.Optional()],
+        format="%Y-%m-%dT%H:%M",
     )
 
     class Meta:
         groups = {
             "headers": {
-                "label": "",
+                "label": "En-têtes du communiqué",
                 "fields": ["titre", "chapo"],
             },
             "contenu": {
-                "label": "Contenu de l'article",
+                "label": "Contenu du communiqué",
                 "fields": ["contenu"],
             },
             "metadata": {
-                "label": "Métadonnées de l'article",
-                "fields": ["genre", "section", "topic", "sector", "media_id"],
-            },
-            "copyright": {
-                "label": "Copyright de l'article",
-                "fields": ["copyright"],
+                "label": "Métadonnées du communiqué",
+                "fields": ["genre", "section", "topic", "sector",
+                # "publisher_id",
+                ],
             },
             "dates": {
-                "label": "Dates-clés de l'article",
+                "label": "Dates-clés du communiqué",
                 "fields": [
-                    "date_parution_prevue",
-                    "date_publication_aip24",
+                    "embargoed_until", "published_at",
                 ],
             },
         }

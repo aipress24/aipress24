@@ -141,9 +141,6 @@ class ArticlesWipView(BaseWipView):
     msg_delete_ok = "L'article a été supprimé"
     msg_delete_ko = "Vous n'êtes pas autorisé à supprimer cet article"
 
-    def _make_media_choices(self, form) -> None:
-        form.media_id.choices = self.get_media_organisations()
-
     def _post_update_model(self, model: Article):
         if not model.status:
             model.status = PublicationStatus.DRAFT
