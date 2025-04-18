@@ -38,18 +38,18 @@ class CommuniquesWipView(BaseWipView):
     path = "/wip/communiques/"
 
     # UI
-    icon = "speech"
+    icon = "megaphone"
 
-    label_main = "Newsroom: communiques"
-    label_list = "Liste des communiques"
-    label_new = "Créer un communique"
-    label_edit = "Modifier le communique"
-    label_view = "Voir le communique"
+    label_main = "Com'room: communiqués"
+    label_list = "Liste des communiqués"
+    label_new = "Créer un communiqué"
+    label_edit = "Modifier le communiqué"
+    label_view = "Voir le communiqué"
 
     table_id = "communique-table-body"
 
-    msg_delete_ok = "Le communique a été supprimé"
-    msg_delete_ko = "Vous n'êtes pas autorisé à supprimer ce communique"
+    msg_delete_ok = "Le communiqué a été supprimé"
+    msg_delete_ko = "Vous n'êtes pas autorisé à supprimer ce communiqué"
 
     def _make_media_choices(self, form) -> None:
         form.media_id.choices = self.get_media_organisations()

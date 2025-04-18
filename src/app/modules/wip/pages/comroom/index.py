@@ -35,7 +35,7 @@ class ComRoomPage(BaseWipPage):
     name = "comroom"
     label = "Com'room"
     title = "Com'room (espace de rédaction pour les RP)"
-    icon = "speech"
+    icon = "megaphone"
 
     template = "wip/pages/newsroom.j2"
     parent = HomePage
