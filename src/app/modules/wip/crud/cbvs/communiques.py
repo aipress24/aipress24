@@ -38,7 +38,7 @@ class CommuniquesWipView(BaseWipView):
     path = "/wip/communiques/"
 
     # UI
-    icon = "newspaper"
+    icon = "speech"
 
     label_main = "Newsroom: communiques"
     label_list = "Liste des communiques"
