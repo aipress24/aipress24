@@ -73,6 +73,7 @@ lint.ignore = [
     "RET505", # Unnecessary `else` after `return` statement
     "RUF012", # Mutable class attributes should be annotated with `typing.ClassVar`
     "RUF039", # Unsafe use of `markupsafe.Markup` detected
+    "RUF100", # Unused "noqa"
     "S311", # Standard pseudo-random generators are not suitable for cryptographic purposes
     "S404", # `subprocess` module is possibly insecure
     "S603", # Using subprocess
