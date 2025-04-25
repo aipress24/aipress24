@@ -17,7 +17,6 @@ from app.flask.lib.wtforms.fields import (
 
 
 class ArticleForm(Form):
-
     # Group: headers
     titre = StringField("Titre", validators=[validators.InputRequired()])
     chapo = TextAreaField("Chapô")
@@ -91,7 +90,6 @@ class ArticleForm(Form):
 
 
 class AvisEnqueteForm(Form):
-
     # Group: headers
     titre = StringField("Titre", validators=[validators.InputRequired()])
     contenu = TextAreaField("Brief", validators=[validators.InputRequired()])
@@ -169,7 +167,6 @@ class AvisEnqueteForm(Form):
 
 
 class SujetForm(Form):
-
     # Group: headers
     titre = StringField("Titre")
     contenu = TextAreaField("Brief")
@@ -228,7 +225,6 @@ class SujetForm(Form):
 
 
 class CommandeForm(Form):
-
     # Group: headers
     titre = StringField("Titre")
     contenu = TextAreaField("Brief")
@@ -295,7 +291,6 @@ class CommandeForm(Form):
 
 
 class CommuniqueForm(Form):
-
     # --- Groupe: En-têtes ---
     titre = StringField("Titre du communiqué", validators=[validators.InputRequired()])
 
@@ -304,30 +299,32 @@ class CommuniqueForm(Form):
     contenu = RichTextField("Contenu principal", validators=[validators.InputRequired()])
 
     # --- Groupe: Métadonnées ---
-    genre = RichSelectField(
-        "Genre (NEWS-Genre)",
-        key="genre",
-        render_kw={"width": 3},
+    sector = RichSelectField(
+        "Secteur",  # (NEWS-Secteur)
+        key="sector",
+        render_kw={"width": 6},
         validators=[validators.InputRequired()],
     )
     section = RichSelectField(
-        "Rubrique (NEWS-Rubrique)",
+        "Rubrique",  # (NEWS-Rubrique)
         key="section",
         render_kw={"width": 3},
         validators=[validators.InputRequired()],
     )
     topic = RichSelectField(
-        "Thématique (NEWS-Type)",
+        "Type d'info",  # (NEWS-Type d'info)
         key="topic",
         render_kw={"width": 6},
         validators=[validators.InputRequired()],
     )
-    sector = RichSelectField(
-        "Secteur (NEWS-Secteur)",
-        key="sector",
-        render_kw={"width": 6},
+
+    genre = RichSelectField(
+        "Genre",  # (COM-Genre) -> TODO
+        key="genre",
+        render_kw={"width": 3},
         validators=[validators.InputRequired()],
     )
+
     # publisher_id = SimpleRichSelectField(
     #     "Éditeur / Organisme",
     #     render_kw={"width": 6},
@@ -361,8 +358,8 @@ class CommuniqueForm(Form):
             "metadata": {
                 "label": "Métadonnées du communiqué",
                 "fields": ["genre", "section", "topic", "sector",
-                # "publisher_id",
-                ],
+                           # "publisher_id",
+                           ],
             },
             "dates": {
                 "label": "Dates-clés du communiqué",

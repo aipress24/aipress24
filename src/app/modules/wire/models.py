@@ -103,7 +103,7 @@ class NewsMetadataMixin:
     # NEWS-Rubriques
     section: Mapped[str] = mapped_column(default="", use_existing_column=True)
 
-    # NEWS-Types d’info / "Thémtique"
+    # NEWS-Types d’info / "Thématique"
     topic: Mapped[str] = mapped_column(default="", use_existing_column=True)
 
     # NEWS-Secteurs
