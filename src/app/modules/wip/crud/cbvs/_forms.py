@@ -357,9 +357,10 @@ class CommuniqueForm(Form):
             },
             "metadata": {
                 "label": "Métadonnées du communiqué",
-                "fields": ["genre", "section", "topic", "sector",
-                           # "publisher_id",
-                           ],
+                "fields": [
+                    "genre", "section", "topic", "sector",
+                    # "publisher_id",
+                ],
             },
             "dates": {
                 "label": "Dates-clés du communiqué",

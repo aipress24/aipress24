@@ -169,12 +169,16 @@ class BaseWipView(FlaskView, abc.ABC):
             model = self.model_class()
             model.owner = g.user
             model.commanditaire_id = g.user.id
-            org_id = int(request.form.get("media_id"))
-            model.media_id = int(org_id)
+
+            if media_id_str := request.form.get("media_id"):
+                org_id = int(media_id_str)
+                model.media_id = int(org_id)
 
         form.populate_obj(model)
-        if model.media_id:
+
+        if hasattr(model, "media_id"):
             model.media_id = int(model.media_id)
+
         self._post_update_model(model)
         repo.add(model, auto_commit=True)
 
