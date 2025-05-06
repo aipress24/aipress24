@@ -5,7 +5,6 @@
 from __future__ import annotations
 
 import abc
-from typing import Never
 
 import click
 from sqlalchemy import func, select
@@ -39,5 +38,5 @@ class FakerScript(abc.ABC):
         self.generate()
 
     @abc.abstractmethod
-    def generate(self) -> Never:
+    def generate(self) -> None:
         raise NotImplementedError

@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 from functools import singledispatch
-from typing import Never, TypeAlias, Union
+from typing import TypeAlias, Union
 
 import sqlalchemy as sa
 from attr import define
@@ -227,7 +227,7 @@ class SocialContent(Adapter, LikeableMixin):
 
 
 @singledispatch
-def adapt(obj) -> Never:
+def adapt(obj):
     msg = f"Adaptation of {obj} (of type {type(obj)} not implemented"
     raise NotImplementedError(msg)
 

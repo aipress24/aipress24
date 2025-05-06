@@ -8,7 +8,7 @@ import random
 from abc import ABC
 from dataclasses import dataclass
 from random import randint
-from typing import Any, Never
+from typing import Any
 
 import arrow
 from faker import Faker
@@ -28,7 +28,7 @@ class BaseGenerator(ABC):
         self.text_faker = Text(self.locale)
         self.objects = set()
 
-    def make_obj(self) -> Never:
+    def make_obj(self) -> Any:
         raise NotImplementedError
 
     def make_objects(self, count):
