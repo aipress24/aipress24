@@ -35,7 +35,7 @@ __all__ = ["BusinessWallPage"]
 class BusinessWallPage(BaseWipPage):
     name = "org-profile"
     label = "Business Wall"
-    title = "Gérer ma page institutionnelle"  # type: ignore
+    title = "Gérer ma page institutionnelle"
     icon = "building-library"
 
     # path = "/org-page"

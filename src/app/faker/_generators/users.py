@@ -466,7 +466,7 @@ class UserGenerator(BaseGenerator):
 
     def make_obj(self) -> User:
         datastore = security.datastore
-        user: User = datastore.create_user()  # type:ignore
+        user: User = datastore.create_user()
 
         self.counter += 1
 

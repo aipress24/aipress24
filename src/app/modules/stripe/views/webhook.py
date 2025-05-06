@@ -108,7 +108,7 @@ def webhooks():
     except ValueError:
         warning("Error while decoding Strip event")
         return "Bad payload", 400
-    except stripe.error.SignatureVerificationError:  # type:ignore
+    except stripe.error.SignatureVerificationError:
         warning("Invalid signature!")
         return "Bad signature", 400
 
