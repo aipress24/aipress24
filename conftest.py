@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
-# ruff: noqa: E402
 """
 Configuration and injectable fixtures for Pytest.
 """

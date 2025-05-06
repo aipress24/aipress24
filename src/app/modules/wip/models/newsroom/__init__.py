@@ -15,7 +15,6 @@ Specs:
 
 from __future__ import annotations
 
-# flake8: noqa: F401
 from .article import Article, Image
 from .avis_enquete import AvisEnquete, ContactAvisEnquete
 from .commande import Commande

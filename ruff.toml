@@ -76,10 +76,7 @@ lint.ignore = [
     "PLC0415", # `import` should be at the top-level of a file
     "PLR0911", # Too many return statements
     "PLR0912", # Too many branches
-#    "RET505", # Unnecessary `else` after `return` statement
     "RUF012", # Mutable class attributes should be annotated with `typing.ClassVar`
-    "RUF039", # Unsafe use of `markupsafe.Markup` detected
-    "RUF100", # Unused "noqa"
     "T201", # `print` found
     "TID252", # Relative imports from parent modules are banned
 ]

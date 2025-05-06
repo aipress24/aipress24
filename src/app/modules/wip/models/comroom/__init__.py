@@ -5,7 +5,6 @@
 
 from __future__ import annotations
 
-# flake8: noqa: F401
 from .communique import Communique
 
 __all__ = [
