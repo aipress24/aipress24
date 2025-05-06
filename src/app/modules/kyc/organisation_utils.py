@@ -129,7 +129,7 @@ def find_inviting_organisations(mail: str) -> list[Organisation]:
     return [get_obj(i.organisation_id, Organisation) for i in invitations]
 
 
-def specialize_organization_type(  # noqa: PLR0915 PLR0914
+def specialize_organization_type(  # noqa: PLR0915
     org: Organisation,
     profile_code_str: str,
     info_pro: dict[str, Any],
@@ -322,7 +322,7 @@ def store_auto_organisation(
     matching_org = None
     for org in found_organisations:
         if (
-            org.secteurs_activite == secteurs_activite  # noqa:PLR0916
+            org.secteurs_activite == secteurs_activite
             and org.secteurs_activite_detail == secteurs_activite_detail
             and org.type_organisation == info_pro["type_orga"]
             and org.type_organisation_detail == info_pro["type_orga_detail"]
