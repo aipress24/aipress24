@@ -98,7 +98,7 @@ class DataSource:
     limit: int = 15
     offset: int = 0
 
-    def __init__(self, model_class=None):
+    def __init__(self, model_class=None) -> None:
         if model_class:
             self.model_class = model_class
         args = self.get_args()
@@ -142,17 +142,17 @@ class GenericUserDataSource:
     offset: int = 0
 
     @classmethod
-    def inc(cls):
+    def inc(cls) -> None:
         new_offset = cls.offset + cls.limit
         if new_offset < cls.count():
             cls.offset = new_offset
 
     @classmethod
-    def dec(cls):
+    def dec(cls) -> None:
         cls.offset = max(0, cls.offset - cls.limit)
 
     @classmethod
-    def first_page(cls):
+    def first_page(cls) -> None:
         cls.offset = 0
 
     @classmethod
@@ -217,17 +217,17 @@ class GenericOrgDataSource:
     offset: int = 0
 
     @classmethod
-    def inc(cls):
+    def inc(cls) -> None:
         new_offset = cls.offset + cls.limit
         if new_offset < cls.count():
             cls.offset = new_offset
 
     @classmethod
-    def dec(cls):
+    def dec(cls) -> None:
         cls.offset = max(0, cls.offset - cls.limit)
 
     @classmethod
-    def first_page(cls):
+    def first_page(cls) -> None:
         cls.offset = 0
 
     @classmethod

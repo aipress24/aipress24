@@ -47,13 +47,13 @@ EXCLUDES = [
 
 
 @task
-def nua_deploy(c: Context, host=NUA_HOST, domain=NUA_DOMAIN):
+def nua_deploy(c: Context, host=NUA_HOST, domain=NUA_DOMAIN) -> None:
     nua_build_(c, host=host)
     nua_deploy_(c, host=host, domain=domain)
 
 
 @task
-def nua_build_(c: Context, host=NUA_HOST):
+def nua_build_(c: Context, host=NUA_HOST) -> None:
     c.run("make -s clean")
 
     config = get_config()
@@ -75,7 +75,7 @@ def nua_build_(c: Context, host=NUA_HOST):
 
 
 @task
-def nua_deploy_(c: Context, host=NUA_HOST, domain=NUA_DOMAIN):
+def nua_deploy_(c: Context, host=NUA_HOST, domain=NUA_DOMAIN) -> None:
     """Deploy all apps."""
     config = get_config()
     app_id = config["metadata"]["id"]
@@ -97,7 +97,7 @@ def nua_deploy_(c: Context, host=NUA_HOST, domain=NUA_DOMAIN):
 
 
 # helpers
-def sh(cmd: str, cwd: str = "."):
+def sh(cmd: str, cwd: str = ".") -> None:
     """Run a shell command."""
     print(f'{DIM}Running "{cmd}" locally in "{cwd}"...{RESET}')
     args = shlex.split(cmd)
@@ -107,7 +107,7 @@ def sh(cmd: str, cwd: str = "."):
         print(f"Command failed: {e.cmd}")
 
 
-def ssh(cmd: str, host: str):
+def ssh(cmd: str, host: str) -> None:
     """Run a ssh command."""
     print(f'{DIM}Running "{cmd}" on server...{RESET}')
     args = shlex.split(cmd)

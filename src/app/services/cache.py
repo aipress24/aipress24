@@ -9,7 +9,7 @@ from flask_super.decorators import service
 
 @service
 class Cache:
-    def __init__(self):
+    def __init__(self) -> None:
         self.cache = {}
 
     def __contains__(self, key) -> bool:
@@ -21,11 +21,11 @@ class Cache:
     def get(self, key):
         return self.cache.get(key)
 
-    def set(self, key, value):
+    def set(self, key, value) -> None:
         self.cache[key] = value
 
-    def delete(self, key):
+    def delete(self, key) -> None:
         del self.cache[key]
 
-    def clear(self):
+    def clear(self) -> None:
         self.cache.clear()

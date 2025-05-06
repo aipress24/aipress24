@@ -120,7 +120,7 @@ class XLSParser(ModelLoader):
                 field = self.survey_fields[field_id]
                 profile_current_group.survey_fields.append((field, code))
 
-    def dump(self):
+    def dump(self) -> None:
         print("# Modèle KYC")
         print()
         self.dump_fields()
@@ -189,7 +189,7 @@ class XLSParser(ModelLoader):
         for profile in self.survey_profiles:
             self.survey_communities.add_profile(profile)
 
-    def dump_fields(self):
+    def dump_fields(self) -> None:
         print()
         print("## Fields")
         print()
@@ -199,7 +199,7 @@ class XLSParser(ModelLoader):
             print(field.description)
             print()
 
-    def dump_profiles(self):
+    def dump_profiles(self) -> None:
         print()
         print("## Profiles")
         print()

@@ -26,7 +26,7 @@ class ValidEmail(StringField):
     def __init__(
         self,
         **kwargs,
-    ):
+    ) -> None:
         self.readonly = kwargs.pop("readonly", False)
         super().__init__(**kwargs)
 

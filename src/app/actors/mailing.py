@@ -11,7 +11,7 @@ from app.dramatiq.scheduler import crontab
 
 
 @crontab("* * * * *")
-def send_test_email():
+def send_test_email() -> None:
     print("Sending test email")
     logger.info("Sending test email")
     message = EmailMessage(

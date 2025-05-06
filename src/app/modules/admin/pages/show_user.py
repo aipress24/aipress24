@@ -38,7 +38,7 @@ class ShowUser(AdminListPage):
     template = "admin/pages/show_user.j2"
     parent = AdminUsersPage
 
-    def __init__(self, uid: str = ""):
+    def __init__(self, uid: str = "") -> None:
         if not uid:  # test
             uid = str(g.user.id)
         self.args = {"uid": uid}

@@ -35,7 +35,7 @@ from ._table import BaseTable
 class AvisEnqueteTable(BaseTable):
     id = "avis-enquete-table"
 
-    def __init__(self, q=""):
+    def __init__(self, q="") -> None:
         super().__init__(AvisEnquete, q)
 
     def url_for(self, obj, _action="get", **kwargs):
@@ -142,7 +142,7 @@ class AvisEnqueteWipView(BaseWipView):
         html = extract_fragment(html, "main")
         return html
 
-    def envoyer_avis_enquete(self, model, selected_experts):
+    def envoyer_avis_enquete(self, model, selected_experts) -> None:
         notification_service = container.get(NotificationService)
 
         for _expert in selected_experts:
@@ -187,17 +187,17 @@ class SearchForm:
     selectors: list[Selector]
     all_experts: list[User]
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._restore_state()
         self._update_state()
         self.selectors = self._get_selectors()
         self.all_experts = self._get_all_experts()
 
-    def _restore_state(self):
+    def _restore_state(self) -> None:
         session = container.get(SessionService)
         self.state = session.get("newsroom:ciblage", {})
 
-    def _update_state(self):
+    def _update_state(self) -> None:
         for k, v in request.form.to_dict().items():
             if k.startswith("action:"):
                 continue
@@ -205,7 +205,7 @@ class SearchForm:
                 continue
             self.state[k] = v
 
-    def save_state(self):
+    def save_state(self) -> None:
         session = container.get(SessionService)
         session["newsroom:ciblage"] = self.state
 
@@ -215,12 +215,12 @@ class SearchForm:
                 return name.split(":")[1]
         return ""
 
-    def add_experts(self):
+    def add_experts(self) -> None:
         expert_ids = list(self.get_expert_ids())
         expert_ids.extend(self.state.get("selected_experts", []))
         self.state["selected_experts"] = list(set(expert_ids))
 
-    def update_experts(self):
+    def update_experts(self) -> None:
         expert_ids = list(self.get_expert_ids())
         self.state["selected_experts"] = expert_ids
 
@@ -289,7 +289,7 @@ class Selector(abc.ABC):
     label: str
     value: str
 
-    def __init__(self, form: SearchForm):
+    def __init__(self, form: SearchForm) -> None:
         self.form = form
         self.value = form.state.get(self.id, "")
 
@@ -439,5 +439,5 @@ class Option:
 
 
 @register
-def register_on_app(app: Flask):
+def register_on_app(app: Flask) -> None:
     AvisEnqueteWipView.register(app)

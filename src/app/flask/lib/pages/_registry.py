@@ -24,7 +24,7 @@ class PageRegistry:
     def get_pages(self):
         return self.pages.values()
 
-    def add(self, page_class):
+    def add(self, page_class) -> None:
         self.pages[fqdn(page_class)] = page_class
 
     def query(self, path: str = "", page_class: type | None = None) -> list[type[Page]]:
@@ -48,7 +48,7 @@ def get_pages():
     return page_registry.pages
 
 
-def register_pages(app):
+def register_pages(app) -> None:
     for page_cls in page_registry.get_pages():
         blueprint = _find_blueprint(page_cls)
 
@@ -74,7 +74,7 @@ def _find_blueprint(page_cls: type[Page]) -> Blueprint:
     raise RuntimeError(msg)
 
 
-def _register_page(blueprint: Blueprint, page_class):
+def _register_page(blueprint: Blueprint, page_class) -> None:
     if blueprint._got_registered_once:
         return
 
@@ -95,7 +95,7 @@ def _register_page(blueprint: Blueprint, page_class):
     _register_actions(blueprint, page_class)
 
 
-def _register_actions(blueprint: Blueprint, cls):
+def _register_actions(blueprint: Blueprint, cls) -> None:
     methods = ["GET", "POST"]
 
     for k, v in vars(cls).items():

@@ -14,7 +14,7 @@ class DateTimeInput(widgets.DateTimeInput):
 class DateTimeField(fields.DateTimeField):
     widget = DateTimeInput()
 
-    def __init__(self, label=None, validators=None, format="", **kwargs):
+    def __init__(self, label=None, validators=None, format="", **kwargs) -> None:
         if not format:
             format = [
                 "%Y-%m-%d %H:%M:%S",

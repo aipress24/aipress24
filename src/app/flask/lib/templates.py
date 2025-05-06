@@ -54,7 +54,7 @@ class TemplateResponse(Response):
         template: str | Path,
         status=None,
         headers=None,
-    ):
+    ) -> None:
         self.template = template
         self.context = self.enrich_context(context)
 

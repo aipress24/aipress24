@@ -27,7 +27,7 @@ class ValidImageField(FileField):
     def __init__(
         self,
         **kwargs,
-    ):
+    ) -> None:
         self.max_image_size = kwargs.pop("max_image_size", 2048)  # KB
         self.data_b64 = kwargs.pop("data_b64", b"")
         self.preload_filename = kwargs.pop("filename", "")

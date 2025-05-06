@@ -51,7 +51,7 @@ class SelectMultiSimpleFreeField(SelectMultipleField):
     def __init__(
         self,
         **kwargs,
-    ):
+    ) -> None:
         self.lock = kwargs.pop("readonly", False)
         super().__init__(**kwargs)
         self.multiple = True

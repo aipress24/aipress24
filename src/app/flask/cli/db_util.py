@@ -25,7 +25,7 @@ def drop_tables() -> None:
         sys.exit(1)
 
 
-def drop_everything():
+def drop_everything() -> None:
     # https://github.com/pallets-eco/flask-sqlalchemy/issues/722#issuecomment-705672929
     """(On a live db) drops all foreign key constraints before dropping all
     tables.

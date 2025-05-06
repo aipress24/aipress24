@@ -94,7 +94,7 @@ class SurveyCommunity:
 class SurveyCommunities:
     _communities: list[SurveyCommunity] = attr.field(factory=list)
 
-    def add_profile(self, profile: SurveyProfile):
+    def add_profile(self, profile: SurveyProfile) -> None:
         community_name = profile.community.name
         if community := self.get(community_name):
             community.profiles.append(profile)

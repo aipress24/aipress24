@@ -41,7 +41,7 @@ class ShowOrg(AdminListPage):
     template = "admin/pages/show_org.j2"
     parent = AdminOrgsPage
 
-    def __init__(self, uid: str = ""):
+    def __init__(self, uid: str = "") -> None:
         # if not uid:  # test
         #     uid = str(g.user.id)
         self.args = {"uid": uid}

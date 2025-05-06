@@ -47,7 +47,7 @@ class MemberPage(BaseSworkPage):
     parent = MembersPage
     template = "pages/member.j2"
 
-    def __init__(self, id: str):
+    def __init__(self, id: str) -> None:
         self.args = {"id": id}
         options = selectinload(User.organisation)
         self.user = get_obj(id, User, options=options)

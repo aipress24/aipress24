@@ -19,7 +19,7 @@ config = {
 }
 
 
-def configure_logging():
+def configure_logging() -> None:
     print("Configuring logging")
     logger.configure(**config)
     logger.disable("app.dramatiq")

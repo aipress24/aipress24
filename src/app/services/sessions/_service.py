@@ -68,7 +68,7 @@ class SessionService:
         """Get a value from the user's session by key."""
         return self.get(item)
 
-    def set(self, key, value):
+    def set(self, key, value) -> None:
         """Set a value in the user's session by key."""
         user = self.auth_service.get_user()
         repo = container.get(SessionRepository)
@@ -84,6 +84,6 @@ class SessionService:
         session.set(key, value)
         repo.add(session, auto_commit=True)
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key, value) -> None:
         """Set a value in the user's session by key."""
         return self.set(key, value)

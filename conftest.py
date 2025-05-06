@@ -40,7 +40,7 @@ class TestConfig:
 
     SQLALCHEMY_DATABASE_URI: str
 
-    def __init__(self):
+    def __init__(self) -> None:
         if db_uri := os.environ.get("TEST_DATABASE_URI"):
             self.SQLALCHEMY_DATABASE_URI = db_uri
         else:

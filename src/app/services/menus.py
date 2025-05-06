@@ -23,7 +23,7 @@ MENUS = {
 
 @service
 class MenuService:
-    def __init__(self):
+    def __init__(self) -> None:
         self._extra_menus = {}
 
     def __getitem__(self, item):
@@ -32,7 +32,7 @@ class MenuService:
 
         return make_menu(MENUS[item])
 
-    def update(self, menus: dict | None = None, **kwargs):
+    def update(self, menus: dict | None = None, **kwargs) -> None:
         if menus is not None:
             self._extra_menus.update(menus)
         for k, v in kwargs.items():

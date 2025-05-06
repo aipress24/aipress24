@@ -18,7 +18,7 @@ from ._table import BaseTable
 class SujetsTable(BaseTable):
     id = "sujets-table"
 
-    def __init__(self, q=""):
+    def __init__(self, q="") -> None:
         super().__init__(Sujet, q)
 
     def url_for(self, obj, _action="get", **kwargs):
@@ -53,5 +53,5 @@ class SujetsWipView(BaseWipView):
 
 
 @register
-def register_on_app(app: Flask):
+def register_on_app(app: Flask) -> None:
     SujetsWipView.register(app)

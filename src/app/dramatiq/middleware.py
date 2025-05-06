@@ -15,16 +15,16 @@ class AppContextMiddleware(Middleware):
 
     state = local()
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         self.app = app
 
-    def before_process_message(self, broker, message):
+    def before_process_message(self, broker, message) -> None:
         context = self.app.app_context()
         context.push()
 
         self.state.context = context
 
-    def after_process_message(self, broker, message, *, result=None, exception=None):
+    def after_process_message(self, broker, message, *, result=None, exception=None) -> None:
         try:
             context = self.state.context
             context.pop(exception)

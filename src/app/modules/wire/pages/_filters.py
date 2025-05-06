@@ -133,7 +133,7 @@ class FilterBar:
         self.add_filter("tag", value)
         self.save_state()
 
-    def update_state(self):
+    def update_state(self) -> None:
         form = request.form
         action = form["action"]
         form_value = form["value"]

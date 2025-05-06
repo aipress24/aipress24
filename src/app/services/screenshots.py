@@ -25,7 +25,7 @@ class ScreenshotError(Exception):
 
 @service
 class ScreenshotService:
-    def __init__(self, svcs_container: Container):
+    def __init__(self, svcs_container: Container) -> None:
         self.config = svcs_container.get(Config)
 
     def start_session(self, url):
@@ -38,7 +38,7 @@ class ScreenshotSession:
     temp_file: str | None = None
     object_id: str | None = None
 
-    def __init__(self, url, config):
+    def __init__(self, url, config) -> None:
         self.url = url
         self.config = config
         self.s3_region_name = config["S3_REGION_NAME"]
@@ -49,7 +49,7 @@ class ScreenshotSession:
 
         self.temp_file = tempfile.mkstemp(suffix=".png")
 
-    def run(self):
+    def run(self) -> None:
         try:
             self.take_screenshot()
             self.upload_image()
@@ -58,11 +58,11 @@ class ScreenshotSession:
         finally:
             self.cleanup()
 
-    def cleanup(self):
+    def cleanup(self) -> None:
         if Path(self.temp_file).exists():
             Path(self.temp_file).unlink()
 
-    def take_screenshot(self):
+    def take_screenshot(self) -> None:
         args = [
             "shot-scraper",
             "shot",
@@ -94,7 +94,7 @@ class ScreenshotSession:
             logger.info("Error screenshotting: size is too small", url=self.url)
             raise ScreenshotError
 
-    def upload_image(self):
+    def upload_image(self) -> None:
         self.object_id = uuid.uuid1().hex + ".png"
 
         session = boto3.Session(

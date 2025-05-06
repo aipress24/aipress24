@@ -25,7 +25,7 @@ class Snowflake:
     def __int__(self) -> int:
         return self._flake
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self._flake)
 
     @property

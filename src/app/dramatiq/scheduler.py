@@ -24,7 +24,7 @@ def crontab(crontab: str):
     return decorator
 
 
-def register_cron_jobs():
+def register_cron_jobs() -> None:
     logger.info("Registering cron jobs on Dramatiq")
 
     for actor in _actor_registry:

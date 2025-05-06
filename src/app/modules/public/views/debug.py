@@ -15,7 +15,7 @@ from app.models.auth import User
 from .. import get
 
 
-def check_unsecure():
+def check_unsecure() -> None:
     """Check the application is in "unsecure" mode, i.e. not in production."""
     unsecure = current_app.config.get("UNSECURE", False)
     if not unsecure:

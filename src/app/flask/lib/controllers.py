@@ -33,7 +33,7 @@ class Dispatcher:
 class Meta:
     cls: type[Controller]
 
-    def register_on(self, blueprint):
+    def register_on(self, blueprint) -> None:
         def predicate(obj):
             return inspect.isfunction(obj) and hasattr(obj, "_meta")
 
@@ -42,7 +42,7 @@ class Meta:
         for _name, method in methods:
             self.register_method(blueprint, method)
 
-    def register_method(self, blueprint, method):
+    def register_method(self, blueprint, method) -> None:
         meta = method._meta
         path = self.cls.path + meta["path"]
         methods = meta["methods"]

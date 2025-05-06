@@ -56,7 +56,7 @@ class RoleAdmin(ModelView, model=Role):
     column_list = [Role.id, Role.name]
 
 
-def register(admin: Admin):
+def register(admin: Admin) -> None:
     admin.add_view(UserAdmin)
     admin.add_view(OrganisationAdmin)
     admin.add_view(ProfileAdmin)

@@ -42,7 +42,7 @@ class BusinessWallPage(BaseWipPage):
     template = "wip/pages/institutional-page.j2"
     parent = HomePage
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.user = g.user
         self.org = self.user.organisation  # Organisation or None
         self.form = None

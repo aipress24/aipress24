@@ -59,7 +59,7 @@ class EventPage(Page):
 
     parent = EventsPage
 
-    def __init__(self, id):
+    def __init__(self, id) -> None:
         self.args = {"id": id}
         self.event = get_obj(id, Event)
         self.view_model = EventVM(self.event)

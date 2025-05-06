@@ -94,7 +94,7 @@ class EventsPage(Page):
 
         return render_template("pages/events.j2", **ctx)
 
-    def update_tabs(self):
+    def update_tabs(self) -> None:
         force_tab = request.form.get("force-tab")
         if force_tab:
             session["events.tabs"] = json.dumps([force_tab])
@@ -145,7 +145,7 @@ class EventsPage(Page):
         }
         return ctx
 
-    def process_args(self):
+    def process_args(self) -> None:
         self.args = parser.parse(list_args, request, location="query")
         self.search = self.args["search"]
         self.date_filter = DateFilter(self.args)
@@ -205,7 +205,7 @@ class DateFilter:
 
     filter_on: str
 
-    def __init__(self, args):
+    def __init__(self, args) -> None:
         self.today = arrow.get(arrow.now().date())
         self.day = None
         self.filter_on = ""
@@ -246,7 +246,7 @@ class Calendar:
     prev_month: str
     num_weeks: int
 
-    def __init__(self, page: EventsPage, month: Arrow):
+    def __init__(self, page: EventsPage, month: Arrow) -> None:
         self.page = page
         self.month = month
         self.cells = []

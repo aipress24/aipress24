@@ -19,10 +19,10 @@ def index_object(obj) -> None:
 
 
 @document_created.connect_via(ANY)
-def on_document_created(sender, document, **kwargs):
+def on_document_created(sender, document, **kwargs) -> None:
     index_object.send(document)
 
 
 @document_updated.connect_via(ANY)
-def on_document_updated(sender, document, **kwargs):
+def on_document_updated(sender, document, **kwargs) -> None:
     index_object.send(document)

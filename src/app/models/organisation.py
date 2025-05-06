@@ -195,7 +195,7 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
         if "slug" not in kwargs:
             self.slug = slugify(self.name)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<Organisation {self.name}>"
 
     @property

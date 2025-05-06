@@ -38,7 +38,7 @@ class OrgPage(BaseSworkPage):
 
     parent = OrgsPage
 
-    def __init__(self, id: str):
+    def __init__(self, id: str) -> None:
         self.args = {"id": id}
         self.org = get_obj(id, Organisation)
         self.soc_user = adapt(g.user)
@@ -132,7 +132,7 @@ class OrgContactsTab(Tab):
         count = db.session.execute(stmt).scalar()
         return f"Contacts ({count})"
 
-    def guard(self):
+    def guard(self) -> bool:
         return True  # allow to see members of AUTO organisations
 
 
@@ -163,14 +163,14 @@ class OrgPressBookTab(Tab):
     id = "press-book"
     label = "Press Book (0)"
 
-    def guard(self):
+    def guard(self) -> bool:
         return not self.org.is_auto
 
 
 class OrgPressReleasesTab(Tab):
     id = "press-releases"
 
-    def guard(self):
+    def guard(self) -> bool:
         return not self.org.is_auto
 
     @property
@@ -188,7 +188,7 @@ class OrgPressReleasesTab(Tab):
 class OrgEventsTab(Tab):
     id = "events"
 
-    def guard(self):
+    def guard(self) -> bool:
         return not self.org.is_auto
 
     @property
@@ -221,7 +221,7 @@ class OrgUpgradePage(BaseSworkPage):
 
     parent = OrgsPage
 
-    def __init__(self, id: str):
+    def __init__(self, id: str) -> None:
         self.args = {"id": id}
         self.org = get_obj(id, Organisation)
 

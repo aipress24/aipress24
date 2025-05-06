@@ -16,7 +16,7 @@ route = blueprint.route
 
 
 @blueprint.before_request
-def check_debug():
+def check_debug() -> None:
     config = current_app.config
     unsecure = config.get("UNSECURE", False)
     if not unsecure:

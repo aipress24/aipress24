@@ -50,7 +50,7 @@ class Form:
     fields: OrderedDict
     _action_url: str = ""
 
-    def __init__(self, specs: dict, model=None):
+    def __init__(self, specs: dict, model=None) -> None:
         self.form_specs = specs
         self.model = model
         self.fields = self._get_fields()

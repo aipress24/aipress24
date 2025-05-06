@@ -78,7 +78,7 @@ class BaseScript(FakerScript, abc.ABC):
     def make_one(self, user: User) -> Any:
         raise NotImplementedError
 
-    def add_metadata(self, obj):
+    def add_metadata(self, obj) -> None:
         obj.genre = random.choice(voc.get_genres())
         obj.topic = random.choice(voc.get_topics())
         obj.section = random.choice(voc.get_sections())

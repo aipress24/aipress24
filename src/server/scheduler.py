@@ -9,7 +9,7 @@ from app.flask.main import create_app
 from app.modules.search.backend import SearchBackend
 
 
-def index():
+def index() -> None:
     print("Indexing...")
     app = create_app()
     with app.app_context():
@@ -17,7 +17,7 @@ def index():
         backend.index_all()
 
 
-def scheduler():
+def scheduler() -> None:
     print("Starting scheduler")
     schedule.every().hour.do(index)
 

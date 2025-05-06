@@ -95,7 +95,7 @@ def check(db=False, full=False) -> None:
 
 
 @command("test-email", short_help="Send test email")
-def send_test_email():
+def send_test_email() -> None:
     for k in sorted(current_app.config.keys()):
         if not k.startswith("MAIL"):
             continue

@@ -15,7 +15,7 @@ from app.signals import article_published, article_unpublished, article_updated
 
 
 @article_published.connect
-def on_publish(article: Article):
+def on_publish(article: Article) -> None:
     print(f"Received 'Article published': {article.title}")
     post = get_post(article)
     if not post:
@@ -33,7 +33,7 @@ def on_publish(article: Article):
 
 
 @article_unpublished.connect
-def on_unpublish(article: Article):
+def on_unpublish(article: Article) -> None:
     print(f"Article unpublished: {article.title}")
     post = get_post(article)
     if not post:
@@ -45,7 +45,7 @@ def on_unpublish(article: Article):
 
 
 @article_updated.connect
-def on_update(article: Article):
+def on_update(article: Article) -> None:
     print(f"Received 'Article updated': {article.title}")
     post = get_post(article)
     if not post:
@@ -60,7 +60,7 @@ def on_update(article: Article):
     db.session.commit()
 
 
-def update_post(post: ArticlePost, article: Article):
+def update_post(post: ArticlePost, article: Article) -> None:
     post.title = article.title
     post.summary = article.chapo
     post.content = article.contenu

@@ -27,7 +27,7 @@ class AdminPromotionsPage(BaseAdminPage):
     def context(self):
         return {}
 
-    def post(self):
+    def post(self) -> None:
         data = dict(request.form)
         debug(data)
         # TODO

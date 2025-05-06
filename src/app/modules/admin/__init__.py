@@ -20,7 +20,7 @@ route = blueprint.route
 
 
 @blueprint.before_request
-def check_admin():
+def check_admin() -> None:
     user = cast("User", current_user)
     if not has_role(user, "ADMIN"):
         raise Unauthorized

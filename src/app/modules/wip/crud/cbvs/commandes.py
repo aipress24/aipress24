@@ -18,7 +18,7 @@ from ._table import BaseTable
 class CommandesTable(BaseTable):
     id = "commandes-table"
 
-    def __init__(self, q=""):
+    def __init__(self, q="") -> None:
         super().__init__(Commande, q)
 
     def url_for(self, obj, _action="get", **kwargs):
@@ -52,5 +52,5 @@ class CommandesWipView(BaseWipView):
 
 
 @register
-def register_on_app(app: Flask):
+def register_on_app(app: Flask) -> None:
     CommandesWipView.register(app)

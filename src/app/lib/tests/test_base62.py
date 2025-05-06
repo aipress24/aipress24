@@ -15,5 +15,5 @@ def test_1() -> None:
 
 
 @given(st.integers(0, 2**64))
-def test_with_hypothesis(n):
+def test_with_hypothesis(n) -> None:
     assert base62.decode(base62.encode(n)) == n

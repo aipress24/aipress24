@@ -7,7 +7,7 @@ from __future__ import annotations
 from ._service import is_dept_in_region
 
 
-def test_is_dept_in_region():
+def test_is_dept_in_region() -> None:
     assert is_dept_in_region("Paris", "Île-de-France")
     assert is_dept_in_region("Ain", "Auvergne-Rhône-Alpes")
     assert is_dept_in_region("Aisne", "Hauts-de-France")

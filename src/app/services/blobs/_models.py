@@ -41,7 +41,7 @@ class Blob(IdMixin, Timestamped, Base):
         return self.file.read_bytes()
 
     @value.setter
-    def value(self, value: bytes):
+    def value(self, value: bytes) -> None:
         """Store binary content to applications's repository and update
         `self.meta['md5']`.
         """

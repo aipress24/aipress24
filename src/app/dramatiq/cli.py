@@ -66,7 +66,7 @@ def scheduler() -> None:
     help="listen to a subset of queues, comma separated",
 )
 @with_appcontext
-def worker(verbose, processes, threads, queues):
+def worker(verbose, processes, threads, queues) -> None:
     """Run dramatiq workers.
 
     Setup Dramatiq with broker and task modules from Flask app.
@@ -133,7 +133,7 @@ def worker(verbose, processes, threads, queues):
 
 @queue.command()
 @with_appcontext
-def info():
+def info() -> None:
     broker = dramatiq.get_broker()
     all_actors = broker.actors.values()
 
@@ -163,5 +163,5 @@ def format_actor(actor) -> str:
 
 @queue.command()
 @with_appcontext
-def launch_dummy():
+def launch_dummy() -> None:
     dummy.send()
