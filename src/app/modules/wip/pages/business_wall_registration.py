@@ -121,7 +121,7 @@ def _parse_subscription(subscription: stripe.Subscription) -> SubscriptionInfo:
 class BusinessWallRegistrationPage(BaseWipPage):
     name = "org-registration"
     label = "Abonnement à l'offre Aipress24 PRO"
-    title = "Abonnement à l'offre Aipress24 PRO"  # type: ignore
+    title = "Abonnement à l'offre Aipress24 PRO"
     icon = "building-library"
 
     template = "wip/pages/bw-registration.j2"

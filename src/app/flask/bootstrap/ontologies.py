@@ -39,20 +39,22 @@ TAXO_NAME_ONTOLOGIE_SLUG = [
     ("genres", "news-genres"),
     # Not used yet
     ("genres-com", "news-com-genres"),
-    ("technologies", "technologies"),  # probably not completed
-    ("mode_remuneration", "modes-de-remuneration"),  # probably not completed
-    (
-        "type_contenu",
-        "types-des-contenus-editoriaux",
-    ),  # probably not completed
-    ("taille_contenu", "tailles-des-contenus-editoriaux"),  # probably not completed
+    # probably not completed
+    ("technologies", "technologies"),
+    # probably not completed
+    ("mode_remuneration", "modes-de-remuneration"),
+    # probably not completed
+    ("type_contenu", "types-des-contenus-editoriaux"),
+    # probably not completed
+    ("taille_contenu", "tailles-des-contenus-editoriaux"),
     # used in html select
     ("media_type", "types-de-presse-medias"),
     ("type_organisation_detail", "types-dorganisation"),
     ("journalisme_fonction", "fonctions-du-journalisme"),
     ("agence_rp", "agencesrp"),
     ("civilite", "civilite"),
-    ("competence_expert", "competencesexperts"),  # FIXME rename see KYC
+    # FIXME rename see KYC
+    ("competence_expert", "competencesexperts"),
     ("interet_asso", "centres-d-interet-associations"),
     ("interet_orga", "centres-d-interet-organisations"),
     ("interet_politique", "centres-d-interet-politiques-ad"),
