@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
-# flake8: noqa: F401
 """
 Forms descriptions for the content objects in the WIP module.
 
