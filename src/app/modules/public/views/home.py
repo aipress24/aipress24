@@ -17,7 +17,7 @@ from .. import get
 
 @get("/")
 def home():
-    user = cast(User, current_user)
+    user = cast("User", current_user)
     if not user.is_anonymous:
         return redirect(url_for("wire.wire"))
     else:

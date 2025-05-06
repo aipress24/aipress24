@@ -18,6 +18,6 @@ route = blueprint.route
 
 @blueprint.before_request
 def check_auth():
-    user = cast(User, current_user)
+    user = cast("User", current_user)
     if user.is_anonymous:
         raise Unauthorized

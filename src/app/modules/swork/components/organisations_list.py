@@ -163,7 +163,7 @@ def make_filters(orgs: list[Organisation]):
 class OrgVM(ViewModel):
     @property
     def org(self):
-        return cast(Organisation, self._model)
+        return cast("Organisation", self._model)
 
     def extra_attrs(self):
         return {"logo_url": self.get_logo_url()}

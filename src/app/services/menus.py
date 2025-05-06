@@ -57,7 +57,7 @@ def make_menu(menu_specs: list[dict[str, Any]]) -> list[dict[str, Any]]:
 def _make_menu_entry(spec) -> dict[str, Any] | None:
     """Make a menu entry from a specification."""
     path = request.path
-    user = cast(User, g.user)
+    user = cast("User", g.user)
 
     endpoint = spec["endpoint"]
 

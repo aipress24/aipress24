@@ -21,7 +21,7 @@ from app.services.social_graph import adapt
 @define
 class PostVM(ViewModel):
     def extra_attrs(self):
-        article = cast(ArticlePost, self._model)
+        article = cast("ArticlePost", self._model)
 
         if article.published_at:
             age = article.published_at.humanize(locale="fr")
@@ -44,7 +44,7 @@ class PostVM(ViewModel):
 class UserVM(ViewModel):
     @property
     def user(self):
-        return cast(User, self._model)
+        return cast("User", self._model)
 
     def extra_attrs(self):
         user = self.user

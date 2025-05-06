@@ -98,7 +98,7 @@ class ShowOrg(AdminListPage):
 class OrgVM(ViewModel):
     @property
     def org(self):
-        return cast(Organisation, self._model)
+        return cast("Organisation", self._model)
 
     def extra_attrs(self):
         members = self.get_members()

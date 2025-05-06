@@ -90,7 +90,7 @@ class GroupPage(BaseSworkPage):
 class GroupVM(ViewModel):
     @property
     def group(self):
-        return cast(Group, self._model)
+        return cast("Group", self._model)
 
     def extra_attrs(self):
         timeline = get_timeline(object=self.group)

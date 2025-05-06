@@ -98,7 +98,7 @@ class Form:
             msg = f"Unknown field type: {field_type} for field: {field_id}"
             raise ValueError(msg)
 
-        field_cls = cast(type[Field], field_cls)
+        field_cls = cast("type[Field]", field_cls)
 
         if self.model:
             if not hasattr(self.model, field_id):

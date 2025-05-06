@@ -151,7 +151,7 @@ class ArticlesWipView(BaseWipView):
 
     def publish(self, id: int):
         repo = self._get_repo()
-        article = cast(Article, self._get_model(id))
+        article = cast("Article", self._get_model(id))
         article.status = PublicationStatus.PUBLIC
         repo.update(article, auto_commit=True)
         flash("L'article a été publié")
@@ -160,7 +160,7 @@ class ArticlesWipView(BaseWipView):
 
     def unpublish(self, id: int):
         repo = self._get_repo()
-        article = cast(Article, self._get_model(id))
+        article = cast("Article", self._get_model(id))
         article.status = PublicationStatus.DRAFT
         repo.update(article, auto_commit=True)
         flash("L'article a été dépublié")
@@ -169,7 +169,7 @@ class ArticlesWipView(BaseWipView):
 
     @route("/<int:id>/images/", methods=["GET", "POST"])
     def images(self, id: int):
-        article = cast(Article, self._get_model(id))
+        article = cast("Article", self._get_model(id))
 
         action = request.form.get("_action")
         if action == "cancel":
@@ -219,7 +219,7 @@ class ArticlesWipView(BaseWipView):
 
     @route("/<int:article_id>/images/<int:image_id>")
     def image(self, article_id: int, image_id: int):
-        article = cast(Article, self._get_model(article_id))
+        article = cast("Article", self._get_model(article_id))
         for image in article.images:
             if image.id == image_id:
                 break
@@ -237,7 +237,7 @@ class ArticlesWipView(BaseWipView):
 
     @route("/<int:article_id>/images/<int:image_id>/delete", methods=["POST"])
     def delete_image(self, article_id: int, image_id: int):
-        article = cast(Article, self._get_model(article_id))
+        article = cast("Article", self._get_model(article_id))
         image = article.get_image(image_id)
         if not image:
             raise NotFound
@@ -250,7 +250,7 @@ class ArticlesWipView(BaseWipView):
 
     @route("/<int:article_id>/images/<int:image_id>/move", methods=["POST"])
     def move_image(self, article_id: int, image_id: int):
-        article = cast(Article, self._get_model(article_id))
+        article = cast("Article", self._get_model(article_id))
         image = article.get_image(image_id)
         if not image:
             raise NotFound

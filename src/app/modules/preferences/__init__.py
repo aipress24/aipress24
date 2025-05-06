@@ -27,6 +27,6 @@ def images_page(filename):
 
 @blueprint.before_request
 def check_auth():
-    user = cast(User, current_user)
+    user = cast("User", current_user)
     if user.is_anonymous:
         raise Unauthorized
