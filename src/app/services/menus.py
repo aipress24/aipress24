@@ -82,5 +82,4 @@ def _make_menu_entry(spec) -> dict[str, Any] | None:
         entry["tooltip"] = spec.get("tooltip", "")
         return entry
 
-    else:
-        return None
+    return None

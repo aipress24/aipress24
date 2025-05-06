@@ -46,9 +46,8 @@ class Table:
             rows = [Row(self, item) for item in self.get_items()]
             template = self.get_template()
             return Markup(template.render(rows=rows, table=self, url_for=self.url_for))
-        else:
-            template = self.get_template(template_name)
-            return Markup(template.render(table=self))
+        template = self.get_template(template_name)
+        return Markup(template.render(table=self))
 
     def url_for(self, object, _action="get", **kwargs):
         return url_for(object, **kwargs)

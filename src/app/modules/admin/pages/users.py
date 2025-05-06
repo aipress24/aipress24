@@ -127,13 +127,12 @@ class AdminUsersPage(BaseAdminPage):
             response = Response("")
             response.headers["HX-Redirect"] = self.url
             return response
-        else:
-            if self.ds_class.search:
-                self.ds_class.first_page()
-            self.ds_class.search = ""
-            response = Response("")
-            response.headers["HX-Redirect"] = self.url
-            return response
+        if self.ds_class.search:
+            self.ds_class.first_page()
+        self.ds_class.search = ""
+        response = Response("")
+        response.headers["HX-Redirect"] = self.url
+        return response
 
         # no validation
         # response = Response("")

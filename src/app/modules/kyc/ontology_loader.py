@@ -144,7 +144,7 @@ def nom_orga_choices() -> list[str]:
 def get_ontology_content(ontology: str) -> list | dict:
     if ontology == "pays":
         return get_full_countries()
-    elif ontology in ONTOLOGY_DB_LIST:
+    if ontology in ONTOLOGY_DB_LIST:
         return get_full_taxonomy(ontology)
     return get_taxonomy_dual_select(ontology)
 

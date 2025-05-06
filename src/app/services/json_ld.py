@@ -10,5 +10,4 @@ from app.flask.lib.types import JSON
 def to_json_ld(obj) -> JSON:
     if meth := getattr(obj, "to_json_ld", None):
         return meth()
-    else:
-        return {}
+    return {}

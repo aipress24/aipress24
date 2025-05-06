@@ -147,8 +147,7 @@ def list_managed_actors(broker, queues):
     all_actors = broker.actors.values()
     if not queues:
         return all_actors
-    else:
-        return [a for a in all_actors if a.queue_name in queues]
+    return [a for a in all_actors if a.queue_name in queues]
 
 
 def guess_code_directory(broker):

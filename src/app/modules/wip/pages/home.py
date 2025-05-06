@@ -25,5 +25,4 @@ class HomePage(BaseWipPage):
         user = g.user
         if user.has_role(RoleEnum.PRESS_MEDIA) or user.has_role(RoleEnum.ACADEMIC):
             return redirect(url_for(".dashboard"))
-        else:
-            return redirect(url_for(".opportunities"))
+        return redirect(url_for(".opportunities"))

@@ -158,5 +158,4 @@ def data_to_label(data: str | list, key: str) -> str:
     if key in KEY_LABEL_MAP:
         function, ontology_name = KEY_LABEL_MAP[key]
         return function(data, key, ontology_name)
-    else:
-        return _format_list_results(data, key)
+    return _format_list_results(data, key)

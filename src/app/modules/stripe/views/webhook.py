@@ -551,8 +551,7 @@ def _guess_bw_type(user: User, org: Organisation) -> BWTypeEnum:
     # [BWTypeEnum.MEDIA, BWTypeEnum.AGENCY]
     if org.type == "AGENCY":
         return BWTypeEnum.AGENCY  # type: ignore
-    else:
-        return BWTypeEnum.MEDIA  # type: ignore
+    return BWTypeEnum.MEDIA  # type: ignore
 
 
 def _get_bw_product(subinfo: SubscriptionInfo) -> stripe.Product | None:

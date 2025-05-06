@@ -357,7 +357,7 @@ class KYCProfile(Base):
         if field_name in KYCProfile.__dict__:
             setattr(self, field_name, value)
             return
-        elif field_name in self.show_contact_details:
+        if field_name in self.show_contact_details:
             self.update_json_field("show_contact_details", field_name, value)
         elif field_name in self.info_professionnelle:
             self.update_json_field("info_professionnelle", field_name, value)

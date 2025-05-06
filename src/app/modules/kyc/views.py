@@ -408,8 +408,7 @@ def done_page():
     msg_error = export_kyc_data()
     if msg_error:
         return render_template("db_error.html", msg_error=msg_error)
-    else:
-        return render_template("thanks.html")
+    return render_template("thanks.html")
 
 
 @blueprint.route("/undone")
@@ -599,8 +598,7 @@ def _update_from_current_user(orig_user: User) -> User:
 def export_kyc_data() -> str:
     if current_user.is_authenticated:
         return _update_current_user_data()
-    else:
-        return _store_new_user_data()
+    return _store_new_user_data()
 
 
 def _store_new_user_data() -> str:
@@ -705,10 +703,9 @@ def _update_current_user_data() -> str:
         return _modification_validation_required(
             db_session, cloned_user, critical_modified_fields
         )
-    else:
-        return _minor_modification_validated(
-            db_session, orig_user, cloned_user, critical_modified_fields
-        )
+    return _minor_modification_validated(
+        db_session, orig_user, cloned_user, critical_modified_fields
+    )
 
 
 def _store_tmp_blob_from_user(content: bytes, filename: str) -> tuple[str, int]:

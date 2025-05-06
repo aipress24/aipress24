@@ -25,11 +25,10 @@ class EmailTemplate:
             # Or jinja -> markdown ?
             body_md = markdown(self.template_md)
             return render_template_string(body_md, **self.kwargs)
-        elif self.template_html:
+        if self.template_html:
             return render_template_string(self.template_html, **self.kwargs)
-        else:
-            msg = "No template"
-            raise ValueError(msg)
+        msg = "No template"
+        raise ValueError(msg)
 
     def send(self):
         ...

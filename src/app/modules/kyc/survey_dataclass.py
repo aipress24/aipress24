@@ -78,7 +78,7 @@ class SurveyField:
     def is_visible(self, level: int) -> bool:
         if level == 0:  # minimal
             return self.public_mini
-        elif level == 1:  # medium (default)
+        if level == 1:  # medium (default)
             return self.public_default
         return self.public_maxi
 

@@ -59,8 +59,7 @@ class Table:
     def columns(self):
         if hasattr(self, "compose"):
             return list(self.compose())
-        else:
-            return self._columns()
+        return self._columns()
 
     def _columns(self):
         return []
@@ -75,8 +74,7 @@ class Table:
         renderer = getattr(self, f"render_{column.name}", None)
         if renderer:
             return renderer(record)
-        else:
-            return record.get(column.name, "")
+        return record.get(column.name, "")
 
     def render(self) -> str:
         ctx = {
