@@ -182,6 +182,7 @@ dependencies = [
 [package.dev-dependencies]
 dev = [
     { name = "abilian-devtools" },
+    { name = "auto-type-annotate" },
     { name = "behave" },
     { name = "buildstr" },
     { name = "coverage", extra = ["toml"] },
@@ -323,6 +324,7 @@ requires-dist = [
 [package.metadata.requires-dev]
 dev = [
     { name = "abilian-devtools", specifier = ">=0.7,<1.0" },
+    { name = "auto-type-annotate", specifier = ">=1.1.2" },
     { name = "behave" },
     { name = "buildstr", specifier = ">=0.1.1,<1.0.0" },
     { name = "coverage", extras = ["toml"], specifier = ">=7.4.0,<8.0.0" },
@@ -563,6 +565,20 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/48/c8/6260f8ccc11f0917360fc0da435c5c9c7504e3db174d5a12a1494887b045/attrs-24.3.0.tar.gz", hash = "sha256:8f5c07333d543103541ba7be0e2ce16eeee8130cb0b3f9238ab904ce1e85baff", size = 805984 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/89/aa/ab0f7891a01eeb2d2e338ae8fecbe57fcebea1a24dbb64d45801bfab481d/attrs-24.3.0-py3-none-any.whl", hash = "sha256:ac96cd038792094f438ad1f6ff80837353805ac950cd2aa0e0625ef19850c308", size = 63397 },
+]
+
+[[package]]
+name = "auto-type-annotate"
+version = "1.1.2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "mypy" },
+    { name = "pyupgrade" },
+    { name = "tokenize-rt" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/78/14/2733e010d284c011776cd48d2b764f17956bb27a1493b67cb1d0a0b9eedf/auto_type_annotate-1.1.2.tar.gz", hash = "sha256:9b01a829bbaf0ff212101755bf55146b7c1ac05835af8bb6923b54d730fbe76c", size = 9835 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/81/0f/be7ae46439e95bdda0bec680e52e7f756839b691979e6e8cd6f84c9a5e76/auto_type_annotate-1.1.2-py2.py3-none-any.whl", hash = "sha256:c881a76d546464f9a25c8f926e94c6fba5caa40e646499ea5ec74e106eb7bf29", size = 10367 },
 ]
 
 [[package]]
