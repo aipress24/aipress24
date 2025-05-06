@@ -154,7 +154,7 @@ def packages() -> None:
         size = 0
         files = distribution.files or []
         for file in files:
-            path = cast(Path, file.locate())
+            path = cast("Path", file.locate())
             if not path.exists():
                 continue
             size += path.stat().st_size

@@ -168,7 +168,7 @@ class ArticleVM(Wrapper, PostMixin):
     publisher_type: str = field(init=False)
 
     def extra_attrs(self):
-        post = article = cast(ArticlePost, self._model)
+        post = article = cast("ArticlePost", self._model)
 
         if article.published_at:
             age = article.published_at.humanize(locale="fr")
@@ -191,7 +191,7 @@ class ArticleVM(Wrapper, PostMixin):
         return extra_attrs
 
     def get_comments(self) -> list[Comment]:
-        article = cast(ArticlePost, self._model)
+        article = cast("ArticlePost", self._model)
         stmt = (
             sa.select(Comment)
             .where(Comment.object_id == f"article:{article.id}")
@@ -268,7 +268,7 @@ class UserVM(Wrapper):
         }
 
     def get_organisation(self) -> Organisation:
-        user = cast(User, self._model)
+        user = cast("User", self._model)
         stmt = (
             sa.select(Organisation)
             .where(Organisation.id == user.organisation_id)

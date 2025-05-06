@@ -137,7 +137,7 @@ class UserVM(Wrapper):
         }
 
     def get_organisation(self) -> Organisation:
-        user = cast(User, self._model)
+        user = cast("User", self._model)
         stmt = (
             sa.select(Organisation)
             .where(Organisation.id == user.organisation_id)

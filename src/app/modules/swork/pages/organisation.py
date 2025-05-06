@@ -240,7 +240,7 @@ class OrgUpgradePage(BaseSworkPage):
 class OrgVM(ViewModel):
     @property
     def org(self):
-        return cast(Organisation, self._model)
+        return cast("Organisation", self._model)
 
     def extra_attrs(self):
         timeline = get_timeline(object=self.org, limit=5)
