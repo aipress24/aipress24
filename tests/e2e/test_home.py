@@ -3,14 +3,18 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import pytest
 from devtools import debug
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
 from splinter import Browser
-from splinter.driver.flaskclient import FlaskClient
 
 from .utils import create_stuff, login
+
+if TYPE_CHECKING:
+    from flask import Flask
+    from flask_sqlalchemy import SQLAlchemy
+    from splinter.driver.flaskclient import FlaskClient
 
 
 @pytest.fixture

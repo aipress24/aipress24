@@ -12,13 +12,16 @@ These tests need a database with some fake data and/or a real config
 from __future__ import annotations
 
 import sys
+from typing import TYPE_CHECKING
 
 import pytest
-from flask import Flask
-from splinter import Browser
-from werkzeug.routing import Rule
 
 from .utils import login
+
+if TYPE_CHECKING:
+    from flask import Flask
+    from splinter import Browser
+    from werkzeug.routing import Rule
 
 pytestmark = pytest.mark.skipif(
     sys.platform != "darwin", reason="Only work on my machine"
