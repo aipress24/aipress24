@@ -6,10 +6,10 @@ from __future__ import annotations
 
 import random
 
+from app.faker._constants import COVER_IMAGES
+from app.faker._geo import fake_geoloc
 from app.modules.swork.models import Group
 
-from .._constants import COVER_IMAGES
-from .._geo import fake_geoloc
 from .base import BaseGenerator, faker
 
 

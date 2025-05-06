@@ -22,8 +22,8 @@ from app.flask.extensions import db
 from app.flask.lib.pages import Page, page
 from app.models.auth import KYCProfile, User
 from app.models.organisation import Organisation
+from app.modules.admin import blueprint
 
-from .. import blueprint
 from .home import AdminHomePage
 
 FieldColumn = namedtuple("FieldColumn", "name header width")  # noqa: PYI024

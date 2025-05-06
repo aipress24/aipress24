@@ -8,7 +8,7 @@ from pathlib import Path
 
 from flask import send_from_directory
 
-from .. import get
+from app.modules.public import get
 
 
 @get("/cdn/<path:filename>")

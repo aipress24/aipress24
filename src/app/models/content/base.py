@@ -44,9 +44,8 @@ from __future__ import annotations
 from sqlalchemy.orm import Mapped, declared_attr, mapped_column
 
 from app.lib.names import to_snake_case
-
-from ..base import Base
-from ..mixins import IdMixin, LifeCycleMixin, Owned
+from app.models.base import Base
+from app.models.mixins import IdMixin, LifeCycleMixin, Owned
 
 
 # Abstract

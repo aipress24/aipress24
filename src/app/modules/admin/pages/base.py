@@ -7,8 +7,7 @@ from __future__ import annotations
 import abc
 
 from app.flask.lib.pages import Page
-
-from .. import table as t
+from app.modules.admin import table as t
 
 
 class BaseAdminPage(Page, abc.ABC):

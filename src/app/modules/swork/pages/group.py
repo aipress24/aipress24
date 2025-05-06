@@ -16,9 +16,9 @@ from app.flask.lib.toaster import toast
 from app.flask.lib.view_model import ViewModel
 from app.flask.sqla import get_obj
 from app.models.auth import User
+from app.modules.swork.models import Group, group_members_table
 from app.services.activity_stream import get_timeline, post_activity
 
-from ..models import Group, group_members_table
 from .base import BaseSworkPage
 from .groups import GroupsPage
 

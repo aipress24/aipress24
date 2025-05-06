@@ -21,10 +21,9 @@ from app.modules.wip.models import (
     Commande,
     Sujet,
 )
+from app.modules.wip.pages.base import BaseWipPage
+from app.modules.wip.pages.home import HomePage
 from app.services.auth import AuthService
-
-from ..base import BaseWipPage
-from ..home import HomePage
 
 ALLOW_NEWSROOM_ARTICLE: set[ProfileEnum] = {
     ProfileEnum.PM_DIR,

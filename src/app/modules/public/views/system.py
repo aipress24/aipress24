@@ -11,11 +11,10 @@ from flask_login import current_user
 
 from app.flask.cli.bootstrap import bootstrap
 from app.flask.extensions import db
+from app.modules.public import get
 from app.services.healthcheck import healthcheck
 from app.services.zip_codes import ZipCodeRepository
 from app.typing import JsonDict
-
-from .. import get
 
 
 @get("/system/version/")

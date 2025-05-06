@@ -11,8 +11,7 @@ from flask_login import current_user
 
 from app.flask.routing import url_for
 from app.models.auth import User
-
-from .. import get
+from app.modules.public import get
 
 
 @get("/")

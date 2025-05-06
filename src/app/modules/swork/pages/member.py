@@ -17,9 +17,9 @@ from app.flask.routing import url_for
 from app.flask.sqla import get_obj
 from app.models.auth import User
 from app.modules.kyc.views import public_info_context
+from app.modules.swork import blueprint
 from app.services.social_graph import SocialUser, adapt
 
-from .. import blueprint
 from .base import BaseSworkPage
 from .masked_fields import MaskFields
 from .members import MembersPage

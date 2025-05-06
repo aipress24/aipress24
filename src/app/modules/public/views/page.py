@@ -10,7 +10,7 @@ import toml
 from flask import current_app, render_template
 from markdown import markdown
 
-from .. import get
+from app.modules.public import get
 
 
 @get("/page/<path:path>")

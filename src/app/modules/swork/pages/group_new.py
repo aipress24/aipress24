@@ -9,8 +9,8 @@ from flask import g, redirect, request
 from app.flask.extensions import db
 from app.flask.lib.pages import page
 from app.flask.routing import url_for
+from app.modules.swork.models import Group
 
-from ..models import Group
 from .base import BaseSworkPage
 
 

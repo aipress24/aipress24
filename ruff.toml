@@ -78,7 +78,6 @@ lint.ignore = [
     "PLR0912", # Too many branches
     "RUF012", # Mutable class attributes should be annotated with `typing.ClassVar`
     "T201", # `print` found
-    "TID252", # Relative imports from parent modules are banned
 ]
 
 [lint.isort]

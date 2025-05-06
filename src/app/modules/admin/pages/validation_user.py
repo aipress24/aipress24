@@ -22,11 +22,11 @@ from app.flask.extensions import db
 from app.flask.lib.pages import page
 from app.flask.sqla import get_obj
 from app.models.auth import User, merge_values_from_other_user
+from app.modules.admin import blueprint
 from app.modules.admin.utils import gc_all_auto_organisations
 from app.modules.kyc.organisation_utils import retrieve_user_organisation
 from app.modules.kyc.views import admin_info_context
 
-from .. import blueprint
 from .base import BaseAdminPage
 from .new_users import AdminNewUsersPage
 
