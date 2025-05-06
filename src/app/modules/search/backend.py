@@ -166,11 +166,12 @@ class SearchBackend:
         data = self._adapt(user)
         data["title"] = user.first_name + " " + user.last_name
         data["summary"] = user.job_title
-        data["text"] = " ".join([
+        text_fields = [
             user.first_name,
             user.last_name,
             user.job_title,
             user.profile.presentation,
             # TODO: add more fields
-        ])
+        ]
+        data["text"] = " ".join(text_fields)
         return data
