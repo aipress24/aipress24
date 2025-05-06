@@ -7,8 +7,8 @@ from __future__ import annotations
 from flask import Response, request
 
 from app.flask.lib.pages import page
+from app.modules.admin.table import Column, GenericOrgDataSource, Table
 
-from ..table import Column, GenericOrgDataSource, Table
 from .base import BaseAdminPage
 from .home import AdminHomePage
 

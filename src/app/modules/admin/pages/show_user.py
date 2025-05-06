@@ -15,11 +15,11 @@ from app.flask.lib.pages import page
 # from app.flask.routing import url_for
 from app.flask.sqla import get_obj
 from app.models.auth import User
+from app.modules.admin import blueprint
+from app.modules.admin.utils import gc_organisation, remove_user_organisation
 from app.modules.kyc.views import admin_info_context
 from app.services.roles import add_role
 
-from .. import blueprint
-from ..utils import gc_organisation, remove_user_organisation
 from .base import AdminListPage
 from .users import AdminUsersPage
 

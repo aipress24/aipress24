@@ -10,8 +10,8 @@ from __future__ import annotations
 
 from app.flask.lib.pages import page
 from app.models.content import BaseContent
+from app.modules.admin import table as t
 
-from .. import table as t
 from .base import AdminListPage
 
 TABLE_COLUMNS = [

@@ -19,8 +19,8 @@ from app.flask.lib.view_model import ViewModel
 from app.flask.sqla import get_multi
 from app.models.mixins import Addressable
 from app.models.organisation import Organisation
+from app.modules.swork.common import Directory
 
-from ..common import Directory
 from .base import BaseList, Filter
 
 

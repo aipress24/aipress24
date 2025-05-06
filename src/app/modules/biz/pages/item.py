@@ -6,8 +6,8 @@ from __future__ import annotations
 
 from app.flask.lib.pages import Page, page
 from app.flask.sqla import get_obj
+from app.modules.biz.models import MarketplaceContent
 
-from ..models import MarketplaceContent
 from .home import BizHomePage
 
 # @define

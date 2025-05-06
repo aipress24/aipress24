@@ -10,9 +10,9 @@ from sqlalchemy.sql.functions import count
 
 from app.flask.extensions import db
 from app.flask.sqla import get_multi
+from app.modules.swork.common import Directory
+from app.modules.swork.models import Group
 
-from ..common import Directory
-from ..models import Group
 from .base import BaseList, Filter, FilterByCity, FilterByDept
 
 

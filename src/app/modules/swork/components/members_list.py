@@ -18,8 +18,8 @@ from app.flask.sqla import get_multi
 from app.models.auth import KYCProfile, User
 from app.models.mixins import Addressable
 from app.models.organisation import Organisation
+from app.modules.swork.common import Directory
 
-from ..common import Directory
 from .base import BaseList, Filter
 
 

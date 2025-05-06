@@ -11,8 +11,7 @@ from werkzeug.exceptions import Forbidden, NotFound
 from app.flask.extensions import db
 from app.flask.routing import url_for
 from app.models.auth import User
-
-from .. import get
+from app.modules.public import get
 
 
 def check_unsecure() -> None:

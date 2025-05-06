@@ -8,8 +8,7 @@ from sqlalchemy.orm import scoped_session
 
 from app.models.auth import User
 from app.models.organisation import Organisation
-
-from ..communique import Communique
+from app.modules.wip.models.comroom.communique import Communique
 
 
 def test_communique(db_session: scoped_session) -> None:

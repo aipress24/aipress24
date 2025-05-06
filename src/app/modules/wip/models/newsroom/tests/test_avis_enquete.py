@@ -9,8 +9,7 @@ from sqlalchemy.orm import scoped_session
 
 from app.models.auth import User
 from app.models.organisation import Organisation
-
-from ..avis_enquete import AvisEnquete
+from app.modules.wip.models.newsroom.avis_enquete import AvisEnquete
 
 
 def test_avis_enquete(db_session: scoped_session) -> None:

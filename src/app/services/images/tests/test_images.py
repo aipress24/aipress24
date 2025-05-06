@@ -8,7 +8,7 @@ from pathlib import Path
 
 from PIL import Image
 
-from .. import ImageService
+from app.services.images import ImageService
 
 IMAGE_PATH = Path(__file__).parent / "logo.png"
 

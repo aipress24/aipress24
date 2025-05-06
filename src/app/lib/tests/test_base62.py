@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from hypothesis import given, strategies as st
 
-from ..base62 import base62
+from app.lib.base62 import base62
 
 
 def test_1() -> None:

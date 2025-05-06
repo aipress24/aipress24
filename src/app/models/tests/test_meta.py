@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from ..meta import get_meta_attr
+from app.models.meta import get_meta_attr
 
 
 class A:

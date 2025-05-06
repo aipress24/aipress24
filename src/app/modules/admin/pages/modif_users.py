@@ -11,8 +11,8 @@ from app.flask.extensions import db
 from app.flask.lib.pages import page
 from app.flask.routing import url_for
 from app.models.auth import User
+from app.modules.admin.table import Column, Table
 
-from ..table import Column, Table
 from .base import BaseAdminPage
 from .home import AdminHomePage
 from .new_users import NewUserDataSource

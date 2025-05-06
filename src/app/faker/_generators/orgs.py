@@ -10,10 +10,10 @@ from pathlib import Path
 from mimesis import Person
 
 from app.enums import BWTypeEnum, OrganisationTypeEnum
+from app.faker._constants import COVER_IMAGES, ORGANISATIONS
+from app.faker._geo import fake_geoloc
 from app.models.organisation import Organisation
 
-from .._constants import COVER_IMAGES, ORGANISATIONS
-from .._geo import fake_geoloc
 from .base import BaseGenerator, faker
 from .users import random_taille_orga
 

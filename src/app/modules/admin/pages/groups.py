@@ -6,9 +6,9 @@ from __future__ import annotations
 
 from app.flask.lib.pages import page
 from app.flask.routing import url_for
+from app.modules.admin import table as t
 from app.modules.swork.models import Group
 
-from .. import table as t
 from .base import AdminListPage
 from .home import AdminHomePage
 

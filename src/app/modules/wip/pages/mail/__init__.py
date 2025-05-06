@@ -5,9 +5,8 @@
 from __future__ import annotations
 
 from app.flask.lib.pages import page
-
-from ..base import BaseWipPage
-from ..home import HomePage
+from app.modules.wip.pages.base import BaseWipPage
+from app.modules.wip.pages.home import HomePage
 
 
 @page

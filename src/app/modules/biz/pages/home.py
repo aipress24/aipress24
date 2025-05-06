@@ -12,8 +12,7 @@ from app.flask.lib.pages import Page, page
 from app.flask.routing import url_for
 from app.flask.sqla import get_multi
 from app.models.lifecycle import PublicationStatus
-
-from ..models import MarketplaceContent
+from app.modules.biz.models import MarketplaceContent
 
 TABS = [
     {

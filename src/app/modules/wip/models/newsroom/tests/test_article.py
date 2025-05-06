@@ -9,8 +9,7 @@ from sqlalchemy.orm import scoped_session
 
 from app.models.auth import User
 from app.models.organisation import Organisation
-
-from ..article import Article
+from app.modules.wip.models.newsroom.article import Article
 
 
 def test_article(db_session: scoped_session) -> None:

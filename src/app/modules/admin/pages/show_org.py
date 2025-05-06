@@ -15,18 +15,18 @@ from app.flask.lib.view_model import ViewModel
 # from app.flask.routing import url_for
 from app.flask.sqla import get_obj
 from app.models.organisation import Organisation
-from app.modules.kyc.renderer import render_field
-from app.modules.wip.pages.business_wall_form import BWFormGenerator
-
-from .. import blueprint
-from ..invitations import emails_invited_to_organisation
-from ..org_email_utils import (
+from app.modules.admin import blueprint
+from app.modules.admin.invitations import emails_invited_to_organisation
+from app.modules.admin.org_email_utils import (
     change_invitations_emails,
     change_leaders_emails,
     change_managers_emails,
     change_members_emails,
 )
-from ..utils import gc_organisation, toggle_org_active
+from app.modules.admin.utils import gc_organisation, toggle_org_active
+from app.modules.kyc.renderer import render_field
+from app.modules.wip.pages.business_wall_form import BWFormGenerator
+
 from .base import AdminListPage
 from .orgs import AdminOrgsPage
 
