@@ -58,15 +58,16 @@ lint:
 	lint-imports
 	deptry src
 	vulture --min-confidence 80 src
+	# Typecheck tests - mostly useless
 	mypy --show-error-codes tests
+	pyright tests
+	# Typecheck src - much more useful but not ready yet
+	# mypy --show-error-codes src
+	# pyright src
 
 	# TODO later
 	# make hadolint
-	# mypy --show-error-codes --check-untyped-defs tests src
-	# pyright tests
-	# mypy --show-error-codes src
 	# mypy --check-untyped-defs --show-error-codes src
-	# python -m pyanalyze --config-file pyproject.toml src
 
 ## Run security audit
 audit:
