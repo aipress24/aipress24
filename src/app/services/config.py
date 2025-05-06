@@ -16,7 +16,7 @@ class Config:
 
     _config: dict[str, Any]
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._config = current_app.config
 
     def __getitem__(self, key):

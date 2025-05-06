@@ -95,7 +95,7 @@ class WallTab(Tab):
     label = "All"
     tip = "Fil d'actus"
 
-    def get_authors(self):
+    def get_authors(self) -> None:
         return None
 
 

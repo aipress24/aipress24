@@ -134,7 +134,7 @@ group = "copyright"
 """
 
 
-def test_form_spec():
+def test_form_spec() -> None:
     form = Form.from_file(StringIO(FORM_SPEC))
     assert len(form.fields) > 0
     assert form.fields["title"].type() == "text"

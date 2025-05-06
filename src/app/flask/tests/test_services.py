@@ -11,7 +11,7 @@ from app.services.activity_stream import ActivityStream
 from app.services.screenshots import ScreenshotService
 
 
-def test_services(app: Flask):
+def test_services(app: Flask) -> None:
     activity = container.get(ActivityStream)
     assert activity is not None
 

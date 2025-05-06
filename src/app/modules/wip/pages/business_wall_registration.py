@@ -127,7 +127,7 @@ class BusinessWallRegistrationPage(BaseWipPage):
     template = "wip/pages/bw-registration.j2"
     parent = HomePage
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.user = g.user
         self.org = self.user.organisation  # Organisation or None
         # liste des BWTypeEnum (parmi 8) en fonctin du profil utilisateur:

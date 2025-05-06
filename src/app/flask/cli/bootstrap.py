@@ -96,7 +96,7 @@ def bootstrap() -> None:
     print(f"Ellapsed time: {time.time() - t0:.2f} seconds")
 
 
-def bootstrap_roles():
+def bootstrap_roles() -> None:
     repo = container.get(RoleRepository)
     roles = repo.list()
     if roles:

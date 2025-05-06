@@ -12,7 +12,7 @@ import psutil
 g = {"max_rss": 0}
 
 
-def show_memory_usage():
+def show_memory_usage() -> None:
     process = psutil.Process(os.getpid())
     memory_info = process.memory_info()
     print(f"RSS: {memory_info.rss / (1024 * 1024):.2f} MB")  # Convert to MB

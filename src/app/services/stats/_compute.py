@@ -19,7 +19,7 @@ DURATIONS = [
 ]
 
 
-def update_stats(date=None):
+def update_stats(date=None) -> None:
     """Update the various time series data for the app."""
 
     metrics = lookup(Metric)

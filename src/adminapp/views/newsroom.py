@@ -84,7 +84,7 @@ class JustifPublicationAdmin(ModelView, model=JustifPublication):
     column_sortable_list = [JustifPublication.created_at]
 
 
-def register(admin: Admin):
+def register(admin: Admin) -> None:
     admin.add_view(SujetAdmin)
     admin.add_view(CommandeAdmin)
     admin.add_view(ArticleAdmin)

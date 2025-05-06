@@ -19,7 +19,7 @@ class SimpleRichSelectWidget(widgets.Select, BaseWidget):
 class SimpleRichSelectField(SelectField):
     widget = SimpleRichSelectWidget()
 
-    def __init__(self, label=None, validators=None, **kwargs):
+    def __init__(self, label=None, validators=None, **kwargs) -> None:
         super().__init__(label, validators, **kwargs)
 
     def get_choices_for_js(self):

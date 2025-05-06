@@ -72,7 +72,7 @@ def db_setup(clean: bool) -> None:
         return
 
 
-def fix_roles():
+def fix_roles() -> None:
     user_repo = container.get(UserRepository)
 
     for user in user_repo.list():
@@ -80,7 +80,7 @@ def fix_roles():
         assert len(user.roles) > 0
 
 
-def create_admins():
+def create_admins() -> None:
     user_repo = container.get(UserRepository)
     role_map = generate_roles_map()
     role_admin = role_map["ADMIN"]
@@ -95,14 +95,14 @@ def create_admins():
     db.session.expunge_all()
 
 
-def run_fake_scripts():
+def run_fake_scripts() -> None:
     scripts = [cls() for cls in lookup(FakerScript)]
     for script in scripts:
         print(dim(f"Running faker script: {script.name}"))
         script.run()
 
 
-def help(scripts):
+def help(scripts) -> None:
     print("Usage: 'flask fake <script_name> <args> where <script_name> can be:\n")
     for script in scripts:
         print(f"- {script.name}: {script.description}")

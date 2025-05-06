@@ -11,10 +11,10 @@ from app.dramatiq.scheduler import crontab
 
 
 @job()
-def dummy():
+def dummy() -> None:
     logger.info("Dummy job running")
 
 
 @crontab("* * * * *")
-def dummy2():
+def dummy2() -> None:
     logger.info("Dummy2 job running")

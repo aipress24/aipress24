@@ -154,7 +154,7 @@ def make_form(profile_id: str):
     return redirect(url_for(".wizard_page", profile_id=profile.id))
 
 
-def _log_invalid_form(form):
+def _log_invalid_form(form) -> None:
     print("form did not validate:", file=sys.stderr)
     for field in form:
         if field.name in {"_next", "csrf_token"}:
@@ -749,7 +749,7 @@ def _populate_kyc_data_from_user(user: User) -> dict[str, Any]:
 
 
 @blueprint.route("/check_mail/<email>", methods=["GET"])
-def check_mail(email: str):
+def check_mail(email: str) -> str:
     new_email = email.strip()
     if not new_email:
         return ""

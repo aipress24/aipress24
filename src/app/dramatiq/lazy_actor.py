@@ -17,7 +17,7 @@ class LazyActor:
     kw: dict
     actor: dramatiq.Actor | None = None
 
-    def __init__(self, fn, **kw):
+    def __init__(self, fn, **kw) -> None:
         self.fn = fn
         self.crontab = kw.pop("crontab", None)
         self.kw = kw
@@ -34,7 +34,7 @@ class LazyActor:
             raise AttributeError(name)
         return getattr(self.actor, name)
 
-    def register(self, broker):
+    def register(self, broker) -> None:
         self.actor = dramatiq.actor(broker=broker, **self.kw)(self.fn)
 
     # Next is regular actor API.

@@ -40,7 +40,7 @@ from ._table import BaseTable
 class ArticlesTable(BaseTable):
     id = "articles-table"
 
-    def __init__(self, q=""):
+    def __init__(self, q="") -> None:
         # self.columns = self.get_columns()
         super().__init__(Article, q)
 
@@ -141,7 +141,7 @@ class ArticlesWipView(BaseWipView):
     msg_delete_ok = "L'article a été supprimé"
     msg_delete_ko = "Vous n'êtes pas autorisé à supprimer cet article"
 
-    def _post_update_model(self, model: Article):
+    def _post_update_model(self, model: Article) -> None:
         if not model.status:
             model.status = PublicationStatus.DRAFT
             model.published_at = arrow.now("Europe/Paris")
@@ -276,5 +276,5 @@ class ArticlesWipView(BaseWipView):
 
 
 @register
-def register_on_app(app: Flask):
+def register_on_app(app: Flask) -> None:
     ArticlesWipView.register(app)

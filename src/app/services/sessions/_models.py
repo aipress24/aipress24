@@ -30,7 +30,7 @@ class Session(IdMixin, Base):
         data = json.loads(self._data or "{}")
         return data.get(key, default)
 
-    def set(self, key, value):
+    def set(self, key, value) -> None:
         data = json.loads(self._data or "{}")
         data[key] = value
         self._data = json.dumps(data)

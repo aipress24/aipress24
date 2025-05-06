@@ -17,7 +17,7 @@ from .scheduler import register_cron_jobs
 DEFAULT_REDIS_URL = "redis://localhost:6379/0"
 
 
-def init_dramatiq(app):
+def init_dramatiq(app) -> None:
     logger.info("Setting up Dramatiq")
 
     redis_url = app.config.get("DRAMATIC_REDIS_URL")

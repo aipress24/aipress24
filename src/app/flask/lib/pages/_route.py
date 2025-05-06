@@ -11,7 +11,7 @@ from flask import request
 
 @dataclass
 class Route:
-    def __init__(self, page_class, method_name=""):
+    def __init__(self, page_class, method_name="") -> None:
         self.page_class = page_class
         self.method_name = method_name
 

@@ -12,7 +12,7 @@ engine = create_async_engine(
 )
 
 
-def create_admin(app):
+def create_admin(app) -> None:
     admin = Admin(app, engine, base_url="/db")
 
     kyc.register(admin)

@@ -18,6 +18,6 @@ PARAMS = [
 
 
 @pytest.mark.parametrize(("d1", "d2", "expected"), PARAMS)
-def test_1(d1, d2, expected):
+def test_1(d1, d2, expected) -> None:
     assert merge_dicts(d1, d2) == expected
     assert merge_dicts(d2, d1) == expected

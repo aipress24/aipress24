@@ -23,7 +23,7 @@ class RichSelectField(SelectField):
 
     key: str
 
-    def __init__(self, label=None, validators=None, key=None, **kwargs):
+    def __init__(self, label=None, validators=None, key=None, **kwargs) -> None:
         if key is not None:
             self.key = key
         super().__init__(label, validators, choices=self._choices, **kwargs)

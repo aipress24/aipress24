@@ -67,7 +67,7 @@ class SelectOneField(SelectField):
     def __init__(
         self,
         **kwargs,
-    ):
+    ) -> None:
         self.lock = kwargs.pop("readonly", False)
         super().__init__(**kwargs)
         self.multiple = False

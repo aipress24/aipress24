@@ -10,7 +10,7 @@ BASE62_LIST = string.digits + string.ascii_letters
 
 
 class BaseXX:
-    def __init__(self, base: str):
+    def __init__(self, base: str) -> None:
         self.base = base
         self.reverse_base = {c: i for i, c in enumerate(base)}
 
@@ -39,7 +39,7 @@ class BaseXX:
 
 
 class Base62(BaseXX):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(BASE62_LIST)
 
 

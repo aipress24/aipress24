@@ -7,7 +7,7 @@ from flask_super.registry import lookup
 from svcs.flask import container
 
 
-def test_services(app_context):
+def test_services(app_context) -> None:
     for service_class in lookup(tag="service"):
         service = container.get(service_class)
         assert isinstance(service, service_class)

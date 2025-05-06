@@ -16,7 +16,7 @@ __all__ = ["setup_config"]
 from loguru import logger
 
 
-def setup_config(app, config):
+def setup_config(app, config) -> None:
     configure_app(app, config)
     app.jinja_env.undefined = StrictUndefined
     # Configure logging as soon as we have the config
@@ -48,7 +48,7 @@ def configure_app(app, config) -> None:
     set_db_uri(app)
 
 
-def set_db_uri(app: Flask):
+def set_db_uri(app: Flask) -> None:
     """Get the SQLAlchemy database URI from the environment or config."""
     database_url = get_db_url(app)
     if database_url:

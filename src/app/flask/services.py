@@ -25,7 +25,7 @@ def session_factory() -> scoped_session:
     return db.session
 
 
-def register_services(app: Flask):
+def register_services(app: Flask) -> None:
     register_factory(app, scoped_session, session_factory)
 
     register_value(app, PageRegistry, page_registry)

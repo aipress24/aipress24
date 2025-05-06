@@ -11,12 +11,12 @@ from flask_super.decorators import service
 class Context:
     """Way to access / update the Jinja context."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._context = {}
 
     def __getitem__(self, item):
         return self._context[item]
 
-    def update(self, **kwargs):
+    def update(self, **kwargs) -> None:
         for k, v in kwargs.items():
             self._context[k] = v

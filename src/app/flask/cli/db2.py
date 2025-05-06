@@ -71,7 +71,7 @@ def upgrade() -> None:
     stop=stop_after_attempt(5),
     wait=wait_exponential(multiplier=1, max=10),
 )
-def _upgrade():
+def _upgrade() -> None:
     flask = sys.argv[0]
     subprocess.run([flask, "db", "upgrade"], check=True)
 

@@ -80,7 +80,7 @@ class BaseWipView(FlaskView, abc.ABC):
 
     route_prefix = "/wip/"
 
-    def before_request(self, *_args, **_kwargs):
+    def before_request(self, *_args, **_kwargs) -> None:
         menu_service = container.get(MenuService)
         menu_service.update(self._menus())
 
@@ -211,7 +211,7 @@ class BaseWipView(FlaskView, abc.ABC):
             "form_rendered": renderer.render(),
         }
 
-    def _update_model(self, form, model):
+    def _update_model(self, form, model) -> None:
         repo = self._get_repo()
 
         if not model:
@@ -251,7 +251,7 @@ class BaseWipView(FlaskView, abc.ABC):
 
     # Common methods
 
-    def _post_update_model(self, model):
+    def _post_update_model(self, model) -> None:
         """Implemented in subclass, if neeeded"""
 
     def _url_for(self, _action="get", **kwargs):
@@ -263,7 +263,7 @@ class BaseWipView(FlaskView, abc.ABC):
             "secondary": make_menu(self.name),
         }
 
-    def update_breadcrumbs(self, key="", label=""):
+    def update_breadcrumbs(self, key="", label="") -> None:
         context = container.get(Context)
         breadcrumbs = [
             BreadCrumb(

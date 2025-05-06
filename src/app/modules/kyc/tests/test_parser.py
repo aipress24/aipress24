@@ -18,23 +18,23 @@ def model_source() -> Path:
     return Path(__file__).parent.parent / "kyc_models" / MODEL_FILENAME
 
 
-def test_model_exists(model_source):
+def test_model_exists(model_source) -> None:
     assert model_source.is_file()
 
 
-def test_parse_str(model_source):
+def test_parse_str(model_source) -> None:
     model_loader = xls_parser.XLSParser()
     model_loader.parse(str(model_source))
     assert isinstance(model_loader.model, dict)
 
 
-def test_parse_path(model_source):
+def test_parse_path(model_source) -> None:
     model_loader = xls_parser.XLSParser()
     model_loader.parse(model_source)
     assert isinstance(model_loader.model, dict)
 
 
-def test_parse_content(model_source):
+def test_parse_content(model_source) -> None:
     model_loader = xls_parser.XLSParser()
     model_loader.parse(model_source)
     result = model_loader.model

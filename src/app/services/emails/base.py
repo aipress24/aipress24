@@ -13,7 +13,7 @@ class EmailTemplate:
     template_md: str = ""
     template_html: str = ""
 
-    def __init__(self, sender, recipient, **kwargs):
+    def __init__(self, sender, recipient, **kwargs) -> None:
         self.sender = sender
         self.recipient = recipient
         self.kwargs = kwargs
@@ -30,6 +30,6 @@ class EmailTemplate:
         msg = "No template"
         raise ValueError(msg)
 
-    def send(self):
+    def send(self) -> None:
         ...
         # mail.send(self.sender, self.recipient, self.subject, self.render())

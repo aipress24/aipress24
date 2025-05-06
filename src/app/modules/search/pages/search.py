@@ -107,7 +107,7 @@ class ResultSet:
     count: int = 0
     hits: list = field(default_factory=list)
 
-    def __init__(self, collection, search_parameters):
+    def __init__(self, collection, search_parameters) -> None:
         self.name = collection["name"]
         self.label = collection["label"]
         self.icon = collection["icon"]

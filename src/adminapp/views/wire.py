@@ -15,5 +15,5 @@ class PostAdmin(ModelView, model=ArticlePost):
     column_sortable_list = [ArticlePost.created_at]
 
 
-def register(admin: Admin):
+def register(admin: Admin) -> None:
     admin.add_view(PostAdmin)

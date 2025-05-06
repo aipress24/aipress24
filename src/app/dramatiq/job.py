@@ -22,7 +22,7 @@ def job():
     return decorator
 
 
-def register_regular_jobs():
+def register_regular_jobs() -> None:
     logger.info("Registering regular jobs on Dramatiq")
 
     for actor in _actor_registry:

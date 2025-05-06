@@ -38,7 +38,7 @@ class CountrySelectField(SelectField):
     def __init__(
         self,
         **kwargs,
-    ):
+    ) -> None:
         self.id2 = kwargs.pop("id2", "")
         self.name2 = kwargs.pop("name2", "")
         self.label2 = kwargs.pop("label2", "")

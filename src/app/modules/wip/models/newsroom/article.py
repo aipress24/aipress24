@@ -83,15 +83,15 @@ class Article(
     def sorted_images(self) -> list[Image]:
         return sorted(self.images, key=lambda x: x.position)
 
-    def add_image(self, image: Image):
+    def add_image(self, image: Image) -> None:
         self.images.append(image)
         image.position = len(self.images) - 1
 
-    def delete_image(self, image: Image):
+    def delete_image(self, image: Image) -> None:
         self.images.remove(image)
         self.update_image_positions()
 
-    def update_image_positions(self):
+    def update_image_positions(self) -> None:
         for i, image in enumerate(self.sorted_images):
             image.position = i
 

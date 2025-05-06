@@ -35,7 +35,7 @@ class ItemPage(Page):
 
     parent = WirePage
 
-    def __init__(self, id):
+    def __init__(self, id) -> None:
         self.args = {"id": id}
         self.item = get_obj(id, ArticlePost)
 

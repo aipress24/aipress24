@@ -37,7 +37,7 @@ class GroupPage(BaseSworkPage):
 
     parent = GroupsPage
 
-    def __init__(self, id):
+    def __init__(self, id) -> None:
         self.args = {"id": id}
         self.group = get_obj(id, Group)
 
@@ -121,7 +121,7 @@ def is_member(user, group):
     return len(list(rows)) == 1
 
 
-def join(user, group):
+def join(user, group) -> None:
     table = group_members_table
     stmt = sa.insert(table).values(user_id=user.id, group_id=group.id)
     db.session.execute(stmt)
@@ -129,7 +129,7 @@ def join(user, group):
     post_activity("Join", user, group)
 
 
-def leave(user, group):
+def leave(user, group) -> None:
     table = group_members_table
     c = table.c
     stmt = sa.delete(table).where(c.user_id == user.id, c.group_id == group.id)
