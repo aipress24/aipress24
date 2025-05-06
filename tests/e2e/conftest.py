@@ -11,11 +11,15 @@ These tests need a database with some fake data and/or a real config
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import pytest
-from flask import Flask
 from splinter import Browser
 
 from app.flask.main import create_app
+
+if TYPE_CHECKING:
+    from flask import Flask
 
 
 class Config:

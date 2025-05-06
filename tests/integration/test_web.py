@@ -6,15 +6,14 @@ from __future__ import annotations
 
 import typing
 
-from flask.app import Flask
-from flask.testing import FlaskClient
-from flask_sqlalchemy import SQLAlchemy
-
 from app.flask.routing import url_for
 from app.models.auth import User
 from app.modules.wire.models import ArticlePost
 
 if typing.TYPE_CHECKING:
+    from flask.app import Flask
+    from flask.testing import FlaskClient
+    from flask_sqlalchemy import SQLAlchemy
     from werkzeug.routing import Rule
 
 

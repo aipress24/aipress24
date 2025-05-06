@@ -4,11 +4,14 @@
 
 from __future__ import annotations
 
-from flask_sqlalchemy import SQLAlchemy
-from splinter import Browser
+from typing import TYPE_CHECKING
 
 from app.models.auth import User
 from app.modules.wire.models import ArticlePost
+
+if TYPE_CHECKING:
+    from flask_sqlalchemy import SQLAlchemy
+    from splinter import Browser
 
 
 def create_stuff(db: SQLAlchemy) -> dict[str, User | ArticlePost]:

@@ -55,6 +55,9 @@ lint.ignore = [
     "RUF003", # Comment contains ambiguous unicode character
     "RUF052", # This one is really stupid
     "SIM108", # Use ternary operator
+    "TC001", # Move import into a type-checking block
+    "TC002", # Move import into a type-checking block
+    "TC003", # Move import into a type-checking block
     "TC006", # Add quotes to type expression
     # Security issues that are not relevant (a priori)
     "S101", # Use of `assert` detected
@@ -80,9 +83,6 @@ lint.ignore = [
     "RUF039", # Unsafe use of `markupsafe.Markup` detected
     "RUF100", # Unused "noqa"
     "T201", # `print` found
-    "TC001", # Move import into a type-checking block
-    "TC002", # Move import into a type-checking block
-    "TC003", # Move import into a type-checking block
     "TID252", # Relative imports from parent modules are banned
 ]
 

@@ -4,11 +4,14 @@
 from __future__ import annotations
 
 import sys
+from typing import TYPE_CHECKING
 
 import pytest
-from splinter import Browser
 
 from .utils import login
+
+if TYPE_CHECKING:
+    from splinter import Browser
 
 pytestmark = pytest.mark.skipif(
     sys.platform != "darwin", reason="Only work on my machine"
