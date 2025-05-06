@@ -133,8 +133,7 @@ class SearchBackend:
             pub_date = _get_attr(obj, "published_at", "created_at")
             if pub_date:
                 return int(pub_date.timestamp())
-            else:
-                return 0
+            return 0
 
         def _get_tags(obj):
             try:

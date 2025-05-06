@@ -73,8 +73,7 @@ class ArticleVM(Wrapper):
         post = self._model
         if post.image_id:
             return url_for("api.get_blob", id=post.image_id)
-        else:
-            return "/static/img/gray-texture.png"
+        return "/static/img/gray-texture.png"
 
 
 #

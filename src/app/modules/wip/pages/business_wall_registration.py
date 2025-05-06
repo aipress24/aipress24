@@ -285,8 +285,7 @@ class BusinessWallRegistrationPage(BaseWipPage):
             return ""
         if self.org.is_auto:
             return "/static/img/logo-page-non-officielle.png"
-        else:
-            return self.org.logo_url
+        return self.org.logo_url
 
     def hx_post(self) -> str | Response:
         action = request.form.get("action", "")
@@ -295,13 +294,13 @@ class BusinessWallRegistrationPage(BaseWipPage):
                 response = Response("")
                 response.headers["HX-Redirect"] = self.url
                 return response
-            elif action == "suspend":
+            if action == "suspend":
                 self.on_suspend_subscription()
                 response = Response("")
                 # response.headers["HX-Redirect"] = url_for(".org-profile")
                 response.headers["HX-Redirect"] = self.url
                 return response
-            elif action == "restore":
+            if action == "restore":
                 self.on_restore_subscription()
                 response = Response("")
                 # response.headers["HX-Redirect"] = url_for(".org-profile")

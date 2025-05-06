@@ -72,8 +72,7 @@ class Page:
     def get_template_path(self):
         if self.template:
             return self.template
-        else:
-            raise NotImplementedError
+        raise NotImplementedError
 
     #
     # Do not override these
@@ -104,8 +103,7 @@ class Page:
     def content(self, ctx):
         if template_str := self.get_template_str(ctx):
             return render_template_string(template_str, **ctx)
-        else:
-            return render_template(self.get_template_path(), **ctx)
+        return render_template(self.get_template_path(), **ctx)
 
     # def base_context(self):
     #     context = {}
@@ -146,7 +144,6 @@ class Page:
     def get_template_str(self, ctx=None) -> str:
         if ctx and "_template_str" in ctx:
             return ctx["_template_str"]
-        elif hasattr(self, "template_str"):
+        if hasattr(self, "template_str"):
             return self.template_str
-        else:
-            return ""
+        return ""

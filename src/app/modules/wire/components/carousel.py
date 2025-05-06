@@ -50,12 +50,11 @@ class Carousel(Component):
                 },
             ]
 
-        else:
-            return [
-                {
-                    "id": i,
-                    "imgSrc": image.url,
-                    "imgAlt": image.caption,
-                }
-                for i, image in enumerate(images)
-            ]
+        return [
+            {
+                "id": i,
+                "imgSrc": image.url,
+                "imgAlt": image.caption,
+            }
+            for i, image in enumerate(images)
+        ]

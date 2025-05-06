@@ -31,19 +31,16 @@ class Route:
     def path(self):
         if self.method_name:
             return self.page_class.path + "/" + self.method_name
-        else:
-            return self.page_class.path
+        return self.page_class.path
 
     @property
     def endpoint(self):
         if self.method_name:
             return self.page_class.name + "__" + self.method_name
-        else:
-            return self.page_class.name
+        return self.page_class.name
 
     @property
     def __name__(self):
         if self.method_name:
             return self.page_class.__name__ + "__" + self.method_name
-        else:
-            return self.page_class.__name__
+        return self.page_class.__name__

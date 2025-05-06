@@ -39,8 +39,7 @@ class Table:
         renderer = getattr(self, f"render_{column.name}", None)
         if renderer:
             return renderer(row)
-        else:
-            return row.get(column.name, "")
+        return row.get(column.name, "")
 
     def render(self) -> str:
         ctx = {

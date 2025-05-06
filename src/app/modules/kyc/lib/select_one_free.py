@@ -16,23 +16,21 @@ def convert_to_tom_choices_js(choices: list) -> list:
     if isinstance(choices, list):
         # required by choices.js : list of dict
         return [{"value": item[0], "label": item[1]} for item in choices]
-    else:
-        print(f"{type(choices)}", file=sys.stderr)
-        print(f"{choices=}", file=sys.stderr)
-        raise TypeError
+    print(f"{type(choices)}", file=sys.stderr)
+    print(f"{choices=}", file=sys.stderr)
+    raise TypeError
 
 
 def convert_to_tom_optgroups_js(choices: list | dict) -> list:
     if isinstance(choices, list):
         return []
-    elif isinstance(choices, dict):
+    if isinstance(choices, dict):
         optgroups = []
         for group in choices:
             optgroups.append({"value": group, "label": group})
         return optgroups
-    else:
-        msg = "choices must be a list or a dict"
-        raise TypeError(msg)
+    msg = "choices must be a list or a dict"
+    raise TypeError(msg)
 
 
 def _dict_to_group_tom_choices(choices: dict) -> list:

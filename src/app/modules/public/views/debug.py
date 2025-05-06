@@ -30,8 +30,7 @@ def backdoor():
     role = request.args.get("role")
     if role:
         return render_template("pages/backdoor-banner.j2", title="Backdoor", role=role)
-    else:
-        return render_template("pages/backdoor.j2", title="Backdoor")
+    return render_template("pages/backdoor.j2", title="Backdoor")
 
 
 @get("/backdoor/<role>")

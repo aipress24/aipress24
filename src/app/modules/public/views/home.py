@@ -20,8 +20,7 @@ def home():
     user = cast("User", current_user)
     if not user.is_anonymous:
         return redirect(url_for("wire.wire"))
-    else:
-        return redirect(url_for("security.login"))
+    return redirect(url_for("security.login"))
 
 
 @get("/pricing/")

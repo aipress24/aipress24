@@ -171,8 +171,7 @@ class OrgVM(ViewModel):
     def get_logo_url(self) -> str:
         if self.org.is_auto:
             return "/static/img/logo-page-non-officielle.png"
-        else:
-            return self.org.logo_url
+        return self.org.logo_url
 
 
 class OrgsDirectory(Directory):

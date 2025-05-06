@@ -16,13 +16,12 @@ def convert_to_tom_choices_js(choices: list | dict) -> list:
     if isinstance(choices, list):
         # required by choices.js : list of dict
         return [{"value": item[0], "label": item[1]} for item in choices]
-    elif isinstance(choices, dict):
+    if isinstance(choices, dict):
         # dict is a dict of groups of labels:
         return _dict_to_group_tom_choices(choices)
-    else:
-        print(f"{type(choices)}", file=sys.stderr)
-        print(f"{choices=}", file=sys.stderr)
-        raise TypeError
+    print(f"{type(choices)}", file=sys.stderr)
+    print(f"{choices=}", file=sys.stderr)
+    raise TypeError
 
 
 def _dict_to_group_tom_choices(choices: dict) -> list:

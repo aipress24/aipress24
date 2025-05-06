@@ -186,8 +186,7 @@ class FilterBar:
     def get_filters(self):
         if self.tab == "com":
             return self.get_filters_for_com()
-        else:
-            return self.get_filters_for_articles()
+        return self.get_filters_for_articles()
 
     def get_filters_for_articles(self):
         stmt = sa.select(ArticlePost).where(ArticlePost.status == PostStatus.PUBLIC)
