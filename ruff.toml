@@ -44,19 +44,24 @@ lint.ignore = [
     "B019", # Use of `functools.lru_cache` or `functools.cache` on methods can lead to memory leaks
     "ISC001", # "may cause conflicts when used with the formatter"
     "N805", # First argument of a method should be named `self`
-    "RUF001", # String contains ambiguous unicode character
-    "RUF002", # Docstring contains ambiguous unicode character
-    "RUF003", # Comment contains ambiguous unicode character
+    "PLR2004", # Magic value used in comparison
     "PLR2044", # Line w/ empty comment
     "PLR6301", # Method could be a function
-    "PLR2004", # Magic value used in comparison
     "PLW1514", # `pathlib.Path(...).read_text` without explicit `encoding` argument
     "PLW3201", # Bad or misspelled dunder method name
     "RET504", # Unnecessary variable assignment before `return` statement
+    "RUF001", # String contains ambiguous unicode character
+    "RUF002", # Docstring contains ambiguous unicode character
+    "RUF003", # Comment contains ambiguous unicode character
     "RUF052", # This one is really stupid
     "SIM108", # Use ternary operator
-    "S101", # Use of `assert` detected
     "TC006", # Add quotes to type expression
+    # Security issues that are not relevant (a priori)
+    "S101", # Use of `assert` detected
+    "S311", # Standard pseudo-random generators are not suitable for cryptographic purposes
+    "S404", # `subprocess` module is possibly insecure
+    "S603", # Using subprocess
+    "S704", # Unsafe use of `markupsafe.Markup` detected
     # Fixable ?
     "A00", # `...` is shadowing a python builtin
     "BLE001", # Do not catch blind exception
@@ -74,10 +79,6 @@ lint.ignore = [
     "RUF012", # Mutable class attributes should be annotated with `typing.ClassVar`
     "RUF039", # Unsafe use of `markupsafe.Markup` detected
     "RUF100", # Unused "noqa"
-    "S311", # Standard pseudo-random generators are not suitable for cryptographic purposes
-    "S404", # `subprocess` module is possibly insecure
-    "S603", # Using subprocess
-    "S704", # Unsafe use of `markupsafe.Markup` detected
     "T201", # `print` found
     "TC001", # Move import into a type-checking block
     "TC002", # Move import into a type-checking block
