@@ -410,7 +410,7 @@ class UserGenerator(BaseGenerator):
     def _make_random_contact_details(self, _user: User, profile: KYCProfile) -> None:
         # advanced feature for faker would be default depending on user's community
         data = {}
-        for contact_type in ContactTypeEnum:
+        for contact_type in ContactTypeEnum:  # type: ignore
             data[f"email_{contact_type.name}"] = bool(random.randint(0, 1))
             data[f"mobile_{contact_type.name}"] = bool(random.randint(0, 1))
         profile.show_contact_details = data

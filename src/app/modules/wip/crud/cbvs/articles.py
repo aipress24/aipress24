@@ -193,7 +193,7 @@ class ArticlesWipView(BaseWipView):
         article_repo = self._get_repo()
         blob_service = container.get(BlobService)
 
-        image = request.files.get("image")
+        image = request.files["image"]
         caption = request.form.get("caption", "").strip()
         copyright = request.form.get("copyright", "").strip()
 
