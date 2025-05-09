@@ -210,7 +210,9 @@ def bootstrap_db(app) -> None:
     with app.app_context():
         session = container.get(scoped_session)
         try:
-            country_count: int = session.execute("SELECT COUNT(*) FROM zip_country").scalar()
+            country_count: int = session.execute(
+                "SELECT COUNT(*) FROM zip_country"
+            ).scalar()
         except Exception:
             country_count = 0
             db.create_all()

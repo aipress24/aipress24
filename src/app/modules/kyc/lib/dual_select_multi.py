@@ -40,10 +40,12 @@ def convert_dual_choices_js(choices: dict) -> dict:
     field2 = []
     for values in choices["field2"].values():
         for val in values:
-            field2.append({
-                "value": val[0],
-                "label": val[1],
-            })
+            field2.append(
+                {
+                    "value": val[0],
+                    "label": val[1],
+                }
+            )
     result = {"field1": field1, "field2": field2}
     return result
 

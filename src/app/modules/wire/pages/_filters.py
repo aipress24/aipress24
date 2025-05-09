@@ -171,10 +171,12 @@ class FilterBar:
 
     def add_filter(self, id, value) -> None:
         filters = self.state.get("filters", [])
-        filters.append({
-            "id": id,
-            "value": value,
-        })
+        filters.append(
+            {
+                "id": id,
+                "value": value,
+            }
+        )
         self.state["filters"] = filters
 
     def sort_by(self, value) -> None:

@@ -74,12 +74,12 @@ class BaseTable(Table):
                 "label": "Titre",
                 "class": "max-w-0 w-full truncate",
             },
-            {
-                "name": "media",
-                "label": "Média",
-                "class": "max-w-12",
-                "render": self.get_media_name,
-            },
+            # {
+            #     "name": "media",
+            #     "label": "Média",
+            #     "class": "max-w-12",
+            #     "render": self.get_media_name,
+            # },
             {
                 "name": "statut",
                 "label": "Statut",
@@ -111,4 +111,7 @@ class BaseTable(Table):
         ]
 
     def get_media_name(self, obj):
-        return obj.media.name if obj.media else ""
+        media = getattr(obj, "media", None)
+        if not media:
+            return ""
+        return obj.media.name

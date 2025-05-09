@@ -24,7 +24,9 @@ class AppContextMiddleware(Middleware):
 
         self.state.context = context
 
-    def after_process_message(self, broker, message, *, result=None, exception=None) -> None:
+    def after_process_message(
+        self, broker, message, *, result=None, exception=None
+    ) -> None:
         try:
             context = self.state.context
             context.pop(exception)

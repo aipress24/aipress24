@@ -13,12 +13,14 @@ from .base import generate_pdf, to_pdf
 def _to_pdf(invoice: Invoice, template=None) -> bytes:
     lines = []
     for line in invoice.lines:
-        lines.append({
-            "description": line.description,
-            "quantity": line.quantity,
-            "unit_price": line.unit_price / 100,
-            "total": line.total / 100,
-        })
+        lines.append(
+            {
+                "description": line.description,
+                "quantity": line.quantity,
+                "unit_price": line.unit_price / 100,
+                "total": line.total / 100,
+            }
+        )
     data = {
         "invoice_date": invoice.invoice_date,
         "invoice_number": invoice.invoice_number,

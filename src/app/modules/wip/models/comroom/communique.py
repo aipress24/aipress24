@@ -36,7 +36,7 @@ class Communique(IdMixin, LifeCycleMixin, Owned, Base):
     contenu: Mapped[str] = mapped_column(default="")
 
     # Etat: Brouillon, Publié, Archivé...
-    status: Mapped[PublicationStatus] = mapped_column(
+    statut: Mapped[PublicationStatus] = mapped_column(
         sa.Enum(PublicationStatus), default=DRAFT
     )
 
@@ -56,7 +56,9 @@ class Communique(IdMixin, LifeCycleMixin, Owned, Base):
     #
     # Organisation
     #
-    publisher_id: Mapped[int] = mapped_column(sa.ForeignKey(Organisation.id))
+    publisher_id: Mapped[int] = mapped_column(
+        sa.ForeignKey(Organisation.id), nullable=True
+    )
     publisher: Mapped[Organisation] = orm.relationship(
         Organisation, foreign_keys=[publisher_id]
     )

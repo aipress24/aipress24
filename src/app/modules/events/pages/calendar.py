@@ -91,10 +91,12 @@ class CalendarPage(Page):
             todays_events = []
             for event in events:
                 if event.start_date == day.date():
-                    todays_events.append({
-                        "title": event.title,
-                        "time": event.start_time,
-                    })
+                    todays_events.append(
+                        {
+                            "title": event.title,
+                            "time": event.start_time,
+                        }
+                    )
 
             cell = {
                 "day": day,
