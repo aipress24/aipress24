@@ -257,10 +257,12 @@ class OrgVM(ViewModel):
             "type_organisation": self.get_type_organisation(),
             "taille_orga": self.org.taille_orga,
             "country_zip_city": "\n".join(
-                label_from_values_cities_as_list([
-                    self.org.pays_zip_ville,
-                    self.org.pays_zip_ville_detail,
-                ])
+                label_from_values_cities_as_list(
+                    [
+                        self.org.pays_zip_ville,
+                        self.org.pays_zip_ville_detail,
+                    ]
+                )
             ),
             "secteurs_activite": self.get_secteurs_activite(),
         }
@@ -312,13 +314,17 @@ class OrgVM(ViewModel):
         return list(articles)
 
     def get_type_organisation(self) -> str:
-        return "\n".join((
-            ", ".join(self.org.type_organisation),
-            ", ".join(self.org.type_organisation_detail),
-        ))
+        return "\n".join(
+            (
+                ", ".join(self.org.type_organisation),
+                ", ".join(self.org.type_organisation_detail),
+            )
+        )
 
     def get_secteurs_activite(self) -> str:
-        return "\n".join((
-            ", ".join(self.org.secteurs_activite),
-            ", ".join(self.org.secteurs_activite_detail),
-        ))
+        return "\n".join(
+            (
+                ", ".join(self.org.secteurs_activite),
+                ", ".join(self.org.secteurs_activite_detail),
+            )
+        )

@@ -38,7 +38,9 @@ def create_app():
     return app
 
 
-def serve(port: int = PORT, debug: bool = DEBUG, log_level: LogLevels = LOG_LEVEL) -> None:
+def serve(
+    port: int = PORT, debug: bool = DEBUG, log_level: LogLevels = LOG_LEVEL
+) -> None:
     print("debug:", debug)
 
     scheduler_thread = threading.Thread(target=scheduler)

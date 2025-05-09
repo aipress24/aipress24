@@ -327,27 +327,29 @@ class ExporterInscriptions:
         return value
 
     def do_top_info(self) -> None:
-        self.sheet["table"].extend([
-            {"row": ["Aipress24"], "style": "bold"},
-            {
-                "row": [
-                    {
-                        "value": self.title,
-                        "style": "bold",
-                    }
-                ],
-                "style": "default_table_row",
-            },
-            {"row": [], "style": "default_table_row"},
-            {
-                "row": [
-                    {"value": "Date export:"},
-                    {"value": self.date_now.isoformat(" ", "minutes")},
-                ],
-                "style": "default_table_row",
-            },
-            {"row": [], "style": "default_table_row"},
-        ])
+        self.sheet["table"].extend(
+            [
+                {"row": ["Aipress24"], "style": "bold"},
+                {
+                    "row": [
+                        {
+                            "value": self.title,
+                            "style": "bold",
+                        }
+                    ],
+                    "style": "default_table_row",
+                },
+                {"row": [], "style": "default_table_row"},
+                {
+                    "row": [
+                        {"value": "Date export:"},
+                        {"value": self.date_now.isoformat(" ", "minutes")},
+                    ],
+                    "style": "default_table_row",
+                },
+                {"row": [], "style": "default_table_row"},
+            ]
+        )
 
     def do_header_line(self) -> None:
         row = [
@@ -688,27 +690,29 @@ class ExporterOrganisations:
         return value
 
     def do_top_info(self) -> None:
-        self.sheet["table"].extend([
-            {"row": ["Aaipress24"], "style": "bold"},
-            {
-                "row": [
-                    {
-                        "value": self.title,
-                        "style": "bold",
-                    }
-                ],
-                "style": "default_table_row",
-            },
-            {"row": [], "style": "default_table_row"},
-            {
-                "row": [
-                    {"value": "Date export:"},
-                    {"value": self.date_now.isoformat(" ", "minutes")},
-                ],
-                "style": "default_table_row",
-            },
-            {"row": [], "style": "default_table_row"},
-        ])
+        self.sheet["table"].extend(
+            [
+                {"row": ["Aaipress24"], "style": "bold"},
+                {
+                    "row": [
+                        {
+                            "value": self.title,
+                            "style": "bold",
+                        }
+                    ],
+                    "style": "default_table_row",
+                },
+                {"row": [], "style": "default_table_row"},
+                {
+                    "row": [
+                        {"value": "Date export:"},
+                        {"value": self.date_now.isoformat(" ", "minutes")},
+                    ],
+                    "style": "default_table_row",
+                },
+                {"row": [], "style": "default_table_row"},
+            ]
+        )
 
     def do_header_line(self) -> None:
         row = [

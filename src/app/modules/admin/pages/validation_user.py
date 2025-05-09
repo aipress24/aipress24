@@ -101,9 +101,11 @@ class ValidationUser(BaseAdminPage):
     def context(self):
         context = admin_info_context(self.user)
         self.detect_business_wall_trigger(context)
-        context.update({
-            "user": self.user,
-        })
+        context.update(
+            {
+                "user": self.user,
+            }
+        )
         return context
 
     def post(self):

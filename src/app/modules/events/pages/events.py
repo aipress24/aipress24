@@ -188,11 +188,13 @@ class EventsPage(Page):
         tabs = []
         for tab in TABS:
             tab_id = tab["id"]
-            tabs.append({
-                "id": tab_id,
-                "label": tab["label"],
-                "active": tab_id in active_tab_ids,
-            })
+            tabs.append(
+                {
+                    "id": tab_id,
+                    "label": tab["label"],
+                    "active": tab_id in active_tab_ids,
+                }
+            )
         return tabs
 
 

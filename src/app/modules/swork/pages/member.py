@@ -69,12 +69,14 @@ class MemberPage(BaseSworkPage):
 
         mask_fields: MaskFields = self.filter_email_mobile()
         context = public_info_context(self.user, mask_fields)
-        context.update({
-            "profile": user_vm,
-            "tabs": TABS,
-            "active_tab": active_tab,
-            "followers_sample": followers_sample,
-        })
+        context.update(
+            {
+                "profile": user_vm,
+                "tabs": TABS,
+                "active_tab": active_tab,
+                "followers_sample": followers_sample,
+            }
+        )
         return context
 
     def filter_email_mobile(self) -> MaskFields:
