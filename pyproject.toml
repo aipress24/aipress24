@@ -116,9 +116,9 @@ dependencies = [
     "granian[reload]<2.0,>=1.6",
     "asyncpg<1.0,>=0.30",
     "asgiref<4.0,>=3.8",
+    # Extra
     "ijson>=3.3.0",
     "psutil>=6.1.1",
-    # Extra
     "tenacity>=8.5.0",
     "setuptools>=75.8.0",
     "pyyaml>=6.0.2",
@@ -151,8 +151,8 @@ dev = [
     "pytest-archon<1.0.0,>=0.0.6",
     "pytest-testmon<3.0.0,>=2.1.0",
     "pytest-watcher<1.0,>=0.4",
-    "hypothesis<7.0.0,>=6.92.8",
-    "nox<2025,>=2024",
+    "hypothesis",
+    "nox",
     "invoke<3.0.0,>=2.2.0",
     # Typing extensions
     "types-bleach",
