@@ -13,6 +13,8 @@ def get_choices(key: str):
     match key:
         case "genre":
             return voc.get_genres()
+        case "genre-com":
+            return voc.get_genres_com()
         case "sector":
             return voc.get_news_sectors()
         case "topic":
