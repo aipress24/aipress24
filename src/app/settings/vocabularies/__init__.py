@@ -29,6 +29,10 @@ def get_genres():
     return get_vocab("genres")
 
 
+def get_genres_com():
+    return get_vocab("genres-com")
+
+
 def get_topics():
     return get_vocab("topics")
 
