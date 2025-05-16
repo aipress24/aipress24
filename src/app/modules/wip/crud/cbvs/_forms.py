@@ -296,7 +296,9 @@ class CommuniqueForm(Form):
 
     # --- Groupe: Contenu ---
     chapo = TextAreaField("Chapô")
-    contenu = RichTextField("Contenu principal", validators=[validators.InputRequired()])
+    contenu = RichTextField(
+        "Contenu principal", validators=[validators.InputRequired()]
+    )
 
     # --- Groupe: Métadonnées ---
     sector = RichSelectField(
@@ -320,10 +322,11 @@ class CommuniqueForm(Form):
 
     genre = RichSelectField(
         "Genre",  # (COM-Genre) -> TODO
-        key="genre",
+        key="genre-com",
         render_kw={"width": 3},
         validators=[validators.InputRequired()],
     )
+    
 
     # publisher_id = SimpleRichSelectField(
     #     "Éditeur / Organisme",
@@ -358,14 +361,18 @@ class CommuniqueForm(Form):
             "metadata": {
                 "label": "Métadonnées du communiqué",
                 "fields": [
-                    "genre", "section", "topic", "sector",
+                    "genre",
+                    "section",
+                    "topic",
+                    "sector",
                     # "publisher_id",
                 ],
             },
             "dates": {
                 "label": "Dates-clés du communiqué",
                 "fields": [
-                    "embargoed_until", "published_at",
+                    "embargoed_until",
+                    "published_at",
                 ],
             },
         }
