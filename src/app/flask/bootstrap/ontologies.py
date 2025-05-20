@@ -76,6 +76,7 @@ TAXO_NAME_ONTOLOGIE_SLUG = [
     ("tetieres_secteurs", "listestetieressecteurs"),
     ("niveaux_etudes", "niveaux-d-etude"),
     ("matieres_etudiees", "matieresetudiees"),
+    ("events", "events"),
 ]
 
 TAXO_NOT_FROM_FILE = {"geolocalisation", "feuille31", "civilite"}
@@ -285,6 +286,8 @@ def get_converter(ontology_slug: str) -> Any:  # noqa:PLR0915
             converter_class = NiveauxEtudes
         case "matieresetudiees":
             converter_class = MatieresEtudiees
+        case "events":
+            converter_class = Events
         case _:
             converter_class = None
     if not converter_class:
@@ -774,6 +777,10 @@ class NiveauxEtudes(BaseConvert):
 class MatieresEtudiees(BaseConvert):
     ontology_slug: str = "matieresetudiees"
     export = BaseConvert.export_list
+
+
+class Events(FonctionPublicConverter):
+    ontology_slug: str = "events"
 
 
 class LangueConverter(BaseConvert):
