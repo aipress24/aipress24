@@ -54,7 +54,7 @@ class Carousel(Component):
             {
                 "id": i,
                 "imgSrc": image.url,
-                "imgAlt": image.caption,
+                "imgAlt": image.caption + " - " + image.copyright,
             }
             for i, image in enumerate(images)
         ]
