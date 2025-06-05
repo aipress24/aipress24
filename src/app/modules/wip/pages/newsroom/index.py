@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from flask import g
+from flask import current_app, g
 from sqlalchemy import func, select
 from sqlalchemy.orm import scoped_session
 from svcs.flask import container
@@ -128,6 +128,10 @@ class NewsroomPage(BaseWipPage):
 
         allow_journalist = self._check_article_creation_by_journalist()
         allow_commands = self._check_command_creation_by_redac_chief()
+        # Temps, to allow testing without business wall
+        if current_app.debug:
+            return items
+
         has_bw = self._has_active_business_wall()
 
         items = self.filter_articles_items(items, [has_bw, allow_journalist])
