@@ -326,7 +326,7 @@ class CommuniqueForm(Form):
         render_kw={"width": 3},
         validators=[validators.InputRequired()],
     )
-    
+
 
     # publisher_id = SimpleRichSelectField(
     #     "Éditeur / Organisme",
@@ -376,3 +376,94 @@ class CommuniqueForm(Form):
                 ],
             },
         }
+
+
+# --------------------------------------------------------------------------
+
+
+class EventForm(Form):
+    # --- Groupe: En-têtes ---
+    titre = StringField("Titre de l'événement", validators=[validators.InputRequired()])
+
+    # --- Groupe: Contenu ---
+    chapo = TextAreaField("Chapô")
+    contenu = RichTextField(
+        "Contenu principal", validators=[validators.InputRequired()]
+    )
+
+    # --- Groupe: Métadonnées ---
+    sector = RichSelectField(
+        "Secteur",  # (NEWS-Secteur)
+        key="sector",
+        render_kw={"width": 6},
+        validators=[validators.InputRequired()],
+    )
+    section = RichSelectField(
+        "Rubrique",  # (NEWS-Rubrique)
+        key="section",
+        render_kw={"width": 3},
+        validators=[validators.InputRequired()],
+    )
+    topic = RichSelectField(
+        "Type d'info",  # (NEWS-Type d'info)
+        key="topic",
+        render_kw={"width": 6},
+        validators=[validators.InputRequired()],
+    )
+
+    genre = RichSelectField(
+        "Genre",  # (COM-Genre) -> TODO
+        key="genre-com",
+        render_kw={"width": 3},
+        validators=[validators.InputRequired()],
+    )
+
+    # publisher_id = SimpleRichSelectField(
+    #     "Éditeur / Organisme",
+    #     render_kw={"width": 6},
+    #     validators=[validators.InputRequired()],
+    # )
+
+    # --- Groupe: Dates ---
+    start_time = DateTimeField(
+        "Date/heure de début de l'événement",
+        render_kw={"width": 3},
+        validators=[validators.Optional()],
+        format="%Y-%m-%dT%H:%M",
+    )
+    end_time = DateTimeField(
+        "Date/heure de fin",
+        render_kw={"width": 3},
+        validators=[validators.Optional()],
+        format="%Y-%m-%dT%H:%M",
+    )
+
+    class Meta:
+        groups = {
+            "headers": {
+                "label": "En-têtes de l'événement",
+                "fields": ["titre", "chapo"],
+            },
+            "contenu": {
+                "label": "Contenu de l'événement",
+                "fields": ["contenu"],
+            },
+            "metadata": {
+                "label": "Métadonnées de l'événement",
+                "fields": [
+                    "genre",
+                    "section",
+                    "topic",
+                    "sector",
+                    # "publisher_id",
+                ],
+            },
+            "dates": {
+                "label": "Dates-clés de l'événement",
+                "fields": [
+                    "start_time",
+                    "end_time",
+                ],
+            },
+        }
+
