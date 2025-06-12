@@ -72,20 +72,15 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
     # Classification
     #
 
-    # NEWS-Genres
-    genre: Mapped[str] = mapped_column(default="")
-
-    # NEWS-Rubriques
-    section: Mapped[str] = mapped_column(default="")
-
-    # NEWS-Types d’info / "Thémtique"
-    topic: Mapped[str] = mapped_column(default="")
+    # Type d'événement
+    event_type: Mapped[str] = mapped_column(default="")
 
     # NEWS-Secteurs
     sector: Mapped[str] = mapped_column(default="")
 
-    # Géo-localisation
-    geo_localisation: Mapped[str] = mapped_column(default="")
+    # Localisation
+    address: Mapped[str] = mapped_column(default="")
+    url: Mapped[str] = mapped_column(default="")
 
     # Langue
     language: Mapped[str] = mapped_column(default="fr")
