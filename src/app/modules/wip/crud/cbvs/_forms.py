@@ -398,31 +398,24 @@ class EventForm(Form):
         render_kw={"width": 6},
         validators=[validators.InputRequired()],
     )
-    section = RichSelectField(
-        "Rubrique",  # (NEWS-Rubrique)
-        key="section",
-        render_kw={"width": 3},
-        validators=[validators.InputRequired()],
-    )
-    topic = RichSelectField(
-        "Type d'info",  # (NEWS-Type d'info)
-        key="topic",
-        render_kw={"width": 6},
-        validators=[validators.InputRequired()],
-    )
 
-    genre = RichSelectField(
+    event_type = RichSelectField(
         "Genre",  # (COM-Genre) -> TODO
         key="genre-com",
         render_kw={"width": 3},
         validators=[validators.InputRequired()],
     )
 
-    # publisher_id = SimpleRichSelectField(
-    #     "Éditeur / Organisme",
-    #     render_kw={"width": 6},
-    #     validators=[validators.InputRequired()],
-    # )
+    address = TextAreaField(
+        "Adresse de l'événement (pour les événements en présentiel ou hybrides)",
+        render_kw={"width": 6},
+        validators=[validators.Optional()],
+    )
+    url = StringField(
+        "URL de l'événement (pour les événements en ligne ou hybrides)",
+        render_kw={"width": 6},
+        validators=[validators.Optional()],
+    )
 
     # --- Groupe: Dates ---
     start_time = DateTimeField(
@@ -451,15 +444,15 @@ class EventForm(Form):
             "metadata": {
                 "label": "Métadonnées de l'événement",
                 "fields": [
-                    "genre",
-                    "section",
-                    "topic",
+                    "event_type",
                     "sector",
+                    "address",
+                    "url",
                     # "publisher_id",
                 ],
             },
             "dates": {
-                "label": "Dates-clés de l'événement",
+                "label": "Dates de l'événement",
                 "fields": [
                     "start_time",
                     "end_time",
