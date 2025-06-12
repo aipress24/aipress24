@@ -1,6 +1,6 @@
 # Procfile used by PaaS operators like Heroku, Hop3, etc.
 
-# release: flask db upgrade
+release: flask db upgrade
 web: python -m server
 
 # release: scripts/release.py
