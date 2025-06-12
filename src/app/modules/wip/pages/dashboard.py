@@ -42,26 +42,41 @@ class DashboardPage(BaseWipPage):
     def get_cards(self):
         public = PublicationStatus.PUBLIC
         draft = PublicationStatus.DRAFT
-        return [
-            Card(
-                "Articles publiés",
-                "newspaper",
-                self.get_articles_count(public),
-                url_for("ArticlesWipView:index"),
-            ),
-            Card(
-                "Articles en cours",
-                "pencil-square",
-                self.get_articles_count(draft),
-                url_for("ArticlesWipView:index"),
-            ),
-            Card(
-                "Articles vendus",
-                "banknotes",
-                0,
-                url_for("ArticlesWipView:index"),
-            ),
-        ]
+
+        article_count = self.get_articles_count(public)
+        draft_count = self.get_articles_count(draft)
+        sold_count = 0
+
+        cards = []
+        if article_count > 0:
+            cards.append(
+                Card(
+                    "Articles publiés",
+                    "newspaper",
+                    article_count,
+                    url_for("ArticlesWipView:index"),
+                )
+            )
+        if draft_count > 0:
+            cards.append(
+                Card(
+                    "Articles en cours",
+                    "pencil-square",
+                    draft_count,
+                    url_for("ArticlesWipView:index"),
+                )
+            )
+        if sold_count > 0:
+            cards.append(
+                Card(
+                    "Articles vendus",
+                    "banknotes",
+                    sold_count,
+                    url_for("ArticlesWipView:index"),
+                )
+            )
+
+        return cards
 
     def get_articles_count(self, status: PublicationStatus):
         repo = container.get(ArticleRepository)
