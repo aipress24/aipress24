@@ -33,7 +33,7 @@ MAIN_ITEMS = [
 @page
 class EventRoomPage(BaseWipPage):
     name = "eventroom"
-    label = "Evénements"
+    label = "Event'room"
     title = "Espace de rédaction des événements"
     icon = "calendar"
 
@@ -41,13 +41,11 @@ class EventRoomPage(BaseWipPage):
     parent = HomePage
 
     def __acl__(self):
-        return [
-            ("Allow", RoleEnum.PRESS_MEDIA, "view"),
-            ("Deny", "Everyone", "view"),
-        ]
+        return []
+        #     ("Allow", "Everyone", "view"),
+        # ]
 
     def context(self):
-        # items = self.allowed_redaction_items()
         items = MAIN_ITEMS.copy()
         for item in items:
             model_class = item["model_class"]
