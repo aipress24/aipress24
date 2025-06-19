@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
-# ruff: noqa: PLC1901
 from __future__ import annotations
 
 from app.modules.kyc.temporary_blob import delete_tmp_blob, pop_tmp_blob, store_tmp_blob
