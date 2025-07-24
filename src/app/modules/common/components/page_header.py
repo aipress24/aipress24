@@ -4,6 +4,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterable
+
 from attr import frozen
 
 from app.flask.lib.pywire import Component, component
@@ -12,4 +14,4 @@ from app.flask.lib.pywire import Component, component
 @component
 @frozen
 class PageHeader(Component):
-    breadcrumbs: list[dict[str, str]] = []
+    breadcrumbs: Iterable[dict[str, str]] = ()
