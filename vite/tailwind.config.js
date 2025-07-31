@@ -40,6 +40,32 @@ module.exports = {
         extend: {
             colors: {
                 rose: colors.rose,
+                // red: {
+                //     '50': '#fef2f2',
+                //     '100': '#fee2e2',
+                //     '200': '#fecaca',
+                //     '300': '#fca5a5',
+                //     '400': '#f87171',
+                //     '500': '#ef4444',
+                //     '600': '#dc2626',
+                //     '700': '#b91c1c',
+                //     '800': '#991b1b',
+                //     '900': '#7f1d1d',
+                //     '950': '#450a0a',
+                //   },
+                red: {
+                    '50': '#fef2f2',
+                    '100': '#fee3e2',
+                    '200': '#ffcbc9',
+                    '300': '#fda7a4',
+                    '400': '#f97470',
+                    '500': '#f14742',
+                    '600': '#de2a24',
+                    '700': '#bb1f1a',
+                    '800': '#a21f1b',
+                    '900': '#801f1c',
+                    '950': '#460b09',
+                },
                 // a17t colors
                 neutral: colors.slate,
                 positive: colors.green,
@@ -49,6 +75,7 @@ module.exports = {
                 critical: colors.red,
                 // flowbite colors
                 primary: colors.blue,
+                // Custom colors
             },
             minHeight: {
                 24: '6rem',
