@@ -53,6 +53,7 @@ module.exports = {
                 //     '900': '#7f1d1d',
                 //     '950': '#450a0a',
                 //   },
+                // Using: https://uicolors.app/generate/a21f1b
                 red: {
                     '50': '#fef2f2',
                     '100': '#fee3e2',
