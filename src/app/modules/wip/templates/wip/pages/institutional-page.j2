@@ -76,7 +76,7 @@
     </div>
     <hr class="mt-2">
     <p class="p-2">
-      Abonnement BW&nbsp;: «{{current_product_name}}».
+      Abonnement Business Wall&nbsp;: «{{current_product_name}}».
       {% if is_manager %}
       <a class="hover:underline focus:outline-none focus:underline text-primary-600 hover:text-primary-500 text-sm font-medium"
         href="{{ url_for('wip.org-registration') }}">Gestion de l&apos;abonnement</a>.
@@ -119,13 +119,13 @@
     {% if is_manager %}
       <div class="prose">
         <p class='mt-6 p-2'>
-          Vous pouvez modifier les informations sur l'organisation (vous êtes manager du BW de votre organisation).
+          Vous pouvez modifier les informations sur l'organisation (vous êtes manager du Business Wall de votre organisation).
         </p>
       </div>
     {% else %}
       <div class="prose">
         <p class='mt-6'>
-          Modifications non permises (vous n'êtes pas manager du BW de votre organisation).
+          Modifications non permises (vous n'êtes pas manager du Business Wall de votre organisation).
         </p>
       </div>
     {% endif %}
