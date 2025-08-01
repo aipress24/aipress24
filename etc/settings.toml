@@ -141,6 +141,7 @@ script-src = [
     "https://cdn.jsdelivr.net/",
     "https://cdnjs.cloudflare.com/",
     "https://unpkg.com/",
+    "https://cdn.tailwindcss.com/",
     # Stripe
     "https://js.stripe.com/",
 ]
