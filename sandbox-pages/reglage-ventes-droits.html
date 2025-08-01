@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Maquette - Gestion des Droits de Publication</title>
+    <style>
+      /* --- Style Général --- */
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif;
+        background-color: #f4f7f9;
+        color: #333;
+        margin: 0;
+        padding: 2rem;
+        display: flex;
+        justify-content: center;
+      }
+
+      .container {
+        max-width: 800px;
+        width: 100%;
+      }
+
+      h1 {
+        color: #2c3e50;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      h1 svg {
+        width: 32px;
+        height: 32px;
+      }
+
+      /* --- Fil d'Ariane --- */
+      .breadcrumb {
+        background-color: #ffffff;
+        border-radius: 8px;
+        padding: 0.75rem 1rem;
+        margin-bottom: 1.5rem;
+        font-size: 0.9em;
+        color: #555;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      }
+
+      .breadcrumb a {
+        color: #3498db;
+        text-decoration: none;
+      }
+
+      .breadcrumb span {
+        margin: 0 0.5rem;
+        color: #999;
+      }
+
+      /* --- Carte de Réglage --- */
+      .card {
+        background-color: #ffffff;
+        border-radius: 8px;
+        padding: 2rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+
+      .card-header {
+        margin-bottom: 1.5rem;
+      }
+
+      .card-header p {
+        color: #555;
+        margin-top: 0;
+      }
+
+      /* --- Alerte d'information --- */
+      .alert {
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        border-radius: 6px;
+        font-size: 0.9em;
+      }
+
+      .alert-info {
+        background-color: #eaf6ff;
+        border-left: 4px solid #3498db;
+        color: #2c5a7d;
+      }
+
+      .alert svg {
+        width: 20px;
+        height: 20px;
+        margin-right: 10px;
+        flex-shrink: 0;
+      }
+
+      /* --- Formulaire --- */
+      .form-group {
+        margin-bottom: 1.25rem;
+      }
+
+      .form-group label {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        font-weight: 500;
+      }
+
+      .form-group input[type="radio"] {
+        margin-right: 10px;
+        accent-color: #3498db;
+      }
+
+      /* --- Panneaux conditionnels (listes de médias) --- */
+      .conditional-panel {
+        display: none; /* Caché par défaut */
+        margin-top: 1rem;
+        margin-left: 2rem;
+        padding: 1.5rem;
+        background-color: #f9fafb;
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+      }
+
+      .search-bar {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        margin-bottom: 1rem;
+        box-sizing: border-box;
+      }
+
+      .media-list {
+        max-height: 200px;
+        overflow-y: auto;
+        border: 1px solid #e5e7eb;
+        padding: 1rem;
+        border-radius: 4px;
+      }
+
+      .media-list label {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.5rem;
+        font-weight: 400;
+      }
+
+      .media-list input[type="checkbox"] {
+        margin-right: 8px;
+        accent-color: #3498db;
+      }
+
+      /* --- Bouton --- */
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 6px;
+        font-size: 1em;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.2s;
+      }
+
+      .btn-primary {
+        background-color: #3498db;
+        color: white;
+      }
+
+      .btn-primary:hover {
+        background-color: #2980b9;
+      }
+
+      .form-actions {
+        margin-top: 2rem;
+        border-top: 1px solid #e5e7eb;
+        padding-top: 1.5rem;
+        text-align: right;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <!-- Fil d'Ariane pour le contexte -->
+      <nav class="breadcrumb">
+        <a href="#">Accueil</a> <span>&gt;</span>
+        <a href="#">Mon Business Wall</a> <span>&gt;</span>
+        <a href="#">Réglages</a> <span>&gt;</span>
+        <strong>Droits de Publication</strong>
+      </nav>
+
+      <h1>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="1.5"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75"
+          />
+        </svg>
+        Gestion des Droits de Publication
+      </h1>
+      <p>
+        Définissez ici les règles par défaut pour la vente de licences sur vos
+        contenus éditoriaux.
+      </p>
+
+      <div class="card">
+        <!-- Alerte de non-rétroactivité -->
+        <div class="alert alert-info">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+            />
+          </svg>
+          Les modifications apportées ici ne s'appliqueront qu'aux futures
+          publications et ne sont pas rétroactives.
+        </div>
+
+        <div class="card-header">
+          <p>
+            <strong
+              >Je veux vendre la licence d’exploitation d'un contenu éditorial
+              pour une publication :</strong
+            >
+          </p>
+        </div>
+
+        <form id="rights-form">
+          <!-- Option 1 -->
+          <div class="form-group">
+            <label>
+              <input
+                type="radio"
+                name="licensing_option"
+                value="all_subscribed"
+                checked
+              />
+              À tous les éditeurs de presse ou médias reconnus et abonnés à
+              Business Wall for Media.
+            </label>
+          </div>
+
+          <!-- Option 2 -->
+          <div class="form-group">
+            <label>
+              <input type="radio" name="licensing_option" value="whitelist" />
+              Seulement aux éditeurs et médias que je choisis dans la liste
+              ci-dessous (liste blanche).
+            </label>
+            <div class="conditional-panel" id="panel-whitelist">
+              <input
+                type="search"
+                class="search-bar"
+                placeholder="Rechercher un média..."
+              />
+              <div class="media-list">
+                <label><input type="checkbox" /> Le Monde</label>
+                <label><input type="checkbox" /> Les Échos</label>
+                <label><input type="checkbox" /> La Tribune</label>
+                <label><input type="checkbox" /> Mediapart</label>
+                <label
+                  ><input type="checkbox" /> Agence France-Presse (AFP)</label
+                >
+                <label><input type="checkbox" /> TechCrunch</label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Option 3 -->
+          <div class="form-group">
+            <label>
+              <input type="radio" name="licensing_option" value="blacklist" />
+              À tous les éditeurs, sauf ceux qui figurent dans la liste
+              ci-dessous (liste noire).
+            </label>
+            <div class="conditional-panel" id="panel-blacklist">
+              <input
+                type="search"
+                class="search-bar"
+                placeholder="Rechercher un média à exclure..."
+              />
+              <div class="media-list">
+                <label><input type="checkbox" /> Le Figaro</label>
+                <label><input type="checkbox" /> Le Point</label>
+                <label><input type="checkbox" /> L'Express</label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Option 4 -->
+          <div class="form-group">
+            <label>
+              <input type="radio" name="licensing_option" value="none" />
+              À personne (les contenus n'apparaîtront pas sur MARKET/©).
+            </label>
+          </div>
+
+          <!-- Option 5 -->
+          <div class="form-group">
+            <label>
+              <input type="radio" name="licensing_option" value="all_media" />
+              À tous les éditeurs de presse ou médias, y compris les journaux et
+              médias institutionnels.
+            </label>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                width="20"
+                height="20"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="m4.5 12.75 6 6 9-13.5"
+                />
+              </svg>
+              Enregistrer les préférences
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const licensingOptions = document.querySelectorAll(
+          'input[name="licensing_option"]',
+        );
+        const whitelistPanel = document.getElementById("panel-whitelist");
+        const blacklistPanel = document.getElementById("panel-blacklist");
+
+        function updatePanels() {
+          const selectedOption = document.querySelector(
+            'input[name="licensing_option"]:checked',
+          ).value;
+
+          // Cacher tous les panneaux par défaut
+          whitelistPanel.style.display = "none";
+          blacklistPanel.style.display = "none";
+
+          // Afficher le bon panneau si nécessaire
+          if (selectedOption === "whitelist") {
+            whitelistPanel.style.display = "block";
+          } else if (selectedOption === "blacklist") {
+            blacklistPanel.style.display = "block";
+          }
+        }
+
+        // Mettre à jour les panneaux à chaque changement de sélection
+        licensingOptions.forEach((option) => {
+          option.addEventListener("change", updatePanels);
+        });
+
+        // Initialiser l'état au chargement de la page
+        updatePanels();
+
+        // Empêcher l'envoi du formulaire pour la démo
+        document
+          .getElementById("rights-form")
+          .addEventListener("submit", function (e) {
+            e.preventDefault();
+            alert("Préférences enregistrées ! (Démo)");
+          });
+      });
+    </script>
+  </body>
+</html>
