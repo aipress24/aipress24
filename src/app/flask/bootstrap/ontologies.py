@@ -69,7 +69,8 @@ TAXO_NAME_ONTOLOGIE_SLUG = [
     ("secteur_detaille", "secteurs-detailles"),
     ("taille_organisation", "tailles-des-organisations"),
     ("transformation_majeure", "transformations-majeures"),
-    ("type_agence_rp", "types-agences-rp"),
+    # renamed as types-pr-agency ("type_agence_rp", "types-agences-rp"),
+    ("type_agence_rp", "types-pr-agency"),
     ("groupes_cotes", "groupes-cotes"),
     ("etablissements_sup", "etabenseignsup"),
     ("competences_generales", "competencesgenerales"),
@@ -222,7 +223,7 @@ def get_converter(ontology_slug: str) -> Any:  # noqa:PLR0915
             converter_class = JournalismeFonctionConverter
         case "agencesrp":
             converter_class = AgenceRPFonctionConverter
-        case "types-agences-rp":
+        case "types-pr-agency":
             converter_class = TypeAgenceRPFonctionConverter
         case "types-dorganisation":
             converter_class = TypesOrganisationConverter
@@ -623,7 +624,7 @@ class AgenceRPFonctionConverter(BaseConvert):
 
 
 class TypeAgenceRPFonctionConverter(BaseConvert):
-    ontology_slug: str = "types-agences-rp"
+    ontology_slug: str = "types-pr-agency"
     export = BaseConvert.export_list
 
 
