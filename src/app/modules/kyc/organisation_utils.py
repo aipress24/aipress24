@@ -291,7 +291,7 @@ def store_auto_organisation(
     query = select(Organisation).where(
         Organisation.name == org_name, Organisation.type == OrganisationTypeEnum.AUTO
     )
-    found_organisation = db.session.execute(query).first()
+    found_organisation = db.session.execute(query).scalars().first()
     if found_organisation:
         return found_organisation
     # No Organisatin with both same type and other params found:
