@@ -123,6 +123,8 @@ dependencies = [
     "setuptools>=75.8.0",
     "pyyaml>=6.0.2",
     "schedule>=1.2.2",
+    "pyexcel>=0.7.3",
+    "pyexcel-ods3>=0.6.1",
 ]
 description = ""
 
@@ -186,6 +188,7 @@ dev = [
     "splinter<1.0.0,>=0.21.0",
     "auto-type-annotate>=1.1.2",
     "ty>=0.0.0a7",
+    "pytest-mock>=3.15.0",
 ]
 
 [build-system]
@@ -263,8 +266,10 @@ DEP002 = [
     'sentry-sdk',
     # Used by odsparsator
     'odfdo',
-    # Used vi 'flask packages'
+    # Used by 'flask packages'
     'setuptools',
+    # Used by ODS export
+    'pyexcel-ods3',
 ]
 # X imported but declared as a dev dependency
 DEP004 = ['hypothesis', 'openpyxl', "flask_debugtoolbar"]

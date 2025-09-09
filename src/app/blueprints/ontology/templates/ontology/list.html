@@ -1,0 +1,111 @@
+{% extends "ontology/_base.html" %}
+
+{% block content %}
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+
+    <!-- Sidebar with Taxonomy List -->
+    <aside class="md:col-span-1">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-xl font-semibold text-gray-800">Taxonomies</h3>
+        <a href="{{ url_for('.create_taxonomy') }}"
+           class="inline-flex items-center px-3 py-1 bg-green-600 text-white text-sm font-medium rounded-md hover:bg-green-700"
+           title="Create New Taxonomy">
+          <i class="fas fa-plus mr-2"></i> New
+        </a>
+      </div>
+      <nav class="space-y-1">
+        {% for name in all_taxonomies %}
+          <a href="{{ url_for('.list_entries', taxonomy_name=name) }}"
+             class="block px-4 py-2 text-sm font-medium rounded-md
+                  {% if name == taxonomy_name %}
+                    bg-blue-600 text-white
+                  {% else %}
+                    text-gray-700 hover:bg-gray-200
+                  {% endif %}">
+            {{ name }}
+          </a>
+        {% else %}
+          <div class="px-4 py-2 text-sm text-gray-500 bg-gray-100 rounded-md">No taxonomies exist yet.</div>
+        {% endfor %}
+      </nav>
+    </aside>
+
+    <!-- Main Content Area for Entries -->
+    <main class="md:col-span-3">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-2xl font-bold text-gray-800">
+          Entries for:
+          {% if taxonomy_name %}
+            <span class="text-blue-600">{{ taxonomy_name }}</span>
+          {% else %}
+            <span class="text-gray-500">No Taxonomy Selected</span>
+          {% endif %}
+        </h2>
+        {% if taxonomy_name %}
+          <span>
+          <a href="{{ url_for('.export_ods', taxonomy_name=taxonomy_name) }}"
+             class="inline-flex items-center h-10 px-4 py-2 bg-gray-600 text-white font-medium rounded-md hover:bg-gray-700 text-sm">
+            <i class="fas fa-file-export mr-2"></i> Export to ODS
+          </a>
+          <a href="{{ url_for('.create', taxonomy_name=taxonomy_name) }}"
+             class="inline-flex items-center h-10 px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700">
+            <i class="fas fa-plus mr-2"></i> Add New Entry
+          </a>
+          </span>
+        {% endif %}
+      </div>
+
+      {% if not taxonomy_name %}
+        <div class="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 rounded-md shadow-sm">
+          <p><i class="fas fa-arrow-left mr-2"></i> Please select a taxonomy from the list on the left, or create a new
+            one.</p>
+        </div>
+      {% else %}
+        <div class="bg-white shadow-md rounded-lg overflow-x-auto">
+          <table class="w-full text-sm text-left text-gray-600">
+            <thead class="text-xs text-gray-700 uppercase bg-gray-100">
+            <tr>
+              <th scope="col" class="px-6 py-3">Name</th>
+              <th scope="col" class="px-6 py-3">Category</th>
+              <th scope="col" class="px-6 py-3">Value</th>
+              <th scope="col" class="px-6 py-3">Sequence</th>
+              <th scope="col" class="px-6 py-3 text-center">Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for entry in entries %}
+              <tr class="bg-white border-b hover:bg-gray-50">
+                <td class="px-6 py-4 font-medium text-gray-900">{{ entry.name }}</td>
+                <td class="px-6 py-4">{{ entry.category or 'N/A' }}</td>
+                <td class="px-6 py-4">{{ entry.value }}</td>
+                <td class="px-6 py-4">{{ entry.seq }}</td>
+                <td class="px-6 py-4 text-center">
+                  <div class="flex items-center justify-center space-x-2">
+                    <a href="{{ url_for('.edit', entry_id=entry.id) }}" class="text-yellow-500 hover:text-yellow-700"
+                       title="Edit">
+                      <i class="fas fa-edit fa-fw"></i>
+                    </a>
+                    <form action="{{ url_for('.delete', entry_id=entry.id) }}" method="POST"
+                          onsubmit="return confirm('Are you sure you want to delete this entry?');">
+                      {{ delete_form.hidden_tag() }} {# <-- Uses the secure delete form #}
+                      <button type="submit" class="text-red-500 hover:text-red-700" title="Delete">
+                        <i class="fas fa-trash fa-fw"></i>
+                      </button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            {% else %}
+              <tr>
+                <td colspan="5" class="px-6 py-4 text-center text-gray-500">
+                  No entries found for this taxonomy. You can add the first one now.
+                </td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% endif %}
+    </main>
+  </div>
+{% endblock %}

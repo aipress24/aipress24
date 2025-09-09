@@ -1,5 +1,5 @@
 version = 1
-revision = 2
+revision = 3
 requires-python = ">=3.11, <4.0"
 resolution-markers = [
     "python_full_version >= '3.13'",
@@ -85,7 +85,7 @@ wheels = [
 
 [[package]]
 name = "aipress24-flask"
-version = "2025.6.12.2"
+version = "2025.7.24.1"
 source = { editable = "." }
 dependencies = [
     { name = "advanced-alchemy" },
@@ -147,6 +147,8 @@ dependencies = [
     { name = "pipe" },
     { name = "psutil" },
     { name = "psycopg2" },
+    { name = "pyexcel" },
+    { name = "pyexcel-ods3" },
     { name = "pytest" },
     { name = "python-dotenv" },
     { name = "python-iso639" },
@@ -204,6 +206,7 @@ dev = [
     { name = "pytest-archon" },
     { name = "pytest-custom-exit-code" },
     { name = "pytest-flask" },
+    { name = "pytest-mock" },
     { name = "pytest-playwright" },
     { name = "pytest-split" },
     { name = "pytest-testmon" },
@@ -290,6 +293,8 @@ requires-dist = [
     { name = "pipe", specifier = ">=2.1,<3.0" },
     { name = "psutil", specifier = ">=6.1.1" },
     { name = "psycopg2", specifier = ">=2.9.9,<3.0.0" },
+    { name = "pyexcel", specifier = ">=0.7.3" },
+    { name = "pyexcel-ods3", specifier = ">=0.6.1" },
     { name = "pytest", specifier = ">=8,<9" },
     { name = "python-dotenv", specifier = ">=1.0.0,<2.0.0" },
     { name = "python-iso639", specifier = ">=2025,<2026" },
@@ -347,6 +352,7 @@ dev = [
     { name = "pytest-archon", specifier = ">=0.0.6,<1.0.0" },
     { name = "pytest-custom-exit-code", specifier = ">=0.3.0,<1.0.0" },
     { name = "pytest-flask", specifier = ">=1.3.0,<2.0.0" },
+    { name = "pytest-mock", specifier = ">=3.15.0" },
     { name = "pytest-playwright" },
     { name = "pytest-split", specifier = ">=0.10,<1.0" },
     { name = "pytest-testmon", specifier = ">=2.1.0,<3.0.0" },
@@ -2299,6 +2305,15 @@ wheels = [
 ]
 
 [[package]]
+name = "lml"
+version = "0.2.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/2e/33/8043c7050233e889df10365d32838b276fc51464cc70f9abbb97c92771d6/lml-0.2.0.tar.gz", hash = "sha256:8dd5afb4367a593d1cdb2144a05874cd9938f5266bebb0c9e1413200423c0d74", size = 41633, upload-time = "2025-03-16T11:56:44.381Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/c8/da/c649f3d09155660bcc5bf4f7fb59effae968e4ffd872cdd738f0b6932400/lml-0.2.0-py2.py3-none-any.whl", hash = "sha256:20c80728189e46e8d986f5d0cdf6d83c493471fc25b1c31a8cb3fa96e80b58f8", size = 10846, upload-time = "2025-03-16T11:56:42.709Z" },
+]
+
+[[package]]
 name = "loguru"
 version = "0.7.3"
 source = { registry = "https://pypi.org/simple" }
@@ -3119,6 +3134,58 @@ wheels = [
 ]
 
 [[package]]
+name = "pyexcel"
+version = "0.7.3"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "lml" },
+    { name = "pyexcel-io" },
+    { name = "texttable" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/b3/cf/dc6f54c4d3b1d92aacf14adf8d46d262fa25b3ed021e2e4f98f07f39f034/pyexcel-0.7.3.tar.gz", hash = "sha256:57b3c3fb55dd09a62cbbf2ae9f1e78aa11b627c2bfc6072ff2d9587c022b06d4", size = 820124, upload-time = "2025-04-12T20:01:26Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/2f/22/64e8122c170ed40f96f7e1039b9c170062cfab0bce57481bc277e5ddb147/pyexcel-0.7.3-py2.py3-none-any.whl", hash = "sha256:394df2445364fa1960fed4a9bb04c62efdff5435026f3d1346f614a94fe5ba7a", size = 89042, upload-time = "2025-04-12T20:01:23.776Z" },
+]
+
+[[package]]
+name = "pyexcel-ezodf"
+version = "0.3.4"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "lxml" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/a6/8d/aba802912a3ffbaf6c3ae7f3208206f0811b72e48adff86edd0f933bb9d7/pyexcel-ezodf-0.3.4.tar.gz", hash = "sha256:972eeea9b0e4bab60dfc5cdcb7378cc7ba5e070a0b7282746c0182c5de011ff1", size = 138679, upload-time = "2017-10-23T17:29:13.894Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/5b/fd/4a1583b47a7527669f5c9d45c031c3b4ae35a4cd34b2113ed98b1b9f1bce/pyexcel_ezodf-0.3.4-py2.py3-none-any.whl", hash = "sha256:a74ac7636a015fff31d35c5350dc5ad347ba98ecb453de4dbcbb9a9168434e8c", size = 53861, upload-time = "2017-10-23T17:29:33.75Z" },
+]
+
+[[package]]
+name = "pyexcel-io"
+version = "0.6.7"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "lml" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/ea/0e/2d8c933d560d290113cc8e6a354260758cdd356308f6fd3be5be5898784b/pyexcel_io-0.6.7.tar.gz", hash = "sha256:2c33d8df505e21a13bed585ac6ab7d30ec826a9f156b758394af5d22359bddb9", size = 75856, upload-time = "2024-11-09T14:35:04.079Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/7d/95/44376fb9c5a8200167fc7beac640be3522f85c07297a810865c5ad3fe440/pyexcel_io-0.6.7-py2.py3-none-any.whl", hash = "sha256:add9f3c1489070ab0a3226bab7d23d4b84a364f5b44f3a14e2ce785ede88fcb3", size = 44476, upload-time = "2024-11-09T14:35:02.561Z" },
+]
+
+[[package]]
+name = "pyexcel-ods3"
+version = "0.6.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "lxml" },
+    { name = "pyexcel-ezodf" },
+    { name = "pyexcel-io" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/68/49/6fa598189a41f75f87b4fa964cdc185dade813d20c241266a790ad91bde5/pyexcel-ods3-0.6.1.tar.gz", hash = "sha256:53740fc9bc6e91e43cdc0ee4f557bb3b252d8493d34f2c11d26a93c53cfebc2e", size = 48374, upload-time = "2022-01-30T16:00:20.512Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/e2/e9/5b4e415f8afc0dcf6e238df02797e98f7ab92a587034c8c889a6c0d7ece8/pyexcel_ods3-0.6.1-py3-none-any.whl", hash = "sha256:ca61d139879349a5d4b0a241add6504474c59fa280d1804b76f56ee4ba30eb8b", size = 9847, upload-time = "2022-01-30T16:00:18.351Z" },
+]
+
+[[package]]
 name = "pyflakes"
 version = "3.4.0"
 source = { registry = "https://pypi.org/simple" }
@@ -3255,6 +3322,18 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/fb/23/32b36d2f769805c0f3069ca8d9eeee77b27fcf86d41d40c6061ddce51c7d/pytest-flask-1.3.0.tar.gz", hash = "sha256:58be1c97b21ba3c4d47e0a7691eb41007748506c36bf51004f78df10691fa95e", size = 35816, upload-time = "2023-10-23T14:53:20.696Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/de/03/7a917fda3d0e96b4e80ab1f83a6628ec4ee4a882523b49417d3891bacc9e/pytest_flask-1.3.0-py3-none-any.whl", hash = "sha256:c0e36e6b0fddc3b91c4362661db83fa694d1feb91fa505475be6732b5bc8c253", size = 13105, upload-time = "2023-10-23T14:53:18.959Z" },
+]
+
+[[package]]
+name = "pytest-mock"
+version = "3.15.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pytest" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/61/99/3323ee5c16b3637b4d941c362182d3e749c11e400bea31018c42219f3a98/pytest_mock-3.15.0.tar.gz", hash = "sha256:ab896bd190316b9d5d87b277569dfcdf718b2d049a2ccff5f7aca279c002a1cf", size = 33838, upload-time = "2025-09-04T20:57:48.679Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/2b/b3/7fefc43fb706380144bcd293cc6e446e6f637ddfa8b83f48d1734156b529/pytest_mock-3.15.0-py3-none-any.whl", hash = "sha256:ef2219485fb1bd256b00e7ad7466ce26729b30eadfc7cbcdb4fa9a92ca68db6f", size = 10050, upload-time = "2025-09-04T20:57:47.274Z" },
 ]
 
 [[package]]
@@ -3836,6 +3915,15 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/ab/e2/e9a00f0ccb71718418230718b3d900e71a5d16e701a3dae079a21e9cd8f8/text-unidecode-1.3.tar.gz", hash = "sha256:bad6603bb14d279193107714b288be206cac565dfa49aa5b105294dd5c4aab93", size = 76885, upload-time = "2019-08-30T21:36:45.405Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/a6/a5/c0b6468d3824fe3fde30dbb5e1f687b291608f9473681bbf7dabbf5a87d7/text_unidecode-1.3-py2.py3-none-any.whl", hash = "sha256:1311f10e8b895935241623731c2ba64f4c455287888b18189350b67134a822e8", size = 78154, upload-time = "2019-08-30T21:37:03.543Z" },
+]
+
+[[package]]
+name = "texttable"
+version = "1.7.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/1c/dc/0aff23d6036a4d3bf4f1d8c8204c5c79c4437e25e0ae94ffe4bbb55ee3c2/texttable-1.7.0.tar.gz", hash = "sha256:2d2068fb55115807d3ac77a4ca68fa48803e84ebb0ee2340f858107a36522638", size = 12831, upload-time = "2023-10-03T09:48:12.272Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/24/99/4772b8e00a136f3e01236de33b0efda31ee7077203ba5967fcc76da94d65/texttable-1.7.0-py2.py3-none-any.whl", hash = "sha256:72227d592c82b3d7f672731ae73e4d1f88cd8e2ef5b075a7a7f01a23a3743917", size = 10768, upload-time = "2023-10-03T09:48:10.434Z" },
 ]
 
 [[package]]

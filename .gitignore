@@ -14,10 +14,11 @@
 # /vite/dist/assets/
 # /vite/dist/
 
-# Secret
+# Secret & local config
 /.env
 /etc/secrets.toml
 /debug/
+.aider*
 
 # Other
 /tmp

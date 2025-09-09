@@ -12,6 +12,7 @@ from flask_security.core import AnonymousUser
 from svcs.flask import container
 from werkzeug.exceptions import Unauthorized
 
+from app.flask.doorman import doorman
 from app.flask.lib.proxies import unproxy
 from app.flask.routing import url_for
 from app.flask.sqla import get_obj
@@ -28,6 +29,7 @@ TIMEOUT = 5
 def register_hooks(app: Flask) -> None:
     app.before_request(inject_extensions)
     app.before_request(authenticate_user)
+    app.before_request(doorman.check_access)
     app.context_processor(inject_extra_context)
     app.errorhandler(Unauthorized)(handle_authentication_error)
 
