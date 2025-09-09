@@ -6,8 +6,10 @@ from __future__ import annotations
 
 from ._models import TaxonomyEntry
 from ._service import (
-    check_taxonomy_exist,
+    check_taxonomy_exists,
     create_entry,
+    export_taxonomy_to_ods,
+    get_all_taxonomy_names,
     get_full_taxonomy,
     get_full_taxonomy_category_value,
     get_taxonomy,
@@ -17,8 +19,10 @@ from ._service import (
 
 __all__ = [
     "TaxonomyEntry",
-    "check_taxonomy_exist",
+    "check_taxonomy_exists",
     "create_entry",
+    "export_taxonomy_to_ods",
+    "get_all_taxonomy_names",
     "get_full_taxonomy",
     "get_full_taxonomy_category_value",
     "get_taxonomy",

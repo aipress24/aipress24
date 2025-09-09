@@ -18,6 +18,7 @@ from sqlalchemy.orm import scoped_session
 from svcs.flask import container
 from werkzeug.utils import find_modules, import_string
 
+from app.blueprints.ontology import ontology_bp
 from app.flask import services
 from app.flask.cli.bootstrap import bootstrap
 from app.flask.config import setup_config
@@ -160,6 +161,9 @@ def register_blueprints(app: Flask) -> None:
 
         logger.debug("Registering blueprint: {}", module.blueprint)
         app.register_blueprint(module.blueprint)
+
+    # Manual blueprint registrations (if any)
+    app.register_blueprint(ontology_bp, url_prefix="/admin/ontology")
 
 
 def register_everything_else(app: Flask) -> None:

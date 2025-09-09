@@ -4,17 +4,19 @@
 
 from __future__ import annotations
 
+import io
 import sys
 from typing import Any
 
-from sqlalchemy import select
+import pyexcel
+from sqlalchemy import distinct, select
 
 from app.flask.extensions import db
 
 from ._models import TaxonomyEntry
 
 
-def check_taxonomy_exist(taxonomy_name: str) -> bool:
+def check_taxonomy_exists(taxonomy_name: str) -> bool:
     """Return the existence of the taxonomy in DB"""
     return (
         db.session.query(TaxonomyEntry.id)
@@ -22,6 +24,15 @@ def check_taxonomy_exist(taxonomy_name: str) -> bool:
         .first()
         is not None
     )
+
+
+def get_all_taxonomy_names() -> list[str]:
+    """Return a sorted list of all distinct taxonomy names."""
+    query = select(distinct(TaxonomyEntry.taxonomy_name)).order_by(
+        TaxonomyEntry.taxonomy_name
+    )
+    results = db.session.scalars(query).all()
+    return results
 
 
 def get_taxonomy(name) -> list[str]:
@@ -74,6 +85,37 @@ def get_taxonomy_dual_select(
     response["field1"] = [(category, category) for category in distinct]
     response["field2"] = field2
     return response
+
+
+def export_taxonomy_to_ods(taxonomy_name: str) -> io.BytesIO:
+    """
+    Fetches all entries for a given taxonomy and returns them as an in-memory ODS file.
+
+    :param taxonomy_name: The name of the taxonomy to export.
+    :return: A BytesIO buffer containing the ODS file data.
+    """
+    # 1. Fetch the data from the database
+    query = (
+        select(TaxonomyEntry)
+        .where(TaxonomyEntry.taxonomy_name == taxonomy_name)
+        .order_by(TaxonomyEntry.seq, TaxonomyEntry.name)
+    )
+    entries = db.session.scalars(query).all()
+
+    # 2. Prepare the data in a list-of-lists format for pyexcel
+    headers = ["Name", "Category", "Value", "Sequence"]
+    data = [headers]
+    for entry in entries:
+        data.append([entry.name, entry.category, entry.value, entry.seq])
+
+    # 3. Create the spreadsheet in memory
+    sheet = pyexcel.Sheet(data)
+    memory_buffer = io.BytesIO()
+    sheet.save_to_memory("ods", memory_buffer)
+    # The buffer's cursor is at the end, so we reset it to the beginning
+    memory_buffer.seek(0)
+
+    return memory_buffer
 
 
 def create_entry(

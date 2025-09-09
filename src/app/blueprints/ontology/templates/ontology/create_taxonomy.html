@@ -1,0 +1,46 @@
+{% extends "ontology/_base.html" %}
+
+{% macro render_field(field) %}
+  <div class="mb-5">
+    {{ field.label(class="block text-sm font-medium text-gray-700 mb-1") }}
+    {{ field(class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" + (" border-red-500" if field.errors else ""), placeholder="e.g., document_type") }}
+    {% if field.description %}
+      <p class="mt-2 text-sm text-gray-500">{{ field.description }}</p>
+    {% endif %}
+    {% if field.errors %}
+      <div class="mt-1 text-sm text-red-600">
+        {% for error in field.errors %}<span>{{ error }}</span>{% endfor %}
+      </div>
+    {% endif %}
+  </div>
+{% endmacro %}
+
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+  <div class="flex items-center mb-6">
+      <a href="{{ url_for('.list_entries') }}" class="mr-3 text-gray-600 hover:text-blue-600" title="Go back">
+        <i class="fas fa-arrow-left"></i>
+      </a>
+      <h2 class="text-2xl font-bold text-gray-800">Create New Taxonomy</h2>
+    </div>
+
+  <div class="bg-white shadow-md rounded-lg p-6">
+    <p class="text-gray-600 mb-4">A taxonomy is a category used to group entries, like 'subject' or 'sector'.</p>
+    <form method="POST" action="{{ url_for('.create_taxonomy') }}">
+      {{ form.hidden_tag() }}
+
+      {{ render_field(form.name) }}
+
+      <div class="flex items-center space-x-3">
+        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+          Create Taxonomy
+        </button>
+        <a href="{{ url_for('.list_entries') }}" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
+          Cancel
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

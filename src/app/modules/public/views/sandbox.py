@@ -21,6 +21,7 @@ def sandbox(path: str):
     debug(root)
     html_file = root / (path + ".html")
     if not html_file.exists():
-        raise NotFound("File not found")
+        msg = "File not found"
+        raise NotFound(msg)
 
     return html_file.read_text()

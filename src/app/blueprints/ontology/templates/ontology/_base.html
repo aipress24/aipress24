@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{{ title }} - Ontology Management</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Favicons -->
+  <link rel="icon" href="/static/icon/aipress24-favicon.png"/>
+  <link rel="shortcut icon" href="/static/icon/aipress24-favicon.png"/>
+</head>
+
+<body class="bg-gray-50 min-h-screen">
+  <div class="container mx-auto px-4 py-8">
+    <!-- Breadcrumbs -->
+    {% if breadcrumbs %}
+      <nav class="mb-6">
+        <ol class="flex items-center space-x-2 text-sm text-gray-600">
+          {% for crumb in breadcrumbs %}
+            <li>
+              {% if not loop.last %}
+                <a href="{{ crumb.url }}" class="hover:text-blue-600">{{ crumb.label }}</a>
+                <span class="mx-2">/</span>
+              {% else %}
+                <span class="text-gray-900 font-medium">{{ crumb.label }}</span>
+              {% endif %}
+            </li>
+          {% endfor %}
+        </ol>
+      </nav>
+    {% endif %}
+
+    <!-- Flashed Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="mb-6 space-y-3">
+        {% for category, message in messages %}
+          {% set color = 'blue' if category == 'success' else ('red' if category == 'danger' else 'yellow') %}
+          <div class="bg-{{ color }}-100 border-l-4 border-{{ color }}-500 text-{{ color }}-700 p-4 rounded-md shadow-sm" role="alert">
+            <p class="font-bold capitalize">{{ category }}</p>
+            <p>{{ message }}</p>
+          </div>
+        {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    {% block content %}
+    {% endblock %}
+  </div>
+</body>
+</html>
