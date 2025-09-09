@@ -74,6 +74,7 @@ class SurveyField:
     type: str = ""
     description: str = ""
     upper_message: str = ""
+    panel: str = ""
 
     def is_visible(self, level: int) -> bool:
         if level == 0:  # minimal
