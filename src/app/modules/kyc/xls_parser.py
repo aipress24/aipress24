@@ -40,8 +40,9 @@ COL_MESSAGE = 5
 COL_ORGANISATION = 6
 COL_ID = 7
 COL_TYPE = 8
-COL_COMMENT = 9
-COL_PROFILE = 10
+COL_PANEL = 9
+COL_COMMENT = 10
+COL_PROFILE = 11
 
 
 KYC_COMMUNITY_TO_ENUM: dict[str, CommunityEnum] = {  # type: ignore
@@ -130,6 +131,8 @@ class XLSParser(ModelLoader):
         field_i = 0
         for row in rows[ROW_FIELDS:]:
             field_description = row[COL_LABEL].value
+            if not field_description or not field_description.strip():
+                continue  # because empty row 9
             field_public_maxi = _cell_to_bool(row[COL_PUBLIC_MAXI])
             field_public_default = _cell_to_bool(row[COL_PUBLIC_DEFAULT])
             field_public_mini = _cell_to_bool(row[COL_PUBLIC_MINI])
@@ -138,6 +141,7 @@ class XLSParser(ModelLoader):
             field_is_organisation = _cell_to_bool(row[COL_ORGANISATION])
             field_name = row[COL_ID].value
             field_type = row[COL_TYPE].value
+            field_panel = row[COL_PANEL].value
             if not field_name or field_type == "title":
                 continue
             field_i += 1
@@ -153,6 +157,7 @@ class XLSParser(ModelLoader):
                 type=field_type,
                 description=field_description,
                 upper_message=field_message,
+                panel=field_panel,
             )
             self.survey_fields[field_id] = field
 
