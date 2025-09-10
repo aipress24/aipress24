@@ -625,9 +625,9 @@ def _get_critical_modified_fields(orig_user: User, cloned_user: User) -> list[st
     convert = {"civilite": "gender"}
 
     def _get_value(user: User, field_name: str) -> Any:
-        if field_name.startswith("trigger"):
-            profile = user.profile
-            return profile.business_wall[field_name]
+        profile = user.profile
+        if profile.has_field_name(field_name):
+            return profile.get_value(field_name)
         key = convert.get(field_name, field_name)
         return getattr(user, key)
 
