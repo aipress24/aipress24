@@ -473,6 +473,7 @@ def _make_new_kyc_user_record() -> User:
         info_personnelle=populate_json_field("info_personnelle", results),
         info_professionnelle=populate_json_field("info_professionnelle", results),
         match_making=populate_json_field("match_making", results),
+        info_hobby=populate_json_field("info_hobby", results),
         business_wall=populate_json_field("business_wall", results),
     )
 
@@ -525,6 +526,7 @@ def _set_default_kyc_profile(user: User) -> None:
         info_personnelle=populate_json_field("info_personnelle", {}),
         info_professionnelle=populate_json_field("info_professionnelle", {}),
         match_making=populate_json_field("match_making", {}),
+        info_hobby=populate_json_field("info_hobby", {}),
         business_wall=populate_json_field("business_wall", {}),
     )
     user.profile = profile
@@ -566,6 +568,7 @@ def _update_from_current_user(orig_user: User) -> User:
     profile.info_personnelle = populate_json_field("info_personnelle", results)
     profile.info_professionnelle = populate_json_field("info_professionnelle", results)
     profile.match_making = populate_json_field("match_making", results)
+    profile.info_hobby = populate_json_field("info_hobby", results)
     profile.business_wall = populate_json_field("business_wall", results)
 
     cloned_user.last_name = results.get("last_name", "")
@@ -743,6 +746,7 @@ def _populate_kyc_data_from_user(user: User) -> dict[str, Any]:
     populate_form_data("info_personnelle", profile.info_personnelle, data)
     populate_form_data("info_professionnelle", profile.info_professionnelle, data)
     populate_form_data("match_making", profile.match_making, data)
+    populate_form_data("info_hobby", profile.info_hobby, data)
     populate_form_data("business_wall", profile.business_wall, data)
 
     return data
