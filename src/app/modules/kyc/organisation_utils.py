@@ -266,7 +266,6 @@ def specialize_organization_type(  # noqa: PLR0915
 def store_auto_organisation(
     user: User,
     org_name: str | None = None,
-    # family: OrganisationTypeEnum = OrganisationTypeEnum.AUTO,  # type: ignore
     db_session: object | None = None,
 ) -> Organisation | None:
     """Store a new AUTO organisation if the organisation does not exists.
@@ -280,81 +279,122 @@ def store_auto_organisation(
         - the organisation does not exists
             -> create a new one with type "AUTO"
     """
-
-    def _secteur_activite(info: dict[str, Any]) -> list[str]:
-        return (
-            info["secteurs_activite_detailles"]
-            or info["secteurs_activite_medias"]
-            or info["secteurs_activite_rp"]
-        )
-
-    def _secteur_activite_detail(info: dict[str, Any]) -> list[str]:
-        return (
-            info["secteurs_activite_detailles_detail"]
-            or info["secteurs_activite_medias_detail"]
-            or info["secteurs_activite_rp_detail"]
-        )
-
     if org_name is None:
         # store_auto_organisation() can be called without providing the organisation na
         org_name = _find_kyc_organisation_name(user)
     org_name = str(org_name).strip()
     if not org_name:
         return None
-    # identificatin of AUTO organisation is:
-    # - organisation name
-    # - le secteur d’activité (cf ONTOLOGIES/Secteurs détaillés) ;
-    # -> org.secteurs_activite, secteurs_activite_detail
-    # - le type d'organisation (cf ONTOLOGIES/Types d'organisation) ;
-    # -> type_organisation, type_organisation_detail
-    # - la taille de l’organisation (cf ONTOLOGIES / Taille des organisations) ;
-    # -> taille_orga
-    # - la géolocalisation (code postal, commune) du siège social ;
-    # -> pays_zip_ville, pays_zip_ville_detail
-    # - et type == AUTO
-    profile = user.profile
-    info_pro: dict[str, Any] = profile.info_professionnelle
-    info_mm: dict[str, Any] = profile.match_making
-    secteurs_activite = _secteur_activite(info_mm)
-    secteurs_activite_detail = _secteur_activite_detail(info_mm)
-
+    # identification of AUTO organisation is only the organisation name
     if db_session is None:
         db_session = db.session
     query = select(Organisation).where(
         Organisation.name == org_name, Organisation.type == OrganisationTypeEnum.AUTO
     )
-    found_organisations = db.session.execute(query).scalars()
-
-    matching_org = None
-    for org in found_organisations:
-        if (
-            org.secteurs_activite == secteurs_activite
-            and org.secteurs_activite_detail == secteurs_activite_detail
-            and org.type_organisation == info_pro["type_orga"]
-            and org.type_organisation_detail == info_pro["type_orga_detail"]
-            and org.taille_orga == info_pro["taille_orga"]
-            and org.pays_zip_ville == info_pro["pays_zip_ville"]
-            and org.pays_zip_ville_detail == info_pro["pays_zip_ville_detail"]
-        ):
-            matching_org = org
-            break
-
-    if matching_org:
-        return matching_org
+    found_organisation = db.session.execute(query).scalars().first()
+    if found_organisation:
+        return found_organisation
     # No Organisatin with both same type and other params found:
-    created_organisation = Organisation(
-        name=org_name,
-        type=OrganisationTypeEnum.AUTO,
-        taille_orga=info_pro["taille_orga"],
-        pays_zip_ville=info_pro["pays_zip_ville"],
-        pays_zip_ville_detail=info_pro["pays_zip_ville_detail"],
-        tel_standard=info_pro["tel_standard"],
-    )
-
-    specialize_organization_type(
-        created_organisation, profile.profile_code, info_pro, info_mm
-    )
-
+    created_organisation = Organisation(name=org_name, type=OrganisationTypeEnum.AUTO)
     db_session.add(created_organisation)
     db_session.commit()
     return created_organisation
+
+
+# def store_auto_organisation(
+# Too complex: prefer a minimalistic approach for AUTO organizations : only name
+# ##############################################################################
+#     user: User,
+#     org_name: str | None = None,
+#     # family: OrganisationTypeEnum = OrganisationTypeEnum.AUTO,  # type: ignore
+#     db_session: object | None = None,
+# ) -> Organisation | None:
+#     """Store a new AUTO organisation if the organisation does not exists.
+
+#     Return: created or existent Auto Organisation, or None if fail to create (empty name)
+
+#     2 possible situations:
+#         - the organisation already exists, either as a registered (MEDIA? COM...) or AUTO
+#             -> if of type AUTO, return the existent Organisation
+#             -> if of any other type, create a AUTO organisation (of same name)
+#         - the organisation does not exists
+#             -> create a new one with type "AUTO"
+#     """
+
+#     def _secteur_activite(info: dict[str, Any]) -> list[str]:
+#         return (
+#             info["secteurs_activite_detailles"]
+#             or info["secteurs_activite_medias"]
+#             or info["secteurs_activite_rp"]
+#         )
+
+#     def _secteur_activite_detail(info: dict[str, Any]) -> list[str]:
+#         return (
+#             info["secteurs_activite_detailles_detail"]
+#             or info["secteurs_activite_medias_detail"]
+#             or info["secteurs_activite_rp_detail"]
+#         )
+
+#     if org_name is None:
+#         # store_auto_organisation() can be called without providing the organisation na
+#         org_name = _find_kyc_organisation_name(user)
+#     org_name = str(org_name).strip()
+#     if not org_name:
+#         return None
+#     # identificatin of AUTO organisation is:
+#     # - organisation name
+#     # - le secteur d’activité (cf ONTOLOGIES/Secteurs détaillés) ;
+#     # -> org.secteurs_activite, secteurs_activite_detail
+#     # - le type d'organisation (cf ONTOLOGIES/Types d'organisation) ;
+#     # -> type_organisation, type_organisation_detail
+#     # - la taille de l’organisation (cf ONTOLOGIES / Taille des organisations) ;
+#     # -> taille_orga
+#     # - la géolocalisation (code postal, commune) du siège social ;
+#     # -> pays_zip_ville, pays_zip_ville_detail
+#     # - et type == AUTO
+#     profile = user.profile
+#     info_pro: dict[str, Any] = profile.info_professionnelle
+#     info_mm: dict[str, Any] = profile.match_making
+#     secteurs_activite = _secteur_activite(info_mm)
+#     secteurs_activite_detail = _secteur_activite_detail(info_mm)
+
+#     if db_session is None:
+#         db_session = db.session
+#     query = select(Organisation).where(
+#         Organisation.name == org_name, Organisation.type == OrganisationTypeEnum.AUTO
+#     )
+#     found_organisations = db.session.execute(query).scalars()
+
+#     matching_org = None
+#     for org in found_organisations:
+#         if (
+#             org.secteurs_activite == secteurs_activite
+#             and org.secteurs_activite_detail == secteurs_activite_detail
+#             and org.type_organisation == info_pro["type_orga"]
+#             and org.type_organisation_detail == info_pro["type_orga_detail"]
+#             and org.taille_orga == info_pro["taille_orga"]
+#             and org.pays_zip_ville == info_pro["pays_zip_ville"]
+#             and org.pays_zip_ville_detail == info_pro["pays_zip_ville_detail"]
+#         ):
+#             matching_org = org
+#             break
+
+#     if matching_org:
+#         return matching_org
+#     # No Organisatin with both same type and other params found:
+#     created_organisation = Organisation(
+#         name=org_name,
+#         type=OrganisationTypeEnum.AUTO,
+#         taille_orga=info_pro["taille_orga"],
+#         pays_zip_ville=info_pro["pays_zip_ville"],
+#         pays_zip_ville_detail=info_pro["pays_zip_ville_detail"],
+#         tel_standard=info_pro["tel_standard"],
+#     )
+
+#     specialize_organization_type(
+#         created_organisation, profile.profile_code, info_pro, info_mm
+#     )
+
+#     db_session.add(created_organisation)
+#     db_session.commit()
+#     return created_organisation

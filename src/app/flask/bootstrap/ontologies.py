@@ -17,7 +17,7 @@ from sqlalchemy import delete
 from app.flask.extensions import db
 from app.services.taxonomies import (
     TaxonomyEntry,
-    check_taxonomy_exist,
+    check_taxonomy_exists,
     create_entry,
     update_entry,
 )
@@ -175,7 +175,7 @@ def _category_from_value(value: str) -> str:
 
 def _update_or_create_taxonomy(taxonomy_name, values) -> None:
     # Check that the taxonomy_name is present in DB
-    if check_taxonomy_exist(taxonomy_name):
+    if check_taxonomy_exists(taxonomy_name):
         updated = _update_taxonomy_entries(taxonomy_name, values)
         print(f"    - updated values: {updated}")
     else:

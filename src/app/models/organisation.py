@@ -40,7 +40,7 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
     name: Mapped[str]  # nom officiel de l'organisation
     slug: Mapped[str]
     # note: adding unique=True to siren and TVA breaks session.merge(), this would
-    # requiting a composite key, thus requiring to provide sien and tva on all requests
+    # require a composite key, thus requiring to provide siren and tva on all requests
     # involding the id of the organisation
     siren: Mapped[str] = mapped_column(nullable=True)  #
     tva: Mapped[str] = mapped_column(nullable=True)  #
@@ -49,7 +49,7 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
     )  # nom officiel du titre (média, agence presse) pour les media ou aggency, ou adm
 
     tel_standard: Mapped[str] = mapped_column(default="")  #
-    taille_orga: Mapped[str] = mapped_column(default="")  # ccf ontologies
+    taille_orga: Mapped[str] = mapped_column(default="")  # cf ontologies
 
     # Nom et coordonnées directes du dirigeant
     # Préférer "Contact officiel" ?
