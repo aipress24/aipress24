@@ -30,11 +30,17 @@ LABEL_MODIFICATION_ORGANISATION = "Modification de l'organisation"
 
 BW_TRIGGER_LABEL = {
     "trigger_media_agence_de_presse": "Trigger Agences de presse",
+    "trigger_media_jr_microentrep": "Trigger Médias Micro entreprise",
     "trigger_media_media": "Trigger Médias",
+    "trigger_media_federation": "Trigger Médias Fédérations",
     "trigger_pr": "Trigger PR agencies",
     "trigger_pr_independant": "Trigger Indépendants PR agency",
-    "trigger_organization": "Trigger Organisations",
+    "trigger_pr_organisation": "Trigger Organisations PR agency",
+    "trigger_organisation": "Trigger Organisations",
+    "trigger_expert": "Trigger Experts",
+    "trigger_startup": "Trigger Startup",
     "trigger_transformers": "Trigger Transformers",
+    "trigger_transformers_independant": "Trigger Transformers Indépendants",
     "trigger_academics": "Trigger Academics",
     "trigger_academics_entrepreneur": "Trigger Entrepreneurs academics",
 }
