@@ -62,3 +62,6 @@ OLD/
 
 # Not needed
 .github/workflows/fly-deploy.yml
+
+# Local
+.aider*

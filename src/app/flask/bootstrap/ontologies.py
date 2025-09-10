@@ -69,7 +69,8 @@ TAXO_NAME_ONTOLOGIE_SLUG = [
     ("secteur_detaille", "secteurs-detailles"),
     ("taille_organisation", "tailles-des-organisations"),
     ("transformation_majeure", "transformations-majeures"),
-    ("type_agence_rp", "types-agences-rp"),
+    # renamed as types-pr-agency ("type_agence_rp", "types-agences-rp"),
+    ("type_agence_rp", "types-pr-agency"),
     ("groupes_cotes", "groupes-cotes"),
     ("etablissements_sup", "etabenseignsup"),
     ("competences_generales", "competencesgenerales"),
@@ -77,6 +78,10 @@ TAXO_NAME_ONTOLOGIE_SLUG = [
     ("niveaux_etudes", "niveaux-d-etude"),
     ("matieres_etudiees", "matieresetudiees"),
     ("events", "events"),
+    ("market_mission", "market-mission"),
+    ("periodicite", "periodicite"),
+    ("market_project", "market-project"),
+    ("market_jobboard", "market-jobboard"),
 ]
 
 TAXO_NOT_FROM_FILE = {"geolocalisation", "feuille31", "civilite"}
@@ -222,7 +227,7 @@ def get_converter(ontology_slug: str) -> Any:  # noqa:PLR0915
             converter_class = JournalismeFonctionConverter
         case "agencesrp":
             converter_class = AgenceRPFonctionConverter
-        case "types-agences-rp":
+        case "types-pr-agency":
             converter_class = TypeAgenceRPFonctionConverter
         case "types-dorganisation":
             converter_class = TypesOrganisationConverter
@@ -288,6 +293,14 @@ def get_converter(ontology_slug: str) -> Any:  # noqa:PLR0915
             converter_class = MatieresEtudiees
         case "events":
             converter_class = Events
+        case "market-mission":
+            converter_class = MarketMission
+        case "periodicite":
+            converter_class = Periodicite
+        case "market-project":
+            converter_class = MarketProject
+        case "market-jobboard":
+            converter_class = MarketJobboard
         case _:
             converter_class = None
     if not converter_class:
@@ -623,7 +636,7 @@ class AgenceRPFonctionConverter(BaseConvert):
 
 
 class TypeAgenceRPFonctionConverter(BaseConvert):
-    ontology_slug: str = "types-agences-rp"
+    ontology_slug: str = "types-pr-agency"
     export = BaseConvert.export_list
 
 
@@ -781,6 +794,26 @@ class MatieresEtudiees(BaseConvert):
 
 class Events(FonctionPublicConverter):
     ontology_slug: str = "events"
+
+
+class MarketMission(BaseConvert):
+    ontology_slug: str = "market-mission"
+    export = BaseConvert.export_list
+
+
+class Periodicite(BaseConvert):
+    ontology_slug: str = "periodicite"
+    export = BaseConvert.export_list
+
+
+class MarketProject(BaseConvert):
+    ontology_slug: str = "market-project"
+    export = BaseConvert.export_list
+
+
+class MarketJobboard(BaseConvert):
+    ontology_slug: str = "market-jobboard"
+    export = BaseConvert.export_list
 
 
 class LangueConverter(BaseConvert):

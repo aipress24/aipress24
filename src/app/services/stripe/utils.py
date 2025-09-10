@@ -41,7 +41,7 @@ def load_stripe_api_key() -> bool:
 
 def get_stripe_public_key() -> str:
     config = current_app.config
-    return config.get("STRIPE_SECRET_KEY") or ""
+    return config.get("STRIPE_PUBLIC_KEY") or ""
 
 
 def get_stripe_webhook_secret() -> str:
