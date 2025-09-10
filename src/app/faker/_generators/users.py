@@ -95,14 +95,55 @@ class UserGenerator(BaseGenerator):
     def _random_pseudo(self, _user: User, profile: KYCProfile) -> None:
         profile.info_personnelle["pseudo"] = self.generate_words(1)
 
-    def _random_macaron_hebergement(self, _user: User, profile: KYCProfile) -> None:
-        profile.info_personnelle["macaron_hebergement"] = bool(random.randint(0, 1))
+    def _random_trigger_media_agence_de_presse(
+        self, _user: User, profile: KYCProfile
+    ) -> None:
+        profile.business_wall["trigger_media_agence_de_presse"] = bool(
+            random.randint(0, 1)
+        )
 
-    def _random_macaron_repas(self, _user: User, profile: KYCProfile) -> None:
-        profile.info_personnelle["macaron_repas"] = bool(random.randint(0, 1))
+    def _random_trigger_media_jr_microentrep(
+        self, _user: User, profile: KYCProfile
+    ) -> None:
+        profile.business_wall["trigger_media_jr_microentrep"] = bool(
+            random.randint(0, 1)
+        )
 
-    def _random_macaron_verre(self, _user: User, profile: KYCProfile) -> None:
-        profile.info_personnelle["macaron_verre"] = bool(random.randint(0, 1))
+    def _random_trigger_media_media(self, _user: User, profile: KYCProfile) -> None:
+        profile.business_wall["trigger_media_media"] = bool(random.randint(0, 1))
+
+    def _random_trigger_media_federation(
+        self, _user: User, profile: KYCProfile
+    ) -> None:
+        profile.business_wall["trigger_media_federation"] = bool(random.randint(0, 1))
+
+    def _random_trigger_pr(self, _user: User, profile: KYCProfile) -> None:
+        profile.business_wall["trigger_pr"] = bool(random.randint(0, 1))
+
+    def _random_trigger_pr_independant(self, _user: User, profile: KYCProfile) -> None:
+        profile.business_wall["trigger_pr_independant"] = bool(random.randint(0, 1))
+
+    def _random_trigger_pr_organisation(self, _user: User, profile: KYCProfile) -> None:
+        profile.business_wall["trigger_pr_organisation"] = bool(random.randint(0, 1))
+
+    def _random_trigger_organisation(self, _user: User, profile: KYCProfile) -> None:
+        profile.business_wall["trigger_organisation"] = bool(random.randint(0, 1))
+
+    def _random_trigger_expert(self, _user: User, profile: KYCProfile) -> None:
+        profile.business_wall["trigger_expert"] = bool(random.randint(0, 1))
+
+    def _random_trigger_startup(self, _user: User, profile: KYCProfile) -> None:
+        profile.business_wall["trigger_startup"] = bool(random.randint(0, 1))
+
+    def _random_trigger_transformers(self, _user: User, profile: KYCProfile) -> None:
+        profile.business_wall["trigger_transformers"] = bool(random.randint(0, 1))
+
+    def _random_trigger_transformers_independant(
+        self, _user: User, profile: KYCProfile
+    ) -> None:
+        profile.business_wall["trigger_transformers_independant"] = bool(
+            random.randint(0, 1)
+        )
 
     def _random_trigger_academics(self, _user: User, profile: KYCProfile) -> None:
         profile.business_wall["trigger_academics"] = bool(random.randint(0, 1))
@@ -113,28 +154,6 @@ class UserGenerator(BaseGenerator):
         profile.business_wall["trigger_academics_entrepreneur"] = bool(
             random.randint(0, 1)
         )
-
-    def _random_trigger_media_agence_de_presse(
-        self, _user: User, profile: KYCProfile
-    ) -> None:
-        profile.business_wall["trigger_media_agence_de_presse"] = bool(
-            random.randint(0, 1)
-        )
-
-    def _random_trigger_media_media(self, _user: User, profile: KYCProfile) -> None:
-        profile.business_wall["trigger_media_media"] = bool(random.randint(0, 1))
-
-    def _random_trigger_organization(self, _user: User, profile: KYCProfile) -> None:
-        profile.business_wall["trigger_organization"] = bool(random.randint(0, 1))
-
-    def _random_trigger_pr(self, _user: User, profile: KYCProfile) -> None:
-        profile.business_wall["trigger_pr"] = bool(random.randint(0, 1))
-
-    def _random_trigger_pr_independant(self, _user: User, profile: KYCProfile) -> None:
-        profile.business_wall["trigger_pr_independant"] = bool(random.randint(0, 1))
-
-    def _random_trigger_transformers(self, _user: User, profile: KYCProfile) -> None:
-        profile.business_wall["trigger_transformers"] = bool(random.randint(0, 1))
 
     def _random_taille_orga(self, _user: User, profile: KYCProfile) -> None:
         profile.info_professionnelle["taille_orga"] = random_taille_orga()
@@ -190,7 +209,7 @@ class UserGenerator(BaseGenerator):
         )
 
     def _random_fonctions_journalisme(self, _user: User, profile: KYCProfile) -> None:
-        profile.info_professionnelle["fonctions_journalisme"] = list(
+        profile.match_making["fonctions_journalisme"] = list(
             {
                 random.choice(_get_full_taxo("journalisme_fonction"))[0]
                 for _ in range(random.randint(1, 5))
@@ -253,28 +272,25 @@ class UserGenerator(BaseGenerator):
         profile.info_professionnelle["nom_group_com"] = f"{word.capitalize()} PR Group"
 
     def _random_langues(self, _user: User, profile: KYCProfile) -> None:
-        profile.match_making["langues"] = [
+        profile.info_personnelle["langues"] = [
             "Français",
             random.choice(_get_full_taxo("langue"))[0],
         ]
 
-    def _random_hobbies(self, _user: User, profile: KYCProfile) -> None:
-        profile.match_making["hobbies"] = self.generate_text(1500)
-
     def _random_formations(self, _user: User, profile: KYCProfile) -> None:
         # education is now "formations"
-        profile.match_making["formations"] = self.generate_text(1500)
+        profile.info_personnelle["formations"] = self.generate_text(1500)
 
     def _random_experiences(self, _user: User, profile: KYCProfile) -> None:
         # bio is now "experiences"
-        profile.match_making["experiences"] = self.generate_text(1500)
+        profile.info_personnelle["experiences"] = self.generate_text(1500)
 
     def _random_validation_gcu(self, user: User, _profile: KYCProfile) -> None:
         user.gcu_acceptation = True
         user.gcu_acceptation_date = func.now()
 
     def _random_competences_journalisme(self, _user: User, profile: KYCProfile) -> None:
-        profile.match_making["competences_journalisme"] = list(
+        profile.info_personnelle["competences_journalisme"] = list(
             {
                 random.choice(_get_full_taxo("journalisme_competence"))[0]
                 for _ in range(random.randint(1, 8))
@@ -282,7 +298,7 @@ class UserGenerator(BaseGenerator):
         )
 
     def _random_competences(self, _user: User, profile: KYCProfile) -> None:
-        profile.match_making["competences"] = list(
+        profile.info_personnelle["competences"] = list(
             {
                 random.choice(_get_full_taxo("competence_expert"))[0]
                 for _ in range(random.randint(1, 5))
@@ -310,8 +326,12 @@ class UserGenerator(BaseGenerator):
         categ_values = list({random.choice(taxo) for _ in range(random.randint(1, 5))})
         categories = list({cv[0] for cv in categ_values})
         values = list({cv[1] for cv in categ_values})
-        profile.match_making["metier"] = categories
-        profile.match_making["metier_detail"] = values
+        profile.info_personnelle["metier"] = categories
+        profile.info_personnelle["metier_detail"] = values
+
+    def _random_metier_principal(self, _user: User, profile: KYCProfile) -> None:
+        word = self.generate_words(1)
+        profile.info_personnelle["metier_principal"] = word
 
     def _random_transformation_majeure(self, _user: User, profile: KYCProfile) -> None:
         taxo = _get_full_taxo_category_value("transformation_majeure")
@@ -352,16 +372,16 @@ class UserGenerator(BaseGenerator):
         categ_values = list({random.choice(taxo) for _ in range(random.randint(1, 3))})
         categories = list({cv[0] for cv in categ_values})
         values = list({cv[1] for cv in categ_values})
-        profile.match_making["secteurs_activite_detailles"] = categories
-        profile.match_making["secteurs_activite_detailles_detail"] = values
+        profile.info_professionnelle["secteurs_activite_detailles"] = categories
+        profile.info_professionnelle["secteurs_activite_detailles_detail"] = values
 
     def _random_secteurs_activite_rp(self, _user: User, profile: KYCProfile) -> None:
         taxo = _get_full_taxo_category_value("secteur_detaille")
         categ_values = list({random.choice(taxo) for _ in range(random.randint(1, 3))})
         categories = list({cv[0] for cv in categ_values})
         values = list({cv[1] for cv in categ_values})
-        profile.match_making["secteurs_activite_rp"] = categories
-        profile.match_making["secteurs_activite_rp_detail"] = values
+        profile.info_professionnelle["secteurs_activite_rp"] = categories
+        profile.info_professionnelle["secteurs_activite_rp_detail"] = values
 
     def _random_secteurs_activite_medias(
         self, _user: User, profile: KYCProfile
@@ -370,32 +390,32 @@ class UserGenerator(BaseGenerator):
         categ_values = list({random.choice(taxo) for _ in range(random.randint(1, 3))})
         categories = list({cv[0] for cv in categ_values})
         values = list({cv[1] for cv in categ_values})
-        profile.match_making["secteurs_activite_medias"] = categories
-        profile.match_making["secteurs_activite_medias_detail"] = values
+        profile.info_professionnelle["secteurs_activite_medias"] = categories
+        profile.info_professionnelle["secteurs_activite_medias_detail"] = values
 
     def _random_fonctions_pol_adm(self, _user: User, profile: KYCProfile) -> None:
         taxo = _get_full_taxo_category_value("profession_fonction_public")
         categ_values = list({random.choice(taxo) for _ in range(random.randint(1, 3))})
         categories = list({cv[0] for cv in categ_values})
         values = list({cv[1] for cv in categ_values})
-        profile.info_professionnelle["fonctions_pol_adm"] = categories
-        profile.info_professionnelle["fonctions_pol_adm_detail"] = values
+        profile.match_making["fonctions_pol_adm"] = categories
+        profile.match_making["fonctions_pol_adm_detail"] = values
 
     def _random_fonctions_org_priv(self, _user: User, profile: KYCProfile) -> None:
         taxo = _get_full_taxo_category_value("profession_fonction_prive")
         categ_values = list({random.choice(taxo) for _ in range(random.randint(1, 3))})
         categories = list({cv[0] for cv in categ_values})
         values = list({cv[1] for cv in categ_values})
-        profile.info_professionnelle["fonctions_org_priv"] = categories
-        profile.info_professionnelle["fonctions_org_priv_detail"] = values
+        profile.match_making["fonctions_org_priv"] = categories
+        profile.match_making["fonctions_org_priv_detail"] = values
 
     def _random_fonctions_ass_syn(self, _user: User, profile: KYCProfile) -> None:
         taxo = _get_full_taxo_category_value("profession_fonction_asso")
         categ_values = list({random.choice(taxo) for _ in range(random.randint(1, 3))})
         categories = list({cv[0] for cv in categ_values})
         values = list({cv[1] for cv in categ_values})
-        profile.info_professionnelle["fonctions_ass_syn"] = categories
-        profile.info_professionnelle["fonctions_ass_syn_detail"] = values
+        profile.match_making["fonctions_ass_syn"] = categories
+        profile.match_making["fonctions_ass_syn_detail"] = values
 
     def _random_url_site_web(self, _user: User, profile: KYCProfile) -> None:
         profile.info_professionnelle["url_site_web"] = Internet().url()
@@ -426,6 +446,18 @@ class UserGenerator(BaseGenerator):
             data[f"email_{contact_type.name}"] = bool(random.randint(0, 1))
             data[f"mobile_{contact_type.name}"] = bool(random.randint(0, 1))
         profile.show_contact_details = data
+
+    def _random_hobbies(self, _user: User, profile: KYCProfile) -> None:
+        profile.info_hobby["hobbies"] = self.generate_text(1500)
+
+    def _random_macaron_hebergement(self, _user: User, profile: KYCProfile) -> None:
+        profile.info_hobby["macaron_hebergement"] = bool(random.randint(0, 1))
+
+    def _random_macaron_repas(self, _user: User, profile: KYCProfile) -> None:
+        profile.info_hobby["macaron_repas"] = bool(random.randint(0, 1))
+
+    def _random_macaron_verre(self, _user: User, profile: KYCProfile) -> None:
+        profile.info_hobby["macaron_verre"] = bool(random.randint(0, 1))
 
     def _make_random_validation(
         self,
@@ -503,6 +535,7 @@ class UserGenerator(BaseGenerator):
             info_personnelle=populate_json_field("info_personnelle", {}),
             info_professionnelle=populate_json_field("info_professionnelle", {}),
             match_making=populate_json_field("match_making", {}),
+            info_hobby=populate_json_field("info_hobby", {}),
             business_wall=populate_json_field("business_wall", {}),
         )
 
@@ -551,7 +584,7 @@ class UserGenerator(BaseGenerator):
                 if method:
                     method(user, profile)
                 else:
-                    print("-- not found:", name)
+                    print("-- random generator not found:", name)
 
         self._make_random_contact_details(user, profile)
         self._make_random_validation(user, profile, self.counter)
