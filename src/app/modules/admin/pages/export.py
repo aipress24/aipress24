@@ -73,17 +73,19 @@ class ExporterInscriptions:
         "no_carte_presse",
         "email",
         "tel_mobile",
-        "macaron_repas",
-        "macaron_verre",
-        "presentation",
+        "metier_principal",
+        "metier",
+        "metier_detail",
         "organisation_name",
         "competences",
         "competences_journalisme",
-        "experiences",
-        "formations",
+        "presentation",
         "langues",
-        "metier",
-        "metier_detail",
+        "formations",
+        "experiences",
+        "macaron_hebergement",
+        "macaron_repas",
+        "macaron_verre",
     ]
 
     def __init__(self) -> None:
@@ -156,6 +158,7 @@ class ExporterInscriptions:
             FieldColumn("macaron_verre", "Verre", small),
             FieldColumn("manager", "Manager", short),
             FieldColumn("metier", "Métier", text8),
+            FieldColumn("metier_principal", "Métier principal", text8),
             FieldColumn("metier_detail", "Métier détail", text8),
             FieldColumn("no_carte_presse", "Carte Presse", text3),
             FieldColumn("organisation_name", "Organisation", text5),
@@ -285,7 +288,8 @@ class ExporterInscriptions:
                 | "secteurs_activite_detailles"
                 | "secteurs_activite_detailles_detail"
                 | "pays_zip_ville"
-                | "pays_zip_ville_detailadresse_pro"
+                | "pays_zip_ville_detail"
+                | "adresse_pro"
                 | "compl_adresse_pro"
                 | "tel_standard"
                 | "ligne_directe"
@@ -319,7 +323,7 @@ class ExporterInscriptions:
                     BW_TRIGGER_LABEL.get(x, x) for x in profile.get_all_bw_trigger()
                 ]
             case _:
-                msg = f"cell_value() Inconsistent key: {name}"
+                msg = f"cell_value() non managed key: {name!r}"
                 raise KeyError(msg)
         if isinstance(value, list):
             return self.list_to_str(value)
@@ -414,17 +418,19 @@ class ExporterModifications(ExporterInscriptions):
         "no_carte_presse",
         "email",
         "tel_mobile",
-        "macaron_repas",
-        "macaron_verre",
-        "presentation",
+        "metier_principal",
+        "metier",
+        "metier_detail",
         "organisation_name",
         "competences",
         "competences_journalisme",
-        "experiences",
-        "formations",
+        "presentation",
         "langues",
-        "metier",
-        "metier_detail",
+        "formations",
+        "experiences",
+        "macaron_hebergement",
+        "macaron_repas",
+        "macaron_verre",
     ]
 
     @property
@@ -470,14 +476,12 @@ class ExporterUsers(ExporterInscriptions):
         "roles",
         "pseudo",
         "no_carte_presse",
-        "email",
         "tel_mobile",
-        "macaron_repas",
-        "macaron_verre",
-        "macaron_hebergement",
         "status",
         "karma",
-        "presentation",
+        "metier_principal",
+        "metier",
+        "metier_detail",
         "organisation_name",
         "dirigeant",
         "manager",
@@ -495,12 +499,10 @@ class ExporterUsers(ExporterInscriptions):
         "url_site_web",
         "competences",
         "competences_journalisme",
-        "experiences",
-        "formations",
-        "hobbies",
+        "presentation",
         "langues",
-        "metier",
-        "metier_detail",
+        "formations",
+        "experiences",
         "interet_ass_syn",
         "interet_ass_syn_detail",
         "interet_org_priv",
@@ -515,6 +517,10 @@ class ExporterUsers(ExporterInscriptions):
         "secteurs_activite_rp_detail",
         "transformation_majeure",
         "transformation_majeure_detail",
+        "hobbies",
+        "macaron_hebergement",
+        "macaron_repas",
+        "macaron_verre",
     ]
 
     @property
