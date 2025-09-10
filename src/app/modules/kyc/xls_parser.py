@@ -83,6 +83,7 @@ class XLSParser(ModelLoader):
         self.read_profiles(rows)
         self.parse_fields(rows)
         self.build_communities()
+        # self.dump()
 
     @property
     def model(self) -> dict[str, Any]:
@@ -125,7 +126,7 @@ class XLSParser(ModelLoader):
         print("# Modèle KYC")
         print()
         self.dump_fields()
-        self.dump_profiles()
+        self.dump_profiles(full=False)
 
     def read_fields(self, rows) -> None:
         field_i = 0
@@ -199,24 +200,18 @@ class XLSParser(ModelLoader):
         print("## Fields")
         print()
         for field in self.survey_fields.values():
-            print(f"### {field.id}")
-            print()
-            print(field.description)
-            print()
+            print(field)
 
-    def dump_profiles(self) -> None:
+    def dump_profiles(self, full: bool = True) -> None:
         print()
         print("## Profiles")
         print()
         for profile in self.survey_profiles:
-            print(f"### {profile.community} - {profile.id}")
-            print()
-            print(profile.description)
-            print()
-            for group in profile.groups:
-                print(f"grouo: {group.label}")
-                for field, code in group.survey_fields:
-                    if code in {"?", "N"}:
-                        continue
-                    print(f"- {field.id}({code}): {field.description}")
-            print()
+            print(profile)
+            if full:
+                for group in profile.groups:
+                    print(f"group: {group.label}")
+                    for field, code in group.survey_fields:
+                        if code in {"?", "N"}:
+                            continue
+                        print(f"- {field.id}({code}): {field.description}")
