@@ -307,6 +307,7 @@ class KYCProfile(Base):
     info_personnelle: Mapped[dict] = mapped_column(JSON, default=dict)
     info_professionnelle: Mapped[dict] = mapped_column(JSON, default=dict)
     match_making: Mapped[dict] = mapped_column(JSON, default=dict)
+    info_hobby: Mapped[dict] = mapped_column(JSON, default=dict)
     business_wall: Mapped[dict] = mapped_column(JSON, default=dict)
     date_update: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=True, onupdate=func.now()
@@ -323,6 +324,8 @@ class KYCProfile(Base):
             return self.info_personnelle[field_name]
         if field_name in self.match_making:
             return self.match_making[field_name]
+        if field_name in self.info_hobby:
+            return self.info_hobby[field_name]
         if field_name in self.business_wall:
             return self.business_wall[field_name]
         return ""
@@ -365,6 +368,8 @@ class KYCProfile(Base):
             self.update_json_field("info_personnelle", field_name, value)
         elif field_name in self.match_making:
             self.update_json_field("match_making", field_name, value)
+        elif field_name in self.info_hobby:
+            self.update_json_field("info_hobby", field_name, value)
         elif field_name in self.business_wall:
             self.update_json_field("business_wall", field_name, value)
 
@@ -612,6 +617,7 @@ def clone_kycprofile(orig_profile: KYCProfile) -> KYCProfile:
         info_personnelle=orig_profile.info_personnelle,
         info_professionnelle=orig_profile.info_professionnelle,
         match_making=orig_profile.match_making,
+        info_hobby=orig_profile.info_hobby,
         business_wall=orig_profile.business_wall,
     )
 
