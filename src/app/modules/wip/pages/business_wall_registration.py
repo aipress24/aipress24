@@ -7,7 +7,7 @@ from __future__ import annotations
 from typing import Any, NamedTuple
 
 import stripe
-from arrow import Arrow
+from arrow import Arrow, utcnow
 from flask import g, request
 from werkzeug import Response
 
@@ -108,11 +108,20 @@ class SubscriptionInfo(NamedTuple):
 
 def _parse_subscription(subscription: stripe.Subscription) -> SubscriptionInfo:
     """Return meaningful data from Stripe huge Subscription object."""
+    # some subscriptions have no end/start period:
+    try:
+        current_period_end = Arrow.fromtimestamp(subscription.current_period_end)
+    except AttributeError:
+        current_period_end = Arrow(2100, 1, 1)
+    try:
+        current_period_start = (Arrow.fromtimestamp(subscription.current_period_start),)
+    except AttributeError:
+        current_period_start = utcnow()
     return SubscriptionInfo(
         id=subscription.id,
         created=Arrow.fromtimestamp(subscription.created),
-        current_period_end=Arrow.fromtimestamp(subscription.current_period_end),
-        current_period_start=Arrow.fromtimestamp(subscription.current_period_start),
+        current_period_end=current_period_end,
+        current_period_start=current_period_start,
         status=subscription.status == "active",
     )
 
