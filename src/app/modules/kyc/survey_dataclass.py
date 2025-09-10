@@ -25,6 +25,9 @@ class SurveyProfile:
     groups: list[Group] = attr.field(factory=list)
     _organisation_field_cache: str = ""
 
+    def __str__(self):
+        return f"{self.id}, {self.community}, {self.code}, {self.description}"
+
     @property
     def label(self):
         return self.description
@@ -82,6 +85,9 @@ class SurveyField:
         if level == 1:  # medium (default)
             return self.public_default
         return self.public_maxi
+
+    def __str__(self):
+        return f"{self.id}, {self.name}, {self.type}, {self.description:.20}"
 
 
 @attr.frozen
