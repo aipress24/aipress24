@@ -313,6 +313,21 @@ class KYCProfile(Base):
         DateTime(timezone=True), nullable=True, onupdate=func.now()
     )
 
+    def has_field_name(self, field_name: str) -> bool:
+        """Check if 'field_name' is a known key of the KYCProfile."""
+        return any(
+            field_name in d
+            for d in (
+                KYCProfile.__dict__,
+                self.show_contact_details,
+                self.info_professionnelle,
+                self.info_personnelle,
+                self.match_making,
+                self.info_hobby,
+                self.business_wall,
+            )
+        )
+
     def get_value(self, field_name: str) -> Any:
         if field_name in KYCProfile.__dict__:
             return getattr(self, field_name)
