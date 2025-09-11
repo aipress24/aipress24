@@ -326,16 +326,18 @@ class Selector(abc.ABC):
 
         return remove_diacritics(option.label)
 
-    def _get_values_from_experts(self, attr, key) -> set[str]:
+    def _get_values_from_experts(self, key) -> set[str]:
         experts = self.form.all_experts
         # debug(experts[0].profile)
         values = set()
         for expert in experts:
-            if attr in {"match_making", "info_professionnelle"}:
-                field = getattr(expert.profile, attr)
-                values |= set(field[key])
+            value = expert.profile.get_value(key)
+            if not value:
+                continue
+            if isinstance(value, list):
+                values |= set(value)
             else:
-                ...  # TODO
+                values.add(value)
         return values
 
 
@@ -352,7 +354,7 @@ class MetierSelector(Selector):
     label = "Métier"
 
     def get_values(self):
-        return self._get_values_from_experts("match_making", "metier")
+        return self._get_values_from_experts("metier_detail")
 
 
 class FonctionSelector(Selector):
@@ -360,15 +362,9 @@ class FonctionSelector(Selector):
     label = "Fonction"
 
     def get_values(self):
-        v1 = self._get_values_from_experts(
-            "info_professionnelle", "fonctions_ass_syn_detail"
-        )
-        v2 = self._get_values_from_experts(
-            "info_professionnelle", "fonctions_pol_adm_detail"
-        )
-        v3 = self._get_values_from_experts(
-            "info_professionnelle", "fonctions_org_priv_detail"
-        )
+        v1 = self._get_values_from_experts("fonctions_ass_syn_detail")
+        v2 = self._get_values_from_experts("fonctions_pol_adm_detail")
+        v3 = self._get_values_from_experts("fonctions_org_priv_detail")
         return v1 | v2 | v3
 
 
@@ -377,7 +373,7 @@ class TailleOrganisationSelector(Selector):
     label = "Taille de l 'organisation"
 
     def get_values(self):
-        return self._get_values_from_experts("info_professionnelle", "taille_orga")
+        return self._get_values_from_experts("taille_orga")
 
 
 class TypeOrganisationSelector(Selector):
@@ -385,7 +381,7 @@ class TypeOrganisationSelector(Selector):
     label = "Type d'organisation"
 
     def get_values(self):
-        return self._get_values_from_experts("info_professionnelle", "type_orga_detail")
+        return self._get_values_from_experts("type_orga_detail")
 
 
 class RegionSelector(Selector):

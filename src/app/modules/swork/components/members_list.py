@@ -113,8 +113,8 @@ class FilterByCompetency(Filter):
 
     @staticmethod
     def selector(user: User) -> list[str]:
-        mm = user.profile.match_making
-        return mm["competences_journalisme"] + mm["competences"]
+        info = user.profile.info_personnelle
+        return info["competences_journalisme"] + info["competences"]
 
     def apply(self, stmt, state):
         active_options = self.active_options(state)
@@ -122,13 +122,13 @@ class FilterByCompetency(Filter):
             return stmt
         or_parts_orgas = [
             User.profile.has(
-                KYCProfile.match_making["competences"].as_string().icontains(opt)
+                KYCProfile.info_personnelle["competences"].as_string().icontains(opt)
             )
             for opt in active_options
         ]
         or_parts_journalisme = [
             User.profile.has(
-                KYCProfile.match_making["competences_journalisme"]
+                KYCProfile.info_personnelle["competences_journalisme"]
                 .as_string()
                 .icontains(opt)
             )
