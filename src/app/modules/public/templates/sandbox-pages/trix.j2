@@ -1,0 +1,13 @@
+<div
+    x-data="{ value: '' }"
+    x-init="$refs.trix.editor.loadHTML(value)"
+    x-id="['trix']"
+    @trix-change="value = $refs.input.value"
+>
+  <input :id="$id('trix')" type="hidden" x-ref="input">
+
+  <!-- Optional .prose class added to utilize Tailwind's Typography Plugin for styling -->
+  <trix-editor x-ref="trix" :input="$id('trix')" class="prose"></trix-editor>
+
+  <div x-html="value"></div>
+</div>

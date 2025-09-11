@@ -10,7 +10,7 @@ from werkzeug.exceptions import NotFound
 
 from app.modules.public import get
 
-TEMPLATE_DIR = Path(__file__).parent.parent / "templates" / "sandbox"
+TEMPLATE_DIR = Path(__file__).parent.parent / "templates" / "sandbox-pages"
 
 
 @get("/sandbox/")
