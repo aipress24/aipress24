@@ -1,0 +1,440 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mockup: Configurer le Business Wall</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      /* Small style enhancement for multi-select */
+      select[multiple] {
+        padding: 10px;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-100">
+    <div class="container mx-auto p-4 sm:p-8">
+      <h1 class="text-4xl font-bold text-gray-800 mb-8">3- Configurer le Business Wall</h1>
+
+      <!-- Form Start -->
+      <form id="bw-form" class="space-y-8">
+        <!-- BW Type Selector - This controls the dynamic form -->
+        <section class="bg-white p-6 rounded-lg shadow-md">
+          <h2 class="text-2xl font-semibold text-gray-700 border-b pb-4 mb-6">
+            Type de Business Wall
+          </h2>
+          <div>
+            <label for="bwTypeSelector" class="block text-gray-700 font-bold mb-2"
+              >Sélectionnez le type de votre Business Wall :</label
+            >
+            <select
+              id="bwTypeSelector"
+              name="bw_type"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="media">BW for Media</option>
+              <option value="corporate-media">BW for Corporate Media</option>
+              <option value="press-union">BW for Press Union</option>
+              <option value="pr">BW for PR</option>
+              <option value="organizations">BW for Organizations</option>
+              <option value="academics">BW for Academics</option>
+            </select>
+          </div>
+        </section>
+
+        <!-- Section: GRAPHISME -->
+        <section class="bg-white p-6 rounded-lg shadow-md">
+          <h2 class="text-2xl font-semibold text-gray-700 border-b pb-4 mb-6">Graphisme</h2>
+          <div class="space-y-6">
+            <!-- This field is for ALL types -->
+            <div class="form-field-group" data-show-for="all">
+              <label for="logo" class="block text-gray-700 font-bold mb-2"
+                >Logo de votre organisation</label
+              >
+              <input
+                type="file"
+                id="logo"
+                name="logo"
+                class="w-full text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+              />
+            </div>
+            <!-- This field is for ALL types -->
+            <div class="form-field-group" data-show-for="all">
+              <label for="banner" class="block text-gray-700 font-bold mb-2"
+                >Bandeau de votre Business Wall</label
+              >
+              <input
+                type="file"
+                id="banner"
+                name="banner"
+                class="w-full text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+              />
+            </div>
+            <!-- This field is for ALL types -->
+            <div class="form-field-group" data-show-for="all">
+              <label for="gallery" class="block text-gray-700 font-bold mb-2"
+                >Galerie d'images</label
+              >
+              <input
+                type="file"
+                id="gallery"
+                name="gallery"
+                multiple
+                class="w-full text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+              />
+              <p class="text-sm text-gray-500 mt-1">Vous pouvez sélectionner plusieurs images.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Section: INFORMATIONS ADMINISTRATIVES -->
+        <section class="bg-white p-6 rounded-lg shadow-md">
+          <h2 class="text-2xl font-semibold text-gray-700 border-b pb-4 mb-6">
+            Informations Administratives
+          </h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="form-field-group md:col-span-2" data-show-for="all">
+              <label for="org_name" class="block text-gray-700 font-bold mb-2"
+                >Nom officiel de votre organisation</label
+              >
+              <input
+                type="text"
+                id="org_name"
+                name="org_name"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div class="form-field-group" data-show-for="all">
+              <label for="siren" class="block text-gray-700 font-bold mb-2">Numéro de SIREN</label>
+              <input
+                type="text"
+                id="siren"
+                name="siren"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div class="form-field-group" data-show-for="all">
+              <label for="vat_number" class="block text-gray-700 font-bold mb-2"
+                >Numéro de TVA Intra CEE</label
+              >
+              <input
+                type="text"
+                id="vat_number"
+                name="vat_number"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            <!-- Fields specific to certain BW types -->
+            <div class="form-field-group md:col-span-2" data-show-for="media">
+              <label for="press_org_name" class="block text-gray-700 font-bold mb-2"
+                >Nom officiel de votre organe de presse reconnu</label
+              >
+              <input
+                type="text"
+                id="press_org_name"
+                name="press_org_name"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div class="form-field-group md:col-span-2" data-show-for="media">
+              <label for="micro_enterprise_name" class="block text-gray-700 font-bold mb-2"
+                >Nom officiel de votre micro-entreprise de presse</label
+              >
+              <input
+                type="text"
+                id="micro_enterprise_name"
+                name="micro_enterprise_name"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div class="form-field-group" data-show-for="corporate-media">
+              <label for="corp_org_type" class="block text-gray-700 font-bold mb-2"
+                >Type de votre organisation</label
+              >
+              <select
+                id="corp_org_type"
+                name="corp_org_type"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option>Magazine d'entreprise</option>
+                <option>Blog d'entreprise</option>
+                <option>Autre</option>
+              </select>
+            </div>
+            <div class="form-field-group md:col-span-2 flex items-center" data-show-for="media">
+              <input
+                type="checkbox"
+                id="contract"
+                name="contract"
+                class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+              />
+              <label for="contract" class="ml-2 block text-gray-700"
+                >J'ai lu et j'accepte le
+                <a href="#formulaire-contrat" class="text-blue-600 hover:underline"
+                  >contrat de diffusion de contenus éditoriaux</a
+                >.</label
+              >
+            </div>
+            <div
+              class="form-field-group md:col-span-2"
+              data-show-for="media corporate-media press-union"
+            >
+              <label for="member_list" class="block text-gray-700 font-bold mb-2"
+                >Liste officielle des membres d'Aipress24</label
+              >
+              <textarea
+                id="member_list"
+                name="member_list"
+                rows="3"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Dans une vraie application, ceci serait un composant de recherche et de sélection d'utilisateurs."
+              ></textarea>
+            </div>
+          </div>
+        </section>
+
+        <!-- Section: ADRESSE -->
+        <section class="bg-white p-6 rounded-lg shadow-md">
+          <h2 class="text-2xl font-semibold text-gray-700 border-b pb-4 mb-6">
+            Adresse, Tél., URL
+          </h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="form-field-group md:col-span-2" data-show-for="all">
+              <label for="address" class="block text-gray-700 font-bold mb-2"
+                >Adresse postale du siège</label
+              >
+              <textarea
+                id="address"
+                name="address"
+                rows="3"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              ></textarea>
+            </div>
+            <div class="form-field-group" data-show-for="all">
+              <label for="city" class="block text-gray-700 font-bold mb-2">Ville</label>
+              <input
+                type="text"
+                id="city"
+                name="city"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div class="form-field-group" data-show-for="all">
+              <label for="postal_code" class="block text-gray-700 font-bold mb-2"
+                >Code Postal</label
+              >
+              <input
+                type="text"
+                id="postal_code"
+                name="postal_code"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div class="form-field-group md:col-span-2" data-show-for="all">
+              <label for="url" class="block text-gray-700 font-bold mb-2">URL du site web</label>
+              <input
+                type="url"
+                id="url"
+                name="url"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="https://www.exemple.com"
+              />
+            </div>
+          </div>
+        </section>
+
+        <!-- Section: ACTIVITÉS -->
+        <section class="bg-white p-6 rounded-lg shadow-md">
+          <h2 class="text-2xl font-semibold text-gray-700 border-b pb-4 mb-6">
+            Décrivez les Activités de Votre Organisation
+          </h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div
+              class="form-field-group"
+              data-show-for="media corporate-media press-union organizations academics"
+            >
+              <label for="org_activity_type" class="block text-gray-700 font-bold mb-2"
+                >Type de votre organisation</label
+              >
+              <select
+                id="org_activity_type"
+                name="org_activity_type"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option>Entreprise</option>
+                <option>Association</option>
+                <option>Institution Publique</option>
+              </select>
+            </div>
+            <div class="form-field-group" data-show-for="media corporate-media">
+              <label for="press_nature" class="block text-gray-700 font-bold mb-2"
+                >Nature de votre entreprise de presse</label
+              >
+              <select
+                id="press_nature"
+                name="press_nature"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option>Agence de Presse</option>
+                <option>Journal</option>
+                <option>Magazine</option>
+              </select>
+            </div>
+            <div class="form-field-group" data-show-for="media corporate-media">
+              <label for="press_type" class="block text-gray-700 font-bold mb-2"
+                >Type de presse</label
+              >
+              <select
+                id="press_type"
+                name="press_type"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option>Presse Quotidienne Nationale</option>
+                <option>Presse Spécialisée</option>
+                <option>Presse en ligne</option>
+              </select>
+            </div>
+            <div class="form-field-group md:col-span-2" data-show-for="media corporate-media">
+              <label for="editorial_position" class="block text-gray-700 font-bold mb-2"
+                >Positionnement éditorial</label
+              >
+              <textarea
+                id="editorial_position"
+                name="editorial_position"
+                rows="3"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              ></textarea>
+            </div>
+            <div class="form-field-group" data-show-for="media corporate-media">
+              <label for="target_audience" class="block text-gray-700 font-bold mb-2"
+                >Audiences ciblées</label
+              >
+              <input
+                type="text"
+                id="target_audience"
+                name="target_audience"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div class="form-field-group" data-show-for="media corporate-media">
+              <label for="publication_frequency" class="block text-gray-700 font-bold mb-2"
+                >Fréquence de publication</label
+              >
+              <select
+                id="publication_frequency"
+                name="publication_frequency"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option>Quotidienne</option>
+                <option>Hebdomadaire</option>
+                <option>Mensuelle</option>
+              </select>
+            </div>
+            <div class="form-field-group" data-show-for="pr">
+              <label for="pr_type" class="block text-gray-700 font-bold mb-2"
+                >Type de votre PR Agency</label
+              >
+              <select
+                id="pr_type"
+                name="pr_type"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option>Spécialisée Tech</option>
+                <option>Généraliste</option>
+                <option>Institutionnelle</option>
+              </select>
+            </div>
+            <div class="form-field-group md:col-span-2" data-show-for="pr">
+              <label for="pr_clients" class="block text-gray-700 font-bold mb-2">Vos clients</label>
+              <textarea
+                id="pr_clients"
+                name="pr_clients"
+                rows="3"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Dans une vraie application, ceci serait un champ dynamique pour ajouter des clients un par un."
+              ></textarea>
+            </div>
+            <div class="form-field-group" data-show-for="media corporate-media press-union pr">
+              <label for="sectors" class="block text-gray-700 font-bold mb-2"
+                >Secteurs d'activités couverts</label
+              >
+              <select
+                id="sectors"
+                name="sectors"
+                multiple
+                class="w-full h-32 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option>Technologie</option>
+                <option>Finance</option>
+                <option>Santé</option>
+                <option>Environnement</option>
+                <option>Industrie</option>
+              </select>
+              <p class="text-sm text-gray-500 mt-1">
+                Maintenez Ctrl (ou Cmd) pour sélectionner plusieurs options.
+              </p>
+            </div>
+            <div
+              class="form-field-group"
+              data-show-for="media corporate-media pr organizations academics"
+            >
+              <label for="org_size" class="block text-gray-700 font-bold mb-2"
+                >Taille de votre organisation</label
+              >
+              <select
+                id="org_size"
+                name="org_size"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option>1 - 10 employés</option>
+                <option>11 - 50 employés</option>
+                <option>51 - 200 employés</option>
+                <option>201+ employés</option>
+              </select>
+            </div>
+          </div>
+        </section>
+
+        <!-- Submit Button -->
+        <div class="flex justify-end">
+          <button
+            type="submit"
+            class="bg-blue-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Enregistrer les Modifications
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const bwTypeSelector = document.getElementById("bwTypeSelector");
+        const allFields = document.querySelectorAll(".form-field-group");
+
+        function updateFormFields() {
+          const selectedType = bwTypeSelector.value;
+
+          allFields.forEach((field) => {
+            const showFor = field.dataset.showFor;
+
+            // The 'data-show-for' attribute contains a space-separated list of bw_types
+            // or the special value "all"
+            if (showFor === "all" || showFor.includes(selectedType)) {
+              field.classList.remove("hidden");
+            } else {
+              field.classList.add("hidden");
+            }
+          });
+        }
+
+        // Add event listener to the selector
+        bwTypeSelector.addEventListener("change", updateFormFields);
+
+        // Initial call to set the form state on page load
+        updateFormFields();
+      });
+    </script>
+  </body>
+</html>
