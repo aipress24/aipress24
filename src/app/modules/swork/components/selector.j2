@@ -16,7 +16,7 @@
         }
     }"
     x-on:keydown.escape.prevent.stop="close($refs.button)"
-    x-on:focusin.window="! $refs.panel.contains($event.target) && close()"
+    x-on:click.outside="$event.target.closest('[x-id]') !== $refs.panel && $event.target !== $refs.button && close()"
     x-id="['dropdown-button-{{ this._id }}']"
     class="relative"
 >
@@ -38,9 +38,7 @@
       x-ref="panel"
       x-show="open"
       x-transition.origin.top.left
-      x-on:click.outside="close($refs.button)"
       :id="$id('dropdown-button-{{ this._id }}')"
-      style="display: none;"
       class="max-h-[32rem] w-[16rem] overflow-auto absolute z-20 left-0 mt-2 bg-white border border-gray-200"
   >
 
