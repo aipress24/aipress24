@@ -53,6 +53,7 @@ class OrganisationTypeEnum(StrEnum):
 class BWTypeEnum(StrEnum):
     AGENCY = "Business Wall for Press Agencies"
     MEDIA = "Business Wall for Medias"
+    MICRO = "Business Wall for Micro-entreprise"
     CORPORATE = "Business Wall for Corporate Medias"
     PRESSUNION = "Business Wall for Press Union"
     COM = "Business Wall for PR Agencies"

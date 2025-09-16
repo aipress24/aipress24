@@ -177,6 +177,7 @@ def specialize_organization_type(  # noqa: PLR0915
     if {
         BWTypeEnum.MEDIA,
         BWTypeEnum.AGENCY,
+        BWTypeEnum.MICRO,
     } & allowed_bw_types:
         type_entreprise_media = info_pro["type_entreprise_media"]
     org.type_entreprise_media = type_entreprise_media
@@ -187,6 +188,7 @@ def specialize_organization_type(  # noqa: PLR0915
         BWTypeEnum.MEDIA,
         BWTypeEnum.AGENCY,
         BWTypeEnum.CORPORATE,
+        BWTypeEnum.MICRO,
     } & allowed_bw_types:
         type_presse_et_media = info_pro["type_presse_et_media"]
     org.type_presse_et_media = type_presse_et_media

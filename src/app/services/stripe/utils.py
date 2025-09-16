@@ -71,6 +71,14 @@ def load_pricing_table_id(org_bw_type_name: str) -> str:
             pricing = config.get("STRIPE_PRICING_SUBS_COM") or ""
         case "ORGANISATION":
             pricing = config.get("STRIPE_PRICING_SUBS_ORGANISATION") or ""
+        case "UNION":
+            pricing = config.get("STRIPE_PRICING_SUBS_UNION") or ""
+        case "MICRO":
+            pricing = config.get("FLASK_STRIPE_PRICING_SUBS_MICRO") or ""
+        case "ACADEMICS":
+            pricing = config.get("FLASK_STRIPE_PRICING_SUBS_ACADEMICS") or ""
+        case "CORPORATE":
+            pricing = config.get("FLASK_STRIPE_PRICING_SUBS_CORPORATE") or ""
         case _:
             pricing = ""
     if not pricing:
