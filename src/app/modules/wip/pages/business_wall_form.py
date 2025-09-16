@@ -80,6 +80,8 @@ class BWFormGenerator:
                 return self.form_agency()
             case BWTypeEnum.MEDIA:
                 return self.form_media()
+            case BWTypeEnum.MICRO:
+                return self.form_media()
             case BWTypeEnum.CORPORATE:
                 return self.form_corporate()
             case BWTypeEnum.PRESSUNION:

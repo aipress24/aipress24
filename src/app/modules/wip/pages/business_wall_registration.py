@@ -33,13 +33,13 @@ __all__ = ["BusinessWallRegistrationPage"]
 
 # this dict could be replaced later by actual queries:
 PRODUCT_BW = {
-    "MEDIA": "Business Wall for Medias",
-    "AGENCY": "Business Wall for Press Agencies",
-    "PRESSUNION": "Business Wall for Press Unions",
-    "COM": "Business Wall for PR Agencies",
-    "CORPORATE": "Business Wall for Corporates",
-    "ORGANISATION": "Business Wall for Organisations",
-    "TRANSFORMER": "Business Wall for Transformers",
+    "MEDIA": "Business Wall for Media",
+    "PRESSUNION": "Business Wall for Press Union",
+    "MICRO": "Business Wall for Journalistic Micro-enterprise",
+    "COM": "Business Wall for PR Agency",
+    "CORPORATE": "Business Wall for Corporate Media",
+    "ORGANISATION": "Business Wall for Organisation",
+    # "TRANSFORMER": "Business Wall for Transformers",
     "ACADEMICS": "Business Wall for Academics",
 }
 
@@ -48,37 +48,38 @@ PRODUCT_BW_LONG = {x: f"Abonnement {PRODUCT_BW[x]}" for x in PRODUCT_BW}
 # this dict could be replaced later by actual queries:
 PRICE_BW = {
     "MEDIA": "gratuit",
-    "AGENCY": "gratuit",
     "PRESSUNION": "gratuit",
+    "MICRO": "gratuit",
     "COM": "un certain prix",
-    "CORPORATE": "un certain prix",
+    "CORPORATE": "gratuit",
     "ORGANISATION": "un certain prix",
-    "TRANSFORMER": "un certain prix",
-    "ACADEMICS": "un certain prix",
+    "ACADEMICS": "gratuit",
 }
 
 # this dict could be replaced later by actual queries:
 DESCRIPTION_BW = {
     "MEDIA": "Pour les médias, permet d'acheter des contenus.",
-    "AGENCY": "Pour les agences de presse, permet de vendre des contenus.",
     "PRESSUNION": "Pour les syndicats professionnels",
+    "MICRO": "Pour les journalistes en micro-entreprise",
     "COM": "Pour les PR agencies et agences de relations publiques, permet de diffuser des press release.",
     "CORPORATE": "Pour les médias institutionnels, permet d'être au coeur de l'information.",
     "ORGANISATION": "Pour les organisations, permet d'être au coeur de l'information.",
-    "TRANSFORMER": "Pour les Transformers, permet d'être au coeur de l'information.",
+    # "TRANSFORMER": "Pour les Transformers, permet d'être au coeur de l'information.",
     "ACADEMICS": "Pour le corps académique, permet d'être au coeur de l'information.",
 }
 
-# conversion table from the 8 detail types to 3 subscriptions type:
+# conversion table from the 8 detail types to 7 subscriptions type:
+# micro-entreprise is a sub specialized type
 ORG_TYPE_CONVERSION = {
     "AGENCY": "media",
     "MEDIA": "media",
-    "CORPORATE": "organisation",
-    "PRESSUNION": "organisation",
+    "MICRO": "micro",
+    "CORPORATE": "corporate",
+    "PRESSUNION": "pressunion",
     "COM": "com",
     "ORGANISATION": "organisation",
     "TRANSFORMER": "organisation",
-    "ACADEMICS": "organisation",
+    "ACADEMICS": "academics",
 }
 
 

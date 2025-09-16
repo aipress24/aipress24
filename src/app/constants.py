@@ -59,8 +59,8 @@ PROFILE_CODE_TO_BW_TYPE: dict[ProfileEnum, list[BWTypeEnum]] = {
         BWTypeEnum.MEDIA,
         BWTypeEnum.AGENCY,
     ],  # open to all employees
-    ProfileEnum.PM_JR_CP_ME: [BWTypeEnum.MEDIA, BWTypeEnum.AGENCY],
-    ProfileEnum.PM_JR_ME: [BWTypeEnum.MEDIA, BWTypeEnum.AGENCY],
+    ProfileEnum.PM_JR_CP_ME: [BWTypeEnum.AGENCY, BWTypeEnum.MICRO],
+    ProfileEnum.PM_JR_ME: [BWTypeEnum.AGENCY, BWTypeEnum.MICRO],
     ProfileEnum.PM_DIR_INST: [BWTypeEnum.CORPORATE],
     ProfileEnum.PM_JR_INST: [BWTypeEnum.CORPORATE],  # open to all employees
     ProfileEnum.PM_DIR_SYND: [BWTypeEnum.PRESSUNION],

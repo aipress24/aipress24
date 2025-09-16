@@ -23,6 +23,7 @@ LABELS_ORGANISATION_TYPE = {
 LABELS_BW_TYPE = {
     BWTypeEnum.AGENCY: str(BWTypeEnum.AGENCY),
     BWTypeEnum.MEDIA: str(BWTypeEnum.MEDIA),
+    BWTypeEnum.MICRO: str(BWTypeEnum.MICRO),
     BWTypeEnum.CORPORATE: str(BWTypeEnum.CORPORATE),
     BWTypeEnum.PRESSUNION: str(BWTypeEnum.PRESSUNION),
     BWTypeEnum.COM: str(BWTypeEnum.COM),
