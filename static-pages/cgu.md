@@ -2,16 +2,16 @@ title = "Conditions générales d'utilisation"
 
 ---
 
-**Conditions Générales d’Utilisation (CGU) de la plateforme AiPRESS24**
+# Conditions Générales d’Utilisation (CGU) de la plateforme AiPRESS24
 
 Dernière mise à jour : 26 juin 2025
 
 Entrée en vigueur : 1er juillet 2025
 
-# 1\- Conditions d’utilisation d’AiPRESS24
+## 1\- Conditions d’utilisation d’AiPRESS24
 
-Les présentes Conditions Générales d’Utilisation (ci\-après les « CGU ») régissent votre accès et votre utilisation de la plateforme **AiPRESS24** (ci\-après la « Plateforme » ou « **AiPRESS24** »), éditée par Techno\-Chroniqueurs Associés (TCA), agence de presse française agréée par la Commission paritaire des publications et agences de presse (CPPAP).\
-\
+Les présentes Conditions Générales d’Utilisation (ci\-après les « CGU ») régissent votre accès et votre utilisation de la plateforme **AiPRESS24** (ci\-après la « Plateforme » ou « **AiPRESS24** »), éditée par Techno\-Chroniqueurs Associés (TCA), agence de presse française agréée par la Commission paritaire des publications et agences de presse (CPPAP).
+
 En accédant à la Plateforme ou en l’utilisant, vous acceptez d’avoir pris connaissance des présentes CGU et les accepter sans réserve. En cas de refus de tout ou partie des présentes conditions, vous êtes prié.e de ne pas accéder à la Plateforme et de ne pas y opérer.
 
 Les utilisateurs sont responsables de la véracité et de l’exactitude des informations qu’ils saisissent dans la constitution ou l’actualisation de leur profil, ou celles qu’ils publient et postent sur la Plateforme. Ils acceptent que les données contenues dans leur profil (comme leur nom, compétences professionnelles, localisation, etc.) soient visibles par les autres membres, selon les paramètres d’affichage qu’ils règlent eux\-mêmes.
@@ -22,7 +22,7 @@ Les utilisateurs s’interdisent d’avoir un comportement harcelant envers les 
 
 Tout manquement pourra entraîner une suspension ou une suppression du compte, sans préavis.
 
-# 2\- Projet démocratique, sociétal, solidaire, économique et culturel
+## 2\- Projet démocratique, sociétal, solidaire, économique et culturel
 
 « **AiPRESS** » signifie « _Augmented Information for the Press_ ». Quant au nombre 24, il signifie « _24 heures par jour_ ».
 
@@ -32,9 +32,9 @@ Tout manquement pourra entraîner une suspension ou une suppression du compte, s
 
 **AiPRESS24** vise également à renouveler le lien de confiance entre les journalistes et toutes les parties prenantes qui concourent à la fabrique de l’info : rédacteurs en chef, journalistes salariés, journalistes pigistes, consultants en communication et relations presse, dirigeants, décideurs politiques, experts, transformeurs, investisseurs, scientifiques, artistes, étudiants, etc. En ce sens, AiPRESS24 est un projet démocratique, sociétal, solidaire, économique et culturel.
 
-Auprerss24 veut aussi favoriser l’innovation dans le journalisme, tant au plan éditorial que technologique, grâce à son espace MARKET qui comporte des appels à mission et des appels à projets.
+**AiPRESS24** veut aussi favoriser l’innovation dans le journalisme, tant au plan éditorial que technologique, grâce à son espace MARKET qui comporte des appels à mission et des appels à projets.
 
-**3\- Cinq communautés professionnelles**
+## 3\- Cinq communautés professionnelles
 
 **AiPRESS24** digitalise les processus métiers et organisationnels qui mutualisent la production de l’info en orchestrant la contribution de toutes les parties prenantes à la fabrique de l’info.
 
@@ -48,32 +48,30 @@ Auprerss24 veut aussi favoriser l’innovation dans le journalisme, tant au plan
 
  4. **Transformers  :** cabinets conseil en management, entreprises de services numériques, experts des transformations organisationnelles, digitales, énergétique et environnementales, startuppers, incubateurs, éditeurs de logiciels, assistants à la maîtrise d’ouvrage, porteurs de projets d’innovation… Les Transformers sont les professionnels de l’innovation au sens large dans les domaines de la  :
 
-\- Transition artistique ;
-
-\- Transition culturelle ;
-
-\- Transition digitale ;\
-\- Transition écologique ;\
-\- Transition économique ;\
-\- Transition financière ;\
-\- Transition énergétique ;\
-\- Transition managériale ;\
-\- Transition politique ;\
-\- Transition sociale ;\
-\- Transition sociétale ;\
-\- Transition technologique.
+    - Transition artistique ;
+    - Transition culturelle ;
+    - Transition digitale ;
+    - Transition écologique ;
+    - Transition économique ;
+    - Transition financière ;
+    - Transition énergétique ;
+    - Transition managériale ;
+    - Transition politique ;
+    - Transition sociale ;
+    - Transition sociétale ;
+    - Transition technologique.
 
  5. **Academics :** dans toutes disciplines, ce sont les étudiants, stagiaires, alternants et doctorants d’aujourd’hui et les professionnels de demain qui, dès à présent, ont besoin d’avoir un pied dans la réalité et dans la chaîne logistique de l’information et de l’innovation. La communauté des Academics comprend également les dirigeants d’établissements d’enseignement supérieur, d’université, de la laboratoires de recherche, de sociétés de valorisation de la recherche et du transfert de technologie…
 
-Chaque communauté bénéficie de droits spécifiques (publication, consultation, participation aux AED, accès à des services spécialisés) et assume des obligations d’éthique (vérification des faits, traçabilité des déclarations, transparence des offres, etc.).\
-\
+Chaque communauté bénéficie de droits spécifiques (publication, consultation, participation aux AED, accès à des services spécialisés) et assume des obligations d’éthique (vérification des faits, traçabilité des déclarations, transparence des offres, etc.).
+
 La création et la diffusion de contenus doivent s’effectuer dans le respect de l’intégrité journalistique et des droits de tiers..
 
-**3\- Cinq grands modules fonctionnels :**
+## 4\- Cinq grands modules fonctionnels :
 
 Pour apporter de nouvelles recettes éditoriales au journalisme et renouveler le lien entre journalistes et parties prenantes à la fabrique de l’info, **AiPRESS24** s’articule autour de cinq grand modules fonctionnels :
 
-**3\-1\- NEWS l’information vient à vous exactement comme vous le voulez**
+### 4\-1 NEWS l’information vient à vous exactement comme vous le voulez
 
 NEWS est le portail des contenus journalistiques sur lequel atterrissent par défaut tous les membres d’AiPRESS24, une fois authentifiés et connectés. NEWS comporte également les communiqués de presse que publient les consultants RP à la rubrique « Idées & Comm ».
 
@@ -85,7 +83,7 @@ Ces émetteurs sont les agences de presse, les journaux, les magazines et les si
 
 **AiPRESS24** s’attache à vérifier l’authenticité, la fiabilité et l’éthique de chacun de ces émetteurs. En particulier, les sources peuvent afficher leur conformité au référentiel d’assurance qualité Journalisme Trust Initiative (JTI) de Reporters sans frontières (RSF). De même, les source peuvent signaler, dans leur description, leur charte déontologique en matière d’utilisation de l’Intelligence artificielle (IA).
 
-C’est donc en toute sécurité que les membres d’ **AiPRESS24** peuvent s’informer sur l’actualité de leur écosystème économique et concurrentiel dans leur contexte professionnel quotidien, en s’appuyant sur des sources humaines f.
+C’est donc en toute sécurité que les membres d’ **AiPRESS24** peuvent s’informer sur l’actualité de leur écosystème économique et concurrentiel dans leur contexte professionnel quotidien, en s’appuyant sur des sources humaines fiables.
 
 NEWS est le portail d’info du cadre d’aujourd’hui et la caisse de résonance des agences de presse, journaux, magazines et médias. Les consultations d’articles sont vendues unitairement, à la pièce.
 
@@ -93,7 +91,7 @@ NEWS est le portail d’info du cadre d’aujourd’hui et la caisse de résonan
 
 _Certains contenus journalistiques affichent le logo de la nouvelle marque « Source Agence de presse » promue par le Syndicat des agences de presse d’information (SAPI), membre de la Fédération française des agences de presse (FFAP) aux côté du Syndicat des agences de presse audiovisuelles (SATEV) et du Syndicat des agences de presse photographiques (SAPHIR)._
 
-_Ce logo vise à lutter contre les hypertrucages (fakenews), notamment notamment en provenance des IA génératives en labellisant les informations issues des agences de presse grâce à macaron reconnaissable et partagé._
+_Ce logo vise à lutter contre les hypertrucages (fakenews), notamment notamment en provenance des IA génératives en labellisant les informations issues des agences de presse grâce à un macaron reconnaissable et partagé._
 
 **Fluidité de l’acte de paiement**
 
@@ -115,33 +113,26 @@ Si l’on cesse de suivre tel journaliste ou tel organe de presse dans SOCIAL, s
 
 Sur le portail NEWS d’**AiPRESS24**, les consultants RP indépendants, les PR Agencies et les directions de la communication des organisations affichent leurs communiqués de presse à la rubrique « Idées & Comm » du portail NEWS.  Une précision : ce service est entièrement gratuit tant à la consultation qu’à la publication.
 
-A noter :  la rubrique « Idées & Comm » du portail NEWS d’AiPRESS24 vise à centraliser les communiqués de presse de façon exhaustive afin de faciliter la mise en relation des émetteurs avec les journalistes. D’autant que, pour réaliser leurs enquêtes ou trouver des sujets, ces derniers ont l’habitude de consulter communiqués de presse, études, avis d’experts, tribunes, etc. que publient les consultants en Relations presse. Ici, les journalistes les auront tous sous la main au lieu de passer des heures chaque jour à en détruire la majorité dans leur boîte mail.
+A noter : la rubrique « Idées & Comm » du portail NEWS d’AiPRESS24 vise à centraliser les communiqués de presse de façon exhaustive afin de faciliter la mise en relation des émetteurs avec les journalistes. D’autant que, pour réaliser leurs enquêtes ou trouver des sujets, ces derniers ont l’habitude de consulter communiqués de presse, études, avis d’experts, tribunes, etc. que publient les consultants en Relations presse. Ici, les journalistes les auront tous sous la main au lieu de passer des heures chaque jour à en détruire la majorité dans leur boîte mail.
 
 **L’info qu’on veut quand on veut**
 
 Qu’ils soient journalistes, communicants, leaders, experts, transformers ou académiques, les membres d’AiPRESS24  sélectionnent l’information qui les intéressent en fonction des points d’entrée par :
 
-\- secteur d’activité économique,
-
-\- rubrique, par genre,
-
-\- type de presse,
-
-\- géolocalisation...
+   - secteur d’activité économique,
+   - rubrique, par genre,
+   - type de presse,
+   - géolocalisation...
 
 Qui plus est, les membres d’ **AiPRESS24** vont également trier ces contenus par :
 
-\- date,
+   - date,
+   - popularité en termes de nombre de vues,
+   - popularité en termes de likes,
+   - popularité en termes de partages,
+   - popularité en termes de ventes.
 
-\- popularité en termes de nombre de vues,
-
-\- popularité en termes de likes,
-
-popularité en termes de partages,
-
-\-  popularité en termes de ventes.
-
-**3\-2\- WORK** **: l’espace collaboratif au cœur de la fabrique de l’info**
+### 4\-2 WORK : l’espace collaboratif au cœur de la fabrique de l’info
 
 Cet espace affiche des fonctionnalités qui varient selon les profils. C’est l’espace qui permet à chaque membre de s’organiser pour participer à la fabrique de l’info.
 
@@ -186,7 +177,7 @@ Pour leur part, les PR Agencies et les consultants.es indépendants.es en Relati
 
 \- le profil des membres de la direction de la communication de l’organisation émettrice.
 
-**3\-3\-EVENTS : le gestionnaire des événements qui font l’actualité**
+### 4\-3 EVENTS : le gestionnaire des événements qui font l’actualité
 
 A l’instar des communiqués de presse, tous les membres d’Airpess24, y compris les organes de presse, ont la liberté de publier gratuitement des événements à partir de l’espace WORK/Event’room dans l’espace EVENTS d’**AiPRESS24**.
 
@@ -214,11 +205,11 @@ Pour les PR Agencies, les consultants.es indépendants.es en Relations Presse et
 
 Pour leur part, les PR Agencies et les consultants.es indépendants.es en Relations Presse ont la possibilité, sur autorisation expresse de leur client, de poster ses événements en délégation de service. Auquel cas ceux\-ci s’affichent sur :
 
-\-  le Business Wall du client à la rubrique « Evénements »
+\- le Business Wall du client à la rubrique « Evénements »
 
 \- le Business Wall de la PR Agency et du (de la) consultant.e indépendant.e en Relations Presse à la rubrique « Evénements »
 
-**3\-4 MARKET : dynamiser les revenus, missions, projets et carrières**
+### 4\-4 MARKET : dynamiser les revenus, missions, projets et carrières
 
 **Produits éditoriaux :**
 
@@ -288,19 +279,15 @@ Les réponses s’affichent dans WORK/OPPORTUNITÉS/Projects
 
 Sans prétendre être une plateforme de Job Board à part entière, **AiPRESS24** vise à dynamiser ses communautés en permettant à ses membres (ainsi qu’’aux équipes d’**AiPRESS24**) de publier des annonces liées à l’emploi et aux stages :
 
-\- Offres d’emploi en journalisme
-
-\- Offres d’emploi en communication
-
-\- Offres et demandes de stages
-
-\- Offres et demandes d’alternances
-
-\- Offres et demandes de conventions doctorales
+   - Offres d’emploi en journalisme
+   - Offres d’emploi en communication
+   - Offres et demandes de stages
+   - Offres et demandes d’alternances
+   - Offres et demandes de conventions doctorales
 
 Les réponses s’affichent dans WORK/OPPORTUNITÉS/Job Board
 
-**3\-5 SOCIAL**
+## 4\-5 SOCIAL
 
 C’est le réseau social professionnel d’AiPRESS24 interne pour suivre les membres, interagir avec les Journalistes, PR Consultants, Leaders, Experts, Transformers & Academics. Chacun peut accéder à l’ensemble des membres sans aucune restriction. A ceci près : chaque membres peut paramétrer quelles informations personnelles il souhaite exposer à quelle communauté professionnelle dans le menus PRÉFÉRENCES/VISIBILITÉ DU PROFIL PUBLIC/Options de contact.
 
@@ -332,13 +319,10 @@ Dès lors qu’un membre s’inscrit en précisant le nom de l’organisation da
 
 Les informations sont minimalistes. En voici les éléments :
 
-\- description succincte de l’organisation (« A propos »),
-
-\- liste des membres à contacter avec l’étiquette de leur profil (« Contacts »),
-
-\- une galerie d’images (jusqu’à 5),
-
-\- un espace « Dernières activités » qui affiche les Followers.
+- description succincte de l’organisation (« A propos »),
+- liste des membres à contacter avec l’étiquette de leur profil (« Contacts »),
+- une galerie d’images (jusqu’à 5),
+- un espace « Dernières activités » qui affiche les Followers.
 
 **\- Organisations officielles grâce à l’abonnement « Business Wall » :**
 
@@ -346,38 +330,33 @@ Via l'abonnement payant (sauf pour les agences de presse, les journaux, les méd
 
 Cet espace personnalisé permet aux organisations de briller officiellement au sein de la fabrique de l’info. En effet, Business Wall réunit différentes rubriques :
 
-\- la présentation officielle de l’organisation et de ses collaborateurs,
-
-\- une galerie de photos à télécharger par les journalistes,
-
-\- les communiqués de presse de l’organisation,
-
-\- les publications de presse sur l’organisation,
-
-\- les événements qu’organise l’entreprise ou auxquels elle va participer,
-
-\- les annonces Appels à Missions, Appels à projets, et Job board.
+   - la présentation officielle de l’organisation et de ses collaborateurs,
+   - une galerie de photos à télécharger par les journalistes,
+   - les communiqués de presse de l’organisation,
+   - les publications de presse sur l’organisation,
+   - les événements qu’organise l’entreprise ou auxquels elle va participer,
+   - les annonces Appels à Missions, Appels à projets, et Job board.
 
 Bien sûr, il y a également un processus pour passer d'une organisation non officielle à une organisation officielle (abonnement à Business Wall).
 
 **Groupes thématiques (à venir)**
 
-# 4\- **Conditions des licences sur les contenus des sources journalistiques**
+## 5\- Conditions des licences sur les contenus des sources journalistiques
 
 Les sources journalistiques qui publient leurs contenus sur la plateforme conservent tous leurs droits de propriété intellectuelle sur ces contenus. Toutefois, en publiant sur **AiPRESS24**, ils accordent à **AiPRESS24** d’exploitation une licence non exclusive, mondiale, gratuite et révocable d’utilisation, reproduction et communication au public, pour les seuls besoins de fonctionnement de la Plateforme. Cette licence est valable pendant toute la durée de mise en ligne du contenu et cesse automatiquement à la suppression du contenu ou du compte utilisateur.
 
-**5\- Inscription et accès aux services**
+## 6\- Inscription et accès aux services
 
 Pour créer et renforcer le lien de confiance entre les journalistes et toutes les autres communautés professionnelles d’**AiPRESS24**, chaque membre s’inscrit à travers un processus rigoureux qui renseigne, outre les classiques informations personnelles et professionnelles, les facteurs de match\-making, à savoir l’automatisation du jumelage des profils en fonction d’une requête. Les services d’automatisation du jumelage des profils de membres servent à :
 
-\- la notification pour la consultation d’une article offerte gratuitement par un membre dans WORK/OPPORTUNITÉS/Article offert\
-\- la notification d’avis d’enquête journalistique qui se matérialise dans WORK/OPPORTUNITÉS/Opportunités média,\
-\-l a notification d’appels à mission qui se matérialise dans WORK/OPPORTUNITÉS/Missions,\
-\- la notification d’appel à projet qui se matérialise dans WORK/OPPORTUNITÉS/Projects,\
-\- la notification de Job Board qui se matérialise dans WORK/OPPORTUNITÉS/Job Board\
+   - la notification pour la consultation d’une article offerte gratuitement par un membre dans WORK/OPPORTUNITÉS/Article offert\
+   - la notification d’avis d’enquête journalistique qui se matérialise dans WORK/OPPORTUNITÉS/Opportunités média,\
+   - la notification d’appels à mission qui se matérialise dans WORK/OPPORTUNITÉS/Missions,\
+   - la notification d’appel à projet qui se matérialise dans WORK/OPPORTUNITÉS/Projects,\
+   - la notification de Job Board qui se matérialise dans WORK/OPPORTUNITÉS/Job Board\
 
 
-**5\-1 Inscriptions individuelles**
+### 6\-1 Inscriptions individuelles
 
 L’accès aux services d’ **AiPRESS24** présuppose la création préalable d’un compte nominatif pour chaque membre.
 
@@ -387,89 +366,77 @@ Chaque utilisateur s’engage à fournir des informations exactes, complètes et
 
 Chaque utilisateur s’attache aussi à maintenir la confidentialité de ses identifiants. Toute activité réalisée via son compte engage sa responsabilité exclusive.
 
-**5\-2 Inscription individuelle des journalistes**
+### 6\-2 Inscription individuelle des journalistes
 
 L’inscription individuelle de chaque journalistes est vérifiée à la main par les équipes d’**AiPRESS24** . Il s’agit ainsi de garantir qu’une personne qui prétend être journaliste l’est réellement.
 
-**5\-3 Inscription collective via l’abonnement à Business Wall**
+### 6\-3 Inscription collective via l’abonnement à Business Wall
 
 Cet abonnement (gratuit pour la presse, les médias, les journalistes en auto\-entreprise, les associations et syndicats de journalistes) permet d’inscrire collectivement les personnes d’une organisation de façon officielle et responsable. Ce processus fiabilise l’information à la source car c’est l’organisation qui valide les inscriptions de ses membres sur **AiPRESS24**. Cette appartenance officielle à l’organisation contribue à créer la confiance entre les membres, dès l’inscription.
 
 En ce qui concerne les journalistes pigistes, avec ou sans carte de presse, payés en pige salariale ou en facture, les rédacteurs en chef peuvent les inscrire via le processus d’inscription collective de leur Business Wall for Media.
 
-**5\-4 Données personnelles et respect du RGPD**
+### 6\-4 Données personnelles et respect du RGPD
 
 **Droits d’accès des Administrateurs techniques et des Administrateurs opérationnels**
 
-**Pour des raisons d’efficacité technique, notamment sur demande expresse auprès d’AiPRESS24** **(problème technique, requête d’un juge d’instruction...), les Administrateurs techniques d’AiPRESS24** **accèdent à toutes les données sur la plateforme.**
+Pour des raisons d’efficacité technique, notamment sur demande expresse auprès d’**AiPRESS24** (problème technique, requête d’un juge d’instruction...), les Administrateurs techniques d’**AiPRESS24** accèdent à toutes les données sur la plateforme.
 
-**En revanche, pour des raisons d'éthique et de confidentialité des informations concurrentielles, les Administrateurs opérationnels d’AiPRESS24** **n’accèdent évidemment pas aux données concurrentielles des rédactions, en particulier aux avis d’enquête.**
+En revanche, pour des raisons d'éthique et de confidentialité des informations concurrentielles, les Administrateurs opérationnels d’**AiPRESS24** n’accèdent évidemment pas aux données concurrentielles des rédactions, en particulier aux avis d’enquête.
 
-**Cependant, les Administrateurs opérationnels d’** **AiPRESS24** **peuvent suspendre, voire éliminer les comptes des personnes ou des organisations qui contreviennent aux règles d’éthique d’AiPRESS24.**
+Cependant, les Administrateurs opérationnels d’**AiPRESS24** peuvent suspendre, voire éliminer les comptes des personnes ou des organisations qui contreviennent aux règles d’éthique d’**AiPRESS24.**
 
-**Les espaces WORK de chaque organisation sont strictement étanches aux autres organisations.**
+Les espaces WORK de chaque organisation sont strictement étanches aux autres organisations.
 
 **Types de données collectées** :
 
-\- identité : nom, prénom, email pro, photo, fonction,
-
-\- données professionnelles : secteur, employeur, publications,
-
-\- facteurs de match\-making : compétences, métier, position, centres d’intérêt, langues, localisation,
-
-\- données de navigation : IP, activité, cookies, logs,
-
-\- données financières : paiements, abonnements, historique de transactions
+   - identité : nom, prénom, email pro, photo, fonction,
+   - données professionnelles : secteur, employeur, publications,
+   - facteurs de match\-making : compétences, métier, position, centres d’intérêt, langues, localisation,
+   - données de navigation : IP, activité, cookies, logs,
+   - données financières : paiements, abonnements, historique de transactions
 
 **Objectifs du traitement** :
 
-\- créer et sécuriser les comptes,
-
-\- personnaliser les contenus proposés,
-
-\- sécuriser l'information journalistique à la source grâce à la validation de l’inscription des membres,
-
-\- faciliter les interactions et recommandations,
-
-\- produire des statistiques d’usage anonymisées.
+   - créer et sécuriser les comptes,
+   - personnaliser les contenus proposés,
+   - sécuriser l'information journalistique à la source grâce à la validation de l’inscription des membres,
+   - faciliter les interactions et recommandations,
+   - produire des statistiques d’usage anonymisées.
 
 **Conservation** :
 
-\- données de profil : jusqu’à suppression du compte
-
-\- données de paiement : 5 ans (obligations comptables)
-
-\- données de navigation : 12 mois
+   - données de profil : jusqu’à suppression du compte
+   - données de paiement : 5 ans (obligations comptables)
+   - données de navigation : 12 mois
 
 **Droits des utilisateurs** :
 
-\- accès, modification, suppression des données du compte,
+   - accès, modification, suppression des données du compte,
+   - portabilité des données,
+   - opposition à certains traitements,
 
-\- portabilité des données,
-
-\- opposition à certains traitements,
-
-**6\- Responsabilités**
+## 7\- Responsabilités
 
 L’Agence TCA s'efforce de fournir une Plateforme accessible et fonctionnelle, mais ne peut garantir l'absence d'interruptions ou d'erreurs. TCA ne saurait être tenue responsable des dommages directs ou indirects résultant de l'utilisation ou de l'impossibilité d'utiliser la Plateforme.
 
 TCA ne saurait être tenue responsable des contenus publiés par les utilisateurs, ni des relations entre les utilisateurs.
 
-**7\- Modification des Conditions**
+## 8\- Modification des Conditions
 
 TCA se réserve le droit de modifier les présentes Conditions à tout moment. Les modifications seront publiées sur la Plateforme et entreront en vigueur dès leur publication. Votre utilisation continue de la Plateforme après la publication des modifications vaut acceptation des nouvelles Conditions.
 
-**8\- Résiliation**
+## 9\- Résiliation
 
 TCA peut suspendre ou résilier votre accès à la Plateforme à tout moment, sans préavis, en cas de violation des présentes Conditions ou pour toute autre raison jugée légitime.
 
 Vous pouvez résilier votre compte à tout moment en suivant la procédure indiquée sur la Plateforme.
 
-**9\- Droit Applicable et Litiges**
+## 10\- Droit Applicable et Litiges
 
 Les présentes Conditions sont régies par le droit français. Tout litige relatif à l'interprétation ou à l'exécution des présentes Conditions sera soumis à la compétence exclusive des tribunaux français.
 
-**10\- Propriété Intellectuelle**
+## 11\- Propriété Intellectuelle
 
 **Contenus de la Plateforme**
 
@@ -479,66 +446,59 @@ Tous les contenus de la Plateforme, y compris, mais sans s'y limiter, les textes
 
 Les utilisateurs conservent la propriété intellectuelle de leurs contenus, mais les sources journalistiques peuvent accorder à **AiPRESS24** une licence d'utilisation conformément à l’accord résultant de leur abonnement à Business Wall for Media.
 
-**11\-** **Intégralité de l'Accord**
+## 12\- Intégralité de l'Accord
 
 Les présentes Conditions constituent l'intégralité de l'accord entre vous et **AiPRESS24** concernant l'utilisation de la Plateforme.
 
-**12\- Non\-Renonciation**
+## 13\- Non\-Renonciation
 
 Le fait pour **AiPRESS24** de ne pas exercer un droit ou une disposition des présentes Conditions ne constitue pas une renonciation à ce droit ou à cette disposition.
 
-**13\- Divisibilité**
+## 14\- Divisibilité
 
 Si une disposition des présentes Conditions est jugée invalide ou inapplicable, les autres dispositions resteront en vigueur.
 
-**14\- Cession**
+## 15\- Cession
 
 Les membres de la Plateforme ne peuvent pas céder leurs droits ou obligations en vertu des présentes Conditions sans le consentement écrit préalable d’**AiPRESS24** .
 
-**15\- Protection des mineurs**
+## 16\- Protection des mineurs
 
 L’accès à la plateforme **AiPRESS24** est strictement réservé aux personnes majeures (18 ans révolus). Lors de l’inscription, l’utilisateur déclare avoir atteint la majorité légale dans son pays de résidence. **AiPRESS24** se réserve le droit de demander une pièce justificative d’âge à tout moment.
 
-**16\- Force Majeure**
+## 17\- Force Majeure
 
-**AiPRESS24** **ne pourra être tenue responsable en cas d’inexécution ou de mauvaise exécution de l’une quelconque de ses obligations si cette inexécution résulte d’un cas de force majeure tel que défini par la jurisprudence française, incluant notamment mais non limitativement : catastrophe naturelle, incendie, pandémie, grève, guerre, cyberattaque, ou interruption des réseaux de télécommunications.**
+**AiPRESS24** ne pourra être tenue responsable en cas d’inexécution ou de mauvaise exécution de l’une quelconque de ses obligations si cette inexécution résulte d’un cas de force majeure tel que défini par la jurisprudence française, incluant notamment mais non limitativement : catastrophe naturelle, incendie, pandémie, grève, guerre, cyberattaque, ou interruption des réseaux de télécommunications.
 
-**17\- Notification des contenus illicites**
+## 18\- Notification des contenus illicites
 
-**Toute personne peut notifier la présence de contenus illicites ou portant atteinte à ses droits en écrivant à l’adresse : moderation@AiPRESS24.com, en indiquant :**
+Toute personne peut notifier la présence de contenus illicites ou portant atteinte à ses droits en écrivant à l’adresse : moderation@AiPRESS24.com, en indiquant :
 
-\- l’identité du notifiant,
-
-\- la description précise du contenu en cause,
-
-\- le motif juridique de la demande (diffamation, contrefaçon, etc.),
-
-\- la localisation exacte du contenu (URL, capture d’écran).
+   - l’identité du notifiant,
+   - la description précise du contenu en cause,
+   - le motif juridique de la demande (diffamation, contrefaçon, etc.),
+   - la localisation exacte du contenu (URL, capture d’écran).
 
 **AiPRESS24** s’engage à traiter la demande dans un délai raisonnable.
 
-**18\-** **Droit de réclamation (RGPD)**
+## 19\- Droit de réclamation (RGPD)
 
 Conformément au Règlement Général sur la Protection des Données (RGPD), les utilisateurs peuvent introduire une réclamation auprès de la CNIL (www.cnil.fr) s’ils estiment que leurs droits n’ont pas été respectés.
 
-**19\- Sécurité des données**
+## 20\- Sécurité des données
 
 TCA met en œuvre des mesures techniques et organisationnelles appropriées pour assurer la sécurité des données des utilisateurs, notamment :
 
-\- chiffrement des mots de passe,
+   - chiffrement des mots de passe,
+   - authentification par jeton,
+   - journalisation des accès sensibles,
+   - cloisonnement des environnements,
+   - sauvegardes régulières et surveillance des incidents.
 
-\- authentification par jeton,
-
-\- journalisation des accès sensibles,
-
-\- cloisonnement des environnements,
-
-\- sauvegardes régulières et surveillance des incidents.
-
-**20\- Inactivité des comptes**
+## 21\- Inactivité des comptes
 
 Tout compte resté inactif pendant une durée continue de 24 mois pourra être désactivé après notification par email. Les données associées seront supprimées sous 30 jours, sauf obligation légale contraire ou demande explicite de l’utilisateur.
 
-**21\-** **Contact**
+## 22\- Contact
 
 Pour toute question relative aux présentes Conditions, vous pouvez nous contacter à l'adresse suivante : legal@AiPRESS24.com, ou par courrier postal à l'adresse de l’Agence TCA.
