@@ -68,8 +68,9 @@ DESCRIPTION_BW = {
     "ACADEMICS": "Pour le corps académique, permet d'être au coeur de l'information.",
 }
 
-# conversion table from the 8 detail types to 7 subscriptions type:
-# micro-entreprise is a sub specialized type
+# Conversion table from the 8 detail types to 7 actual Stripe products
+# subscriptions type. micro-entreprise is a sub specialized type
+# The values correspon to the metadata field BW of the Stripe product.
 ORG_TYPE_CONVERSION = {
     "AGENCY": "media",
     "MEDIA": "media",
@@ -177,15 +178,15 @@ class BusinessWallRegistrationPage(BaseWipPage):
 
     def filter_bw_subscriptions(self) -> None:
         # convert the 8 detail types to 3 subscriptions type:
-        allowed_bw = {ORG_TYPE_CONVERSION[x.name] for x in self.allowed_subs}
-        info("////  allowed_bw", allowed_bw)
+        actual_allowed_bw = {ORG_TYPE_CONVERSION[x.name] for x in self.allowed_subs}
+        info("////  actual_allowed_bw", actual_allowed_bw)
 
         self.allowed_prod = []
         # print("////  self.prod_info", self.prod_info, file=sys.stderr)
         for prod in self.prod_info:
             meta = prod.metadata
             bw = meta.get("BW", "none")
-            if bw not in allowed_bw:
+            if bw not in actual_allowed_bw:
                 continue
             self.allowed_prod.append(prod)
         info("////  allowed_prod", self.allowed_prod)
@@ -195,10 +196,7 @@ class BusinessWallRegistrationPage(BaseWipPage):
             return
         # verify current subscription is still active on Stripe Reference
         load_stripe_api_key()
-        info(
-            "//////// stripe_subscription_id",
-            self.org.stripe_subscription_id,
-        )
+        info(f"//////// {self.org.stripe_subscription_id=}")
         subscription = self._retrieve_subscription()
         if subscription:
             subscription_info = _parse_subscription(subscription)
@@ -244,7 +242,7 @@ class BusinessWallRegistrationPage(BaseWipPage):
             current_product_name = _current_product.name if _current_product else ""
 
         org_bw_type_name = self.org.bw_type.name if is_bw_active else ""
-        # print("////  org_bw_type_name", org_bw_type_name, file=sys.stderr)
+        print("////  org_bw_type_name", org_bw_type_name)
 
         # First time, if no self.org.bw_type, assume the first self.allowed_subs
         # is allowed, so:
@@ -427,10 +425,14 @@ class BusinessWallRegistrationPage(BaseWipPage):
         # )
 
     def user_profile_to_allowed_subscription(self) -> set[BWTypeEnum]:
+        """Return the allowed BW type for the user profile.
+
+        The user profile (dirigeant journal, journaliste, academics...) open
+        rights to 0 (students) to several allowed BW types. The multiple case
+        is for MEDIA + AGENCY or MICRO + AGENCY.
+        """
         profile = self.user.profile
         profile_code = ProfileEnum[profile.profile_code]
-        # profile_code:  ProfileEnum.XP_DIR_SU
-        # {<BWTypeEnum.ORGANISATION: 'Business Wall for Organisations'>}
         allow_subs = set(PROFILE_CODE_TO_BW_TYPE.get(profile_code, []))
         # print(
         #     "//// user_profile_to_allowed_subscription(): profile_code",

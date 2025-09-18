@@ -45,9 +45,9 @@ BW_TRIGGER_LABEL = {
     "trigger_academics_entrepreneur": "Trigger Entrepreneurs academics",
 }
 
-# The "open to all employees" comment below means that we decided to loosely the possibility
-# to any employee of an organisation to create the relevant BW. So the only remaining empty profil
-# is for students.
+# The "open to all employees" comment below means that we decided to loosely
+# the possibility to any employee of an organisation to create the relevant
+# BW. So the only remaining empty profil is for students.
 # To reverse this change: just use empty lists on the lines with that comment.
 PROFILE_CODE_TO_BW_TYPE: dict[ProfileEnum, list[BWTypeEnum]] = {
     ProfileEnum.PM_DIR: [BWTypeEnum.MEDIA, BWTypeEnum.AGENCY],
@@ -59,8 +59,8 @@ PROFILE_CODE_TO_BW_TYPE: dict[ProfileEnum, list[BWTypeEnum]] = {
         BWTypeEnum.MEDIA,
         BWTypeEnum.AGENCY,
     ],  # open to all employees
-    ProfileEnum.PM_JR_CP_ME: [BWTypeEnum.AGENCY, BWTypeEnum.MICRO],
-    ProfileEnum.PM_JR_ME: [BWTypeEnum.AGENCY, BWTypeEnum.MICRO],
+    ProfileEnum.PM_JR_CP_ME: [BWTypeEnum.MICRO, BWTypeEnum.AGENCY],
+    ProfileEnum.PM_JR_ME: [BWTypeEnum.MICRO, BWTypeEnum.AGENCY],
     ProfileEnum.PM_DIR_INST: [BWTypeEnum.CORPORATE],
     ProfileEnum.PM_JR_INST: [BWTypeEnum.CORPORATE],  # open to all employees
     ProfileEnum.PM_DIR_SYND: [BWTypeEnum.PRESSUNION],
