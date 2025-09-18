@@ -185,9 +185,9 @@ class BWFormGenerator:
 
         BWDynForm.type_presse_et_media = multi_field(
             "type_presse_et_media",
-            "Types d’entreprise de presse",
+            "Positionnement de l'organe de presse",
             True,
-            "multi_type_entreprise_medias",
+            "multi_type_media",
             readonly=self.readonly,
         )
 
@@ -359,9 +359,9 @@ class BWFormGenerator:
 
         BWDynForm.type_presse_et_media = multi_field(
             "type_presse_et_media",
-            "Types d’entreprise de presse",
+            "Positionnement de l'organe de presse",
             True,
-            "multi_type_entreprise_medias",
+            "multi_type_media",
             readonly=self.readonly,
         )
 
@@ -528,9 +528,9 @@ class BWFormGenerator:
 
         BWDynForm.type_presse_et_media = multi_field(
             "type_presse_et_media",
-            "Types d’entreprise de presse",
+            "Positionnement de l'organe de presse",
             True,
-            "multi_type_entreprise_medias",
+            "multi_type_media",
             readonly=self.readonly,
         )
 
@@ -690,9 +690,9 @@ class BWFormGenerator:
 
         # BWDynForm.type_presse_et_media = multi_field(
         #     "type_presse_et_media",
-        #     "Types d’entreprise de presse",
+        #     "Positionnement de l'organe de presse",
         #     True,
-        #     "multi_type_entreprise_medias",
+        #     "multi_type_media",
         #     readonly=self.readonly,
         # )
 
@@ -787,7 +787,7 @@ class BWFormGenerator:
 
         BWDynForm.name = string_field(
             "name",
-            description=("Nom de la PR agency ou de l’agence de communicationl"),
+            description=("Nom de la PR agency ou de l’agence de communication"),
             mandatory=True,
             readonly=self.readonly,
         )
@@ -1522,7 +1522,7 @@ def merge_org_results(  # noqa: PLR0915
 
     org.type_organisation = _parse_list("type_organisation")
     org.type_organisation_detail = _parse_list("type_organisation_detail")
-    org.type_entreprise_media = _parse_list("type_agence_rp")
+    org.type_entreprise_media = _parse_list("type_entreprise_media")
     org.type_presse_et_media = _parse_list("type_presse_et_media")
     org.type_agence_rp = _parse_list("type_agence_rp")
 
