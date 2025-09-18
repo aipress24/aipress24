@@ -74,15 +74,15 @@ def load_pricing_table_id(org_bw_type_name: str) -> str:
         case "UNION":
             pricing = config.get("STRIPE_PRICING_SUBS_UNION") or ""
         case "MICRO":
-            pricing = config.get("FLASK_STRIPE_PRICING_SUBS_MICRO") or ""
+            pricing = config.get("STRIPE_PRICING_SUBS_MICRO") or ""
         case "ACADEMICS":
-            pricing = config.get("FLASK_STRIPE_PRICING_SUBS_ACADEMICS") or ""
+            pricing = config.get("STRIPE_PRICING_SUBS_ACADEMICS") or ""
         case "CORPORATE":
-            pricing = config.get("FLASK_STRIPE_PRICING_SUBS_CORPORATE") or ""
+            pricing = config.get("STRIPE_PRICING_SUBS_CORPORATE") or ""
         case _:
             pricing = ""
     if not pricing:
         print(
-            f'Warning: no Stripe pricing table found for org_bw_type_name "{org_bw_type_name}"'
+            f"Warning: no Stripe pricing table found for org_bw_type_name {org_bw_type_name!r}"
         )
     return pricing

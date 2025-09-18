@@ -35,7 +35,7 @@ __all__ = ["BusinessWallRegistrationPage"]
 PRODUCT_BW = {
     "MEDIA": "Business Wall for Media",
     "PRESSUNION": "Business Wall for Press Union",
-    "MICRO": "Business Wall for Journalistic Micro-enterprise",
+    "MICRO": "Business Wall for Journalistic Micro-entreprise",
     "COM": "Business Wall for PR Agency",
     "CORPORATE": "Business Wall for Corporate Media",
     "ORGANISATION": "Business Wall for Organisation",
@@ -166,7 +166,7 @@ class BusinessWallRegistrationPage(BaseWipPage):
             url=prod.url or "",
         )
         self.prod_info.append(pinfo)
-        info("/// available product:", prod.name, prod.metadata)
+        info("// available stripe product:", prod.name)
 
     def load_product_infos(self) -> None:
         self.stripe_bw_products = stripe_bw_subscription_dict()
@@ -189,7 +189,7 @@ class BusinessWallRegistrationPage(BaseWipPage):
             if bw not in actual_allowed_bw:
                 continue
             self.allowed_prod.append(prod)
-        info("////  allowed_prod", self.allowed_prod)
+        # info("////  allowed_prod", self.allowed_prod)
 
     def update_bw_subscription_state(self) -> None:
         if not self.org or self.org.is_bw_inactive:
@@ -242,19 +242,22 @@ class BusinessWallRegistrationPage(BaseWipPage):
             current_product_name = _current_product.name if _current_product else ""
 
         org_bw_type_name = self.org.bw_type.name if is_bw_active else ""
-        print("////  org_bw_type_name", org_bw_type_name)
+        print(f"//// current org_bw_type_name: {org_bw_type_name!r}")
 
         # First time, if no self.org.bw_type, assume the first self.allowed_subs
         # is allowed, so:
         if not org_bw_type_name:
             if self.allowed_subs:
-                allow_product = self.allowed_subs[0]
+                if BWTypeEnum.MICRO in self.allowed_subs:
+                    allow_product = BWTypeEnum.MICRO
+                else:  # MEDIA or AGENCY
+                    allow_product = self.allowed_subs[0]
                 org_bw_type_name = ORG_TYPE_CONVERSION.get(
                     allow_product.name, "ORGANISATION"
                 )
             else:
                 org_bw_type_name = "ORGANISATION"
-        info("////  org_bw_type_name", org_bw_type_name)
+        info(f"//// proposed org_bw_type_name: {org_bw_type_name!r}")
 
         return {
             "org": self.org,
