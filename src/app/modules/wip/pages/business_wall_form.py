@@ -411,9 +411,10 @@ class BWFormGenerator:
             "frequence_publication", "Fréquence de publication", False, self.readonly
         )
 
-        BWDynForm.agree_arcom = bool_field(
-            "agree_arcom", "Agréé ARCOM", False, self.readonly
-        )
+        # BWDynForm.agree_arcom = bool_field(
+        #     "agree_arcom", "Agréé ARCOM", False, self.readonly
+        # )
+
         BWDynForm.agree_cppap = bool_field(
             "agree_cppap", "Agréé CPPAP", False, self.readonly
         )
