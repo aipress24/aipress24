@@ -191,20 +191,20 @@ class BWFormGenerator:
             readonly=self.readonly,
         )
 
-        BWDynForm.metiers_presse = multi_field(
-            "metiers_presse",
-            "Métiers de la presse",
-            True,
-            "multi_fonctions_journalisme",
-            readonly=self.readonly,
-        )
-        BWDynForm.metiers = dual_multi_field(
-            "metiers",
-            "Le cas échéant, quels autres métiers exercez-vous ?; Métiers",
-            False,
-            "multidual_metiers",
-            self.readonly,
-        )
+        # BWDynForm.metiers_presse = multi_field(
+        #     "metiers_presse",
+        #     "Métiers de la presse",
+        #     True,
+        #     "multi_fonctions_journalisme",
+        #     readonly=self.readonly,
+        # )
+        # BWDynForm.metiers = dual_multi_field(
+        #     "metiers",
+        #     "Le cas échéant, quels autres métiers exercez-vous ?; Métiers",
+        #     False,
+        #     "multidual_metiers",
+        #     self.readonly,
+        # )
 
         BWDynForm.secteurs_activite_medias = dual_multi_field(
             "secteurs_activite_medias",
@@ -268,7 +268,7 @@ class BWFormGenerator:
 
         form = BWDynForm(obj=self.org)
         form.pays_zip_ville.data2 = self.org.pays_zip_ville_detail
-        form.metiers.data2 = self.org.metiers_detail
+        # form.metiers.data2 = self.org.metiers_detail
         form.secteurs_activite_medias.data2 = self.org.secteurs_activite_medias_detail
         # form.secteurs_activite_rp.data2 = self.org.secteurs_activite_rp_detail
         # form.secteurs_activite.data2 = self.org.secteurs_activite_detail
@@ -365,20 +365,20 @@ class BWFormGenerator:
             readonly=self.readonly,
         )
 
-        BWDynForm.metiers_presse = multi_field(
-            "metiers_presse",
-            "Métiers de la presse",
-            True,
-            "multi_fonctions_journalisme",
-            readonly=self.readonly,
-        )
-        BWDynForm.metiers = dual_multi_field(
-            "metiers",
-            "Le cas échéant, quels autres métiers exercez-vous ?; Métiers",
-            False,
-            "multidual_metiers",
-            self.readonly,
-        )
+        # BWDynForm.metiers_presse = multi_field(
+        #     "metiers_presse",
+        #     "Métiers de la presse",
+        #     True,
+        #     "multi_fonctions_journalisme",
+        #     readonly=self.readonly,
+        # )
+        # BWDynForm.metiers = dual_multi_field(
+        #     "metiers",
+        #     "Le cas échéant, quels autres métiers exercez-vous ?; Métiers",
+        #     False,
+        #     "multidual_metiers",
+        #     self.readonly,
+        # )
 
         BWDynForm.secteurs_activite_medias = dual_multi_field(
             "secteurs_activite_medias",
@@ -443,7 +443,7 @@ class BWFormGenerator:
 
         form = BWDynForm(obj=self.org)
         form.pays_zip_ville.data2 = self.org.pays_zip_ville_detail
-        form.metiers.data2 = self.org.metiers_detail
+        # form.metiers.data2 = self.org.metiers_detail
         form.secteurs_activite_medias.data2 = self.org.secteurs_activite_medias_detail
         # form.secteurs_activite_rp.data2 = self.org.secteurs_activite_rp_detail
         # form.secteurs_activite.data2 = self.org.secteurs_activite_detail
@@ -535,20 +535,20 @@ class BWFormGenerator:
             readonly=self.readonly,
         )
 
-        BWDynForm.metiers_presse = multi_field(
-            "metiers_presse",
-            "Métiers de la presse",
-            True,
-            "multi_fonctions_journalisme",
-            readonly=self.readonly,
-        )
-        BWDynForm.metiers = dual_multi_field(
-            "metiers",
-            "Le cas échéant, quels autres métiers exercez-vous ?; Métiers",
-            False,
-            "multidual_metiers",
-            self.readonly,
-        )
+        # BWDynForm.metiers_presse = multi_field(
+        #     "metiers_presse",
+        #     "Métiers de la presse",
+        #     True,
+        #     "multi_fonctions_journalisme",
+        #     readonly=self.readonly,
+        # )
+        # BWDynForm.metiers = dual_multi_field(
+        #     "metiers",
+        #     "Le cas échéant, quels autres métiers exercez-vous ?; Métiers",
+        #     False,
+        #     "multidual_metiers",
+        #     self.readonly,
+        # )
 
         # BWDynForm.secteurs_activite_medias = dual_multi_field(
         #     "secteurs_activite_medias",
@@ -612,7 +612,7 @@ class BWFormGenerator:
 
         form = BWDynForm(obj=self.org)
         form.pays_zip_ville.data2 = self.org.pays_zip_ville_detail
-        form.metiers.data2 = self.org.metiers_detail
+        # form.metiers.data2 = self.org.metiers_detail
         # form.secteurs_activite_medias.data2 = self.org.secteurs_activite_medias_detail
         # form.secteurs_activite_rp.data2 = self.org.secteurs_activite_rp_detail
         # form.secteurs_activite.data2 = self.org.secteurs_activite_detail
@@ -697,20 +697,20 @@ class BWFormGenerator:
         #     readonly=self.readonly,
         # )
 
-        BWDynForm.metiers_presse = multi_field(
-            "metiers_presse",
-            "Métiers de la presse",
-            True,
-            "multi_fonctions_journalisme",
-            readonly=self.readonly,
-        )
-        BWDynForm.metiers = dual_multi_field(
-            "metiers",
-            "Le cas échéant, quels autres métiers exercez-vous ?; Métiers",
-            False,
-            "multidual_metiers",
-            self.readonly,
-        )
+        # BWDynForm.metiers_presse = multi_field(
+        #     "metiers_presse",
+        #     "Métiers de la presse",
+        #     True,
+        #     "multi_fonctions_journalisme",
+        #     readonly=self.readonly,
+        # )
+        # BWDynForm.metiers = dual_multi_field(
+        #     "metiers",
+        #     "Le cas échéant, quels autres métiers exercez-vous ?; Métiers",
+        #     False,
+        #     "multidual_metiers",
+        #     self.readonly,
+        # )
 
         BWDynForm.secteurs_activite_medias = dual_multi_field(
             "secteurs_activite_medias",
@@ -774,7 +774,7 @@ class BWFormGenerator:
 
         form = BWDynForm(obj=self.org)
         form.pays_zip_ville.data2 = self.org.pays_zip_ville_detail
-        form.metiers.data2 = self.org.metiers_detail
+        # form.metiers.data2 = self.org.metiers_detail
         form.secteurs_activite_medias.data2 = self.org.secteurs_activite_medias_detail
         # form.secteurs_activite_rp.data2 = self.org.secteurs_activite_rp_detail
         # form.secteurs_activite.data2 = self.org.secteurs_activite_detail
@@ -865,20 +865,20 @@ class BWFormGenerator:
             readonly=self.readonly,
         )
 
-        BWDynForm.metiers_presse = multi_field(
-            "metiers_presse",
-            "Métiers de la presse",
-            True,
-            "multi_fonctions_journalisme",
-            readonly=self.readonly,
-        )
-        BWDynForm.metiers = dual_multi_field(
-            "metiers",
-            "Le cas échéant, quels autres métiers exercez-vous ?; Métiers",
-            False,
-            "multidual_metiers",
-            self.readonly,
-        )
+        # BWDynForm.metiers_presse = multi_field(
+        #     "metiers_presse",
+        #     "Métiers de la presse",
+        #     True,
+        #     "multi_fonctions_journalisme",
+        #     readonly=self.readonly,
+        # )
+        # BWDynForm.metiers = dual_multi_field(
+        #     "metiers",
+        #     "Le cas échéant, quels autres métiers exercez-vous ?; Métiers",
+        #     False,
+        #     "multidual_metiers",
+        #     self.readonly,
+        # )
 
         BWDynForm.secteurs_activite_rp = dual_multi_field(
             "secteurs_activite_rp",
@@ -942,7 +942,7 @@ class BWFormGenerator:
 
         form = BWDynForm(obj=self.org)
         form.pays_zip_ville.data2 = self.org.pays_zip_ville_detail
-        form.metiers.data2 = self.org.metiers_detail
+        # form.metiers.data2 = self.org.metiers_detail
         # form.secteurs_activite_medias.data2 = self.org.secteurs_activite_medias_detail
         form.secteurs_activite_rp.data2 = self.org.secteurs_activite_rp_detail
         # form.secteurs_activite.data2 = self.org.secteurs_activite_detail
@@ -1033,20 +1033,21 @@ class BWFormGenerator:
         #     readonly=self.readonly,
         # )
 
-        BWDynForm.metiers_presse = multi_field(
-            "metiers_presse",
-            "Métiers de la presse",
-            True,
-            "multi_fonctions_journalisme",
-            readonly=self.readonly,
-        )
-        BWDynForm.metiers = dual_multi_field(
-            "metiers",
-            "Le cas échéant, quels autres métiers exercez-vous ?; Métiers",
-            False,
-            "multidual_metiers",
-            self.readonly,
-        )
+        # BWDynForm.metiers_presse = multi_field(
+        #     "metiers_presse",
+        #     "Métiers de la presse",
+        #     True,
+        #     "multi_fonctions_journalisme",
+        #     readonly=self.readonly,
+        # )
+        # BWDynForm.metiers = dual_multi_field(
+        #     "metiers",
+        #     "Le cas échéant, quels autres métiers exercez-vous ?; Métiers",
+        #     False,
+        #     "multidual_metiers",
+        #     self.readonly,
+        # )
+
         if self.profile_code in {
             ProfileEnum.PR_DIR_COM,
             ProfileEnum.PR_CS_COM,
@@ -1121,7 +1122,7 @@ class BWFormGenerator:
 
         form = BWDynForm(obj=self.org)
         form.pays_zip_ville.data2 = self.org.pays_zip_ville_detail
-        form.metiers.data2 = self.org.metiers_detail
+        # form.metiers.data2 = self.org.metiers_detail
         # form.secteurs_activite_medias.data2 = self.org.secteurs_activite_medias_detail
         if self.profile_code in {
             ProfileEnum.PR_DIR_COM,
@@ -1225,20 +1226,21 @@ class BWFormGenerator:
             readonly=self.readonly,
         )
 
-        BWDynForm.metiers_presse = multi_field(
-            "metiers_presse",
-            "Métiers de la presse",
-            False,
-            "multi_fonctions_journalisme",
-            readonly=self.readonly,
-        )
-        BWDynForm.metiers = dual_multi_field(
-            "metiers",
-            "Le cas échéant, quels autres métiers exercez-vous ?; Métiers",
-            False,
-            "multidual_metiers",
-            self.readonly,
-        )
+        # BWDynForm.metiers_presse = multi_field(
+        #     "metiers_presse",
+        #     "Métiers de la presse",
+        #     False,
+        #     "multi_fonctions_journalisme",
+        #     readonly=self.readonly,
+        # )
+        # BWDynForm.metiers = dual_multi_field(
+        #     "metiers",
+        #     "Le cas échéant, quels autres métiers exercez-vous ?; Métiers",
+        #     False,
+        #     "multidual_metiers",
+        #     self.readonly,
+        # )
+
         BWDynForm.secteurs_activite = dual_multi_field(
             "secteurs_activite",
             "Secteurs d’activité dans lequel exerce votre organisation; Sous secteurs",
@@ -1301,7 +1303,7 @@ class BWFormGenerator:
 
         form = BWDynForm(obj=self.org)
         form.pays_zip_ville.data2 = self.org.pays_zip_ville_detail
-        form.metiers.data2 = self.org.metiers_detail
+        # form.metiers.data2 = self.org.metiers_detail
         # form.secteurs_activite_medias.data2 = self.org.secteurs_activite_medias_detail
         form.secteurs_activite.data2 = self.org.secteurs_activite_detail
         form.type_organisation.data2 = self.org.type_organisation_detail
@@ -1393,20 +1395,21 @@ class BWFormGenerator:
         #     readonly=self.readonly,
         # )
 
-        BWDynForm.metiers_presse = multi_field(
-            "metiers_presse",
-            "Métiers de la presse",
-            False,
-            "multi_fonctions_journalisme",
-            readonly=self.readonly,
-        )
-        BWDynForm.metiers = dual_multi_field(
-            "metiers",
-            "Le cas échéant, quels autres métiers exercez-vous ?; Métiers",
-            False,
-            "multidual_metiers",
-            self.readonly,
-        )
+        # BWDynForm.metiers_presse = multi_field(
+        #     "metiers_presse",
+        #     "Métiers de la presse",
+        #     False,
+        #     "multi_fonctions_journalisme",
+        #     readonly=self.readonly,
+        # )
+        # BWDynForm.metiers = dual_multi_field(
+        #     "metiers",
+        #     "Le cas échéant, quels autres métiers exercez-vous ?; Métiers",
+        #     False,
+        #     "multidual_metiers",
+        #     self.readonly,
+        # )
+
         BWDynForm.secteurs_activite = dual_multi_field(
             "secteurs_activite",
             "Secteurs d’activité dans lequel exerce votre organisation; Sous secteurs",
@@ -1469,7 +1472,7 @@ class BWFormGenerator:
 
         form = BWDynForm(obj=self.org)
         form.pays_zip_ville.data2 = self.org.pays_zip_ville_detail
-        form.metiers.data2 = self.org.metiers_detail
+        # form.metiers.data2 = self.org.metiers_detail
         # form.secteurs_activite_medias.data2 = self.org.secteurs_activite_medias_detail
         form.secteurs_activite.data2 = self.org.secteurs_activite_detail
         form.type_organisation.data2 = self.org.type_organisation_detail
@@ -1527,9 +1530,14 @@ def merge_org_results(  # noqa: PLR0915
     org.type_presse_et_media = _parse_list("type_presse_et_media")
     org.type_agence_rp = _parse_list("type_agence_rp")
 
-    org.metiers_presse = _parse_list("metiers_presse")
-    org.metiers = _parse_list("metiers")  #
-    org.metiers_detail = _parse_list("metiers_detail")  #
+    # "metier" fields removed: .
+    # org.metiers_presse = _parse_list("metiers_presse")
+    # org.metiers = _parse_list("metiers")
+    # org.metiers_detail = _parse_list("metiers_detail")
+    org.metiers_presse = []
+    org.metiers = []
+    org.metiers_detail = []
+
     org.secteurs_activite_medias = _parse_list("secteurs_activite_medias")
     org.secteurs_activite_medias_detail = _parse_list("secteurs_activite_medias_detail")
     org.secteurs_activite_rp = _parse_list("secteurs_activite_rp")
