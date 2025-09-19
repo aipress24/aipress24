@@ -49,7 +49,8 @@ yaml.SafeLoader.add_constructor("!Decimal", decimal_constructor)
 yaml.SafeLoader.add_constructor("!datetime", datetime_constructor)
 yaml.SafeLoader.add_constructor("!arrow", arrow_constructor)
 yaml.SafeLoader.add_constructor(
-    "tag:yaml.org,2002:python/object:arrow.arrow.Arrow", arrow_constructor_mapping
+    "tag:yaml.org,2002:python/object:arrow.arrow.Arrow",
+    arrow_constructor_mapping,
 )
 yaml.SafeLoader.add_constructor(
     "tag:yaml.org,2002:python/object/apply:decimal.Decimal",

@@ -39,10 +39,10 @@ def make_label(obj: Any) -> str:
 
 
 @make_label.register
-def _make_label(obj: OrganisationTypeEnum) -> str:
+def _make_label_orga(obj: OrganisationTypeEnum) -> str:
     return LABELS_ORGANISATION_TYPE[obj]
 
 
 @make_label.register
-def _make_label(obj: BWTypeEnum) -> str:
+def _make_label_bw(obj: BWTypeEnum) -> str:
     return LABELS_BW_TYPE[obj]
