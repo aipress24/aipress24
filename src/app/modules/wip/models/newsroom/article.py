@@ -45,9 +45,6 @@ class Article(
         ArrowType(timezone=True), nullable=True
     )
 
-    # Paiement
-    date_paiement: Mapped[datetime] = mapped_column(ArrowType(timezone=True))
-
     # ------------------------------------------------------------
     # Copied from Publishable
     # ------------------------------------------------------------

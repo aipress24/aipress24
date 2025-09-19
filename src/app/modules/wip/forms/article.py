@@ -60,12 +60,6 @@ article_form = {
             "type": "datetime",
             "width": 3,
         },
-        "date_paiement": {
-            "label": "Date/heure de paiement",
-            "group": "dates",
-            "type": "datetime",
-            "width": 3,
-        },
     },
 }
 

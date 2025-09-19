@@ -26,7 +26,6 @@ def test_article(db_session: scoped_session) -> None:
     article = Article(owner=jim, media=media)
     article.date_parution_prevue = arrow.get("2022-01-01").datetime
     article.date_publication_aip24 = arrow.get("2022-01-01").datetime
-    article.date_paiement = arrow.get("2022-01-01").datetime
 
     # FIXME
     article.commanditaire_id = joe.id
