@@ -15,7 +15,6 @@ from app.lib import adapter
 from app.lib.adapter import Adapter
 from app.models.auth import User
 from app.models.base_content import BaseContent
-from app.models.mixins import IdMixin
 from app.models.organisation import Organisation
 from app.services.activity_stream import ActivityType, post_activity
 
@@ -104,9 +103,7 @@ class SocialUser(FollowableAdapter):
         rows = db.session.execute(stmt)
         return len(list(rows)) == 1
 
-    def get_followees(
-        self, cls: type[IdMixin] = User, order_by=None, limit=0
-    ) -> list[User]:
+    def get_followees(self, cls: type = User, order_by=None, limit=0) -> list[User]:
         assert cls in {User, Organisation}
 
         if cls is User:
@@ -179,30 +176,39 @@ class SocialUser(FollowableAdapter):
     #
     # Likes
     #
-    def is_liking(self, content: BaseContent) -> bool:
+    def is_liking(self, content: BaseContent | SocialContent) -> bool:
+        content_id = (
+            content.id if isinstance(content, BaseContent) else content.content.id
+        )
         stmt = sa.select(likes_table).where(
             likes_table.c.user_id == self.user.id,
-            likes_table.c.content_id == content.id,
+            likes_table.c.content_id == content_id,
         )
         rows = db.session.execute(stmt)
         return len(list(rows)) == 1
 
-    def like(self, content: BaseContent) -> None:
+    def like(self, content: BaseContent | SocialContent) -> None:
         if self.is_liking(content):
             return
 
+        content_id = (
+            content.id if isinstance(content, BaseContent) else content.content.id
+        )
         stmt = sa.insert(likes_table).values(
-            user_id=self.user.id, content_id=content.id
+            user_id=self.user.id, content_id=content_id
         )
         db.session.execute(stmt)
 
-    def unlike(self, content: BaseContent) -> None:
+    def unlike(self, content: BaseContent | SocialContent) -> None:
         if not self.is_liking(content):
             return
 
+        content_id = (
+            content.id if isinstance(content, BaseContent) else content.content.id
+        )
         stmt = sa.delete(likes_table).where(
             likes_table.c.user_id == self.user.id,
-            likes_table.c.content_id == content.id,
+            likes_table.c.content_id == content_id,
         )
         db.session.execute(stmt)
 

@@ -7,7 +7,6 @@ from __future__ import annotations
 import sqlalchemy as sa
 
 from app.flask.extensions import db
-from app.modules.wire.models import ArticlePost, PressReleasePost
 
 from ._models import TagApplication
 from .interfaces import Taggable
@@ -16,13 +15,11 @@ from .interfaces import Taggable
 def add_tag(obj: Taggable, label: str, type: str = "manual") -> TagApplication:
     tag = TagApplication(type=type, label=label)
 
-    match obj:
-        case ArticlePost(id=id):
-            tag.object_id = id
-        case PressReleasePost(id=id):
-            tag.object_id = id
-        case _:  # pragma: no cover
-            raise NotImplementedError
+    # Use duck typing - any object with an id attribute
+    if hasattr(obj, "id"):
+        tag.object_id = obj.id
+    else:  # pragma: no cover
+        raise NotImplementedError
 
     return tag
 

@@ -14,6 +14,7 @@ from sqlalchemy_utils import ArrowType
 from app.models.base_content import BaseContent
 from app.models.mixins import IdMixin, LifeCycleMixin, Owned
 from app.models.organisation import Organisation
+from app.services.tagging.interfaces import Taggable
 
 
 class PostStatus(StrEnum):
@@ -180,7 +181,7 @@ class Post(BaseContent, LifeCycleMixin):
     # taille_contenu: Mapped[str] = mapped_column(default="")
 
 
-class ArticlePost(NewsMetadataMixin, Post):
+class ArticlePost(NewsMetadataMixin, Post, Taggable):
     __mapper_args__ = {
         "polymorphic_identity": "article",
     }
@@ -195,7 +196,7 @@ class ArticlePost(NewsMetadataMixin, Post):
     )
 
 
-class PressReleasePost(NewsMetadataMixin, Post):
+class PressReleasePost(NewsMetadataMixin, Post, Taggable):
     __mapper_args__ = {
         "polymorphic_identity": "press_release",
     }

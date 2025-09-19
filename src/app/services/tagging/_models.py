@@ -11,7 +11,6 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.models.auth import User
 from app.models.base import Base
 from app.models.mixins import IdMixin, Timestamped
-from app.modules.wire.models import Post
 
 
 class TagApplication(Timestamped, IdMixin, Base):
@@ -26,7 +25,7 @@ class TagApplication(Timestamped, IdMixin, Base):
     object_id: Mapped[int] = mapped_column(
         BigInteger, sa.ForeignKey("frt_content.id", ondelete="CASCADE")
     )
-    object: Mapped[Post] = relationship(Post)
+    object: Mapped[Post] = relationship("Post")
 
     def __repr__(self) -> str:
         return f"<TagApplication {self.label!r} on {self.object_id}>"
