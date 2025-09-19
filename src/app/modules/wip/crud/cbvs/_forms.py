@@ -83,7 +83,6 @@ class ArticleForm(Form):
                 "fields": [
                     "date_parution_prevue",
                     "date_publication_aip24",
-                    "date_paiement",
                 ],
             },
         }

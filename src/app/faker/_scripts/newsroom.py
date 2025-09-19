@@ -234,8 +234,5 @@ class ArticlesFakerScript(BaseScript):
         obj.date_publication_aip24 = faker.date_time_between(
             start_date=obj.published_at, end_date="+1y"
         )
-        obj.date_paiement = faker.date_time_between(
-            start_date=obj.published_at, end_date="+1y"
-        )
 
         return obj
