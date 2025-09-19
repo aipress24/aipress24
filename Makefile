@@ -19,9 +19,6 @@ test-sqlite:
 test-postgres:
 	TEST_DATABASE_URI="postgresql://localhost/aipress24_test" pytest
 
-test-with-sqla-warnings:
-	SQLALCHEMY_WARN_20=1 pytest -W always::DeprecationWarning
-
 ## Run tests with coverage
 test-with-coverage:
 	pytest --cov=app --doctest-modules
@@ -53,7 +50,6 @@ lint/ruff:
 
 ## Lint source code and check typing
 lint:
-	adt check
 	ruff check
 	lint-imports
 	deptry src
@@ -124,9 +120,6 @@ fix:
 fix-hard:
 	ruff check --fix --unsafe-fixes
 
-## Cleanup code (using autoflake)
-cleanup-code:
-	autoflake -i -r --remove-all-unused-imports --remove-unused-variables --ignore-init-module-imports src
 
 #
 #  Build and deploy
