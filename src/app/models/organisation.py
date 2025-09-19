@@ -37,30 +37,38 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
 
     __tablename__ = "crp_organisation"
 
-    name: Mapped[str]  # nom officiel de l'organisation
-    slug: Mapped[str]
+    name: Mapped[str]  # nom officiel de l'organisation  # all
+    slug: Mapped[str]  # internal
+
     # note: adding unique=True to siren and TVA breaks session.merge(), this would
     # require a composite key, thus requiring to provide siren and tva on all requests
     # involding the id of the organisation
-    siren: Mapped[str] = mapped_column(nullable=True)  #
-    tva: Mapped[str] = mapped_column(nullable=True)  #
-    nom_groupe: Mapped[str] = mapped_column(
-        default=""
-    )  # nom officiel du titre (média, agence presse) pour les media ou aggency, ou adm
+    siren: Mapped[str] = mapped_column(nullable=True)  # all
+    tva: Mapped[str] = mapped_column(nullable=True)  # all
 
-    tel_standard: Mapped[str] = mapped_column(default="")  #
+    # nom officiel du titre (média, agence presse) pour les media ou aggency,
+    # ou administration. Ou nom de micro entreprise (label different dans forms)
+    # BW: media, micro, corporate, pressunion
+    nom_groupe: Mapped[str] = mapped_column(default="")
+
+    # OBSOLETE
+    tel_standard: Mapped[str] = mapped_column(default="")
+
+    # ONTOLOGIES/Tailles des organisations
+    # all
     taille_orga: Mapped[str] = mapped_column(default="")  # cf ontologies
 
     # Nom et coordonnées directes du dirigeant
     # Préférer "Contact officiel" ?
-    # -> champ descriptif ?
-    leader_name: Mapped[str] = mapped_column(default="")  #
-    leader_coords: Mapped[str] = mapped_column(default="")  #
+    # -> champ descriptif
+    # all
+    leader_name: Mapped[str] = mapped_column(default="")
+    leader_coords: Mapped[str] = mapped_column(default="")
 
     # Nom et coordonnées directes du payeur
-    # -> champ descriptif ?
-    payer_name: Mapped[str] = mapped_column(default="")  #
-    payer_coords: Mapped[str] = mapped_column(default="")  #
+    # -> champ descriptif
+    payer_name: Mapped[str] = mapped_column(default="")
+    payer_coords: Mapped[str] = mapped_column(default="")
 
     #  Adresse du siège social ;
     #  Code postal ;
@@ -80,9 +88,14 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
     # -> uniquement pour presse / media ?
     #  + question unicité...
 
-    description: Mapped[str] = mapped_column(default="")  #
-    metiers: Mapped[dict] = mapped_column(JSON, default=list)  #
-    metiers_detail: Mapped[dict] = mapped_column(JSON, default=list)  #
+    # OBSOLETE
+    description: Mapped[str] = mapped_column(default="")
+
+    # OBSOLETE
+    metiers: Mapped[dict] = mapped_column(JSON, default=list)
+    # OBSOLETE
+    metiers_detail: Mapped[dict] = mapped_column(JSON, default=list)
+
     # from LifeCycleMixin : created_at
     # from LifeCycleMixin : deleted_at
 
@@ -135,9 +148,14 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
     # Web presence
     site_url: Mapped[str] = mapped_column(default="")
 
+    # NOUVEAU
+    # REMPLACER par upload pour logo and cover
     # Pictures
     logo_url: Mapped[str] = mapped_column(default="")
     cover_image_url: Mapped[str] = mapped_column(default="")
+
+    # NOUVEAU
+    # galerie d'images
 
     logo_id: Mapped[str] = mapped_column(default="")
     cover_image_id: Mapped[str] = mapped_column(default="")
@@ -153,17 +171,21 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
     # no_siren = sa.Column(sa.UnicodeText, default="")
     # no_tva = sa.Column(sa.UnicodeText, default="")
 
-    pays_zip_ville: Mapped[str] = mapped_column(default="")  #
-    pays_zip_ville_detail: Mapped[str] = mapped_column(default="")  #
+    # NOUVEAU
+    # adresse postale du siège
+    pays_zip_ville: Mapped[str] = mapped_column(default="")  # all
+    pays_zip_ville_detail: Mapped[str] = mapped_column(default="")  # all
 
     # Specifique aux agences de presse
-    agree_arcom: Mapped[bool] = mapped_column(default=False)  #
-    agree_cppap: Mapped[bool] = mapped_column(default=False)  #
-    number_cppap: Mapped[str] = mapped_column(default="")  #
-    membre_saphir: Mapped[bool] = mapped_column(default=False)  #
-    membre_sapi: Mapped[bool] = mapped_column(default=False)  #
-    membre_satev: Mapped[bool] = mapped_column(default=False)  #
+    agree_arcom: Mapped[bool] = mapped_column(default=False)
+    agree_cppap: Mapped[bool] = mapped_column(default=False)
+    number_cppap: Mapped[str] = mapped_column(default="")
+    membre_saphir: Mapped[bool] = mapped_column(default=False)
+    membre_sapi: Mapped[bool] = mapped_column(default=False)
+    membre_satev: Mapped[bool] = mapped_column(default=False)
 
+    # discussion: 3 types de secteurs d'activité
+    # media, micro, corporate, presunion, com
     secteurs_activite_medias: Mapped[dict] = mapped_column(JSON, default=list)
     secteurs_activite_medias_detail: Mapped[dict] = mapped_column(JSON, default=list)
     secteurs_activite_rp: Mapped[dict] = mapped_column(JSON, default=list)
@@ -171,24 +193,51 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
     secteurs_activite: Mapped[dict] = mapped_column(JSON, default=list)
     secteurs_activite_detail: Mapped[dict] = mapped_column(JSON, default=list)
 
+    # OBSOLETE
     transformation_majeure: Mapped[dict] = mapped_column(JSON, default=list)
     transformation_majeure_detail: Mapped[dict] = mapped_column(JSON, default=list)
 
-    type_organisation: Mapped[dict] = mapped_column(JSON, default=list)  #
-    type_organisation_detail: Mapped[dict] = mapped_column(JSON, default=list)  #
+    # ONTOLOGIES/Types d’organisation :
+    type_organisation: Mapped[dict] = mapped_column(JSON, default=list)  # all
+    type_organisation_detail: Mapped[dict] = mapped_column(JSON, default=list)  # all
+
+    # ONTOLOGIES/Types d’entreprise de presse et média
+    # média, micro, corporate, pressunion
     type_entreprise_media: Mapped[dict] = mapped_column(JSON, default=list)
+
+    # ONTOLOGIES/Types de presse et média
+    # média, micro, corporate
     type_presse_et_media: Mapped[dict] = mapped_column(JSON, default=list)
+
+    # ONTOLOGIES/Types PR Agency
+    # com
     type_agence_rp: Mapped[dict] = mapped_column(JSON, default=list)
 
+    # NOUVEAU
+    # en discussion: clients connus de aipress24
+    # clients: Mapped[str] = mapped_column(default="")
+
+    # OBSOLETE
     main_events: Mapped[str] = mapped_column(default="")  #
     number_customers: Mapped[int] = mapped_column(default=0)  #
     main_customers: Mapped[str] = mapped_column(default="")  #
     main_prizes: Mapped[str] = mapped_column(default="")  #
-    positionnement_editorial: Mapped[str] = mapped_column(default="")  #
-    audience_cible: Mapped[str] = mapped_column(default="")  #
+
+    # média, micro, corporate.  300 signes
+    positionnement_editorial: Mapped[str] = mapped_column(default="")
+
+    # média, micro, corporate.  500 signes
+    audience_cible: Mapped[str] = mapped_column(default="")
+
+    # OBSOLETE
     tirage: Mapped[str] = mapped_column(default="")  #
-    frequence_publication: Mapped[str] = mapped_column(default="")  #
-    metiers_presse: Mapped[dict] = mapped_column(JSON, default=list)  #
+
+    # ONTOLOGIES/Périodicité
+    # media, corporate
+    frequence_publication: Mapped[str] = mapped_column(default="")
+
+    # OBSOLETE
+    metiers_presse: Mapped[dict] = mapped_column(JSON, default=list)
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
