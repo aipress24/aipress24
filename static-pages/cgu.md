@@ -4,9 +4,9 @@ title = "Conditions générales d'utilisation"
 
 # Conditions Générales d’Utilisation (CGU) de la plateforme AiPRESS24
 
-Dernière mise à jour : 26 juin 2025
+Dernière mise à jour : 19 septembre 2025
 
-Entrée en vigueur : 1er juillet 2025
+Entrée en vigueur : 23 septembre 2025
 
 ## 1\- Conditions d’utilisation d’AiPRESS24
 
@@ -277,7 +277,7 @@ Les réponses s’affichent dans WORK/OPPORTUNITÉS/Projects
 
 **Job Board**
 
-Sans prétendre être une plateforme de Job Board à part entière, **AiPRESS24** vise à dynamiser ses communautés en permettant à ses membres (ainsi qu’’aux équipes d’**AiPRESS24**) de publier des annonces liées à l’emploi et aux stages :
+Sans prétendre être une plateforme de Job Board à part entière, **AiPRESS24** vise à dynamiser ses communautés en permettant à ses membres (ainsi qu’aux équipes d’**AiPRESS24**) de publier des annonces liées à l’emploi et aux stages :
 
    - Offres d’emploi en journalisme
    - Offres d’emploi en communication
@@ -349,7 +349,7 @@ Les sources journalistiques qui publient leurs contenus sur la plateforme conser
 
 Pour créer et renforcer le lien de confiance entre les journalistes et toutes les autres communautés professionnelles d’**AiPRESS24**, chaque membre s’inscrit à travers un processus rigoureux qui renseigne, outre les classiques informations personnelles et professionnelles, les facteurs de match\-making, à savoir l’automatisation du jumelage des profils en fonction d’une requête. Les services d’automatisation du jumelage des profils de membres servent à :
 
-   - la notification pour la consultation d’une article offerte gratuitement par un membre dans WORK/OPPORTUNITÉS/Article offert\
+   - la notification pour la consultation d’un article offerte gratuitement par un membre dans WORK/OPPORTUNITÉS/Article offert\
    - la notification d’avis d’enquête journalistique qui se matérialise dans WORK/OPPORTUNITÉS/Opportunités média,\
    - la notification d’appels à mission qui se matérialise dans WORK/OPPORTUNITÉS/Missions,\
    - la notification d’appel à projet qui se matérialise dans WORK/OPPORTUNITÉS/Projects,\
@@ -440,7 +440,7 @@ Les présentes Conditions sont régies par le droit français. Tout litige relat
 
 **Contenus de la Plateforme**
 
-Tous les contenus de la Plateforme, y compris, mais sans s'y limiter, les textes, images, graphiques, logos, marques, logiciels et codes sources, sont la propriété exclusive de TCA ou de ses concédants de licence et sont protégés par les lois françaises et internationales relatives à la propriété intellectuelle.
+Tous les contenus de la Plateforme, y compris, mais sans s'y limiter, les textes, images, graphiques, logos, marques, logiciels et codes sources, sont la propriété exclusive de TECHNO-CHRONIQUEURS ASSOCIÉS (Agence TCA) ou de ses concédants de licence et sont protégés par les lois françaises et internationales relatives à la propriété intellectuelle.
 
 **Contenus des Utilisateurs**
 
@@ -501,4 +501,4 @@ Tout compte resté inactif pendant une durée continue de 24 mois pourra être d
 
 ## 22\- Contact
 
-Pour toute question relative aux présentes Conditions, vous pouvez nous contacter à l'adresse suivante : legal@AiPRESS24.com, ou par courrier postal à l'adresse de l’Agence TCA.
+Pour toute question relative aux présentes Conditions, vous pouvez nous contacter à l'adresse suivante : legal@AiPRESS24.com, ou par courrier postal à l'adresse de l’Agence TCA : TECHNO-CHRONIQUEURS ASSOCIÉS (Agence TCA), 282 rue des Pyrénées, 75020 Paris.
