@@ -23,6 +23,7 @@ from app.flask.lib.htmx import extract_fragment
 from app.flask.lib.templates import templated
 from app.flask.lib.wtforms.renderer import FormRenderer
 from app.models.organisation import Organisation
+from app.modules.kyc.ontology_loader import get_choices as get_ontology_choices
 from app.modules.wip.crud.cbvs._table import BaseTable
 from app.modules.wip.menu import make_menu
 from app.services.blobs import BlobService
@@ -191,6 +192,10 @@ class BaseWipView(FlaskView, abc.ABC):
         if hasattr(form, "media_id"):
             form.media_id.choices = self.get_media_organisations()
 
+    def _make_country_choices(self, form) -> None:
+        if hasattr(form, "pays_zip_ville"):
+            form.pays_zip_ville.choices = get_ontology_choices("country_pays")
+
     def _view_ctx(self, model=None, form=None, mode="edit", title=""):
         self.update_breadcrumbs(label=title)
 
@@ -200,6 +205,7 @@ class BaseWipView(FlaskView, abc.ABC):
         endpoint = f"{self.__class__.__name__}:post"
 
         self._make_media_choices(form)
+        self._make_country_choices(form)
 
         renderer = FormRenderer(
             form,

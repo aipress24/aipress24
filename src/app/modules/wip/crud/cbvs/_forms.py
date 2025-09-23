@@ -5,7 +5,8 @@
 from __future__ import annotations
 
 from wtforms import Form, validators
-from wtforms.fields.choices import SelectField
+
+# from wtforms.fields.choices import SelectField
 from wtforms.fields.simple import StringField, TextAreaField
 
 from app.flask.lib.wtforms.fields import (
@@ -14,6 +15,7 @@ from app.flask.lib.wtforms.fields import (
     RichTextField,
     SimpleRichSelectField,
 )
+from app.modules.kyc.dynform import CountrySelectField
 
 
 class ArticleForm(Form):
@@ -55,6 +57,20 @@ class ArticleForm(Form):
         validators=[validators.InputRequired()],
     )
 
+    pays_zip_ville = CountrySelectField(
+        name="pays_zip_ville",
+        name2="pays_zip_ville_detail",
+        label="Pays",
+        id="pzv",
+        id2="pzv_detail",
+        label2="Code postal et ville",
+        choices=[],
+        # validators=validators_list,
+        validate_choice=False,
+        # render_kw=render_kw,
+        readonly=0,
+    )
+
     # Group: copyright
     copyright = RichSelectField(
         "Mention du copyright", key="copyright-mention", render_kw={"width": 3}
@@ -75,7 +91,14 @@ class ArticleForm(Form):
             "contenu": {"label": "Contenu de l'article", "fields": ["contenu"]},
             "metadata": {
                 "label": "Métadonnées de l'article",
-                "fields": ["genre", "section", "topic", "sector", "media_id"],
+                "fields": [
+                    "genre",
+                    "section",
+                    "topic",
+                    "sector",
+                    "media_id",
+                    "pays_zip_ville",
+                ],
             },
             "copyright": {"label": "Copyright de l'article", "fields": ["copyright"]},
             "dates": {
@@ -326,7 +349,6 @@ class CommuniqueForm(Form):
         validators=[validators.InputRequired()],
     )
 
-
     # publisher_id = SimpleRichSelectField(
     #     "Éditeur / Organisme",
     #     render_kw={"width": 6},
@@ -458,4 +480,3 @@ class EventForm(Form):
                 ],
             },
         }
-
