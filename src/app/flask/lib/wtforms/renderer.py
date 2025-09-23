@@ -203,9 +203,12 @@ class FormRenderer:
 
     def render_field(self, field: Field) -> str:
         field_type_key = kebab_case(field.__class__.__name__)
-        if field_type_key not in FIELD_CLASS_MAP:
-            field_type_key = "default"
-        class_ = FIELD_CLASS_MAP[field_type_key]
+        if field_type_key == "country-select-field":
+            class_ = FIELD_CLASS_MAP["default"]
+        else:
+            if field_type_key not in FIELD_CLASS_MAP:
+                field_type_key = "default"
+            class_ = FIELD_CLASS_MAP[field_type_key]
         if field.errors:
             class_ += " input-error"
 
@@ -219,13 +222,22 @@ class FormRenderer:
         else:
             width = DEFAULT_WIDTH
 
-        ctx = {
-            "id": field.id,
-            "label": field.label.text,
-            "field": Markup(field_str),
-            "errors": field.errors,
-            "width": width,
-        }
+        if field_type_key == "country-select-field":
+            ctx = {
+                "id": field.id,
+                "label": field.label.text,
+                "field": field,
+                "errors": field.errors,
+                "width": width,
+            }
+        else:
+            ctx = {
+                "id": field.id,
+                "label": field.label.text,
+                "field": Markup(field_str),
+                "errors": field.errors,
+                "width": width,
+            }
 
         if self.mode == "view":
             template = current_app.jinja_env.from_string(FIELD_VIEW_TEMPLATE)

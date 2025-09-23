@@ -179,6 +179,10 @@ class BaseWipView(FlaskView, abc.ABC):
 
         form.populate_obj(model)
 
+        if hasattr(model, "pays_zip_ville"):
+            # load the second data field
+            model.pays_zip_ville_detail = request.form.get("pays_zip_ville_detail", "")
+
         if hasattr(model, "media_id"):
             model.media_id = int(model.media_id)
 
@@ -206,6 +210,10 @@ class BaseWipView(FlaskView, abc.ABC):
 
         self._make_media_choices(form)
         self._make_country_choices(form)
+
+        if hasattr(form, "pays_zip_ville"):
+            # load second data field
+            form.pays_zip_ville.data2 = model.pays_zip_ville_detail
 
         renderer = FormRenderer(
             form,
