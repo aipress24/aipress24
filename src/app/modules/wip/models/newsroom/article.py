@@ -70,6 +70,10 @@ class Article(
 
     images: ClassVar[list[Image]]
 
+    pays_zip_ville: Mapped[str] = mapped_column(default="")
+
+    pays_zip_ville_detail: Mapped[str] = mapped_column(default="")
+
     #
     # Images management
     #
