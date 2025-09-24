@@ -213,7 +213,14 @@ class FormRenderer:
             class_ += " input-error"
 
         if self.mode == "view":
-            field_str = self.render_field_value(field.data)
+            if field.name == "media_id":
+                # do display the actual name of the related media
+                if self.model and self.model.media:
+                    field_str = self.model.media.name
+                else:
+                    field_str = ""
+            else:
+                field_str = self.render_field_value(field.data)
         else:
             field_str = field(**{"class": class_})
 
