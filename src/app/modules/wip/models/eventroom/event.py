@@ -80,6 +80,10 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
 
     # Localisation
     address: Mapped[str] = mapped_column(default="")
+
+    pays_zip_ville: Mapped[str] = mapped_column(default="")
+    pays_zip_ville_detail: Mapped[str] = mapped_column(default="")
+
     url: Mapped[str] = mapped_column(default="")
 
     # Langue
