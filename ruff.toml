@@ -30,7 +30,9 @@ lint.ignore = [
     "ANN", # flake8-annotations
     "ARG", # flake8-unused-arguments
     "COM", # flake8-commas
-    "D", # pydocstyle
+    "D1", # pydocstyle
+    "D2", # pydocstyle
+    "D4", # pydocstyle
     "FBT", # flake8-boolean-trap
     "FIX", # flake8-fixme
     "INP", # flake8-no-pep420

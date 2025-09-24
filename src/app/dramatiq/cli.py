@@ -67,7 +67,7 @@ def scheduler() -> None:
 )
 @with_appcontext
 def worker(verbose, processes, threads, queues) -> None:
-    """Run dramatiq workers.
+    r"""Run dramatiq workers.
 
     Setup Dramatiq with broker and task modules from Flask app.
 
