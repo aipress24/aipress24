@@ -432,6 +432,21 @@ class EventForm(Form):
         render_kw={"width": 6},
         validators=[validators.Optional()],
     )
+
+    pays_zip_ville = CountrySelectField(
+        name="pays_zip_ville",
+        name2="pays_zip_ville_detail",
+        label="Pays",
+        id="pzv",
+        id2="pzv_detail",
+        label2="Code postal et ville",
+        choices=[],
+        # validators=validators_list,
+        validate_choice=False,
+        # render_kw=render_kw,
+        readonly=0,
+    )
+
     url = StringField(
         "URL de l'événement (pour les événements en ligne ou hybrides)",
         render_kw={"width": 6},
@@ -468,6 +483,7 @@ class EventForm(Form):
                     "event_type",
                     "sector",
                     "address",
+                    "pays_zip_ville",
                     "url",
                     # "publisher_id",
                 ],

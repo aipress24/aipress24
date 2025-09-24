@@ -213,7 +213,8 @@ class BaseWipView(FlaskView, abc.ABC):
 
         if hasattr(form, "pays_zip_ville"):
             # load second data field
-            form.pays_zip_ville.data2 = model.pays_zip_ville_detail
+            if model:
+                form.pays_zip_ville.data2 = model.pays_zip_ville_detail
 
         renderer = FormRenderer(
             form,
