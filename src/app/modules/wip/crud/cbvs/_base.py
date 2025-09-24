@@ -215,6 +215,10 @@ class BaseWipView(FlaskView, abc.ABC):
             # load second data field
             if model:
                 form.pays_zip_ville.data2 = model.pays_zip_ville_detail
+            if mode == "view":
+                form.pays_zip_ville.lock = 1
+            else:
+                form.pays_zip_ville.lock = 0
 
         renderer = FormRenderer(
             form,
