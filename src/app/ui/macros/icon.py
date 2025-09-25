@@ -42,7 +42,7 @@ def icon(name: str, type="solid", _class: str = "", **kw):
     elif "class" in kw:
         kw["class"] = kw["class"]
 
-    attrs_list = [
+    attrs_list: list[str] = [
         # "stroke='currentColor'",
         # "fill='currentColor'",
     ]
