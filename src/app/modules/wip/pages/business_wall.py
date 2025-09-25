@@ -1,3 +1,7 @@
+# Copyright (c) 2021-2024, Abilian SAS & TCA
+#
+# SPDX-License-Identifier: AGPL-3.0-only
+
 from __future__ import annotations
 
 from typing import Any
@@ -23,11 +27,6 @@ from .base import BaseWipPage
 from .business_wall_form import BWFormGenerator, merge_org_results
 from .home import HomePage
 
-# Copyright (c) 2021-2024, Abilian SAS & TCA
-#
-# SPDX-License-Identifier: AGPL-3.0-only
-
-
 __all__ = ["BusinessWallPage"]
 
 
@@ -42,11 +41,12 @@ class BusinessWallPage(BaseWipPage):
     template = "wip/pages/institutional-page.j2"
     parent = HomePage
 
+    form: FlaskForm | None = None
+    readonly: bool = False
+
     def __init__(self) -> None:
         self.user = g.user
         self.org = self.user.organisation  # Organisation or None
-        self.form = None
-        self.readonly: bool = False
 
     def context(self) -> dict[str, Any]:
         is_auto = self.org and self.org.is_auto
