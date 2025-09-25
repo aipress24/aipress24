@@ -95,6 +95,8 @@ KEY_LABEL_MAP = {
         "profession_fonction_public",
     ),
     "langues": (label_from_values_simple, "langue"),
+    "metier_principal": (label_from_values_dual_first, "metier"),
+    "metier_principal_detail": (label_from_values_dual_second, "metier"),
     "metier": (label_from_values_dual_first, "metier"),
     "metier_detail": (label_from_values_dual_second, "metier"),
     # "nom_group_com": (label_from_values_simple, "agence_rp"),

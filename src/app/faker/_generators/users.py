@@ -330,8 +330,12 @@ class UserGenerator(BaseGenerator):
         profile.info_personnelle["metier_detail"] = values
 
     def _random_metier_principal(self, _user: User, profile: KYCProfile) -> None:
-        word = self.generate_words(1)
-        profile.info_personnelle["metier_principal"] = word
+        taxo = _get_full_taxo_category_value("metier")
+        categ_values = random.choice(taxo)
+        categories = [categ_values[0]]
+        values = [categ_values[1]]
+        profile.info_personnelle["metier_principal"] = categories
+        profile.info_personnelle["metier_principal_detail"] = values
 
     def _random_transformation_majeure(self, _user: User, profile: KYCProfile) -> None:
         taxo = _get_full_taxo_category_value("transformation_majeure")

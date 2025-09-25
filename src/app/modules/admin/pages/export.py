@@ -74,6 +74,7 @@ class ExporterInscriptions:
         "email",
         "tel_mobile",
         "metier_principal",
+        "metier_principal_detail",
         "metier",
         "metier_detail",
         "organisation_name",
@@ -157,9 +158,10 @@ class ExporterInscriptions:
             FieldColumn("macaron_repas", "Repas", small),
             FieldColumn("macaron_verre", "Verre", small),
             FieldColumn("manager", "Manager", short),
-            FieldColumn("metier", "Métier", text8),
             FieldColumn("metier_principal", "Métier principal", text8),
-            FieldColumn("metier_detail", "Métier détail", text8),
+            FieldColumn("metier_principal_detail", "Métier p. détail", text8),
+            FieldColumn("metier", "Métier secondaire", text8),
+            FieldColumn("metier_detail", "Métier s. détail", text8),
             FieldColumn("no_carte_presse", "Carte Presse", text3),
             FieldColumn("organisation_name", "Organisation", text5),
             FieldColumn("pays_zip_ville", "Pays", small),
@@ -257,6 +259,7 @@ class ExporterInscriptions:
                 "pseudo"
                 | "no_carte_presse"
                 | "metier_principal"
+                | "metier_principal_detail"
                 | "metier"
                 | "metier_detail"
                 | "competences"
@@ -419,6 +422,7 @@ class ExporterModifications(ExporterInscriptions):
         "email",
         "tel_mobile",
         "metier_principal",
+        "metier_principal_detail",
         "metier",
         "metier_detail",
         "organisation_name",
@@ -480,6 +484,7 @@ class ExporterUsers(ExporterInscriptions):
         "status",
         "karma",
         "metier_principal",
+        "metier_principal_detail",
         "metier",
         "metier_detail",
         "organisation_name",
