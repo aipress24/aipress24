@@ -4,14 +4,12 @@
 
 from __future__ import annotations
 
-from unittest import skip
-
 import pytest
 
 from app.modules.kyc.field_label import data_to_label
 
 
-@skip
+@pytest.mark.skip
 def test_field_label_unknown(app, db) -> None:
     with pytest.raises(KeyError):
         _result = data_to_label("something", "unknown_field")
@@ -32,14 +30,14 @@ def test_langues(app, db) -> None:
     )
 
 
-@skip
+@pytest.mark.skip
 def test_country(app, db) -> None:
     assert data_to_label("FRA", "pays_zip_ville") == "France"
     assert data_to_label("ITA", "pays_zip_ville") == "Italie"
     assert data_to_label("bad", "pays_zip_ville") == "bad"
 
 
-@skip
+@pytest.mark.skip
 def test_zip_code(app, db) -> None:
     assert (
         data_to_label(
@@ -72,7 +70,7 @@ def test_metier_1(app, db) -> None:
     )
 
 
-@skip
+@pytest.mark.skip
 def test_metier_2(app, db) -> None:
     assert (
         data_to_label("ADMIN.PUBLIQUE;Agent.e de développement rural", "metier_detail")
