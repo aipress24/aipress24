@@ -21,7 +21,8 @@ def default_info_perso() -> dict[str, str | list]:
     return {
         "pseudo": "",
         "no_carte_presse": "",
-        "metier_principal": "",
+        "metier_principal": [],
+        "metier_principal_detail": [],
         "metier": [],
         "metier_detail": [],
         "competences": [],

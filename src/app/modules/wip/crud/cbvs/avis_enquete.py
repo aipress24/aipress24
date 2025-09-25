@@ -354,7 +354,7 @@ class MetierSelector(Selector):
     label = "Métier"
 
     def get_values(self):
-        return self._get_values_from_experts("metier_detail")
+        return self._get_values_from_experts("metier_principal_detail")
 
 
 class FonctionSelector(Selector):
