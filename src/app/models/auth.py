@@ -1,3 +1,4 @@
+"""Authentication models for users, roles, and KYC profiles."""
 # Copyright (c) 2021-2024, Abilian SAS & TCA
 #
 # SPDX-License-Identifier: AGPL-3.0-only

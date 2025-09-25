@@ -1,3 +1,4 @@
+"""Web page and screenshot models for storing crawled content metadata."""
 # Copyright (c) 2021-2024, Abilian SAS & TCA
 #
 # SPDX-License-Identifier: AGPL-3.0-only
@@ -13,6 +14,8 @@ from app.models.base import Base
 
 
 class WebPage(Base):
+    """Model for storing web page metadata and status information."""
+
     __tablename__ = "web_page"
 
     url: Mapped[str] = mapped_column(primary_key=True)
@@ -27,6 +30,8 @@ class WebPage(Base):
 
 
 class ScreenShot(Base):
+    """Model for storing screenshot information linked to web pages."""
+
     __tablename__ = "web_screenshot"
 
     url: Mapped[str] = mapped_column(sa.ForeignKey("web_page.url"), primary_key=True)
