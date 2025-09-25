@@ -1,3 +1,4 @@
+"""Flask application configuration setup."""
 # Copyright (c) 2021-2024, Abilian SAS & TCA
 #
 # SPDX-License-Identifier: AGPL-3.0-only
@@ -17,6 +18,12 @@ from loguru import logger
 
 
 def setup_config(app, config) -> None:
+    """Setup application configuration and logging.
+
+    Args:
+        app: Flask application instance.
+        config: Optional configuration object.
+    """
     configure_app(app, config)
     app.jinja_env.undefined = StrictUndefined
     # Configure logging as soon as we have the config
@@ -24,6 +31,11 @@ def setup_config(app, config) -> None:
 
 
 def init_logging(app: Flask) -> None:
+    """Initialize logging configuration.
+
+    Args:
+        app: Flask application instance.
+    """
     run_from_cli = app.config.get("RUN_FROM_CLI")
     if run_from_cli and not app.debug:
         # Disable logging output in CLI mode
@@ -33,6 +45,12 @@ def init_logging(app: Flask) -> None:
 
 
 def configure_app(app, config) -> None:
+    """Configure the Flask application.
+
+    Args:
+        app: Flask application instance.
+        config: Optional configuration object for testing.
+    """
     if config:
         # Probably testing -> use dedicated config object
         app.config.from_object(config)
@@ -60,6 +78,14 @@ def set_db_uri(app: Flask) -> None:
 
 
 def get_db_url(app):
+    """Get database URL from environment variables.
+
+    Args:
+        app: Flask application instance.
+
+    Returns:
+        str: Database URL or empty string if not found.
+    """
     # Heroku
     database_url = os.environ.get("DATABASE_URL", "")
     # Clever Cloud
@@ -73,6 +99,11 @@ def get_db_url(app):
 
 
 def dump_config(app: Flask) -> None:
+    """Dump application configuration and environment variables.
+
+    Args:
+        app: Flask application instance.
+    """
     config_ = dict(sorted(app.config.items()))
     print("CONFIG:")
     for k, v in config_.items():

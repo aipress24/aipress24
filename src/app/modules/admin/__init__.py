@@ -1,3 +1,4 @@
+"""Admin module with administrative functionality."""
 # Copyright (c) 2021-2024, Abilian SAS & TCA
 #
 # SPDX-License-Identifier: AGPL-3.0-only
@@ -21,6 +22,11 @@ route = blueprint.route
 
 @blueprint.before_request
 def check_admin() -> None:
+    """Check if current user has admin role before processing requests.
+
+    Raises:
+        Unauthorized: If user does not have ADMIN role.
+    """
     user = cast("User", current_user)
     if not has_role(user, "ADMIN"):
         raise Unauthorized

@@ -1,3 +1,5 @@
+"""Wire admin views for article posts."""
+
 # Copyright (c) 2024, Abilian SAS & TCA
 from __future__ import annotations
 
@@ -7,6 +9,8 @@ from app.modules.wire.models import ArticlePost
 
 
 class PostAdmin(ModelView, model=ArticlePost):
+    """Admin interface for ArticlePost model."""
+
     icon = "fa-solid fa-newspaper"
     category = "Wire"
 
@@ -16,4 +20,9 @@ class PostAdmin(ModelView, model=ArticlePost):
 
 
 def register(admin: Admin) -> None:
+    """Register wire-related admin views.
+
+    Args:
+        admin: Admin instance to register views to.
+    """
     admin.add_view(PostAdmin)

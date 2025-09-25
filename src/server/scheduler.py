@@ -1,3 +1,5 @@
+"""Background scheduler for periodic tasks."""
+
 # Copyright (c) 2024, Abilian SAS & TCA
 from __future__ import annotations
 
@@ -10,6 +12,7 @@ from app.modules.search.backend import SearchBackend
 
 
 def index() -> None:
+    """Perform search index update task."""
     print("Indexing...")
     app = create_app()
     with app.app_context():
@@ -18,6 +21,10 @@ def index() -> None:
 
 
 def scheduler() -> None:
+    """Run the background task scheduler.
+
+    Schedules periodic tasks like search indexing.
+    """
     print("Starting scheduler")
     schedule.every().hour.do(index)
 

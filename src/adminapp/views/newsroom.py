@@ -1,3 +1,5 @@
+"""Newsroom admin views for articles, subjects, and commands."""
+
 # Copyright (c) 2024, Abilian SAS & TCA
 from __future__ import annotations
 
@@ -15,6 +17,8 @@ from app.modules.wip.models import (
 
 
 class ArticleAdmin(ModelView, model=Article):
+    """Admin interface for Article model."""
+
     icon = "fa-solid fa-newspaper"
     category = "Newsroom"
 
@@ -31,6 +35,14 @@ class ArticleAdmin(ModelView, model=Article):
         add_in_list=True,
     )
     async def approve_articles(self, request: Request):
+        """Approve selected articles.
+
+        Args:
+            request: The HTTP request containing article IDs to approve.
+
+        Returns:
+            RedirectResponse: Redirect back to the admin interface.
+        """
         pks = request.query_params.get("pks", "").split(",")
         if pks:
             for pk in pks:
@@ -45,6 +57,8 @@ class ArticleAdmin(ModelView, model=Article):
 
 
 class SujetAdmin(ModelView, model=Sujet):
+    """Admin interface for Sujet model."""
+
     icon = "fa-solid fa-pen-nib"
     category = "Newsroom"
 
@@ -54,6 +68,8 @@ class SujetAdmin(ModelView, model=Sujet):
 
 
 class CommandeAdmin(ModelView, model=Commande):
+    """Admin interface for Commande model."""
+
     icon = "fa-solid fa-check"
     category = "Newsroom"
 
@@ -63,6 +79,8 @@ class CommandeAdmin(ModelView, model=Commande):
 
 
 class AvisEnqueteAdmin(ModelView, model=AvisEnquete):
+    """Admin interface for AvisEnquete model."""
+
     icon = "fa-solid fa-bullhorn"
     category = "Newsroom"
 
@@ -72,6 +90,8 @@ class AvisEnqueteAdmin(ModelView, model=AvisEnquete):
 
 
 class JustifPublicationAdmin(ModelView, model=JustifPublication):
+    """Admin interface for JustifPublication model."""
+
     icon = "fa-solid fa-medal"
     category = "Newsroom"
 
@@ -85,6 +105,11 @@ class JustifPublicationAdmin(ModelView, model=JustifPublication):
 
 
 def register(admin: Admin) -> None:
+    """Register newsroom-related admin views.
+
+    Args:
+        admin: Admin instance to register views to.
+    """
     admin.add_view(SujetAdmin)
     admin.add_view(CommandeAdmin)
     admin.add_view(ArticleAdmin)
