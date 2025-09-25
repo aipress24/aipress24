@@ -30,17 +30,17 @@ lint.ignore = [
     "ANN", # flake8-annotations
     "ARG", # flake8-unused-arguments
     "COM", # flake8-commas
-#    "D1", # pydocstyle
+    "D1", # pydocstyle
     "D2", # pydocstyle
     "D4", # pydocstyle
-#    "D100", # Missing docstring in public module
-    "D101", # Missing docstring in public class
-    "D102", # Missing docstring in public method
-    "D103", # Missing docstring in public function
-    "D104", # Missing docstring in package
-    "D105", # Missing docstring in magic method
-    "D106", # Missing docstring in public nested class
-    "D107", # Missing docstring in __init__
+    #"D100", # Missing docstring in public module
+    #"D101", # Missing docstring in public class
+    #"D102", # Missing docstring in public method
+    #"D103", # Missing docstring in public function
+    #"D104", # Missing docstring in package
+    #"D105", # Missing docstring in magic method
+    #"D106", # Missing docstring in public nested class
+    #"D107", # Missing docstring in __init__
     "FBT", # flake8-boolean-trap
     "FIX", # flake8-fixme
     "INP", # flake8-no-pep420
