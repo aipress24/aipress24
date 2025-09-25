@@ -1,3 +1,5 @@
+"""HTMX utilities for fragment extraction and manipulation."""
+
 # Copyright (c) 2024, Abilian SAS & TCA
 from __future__ import annotations
 

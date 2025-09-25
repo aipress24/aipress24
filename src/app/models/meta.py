@@ -8,6 +8,7 @@ from __future__ import annotations
 
 
 def get_meta_attr(obj, attr: str, default=None):
+    """Get an attribute from an object's Meta class or its parent classes."""
     if not hasattr(obj, "Meta"):
         return default
 
@@ -29,4 +30,5 @@ def get_meta_attr(obj, attr: str, default=None):
 
 # Not sure we want this.
 def get_label(obj) -> str:
+    """Get the type label from an object's Meta class."""
     return get_meta_attr(obj, "type_label", "")

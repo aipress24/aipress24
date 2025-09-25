@@ -1,3 +1,4 @@
+"""Dramatiq broker setup and initialization."""
 # Copyright (c) 2021-2024, Abilian SAS & TCA
 #
 # SPDX-License-Identifier: AGPL-3.0-only
@@ -18,6 +19,11 @@ DEFAULT_REDIS_URL = "redis://localhost:6379/0"
 
 
 def init_dramatiq(app) -> None:
+    """Initialize Dramatiq with Redis broker and Flask app context.
+
+    Args:
+        app: Flask application instance.
+    """
     logger.info("Setting up Dramatiq")
 
     redis_url = app.config.get("DRAMATIC_REDIS_URL")
@@ -34,6 +40,11 @@ def init_dramatiq(app) -> None:
 
 
 def setup_broker():
+    """Setup and return a configured Dramatiq broker.
+
+    Returns:
+        Dramatiq broker instance.
+    """
     app = create_app()
     init_dramatiq(app)
     return dramatiq.get_broker()

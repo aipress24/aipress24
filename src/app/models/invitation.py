@@ -1,3 +1,4 @@
+"""Organization invitation model for user onboarding."""
 # Copyright (c) 2021-2024, Abilian SAS & TCA
 #
 # SPDX-License-Identifier: AGPL-3.0-only
@@ -12,6 +13,8 @@ from .mixins import IdMixin, LifeCycleMixin
 
 
 class Invitation(IdMixin, LifeCycleMixin, Base):
+    """Model for organization invitations sent to new users."""
+
     __tablename__ = "org_invitations"
 
     # Only one invitation is allowed for an email -> primary_key

@@ -1,3 +1,4 @@
+"""Dummy actors for testing and demonstration."""
 # Copyright (c) 2021-2024, Abilian SAS & TCA
 #
 # SPDX-License-Identifier: AGPL-3.0-only
@@ -12,9 +13,11 @@ from app.dramatiq.scheduler import crontab
 
 @job()
 def dummy() -> None:
+    """Simple dummy job for testing."""
     logger.info("Dummy job running")
 
 
 @crontab("* * * * *")
 def dummy2() -> None:
+    """Scheduled dummy job that runs every minute."""
     logger.info("Dummy2 job running")

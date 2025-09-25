@@ -41,6 +41,8 @@ from .organisation import Organisation
 
 
 class JobPost(IdMixin, LifeCycleMixin, Owned, Base):
+    """Model for job postings with employer information and metadata."""
+
     __tablename__ = "job_post"
 
     title: Mapped[str]
@@ -67,23 +69,28 @@ class JobPost(IdMixin, LifeCycleMixin, Owned, Base):
     _data: Mapped[dict] = mapped_column(sa.JSON, default={})
 
     def __init__(self, **kwargs) -> None:
+        """Initialize job post with auto-generated slug from title."""
         super().__init__(**kwargs)
         if "slug" not in kwargs:
             self.slug = slugify(self.title)
 
     @property
     def date(self) -> datetime.date:
+        """Get the creation date of the job post."""
         return self.created_at.date()
         # date = self.created_at
         # return Date(date.year, date.month, date.day)
 
     @property
     def age(self) -> int:
+        """Get the age of the job post in days."""
         delta = arrow.now().date() - self.date
         return delta.days
 
 
 class CV(IdMixin, LifeCycleMixin, Owned, Base):
+    """Model for CV/resume information with location and skill codes."""
+
     __tablename__ = "job_cv"
 
     title: Mapped[str]
@@ -94,6 +101,7 @@ class CV(IdMixin, LifeCycleMixin, Owned, Base):
 
     @property
     def date(self) -> datetime.date:
+        """Get the creation date of the CV."""
         return self.created_at.date()
         # created_at: Arrow = cast(Arrow, self.created_at)
         # date = self.created_at.
@@ -101,5 +109,6 @@ class CV(IdMixin, LifeCycleMixin, Owned, Base):
 
     @property
     def age(self) -> int:
+        """Get the age of the CV in days."""
         delta = arrow.now().date() - self.date
         return delta.days

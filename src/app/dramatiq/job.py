@@ -1,3 +1,4 @@
+"""Job decorator and registry for Dramatiq actors."""
 # Copyright (c) 2021-2024, Abilian SAS & TCA
 #
 # SPDX-License-Identifier: AGPL-3.0-only
@@ -13,6 +14,12 @@ _actor_registry = set()
 
 
 def job():
+    """Decorator to register a function as a Dramatiq job.
+
+    Returns:
+        Decorator function that wraps the target function.
+    """
+
     def decorator(func):
         logger.debug("Registering cron job: {}", func.__name__)
         actor = LazyActor(func)
@@ -23,6 +30,7 @@ def job():
 
 
 def register_regular_jobs() -> None:
+    """Register all regular jobs with the Dramatiq broker."""
     logger.info("Registering regular jobs on Dramatiq")
 
     for actor in _actor_registry:
