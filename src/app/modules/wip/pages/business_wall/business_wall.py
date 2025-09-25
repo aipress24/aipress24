@@ -23,9 +23,9 @@ from app.modules.kyc.renderer import render_field
 from app.services.stripe.product import stripe_bw_subscription_dict
 from app.services.stripe.utils import load_stripe_api_key
 
-from .base import BaseWipPage
+from app.modules.wip.pages.base import BaseWipPage
 from .business_wall_form import BWFormGenerator, merge_org_results
-from .home import HomePage
+from app.modules.wip.pages.home import HomePage
 
 __all__ = ["BusinessWallPage"]
 

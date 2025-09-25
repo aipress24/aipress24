@@ -25,7 +25,7 @@ from app.modules.admin.org_email_utils import (
 )
 from app.modules.admin.utils import gc_organisation, toggle_org_active
 from app.modules.kyc.renderer import render_field
-from app.modules.wip.pages.business_wall_form import BWFormGenerator
+from app.modules.wip.pages.business_wall.business_wall_form import BWFormGenerator
 
 from .base import AdminListPage
 from .orgs import AdminOrgsPage
