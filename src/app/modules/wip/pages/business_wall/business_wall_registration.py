@@ -25,9 +25,9 @@ from app.services.stripe.utils import (
     load_stripe_api_key,
 )
 
-from .base import BaseWipPage
-from .home import HomePage
-from .utils import info, warning
+from app.modules.wip.pages.base import BaseWipPage
+from app.modules.wip.pages.home import HomePage
+from app.modules.wip.pages.utils import info, warning
 
 __all__ = ["BusinessWallRegistrationPage"]
 
@@ -112,13 +112,13 @@ def _parse_subscription(subscription: stripe.Subscription) -> SubscriptionInfo:
     """Return meaningful data from Stripe huge Subscription object."""
     # some subscriptions have no end/start period:
     try:
-        current_period_end = Arrow.fromtimestamp(subscription.current_period_end)
-    except AttributeError:
-        current_period_end = Arrow(2100, 1, 1)
-    try:
         current_period_start = (Arrow.fromtimestamp(subscription.current_period_start),)
     except AttributeError:
         current_period_start = utcnow()
+    try:
+        current_period_end = Arrow.fromtimestamp(subscription.current_period_end)
+    except AttributeError:
+        current_period_end = Arrow(2100, 1, 1)
     return SubscriptionInfo(
         id=subscription.id,
         created=Arrow.fromtimestamp(subscription.created),
