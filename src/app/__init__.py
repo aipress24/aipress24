@@ -1,3 +1,5 @@
+"""Main application package for AI Press 24."""
+
 # Copyright (c) 2021-2024, Abilian SAS & TCA
 #
 # SPDX-License-Identifier: AGPL-3.0-only
@@ -7,6 +9,11 @@ from flask import Flask
 
 
 def create_app():
+    """Create and configure the Flask application.
+
+    Returns:
+        Flask: Configured Flask application instance.
+    """
     app = Flask(__name__)
     # ... other app configurations ...
 

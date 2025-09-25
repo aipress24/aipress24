@@ -1,3 +1,5 @@
+"""KYC and authentication admin views."""
+
 # Copyright (c) 2024, Abilian SAS & TCA
 from __future__ import annotations
 
@@ -8,6 +10,8 @@ from app.models.organisation import Organisation
 
 
 class UserAdmin(ModelView, model=User):
+    """Admin interface for User model."""
+
     name = "Utilisateur"
     name_plural = "Utilisateurs"
     icon = "fa-solid fa-user"
@@ -26,6 +30,8 @@ class UserAdmin(ModelView, model=User):
 
 
 class OrganisationAdmin(ModelView, model=Organisation):
+    """Admin interface for Organisation model."""
+
     icon = "fa-solid fa-building"
     category = "Auth / KYC"
 
@@ -37,6 +43,8 @@ class OrganisationAdmin(ModelView, model=Organisation):
 
 
 class ProfileAdmin(ModelView, model=KYCProfile):
+    """Admin interface for KYC Profile model."""
+
     name = "Profil KYC"
     name_plural = "Profils KYC"
     icon = "fa-solid fa-user"
@@ -49,6 +57,8 @@ class ProfileAdmin(ModelView, model=KYCProfile):
 
 
 class RoleAdmin(ModelView, model=Role):
+    """Admin interface for Role model."""
+
     icon = "fa-solid fa-user"
     category = "Auth / KYC"
 
@@ -57,6 +67,11 @@ class RoleAdmin(ModelView, model=Role):
 
 
 def register(admin: Admin) -> None:
+    """Register KYC-related admin views.
+
+    Args:
+        admin: Admin instance to register views to.
+    """
     admin.add_view(UserAdmin)
     admin.add_view(OrganisationAdmin)
     admin.add_view(ProfileAdmin)

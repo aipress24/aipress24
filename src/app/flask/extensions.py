@@ -1,3 +1,4 @@
+"""Flask extensions setup and initialization."""
 # Copyright (c) 2021-2024, Abilian SAS & TCA
 #
 # SPDX-License-Identifier: AGPL-3.0-only
@@ -46,6 +47,11 @@ htmx = HTMX()
 
 
 def register_extensions(app: Flask) -> None:
+    """Register all Flask extensions.
+
+    Args:
+        app: Flask application instance.
+    """
     logger.debug("Registering all extensions")
 
     db.init_app(app)
@@ -67,6 +73,11 @@ def register_extensions(app: Flask) -> None:
 
 
 def setup_debug_toolbar(app: Flask) -> None:
+    """Setup Flask debug toolbar for development.
+
+    Args:
+        app: Flask application instance.
+    """
     from flask_debugtoolbar import DebugToolbarExtension
 
     DebugToolbarExtension(app)

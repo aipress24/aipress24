@@ -1,3 +1,5 @@
+"""Main server application with Flask and admin app integration."""
+
 # Copyright (c) 2024, Abilian SAS & TCA
 from __future__ import annotations
 
@@ -26,6 +28,11 @@ else:
 
 
 def create_app():
+    """Create combined ASGI application with Flask and admin apps.
+
+    Returns:
+        Starlette: Combined application with mounted Flask and admin apps.
+    """
     flask_app = WsgiToAsgi(create_flask_app())
     admin_app = create_admin_app()
 
@@ -41,6 +48,13 @@ def create_app():
 def serve(
     port: int = PORT, debug: bool = DEBUG, log_level: LogLevels = LOG_LEVEL
 ) -> None:
+    """Start the server with integrated Flask and admin applications.
+
+    Args:
+        port: Port number to serve on.
+        debug: Enable debug mode.
+        log_level: Logging level for the server.
+    """
     print("debug:", debug)
 
     scheduler_thread = threading.Thread(target=scheduler)

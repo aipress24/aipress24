@@ -1,3 +1,4 @@
+"""Dramatiq CLI commands for queue management and workers."""
 # Copyright (c) 2021-2024, Abilian SAS & TCA
 #
 # SPDX-License-Identifier: AGPL-3.0-only
@@ -27,12 +28,13 @@ BROKER = "app.dramatiq.setup:setup_broker"
 
 @group(short_help="Queue commands")
 def queue() -> None:
-    pass
+    """Queue management commands."""
 
 
 @queue.command()
 @with_appcontext
 def scheduler() -> None:
+    """Run the task scheduler."""
     run_scheduler()
 
 
@@ -134,6 +136,7 @@ def worker(verbose, processes, threads, queues) -> None:
 @queue.command()
 @with_appcontext
 def info() -> None:
+    """Display information about registered actors."""
     broker = dramatiq.get_broker()
     all_actors = broker.actors.values()
 
@@ -143,6 +146,15 @@ def info() -> None:
 
 
 def list_managed_actors(broker, queues):
+    """List actors managed by the broker for specific queues.
+
+    Args:
+        broker: Dramatiq broker instance.
+        queues: List of queue names to filter by.
+
+    Returns:
+        List of actors for the specified queues.
+    """
     queues = set(queues)
     all_actors = broker.actors.values()
     if not queues:
@@ -151,6 +163,14 @@ def list_managed_actors(broker, queues):
 
 
 def guess_code_directory(broker):
+    """Guess the code directory from broker actors.
+
+    Args:
+        broker: Dramatiq broker instance.
+
+    Returns:
+        Path to the code directory.
+    """
     actor = next(iter(broker.actors.values()))
     modname, *_ = actor.fn.__module__.partition(".")
     mod = sys.modules[modname]
@@ -158,10 +178,19 @@ def guess_code_directory(broker):
 
 
 def format_actor(actor) -> str:
+    """Format an actor for display.
+
+    Args:
+        actor: Dramatiq actor instance.
+
+    Returns:
+        Formatted string representation of the actor.
+    """
     return f"{actor.actor_name}@{actor.queue_name}"
 
 
 @queue.command()
 @with_appcontext
 def launch_dummy() -> None:
+    """Launch a dummy task for testing."""
     dummy.send()

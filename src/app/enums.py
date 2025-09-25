@@ -1,3 +1,4 @@
+"""Enumeration classes for application constants."""
 # Copyright (c) 2021-2024, Abilian SAS & TCA
 #
 # SPDX-License-Identifier: AGPL-3.0-only
@@ -10,6 +11,8 @@ from aenum import StrEnum
 
 
 class RoleEnum(StrEnum):
+    """User role enumeration."""
+
     ADMIN = "admin"
     GUEST = "guest"
 
@@ -25,6 +28,8 @@ class RoleEnum(StrEnum):
 
 
 class CommunityEnum(StrEnum):
+    """Community type enumeration."""
+
     PRESS_MEDIA = "Press & Media"
     COMMUNICANTS = "Communicants"
     LEADERS_EXPERTS = "Leaders & Experts"
@@ -33,6 +38,8 @@ class CommunityEnum(StrEnum):
 
 
 class ContactTypeEnum(StrEnum):
+    """Contact type enumeration."""
+
     PRESSE = "Journalistes"
     COMMUNICANT = "Communicants"
     EXPERT = "Experts"
@@ -43,6 +50,8 @@ class ContactTypeEnum(StrEnum):
 
 
 class OrganisationTypeEnum(StrEnum):
+    """Organisation type enumeration."""
+
     AUTO = "Auto"  # user created, aka no actual type
     MEDIA = "Media"  # "Médias"  , not including AGENCY
     AGENCY = "Agency"  # "Agences de presse"  # not detected in KYC structure
@@ -51,6 +60,8 @@ class OrganisationTypeEnum(StrEnum):
 
 
 class BWTypeEnum(StrEnum):
+    """Business Wall type enumeration."""
+
     AGENCY = "Business Wall for Press Agencies"
     MEDIA = "Business Wall for Medias"
     MICRO = "Business Wall for Micro-entreprise"
@@ -62,8 +73,9 @@ class BWTypeEnum(StrEnum):
     ACADEMICS = "Business Wall for Academics"
 
 
-# 33 Profiles of users
 class ProfileEnum(Enum):
+    """User profile enumeration with 33 different profiles."""
+
     PM_DIR = "PM_DIR"
     PM_JR_CP_SAL = "PM_JR_CP_SAL"
     PM_JR_PIG = "PM_JR_PIG"

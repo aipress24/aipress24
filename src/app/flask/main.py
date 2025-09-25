@@ -1,3 +1,4 @@
+"""Main Flask application factory and configuration."""
 # Copyright (c) 2021-2024, Abilian SAS & TCA
 #
 # SPDX-License-Identifier: AGPL-3.0-only
@@ -60,6 +61,14 @@ configure_logging()
 
 
 def create_app(config=None) -> Flask:
+    """Create and configure the Flask application.
+
+    Args:
+        config: Optional configuration object for testing.
+
+    Returns:
+        Flask: Configured Flask application instance.
+    """
     app = Flask(__name__, template_folder="../templates", static_folder="../static")
     app = svcs.flask.init_app(app)
 
@@ -78,6 +87,11 @@ def create_app(config=None) -> Flask:
 
 
 def register_all(app: Flask) -> None:
+    """Register all application components, extensions, and services.
+
+    Args:
+        app: Flask application instance.
+    """
     # Extensions
     register_extensions(app)
     register_stripe(app)
@@ -120,6 +134,11 @@ def register_all(app: Flask) -> None:
 
 
 def _check_stripe_configuration(app: Flask) -> None:
+    """Check completeness of Stripe configuration.
+
+    Args:
+        app: Flask application instance.
+    """
     if not check_stripe_secret_key(app):
         logger.debug("STRIPE_SECRET_KEY not found in config")
     if not check_stripe_public_key(app):
@@ -129,6 +148,11 @@ def _check_stripe_configuration(app: Flask) -> None:
 
 
 def register_debug_hooks(app: Flask) -> None:
+    """Register debug hooks for development.
+
+    Args:
+        app: Flask application instance.
+    """
     if not app.config.get("DEBUG_CONFIG"):
         return
 
@@ -154,6 +178,11 @@ def register_debug_hooks(app: Flask) -> None:
 
 
 def register_blueprints(app: Flask) -> None:
+    """Register all module blueprints.
+
+    Args:
+        app: Flask application instance.
+    """
     for name in find_modules(MODULES, include_packages=True):
         module = import_string(name)
         if not hasattr(module, "blueprint"):
@@ -167,11 +196,22 @@ def register_blueprints(app: Flask) -> None:
 
 
 def register_everything_else(app: Flask) -> None:
+    """Register remaining components via callbacks.
+
+    Args:
+        app: Flask application instance.
+    """
     for callback in lookup("register_on_app"):
         callback(app)
 
 
 def register_perf_watcher(app: Flask) -> None:
+    """Register performance monitoring hooks.
+
+    Args:
+        app: Flask application instance.
+    """
+
     class Timer:
         def __init__(self) -> None:
             self.start = time.time()
@@ -196,21 +236,40 @@ def register_perf_watcher(app: Flask) -> None:
 
 
 def register_filters(app: Flask) -> None:
+    """Register Jinja2 template filters.
+
+    Args:
+        app: Flask application instance.
+    """
     app.template_filter("label")(make_label)
     app.template_filter("localdt")(make_localdt)
     app.template_filter("naivedt")(make_naivedt)
 
 
 def register_stripe(app: Flask) -> None:
+    """Configure Stripe API key.
+
+    Args:
+        app: Flask application instance.
+    """
     stripe.api_key = app.config.get("STRIPE_API_KEY")
 
 
 def register_extra_apps(app: Flask) -> None:
-    pass
+    """Register additional applications.
+
+    Args:
+        app: Flask application instance.
+    """
     # app.register_blueprint(rq_dashboard.blueprint, url_prefix="/rq")
 
 
 def bootstrap_db(app) -> None:
+    """Bootstrap the database with initial data.
+
+    Args:
+        app: Flask application instance.
+    """
     with app.app_context():
         session = container.get(scoped_session)
         try:
