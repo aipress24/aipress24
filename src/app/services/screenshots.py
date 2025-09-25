@@ -35,7 +35,7 @@ class ScreenshotService:
 
 
 class ScreenshotSession:
-    temp_file: str | None = None
+    # The S3 object ID (key) where the image has been uploaded
     object_id: str | None = None
 
     def __init__(self, url, config) -> None:
@@ -48,6 +48,7 @@ class ScreenshotSession:
         self.s3_url = config["S3_URL"]
 
         self.temp_file = tempfile.mkstemp(suffix=".png")
+        self.temp_path = Path(self.temp_file[1])
 
     def run(self) -> None:
         try:
@@ -59,8 +60,8 @@ class ScreenshotSession:
             self.cleanup()
 
     def cleanup(self) -> None:
-        if Path(self.temp_file).exists():
-            Path(self.temp_file).unlink()
+        if self.temp_path.exists():
+            self.temp_path.unlink()
 
     def take_screenshot(self) -> None:
         args = [
@@ -87,10 +88,10 @@ class ScreenshotSession:
             )
             raise ScreenshotError
 
-        if not Path(self.temp_file).exists():
+        if not self.temp_path.exists():
             raise ScreenshotError
 
-        if Path(self.temp_file).stat().st_size < 10000:
+        if self.temp_path.stat().st_size < 10000:
             logger.info("Error screenshotting: size is too small", url=self.url)
             raise ScreenshotError
 
@@ -104,5 +105,5 @@ class ScreenshotSession:
         )
         s3 = session.resource("s3", endpoint_url=self.s3_url)
         bucket = s3.Bucket(self.s3_bucket_name)
-        with Path(self.temp_file).open("rb") as fd:
+        with self.temp_path.open("rb") as fd:
             bucket.upload_fileobj(fd, self.object_id, ExtraArgs={"ACL": "public-read"})
