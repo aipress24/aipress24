@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+import arrow
 from flask_sqlalchemy import SQLAlchemy
 
 from app.models.auth import User
@@ -28,7 +29,7 @@ def test_create_invoice(db: SQLAlchemy) -> None:
 
     invoice.owner = user
     invoice.invoice_number = "INV-2021-0001"
-    invoice.invoice_date = "2021-01-01"
+    invoice.invoice_date = arrow.get("2021-01-01")
     invoice.total = 5000
 
     db.session.add(invoice)
