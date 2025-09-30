@@ -41,10 +41,10 @@ class ValidBWImageField(FileField):
         self,
         data: bytes,
     ) -> None:
-        self.data = data
-        self.data_b64 = base64.standard_b64encode(data)
+        self.data = data or b""
+        self.data_b64 = base64.standard_b64encode(self.data)
         # self.preload_filename = filename
-        self.preload_filesize = len(data)
+        self.preload_filesize = len(self.data)
 
     def preloaded_image(self) -> str:
         return self.data_b64.decode()
