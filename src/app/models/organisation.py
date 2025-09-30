@@ -151,8 +151,11 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
     # NOUVEAU
     # REMPLACER par upload pour logo and cover
     # Pictures
-    logo_url: Mapped[str] = mapped_column(default="")
+    # logo_url: Mapped[str] = mapped_column(default="")
     cover_image_url: Mapped[str] = mapped_column(default="")
+
+    # phase1: storage as binary (to be changed)
+    logo_content: Mapped[bytes] = mapped_column(sa.LargeBinary, nullable=True)
 
     # NOUVEAU
     # galerie d'images
@@ -246,6 +249,10 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
 
     def __repr__(self) -> str:
         return f"<Organisation {self.name}>"
+
+    @property
+    def logo_url(self) -> str:
+        return ""
 
     @property
     def is_auto(self) -> bool:

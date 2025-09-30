@@ -1,0 +1,108 @@
+<div>
+    <div
+    x-data="{
+		imageLoaded: false,
+		imagePreloaded: false,
+		imgsrc: null,
+		image: {
+			size:null,
+			dimension:null,
+		},
+		maxImageSize: {{ field.max_image_size }},
+		preloaded_image: null,
+		preload_filesize: {{ field.preload_filesize }},
+		preload_filesize_kb: 0,
+		imageError: '',
+		selectedFile() {
+            this.imageLoaded = false;
+            this.preloaded_image = false;
+            this.imageError = '';
+            this.imgsrc = null;
+            let file = this.$refs.myFile.files[0];
+            if (!file) return;
+            if (file.type.indexOf('image/') !== 0) return;
+
+            this.image.size = Math.floor(file.size/1024);
+            if (this.image.size > this.maxImageSize) {
+                this.imageError = `Taille d&apos;image trop importante (${this.image.size}KB)`;
+                return;
+            };
+
+            let reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = evt => {
+                if (file.type.indexOf('image/') == 0) {
+                    let img = new Image();
+                    img.onload = () => {
+                        this.image.dimension = `(${img.width}x${img.height})`;
+					              this.imageLoaded = true;
+						            this.imagePreloaded = false;
+				            };
+                    img.src = evt.target.result;
+                    this.imgsrc = evt.target.result;
+                };
+            };
+
+            reader.onerror = evt => {
+                console.error(evt);
+            }
+		},
+		init() {
+		    this.$nextTick(() => {
+		        if (this.preload_filesize > 0) {
+					this.imagePreloaded = true;
+					this.preload_filesize_kb = Math.floor(this.preload_filesize/1024);
+					this.preloaded_image = 'data:image/jpeg;base64,' + this.$refs.preload_b64.value;
+					this.$refs.myFile.classList.add('preloaded');
+				};
+			})
+		}
+	}"
+    class="col-span-12 w-full"
+    >
+    <template x-if="imagePreloaded">
+        <p class="my-0 mx-0 text-gray-900 text-sm">
+        Image actuelle&nbsp;:
+        </p>
+	</template>
+    <template x-if="imagePreloaded">
+	    <img :src="preloaded_image" class="my-0 mx-10 max-w-32 max-h-32">
+	</template>
+	<template x-if="imagePreloaded">
+	   <p class="my-2 mx-0 text-gray-900 text-sm">
+	   Remplacer par&nbsp;:
+	   </p>
+    </template>
+    <input
+        type="file"
+        {% if field.is_required and field.preload_filesize == 0 %}
+        required
+        {% endif %}
+        {% if field.readonly %}readonly{% endif %}
+        class="block w-full rounded-md border-0 py-0 text-gray-900 shadow-sm sm:text-sm sm:leading-6 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 data_photo"
+        id="{{ field.id }}"
+        name="{{ field.name }}"
+        x-ref="myFile"
+        x-on:change="selectedFile"
+        accept="image/png, image/jpeg"
+    >
+    <input
+        id="{{ field.id_preload_b64() }}"
+        x-ref="preload_b64"
+        type="hidden"
+        value="{{field.preloaded_image()}}"
+    >
+	<template x-if="imageLoaded">
+		<p class="my-0 mx-40 text-gray-900 text-sm">
+		  Taille de l&apos;image <span x-text="image.size"></span>KB
+		  <span x-text="image.dimension"></span>
+		  <br>
+		  <img :src="imgsrc" class="max-w-32 max-h-32">
+		</p>
+    </template>
+    <template x-if="imageError">
+        <p class="my-0 mx-40 text-red-900 text-sm" x-text="imageError">
+        </p>
+    </template>
+
+</div>
