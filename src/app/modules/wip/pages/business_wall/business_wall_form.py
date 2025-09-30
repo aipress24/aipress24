@@ -19,12 +19,14 @@ from app.modules.kyc.dynform import (
     custom_int_field,
     custom_list_field,
     custom_multi_field,
+    custom_photo_field,
     custom_string_field,
     custom_tel_field,
     custom_textarea_field,
     custom_url_field,
 )
 from app.modules.kyc.survey_dataclass import SurveyField
+from app.modules.kyc.views import get_tmp_blob, pop_local_blob_id
 
 
 class BWFormGenerator:
@@ -439,6 +441,10 @@ class BWFormGenerator:
         )
         BWDynForm.cover_image_url = url_field(
             "cover_image_url", "URL de l'image de présentation", False, self.readonly
+        )
+
+        BWDynForm.logo_content = image_field(
+            "logo_image", "Logo de l'organisation", False, self.readonly
         )
 
         form = BWDynForm(obj=self.org)
@@ -1567,6 +1573,17 @@ def merge_org_results(  # noqa: PLR0915
     org.logo_url = _parse_first("logo_url")
     org.cover_image_url = _parse_first("cover_image_url")
 
+    _filename, blob_id = get_tmp_blob("logo_image")
+    logo_filename, logo_image = pop_local_blob_id(blob_id)
+    org.logo_content = logo_image
+    org.logo_filename = logo_filename
+
+    # print("///////// results", results, file=sys.stderr)
+    # print("///////// results", len(logo_image), file=sys.stderr)
+    # print("///////// results", logo_filename, file=sys.stderr)
+    # if logo_image:
+    #     org.logo_content = logo_image
+
 
 def string_field(
     name="", description="", mandatory: bool = False, readonly: bool = False
@@ -1630,6 +1647,18 @@ def url_field(
     survey_field = SurveyField(id=name, name=name, type="url", description=description)
     mandatory_code = "M" if mandatory else ""
     return custom_url_field(
+        survey_field, mandatory_code=mandatory_code, readonly=readonly
+    )
+
+
+def image_field(
+    name="", description="", mandatory: bool = False, readonly: bool = False
+) -> Field:
+    survey_field = SurveyField(
+        id=name, name=name, type="photo", description=description
+    )
+    mandatory_code = "M" if mandatory else ""
+    return custom_photo_field(
         survey_field, mandatory_code=mandatory_code, readonly=readonly
     )
 

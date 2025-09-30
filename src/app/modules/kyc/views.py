@@ -235,6 +235,13 @@ def _store_tmp_blob(key: str) -> tuple[str, int]:
     return filename, blob_id
 
 
+def get_tmp_blob(key: str) -> tuple[str, int]:
+    filename, blob_id = _store_tmp_blob(key)
+    if not filename:
+        filename, blob_id = _store_tmp_blob_preload(key)
+    return filename, blob_id
+
+
 def _parse_valid_form(form: FlaskForm, profile_id: str) -> None:
     # _display_all_possible_fields()
     # print("request form:", request.form, file=sys.stderr)
@@ -250,9 +257,7 @@ def _parse_valid_form(form: FlaskForm, profile_id: str) -> None:
         id_field = field.id
         form_id_key[id_field] = key
         if field.type == "ValidImageField":
-            filename, blob_id = _store_tmp_blob(key)
-            if not filename:
-                filename, blob_id = _store_tmp_blob_preload(key)
+            filename, blob_id = get_tmp_blob(key)
             form_raw_results[key] = blob_id
             form_results[key] = f"fichier {filename!r}"
             form_labels_results[key] = _filter_out_label_tags(field.label.text)
@@ -436,6 +441,21 @@ def _role_from_name(name: str) -> Role:
     return roles_map.get(name, roles_map["GUEST"])
 
 
+def pop_local_blob_key(results: dict[str, Any], key: str) -> tuple[str, bytes]:
+    blob_id_value = results.get(key)
+    try:
+        blob_id = int(blob_id_value)
+    except (TypeError, ValueError):
+        blob_id = -1
+    return pop_local_blob_id(blob_id)
+
+
+def pop_local_blob_id(blob_id: int) -> tuple[str, bytes]:
+    filename, uuid, content = pop_tmp_blob(blob_id)
+    _remove_tmp_data(uuid)
+    return filename, content
+
+
 def _make_new_kyc_user_record() -> User:
     """Make a User record for newly created user.
 
@@ -444,17 +464,12 @@ def _make_new_kyc_user_record() -> User:
     """
     session_service = container.get(SessionService)
     results = session_service.get("form_raw_results", {})
-    photo_blob_id = results.get("photo", None)
-    photo_filename, photo_uuid, photo = pop_tmp_blob(photo_blob_id)
-    carte_presse_blob_id = results.get("photo_carte_presse", None)
+
+    photo_filename, photo = pop_local_blob_key(results, "photo")
     (
         photo_carte_presse_filename,
-        photo_carte_presse_filename_uuid,
         photo_carte_presse,
-    ) = pop_tmp_blob(carte_presse_blob_id)
-
-    _remove_tmp_data(photo_uuid)
-    _remove_tmp_data(photo_carte_presse_filename_uuid)
+    ) = pop_local_blob_key(results, "photo_carte_presse")
 
     fs_uniquifier = results.get("fs_uniquifier") or uuid.uuid4().hex
 
@@ -535,17 +550,13 @@ def _set_default_kyc_profile(user: User) -> None:
 def _update_from_current_user(orig_user: User) -> User:
     session_service = container.get(SessionService)
     results = session_service.get("form_raw_results", {})
-    photo_blob_id = results.get("photo", None)
-    photo_filename, photo_uuid, photo = pop_tmp_blob(photo_blob_id)
-    carte_presse_blob_id = results.get("photo_carte_presse", None)
-    (
-        photo_carte_presse_filename,
-        photo_carte_presse_filename_uuid,
-        photo_carte_presse,
-    ) = pop_tmp_blob(carte_presse_blob_id)
 
-    _remove_tmp_data(photo_uuid)
-    _remove_tmp_data(photo_carte_presse_filename_uuid)
+    photo_blob_id = results.get("photo", None)
+    photo_filename, photo = pop_local_blob_id(photo_blob_id)
+    carte_presse_blob_id = results.get("photo_carte_presse", None)
+    photo_carte_presse_filename, photo_carte_presse = pop_local_blob_id(
+        carte_presse_blob_id
+    )
 
     if not orig_user.profile:  # should never happen
         _set_default_kyc_profile(orig_user)
