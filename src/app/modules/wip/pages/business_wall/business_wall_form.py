@@ -84,7 +84,7 @@ class BWFormGenerator:
             case BWTypeEnum.MEDIA:
                 return self.form_media()
             case BWTypeEnum.MICRO:
-                return self.form_media()
+                return self.form_micro()
             case BWTypeEnum.CORPORATE:
                 return self.form_corporate()
             case BWTypeEnum.PRESSUNION:
@@ -284,6 +284,185 @@ class BWFormGenerator:
         return form
 
     def form_media(self) -> FlaskForm:
+        class BWDynForm(FlaskForm):
+            pass
+
+        BWDynForm.name = string_field(
+            "name",
+            description=(
+                "Nom de l’agence de presse, du journal, du magazine, du média "
+                "ou du SPEL, Syndicat de presse ou de médias, de l’association "
+                "de journalistes, du club de la presse ou de l’école de "
+                "journalisme"
+            ),
+            mandatory=True,
+            readonly=self.readonly,
+        )
+
+        if self.profile_code in {
+            ProfileEnum.PM_DIR,
+            ProfileEnum.PM_JR_CP_SAL,
+            ProfileEnum.PM_JR_PIG,
+        }:
+            BWDynForm.nom_groupe = string_field(
+                "nom_groupe",
+                "Nom du groupe de presse, d’édition ou de média",
+                False,
+                self.readonly,
+            )
+
+        BWDynForm.siren = string_field("siren", "Numéro SIREN", True, self.readonly)
+        BWDynForm.tva = string_field(
+            "tva", "Numéro de TVA intracommunataire", True, self.readonly
+        )
+        BWDynForm.leader_name = string_field(
+            "leader_name", "Nom du dirigeant", True, self.readonly
+        )
+        BWDynForm.leader_coords = textarea_field(
+            "leader_coords", "Coordonées du dirigeant", True, self.readonly
+        )
+        BWDynForm.payer_name = string_field(
+            "payer_name", "Nom du payeur", True, self.readonly
+        )
+        BWDynForm.payer_coords = textarea_field(
+            "payer_coords", "Coordonées du payeur", True, self.readonly
+        )
+        BWDynForm.description = textarea_field(
+            "description", "Description", True, self.readonly
+        )
+        BWDynForm.tel_standard = tel_field(
+            "tel_standard", "Téléphone (standard)", True, self.readonly
+        )
+        BWDynForm.pays_zip_ville = country_code_field(
+            "pays_zip_ville",
+            "Pays;Code postal et ville",
+            False,
+            ontology_map="country_pays",
+            readonly=self.readonly,
+        )
+        BWDynForm.taille_orga = list_field(
+            "taille_orga",
+            "Taille organisation (effectif)",
+            True,
+            ontology_map="list_taille_orga",
+            readonly=self.readonly,
+        )
+
+        # BWDynForm.type_organisation = dual_multi_field(
+        #     "type_organisation",
+        #     "Type d'organisation; Détail",
+        #     True,
+        #     "multidual_type_orga",
+        #     self.readonly,
+        # )
+
+        BWDynForm.type_entreprise_media = multi_field(
+            "type_entreprise_media",
+            "Types d’entreprise de presse",
+            True,
+            "multi_type_entreprise_medias",
+            readonly=self.readonly,
+        )
+
+        BWDynForm.type_presse_et_media = multi_field(
+            "type_presse_et_media",
+            "Positionnement de l'organe de presse",
+            True,
+            "multi_type_media",
+            readonly=self.readonly,
+        )
+
+        # BWDynForm.metiers_presse = multi_field(
+        #     "metiers_presse",
+        #     "Métiers de la presse",
+        #     True,
+        #     "multi_fonctions_journalisme",
+        #     readonly=self.readonly,
+        # )
+        # BWDynForm.metiers = dual_multi_field(
+        #     "metiers",
+        #     "Le cas échéant, quels autres métiers exercez-vous ?; Métiers",
+        #     False,
+        #     "multidual_metiers",
+        #     self.readonly,
+        # )
+
+        BWDynForm.secteurs_activite_medias = dual_multi_field(
+            "secteurs_activite_medias",
+            "Secteurs d’activité couverts par votre organisation; Sous secteurs",
+            True,
+            "multidual_secteurs_detail",
+            self.readonly,
+        )
+
+        BWDynForm.main_events = textarea_field(
+            "main_events", "Principaux Events organisés", False, self.readonly
+        )
+        BWDynForm.number_customers = int_field(
+            "number_customers", "Nombre de clients", False, self.readonly
+        )
+        BWDynForm.main_customers = textarea_field(
+            "main_customers", "Principales références clients", False, self.readonly
+        )
+        BWDynForm.main_prizes = textarea_field(
+            "main_prizes", "Prix et autres distinctions", False, self.readonly
+        )
+        BWDynForm.positionnement_editorial = textarea_field(
+            "positionnement_editorial", "Positionnement éditorial", False, self.readonly
+        )
+        BWDynForm.audience_cible = textarea_field(
+            "audience_cible", "Audiences ciblées", False, self.readonly
+        )
+        BWDynForm.tirage = string_field("tirage", "Tirage", False, self.readonly)
+        BWDynForm.frequence_publication = string_field(
+            "frequence_publication", "Fréquence de publication", False, self.readonly
+        )
+
+        # BWDynForm.agree_arcom = bool_field(
+        #     "agree_arcom", "Agréé ARCOM", False, self.readonly
+        # )
+
+        BWDynForm.agree_cppap = bool_field(
+            "agree_cppap", "Agréé CPPAP", False, self.readonly
+        )
+        BWDynForm.number_cppap = string_field(
+            "number_cppap", "Numéro CPPAP", False, self.readonly
+        )
+        BWDynForm.membre_sapi = bool_field(
+            "membre_sapi", "Membre du SAPI", False, self.readonly
+        )
+        BWDynForm.membre_satev = bool_field(
+            "membre_satev", "Membre du SATEV", False, self.readonly
+        )
+        BWDynForm.membre_saphir = bool_field(
+            "membre_saphir", "Membre du SAPHIR", False, self.readonly
+        )
+
+        BWDynForm.site_url = url_field(
+            "site_url", "URL du site (web)", False, self.readonly
+        )
+        # BWDynForm.logo_url = string_field(
+        #     "logo_url", "URL du logo de l'organisation", False, self.readonly
+        # )
+        BWDynForm.cover_image_url = url_field(
+            "cover_image_url", "URL de l'image de présentation", False, self.readonly
+        )
+        BWDynForm.logo_content = custom_bw_logo_field(
+            "logo_image", "Logo de l'organisation", False, self.readonly
+        )
+
+        form = BWDynForm(obj=self.org)
+        form.pays_zip_ville.data2 = self.org.pays_zip_ville_detail
+        # form.metiers.data2 = self.org.metiers_detail
+        form.secteurs_activite_medias.data2 = self.org.secteurs_activite_medias_detail
+        # form.secteurs_activite_rp.data2 = self.org.secteurs_activite_rp_detail
+        # form.secteurs_activite.data2 = self.org.secteurs_activite_detail
+        # form.type_organisation.data2 = self.org.type_organisation_detail
+        form.logo_content.load_data(self.org.logo_content)
+
+        return form
+
+    def form_micro(self) -> FlaskForm:
         class BWDynForm(FlaskForm):
             pass
 
