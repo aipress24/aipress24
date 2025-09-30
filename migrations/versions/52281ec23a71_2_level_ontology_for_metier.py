@@ -24,17 +24,19 @@ def upgrade():
         text(
             """
                 UPDATE kyc_profile
-                SET info_personnelle = JSONB_SET(
+                SET info_personnelle = (
                     JSONB_SET(
-                        info_personnelle,
-                        '{metier_principal}',
-                        '[]',
+                        JSONB_SET(
+                            info_personnelle::JSONB,
+                            '{metier_principal}'::TEXT[],
+                            '[]'::JSONB,
+                            true
+                        ),
+                        '{metier_principal_detail}'::TEXT[],
+                        '[]'::JSONB,
                         true
-                    ),
-                    '{metier_principal_detail}',
-                    '[]',
-                    true
-                );
+                    )
+                )::JSON;
                 """
         )
     )
