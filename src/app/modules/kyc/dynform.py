@@ -240,6 +240,7 @@ def custom_photo_field(
         is_required=_is_required(mandatory_code),
         render_kw=render_kw,
         readonly=1 if readonly else 0,
+        max_image_size=4096,
     )
 
 

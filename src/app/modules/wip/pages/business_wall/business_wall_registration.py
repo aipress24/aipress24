@@ -281,7 +281,7 @@ class BusinessWallRegistrationPage(BaseWipPage):
             "allowed_prod": self.allowed_prod,
             "subscription_info": self.subscription_info,
             "allowed_subs": self.allowed_subs,  # information for debug
-            "logo_url": self.get_logo_url(),
+            # "logo_url": self.get_logo_url(),
             "public_key": get_stripe_public_key(),
             "success_url": (
                 url_for(f".{self.name}", _external=True)
@@ -290,12 +290,12 @@ class BusinessWallRegistrationPage(BaseWipPage):
             "render_field": render_field,
         }
 
-    def get_logo_url(self) -> str:
-        if not self.org:
-            return ""
-        if self.org.is_auto:
-            return "/static/img/logo-page-non-officielle.png"
-        return self.org.logo_url
+    # def get_logo_url(self) -> str:
+    #     if not self.org:
+    #         return ""
+    #     if self.org.is_auto:
+    #         return "/static/img/logo-page-non-officielle.png"
+    #     return self.org.logo_url
 
     def hx_post(self) -> str | Response:
         action = request.form.get("action", "")

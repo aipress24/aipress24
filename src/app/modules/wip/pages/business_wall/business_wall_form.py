@@ -25,6 +25,9 @@ from app.modules.kyc.dynform import (
     custom_url_field,
 )
 from app.modules.kyc.survey_dataclass import SurveyField
+from app.modules.kyc.views import get_tmp_blob, pop_local_blob_id
+
+from .business_wall_fields import custom_bw_logo_field
 
 
 class BWFormGenerator:
@@ -259,11 +262,14 @@ class BWFormGenerator:
         BWDynForm.site_url = url_field(
             "site_url", "URL du site (web)", False, self.readonly
         )
-        BWDynForm.logo_url = string_field(
-            "logo_url", "URL du logo de l'organisation", False, self.readonly
-        )
+        # BWDynForm.logo_url = string_field(
+        #     "logo_url", "URL du logo de l'organisation", False, self.readonly
+        # )
         BWDynForm.cover_image_url = url_field(
             "cover_image_url", "URL de l'image de présentation", False, self.readonly
+        )
+        BWDynForm.logo_content = custom_bw_logo_field(
+            "logo_image", "Logo de l'organisation", False, self.readonly
         )
 
         form = BWDynForm(obj=self.org)
@@ -273,6 +279,7 @@ class BWFormGenerator:
         # form.secteurs_activite_rp.data2 = self.org.secteurs_activite_rp_detail
         # form.secteurs_activite.data2 = self.org.secteurs_activite_detail
         # form.type_organisation.data2 = self.org.type_organisation_detail
+        form.logo_content.load_data(self.org.logo_content)
 
         return form
 
@@ -434,11 +441,14 @@ class BWFormGenerator:
         BWDynForm.site_url = url_field(
             "site_url", "URL du site (web)", False, self.readonly
         )
-        BWDynForm.logo_url = string_field(
-            "logo_url", "URL du logo de l'organisation", False, self.readonly
-        )
+        # BWDynForm.logo_url = string_field(
+        #     "logo_url", "URL du logo de l'organisation", False, self.readonly
+        # )
         BWDynForm.cover_image_url = url_field(
             "cover_image_url", "URL de l'image de présentation", False, self.readonly
+        )
+        BWDynForm.logo_content = custom_bw_logo_field(
+            "logo_image", "Logo de l'organisation", False, self.readonly
         )
 
         form = BWDynForm(obj=self.org)
@@ -448,6 +458,7 @@ class BWFormGenerator:
         # form.secteurs_activite_rp.data2 = self.org.secteurs_activite_rp_detail
         # form.secteurs_activite.data2 = self.org.secteurs_activite_detail
         # form.type_organisation.data2 = self.org.type_organisation_detail
+        form.logo_content.load_data(self.org.logo_content)
 
         return form
 
@@ -603,11 +614,14 @@ class BWFormGenerator:
         BWDynForm.site_url = url_field(
             "site_url", "URL du site (web)", False, self.readonly
         )
-        BWDynForm.logo_url = string_field(
-            "logo_url", "URL du logo de l'organisation", False, self.readonly
-        )
+        # BWDynForm.logo_url = string_field(
+        #     "logo_url", "URL du logo de l'organisation", False, self.readonly
+        # )
         BWDynForm.cover_image_url = url_field(
             "cover_image_url", "URL de l'image de présentation", False, self.readonly
+        )
+        BWDynForm.logo_content = custom_bw_logo_field(
+            "logo_image", "Logo de l'organisation", False, self.readonly
         )
 
         form = BWDynForm(obj=self.org)
@@ -617,6 +631,7 @@ class BWFormGenerator:
         # form.secteurs_activite_rp.data2 = self.org.secteurs_activite_rp_detail
         # form.secteurs_activite.data2 = self.org.secteurs_activite_detail
         # form.type_organisation.data2 = self.org.type_organisation_detail
+        form.logo_content.load_data(self.org.logo_content)
 
         return form
 
@@ -765,11 +780,14 @@ class BWFormGenerator:
         BWDynForm.site_url = url_field(
             "site_url", "URL du site (web)", False, self.readonly
         )
-        BWDynForm.logo_url = string_field(
-            "logo_url", "URL du logo de l'organisation", False, self.readonly
-        )
+        # BWDynForm.logo_url = string_field(
+        #     "logo_url", "URL du logo de l'organisation", False, self.readonly
+        # )
         BWDynForm.cover_image_url = url_field(
             "cover_image_url", "URL de l'image de présentation", False, self.readonly
+        )
+        BWDynForm.logo_content = custom_bw_logo_field(
+            "logo_image", "Logo de l'organisation", False, self.readonly
         )
 
         form = BWDynForm(obj=self.org)
@@ -779,6 +797,7 @@ class BWFormGenerator:
         # form.secteurs_activite_rp.data2 = self.org.secteurs_activite_rp_detail
         # form.secteurs_activite.data2 = self.org.secteurs_activite_detail
         # form.type_organisation.data2 = self.org.type_organisation_detail
+        form.logo_content.load_data(self.org.logo_content)
 
         return form
 
@@ -933,11 +952,14 @@ class BWFormGenerator:
         BWDynForm.site_url = url_field(
             "site_url", "URL du site (web)", False, self.readonly
         )
-        BWDynForm.logo_url = string_field(
-            "logo_url", "URL du logo de l'organisation", False, self.readonly
-        )
+        # BWDynForm.logo_url = string_field(
+        #     "logo_url", "URL du logo de l'organisation", False, self.readonly
+        # )
         BWDynForm.cover_image_url = url_field(
             "cover_image_url", "URL de l'image de présentation", False, self.readonly
+        )
+        BWDynForm.logo_content = custom_bw_logo_field(
+            "logo_image", "Logo de l'organisation", False, self.readonly
         )
 
         form = BWDynForm(obj=self.org)
@@ -947,6 +969,7 @@ class BWFormGenerator:
         form.secteurs_activite_rp.data2 = self.org.secteurs_activite_rp_detail
         # form.secteurs_activite.data2 = self.org.secteurs_activite_detail
         # form.type_organisation.data2 = self.org.type_organisation_detail
+        form.logo_content.load_data(self.org.logo_content)
 
         return form
 
@@ -1113,11 +1136,14 @@ class BWFormGenerator:
         BWDynForm.site_url = url_field(
             "site_url", "URL du site (web)", False, self.readonly
         )
-        BWDynForm.logo_url = string_field(
-            "logo_url", "URL du logo de l'organisation", False, self.readonly
-        )
+        # BWDynForm.logo_url = string_field(
+        #     "logo_url", "URL du logo de l'organisation", False, self.readonly
+        # )
         BWDynForm.cover_image_url = url_field(
             "cover_image_url", "URL de l'image de présentation", False, self.readonly
+        )
+        BWDynForm.logo_content = custom_bw_logo_field(
+            "logo_image", "Logo de l'organisation", False, self.readonly
         )
 
         form = BWDynForm(obj=self.org)
@@ -1131,6 +1157,7 @@ class BWFormGenerator:
             form.secteurs_activite_rp.data2 = self.org.secteurs_activite_rp_detail
         form.secteurs_activite.data2 = self.org.secteurs_activite_detail
         form.type_organisation.data2 = self.org.type_organisation_detail
+        form.logo_content.load_data(self.org.logo_content)
 
         return form
 
@@ -1294,11 +1321,14 @@ class BWFormGenerator:
         BWDynForm.site_url = url_field(
             "site_url", "URL du site (web)", False, self.readonly
         )
-        BWDynForm.logo_url = string_field(
-            "logo_url", "URL du logo de l'organisation", False, self.readonly
-        )
+        # BWDynForm.logo_url = string_field(
+        #     "logo_url", "URL du logo de l'organisation", False, self.readonly
+        # )
         BWDynForm.cover_image_url = url_field(
             "cover_image_url", "URL de l'image de présentation", False, self.readonly
+        )
+        BWDynForm.logo_content = custom_bw_logo_field(
+            "logo_image", "Logo de l'organisation", False, self.readonly
         )
 
         form = BWDynForm(obj=self.org)
@@ -1308,6 +1338,7 @@ class BWFormGenerator:
         form.secteurs_activite.data2 = self.org.secteurs_activite_detail
         form.type_organisation.data2 = self.org.type_organisation_detail
         form.transformation_majeure.data2 = self.org.transformation_majeure_detail
+        form.logo_content.load_data(self.org.logo_content)
 
         return form
 
@@ -1463,11 +1494,14 @@ class BWFormGenerator:
         BWDynForm.site_url = url_field(
             "site_url", "URL du site (web)", False, self.readonly
         )
-        BWDynForm.logo_url = string_field(
-            "logo_url", "URL du logo de l'organisation", False, self.readonly
-        )
+        # BWDynForm.logo_url = string_field(
+        #     "logo_url", "URL du logo de l'organisation", False, self.readonly
+        # )
         BWDynForm.cover_image_url = url_field(
             "cover_image_url", "URL de l'image de présentation", False, self.readonly
+        )
+        BWDynForm.logo_content = custom_bw_logo_field(
+            "logo_image", "Logo de l'organisation", False, self.readonly
         )
 
         form = BWDynForm(obj=self.org)
@@ -1476,6 +1510,7 @@ class BWFormGenerator:
         # form.secteurs_activite_medias.data2 = self.org.secteurs_activite_medias_detail
         form.secteurs_activite.data2 = self.org.secteurs_activite_detail
         form.type_organisation.data2 = self.org.type_organisation_detail
+        form.logo_content.load_data(self.org.logo_content)
 
         return form
 
@@ -1564,8 +1599,18 @@ def merge_org_results(  # noqa: PLR0915
     org.membre_sapi = _parse_bool("membre_sapi")  #
     org.membre_saphir = _parse_bool("membre_saphir")  #
     org.site_url = _parse_first("site_url")
-    org.logo_url = _parse_first("logo_url")
+    # org.logo_url = _parse_first("logo_url")
     org.cover_image_url = _parse_first("cover_image_url")
+
+    _filename, blob_id = get_tmp_blob("logo_image")
+    _filename, logo_image = pop_local_blob_id(blob_id)
+    org.logo_content = logo_image
+
+    # print("///////// results", results, file=sys.stderr)
+    # print("///////// results", len(logo_image), file=sys.stderr)
+    # print("///////// results", logo_filename, file=sys.stderr)
+    # if logo_image:
+    #     org.logo_content = logo_image
 
 
 def string_field(
