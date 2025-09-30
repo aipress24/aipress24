@@ -55,7 +55,8 @@ class OrgGenerator(BaseGenerator):
         org.karma = random.randint(1, 10)
 
         idx = random.randint(1, 14)
-        org.logo_url = f"/static/tmp/logos/{idx}.png"
+        # org.logo_url = f"/static/tmp/logos/{idx}.png"
+        org.logo_content = Path(f"src/app/static/tmp/logos/{idx}.png").read_bytes()
         org.cover_image_url = random.choice(COVER_IMAGES)
         fake_geoloc(org)
 
