@@ -154,10 +154,6 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
     logo_url: Mapped[str] = mapped_column(default="")
     cover_image_url: Mapped[str] = mapped_column(default="")
 
-    # phase1: storage as binary (to be changed)
-    logo_content: Mapped[bytes] = mapped_column(sa.LargeBinary, nullable=True)
-    logo_filename: Mapped[str] = mapped_column(default="")
-
     # NOUVEAU
     # galerie d'images
 
