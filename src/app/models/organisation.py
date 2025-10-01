@@ -153,7 +153,7 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
     # REMPLACER par upload pour logo and cover
     # Pictures
     # logo_url: Mapped[str] = mapped_column(default="")
-    cover_image_url: Mapped[str] = mapped_column(default="")
+    # cover_image_url: Mapped[str] = mapped_column(default="")
 
     # phase1: storage as binary (to be changed)
     logo_content: Mapped[bytes] = mapped_column(sa.LargeBinary, nullable=True)
@@ -254,6 +254,10 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
     @property
     def logo_url(self) -> str:
         return url_for("api.get_blob", id=self.logo_id)
+
+    @property
+    def cover_image_url(self) -> str:
+        return url_for("api.get_blob", id=self.cover_image_id)
 
     @property
     def is_auto(self) -> bool:
