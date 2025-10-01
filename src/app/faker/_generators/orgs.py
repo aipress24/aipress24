@@ -13,6 +13,8 @@ from app.enums import BWTypeEnum, OrganisationTypeEnum
 from app.faker._constants import COVER_IMAGES, ORGANISATIONS
 from app.faker._geo import fake_geoloc
 from app.models.organisation import Organisation
+from app.modules.kyc.resized import squared
+from app.modules.wip.pages.business_wall.business_wall_form import add_blob_image
 
 from .base import BaseGenerator, faker
 from .users import random_taille_orga
@@ -56,7 +58,9 @@ class OrgGenerator(BaseGenerator):
 
         idx = random.randint(1, 14)
         # org.logo_url = f"/static/tmp/logos/{idx}.png"
-        org.logo_content = Path(f"src/app/static/tmp/logos/{idx}.png").read_bytes()
+        logo_content = Path(f"src/app/static/tmp/logos/{idx}.png").read_bytes()
+        org.logo_id = add_blob_image(squared(logo_content))
+
         org.cover_image_url = random.choice(COVER_IMAGES)
         fake_geoloc(org)
 
