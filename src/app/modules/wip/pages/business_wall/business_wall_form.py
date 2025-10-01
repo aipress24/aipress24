@@ -26,9 +26,9 @@ from app.modules.kyc.dynform import (
     custom_textarea_field,
     custom_url_field,
 )
+from app.modules.kyc.resized import squared
 from app.modules.kyc.survey_dataclass import SurveyField
 from app.services.blobs import BlobService
-from app.settings.constants import MAX_IMAGE_SIZE
 
 from .business_wall_fields import custom_bw_logo_field
 
@@ -1796,7 +1796,7 @@ def merge_org_results(  # noqa: PLR0915
 
     filename, blob_content = get_new_image_content("logo_image")
     if filename:
-        blob_id = add_blob_image(blob_content)
+        blob_id = add_blob_image(squared(blob_content))
         org.logo_id = blob_id
 
     # print("///////// results", results, file=sys.stderr)
@@ -1809,9 +1809,7 @@ def merge_org_results(  # noqa: PLR0915
 def add_blob_image(content: bytes) -> str:
     if not content:
         return ""
-    if len(content) > MAX_IMAGE_SIZE:
-        # length must already be checked by UI
-        return ""
+    # length must already be checked by UI
     blob_service = container.get(BlobService)
     blob = blob_service.save(content)
     return blob.id
