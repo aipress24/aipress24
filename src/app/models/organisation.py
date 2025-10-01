@@ -21,6 +21,7 @@ from sqlalchemy_utils import ArrowType
 from sqlalchemy_utils.functions.orm import hybrid_property
 
 from app.enums import BWTypeEnum, OrganisationTypeEnum
+from app.flask.routing import url_for
 from app.models.auth import User
 from app.models.base import Base
 from app.models.mixins import Addressable, IdMixin, LifeCycleMixin
@@ -252,7 +253,7 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
 
     @property
     def logo_url(self) -> str:
-        return ""
+        return url_for("api.get_blob", id=self.logo_id)
 
     @property
     def is_auto(self) -> bool:
