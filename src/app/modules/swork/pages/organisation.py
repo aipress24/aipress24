@@ -247,7 +247,7 @@ class OrgVM(ViewModel):
         return {
             "members": self.get_members(),
             "logo_url": self.get_logo_url(),
-            # "cover_image_url": self.get_cover_image_url(),
+            "cover_image_url": self.get_cover_image_url(),
             "screenshot_url": self.get_screenshot_url(),
             "press_releases": self.get_press_releases(),
             "publications": self.get_publications(),
