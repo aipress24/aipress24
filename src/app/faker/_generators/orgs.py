@@ -8,6 +8,7 @@ import random
 from pathlib import Path
 
 from mimesis import Person
+import urllib.request
 
 from app.enums import BWTypeEnum, OrganisationTypeEnum
 from app.faker._constants import COVER_IMAGES, ORGANISATIONS
@@ -60,8 +61,10 @@ class OrgGenerator(BaseGenerator):
         # org.logo_url = f"/static/tmp/logos/{idx}.png"
         logo_content = Path(f"src/app/static/tmp/logos/{idx}.png").read_bytes()
         org.logo_id = add_blob_image(squared(logo_content))
-
-        org.cover_image_url = random.choice(COVER_IMAGES)
+        cover_content = urllib.request.urlopen(random.choice(COVER_IMAGES)).read()  # noqa: S310
+        org.cover_image_id = add_blob_image(cover_content)
+        # org.cover_image_url = random.choice(COVER_IMAGES)
+        org.cover_image_id = ""
         fake_geoloc(org)
 
         if org.type == OrganisationTypeEnum.AGENCY:
