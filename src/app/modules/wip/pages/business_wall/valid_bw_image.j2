@@ -87,10 +87,18 @@
         accept="image/png, image/jpeg"
     >
     <input
-        id="{{ field.id_preload_b64() }}"
-        x-ref="preload_b64"
-        type="hidden"
-        value="{{field.preloaded_image()}}"
+      id="{{ field.id_preload_name() }}"
+      name="{{ field.name_preload_name() }}"
+      x-ref="preload_name"
+      type="hidden"
+      value="{{field.preload_filename}}"
+    >
+    <input
+      id="{{ field.id_preload_b64() }}"
+      name="{{ field.name_preload_b64() }}"
+      x-ref="preload_b64"
+      type="hidden"
+      value="{{field.preloaded_image()}}"
     >
 	<template x-if="imageLoaded">
 		<p class="my-0 mx-40 text-gray-900 text-sm">
