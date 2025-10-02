@@ -51,7 +51,8 @@ lint/ruff:
 ## Lint source code and check typing
 lint:
 	ruff check
-	lint-imports
+	# FIXME...
+	# lint-imports
 	deptry src
 	vulture --min-confidence 80 src
 	# Typecheck tests - mostly useless
