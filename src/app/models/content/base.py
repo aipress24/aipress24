@@ -2,6 +2,16 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
+from __future__ import annotations
+
+from typing import ClassVar
+
+from sqlalchemy.orm import Mapped, declared_attr, mapped_column
+
+from app.lib.names import to_snake_case
+from app.models.base import Base
+from app.models.mixins import IdMixin, LifeCycleMixin, Owned
+
 """
 '-----------------------------------------------------------------
 'Main abstract classes
@@ -39,14 +49,6 @@ abstract class TextEditorialContent {
 TextEditorialContent -up-|> EditorialContent
 """
 
-from __future__ import annotations
-
-from sqlalchemy.orm import Mapped, declared_attr, mapped_column
-
-from app.lib.names import to_snake_case
-from app.models.base import Base
-from app.models.mixins import IdMixin, LifeCycleMixin, Owned
-
 
 # Abstract
 class BaseContent(IdMixin, LifeCycleMixin, Owned, Base):
@@ -71,7 +73,7 @@ class BaseContent(IdMixin, LifeCycleMixin, Owned, Base):
     url: Mapped[str] = mapped_column(default="")
 
     class Meta:
-        searchable_cols = ["title", "content", "summary"]
+        searchable_cols: ClassVar = ["title", "content", "summary"]
 
     # TODO
     # +creators: list[Person]

@@ -7,6 +7,7 @@ from __future__ import annotations
 import functools
 import random
 import urllib.request
+from typing import ClassVar
 
 from arrow import now
 from flask_security import hash_password
@@ -86,7 +87,7 @@ def _use_known_organisation_name() -> str | None:
 
 
 class UserGenerator(BaseGenerator):
-    users: list[User] = []
+    users: ClassVar[list[User]] = []
 
     def __post_init__(self) -> None:
         super().__post_init__()

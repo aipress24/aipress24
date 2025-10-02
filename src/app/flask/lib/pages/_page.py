@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
-from typing import Any
+from typing import Any, ClassVar
 
 from flask import render_template, render_template_string, url_for
 from svcs.flask import container
@@ -22,11 +22,11 @@ class Page:
     path: str
     template: str = ""
     parent: Any = None
-    args: dict = {}
+    args: ClassVar[dict] = {}
     order: float = 0.0
 
     # breadcrumbs: list = []
-    breadcrumbs2: list = []
+    breadcrumbs2: ClassVar[list] = []
     icon: str | None = None
 
     #

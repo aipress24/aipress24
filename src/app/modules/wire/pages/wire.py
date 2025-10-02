@@ -4,6 +4,8 @@
 
 from __future__ import annotations
 
+from typing import ClassVar
+
 from flask import redirect, render_template, request, session
 from werkzeug.exceptions import NotFound
 
@@ -22,7 +24,7 @@ TOP_NEWS_SIZE = 5
 @page
 class WirePage(Page):
     name = "wire"
-    routes = [
+    routes: ClassVar = [
         "/",
         "/tab/<tab>",
     ]

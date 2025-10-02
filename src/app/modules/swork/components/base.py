@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import re
+from typing import ClassVar
 
 from sqlalchemy.sql import Select
 
@@ -14,14 +15,15 @@ from app.models.mixins import Addressable
 
 class BaseList(WiredComponent):
     search: str = ""
-    filter_states: dict = {}
+    filter_states: dict
 
-    filters: list[Filter] = []
+    filters: ClassVar[list[Filter]] = []
 
-    _attrs = ["search", "filter_states"]
+    _attrs: ClassVar = ["search", "filter_states"]
 
     def __init__(self, id=None) -> None:
         super().__init__(id)
+        self.filter_states = {}
         self.init_filter_states()
 
     def init_filter_states(self) -> None:

@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import json
 from collections import defaultdict
-from typing import cast
+from typing import ClassVar, cast
 
 import arrow
 import webargs
@@ -68,7 +68,7 @@ list_args = {
 
 @page
 class EventsPage(Page):
-    routes = ["/"]
+    routes: ClassVar = ["/"]
     name = "events"
     label = "Evènements"
     template = "pages/events.j2"

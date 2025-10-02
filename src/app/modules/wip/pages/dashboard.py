@@ -4,6 +4,8 @@
 
 from __future__ import annotations
 
+from typing import ClassVar
+
 from attr import frozen
 from svcs.flask import container
 
@@ -30,7 +32,7 @@ class DashboardPage(BaseWipPage):
 
     parent = HomePage
 
-    allowed_roles = [RoleEnum.PRESS_MEDIA, RoleEnum.ACADEMIC]
+    allowed_roles: ClassVar = [RoleEnum.PRESS_MEDIA, RoleEnum.ACADEMIC]
 
     def context(self):
         return {

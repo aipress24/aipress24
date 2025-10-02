@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, ClassVar
 
 from attr import frozen
 
@@ -36,7 +36,7 @@ BUTTONS = """
 @frozen
 class BizTabs(Component):
     tabs: list[Any]
-    components = [BizCard]
+    components: ClassVar = [BizCard]
 
     def __call__(self):
         # debug(self)

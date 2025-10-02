@@ -4,6 +4,8 @@
 
 from __future__ import annotations
 
+from typing import ClassVar
+
 from sqlalchemy.orm import Mapped
 
 from .base import Base
@@ -17,7 +19,7 @@ class BaseContent(IdMixin, Owned, UserFeedbackMixin, Base):
 
     type: Mapped[str]
 
-    __mapper_args__ = {
+    __mapper_args__: ClassVar[dict] = {
         "polymorphic_on": "type",
         "polymorphic_identity": "content",
     }

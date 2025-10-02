@@ -3,6 +3,8 @@
 # Copyright (c) 2024, Abilian SAS & TCA
 from __future__ import annotations
 
+from typing import ClassVar
+
 from sqladmin import Admin, ModelView
 
 from app.models.auth import KYCProfile, Role, User
@@ -20,13 +22,13 @@ class UserAdmin(ModelView, model=User):
     can_delete = False
 
     # List view
-    column_list = [User.id, User.last_name, User.first_name]
+    column_list: ClassVar = [User.id, User.last_name, User.first_name]
 
     # Details view
-    column_details_exclude_list = [User.password]
+    column_details_exclude_list: ClassVar = [User.password]
 
     # Edit view
-    form_excluded_columns = [User.password]
+    form_excluded_columns: ClassVar = [User.password]
 
 
 class OrganisationAdmin(ModelView, model=Organisation):
@@ -36,10 +38,10 @@ class OrganisationAdmin(ModelView, model=Organisation):
     category = "Auth / KYC"
 
     # List view
-    column_list = [Organisation.id, Organisation.name]
+    column_list: ClassVar = [Organisation.id, Organisation.name]
 
     # Edit view
-    form_excluded_columns = [Organisation.members]
+    form_excluded_columns: ClassVar = [Organisation.members]
 
 
 class ProfileAdmin(ModelView, model=KYCProfile):
@@ -53,7 +55,7 @@ class ProfileAdmin(ModelView, model=KYCProfile):
     can_delete = False
 
     # List view
-    column_list = [KYCProfile.id, KYCProfile.user]
+    column_list: ClassVar = [KYCProfile.id, KYCProfile.user]
 
 
 class RoleAdmin(ModelView, model=Role):
@@ -63,7 +65,7 @@ class RoleAdmin(ModelView, model=Role):
     category = "Auth / KYC"
 
     # List view
-    column_list = [Role.id, Role.name]
+    column_list: ClassVar = [Role.id, Role.name]
 
 
 def register(admin: Admin) -> None:

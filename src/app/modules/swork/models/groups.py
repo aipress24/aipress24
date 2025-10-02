@@ -4,6 +4,8 @@
 
 from __future__ import annotations
 
+from typing import ClassVar
+
 import sqlalchemy as sa
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -26,7 +28,7 @@ class Group(IdMixin, Owned, LifeCycleMixin, Addressable, Base):
     num_posts: Mapped[int] = mapped_column(default=0)
 
     class AdminMeta:
-        list_fields = ["name", "num_members", "karma"]
+        list_fields: ClassVar = ["name", "num_members", "karma"]
 
 
 group_members_table = sa.Table(

@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 from datetime import datetime
+from typing import ClassVar
 
 from aenum import StrEnum, auto
 from sqlalchemy import BigInteger, Enum, ForeignKey, String, orm
@@ -123,7 +124,7 @@ class NewsMetadataMixin:
 
 
 class Post(BaseContent, LifeCycleMixin):
-    __mapper_args__ = {
+    __mapper_args__: ClassVar[dict] = {
         "polymorphic_identity": "post",
     }
 
@@ -182,7 +183,7 @@ class Post(BaseContent, LifeCycleMixin):
 
 
 class ArticlePost(NewsMetadataMixin, Post, Taggable):
-    __mapper_args__ = {
+    __mapper_args__: ClassVar[dict] = {
         "polymorphic_identity": "article",
     }
 
@@ -197,7 +198,7 @@ class ArticlePost(NewsMetadataMixin, Post, Taggable):
 
 
 class PressReleasePost(NewsMetadataMixin, Post, Taggable):
-    __mapper_args__ = {
+    __mapper_args__: ClassVar[dict] = {
         "polymorphic_identity": "press_release",
     }
 

@@ -8,6 +8,7 @@ import inspect
 import json
 import uuid
 from pathlib import Path
+from typing import ClassVar
 
 from flask import current_app, render_template
 from jinja2 import Environment, Template
@@ -76,9 +77,9 @@ class WiredComponent:
     _id: str
     # _name: str
 
-    _attrs: list[str] = []
+    _attrs: ClassVar[list[str]] = []
     _template: str = ""
-    _listeners: list[str] = []
+    _listeners: ClassVar[list[str]] = []
 
     def __init__(self, id: str = "") -> None:
         if id:

@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 import re
-from typing import Any
+from typing import Any, ClassVar
 
 from flask_super.registry import register
 from sqlalchemy import or_, select
@@ -87,7 +87,7 @@ class FilterByJobTitle(Filter):
     id = "job_title"
     label = "Fonction"
     selector = "job_title"
-    options: list[str] = []
+    options: ClassVar[list[str]] = []
 
     def apply(self, stmt, state):
         active_options = self.active_options(state)
@@ -102,7 +102,7 @@ class FilterByJobTitle(Filter):
 class FilterByCompetency(Filter):
     id = "competency"
     label = "Compétences"
-    options: list[str] = []
+    options: ClassVar[list[str]] = []
 
     def __init__(self, objects: list | None = None) -> None:
         if not objects:
