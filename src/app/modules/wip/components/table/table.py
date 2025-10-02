@@ -9,7 +9,7 @@ import uuid
 from abc import ABC, abstractmethod
 from datetime import datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, Never
 
 import attrs
 from arrow import Arrow
@@ -26,11 +26,11 @@ __all__ = []
 
 class DataSource(ABC):
     @abstractmethod
-    def get_items(self):
+    def get_items(self) -> Never:
         raise NotImplementedError
 
     @abstractmethod
-    def get_count(self):
+    def get_count(self) -> Never:
         raise NotImplementedError
 
 

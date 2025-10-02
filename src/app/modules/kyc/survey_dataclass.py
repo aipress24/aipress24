@@ -25,7 +25,7 @@ class SurveyProfile:
     groups: list[Group] = attr.field(factory=list)
     _organisation_field_cache: str = ""
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.id}, {self.community}, {self.code}, {self.description}"
 
     @property
@@ -86,7 +86,7 @@ class SurveyField:
             return self.public_default
         return self.public_maxi
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.id}, {self.name}, {self.type}, {self.description:.20}"
 
 

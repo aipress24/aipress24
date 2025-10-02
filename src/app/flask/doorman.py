@@ -29,14 +29,14 @@ class Rule:
 class Doorman:
     """A class to manage and enforce path-based security rules."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.rules: list[Rule] = []
 
-    def add_rule(self, rule: Rule):
+    def add_rule(self, rule: Rule) -> None:
         """Adds a new security rule to the list."""
         self.rules.append(rule)
 
-    def check_access(self):
+    def check_access(self) -> None:
         """
         Checks the incoming request against all registered rules.
 
