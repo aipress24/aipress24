@@ -10,6 +10,7 @@ from app.services.cache import Cache
 from app.services.taxonomies import get_taxonomy
 
 __all__ = [
+    "get_events",
     "get_genres",
     "get_news_sectors",
     "get_sections",
@@ -23,6 +24,10 @@ def get_sections():
 
 def get_news_sectors():
     return get_vocab("news_sectors")
+
+
+def get_events():
+    return get_vocab("events")
 
 
 def get_genres():
