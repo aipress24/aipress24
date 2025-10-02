@@ -15,7 +15,7 @@ from app.faker._constants import COVER_IMAGES, ORGANISATIONS
 from app.faker._geo import fake_geoloc
 from app.lib.image_utils import squared
 from app.models.organisation import Organisation
-from app.modules.wip.pages.business_wall.business_wall_form import add_blob_image
+from app.modules.common.blob_utils import add_blob_content
 
 from .base import BaseGenerator, faker
 from .users import random_taille_orga
@@ -60,9 +60,9 @@ class OrgGenerator(BaseGenerator):
         idx = random.randint(1, 14)
         # org.logo_url = f"/static/tmp/logos/{idx}.png"
         logo_content = Path(f"src/app/static/tmp/logos/{idx}.png").read_bytes()
-        org.logo_id = add_blob_image(squared(logo_content))
+        org.logo_id = add_blob_content(squared(logo_content))
         cover_content = urllib.request.urlopen(random.choice(COVER_IMAGES)).read()  # noqa: S310
-        org.cover_image_id = add_blob_image(cover_content)
+        org.cover_image_id = add_blob_content(cover_content)
         # org.cover_image_url = random.choice(COVER_IMAGES)
         org.cover_image_id = ""
         fake_geoloc(org)
