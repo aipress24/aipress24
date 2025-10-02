@@ -26,6 +26,9 @@
 
   <div class="mb-8 space-y-4">
     {% for image in article.sorted_images %}
+      {% if image.is_last %}
+        <div id="last_image"></div>
+      {% endif %}
       <div class="flex border rounded">
         <div class="mr-4 flex-shrink-0 border rounded-l">
           <img src="{{ image.url }}" alt=""

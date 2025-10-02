@@ -204,10 +204,10 @@ class ArticlesWipView(BaseWipView):
         image_bytes = image.read()
         if not image_bytes:
             flash("L'image est vide")
-            return redirect("")
+            return redirect(url_for("ArticlesWipView:images", id=article.id))
         if len(image_bytes) >= MAX_IMAGE_SIZE:
             flash("L'image est trop volumineuse")
-            return redirect("")
+            return redirect(url_for("ArticlesWipView:images", id=article.id))
 
         blob = blob_service.save(image_bytes)
 
@@ -219,7 +219,9 @@ class ArticlesWipView(BaseWipView):
         )
         article.add_image(image)
         article_repo.update(article, auto_commit=True)
-        return redirect("")
+        referrer_url = request.referrer or "/"
+        redirect_url = referrer_url + "#last_image"
+        return redirect(redirect_url)
 
     @route("/<int:article_id>/images/<int:image_id>")
     def image(self, article_id: int, image_id: int):
