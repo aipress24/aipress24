@@ -41,7 +41,8 @@ def custom_bw_logo_field(
     mandatory: bool = False,
     readonly: bool = False,
 ) -> Field:
-    validators_list = _filter_mandatory_validator(mandatory)
+    # FIXME: what's this supposed to do?
+    # validators_list = _filter_mandatory_validator(mandatory)
     label = _filter_photo_format(description)
     label = _filter_mandatory_label(label, mandatory)
     render_kw: dict[str, Any] = {
