@@ -244,10 +244,14 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
 
     @property
     def logo_url(self) -> str:
+        if not self.logo_id:
+            return "/static/img/transparent-square.png"
         return url_for("api.get_blob", id=self.logo_id)
 
     @property
     def cover_image_url(self) -> str:
+        if not self.logo_id:
+            return "/static/img/transparent-square.png"
         return url_for("api.get_blob", id=self.cover_image_id)
 
     @property
