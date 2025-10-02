@@ -3,6 +3,8 @@
 # Copyright (c) 2024, Abilian SAS & TCA
 from __future__ import annotations
 
+from typing import ClassVar
+
 from sqladmin import Admin, ModelView, action
 from starlette.requests import Request
 from starlette.responses import RedirectResponse
@@ -22,9 +24,9 @@ class ArticleAdmin(ModelView, model=Article):
     icon = "fa-solid fa-newspaper"
     category = "Newsroom"
 
-    column_list = [Article.id, Article.published_at, Article.titre]
-    column_searchable_list = [Article.titre, Article.contenu]
-    column_sortable_list = [Article.published_at]
+    column_list: ClassVar = [Article.id, Article.published_at, Article.titre]
+    column_searchable_list: ClassVar = [Article.titre, Article.contenu]
+    column_sortable_list: ClassVar = [Article.published_at]
 
     # NB: not working, just an example
     @action(
@@ -62,9 +64,9 @@ class SujetAdmin(ModelView, model=Sujet):
     icon = "fa-solid fa-pen-nib"
     category = "Newsroom"
 
-    column_list = [Sujet.id, Sujet.created_at, Sujet.titre]
-    column_searchable_list = [Sujet.titre, Sujet.contenu]
-    column_sortable_list = [Sujet.created_at]
+    column_list: ClassVar = [Sujet.id, Sujet.created_at, Sujet.titre]
+    column_searchable_list: ClassVar = [Sujet.titre, Sujet.contenu]
+    column_sortable_list: ClassVar = [Sujet.created_at]
 
 
 class CommandeAdmin(ModelView, model=Commande):
@@ -73,9 +75,9 @@ class CommandeAdmin(ModelView, model=Commande):
     icon = "fa-solid fa-check"
     category = "Newsroom"
 
-    column_list = [Commande.id, Commande.created_at, Commande.titre]
-    column_searchable_list = [Commande.titre, Commande.contenu]
-    column_sortable_list = [Commande.created_at]
+    column_list: ClassVar = [Commande.id, Commande.created_at, Commande.titre]
+    column_searchable_list: ClassVar = [Commande.titre, Commande.contenu]
+    column_sortable_list: ClassVar = [Commande.created_at]
 
 
 class AvisEnqueteAdmin(ModelView, model=AvisEnquete):
@@ -84,9 +86,9 @@ class AvisEnqueteAdmin(ModelView, model=AvisEnquete):
     icon = "fa-solid fa-bullhorn"
     category = "Newsroom"
 
-    column_list = [AvisEnquete.id, AvisEnquete.created_at, AvisEnquete.titre]
-    column_searchable_list = [AvisEnquete.titre, AvisEnquete.contenu]
-    column_sortable_list = [AvisEnquete.created_at]
+    column_list: ClassVar = [AvisEnquete.id, AvisEnquete.created_at, AvisEnquete.titre]
+    column_searchable_list: ClassVar = [AvisEnquete.titre, AvisEnquete.contenu]
+    column_sortable_list: ClassVar = [AvisEnquete.created_at]
 
 
 class JustifPublicationAdmin(ModelView, model=JustifPublication):
@@ -95,13 +97,16 @@ class JustifPublicationAdmin(ModelView, model=JustifPublication):
     icon = "fa-solid fa-medal"
     category = "Newsroom"
 
-    column_list = [
+    column_list: ClassVar = [
         JustifPublication.id,
         JustifPublication.created_at,
         JustifPublication.titre,
     ]
-    column_searchable_list = [JustifPublication.titre, JustifPublication.contenu]
-    column_sortable_list = [JustifPublication.created_at]
+    column_searchable_list: ClassVar = [
+        JustifPublication.titre,
+        JustifPublication.contenu,
+    ]
+    column_sortable_list: ClassVar = [JustifPublication.created_at]
 
 
 def register(admin: Admin) -> None:

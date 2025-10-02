@@ -2,6 +2,20 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
+from __future__ import annotations
+
+from typing import ClassVar
+
+import sqlalchemy as sa
+from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy_utils import ArrowType
+
+from app.models.auth import User
+from app.models.base import Base
+from app.models.content.base import BaseContent
+from app.models.content.mixins import Publishable, Searchable
+from app.models.mixins import Addressable, UserFeedbackMixin
+
 """
 '-----------------------------------------------------------------
 'Event package
@@ -17,18 +31,6 @@ abstract class Event {
 Event -up-|> BaseContent
 
 """
-
-from __future__ import annotations
-
-import sqlalchemy as sa
-from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy_utils import ArrowType
-
-from app.models.auth import User
-from app.models.base import Base
-from app.models.content.base import BaseContent
-from app.models.content.mixins import Publishable, Searchable
-from app.models.mixins import Addressable, UserFeedbackMixin
 
 
 class Event(BaseContent, UserFeedbackMixin, Publishable, Searchable, Addressable):
@@ -70,7 +72,7 @@ class Event(BaseContent, UserFeedbackMixin, Publishable, Searchable, Addressable
     cover_image_url: Mapped[str] = mapped_column(default="")
 
     class Meta:
-        groups = {
+        groups: ClassVar[dict] = {
             "dates": ["start_date", "end_date", "start_time", "end_time"],
             "metadata": ["genre", "category", "language", "sector"],
         }

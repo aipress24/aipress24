@@ -4,6 +4,8 @@
 
 from __future__ import annotations
 
+from typing import ClassVar
+
 from attr import define
 from flask import g, url_for
 from sqlalchemy import select
@@ -42,7 +44,7 @@ def get_name(obj):
 class RecentContentsTable(Table):
     id = "recent-contents-table"
     # row_template = ROW_TEMPLATE_1
-    columns = [
+    columns: ClassVar = [
         {"name": "title", "label": "Titre", "class": "max-w-0 w-full truncate"},
         {"name": "type", "label": "Type", "render": get_label},
         {"name": "publisher", "label": "Média", "render": get_name},

@@ -4,6 +4,8 @@
 
 from __future__ import annotations
 
+from typing import ClassVar
+
 from flask_super.registry import register
 from sqlalchemy import select
 from sqlalchemy.sql.functions import count
@@ -53,7 +55,7 @@ class GroupsList(BaseList):
 class FilterByCategory(Filter):
     id = "category"
     label = "Categorie"
-    options: list[str] = []
+    options: ClassVar[list[str]] = []
 
     def apply(self, stmt, state):
         return stmt
@@ -62,7 +64,7 @@ class FilterByCategory(Filter):
 class FilterBySector(Filter):
     id = "sector"
     label = "Secteur"
-    options = [
+    options: ClassVar = [
         "Secteur 1",
         "Secteur 2",
         "Secteur 3",

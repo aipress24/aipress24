@@ -4,6 +4,8 @@
 
 from __future__ import annotations
 
+from typing import ClassVar
+
 from wtforms.fields.simple import StringField
 
 from .base import BaseWidget
@@ -16,7 +18,13 @@ class RichTextWidget(BaseWidget):
     `rows` and `cols` ought to be passed as keyword args when rendering.
     """
 
-    validation_attrs = ["required", "disabled", "readonly", "maxlength", "minlength"]
+    validation_attrs: ClassVar = [
+        "required",
+        "disabled",
+        "readonly",
+        "maxlength",
+        "minlength",
+    ]
 
     # def __call__(self, field, **kwargs):
     #     kwargs.setdefault("id", field.id)

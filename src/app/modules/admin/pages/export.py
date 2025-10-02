@@ -7,7 +7,7 @@ from __future__ import annotations
 from collections import namedtuple
 from datetime import datetime, timedelta
 from io import BytesIO
-from typing import Any
+from typing import Any, ClassVar
 from zoneinfo import ZoneInfo
 
 import pytz
@@ -60,7 +60,7 @@ class AdminExportPage(Page):
 
 class ExporterInscriptions:
     sheet_name = "Inscriptions"
-    columns = [
+    columns: ClassVar[list] = [
         # "submited_at",
         # "validated_at",
         "validation_status",
@@ -408,7 +408,7 @@ class ExporterInscriptions:
 
 class ExporterModifications(ExporterInscriptions):
     sheet_name = "Modifications"
-    columns = [
+    columns: ClassVar[list] = [
         "submited_at",
         "validated_at",
         "validation_status",
@@ -463,7 +463,7 @@ class ExporterModifications(ExporterInscriptions):
 
 class ExporterUsers(ExporterInscriptions):
     sheet_name = "Utilisateurs"
-    columns = [
+    columns: ClassVar[list] = [
         "submited_at",
         "validated_at",
         "validation_status",
@@ -551,7 +551,7 @@ class ExporterUsers(ExporterInscriptions):
 
 class ExporterOrganisations:
     sheet_name = "Organisations"
-    columns = [
+    columns: ClassVar[list] = [
         "id",
         "created_at",
         "modified_at",

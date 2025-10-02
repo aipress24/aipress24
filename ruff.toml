@@ -66,16 +66,18 @@ lint.ignore = [
     "S603", # Using subprocess
     "S704", # Unsafe use of `markupsafe.Markup` detected
     # Fixable ?
-    "A00", # `...` is shadowing a python builtin
-    "BLE001", # Do not catch blind exception
-    "C901", # Function too complex
-    "E501", # line too long
-    "ERA001", # Found commented-out code
-    "PLC0415", # `import` should be at the top-level of a file
-    "PLR0911", # Too many return statements
-    "PLR0912", # Too many branches
-    "RUF012", # Mutable class attributes should be annotated with `typing.ClassVar`
-    "T201", # `print` found
+    "ERA001", #  commented-out-code
+    "T201", #    print
+    "E501", #    line-too-long
+#    "RUF012", #  mutable-class-default
+    "A002", #    builtin-argument-shadowing
+    "A001", #    builtin-variable-shadowing
+    "PLC0415", # import-outside-top-level
+    "BLE001", #  blind-except
+    "C901", #    complex-structure
+    "PLR0911", # too-many-return-statements
+    "PLR0912", # too-many-branches
+    "A004", #    builtin-import-shadowing
 ]
 
 [lint.isort]

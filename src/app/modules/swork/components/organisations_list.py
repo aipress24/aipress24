@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 import re
-from typing import cast
+from typing import ClassVar, cast
 
 from attr import define
 from flask_super.registry import register
@@ -116,14 +116,14 @@ class FilterByCategory(Filter):
     #     "PR agencies",
     #     "Autres",
     # ]
-    org_type_map = {
+    org_type_map: ClassVar[dict] = {
         "Agences de presse": OrganisationTypeEnum.AGENCY,
         "Médias": OrganisationTypeEnum.MEDIA,
         "PR agencies": OrganisationTypeEnum.COM,
         "Autres": OrganisationTypeEnum.OTHER,
         "Non officialisées": OrganisationTypeEnum.AUTO,
     }
-    options = list(org_type_map.keys())
+    options: ClassVar = list(org_type_map.keys())
     # options = [str(x) for x in OrganisationTypeEnum]  # type: ignore
     # org_type_map = {str(x): x for x in OrganisationTypeEnum}  # type: ignore
 

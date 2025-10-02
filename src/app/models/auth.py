@@ -9,7 +9,7 @@ import typing
 import uuid
 from copy import deepcopy
 from datetime import datetime
-from typing import Any
+from typing import Any, ClassVar
 
 import arrow
 import sqlalchemy as sa
@@ -160,21 +160,21 @@ class User(LifeCycleMixin, Addressable, UserMixin, Base):
     )
 
     class AdminMeta:
-        id = {"required": True, "read_only": True}
+        id: ClassVar[dict] = {"required": True, "read_only": True}
         # username = {"required": True, "read_only": True}
-        email = {"required": True, "read_only": True}
+        email: ClassVar[dict] = {"required": True, "read_only": True}
 
-        _columns = [
+        _columns: ClassVar[list] = [
             "id",
             "email",
             "organisation_name",
         ]
 
-        _form = [
+        _form: ClassVar[list] = [
             "id",
         ]
 
-        _view = [
+        _view: ClassVar[list] = [
             "id",
         ]
 
