@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 import re
-from typing import ClassVar
+from typing import ClassVar, Never
 
 from sqlalchemy.sql import Select
 
@@ -60,7 +60,7 @@ class BaseList(WiredComponent):
 
         return stmt
 
-    def search_clause(self, search: str):
+    def search_clause(self, search: str) -> Never:
         raise NotImplementedError
 
     def get_filters(self):
@@ -95,7 +95,7 @@ class Filter:
             msg = f"Invalid selector: {selector}"
             raise TypeError(msg)
 
-    def apply(self, stmt, state):
+    def apply(self, stmt, state) -> Never:
         raise NotImplementedError
 
     def active_options(self, state):

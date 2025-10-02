@@ -35,7 +35,7 @@ class CreateTaxonomyForm(FlaskForm):
     )
     submit = SubmitField("Create Taxonomy")
 
-    def validate_name(self, field):
+    def validate_name(self, field) -> None:
         """Ensure the taxonomy name does not already exist."""
         if check_taxonomy_exists(field.data):
             msg = f"A taxonomy named '{field.data}' already exists."

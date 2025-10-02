@@ -23,21 +23,21 @@ def app():
 
     # Define some dummy routes for the test client to hit.
     @app.route("/")
-    def index():
+    def index() -> str:
         return "Public Page"
 
     @app.route("/admin/")
-    def admin_index():
+    def admin_index() -> str:
         return "Admin Index"
 
     @app.route("/admin/settings")
-    def admin_settings():
+    def admin_settings() -> str:
         return "Admin Settings"
 
     # This is the crucial part: we register the real doorman instance
     # with our test app's before_request handler.
     @app.before_request
-    def before_request_security_check():
+    def before_request_security_check() -> None:
         global_doorman.check_access()
 
     return app
@@ -71,7 +71,9 @@ def mock_authenticated_user():
 # --- Test Cases ---
 
 
-def test_unprotected_route_is_accessible_by_everyone(client, mock_anonymous_user):
+def test_unprotected_route_is_accessible_by_everyone(
+    client, mock_anonymous_user
+) -> None:
     """
     GIVEN a Flask app with the doorman
     WHEN an anonymous user accesses a public route ('/')
@@ -85,7 +87,7 @@ def test_unprotected_route_is_accessible_by_everyone(client, mock_anonymous_user
 
 def test_anonymous_user_on_protected_route_is_unauthorized(
     client, mocker, mock_anonymous_user
-):
+) -> None:
     """
     GIVEN the doorman's '/admin/' rule is active
     WHEN an anonymous (not logged in) user tries to access '/admin/settings'
@@ -104,7 +106,7 @@ def test_anonymous_user_on_protected_route_is_unauthorized(
 
 def test_non_admin_user_on_protected_route_is_forbidden(
     client, mocker, mock_authenticated_user
-):
+) -> None:
     """
     GIVEN the doorman's '/admin/' rule is active
     WHEN a logged-in, non-admin user tries to access '/admin/settings'
@@ -124,7 +126,7 @@ def test_non_admin_user_on_protected_route_is_forbidden(
 
 def test_admin_user_on_protected_route_is_allowed(
     client, mocker, mock_authenticated_user
-):
+) -> None:
     """
     GIVEN the doorman's '/admin/' rule is active
     WHEN a logged-in admin user tries to access '/admin/settings'
@@ -143,7 +145,7 @@ def test_admin_user_on_protected_route_is_allowed(
     assert b"Admin Settings" in response.data
 
 
-def test_doorman_decorator_registers_rule():
+def test_doorman_decorator_registers_rule() -> None:
     """
     GIVEN a new Doorman instance
     WHEN the @doorman.rule decorator is used
@@ -154,7 +156,7 @@ def test_doorman_decorator_registers_rule():
     assert len(local_doorman.rules) == 0
 
     @local_doorman.rule(prefix="/api/")
-    def check_api_access(user):
+    def check_api_access(user) -> bool:
         return True
 
     assert len(local_doorman.rules) == 1
