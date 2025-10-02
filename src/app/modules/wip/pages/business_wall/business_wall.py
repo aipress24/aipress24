@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+import sys
 from typing import Any
 
 from flask import g, request
@@ -60,8 +61,6 @@ class BusinessWallPage(BaseWipPage):
             _current_product = _stripe_bw_products.get(self.org.stripe_product_id)
             current_product_name = _current_product.name if _current_product else ""
             if not current_product_name:
-                import sys
-
                 print("///// BusinessWallPage.context() BUG", file=sys.stderr)
                 print("/////   is_bw_active", is_bw_active, file=sys.stderr)
                 print(
