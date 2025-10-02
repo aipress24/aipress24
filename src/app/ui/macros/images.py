@@ -10,6 +10,7 @@ from markupsafe import Markup
 
 from app.enums import RoleEnum
 from app.flask.lib.macros import macro
+from app.flask.routing import url_for
 from app.models.auth import User
 from app.models.organisation import Organisation
 from app.modules.kyc.views import profile_photo_local_url
@@ -21,7 +22,14 @@ def org_logo(org: Organisation, size=24, **kw):
         return ""
 
     cls = kw.get("class", "").split(" ")
-    url = org.logo_url
+
+    # Generate logo URL
+    if org.is_auto:
+        url = "/static/img/logo-page-non-officielle.png"
+    elif not org.logo_id:
+        url = "/static/img/transparent-square.png"
+    else:
+        url = url_for("api.get_blob", id=org.logo_id)
 
     cls += [f"h-{size}", f"w-{size}"]
 

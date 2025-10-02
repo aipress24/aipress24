@@ -11,8 +11,7 @@ from flask import Response, current_app, request
 
 from app.flask.lib.pages import page
 from app.flask.lib.view_model import ViewModel
-
-# from app.flask.routing import url_for
+from app.flask.routing import url_for
 from app.flask.sqla import get_obj
 from app.models.organisation import Organisation
 from app.modules.admin import blueprint
@@ -119,7 +118,9 @@ class OrgVM(ViewModel):
     def get_logo_url(self):
         if self.org.is_auto:
             return "/static/img/logo-page-non-officielle.png"
-        return self.org.logo_url
+        if not self.org.logo_id:
+            return "/static/img/transparent-square.png"
+        return url_for("api.get_blob", id=self.org.logo_id)
 
     def get_screenshot_url(self):
         if not self.org.screenshot_id:
