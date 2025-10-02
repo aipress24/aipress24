@@ -5,16 +5,16 @@
 from __future__ import annotations
 
 import random
+import urllib.request
 from pathlib import Path
 
 from mimesis import Person
-import urllib.request
 
 from app.enums import BWTypeEnum, OrganisationTypeEnum
 from app.faker._constants import COVER_IMAGES, ORGANISATIONS
 from app.faker._geo import fake_geoloc
+from app.lib.image_utils import squared
 from app.models.organisation import Organisation
-from app.modules.kyc.resized import squared
 from app.modules.wip.pages.business_wall.business_wall_form import add_blob_image
 
 from .base import BaseGenerator, faker
