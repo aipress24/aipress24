@@ -8,13 +8,13 @@ from typing import Any
 
 from flask import request
 from flask_wtf import FlaskForm
-from svcs.flask import container
 from wtforms import Field
 
 from app.enums import BWTypeEnum, ProfileEnum
 from app.lib.image_utils import squared
 from app.models.auth import User
 from app.models.organisation import Organisation
+from app.modules.common.blob_utils import add_blob_content, get_blob_content
 from app.modules.kyc.dynform import (
     custom_bool_field,
     custom_country_field,
@@ -28,7 +28,6 @@ from app.modules.kyc.dynform import (
     custom_url_field,
 )
 from app.modules.kyc.survey_dataclass import SurveyField
-from app.services.blobs import BlobService
 
 from .business_wall_fields import custom_bw_logo_field
 
@@ -286,8 +285,8 @@ class BWFormGenerator:
         # form.secteurs_activite_rp.data2 = self.org.secteurs_activite_rp_detail
         # form.secteurs_activite.data2 = self.org.secteurs_activite_detail
         # form.type_organisation.data2 = self.org.type_organisation_detail
-        form.logo_content.load_data(fetch_blob_image_content(self.org.logo_id))
-        form.cover_content.load_data(fetch_blob_image_content(self.org.cover_image_id))
+        form.logo_content.load_data(get_blob_content(self.org.logo_id))
+        form.cover_content.load_data(get_blob_content(self.org.cover_image_id))
 
         return form
 
@@ -469,8 +468,8 @@ class BWFormGenerator:
         # form.secteurs_activite_rp.data2 = self.org.secteurs_activite_rp_detail
         # form.secteurs_activite.data2 = self.org.secteurs_activite_detail
         # form.type_organisation.data2 = self.org.type_organisation_detail
-        form.logo_content.load_data(fetch_blob_image_content(self.org.logo_id))
-        form.cover_content.load_data(fetch_blob_image_content(self.org.cover_image_id))
+        form.logo_content.load_data(get_blob_content(self.org.logo_id))
+        form.cover_content.load_data(get_blob_content(self.org.cover_image_id))
 
         return form
 
@@ -652,8 +651,8 @@ class BWFormGenerator:
         # form.secteurs_activite_rp.data2 = self.org.secteurs_activite_rp_detail
         # form.secteurs_activite.data2 = self.org.secteurs_activite_detail
         # form.type_organisation.data2 = self.org.type_organisation_detail
-        form.logo_content.load_data(fetch_blob_image_content(self.org.logo_id))
-        form.cover_content.load_data(fetch_blob_image_content(self.org.cover_image_id))
+        form.logo_content.load_data(get_blob_content(self.org.logo_id))
+        form.cover_content.load_data(get_blob_content(self.org.cover_image_id))
 
         return form
 
@@ -829,8 +828,8 @@ class BWFormGenerator:
         # form.secteurs_activite_rp.data2 = self.org.secteurs_activite_rp_detail
         # form.secteurs_activite.data2 = self.org.secteurs_activite_detail
         # form.type_organisation.data2 = self.org.type_organisation_detail
-        form.logo_content.load_data(fetch_blob_image_content(self.org.logo_id))
-        form.cover_content.load_data(fetch_blob_image_content(self.org.cover_image_id))
+        form.logo_content.load_data(get_blob_content(self.org.logo_id))
+        form.cover_content.load_data(get_blob_content(self.org.cover_image_id))
 
         return form
 
@@ -999,8 +998,8 @@ class BWFormGenerator:
         # form.secteurs_activite_rp.data2 = self.org.secteurs_activite_rp_detail
         # form.secteurs_activite.data2 = self.org.secteurs_activite_detail
         # form.type_organisation.data2 = self.org.type_organisation_detail
-        form.logo_content.load_data(fetch_blob_image_content(self.org.logo_id))
-        form.cover_content.load_data(fetch_blob_image_content(self.org.cover_image_id))
+        form.logo_content.load_data(get_blob_content(self.org.logo_id))
+        form.cover_content.load_data(get_blob_content(self.org.cover_image_id))
 
         return form
 
@@ -1175,8 +1174,8 @@ class BWFormGenerator:
         form.secteurs_activite_rp.data2 = self.org.secteurs_activite_rp_detail
         # form.secteurs_activite.data2 = self.org.secteurs_activite_detail
         # form.type_organisation.data2 = self.org.type_organisation_detail
-        form.logo_content.load_data(fetch_blob_image_content(self.org.logo_id))
-        form.cover_content.load_data(fetch_blob_image_content(self.org.cover_image_id))
+        form.logo_content.load_data(get_blob_content(self.org.logo_id))
+        form.cover_content.load_data(get_blob_content(self.org.cover_image_id))
 
         return form
 
@@ -1367,8 +1366,8 @@ class BWFormGenerator:
             form.secteurs_activite_rp.data2 = self.org.secteurs_activite_rp_detail
         form.secteurs_activite.data2 = self.org.secteurs_activite_detail
         form.type_organisation.data2 = self.org.type_organisation_detail
-        form.logo_content.load_data(fetch_blob_image_content(self.org.logo_id))
-        form.cover_content.load_data(fetch_blob_image_content(self.org.cover_image_id))
+        form.logo_content.load_data(get_blob_content(self.org.logo_id))
+        form.cover_content.load_data(get_blob_content(self.org.cover_image_id))
 
         return form
 
@@ -1552,8 +1551,8 @@ class BWFormGenerator:
         form.secteurs_activite.data2 = self.org.secteurs_activite_detail
         form.type_organisation.data2 = self.org.type_organisation_detail
         form.transformation_majeure.data2 = self.org.transformation_majeure_detail
-        form.logo_content.load_data(fetch_blob_image_content(self.org.logo_id))
-        form.cover_content.load_data(fetch_blob_image_content(self.org.cover_image_id))
+        form.logo_content.load_data(get_blob_content(self.org.logo_id))
+        form.cover_content.load_data(get_blob_content(self.org.cover_image_id))
 
         return form
 
@@ -1728,8 +1727,8 @@ class BWFormGenerator:
         # form.secteurs_activite_medias.data2 = self.org.secteurs_activite_medias_detail
         form.secteurs_activite.data2 = self.org.secteurs_activite_detail
         form.type_organisation.data2 = self.org.type_organisation_detail
-        form.logo_content.load_data(fetch_blob_image_content(self.org.logo_id))
-        form.cover_content.load_data(fetch_blob_image_content(self.org.cover_image_id))
+        form.logo_content.load_data(get_blob_content(self.org.logo_id))
+        form.cover_content.load_data(get_blob_content(self.org.cover_image_id))
 
         return form
 
@@ -1833,11 +1832,11 @@ def merge_org_results(  # noqa: PLR0915
 
     filename, blob_content = get_new_image_content("logo_image")
     if filename:
-        blob_id = add_blob_image(squared(blob_content))
+        blob_id = add_blob_content(squared(blob_content))
         org.logo_id = blob_id
     cover_filename, cover_blob_content = get_new_image_content("cover_image")
     if cover_filename:
-        blob_id = add_blob_image(cover_blob_content)
+        blob_id = add_blob_content(cover_blob_content)
         org.cover_image_id = blob_id
 
     # print("///////// results", results, file=sys.stderr)
@@ -1845,24 +1844,6 @@ def merge_org_results(  # noqa: PLR0915
     # print("///////// results", logo_filename, file=sys.stderr)
     # if logo_image:
     #     org.logo_content = logo_image
-
-
-def add_blob_image(content: bytes) -> str:
-    if not content:
-        return ""
-    # length must already be checked by UI
-    blob_service = container.get(BlobService)
-    blob = blob_service.save(content)
-    return blob.id
-
-
-def fetch_blob_image_content(blob_id: str) -> bytes:
-    blob_service = container.get(BlobService)
-    try:
-        blob_path = blob_service.get_path(blob_id)
-        return blob_path.read_bytes()
-    except Exception:
-        return b""
 
 
 def string_field(
