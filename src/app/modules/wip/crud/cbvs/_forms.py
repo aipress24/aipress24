@@ -421,9 +421,9 @@ class EventForm(Form):
     )
 
     event_type = RichSelectField(
-        "Genre",  # (COM-Genre) -> TODO
-        key="genre-com",
-        render_kw={"width": 3},
+        "Type d'événement",  # EVENTS
+        key="events",
+        render_kw={"width": 6},
         validators=[validators.InputRequired()],
     )
 

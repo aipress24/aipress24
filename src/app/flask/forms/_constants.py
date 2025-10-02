@@ -15,6 +15,8 @@ def get_choices(key: str):
             return voc.get_genres()
         case "genre-com":
             return voc.get_genres_com()
+        case "events":
+            return voc.get_events()
         case "sector":
             return voc.get_news_sectors()
         case "topic":
