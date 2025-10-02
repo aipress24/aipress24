@@ -12,6 +12,7 @@ from svcs.flask import container
 from wtforms import Field
 
 from app.enums import BWTypeEnum, ProfileEnum
+from app.lib.image_utils import squared
 from app.models.auth import User
 from app.models.organisation import Organisation
 from app.modules.kyc.dynform import (
@@ -26,7 +27,6 @@ from app.modules.kyc.dynform import (
     custom_textarea_field,
     custom_url_field,
 )
-from app.modules.kyc.resized import squared
 from app.modules.kyc.survey_dataclass import SurveyField
 from app.services.blobs import BlobService
 

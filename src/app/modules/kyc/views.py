@@ -43,6 +43,7 @@ from app.constants import (
 )
 from app.enums import CommunityEnum
 from app.flask.extensions import db
+from app.lib.image_utils import resized
 from app.models.auth import (
     KYCProfile,
     Role,
@@ -65,7 +66,6 @@ from .field_label import data_to_label
 from .ontology_loader import zip_code_city_list
 from .populate_profile import populate_form_data, populate_json_field
 from .renderer import render_field
-from .resized import resized
 from .survey_dataclass import SurveyField
 from .survey_model import get_survey_fields, get_survey_model, get_survey_profile
 from .temporary_blob import delete_tmp_blob, pop_tmp_blob, read_tmp_blob, store_tmp_blob
