@@ -31,6 +31,7 @@ from app.services.stripe.retriever import (
     retrieve_product,
 )
 from app.services.stripe.utils import get_stripe_webhook_secret, load_stripe_api_key
+from app.settings.constants import STRIPE_RESPONSE_ALWAYS_200
 
 
 @dataclass
@@ -85,12 +86,12 @@ class SubscriptionInfo:
 
 def info(*args: Any) -> None:
     msg = " ".join(str(x) for x in args)
-    print(f"Info (Webhook): {msg}", file=sys.stderr)
+    print(f"Info (Stripe Webhook): {msg}", file=sys.stderr)
 
 
 def warning(*args: Any) -> None:
     msg = " ".join(str(x) for x in args)
-    print(f"Warning (Webhook): {msg}", file=sys.stderr)
+    print(f"Warning (Stripe Webhook): {msg}", file=sys.stderr)
 
 
 @blueprint.route("/webhook", methods=["GET", "POST"])
@@ -105,13 +106,19 @@ def webhooks():
     try:
         event = stripe.Webhook.construct_event(payload, received_sig, webhook_secret)
     except ValueError:
-        warning("Error while decoding Strip event")
-        return "Bad payload", 400
+        msg = "Error while decoding Stripe event"
+        warning(msg)
+        if STRIPE_RESPONSE_ALWAYS_200:
+            return "", 200
+        return msg, 400
     except stripe.error.SignatureVerificationError:
-        warning("Invalid signature!")
-        return "Bad signature", 400
+        msg = "Error SignatureVerificationError"
+        warning(msg)
+        if STRIPE_RESPONSE_ALWAYS_200:
+            return "", 200
+        return msg, 400
 
-    info(f"event received: id={event.id}, type={event.type}")
+    info(f"Stripe event received: id={event.id}, type={event.type}")
     on_received_event(event)
     return "", 200
 
@@ -162,7 +169,7 @@ def _get_event_object(event) -> object:
 
 
 def unmanaged_event(event) -> None:
-    warning(f"event not managed: event: id={event.id}, type={event.type}")
+    warning(f"Stripe event not managed: event: id={event.id}, type={event.type}")
 
 
 def on_subscription_schedule_aborted(event) -> None:
