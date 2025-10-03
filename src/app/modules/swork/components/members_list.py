@@ -8,7 +8,7 @@ import re
 from typing import Any, ClassVar
 
 from flask_super.registry import register
-from sqlalchemy import or_, select
+from sqlalchemy import false, or_, select, true
 from sqlalchemy.orm import selectinload
 from sqlalchemy.sql import Select
 from sqlalchemy.sql.functions import count
@@ -42,6 +42,11 @@ class MembersList(BaseList):
     def get_base_statement(self) -> Select:
         return (
             select(User)
+            .where(
+                User.active == true(),
+                User.is_clone == false(),
+                User.deleted_at.is_(None),
+            )
             .options(
                 selectinload(User.organisation),
             )
