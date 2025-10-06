@@ -70,7 +70,8 @@ lint.ignore = [
     #
     "S311", # Standard pseudo-random generators are not suitable for cryptographic purposes
     "S603", # Using subprocess
-    "S704", # Unsafe use of `markupsafe.Markup` detected
+    "S320", # Using `lxml` to parse untrusted data is known to be vulnerable to XML attacks
+    # "S704", # Unsafe use of `markupsafe.Markup` detected
     # Fixable ?
     "ERA001", #  commented-out-code
     "T201", #    print
