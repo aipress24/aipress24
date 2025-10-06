@@ -62,7 +62,12 @@ class PrefInvitationsPage(BasePreferencesPage):
 
     def context(self) -> dict[str, Any]:
         user = g.user
-        return {"invitations": organisation_inviting(user)}
+        invitations = organisation_inviting(user)
+        open_invitations = sum(i["disabled"] == "" for i in invitations)
+        return {
+            "invitations": invitations,
+            "open_invitations": open_invitations,
+        }
 
     def post(self):
         action = request.form["action"]
