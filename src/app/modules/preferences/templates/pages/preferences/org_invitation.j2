@@ -4,30 +4,32 @@
   <h2 class="pb-4">Invitations à rejoindre une organisation</h2>
 
   {% if invitations|length > 0 %}
+    {% for invit in invitations %}
+      {% if invit.disabled %}
+        <div>Vous êtes actuellement membre de l'oganisation:</div>
+        <div
+          class="pt-0 items-center self-center text-left font-medium font-bold text-black">
+          {{ invit.label }}
+        </div>
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+
+  {% if open_invitations > 0 %}
     <p class="mt-1 text-sm text-gray-500">
-      {% if invitations|length > 1 %}
+      {% if open_invitations > 1 %}
         Vous pouvez rejoindre le Business Wall de l'une des organisations suivantes&nbsp;:
-      {% else %}
-        Vous pouvez rejoindre le Business Wall de l'organisation suivante&nbsp;:
+        {% else %}
+        Vous pouvez rejoindre le Business Wall d'une organisation &nbsp;:
       {% endif %}
     </p>
     <div class="grid grid-cols-2 gap-4 ">
       {% for invit in invitations %}
-        <div
-            class="pt-1 items-center self-center text-right text-sm font-medium font-bold text-gray-900 rounded-lg dark:text-gray-300">
-          {{ invit.label }}
-        </div>
-        <div>
-          {% if invit.disabled %}
-            <button
-                type="submit"
-                disabled
-                class="mt-2 items-center px-8 py-1 border border-transparent text-xs font-small rounded-md shadow-sm text-white
-                  bg-indigo-500 hover:bg-indigo-600
-                  disabled:bg-slate-500  disabled:focus:ring-slate-400 disabled:opacity-50"
-            >Organisation actuelle
-            </button>
-          {% else %}
+          {% if not invit.disabled %}
+            <div
+              class="pt-1 items-center self-center text-right text-sm font-medium font-bold text-gray-900 rounded-lg dark:text-gray-300">
+            {{ invit.label }}
+            </div>
             <button
                 type="submit"
                 data-modal-target="confirm_join_org"
@@ -76,12 +78,11 @@
               </div>
             </div>
           {% endif %}
-        </div>
       {% endfor %}
     </div>
   {% else %}
-    <p class="mt-1 text-sm text-gray-500">
-      Vous n'avez aucune invitation d'organisation en cours.
-    </p>
+    <div
+      class="pt-0 items-center self-center text-left font-medium font-bold text-black">
+      Vous n'avez aucune invitation d'organisation en cours.</div>
   {% endif %}
 {% endblock %}
