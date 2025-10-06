@@ -116,6 +116,24 @@ def import_taxonomies() -> None:
             print(e)
 
 
+def upgrade_taxonomies() -> None:
+    """Load new ontologies, without modifying existing ones."""
+
+    raw_ontologies = _parse_source_ontologies()
+    _check_tables_found(raw_ontologies)
+    for taxonomy_name, slug in TAXO_NAME_ONTOLOGIE_SLUG:
+        try:
+            print(f"{taxonomy_name=}  {slug=}")
+            converter_class = get_converter(slug)
+            converter = converter_class(raw_ontologies)
+            converter.run()
+            values = converter.export()
+            _upgrade_only_new_taxonomy(taxonomy_name, values)
+        except KeyError as e:
+            print("************** Probable missing ontology for", taxonomy_name)
+            print(e)
+
+
 # Used for debug
 def print_ontologies() -> None:
     raw_ontologies = _parse_source_ontologies()
@@ -178,6 +196,15 @@ def _update_or_create_taxonomy(taxonomy_name, values) -> None:
     if check_taxonomy_exists(taxonomy_name):
         updated = _update_taxonomy_entries(taxonomy_name, values)
         print(f"    - updated values: {updated}")
+    else:
+        print("    - create taxonomy")
+        _create_taxonomy_entries(taxonomy_name, values)
+
+
+def _upgrade_only_new_taxonomy(taxonomy_name, values) -> None:
+    # Check that the taxonomy_name is present in DB
+    if check_taxonomy_exists(taxonomy_name):
+        print("    - taxony already present")
     else:
         print("    - create taxonomy")
         _create_taxonomy_entries(taxonomy_name, values)

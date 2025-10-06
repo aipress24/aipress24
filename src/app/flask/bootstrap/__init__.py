@@ -4,7 +4,12 @@
 
 from __future__ import annotations
 
-from .ontologies import import_taxonomies
+from .ontologies import import_taxonomies, upgrade_taxonomies
 from .zip_codes import import_countries, import_zip_codes
 
-__all__ = ["import_countries", "import_taxonomies", "import_zip_codes"]
+__all__ = [
+    "import_countries",
+    "import_taxonomies",
+    "import_zip_codes",
+    "upgrade_taxonomies",
+]
