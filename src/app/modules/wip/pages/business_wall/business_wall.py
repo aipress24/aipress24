@@ -13,6 +13,7 @@ from werkzeug import Response
 
 from app.flask.extensions import db
 from app.flask.lib.pages import page
+from app.flask.routing import url_for
 from app.modules.admin.invitations import emails_invited_to_organisation
 from app.modules.admin.org_email_utils import (
     change_invitations_emails,
@@ -48,6 +49,15 @@ class BusinessWallPage(BaseWipPage):
     def __init__(self) -> None:
         self.user = g.user
         self.org = self.user.organisation  # Organisation or None
+
+    def get_logo_url(self) -> str:
+        if not self.org:
+            return "/static/img/transparent-square.png"
+        if self.org.is_auto:
+            return "/static/img/logo-page-non-officielle.png"
+        if not self.org.logo_id:
+            return "/static/img/transparent-square.png"
+        return url_for("api.get_blob", id=self.org.logo_id)
 
     def context(self) -> dict[str, Any]:
         is_auto = self.org and self.org.is_auto
@@ -91,6 +101,7 @@ class BusinessWallPage(BaseWipPage):
         return {
             "org": self.org,
             "org_name": self.org.name if self.org else "",
+            "logo_url": self.get_logo_url(),
             "current_product_name": current_product_name,
             "is_auto": is_auto,
             "is_bw_active": is_bw_active,
