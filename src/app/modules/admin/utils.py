@@ -186,3 +186,9 @@ def toggle_org_active(org: Organisation) -> None:
     org.active = not org.active
     db_session.merge(org)
     db_session.commit()
+
+
+def merge_organisation(org: Organisation) -> None:
+    db_session = db.session
+    db_session.merge(org)
+    db_session.commit()

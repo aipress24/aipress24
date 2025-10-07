@@ -312,26 +312,9 @@
         {% endif %}
       </dd>
     </div>
-<form
-  x-data
-  id="bwform"
-  method="post"
-  enctype="multipart/form-data"
-  >
-  {{ form.csrf_token }}
-  <div class="my-1">
-    <fieldset class="border border-solid border-gray-500 p-4">
-      <legend>Informations sur l'organisation</legend>
-      {% for field in form %}
-        {% if field.name != "csrf_token" %}
-          <div>
-            {{ render_field(field) }}
-          </div>
-        {% endif %}
-      {% endfor %}
-    </fieldset>
-  </div>
-</form>
+
+{% include "admin/pages/show_org_bw_form.j2" %}
+
 {% endif %}
 
 </div>

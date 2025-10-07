@@ -7,7 +7,7 @@ from __future__ import annotations
 from typing import cast
 
 from attr import define
-from flask import Response, current_app, request
+from flask import Response, current_app, render_template, request
 
 from app.flask.lib.pages import page
 from app.flask.lib.view_model import ViewModel
@@ -22,9 +22,16 @@ from app.modules.admin.org_email_utils import (
     change_managers_emails,
     change_members_emails,
 )
-from app.modules.admin.utils import gc_organisation, toggle_org_active
+from app.modules.admin.utils import (
+    gc_organisation,
+    merge_organisation,
+    toggle_org_active,
+)
 from app.modules.kyc.renderer import render_field
-from app.modules.wip.pages.business_wall.business_wall_form import BWFormGenerator
+from app.modules.wip.pages.business_wall.business_wall_form import (
+    BWFormGenerator,
+    merge_org_results,
+)
 
 from .base import AdminListPage
 from .orgs import AdminOrgsPage
@@ -47,19 +54,47 @@ class ShowOrg(AdminListPage):
         # options = selectinload(User.organisation)
         # self.org = get_obj(id, User, options=options)
         self.org = get_obj(uid, Organisation)
+        self.readonly_form_bw = True
 
     def context(self):
-        form_generator = BWFormGenerator(org=self.org, readonly=True)
+        form_generator = BWFormGenerator(
+            org=self.org,
+            readonly=self.readonly_form_bw,
+        )
         self.form = form_generator.generate()
         return {
             "org": OrgVM(self.org),
             "render_field": render_field,
+            "readonly_form_bw": self.readonly_form_bw,
             "form": self.form,
         }
+
+    def apply_bw_modification(self) -> None:
+        form = request.form
+        results = form.to_dict(flat=False)
+        merge_org_results(self.org, results)
+        merge_organisation(self.org)
 
     def post(self):
         action = request.form["action"]
         match action:
+            case "allow_modify_bw":
+                self.readonly_form_bw = False
+                context = self.context()
+                return render_template("admin/pages/show_org_bw_form.j2", **context)
+            case "cancel_modification_bw":
+                self.readonly_form_bw = True
+                context = self.context()
+                return render_template("admin/pages/show_org_bw_form.j2", **context)
+            case "validate_modification_bw":
+                self.readonly_form_bw = True
+                self.apply_bw_modification()
+                context = self.context()
+                return render_template("admin/pages/show_org_bw_form.j2", **context)
+            case "validation_modification_bw":
+                self.readonly_form_bw = True
+                response = Response("")
+                response.headers["HX-Redirect"] = self.url
             case "toggle_org_active":
                 toggle_org_active(self.org)
                 response = Response("")
