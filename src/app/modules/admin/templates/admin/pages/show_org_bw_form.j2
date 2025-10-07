@@ -6,10 +6,9 @@
             <button
               type="submit"
               hx-post="/admin/show_org/{{org.id}}"
-              hx-target="#bw-form-container"
               hx-vals='{"action": "allow_modify_bw"}'
-              class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-500 hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-400"
-            >Modifier les informations du BW</button>
+              class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-500 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-400"
+            >Modification des informations du BW</button>
           </div>
         </form>
       </div>
@@ -28,17 +27,15 @@
       <button
         type="submit"
         hx-post="/admin/show_org/{{org.id}}"
-        hx-target="#bw-form-container"
-        hx-vals='{"action": "validate_modification_bw"}'
-        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-500 hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-400"
-      >Valider les modifications du BW</button>
+        hx-vals='{"action": "cancel_modification_bw"}'
+        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+      >Annuler les changements</button>
       <button
         type="submit"
         hx-post="/admin/show_org/{{org.id}}"
-        hx-target="#bw-form-container"
-        hx-vals='{"action": "cancel_modification_bw"}'
-        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-400"
-      >Annuler</button>
+        hx-vals='{"action": "validate_modification_bw"}'
+        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+      >Valider les modifications du BW</button>
     </div>
   {%endif%}
   <div class="my-1">
@@ -53,5 +50,21 @@
       {% endfor %}
     </fieldset>
   </div>
+  {% if not readonly_form_bw %}
+    <div class="p-2 mt-12 flex items-center justify-end gap-x-6">
+      <button
+        type="submit"
+        hx-post="/admin/show_org/{{org.id}}"
+        hx-vals='{"action": "cancel_modification_bw"}'
+        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+      >Annuler les changements</button>
+      <button
+        type="submit"
+        hx-post="/admin/show_org/{{org.id}}"
+        hx-vals='{"action": "validate_modification_bw"}'
+        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+      >Valider les modifications du BW</button>
+    </div>
+  {%endif%}
 </form>
 </div>
