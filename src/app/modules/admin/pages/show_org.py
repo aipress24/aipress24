@@ -8,6 +8,7 @@ from typing import cast
 
 from attr import define
 from flask import Response, current_app, render_template, request
+from svcs.flask import container
 
 from app.flask.lib.pages import page
 from app.flask.lib.view_model import ViewModel
@@ -32,6 +33,7 @@ from app.modules.wip.pages.business_wall.business_wall_form import (
     BWFormGenerator,
     merge_org_results,
 )
+from app.services.sessions import SessionService
 
 from .base import AdminListPage
 from .orgs import AdminOrgsPage
@@ -54,18 +56,21 @@ class ShowOrg(AdminListPage):
         # options = selectinload(User.organisation)
         # self.org = get_obj(id, User, options=options)
         self.org = get_obj(uid, Organisation)
-        self.readonly_form_bw = True
+        self.ro_session_key = f"readonly_form_bw_{self.org.id}"
 
     def context(self):
-        form_generator = BWFormGenerator(
-            org=self.org,
-            readonly=self.readonly_form_bw,
-        )
+        session_service = container.get(SessionService)
+        readonly = session_service.get(self.ro_session_key)
+        if readonly == "RW":
+            readonly_flag = False
+        else:
+            readonly_flag = True
+        form_generator = BWFormGenerator(org=self.org, readonly=readonly_flag)
         self.form = form_generator.generate()
         return {
             "org": OrgVM(self.org),
             "render_field": render_field,
-            "readonly_form_bw": self.readonly_form_bw,
+            "readonly_form_bw": readonly_flag,
             "form": self.form,
         }
 
@@ -79,22 +84,30 @@ class ShowOrg(AdminListPage):
         action = request.form["action"]
         match action:
             case "allow_modify_bw":
-                self.readonly_form_bw = False
-                context = self.context()
-                return render_template("admin/pages/show_org_bw_form.j2", **context)
-            case "cancel_modification_bw":
-                self.readonly_form_bw = True
-                context = self.context()
-                return render_template("admin/pages/show_org_bw_form.j2", **context)
-            case "validate_modification_bw":
-                self.readonly_form_bw = True
-                self.apply_bw_modification()
-                context = self.context()
-                return render_template("admin/pages/show_org_bw_form.j2", **context)
-            case "validation_modification_bw":
-                self.readonly_form_bw = True
+                session_service = container.get(SessionService)
+                session_service.set(self.ro_session_key, "RW")
                 response = Response("")
-                response.headers["HX-Redirect"] = self.url
+                response.headers["HX-Redirect"] = (
+                    f"{self.url}?reload=1#bw-form-container"
+                )
+                return response
+            case "cancel_modification_bw":
+                session_service = container.get(SessionService)
+                session_service.set(self.ro_session_key, "RO")
+                response = Response("")
+                response.headers["HX-Redirect"] = (
+                    f"{self.url}?reload=2#bw-form-container"
+                )
+                return response
+            case "validate_modification_bw":
+                self.apply_bw_modification()
+                session_service = container.get(SessionService)
+                session_service.set(self.ro_session_key, "RO")
+                response = Response("")
+                response.headers["HX-Redirect"] = (
+                    f"{self.url}?reload=3#bw-form-container"
+                )
+                return response
             case "toggle_org_active":
                 toggle_org_active(self.org)
                 response = Response("")
