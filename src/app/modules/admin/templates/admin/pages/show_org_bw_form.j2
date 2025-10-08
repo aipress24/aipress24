@@ -20,6 +20,7 @@
   id="bwform"
   method="post"
   enctype="multipart/form-data"
+  hx-encoding="multipart/form-data"
   >
   {{ form.csrf_token }}
   {% if not readonly_form_bw %}
@@ -32,6 +33,7 @@
       >Annuler les changements</button>
       <button
         type="submit"
+        form="bwform"
         hx-post="/admin/show_org/{{org.id}}"
         hx-vals='{"action": "validate_modification_bw"}'
         class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
