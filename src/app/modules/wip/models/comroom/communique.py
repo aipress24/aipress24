@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 from datetime import datetime
+from typing import ClassVar
 
 import sqlalchemy as sa
 from sqlalchemy import orm
@@ -90,7 +91,64 @@ class Communique(IdMixin, LifeCycleMixin, Owned, Base):
     # Langue
     language: Mapped[str] = mapped_column(default="fr")
 
+    # Image list
+    images: ClassVar[list[ComImage]]
+
     # Temp hack
     @property
     def title(self):
         return self.titre
+
+    #
+    # Images management
+    #
+    def get_image(self, image_id: int) -> ComImage:
+        return next((image for image in self.images if image.id == image_id), None)
+
+    @property
+    def sorted_images(self) -> list[ComImage]:
+        return sorted(self.images, key=lambda x: x.position)
+
+    def add_image(self, image: ComImage) -> None:
+        self.images.append(image)
+        image.position = len(self.images) - 1
+
+    def delete_image(self, image: ComImage) -> None:
+        self.images.remove(image)
+        self.update_image_positions()
+
+    def update_image_positions(self) -> None:
+        for i, image in enumerate(self.sorted_images):
+            image.position = i
+
+
+class ComImage(IdMixin, LifeCycleMixin, Owned, Base):
+    """Images liées au communiqué (carousel)."""
+
+    __tablename__ = "crm_image"
+
+    blob_id: Mapped[str] = mapped_column(nullable=False)
+
+    communique_id: Mapped[int] = mapped_column(
+        sa.ForeignKey(Communique.id, ondelete="CASCADE"), nullable=False
+    )
+    caption: Mapped[str] = mapped_column(default="")
+    copyright: Mapped[str] = mapped_column(default="")
+
+    communique: Mapped[Communique] = orm.relationship(
+        Communique, foreign_keys=[communique_id], backref="images"
+    )
+
+    position: Mapped[int] = mapped_column(default=0)
+
+    @property
+    def url(self) -> str:
+        return f"/wip/communiques/{self.communique_id}/images/{self.id}"
+
+    @property
+    def is_first(self) -> bool:
+        return self.position == 0
+
+    @property
+    def is_last(self) -> bool:
+        return self.position == len(self.communique.images) - 1
