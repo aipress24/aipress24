@@ -9,6 +9,7 @@ from typing import cast
 from flask import (
     Flask,
     flash,
+    g,
     make_response,
     redirect,
     render_template,
@@ -17,6 +18,7 @@ from flask import (
 )
 from flask_classful import route
 from flask_super.registry import register
+from sqlalchemy_utils.types.arrow import arrow
 from svcs.flask import container
 from werkzeug.exceptions import NotFound
 
@@ -27,13 +29,11 @@ from app.models.lifecycle import PublicationStatus
 from app.modules.wip.models import ComImage, Communique, CommuniqueRepository
 from app.services.blobs import BlobService
 from app.settings.constants import MAX_IMAGE_SIZE
+from app.signals import communique_published, communique_unpublished, communique_updated
 
 from ._base import BaseWipView
 from ._forms import CommuniqueForm
 from ._table import BaseTable
-
-# FIXME implement for communique
-# from app.signals import article_published, article_unpublished, article_updated
 
 
 class CommuniquesTable(BaseTable):
@@ -109,14 +109,21 @@ class CommuniquesWipView(BaseWipView):
     msg_delete_ok = "Le communiqué a été supprimé"
     msg_delete_ko = "Vous n'êtes pas autorisé à supprimer ce communiqué"
 
+    def _post_update_model(self, model: Communique) -> None:
+        if not model.statut:
+            model.statut = PublicationStatus.DRAFT
+            model.published_at = arrow.now("Europe/Paris")
+            if g.user.organisation_id:
+                model.publisher_id = g.user.organisation_id
+        communique_updated.send(model)
+
     def publish(self, id: int):
         repo = self._get_repo()
         communique = cast("Communique", self._get_model(id))
         communique.statut = PublicationStatus.PUBLIC
         repo.update(communique, auto_commit=True)
         flash("Le communiqué a été publié")
-        # FIXME
-        # communique_published.send(communique)
+        communique_published.send(communique)
         return redirect(self._url_for("index"))
 
     def unpublish(self, id: int):
@@ -125,8 +132,7 @@ class CommuniquesWipView(BaseWipView):
         communique.statut = PublicationStatus.DRAFT
         repo.update(communique, auto_commit=True)
         flash("Le communiqué a été dépublié")
-        # FIXME
-        # communique_unpublished.send(article)
+        communique_unpublished.send(communique)
         return redirect(self._url_for("index"))
 
     @route("/<int:id>/images/", methods=["GET", "POST"])
