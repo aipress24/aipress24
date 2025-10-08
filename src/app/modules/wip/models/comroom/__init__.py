@@ -5,8 +5,9 @@
 
 from __future__ import annotations
 
-from .communique import Communique
+from .communique import ComImage, Communique
 
 __all__ = [
+    "ComImage",
     "Communique",
 ]
