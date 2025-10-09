@@ -220,6 +220,15 @@ class BusinessWallRegistrationPage(BaseWipPage):
         )
         self.org.active = subscription_info.status
 
+    def get_logo_url(self) -> str:
+        if not self.org:
+            return "/static/img/transparent-square.png"
+        if self.org.is_auto:
+            return "/static/img/logo-page-non-officielle.png"
+        if not self.org.logo_id:
+            return "/static/img/transparent-square.png"
+        return url_for("api.get_blob", id=self.org.logo_id)
+
     def context(self) -> dict[str, Any]:
         self.update_bw_subscription_state()
         is_auto = self.org and self.org.is_auto
@@ -261,6 +270,7 @@ class BusinessWallRegistrationPage(BaseWipPage):
         return {
             "org": self.org,
             "org_name": self.org.name if self.org else "",
+            "logo_url": self.get_logo_url(),
             "org_bw_type_name": org_bw_type_name.upper(),
             "pricing_table_id": load_pricing_table_id(org_bw_type_name),
             "current_product_name": current_product_name,

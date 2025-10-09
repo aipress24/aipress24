@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 from __future__ import annotations
 
-from .comroom import Communique
+from .comroom import ComImage, Communique
 from .comroom.repositories import CommuniqueRepository
 from .newsroom import (
     Article,
@@ -28,6 +28,7 @@ __all__ = [
     "ArticleRepository",
     "AvisEnquete",
     "AvisEnqueteRepository",
+    "ComImage",
     "Commande",
     "CommandeRepository",
     "Communique",

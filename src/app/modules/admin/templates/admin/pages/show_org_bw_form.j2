@@ -1,0 +1,72 @@
+<div id="bw-form-container">
+      {% if readonly_form_bw %}
+      <div class="p-2">
+        <form class="space-y-4" action="#">
+          <div class="mt-12 flex items-center justify-end gap-x-6">
+            <button
+              type="submit"
+              hx-post="/admin/show_org/{{org.id}}"
+              hx-vals='{"action": "allow_modify_bw"}'
+              class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-500 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-400"
+            >Modification des informations du BW</button>
+          </div>
+        </form>
+      </div>
+
+    {% endif %}
+
+<form
+  x-data
+  id="bwform"
+  method="post"
+  enctype="multipart/form-data"
+  hx-encoding="multipart/form-data"
+  >
+  {{ form.csrf_token }}
+  {% if not readonly_form_bw %}
+    <div class="p-2 mt-12 flex items-center justify-end gap-x-6">
+      <button
+        type="submit"
+        hx-post="/admin/show_org/{{org.id}}"
+        hx-vals='{"action": "cancel_modification_bw"}'
+        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+      >Annuler les changements</button>
+      <button
+        type="submit"
+        form="bwform"
+        hx-post="/admin/show_org/{{org.id}}"
+        hx-vals='{"action": "validate_modification_bw"}'
+        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+      >Valider les modifications du BW</button>
+    </div>
+  {%endif%}
+  <div class="my-1">
+    <fieldset class="border border-solid border-gray-500 p-4">
+      <legend>Informations sur l'organisation</legend>
+      {% for field in form %}
+        {% if field.name != "csrf_token" %}
+          <div>
+            {{ render_field(field) }}
+          </div>
+        {% endif %}
+      {% endfor %}
+    </fieldset>
+  </div>
+  {% if not readonly_form_bw %}
+    <div class="p-2 mt-12 flex items-center justify-end gap-x-6">
+      <button
+        type="submit"
+        hx-post="/admin/show_org/{{org.id}}"
+        hx-vals='{"action": "cancel_modification_bw"}'
+        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+      >Annuler les changements</button>
+      <button
+        type="submit"
+        hx-post="/admin/show_org/{{org.id}}"
+        hx-vals='{"action": "validate_modification_bw"}'
+        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+      >Valider les modifications du BW</button>
+    </div>
+  {%endif%}
+</form>
+</div>

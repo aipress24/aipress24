@@ -50,19 +50,13 @@
   {% else %}
     <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="sm:flex sm:items-end sm:space-x-5">
-        {% if org.logo_url %}
-          <div class="flex">
-            <img
-              class="h-24 w-24 ring-2 ring-gray-100 sm:h-32 sm:w-32"
-              src="{{ org.logo_url }}"
-              alt="Logo de l&apos;organisation"
-            />
-          </div>
-        {% else %}
-          <div class="flex">
-            <p> </p>
-          </div>
-        {% endif %}
+        <div class="flex">
+          <img
+            class="h-24 w-24 ring-2 ring-gray-100 sm:h-32 sm:w-32"
+            src="{{ logo_url }}"
+            alt="Logo de l&apos;organisation"
+          />
+        </div>
         <div
             class="mt-6 sm:flex-1 sm:min-w-0 sm:flex sm:items-center sm:justify-end sm:space-x-6 sm:pb-1"
         >
@@ -355,7 +349,6 @@
         <button
           type="button"
           id="prevalid2"
-          data-modal-target="confirm_valid_popup"
           data-modal-toggle="confirm_valid_popup"
           class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
       >Valider les changements</button>
