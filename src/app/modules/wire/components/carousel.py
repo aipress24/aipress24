@@ -9,14 +9,26 @@ from svcs.flask import container
 
 from app.flask.lib.pywire import Component, component
 from app.flask.lib.types import JSON
-from app.modules.wip.models import ArticleRepository, Image
-from app.modules.wire.models import ArticlePost
+from app.modules.wip.models import (
+    ArticleRepository,
+    ComImage,
+    CommuniqueRepository,
+    Image,
+)
+from app.modules.wire.components.post_card import (
+    ArticleVM,
+    PressReleaseVM,
+)
+from app.modules.wire.models import (
+    ArticlePost,
+    PressReleasePost,
+)
 
 
 @component
 @frozen
 class Carousel(Component):
-    post: ArticlePost
+    post: ArticlePost | PressReleasePost | ArticleVM | PressReleaseVM
     img_class: str = "min-h-64"
 
     @property
@@ -29,15 +41,29 @@ class Carousel(Component):
         return self.get_slides()
 
     def get_slides(self):
-        try:
-            article_id = self.post.newsroom_id
-            repo = container.get(ArticleRepository)
-            article = repo.get(article_id)
-        except AttributeError:
-            article = self.post
+        info_type = self.post.__class__.__name__
+        # if isinstance(self.post, (ArticlePost, ArticleVM)):
+        if info_type == "ArticleVM":
+            try:
+                info_id = self.post.newsroom_id
+                repo = container.get(ArticleRepository)
+                info = repo.get(info_id)
+            except AttributeError:
+                info = self.post
+        # elif isinstance(self.post, (PressReleasePost, PressReleaseVM)):
+        elif info_type == "PressReleaseVM":
+            try:
+                info_id = self.post.newsroom_id
+                repo = container.get(CommuniqueRepository)
+                info = repo.get(info_id)
+            except AttributeError:
+                info = self.post
+        else:
+            msg = f"expected ArticleVM or PressReleaseVM, not {self.post!r}"
+            raise TypeError(msg)
 
         try:
-            images: list[Image] = article.sorted_images
+            images: list[Image | ComImage] = info.sorted_images
         except AttributeError:
             images = []
 

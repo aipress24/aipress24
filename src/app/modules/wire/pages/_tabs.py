@@ -17,7 +17,7 @@ from app.flask.sqla import get_multi
 from app.models.auth import User
 from app.models.lifecycle import PublicationStatus
 from app.models.organisation import Organisation
-from app.modules.wire.models import ArticlePost
+from app.modules.wire.models import Post
 from app.services.social_graph import adapt
 
 from ._filters import FilterBar
@@ -48,9 +48,9 @@ class Tab(abc.ABC):
         authors = self.get_authors()
         if authors is not None:
             author_ids = [f.id for f in authors]
-            stmt = stmt.where(ArticlePost.owner_id.in_(author_ids))
+            stmt = stmt.where(Post.owner_id.in_(author_ids))
 
-        posts = get_multi(ArticlePost, stmt)
+        posts = get_multi(Post, stmt)
         return posts
 
     def get_authors(self) -> list[User] | None:
@@ -63,17 +63,17 @@ class Tab(abc.ABC):
 
         match sort_order:
             case "likes":
-                order = ArticlePost.like_count.desc()
+                order = Post.like_count.desc()
             case "comments":
-                order = ArticlePost.comment_count.desc()
+                order = Post.comment_count.desc()
             case _:
-                order = ArticlePost.published_at.desc()
+                order = Post.published_at.desc()
 
         stmt = (
-            sa.select(ArticlePost)
-            .where(ArticlePost.status == PublicationStatus.PUBLIC)
+            sa.select(Post)
+            .where(Post.status == PublicationStatus.PUBLIC)
             .order_by(order)
-            .options(selectinload(ArticlePost.owner))
+            .options(selectinload(Post.owner))
             .limit(30)
         )
 
@@ -81,10 +81,10 @@ class Tab(abc.ABC):
             # FIXME
             if filter_id == "tag":
                 continue
-            if not hasattr(ArticlePost, filter_id):
+            if not hasattr(Post, filter_id):
                 continue
             values = [filter["value"] for filter in filter_values]
-            where_clause = getattr(ArticlePost, filter_id).in_(values)
+            where_clause = getattr(Post, filter_id).in_(values)
             stmt = stmt.where(where_clause)
 
         return stmt

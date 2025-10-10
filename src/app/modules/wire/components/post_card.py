@@ -16,13 +16,13 @@ from app.flask.routing import url_for
 from app.lib.html import remove_markup
 from app.models.auth import User
 from app.models.organisation import Organisation
-from app.modules.wire.models import ArticlePost
+from app.modules.wire.models import ArticlePost, PressReleasePost
 
 
 @component
 @frozen
 class PostCard(Component):
-    post: ArticlePost  # | PressRelease
+    post: ArticlePost | PressReleasePost
     show_author: bool = True
     class_: str = ""
 
@@ -30,10 +30,8 @@ class PostCard(Component):
         match self.post:
             case ArticlePost():
                 return ArticleVM(self.post)
-
-            # case PressRelease():
-            #     return PressReleaseVM(self.post)
-
+            case PressReleasePost():
+                return PressReleaseVM(self.post)
             case _:
                 msg = f"Unsupported post type: {type(self.post)}"
                 raise ValueError(msg)
@@ -76,51 +74,55 @@ class ArticleVM(Wrapper):
         return "/static/img/gray-texture.png"
 
 
-#
-# @frozen
-# class PressReleaseVM(Wrapper):
-#     _model: PressRelease
-#     _url: str = field(init=False)
-#
-#     author: User = field(init=False)
-#     publisher: Organisation = field(init=False)
-#
-#     likes: int = field(init=False)
-#     replies: int = field(init=False)
-#     views: int = field(init=False)
-#
-#     summary: str = field(init=False)
-#     published_at: Arrow = field(init=False)
-#
-#     image_url: str = field(init=False)
-#     image_caption: str = field(init=False)
-#     image_copyright: str = field(init=False)
-#
-#     def extra_attrs(self):
-#         post = self._model
-#         summary = remove_markup(post.content)
-#         if len(summary) > 200:
-#             summary = summary[0:197] + "..."
-#         return {
-#             "published_at": post.created_at,
-#             "author": UserVM(post.owner),
-#             "publisher": post.publisher,
-#             "summary": summary,
-#             "likes": 0,
-#             "replies": 0,
-#             "views": 0,
-#             "image_url": self.get_image_url(),
-#             "image_caption": "",
-#             "image_copyright": "",
-#             "_url": url_for(post),
-#         }
-#
-#     def get_image_url(self):
-#         post = self._model
-#         if post.image_url:
-#             return post.image_url
-#         else:
-#             return "/static/img/gray-texture.png"
+@frozen
+class PressReleaseVM(Wrapper):
+    _model: PressReleasePost
+    _url: str = field(init=False)
+
+    author: User = field(init=False)
+    publisher: Organisation = field(init=False)
+
+    likes: int = field(init=False)
+    replies: int = field(init=False)
+    views: int = field(init=False)
+
+    summary: str = field(init=False)
+    # published_at: Arrow = field(init=False)
+
+    image_url: str = field(init=False)
+    image_caption: str = field(init=False)
+    image_copyright: str = field(init=False)
+
+    def extra_attrs(self):
+        post: PressReleasePost = self._model
+        summary = remove_markup(post.content)
+        if len(summary) > 200:
+            summary = summary[0:197] + "..."
+        return {
+            # "published_at": post.created_at,
+            "author": UserVM(post.owner),
+            # "publisher": post.publisher,
+            "summary": summary,
+            "likes": post.like_count,
+            "replies": post.comment_count,
+            "views": post.view_count,
+            "image_url": self.get_image_url(),
+            # "image_caption": "",
+            # "image_copyright": "",
+            "_url": url_for(post),
+        }
+
+    def get_image_url(self):
+        post = self._model
+        try:
+            if post.image_url:
+                return post.image_url
+        except AttributeError:
+            # because some Communique were created before
+            # PressRelesasePost creation
+            pass
+        else:
+            return "/static/img/gray-texture.png"
 
 
 @frozen
