@@ -1,9 +1,13 @@
 {% extends "wip/layout/_base.j2" %}
 
 <style>
-/* Mark input boxes that gets an error on validation: */
 .invalid {
+  /* Mark input boxes that gets an error on validation: */
   background-color: #ffdddd !important;
+  border-color: #f00 !important;
+}
+.visually-hidden {
+    display: none !important;
 }
 </style>
 
@@ -69,6 +73,11 @@
       </div>
     </div>
     <hr class="mt-2">
+    <div
+      id="validation-error-message"
+      class="text-center p-2 text-sm font-semibold text-red-700 bg-red-100 rounded my-4 hidden"
+      role="alert">
+    </div>
     <p class="p-2">
       Abonnement Business Wall&nbsp;: «{{current_product_name}}».
       {% if is_manager %}
@@ -78,6 +87,12 @@
     </p>
 
     {% if is_manager %}
+    {% set required_field_ids = [] %}
+    {% for field in form %}
+        {% if field.id and field.flags.required and field.name != "csrf_token" %}
+            {% set _ = required_field_ids.append(field.id) %}
+        {% endif %}
+    {% endfor %}
     <div class="mt-4 flex items-center justify-end gap-x-6">
       <button
         type="button"
@@ -330,6 +345,16 @@
         {% for field in form %}
           {% if field.name != "csrf_token" %}
             <div>
+              {% if field.flags.required %}
+                <span
+                  id="error-{{ field.id }}"
+                  class="bg-red-600 text-white font-bold text-xs
+                  uppercase px-2 py-1 ml-3 rounded-md shadow-sm
+                  required-error-tag"
+                  style="display: none;"
+                >Champ Obligatoire
+                </span>
+              {% endif %}
               {{ render_field(field) }}
             </div>
           {% endif %}
@@ -397,5 +422,75 @@
     </div>
 
   </form>
-  {% endif %}
-{% endblock %}
+  <script>
+      const isManager = {{ is_manager | tojson }};
+      if (isManager) {
+          const REQUIRED_FIELD_IDS = {{ required_field_ids | tojson }};
+
+          function getFirstMissingFieldId(fieldIds) {
+              for (const fieldId of fieldIds) {
+                  const fieldElement = document.getElementById(fieldId);
+                  if (!fieldElement) continue;
+
+                  let value;
+                  if (fieldElement.tomselect) {
+                      value = fieldElement.tomselect.getValue();
+                      if (Array.isArray(value) && value.length === 0) {
+                          return fieldId;
+                      }
+                  } else {
+                      value = fieldElement.value.trim();
+                  }
+
+                  if (!value) {
+                      return fieldId;
+                  }
+              }
+              return null;
+          }
+
+          function handleValidation(event) {
+              document.querySelectorAll('.invalid').forEach(el => el.classList.remove('invalid'));
+
+              document.querySelectorAll('.required-error-tag').forEach(el => {
+                  el.style.display = 'none';
+              });
+
+              const missingFieldId = getFirstMissingFieldId(REQUIRED_FIELD_IDS);
+
+              if (missingFieldId) {
+                  event.preventDefault();
+                  event.stopImmediatePropagation();
+
+                  const missingFieldElement = document.getElementById(missingFieldId);
+
+                  missingFieldElement.classList.add('invalid');
+
+                  const errorTagId = `error-${missingFieldId}`;
+                  const errorTag = document.getElementById(errorTagId);
+
+                  if (errorTag) {
+                      errorTag.style.display = 'inline-block';
+                  }
+
+                  if (missingFieldElement.tomselect) {
+                      missingFieldElement.tomselect.focus();
+                      if (missingFieldElement.tomselect.control) {
+                          missingFieldElement.tomselect.control.classList.add('invalid');
+                      }
+                  } else {
+                      missingFieldElement.focus();
+                      missingFieldElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                  }
+
+              }
+          }
+
+          const prevalidButtons = document.querySelectorAll('#prevalid, #prevalid2');
+          prevalidButtons.forEach(button => {
+              button.addEventListener('click', handleValidation, true);
+          });
+      }
+  </script>
+{% endif %}
+{% endblock  %}
