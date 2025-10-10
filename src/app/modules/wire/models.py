@@ -30,6 +30,8 @@ DRAFT = PostStatus.DRAFT
 class PublisherType(StrEnum):
     AGENCY = auto()
     MEDIA = auto()
+    COM = auto()  # PR agency
+    OTHER = auto()
 
 
 class WireCommonMixin(IdMixin, LifeCycleMixin, Owned):
@@ -202,6 +204,11 @@ class PressReleasePost(NewsMetadataMixin, Post, Taggable):
         "polymorphic_identity": "press_release",
     }
 
-    # id of the corresponding newsroom article (if any)
-    # newsroom_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
-    # newsroom_id: Mapped[int] = mapped_column(ForeignKey("nrm_article.id"), nullable=True)
+    # id of the corresponding com'room communique (if any)
+    newsroom_id: Mapped[int | None] = mapped_column(
+        BigInteger, index=True, nullable=True, use_existing_column=True
+    )
+
+    publisher_type: Mapped[PublisherType] = mapped_column(
+        Enum(PublisherType), default=PublisherType.COM, use_existing_column=True
+    )

@@ -9,9 +9,16 @@ from sqlalchemy import select
 
 from app.constants import LOCAL_TZ
 from app.flask.extensions import db
-from app.modules.wip.models import Article
-from app.modules.wire.models import ArticlePost, PostStatus
-from app.signals import article_published, article_unpublished, article_updated
+from app.modules.wip.models import Article, Communique
+from app.modules.wire.models import ArticlePost, PostStatus, PressReleasePost
+from app.signals import (
+    article_published,
+    article_unpublished,
+    article_updated,
+    communique_published,
+    communique_unpublished,
+    communique_updated,
+)
 
 
 @article_published.connect
@@ -60,14 +67,63 @@ def on_update(article: Article) -> None:
     db.session.commit()
 
 
-def update_post(post: ArticlePost, article: Article) -> None:
-    post.title = article.title
-    post.summary = article.chapo
-    post.content = article.contenu
-    post.owner_id = article.owner_id
+@communique_published.connect
+def on_publish_communique(communique: Communique) -> None:
+    print(f"Received 'Communique published': {communique.title}")
+    post = get_post(communique)
+    if not post:
+        post = PressReleasePost()
+        post.newsroom_id = communique.id
+        post.created_at = communique.created_at
+        post.published_at = now(LOCAL_TZ)
+
+    post.status = PostStatus.PUBLIC
+
+    update_post(post, communique)
+
+    db.session.add(post)
+    db.session.commit()
+
+
+@communique_unpublished.connect
+def on_unpublish_communique(communique: Communique) -> None:
+    print(f"Communique unpublished: {communique.title}")
+    post = get_post(communique)
+    if not post:
+        return
+    post.status = PostStatus.DRAFT
+
+    db.session.add(post)
+    db.session.commit()
+
+
+@communique_updated.connect
+def on_update_communique(communique: Communique) -> None:
+    print(f"Received 'Communique updated': {communique.title}")
+    post = get_post(communique)
+    if not post:
+        # Communique not published yet, nothing to do
+        return
+
+    print(f"Updating post: {post}")
+    update_post(post, communique)
+    post.last_updated_at = now(LOCAL_TZ)
+
+    db.session.add(post)
+    db.session.commit()
+
+
+def update_post(
+    post: ArticlePost | PressReleasePost,
+    info: Article | Communique,
+) -> None:
+    post.title = info.title
+    post.summary = info.chapo
+    post.content = info.contenu
+    post.owner_id = info.owner_id
 
     # TODO: remove
-    images = article.sorted_images
+    images = info.sorted_images
     if images:
         image = images[0]
         post.image_id = image.id
@@ -81,16 +137,22 @@ def update_post(post: ArticlePost, article: Article) -> None:
         post.image_copyright = ""
 
     # Metadata
-    post.genre = article.genre
-    post.section = article.section
-    post.topic = article.topic
-    post.sector = article.sector
-    post.geo_localisation = article.geo_localisation
-    post.language = article.language
+    post.genre = info.genre
+    post.section = info.section
+    post.topic = info.topic
+    post.sector = info.sector
+    post.geo_localisation = info.geo_localisation
+    post.language = info.language
 
 
-def get_post(article: Article) -> ArticlePost | None:
-    stmt = select(ArticlePost).where(ArticlePost.newsroom_id == article.id)
+def get_post(info: Article | Communique) -> ArticlePost | PressReleasePost | None:
+    if isinstance(info, Article):
+        stmt = select(ArticlePost).where(ArticlePost.newsroom_id == info.id)
+    elif isinstance(info, Communique):
+        stmt = select(PressReleasePost).where(PressReleasePost.newsroom_id == info.id)
+    else:
+        msg = f"Expected an Article or Communique, not {info!r}"
+        raise TypeError(msg)
     result = db.session.execute(stmt)
     post = result.scalar_one_or_none()
     return post
