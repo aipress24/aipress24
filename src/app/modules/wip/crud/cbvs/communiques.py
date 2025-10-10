@@ -60,7 +60,7 @@ class CommuniquesTable(BaseTable):
                 "url": self.url_for(item, "images"),
             },
         ]
-        if item.statut == PublicationStatus.DRAFT:
+        if item.status == PublicationStatus.DRAFT:
             actions.append(
                 {
                     "label": "Publier",
@@ -110,8 +110,8 @@ class CommuniquesWipView(BaseWipView):
     msg_delete_ko = "Vous n'êtes pas autorisé à supprimer ce communiqué"
 
     def _post_update_model(self, model: Communique) -> None:
-        if not model.statut:
-            model.statut = PublicationStatus.DRAFT
+        if not model.status:
+            model.status = PublicationStatus.DRAFT
             model.published_at = arrow.now("Europe/Paris")
             if g.user.organisation_id:
                 model.publisher_id = g.user.organisation_id
@@ -120,7 +120,7 @@ class CommuniquesWipView(BaseWipView):
     def publish(self, id: int):
         repo = self._get_repo()
         communique = cast("Communique", self._get_model(id))
-        communique.statut = PublicationStatus.PUBLIC
+        communique.status = PublicationStatus.PUBLIC
         repo.update(communique, auto_commit=True)
         flash("Le communiqué a été publié")
         communique_published.send(communique)
@@ -129,7 +129,7 @@ class CommuniquesWipView(BaseWipView):
     def unpublish(self, id: int):
         repo = self._get_repo()
         communique = cast("Communique", self._get_model(id))
-        communique.statut = PublicationStatus.DRAFT
+        communique.status = PublicationStatus.DRAFT
         repo.update(communique, auto_commit=True)
         flash("Le communiqué a été dépublié")
         communique_unpublished.send(communique)

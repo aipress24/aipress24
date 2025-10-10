@@ -81,7 +81,7 @@ class BaseTable(Table):
             #     "render": self.get_media_name,
             # },
             {
-                "name": "statut",
+                "name": "status",
                 "label": "Statut",
             },
             {

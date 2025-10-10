@@ -36,7 +36,7 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
     contenu: Mapped[str] = mapped_column(default="")
 
     # Etat: Brouillon, Publié, Archivé...
-    statut: Mapped[PublicationStatus] = mapped_column(
+    status: Mapped[PublicationStatus] = mapped_column(
         sa.Enum(PublicationStatus), default=DRAFT
     )
 
