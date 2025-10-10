@@ -425,7 +425,7 @@
   <script>
       const isManager = {{ is_manager | tojson }};
       if (isManager) {
-          const REQUIRED_FIELD_IDS = {{ required_field_ids | tojson }};
+          const REQUIRED_FIELD_IDS = {{ required_field_ids | default([]) | tojson }};
 
           function getFirstMissingFieldId(fieldIds) {
               for (const fieldId of fieldIds) {
