@@ -7,7 +7,7 @@ from __future__ import annotations
 from typing import cast
 
 from attr import define
-from flask import Response, current_app, render_template, request
+from flask import Response, current_app, request
 from svcs.flask import container
 
 from app.flask.lib.pages import page
