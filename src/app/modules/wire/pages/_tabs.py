@@ -15,9 +15,8 @@ from sqlalchemy.orm import selectinload
 from app.enums import OrganisationTypeEnum
 from app.flask.sqla import get_multi
 from app.models.auth import User
-
 from app.models.organisation import Organisation
-from app.modules.wire.models import Post, PressReleasePost, PostStatus
+from app.modules.wire.models import Post, PostStatus
 from app.services.social_graph import adapt
 
 from ._filters import FilterBar
@@ -37,12 +36,13 @@ class Tab(abc.ABC):
     id: str
     label: str
     tip: str
+    post_type: str
 
     @property
     def is_active(self):
         return session["wire:tab"] == self.id
 
-    def get_posts(self, filter_bar: FilterBar):
+    def get_posts(self, filter_bar: FilterBar) -> list[Post]:
         stmt = self.get_stmt(filter_bar)
 
         authors = self.get_authors()
@@ -77,6 +77,9 @@ class Tab(abc.ABC):
             .limit(30)
         )
 
+        if self.post_type:
+            stmt = stmt.where(Post.type == self.post_type)
+
         for filter_id, filter_values in active_filters | groupby(itemgetter("id")):
             # FIXME
             if filter_id == "tag":
@@ -94,6 +97,7 @@ class WallTab(Tab):
     id = "wall"
     label = "All"
     tip = "Fil d'actus"
+    post_type = ""
 
     def get_authors(self) -> None:
         return None
@@ -103,6 +107,7 @@ class AgenciesTab(Tab):
     id = "agencies"
     label = "Agences"
     tip = "Agences de Presse"
+    post_type = ""
 
     def get_authors(self):
         orgs: list[Organisation] = adapt(g.user).get_followees(cls=Organisation)
@@ -117,6 +122,7 @@ class MediasTab(Tab):
     id = "media"
     label = "Médias"
     tip = "Médias (presse, en ligne...) auxquels je suis abonné"
+    post_type = ""
 
     def get_authors(self):
         orgs: list[Organisation] = adapt(g.user).get_followees(cls=Organisation)
@@ -131,6 +137,7 @@ class JournalistsTab(Tab):
     id = "journalists"
     label = "Journalistes"
     tip = "Les journalistes que je suis"
+    post_type = ""
 
     def get_authors(self):
         return adapt(g.user).get_followees()
@@ -140,26 +147,7 @@ class ComTab(Tab):
     id = "com"
     label = "Idées & Comm"
     tip = "Communiqués de presse"
-
-    def get_stmt(self, filter_bar: FilterBar):
-        active_filters = filter_bar.active_filters
-        sort_order = filter_bar.sort_order
-
-        match sort_order:
-            case "likes":
-                order = Post.like_count.desc()
-            case "comments":
-                order = Post.comment_count.desc()
-            case _:
-                order = Post.published_at.desc()
-
-        stmt = (
-            sa.select(PressReleasePost)
-            .where(PressReleasePost.status == PostStatus.PUBLIC)
-            .order_by(order)
-            .options(selectinload(Post.owner))
-            .limit(30)
-        )
+    post_type = "press_release"
 
     # def get_posts(self, filter_bar):
     #     return []
