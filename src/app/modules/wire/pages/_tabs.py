@@ -17,7 +17,7 @@ from app.flask.sqla import get_multi
 from app.models.auth import User
 from app.models.lifecycle import PublicationStatus
 from app.models.organisation import Organisation
-from app.modules.wire.models import Post
+from app.modules.wire.models import Post, PressReleasePost, PostStatus
 from app.services.social_graph import adapt
 
 from ._filters import FilterBar
@@ -141,25 +141,45 @@ class ComTab(Tab):
     label = "Idées & Comm"
     tip = "Communiqués de presse"
 
-    def get_posts(self, filter_bar):
-        return []
-        # sort_order = filter_bar.sort_order
-        #
-        # match sort_order:
-        #     # TODO
-        #     # case "likes":
-        #     #     order = PressRelease.like_count.desc()
-        #     # case "comments":
-        #     #     order = PressRelease.comment_count.desc()
-        #     case _:
-        #         # TODO
-        #         order = PressRelease.created_at.desc()
-        #
-        # stmt = (
-        #     sa.select(PressRelease)
-        #     .where(PressRelease.status == PublicationStatus.PUBLIC)
-        #     .order_by(order)
-        #     .options(selectinload(PressRelease.owner))
-        #     .limit(30)
-        # )
-        # return get_multi(PressRelease, stmt)
+    def get_stmt(self, filter_bar: FilterBar):
+        active_filters = filter_bar.active_filters
+        sort_order = filter_bar.sort_order
+
+        match sort_order:
+            case "likes":
+                order = Post.like_count.desc()
+            case "comments":
+                order = Post.comment_count.desc()
+            case _:
+                order = Post.published_at.desc()
+
+        stmt = (
+            sa.select(PressReleasePost)
+            .where(PressReleasePost.status == PostStatus.PUBLIC)
+            .order_by(order)
+            .options(selectinload(Post.owner))
+            .limit(30)
+        )
+
+    # def get_posts(self, filter_bar):
+    #     return []
+    # sort_order = filter_bar.sort_order
+    #
+    # match sort_order:
+    #     # TODO
+    #     # case "likes":
+    #     #     order = PressRelease.like_count.desc()
+    #     # case "comments":
+    #     #     order = PressRelease.comment_count.desc()
+    #     case _:
+    #         # TODO
+    #         order = PressRelease.created_at.desc()
+    #
+    # stmt = (
+    #     sa.select(PressRelease)
+    #     .where(PressRelease.status == PublicationStatus.PUBLIC)
+    #     .order_by(order)
+    #     .options(selectinload(PressRelease.owner))
+    #     .limit(30)
+    # )
+    # return get_multi(PressRelease, stmt)
