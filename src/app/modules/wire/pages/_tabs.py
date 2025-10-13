@@ -15,7 +15,7 @@ from sqlalchemy.orm import selectinload
 from app.enums import OrganisationTypeEnum
 from app.flask.sqla import get_multi
 from app.models.auth import User
-from app.models.lifecycle import PublicationStatus
+
 from app.models.organisation import Organisation
 from app.modules.wire.models import Post, PressReleasePost, PostStatus
 from app.services.social_graph import adapt
@@ -71,7 +71,7 @@ class Tab(abc.ABC):
 
         stmt = (
             sa.select(Post)
-            .where(Post.status == PublicationStatus.PUBLIC)
+            .where(Post.status == PostStatus.PUBLIC)
             .order_by(order)
             .options(selectinload(Post.owner))
             .limit(30)
@@ -177,7 +177,7 @@ class ComTab(Tab):
     #
     # stmt = (
     #     sa.select(PressRelease)
-    #     .where(PressRelease.status == PublicationStatus.PUBLIC)
+    #     .where(PressRelease.status == PostStatus.PUBLIC)
     #     .order_by(order)
     #     .options(selectinload(PressRelease.owner))
     #     .limit(30)
