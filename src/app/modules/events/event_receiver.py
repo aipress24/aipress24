@@ -22,9 +22,6 @@ from app.signals import (
 @event_published.connect
 def on_publish_event(event: Event) -> None:
     print(f"Received 'Event published': {event.title}")
-    import sys
-
-    print(f"Received 'Event published': {event.title}", file=sys.stderr)
     post = get_post(event)
     if not post:
         post = EventPost()
@@ -92,12 +89,27 @@ def update_post(
     #     post.image_copyright = ""
 
     # Metadata
-    post.genre = info.genre
-    post.section = info.section
-    post.topic = info.topic
+    post.start_time = info.start_time
+    post.end_time = info.end_time
+    # FIXME
+    post.start_date = info.start_time
+    post.end_date = info.end_time
+
+    # post.location = info.location
+    post.location = info.address
+    post.pays_zip_ville = info.pays_zip_ville
+    post.pays_zip_ville_detail = info.pays_zip_ville_detail
+
+    post.genre = info.event_type
     post.sector = info.sector
-    post.geo_localisation = info.geo_localisation
+    post.category = ""
+
+    post.url = info.url
     post.language = info.language
+
+    # post.section = info.section
+    # post.topic = info.topic
+    # post.geo_localisation = info.geo_localisation
 
 
 def get_post(info: Event) -> EventPost | None:

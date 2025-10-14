@@ -53,6 +53,8 @@ class EventPost(BaseContent, UserFeedbackMixin, Publishable, Searchable, Address
 
     #: where the event takes place
     location: Mapped[str] = mapped_column(default="", info={"group": "location"})
+    pays_zip_ville: Mapped[str] = mapped_column(default="")
+    pays_zip_ville_detail: Mapped[str] = mapped_column(default="")
 
     # Or use datetimes?
     start_date: Mapped[ArrowType | None] = mapped_column(
