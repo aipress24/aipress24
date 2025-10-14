@@ -7,10 +7,10 @@ from __future__ import annotations
 from attr import define
 
 from app.flask.lib.pywire import Component, component
-from app.modules.events.models import Event
+from app.modules.events.models import EventPost
 
 
 @component
 @define
 class EventList(Component):
-    grouped_events: list[tuple[str, list[Event]]]
+    grouped_events: list[tuple[str, list[EventPost]]]

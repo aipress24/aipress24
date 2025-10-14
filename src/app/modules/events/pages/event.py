@@ -17,7 +17,7 @@ from app.flask.lib.pages import Page, page
 from app.flask.lib.view_model import ViewModel
 from app.flask.sqla import get_multi, get_obj
 from app.models.auth import User
-from app.modules.events.models import Event
+from app.modules.events.models import EventPost
 from app.modules.events.services import get_participants
 from app.services.social_graph import adapt
 
@@ -61,7 +61,7 @@ class EventPage(Page):
 
     def __init__(self, id) -> None:
         self.args = {"id": id}
-        self.event = get_obj(id, Event)
+        self.event = get_obj(id, EventPost)
         self.view_model = EventVM(self.event)
 
     @property
@@ -77,12 +77,12 @@ class EventPage(Page):
     def get_related_events(self):
         today = arrow.now().date()
         stmt = (
-            select(Event)
-            .where(Event.start_date >= arrow.get(today))
-            .order_by(Event.start_date)
+            select(EventPost)
+            .where(EventPost.start_date >= arrow.get(today))
+            .order_by(EventPost.start_date)
             .limit(10)
         )
-        return get_multi(Event, stmt)
+        return get_multi(EventPost, stmt)
 
     def get_metadata_list(self):
         item = self.event

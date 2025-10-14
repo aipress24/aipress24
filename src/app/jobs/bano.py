@@ -18,11 +18,11 @@ from app.flask.lib.jobs import Job
 from app.flask.sqla import get_multi
 from app.models.auth import User
 from app.models.mixins import Addressable
-from app.modules.events.models import Event
+from app.modules.events.models import EventPost
 from app.modules.wire.models import PressReleasePost
 
 CLASSES_TO_FIX = [
-    Event,
+    EventPost,
     PressReleasePost,
     # EditorialContent,
     User,

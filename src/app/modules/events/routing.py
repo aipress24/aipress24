@@ -6,11 +6,11 @@ from __future__ import annotations
 
 from app.flask.routing import url_for
 
-from .models import Event
+from .models import EventPost
 
 
 @url_for.register
-def url_for_event(event: Event, _ns: str = "events", **kw):
+def url_for_event(event: EventPost, _ns: str = "events", **kw):
     name = f"{_ns}.event"
     kw["id"] = event.id
     # if _ns == "public":

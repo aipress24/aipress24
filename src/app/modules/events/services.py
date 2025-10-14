@@ -9,14 +9,14 @@ import sqlalchemy as sa
 from app.flask.extensions import db
 from app.models.auth import User
 
-from .models import Event, participation_table
+from .models import EventPost, participation_table
 
 
 #
 # Participation to event
 #
-def get_participants(event: Event, order_by=None, limit: int = 0) -> list[User]:
-    assert isinstance(event, Event)
+def get_participants(event: EventPost, order_by=None, limit: int = 0) -> list[User]:
+    assert isinstance(event, EventPost)
 
     table = participation_table
 
