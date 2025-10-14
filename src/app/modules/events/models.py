@@ -7,6 +7,9 @@ from __future__ import annotations
 from typing import ClassVar
 
 import sqlalchemy as sa
+from sqlalchemy import (
+    BigInteger,
+)
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy_utils import ArrowType
 
@@ -42,6 +45,11 @@ class EventPost(BaseContent, UserFeedbackMixin, Publishable, Searchable, Address
     # Inherited from BaseContent
     # - summary: short summary of the event (plain text)
     # - content: more detailed description of the event (html)
+
+    # id of the corresponding eventroom event (if any)
+    eventroom_id: Mapped[int | None] = mapped_column(
+        BigInteger, index=True, nullable=True
+    )
 
     #: where the event takes place
     location: Mapped[str] = mapped_column(default="", info={"group": "location"})
