@@ -13,18 +13,12 @@ from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy_utils import ArrowType
 
 from app.models.base_content import BaseContent
+from app.models.lifecycle import PublicationStatus
 from app.models.mixins import IdMixin, LifeCycleMixin, Owned
 from app.models.organisation import Organisation
 from app.services.tagging.interfaces import Taggable
 
-
-class PostStatus(StrEnum):
-    DRAFT = auto()
-    PUBLIC = auto()
-    ARCHIVED = auto()
-
-
-DRAFT = PostStatus.DRAFT
+DRAFT = PublicationStatus.DRAFT
 
 
 class PublisherType(StrEnum):
@@ -51,7 +45,9 @@ class WireCommonMixin(IdMixin, LifeCycleMixin, Owned):
         return mapped_column(String, default="")
 
     # Etat: Brouillon, Publié, Archivé
-    status: Mapped[PostStatus] = mapped_column(Enum(PostStatus), default=DRAFT)
+    status: Mapped[PublicationStatus] = mapped_column(
+        Enum(PublicationStatus), default=DRAFT
+    )
 
     published_at: Mapped[datetime | None] = mapped_column(
         ArrowType(timezone=True), nullable=True
@@ -135,7 +131,9 @@ class Post(BaseContent, LifeCycleMixin):
     summary: Mapped[str] = mapped_column(default="")
 
     # Etat: Brouillon, Publié, Archivé
-    status: Mapped[PostStatus] = mapped_column(Enum(PostStatus), default=DRAFT)
+    status: Mapped[PublicationStatus] = mapped_column(
+        Enum(PublicationStatus), default=DRAFT
+    )
 
     published_at: Mapped[datetime | None] = mapped_column(
         ArrowType(timezone=True), nullable=True

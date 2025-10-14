@@ -12,7 +12,8 @@ from werkzeug.exceptions import BadRequest
 
 from app.flask.components.filterset import FilterSet
 from app.flask.sqla import get_multi
-from app.modules.wire.models import ArticlePost, PostStatus
+from app.models.lifecycle import PublicationStatus
+from app.modules.wire.models import ArticlePost
 
 FILTER_SPECS = [
     {
@@ -191,7 +192,9 @@ class FilterBar:
         return self.get_filters_for_articles()
 
     def get_filters_for_articles(self):
-        stmt = sa.select(ArticlePost).where(ArticlePost.status == PostStatus.PUBLIC)
+        stmt = sa.select(ArticlePost).where(
+            ArticlePost.status == PublicationStatus.PUBLIC
+        )
         articles = get_multi(ArticlePost, stmt)
 
         filter_set = FilterSet(FILTER_SPECS)

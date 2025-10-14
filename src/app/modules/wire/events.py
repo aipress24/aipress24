@@ -9,8 +9,9 @@ from sqlalchemy import select
 
 from app.constants import LOCAL_TZ
 from app.flask.extensions import db
+from app.models.lifecycle import PublicationStatus
 from app.modules.wip.models import Article, Communique
-from app.modules.wire.models import ArticlePost, PostStatus, PressReleasePost
+from app.modules.wire.models import ArticlePost, PressReleasePost
 from app.signals import (
     article_published,
     article_unpublished,
@@ -31,7 +32,7 @@ def on_publish(article: Article) -> None:
         post.created_at = article.created_at
         post.published_at = now(LOCAL_TZ)
 
-    post.status = PostStatus.PUBLIC
+    post.status = PublicationStatus.PUBLIC
 
     update_post(post, article)
 
@@ -45,7 +46,7 @@ def on_unpublish(article: Article) -> None:
     post = get_post(article)
     if not post:
         return
-    post.status = PostStatus.DRAFT
+    post.status = PublicationStatus.DRAFT
 
     db.session.add(post)
     db.session.commit()
@@ -77,7 +78,7 @@ def on_publish_communique(communique: Communique) -> None:
         post.created_at = communique.created_at
         post.published_at = now(LOCAL_TZ)
 
-    post.status = PostStatus.PUBLIC
+    post.status = PublicationStatus.PUBLIC
 
     update_post(post, communique)
 
@@ -91,7 +92,7 @@ def on_unpublish_communique(communique: Communique) -> None:
     post = get_post(communique)
     if not post:
         return
-    post.status = PostStatus.DRAFT
+    post.status = PublicationStatus.DRAFT
 
     db.session.add(post)
     db.session.commit()
