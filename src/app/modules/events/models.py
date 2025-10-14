@@ -36,7 +36,9 @@ Event -up-|> BaseContent
 """
 
 
-class EventPost(BaseContent, UserFeedbackMixin, Publishable, Searchable, Addressable):
+class EventPostBase(
+    BaseContent, UserFeedbackMixin, Publishable, Searchable, Addressable
+):
     """
     Based in part on:
     - https://microformats.org/wiki/h-event
@@ -46,15 +48,8 @@ class EventPost(BaseContent, UserFeedbackMixin, Publishable, Searchable, Address
     # - summary: short summary of the event (plain text)
     # - content: more detailed description of the event (html)
 
-    # id of the corresponding eventroom event (if any)
-    eventroom_id: Mapped[int | None] = mapped_column(
-        BigInteger, index=True, nullable=True
-    )
-
     #: where the event takes place
     location: Mapped[str] = mapped_column(default="", info={"group": "location"})
-    pays_zip_ville: Mapped[str] = mapped_column(default="")
-    pays_zip_ville_detail: Mapped[str] = mapped_column(default="")
 
     # Or use datetimes?
     start_date: Mapped[ArrowType | None] = mapped_column(
@@ -92,7 +87,22 @@ class EventPost(BaseContent, UserFeedbackMixin, Publishable, Searchable, Address
     # organizers
 
 
-class PublicEvent(EventPost):
+class EventPost(EventPostBase):
+    __tablename__ = "evt_event_post"
+
+    id: Mapped[int] = mapped_column(
+        sa.BigInteger, sa.ForeignKey(BaseContent.id), primary_key=True
+    )
+
+    # id of the corresponding eventroom event (if any)
+    eventroom_id: Mapped[int | None] = mapped_column(
+        BigInteger, index=True, nullable=True
+    )
+    pays_zip_ville: Mapped[str] = mapped_column(default="")
+    pays_zip_ville_detail: Mapped[str] = mapped_column(default="")
+
+
+class PublicEvent(EventPostBase):
     __tablename__ = "evt_public_event"
 
     id: Mapped[int] = mapped_column(
@@ -112,7 +122,7 @@ class PublicEvent(EventPost):
         type_label = "Salon/Colloque"
 
 
-class PressEvent(EventPost):
+class PressEvent(EventPostBase):
     __tablename__ = "evt_press_event"
 
     id: Mapped[int] = mapped_column(
@@ -127,7 +137,7 @@ class PressEvent(EventPost):
         type_label = "Presse"
 
 
-class TrainingEvent(EventPost):
+class TrainingEvent(EventPostBase):
     __tablename__ = "evt_training_event"
 
     id: Mapped[int] = mapped_column(
@@ -139,7 +149,7 @@ class TrainingEvent(EventPost):
         type_label = "Webinar"
 
 
-class CultureEvent(EventPost):
+class CultureEvent(EventPostBase):
     __tablename__ = "evt_culture_event"
 
     id: Mapped[int] = mapped_column(
@@ -151,7 +161,7 @@ class CultureEvent(EventPost):
         type_label = "Événement culturel"
 
 
-class ContestEvent(EventPost):
+class ContestEvent(EventPostBase):
     __tablename__ = "evt_contest_event"
 
     id: Mapped[int] = mapped_column(
