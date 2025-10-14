@@ -21,7 +21,7 @@ from app.flask.sqla import get_multi, get_obj
 from app.models.auth import User
 from app.models.lifecycle import PublicationStatus
 from app.models.organisation import Organisation
-from app.modules.events.models import Event
+from app.modules.events.models import EventPost
 from app.modules.kyc.field_label import label_from_values_cities_as_list
 from app.modules.wire.models import ArticlePost, PressReleasePost
 from app.services.activity_stream import get_timeline
@@ -196,9 +196,9 @@ class OrgEventsTab(Tab):
     def label(self) -> str:
         stmt = (
             select(func.count())
-            .select_from(Event)
-            .where(Event.publisher_id == self.org.id)
-            .where(Event.status == PublicationStatus.PUBLIC)
+            .select_from(EventPost)
+            .where(EventPost.publisher_id == self.org.id)
+            .where(EventPost.status == PublicationStatus.PUBLIC)
         )
         count = db.session.execute(stmt).scalar()
         return f"Evénements ({count})"

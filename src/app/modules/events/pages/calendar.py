@@ -17,7 +17,7 @@ from webargs.flaskparser import parser
 from app.flask.lib.pages import Page, page
 from app.flask.sqla import get_multi
 from app.models.lifecycle import PublicationStatus
-from app.modules.events.models import Event
+from app.modules.events.models import EventPost
 
 calendar_args = {
     "month": webargs.fields.Str(load_default=""),
@@ -45,12 +45,12 @@ class CalendarPage(Page):
         end_date = month_end.shift(weeks=0, weekday=0)
 
         stmt = (
-            select(Event)
-            .where(Event.start_date >= start_date)
-            .where(Event.start_date < end_date)
-            .where(Event.status == PublicationStatus.PUBLIC)
-            .order_by(Event.start_date)
-            .options(selectinload(Event.owner))
+            select(EventPost)
+            .where(EventPost.start_date >= start_date)
+            .where(EventPost.start_date < end_date)
+            .where(EventPost.status == PublicationStatus.PUBLIC)
+            .order_by(EventPost.start_date)
+            .options(selectinload(EventPost.owner))
         )
 
         # match current_tab:
@@ -61,7 +61,7 @@ class CalendarPage(Page):
         #     case "formations":
         #         stmt = stmt.where(Event.type == TrainingEvent._type)
 
-        events = list(get_multi(Event, stmt))
+        events = list(get_multi(EventPost, stmt))
 
         # if request.headers.get("Hx-Request"):
         #     return render_template("pages/wire.j2", posts=posts, tabs=tabs)

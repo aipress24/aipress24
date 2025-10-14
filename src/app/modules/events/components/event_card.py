@@ -8,7 +8,7 @@ from attr import define
 
 from app.flask.lib.pywire import Component, component
 from app.models.meta import get_meta_attr
-from app.modules.events.models import Event
+from app.modules.events.models import EventPost
 
 LOGO_URL = "https://aipress24.demo.abilian.com/static/tmp/logos/1.png"
 
@@ -16,7 +16,7 @@ LOGO_URL = "https://aipress24.demo.abilian.com/static/tmp/logos/1.png"
 @component
 @define
 class EventCard(Component):
-    event: Event
+    event: EventPost
 
     def __attrs_post_init__(self) -> None:
         # HACK

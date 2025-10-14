@@ -33,7 +33,7 @@ Event -up-|> BaseContent
 """
 
 
-class Event(BaseContent, UserFeedbackMixin, Publishable, Searchable, Addressable):
+class EventPost(BaseContent, UserFeedbackMixin, Publishable, Searchable, Addressable):
     """
     Based in part on:
     - https://microformats.org/wiki/h-event
@@ -82,7 +82,7 @@ class Event(BaseContent, UserFeedbackMixin, Publishable, Searchable, Addressable
     # organizers
 
 
-class PublicEvent(Event):
+class PublicEvent(EventPost):
     __tablename__ = "evt_public_event"
 
     id: Mapped[int] = mapped_column(
@@ -102,7 +102,7 @@ class PublicEvent(Event):
         type_label = "Salon/Colloque"
 
 
-class PressEvent(Event):
+class PressEvent(EventPost):
     __tablename__ = "evt_press_event"
 
     id: Mapped[int] = mapped_column(
@@ -117,7 +117,7 @@ class PressEvent(Event):
         type_label = "Presse"
 
 
-class TrainingEvent(Event):
+class TrainingEvent(EventPost):
     __tablename__ = "evt_training_event"
 
     id: Mapped[int] = mapped_column(
@@ -129,7 +129,7 @@ class TrainingEvent(Event):
         type_label = "Webinar"
 
 
-class CultureEvent(Event):
+class CultureEvent(EventPost):
     __tablename__ = "evt_culture_event"
 
     id: Mapped[int] = mapped_column(
@@ -141,7 +141,7 @@ class CultureEvent(Event):
         type_label = "Événement culturel"
 
 
-class ContestEvent(Event):
+class ContestEvent(EventPost):
     __tablename__ = "evt_contest_event"
 
     id: Mapped[int] = mapped_column(
@@ -173,7 +173,7 @@ participation_table = sa.Table(
     sa.Column(
         "event_id",
         sa.BigInteger,
-        sa.ForeignKey(Event.id, onupdate="CASCADE", ondelete="CASCADE"),
+        sa.ForeignKey(EventPost.id, onupdate="CASCADE", ondelete="CASCADE"),
     ),
     sa.UniqueConstraint("user_id", "event_id"),
 )

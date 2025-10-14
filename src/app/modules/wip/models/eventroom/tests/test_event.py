@@ -8,7 +8,7 @@ from sqlalchemy.orm import scoped_session
 
 from app.models.auth import User
 from app.models.organisation import Organisation
-from app.modules.events.models import Event
+from app.modules.events.models import EventPost
 
 
 def test_event(db_session: scoped_session) -> None:
@@ -20,7 +20,7 @@ def test_event(db_session: scoped_session) -> None:
     db_session.add_all([joe, my_org])
     db_session.flush()
 
-    event = Event(owner_id=joe.id, publisher=my_org)
+    event = EventPost(owner_id=joe.id, publisher=my_org)
 
     db_session.add(event)
     db_session.flush()

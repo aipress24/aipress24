@@ -25,7 +25,7 @@ from app.flask.sqla import get_multi
 from app.models.lifecycle import PublicationStatus
 from app.models.meta import get_meta_attr
 from app.models.mixins import filter_by_loc
-from app.modules.events.models import EVENT_CLASSES, Event
+from app.modules.events.models import EVENT_CLASSES, EventPost
 
 TABS = [
     {"id": cls.get_type_id(), "label": get_meta_attr(cls, "type_label")}
@@ -152,10 +152,10 @@ class EventsPage(Page):
 
     def get_events(self):
         stmt = (
-            select(Event)
-            .where(Event.status == PublicationStatus.PUBLIC)
-            .order_by(Event.start_date)
-            .options(selectinload(Event.owner))
+            select(EventPost)
+            .where(EventPost.status == PublicationStatus.PUBLIC)
+            .order_by(EventPost.start_date)
+            .options(selectinload(EventPost.owner))
         )
 
         stmt = self.date_filter.apply(stmt)
@@ -163,9 +163,9 @@ class EventsPage(Page):
         stmt = self.filter_by_loc(stmt)
 
         if self.search:
-            stmt = stmt.where(Event.title.ilike(f"%{self.search}%"))
+            stmt = stmt.where(EventPost.title.ilike(f"%{self.search}%"))
 
-        return list(get_multi(Event, stmt))
+        return list(get_multi(EventPost, stmt))
 
     def filter_by_tabs(self, stmt):
         active_tab_ids = self.get_active_tab_ids()
@@ -174,14 +174,14 @@ class EventsPage(Page):
 
         # keys = [f"{tab_id.upper()}_EVENT" for tab_id in active_tab_ids]
         # types = [getattr(ContentType, key) for key in keys]
-        return stmt.where(Event.type.in_(active_tab_ids))
+        return stmt.where(EventPost.type.in_(active_tab_ids))
 
     def get_active_tab_ids(self):
         active_tab_ids = json.loads(session.get("events.tabs") or "[]")
         return active_tab_ids
 
     def filter_by_loc(self, stmt):
-        return filter_by_loc(stmt, self.args["loc"], Event)
+        return filter_by_loc(stmt, self.args["loc"], EventPost)
 
     def get_tabs(self):
         active_tab_ids = self.get_active_tab_ids()
@@ -229,13 +229,13 @@ class DateFilter:
         match self.filter_on:
             case "day":
                 assert self.day  # it can't be None in this case.
-                stmt = stmt.where(Event.start_date >= self.day)
-                stmt = stmt.where(Event.start_date < self.day.shift(days=1))
+                stmt = stmt.where(EventPost.start_date >= self.day)
+                stmt = stmt.where(EventPost.start_date < self.day.shift(days=1))
             case "month":
-                stmt = stmt.where(Event.start_date >= self.month_start)
-                stmt = stmt.where(Event.start_date < self.month_end)
+                stmt = stmt.where(EventPost.start_date >= self.month_start)
+                stmt = stmt.where(EventPost.start_date < self.month_end)
             case _:
-                stmt = stmt.where(Event.start_date >= self.today).limit(30)
+                stmt = stmt.where(EventPost.start_date >= self.today).limit(30)
         return stmt
 
 
@@ -259,16 +259,16 @@ class Calendar:
         end_date = month_end.shift(weeks=0, weekday=6)
 
         stmt = (
-            select(Event)
-            .where(Event.start_date >= month_start)
-            .where(Event.start_date < month_end)
-            .where(Event.status == PublicationStatus.PUBLIC)
-            .order_by(Event.start_date)
-            .options(selectinload(Event.owner))
+            select(EventPost)
+            .where(EventPost.start_date >= month_start)
+            .where(EventPost.start_date < month_end)
+            .where(EventPost.status == PublicationStatus.PUBLIC)
+            .order_by(EventPost.start_date)
+            .options(selectinload(EventPost.owner))
         )
         stmt = self.page.filter_by_tabs(stmt)
 
-        events = list(get_multi(Event, stmt))
+        events = list(get_multi(EventPost, stmt))
 
         cells = []
         for day in list(Arrow.range("day", start_date, end_date)):

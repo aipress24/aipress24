@@ -9,13 +9,13 @@ import random
 import app.settings.vocabularies as voc
 from app.faker._constants import LOCATION, POST_CATEGORIES, POST_IMAGES
 from app.models.lifecycle import PublicationStatus
-from app.modules.events.models import EVENT_CLASSES, Event
+from app.modules.events.models import EVENT_CLASSES, EventPost
 
 from .base import BaseGenerator
 
 
 class EventGenerator(BaseGenerator):
-    def make_obj(self) -> Event:
+    def make_obj(self) -> EventPost:
         users = self.repository["users"]
 
         cls = random.choice(EVENT_CLASSES)
