@@ -16,6 +16,9 @@ article_updated = signal("article-updated")
 communique_published = signal("communique-published")
 communique_unpublished = signal("communique-unpublished")
 communique_updated = signal("communique-updated")
+event_published = signal("event-published")
+event_unpublished = signal("event-unpublished")
+event_updated = signal("event-updated")
 
 # Initialisation signals
 after_config = signal("after-config")

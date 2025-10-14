@@ -4,12 +4,26 @@
 
 from __future__ import annotations
 
-from flask import Flask
+from typing import cast
+
+from flask import (
+    Flask,
+    flash,
+    g,
+    redirect,
+)
 from flask_super.registry import register
+from sqlalchemy_utils.types.arrow import arrow
 
 from app.flask.routing import url_for
+from app.models.lifecycle import PublicationStatus
 from app.modules.wip.models.eventroom import Event
 from app.modules.wip.models.eventroom.repositories import EventRepository
+from app.signals import (
+    event_published,
+    event_unpublished,
+    event_updated,
+)
 
 from ._base import BaseWipView
 from ._forms import EventForm
@@ -24,6 +38,39 @@ class EventsTable(BaseTable):
 
     def url_for(self, obj, _action="get", **kwargs):
         return url_for(f"EventsWipView:{_action}", id=obj.id, **kwargs)
+
+    def get_actions(self, item):
+        actions = [
+            {
+                "label": "Voir",
+                "url": self.url_for(item),
+            },
+            {
+                "label": "Modifier",
+                "url": self.url_for(item, "edit"),
+            },
+        ]
+        if item.status == PublicationStatus.DRAFT:
+            actions.append(
+                {
+                    "label": "Publier",
+                    "url": self.url_for(item, "publish"),
+                }
+            )
+        else:
+            actions.append(
+                {
+                    "label": "Dépublier",
+                    "url": self.url_for(item, "unpublish"),
+                }
+            )
+        actions += [
+            {
+                "label": "Supprimer",
+                "url": self.url_for(item, "delete"),
+            },
+        ]
+        return actions
 
 
 class EventsWipView(BaseWipView):
@@ -51,6 +98,32 @@ class EventsWipView(BaseWipView):
 
     msg_delete_ok = "L'événement a été supprimé"
     msg_delete_ko = "Vous n'êtes pas autorisé à supprimer cet événement"
+
+    def _post_update_model(self, model: Event) -> None:
+        if not model.status:
+            model.status = PublicationStatus.DRAFT
+            model.published_at = arrow.now("Europe/Paris")
+            if g.user.organisation_id:
+                model.publisher_id = g.user.organisation_id
+        event_updated.send(model)
+
+    def publish(self, id: int):
+        repo = self._get_repo()
+        event = cast("Event", self._get_model(id))
+        event.status = PublicationStatus.PUBLIC
+        repo.update(event, auto_commit=True)
+        flash("L'événement a été publié")
+        event_published.send(event)
+        return redirect(self._url_for("index"))
+
+    def unpublish(self, id: int):
+        repo = self._get_repo()
+        event = cast("Event", self._get_model(id))
+        event.status = PublicationStatus.DRAFT
+        repo.update(event, auto_commit=True)
+        flash("L'événement a été dépublié")
+        event_unpublished.send(event)
+        return redirect(self._url_for("index"))
 
 
 @register
