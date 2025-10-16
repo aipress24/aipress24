@@ -33,14 +33,6 @@ lint.ignore = [
     "D1", # pydocstyle
     "D2", # pydocstyle
     "D4", # pydocstyle
-    #"D100", # Missing docstring in public module
-    #"D101", # Missing docstring in public class
-    #"D102", # Missing docstring in public method
-    #"D103", # Missing docstring in public function
-    #"D104", # Missing docstring in package
-    #"D105", # Missing docstring in magic method
-    #"D106", # Missing docstring in public nested class
-    #"D107", # Missing docstring in __init__
     "FBT", # flake8-boolean-trap
     "FIX", # flake8-fixme
     "INP", # flake8-no-pep420
@@ -70,8 +62,7 @@ lint.ignore = [
     #
     "S311", # Standard pseudo-random generators are not suitable for cryptographic purposes
     "S603", # Using subprocess
-    "S320", # Using `lxml` to parse untrusted data is known to be vulnerable to XML attacks
-    # "S704", # Unsafe use of `markupsafe.Markup` detected
+    "S704", # Unsafe use of `markupsafe.Markup` detected
     # Fixable ?
     "ERA001", #  commented-out-code
     "T201", #    print
