@@ -92,7 +92,7 @@ class EventsPage(Page):
         if request.headers.get("Hx-Target") == "body":
             return self.render()
 
-        return render_template("pages/events.j2", **ctx)
+        return render_template("pages/events--content.j2", **ctx)
 
     def update_tabs(self) -> None:
         force_tab = request.form.get("force-tab")
