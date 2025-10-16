@@ -27,7 +27,7 @@ from .events import EventsPage
 @define
 class EventVM(ViewModel):
     def extra_attrs(self):
-        event = cast("Event", self._model)
+        event = cast(EventPost, self._model)
 
         if event.published_at:
             age = event.published_at.humanize(locale="fr")
