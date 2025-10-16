@@ -1,25 +1,5 @@
 {% extends "layout/private.j2" %}
 
 {% block content %}
-  <div class="py-10" id="content">
-    <div class="mx-auto lg:max-w-7xl md:px-6 lg:px-8 lg:grid lg:grid-cols-12 lg:gap-8">
-      <main class="lg:col-span-8">
-        <div class="p-4 bg-white rounded shadow">
-          <h1 class="aui-title">
-            Calendrier des événements
-          </h1>
-
-          {% include "pages/events--filters.j2" %}
-        </div>
-
-        {# Should be #}
-        {# <x-event-list :grouped-events="grouped_events" /> #}
-        <div id="search-results">
-          {{ event_list(grouped_events) }}
-        </div>
-      </main>
-
-      {% include "pages/events--aside.j2" %}
-    </div>
-  </div>
+{% include "pages/events--content.j2" %}
 {% endblock %}
