@@ -36,7 +36,7 @@ TABS = [
 @define
 class EventVM(ViewModel):
     def extra_attrs(self):
-        event = cast("Event", self._model)
+        event = cast(EventPost, self._model)
 
         if event.published_at:
             age = self.published_at.humanize(locale="fr")
