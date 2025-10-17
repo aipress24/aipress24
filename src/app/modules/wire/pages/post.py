@@ -20,7 +20,7 @@ from app.flask.sqla import get_obj
 from app.models.auth import User
 from app.models.organisation import Organisation
 from app.modules.swork.models import Comment
-from app.modules.wire.models import ArticlePost
+from app.modules.wire.models import ArticlePost, Post, PressReleasePost
 from app.services.tagging import get_tags
 from app.services.tracking import record_view
 
@@ -37,13 +37,13 @@ class ItemPage(Page):
 
     def __init__(self, id) -> None:
         self.args = {"id": id}
-        self.item = get_obj(id, ArticlePost)
+        self.item = get_obj(id, Post)
 
         match self.item:
             case ArticlePost():
                 self.view_model = ArticleVM(self.item)
-            # case PressRelease():
-            #     self.view_model = PressReleaseVM(self.item)
+            case PressReleasePost():
+                self.view_model = PressReleaseVM(self.item)
             case _:
                 msg = f"Unknown item type: {self.item}"
                 raise TypeError(msg)
@@ -57,8 +57,8 @@ class ItemPage(Page):
         match self.item:
             case ArticlePost():
                 return "pages/article.j2"
-            # case PressRelease():
-            #     return "pages/press-release.j2"
+            case PressReleasePost():
+                return "pages/press-release.j2"
             case _:
                 msg = f"Unknown item type: {self.item}"
                 raise TypeError(msg)
@@ -202,59 +202,63 @@ class ArticleVM(Wrapper, PostMixin):
         return list(db.session.scalars(stmt))
 
 
-# @frozen
-# class PressReleaseVM(Wrapper, PostMixin):
-#     _model: PressRelease
-#     _url: str = field(init=False)
-#
-#     author: User = field(init=False)
-#     summary: str = field(init=False)
-#
-#     publisher: Organisation = field(init=False)
-#     publisher_type: str = field(init=False)
-#
-#     likes: int = field(init=False)
-#     replies: int = field(init=False)
-#     views: int = field(init=False)
-#
-#     comment_count: int = field(init=False)
-#
-#     published_at: Arrow = field(init=False)
-#     age: int = field(init=False)
-#
-#     comments: list = field(init=False)
-#     tags: list = field(init=False)
-#
-#     # image_url = field(init=False)
-#
-#     def extra_attrs(self):
-#         post = self._model
-#         summary = remove_markup(post.content)
-#         if len(summary) > 200:
-#             summary = summary[0:197] + "..."
-#
-#         publisher_type = self.get_publisher_type()
-#
-#         extra_attrs = super().extra_attrs()
-#         extra_attrs.update(
-#             {
-#                 "_url": url_for(post),
-#                 #
-#                 "age": "(not set)",
-#                 "author": UserVM(post.owner),
-#                 "summary": summary,
-#                 "publisher": self.publisher,
-#                 "publisher_type": publisher_type,
-#                 #
-#                 "likes": 0,
-#                 "replies": 0,
-#                 "views": 0,
-#                 "comment_count": 0,
-#                 "comments": [],
-#                 "tags": get_tags(post),
-#             }
-#         )
-#         return extra_attrs
+@frozen
+class PressReleaseVM(Wrapper, PostMixin):
+    _model: PressReleasePost
+    _url: str = field(init=False)
+
+    author: User = field(init=False)
+
+    likes: int = field(init=False)
+    replies: int = field(init=False)
+    views: int = field(init=False)
+
+    num_likes: int = field(init=False)
+    num_replies: int = field(init=False)
+    num_views: int = field(init=False)
+    num_comments: int = field(init=False)
+
+    summary: str = field(init=False)
+    age: int = field(init=False)
+    comments: list = field(init=False)
+    tags: list = field(init=False)
+
+    publisher: Organisation = field(init=False)
+    publisher_type: str = field(init=False)
+
+    def extra_attrs(self):
+        post = cast("PressReleasePost", self._model)
+
+        if post.published_at:
+            age = post.published_at.humanize(locale="fr")
+        else:
+            age = "(not set)"
+
+        publisher_type = self.get_publisher_type()
+
+        extra_attrs = super().extra_attrs()
+        extra_attrs.update(
+            {
+                "age": age,
+                "author": UserVM(post.owner),
+                "publisher_type": publisher_type,
+                #
+                "comments": self.get_comments(),
+                "tags": get_tags(post),
+                #
+                "_url": url_for(post),
+            }
+        )
+        return extra_attrs
+
+    def get_comments(self) -> list[Comment]:
+        post = cast("PressReleasePost", self._model)
+        stmt = (
+            sa.select(Comment)
+            .where(Comment.object_id == f"article:{post.id}")
+            .order_by(Comment.created_at.desc())
+        )
+        return list(db.session.scalars(stmt))
 
 
 @frozen
