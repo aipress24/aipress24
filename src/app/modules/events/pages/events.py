@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import json
 from collections import defaultdict
-from typing import ClassVar, cast
+from typing import ClassVar, cast, Any
 
 import arrow
 import webargs
@@ -27,6 +27,8 @@ from app.models.meta import get_meta_attr
 from app.models.mixins import filter_by_loc
 from app.modules.events.models import EVENT_CLASSES, EventPost
 
+
+# REMOVE
 TABS = [
     {"id": cls.get_type_id(), "label": get_meta_attr(cls, "type_label")}
     for cls in EVENT_CLASSES
@@ -36,7 +38,7 @@ TABS = [
 @define
 class EventVM(ViewModel):
     def extra_attrs(self):
-        event = cast(EventPost, self._model)
+        event = cast("EventPost", self._model)
 
         if event.published_at:
             age = self.published_at.humanize(locale="fr")
@@ -76,6 +78,9 @@ class EventsPage(Page):
     current_tab = ""
     search = ""
     date_filter: DateFilter
+
+    # def __init__(self, tab: str = "") -> None:
+    # self.filter_bar = FilterBar(s)
 
     def hx_get(self):
         if request.headers.get("Hx-Target") == "members-list":
@@ -142,6 +147,7 @@ class EventsPage(Page):
             # "filters": filters,
             # Right side calendar
             "calendar": asdict(Calendar(self, month)),
+            "title": "Evénements",
         }
         return ctx
 
