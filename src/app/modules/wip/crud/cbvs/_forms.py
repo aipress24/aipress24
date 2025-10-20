@@ -81,7 +81,7 @@ class ArticleForm(Form):
         "Date/heure de parution prévue", render_kw={"width": 3}
     )
     date_publication_aip24 = DateTimeField(
-        "Date/heure de publication sur AIP24", render_kw={"width": 3}
+        "Date/heure de publication sur AiPRESS24", render_kw={"width": 3}
     )
     date_paiement = DateTimeField("Date/heure de paiement", render_kw={"width": 3})
 
