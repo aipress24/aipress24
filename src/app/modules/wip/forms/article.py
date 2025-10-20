@@ -55,7 +55,7 @@ article_form = {
             "width": 3,
         },
         "date_publication_aip24": {
-            "label": "Date/heure de publication sur AIP24",
+            "label": "Date/heure de publication sur AiPRESS24",
             "group": "dates",
             "type": "datetime",
             "width": 3,
