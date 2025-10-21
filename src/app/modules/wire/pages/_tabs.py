@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import abc
 from operator import itemgetter
+from typing import ClassVar
 
 import sqlalchemy as sa
 from flask import g, session
@@ -37,7 +38,7 @@ class Tab(abc.ABC):
     id: str
     label: str
     tip: str
-    post_type: str
+    post_type_allow: ClassVar[set[str]]
 
     @property
     def is_active(self):
@@ -78,8 +79,8 @@ class Tab(abc.ABC):
             .limit(30)
         )
 
-        if self.post_type:
-            stmt = stmt.where(Post.type == self.post_type)
+        if self.post_type_allow:
+            stmt = stmt.where(Post.type.in_(self.post_type_allow))
 
         for filter_id, filter_values in active_filters | groupby(itemgetter("id")):
             # FIXME
@@ -98,7 +99,7 @@ class WallTab(Tab):
     id = "wall"
     label = "All"
     tip = "Fil d'actus"
-    post_type = ""
+    post_type_allow: ClassVar[set[str]] = {"article", "post"}
 
     def get_authors(self) -> None:
         return None
@@ -108,7 +109,7 @@ class AgenciesTab(Tab):
     id = "agencies"
     label = "Agences"
     tip = "Agences de Presse"
-    post_type = ""
+    post_type_allow: ClassVar[set[str]] = {"article", "post"}
 
     def get_authors(self):
         orgs: list[Organisation] = adapt(g.user).get_followees(cls=Organisation)
@@ -123,7 +124,7 @@ class MediasTab(Tab):
     id = "media"
     label = "Médias"
     tip = "Médias (presse, en ligne...) auxquels je suis abonné"
-    post_type = ""
+    post_type_allow: ClassVar[set[str]] = {"article", "post"}
 
     def get_authors(self):
         orgs: list[Organisation] = adapt(g.user).get_followees(cls=Organisation)
@@ -138,7 +139,7 @@ class JournalistsTab(Tab):
     id = "journalists"
     label = "Journalistes"
     tip = "Les journalistes que je suis"
-    post_type = ""
+    post_type_allow: ClassVar[set[str]] = {"article", "post"}
 
     def get_authors(self):
         return adapt(g.user).get_followees()
@@ -148,7 +149,7 @@ class ComTab(Tab):
     id = "com"
     label = "Idées & Comm"
     tip = "Communiqués de presse"
-    post_type = "press_release"
+    post_type_allow: ClassVar[set[str]] = {"press_release"}
 
     # def get_posts(self, filter_bar):
     #     return []
