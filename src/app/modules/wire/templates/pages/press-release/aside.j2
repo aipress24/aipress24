@@ -1,0 +1,93 @@
+<h2 class="text-xl font-medium text-gray-700">Métadonnées</h2>
+
+<div class="py-8 space-y-8">
+  <div>
+    <h3 class="text-sm font-medium text-gray-500">Activité</h3>
+
+    <ul role="list" class="mt-3 space-y-3">
+      <div class="flex items-center space-x-2">
+        {{ icon("calendar", class="h-5 w-5 text-gray-400") }}
+
+        <span class="text-gray-900 text-sm font-medium"
+        >Publié le <time datetime="{{ article.published_at.isoformat() }}"
+        >{{ article.published_at.format("DD MMMM YYYY, à HH:mm", locale="fr") }}</time></span
+        >
+      </div>
+
+      {% if article.modified_at %}
+        <div class="flex items-center space-x-2">
+          {{ icon("calendar", class="h-5 w-5 text-gray-400") }}
+
+          <span class="text-gray-900 text-sm font-medium"
+          >Modifié le <time datetime="{{ article.modified_at.isoformat() }}"
+          >{{ article.modified_at.format("DD MMMM YYYY, à HH:mm", locale="fr") }}</time></span
+          >
+        </div>
+      {% endif %}
+
+      <a class="flex items-center space-x-2" href="#comments-title">
+        {{ icon("chat-bubble-left-ellipsis", class="h-5 w-5 text-gray-400") }}
+        <span class="text-gray-900 text-sm font-medium">{{ article.comment_count }} commentaires</span>
+      </a>
+    </ul>
+  </div>
+
+  <div>
+    <h3 class="text-sm font-medium text-gray-500">Créateur / créatrice</h3>
+
+    <ul role="list" class="mt-3 space-y-3">
+      <li class="flex justify-start">
+        <a href="{{ url_for(article.author) }}" class="flex items-center space-x-3">
+          <div class="flex-shrink-0">
+            {{ profile_image(article.author, size=5) }}
+          </div>
+          <div
+              class="ml-2 text-sm font-medium text-gray-900 hover:underline"
+          >{{ article.author.full_name }}</div>
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  {% if article.publisher %}
+    <div>
+      <h3 class="text-sm font-medium text-gray-500">{{ article.publisher_type }}</h3>
+
+      <a href="{{ url_for(article.publisher) }}"
+         class="text-sm font-medium hover:underline">{{ article.publisher.name }}</a>
+    </div>
+  {% endif %}
+
+  {% for metadata in page.get_metadata_list() %}
+    <div>
+      <h3 class="text-sm font-medium text-gray-500">{{ metadata.label }}</h3>
+
+      <a href="{{ url_for(".wire") }}"
+         class="text-sm font-medium hover:underline">{{ metadata.value }}</a>
+    </div>
+  {% endfor %}
+</div>
+
+<div class="border-t border-gray-200 py-6">
+  <h2 class="text-sm font-medium text-gray-500 mb-4">Tags</h2>
+
+  <ul role="list" class="leading-8">
+    {% for tag in article.tags %}
+      <li class="inline">
+        {% if tag.type == "auto" %}
+          {% set color="rose" %}
+        {% else %}
+          {% set color="blue" %}
+        {% endif -%}
+
+        <a href="{{ url_for(".wire", tab="wall", tag=tag.label) }}"
+           class="relative mb-2 inline-flex items-center rounded-full border border-gray-300 px-3 py-0 hover:underline">
+          <div class="absolute flex-shrink-0 flex items-center justify-center">
+            <span class="h-1.5 w-1.5 rounded-full bg-{{ color }}-500" aria-hidden="true"></span>
+          </div>
+          <div class="ml-3.5 text-sm font-medium text-gray-600">{{ tag.label }}</div>
+        </a>
+      </li>
+    {% endfor %}
+  </ul>
+</div>
