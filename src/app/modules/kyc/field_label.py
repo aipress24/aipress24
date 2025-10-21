@@ -74,6 +74,20 @@ def label_from_values_cities(data: str | list, _key: str, _ontology: str) -> str
     return ", ".join(label_from_values_cities_as_list(data))
 
 
+def country_code_to_label(code: str) -> str:
+    onto_list = get_ontology_content("pays")
+    return labels_string(code, onto_list)
+
+
+def country_zip_code_to_city(code: str) -> str:
+    try:
+        country_code, _ = code.split(" / ")
+    except ValueError:
+        return ""
+    cities = zip_code_city_list(country_code)
+    return find_label_city(cities, code)
+
+
 KEY_LABEL_MAP = {
     "civilite": (label_from_values_simple, "civilite"),
     "competences": (label_from_values_simple, "competence"),
