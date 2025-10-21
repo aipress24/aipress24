@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import json
 from collections import defaultdict
-from typing import ClassVar, cast, Any
+from typing import Any, ClassVar, cast
 
 import arrow
 import webargs
@@ -26,7 +26,6 @@ from app.models.lifecycle import PublicationStatus
 from app.models.meta import get_meta_attr
 from app.models.mixins import filter_by_loc
 from app.modules.events.models import EVENT_CLASSES, EventPost
-
 
 # REMOVE
 TABS = [

@@ -82,23 +82,31 @@ class ItemPage(Page):
             return x or y
 
         def post_type() -> str:
+            result: str = ""
             if item.type == "article":
-                return "Article"
+                result = "Article"
             elif item.type == "press_release":
-                return "Communiqué"
+                result = "Communiqué"
             else:
-                return "Non classé"
+                result = "Non classé"
+            return result
 
-        return [
+        data = [
             {"label": "Type", "value": post_type()},
             {"label": "Genre", "value": elvis(item.genre, "N/A")},
             {"label": "Rubrique", "value": elvis(item.section, "N/A")},
             {"label": "Sujet", "value": elvis(item.topic, "N/A")},
             {"label": "Secteur d'activité", "value": elvis(item.sector, "N/A")},
-            {"label": "Pays", "value": elvis(item.country, "N/A")},
-            {"label": "Région", "value": elvis(item.region, "N/A")},
-            {"label": "Ville", "value": elvis(item.city, "N/A")},
         ]
+
+        if item.address:
+            data.append({"label": "Adresse", "value": item.address})
+        if item.pays_zip_ville:
+            data.append({"label": "Pays", "value": item.pays_zip_ville})
+        if item.pays_zip_ville_detail:
+            data.append({"label": "Ville", "value": item.pays_zip_ville_detail})
+
+        return data
 
     #
     # Actions
