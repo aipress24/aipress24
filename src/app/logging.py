@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 import sys
+from typing import Any
 
 from loguru import logger
 
@@ -28,3 +29,8 @@ def configure_logging() -> None:
     print("Configuring logging")
     logger.configure(**config)
     logger.disable("app.dramatiq")
+
+
+def warn(*args: Any) -> None:
+    """Debug function to display infos on local terminal"""
+    print("///// ", " ".join(str(x) for x in args), file=sys.stderr)
