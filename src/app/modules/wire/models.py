@@ -115,10 +115,12 @@ class NewsMetadataMixin:
     # Langue
     language: Mapped[str] = mapped_column(default="fr", use_existing_column=True)
 
-    # Temp
-    country = ""
-    region = ""
-    city = ""
+    # addressi (if any)
+    address: Mapped[str] = mapped_column(default="", use_existing_column=True)
+    pays_zip_ville: Mapped[str] = mapped_column(default="", use_existing_column=True)
+    pays_zip_ville_detail: Mapped[str] = mapped_column(
+        default="", use_existing_column=True
+    )
 
 
 class Post(BaseContent, LifeCycleMixin):

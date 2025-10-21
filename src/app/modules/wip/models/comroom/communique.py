@@ -79,7 +79,7 @@ class Communique(IdMixin, LifeCycleMixin, Owned, Base):
     # NEWS-Rubriques
     section: Mapped[str] = mapped_column(default="")
 
-    # NEWS-Types d’info / "Thémtique"
+    # NEWS-Types d’info / "Thématique"
     topic: Mapped[str] = mapped_column(default="")
 
     # NEWS-Secteurs
@@ -90,6 +90,10 @@ class Communique(IdMixin, LifeCycleMixin, Owned, Base):
 
     # Langue
     language: Mapped[str] = mapped_column(default="fr")
+
+    address: Mapped[str] = mapped_column(default="")
+    pays_zip_ville: Mapped[str] = mapped_column(default="")
+    pays_zip_ville_detail: Mapped[str] = mapped_column(default="")
 
     # Image list
     images: ClassVar[list[ComImage]]

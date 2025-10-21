@@ -145,6 +145,10 @@ def update_post(
     post.geo_localisation = info.geo_localisation
     post.language = info.language
 
+    post.address = info.address
+    post.pays_zip_ville = info.pays_zip_ville
+    post.pays_zip_ville_detail = info.pays_zip_ville_detail
+
 
 def get_post(info: Article | Communique) -> ArticlePost | PressReleasePost | None:
     if isinstance(info, Article):
