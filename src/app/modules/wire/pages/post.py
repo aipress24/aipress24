@@ -19,6 +19,10 @@ from app.flask.routing import url_for
 from app.flask.sqla import get_obj
 from app.models.auth import User
 from app.models.organisation import Organisation
+from app.modules.kyc.field_label import (
+    country_code_to_label,
+    country_zip_code_to_city,
+)
 from app.modules.swork.models import Comment
 from app.modules.wire.models import ArticlePost, Post, PressReleasePost
 from app.services.tagging import get_tags
@@ -102,9 +106,19 @@ class ItemPage(Page):
         if item.address:
             data.append({"label": "Adresse", "value": item.address})
         if item.pays_zip_ville:
-            data.append({"label": "Pays", "value": item.pays_zip_ville})
+            data.append(
+                {
+                    "label": "Pays",
+                    "value": country_code_to_label(item.pays_zip_ville),
+                }
+            )
         if item.pays_zip_ville_detail:
-            data.append({"label": "Ville", "value": item.pays_zip_ville_detail})
+            data.append(
+                {
+                    "label": "Ville",
+                    "value": country_zip_code_to_city(item.pays_zip_ville_detail),
+                }
+            )
 
         return data
 
