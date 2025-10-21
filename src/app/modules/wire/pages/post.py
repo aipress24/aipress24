@@ -65,7 +65,7 @@ class ItemPage(Page):
 
     def context(self):
         return {
-            "article": self.view_model,
+            "post": self.view_model,
             "page": self,
         }
 
@@ -81,8 +81,16 @@ class ItemPage(Page):
             # https://en.wikipedia.org/wiki/Elvis_operator
             return x or y
 
+        def post_type() -> str:
+            if item.type == "article":
+                return "Article"
+            elif item.type == "press_release":
+                return "Communiqué"
+            else:
+                return "Non classé"
+
         return [
-            {"label": "Type", "value": "Article"},
+            {"label": "Type", "value": post_type()},
             {"label": "Genre", "value": elvis(item.genre, "N/A")},
             {"label": "Rubrique", "value": elvis(item.section, "N/A")},
             {"label": "Sujet", "value": elvis(item.topic, "N/A")},
@@ -123,6 +131,7 @@ class PostMixin:
             "tags": get_tags(post),
             #
             "_url": url_for(post),
+            "type": post.type,
         }
 
     def get_publisher_type(self):
