@@ -26,6 +26,7 @@ from app.models.lifecycle import PublicationStatus
 from app.models.meta import get_meta_attr
 from app.models.mixins import filter_by_loc
 from app.modules.events.models import EVENT_CLASSES, EventPost
+from ._filters import FilterBar
 
 # REMOVE
 TABS = [
@@ -71,12 +72,15 @@ list_args = {
 class EventsPage(Page):
     routes: ClassVar = ["/"]
     name = "events"
-    label = "Evènements"
+    label = "Evénements"
     template = "pages/events.j2"
 
     current_tab = ""
     search = ""
     date_filter: DateFilter
+
+    def __init__(self) -> None:
+        self.filter_bar = FilterBar()
 
     # def __init__(self, tab: str = "") -> None:
     # self.filter_bar = FilterBar(s)
@@ -147,6 +151,7 @@ class EventsPage(Page):
             # Right side calendar
             "calendar": asdict(Calendar(self, month)),
             "title": "Evénements",
+            "filter_bar": self.filter_bar,
         }
         return ctx
 

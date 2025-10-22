@@ -63,7 +63,7 @@
 
 
 <div>
-  {{ m_tab_bar(tabs) }}
+ {{ m_tab_bar(tabs) }}
 
   <div class="flex justify-between mb-4">
 
@@ -81,7 +81,7 @@
 
   <div class="mb-5">
     {% for filter in filter_bar.active_filters %}
-      <span
+     <span
           class="inline-flex items-center rounded text-sm font-medium text-gray-600 bg-gray-200 my-1 py-1 px-2">
         <span class="">{{ filter.id }}: {{ filter.label }}</span>
         {% set action = {'action': 'remove', 'id': filter.id, 'value': filter.label} %}

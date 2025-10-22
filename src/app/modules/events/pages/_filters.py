@@ -17,7 +17,7 @@ from app.modules.events.models import EventPost
 
 FILTER_SPECS = [
     {
-        "id": "type_event",
+        "id": "genre",
         "label": "Type d'événement",
         "selector": "type",
     },
