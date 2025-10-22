@@ -44,7 +44,8 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
     # Specific metadata
     #
     #: where the event takes place
-    location: Mapped[str] = mapped_column(default="", info={"group": "location"})
+    #
+    # location: Mapped[str] = mapped_column(default="", info={"group": "location"})
 
     start_time: Mapped[datetime | None] = mapped_column(
         ArrowType(timezone=True), nullable=True

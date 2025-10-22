@@ -65,6 +65,11 @@ def on_update_event(event: Event) -> None:
     db.session.commit()
 
 
+def event_type_to_category(event_type: str) -> str:
+    first_part = event_type.split("/")[0]
+    return first_part.strip().replace(" ", "_").lower()
+
+
 def update_post(
     post: EventPost,
     info: Event,
@@ -96,13 +101,13 @@ def update_post(
     post.end_date = info.end_time
 
     # post.location = info.location
-    post.location = info.address
+    post.address = info.address
     post.pays_zip_ville = info.pays_zip_ville
     post.pays_zip_ville_detail = info.pays_zip_ville_detail
 
     post.genre = info.event_type
     post.sector = info.sector
-    post.category = ""
+    post.category = event_type_to_category(info.event_type)
 
     post.url = info.url
     post.language = info.language
