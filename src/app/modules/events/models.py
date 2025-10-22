@@ -48,9 +48,6 @@ class EventPostBase(
     # - summary: short summary of the event (plain text)
     # - content: more detailed description of the event (html)
 
-    #: where the event takes place
-    location: Mapped[str] = mapped_column(default="", info={"group": "location"})
-
     # Or use datetimes?
     start_date: Mapped[ArrowType | None] = mapped_column(
         ArrowType(timezone=True), info={"group": "dates"}
@@ -68,8 +65,12 @@ class EventPostBase(
     )
 
     # Classification
+    # "genre" is "event_type"
     genre: Mapped[str] = mapped_column(default="", info={"group": "metadata"})
     sector: Mapped[str] = mapped_column(default="", info={"group": "metadata"})
+    # First part of the enven_type
+    # ie:   event_type = "Business / Forum
+    #       category = "business"
     category: Mapped[str] = mapped_column(default="", info={"group": "metadata"})
     language: Mapped[str] = mapped_column(default="FRE", info={"group": "metadata"})
 
@@ -98,6 +99,7 @@ class EventPost(EventPostBase):
     eventroom_id: Mapped[int | None] = mapped_column(
         BigInteger, index=True, nullable=True
     )
+    address: Mapped[str] = mapped_column(default="")
     pays_zip_ville: Mapped[str] = mapped_column(default="")
     pays_zip_ville_detail: Mapped[str] = mapped_column(default="")
 
