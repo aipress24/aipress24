@@ -64,7 +64,6 @@ list_args = {
     "search": webargs.fields.Str(load_default=""),
     "tab": webargs.fields.Str(load_default=""),
     "loc": webargs.fields.Str(load_default=""),
-    "force-tab": webargs.fields.Str(load_default=""),
 }
 
 
@@ -103,11 +102,6 @@ class EventsPage(Page):
         return render_template("pages/events--content.j2", **ctx)
 
     def update_tabs(self) -> None:
-        force_tab = request.form.get("force-tab")
-        if force_tab:
-            session["events.tabs"] = json.dumps([force_tab])
-            return
-
         toggle_tab = request.form.get("toggle-tab")
         if toggle_tab:
             tab_ids = {tab["id"] for tab in TABS}
@@ -127,9 +121,6 @@ class EventsPage(Page):
 
     def context(self):
         self.process_args()
-        if self.args["force-tab"]:
-            session["events.tabs"] = json.dumps([self.args["force-tab"]])
-
         # Group event by day
         events = self.get_events()
         grouper = defaultdict(list)
