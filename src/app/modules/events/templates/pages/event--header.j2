@@ -15,7 +15,7 @@
               hx-trigger="click"
               hx-post="{{ url_for('.events') }}"
               hx-push-url="true"
-              hx-vals='{"force-tab": "{{ event.type_id }}"}'
+              hx-vals='{"force-tab": "'
               hx-target="#body"
               hx-swap="outerHTML"
           >{{ event.type_label }}</button>
