@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import json
 from collections import defaultdict
-from typing import Any, ClassVar, cast
+from typing import ClassVar, cast
 
 import arrow
 import webargs
@@ -22,10 +22,12 @@ from werkzeug.exceptions import BadRequest
 from app.flask.lib.pages import Page, page
 from app.flask.lib.view_model import ViewModel
 from app.flask.sqla import get_multi
+from app.logging import warn
 from app.models.lifecycle import PublicationStatus
 from app.models.meta import get_meta_attr
 from app.models.mixins import filter_by_loc
 from app.modules.events.models import EVENT_CLASSES, EventPost
+
 from ._filters import FilterBar
 
 # REMOVE
@@ -39,11 +41,11 @@ TABS = [
 class EventVM(ViewModel):
     def extra_attrs(self):
         event = cast("EventPost", self._model)
-
-        if event.published_at:
-            age = self.published_at.humanize(locale="fr")
-        else:
-            age = "(not set)"
+        # if event.published_at:
+        #     age = self.published_at.humanize(locale="fr")
+        # else:
+        #     age = "(not set)"
+        age = "fixme"
 
         start_date = event.start_date
         assert start_date
@@ -81,10 +83,12 @@ class EventsPage(Page):
     def __init__(self) -> None:
         self.filter_bar = FilterBar()
 
-    # def __init__(self, tab: str = "") -> None:
-    # self.filter_bar = FilterBar(s)
-
     def hx_get(self):
+        if "tag" in request.args:
+            tag = request.args["tag"]
+            self.filter_bar.reset()
+            self.filter_bar.set_tag(tag)
+        self.filter_bar.update_state()
         if request.headers.get("Hx-Target") == "members-list":
             ctx = self.context()
             return render_template("pages/events--search-results.j2", **ctx)
@@ -92,7 +96,12 @@ class EventsPage(Page):
         raise BadRequest
 
     def hx_post(self):
-        self.update_tabs()
+        # self.update_tabs()
+        #
+        warn("request headers", request.headers)
+        warn("request args", request.args)
+
+        self.filter_bar.update_state()
 
         ctx = self.context()
 
@@ -101,28 +110,30 @@ class EventsPage(Page):
 
         return render_template("pages/events--content.j2", **ctx)
 
-    def update_tabs(self) -> None:
-        toggle_tab = request.form.get("toggle-tab")
-        if toggle_tab:
-            tab_ids = {tab["id"] for tab in TABS}
-            tabs = self.get_active_tab_ids()
-            tabs = [tab for tab in tabs if tab in tab_ids]
+    # def update_tabs(self) -> None:
+    #     toggle_tab = request.form.get("toggle-tab")
+    #     if toggle_tab:
+    #         tab_ids = {tab["id"] for tab in TABS}
+    #         tabs = self.get_active_tab_ids()
+    #         tabs = [tab for tab in tabs if tab in tab_ids]
 
-            toggle_tab = request.form.get("toggle-tab")
-            if toggle_tab in tabs:
-                tabs.remove(toggle_tab)
-            else:
-                tabs.append(toggle_tab)
+    #         toggle_tab = request.form.get("toggle-tab")
+    #         if toggle_tab in tabs:
+    #             tabs.remove(toggle_tab)
+    #         else:
+    #             tabs.append(toggle_tab)
 
-            session["events.tabs"] = json.dumps(tabs)
-            return
+    #         session["events.tabs"] = json.dumps(tabs)
+    #         return
 
-        # Otherwise: nothing to do
+    # Otherwise: nothing to do
 
     def context(self):
+        warn("in context")
         self.process_args()
         # Group event by day
         events = self.get_events()
+        warn("events", events)
         grouper = defaultdict(list)
         for event in events:
             vm = EventVM(event)
@@ -160,8 +171,21 @@ class EventsPage(Page):
         )
 
         stmt = self.date_filter.apply(stmt)
-        stmt = self.filter_by_tabs(stmt)
-        stmt = self.filter_by_loc(stmt)
+        # stmt = self.filter_by_tabs(stmt)
+        # stmt = self.filter_by_loc(stmt)
+
+        warn("filtering", self.filter_bar.active_filters)
+
+        genre_filters = {
+            f["value"] for f in self.filter_bar.active_filters if f["id"] == "genre"
+        }
+        sector_filters = {
+            f["value"] for f in self.filter_bar.active_filters if f["id"] == "sector"
+        }
+        if genre_filters:
+            stmt = stmt.where(EventPost.genre.in_(genre_filters))
+        if sector_filters:
+            stmt = stmt.where(EventPost.sector.in_(sector_filters))
 
         if self.search:
             stmt = stmt.where(EventPost.title.ilike(f"%{self.search}%"))

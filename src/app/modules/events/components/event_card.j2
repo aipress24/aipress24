@@ -1,5 +1,5 @@
 <li class="card shadow rounded p-0 bg-white mt-4 space-y-4">
-  <div class="pt-4 px-4 flex justify-between">
+  <div class="pt-4 px-4 flex flex-col justify-between">
     <div>
       <div class="text-sm text-gray-700">
         <div data-start-date="2022/02/17" data-end-date="2022/02/18" data-status="active">
@@ -14,18 +14,18 @@
         </h2>
       </a>
 
-      <div class="mt-4 flex text-gray-600">
-        {{ icon("map-pin", class="h-5 w-5 mt-0.5 mr-1") }}
-        <a class="hover:underline" href=".?loc=city:{{ event.city }}">{{ event.city }}</a>,&nbsp;
-        <a class="hover:underline" href=".?loc=region:{{ event.region }}">{{ event.region }}</a>,&nbsp;
-        <a class="hover:underline" href=".?loc=country:{{ event.country }}">{{ event.country }}</a>
+      <!--<div class="mt-4 flex text-gray-600">
+        {# icon("map-pin", class="h-5 w-5 mt-0.5 mr-1") #}
+        <a class="hover:underline" href=".?loc=city:{# event.city #}">{# event.city #}</a>,&nbsp;
+        <a class="hover:underline" href=".?loc=region:{# event.region #}">{# event.region #}</a>,&nbsp;
+        <a class="hover:underline" href=".?loc=country:{# event.country #}">{#{ event.country #}</a>
       </div>
-    </div>
+    </div>-->
 
-    <div class="flex-shrink-0 items-start ml-2 h-28 w-28 border border-gray-300">
+    <!--<div class="flex-shrink-0 items-start ml-2 h-28 w-28 border border-gray-300">
       <img
-          src="{{ event.logo_url }}"/>
-    </div>
+          src="{# event.logo_url #}"/>
+    </div>-->
 
   </div>
 

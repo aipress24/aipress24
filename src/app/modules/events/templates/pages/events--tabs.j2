@@ -49,7 +49,7 @@
           <a
               href="#"
               hx-post="{{ request.path }}"
-              hx-target="#wire-main"
+              hx-target="#content"
               hx-vals='{{ action|tojson }}'
               class="block px-4 py-2 text-left text-sm hover:bg-gray-100 focus:outline-none focus:ring focus:ring-aqua-400 disabled:text-gray-500"
               aria-hidden="true">
@@ -63,7 +63,7 @@
 
 
 <div>
-  <div class="flex justify-between mb-4">
+  <div class="flex justify-between mb-4 py-3">
 
     <div class="flex items-center flex-wrap gap-2 text-gray-700">
       {% for filter in filter_bar.filters %}
@@ -72,7 +72,7 @@
     </div>
 
     <div class="flex items-center">
-      {% include "pages/wire/sorter.j2" %}
+      {% include "pages/sorter.j2" %}
     </div>
 
   </div>
@@ -84,8 +84,8 @@
         <span class="">{{ filter.id }}: {{ filter.label }}</span>
         {% set action = {'action': 'remove', 'id': filter.id, 'value': filter.label} %}
         <button
-            hx-post="{{ url_for(".wire", tab=tab) }}"
-            hx-target="#wire-main"
+            hx-post="{{ url_for(".events") }}"
+            hx-target="#content"
             hx-vals='{{ action | tojson }}'
             class="ml-1 hover:bg-gray-300" aria-hidden="true">✖</button>
       </span>
