@@ -77,6 +77,9 @@ class EventPostBase(
     logo_url: Mapped[str] = mapped_column(default="")
     cover_image_url: Mapped[str] = mapped_column(default="")
 
+    # only for compatibility with BaseContent:
+    location: Mapped[str] = mapped_column(default="", info={"group": "location"})
+
     class Meta:
         groups: ClassVar[dict] = {
             "dates": ["start_date", "end_date", "start_time", "end_time"],
