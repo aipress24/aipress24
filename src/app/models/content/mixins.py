@@ -46,7 +46,7 @@ class Publishable:
 
 
 class ClassificationMixin:
-    # From: "Publier un communiqué de presse sur AIpress24"
+    # From: "Publier un communiqué de presse sur AiPRESS24"
     # 1- [] la localisation du communiqué
     # 2- [] la date de publication du communiqué
     # 3- [] le genre (nouveau produit, avis d’expert...)

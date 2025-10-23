@@ -68,7 +68,7 @@ All notable changes to this project will be documented in this file.
 - Ensured organisation-specific forms do not crash when fields are empty or optional.
 - Corrected and unified label conventions:
   - "Business Wall for Agencies" → "Business Wall for Press Agencies."
-  - "AIpress24 PRO" → "Aipress24 PRO."
+  - "AiPRESS24 PRO" → "AiPRESS24 PRO."
 
 ### 🚜 Refactor
 - Enhanced BW page UI for detecting and managing `org.bw_type` and `org.active` states.
@@ -2340,7 +2340,7 @@ All notable changes to this project will be documented in this file.
 - Use alpinejs/focus properly.
 - Missing js blob.
 - Buggy filter.
-- "AIpress24"
+- "AiPRESS24"
 - Publisher for PR.
 - Tooltip.
 - Deps.

@@ -82,7 +82,7 @@ class EditorialProduct(MarketplaceContent, ClassificationMixin, Publishable):
     """Indiquez qui est propriétaire de la production :
 
     - Je suis le seul propriétaire de cette production
-    - Nous sommes plusieurs propriétaires (inscrits sur AIpress24)
+    - Nous sommes plusieurs propriétaires (inscrits sur AiPRESS24)
         - déterminez les % de copropriété
     - Nom de l’Agence de presse propriétaire
     - Nom du Média propriétaire
