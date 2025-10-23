@@ -36,8 +36,8 @@ BOX_SLUGS = [
     "swork/1",
     "swork/2",
 ]
-BOX_TITLE1 = "AIpress24 vous informe"
-BOX_TITLE2 = "AIpress24 vous suggère"
+BOX_TITLE1 = "AiPRESS24 vous informe"
+BOX_TITLE2 = "AiPRESS24 vous suggère"
 BOX_BODY = "..."
 
 DEFAULT_DATA_URL = "https://github.com/aipress24/aipress24-data.git"

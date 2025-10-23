@@ -16,7 +16,7 @@ def test_login(page: Page, base_url: str, role: str):
     _login_as(page, role, base_url)
     page.goto(base_url + "/wire/")
 
-    expect(page).to_have_title(re.compile(".*AIpress24*."))
+    expect(page).to_have_title(re.compile(".*AiPRESS24*."))
 
     tabs = ["News", "Work", "Events", "Market", "Social"]
     _navigate(page, tabs)
