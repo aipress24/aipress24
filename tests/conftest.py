@@ -33,6 +33,13 @@ class TestConfig:
     WTF_CSRF_ENABLED = False
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
+    # Explicitly set SERVER_NAME to None. This is critical for E2E tests.
+    # It forces Flask's url_for and redirects to generate relative paths,
+    # which the test client can follow.
+    SERVER_NAME = None
+
+    # Note: Talisman is disabled when app.testing is True (see extensions.py)
+
 
 def pytest_addoption(parser):
     """Add the --db-url command-line option to pytest."""

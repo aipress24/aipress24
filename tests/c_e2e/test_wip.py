@@ -12,20 +12,23 @@ if TYPE_CHECKING:
 
 def test_wip(logged_in_client: FlaskClient) -> None:
     """Tests that the /wip route successfully redirects."""
-    response = logged_in_client.get("/wip")
-    assert response.status_code in {200, 302, 308}
+    # The actual WIP route is /wip/wip
+    response = logged_in_client.get("/wip/dashboard")
+    assert response.status_code == 200
 
 
 def test_contents(logged_in_client: FlaskClient) -> None:
-    """Tests the content creation page."""
-    response = logged_in_client.get("/wip/contents?mode=list")
-    assert response.status_code in {200, 302}
+    """Tests the content pages."""
+    # Test articles list (there's no generic /wip/contents route)
+    response = logged_in_client.get("/wip/articles/")
+    assert response.status_code == 200
 
-    response = logged_in_client.get("/wip/contents?mode=create&doc_type=article")
-    assert response.status_code in {200, 302}
+    # Test creating new article
+    response = logged_in_client.get("/wip/articles/new/")
+    assert response.status_code == 200
 
 
 def test_sujets(logged_in_client: FlaskClient) -> None:
     """Tests the 'sujets' page."""
-    response = logged_in_client.get("/wip/sujets")
-    assert response.status_code in {200, 302}
+    response = logged_in_client.get("/wip/sujets/")
+    assert response.status_code == 200
