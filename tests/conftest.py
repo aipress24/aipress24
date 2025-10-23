@@ -2,6 +2,8 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
+# ruff: noqa: S608,S105
+
 """Central pytest configuration for test suite.
 
 Provides database lifecycle management and fixtures for both SQLite and PostgreSQL.
@@ -14,7 +16,6 @@ from urllib.parse import urlparse
 import pytest
 from sqlalchemy import create_engine, text
 from sqlalchemy.exc import OperationalError, ProgrammingError
-from sqlalchemy.orm import scoped_session, sessionmaker
 
 from app.flask.extensions import db as _db
 from app.flask.main import create_app
@@ -131,7 +132,7 @@ def db(app):
         _db.session.remove()
 
 
-@pytest.fixture(scope="function", autouse=True)
+@pytest.fixture(autouse=True)
 def db_session(db, app):
     """Function-scoped database session.
 
