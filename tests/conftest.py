@@ -26,6 +26,7 @@ class TestConfig:
 
     SECRET_KEY = "test-secret-key"
     SECURITY_PASSWORD_SALT = "test-salt"
+    SECURITY_RECOVERABLE = True
     TESTING = True
     DEBUG = False
     UNSECURE = True  # Enable backdoor routes for E2E tests
