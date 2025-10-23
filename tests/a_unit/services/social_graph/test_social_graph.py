@@ -9,8 +9,7 @@ from flask_sqlalchemy import SQLAlchemy
 from app.models.auth import User
 from app.models.organisation import Organisation
 from app.modules.wire.models import ArticlePost
-
-from . import adapt
+from app.services.social_graph import adapt
 
 
 def test_followers_users(db: SQLAlchemy) -> None:

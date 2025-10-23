@@ -14,10 +14,15 @@ test:
 	@make test-sqlite test-postgres
 
 test-sqlite:
-	pytest
+	# Unit tests first (in src)
+	pytest src
+	pytest tests
 
 test-postgres:
-	pytest --db-url="postgresql://localhost/aipress24_test"
+	# Unit tests first (in src)
+	# TODO: update conftest.py to match the one on tests/
+	TEST_DATABASE_URI="postgresql://localhost/aipress24_test" pytest src
+	pytest tests --db-url="postgresql://localhost/aipress24_test"
 
 ## Run tests with coverage
 test-with-coverage:

@@ -8,8 +8,7 @@ from flask_sqlalchemy import SQLAlchemy
 
 from app.models.auth import User
 from app.modules.wire.models import ArticlePost
-
-from . import get_unique_view_count, get_view_count, record_view
+from app.services.tracking import get_unique_view_count, get_view_count, record_view
 
 
 def test_view_counter(db: SQLAlchemy) -> None:

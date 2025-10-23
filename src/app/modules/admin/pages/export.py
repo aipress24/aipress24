@@ -210,128 +210,144 @@ class ExporterInscriptions:
             return ", ".join(str(x) for x in list_or_str)
         return str(list_or_str)
 
+    # Field name to data source mapping
+    _USER_ATTRS = {
+        "id",
+        "validation_status",
+        "last_login_at",
+        "login_count",
+        "gcu_acceptation",
+        "gcu_acceptation_date",
+        "last_name",
+        "first_name",
+        "gender",
+        "email",
+        "email_secours",
+        "tel_mobile",
+        "status",
+        "karma",
+        "organisation_name",
+    }
+    _PROFILE_ATTRS = {"profile_label", "presentation"}
+    _INFO_PERSONNELLE_ATTRS = {
+        "pseudo",
+        "no_carte_presse",
+        "metier_principal",
+        "metier_principal_detail",
+        "metier",
+        "metier_detail",
+        "competences",
+        "competences_journalisme",
+        "langues",
+        "formations",
+        "experiences",
+    }
+    _INFO_PRO_ATTRS = {
+        "nom_groupe_presse",
+        "nom_media",
+        "nom_media_instit",
+        "type_entreprise_media",
+        "type_presse_et_media",
+        "nom_group_com",
+        "nom_agence_rp",
+        "type_agence_rp",
+        "nom_adm",
+        "nom_orga",
+        "type_orga",
+        "type_orga_detail",
+        "taille_orga",
+        "secteurs_activite_medias",
+        "secteurs_activite_medias_detail",
+        "secteurs_activite_rp",
+        "secteurs_activite_rp_detail",
+        "secteurs_activite_detailles",
+        "secteurs_activite_detailles_detail",
+        "pays_zip_ville",
+        "pays_zip_ville_detail",
+        "adresse_pro",
+        "compl_adresse_pro",
+        "tel_standard",
+        "ligne_directe",
+        "url_site_web",
+    }
+    _MATCH_MAKING_ATTRS = {
+        "fonctions_journalisme",
+        "fonctions_pol_adm",
+        "fonctions_pol_adm_detail",
+        "fonctions_org_priv",
+        "fonctions_org_priv_detail",
+        "fonctions_ass_syn",
+        "fonctions_ass_syn_detail",
+        "interet_pol_adm",
+        "interet_pol_adm_detail",
+        "interet_org_priv",
+        "interet_org_priv_detail",
+        "interet_ass_syn",
+        "interet_ass_syn_detail",
+        "transformation_majeure",
+        "transformation_majeure_detail",
+    }
+    _INFO_HOBBY_ATTRS = {
+        "hobbies",
+        "macaron_hebergement",
+        "macaron_repas",
+        "macaron_verre",
+    }
+
     def cell_value(
         self,
         user: User,
         profile: KYCProfile,
         name: str,
     ) -> str | datetime | int | bool:
-        match name:
-            case (
-                "id"
-                | "validation_status"
-                | "last_login_at"
-                | "login_count"
-                | "gcu_acceptation"
-                | "gcu_acceptation_date"
-                | "last_name"
-                | "first_name"
-                | "gender"
-                | "email"
-                | "email_secours"
-                | "tel_mobile"
-                | "status"
-                | "karma"
-                | "organisation_name"
-            ):
-                value = getattr(user, name)
-            case "dirigeant":
-                value = user.is_leader
-            case "manager":
-                value = user.is_manager
-            case "submited_at":
-                value = user.submited_at
-                if isinstance(value, Arrow):
-                    value = value.datetime
-            case "validated_at":
-                value = user.validated_at
-                if isinstance(value, Arrow):
-                    value = value.datetime
-            case "modified_at":
-                value = user.modified_at
-                if isinstance(value, Arrow):
-                    value = value.datetime
-            case "roles":
-                value = [x.name for x in getattr(user, name)]
-            case "profile_label" | "presentation":
-                value = getattr(profile, name)
-            case (
-                "pseudo"
-                | "no_carte_presse"
-                | "metier_principal"
-                | "metier_principal_detail"
-                | "metier"
-                | "metier_detail"
-                | "competences"
-                | "competences_journalisme"
-                | "langues"
-                | "formations"
-                | "experiences"
-                #
-            ):
-                value = profile.info_personnelle.get(name)
-            case (
-                "nom_groupe_presse"
-                | "nom_media"
-                | "nom_media_instit"
-                | "type_entreprise_media"
-                | "type_presse_et_media"
-                | "nom_group_com"
-                | "nom_agence_rp"
-                | "type_agence_rp"
-                | "nom_adm"
-                | "nom_orga"
-                | "type_orga"
-                | "type_orga_detail"
-                | "taille_orga"
-                | "secteurs_activite_medias"
-                | "secteurs_activite_medias_detail"
-                | "secteurs_activite_rp"
-                | "secteurs_activite_rp_detail"
-                | "secteurs_activite_detailles"
-                | "secteurs_activite_detailles_detail"
-                | "pays_zip_ville"
-                | "pays_zip_ville_detail"
-                | "adresse_pro"
-                | "compl_adresse_pro"
-                | "tel_standard"
-                | "ligne_directe"
-                | "url_site_web"
-                #
-            ):
-                value = profile.info_professionnelle.get(name)
-            case (
-                "fonctions_journalisme"
-                | "fonctions_pol_adm"
-                | "fonctions_pol_adm_detail"
-                | "fonctions_org_priv"
-                | "fonctions_org_priv_detail"
-                | "fonctions_ass_syn"
-                | "fonctions_ass_syn_detail"
-                | "interet_pol_adm"
-                | "interet_pol_adm_detail"
-                | "interet_org_priv"
-                | "interet_org_priv_detail"
-                | "interet_ass_syn"
-                | "interet_ass_syn_detail"
-                | "transformation_majeure"
-                | "transformation_majeure_detail"
-            ):
-                value = profile.match_making.get(name)
+        value = self._get_cell_value_raw(user, profile, name)
 
-            case "hobbies" | "macaron_hebergement" | "macaron_repas" | "macaron_verre":
-                value = profile.info_hobby.get(name)
-            case "bw_trigger":
-                value = [
-                    BW_TRIGGER_LABEL.get(x, x) for x in profile.get_all_bw_trigger()
-                ]
-            case _:
-                msg = f"cell_value() non managed key: {name!r}"
-                raise KeyError(msg)
         if isinstance(value, list):
             return self.list_to_str(value)
         if isinstance(value, datetime):
             value = as_naive_localtz(value)
+        return value
+
+    def _get_cell_value_raw(self, user: User, profile: KYCProfile, name: str):
+        """Get raw cell value before formatting."""
+        # Handle special cases first
+        if name == "dirigeant":
+            return user.is_leader
+        if name == "manager":
+            return user.is_manager
+        if name in ("submited_at", "validated_at", "modified_at"):
+            return self._get_datetime_attr(user, name)
+        if name == "roles":
+            return [x.name for x in getattr(user, name)]
+        if name == "bw_trigger":
+            return [BW_TRIGGER_LABEL.get(x, x) for x in profile.get_all_bw_trigger()]
+
+        # Handle grouped attributes via lookup
+        return self._get_grouped_attr(user, profile, name)
+
+    def _get_grouped_attr(self, user: User, profile: KYCProfile, name: str):
+        """Get value from grouped attributes."""
+        if name in self._USER_ATTRS:
+            return getattr(user, name)
+        if name in self._PROFILE_ATTRS:
+            return getattr(profile, name)
+        if name in self._INFO_PERSONNELLE_ATTRS:
+            return profile.info_personnelle.get(name)
+        if name in self._INFO_PRO_ATTRS:
+            return profile.info_professionnelle.get(name)
+        if name in self._MATCH_MAKING_ATTRS:
+            return profile.match_making.get(name)
+        if name in self._INFO_HOBBY_ATTRS:
+            return profile.info_hobby.get(name)
+
+        msg = f"cell_value() non managed key: {name!r}"
+        raise KeyError(msg)
+
+    def _get_datetime_attr(self, user: User, name: str) -> datetime | None:
+        """Get datetime attribute and convert from Arrow if needed."""
+        value = getattr(user, name)
+        if isinstance(value, Arrow):
+            return value.datetime
         return value
 
     def do_top_info(self) -> None:
@@ -639,62 +655,64 @@ class ExporterOrganisations:
             return ", ".join(str(x) for x in list_or_str)
         return str(list_or_str)
 
+    # Organization attribute names that are directly accessible
+    _ORG_ATTRS = {
+        "name",
+        "slug",
+        "type",
+        "siren",
+        "tva",
+        "tel_standard",
+        "taille_orga",
+        "description",
+        "metiers",
+        "status",
+        "karma",
+        "site_url",
+        "logo_url",
+        "cover_image_url",
+        "agree_cppap",
+        "membre_sapi",
+        "membre_satev",
+        "membre_saphir",
+    }
+
     def cell_value(
         self,
         org: Organisation,
         name: str,
     ) -> str | datetime | int | bool:
-        match name:
-            case (
-                "name"
-                | "slug"
-                | "type"
-                | "siren"
-                | "tva"
-                | "tel_standard"
-                | "taille_orga"
-                | "description"
-                | "metiers"
-                | "status"
-                | "karma"
-                | "site_url"
-                | "logo_url"
-                | "cover_image_url"
-                | "agree_cppap"
-                | "membre_sapi"
-                | "membre_satev"
-                | "membre_saphir"
-            ):
-                value = getattr(org, name)
-            case "members":
-                value = ", ".join(u.email for u in org.members)
-            case "managers":
-                value = ", ".join(u.email for u in org.managers)
-            case "leaders":
-                value = ", ".join(u.email for u in org.leaders)
-            case "id":
-                value = str(org.id)
-            case "created_at":
-                value = org.created_at
-                if isinstance(value, Arrow):
-                    value = value.datetime
-            case "validated_at":
-                value = org.validated_at
-                if isinstance(value, Arrow):
-                    value = value.datetime
-            case "modified_at":
-                value = org.modified_at
-                if isinstance(value, Arrow):
-                    value = value.datetime
-            case "nb_members":
-                value = len(org.members)
-            case _:
-                msg = f"cell_value() Inconsistent key: {name}"
-                raise KeyError(msg)
+        # Handle special cases
+        if name == "members":
+            value = ", ".join(u.email for u in org.members)
+        elif name == "managers":
+            value = ", ".join(u.email for u in org.managers)
+        elif name == "leaders":
+            value = ", ".join(u.email for u in org.leaders)
+        elif name == "id":
+            value = str(org.id)
+        elif name in ("created_at", "validated_at", "modified_at"):
+            value = self._get_org_datetime_attr(org, name)
+        elif name == "nb_members":
+            value = len(org.members)
+        # Handle direct attributes
+        elif name in self._ORG_ATTRS:
+            value = getattr(org, name)
+        else:
+            msg = f"cell_value() Inconsistent key: {name}"
+            raise KeyError(msg)
+
         if isinstance(value, list):
             return self.list_to_str(value)
         if isinstance(value, datetime):
             value = as_naive_localtz(value)
+        return value
+
+    def _get_org_datetime_attr(self, org: Organisation, name: str) -> datetime | None:
+        """Get datetime attribute from org and convert from Arrow if needed."""
+        value = getattr(org, name)
+        if isinstance(value, Arrow):
+            return value.datetime
         return value
 
     def do_top_info(self) -> None:

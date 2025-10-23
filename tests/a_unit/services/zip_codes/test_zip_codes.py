@@ -7,7 +7,7 @@ from __future__ import annotations
 import pytest
 from flask_sqlalchemy import SQLAlchemy
 
-from . import create_zip_code_entry, get_zip_code_country
+from app.services.zip_codes import create_zip_code_entry, get_zip_code_country
 
 
 @pytest.mark.skip

@@ -63,16 +63,21 @@ lint.ignore = [
     "S311", # Standard pseudo-random generators are not suitable for cryptographic purposes
     "S603", # Using subprocess
     "S704", # Unsafe use of `markupsafe.Markup` detected
-    # Fixable ?
+    #
+    # Later
     "ERA001", #  commented-out-code
     "T201", #    print
     "E501", #    line-too-long
+    #
+    # Fixable ?
+    #
     "BLE001", #  blind-except
     "PLC0415", # import-outside-top-level
     "C901", #    complex-structure
     "PLR0911", # too-many-return-statements
     "PLR0912", # too-many-branches
     "A004", #    builtin-import-shadowing
+    "RUF012",
 ]
 
 [lint.extend-per-file-ignores]

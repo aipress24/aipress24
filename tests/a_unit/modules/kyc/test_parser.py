@@ -8,14 +8,15 @@ from pathlib import Path
 
 import pytest
 
-from app.modules.kyc import xls_parser
+from app.modules.kyc import kyc_models, xls_parser
 from app.modules.kyc.survey_dataclass import SurveyProfile
 from app.modules.kyc.survey_model import MODEL_FILENAME
 
 
 @pytest.fixture
 def model_source() -> Path:
-    return Path(__file__).parent.parent / "kyc_models" / MODEL_FILENAME
+    return Path(kyc_models.__file__).parent / MODEL_FILENAME
+    # return Path(__file__).parent.parent / "kyc_models" / MODEL_FILENAME
 
 
 def test_model_exists(model_source) -> None:

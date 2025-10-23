@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from flask_sqlalchemy import SQLAlchemy
 
-from . import create_entry, get_all_taxonomy_names, get_taxonomy
+from app.services.taxonomies import create_entry, get_all_taxonomy_names, get_taxonomy
 
 
 def test_taxonomy(db: SQLAlchemy) -> None:
