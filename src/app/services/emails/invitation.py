@@ -13,12 +13,12 @@ Bonjour {{ recipient_name }}
 </p>
 
 <p>
-Je vous invite à rejoindre mon groupe sur AIpress24, le workspace des médias.
-Adhérer à AIpress24 sera, pour vous, l’occasion de développer votre notoriété et d’entrer au cœur des rédactions.
+Je vous invite à rejoindre mon groupe sur AiPRESS24, le workspace des médias.
+Adhérer à AiPRESS24 sera, pour vous, l’occasion de développer votre notoriété et d’entrer au cœur des rédactions.
 </p>
 
 <p>
-Pour vous inscrire gratuitement sur AIpress24, cliquez sur ce lien.
+Pour vous inscrire gratuitement sur AiPRESS24, cliquez sur ce lien.
 </p>
 
 <p>
@@ -32,6 +32,6 @@ Pour vous inscrire gratuitement sur AIpress24, cliquez sur ce lien.
 
 
 class InvitationMail(Mail):
-    subject = "Invitation to join Aipress24"
+    subject = "Invitation to join AiPRESS24"
 
     template = TEMPLATE

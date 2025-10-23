@@ -358,7 +358,7 @@ For more details, see: <https://doc.aipress24.com/dev/architecture/>
 #### Q3 2025
 
 1. **Federation Architecture**
-    - Establish framework for hosting multiple instances of AIpress24.
+    - Establish framework for hosting multiple instances of AiPRESS24.
     - Define governance models for federated instances to ensure interoperability.
 2. **Personalized RSS Feeds**
     - Enable users to generate personalized RSS feeds for curated content distribution.

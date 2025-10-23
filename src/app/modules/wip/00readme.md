@@ -67,7 +67,7 @@ See <https://trello.com/c/43xqFPTN/46-wip-journaliste>
 ## Publier un article
 
 - sur mon Wall (mon profil)
-- sur le Wire d'AIpress24 (proposition)
+- sur le Wire d'AiPRESS24 (proposition)
 - sur la Marketplace
 - dans un groupe auquel j'appartiens
 

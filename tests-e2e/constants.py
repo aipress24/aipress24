@@ -5,7 +5,7 @@
 import re
 
 SLEEP = 0.1
-TITLE_RE = re.compile(".* - AIpress24")
+TITLE_RE = re.compile(".* - AiPRESS24")
 NEWS_PATH = "/wire/tab/wall"
 CRAWL_LIMIT = 50
 ROLES = [
