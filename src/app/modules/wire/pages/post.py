@@ -4,8 +4,9 @@
 
 from __future__ import annotations
 
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
+import arrow
 import sqlalchemy as sa
 from attr import field, frozen
 from flask import g, request
@@ -40,7 +41,7 @@ class ItemPage(Page):
     parent = WirePage
 
     def __init__(self, id) -> None:
-        self.args = {"id": id}
+        self.args = {"id": id}  # type: ignore[misc]
         self.item = get_obj(id, Post)
 
         match self.item:
@@ -137,6 +138,11 @@ class ItemPage(Page):
 
 
 class PostMixin:
+    if TYPE_CHECKING:
+        # Type hints for attributes that must be provided by the class using this mixin
+        _model: Post
+        publisher: Organisation
+
     def extra_attrs(self):
         post = self._model
         return {
@@ -202,7 +208,7 @@ class ArticleVM(Wrapper, PostMixin):
         post = article = cast("ArticlePost", self._model)
 
         if article.published_at:
-            age = article.published_at.humanize(locale="fr")
+            age = cast(arrow.Arrow, article.published_at).humanize(locale="fr")
         else:
             age = "(not set)"
 
@@ -261,7 +267,7 @@ class PressReleaseVM(Wrapper, PostMixin):
         post = cast("PressReleasePost", self._model)
 
         if post.published_at:
-            age = post.published_at.humanize(locale="fr")
+            age = cast(arrow.Arrow, post.published_at).humanize(locale="fr")
         else:
             age = "(not set)"
 
