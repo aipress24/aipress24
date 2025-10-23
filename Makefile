@@ -17,7 +17,7 @@ test-sqlite:
 	pytest
 
 test-postgres:
-	TEST_DATABASE_URI="postgresql://localhost/aipress24_test" pytest
+	pytest --db-url="postgresql://localhost/aipress24_test"
 
 ## Run tests with coverage
 test-with-coverage:
