@@ -10,10 +10,9 @@ from flask_sqlalchemy import SQLAlchemy
 from app.models.auth import User
 from app.models.organisation import Organisation
 from app.services.reputation import update_reputations
+from app.services.reputation._compute import compute_reputation
 from app.services.reputation._history import get_reputation_history
 from app.services.social_graph import adapt
-
-from ._compute import compute_reputation
 
 
 def test_single_user(db: SQLAlchemy) -> None:

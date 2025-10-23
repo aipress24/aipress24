@@ -8,8 +8,7 @@ from flask_sqlalchemy import SQLAlchemy
 from svcs.flask import container
 
 from app.models.auth import User
-
-from . import NotificationService
+from app.services.notifications import NotificationService
 
 
 def test_single_user(db: SQLAlchemy) -> None:

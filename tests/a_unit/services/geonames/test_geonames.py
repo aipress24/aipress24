@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from ._service import is_dept_in_region
+from app.services.geonames import is_dept_in_region
 
 
 def test_is_dept_in_region() -> None:

@@ -7,7 +7,7 @@ from __future__ import annotations
 import arrow
 from flask_sqlalchemy import SQLAlchemy
 
-from ._models import StatsRecord
+from app.services.stats._models import StatsRecord
 
 
 def test_create_record(db: SQLAlchemy) -> None:

@@ -11,11 +11,9 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_super.registry import lookup
 
 from app.enums import RoleEnum
-from app.faker import FakerService
+from app.faker import FakerScript, FakerService
+from app.faker._faker import FAKER_TEST_SETTINGS
 from app.services.roles import has_role
-
-from ._faker import FAKER_TEST_SETTINGS
-from ._scripts.base import FakerScript
 
 
 @pytest.mark.skip(reason="Need to set up taxonomies first.")

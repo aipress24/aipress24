@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from flask_sqlalchemy import SQLAlchemy
 
-from . import create_country_entry, get_country
+from app.services.zip_codes import create_country_entry, get_country
 
 
 def test_country(db: SQLAlchemy) -> None:

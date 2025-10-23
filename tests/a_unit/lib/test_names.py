@@ -19,4 +19,4 @@ def test_fqdn() -> None:
     class Foo:
         pass
 
-    assert fqdn(Foo) == "app.lib.tests.test_names.Foo"
+    assert fqdn(Foo) == "test_names.Foo"
