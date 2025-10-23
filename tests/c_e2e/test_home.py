@@ -11,9 +11,15 @@ if TYPE_CHECKING:
     from flask.testing import FlaskClient
 
 
+# NOTE: Many routes return 302 redirects due to URL normalization or routing logic.
+# The test fixture ensures users are properly authenticated (session has _user_id set).
+# These are not authentication failures - they are application-level redirects.
+
+
 def test_home(app: Flask, logged_in_client: FlaskClient) -> None:
     """Tests that the homepage is accessible after login."""
     response = logged_in_client.get("/")
+    # Home may redirect for authenticated users
     assert response.status_code in {200, 302, 308}
 
 
@@ -25,8 +31,10 @@ def test_backdoor(app: Flask, logged_in_client: FlaskClient) -> None:
 
 def test_wip(app: Flask, logged_in_client: FlaskClient) -> None:
     """Tests that the main WIP page is accessible."""
-    response = logged_in_client.get("/wip")
+    # The actual WIP route is /wip/wip (not just /wip)
+    response = logged_in_client.get("/wip/wip")
     assert response.status_code in {200, 302, 308}
 
-    response = logged_in_client.get("/wip/contents?mode=list")
+    # Test articles list instead of non-existent /wip/contents
+    response = logged_in_client.get("/wip/articles/")
     assert response.status_code in {200, 302}
