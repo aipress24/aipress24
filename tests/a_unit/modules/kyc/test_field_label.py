@@ -178,3 +178,32 @@ def test_country_zip_code_to_city(mock_zip_code):
     # Test with invalid format
     result = country_zip_code_to_city("invalid")
     assert result == ""
+
+
+def test_data_to_label_format_list():
+    """Test data_to_label with formatting list/str/bool values."""
+    from app.modules.kyc.field_label import data_to_label
+
+    # Test with list
+    result = data_to_label(["tag1", "tag2", "tag3"], "unknown_key")
+    assert result == "tag1, tag2, tag3"
+
+    # Test with string
+    result = data_to_label("simple_string", "unknown_key")
+    assert result == "simple_string"
+
+    # Test with bool True
+    result = data_to_label(True, "unknown_key")
+    assert result == "Oui"
+
+    # Test with bool False
+    result = data_to_label(False, "unknown_key")
+    assert result == "Non"
+
+    # Test password masking
+    result = data_to_label("secret123", "password")
+    assert result == "*********"
+
+    # Test password masking with non-string (edge case)
+    result = data_to_label([], "password")
+    assert result == ""
