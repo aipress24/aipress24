@@ -67,7 +67,7 @@ def register_extensions(app: Flask) -> None:
     if app.debug:
         setup_debug_toolbar(app)
 
-    if not app.debug:
+    if not app.debug and not app.testing:
         csp = app.config.get("CONTENT_SECURITY_POLICY", DEFAULT_CSP_POLICY)
         Talisman(app, content_security_policy=csp)
 

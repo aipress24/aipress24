@@ -10,7 +10,7 @@ from flask import Flask, current_app, g, redirect, request
 from flask_login import current_user
 from flask_security.core import AnonymousUser
 from svcs.flask import container
-from werkzeug.exceptions import Unauthorized
+from werkzeug.exceptions import NotFound, Unauthorized
 
 from app.flask.doorman import doorman
 from app.flask.lib.proxies import unproxy
@@ -49,13 +49,19 @@ def authenticate_user() -> None:
     if request.path.startswith("/static"):
         return
 
-    if current_app.testing:
-        g.user = get_obj(0, User)
-        return
-
     if current_user.is_authenticated:
         g.user = unproxy(current_user)
         return
+
+    # In test mode, try to use a default test user (ID 0) if it exists
+    # This is a fallback for tests that don't explicitly authenticate
+    if current_app.testing:
+        try:
+            g.user = get_obj(0, User)
+            return
+        except NotFound:
+            # If user 0 doesn't exist, continue to anonymous user
+            pass
 
     g.user = AnonymousUser()
     return
