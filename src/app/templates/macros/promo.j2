@@ -1,6 +1,7 @@
 {% macro promo_box(id) %}
+  {% set box = get_promotion(id) %}
+  {% if box %}
   <section>
-    {% set box = get_promotion(id) %}
     <div class="card p-0 border-0 bg-white rounded shadow">
       <h2 class="flex justify-between px-4 py-3 text-base font-medium text-gray-900 bg-gray-200">
         {{ box.title }}
@@ -13,4 +14,5 @@
       </div>
     </div>
   </section>
+  {% endif %}
 {% endmacro %}
