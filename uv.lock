@@ -64,7 +64,7 @@ wheels = [
 
 [[package]]
 name = "aipress24-flask"
-version = "2025.10.1.1"
+version = "2025.10.23.1"
 source = { editable = "." }
 dependencies = [
     { name = "advanced-alchemy" },
@@ -194,7 +194,6 @@ dev = [
     { name = "pyupgrade" },
     { name = "ruff" },
     { name = "selenium" },
-    { name = "splinter" },
     { name = "sqlalchemy-data-model-visualizer" },
     { name = "tomlkit" },
     { name = "ty" },
@@ -341,7 +340,6 @@ dev = [
     { name = "pyupgrade", specifier = ">=3.15.0,<4.0.0" },
     { name = "ruff" },
     { name = "selenium" },
-    { name = "splinter", specifier = ">=0.21.0,<1.0.0" },
     { name = "sqlalchemy-data-model-visualizer", specifier = ">=0.1.3,<1.0.0" },
     { name = "tomlkit", specifier = ">=0.13,<1.0" },
     { name = "ty", specifier = ">=0.0.0a7" },
@@ -3744,18 +3742,6 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/6d/e6/21ccce3262dd4889aa3332e5a119a3491a95e8f60939870a3a035aabac0d/soupsieve-2.8.tar.gz", hash = "sha256:e2dd4a40a628cb5f28f6d4b0db8800b8f581b65bb380b97de22ba5ca8d72572f", size = 103472, upload-time = "2025-08-27T15:39:51.78Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/14/a0/bb38d3b76b8cae341dad93a2dd83ab7462e6dbcdd84d43f54ee60a8dc167/soupsieve-2.8-py3-none-any.whl", hash = "sha256:0cc76456a30e20f5d7f2e14a98a4ae2ee4e5abdc7c5ea0aafe795f344bc7984c", size = 36679, upload-time = "2025-08-27T15:39:50.179Z" },
-]
-
-[[package]]
-name = "splinter"
-version = "0.21.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "urllib3" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/fd/7f/afb1788635b3532dfb9e2f21698ce8825e99714750ae4bf30bbc3ecaa9d5/splinter-0.21.0.tar.gz", hash = "sha256:60cbbec9209acefccf39608d677eecdb248bbd700023663ce406595322c38fe5", size = 30896, upload-time = "2024-01-16T00:59:04.874Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/10/67/ecd32a6a634e10a222aabe2b0a15b19857013ec8b1150cc664df79c025fa/splinter-0.21.0-py3-none-any.whl", hash = "sha256:4c9e5962ce25f468b2dd52effbd1445afd7466740f238e564c6b70f7fda9368f", size = 40812, upload-time = "2024-01-16T00:59:02.71Z" },
 ]
 
 [[package]]
