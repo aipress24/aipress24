@@ -28,6 +28,7 @@ class TestConfig:
     SECURITY_PASSWORD_SALT = "test-salt"
     TESTING = True
     DEBUG = False
+    UNSECURE = True  # Enable backdoor routes for E2E tests
     SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"  # Default DB
     WTF_CSRF_ENABLED = False
     SQLALCHEMY_TRACK_MODIFICATIONS = False
