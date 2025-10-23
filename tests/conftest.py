@@ -14,6 +14,7 @@ from __future__ import annotations
 from urllib.parse import urlparse
 
 import pytest
+from flask.ctx import AppContext
 from sqlalchemy import create_engine, text
 from sqlalchemy.exc import OperationalError, ProgrammingError
 
@@ -127,6 +128,12 @@ def app(db_url: str):
         yield app
 
     _manage_postgres_database(db_url, "drop")
+
+
+@pytest.fixture
+def app_context(app) -> AppContext:
+    with app.app_context() as ctx:
+        yield ctx
 
 
 @pytest.fixture(scope="session")
