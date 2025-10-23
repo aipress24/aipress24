@@ -10,20 +10,20 @@ Stagiaire: Membre étudiant qui, quelle que soit sa communauté d’appartenance
 
 Débutant: Membre qui vient d’arriver sur la plate-forme
 
-Validé: Membre dont l’inscription est validée par AIpress24
+Validé: Membre dont l’inscription est validée par AiPRESS24
 
 Certifié: Membre officiellement reconnu par son employeur au travers de la page
-commerciale Entreprise d’AIpress24.
+commerciale Entreprise d’AiPRESS24.
 
 Star: Membre qui reçoit les applaudissements de la part des communautés dans
 son écosystème. Ce statut est attribué automatiquement par le système de
-réputation d’AIpress24
+réputation d’AiPRESS24
 
 Premium: Membre qui paie pour accéder à différents services
 
 Elite: Membre qui fait partie des plus gros acheteurs de prestations ou
 d’articles que les fournisseurs apprécient particulièrement. C'est le système
-de réputation d’AIpress24 qui donne ce statut.
+de réputation d’AiPRESS24 qui donne ce statut.
 """
 
 from __future__ import annotations

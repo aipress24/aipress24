@@ -28,7 +28,7 @@ def to_opengraph_generic(obj) -> dict[str, str]:
         "og:type": "object",
         "og:title": title,
         "og:url": url_for(obj, _external=True),
-        "og:site_name": "AIpress24",
+        "og:site_name": "AiPRESS24",
     }
 
     if hasattr(obj, "summary"):
