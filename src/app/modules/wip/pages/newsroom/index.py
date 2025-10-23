@@ -5,7 +5,8 @@
 from __future__ import annotations
 
 from typing import Any
-from flask import current_app, g
+
+from flask import g
 from sqlalchemy import func, select
 from sqlalchemy.orm import scoped_session
 from svcs.flask import container
