@@ -36,26 +36,22 @@ FILTER_SPECS = [
         "label": "Thématique",
         "selector": "section",
     },
-    # {
-    #     "id": "type_presse",
-    #     "label": "Type de presse",
-    #     "options": [
-    #         "Nationale",
-    #         "PQR",
-    #         "Hebdo",
-    #         "Mensuelle",
-    #         "TV",
-    #         "Radio",
-    #         "Web",
-    #         "Spécialisée",
-    #     ],
-    # },
-    # {
-    #     "id": "location",
-    #     "label": "Localisation",
-    #     "options": ["France", "Europe", "USA", "Chine", "..."],
-    # },
+    {
+        "id": "pays_zip_ville_detail",
+        "label": "Localisation",
+        "selector": "location",
+    },
 ]
+
+
+FILTER_TAG_LABEL = {
+    "sector": "secteur",
+    "topic": "rubrique",
+    "genre": "genre",
+    "section": "thématique",
+    "pays_zip_ville_detail": "localisation",
+}
+
 
 SORTER_OPTIONS = [
     ("date", "Date"),
@@ -83,6 +79,7 @@ class FilterBar:
                 "id": filter["id"],
                 "value": filter["value"],
                 "label": filter["value"],
+                "tag_label": FILTER_TAG_LABEL.get(filter["id"], ""),
             }
             for filter in self.state.get("filters", [])
         ]
@@ -139,7 +136,6 @@ class FilterBar:
         action = form["action"]
         form_value = form["value"]
         form_id = form["id"]
-
         if action == "toggle":
             self.toggle_filter(form_id, form_value)
         elif action == "remove":
