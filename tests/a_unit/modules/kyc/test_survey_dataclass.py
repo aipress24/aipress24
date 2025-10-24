@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 
-from app.enums import CommunityEnum, ContactTypeEnum, ProfileEnum
+from app.enums import CommunityEnum, ProfileEnum
 from app.modules.kyc.survey_dataclass import (
     Group,
     SurveyCommunities,

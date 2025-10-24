@@ -148,9 +148,7 @@ def test_label_from_values_cities(mock_zip_code):
     result = label_from_values_cities("FR / 75001", "key", "ontology")
     assert result == "Paris"
 
-    result = label_from_values_cities(
-        ["FR / 75001", "FR / 69001"], "key", "ontology"
-    )
+    result = label_from_values_cities(["FR / 75001", "FR / 69001"], "key", "ontology")
     assert result == "Paris, Lyon"
 
 
