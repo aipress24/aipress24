@@ -63,7 +63,7 @@ class AdminDashboardPage(BaseAdminPage):
 
     path = "/"
     template = "admin/pages/dashboard.j2"
-    icon = "cog"
+    icon = "house"
 
     def context(self):
         data = {}

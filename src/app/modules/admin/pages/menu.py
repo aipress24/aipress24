@@ -39,10 +39,8 @@ MENU = [
     # AdminModerationPage,
     AdminSystemPage,
     AdminExportPage,
-    # {"label": "Ontologie", "href": "/admin/ontology/", "icon": "list-tree"},
-    # {"label": "Export DB", "href": "/admin/export-db/", "icon": "database"},
-    {"label": "Ontologie", "href": "/admin/ontology/", "icon": "link"},
-    {"label": "Export DB", "href": "/admin/export-db/", "icon": "link"},
+    {"label": "Ontologie", "href": "/admin/ontology/", "icon": "list-tree"},
+    {"label": "Export DB", "href": "/admin/export-db/", "icon": "database"},
 ]
 
 

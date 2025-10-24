@@ -22,7 +22,7 @@ class AdminSystemPage(BaseAdminPage):
     title = "Système"
 
     template = "admin/pages/system.j2"
-    icon = "chat-bubble-bottom-center-text"
+    icon = "server-cog"
 
     parent = AdminHomePage
 
