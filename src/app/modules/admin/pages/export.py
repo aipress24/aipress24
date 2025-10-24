@@ -34,7 +34,7 @@ class AdminExportPage(Page):
     name = "exports"
     label = "Exports"
     title = "Exports"
-    icon = "user-group"
+    icon = "file-down"
 
     template = "admin/pages/exports.j2"
     parent = AdminHomePage

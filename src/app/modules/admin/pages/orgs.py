@@ -37,7 +37,7 @@ class AdminOrgsPage(BaseAdminPage):
     name = "orgs"
     label = "Organisations"
     title = "Organisations"
-    icon = "building-office"
+    icon = "building"
 
     template = "admin/pages/generic_table.j2"
     parent = AdminHomePage
