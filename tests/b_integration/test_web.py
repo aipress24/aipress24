@@ -113,7 +113,7 @@ def test_all_unparameterized_endpoints(
             continue
 
         # Skip routes that don't accept GET
-        if "GET" not in rule.methods:
+        if not rule.methods or "GET" not in rule.methods:
             continue
 
         res = client.get(rule.rule)

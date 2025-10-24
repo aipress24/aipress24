@@ -11,6 +11,7 @@ Provides database lifecycle management and fixtures for both SQLite and PostgreS
 
 from __future__ import annotations
 
+from collections.abc import Generator
 from urllib.parse import urlparse
 
 import pytest
@@ -38,7 +39,7 @@ class TestConfig:
     # Explicitly set SERVER_NAME to None. This is critical for E2E tests.
     # It forces Flask's url_for and redirects to generate relative paths,
     # which the test client can follow.
-    SERVER_NAME = None
+    SERVER_NAME: str | None = None
 
     # Note: Talisman is disabled when app.testing is True (see extensions.py)
 
@@ -67,7 +68,7 @@ def _manage_postgres_database(db_url: str, action: str) -> None:
         action: Either 'create' or 'drop'.
     """
     parsed_url = urlparse(db_url)
-    if parsed_url.scheme not in ("postgresql", "postgresql+psycopg"):
+    if not parsed_url.scheme.startswith("postgresql"):
         return  # Do nothing for non-postgres databases
 
     db_name = parsed_url.path[1:]
@@ -83,11 +84,11 @@ def _manage_postgres_database(db_url: str, action: str) -> None:
             conn.execute(
                 text(
                     f"""
-                SELECT pg_terminate_backend(pg_stat_activity.pid)
-                FROM pg_stat_activity
-                WHERE pg_stat_activity.datname = '{db_name}'
-                AND pid <> pg_backend_pid()
-                """
+                    SELECT pg_terminate_backend(pg_stat_activity.pid)
+                    FROM pg_stat_activity
+                    WHERE pg_stat_activity.datname = '{db_name}'
+                    AND pid <> pg_backend_pid()
+                    """
                 )
             )
             conn.execute(text(f"DROP DATABASE IF EXISTS {db_name}"))
@@ -96,11 +97,11 @@ def _manage_postgres_database(db_url: str, action: str) -> None:
             conn.execute(
                 text(
                     f"""
-                SELECT pg_terminate_backend(pg_stat_activity.pid)
-                FROM pg_stat_activity
-                WHERE pg_stat_activity.datname = '{db_name}'
-                AND pid <> pg_backend_pid()
-                """
+                    SELECT pg_terminate_backend(pg_stat_activity.pid)
+                    FROM pg_stat_activity
+                    WHERE pg_stat_activity.datname = '{db_name}'
+                    AND pid <> pg_backend_pid()
+                    """
                 )
             )
             conn.execute(text(f"DROP DATABASE IF EXISTS {db_name}"))
@@ -131,7 +132,7 @@ def app(db_url: str):
 
 
 @pytest.fixture
-def app_context(app) -> AppContext:
+def app_context(app) -> Generator[AppContext, None, None]:
     with app.app_context() as ctx:
         yield ctx
 
