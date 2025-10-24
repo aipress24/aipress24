@@ -123,7 +123,7 @@ class NewsMetadataMixin:
     )
 
 
-class Post(BaseContent, LifeCycleMixin):
+class Post(NewsMetadataMixin, BaseContent, LifeCycleMixin):
     __mapper_args__: ClassVar[dict] = {
         "polymorphic_identity": "post",
     }
@@ -184,7 +184,7 @@ class Post(BaseContent, LifeCycleMixin):
     # taille_contenu: Mapped[str] = mapped_column(default="")
 
 
-class ArticlePost(NewsMetadataMixin, Post, Taggable):
+class ArticlePost(Post, Taggable):
     __mapper_args__: ClassVar[dict] = {
         "polymorphic_identity": "article",
     }
@@ -199,7 +199,7 @@ class ArticlePost(NewsMetadataMixin, Post, Taggable):
     )
 
 
-class PressReleasePost(NewsMetadataMixin, Post, Taggable):
+class PressReleasePost(Post, Taggable):
     __mapper_args__: ClassVar[dict] = {
         "polymorphic_identity": "press_release",
     }
