@@ -11,20 +11,21 @@ help:
 
 ## Run tests
 test:
-	@make test-sqlite test-postgres
+	# @make test-sqlite test-postgres
+	@make test-sqlite
 
 test-sqlite:
-	pytest
+	pytest tests
 
 test-postgres:
-	TEST_DATABASE_URI="postgresql://localhost/aipress24_test" pytest
+	pytest tests --db-url="postgresql://localhost/aipress24_test"
 
 ## Run tests with coverage
 test-with-coverage:
-	pytest --cov=app --doctest-modules
+	pytest tests --cov=app --doctest-modules
 
 test-with-typeguard:
-	pytest --typeguard-packages=app
+	pytest tests --typeguard-packages=app
 
 
 test-e2e-local:

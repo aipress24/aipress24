@@ -7,22 +7,22 @@
 </div>
 <div>
     - <a class="text-sm font-medium text-indigo-800 underline pl-1"
-    href="{{ url_for('admin.export_inscription_route') }}">
+    href="{{ url_for('admin.export_route', exporter_name='inscription') }}">
     Inscriptions depuis un mois </a>
 </div>
 <div>
     - <a class="text-sm font-medium text-indigo-800 underline pl-1"
-    href="{{ url_for('admin.export_modification_route') }}">
+    href="{{ url_for('admin.export_route', exporter_name='modification') }}">
     Modifications validées depuis un mois </a>
 </div>
 <div>
     - <a class="text-sm font-medium text-indigo-800 underline pl-1"
-    href="{{ url_for('admin.export_users_route') }}">
+    href="{{ url_for('admin.export_route', exporter_name='users') }}">
     Liste des utilisateurs </a>
 </div>
 <div>
     - <a class="text-sm font-medium text-indigo-800 underline pl-1"
-    href="{{ url_for('admin.export_organisations_route') }}">
+    href="{{ url_for('admin.export_route', exporter_name='organisations') }}">
     Liste des organisations </a>
 </div>
 

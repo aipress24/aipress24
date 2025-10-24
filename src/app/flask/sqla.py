@@ -30,7 +30,8 @@ def get_obj(id: int | str, cls: type, options=None):
     result = db.session.execute(stmt)
     obj = result.scalar_one_or_none()
     if not obj:
-        raise NotFound
+        msg = f"Can't match id {id}"
+        raise NotFound(msg)
     return obj
 
 

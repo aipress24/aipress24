@@ -123,42 +123,33 @@ def webhooks():
     return "", 200
 
 
+# Event type to handler function name mapping
+_EVENT_HANDLER_NAMES = {
+    "checkout.session.completed": "on_checkout_session_completed",
+    "subscription_schedule.aborted": "on_subscription_schedule_aborted",
+    "subscription_schedule.canceled": "on_subscription_schedule_canceled",
+    "subscription_schedule.completed": "on_subscription_schedule_completed",
+    "subscription_schedule.created": "on_subscription_schedule_created",
+    "subscription_schedule.expiring": "on_subscription_schedule_expiring",
+    "subscription_schedule.released": "on_subscription_schedule_released",
+    "subscription_schedule.updated": "on_subscription_schedule_updated",
+    "customer.subscription.created": "on_customer_subscription_created",
+    "customer.subscription.deleted": "on_customer_subscription_deleted",
+    "customer.subscription.paused": "on_customer_subscription_paused",
+    "customer.subscription.pending_update_applied": "on_customer_subscription_pending_update_applied",
+    "customer.subscription.pending_update_expired": "on_customer_subscription_pending_update_expired",
+    "customer.subscription.resumed": "on_customer_subscription_resumed",
+    "customer.subscription.trial_will_end": "on_customer_subscription_trial_will_end",
+    "customer.subscription.updated": "on_customer_subscription_updated",
+}
+
+
 def on_received_event(event) -> None:
-    match event.type:
-        case "checkout.session.completed":
-            return on_checkout_session_completed(event)
-        case "subscription_schedule.aborted":
-            return on_subscription_schedule_aborted(event)
-        case "subscription_schedule.canceled":
-            return on_subscription_schedule_canceled(event)
-        case "subscription_schedule.completed":
-            return on_subscription_schedule_completed(event)
-        case "subscription_schedule.created":
-            return on_subscription_schedule_created(event)
-        case "subscription_schedule.expiring":
-            return on_subscription_schedule_expiring(event)
-        case "subscription_schedule.released":
-            return on_subscription_schedule_released(event)
-        case "subscription_schedule.updated":
-            return on_subscription_schedule_updated(event)
-        case "customer.subscription.created":
-            return on_customer_subscription_created(event)
-        case "customer.subscription.deleted":
-            return on_customer_subscription_deleted(event)
-        case "customer.subscription.paused":
-            return on_customer_subscription_paused(event)
-        case "customer.subscription.pending_update_applied":
-            return on_customer_subscription_pending_update_applied(event)
-        case "customer.subscription.pending_update_expired":
-            return on_customer_subscription_pending_update_expired(event)
-        case "customer.subscription.resumed":
-            return on_customer_subscription_resumed(event)
-        case "customer.subscription.trial_will_end":
-            return on_customer_subscription_trial_will_end(event)
-        case "customer.subscription.updated":
-            return on_customer_subscription_updated(event)
-        case _:
-            return unmanaged_event(event)
+    handler_name = _EVENT_HANDLER_NAMES.get(event.type)
+    if handler_name:
+        handler = globals()[handler_name]
+        return handler(event)
+    return unmanaged_event(event)
 
 
 def _get_event_object(event) -> object:
