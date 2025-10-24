@@ -52,8 +52,8 @@ FOOTER_MENU = [
                 "url": "/page/confidentialite/",
             },
             {
-                "label": "Conditions d'utilisation",
-                "url": "/page/conditions/",
+                "label": "Conditions générales d’utilisation",
+                "url": "/page/cgu/",
             },
         ],
     },
