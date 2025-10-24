@@ -4,8 +4,6 @@
 
 from __future__ import annotations
 
-import pytest
-
 from app.enums import CommunityEnum, RoleEnum
 from app.models.auth import Role, User
 from app.modules.kyc.community_role import (
@@ -18,24 +16,17 @@ from app.modules.kyc.community_role import (
 def test_community_to_role_name_with_enum():
     """Test converting CommunityEnum to role name."""
     assert (
-        community_to_role_name(CommunityEnum.PRESS_MEDIA)
-        == RoleEnum.PRESS_MEDIA.name
+        community_to_role_name(CommunityEnum.PRESS_MEDIA) == RoleEnum.PRESS_MEDIA.name
     )
     assert (
         community_to_role_name(CommunityEnum.COMMUNICANTS)
         == RoleEnum.PRESS_RELATIONS.name
     )
+    assert community_to_role_name(CommunityEnum.LEADERS_EXPERTS) == RoleEnum.EXPERT.name
     assert (
-        community_to_role_name(CommunityEnum.LEADERS_EXPERTS)
-        == RoleEnum.EXPERT.name
+        community_to_role_name(CommunityEnum.TRANSFORMERS) == RoleEnum.TRANSFORMER.name
     )
-    assert (
-        community_to_role_name(CommunityEnum.TRANSFORMERS)
-        == RoleEnum.TRANSFORMER.name
-    )
-    assert (
-        community_to_role_name(CommunityEnum.ACADEMICS) == RoleEnum.ACADEMIC.name
-    )
+    assert community_to_role_name(CommunityEnum.ACADEMICS) == RoleEnum.ACADEMIC.name
 
 
 def test_community_to_role_name_with_string():

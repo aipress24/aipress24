@@ -24,6 +24,6 @@ def check_auth() -> None:
     Raises:
         Unauthorized: If user is anonymous/not authenticated.
     """
-    user = cast("User", current_user)
+    user = cast(User, current_user)
     if user.is_anonymous:
         raise Unauthorized

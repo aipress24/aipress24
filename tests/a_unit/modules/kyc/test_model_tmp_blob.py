@@ -104,7 +104,7 @@ def test_read_tmp_blob_none(app, db) -> None:
             assert name == ""
             assert content == b""
         else:
-            name, uuid, content = result
+            name, _uuid, content = result
             assert name == ""
             assert content == b""
 
@@ -112,7 +112,7 @@ def test_read_tmp_blob_none(app, db) -> None:
 def test_read_tmp_blob_non_exist(app, db) -> None:
     """Test read_tmp_blob with non-existent blob."""
     with app.app_context():
-        name, uuid, content = read_tmp_blob(999999)
+        name, _uuid, content = read_tmp_blob(999999)
         assert name == ""
         assert content == b""
 
@@ -120,6 +120,6 @@ def test_read_tmp_blob_non_exist(app, db) -> None:
 def test_pop_tmp_blob_none(app, db) -> None:
     """Test pop_tmp_blob with None."""
     with app.app_context():
-        name, uuid, content = pop_tmp_blob(None)
+        name, _uuid, content = pop_tmp_blob(None)
         assert name == ""
         assert content == b""
