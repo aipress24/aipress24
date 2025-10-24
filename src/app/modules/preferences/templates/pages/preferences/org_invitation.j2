@@ -6,7 +6,7 @@
   {% if invitations|length > 0 %}
     {% for invit in invitations %}
       {% if invit.disabled %}
-        <div>Vous êtes actuellement membre de l'oganisation:</div>
+        <div>Vous êtes actuellement membre de l'organisation:</div>
         <div
           class="pt-0 items-center self-center text-left font-medium font-bold text-black">
           {{ invit.label }}
@@ -81,8 +81,16 @@
       {% endfor %}
     </div>
   {% else %}
-    <div
-      class="pt-0 items-center self-center text-left font-medium font-bold text-black">
-      Vous n'avez aucune invitation d'organisation en cours.</div>
+    {% if invitations|length > 0 %}
+      <div
+        class="pt-0 items-center self-center text-left font-medium font-bold text-black">
+        Vous n'avez actuellement aucune invitation d'une autre organisation.
+      </div>
+    {% else %}
+      <div
+        class="pt-0 items-center self-center text-left font-medium font-bold text-black">
+        Vous n'avez actuellement aucune invitation d'une organisation.
+      </div>
+    {% endif %}
   {% endif %}
 {% endblock %}

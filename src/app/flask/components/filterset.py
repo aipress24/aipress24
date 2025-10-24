@@ -48,6 +48,9 @@ class Filter:
         self.label = label
         self.options = []
 
+    def __repr__(self) -> str:
+        return f"<{self.__class__.__name__} {self.name} {self.label}>"
+
     def init(self, objects, options=None) -> None:
         if options is not None:
             for option in options:
