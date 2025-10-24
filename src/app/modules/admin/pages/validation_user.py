@@ -33,7 +33,7 @@ from .new_users import AdminNewUsersPage
 
 @page
 class ValidationUser(BaseAdminPage):
-    name = "valisate_user"
+    name = "validate_user"
     path = "/validation_profile/<uid>"
     label = "Validation de l'inscription"
     title = "Validation de l'inscription"
