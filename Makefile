@@ -11,8 +11,7 @@ help:
 
 ## Run tests
 test:
-	# @make test-sqlite test-postgres
-	@make test-sqlite
+	@make test-sqlite test-postgres
 
 test-sqlite:
 	pytest tests
