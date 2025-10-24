@@ -7,7 +7,7 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
 import pytest
 from arrow import Arrow
@@ -19,7 +19,9 @@ from app.models.organisation import Organisation
 from app.modules.admin.pages.export import (
     BaseExporter,
     InscriptionsExporter,
+    ModificationsExporter,
     OrganisationsExporter,
+    UsersExporter,
 )
 
 if TYPE_CHECKING:
@@ -35,8 +37,7 @@ def get_admin_user(db_session: Session) -> User:
     if admin_user:
         return admin_user
 
-    else:
-        return create_admin_user(db_session)
+    return create_admin_user(db_session)
 
 
 def create_admin_user(db_session: Session) -> User:
@@ -265,6 +266,87 @@ class TestInscriptionsExporter:
         assert len(exporter.title) > 0
         assert isinstance(exporter.title, str)
         assert "inscription" in exporter.title.lower()
+
+
+class TestModificationsExporter:
+    """Test ModificationsExporter class."""
+
+    def test_exporter_initializes(self):
+        """Test that ModificationsExporter can be instantiated."""
+        exporter = ModificationsExporter()
+        assert exporter is not None
+        assert exporter.sheet_name == "Modifications"
+
+    def test_exporter_inherits_from_inscriptions(self):
+        """Test that ModificationsExporter inherits from InscriptionsExporter."""
+        exporter = ModificationsExporter()
+        assert isinstance(exporter, InscriptionsExporter)
+        assert isinstance(exporter, BaseExporter)
+
+    def test_exporter_has_columns_defined(self):
+        """Test that ModificationsExporter has column definitions."""
+        exporter = ModificationsExporter()
+        assert len(exporter.columns) > 0
+        assert isinstance(exporter.columns, list)
+        # ModificationsExporter should have specific columns
+        assert "validation_status" in exporter.columns
+        assert "modified_at" not in exporter.columns  # Uses submited_at instead
+
+    def test_exporter_filename_format(self):
+        """Test filename format after initializing dates."""
+        exporter = ModificationsExporter()
+        exporter.do_start_date()  # Initialize dates without running full export
+        assert "modification" in exporter.filename.lower()
+        assert exporter.filename.endswith(".ods")
+
+    def test_exporter_title_format(self):
+        """Test title format after initializing dates."""
+        exporter = ModificationsExporter()
+        exporter.do_start_date()  # Initialize dates without running full export
+        assert len(exporter.title) > 0
+        assert isinstance(exporter.title, str)
+        assert "modification" in exporter.title.lower()
+
+
+class TestUsersExporter:
+    """Test UsersExporter class."""
+
+    def test_exporter_initializes(self):
+        """Test that UsersExporter can be instantiated."""
+        exporter = UsersExporter()
+        assert exporter is not None
+        assert exporter.sheet_name == "Utilisateurs"
+
+    def test_exporter_inherits_from_inscriptions(self):
+        """Test that UsersExporter inherits from InscriptionsExporter."""
+        exporter = UsersExporter()
+        assert isinstance(exporter, InscriptionsExporter)
+        assert isinstance(exporter, BaseExporter)
+
+    def test_exporter_has_columns_defined(self):
+        """Test that UsersExporter has column definitions."""
+        exporter = UsersExporter()
+        assert len(exporter.columns) > 0
+        assert isinstance(exporter.columns, list)
+        # UsersExporter should have more columns than InscriptionsExporter
+        assert "last_login_at" in exporter.columns
+        assert "login_count" in exporter.columns
+        assert "karma" in exporter.columns
+
+    def test_exporter_filename_format(self):
+        """Test filename format after initializing dates."""
+        exporter = UsersExporter()
+        exporter.do_start_date()  # Initialize dates without running full export
+        assert "utilisateur" in exporter.filename.lower()
+        assert exporter.filename.endswith(".ods")
+
+    def test_exporter_title_format(self):
+        """Test title format after initializing dates."""
+        exporter = UsersExporter()
+        exporter.do_start_date()  # Initialize dates without running full export
+        assert len(exporter.title) > 0
+        assert isinstance(exporter.title, str)
+        assert exporter.title == "Utilisateurs"
 
 
 class TestOrganisationsExporter:
