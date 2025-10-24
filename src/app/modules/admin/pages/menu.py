@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from flask import g
 
+from app.flask.lib.pages import Page
 from app.flask.routing import url_for
 from app.services.roles import has_role
 
@@ -38,8 +39,10 @@ MENU = [
     # AdminModerationPage,
     AdminSystemPage,
     AdminExportPage,
-    {"label": "Ontologie", "href": "/admin/ontology/", "icon": "list-tree"},
-    {"label": "Export DB", "href": "/admin/export-db/", "icon": "database"},
+    # {"label": "Ontologie", "href": "/admin/ontology/", "icon": "list-tree"},
+    # {"label": "Export DB", "href": "/admin/export-db/", "icon": "database"},
+    {"label": "Ontologie", "href": "/admin/ontology/", "icon": "link"},
+    {"label": "Export DB", "href": "/admin/export-db/", "icon": "link"},
 ]
 
 
@@ -66,6 +69,7 @@ def make_entry(page_or_dict, name) -> dict:
             }
         case _:
             # Page class - build URL from page name
+            assert issubclass(page_or_dict, Page)
             return {
                 "name": page_or_dict.name,
                 "label": page_or_dict.label,

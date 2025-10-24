@@ -30,3 +30,7 @@ def check_admin() -> None:
     user = cast("User", current_user)
     if not has_role(user, "ADMIN"):
         raise Unauthorized
+
+
+# Import views to register routes (must be after blueprint is defined)
+from . import views  # noqa: E402, F401
