@@ -9,7 +9,6 @@ These tests use the shared app fixture from tests/conftest.py and Flask's test c
 
 from __future__ import annotations
 
-from collections.abc import Iterator
 from typing import TYPE_CHECKING
 
 import pytest
@@ -23,7 +22,7 @@ if TYPE_CHECKING:
 
 
 @pytest.fixture
-def logged_in_client(app: Flask, db_session: Session) -> Iterator[FlaskClient]:
+def logged_in_client(app: Flask, db_session: Session) -> FlaskClient:
     """
     Provides a logged-in Flask test client for a single test function.
 
@@ -50,7 +49,5 @@ def logged_in_client(app: Flask, db_session: Session) -> Iterator[FlaskClient]:
             str(user.fs_uniquifier) if hasattr(user, "fs_uniquifier") else str(user.id)
         )
 
-    # 4. Yield the prepared client to the test
+    # 4. Return the prepared client to the test
     return client
-
-    # 5. The client is automatically cleaned up after the test
