@@ -119,19 +119,21 @@ class BaseExporter:
     @staticmethod
     def list_to_str(list_or_str: list | str | Any) -> str:
         """Convert list to comma-separated string."""
-        # TODO: use match statement
-        if isinstance(list_or_str, list):
-            return ", ".join(str(x) for x in list_or_str)
-        return str(list_or_str)
+        match list_or_str:
+            case list():
+                return ", ".join(str(x) for x in list_or_str)
+            case _:
+                return str(list_or_str)
 
     @staticmethod
     def get_datetime_attr(obj: Any, name: str) -> datetime | None:
         """Get datetime attribute and convert from Arrow if needed."""
         value = getattr(obj, name)
-        # TODO: match statement
-        if isinstance(value, Arrow):
-            return value.datetime
-        return value
+        match value:
+            case Arrow():
+                return value.datetime
+            case _:
+                return value
 
     def do_top_info(self) -> None:
         """Add header information to the sheet."""
@@ -428,49 +430,52 @@ class InscriptionsExporter(BaseExporter):
     ) -> str | datetime | int | bool:
         value = self._get_cell_value_raw(user, profile, name)
 
-        # TODO: use match statement
-        if isinstance(value, list):
-            return self.list_to_str(value)
-        if isinstance(value, datetime):
-            value = as_naive_localtz(value)
-        return value
+        match value:
+            case list():
+                return self.list_to_str(value)
+            case datetime():
+                return as_naive_localtz(value)
+            case _:
+                return value
 
     def _get_cell_value_raw(self, user: User, profile: KYCProfile, name: str):
         """Get raw cell value before formatting."""
         # Handle special cases first
-        # TODO: use match statement
-        if name == "dirigeant":
-            return user.is_leader
-        if name == "manager":
-            return user.is_manager
-        if name in ("submited_at", "validated_at", "modified_at"):
-            return self.get_datetime_attr(user, name)
-        if name == "roles":
-            return [x.name for x in getattr(user, name)]
-        if name == "bw_trigger":
-            return [BW_TRIGGER_LABEL.get(x, x) for x in profile.get_all_bw_trigger()]
-
-        # Handle grouped attributes via lookup
-        return self._get_grouped_attr(user, profile, name)
+        match name:
+            case "dirigeant":
+                return user.is_leader
+            case "manager":
+                return user.is_manager
+            case "submited_at" | "validated_at" | "modified_at":
+                return self.get_datetime_attr(user, name)
+            case "roles":
+                return [x.name for x in getattr(user, name)]
+            case "bw_trigger":
+                return [
+                    BW_TRIGGER_LABEL.get(x, x) for x in profile.get_all_bw_trigger()
+                ]
+            case _:
+                # Handle grouped attributes via lookup
+                return self._get_grouped_attr(user, profile, name)
 
     def _get_grouped_attr(self, user: User, profile: KYCProfile, name: str):
         """Get value from grouped attributes."""
-        # TODO: use match statement
-        if name in self._USER_ATTRS:
-            return getattr(user, name)
-        if name in self._PROFILE_ATTRS:
-            return getattr(profile, name)
-        if name in self._INFO_PERSONNELLE_ATTRS:
-            return profile.info_personnelle.get(name)
-        if name in self._INFO_PRO_ATTRS:
-            return profile.info_professionnelle.get(name)
-        if name in self._MATCH_MAKING_ATTRS:
-            return profile.match_making.get(name)
-        if name in self._INFO_HOBBY_ATTRS:
-            return profile.info_hobby.get(name)
-
-        msg = f"cell_value() non managed key: {name!r}"
-        raise KeyError(msg)
+        match name:
+            case _ if name in self._USER_ATTRS:
+                return getattr(user, name)
+            case _ if name in self._PROFILE_ATTRS:
+                return getattr(profile, name)
+            case _ if name in self._INFO_PERSONNELLE_ATTRS:
+                return profile.info_personnelle.get(name)
+            case _ if name in self._INFO_PRO_ATTRS:
+                return profile.info_professionnelle.get(name)
+            case _ if name in self._MATCH_MAKING_ATTRS:
+                return profile.match_making.get(name)
+            case _ if name in self._INFO_HOBBY_ATTRS:
+                return profile.info_hobby.get(name)
+            case _:
+                msg = f"cell_value() non managed key: {name!r}"
+                raise KeyError(msg)
 
     def fetch_data(self) -> list[User]:
         stmt = (
@@ -743,32 +748,34 @@ class OrganisationsExporter(BaseExporter):
         name: str,
     ) -> str | datetime | int | bool:
         # Handle special cases
-        # TODO: use match statement
-        if name == "members":
-            value = ", ".join(u.email for u in org.members)
-        elif name == "managers":
-            value = ", ".join(u.email for u in org.managers)
-        elif name == "leaders":
-            value = ", ".join(u.email for u in org.leaders)
-        elif name == "id":
-            value = str(org.id)
-        elif name in ("created_at", "validated_at", "modified_at"):
-            value = self.get_datetime_attr(org, name)
-        elif name == "nb_members":
-            value = len(org.members)
-        # Handle direct attributes
-        elif name in self._ORG_ATTRS:
-            value = getattr(org, name)
-        else:
-            msg = f"cell_value() Inconsistent key: {name}"
-            raise KeyError(msg)
+        match name:
+            case "members":
+                value = ", ".join(u.email for u in org.members)
+            case "managers":
+                value = ", ".join(u.email for u in org.managers)
+            case "leaders":
+                value = ", ".join(u.email for u in org.leaders)
+            case "id":
+                value = str(org.id)
+            case "created_at" | "validated_at" | "modified_at":
+                value = self.get_datetime_attr(org, name)
+            case "nb_members":
+                value = len(org.members)
+            case _ if name in self._ORG_ATTRS:
+                # Handle direct attributes
+                value = getattr(org, name)
+            case _:
+                msg = f"cell_value() Inconsistent key: {name}"
+                raise KeyError(msg)
 
-        # TODO: use match statement
-        if isinstance(value, list):
-            return self.list_to_str(value)
-        if isinstance(value, datetime):
-            value = as_naive_localtz(value)
-        return value
+        # Format and return value
+        match value:
+            case list():
+                return self.list_to_str(value)
+            case datetime():
+                return as_naive_localtz(value)
+            case _:
+                return value
 
     def fetch_data(self) -> list[User]:
         stmt = (
