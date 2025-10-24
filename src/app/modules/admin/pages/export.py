@@ -19,18 +19,19 @@ from sqlalchemy import desc, false, nulls_last, select, true
 from app.constants import BW_TRIGGER_LABEL, LABEL_INSCRIPTION_VALIDEE, LOCAL_TZ
 from app.enums import OrganisationTypeEnum
 from app.flask.extensions import db
-from app.flask.lib.pages import Page, page
+from app.flask.lib.pages import page
 from app.models.auth import KYCProfile, User
 from app.models.organisation import Organisation
 from app.modules.admin import blueprint
 
+from .base import BaseAdminPage
 from .home import AdminHomePage
 
 LOCALTZ = pytz.timezone(LOCAL_TZ)
 
 
 @page
-class AdminExportPage(Page):
+class AdminExportPage(BaseAdminPage):
     name = "exports"
     label = "Exports"
     title = "Exports"
@@ -38,18 +39,6 @@ class AdminExportPage(Page):
 
     template = "admin/pages/exports.j2"
     parent = AdminHomePage
-
-    ds_class: type | None = None
-    table_class: type | None = None
-
-    def menus(self):
-        # Lazy import to prevent circular import
-        from .menu import make_menu
-
-        name = self.name
-        return {
-            "secondary": make_menu(name),
-        }
 
 
 @blueprint.route("/export/<exporter_name>")
