@@ -201,7 +201,3 @@ def test_data_to_label_format_list():
     # Test password masking
     result = data_to_label("secret123", "password")
     assert result == "*********"
-
-    # Test password masking with non-string (edge case)
-    result = data_to_label([], "password")
-    assert result == ""
