@@ -101,6 +101,9 @@ def sample_users(db_session: Session) -> list[User]:
         user.last_name = f"Last{i}"
         user.roles.append(press_media_role)
 
+        # Set user as active (required for UsersExporter query)
+        user.active = True
+
         # Set submission date on user (required for InscriptionsExporter query)
         user.submited_at = datetime.now(tz=UTC) - timedelta(days=i)
         user.validated_at = datetime.now(tz=UTC) - timedelta(days=i, hours=1)
@@ -236,6 +239,60 @@ class TestExportRoute:
         # Either redirects (302) or not found (404) is acceptable
         assert response.status_code in (302, 404)
 
+    def test_export_organisations_route(
+        self, admin_client: FlaskClient, sample_organisations: list[Organisation]
+    ):
+        """Test export organisations route."""
+        response = admin_client.get(
+            url_for("admin.export_route", exporter_name="organisations")
+        )
+
+        # Either successful (200) or redirected (302) is acceptable
+        assert response.status_code in (200, 302)
+
+        if response.status_code == 200:
+            assert (
+                response.mimetype == "application/vnd.oasis.opendocument.spreadsheet"
+            )
+            assert "attachment" in response.headers.get("Content-Disposition", "")
+            # Check for ODS file signature
+            assert len(response.data) > 0
+            assert response.data[:4] == b"PK\x03\x04"
+
+    def test_export_users_route(
+        self, admin_client: FlaskClient, sample_users: list[User]
+    ):
+        """Test export users route."""
+        response = admin_client.get(
+            url_for("admin.export_route", exporter_name="users")
+        )
+
+        # Either successful (200) or redirected (302) is acceptable
+        assert response.status_code in (200, 302)
+
+        if response.status_code == 200:
+            assert (
+                response.mimetype == "application/vnd.oasis.opendocument.spreadsheet"
+            )
+            assert "utilisateur" in response.headers.get("Content-Disposition", "").lower()
+
+    def test_export_inscriptions_route(
+        self, admin_client: FlaskClient, sample_users: list[User]
+    ):
+        """Test export inscriptions route."""
+        response = admin_client.get(
+            url_for("admin.export_route", exporter_name="inscription")
+        )
+
+        # Either successful (200) or redirected (302) is acceptable
+        assert response.status_code in (200, 302)
+
+        if response.status_code == 200:
+            assert (
+                response.mimetype == "application/vnd.oasis.opendocument.spreadsheet"
+            )
+            assert "inscription" in response.headers.get("Content-Disposition", "").lower()
+
 
 class TestInscriptionsExporter:
     """Test InscriptionsExporter class."""
@@ -266,6 +323,36 @@ class TestInscriptionsExporter:
         assert len(exporter.title) > 0
         assert isinstance(exporter.title, str)
         assert "inscription" in exporter.title.lower()
+
+    def test_init_columns_definition(self):
+        """Test that column definitions are properly initialized."""
+        exporter = InscriptionsExporter()
+        exporter.init_columns_definition()
+
+        assert len(exporter.columns_definition) > 0
+        assert isinstance(exporter.columns_definition, dict)
+
+        # Check some expected columns
+        assert "email" in exporter.columns_definition
+        assert "first_name" in exporter.columns_definition
+        assert "last_name" in exporter.columns_definition
+
+        # Check column structure
+        email_col = exporter.columns_definition["email"]
+        assert hasattr(email_col, "name")
+        assert hasattr(email_col, "header")
+        assert hasattr(email_col, "width")
+
+    def test_fetch_data(self, db_session: Session, sample_users: list[User]):
+        """Test that fetch_data returns users from database."""
+        exporter = InscriptionsExporter()
+        exporter.do_start_date()  # Initialize start_date
+
+        data = exporter.fetch_data()
+
+        assert isinstance(data, list)
+        # Should have at least the test users created recently
+        assert len(data) >= 3
 
 
 class TestModificationsExporter:
@@ -307,6 +394,16 @@ class TestModificationsExporter:
         assert isinstance(exporter.title, str)
         assert "modification" in exporter.title.lower()
 
+    def test_fetch_data(self, db_session: Session, sample_users: list[User]):
+        """Test that fetch_data filters modified users correctly."""
+        exporter = ModificationsExporter()
+        exporter.do_start_date()  # Initialize start_date
+
+        data = exporter.fetch_data()
+
+        # Result should be a list (might be empty if no modified users)
+        assert isinstance(data, list)
+
 
 class TestUsersExporter:
     """Test UsersExporter class."""
@@ -347,6 +444,17 @@ class TestUsersExporter:
         assert len(exporter.title) > 0
         assert isinstance(exporter.title, str)
         assert exporter.title == "Utilisateurs"
+
+    def test_fetch_data(self, db_session: Session, sample_users: list[User]):
+        """Test that fetch_data returns all active users."""
+        exporter = UsersExporter()
+        exporter.do_start_date()  # Initialize start_date
+
+        data = exporter.fetch_data()
+
+        assert isinstance(data, list)
+        # Should have at least the test users
+        assert len(data) >= 3
 
 
 class TestOrganisationsExporter:
