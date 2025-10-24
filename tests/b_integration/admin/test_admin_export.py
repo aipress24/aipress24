@@ -30,52 +30,6 @@ if TYPE_CHECKING:
     from sqlalchemy.orm import Session
 
 
-def get_admin_user(db_session: Session) -> User:
-    """Create a user with ADMIN role for testing."""
-    # Check if admin user already exists
-    admin_user = db_session.query(User).filter_by(email="admin@example.com").first()
-    if admin_user:
-        return admin_user
-
-    return create_admin_user(db_session)
-
-
-def create_admin_user(db_session: Session) -> User:
-    admin_role = db_session.query(Role).filter_by(name=RoleEnum.ADMIN.name).first()
-    if not admin_role:
-        admin_role = Role(name=RoleEnum.ADMIN.name, description="Administrator")
-        db_session.add(admin_role)
-        db_session.flush()
-
-    admin_user = User(email="admin@example.com")
-    admin_user.photo = b""
-    admin_user.roles.append(admin_role)
-    db_session.add(admin_user)
-    db_session.commit()
-
-    return admin_user
-
-
-@pytest.fixture
-def admin_client(app: Flask, db_session: Session) -> FlaskClient:
-    """Provide a Flask test client logged in as admin."""
-    admin_user = get_admin_user(db_session)
-
-    client = app.test_client()
-
-    with client.session_transaction() as sess:
-        sess["_user_id"] = str(admin_user.id)
-        sess["_fresh"] = True
-        sess["_permanent"] = True
-        sess["_id"] = (
-            str(admin_user.fs_uniquifier)
-            if hasattr(admin_user, "fs_uniquifier")
-            else str(admin_user.id)
-        )
-
-    return client
-
-
 @pytest.fixture
 def sample_users(db_session: Session) -> list[User]:
     """Create sample users for export testing."""
@@ -118,7 +72,7 @@ def sample_users(db_session: Session) -> list[User]:
         db_session.add(profile)
         users.append(user)
 
-    db_session.commit()
+    db_session.flush()  # Use flush() instead of commit() to preserve transaction isolation
 
     # Refresh users to load relationships
     for user in users:
@@ -131,7 +85,11 @@ def sample_users(db_session: Session) -> list[User]:
 def sample_organisations(db_session: Session) -> list[Organisation]:
     """Create sample organisations for export testing."""
     organisations = []
-    org_types = [OrganisationTypeEnum.MEDIA, OrganisationTypeEnum.AGENCY, OrganisationTypeEnum.COM]
+    org_types = [
+        OrganisationTypeEnum.MEDIA,
+        OrganisationTypeEnum.AGENCY,
+        OrganisationTypeEnum.COM,
+    ]
     for i in range(3):
         org = Organisation(
             name=f"Organisation {i}",
@@ -140,7 +98,7 @@ def sample_organisations(db_session: Session) -> list[Organisation]:
         db_session.add(org)
         organisations.append(org)
 
-    db_session.commit()
+    db_session.flush()  # Use flush() instead of commit() to preserve transaction isolation
     return organisations
 
 
@@ -251,9 +209,7 @@ class TestExportRoute:
         assert response.status_code in (200, 302)
 
         if response.status_code == 200:
-            assert (
-                response.mimetype == "application/vnd.oasis.opendocument.spreadsheet"
-            )
+            assert response.mimetype == "application/vnd.oasis.opendocument.spreadsheet"
             assert "attachment" in response.headers.get("Content-Disposition", "")
             # Check for ODS file signature
             assert len(response.data) > 0
@@ -271,10 +227,10 @@ class TestExportRoute:
         assert response.status_code in (200, 302)
 
         if response.status_code == 200:
+            assert response.mimetype == "application/vnd.oasis.opendocument.spreadsheet"
             assert (
-                response.mimetype == "application/vnd.oasis.opendocument.spreadsheet"
+                "utilisateur" in response.headers.get("Content-Disposition", "").lower()
             )
-            assert "utilisateur" in response.headers.get("Content-Disposition", "").lower()
 
     def test_export_inscriptions_route(
         self, admin_client: FlaskClient, sample_users: list[User]
@@ -288,10 +244,10 @@ class TestExportRoute:
         assert response.status_code in (200, 302)
 
         if response.status_code == 200:
+            assert response.mimetype == "application/vnd.oasis.opendocument.spreadsheet"
             assert (
-                response.mimetype == "application/vnd.oasis.opendocument.spreadsheet"
+                "inscription" in response.headers.get("Content-Disposition", "").lower()
             )
-            assert "inscription" in response.headers.get("Content-Disposition", "").lower()
 
 
 class TestInscriptionsExporter:
@@ -490,7 +446,9 @@ class TestOrganisationsExporter:
         assert len(exporter.title) > 0
         assert isinstance(exporter.title, str)
 
-    def test_fetch_data(self, db_session: Session, sample_organisations: list[Organisation]):
+    def test_fetch_data(
+        self, db_session: Session, sample_organisations: list[Organisation]
+    ):
         """Test that fetch_data returns organisations."""
         exporter = OrganisationsExporter()
         data = exporter.fetch_data()

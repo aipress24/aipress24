@@ -7,58 +7,26 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
 import pytest
+from flask import g
+from sqlalchemy import select
 
-from app.enums import RoleEnum
-from app.flask.routing import url_for
-from app.models.auth import Role, User
-from app.modules.admin import blueprint
-from app.modules.admin.pages.groups import GroupDataSource, GroupsTable
+from app.models.auth import User
+from app.models.content import BaseContent
+from app.modules.admin.pages.contents import ContentsDataSource, ContentsTable, truncate
+from app.modules.admin.pages.dashboard import AdminDashboardPage, Widget
+from app.modules.admin.pages.groups import AdminGroupsPage, GroupDataSource, GroupsTable
 from app.modules.admin.pages.home import AdminHomePage
 from app.modules.admin.pages.menu import make_entry, make_menu
 from app.modules.admin.pages.promotions import AdminPromotionsPage
+from app.modules.admin.pages.system import AdminSystemPage
 from app.modules.swork.models import Group
 
 if TYPE_CHECKING:
     from flask import Flask
-    from flask.testing import FlaskClient
     from sqlalchemy.orm import Session
-
-
-@pytest.fixture
-def admin_user(db_session: Session) -> User:
-    """Create admin user for tests."""
-    # Check if admin user already exists
-    existing_user = (
-        db_session.query(User).filter_by(email="testadmin@example.com").first()
-    )
-    if existing_user:
-        return existing_user
-
-    admin_role = db_session.query(Role).filter_by(name=RoleEnum.ADMIN.name).first()
-    if not admin_role:
-        admin_role = Role(name=RoleEnum.ADMIN.name, description="Administrator")
-        db_session.add(admin_role)
-        db_session.flush()
-
-    user = User(email="testadmin@example.com")
-    user.photo = b""
-    user.roles.append(admin_role)
-    db_session.add(user)
-    db_session.commit()
-    return user
-
-
-@pytest.fixture
-def non_admin_user(db_session: Session) -> User:
-    """Create non-admin user for tests."""
-    user = User(email="regular@example.com")
-    user.photo = b""
-    db_session.add(user)
-    db_session.commit()
-    return user
 
 
 @pytest.fixture
@@ -70,7 +38,7 @@ def sample_groups(db_session: Session, admin_user: User) -> list[Group]:
         db_session.add(group)
         groups.append(group)
 
-    db_session.commit()
+    db_session.flush()  # Use flush() instead of commit() to preserve transaction isolation
     return groups
 
 
@@ -195,7 +163,6 @@ class TestGroupDataSource:
 
     def test_add_search_filter_with_search(self, db_session: Session):
         """Test search filter when search term is provided."""
-        from sqlalchemy import select
 
         ds = GroupDataSource()
         ds.search = "Test"
@@ -209,7 +176,6 @@ class TestGroupDataSource:
 
     def test_add_search_filter_without_search(self, db_session: Session):
         """Test search filter when no search term."""
-        from sqlalchemy import select
 
         ds = GroupDataSource()
         ds.search = None
@@ -244,10 +210,6 @@ class TestBaseAdminPage:
 
     def test_menus_returns_secondary_menu(self, app: Flask):
         """Test that menus() returns secondary menu dict."""
-        from unittest.mock import patch
-
-        from app.modules.admin.pages.home import AdminHomePage
-
         with app.test_request_context():
             with patch("app.modules.admin.pages.menu.url_for") as mock_url_for:
                 mock_url_for.return_value = "/admin/page"
@@ -267,8 +229,6 @@ class TestAdminListPage:
 
     def test_context_creates_table(self, app: Flask, db_session, admin_user):
         """Test that context() creates table from datasource."""
-        from app.modules.admin.pages.groups import AdminGroupsPage
-
         with app.test_request_context():
             page = AdminGroupsPage()
             result = page.context()
@@ -282,7 +242,6 @@ class TestAdminSystemPage:
 
     def test_page_attributes(self):
         """Test that AdminSystemPage has correct attributes."""
-        from app.modules.admin.pages.system import AdminSystemPage
 
         page = AdminSystemPage
         assert page.name == "system"
@@ -293,8 +252,6 @@ class TestAdminSystemPage:
 
     def test_context_returns_packages_info(self):
         """Test that context() returns packages information."""
-        from app.modules.admin.pages.system import AdminSystemPage
-
         page = AdminSystemPage()
         result = page.context()
 
@@ -312,8 +269,6 @@ class TestContentsPage:
 
     def test_contents_table_compose(self):
         """Test ContentsTable.compose yields correct columns."""
-        from app.modules.admin.pages.contents import ContentsTable
-
         table = ContentsTable(records=[])
         columns = list(table.compose())
 
@@ -322,19 +277,11 @@ class TestContentsPage:
 
     def test_contents_datasource_model(self):
         """Test ContentsDataSource has correct model class."""
-        from app.models.content import BaseContent
-        from app.modules.admin.pages.contents import ContentsDataSource
-
         ds = ContentsDataSource()
         assert ds.model_class == BaseContent
 
     def test_contents_datasource_search_filter(self):
         """Test ContentsDataSource search filtering."""
-        from sqlalchemy import select
-
-        from app.models.content import BaseContent
-        from app.modules.admin.pages.contents import ContentsDataSource
-
         ds = ContentsDataSource()
         ds.search = "Test"
 
@@ -347,8 +294,6 @@ class TestContentsPage:
 
     def test_truncate_helper(self):
         """Test truncate helper function."""
-        from app.modules.admin.pages.contents import truncate
-
         # Test string longer than limit
         result = truncate("This is a very long string that needs truncating", 20)
         assert result == "This is a very long ..."
@@ -364,8 +309,6 @@ class TestDashboardPage:
 
     def test_dashboard_page_attributes(self):
         """Test AdminDashboardPage has correct attributes."""
-        from app.modules.admin.pages.dashboard import AdminDashboardPage
-
         page = AdminDashboardPage
         assert page.name == "dashboard"
         assert page.label == "Tableau de bord"
@@ -374,8 +317,6 @@ class TestDashboardPage:
 
     def test_dashboard_context(self):
         """Test AdminDashboardPage.context creates widgets."""
-        from app.modules.admin.pages.dashboard import AdminDashboardPage
-
         page = AdminDashboardPage()
         result = page.context()
 
@@ -386,8 +327,6 @@ class TestDashboardPage:
 
     def test_widget_id_property(self):
         """Test Widget.id property."""
-        from app.modules.admin.pages.dashboard import Widget
-
         widget = Widget(
             metric="count_transactions",
             duration="day",
@@ -468,10 +407,6 @@ class TestMenuFunctions:
 
     def test_make_entry_with_page_class_not_current(self, app: Flask):
         """Test make_entry with Page class not current."""
-        from unittest.mock import patch
-
-        from app.modules.admin.pages.home import AdminHomePage
-
         with app.test_request_context():
             with patch("app.modules.admin.pages.menu.url_for") as mock_url_for:
                 mock_url_for.return_value = "/admin/index"
@@ -481,10 +416,6 @@ class TestMenuFunctions:
 
     def test_make_menu(self, app: Flask):
         """Test make_menu builds menu from MENU configuration."""
-        from unittest.mock import patch
-
-        from flask import g
-
         # Mock g.user
         with app.test_request_context():
             with patch("app.modules.admin.pages.menu.url_for") as mock_url_for:
@@ -506,10 +437,6 @@ class TestMenuFunctions:
 
     def test_make_menu_with_plain_url(self, app: Flask):
         """Test that make_menu includes plain URL entries."""
-        from unittest.mock import patch
-
-        from flask import g
-
         with app.test_request_context():
             with patch("app.modules.admin.pages.menu.url_for") as mock_url_for:
                 mock_url_for.return_value = "/admin/page"
@@ -526,12 +453,6 @@ class TestMenuFunctions:
 
     def test_make_menu_with_page_class_and_roles(self, app: Flask):
         """Test that make_menu filters page classes by role."""
-        from unittest.mock import Mock, patch
-
-        from flask import g
-
-        from app.modules.admin.pages.home import AdminHomePage
-
         # Create a test menu with role-based entry
         test_menu = [
             [AdminHomePage, ["ADMIN"]],  # Page class with roles
@@ -540,9 +461,10 @@ class TestMenuFunctions:
         with app.test_request_context():
             with patch("app.modules.admin.pages.menu.url_for") as mock_url_for:
                 mock_url_for.return_value = "/admin/index"
-                with patch(
-                    "app.modules.admin.pages.menu.MENU", test_menu
-                ), patch("app.modules.admin.pages.menu.has_role") as mock_has_role:
+                with (
+                    patch("app.modules.admin.pages.menu.MENU", test_menu),
+                    patch("app.modules.admin.pages.menu.has_role") as mock_has_role,
+                ):
                     # User has the required role
                     mock_has_role.return_value = True
                     g.user = Mock()
@@ -563,43 +485,36 @@ class TestMenuFunctions:
 
     def test_make_menu_with_dict_and_roles(self, app: Flask):
         """Test that make_menu filters dict entries by role."""
-        from unittest.mock import Mock, patch
-
-        from flask import g
-
         # Create a test menu with role-based dict entry
         test_menu = [
             [{"label": "Admin Link", "href": "/admin", "icon": "cog"}, ["ADMIN"]],
         ]
 
-        with app.test_request_context():
-            with patch(
-                "app.modules.admin.pages.menu.MENU", test_menu
-            ), patch("app.modules.admin.pages.menu.has_role") as mock_has_role:
-                # User has the required role
-                mock_has_role.return_value = True
-                g.user = Mock()
+        with (
+            app.test_request_context(),
+            patch("app.modules.admin.pages.menu.MENU", test_menu),
+            patch("app.modules.admin.pages.menu.has_role") as mock_has_role,
+        ):
+            # User has the required role
+            mock_has_role.return_value = True
+            g.user = Mock()
 
-                menu = make_menu("test")
+            menu = make_menu("test")
 
-                # Should include the entry since user has role
-                assert len(menu) == 1
-                assert menu[0]["label"] == "Admin Link"
+            # Should include the entry since user has role
+            assert len(menu) == 1
+            assert menu[0]["label"] == "Admin Link"
 
-                # User does not have the required role
-                mock_has_role.return_value = False
+            # User does not have the required role
+            mock_has_role.return_value = False
 
-                menu = make_menu("test")
+            menu = make_menu("test")
 
-                # Should not include the entry
-                assert len(menu) == 0
+            # Should not include the entry
+            assert len(menu) == 0
 
     def test_make_menu_with_invalid_entry(self, app: Flask):
         """Test that make_menu raises error for invalid menu entry."""
-        from unittest.mock import Mock, patch
-
-        from flask import g
-
         # Create a test menu with invalid entry
         test_menu = [
             "invalid_entry",  # This should trigger the default case
