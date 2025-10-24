@@ -26,13 +26,7 @@ from app.modules.admin import blueprint
 
 from .home import AdminHomePage
 
-FieldColumn = namedtuple("FieldColumn", "name header width")  # noqa: PYI024
-
 LOCALTZ = pytz.timezone(LOCAL_TZ)
-
-
-def as_naive_localtz(value: datetime) -> datetime:
-    return value.astimezone(LOCALTZ).replace(tzinfo=None)
 
 
 @page
@@ -77,7 +71,133 @@ def export_route(exporter_name: str):
     )
 
 
-class InscriptionsExporter:
+#
+# Exporters
+#
+
+FieldColumn = namedtuple("FieldColumn", "name header width")  # noqa: PYI024
+
+
+class BaseExporter:
+    """Base class for all ODS exporters with shared functionality."""
+
+    sheet_name: str = ""
+    columns: ClassVar[list] = []
+
+    # Common column width constants
+    WIDTH_SHORT = "1.4cm"
+    WIDTH_SMALL = "2cm"
+    WIDTH_TEXT3 = "3cm"
+    WIDTH_TEXT4 = "4cm"
+    WIDTH_TEXT5 = "5cm"
+    WIDTH_TEXT6 = "6cm"
+    WIDTH_TEXT8 = "8cm"
+    WIDTH_TEXT12 = "12cm"
+
+    def __init__(self) -> None:
+        self.date_now: datetime = None  # type: ignore
+        self.document: bytes = b""
+        self.columns_definition: dict[str, FieldColumn] = {}
+        self.sheet = {"name": self.sheet_name, "table": []}
+
+    @property
+    def title(self) -> str:
+        """Override in subclass to provide export title."""
+        raise NotImplementedError
+
+    @property
+    def filename(self) -> str:
+        """Override in subclass to provide export filename."""
+        raise NotImplementedError
+
+    def run(self) -> None:
+        """Generate the ODS document."""
+        self.make_sheet()
+        content = {"body": [self.sheet]}
+        self.document = odsgenerator.ods_bytes(content)
+
+    @staticmethod
+    def list_to_str(list_or_str: list | str | Any) -> str:
+        """Convert list to comma-separated string."""
+        # TODO: use match statement
+        if isinstance(list_or_str, list):
+            return ", ".join(str(x) for x in list_or_str)
+        return str(list_or_str)
+
+    @staticmethod
+    def get_datetime_attr(obj: Any, name: str) -> datetime | None:
+        """Get datetime attribute and convert from Arrow if needed."""
+        value = getattr(obj, name)
+        # TODO: match statement
+        if isinstance(value, Arrow):
+            return value.datetime
+        return value
+
+    def do_top_info(self) -> None:
+        """Add header information to the sheet."""
+        self.sheet["table"].extend(
+            [
+                {"row": ["AiPRESS24"], "style": "bold"},
+                {
+                    "row": [
+                        {
+                            "value": self.title,
+                            "style": "bold",
+                        }
+                    ],
+                    "style": "default_table_row",
+                },
+                {"row": [], "style": "default_table_row"},
+                {
+                    "row": [
+                        {"value": "Date export:"},
+                        {"value": self.date_now.isoformat(" ", "minutes")},
+                    ],
+                    "style": "default_table_row",
+                },
+                {"row": [], "style": "default_table_row"},
+            ]
+        )
+
+    def do_header_line(self) -> None:
+        """Add column headers to the sheet."""
+        row = [
+            {
+                "style": "bold_left_bg_gray_grid_06pt",
+                "value": self.columns_definition[name].header,
+            }
+            for name in self.columns
+        ]
+        self.sheet["table"].append({"row": row, "style": "default_table_row"})
+
+    def do_columns_width(self) -> None:
+        """Set column widths for the sheet."""
+        self.sheet["width"] = [
+            self.columns_definition[name].width for name in self.columns
+        ]
+
+    def init_columns_definition(self) -> None:
+        """Override in subclass to define columns."""
+        raise NotImplementedError
+
+    def fetch_data(self) -> list[Any]:
+        """Override in subclass to fetch data to export."""
+        raise NotImplementedError
+
+    def do_content_lines(self) -> None:
+        """Override in subclass to add content rows."""
+        raise NotImplementedError
+
+    def make_sheet(self) -> None:
+        """Build the complete sheet. Override if needed."""
+        self.init_columns_definition()
+        self.do_top_info()
+        self.do_header_line()
+        self.do_content_lines()
+        self.do_columns_width()
+
+
+class InscriptionsExporter(BaseExporter):
     sheet_name = "Inscriptions"
     columns: ClassVar[list] = [
         # "submited_at",
@@ -109,11 +229,8 @@ class InscriptionsExporter:
     ]
 
     def __init__(self) -> None:
-        self.date_now: datetime = None  # type: ignore
+        super().__init__()
         self.start_date: datetime = None  # type: ignore
-        self.document: bytes = b""
-        self.columns_definition: dict[str, FieldColumn] = {}
-        self.sheet = {"name": self.sheet_name, "table": []}
 
     @property
     def title(self) -> str:
@@ -124,25 +241,21 @@ class InscriptionsExporter:
     def filename(self) -> str:
         return f"inscriptions_depuis_{self.start_date.strftime('%Y-%m-%d')}.ods"
 
-    def run(self) -> None:
-        self.make_sheet()
-        content = {"body": [self.sheet]}
-        self.document = odsgenerator.ods_bytes(content)
-
     def do_start_date(self) -> None:
         self.date_now = datetime.now(tz=ZoneInfo(LOCAL_TZ))
         start = self.date_now - timedelta(days=31)
         self.start_date = start.replace(hour=0, minute=0, second=0, microsecond=0)
 
     def init_columns_definition(self) -> None:
-        text3 = "3cm"
-        text4 = "4cm"
-        text5 = "5cm"
-        text6 = "6cm"
-        text8 = "8cm"
-        text12 = "12cm"
-        short = "1.5cm"
-        small = "2cm"
+        # Use base class width constants
+        text3 = self.WIDTH_TEXT3
+        text4 = self.WIDTH_TEXT4
+        text5 = self.WIDTH_TEXT5
+        text6 = self.WIDTH_TEXT6
+        text8 = self.WIDTH_TEXT8
+        text12 = self.WIDTH_TEXT12
+        short = "1.5cm"  # Custom width for this exporter
+        small = self.WIDTH_SMALL
         fields = [
             FieldColumn("adresse_pro", "Adresse", text5),
             FieldColumn("bw_trigger", "BW validé", text5),
@@ -222,12 +335,6 @@ class InscriptionsExporter:
             FieldColumn("validation_status", "Validation statut", text4),
         ]
         self.columns_definition = {f.name: f for f in fields}
-
-    @staticmethod
-    def list_to_str(list_or_str: list | str | Any) -> str:
-        if isinstance(list_or_str, list):
-            return ", ".join(str(x) for x in list_or_str)
-        return str(list_or_str)
 
     # Field name to data source mapping
     _USER_ATTRS = {
@@ -321,6 +428,7 @@ class InscriptionsExporter:
     ) -> str | datetime | int | bool:
         value = self._get_cell_value_raw(user, profile, name)
 
+        # TODO: use match statement
         if isinstance(value, list):
             return self.list_to_str(value)
         if isinstance(value, datetime):
@@ -330,12 +438,13 @@ class InscriptionsExporter:
     def _get_cell_value_raw(self, user: User, profile: KYCProfile, name: str):
         """Get raw cell value before formatting."""
         # Handle special cases first
+        # TODO: use match statement
         if name == "dirigeant":
             return user.is_leader
         if name == "manager":
             return user.is_manager
         if name in ("submited_at", "validated_at", "modified_at"):
-            return self._get_datetime_attr(user, name)
+            return self.get_datetime_attr(user, name)
         if name == "roles":
             return [x.name for x in getattr(user, name)]
         if name == "bw_trigger":
@@ -346,6 +455,7 @@ class InscriptionsExporter:
 
     def _get_grouped_attr(self, user: User, profile: KYCProfile, name: str):
         """Get value from grouped attributes."""
+        # TODO: use match statement
         if name in self._USER_ATTRS:
             return getattr(user, name)
         if name in self._PROFILE_ATTRS:
@@ -361,48 +471,6 @@ class InscriptionsExporter:
 
         msg = f"cell_value() non managed key: {name!r}"
         raise KeyError(msg)
-
-    def _get_datetime_attr(self, user: User, name: str) -> datetime | None:
-        """Get datetime attribute and convert from Arrow if needed."""
-        value = getattr(user, name)
-        if isinstance(value, Arrow):
-            return value.datetime
-        return value
-
-    def do_top_info(self) -> None:
-        self.sheet["table"].extend(
-            [
-                {"row": ["AiPRESS24"], "style": "bold"},
-                {
-                    "row": [
-                        {
-                            "value": self.title,
-                            "style": "bold",
-                        }
-                    ],
-                    "style": "default_table_row",
-                },
-                {"row": [], "style": "default_table_row"},
-                {
-                    "row": [
-                        {"value": "Date export:"},
-                        {"value": self.date_now.isoformat(" ", "minutes")},
-                    ],
-                    "style": "default_table_row",
-                },
-                {"row": [], "style": "default_table_row"},
-            ]
-        )
-
-    def do_header_line(self) -> None:
-        row = [
-            {
-                "style": "bold_left_bg_gray_grid_06pt",
-                "value": self.columns_definition[name].header,
-            }
-            for name in self.columns
-        ]
-        self.sheet["table"].append({"row": row, "style": "default_table_row"})
 
     def fetch_data(self) -> list[User]:
         stmt = (
@@ -427,18 +495,10 @@ class InscriptionsExporter:
         for user in self.fetch_data():
             self.sheet["table"].append(self.user_row(user))
 
-    def do_columns_width(self) -> None:
-        self.sheet["width"] = [
-            self.columns_definition[name].width for name in self.columns
-        ]
-
     def make_sheet(self) -> None:
+        """Override to add start_date initialization before building sheet."""
         self.do_start_date()
-        self.init_columns_definition()
-        self.do_top_info()
-        self.do_header_line()
-        self.do_content_lines()
-        self.do_columns_width()
+        super().make_sheet()
 
 
 class ModificationsExporter(InscriptionsExporter):
@@ -584,7 +644,7 @@ class UsersExporter(InscriptionsExporter):
         return list(db.session.scalars(stmt))
 
 
-class OrganisationsExporter:
+class OrganisationsExporter(BaseExporter):
     sheet_name = "Organisations"
     columns: ClassVar[list] = [
         "id",
@@ -611,36 +671,23 @@ class OrganisationsExporter:
         "leaders",
     ]
 
-    def __init__(self) -> None:
-        self.date_now: datetime = None  # type: ignore
-        self.document: bytes = b""
-        self.columns_definition: dict[str, FieldColumn] = {}
-        self.sheet = {"name": self.sheet_name, "table": []}
-
     @property
     def title(self) -> str:
         dt = self.date_now.strftime("%d/%m/%Y")
-        return f"Organisations à ala date: {dt}"
+        return f"Organisations à la date: {dt}"
 
     @property
     def filename(self) -> str:
         return f"organisation_{self.date_now.strftime('%Y-%m-%d')}.ods"
 
-    def run(self) -> None:
-        self.date_now = datetime.now(tz=ZoneInfo(LOCAL_TZ))
-        self.make_sheet()
-        content = {"body": [self.sheet]}
-        self.document = odsgenerator.ods_bytes(content)
-
     def init_columns_definition(self) -> None:
-        text3 = "3cm"
-        text4 = "4cm"
-        # text5 = "5cm"
-        # text6 = "6cm"
-        text8 = "8cm"
-        text12 = "12cm"
-        short = "1.4cm"
-        small = "2cm"
+        # Use base class width constants
+        text3 = self.WIDTH_TEXT3
+        text4 = self.WIDTH_TEXT4
+        text8 = self.WIDTH_TEXT8
+        text12 = self.WIDTH_TEXT12
+        short = self.WIDTH_SHORT
+        small = self.WIDTH_SMALL
         fields = [
             FieldColumn("id", "ID", text3),
             FieldColumn("created_at", "Création", text3),
@@ -667,12 +714,6 @@ class OrganisationsExporter:
             FieldColumn("membre_saphir", "SAPHIR", short),
         ]
         self.columns_definition = {f.name: f for f in fields}
-
-    @staticmethod
-    def list_to_str(list_or_str: list | str | Any) -> str:
-        if isinstance(list_or_str, list):
-            return ", ".join(str(x) for x in list_or_str)
-        return str(list_or_str)
 
     # Organization attribute names that are directly accessible
     _ORG_ATTRS = {
@@ -702,6 +743,7 @@ class OrganisationsExporter:
         name: str,
     ) -> str | datetime | int | bool:
         # Handle special cases
+        # TODO: use match statement
         if name == "members":
             value = ", ".join(u.email for u in org.members)
         elif name == "managers":
@@ -711,7 +753,7 @@ class OrganisationsExporter:
         elif name == "id":
             value = str(org.id)
         elif name in ("created_at", "validated_at", "modified_at"):
-            value = self._get_org_datetime_attr(org, name)
+            value = self.get_datetime_attr(org, name)
         elif name == "nb_members":
             value = len(org.members)
         # Handle direct attributes
@@ -721,53 +763,12 @@ class OrganisationsExporter:
             msg = f"cell_value() Inconsistent key: {name}"
             raise KeyError(msg)
 
+        # TODO: use match statement
         if isinstance(value, list):
             return self.list_to_str(value)
         if isinstance(value, datetime):
             value = as_naive_localtz(value)
         return value
-
-    def _get_org_datetime_attr(self, org: Organisation, name: str) -> datetime | None:
-        """Get datetime attribute from org and convert from Arrow if needed."""
-        value = getattr(org, name)
-        if isinstance(value, Arrow):
-            return value.datetime
-        return value
-
-    def do_top_info(self) -> None:
-        self.sheet["table"].extend(
-            [
-                {"row": ["AiPRESS24"], "style": "bold"},
-                {
-                    "row": [
-                        {
-                            "value": self.title,
-                            "style": "bold",
-                        }
-                    ],
-                    "style": "default_table_row",
-                },
-                {"row": [], "style": "default_table_row"},
-                {
-                    "row": [
-                        {"value": "Date export:"},
-                        {"value": self.date_now.isoformat(" ", "minutes")},
-                    ],
-                    "style": "default_table_row",
-                },
-                {"row": [], "style": "default_table_row"},
-            ]
-        )
-
-    def do_header_line(self) -> None:
-        row = [
-            {
-                "style": "bold_left_bg_gray_grid_06pt",
-                "value": self.columns_definition[name].header,
-            }
-            for name in self.columns
-        ]
-        self.sheet["table"].append({"row": row, "style": "default_table_row"})
 
     def fetch_data(self) -> list[User]:
         stmt = (
@@ -787,17 +788,10 @@ class OrganisationsExporter:
         for org in self.fetch_data():
             self.sheet["table"].append(self.orga_row(org))
 
-    def do_columns_width(self) -> None:
-        self.sheet["width"] = [
-            self.columns_definition[name].width for name in self.columns
-        ]
-
     def make_sheet(self) -> None:
-        self.init_columns_definition()
-        self.do_top_info()
-        self.do_header_line()
-        self.do_content_lines()
-        self.do_columns_width()
+        """Override to initialize date_now before building sheet."""
+        self.date_now = datetime.now(tz=ZoneInfo(LOCAL_TZ))
+        super().make_sheet()
 
 
 # Mapping of exporter names to exporter classes
@@ -807,3 +801,7 @@ EXPORTERS = {
     "users": UsersExporter,
     "organisations": OrganisationsExporter,
 }
+
+
+def as_naive_localtz(value: datetime) -> datetime:
+    return value.astimezone(LOCALTZ).replace(tzinfo=None)
