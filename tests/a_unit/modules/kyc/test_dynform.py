@@ -14,6 +14,7 @@ from app.modules.kyc.dynform import (
     TAG_MANY_CHOICES,
     TAG_PHOTO_FORMAT,
     TAG_PUBLIC,
+    _fake_ontology_ajax,
     _filter_mandatory_label,
     _filter_mandatory_label_free,
     _filter_mandatory_validator,
@@ -24,10 +25,16 @@ from app.modules.kyc.dynform import (
     _filter_public_info,
     _get_part,
     _is_required,
+    custom_ajax_field,
     custom_bool_field,
     custom_bool_link_field,
+    custom_country_field,
     custom_email_field,
     custom_int_field,
+    custom_list_field,
+    custom_list_free_field,
+    custom_multi_field,
+    custom_multi_free_field,
     custom_password_field,
     custom_photo_field,
     custom_postcode_field,
@@ -343,3 +350,123 @@ def test_field_creation_functions_callable():
     assert custom_url_field(field, "M") is not None
     assert custom_textarea_field(field, "M") is not None
     assert custom_textarea300_field(field, "M") is not None
+
+
+def test_fake_ontology_ajax():
+    """Test _fake_ontology_ajax function."""
+    result = _fake_ontology_ajax("test_param")
+
+    # Should return a list of tuples
+    assert isinstance(result, list)
+    # First item should be the "choose" option
+    assert result[0][0] == ""
+    assert "test_param" in result[0][1]
+    # Should have 21 total items (1 empty + 20 numbered)
+    assert len(result) == 21
+    # Check a numbered item
+    assert "'test_param' 1" in result[1][0]
+
+
+def test_custom_list_field():
+    """Test custom_list_field function."""
+    field = SurveyField(
+        id="test_id",
+        name="test_list",
+        description="Select from list",
+        public_maxi=True,
+        upper_message="Test message",
+    )
+
+    result = custom_list_field(field, "M", param="multi_langues")
+    assert result is not None
+
+    # Test readonly
+    result = custom_list_field(field, "M", param="multi_langues", readonly=True)
+    assert result is not None
+
+
+def test_custom_country_field():
+    """Test custom_country_field function."""
+    field = SurveyField(
+        id="test_id",
+        name="test_country",
+        description="Country; Region",
+        public_maxi=True,
+        upper_message="Test message",
+    )
+
+    result = custom_country_field(field, "M", param="country_pays")
+    assert result is not None
+
+    # Test readonly
+    result = custom_country_field(field, "M", param="country_pays", readonly=True)
+    assert result is not None
+
+
+def test_custom_list_free_field():
+    """Test custom_list_free_field function."""
+    field = SurveyField(
+        id="test_id",
+        name="test_list_free",
+        description="Select or add new",
+        public_maxi=False,
+        upper_message="Test message",
+    )
+
+    result = custom_list_free_field(field, "M", param="multi_langues")
+    assert result is not None
+
+    # Test readonly
+    result = custom_list_free_field(field, "M", param="multi_langues", readonly=True)
+    assert result is not None
+
+
+def test_custom_ajax_field():
+    """Test custom_ajax_field function."""
+    field = SurveyField(
+        id="test_id",
+        name="test_ajax",
+        description="Ajax select",
+        public_maxi=True,
+        upper_message="Test message",
+    )
+
+    result = custom_ajax_field(field, "M", param="test_param")
+    assert result is not None
+
+    # Test readonly
+    result = custom_ajax_field(field, "M", param="test_param", readonly=True)
+    assert result is not None
+
+
+def test_custom_multi_free_field():
+    """Test custom_multi_free_field function."""
+    field = SurveyField(
+        id="test_id",
+        name="test_multi_free",
+        description="Multiple select with free text",
+        public_maxi=False,
+        upper_message="Test message",
+    )
+
+    result = custom_multi_free_field(field, "M", param="multi_langues")
+    assert result is not None
+
+
+def test_custom_multi_field():
+    """Test custom_multi_field function."""
+    field = SurveyField(
+        id="test_id",
+        name="test_multi",
+        description="Multiple select",
+        public_maxi=True,
+        upper_message="Test message",
+    )
+
+    # Test with simple list choices
+    result = custom_multi_field(field, "M", param="multi_langues")
+    assert result is not None
+
+    # Test with optgroup choices (dual select)
+    result = custom_multi_field(field, "M", param="multidual_secteurs_detail")
+    assert result is not None

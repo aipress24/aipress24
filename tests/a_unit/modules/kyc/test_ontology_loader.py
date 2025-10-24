@@ -93,6 +93,9 @@ def test_nom_orga_choices(mock_get_orgs, mock_get_tax):
 @patch("app.modules.kyc.ontology_loader.get_full_countries")
 def test_get_ontology_content_pays(mock_countries):
     """Test get_ontology_content for 'pays'."""
+    # Clear cache first since get_ontology_content uses @functools.cache
+    get_ontology_content.cache_clear()
+
     mock_countries.return_value = [("FR", "France"), ("US", "USA")]
 
     result = get_ontology_content("pays")
