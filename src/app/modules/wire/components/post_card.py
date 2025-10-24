@@ -137,7 +137,7 @@ class UserVM(Wrapper):
             "organisation": self.get_organisation(),
         }
 
-    def get_organisation(self) -> Organisation:
+    def get_organisation(self) -> Organisation | None:
         user = cast("User", self._model)
         stmt = (
             sa.select(Organisation)

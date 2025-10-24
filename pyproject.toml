@@ -86,7 +86,6 @@ dependencies = [
     "redis<6.0.0,>=5.0.1",
     # Needed because we're scanning code w/ tests
     "pytest<9,>=8",
-    "hypothesis<7.0.0,>=6.92.8",
     # Fake data generators (used currently in prod, will be removed later)
     "faker>=30",
     "mimesis>=18",
@@ -185,7 +184,6 @@ dev = [
     "selenium",
     "behave",
     "cssselect",
-    "splinter<1.0.0,>=0.21.0",
     "auto-type-annotate>=1.1.2",
     "ty>=0.0.0a7",
     "pytest-mock>=3.15.0",

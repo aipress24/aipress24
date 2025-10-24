@@ -135,7 +135,7 @@ def find_inviting_organisations(mail: str) -> list[Organisation]:
     return [get_obj(i.organisation_id, Organisation) for i in invitations]
 
 
-def specialize_organization_type(  # noqa: PLR0915
+def specialize_organization_type(
     org: Organisation,
     profile_code_str: str,
     info_pro: dict[str, Any],
@@ -143,7 +143,17 @@ def specialize_organization_type(  # noqa: PLR0915
 ) -> None:
     profile_code = ProfileEnum[profile_code_str]
     allowed_bw_types = set(PROFILE_CODE_TO_BW_TYPE.get(profile_code, []))
-    # nom_groupe for the different types of organisations
+
+    _set_nom_groupe(org, profile_code, info_pro)
+    _set_media_types(org, allowed_bw_types, info_pro)
+    _set_organization_types(org, profile_code, allowed_bw_types, info_pro)
+    _set_activity_sectors(org, profile_code, allowed_bw_types, info_mm)
+
+
+def _set_nom_groupe(
+    org: Organisation, profile_code: ProfileEnum, info_pro: dict[str, Any]
+) -> None:
+    """Set nom_groupe based on profile code."""
     nom_groupe = ""
     if profile_code in {
         ProfileEnum.PM_DIR,
@@ -172,13 +182,14 @@ def specialize_organization_type(  # noqa: PLR0915
         nom_groupe = info_pro["nom_adm"]
     org.nom_groupe = nom_groupe
 
+
+def _set_media_types(
+    org: Organisation, allowed_bw_types: set, info_pro: dict[str, Any]
+) -> None:
+    """Set media and agency type attributes."""
     # type_entreprise_media
     type_entreprise_media = []
-    if {
-        BWTypeEnum.MEDIA,
-        BWTypeEnum.AGENCY,
-        BWTypeEnum.MICRO,
-    } & allowed_bw_types:
+    if {BWTypeEnum.MEDIA, BWTypeEnum.AGENCY, BWTypeEnum.MICRO} & allowed_bw_types:
         type_entreprise_media = info_pro["type_entreprise_media"]
     org.type_entreprise_media = type_entreprise_media
 
@@ -193,6 +204,14 @@ def specialize_organization_type(  # noqa: PLR0915
         type_presse_et_media = info_pro["type_presse_et_media"]
     org.type_presse_et_media = type_presse_et_media
 
+
+def _set_organization_types(
+    org: Organisation,
+    profile_code: ProfileEnum,
+    allowed_bw_types: set,
+    info_pro: dict[str, Any],
+) -> None:
+    """Set organization type attributes."""
     # type_agence_rp
     type_agence_rp = []
     if profile_code in {
@@ -216,17 +235,24 @@ def specialize_organization_type(  # noqa: PLR0915
     org.type_organisation = type_organisation
     org.type_organisation_detail = type_organisation_detail
 
+
+def _set_activity_sectors(
+    org: Organisation,
+    profile_code: ProfileEnum,
+    allowed_bw_types: set,
+    info_mm: dict[str, Any],
+) -> None:
+    """Set activity sector attributes."""
+    # Media sectors
     secteurs_activite_medias = []
     secteurs_activite_medias_detail = []
-    if {
-        BWTypeEnum.MEDIA,
-        BWTypeEnum.AGENCY,
-    } & allowed_bw_types:
+    if {BWTypeEnum.MEDIA, BWTypeEnum.AGENCY} & allowed_bw_types:
         secteurs_activite_medias = info_mm["secteurs_activite_medias"]
         secteurs_activite_medias_detail = info_mm["secteurs_activite_medias_detail"]
     org.secteurs_activite_medias = secteurs_activite_medias
     org.secteurs_activite_medias_detail = secteurs_activite_medias_detail
 
+    # RP sectors
     secteurs_activite_rp = []
     secteurs_activite_rp_detail = []
     if profile_code in {
@@ -241,6 +267,7 @@ def specialize_organization_type(  # noqa: PLR0915
     org.secteurs_activite_rp = secteurs_activite_rp
     org.secteurs_activite_rp_detail = secteurs_activite_rp_detail
 
+    # General sectors
     secteurs_activite = []
     secteurs_activite_detail = []
     if {
@@ -254,11 +281,10 @@ def specialize_organization_type(  # noqa: PLR0915
     org.secteurs_activite = secteurs_activite
     org.secteurs_activite_detail = secteurs_activite_detail
 
+    # Transformation sectors
     transformation_majeure = []
     transformation_majeure_detail = []
-    if {
-        BWTypeEnum.TRANSFORMER,
-    } & allowed_bw_types:
+    if {BWTypeEnum.TRANSFORMER} & allowed_bw_types:
         transformation_majeure = info_mm["transformation_majeure"]
         transformation_majeure_detail = info_mm["transformation_majeure_detail"]
     org.transformation_majeure = transformation_majeure
