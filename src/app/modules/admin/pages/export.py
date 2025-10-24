@@ -7,7 +7,7 @@ from __future__ import annotations
 from collections import namedtuple
 from datetime import datetime, timedelta
 from io import BytesIO
-from typing import TYPE_CHECKING, Any, ClassVar, cast
+from typing import Any, ClassVar, cast
 from zoneinfo import ZoneInfo
 
 import pytz
