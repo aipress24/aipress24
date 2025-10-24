@@ -12,7 +12,7 @@ from zoneinfo import ZoneInfo
 
 import pytz
 from arrow import Arrow
-from flask import send_file
+from flask import abort, send_file
 from odsgenerator import odsgenerator
 from sqlalchemy import desc, false, nulls_last, select, true
 
@@ -58,51 +58,14 @@ class AdminExportPage(Page):
         }
 
 
-@blueprint.route("/export_inscription")
-def export_inscription_route():
-    generator = InscriptionsExporter()
-    generator.run()
-    stream = BytesIO(generator.document)
-    stream.seek(0)
-    return send_file(
-        stream,
-        mimetype="application/vnd.oasis.opendocument.spreadsheet",
-        download_name=generator.filename,
-        as_attachment=True,
-    )
+@blueprint.route("/export/<exporter_name>")
+def export_route(exporter_name: str):
+    """Generic export route that handles all export types."""
+    exporter_class = EXPORTERS.get(exporter_name)
+    if exporter_class is None:
+        abort(404)
 
-
-@blueprint.route("/export_modification")
-def export_modification_route():
-    generator = ModificationsExporter()
-    generator.run()
-    stream = BytesIO(generator.document)
-    stream.seek(0)
-    return send_file(
-        stream,
-        mimetype="application/vnd.oasis.opendocument.spreadsheet",
-        download_name=generator.filename,
-        as_attachment=True,
-    )
-
-
-@blueprint.route("/export_users")
-def export_users_route():
-    generator = UsersExporter()
-    generator.run()
-    stream = BytesIO(generator.document)
-    stream.seek(0)
-    return send_file(
-        stream,
-        mimetype="application/vnd.oasis.opendocument.spreadsheet",
-        download_name=generator.filename,
-        as_attachment=True,
-    )
-
-
-@blueprint.route("/export_organisations")
-def export_organisations_route():
-    generator = OrganisationsExporter()
+    generator = exporter_class()
     generator.run()
     stream = BytesIO(generator.document)
     stream.seek(0)
@@ -836,3 +799,11 @@ class OrganisationsExporter:
         self.do_content_lines()
         self.do_columns_width()
 
+
+# Mapping of exporter names to exporter classes
+EXPORTERS = {
+    "inscription": InscriptionsExporter,
+    "modification": ModificationsExporter,
+    "users": UsersExporter,
+    "organisations": OrganisationsExporter,
+}
