@@ -58,7 +58,63 @@ class AdminExportPage(Page):
         }
 
 
-class ExporterInscriptions:
+@blueprint.route("/export_inscription")
+def export_inscription_route():
+    generator = InscriptionsExporter()
+    generator.run()
+    stream = BytesIO(generator.document)
+    stream.seek(0)
+    return send_file(
+        stream,
+        mimetype="application/vnd.oasis.opendocument.spreadsheet",
+        download_name=generator.filename,
+        as_attachment=True,
+    )
+
+
+@blueprint.route("/export_modification")
+def export_modification_route():
+    generator = ModificationsExporter()
+    generator.run()
+    stream = BytesIO(generator.document)
+    stream.seek(0)
+    return send_file(
+        stream,
+        mimetype="application/vnd.oasis.opendocument.spreadsheet",
+        download_name=generator.filename,
+        as_attachment=True,
+    )
+
+
+@blueprint.route("/export_users")
+def export_users_route():
+    generator = UsersExporter()
+    generator.run()
+    stream = BytesIO(generator.document)
+    stream.seek(0)
+    return send_file(
+        stream,
+        mimetype="application/vnd.oasis.opendocument.spreadsheet",
+        download_name=generator.filename,
+        as_attachment=True,
+    )
+
+
+@blueprint.route("/export_organisations")
+def export_organisations_route():
+    generator = OrganisationsExporter()
+    generator.run()
+    stream = BytesIO(generator.document)
+    stream.seek(0)
+    return send_file(
+        stream,
+        mimetype="application/vnd.oasis.opendocument.spreadsheet",
+        download_name=generator.filename,
+        as_attachment=True,
+    )
+
+
+class InscriptionsExporter:
     sheet_name = "Inscriptions"
     columns: ClassVar[list] = [
         # "submited_at",
@@ -422,7 +478,7 @@ class ExporterInscriptions:
         self.do_columns_width()
 
 
-class ExporterModifications(ExporterInscriptions):
+class ModificationsExporter(InscriptionsExporter):
     sheet_name = "Modifications"
     columns: ClassVar[list] = [
         "submited_at",
@@ -477,7 +533,7 @@ class ExporterModifications(ExporterInscriptions):
         return list(db.session.scalars(stmt))
 
 
-class ExporterUsers(ExporterInscriptions):
+class UsersExporter(InscriptionsExporter):
     sheet_name = "Utilisateurs"
     columns: ClassVar[list] = [
         "submited_at",
@@ -565,7 +621,7 @@ class ExporterUsers(ExporterInscriptions):
         return list(db.session.scalars(stmt))
 
 
-class ExporterOrganisations:
+class OrganisationsExporter:
     sheet_name = "Organisations"
     columns: ClassVar[list] = [
         "id",
@@ -780,58 +836,3 @@ class ExporterOrganisations:
         self.do_content_lines()
         self.do_columns_width()
 
-
-@blueprint.route("/export_inscription")
-def export_inscription_route():
-    generator = ExporterInscriptions()
-    generator.run()
-    stream = BytesIO(generator.document)
-    stream.seek(0)
-    return send_file(
-        stream,
-        mimetype="application/vnd.oasis.opendocument.spreadsheet",
-        download_name=generator.filename,
-        as_attachment=True,
-    )
-
-
-@blueprint.route("/export_modification")
-def export_modification_route():
-    generator = ExporterModifications()
-    generator.run()
-    stream = BytesIO(generator.document)
-    stream.seek(0)
-    return send_file(
-        stream,
-        mimetype="application/vnd.oasis.opendocument.spreadsheet",
-        download_name=generator.filename,
-        as_attachment=True,
-    )
-
-
-@blueprint.route("/export_users")
-def export_users_route():
-    generator = ExporterUsers()
-    generator.run()
-    stream = BytesIO(generator.document)
-    stream.seek(0)
-    return send_file(
-        stream,
-        mimetype="application/vnd.oasis.opendocument.spreadsheet",
-        download_name=generator.filename,
-        as_attachment=True,
-    )
-
-
-@blueprint.route("/export_organisations")
-def export_organisations_route():
-    generator = ExporterOrganisations()
-    generator.run()
-    stream = BytesIO(generator.document)
-    stream.seek(0)
-    return send_file(
-        stream,
-        mimetype="application/vnd.oasis.opendocument.spreadsheet",
-        download_name=generator.filename,
-        as_attachment=True,
-    )
