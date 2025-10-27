@@ -137,6 +137,7 @@ class User(LifeCycleMixin, Addressable, UserMixin, Base):
     # TODO: use content repository
     profile_image_url: Mapped[str] = mapped_column(default="")
     cover_image_url: Mapped[str] = mapped_column(default="")
+    #cover_image_id: Mapped[str] = mapped_column(default="")
 
     status: Mapped[str] = mapped_column(default="Débutant")
 
