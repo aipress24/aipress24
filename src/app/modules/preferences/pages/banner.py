@@ -50,7 +50,7 @@ class PrefBannerPage(BasePreferencesPage):
             if len(content) < MAX_IMAGE_SIZE:
                 blob_id = add_blob_content(content)
                 user = g.user
-                user.cover_image_url = blob_id
+                user.cover_image_id = blob_id
                 db.session.merge(user)
                 db.session.commit()
             else:
