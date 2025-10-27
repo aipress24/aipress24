@@ -349,6 +349,20 @@ class CommuniqueForm(Form):
         validators=[validators.InputRequired()],
     )
 
+    pays_zip_ville = CountrySelectField(
+        name="pays_zip_ville",
+        name2="pays_zip_ville_detail",
+        label="Pays",
+        id="pzv",
+        id2="pzv_detail",
+        label2="Code postal et ville",
+        choices=[],
+        # validators=validators_list,
+        validate_choice=False,
+        # render_kw=render_kw,
+        readonly=0,
+    )
+
     # publisher_id = SimpleRichSelectField(
     #     "Éditeur / Organisme",
     #     render_kw={"width": 6},
@@ -387,6 +401,7 @@ class CommuniqueForm(Form):
                     "topic",
                     "sector",
                     # "publisher_id",
+                    "pays_zip_ville",
                 ],
             },
             "dates": {
