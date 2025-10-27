@@ -609,7 +609,7 @@ class UserGenerator(BaseGenerator):
 
         user.profile_image_url = self.get_profile_image(user)
         self._load_photo_profil(user)
-        user.cover_image_url = random.choice(COVER_IMAGES)
+        user.cover_image_id = ""
 
         user.status = random.choice(USER_STATUS)
         user.karma = random.randint(0, 100)
