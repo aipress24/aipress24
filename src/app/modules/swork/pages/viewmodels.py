@@ -48,8 +48,8 @@ class UserVM(ViewModel):
         return cast("User", self._model)
 
     def get_banner_url(self) -> str:
-        if self.user.cover_image_url:
-            return url_for("api.get_blob", id=self.user.cover_image_url)
+        if self.user.cover_image_id:
+            return url_for("api.get_blob", id=self.user.cover_image_id)
         return "/static/img/transparent-square.png"
 
     def extra_attrs(self):

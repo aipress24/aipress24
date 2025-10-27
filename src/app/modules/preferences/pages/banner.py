@@ -28,9 +28,9 @@ class PrefBannerPage(BasePreferencesPage):
 
     def get_cover_image_url(self) -> str:
         user = g.user
-        if not user.cover_image_url:
+        if not user.cover_image_id:
             return ""
-        return url_for("api.get_blob", id=user.cover_image_url)
+        return url_for("api.get_blob", id=user.cover_image_id)
 
     def context(self) -> dict[str, str]:
         current_image_url = self.get_cover_image_url()
