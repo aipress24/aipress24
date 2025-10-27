@@ -12,6 +12,7 @@ from flask import g
 
 from app.flask.extensions import db
 from app.flask.lib.view_model import ViewModel
+from app.flask.routing import url_for
 from app.models.auth import User
 from app.modules.swork.models import Group, group_members_table
 from app.modules.wire.models import ArticlePost
@@ -46,6 +47,11 @@ class UserVM(ViewModel):
     def user(self):
         return cast("User", self._model)
 
+    def get_banner_url(self) -> str:
+        if self.user.cover_image_url:
+            return url_for("api.get_blob", id=self.user.cover_image_url)
+        return "/static/img/transparent-square.png"
+
     def extra_attrs(self):
         user = self.user
 
@@ -58,6 +64,7 @@ class UserVM(ViewModel):
             "followees": self.get_followees(),
             "posts": self.get_posts(),
             "groups": self.get_groups(),
+            "banner_url": self.get_banner_url(),
         }
 
     def get_groups(self) -> list[Group]:
