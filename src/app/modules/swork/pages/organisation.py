@@ -182,7 +182,7 @@ class OrgPressReleasesTab(Tab):
         stmt = (
             select(func.count())
             .select_from(PressReleasePost)
-            .where(PressReleasePost.publisher_id == self.org.id)
+            # .where(PressReleasePost.publisher_id == self.org.id)
             .where(PressReleasePost.status == PublicationStatus.PUBLIC)
         )
         count = db.session.execute(stmt).scalar()
