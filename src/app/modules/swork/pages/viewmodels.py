@@ -14,6 +14,7 @@ from app.flask.extensions import db
 from app.flask.lib.view_model import ViewModel
 from app.flask.routing import url_for
 from app.models.auth import User
+from app.models.lifecycle import PublicationStatus
 from app.modules.swork.models import Group, group_members_table
 from app.modules.wire.models import ArticlePost
 from app.services.social_graph import adapt
@@ -92,7 +93,7 @@ class UserVM(ViewModel):
         posts = (
             db.session.query(ArticlePost)
             .filter(ArticlePost.owner_id == self.user.id)
-            # .filter(Article.status == PublicationStatus.PUBLIC)
+            .filter(ArticlePost.status == PublicationStatus.PUBLIC)
             .order_by(ArticlePost.published_at.desc())
             .all()
         )

@@ -182,7 +182,7 @@ class OrgPressReleasesTab(Tab):
         stmt = (
             select(func.count())
             .select_from(PressReleasePost)
-            # .where(PressReleasePost.publisher_id == self.org.id)
+            .where(PressReleasePost.publisher_id == self.org.id)
             .where(PressReleasePost.status == PublicationStatus.PUBLIC)
         )
         count = db.session.execute(stmt).scalar()
@@ -298,15 +298,22 @@ class OrgVM(ViewModel):
         # return self.org.logo_url
 
     def get_press_releases(self):
-        members = self.get_members()
-        all_press_releases = set()
-        for member in members:
-            stmt = select(PressReleasePost).where(
-                PressReleasePost.owner_id == member.id
-            )
-            press_releases = get_multi(PressReleasePost, stmt)
-            all_press_releases.update(press_releases)
-        return list(all_press_releases)
+        # members = self.get_members()
+        # all_press_releases = set()
+        # for member in members:
+        #     stmt = select(PressReleasePost).where(
+        #         PressReleasePost.owner_id == member.id
+        #     )
+        #     press_releases = get_multi(PressReleasePost, stmt)
+        #     all_press_releases.update(press_releases)
+        # return list(all_press_releases)
+        stmt = (
+            select(PressReleasePost)
+            .where(PressReleasePost.publisher_id == self.org.id)
+            .where(PressReleasePost.status == PublicationStatus.PUBLIC)
+        )
+        press_releases = get_multi(PressReleasePost, stmt)
+        return list(press_releases)
 
     def get_publications(self):
         stmt = (
