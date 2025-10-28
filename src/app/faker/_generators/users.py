@@ -21,7 +21,6 @@ from app.constants import (
     LOCAL_TZ,
 )
 from app.enums import ContactTypeEnum, OrganisationTypeEnum
-from app.faker._constants import COVER_IMAGES
 from app.faker._geo import fake_geoloc
 from app.flask.extensions import security
 from app.models.auth import KYCProfile, User

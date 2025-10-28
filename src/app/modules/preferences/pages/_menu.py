@@ -6,9 +6,9 @@ from __future__ import annotations
 
 from app.flask.routing import url_for
 
+from .banner import PrefBannerPage
 from .contact import PrefContactOptionsPage
 from .interests import PrefInterestsPage
-from .banner import PrefBannerPage
 from .org_invitation import PrefInvitationsPage
 from .others import PrefEditProfilePage, PrefEmailPage, PrefPasswordPage
 from .profile import PrefProfilePage
