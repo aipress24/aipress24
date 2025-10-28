@@ -122,6 +122,7 @@ def update_post(
     post.summary = info.chapo
     post.content = info.contenu
     post.owner_id = info.owner_id
+    post.publisher_id = info.publisher_id
 
     # TODO: remove
     images = info.sorted_images
