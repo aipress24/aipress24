@@ -11,7 +11,6 @@ from werkzeug.exceptions import NotFound
 
 from app.flask.lib.pages import Page, page
 from app.flask.routing import url_for
-from app.logging import warn
 from app.services.tagging import get_tags
 
 from ._filters import FilterBar
@@ -101,7 +100,6 @@ class WirePage(Page):
             raise RuntimeError
 
         posts = active_tab.get_posts(self.filter_bar)
-        warn("nb posts", len(posts))
         return self._filter_posts_by_tag(posts)
 
     def _filter_posts_by_tag(self, posts: list[Post]) -> list[Post]:
