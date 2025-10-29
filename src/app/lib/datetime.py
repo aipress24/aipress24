@@ -67,7 +67,8 @@ def start_of_day(dtime_at=None):
     for a given datetime."""
     dtime_at = datetime_or_now(dtime_at)
     start = datetime.datetime(dtime_at.year, dtime_at.month, dtime_at.day, tzinfo=utc)
-    tz_ob = get_current_timezone()
+    tz_str = get_current_timezone()
+    tz_ob = parse_tz(tz_str)
     if tz_ob:
         start = tz_ob.localize(start)
     return start

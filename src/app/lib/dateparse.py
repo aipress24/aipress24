@@ -112,9 +112,16 @@ def parse_time(value):
     except ValueError:
         if match := time_re.match(value):
             kw = match.groupdict()
-            kw["microsecond"] = kw["microsecond"] and kw["microsecond"].ljust(6, "0")
-            kw = {k: int(v) for k, v in kw.items() if v is not None}
-            return datetime.time(**kw)
+            microsecond_str = kw["microsecond"]
+            kw["microsecond"] = microsecond_str and microsecond_str.ljust(6, "0")
+            # Only extract valid time parameters (no tzinfo from regex)
+            time_kw: dict[str, int] = {k: int(v) for k, v in kw.items() if v is not None}
+            return datetime.time(
+                hour=time_kw["hour"],
+                minute=time_kw["minute"],
+                second=time_kw.get("second", 0),
+                microsecond=time_kw.get("microsecond", 0),
+            )
 
 
 def parse_datetime(value):
