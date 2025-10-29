@@ -82,7 +82,7 @@ class TestAdminPromotionsPage:
         assert page.label == "Promotions"
         assert page.title == "Promotions"
         assert page.template == "admin/pages/promotions.j2"
-        assert page.icon == "speaker-wave"
+        assert page.icon == "megaphone"
 
     def test_context_returns_dict(self):
         """Test that context() returns empty dict."""
@@ -248,7 +248,7 @@ class TestAdminSystemPage:
         assert page.label == "Système"
         assert page.title == "Système"
         assert page.template == "admin/pages/system.j2"
-        assert page.icon == "chat-bubble-bottom-center-text"
+        assert page.icon == "server-cog"
 
     def test_context_returns_packages_info(self):
         """Test that context() returns packages information."""
