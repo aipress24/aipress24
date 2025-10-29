@@ -52,9 +52,16 @@
   {% if post.publisher %}
     <div>
       <h3 class="text-sm font-medium text-gray-500">{{ post.publisher_type }}</h3>
-
       <a href="{{ url_for(post.publisher) }}"
          class="text-sm font-medium hover:underline">{{ post.publisher.name }}</a>
+    </div>
+  {% endif %}
+  {% if post.media %}
+    <div>
+      <h3 class="text-sm font-medium text-gray-500">Pour le média</h3>
+      <a href="{{ url_for(post.media) }}"
+         class="text-sm font-medium hover:underline">
+         {{ post.media.name }}</a>
     </div>
   {% endif %}
 
