@@ -135,7 +135,9 @@ class TestEventTypeToCategory:
 class TestGetPost:
     """Test suite for get_post function."""
 
-    def test_get_existing_post(self, db_session: Session, test_event: Event, test_user: User):
+    def test_get_existing_post(
+        self, db_session: Session, test_event: Event, test_user: User
+    ):
         """Test getting an existing post."""
         # Create a post linked to the event
         post = EventPost(
@@ -264,7 +266,9 @@ class TestUpdatePost:
 class TestOnPublishEvent:
     """Test suite for on_publish_event signal handler."""
 
-    def test_publish_event_creates_new_post(self, db_session: Session, test_event: Event):
+    def test_publish_event_creates_new_post(
+        self, db_session: Session, test_event: Event
+    ):
         """Test that publishing an event creates a new post."""
         # Verify no post exists yet
         assert get_post(test_event) is None
@@ -303,14 +307,18 @@ class TestOnPublishEvent:
         assert updated_post.status == PublicationStatus.PUBLIC
         assert updated_post.title == test_event.title
 
-    def test_publish_event_sets_published_at(self, db_session: Session, test_event: Event):
+    def test_publish_event_sets_published_at(
+        self, db_session: Session, test_event: Event
+    ):
         """Test that publishing sets published_at timestamp for new posts."""
         on_publish_event(test_event)
 
         post = get_post(test_event)
         assert post.published_at is not None
 
-    def test_publish_event_sets_created_at(self, db_session: Session, test_event: Event):
+    def test_publish_event_sets_created_at(
+        self, db_session: Session, test_event: Event
+    ):
         """Test that publishing sets created_at from event for new posts."""
         on_publish_event(test_event)
 

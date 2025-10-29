@@ -8,7 +8,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-import pytest
 from svcs.flask import container
 
 from app.modules.common.blob_utils import add_blob_content, get_blob_content
@@ -176,7 +175,7 @@ class TestBlobRoundTrip:
 
     def test_round_trip_utf8_content(self, db: SQLAlchemy):
         """Test round trip with UTF-8 encoded text."""
-        utf8_text = "Hello 世界 🌍".encode("utf-8")
+        utf8_text = "Hello 世界 🌍".encode()
 
         blob_id = add_blob_content(utf8_text)
         retrieved = get_blob_content(blob_id)

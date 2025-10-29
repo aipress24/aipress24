@@ -21,12 +21,12 @@ class TestEventCard:
         """Test opening hours when start and end times are the same."""
         start_time = arrow.get("2024-01-15 14:00:00")
         mock_event = SimpleNamespace(
-            start_date=start_time,
-            end_date=start_time,
-            owner=SimpleNamespace()
+            start_date=start_time, end_date=start_time, owner=SimpleNamespace()
         )
 
-        with patch("app.modules.events.components.event_card.get_meta_attr") as mock_meta:
+        with patch(
+            "app.modules.events.components.event_card.get_meta_attr"
+        ) as mock_meta:
             mock_meta.return_value = ""
 
             card = EventCard(event=mock_event)
@@ -39,10 +39,12 @@ class TestEventCard:
         mock_event = SimpleNamespace(
             start_date=arrow.get("2024-01-15 14:00:00"),
             end_date=arrow.get("2024-01-15 18:30:00"),
-            owner=SimpleNamespace()
+            owner=SimpleNamespace(),
         )
 
-        with patch("app.modules.events.components.event_card.get_meta_attr") as mock_meta:
+        with patch(
+            "app.modules.events.components.event_card.get_meta_attr"
+        ) as mock_meta:
             mock_meta.return_value = ""
 
             card = EventCard(event=mock_event)
@@ -55,10 +57,12 @@ class TestEventCard:
         mock_event = SimpleNamespace(
             start_date=arrow.get("2024-01-15 09:30:00"),
             end_date=arrow.get("2024-01-15 11:45:00"),
-            owner=SimpleNamespace()
+            owner=SimpleNamespace(),
         )
 
-        with patch("app.modules.events.components.event_card.get_meta_attr") as mock_meta:
+        with patch(
+            "app.modules.events.components.event_card.get_meta_attr"
+        ) as mock_meta:
             mock_meta.return_value = ""
 
             card = EventCard(event=mock_event)
@@ -71,10 +75,12 @@ class TestEventCard:
         mock_event = SimpleNamespace(
             start_date=arrow.get("2024-01-15 00:00:00"),
             end_date=arrow.get("2024-01-15 23:59:00"),
-            owner=SimpleNamespace()
+            owner=SimpleNamespace(),
         )
 
-        with patch("app.modules.events.components.event_card.get_meta_attr") as mock_meta:
+        with patch(
+            "app.modules.events.components.event_card.get_meta_attr"
+        ) as mock_meta:
             mock_meta.return_value = ""
 
             card = EventCard(event=mock_event)
@@ -88,13 +94,15 @@ class TestEventCard:
         mock_event = SimpleNamespace(
             start_date=arrow.get("2024-01-15 10:00:00"),
             end_date=arrow.get("2024-01-15 12:00:00"),
-            owner=mock_owner
+            owner=mock_owner,
         )
 
-        with patch("app.modules.events.components.event_card.get_meta_attr") as mock_meta:
+        with patch(
+            "app.modules.events.components.event_card.get_meta_attr"
+        ) as mock_meta:
             mock_meta.return_value = ""
 
-            card = EventCard(event=mock_event)
+            EventCard(event=mock_event)
 
             assert mock_event.__dict__["author"] == mock_owner
 
@@ -103,13 +111,15 @@ class TestEventCard:
         mock_event = SimpleNamespace(
             start_date=arrow.get("2024-01-15 10:00:00"),
             end_date=arrow.get("2024-01-15 12:00:00"),
-            owner=SimpleNamespace()
+            owner=SimpleNamespace(),
         )
 
-        with patch("app.modules.events.components.event_card.get_meta_attr") as mock_meta:
+        with patch(
+            "app.modules.events.components.event_card.get_meta_attr"
+        ) as mock_meta:
             mock_meta.return_value = ""
 
-            card = EventCard(event=mock_event)
+            EventCard(event=mock_event)
 
             assert mock_event.__dict__["organisation_image_url"] == LOGO_URL
 
@@ -118,16 +128,18 @@ class TestEventCard:
         mock_event = SimpleNamespace(
             start_date=arrow.get("2024-01-15 10:00:00"),
             end_date=arrow.get("2024-01-15 12:00:00"),
-            owner=SimpleNamespace()
+            owner=SimpleNamespace(),
         )
 
-        with patch("app.modules.events.components.event_card.get_meta_attr") as mock_meta:
+        with patch(
+            "app.modules.events.components.event_card.get_meta_attr"
+        ) as mock_meta:
             mock_meta.side_effect = lambda obj, attr, default: {
                 "type_id": "conference_123",
                 "type_label": "",
             }.get(attr, default)
 
-            card = EventCard(event=mock_event)
+            EventCard(event=mock_event)
 
             assert mock_event.__dict__["type_id"] == "conference_123"
 
@@ -136,16 +148,18 @@ class TestEventCard:
         mock_event = SimpleNamespace(
             start_date=arrow.get("2024-01-15 10:00:00"),
             end_date=arrow.get("2024-01-15 12:00:00"),
-            owner=SimpleNamespace()
+            owner=SimpleNamespace(),
         )
 
-        with patch("app.modules.events.components.event_card.get_meta_attr") as mock_meta:
+        with patch(
+            "app.modules.events.components.event_card.get_meta_attr"
+        ) as mock_meta:
             mock_meta.side_effect = lambda obj, attr, default: {
                 "type_id": "",
                 "type_label": "Conference",
             }.get(attr, default)
 
-            card = EventCard(event=mock_event)
+            EventCard(event=mock_event)
 
             assert mock_event.__dict__["type_label"] == "Conference"
 
@@ -154,13 +168,15 @@ class TestEventCard:
         mock_event = SimpleNamespace(
             start_date=arrow.get("2024-01-15 14:00:00"),
             end_date=arrow.get("2024-01-15 16:00:00"),
-            owner=SimpleNamespace()
+            owner=SimpleNamespace(),
         )
 
-        with patch("app.modules.events.components.event_card.get_meta_attr") as mock_meta:
+        with patch(
+            "app.modules.events.components.event_card.get_meta_attr"
+        ) as mock_meta:
             mock_meta.return_value = ""
 
-            card = EventCard(event=mock_event)
+            EventCard(event=mock_event)
 
             assert mock_event.__dict__["opening"] == "de 14:00 à 16:00"
 
@@ -169,14 +185,16 @@ class TestEventCard:
         mock_event = SimpleNamespace(
             start_date=arrow.get("2024-01-15 10:00:00"),
             end_date=arrow.get("2024-01-15 12:00:00"),
-            owner=SimpleNamespace()
+            owner=SimpleNamespace(),
         )
 
-        with patch("app.modules.events.components.event_card.get_meta_attr") as mock_meta:
+        with patch(
+            "app.modules.events.components.event_card.get_meta_attr"
+        ) as mock_meta:
             # Return default value (empty string)
             mock_meta.return_value = ""
 
-            card = EventCard(event=mock_event)
+            EventCard(event=mock_event)
 
             assert mock_event.__dict__["type_id"] == ""
             assert mock_event.__dict__["type_label"] == ""

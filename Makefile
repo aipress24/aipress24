@@ -56,7 +56,7 @@ lint:
 	deptry src
 	vulture --min-confidence 80 src
 	# Typecheck tests - mostly useless
-	mypy --show-error-codes tests
+	# mypy --show-error-codes tests
 	pyright tests
 	# Typecheck src - much more useful but not ready yet
 	# mypy --show-error-codes src

@@ -11,7 +11,7 @@ logic. Full integration testing of form generation would require extensive setup
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 import pytest
 from flask_wtf import FlaskForm
@@ -261,7 +261,7 @@ class TestBWFormGeneratorGenerate:
         with patch.object(BWFormGenerator, "form_media") as mock_form_media:
             mock_form_media.return_value = FlaskForm()
             generator = BWFormGenerator(org=org)
-            form = generator.generate()
+            generator.generate()
 
             mock_form_media.assert_called_once()
 

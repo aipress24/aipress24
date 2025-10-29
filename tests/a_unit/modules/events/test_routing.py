@@ -12,7 +12,7 @@ from unittest.mock import Mock, patch
 from app.modules.events.routing import url_for_event
 
 if TYPE_CHECKING:
-    from app.modules.events.models import EventPost
+    pass
 
 
 class TestUrlForEvent:
@@ -57,7 +57,9 @@ class TestUrlForEvent:
             result = url_for_event(mock_event, foo="bar", baz="qux")
 
             # Should pass through additional kwargs
-            mock_url_for.assert_called_once_with("events.event", id=789, foo="bar", baz="qux")
+            mock_url_for.assert_called_once_with(
+                "events.event", id=789, foo="bar", baz="qux"
+            )
             assert result == "/events/event/789?foo=bar"
 
     def test_url_for_event_preserves_event_id(self):

@@ -54,7 +54,7 @@ class TestBuildPgDumpCommand:
         """Test building command without username."""
         db_url = make_url("postgresql://localhost:5432/testdb")
 
-        cmd, env = _build_pg_dump_command(db_url)
+        cmd, _env = _build_pg_dump_command(db_url)
 
         assert "--username" not in cmd
         assert "testdb" in cmd
@@ -64,7 +64,7 @@ class TestBuildPgDumpCommand:
         # Create a URL with minimal info
         db_url = make_url("postgresql:///testdb")
 
-        cmd, env = _build_pg_dump_command(db_url)
+        cmd, _env = _build_pg_dump_command(db_url)
 
         # Should default to localhost:5432
         assert "--host" in cmd
@@ -76,7 +76,7 @@ class TestBuildPgDumpCommand:
         """Test building command with custom port."""
         db_url = make_url("postgresql://user@localhost:5433/testdb")
 
-        cmd, env = _build_pg_dump_command(db_url)
+        cmd, _env = _build_pg_dump_command(db_url)
 
         assert "--port" in cmd
         assert "5433" in cmd
@@ -93,7 +93,7 @@ class TestBuildPgDumpCommand:
         """Test that command has correct structure."""
         db_url = make_url("postgresql://user:pass@localhost:5432/testdb")
 
-        cmd, env = _build_pg_dump_command(db_url)
+        cmd, _env = _build_pg_dump_command(db_url)
 
         # pg_dump should be first
         assert cmd[0] == "pg_dump"
