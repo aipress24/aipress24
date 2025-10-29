@@ -123,6 +123,10 @@ def update_post(
     post.content = info.contenu
     post.owner_id = info.owner_id
     post.publisher_id = info.publisher_id
+    if hasattr(info, "media_id"):
+        post.media_id = info.media_id
+    else:
+        post.media_id = None
 
     # TODO: remove
     images = info.sorted_images
