@@ -291,7 +291,9 @@ class TestParseDatetime:
         """Test datetime with negative offset via regex fallback."""
         result = parse_datetime("2024-1-5 14:30:45-05:30")
         assert result.tzinfo is not None
-        assert result.tzinfo.utcoffset(None) == datetime.timedelta(hours=-5, minutes=-30)
+        assert result.tzinfo.utcoffset(None) == datetime.timedelta(
+            hours=-5, minutes=-30
+        )
 
     def test_datetime_regex_with_3_char_offset(self):
         """Test datetime with 3-char offset via regex fallback."""
@@ -392,7 +394,9 @@ class TestParseDuration:
     def test_postgres_interval_with_microseconds(self):
         """Test parsing PostgreSQL interval with microseconds."""
         result = parse_duration("02:30:45.123456")
-        assert result == datetime.timedelta(hours=2, minutes=30, seconds=45, microseconds=123456)
+        assert result == datetime.timedelta(
+            hours=2, minutes=30, seconds=45, microseconds=123456
+        )
 
     def test_postgres_interval_negative(self):
         """Test parsing negative PostgreSQL interval."""
