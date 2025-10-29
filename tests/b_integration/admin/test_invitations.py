@@ -232,9 +232,7 @@ class TestCancelInvitationUsers:
         # Invitation should still exist
         assert db_session.query(Invitation).count() == 1
 
-    def test_cancel_case_insensitive(
-        self, db_session: Session, test_org: Organisation
-    ):
+    def test_cancel_case_insensitive(self, db_session: Session, test_org: Organisation):
         """Test that email matching for cancellation is case-insensitive."""
         invite_users("test@example.com", test_org.id)
         assert db_session.query(Invitation).count() == 1
@@ -282,7 +280,9 @@ class TestCancelInvitationUsers:
 class TestEmailsInvitedToOrganisation:
     """Test suite for emails_invited_to_organisation function."""
 
-    def test_get_emails_no_invitations(self, db_session: Session, test_org: Organisation):
+    def test_get_emails_no_invitations(
+        self, db_session: Session, test_org: Organisation
+    ):
         """Test getting emails when no invitations exist."""
         emails = emails_invited_to_organisation(test_org.id)
         assert emails == []

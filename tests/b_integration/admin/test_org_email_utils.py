@@ -457,17 +457,15 @@ class TestChangeInvitationsEmails:
 
         change_invitations_emails(test_org, emails)
 
-        invitations = db_session.query(Invitation).filter_by(
-            organisation_id=test_org.id
-        ).all()
+        invitations = (
+            db_session.query(Invitation).filter_by(organisation_id=test_org.id).all()
+        )
         assert len(invitations) == 2
         invitation_emails = {inv.email for inv in invitations}
         assert "test1@example.com" in invitation_emails
         assert "test2@example.com" in invitation_emails
 
-    def test_remove_old_invitations(
-        self, db_session: Session, test_org: Organisation
-    ):
+    def test_remove_old_invitations(self, db_session: Session, test_org: Organisation):
         """Test removing invitations not in new list."""
         # Add initial invitations
         inv1 = Invitation(email="keep@example.com", organisation_id=test_org.id)
@@ -478,9 +476,9 @@ class TestChangeInvitationsEmails:
         # Update with only one email
         change_invitations_emails(test_org, "keep@example.com")
 
-        invitations = db_session.query(Invitation).filter_by(
-            organisation_id=test_org.id
-        ).all()
+        invitations = (
+            db_session.query(Invitation).filter_by(organisation_id=test_org.id).all()
+        )
         assert len(invitations) == 1
         assert invitations[0].email == "keep@example.com"
 
@@ -496,9 +494,9 @@ class TestChangeInvitationsEmails:
         # Update with uppercase (should not duplicate)
         change_invitations_emails(test_org, "TEST@EXAMPLE.COM")
 
-        invitations = db_session.query(Invitation).filter_by(
-            organisation_id=test_org.id
-        ).all()
+        invitations = (
+            db_session.query(Invitation).filter_by(organisation_id=test_org.id).all()
+        )
         assert len(invitations) == 1
 
     def test_preserve_email_case(self, db_session: Session, test_org: Organisation):
@@ -507,9 +505,9 @@ class TestChangeInvitationsEmails:
 
         change_invitations_emails(test_org, emails)
 
-        invitations = db_session.query(Invitation).filter_by(
-            organisation_id=test_org.id
-        ).all()
+        invitations = (
+            db_session.query(Invitation).filter_by(organisation_id=test_org.id).all()
+        )
         # The function keeps original case from input
         assert len(invitations) == 1
 
@@ -523,9 +521,9 @@ class TestChangeInvitationsEmails:
         # Update with empty string
         change_invitations_emails(test_org, "")
 
-        invitations = db_session.query(Invitation).filter_by(
-            organisation_id=test_org.id
-        ).all()
+        invitations = (
+            db_session.query(Invitation).filter_by(organisation_id=test_org.id).all()
+        )
         assert len(invitations) == 0
 
     def test_deduplicate_emails(self, db_session: Session, test_org: Organisation):
@@ -534,8 +532,8 @@ class TestChangeInvitationsEmails:
 
         change_invitations_emails(test_org, emails)
 
-        invitations = db_session.query(Invitation).filter_by(
-            organisation_id=test_org.id
-        ).all()
+        invitations = (
+            db_session.query(Invitation).filter_by(organisation_id=test_org.id).all()
+        )
         # Should only have one invitation despite duplicates in input
         assert len(invitations) == 1

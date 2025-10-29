@@ -7,7 +7,7 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 from flask import g
@@ -15,9 +15,9 @@ from flask import g
 from app.models.auth import KYCProfile, User
 from app.models.lifecycle import PublicationStatus
 from app.models.organisation import Organisation
+from app.modules.swork.models import Comment
 from app.modules.wire.models import ArticlePost
 from app.modules.wire.pages._actions import post_comment, toggle_like
-from app.modules.swork.models import Comment
 from app.services.social_graph import SocialUser
 
 if TYPE_CHECKING:
@@ -56,7 +56,9 @@ def test_user(db_session: Session, test_org: Organisation) -> User:
 
 
 @pytest.fixture
-def test_article(db_session: Session, test_org: Organisation, test_user: User) -> ArticlePost:
+def test_article(
+    db_session: Session, test_org: Organisation, test_user: User
+) -> ArticlePost:
     """Create a test article."""
     article = ArticlePost(
         title="Test Article",
@@ -82,7 +84,11 @@ class TestToggleLike:
     """Test suite for toggle_like function."""
 
     def test_like_article_not_previously_liked(
-        self, app: Flask, db_session: Session, test_user: User, test_article: ArticlePost
+        self,
+        app: Flask,
+        db_session: Session,
+        test_user: User,
+        test_article: ArticlePost,
     ):
         """Test liking an article that was not previously liked."""
         with app.test_request_context():
@@ -101,7 +107,11 @@ class TestToggleLike:
             assert social_user.is_liking(test_article)
 
     def test_unlike_article_previously_liked(
-        self, app: Flask, db_session: Session, test_user: User, test_article: ArticlePost
+        self,
+        app: Flask,
+        db_session: Session,
+        test_user: User,
+        test_article: ArticlePost,
     ):
         """Test unliking an article that was previously liked."""
         with app.test_request_context():
@@ -123,7 +133,11 @@ class TestToggleLike:
             assert not social_user.is_liking(test_article)
 
     def test_toggle_like_updates_like_count_correctly(
-        self, app: Flask, db_session: Session, test_user: User, test_article: ArticlePost
+        self,
+        app: Flask,
+        db_session: Session,
+        test_user: User,
+        test_article: ArticlePost,
     ):
         """Test that like count is updated correctly on toggle."""
         with app.test_request_context():
@@ -145,7 +159,11 @@ class TestToggleLike:
             assert result3 == "1"
 
     def test_toggle_like_multiple_users(
-        self, app: Flask, db_session: Session, test_org: Organisation, test_article: ArticlePost
+        self,
+        app: Flask,
+        db_session: Session,
+        test_org: Organisation,
+        test_article: ArticlePost,
     ):
         """Test multiple users liking the same article."""
         # Create second user
@@ -197,7 +215,11 @@ class TestToggleLike:
             assert result == "1"
 
     def test_toggle_like_returns_string(
-        self, app: Flask, db_session: Session, test_user: User, test_article: ArticlePost
+        self,
+        app: Flask,
+        db_session: Session,
+        test_user: User,
+        test_article: ArticlePost,
     ):
         """Test that toggle_like always returns a string."""
         with app.test_request_context():
@@ -213,7 +235,11 @@ class TestPostComment:
     """Test suite for post_comment function."""
 
     def test_post_valid_comment(
-        self, app: Flask, db_session: Session, test_user: User, test_article: ArticlePost
+        self,
+        app: Flask,
+        db_session: Session,
+        test_user: User,
+        test_article: ArticlePost,
     ):
         """Test posting a valid comment."""
         with app.test_request_context():
@@ -231,7 +257,7 @@ class TestPostComment:
                 mock_url_for.return_value = f"/wire/article/{test_article.id}"
                 mock_redirect.return_value = "redirect_response"
 
-                result = post_comment(test_article)
+                post_comment(test_article)
 
                 # Check flash message was called
                 mock_flash.assert_called_once_with("Votre commentaire a été posté.")
@@ -249,7 +275,11 @@ class TestPostComment:
                 assert comments[0].object_id == f"article:{test_article.id}"
 
     def test_post_comment_with_whitespace(
-        self, app: Flask, db_session: Session, test_user: User, test_article: ArticlePost
+        self,
+        app: Flask,
+        db_session: Session,
+        test_user: User,
+        test_article: ArticlePost,
     ):
         """Test posting a comment with leading/trailing whitespace."""
         with app.test_request_context():
@@ -276,7 +306,11 @@ class TestPostComment:
                 mock_flash.assert_called_once()
 
     def test_post_empty_comment(
-        self, app: Flask, db_session: Session, test_user: User, test_article: ArticlePost
+        self,
+        app: Flask,
+        db_session: Session,
+        test_user: User,
+        test_article: ArticlePost,
     ):
         """Test posting an empty comment does not create a comment."""
         with app.test_request_context():
@@ -302,7 +336,11 @@ class TestPostComment:
                 mock_flash.assert_not_called()
 
     def test_post_whitespace_only_comment(
-        self, app: Flask, db_session: Session, test_user: User, test_article: ArticlePost
+        self,
+        app: Flask,
+        db_session: Session,
+        test_user: User,
+        test_article: ArticlePost,
     ):
         """Test posting a whitespace-only comment does not create a comment."""
         with app.test_request_context():
@@ -328,7 +366,11 @@ class TestPostComment:
                 mock_flash.assert_not_called()
 
     def test_post_comment_object_id_format(
-        self, app: Flask, db_session: Session, test_user: User, test_article: ArticlePost
+        self,
+        app: Flask,
+        db_session: Session,
+        test_user: User,
+        test_article: ArticlePost,
     ):
         """Test that comment object_id has correct format."""
         with app.test_request_context():
@@ -351,7 +393,11 @@ class TestPostComment:
                 assert comments[0].object_id == f"article:{test_article.id}"
 
     def test_post_comment_redirect_url(
-        self, app: Flask, db_session: Session, test_user: User, test_article: ArticlePost
+        self,
+        app: Flask,
+        db_session: Session,
+        test_user: User,
+        test_article: ArticlePost,
     ):
         """Test that redirect URL includes anchor."""
         with app.test_request_context():
@@ -374,7 +420,11 @@ class TestPostComment:
                 mock_redirect.assert_called_once_with(f"{article_url}#comments-title")
 
     def test_post_multiple_comments(
-        self, app: Flask, db_session: Session, test_user: User, test_article: ArticlePost
+        self,
+        app: Flask,
+        db_session: Session,
+        test_user: User,
+        test_article: ArticlePost,
     ):
         """Test posting multiple comments creates multiple Comment objects."""
         with app.test_request_context():
@@ -402,7 +452,11 @@ class TestPostComment:
             assert comment_texts == comments_text
 
     def test_post_comment_sets_owner(
-        self, app: Flask, db_session: Session, test_user: User, test_article: ArticlePost
+        self,
+        app: Flask,
+        db_session: Session,
+        test_user: User,
+        test_article: ArticlePost,
     ):
         """Test that comment owner is set correctly."""
         with app.test_request_context():
