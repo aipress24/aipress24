@@ -66,11 +66,13 @@ def start_of_day(dtime_at=None):
     """Returns the local (user timezone) start of day, that's, time 00:00:00
     for a given datetime."""
     dtime_at = datetime_or_now(dtime_at)
-    start = datetime.datetime(dtime_at.year, dtime_at.month, dtime_at.day, tzinfo=utc)
+    start = datetime.datetime(dtime_at.year, dtime_at.month, dtime_at.day)  # noqa: DTZ001
     tz_str = get_current_timezone()
     tz_ob = parse_tz(tz_str)
     if tz_ob:
         start = tz_ob.localize(start)
+    else:
+        start = start.replace(tzinfo=utc)
     return start
 
 

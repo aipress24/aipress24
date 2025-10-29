@@ -115,7 +115,9 @@ def parse_time(value):
             microsecond_str = kw["microsecond"]
             kw["microsecond"] = microsecond_str and microsecond_str.ljust(6, "0")
             # Only extract valid time parameters (no tzinfo from regex)
-            time_kw: dict[str, int] = {k: int(v) for k, v in kw.items() if v is not None}
+            time_kw: dict[str, int] = {
+                k: int(v) for k, v in kw.items() if v is not None
+            }
             return datetime.time(
                 hour=time_kw["hour"],
                 minute=time_kw["minute"],
