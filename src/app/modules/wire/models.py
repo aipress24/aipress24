@@ -148,12 +148,18 @@ class Post(NewsMetadataMixin, BaseContent, LifeCycleMixin):
     )
 
     publisher_id: Mapped[int | None] = mapped_column(ForeignKey(Organisation.id))
+    media_id: Mapped[int | None] = mapped_column(ForeignKey(Organisation.id))
 
     image_id: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
 
     @orm.declared_attr
     def publisher(cls):
         return orm.relationship(Organisation, foreign_keys=[cls.publisher_id])
+
+    @orm.declared_attr
+    def media(cls):
+        return orm.relationship(Organisation, foreign_keys=[cls.media_id])
+
 
     # # Media
     # media_id: Mapped[int] = mapped_column(sa.BigInteger, sa.ForeignKey(Organisation.id))
