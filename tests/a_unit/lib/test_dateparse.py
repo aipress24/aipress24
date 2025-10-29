@@ -91,22 +91,22 @@ class TestParseDate:
 
     def test_invalid_date_february_30(self):
         """Test that invalid date raises ValueError."""
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="day is out of range"):
             parse_date("2024-02-30")
 
     def test_invalid_month(self):
         """Test that invalid month raises ValueError."""
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match=r"month must be in 1\.\.12"):
             parse_date("2024-13-01")
 
     def test_invalid_day(self):
         """Test that invalid day raises ValueError."""
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="day is out of range"):
             parse_date("2024-01-32")
 
     def test_non_leap_year_february_29(self):
         """Test that February 29 in non-leap year raises ValueError."""
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="day is out of range"):
             parse_date("2023-02-29")
 
     def test_empty_string(self):
@@ -150,17 +150,17 @@ class TestParseTime:
 
     def test_invalid_hour(self):
         """Test that invalid hour raises ValueError."""
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match=r"hour must be in 0\.\.23"):
             parse_time("25:00:00")
 
     def test_invalid_minute(self):
         """Test that invalid minute raises ValueError."""
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match=r"minute must be in 0\.\.59"):
             parse_time("14:60:00")
 
     def test_invalid_second(self):
         """Test that invalid second raises ValueError."""
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match=r"second must be in 0\.\.59"):
             parse_time("14:30:61")
 
     def test_invalid_format(self):
@@ -182,17 +182,17 @@ class TestParseDatetime:
     def test_valid_datetime_with_t_separator(self):
         """Test parsing datetime with T separator."""
         result = parse_datetime("2024-01-15T14:30:45")
-        assert result == datetime.datetime(2024, 1, 15, 14, 30, 45)
+        assert result == datetime.datetime(2024, 1, 15, 14, 30, 45)  # noqa: DTZ001
 
     def test_valid_datetime_with_space_separator(self):
         """Test parsing datetime with space separator."""
         result = parse_datetime("2024-01-15 14:30:45")
-        assert result == datetime.datetime(2024, 1, 15, 14, 30, 45)
+        assert result == datetime.datetime(2024, 1, 15, 14, 30, 45)  # noqa: DTZ001
 
     def test_datetime_with_microseconds(self):
         """Test parsing datetime with microseconds."""
         result = parse_datetime("2024-01-15T14:30:45.123456")
-        assert result == datetime.datetime(2024, 1, 15, 14, 30, 45, 123456)
+        assert result == datetime.datetime(2024, 1, 15, 14, 30, 45, 123456)  # noqa: DTZ001
 
     def test_datetime_with_z_timezone(self):
         """Test parsing datetime with Z (UTC) timezone."""
@@ -226,12 +226,12 @@ class TestParseDatetime:
     def test_datetime_without_seconds(self):
         """Test parsing datetime without seconds."""
         result = parse_datetime("2024-01-15T14:30")
-        assert result == datetime.datetime(2024, 1, 15, 14, 30)
+        assert result == datetime.datetime(2024, 1, 15, 14, 30)  # noqa: DTZ001
 
     def test_datetime_single_digit_components(self):
         """Test parsing datetime with single digit components."""
         result = parse_datetime("2024-3-5 9:5:3")
-        assert result == datetime.datetime(2024, 3, 5, 9, 5, 3)
+        assert result == datetime.datetime(2024, 3, 5, 9, 5, 3)  # noqa: DTZ001
 
     def test_invalid_datetime_format(self):
         """Test that invalid format returns None."""
@@ -240,7 +240,7 @@ class TestParseDatetime:
 
     def test_invalid_datetime_values(self):
         """Test that invalid datetime raises ValueError."""
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="day is out of range"):
             parse_datetime("2024-02-30T14:30:45")
 
     def test_datetime_with_timezone_3_chars(self):
@@ -254,13 +254,13 @@ class TestParseDatetime:
     def test_datetime_with_comma_decimal_separator(self):
         """Test parsing datetime with comma as decimal separator for microseconds."""
         result = parse_datetime("2024-01-15T14:30:45,123456")
-        assert result == datetime.datetime(2024, 1, 15, 14, 30, 45, 123456)
+        assert result == datetime.datetime(2024, 1, 15, 14, 30, 45, 123456)  # noqa: DTZ001
 
     def test_datetime_regex_fallback(self):
         """Test datetime parsed by regex when fromisoformat fails."""
         # Use a format that fromisoformat might not accept but regex will
         result = parse_datetime("2024-1-5 9:5")
-        assert result == datetime.datetime(2024, 1, 5, 9, 5)
+        assert result == datetime.datetime(2024, 1, 5, 9, 5)  # noqa: DTZ001
 
     def test_datetime_with_microseconds_and_timezone(self):
         """Test datetime with both microseconds and timezone."""
