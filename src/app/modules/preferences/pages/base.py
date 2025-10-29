@@ -12,8 +12,6 @@ __all__ = ("BasePreferencesPage",)
 
 
 class BasePreferencesPage(Page, abc.ABC):
-    icon: str = ""
-
     @property
     def title(self):
         return self.label

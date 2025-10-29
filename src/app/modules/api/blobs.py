@@ -19,7 +19,7 @@ def get_blob(id: str) -> Response:
 
     blob_service = container.get(BlobService)
     blob_path = blob_service.get_path(id)
-    return send_file(blob_path)
+    return send_file(str(blob_path))
 
 
 @blueprint.post("/blobs/")

@@ -160,7 +160,6 @@ class Post(NewsMetadataMixin, BaseContent, LifeCycleMixin):
     def media(cls):
         return orm.relationship(Organisation, foreign_keys=[cls.media_id])
 
-
     # # Media
     # media_id: Mapped[int] = mapped_column(sa.BigInteger, sa.ForeignKey(Organisation.id))
     #

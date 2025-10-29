@@ -4,11 +4,12 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, cast
 
 from flask import Response, g, request
 from sqlalchemy import func, select
 
+from app.enums import OrganisationTypeEnum
 from app.flask.extensions import db
 from app.flask.lib.pages import page
 
@@ -33,8 +34,9 @@ def organisation_inviting(user: User) -> list[dict[str, Any]]:
     organisations = db_session.scalars(stmt)
     result = []
     for org in organisations:
+        org_type = cast(OrganisationTypeEnum, org.type)
         infos = {
-            "label": f"{org.name} ({LABELS_ORGANISATION_TYPE.get(org.type, org.type)})",
+            "label": f"{org.name} ({LABELS_ORGANISATION_TYPE.get(org_type, org_type)})",
             "org_id": str(org.id),
         }
         if user.organisation_id == org.id:
