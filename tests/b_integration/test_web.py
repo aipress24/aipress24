@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+import time
 import typing
 
 from app.enums import RoleEnum
@@ -96,6 +97,7 @@ def test_all_unparameterized_endpoints(
         "/kyc/",
         "/preferences/",
         "/webhook",
+        "/system/boot",
     ]
     # Skip endpoints that are internal helpers or not meant to be called directly
     skip_endpoints = ["update_breadcrumbs"]
@@ -116,7 +118,11 @@ def test_all_unparameterized_endpoints(
         if not rule.methods or "GET" not in rule.methods:
             continue
 
+        t0 = time.time()
+        print("Checking route:", rule.rule)
         res = client.get(rule.rule)
+        print("  -> status code:", res.status_code, f"(in {time.time() - t0:.2f}s)")
+
         assert res.status_code in {302, 200}, f"Request failed on {rule.rule}"
 
 

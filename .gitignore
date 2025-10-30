@@ -28,7 +28,7 @@
 /doc/site
 /debug/
 /users/
-# /bootstrap_data/
+/bootstrap_data/
 /db/
 
 # Generated
