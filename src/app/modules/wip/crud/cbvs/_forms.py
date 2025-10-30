@@ -85,7 +85,7 @@ class ArticleForm(Form):
     )
     date_paiement = DateTimeField("Date/heure de paiement", render_kw={"width": 3})
 
-    class Meta:
+    class Meta:  # type: ignore[misc]
         groups = {
             "headers": {"label": "", "fields": ["titre", "chapo"]},
             "contenu": {"label": "Contenu de l'article", "fields": ["contenu"]},
@@ -169,7 +169,7 @@ class AvisEnqueteForm(Form):
         validators=[validators.InputRequired()],
     )
 
-    class Meta:
+    class Meta:  # type: ignore[misc]
         groups = {
             "headers": {"label": "", "fields": ["titre", "contenu"]},
             "metadata": {
@@ -232,7 +232,7 @@ class SujetForm(Form):
         "Date/heure de parution prévue", render_kw={"width": 3}
     )
 
-    class Meta:
+    class Meta:  # type: ignore[misc]
         groups = {
             "headers": {"label": "", "fields": ["titre", "contenu"]},
             "metadata": {
@@ -290,7 +290,7 @@ class CommandeForm(Form):
     )
     date_paiement = DateTimeField("Date/heure de paiement", render_kw={"width": 3})
 
-    class Meta:
+    class Meta:  # type: ignore[misc]
         groups = {
             "headers": {"label": "", "fields": ["titre", "contenu"]},
             "metadata": {
@@ -349,6 +349,20 @@ class CommuniqueForm(Form):
         validators=[validators.InputRequired()],
     )
 
+    pays_zip_ville = CountrySelectField(
+        name="pays_zip_ville",
+        name2="pays_zip_ville_detail",
+        label="Pays",
+        id="pzv",
+        id2="pzv_detail",
+        label2="Code postal et ville",
+        choices=[],
+        # validators=validators_list,
+        validate_choice=False,
+        # render_kw=render_kw,
+        readonly=0,
+    )
+
     # publisher_id = SimpleRichSelectField(
     #     "Éditeur / Organisme",
     #     render_kw={"width": 6},
@@ -369,7 +383,7 @@ class CommuniqueForm(Form):
         format="%Y-%m-%dT%H:%M",
     )
 
-    class Meta:
+    class Meta:  # type: ignore[misc]
         groups = {
             "headers": {
                 "label": "En-têtes du communiqué",
@@ -387,6 +401,7 @@ class CommuniqueForm(Form):
                     "topic",
                     "sector",
                     # "publisher_id",
+                    "pays_zip_ville",
                 ],
             },
             "dates": {
@@ -467,7 +482,7 @@ class EventForm(Form):
         format="%Y-%m-%dT%H:%M",
     )
 
-    class Meta:
+    class Meta:  # type: ignore[misc]
         groups = {
             "headers": {
                 "label": "En-têtes de l'événement",

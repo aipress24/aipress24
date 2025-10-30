@@ -11,8 +11,7 @@ help:
 
 ## Run tests
 test:
-	# @make test-sqlite test-postgres
-	@make test-sqlite
+	@make test-sqlite test-postgres
 
 test-sqlite:
 	pytest tests
@@ -57,7 +56,7 @@ lint:
 	deptry src
 	vulture --min-confidence 80 src
 	# Typecheck tests - mostly useless
-	mypy --show-error-codes tests
+	# mypy --show-error-codes tests
 	pyright tests
 	# Typecheck src - much more useful but not ready yet
 	# mypy --show-error-codes src

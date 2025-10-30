@@ -22,7 +22,7 @@ class AdminSystemPage(BaseAdminPage):
     title = "Système"
 
     template = "admin/pages/system.j2"
-    icon = "chat-bubble-bottom-center-text"
+    icon = "server-cog"
 
     parent = AdminHomePage
 
@@ -32,7 +32,7 @@ class AdminSystemPage(BaseAdminPage):
             size = 0
             files = distribution.files or []
             for file in files:
-                path = cast("Path", file.locate())
+                path = cast(Path, file.locate())
                 if not path.exists():
                     continue
                 size += path.stat().st_size

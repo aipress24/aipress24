@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from typing import ClassVar
+from typing import TYPE_CHECKING, ClassVar
 
 from flask import redirect, render_template, request, session
 from werkzeug.exceptions import NotFound
@@ -15,6 +15,9 @@ from app.services.tagging import get_tags
 
 from ._filters import FilterBar
 from ._tabs import get_tabs
+
+if TYPE_CHECKING:
+    from app.modules.wire.models import Post
 
 NS = "wire"
 ONE_DAY = 60 * 60 * 24
@@ -88,7 +91,7 @@ class WirePage(Page):
             )
         return tabs
 
-    def get_posts(self):
+    def get_posts(self) -> list[Post]:
         for tab in self.tabs:
             if tab.is_active:
                 active_tab = tab
@@ -97,24 +100,18 @@ class WirePage(Page):
             raise RuntimeError
 
         posts = active_tab.get_posts(self.filter_bar)
+        return self._filter_posts_by_tag(posts)
 
-        tag = self.filter_bar.tag
-        if tag:
-            posts = self._filter_posts_by_tag(posts, tag)
-
-        return posts
-
-    def _filter_posts_by_tag(self, posts, tag):
-        if not tag:
+    def _filter_posts_by_tag(self, posts: list[Post]) -> list[Post]:
+        if not (tag := self.filter_bar.tag):
             return posts
-
-        articles_filtered = []
+        filtered_posts = []
         for post in posts:
             tags = [t["label"] for t in get_tags(post)]
             if tag in tags:
-                articles_filtered.append(post)
+                filtered_posts.append(post)
 
-        return articles_filtered
+        return filtered_posts
 
     def top_news(self):
         return []

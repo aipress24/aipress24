@@ -11,11 +11,12 @@ Provides database lifecycle management and fixtures for both SQLite and PostgreS
 
 from __future__ import annotations
 
+from collections.abc import Generator
 from urllib.parse import urlparse
 
 import pytest
 from flask.ctx import AppContext
-from sqlalchemy import create_engine, text
+from sqlalchemy import create_engine, event, text
 from sqlalchemy.exc import OperationalError, ProgrammingError
 
 from app.flask.extensions import db as _db
@@ -38,7 +39,7 @@ class TestConfig:
     # Explicitly set SERVER_NAME to None. This is critical for E2E tests.
     # It forces Flask's url_for and redirects to generate relative paths,
     # which the test client can follow.
-    SERVER_NAME = None
+    SERVER_NAME: str | None = None
 
     # Note: Talisman is disabled when app.testing is True (see extensions.py)
 
@@ -67,7 +68,7 @@ def _manage_postgres_database(db_url: str, action: str) -> None:
         action: Either 'create' or 'drop'.
     """
     parsed_url = urlparse(db_url)
-    if parsed_url.scheme not in ("postgresql", "postgresql+psycopg"):
+    if not parsed_url.scheme.startswith("postgresql"):
         return  # Do nothing for non-postgres databases
 
     db_name = parsed_url.path[1:]
@@ -83,11 +84,11 @@ def _manage_postgres_database(db_url: str, action: str) -> None:
             conn.execute(
                 text(
                     f"""
-                SELECT pg_terminate_backend(pg_stat_activity.pid)
-                FROM pg_stat_activity
-                WHERE pg_stat_activity.datname = '{db_name}'
-                AND pid <> pg_backend_pid()
-                """
+                    SELECT pg_terminate_backend(pg_stat_activity.pid)
+                    FROM pg_stat_activity
+                    WHERE pg_stat_activity.datname = '{db_name}'
+                    AND pid <> pg_backend_pid()
+                    """
                 )
             )
             conn.execute(text(f"DROP DATABASE IF EXISTS {db_name}"))
@@ -96,11 +97,11 @@ def _manage_postgres_database(db_url: str, action: str) -> None:
             conn.execute(
                 text(
                     f"""
-                SELECT pg_terminate_backend(pg_stat_activity.pid)
-                FROM pg_stat_activity
-                WHERE pg_stat_activity.datname = '{db_name}'
-                AND pid <> pg_backend_pid()
-                """
+                    SELECT pg_terminate_backend(pg_stat_activity.pid)
+                    FROM pg_stat_activity
+                    WHERE pg_stat_activity.datname = '{db_name}'
+                    AND pid <> pg_backend_pid()
+                    """
                 )
             )
             conn.execute(text(f"DROP DATABASE IF EXISTS {db_name}"))
@@ -131,7 +132,7 @@ def app(db_url: str):
 
 
 @pytest.fixture
-def app_context(app) -> AppContext:
+def app_context(app) -> Generator[AppContext, None, None]:
     with app.app_context() as ctx:
         yield ctx
 
@@ -149,14 +150,25 @@ def db(app):
 
 
 @pytest.fixture(autouse=True)
-def db_session(db, app):
+def db_session(db, app, request):
     """Function-scoped database session.
 
     Ensures each test runs in a separate, rolled-back transaction,
     providing test isolation. This fixture is autouse=True, so it
     automatically wraps all tests in a transaction.
+
+    E2E tests (in tests/c_e2e/) are skipped because they need to make
+    real HTTP requests that require fresh connections from the pool.
     """
-    # Start a nested transaction (savepoint)
+    # Skip transaction wrapping for E2E tests
+    if "c_e2e" in request.node.nodeid:
+        yield _db.session
+        return
+
+    # Remove any existing scoped session to clear thread-local cache
+    _db.session.remove()
+
+    # Start a connection and outer transaction
     connection = db.engine.connect()
     transaction = connection.begin()
 
@@ -168,10 +180,30 @@ def db_session(db, app):
     old_session = db.session
     db.session = session
 
+    # Begin a nested transaction (savepoint) for the test
+    session.begin_nested()
+
+    # Whenever a COMMIT occurs within the test, instead of committing
+    # the outer transaction, just end the savepoint and start a new one
+    @event.listens_for(session, "after_transaction_end")
+    def restart_savepoint(session, transaction):
+        if transaction.nested and not transaction._parent.nested:
+            session.begin_nested()
+
+    # Push a fresh app context to get a fresh container registry
+    # This ensures that when repositories call container.get(scoped_session),
+    # they get our test session, not a cached old session
+    ctx = app.app_context()
+    ctx.push()
+
     yield session
 
-    # Restore the old session and rollback
+    # Pop the app context
+    ctx.pop()
+
+    # Restore the old session and rollback everything
     db.session = old_session
     session.close()
     transaction.rollback()
     connection.close()
+    _db.session.remove()

@@ -15,6 +15,7 @@ from sqlalchemy.orm import selectinload
 
 from app.enums import OrganisationTypeEnum
 from app.flask.sqla import get_multi
+from app.logging import warn
 from app.models.auth import User
 from app.models.lifecycle import PublicationStatus
 from app.models.organisation import Organisation
@@ -61,6 +62,7 @@ class Tab(abc.ABC):
 
     def get_stmt(self, filter_bar: FilterBar):
         active_filters = filter_bar.active_filters
+        warn("active_filters", active_filters)
         sort_order = filter_bar.sort_order
 
         match sort_order:
@@ -83,12 +85,12 @@ class Tab(abc.ABC):
             stmt = stmt.where(Post.type.in_(self.post_type_allow))
 
         for filter_id, filter_values in active_filters | groupby(itemgetter("id")):
-            # FIXME
             if filter_id == "tag":
                 continue
             if not hasattr(Post, filter_id):
+                warn("unknown attribute for Post:", filter_id)
                 continue
-            values = [filter["value"] for filter in filter_values]
+            values = {f["value"] for f in filter_values}
             where_clause = getattr(Post, filter_id).in_(values)
             stmt = stmt.where(where_clause)
 

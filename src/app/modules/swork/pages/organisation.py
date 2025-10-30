@@ -22,7 +22,10 @@ from app.models.auth import User
 from app.models.lifecycle import PublicationStatus
 from app.models.organisation import Organisation
 from app.modules.events.models import EventPost
-from app.modules.kyc.field_label import label_from_values_cities_as_list
+from app.modules.kyc.field_label import (
+    country_code_to_label,
+    country_zip_code_to_city,
+)
 from app.modules.wire.models import ArticlePost, PressReleasePost
 from app.services.activity_stream import get_timeline
 from app.services.social_graph import adapt
@@ -257,13 +260,9 @@ class OrgVM(ViewModel):
             "address_formatted": self.org.formatted_address,
             "type_organisation": self.get_type_organisation(),
             "taille_orga": self.org.taille_orga,
-            "country_zip_city": "\n".join(
-                label_from_values_cities_as_list(
-                    [
-                        self.org.pays_zip_ville,
-                        self.org.pays_zip_ville_detail,
-                    ]
-                )
+            "country_zip_city": (
+                f"{country_code_to_label(self.org.pays_zip_ville)}, "
+                f"{country_zip_code_to_city(self.org.pays_zip_ville_detail)}"
             ),
             "secteurs_activite": self.get_secteurs_activite(),
         }
@@ -299,15 +298,22 @@ class OrgVM(ViewModel):
         # return self.org.logo_url
 
     def get_press_releases(self):
-        members = self.get_members()
-        all_press_releases = set()
-        for member in members:
-            stmt = select(PressReleasePost).where(
-                PressReleasePost.owner_id == member.id
-            )
-            press_releases = get_multi(PressReleasePost, stmt)
-            all_press_releases.update(press_releases)
-        return list(all_press_releases)
+        # members = self.get_members()
+        # all_press_releases = set()
+        # for member in members:
+        #     stmt = select(PressReleasePost).where(
+        #         PressReleasePost.owner_id == member.id
+        #     )
+        #     press_releases = get_multi(PressReleasePost, stmt)
+        #     all_press_releases.update(press_releases)
+        # return list(all_press_releases)
+        stmt = (
+            select(PressReleasePost)
+            .where(PressReleasePost.publisher_id == self.org.id)
+            .where(PressReleasePost.status == PublicationStatus.PUBLIC)
+        )
+        press_releases = get_multi(PressReleasePost, stmt)
+        return list(press_releases)
 
     def get_publications(self):
         stmt = (

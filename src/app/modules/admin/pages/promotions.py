@@ -20,7 +20,7 @@ class AdminPromotionsPage(BaseAdminPage):
     title = "Promotions"
 
     template = "admin/pages/promotions.j2"
-    icon = "speaker-wave"
+    icon = "megaphone"
 
     parent = AdminHomePage
 

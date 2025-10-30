@@ -7,7 +7,7 @@ from __future__ import annotations
 from collections import namedtuple
 from datetime import datetime, timedelta
 from io import BytesIO
-from typing import Any, ClassVar
+from typing import Any, ClassVar, cast
 from zoneinfo import ZoneInfo
 
 import pytz
@@ -19,37 +19,26 @@ from sqlalchemy import desc, false, nulls_last, select, true
 from app.constants import BW_TRIGGER_LABEL, LABEL_INSCRIPTION_VALIDEE, LOCAL_TZ
 from app.enums import OrganisationTypeEnum
 from app.flask.extensions import db
-from app.flask.lib.pages import Page, page
+from app.flask.lib.pages import page
 from app.models.auth import KYCProfile, User
 from app.models.organisation import Organisation
 from app.modules.admin import blueprint
 
+from .base import BaseAdminPage
 from .home import AdminHomePage
 
 LOCALTZ = pytz.timezone(LOCAL_TZ)
 
 
 @page
-class AdminExportPage(Page):
+class AdminExportPage(BaseAdminPage):
     name = "exports"
     label = "Exports"
     title = "Exports"
-    icon = "user-group"
+    icon = "file-down"
 
     template = "admin/pages/exports.j2"
     parent = AdminHomePage
-
-    ds_class = None
-    table_class = None
-
-    def menus(self):
-        # Lazy import to prevent circular import
-        from .menu import make_menu
-
-        name = self.name
-        return {
-            "secondary": make_menu(name),
-        }
 
 
 @blueprint.route("/export/<exporter_name>")
@@ -59,6 +48,7 @@ def export_route(exporter_name: str):
     if exporter_class is None:
         abort(404)
 
+    assert exporter_class is not None  # type narrowing for type checker
     generator = exporter_class()
     generator.run()
     stream = BytesIO(generator.document)
@@ -98,7 +88,7 @@ class BaseExporter:
         self.date_now: datetime = None  # type: ignore
         self.document: bytes = b""
         self.columns_definition: dict[str, FieldColumn] = {}
-        self.sheet = {"name": self.sheet_name, "table": []}
+        self.sheet: dict[str, Any] = {"name": self.sheet_name, "table": []}
 
     @property
     def title(self) -> str:
@@ -427,7 +417,7 @@ class InscriptionsExporter(BaseExporter):
         user: User,
         profile: KYCProfile,
         name: str,
-    ) -> str | datetime | int | bool:
+    ) -> str | datetime | int | bool | None:
         value = self._get_cell_value_raw(user, profile, name)
 
         match value:
@@ -436,7 +426,7 @@ class InscriptionsExporter(BaseExporter):
             case datetime():
                 return as_naive_localtz(value)
             case _:
-                return value
+                return cast(str | int | bool | None, value)
 
     def _get_cell_value_raw(self, user: User, profile: KYCProfile, name: str):
         """Get raw cell value before formatting."""
@@ -746,8 +736,9 @@ class OrganisationsExporter(BaseExporter):
         self,
         org: Organisation,
         name: str,
-    ) -> str | datetime | int | bool:
+    ) -> str | datetime | int | bool | None:
         # Handle special cases
+        value: str | datetime | int | bool | None
         match name:
             case "members":
                 value = ", ".join(u.email for u in org.members)
@@ -760,7 +751,7 @@ class OrganisationsExporter(BaseExporter):
             case "created_at" | "validated_at" | "modified_at":
                 value = self.get_datetime_attr(org, name)
             case "nb_members":
-                value = len(org.members)
+                value = len(org.members)  # type: ignore[unused-ignore]
             case _ if name in self._ORG_ATTRS:
                 # Handle direct attributes
                 value = getattr(org, name)

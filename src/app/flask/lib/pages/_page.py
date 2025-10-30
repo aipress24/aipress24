@@ -27,7 +27,7 @@ class Page:
 
     # breadcrumbs: list = []
     breadcrumbs2: ClassVar[list] = []
-    icon: str | None = None
+    icon: str = ""
 
     #
     # Override in subclasses
