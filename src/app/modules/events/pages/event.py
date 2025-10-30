@@ -17,8 +17,10 @@ from app.flask.lib.pages import Page, page
 from app.flask.lib.view_model import ViewModel
 from app.flask.sqla import get_multi, get_obj
 from app.models.auth import User
+from app.modules.events.components.opening_hours import opening_hours
 from app.modules.events.models import EventPost
 from app.modules.events.services import get_participants
+from app.modules.kyc.field_label import country_code_to_label, country_zip_code_to_city
 from app.services.social_graph import adapt
 
 from .events import EventsPage
@@ -50,6 +52,11 @@ class EventVM(ViewModel):
             "type_label": "",
             "type_id": "",
             "participants": participants,
+            "opening": opening_hours(event.start_date, event.end_date),
+            "country_zip_city": (
+                f"{country_zip_code_to_city(event.pays_zip_ville_detail)}, "
+                f"{country_code_to_label(event.pays_zip_ville)}"
+            ),
         }
 
 
