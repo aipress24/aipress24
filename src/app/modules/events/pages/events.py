@@ -22,7 +22,6 @@ from werkzeug.exceptions import BadRequest
 from app.flask.lib.pages import Page, page
 from app.flask.lib.view_model import ViewModel
 from app.flask.sqla import get_multi
-from app.logging import warn
 from app.models.lifecycle import PublicationStatus
 from app.models.meta import get_meta_attr
 from app.models.mixins import filter_by_loc
@@ -98,8 +97,6 @@ class EventsPage(Page):
     def hx_post(self):
         # self.update_tabs()
         #
-        warn("request headers", request.headers)
-        warn("request args", request.args)
 
         self.filter_bar.update_state()
 
@@ -129,11 +126,9 @@ class EventsPage(Page):
     # Otherwise: nothing to do
 
     def context(self):
-        warn("in context")
         self.process_args()
         # Group event by day
         events = self.get_events()
-        warn("events", events)
         grouper = defaultdict(list)
         for event in events:
             vm = EventVM(event)
@@ -173,8 +168,6 @@ class EventsPage(Page):
         stmt = self.date_filter.apply(stmt)
         # stmt = self.filter_by_tabs(stmt)
         # stmt = self.filter_by_loc(stmt)
-
-        warn("filtering", self.filter_bar.active_filters)
 
         genre_filters = {
             f["value"] for f in self.filter_bar.active_filters if f["id"] == "genre"
