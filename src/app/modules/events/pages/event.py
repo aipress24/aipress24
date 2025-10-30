@@ -17,8 +17,10 @@ from app.flask.lib.pages import Page, page
 from app.flask.lib.view_model import ViewModel
 from app.flask.sqla import get_multi, get_obj
 from app.models.auth import User
+from app.modules.events.components.opening_hours import opening_hours
 from app.modules.events.models import EventPost
 from app.modules.events.services import get_participants
+from app.modules.kyc.field_label import country_code_to_label, country_zip_code_to_city
 from app.services.social_graph import adapt
 
 from .events import EventsPage
@@ -45,9 +47,16 @@ class EventVM(ViewModel):
             "likes": event.like_count,
             "replies": event.comment_count,
             "views": event.view_count,
-            "type_label": event.Meta.type_label,
-            "type_id": event.Meta.type_id,
+            # "type_label": event.Meta.type_label,
+            # "type_id": event.Meta.type_id,
+            "type_label": "",
+            "type_id": "",
             "participants": participants,
+            "opening": opening_hours(event.start_date, event.end_date),
+            "country_zip_city": (
+                f"{country_zip_code_to_city(event.pays_zip_ville_detail)}, "
+                f"{country_code_to_label(event.pays_zip_ville)}"
+            ),
         }
 
 
@@ -86,16 +95,38 @@ class EventPage(Page):
 
     def get_metadata_list(self):
         item = self.event
-        return [
-            {"label": "Type", "value": "Évènement"},
-            {"label": "Genre", "value": item.genre or "N/A"},
-            {"label": "Catégorie", "value": item.category or "N/A"},
-            {"label": "Secteur d'activité", "value": item.sector or "N/A"},
-            # {"label": "Rubrique", "value": item.section or "N/A"},
-            # {"label": "Sujet", "value": item.topic or "N/A"},
-            # {"label": "Fonction", "value": item.job or "N/A"},
-            # {"label": "Compétence", "value": item.competency or "N/A"},
+        data = [
+            {
+                "label": "Type d'événemant",
+                "value": item.genre or "N/A",
+                "href": "events",
+            },
+            {"label": "Secteur", "value": item.sector or "N/A", "href": "events"},
         ]
+        if item.address:
+            data.append({"label": "Adresse", "value": item.address, "href": "events"})
+        if item.pays_zip_ville:
+            data.append(
+                {
+                    "label": "Pays",
+                    "value": country_code_to_label(item.pays_zip_ville),
+                    "href": "events",
+                }
+            )
+        if item.pays_zip_ville_detail:
+            data.append(
+                {
+                    "label": "Ville",
+                    "value": country_zip_code_to_city(item.pays_zip_ville_detail),
+                    "href": "events",
+                }
+            )
+        if item.url:
+            data.append(
+                {"label": "URL de l'événement", "value": item.url, "href": item.url}
+            )
+
+        return data
 
     #
     # Actions
