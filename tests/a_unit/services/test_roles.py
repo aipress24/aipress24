@@ -161,6 +161,7 @@ class TestHasRole:
 
     def test_has_role_anonymous_user(self, db: SQLAlchemy) -> None:
         """Test that anonymous users always return False."""
+
         # Create an anonymous user mock
         class AnonymousUser:
             is_anonymous = True
