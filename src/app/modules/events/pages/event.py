@@ -45,8 +45,10 @@ class EventVM(ViewModel):
             "likes": event.like_count,
             "replies": event.comment_count,
             "views": event.view_count,
-            "type_label": event.Meta.type_label,
-            "type_id": event.Meta.type_id,
+            # "type_label": event.Meta.type_label,
+            # "type_id": event.Meta.type_id,
+            "type_label": "",
+            "type_id": "",
             "participants": participants,
         }
 
