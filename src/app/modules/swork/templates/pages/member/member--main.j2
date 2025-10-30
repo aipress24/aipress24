@@ -7,7 +7,7 @@
       <div class="relative">
         <img
             class="h-32 w-full object-cover lg:h-48"
-            src="{{ profile.cover_image_url }}"
+            src="{{ profile.banner_url }}"
             alt=""
         />
 
@@ -49,9 +49,11 @@
               <div class="text-l font-medium text-gray-900 truncate flex truncate">
                 {{profile_description}}
               </div>
-              <div class="text-l font-medium text-gray-900 truncate flex truncate">
-                 {{profile.organisation_name}}
-              </div>
+              <a
+                class="text-l font-medium text-gray-900 truncate flex truncate"
+                href = "{{ url_for(profile.organisation) }}">
+                {{profile.organisation_name}}
+              </a>
             </div>
             <div
                 class="mt-6 flex flex-col justify-stretch space-y-3 sm:flex-row sm:space-y-0 sm:space-x-4"
@@ -95,9 +97,11 @@
           <div class="text-l font-medium text-gray-900 truncate flex truncate">
             {{profile_description}}
           </div>
-          <div class="text-l font-medium text-gray-900 truncate flex truncate">
-             {{profile.organisation_name}}
-          </div>
+          <a
+            class="text-l font-medium text-gray-900 truncate flex truncate"
+            href = "{{ url_for(profile.organisation) }}">
+            {{profile.organisation_name}}
+          </a>
         </div>
       </div>
     </div>

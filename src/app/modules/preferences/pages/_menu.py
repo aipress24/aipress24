@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from app.flask.routing import url_for
 
+from .banner import PrefBannerPage
 from .contact import PrefContactOptionsPage
 from .interests import PrefInterestsPage
 from .org_invitation import PrefInvitationsPage
@@ -20,6 +21,7 @@ MENU = [
     PrefEditProfilePage,
     PrefInterestsPage,
     PrefContactOptionsPage,
+    PrefBannerPage,
     # PrefSecurityPage,
     # PrefNotificationPage,
     # PrefIntegrationPage,

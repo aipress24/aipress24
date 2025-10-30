@@ -21,7 +21,6 @@ from app.constants import (
     LOCAL_TZ,
 )
 from app.enums import ContactTypeEnum, OrganisationTypeEnum
-from app.faker._constants import COVER_IMAGES
 from app.faker._geo import fake_geoloc
 from app.flask.extensions import security
 from app.models.auth import KYCProfile, User
@@ -609,7 +608,7 @@ class UserGenerator(BaseGenerator):
 
         user.profile_image_url = self.get_profile_image(user)
         self._load_photo_profil(user)
-        user.cover_image_url = random.choice(COVER_IMAGES)
+        user.cover_image_id = ""
 
         user.status = random.choice(USER_STATUS)
         user.karma = random.randint(0, 100)

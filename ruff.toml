@@ -78,6 +78,7 @@ lint.ignore = [
     "PLR0912", # too-many-branches
     "A004", #    builtin-import-shadowing
     "RUF012",
+    "SIM117",
 ]
 
 [lint.extend-per-file-ignores]

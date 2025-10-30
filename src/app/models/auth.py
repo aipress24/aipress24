@@ -136,7 +136,7 @@ class User(LifeCycleMixin, Addressable, UserMixin, Base):
 
     # TODO: use content repository
     profile_image_url: Mapped[str] = mapped_column(default="")
-    cover_image_url: Mapped[str] = mapped_column(default="")
+    cover_image_id: Mapped[str] = mapped_column(default="")
 
     status: Mapped[str] = mapped_column(default="Débutant")
 
@@ -542,7 +542,7 @@ def clone_user(orig_user: User) -> User:
         tel_mobile_validated_at=orig_user.tel_mobile_validated_at,
         organisation_id=orig_user.organisation_id,
         profile_image_url=orig_user.profile_image_url,
-        cover_image_url=orig_user.cover_image_url,
+        cover_image_id=orig_user.cover_image_id,
         status=orig_user.status,
         karma=orig_user.karma,
         organisation=orig_user.organisation,  # to verify: not to appear in members list ! maybe not for clone
@@ -599,7 +599,7 @@ def merge_values_from_other_user(orig_user: User, modified_user: User) -> None:
     # orig_user.geoloc_id = modified_user.geoloc_id
     # geoloc  # check if needed
     orig_user.profile_image_url = modified_user.profile_image_url
-    orig_user.cover_image_url = modified_user.cover_image_url
+    orig_user.cover_image_id = modified_user.cover_image_id
     orig_user.status = modified_user.status
     orig_user.karma = modified_user.karma
     orig_user.organisation = modified_user.organisation

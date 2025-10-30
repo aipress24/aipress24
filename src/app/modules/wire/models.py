@@ -123,7 +123,7 @@ class NewsMetadataMixin:
     )
 
 
-class Post(BaseContent, LifeCycleMixin):
+class Post(NewsMetadataMixin, BaseContent, LifeCycleMixin):
     __mapper_args__: ClassVar[dict] = {
         "polymorphic_identity": "post",
     }
@@ -148,12 +148,17 @@ class Post(BaseContent, LifeCycleMixin):
     )
 
     publisher_id: Mapped[int | None] = mapped_column(ForeignKey(Organisation.id))
+    media_id: Mapped[int | None] = mapped_column(ForeignKey(Organisation.id))
 
     image_id: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
 
     @orm.declared_attr
     def publisher(cls):
         return orm.relationship(Organisation, foreign_keys=[cls.publisher_id])
+
+    @orm.declared_attr
+    def media(cls):
+        return orm.relationship(Organisation, foreign_keys=[cls.media_id])
 
     # # Media
     # media_id: Mapped[int] = mapped_column(sa.BigInteger, sa.ForeignKey(Organisation.id))
@@ -184,7 +189,7 @@ class Post(BaseContent, LifeCycleMixin):
     # taille_contenu: Mapped[str] = mapped_column(default="")
 
 
-class ArticlePost(NewsMetadataMixin, Post, Taggable):
+class ArticlePost(Post, Taggable):
     __mapper_args__: ClassVar[dict] = {
         "polymorphic_identity": "article",
     }
@@ -199,7 +204,7 @@ class ArticlePost(NewsMetadataMixin, Post, Taggable):
     )
 
 
-class PressReleasePost(NewsMetadataMixin, Post, Taggable):
+class PressReleasePost(Post, Taggable):
     __mapper_args__: ClassVar[dict] = {
         "polymorphic_identity": "press_release",
     }

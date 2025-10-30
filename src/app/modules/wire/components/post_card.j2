@@ -72,25 +72,29 @@
   </div>
 
   <hr class=""/>
-
-  <div class="px-4 py-1.5 flex items-center space-x-3 border-b">
-    <div class="flex-shrink-0">
-      <a href="{{ url_for(post.publisher) }}" class="focus:outline-none">
-        {{ org_logo(post.publisher, size=10) }}
-      </a>
+    <div class="flex flex-col space-y-1">
+      <div class="px-4 py-1.5 border-b min-w-0">
+        {% if post.publisher %}
+          <a href="{#{ url_for(post.publisher) #}" class="focus:outline-none">
+            {#{ org_logo(post.publisher, size=10) }#}
+          </a>
+          <a href="{# url_for(post.publisher) #}" class="focus:outline-none">
+            <p class="text-sm font-medium text-gray-900">
+              {{ post.publisher.name }}
+            </p>
+          </a>
+        {% endif %}
+        {% if post.media %}
+          <div class="flex-1 min-w-0">
+            <a href="{{ url_for(post.media) }}" class="focus:outline-none">
+              <p class="text-sm font-medium text-gray-900">
+                Pour: {{ post.media.name }}
+              </p>
+            </a>
+          </div>
+        {% endif %}
+      </div>
     </div>
-
-    <div class="flex-1 min-w-0">
-      <a href="{{ url_for(post.publisher) }}" class="focus:outline-none">
-        <p class="text-sm font-medium text-gray-900">
-          {#  FIXME #}
-          {% if post.publisher %}
-            {{ post.publisher.name }}
-          {% endif %}
-        </p>
-      </a>
-    </div>
-  </div>
 
 {% endif %}
 

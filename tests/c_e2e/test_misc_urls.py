@@ -63,7 +63,7 @@ def test_most_routes(app: Flask, logged_in_client: FlaskClient) -> None:
             continue
 
         # Skip routes that don't accept GET
-        if "GET" not in rule.methods:
+        if not rule.methods or "GET" not in rule.methods:
             continue
 
         print(f"Visiting route: {rule.rule}")

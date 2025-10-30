@@ -10,6 +10,8 @@ import os
 from flask import Blueprint, current_app
 from werkzeug.exceptions import Unauthorized
 
+from app.flask.extensions import db
+
 blueprint = Blueprint("debug", __name__, url_prefix="/debug")
 get = blueprint.get
 route = blueprint.route
@@ -37,7 +39,7 @@ def debug():
 
 
 @blueprint.route("/db")
-def db():
+def db_info():
     response = {
         "SQLALCHEMY_DATABASE_URI": current_app.config["SQLALCHEMY_DATABASE_URI"],
         "DB": str(db),
@@ -49,7 +51,7 @@ def db():
 @get("/env")
 def env():
     environment = dict(os.environ)
-    response = []
+    response: list[str] = []
     for key, value in sorted(environment.items()):
         response.append(f"{key}={value}")
     return "<pre>\n" + "\n".join(response) + "\n</pre>"
@@ -58,7 +60,7 @@ def env():
 @get("/config")
 def config():
     config = current_app.config
-    response = []
+    response: list[str] = []
     for key, value in sorted(config.items()):
         response.append(f"{key}={value}")
     return "<pre>\n" + "\n".join(response) + "\n</pre>"
