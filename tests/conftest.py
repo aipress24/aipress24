@@ -190,7 +190,7 @@ def db_session(db, app, request):
         if transaction.nested and not transaction._parent.nested:
             session.begin_nested()
 
-    # CRITICAL: Push a fresh app context to get a fresh container registry
+    # Push a fresh app context to get a fresh container registry
     # This ensures that when repositories call container.get(scoped_session),
     # they get our test session, not a cached old session
     ctx = app.app_context()
