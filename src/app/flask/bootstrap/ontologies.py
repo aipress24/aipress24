@@ -154,10 +154,7 @@ def _parse_source_ontologies() -> dict[str, Any]:
     if not ONTOLOGY_SRC.is_file():
         msg = f"Please add the missing {ONTOLOGY_SRC} file."
         raise FileNotFoundError(msg)
-    content = odsparsator.ods_to_python(
-        input_path=ONTOLOGY_SRC,
-        export_minimal=True,
-    )
+    content = odsparsator.ods_to_python(input_path=ONTOLOGY_SRC, export_minimal=True)
     result: dict[str, Any] = {}
     for sheet in content["body"]:
         name = sheet["name"]
