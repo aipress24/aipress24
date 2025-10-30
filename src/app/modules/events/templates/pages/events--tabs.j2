@@ -81,7 +81,7 @@
     {% for filter in filter_bar.active_filters %}
      <span
           class="inline-flex items-center rounded text-sm font-medium text-gray-600 bg-gray-200 my-1 py-1 px-2">
-        <span class="">{{ filter.id }}: {{ filter.label }}</span>
+        <span class="">{{ filter.tag_label }}: {{ filter.label }}</span>
         {% set action = {'action': 'remove', 'id': filter.id, 'value': filter.label} %}
         <button
             hx-post="{{ url_for(".events") }}"
