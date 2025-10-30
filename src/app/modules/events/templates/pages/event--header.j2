@@ -25,13 +25,12 @@
 
         <div class="flex">
           {{ icon("clock", class="w-6 h-6 mr-1") }}
-          {{ event.start_date.format("DD MMM YYYY", locale="fr") }}
+          {{ event.opening }}
         </div>
         <div class="flex">
           {{ icon("map-pin", class="w-6 h-6 mr-1") }}
           <div>
-            {{ event.location }},
-            <a href="/france/conferences" class="text-decoration-none">France</a>
+          {{ event.country_zip_city }}
           </div>
         </div>
       </div>
