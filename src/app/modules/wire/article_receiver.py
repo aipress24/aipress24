@@ -37,7 +37,7 @@ def on_publish(article: Article) -> None:
     update_post(post, article)
 
     db.session.add(post)
-    db.session.commit()
+    db.session.flush()
 
 
 @article_unpublished.connect
@@ -49,7 +49,7 @@ def on_unpublish(article: Article) -> None:
     post.status = PublicationStatus.DRAFT
 
     db.session.add(post)
-    db.session.commit()
+    db.session.flush()
 
 
 @article_updated.connect
@@ -65,7 +65,7 @@ def on_update(article: Article) -> None:
     post.last_updated_at = now(LOCAL_TZ)
 
     db.session.add(post)
-    db.session.commit()
+    db.session.flush()
 
 
 @communique_published.connect
@@ -83,7 +83,7 @@ def on_publish_communique(communique: Communique) -> None:
     update_post(post, communique)
 
     db.session.add(post)
-    db.session.commit()
+    db.session.flush()
 
 
 @communique_unpublished.connect
@@ -95,7 +95,7 @@ def on_unpublish_communique(communique: Communique) -> None:
     post.status = PublicationStatus.DRAFT
 
     db.session.add(post)
-    db.session.commit()
+    db.session.flush()
 
 
 @communique_updated.connect
@@ -111,7 +111,7 @@ def on_update_communique(communique: Communique) -> None:
     post.last_updated_at = now(LOCAL_TZ)
 
     db.session.add(post)
-    db.session.commit()
+    db.session.flush()
 
 
 def update_post(
