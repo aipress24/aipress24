@@ -27,8 +27,13 @@ tasks:
 
   - setup: |
       sudo pip3.12 install -U uv nox
+      cd aipress24
       uv version
       nox --version
+
+  - nox-test: |
+      cd aipress24
+      nox -e test-3.12
 
 # Skip for now
 
