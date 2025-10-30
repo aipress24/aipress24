@@ -95,16 +95,38 @@ class EventPage(Page):
 
     def get_metadata_list(self):
         item = self.event
-        return [
-            {"label": "Type", "value": "Évènement"},
-            {"label": "Genre", "value": item.genre or "N/A"},
-            {"label": "Catégorie", "value": item.category or "N/A"},
-            {"label": "Secteur d'activité", "value": item.sector or "N/A"},
-            # {"label": "Rubrique", "value": item.section or "N/A"},
-            # {"label": "Sujet", "value": item.topic or "N/A"},
-            # {"label": "Fonction", "value": item.job or "N/A"},
-            # {"label": "Compétence", "value": item.competency or "N/A"},
+        data = [
+            {
+                "label": "Type d'événemant",
+                "value": item.genre or "N/A",
+                "href": "events",
+            },
+            {"label": "Secteur", "value": item.sector or "N/A", "href": "events"},
         ]
+        if item.address:
+            data.append({"label": "Adresse", "value": item.address, "href": "events"})
+        if item.pays_zip_ville:
+            data.append(
+                {
+                    "label": "Pays",
+                    "value": country_code_to_label(item.pays_zip_ville),
+                    "href": "events",
+                }
+            )
+        if item.pays_zip_ville_detail:
+            data.append(
+                {
+                    "label": "Ville",
+                    "value": country_zip_code_to_city(item.pays_zip_ville_detail),
+                    "href": "events",
+                }
+            )
+        if item.url:
+            data.append(
+                {"label": "URL de l'événement", "value": item.url, "href": item.url}
+            )
+
+        return data
 
     #
     # Actions
