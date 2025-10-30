@@ -85,7 +85,7 @@ class ArticleForm(Form):
     )
     date_paiement = DateTimeField("Date/heure de paiement", render_kw={"width": 3})
 
-    class Meta:
+    class Meta:  # type: ignore[misc]
         groups = {
             "headers": {"label": "", "fields": ["titre", "chapo"]},
             "contenu": {"label": "Contenu de l'article", "fields": ["contenu"]},
@@ -169,7 +169,7 @@ class AvisEnqueteForm(Form):
         validators=[validators.InputRequired()],
     )
 
-    class Meta:
+    class Meta:  # type: ignore[misc]
         groups = {
             "headers": {"label": "", "fields": ["titre", "contenu"]},
             "metadata": {
@@ -232,7 +232,7 @@ class SujetForm(Form):
         "Date/heure de parution prévue", render_kw={"width": 3}
     )
 
-    class Meta:
+    class Meta:  # type: ignore[misc]
         groups = {
             "headers": {"label": "", "fields": ["titre", "contenu"]},
             "metadata": {
@@ -290,7 +290,7 @@ class CommandeForm(Form):
     )
     date_paiement = DateTimeField("Date/heure de paiement", render_kw={"width": 3})
 
-    class Meta:
+    class Meta:  # type: ignore[misc]
         groups = {
             "headers": {"label": "", "fields": ["titre", "contenu"]},
             "metadata": {
@@ -383,7 +383,7 @@ class CommuniqueForm(Form):
         format="%Y-%m-%dT%H:%M",
     )
 
-    class Meta:
+    class Meta:  # type: ignore[misc]
         groups = {
             "headers": {
                 "label": "En-têtes du communiqué",
@@ -482,7 +482,7 @@ class EventForm(Form):
         format="%Y-%m-%dT%H:%M",
     )
 
-    class Meta:
+    class Meta:  # type: ignore[misc]
         groups = {
             "headers": {
                 "label": "En-têtes de l'événement",
