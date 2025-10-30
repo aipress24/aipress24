@@ -110,3 +110,166 @@ def test_likes(db: SQLAlchemy) -> None:
     db.session.flush()
 
     assert social_article.num_likes() == 0
+
+
+def test_follow_self_raises_error(db: SQLAlchemy) -> None:
+    """Test that following yourself with raw User raises SocialGraphError."""
+    import pytest
+
+    from app.services.social_graph._adapters import SocialGraphError
+
+    joe = User(email="joe@example.com")
+    db.session.add(joe)
+    db.session.flush()
+
+    social_joe = adapt(joe)
+
+    # Following yourself with a raw User object raises error
+    with pytest.raises(SocialGraphError, match="can't follow themself"):
+        social_joe.follow(joe)
+
+
+def test_get_followers_with_order_and_limit(db: SQLAlchemy) -> None:
+    """Test get_followers with order_by and limit parameters."""
+    joe = User(email="joe@example.com")
+    jim = User(email="jim@example.com")
+    jane = User(email="jane@example.com")
+    db.session.add_all([joe, jim, jane])
+    db.session.flush()
+
+    social_joe = adapt(joe)
+    social_jim = adapt(jim)
+    social_jane = adapt(jane)
+
+    # Have jim and jane follow joe
+    social_jim.follow(joe)
+    social_jane.follow(joe)
+    db.session.flush()
+
+    # Test with limit
+    followers = social_joe.get_followers(limit=1)
+    assert len(followers) == 1
+
+    # Test with order_by
+    followers = social_joe.get_followers(order_by=User.email)
+    assert len(followers) == 2
+    # Should be ordered by email
+    assert followers[0].email == "jane@example.com"
+    assert followers[1].email == "jim@example.com"
+
+
+def test_get_followees_with_order_and_limit(db: SQLAlchemy) -> None:
+    """Test get_followees with order_by and limit parameters."""
+    joe = User(email="joe@example.com")
+    jim = User(email="jim@example.com")
+    jane = User(email="jane@example.com")
+    db.session.add_all([joe, jim, jane])
+    db.session.flush()
+
+    social_joe = adapt(joe)
+
+    # Have joe follow jim and jane
+    social_joe.follow(jim)
+    social_joe.follow(jane)
+    db.session.flush()
+
+    # Test with limit
+    followees = social_joe.get_followees(limit=1)
+    assert len(followees) == 1
+
+    # Test with order_by
+    followees = social_joe.get_followees(order_by=User.email)
+    assert len(followees) == 2
+    assert followees[0].email == "jane@example.com"
+    assert followees[1].email == "jim@example.com"
+
+
+def test_get_followees_organisations_with_limit(db: SQLAlchemy) -> None:
+    """Test get_followees for organisations with limit."""
+    joe = User(email="joe@example.com")
+    org1 = Organisation(name="Org A")
+    org2 = Organisation(name="Org B")
+    db.session.add_all([joe, org1, org2])
+    db.session.flush()
+
+    social_joe = adapt(joe)
+
+    social_joe.follow(org1)
+    social_joe.follow(org2)
+    db.session.flush()
+
+    # Test with limit
+    followees = social_joe.get_followees(cls=Organisation, limit=1)
+    assert len(followees) == 1
+
+    # Test with order_by
+    followees = social_joe.get_followees(cls=Organisation, order_by=Organisation.name)
+    assert len(followees) == 2
+    assert followees[0].name == "Org A"
+    assert followees[1].name == "Org B"
+
+
+def test_is_following_with_raw_user_and_org(db: SQLAlchemy) -> None:
+    """Test is_following with raw User and Organisation objects."""
+    joe = User(email="joe@example.com")
+    jim = User(email="jim@example.com")
+    org = Organisation(name="Test Org")
+    db.session.add_all([joe, jim, org])
+    db.session.flush()
+
+    social_joe = adapt(joe)
+
+    # Follow using raw objects (not adapted)
+    social_joe.follow(jim)
+    social_joe.follow(org)
+    db.session.flush()
+
+    # Check is_following with raw objects
+    assert social_joe.is_following(jim)
+    assert social_joe.is_following(org)
+
+
+def test_like_when_already_liking(db: SQLAlchemy) -> None:
+    """Test that calling like() when already liking is idempotent."""
+    joe = User(email="joe@example.com")
+    article = ArticlePost(owner=joe)
+    db.session.add_all([joe, article])
+    db.session.flush()
+
+    social_joe = adapt(joe)
+    social_article = adapt(article)
+
+    # Like the article
+    social_joe.like(social_article)
+    db.session.flush()
+    assert social_article.num_likes() == 1
+
+    # Like again - should be idempotent (early return)
+    social_joe.like(social_article)
+    db.session.flush()
+    assert social_article.num_likes() == 1
+
+
+def test_unlike_when_not_liking(db: SQLAlchemy) -> None:
+    """Test that calling unlike() when not liking is safe."""
+    joe = User(email="joe@example.com")
+    article = ArticlePost(owner=joe)
+    db.session.add_all([joe, article])
+    db.session.flush()
+
+    social_joe = adapt(joe)
+    social_article = adapt(article)
+
+    # Unlike when not liking - should be safe (early return)
+    social_joe.unlike(social_article)
+    db.session.flush()
+    assert social_article.num_likes() == 0
+
+
+def test_adapt_unsupported_type(db: SQLAlchemy) -> None:
+    """Test that adapt raises NotImplementedError for unsupported types."""
+    import pytest
+
+    # Try to adapt an unsupported type
+    with pytest.raises(NotImplementedError, match="Adaptation of.*not implemented"):
+        adapt("unsupported")

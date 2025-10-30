@@ -4,7 +4,8 @@
 
 from __future__ import annotations
 
-from flask import g
+import pytest
+from flask import g, session as flask_session
 from flask_sqlalchemy import SQLAlchemy
 from svcs.flask import container
 
@@ -16,6 +17,10 @@ class FakeUser:
     is_authenticated = True
 
 
+class FakeAnonymousUser:
+    is_authenticated = False
+
+
 def test_session_with_authenticated_user(db: SQLAlchemy) -> None:
     g.user = FakeUser()
 
@@ -24,6 +29,142 @@ def test_session_with_authenticated_user(db: SQLAlchemy) -> None:
 
     session_service.set("foo", "bar")
     assert session_service.get("foo") == "bar"
+
+
+def test_session_service_get_session_authenticated(db: SQLAlchemy) -> None:
+    """Test get_session with authenticated user."""
+    g.user = FakeUser()
+
+    session_service = container.get(SessionService)
+
+    # First call creates session
+    session_service.set("test", "value")
+    session = session_service.get_session()
+
+    assert session is not None
+    assert session.user_id == FakeUser.id
+
+
+def test_session_service_get_session_anonymous_with_session_id(
+    db: SQLAlchemy,
+) -> None:
+    """Test get_session with anonymous user but with session_id."""
+    g.user = FakeAnonymousUser()
+    flask_session["session_id"] = "test-session-123"
+
+    # Create a session first
+    from app.services.sessions._models import SessionRepository
+
+    repo = container.get(SessionRepository)
+    session, _ = repo.get_or_upsert(session_id="test-session-123")
+    session.set("anonymous", "data")
+    repo.add(session, auto_commit=True)
+
+    session_service = container.get(SessionService)
+    retrieved_session = session_service.get_session()
+
+    assert retrieved_session is not None
+    assert retrieved_session.session_id == "test-session-123"
+
+
+def test_session_service_get_session_anonymous_without_session_id(
+    db: SQLAlchemy,
+) -> None:
+    """Test get_session with anonymous user and no session_id."""
+    g.user = FakeAnonymousUser()
+    flask_session.clear()  # Ensure no session_id
+
+    session_service = container.get(SessionService)
+    session = session_service.get_session()
+
+    assert session is None
+
+
+def test_session_service_contains(db: SQLAlchemy) -> None:
+    """Test SessionService __contains__ method."""
+    g.user = FakeUser()
+
+    session_service = container.get(SessionService)
+
+    # Key doesn't exist
+    assert "missing_key" not in session_service
+
+    # After setting
+    session_service.set("existing_key", "value")
+    assert "existing_key" in session_service
+
+
+def test_session_service_contains_no_session(db: SQLAlchemy) -> None:
+    """Test __contains__ when no session exists."""
+    g.user = FakeAnonymousUser()
+    flask_session.clear()
+
+    session_service = container.get(SessionService)
+    assert "any_key" not in session_service
+
+
+def test_session_service_get_with_default(db: SQLAlchemy) -> None:
+    """Test get() with default value."""
+    g.user = FakeUser()
+
+    session_service = container.get(SessionService)
+    assert session_service.get("missing", "default_value") == "default_value"
+
+
+def test_session_service_get_without_default_raises_keyerror(db: SQLAlchemy) -> None:
+    """Test get() without default raises KeyError when session doesn't exist."""
+    g.user = FakeAnonymousUser()
+    flask_session.clear()
+
+    session_service = container.get(SessionService)
+
+    with pytest.raises(KeyError, match="missing_key"):
+        session_service.get("missing_key")
+
+
+def test_session_service_getitem(db: SQLAlchemy) -> None:
+    """Test SessionService __getitem__ method."""
+    g.user = FakeUser()
+
+    session_service = container.get(SessionService)
+    session_service.set("item", "value")
+
+    assert session_service["item"] == "value"
+
+
+def test_session_service_setitem(db: SQLAlchemy) -> None:
+    """Test SessionService __setitem__ method."""
+    g.user = FakeUser()
+
+    session_service = container.get(SessionService)
+    session_service["key"] = "value"
+
+    assert session_service.get("key") == "value"
+
+
+def test_session_service_set_anonymous_with_session_id(db: SQLAlchemy) -> None:
+    """Test set() with anonymous user but with session_id."""
+    g.user = FakeAnonymousUser()
+    flask_session["session_id"] = "anon-session-456"
+
+    session_service = container.get(SessionService)
+    session_service.set("anon_key", "anon_value")
+
+    # Verify it was saved
+    assert session_service.get("anon_key") == "anon_value"
+
+
+def test_session_service_set_anonymous_without_session_id(db: SQLAlchemy) -> None:
+    """Test set() with anonymous user and no session_id (should be no-op)."""
+    g.user = FakeAnonymousUser()
+    flask_session.clear()
+
+    session_service = container.get(SessionService)
+    # Should not raise, just silently return
+    session_service.set("key", "value")
+
+    # Verify nothing was saved (no session exists)
+    assert session_service.get("key", None) is None
 
 
 def test_session_model_contains(db: SQLAlchemy) -> None:
