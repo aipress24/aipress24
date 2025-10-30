@@ -175,10 +175,17 @@ class EventsPage(Page):
         sector_filters = {
             f["value"] for f in self.filter_bar.active_filters if f["id"] == "sector"
         }
+        localisation_filters = {
+            f["value"]
+            for f in self.filter_bar.active_filters
+            if f["id"] == "pays_zip_ville_detail"
+        }
         if genre_filters:
             stmt = stmt.where(EventPost.genre.in_(genre_filters))
         if sector_filters:
             stmt = stmt.where(EventPost.sector.in_(sector_filters))
+        if localisation_filters:
+            stmt = stmt.where(EventPost.pays_zip_ville_detail.in_(localisation_filters))
 
         if self.search:
             stmt = stmt.where(EventPost.title.ilike(f"%{self.search}%"))
