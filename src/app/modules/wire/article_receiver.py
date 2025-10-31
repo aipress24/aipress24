@@ -26,7 +26,6 @@ def on_publish(article: Article) -> None:
         post = ArticlePost()
         post.newsroom_id = article.id
         post.created_at = article.created_at
-        post.published_at = now(LOCAL_TZ)
 
     post.status = PublicationStatus.PUBLIC
 
@@ -55,7 +54,7 @@ def on_update(article: Article) -> None:
         return
 
     update_post(post, article)
-    post.last_updated_at = now(LOCAL_TZ)
+    # post.last_updated_at = now(LOCAL_TZ)
 
     db.session.add(post)
     db.session.flush()
@@ -97,6 +96,12 @@ def update_post(post: ArticlePost, info: Article) -> None:
     post.address = info.address
     post.pays_zip_ville = info.pays_zip_ville
     post.pays_zip_ville_detail = info.pays_zip_ville_detail
+
+    post.last_updated_at = now(LOCAL_TZ)
+    post.published_at = info.date_publication_aip24
+    # Other possible publication dates:
+    # post.published_at = now(LOCAL_TZ)
+    # post.published_at = info.published_at
 
 
 def get_post(info: Article) -> ArticlePost | None:
