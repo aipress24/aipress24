@@ -32,7 +32,7 @@ def on_publish_communique(communique: Communique) -> None:
     update_post(post, communique)
 
     db.session.add(post)
-    db.session.flush()
+    db.session.commit()
 
 
 @communique_unpublished.connect
@@ -43,7 +43,7 @@ def on_unpublish_communique(communique: Communique) -> None:
     post.status = PublicationStatus.DRAFT
 
     db.session.add(post)
-    db.session.flush()
+    db.session.commit()
 
 
 @communique_updated.connect
@@ -56,7 +56,7 @@ def on_update_communique(communique: Communique) -> None:
     update_post(post, communique)
 
     db.session.add(post)
-    db.session.flush()
+    db.session.commit()
 
 
 def update_post(post: PressReleasePost, info: Communique) -> None:
