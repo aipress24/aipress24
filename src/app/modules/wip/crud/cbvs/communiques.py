@@ -112,7 +112,6 @@ class CommuniquesWipView(BaseWipView):
     def _post_update_model(self, model: Communique) -> None:
         if not model.status:
             model.status = PublicationStatus.DRAFT
-            model.published_at = arrow.now("Europe/Paris")
             if g.user.organisation_id:
                 model.publisher_id = g.user.organisation_id
         communique_updated.send(model)
@@ -121,6 +120,8 @@ class CommuniquesWipView(BaseWipView):
         repo = self._get_repo()
         communique = cast("Communique", self._get_model(id))
         communique.status = PublicationStatus.PUBLIC
+        if not communique.published_at:
+            communique.published_at = arrow.now("Europe/Paris")
         repo.update(communique, auto_commit=True)
         flash("Le communiqué a été publié")
         communique_published.send(communique)
