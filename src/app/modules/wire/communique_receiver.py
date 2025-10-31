@@ -26,7 +26,6 @@ def on_publish_communique(communique: Communique) -> None:
         post = PressReleasePost()
         post.newsroom_id = communique.id
         post.created_at = communique.created_at
-        post.published_at = now(LOCAL_TZ)
 
     post.status = PublicationStatus.PUBLIC
 
@@ -55,7 +54,6 @@ def on_update_communique(communique: Communique) -> None:
         return
 
     update_post(post, communique)
-    post.last_updated_at = now(LOCAL_TZ)
 
     db.session.add(post)
     db.session.flush()
@@ -67,10 +65,6 @@ def update_post(post: PressReleasePost, info: Communique) -> None:
     post.content = info.contenu
     post.owner_id = info.owner_id
     post.publisher_id = info.publisher_id
-    if hasattr(info, "media_id"):
-        post.media_id = info.media_id
-    else:
-        post.media_id = None
 
     # TODO: remove
     images = info.sorted_images
@@ -97,6 +91,11 @@ def update_post(post: PressReleasePost, info: Communique) -> None:
     post.address = info.address
     post.pays_zip_ville = info.pays_zip_ville
     post.pays_zip_ville_detail = info.pays_zip_ville_detail
+
+    post.last_updated_at = now(LOCAL_TZ)
+    post.published_at = info.published_at
+    # Other possible publication dates:
+    # post.published_at = now(LOCAL_TZ)
 
 
 def get_post(info: Communique) -> PressReleasePost | None:
