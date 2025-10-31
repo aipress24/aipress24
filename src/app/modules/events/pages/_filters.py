@@ -26,6 +26,11 @@ FILTER_SPECS = [
         "label": "Secteur",
         "selector": "sector",
     },
+    {
+        "id": "pays_zip_ville_detail",
+        "label": "Localisation",
+        "selector": "location",
+    },
 ]
 
 SORTER_OPTIONS = [
@@ -34,6 +39,12 @@ SORTER_OPTIONS = [
     ("likes", "Popularité (likes)"),
     ("shares", "Popularité (partages)"),
 ]
+
+FILTER_TAG_LABEL = {
+    "sector": "secteur",
+    "genre": "type",
+    "pays_zip_ville_detail": "localisation",
+}
 
 
 class FilterBar:
@@ -44,7 +55,6 @@ class FilterBar:
     #
     # Accessors
     #
-
     @property
     def active_filters(self) -> list:
         return [
@@ -53,6 +63,7 @@ class FilterBar:
                 "id": filter["id"],
                 "value": filter["value"],
                 "label": filter["value"],
+                "tag_label": FILTER_TAG_LABEL.get(filter["id"], ""),
             }
             for filter in self.state.get("filters", [])
         ]

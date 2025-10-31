@@ -22,7 +22,6 @@ from werkzeug.exceptions import BadRequest
 from app.flask.lib.pages import Page, page
 from app.flask.lib.view_model import ViewModel
 from app.flask.sqla import get_multi
-from app.logging import warn
 from app.models.lifecycle import PublicationStatus
 from app.models.meta import get_meta_attr
 from app.models.mixins import filter_by_loc
@@ -98,8 +97,6 @@ class EventsPage(Page):
     def hx_post(self):
         # self.update_tabs()
         #
-        warn("request headers", request.headers)
-        warn("request args", request.args)
 
         self.filter_bar.update_state()
 
@@ -129,11 +126,9 @@ class EventsPage(Page):
     # Otherwise: nothing to do
 
     def context(self):
-        warn("in context")
         self.process_args()
         # Group event by day
         events = self.get_events()
-        warn("events", events)
         grouper = defaultdict(list)
         for event in events:
             vm = EventVM(event)
@@ -174,18 +169,23 @@ class EventsPage(Page):
         # stmt = self.filter_by_tabs(stmt)
         # stmt = self.filter_by_loc(stmt)
 
-        warn("filtering", self.filter_bar.active_filters)
-
         genre_filters = {
             f["value"] for f in self.filter_bar.active_filters if f["id"] == "genre"
         }
         sector_filters = {
             f["value"] for f in self.filter_bar.active_filters if f["id"] == "sector"
         }
+        localisation_filters = {
+            f["value"]
+            for f in self.filter_bar.active_filters
+            if f["id"] == "pays_zip_ville_detail"
+        }
         if genre_filters:
             stmt = stmt.where(EventPost.genre.in_(genre_filters))
         if sector_filters:
             stmt = stmt.where(EventPost.sector.in_(sector_filters))
+        if localisation_filters:
+            stmt = stmt.where(EventPost.pays_zip_ville_detail.in_(localisation_filters))
 
         if self.search:
             stmt = stmt.where(EventPost.title.ilike(f"%{self.search}%"))
