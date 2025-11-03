@@ -61,7 +61,6 @@ def make_columns(columns):
     for item in columns:
         match item:
             case str(name):
-                # static analysis: ignore[undefined_name]
                 result.append({"name": name, "label": name.capitalize()})
             case {"name": _name, "label": _label, **__}:
                 result.append(item)
