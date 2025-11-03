@@ -3,22 +3,22 @@
 {% block main %}
   <h2>Image de présentation</h2>
 
-  <div class="pt-4">
+  <div class="pt-2">
     <form
         class="divide-y divide-gray-200 lg:col-span-9"
         action=""
         method="POST"
         enctype="multipart/form-data"
     >
-    <div class="mb-6">
-    <div class="font-semibold mb-2">Image actuelle</div>
-    <div id="imageContainer" class="p-3 border border-gray-300 rounded-md  flex items-center justify-center min-h-[150px]">
+    <div class="mb-4">
+    <div class="font-semibold mb-1">Image actuelle</div>
+    <div id="imageContainer" class="p-2 flex items-center justify-center min-h-[120px]">
     {% if current_image_url and current_image_url != 'None' %}
         <img
             id="currentImage"
             src="{{ current_image_url }}"
             alt="Image de présentation actuelle"
-            class="max-w-full max-h-[300px] rounded-md shadow-lg"
+            class="h-32 w-full object-cover lg:h-48 max-w-full max-h-[200px]"
             style="max-height: 250px;"
         />
     {% else %}
