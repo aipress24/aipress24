@@ -1,5 +1,5 @@
 vite: flask vite start
-backend: flask --debug run --reload
+backend: python -m server
 
 # scheduler: flask rq scheduler
 # worker: flask rq worker
