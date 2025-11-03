@@ -15,6 +15,7 @@ from starlette.routing import Mount
 
 from adminapp.main import create_app as create_admin_app
 from app.flask.main import create_app as create_flask_app
+from poc.app import create_app as create_poc_app
 from server.scheduler import scheduler
 
 config = Config()
@@ -31,14 +32,16 @@ def create_app():
     """Create combined ASGI application with Flask and admin apps.
 
     Returns:
-        Starlette: Combined application with mounted Flask and admin apps.
+        Starlette: Combined application with mounted Flask, admin, and POC apps.
     """
     flask_app = WsgiToAsgi(create_flask_app())
     admin_app = create_admin_app()
+    poc_app = WsgiToAsgi(create_poc_app())
 
     app = Starlette(
         routes=[
             Mount("/db/", app=admin_app),
+            Mount("/poc/", app=poc_app),
             Mount("/", app=flask_app),
         ]
     )
