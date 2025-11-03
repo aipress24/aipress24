@@ -8,18 +8,17 @@ import pytest
 from flask import Flask
 from flask_login import LoginManager
 
-from app.flask.doorman import Doorman, doorman as global_doorman
+from app.flask.doorman import Doorman
 
 login_manager = LoginManager()
 
-pytestmark = pytest.mark.skip()
 
-
-@pytest.fixture(scope="session")
-def app():
+@pytest.fixture()
+def app_():
     """Create a minimal Flask app for testing the before_request hook."""
     app = Flask(__name__)
     login_manager.init_app(app)
+    doorman = Doorman()
 
     # Define some dummy routes for the test client to hit.
     @app.route("/")
@@ -38,15 +37,15 @@ def app():
     # with our test app's before_request handler.
     @app.before_request
     def before_request_security_check() -> None:
-        global_doorman.check_access()
+        doorman.check_access()
 
     return app
 
 
-@pytest.fixture(scope="module")
-def client(app):
+@pytest.fixture()
+def client(app_):
     """A test client for the app."""
-    return app.test_client()
+    return app_.test_client()
 
 
 # --- Stub User Objects ---
@@ -94,7 +93,7 @@ def test_unprotected_route_is_accessible_by_everyone(
 
 
 def test_anonymous_user_on_protected_route_is_unauthorized(
-    client, mocker, stub_anonymous_user
+    client, stub_anonymous_user
 ) -> None:
     """
     GIVEN the doorman's '/admin/' rule is active
