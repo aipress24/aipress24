@@ -57,6 +57,7 @@ lint.ignore = [
     "S101", # Use of `assert` detected
     "A002", #    builtin-argument-shadowing
     "A001", #    builtin-variable-shadowing
+    "A004", #    builtin-import-shadowing
     #
     # Security issues that are not relevant (a priori)
     #
@@ -71,14 +72,12 @@ lint.ignore = [
     #
     # Fixable ?
     #
-    "BLE001", #  blind-except
-    "PLC0415", # import-outside-top-level
-    "C901", #    complex-structure
-    "PLR0911", # too-many-return-statements
-    "PLR0912", # too-many-branches
-    "A004", #    builtin-import-shadowing
-    "RUF012",
-    "SIM117",
+    "BLE001", # 	blind-except
+    "PLC0415", #	import-outside-top-level
+    "RUF012", # 	mutable-class-default
+    "C901", #   	complex-structure
+    "PLR0911", #	too-many-return-statements
+    "PLR0912", #	too-many-branches
 ]
 
 [lint.extend-per-file-ignores]
