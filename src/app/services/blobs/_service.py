@@ -46,13 +46,13 @@ class BlobService:
     def svcs_factory(cls, ctn: Container) -> BlobService:
         return cls(db_session=ctn.get(scoped_session))
 
-    def get(self, blob_id) -> Blob:
+    def get(self, blob_id: str) -> Blob:
         file = _get_blobs_dir() / blob_id
         size = file.stat().st_size
         blob = Blob(id=blob_id, name="", size=size, mime_type="")
         return blob
 
-    def get_path(self, blob_id) -> Path:
+    def get_path(self, blob_id: str) -> Path:
         blob = self.get(blob_id)
         return blob.path
 
@@ -76,7 +76,7 @@ class BlobService:
         return blob
 
 
-def _get_blobs_dir():
+def _get_blobs_dir() -> Path:
     blobs_dir = Path(current_app.instance_path) / "blobs"
     blobs_dir.mkdir(exist_ok=True, parents=True)
     return blobs_dir
