@@ -4,8 +4,6 @@
 
 from __future__ import annotations
 
-from unittest.mock import Mock
-
 import pytest
 from flask import Flask
 from flask_login import LoginManager
@@ -51,30 +49,38 @@ def client(app):
     return app.test_client()
 
 
-# --- Mock User Objects ---
+# --- Stub User Objects ---
+
+
+class StubAnonymousUser:
+    """A stub for a user who is not logged in."""
+
+    is_authenticated = False
+
+
+class StubAuthenticatedUser:
+    """A stub for an authenticated user."""
+
+    is_authenticated = True
 
 
 @pytest.fixture
-def mock_anonymous_user():
-    """A mock for a user who is not logged in."""
-    user = Mock()
-    user.is_authenticated = False
-    return user
+def stub_anonymous_user():
+    """A stub for a user who is not logged in."""
+    return StubAnonymousUser()
 
 
 @pytest.fixture
-def mock_authenticated_user():
-    """A mock for an authenticated user."""
-    user = Mock()
-    user.is_authenticated = True
-    return user
+def stub_authenticated_user():
+    """A stub for an authenticated user."""
+    return StubAuthenticatedUser()
 
 
 # --- Test Cases ---
 
 
 def test_unprotected_route_is_accessible_by_everyone(
-    client, mock_anonymous_user
+    client, stub_anonymous_user
 ) -> None:
     """
     GIVEN a Flask app with the doorman
@@ -88,7 +94,7 @@ def test_unprotected_route_is_accessible_by_everyone(
 
 
 def test_anonymous_user_on_protected_route_is_unauthorized(
-    client, mocker, mock_anonymous_user
+    client, mocker, stub_anonymous_user
 ) -> None:
     """
     GIVEN the doorman's '/admin/' rule is active
@@ -97,17 +103,16 @@ def test_anonymous_user_on_protected_route_is_unauthorized(
     """
 
     # Patch the `current_user` that the doorman will see.
-    # mocker.patch("login_manager", mock_anonymous_user)
     @login_manager.request_loader
     def load_user_from_request(request):
-        return mock_anonymous_user
+        return stub_anonymous_user
 
     response = client.get("/admin/settings")
     assert response.status_code == 401
 
 
 def test_non_admin_user_on_protected_route_is_forbidden(
-    client, mocker, mock_authenticated_user
+    client, mocker, stub_authenticated_user
 ) -> None:
     """
     GIVEN the doorman's '/admin/' rule is active
@@ -117,7 +122,7 @@ def test_non_admin_user_on_protected_route_is_forbidden(
 
     @login_manager.request_loader
     def load_user_from_request(request):
-        return mock_authenticated_user
+        return stub_authenticated_user
 
     # Patch the role check to explicitly return False
     mocker.patch("app.services.roles.has_role", return_value=False)
@@ -127,7 +132,7 @@ def test_non_admin_user_on_protected_route_is_forbidden(
 
 
 def test_admin_user_on_protected_route_is_allowed(
-    client, mocker, mock_authenticated_user
+    client, mocker, stub_authenticated_user
 ) -> None:
     """
     GIVEN the doorman's '/admin/' rule is active
@@ -137,7 +142,7 @@ def test_admin_user_on_protected_route_is_allowed(
 
     @login_manager.request_loader
     def load_user_from_request(request):
-        return mock_authenticated_user
+        return stub_authenticated_user
 
     # Patch the role check to explicitly return True for the 'ADMIN' role
     mocker.patch("app.flask.doorman.has_role", return_value=True)

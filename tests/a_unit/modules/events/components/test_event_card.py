@@ -71,7 +71,7 @@ class TestEventCard:
         db.session.add(event)
         db.session.flush()
 
-        card = EventCard(event=event)
+        EventCard(event=event)
 
         assert event.__dict__["author"] == user
 
@@ -90,7 +90,7 @@ class TestEventCard:
         db.session.add(event)
         db.session.flush()
 
-        card = EventCard(event=event)
+        EventCard(event=event)
 
         assert event.__dict__["organisation_image_url"] == LOGO_URL
 
@@ -111,7 +111,7 @@ class TestEventCard:
         db.session.add(event)
         db.session.flush()
 
-        card = EventCard(event=event)
+        EventCard(event=event)
 
         expected = opening_hours(start.datetime, end.datetime)
         assert event.__dict__["opening"] == expected
@@ -131,7 +131,7 @@ class TestEventCard:
         db.session.add(event)
         db.session.flush()
 
-        card = EventCard(event=event)
+        EventCard(event=event)
 
         # Meta attrs should be set with defaults (empty strings)
         assert "type_id" in event.__dict__
