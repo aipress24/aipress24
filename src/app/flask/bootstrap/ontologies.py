@@ -237,96 +237,9 @@ def _create_taxonomy_entries(taxonomy_name, values) -> None:
         # print(taxonomy_name, "|", category, "|", value, "|", name)
 
 
-def get_converter(ontology_slug: str) -> Any:  # noqa:PLR0915
-    match ontology_slug:
-        case "civilite":
-            converter_class = CiviliteConverter
-        case "newsrooms":
-            converter_class = OrgaNewsroomsConverter
-        case "types-dentreprises-de-presse-medias":
-            converter_class = TypeEntrepriseMediasConverter
-        case "types-de-presse-medias":
-            converter_class = MediaTypeConverter
-        case "fonctions-du-journalisme":
-            converter_class = JournalismeFonctionConverter
-        case "agencesrp":
-            converter_class = AgenceRPFonctionConverter
-        case "types-pr-agency":
-            converter_class = TypeAgenceRPFonctionConverter
-        case "types-dorganisation":
-            converter_class = TypesOrganisationConverter
-        case "tailles-des-organisations":
-            converter_class = TailleOrganisationConverter
-        case "fonctions-politiques-administra":
-            converter_class = FonctionPublicConverter
-        case "fonctions-organisations-privees":
-            converter_class = FonctionPriveConverter
-        case "fonctions-associations-syndicat":
-            converter_class = FonctionAssoConverter
-        case "secteurs-detailles":
-            converter_class = SecteurDetailleConverter
-        case "centres-d-interet-politiques-ad":
-            converter_class = InteretPolitiqueConverter
-        case "centres-d-interet-organisations":
-            converter_class = InteretOrgaConverter
-        case "centres-d-interet-associations":
-            converter_class = InteretAssoConverter
-        case "metiers":
-            converter_class = MetierConverter
-        case "competences-en-journalisme":
-            converter_class = JournalismeCompetenceConverter
-        case "competencesexperts":
-            converter_class = CompetenceExpertConverter
-        case "langues":
-            converter_class = LangueConverter
-        case "transformations-majeures":
-            converter_class = TransformationsMajeuresConverter
-        # taxonomies
-        case "news-secteurs":
-            converter_class = NewsSecteursConverter
-        case "news-rubriques":
-            converter_class = NewsRubriquesConverter
-        case "news-types-dinfo":
-            converter_class = NewsTypeInfoConverter
-        case "news-genres":
-            converter_class = NewsGenresConverter
-        # Not used yet
-        case "news-com-genres":
-            converter_class = NewsComGenresConverter
-        case "technologies":
-            converter_class = TechnologiesConverter
-        case "modes-de-remuneration":
-            converter_class = ModeRemunerationConverter
-        # case "types-et-taille-des-contenus-ed":
-        #     converter_class = TypeContenuConverter
-        case "types-des-contenus-editoriaux":
-            converter_class = TypeContenuConverter
-        case "tailles-des-contenus-editoriaux":
-            converter_class = TailleContenuConverter
-        case "groupes-cotes":
-            converter_class = GroupesCotesConverter
-        case "etabenseignsup":
-            converter_class = EtablissementsSuperieurs
-        case "competencesgenerales":
-            converter_class = CompetencesGenerales
-        case "listestetieressecteurs":
-            converter_class = TetieresSecteurs
-        case "niveaux-d-etude":
-            converter_class = NiveauxEtudes
-        case "matieresetudiees":
-            converter_class = MatieresEtudiees
-        case "events":
-            converter_class = Events
-        case "market-mission":
-            converter_class = MarketMission
-        case "periodicite":
-            converter_class = Periodicite
-        case "market-project":
-            converter_class = MarketProject
-        case "market-jobboard":
-            converter_class = MarketJobboard
-        case _:
-            converter_class = None
+def get_converter(ontology_slug: str) -> type[BaseConvert]:
+    """Get the converter class for a given ontology slug."""
+    converter_class = CONVERTERS.get(ontology_slug)
     if not converter_class:
         msg = f"No converter found for {ontology_slug}"
         raise ValueError(msg)
@@ -857,3 +770,51 @@ class LangueConverter(BaseConvert):
                 copy = [x for x in self._buffer if x[0] == key]
                 self._buffer = [x for x in self._buffer if x[0] != key]
                 self._buffer = copy + self._buffer
+
+
+# Dictionary mapping ontology slug to converter class
+CONVERTERS: dict[str, type[BaseConvert]] = {
+    "civilite": CiviliteConverter,
+    "newsrooms": OrgaNewsroomsConverter,
+    "types-dentreprises-de-presse-medias": TypeEntrepriseMediasConverter,
+    "types-de-presse-medias": MediaTypeConverter,
+    "fonctions-du-journalisme": JournalismeFonctionConverter,
+    "agencesrp": AgenceRPFonctionConverter,
+    "types-pr-agency": TypeAgenceRPFonctionConverter,
+    "types-dorganisation": TypesOrganisationConverter,
+    "tailles-des-organisations": TailleOrganisationConverter,
+    "fonctions-politiques-administra": FonctionPublicConverter,
+    "fonctions-organisations-privees": FonctionPriveConverter,
+    "fonctions-associations-syndicat": FonctionAssoConverter,
+    "secteurs-detailles": SecteurDetailleConverter,
+    "centres-d-interet-politiques-ad": InteretPolitiqueConverter,
+    "centres-d-interet-organisations": InteretOrgaConverter,
+    "centres-d-interet-associations": InteretAssoConverter,
+    "metiers": MetierConverter,
+    "competences-en-journalisme": JournalismeCompetenceConverter,
+    "competencesexperts": CompetenceExpertConverter,
+    "langues": LangueConverter,
+    "transformations-majeures": TransformationsMajeuresConverter,
+    # Taxonomies
+    "news-secteurs": NewsSecteursConverter,
+    "news-rubriques": NewsRubriquesConverter,
+    "news-types-dinfo": NewsTypeInfoConverter,
+    "news-genres": NewsGenresConverter,
+    # Not used yet
+    "news-com-genres": NewsComGenresConverter,
+    "technologies": TechnologiesConverter,
+    "modes-de-remuneration": ModeRemunerationConverter,
+    "types-des-contenus-editoriaux": TypeContenuConverter,
+    "tailles-des-contenus-editoriaux": TailleContenuConverter,
+    "groupes-cotes": GroupesCotesConverter,
+    "etabenseignsup": EtablissementsSuperieurs,
+    "competencesgenerales": CompetencesGenerales,
+    "listestetieressecteurs": TetieresSecteurs,
+    "niveaux-d-etude": NiveauxEtudes,
+    "matieresetudiees": MatieresEtudiees,
+    "events": Events,
+    "market-mission": MarketMission,
+    "periodicite": Periodicite,
+    "market-project": MarketProject,
+    "market-jobboard": MarketJobboard,
+}
