@@ -33,8 +33,11 @@ def app_():
     def admin_settings() -> str:
         return "Admin Settings"
 
-    # This is the crucial part: we register the real doorman instance
-    # with our test app's before_request handler.
+    @doorman.rule(prefix="/admin/")
+    def check_admin(user) -> bool:
+        """Rule: Only users with the 'ADMIN' role can access /admin/ paths."""
+        return user.is_admin
+
     @app.before_request
     def before_request_security_check() -> None:
         doorman.check_access()
@@ -55,32 +58,27 @@ class StubAnonymousUser:
     """A stub for a user who is not logged in."""
 
     is_authenticated = False
+    is_admin = False
 
 
 class StubAuthenticatedUser:
     """A stub for an authenticated user."""
 
     is_authenticated = True
+    is_admin = False
 
 
-@pytest.fixture
-def stub_anonymous_user():
-    """A stub for a user who is not logged in."""
-    return StubAnonymousUser()
+class StubAdminUser:
+    """A stub for a user with ADMIN role."""
 
-
-@pytest.fixture
-def stub_authenticated_user():
-    """A stub for an authenticated user."""
-    return StubAuthenticatedUser()
+    is_authenticated = True
+    is_admin = True
 
 
 # --- Test Cases ---
 
 
-def test_unprotected_route_is_accessible_by_everyone(
-    client, stub_anonymous_user
-) -> None:
+def test_unprotected_route_is_accessible_by_everyone(client) -> None:
     """
     GIVEN a Flask app with the doorman
     WHEN an anonymous user accesses a public route ('/')
@@ -92,9 +90,7 @@ def test_unprotected_route_is_accessible_by_everyone(
     assert b"Public Page" in response.data
 
 
-def test_anonymous_user_on_protected_route_is_unauthorized(
-    client, stub_anonymous_user
-) -> None:
+def test_anonymous_user_on_protected_route_is_unauthorized(client) -> None:
     """
     GIVEN the doorman's '/admin/' rule is active
     WHEN an anonymous (not logged in) user tries to access '/admin/settings'
@@ -104,15 +100,13 @@ def test_anonymous_user_on_protected_route_is_unauthorized(
     # Patch the `current_user` that the doorman will see.
     @login_manager.request_loader
     def load_user_from_request(request):
-        return stub_anonymous_user
+        return StubAnonymousUser()
 
     response = client.get("/admin/settings")
     assert response.status_code == 401
 
 
-def test_non_admin_user_on_protected_route_is_forbidden(
-    client, mocker, stub_authenticated_user
-) -> None:
+def test_non_admin_user_on_protected_route_is_forbidden(client) -> None:
     """
     GIVEN the doorman's '/admin/' rule is active
     WHEN a logged-in, non-admin user tries to access '/admin/settings'
@@ -121,18 +115,13 @@ def test_non_admin_user_on_protected_route_is_forbidden(
 
     @login_manager.request_loader
     def load_user_from_request(request):
-        return stub_authenticated_user
-
-    # Patch the role check to explicitly return False
-    mocker.patch("app.services.roles.has_role", return_value=False)
+        return StubAuthenticatedUser()
 
     response = client.get("/admin/settings")
     assert response.status_code == 403
 
 
-def test_admin_user_on_protected_route_is_allowed(
-    client, mocker, stub_authenticated_user
-) -> None:
+def test_admin_user_on_protected_route_is_allowed(client) -> None:
     """
     GIVEN the doorman's '/admin/' rule is active
     WHEN a logged-in admin user tries to access '/admin/settings'
@@ -141,10 +130,7 @@ def test_admin_user_on_protected_route_is_allowed(
 
     @login_manager.request_loader
     def load_user_from_request(request):
-        return stub_authenticated_user
-
-    # Patch the role check to explicitly return True for the 'ADMIN' role
-    mocker.patch("app.flask.doorman.has_role", return_value=True)
+        return StubAdminUser()
 
     response = client.get("/admin/settings")
     assert response.status_code == 200
