@@ -4,8 +4,6 @@
 
 from __future__ import annotations
 
-from unittest.mock import patch
-
 import arrow
 from flask_sqlalchemy import SQLAlchemy
 
@@ -190,8 +188,7 @@ class TestUpdatePost:
 class TestOnPublish:
     """Test suite for on_publish signal handler."""
 
-    @patch("builtins.print")
-    def test_on_publish_creates_new_post(self, mock_print, db: SQLAlchemy) -> None:
+    def test_on_publish_creates_new_post(self, db: SQLAlchemy) -> None:
         """Test on_publish creates new ArticlePost when none exists."""
         user = User(email="test_publish_new@example.com")
         publisher = Organisation(name="Publisher")
@@ -221,8 +218,7 @@ class TestOnPublish:
         assert post.status == PublicationStatus.PUBLIC
         assert post.newsroom_id == article.id
 
-    @patch("builtins.print")
-    def test_on_publish_updates_existing_post(self, mock_print, db: SQLAlchemy) -> None:
+    def test_on_publish_updates_existing_post(self, db: SQLAlchemy) -> None:
         """Test on_publish updates existing ArticlePost."""
         user = User(email="test_publish_update@example.com")
         publisher = Organisation(name="Publisher")
@@ -265,8 +261,7 @@ class TestOnPublish:
 class TestOnUnpublish:
     """Test suite for on_unpublish signal handler."""
 
-    @patch("builtins.print")
-    def test_on_unpublish_sets_draft_status(self, mock_print, db: SQLAlchemy) -> None:
+    def test_on_unpublish_sets_draft_status(self, db: SQLAlchemy) -> None:
         """Test on_unpublish sets post status to DRAFT."""
         user = User(email="test_unpublish@example.com")
         publisher = Organisation(name="Publisher")
@@ -298,8 +293,7 @@ class TestOnUnpublish:
         )
         assert updated_post.status == PublicationStatus.DRAFT
 
-    @patch("builtins.print")
-    def test_on_unpublish_no_post_exists(self, mock_print, db: SQLAlchemy) -> None:
+    def test_on_unpublish_no_post_exists(self, db: SQLAlchemy) -> None:
         """Test on_unpublish does nothing when post doesn't exist."""
         user = User(email="test_unpublish_none@example.com")
         publisher = Organisation(name="Publisher")
@@ -325,8 +319,7 @@ class TestOnUnpublish:
 class TestOnUpdate:
     """Test suite for on_update signal handler."""
 
-    @patch("builtins.print")
-    def test_on_update_updates_post(self, mock_print, db: SQLAlchemy) -> None:
+    def test_on_update_updates_post(self, db: SQLAlchemy) -> None:
         """Test on_update updates existing post."""
         user = User(email="test_update_post@example.com")
         publisher = Organisation(name="Publisher")
@@ -359,8 +352,7 @@ class TestOnUpdate:
         assert updated_post.title == "Modified"
         assert updated_post.last_updated_at is not None
 
-    @patch("builtins.print")
-    def test_on_update_no_post_exists(self, mock_print, db: SQLAlchemy) -> None:
+    def test_on_update_no_post_exists(self, db: SQLAlchemy) -> None:
         """Test on_update does nothing when post doesn't exist."""
         user = User(email="test_update_none@example.com")
         publisher = Organisation(name="Publisher")
@@ -386,10 +378,7 @@ class TestOnUpdate:
 class TestCommuniqueHandlers:
     """Test suite for Communique signal handlers."""
 
-    @patch("builtins.print")
-    def test_on_publish_communique_creates_new_post(
-        self, mock_print, db: SQLAlchemy
-    ) -> None:
+    def test_on_publish_communique_creates_new_post(self, db: SQLAlchemy) -> None:
         """Test on_publish_communique creates new PressReleasePost."""
         user = User(email="test_comm_publish@example.com")
         publisher = Organisation(name="Publisher")
@@ -416,8 +405,7 @@ class TestCommuniqueHandlers:
         assert len(posts) == 1
         assert posts[0].status == PublicationStatus.PUBLIC
 
-    @patch("builtins.print")
-    def test_on_unpublish_communique(self, mock_print, db: SQLAlchemy) -> None:
+    def test_on_unpublish_communique(self, db: SQLAlchemy) -> None:
         """Test on_unpublish_communique sets status to DRAFT."""
         user = User(email="test_comm_unpublish@example.com")
         publisher = Organisation(name="Publisher")
@@ -447,8 +435,7 @@ class TestCommuniqueHandlers:
         )
         assert updated_post.status == PublicationStatus.DRAFT
 
-    @patch("builtins.print")
-    def test_on_update_communique(self, mock_print, db: SQLAlchemy) -> None:
+    def test_on_update_communique(self, db: SQLAlchemy) -> None:
         """Test on_update_communique updates post."""
         user = User(email="test_comm_update@example.com")
         publisher = Organisation(name="Publisher")
