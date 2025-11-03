@@ -62,7 +62,6 @@ class Tab(abc.ABC):
 
     def get_stmt(self, filter_bar: FilterBar):
         active_filters = filter_bar.active_filters
-        warn("active_filters", active_filters)
         sort_order = filter_bar.sort_order
 
         match sort_order:
