@@ -50,6 +50,8 @@ def test_most_routes(app: Flask, logged_in_client: FlaskClient) -> None:
         "/wip/newsroom/json_data",
         # FIXME: 'items' is undefined
         "/wip/alt-content",
+        # Slow
+        "/system/boot",
     ]
 
     rules: list[Rule] = list(app.url_map.iter_rules())
