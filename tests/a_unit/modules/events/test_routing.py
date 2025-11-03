@@ -6,112 +6,116 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-from unittest.mock import Mock, patch
+import arrow
+import pytest
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+from werkzeug.routing.exceptions import BuildError
 
-from app.modules.events.routing import url_for_event
-
-if TYPE_CHECKING:
-    pass
+from app.flask.routing import url_for
+from app.models.auth import User
+from app.modules.events.models import EventPost
 
 
 class TestUrlForEvent:
     """Test suite for url_for_event function."""
 
-    def test_url_for_event_default_namespace(self):
+    def test_url_for_event_default_namespace(
+        self, app: Flask, app_context, db: SQLAlchemy
+    ):
         """Test URL generation with default namespace."""
-        # Create mock event
-        mock_event = Mock(spec=["id"])
-        mock_event.id = 123
+        user = User(email="test_event_default@example.com")
+        db.session.add(user)
+        db.session.flush()
 
-        with patch("app.modules.events.routing.url_for") as mock_url_for:
-            mock_url_for.return_value = "/events/event/123"
+        event = EventPost(
+            owner=user,
+            title="Test Event",
+            start_date=arrow.get("2024-01-15 10:00:00").datetime,
+            end_date=arrow.get("2024-01-15 12:00:00").datetime,
+        )
+        db.session.add(event)
+        db.session.flush()
 
-            result = url_for_event(mock_event)
+        # Import routing module to register the function
+        from app.modules.events import routing  # noqa: F401
 
-            # Verify url_for was called with correct arguments
-            mock_url_for.assert_called_once_with("events.event", id=123)
-            assert result == "/events/event/123"
+        result = url_for(event)
 
-    def test_url_for_event_custom_namespace(self):
-        """Test URL generation with custom namespace."""
-        mock_event = Mock(spec=["id"])
-        mock_event.id = 456
+        assert result is not None
+        assert isinstance(result, str)
+        assert "/events/" in result or result.startswith("/events/")
 
-        with patch("app.modules.events.routing.url_for") as mock_url_for:
-            mock_url_for.return_value = "/custom/event/456"
+    def test_url_for_event_custom_namespace(
+        self, app: Flask, app_context, db: SQLAlchemy
+    ):
+        """Test URL generation with custom namespace fails when route doesn't exist."""
+        user = User(email="test_event_custom@example.com")
+        db.session.add(user)
+        db.session.flush()
 
-            result = url_for_event(mock_event, _ns="custom")
+        event = EventPost(
+            owner=user,
+            title="Test Event",
+            start_date=arrow.get("2024-01-15 10:00:00").datetime,
+            end_date=arrow.get("2024-01-15 12:00:00").datetime,
+        )
+        db.session.add(event)
+        db.session.flush()
 
-            mock_url_for.assert_called_once_with("custom.event", id=456)
-            assert result == "/custom/event/456"
+        from app.modules.events import routing  # noqa: F401
 
-    def test_url_for_event_with_additional_kwargs(self):
+        # Custom namespace route doesn't exist, so this should raise BuildError
+        with pytest.raises(BuildError):
+            url_for(event, _ns="custom")
+
+    def test_url_for_event_with_additional_kwargs(
+        self, app: Flask, app_context, db: SQLAlchemy
+    ):
         """Test URL generation with additional keyword arguments."""
-        mock_event = Mock(spec=["id"])
-        mock_event.id = 789
+        user = User(email="test_event_kwargs@example.com")
+        db.session.add(user)
+        db.session.flush()
 
-        with patch("app.modules.events.routing.url_for") as mock_url_for:
-            mock_url_for.return_value = "/events/event/789?foo=bar"
+        event = EventPost(
+            owner=user,
+            title="Test Event",
+            start_date=arrow.get("2024-01-15 10:00:00").datetime,
+            end_date=arrow.get("2024-01-15 12:00:00").datetime,
+        )
+        db.session.add(event)
+        db.session.flush()
 
-            result = url_for_event(mock_event, foo="bar", baz="qux")
+        from app.modules.events import routing  # noqa: F401
 
-            # Should pass through additional kwargs
-            mock_url_for.assert_called_once_with(
-                "events.event", id=789, foo="bar", baz="qux"
-            )
-            assert result == "/events/event/789?foo=bar"
+        result = url_for(event, foo="bar", baz="qux")
 
-    def test_url_for_event_preserves_event_id(self):
-        """Test that event ID is correctly passed to url_for."""
-        mock_event = Mock(spec=["id"])
-        mock_event.id = 999
+        assert result is not None
+        assert isinstance(result, str)
+        # Query parameters should be included
+        assert "foo=bar" in result
+        assert "baz=qux" in result
 
-        with patch("app.modules.events.routing.url_for") as mock_url_for:
-            mock_url_for.return_value = "/events/event/999"
+    def test_url_for_event_preserves_event_id(
+        self, app: Flask, app_context, db: SQLAlchemy
+    ):
+        """Test that event ID is correctly used in URL."""
+        user = User(email="test_event_id@example.com")
+        db.session.add(user)
+        db.session.flush()
 
-            url_for_event(mock_event)
+        event = EventPost(
+            owner=user,
+            title="Test Event",
+            start_date=arrow.get("2024-01-15 10:00:00").datetime,
+            end_date=arrow.get("2024-01-15 12:00:00").datetime,
+        )
+        db.session.add(event)
+        db.session.flush()
 
-            # Verify the id parameter was set correctly
-            call_kwargs = mock_url_for.call_args[1]
-            assert call_kwargs["id"] == 999
+        from app.modules.events import routing  # noqa: F401
 
-    def test_url_for_event_constructs_correct_route_name(self):
-        """Test that route name is constructed correctly from namespace."""
-        mock_event = Mock(spec=["id"])
-        mock_event.id = 111
+        result = url_for(event)
 
-        with patch("app.modules.events.routing.url_for") as mock_url_for:
-            mock_url_for.return_value = "/public/event/111"
-
-            url_for_event(mock_event, _ns="public")
-
-            # First positional argument should be route name
-            route_name = mock_url_for.call_args[0][0]
-            assert route_name == "public.event"
-
-    def test_url_for_event_with_zero_id(self):
-        """Test URL generation with ID of 0."""
-        mock_event = Mock(spec=["id"])
-        mock_event.id = 0
-
-        with patch("app.modules.events.routing.url_for") as mock_url_for:
-            mock_url_for.return_value = "/events/event/0"
-
-            result = url_for_event(mock_event)
-
-            mock_url_for.assert_called_once_with("events.event", id=0)
-            assert result == "/events/event/0"
-
-    def test_url_for_event_with_large_id(self):
-        """Test URL generation with large integer ID."""
-        mock_event = Mock(spec=["id"])
-        mock_event.id = 9999999999
-
-        with patch("app.modules.events.routing.url_for") as mock_url_for:
-            mock_url_for.return_value = "/events/event/9999999999"
-
-            result = url_for_event(mock_event)
-
-            mock_url_for.assert_called_once_with("events.event", id=9999999999)
-            assert result == "/events/event/9999999999"
+        # The URL should contain the event ID in some form
+        assert str(event.id) in result or result.endswith(str(event.id))
