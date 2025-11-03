@@ -14,17 +14,17 @@ def remove_markup(html: str) -> str:
     # return BeautifulSoup(html, features="lxml").text
 
 
-def div(*args, **kwargs):
+def div(*args, **kwargs) -> str:
     return h("div", *args, **kwargs)
 
 
-def span(*args, **kwargs):
+def span(*args, **kwargs) -> str:
     return h("span", *args, **kwargs)
 
 
-def a(*args, **kwargs):
+def a(*args, **kwargs) -> str:
     return h("a", *args, **kwargs)
 
 
-def nav(*args, **kwargs):
+def nav(*args, **kwargs) -> str:
     return h("nav", *args, **kwargs)
