@@ -10,36 +10,43 @@
         method="POST"
         enctype="multipart/form-data"
     >
-    <div class="mb-4">
-    <div class="font-semibold mb-1">Image actuelle</div>
-    <div id="imageContainer" class="p-2 flex items-center justify-center min-h-[120px]">
-    {% if current_image_url and current_image_url != 'None' %}
-        <img
-            id="currentImage"
-            src="{{ current_image_url }}"
-            alt="Image de présentation actuelle"
-            class="h-32 w-full object-cover lg:h-48 max-w-full max-h-[200px]"
-            style="max-height: 250px;"
-        />
-    {% else %}
-      <p class="text-gray-500">Aucune image.</p>
-    {% endif %}
-    </div>
-    </div>
 
-    <div class="pt-4">
-      <div class="mb-2 font-semibold">
-        Charger une nouvelle image
+      <div class="mb-4">
+        <div class="font-semibold mb-1">Image actuelle</div>
+        <div id="currentImageWrapper" class="p-2 flex items-center justify-center min-h-[120px]">
+          {% if current_image_url and current_image_url != 'None' %}
+            <img
+                id="currentImage"
+                src="{{ current_image_url }}"
+                alt="Image de présentation actuelle"
+                class="h-32 w-full object-cover lg:h-48 max-w-full max-h-[200px]"
+                style="max-height: 250px;"
+            />
+          {% else %}
+            <p class="text-gray-500">Aucune image.</p>
+          {% endif %}
+        </div>
       </div>
-    <input
-        type="file"
-        id="image"
-        name="image"
-        accept=".png,.jpeg,.jpg,image/png,image/jpeg"
-        class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none"
-    />
-    <p class="mt-1 text-sm text-gray-500">PNG, JPG, JPEG (Max 4MB)</p>
-    </div>
+
+      <div class="mb-4 pt-2" id="newImageBlock" style="display:none;">
+        <div class="font-semibold mb-1">Aperçu de la nouvelle image</div>
+        <div id="newImageContainer" class="p-2 flex items-center justify-center min-h-[120px]">
+        </div>
+      </div>
+
+      <div class="pt-2">
+        <div class="mb-2 font-semibold">
+          Charger une nouvelle image
+        </div>
+        <input
+            type="file"
+            id="image"
+            name="image"
+            accept=".png,.jpeg,.jpg,image/png,image/jpeg"
+            class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none"
+        />
+        <p class="mt-1 text-sm text-gray-500">PNG, JPG, JPEG (Max 4MB)</p>
+      </div>
 
       <div class="mt-4 py-4 px-4 flex justify-end sm:px-6">
         <button
@@ -61,45 +68,39 @@
       </div>
     </form>
   </div>
+
   <script>
       const imageInput = document.getElementById('image');
-      const imageContainer = document.getElementById('imageContainer');
+      const newImageBlock = document.getElementById('newImageBlock');
+      const newImageContainer = document.getElementById('newImageContainer');
 
       imageInput.addEventListener('change', function(event) {
-          // Get the selected file
           const file = event.target.files[0];
 
           if (file) {
-              // Use FileReader to read the file locally
+              newImageBlock.style.display = 'block';
+
               const reader = new FileReader();
 
               reader.onload = function(e) {
-                  // Check if an image element already exists (the current image)
-                  let imgElement = document.getElementById('currentImage');
+                  let imgElement = document.getElementById('newImagePreview');
 
                   if (!imgElement) {
-                      // If no current image, create a new image element for the preview
                       imgElement = document.createElement('img');
-                      imgElement.id = 'currentImage';
-                      imgElement.alt = 'Nouvelle image de présentation';
-                      // Apply Tailwind-like classes for sizing/styling
-                      imgElement.className = 'max-w-full max-h-[300px] rounded-md shadow-lg border-2 border-sky-500';
-                      imgElement.style.maxHeight = '250px';
+                      imgElement.id = 'newImagePreview';
+                      imgElement.className = "h-32 w-full object-cover lg:h-48 max-w-full max-h-[200px]";
+                      imgElement.style.maxHeight = '200px';
+                      newImageContainer.innerHTML = '';
+                      newImageContainer.appendChild(imgElement);
 
-                      // Clear the container (removes the "Aucune image..." text)
-                      imageContainer.innerHTML = '';
-                      imageContainer.appendChild(imgElement);
-                  } else {
-                      // If current image exists, just update its classes to highlight the change
-                      imgElement.classList.add('border-2', 'border-sky-500');
                   }
-
-                  // Set the source to the read data URL (the image preview)
                   imgElement.src = e.target.result;
               };
 
-              // Read the file as a Data URL (a base64 string)
               reader.readAsDataURL(file);
+          } else {
+             newImageBlock.style.display = 'none';
+             newImageContainer.innerHTML = '';
           }
       });
   </script>
