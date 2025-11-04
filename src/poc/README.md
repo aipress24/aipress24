@@ -63,7 +63,9 @@ Prototype simplifié démontrant le workflow d'activation du Business Wall avec 
 
 Prototype complet basé sur des mockups HTML statiques, incluant tous les types de Business Wall avec un workflow d'onboarding complet.
 
-**Workflow d'activation en 4 étapes**:
+**Workflow complet en 7 étapes**:
+
+### **Étapes 1-3 : Activation du Business Wall**
 
 1. **Confirmation d'abonnement** (`/confirm-subscription`)
    - Le système suggère un type de BW basé sur le profil KYC
@@ -71,7 +73,7 @@ Prototype complet basé sur des mockups HTML statiques, incluant tous les types 
    - Possibilité de confirmer le type suggéré ou d'en choisir un autre
    - Interface interactive avec Alpine.js
 
-2. **Nomination des responsables** (`/nominate-contacts`) ⭐ NOUVEAU
+2. **Nomination des responsables** (`/nominate-contacts`)
    - Désignation du Business Wall Owner (dirigeant décisionnaire)
    - Désignation du contact de facturation (Paying Party)
    - Pré-remplissage intelligent avec les données de l'utilisateur connecté
@@ -79,13 +81,49 @@ Prototype complet basé sur des mockups HTML statiques, incluant tous les types 
    - Formulaire avec validation des champs obligatoires
 
 3. **Activation/Tarification**
-   - Pour les BW gratuits : Acceptation des CGV et du contrat de diffusion
+   - Pour les BW gratuits : Acceptation des CGV (et accord de diffusion pour Media/Micro)
    - Pour les BW payants : Saisie des informations de tarification (nb de clients ou salariés)
-
-4. **Confirmation finale**
-   - Message de succès personnalisé selon le type de BW
+   - Simulation de paiement Stripe pour les BW payants
+   - Message de confirmation personnalisé selon le type de BW
    - Attribution automatique du rôle "Business Wall Owner"
-   - Invitation à gérer le Business Wall (désignation des managers)
+
+### **Étapes 4-7 : Gestion du Business Wall**
+
+4. **Gérer les rôles internes** (`/manage-internal-roles`)
+   - Inviter des Business Wall Managers Internes (BWMi)
+   - Inviter des Press/PR Managers Internes (BWPRi)
+   - Workflow d'invitation par e-mail pour membres ou non-membres
+   - Gestion des invitations (acceptation/refus/révocation)
+
+5. **Gérer les partenaires externes** (`/manage-external-partners`)
+   - Ajouter des PR Agencies ou PR Consultants comme prestataires
+   - Validation bilatérale : client invite → agence accepte/refuse
+   - Impact sur la facturation de l'agence (ajout à la liste des clients)
+   - L'agence nomme ensuite ses employés comme BWMe/BWPRe
+   - Non disponible pour le type "BW for PR"
+
+6. **Attribuer des missions** (`/assign-missions`)
+   - Interface RBAC avec toggles Oui/Non pour chaque permission
+   - Permissions disponibles :
+     - Publier des communiqués de presse
+     - Publier des événements
+     - Publier des missions
+     - Publier des projets
+     - Publier des offres de stage
+     - Publier des offres d'alternance
+     - Publier des offres de convention doctorale
+   - Résumé en temps réel des permissions activées
+
+7. **Configurer le contenu** (`/configure-content`)
+   - Formulaire dynamique adapté au type de BW
+   - Sections communes : graphisme (logo, bandeau, galerie), contacts
+   - Sections spécifiques par type :
+     - Media : CPPAP, positionnement éditorial, périodicité
+     - PR : type d'agence, liste des clients, secteurs
+     - Leaders & Experts/Transformers : type d'organisation, taille, secteurs
+     - Academics : établissement, domaines de recherche
+   - Upload de fichiers (logo, images)
+   - Géolocalisation et informations de contact
 
 **Types de Business Wall GRATUITS** (5):
 - **Business Wall for Media**: Pour organes de presse reconnus
@@ -100,16 +138,23 @@ Prototype complet basé sur des mockups HTML statiques, incluant tous les types 
 - **Business Wall for Transformers**: Pour acteurs de l'innovation (tarification par nombre de salariés)
 
 **Fonctionnalités**:
+- **Workflow complet en 7 étapes** du choix de l'abonnement à la configuration du BW
+- **Dashboard de gestion** central après activation
 - Page d'onboarding avec confirmation du type d'abonnement
 - Messages détaillés pour chaque type de BW (conditions, CGV, validation)
 - Formulaire de nomination des responsables (Owner + Paying Party)
 - Pré-remplissage intelligent et duplication des coordonnées
 - Workflows distincts pour activations gratuites et payantes
+- **Gestion des rôles internes** (BWMi et BWPRi) avec simulation d'invitations
+- **Gestion des partenaires externes** (PR Agencies) avec validation bilatérale
+- **Attribution de permissions granulaires** (missions) avec toggles interactifs
+- **Configuration de contenu dynamique** adaptée au type de BW
 - Pages de confirmation personnalisées selon le type de BW
 - Simulation de paiement avec calcul dynamique des tarifs
 - Validation visuelle complète pour présentation client
-- Utilisation d'Alpine.js pour l'interactivité (affichage conditionnel)
+- Utilisation d'Alpine.js pour l'interactivité (toggles, affichage conditionnel)
 - Navigation cohérente avec boutons "Retour" contextuels
+- Distinction "PR Manager" vs "Press Manager" pour le type Union
 
 ## Ajouter un nouveau POC
 

@@ -57,6 +57,20 @@
                         </div>
                     </div>
 
+                    <div class="sm:col-span-6">
+                        <label for="owner_title" class="block text-sm font-medium leading-6 text-gray-900">
+                            Fonction / Titre
+                        </label>
+                        <div class="mt-2">
+                            <input
+                                type="text"
+                                name="owner_title"
+                                id="owner_title"
+                                placeholder="Ex: Directeur de la Communication"
+                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-600 focus:ring-blue-600 sm:text-sm px-3 py-2 border">
+                        </div>
+                    </div>
+
                     <div class="sm:col-span-4">
                         <label for="owner_email" class="block text-sm font-medium leading-6 text-gray-900">
                             Adresse e-mail <span class="text-red-600">*</span>
@@ -138,6 +152,20 @@
                         </div>
                     </div>
 
+                    <div class="sm:col-span-6">
+                        <label for="payer_service" class="block text-sm font-medium leading-6 text-gray-900">
+                            Service
+                        </label>
+                        <div class="mt-2">
+                            <input
+                                type="text"
+                                name="payer_service"
+                                id="payer_service"
+                                placeholder="Ex: Service Comptabilité"
+                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-3 py-2 border">
+                        </div>
+                    </div>
+
                     <div class="sm:col-span-4">
                         <label for="payer_email" class="block text-sm font-medium leading-6 text-gray-900">
                             Adresse e-mail de facturation
@@ -162,6 +190,21 @@
                                 name="payer_phone"
                                 id="payer_phone"
                                 class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-3 py-2 border">
+                        </div>
+                    </div>
+
+                    <div class="sm:col-span-6">
+                        <label for="payer_address" class="block text-sm font-medium leading-6 text-gray-900">
+                            Adresse de facturation (si différente)
+                        </label>
+                        <div class="mt-2">
+                            <textarea
+                                name="payer_address"
+                                id="payer_address"
+                                rows="3"
+                                placeholder="123 rue de la République&#10;75001 Paris&#10;France"
+                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-3 py-2 border"></textarea>
+                            <p class="mt-1 text-xs text-gray-500">Adresse postale pour l'envoi des factures (si différente de l'adresse du siège)</p>
                         </div>
                     </div>
                 </div>
