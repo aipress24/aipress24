@@ -25,4 +25,3 @@ Votre entreprise mérite d'être sous les projecteurs. Aipress24 vous donne les 
 **Vous cherchez un partenaire pour vous accompagner ?** Explorez notre liste d'agences RP partenaires ou lancez un appel d'offres directement sur la plateforme.
 
 **Aipress24 : Votre succès médiatique commence ici.**
-
