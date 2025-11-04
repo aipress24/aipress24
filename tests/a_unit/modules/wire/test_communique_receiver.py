@@ -133,7 +133,7 @@ class TestOnPublish:
     @patch("builtins.print")
     def test_on_publish_creates_new_post(self, mock_print, db: SQLAlchemy) -> None:
         """Test on_publish creates new PressReleasePost when none exists."""
-        user = User(email="test_publish_new@example.com")
+        user = User(email="test_publish_new_communique@example.com")
         publisher = Organisation(name="Publisher")
         db.session.add_all([user, publisher])
         db.session.flush()
@@ -164,7 +164,7 @@ class TestOnPublish:
     @patch("builtins.print")
     def test_on_publish_updates_existing_post(self, mock_print, db: SQLAlchemy) -> None:
         """Test on_publish_communique updates existing PressReleasePost."""
-        user = User(email="test_publish_update@example.com")
+        user = User(email="test_publish_update_communique@example.com")
         publisher = Organisation(name="Publisher")
         db.session.add_all([user, publisher])
         db.session.flush()
@@ -206,7 +206,7 @@ class TestOnUnpublish:
     @patch("builtins.print")
     def test_on_unpublish_sets_draft_status(self, mock_print, db: SQLAlchemy) -> None:
         """Test on_unpublish sets post status to DRAFT."""
-        user = User(email="test_unpublish@example.com")
+        user = User(email="test_unpublish_communique@example.com")
         publisher = Organisation(name="Publisher")
         db.session.add_all([user, publisher])
         db.session.flush()
@@ -260,7 +260,7 @@ class TestOnUpdate:
     @patch("builtins.print")
     def test_on_update_updates_post(self, mock_print, db: SQLAlchemy) -> None:
         """Test on_update_communique updates existing post."""
-        user = User(email="test_update_post@example.com")
+        user = User(email="test_update_post_communique@example.com")
         publisher = Organisation(name="Publisher")
         db.session.add_all([user, publisher])
         db.session.flush()
