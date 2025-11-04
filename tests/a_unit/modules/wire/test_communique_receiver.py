@@ -6,7 +6,6 @@ from __future__ import annotations
 
 from unittest.mock import patch
 
-import arrow
 from flask_sqlalchemy import SQLAlchemy
 
 from app.models.auth import User
