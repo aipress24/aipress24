@@ -8,7 +8,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-import pytest
 from advanced_alchemy.types.file_object import FileObject
 
 from poc.blueprints.bw_activation_full.models import BWContent, BWContentRepository
@@ -58,7 +57,9 @@ class TestBWContent:
         assert "BWContent" in repr_str
         assert "Test Org" in repr_str
 
-    def test_content_with_address(self, db_session: Session, business_wall: BusinessWall):
+    def test_content_with_address(
+        self, db_session: Session, business_wall: BusinessWall
+    ):
         """Test BWContent with full address."""
         content = BWContent(
             business_wall_id=business_wall.id,
@@ -157,10 +158,13 @@ class TestBWContent:
         db_session.add(content)
         db_session.commit()
 
-        assert content.client_list == ["Acme Corp", "XYZ Industries", "Global Media Ltd"]
+        assert content.client_list == [
+            "Acme Corp",
+            "XYZ Industries",
+            "Global Media Ltd",
+        ]
         assert len(content.client_list) == 3
 
-    @pytest.mark.skip(reason="FileObject storage requires backend configuration")
     def test_content_with_logo(self, db_session: Session, business_wall: BusinessWall):
         """Test BWContent with logo FileObject."""
         logo = FileObject(
@@ -182,7 +186,6 @@ class TestBWContent:
         assert content.logo.filename == "logo.png"
         assert content.logo.metadata["alt"] == "Company Logo"
 
-    @pytest.mark.skip(reason="FileObject storage requires backend configuration")
     def test_content_with_banner(
         self, db_session: Session, business_wall: BusinessWall
     ):
@@ -205,7 +208,6 @@ class TestBWContent:
         assert content.banner is not None
         assert content.banner.filename == "banner.jpg"
 
-    @pytest.mark.skip(reason="FileObject storage requires backend configuration")
     def test_content_with_gallery(
         self, db_session: Session, business_wall: BusinessWall
     ):
@@ -233,7 +235,6 @@ class TestBWContent:
         assert content.gallery[1].filename == "gallery_1.jpg"
         assert content.gallery[2].filename == "gallery_2.jpg"
 
-    @pytest.mark.skip(reason="FileObject storage requires backend configuration")
     def test_content_with_all_files(
         self, db_session: Session, business_wall: BusinessWall
     ):

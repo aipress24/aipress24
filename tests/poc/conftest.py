@@ -6,10 +6,15 @@
 
 from __future__ import annotations
 
+import tempfile
+from pathlib import Path
 from typing import TYPE_CHECKING
 
+import fsspec
 import pytest
 from advanced_alchemy.base import UUIDAuditBase
+from advanced_alchemy.types.file_object import storages
+from advanced_alchemy.types.file_object.backends.fsspec import FSSpecBackend
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
@@ -18,7 +23,24 @@ if TYPE_CHECKING:
 
 
 @pytest.fixture(scope="session")
-def engine():
+def file_storage_backend():
+    """Configure file storage backend for testing."""
+    # Create a temporary directory for file storage
+    temp_dir = tempfile.mkdtemp()
+    temp_path = Path(temp_dir)
+
+    # Register the local storage backend using FSSpec
+    fs = fsspec.filesystem("file")
+    backend = FSSpecBackend(fs=fs, key="local", prefix=str(temp_path))
+    storages.register_backend(backend)
+
+    yield temp_path
+
+    # Cleanup is handled automatically by tempfile
+
+
+@pytest.fixture(scope="session")
+def engine(file_storage_backend):
     """Create an in-memory SQLite engine for POC tests."""
     engine = create_engine("sqlite:///:memory:", echo=False)
     return engine

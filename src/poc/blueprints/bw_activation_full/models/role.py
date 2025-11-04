@@ -11,9 +11,9 @@ from enum import Enum
 from typing import TYPE_CHECKING
 from uuid import UUID
 
+import sqlalchemy as sa
 from advanced_alchemy.base import UUIDAuditBase
 from advanced_alchemy.types import GUID
-import sqlalchemy as sa
 from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -64,7 +64,9 @@ class RoleAssignment(UUIDAuditBase):
     business_wall_id: Mapped[UUID] = mapped_column(
         GUID, ForeignKey("poc_business_wall.id", ondelete="CASCADE"), nullable=False
     )
-    business_wall: Mapped[BusinessWall] = relationship(back_populates="role_assignments")
+    business_wall: Mapped[BusinessWall] = relationship(
+        back_populates="role_assignments"
+    )
 
     # User reference - references User ID (no FK constraint for POC)
     user_id: Mapped[int] = mapped_column(sa.Integer, nullable=False)
@@ -86,7 +88,9 @@ class RoleAssignment(UUIDAuditBase):
     )
 
     def __repr__(self) -> str:
-        return f"<RoleAssignment {self.id} role={self.role_type} user_id={self.user_id}>"
+        return (
+            f"<RoleAssignment {self.id} role={self.role_type} user_id={self.user_id}>"
+        )
 
 
 class RolePermission(UUIDAuditBase):
@@ -111,6 +115,4 @@ class RolePermission(UUIDAuditBase):
 
     def __repr__(self) -> str:
         status = "granted" if self.is_granted else "denied"
-        return (
-            f"<RolePermission {self.id} type={self.permission_type} status={status}>"
-        )
+        return f"<RolePermission {self.id} type={self.permission_type} status={status}>"

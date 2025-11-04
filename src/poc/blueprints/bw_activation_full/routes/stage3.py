@@ -46,9 +46,7 @@ def activate_free(bw_type):
         session["bw_activated"] = True
         return redirect(url_for("bw_activation_full.confirmation_free"))
 
-    return redirect(
-        url_for("bw_activation_full.activate_free_page", bw_type=bw_type)
-    )
+    return redirect(url_for("bw_activation_full.activate_free_page", bw_type=bw_type))
 
 
 @bp.route("/confirmation/free")

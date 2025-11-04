@@ -9,10 +9,9 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING
 
-import pytest
 
 from poc.blueprints.bw_activation_full.models import Partnership, PartnershipRepository
-from poc.blueprints.bw_activation_full.models.partnership import PartnershipStatus
+from poc.blueprints.bw_activation_full.models import PartnershipStatus
 
 if TYPE_CHECKING:
     from sqlalchemy.orm import Session

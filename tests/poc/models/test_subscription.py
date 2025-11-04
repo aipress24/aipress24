@@ -10,9 +10,11 @@ from datetime import datetime, timezone
 from decimal import Decimal
 from typing import TYPE_CHECKING
 
-import pytest
 
-from poc.blueprints.bw_activation_full.models import Subscription, SubscriptionRepository
+from poc.blueprints.bw_activation_full.models import (
+    Subscription,
+    SubscriptionRepository,
+)
 from poc.blueprints.bw_activation_full.models.subscription import (
     PricingTier,
     SubscriptionStatus,
@@ -52,7 +54,9 @@ class TestSubscription:
         assert sub.annual_price == Decimal("2990.00")
         assert sub.billing_cycle == "monthly"
 
-    def test_subscription_repr(self, db_session: Session, paid_business_wall: BusinessWall):
+    def test_subscription_repr(
+        self, db_session: Session, paid_business_wall: BusinessWall
+    ):
         """Test Subscription __repr__."""
         sub = Subscription(
             business_wall_id=paid_business_wall.id,
@@ -157,9 +161,7 @@ class TestSubscription:
         assert sub.status == SubscriptionStatus.CANCELLED.value
         assert sub.cancelled_at is not None
 
-    def test_subscription_pricing_tiers(
-        self, db_session: Session, mock_user_id: int
-    ):
+    def test_subscription_pricing_tiers(self, db_session: Session, mock_user_id: int):
         """Test all pricing tiers can be created."""
         # Create a business wall for subscriptions
         from poc.blueprints.bw_activation_full.models import BusinessWall
