@@ -390,6 +390,99 @@ def confirmation_paid():
     )
 
 
+@bp.route("/dashboard")
+def dashboard():
+    """Business Wall management dashboard (after activation)."""
+    if not session.get("bw_activated") or not session.get("bw_type"):
+        return redirect(url_for("bw_activation_full.index"))
+
+    bw_type = session["bw_type"]
+    bw_info = BW_TYPES.get(bw_type, {})
+
+    return render_template(
+        "bw_activation_full/dashboard.html",
+        bw_type=bw_type,
+        bw_info=bw_info,
+    )
+
+
+@bp.route("/manage-internal-roles")
+def manage_internal_roles():
+    """Stage 4: Manage internal Business Wall Managers and PR Managers."""
+    if not session.get("bw_activated"):
+        return redirect(url_for("bw_activation_full.index"))
+
+    bw_type = session["bw_type"]
+    bw_info = BW_TYPES.get(bw_type, {})
+
+    return render_template(
+        "bw_activation_full/04_manage_internal_roles.html",
+        bw_type=bw_type,
+        bw_info=bw_info,
+    )
+
+
+@bp.route("/manage-external-partners")
+def manage_external_partners():
+    """Stage 5: Manage external PR Agencies and Consultants."""
+    if not session.get("bw_activated"):
+        return redirect(url_for("bw_activation_full.index"))
+
+    bw_type = session["bw_type"]
+    bw_info = BW_TYPES.get(bw_type, {})
+
+    return render_template(
+        "bw_activation_full/05_manage_external_partners.html",
+        bw_type=bw_type,
+        bw_info=bw_info,
+    )
+
+
+@bp.route("/assign-missions")
+def assign_missions():
+    """Stage 6: Assign permissions/missions to PR Managers."""
+    if not session.get("bw_activated"):
+        return redirect(url_for("bw_activation_full.index"))
+
+    bw_type = session["bw_type"]
+    bw_info = BW_TYPES.get(bw_type, {})
+
+    # Initialize missions state in session if not present
+    if "missions" not in session:
+        session["missions"] = {
+            "press_release": False,
+            "events": False,
+            "missions": False,
+            "projects": False,
+            "internships": False,
+            "apprenticeships": False,
+            "doctoral": False,
+        }
+
+    return render_template(
+        "bw_activation_full/06_assign_missions.html",
+        bw_type=bw_type,
+        bw_info=bw_info,
+        missions=session["missions"],
+    )
+
+
+@bp.route("/configure-content")
+def configure_content():
+    """Stage 7: Configure Business Wall content."""
+    if not session.get("bw_activated"):
+        return redirect(url_for("bw_activation_full.index"))
+
+    bw_type = session["bw_type"]
+    bw_info = BW_TYPES.get(bw_type, {})
+
+    return render_template(
+        "bw_activation_full/07_configure_content.html",
+        bw_type=bw_type,
+        bw_info=bw_info,
+    )
+
+
 @bp.route("/reset", methods=["POST"])
 def reset():
     """Reset all session data."""

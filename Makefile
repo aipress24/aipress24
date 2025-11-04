@@ -87,6 +87,12 @@ run:
 	# python scripts/generate-forms3.py
 	honcho -f Procfile-dev start
 
+
+## Run POC server
+run-poc:
+	flask --app poc.app --debug run --reload
+
+
 ## Run server under gunicorn
 run-gunicorn:
 	gunicorn -b 127.0.0.1:5000 -w1 'app.flask.main:create_app()'
