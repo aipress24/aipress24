@@ -25,7 +25,7 @@ def create_app() -> Flask:
         Flask: Configured POC application.
     """
     app = Flask(__name__)
-    app.secret_key = "dev-secret-key-for-poc-only"
+    app.secret_key = "dev-secret-key-for-poc-only"  # noqa: S105
 
     app.register_blueprint(bw_activation_bp, url_prefix="/bw-activation")
     app.register_blueprint(bw_activation_full_bp, url_prefix="/bw-activation-full")

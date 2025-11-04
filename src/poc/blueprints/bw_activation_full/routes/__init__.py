@@ -14,6 +14,7 @@ from __future__ import annotations
 from . import dashboard, stage1, stage2, stage3, stage4, stage5, stage6, stage7
 
 __all__ = [
+    "dashboard",
     "stage1",
     "stage2",
     "stage3",
@@ -21,5 +22,4 @@ __all__ = [
     "stage5",
     "stage6",
     "stage7",
-    "dashboard",
 ]
