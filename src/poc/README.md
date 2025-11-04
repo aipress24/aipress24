@@ -9,11 +9,29 @@ src/poc/
 ├── app.py                    # Application Flask principale
 ├── blueprints/               # Blueprints pour chaque POC
 │   ├── __init__.py
-│   └── bw_activation.py     # Business Wall Activation POC
+│   ├── bw_activation.py      # Business Wall Activation POC (simple)
+│   ├── bw_activation_full/   # Business Wall Activation POC (complet) - Package modulaire
+│   │   ├── __init__.py       # Blueprint creation and routes import
+│   │   ├── config.py         # BW types configuration
+│   │   ├── utils.py          # Helper functions
+│   │   ├── README.md         # Package documentation
+│   │   └── routes/           # Route handlers by workflow stage
+│   │       ├── __init__.py   # Imports all route modules
+│   │       ├── stage1.py     # Stage 1: Subscription
+│   │       ├── stage2.py     # Stage 2: Contacts
+│   │       ├── stage3.py     # Stage 3: Activation
+│   │       ├── stage4.py     # Stage 4: Internal roles
+│   │       ├── stage5.py     # Stage 5: External partners
+│   │       ├── stage6.py     # Stage 6: Missions
+│   │       ├── stage7.py     # Stage 7: Content
+│   │       └── dashboard.py  # Dashboard and reset
+│   └── rights_sales.py       # Rights sales settings POC
 └── templates/                # Templates Jinja2
     ├── layout.html           # Layout de base
     ├── poc_index.html        # Page d'accueil du POC
-    └── bw_activation.html    # Template BW activation
+    ├── bw_activation.html    # Template BW activation (simple)
+    ├── bw_activation_full/   # Templates BW activation (complet)
+    └── rights_sales.html     # Template rights sales
 ```
 
 ## Accès
@@ -213,3 +231,26 @@ app.register_blueprint(mon_poc_bp, url_prefix="/mon-poc")
 - Utilise Flask session pour l'état (pas de base de données)
 - Templates Jinja2 avec Tailwind CSS via CDN
 - Indépendant de l'application principale (pas de dépendances sur les modèles)
+
+### Architecture Modulaire (Business Wall Activation Full)
+
+Le POC "Business Wall Activation Full" utilise une architecture modulaire en package pour une meilleure maintenabilité :
+
+- **Séparation des responsabilités** : Configuration, utilitaires et routes séparés
+- **Organisation par étape** : Chaque stage du workflow a son propre module (`stage1.py`, `stage2.py`, etc.)
+- **Pattern Flask standard** : Routes top-level, blueprint importé directement, pas de wrapper functions
+- **Extensibilité** : Facile d'ajouter de nouveaux types de BW ou de nouvelles étapes
+- **Clarté** : Code organisé et facile à naviguer (modules numérotés)
+- **Documentation** : README dédié dans le package `bw_activation_full/`
+
+**Blueprint Pattern:**
+```python
+# Dans chaque module de route (ex: routes/stage1.py)
+from .. import bp
+
+@bp.route("/endpoint")
+def handler():
+    pass  # Routes enregistrées automatiquement via side effects
+```
+
+Cette structure facilite la transition vers la production en suivant les patterns de l'application principale.
