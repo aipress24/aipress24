@@ -95,4 +95,3 @@ You will need to set up a PostgreSQL database, a Redis instance, and a SMTP serv
 You will need to set the environment variables listed above, using either a `.env` file or a mechanism provided by your process manager (e.g. `systemd`, `supervisord`, `uwsgi`, etc.).
 
 You will probably need to set a reverse proxy like `nginx` or `traefik`, and manage your SSL certificates (possibly using `certbot`).
-
