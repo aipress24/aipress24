@@ -40,6 +40,25 @@ Puis ouvrir http://localhost:5001 dans le navigateur.
 
 ## POCs Disponibles
 
+### Gestion des Droits de Publication
+
+**URL**: `/poc/rights-sales/`
+
+Prototype d'interface de configuration des droits de publication et des licences d'exploitation de contenus éditoriaux.
+
+**Fonctionnalités**:
+- 5 options de configuration de licences :
+  - Tous les éditeurs abonnés à BW for Media
+  - Liste blanche (sélection de médias autorisés)
+  - Liste noire (exclusion de certains médias)
+  - Aucune diffusion (privé)
+  - Tous les médias (y compris institutionnels)
+- Recherche et sélection de médias (liste blanche/noire)
+- Interface avec Alpine.js pour affichage conditionnel
+- Alerte de non-rétroactivité
+- Breadcrumb navigation
+- Interface responsive avec Tailwind CSS
+
 ### Business Wall Activation (Simple)
 
 **URL**: `/poc/bw-activation/`

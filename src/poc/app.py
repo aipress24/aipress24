@@ -15,6 +15,7 @@ from flask import Flask, render_template
 # Register blueprints
 from poc.blueprints.bw_activation import bp as bw_activation_bp
 from poc.blueprints.bw_activation_full import bp as bw_activation_full_bp
+from poc.blueprints.rights_sales import bp as rights_sales_bp
 
 
 def create_app() -> Flask:
@@ -28,6 +29,7 @@ def create_app() -> Flask:
 
     app.register_blueprint(bw_activation_bp, url_prefix="/bw-activation")
     app.register_blueprint(bw_activation_full_bp, url_prefix="/bw-activation-full")
+    app.register_blueprint(rights_sales_bp, url_prefix="/rights-sales")
 
     # Home page listing available POCs
     @app.route("/")
