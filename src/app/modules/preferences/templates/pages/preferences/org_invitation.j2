@@ -2,7 +2,6 @@
 
 {% block main %}
   <h2 class="pb-4">Invitations à rejoindre une organisation</h2>
-
   {% if invitations|length > 0 %}
     {% for invit in invitations %}
       {% if invit.disabled %}
