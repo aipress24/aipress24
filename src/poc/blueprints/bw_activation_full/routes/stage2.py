@@ -8,9 +8,9 @@ from __future__ import annotations
 
 from flask import redirect, render_template, request, session, url_for
 
-from .. import bp
-from ..config import BW_TYPES
-from ..utils import get_mock_owner_data
+from poc.blueprints.bw_activation_full import bp
+from poc.blueprints.bw_activation_full.config import BW_TYPES
+from poc.blueprints.bw_activation_full.utils import get_mock_owner_data
 
 
 @bp.route("/nominate-contacts")
@@ -65,5 +65,4 @@ def submit_contacts():
         return redirect(
             url_for("bw_activation_full.activate_free_page", bw_type=bw_type)
         )
-    else:
-        return redirect(url_for("bw_activation_full.pricing_page", bw_type=bw_type))
+    return redirect(url_for("bw_activation_full.pricing_page", bw_type=bw_type))
