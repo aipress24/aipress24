@@ -239,9 +239,10 @@ def submit_contacts():
     # Redirect to appropriate activation page based on BW type
     bw_type = session.get("bw_type")
     if BW_TYPES[bw_type]["free"]:
-        return redirect(url_for("bw_activation_full.activate_free_page", bw_type=bw_type))
-    else:
-        return redirect(url_for("bw_activation_full.pricing_page", bw_type=bw_type))
+        return redirect(
+            url_for("bw_activation_full.activate_free_page", bw_type=bw_type)
+        )
+    return redirect(url_for("bw_activation_full.pricing_page", bw_type=bw_type))
 
 
 @bp.route("/activate-free/<bw_type>")
@@ -290,7 +291,9 @@ def activation_choice():
     if not session.get("bw_type_confirmed"):
         return redirect(url_for("bw_activation_full.confirm_subscription"))
 
-    return render_template("bw_activation_full/01_activation_choice.html", bw_types=BW_TYPES)
+    return render_template(
+        "bw_activation_full/01_activation_choice.html", bw_types=BW_TYPES
+    )
 
 
 @bp.route("/activate_free/<bw_type>", methods=["POST"])
