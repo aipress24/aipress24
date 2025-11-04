@@ -269,6 +269,8 @@ DEP002 = [
     'setuptools',
     # Used by ODS export
     'pyexcel-ods3',
+    # Used by blob storage
+    'fsspec',
 ]
 # X imported but declared as a dev dependency
 DEP004 = ['hypothesis', 'openpyxl', "flask_debugtoolbar"]
