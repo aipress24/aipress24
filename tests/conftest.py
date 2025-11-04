@@ -132,7 +132,7 @@ def app(db_url: str):
 
 
 @pytest.fixture
-def app_context(app) -> Generator[AppContext, None, None]:
+def app_context(app) -> Generator[AppContext]:
     with app.app_context() as ctx:
         yield ctx
 
