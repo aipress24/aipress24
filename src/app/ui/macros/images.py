@@ -17,7 +17,7 @@ from app.modules.kyc.views import profile_photo_local_url
 
 
 @macro
-def org_logo(org: Organisation, size=24, **kw):
+def org_logo(org: Organisation, size: int = 24, **kw) -> Markup | str:
     if not org:
         return ""
 
@@ -46,7 +46,7 @@ def org_logo(org: Organisation, size=24, **kw):
 
 
 @macro
-def profile_image(user: User, size=24, **kw):
+def profile_image(user: User, size: int = 24, **kw) -> Markup:
     cls = kw.get("class", "").split(" ")
     # url = user.profile_image_url
     # quick fix to merge KYC images and faker images urls

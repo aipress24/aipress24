@@ -1,0 +1,98 @@
+{% extends "layout.html" %}
+
+{% block title %}Gérer les Rôles Internes{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto">
+    <div class="bg-white p-8 rounded-2xl shadow-lg border border-gray-200">
+
+        <h1 class="text-3xl font-bold text-gray-900">4- Gérer les Rôles Internes</h1>
+        <p class="mt-2 text-gray-600">Nommez des Business Wall Managers et des {{ bw_info.manager_role }}s au sein de votre équipe.</p>
+
+        <div class="mt-4 p-4 bg-blue-50 rounded-md border border-blue-200">
+            <p class="text-sm text-gray-700">
+                <strong>Type de Business Wall :</strong> {{ bw_info.name }}
+            </p>
+        </div>
+
+        <!-- Section 1: Business Wall Managers Internes (BWMi) -->
+        <div class="mt-8">
+            <h2 class="text-2xl font-semibold text-blue-800 border-b pb-3 mb-6">Business Wall Managers Internes (BWMi)</h2>
+
+            <div class="mb-6 p-4 bg-gray-50 rounded-md">
+                <h3 class="font-medium text-gray-900 mb-3">Inviter des Business Wall Managers</h3>
+                <p class="text-sm text-gray-600 mb-4">
+                    Invitez des membres de votre équipe à devenir co-administrateurs du Business Wall.
+                </p>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Adresse e-mail du membre à inviter</label>
+                        <div class="flex gap-3">
+                            <input type="email" placeholder="exemple@votreorganisation.com" class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-blue-600 focus:ring-blue-600 sm:text-sm px-4 py-2 border">
+                            <button type="button" class="rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">
+                                Envoyer l'invitation
+                            </button>
+                        </div>
+                        <p class="mt-2 text-xs text-gray-500">
+                            Une notification sera envoyée avec un lien pour accepter ou refuser la nomination.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-4 bg-white rounded-md border border-gray-200">
+                <h3 class="font-medium text-gray-900 mb-4">Business Wall Managers actuels</h3>
+                <div class="text-sm text-gray-500 italic">
+                    Aucun Business Wall Manager nommé pour le moment. (POC: liste simulée après invitation)
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 2: Business Wall PR Managers Internes (BWPRi) -->
+        <div class="mt-8">
+            <h2 class="text-2xl font-semibold text-green-800 border-b pb-3 mb-6">Business Wall {{ bw_info.manager_role }}s Internes (BWPR{{bw_info.manager_role[0]}}i)</h2>
+
+            <div class="mb-6 p-4 bg-gray-50 rounded-md">
+                <h3 class="font-medium text-gray-900 mb-3">Inviter des {{ bw_info.manager_role }}s</h3>
+                <p class="text-sm text-gray-600 mb-4">
+                    Invitez des membres de votre équipe à gérer les relations presse et publier du contenu au nom de votre organisation.
+                </p>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Adresse e-mail du membre à inviter</label>
+                        <div class="flex gap-3">
+                            <input type="email" placeholder="exemple@votreorganisation.com" class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-4 py-2 border">
+                            <button type="button" class="rounded-md bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:bg-green-700">
+                                Envoyer l'invitation
+                            </button>
+                        </div>
+                        <p class="mt-2 text-xs text-gray-500">
+                            Si la personne accepte, elle apparaîtra en tant que « Contact presse » sur votre Business Wall.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-4 bg-white rounded-md border border-gray-200">
+                <h3 class="font-medium text-gray-900 mb-4">{{ bw_info.manager_role }}s actuels</h3>
+                <div class="text-sm text-gray-500 italic">
+                    Aucun {{ bw_info.manager_role }} nommé pour le moment. (POC: liste simulée après invitation)
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="mt-10 flex items-center justify-between gap-x-6 border-t pt-6">
+            <a href="{{ url_for('bw_activation_full.dashboard') }}" class="text-sm font-semibold leading-6 text-gray-900 hover:text-gray-700">
+                ← Retour au tableau de bord
+            </a>
+            <a href="{{ url_for('bw_activation_full.manage_external_partners') }}" class="rounded-md bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-700">
+                Étape suivante : Partenaires externes →
+            </a>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from . import Directory
+from app.modules.swork.common import Directory
 
 
 @dataclass
