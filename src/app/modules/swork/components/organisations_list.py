@@ -41,7 +41,7 @@ class OrganisationsList(BaseList):
         }
 
     def get_org_count(self) -> int:
-        stmt = select(count(Organisation.id))
+        stmt = select(count(Organisation.id)).where(Organisation.deleted_at.is_(None))
         return db.session.scalar(stmt) or 0
 
     def get_orgs(self) -> list[Organisation]:
@@ -49,7 +49,12 @@ class OrganisationsList(BaseList):
         return list(db.session.scalars(stmt))
 
     def get_base_statement(self) -> Select:
-        return select(Organisation).order_by(Organisation.name).limit(100)
+        return (
+            select(Organisation)
+            .where(Organisation.deleted_at.is_(None))
+            .order_by(Organisation.name)
+            .limit(100)
+        )
 
     def search_clause(self, search):
         return Organisation.name.ilike(f"%{search}%")
@@ -71,7 +76,7 @@ class OrganisationsList(BaseList):
         return stmt
 
     def get_filters(self):
-        stmt = select(Organisation)
+        stmt = select(Organisation).where(Organisation.deleted_at.is_(None))
         orgs: list[Organisation] = get_multi(Organisation, stmt)
         return make_filters(orgs)
 

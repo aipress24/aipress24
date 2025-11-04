@@ -112,6 +112,29 @@ def set_user_organisation(user: User, organisation: Organisation) -> str:
     return commit_session(db_session)
 
 
+def _delete_organisation_from_db(
+    db_session: scoped_session[Session], organisation: Organisation
+) -> bool:
+    try:
+        db_session.delete(organisation)
+        db_session.commit()
+        return True
+    except IntegrityError:
+        # Probable cause : foreign key constraint violation, some Article or other item is
+        # referenced by the Organisation
+        db_session.rollback()
+    return False
+
+
+def _mark_organisation_as_deleted(
+    db_session: scoped_session[Session], organisation: Organisation
+) -> None:
+    organisation.active = False
+    organisation.deleted_at = now(LOCAL_TZ)
+    db_session.merge(organisation)
+    db_session.commit()
+
+
 def gc_organisation(organisation: Organisation | None) -> bool:
     """If the provided Organisation is of type AUTO and has no member: delete it.
 
@@ -121,8 +144,8 @@ def gc_organisation(organisation: Organisation | None) -> bool:
         return False
     # AUTO organisation with zero member: felete it
     db_session = db.session
-    db_session.delete(organisation)
-    db_session.commit()
+    if not _delete_organisation_from_db(db_session, organisation):
+        _mark_organisation_as_deleted(db_session, organisation)
     return True
 
 
@@ -140,9 +163,9 @@ def gc_all_auto_organisations() -> int:
     empty_orgs = db_session.scalars(stmt)
     counter = 0
     for organisation in empty_orgs:
-        db_session.delete(organisation)
+        if not _delete_organisation_from_db(db_session, organisation):
+            _mark_organisation_as_deleted(db_session, organisation)
         counter += 1
-    db_session.commit()
     return counter
 
 
