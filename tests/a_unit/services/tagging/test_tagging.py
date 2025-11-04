@@ -12,7 +12,7 @@ from app.services.tagging import add_tag, get_tag_applications, get_tags
 
 
 def test_tags(db: SQLAlchemy) -> None:
-    joe = User(id=1, email="joe@example.com")
+    joe = User(id=901, email="joe901@example.com")
     db.session.add(joe)
     db.session.flush()
 
@@ -38,7 +38,7 @@ def test_tags(db: SQLAlchemy) -> None:
 
 def test_add_tag_with_type(db: SQLAlchemy) -> None:
     """Test adding a tag with a specific type."""
-    joe = User(id=1, email="joe@example.com")
+    joe = User(id=902, email="joe902@example.com")
     db.session.add(joe)
     db.session.flush()
 
@@ -54,7 +54,7 @@ def test_add_tag_with_type(db: SQLAlchemy) -> None:
 
 def test_tag_application_repr(db: SQLAlchemy) -> None:
     """Test TagApplication __repr__ method."""
-    joe = User(id=1, email="joe@example.com")
+    joe = User(id=903, email="joe903@example.com")
     db.session.add(joe)
     db.session.flush()
 
@@ -74,7 +74,7 @@ def test_tag_application_repr(db: SQLAlchemy) -> None:
 
 def test_get_tags_with_multiple_tags(db: SQLAlchemy) -> None:
     """Test getting tags with multiple tag applications."""
-    joe = User(id=1, email="joe@example.com")
+    joe = User(id=904, email="joe904@example.com")
     db.session.add(joe)
     db.session.flush()
 
@@ -99,7 +99,7 @@ def test_get_tags_with_multiple_tags(db: SQLAlchemy) -> None:
 
 def test_get_tags_with_duplicate_labels_auto_and_manual(db: SQLAlchemy) -> None:
     """Test get_tags when same label has both auto and manual types."""
-    joe = User(id=1, email="joe@example.com")
+    joe = User(id=905, email="joe905@example.com")
     db.session.add(joe)
     db.session.flush()
 
@@ -121,7 +121,7 @@ def test_get_tags_with_duplicate_labels_auto_and_manual(db: SQLAlchemy) -> None:
 
 def test_get_tags_with_multiple_auto_duplicates(db: SQLAlchemy) -> None:
     """Test get_tags when same label has multiple auto types."""
-    joe = User(id=1, email="joe@example.com")
+    joe = User(id=906, email="joe906@example.com")
     db.session.add(joe)
     db.session.flush()
 
