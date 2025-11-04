@@ -105,6 +105,7 @@ dependencies = [
     { name = "flask-talisman" },
     { name = "flask-vite" },
     { name = "flask-wtf" },
+    { name = "fsspec" },
     { name = "granian", extra = ["reload"] },
     { name = "gunicorn" },
     { name = "ijson" },
@@ -250,6 +251,7 @@ requires-dist = [
     { name = "flask-talisman", specifier = ">=1.1.0,<2.0.0" },
     { name = "flask-vite", specifier = ">=0.5,<1.0" },
     { name = "flask-wtf", specifier = ">=1.2.1,<2.0.0" },
+    { name = "fsspec", specifier = ">=2025.10.0" },
     { name = "granian", extras = ["reload"], specifier = ">=1.6,<2.0" },
     { name = "gunicorn", specifier = ">=23,<24" },
     { name = "ijson", specifier = ">=3.3.0" },
@@ -1704,6 +1706,15 @@ woff = [
     { name = "brotli", marker = "platform_python_implementation == 'CPython'" },
     { name = "brotlicffi", marker = "platform_python_implementation != 'CPython'" },
     { name = "zopfli" },
+]
+
+[[package]]
+name = "fsspec"
+version = "2025.10.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/24/7f/2747c0d332b9acfa75dc84447a066fdf812b5a6b8d30472b74d309bfe8cb/fsspec-2025.10.0.tar.gz", hash = "sha256:b6789427626f068f9a83ca4e8a3cc050850b6c0f71f99ddb4f542b8266a26a59", size = 309285, upload-time = "2025-10-30T14:58:44.036Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/eb/02/a6b21098b1d5d6249b7c5ab69dde30108a71e4e819d4a9778f1de1d5b70d/fsspec-2025.10.0-py3-none-any.whl", hash = "sha256:7c7712353ae7d875407f97715f0e1ffcc21e33d5b24556cb1e090ae9409ec61d", size = 200966, upload-time = "2025-10-30T14:58:42.53Z" },
 ]
 
 [[package]]

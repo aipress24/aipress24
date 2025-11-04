@@ -122,6 +122,7 @@ dependencies = [
     "schedule>=1.2.2",
     "pyexcel>=0.7.3",
     "pyexcel-ods3>=0.6.1",
+    "fsspec>=2025.10.0",
 ]
 description = ""
 

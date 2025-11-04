@@ -11,9 +11,9 @@ from enum import Enum
 from typing import TYPE_CHECKING
 from uuid import UUID
 
+import sqlalchemy as sa
 from advanced_alchemy.base import UUIDAuditBase
 from advanced_alchemy.types import GUID
-import sqlalchemy as sa
 from sqlalchemy import ForeignKey, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -70,4 +70,6 @@ class Partnership(UUIDAuditBase):
     notes: Mapped[str] = mapped_column(Text, default="")
 
     def __repr__(self) -> str:
-        return f"<Partnership {self.id} status={self.status} org_id={self.partner_org_id}>"
+        return (
+            f"<Partnership {self.id} status={self.status} org_id={self.partner_org_id}>"
+        )

@@ -9,7 +9,6 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING
 
-import pytest
 
 from poc.blueprints.bw_activation_full.models import (
     RoleAssignment,
@@ -17,7 +16,7 @@ from poc.blueprints.bw_activation_full.models import (
     RolePermission,
     RolePermissionRepository,
 )
-from poc.blueprints.bw_activation_full.models.role import (
+from poc.blueprints.bw_activation_full.models import (
     BWRoleType,
     InvitationStatus,
     PermissionType,

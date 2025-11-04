@@ -15,7 +15,7 @@ from poc.blueprints.bw_activation_full.models import (
     BusinessWall,
     BusinessWallRepository,
 )
-from poc.blueprints.bw_activation_full.models.business_wall import BWStatus, BWType
+from poc.blueprints.bw_activation_full.models import BWStatus, BWType
 
 if TYPE_CHECKING:
     from sqlalchemy.orm import Session

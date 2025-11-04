@@ -10,8 +10,8 @@ from datetime import datetime
 from enum import Enum
 from typing import TYPE_CHECKING
 
-from advanced_alchemy.base import UUIDAuditBase
 import sqlalchemy as sa
+from advanced_alchemy.base import UUIDAuditBase
 from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
