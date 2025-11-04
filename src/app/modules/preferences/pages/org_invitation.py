@@ -44,7 +44,27 @@ def organisation_inviting(user: User) -> list[dict[str, Any]]:
         else:
             infos["disabled"] = ""
         result.append(infos)
+    unofficial = unofficial_organisation(user)
+    if unofficial:
+        # - If user is currently member of an unofficial organisation, show it
+        # - there is no invitation for unofficial organisation
+        result.append(unofficial)
     return result
+
+
+def unofficial_organisation(user: User) -> dict[str, Any]:
+    org = user.organisation
+    if not org:
+        return {}
+    org_type = cast(OrganisationTypeEnum, org.type)
+    if org.type != OrganisationTypeEnum.AUTO:
+        return {}
+    infos = {
+        "label": f"{org.name} ({LABELS_ORGANISATION_TYPE.get(org_type, org_type)})",
+        "org_id": str(org.id),
+        "disabled": "disabled",
+    }
+    return infos
 
 
 def join_organisation(user: User, org_id: str) -> None:
@@ -69,6 +89,7 @@ class PrefInvitationsPage(BasePreferencesPage):
         return {
             "invitations": invitations,
             "open_invitations": open_invitations,
+            "unofficial": unofficial_organisation(user),
         }
 
     def post(self):
