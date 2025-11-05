@@ -14,7 +14,7 @@ from arrow import Arrow
 from attr import define
 from attrs import asdict
 from flask import render_template, request, session
-from sqlalchemy import or_, select
+from sqlalchemy import and_, or_, select
 from sqlalchemy.orm import selectinload
 from webargs.flaskparser import parser
 from werkzeug.exceptions import BadRequest
@@ -254,11 +254,19 @@ class DateFilter:
         match self.filter_on:
             case "day":
                 assert self.day  # it can't be None in this case.
-                stmt = stmt.where(EventPost.start_date >= self.day)
-                stmt = stmt.where(EventPost.start_date < self.day.shift(days=1))
+                stmt = stmt.where(
+                    and_(
+                        EventPost.start_date < self.day.shift(days=1),
+                        EventPost.end_date >= self.day,
+                    )
+                )
             case "month":
-                stmt = stmt.where(EventPost.start_date >= self.month_start)
-                stmt = stmt.where(EventPost.start_date < self.month_end)
+                stmt = stmt.where(
+                    and_(
+                        EventPost.start_date < self.month_end,
+                        EventPost.end_date >= self.month_start,
+                    )
+                )
             case _:
                 stmt = stmt.where(
                     or_(
@@ -290,8 +298,18 @@ class Calendar:
 
         stmt = (
             select(EventPost)
-            .where(EventPost.start_date >= month_start)
-            .where(EventPost.start_date < month_end)
+            .where(
+                or_(
+                    EventPost.start_date >= month_start,
+                    EventPost.end_date >= month_start,
+                )
+            )
+            .where(
+                or_(
+                    EventPost.start_date < month_end,
+                    EventPost.end_date < month_end,
+                )
+            )
             .where(EventPost.status == PublicationStatus.PUBLIC)
             .order_by(EventPost.start_date)
             .options(selectinload(EventPost.owner))
@@ -304,7 +322,7 @@ class Calendar:
         for day in list(Arrow.range("day", start_date, end_date)):
             num_events = 0
             for event in events:
-                if event.start_date.date() == day.date():
+                if event.start_date.date() <= day.date() <= event.end_date.date():
                     num_events += 1
 
             cell = {
