@@ -5,8 +5,10 @@
 
 from __future__ import annotations
 
+import sqlalchemy as sa
 from sqlalchemy.orm import Mapped, mapped_column
 
+from app.enums import ProfileEnum
 from app.models.base import Base
 
 
@@ -18,3 +20,4 @@ class Promotion(Base):
     slug: Mapped[str] = mapped_column(primary_key=True)
     title: Mapped[str] = mapped_column(default="")
     body: Mapped[str] = mapped_column(default="")
+    profile: Mapped[ProfileEnum] = mapped_column(sa.Enum(ProfileEnum), nullable=True)

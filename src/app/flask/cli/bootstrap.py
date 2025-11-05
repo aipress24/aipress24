@@ -16,7 +16,7 @@ from flask_super.cli import command
 from rich import print
 from svcs.flask import container
 
-from app.enums import RoleEnum
+from app.enums import ProfileEnum, RoleEnum
 from app.flask.bootstrap import import_countries, import_taxonomies, import_zip_codes
 from app.flask.extensions import db
 from app.models.admin import Promotion
@@ -124,7 +124,9 @@ def bootstrap_promotions() -> None:
         else:
             title = BOX_TITLE2
 
-        promo = Promotion(slug=slug, title=title, body=BOX_BODY)
+        promo = Promotion(
+            slug=slug, title=title, body=BOX_BODY, profile=ProfileEnum.PM_DIR
+        )
         db.session.add(promo)
 
     db.session.commit()
