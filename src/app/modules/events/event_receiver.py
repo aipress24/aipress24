@@ -34,7 +34,7 @@ def on_publish_event(event: Event) -> None:
     update_post(post, event)
 
     db.session.add(post)
-    db.session.commit()
+    db.session.flush()
 
 
 @event_unpublished.connect
@@ -46,7 +46,7 @@ def on_unpublish_event(event: Event) -> None:
     post.status = PublicationStatus.DRAFT
 
     db.session.add(post)
-    db.session.commit()
+    db.session.flush()
 
 
 @event_updated.connect
@@ -62,7 +62,7 @@ def on_update_event(event: Event) -> None:
     post.last_updated_at = now(LOCAL_TZ)
 
     db.session.add(post)
-    db.session.commit()
+    db.session.flush()
 
 
 def event_type_to_category(event_type: str) -> str:
