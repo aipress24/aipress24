@@ -14,7 +14,7 @@ from arrow import Arrow
 from attr import define
 from attrs import asdict
 from flask import render_template, request, session
-from sqlalchemy import select
+from sqlalchemy import or_, select
 from sqlalchemy.orm import selectinload
 from webargs.flaskparser import parser
 from werkzeug.exceptions import BadRequest
@@ -260,7 +260,12 @@ class DateFilter:
                 stmt = stmt.where(EventPost.start_date >= self.month_start)
                 stmt = stmt.where(EventPost.start_date < self.month_end)
             case _:
-                stmt = stmt.where(EventPost.start_date >= self.today).limit(30)
+                stmt = stmt.where(
+                    or_(
+                        EventPost.start_date >= self.today,
+                        EventPost.end_date >= self.today,
+                    )
+                ).limit(30)
         return stmt
 
 
