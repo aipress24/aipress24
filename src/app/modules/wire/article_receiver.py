@@ -32,7 +32,7 @@ def on_publish(article: Article) -> None:
     update_post(post, article)
 
     db.session.add(post)
-    db.session.commit()
+    db.session.flush()
 
 
 @article_unpublished.connect
@@ -43,7 +43,7 @@ def on_unpublish(article: Article) -> None:
     post.status = PublicationStatus.DRAFT
 
     db.session.add(post)
-    db.session.commit()
+    db.session.flush()
 
 
 @article_updated.connect
@@ -57,7 +57,7 @@ def on_update(article: Article) -> None:
     # post.last_updated_at = now(LOCAL_TZ)
 
     db.session.add(post)
-    db.session.commit()
+    db.session.flush()
 
 
 def update_post(post: ArticlePost, info: Article) -> None:
