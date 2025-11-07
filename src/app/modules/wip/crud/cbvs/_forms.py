@@ -379,7 +379,7 @@ class CommuniqueForm(Form):
     published_at = DateTimeField(
         "Date/heure de publication effective",
         render_kw={"width": 3},
-        validators=[validators.Optional()],
+        # validators=[validators.Optional()],
         format="%Y-%m-%dT%H:%M",
     )
 
