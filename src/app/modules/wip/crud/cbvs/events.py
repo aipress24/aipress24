@@ -15,6 +15,7 @@ from flask import (
 from flask_super.registry import register
 from sqlalchemy_utils.types.arrow import arrow
 
+from app.flask.extensions import db
 from app.flask.routing import url_for
 from app.models.lifecycle import PublicationStatus
 from app.modules.wip.models.eventroom import Event
@@ -111,18 +112,20 @@ class EventsWipView(BaseWipView):
         repo = self._get_repo()
         event = cast("Event", self._get_model(id))
         event.status = PublicationStatus.PUBLIC
-        repo.update(event, auto_commit=True)
-        flash("L'événement a été publié")
+        repo.update(event, auto_commit=False)
         event_published.send(event)
+        db.session.commit()
+        flash("L'événement a été publié")
         return redirect(self._url_for("index"))
 
     def unpublish(self, id: int):
         repo = self._get_repo()
         event = cast("Event", self._get_model(id))
         event.status = PublicationStatus.DRAFT
-        repo.update(event, auto_commit=True)
-        flash("L'événement a été dépublié")
+        repo.update(event, auto_commit=False)
         event_unpublished.send(event)
+        db.session.commit()
+        flash("L'événement a été dépublié")
         return redirect(self._url_for("index"))
 
 
