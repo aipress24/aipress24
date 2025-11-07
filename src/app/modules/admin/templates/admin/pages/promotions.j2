@@ -3,18 +3,21 @@
 {% block main %}
   <form method="POST">
 
-    <div class="mb-2 font-semibold">Promo a éditer</div>
-
-    <select id="promo-select" name="promo" class="dui-select dui-select-primary w-full max-w-xs">
-      <option value="" disabled selected>Choisissez la promo à éditer</option>
-      <option value="wire-promo-1">Wire / promo 1</option>  <!-- Added values for form submission -->
-      <option value="wire-promo-2">Wire / promo 2</option>
-      <option value="events-promo-1">Events / promo 1</option>
-      <option value="events-promo-2">Events / promo 2</option>
-      <option value="biz-promo-1">Biz / promo 1</option>
-      <option value="biz-promo-2">Biz / promo 2</option>
-      <option value="swork-promo-1">Swork / promo 1</option>
-      <option value="swork-promo-2">Swork / promo 2</option>
+    <div class="mb-2 font-semibold">
+      Promo a éditer
+    </div>
+    <select
+      id="promo-select"
+      name="promo"
+      class="dui-select dui-select-primary w-full max-w-xs"
+      onchange="loadPromoContent(this.value)"
+    >
+      <option
+        value="" selected disabled>Choisissez la promo à éditer
+      </option>
+      {% for promo in promo_options %}
+        <option value="{{ promo.value }}">{{ promo.label }}</option>
+      {% endfor %}
     </select>
 
     <div class="mt-6 font-semibold">Texte de la promo</div>
@@ -26,11 +29,53 @@
         x-id="['trix']"
         @trix-change="value = $refs.input.value"
     >
-      <input name="content" :id="$id('trix')" type="hidden" x-ref="input">
-      <!-- Optional .prose class added to utilize Tailwind's Typography Plugin for styling -->
-      <trix-editor x-ref="trix" :input="$id('trix')" class="prose"></trix-editor>
+      <input
+        name="content"
+        id="$id('trix')"
+        type="hidden"
+        x-ref="input"
+      >
+      <trix-editor
+        x-ref="trix"
+        :input="$id('trix')"
+        class="prose">
+      </trix-editor>
     </div>
 
     <input type="submit" value="Enregistrer" class="mt-6 dui-btn dui-btn-primary">
   </form>
+
+<script>
+  function loadPromoContent(promoKey) {
+    if (!promoKey) {
+        return;
+    }
+    fetch('promotions/load', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({'promo_key': promoKey})
+    }).then(response => response.json())
+      .then(data => {
+          if (data.success) {
+              const trixEditor = document.querySelector('trix-editor');
+              if (trixEditor && trixEditor.editor) {
+                  trixEditor.editor.loadHTML(data.content);
+                  const hiddenInput = document.querySelector('input[name="content"]');
+                  if (hiddenInput) {
+                      hiddenInput.value = data.content;
+                  }
+              } else {
+                  console.error('Trix editor not found or initialized.');
+              }
+          } else {
+              alert('Erreur lors du chargement du contenu : ' + data.message);
+          }
+      }
+      ).catch(error => {
+          console.error('Erreur de requête:', error);
+          alert('Une erreur de communication est survenue.');
+    });
+  }
+</script>
+
 {% endblock %}
