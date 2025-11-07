@@ -122,18 +122,20 @@ class CommuniquesWipView(BaseWipView):
         communique.status = PublicationStatus.PUBLIC
         if not communique.published_at:
             communique.published_at = arrow.now("Europe/Paris")
-        repo.update(communique, auto_commit=True)
-        flash("Le communiqué a été publié")
+        repo.update(communique, auto_commit=False)
         communique_published.send(communique)
+        db.session.commit()
+        flash("Le communiqué a été publié")
         return redirect(self._url_for("index"))
 
     def unpublish(self, id: int):
         repo = self._get_repo()
         communique = cast("Communique", self._get_model(id))
         communique.status = PublicationStatus.DRAFT
-        repo.update(communique, auto_commit=True)
-        flash("Le communiqué a été dépublié")
+        repo.update(communique, auto_commit=False)
         communique_unpublished.send(communique)
+        db.session.commit()
+        flash("Le communiqué a été dépublié")
         return redirect(self._url_for("index"))
 
     @route("/<int:id>/images/", methods=["GET", "POST"])
@@ -183,7 +185,8 @@ class CommuniquesWipView(BaseWipView):
             owner=communique.owner,
         )
         communique.add_image(image)
-        communique_repo.update(communique, auto_commit=True)
+        communique_repo.update(communique, auto_commit=False)
+        db.session.commit()
         referrer_url = request.referrer or "/"
         redirect_url = referrer_url + "#last_image"
         return redirect(redirect_url)

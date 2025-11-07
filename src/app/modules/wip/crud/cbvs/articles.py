@@ -157,18 +157,20 @@ class ArticlesWipView(BaseWipView):
         repo = self._get_repo()
         article = cast("Article", self._get_model(id))
         article.status = PublicationStatus.PUBLIC
-        repo.update(article, auto_commit=True)
-        flash("L'article a été publié")
+        repo.update(article, auto_commit=False)
         article_published.send(article)
+        db.session.commit()
+        flash("L'article a été publié")
         return redirect(self._url_for("index"))
 
     def unpublish(self, id: int):
         repo = self._get_repo()
         article = cast("Article", self._get_model(id))
         article.status = PublicationStatus.DRAFT
-        repo.update(article, auto_commit=True)
-        flash("L'article a été dépublié")
+        repo.update(article, auto_commit=False)
         article_unpublished.send(article)
+        db.session.commit()
+        flash("L'article a été dépublié")
         return redirect(self._url_for("index"))
 
     @route("/<int:id>/images/", methods=["GET", "POST"])
@@ -218,7 +220,8 @@ class ArticlesWipView(BaseWipView):
             owner=article.owner,
         )
         article.add_image(image)
-        article_repo.update(article, auto_commit=True)
+        article_repo.update(article, auto_commit=False)
+        db.session.commit()
         referrer_url = request.referrer or "/"
         redirect_url = referrer_url + "#last_image"
         return redirect(redirect_url)
