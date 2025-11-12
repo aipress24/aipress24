@@ -4,28 +4,19 @@
 
 from __future__ import annotations
 
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, redirect, request
 from flask_classful import FlaskView, route
 from flask_super.registry import register
+from svcs.flask import container
 
 from app.flask.lib.pages import page
 from app.logging import warn
+from app.services.promotions import PromotionService
 
 from .base import BaseAdminPage
 from .home import AdminHomePage
 
-PROMO_CONTENT_DB = {
-    "wire-promo-1": "Wire / promo 1",
-    "wire-promo-2": "Wire / promo 2",
-    "events-promo-1": "Events / promo 1",
-    "events-promo-2": "Events / promo 2",
-    "biz-promo-1": "Biz / promo 1",
-    "biz-promo-2": "Biz / promo 2",
-    "swork-promo-1": "Swork / promo 1",
-    "swork-promo-2": "Swork / promo 2",
-}
-
-PROMO_OPTIONS = [
+PROMO_SLUG_LABEL = [
     {"value": "wire-promo-1", "label": "Wire / promo 1"},
     {"value": "wire-promo-2", "label": "Wire / promo 2"},
     {"value": "events-promo-1", "label": "Events / promo 1"},
@@ -50,12 +41,22 @@ class AdminPromotionsPage(BaseAdminPage):
 
     def context(self):
         return {
-            "promo_options": PROMO_OPTIONS,
+            "promo_options": PROMO_SLUG_LABEL,
         }
 
-    def post(self) -> None:
+    def post(self):
         data = dict(request.form)
         warn(data)
+
+        promo_service = container.get(PromotionService)
+        slug = data.get("promo", "")
+        # title = data.get("title", "")
+        title = ""
+        body = data.get("content", "")
+        warn(f"post {slug!r} {body!r}")
+        if slug:
+            promo_service.store_promotion(slug=slug, title=title, body=body)
+        return redirect(self.url)
 
 
 class LoadContentView(FlaskView):
@@ -72,15 +73,23 @@ class LoadContentView(FlaskView):
             ), 400
 
         data = request.get_json()
-        promo_key = data.get("promo_key")
+        slug = data.get("promo_key")
 
-        if not promo_key:
+        if not slug:
             return jsonify(
-                {"success": False, "message": "Identifiant de promo manquant."}
+                {
+                    "success": False,
+                    "message": "Identifiant de promo manquant.",
+                }
             ), 400
 
-        content = "test data"
-        # content = get(promo_key) or ""
+        promo_service = container.get(PromotionService)
+        promo = promo_service.get_promotion(slug=slug)
+        content = ""
+        if promo:
+            content = promo.body
+        warn("slug:", slug, "content:", content)
+
         return jsonify({"success": True, "content": content})
 
 
