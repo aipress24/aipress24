@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from flask import Flask, jsonify, redirect, request
+from flask import Flask, jsonify, redirect, request, url_for
 from flask_classful import FlaskView, route
 from flask_super.registry import register
 from svcs.flask import container
@@ -40,8 +40,18 @@ class AdminPromotionsPage(BaseAdminPage):
     parent = AdminHomePage
 
     def context(self):
+        promo_service = container.get(PromotionService)
+        saved_slug = request.args.get("saved_promo")
+        saved_body = ""
+        if saved_slug:
+            promo = promo_service.get_promotion(slug=saved_slug)
+            if promo:
+                saved_body = promo.body
+
         return {
             "promo_options": PROMO_SLUG_LABEL,
+            "saved_slug": saved_slug,  # Used to pre-select the dropdown
+            "saved_body": saved_body,
         }
 
     def post(self):
@@ -50,13 +60,13 @@ class AdminPromotionsPage(BaseAdminPage):
 
         promo_service = container.get(PromotionService)
         slug = data.get("promo", "")
-        # title = data.get("title", "")
         title = ""
         body = data.get("content", "")
         warn(f"post {slug!r} {body!r}")
         if slug:
             promo_service.store_promotion(slug=slug, title=title, body=body)
-        return redirect(self.url)
+            redirect(url_for("admin.promotions", saved_promo=slug))
+        return redirect(url_for("admin.promotions", saved_promo=slug))
 
 
 class LoadContentView(FlaskView):
@@ -76,6 +86,7 @@ class LoadContentView(FlaskView):
         slug = data.get("promo_key")
 
         if not slug:
+            warn("Identifiant de promo manquant.")
             return jsonify(
                 {
                     "success": False,
@@ -86,9 +97,11 @@ class LoadContentView(FlaskView):
         promo_service = container.get(PromotionService)
         promo = promo_service.get_promotion(slug=slug)
         content = ""
+        warn("promo", promo)
+
         if promo:
             content = promo.body
-        warn("slug:", slug, "content:", content)
+        warn("loading slug:", slug, "content:", content)
 
         return jsonify({"success": True, "content": content})
 

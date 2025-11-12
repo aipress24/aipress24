@@ -9,6 +9,7 @@ from flask_super.decorators import service
 from sqlalchemy.exc import NoResultFound
 from svcs.flask import container
 
+from app.logging import warn
 from app.models.admin import Promotion
 
 from ._models import PromotionRepository
@@ -29,11 +30,14 @@ class PromotionService:
             promo.title = title
             promo.body = body
 
-        return repo.add(promo)
+        promo = repo.add(promo)
+        repo.session.flush()
+        repo.session.commit()
+        return promo
 
     def get_promotion(self, slug: str) -> Promotion | None:
         repo = container.get(PromotionRepository)
         try:
-            return repo.get(slug)
-        except (NoResultFound, RepositoryError):
+            return repo.get_one_or_none(slug=slug)
+        except RepositoryError:
             return None
