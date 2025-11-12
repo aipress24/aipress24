@@ -16,13 +16,12 @@ from flask_super.cli import command
 from rich import print
 from svcs.flask import container
 
-from app.enums import ProfileEnum, RoleEnum
+from app.enums import RoleEnum
 from app.flask.bootstrap import import_countries, import_taxonomies, import_zip_codes
 from app.flask.extensions import db
-from app.models.admin import Promotion
 from app.models.auth import Role
 from app.models.repositories import RoleRepository
-from app.services.promotions import get_promotion
+from app.services.promotions import PromotionService
 
 from .bootstrap_user import import_user
 
@@ -112,7 +111,8 @@ def bootstrap_roles() -> None:
 
 def bootstrap_promotions() -> None:
     slug0 = BOX_SLUGS[0]
-    promo0 = get_promotion(slug0)
+    promo_service = container.get(PromotionService)
+    promo0 = promo_service.get_promotion(slug=slug0)
     if promo0:
         print("promotions already exist, skipping creation.")
         return
@@ -124,9 +124,7 @@ def bootstrap_promotions() -> None:
         else:
             title = BOX_TITLE2
 
-        promo = Promotion(
-            slug=slug, title=title, body=BOX_BODY, profile=ProfileEnum.PM_DIR
-        )
-        db.session.add(promo)
+        promo_service.store_promotion(slug=slug, title=title, body=BOX_BODY)
+        # slug=slug, title=title, body=BOX_BODY, profile=ProfileEnum.PM_DIR
 
     db.session.commit()

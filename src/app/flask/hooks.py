@@ -20,7 +20,7 @@ from app.lib.debugging import debug
 from app.models.auth import User
 from app.services.menus import MenuService
 from app.services.notifications import NotificationService
-from app.services.promotions import get_promotion
+from app.services.promotions import PromotionService
 from app.settings import get_settings
 
 TIMEOUT = 5
@@ -70,6 +70,7 @@ def authenticate_user() -> None:
 def inject_extra_context():
     menu_service = container.get(MenuService)
     notification_service = container.get(NotificationService)
+    promotion_service = container.get(PromotionService)
 
     try:
         version = importlib.metadata.version("aipress24-flask")
@@ -80,7 +81,7 @@ def inject_extra_context():
         return notification_service.get_notifications(g.user)
 
     return {
-        "get_promotion": get_promotion,
+        "get_promotion": promotion_service.get_promotion,
         "url_for": url_for,
         "json_data": {},
         "app_version": version,
