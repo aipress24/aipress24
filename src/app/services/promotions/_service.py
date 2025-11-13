@@ -6,10 +6,8 @@ from __future__ import annotations
 
 from advanced_alchemy.exceptions import RepositoryError
 from flask_super.decorators import service
-from sqlalchemy.exc import NoResultFound
 from svcs.flask import container
 
-from app.logging import warn
 from app.models.admin import Promotion
 
 from ._models import PromotionRepository
