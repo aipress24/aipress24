@@ -4,15 +4,15 @@
 
 {% block content %}
   <div
-      class="max-w-3xl mx-auto sm:px-6 lg:max-w-7xl lg:px-8 lg:grid lg:grid-cols-12 lg:gap-8"
+    class="max-w-3xl mx-auto sm:px-6 lg:max-w-7xl lg:px-8 lg:grid lg:grid-cols-12 lg:gap-8"
   >
     {% include "pages/_swork_menu.j2" %}
 
-    <main class="lg:col-span-9 xl:col-span-6 my-8">
+    <main class="lg:col-span-9 xl:col-span-7 my-8">
       <ul role="list" class="space-y-4">
 
         <!-- post box -->
-        <li class="bg-white px-4 py-6 shadow sm:p-6 sm:rounded-lg">
+        <li class="bg-white py-6 shadow sm:rounded-lg">
           {% include "pages/swork/post-box.j2" %}
         </li>
 
@@ -22,9 +22,8 @@
       </ul>
     </main>
 
-    <aside class="hidden xl:block xl:col-span-4 my-8">
+    <aside class="hidden xl:block xl:col-span-3 my-8">
       <div class="sticky top-4 space-y-4">
-
         {% from "macros/promo.j2" import promo_box with context %}
         {{ promo_box("swork/1") }}
         {{ promo_box("swork/2") }}
