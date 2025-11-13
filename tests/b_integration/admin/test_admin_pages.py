@@ -10,9 +10,6 @@ from typing import TYPE_CHECKING
 from unittest.mock import Mock, patch
 
 import pytest
-from flask import g
-from sqlalchemy import select
-
 from app.models.auth import User
 from app.models.content import BaseContent
 from app.modules.admin.pages.contents import ContentsDataSource, ContentsTable, truncate
@@ -23,6 +20,9 @@ from app.modules.admin.pages.menu import make_entry, make_menu
 from app.modules.admin.pages.promotions import AdminPromotionsPage
 from app.modules.admin.pages.system import AdminSystemPage
 from app.modules.swork.models import Group
+from flask import g
+from pytest_flask.plugin import JSONResponse
+from sqlalchemy import select
 
 if TYPE_CHECKING:
     from flask import Flask
@@ -90,7 +90,10 @@ class TestAdminPromotionsPage:
         result = page.context()
 
         assert isinstance(result, dict)
-        assert result == {}
+        assert "promo_options" in result
+        assert "promo_title" in result
+        assert "saved_body" in result
+        assert "saved_slug" in result
 
     def test_post_accepts_form_data(self):
         """Test that post() method exists and can be called."""
@@ -104,7 +107,7 @@ class TestAdminPromotionsPage:
             mock_request.form = mock_form
             # Should not raise an error
             result = page.post()
-            assert result is None
+            assert isinstance(result, JSONResponse)
 
 
 class TestAdminCheckAdmin:
