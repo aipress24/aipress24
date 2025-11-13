@@ -89,7 +89,3 @@ class CiblageMixin:
 
     # Géo-localisation (doublon?)
     ciblage_geolocation: Mapped[str | None] = mapped_column(default="")
-
-
-class StatutMixin:
-    statut: Mapped[str] = mapped_column(default="")

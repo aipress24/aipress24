@@ -20,7 +20,6 @@ from ._base import (
     CiblageMixin,
     NewsMetadataMixin,
     NewsroomCommonMixin,
-    StatutMixin,
 )
 
 
@@ -40,7 +39,6 @@ class AvisEnquete(
     NewsroomCommonMixin,
     NewsMetadataMixin,
     CiblageMixin,
-    StatutMixin,
     Base,
 ):
     __tablename__ = "nrm_avis_enquete"
@@ -73,6 +71,8 @@ class AvisEnquete(
         sa.Enum(TypeAvis), default=TypeAvis.AVIS_D_ENQUETE
     )
 
+    status: Mapped[str] = mapped_column(default="")
+
 
 class ContactAvisEnquete(IdMixin, Base):
     __tablename__ = "nrm_contact_avis_enquete"
@@ -95,6 +95,7 @@ class ContactAvisEnquete(IdMixin, Base):
     status: Mapped[str] = mapped_column(
         sa.Enum(StatutAvis), default=StatutAvis.EN_ATTENTE
     )
+
     date_reponse: Mapped[datetime] = mapped_column(
         sa.DateTime(timezone=True), nullable=True
     )

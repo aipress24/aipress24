@@ -11,14 +11,13 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.base import Base
 
-from ._base import CiblageMixin, NewsMetadataMixin, NewsroomCommonMixin, StatutMixin
+from ._base import CiblageMixin, NewsMetadataMixin, NewsroomCommonMixin
 
 
 class Commande(
     NewsroomCommonMixin,
     NewsMetadataMixin,
     CiblageMixin,
-    StatutMixin,
     Base,
 ):
     __tablename__ = "nrm_commande"
@@ -41,3 +40,5 @@ class Commande(
 
     # Paiement
     date_paiement: Mapped[datetime] = mapped_column(sa.DateTime(timezone=True))
+
+    status: Mapped[str] = mapped_column(default="")

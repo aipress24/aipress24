@@ -11,13 +11,12 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.base import Base
 
-from ._base import NewsMetadataMixin, NewsroomCommonMixin, StatutMixin
+from ._base import NewsMetadataMixin, NewsroomCommonMixin
 
 
 class JustifPublication(
     NewsroomCommonMixin,
     NewsMetadataMixin,
-    StatutMixin,
     Base,
 ):
     __tablename__ = "nrm_justif_publication"
@@ -31,3 +30,5 @@ class JustifPublication(
 
     # Publié sur AIP24
     date_publication_aip24: Mapped[datetime] = mapped_column(sa.DateTime(timezone=True))
+
+    status: Mapped[str] = mapped_column(default="")
