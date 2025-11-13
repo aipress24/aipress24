@@ -25,6 +25,17 @@
   {% endfor %}
 </select>
 
+{% if promo_title is defined and promo_title %}
+  <div class="mt-6 font-semibold" id="promo-title-container">
+{% else %}
+  <div class="mt-6 font-semibold hidden" id="promo-title-container">
+{% endif %}
+  Titre de la promo
+  <p id="promo-title-display" class="mt-2 ml-4 font-bold">
+    {{ promo_title or '' }}
+  </p>
+</div>
+
 <div class="mt-6 font-semibold">Texte de la promo</div>
 
   <div
@@ -64,11 +75,15 @@ if (typeof Trix !== 'undefined') {
 }
 
 function loadPromoContent(promoKey) {
+  const trixEditor = document.querySelector('trix-editor');
+  const titleDisplay = document.getElementById('promo-title-display');
+  const titleContainer = document.getElementById('promo-title-container');
   if (!promoKey) {
-    const trixEditor = document.querySelector('trix-editor');
     if (trixEditor && trixEditor.editor) {
         trixEditor.editor.loadHTML('');
     }
+    if (titleDisplay) titleDisplay.textContent = '';
+    if (titleContainer) titleContainer.classList.add('hidden');
     return;
   }
 
@@ -79,15 +94,23 @@ fetch('promotions/load', {
 }).then(response =>  response.json())
   .then(data => {
     if (data.success) {
-      const trixEditor = document.querySelector('trix-editor');
+      const newPromoTitle = data.promo_title || '';
       if (trixEditor && trixEditor.editor) {
         trixEditor.editor.loadHTML(data.content || '');
       } else {
         console.error('Trix editor not found or initialized.');
       }
-    } else {
-      alert('Erreur lors du chargement du contenu : ' + data.message);
-    }
+      if (titleDisplay && titleContainer) {
+        titleDisplay.textContent = newPromoTitle;
+        if (newPromoTitle) {
+          titleContainer.classList.remove('hidden');
+        } else {
+          titleContainer.classList.add('hidden');
+        }
+      }
+  } else {
+    alert('Erreur lors du chargement du contenu : ' + data.message);
+  }
 }
 ).catch(error => {
   console.error('Erreur de requête:', error);
