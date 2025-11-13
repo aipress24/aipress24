@@ -15,7 +15,6 @@ from ._base import (
     CiblageMixin,
     NewsMetadataMixin,
     NewsroomCommonMixin,
-    StatutMixin,
 )
 
 
@@ -23,7 +22,6 @@ class Sujet(
     NewsroomCommonMixin,
     NewsMetadataMixin,
     CiblageMixin,
-    StatutMixin,
     Base,
 ):
     __tablename__ = "nrm_sujet"
@@ -40,3 +38,5 @@ class Sujet(
 
     # Parution prévue
     date_parution_prevue: Mapped[datetime] = mapped_column(sa.DateTime(timezone=True))
+
+    status: Mapped[str] = mapped_column(default="")
