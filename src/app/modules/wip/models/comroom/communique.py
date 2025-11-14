@@ -103,9 +103,114 @@ class Communique(IdMixin, LifeCycleMixin, Owned, Base):
     def title(self):
         return self.titre
 
-    #
+    # ------------------------------------------------------------
+    # Business Logic - Publication Workflow with Embargo
+    # ------------------------------------------------------------
+
+    def can_publish(self) -> bool:
+        """Check if communique can be published."""
+        return bool(self.status == PublicationStatus.DRAFT)
+
+    def publish(self, publisher_id: int | None = None) -> None:
+        """
+        Publish the communique.
+
+        Args:
+            publisher_id: Optional publisher organization ID
+
+        Raises:
+            ValueError: If communique cannot be published or validation fails
+        """
+        if not self.can_publish():
+            msg = "Cannot publish communique: communique is not in DRAFT status"
+            raise ValueError(msg)
+
+        # Validate required fields
+        if not self.titre or not self.titre.strip():
+            msg = "Cannot publish communique: titre is required"
+            raise ValueError(msg)
+
+        if not self.contenu or not self.contenu.strip():
+            msg = "Cannot publish communique: contenu is required"
+            raise ValueError(msg)
+
+        # CRITICAL BUSINESS RULE: Check embargo date
+        if self.is_embargoed:
+            msg = f"Cannot publish communique: still under embargo until {self.embargoed_until}"
+            raise ValueError(msg)
+
+        # Update state
+        self.status = PublicationStatus.PUBLIC
+        if not self.published_at:
+            import arrow
+
+            self.published_at = arrow.now("Europe/Paris")
+        if publisher_id:
+            self.publisher_id = publisher_id
+
+    def can_unpublish(self) -> bool:
+        """Check if communique can be unpublished."""
+        return bool(self.status == PublicationStatus.PUBLIC)
+
+    def unpublish(self) -> None:
+        """
+        Unpublish the communique (return to DRAFT status).
+
+        Raises:
+            ValueError: If communique cannot be unpublished
+        """
+        if not self.can_unpublish():
+            msg = "Cannot unpublish communique: communique is not PUBLIC"
+            raise ValueError(msg)
+
+        self.status = PublicationStatus.DRAFT
+
+    # ------------------------------------------------------------
+    # Query Methods (for templates/views)
+    # ------------------------------------------------------------
+
+    @property
+    def is_draft(self) -> bool:
+        """Check if communique is in draft status."""
+        return bool(self.status == PublicationStatus.DRAFT)
+
+    @property
+    def is_public(self) -> bool:
+        """Check if communique is published."""
+        return bool(self.status == PublicationStatus.PUBLIC)
+
+    @property
+    def is_embargoed(self) -> bool:
+        """Check if communique is currently under embargo."""
+        if not self.embargoed_until:
+            return False
+        from datetime import UTC, datetime
+
+        now = datetime.now(UTC)
+        # Handle timezone-naive datetime
+        embargoed_until = self.embargoed_until
+        if embargoed_until.tzinfo is None:
+            embargoed_until = embargoed_until.replace(tzinfo=UTC)
+        return bool(embargoed_until > now)
+
+    @property
+    def is_expired(self) -> bool:
+        """Check if communique has expired."""
+        if not self.expired_at:
+            return False
+        from datetime import UTC, datetime
+
+        now = datetime.now(UTC)
+        # Handle timezone-naive datetime
+        expired_at = self.expired_at
+        if expired_at.tzinfo is None:
+            expired_at = expired_at.replace(tzinfo=UTC)
+        return bool(expired_at < now)
+
+    # ------------------------------------------------------------
     # Images management
-    #
+    # ------------------------------------------------------------
+
     def get_image(self, image_id: int) -> ComImage:
         return next((image for image in self.images if image.id == image_id), None)
 

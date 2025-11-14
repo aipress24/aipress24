@@ -1,0 +1,151 @@
+{% extends "wip/layout/_base.j2" %}
+
+{% block body_class %}bg-gray-50{% endblock %}
+
+{% block body_content %}
+  <div class="px-4 sm:px-6 lg:px-8">
+    <div class="sm:flex sm:items-center">
+      <div class="sm:flex-auto">
+        <h1 class="text-2xl font-semibold text-gray-900">{{ title }}</h1>
+        <p class="mt-2 text-sm text-gray-700">
+          {{ contact.journaliste.full_name }} souhaite vous rencontrer pour un entretien
+        </p>
+      </div>
+    </div>
+
+    <div class="mt-8">
+      <form method="POST" action="{{ url_for('AvisEnqueteWipView:rdv_accept', id=model.id, contact_id=contact.id) }}" class="space-y-8">
+
+        {# Avis d'enquête details #}
+        <div class="bg-white shadow sm:rounded-lg p-6">
+          <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">À propos de l'enquête</h3>
+          <dl class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div>
+              <dt class="text-sm font-medium text-gray-500">Titre de l'enquête</dt>
+              <dd class="mt-1 text-sm text-gray-900">{{ model.titre }}</dd>
+            </div>
+            <div>
+              <dt class="text-sm font-medium text-gray-500">Journaliste</dt>
+              <dd class="mt-1 text-sm text-gray-900">{{ contact.journaliste.full_name }}</dd>
+            </div>
+            {% if model.date_bouclage %}
+            <div>
+              <dt class="text-sm font-medium text-gray-500">Date de bouclage</dt>
+              <dd class="mt-1 text-sm text-gray-900">{{ model.date_bouclage.strftime('%d/%m/%Y') }}</dd>
+            </div>
+            {% endif %}
+          </dl>
+        </div>
+
+        {# RDV Type and Contact Info #}
+        <div class="bg-white shadow sm:rounded-lg p-6">
+          <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Type et coordonnées</h3>
+          <dl class="grid grid-cols-1 gap-4">
+            <div>
+              <dt class="text-sm font-medium text-gray-500">Type de rendez-vous</dt>
+              <dd class="mt-1 text-sm text-gray-900">
+                {% if contact.rdv_type == 'PHONE' %}
+                  {{ icon("phone", class="inline h-4 w-4 mr-1") }} Téléphone
+                {% elif contact.rdv_type == 'VIDEO' %}
+                  {{ icon("video-camera", class="inline h-4 w-4 mr-1") }} Visioconférence
+                {% elif contact.rdv_type == 'F2F' %}
+                  {{ icon("user-group", class="inline h-4 w-4 mr-1") }} Face-à-face
+                {% endif %}
+              </dd>
+            </div>
+
+            {% if contact.rdv_phone %}
+            <div>
+              <dt class="text-sm font-medium text-gray-500">Téléphone</dt>
+              <dd class="mt-1 text-sm text-gray-900">{{ contact.rdv_phone }}</dd>
+            </div>
+            {% endif %}
+
+            {% if contact.rdv_video_link %}
+            <div>
+              <dt class="text-sm font-medium text-gray-500">Lien de visioconférence</dt>
+              <dd class="mt-1 text-sm text-gray-900">
+                <a href="{{ contact.rdv_video_link }}" target="_blank" class="text-indigo-600 hover:text-indigo-900">
+                  {{ contact.rdv_video_link }}
+                </a>
+              </dd>
+            </div>
+            {% endif %}
+
+            {% if contact.rdv_address %}
+            <div>
+              <dt class="text-sm font-medium text-gray-500">Adresse</dt>
+              <dd class="mt-1 text-sm text-gray-900">{{ contact.rdv_address }}</dd>
+            </div>
+            {% endif %}
+
+            {% if contact.rdv_notes_journaliste %}
+            <div>
+              <dt class="text-sm font-medium text-gray-500">Notes du journaliste</dt>
+              <dd class="mt-1 text-sm text-gray-900">{{ contact.rdv_notes_journaliste }}</dd>
+            </div>
+            {% endif %}
+          </dl>
+        </div>
+
+        {# Proposed Slots Selection #}
+        <div class="bg-white shadow sm:rounded-lg p-6">
+          <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Créneaux proposés</h3>
+          <p class="text-sm text-gray-500 mb-4">Sélectionnez le créneau qui vous convient</p>
+          <div class="space-y-3">
+            {% for slot in contact.proposed_slots %}
+              {% set slot_datetime = slot | replace('T', ' ') %}
+              <div class="flex items-center">
+                <input
+                  id="slot_{{ loop.index }}"
+                  name="selected_slot"
+                  type="radio"
+                  value="{{ slot }}"
+                  class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300"
+                  required
+                />
+                <label for="slot_{{ loop.index }}" class="ml-3 block text-sm font-medium text-gray-700">
+                  {{ slot[:10] | replace('-', '/') }} à {{ slot[11:16] }}
+                </label>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        {# Expert Notes #}
+        <div class="bg-white shadow sm:rounded-lg p-6">
+          <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Vos notes (optionnel)</h3>
+          <div>
+            <label for="expert_notes" class="block text-sm font-medium text-gray-700">
+              Informations complémentaires pour le journaliste
+            </label>
+            <textarea
+              id="expert_notes"
+              name="expert_notes"
+              rows="4"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+              placeholder="Ajoutez des informations complémentaires si nécessaire"
+            ></textarea>
+          </div>
+        </div>
+
+        {# Actions #}
+        <div class="flex justify-end space-x-3">
+          <a
+            href="{{ url_for('home') }}"
+            class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          >
+            Annuler
+          </a>
+          <button
+            type="submit"
+            class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          >
+            {{ icon("check", class="h-4 w-4 mr-2") }}
+            Accepter le rendez-vous
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+{% endblock %}

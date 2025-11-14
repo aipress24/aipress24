@@ -125,7 +125,15 @@ class EventsWipView(BaseWipView):
     def publish(self, id: int):
         repo = self._get_repo()
         event = cast("Event", self._get_model(id))
-        event.status = PublicationStatus.PUBLIC
+
+        # Use business method to publish (includes validation)
+        try:
+            publisher_id = g.user.organisation_id if g.user.organisation_id else None
+            event.publish(publisher_id=publisher_id)
+        except ValueError as e:
+            flash(str(e), "error")
+            return redirect(self._url_for("edit", id=id))
+
         repo.update(event, auto_commit=False)
         event_published.send(event)
         db.session.commit()
@@ -135,7 +143,14 @@ class EventsWipView(BaseWipView):
     def unpublish(self, id: int):
         repo = self._get_repo()
         event = cast("Event", self._get_model(id))
-        event.status = PublicationStatus.DRAFT
+
+        # Use business method to unpublish (includes validation)
+        try:
+            event.unpublish()
+        except ValueError as e:
+            flash(str(e), "error")
+            return redirect(self._url_for("get", id=id))
+
         repo.update(event, auto_commit=False)
         event_unpublished.send(event)
         db.session.commit()
