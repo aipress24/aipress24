@@ -35,6 +35,23 @@ class StatutAvis(StrEnum):
     REFUSE = auto()
 
 
+class RDVType(StrEnum):
+    """Type de rendez-vous."""
+
+    PHONE = auto()  # Téléphone
+    VIDEO = auto()  # Visioconférence
+    F2F = auto()  # Face-à-face
+
+
+class RDVStatus(StrEnum):
+    """Statut du rendez-vous."""
+
+    NO_RDV = auto()  # Pas de RDV prévu
+    PROPOSED = auto()  # Journaliste a proposé des créneaux
+    ACCEPTED = auto()  # Expert a accepté un créneau
+    CONFIRMED = auto()  # RDV confirmé par les deux parties (optionnel)
+
+
 class AvisEnquete(
     NewsroomCommonMixin,
     NewsMetadataMixin,
@@ -99,6 +116,32 @@ class ContactAvisEnquete(IdMixin, Base):
     date_reponse: Mapped[datetime] = mapped_column(
         sa.DateTime(timezone=True), nullable=True
     )
+
+    # ------------------------------------------------------------
+    # RDV (Rendez-vous) Management
+    # ------------------------------------------------------------
+
+    # Date du RDV (finale, une fois acceptée)
     date_rdv: Mapped[datetime] = mapped_column(
         sa.DateTime(timezone=True), nullable=True
     )
+
+    # Type de RDV
+    rdv_type: Mapped[str | None] = mapped_column(sa.Enum(RDVType), nullable=True)
+
+    # Statut du RDV
+    rdv_status: Mapped[str] = mapped_column(
+        sa.Enum(RDVStatus), default=RDVStatus.NO_RDV
+    )
+
+    # Créneaux proposés par le journaliste (JSON array)
+    proposed_slots: Mapped[list] = mapped_column(sa.JSON, default=list)
+
+    # Coordonnées de contact (selon le type de RDV)
+    rdv_phone: Mapped[str] = mapped_column(default="")
+    rdv_video_link: Mapped[str] = mapped_column(default="")
+    rdv_address: Mapped[str] = mapped_column(default="")
+
+    # Notes
+    rdv_notes_journaliste: Mapped[str] = mapped_column(default="")
+    rdv_notes_expert: Mapped[str] = mapped_column(default="")
