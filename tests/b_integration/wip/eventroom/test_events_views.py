@@ -47,8 +47,10 @@ def test_event(db_session: Session, test_org: Organisation, test_user: User) -> 
     event = Event(owner=test_user, publisher=test_org)
     event.titre = "Test Conference"
     event.contenu = "Conference description"
-    event.start_time = arrow.get("2025-12-01 10:00:00").datetime
-    event.end_time = arrow.get("2025-12-01 18:00:00").datetime
+    event.set_schedule(
+        start=arrow.get("2025-12-01 10:00:00").datetime,
+        end=arrow.get("2025-12-01 18:00:00").datetime,
+    )
     event.status = PublicationStatus.DRAFT
     db_session.add(event)
     db_session.flush()
@@ -63,7 +65,8 @@ def invalid_time_event(
     event = Event(owner=test_user, publisher=test_org)
     event.titre = "Invalid Event"
     event.contenu = "Event with wrong times"
-    # End time before start time (invalid!)
+    # NOTE: Intentionally set invalid times directly (bypassing set_schedule validation)
+    # to create test data for validation testing
     event.start_time = arrow.get("2025-12-01 18:00:00").datetime
     event.end_time = arrow.get("2025-12-01 10:00:00").datetime
     event.status = PublicationStatus.DRAFT
@@ -80,8 +83,10 @@ def published_event(
     event = Event(owner=test_user, publisher=test_org)
     event.titre = "Published Conference"
     event.contenu = "Public event"
-    event.start_time = arrow.get("2025-12-01 10:00:00").datetime
-    event.end_time = arrow.get("2025-12-01 18:00:00").datetime
+    event.set_schedule(
+        start=arrow.get("2025-12-01 10:00:00").datetime,
+        end=arrow.get("2025-12-01 18:00:00").datetime,
+    )
     event.status = PublicationStatus.DRAFT
     event.publish(publisher_id=test_org.id)
     db_session.add(event)

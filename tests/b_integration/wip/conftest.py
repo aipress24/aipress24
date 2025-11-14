@@ -42,12 +42,13 @@ def logged_in_client(app: Flask, db_session: Session) -> FlaskClient:
 
     if not user:
         # Create organization
-        org = Organisation(name="Test Organization")
+        org = Organisation(name="WIP Test Organization")
         db_session.add(org)
         db_session.flush()
 
         # Create user with ID 0 for testing (used by hooks.py authenticate_user as fallback)
-        user = User(id=0, email="test@example.com")
+        # Use unique email to avoid conflicts with other integration tests
+        user = User(id=0, email="wip-test@example.com")
         user.photo = b""  # Empty bytes to avoid None errors
         user.active = True
         user.organisation = org
