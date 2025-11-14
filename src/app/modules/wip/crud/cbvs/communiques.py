@@ -18,7 +18,6 @@ from flask import (
 )
 from flask_classful import route
 from flask_super.registry import register
-from sqlalchemy_utils.types.arrow import arrow
 from svcs.flask import container
 from werkzeug.exceptions import NotFound
 
@@ -119,9 +118,15 @@ class CommuniquesWipView(BaseWipView):
     def publish(self, id: int):
         repo = self._get_repo()
         communique = cast("Communique", self._get_model(id))
-        communique.status = PublicationStatus.PUBLIC
-        if not communique.published_at:
-            communique.published_at = arrow.now("Europe/Paris")
+
+        # Use business method to publish (includes validation)
+        try:
+            publisher_id = g.user.organisation_id if g.user.organisation_id else None
+            communique.publish(publisher_id=publisher_id)
+        except ValueError as e:
+            flash(str(e), "error")
+            return redirect(self._url_for("edit", id=id))
+
         repo.update(communique, auto_commit=False)
         communique_published.send(communique)
         db.session.commit()
@@ -131,7 +136,14 @@ class CommuniquesWipView(BaseWipView):
     def unpublish(self, id: int):
         repo = self._get_repo()
         communique = cast("Communique", self._get_model(id))
-        communique.status = PublicationStatus.DRAFT
+
+        # Use business method to unpublish (includes validation)
+        try:
+            communique.unpublish()
+        except ValueError as e:
+            flash(str(e), "error")
+            return redirect(self._url_for("get", id=id))
+
         repo.update(communique, auto_commit=False)
         communique_unpublished.send(communique)
         db.session.commit()

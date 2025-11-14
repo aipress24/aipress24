@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import ClassVar
 
 import sqlalchemy as sa
@@ -74,9 +74,94 @@ class Article(
     pays_zip_ville: Mapped[str] = mapped_column(default="")
     pays_zip_ville_detail: Mapped[str] = mapped_column(default="")
 
-    #
+    # ------------------------------------------------------------
+    # Business Logic - Publication Workflow
+    # ------------------------------------------------------------
+
+    def can_publish(self) -> bool:
+        """Check if article can be published."""
+        return bool(self.status == PublicationStatus.DRAFT)
+
+    def publish(self, publisher_id: int | None = None) -> None:
+        """
+        Publish the article.
+
+        Args:
+            publisher_id: Optional publisher organization ID
+
+        Raises:
+            ValueError: If article cannot be published or validation fails
+        """
+        if not self.can_publish():
+            msg = "Cannot publish article: article is not in DRAFT status"
+            raise ValueError(msg)
+
+        # Validate required fields
+        if not self.titre or not self.titre.strip():
+            msg = "Cannot publish article: titre is required"
+            raise ValueError(msg)
+
+        if not self.contenu or not self.contenu.strip():
+            msg = "Cannot publish article: contenu is required"
+            raise ValueError(msg)
+
+        # Update state
+        self.status = PublicationStatus.PUBLIC
+        if not self.published_at:
+            import arrow
+
+            self.published_at = arrow.now("Europe/Paris")
+        if publisher_id:
+            self.publisher_id = publisher_id
+
+    def can_unpublish(self) -> bool:
+        """Check if article can be unpublished."""
+        return bool(self.status == PublicationStatus.PUBLIC)
+
+    def unpublish(self) -> None:
+        """
+        Unpublish the article (return to DRAFT status).
+
+        Raises:
+            ValueError: If article cannot be unpublished
+        """
+        if not self.can_unpublish():
+            msg = "Cannot unpublish article: article is not PUBLIC"
+            raise ValueError(msg)
+
+        self.status = PublicationStatus.DRAFT
+
+    # ------------------------------------------------------------
+    # Query Methods (for templates/views)
+    # ------------------------------------------------------------
+
+    @property
+    def is_draft(self) -> bool:
+        """Check if article is in draft status."""
+        return bool(self.status == PublicationStatus.DRAFT)
+
+    @property
+    def is_public(self) -> bool:
+        """Check if article is published."""
+        return bool(self.status == PublicationStatus.PUBLIC)
+
+    @property
+    def is_expired(self) -> bool:
+        """Check if article has expired."""
+        if not self.expired_at:
+            return False
+
+        now = datetime.now(UTC)
+        # Handle timezone-naive datetime
+        expired_at = self.expired_at
+        if expired_at.tzinfo is None:
+            expired_at = expired_at.replace(tzinfo=UTC)
+        return bool(expired_at < now)
+
+    # ------------------------------------------------------------
     # Images management
-    #
+    # ------------------------------------------------------------
+
     def get_image(self, image_id: int) -> Image:
         return next((image for image in self.images if image.id == image_id), None)
 
