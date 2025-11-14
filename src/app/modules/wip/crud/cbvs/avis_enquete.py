@@ -210,7 +210,9 @@ class AvisEnqueteWipView(BaseWipView):
 
         if request.method == "POST":
             # Handle form submission
-            rdv_type = request.form.get("rdv_type")
+            from app.modules.wip.models.newsroom.avis_enquete import RDVType
+
+            rdv_type = RDVType[request.form.get("rdv_type")]
             rdv_phone = request.form.get("rdv_phone", "")
             rdv_video_link = request.form.get("rdv_video_link", "")
             rdv_address = request.form.get("rdv_address", "")
@@ -224,8 +226,19 @@ class AvisEnqueteWipView(BaseWipView):
                 if slot_date and slot_time:
                     proposed_slots.append(f"{slot_date}T{slot_time}")
 
-            if not proposed_slots:
-                flash("Veuillez proposer au moins un créneau", "error")
+            # Use business method to propose RDV (includes validation)
+            try:
+                contact.propose_rdv(
+                    rdv_type=rdv_type,
+                    proposed_slots=proposed_slots,
+                    rdv_phone=rdv_phone,
+                    rdv_video_link=rdv_video_link,
+                    rdv_address=rdv_address,
+                    rdv_notes=rdv_notes,
+                )
+                db_session.commit()
+            except ValueError as e:
+                flash(str(e), "error")
                 return Response(
                     "",
                     headers={
@@ -236,17 +249,6 @@ class AvisEnqueteWipView(BaseWipView):
                         )
                     },
                 )
-
-            # Update the contact with RDV proposal
-            contact.rdv_type = rdv_type
-            contact.rdv_status = "PROPOSED"
-            contact.proposed_slots = proposed_slots
-            contact.rdv_phone = rdv_phone
-            contact.rdv_video_link = rdv_video_link
-            contact.rdv_address = rdv_address
-            contact.rdv_notes_journaliste = rdv_notes
-
-            db_session.commit()
 
             # Send notification to expert
             notification_service = container.get(NotificationService)
@@ -301,8 +303,12 @@ class AvisEnqueteWipView(BaseWipView):
             selected_slot = request.form.get("selected_slot")
             expert_notes = request.form.get("expert_notes", "")
 
-            if not selected_slot:
-                flash("Veuillez sélectionner un créneau", "error")
+            # Use business method to accept RDV (includes validation)
+            try:
+                contact.accept_rdv(selected_slot, expert_notes=expert_notes)
+                db_session.commit()
+            except ValueError as e:
+                flash(str(e), "error")
                 return Response(
                     "",
                     headers={
@@ -313,15 +319,6 @@ class AvisEnqueteWipView(BaseWipView):
                         )
                     },
                 )
-
-            # Update the contact with accepted RDV
-            from datetime import datetime
-
-            contact.rdv_status = "ACCEPTED"
-            contact.date_rdv = datetime.fromisoformat(selected_slot)
-            contact.rdv_notes_expert = expert_notes
-
-            db_session.commit()
 
             # Send notification to journalist
             notification_service = container.get(NotificationService)

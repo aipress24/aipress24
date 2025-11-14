@@ -60,11 +60,6 @@ class AvisEnquete(
 ):
     __tablename__ = "nrm_avis_enquete"
 
-    # Temp hack
-    @property
-    def title(self):
-        return self.titre
-
     # Etat: Brouillon, Validé, Publié
 
     # ------------------------------------------------------------
@@ -83,8 +78,8 @@ class AvisEnquete(
     # Parution prévue
     date_parution_prevue: Mapped[datetime] = mapped_column(ArrowType(timezone=True))
 
-    # Type d’avis (Avis d’enquête, Appel à témoin, Appel à expert)
-    type_avis: Mapped[str] = mapped_column(
+    # Type d'avis (Avis d'enquête, Appel à témoin, Appel à expert)
+    type_avis: Mapped[TypeAvis] = mapped_column(
         sa.Enum(TypeAvis), default=TypeAvis.AVIS_D_ENQUETE
     )
 
@@ -109,11 +104,11 @@ class ContactAvisEnquete(IdMixin, Base):
     expert: Mapped[User] = orm.relationship("User", foreign_keys=[expert_id])
 
     # Other
-    status: Mapped[str] = mapped_column(
+    status: Mapped[StatutAvis] = mapped_column(
         sa.Enum(StatutAvis), default=StatutAvis.EN_ATTENTE
     )
 
-    date_reponse: Mapped[datetime] = mapped_column(
+    date_reponse: Mapped[datetime | None] = mapped_column(
         sa.DateTime(timezone=True), nullable=True
     )
 
@@ -122,15 +117,15 @@ class ContactAvisEnquete(IdMixin, Base):
     # ------------------------------------------------------------
 
     # Date du RDV (finale, une fois acceptée)
-    date_rdv: Mapped[datetime] = mapped_column(
+    date_rdv: Mapped[datetime | None] = mapped_column(
         sa.DateTime(timezone=True), nullable=True
     )
 
     # Type de RDV
-    rdv_type: Mapped[str | None] = mapped_column(sa.Enum(RDVType), nullable=True)
+    rdv_type: Mapped[RDVType | None] = mapped_column(sa.Enum(RDVType), nullable=True)
 
     # Statut du RDV
-    rdv_status: Mapped[str] = mapped_column(
+    rdv_status: Mapped[RDVStatus] = mapped_column(
         sa.Enum(RDVStatus), default=RDVStatus.NO_RDV
     )
 
@@ -145,3 +140,127 @@ class ContactAvisEnquete(IdMixin, Base):
     # Notes
     rdv_notes_journaliste: Mapped[str] = mapped_column(default="")
     rdv_notes_expert: Mapped[str] = mapped_column(default="")
+
+    # ------------------------------------------------------------
+    # Business Logic
+    # ------------------------------------------------------------
+
+    def can_propose_rdv(self) -> bool:
+        """Check if a RDV can be proposed for this contact."""
+        return bool(
+            self.status == StatutAvis.ACCEPTE and self.rdv_status == RDVStatus.NO_RDV
+        )
+
+    def propose_rdv(  # noqa: PLR0913
+        self,
+        rdv_type: RDVType,
+        proposed_slots: list[str],
+        rdv_phone: str = "",
+        rdv_video_link: str = "",
+        rdv_address: str = "",
+        rdv_notes: str = "",
+    ) -> None:
+        """
+        Business method to propose a RDV.
+
+        Raises:
+            ValueError: If RDV cannot be proposed or validation fails
+        """
+        if not self.can_propose_rdv():
+            msg = "Cannot propose RDV: expert has not accepted the enquête or RDV already exists"
+            raise ValueError(msg)
+
+        if not proposed_slots:
+            msg = "At least one time slot must be proposed"
+            raise ValueError(msg)
+
+        if len(proposed_slots) > 5:
+            msg = "Maximum 5 time slots can be proposed"
+            raise ValueError(msg)
+
+        # Validate slots format
+        from datetime import datetime
+
+        for slot in proposed_slots:
+            try:
+                datetime.fromisoformat(slot)
+            except ValueError as e:
+                msg = f"Invalid slot format '{slot}': must be ISO format (YYYY-MM-DDTHH:MM)"
+                raise ValueError(msg) from e
+
+        # Update state
+        self.rdv_type = rdv_type
+        self.rdv_status = RDVStatus.PROPOSED
+        self.proposed_slots = proposed_slots
+        self.rdv_phone = rdv_phone
+        self.rdv_video_link = rdv_video_link
+        self.rdv_address = rdv_address
+        self.rdv_notes_journaliste = rdv_notes
+
+    def can_accept_rdv(self) -> bool:
+        """Check if expert can accept the RDV."""
+        return bool(self.rdv_status == RDVStatus.PROPOSED)
+
+    def accept_rdv(self, selected_slot: str, expert_notes: str = "") -> None:
+        """
+        Business method for expert to accept a proposed RDV slot.
+
+        Raises:
+            ValueError: If RDV cannot be accepted or slot is invalid
+        """
+        if not self.can_accept_rdv():
+            msg = "Cannot accept RDV: no RDV has been proposed"
+            raise ValueError(msg)
+
+        # Validate slot format first (fail fast)
+        from datetime import datetime
+
+        try:
+            rdv_datetime = datetime.fromisoformat(selected_slot)
+        except ValueError as e:
+            msg = f"Invalid slot format '{selected_slot}'"
+            raise ValueError(msg) from e
+
+        # Then check if it's in proposed slots
+        if selected_slot not in self.proposed_slots:
+            msg = f"Selected slot must be one of the proposed slots: {self.proposed_slots}"
+            raise ValueError(msg)
+
+        # Update state
+        self.rdv_status = RDVStatus.ACCEPTED
+        self.date_rdv = rdv_datetime
+        self.rdv_notes_expert = expert_notes
+
+    def can_confirm_rdv(self) -> bool:
+        """Check if RDV can be confirmed (optional step)."""
+        return bool(self.rdv_status == RDVStatus.ACCEPTED)
+
+    def confirm_rdv(self) -> None:
+        """
+        Confirm the RDV (optional final step).
+
+        Raises:
+            ValueError: If RDV cannot be confirmed
+        """
+        if not self.can_confirm_rdv():
+            msg = "Cannot confirm RDV: RDV has not been accepted yet"
+            raise ValueError(msg)
+
+        self.rdv_status = RDVStatus.CONFIRMED
+
+    def cancel_rdv(self) -> None:
+        """Cancel the RDV and reset to initial state."""
+        if self.rdv_status == RDVStatus.NO_RDV:
+            msg = "No RDV to cancel"
+            raise ValueError(msg)
+
+        # Reset to initial state
+        self.rdv_status = RDVStatus.NO_RDV
+        self.rdv_type = None
+        self.proposed_slots = []
+        self.date_rdv = None
+        self.rdv_phone = ""
+        self.rdv_video_link = ""
+        self.rdv_address = ""
+        self.rdv_notes_journaliste = ""
+        self.rdv_notes_expert = ""
