@@ -1,0 +1,202 @@
+{% extends "wip/layout/_base.j2" %}
+
+{% block body_class %}bg-gray-50{% endblock %}
+
+{% block body_content %}
+  <div class="px-4 sm:px-6 lg:px-8">
+    <div class="sm:flex sm:items-center">
+      <div class="sm:flex-auto">
+        <h1 class="text-2xl font-semibold text-gray-900">{{ title }}</h1>
+        <p class="mt-2 text-sm text-gray-700">
+          Proposez des créneaux pour un entretien avec {{ contact.expert.full_name }}
+        </p>
+      </div>
+    </div>
+
+    <div class="mt-8">
+      <form method="POST" action="{{ url_for('AvisEnqueteWipView:rdv_propose', id=model.id, contact_id=contact.id) }}" class="space-y-8">
+        {# RDV Type #}
+        <div class="bg-white shadow sm:rounded-lg p-6">
+          <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Type de rendez-vous</h3>
+          <div class="space-y-4">
+            <div class="flex items-center">
+              <input
+                id="rdv_type_phone"
+                name="rdv_type"
+                type="radio"
+                value="PHONE"
+                class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300"
+                checked
+              />
+              <label for="rdv_type_phone" class="ml-3 block text-sm font-medium text-gray-700">
+                Téléphone
+              </label>
+            </div>
+            <div class="flex items-center">
+              <input
+                id="rdv_type_video"
+                name="rdv_type"
+                type="radio"
+                value="VIDEO"
+                class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300"
+              />
+              <label for="rdv_type_video" class="ml-3 block text-sm font-medium text-gray-700">
+                Visioconférence
+              </label>
+            </div>
+            <div class="flex items-center">
+              <input
+                id="rdv_type_f2f"
+                name="rdv_type"
+                type="radio"
+                value="F2F"
+                class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300"
+              />
+              <label for="rdv_type_f2f" class="ml-3 block text-sm font-medium text-gray-700">
+                Face-à-face
+              </label>
+            </div>
+          </div>
+        </div>
+
+        {# Proposed Slots #}
+        <div class="bg-white shadow sm:rounded-lg p-6">
+          <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Créneaux proposés</h3>
+          <p class="text-sm text-gray-500 mb-4">Proposez au moins un créneau (maximum 5)</p>
+          <div class="space-y-4">
+            {% for i in range(1, 6) %}
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label for="slot_date_{{ i }}" class="block text-sm font-medium text-gray-700">
+                    Date du créneau {{ i }}
+                  </label>
+                  <input
+                    type="date"
+                    id="slot_date_{{ i }}"
+                    name="slot_date_{{ i }}"
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                    {% if i == 1 %}required{% endif %}
+                  />
+                </div>
+                <div>
+                  <label for="slot_time_{{ i }}" class="block text-sm font-medium text-gray-700">
+                    Heure du créneau {{ i }}
+                  </label>
+                  <input
+                    type="time"
+                    id="slot_time_{{ i }}"
+                    name="slot_time_{{ i }}"
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                    {% if i == 1 %}required{% endif %}
+                  />
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        {# Contact Details #}
+        <div class="bg-white shadow sm:rounded-lg p-6">
+          <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Coordonnées de contact</h3>
+          <div class="space-y-4">
+            <div>
+              <label for="rdv_phone" class="block text-sm font-medium text-gray-700">
+                Téléphone (si RDV téléphonique)
+              </label>
+              <input
+                type="tel"
+                id="rdv_phone"
+                name="rdv_phone"
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                placeholder="Ex: +33 6 12 34 56 78"
+              />
+            </div>
+
+            <div>
+              <label for="rdv_video_link" class="block text-sm font-medium text-gray-700">
+                Lien de visioconférence (si RDV visio)
+              </label>
+              <input
+                type="url"
+                id="rdv_video_link"
+                name="rdv_video_link"
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                placeholder="Ex: https://meet.google.com/abc-defg-hij"
+              />
+            </div>
+
+            <div>
+              <label for="rdv_address" class="block text-sm font-medium text-gray-700">
+                Adresse (si RDV face-à-face)
+              </label>
+              <textarea
+                id="rdv_address"
+                name="rdv_address"
+                rows="3"
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                placeholder="Ex: 123 rue de la République, 75001 Paris"
+              ></textarea>
+            </div>
+          </div>
+        </div>
+
+        {# Notes #}
+        <div class="bg-white shadow sm:rounded-lg p-6">
+          <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Notes</h3>
+          <div>
+            <label for="rdv_notes" class="block text-sm font-medium text-gray-700">
+              Informations complémentaires pour l'expert
+            </label>
+            <textarea
+              id="rdv_notes"
+              name="rdv_notes"
+              rows="4"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+              placeholder="Ajoutez des informations complémentaires (thèmes à aborder, durée estimée, etc.)"
+            ></textarea>
+          </div>
+        </div>
+
+        {# Actions #}
+        <div class="flex justify-end space-x-3">
+          <a
+            href="{{ url_for('AvisEnqueteWipView:reponses', id=model.id) }}"
+            class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          >
+            Annuler
+          </a>
+          <button
+            type="submit"
+            class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          >
+            Envoyer la proposition
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Simple validation: if a date is filled, time is required
+    document.querySelectorAll('[id^="slot_date_"]').forEach((dateInput, index) => {
+      const slotNum = index + 1;
+      const timeInput = document.getElementById(`slot_time_${slotNum}`);
+
+      dateInput.addEventListener('change', () => {
+        if (dateInput.value) {
+          timeInput.required = true;
+        } else {
+          timeInput.required = (slotNum === 1);
+        }
+      });
+
+      timeInput.addEventListener('change', () => {
+        if (timeInput.value) {
+          dateInput.required = true;
+        } else {
+          dateInput.required = (slotNum === 1);
+        }
+      });
+    });
+  </script>
+{% endblock %}
