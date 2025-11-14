@@ -210,6 +210,8 @@ class AvisEnqueteWipView(BaseWipView):
 
         if request.method == "POST":
             # Handle form submission
+            from datetime import datetime
+
             from app.modules.wip.models.newsroom.avis_enquete import RDVType
 
             rdv_type = RDVType[request.form.get("rdv_type")]
@@ -218,13 +220,32 @@ class AvisEnqueteWipView(BaseWipView):
             rdv_address = request.form.get("rdv_address", "")
             rdv_notes = request.form.get("rdv_notes", "")
 
-            # Collect proposed slots
+            # Collect proposed slots and convert to datetime objects
             proposed_slots = []
             for i in range(1, 6):  # Support up to 5 slots
                 slot_date = request.form.get(f"slot_date_{i}")
                 slot_time = request.form.get(f"slot_time_{i}")
                 if slot_date and slot_time:
-                    proposed_slots.append(f"{slot_date}T{slot_time}")
+                    try:
+                        # Parse string to datetime object
+                        slot_str = f"{slot_date}T{slot_time}"
+                        slot_dt = datetime.fromisoformat(slot_str)
+                        proposed_slots.append(slot_dt)
+                    except ValueError:
+                        flash(
+                            f"Format de date/heure invalide pour le créneau {i}",
+                            "error",
+                        )
+                        return Response(
+                            "",
+                            headers={
+                                "HX-Redirect": url_for(
+                                    "AvisEnqueteWipView:rdv_propose",
+                                    id=id,
+                                    contact_id=contact_id,
+                                )
+                            },
+                        )
 
             # Use business method to propose RDV (includes validation)
             try:
@@ -300,8 +321,39 @@ class AvisEnqueteWipView(BaseWipView):
 
         if request.method == "POST":
             # Handle slot acceptance
-            selected_slot = request.form.get("selected_slot")
+            from datetime import datetime
+
+            selected_slot_str = request.form.get("selected_slot")
             expert_notes = request.form.get("expert_notes", "")
+
+            if not selected_slot_str:
+                flash("Aucun créneau sélectionné", "error")
+                return Response(
+                    "",
+                    headers={
+                        "HX-Redirect": url_for(
+                            "AvisEnqueteWipView:rdv_accept",
+                            id=id,
+                            contact_id=contact_id,
+                        )
+                    },
+                )
+
+            # Convert selected slot string to datetime object
+            try:
+                selected_slot = datetime.fromisoformat(selected_slot_str)
+            except ValueError:
+                flash("Format de créneau invalide", "error")
+                return Response(
+                    "",
+                    headers={
+                        "HX-Redirect": url_for(
+                            "AvisEnqueteWipView:rdv_accept",
+                            id=id,
+                            contact_id=contact_id,
+                        )
+                    },
+                )
 
             # Use business method to accept RDV (includes validation)
             try:
