@@ -30,6 +30,7 @@
 /users/
 /bootstrap_data/
 /db/
+/local-notes/
 
 # Generated
 __pycache__/
