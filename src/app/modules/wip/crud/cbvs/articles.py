@@ -63,8 +63,8 @@ class ArticlesTable(BaseTable):
                 "label": "Statut",
             },
             {
-                "name": "created_at",
-                "label": "Création",
+                "name": "date_publication_aip24",
+                "label": "Publication",
                 "class": "max-w-48 truncate",
             },
             {
