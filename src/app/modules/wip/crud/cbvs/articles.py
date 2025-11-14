@@ -156,7 +156,15 @@ class ArticlesWipView(BaseWipView):
     def publish(self, id: int):
         repo = self._get_repo()
         article = cast("Article", self._get_model(id))
-        article.status = PublicationStatus.PUBLIC
+
+        # Use business method to publish (includes validation)
+        try:
+            publisher_id = g.user.organisation_id if g.user.organisation_id else None
+            article.publish(publisher_id=publisher_id)
+        except ValueError as e:
+            flash(str(e), "error")
+            return redirect(self._url_for("edit", id=id))
+
         repo.update(article, auto_commit=False)
         article_published.send(article)
         db.session.commit()
@@ -166,7 +174,14 @@ class ArticlesWipView(BaseWipView):
     def unpublish(self, id: int):
         repo = self._get_repo()
         article = cast("Article", self._get_model(id))
-        article.status = PublicationStatus.DRAFT
+
+        # Use business method to unpublish (includes validation)
+        try:
+            article.unpublish()
+        except ValueError as e:
+            flash(str(e), "error")
+            return redirect(self._url_for("get", id=id))
+
         repo.update(article, auto_commit=False)
         article_unpublished.send(article)
         db.session.commit()
