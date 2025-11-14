@@ -1,0 +1,132 @@
+{% extends "wip/layout/_base.j2" %}
+
+{% block body_class %}bg-gray-50{% endblock %}
+
+{% block body_content %}
+
+  <script type="module">
+    import {Application, Controller} from "https://unpkg.com/@hotwired/stimulus/dist/stimulus.js";
+
+    window.Stimulus = Application.start();
+
+    Stimulus.register("hello", class extends Controller {
+      static targets = ["name"];
+
+      connect() {
+        const element = this.nameTarget
+        const name = element.value
+        console.log(`Hello, ${name}!`)
+      }
+    })
+  </script>
+
+  <h1 class="aui-title">Editeur d'images</h1>
+
+  <h2 class="aui-title">Images</h2>
+
+  <div class="mb-8 space-y-4">
+    {% for image in event.sorted_images %}
+      {% if image.is_last %}
+        <div id="last_image"></div>
+      {% endif %}
+      <div class="flex border rounded">
+        <div class="mr-4 flex-shrink-0 border rounded-l">
+          <img src="{{ image.url }}" alt=""
+               class="max-h-48 w-64 object-cover">
+        </div>
+
+        <div class="p-4 text-gray-900">
+          <h4 class="text-lg font-bold">
+            ({{ image.position }})
+            {{ image.caption or "Pas de description" }}
+          </h4>
+
+          <p class="mt-1">{{ image.copyright or "Pas de mention de copyright" }}</p>
+
+          <div class="flex items-center mt-8 space-x-4">
+{#            <button class="dui-btn dui-btn-primary">Modifier</button>#}
+
+            <button
+                hx-post="{{ url_for('EventsWipView:delete_image', event_id=event.id, image_id=image.id) }}"
+                hx-target="body"
+                hx-confirm="Etes-vous sûr de vouloir supprimer cette image?"
+                class="dui-btn dui-btn-warning"
+            >Supprimer
+            </button>
+
+            {% if not image.is_first %}
+              <button
+                  hx-post="{{ url_for('EventsWipView:move_image', event_id=event.id, image_id=image.id, direction="up") }}"
+                  hx-vals='{"direction": "up"}'
+                  hx-target="body"
+                  class="dui-btn dui-btn-square"
+              >
+                {{ icon("arrow-up", class="h-6 w-6") }}
+              </button>
+            {% endif %}
+
+            {% if not image.is_last %}
+              <button
+                  hx-post="{{ url_for('EventsWipView:move_image', event_id=event.id, image_id=image.id, direction="down") }}"
+                  hx-vals='{"direction": "down"}'
+                  hx-target="body"
+                  class="dui-btn dui-btn-square"
+              >
+                {{ icon("arrow-down", class="h-6 w-6") }}
+              </button>
+            {% endif %}
+
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+  <form action="" method="post" enctype="multipart/form-data">
+    <div class="border-y border-gray-900/10 pb-12">
+      <h2 class="aui-title mt-6">Ajouter une image</h2>
+
+      <div class="space-y-6">
+        <div class="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+          <div class="col-span-full">
+            <label for="photo" class="block text-sm font-medium leading-6 text-gray-900">Image (max. 4 Mo)</label>
+            <input type="file" name="image" accept=".png,.jpeg,.jpg,image/png,image/jpeg">
+          </div>
+        </div>
+
+        <div class="sm:col-span-6">
+          <label for="caption" class="block text-sm font-medium leading-6 text-gray-900">Description</label>
+          <div class="mt-2">
+            <input
+                id="caption" name="caption" type="text"
+                class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
+          </div>
+        </div>
+
+        <div class="sm:col-span-6">
+          <label for="copyright" class="block text-sm font-medium leading-6 text-gray-900">Mention de copyright</label>
+          <div class="mt-2">
+            <input
+                id="copyright" name="copyright" type="text"
+                class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="mt-6 flex items-center justify-end gap-x-6">
+      <button
+          name="_action" value="cancel"
+          type="submit" class="text-sm font-semibold leading-6 text-gray-900"
+          >Retour</button>
+      <button
+          type="submit"
+          name="_action" value="add-image"
+          class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+          >Ajouter</button>
+    </div>
+  </form>
+
+
+{% endblock %}
