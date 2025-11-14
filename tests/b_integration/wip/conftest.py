@@ -26,9 +26,10 @@ def logged_in_client(app: Flask, db_session: Session) -> FlaskClient:
     Provides a logged-in Flask test client with a user and organization.
 
     This fixture ensures each test runs with an authenticated user
-    who has an organization.
+    who has an organization. Thanks to transaction isolation (db_session fixture),
+    each test gets a fresh database state.
     """
-    # Create or get the PRESS_MEDIA role
+    # Create or get the PRESS_MEDIA role (may exist from previous test in same transaction)
     role = db_session.query(Role).filter_by(name=RoleEnum.PRESS_MEDIA.name).first()
     if not role:
         role = Role(
@@ -37,25 +38,30 @@ def logged_in_client(app: Flask, db_session: Session) -> FlaskClient:
         db_session.add(role)
         db_session.flush()
 
-    # Check if user ID 0 already exists (used by authenticate_user hook as fallback in test mode)
-    user = db_session.query(User).filter_by(id=0).first()
-
-    if not user:
-        # Create organization
-        org = Organisation(name="WIP Test Organization")
-        db_session.add(org)
+    # Clean up any existing user with ID 0 first to avoid UNIQUE constraint
+    # This shouldn't be necessary with proper transaction isolation, but
+    # SQLite sometimes has issues with explicit ID assignment
+    existing_user = db_session.query(User).filter_by(id=0).first()
+    if existing_user:
+        db_session.delete(existing_user)
         db_session.flush()
 
-        # Create user with ID 0 for testing (used by hooks.py authenticate_user as fallback)
-        # Use unique email to avoid conflicts with other integration tests
-        user = User(id=0, email="wip-test@example.com")
-        user.photo = b""  # Empty bytes to avoid None errors
-        user.active = True
-        user.organisation = org
-        user.organisation_id = org.id
-        user.roles.append(role)
-        db_session.add(user)
-        db_session.flush()
+    # Create organization for this test
+    org = Organisation(name="WIP Test Organization")
+    db_session.add(org)
+    db_session.flush()
+
+    # Create user with explicit ID 0 for testing
+    # ID 0 is used by hooks.py authenticate_user as fallback in test mode
+    # Transaction isolation ensures this user is rolled back after each test
+    user = User(id=0, email="wip-test@example.com")
+    user.photo = b""  # Empty bytes to avoid None errors
+    user.active = True
+    user.organisation = org
+    user.organisation_id = org.id
+    user.roles.append(role)
+    db_session.add(user)
+    db_session.flush()
 
     # Create test client
     client = app.test_client()

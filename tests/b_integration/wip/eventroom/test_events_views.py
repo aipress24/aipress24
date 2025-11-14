@@ -24,7 +24,7 @@ if TYPE_CHECKING:
 
 @pytest.fixture
 def test_user(db_session: Session) -> User:
-    """Get the test user (ID 0 created by logged_in_client fixture)."""
+    """Get the test user (ID 0) created by logged_in_client fixture."""
     user = db_session.query(User).filter_by(id=0).first()
     if not user:
         msg = "Test user (ID 0) not found. Ensure logged_in_client fixture is used."
@@ -34,9 +34,9 @@ def test_user(db_session: Session) -> User:
 
 @pytest.fixture
 def test_org(db_session: Session, test_user: User) -> Organisation:
-    """Get the test organisation (from user ID 0)."""
+    """Get the test organisation from the logged-in test user."""
     if not test_user.organisation:
-        msg = "Test user (ID 0) has no organisation."
+        msg = "Test user has no organisation."
         raise RuntimeError(msg)
     return test_user.organisation
 
