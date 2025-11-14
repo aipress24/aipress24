@@ -65,6 +65,8 @@ class Tab(abc.ABC):
         sort_order = filter_bar.sort_order
 
         match sort_order:
+            case "views":
+                order = Post.view_count.desc()
             case "likes":
                 order = Post.like_count.desc()
             case "comments":
