@@ -46,14 +46,22 @@
                   🥉
                 {% endif %}
               </div>
-              <div class="text-l font-medium text-gray-900 truncate flex truncate">
-                {{profile_description}}
-              </div>
-              <a
-                class="text-l font-medium text-gray-900 truncate flex truncate"
-                href = "{{ url_for(profile.organisation) }}">
-                {{profile.organisation_name}}
-              </a>
+              {# Job title - displayed below name #}
+              {% if profile.job_title %}
+                <div class="text-base font-medium text-gray-600 truncate">
+                  {{ profile.job_title }}
+                </div>
+              {% endif %}
+              {# Organization - displayed below job title #}
+              {% if profile.organisation_name %}
+                <a
+                  class="text-base font-medium text-gray-500 hover:text-gray-700 truncate flex items-center"
+                  href="{{ url_for(profile.organisation) }}"
+                >
+                  {{ icon("building-office", class="h-4 w-4 mr-1") }}
+                  {{ profile.organisation_name }}
+                </a>
+              {% endif %}
             </div>
             <div
                 class="mt-6 flex flex-col justify-stretch space-y-3 sm:flex-row sm:space-y-0 sm:space-x-4"
@@ -94,14 +102,22 @@
               🥉
             {% endif %}
           </div>
-          <div class="text-l font-medium text-gray-900 truncate flex truncate">
-            {{profile_description}}
-          </div>
-          <a
-            class="text-l font-medium text-gray-900 truncate flex truncate"
-            href = "{{ url_for(profile.organisation) }}">
-            {{profile.organisation_name}}
-          </a>
+          {# Job title - displayed below name #}
+          {% if profile.job_title %}
+            <div class="text-base font-medium text-gray-600 truncate">
+              {{ profile.job_title }}
+            </div>
+          {% endif %}
+          {# Organization - displayed below job title #}
+          {% if profile.organisation_name %}
+            <a
+              class="text-base font-medium text-gray-500 hover:text-gray-700 truncate flex items-center"
+              href="{{ url_for(profile.organisation) }}"
+            >
+              {{ icon("building-office", class="h-4 w-4 mr-1") }}
+              {{ profile.organisation_name }}
+            </a>
+          {% endif %}
         </div>
       </div>
     </div>
