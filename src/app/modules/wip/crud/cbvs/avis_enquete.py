@@ -21,7 +21,11 @@ from app.flask.lib.htmx import extract_fragment
 from app.flask.routing import url_for
 from app.models.auth import User
 from app.models.repositories import UserRepository
-from app.modules.wip.models import AvisEnquete, AvisEnqueteRepository
+from app.modules.wip.models import (
+    AvisEnquete,
+    AvisEnqueteRepository,
+    ContactAvisEnquete,
+)
 from app.services.geonames import get_dept_name, is_dept_in_region
 from app.services.notifications import NotificationService
 from app.services.sessions import SessionService
@@ -159,9 +163,18 @@ class AvisEnqueteWipView(BaseWipView):
         title = f"Gestion des réponses - {model.title}"
         self.update_breadcrumbs(label=title)
 
+        # Fetch responses from ContactAvisEnquete
+        db_session = container.get(scoped_session)
+        responses = (
+            db_session.query(ContactAvisEnquete)
+            .filter(ContactAvisEnquete.avis_enquete_id == model.id)
+            .all()
+        )
+
         ctx = {
             "title": title,
             "model": model,
+            "responses": responses,
         }
 
         html = render_template("wip/avis_enquete/reponses.j2", **ctx)
@@ -179,6 +192,210 @@ class AvisEnqueteWipView(BaseWipView):
         }
 
         html = render_template("wip/avis_enquete/rdv.j2", **ctx)
+        return html
+
+    @route("/<id>/rdv-propose/<contact_id>", methods=["GET", "POST"])
+    def rdv_propose(self, id, contact_id):
+        model = self._get_model(id)
+        db_session = container.get(scoped_session)
+
+        # Fetch the contact response
+        contact = db_session.query(ContactAvisEnquete).get(contact_id)
+        if not contact or contact.avis_enquete_id != model.id:
+            flash("Contact introuvable", "error")
+            return Response(
+                "",
+                headers={"HX-Redirect": url_for("AvisEnqueteWipView:reponses", id=id)},
+            )
+
+        if request.method == "POST":
+            # Handle form submission
+            from datetime import datetime
+
+            from app.modules.wip.models.newsroom.avis_enquete import RDVType
+
+            rdv_type = RDVType[request.form.get("rdv_type")]
+            rdv_phone = request.form.get("rdv_phone", "")
+            rdv_video_link = request.form.get("rdv_video_link", "")
+            rdv_address = request.form.get("rdv_address", "")
+            rdv_notes = request.form.get("rdv_notes", "")
+
+            # Collect proposed slots and convert to datetime objects
+            proposed_slots = []
+            for i in range(1, 6):  # Support up to 5 slots
+                slot_date = request.form.get(f"slot_date_{i}")
+                slot_time = request.form.get(f"slot_time_{i}")
+                if slot_date and slot_time:
+                    try:
+                        # Parse string to datetime object
+                        slot_str = f"{slot_date}T{slot_time}"
+                        slot_dt = datetime.fromisoformat(slot_str)
+                        proposed_slots.append(slot_dt)
+                    except ValueError:
+                        flash(
+                            f"Format de date/heure invalide pour le créneau {i}",
+                            "error",
+                        )
+                        return Response(
+                            "",
+                            headers={
+                                "HX-Redirect": url_for(
+                                    "AvisEnqueteWipView:rdv_propose",
+                                    id=id,
+                                    contact_id=contact_id,
+                                )
+                            },
+                        )
+
+            # Use business method to propose RDV (includes validation)
+            try:
+                contact.propose_rdv(
+                    rdv_type=rdv_type,
+                    proposed_slots=proposed_slots,
+                    rdv_phone=rdv_phone,
+                    rdv_video_link=rdv_video_link,
+                    rdv_address=rdv_address,
+                    rdv_notes=rdv_notes,
+                )
+                db_session.commit()
+            except ValueError as e:
+                flash(str(e), "error")
+                return Response(
+                    "",
+                    headers={
+                        "HX-Redirect": url_for(
+                            "AvisEnqueteWipView:rdv_propose",
+                            id=id,
+                            contact_id=contact_id,
+                        )
+                    },
+                )
+
+            # Send notification to expert
+            notification_service = container.get(NotificationService)
+            message = (
+                f"Proposition de rendez-vous pour l'avis d'enquête : {model.title}"
+            )
+            notification_url = url_for(
+                "AvisEnqueteWipView:rdv_accept", id=model.id, contact_id=contact.id
+            )
+            notification_service.post(contact.expert, message, notification_url)
+            db_session.commit()
+
+            flash("Votre proposition de rendez-vous a été envoyée", "success")
+            return Response(
+                "",
+                headers={"HX-Redirect": url_for("AvisEnqueteWipView:reponses", id=id)},
+            )
+
+        title = f"Proposer un RDV - {contact.expert.full_name}"
+        self.update_breadcrumbs(label=title)
+
+        ctx = {
+            "title": title,
+            "model": model,
+            "contact": contact,
+        }
+
+        html = render_template("wip/avis_enquete/rdv_propose.j2", **ctx)
+        return html
+
+    @route("/<id>/rdv-accept/<contact_id>", methods=["GET", "POST"])
+    def rdv_accept(self, id, contact_id):
+        """Expert view to accept a proposed RDV slot"""
+        model = self._get_model(id)
+        db_session = container.get(scoped_session)
+
+        # Fetch the contact response
+        contact = db_session.query(ContactAvisEnquete).get(contact_id)
+        if not contact or contact.avis_enquete_id != model.id:
+            flash("Contact introuvable", "error")
+            return Response("", headers={"HX-Redirect": url_for("home")})
+
+        # Verify that the current user is the expert
+        session_service = container.get(SessionService)
+        current_user = session_service.user
+        if current_user.id != contact.expert_id:
+            flash("Vous n'êtes pas autorisé à accéder à cette page", "error")
+            return Response("", headers={"HX-Redirect": url_for("home")})
+
+        if request.method == "POST":
+            # Handle slot acceptance
+            from datetime import datetime
+
+            selected_slot_str = request.form.get("selected_slot")
+            expert_notes = request.form.get("expert_notes", "")
+
+            if not selected_slot_str:
+                flash("Aucun créneau sélectionné", "error")
+                return Response(
+                    "",
+                    headers={
+                        "HX-Redirect": url_for(
+                            "AvisEnqueteWipView:rdv_accept",
+                            id=id,
+                            contact_id=contact_id,
+                        )
+                    },
+                )
+
+            # Convert selected slot string to datetime object
+            try:
+                selected_slot = datetime.fromisoformat(selected_slot_str)
+            except ValueError:
+                flash("Format de créneau invalide", "error")
+                return Response(
+                    "",
+                    headers={
+                        "HX-Redirect": url_for(
+                            "AvisEnqueteWipView:rdv_accept",
+                            id=id,
+                            contact_id=contact_id,
+                        )
+                    },
+                )
+
+            # Use business method to accept RDV (includes validation)
+            try:
+                contact.accept_rdv(selected_slot, expert_notes=expert_notes)
+                db_session.commit()
+            except ValueError as e:
+                flash(str(e), "error")
+                return Response(
+                    "",
+                    headers={
+                        "HX-Redirect": url_for(
+                            "AvisEnqueteWipView:rdv_accept",
+                            id=id,
+                            contact_id=contact_id,
+                        )
+                    },
+                )
+
+            # Send notification to journalist
+            notification_service = container.get(NotificationService)
+            journalist = contact.journaliste
+            message = f"{contact.expert.full_name} a accepté un créneau pour le RDV"
+            notification_url = url_for("AvisEnqueteWipView:reponses", id=model.id)
+            notification_service.post(journalist, message, notification_url)
+            db_session.commit()
+
+            flash(
+                "Vous avez accepté le rendez-vous. Le journaliste sera notifié.",
+                "success",
+            )
+            return Response("", headers={"HX-Redirect": url_for("home")})
+
+        title = f"Accepter un rendez-vous - {model.title}"
+        self.update_breadcrumbs(label=title)
+
+        ctx = {
+            "title": title,
+            "model": model,
+            "contact": contact,
+        }
+
+        html = render_template("wip/avis_enquete/rdv_accept.j2", **ctx)
         return html
 
 
