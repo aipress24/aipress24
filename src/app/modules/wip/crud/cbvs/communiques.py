@@ -44,6 +44,28 @@ class CommuniquesTable(BaseTable):
     def url_for(self, obj, _action="get", **kwargs):
         return url_for(f"CommuniquesWipView:{_action}", id=obj.id, **kwargs)
 
+    def get_columns(self):
+        return [
+            {
+                "name": "titre",
+                "label": "Titre",
+                "class": "max-w-0 w-full truncate",
+            },
+            {
+                "name": "status",
+                "label": "Statut",
+            },
+            {
+                "name": "published_at",
+                "label": "Publication",
+                "class": "max-w-48 truncate",
+            },
+            {
+                "name": "$actions",
+                "label": "",
+            },
+        ]
+
     def get_actions(self, item):
         actions = [
             {

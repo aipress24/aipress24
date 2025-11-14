@@ -5,7 +5,9 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
+from typing import ClassVar
 
+import arrow
 import sqlalchemy as sa
 from sqlalchemy import orm
 from sqlalchemy.orm import Mapped, mapped_column
@@ -99,6 +101,9 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
     # Langue
     language: Mapped[str] = mapped_column(default="fr")
 
+    # Image list
+    images: ClassVar[list[EventImage]]
+
     # Temp hack
     @property
     def title(self):
@@ -152,8 +157,6 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
         # Update state
         self.status = PublicationStatus.PUBLIC
         if not self.published_at:
-            import arrow
-
             self.published_at = arrow.now("Europe/Paris")
         if publisher_id:
             self.publisher_id = publisher_id
@@ -201,3 +204,57 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
         if expired_at.tzinfo is None:
             expired_at = expired_at.replace(tzinfo=UTC)
         return bool(expired_at < now)
+
+    #
+    # Images management
+    #
+    def get_image(self, image_id: int) -> EventImage:
+        return next((image for image in self.images if image.id == image_id), None)
+
+    @property
+    def sorted_images(self) -> list[EventImage]:
+        return sorted(self.images, key=lambda x: x.position)
+
+    def add_image(self, image: EventImage) -> None:
+        self.images.append(image)
+        image.position = len(self.images) - 1
+
+    def delete_image(self, image: EventImage) -> None:
+        self.images.remove(image)
+        self.update_image_positions()
+
+    def update_image_positions(self) -> None:
+        for i, image in enumerate(self.sorted_images):
+            image.position = i
+
+
+class EventImage(IdMixin, LifeCycleMixin, Owned, Base):
+    """Images liées au Event (carousel)."""
+
+    __tablename__ = "evr_image"
+
+    blob_id: Mapped[str] = mapped_column(nullable=False)
+
+    event_id: Mapped[int] = mapped_column(
+        sa.ForeignKey(Event.id, ondelete="CASCADE"), nullable=False
+    )
+    caption: Mapped[str] = mapped_column(default="")
+    copyright: Mapped[str] = mapped_column(default="")
+
+    event: Mapped[Event] = orm.relationship(
+        Event, foreign_keys=[event_id], backref="images"
+    )
+
+    position: Mapped[int] = mapped_column(default=0)
+
+    @property
+    def url(self) -> str:
+        return f"/wip/events/{self.event_id}/images/{self.id}"
+
+    @property
+    def is_first(self) -> bool:
+        return self.position == 0
+
+    @property
+    def is_last(self) -> bool:
+        return self.position == len(self.event.images) - 1
