@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 from json import JSONDecodeError, dumps, loads
+from typing import Any
 
 import sqlalchemy as sa
 from flask import request, session
@@ -112,13 +113,14 @@ class FilterBar:
     #
     # State management
     #
-    def get_state(self):
+    def get_state(self) -> dict[str, Any]:
         try:
-            state_json = session[f"wire:{self.tab}:state"]
+            state_json: dict[str, Any] = session[f"wire:{self.tab}:state"]
         except (JSONDecodeError, KeyError):
-            return {}
+            state_json = {}
         else:
-            return loads(state_json)
+            state_json = loads(state_json)
+        return state_json
 
     def save_state(self) -> None:
         session[f"wire:{self.tab}:state"] = dumps(self.state)
