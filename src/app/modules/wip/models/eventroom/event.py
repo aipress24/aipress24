@@ -113,6 +113,30 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
     # Business Logic - Publication Workflow
     # ------------------------------------------------------------
 
+    def set_schedule(self, start: datetime, end: datetime) -> None:
+        """
+        Set the event schedule (start and end times).
+
+        Args:
+            start: Event start datetime
+            end: Event end datetime
+
+        Raises:
+            ValueError: If end time is before start time
+        """
+        # Handle timezone-naive datetimes by adding UTC
+        if start.tzinfo is None:
+            start = start.replace(tzinfo=UTC)
+        if end.tzinfo is None:
+            end = end.replace(tzinfo=UTC)
+
+        if end < start:
+            msg = "end_time must be after start_time"
+            raise ValueError(msg)
+
+        self.start_time = start
+        self.end_time = end
+
     def can_publish(self) -> bool:
         """Check if event can be published."""
         return bool(self.status == PublicationStatus.DRAFT)

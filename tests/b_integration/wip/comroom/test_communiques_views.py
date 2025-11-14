@@ -64,8 +64,8 @@ def embargoed_communique(
     communique.titre = "Embargoed Press Release"
     communique.contenu = "Confidential content"
     communique.status = PublicationStatus.DRAFT
-    # Set embargo to future date
-    communique.embargoed_until = datetime.now(UTC) + timedelta(days=7)
+    # Set embargo to future date using business method
+    communique.set_embargo(datetime.now(UTC) + timedelta(days=7))
     db_session.add(communique)
     db_session.flush()
     return communique
@@ -224,11 +224,11 @@ class TestCommuniquesEmbargo:
         assert test_communique.is_embargoed is False
 
         # Set future embargo
-        test_communique.embargoed_until = datetime.now(UTC) + timedelta(hours=1)
+        test_communique.set_embargo(datetime.now(UTC) + timedelta(hours=1))
         assert test_communique.is_embargoed is True
 
         # Set past embargo
-        test_communique.embargoed_until = datetime.now(UTC) - timedelta(hours=1)
+        test_communique.set_embargo(datetime.now(UTC) - timedelta(hours=1))
         assert test_communique.is_embargoed is False
 
     def test_cannot_publish_embargoed_communique(
@@ -240,8 +240,8 @@ class TestCommuniquesEmbargo:
 
     def test_can_publish_after_embargo_expires(self, embargoed_communique: Communique):
         """Test that communique can be published after embargo expires."""
-        # Set embargo to past
-        embargoed_communique.embargoed_until = datetime.now(UTC) - timedelta(days=1)
+        # Set embargo to past (clear it)
+        embargoed_communique.set_embargo(datetime.now(UTC) - timedelta(days=1))
 
         # Should be able to publish now
         embargoed_communique.publish()
