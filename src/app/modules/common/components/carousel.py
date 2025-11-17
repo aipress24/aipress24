@@ -9,15 +9,15 @@ from svcs.flask import container
 
 from app.flask.lib.pywire import Component, component
 from app.flask.lib.types import JSON
+from app.modules.common.components.post_card import (
+    ArticleVM,
+    PressReleaseVM,
+)
 from app.modules.wip.models import (
     ArticleRepository,
     ComImage,
     CommuniqueRepository,
     Image,
-)
-from app.modules.wire.components.post_card import (
-    ArticleVM,
-    PressReleaseVM,
 )
 from app.modules.wire.models import (
     ArticlePost,
