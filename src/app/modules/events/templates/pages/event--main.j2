@@ -1,6 +1,10 @@
 <section class="p-4 bg-white shadow sm:rounded">
   <h2 class="aui-title mb-4">Présentation</h2>
 
+  <div class="my-4">
+    {{ carousel(event, img_class="min-h-96") }}
+  </div>
+
   <div class="prose xl:prose-lg max-w-full">
     {{ event.content }}
   </div>
