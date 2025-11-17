@@ -58,6 +58,8 @@ class SubscriptionInfo:
     product_id: str = ""
     quantity: int = 0
     status: bool = False
+    stripe_subscription_status: str = ""
+    operation: str = ""
 
 
 # @dataclass
@@ -211,6 +213,7 @@ def on_customer_subscription_created(event) -> None:
     data.object is a subscription"""
     data_obj = _get_event_object(event)
     subinfo = _make_customer_subscription_info(data_obj)
+    subinfo.operation = "create"
     _register_bw_subscription(subinfo)
 
 
@@ -220,6 +223,7 @@ def on_customer_subscription_deleted(event) -> None:
     data.object is a subscription"""
     data_obj = _get_event_object(event)
     subinfo = _make_customer_subscription_info(data_obj)
+    subinfo.operation = "delete"
     _register_bw_subscription(subinfo)
 
 
@@ -232,6 +236,7 @@ def on_customer_subscription_paused(event) -> None:
     data.object is a subscription"""
     data_obj = _get_event_object(event)
     subinfo = _make_customer_subscription_info(data_obj)
+    subinfo.operation = "pause"
     _register_bw_subscription(subinfo)
 
 
@@ -242,6 +247,7 @@ def on_customer_subscription_pending_update_applied(event) -> None:
     data.object is a subscription"""
     data_obj = _get_event_object(event)
     subinfo = _make_customer_subscription_info(data_obj)
+    subinfo.operation = "update"
     _register_bw_subscription(subinfo)
 
 
@@ -252,6 +258,7 @@ def on_customer_subscription_pending_update_expired(event) -> None:
     data.object is a subscription"""
     data_obj = _get_event_object(event)
     subinfo = _make_customer_subscription_info(data_obj)
+    subinfo.operation = "update"
     _register_bw_subscription(subinfo)
 
 
@@ -263,6 +270,7 @@ def on_customer_subscription_resumed(event) -> None:
     data.object is a subscription"""
     data_obj = _get_event_object(event)
     subinfo = _make_customer_subscription_info(data_obj)
+    subinfo.operation = "update"
     _register_bw_subscription(subinfo)
 
 
@@ -273,6 +281,7 @@ def on_customer_subscription_trial_will_end(event) -> None:
     data.object is a subscription"""
     data_obj = _get_event_object(event)
     subinfo = _make_customer_subscription_info(data_obj)
+    subinfo.operation = "update"
     _register_bw_subscription(subinfo)
 
 
@@ -283,6 +292,7 @@ def on_customer_subscription_updated(event) -> None:
     data.object is a subscription"""
     data_obj = _get_event_object(event)
     subinfo = _make_customer_subscription_info(data_obj)
+    subinfo.operation = "update"
     _register_bw_subscription(subinfo)
 
 
@@ -436,6 +446,7 @@ def _make_customer_subscription_info(
     # closed). After receiving updated payment information from a customer,
     # you may choose to reopen and pay their closed invoices.
     subinfo.status = data_obj["status"] == "active"
+    subinfo.stripe_subscription_status = data_obj["status"]
 
     # subinfo.payment_status = ""
     # subinfo.currency = ""
@@ -553,16 +564,24 @@ def _update_organisation_subscription_info(
     )
     org.stripe_latest_invoice_url = subinfo.latest_invoice_url
     org.type = OrganisationTypeEnum[subinfo.org_type]  # type: ignore
-    org.active = True
+    org.active = subinfo.status
+    org.stripe_subscription_status = subinfo.stripe_subscription_status
     org.bw_type = _guess_bw_type(user, org)
 
     db_session = db.session
     db_session.merge(org)
     db_session.commit()
-    info(
-        f"Organisation {org.name} subscribed to BW of type: {org.type} "
-        f"(qty: {org.stripe_product_quantity})"
-    )
+
+    if subinfo.operation == "create":
+        info(
+            f"Organisation {org.name} subscribed to BW of type: {org.type} "
+            f"(qty: {org.stripe_product_quantity})"
+        )
+    else:
+        info(
+            f"Organisation {org.name} with BW of type: {org.type} "
+            f"(qty: {org.stripe_product_quantity}) has a new Stripe status: {subinfo.stripe_subscription_status}"
+        )
 
 
 def _guess_bw_type(user: User, org: Organisation) -> BWTypeEnum:

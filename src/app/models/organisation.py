@@ -125,6 +125,7 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
     # deactivated by site admin or when they lose their BW registration
     # In that case they become like "AUTO" orgs as regards display of pages
     active: Mapped[bool] = mapped_column(default=True)
+    stripe_subscription_status: Mapped[str] = mapped_column(nullable=True)
     stripe_product_id: Mapped[str] = mapped_column(default="")
     stripe_product_quantity: Mapped[int] = mapped_column(default=0)
     stripe_subscription_id: Mapped[str] = mapped_column(default="")
