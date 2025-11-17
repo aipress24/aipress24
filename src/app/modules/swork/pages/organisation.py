@@ -217,27 +217,27 @@ TAB_CLASSES = [
 ]
 
 
-@page
-class OrgUpgradePage(BaseSworkPage):
-    name = "org_upgrade"
-    path = "/orgs/<id>/upgrade"
-    template = "pages/org-upgrade.j2"
+# @page
+# class OrgUpgradePage(BaseSworkPage):
+#     name = "org_upgrade"
+#     path = "/orgs/<id>/upgrade"
+#     template = "pages/org-upgrade.j2"
 
-    parent = OrgsPage
+#     parent = OrgsPage
 
-    def __init__(self, id: str) -> None:
-        self.args = {"id": id}
-        self.org = get_obj(id, Organisation)
+#     def __init__(self, id: str) -> None:
+#         self.args = {"id": id}
+#         self.org = get_obj(id, Organisation)
 
-    @property
-    def label(self):
-        return self.org.name
+#     @property
+#     def label(self):
+#         return self.org.name
 
-    def context(self):
-        vm = OrgVM(self.org)
-        return {
-            "org": vm,
-        }
+#     def context(self):
+#         vm = OrgVM(self.org)
+#         return {
+#             "org": vm,
+#         }
 
 
 @define
