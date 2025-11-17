@@ -13,10 +13,14 @@ from app.modules.common.components.post_card import (
     ArticleVM,
     PressReleaseVM,
 )
+from app.modules.events.models import EventPost
+from app.modules.events.pages.event import EventVM
 from app.modules.wip.models import (
     ArticleRepository,
     ComImage,
     CommuniqueRepository,
+    EventImage,
+    EventRepository,
     Image,
 )
 from app.modules.wire.models import (
@@ -28,7 +32,14 @@ from app.modules.wire.models import (
 @component
 @frozen
 class Carousel(Component):
-    post: ArticlePost | PressReleasePost | ArticleVM | PressReleaseVM
+    post: (
+        ArticlePost
+        | PressReleasePost
+        | ArticleVM
+        | PressReleaseVM
+        | EventPost
+        | EventVM
+    )
     img_class: str = "min-h-64"
 
     @property
@@ -58,12 +69,19 @@ class Carousel(Component):
                 info = repo.get(info_id)
             except AttributeError:
                 info = self.post
+        elif info_type == "EventVM":
+            try:
+                info_id = self.post.eventroom_id
+                repo = container.get(EventRepository)
+                info = repo.get(info_id)
+            except AttributeError:
+                info = self.post
         else:
             msg = f"expected ArticleVM or PressReleaseVM, not {self.post!r}"
             raise TypeError(msg)
 
         try:
-            images: list[Image | ComImage] = info.sorted_images
+            images: list[Image | ComImage | EventImage] = info.sorted_images
         except AttributeError:
             images = []
 
