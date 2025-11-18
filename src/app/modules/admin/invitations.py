@@ -20,29 +20,30 @@ from .utils import commit_session
 
 
 def invite_users(mails: str | list[str], org_id: int) -> None:
+    invitations_to_send = add_invited_users(mails, org_id)
+    send_invitation_mails(invitations_to_send, org_id)
+
+
+def add_invited_users(mails: str | list[str], org_id: int) -> list[str]:
+    """Add user mails to the list of invited users, without sending mail.
+
+    Returns: list of newly invited mails."""
+    already_invited = {m.lower() for m in emails_invited_to_organisation(org_id)}
     if isinstance(mails, str):
         mails = [mails]
-    invitations_to_send = []
+    appended_mails: list[str] = []
     db_session = db.session
     for mail in mails:
         if not mail or "@" not in mail:
             continue
-        stmt = select(Invitation).where(
-            func.lower(Invitation.email) == mail.lower(),
-        )
-        found = db_session.scalar(stmt)
-        if found and found.organisation_id == org_id:
-            # This email is already registered for this organisation
+        if mail.lower() in already_invited:
             continue
-            # allow a user to be invited by several organisations
-            # db_session.delete(found)
-            # db_session.flush()
         invitation = Invitation(email=mail, organisation_id=org_id)
         db_session.add(invitation)
         db_session.flush()
-        invitations_to_send.append(mail)
+        appended_mails.append(mail)
     commit_session(db_session)
-    send_invitation_mails(invitations_to_send, org_id)
+    return appended_mails
 
 
 def send_invitation_mails(mails: list[str], org_id: int) -> None:

@@ -17,7 +17,5 @@ class Invitation(IdMixin, LifeCycleMixin, Base):
 
     __tablename__ = "org_invitations"
 
-    # Only one invitation is allowed for an email -> primary_key
-
     email: Mapped[str] = mapped_column(String, index=True)
     organisation_id: Mapped[int] = mapped_column(BigInteger)
