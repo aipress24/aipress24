@@ -5,22 +5,14 @@
 from __future__ import annotations
 
 from importlib import resources as rso
+from smtplib import SMTPException
 
 from flask import render_template_string
-from flask_mailman import EmailMessage, Mail
+from flask_mailman import EmailMessage
+from loguru import logger
 from markdown import markdown
 
 from . import mail_templates
-
-# app = Flask(__name__)
-# mail_instance = Mail(app)
-#
-# with app.app_context():
-#     mail = BWInvitationMail(
-#         sender="sender@example.com",
-#         recipient="recipient@example.com",
-#     )
-#     mail.send(mail_instance)
 
 
 class EmailTemplate:
@@ -69,9 +61,9 @@ class EmailTemplate:
             to=[self.recipient],
         )
         message.content_subtype = "html"
-        mail_instance.send(message)
-
-
-class BWInvitationMail(EmailTemplate):
-    subject = "Invitation to join AiPRESS24"
-    template_html = "bw_invitation.j2"
+        try:
+            message.send()
+            logger.info(f"Mail {self.__class__.__name__} sent to: {self.recipient!r}")
+        except SMTPException as e:
+            msg = f"Error for recipients: {self.recipient!r} :\nSMTP error {e}"
+            logger.error(msg)

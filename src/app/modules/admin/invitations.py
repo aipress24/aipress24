@@ -4,10 +4,17 @@
 
 from __future__ import annotations
 
+from typing import cast
+
+from flask_login import current_user
 from sqlalchemy import func, select
 
 from app.flask.extensions import db
+from app.flask.sqla import get_obj
+from app.models.auth import User
 from app.models.invitation import Invitation
+from app.models.organisation import Organisation
+from app.services.emails import BWInvitationMail
 
 from .utils import commit_session
 
@@ -15,6 +22,7 @@ from .utils import commit_session
 def invite_users(mails: str | list[str], org_id: int) -> None:
     if isinstance(mails, str):
         mails = [mails]
+    invitations_to_send = []
     db_session = db.session
     for mail in mails:
         if not mail or "@" not in mail:
@@ -32,7 +40,27 @@ def invite_users(mails: str | list[str], org_id: int) -> None:
         invitation = Invitation(email=mail, organisation_id=org_id)
         db_session.add(invitation)
         db_session.flush()
+        invitations_to_send.append(mail)
     commit_session(db_session)
+    send_invitation_mails(invitations_to_send, org_id)
+
+
+def send_invitation_mails(mails: list[str], org_id: int) -> None:
+    if not mails:
+        return
+    organisation = get_obj(org_id, Organisation)
+    user = cast(User, current_user)
+    sender_name = user.email
+    bw_name = organisation.name
+
+    for mail in mails:
+        invit_mail = BWInvitationMail(
+            sender="contact@aipress24.com",
+            recipient=mail,
+            sender_name=sender_name,
+            bw_name=bw_name,
+        )
+        invit_mail.send()
 
 
 def cancel_invitation_users(mails: str | list[str], org_id: int) -> None:
@@ -58,4 +86,4 @@ def cancel_invitation_users(mails: str | list[str], org_id: int) -> None:
 def emails_invited_to_organisation(org_id: int) -> list[str]:
     db_session = db.session
     stmt = select(Invitation).where(Invitation.organisation_id == org_id)
-    return sorted(i.email for i in db_session.scalars(stmt))
+    return sorted({i.email for i in db_session.scalars(stmt)})
