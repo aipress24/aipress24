@@ -20,7 +20,7 @@ from app.enums import BWTypeEnum, OrganisationTypeEnum, ProfileEnum
 from app.flask.extensions import db
 from app.models.auth import User
 from app.models.organisation import Organisation
-from app.modules.admin.invitations import invite_users
+from app.modules.admin.invitations import add_invited_users
 from app.modules.admin.org_email_utils import add_managers_emails
 from app.modules.admin.utils import get_user_per_email
 from app.modules.stripe import blueprint
@@ -545,7 +545,7 @@ def _register_bw_subscription(subinfo: SubscriptionInfo | None) -> None:
     # user is already member of the organisation, ensure will be manager:
     add_managers_emails(org, user.email)
     # also add this new manager to invitations
-    invite_users(user.email, org.id)
+    add_invited_users(user.email, org.id)
 
 
 def _update_organisation_subscription_info(
