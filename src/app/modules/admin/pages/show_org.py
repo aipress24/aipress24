@@ -24,6 +24,7 @@ from app.modules.admin.org_email_utils import (
     change_members_emails,
 )
 from app.modules.admin.utils import (
+    delete_full_organisation,
     gc_organisation,
     merge_organisation,
     toggle_org_active,
@@ -80,7 +81,7 @@ class ShowOrg(AdminListPage):
         merge_org_results(self.org, results)
         merge_organisation(self.org)
 
-    def post(self):
+    def post(self):  # noqa: PLR0915
         action = request.form["action"]
         match action:
             case "allow_modify_bw":
@@ -112,6 +113,11 @@ class ShowOrg(AdminListPage):
                 toggle_org_active(self.org)
                 response = Response("")
                 response.headers["HX-Redirect"] = self.url
+            case "delete_org":
+                change_invitations_emails(self.org, "")
+                delete_full_organisation(self.org)
+                response = Response("")
+                response.headers["HX-Redirect"] = AdminOrgsPage().url
             case "change_emails":
                 raw_mails = request.form["content"]
                 change_members_emails(self.org, raw_mails)
