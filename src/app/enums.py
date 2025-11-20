@@ -42,9 +42,10 @@ class ContactTypeEnum(StrEnum):
 
     PRESSE = "Journalistes"
     COMMUNICANT = "Communicants"
-    EXPERT = "Experts"
-    STARTUP = "Start-ups"
+    EXPERT = "Leaders/Experts"
     TRANSFORMER = "Transformers"
+    STARTUP = "Start-ups"
+    CHERCHEUR = "Chercheurs"
     ENSEIGNANT = "Enseignants"
     ETUDIANT = "Etudiants"
 
