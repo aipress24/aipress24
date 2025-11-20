@@ -10,7 +10,6 @@ from typing import TYPE_CHECKING
 from unittest.mock import patch
 
 import pytest
-
 from app.enums import RoleEnum
 from app.models.auth import KYCProfile, Role, User
 from app.models.invitation import Invitation
@@ -451,8 +450,17 @@ class TestChangeLeadersEmails:
 class TestChangeInvitationsEmails:
     """Test suite for change_invitations_emails function."""
 
-    def test_add_new_invitations(self, db_session: Session, test_org: Organisation):
+    def test_add_new_invitations(
+        self,
+        db_session: Session,
+        test_org: Organisation,
+        test_users: list[User],
+        mocker,
+    ):
         """Test adding new invitations."""
+        test_user = test_users[0]
+        mocker.patch("flask_login.utils._get_user", return_value=test_user)
+
         emails = "test1@example.com test2@example.com"
 
         change_invitations_emails(test_org, emails)
@@ -499,8 +507,17 @@ class TestChangeInvitationsEmails:
         )
         assert len(invitations) == 1
 
-    def test_preserve_email_case(self, db_session: Session, test_org: Organisation):
+    def test_preserve_email_case(
+        self,
+        db_session: Session,
+        test_org: Organisation,
+        test_users: list[User],
+        mocker,
+    ):
         """Test that original email case is preserved."""
+        test_user = test_users[0]
+        mocker.patch("flask_login.utils._get_user", return_value=test_user)
+
         emails = "Test@Example.com"
 
         change_invitations_emails(test_org, emails)
@@ -526,8 +543,17 @@ class TestChangeInvitationsEmails:
         )
         assert len(invitations) == 0
 
-    def test_deduplicate_emails(self, db_session: Session, test_org: Organisation):
+    def test_deduplicate_emails(
+        self,
+        db_session: Session,
+        test_org: Organisation,
+        test_users: list[User],
+        mocker,
+    ):
         """Test that duplicate emails in input are deduplicated."""
+        test_user = test_users[0]
+        mocker.patch("flask_login.utils._get_user", return_value=test_user)
+
         emails = "test@example.com test@example.com TEST@EXAMPLE.COM"
 
         change_invitations_emails(test_org, emails)
