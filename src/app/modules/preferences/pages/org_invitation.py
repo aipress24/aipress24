@@ -30,7 +30,11 @@ def organisation_inviting(user: User) -> list[dict[str, Any]]:
     stmt = select(Invitation).where(func.lower(Invitation.email) == user.email.lower())
     invitations = db_session.scalars(stmt)
     invit_ids = [i.organisation_id for i in invitations]
-    stmt = select(Organisation).filter(Organisation.id.in_(invit_ids))
+    stmt = (
+        select(Organisation)
+        .where(Organisation.deleted_at.is_(None))
+        .filter(Organisation.id.in_(invit_ids))
+    )
     organisations = db_session.scalars(stmt)
     result = []
     for org in organisations:
