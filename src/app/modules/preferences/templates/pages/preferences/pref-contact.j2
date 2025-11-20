@@ -18,24 +18,30 @@
 
   <div class="mt-8">
     <form
-        class="mt-8 divide-y divide-gray-200 lg:col-span-9"
+        class="mt-8 divide-y divide-gray-200 lg:col-span-9 w-4/5"
         action=""
         method="POST"
     >
-      <div class="grid grid-cols-3 gap-4">
+      <div class="grid grid-cols-[3fr_4fr_4fr_4fr] gap-2">
         <div>&nbsp;</div>
-        <div>E-mail</div>
-        <div>Mobile</div>
+        <div class="text-center">E-mail</div>
+        <div class="text-center">Mobile</div>
+        <div class="text-center">E-mail relation presse</div>
         {% for community in show.values() %}
           <div>{{ community.label }}</div>
-          <div>
+          <div class="text-center">
             <input
                 type="checkbox" id="{{ community.email_key }}" name="{{ community.email_key }}" {{ community.email }} >
           </div>
-          <div>
+          <div class="text-center">
             <input
                 type="checkbox" id="{{ community.mobile_key }}"
                 name="{{ community.mobile_key }}" {{ community.mobile }} >
+          </div>
+          <div class="text-center">
+            <input
+                type="checkbox" id="{{ community.email_relation_presse_key }}"
+                name="{{ community.email_relation_presse_key }}" {{ community.email_relation_presse }} >
           </div>
         {% endfor %}
       </div>
