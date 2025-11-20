@@ -475,7 +475,7 @@ class KYCProfile(Base):
         for contact_type in ContactTypeEnum:
             data[contact_type.name] = {}
             data[contact_type.name]["label"] = str(contact_type)
-            for mode in ("mobile", "email"):
+            for mode in ("mobile", "email", "email_relation_presse"):
                 key = f"{mode}_{contact_type.name}"
                 data[contact_type.name][f"{mode}_key"] = key
                 data[contact_type.name][mode] = checked(bool(contact_details.get(key)))
@@ -484,7 +484,7 @@ class KYCProfile(Base):
     def parse_form_contact_details(self, data: dict[str, str]) -> None:
         contact_details = deepcopy(self.show_contact_details)
         for contact_type in ContactTypeEnum:
-            for mode in ("mobile", "email"):
+            for mode in ("mobile", "email", "email_relation_presse"):
                 key = f"{mode}_{contact_type.name}"
                 contact_details[key] = bool(data.get(key))
         self.show_contact_details = contact_details

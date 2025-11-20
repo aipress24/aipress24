@@ -37,6 +37,7 @@ TABS = [
 MASK_FIELDS = {
     "email": "email",
     "mobile": "tel_mobile",
+    "email_relation_presse": "email_relation_presse",
 }
 
 

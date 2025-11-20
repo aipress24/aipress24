@@ -312,6 +312,7 @@ class InscriptionsExporter(BaseExporter):
             FieldColumn("submited_at", "Inscription", text3),
             FieldColumn("taille_orga", "Taille orga.", text3),
             FieldColumn("tel_mobile", "Mobile", text3),
+            FieldColumn("email_relation_presse", "Email rel presse", text6),
             FieldColumn("tel_standard", "Tél standard", text3),
             FieldColumn("transformation_majeure", "Transformation majeure", text8),
             FieldColumn(
@@ -384,6 +385,7 @@ class InscriptionsExporter(BaseExporter):
         "pays_zip_ville_detail",
         "adresse_pro",
         "compl_adresse_pro",
+        "email_relation_presse",
         "tel_standard",
         "ligne_directe",
         "url_site_web",
@@ -585,6 +587,7 @@ class UsersExporter(InscriptionsExporter):
         "adresse_pro",
         "compl_adresse_pro",
         "compl_adresse_pro",
+        "email_relation_presse",
         "tel_standard",
         "type_agence_rp",
         "type_entreprise_media",

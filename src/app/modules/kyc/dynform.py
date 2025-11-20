@@ -29,6 +29,7 @@ from .lib.select_multi_simple_free import SelectMultiSimpleFreeField
 from .lib.select_one import SelectOneField
 from .lib.select_one_free import SelectOneFreeField
 from .lib.valid_email import ValidEmail
+from .lib.valid_email_free import ValidEmailFree
 from .lib.valid_image import ValidImageField
 from .lib.valid_password import ValidPassword
 from .lib.valid_tel import ValidTel
@@ -262,6 +263,33 @@ def custom_email_field(
         "kyc_message": field.upper_message,
     }
     return ValidEmail(
+        name=field.name,
+        label=label,
+        id=field.id,
+        validators=validators_list,
+        render_kw=render_kw,
+        readonly=1 if readonly else 0,
+    )
+
+
+def custom_email_free_field(
+    field: SurveyField,
+    mandatory_code: str = "",
+    param: str = "",
+    readonly: bool = False,
+) -> Field:
+    if readonly:
+        mandatory_code = ""
+    validators_list = _filter_mandatory_validator(mandatory_code)
+    validators_list.append(validators.Email())
+    label = _filter_public_info(field.description, field.public_maxi)
+    label = _filter_mandatory_label(label, mandatory_code)
+    render_kw: dict[str, Any] = {
+        "kyc_type": "email",
+        "kyc_code": mandatory_code,
+        "kyc_message": field.upper_message,
+    }
+    return ValidEmailFree(
         name=field.name,
         label=label,
         id=field.id,
@@ -748,6 +776,7 @@ FIELD_TYPE_SELECTOR: Mapping[str, Callable] = {
     "textarea300": custom_textarea300_field,
     "photo": custom_photo_field,
     "email": custom_email_field,
+    "email_free": custom_email_free_field,
     "tel": custom_tel_field,
     "password": custom_password_field,
     "postcode": custom_postcode_field,
