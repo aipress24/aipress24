@@ -28,7 +28,9 @@ def add_invited_users(mails: str | list[str], org_id: int) -> list[str]:
     """Add user mails to the list of invited users, without sending mail.
 
     Returns: list of newly invited mails."""
-    already_invited = {m.lower() for m in emails_invited_to_organisation(org_id)}
+    already_invited: list[str] = {
+        m.lower() for m in emails_invited_to_organisation(org_id)
+    }
     if isinstance(mails, str):
         mails = [mails]
     appended_mails: list[str] = []
@@ -41,6 +43,7 @@ def add_invited_users(mails: str | list[str], org_id: int) -> list[str]:
         invitation = Invitation(email=mail, organisation_id=org_id)
         db_session.add(invitation)
         db_session.flush()
+        already_invited.add(mail.lower())
         appended_mails.append(mail)
     commit_session(db_session)
     return appended_mails
