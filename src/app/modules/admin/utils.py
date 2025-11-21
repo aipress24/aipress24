@@ -102,11 +102,7 @@ def set_user_organisation(user: User, organisation: Organisation) -> str:
     _remove_user_profile_organisation(user)
     _set_user_organisation_id(user, organisation.id)
     _set_user_profile_organisation(user, organisation)
-    dt_now = now(LOCAL_TZ)
-    user.modified_at = dt_now
-    user.validated_at = dt_now
-    user.validation_status = LABEL_MODIFICATION_ORGANISATION
-
+    _mark_user_as_modified(user)
     db_session.merge(user)
     db_session.merge(organisation)
     return commit_session(db_session)
@@ -169,14 +165,18 @@ def gc_all_auto_organisations() -> int:
     return counter
 
 
-def remove_user_organisation(user: User) -> str:
-    db_session = db.session
-    _remove_user_organisation(user)
-    _remove_user_profile_organisation(user)
+def _mark_user_as_modified(user: User) -> None:
     dt_now = now(LOCAL_TZ)
     user.modified_at = dt_now
     user.validated_at = dt_now
     user.validation_status = LABEL_MODIFICATION_ORGANISATION
+
+
+def remove_user_organisation(user: User) -> str:
+    db_session = db.session
+    _remove_user_organisation(user)
+    _remove_user_profile_organisation(user)
+    _mark_user_as_modified(user)
     db_session.merge(user)
     db_session.flush()
     db_session.commit()
@@ -194,11 +194,7 @@ def set_user_organisation_from_ids(user_id: int, org_id: int) -> str:
     _remove_user_profile_organisation(user)
     _set_user_organisation_id(user, organisation.id)
     _set_user_profile_organisation(user, organisation)
-    dt_now = now(LOCAL_TZ)
-    user.modified_at = dt_now
-    user.validated_at = dt_now
-    user.validation_status = LABEL_MODIFICATION_ORGANISATION
-
+    _mark_user_as_modified(user)
     db_session.merge(user)
     db_session.merge(organisation)
     return commit_session(db_session)
@@ -215,3 +211,20 @@ def merge_organisation(org: Organisation) -> None:
     db_session = db.session
     db_session.merge(org)
     db_session.commit()
+
+
+def delete_full_organisation(org: Organisation) -> None:
+    """Full deletion or Organisation.
+
+    step 1: remove users organisation link and their roles.
+    step 2: mark organisation as deleted
+    """
+    db_session = db.session
+    current_members = org.members
+    for user in current_members:
+        _remove_organisational_roles(user)
+        user.organisation_id = None
+        _remove_user_profile_organisation(user)
+        _mark_user_as_modified(user)
+        db_session.merge(user)
+    _mark_organisation_as_deleted(db_session, org)

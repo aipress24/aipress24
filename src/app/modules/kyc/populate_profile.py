@@ -14,6 +14,7 @@ def default_show_contact_details() -> dict[str, str | bool]:
     for contact_type in ContactTypeEnum:
         data[f"email_{contact_type.name}"] = False
         data[f"mobile_{contact_type.name}"] = False
+        data[f"email_relation_presse_{contact_type.name}"] = False
     return data
 
 
@@ -58,6 +59,7 @@ def default_info_pro() -> dict[str, str | list]:
         "pays_zip_ville_detail": "",
         "adresse_pro": "",
         "compl_adresse_pro": "",
+        "email_relation_presse": "",
         "tel_standard": "",
         "ligne_directe": "",
         "url_site_web": "",

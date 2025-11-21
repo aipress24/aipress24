@@ -12,7 +12,7 @@ from . import kyc_models
 from .survey_dataclass import SurveyField, SurveyProfile
 from .xls_parser import XLSParser
 
-MODEL_FILENAME = "MVP-2-KYC-Commons-42.xlsx"
+MODEL_FILENAME = "MVP-2-KYC-Commons-44.xlsx"
 
 
 def load_survey_model() -> dict[str, Any]:

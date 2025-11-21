@@ -107,6 +107,15 @@ class Communique(IdMixin, LifeCycleMixin, Owned, Base):
     # Business Logic - Publication Workflow with Embargo
     # ------------------------------------------------------------
 
+    def set_embargo(self, until: datetime | None) -> None:
+        """
+        Set or clear the embargo date.
+
+        Args:
+            until: Datetime until which the communique is embargoed, or None to clear
+        """
+        self.embargoed_until = until
+
     def can_publish(self) -> bool:
         """Check if communique can be published."""
         return bool(self.status == PublicationStatus.DRAFT)
