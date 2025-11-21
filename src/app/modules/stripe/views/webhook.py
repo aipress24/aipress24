@@ -20,7 +20,7 @@ from app.enums import BWTypeEnum, OrganisationTypeEnum, ProfileEnum
 from app.flask.extensions import db
 from app.models.auth import User
 from app.models.organisation import Organisation
-from app.modules.admin.invitations import invite_users
+from app.modules.admin.invitations import add_invited_users
 from app.modules.admin.org_email_utils import add_managers_emails
 from app.modules.admin.utils import get_user_per_email
 from app.modules.stripe import blueprint
@@ -58,6 +58,8 @@ class SubscriptionInfo:
     product_id: str = ""
     quantity: int = 0
     status: bool = False
+    stripe_subscription_status: str = ""
+    operation: str = ""
 
 
 # @dataclass
@@ -211,6 +213,7 @@ def on_customer_subscription_created(event) -> None:
     data.object is a subscription"""
     data_obj = _get_event_object(event)
     subinfo = _make_customer_subscription_info(data_obj)
+    subinfo.operation = "create"
     _register_bw_subscription(subinfo)
 
 
@@ -220,6 +223,7 @@ def on_customer_subscription_deleted(event) -> None:
     data.object is a subscription"""
     data_obj = _get_event_object(event)
     subinfo = _make_customer_subscription_info(data_obj)
+    subinfo.operation = "delete"
     _register_bw_subscription(subinfo)
 
 
@@ -232,6 +236,7 @@ def on_customer_subscription_paused(event) -> None:
     data.object is a subscription"""
     data_obj = _get_event_object(event)
     subinfo = _make_customer_subscription_info(data_obj)
+    subinfo.operation = "pause"
     _register_bw_subscription(subinfo)
 
 
@@ -242,6 +247,7 @@ def on_customer_subscription_pending_update_applied(event) -> None:
     data.object is a subscription"""
     data_obj = _get_event_object(event)
     subinfo = _make_customer_subscription_info(data_obj)
+    subinfo.operation = "update"
     _register_bw_subscription(subinfo)
 
 
@@ -252,6 +258,7 @@ def on_customer_subscription_pending_update_expired(event) -> None:
     data.object is a subscription"""
     data_obj = _get_event_object(event)
     subinfo = _make_customer_subscription_info(data_obj)
+    subinfo.operation = "update"
     _register_bw_subscription(subinfo)
 
 
@@ -263,6 +270,7 @@ def on_customer_subscription_resumed(event) -> None:
     data.object is a subscription"""
     data_obj = _get_event_object(event)
     subinfo = _make_customer_subscription_info(data_obj)
+    subinfo.operation = "update"
     _register_bw_subscription(subinfo)
 
 
@@ -273,6 +281,7 @@ def on_customer_subscription_trial_will_end(event) -> None:
     data.object is a subscription"""
     data_obj = _get_event_object(event)
     subinfo = _make_customer_subscription_info(data_obj)
+    subinfo.operation = "update"
     _register_bw_subscription(subinfo)
 
 
@@ -283,6 +292,7 @@ def on_customer_subscription_updated(event) -> None:
     data.object is a subscription"""
     data_obj = _get_event_object(event)
     subinfo = _make_customer_subscription_info(data_obj)
+    subinfo.operation = "update"
     _register_bw_subscription(subinfo)
 
 
@@ -400,7 +410,44 @@ def _make_customer_subscription_info(
     subinfo.current_period_start = data_obj["current_period_start"]
     subinfo.current_period_end = data_obj["current_period_end"]
     subinfo.quantity = data_obj["quantity"]
+    # On status:
+    #
+    # Possible values are incomplete, incomplete_expired, trialing, active,
+    # past_due, canceled, unpaid, or paused.
+    #
+    # For collection_method=charge_automatically a subscription moves into
+    # incomplete if the initial payment attempt fails. A subscription in
+    # this status can only have metadata and default_source updated. Once
+    # the first invoice is paid, the subscription moves into an active status.
+    # If the first invoice is not paid within 23 hours, the subscription
+    # transitions to incomplete_expired. This is a terminal status, the open
+    # invoice will be voided and no further invoices will be generated.
+    #
+    # A subscription that is currently in a trial period is trialing and
+    # moves to active when the trial period is over.
+    #
+    # A subscription can only enter a paused status when a trial ends
+    # without a payment method. A paused subscription doesn’t generate
+    # invoices and can be resumed after your customer adds their payment
+    # method. The paused status is different from pausing collection, which
+    # still generates invoices and leaves the subscription’s status unchanged.
+    #
+    # If subscription collection_method=charge_automatically, it becomes
+    # past_due when payment is required but cannot be paid (due to failed
+    # payment or awaiting additional user actions). Once Stripe has exhausted
+    # all payment retry attempts, the subscription will become canceled or
+    # unpaid (depending on your subscriptions settings).
+    #
+    # If subscription collection_method=send_invoice it becomes past_due when
+    # its invoice is not paid by the due date, and canceled or unpaid if it
+    # is still not paid by an additional deadline after that. Note that when
+    # a subscription has a status of unpaid, no subsequent invoices will be
+    # attempted (invoices will be created, but then immediately automatically
+    # closed). After receiving updated payment information from a customer,
+    # you may choose to reopen and pay their closed invoices.
     subinfo.status = data_obj["status"] == "active"
+    subinfo.stripe_subscription_status = data_obj["status"]
+
     # subinfo.payment_status = ""
     # subinfo.currency = ""
     # subinfo.invoice_id = ""
@@ -498,7 +545,7 @@ def _register_bw_subscription(subinfo: SubscriptionInfo | None) -> None:
     # user is already member of the organisation, ensure will be manager:
     add_managers_emails(org, user.email)
     # also add this new manager to invitations
-    invite_users(user.email, org.id)
+    add_invited_users(user.email, org.id)
 
 
 def _update_organisation_subscription_info(
@@ -517,16 +564,24 @@ def _update_organisation_subscription_info(
     )
     org.stripe_latest_invoice_url = subinfo.latest_invoice_url
     org.type = OrganisationTypeEnum[subinfo.org_type]  # type: ignore
-    org.active = True
+    org.active = subinfo.status
+    org.stripe_subscription_status = subinfo.stripe_subscription_status
     org.bw_type = _guess_bw_type(user, org)
 
     db_session = db.session
     db_session.merge(org)
     db_session.commit()
-    info(
-        f"Organisation {org.name} subscribed to BW of type: {org.type} "
-        f"(qty: {org.stripe_product_quantity})"
-    )
+
+    if subinfo.operation == "create":
+        info(
+            f"Organisation {org.name} subscribed to BW of type: {org.type} "
+            f"(qty: {org.stripe_product_quantity})"
+        )
+    else:
+        info(
+            f"Organisation {org.name} with BW of type: {org.type} "
+            f"(qty: {org.stripe_product_quantity}) has a new Stripe status: {subinfo.stripe_subscription_status}"
+        )
 
 
 def _guess_bw_type(user: User, org: Organisation) -> BWTypeEnum:

@@ -7,7 +7,6 @@
 from __future__ import annotations
 
 import pytest
-
 from app.enums import ContactTypeEnum
 from app.modules.kyc.populate_profile import (
     default_business_wall,
@@ -157,6 +156,7 @@ class TestDefaultInfoPro:
             "pays_zip_ville_detail",
             "adresse_pro",
             "compl_adresse_pro",
+            "email_relation_presse",
             "tel_standard",
             "ligne_directe",
             "url_site_web",

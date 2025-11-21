@@ -129,4 +129,5 @@ def change_invitations_emails(org: Organisation, raw_mails: str) -> None:
     current_invitations = emails_invited_to_organisation(org.id)
     canceled = [m for m in current_invitations if m.lower() not in new_mails_lower]
     cancel_invitation_users(canceled, org.id)
-    invite_users(new_mails, org.id)
+    if new_mails:
+        invite_users(new_mails, org.id)

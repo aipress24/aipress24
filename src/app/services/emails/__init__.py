@@ -14,6 +14,10 @@ from flask_super.decorators import service
 from jinja2 import Environment
 from loguru import logger
 
+from .mailers import BWInvitationMail
+
+__all__ = ["ALERTS_RECIPIENTS", "BWInvitationMail", "EmailService"]
+
 ALERTS_RECIPIENTS = ["test@aipress24.com"]
 
 
