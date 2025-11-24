@@ -5,6 +5,11 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
+import fsspec
+from advanced_alchemy.types.file_object import storages
+from advanced_alchemy.types.file_object.backends.fsspec import FSSpecBackend
 from flask import Flask
 from flask_babel import Babel
 from flask_htmx import HTMX
@@ -54,7 +59,11 @@ def register_extensions(app: Flask) -> None:
     """
     logger.debug("Registering all extensions")
 
+    Path(app.config["STORAGE_ROOT"]).mkdir(parents=True, exist_ok=True)
+
     db.init_app(app)
+    register_local_storage(app)
+
     mail.init_app(app)
     babel.init_app(app)
     migrate.init_app(app, db)
@@ -70,6 +79,22 @@ def register_extensions(app: Flask) -> None:
     if not app.debug and not app.testing:
         csp = app.config.get("CONTENT_SECURITY_POLICY", DEFAULT_CSP_POLICY)
         Talisman(app, content_security_policy=csp, force_https=False)
+
+
+def register_local_storage(app: Flask) -> None:
+    local_fs = fsspec.filesystem("file")
+    storages.register_backend(
+        FSSpecBackend(fs=local_fs, key="local", prefix=app.config["STORAGE_ROOT"])
+    )
+
+    # s3_fs = fsspec.filesystem("s3")
+    # storages.register_backend(
+    #     FSSpecBackend(
+    #         fs=s3_fs,
+    #         key="s3",
+    #         prefix="bucket-name/path/to/files/",
+    #     )
+    # )
 
 
 def setup_debug_toolbar(app: Flask) -> None:

@@ -8,7 +8,10 @@ from datetime import datetime
 from typing import ClassVar
 
 import sqlalchemy as sa
+from advanced_alchemy.types.file_object import FileObject, StoredObject
 from sqlalchemy import orm
+
+# from sqlalchemy.dialects import postgresql
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy_utils import ArrowType
 
@@ -245,7 +248,9 @@ class ComImage(IdMixin, LifeCycleMixin, Owned, Base):
 
     __tablename__ = "crm_image"
 
-    blob_id: Mapped[str] = mapped_column(nullable=False)
+    content: Mapped[FileObject | None] = mapped_column(
+        StoredObject(backend="local"), nullable=True
+    )
 
     communique_id: Mapped[int] = mapped_column(
         sa.ForeignKey(Communique.id, ondelete="CASCADE"), nullable=False
