@@ -177,6 +177,9 @@ DEBUG_TB_INTERCEPT_REDIRECTS = false
 MAIL_BACKEND = 'file'
 MAIL_FILE_PATH = '/tmp/debug_mails'
 
+STORAGE_ROOT = "/var/tmp/aip24"
+
+
 [production]
 SERVER_NAME = "aipress24.demo.abilian.com"
 PREFERRED_URL_SCHEME = "https"
