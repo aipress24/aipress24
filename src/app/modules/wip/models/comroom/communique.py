@@ -249,7 +249,7 @@ class ComImage(IdMixin, LifeCycleMixin, Owned, Base):
     __tablename__ = "crm_image"
 
     content: Mapped[FileObject | None] = mapped_column(
-        StoredObject(backend="local"), nullable=True
+        StoredObject(backend="s3"), nullable=True
     )
 
     communique_id: Mapped[int] = mapped_column(

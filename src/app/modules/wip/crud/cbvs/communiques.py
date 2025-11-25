@@ -4,9 +4,11 @@
 
 from __future__ import annotations
 
+from cmath import e
 from io import BytesIO
 from typing import cast
 
+import advanced_alchemy
 from advanced_alchemy.types.file_object import FileObject
 from flask import (  # make_response,
     Flask,
@@ -222,7 +224,7 @@ class CommuniquesWipView(BaseWipView):
             content=image_bytes,
             filename=image_filename,
             content_type=image_content_type,
-            backend="local",
+            backend="s3",
         )
         image_file_object.save()
         com_image = ComImage(
@@ -251,8 +253,12 @@ class CommuniquesWipView(BaseWipView):
             raise NotFound
 
         stored_file = image.content
-        warn(stored_file)
-        file_bytes = stored_file.get_content()
+        try:
+            file_bytes = stored_file.get_content()
+        except advanced_alchemy.exceptions.ImproperConfigurationError as e:
+            warn(f"Image not found: {e}")
+            raise NotFound from e
+
         file_like_object = BytesIO(file_bytes)
         # if stored_file.path:
         #     file_bytes = Path(stored_file.path).read_bytes()
