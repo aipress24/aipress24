@@ -4,7 +4,6 @@
 
 from __future__ import annotations
 
-from cmath import e
 from io import BytesIO
 from typing import cast
 
