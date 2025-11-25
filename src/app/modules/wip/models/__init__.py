@@ -13,6 +13,7 @@ from .newsroom import (
     Commande,
     ContactAvisEnquete,
     Image,
+    ImageRepository,
     JustifPublication,
     Sujet,
 )
@@ -42,6 +43,7 @@ __all__ = [
     "EventImage",
     "EventRepository",
     "Image",
+    "ImageRepository",
     "JustifPublication",
     "JustifPublicationRepository",
     "Sujet",

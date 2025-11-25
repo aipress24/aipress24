@@ -10,8 +10,6 @@ from typing import ClassVar
 import sqlalchemy as sa
 from advanced_alchemy.types.file_object import FileObject, StoredObject
 from sqlalchemy import orm
-
-# from sqlalchemy.dialects import postgresql
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy_utils import ArrowType
 

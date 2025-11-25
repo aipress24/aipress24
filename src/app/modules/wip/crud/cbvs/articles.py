@@ -4,13 +4,15 @@
 
 from __future__ import annotations
 
+from io import BytesIO
 from typing import cast
 
+import advanced_alchemy
+from advanced_alchemy.types.file_object import FileObject
 from flask import (
     Flask,
     flash,
     g,
-    make_response,
     redirect,
     render_template,
     request,
@@ -20,15 +22,13 @@ from flask_classful import route
 from flask_super.registry import register
 from markupsafe import Markup
 from sqlalchemy_utils.types.arrow import arrow
-from svcs.flask import container
 from werkzeug.exceptions import NotFound
 
 from app.flask.extensions import db
-from app.flask.lib.constants import EMPTY_PNG
 from app.flask.routing import url_for
+from app.logging import warn
 from app.models.lifecycle import PublicationStatus
-from app.modules.wip.models import Article, ArticleRepository, Image
-from app.services.blobs import BlobService
+from app.modules.wip.models import Article, ArticleRepository, Image, ImageRepository
 from app.settings.constants import MAX_IMAGE_SIZE
 from app.signals import article_published, article_unpublished, article_updated
 
@@ -212,13 +212,11 @@ class ArticlesWipView(BaseWipView):
 
     def _add_image(self, article: Article):
         article_repo = self._get_repo()
-        blob_service = container.get(BlobService)
+        image_repo = ImageRepository(session=db.session)
 
         image = request.files["image"]
-        caption = request.form.get("caption", "").strip()
-        copyright = request.form.get("copyright", "").strip()
-
         image_bytes = image.read()
+
         if not image_bytes:
             flash("L'image est vide")
             return redirect(url_for("ArticlesWipView:images", id=article.id))
@@ -226,15 +224,30 @@ class ArticlesWipView(BaseWipView):
             flash("L'image est trop volumineuse")
             return redirect(url_for("ArticlesWipView:images", id=article.id))
 
-        blob = blob_service.save(image_bytes)
+        image_filename = image.filename or "noname.jpg"
+        image_content_type = image.content_type or "application/binary"
+        warn(image_filename, image_content_type, len(image_bytes))
+        caption = request.form.get("caption", "").strip()
+        copyright = request.form.get("copyright", "").strip()
 
-        image = Image(
+        image_file_object = FileObject(
+            content=image_bytes,
+            filename=image_filename,
+            content_type=image_content_type,
+            backend="s3",
+        )
+        image_file_object.save()
+
+        article_image = Image(
             caption=caption,
             copyright=copyright,
-            blob_id=blob.id,
+            content=image_file_object,
             owner=article.owner,
+            article_id=article.id,
         )
-        article.add_image(image)
+
+        image_repo.add(article_image)
+        article.add_image(article_image)
         article_repo.update(article, auto_commit=False)
         db.session.commit()
         referrer_url = request.referrer or "/"
@@ -250,14 +263,20 @@ class ArticlesWipView(BaseWipView):
         else:
             raise NotFound
 
-        blob_service = container.get(BlobService)
+        stored_file = image.content
         try:
-            blob_path = blob_service.get_path(image.blob_id)
-            return send_file(blob_path)
-        except FileNotFoundError:
-            response = make_response(EMPTY_PNG)
-            response.headers.set("Content-Type", "image/png")
-            return response
+            file_bytes = stored_file.get_content()
+        except advanced_alchemy.exceptions.ImproperConfigurationError as e:
+            warn(f"Image not found: {e}")
+            raise NotFound from e
+
+        file_like_object = BytesIO(file_bytes)
+
+        return send_file(
+            file_like_object,
+            mimetype=stored_file.content_type,
+            download_name=stored_file.filename,
+        )
 
     @route("/<int:article_id>/images/<int:image_id>/delete", methods=["POST"])
     def delete_image(self, article_id: int, image_id: int):
@@ -267,6 +286,13 @@ class ArticlesWipView(BaseWipView):
             raise NotFound
 
         article.delete_image(image)
+        if image.content:
+            try:
+                image.content.delete_storage()
+                warn(f"Success deleted file for Image {image_id}")
+            except Exception as e:
+                warn(f"Could not delete file {image_id}: {e}")
+
         db.session.delete(image)
         db.session.commit()
 
