@@ -5,8 +5,7 @@ from __future__ import annotations
 
 from .comroom import ComImage, Communique
 from .comroom.repositories import ComImageRepository, CommuniqueRepository
-from .eventroom import Event, EventImage
-from .eventroom.repositories import EventRepository
+from .eventroom import Event, EventImage, EventImageRepository, EventRepository
 from .newsroom import (
     Article,
     AvisEnquete,
@@ -41,6 +40,7 @@ __all__ = [
     "ContactAvisEnqueteRepository",
     "Event",
     "EventImage",
+    "EventImageRepository",
     "EventRepository",
     "Image",
     "ImageRepository",
