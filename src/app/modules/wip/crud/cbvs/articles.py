@@ -295,7 +295,7 @@ class ArticlesWipView(BaseWipView):
         article.delete_image(image)
         if image.content:
             try:
-                image.content.delete_storage()
+                image.content.delete()
                 warn(f"Success deleted file for Image {image_id}")
             except Exception as e:
                 warn(f"Could not delete file {image_id}: {e}")
