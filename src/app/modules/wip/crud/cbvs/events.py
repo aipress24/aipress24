@@ -191,7 +191,6 @@ class EventsWipView(BaseWipView):
         image = request.files["image"]
         image_bytes = image.read()
 
-        image_bytes = image.read()
         if not image_bytes:
             flash("L'image est vide")
             return redirect(url_for("EventsWipView:images", id=event.id))
