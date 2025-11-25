@@ -30,7 +30,7 @@ def upgrade():
                 nullable=True,
             )
         )
-        op.execute(sa.text("DELETE FROM crm_image WHERE communique_id IS NOT NULL"))
+        op.execute(sa.text("DELETE FROM nrm_image WHERE article_id IS NOT NULL"))
         batch_op.drop_column("blob_id")
 
     # ### end Alembic commands ###
