@@ -25,6 +25,7 @@ from sqlalchemy_utils.types.arrow import arrow
 from werkzeug.exceptions import NotFound
 
 from app.flask.extensions import db
+from app.flask.lib.constants import EMPTY_PNG
 from app.flask.routing import url_for
 from app.logging import warn
 from app.models.lifecycle import PublicationStatus
@@ -264,18 +265,24 @@ class ArticlesWipView(BaseWipView):
             raise NotFound
 
         stored_file = image.content
-        try:
-            file_bytes = stored_file.get_content()
-        except advanced_alchemy.exceptions.ImproperConfigurationError as e:
-            warn(f"Image not found: {e}")
-            raise NotFound from e
-
-        file_like_object = BytesIO(file_bytes)
+        if stored_file:
+            try:
+                file_bytes = stored_file.get_content()
+                file_like_object = BytesIO(file_bytes)
+                mimetype = stored_file.content_type
+                download_name = stored_file.filename
+            except advanced_alchemy.exceptions.ImproperConfigurationError as e:
+                warn(f"Image not found: {e}")
+                file_like_object = BytesIO(EMPTY_PNG)
+                mimetype = "image/png"
+                download_name = "empty.png"
+        else:
+            file_like_object = BytesIO(EMPTY_PNG)
+            mimetype = "image/png"
+            download_name = "empty.png"
 
         return send_file(
-            file_like_object,
-            mimetype=stored_file.content_type,
-            download_name=stored_file.filename,
+            file_like_object, mimetype=mimetype, download_name=download_name
         )
 
     @route("/<int:article_id>/images/<int:image_id>/delete", methods=["POST"])
