@@ -200,7 +200,6 @@ class EventsWipView(BaseWipView):
 
         image_filename = image.filename or "noname.jpg"
         image_content_type = image.content_type or "application/binary"
-        warn(image_filename, image_content_type, len(image_bytes))
         caption = request.form.get("caption", "").strip()
         copyright = request.form.get("copyright", "").strip()
 
@@ -212,16 +211,19 @@ class EventsWipView(BaseWipView):
         )
         image_file_object.save()
 
+        position = len(event.images)
+
         event_image = EventImage(
             caption=caption,
             copyright=copyright,
             content=image_file_object,
             owner=event.owner,
             event_id=event.id,
+            position=position,
         )
 
         image_repo.add(event_image)
-        event.add_image(event_image)
+        # event.add_image(event_image)
         event_repo.update(event, auto_commit=False)
         db.session.commit()
         referrer_url = request.referrer or "/"

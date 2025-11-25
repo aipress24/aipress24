@@ -239,16 +239,19 @@ class ArticlesWipView(BaseWipView):
         )
         image_file_object.save()
 
+        position = len(article.images)
+
         article_image = Image(
             caption=caption,
             copyright=copyright,
             content=image_file_object,
             owner=article.owner,
             article_id=article.id,
+            position=position,
         )
 
         image_repo.add(article_image)
-        article.add_image(article_image)
+        # article.add_image(article_image)
         article_repo.update(article, auto_commit=False)
         db.session.commit()
         referrer_url = request.referrer or "/"

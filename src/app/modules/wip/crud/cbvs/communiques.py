@@ -227,16 +227,20 @@ class CommuniquesWipView(BaseWipView):
             backend="s3",
         )
         image_file_object.save()
+
+        position = len(communique.images)
+
         com_image = ComImage(
             caption=caption,
             copyright=copyright,
             content=image_file_object,
             owner=communique.owner,
             communique_id=communique.id,
+            position=position,
         )
 
         image_repo.add(com_image)
-        communique.add_image(com_image)
+        # communique.add_image(com_image)
         communique_repo.update(communique, auto_commit=False)
         db.session.commit()
         referrer_url = request.referrer or "/"
