@@ -26,7 +26,7 @@ def upgrade():
             "content",
             existing_type=postgresql.JSON(astext_type=sa.Text()),
             type_=advanced_alchemy.types.file_object.data_type.StoredObject(
-                backend="local"
+                backend="s3"
             ),
             nullable=True,
         )
@@ -39,7 +39,7 @@ def downgrade():
         batch_op.alter_column(
             "content",
             existing_type=advanced_alchemy.types.file_object.data_type.StoredObject(
-                backend="local"
+                backend="s3"
             ),
             type_=postgresql.JSON(astext_type=sa.Text()),
             nullable=False,

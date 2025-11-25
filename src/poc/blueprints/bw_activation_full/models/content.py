@@ -48,13 +48,13 @@ class BWContent(UUIDAuditBase):
 
     # Visual content (using Advanced-Alchemy File Object Storage)
     logo: Mapped[FileObject | None] = mapped_column(
-        StoredObject(backend="local"), nullable=True
+        StoredObject(backend="s3"), nullable=True
     )
     banner: Mapped[FileObject | None] = mapped_column(
-        StoredObject(backend="local"), nullable=True
+        StoredObject(backend="s3"), nullable=True
     )
     gallery: Mapped[FileObjectList | None] = mapped_column(
-        StoredObject(backend="local", multiple=True), nullable=True
+        StoredObject(backend="s3", multiple=True), nullable=True
     )
 
     # Descriptive content
