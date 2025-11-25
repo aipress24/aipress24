@@ -5,8 +5,6 @@
 
 from __future__ import annotations
 
-from pathlib import Path
-
 import fsspec
 from advanced_alchemy.types.file_object import storages
 from advanced_alchemy.types.file_object.backends.fsspec import FSSpecBackend

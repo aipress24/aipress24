@@ -9,7 +9,7 @@ from typing import cast
 
 import advanced_alchemy
 from advanced_alchemy.types.file_object import FileObject
-from flask import (  # make_response,
+from flask import (
     Flask,
     flash,
     g,
@@ -259,22 +259,12 @@ class CommuniquesWipView(BaseWipView):
             raise NotFound from e
 
         file_like_object = BytesIO(file_bytes)
-        # if stored_file.path:
-        #     file_bytes = Path(stored_file.path).read_bytes()
-        # else:
-        #     url = stored_file.sign()
-        #     file_bytes = requests.get(url, timeout=30).content
 
         return send_file(
             file_like_object,
             mimetype=stored_file.content_type,
             download_name=stored_file.filename,
         )
-
-        # except FileNotFoundError:
-        #     response = make_response(EMPTY_PNG)
-        #     response.headers.set("Content-Type", "image/png")
-        #     return response
 
     @route("/<int:communique_id>/images/<int:image_id>/delete", methods=["POST"])
     def delete_image(self, communique_id: int, image_id: int):
