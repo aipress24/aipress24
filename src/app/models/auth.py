@@ -13,6 +13,7 @@ from typing import Any, ClassVar
 
 import arrow
 import sqlalchemy as sa
+from advanced_alchemy.types.file_object import FileObject, StoredObject
 from flask_security import RoleMixin, UserMixin
 from sqlalchemy import JSON, DateTime, ForeignKey, orm
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -136,7 +137,9 @@ class User(LifeCycleMixin, Addressable, UserMixin, Base):
 
     # TODO: use content repository
     profile_image_url: Mapped[str] = mapped_column(default="")
-    cover_image_id: Mapped[str] = mapped_column(default="")
+    cover_image: Mapped[FileObject | None] = mapped_column(
+        StoredObject(backend="s3"), nullable=True
+    )
 
     status: Mapped[str] = mapped_column(default="Débutant")
 
@@ -275,6 +278,16 @@ class User(LifeCycleMixin, Addressable, UserMixin, Base):
         if not self.organisation_id:
             return False
         return self.organisation_id == org_id
+
+    def cover_image_signed_url(self, expires_in: int = 3600) -> str:
+        file_obj: FileObject | None = self.cover_image
+        if file_obj is None:
+            return "/static/img/transparent-square.png"
+        try:
+            return file_obj.sign(expires_in=expires_in, for_upload=False)
+        except RuntimeError as e:
+            msg = f"Storage failed to sign URL for banner user.id : {self.id}, key {file_obj.object_key}: {e}"
+            raise RuntimeError(msg) from e
 
 
 class Role(Base, RoleMixin):
@@ -542,7 +555,7 @@ def clone_user(orig_user: User) -> User:
         tel_mobile_validated_at=orig_user.tel_mobile_validated_at,
         organisation_id=orig_user.organisation_id,
         profile_image_url=orig_user.profile_image_url,
-        cover_image_id=orig_user.cover_image_id,
+        cover_image=orig_user.cover_image,
         status=orig_user.status,
         karma=orig_user.karma,
         organisation=orig_user.organisation,  # to verify: not to appear in members list ! maybe not for clone
@@ -599,7 +612,7 @@ def merge_values_from_other_user(orig_user: User, modified_user: User) -> None:
     # orig_user.geoloc_id = modified_user.geoloc_id
     # geoloc  # check if needed
     orig_user.profile_image_url = modified_user.profile_image_url
-    orig_user.cover_image_id = modified_user.cover_image_id
+    orig_user.cover_image = modified_user.cover_image
     orig_user.status = modified_user.status
     orig_user.karma = modified_user.karma
     orig_user.organisation = modified_user.organisation
