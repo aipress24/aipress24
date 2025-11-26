@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+from advanced_alchemy.types.file_object import FileObject
 from flask import flash, g, request
 from flask_login import current_user
 from werkzeug.utils import redirect
@@ -11,7 +12,6 @@ from werkzeug.utils import redirect
 from app.flask.extensions import db
 from app.flask.lib.pages import page
 from app.flask.routing import url_for
-from app.modules.common.blob_utils import add_blob_content
 from app.settings.constants import MAX_IMAGE_SIZE
 
 from .base import BasePreferencesPage
@@ -28,9 +28,7 @@ class PrefBannerPage(BasePreferencesPage):
 
     def get_cover_image_url(self) -> str:
         user = g.user
-        if not user.cover_image_id:
-            return ""
-        return url_for("api.get_blob", id=user.cover_image_id)
+        return user.cover_image_signed_url()
 
     def context(self) -> dict[str, str]:
         current_image_url = self.get_cover_image_url()
@@ -48,9 +46,15 @@ class PrefBannerPage(BasePreferencesPage):
         if uploaded_image and uploaded_image.filename:
             content = request.files["image"].read()
             if len(content) < MAX_IMAGE_SIZE:
-                blob_id = add_blob_content(content)
+                image_file_object = FileObject(
+                    content=content,
+                    filename=uploaded_image.filename,
+                    content_type=uploaded_image.content_type,
+                    backend="s3",
+                )
+                image_file_object.save()
                 user = g.user
-                user.cover_image_id = blob_id
+                user.cover_image = image_file_object
                 db.session.merge(user)
                 db.session.commit()
             else:

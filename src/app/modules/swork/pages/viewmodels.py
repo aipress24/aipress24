@@ -12,7 +12,6 @@ from flask import g
 
 from app.flask.extensions import db
 from app.flask.lib.view_model import ViewModel
-from app.flask.routing import url_for
 from app.models.auth import User
 from app.models.lifecycle import PublicationStatus
 from app.modules.swork.models import Group, group_members_table
@@ -49,9 +48,7 @@ class UserVM(ViewModel):
         return cast("User", self._model)
 
     def get_banner_url(self) -> str:
-        if self.user.cover_image_id:
-            return url_for("api.get_blob", id=self.user.cover_image_id)
-        return "/static/img/transparent-square.png"
+        return self.user.cover_image_signed_url()
 
     def extra_attrs(self):
         user = self.user
