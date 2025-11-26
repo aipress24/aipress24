@@ -113,6 +113,10 @@ class User(LifeCycleMixin, Addressable, UserMixin, Base):
 
     photo: Mapped[bytes] = mapped_column(sa.LargeBinary, nullable=True)
     photo_filename: Mapped[str] = mapped_column(default="")
+    photo_image: Mapped[FileObject | None] = mapped_column(
+        StoredObject(backend="s3"), nullable=True
+    )
+
     photo_carte_presse: Mapped[bytes] = mapped_column(sa.LargeBinary, nullable=True)
     photo_carte_presse_filename: Mapped[str] = mapped_column(default="")
 
