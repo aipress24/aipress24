@@ -93,12 +93,15 @@ def test_rdv_workflow_business_logic(db_session: scoped_session) -> None:
         days_ahead += 1
     base_date = now + timedelta(days=days_ahead)
 
+    # Find the next weekday after base_date for the third slot
+    next_weekday = base_date + timedelta(days=1)
+    while next_weekday.weekday() >= 5:
+        next_weekday += timedelta(days=1)
+
     proposed_slots = [
         base_date.replace(hour=10, minute=0, second=0, microsecond=0),
         base_date.replace(hour=14, minute=0, second=0, microsecond=0),
-        (base_date + timedelta(days=1)).replace(
-            hour=9, minute=0, second=0, microsecond=0
-        ),
+        next_weekday.replace(hour=9, minute=0, second=0, microsecond=0),
     ]
 
     contact.propose_rdv(
@@ -263,13 +266,15 @@ def test_rdv_acceptance_validation(db_session: scoped_session) -> None:
     with pytest.raises(ValueError, match="no RDV has been proposed"):
         contact.accept_rdv(invalid_slot)
 
-    # Propose a RDV
+    # Propose a RDV - ensure all slots are on weekdays
+    next_weekday = base_date + timedelta(days=1)
+    while next_weekday.weekday() >= 5:
+        next_weekday += timedelta(days=1)
+
     proposed_slots = [
         base_date.replace(hour=10, minute=0, second=0, microsecond=0),
         base_date.replace(hour=14, minute=0, second=0, microsecond=0),
-        (base_date + timedelta(days=1)).replace(
-            hour=9, minute=0, second=0, microsecond=0
-        ),
+        next_weekday.replace(hour=9, minute=0, second=0, microsecond=0),
     ]
     contact.propose_rdv(
         rdv_type=RDVType.VIDEO,
