@@ -57,7 +57,7 @@ class UserVM(ViewModel):
             "name": user.full_name,
             "job_title": user.job_title,
             "organisation_name": user.organisation_name,
-            "image_url": user.profile_image_url,
+            "image_url": user.photo_image_signed_url(),
             "is_following": adapt(g.user).is_following(user),
             "followers": self.get_followers(),
             "followees": self.get_followees(),

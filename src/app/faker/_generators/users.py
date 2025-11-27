@@ -174,13 +174,13 @@ class UserGenerator(BaseGenerator):
         )
 
     def _random_photo_carte_presse(self, user: User, _profile: KYCProfile) -> None:
-        lego = self.get_lego_image()
-        try:
-            user.photo_carte_presse = urllib.request.urlopen(lego).read()  # noqa: S310
-            user.photo_carte_presse_filename = lego
-            # user.profile_image_url = ""  # for compat with KYC, to be modified
-        except Exception as e:
-            print(e)
+        pass
+        # lego = self.get_lego_image()
+        # try:
+        #     user.photo_carte_presse = urllib.request.urlopen(lego).read()  # noqa: S310
+        #     user.photo_carte_presse_filename = lego
+        # except Exception as e:
+        #     print(e)
 
     def _random_nom_groupe_presse(self, _user: User, profile: KYCProfile) -> None:
         word = self.generate_words(1)
@@ -480,14 +480,15 @@ class UserGenerator(BaseGenerator):
 
     @staticmethod
     def _load_photo_profil(user: User) -> None:
-        try:
-            user.photo = urllib.request.urlopen(  # noqa: S310
-                user.profile_image_url
-            ).read()
-            user.photo_filename = user.profile_image_url
-            user.profile_image_url = ""  # for compat with KYC, to be modified
-        except Exception as e:
-            print(e)
+        pass
+        # try:
+        #     user.photo = urllib.request.urlopen(  # noqa: S310
+        #         user.profile_image_url
+        #     ).read()
+        #     user.photo_filename = user.profile_image_url
+        #     user.profile_image_url = ""  # for compat with KYC, to be modified
+        # except Exception as e:
+        #     print(e)
 
     def _make_non_official_orga(self, user: User, profile: KYCProfile) -> None:
         """Generate random non official organisation from user infos."""
@@ -606,7 +607,6 @@ class UserGenerator(BaseGenerator):
         # user.job_description = self.generate_html(1, 4)
         # user.job_description = ""  ~ replaced by user.presentation
 
-        user.profile_image_url = self.get_profile_image(user)
         self._load_photo_profil(user)
 
         user.status = random.choice(USER_STATUS)

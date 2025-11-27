@@ -551,12 +551,13 @@ def _update_from_current_user(orig_user: User) -> User:
     session_service = container.get(SessionService)
     results = session_service.get("form_raw_results", {})
 
-    photo_blob_id = results.get("photo", None)
-    photo_filename, photo = pop_local_blob_id(photo_blob_id)
-    carte_presse_blob_id = results.get("photo_carte_presse", None)
-    photo_carte_presse_filename, photo_carte_presse = pop_local_blob_id(
-        carte_presse_blob_id
-    )
+    # photo_blob_id = results.get("photo", None)
+    photo_filename, photo = "aaa", None  # pop_local_blob_id(photo_blob_id)
+    # carte_presse_blob_id = results.get("photo_carte_presse", None)
+    # photo_carte_presse_filename, photo_carte_presse = pop_local_blob_id(
+    #     carte_presse_blob_id
+    # )
+    photo_carte_presse_filename, photo_carte_presse = "aaa", None
 
     if not orig_user.profile:  # should never happen
         _set_default_kyc_profile(orig_user)
@@ -584,14 +585,9 @@ def _update_from_current_user(orig_user: User) -> User:
 
     cloned_user.last_name = results.get("last_name", "")
     cloned_user.first_name = results.get("first_name", "")
-    cloned_user.photo = photo
-    cloned_user.photo_filename = photo_filename
+    cloned_user.photo_image = photo
 
-    # remove hard coded URL from faker:
-    cloned_user.profile_image_url = ""
-
-    cloned_user.photo_carte_presse = photo_carte_presse
-    cloned_user.photo_carte_presse_filename = photo_carte_presse_filename
+    cloned_user.photo_carte_presse_image = photo_carte_presse
     cloned_user.gender = results.get("civilite", "")
     # email=results.get("email", ""),
     # email_secours=results.get("email_secours", "")
@@ -734,15 +730,17 @@ def _populate_kyc_data_from_user(user: User) -> dict[str, Any]:
     profile = user.profile
     data: dict[str, Any] = {}
     # debug: photos to be extracted as blobs
-    blob_id_photo = store_tmp_blob(user.photo_filename, user.photo)
-    data["photo"] = blob_id_photo
-    data["photo_filename"] = user.photo_filename
+    # blob_id_photo = store_tmp_blob(user.photo_filename, user.photo)
+    data["photo"] = "1"  # blob_id_photo
+    data["photo_filename"] = "aaa"  # user.photo_filename
 
-    blob_id_carte = store_tmp_blob(
-        user.photo_carte_presse_filename, user.photo_carte_presse
-    )
-    data["photo_carte_presse"] = blob_id_carte
-    data["photo_carte_presse_filename"] = user.photo_carte_presse_filename
+    # blob_id_carte = store_tmp_blob(
+    #     user.photo_carte_presse_filename, user.photo_carte_presse
+    # )
+    # data["photo_carte_presse"] = blob_id_carte
+    # data["photo_carte_presse_filename"] = user.photo_carte_presse_filename
+    data["photo_carte_presse"] = "1"  # blob_id_photo
+    data["photo_carte_presse_filename"] = "aaa"
 
     data["last_name"] = user.last_name
     data["first_name"] = user.first_name
@@ -810,27 +808,6 @@ def collect_photo_blob(
             images[survey_field.name] = uuid
             images[survey_field.id] = uuid
             url = url_for("kyc.images_page", filename=uuid)
-    return url
-
-
-def profile_photo_local_url(user: User, field="photo") -> str:
-    """Return local or distant photo url (if photo is in a blob or profile_url
-    is defined).
-
-    'field' could be "photo" or "photo_carte_presse".
-
-    This need to be reworked.
-    """
-    if field == "photo" and user.profile_image_url:
-        # no check if local copy available
-        return user.profile_image_url  # mainly for fake users
-    photo_bytes = getattr(user, field)
-    uuid = uuid4().hex
-    _write_tmp_data(photo_bytes, uuid)
-    url = url_for("kyc.images_page", filename=uuid)
-    # broke: we dont habe User but UserVM
-    # if field == "photo":
-    #     user.profile_image_url = url
     return url
 
 

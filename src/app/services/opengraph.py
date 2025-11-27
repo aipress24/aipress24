@@ -78,7 +78,7 @@ def _to_opengraph_article(obj: ArticlePost):
 def _to_opengraph_user(obj: User):
     og_data = to_opengraph_generic(obj)
     og_data["og:type"] = "profile"
-    og_data["og:image"] = obj.profile_image_url
+    og_data["og:image"] = obj.photo_image_signed_url()
     og_data["og:profile:first_name"] = obj.first_name
     og_data["og:profile:last_name"] = obj.last_name
     # og_data["og:profile:username"] = obj.username
