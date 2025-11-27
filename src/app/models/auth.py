@@ -111,15 +111,12 @@ class User(LifeCycleMixin, Addressable, UserMixin, Base):
     first_name: Mapped[str] = mapped_column(sa.String(64), default="")
     last_name: Mapped[str] = mapped_column(sa.String(64), default="")
 
-    photo: Mapped[bytes] = mapped_column(sa.LargeBinary, nullable=True)
-    photo_filename: Mapped[str] = mapped_column(default="")
     photo_image: Mapped[FileObject | None] = mapped_column(
         StoredObject(backend="s3"), nullable=True
     )
-
-    photo_carte_presse: Mapped[bytes] = mapped_column(sa.LargeBinary, nullable=True)
-    photo_carte_presse_filename: Mapped[str] = mapped_column(default="")
-
+    photo_carte_presse_image: Mapped[FileObject | None] = mapped_column(
+        StoredObject(backend="s3"), nullable=True
+    )
     # job_title: Mapped[str] = mapped_column(default="")
     # job_description: Mapped[str] = mapped_column(default="")
 
@@ -140,7 +137,6 @@ class User(LifeCycleMixin, Addressable, UserMixin, Base):
     # geoloc = relationship(GeoLocation)
 
     # TODO: use content repository
-    profile_image_url: Mapped[str] = mapped_column(default="")
     cover_image: Mapped[FileObject | None] = mapped_column(
         StoredObject(backend="s3"), nullable=True
     )
@@ -291,6 +287,26 @@ class User(LifeCycleMixin, Addressable, UserMixin, Base):
             return file_obj.sign(expires_in=expires_in, for_upload=False)
         except RuntimeError as e:
             msg = f"Storage failed to sign URL for banner user.id : {self.id}, key {file_obj.object_key}: {e}"
+            raise RuntimeError(msg) from e
+
+    def photo_image_signed_url(self, expires_in: int = 3600) -> str:
+        file_obj: FileObject | None = self.photo_image
+        if file_obj is None:
+            return "/static/img/transparent-square.png"
+        try:
+            return file_obj.sign(expires_in=expires_in, for_upload=False)
+        except RuntimeError as e:
+            msg = f"Storage failed to sign URL for photo user.id : {self.id}, key {file_obj.object_key}: {e}"
+            raise RuntimeError(msg) from e
+
+    def photo_carte_presse_image_signed_url(self, expires_in: int = 3600) -> str:
+        file_obj: FileObject | None = self.photo_image
+        if file_obj is None:
+            return "/static/img/transparent-square.png"
+        try:
+            return file_obj.sign(expires_in=expires_in, for_upload=False)
+        except RuntimeError as e:
+            msg = f"Storage failed to sign URL for carte presse user.id : {self.id}, key {file_obj.object_key}: {e}"
             raise RuntimeError(msg) from e
 
 
@@ -550,15 +566,12 @@ def clone_user(orig_user: User) -> User:
         gender=orig_user.gender,
         first_name=orig_user.first_name,
         last_name=orig_user.last_name,
-        photo=orig_user.photo,
-        photo_filename=orig_user.photo_filename,
-        photo_carte_presse=orig_user.photo_carte_presse,
-        photo_carte_presse_filename=orig_user.photo_carte_presse_filename,
+        photo_image=orig_user.photo_image,
+        photo_carte_presse_image=orig_user.photo_carte_presse_image,
         # job_title=orig_user.job_title,
         tel_mobile=orig_user.tel_mobile,
         tel_mobile_validated_at=orig_user.tel_mobile_validated_at,
         organisation_id=orig_user.organisation_id,
-        profile_image_url=orig_user.profile_image_url,
         cover_image=orig_user.cover_image,
         status=orig_user.status,
         karma=orig_user.karma,
@@ -605,17 +618,14 @@ def merge_values_from_other_user(orig_user: User, modified_user: User) -> None:
     orig_user.gender = modified_user.gender
     orig_user.first_name = modified_user.first_name
     orig_user.last_name = modified_user.last_name
-    orig_user.photo = modified_user.photo
-    orig_user.photo_filename = modified_user.photo_filename
-    orig_user.photo_carte_presse = modified_user.photo_carte_presse
-    orig_user.photo_carte_presse_filename = modified_user.photo_carte_presse_filename
+    orig_user.photo_image = modified_user.photo_image
+    orig_user.photo_carte_presse_image = modified_user.photo_carte_presse_image
     # orig_user.job_title = modified_user.job_title
     orig_user.tel_mobile = modified_user.tel_mobile
     orig_user.tel_mobile_validated_at = modified_user.tel_mobile_validated_at
     orig_user.organisation_id = modified_user.organisation_id
     # orig_user.geoloc_id = modified_user.geoloc_id
     # geoloc  # check if needed
-    orig_user.profile_image_url = modified_user.profile_image_url
     orig_user.cover_image = modified_user.cover_image
     orig_user.status = modified_user.status
     orig_user.karma = modified_user.karma

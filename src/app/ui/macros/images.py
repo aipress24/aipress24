@@ -13,7 +13,6 @@ from app.flask.lib.macros import macro
 from app.flask.routing import url_for
 from app.models.auth import User
 from app.models.organisation import Organisation
-from app.modules.kyc.views import profile_photo_local_url
 
 
 @macro
@@ -50,7 +49,7 @@ def profile_image(user: User, size: int = 24, **kw) -> Markup:
     cls = kw.get("class", "").split(" ")
     # url = user.profile_image_url
     # quick fix to merge KYC images and faker images urls
-    url = profile_photo_local_url(user)
+    url = user.photo_image_signed_url()
 
     cls += [f"h-{size}", f"w-{size}", "object-cover", "rounded-full"]
     community = user.first_community()
