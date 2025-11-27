@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from app.lib.names import fqdn, to_kebab_case, to_snake_case
+from app.lib.names import dense_fqdn, fqdn, to_kebab_case, to_snake_case
 
 
 def test_to_kebab_case() -> None:
@@ -20,3 +20,17 @@ def test_fqdn() -> None:
         pass
 
     assert fqdn(Foo) == "test_names.Foo"
+
+
+def test_dense_fqdn() -> None:
+    """Test dense_fqdn abbreviates module path to initials."""
+
+    class MyClass:
+        pass
+
+    result = dense_fqdn(MyClass)
+    # Should end with full class name and have abbreviated paths
+    assert result.endswith("MyClass")
+    parts = result.split(".")
+    for part in parts[:-1]:
+        assert len(part) == 1

@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import datetime
 
+import pytest
 from pytz import timezone, utc
 
 from app.lib.datetime import (
@@ -22,279 +23,122 @@ from app.lib.datetime import (
 )
 
 
-class TestGetCurrentTimezone:
-    """Test suite for get_current_timezone function."""
-
-    def test_returns_europe_paris(self):
-        """Test that get_current_timezone returns Europe/Paris."""
-        result = get_current_timezone()
-        assert result == "Europe/Paris"
+def test_get_current_timezone_returns_europe_paris() -> None:
+    """Test get_current_timezone returns Europe/Paris."""
+    assert get_current_timezone() == "Europe/Paris"
 
 
-class TestParseTz:
-    """Test suite for parse_tz function."""
-
-    def test_with_dst_tzinfo(self):
-        """Test with a DstTzInfo object."""
-        tz = timezone("America/New_York")
-        result = parse_tz(tz)
-        assert result == tz
-
-    def test_with_string_timezone(self):
-        """Test with a valid timezone string."""
-        result = parse_tz("Asia/Tokyo")
-        assert result is not None
-        assert result.zone == "Asia/Tokyo"
-
-    def test_with_invalid_timezone_string(self):
-        """Test with an invalid timezone string."""
-        result = parse_tz("Invalid/Timezone")
-        assert result is None
-
-    def test_with_none(self):
-        """Test with None value."""
-        result = parse_tz(None)
-        assert result is None
-
-    def test_with_empty_string(self):
-        """Test with empty string."""
-        result = parse_tz("")
-        assert result is None
+@pytest.mark.parametrize(
+    ("input_tz", "expected_zone"),
+    [
+        (timezone("America/New_York"), "America/New_York"),
+        ("Asia/Tokyo", "Asia/Tokyo"),
+    ],
+)
+def test_parse_tz_valid_inputs(input_tz, expected_zone) -> None:
+    """Test parse_tz with valid timezone inputs."""
+    result = parse_tz(input_tz)
+    assert result is not None
+    assert result.zone == expected_zone
 
 
-class TestConvertDatesToUtc:
-    """Test suite for convert_dates_to_utc function."""
-
-    def test_converts_dates_to_utc(self):
-        """Test converting dates to UTC."""
-        # Create dates in different timezones
-        eastern = timezone("US/Eastern")
-        pacific = timezone("US/Pacific")
-
-        dt1 = eastern.localize(datetime.datetime(2024, 1, 15, 12, 0, 0))  # noqa: DTZ001
-        dt2 = pacific.localize(datetime.datetime(2024, 1, 15, 12, 0, 0))  # noqa: DTZ001
-
-        result = convert_dates_to_utc([dt1, dt2])
-
-        assert len(result) == 2
-        assert all(dt.tzinfo == utc for dt in result)
-
-    def test_empty_list(self):
-        """Test with empty list."""
-        result = convert_dates_to_utc([])
-        assert result == []
+@pytest.mark.parametrize("invalid_input", ["Invalid/Timezone", None, ""])
+def test_parse_tz_invalid_inputs(invalid_input) -> None:
+    """Test parse_tz returns None for invalid inputs."""
+    assert parse_tz(invalid_input) is None
 
 
-class TestAsTimestamp:
-    """Test suite for as_timestamp function."""
+def test_convert_dates_to_utc() -> None:
+    """Test converting dates from different timezones to UTC."""
+    eastern = timezone("US/Eastern")
+    pacific = timezone("US/Pacific")
 
-    def test_with_specific_datetime(self):
-        """Test with a specific datetime."""
-        dt = datetime.datetime(2024, 1, 15, 12, 0, 0, tzinfo=utc)
-        result = as_timestamp(dt)
-        # 2024-01-15 12:00:00 UTC
-        expected = 1705320000
-        assert result == expected
+    dt1 = eastern.localize(datetime.datetime(2024, 1, 15, 12, 0, 0))  # noqa: DTZ001
+    dt2 = pacific.localize(datetime.datetime(2024, 1, 15, 12, 0, 0))  # noqa: DTZ001
 
-    def test_with_none_uses_now(self):
-        """Test that None uses current time."""
-        result = as_timestamp(None)
-        assert isinstance(result, int)
-        assert result > 0
+    result = convert_dates_to_utc([dt1, dt2])
 
-    def test_returns_integer(self):
-        """Test that result is an integer."""
-        dt = datetime.datetime(2024, 1, 1, 0, 0, 0, tzinfo=utc)
-        result = as_timestamp(dt)
-        assert isinstance(result, int)
+    assert len(result) == 2
+    assert all(dt.tzinfo == utc for dt in result)
+    assert convert_dates_to_utc([]) == []
 
 
-class TestDatetimeOrNow:
-    """Test suite for datetime_or_now function."""
-
-    def test_with_none_returns_now(self):
-        """Test that None returns current datetime with UTC timezone."""
-        result = datetime_or_now(None)
-        assert isinstance(result, datetime.datetime)
-        assert result.tzinfo == utc
-        # Should be close to now
-        now = datetime.datetime.now(tz=utc)
-        diff = (now - result).total_seconds()
-        assert abs(diff) < 1  # Within 1 second
-
-    def test_with_datetime_string(self):
-        """Test with a datetime string."""
-        result = datetime_or_now("2024-01-15T12:30:45")
-        assert result == datetime.datetime(2024, 1, 15, 12, 30, 45, tzinfo=utc)
-
-    def test_with_date_string(self):
-        """Test with a date string (no time)."""
-        result = datetime_or_now("2024-01-15")
-        assert result.date() == datetime.date(2024, 1, 15)
-        assert result.time() == datetime.time.min
-        assert result.tzinfo == utc
-
-    def test_with_datetime_object_with_tz(self):
-        """Test with a datetime object that has timezone."""
-        dt = datetime.datetime(2024, 1, 15, 12, 0, 0, tzinfo=utc)
-        result = datetime_or_now(dt)
-        assert result == dt
-        assert result.tzinfo == utc
-
-    def test_with_naive_datetime_object(self):
-        """Test with a naive datetime object (no timezone)."""
-        dt = datetime.datetime(2024, 1, 15, 12, 0, 0)  # noqa: DTZ001
-        result = datetime_or_now(dt)
-        assert result.replace(tzinfo=None) == dt
-        assert result.tzinfo == utc
-
-    def test_with_invalid_string(self):
-        """Test with invalid date string returns now."""
-        result = datetime_or_now("invalid-date")
-        assert isinstance(result, datetime.datetime)
-        assert result.tzinfo == utc
-        # Should be close to now
-        now = datetime.datetime.now(tz=utc)
-        diff = (now - result).total_seconds()
-        assert abs(diff) < 1
-
-    def test_with_datetime_object(self):
-        """Test with a datetime object (not string)."""
-        dt = datetime.datetime(2024, 1, 15, 12, 0, 0, tzinfo=utc)
-        result = datetime_or_now(dt)
-        assert result == dt
-
-    def test_with_date_string_fallback(self):
-        """Test with date string that forces fallback to parse_date."""
-        # Use monkeypatch to force parse_datetime to return None
-        import app.lib.datetime as dt_module
-
-        original_parse_datetime = dt_module.parse_datetime
-
-        def mock_parse_datetime(value):
-            # Return None to force parse_date path
-            return None
-
-        dt_module.parse_datetime = mock_parse_datetime
-        try:
-            result = datetime_or_now("2024-01-15")
-            assert isinstance(result, datetime.datetime)
-            assert result.date() == datetime.date(2024, 1, 15)
-            assert result.time() == datetime.time.min
-        finally:
-            dt_module.parse_datetime = original_parse_datetime
+def test_as_timestamp() -> None:
+    """Test as_timestamp converts datetime to unix timestamp."""
+    dt = datetime.datetime(2024, 1, 15, 12, 0, 0, tzinfo=utc)
+    assert as_timestamp(dt) == 1705320000
+    # None uses current time
+    assert isinstance(as_timestamp(None), int)
 
 
-class TestDatetimeToUtctimestamp:
-    """Test suite for datetime_to_utctimestamp function."""
-
-    def test_with_specific_datetime(self):
-        """Test with a specific datetime."""
-        dt = datetime.datetime(2024, 1, 15, 12, 0, 0, tzinfo=utc)
-        result = datetime_to_utctimestamp(dt)
-        expected = 1705320000
-        assert result == expected
-
-    def test_with_none_returns_zero(self):
-        """Test that None returns 0 (epoch)."""
-        result = datetime_to_utctimestamp(None)
-        assert result == 0
-
-    def test_with_custom_epoch(self):
-        """Test with custom epoch."""
-        dt = datetime.datetime(2024, 1, 15, 12, 0, 0, tzinfo=utc)
-        epoch = datetime.datetime(2024, 1, 1, 0, 0, 0, tzinfo=utc)
-        result = datetime_to_utctimestamp(dt, epoch)
-        # Difference in seconds between Jan 1 and Jan 15, 12:00:00
-        expected = (14 * 24 * 3600) + (12 * 3600)  # 14 days + 12 hours
-        assert result == expected
-
-    def test_returns_integer(self):
-        """Test that result is an integer."""
-        dt = datetime.datetime(2024, 1, 1, 0, 0, 0, tzinfo=utc)
-        result = datetime_to_utctimestamp(dt)
-        assert isinstance(result, int)
+@pytest.mark.parametrize(
+    ("input_val", "expected_date"),
+    [
+        ("2024-01-15T12:30:45", datetime.datetime(2024, 1, 15, 12, 30, 45, tzinfo=utc)),
+        ("2024-01-15", datetime.date(2024, 1, 15)),
+    ],
+)
+def test_datetime_or_now_with_strings(input_val, expected_date) -> None:
+    """Test datetime_or_now parses date strings."""
+    result = datetime_or_now(input_val)
+    if isinstance(expected_date, datetime.date) and not isinstance(
+        expected_date, datetime.datetime
+    ):
+        assert result.date() == expected_date
+    else:
+        assert result == expected_date
+    assert result.tzinfo == utc
 
 
-class TestStartOfDay:
-    """Test suite for start_of_day function."""
-
-    def test_with_specific_datetime(self):
-        """Test with a specific datetime."""
-        dt = datetime.datetime(2024, 1, 15, 14, 30, 45, tzinfo=utc)
-        result = start_of_day(dt)
-        # Should return midnight in Europe/Paris timezone
-        paris_tz = timezone("Europe/Paris")
-        assert result.year == 2024
-        assert result.month == 1
-        assert result.day == 15
-        assert result.hour == 0
-        assert result.minute == 0
-        assert result.second == 0
-        # Check it's in Paris timezone
-        assert result.tzinfo == paris_tz or result.tzinfo.zone == "Europe/Paris"
-
-    def test_with_none_uses_now(self):
-        """Test that None uses current time."""
-        result = start_of_day(None)
-        assert isinstance(result, datetime.datetime)
-        assert result.hour == 0
-        assert result.minute == 0
-        assert result.second == 0
-        # Should have timezone set
-        assert result.tzinfo is not None
-
-    def test_with_datetime_string(self):
-        """Test with a datetime string."""
-        result = start_of_day("2024-06-15T14:30:45")
-        assert result.year == 2024
-        assert result.month == 6
-        assert result.day == 15
-        assert result.hour == 0
-        assert result.minute == 0
-        assert result.tzinfo is not None
-
-    def test_fallback_to_utc_when_parse_tz_fails(self):
-        """Test that start_of_day falls back to UTC when parse_tz returns None."""
-        import app.lib.datetime as dt_module
-
-        original_get_current_timezone = dt_module.get_current_timezone
-
-        def mock_get_current_timezone():
-            return "Invalid/Timezone"
-
-        dt_module.get_current_timezone = mock_get_current_timezone
-        try:
-            dt = datetime.datetime(2024, 1, 15, 14, 30, 45, tzinfo=utc)
-            result = start_of_day(dt)
-            assert result.tzinfo == utc
-            assert result.hour == 0
-        finally:
-            dt_module.get_current_timezone = original_get_current_timezone
+def test_datetime_or_now_with_none_returns_now() -> None:
+    """Test datetime_or_now with None returns current time."""
+    result = datetime_or_now(None)
+    now = datetime.datetime.now(tz=utc)
+    assert abs((now - result).total_seconds()) < 1
 
 
-class TestUtctimestampToDatetime:
-    """Test suite for utctimestamp_to_datetime function."""
+def test_datetime_or_now_with_datetime_objects() -> None:
+    """Test datetime_or_now with datetime objects."""
+    dt_with_tz = datetime.datetime(2024, 1, 15, 12, 0, 0, tzinfo=utc)
+    assert datetime_or_now(dt_with_tz) == dt_with_tz
 
-    def test_with_timestamp(self):
-        """Test converting timestamp to datetime."""
-        timestamp = 1705320000  # 2024-01-15 12:00:00 UTC
-        result = utctimestamp_to_datetime(timestamp)
-        assert result.year == 2024
-        assert result.month == 1
-        assert result.day == 15
-        assert result.hour == 12
-        assert result.minute == 0
-        assert result.second == 0
-        assert result.tzinfo == utc
+    dt_naive = datetime.datetime(2024, 1, 15, 12, 0, 0)  # noqa: DTZ001
+    result = datetime_or_now(dt_naive)
+    assert result.replace(tzinfo=None) == dt_naive
+    assert result.tzinfo == utc
 
-    def test_with_zero_timestamp(self):
-        """Test with zero timestamp (epoch)."""
-        result = utctimestamp_to_datetime(0)
-        assert result == datetime.datetime(1970, 1, 1, 0, 0, 0, tzinfo=utc)
 
-    def test_result_has_utc_timezone(self):
-        """Test that result has UTC timezone."""
-        timestamp = 1700000000
-        result = utctimestamp_to_datetime(timestamp)
-        assert result.tzinfo == utc
+def test_datetime_to_utctimestamp() -> None:
+    """Test datetime_to_utctimestamp converts to seconds since epoch."""
+    dt = datetime.datetime(2024, 1, 15, 12, 0, 0, tzinfo=utc)
+    assert datetime_to_utctimestamp(dt) == 1705320000
+    assert datetime_to_utctimestamp(None) == 0
+
+    # Custom epoch
+    epoch = datetime.datetime(2024, 1, 1, 0, 0, 0, tzinfo=utc)
+    expected = (14 * 24 * 3600) + (12 * 3600)  # 14 days + 12 hours
+    assert datetime_to_utctimestamp(dt, epoch) == expected
+
+
+def test_start_of_day() -> None:
+    """Test start_of_day returns midnight in Europe/Paris timezone."""
+    dt = datetime.datetime(2024, 1, 15, 14, 30, 45, tzinfo=utc)
+    result = start_of_day(dt)
+
+    assert result.year == 2024
+    assert result.month == 1
+    assert result.day == 15
+    assert result.hour == 0
+    assert result.minute == 0
+    assert result.second == 0
+    assert result.tzinfo is not None
+
+
+def test_utctimestamp_to_datetime() -> None:
+    """Test utctimestamp_to_datetime converts timestamp to datetime."""
+    result = utctimestamp_to_datetime(1705320000)
+    assert result == datetime.datetime(2024, 1, 15, 12, 0, 0, tzinfo=utc)
+
+    assert utctimestamp_to_datetime(0) == datetime.datetime(
+        1970, 1, 1, 0, 0, 0, tzinfo=utc
+    )

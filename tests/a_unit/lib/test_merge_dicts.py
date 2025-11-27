@@ -18,6 +18,7 @@ PARAMS = [
 
 
 @pytest.mark.parametrize(("d1", "d2", "expected"), PARAMS)
-def test_1(d1, d2, expected) -> None:
+def test_merge_dicts_commutative(d1, d2, expected) -> None:
+    """Test merge_dicts produces expected result in both orders."""
     assert merge_dicts(d1, d2) == expected
     assert merge_dicts(d2, d1) == expected
