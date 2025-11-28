@@ -6,9 +6,7 @@
 
 from __future__ import annotations
 
-from unittest.mock import patch
 
-import pytest
 from flask_sqlalchemy import SQLAlchemy
 
 from app.enums import OrganisationTypeEnum, RoleEnum
