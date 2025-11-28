@@ -179,20 +179,15 @@ def _check_tables_empty(connection, test_name: str) -> None:
 
 @pytest.fixture(autouse=True)
 def db_session(db, app, request):
-    """Function-scoped database session.
+    """Function-scoped database session with transaction isolation.
 
     Ensures each test runs in a separate, rolled-back transaction,
     providing test isolation. This fixture is autouse=True, so it
     automatically wraps all tests in a transaction.
 
-    E2E tests (in tests/c_e2e/) are skipped because they need to make
-    real HTTP requests that require fresh connections from the pool.
+    Note: E2E tests override this fixture in tests/c_e2e/conftest.py
+    to use fresh_db instead of transaction wrapping.
     """
-    # Skip transaction wrapping for E2E tests
-    if "c_e2e" in request.node.nodeid:
-        yield _db.session
-        return
-
     # Remove any existing scoped session to clear thread-local cache
     _db.session.remove()
 
