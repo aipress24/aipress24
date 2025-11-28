@@ -4,8 +4,6 @@
 
 from __future__ import annotations
 
-from unittest.mock import patch
-
 import arrow
 import pytest
 from flask_sqlalchemy import SQLAlchemy
@@ -184,8 +182,7 @@ class TestUpdatePost:
 class TestOnPublishEvent:
     """Test suite for on_publish_event signal handler."""
 
-    @patch("builtins.print")
-    def test_on_publish_creates_new_post(self, mock_print, db: SQLAlchemy) -> None:
+    def test_on_publish_creates_new_post(self, db: SQLAlchemy) -> None:
         """Test on_publish_event creates new EventPost when none exists."""
         user = User(email="test_publish_new_event@example.com")
         db.session.add(user)
@@ -210,8 +207,7 @@ class TestOnPublishEvent:
         assert post.status == PublicationStatus.PUBLIC
         assert post.eventroom_id == event.id
 
-    @patch("builtins.print")
-    def test_on_publish_updates_existing_post(self, mock_print, db: SQLAlchemy) -> None:
+    def test_on_publish_updates_existing_post(self, db: SQLAlchemy) -> None:
         """Test on_publish_event updates existing EventPost."""
         user = User(email="test_publish_update_event@example.com")
         db.session.add(user)
@@ -244,8 +240,7 @@ class TestOnPublishEvent:
         assert updated_post.title == "Updated Title"
         assert updated_post.status == PublicationStatus.PUBLIC
 
-    @patch("builtins.print")
-    def test_on_publish_sets_published_at(self, mock_print, db: SQLAlchemy) -> None:
+    def test_on_publish_sets_published_at(self, db: SQLAlchemy) -> None:
         """Test on_publish_event sets published_at timestamp."""
         user = User(email="test_publish_timestamp@example.com")
         db.session.add(user)
@@ -267,8 +262,7 @@ class TestOnPublishEvent:
 class TestOnUnpublishEvent:
     """Test suite for on_unpublish_event signal handler."""
 
-    @patch("builtins.print")
-    def test_on_unpublish_sets_draft_status(self, mock_print, db: SQLAlchemy) -> None:
+    def test_on_unpublish_sets_draft_status(self, db: SQLAlchemy) -> None:
         """Test on_unpublish_event sets post status to DRAFT."""
         user = User(email="test_unpublish_event@example.com")
         db.session.add(user)
@@ -294,8 +288,7 @@ class TestOnUnpublishEvent:
         )
         assert updated_post.status == PublicationStatus.DRAFT
 
-    @patch("builtins.print")
-    def test_on_unpublish_no_post_exists(self, mock_print, db: SQLAlchemy) -> None:
+    def test_on_unpublish_no_post_exists(self, db: SQLAlchemy) -> None:
         """Test on_unpublish_event does nothing when post doesn't exist."""
         user = User(email="test_unpublish_none_event@example.com")
         db.session.add(user)
@@ -315,8 +308,7 @@ class TestOnUnpublishEvent:
 class TestOnUpdateEvent:
     """Test suite for on_update_event signal handler."""
 
-    @patch("builtins.print")
-    def test_on_update_updates_post(self, mock_print, db: SQLAlchemy) -> None:
+    def test_on_update_updates_post(self, db: SQLAlchemy) -> None:
         """Test on_update_event updates existing post."""
         user = User(email="test_update_post_event@example.com")
         db.session.add(user)
@@ -343,8 +335,7 @@ class TestOnUpdateEvent:
         assert updated_post.title == "Modified"
         assert updated_post.last_updated_at is not None
 
-    @patch("builtins.print")
-    def test_on_update_no_post_exists(self, mock_print, db: SQLAlchemy) -> None:
+    def test_on_update_no_post_exists(self, db: SQLAlchemy) -> None:
         """Test on_update_event does nothing when post doesn't exist."""
         user = User(email="test_update_none_event@example.com")
         db.session.add(user)

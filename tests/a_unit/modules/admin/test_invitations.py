@@ -6,6 +6,9 @@
 
 from __future__ import annotations
 
+from unittest.mock import patch
+
+import pytest
 from flask_sqlalchemy import SQLAlchemy
 
 from app.enums import OrganisationTypeEnum
@@ -16,6 +19,13 @@ from app.modules.admin.invitations import (
     cancel_invitation_users,
     emails_invited_to_organisation,
 )
+
+
+@pytest.fixture(autouse=True)
+def mock_commit_session():
+    """Mock commit_session to preserve test transaction isolation."""
+    with patch("app.modules.admin.invitations.commit_session", return_value=""):
+        yield
 
 
 def _create_org(db: SQLAlchemy, name: str) -> Organisation:
