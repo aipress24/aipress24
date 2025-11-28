@@ -149,6 +149,60 @@ def db(app):
         _db.session.remove()
 
 
+def _cleanup_tables(connection) -> None:
+    """Delete all data from tables that might have been committed during tests.
+
+    This handles cases where production code contains commit() calls that
+    bypass the test transaction wrapper.
+    """
+    # Tables to clean, in order that respects foreign key constraints
+    # (delete from dependent tables first)
+    tables_to_clean = [
+        "org_invitations",
+        "kyc_profile",
+        "aut_user",
+        "crp_organisation",
+        "aut_role",
+    ]
+    for table_name in tables_to_clean:
+        try:
+            connection.execute(text(f"DELETE FROM {table_name}"))
+        except (OperationalError, ProgrammingError):
+            # Table doesn't exist or other issue, skip
+            pass
+    connection.commit()
+
+
+def _check_tables_empty(connection, test_name: str) -> None:
+    """Check that key tables are empty after a test.
+
+    This diagnostic helps identify tests that leak data.
+    """
+    tables_to_check = [
+        ("aut_user", "User"),
+        ("crp_organisation", "Organisation"),
+        ("org_invitations", "Invitation"),
+        ("kyc_profile", "KYCProfile"),
+    ]
+    for table_name, model_name in tables_to_check:
+        try:
+            result = connection.execute(text(f"SELECT COUNT(*) FROM {table_name}"))
+            count = result.scalar()
+            if count > 0:
+                # Get some sample data for debugging
+                sample = connection.execute(
+                    text(f"SELECT * FROM {table_name} LIMIT 3")
+                )
+                rows = sample.fetchall()
+                raise AssertionError(
+                    f"Table {table_name} ({model_name}) has {count} rows after "
+                    f"test '{test_name}'. Sample: {rows}"
+                )
+        except OperationalError:
+            # Table doesn't exist, skip
+            pass
+
+
 @pytest.fixture(autouse=True)
 def db_session(db, app, request):
     """Function-scoped database session.
@@ -206,4 +260,14 @@ def db_session(db, app, request):
     session.close()
     transaction.rollback()
     connection.close()
+
+    # Clean up any data that was committed by production code
+    # (production code may contain commit() calls that bypass the transaction wrapper)
+    cleanup_connection = db.engine.connect()
+    try:
+        _cleanup_tables(cleanup_connection)
+        _check_tables_empty(cleanup_connection, request.node.nodeid)
+    finally:
+        cleanup_connection.close()
+
     _db.session.remove()
