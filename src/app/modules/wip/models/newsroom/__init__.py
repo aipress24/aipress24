@@ -19,6 +19,7 @@ from .article import Article, Image
 from .avis_enquete import AvisEnquete, ContactAvisEnquete
 from .commande import Commande
 from .justif_publication import JustifPublication
+from .repositories import ImageRepository
 from .sujet import Sujet
 
 __all__ = [
@@ -27,6 +28,7 @@ __all__ = [
     "Commande",
     "ContactAvisEnquete",
     "Image",
+    "ImageRepository",
     "JustifPublication",
     "Sujet",
 ]

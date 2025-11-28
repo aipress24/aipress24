@@ -6,8 +6,11 @@
 from __future__ import annotations
 
 from .event import Event, EventImage
+from .repositories import EventImageRepository, EventRepository
 
 __all__ = [
     "Event",
     "EventImage",
+    "EventImageRepository",
+    "EventRepository",
 ]
