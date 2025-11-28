@@ -38,7 +38,7 @@ def downgrade():
     with op.batch_alter_table("aut_user", schema=None) as batch_op:
         batch_op.add_column(
             sa.Column(
-                "cover_image_id", sa.VARCHAR(), autoincrement=False, nullable=False
+                "cover_image_id", sa.VARCHAR(), autoincrement=False, nullable=True
             )
         )
         batch_op.drop_column("cover_image")
