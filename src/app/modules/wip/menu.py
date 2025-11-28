@@ -47,13 +47,18 @@ def make_menu(current_name: str):
 
 
 def is_user_allowed(page_cls: type[Page]) -> bool:
+    user = g.user
+
+    # Check if user is authenticated
+    if not user.is_authenticated:
+        return False
+
     # Old style ACL
     if hasattr(page_cls, "allowed_roles"):
         roles = page_cls.allowed_roles
-        return has_role(g.user, roles)
+        return has_role(user, roles)
 
     # New style ACL (WIP)
-    user = g.user
     page = page_cls()
     acl = page.__acl__()
     if not acl:
