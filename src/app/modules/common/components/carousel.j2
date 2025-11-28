@@ -52,7 +52,7 @@
           x-transition.opacity.duration.1000ms>
         <a href="{{ url_for(post) }}">
           <img
-              class="absolute w-full h-full inset-0 object-cover text-neutral-600 dark:text-neutral-300"
+              class="absolute w-full h-full inset-0 object-contain text-neutral-600 dark:text-neutral-300"
               x-bind:src="slide.imgSrc"
               x-bind:alt="slide.imgAlt"
               x-bind:data-tooltip-target="'post-{{ post.id }}-' + slide.id + '-tooltip'"
