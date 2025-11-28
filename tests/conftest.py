@@ -15,12 +15,11 @@ from collections.abc import Generator
 from urllib.parse import urlparse
 
 import pytest
+from app.flask.extensions import db as _db
+from app.flask.main import create_app
 from flask.ctx import AppContext
 from sqlalchemy import create_engine, event, text
 from sqlalchemy.exc import OperationalError, ProgrammingError
-
-from app.flask.extensions import db as _db
-from app.flask.main import create_app
 
 
 class TestConfig:
@@ -35,6 +34,15 @@ class TestConfig:
     SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"  # Default DB
     WTF_CSRF_ENABLED = False
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+    # S3/MinIO Mock
+    S3_ACCESS_KEY_ID = "minioadmin"
+    S3_SECRET_ACCESS_KEY = "minioadmin"
+    S3_ENDPOINT_URL = "http://127.0.0.1:9000"
+    S3_BUCKET_NAME = "aipress24-images"
+    S3_REGION_NAME = "fr-paris"
+    # Required for non-HTTPS connection to MinIO
+    S3_USE_SSL = False
 
     # Explicitly set SERVER_NAME to None. This is critical for E2E tests.
     # It forces Flask's url_for and redirects to generate relative paths,
