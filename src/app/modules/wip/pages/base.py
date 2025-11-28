@@ -6,6 +6,9 @@ from __future__ import annotations
 
 import abc
 
+from flask import g, redirect, url_for
+from werkzeug import Response
+
 from app.flask.lib.pages import Page
 
 __all__ = ["BaseWipPage"]
@@ -16,6 +19,18 @@ from app.modules.wip.menu import make_menu
 class BaseWipPage(Page, abc.ABC):
     icon: str | None
     label: str
+
+    def get(self) -> str | Response:
+        # Redirect unauthenticated users to login
+        if not g.user.is_authenticated:
+            return redirect(url_for("security.login"))
+        return super().get()
+
+    def post(self) -> str | Response:
+        # Redirect unauthenticated users to login
+        if not g.user.is_authenticated:
+            return redirect(url_for("security.login"))
+        return super().post()
 
     def menus(self):
         current_name = self.name

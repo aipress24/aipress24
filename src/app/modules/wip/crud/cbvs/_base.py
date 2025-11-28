@@ -81,9 +81,14 @@ class BaseWipView(FlaskView, abc.ABC):
 
     route_prefix = "/wip/"
 
-    def before_request(self, *_args, **_kwargs) -> None:
+    def before_request(self, *_args, **_kwargs) -> Response | None:
+        # Redirect unauthenticated users to login
+        if not g.user.is_authenticated:
+            return redirect(url_for("security.login"))
+
         menu_service = container.get(MenuService)
         menu_service.update(self._menus())
+        return None
 
     def htmx(self) -> str:
         html = self.index().render()

@@ -46,9 +46,20 @@ class BusinessWallPage(BaseWipPage):
     form: FlaskForm | None = None
     readonly: bool = False
 
-    def __init__(self) -> None:
-        self.user = g.user
-        self.org = self.user.organisation  # Organisation or None
+    @property
+    def user(self):
+        return g.user
+
+    @property
+    def org(self):
+        # Lazy access to avoid DetachedInstanceError during menu building
+        if not hasattr(self, "_org"):
+            user = self.user
+            if user.is_authenticated:
+                self._org = user.organisation
+            else:
+                self._org = None
+        return self._org
 
     def get_logo_url(self) -> str:
         if not self.org:
