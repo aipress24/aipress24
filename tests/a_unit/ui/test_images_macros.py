@@ -4,17 +4,23 @@
 
 from __future__ import annotations
 
-from flask_sqlalchemy.extension import SQLAlchemy
-
-from app.models.auth import User
+from app.enums import RoleEnum
+from app.models.auth import Role, User
 from app.models.organisation import Organisation
+from app.services.roles import add_role, generate_roles_map
 from app.ui.macros.images import org_logo, profile_image
+from flask_sqlalchemy.extension import SQLAlchemy
 
 
 def test_profile_image(db: SQLAlchemy) -> None:
     """Test profile_image macro with real User object."""
     user = User(email="test_profile_image@example.com")
-    db.session.add(user)
+    # profile_image() requires that user has a Role (for styling color)
+    role = Role(name=RoleEnum.EXPERT.name)
+    db.session.add(role)
+    generate_roles_map()
+    add_role(user, RoleEnum.EXPERT)
+    db.session.add_all([user, role])
     db.session.flush()
 
     # The function requires photo data setup which is complex,
