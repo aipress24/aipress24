@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 
 
 @pytest.fixture
-def test_user(db_session: Session) -> User:
+def test_user(db_session: Session, logged_in_client: FlaskClient) -> User:
     """Get the test user (ID 0) created by logged_in_client fixture."""
     user = db_session.query(User).filter_by(id=0).first()
     if not user:
