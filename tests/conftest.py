@@ -149,30 +149,6 @@ def db(app):
         _db.session.remove()
 
 
-def _cleanup_tables(connection) -> None:
-    """Delete all data from tables that might have been committed during tests.
-
-    This handles cases where production code contains commit() calls that
-    bypass the test transaction wrapper.
-    """
-    # Tables to clean, in order that respects foreign key constraints
-    # (delete from dependent tables first)
-    tables_to_clean = [
-        "org_invitations",
-        "kyc_profile",
-        "aut_user",
-        "crp_organisation",
-        "aut_role",
-    ]
-    for table_name in tables_to_clean:
-        try:
-            connection.execute(text(f"DELETE FROM {table_name}"))
-        except (OperationalError, ProgrammingError):
-            # Table doesn't exist or other issue, skip
-            pass
-    connection.commit()
-
-
 def _check_tables_empty(connection, test_name: str) -> None:
     """Check that key tables are empty after a test.
 
@@ -259,13 +235,13 @@ def db_session(db, app, request):
     transaction.rollback()
     connection.close()
 
-    # Clean up any data that was committed by production code
-    # (production code may contain commit() calls that bypass the transaction wrapper)
-    cleanup_connection = db.engine.connect()
+    # Verify tables are empty after rollback (diagnostic check)
+    # If this fails, it means production code has commit() calls that bypass
+    # the test transaction wrapper. Those commits need to be moved to the view layer.
+    check_connection = db.engine.connect()
     try:
-        _cleanup_tables(cleanup_connection)
-        _check_tables_empty(cleanup_connection, request.node.nodeid)
+        _check_tables_empty(check_connection, request.node.nodeid)
     finally:
-        cleanup_connection.close()
+        check_connection.close()
 
     _db.session.remove()

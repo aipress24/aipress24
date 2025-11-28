@@ -7,7 +7,6 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
-from unittest.mock import patch
 
 import pytest
 from app.enums import RoleEnum
@@ -80,13 +79,6 @@ def test_users(db_session: Session) -> list[User]:
         users.append(user)
     db_session.flush()
     return users
-
-
-@pytest.fixture(autouse=True)
-def mock_commits():
-    """Mock db.session.commit() to preserve test transaction isolation."""
-    with patch("app.flask.extensions.db.session.commit"):
-        yield
 
 
 class TestChangeMembersEmails:
