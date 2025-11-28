@@ -4,10 +4,12 @@
 
 from __future__ import annotations
 
+import uuid
 from typing import TYPE_CHECKING
 
 from app.enums import RoleEnum
 from app.models.auth import Role, User
+from app.models.organisation import Organisation
 from app.modules.wire.models import ArticlePost
 
 if TYPE_CHECKING:
@@ -15,8 +17,11 @@ if TYPE_CHECKING:
     from sqlalchemy.orm import Session
 
 
-def create_stuff(db_session: Session) -> dict[str, User | ArticlePost]:
-    """Creates a default user and an article for testing."""
+def create_stuff(db_session: Session) -> dict[str, User | ArticlePost | Organisation]:
+    """Creates a default user, organisation, and article for testing.
+
+    Uses unique identifiers to avoid conflicts with existing data.
+    """
     # Create or get the PRESS_MEDIA role
     role = db_session.query(Role).filter_by(name=RoleEnum.PRESS_MEDIA.name).first()
     if not role:
@@ -26,21 +31,32 @@ def create_stuff(db_session: Session) -> dict[str, User | ArticlePost]:
         db_session.add(role)
         db_session.flush()
 
-    # Create or get user ID 0 for testing (used by authenticate_user hook as fallback)
-    owner = db_session.query(User).filter_by(id=0).first()
-    if not owner:
-        owner = User(id=0, email="test@example.com")
-        owner.photo = b""  # Empty bytes to avoid None errors
-        owner.roles.append(role)
-        db_session.add(owner)
-        db_session.flush()
+    # Use unique identifiers to avoid conflicts
+    unique_suffix = uuid.uuid4().hex[:8]
 
+    # Create organisation for the test user
+    org = Organisation(name=f"Test Organization {unique_suffix}")
+    db_session.add(org)
+    db_session.flush()
+
+    # Create test user with organisation
+    owner = User(email=f"test-{unique_suffix}@example.com")
+    owner.photo = b""
+    owner.active = True
+    owner.organisation = org
+    owner.organisation_id = org.id
+    owner.roles.append(role)
+    db_session.add(owner)
+    db_session.flush()
+
+    # Create test article
     article = ArticlePost(owner=owner)
     db_session.add(article)
     db_session.commit()
 
     return {
         "user": owner,
+        "organisation": org,
         "article": article,
     }
 
