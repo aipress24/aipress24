@@ -215,7 +215,7 @@ class TestSetUserOrganisation:
     def test_sets_user_organisation(self, db: SQLAlchemy) -> None:
         """Test setting user's organisation."""
         org = Organisation(name="New Org", type=OrganisationTypeEnum.MEDIA)
-        user = User(email="user@example.com", active=True)
+        user = User(email="set_org_user@example.com", active=True)
         profile = KYCProfile()
         user.profile = profile
         db.session.add_all([org, user, profile])

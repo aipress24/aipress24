@@ -6,6 +6,9 @@
 
 from __future__ import annotations
 
+from unittest.mock import patch
+
+import pytest
 from flask_sqlalchemy import SQLAlchemy
 
 from app.enums import OrganisationTypeEnum, RoleEnum
@@ -17,6 +20,13 @@ from app.modules.admin.org_email_utils import (
     change_managers_emails,
     change_members_emails,
 )
+
+
+@pytest.fixture(autouse=True)
+def mock_commits():
+    """Mock commits to preserve test transaction isolation."""
+    with patch("app.flask.extensions.db.session.commit"):
+        yield
 
 
 def get_or_create_role(db: SQLAlchemy, role_enum: RoleEnum) -> Role:
@@ -63,8 +73,8 @@ class TestChangeMembersEmails:
     def test_handles_multiple_emails(self, db: SQLAlchemy) -> None:
         """Test handling multiple emails separated by whitespace."""
         org = Organisation(name="Test Org Multi", type=OrganisationTypeEnum.MEDIA)
-        user1 = User(email="user1@example.com", active=True)
-        user2 = User(email="user2@example.com", active=True)
+        user1 = User(email="multi_user1@example.com", active=True)
+        user2 = User(email="multi_user2@example.com", active=True)
         profile1 = KYCProfile()
         profile2 = KYCProfile()
         user1.profile = profile1
@@ -72,7 +82,7 @@ class TestChangeMembersEmails:
         db.session.add_all([org, user1, user2, profile1, profile2])
         db.session.flush()
 
-        change_members_emails(org, "user1@example.com user2@example.com")
+        change_members_emails(org, "multi_user1@example.com multi_user2@example.com")
 
         assert user1.organisation_id == org.id
         assert user2.organisation_id == org.id
@@ -80,13 +90,13 @@ class TestChangeMembersEmails:
     def test_case_insensitive_email_matching(self, db: SQLAlchemy) -> None:
         """Test email matching is case insensitive."""
         org = Organisation(name="Test Org Case", type=OrganisationTypeEnum.MEDIA)
-        user = User(email="User@Example.COM", active=True)
+        user = User(email="CaseTest@Example.COM", active=True)
         profile = KYCProfile()
         user.profile = profile
         db.session.add_all([org, user, profile])
         db.session.flush()
 
-        change_members_emails(org, "user@example.com")
+        change_members_emails(org, "casetest@example.com")
 
         assert user.organisation_id == org.id
 
