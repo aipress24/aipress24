@@ -6,9 +6,6 @@
 
 from __future__ import annotations
 
-from unittest.mock import patch
-
-import pytest
 from flask_sqlalchemy import SQLAlchemy
 
 from app.enums import OrganisationTypeEnum, RoleEnum
@@ -20,13 +17,6 @@ from app.modules.admin.org_email_utils import (
     change_managers_emails,
     change_members_emails,
 )
-
-
-@pytest.fixture(autouse=True)
-def mock_commits():
-    """Mock commits to preserve test transaction isolation."""
-    with patch("app.flask.extensions.db.session.commit"):
-        yield
 
 
 def get_or_create_role(db: SQLAlchemy, role_enum: RoleEnum) -> Role:

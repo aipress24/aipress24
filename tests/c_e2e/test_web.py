@@ -136,14 +136,25 @@ def _create_stuff(db: SQLAlchemy) -> dict[str, User | ArticlePost]:
         db.session.add(role)
         db.session.flush()
 
-    owner = User(email="joe@example.com", id=0)
-    # Set minimal photo to avoid errors in template rendering
-    owner.photo = b""  # Empty bytes to avoid None errors
-    owner.roles.append(role)
-    db.session.add(owner)
-    article = ArticlePost(owner=owner)
-    db.session.add(article)
-    db.session.flush()
+    # Check if test user already exists (from previous E2E test)
+    # Check both by email and by id since either could cause uniqueness issues
+    owner = db.session.query(User).filter_by(email="joe@example.com").first()
+    if not owner:
+        owner = db.session.query(User).filter_by(id=0).first()
+    if not owner:
+        owner = User(email="joe@example.com", id=0)
+        # Set minimal photo to avoid errors in template rendering
+        owner.photo = b""  # Empty bytes to avoid None errors
+        owner.roles.append(role)
+        db.session.add(owner)
+        db.session.flush()
+
+    # Check if test article already exists
+    article = db.session.query(ArticlePost).filter_by(owner_id=owner.id).first()
+    if not article:
+        article = ArticlePost(owner=owner)
+        db.session.add(article)
+        db.session.flush()
 
     return {
         "user": owner,

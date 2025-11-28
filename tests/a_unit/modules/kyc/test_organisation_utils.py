@@ -326,7 +326,7 @@ class TestStoreAutoOrganisation:
             name="Existing Auto", type=OrganisationTypeEnum.AUTO
         )
         db.session.add(existing_org)
-        db.session.commit()
+        db.session.flush()
 
         user = User(email="store_auto_existing@example.com")
         profile = KYCProfile()
@@ -380,7 +380,7 @@ class TestStoreAutoOrganisation:
         """Test creates AUTO org even if non-AUTO org with same name exists."""
         media_org = Organisation(name="Dual Name Org", type=OrganisationTypeEnum.MEDIA)
         db.session.add(media_org)
-        db.session.commit()
+        db.session.flush()
 
         user = User(email="store_auto_dual@example.com")
         profile = KYCProfile()

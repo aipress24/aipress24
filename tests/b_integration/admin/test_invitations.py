@@ -7,7 +7,6 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
-from unittest.mock import patch
 
 import pytest
 from app.models.auth import KYCProfile, User
@@ -30,18 +29,6 @@ def test_org(db_session: Session) -> Organisation:
     db_session.add(org)
     db_session.flush()
     return org
-
-
-@pytest.fixture(autouse=True)
-def mock_commit_session():
-    """Mock commit_session to preserve test transaction isolation.
-
-    The functions being tested call commit_session() which does a real commit,
-    breaking test transaction isolation. We mock it to do nothing since the
-    test framework will handle commits/rollbacks.
-    """
-    with patch("app.modules.admin.invitations.commit_session", return_value=""):
-        yield
 
 
 @pytest.fixture
