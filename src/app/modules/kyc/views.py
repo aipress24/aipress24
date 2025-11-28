@@ -341,7 +341,7 @@ def _write_tmp_data(data: bytes, uuid: str) -> None:
     images_dir.mkdir(parents=True, exist_ok=True)
     path = images_dir / uuid
     if not path.is_file():
-        path.write_bytes(data)
+        path.write_bytes(data or b"")
     # print("/////////////", str(file_path), file=sys.stderr)
 
 
