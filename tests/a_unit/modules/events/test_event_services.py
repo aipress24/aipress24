@@ -66,12 +66,8 @@ class TestGetParticipants:
     def test_with_order_by(self, db: SQLAlchemy) -> None:
         """Test returns participants in specified order."""
         owner = User(email="event_svc_owner3@example.com")
-        participant1 = User(
-            email="order_participant1@example.com", first_name="Zebra"
-        )
-        participant2 = User(
-            email="order_participant2@example.com", first_name="Alpha"
-        )
+        participant1 = User(email="order_participant1@example.com", first_name="Zebra")
+        participant2 = User(email="order_participant2@example.com", first_name="Alpha")
         db.session.add_all([owner, participant1, participant2])
         db.session.flush()
 
@@ -127,12 +123,8 @@ class TestGetParticipants:
         participant1 = User(
             email="combo_participant1@example.com", first_name="Charlie"
         )
-        participant2 = User(
-            email="combo_participant2@example.com", first_name="Alice"
-        )
-        participant3 = User(
-            email="combo_participant3@example.com", first_name="Bob"
-        )
+        participant2 = User(email="combo_participant2@example.com", first_name="Alice")
+        participant3 = User(email="combo_participant3@example.com", first_name="Bob")
         db.session.add_all([owner, participant1, participant2, participant3])
         db.session.flush()
 
@@ -157,9 +149,7 @@ class TestGetParticipants:
         with pytest.raises(AssertionError):
             get_participants("not an event")  # type: ignore
 
-    def test_only_returns_participants_for_specific_event(
-        self, db: SQLAlchemy
-    ) -> None:
+    def test_only_returns_participants_for_specific_event(self, db: SQLAlchemy) -> None:
         """Test only returns participants for the specified event."""
         owner = User(email="event_svc_owner6@example.com")
         participant1 = User(email="specific_participant1@example.com")
