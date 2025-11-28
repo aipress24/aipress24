@@ -190,9 +190,7 @@ def _check_tables_empty(connection, test_name: str) -> None:
             count = result.scalar()
             if count > 0:
                 # Get some sample data for debugging
-                sample = connection.execute(
-                    text(f"SELECT * FROM {table_name} LIMIT 3")
-                )
+                sample = connection.execute(text(f"SELECT * FROM {table_name} LIMIT 3"))
                 rows = sample.fetchall()
                 raise AssertionError(
                     f"Table {table_name} ({model_name}) has {count} rows after "
