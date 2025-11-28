@@ -4,11 +4,12 @@
 
 from __future__ import annotations
 
+from advanced_alchemy.repository import SQLAlchemySyncRepository
 from flask_super.decorators import service
 
 from app.services.repositories import Repository
 
-from .article import Article
+from .article import Article, Image
 from .avis_enquete import AvisEnquete, ContactAvisEnquete
 from .commande import Commande
 from .justif_publication import JustifPublication
@@ -23,7 +24,12 @@ class ArticleRepository(Repository[Article]):
     model_type = Article
 
 
-@service
+class ImageRepository(SQLAlchemySyncRepository[Image]):
+    """Repository for Image model."""
+
+    model_type = Image
+
+
 class AvisEnqueteRepository(Repository[AvisEnquete]):
     model_type = AvisEnquete
 

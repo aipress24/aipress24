@@ -177,6 +177,21 @@ DEBUG_TB_INTERCEPT_REDIRECTS = false
 MAIL_BACKEND = 'file'
 MAIL_FILE_PATH = '/tmp/debug_mails'
 
+#TORAGE_ROOT = "/var/tmp/aip24"
+
+# Using Minio locally to emulate S3 server:
+# local bucker created with :
+# mc alias set s3 http://127.0.0.1:9000 minioadmin minioadmin
+# mc mb s3/aipress24-images --region fr-paris
+S3_ACCESS_KEY_ID = "minioadmin"
+S3_SECRET_ACCESS_KEY = "minioadmin"
+S3_ENDPOINT_URL = "http://127.0.0.1:9000"
+S3_BUCKET_NAME = "aipress24-images"
+S3_REGION_NAME = "fr-paris"
+# Required for non-HTTPS connection to MinIO
+S3_USE_SSL = false
+
+
 [production]
 SERVER_NAME = "aipress24.demo.abilian.com"
 PREFERRED_URL_SCHEME = "https"
