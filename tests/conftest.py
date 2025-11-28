@@ -52,6 +52,11 @@ class TestConfig:
     # Note: Talisman is disabled when app.testing is True (see extensions.py)
 
 
+@pytest.fixture(scope="session", autouse=True)
+def activate_minio_mock_everywhere(minio_mock):
+    yield minio_mock
+
+
 def pytest_addoption(parser):
     """Add the --db-url command-line option to pytest."""
     parser.addoption(
