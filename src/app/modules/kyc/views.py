@@ -703,7 +703,9 @@ def _minor_modification_validated(
         db_session.rollback()
         error = str(e)
     # maybe some auto organisation is orphan:
-    gc_all_auto_organisations()
+    if not error:
+        gc_all_auto_organisations()
+        db_session.commit()  # Commit the GC changes
     return error
 
 

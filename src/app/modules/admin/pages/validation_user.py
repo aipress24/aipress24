@@ -141,6 +141,7 @@ class ValidationUser(BaseAdminPage):
         print(msg, file=sys.stderr)
         # maybe some auto organisation is orphan:
         gc_all_auto_organisations()
+        db_session.commit()  # Commit the GC changes
         # self._try_really_delete()
 
     # def _try_really_delete(self):
@@ -174,6 +175,7 @@ class ValidationUser(BaseAdminPage):
         db_session.commit()
         # maybe some previous AUTO organisation is orphan
         gc_all_auto_organisations()
+        db_session.commit()  # Commit the GC changes
 
     def _validate_profile_created(self) -> None:
         # user is a plain new User

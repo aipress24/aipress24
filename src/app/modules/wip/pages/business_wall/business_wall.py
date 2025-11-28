@@ -167,6 +167,8 @@ class BusinessWallPage(BaseWipPage):
             case _:
                 response = Response("")
                 response.headers["HX-Redirect"] = self.url
+        # Commit all changes at request boundary
+        db.session.commit()
         return response
 
     def merge_form(self, results: dict[str, Any]) -> None:

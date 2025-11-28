@@ -16,7 +16,7 @@ from app.models.invitation import Invitation
 from app.models.organisation import Organisation
 from app.services.emails import BWInvitationMail
 
-from .utils import commit_session
+from .utils import flush_session
 
 
 def invite_users(mails: str | list[str], org_id: int) -> None:
@@ -27,7 +27,11 @@ def invite_users(mails: str | list[str], org_id: int) -> None:
 def add_invited_users(mails: str | list[str], org_id: int) -> list[str]:
     """Add user mails to the list of invited users, without sending mail.
 
-    Returns: list of newly invited mails."""
+    Note: This flushes but does NOT commit. The caller is responsible
+    for committing at the request boundary.
+
+    Returns: list of newly invited mails.
+    """
     already_invited: list[str] = {
         m.lower() for m in emails_invited_to_organisation(org_id)
     }
@@ -45,7 +49,7 @@ def add_invited_users(mails: str | list[str], org_id: int) -> list[str]:
         db_session.flush()
         already_invited.add(mail.lower())
         appended_mails.append(mail)
-    commit_session(db_session)
+    flush_session(db_session)
     return appended_mails
 
 
@@ -68,6 +72,11 @@ def send_invitation_mails(mails: list[str], org_id: int) -> None:
 
 
 def cancel_invitation_users(mails: str | list[str], org_id: int) -> None:
+    """Cancel invitation for users.
+
+    Note: This flushes but does NOT commit. The caller is responsible
+    for committing at the request boundary.
+    """
     if isinstance(mails, str):
         mails = [mails]
     db_session = db.session
@@ -84,7 +93,7 @@ def cancel_invitation_users(mails: str | list[str], org_id: int) -> None:
             db_session.delete(found)
             db_session.flush()
         db_session.flush()
-    commit_session(db_session)
+    flush_session(db_session)
 
 
 def emails_invited_to_organisation(org_id: int) -> list[str]:

@@ -84,6 +84,11 @@ def _set_user_profile_organisation(user: User, organisation: Organisation) -> No
 
 
 def commit_session(db_session: scoped_session[Session]) -> str:
+    """Commit the session with error handling.
+
+    Note: This function should only be called at request boundaries (views/controllers),
+    not inside utility functions. Utility functions should use flush() instead.
+    """
     error = ""
     try:
         db_session.commit()
@@ -93,9 +98,27 @@ def commit_session(db_session: scoped_session[Session]) -> str:
     return error
 
 
+def flush_session(db_session: scoped_session[Session]) -> str:
+    """Flush the session without committing.
+
+    Use this in utility functions to make changes visible within the transaction
+    without actually committing to the database.
+    """
+    error = ""
+    try:
+        db_session.flush()
+    except IntegrityError as e:
+        db_session.rollback()
+        error = str(e)
+    return error
+
+
 def set_user_organisation(user: User, organisation: Organisation) -> str:
     """Change the user's Organisation with the provided one, adapting
     (some) KYC fields.
+
+    Note: This function flushes but does NOT commit. The caller is responsible
+    for committing at the request boundary.
     """
     db_session = db.session
     _remove_user_organisation(user)
@@ -105,15 +128,20 @@ def set_user_organisation(user: User, organisation: Organisation) -> str:
     _mark_user_as_modified(user)
     db_session.merge(user)
     db_session.merge(organisation)
-    return commit_session(db_session)
+    return flush_session(db_session)
 
 
 def _delete_organisation_from_db(
     db_session: scoped_session[Session], organisation: Organisation
 ) -> bool:
+    """Attempt to delete organisation from database.
+
+    Note: This uses flush to test if delete will succeed. The caller is
+    responsible for committing at the request boundary.
+    """
     try:
         db_session.delete(organisation)
-        db_session.commit()
+        db_session.flush()
         return True
     except IntegrityError:
         # Probable cause : foreign key constraint violation, some Article or other item is
@@ -125,10 +153,15 @@ def _delete_organisation_from_db(
 def _mark_organisation_as_deleted(
     db_session: scoped_session[Session], organisation: Organisation
 ) -> None:
+    """Mark organisation as soft-deleted.
+
+    Note: This flushes but does NOT commit. The caller is responsible
+    for committing at the request boundary.
+    """
     organisation.active = False
     organisation.deleted_at = now(LOCAL_TZ)
     db_session.merge(organisation)
-    db_session.commit()
+    db_session.flush()
 
 
 def gc_organisation(organisation: Organisation | None) -> bool:
@@ -173,22 +206,28 @@ def _mark_user_as_modified(user: User) -> None:
 
 
 def remove_user_organisation(user: User) -> str:
+    """Remove user from their organisation.
+
+    Note: This flushes but does NOT commit. The caller is responsible
+    for committing at the request boundary.
+    """
     db_session = db.session
     _remove_user_organisation(user)
     _remove_user_profile_organisation(user)
     _mark_user_as_modified(user)
     db_session.merge(user)
-    db_session.flush()
-    db_session.commit()
-    return commit_session(db_session)
+    return flush_session(db_session)
 
 
 def set_user_organisation_from_ids(user_id: int, org_id: int) -> str:
     """Change the user's Organisation with the provided one, adapting
-    (some) KYC fields. Inputes are IDs.
+    (some) KYC fields. Inputs are IDs.
+
+    Note: This flushes but does NOT commit. The caller is responsible
+    for committing at the request boundary.
     """
     user = get_obj(user_id, User)
-    organisation = get_obj(user_id, Organisation)
+    organisation = get_obj(org_id, Organisation)  # Fixed: was user_id
     db_session = db.session
     _remove_user_organisation(user)
     _remove_user_profile_organisation(user)
@@ -197,20 +236,30 @@ def set_user_organisation_from_ids(user_id: int, org_id: int) -> str:
     _mark_user_as_modified(user)
     db_session.merge(user)
     db_session.merge(organisation)
-    return commit_session(db_session)
+    return flush_session(db_session)
 
 
 def toggle_org_active(org: Organisation) -> None:
+    """Toggle organisation active status.
+
+    Note: This flushes but does NOT commit. The caller is responsible
+    for committing at the request boundary.
+    """
     db_session = db.session
     org.active = not org.active
     db_session.merge(org)
-    db_session.commit()
+    db_session.flush()
 
 
 def merge_organisation(org: Organisation) -> None:
+    """Merge organisation changes into session.
+
+    Note: This flushes but does NOT commit. The caller is responsible
+    for committing at the request boundary.
+    """
     db_session = db.session
     db_session.merge(org)
-    db_session.commit()
+    db_session.flush()
 
 
 def delete_full_organisation(org: Organisation) -> None:
