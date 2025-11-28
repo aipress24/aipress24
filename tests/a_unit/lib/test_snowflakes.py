@@ -2,6 +2,8 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
+"""Unit tests for lib/snowflakes.py"""
+
 from __future__ import annotations
 
 import time
@@ -10,52 +12,66 @@ from app.lib import snowflakes
 
 
 def test_flakes_are_unique() -> None:
+    """Test generated flakes are unique."""
     generator = snowflakes.SnowflakeGenerator()
     count = 10000
     flakes = {generator.generate() for _ in range(count)}
     assert len(flakes) == count
 
 
-def test_flakes_attributes() -> None:
-    flake = snowflakes.Snowflake(0, 0)
+def test_snowflake_attributes_and_conversions() -> None:
+    """Test Snowflake attributes, int/str conversions, and bounds."""
+    flake = snowflakes.Snowflake(0, 12345)
+
+    # Conversions
+    assert int(flake) == 12345
+    assert str(flake) == "12345"
     assert str(int(flake)) == str(flake)
+
+    # Attribute bounds
     assert 0 <= flake.process_id <= 0b11111
     assert 0 <= flake.worker_id <= 0b11111
     assert 0 <= flake.generation <= 0b111111111111
 
 
-def test_snowflake_timestamp() -> None:
-    """Test Snowflake timestamp property."""
-    epoch = 1640000000000  # Some epoch in milliseconds
-    generator = snowflakes.SnowflakeGenerator(epoch=epoch)
+def test_snowflake_ordering_and_equality() -> None:
+    """Test Snowflake comparison and hashing."""
+    flake1 = snowflakes.Snowflake(0, 100)
+    flake2 = snowflakes.Snowflake(0, 100)
+    flake3 = snowflakes.Snowflake(0, 200)
 
-    # Generate a snowflake with a specific timestamp
+    # Equality
+    assert flake1 == flake2
+    assert flake1 != flake3
+    assert hash(flake1) == hash(flake2)
+
+    # Ordering
+    assert flake1 < flake3
+    assert flake3 > flake1
+
+
+def test_snowflake_timestamp() -> None:
+    """Test Snowflake timestamp extraction."""
+    epoch = 1640000000000
+    generator = snowflakes.SnowflakeGenerator(epoch=epoch)
     timestamp_ms = int(time.time() * 1000)
     flake = generator.generate(timestamp=timestamp_ms)
 
-    # The timestamp property should return the time in seconds
     assert isinstance(flake.timestamp, float)
-    # Should be close to current time
-    current_time = time.time()
-    assert abs(flake.timestamp - current_time) < 1  # Within 1 second
+    assert abs(flake.timestamp - time.time()) < 1
 
 
-def test_snowflake_timestamp_calculation() -> None:
-    """Test Snowflake timestamp calculation with known values."""
-    epoch = 1000000000000  # 1 billion seconds in ms
-    # Create a snowflake directly with known values
-    # bits 22 and onward encode timestamp - epoch
-    timestamp_offset = 5000  # 5 seconds in ms
-    flake_value = timestamp_offset << 22
-    flake = snowflakes.Snowflake(epoch, flake_value)
+def test_generator_with_custom_ids() -> None:
+    """Test SnowflakeGenerator with custom worker and process IDs."""
+    generator = snowflakes.SnowflakeGenerator(worker_id=5, process_id=10)
+    flake = generator.generate()
 
-    # Expected: (timestamp_offset + epoch) / 1000
-    expected = (timestamp_offset + epoch) / 1000
-    assert flake.timestamp == expected
+    assert flake.worker_id == 5
+    assert flake.process_id == 10 % 32
 
 
 def test_generate_as_int() -> None:
-    """Test generate_as_int method."""
+    """Test generate_as_int returns integer."""
     generator = snowflakes.SnowflakeGenerator()
     result = generator.generate_as_int()
 

@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 from flask_sqlalchemy import SQLAlchemy
 
@@ -157,7 +157,9 @@ class TestGetOrganisationChoicesFamily:
     def test_excludes_other_types_from_choices(self, db: SQLAlchemy) -> None:
         """Test excludes organisations of different types from choices."""
         # Create orgs of different types
-        org1 = Organisation(name="Choice Exclude Media", type=OrganisationTypeEnum.MEDIA)
+        org1 = Organisation(
+            name="Choice Exclude Media", type=OrganisationTypeEnum.MEDIA
+        )
         org2 = Organisation(name="Choice Exclude COM", type=OrganisationTypeEnum.COM)
         db.session.add_all([org1, org2])
         db.session.flush()
@@ -184,7 +186,9 @@ class TestFindKycOrganisationName:
 
         # Mock the organisation_field_name_origin property
         with patch.object(
-            KYCProfile, "organisation_field_name_origin", new_callable=lambda: property(lambda self: "nom_media")
+            KYCProfile,
+            "organisation_field_name_origin",
+            new_callable=lambda: property(lambda self: "nom_media"),
         ):
             result = _find_kyc_organisation_name(user)
 
@@ -200,7 +204,9 @@ class TestFindKycOrganisationName:
         db.session.flush()
 
         with patch.object(
-            KYCProfile, "organisation_field_name_origin", new_callable=lambda: property(lambda self: "newsrooms")
+            KYCProfile,
+            "organisation_field_name_origin",
+            new_callable=lambda: property(lambda self: "newsrooms"),
         ):
             result = _find_kyc_organisation_name(user)
 
@@ -216,7 +222,9 @@ class TestFindKycOrganisationName:
         db.session.flush()
 
         with patch.object(
-            KYCProfile, "organisation_field_name_origin", new_callable=lambda: property(lambda self: "newsrooms")
+            KYCProfile,
+            "organisation_field_name_origin",
+            new_callable=lambda: property(lambda self: "newsrooms"),
         ):
             result = _find_kyc_organisation_name(user)
 
@@ -232,7 +240,9 @@ class TestFindKycOrganisationName:
         db.session.flush()
 
         with patch.object(
-            KYCProfile, "organisation_field_name_origin", new_callable=lambda: property(lambda self: "nom_media")
+            KYCProfile,
+            "organisation_field_name_origin",
+            new_callable=lambda: property(lambda self: "nom_media"),
         ):
             result = _find_kyc_organisation_name(user)
 
@@ -262,7 +272,9 @@ class TestFindInvitingOrganisations:
 
     def test_case_insensitive_email_matching(self, db: SQLAlchemy) -> None:
         """Test email matching is case insensitive."""
-        org = Organisation(name="KYC Case Test Org Unique", type=OrganisationTypeEnum.MEDIA)
+        org = Organisation(
+            name="KYC Case Test Org Unique", type=OrganisationTypeEnum.MEDIA
+        )
         db.session.add(org)
         db.session.flush()
 
@@ -366,9 +378,7 @@ class TestStoreAutoOrganisation:
 
     def test_creates_auto_org_even_if_non_auto_exists(self, db: SQLAlchemy) -> None:
         """Test creates AUTO org even if non-AUTO org with same name exists."""
-        media_org = Organisation(
-            name="Dual Name Org", type=OrganisationTypeEnum.MEDIA
-        )
+        media_org = Organisation(name="Dual Name Org", type=OrganisationTypeEnum.MEDIA)
         db.session.add(media_org)
         db.session.commit()
 
@@ -406,7 +416,9 @@ class TestRetrieveUserOrganisation:
         db.session.flush()
 
         with patch.object(
-            KYCProfile, "organisation_field_name_origin", new_callable=lambda: property(lambda self: "nom_media")
+            KYCProfile,
+            "organisation_field_name_origin",
+            new_callable=lambda: property(lambda self: "nom_media"),
         ):
             result = retrieve_user_organisation(user)
 
@@ -424,7 +436,9 @@ class TestRetrieveUserOrganisation:
         db.session.flush()
 
         with patch.object(
-            KYCProfile, "organisation_field_name_origin", new_callable=lambda: property(lambda self: "nom_media")
+            KYCProfile,
+            "organisation_field_name_origin",
+            new_callable=lambda: property(lambda self: "nom_media"),
         ):
             result = retrieve_user_organisation(user)
 
@@ -440,7 +454,9 @@ class TestRetrieveUserOrganisation:
         db.session.flush()
 
         with patch.object(
-            KYCProfile, "organisation_field_name_origin", new_callable=lambda: property(lambda self: "nom_media")
+            KYCProfile,
+            "organisation_field_name_origin",
+            new_callable=lambda: property(lambda self: "nom_media"),
         ):
             result = retrieve_user_organisation(user)
 
@@ -553,9 +569,7 @@ class TestSetOrganizationTypes:
             "type_orga_detail": ["Culture", "Education"],
         }
         allowed_bw_types = {BWTypeEnum.ORGANISATION}
-        _set_organization_types(
-            org, ProfileEnum.XP_DIR_ANY, allowed_bw_types, info_pro
-        )
+        _set_organization_types(org, ProfileEnum.XP_DIR_ANY, allowed_bw_types, info_pro)
 
         assert org.type_organisation == ["Association", "Fondation"]
         assert org.type_organisation_detail == ["Culture", "Education"]

@@ -9,7 +9,7 @@ from __future__ import annotations
 from flask_sqlalchemy import SQLAlchemy
 
 from app.enums import OrganisationTypeEnum
-from app.models.auth import KYCProfile, User
+from app.models.auth import User
 from app.models.organisation import Organisation
 from app.modules.admin.table import (
     Column,
@@ -209,7 +209,10 @@ class TestGenericUserDataSource:
 
         # If there are more records, offset should increase
         if GenericUserDataSource.count() > GenericUserDataSource.limit:
-            assert GenericUserDataSource.offset == initial_offset + GenericUserDataSource.limit
+            assert (
+                GenericUserDataSource.offset
+                == initial_offset + GenericUserDataSource.limit
+            )
 
     def test_add_search_filter_filters_by_name(self, db: SQLAlchemy) -> None:
         """Test add_search_filter filters by first/last name."""
@@ -294,7 +297,9 @@ class TestGenericOrgDataSource:
         GenericOrgDataSource.offset = 0
         GenericOrgDataSource.limit = 100
 
-        org_active = Organisation(name="Active Org Select", type=OrganisationTypeEnum.MEDIA)
+        org_active = Organisation(
+            name="Active Org Select", type=OrganisationTypeEnum.MEDIA
+        )
         org_deleted = Organisation(
             name="Deleted Org Select",
             type=OrganisationTypeEnum.COM,
@@ -325,7 +330,10 @@ class TestGenericOrgDataSource:
         GenericOrgDataSource.inc()
 
         if GenericOrgDataSource.count() > GenericOrgDataSource.limit:
-            assert GenericOrgDataSource.offset == initial_offset + GenericOrgDataSource.limit
+            assert (
+                GenericOrgDataSource.offset
+                == initial_offset + GenericOrgDataSource.limit
+            )
 
     def test_add_search_filter_filters_by_name(self, db: SQLAlchemy) -> None:
         """Test add_search_filter filters by organisation name."""
@@ -336,7 +344,9 @@ class TestGenericOrgDataSource:
         org1 = Organisation(
             name="UniqueOrgSearchFilter Test", type=OrganisationTypeEnum.MEDIA
         )
-        org2 = Organisation(name="Other Org Search Table", type=OrganisationTypeEnum.COM)
+        org2 = Organisation(
+            name="Other Org Search Table", type=OrganisationTypeEnum.COM
+        )
         db.session.add_all([org1, org2])
         db.session.flush()
 

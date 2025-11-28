@@ -99,9 +99,21 @@ class TestDictToGroupTomChoices:
         result = _dict_to_group_tom_choices(choices)
 
         assert len(result) == 3
-        assert {"optgroup": "Category 1", "value": "Option A", "label": "Option A"} in result
-        assert {"optgroup": "Category 1", "value": "Option B", "label": "Option B"} in result
-        assert {"optgroup": "Category 2", "value": "Option C", "label": "Option C"} in result
+        assert {
+            "optgroup": "Category 1",
+            "value": "Option A",
+            "label": "Option A",
+        } in result
+        assert {
+            "optgroup": "Category 1",
+            "value": "Option B",
+            "label": "Option B",
+        } in result
+        assert {
+            "optgroup": "Category 2",
+            "value": "Option C",
+            "label": "Option C",
+        } in result
 
     def test_empty_dict_returns_empty_list(self) -> None:
         """Test empty dict returns empty list."""
@@ -134,8 +146,12 @@ class TestConvertDualChoicesJs:
         assert "field2" in result
         assert {"value": "cat1", "label": "Category 1"} in result["field1"]
         assert {"value": "cat2", "label": "Category 2"} in result["field1"]
-        assert {"value": "cat1/opt1", "label": "Category 1 / Option 1"} in result["field2"]
-        assert {"value": "cat2/opt2", "label": "Category 2 / Option 2"} in result["field2"]
+        assert {"value": "cat1/opt1", "label": "Category 1 / Option 1"} in result[
+            "field2"
+        ]
+        assert {"value": "cat2/opt2", "label": "Category 2 / Option 2"} in result[
+            "field2"
+        ]
 
     def test_empty_choices(self) -> None:
         """Test with empty choices."""

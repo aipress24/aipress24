@@ -13,7 +13,16 @@ from app.flask.forms._constants import get_choices
 
 @pytest.mark.parametrize(
     "key",
-    ["genre", "genre-com", "events", "sector", "topic", "section", "language", "copyright-mention"],
+    [
+        "genre",
+        "genre-com",
+        "events",
+        "sector",
+        "topic",
+        "section",
+        "language",
+        "copyright-mention",
+    ],
 )
 def test_get_choices_returns_collection_for_valid_key(key: str) -> None:
     """Test get_choices returns collection for valid keys."""

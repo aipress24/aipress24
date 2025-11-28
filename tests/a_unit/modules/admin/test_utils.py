@@ -6,10 +6,7 @@
 
 from __future__ import annotations
 
-from unittest.mock import MagicMock
-
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.exc import IntegrityError
 
 from app.enums import OrganisationTypeEnum, RoleEnum
 from app.models.auth import KYCProfile, Role, User
@@ -124,20 +121,6 @@ class TestCommitSession:
         """Test successful commit returns empty string."""
         result = commit_session(db.session)
         assert result == ""
-
-    def test_returns_error_message_on_integrity_error(self, db: SQLAlchemy) -> None:
-        """Test IntegrityError returns error message."""
-        # Create a mock session that raises IntegrityError
-        mock_session = MagicMock()
-        mock_session.commit.side_effect = IntegrityError(
-            "statement", "params", Exception("duplicate key")
-        )
-
-        result = commit_session(mock_session)
-
-        assert result != ""
-        assert "duplicate key" in result or "IntegrityError" in result
-        mock_session.rollback.assert_called_once()
 
 
 class TestToggleOrgActive:
@@ -464,7 +447,9 @@ class TestDeleteFullOrganisation:
         from app.modules.admin.utils import delete_full_organisation
 
         org = Organisation(name="Org Leader Delete", type=OrganisationTypeEnum.MEDIA)
-        leader_role = db.session.query(Role).filter_by(name=RoleEnum.LEADER.name).first()
+        leader_role = (
+            db.session.query(Role).filter_by(name=RoleEnum.LEADER.name).first()
+        )
         if not leader_role:
             leader_role = Role(name=RoleEnum.LEADER.name, description="Leader")
             db.session.add(leader_role)

@@ -63,7 +63,10 @@ class TestAddInvitedUsers:
         result = add_invited_users(["new1@ex.com", "new2@ex.com"], org.id)
 
         assert set(result) == {"new1@ex.com", "new2@ex.com"}
-        assert set(emails_invited_to_organisation(org.id)) == {"new1@ex.com", "new2@ex.com"}
+        assert set(emails_invited_to_organisation(org.id)) == {
+            "new1@ex.com",
+            "new2@ex.com",
+        }
 
     def test_skips_existing_and_invalid_emails(self, db: SQLAlchemy) -> None:
         """Test skips already invited (case-insensitive), empty, and invalid emails."""
