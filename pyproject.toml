@@ -123,6 +123,8 @@ dependencies = [
     "pyexcel>=0.7.3",
     "pyexcel-ods3>=0.6.1",
     "fsspec>=2025.10.0",
+    "s3fs>=2025.10.0",
+    "passlib>=1.7.4",
 ]
 description = ""
 

@@ -5,9 +5,23 @@ from __future__ import annotations
 
 import logging
 from logging.config import fileConfig
+from typing import Any, Mapping
 
+from advanced_alchemy.types.file_object import FileObject
 from alembic import context
 from flask import current_app
+from sqlalchemy.dialects import postgresql
+from sqlalchemy.ext.compiler import compiles
+from sqlalchemy.types import JSON
+
+
+@compiles(FileObject)
+def compile_FileObject(
+    element: FileObject, compiler: Any, **kw: Mapping[str, Any]
+) -> str:
+    """Instructs Alembic's autogenerate process what SQL type FileObject maps to."""
+    return compiler.visit_json(element.load_dialect_impl(postgresql.dialect))
+
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

@@ -9,6 +9,7 @@ from typing import ClassVar
 
 import arrow
 import sqlalchemy as sa
+from advanced_alchemy.types.file_object import FileObject, StoredObject
 from sqlalchemy import orm
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy_utils import ArrowType
@@ -257,7 +258,9 @@ class EventImage(IdMixin, LifeCycleMixin, Owned, Base):
 
     __tablename__ = "evr_image"
 
-    blob_id: Mapped[str] = mapped_column(nullable=False)
+    content: Mapped[FileObject | None] = mapped_column(
+        StoredObject(backend="s3"), nullable=True
+    )
 
     event_id: Mapped[int] = mapped_column(
         sa.ForeignKey(Event.id, ondelete="CASCADE"), nullable=False
