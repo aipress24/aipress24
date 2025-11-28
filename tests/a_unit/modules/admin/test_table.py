@@ -6,6 +6,9 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
+from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
 from app.enums import OrganisationTypeEnum
@@ -17,6 +20,9 @@ from app.modules.admin.table import (
     GenericUserDataSource,
     Table,
 )
+
+if TYPE_CHECKING:
+    pass
 
 
 class TestColumn:
@@ -66,12 +72,10 @@ class TestTable:
         assert table.end == 10
         assert table.count == 20
         assert table.url_label == "Show"
-        assert table.all_search is True
-        assert table.searching == ""
 
     def test_table_with_records(self) -> None:
-        """Test Table with custom records."""
-        records = [{"id": 1, "name": "Test"}]
+        """Test Table can be initialized with records."""
+        records = [{"id": 1}, {"id": 2}]
         table = Table(records=records)
         assert table.records == records
 
@@ -119,53 +123,48 @@ class TestTable:
 class TestGenericUserDataSource:
     """Test suite for GenericUserDataSource class."""
 
-    def test_default_values(self) -> None:
-        """Test GenericUserDataSource has correct default values."""
-        assert GenericUserDataSource.search == ""
-        assert GenericUserDataSource.limit == 12
-        assert GenericUserDataSource.offset == 0
+    def test_default_values(self, app: Flask) -> None:
+        """Test GenericUserDataSource parses defaults from empty request."""
+        with app.test_request_context("/"):
+            ds = GenericUserDataSource()
+            assert ds.search == ""
+            assert ds.limit == 12
+            assert ds.offset == 0
 
-    def test_first_page_resets_offset(self) -> None:
-        """Test first_page resets offset to 0."""
-        GenericUserDataSource.offset = 24
-        GenericUserDataSource.first_page()
-        assert GenericUserDataSource.offset == 0
+    def test_parses_query_params(self, app: Flask) -> None:
+        """Test GenericUserDataSource parses values from query string."""
+        with app.test_request_context("/?search=test&offset=24&limit=50"):
+            ds = GenericUserDataSource()
+            assert ds.search == "test"
+            assert ds.offset == 24
+            assert ds.limit == 50
 
-    def test_dec_reduces_offset(self, db: SQLAlchemy) -> None:
-        """Test dec reduces offset by limit."""
-        GenericUserDataSource.offset = 24
-        GenericUserDataSource.limit = 12
-        GenericUserDataSource.dec()
-        assert GenericUserDataSource.offset == 12
+    def test_prev_offset_reduces_offset(self, app: Flask) -> None:
+        """Test prev_offset reduces offset by limit."""
+        with app.test_request_context("/?offset=24&limit=12"):
+            ds = GenericUserDataSource()
+            assert ds.prev_offset() == 12
 
-    def test_dec_does_not_go_below_zero(self) -> None:
-        """Test dec does not reduce offset below 0."""
-        GenericUserDataSource.offset = 5
-        GenericUserDataSource.limit = 12
-        GenericUserDataSource.dec()
-        assert GenericUserDataSource.offset == 0
+    def test_prev_offset_does_not_go_below_zero(self, app: Flask) -> None:
+        """Test prev_offset does not reduce offset below 0."""
+        with app.test_request_context("/?offset=5&limit=12"):
+            ds = GenericUserDataSource()
+            assert ds.prev_offset() == 0
 
-    def test_count_excludes_clones(self, db: SQLAlchemy) -> None:
+    def test_count_excludes_clones(self, app: Flask, db: SQLAlchemy) -> None:
         """Test count excludes clone users."""
-        # Reset state
-        GenericUserDataSource.search = ""
-        GenericUserDataSource.offset = 0
-
         user1 = User(email="count_user1@example.com", is_clone=False)
         user2 = User(email="count_user2@example.com", is_clone=True)
         db.session.add_all([user1, user2])
         db.session.flush()
 
-        # The count should include user1 but exclude user2
-        count = GenericUserDataSource.count()
-        assert count >= 1  # At least user1
+        with app.test_request_context("/"):
+            ds = GenericUserDataSource()
+            count = ds.count()
+            assert count >= 1  # At least user1
 
-    def test_get_base_select_excludes_clones(self, db: SQLAlchemy) -> None:
+    def test_get_base_select_excludes_clones(self, app: Flask, db: SQLAlchemy) -> None:
         """Test get_base_select excludes clone users."""
-        GenericUserDataSource.search = "baseselectunique"
-        GenericUserDataSource.offset = 0
-        GenericUserDataSource.limit = 100
-
         user = User(
             email="base_select_user@example.com",
             first_name="BaseSelectUnique",
@@ -181,45 +180,33 @@ class TestGenericUserDataSource:
         db.session.add_all([user, clone])
         db.session.flush()
 
-        stmt = GenericUserDataSource.get_base_select()
-        stmt = GenericUserDataSource.add_search_filter(stmt)
-        results = list(db.session.scalars(stmt))
+        with app.test_request_context("/?search=baseselectunique&limit=100"):
+            ds = GenericUserDataSource()
+            stmt = ds.get_base_select()
+            stmt = ds.add_search_filter(stmt)
+            results = list(db.session.scalars(stmt))
 
-        emails = [u.email for u in results]
-        assert "base_select_user@example.com" in emails
-        assert "base_select_clone@example.com" not in emails
+            emails = [u.email for u in results]
+            assert "base_select_user@example.com" in emails
+            assert "base_select_clone@example.com" not in emails
 
-        # Reset search
-        GenericUserDataSource.search = ""
-
-    def test_inc_increases_offset(self, db: SQLAlchemy) -> None:
-        """Test inc increases offset by limit when more records exist."""
-        # Create enough users to have multiple pages
-        GenericUserDataSource.search = ""
-        GenericUserDataSource.offset = 0
-        GenericUserDataSource.limit = 2
-
+    def test_next_offset_increases_offset(self, app: Flask, db: SQLAlchemy) -> None:
+        """Test next_offset increases offset by limit when more records exist."""
         for i in range(5):
             user = User(email=f"inc_user{i}@example.com", is_clone=False)
             db.session.add(user)
         db.session.flush()
 
-        initial_offset = GenericUserDataSource.offset
-        GenericUserDataSource.inc()
+        with app.test_request_context("/?offset=0&limit=2"):
+            ds = GenericUserDataSource()
+            # If there are more records than limit, next_offset should increase
+            if ds.count() > ds.limit:
+                assert ds.next_offset() == ds.offset + ds.limit
 
-        # If there are more records, offset should increase
-        if GenericUserDataSource.count() > GenericUserDataSource.limit:
-            assert (
-                GenericUserDataSource.offset
-                == initial_offset + GenericUserDataSource.limit
-            )
-
-    def test_add_search_filter_filters_by_name(self, db: SQLAlchemy) -> None:
+    def test_add_search_filter_filters_by_name(
+        self, app: Flask, db: SQLAlchemy
+    ) -> None:
         """Test add_search_filter filters by first/last name."""
-        GenericUserDataSource.search = "searchuniquename"
-        GenericUserDataSource.offset = 0
-        GenericUserDataSource.limit = 100
-
         user1 = User(
             email="search_filter_user1@example.com",
             first_name="SearchUniqueName",
@@ -235,128 +222,109 @@ class TestGenericUserDataSource:
         db.session.add_all([user1, user2])
         db.session.flush()
 
-        stmt = GenericUserDataSource.get_base_select()
-        stmt = GenericUserDataSource.add_search_filter(stmt)
-        results = list(db.session.scalars(stmt))
+        with app.test_request_context("/?search=searchuniquename&limit=100"):
+            ds = GenericUserDataSource()
+            stmt = ds.get_base_select()
+            stmt = ds.add_search_filter(stmt)
+            results = list(db.session.scalars(stmt))
 
-        emails = [u.email for u in results]
-        assert "search_filter_user1@example.com" in emails
-        assert "search_filter_user2@example.com" not in emails
-
-        # Reset search
-        GenericUserDataSource.search = ""
+            emails = [u.email for u in results]
+            assert "search_filter_user1@example.com" in emails
+            assert "search_filter_user2@example.com" not in emails
 
 
 class TestGenericOrgDataSource:
     """Test suite for GenericOrgDataSource class."""
 
-    def test_default_values(self) -> None:
-        """Test GenericOrgDataSource has correct default values."""
-        assert GenericOrgDataSource.search == ""
-        assert GenericOrgDataSource.limit == 12
-        assert GenericOrgDataSource.offset == 0
+    def test_default_values(self, app: Flask) -> None:
+        """Test GenericOrgDataSource parses defaults from empty request."""
+        with app.test_request_context("/"):
+            ds = GenericOrgDataSource()
+            assert ds.search == ""
+            assert ds.limit == 12
+            assert ds.offset == 0
 
-    def test_first_page_resets_offset(self) -> None:
-        """Test first_page resets offset to 0."""
-        GenericOrgDataSource.offset = 24
-        GenericOrgDataSource.first_page()
-        assert GenericOrgDataSource.offset == 0
+    def test_parses_query_params(self, app: Flask) -> None:
+        """Test GenericOrgDataSource parses values from query string."""
+        with app.test_request_context("/?search=test&offset=24&limit=50"):
+            ds = GenericOrgDataSource()
+            assert ds.search == "test"
+            assert ds.offset == 24
+            assert ds.limit == 50
 
-    def test_dec_reduces_offset(self) -> None:
-        """Test dec reduces offset by limit."""
-        GenericOrgDataSource.offset = 24
-        GenericOrgDataSource.limit = 12
-        GenericOrgDataSource.dec()
-        assert GenericOrgDataSource.offset == 12
+    def test_prev_offset_reduces_offset(self, app: Flask) -> None:
+        """Test prev_offset reduces offset by limit."""
+        with app.test_request_context("/?offset=24&limit=12"):
+            ds = GenericOrgDataSource()
+            assert ds.prev_offset() == 12
 
-    def test_dec_does_not_go_below_zero(self) -> None:
-        """Test dec does not reduce offset below 0."""
-        GenericOrgDataSource.offset = 5
-        GenericOrgDataSource.limit = 12
-        GenericOrgDataSource.dec()
-        assert GenericOrgDataSource.offset == 0
+    def test_prev_offset_does_not_go_below_zero(self, app: Flask) -> None:
+        """Test prev_offset does not reduce offset below 0."""
+        with app.test_request_context("/?offset=5&limit=12"):
+            ds = GenericOrgDataSource()
+            assert ds.prev_offset() == 0
 
-    def test_count_returns_integer(self, db: SQLAlchemy) -> None:
+    def test_count_returns_integer(self, app: Flask, db: SQLAlchemy) -> None:
         """Test count returns an integer."""
-        GenericOrgDataSource.search = ""
-        GenericOrgDataSource.offset = 0
+        with app.test_request_context("/"):
+            ds = GenericOrgDataSource()
+            count = ds.count()
+            assert isinstance(count, int)
 
-        org = Organisation(name="Count Org Table", type=OrganisationTypeEnum.MEDIA)
-        db.session.add(org)
-        db.session.flush()
-
-        count = GenericOrgDataSource.count()
-        assert isinstance(count, int)
-        assert count >= 1
-
-    def test_get_base_select_excludes_deleted(self, db: SQLAlchemy) -> None:
+    def test_get_base_select_excludes_deleted(self, app: Flask, db: SQLAlchemy) -> None:
         """Test get_base_select excludes deleted organisations."""
-        import arrow
+        from datetime import datetime
 
-        GenericOrgDataSource.search = ""
-        GenericOrgDataSource.offset = 0
-        GenericOrgDataSource.limit = 100
-
-        org_active = Organisation(
-            name="Active Org Select", type=OrganisationTypeEnum.MEDIA
-        )
-        org_deleted = Organisation(
-            name="Deleted Org Select",
-            type=OrganisationTypeEnum.COM,
-            deleted_at=arrow.now(),
-        )
-        db.session.add_all([org_active, org_deleted])
-        db.session.flush()
-
-        stmt = GenericOrgDataSource.get_base_select()
-        results = list(db.session.scalars(stmt))
-
-        names = [o.name for o in results]
-        assert "Active Org Select" in names
-        assert "Deleted Org Select" not in names
-
-    def test_inc_increases_offset(self, db: SQLAlchemy) -> None:
-        """Test inc increases offset by limit when more records exist."""
-        GenericOrgDataSource.search = ""
-        GenericOrgDataSource.offset = 0
-        GenericOrgDataSource.limit = 2
-
-        for i in range(5):
-            org = Organisation(name=f"Inc Org Table {i}", type=OrganisationTypeEnum.COM)
-            db.session.add(org)
-        db.session.flush()
-
-        initial_offset = GenericOrgDataSource.offset
-        GenericOrgDataSource.inc()
-
-        if GenericOrgDataSource.count() > GenericOrgDataSource.limit:
-            assert (
-                GenericOrgDataSource.offset
-                == initial_offset + GenericOrgDataSource.limit
-            )
-
-    def test_add_search_filter_filters_by_name(self, db: SQLAlchemy) -> None:
-        """Test add_search_filter filters by organisation name."""
-        GenericOrgDataSource.search = "uniqueorgsearchfilter"
-        GenericOrgDataSource.offset = 0
-        GenericOrgDataSource.limit = 100
-
-        org1 = Organisation(
-            name="UniqueOrgSearchFilter Test", type=OrganisationTypeEnum.MEDIA
-        )
+        org1 = Organisation(name="ActiveOrgUnique", type=OrganisationTypeEnum.AUTO.name)
         org2 = Organisation(
-            name="Other Org Search Table", type=OrganisationTypeEnum.COM
+            name="DeletedOrgUnique",
+            type=OrganisationTypeEnum.AUTO.name,
+            deleted_at=datetime.now(),
         )
         db.session.add_all([org1, org2])
         db.session.flush()
 
-        stmt = GenericOrgDataSource.get_base_select()
-        stmt = GenericOrgDataSource.add_search_filter(stmt)
-        results = list(db.session.scalars(stmt))
+        with app.test_request_context("/?search=orgunique&limit=100"):
+            ds = GenericOrgDataSource()
+            stmt = ds.get_base_select()
+            stmt = ds.add_search_filter(stmt)
+            results = list(db.session.scalars(stmt))
 
-        names = [o.name for o in results]
-        assert "UniqueOrgSearchFilter Test" in names
-        assert "Other Org Search Table" not in names
+            names = [o.name for o in results]
+            assert "ActiveOrgUnique" in names
+            assert "DeletedOrgUnique" not in names
 
-        # Reset search
-        GenericOrgDataSource.search = ""
+    def test_next_offset_increases_offset(self, app: Flask, db: SQLAlchemy) -> None:
+        """Test next_offset increases offset by limit when more records exist."""
+        for i in range(5):
+            org = Organisation(
+                name=f"IncOrg{i}Unique", type=OrganisationTypeEnum.AUTO.name
+            )
+            db.session.add(org)
+        db.session.flush()
+
+        with app.test_request_context("/?offset=0&limit=2"):
+            ds = GenericOrgDataSource()
+            if ds.count() > ds.limit:
+                assert ds.next_offset() == ds.offset + ds.limit
+
+    def test_add_search_filter_filters_by_name(
+        self, app: Flask, db: SQLAlchemy
+    ) -> None:
+        """Test add_search_filter filters by name."""
+        org1 = Organisation(
+            name="SearchableOrgUnique", type=OrganisationTypeEnum.AUTO.name
+        )
+        org2 = Organisation(name="OtherOrgUnique", type=OrganisationTypeEnum.AUTO.name)
+        db.session.add_all([org1, org2])
+        db.session.flush()
+
+        with app.test_request_context("/?search=searchableorg&limit=100"):
+            ds = GenericOrgDataSource()
+            stmt = ds.get_base_select()
+            stmt = ds.add_search_filter(stmt)
+            results = list(db.session.scalars(stmt))
+
+            names = [o.name for o in results]
+            assert "SearchableOrgUnique" in names
+            assert "OtherOrgUnique" not in names

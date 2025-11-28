@@ -137,69 +137,70 @@ class DataSource:
 
 
 class GenericUserDataSource:
-    search: str = ""
-    limit: int = 12
-    offset: int = 0
+    """Data source for paginated user lists.
 
-    @classmethod
-    def inc(cls) -> None:
-        new_offset = cls.offset + cls.limit
-        if new_offset < cls.count():
-            cls.offset = new_offset
+    State is parsed from request query parameters on each instantiation,
+    ensuring thread-safety and proper isolation between requests/users.
+    """
 
-    @classmethod
-    def dec(cls) -> None:
-        cls.offset = max(0, cls.offset - cls.limit)
+    DEFAULT_LIMIT = 12
 
-    @classmethod
-    def first_page(cls) -> None:
-        cls.offset = 0
+    def __init__(self) -> None:
+        """Parse pagination state from request query parameters."""
+        self.search = request.args.get("search", "").lower()
+        self.limit = request.args.get("limit", self.DEFAULT_LIMIT, type=int)
+        self.offset = request.args.get("offset", 0, type=int)
 
-    @classmethod
-    def count(cls) -> int:
+    def next_offset(self) -> int:
+        """Calculate offset for next page."""
+        new_offset = self.offset + self.limit
+        if new_offset < self.count():
+            return new_offset
+        return self.offset
+
+    def prev_offset(self) -> int:
+        """Calculate offset for previous page."""
+        return max(0, self.offset - self.limit)
+
+    def count(self) -> int:
         stmt = select(func.count()).select_from(User)
         stmt = stmt.filter(User.is_clone == false())
-        stmt = cls.add_search_filter(stmt)
+        stmt = self.add_search_filter(stmt)
         return db.session.scalar(stmt)
 
-    @classmethod
-    def records(cls):
-        stmt = cls.get_base_select()
-        stmt = cls.add_search_filter(stmt)
+    def records(self):
+        stmt = self.get_base_select()
+        stmt = self.add_search_filter(stmt)
         objects = list(db.session.scalars(stmt))
-        return cls.make_records(objects)
+        return self.make_records(objects)
 
-    @classmethod
-    def get_base_select(cls) -> select:
+    def get_base_select(self) -> select:
         return (
             select(User)
             .where(User.is_clone == false())
-            .offset(cls.offset)
-            .limit(cls.limit)
+            .offset(self.offset)
+            .limit(self.limit)
         )
 
-    @classmethod
-    def add_search_filter(cls, stmt):
-        if cls.search:
+    def add_search_filter(self, stmt):
+        if self.search:
             stmt = stmt.filter(
                 or_(
-                    User.first_name.ilike(f"%{cls.search}%"),
-                    User.last_name.ilike(f"%{cls.search}%"),
-                    User.email.ilike(f"%{cls.search}%"),
-                    User.organisation.has(Organisation.name.ilike(f"%{cls.search}%")),
+                    User.first_name.ilike(f"%{self.search}%"),
+                    User.last_name.ilike(f"%{self.search}%"),
+                    User.email.ilike(f"%{self.search}%"),
+                    User.organisation.has(Organisation.name.ilike(f"%{self.search}%")),
                 )
             )
         return stmt
 
-    @classmethod
-    def make_records(cls, objects) -> list[dict]:
+    def make_records(self, objects) -> list[dict]:
         result = []
         for obj in objects:
             record = {
-                "$url": url_for(obj),  # strange, obj like a str?
+                "$url": url_for(obj),
                 "id": obj.id,
                 "show": url_for_orig(".show_profile", uid=obj.id),
-                # "username": obj.username,
                 "name": obj.full_name,
                 "email": obj.email_safe_copy or obj.email,
                 "job_title": obj.job_title,
@@ -212,59 +213,61 @@ class GenericUserDataSource:
 
 
 class GenericOrgDataSource:
-    search: str = ""
-    limit: int = 12
-    offset: int = 0
+    """Data source for paginated organisation lists.
 
-    @classmethod
-    def inc(cls) -> None:
-        new_offset = cls.offset + cls.limit
-        if new_offset < cls.count():
-            cls.offset = new_offset
+    State is parsed from request query parameters on each instantiation,
+    ensuring thread-safety and proper isolation between requests/users.
+    """
 
-    @classmethod
-    def dec(cls) -> None:
-        cls.offset = max(0, cls.offset - cls.limit)
+    DEFAULT_LIMIT = 12
 
-    @classmethod
-    def first_page(cls) -> None:
-        cls.offset = 0
+    def __init__(self) -> None:
+        """Parse pagination state from request query parameters."""
+        self.search = request.args.get("search", "").lower()
+        self.limit = request.args.get("limit", self.DEFAULT_LIMIT, type=int)
+        self.offset = request.args.get("offset", 0, type=int)
 
-    @classmethod
-    def count(cls) -> int:
+    def next_offset(self) -> int:
+        """Calculate offset for next page."""
+        new_offset = self.offset + self.limit
+        if new_offset < self.count():
+            return new_offset
+        return self.offset
+
+    def prev_offset(self) -> int:
+        """Calculate offset for previous page."""
+        return max(0, self.offset - self.limit)
+
+    def count(self) -> int:
         stmt = select(func.count()).select_from(Organisation)
-        stmt = cls.add_search_filter(stmt)
+        stmt = self.add_search_filter(stmt)
         return db.session.scalar(stmt)
 
-    @classmethod
-    def records(cls):
-        stmt = cls.get_base_select()
-        stmt = cls.add_search_filter(stmt)
+    def records(self):
+        stmt = self.get_base_select()
+        stmt = self.add_search_filter(stmt)
         objects = list(db.session.scalars(stmt))
-        return cls.make_records(objects)
+        return self.make_records(objects)
 
-    @classmethod
-    def get_base_select(cls) -> select:
+    def get_base_select(self) -> select:
         return (
             select(Organisation)
             .where(Organisation.deleted_at.is_(None))
             .order_by(nulls_last(Organisation.name))
-            .offset(cls.offset)
-            .limit(cls.limit)
+            .offset(self.offset)
+            .limit(self.limit)
         )
 
-    @classmethod
-    def add_search_filter(cls, stmt):
-        if cls.search:
-            stmt = stmt.filter(Organisation.name.ilike(f"%{cls.search}%"))
+    def add_search_filter(self, stmt):
+        if self.search:
+            stmt = stmt.filter(Organisation.name.ilike(f"%{self.search}%"))
         return stmt
 
-    @classmethod
-    def make_records(cls, objects) -> list[dict]:
+    def make_records(self, objects) -> list[dict]:
         result = []
         for obj in objects:
             record = {
-                "$url": url_for(obj),  # strange, obj like a str?
+                "$url": url_for(obj),
                 "id": obj.id,
                 "show": url_for_orig(".show_org", uid=obj.id),
                 "name": obj.name,
