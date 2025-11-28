@@ -45,7 +45,7 @@ def downgrade():
         )
         batch_op.add_column(
             sa.Column(
-                "photo_filename", sa.VARCHAR(), autoincrement=False, nullable=False
+                "photo_filename", sa.VARCHAR(), autoincrement=False, nullable=True
             )
         )
         batch_op.add_column(
@@ -61,12 +61,12 @@ def downgrade():
                 "photo_carte_presse_filename",
                 sa.VARCHAR(),
                 autoincrement=False,
-                nullable=False,
+                nullable=True,
             )
         )
         batch_op.add_column(
             sa.Column(
-                "profile_image_url", sa.VARCHAR(), autoincrement=False, nullable=False
+                "profile_image_url", sa.VARCHAR(), autoincrement=False, nullable=True
             )
         )
         batch_op.drop_column("photo_carte_presse_image")
