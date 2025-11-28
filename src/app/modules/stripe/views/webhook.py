@@ -546,6 +546,8 @@ def _register_bw_subscription(subinfo: SubscriptionInfo | None) -> None:
     add_managers_emails(org, user.email)
     # also add this new manager to invitations
     add_invited_users(user.email, org.id)
+    # Commit the manager/invitation changes
+    db.session.commit()
 
 
 def _update_organisation_subscription_info(

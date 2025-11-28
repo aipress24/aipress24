@@ -75,6 +75,7 @@ def join_organisation(user: User, org_id: str) -> None:
     organisation = get_obj(org_id, Organisation)
     set_user_organisation(user, organisation)
     gc_all_auto_organisations()
+    db.session.commit()
 
 
 @page

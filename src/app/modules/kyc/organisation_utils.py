@@ -325,7 +325,7 @@ def store_auto_organisation(
     # No Organisatin with both same type and other params found:
     created_organisation = Organisation(name=org_name, type=OrganisationTypeEnum.AUTO)
     db_session.add(created_organisation)
-    db_session.commit()
+    db_session.flush()
     return created_organisation
 
 

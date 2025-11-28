@@ -36,6 +36,11 @@ def change_members_emails(org: Organisation, raw_mails: str) -> None:
 def change_managers_emails(
     org: Organisation, raw_mails: str, keep_one: bool = False
 ) -> None:
+    """Update the managers of an organisation based on email list.
+
+    Note: This flushes but does NOT commit. The caller is responsible
+    for committing at the request boundary.
+    """
     new_mails = set(raw_mails.lower().split())
     db_session = db.session
     current_managers = [u for u in org.members if u.is_manager]
@@ -72,10 +77,14 @@ def change_managers_emails(
             db_session.merge(manager)
             db_session.flush()
             removable_count -= 1
-    db_session.commit()
 
 
 def add_managers_emails(org: Organisation, mails: str | list[str]) -> None:
+    """Add managers to an organisation based on email list.
+
+    Note: This flushes but does NOT commit. The caller is responsible
+    for committing at the request boundary.
+    """
     if isinstance(mails, str):
         mails = [mails]
     new_mails = {m.lower().strip() for m in mails}
@@ -94,16 +103,20 @@ def add_managers_emails(org: Organisation, mails: str | list[str]) -> None:
             add_role(user, RoleEnum.MANAGER)
             db_session.merge(user)
             db_session.flush()
-    db_session.commit()
 
 
 def change_leaders_emails(org: Organisation, raw_mails: str) -> None:
+    """Update the leaders of an organisation based on email list.
+
+    Note: This flushes but does NOT commit. The caller is responsible
+    for committing at the request boundary.
+    """
     new_mails = set(raw_mails.lower().split())
     db_session = db.session
     current_leaders = [u for u in org.members if u.is_leader]
     current_members_emails = {u.email.lower() for u in org.members}
     current_leaders_emails = {u.email.lower() for u in current_leaders}
-    # remove managers that are not in the new list of managers
+    # remove leaders that are not in the new list of leaders
     for leader in current_leaders:
         if leader.email not in new_mails:
             leader.remove_role(RoleEnum.LEADER)
@@ -113,14 +126,13 @@ def change_leaders_emails(org: Organisation, raw_mails: str) -> None:
     for mail in new_mails:
         if mail not in current_leaders_emails:
             if mail not in current_members_emails:
-                continue  # require manager to be already member
+                continue  # require leader to be already member
             user = get_user_per_email(mail)
             if not user:
                 continue
             add_role(user, RoleEnum.LEADER)
             db_session.merge(user)
             db_session.flush()
-    db_session.commit()
 
 
 def change_invitations_emails(org: Organisation, raw_mails: str) -> None:

@@ -10,6 +10,7 @@ from attr import define
 from flask import Response, current_app, request
 from svcs.flask import container
 
+from app.flask.extensions import db
 from app.flask.lib.pages import page
 from app.flask.lib.view_model import ViewModel
 from app.flask.routing import url_for
@@ -144,6 +145,8 @@ class ShowOrg(AdminListPage):
             case _:
                 response = Response("")
                 response.headers["HX-Redirect"] = AdminOrgsPage().url
+        # Commit all changes at request boundary
+        db.session.commit()
         return response
 
 

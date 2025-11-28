@@ -126,7 +126,23 @@ def test_all_unparameterized_endpoints(
         assert res.status_code in {302, 200}, f"Request failed on {rule.rule}"
 
 
+# Module-level cache for test data to avoid creating duplicates across tests
+_cached_stuff: dict[str, User | ArticlePost] | None = None
+
+
 def _create_stuff(db: SQLAlchemy) -> dict[str, User | ArticlePost]:
+    global _cached_stuff
+
+    # Return cached data if already created in this test session
+    if _cached_stuff is not None:
+        # Verify the cached objects are still valid in this session
+        try:
+            db.session.refresh(_cached_stuff["user"])
+            db.session.refresh(_cached_stuff["article"])
+            return _cached_stuff
+        except Exception:
+            _cached_stuff = None
+
     # Create or get the PRESS_MEDIA role
     role = db.session.query(Role).filter_by(name=RoleEnum.PRESS_MEDIA.name).first()
     if not role:
@@ -137,12 +153,9 @@ def _create_stuff(db: SQLAlchemy) -> dict[str, User | ArticlePost]:
         db.session.flush()
 
     # Check if test user already exists (from previous E2E test)
-    # Check both by email and by id since either could cause uniqueness issues
-    owner = db.session.query(User).filter_by(email="joe@example.com").first()
+    owner = db.session.query(User).filter_by(email="e2e-test-web@example.com").first()
     if not owner:
-        owner = db.session.query(User).filter_by(id=0).first()
-    if not owner:
-        owner = User(email="joe@example.com", id=0)
+        owner = User(email="e2e-test-web@example.com")
         # Set minimal photo to avoid errors in template rendering
         owner.photo = b""  # Empty bytes to avoid None errors
         owner.roles.append(role)
@@ -156,7 +169,8 @@ def _create_stuff(db: SQLAlchemy) -> dict[str, User | ArticlePost]:
         db.session.add(article)
         db.session.flush()
 
-    return {
+    _cached_stuff = {
         "user": owner,
         "article": article,
     }
+    return _cached_stuff

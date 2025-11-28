@@ -85,6 +85,7 @@ class ShowUser(AdminListPage):
         previous_organisation = self.user.organisation
         remove_user_organisation(self.user)
         gc_organisation(previous_organisation)
+        db.session.commit()
 
     def _toggle_manager(self) -> None:
         if not self.user.organisation or self.user.organisation.is_auto:

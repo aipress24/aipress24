@@ -35,7 +35,9 @@ def sample_organisations(db_session: Session) -> list[Organisation]:
 
 
 @pytest.fixture
-def sample_users(db_session: Session, sample_organisations: list[Organisation]) -> list[User]:
+def sample_users(
+    db_session: Session, sample_organisations: list[Organisation]
+) -> list[User]:
     """Create sample users for export tests."""
     users = []
     for i, org in enumerate(sample_organisations):

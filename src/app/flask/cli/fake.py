@@ -53,6 +53,7 @@ def fake(clean) -> None:
     db.session.commit()
 
     counter = gc_all_auto_organisations()
+    db.session.commit()
     print(green(f"Empty AUTO organisations removed: {counter}"))
 
 
