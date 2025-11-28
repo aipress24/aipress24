@@ -231,6 +231,7 @@ DEP002 = [
     'zxcvbn',
     'bcrypt',
     'argon2-cffi',
+    'passlib',
     # Used (implicitely) by Flask (I think)
     'python-dotenv',
     # Used (implicitely) by SQLA
@@ -273,7 +274,9 @@ DEP002 = [
     'pyexcel-ods3',
     # Used by blob storage
     'fsspec',
+    's3fs',
 ]
+
 # X imported but declared as a dev dependency
 DEP004 = ['hypothesis', 'openpyxl', "flask_debugtoolbar"]
 
