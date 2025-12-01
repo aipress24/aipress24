@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+import pytest
 from flask_sqlalchemy import SQLAlchemy
 from svcs.flask import container
 
@@ -176,8 +177,6 @@ class TestHasRole:
         user = User(email="test@example.com")
         db.session.add(user)
         db.session.flush()
-
-        import pytest
 
         with pytest.raises(ValueError, match="Match failed"):
             has_role(user, 123)  # type: ignore

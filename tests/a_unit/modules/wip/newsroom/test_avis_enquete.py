@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 
 import arrow
 import pytest
@@ -85,8 +85,6 @@ def test_rdv_workflow_business_logic(db_session: scoped_session) -> None:
 
     # BUSINESS RULE: Propose RDV with validation
     # Generate future weekday slots
-    from datetime import timedelta, timezone
-
     now = datetime.now(timezone.utc)
     days_ahead = 1
     while (now + timedelta(days=days_ahead)).weekday() >= 5:
@@ -132,8 +130,6 @@ def test_rdv_workflow_business_logic(db_session: scoped_session) -> None:
 
 def test_rdv_proposal_validation(db_session: scoped_session) -> None:
     """Test business rules for RDV proposal validation"""
-    from datetime import datetime, timedelta, timezone
-
     journaliste = User(email="j@test.com")
     expert = User(email="e@test.com")
     media = Organisation(name="Media")
@@ -223,8 +219,6 @@ def test_rdv_proposal_validation(db_session: scoped_session) -> None:
 
 def test_rdv_acceptance_validation(db_session: scoped_session) -> None:
     """Test business rules for RDV acceptance"""
-    from datetime import datetime, timedelta, timezone
-
     journaliste = User(email="j@test.com")
     expert = User(email="e@test.com")
     media = Organisation(name="Media")
@@ -298,8 +292,6 @@ def test_rdv_acceptance_validation(db_session: scoped_session) -> None:
 
 def test_rdv_cancellation(db_session: scoped_session) -> None:
     """Test RDV cancellation business logic"""
-    from datetime import datetime, timedelta, timezone
-
     journaliste = User(email="j@test.com")
     expert = User(email="e@test.com")
     media = Organisation(name="Media")
@@ -370,8 +362,6 @@ def test_rdv_cancellation(db_session: scoped_session) -> None:
 
 def test_rdv_temporal_validation(db_session: scoped_session) -> None:
     """Test temporal validation for RDV slots"""
-    from datetime import datetime, timedelta, timezone
-
     journaliste = User(email="j@test.com")
     expert = User(email="e@test.com")
     media = Organisation(name="Media")
@@ -450,8 +440,6 @@ def test_rdv_temporal_validation(db_session: scoped_session) -> None:
 
 def test_rdv_type_coordinates_validation(db_session: scoped_session) -> None:
     """Test validation of RDV type matching required coordinates"""
-    from datetime import datetime, timedelta, timezone
-
     journaliste = User(email="j@test.com")
     expert = User(email="e@test.com")
     media = Organisation(name="Media")
@@ -525,8 +513,6 @@ def test_rdv_type_coordinates_validation(db_session: scoped_session) -> None:
 
 def test_rdv_query_methods(db_session: scoped_session) -> None:
     """Test query methods for RDV state"""
-    from datetime import datetime, timedelta, timezone
-
     journaliste = User(email="j@test.com")
     expert = User(email="e@test.com")
     media = Organisation(name="Media")
@@ -603,8 +589,6 @@ def test_rdv_query_methods(db_session: scoped_session) -> None:
 
 def test_rdv_temporal_calculations(db_session: scoped_session) -> None:
     """Test temporal calculations for RDV"""
-    from datetime import datetime, timedelta, timezone
-
     journaliste = User(email="j@test.com")
     expert = User(email="e@test.com")
     media = Organisation(name="Media")

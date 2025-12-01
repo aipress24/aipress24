@@ -6,6 +6,8 @@
 
 from __future__ import annotations
 
+from wtforms import validators
+
 from app.modules.kyc.dynform import (
     TAG_AREA300_SIZE,
     TAG_AREA_SIZE,
@@ -115,8 +117,6 @@ def test_is_required():
 
 def test_filter_mandatory_validator():
     """Test _filter_mandatory_validator function."""
-    from wtforms import validators
-
     # Mandatory field
     result = _filter_mandatory_validator("M")
     assert len(result) == 1

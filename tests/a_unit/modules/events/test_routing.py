@@ -14,6 +14,7 @@ from werkzeug.routing.exceptions import BuildError
 
 from app.flask.routing import url_for
 from app.models.auth import User
+from app.modules.events import routing as events_routing  # noqa: F401
 from app.modules.events.models import EventPost
 
 
@@ -36,9 +37,6 @@ class TestUrlForEvent:
         )
         db.session.add(event)
         db.session.flush()
-
-        # Import routing module to register the function
-        from app.modules.events import routing  # noqa: F401
 
         result = url_for(event)
 
@@ -63,8 +61,6 @@ class TestUrlForEvent:
         db.session.add(event)
         db.session.flush()
 
-        from app.modules.events import routing  # noqa: F401
-
         # Custom namespace route doesn't exist, so this should raise BuildError
         with pytest.raises(BuildError):
             url_for(event, _ns="custom")
@@ -85,8 +81,6 @@ class TestUrlForEvent:
         )
         db.session.add(event)
         db.session.flush()
-
-        from app.modules.events import routing  # noqa: F401
 
         result = url_for(event, foo="bar", baz="qux")
 
@@ -112,8 +106,6 @@ class TestUrlForEvent:
         )
         db.session.add(event)
         db.session.flush()
-
-        from app.modules.events import routing  # noqa: F401
 
         result = url_for(event)
 

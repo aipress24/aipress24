@@ -16,6 +16,8 @@ from typing import TYPE_CHECKING
 from urllib.parse import urlparse
 
 import pytest
+from flask import session
+from flask_login import logout_user
 from flask_security import login_user
 from sqlalchemy import create_engine, text
 from sqlalchemy.exc import OperationalError, ProgrammingError
@@ -116,8 +118,6 @@ def fresh_db(app: Flask):
     _db.create_all()
 
     # Clear Flask-Login's cached user (important for test isolation)
-    from flask_login import logout_user
-
     with app.test_request_context():
         try:
             logout_user()
@@ -175,8 +175,6 @@ def logged_in_client(app: Flask, fresh_db) -> FlaskClient:
         login_user(user)
         # Copy the session to the test client
         with client.session_transaction() as sess:
-            from flask import session
-
             for key, value in session.items():
                 sess[key] = value
 

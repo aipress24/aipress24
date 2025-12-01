@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import tempfile
 from pathlib import Path
-from typing import TYPE_CHECKING
 
 import fsspec
 import pytest
@@ -18,8 +17,7 @@ from advanced_alchemy.types.file_object.backends.fsspec import FSSpecBackend
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
-if TYPE_CHECKING:
-    from poc.blueprints.bw_activation_full.models import BusinessWall
+from poc.blueprints.bw_activation_full.models import BusinessWall
 
 
 @pytest.fixture(scope="session")
@@ -49,10 +47,8 @@ def engine(file_storage_backend):
 @pytest.fixture(scope="session")
 def tables(engine):
     """Create all POC model tables."""
-    # Import models to register them with metadata
-    from poc.blueprints.bw_activation_full.models import BusinessWall
-
-    assert BusinessWall  # to avoid unused import warning
+    # Model is imported at top-level to register with metadata
+    assert BusinessWall  # to ensure models are loaded
 
     # Create all tables
     UUIDAuditBase.metadata.create_all(engine)
@@ -95,8 +91,6 @@ def mock_org_id() -> int:
 @pytest.fixture
 def business_wall(db_session: Session, mock_user_id: int) -> BusinessWall:
     """Create a test BusinessWall."""
-    from poc.blueprints.bw_activation_full.models import BusinessWall
-
     bw = BusinessWall(
         bw_type="media",
         status="draft",
@@ -114,8 +108,6 @@ def paid_business_wall(
     db_session: Session, mock_user_id: int, mock_payer_id: int
 ) -> BusinessWall:
     """Create a paid BusinessWall."""
-    from poc.blueprints.bw_activation_full.models import BusinessWall
-
     bw = BusinessWall(
         bw_type="pr",
         status="draft",

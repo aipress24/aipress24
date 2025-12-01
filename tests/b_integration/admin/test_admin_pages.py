@@ -56,8 +56,6 @@ class TestAdminHomePage:
 
     def test_get_redirects_to_dashboard(self, app: Flask):
         """Test that get() returns dashboard URL."""
-        from unittest.mock import patch
-
         with app.test_request_context():
             # Patch url_for in the home module where it's imported
             with patch("app.modules.admin.pages.home.url_for") as mock_url_for:
@@ -100,8 +98,6 @@ class TestAdminPromotionsPage:
         page = AdminPromotionsPage()
 
         # Mock request.form
-        from unittest.mock import patch
-
         mock_form = {"key": "value"}
         with patch("app.modules.admin.pages.promotions.request") as mock_request:
             mock_request.form = mock_form
@@ -341,8 +337,6 @@ class TestDashboardPage:
 
     def test_widget_get_data(self, db_session):
         """Test Widget.get_data retrieves stats records."""
-        from app.modules.admin.pages.dashboard import Widget
-
         widget = Widget(
             metric="count_transactions",
             duration="day",
@@ -393,10 +387,6 @@ class TestMenuFunctions:
 
     def test_make_entry_with_page_class(self, app: Flask):
         """Test make_entry with Page class."""
-        from unittest.mock import patch
-
-        from app.modules.admin.pages.home import AdminHomePage
-
         with app.test_request_context():
             with patch("app.modules.admin.pages.menu.url_for") as mock_url_for:
                 mock_url_for.return_value = "/admin/index"

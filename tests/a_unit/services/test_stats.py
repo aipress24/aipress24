@@ -9,6 +9,7 @@ from flask_sqlalchemy import SQLAlchemy
 
 from app.models.auth import User
 from app.models.content import BaseContent
+from app.services.stats._compute import DURATIONS, update_stats
 from app.services.stats._metrics import (
     ActiveOrganisations,
     ActiveUsers,
@@ -181,3 +182,70 @@ class TestCountContents:
         end = arrow.get(now.shift(hours=1))
         result = metric.compute(start, end)
         assert result == 1.0
+
+
+class TestUpdateStats:
+    """Test suite for update_stats function."""
+
+    def test_update_stats_creates_records(self, db: SQLAlchemy) -> None:
+        """Test that update_stats creates StatsRecord entries."""
+        # Run update_stats with a specific date
+        test_date = "2024-01-15"
+        update_stats(date=test_date)
+
+        # Check that records were created
+        records = db.session.query(StatsRecord).all()
+        # Should have records for each metric × each duration (day, week, month)
+        assert len(records) > 0
+
+    def test_update_stats_uses_current_date_by_default(self, db: SQLAlchemy) -> None:
+        """Test that update_stats uses current date when none provided."""
+        update_stats()
+
+        # Should have created some records
+        records = db.session.query(StatsRecord).all()
+        assert len(records) > 0
+
+    def test_update_stats_creates_records_for_all_durations(
+        self, db: SQLAlchemy
+    ) -> None:
+        """Test that update_stats creates records for day, week, month."""
+        update_stats(date="2024-01-15")
+
+        # Get distinct durations from created records
+        records = db.session.query(StatsRecord).all()
+        durations = {r.duration for r in records}
+
+        # Should have records for each duration type
+        expected_durations = {d[0] for d in DURATIONS}
+        assert durations == expected_durations
+
+    def test_update_stats_stores_metric_values(self, db: SQLAlchemy) -> None:
+        """Test that update_stats stores computed metric values."""
+        update_stats(date="2024-01-15")
+
+        # Check that records have expected keys
+        records = db.session.query(StatsRecord).all()
+        keys = {r.key for r in records}
+
+        # Should have records for registered metrics
+        assert "count_contents" in keys
+        assert "active_users" in keys
+        assert "active_organisations" in keys
+
+
+class TestDurationsConstant:
+    """Test suite for DURATIONS constant."""
+
+    def test_durations_has_expected_keys(self) -> None:
+        """Test that DURATIONS contains expected duration types."""
+        duration_names = [d[0] for d in DURATIONS]
+        assert "day" in duration_names
+        assert "week" in duration_names
+        assert "month" in duration_names
+
+    def test_durations_has_valid_shifts(self) -> None:
+        """Test that each duration has a valid shift dict."""
+        for name, shift in DURATIONS:
+            assert isinstance(shift, dict)
+            assert len(shift) == 1  # Each should have one key

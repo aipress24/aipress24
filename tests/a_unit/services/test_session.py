@@ -10,6 +10,7 @@ from flask_sqlalchemy import SQLAlchemy
 from svcs.flask import container
 
 from app.services.sessions import Session, SessionService
+from app.services.sessions._models import SessionRepository
 
 
 class FakeUser:
@@ -53,8 +54,6 @@ def test_session_service_get_session_anonymous_with_session_id(
     flask_session["session_id"] = "test-session-123"
 
     # Create a session first
-    from app.services.sessions._models import SessionRepository
-
     repo = container.get(SessionRepository)
     session, _ = repo.get_or_upsert(session_id="test-session-123")
     session.set("anonymous", "data")
