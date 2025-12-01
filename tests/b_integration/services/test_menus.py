@@ -6,12 +6,12 @@
 
 from __future__ import annotations
 
-from flask import Flask
+from flask import Flask, g
 from flask_sqlalchemy import SQLAlchemy
 from svcs.flask import container
 
-from app.models.auth import User
-from app.services.menus import MenuService
+from app.models.auth import Role, User
+from app.services.menus import MenuService, _make_menu_entry, make_menu
 
 
 def test_menu_service_getitem(app: Flask, app_context, db: SQLAlchemy) -> None:
@@ -25,8 +25,6 @@ def test_menu_service_getitem(app: Flask, app_context, db: SQLAlchemy) -> None:
 
     # Get a standard menu - this should work
     with app.test_request_context("/"):
-        from flask import g
-
         g.user = user
         menu = menu_service["main"]
         assert isinstance(menu, list)
@@ -60,15 +58,11 @@ def test_make_menu_entry_with_hash_endpoint(
     app: Flask, app_context, db: SQLAlchemy
 ) -> None:
     """Test _make_menu_entry with # endpoint."""
-    from app.services.menus import _make_menu_entry
-
     user = User(email="test@example.com")
     db.session.add(user)
     db.session.flush()
 
     with app.test_request_context("/"):
-        from flask import g
-
         g.user = user
 
         spec = {"label": "Placeholder", "endpoint": "#"}
@@ -83,15 +77,11 @@ def test_make_menu_entry_with_slash_endpoint(
     app: Flask, app_context, db: SQLAlchemy
 ) -> None:
     """Test _make_menu_entry with / endpoint."""
-    from app.services.menus import _make_menu_entry
-
     user = User(email="test@example.com")
     db.session.add(user)
     db.session.flush()
 
     with app.test_request_context("/test"):
-        from flask import g
-
         g.user = user
 
         spec = {"label": "Direct", "endpoint": "/direct"}
@@ -104,15 +94,11 @@ def test_make_menu_entry_with_slash_endpoint(
 
 def test_make_menu_entry_with_tooltip(app: Flask, app_context, db: SQLAlchemy) -> None:
     """Test _make_menu_entry includes tooltip."""
-    from app.services.menus import _make_menu_entry
-
     user = User(email="test@example.com")
     db.session.add(user)
     db.session.flush()
 
     with app.test_request_context("/"):
-        from flask import g
-
         g.user = user
 
         spec = {"label": "Help", "endpoint": "#", "tooltip": "Get help"}
@@ -126,15 +112,11 @@ def test_make_menu_active_deduplication(
     app: Flask, app_context, db: SQLAlchemy
 ) -> None:
     """Test make_menu deduplicates active entries."""
-    from app.services.menus import make_menu
-
     user = User(email="test@example.com")
     db.session.add(user)
     db.session.flush()
 
     with app.test_request_context("/test/sub"):
-        from flask import g
-
         g.user = user
 
         specs = [
@@ -154,9 +136,6 @@ def test_make_menu_entry_with_role_filtering(
     app: Flask, app_context, db: SQLAlchemy
 ) -> None:
     """Test _make_menu_entry filters by role."""
-    from app.models.auth import Role
-    from app.services.menus import _make_menu_entry
-
     # Create user with role
     user = User(email="test@example.com")
     admin_role = Role(name="admin")
@@ -165,8 +144,6 @@ def test_make_menu_entry_with_role_filtering(
     db.session.flush()
 
     with app.test_request_context("/"):
-        from flask import g
-
         g.user = user
 
         # Entry requiring admin role - should be visible

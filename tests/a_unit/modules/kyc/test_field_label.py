@@ -9,6 +9,7 @@ from unittest.mock import patch
 from app.modules.kyc.field_label import (
     country_code_to_label,
     country_zip_code_to_city,
+    data_to_label,
     find_label,
     find_label_city,
     label_from_values_cities,
@@ -180,8 +181,6 @@ def test_country_zip_code_to_city(mock_zip_code):
 
 def test_data_to_label_format_list():
     """Test data_to_label with formatting list/str/bool values."""
-    from app.modules.kyc.field_label import data_to_label
-
     # Test with list
     result = data_to_label(["tag1", "tag2", "tag3"], "unknown_key")
     assert result == "tag1, tag2, tag3"

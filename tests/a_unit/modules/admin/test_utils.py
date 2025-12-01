@@ -7,13 +7,17 @@
 from __future__ import annotations
 
 
+from arrow import now as arrow_now
 from flask_sqlalchemy import SQLAlchemy
 
+from app.constants import LOCAL_TZ
 from app.enums import OrganisationTypeEnum, RoleEnum
 from app.models.auth import KYCProfile, Role, User
 from app.models.organisation import Organisation
 from app.modules.admin.utils import (
     commit_session,
+    delete_full_organisation,
+    gc_all_auto_organisations,
     gc_organisation,
     get_user_per_email,
     merge_organisation,
@@ -80,12 +84,8 @@ class TestGetUserPerEmail:
 
     def test_returns_none_for_deleted_user(self, db: SQLAlchemy) -> None:
         """Test deleted user returns None."""
-        from arrow import now
-
-        from app.constants import LOCAL_TZ
-
         user = User(email="deleted@example.com", active=True)
-        user.deleted_at = now(LOCAL_TZ)
+        user.deleted_at = arrow_now(LOCAL_TZ)
         db.session.add(user)
         db.session.flush()
 
@@ -359,8 +359,6 @@ class TestGcAllAutoOrganisations:
 
     def test_deletes_empty_auto_orgs(self, db: SQLAlchemy) -> None:
         """Test deletes all empty AUTO organisations."""
-        from app.modules.admin.utils import gc_all_auto_organisations
-
         # Create empty AUTO organisations
         org1 = Organisation(name="Empty Auto 1", type=OrganisationTypeEnum.AUTO)
         org2 = Organisation(name="Empty Auto 2", type=OrganisationTypeEnum.AUTO)
@@ -373,8 +371,6 @@ class TestGcAllAutoOrganisations:
 
     def test_preserves_auto_orgs_with_members(self, db: SQLAlchemy) -> None:
         """Test preserves AUTO organisations with members."""
-        from app.modules.admin.utils import gc_all_auto_organisations
-
         org = Organisation(name="Auto With Member", type=OrganisationTypeEnum.AUTO)
         user = User(email="member_auto@example.com", active=True)
         user.organisation = org
@@ -391,8 +387,6 @@ class TestGcAllAutoOrganisations:
 
     def test_preserves_non_auto_orgs(self, db: SQLAlchemy) -> None:
         """Test preserves non-AUTO empty organisations."""
-        from app.modules.admin.utils import gc_all_auto_organisations
-
         org = Organisation(name="Media Empty", type=OrganisationTypeEnum.MEDIA)
         db.session.add(org)
         db.session.flush()
@@ -411,8 +405,6 @@ class TestDeleteFullOrganisation:
 
     def test_removes_all_members(self, db: SQLAlchemy) -> None:
         """Test all members are removed from organisation."""
-        from app.modules.admin.utils import delete_full_organisation
-
         org = Organisation(name="Org To Delete", type=OrganisationTypeEnum.MEDIA)
         user1 = User(email="delete_member1@example.com", active=True)
         user2 = User(email="delete_member2@example.com", active=True)
@@ -432,8 +424,6 @@ class TestDeleteFullOrganisation:
 
     def test_marks_organisation_as_deleted(self, db: SQLAlchemy) -> None:
         """Test organisation is marked as deleted."""
-        from app.modules.admin.utils import delete_full_organisation
-
         org = Organisation(name="Org Mark Deleted", type=OrganisationTypeEnum.COM)
         db.session.add(org)
         db.session.flush()
@@ -445,8 +435,6 @@ class TestDeleteFullOrganisation:
 
     def test_removes_leader_role_from_members(self, db: SQLAlchemy) -> None:
         """Test leader role is removed from members."""
-        from app.modules.admin.utils import delete_full_organisation
-
         org = Organisation(name="Org Leader Delete", type=OrganisationTypeEnum.MEDIA)
         leader_role = (
             db.session.query(Role).filter_by(name=RoleEnum.LEADER.name).first()

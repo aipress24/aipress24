@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+import pytest
 from flask_sqlalchemy import SQLAlchemy
 
 from app.models.auth import User
@@ -65,8 +66,6 @@ class TestGetPost:
 
     def test_get_post_invalid_type(self, db: SQLAlchemy) -> None:
         """Test get_post raises TypeError for invalid object."""
-        import pytest
-
         invalid_object = object()
 
         with pytest.raises(AttributeError):

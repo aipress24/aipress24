@@ -22,7 +22,8 @@ DURATIONS = [
 def update_stats(date=None) -> None:
     """Update the various time series data for the app."""
 
-    metrics = lookup(Metric)
+    metric_classes = lookup(Metric)
+    metrics = [cls() for cls in metric_classes]
 
     if date:
         now = arrow.get(date)

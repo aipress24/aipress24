@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+import arrow
 from flask_sqlalchemy import SQLAlchemy
 
 from app.enums import OrganisationTypeEnum
@@ -291,8 +292,6 @@ class TestGenericOrgDataSource:
 
     def test_get_base_select_excludes_deleted(self, db: SQLAlchemy) -> None:
         """Test get_base_select excludes deleted organisations."""
-        import arrow
-
         GenericOrgDataSource.search = ""
         GenericOrgDataSource.offset = 0
         GenericOrgDataSource.limit = 100
