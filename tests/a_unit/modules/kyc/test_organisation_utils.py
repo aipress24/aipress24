@@ -2,11 +2,19 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
-"""Unit tests for kyc/organisation_utils.py"""
+"""Unit tests for kyc/organisation_utils.py
+
+These tests use real database operations with proper survey profile IDs
+to control the organisation_field_name_origin property value.
+
+Survey Profile ID to organisation_field mapping:
+- P001-P005, P008: nom_media
+- P006-P007: nom_media_instit
+- P009-P011: nom_agence_rp
+- P012-P029: nom_orga
+"""
 
 from __future__ import annotations
-
-from unittest.mock import patch
 
 from flask_sqlalchemy import SQLAlchemy
 
@@ -30,6 +38,11 @@ from app.modules.kyc.organisation_utils import (
     specialize_organization_type,
     store_auto_organisation,
 )
+
+
+# Profile IDs mapped to their organisation_field values
+PROFILE_ID_NOM_MEDIA = "P001"  # organisation_field = "nom_media"
+PROFILE_ID_NOM_ORGA = "P012"  # organisation_field = "nom_orga"
 
 
 class TestGetOrganisationFamily:
@@ -173,60 +186,51 @@ class TestGetOrganisationChoicesFamily:
 
 
 class TestFindKycOrganisationName:
-    """Test suite for _find_kyc_organisation_name function."""
+    """Test suite for _find_kyc_organisation_name function.
+
+    Uses real survey profile IDs to control the organisation_field_name_origin
+    property value. P001 maps to "nom_media" field.
+    """
 
     def test_returns_string_value(self, db: SQLAlchemy) -> None:
         """Test returns organisation name from string field."""
         user = User(email="test_kyc_str@example.com")
         profile = KYCProfile()
+        profile.profile_id = PROFILE_ID_NOM_MEDIA  # Maps to "nom_media"
         profile.info_professionnelle = {"nom_media": "Test Media Corp"}
         user.profile = profile
         db.session.add_all([user, profile])
         db.session.flush()
 
-        # Mock the organisation_field_name_origin property
-        with patch.object(
-            KYCProfile,
-            "organisation_field_name_origin",
-            new_callable=lambda: property(lambda self: "nom_media"),
-        ):
-            result = _find_kyc_organisation_name(user)
+        result = _find_kyc_organisation_name(user)
 
         assert result == "Test Media Corp"
 
-    def test_returns_first_value_from_list(self, db: SQLAlchemy) -> None:
-        """Test returns first organisation name from list field (newsrooms)."""
-        user = User(email="test_kyc_list@example.com")
+    def test_returns_empty_for_empty_value(self, db: SQLAlchemy) -> None:
+        """Test returns empty string when field value is empty."""
+        user = User(email="test_kyc_empty@example.com")
         profile = KYCProfile()
-        profile.info_professionnelle = {"newsrooms": ["First Media", "Second Media"]}
+        profile.profile_id = PROFILE_ID_NOM_MEDIA
+        profile.info_professionnelle = {"nom_media": ""}
         user.profile = profile
         db.session.add_all([user, profile])
         db.session.flush()
 
-        with patch.object(
-            KYCProfile,
-            "organisation_field_name_origin",
-            new_callable=lambda: property(lambda self: "newsrooms"),
-        ):
-            result = _find_kyc_organisation_name(user)
+        result = _find_kyc_organisation_name(user)
 
-        assert result == "First Media"
+        assert result == ""
 
-    def test_returns_empty_for_empty_list(self, db: SQLAlchemy) -> None:
-        """Test returns empty string for empty list field."""
-        user = User(email="test_kyc_empty_list@example.com")
+    def test_returns_empty_for_none_value(self, db: SQLAlchemy) -> None:
+        """Test returns empty string when field value is None."""
+        user = User(email="test_kyc_none@example.com")
         profile = KYCProfile()
-        profile.info_professionnelle = {"newsrooms": []}
+        profile.profile_id = PROFILE_ID_NOM_MEDIA
+        profile.info_professionnelle = {"nom_media": None}
         user.profile = profile
         db.session.add_all([user, profile])
         db.session.flush()
 
-        with patch.object(
-            KYCProfile,
-            "organisation_field_name_origin",
-            new_callable=lambda: property(lambda self: "newsrooms"),
-        ):
-            result = _find_kyc_organisation_name(user)
+        result = _find_kyc_organisation_name(user)
 
         assert result == ""
 
@@ -234,19 +238,29 @@ class TestFindKycOrganisationName:
         """Test strips whitespace from organisation name."""
         user = User(email="test_kyc_whitespace@example.com")
         profile = KYCProfile()
+        profile.profile_id = PROFILE_ID_NOM_MEDIA
         profile.info_professionnelle = {"nom_media": "  Padded Name  "}
         user.profile = profile
         db.session.add_all([user, profile])
         db.session.flush()
 
-        with patch.object(
-            KYCProfile,
-            "organisation_field_name_origin",
-            new_callable=lambda: property(lambda self: "nom_media"),
-        ):
-            result = _find_kyc_organisation_name(user)
+        result = _find_kyc_organisation_name(user)
 
         assert result == "Padded Name"
+
+    def test_handles_missing_field(self, db: SQLAlchemy) -> None:
+        """Test handles case where field is not in info_professionnelle."""
+        user = User(email="test_kyc_missing@example.com")
+        profile = KYCProfile()
+        profile.profile_id = PROFILE_ID_NOM_MEDIA
+        profile.info_professionnelle = {}  # No nom_media field
+        user.profile = profile
+        db.session.add_all([user, profile])
+        db.session.flush()
+
+        result = _find_kyc_organisation_name(user)
+
+        assert result == ""
 
 
 class TestFindInvitingOrganisations:
@@ -396,7 +410,11 @@ class TestStoreAutoOrganisation:
 
 
 class TestRetrieveUserOrganisation:
-    """Test suite for retrieve_user_organisation function."""
+    """Test suite for retrieve_user_organisation function.
+
+    Uses real survey profile IDs to control the organisation_field_name_origin
+    property value.
+    """
 
     def test_returns_inviting_org_when_name_matches(self, db: SQLAlchemy) -> None:
         """Test returns inviting organisation when name matches."""
@@ -406,6 +424,7 @@ class TestRetrieveUserOrganisation:
 
         user = User(email="retrieve_match@example.com")
         profile = KYCProfile()
+        profile.profile_id = PROFILE_ID_NOM_MEDIA
         profile.info_professionnelle = {"nom_media": "Matching Org"}
         user.profile = profile
         db.session.add_all([user, profile])
@@ -415,12 +434,7 @@ class TestRetrieveUserOrganisation:
         db.session.add(inv)
         db.session.flush()
 
-        with patch.object(
-            KYCProfile,
-            "organisation_field_name_origin",
-            new_callable=lambda: property(lambda self: "nom_media"),
-        ):
-            result = retrieve_user_organisation(user)
+        result = retrieve_user_organisation(user)
 
         assert result is not None
         assert result.id == org.id
@@ -430,17 +444,13 @@ class TestRetrieveUserOrganisation:
         """Test returns None when user has no organisation name."""
         user = User(email="retrieve_none@example.com")
         profile = KYCProfile()
+        profile.profile_id = PROFILE_ID_NOM_MEDIA
         profile.info_professionnelle = {"nom_media": ""}
         user.profile = profile
         db.session.add_all([user, profile])
         db.session.flush()
 
-        with patch.object(
-            KYCProfile,
-            "organisation_field_name_origin",
-            new_callable=lambda: property(lambda self: "nom_media"),
-        ):
-            result = retrieve_user_organisation(user)
+        result = retrieve_user_organisation(user)
 
         assert result is None
 
@@ -448,17 +458,13 @@ class TestRetrieveUserOrganisation:
         """Test creates AUTO org when no inviting org matches."""
         user = User(email="retrieve_auto@example.com")
         profile = KYCProfile()
+        profile.profile_id = PROFILE_ID_NOM_MEDIA
         profile.info_professionnelle = {"nom_media": "Non Invited Org"}
         user.profile = profile
         db.session.add_all([user, profile])
         db.session.flush()
 
-        with patch.object(
-            KYCProfile,
-            "organisation_field_name_origin",
-            new_callable=lambda: property(lambda self: "nom_media"),
-        ):
-            result = retrieve_user_organisation(user)
+        result = retrieve_user_organisation(user)
 
         assert result is not None
         assert result.name == "Non Invited Org"

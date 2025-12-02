@@ -102,7 +102,7 @@ def _find_kyc_organisation_name(user: User) -> str:
         else:
             name = ""
     else:
-        name = current_value
+        name = current_value or ""
     return name.strip()
 
 

@@ -24,6 +24,11 @@ from flask import g
 from pytest_flask.plugin import JSONResponse
 from sqlalchemy import select
 
+from app.models.organisation import Organisation
+from app.modules.admin.pages.show_org import OrgVM, ShowOrg
+from app.modules.admin.pages.show_user import ShowUser
+from app.modules.admin.pages.users import AdminUsersPage, UserDataSource
+
 if TYPE_CHECKING:
     from flask import Flask
     from sqlalchemy.orm import Session
@@ -56,8 +61,6 @@ class TestAdminHomePage:
 
     def test_get_redirects_to_dashboard(self, app: Flask):
         """Test that get() returns dashboard URL."""
-        from unittest.mock import patch
-
         with app.test_request_context():
             # Patch url_for in the home module where it's imported
             with patch("app.modules.admin.pages.home.url_for") as mock_url_for:
@@ -100,8 +103,6 @@ class TestAdminPromotionsPage:
         page = AdminPromotionsPage()
 
         # Mock request.form
-        from unittest.mock import patch
-
         mock_form = {"key": "value"}
         with patch("app.modules.admin.pages.promotions.request") as mock_request:
             mock_request.form = mock_form
@@ -341,8 +342,6 @@ class TestDashboardPage:
 
     def test_widget_get_data(self, db_session):
         """Test Widget.get_data retrieves stats records."""
-        from app.modules.admin.pages.dashboard import Widget
-
         widget = Widget(
             metric="count_transactions",
             duration="day",
@@ -393,10 +392,6 @@ class TestMenuFunctions:
 
     def test_make_entry_with_page_class(self, app: Flask):
         """Test make_entry with Page class."""
-        from unittest.mock import patch
-
-        from app.modules.admin.pages.home import AdminHomePage
-
         with app.test_request_context():
             with patch("app.modules.admin.pages.menu.url_for") as mock_url_for:
                 mock_url_for.return_value = "/admin/index"
@@ -530,3 +525,164 @@ class TestMenuFunctions:
                 # Should raise ValueError for invalid entry
                 with pytest.raises(ValueError, match="Match failed on"):
                     make_menu("test")
+
+
+@pytest.fixture
+def sample_organisation(db_session: Session) -> Organisation:
+    """Create a sample organisation for testing."""
+    org = Organisation(name="Test Organisation")
+    db_session.add(org)
+    db_session.flush()
+    return org
+
+
+class TestShowOrgPage:
+    """Test ShowOrg admin page."""
+
+    def test_page_attributes(self):
+        """Test that ShowOrg has correct attributes."""
+        assert ShowOrg.name == "show_org"
+        assert ShowOrg.label == "Informations sur l'organisation"
+        assert ShowOrg.path == "/show_org/<uid>"
+        assert ShowOrg.template == "admin/pages/show_org.j2"
+
+    def test_init_loads_organisation(
+        self, app: Flask, db_session: Session, sample_organisation: Organisation
+    ):
+        """Test that ShowOrg loads the organisation on init."""
+        with app.test_request_context():
+            g.user = Mock()
+            page = ShowOrg(uid=str(sample_organisation.id))
+
+            assert page.org is not None
+            assert page.org.id == sample_organisation.id
+            assert page.org.name == "Test Organisation"
+
+    def test_show_org_via_admin_client(
+        self,
+        app: Flask,
+        admin_client,
+        db_session: Session,
+        sample_organisation: Organisation,
+    ):
+        """Test ShowOrg page via admin client."""
+        response = admin_client.get(f"/admin/show_org/{sample_organisation.id}")
+        # Should get 200 or redirect, not 404 or 500
+        assert response.status_code in (200, 302)
+
+
+class TestOrgVM:
+    """Test OrgVM view model."""
+
+    def test_org_property(self, db_session: Session, sample_organisation: Organisation):
+        """Test org property returns the organisation."""
+        vm = OrgVM(sample_organisation)
+        assert vm.org == sample_organisation
+
+    def test_get_members_returns_list(
+        self, db_session: Session, sample_organisation: Organisation
+    ):
+        """Test get_members returns list of members."""
+        vm = OrgVM(sample_organisation)
+        members = vm.get_members()
+
+        assert isinstance(members, list)
+
+
+class TestShowUserPage:
+    """Test ShowUser admin page."""
+
+    def test_page_attributes(self):
+        """Test that ShowUser has correct attributes."""
+        assert ShowUser.name == "show_member"
+        assert ShowUser.label == "Informations sur l'utilisateur"
+        assert ShowUser.path == "/show_user/<uid>"
+        assert ShowUser.template == "admin/pages/show_user.j2"
+
+    def test_init_loads_user(self, app: Flask, db_session: Session, admin_user: User):
+        """Test that ShowUser loads the user on init."""
+        with app.test_request_context():
+            g.user = admin_user
+            page = ShowUser(uid=str(admin_user.id))
+
+            assert page.user is not None
+            assert page.user.id == admin_user.id
+
+    def test_show_user_via_admin_client(
+        self, app: Flask, admin_client, db_session: Session, admin_user: User
+    ):
+        """Test ShowUser page via admin client."""
+        response = admin_client.get(f"/admin/show_user/{admin_user.id}")
+        # Should get 200 or redirect, not 404 or 500
+        assert response.status_code in (200, 302)
+
+
+class TestAdminUsersPage:
+    """Test AdminUsersPage."""
+
+    def test_page_attributes(self):
+        """Test that AdminUsersPage has correct attributes."""
+        assert AdminUsersPage.name == "users"
+        assert AdminUsersPage.label == "Utilisateurs"
+        # path doesn't have leading slash in class definition
+        assert "users" in AdminUsersPage.path
+
+    def test_context_creates_table(
+        self, app: Flask, db_session: Session, admin_user: User
+    ):
+        """Test that context() creates users table."""
+        with app.test_request_context():
+            g.user = admin_user
+            page = AdminUsersPage()
+            result = page.context()
+
+            assert isinstance(result, dict)
+            assert "table" in result
+
+    def test_users_page_via_admin_client(
+        self, app: Flask, admin_client, db_session: Session, admin_user: User
+    ):
+        """Test AdminUsersPage via admin client."""
+        response = admin_client.get("/admin/users")
+        # Should get 200 or redirect
+        assert response.status_code in (200, 302)
+
+
+class TestUserDataSource:
+    """Test UserDataSource."""
+
+    def test_count_returns_integer(
+        self, app: Flask, db_session: Session, admin_user: User
+    ):
+        """Test that count returns an integer."""
+        with app.test_request_context("/"):
+            ds = UserDataSource()
+            count = ds.count()
+            assert isinstance(count, int)
+
+    def test_add_search_filter_with_search(self, app: Flask, db_session: Session):
+        """Test search filter when search term is provided."""
+        with app.test_request_context("/?search=test"):
+            ds = UserDataSource()
+            stmt = select(User)
+            filtered_stmt = ds.add_search_filter(stmt)
+
+            assert filtered_stmt is not None
+            assert str(filtered_stmt) != str(stmt)
+
+    def test_add_search_filter_without_search(self, app: Flask, db_session: Session):
+        """Test search filter when no search term."""
+        with app.test_request_context("/"):
+            ds = UserDataSource()
+            stmt = select(User)
+            filtered_stmt = ds.add_search_filter(stmt)
+
+            # Should return unchanged statement
+            assert filtered_stmt is stmt
+
+    def test_get_base_select_returns_select(self, app: Flask, db_session: Session):
+        """Test get_base_select returns a SQLAlchemy select."""
+        with app.test_request_context("/"):
+            ds = UserDataSource()
+            stmt = ds.get_base_select()
+            assert stmt is not None

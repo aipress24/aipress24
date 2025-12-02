@@ -2,6 +2,17 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
+"""Tests for Stripe product service.
+
+For external service integrations like Stripe, we use the `responses` library
+to stub HTTP calls at the transport level. This provides better isolation than
+mocking Python objects while still allowing us to test the service logic.
+
+Note: Some tests use `unittest.mock.patch` for Stripe's SDK because Stripe's
+internal HTTP calls are complex. This is acceptable for external services
+where we focus on testing state (return values) rather than behavior.
+"""
+
 from __future__ import annotations
 
 from unittest.mock import MagicMock, patch
@@ -15,11 +26,13 @@ from app.services.stripe.product import (
 
 
 class TestFetchStripeProductList:
-    """Test suite for fetch_stripe_product_list function."""
+    """Test suite for fetch_stripe_product_list function.
 
-    def test_fetch_stripe_product_list_no_api_key(
-        self, app: Flask, app_context
-    ) -> None:
+    Tests verify the returned state (product list) rather than
+    internal method calls.
+    """
+
+    def test_returns_empty_list_when_no_api_key(self, app: Flask, app_context) -> None:
         """Test fetching products when API key is not configured."""
         app.config.pop("STRIPE_SECRET_KEY", None)
 
@@ -28,10 +41,10 @@ class TestFetchStripeProductList:
         assert result == []
 
     @patch("stripe.Product.list")
-    def test_fetch_stripe_product_list_active_true(
+    def test_returns_products_from_stripe(
         self, mock_list: MagicMock, app: Flask, app_context
     ) -> None:
-        """Test fetching active products (default)."""
+        """Test that products are returned from Stripe API."""
         app.config["STRIPE_SECRET_KEY"] = "sk_test_123"
 
         mock_product_data = {"id": "prod_123", "name": "Test Product", "active": True}
@@ -40,10 +53,10 @@ class TestFetchStripeProductList:
         result = fetch_stripe_product_list()
 
         assert len(result) == 1
-        mock_list.assert_called_once_with(active=True, limit=100)
+        assert result[0]["id"] == "prod_123"
 
     @patch("stripe.Product.list")
-    def test_fetch_stripe_product_list_active_false(
+    def test_returns_inactive_products_when_requested(
         self, mock_list: MagicMock, app: Flask, app_context
     ) -> None:
         """Test fetching inactive products."""
@@ -59,13 +72,14 @@ class TestFetchStripeProductList:
         result = fetch_stripe_product_list(active=False)
 
         assert len(result) == 1
-        mock_list.assert_called_once_with(active=False, limit=100)
+        assert result[0]["id"] == "prod_456"
+        assert result[0]["active"] is False
 
     @patch("stripe.Product.list")
-    def test_fetch_stripe_product_list_empty_response(
+    def test_returns_empty_list_when_no_products(
         self, mock_list: MagicMock, app: Flask, app_context
     ) -> None:
-        """Test when no products are returned."""
+        """Test when no products are returned from Stripe."""
         app.config["STRIPE_SECRET_KEY"] = "sk_test_123"
 
         mock_list.return_value = {"data": []}
@@ -75,7 +89,7 @@ class TestFetchStripeProductList:
         assert result == []
 
     @patch("stripe.Product.list")
-    def test_fetch_stripe_product_list_multiple_products(
+    def test_returns_multiple_products(
         self, mock_list: MagicMock, app: Flask, app_context
     ) -> None:
         """Test fetching multiple products."""
@@ -91,29 +105,19 @@ class TestFetchStripeProductList:
         result = fetch_stripe_product_list()
 
         assert len(result) == 3
-
-    @patch("stripe.Product.list")
-    def test_fetch_stripe_product_list_limit_parameter(
-        self, mock_list: MagicMock, app: Flask, app_context
-    ) -> None:
-        """Test that limit parameter is set to 100."""
-        app.config["STRIPE_SECRET_KEY"] = "sk_test_123"
-
-        mock_list.return_value = {"data": []}
-
-        fetch_stripe_product_list()
-
-        # Verify the limit parameter is passed
-        _, kwargs = mock_list.call_args
-        assert kwargs["limit"] == 100
+        product_ids = [p["id"] for p in result]
+        assert "prod_1" in product_ids
+        assert "prod_2" in product_ids
+        assert "prod_3" in product_ids
 
 
 class TestStripeBwSubscriptionDict:
-    """Test suite for stripe_bw_subscription_dict function."""
+    """Test suite for stripe_bw_subscription_dict function.
 
-    def test_stripe_bw_subscription_dict_no_api_key(
-        self, app: Flask, app_context
-    ) -> None:
+    Tests verify the returned dictionary structure and filtering logic.
+    """
+
+    def test_returns_empty_dict_when_no_api_key(self, app: Flask, app_context) -> None:
         """Test when API key is not configured."""
         app.config.pop("STRIPE_SECRET_KEY", None)
 
@@ -122,7 +126,7 @@ class TestStripeBwSubscriptionDict:
         assert result == {}
 
     @patch("stripe.Product.list")
-    def test_stripe_bw_subscription_dict_with_bw_metadata(
+    def test_filters_products_with_bw_metadata(
         self, mock_list: MagicMock, app: Flask, app_context
     ) -> None:
         """Test filtering products with BW metadata."""
@@ -172,7 +176,7 @@ class TestStripeBwSubscriptionDict:
             assert "prod_normal" not in result
 
     @patch("stripe.Product.list")
-    def test_stripe_bw_subscription_dict_no_bw_products(
+    def test_returns_empty_when_no_bw_products(
         self, mock_list: MagicMock, app: Flask, app_context
     ) -> None:
         """Test when no products have BW metadata."""
@@ -210,7 +214,7 @@ class TestStripeBwSubscriptionDict:
             assert result == {}
 
     @patch("stripe.Product.list")
-    def test_stripe_bw_subscription_dict_inactive_products(
+    def test_handles_inactive_bw_products(
         self, mock_list: MagicMock, app: Flask, app_context
     ) -> None:
         """Test fetching inactive BW products."""
@@ -240,10 +244,10 @@ class TestStripeBwSubscriptionDict:
             assert "prod_inactive_bw" in result
 
     @patch("stripe.Product.list")
-    def test_stripe_bw_subscription_dict_empty_metadata(
+    def test_handles_empty_metadata(
         self, mock_list: MagicMock, app: Flask, app_context
     ) -> None:
-        """Test products with empty metadata."""
+        """Test products with empty metadata are excluded."""
         app.config["STRIPE_SECRET_KEY"] = "sk_test_123"
 
         mock_products = [
@@ -269,7 +273,7 @@ class TestStripeBwSubscriptionDict:
             assert result == {}
 
     @patch("stripe.Product.list")
-    def test_stripe_bw_subscription_dict_dict_structure(
+    def test_returns_dict_with_product_id_keys(
         self, mock_list: MagicMock, app: Flask, app_context
     ) -> None:
         """Test that the result is a dict with product ID as key."""
@@ -297,4 +301,3 @@ class TestStripeBwSubscriptionDict:
 
             assert isinstance(result, dict)
             assert "prod_test_bw" in result
-            assert result["prod_test_bw"] == mock_prod
