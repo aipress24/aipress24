@@ -24,6 +24,11 @@ from flask import g
 from pytest_flask.plugin import JSONResponse
 from sqlalchemy import select
 
+from app.models.organisation import Organisation
+from app.modules.admin.pages.show_org import OrgVM, ShowOrg
+from app.modules.admin.pages.show_user import ShowUser
+from app.modules.admin.pages.users import AdminUsersPage, UserDataSource
+
 if TYPE_CHECKING:
     from flask import Flask
     from sqlalchemy.orm import Session
@@ -520,3 +525,161 @@ class TestMenuFunctions:
                 # Should raise ValueError for invalid entry
                 with pytest.raises(ValueError, match="Match failed on"):
                     make_menu("test")
+
+
+@pytest.fixture
+def sample_organisation(db_session: Session) -> Organisation:
+    """Create a sample organisation for testing."""
+    org = Organisation(name="Test Organisation")
+    db_session.add(org)
+    db_session.flush()
+    return org
+
+
+class TestShowOrgPage:
+    """Test ShowOrg admin page."""
+
+    def test_page_attributes(self):
+        """Test that ShowOrg has correct attributes."""
+        assert ShowOrg.name == "show_org"
+        assert ShowOrg.label == "Informations sur l'organisation"
+        assert ShowOrg.path == "/show_org/<uid>"
+        assert ShowOrg.template == "admin/pages/show_org.j2"
+
+    def test_init_loads_organisation(
+        self, app: Flask, db_session: Session, sample_organisation: Organisation
+    ):
+        """Test that ShowOrg loads the organisation on init."""
+        with app.test_request_context():
+            g.user = Mock()
+            page = ShowOrg(uid=str(sample_organisation.id))
+
+            assert page.org is not None
+            assert page.org.id == sample_organisation.id
+            assert page.org.name == "Test Organisation"
+
+    def test_show_org_via_admin_client(
+        self,
+        app: Flask,
+        admin_client,
+        db_session: Session,
+        sample_organisation: Organisation,
+    ):
+        """Test ShowOrg page via admin client."""
+        response = admin_client.get(f"/admin/show_org/{sample_organisation.id}")
+        # Should get 200 or redirect, not 404 or 500
+        assert response.status_code in (200, 302)
+
+
+class TestOrgVM:
+    """Test OrgVM view model."""
+
+    def test_org_property(self, db_session: Session, sample_organisation: Organisation):
+        """Test org property returns the organisation."""
+        vm = OrgVM(sample_organisation)
+        assert vm.org == sample_organisation
+
+    def test_get_members_returns_list(
+        self, db_session: Session, sample_organisation: Organisation
+    ):
+        """Test get_members returns list of members."""
+        vm = OrgVM(sample_organisation)
+        members = vm.get_members()
+
+        assert isinstance(members, list)
+
+
+class TestShowUserPage:
+    """Test ShowUser admin page."""
+
+    def test_page_attributes(self):
+        """Test that ShowUser has correct attributes."""
+        assert ShowUser.name == "show_member"
+        assert ShowUser.label == "Informations sur l'utilisateur"
+        assert ShowUser.path == "/show_user/<uid>"
+        assert ShowUser.template == "admin/pages/show_user.j2"
+
+    def test_init_loads_user(self, app: Flask, db_session: Session, admin_user: User):
+        """Test that ShowUser loads the user on init."""
+        with app.test_request_context():
+            g.user = admin_user
+            page = ShowUser(uid=str(admin_user.id))
+
+            assert page.user is not None
+            assert page.user.id == admin_user.id
+
+    def test_show_user_via_admin_client(
+        self, app: Flask, admin_client, db_session: Session, admin_user: User
+    ):
+        """Test ShowUser page via admin client."""
+        response = admin_client.get(f"/admin/show_user/{admin_user.id}")
+        # Should get 200 or redirect, not 404 or 500
+        assert response.status_code in (200, 302)
+
+
+class TestAdminUsersPage:
+    """Test AdminUsersPage."""
+
+    def test_page_attributes(self):
+        """Test that AdminUsersPage has correct attributes."""
+        assert AdminUsersPage.name == "users"
+        assert AdminUsersPage.label == "Utilisateurs"
+        # path doesn't have leading slash in class definition
+        assert "users" in AdminUsersPage.path
+
+    def test_context_creates_table(
+        self, app: Flask, db_session: Session, admin_user: User
+    ):
+        """Test that context() creates users table."""
+        with app.test_request_context():
+            g.user = admin_user
+            page = AdminUsersPage()
+            result = page.context()
+
+            assert isinstance(result, dict)
+            assert "table" in result
+
+    def test_users_page_via_admin_client(
+        self, app: Flask, admin_client, db_session: Session, admin_user: User
+    ):
+        """Test AdminUsersPage via admin client."""
+        response = admin_client.get("/admin/users")
+        # Should get 200 or redirect
+        assert response.status_code in (200, 302)
+
+
+class TestUserDataSource:
+    """Test UserDataSource."""
+
+    def test_count_returns_integer(self, db_session: Session, admin_user: User):
+        """Test that count returns an integer."""
+        count = UserDataSource.count()
+        assert isinstance(count, int)
+
+    def test_add_search_filter_with_search(self, db_session: Session):
+        """Test search filter when search term is provided."""
+        UserDataSource.search = "test"
+
+        stmt = select(User)
+        filtered_stmt = UserDataSource.add_search_filter(stmt)
+
+        assert filtered_stmt is not None
+        assert str(filtered_stmt) != str(stmt)
+
+        # Reset class state
+        UserDataSource.search = ""
+
+    def test_add_search_filter_without_search(self, db_session: Session):
+        """Test search filter when no search term."""
+        UserDataSource.search = None
+
+        stmt = select(User)
+        filtered_stmt = UserDataSource.add_search_filter(stmt)
+
+        # Should return unchanged statement
+        assert filtered_stmt is stmt
+
+    def test_get_base_select_returns_select(self, db_session: Session):
+        """Test get_base_select returns a SQLAlchemy select."""
+        stmt = UserDataSource.get_base_select()
+        assert stmt is not None
