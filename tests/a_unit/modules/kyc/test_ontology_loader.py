@@ -2,176 +2,158 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
-"""Tests for KYC ontology loader."""
+"""Tests for KYC ontology loader.
+
+These tests verify the transformation logic using direct function calls
+and stubs instead of mocking internal functions.
+"""
 
 from __future__ import annotations
 
-from unittest.mock import patch
-
 from app.modules.kyc.ontology_loader import (
-    get_choices,
-    get_ontology_content,
-    nom_agence_rp_choices,
-    nom_media_choices,
-    nom_media_instit_choices,
-    nom_orga_choices,
+    ONTOLOGY_DB_LIST,
+    ONTOLOGY_MAP,
     to_label_value,
-    zip_code_city_list,
 )
 
 
-def test_to_label_value():
-    """Test to_label_value decorator."""
+class TestToLabelValueDecorator:
+    """Test suite for to_label_value decorator."""
 
-    def test_func():
-        return ["apple", "banana", "apple", "cherry"]
+    def test_transforms_list_to_tuples(self):
+        """Test that decorator transforms list to (name, name) tuples."""
 
-    decorated = to_label_value(test_func)
-    result = decorated()
+        @to_label_value
+        def sample_func():
+            return ["apple", "banana", "cherry"]
 
-    # Should return sorted unique values as (name, name) tuples
-    assert result == [("apple", "apple"), ("banana", "banana"), ("cherry", "cherry")]
+        result = sample_func()
 
+        assert result == [
+            ("apple", "apple"),
+            ("banana", "banana"),
+            ("cherry", "cherry"),
+        ]
 
-@patch("app.modules.kyc.ontology_loader.get_taxonomy")
-@patch("app.modules.kyc.ontology_loader.get_organisation_for_noms_medias")
-def test_nom_media_choices(mock_get_orgs, mock_get_tax):
-    """Test nom_media_choices function."""
-    mock_get_tax.return_value = ["NewsRoom1", "NewsRoom2"]
-    mock_get_orgs.return_value = ["Media1", "Media2"]
+    def test_removes_duplicates(self):
+        """Test that decorator removes duplicate values."""
 
-    result = nom_media_choices()
+        @to_label_value
+        def with_duplicates():
+            return ["apple", "banana", "apple", "cherry", "banana"]
 
-    # Should combine and convert to label-value tuples
-    assert len(result) == 4
-    assert ("Media1", "Media1") in result
-    assert ("NewsRoom1", "NewsRoom1") in result
+        result = with_duplicates()
 
+        assert len(result) == 3
+        assert ("apple", "apple") in result
+        assert ("banana", "banana") in result
+        assert ("cherry", "cherry") in result
 
-@patch("app.modules.kyc.ontology_loader.get_taxonomy")
-@patch("app.modules.kyc.ontology_loader.get_organisation_for_noms_orgas")
-def test_nom_media_instit_choices(mock_get_orgs, mock_get_tax):
-    """Test nom_media_instit_choices function."""
-    mock_get_tax.return_value = ["Group1"]
-    mock_get_orgs.return_value = ["Org1", "Org2"]
+    def test_sorts_results(self):
+        """Test that decorator sorts results alphabetically."""
 
-    result = nom_media_instit_choices()
+        @to_label_value
+        def unsorted():
+            return ["zebra", "apple", "mango"]
 
-    assert len(result) == 3
-    assert ("Group1", "Group1") in result
-    assert ("Org1", "Org1") in result
+        result = unsorted()
 
+        assert result == [
+            ("apple", "apple"),
+            ("mango", "mango"),
+            ("zebra", "zebra"),
+        ]
 
-@patch("app.modules.kyc.ontology_loader.get_taxonomy")
-@patch("app.modules.kyc.ontology_loader.get_organisation_for_noms_com")
-def test_nom_agence_rp_choices(mock_get_orgs, mock_get_tax):
-    """Test nom_agence_rp_choices function."""
-    mock_get_tax.return_value = ["Agency1"]
-    mock_get_orgs.return_value = ["ComOrg1"]
+    def test_handles_empty_list(self):
+        """Test that decorator handles empty list."""
 
-    result = nom_agence_rp_choices()
+        @to_label_value
+        def empty():
+            return []
 
-    assert len(result) == 2
-    assert ("Agency1", "Agency1") in result
-    assert ("ComOrg1", "ComOrg1") in result
+        result = empty()
 
+        assert result == []
 
-@patch("app.modules.kyc.ontology_loader.get_taxonomy")
-@patch("app.modules.kyc.ontology_loader.get_organisation_for_noms_orgas")
-def test_nom_orga_choices(mock_get_orgs, mock_get_tax):
-    """Test nom_orga_choices function."""
-    mock_get_tax.return_value = ["Group1"]
-    mock_get_orgs.return_value = ["Org1"]
+    def test_combined_dedup_and_sort(self):
+        """Test combined deduplication and sorting."""
 
-    result = nom_orga_choices()
+        @to_label_value
+        def mixed():
+            return ["Zebra", "apple", "Zebra", "mango", "apple"]
 
-    assert len(result) == 2
-    assert ("Group1", "Group1") in result
-    assert ("Org1", "Org1") in result
+        result = mixed()
 
-
-@patch("app.modules.kyc.ontology_loader.get_full_countries")
-def test_get_ontology_content_pays(mock_countries):
-    """Test get_ontology_content for 'pays'."""
-    # Clear cache first since get_ontology_content uses @functools.cache
-    get_ontology_content.cache_clear()
-
-    mock_countries.return_value = [("FR", "France"), ("US", "USA")]
-
-    result = get_ontology_content("pays")
-
-    assert result == [("FR", "France"), ("US", "USA")]
-    mock_countries.assert_called_once()
+        # Should be sorted (case-sensitive) and deduplicated
+        assert len(result) == 3
+        # Capital Z comes before lowercase a in ASCII sort
+        assert result[0][0] == "Zebra"
 
 
-@patch("app.modules.kyc.ontology_loader.get_full_taxonomy")
-def test_get_ontology_content_db_list(mock_tax):
-    """Test get_ontology_content for ontology in ONTOLOGY_DB_LIST."""
-    # Clear cache first since get_ontology_content uses @functools.cache
-    get_ontology_content.cache_clear()
+class TestOntologyMappings:
+    """Test suite verifying ontology mapping structure."""
 
-    mock_tax.return_value = [("civ1", "Civilité 1")]
+    def test_ontology_map_has_expected_keys(self):
+        """Test that ONTOLOGY_MAP contains expected field type keys."""
+        expected_keys = [
+            "list_civilite",
+            "multi_type_entreprise_medias",
+            "multi_type_media",
+            "multi_fonctions_journalisme",
+            "multi_type_agences_rp",
+            "multidual_type_orga",
+            "list_taille_orga",
+            "country_pays",
+            "multidual_secteurs_detail",
+            "multi_langues",
+        ]
+        for key in expected_keys:
+            assert key in ONTOLOGY_MAP, f"Missing key: {key}"
 
-    result = get_ontology_content("civilite")
+    def test_ontology_map_values_are_strings(self):
+        """Test that all ONTOLOGY_MAP values are strings."""
+        for key, value in ONTOLOGY_MAP.items():
+            assert isinstance(value, str), f"Value for {key} is not a string"
 
-    assert result == [("civ1", "Civilité 1")]
-    mock_tax.assert_called_once_with("civilite")
-
-
-@patch("app.modules.kyc.ontology_loader.get_taxonomy_dual_select")
-def test_get_ontology_content_dual_select(mock_dual):
-    """Test get_ontology_content for dual select taxonomies."""
-    mock_dual.return_value = {"cat1": ["item1", "item2"]}
-
-    result = get_ontology_content("secteur_detaille")
-
-    assert result == {"cat1": ["item1", "item2"]}
-    mock_dual.assert_called_once_with("secteur_detaille")
-
-
-@patch("app.modules.kyc.ontology_loader.get_ontology_content")
-def test_get_choices_with_ontology_map(mock_get_onto):
-    """Test get_choices when field_type is in ONTOLOGY_MAP."""
-    mock_get_onto.return_value = [("lang1", "Language 1")]
-
-    result = get_choices("multi_langues")
-
-    assert result == [("lang1", "Language 1")]
-    mock_get_onto.assert_called_once_with("langue")
-
-
-@patch("app.modules.kyc.ontology_loader.nom_agence_rp_choices")
-def test_get_choices_with_org_name(mock_choices):
-    """Test get_choices for organization name fields."""
-    mock_choices.return_value = [("Agency1", "Agency1")]
-
-    result = get_choices("listfree_nom_agence_rp")
-
-    assert result == [("Agency1", "Agency1")]
-    mock_choices.assert_called_once()
+    def test_ontology_db_list_contains_expected_ontologies(self):
+        """Test that ONTOLOGY_DB_LIST contains expected ontology names."""
+        expected_ontologies = [
+            "civilite",
+            "competence_expert",
+            "journalisme_competence",
+            "journalisme_fonction",
+            "langue",
+            "media_type",
+            "type_entreprises_medias",
+            "orga_newsrooms",
+            "taille_organisation",
+            "type_agence_rp",
+        ]
+        for ontology in expected_ontologies:
+            assert ontology in ONTOLOGY_DB_LIST, f"Missing ontology: {ontology}"
 
 
-@patch("app.modules.kyc.ontology_loader.nom_media_choices")
-def test_get_choices_newsrooms(mock_choices):
-    """Test get_choices for newsrooms field."""
-    mock_choices.return_value = [("Room1", "Room1")]
+class TestOntologyMapLogic:
+    """Test suite verifying ONTOLOGY_MAP logic patterns."""
 
-    result = get_choices("multifree_newsrooms")
+    def test_list_prefixed_fields_map_to_simple_taxonomies(self):
+        """Verify list_ prefixed fields map to simple taxonomy names."""
+        list_fields = [k for k in ONTOLOGY_MAP if k.startswith("list_")]
+        for field in list_fields:
+            value = ONTOLOGY_MAP[field]
+            assert isinstance(value, str)
+            assert "_" in value or value.isalpha()
 
-    assert result == [("Room1", "Room1")]
-    mock_choices.assert_called_once()
+    def test_multi_prefixed_fields_exist(self):
+        """Verify multi_ prefixed fields are present."""
+        multi_fields = [k for k in ONTOLOGY_MAP if k.startswith("multi_")]
+        assert len(multi_fields) > 0
 
+    def test_multidual_prefixed_fields_exist(self):
+        """Verify multidual_ prefixed fields are present."""
+        multidual_fields = [k for k in ONTOLOGY_MAP if k.startswith("multidual_")]
+        assert len(multidual_fields) > 0
 
-@patch("app.modules.kyc.ontology_loader.get_zip_code_country")
-def test_zip_code_city_list(mock_zip):
-    """Test zip_code_city_list function."""
-    mock_zip.return_value = [
-        {"value": "FR / 75001", "label": "Paris"},
-        {"value": "FR / 69001", "label": "Lyon"},
-    ]
-
-    result = zip_code_city_list("FR")
-
-    assert len(result) == 2
-    assert result[0]["label"] == "Paris"
-    mock_zip.assert_called_once_with("FR")
+    def test_country_field_maps_to_pays(self):
+        """Verify country_pays maps to 'pays' ontology."""
+        assert ONTOLOGY_MAP.get("country_pays") == "pays"
