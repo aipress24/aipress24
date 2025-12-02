@@ -8,6 +8,7 @@ import sys
 from collections.abc import Callable, Mapping
 from typing import Any
 
+from advanced_alchemy.types import FileObject
 from flask_wtf import FlaskForm
 from markupsafe import Markup
 from wtforms import (
@@ -36,7 +37,6 @@ from .lib.valid_tel import ValidTel
 from .lib.valid_url import ValidURL
 from .ontology_loader import get_choices
 from .survey_dataclass import SurveyField, SurveyProfile
-from .temporary_blob import pop_tmp_blob
 
 MAX_TEXTAREA = 1500
 MAX_TEXTAREA300 = 300
@@ -105,6 +105,7 @@ def custom_bool_field(
     mandatory_code: str = "",
     param: str = "",
     readonly: bool = False,
+    **kwargs,
 ) -> Field:
     validators_list = [validators.Optional()]
     mandatory_code = ""  # because different meaning on boolean widget
@@ -136,6 +137,7 @@ def custom_bool_link_field(
     mandatory_code: str = "",
     param: str = "",
     readonly: bool = False,
+    **kwargs,
 ) -> Field:
     validators_list = [validators.Optional()]
     mandatory_code = ""
@@ -165,6 +167,7 @@ def custom_string_field(
     mandatory_code: str = "",
     param: str = "",
     readonly: bool = False,
+    **kwargs,
 ) -> Field:
     if readonly:
         mandatory_code = ""
@@ -193,6 +196,7 @@ def custom_int_field(
     mandatory_code: str = "",
     param: str = "",
     readonly: bool = False,
+    **kwargs,
 ) -> Field:
     if readonly:
         mandatory_code = ""
@@ -221,6 +225,8 @@ def custom_photo_field(
     mandatory_code: str = "",
     param: str = "",
     readonly: bool = False,
+    file_object: FileObject | None = None,
+    **kwargs,
 ) -> Field:
     if readonly:
         mandatory_code = ""
@@ -242,6 +248,7 @@ def custom_photo_field(
         render_kw=render_kw,
         readonly=1 if readonly else 0,
         max_image_size=4096,
+        file_object=file_object,
     )
 
 
@@ -250,6 +257,7 @@ def custom_email_field(
     mandatory_code: str = "",
     param: str = "",
     readonly: bool = False,
+    **kwargs,
 ) -> Field:
     if readonly:
         mandatory_code = ""
@@ -277,6 +285,7 @@ def custom_email_free_field(
     mandatory_code: str = "",
     param: str = "",
     readonly: bool = False,
+    **kwargs,
 ) -> Field:
     if readonly:
         mandatory_code = ""
@@ -304,6 +313,7 @@ def custom_tel_field(
     mandatory_code: str = "",
     param: str = "",
     readonly: bool = False,
+    **kwargs,
 ) -> Field:
     if readonly:
         mandatory_code = ""
@@ -331,6 +341,7 @@ def custom_password_field(
     mandatory_code: str = "",
     param: str = "",
     readonly: bool = False,
+    **kwargs,
 ) -> Field:
     if readonly:
         mandatory_code = ""
@@ -357,6 +368,7 @@ def custom_postcode_field(
     mandatory_code: str = "",
     param: str = "",
     readonly: bool = False,
+    **kwargs,
 ) -> Field:
     if readonly:
         mandatory_code = ""
@@ -385,6 +397,7 @@ def custom_url_field(
     mandatory_code: str,
     param: str = "",
     readonly: bool = False,
+    **kwargs,
 ) -> Field:
     if readonly:
         mandatory_code = ""
@@ -412,6 +425,7 @@ def custom_textarea_field(
     mandatory_code: str = "",
     param: str = "",
     readonly: bool = False,
+    **kwargs,
 ) -> Field:
     if readonly:
         mandatory_code = ""
@@ -443,6 +457,7 @@ def custom_textarea300_field(
     mandatory_code: str = "",
     param: str = "",
     readonly: bool = False,
+    **kwargs,
 ) -> Field:
     if readonly:
         mandatory_code = ""
@@ -483,6 +498,7 @@ def custom_list_field(
     mandatory_code: str = "",
     param: str = "",
     readonly: bool = False,
+    **kwargs,
 ) -> Field:
     if readonly:
         mandatory_code = ""
@@ -510,6 +526,7 @@ def custom_country_field(
     mandatory_code: str = "",
     param: str = "",
     readonly: bool = False,
+    **kwargs,
 ) -> Field:
     if readonly:
         mandatory_code = ""
@@ -544,6 +561,7 @@ def custom_list_free_field(
     mandatory_code: str = "",
     param: str = "",
     readonly: bool = False,
+    **kwargs,
 ) -> Field:
     """This list allows a free text for content not in the proposed list."""
     if readonly:
@@ -571,6 +589,7 @@ def custom_ajax_field(
     mandatory_code: str = "",
     param: str = "",
     readonly: bool = False,
+    **kwargs,
 ) -> Field:
     if readonly:
         mandatory_code = ""
@@ -600,9 +619,12 @@ def custom_multi_free_field(
     mandatory_code: str = "",
     param: str = "",
     readonly: bool = False,
+    **kwargs,
 ) -> Field:
     # there is no "optgroup" version for multiple/free
-    return _custom_multi_free_field_simple(field, mandatory_code, param, readonly)
+    return _custom_multi_free_field_simple(
+        field, mandatory_code, param, readonly, **kwargs
+    )
 
 
 def custom_multi_field(
@@ -610,10 +632,15 @@ def custom_multi_field(
     mandatory_code: str = "",
     param: str = "",
     readonly: bool = False,
+    **kwargs,
 ) -> Field:
     if isinstance(get_choices(param), list):
-        return _custom_multi_field_simple(field, mandatory_code, param, readonly)
-    return _custom_multi_field_optgroup(field, mandatory_code, param, readonly)
+        return _custom_multi_field_simple(
+            field, mandatory_code, param, readonly, **kwargs
+        )
+    return _custom_multi_field_optgroup(
+        field, mandatory_code, param, readonly, **kwargs
+    )
 
 
 def _custom_multi_field_simple(
@@ -621,6 +648,7 @@ def _custom_multi_field_simple(
     mandatory_code: str = "",
     param: str = "",
     readonly: bool = False,
+    **kwargs,
 ) -> Field:
     if readonly:
         mandatory_code = ""
@@ -649,6 +677,7 @@ def _custom_multi_free_field_simple(
     mandatory_code: str = "",
     param: str = "",
     readonly: bool = False,
+    **kwargs,
 ) -> Field:
     if readonly:
         mandatory_code = ""
@@ -678,6 +707,7 @@ def _custom_multi_field_optgroup(
     mandatory_code: str = "",
     param: str = "",
     readonly: bool = False,
+    **kwargs,
 ) -> Field:
     if readonly:
         mandatory_code = ""
@@ -706,6 +736,7 @@ def custom_dual_multi_field(
     mandatory_code: str = "",
     param: str = "",
     readonly: bool = False,
+    **kwargs,
 ) -> Field:
     #  {'Associations': ['Actions humanitaires', 'Communication et sensibilisatio ...
     if readonly:
@@ -743,6 +774,7 @@ def custom_multi_opt_field(
     mandatory_code: str = "",
     param: str = "",
     readonly: bool = False,
+    **kwargs,
 ) -> Field:
     if readonly:
         mandatory_code = ""
@@ -833,14 +865,7 @@ def _collect_managed_data(form: FlaskForm, form_data: dict[str, Any]) -> dict[st
         ):
             managed_data[key] = value
         elif isinstance(wt_field, ValidImageField):
-            photo_filename, _uuid, photo = pop_tmp_blob(value)
-            managed_data[key] = (photo_filename, photo)
-    # debug:
-    # if managed_data:
-    #     print(
-    #         f"managed data: {managed_data}",
-    #         file=sys.stderr,
-    #     )
+            pass
     return managed_data
 
 
@@ -853,8 +878,7 @@ def _fill_managed_data(form: FlaskForm, managed_data: dict[str, Any]) -> None:
             wt_field.data = first
             wt_field.data2 = second
         elif isinstance(wt_field, ValidImageField):
-            filename, data = value
-            wt_field.load_data(data, filename)
+            pass
         else:
             wt_field.data = value
 
@@ -880,9 +904,6 @@ def generate_form(
     class DynForm(FlaskForm):
         pass
 
-    # if form_data:
-    #     print("////// form_data ////////", form_data, file=sys.stderr)
-    # else:
     if not form_data:
         form_data = {}
     kyc_order = []
@@ -892,14 +913,19 @@ def generate_form(
             profile_key, _ = _split_profile_field(profile_field.type)
             if mode_edition and profile_key in no_edit_fields:
                 continue
-            # print(f"/// {profile_field} {profile_key}", file=sys.stderr)
+
             field_fct = FIELD_TYPE_SELECTOR.get(profile_key)
-            # print(f"/// {profile_field} {profile_key} {field_fct}", file=sys.stderr)
             if not field_fct:  # until we provide all custom fields classes
                 print(f"Missing Field definition for: {profile_key!r}", file=sys.stderr)
                 continue
             group_ordered_fields.append(profile_field.name)
-            field_widget = field_fct(profile_field, code, profile_field.type)
+            extra_params = {}
+            if profile_key == "photo":
+                extra_params["file_object"] = form_data.get(profile_field.name)
+
+            field_widget = field_fct(
+                profile_field, code, profile_field.type, **extra_params
+            )
             setattr(DynForm, profile_field.name, field_widget)
 
         kyc_group = (group.label, group_ordered_fields)
@@ -907,6 +933,7 @@ def generate_form(
     DynForm.size = 3
     DynForm.kyc_order = kyc_order
     DynForm.kyc_description = profile.description
+    print(f"kyc_order: {kyc_order}", file=sys.stderr)
     form = DynForm()
     managed_data = _collect_managed_data(form, form_data)
     _fill_managed_data(form, managed_data)

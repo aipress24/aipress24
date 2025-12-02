@@ -4,13 +4,13 @@
 
 from __future__ import annotations
 
-import base64
 import sys
 import uuid
 from pathlib import Path
 from typing import Any
 from uuid import uuid4
 
+from advanced_alchemy.types import FileObject
 from arrow import now
 from email_validator import validate_email
 from flask import (
@@ -32,6 +32,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import scoped_session
 from svcs.flask import container
 from werkzeug import Response
+from werkzeug.datastructures import FileStorage
 from wtforms import Field
 
 from app.constants import (
@@ -68,7 +69,6 @@ from .populate_profile import populate_form_data, populate_json_field
 from .renderer import render_field
 from .survey_dataclass import SurveyField
 from .survey_model import get_survey_fields, get_survey_model, get_survey_profile
-from .temporary_blob import delete_tmp_blob, pop_tmp_blob, read_tmp_blob, store_tmp_blob
 
 # python 3.12
 # type ListVal = list[dict[str, str]]
@@ -202,50 +202,7 @@ def _filter_out_label_tags(name: Any) -> str:
     return name
 
 
-# def _display_all_possible_fields() -> None:
-#     survey = get_survey_model()
-#     for survey_fields in survey["survey_fields"].values():
-#         print(survey_fields.id, survey_fields.name, survey_fields.type, file=sys.stderr)
-
-
-def _store_tmp_blob_preload(key: str) -> tuple[str, int]:
-    req_dict = request.form.to_dict(flat=False)
-    b64_content = req_dict[key + "_preload_b64"][0]
-    filename = req_dict[key + "_preload_name"][0]
-    content = base64.standard_b64decode(b64_content.encode())
-    # size = len(content)
-    blob_id = store_tmp_blob(filename, content)
-    # print(f"Store b64: {blob_id} {filename} {len(content)}", file=sys.stderr)
-    return filename, blob_id
-
-
-def _store_tmp_blob(key: str) -> tuple[str, int]:
-    try:
-        filename = str(request.files[key].filename)
-        content = request.files[key].read()
-        # size = len(content)
-    except KeyError:
-        filename = ""
-        content = b""
-        # size = 0
-    if _allowed_image_suffix(filename):
-        content = resized(content)
-    blob_id = store_tmp_blob(filename, content)
-    # print(f"Store: {blob_id} {filename} {len(content)}", file=sys.stderr)
-    return filename, blob_id
-
-
-def get_tmp_blob(key: str) -> tuple[str, int]:
-    filename, blob_id = _store_tmp_blob(key)
-    if not filename:
-        filename, blob_id = _store_tmp_blob_preload(key)
-    return filename, blob_id
-
-
 def _parse_valid_form(form: FlaskForm, profile_id: str) -> None:
-    # _display_all_possible_fields()
-    # print("request form:", request.form, file=sys.stderr)
-    # print("request files:", request.files, file=sys.stderr)
     form_raw_results: dict[str, Any] = {}
     form_results: dict[str, Any] = {}
     form_labels_results: dict[str, Any] = {}
@@ -257,9 +214,21 @@ def _parse_valid_form(form: FlaskForm, profile_id: str) -> None:
         id_field = field.id
         form_id_key[id_field] = key
         if field.type == "ValidImageField":
-            filename, blob_id = get_tmp_blob(key)
-            form_raw_results[key] = blob_id
-            form_results[key] = f"fichier {filename!r}"
+            if (
+                field.data
+                and isinstance(field.data, FileStorage)
+                and field.data.filename
+            ):
+                file_object = FileObject(field.data)
+                file_object.save()
+                form_raw_results[key] = file_object
+                form_results[key] = f"fichier {field.data.filename!r}"
+            else:
+                # Keep existing image if any
+                raw_results = session.get("form_raw_results", {})
+                form_raw_results[key] = raw_results.get(key)
+                if fo := raw_results.get(key):
+                    form_results[key] = f"fichier {fo.filename!r}"
             form_labels_results[key] = _filter_out_label_tags(field.label.text)
         else:
             _parse_result(form_results, form_raw_results, field=field)
@@ -272,8 +241,6 @@ def _parse_valid_form(form: FlaskForm, profile_id: str) -> None:
                 form_labels_results[key_detail] = _filter_out_label_tags(
                     f"{field.label2}"
                 )
-    # for k, v in form_raw_results.items():
-    #     print("======", k, v, file=sys.stderr)
 
     session_service = container.get(SessionService)
     session_service.set("form_results", form_results)
@@ -290,21 +257,15 @@ def wizard_page(profile_id: str):
     modify_form = session_service.get("modify_form", False)
     profile = get_survey_profile(profile_id)
     if modify_form and request.method == "GET":
-        # print("modify_form", file=sys.stderr)
         form_data = session_service.get("form_raw_results")
-        # print("////////////edit form_data", form_data, file=sys.stderr)
         form = generate_form(profile, form_data, mode_edition=modify_form)
     else:
         form = generate_form(profile, mode_edition=modify_form)
 
-    # print(f"WIZARD request method {request.method}", file=sys.stderr)
-    # print(f"WIZARD profile:{profile_id}  {modify_form=}", file=sys.stderr)
-
     if request.method == "GET":
         ctx = {"form": form, "render_field": render_field}
         return render_template("wizard.html", **ctx)
-    # debug
-    # print("POST request form:", request.form, file=sys.stderr)
+
     if not form.validate_on_submit():
         print(f"validation errors {form.errors}", file=sys.stderr)
         _log_invalid_form(form)
@@ -334,26 +295,6 @@ def _get_diabled_flag_msg(raw_results: dict) -> tuple[str, str]:
     )
 
 
-def _write_tmp_data(data: bytes, uuid: str) -> None:
-    if not uuid:
-        return
-    images_dir = Path(current_app.instance_path) / "images"
-    images_dir.mkdir(parents=True, exist_ok=True)
-    path = images_dir / uuid
-    if not path.is_file():
-        path.write_bytes(data or b"")
-    # print("/////////////", str(file_path), file=sys.stderr)
-
-
-def _remove_tmp_data(uuid: str) -> None:
-    if not uuid:
-        return
-    images_dir = Path(current_app.instance_path) / "images"
-    images_dir.mkdir(parents=True, exist_ok=True)
-    path = images_dir / uuid
-    path.unlink(missing_ok=True)
-
-
 @blueprint.route("/images/<path:filename>")
 def images_page(filename):
     images_dir = Path(current_app.instance_path) / "images"
@@ -365,8 +306,6 @@ def validation_page():
     session_service = container.get(SessionService)
     results = session_service.get("form_results", {"nothing": "nothing"})
     raw_results = session_service.get("form_raw_results", {"nothing": "nothing"})
-    # for k, v in raw_results.items():
-    #     print("!!!!!!======", k, v, file=sys.stderr)
     labels = session_service.get("form_labels_results", {"nothing": "nothing"})
     id_key = session_service.get("form_id_key", {"nothing": "nothing"})
     profile_id = session_service.get("profile_id", "")
@@ -381,11 +320,10 @@ def validation_page():
             if code in {"?", "N"}:
                 continue
             ids.append(survey_field.id)
-            # add possible sub field
             sub_id = f"{survey_field.id}_detail"
             if sub_id in id_key:
                 ids.append(sub_id)
-            collect_photo_blob(images, raw_results, survey_field)
+            collect_photo_url(images, raw_results, survey_field)
         group_content["ids"] = ids
         groups.append(group_content)
 
@@ -418,13 +356,7 @@ def done_page():
 
 @blueprint.route("/undone")
 def undone_page():
-    # delete tmp content:
-    session_service = container.get(SessionService)
-    results = session_service.get("form_raw_results", {})
-    uuid = delete_tmp_blob(results.get("photo", None))
-    _remove_tmp_data(uuid)
-    uuid = delete_tmp_blob(results.get("photo_carte_presse", None))
-    _remove_tmp_data(uuid)
+    # TODO: implement a cleanup for orphaned FileObjects in S3
     return render_template("later.html")
 
 
@@ -441,21 +373,6 @@ def _role_from_name(name: str) -> Role:
     return roles_map.get(name, roles_map["GUEST"])
 
 
-def pop_local_blob_key(results: dict[str, Any], key: str) -> tuple[str, bytes]:
-    blob_id_value = results.get(key)
-    try:
-        blob_id = int(blob_id_value)
-    except (TypeError, ValueError):
-        blob_id = -1
-    return pop_local_blob_id(blob_id)
-
-
-def pop_local_blob_id(blob_id: int) -> tuple[str, bytes]:
-    filename, uuid, content = pop_tmp_blob(blob_id)
-    _remove_tmp_data(uuid)
-    return filename, content
-
-
 def _make_new_kyc_user_record() -> User:
     """Make a User record for newly created user.
 
@@ -465,11 +382,8 @@ def _make_new_kyc_user_record() -> User:
     session_service = container.get(SessionService)
     results = session_service.get("form_raw_results", {})
 
-    photo_filename, photo = pop_local_blob_key(results, "photo")
-    (
-        photo_carte_presse_filename,
-        photo_carte_presse,
-    ) = pop_local_blob_key(results, "photo_carte_presse")
+    photo_image = results.get("photo")
+    photo_carte_presse_image = results.get("photo_carte_presse")
 
     fs_uniquifier = results.get("fs_uniquifier") or uuid.uuid4().hex
 
@@ -495,10 +409,8 @@ def _make_new_kyc_user_record() -> User:
     user = User(
         last_name=results.get("last_name", ""),
         first_name=results.get("first_name", ""),
-        photo=photo,
-        photo_filename=photo_filename,
-        photo_carte_presse=photo_carte_presse,
-        photo_carte_presse_filename=photo_carte_presse_filename,
+        photo_image=photo_image,
+        photo_carte_presse_image=photo_carte_presse_image,
         gender=results.get("civilite", ""),
         email=results.get("email", ""),
         email_secours=results.get("email_secours", ""),
@@ -551,14 +463,6 @@ def _update_from_current_user(orig_user: User) -> User:
     session_service = container.get(SessionService)
     results = session_service.get("form_raw_results", {})
 
-    # photo_blob_id = results.get("photo", None)
-    photo_filename, photo = "aaa", None  # pop_local_blob_id(photo_blob_id)
-    # carte_presse_blob_id = results.get("photo_carte_presse", None)
-    # photo_carte_presse_filename, photo_carte_presse = pop_local_blob_id(
-    #     carte_presse_blob_id
-    # )
-    photo_carte_presse_filename, photo_carte_presse = "aaa", None
-
     if not orig_user.profile:  # should never happen
         _set_default_kyc_profile(orig_user)
 
@@ -585,9 +489,9 @@ def _update_from_current_user(orig_user: User) -> User:
 
     cloned_user.last_name = results.get("last_name", "")
     cloned_user.first_name = results.get("first_name", "")
-    cloned_user.photo_image = photo
+    cloned_user.photo_image = results.get("photo")
 
-    cloned_user.photo_carte_presse_image = photo_carte_presse
+    cloned_user.photo_carte_presse_image = results.get("photo_carte_presse")
     cloned_user.gender = results.get("civilite", "")
     # email=results.get("email", ""),
     # email_secours=results.get("email_secours", "")
@@ -720,27 +624,11 @@ def _update_current_user_data() -> str:
     )
 
 
-def _store_tmp_blob_from_user(content: bytes, filename: str) -> tuple[str, int]:
-    blob_id = store_tmp_blob(filename, content)
-    # print(f"Store: {blob_id} {filename} {len(content)}", file=sys.stderr)
-    return filename, blob_id
-
-
 def _populate_kyc_data_from_user(user: User) -> dict[str, Any]:
     profile = user.profile
     data: dict[str, Any] = {}
-    # debug: photos to be extracted as blobs
-    # blob_id_photo = store_tmp_blob(user.photo_filename, user.photo)
-    data["photo"] = "1"  # blob_id_photo
-    data["photo_filename"] = "aaa"  # user.photo_filename
-
-    # blob_id_carte = store_tmp_blob(
-    #     user.photo_carte_presse_filename, user.photo_carte_presse
-    # )
-    # data["photo_carte_presse"] = blob_id_carte
-    # data["photo_carte_presse_filename"] = user.photo_carte_presse_filename
-    data["photo_carte_presse"] = "1"  # blob_id_photo
-    data["photo_carte_presse_filename"] = "aaa"
+    data["photo"] = user.photo_image
+    data["photo_carte_presse"] = user.photo_carte_presse_image
 
     data["last_name"] = user.last_name
     data["first_name"] = user.first_name
@@ -795,19 +683,18 @@ def format_kyc_data(kyc_data: dict[str, Any]) -> dict[str, Any]:
     return {key: data_to_label(value, key) for key, value in kyc_data.items()}
 
 
-def collect_photo_blob(
+def collect_photo_url(
     images: dict,
     kyc_data: dict[str, Any],
     survey_field: SurveyField,
 ) -> str:
     url = ""
     if survey_field.type == "photo":
-        filename, uuid, data = read_tmp_blob(kyc_data.get(survey_field.name, ""))
-        _write_tmp_data(data, uuid)
-        if _allowed_image_suffix(filename):
-            images[survey_field.name] = uuid
-            images[survey_field.id] = uuid
-            url = url_for("kyc.images_page", filename=uuid)
+        file_object = kyc_data.get(survey_field.name)
+        if isinstance(file_object, FileObject):
+            url = file_object.sign()
+            images[survey_field.name] = url
+            images[survey_field.id] = url
     return url
 
 
@@ -912,7 +799,7 @@ def _public_group_info_profile(
                 add_information_row(
                     survey_field.id, survey_field.name, survey_field.description
                 )
-            if url := collect_photo_blob(images, kyc_data, survey_field):
+            if url := collect_photo_url(images, kyc_data, survey_field):
                 urls[survey_field.id] = url
         if not ids:
             continue
@@ -967,7 +854,7 @@ def _admin_group_info_profile(
                 add_information_row(
                     survey_field.id, survey_field.name, survey_field.description
                 )
-            if url := collect_photo_blob(images, kyc_data, survey_field):
+            if url := collect_photo_url(images, kyc_data, survey_field):
                 urls[survey_field.id] = url
         if not ids:
             continue
