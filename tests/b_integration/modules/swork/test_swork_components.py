@@ -10,7 +10,6 @@ from typing import TYPE_CHECKING
 
 import pytest
 from flask import Flask
-from flask.testing import FlaskClient
 from sqlalchemy.orm import Session
 
 from app.enums import OrganisationTypeEnum
@@ -124,26 +123,6 @@ def second_organisation(db_session: Session) -> Organisation:
     db_session.add(org)
     db_session.flush()
     return org
-
-
-@pytest.fixture
-def authenticated_client(
-    app: Flask, db_session: Session, test_user_with_profile: User
-) -> FlaskClient:
-    """Provide a Flask test client logged in as test user."""
-    client = app.test_client()
-
-    with client.session_transaction() as sess:
-        sess["_user_id"] = str(test_user_with_profile.id)
-        sess["_fresh"] = True
-        sess["_permanent"] = True
-        sess["_id"] = (
-            str(test_user_with_profile.fs_uniquifier)
-            if hasattr(test_user_with_profile, "fs_uniquifier")
-            else str(test_user_with_profile.id)
-        )
-
-    return client
 
 
 # =============================================================================
