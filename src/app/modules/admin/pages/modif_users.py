@@ -36,19 +36,17 @@ class ModifUsersTable(Table):
 
 
 class ModifUserDataSource(NewUserDataSource):
-    @classmethod
-    def count(cls) -> int:
+    def count(self) -> int:
         stmt = select(func.count()).select_from(User)
         stmt = stmt.filter(
             User.active == false(),
             User.is_clone == true(),
             User.deleted_at.is_(None),
         )
-        stmt = cls.add_search_filter(stmt)
+        stmt = self.add_search_filter(stmt)
         return db.session.scalar(stmt)
 
-    @classmethod
-    def get_base_select(cls) -> select:
+    def get_base_select(self) -> select:
         return (
             select(User)
             .where(
@@ -57,12 +55,11 @@ class ModifUserDataSource(NewUserDataSource):
                 User.deleted_at.is_(None),
             )
             .order_by(nulls_last(desc(User.last_login_at)))
-            .offset(cls.offset)
-            .limit(cls.limit)
+            .offset(self.offset)
+            .limit(self.limit)
         )
 
-    @classmethod
-    def make_records(cls, objects) -> list[dict]:
+    def make_records(self, objects) -> list[dict]:
         result = []
         for obj in objects:
             record = {
@@ -92,43 +89,49 @@ class AdminModifUsersPage(BaseAdminPage):
     table_class = ModifUsersTable
 
     def context(self):
-        records = self.ds_class.records()
+        ds = self.ds_class()
+        records = ds.records()
         table = self.table_class(records)
-        table.start = self.ds_class.offset + 1
-        count = self.ds_class.count()
-        table.end = min(self.ds_class.offset + self.ds_class.limit, count)
+        table.start = ds.offset + 1
+        table.end = ds.offset + ds.limit
+        count = ds.count()
+        table.end = min(ds.offset + ds.limit, count)
         table.count = count
-        table.searching = self.ds_class.search
+        table.searching = ds.search
         return {
             "table": table,
         }
 
     def hx_post(self) -> str | Response:
+        ds = self.ds_class()
         action = request.form.get("action")
-        search_string = request.form.get("search")
+        search_string = request.form.get("search", "")
         if action:
             if action == "next":
-                self.ds_class.inc()
+                redirect_url = self._build_url(
+                    offset=ds.next_offset(), search=ds.search
+                )
                 response = Response("")
-                response.headers["HX-Redirect"] = self.url
+                response.headers["HX-Redirect"] = redirect_url
                 return response
             if action == "previous":
-                self.ds_class.dec()
+                redirect_url = self._build_url(
+                    offset=ds.prev_offset(), search=ds.search
+                )
                 response = Response("")
-                response.headers["HX-Redirect"] = self.url
+                response.headers["HX-Redirect"] = redirect_url
                 return response
         if search_string:
-            if search_string != self.ds_class.search:
-                self.ds_class.first_page()
-            self.ds_class.search = search_string
-            response = Response("")
-            response.headers["HX-Redirect"] = self.url
-            return response
-        if self.ds_class.search:
-            self.ds_class.first_page()
-        self.ds_class.search = ""
+            if search_string:
+                # New search resets to first page
+                offset = 0 if search_string != ds.search else ds.offset
+                redirect_url = self._build_url(offset=offset, search=search_string)
+            else:
+                # Clear search, reset to first page
+                redirect_url = self._build_url()
+
         response = Response("")
-        response.headers["HX-Redirect"] = self.url
+        response.headers["HX-Redirect"] = redirect_url
         return response
 
         # no validation
