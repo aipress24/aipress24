@@ -36,6 +36,12 @@ if TYPE_CHECKING:
 _e2e_engine_disposed = False
 
 
+@pytest.fixture
+def client(app: Flask) -> FlaskClient:
+    """Provide a basic Flask test client (not logged in)."""
+    return app.test_client()
+
+
 @pytest.fixture(autouse=True)
 def db_session(db, app):
     """Override the parent db_session fixture for E2E tests.
