@@ -20,6 +20,7 @@ from app.flask.main import create_app
 from flask.ctx import AppContext
 from sqlalchemy import create_engine, event, text
 from sqlalchemy.exc import OperationalError, ProgrammingError
+from sqlalchemy.pool import StaticPool
 
 
 class TestConfig:
@@ -34,6 +35,9 @@ class TestConfig:
     SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"  # Default DB
     WTF_CSRF_ENABLED = False
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+    # Note: Pool options are set dynamically in get_test_config() for PostgreSQL only.
+    # SQLite uses StaticPool which doesn't support these options.
 
     # S3/MinIO Mock
     S3_ACCESS_KEY_ID = "minioadmin"
@@ -130,6 +134,17 @@ def app(db_url: str):
 
     config = TestConfig()
     config.SQLALCHEMY_DATABASE_URI = db_url
+
+    # Use StaticPool for PostgreSQL tests to ensure a single connection is shared.
+    # This fixes connection pool exhaustion when authenticated_client tests trigger
+    # Flask-SQLAlchemy's teardown, which calls db.session.remove(). Without StaticPool,
+    # new sessions may acquire new connections from the pool that aren't properly
+    # returned, causing QueuePool exhaustion.
+    # SQLite already uses StaticPool by default for :memory: databases.
+    if "postgresql" in db_url:
+        config.SQLALCHEMY_ENGINE_OPTIONS = {
+            "poolclass": StaticPool,
+        }
 
     app = create_app(config)
 
