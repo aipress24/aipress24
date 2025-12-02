@@ -4,12 +4,14 @@
 
 from __future__ import annotations
 
+import pytest
 from flask_sqlalchemy import SQLAlchemy
 
 from app.models.auth import User
 from app.models.organisation import Organisation
 from app.modules.wire.models import ArticlePost
 from app.services.social_graph import adapt
+from app.services.social_graph._adapters import SocialGraphError
 
 
 def test_followers_users(db: SQLAlchemy) -> None:
@@ -114,10 +116,6 @@ def test_likes(db: SQLAlchemy) -> None:
 
 def test_follow_self_raises_error(db: SQLAlchemy) -> None:
     """Test that following yourself with raw User raises SocialGraphError."""
-    import pytest
-
-    from app.services.social_graph._adapters import SocialGraphError
-
     joe = User(email="joe@example.com")
     db.session.add(joe)
     db.session.flush()
@@ -268,8 +266,6 @@ def test_unlike_when_not_liking(db: SQLAlchemy) -> None:
 
 def test_adapt_unsupported_type(db: SQLAlchemy) -> None:
     """Test that adapt raises NotImplementedError for unsupported types."""
-    import pytest
-
     # Try to adapt an unsupported type
     with pytest.raises(NotImplementedError, match="Adaptation of.*not implemented"):
         adapt("unsupported")

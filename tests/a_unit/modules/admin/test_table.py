@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+import arrow
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
@@ -273,13 +274,11 @@ class TestGenericOrgDataSource:
 
     def test_get_base_select_excludes_deleted(self, app: Flask, db: SQLAlchemy) -> None:
         """Test get_base_select excludes deleted organisations."""
-        from datetime import datetime
-
         org1 = Organisation(name="ActiveOrgUnique", type=OrganisationTypeEnum.AUTO.name)
         org2 = Organisation(
             name="DeletedOrgUnique",
             type=OrganisationTypeEnum.AUTO.name,
-            deleted_at=datetime.now(),
+            deleted_at=arrow.now().datetime,
         )
         db.session.add_all([org1, org2])
         db.session.flush()

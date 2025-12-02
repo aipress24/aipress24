@@ -8,6 +8,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from flask import session
+
 from app.flask.components.filterset import Filter, FilterSet, Sorter
 
 
@@ -229,8 +231,6 @@ class TestSorter:
         sorter = Sorter(options)
 
         with app.test_request_context():
-            from flask import session
-
             # Test default behavior (no session value set)
             result = sorter.current
             assert result == "Date"

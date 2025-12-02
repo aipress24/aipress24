@@ -7,6 +7,7 @@ from __future__ import annotations
 from io import BytesIO
 from pathlib import Path
 
+import pytest
 from flask_sqlalchemy import SQLAlchemy
 from svcs.flask import container
 from werkzeug.datastructures import FileStorage
@@ -61,8 +62,6 @@ def test_save_file_storage(db: SQLAlchemy) -> None:
 def test_save_unsupported_type(db: SQLAlchemy) -> None:
     """Test saving with unsupported type raises ValueError."""
     blob_service = container.get(BlobService)
-
-    import pytest
 
     with pytest.raises(ValueError, match="Unsupported type"):
         blob_service.save(123)  # type: ignore

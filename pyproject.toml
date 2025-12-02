@@ -191,7 +191,8 @@ dev = [
     "pyrefly>=0.32.0",
     "monkeytype>=23.3.0",
     # S3 mock
-    "pytest-minio-mock"
+    "pytest-minio-mock",
+    "responses>=0.25.8",
 ]
 
 [build-system]

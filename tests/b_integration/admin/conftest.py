@@ -14,8 +14,6 @@ from app.enums import RoleEnum
 from app.models.auth import Role, User
 
 if TYPE_CHECKING:
-    from flask import Flask
-    from flask.testing import FlaskClient
     from sqlalchemy.orm import Session
 
 
@@ -58,21 +56,3 @@ def non_admin_user(db_session: Session) -> User:
     db_session.add(user)
     db_session.flush()  # Use flush() instead of commit() to preserve transaction isolation
     return user
-
-
-@pytest.fixture
-def admin_client(app: Flask, db_session: Session, admin_user: User) -> FlaskClient:
-    """Provide a Flask test client logged in as admin."""
-    client = app.test_client()
-
-    with client.session_transaction() as sess:
-        sess["_user_id"] = str(admin_user.id)
-        sess["_fresh"] = True
-        sess["_permanent"] = True
-        sess["_id"] = (
-            str(admin_user.fs_uniquifier)
-            if hasattr(admin_user, "fs_uniquifier")
-            else str(admin_user.id)
-        )
-
-    return client

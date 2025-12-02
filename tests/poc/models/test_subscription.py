@@ -10,8 +10,8 @@ from datetime import datetime, timezone
 from decimal import Decimal
 from typing import TYPE_CHECKING
 
-
 from poc.blueprints.bw_activation_full.models import (
+    BusinessWall,
     Subscription,
     SubscriptionRepository,
 )
@@ -22,8 +22,6 @@ from poc.blueprints.bw_activation_full.models.subscription import (
 
 if TYPE_CHECKING:
     from sqlalchemy.orm import Session
-
-    from poc.blueprints.bw_activation_full.models import BusinessWall
 
 
 class TestSubscription:
@@ -164,8 +162,6 @@ class TestSubscription:
     def test_subscription_pricing_tiers(self, db_session: Session, mock_user_id: int):
         """Test all pricing tiers can be created."""
         # Create a business wall for subscriptions
-        from poc.blueprints.bw_activation_full.models import BusinessWall
-
         bw = BusinessWall(
             bw_type="pr",
             status="draft",

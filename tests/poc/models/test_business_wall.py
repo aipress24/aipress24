@@ -10,6 +10,7 @@ from datetime import datetime, timezone
 from typing import TYPE_CHECKING
 
 import pytest
+from advanced_alchemy.exceptions import NotFoundError
 
 from poc.blueprints.bw_activation_full.models import (
     BusinessWall,
@@ -198,8 +199,6 @@ class TestBusinessWallRepository:
 
     def test_repository_delete(self, db_session: Session, business_wall: BusinessWall):
         """Test repository delete operation."""
-        from advanced_alchemy.exceptions import NotFoundError
-
         repo = BusinessWallRepository(session=db_session)
 
         bw_id = business_wall.id

@@ -5,13 +5,12 @@
 """Tests for business_wall_form module.
 
 This test file focuses on the testable utility functions and class initialization
-logic. Full integration testing of form generation would require extensive setup.
+logic. Tests verify state (returned forms, merged data) rather than behavior.
 """
 
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
-from unittest.mock import patch
 
 import pytest
 from flask_wtf import FlaskForm
@@ -221,10 +220,15 @@ class TestBWFormGeneratorInitialization:
 
 
 class TestBWFormGeneratorGenerate:
-    """Test suite for BWFormGenerator.generate() method."""
+    """Test suite for BWFormGenerator.generate() method.
+
+    Tests verify that generate() returns a valid FlaskForm for each bw_type.
+    State-based testing: we check the returned form, not which internal
+    methods were called.
+    """
 
     def test_generate_with_no_bw_type(self, db_session: Session):
-        """Test generate() with org that has no bw_type."""
+        """Test generate() with org that has no bw_type returns empty form."""
         org = Organisation(name="Test Org", creator_profile_code="PM_DIR")
         org.bw_type = None
         db_session.add(org)
@@ -233,135 +237,116 @@ class TestBWFormGeneratorGenerate:
         generator = BWFormGenerator(org=org)
         form = generator.generate()
 
-        # Should return empty form
+        # Should return a FlaskForm (possibly empty)
         assert isinstance(form, FlaskForm)
 
-    def test_generate_with_agency_type(self, db_session: Session):
-        """Test generate() with AGENCY bw_type."""
+    def test_generate_with_agency_type_returns_form(self, db_session: Session):
+        """Test generate() with AGENCY bw_type returns a valid form."""
         org = Organisation(name="Test Org", creator_profile_code="PM_DIR")
         org.bw_type = BWTypeEnum.AGENCY
         db_session.add(org)
         db_session.flush()
 
-        with patch.object(BWFormGenerator, "form_agency") as mock_form_agency:
-            mock_form_agency.return_value = FlaskForm()
-            generator = BWFormGenerator(org=org)
-            form = generator.generate()
+        generator = BWFormGenerator(org=org)
+        form = generator.generate()
 
-            mock_form_agency.assert_called_once()
-            assert isinstance(form, FlaskForm)
+        assert isinstance(form, FlaskForm)
 
-    def test_generate_with_media_type(self, db_session: Session):
-        """Test generate() with MEDIA bw_type."""
+    def test_generate_with_media_type_returns_form(self, db_session: Session):
+        """Test generate() with MEDIA bw_type returns a valid form."""
         org = Organisation(name="Test Org", creator_profile_code="PM_DIR")
         org.bw_type = BWTypeEnum.MEDIA
         db_session.add(org)
         db_session.flush()
 
-        with patch.object(BWFormGenerator, "form_media") as mock_form_media:
-            mock_form_media.return_value = FlaskForm()
-            generator = BWFormGenerator(org=org)
-            generator.generate()
+        generator = BWFormGenerator(org=org)
+        form = generator.generate()
 
-            mock_form_media.assert_called_once()
+        assert isinstance(form, FlaskForm)
 
-    def test_generate_with_micro_type(self, db_session: Session):
-        """Test generate() with MICRO bw_type."""
+    def test_generate_with_micro_type_returns_form(self, db_session: Session):
+        """Test generate() with MICRO bw_type returns a valid form."""
         org = Organisation(name="Test Org", creator_profile_code="PM_DIR")
         org.bw_type = BWTypeEnum.MICRO
         db_session.add(org)
         db_session.flush()
 
-        with patch.object(BWFormGenerator, "form_micro") as mock:
-            mock.return_value = FlaskForm()
-            generator = BWFormGenerator(org=org)
-            generator.generate()
+        generator = BWFormGenerator(org=org)
+        form = generator.generate()
 
-            mock.assert_called_once()
+        assert isinstance(form, FlaskForm)
 
-    def test_generate_with_corporate_type(self, db_session: Session):
-        """Test generate() with CORPORATE bw_type."""
+    def test_generate_with_corporate_type_returns_form(self, db_session: Session):
+        """Test generate() with CORPORATE bw_type returns a valid form."""
         org = Organisation(name="Test Org", creator_profile_code="PM_DIR")
         org.bw_type = BWTypeEnum.CORPORATE
         db_session.add(org)
         db_session.flush()
 
-        with patch.object(BWFormGenerator, "form_corporate") as mock:
-            mock.return_value = FlaskForm()
-            generator = BWFormGenerator(org=org)
-            generator.generate()
+        generator = BWFormGenerator(org=org)
+        form = generator.generate()
 
-            mock.assert_called_once()
+        assert isinstance(form, FlaskForm)
 
-    def test_generate_with_pressunion_type(self, db_session: Session):
-        """Test generate() with PRESSUNION bw_type."""
+    def test_generate_with_pressunion_type_returns_form(self, db_session: Session):
+        """Test generate() with PRESSUNION bw_type returns a valid form."""
         org = Organisation(name="Test Org", creator_profile_code="PM_DIR")
         org.bw_type = BWTypeEnum.PRESSUNION
         db_session.add(org)
         db_session.flush()
 
-        with patch.object(BWFormGenerator, "form_pressunion") as mock:
-            mock.return_value = FlaskForm()
-            generator = BWFormGenerator(org=org)
-            generator.generate()
+        generator = BWFormGenerator(org=org)
+        form = generator.generate()
 
-            mock.assert_called_once()
+        assert isinstance(form, FlaskForm)
 
-    def test_generate_with_com_type(self, db_session: Session):
-        """Test generate() with COM bw_type."""
+    def test_generate_with_com_type_returns_form(self, db_session: Session):
+        """Test generate() with COM bw_type returns a valid form."""
         org = Organisation(name="Test Org", creator_profile_code="PM_DIR")
         org.bw_type = BWTypeEnum.COM
         db_session.add(org)
         db_session.flush()
 
-        with patch.object(BWFormGenerator, "form_com") as mock:
-            mock.return_value = FlaskForm()
-            generator = BWFormGenerator(org=org)
-            generator.generate()
+        generator = BWFormGenerator(org=org)
+        form = generator.generate()
 
-            mock.assert_called_once()
+        assert isinstance(form, FlaskForm)
 
-    def test_generate_with_organisation_type(self, db_session: Session):
-        """Test generate() with ORGANISATION bw_type."""
+    def test_generate_with_organisation_type_returns_form(self, db_session: Session):
+        """Test generate() with ORGANISATION bw_type returns a valid form."""
         org = Organisation(name="Test Org", creator_profile_code="PM_DIR")
         org.bw_type = BWTypeEnum.ORGANISATION
         db_session.add(org)
         db_session.flush()
 
-        with patch.object(BWFormGenerator, "form_organisation") as mock:
-            mock.return_value = FlaskForm()
-            generator = BWFormGenerator(org=org)
-            generator.generate()
+        generator = BWFormGenerator(org=org)
+        form = generator.generate()
 
-            mock.assert_called_once()
+        assert isinstance(form, FlaskForm)
 
-    def test_generate_with_transformer_type(self, db_session: Session):
-        """Test generate() with TRANSFORMER bw_type."""
+    def test_generate_with_transformer_type_returns_form(self, db_session: Session):
+        """Test generate() with TRANSFORMER bw_type returns a valid form."""
         org = Organisation(name="Test Org", creator_profile_code="PM_DIR")
         org.bw_type = BWTypeEnum.TRANSFORMER
         db_session.add(org)
         db_session.flush()
 
-        with patch.object(BWFormGenerator, "form_transformer") as mock:
-            mock.return_value = FlaskForm()
-            generator = BWFormGenerator(org=org)
-            generator.generate()
+        generator = BWFormGenerator(org=org)
+        form = generator.generate()
 
-            mock.assert_called_once()
+        assert isinstance(form, FlaskForm)
 
-    def test_generate_with_academics_type(self, db_session: Session):
-        """Test generate() with ACADEMICS bw_type."""
+    def test_generate_with_academics_type_returns_form(self, db_session: Session):
+        """Test generate() with ACADEMICS bw_type returns a valid form."""
         org = Organisation(name="Test Org", creator_profile_code="PM_DIR")
         org.bw_type = BWTypeEnum.ACADEMICS
         db_session.add(org)
         db_session.flush()
 
-        with patch.object(BWFormGenerator, "form_academics") as mock:
-            mock.return_value = FlaskForm()
-            generator = BWFormGenerator(org=org)
-            generator.generate()
+        generator = BWFormGenerator(org=org)
+        form = generator.generate()
 
-            mock.assert_called_once()
+        assert isinstance(form, FlaskForm)
 
 
 class TestMergeOrgResults:

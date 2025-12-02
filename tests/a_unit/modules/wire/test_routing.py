@@ -11,6 +11,7 @@ from werkzeug.routing.exceptions import BuildError
 
 from app.flask.routing import url_for
 from app.models.auth import User
+from app.modules.wire import routing as wire_routing  # noqa: F401
 from app.modules.wire.models import ArticlePost, PressReleasePost
 
 
@@ -30,8 +31,6 @@ class TestArticlePostRouting:
         db.session.flush()
 
         # Import the routing module to ensure functions are registered
-        from app.modules.wire import routing  # noqa: F401
-
         # Call the generic url_for dispatcher which will find our registered function
         result = url_for(article)
 
@@ -52,8 +51,6 @@ class TestArticlePostRouting:
         db.session.add(article)
         db.session.flush()
 
-        from app.modules.wire import routing  # noqa: F401
-
         # The article_action route doesn't exist, so this should raise BuildError
         with pytest.raises(BuildError):
             url_for(article, _action="edit")
@@ -70,8 +67,6 @@ class TestArticlePostRouting:
         db.session.add(article)
         db.session.flush()
 
-        from app.modules.wire import routing  # noqa: F401
-
         # Custom namespace route doesn't exist, so this should raise BuildError
         with pytest.raises(BuildError):
             url_for(article, _ns="custom")
@@ -87,8 +82,6 @@ class TestArticlePostRouting:
         article = ArticlePost(owner=user, title="Test Article")
         db.session.add(article)
         db.session.flush()
-
-        from app.modules.wire import routing  # noqa: F401
 
         result = url_for(article, tab="content")
 
@@ -113,8 +106,6 @@ class TestPressReleasePostRouting:
         db.session.add(press_release)
         db.session.flush()
 
-        from app.modules.wire import routing  # noqa: F401
-
         result = url_for(press_release)
 
         assert result is not None
@@ -133,8 +124,6 @@ class TestPressReleasePostRouting:
         db.session.add(press_release)
         db.session.flush()
 
-        from app.modules.wire import routing  # noqa: F401
-
         # The article_action route doesn't exist, so this should raise BuildError
         with pytest.raises(BuildError):
             url_for(press_release, _action="delete")
@@ -151,8 +140,6 @@ class TestPressReleasePostRouting:
         db.session.add(press_release)
         db.session.flush()
 
-        from app.modules.wire import routing  # noqa: F401
-
         # Custom namespace route doesn't exist, so this should raise BuildError
         with pytest.raises(BuildError):
             url_for(press_release, _ns="admin")
@@ -168,8 +155,6 @@ class TestPressReleasePostRouting:
         press_release = PressReleasePost(owner=user, title="Test Press Release")
         db.session.add(press_release)
         db.session.flush()
-
-        from app.modules.wire import routing  # noqa: F401
 
         result = url_for(press_release, view="detail")
 

@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING
+from uuid import uuid4
 
 import pytest
 from arrow import Arrow
@@ -33,8 +34,6 @@ if TYPE_CHECKING:
 @pytest.fixture
 def sample_users(db_session: Session) -> list[User]:
     """Create sample users for export testing."""
-    from uuid import uuid4
-
     press_media_role = (
         db_session.query(Role).filter_by(name=RoleEnum.PRESS_MEDIA.name).first()
     )
@@ -135,7 +134,6 @@ class TestBaseExporter:
 
     def test_get_datetime_attr_with_arrow(self):
         """Test get_datetime_attr converts Arrow to datetime."""
-        from datetime import datetime
 
         class MockObj:
             test_attr = Arrow(2024, 1, 15, 10, 30)
