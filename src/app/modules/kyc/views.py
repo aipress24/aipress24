@@ -222,19 +222,41 @@ def _parse_valid_form(form: FlaskForm, profile_id: str) -> None:
             ):
                 file_content = field.data.read()
                 file_object = FileObject(
-                    file_content,
+                    content=file_content,
                     filename=field.data.filename,
                     content_type=field.data.content_type,
+                    backend="s3",
                 )
                 file_object.save()
-                form_raw_results[key] = file_object
+                form_raw_results[key] = file_object.to_dict()
                 form_results[key] = f"fichier {field.data.filename!r}"
             else:
-                # Keep existing image if any
                 raw_results = session.get("form_raw_results", {})
-                form_raw_results[key] = raw_results.get(key)
-                if fo := raw_results.get(key):
-                    form_results[key] = f"fichier {fo.filename!r}"
+                existing_file_data = raw_results.get(key)
+                if isinstance(existing_file_data, FileObject):
+                    form_raw_results[key] = existing_file_data.to_dict()
+                    form_results[key] = f"fichier {existing_file_data.filename!r}"
+                elif isinstance(existing_file_data, dict):
+                    try:
+                        deserialized_fo = FileObject(
+                            backend=existing_file_data["backend"],
+                            filename=existing_file_data["filename"],
+                            content_type=existing_file_data.get("content_type"),
+                            size=existing_file_data.get("size"),
+                            last_modified=existing_file_data.get("last_modified"),
+                            checksum=existing_file_data.get("checksum"),
+                            etag=existing_file_data.get("etag"),
+                            version_id=existing_file_data.get("version_id"),
+                            metadata=existing_file_data.get("metadata"),
+                        )
+                        form_raw_results[key] = deserialized_fo.to_dict()
+                        form_results[key] = f"fichier {deserialized_fo.filename!r}"
+                    except (KeyError, ValueError, TypeError):
+                        form_raw_results[key] = None
+                        form_results[key] = None
+                else:
+                    form_raw_results[key] = None
+                    form_results[key] = None
             form_labels_results[key] = _filter_out_label_tags(field.label.text)
         else:
             _parse_result(form_results, form_raw_results, field=field)
@@ -632,8 +654,14 @@ def _update_current_user_data() -> str:
 def _populate_kyc_data_from_user(user: User) -> dict[str, Any]:
     profile = user.profile
     data: dict[str, Any] = {}
-    data["photo"] = user.photo_image
-    data["photo_carte_presse"] = user.photo_carte_presse_image
+    data["photo"] = (
+        user.photo_image.to_dict() if isinstance(user.photo_image, FileObject) else None
+    )
+    data["photo_carte_presse"] = (
+        user.photo_carte_presse_image.to_dict()
+        if isinstance(user.photo_carte_presse_image, FileObject)
+        else None
+    )
 
     data["last_name"] = user.last_name
     data["first_name"] = user.first_name
