@@ -10,6 +10,8 @@ from advanced_alchemy.types import FileObject
 from flask import current_app
 from wtforms import FileField, widgets
 
+from .file_object_utils import _deserialize_file_object
+
 
 class ValidImageWidget(widgets.Input):
     def __call__(self, field: ValidImageField, **kwargs):
@@ -33,7 +35,11 @@ class ValidImageField(FileField):
         self.max_image_size = kwargs.pop("max_image_size", 2048)  # KB
         self.is_required = kwargs.pop("is_required", False)
         self.readonly = kwargs.pop("readonly", False)
-        self.file_object = kwargs.pop("file_object", None)
+
+        # Deserialize file_object if it's a dict
+        initial_file_data = kwargs.pop("file_object", None)
+        self.file_object = _deserialize_file_object(initial_file_data)
+
         super().__init__(**kwargs)
         self.multiple = False
 
