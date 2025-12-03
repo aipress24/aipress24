@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any
 
 from advanced_alchemy.types import FileObject
 from flask import current_app
@@ -29,7 +30,7 @@ class ValidImageField(FileField):
     def __init__(
         self,
         *,
-        file_object: FileObject | None = None,
+        file_object: FileObject | dict[str, Any] | None = None,
         **kwargs,
     ) -> None:
         self.max_image_size = kwargs.pop("max_image_size", 2048)  # KB
@@ -37,9 +38,7 @@ class ValidImageField(FileField):
         self.readonly = kwargs.pop("readonly", False)
 
         # Deserialize file_object if it's a dict
-        initial_file_data = kwargs.pop("file_object", None)
-        self.file_object = _deserialize_file_object(initial_file_data)
-
+        self.file_object = _deserialize_file_object(file_object)
         super().__init__(**kwargs)
         self.multiple = False
 
