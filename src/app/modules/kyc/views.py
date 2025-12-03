@@ -640,15 +640,14 @@ def _update_current_user_data() -> str:
 def _populate_kyc_data_from_user(user: User) -> dict[str, Any]:
     profile = user.profile
     data: dict[str, Any] = {}
-    data["photo"] = (
-        user.photo_image.to_dict() if isinstance(user.photo_image, FileObject) else None
-    )
-    data["photo_carte_presse"] = (
-        user.photo_carte_presse_image.to_dict()
-        if isinstance(user.photo_carte_presse_image, FileObject)
-        else None
-    )
-
+    if isinstance(user.photo_image, FileObject):
+        data["photo"] = user.photo_image
+    else:
+        data["photo"] = None
+    if isinstance(user.photo_carte_presse_image, FileObject):
+        data["photo_carte_presse"] = user.photo_carte_presse_image
+    else:
+        data["photo_carte_presse"] = None
     data["last_name"] = user.last_name
     data["first_name"] = user.first_name
     data["civilite"] = user.gender
