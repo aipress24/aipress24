@@ -203,7 +203,8 @@ def _filter_out_label_tags(name: Any) -> str:
 
 
 def _parse_valid_form(form: FlaskForm, profile_id: str) -> None:
-    form_raw_results: dict[str, Any] = {}
+    session_service = container.get(SessionService)
+    form_raw_results: dict[str, Any] = session_service.get("form_raw_results", {})
     form_results: dict[str, Any] = {}
     form_labels_results: dict[str, Any] = {}
     form_id_key: dict[str, Any] = {}
@@ -219,7 +220,12 @@ def _parse_valid_form(form: FlaskForm, profile_id: str) -> None:
                 and isinstance(field.data, FileStorage)
                 and field.data.filename
             ):
-                file_object = FileObject(field.data)
+                file_content = field.data.read()
+                file_object = FileObject(
+                    file_content,
+                    filename=field.data.filename,
+                    content_type=field.data.content_type,
+                )
                 file_object.save()
                 form_raw_results[key] = file_object
                 form_results[key] = f"fichier {field.data.filename!r}"
@@ -242,7 +248,6 @@ def _parse_valid_form(form: FlaskForm, profile_id: str) -> None:
                     f"{field.label2}"
                 )
 
-    session_service = container.get(SessionService)
     session_service.set("form_results", form_results)
     session_service.set("form_raw_results", form_raw_results)
     session_service.set("form_labels_results", form_labels_results)

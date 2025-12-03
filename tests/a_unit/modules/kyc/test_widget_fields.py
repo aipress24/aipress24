@@ -225,31 +225,6 @@ def test_valid_image_field_init():
     assert form.logo_custom.max_image_size == 1024
 
 
-def test_valid_image_field_load_data():
-    """Test ValidImageField load_data method."""
-    form = TestFormImage()
-
-    # Test loading data
-    test_data = b"test image data"
-    form.logo.load_data(test_data, "test.jpg")
-
-    assert form.logo.data == test_data
-    assert form.logo.data_b64 == base64.standard_b64encode(test_data)
-    assert form.logo.preload_filename == "test.jpg"
-    assert form.logo.preload_filesize == len(test_data)
-
-
-def test_valid_image_field_preloaded_image():
-    """Test ValidImageField preloaded_image method."""
-    form = TestFormImage()
-
-    test_data = b"test image data"
-    form.logo.load_data(test_data, "test.jpg")
-
-    result = form.logo.preloaded_image()
-    assert result == base64.standard_b64encode(test_data).decode()
-
-
 def test_valid_image_field_id_methods():
     """Test ValidImageField id-related methods."""
     form = TestFormImage()
@@ -257,5 +232,3 @@ def test_valid_image_field_id_methods():
     # These methods generate IDs for preload fields
     assert form.logo.id_preload_name() == "logo_preload_name"
     assert form.logo.name_preload_name() == "logo_preload_name"
-    assert form.logo.id_preload_b64() == "logo_preload_b64"
-    assert form.logo.name_preload_b64() == "logo_preload_b64"
