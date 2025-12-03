@@ -87,7 +87,7 @@
         accept="image/png, image/jpeg"
     >
     <input
-        id=id="{{ field.id_preload_name() }}"
+        id="{{ field.id_preload_name() }}"
         name="{{ field.name_preload_name() }}"
         x-ref="preload_name"
         type="hidden"
@@ -104,6 +104,6 @@
     <template x-if="imageError">
         <p class="my-0 mx-40 text-red-900 text-sm" x-text="imageError">
         </p>
-    </-template>
+    </template>
 
 </div>
