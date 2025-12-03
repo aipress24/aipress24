@@ -4,7 +4,6 @@
 
 from __future__ import annotations
 
-import sys
 import uuid
 from pathlib import Path
 from typing import Any
@@ -231,37 +230,16 @@ def _parse_valid_form(form: FlaskForm, profile_id: str) -> None:
                 form_raw_results[key] = file_object.to_dict()
                 form_results[key] = f"fichier {field.data.filename!r}"
             else:
-                # Keep existing image if any
-                raw_results = session.get("form_raw_results", {})
-                existing_file_data = raw_results.get(key)
-                if isinstance(existing_file_data, FileObject):
-                    # store dict representation
-                    form_raw_results[key] = existing_file_data.to_dict()
-                    form_results[key] = f"fichier {existing_file_data.filename!r}"
-                elif isinstance(existing_file_data, dict):
-                    # back to FileObject
-                    try:
-                        deserialized_fo = FileObject(
-                            backend=existing_file_data["backend"],
-                            filename=existing_file_data["filename"],
-                            content_type=existing_file_data.get("content_type"),
-                            size=existing_file_data.get("size"),
-                            last_modified=existing_file_data.get("last_modified"),
-                            checksum=existing_file_data.get("checksum"),
-                            etag=existing_file_data.get("etag"),
-                            version_id=existing_file_data.get("version_id"),
-                            metadata=existing_file_data.get("metadata"),
-                        )
-                        form_raw_results[key] = (
-                            deserialized_fo.to_dict()
-                        )  # Store back as dict
-                        form_results[key] = f"fichier {deserialized_fo.filename!r}"
-                    except (KeyError, ValueError, TypeError):
-                        form_raw_results[key] = None
-                        form_results[key] = None
+                # If no new file uploaded, keep current filename for display
+                existing_file_data_for_display = form_raw_results.get(key)
+                if isinstance(
+                    existing_file_data_for_display, dict
+                ) and existing_file_data_for_display.get("filename"):
+                    form_results[key] = (
+                        f"fichier {existing_file_data_for_display['filename']!r}"
+                    )
                 else:
-                    form_raw_results[key] = None
-                    form_results[key] = None
+                    form_results[key] = ""
             form_labels_results[key] = _filter_out_label_tags(field.label.text)
         else:
             _parse_result(form_results, form_raw_results, field=field)
@@ -648,7 +626,6 @@ def _minor_modification_validated(
 def _update_current_user_data() -> str:
     db_session = db.session
     orig_user = User.query.get(current_user.id)
-    print("//Updating// updating user:", orig_user, file=sys.stderr)
     cloned_user = _update_from_current_user(orig_user)
     critical_modified_fields = _get_critical_modified_fields(orig_user, cloned_user)
     if critical_modified_fields:
