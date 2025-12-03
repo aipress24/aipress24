@@ -93,10 +93,19 @@ def _load_user_data_in_session() -> None:
     profile = user.profile
     # warning: no need to clone so early
     # cloned_user = clone_user(user)
-    kyc_data = _populate_kyc_data_from_user(user)
+    kyc_data_for_display = _populate_kyc_data_from_user(user)
+
+    # convert to dict kyc_data for session storage
+    kyc_data_for_session = {}
+    for key, value in kyc_data_for_display.items():
+        if isinstance(value, FileObject):
+            kyc_data_for_session[key] = value.to_dict()
+        else:
+            kyc_data_for_session[key] = value
+
     session_service = container.get(SessionService)
     session_service.set("profile_id", profile.profile_id)
-    session_service.set("form_raw_results", kyc_data)
+    session_service.set("form_raw_results", kyc_data_for_session)
     session_service.set("modify_form", True)
 
 
