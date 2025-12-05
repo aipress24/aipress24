@@ -8,6 +8,7 @@ from __future__ import annotations
 from flask_super.decorators import service
 
 from app.models.auth import Role, User
+from app.models.email_log import EmailLog
 from app.models.organisation import Organisation
 from app.services.repositories import Repository
 
@@ -34,3 +35,8 @@ class RoleRepository(Repository[Role]):
 @service
 class OrganisationRepository(Repository[Organisation]):
     model_type = Organisation
+
+
+@service
+class EmailLogRepository(Repository[EmailLog]):
+    model_type = EmailLog
