@@ -9,7 +9,7 @@ from typing import Any
 from advanced_alchemy.types import FileObject
 
 
-def _deserialize_file_object(file_data: dict[str, Any] | None) -> FileObject | None:
+def deserialize_file_object(file_data: dict[str, Any] | None) -> FileObject | None:
     if (
         isinstance(file_data, dict)
         and file_data.get("backend")

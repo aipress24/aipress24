@@ -11,7 +11,7 @@ from advanced_alchemy.types import FileObject
 from flask import current_app
 from wtforms import FileField, widgets
 
-from .file_object_utils import _deserialize_file_object
+from app.lib.file_object_utils import deserialize_file_object
 
 
 class ValidImageWidget(widgets.Input):
@@ -38,7 +38,7 @@ class ValidImageField(FileField):
         self.readonly = kwargs.pop("readonly", False)
 
         # Deserialize file_object if it's a dict
-        self.file_object = _deserialize_file_object(file_object)
+        self.file_object = deserialize_file_object(file_object)
         super().__init__(**kwargs)
         self.multiple = False
 
