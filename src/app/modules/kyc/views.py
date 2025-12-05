@@ -42,6 +42,7 @@ from app.constants import (
 )
 from app.enums import CommunityEnum
 from app.flask.extensions import db
+from app.lib.file_object_utils import deserialize_file_object
 from app.lib.image_utils import resized
 from app.models.auth import (
     KYCProfile,
@@ -62,7 +63,6 @@ from . import blueprint
 from .community_role import append_user_role_from_community
 from .dynform import TAG_LABELS, generate_form
 from .field_label import data_to_label
-from .lib.file_object_utils import _deserialize_file_object
 from .ontology_loader import zip_code_city_list
 from .populate_profile import populate_form_data, populate_json_field
 from .renderer import render_field
@@ -401,8 +401,8 @@ def _make_new_kyc_user_record() -> User:
     session_service = container.get(SessionService)
     results = session_service.get("form_raw_results", {})
 
-    photo_image = _deserialize_file_object(results.get("photo"))
-    photo_carte_presse_image = _deserialize_file_object(
+    photo_image = deserialize_file_object(results.get("photo"))
+    photo_carte_presse_image = deserialize_file_object(
         results.get("photo_carte_presse")
     )
 
@@ -510,9 +510,9 @@ def _update_from_current_user(orig_user: User) -> User:
 
     cloned_user.last_name = results.get("last_name", "")
     cloned_user.first_name = results.get("first_name", "")
-    cloned_user.photo_image = _deserialize_file_object(results.get("photo"))
+    cloned_user.photo_image = deserialize_file_object(results.get("photo"))
 
-    cloned_user.photo_carte_presse_image = _deserialize_file_object(
+    cloned_user.photo_carte_presse_image = deserialize_file_object(
         results.get("photo_carte_presse")
     )
     cloned_user.gender = results.get("civilite", "")
