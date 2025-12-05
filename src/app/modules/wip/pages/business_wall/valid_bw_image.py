@@ -4,17 +4,20 @@
 
 from __future__ import annotations
 
-import base64
 from pathlib import Path
+from typing import Any
 
+from advanced_alchemy.types import FileObject
 from flask import current_app
 from wtforms import FileField, widgets
 
+from app.lib.file_object_utils import deserialize_file_object
+
 
 class ValidBWImageWidget(widgets.Input):
-    def __call__(self, field: ValidBWImageField, **kwargs):
+    def __call__(self, field: ValidImageField, **kwargs):
         template = self.get_template()
-        return template.render(field=field)
+        return template.render(field=field, **kwargs)
 
     def get_template(self):
         template_path = Path(__file__).parent / "valid_bw_image.j2"
@@ -26,34 +29,38 @@ class ValidBWImageField(FileField):
 
     def __init__(
         self,
+        *,
+        file_object: FileObject | dict[str, Any] | None = None,
         **kwargs,
     ) -> None:
         self.max_image_size = kwargs.pop("max_image_size", 2048)  # KB
-        self.data_b64 = kwargs.pop("data_b64", b"")
-        self.preload_filename = kwargs.pop("filename", "")
-        self.preload_filesize = kwargs.pop("filesize", 0)
         self.is_required = kwargs.pop("is_required", False)
         self.readonly = kwargs.pop("readonly", False)
+
+        # Deserialize file_object if it's a dict
+        self.file_object = deserialize_file_object(file_object)
         super().__init__(**kwargs)
         self.multiple = False
 
-    def load_data(self, data: bytes) -> None:
-        self.data = data or b""
-        self.data_b64 = base64.standard_b64encode(self.data)
-        self.preload_filename = "unused"
-        self.preload_filesize = len(self.data)
+    @property
+    def preload_filename(self) -> str:
+        if self.file_object:
+            return self.file_object.filename or ""
+        return ""
 
-    def preloaded_image(self) -> str:
-        return self.data_b64.decode()
+    @property
+    def preload_filesize(self) -> int:
+        if self.file_object and self.file_object.size:
+            return self.file_object.size
+        return 0
+
+    def get_image_url(self) -> str | None:
+        if self.file_object:
+            return self.file_object.sign()
+        return None
 
     def id_preload_name(self) -> str:
         return self.id + "_preload_name"
 
     def name_preload_name(self) -> str:
         return self.name + "_preload_name"
-
-    def id_preload_b64(self) -> str:
-        return self.id + "_preload_b64"
-
-    def name_preload_b64(self) -> str:
-        return self.name + "_preload_b64"
