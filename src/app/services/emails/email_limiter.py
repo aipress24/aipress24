@@ -18,22 +18,13 @@ EMAILS_LOG_STORAGE_CUTOFF = 90
 
 
 def is_email_sending_allowed(recipient_email: str) -> bool:
-    """Check if recipient has reached the mail limit (20 per month).
-
-    Also clean the back log."""
+    """Check if recipient has reached the mail limit (20 per month)."""
 
     recipient_email = recipient_email.lower().strip()
 
     db_session = container.get(scoped_session)
     now = arrow.now("Europe/Paris")
     period_start = now.shift(days=-EMAIL_PERIOD_DAYS)
-    cleanup_limit = now.shift(days=-EMAILS_LOG_STORAGE_CUTOFF)
-
-    stmt = delete(EmailLog).where(
-        EmailLog.recipient_email == recipient_email,
-        EmailLog.sent_at < cleanup_limit,
-    )
-    db_session.execute(stmt)
 
     emails_sent_period = (
         db_session.query(EmailLog)
@@ -45,3 +36,29 @@ def is_email_sending_allowed(recipient_email: str) -> bool:
     )
 
     return emails_sent_period < EMAILS_MAX_SENT_LAST_PERIOD
+
+
+def email_log_recipient(recipient_email: str) -> None:
+    """Increment the count of sent mails for recipient.
+
+    Also clean the back log."""
+
+    recipient_email = recipient_email.lower().strip()
+    now = arrow.now("Europe/Paris")
+    cleanup_limit = now.shift(days=-EMAILS_LOG_STORAGE_CUTOFF)
+
+    db_session = container.get(scoped_session)
+
+    stmt = delete(EmailLog).where(
+        EmailLog.recipient_email == recipient_email,
+        EmailLog.sent_at < cleanup_limit,
+    )
+    db_session.execute(stmt)
+
+    mail_log = EmailLog(
+        recipient_email=recipient_email,
+        sent_at=now,
+    )
+
+    db_session.add(mail_log)
+    db_session.commit()
