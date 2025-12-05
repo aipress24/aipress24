@@ -62,4 +62,4 @@ def email_log_recipient(recipient_email: str) -> None:
     )
 
     db_session.add(mail_log)
-    db_session.commit()
+    db_session.flush()
