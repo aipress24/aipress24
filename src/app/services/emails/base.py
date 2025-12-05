@@ -46,7 +46,7 @@ class EmailTemplate:
 
     def send(self) -> bool:
         if self.kwargs.get("force") or is_email_sending_allowed(self.recipient):
-            result = self.send_mail()
+            result = self._send_mail()
             if result:
                 email_log_recipient(self.recipient)
         else:
@@ -55,7 +55,7 @@ class EmailTemplate:
             result = False
         return result
 
-    def send_mail(self) -> bool:
+    def _send_mail(self) -> bool:
         # subject='',
         # body='',
         # from_email=None,

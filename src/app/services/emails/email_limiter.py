@@ -10,11 +10,12 @@ from sqlalchemy import delete
 from sqlalchemy.orm import scoped_session
 from svcs.flask import container
 
+from app.constants import (
+    EMAILS_LOG_STORAGE_CUTOFF,
+    EMAILS_MAX_SENT_LAST_PERIOD,
+    EMAILS_PERIOD_DAYS,
+)
 from app.models.email_log import EmailLog
-
-EMAIL_PERIOD_DAYS = 30
-EMAILS_MAX_SENT_LAST_PERIOD = 20
-EMAILS_LOG_STORAGE_CUTOFF = 90
 
 
 def is_email_sending_allowed(recipient_email: str) -> bool:
@@ -24,7 +25,7 @@ def is_email_sending_allowed(recipient_email: str) -> bool:
 
     db_session = container.get(scoped_session)
     now = arrow.now("Europe/Paris")
-    period_start = now.shift(days=-EMAIL_PERIOD_DAYS)
+    period_start = now.shift(days=-EMAILS_PERIOD_DAYS)
 
     emails_sent_period = (
         db_session.query(EmailLog)
