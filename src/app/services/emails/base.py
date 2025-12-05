@@ -13,6 +13,7 @@ from loguru import logger
 from markdown import markdown
 
 from . import mail_templates
+from .email_limiter import email_log_recipient, is_email_sending_allowed
 
 
 class EmailTemplate:
@@ -43,7 +44,18 @@ class EmailTemplate:
         msg = "No mail template"
         raise ValueError(msg)
 
-    def send(self) -> None:
+    def send(self) -> bool:
+        if self.kwargs.get("force") or is_email_sending_allowed(self.recipient):
+            result = self.send_mail()
+            if result:
+                email_log_recipient(self.recipient)
+        else:
+            msg = f"Mail quota exceeded for recipients: {self.recipient!r}"
+            logger.error(msg)
+            result = False
+        return result
+
+    def send_mail(self) -> bool:
         # subject='',
         # body='',
         # from_email=None,
@@ -64,6 +76,8 @@ class EmailTemplate:
         try:
             message.send()
             logger.info(f"Mail {self.__class__.__name__} sent to: {self.recipient!r}")
+            return True
         except SMTPException as e:
             msg = f"Error for recipients: {self.recipient!r} :\nSMTP error {e}"
             logger.error(msg)
+            return False
