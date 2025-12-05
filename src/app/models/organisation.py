@@ -14,6 +14,7 @@ from datetime import UTC, datetime
 
 import arrow
 import sqlalchemy as sa
+from advanced_alchemy.types.file_object import FileObject, StoredObject
 from slugify import slugify
 from sqlalchemy import JSON
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -152,8 +153,12 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
     # NOUVEAU
     # galerie d'images
 
-    logo_id: Mapped[str] = mapped_column(default="")
-    cover_image_id: Mapped[str] = mapped_column(default="")
+    logo_image: Mapped[FileObject | None] = mapped_column(
+        StoredObject(backend="s3"), nullable=True
+    )
+    cover_image: Mapped[FileObject | None] = mapped_column(
+        StoredObject(backend="s3"), nullable=True
+    )
     screenshot_id: Mapped[str] = mapped_column(default="")
 
     members = relationship(
@@ -278,6 +283,26 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
     @hybrid_property
     def leaders(self) -> list[User]:
         return [user for user in self.members if user.is_leader]
+
+    def cover_image_signed_url(self, expires_in: int = 3600) -> str:
+        file_obj: FileObject | None = self.cover_image
+        if file_obj is None:
+            return "/static/img/transparent-square.png"
+        try:
+            return file_obj.sign(expires_in=expires_in, for_upload=False)
+        except RuntimeError as e:
+            msg = f"Storage failed to sign URL for cover image org.id : {self.id}, key {file_obj.object_key}: {e}"
+            raise RuntimeError(msg) from e
+
+    def logo_image_signed_url(self, expires_in: int = 3600) -> str:
+        file_obj: FileObject | None = self.logo_image
+        if file_obj is None:
+            return "/static/img/transparent-square.png"
+        try:
+            return file_obj.sign(expires_in=expires_in, for_upload=False)
+        except RuntimeError as e:
+            msg = f"Storage failed to sign URL for logo image org.id : {self.id}, key {file_obj.object_key}: {e}"
+            raise RuntimeError(msg) from e
 
 
 __1 = """
