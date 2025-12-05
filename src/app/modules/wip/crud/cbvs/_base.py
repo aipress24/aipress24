@@ -26,7 +26,6 @@ from app.models.organisation import Organisation
 from app.modules.kyc.ontology_loader import get_choices as get_ontology_choices
 from app.modules.wip.crud.cbvs._table import BaseTable
 from app.modules.wip.menu import make_menu
-from app.services.blobs import BlobService
 from app.services.context import Context
 from app.services.menus import MenuService
 from app.services.repositories import Repository
@@ -246,14 +245,6 @@ class BaseWipView(FlaskView, abc.ABC):
             # FIXME
             model.media = g.user.organisation
             model.commanditaire_id = g.user.id
-
-        blob_service = container.get(BlobService)
-        files = request.files
-        # FIXME
-        if "image" in files:
-            blob = blob_service.save(files["image"])
-            if blob.size > 0:
-                model.image_id = blob.id
 
         form.populate_obj(model)
         self._post_update_model(model)
