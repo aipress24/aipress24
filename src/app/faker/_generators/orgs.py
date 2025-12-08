@@ -13,9 +13,10 @@ from mimesis import Person
 from app.enums import BWTypeEnum, OrganisationTypeEnum
 from app.faker._constants import COVER_IMAGES, ORGANISATIONS
 from app.faker._geo import fake_geoloc
-from app.lib.image_utils import squared
+from app.lib.image_utils import resized, squared
 from app.models.organisation import Organisation
-from app.modules.common.blob_utils import add_blob_content
+from advanced_alchemy.types import FileObject
+
 
 from .base import BaseGenerator, faker
 from .users import random_taille_orga
@@ -70,10 +71,19 @@ class OrgGenerator(BaseGenerator):
         """Set logo and cover images for organization."""
         idx = random.randint(1, 14)
         logo_content = Path(f"src/app/static/tmp/logos/{idx}.png").read_bytes()
-        org.logo_id = add_blob_content(squared(logo_content))
+        org.logo_image = FileObject(
+            content=squared(logo_content),
+            filename=f"logo_{idx}.png",
+            content_type="image/png",
+            backend="s3",
+        )
         cover_content = urllib.request.urlopen(random.choice(COVER_IMAGES)).read()  # noqa: S310
-        org.cover_image_id = add_blob_content(cover_content)
-        org.cover_image_id = ""
+        org.cover_image = FileObject(
+            content=resized(cover_content),
+            filename="cover.jpg",
+            content_type="image/jpeg",
+            backend="s3",
+        )
 
     def _set_agency_specific_info(self, org: Organisation) -> None:
         """Set agency-specific information if org is an agency."""
