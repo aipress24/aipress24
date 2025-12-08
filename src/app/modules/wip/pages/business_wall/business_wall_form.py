@@ -6,15 +6,17 @@ from __future__ import annotations
 
 from typing import Any
 
+from advanced_alchemy.types import FileObject
 from flask import request
 from flask_wtf import FlaskForm
+from werkzeug.datastructures import FileStorage
 from wtforms import Field
 
 from app.enums import BWTypeEnum, ProfileEnum
-from app.lib.image_utils import squared
+from app.lib.image_utils import resized, squared
+from app.logging import warn
 from app.models.auth import User
 from app.models.organisation import Organisation
-from app.modules.common.blob_utils import add_blob_content, get_blob_content
 from app.modules.kyc.dynform import (
     custom_bool_field,
     custom_country_field,
@@ -272,10 +274,18 @@ class BWFormGenerator:
         # )
 
         BWDynForm.logo_content = custom_bw_logo_field(
-            "logo_image", "Logo de l'organisation", False, self.readonly
+            "logo_image",
+            "Logo de l'organisation",
+            False,
+            self.readonly,
+            file_object=self.org.logo_image,
         )
         BWDynForm.cover_content = custom_bw_logo_field(
-            "cover_image", "Image de présentation", False, self.readonly
+            "cover_image",
+            "Image de présentation",
+            False,
+            self.readonly,
+            file_object=self.org.cover_image,
         )
 
         form = BWDynForm(obj=self.org)
@@ -285,8 +295,8 @@ class BWFormGenerator:
         # form.secteurs_activite_rp.data2 = self.org.secteurs_activite_rp_detail
         # form.secteurs_activite.data2 = self.org.secteurs_activite_detail
         # form.type_organisation.data2 = self.org.type_organisation_detail
-        form.logo_content.load_data(get_blob_content(self.org.logo_id))
-        form.cover_content.load_data(get_blob_content(self.org.cover_image_id))
+        form.logo_content.file_object = self.org.logo_image
+        form.cover_content.file_object = self.org.cover_image
 
         return form
 
@@ -455,10 +465,18 @@ class BWFormGenerator:
         #     "cover_image_url", "URL de l'image de présentation", False, self.readonly
         # )
         BWDynForm.logo_content = custom_bw_logo_field(
-            "logo_image", "Logo de l'organisation", False, self.readonly
+            "logo_image",
+            "Logo de l'organisation",
+            False,
+            self.readonly,
+            file_object=self.org.logo_image,
         )
         BWDynForm.cover_content = custom_bw_logo_field(
-            "cover_image", "Image de présentation", False, self.readonly
+            "cover_image",
+            "Image de présentation",
+            False,
+            self.readonly,
+            file_object=self.org.cover_image,
         )
 
         form = BWDynForm(obj=self.org)
@@ -468,8 +486,8 @@ class BWFormGenerator:
         # form.secteurs_activite_rp.data2 = self.org.secteurs_activite_rp_detail
         # form.secteurs_activite.data2 = self.org.secteurs_activite_detail
         # form.type_organisation.data2 = self.org.type_organisation_detail
-        form.logo_content.load_data(get_blob_content(self.org.logo_id))
-        form.cover_content.load_data(get_blob_content(self.org.cover_image_id))
+        form.logo_content.file_object = self.org.logo_image
+        form.cover_content.file_object = self.org.cover_image
 
         return form
 
@@ -638,10 +656,18 @@ class BWFormGenerator:
         #     "cover_image_url", "URL de l'image de présentation", False, self.readonly
         # )
         BWDynForm.logo_content = custom_bw_logo_field(
-            "logo_image", "Logo de l'organisation", False, self.readonly
+            "logo_image",
+            "Logo de l'organisation",
+            False,
+            self.readonly,
+            file_object=self.org.logo_image,
         )
         BWDynForm.cover_content = custom_bw_logo_field(
-            "cover_image", "Image de présentation", False, self.readonly
+            "cover_image",
+            "Image de présentation",
+            False,
+            self.readonly,
+            file_object=self.org.cover_image,
         )
 
         form = BWDynForm(obj=self.org)
@@ -651,8 +677,8 @@ class BWFormGenerator:
         # form.secteurs_activite_rp.data2 = self.org.secteurs_activite_rp_detail
         # form.secteurs_activite.data2 = self.org.secteurs_activite_detail
         # form.type_organisation.data2 = self.org.type_organisation_detail
-        form.logo_content.load_data(get_blob_content(self.org.logo_id))
-        form.cover_content.load_data(get_blob_content(self.org.cover_image_id))
+        form.logo_content.file_object = self.org.logo_image
+        form.cover_content.file_object = self.org.cover_image
 
         return form
 
@@ -815,10 +841,18 @@ class BWFormGenerator:
         #     "cover_image_url", "URL de l'image de présentation", False, self.readonly
         # )
         BWDynForm.logo_content = custom_bw_logo_field(
-            "logo_image", "Logo de l'organisation", False, self.readonly
+            "logo_image",
+            "Logo de l'organisation",
+            False,
+            self.readonly,
+            file_object=self.org.logo_image,
         )
         BWDynForm.cover_content = custom_bw_logo_field(
-            "cover_image", "Image de présentation", False, self.readonly
+            "cover_image",
+            "Image de présentation",
+            False,
+            self.readonly,
+            file_object=self.org.cover_image,
         )
 
         form = BWDynForm(obj=self.org)
@@ -828,8 +862,6 @@ class BWFormGenerator:
         # form.secteurs_activite_rp.data2 = self.org.secteurs_activite_rp_detail
         # form.secteurs_activite.data2 = self.org.secteurs_activite_detail
         # form.type_organisation.data2 = self.org.type_organisation_detail
-        form.logo_content.load_data(get_blob_content(self.org.logo_id))
-        form.cover_content.load_data(get_blob_content(self.org.cover_image_id))
 
         return form
 
@@ -985,10 +1017,18 @@ class BWFormGenerator:
         #     "cover_image_url", "URL de l'image de présentation", False, self.readonly
         # )
         BWDynForm.logo_content = custom_bw_logo_field(
-            "logo_image", "Logo de l'organisation", False, self.readonly
+            "logo_image",
+            "Logo de l'organisation",
+            False,
+            self.readonly,
+            file_object=self.org.logo_image,
         )
         BWDynForm.cover_content = custom_bw_logo_field(
-            "cover_image", "Image de présentation", False, self.readonly
+            "cover_image",
+            "Image de présentation",
+            False,
+            self.readonly,
+            file_object=self.org.cover_image,
         )
 
         form = BWDynForm(obj=self.org)
@@ -998,8 +1038,8 @@ class BWFormGenerator:
         # form.secteurs_activite_rp.data2 = self.org.secteurs_activite_rp_detail
         # form.secteurs_activite.data2 = self.org.secteurs_activite_detail
         # form.type_organisation.data2 = self.org.type_organisation_detail
-        form.logo_content.load_data(get_blob_content(self.org.logo_id))
-        form.cover_content.load_data(get_blob_content(self.org.cover_image_id))
+        form.logo_content.file_object = self.org.logo_image
+        form.cover_content.file_object = self.org.cover_image
 
         return form
 
@@ -1161,10 +1201,18 @@ class BWFormGenerator:
         #     "cover_image_url", "URL de l'image de présentation", False, self.readonly
         # )
         BWDynForm.logo_content = custom_bw_logo_field(
-            "logo_image", "Logo de l'organisation", False, self.readonly
+            "logo_image",
+            "Logo de l'organisation",
+            False,
+            self.readonly,
+            file_object=self.org.logo_image,
         )
         BWDynForm.cover_content = custom_bw_logo_field(
-            "cover_image", "Image de présentation", False, self.readonly
+            "cover_image",
+            "Image de présentation",
+            False,
+            self.readonly,
+            file_object=self.org.cover_image,
         )
 
         form = BWDynForm(obj=self.org)
@@ -1174,8 +1222,6 @@ class BWFormGenerator:
         form.secteurs_activite_rp.data2 = self.org.secteurs_activite_rp_detail
         # form.secteurs_activite.data2 = self.org.secteurs_activite_detail
         # form.type_organisation.data2 = self.org.type_organisation_detail
-        form.logo_content.load_data(get_blob_content(self.org.logo_id))
-        form.cover_content.load_data(get_blob_content(self.org.cover_image_id))
 
         return form
 
@@ -1349,10 +1395,18 @@ class BWFormGenerator:
         #     "cover_image_url", "URL de l'image de présentation", False, self.readonly
         # )
         BWDynForm.logo_content = custom_bw_logo_field(
-            "logo_image", "Logo de l'organisation", False, self.readonly
+            "logo_image",
+            "Logo de l'organisation",
+            False,
+            self.readonly,
+            file_object=self.org.logo_image,
         )
         BWDynForm.cover_content = custom_bw_logo_field(
-            "cover_image", "Image de présentation", False, self.readonly
+            "cover_image",
+            "Image de présentation",
+            False,
+            self.readonly,
+            file_object=self.org.cover_image,
         )
 
         form = BWDynForm(obj=self.org)
@@ -1366,8 +1420,6 @@ class BWFormGenerator:
             form.secteurs_activite_rp.data2 = self.org.secteurs_activite_rp_detail
         form.secteurs_activite.data2 = self.org.secteurs_activite_detail
         form.type_organisation.data2 = self.org.type_organisation_detail
-        form.logo_content.load_data(get_blob_content(self.org.logo_id))
-        form.cover_content.load_data(get_blob_content(self.org.cover_image_id))
 
         return form
 
@@ -1538,10 +1590,18 @@ class BWFormGenerator:
         #     "cover_image_url", "URL de l'image de présentation", False, self.readonly
         # )
         BWDynForm.logo_content = custom_bw_logo_field(
-            "logo_image", "Logo de l'organisation", False, self.readonly
+            "logo_image",
+            "Logo de l'organisation",
+            False,
+            self.readonly,
+            file_object=self.org.logo_image,
         )
         BWDynForm.cover_content = custom_bw_logo_field(
-            "cover_image", "Image de présentation", False, self.readonly
+            "cover_image",
+            "Image de présentation",
+            False,
+            self.readonly,
+            file_object=self.org.cover_image,
         )
 
         form = BWDynForm(obj=self.org)
@@ -1551,8 +1611,6 @@ class BWFormGenerator:
         form.secteurs_activite.data2 = self.org.secteurs_activite_detail
         form.type_organisation.data2 = self.org.type_organisation_detail
         form.transformation_majeure.data2 = self.org.transformation_majeure_detail
-        form.logo_content.load_data(get_blob_content(self.org.logo_id))
-        form.cover_content.load_data(get_blob_content(self.org.cover_image_id))
 
         return form
 
@@ -1715,10 +1773,18 @@ class BWFormGenerator:
         #     "cover_image_url", "URL de l'image de présentation", False, self.readonly
         # )
         BWDynForm.logo_content = custom_bw_logo_field(
-            "logo_image", "Logo de l'organisation", False, self.readonly
+            "logo_image",
+            "Logo de l'organisation",
+            False,
+            self.readonly,
+            file_object=self.org.logo_image,
         )
         BWDynForm.cover_content = custom_bw_logo_field(
-            "cover_image", "Image de présentation", False, self.readonly
+            "cover_image",
+            "Image de présentation",
+            False,
+            self.readonly,
+            file_object=self.org.cover_image,
         )
 
         form = BWDynForm(obj=self.org)
@@ -1727,20 +1793,26 @@ class BWFormGenerator:
         # form.secteurs_activite_medias.data2 = self.org.secteurs_activite_medias_detail
         form.secteurs_activite.data2 = self.org.secteurs_activite_detail
         form.type_organisation.data2 = self.org.type_organisation_detail
-        form.logo_content.load_data(get_blob_content(self.org.logo_id))
-        form.cover_content.load_data(get_blob_content(self.org.cover_image_id))
 
         return form
 
 
-def get_new_image_content(key: str) -> tuple[str, bytes]:
+def _get_form_image_file_storage(key: str) -> FileObject | None:
     try:
-        filename = str(request.files[key].filename)
-        content = request.files[key].read()
-    except KeyError:
-        filename = ""
-        content = b""
-    return filename, content
+        uploaded = request.files[key]
+        if uploaded and isinstance(uploaded, FileStorage) and uploaded.filename:
+            uploaded.seek(0)
+            file_object = FileObject(
+                content=uploaded.read(),
+                filename=uploaded.filename,
+                content_type=uploaded.content_type,
+                backend="s3",
+            )
+            file_object.save()
+            return file_object
+    except Exception as e:
+        warn(f"Error reading uploaded file for {key!r} : {e}")
+    return None
 
 
 def merge_org_results(  # noqa: PLR0915
@@ -1751,6 +1823,7 @@ def merge_org_results(  # noqa: PLR0915
 
     Do not commit any DB.
     """
+    from app.logging import warn
 
     def _parse_bool(key: str) -> bool:
         content = results.get(key, [])
@@ -1829,21 +1902,15 @@ def merge_org_results(  # noqa: PLR0915
     org.site_url = _parse_first("site_url")
     # org.logo_url = _parse_first("logo_url")
     # org.cover_image_url = _parse_first("cover_image_url")
+    #
 
-    filename, blob_content = get_new_image_content("logo_image")
-    if filename:
-        blob_id = add_blob_content(squared(blob_content))
-        org.logo_id = blob_id
-    cover_filename, cover_blob_content = get_new_image_content("cover_image")
-    if cover_filename:
-        blob_id = add_blob_content(cover_blob_content)
-        org.cover_image_id = blob_id
+    file_object = _get_form_image_file_storage("logo_image")
+    if file_object is not None:
+        org.logo_image = file_object
 
-    # print("///////// results", results, file=sys.stderr)
-    # print("///////// results", len(logo_image), file=sys.stderr)
-    # print("///////// results", logo_filename, file=sys.stderr)
-    # if logo_image:
-    #     org.logo_content = logo_image
+    file_object = _get_form_image_file_storage("cover_image")
+    if file_object is not None:
+        org.cover_image = file_object
 
 
 def string_field(

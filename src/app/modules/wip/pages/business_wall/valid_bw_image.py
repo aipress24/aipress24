@@ -15,7 +15,7 @@ from app.lib.file_object_utils import deserialize_file_object
 
 
 class ValidBWImageWidget(widgets.Input):
-    def __call__(self, field: ValidImageField, **kwargs):
+    def __call__(self, field: ValidBWImageField, **kwargs):
         template = self.get_template()
         return template.render(field=field, **kwargs)
 
@@ -36,9 +36,7 @@ class ValidBWImageField(FileField):
         self.max_image_size = kwargs.pop("max_image_size", 2048)  # KB
         self.is_required = kwargs.pop("is_required", False)
         self.readonly = kwargs.pop("readonly", False)
-
-        # Deserialize file_object if it's a dict
-        self.file_object = deserialize_file_object(file_object)
+        self.file_object = file_object
         super().__init__(**kwargs)
         self.multiple = False
 
