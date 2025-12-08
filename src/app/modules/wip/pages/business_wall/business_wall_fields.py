@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from wtforms import Field, validators
+from advanced_alchemy.types import FileObject
 
 from .valid_bw_image import ValidBWImageField
 
@@ -29,17 +29,12 @@ def _filter_photo_format(description: str) -> str:
     return f"{description} {TAG_PHOTO_FORMAT}"
 
 
-def _filter_mandatory_validator(code: bool) -> list:
-    if code:
-        return [validators.InputRequired()]
-    return [validators.Optional()]
-
-
 def custom_bw_logo_field(
     name: str,
     description: str,
     mandatory: bool = False,
     readonly: bool = False,
+    file_object: FileObject | dict[str, Any] | None = None,
 ) -> Field:
     # FIXME: what's this supposed to do?
     # validators_list = _filter_mandatory_validator(mandatory)
@@ -58,4 +53,5 @@ def custom_bw_logo_field(
         render_kw=render_kw,
         readonly=1 if readonly else 0,
         max_image_size=4096,
+        file_object=file_object,
     )

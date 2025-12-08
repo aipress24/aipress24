@@ -225,9 +225,7 @@ class BusinessWallRegistrationPage(BaseWipPage):
             return "/static/img/transparent-square.png"
         if self.org.is_auto:
             return "/static/img/logo-page-non-officielle.png"
-        if not self.org.logo_id:
-            return "/static/img/transparent-square.png"
-        return url_for("api.get_blob", id=self.org.logo_id)
+        return self.org.logo_image_signed_url()
 
     def context(self) -> dict[str, Any]:
         self.update_bw_subscription_state()

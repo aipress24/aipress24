@@ -172,14 +172,14 @@ class OrgVM(ViewModel):
         return cast("Organisation", self._model)
 
     def extra_attrs(self):
-        return {"logo_url": self.get_logo_url()}
+        return {
+            "logo_url": self.get_logo_url(),
+        }
 
     def get_logo_url(self) -> str:
         if self.org.is_auto:
             return "/static/img/logo-page-non-officielle.png"
-        if not self.org.logo_id:
-            return "/static/img/transparent-square.png"
-        return url_for("api.get_blob", id=self.org.logo_id)
+        return self.org.logo_image_signed_url()
 
 
 class OrgsDirectory(Directory):

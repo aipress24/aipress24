@@ -25,10 +25,8 @@ def org_logo(org: Organisation, size: int = 24, **kw) -> Markup | str:
     # Generate logo URL
     if org.is_auto:
         url = "/static/img/logo-page-non-officielle.png"
-    elif not org.logo_id:
-        url = "/static/img/transparent-square.png"
     else:
-        url = url_for("api.get_blob", id=org.logo_id)
+        url = org.logo_image_signed_url()
 
     cls += [f"h-{size}", f"w-{size}"]
 
