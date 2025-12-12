@@ -13,7 +13,6 @@ from werkzeug.datastructures import FileStorage
 from wtforms import Field
 
 from app.enums import BWTypeEnum, ProfileEnum
-from app.lib.image_utils import resized, squared
 from app.logging import warn
 from app.models.auth import User
 from app.models.organisation import Organisation
@@ -1823,7 +1822,6 @@ def merge_org_results(  # noqa: PLR0915
 
     Do not commit any DB.
     """
-    from app.logging import warn
 
     def _parse_bool(key: str) -> bool:
         content = results.get(key, [])

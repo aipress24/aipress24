@@ -13,7 +13,6 @@ from werkzeug import Response
 
 from app.flask.extensions import db
 from app.flask.lib.pages import page
-from app.flask.routing import url_for
 from app.modules.admin.invitations import emails_invited_to_organisation
 from app.modules.admin.org_email_utils import (
     change_invitations_emails,

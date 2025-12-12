@@ -16,7 +16,6 @@ from app.flask.extensions import db
 from app.flask.lib.pages import page
 from app.flask.lib.toaster import toast
 from app.flask.lib.view_model import ViewModel
-from app.flask.routing import url_for
 from app.flask.sqla import get_multi, get_obj
 from app.models.auth import User
 from app.models.lifecycle import PublicationStatus

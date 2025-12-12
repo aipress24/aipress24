@@ -13,7 +13,6 @@ from svcs.flask import container
 from app.flask.extensions import db
 from app.flask.lib.pages import page
 from app.flask.lib.view_model import ViewModel
-from app.flask.routing import url_for
 from app.flask.sqla import get_obj
 from app.models.organisation import Organisation
 from app.modules.admin import blueprint

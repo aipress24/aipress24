@@ -11,8 +11,6 @@ from advanced_alchemy.types import FileObject
 from flask import current_app
 from wtforms import FileField, widgets
 
-from app.lib.file_object_utils import deserialize_file_object
-
 
 class ValidBWImageWidget(widgets.Input):
     def __call__(self, field: ValidBWImageField, **kwargs):

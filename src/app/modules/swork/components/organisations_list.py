@@ -16,7 +16,6 @@ from sqlalchemy.sql.functions import count
 from app.enums import OrganisationTypeEnum
 from app.flask.extensions import db
 from app.flask.lib.view_model import ViewModel
-from app.flask.routing import url_for
 from app.flask.sqla import get_multi
 from app.models.mixins import Addressable
 from app.models.organisation import Organisation
