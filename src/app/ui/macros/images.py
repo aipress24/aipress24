@@ -10,7 +10,6 @@ from markupsafe import Markup
 
 from app.enums import RoleEnum
 from app.flask.lib.macros import macro
-from app.flask.routing import url_for
 from app.models.auth import User
 from app.models.organisation import Organisation
 

@@ -6,7 +6,6 @@ from __future__ import annotations
 
 import functools
 import random
-import urllib.request
 from typing import ClassVar
 
 from arrow import now
@@ -177,7 +176,7 @@ class UserGenerator(BaseGenerator):
         pass
         # lego = self.get_lego_image()
         # try:
-        #     user.photo_carte_presse = urllib.request.urlopen(lego).read()  # noqa: S310
+        #     user.photo_carte_presse = urllib.request.urlopen(lego).read()
         #     user.photo_carte_presse_filename = lego
         # except Exception as e:
         #     print(e)
@@ -482,7 +481,7 @@ class UserGenerator(BaseGenerator):
     def _load_photo_profil(user: User) -> None:
         pass
         # try:
-        #     user.photo = urllib.request.urlopen(  # noqa: S310
+        #     user.photo = urllib.request.urlopen(
         #         user.profile_image_url
         #     ).read()
         #     user.photo_filename = user.profile_image_url

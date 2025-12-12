@@ -8,6 +8,7 @@ import random
 import urllib.request
 from pathlib import Path
 
+from advanced_alchemy.types import FileObject
 from mimesis import Person
 
 from app.enums import BWTypeEnum, OrganisationTypeEnum
@@ -15,8 +16,6 @@ from app.faker._constants import COVER_IMAGES, ORGANISATIONS
 from app.faker._geo import fake_geoloc
 from app.lib.image_utils import resized, squared
 from app.models.organisation import Organisation
-from advanced_alchemy.types import FileObject
-
 
 from .base import BaseGenerator, faker
 from .users import random_taille_orga

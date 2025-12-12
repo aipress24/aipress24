@@ -43,7 +43,6 @@ from app.constants import (
 from app.enums import CommunityEnum
 from app.flask.extensions import db
 from app.lib.file_object_utils import deserialize_file_object
-from app.lib.image_utils import resized
 from app.models.auth import (
     KYCProfile,
     Role,
