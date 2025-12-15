@@ -30,6 +30,7 @@ class ImageRepository(SQLAlchemySyncRepository[Image]):
     model_type = Image
 
 
+@service
 class AvisEnqueteRepository(Repository[AvisEnquete]):
     model_type = AvisEnquete
 
