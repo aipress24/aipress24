@@ -8,6 +8,7 @@ from __future__ import annotations
 from typing import Any
 
 from advanced_alchemy.types import FileObject
+from wtforms import Field
 
 from .valid_bw_image import ValidBWImageField
 
