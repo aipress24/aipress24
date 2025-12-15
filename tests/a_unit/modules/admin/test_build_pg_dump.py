@@ -124,3 +124,86 @@ class TestBuildPgDumpCommand:
         assert "--username" not in cmd
         assert "testdb" in cmd
         assert env is None
+
+    def test_url_without_password(self):
+        """Test building command without password.
+
+        This test verifies that the function correctly handles URLs without password.
+        """
+        # ARRANGE: Create a PostgreSQL URL without password
+        db_url = make_url("postgresql://user@localhost:5432/testdb")
+
+        # ACT: Call the function to build the command
+        cmd, env = _build_pg_dump_command(db_url)
+
+        # ASSERT: Verify the command and environment
+        assert "--username" in cmd
+        assert "user" in cmd
+        assert "testdb" in cmd
+
+        # No environment needed without password
+        assert env is None
+
+    def test_url_defaults_host_and_port(self):
+        """Test that missing host and port get defaults.
+
+        This test verifies that the function uses default values for missing
+        host and port parameters.
+        """
+        # ARRANGE: Create a URL with minimal info
+        db_url = make_url("postgresql:///testdb")
+
+        # ACT: Call the function to build the command
+        cmd, env = _build_pg_dump_command(db_url)
+
+        # ASSERT: Verify defaults are used
+        # Should default to localhost:5432
+        assert "--host" in cmd
+        assert "localhost" in cmd
+        assert "--port" in cmd
+        assert "5432" in cmd
+
+    def test_command_order(self):
+        """Test that command has correct structure.
+
+        This test verifies that the command has the correct order and structure.
+        """
+        # ARRANGE: Create a complete PostgreSQL URL
+        db_url = make_url("postgresql://user:pass@localhost:5432/testdb")
+
+        # ACT: Call the function to build the command
+        cmd, env = _build_pg_dump_command(db_url)
+
+        # ASSERT: Verify command structure
+        # pg_dump should be first
+        assert cmd[0] == "pg_dump"
+
+        # Database should be last
+        assert cmd[-1] == "testdb"
+
+        # Flags should be present
+        assert "--format" in cmd
+        assert "plain" in cmd
+        assert "--no-owner" in cmd
+        assert "--no-privileges" in cmd
+
+    def test_password_in_environment_only(self):
+        """Test that password is only in environment, not in command.
+
+        This test verifies that the password is properly handled in the environment
+        and not exposed in the command line.
+        """
+        # ARRANGE: Create a PostgreSQL URL with password
+        db_url = make_url("postgresql://user:secret123@localhost:5432/testdb")
+
+        # ACT: Call the function to build the command
+        cmd, env = _build_pg_dump_command(db_url)
+
+        # ASSERT: Verify password handling
+        # Password should not be in command
+        assert "secret123" not in cmd
+        assert "secret123" not in " ".join(cmd)
+
+        # But should be in environment
+        assert env is not None
+        assert env["PGPASSWORD"] == "secret123"
