@@ -8,10 +8,12 @@ import abc
 import unicodedata
 from abc import abstractmethod
 from collections.abc import Generator
+from typing import cast
 
 from attr import frozen
 from flask import Flask, Response, flash, render_template, request
 from flask_classful import route
+from flask_login import current_user
 from flask_super.registry import register
 from sqlalchemy.orm import scoped_session
 from svcs.flask import container
@@ -26,6 +28,7 @@ from app.modules.wip.models import (
     AvisEnqueteRepository,
     ContactAvisEnquete,
 )
+from app.services.emails import AvisEnqueteNotificationMail
 from app.services.geonames import get_dept_name, is_dept_in_region
 from app.services.notifications import NotificationService
 from app.services.sessions import SessionService
@@ -111,7 +114,9 @@ class AvisEnqueteWipView(BaseWipView):
 
         match action:
             case "confirm":
-                self.envoyer_avis_enquete(model, form.get_selected_experts())
+                selected_experts = form.get_selected_experts()
+                self.envoyer_avis_enquete(model, selected_experts)
+                self.send_avis_enquete_mails(model, selected_experts)
                 flash(
                     "Votre avis d'enquête a été envoyé aux contacts sélectionnés",
                     "success",
@@ -149,13 +154,32 @@ class AvisEnqueteWipView(BaseWipView):
     def envoyer_avis_enquete(self, model, selected_experts) -> None:
         notification_service = container.get(NotificationService)
 
-        for _expert in selected_experts:
+        for expert_user in selected_experts:
             message = f"Un nouvel avis d'enquête est disponible: {model.title}"
             url = "#TODO"
-            notification_service.post(_expert, message, url)
+            notification_service.post(expert_user, message, url)
 
         db_session = container.get(scoped_session)
         db_session.commit()
+
+    def send_avis_enquete_mails(self, model, selected_experts) -> None:
+        actual_sender = cast("User", current_user)
+        sender_name = actual_sender.email
+        organisation = actual_sender.organisation
+        # user sending Avis d Enquete shall have and organisation
+        org_name = organisation.name if organisation else "inconnue"
+        abstract = model.title
+
+        for expert_user in selected_experts:
+            recipient = expert_user.email
+            notification_mail = AvisEnqueteNotificationMail(
+                sender="contact@aipress24.com",
+                recipient=recipient,
+                sender_name=sender_name,
+                bw_name=org_name,
+                abstract=abstract,
+            )
+            notification_mail.send()
 
     @route("/<id>/reponses", methods=["GET"])
     def reponses(self, id):
