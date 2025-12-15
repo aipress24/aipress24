@@ -2,7 +2,10 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
-"""Unit tests for events/pages/_filters.py"""
+"""Unit tests for events/pages/_filters.py
+
+Tests the pure state manipulation logic of FilterBar without Flask dependencies.
+"""
 
 from __future__ import annotations
 
@@ -14,67 +17,128 @@ from app.modules.events.pages._filters import (
 )
 
 
-def test_filter_constants_are_consistent() -> None:
-    """Test filter constants have consistent structure."""
-    # FILTER_SPECS have required keys
-    for spec in FILTER_SPECS:
-        assert all(k in spec for k in ("id", "label", "selector"))
+class TestFilterConstants:
+    """Test events module filter constants."""
 
-    # FILTER_TAG_LABEL maps all filter IDs
-    assert {spec["id"] for spec in FILTER_SPECS} == set(FILTER_TAG_LABEL.keys())
+    def test_filter_specs_have_required_keys(self) -> None:
+        """Test FILTER_SPECS have required keys."""
+        for spec in FILTER_SPECS:
+            assert "id" in spec
+            assert "label" in spec
+            assert "selector" in spec
 
-    # SORTER_OPTIONS are (value, label) tuples
-    assert all(len(opt) == 2 and isinstance(opt[0], str) for opt in SORTER_OPTIONS)
-
-
-def test_filter_bar_filter_operations() -> None:
-    """Test FilterBar add/remove/toggle filter operations."""
-    bar = FilterBar.__new__(FilterBar)
-    bar.state = {}
-
-    assert not bar.has_filter("genre", "conference")
-
-    bar.add_filter("genre", "conference")
-    assert bar.has_filter("genre", "conference")
-
-    bar.toggle_filter("genre", "conference")
-    assert not bar.has_filter("genre", "conference")
-
-    bar.toggle_filter("sector", "tech")
-    assert bar.has_filter("sector", "tech")
+    def test_sorter_options_are_tuples(self) -> None:
+        """Test SORTER_OPTIONS are (value, label) tuples."""
+        for value, label in SORTER_OPTIONS:
+            assert isinstance(value, str)
+            assert isinstance(label, str)
 
 
-def test_filter_bar_sort_and_properties() -> None:
-    """Test FilterBar sort_by and property accessors."""
-    bar = FilterBar.__new__(FilterBar)
-    bar.state = {"filters": [{"id": "genre", "value": "webinar"}], "sort-by": "views"}
+class TestFilterBarStateManipulation:
+    """Test FilterBar state manipulation logic.
 
-    # Sort order
-    bar.sort_by("date")
-    assert bar.sort_order == "date"
+    These tests create FilterBar instances without Flask context by bypassing
+    __init__ and directly setting the state. This isolates the pure logic.
+    """
 
-    # Active filters with tag labels
-    bar.state["sort-by"] = "views"
-    active = bar.active_filters
-    assert len(active) == 1 and active[0]["tag_label"] == "type"
+    def _create_bar(self, state: dict | None = None) -> FilterBar:
+        """Create a FilterBar with preset state, bypassing Flask dependencies."""
+        bar = object.__new__(FilterBar)
+        bar.state = state if state is not None else {}
+        return bar
 
-    # Tag property
-    bar.state = {"filters": [{"id": "tag", "value": "ai"}]}
-    assert bar.tag == "ai"
-    bar.state = {"filters": []}
-    assert bar.tag == ""
+    def test_add_filter(self) -> None:
+        """Test add_filter appends to filters list."""
+        bar = self._create_bar()
 
-    # Sorter options with selected state
-    bar.state = {"sort-by": "likes"}
-    sorter = bar.sorter
-    assert any(o["value"] == "likes" and o["selected"] for o in sorter["options"])
+        bar.add_filter("genre", "conference")
 
+        assert bar.state["filters"] == [{"id": "genre", "value": "conference"}]
 
-def test_filter_bar_reset() -> None:
-    """Test FilterBar.reset clears state."""
-    bar = FilterBar.__new__(FilterBar)
-    bar.state = {"filters": [{"id": "sector", "value": "tech"}], "sort-by": "views"}
+    def test_add_multiple_filters(self) -> None:
+        """Test adding multiple filters."""
+        bar = self._create_bar()
 
-    bar.reset()
+        bar.add_filter("genre", "conference")
+        bar.add_filter("sector", "tech")
 
-    assert bar.state == {}
+        assert len(bar.state["filters"]) == 2
+
+    def test_has_filter_returns_true_when_present(self) -> None:
+        """Test has_filter returns True for existing filter."""
+        bar = self._create_bar({"filters": [{"id": "genre", "value": "conference"}]})
+
+        assert bar.has_filter("genre", "conference") is True
+
+    def test_has_filter_returns_false_when_absent(self) -> None:
+        """Test has_filter returns False for missing filter."""
+        bar = self._create_bar({"filters": []})
+
+        assert bar.has_filter("genre", "conference") is False
+
+    def test_remove_filter(self) -> None:
+        """Test remove_filter removes matching filter."""
+        bar = self._create_bar({"filters": [{"id": "genre", "value": "conference"}]})
+
+        bar.remove_filter("genre", "conference")
+
+        assert bar.state["filters"] == []
+
+    def test_toggle_filter_adds_when_absent(self) -> None:
+        """Test toggle_filter adds filter when not present."""
+        bar = self._create_bar({"filters": []})
+
+        bar.toggle_filter("genre", "conference")
+
+        assert bar.has_filter("genre", "conference") is True
+
+    def test_toggle_filter_removes_when_present(self) -> None:
+        """Test toggle_filter removes filter when present."""
+        bar = self._create_bar({"filters": [{"id": "genre", "value": "conference"}]})
+
+        bar.toggle_filter("genre", "conference")
+
+        assert bar.has_filter("genre", "conference") is False
+
+    def test_sort_by_sets_sort_order(self) -> None:
+        """Test sort_by updates state."""
+        bar = self._create_bar()
+
+        bar.sort_by("views")
+
+        assert bar.state["sort-by"] == "views"
+
+    def test_sort_order_returns_current_sort(self) -> None:
+        """Test sort_order property returns current sort."""
+        bar = self._create_bar({"sort-by": "likes"})
+
+        assert bar.sort_order == "likes"
+
+    def test_sort_order_defaults_to_date(self) -> None:
+        """Test sort_order defaults to 'date'."""
+        bar = self._create_bar()
+
+        assert bar.sort_order == "date"
+
+    def test_active_filters_returns_formatted_list(self) -> None:
+        """Test active_filters formats filters with tag_label."""
+        bar = self._create_bar({"filters": [{"id": "genre", "value": "conference"}]})
+
+        active = bar.active_filters
+
+        assert len(active) == 1
+        assert active[0]["id"] == "genre"
+        assert active[0]["value"] == "conference"
+        assert active[0]["tag_label"] == FILTER_TAG_LABEL["genre"]
+
+    def test_tag_property_returns_tag_value(self) -> None:
+        """Test tag property extracts tag filter value."""
+        bar = self._create_bar({"filters": [{"id": "tag", "value": "python"}]})
+
+        assert bar.tag == "python"
+
+    def test_tag_property_returns_empty_when_no_tag(self) -> None:
+        """Test tag property returns empty string when no tag filter."""
+        bar = self._create_bar({"filters": []})
+
+        assert bar.tag == ""

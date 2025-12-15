@@ -36,7 +36,7 @@ def test_avis_enquete(db_session: scoped_session) -> None:
     enquete.owner = joe
     enquete.media = media
 
-    # FIXME
+    # commanditaire_id is the "commissioning editor" - required field
     enquete.commanditaire_id = jim.id
 
     enquete.date_debut_enquete = arrow.get("2022-01-01").datetime
