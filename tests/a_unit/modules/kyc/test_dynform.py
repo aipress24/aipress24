@@ -6,7 +6,8 @@
 
 from __future__ import annotations
 
-from wtforms import validators
+from wtforms import BooleanField, IntegerField, StringField, TextAreaField, validators
+from wtforms.fields.core import UnboundField
 
 from app.modules.kyc.dynform import (
     TAG_AREA300_SIZE,
@@ -49,7 +50,7 @@ from app.modules.kyc.dynform import (
 from app.modules.kyc.survey_dataclass import SurveyField
 
 
-def test_filter_public_info():
+def test_filter_public_info() -> None:
     """Test _filter_public_info function."""
     # With public=True
     result = _filter_public_info("Test description", True)
@@ -60,7 +61,7 @@ def test_filter_public_info():
     assert result == "Test description"
 
 
-def test_filter_mandatory_label():
+def test_filter_mandatory_label() -> None:
     """Test _filter_mandatory_label function."""
     # With mandatory code
     result = _filter_mandatory_label("Test field", "M")
@@ -71,31 +72,31 @@ def test_filter_mandatory_label():
     assert result == "Test field"
 
 
-def test_filter_many_choices():
+def test_filter_many_choices() -> None:
     """Test _filter_many_choices function."""
     result = _filter_many_choices("Select options")
     assert result == f"Select options {TAG_MANY_CHOICES}"
 
 
-def test_filter_max_textarea_size():
+def test_filter_max_textarea_size() -> None:
     """Test _filter_max_textarea_size function."""
     result = _filter_max_textarea_size("Enter text")
     assert result == f"Enter text {TAG_AREA_SIZE}"
 
 
-def test_filter_max_textarea300_size():
+def test_filter_max_textarea300_size() -> None:
     """Test _filter_max_textarea300_size function."""
     result = _filter_max_textarea300_size("Enter short text")
     assert result == f"Enter short text {TAG_AREA300_SIZE}"
 
 
-def test_filter_photo_format():
+def test_filter_photo_format() -> None:
     """Test _filter_photo_format function."""
     result = _filter_photo_format("Upload photo")
     assert result == f"Upload photo {TAG_PHOTO_FORMAT}"
 
 
-def test_filter_mandatory_label_free():
+def test_filter_mandatory_label_free() -> None:
     """Test _filter_mandatory_label_free function."""
     # With mandatory code
     result = _filter_mandatory_label_free("Add item", "M")
@@ -108,14 +109,14 @@ def test_filter_mandatory_label_free():
     assert TAG_MANDATORY not in result
 
 
-def test_is_required():
+def test_is_required() -> None:
     """Test _is_required function."""
     assert _is_required("M") is True
     assert _is_required("O") is False
     assert _is_required("") is False
 
 
-def test_filter_mandatory_validator():
+def test_filter_mandatory_validator() -> None:
     """Test _filter_mandatory_validator function."""
     # Mandatory field
     result = _filter_mandatory_validator("M")
@@ -128,7 +129,7 @@ def test_filter_mandatory_validator():
     assert isinstance(result[0], validators.Optional)
 
 
-def test_get_part():
+def test_get_part() -> None:
     """Test _get_part function."""
     parts = ["part1", "part2", "part3"]
 
@@ -147,212 +148,365 @@ def test_get_part():
     assert _get_part(parts_with_space, 1) == "part2"
 
 
-def test_custom_bool_field():
+class TestCustomBoolField:
     """Test custom_bool_field function."""
-    field = SurveyField(
-        id="test_id",
-        name="test_bool",
-        description="Test boolean field",
-        upper_message="Test message",
-    )
 
-    # Basic field - returns UnboundField
-    result = custom_bool_field(field, "M")
-    assert result is not None
+    def test_returns_boolean_field(self) -> None:
+        """Test custom_bool_field returns a BooleanField."""
+        field = SurveyField(
+            id="test_id",
+            name="test_bool",
+            description="Test boolean field",
+            upper_message="Test message",
+        )
 
-    # Readonly field
-    result = custom_bool_field(field, "M", readonly=True)
-    assert result is not None
+        result = custom_bool_field(field, "M")
+
+        assert isinstance(result, UnboundField)
+        assert result.field_class is BooleanField
+        assert result.kwargs["id"] == "test_id"
+
+    def test_sets_render_kw_with_kyc_type(self) -> None:
+        """Test render_kw contains kyc_type='boolean'."""
+        field = SurveyField(
+            id="test_id",
+            name="test_bool",
+            description="Test boolean field",
+            upper_message="Test message",
+        )
+
+        result = custom_bool_field(field, "M")
+
+        assert result.kwargs["render_kw"]["kyc_type"] == "boolean"
+        assert result.kwargs["render_kw"]["kyc_message"] == "Test message"
+
+    def test_readonly_sets_disabled(self) -> None:
+        """Test readonly=True adds disabled to render_kw."""
+        field = SurveyField(
+            id="test_id",
+            name="test_bool",
+            description="Test boolean field",
+            upper_message="",
+        )
+
+        result = custom_bool_field(field, "M", readonly=True)
+
+        assert "disabled" in result.kwargs["render_kw"]
 
 
-def test_custom_bool_link_field():
+class TestCustomBoolLinkField:
     """Test custom_bool_link_field function."""
-    field = SurveyField(
-        id="test_id",
-        name="test_link",
-        description="Accept terms; https://example.com; Terms",
-        upper_message="Test message",
-    )
 
-    result = custom_bool_link_field(field, "M")
-    assert result is not None
+    def test_parses_description_into_link(self) -> None:
+        """Test description with semicolons is parsed into a link."""
+        field = SurveyField(
+            id="test_id",
+            name="test_link",
+            description="Accept terms; https://example.com; Terms",
+            upper_message="",
+        )
+
+        result = custom_bool_link_field(field, "M")
+
+        # Label should contain the link
+        label = str(result.kwargs["label"])
+        assert "Accept terms" in label
+        assert 'href="https://example.com"' in label
+        assert "Terms</a>" in label
 
 
-def test_custom_string_field():
+class TestCustomStringField:
     """Test custom_string_field function."""
-    field = SurveyField(
-        id="test_id",
-        name="test_string",
-        description="Test string field",
-        public_maxi=True,
-        upper_message="Test message",
-    )
 
-    # Mandatory field
-    result = custom_string_field(field, "M")
-    assert result is not None
+    def test_returns_string_field(self) -> None:
+        """Test custom_string_field returns a StringField."""
+        field = SurveyField(
+            id="test_id",
+            name="test_string",
+            description="Test string field",
+            public_maxi=True,
+            upper_message="Test message",
+        )
 
-    # Readonly field
-    result = custom_string_field(field, "M", readonly=True)
-    assert result is not None
+        result = custom_string_field(field, "M")
+
+        assert isinstance(result, UnboundField)
+        assert result.field_class is StringField
+        assert result.kwargs["id"] == "test_id"
+
+    def test_mandatory_field_has_mandatory_marker_in_label(self) -> None:
+        """Test mandatory field label contains TAG_MANDATORY."""
+        field = SurveyField(
+            id="test_id",
+            name="test_string",
+            description="Test field",
+            public_maxi=False,
+            upper_message="",
+        )
+
+        result = custom_string_field(field, "M")
+
+        assert TAG_MANDATORY in result.kwargs["label"]
+
+    def test_public_field_has_public_marker_in_label(self) -> None:
+        """Test public field label contains TAG_PUBLIC."""
+        field = SurveyField(
+            id="test_id",
+            name="test_string",
+            description="Test field",
+            public_maxi=True,
+            upper_message="",
+        )
+
+        result = custom_string_field(field, "O")
+
+        assert TAG_PUBLIC in result.kwargs["label"]
+
+    def test_readonly_sets_readonly_in_render_kw(self) -> None:
+        """Test readonly=True adds readonly to render_kw."""
+        field = SurveyField(
+            id="test_id",
+            name="test_string",
+            description="Test field",
+            public_maxi=False,
+            upper_message="",
+        )
+
+        result = custom_string_field(field, "M", readonly=True)
+
+        assert result.kwargs["render_kw"]["readonly"] is True
+
+    def test_sets_kyc_type_in_render_kw(self) -> None:
+        """Test render_kw contains kyc_type='string'."""
+        field = SurveyField(
+            id="test_id",
+            name="test_string",
+            description="Test field",
+            public_maxi=False,
+            upper_message="",
+        )
+
+        result = custom_string_field(field, "M")
+
+        assert result.kwargs["render_kw"]["kyc_type"] == "string"
+        assert result.kwargs["render_kw"]["kyc_code"] == "M"
 
 
-def test_custom_int_field():
+class TestCustomIntField:
     """Test custom_int_field function."""
-    field = SurveyField(
-        id="test_id",
-        name="test_int",
-        description="Test integer field",
-        public_maxi=False,
-        upper_message="Test message",
-    )
 
-    result = custom_int_field(field, "M")
-    assert result is not None
+    def test_returns_integer_field(self) -> None:
+        """Test custom_int_field returns an IntegerField."""
+        field = SurveyField(
+            id="test_id",
+            name="test_int",
+            description="Test integer field",
+            public_maxi=False,
+            upper_message="Test message",
+        )
+
+        result = custom_int_field(field, "M")
+
+        assert isinstance(result, UnboundField)
+        assert result.field_class is IntegerField
+        assert result.kwargs["render_kw"]["kyc_type"] == "int"
 
 
-def test_custom_photo_field():
+class TestCustomPhotoField:
     """Test custom_photo_field function."""
-    field = SurveyField(
-        id="test_id",
-        name="test_photo",
-        description="Upload photo",
-        public_maxi=True,
-        upper_message="Test message",
-    )
 
-    result = custom_photo_field(field, "M")
-    assert result is not None
+    def test_label_contains_photo_format_tag(self) -> None:
+        """Test photo field label contains format instructions."""
+        field = SurveyField(
+            id="test_id",
+            name="test_photo",
+            description="Upload photo",
+            public_maxi=True,
+            upper_message="Test message",
+        )
 
-    # Optional photo
-    result = custom_photo_field(field, "O")
-    assert result is not None
+        result = custom_photo_field(field, "M")
+
+        assert isinstance(result, UnboundField)
+        assert TAG_PHOTO_FORMAT in result.kwargs["label"]
+
+    def test_mandatory_photo_sets_is_required(self) -> None:
+        """Test mandatory photo has is_required=True."""
+        field = SurveyField(
+            id="test_id",
+            name="test_photo",
+            description="Upload photo",
+            public_maxi=False,
+            upper_message="",
+        )
+
+        result = custom_photo_field(field, "M")
+
+        assert result.kwargs["is_required"] is True
+
+    def test_optional_photo_sets_is_required_false(self) -> None:
+        """Test optional photo has is_required=False."""
+        field = SurveyField(
+            id="test_id",
+            name="test_photo",
+            description="Upload photo",
+            public_maxi=False,
+            upper_message="",
+        )
+
+        result = custom_photo_field(field, "O")
+
+        assert result.kwargs["is_required"] is False
 
 
-def test_custom_email_field():
+class TestCustomEmailField:
     """Test custom_email_field function."""
-    field = SurveyField(
-        id="test_id",
-        name="test_email",
-        description="Email address",
-        public_maxi=True,
-        upper_message="Test message",
-    )
 
-    result = custom_email_field(field, "M")
-    assert result is not None
+    def test_returns_field_with_email_kyc_type(self) -> None:
+        """Test custom_email_field sets kyc_type='email'."""
+        field = SurveyField(
+            id="test_id",
+            name="test_email",
+            description="Email address",
+            public_maxi=True,
+            upper_message="Test message",
+        )
+
+        result = custom_email_field(field, "M")
+
+        assert isinstance(result, UnboundField)
+        assert result.kwargs["render_kw"]["kyc_type"] == "email"
 
 
-def test_custom_tel_field():
+class TestCustomTelField:
     """Test custom_tel_field function."""
-    field = SurveyField(
-        id="test_id",
-        name="test_tel",
-        description="Phone number",
-        public_maxi=False,
-        upper_message="Test message",
-    )
 
-    result = custom_tel_field(field, "M")
-    assert result is not None
+    def test_returns_field_with_tel_kyc_type(self) -> None:
+        """Test custom_tel_field sets kyc_type='tel'."""
+        field = SurveyField(
+            id="test_id",
+            name="test_tel",
+            description="Phone number",
+            public_maxi=False,
+            upper_message="Test message",
+        )
+
+        result = custom_tel_field(field, "M")
+
+        assert isinstance(result, UnboundField)
+        assert result.kwargs["render_kw"]["kyc_type"] == "tel"
 
 
-def test_custom_password_field():
+class TestCustomPasswordField:
     """Test custom_password_field function."""
-    field = SurveyField(
-        id="test_id",
-        name="test_password",
-        description="Password",
-        public_maxi=False,
-        upper_message="Test message",
-    )
 
-    result = custom_password_field(field, "M")
-    assert result is not None
+    def test_returns_field_with_password_kyc_type(self) -> None:
+        """Test custom_password_field sets kyc_type='password'."""
+        field = SurveyField(
+            id="test_id",
+            name="test_password",
+            description="Password",
+            public_maxi=False,
+            upper_message="Test message",
+        )
+
+        result = custom_password_field(field, "M")
+
+        assert isinstance(result, UnboundField)
+        assert result.kwargs["render_kw"]["kyc_type"] == "password"
 
 
-def test_custom_postcode_field():
+class TestCustomPostcodeField:
     """Test custom_postcode_field function."""
-    field = SurveyField(
-        id="test_id",
-        name="test_postcode",
-        description="Postal code",
-        public_maxi=True,
-        upper_message="Test message",
-    )
 
-    result = custom_postcode_field(field, "M")
-    assert result is not None
+    def test_returns_field_with_postcode_kyc_type(self) -> None:
+        """Test custom_postcode_field sets kyc_type='postcode'."""
+        field = SurveyField(
+            id="test_id",
+            name="test_postcode",
+            description="Postal code",
+            public_maxi=True,
+            upper_message="Test message",
+        )
+
+        result = custom_postcode_field(field, "M")
+
+        assert isinstance(result, UnboundField)
+        assert result.kwargs["render_kw"]["kyc_type"] == "postcode"
 
 
-def test_custom_url_field():
+class TestCustomUrlField:
     """Test custom_url_field function."""
-    field = SurveyField(
-        id="test_id",
-        name="test_url",
-        description="Website URL",
-        public_maxi=True,
-        upper_message="Test message",
-    )
 
-    result = custom_url_field(field, "M")
-    assert result is not None
+    def test_returns_field_with_url_kyc_type(self) -> None:
+        """Test custom_url_field sets kyc_type='url'."""
+        field = SurveyField(
+            id="test_id",
+            name="test_url",
+            description="Website URL",
+            public_maxi=True,
+            upper_message="Test message",
+        )
+
+        result = custom_url_field(field, "M")
+
+        assert isinstance(result, UnboundField)
+        assert result.kwargs["render_kw"]["kyc_type"] == "url"
 
 
-def test_custom_textarea_field():
+class TestCustomTextareaField:
     """Test custom_textarea_field function."""
-    field = SurveyField(
-        id="test_id",
-        name="test_textarea",
-        description="Long text",
-        public_maxi=True,
-        upper_message="Test message",
-    )
 
-    result = custom_textarea_field(field, "M")
-    assert result is not None
+    def test_returns_textarea_field(self) -> None:
+        """Test custom_textarea_field returns a TextAreaField."""
+        field = SurveyField(
+            id="test_id",
+            name="test_textarea",
+            description="Long text",
+            public_maxi=True,
+            upper_message="Test message",
+        )
+
+        result = custom_textarea_field(field, "M")
+
+        assert isinstance(result, UnboundField)
+        assert result.field_class is TextAreaField
+
+    def test_label_contains_textarea_size_tag(self) -> None:
+        """Test textarea label contains size instructions."""
+        field = SurveyField(
+            id="test_id",
+            name="test_textarea",
+            description="Long text",
+            public_maxi=False,
+            upper_message="",
+        )
+
+        result = custom_textarea_field(field, "O")
+
+        assert TAG_AREA_SIZE in result.kwargs["label"]
 
 
-def test_custom_textarea300_field():
+class TestCustomTextarea300Field:
     """Test custom_textarea300_field function."""
-    field = SurveyField(
-        id="test_id",
-        name="test_textarea300",
-        description="Short text",
-        public_maxi=False,
-        upper_message="Test message",
-    )
 
-    result = custom_textarea300_field(field, "M")
-    assert result is not None
+    def test_label_contains_textarea300_size_tag(self) -> None:
+        """Test textarea300 label contains size instructions."""
+        field = SurveyField(
+            id="test_id",
+            name="test_textarea300",
+            description="Short text",
+            public_maxi=False,
+            upper_message="Test message",
+        )
 
+        result = custom_textarea300_field(field, "M")
 
-def test_field_creation_functions_callable():
-    """Test that all field creation functions are callable and return fields."""
-    field = SurveyField(
-        id="test_id",
-        name="test_field",
-        description="Test",
-        public_maxi=False,
-        upper_message="",
-    )
-
-    # Test all field creation functions return non-None
-    assert custom_bool_field(field, "M") is not None
-    assert custom_bool_link_field(field, "M") is not None
-    assert custom_string_field(field, "M") is not None
-    assert custom_int_field(field, "M") is not None
-    assert custom_photo_field(field, "M") is not None
-    assert custom_email_field(field, "M") is not None
-    assert custom_tel_field(field, "M") is not None
-    assert custom_password_field(field, "M") is not None
-    assert custom_postcode_field(field, "M") is not None
-    assert custom_url_field(field, "M") is not None
-    assert custom_textarea_field(field, "M") is not None
-    assert custom_textarea300_field(field, "M") is not None
+        assert isinstance(result, UnboundField)
+        assert TAG_AREA300_SIZE in result.kwargs["label"]
 
 
-def test_fake_ontology_ajax():
+def test_fake_ontology_ajax() -> None:
     """Test _fake_ontology_ajax function."""
     result = _fake_ontology_ajax("test_param")
 
@@ -367,106 +521,217 @@ def test_fake_ontology_ajax():
     assert "'test_param' 1" in result[1][0]
 
 
-def test_custom_list_field():
+class TestCustomListField:
     """Test custom_list_field function."""
-    field = SurveyField(
-        id="test_id",
-        name="test_list",
-        description="Select from list",
-        public_maxi=True,
-        upper_message="Test message",
-    )
 
-    result = custom_list_field(field, "M", param="multi_langues")
-    assert result is not None
+    def test_returns_unbound_field(self) -> None:
+        """Test custom_list_field returns an UnboundField."""
+        field = SurveyField(
+            id="test_id",
+            name="test_list",
+            description="Select from list",
+            public_maxi=True,
+            upper_message="Test message",
+        )
 
-    # Test readonly
-    result = custom_list_field(field, "M", param="multi_langues", readonly=True)
-    assert result is not None
+        result = custom_list_field(field, "M", param="multi_langues")
+
+        assert isinstance(result, UnboundField)
+        assert result.kwargs["id"] == "test_id"
+
+    def test_readonly_passes_to_field_constructor(self) -> None:
+        """Test readonly=True passes readonly=1 to field constructor."""
+        field = SurveyField(
+            id="test_id",
+            name="test_list",
+            description="Select from list",
+            public_maxi=False,
+            upper_message="",
+        )
+
+        result = custom_list_field(field, "M", param="multi_langues", readonly=True)
+
+        # Readonly is passed to field constructor, not render_kw
+        assert result.kwargs["readonly"] == 1
 
 
-def test_custom_country_field():
+class TestCustomCountryField:
     """Test custom_country_field function."""
-    field = SurveyField(
-        id="test_id",
-        name="test_country",
-        description="Country; Region",
-        public_maxi=True,
-        upper_message="Test message",
-    )
 
-    result = custom_country_field(field, "M", param="country_pays")
-    assert result is not None
+    def test_returns_unbound_field(self) -> None:
+        """Test custom_country_field returns an UnboundField."""
+        field = SurveyField(
+            id="test_id",
+            name="test_country",
+            description="Country; Region",
+            public_maxi=True,
+            upper_message="Test message",
+        )
 
-    # Test readonly
-    result = custom_country_field(field, "M", param="country_pays", readonly=True)
-    assert result is not None
+        result = custom_country_field(field, "M", param="country_pays")
+
+        assert isinstance(result, UnboundField)
+
+    def test_readonly_passes_to_field_constructor(self) -> None:
+        """Test readonly=True passes readonly=1 to field constructor."""
+        field = SurveyField(
+            id="test_id",
+            name="test_country",
+            description="Country; Region",
+            public_maxi=False,
+            upper_message="",
+        )
+
+        result = custom_country_field(field, "M", param="country_pays", readonly=True)
+
+        # Readonly is passed to field constructor, not render_kw
+        assert result.kwargs["readonly"] == 1
 
 
-def test_custom_list_free_field():
+class TestCustomListFreeField:
     """Test custom_list_free_field function."""
-    field = SurveyField(
-        id="test_id",
-        name="test_list_free",
-        description="Select or add new",
-        public_maxi=False,
-        upper_message="Test message",
-    )
 
-    result = custom_list_free_field(field, "M", param="multi_langues")
-    assert result is not None
+    def test_returns_unbound_field(self) -> None:
+        """Test custom_list_free_field returns an UnboundField."""
+        field = SurveyField(
+            id="test_id",
+            name="test_list_free",
+            description="Select or add new",
+            public_maxi=False,
+            upper_message="Test message",
+        )
 
-    # Test readonly
-    result = custom_list_free_field(field, "M", param="multi_langues", readonly=True)
-    assert result is not None
+        result = custom_list_free_field(field, "M", param="multi_langues")
+
+        assert isinstance(result, UnboundField)
+
+    def test_readonly_passes_to_field_constructor(self) -> None:
+        """Test readonly=True passes readonly=1 to field constructor."""
+        field = SurveyField(
+            id="test_id",
+            name="test_list_free",
+            description="Select or add new",
+            public_maxi=False,
+            upper_message="",
+        )
+
+        result = custom_list_free_field(
+            field, "O", param="multi_langues", readonly=True
+        )
+
+        # Readonly is passed to field constructor, not render_kw
+        assert result.kwargs["readonly"] == 1
 
 
-def test_custom_ajax_field():
+class TestCustomAjaxField:
     """Test custom_ajax_field function."""
-    field = SurveyField(
-        id="test_id",
-        name="test_ajax",
-        description="Ajax select",
-        public_maxi=True,
-        upper_message="Test message",
-    )
 
-    result = custom_ajax_field(field, "M", param="test_param")
-    assert result is not None
+    def test_returns_unbound_field(self) -> None:
+        """Test custom_ajax_field returns an UnboundField."""
+        field = SurveyField(
+            id="test_id",
+            name="test_ajax",
+            description="Ajax select",
+            public_maxi=True,
+            upper_message="Test message",
+        )
 
-    # Test readonly
-    result = custom_ajax_field(field, "M", param="test_param", readonly=True)
-    assert result is not None
+        result = custom_ajax_field(field, "M", param="test_param")
+
+        assert isinstance(result, UnboundField)
+
+    def test_readonly_not_implemented(self) -> None:
+        """Test that readonly is NOT implemented for ajax field (uses standard SelectField)."""
+        field = SurveyField(
+            id="test_id",
+            name="test_ajax",
+            description="Ajax select",
+            public_maxi=False,
+            upper_message="",
+        )
+
+        result = custom_ajax_field(field, "M", param="test_param", readonly=True)
+
+        # Readonly is not implemented for ajax field
+        # It uses standard SelectField which doesn't have readonly parameter
+        assert "readonly" not in result.kwargs
+        assert "disabled" not in result.kwargs.get("render_kw", {})
 
 
-def test_custom_multi_free_field():
+class TestCustomMultiFreeField:
     """Test custom_multi_free_field function."""
-    field = SurveyField(
-        id="test_id",
-        name="test_multi_free",
-        description="Multiple select with free text",
-        public_maxi=False,
-        upper_message="Test message",
-    )
 
-    result = custom_multi_free_field(field, "M", param="multi_langues")
-    assert result is not None
+    def test_returns_unbound_field(self) -> None:
+        """Test custom_multi_free_field returns an UnboundField."""
+        field = SurveyField(
+            id="test_id",
+            name="test_multi_free",
+            description="Multiple select with free text",
+            public_maxi=False,
+            upper_message="Test message",
+        )
+
+        result = custom_multi_free_field(field, "M", param="multi_langues")
+
+        assert isinstance(result, UnboundField)
+
+    def test_label_contains_many_choices_tag(self) -> None:
+        """Test label contains many choices tag (free element tag not added)."""
+        field = SurveyField(
+            id="test_id",
+            name="test_multi_free",
+            description="Multiple select",
+            public_maxi=False,
+            upper_message="",
+        )
+
+        result = custom_multi_free_field(field, "O", param="multi_langues")
+
+        # Only many choices tag is added, not free element
+        assert TAG_MANY_CHOICES in result.kwargs["label"]
 
 
-def test_custom_multi_field():
+class TestCustomMultiField:
     """Test custom_multi_field function."""
-    field = SurveyField(
-        id="test_id",
-        name="test_multi",
-        description="Multiple select",
-        public_maxi=True,
-        upper_message="Test message",
-    )
 
-    # Test with simple list choices
-    result = custom_multi_field(field, "M", param="multi_langues")
-    assert result is not None
+    def test_returns_unbound_field_for_simple_list(self) -> None:
+        """Test custom_multi_field returns UnboundField for simple list."""
+        field = SurveyField(
+            id="test_id",
+            name="test_multi",
+            description="Multiple select",
+            public_maxi=True,
+            upper_message="Test message",
+        )
 
-    # Test with optgroup choices (dual select)
-    result = custom_multi_field(field, "M", param="multidual_secteurs_detail")
-    assert result is not None
+        result = custom_multi_field(field, "M", param="multi_langues")
+
+        assert isinstance(result, UnboundField)
+
+    def test_returns_unbound_field_for_dual_select(self) -> None:
+        """Test custom_multi_field returns UnboundField for dual select."""
+        field = SurveyField(
+            id="test_id",
+            name="test_multi",
+            description="Multiple select",
+            public_maxi=True,
+            upper_message="Test message",
+        )
+
+        result = custom_multi_field(field, "M", param="multidual_secteurs_detail")
+
+        assert isinstance(result, UnboundField)
+
+    def test_label_contains_many_choices_tag(self) -> None:
+        """Test label contains TAG_MANY_CHOICES."""
+        field = SurveyField(
+            id="test_id",
+            name="test_multi",
+            description="Multiple select",
+            public_maxi=False,
+            upper_message="",
+        )
+
+        result = custom_multi_field(field, "O", param="multi_langues")
+
+        assert TAG_MANY_CHOICES in result.kwargs["label"]
