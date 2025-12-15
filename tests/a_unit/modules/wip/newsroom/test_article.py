@@ -32,7 +32,7 @@ def test_article_basic(db_session: scoped_session) -> None:
     article.date_parution_prevue = arrow.get("2022-01-01").datetime
     article.date_publication_aip24 = arrow.get("2022-01-01").datetime
 
-    # FIXME
+    # commanditaire_id is the "commissioning editor" - required field
     article.commanditaire_id = joe.id
 
     db_session.add(article)
