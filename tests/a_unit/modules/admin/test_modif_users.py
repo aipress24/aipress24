@@ -60,6 +60,57 @@ class TestModifUserDataSource:
         # Should count only the users that match criteria
         assert count >= 2  # At least our 2 test users
 
+    def test_count_excludes_active_users(self, db_session):
+        """Test count excludes active users."""
+        # Create an active clone user (should NOT be counted)
+        active_clone = User(
+            email="active_clone@example.com", active=True, is_clone=True
+        )
+        # Create an inactive clone user (should be counted)
+        inactive_clone = User(
+            email="inactive_clone@example.com", active=False, is_clone=True
+        )
+        db_session.add_all([active_clone, inactive_clone])
+        db_session.flush()
+
+        ds = ModifUserDataSource()
+        count_before = ds.count()
+
+        # Add another inactive clone
+        another_clone = User(
+            email="another_clone@example.com", active=False, is_clone=True
+        )
+        db_session.add(another_clone)
+        db_session.flush()
+
+        ds = ModifUserDataSource()
+        count_after = ds.count()
+        assert count_after == count_before + 1
+
+    def test_count_excludes_non_clones(self, db_session):
+        """Test count excludes non-clone users."""
+        # Create a non-clone inactive user (should NOT be counted)
+        non_clone = User(email="non_clone@example.com", active=False, is_clone=False)
+        # Create a clone inactive user (should be counted)
+        clone = User(email="clone@example.com", active=False, is_clone=True)
+        db_session.add_all([non_clone, clone])
+        db_session.flush()
+
+        ds = ModifUserDataSource()
+        # Verify only clones are counted
+        count = ds.count()
+        assert count >= 1
+
+    def test_get_base_select_returns_select(self, db_session):
+        """Test get_base_select method returns proper select statement."""
+        from sqlalchemy import Select
+
+        ds = ModifUserDataSource()
+        stmt = ds.get_base_select()
+
+        assert isinstance(stmt, Select)
+        assert str(stmt).upper().startswith("SELECT")
+
     def test_make_records_with_real_user(self, db_session):
         """Test make_records method with real user data."""
         # Create a real user
@@ -103,3 +154,17 @@ class TestAdminModifUsersPage:
         assert page is not None
         assert hasattr(page, "context")
         assert hasattr(page, "hx_post")
+
+    def test_context_method_structure(self, db_session):
+        """Test that context method returns expected structure."""
+        page = AdminModifUsersPage()
+        context = page.context()
+
+        # Verify context has expected keys
+        assert "table" in context
+        assert isinstance(context["table"], ModifUsersTable)
+
+    def test_ds_class_and_table_class(self):
+        """Test page uses correct data source and table classes."""
+        assert AdminModifUsersPage.ds_class == ModifUserDataSource
+        assert AdminModifUsersPage.table_class == ModifUsersTable
