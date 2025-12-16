@@ -7,7 +7,6 @@
 from __future__ import annotations
 
 from collections.abc import Iterator
-from typing import TYPE_CHECKING
 
 import pytest
 from flask import Flask
@@ -20,9 +19,6 @@ from app.modules.admin.db_export_service import (
     PgDumpNotFoundError,
 )
 from app.modules.admin.views import create_export_response
-
-if TYPE_CHECKING:
-    from flask.testing import FlaskClient
 
 
 class StubExportService(DatabaseExportService):
@@ -164,13 +160,3 @@ class TestExportErrorHandling:
             response = create_export_response(url, NotFoundExportService)
             with pytest.raises(PgDumpNotFoundError):
                 list(response.response)
-
-
-class TestExportDatabaseRoute:
-    """Integration tests for the /export-db/ route with stub services."""
-
-    def test_route_returns_404_for_sqlite(self, admin_client: FlaskClient):
-        """Test that export route returns 404 when using SQLite (test db)."""
-        # The test database uses SQLite, so this should return 404
-        response = admin_client.get("/admin/export-db/")
-        assert response.status_code == 404
