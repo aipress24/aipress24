@@ -25,22 +25,6 @@ if TYPE_CHECKING:
     from sqlalchemy.engine import URL
 
 
-# Service factory - can be replaced in tests
-_service_factory: type[DatabaseExportService] = DatabaseExportService
-
-
-def set_service_factory(factory: type[DatabaseExportService]) -> None:
-    """Set the service factory for dependency injection (used in tests)."""
-    global _service_factory
-    _service_factory = factory
-
-
-def reset_service_factory() -> None:
-    """Reset service factory to default (used in tests)."""
-    global _service_factory
-    _service_factory = DatabaseExportService
-
-
 def create_export_response(
     db_url: URL,
     service_class: type[DatabaseExportService] = DatabaseExportService,
@@ -110,4 +94,4 @@ def export_database():
         404: If database is not PostgreSQL
         500: If pg_dump fails or database configuration is invalid
     """
-    return create_export_response(db.engine.url, _service_factory)
+    return create_export_response(db.engine.url)

@@ -207,9 +207,7 @@ class DatabaseExportService:
                 "pg_dump command not found - PostgreSQL client tools not installed"
             )
             msg = "pg_dump not available - install PostgreSQL client tools"
-            raise PgDumpNotFoundError(
-                msg
-            ) from err
+            raise PgDumpNotFoundError(msg) from err
 
     def export_raw(self, chunk_size: int = 8192) -> Iterator[bytes]:
         """Stream pg_dump output without compression.
@@ -249,9 +247,7 @@ class DatabaseExportService:
 
         except FileNotFoundError as err:
             msg = "pg_dump not available - install PostgreSQL client tools"
-            raise PgDumpNotFoundError(
-                msg
-            ) from err
+            raise PgDumpNotFoundError(msg) from err
 
 
 def is_postgresql_database(db_url: URL) -> bool:
