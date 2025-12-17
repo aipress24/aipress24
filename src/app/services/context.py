@@ -4,6 +4,8 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 from flask_super.decorators import service
 
 
@@ -12,7 +14,7 @@ class Context:
     """Way to access / update the Jinja context."""
 
     def __init__(self) -> None:
-        self._context = {}
+        self._context: dict[str, Any] = {}
 
     def __getitem__(self, item):
         return self._context[item]

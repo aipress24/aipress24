@@ -24,7 +24,7 @@ MENUS = {
 @service
 class MenuService:
     def __init__(self) -> None:
-        self._extra_menus = {}
+        self._extra_menus: dict[str, Any] = {}
 
     def __getitem__(self, item):
         if item in self._extra_menus:

@@ -45,7 +45,7 @@ GENDERS = {
 GLOBAL_COUNTER = {"no_carte_presse": 0}
 COMMON_PWD = "AAAABBBB-1"  # noqa: S105
 PERCENT_USERS_WITH_AUTO_ORGANISATION = 50
-AUTO_ORGANISATIONS_NAMES = set()
+AUTO_ORGANISATIONS_NAMES: set[str] = set()
 
 
 def random_taille_orga() -> str:

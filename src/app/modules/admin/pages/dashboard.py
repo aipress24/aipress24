@@ -66,8 +66,8 @@ class AdminDashboardPage(BaseAdminPage):
     icon = "house"
 
     def context(self):
-        data = {}
-        widgets = []
+        data: dict[str, object] = {}
+        widgets: list[Widget] = []
         for widget_args in WIDGETS:
             widget = Widget(**widget_args)
             widgets.append(widget)

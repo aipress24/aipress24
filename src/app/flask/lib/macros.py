@@ -8,7 +8,7 @@ from collections.abc import Callable
 
 from flask.app import Flask
 
-MACROS = []
+MACROS: list[Callable] = []
 
 
 def macro(f: Callable) -> Callable:

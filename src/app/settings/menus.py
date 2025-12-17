@@ -61,7 +61,7 @@ USER_MENU = [
     },
 ]
 
-_CREATE_MENU = [
+_CREATE_MENU: list[dict[str, str]] = [
     #
     # Pour les journalistes
     #

@@ -503,7 +503,7 @@ class KYCProfile(Base):
                 return "checked"
             return ""
 
-        data = {}
+        data: dict[str, dict[str, str]] = {}
         contact_details = self.show_contact_details
         for contact_type in ContactTypeEnum:
             data[contact_type.name] = {}
