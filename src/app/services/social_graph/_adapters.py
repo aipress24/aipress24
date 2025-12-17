@@ -116,7 +116,7 @@ class SocialUser(FollowableAdapter):
         stmt1 = sa.select(table.c.followee_id).where(table.c.follower_id == self.id)
         ids = db.session.scalars(stmt1)
 
-        stmt2 = sa.select(cls).where(cls.id.in_(ids))
+        stmt2: sa.Select = sa.select(cls).where(cls.id.in_(ids))
         if order_by is not None:
             stmt2 = stmt2.order_by(order_by)
         if limit:

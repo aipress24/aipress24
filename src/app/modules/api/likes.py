@@ -9,7 +9,7 @@ from flask import g
 from app.flask.extensions import db
 from app.flask.sqla import get_obj
 from app.modules.swork.models import ShortPost as Post
-from app.services.social_graph import adapt
+from app.services.social_graph import SocialUser, adapt
 
 from . import blueprint
 
@@ -24,7 +24,7 @@ def likes(cls: str, id: int) -> str:
 
 
 def toggle_like(obj: Post) -> str:
-    user = adapt(g.user)
+    user: SocialUser = adapt(g.user)
     if user.is_liking(obj):
         user.unlike(obj)
     else:

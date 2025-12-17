@@ -21,7 +21,7 @@ from app.modules.events.components.opening_hours import opening_hours
 from app.modules.events.models import EventPost
 from app.modules.events.services import get_participants
 from app.modules.kyc.field_label import country_code_to_label, country_zip_code_to_city
-from app.services.social_graph import adapt
+from app.services.social_graph import SocialUser, adapt
 
 from .events import EventsPage
 
@@ -142,7 +142,7 @@ class EventPage(Page):
                 return ""
 
     def toggle_like(self, user: User, article):
-        social_user = adapt(user)
+        social_user: SocialUser = adapt(user)
         if social_user.is_liking(article):
             social_user.unlike(article)
             message = f"Vous avec retiré votre 'like' au post {article.title!r}"

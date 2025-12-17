@@ -18,6 +18,7 @@ from app.flask.extensions import db
 from app.flask.lib.pages import expose, page
 from app.flask.routing import url_for
 from app.flask.sqla import get_multi
+from app.models.auth import User
 from app.modules.swork.models import ShortPost as Post
 from app.services.social_graph import adapt
 
@@ -39,7 +40,7 @@ class SworkHomePage(BaseSworkPage):
     template = "pages/swork.j2"
 
     def context(self):
-        followees = adapt(g.user).get_followees()
+        followees: list[User] = adapt(g.user).get_followees()
         followee_ids = {f.id for f in followees}
         followee_ids.add(g.user.id)
 

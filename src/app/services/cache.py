@@ -14,7 +14,7 @@ class Cache:
 
     def __init__(self) -> None:
         """Initialize the cache with an empty dictionary."""
-        self.cache = {}
+        self.cache: dict[str, object] = {}
 
     def __contains__(self, key) -> bool:
         """Check if key exists in cache.

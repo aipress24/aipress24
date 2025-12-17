@@ -143,7 +143,7 @@ class BusinessWallRegistrationPage(BaseWipPage):
         # liste des BWTypeEnum (parmi 8) en fonctin du profil utilisateur:
         self.allowed_subs: list[BWTypeEnum] = self.find_profile_allowed_subscription()
         self.stripe_bw_products: dict[str, stripe.Product] = {}
-        self.prod_info = []
+        self.prod_info: list[ProdInfo] = []
         # retour d'information sur l'abonnement acheté:
         self.subscription_info: dict[str, Any] | None = None
 

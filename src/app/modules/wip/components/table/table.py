@@ -136,7 +136,7 @@ class Pagination:
 
     def render(self) -> str:
         template = get_template(self, "table_pagination.j2")
-        total = self.table.data_source.get_count()
+        total: int = self.table.data_source.get_count()
         links = [
             {"page": 1, "is_current": True},
             {"page": 2, "is_current": False},

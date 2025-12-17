@@ -80,11 +80,15 @@ class UserVM(ViewModel):
         return list(db.session.scalars(stmt2))
 
     def get_followers(self, limit: int | None = None) -> list[UserVM]:
-        followers = adapt(self.user).get_followers(order_by=-User.karma, limit=limit)
+        followers: list[User] = adapt(self.user).get_followers(
+            order_by=-User.karma, limit=limit
+        )
         return UserVM.from_many(followers)
 
     def get_followees(self, limit: int | None = None) -> list[UserVM]:
-        followees = adapt(self.user).get_followees(order_by=-User.karma, limit=limit)
+        followees: list[User] = adapt(self.user).get_followees(
+            order_by=-User.karma, limit=limit
+        )
         return UserVM.from_many(followees)
 
     def get_posts(self) -> list[PostVM]:

@@ -47,7 +47,7 @@ def list_entries():
     for delete actions.
     """
     taxonomy_name = request.args.get("taxonomy_name")
-    entries = []
+    entries: list[TaxonomyEntry] = []
 
     # Create a simple form instance specifically for the delete buttons' CSRF tokens.
     delete_form = FlaskForm()
