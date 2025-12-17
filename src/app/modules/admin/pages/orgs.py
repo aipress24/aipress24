@@ -49,7 +49,7 @@ class AdminOrgsPage(BaseAdminPage):
 
     def _build_url(self, offset: int = 0, search: str = "") -> str:
         """Build URL with pagination query parameters."""
-        params = {}
+        params: dict[str, int | str] = {}
         if offset > 0:
             params["offset"] = offset
         if search:

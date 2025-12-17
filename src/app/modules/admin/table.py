@@ -9,6 +9,7 @@ TODO: Refactor.
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from pathlib import Path
 from typing import Any
 
@@ -16,7 +17,7 @@ import webargs
 from attr import define
 from flask import request, url_for as url_for_orig
 from jinja2 import Environment, FileSystemLoader, select_autoescape
-from sqlalchemy import false, func, nulls_last, or_, select
+from sqlalchemy import Select, false, func, nulls_last, or_, select
 from webargs.flaskparser import parser
 
 from app.flask.extensions import db
@@ -57,11 +58,13 @@ class Table:
 
     @property
     def columns(self):
-        if hasattr(self, "compose"):
-            return list(self.compose())
+        return list(self.compose())
+
+    def compose(self) -> Iterable[Column]:
+        """Override in subclasses to define columns via generator."""
         return self._columns()
 
-    def _columns(self):
+    def _columns(self) -> list[Column]:
         return []
 
     @property
@@ -115,9 +118,10 @@ class DataSource:
         return parser.parse(json_data_args, request, location="query")
 
     def count(self) -> int:
+        assert self.model_class is not None
         stmt = select(func.count()).select_from(self.model_class)
         stmt = self.add_search_filter(stmt)
-        return db.session.scalar(stmt)
+        return db.session.scalar(stmt) or 0
 
     def records(self):
         stmt = self.get_base_select()
@@ -125,7 +129,8 @@ class DataSource:
         objects = list(db.session.scalars(stmt))
         return self.make_records(objects)
 
-    def get_base_select(self) -> select:
+    def get_base_select(self) -> Select:
+        assert self.model_class is not None
         return select(self.model_class).offset(self.offset).limit(self.limit)
 
     def add_search_filter(self, stmt):
@@ -166,7 +171,7 @@ class GenericUserDataSource:
         stmt = select(func.count()).select_from(User)
         stmt = stmt.filter(User.is_clone == false())
         stmt = self.add_search_filter(stmt)
-        return db.session.scalar(stmt)
+        return db.session.scalar(stmt) or 0
 
     def records(self):
         stmt = self.get_base_select()
@@ -174,7 +179,7 @@ class GenericUserDataSource:
         objects = list(db.session.scalars(stmt))
         return self.make_records(objects)
 
-    def get_base_select(self) -> select:
+    def get_base_select(self) -> Select:
         return (
             select(User)
             .where(User.is_clone == false())
@@ -241,7 +246,7 @@ class GenericOrgDataSource:
     def count(self) -> int:
         stmt = select(func.count()).select_from(Organisation)
         stmt = self.add_search_filter(stmt)
-        return db.session.scalar(stmt)
+        return db.session.scalar(stmt) or 0
 
     def records(self):
         stmt = self.get_base_select()
@@ -249,7 +254,7 @@ class GenericOrgDataSource:
         objects = list(db.session.scalars(stmt))
         return self.make_records(objects)
 
-    def get_base_select(self) -> select:
+    def get_base_select(self) -> Select:
         return (
             select(Organisation)
             .where(Organisation.deleted_at.is_(None))

@@ -36,12 +36,12 @@ from app.modules.wip.pages.business_wall.business_wall_form import (
 )
 from app.services.sessions import SessionService
 
-from .base import AdminListPage
+from .base import BaseAdminPage
 from .orgs import AdminOrgsPage
 
 
 @page
-class ShowOrg(AdminListPage):
+class ShowOrg(BaseAdminPage):
     name = "show_org"
     label = "Informations sur l'organisation"
     title = "Informations sur l'organisation"

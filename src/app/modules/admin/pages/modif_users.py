@@ -4,8 +4,10 @@
 
 from __future__ import annotations
 
+from urllib.parse import urlencode
+
 from flask import Response, request, url_for as url_for_orig
-from sqlalchemy import desc, false, func, nulls_last, select, true
+from sqlalchemy import Select, desc, false, func, nulls_last, select, true
 
 from app.flask.extensions import db
 from app.flask.lib.pages import page
@@ -44,9 +46,9 @@ class ModifUserDataSource(NewUserDataSource):
             User.deleted_at.is_(None),
         )
         stmt = self.add_search_filter(stmt)
-        return db.session.scalar(stmt)
+        return db.session.scalar(stmt) or 0
 
-    def get_base_select(self) -> select:
+    def get_base_select(self) -> Select:
         return (
             select(User)
             .where(
@@ -88,6 +90,17 @@ class AdminModifUsersPage(BaseAdminPage):
     ds_class = ModifUserDataSource
     table_class = ModifUsersTable
 
+    def _build_url(self, offset: int = 0, search: str = "") -> str:
+        """Build URL with pagination query parameters."""
+        params: dict[str, int | str] = {}
+        if offset > 0:
+            params["offset"] = offset
+        if search:
+            params["search"] = search
+        if params:
+            return f"{self.url}?{urlencode(params)}"
+        return self.url
+
     def context(self):
         ds = self.ds_class()
         records = ds.records()
@@ -106,35 +119,28 @@ class AdminModifUsersPage(BaseAdminPage):
         ds = self.ds_class()
         action = request.form.get("action")
         search_string = request.form.get("search", "")
-        if action:
-            if action == "next":
-                redirect_url = self._build_url(
-                    offset=ds.next_offset(), search=ds.search
-                )
-                response = Response("")
-                response.headers["HX-Redirect"] = redirect_url
-                return response
-            if action == "previous":
-                redirect_url = self._build_url(
-                    offset=ds.prev_offset(), search=ds.search
-                )
-                response = Response("")
-                response.headers["HX-Redirect"] = redirect_url
-                return response
+
+        if action == "next":
+            redirect_url = self._build_url(offset=ds.next_offset(), search=ds.search)
+            response = Response("")
+            response.headers["HX-Redirect"] = redirect_url
+            return response
+
+        if action == "previous":
+            redirect_url = self._build_url(offset=ds.prev_offset(), search=ds.search)
+            response = Response("")
+            response.headers["HX-Redirect"] = redirect_url
+            return response
+
+        # Search handling
         if search_string:
-            if search_string:
-                # New search resets to first page
-                offset = 0 if search_string != ds.search else ds.offset
-                redirect_url = self._build_url(offset=offset, search=search_string)
-            else:
-                # Clear search, reset to first page
-                redirect_url = self._build_url()
+            # New search resets to first page
+            offset = 0 if search_string != ds.search else ds.offset
+            redirect_url = self._build_url(offset=offset, search=search_string)
+        else:
+            # Clear search, reset to first page
+            redirect_url = self._build_url()
 
         response = Response("")
         response.headers["HX-Redirect"] = redirect_url
         return response
-
-        # no validation
-        # response = Response("")
-        # response.headers["HX-Redirect"] = AdminHomePage().url
-        # return response
