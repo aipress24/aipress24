@@ -32,7 +32,7 @@ def add_invited_users(mails: str | list[str], org_id: int) -> list[str]:
 
     Returns: list of newly invited mails.
     """
-    already_invited: list[str] = {
+    already_invited: set[str] = {
         m.lower() for m in emails_invited_to_organisation(org_id)
     }
     if isinstance(mails, str):

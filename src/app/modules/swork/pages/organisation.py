@@ -27,7 +27,7 @@ from app.modules.kyc.field_label import (
 )
 from app.modules.wire.models import ArticlePost, PressReleasePost
 from app.services.activity_stream import get_timeline
-from app.services.social_graph import adapt
+from app.services.social_graph import SocialUser, adapt
 
 from .base import BaseSworkPage
 from .organisations import OrgsPage
@@ -44,7 +44,7 @@ class OrgPage(BaseSworkPage):
     def __init__(self, id: str) -> None:
         self.args = {"id": id}
         self.org = get_obj(id, Organisation)
-        self.soc_user = adapt(g.user)
+        self.soc_user: SocialUser = adapt(g.user)
 
     @property
     def label(self) -> str:
@@ -84,7 +84,7 @@ class OrgPage(BaseSworkPage):
                 return ""
 
     def toggle_follow(self):
-        user = self.soc_user
+        user: SocialUser = self.soc_user
         org = self.org
         if user.is_following(org):
             user.unfollow(org)

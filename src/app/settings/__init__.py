@@ -5,10 +5,11 @@
 from __future__ import annotations
 
 import re
+from typing import Any
 
 from .ui import *  # noqa
 
-_settings = {}
+_settings: dict[str, Any] = {}
 
 
 def get_settings():

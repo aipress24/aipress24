@@ -106,9 +106,7 @@ class TestIsDeptInRegion:
             ("Martinique", "Provence-Alpes-Côte d'Azur"),
         ],
     )
-    def test_overseas_not_in_metropolitan(
-        self, dept: str, wrong_region: str
-    ) -> None:
+    def test_overseas_not_in_metropolitan(self, dept: str, wrong_region: str) -> None:
         """Test overseas departments are not in metropolitan regions."""
         assert is_dept_in_region(dept, wrong_region) is False
 
@@ -124,9 +122,7 @@ class TestIsDeptInRegion:
             ("Upper Corsica", "Île-de-France"),
         ],
     )
-    def test_corsica_not_in_other_regions(
-        self, dept: str, wrong_region: str
-    ) -> None:
+    def test_corsica_not_in_other_regions(self, dept: str, wrong_region: str) -> None:
         """Test Corsica departments are not in other regions."""
         assert is_dept_in_region(dept, wrong_region) is False
 

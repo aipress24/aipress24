@@ -61,6 +61,56 @@ class TestNewUserDataSource:
         # Should count only the users that match criteria
         assert count >= 2  # At least our 2 test users
 
+    def test_count_excludes_active_users(self, db_session):
+        """Test count excludes active users."""
+        ds = NewUserDataSource()
+        initial_count = ds.count()
+
+        # Add inactive non-clone user (should be counted)
+        inactive_user = User(
+            email="inactive_new@example.com", active=False, is_clone=False
+        )
+        db_session.add(inactive_user)
+        db_session.flush()
+
+        ds = NewUserDataSource()
+        count_after_inactive = ds.count()
+        assert count_after_inactive == initial_count + 1
+
+        # Add active user (should NOT be counted)
+        active_user = User(email="active_new@example.com", active=True, is_clone=False)
+        db_session.add(active_user)
+        db_session.flush()
+
+        ds = NewUserDataSource()
+        count_after_active = ds.count()
+        assert count_after_active == count_after_inactive
+
+    def test_count_excludes_clones(self, db_session):
+        """Test count excludes clone users."""
+        ds = NewUserDataSource()
+        initial_count = ds.count()
+
+        # Add non-clone inactive user (should be counted)
+        non_clone = User(
+            email="non_clone_new@example.com", active=False, is_clone=False
+        )
+        db_session.add(non_clone)
+        db_session.flush()
+
+        ds = NewUserDataSource()
+        count_after_non_clone = ds.count()
+        assert count_after_non_clone == initial_count + 1
+
+        # Add clone user (should NOT be counted)
+        clone = User(email="clone_new@example.com", active=False, is_clone=True)
+        db_session.add(clone)
+        db_session.flush()
+
+        ds = NewUserDataSource()
+        count_after_clone = ds.count()
+        assert count_after_clone == count_after_non_clone
+
     def test_get_base_select_returns_select(self, db_session):
         """Test get_base_select method returns proper select statement."""
         ds = NewUserDataSource()
@@ -122,3 +172,21 @@ class TestAdminNewUsersPage:
         # Verify context has expected keys
         assert "table" in context
         assert isinstance(context["table"], NewUsersTable)
+
+    def test_ds_class_and_table_class(self):
+        """Test page uses correct data source and table classes."""
+        assert AdminNewUsersPage.ds_class == NewUserDataSource
+        assert AdminNewUsersPage.table_class == NewUsersTable
+
+    def test_context_table_has_pagination_info(self, db_session):
+        """Test context table has pagination information."""
+        page = AdminNewUsersPage()
+        context = page.context()
+        table = context["table"]
+
+        # Verify table has pagination info
+        assert hasattr(table, "start")
+        assert hasattr(table, "end")
+        assert hasattr(table, "count")
+        assert hasattr(table, "searching")
+        assert table.start >= 1
