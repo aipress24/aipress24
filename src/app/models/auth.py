@@ -207,6 +207,10 @@ class User(LifeCycleMixin, Addressable, UserMixin, Base):
         return self.profile.profile_label
 
     @hybrid_property
+    def metiers(self) -> list[str]:
+        return self.profile.metiers
+
+    @hybrid_property
     def organisation_name(self) -> str:
         if self.organisation:
             return self.organisation.name
@@ -378,6 +382,40 @@ class KYCProfile(Base):
         if field_name in self.business_wall:
             return self.business_wall[field_name]
         return ""
+
+    @property
+    def country(self) -> str:
+        return self.info_professionnelle["pays_zip_ville"] or ""
+
+    @property
+    def departement(self) -> str:
+        """Return the 2 first digit of zip code"""
+        pays_zip_ville = self.info_professionnelle["pays_zip_ville_detail"]
+        if not pays_zip_ville:
+            return ""
+        if isinstance(pays_zip_ville, list):
+            pays_zip_ville = pays_zip_ville[0]
+        try:
+            return pays_zip_ville.split()[2][:2]
+        except IndexError:
+            return ""
+
+    @property
+    def ville(self) -> str:
+        """Return the 4th part of pays_zip_ville_detail"""
+        pays_zip_ville = self.info_professionnelle["pays_zip_ville_detail"]
+        if not pays_zip_ville:
+            return ""
+        if isinstance(pays_zip_ville, list):
+            pays_zip_ville = pays_zip_ville[0]
+        try:
+            return pays_zip_ville.split()[3]
+        except IndexError:
+            return ""
+
+    @property
+    def metiers(self) -> list[str]:
+        return self.info_personnelle["metier_principal_detail"] or []
 
     def get_first_value(self, field_name: str) -> str:
         value = self.get_value(field_name)
