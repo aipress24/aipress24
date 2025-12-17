@@ -56,6 +56,7 @@ def create_export_response(
     except ValueError as e:
         logger.error(str(e))
         abort(500, "Database configuration error")
+        raise  # unreachable, but helps type checker
 
     service = service_class(config)
     filename = service.generate_filename()

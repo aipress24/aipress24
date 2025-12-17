@@ -7,7 +7,7 @@ from __future__ import annotations
 from urllib.parse import urlencode
 
 from flask import Response, request, url_for as url_for_orig
-from sqlalchemy import desc, false, func, nulls_last, select
+from sqlalchemy import Select, desc, false, func, nulls_last, select
 
 from app.flask.extensions import db
 from app.flask.lib.pages import page
@@ -45,9 +45,9 @@ class NewUserDataSource(GenericUserDataSource):
             User.deleted_at.is_(None),
         )
         stmt = self.add_search_filter(stmt)
-        return db.session.scalar(stmt)
+        return db.session.scalar(stmt) or 0
 
-    def get_base_select(self) -> select:
+    def get_base_select(self) -> Select:
         return (
             select(User)
             .where(
@@ -92,7 +92,7 @@ class AdminNewUsersPage(BaseAdminPage):
 
     def _build_url(self, offset: int = 0, search: str = "") -> str:
         """Build URL with pagination query parameters."""
-        params = {}
+        params: dict[str, int | str] = {}
         if offset > 0:
             params["offset"] = offset
         if search:

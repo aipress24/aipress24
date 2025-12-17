@@ -178,8 +178,9 @@ class DatabaseExportService:
             )
 
             # Stream and compress stdout in chunks
-            if process.stdout:
-                for chunk in iter(lambda: process.stdout.read(chunk_size), b""):
+            stdout = process.stdout
+            if stdout:
+                for chunk in iter(lambda: stdout.read(chunk_size), b""):
                     compressed_chunk = compressor.compress(chunk)
                     if compressed_chunk:
                         yield compressed_chunk
@@ -235,8 +236,9 @@ class DatabaseExportService:
                 env=env,
             )
 
-            if process.stdout:
-                yield from iter(lambda: process.stdout.read(chunk_size), b"")
+            stdout = process.stdout
+            if stdout:
+                yield from iter(lambda: stdout.read(chunk_size), b"")
 
             return_code = process.wait()
 

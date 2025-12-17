@@ -22,7 +22,7 @@ class Page:
     path: str
     template: str = ""
     parent: Any = None
-    args: ClassVar[dict] = {}
+    args: dict = {}
     order: float = 0.0
 
     # breadcrumbs: list = []
