@@ -50,7 +50,7 @@ class EmailTemplate:
             if result:
                 email_log_recipient(self.recipient)
         else:
-            msg = f"Mail quota exceeded for recipients: {self.recipient!r}"
+            msg = f"Mail quota exceeded for recipient: {self.recipient!r}"
             logger.error(msg)
             result = False
         return result

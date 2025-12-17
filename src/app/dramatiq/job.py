@@ -10,7 +10,7 @@ from loguru import logger
 
 from .lazy_actor import LazyActor
 
-_actor_registry = set()
+_actor_registry: set[LazyActor] = set()
 
 
 def job():

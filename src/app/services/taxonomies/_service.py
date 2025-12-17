@@ -32,7 +32,7 @@ def get_all_taxonomy_names() -> list[str]:
         TaxonomyEntry.taxonomy_name
     )
     results = db.session.scalars(query).all()
-    return results
+    return list(results)
 
 
 def get_taxonomy(name) -> list[str]:
@@ -72,9 +72,9 @@ def get_taxonomy_dual_select(
     T = TaxonomyEntry  # noqa: N806
     query = select(T).where(T.taxonomy_name == name).order_by(T.seq)
     results = db.session.scalars(query).all()
-    seen = set()
-    distinct = []
-    field2 = {}
+    seen: set[str] = set()
+    distinct: list[str] = []
+    field2: dict[str, list[list[str]]] = {}
     for item in results:
         if item.category not in seen:
             seen.add(item.category)

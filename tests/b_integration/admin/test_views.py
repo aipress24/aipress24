@@ -2,74 +2,161 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
-"""Integration tests for admin views functionality."""
+"""Integration tests for admin views - database export functionality."""
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from collections.abc import Iterator
 
 import pytest
-from werkzeug.test import Client
+from flask import Flask
+from sqlalchemy.engine import URL
 
-from app.flask.main import create_app
-from app.models.auth import User
-
-if TYPE_CHECKING:
-    from sqlalchemy.orm import Session
-
-
-@pytest.fixture
-def admin_client(db_session: Session) -> Client:
-    """Create Flask test client with admin user authenticated."""
-    app = create_app(testing=True)
-
-    # Set up the app context
-    with app.app_context():
-        # Create test client
-        client = app.test_client()
-
-        # Authenticate as admin user
-        with client.session_transaction():
-            # This would normally set up the session with admin credentials
-            # For now, we'll rely on the admin_user fixture being used in tests
-            pass
-
-        yield client
+from app.modules.admin.db_export_service import (
+    DatabaseExportService,
+    PgDumpConfig,
+    PgDumpExecutionError,
+    PgDumpNotFoundError,
+)
+from app.modules.admin.views import create_export_response
 
 
-class TestDatabaseExportViews:
-    """Test database export views."""
+class StubExportService(DatabaseExportService):
+    """Stub service that yields predefined data without calling pg_dump."""
 
-    def test_export_database_view_requires_admin(
-        self, client: Client, non_admin_user: User
-    ) -> None:
-        """Test that database export requires admin role."""
-        # This test would verify that non-admin users get 403
-        # Implementation would use client.get() to the export endpoint
-        pass
+    def __init__(self, config: PgDumpConfig):
+        super().__init__(config)
+        self._export_data = b"stub export data"
 
-    def test_export_database_view_with_admin(
-        self, client: Client, admin_user: User
-    ) -> None:
-        """Test database export with admin user."""
-        # This test would verify the export functionality works
-        # Would need to mock the actual database export to avoid side effects
-        pass
+    def export_gzipped(self, chunk_size: int = 8192) -> Iterator[bytes]:
+        """Return stub gzipped data."""
+        yield self._export_data
 
 
-class TestExportViews:
-    """Test generic export views."""
+class FailingExportService(DatabaseExportService):
+    """Stub service that raises PgDumpExecutionError."""
 
-    def test_export_route_with_valid_exporter(
-        self, client: Client, admin_user: User
-    ) -> None:
-        """Test export route with valid exporter name."""
-        # Would test the generic export functionality
-        pass
+    def export_gzipped(self, chunk_size: int = 8192) -> Iterator[bytes]:
+        """Raise execution error."""
+        raise PgDumpExecutionError(1, "connection refused")
 
-    def test_export_route_with_invalid_exporter(
-        self, client: Client, admin_user: User
-    ) -> None:
-        """Test export route with invalid exporter name returns 404."""
-        # Would verify 404 is returned for unknown exporters
-        pass
+
+class NotFoundExportService(DatabaseExportService):
+    """Stub service that raises PgDumpNotFoundError."""
+
+    def export_gzipped(self, chunk_size: int = 8192) -> Iterator[bytes]:
+        """Raise not found error."""
+        raise PgDumpNotFoundError("pg_dump not found")
+
+
+class TestCreateExportResponse:
+    """Tests for create_export_response function with stub services."""
+
+    def test_successful_export_with_stub_service(self, app: Flask):
+        """Test successful export using stub service."""
+        url = URL.create(
+            drivername="postgresql",
+            username="testuser",
+            password="testpass",
+            host="localhost",
+            port=5432,
+            database="testdb",
+        )
+
+        with app.test_request_context():
+            response = create_export_response(url, StubExportService)
+
+            assert response.status_code == 200
+            assert response.mimetype == "application/gzip"
+            assert "attachment" in response.headers.get("Content-Disposition", "")
+            assert "testdb_dump_" in response.headers.get("Content-Disposition", "")
+            assert ".sql.gz" in response.headers.get("Content-Disposition", "")
+
+            # Consume the generator to get the data
+            data = b"".join(response.response)
+            assert data == b"stub export data"
+
+    def test_export_rejects_non_postgresql(self, app: Flask):
+        """Test that non-PostgreSQL databases return 404."""
+        url = URL.create(drivername="sqlite", database=":memory:")
+
+        with app.test_request_context():
+            with pytest.raises(Exception) as exc_info:
+                create_export_response(url, StubExportService)
+            # Flask abort raises werkzeug HTTPException
+            assert "404" in str(exc_info.value) or exc_info.value.code == 404
+
+    def test_export_rejects_mysql(self, app: Flask):
+        """Test that MySQL databases return 404."""
+        url = URL.create(drivername="mysql", database="testdb", host="localhost")
+
+        with app.test_request_context():
+            with pytest.raises(Exception) as exc_info:
+                create_export_response(url, StubExportService)
+            assert "404" in str(exc_info.value) or exc_info.value.code == 404
+
+    def test_export_handles_missing_database_name(self, app: Flask):
+        """Test that missing database name returns 500."""
+        url = URL.create(drivername="postgresql", host="localhost")
+
+        with app.test_request_context():
+            with pytest.raises(Exception) as exc_info:
+                create_export_response(url, StubExportService)
+            assert "500" in str(exc_info.value) or exc_info.value.code == 500
+
+    def test_export_with_psycopg2_driver(self, app: Flask):
+        """Test export works with postgresql+psycopg2 driver."""
+        url = URL.create(
+            drivername="postgresql+psycopg2",
+            host="localhost",
+            database="testdb",
+        )
+
+        with app.test_request_context():
+            response = create_export_response(url, StubExportService)
+            assert response.status_code == 200
+
+    def test_response_headers_security(self, app: Flask):
+        """Test that response has proper security headers."""
+        url = URL.create(
+            drivername="postgresql",
+            host="localhost",
+            database="testdb",
+        )
+
+        with app.test_request_context():
+            response = create_export_response(url, StubExportService)
+            assert response.headers.get("X-Content-Type-Options") == "nosniff"
+
+
+class TestExportErrorHandling:
+    """Tests for error handling in export view."""
+
+    def test_pg_dump_execution_error_propagates(self, app: Flask):
+        """Test that PgDumpExecutionError propagates through the generator."""
+        url = URL.create(
+            drivername="postgresql",
+            host="localhost",
+            database="testdb",
+        )
+
+        with app.test_request_context():
+            response = create_export_response(url, FailingExportService)
+            # Error happens when consuming the generator
+            with pytest.raises(PgDumpExecutionError) as exc_info:
+                list(response.response)
+            assert exc_info.value.return_code == 1
+            assert "connection refused" in exc_info.value.stderr
+
+    def test_pg_dump_not_found_error_propagates(self, app: Flask):
+        """Test that PgDumpNotFoundError propagates through the generator."""
+        url = URL.create(
+            drivername="postgresql",
+            host="localhost",
+            database="testdb",
+        )
+
+        with app.test_request_context():
+            response = create_export_response(url, NotFoundExportService)
+            with pytest.raises(PgDumpNotFoundError):
+                list(response.response)

@@ -1,14 +1,12 @@
-"""Admin views for database operations."""
 # Copyright (c) 2021-2024, Abilian SAS & TCA
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
+"""Admin views for database operations."""
+
 from __future__ import annotations
 
-import subprocess
-import zlib
-from collections.abc import Iterator
-from datetime import UTC, datetime
+from typing import TYPE_CHECKING
 
 from flask import Response, abort
 from loguru import logger
@@ -16,57 +14,71 @@ from loguru import logger
 from app.flask.extensions import db
 
 from . import blueprint
+from .db_export_service import (
+    DatabaseExportError,
+    DatabaseExportService,
+    PgDumpConfig,
+    is_postgresql_database,
+)
+
+if TYPE_CHECKING:
+    from sqlalchemy.engine import URL
 
 
-def _build_pg_dump_command(db_url) -> tuple[list[str], dict[str, str] | None]:
-    """Build pg_dump command and environment from database URL.
+def create_export_response(
+    db_url: URL,
+    service_class: type[DatabaseExportService] = DatabaseExportService,
+) -> Response:
+    """Create export response from database URL.
+
+    This function contains the core logic for database export, separated from
+    the route handler for testability.
 
     Args:
         db_url: SQLAlchemy database URL
+        service_class: Service class to use (for dependency injection)
 
     Returns:
-        Tuple of (command list, environment dict or None)
+        Flask Response with streaming gzipped database dump
 
     Raises:
-        ValueError: If database configuration is invalid
+        404: If database is not PostgreSQL
+        500: If database configuration is invalid
     """
-    # Extract connection parameters
-    host = db_url.host or "localhost"
-    port = db_url.port or 5432
-    database = db_url.database
-    username = db_url.username
-    password = db_url.password
+    if not is_postgresql_database(db_url):
+        logger.error(
+            f"Database export only supports PostgreSQL, got: {db_url.drivername}"
+        )
+        abort(404, "Database export only available for PostgreSQL databases")
 
-    if not database:
-        msg = "No database name found in database URL"
-        raise ValueError(msg)
+    try:
+        config = PgDumpConfig.from_url(db_url)
+    except ValueError as e:
+        logger.error(str(e))
+        abort(500, "Database configuration error")
+        raise  # unreachable, but helps type checker
 
-    # Build pg_dump command
-    cmd = [
-        "pg_dump",
-        "--host",
-        str(host),
-        "--port",
-        str(port),
-        "--format",
-        "plain",
-        "--no-owner",
-        "--no-privileges",
-    ]
+    service = service_class(config)
+    filename = service.generate_filename()
 
-    # Add username if provided
-    if username:
-        cmd.extend(["--username", username])
+    logger.info(f"Starting database export: {service.database_name} -> {filename}")
 
-    # Add database name
-    cmd.append(database)
+    def generate_with_error_handling():
+        """Wrap service generator with error handling."""
+        try:
+            yield from service.export_gzipped()
+        except DatabaseExportError as e:
+            logger.error(f"Database export failed: {e}")
+            raise
 
-    # Set environment for password
-    env = None
-    if password:
-        env = {"PGPASSWORD": password}
-
-    return cmd, env
+    return Response(
+        generate_with_error_handling(),
+        mimetype="application/gzip",
+        headers={
+            "Content-Disposition": f'attachment; filename="{filename}"',
+            "X-Content-Type-Options": "nosniff",
+        },
+    )
 
 
 @blueprint.route("/export-db/")
@@ -81,85 +93,6 @@ def export_database():
 
     Raises:
         404: If database is not PostgreSQL
-        500: If pg_dump fails
+        500: If pg_dump fails or database configuration is invalid
     """
-    # Get database URL from SQLAlchemy engine
-    db_url = db.engine.url
-
-    # Only support PostgreSQL
-    if not db_url.drivername.startswith("postgresql"):
-        logger.error(
-            f"Database export only supports PostgreSQL, got: {db_url.drivername}"
-        )
-        abort(404, "Database export only available for PostgreSQL databases")
-
-    # Build pg_dump command and environment
-    try:
-        cmd, env = _build_pg_dump_command(db_url)
-    except ValueError as e:
-        logger.error(str(e))
-        abort(500, "Database configuration error")
-
-    database = db_url.database
-
-    # Generate filename with timestamp
-    timestamp = datetime.now(tz=UTC).strftime("%Y%m%d_%H%M%S")
-    filename = f"{database}_dump_{timestamp}.sql.gz"
-
-    logger.info(f"Starting database export: {database} -> {filename}")
-
-    def generate() -> Iterator[bytes]:
-        """Stream pg_dump output with gzip compression."""
-        # Create gzip compressor (wbits=16 + zlib.MAX_WBITS for gzip format)
-        compressor = zlib.compressobj(wbits=zlib.MAX_WBITS | 16)
-
-        try:
-            process = subprocess.Popen(
-                cmd,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                env=env,
-            )
-
-            # Stream and compress stdout in chunks
-            if process.stdout:
-                for chunk in iter(lambda: process.stdout.read(8192), b""):
-                    compressed_chunk = compressor.compress(chunk)
-                    if compressed_chunk:
-                        yield compressed_chunk
-
-            # Wait for process to complete
-            return_code = process.wait()
-
-            if return_code != 0:
-                stderr = process.stderr.read() if process.stderr else b""
-                error_msg = stderr.decode("utf-8", errors="replace")
-                logger.error(f"pg_dump failed with code {return_code}: {error_msg}")
-                msg = f"pg_dump failed: {error_msg}"
-                raise RuntimeError(msg)
-
-            # Flush remaining compressed data
-            final_chunk = compressor.flush()
-            if final_chunk:
-                yield final_chunk
-
-            logger.info(f"Database export completed successfully: {filename}")
-
-        except FileNotFoundError as err:
-            logger.error(
-                "pg_dump command not found - PostgreSQL client tools not installed"
-            )
-            msg = "pg_dump not available - install PostgreSQL client tools"
-            raise RuntimeError(msg) from err
-        except Exception as e:
-            logger.error(f"Database export failed: {e}")
-            raise
-
-    return Response(
-        generate(),
-        mimetype="application/gzip",
-        headers={
-            "Content-Disposition": f'attachment; filename="{filename}"',
-            "X-Content-Type-Options": "nosniff",
-        },
-    )
+    return create_export_response(db.engine.url)

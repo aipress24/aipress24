@@ -20,7 +20,7 @@ from app.modules.admin.utils import gc_organisation, remove_user_organisation
 from app.modules.kyc.views import admin_info_context
 from app.services.roles import add_role
 
-from .base import AdminListPage
+from .base import BaseAdminPage
 from .users import AdminUsersPage
 
 # from typing import Any
@@ -29,7 +29,7 @@ from .users import AdminUsersPage
 
 
 @page
-class ShowUser(AdminListPage):
+class ShowUser(BaseAdminPage):
     name = "show_member"
     label = "Informations sur l'utilisateur"
     title = "Informations sur l'utilisateur"
