@@ -29,7 +29,6 @@ from app.modules.wip.models import (
     ContactAvisEnquete,
 )
 from app.services.emails import AvisEnqueteNotificationMail
-from app.services.geonames import get_dept_name, is_dept_in_region
 from app.services.notifications import NotificationService
 from app.services.sessions import SessionService
 from app.services.taxonomies import get_taxonomy
@@ -482,11 +481,13 @@ class SearchForm:
             if not value:
                 continue
             if selector.id == "metier":
-                experts = [e for e in experts if e.job_title == value]
-            if selector.id == "region":
-                experts = [e for e in experts if e.region == value]
+                experts = [e for e in experts if value in e.metiers]
+            if selector.id == "pays":
+                experts = [e for e in experts if e.profile.country == value]
             if selector.id == "departement":
-                experts = [e for e in experts if e.departement == value]
+                experts = [e for e in experts if e.profile.departement == value]
+            if selector.id == "ville":
+                experts = [e for e in experts if e.profile.ville == value]
 
         experts = [
             e for e in experts if e.id not in self.state.get("selected_experts", [])
@@ -512,7 +513,7 @@ class SearchForm:
             FonctionSelector(self),
             TypeOrganisationSelector(self),
             TailleOrganisationSelector(self),
-            RegionSelector(self),
+            PaysSelector(self),
             DepartementSelector(self),
             VilleSelector(self),
         ]
@@ -540,7 +541,7 @@ class Selector(abc.ABC):
         return self._make_options(values)
 
     @abstractmethod
-    def get_values(self):
+    def get_values(self) -> list[str] | set[str]:
         pass
 
     def _make_options(self, values) -> list[Option]:
@@ -625,47 +626,48 @@ class TypeOrganisationSelector(Selector):
         return self._get_values_from_experts("type_orga_detail")
 
 
-class RegionSelector(Selector):
-    id = "region"
-    label = "Région"
+class PaysSelector(Selector):
+    id = "pays"
+    label = "Pays"
 
-    def get_values(self):
-        return {e.region for e in self.form.all_experts}
+    def get_values(self) -> list[str] | set[str]:
+        return {e.profile.country for e in self.form.all_experts}
 
 
 class DepartementSelector(Selector):
     id = "departement"
     label = "Département"
 
-    def get_values(self):
-        values = {e.departement for e in self.form.all_experts}
-        if regions := self.form.state.get("region"):
-            values = {v for v in values if is_dept_in_region(v, regions)}
-        return values
+    def get_values(self) -> list[str] | set[str]:
+        selected_country = self.form.state.get("pays")
+        if not selected_country:
+            return []
+        selected_users = self.form.all_experts
+        return {
+            u.profile.departement
+            for u in selected_users
+            if u.profile.country == selected_country
+        }
 
 
 class VilleSelector(Selector):
     id = "ville"
     label = "Ville"
 
-    def get_values(self):
-        selected_dept = self.form.state.get("departement")
-        if not selected_dept:
+    def get_values(self) -> list[str] | set[str]:
+        selected_country = self.form.state.get("pays")
+        if not selected_country:
             return []
-
+        selected_departement = self.form.state.get("departement")
+        if not selected_departement:
+            return []
         selected_users = self.form.all_experts
-        cities = set()
-        for user in selected_users:
-            dept_code = user.dept_code
-            dept_name = get_dept_name(dept_code)
-            if dept_name != selected_dept:
-                continue
-
-            city = user.city
-            if city:
-                cities.add(city)
-
-        return cities
+        return {
+            u.profile.ville
+            for u in selected_users
+            if u.profile.country == selected_country
+            and u.profile.departement == selected_departement
+        }
 
 
 @frozen(order=True)
