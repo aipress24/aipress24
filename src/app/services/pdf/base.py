@@ -21,6 +21,7 @@ def to_pdf(obj, template=None) -> bytes:
 
 def generate_pdf(data: dict, template: str | Path) -> bytes:
     # Lazy import because WeasyPrint is not always installed
+    HTML: type | None  # noqa: N806
     try:
         from weasyprint import HTML
     except (ImportError, OSError):

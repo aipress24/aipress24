@@ -4,6 +4,8 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 import arrow
 from flask_super.registry import lookup
 
@@ -12,7 +14,7 @@ from app.flask.extensions import db
 from ._metrics import Metric
 from ._models import StatsRecord
 
-DURATIONS = [
+DURATIONS: list[tuple[str, dict[str, Any]]] = [
     ("day", {"days": -1}),
     ("week", {"weeks": -1}),
     ("month", {"months": -1}),
