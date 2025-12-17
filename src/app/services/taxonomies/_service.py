@@ -32,7 +32,7 @@ def get_all_taxonomy_names() -> list[str]:
         TaxonomyEntry.taxonomy_name
     )
     results = db.session.scalars(query).all()
-    return results
+    return list(results)
 
 
 def get_taxonomy(name) -> list[str]:
