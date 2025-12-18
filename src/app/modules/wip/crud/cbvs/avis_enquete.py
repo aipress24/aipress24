@@ -118,10 +118,11 @@ class AvisEnqueteWipView(BaseWipView):
         match action:
             case "confirm":
                 selected_experts: list[User] = form.get_selected_experts()
-
-                self.store_contact_avis_enquete(model, selected_experts)
-                self.envoyer_avis_enquete(model, selected_experts)
-                self.send_avis_enquete_mails(model, selected_experts)
+                new_experts = self.filter_know_experts(model, selected_experts)
+                if new_experts:
+                    self.store_contact_avis_enquete(model, new_experts)
+                    self.envoyer_avis_enquete(model, new_experts)
+                    self.send_avis_enquete_mails(model, new_experts)
                 flash(
                     "Votre avis d'enquête a été envoyé aux contacts sélectionnés",
                     "success",
@@ -155,6 +156,14 @@ class AvisEnqueteWipView(BaseWipView):
         html = render_template("wip/avis_enquete/ciblage.j2", **ctx)
         html = extract_fragment(html, "main")
         return html
+
+    def filter_know_experts(
+        self, model: AvisEnquete, selected_experts: list[User]
+    ) -> list[User]:
+        repo = container.get(ContactAvisEnqueteRepository)
+        contacts = repo.list(avis_enquete_id=model.id)
+        known_expert_ids = {contact.expert_id for contact in contacts}
+        return [e for e in selected_experts if e.id not in known_expert_ids]
 
     def store_contact_avis_enquete(
         self, model: AvisEnquete, selected_experts: list[User]
