@@ -2,6 +2,8 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
+"""Wire item page - article and press release detail views."""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, cast
@@ -9,12 +11,11 @@ from typing import TYPE_CHECKING, cast
 import arrow
 import sqlalchemy as sa
 from attr import field, frozen
-from flask import g, request
+from flask import g, render_template, request
 from werkzeug import Response
 
 from app.enums import OrganisationTypeEnum
 from app.flask.extensions import db
-from app.flask.lib.pages import Page, page
 from app.flask.lib.view_model import Wrapper
 from app.flask.routing import url_for
 from app.flask.sqla import get_obj
@@ -29,118 +30,104 @@ from app.modules.wire.models import ArticlePost, Post, PressReleasePost
 from app.services.tagging import get_tags
 from app.services.tracking import record_view
 
-from ._actions import post_comment, toggle_like
-from .wire import WirePage
+from .. import blueprint
+
+if TYPE_CHECKING:
+    pass
 
 
-# Disabled: migrated to views/item.py
-# @page
-class ItemPage(Page):
-    path = "/<id>"
-    name = "item"
+@blueprint.route("/<id>")
+def item(id: str):
+    """Article/Press Release detail page."""
+    post = get_obj(id, Post)
 
-    parent = WirePage
+    match post:
+        case ArticlePost():
+            view_model = ArticleVM(post)
+            template = "pages/article.j2"
+        case PressReleasePost():
+            view_model = PressReleaseVM(post)
+            template = "pages/press-release.j2"
+        case _:
+            msg = f"Unknown item type: {post}"
+            raise TypeError(msg)
 
-    def __init__(self, id) -> None:
-        self.args = {"id": id}  # type: ignore[misc]
-        self.item = get_obj(id, Post)
+    # Record view
+    record_view(g.user, post)
+    db.session.commit()
 
-        match self.item:
-            case ArticlePost():
-                self.view_model = ArticleVM(self.item)
-            case PressReleasePost():
-                self.view_model = PressReleaseVM(self.item)
-            case _:
-                msg = f"Unknown item type: {self.item}"
-                raise TypeError(msg)
+    # Build metadata
+    metadata_list = _get_metadata_list(post)
 
-    @property
-    def label(self):
-        return self.item.title
+    return render_template(
+        template,
+        post=view_model,
+        metadata_list=metadata_list,
+    )
 
-    @property
-    def template(self) -> str:
-        match self.item:
-            case ArticlePost():
-                return "pages/article.j2"
-            case PressReleasePost():
-                return "pages/press-release.j2"
-            case _:
-                msg = f"Unknown item type: {self.item}"
-                raise TypeError(msg)
 
-    def context(self):
-        return {
-            "post": self.view_model,
-            "page": self,
-        }
+@blueprint.route("/<id>", methods=["POST"])
+def item_post(id: str) -> str | Response:
+    """Handle item actions (like, comment)."""
+    # Lazy import to avoid circular import
+    from ..pages._actions import post_comment, toggle_like
 
-    def get(self):
-        record_view(g.user, self.item)
-        db.session.commit()
-        return super().get()
+    post = get_obj(id, Post)
+    action = request.form["action"]
 
-    def get_metadata_list(self):
-        item = self.item
+    match action:
+        case "toggle-like":
+            return toggle_like(post)
+        case "post-comment":
+            return post_comment(post)
+        case _:
+            return ""
 
-        def elvis(x, y):
-            # https://en.wikipedia.org/wiki/Elvis_operator
-            return x or y
 
-        def post_type() -> str:
-            result: str = ""
-            if item.type == "article":
-                result = "Article"
-            elif item.type == "press_release":
-                result = "Communiqué"
-            else:
-                result = "Non classé"
-            return result
+def _get_metadata_list(post: Post) -> list[dict]:
+    """Build metadata list for display."""
 
-        data = [
-            {"label": "Type", "value": post_type()},
-            {"label": "Genre", "value": elvis(item.genre, "N/A")},
-            {"label": "Rubrique", "value": elvis(item.section, "N/A")},
-            {"label": "Sujet", "value": elvis(item.topic, "N/A")},
-            {"label": "Secteur d'activité", "value": elvis(item.sector, "N/A")},
-        ]
+    def elvis(x, y):
+        return x or y
 
-        if item.address:
-            data.append({"label": "Adresse", "value": item.address})
-        if item.pays_zip_ville:
-            data.append(
-                {
-                    "label": "Pays",
-                    "value": country_code_to_label(item.pays_zip_ville),
-                }
-            )
-        if item.pays_zip_ville_detail:
-            data.append(
-                {
-                    "label": "Ville",
-                    "value": country_zip_code_to_city(item.pays_zip_ville_detail),
-                }
-            )
+    def post_type() -> str:
+        if post.type == "article":
+            return "Article"
+        elif post.type == "press_release":
+            return "Communiqué"
+        return "Non classé"
 
-        return data
+    data = [
+        {"label": "Type", "value": post_type()},
+        {"label": "Genre", "value": elvis(post.genre, "N/A")},
+        {"label": "Rubrique", "value": elvis(post.section, "N/A")},
+        {"label": "Sujet", "value": elvis(post.topic, "N/A")},
+        {"label": "Secteur d'activité", "value": elvis(post.sector, "N/A")},
+    ]
 
-    #
-    # Actions
-    #
-    def post(self) -> str | Response:
-        action = request.form["action"]
-        match action:
-            case "toggle-like":
-                return toggle_like(self.item)
-            case "post-comment":
-                return post_comment(self.item)
-            case _:
-                return ""
+    if post.address:
+        data.append({"label": "Adresse", "value": post.address})
+    if post.pays_zip_ville:
+        data.append({
+            "label": "Pays",
+            "value": country_code_to_label(post.pays_zip_ville),
+        })
+    if post.pays_zip_ville_detail:
+        data.append({
+            "label": "Ville",
+            "value": country_zip_code_to_city(post.pays_zip_ville_detail),
+        })
+
+    return data
+
+
+# ViewModels
 
 
 class PostMixin:
+    """Mixin for common post attributes."""
+
     if TYPE_CHECKING:
-        # Type hints for attributes that must be provided by the class using this mixin
         _model: Post
         publisher: Organisation
 
@@ -150,15 +137,11 @@ class PostMixin:
             "age": "?",
             "author": UserVM(post.owner),
             "summary": post.subheader,
-            # "publisher_type": publisher_type,
-            #
             "likes": post.like_count,
             "replies": post.comment_count,
             "views": post.view_count,
-            #
             "comments": [],
             "tags": get_tags(post),
-            #
             "_url": url_for(post),
             "type": post.type,
         }
@@ -177,12 +160,13 @@ class PostMixin:
                     publisher_type = "Publié par"
         else:
             publisher_type = "Publié par"
-
         return publisher_type
 
 
 @frozen
 class ArticleVM(Wrapper, PostMixin):
+    """ViewModel for Article posts."""
+
     _model: ArticlePost
     _url: str = field(init=False)
 
@@ -216,18 +200,14 @@ class ArticleVM(Wrapper, PostMixin):
         publisher_type = self.get_publisher_type()
 
         extra_attrs = super().extra_attrs()
-        extra_attrs.update(
-            {
-                "age": age,
-                "author": UserVM(post.owner),
-                "publisher_type": publisher_type,
-                #
-                "comments": self.get_comments(),
-                "tags": get_tags(article),
-                #
-                "_url": url_for(post),
-            }
-        )
+        extra_attrs.update({
+            "age": age,
+            "author": UserVM(post.owner),
+            "publisher_type": publisher_type,
+            "comments": self.get_comments(),
+            "tags": get_tags(article),
+            "_url": url_for(post),
+        })
         return extra_attrs
 
     def get_comments(self) -> list[Comment]:
@@ -242,6 +222,8 @@ class ArticleVM(Wrapper, PostMixin):
 
 @frozen
 class PressReleaseVM(Wrapper, PostMixin):
+    """ViewModel for Press Release posts."""
+
     _model: PressReleasePost
     _url: str = field(init=False)
 
@@ -275,18 +257,14 @@ class PressReleaseVM(Wrapper, PostMixin):
         publisher_type = self.get_publisher_type()
 
         extra_attrs = super().extra_attrs()
-        extra_attrs.update(
-            {
-                "age": age,
-                "author": UserVM(post.owner),
-                "publisher_type": publisher_type,
-                #
-                "comments": self.get_comments(),
-                "tags": get_tags(post),
-                #
-                "_url": url_for(post),
-            }
-        )
+        extra_attrs.update({
+            "age": age,
+            "author": UserVM(post.owner),
+            "publisher_type": publisher_type,
+            "comments": self.get_comments(),
+            "tags": get_tags(post),
+            "_url": url_for(post),
+        })
         return extra_attrs
 
     def get_comments(self) -> list[Comment]:
@@ -301,6 +279,8 @@ class PressReleaseVM(Wrapper, PostMixin):
 
 @frozen
 class UserVM(Wrapper):
+    """ViewModel for User."""
+
     organisation: Organisation = field(init=False)
     _url: str = field(init=False)
 

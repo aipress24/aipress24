@@ -17,7 +17,8 @@ from .home import HomePage
 __all__ = ["PerformancePage"]
 
 
-@page
+# Disabled: migrated to views/performance.py
+# @page
 class PerformancePage(BaseWipPage):
     name = "performance"
     label = "Performance"

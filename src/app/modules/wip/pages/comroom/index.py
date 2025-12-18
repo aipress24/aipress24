@@ -30,7 +30,8 @@ MAIN_ITEMS = [
 ]
 
 
-@page
+# Disabled: migrated to views/comroom.py
+# @page
 class ComRoomPage(BaseWipPage):
     name = "comroom"
     label = "Com'room"

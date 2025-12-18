@@ -16,7 +16,8 @@ from .base import BaseWipPage
 __all__ = ["HomePage"]
 
 
-@page
+# Disabled: migrated to views/home.py
+# @page
 class HomePage(BaseWipPage):
     name = "wip"
     label = "Work"

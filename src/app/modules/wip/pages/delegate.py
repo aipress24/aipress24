@@ -12,7 +12,8 @@ from .home import HomePage
 __all__ = ["DelegatePage"]
 
 
-@page
+# Disabled: migrated to views/delegate.py
+# @page
 class DelegatePage(BaseWipPage):
     name = "delegate"
     label = "Délégations"

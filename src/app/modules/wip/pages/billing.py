@@ -41,7 +41,8 @@ TEMPLATE = """
 """
 
 
-@page
+# Disabled: migrated to views/billing.py
+# @page
 class BillingPage(BaseWipPage):
     name = "billing"
     label = "Facturation"

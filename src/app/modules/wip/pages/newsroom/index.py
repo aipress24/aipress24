@@ -93,7 +93,8 @@ MAIN_ITEMS = [
 ]
 
 
-@page
+# Disabled: migrated to views/newsroom.py
+# @page
 class NewsroomPage(BaseWipPage):
     name = "newsroom"
     label = "Newsroom"

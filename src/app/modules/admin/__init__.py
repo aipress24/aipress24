@@ -19,6 +19,13 @@ blueprint = Blueprint(
 )
 route = blueprint.route
 
+# Navigation configuration
+blueprint.nav = {
+    "label": "Admin",
+    "icon": "cog",
+    "order": 100,
+}
+
 
 @blueprint.before_request
 def check_admin() -> None:

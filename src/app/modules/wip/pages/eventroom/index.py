@@ -29,7 +29,8 @@ MAIN_ITEMS = [
 ]
 
 
-@page
+# Disabled: migrated to views/eventroom.py
+# @page
 class EventRoomPage(BaseWipPage):
     name = "eventroom"
     label = "Event'room"

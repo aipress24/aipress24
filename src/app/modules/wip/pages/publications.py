@@ -54,7 +54,8 @@ json_data_args = {
 }
 
 
-@page
+# Disabled: migrated to views/publications.py
+# @page
 class PublicationsPage(BaseWipPage):
     name = "alt-content"
     label = "Autres publications"
