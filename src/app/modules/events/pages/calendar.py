@@ -14,7 +14,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 from webargs.flaskparser import parser
 
-from app.flask.lib.pages import Page, page
+from app.flask.lib.pages import Page
 from app.flask.sqla import get_multi
 from app.models.lifecycle import PublicationStatus
 from app.modules.events.models import EventPost
@@ -24,7 +24,7 @@ calendar_args = {
 }
 
 
-@page
+# @page  # Disabled - migrated to views.py
 class CalendarPage(Page):
     name = "calendar"
     label = "Evénements"

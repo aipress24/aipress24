@@ -13,7 +13,7 @@ from flask import Response, g, make_response, request
 from sqlalchemy import select
 
 from app.flask.extensions import db
-from app.flask.lib.pages import Page, page
+from app.flask.lib.pages import Page
 from app.flask.lib.view_model import ViewModel
 from app.flask.sqla import get_multi, get_obj
 from app.models.auth import User
@@ -60,7 +60,7 @@ class EventVM(ViewModel):
         }
 
 
-@page
+# @page  # Disabled - migrated to views.py
 class EventPage(Page):
     path = "/<int:id>"
     name = "event"
