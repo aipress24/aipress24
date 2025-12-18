@@ -8,7 +8,7 @@ import abc
 import unicodedata
 from abc import abstractmethod
 from collections.abc import Generator
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 from attr import frozen
 from flask import Flask, Response, flash, render_template, request
@@ -27,6 +27,7 @@ from app.modules.wip.models import (
     AvisEnquete,
     AvisEnqueteRepository,
     ContactAvisEnquete,
+    ContactAvisEnqueteRepository,
 )
 from app.services.emails import AvisEnqueteNotificationMail
 from app.services.notifications import NotificationService
@@ -36,6 +37,9 @@ from app.services.taxonomies import get_taxonomy
 from ._base import BaseWipView
 from ._forms import AvisEnqueteForm
 from ._table import BaseTable
+
+if TYPE_CHECKING:
+    from app.models.auth import User
 
 
 class AvisEnqueteTable(BaseTable):
@@ -104,7 +108,7 @@ class AvisEnqueteWipView(BaseWipView):
 
     @route("/<id>/ciblage", methods=["GET", "POST"])
     def ciblage(self, id):
-        model = self._get_model(id)
+        model: AvisEnquete = self._get_model(id)
         title = f"Ciblage des contacts - {model.title}"
         self.update_breadcrumbs(label=model.title)
 
@@ -113,7 +117,9 @@ class AvisEnqueteWipView(BaseWipView):
 
         match action:
             case "confirm":
-                selected_experts = form.get_selected_experts()
+                selected_experts: list[User] = form.get_selected_experts()
+
+                self.store_contact_avis_enquete(model, selected_experts)
                 self.envoyer_avis_enquete(model, selected_experts)
                 self.send_avis_enquete_mails(model, selected_experts)
                 flash(
@@ -150,7 +156,24 @@ class AvisEnqueteWipView(BaseWipView):
         html = extract_fragment(html, "main")
         return html
 
-    def envoyer_avis_enquete(self, model, selected_experts) -> None:
+    def store_contact_avis_enquete(
+        self, model: AvisEnquete, selected_experts: list[User]
+    ) -> None:
+        repo = container.get(ContactAvisEnqueteRepository)
+
+        contacts = [
+            ContactAvisEnquete(
+                avis_enquete=model,
+                journaliste=model.owner,
+                expert=expert,
+            )
+            for expert in selected_experts
+        ]
+        repo.add_many(contacts)
+
+    def envoyer_avis_enquete(
+        self, model: AvisEnquete, selected_experts: list[User]
+    ) -> None:
         notification_service = container.get(NotificationService)
 
         for expert_user in selected_experts:
@@ -161,7 +184,9 @@ class AvisEnqueteWipView(BaseWipView):
         db_session = container.get(scoped_session)
         db_session.commit()
 
-    def send_avis_enquete_mails(self, model, selected_experts) -> None:
+    def send_avis_enquete_mails(
+        self, model: AvisEnquete, selected_experts: list[User]
+    ) -> None:
         actual_sender = cast("User", current_user)
         sender_name = actual_sender.email
         organisation = actual_sender.organisation
