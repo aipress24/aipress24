@@ -24,7 +24,8 @@ ONE_DAY = 60 * 60 * 24
 TOP_NEWS_SIZE = 5
 
 
-@page
+# Disabled: migrated to views/wire.py
+# @page
 class WirePage(Page):
     name = "wire"
     routes: ClassVar = [

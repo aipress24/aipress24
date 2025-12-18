@@ -15,9 +15,20 @@ from app.models.auth import User
 blueprint = Blueprint("wip", __name__, url_prefix="/wip", template_folder="templates")
 route = blueprint.route
 
+# Navigation configuration
+blueprint.nav = {
+    "label": "Work",
+    "icon": "briefcase",
+    "order": 30,
+}
+
 
 @blueprint.before_request
 def check_auth() -> None:
     user = cast("User", current_user)
     if user.is_anonymous:
         raise Unauthorized
+
+
+# Import views to register routes
+from . import views  # noqa: E402, F401

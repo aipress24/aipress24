@@ -27,7 +27,8 @@ if TYPE_CHECKING:
 __all__ = ["DashboardPage"]
 
 
-@page
+# Disabled: migrated to views/dashboard.py
+# @page
 class DashboardPage(BaseWipPage):
     name = "dashboard"
     label = "Tableau de bord"

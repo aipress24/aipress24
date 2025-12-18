@@ -31,7 +31,8 @@ class MediaOpportunity:
         return self.avis_enquete.titre
 
 
-@page
+# Disabled: migrated to views/opportunities.py
+# @page
 class OpportunitiesPage(BaseWipPage):
     name = "opportunities"
     label = "Opportunités"
@@ -61,7 +62,8 @@ class OpportunitiesPage(BaseWipPage):
         return ctx
 
 
-@page
+# Disabled: migrated to views/opportunities.py
+# @page
 class MediaOpportunityPage(BaseWipPage):
     name = "media_opportunity"
     label = "Opportunité média"

@@ -31,7 +31,8 @@ from .business_wall_form import BWFormGenerator, merge_org_results
 __all__ = ["BusinessWallPage"]
 
 
-@page
+# Disabled: migrated to views/business_wall.py
+# @page
 class BusinessWallPage(BaseWipPage):
     name = "org-profile"
     label = "Business Wall"
