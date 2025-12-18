@@ -8,7 +8,8 @@
         <img
             class="h-32 w-full object-cover lg:h-48"
             src="{{ profile.banner_url }}"
-            alt=""
+            onerror="this.onerror=null;this.src='/static/img/transparent-square.png';"
+            alt="cover image"
         />
 
         <div class="absolute bottom-0 right-0 mr-4 mb-3">

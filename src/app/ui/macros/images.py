@@ -72,6 +72,9 @@ def profile_image(user: User, size: int = 24, **kw) -> Markup:
 
     cls += [ring_size]
 
-    img = f"""<img class="{" ".join(cls)}" src="{url}" alt="" />"""
+    img = (
+        f"""<img class="{" ".join(cls)}" src="{url}" alt="profile image" """
+        """onerror="this.onerror=null;this.src='/static/img/transparent-square.png';" />"""
+    )
 
     return Markup(img)
