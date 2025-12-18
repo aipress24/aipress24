@@ -756,6 +756,18 @@ def admin_info_context(user: User) -> dict[str, Any]:
     return _admin_group_info_profile(profile, kyc_data)
 
 
+def replace_file_object_by_name(content: dict[str, Any]) -> None:
+    """Replace every FileObject by its file name in the content dict.
+
+    This is meant to permit jsonify the content."""
+    for value in content.values():
+        if isinstance(value, dict):
+            for sub_key, sub_val in value.items():
+                if isinstance(sub_val, FileObject):
+                    # value[sub_key] = sub_val.filename
+                    value[sub_key] = sub_val.sign(expires_in=3600)
+
+
 def _public_group_info(level: int) -> dict[str, Any]:
     """Return group of fields visible with level visibility level.
 
@@ -916,4 +928,8 @@ def profil_groups_page(level: str):
     except ValueError:
         level_int = 1
     level_init = max(0, min(level_int, 2))
-    return jsonify(_public_group_info(level_init))
+    from app.logging import warn
+
+    content = _public_group_info(level_init)
+    replace_file_object_by_name(content)
+    return jsonify(content)

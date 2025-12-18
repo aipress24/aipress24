@@ -8,7 +8,7 @@ import abc
 import unicodedata
 from abc import abstractmethod
 from collections.abc import Generator
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 from attr import frozen
 from flask import Flask, Response, flash, render_template, request
@@ -27,9 +27,9 @@ from app.modules.wip.models import (
     AvisEnquete,
     AvisEnqueteRepository,
     ContactAvisEnquete,
+    ContactAvisEnqueteRepository,
 )
 from app.services.emails import AvisEnqueteNotificationMail
-from app.services.geonames import get_dept_name, is_dept_in_region
 from app.services.notifications import NotificationService
 from app.services.sessions import SessionService
 from app.services.taxonomies import get_taxonomy
@@ -37,6 +37,9 @@ from app.services.taxonomies import get_taxonomy
 from ._base import BaseWipView
 from ._forms import AvisEnqueteForm
 from ._table import BaseTable
+
+if TYPE_CHECKING:
+    from app.models.auth import User
 
 
 class AvisEnqueteTable(BaseTable):
@@ -105,7 +108,7 @@ class AvisEnqueteWipView(BaseWipView):
 
     @route("/<id>/ciblage", methods=["GET", "POST"])
     def ciblage(self, id):
-        model = self._get_model(id)
+        model: AvisEnquete = self._get_model(id)
         title = f"Ciblage des contacts - {model.title}"
         self.update_breadcrumbs(label=model.title)
 
@@ -114,9 +117,12 @@ class AvisEnqueteWipView(BaseWipView):
 
         match action:
             case "confirm":
-                selected_experts = form.get_selected_experts()
-                self.envoyer_avis_enquete(model, selected_experts)
-                self.send_avis_enquete_mails(model, selected_experts)
+                selected_experts: list[User] = form.get_selected_experts()
+                new_experts = self.filter_know_experts(model, selected_experts)
+                if new_experts:
+                    self.store_contact_avis_enquete(model, new_experts)
+                    self.envoyer_avis_enquete(model, new_experts)
+                    self.send_avis_enquete_mails(model, new_experts)
                 flash(
                     "Votre avis d'enquête a été envoyé aux contacts sélectionnés",
                     "success",
@@ -151,7 +157,32 @@ class AvisEnqueteWipView(BaseWipView):
         html = extract_fragment(html, "main")
         return html
 
-    def envoyer_avis_enquete(self, model, selected_experts) -> None:
+    def filter_know_experts(
+        self, model: AvisEnquete, selected_experts: list[User]
+    ) -> list[User]:
+        repo = container.get(ContactAvisEnqueteRepository)
+        contacts = repo.list(avis_enquete_id=model.id)
+        known_expert_ids = {contact.expert_id for contact in contacts}
+        return [e for e in selected_experts if e.id not in known_expert_ids]
+
+    def store_contact_avis_enquete(
+        self, model: AvisEnquete, selected_experts: list[User]
+    ) -> None:
+        repo = container.get(ContactAvisEnqueteRepository)
+
+        contacts = [
+            ContactAvisEnquete(
+                avis_enquete=model,
+                journaliste=model.owner,
+                expert=expert,
+            )
+            for expert in selected_experts
+        ]
+        repo.add_many(contacts)
+
+    def envoyer_avis_enquete(
+        self, model: AvisEnquete, selected_experts: list[User]
+    ) -> None:
         notification_service = container.get(NotificationService)
 
         for expert_user in selected_experts:
@@ -162,7 +193,9 @@ class AvisEnqueteWipView(BaseWipView):
         db_session = container.get(scoped_session)
         db_session.commit()
 
-    def send_avis_enquete_mails(self, model, selected_experts) -> None:
+    def send_avis_enquete_mails(
+        self, model: AvisEnquete, selected_experts: list[User]
+    ) -> None:
         actual_sender = cast("User", current_user)
         sender_name = actual_sender.email
         organisation = actual_sender.organisation
@@ -482,11 +515,13 @@ class SearchForm:
             if not value:
                 continue
             if selector.id == "metier":
-                experts = [e for e in experts if e.job_title == value]
-            if selector.id == "region":
-                experts = [e for e in experts if e.region == value]
+                experts = [e for e in experts if value in e.metiers]
+            if selector.id == "pays":
+                experts = [e for e in experts if e.profile.country == value]
             if selector.id == "departement":
-                experts = [e for e in experts if e.departement == value]
+                experts = [e for e in experts if e.profile.departement == value]
+            if selector.id == "ville":
+                experts = [e for e in experts if e.profile.ville == value]
 
         experts = [
             e for e in experts if e.id not in self.state.get("selected_experts", [])
@@ -512,7 +547,7 @@ class SearchForm:
             FonctionSelector(self),
             TypeOrganisationSelector(self),
             TailleOrganisationSelector(self),
-            RegionSelector(self),
+            PaysSelector(self),
             DepartementSelector(self),
             VilleSelector(self),
         ]
@@ -540,7 +575,7 @@ class Selector(abc.ABC):
         return self._make_options(values)
 
     @abstractmethod
-    def get_values(self):
+    def get_values(self) -> list[str] | set[str]:
         pass
 
     def _make_options(self, values) -> list[Option]:
@@ -625,47 +660,48 @@ class TypeOrganisationSelector(Selector):
         return self._get_values_from_experts("type_orga_detail")
 
 
-class RegionSelector(Selector):
-    id = "region"
-    label = "Région"
+class PaysSelector(Selector):
+    id = "pays"
+    label = "Pays"
 
-    def get_values(self):
-        return {e.region for e in self.form.all_experts}
+    def get_values(self) -> list[str] | set[str]:
+        return {e.profile.country for e in self.form.all_experts}
 
 
 class DepartementSelector(Selector):
     id = "departement"
     label = "Département"
 
-    def get_values(self):
-        values = {e.departement for e in self.form.all_experts}
-        if regions := self.form.state.get("region"):
-            values = {v for v in values if is_dept_in_region(v, regions)}
-        return values
+    def get_values(self) -> list[str] | set[str]:
+        selected_country = self.form.state.get("pays")
+        if not selected_country:
+            return []
+        selected_users = self.form.all_experts
+        return {
+            u.profile.departement
+            for u in selected_users
+            if u.profile.country == selected_country
+        }
 
 
 class VilleSelector(Selector):
     id = "ville"
     label = "Ville"
 
-    def get_values(self):
-        selected_dept = self.form.state.get("departement")
-        if not selected_dept:
+    def get_values(self) -> list[str] | set[str]:
+        selected_country = self.form.state.get("pays")
+        if not selected_country:
             return []
-
+        selected_departement = self.form.state.get("departement")
+        if not selected_departement:
+            return []
         selected_users = self.form.all_experts
-        cities = set()
-        for user in selected_users:
-            dept_code = user.dept_code
-            dept_name = get_dept_name(dept_code)
-            if dept_name != selected_dept:
-                continue
-
-            city = user.city
-            if city:
-                cities.add(city)
-
-        return cities
+        return {
+            u.profile.ville
+            for u in selected_users
+            if u.profile.country == selected_country
+            and u.profile.departement == selected_departement
+        }
 
 
 @frozen(order=True)

@@ -274,8 +274,12 @@ class ArticlesWipView(BaseWipView):
                 file_like_object = BytesIO(file_bytes)
                 mimetype = stored_file.content_type
                 download_name = stored_file.filename
-            except advanced_alchemy.exceptions.ImproperConfigurationError as e:
-                warn(f"Image not found: {e}")
+            except (
+                FileNotFoundError,
+                advanced_alchemy.exceptions.ImproperConfigurationError,
+            ) as e:
+                msg = f"Image not found (article {article_id}): {e}"
+                warn(msg)
                 file_like_object = BytesIO(EMPTY_PNG)
                 mimetype = "image/png"
                 download_name = "empty.png"

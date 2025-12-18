@@ -1,100 +1,108 @@
 {% extends "pages/preferences/_base.j2" %}
 
 {% block main %}
-  <div
-      class="content"
-      x-data="{
-            public_level: {{ display_level }},
-            new_level: {{ display_level }},
-            loading: false,
-            first_load: true,
-            profile_groups: {
-                groups: [],
-                labels: {},
-                urls: {}
-            },
-            public_label: {
-                0: 'Informations minimales',
-                1: 'Informations suffisantes (niveau recommandé)',
-                2: 'Informations détaillées',
-            },
+<div
+    class="content"
+    x-data="{
+        public_level: {{ display_level }},
+        new_level: {{ display_level }},
+        loading: false,
+        profile_data: { kycgroups: [], labels: {}, urls: {}, results: {} },
+        public_label: {
+            0: 'Informations minimales',
+            1: 'Informations suffisantes (niveau recommandé)',
+            2: 'Informations détaillées',
+        },
 
-            init() {
-                let refresh_groups = () => {
-                    this.loading = true;
-                    this.profile_data = {};
-                    var url = `/kyc/profil_groups/${this.new_level}`;
-                    fetch(url)
-                        .then((response) => response.json())
-                        .then((data) => {
-                            this.profile_data = data;
-                            this.public_level = this.new_level;
-                            this.loading = false;
-                        });
-                };
-
-                this.$watch('new_level', () => refresh_groups());
-
-                refresh_groups();
-            },
-        }">
+        refresh_groups() {
+            if (this.loading) return;
+            this.loading = true;
+            fetch(`/kyc/profil_groups/${this.new_level}`)
+                .then(res => res.json())
+                .then(data => {
+                    this.profile_data = data;
+                    this.public_level = this.new_level;
+                    this.loading = false;
+                })
+                .catch(err => {
+                    console.error('Fetch error:', err);
+                    this.loading = false;
+                });
+        }
+    }"
+    x-init="refresh_groups()"
+>
     <div>
-      <h2 class="pb-6">Visibilité de votre profil public</h2>
+        <h2 class="pb-6">Visibilité de votre profil public</h2>
 
-      <p>Réglez le niveau de visibilité de votre profil public.</p>
+        <p>Réglez le niveau de visibilité de votre profil public.</p>
 
-      <div class="px-4 py-2">
-        <input
-            class="w-60"
-            type="range"
-            x-model="new_level"
-            min="0"
-            max="2"
-            steps="3"/>
-        <br/>
-        <strong x-text="public_label[new_level]"></strong>
-      </div>
+        <div class="px-4 py-2">
+          <div class="relative w-60 h-2 bg-gray-200 rounded-full flex items-center">
+            <input
+              class="absolute w-full h-2 bg-transparent appearance-none cursor-pointer accent-blue-600"
+                type="range"
+                x-model.number="new_level"
+                @change="refresh_groups()"
+                min="0"
+                max="2"
+                step="1"
+            />
+            <br/>
+          </div>
+          <div class="mt-2">
+            <strong x-text="public_label[new_level]"></strong>
+            <span x-show="loading" class="ml-2 animate-pulse text-blue-500 text-sm">Chargement...</span>
+          </div>
+        </div>
     </div>
 
-    <hr>
+    <hr class="my-6">
 
-    <h3>Voici comment apparaitra votre profil aux autres utilisateurs&nbsp;:</h3>
-    <p>Les champs "E-mail de connexion" et "Tel mobile" peuvent être masqués en fonction
-      des communautés, voir dans le menu à gauche "Options de contact"</p>
+    <h3>Voici comment apparaîtra votre profil aux autres utilisateurs&nbsp;:</h3>
+    <p class="text-sm text-gray-800">
+        Les champs "E-mail de connexion" et "Tel mobile" peuvent être masqués en fonction
+        des communautés, voir dans le menu à gauche "Options de contact".
+    </p>
 
     <div class="pt-4">
-      <h3>Communauté</h3>
-      <p class="pl-4 pt-2 text-lg">{{ profile_community }}</p>
-      <p class="pl-4 text-lg">{{ profile_label }}</p>
+        <h3>Communauté</h3>
+        <p class="pl-4 pt-2 text-lg font-medium text-gray-700">{{ profile_community }}</p>
+        <p class="pl-4 text-lg text-gray-600">{{ profile_label }}</p>
     </div>
 
-    <div class="space-y-3">
+    <div class="space-y-4 mt-4">
+        <template x-for="(group, gIdx) in profile_data.kycgroups" :key="'group-' + gIdx">
+            <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+                <h3 class="font-bold" x-text="group.label"></h3>
 
-      <template x-for="group in profile_data['kycgroups']">
-        <div>
-          <h3 class="font-bold pt-2 pb-1" x-text="group.label"></h3>
+                <ul class="divide-y divide-gray-50">
+                    <template x-for="idx in group.ids" :key="idx">
+                        <li class="py-1">
+                            <div class="text-xs font-bold text-gray-600  tracking-wider"
+                                 x-text="profile_data.labels[idx] || idx"></div>
 
-          <ul>
-            <template x-for="idx in group.ids">
-              <li>
-                <div class="font-semibold" x-text="profile_data['labels'][idx] + ':'"></div>
+                            <div class="mt-0">
+                                <template x-if="profile_data.urls && profile_data.urls[idx]">
+                                    <div class="py-2">
+                                        <img class="max-w-48 max-h-48 rounded shadow-sm border border-gray-200"
+                                             :src="profile_data.urls[idx]"
+                                             @error="$el.src='/static/img/placeholder.png'"
+                                             alt="Attachment"/>
+                                    </div>
+                                </template>
 
-                <template x-if="profile_data['urls'][idx]">
-                  <img class="ml-6 max-w-32 max-h-32"
-                       :src="profile_data['urls'][idx]"
-                       alt=""/>
-                </template>
-
-                <template x-if="!(profile_data['urls'][idx])">
-                    <span x-text="profile_data['results'][idx]">
-                    </span>
-                </template>
-              </li>
-            </template>
-          </ul>
-        </div>
-      </template>
-
+                                <template x-if="!profile_data.urls || !profile_data.urls[idx]">
+                                    <div class="text-gray-900 break-words whitespace-pre-wrap"
+                                         x-text="profile_data.results[idx] || '—'">
+                                    </div>
+                                </template>
+                            </div>
+                        </li>
+                    </template>
+                </ul>
+            </div>
+        </template>
     </div>
-  </div>
+</div>
 {% endblock %}
