@@ -71,7 +71,8 @@ FILTER_SPECS = [
 ]
 
 
-@page
+# Disabled: migrated to views/home.py
+# @page
 class BizHomePage(Page):
     name = "biz"
     label = "Marketplace"

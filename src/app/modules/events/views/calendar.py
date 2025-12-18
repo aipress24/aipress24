@@ -60,6 +60,7 @@ def calendar():
         "prev_month": month_start.shift(months=-1).format("YYYY-MM"),
         "next_month": month_end.format("YYYY-MM"),
         "num_weeks": (end_date - start_date).days // 7,
+        "title": "Calendrier",
     }
     return render_template("pages/calendar.j2", **ctx)
 

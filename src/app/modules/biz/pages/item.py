@@ -32,7 +32,8 @@ from .home import BizHomePage
 #         }
 
 
-@page
+# Disabled: migrated to views/item.py
+# @page
 class BizItemPage(Page):
     path = "/<int:id>"
     name = "biz-item"

@@ -2,39 +2,42 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
+"""Search views using convention-driven navigation."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
 
 import arrow
-from flask import request
+from flask import render_template, request
 
-from app.flask.lib.pages import Page, page
 from app.flask.routing import url_for
+from app.modules.search import blueprint
 from app.modules.search.backend import SearchBackend
 from app.modules.search.constants import COLLECTIONS
 
 backend = SearchBackend()
 
 
-# @page  # Disabled - using views.py instead
-class SearchPage(Page):
-    name = "search"
-    label = "Rechercher"
-    path = "/"
-    template = "pages/search.j2"
+@blueprint.route("/")
+def search():
+    """Rechercher"""
+    qs = request.args.get("qs", "")
+    filter_type = request.args.get("filter", "all")
 
-    def context(self):
-        qs = request.args.get("qs", "")
-        filter = request.args.get("filter", "all")
+    results = SearchResults(qs, filter_type)
 
-        results = SearchResults(qs, filter)
+    ctx = {
+        "qs": qs,
+        "search_menu": results.make_menu(),
+        "result_sets": results.get_active_sets(),
+    }
+    return render_template("pages/search.j2", **ctx)
 
-        return {
-            "qs": qs,
-            "search_menu": results.make_menu(),
-            "result_sets": results.get_active_sets(),
-        }
+
+# =============================================================================
+# Helper Classes
+# =============================================================================
 
 
 @dataclass(frozen=True)
@@ -42,7 +45,7 @@ class SearchResults:
     qs: str
     filter: str
     results: list = field(default_factory=list)
-    result_sets: list[ResultSet] = field(default_factory=list)
+    result_sets: list = field(default_factory=list)
 
     def __post_init__(self):
         for collection in COLLECTIONS:
@@ -55,7 +58,6 @@ class SearchResults:
                 "q": self.qs,
                 "query_by": "text",
                 "facet_by": "tags",
-                # 'filter_by': 'publication_year:<1998',
                 "sort_by": "timestamp:desc",
                 "exclude_fields": "text",
             }
@@ -112,8 +114,6 @@ class ResultSet:
         self.icon = collection["icon"]
 
         result = backend.get_collection(self.name).documents.search(search_parameters)
-        # debug(result["facet_counts"])
-        # debug(glom(result, ("hits", ["document.tags"])))
         self.count = result["found"]
         self.hits = [Hit(hit) for hit in result["hits"]]
 

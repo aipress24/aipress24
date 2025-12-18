@@ -15,10 +15,11 @@ from .base import BasePreferencesPage
 from .home import PrefHomePage
 
 
-@page
+#@page  # Disabled - using views instead
 class PrefContactOptionsPage(BasePreferencesPage):
     parent = PrefHomePage
     name = "contact-options"
+    url_string = ".contact_options"  # Maps to new view endpoint
     label = "Options de contact"
     template = "pages/preferences/pref-contact.j2"
     icon = "at-symbol"
@@ -33,7 +34,8 @@ class PrefContactOptionsPage(BasePreferencesPage):
             msg = "No currently authenticated user"
             raise ValueError(msg)
         if request.form.get("submit") == "cancel":
-            return redirect(url_for(f".{self.name}"))
+            # Use underscore endpoint name (Flask function naming)
+            return redirect(url_for(".contact_options"))
 
         response = {}
         for key, val in request.form.items():
