@@ -9,7 +9,8 @@ from app.flask.lib.pages import Page, page
 from .home import BizHomePage
 
 
-@page
+# Disabled: migrated to views/purchases.py
+# @page
 class BizPurchasesPage(Page):
     path = "/purchases/"
     name = "purchases"

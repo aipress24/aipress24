@@ -11,6 +11,6 @@ from .models import MarketplaceContent
 
 @url_for.register
 def url_for_biz_item(obj: MarketplaceContent, _ns: str = "biz", **kw):
-    name = f"{_ns}.biz-item"
+    name = f"{_ns}.biz_item"
     kw["id"] = obj.id
     return url_for(name, **kw)

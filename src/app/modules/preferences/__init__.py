@@ -18,6 +18,13 @@ blueprint = Blueprint(
 )
 route = blueprint.route
 
+# Navigation configuration for this section
+blueprint.nav = {
+    "label": "Préférences",
+    "icon": "cog",
+    "order": 9,  # Near the end
+}
+
 
 @blueprint.route("/images/<path:filename>")
 def images_page(filename):
@@ -30,3 +37,7 @@ def check_auth() -> None:
     user = cast("User", current_user)
     if user.is_anonymous:
         raise Unauthorized
+
+
+# Import views to register routes
+from . import views  # noqa: E402, F401

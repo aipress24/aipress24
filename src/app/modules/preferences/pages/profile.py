@@ -13,7 +13,7 @@ from .base import BasePreferencesPage
 from .home import PrefHomePage
 
 
-@page
+#@page  # Disabled - using views instead
 class PrefProfilePage(BasePreferencesPage):
     parent = PrefHomePage
     name = "profile"

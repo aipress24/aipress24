@@ -14,7 +14,7 @@ from .base import BasePreferencesPage
 __all__ = ("PrefHomePage",)
 
 
-@page
+#@page  # Disabled - using views instead
 class PrefHomePage(BasePreferencesPage):
     name = "home"
     path = ""

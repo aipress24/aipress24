@@ -18,7 +18,7 @@ from .base import BasePreferencesPage
 from .home import PrefHomePage
 
 
-@page
+#@page  # Disabled - using views instead
 class PrefBannerPage(BasePreferencesPage):
     parent = PrefHomePage
     name = "banner"

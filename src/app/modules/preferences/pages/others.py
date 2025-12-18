@@ -13,7 +13,7 @@ from .base import BasePreferencesPage
 from .home import PrefHomePage
 
 
-@page
+#@page  # Disabled - using views instead
 class PrefEditProfilePage(BasePreferencesPage):
     parent = PrefHomePage
     name = "profile_page"
@@ -23,10 +23,11 @@ class PrefEditProfilePage(BasePreferencesPage):
     icon = "clipboard-document-list"
 
 
-@page
+#@page  # Disabled - using views instead
 class PrefPasswordPage(BasePreferencesPage):
     parent = PrefHomePage
     name = "Mot de passe"
+    url_string = ".password"  # Maps to new view endpoint
     label = "Mot de passe"
     icon = "key"
 
@@ -34,10 +35,11 @@ class PrefPasswordPage(BasePreferencesPage):
         return redirect(url_for("security.change_password"))
 
 
-@page
+#@page  # Disabled - using views instead
 class PrefEmailPage(BasePreferencesPage):
     parent = PrefHomePage
     name = "Adresse email"
+    url_string = ".email"  # Maps to new view endpoint
     label = "Adresse email"
     icon = "at-symbol"
 
@@ -45,7 +47,7 @@ class PrefEmailPage(BasePreferencesPage):
         return redirect(url_for("security.change_email"))
 
 
-@page
+#@page  # Disabled - using views instead
 class PrefSecurityPage(BasePreferencesPage):
     parent = PrefHomePage
     name = "security"
@@ -54,7 +56,7 @@ class PrefSecurityPage(BasePreferencesPage):
     icon = "lock-closed"
 
 
-@page
+#@page  # Disabled - using views instead
 class PrefNotificationPage(BasePreferencesPage):
     parent = PrefHomePage
     name = "notification"
@@ -63,7 +65,7 @@ class PrefNotificationPage(BasePreferencesPage):
     icon = "bell"
 
 
-@page
+#@page  # Disabled - using views instead
 class PrefIntegrationPage(BasePreferencesPage):
     parent = PrefHomePage
     name = "integration"

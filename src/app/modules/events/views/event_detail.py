@@ -34,6 +34,7 @@ def event(id: int):
     ctx = {
         "event": view_model,
         "metadata_list": _get_metadata_list(view_model),
+        "title": event_obj.title,
     }
     return render_template("pages/event.j2", **ctx)
 
