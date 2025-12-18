@@ -8,7 +8,7 @@ import sqlalchemy as sa
 from flask import request
 
 from app.flask.components.filterset import FilterSet
-from app.flask.lib.pages import Page, page
+from app.flask.lib.pages import Page
 from app.flask.routing import url_for
 from app.flask.sqla import get_multi
 from app.models.lifecycle import PublicationStatus

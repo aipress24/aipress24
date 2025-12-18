@@ -6,7 +6,6 @@ from __future__ import annotations
 
 from werkzeug.utils import redirect
 
-from app.flask.lib.pages import page
 from app.flask.routing import url_for
 
 from .base import BasePreferencesPage
@@ -14,7 +13,7 @@ from .base import BasePreferencesPage
 __all__ = ("PrefHomePage",)
 
 
-#@page  # Disabled - using views instead
+# @page  # Disabled - using views instead
 class PrefHomePage(BasePreferencesPage):
     name = "home"
     path = ""

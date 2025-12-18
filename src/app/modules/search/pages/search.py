@@ -9,7 +9,7 @@ from dataclasses import dataclass, field
 import arrow
 from flask import request
 
-from app.flask.lib.pages import Page, page
+from app.flask.lib.pages import Page
 from app.flask.routing import url_for
 from app.modules.search.backend import SearchBackend
 from app.modules.search.constants import COLLECTIONS

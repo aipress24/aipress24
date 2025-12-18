@@ -15,7 +15,7 @@ from sqlalchemy.orm import selectinload
 from webargs.flaskparser import parser
 
 from app.flask.extensions import db
-from app.flask.lib.pages import expose, page
+from app.flask.lib.pages import expose
 from app.flask.routing import url_for
 from app.flask.sqla import get_multi
 from app.models.auth import User
@@ -32,7 +32,8 @@ ONE_DAY = 60 * 60 * 24
 TOP_NEWS_SIZE = 3
 
 
-@page
+# Disabled: migrated to views/home.py
+# @page
 class SworkHomePage(BaseSworkPage):
     name = "swork"
     label = "Social"

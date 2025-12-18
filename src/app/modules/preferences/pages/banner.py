@@ -10,7 +10,6 @@ from flask_login import current_user
 from werkzeug.utils import redirect
 
 from app.flask.extensions import db
-from app.flask.lib.pages import page
 from app.flask.routing import url_for
 from app.settings.constants import MAX_IMAGE_SIZE
 
@@ -18,7 +17,7 @@ from .base import BasePreferencesPage
 from .home import PrefHomePage
 
 
-#@page  # Disabled - using views instead
+# @page  # Disabled - using views instead
 class PrefBannerPage(BasePreferencesPage):
     parent = PrefHomePage
     name = "banner"

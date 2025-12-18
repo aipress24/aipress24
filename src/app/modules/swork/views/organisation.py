@@ -2,17 +2,20 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
+"""Organisation detail view."""
+
 from __future__ import annotations
 
 import abc
 from typing import cast
 
 from attr import define
-from flask import current_app, g, make_response, request
+from flask import Response, current_app, g, make_response, render_template, request
 from sqlalchemy import func, select
 
 from app.enums import OrganisationTypeEnum
 from app.flask.extensions import db
+from app.flask.lib.nav import nav
 from app.flask.lib.toaster import toast
 from app.flask.lib.view_model import ViewModel
 from app.flask.sqla import get_multi, get_obj
@@ -24,85 +27,85 @@ from app.modules.kyc.field_label import (
     country_code_to_label,
     country_zip_code_to_city,
 )
+from app.modules.swork import blueprint
 from app.modules.wire.models import ArticlePost, PressReleasePost
-from app.services.activity_stream import get_timeline
-from app.services.social_graph import SocialUser, adapt
-
-from .base import BaseSworkPage
-from .organisations import OrgsPage
 
 
-# Disabled: migrated to views/organisation.py
-# @page
-class OrgPage(BaseSworkPage):
-    name = "org"
-    path = "/organisations/<id>"
-    template = "pages/org.j2"
+@blueprint.route("/organisations/<id>")
+@nav(parent="organisations")
+def org(id: str):
+    """Organisation"""
+    from app.services.social_graph import SocialUser, adapt
 
-    parent = OrgsPage
+    org_obj = get_obj(id, Organisation)
+    soc_user: SocialUser = adapt(g.user)
 
-    def __init__(self, id: str) -> None:
-        self.args = {"id": id}
-        self.org = get_obj(id, Organisation)
-        self.soc_user: SocialUser = adapt(g.user)
+    # Set dynamic breadcrumb label
+    g.nav.label = org_obj.name
 
-    @property
-    def label(self) -> str:
-        return self.org.name
+    vm = OrgVM(org_obj)
+    tabs = list(_get_tabs(org_obj))
 
-    def context(self):
-        vm = OrgVM(self.org)
-        tabs = list(self.get_tabs())
-        if (
-            not self.org.is_auto_or_inactive
-            and self.soc_user.user.is_member(self.org.id)
-            and self.soc_user.user.is_manager
-        ):
-            is_manager = True
-        else:
-            is_manager = False
-        return {
-            "org": vm,
-            "is_member": self.soc_user.user.is_member(self.org.id),
-            "is_manager": is_manager,
-            "tabs": tabs,
-        }
+    is_manager = (
+        not org_obj.is_auto_or_inactive
+        and soc_user.user.is_member(org_obj.id)
+        and soc_user.user.is_manager
+    )
 
-    def get_tabs(self):
-        for tab_class in TAB_CLASSES:
-            tab = tab_class(org=self.org)
-            if tab.guard():
-                yield tab
-
-    def post(self):
-        action = request.form["action"]
-
-        match action:
-            case "toggle-follow":
-                return self.toggle_follow()
-            case _:
-                return ""
-
-    def toggle_follow(self):
-        user: SocialUser = self.soc_user
-        org = self.org
-        if user.is_following(org):
-            user.unfollow(org)
-            response = make_response("Suivre")
-            toast(response, f"Vous ne suivez plus {org.name}")
-        else:
-            user.follow(org)
-            response = make_response("Ne plus suivre")
-            toast(response, f"Vous suivez à présent {org.name}")
-
-        db.session.commit()
-
-        return response
+    ctx = {
+        "org": vm,
+        "is_member": soc_user.user.is_member(org_obj.id),
+        "is_manager": is_manager,
+        "tabs": tabs,
+        "title": org_obj.name,
+    }
+    return render_template("pages/org.j2", **ctx)
 
 
-#
+@blueprint.route("/organisations/<id>", methods=["POST"])
+@nav(hidden=True)
+def org_post(id: str) -> Response | str:
+    """Handle POST actions on organisation (follow/unfollow)."""
+    org_obj = get_obj(id, Organisation)
+    action = request.form.get("action", "")
+
+    match action:
+        case "toggle-follow":
+            return _toggle_follow(org_obj)
+        case _:
+            return ""
+
+
+def _toggle_follow(org_obj: Organisation) -> Response:
+    """Toggle follow status for an organisation."""
+    from app.services.social_graph import SocialUser, adapt
+
+    user: SocialUser = adapt(g.user)
+
+    if user.is_following(org_obj):
+        user.unfollow(org_obj)
+        response = make_response("Suivre")
+        toast(response, f"Vous ne suivez plus {org_obj.name}")
+    else:
+        user.follow(org_obj)
+        response = make_response("Ne plus suivre")
+        toast(response, f"Vous suivez à présent {org_obj.name}")
+
+    db.session.commit()
+    return response
+
+
+def _get_tabs(org_obj: Organisation):
+    """Generate tabs for the organisation page."""
+    for tab_class in TAB_CLASSES:
+        tab = tab_class(org=org_obj)
+        if tab.guard():
+            yield tab
+
+
+# =============================================================================
 # Tabs
-#
+# =============================================================================
 
 
 @define
@@ -126,7 +129,6 @@ class OrgContactsTab(Tab):
 
     @property
     def label(self) -> str:
-        # db.session.query(User).filter(User.organisation_id == org.id).all()
         stmt = (
             select(func.count())
             .select_from(User)
@@ -136,13 +138,11 @@ class OrgContactsTab(Tab):
         return f"Contacts ({count})"
 
     def guard(self) -> bool:
-        return True  # allow to see members of AUTO organisations
+        return True
 
 
 class OrgPublicationsTab(Tab):
     id = "publications"
-
-    # label = "Publications"
 
     @property
     def label(self) -> str:
@@ -216,36 +216,23 @@ TAB_CLASSES = [
 ]
 
 
-# @page
-# class OrgUpgradePage(BaseSworkPage):
-#     name = "org_upgrade"
-#     path = "/orgs/<id>/upgrade"
-#     template = "pages/org-upgrade.j2"
-
-#     parent = OrgsPage
-
-#     def __init__(self, id: str) -> None:
-#         self.args = {"id": id}
-#         self.org = get_obj(id, Organisation)
-
-#     @property
-#     def label(self):
-#         return self.org.name
-
-#     def context(self):
-#         vm = OrgVM(self.org)
-#         return {
-#             "org": vm,
-#         }
+# =============================================================================
+# ViewModel
+# =============================================================================
 
 
 @define
 class OrgVM(ViewModel):
+    """ViewModel for Organisation."""
+
     @property
     def org(self):
         return cast("Organisation", self._model)
 
     def extra_attrs(self):
+        from app.services.activity_stream import get_timeline
+        from app.services.social_graph import adapt
+
         timeline = get_timeline(object=self.org, limit=5)
         return {
             "members": self.get_members(),
@@ -267,42 +254,31 @@ class OrgVM(ViewModel):
             "secteurs_activite": self.get_secteurs_activite(),
         }
 
-    def get_members(self):
+    def get_members(self) -> list[User]:
         org = self.org
         members = list(
             db.session.query(User).filter(User.organisation_id == org.id).all()
         )
         return members
 
-    def get_logo_url(self):
+    def get_logo_url(self) -> str:
         if self.org.is_auto:
             return "/static/img/logo-page-non-officielle.png"
         return self.org.logo_image_signed_url()
 
-    def get_cover_image_url(self):
+    def get_cover_image_url(self) -> str:
         if self.org.is_auto:
             return ""
         return self.org.cover_image_signed_url()
 
-    def get_screenshot_url(self):
+    def get_screenshot_url(self) -> str:
         if not self.org.screenshot_id:
             return ""
         config = current_app.config
         base_url = config["S3_PUBLIC_URL"]
-        url = f"{base_url}/{self.org.screenshot_id}"
-        return url
-        # return self.org.logo_url
+        return f"{base_url}/{self.org.screenshot_id}"
 
-    def get_press_releases(self):
-        # members = self.get_members()
-        # all_press_releases = set()
-        # for member in members:
-        #     stmt = select(PressReleasePost).where(
-        #         PressReleasePost.owner_id == member.id
-        #     )
-        #     press_releases = get_multi(PressReleasePost, stmt)
-        #     all_press_releases.update(press_releases)
-        # return list(all_press_releases)
+    def get_press_releases(self) -> list:
         stmt = (
             select(PressReleasePost)
             .where(PressReleasePost.publisher_id == self.org.id)
@@ -311,7 +287,7 @@ class OrgVM(ViewModel):
         press_releases = get_multi(PressReleasePost, stmt)
         return list(press_releases)
 
-    def get_publications(self):
+    def get_publications(self) -> list:
         stmt = (
             select(ArticlePost)
             .where(ArticlePost.publisher_id == self.org.id)

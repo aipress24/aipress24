@@ -7,14 +7,14 @@ from __future__ import annotations
 from flask import g, redirect, request
 
 from app.flask.extensions import db
-from app.flask.lib.pages import page
 from app.flask.routing import url_for
 from app.modules.swork.models import Group
 
 from .base import BaseSworkPage
 
 
-@page
+# Disabled: migrated to views/group_new.py
+# @page
 class NewGroupPage(BaseSworkPage):
     name = "new_group"
     path = "/groups/new"
