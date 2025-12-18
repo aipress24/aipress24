@@ -11,7 +11,6 @@ from attr import define
 from flask import g, make_response, request
 
 from app.flask.extensions import db
-from app.flask.lib.pages import page
 from app.flask.lib.toaster import toast
 from app.flask.lib.view_model import ViewModel
 from app.flask.sqla import get_obj
@@ -29,7 +28,8 @@ TABS = [
 ]
 
 
-@page
+# Disabled: migrated to views/group.py
+# @page
 class GroupPage(BaseSworkPage):
     name = "group"
     path = "/groups/<id>"

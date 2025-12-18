@@ -6,14 +6,13 @@ from __future__ import annotations
 
 from werkzeug.utils import redirect
 
-from app.flask.lib.pages import page
 from app.modules.kyc.views import profil_groups_initial_level
 
 from .base import BasePreferencesPage
 from .home import PrefHomePage
 
 
-#@page  # Disabled - using views instead
+# @page  # Disabled - using views instead
 class PrefProfilePage(BasePreferencesPage):
     parent = PrefHomePage
     name = "profile"

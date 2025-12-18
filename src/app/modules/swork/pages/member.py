@@ -7,17 +7,15 @@ from __future__ import annotations
 import random
 from typing import Any
 
-from flask import g, make_response, redirect, render_template, request
+from flask import g, make_response, render_template, request
 from sqlalchemy.orm import selectinload
 
 from app.flask.extensions import db, htmx
-from app.flask.lib.pages import expose, page
+from app.flask.lib.pages import expose
 from app.flask.lib.toaster import toast
-from app.flask.routing import url_for
 from app.flask.sqla import get_obj
 from app.models.auth import User
 from app.modules.kyc.views import public_info_context
-from app.modules.swork import blueprint
 from app.services.social_graph import SocialUser, adapt
 
 from .base import BaseSworkPage
@@ -41,7 +39,8 @@ MASK_FIELDS = {
 }
 
 
-@page
+# Disabled: migrated to views/member.py
+# @page
 class MemberPage(BaseSworkPage):
     name = "member"
     path = "/members/<id>"
@@ -198,7 +197,8 @@ class MemberPage(BaseSworkPage):
         )
 
 
-@blueprint.route("/profile/")
-def profile():
-    logged_user = g.user
-    return redirect(url_for(logged_user))
+# Disabled: migrated to views/member.py
+# @blueprint.route("/profile/")
+# def profile():
+#     logged_user = g.user
+#     return redirect(url_for(logged_user))

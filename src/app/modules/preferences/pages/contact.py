@@ -9,13 +9,12 @@ from flask_login import current_user
 from werkzeug.utils import redirect
 
 from app.flask.extensions import db
-from app.flask.lib.pages import page
 
 from .base import BasePreferencesPage
 from .home import PrefHomePage
 
 
-#@page  # Disabled - using views instead
+# @page  # Disabled - using views instead
 class PrefContactOptionsPage(BasePreferencesPage):
     parent = PrefHomePage
     name = "contact-options"

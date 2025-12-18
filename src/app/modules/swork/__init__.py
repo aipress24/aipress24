@@ -18,6 +18,13 @@ blueprint = Blueprint(
 )
 route = blueprint.route
 
+# Navigation configuration for convention-driven nav
+blueprint.nav = {
+    "label": "Social",
+    "icon": "users",
+    "order": 20,
+}
+
 
 @blueprint.before_request
 def check_auth() -> None:
@@ -29,3 +36,7 @@ def check_auth() -> None:
     user = cast("User", current_user)
     if user.is_anonymous:
         raise Unauthorized
+
+
+# Import views to register routes
+from . import views  # noqa: E402, F401

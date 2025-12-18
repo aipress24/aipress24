@@ -4,13 +4,12 @@
 
 from __future__ import annotations
 
-from app.flask.lib.pages import page
-
 from .base import BaseSworkPage
 from .home import SworkHomePage
 
 
-@page
+# Disabled: migrated to views/members.py
+# @page
 class MembersPage(BaseSworkPage):
     name = "members"
     label = "Membres"

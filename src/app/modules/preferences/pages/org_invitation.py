@@ -11,7 +11,6 @@ from sqlalchemy import func, select
 
 from app.enums import OrganisationTypeEnum
 from app.flask.extensions import db
-from app.flask.lib.pages import page
 
 # from app.flask.routing import url_for
 from app.flask.sqla import get_obj
@@ -78,7 +77,7 @@ def join_organisation(user: User, org_id: str) -> None:
     db.session.commit()
 
 
-#@page  # Disabled - using views instead
+# @page  # Disabled - using views instead
 class PrefInvitationsPage(BasePreferencesPage):
     name = "invitations_page"
     url_string = ".invitations"  # Maps to new view endpoint
