@@ -19,7 +19,7 @@ from sqlalchemy.orm import selectinload
 from webargs.flaskparser import parser
 from werkzeug.exceptions import BadRequest
 
-from app.flask.lib.pages import Page, page
+from app.flask.lib.pages import Page
 from app.flask.lib.view_model import ViewModel
 from app.flask.sqla import get_multi
 from app.models.lifecycle import PublicationStatus
@@ -68,7 +68,7 @@ list_args = {
 }
 
 
-@page
+# @page  # Disabled - migrated to views.py
 class EventsPage(Page):
     routes: ClassVar = ["/"]
     name = "events"
