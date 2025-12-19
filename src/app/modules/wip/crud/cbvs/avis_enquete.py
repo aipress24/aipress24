@@ -465,7 +465,7 @@ class SearchForm:
         self._restore_state()
         self._update_state()
         self.selectors = self._get_selectors()
-        self.all_experts = self._get_all_experts()
+        self.all_experts = self._get_all_users()
 
     def _restore_state(self) -> None:
         session = container.get(SessionService)
@@ -504,7 +504,7 @@ class SearchForm:
             if k.startswith("expert:"):
                 yield int(k.split(":")[1])
 
-    def get_selectable_experts(self):
+    def get_selectable_experts(self)->list[User]:
         experts = self.all_experts
 
         if all(not self.state.get(selector.id) for selector in self.selectors):
@@ -552,11 +552,11 @@ class SearchForm:
             VilleSelector(self),
         ]
 
-    def _get_all_experts(self):
+    def _get_all_users(self) -> list[User]:
         user_repo = container.get(UserRepository)
         users = user_repo.list()
-        experts = [u for u in users if u.has_role(RoleEnum.EXPERT)]
-        return experts
+        # experts = [u for u in users if u.has_role(RoleEnum.EXPERT)]
+        return users
 
 
 class Selector(abc.ABC):
