@@ -2,11 +2,11 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
-"""Unit tests for wire/pages/_tabs.py"""
+"""Unit tests for wire/views/_tabs.py"""
 
 from __future__ import annotations
 
-from app.modules.wire.pages._tabs import (
+from app.modules.wire.views._tabs import (
     AgenciesTab,
     ComTab,
     JournalistsTab,
