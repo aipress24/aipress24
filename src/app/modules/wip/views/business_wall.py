@@ -15,8 +15,8 @@ from werkzeug import Response
 
 from app.flask.extensions import db
 from app.flask.routing import url_for
+from app.modules.wip import blueprint
 
-from .. import blueprint
 from ._common import get_secondary_menu
 
 
@@ -37,7 +37,6 @@ def org_profile():
 def org_profile_post() -> str | Response:
     """Handle business wall form submission."""
     # Lazy imports to avoid circular import
-    from app.modules.admin.invitations import emails_invited_to_organisation
     from app.modules.admin.org_email_utils import (
         change_invitations_emails,
         change_leaders_emails,
@@ -45,7 +44,6 @@ def org_profile_post() -> str | Response:
         change_members_emails,
     )
     from app.modules.wip.pages.business_wall.business_wall_form import (
-        BWFormGenerator,
         merge_org_results,
     )
 
@@ -170,9 +168,7 @@ def _build_context() -> dict[str, Any]:
         "count_members": len(members),
         "managers": org.managers if org else [],
         "leaders": org.leaders if org else [],
-        "invitations_emails": (
-            emails_invited_to_organisation(org.id) if org else []
-        ),
+        "invitations_emails": (emails_invited_to_organisation(org.id) if org else []),
         "address_formatted": org.formatted_address if org else "",
         "render_field": render_field,
         "form": form,

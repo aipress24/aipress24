@@ -16,9 +16,9 @@ from werkzeug.exceptions import Forbidden
 from app.enums import RoleEnum
 from app.flask.routing import url_for
 from app.models.lifecycle import PublicationStatus
+from app.modules.wip import blueprint
 from app.services.auth import AuthService
 
-from .. import blueprint
 from ._common import get_secondary_menu
 
 if TYPE_CHECKING:
@@ -31,14 +31,16 @@ ALLOWED_ROLES: ClassVar = [RoleEnum.PRESS_MEDIA, RoleEnum.ACADEMIC]
 def dashboard():
     """Tableau de bord"""
     # Lazy import to avoid circular import
+    from flask import g
+
     from app.modules.wip.models import ArticleRepository, CommuniqueRepository
     from app.modules.wip.pages.tables import RecentContentsTable
     from app.services.roles import has_role
-    from flask import g
 
     user = g.user
     if not has_role(user, ALLOWED_ROLES):
-        raise Forbidden("Access denied to dashboard")
+        msg = "Access denied to dashboard"
+        raise Forbidden(msg)
 
     cards = _get_cards(ArticleRepository, CommuniqueRepository)
     recent_contents_table = RecentContentsTable()
@@ -113,7 +115,7 @@ def _get_cards(article_repo, communique_repo) -> list:
     return cards
 
 
-def _get_content_count(repository: type["Repository"], status: PublicationStatus) -> int:
+def _get_content_count(repository: type[Repository], status: PublicationStatus) -> int:
     """Get count of content for repository."""
     repo = container.get(repository)
     auth = container.get(AuthService)

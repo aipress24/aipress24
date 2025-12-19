@@ -4,8 +4,6 @@
 
 from __future__ import annotations
 
-from app.flask.lib.pages import page
-
 from .base import BaseWipPage
 from .home import HomePage
 

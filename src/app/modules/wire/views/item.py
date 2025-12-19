@@ -26,11 +26,10 @@ from app.modules.kyc.field_label import (
     country_zip_code_to_city,
 )
 from app.modules.swork.models import Comment
+from app.modules.wire import blueprint
 from app.modules.wire.models import ArticlePost, Post, PressReleasePost
 from app.services.tagging import get_tags
 from app.services.tracking import record_view
-
-from .. import blueprint
 
 if TYPE_CHECKING:
     pass
@@ -70,7 +69,7 @@ def item(id: str):
 def item_post(id: str) -> str | Response:
     """Handle item actions (like, comment)."""
     # Lazy import to avoid circular import
-    from ..pages._actions import post_comment, toggle_like
+    from app.modules.wire.pages._actions import post_comment, toggle_like
 
     post = get_obj(id, Post)
     action = request.form["action"]
@@ -93,7 +92,7 @@ def _get_metadata_list(post: Post) -> list[dict]:
     def post_type() -> str:
         if post.type == "article":
             return "Article"
-        elif post.type == "press_release":
+        if post.type == "press_release":
             return "Communiqué"
         return "Non classé"
 
@@ -108,15 +107,19 @@ def _get_metadata_list(post: Post) -> list[dict]:
     if post.address:
         data.append({"label": "Adresse", "value": post.address})
     if post.pays_zip_ville:
-        data.append({
-            "label": "Pays",
-            "value": country_code_to_label(post.pays_zip_ville),
-        })
+        data.append(
+            {
+                "label": "Pays",
+                "value": country_code_to_label(post.pays_zip_ville),
+            }
+        )
     if post.pays_zip_ville_detail:
-        data.append({
-            "label": "Ville",
-            "value": country_zip_code_to_city(post.pays_zip_ville_detail),
-        })
+        data.append(
+            {
+                "label": "Ville",
+                "value": country_zip_code_to_city(post.pays_zip_ville_detail),
+            }
+        )
 
     return data
 
@@ -200,14 +203,16 @@ class ArticleVM(Wrapper, PostMixin):
         publisher_type = self.get_publisher_type()
 
         extra_attrs = super().extra_attrs()
-        extra_attrs.update({
-            "age": age,
-            "author": UserVM(post.owner),
-            "publisher_type": publisher_type,
-            "comments": self.get_comments(),
-            "tags": get_tags(article),
-            "_url": url_for(post),
-        })
+        extra_attrs.update(
+            {
+                "age": age,
+                "author": UserVM(post.owner),
+                "publisher_type": publisher_type,
+                "comments": self.get_comments(),
+                "tags": get_tags(article),
+                "_url": url_for(post),
+            }
+        )
         return extra_attrs
 
     def get_comments(self) -> list[Comment]:
@@ -257,14 +262,16 @@ class PressReleaseVM(Wrapper, PostMixin):
         publisher_type = self.get_publisher_type()
 
         extra_attrs = super().extra_attrs()
-        extra_attrs.update({
-            "age": age,
-            "author": UserVM(post.owner),
-            "publisher_type": publisher_type,
-            "comments": self.get_comments(),
-            "tags": get_tags(post),
-            "_url": url_for(post),
-        })
+        extra_attrs.update(
+            {
+                "age": age,
+                "author": UserVM(post.owner),
+                "publisher_type": publisher_type,
+                "comments": self.get_comments(),
+                "tags": get_tags(post),
+                "_url": url_for(post),
+            }
+        )
         return extra_attrs
 
     def get_comments(self) -> list[Comment]:

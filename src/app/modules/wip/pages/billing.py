@@ -9,7 +9,7 @@ from sqlalchemy import select
 from werkzeug.exceptions import NotFound, Unauthorized
 
 from app.flask.extensions import db
-from app.flask.lib.pages import expose, page
+from app.flask.lib.pages import expose
 from app.flask.routing import url_for
 from app.models.auth import User
 from app.services.invoicing import Invoice

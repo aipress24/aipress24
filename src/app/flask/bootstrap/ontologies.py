@@ -184,7 +184,7 @@ def _check_tables_found(raw_ontologies: dict[str, Any]) -> None:
 
 def _category_from_value(value: str) -> str:
     if "/" in value:
-        return value.split("/")[0].strip()
+        return value.split("/", maxsplit=1)[0].strip()
     return ""
 
 

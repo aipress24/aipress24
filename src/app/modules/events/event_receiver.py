@@ -66,7 +66,7 @@ def on_update_event(event: Event) -> None:
 
 
 def event_type_to_category(event_type: str) -> str:
-    first_part = event_type.split("/")[0]
+    first_part = event_type.split("/", maxsplit=1)[0]
     return first_part.strip().replace(" ", "_").lower()
 
 

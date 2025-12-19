@@ -8,7 +8,6 @@ from itertools import pairwise
 
 from flask import g
 
-from app.flask.lib.pages import page
 from app.services.reputation import get_reputation_history
 
 from .base import BaseWipPage

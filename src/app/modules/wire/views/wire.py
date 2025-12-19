@@ -8,17 +8,15 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from attr import define
 from flask import redirect, render_template, request, session
 from werkzeug.exceptions import NotFound
 
-from attr import define
-
 from app.flask.routing import url_for
-
-from .. import blueprint
+from app.modules.wire import blueprint
 
 if TYPE_CHECKING:
-    from ..pages._filters import FilterBar
+    from app.modules.wire.pages._filters import FilterBar
 
 
 @define
@@ -36,7 +34,7 @@ class WirePageContext:
 def wire():
     """News - redirect to active tab."""
     # Lazy import to avoid circular import
-    from ..pages._tabs import get_tabs
+    from app.modules.wire.pages._tabs import get_tabs
 
     tabs = get_tabs()
     tab = session.get("wire:tab", tabs[0].id)
@@ -47,8 +45,8 @@ def wire():
 def wire_tab(tab: str):
     """News - tab view."""
     # Lazy import to avoid circular import
-    from ..pages._filters import FilterBar
-    from ..pages._tabs import get_tabs
+    from app.modules.wire.pages._filters import FilterBar
+    from app.modules.wire.pages._tabs import get_tabs
 
     tabs = get_tabs()
 
@@ -74,8 +72,8 @@ def wire_tab(tab: str):
 def wire_tab_post(tab: str):
     """Handle filter updates via POST."""
     # Lazy import to avoid circular import
-    from ..pages._filters import FilterBar
-    from ..pages._tabs import get_tabs
+    from app.modules.wire.pages._filters import FilterBar
+    from app.modules.wire.pages._tabs import get_tabs
 
     tabs = get_tabs()
 
@@ -130,12 +128,14 @@ def _build_tabs(tabs: list) -> list[dict]:
     result = []
     for tab in tabs:
         tab_id = tab.id
-        result.append({
-            "id": tab_id,
-            "label": tab.label,
-            "href": url_for(".wire_tab", tab=tab_id),
-            "current": tab.is_active,
-        })
+        result.append(
+            {
+                "id": tab_id,
+                "label": tab.label,
+                "href": url_for(".wire_tab", tab=tab_id),
+                "current": tab.is_active,
+            }
+        )
     return result
 
 
@@ -150,7 +150,8 @@ def _get_posts(tabs: list, filter_bar: FilterBar):
             break
 
     if not active_tab:
-        raise RuntimeError("No active tab found")
+        msg = "No active tab found"
+        raise RuntimeError(msg)
 
     posts = active_tab.get_posts(filter_bar)
     return _filter_posts_by_tag(posts, filter_bar, get_tags)

@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, ClassVar
 from flask import redirect, render_template, request, session
 from werkzeug.exceptions import NotFound
 
-from app.flask.lib.pages import Page, page
+from app.flask.lib.pages import Page
 from app.flask.routing import url_for
 from app.services.tagging import get_tags
 
