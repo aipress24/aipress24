@@ -2,17 +2,20 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
+"""Admin home and dashboard views."""
+
 from __future__ import annotations
 
 import arrow
 from attr import define
+from flask import redirect, render_template, url_for
 from sqlalchemy import select
 
 from app.constants import LOCAL_TZ
 from app.flask.extensions import db
+from app.flask.lib.nav import nav
+from app.modules.admin import blueprint
 from app.services.stats._models import StatsRecord
-
-from .base import BaseAdminPage
 
 WIDGETS = [
     {
@@ -52,29 +55,6 @@ WIDGETS = [
         "color": "steelblue",
     },
 ]
-
-
-# Note: Route now handled by views_pages.py
-class AdminDashboardPage(BaseAdminPage):
-    name = "dashboard"
-    label = "Tableau de bord"
-    title = "Tableau de bord"
-
-    path = "/"
-    template = "admin/pages/dashboard.j2"
-    icon = "house"
-
-    def context(self):
-        data: dict[str, object] = {}
-        widgets: list[Widget] = []
-        for widget_args in WIDGETS:
-            widget = Widget(**widget_args)
-            widgets.append(widget)
-
-        return {
-            "page_data": data,
-            "widgets": widgets,
-        }
 
 
 @define
@@ -119,3 +99,23 @@ class Widget:
             "labels": labels,
             "datasets": datasets,
         }
+
+
+@blueprint.route("/")
+@nav(icon="cog", label="Admin")
+def index():
+    """Admin home - redirect to dashboard."""
+    return redirect(url_for("admin.dashboard"))
+
+
+@blueprint.route("/dashboard")
+@nav(parent="index", icon="gauge", label="Tableau de bord")
+def dashboard():
+    """Admin dashboard."""
+    widgets = [Widget(**widget_args) for widget_args in WIDGETS]
+    return render_template(
+        "admin/pages/dashboard.j2",
+        title="Tableau de bord",
+        widgets=widgets,
+        page_data={},
+    )

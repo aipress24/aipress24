@@ -12,9 +12,8 @@ from flask import Response, abort
 from loguru import logger
 
 from app.flask.extensions import db
-
-from . import blueprint
-from .db_export_service import (
+from app.modules.admin import blueprint
+from app.modules.admin.db_export_service import (
     DatabaseExportError,
     DatabaseExportService,
     PgDumpConfig,

@@ -9,7 +9,6 @@ from flask_classful import FlaskView, route
 from flask_super.registry import register
 from svcs.flask import container
 
-from app.flask.lib.pages import page
 from app.logging import warn
 from app.services.promotions import PromotionService
 
@@ -31,7 +30,7 @@ BOX_TITLE1 = "AiPRESS24 vous informe"
 BOX_TITLE2 = "AiPRESS24 vous suggère"
 
 
-@page
+# Note: Route now handled by views_pages.py
 class AdminPromotionsPage(BaseAdminPage):
     name = "promotions"
     label = "Promotions"

@@ -40,4 +40,4 @@ def check_admin() -> None:
 
 
 # Import views to register routes (must be after blueprint is defined)
-from . import views  # noqa: E402, F401
+from . import views  # noqa: F401, E402

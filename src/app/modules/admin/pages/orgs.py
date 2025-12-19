@@ -8,7 +8,6 @@ from urllib.parse import urlencode
 
 from flask import Response, request
 
-from app.flask.lib.pages import page
 from app.modules.admin.table import Column, GenericOrgDataSource, Table
 
 from .base import BaseAdminPage
@@ -34,7 +33,7 @@ class OrgDataSource(GenericOrgDataSource):
     pass
 
 
-@page
+# Note: Route now handled by views_pages.py
 class AdminOrgsPage(BaseAdminPage):
     name = "orgs"
     label = "Organisations"

@@ -16,7 +16,6 @@ from app.modules.admin.pages.contents import ContentsDataSource, ContentsTable, 
 from app.modules.admin.pages.dashboard import AdminDashboardPage, Widget
 from app.modules.admin.pages.groups import AdminGroupsPage, GroupDataSource, GroupsTable
 from app.modules.admin.pages.home import AdminHomePage
-from app.modules.admin.pages.menu import make_entry, make_menu
 from app.modules.admin.pages.promotions import AdminPromotionsPage
 from app.modules.admin.pages.system import AdminSystemPage
 from app.modules.swork.models import Group
@@ -209,25 +208,6 @@ class TestGroupDataSource:
             assert "$url" in record
 
 
-class TestBaseAdminPage:
-    """Test BaseAdminPage class."""
-
-    def test_menus_returns_secondary_menu(self, app: Flask):
-        """Test that menus() returns secondary menu dict."""
-        with app.test_request_context():
-            with patch("app.modules.admin.pages.menu.url_for") as mock_url_for:
-                mock_url_for.return_value = "/admin/page"
-                with patch("app.modules.admin.pages.menu.g") as mock_g:
-                    mock_g.user = Mock()
-
-                    page = AdminHomePage()
-                    result = page.menus()
-
-                    assert isinstance(result, dict)
-                    assert "secondary" in result
-                    assert isinstance(result["secondary"], list)
-
-
 class TestAdminListPage:
     """Test AdminListPage class."""
 
@@ -358,175 +338,6 @@ class TestDashboardPage:
         assert isinstance(result["datasets"], list)
 
 
-class TestMenuFunctions:
-    """Test menu.py functions."""
-
-    def test_make_entry_with_dict(self):
-        """Test make_entry with plain dict."""
-        entry_dict = {
-            "label": "Test Link",
-            "href": "/test",
-            "icon": "test-icon",
-            "name": "test",
-        }
-
-        result = make_entry(entry_dict, "current")
-
-        assert result["label"] == "Test Link"
-        assert result["href"] == "/test"
-        assert result["icon"] == "test-icon"
-        assert result["name"] == "test"
-        assert result["current"] is False
-
-    def test_make_entry_with_dict_current(self):
-        """Test make_entry marks dict entry as current."""
-        entry_dict = {
-            "label": "Test Link",
-            "href": "/test",
-            "name": "test",
-        }
-
-        result = make_entry(entry_dict, "test")
-
-        assert result["current"] is True
-
-    def test_make_entry_with_page_class(self, app: Flask):
-        """Test make_entry with Page class."""
-        with app.test_request_context():
-            with patch("app.modules.admin.pages.menu.url_for") as mock_url_for:
-                mock_url_for.return_value = "/admin/index"
-                result = make_entry(AdminHomePage, "index")
-
-                assert result["name"] == "index"
-                assert result["label"] == "Admin"
-                assert result["icon"] == "cog"
-                assert "href" in result
-                assert result["current"] is True
-
-    def test_make_entry_with_page_class_not_current(self, app: Flask):
-        """Test make_entry with Page class not current."""
-        with app.test_request_context():
-            with patch("app.modules.admin.pages.menu.url_for") as mock_url_for:
-                mock_url_for.return_value = "/admin/index"
-                result = make_entry(AdminHomePage, "other")
-
-                assert result["current"] is False
-
-    def test_make_menu(self, app: Flask):
-        """Test make_menu builds menu from MENU configuration."""
-        # Mock g.user
-        with app.test_request_context():
-            with patch("app.modules.admin.pages.menu.url_for") as mock_url_for:
-                mock_url_for.return_value = "/admin/page"
-                g.user = Mock()
-                g.user.id = 1
-
-                menu = make_menu("index")
-
-                assert isinstance(menu, list)
-                assert len(menu) > 0
-
-                # Check first entry structure
-                first_entry = menu[0]
-                assert "name" in first_entry
-                assert "label" in first_entry
-                assert "href" in first_entry
-                assert "current" in first_entry
-
-    def test_make_menu_with_plain_url(self, app: Flask):
-        """Test that make_menu includes plain URL entries."""
-        with app.test_request_context():
-            with patch("app.modules.admin.pages.menu.url_for") as mock_url_for:
-                mock_url_for.return_value = "/admin/page"
-                g.user = Mock()
-
-                menu = make_menu("test")
-
-                # Should include the plain URL entries from MENU
-                # (Ontologie and Export DB)
-                plain_entries = [
-                    e for e in menu if "ontology" in e.get("href", "").lower()
-                ]
-                assert len(plain_entries) > 0
-
-    def test_make_menu_with_page_class_and_roles(self, app: Flask):
-        """Test that make_menu filters page classes by role."""
-        # Create a test menu with role-based entry
-        test_menu = [
-            [AdminHomePage, ["ADMIN"]],  # Page class with roles
-        ]
-
-        with app.test_request_context():
-            with patch("app.modules.admin.pages.menu.url_for") as mock_url_for:
-                mock_url_for.return_value = "/admin/index"
-                with (
-                    patch("app.modules.admin.pages.menu.MENU", test_menu),
-                    patch("app.modules.admin.pages.menu.has_role") as mock_has_role,
-                ):
-                    # User has the required role
-                    mock_has_role.return_value = True
-                    g.user = Mock()
-
-                    menu = make_menu("test")
-
-                    # Should include the entry since user has role
-                    assert len(menu) == 1
-                    assert menu[0]["label"] == "Admin"
-
-                    # User does not have the required role
-                    mock_has_role.return_value = False
-
-                    menu = make_menu("test")
-
-                    # Should not include the entry
-                    assert len(menu) == 0
-
-    def test_make_menu_with_dict_and_roles(self, app: Flask):
-        """Test that make_menu filters dict entries by role."""
-        # Create a test menu with role-based dict entry
-        test_menu = [
-            [{"label": "Admin Link", "href": "/admin", "icon": "cog"}, ["ADMIN"]],
-        ]
-
-        with (
-            app.test_request_context(),
-            patch("app.modules.admin.pages.menu.MENU", test_menu),
-            patch("app.modules.admin.pages.menu.has_role") as mock_has_role,
-        ):
-            # User has the required role
-            mock_has_role.return_value = True
-            g.user = Mock()
-
-            menu = make_menu("test")
-
-            # Should include the entry since user has role
-            assert len(menu) == 1
-            assert menu[0]["label"] == "Admin Link"
-
-            # User does not have the required role
-            mock_has_role.return_value = False
-
-            menu = make_menu("test")
-
-            # Should not include the entry
-            assert len(menu) == 0
-
-    def test_make_menu_with_invalid_entry(self, app: Flask):
-        """Test that make_menu raises error for invalid menu entry."""
-        # Create a test menu with invalid entry
-        test_menu = [
-            "invalid_entry",  # This should trigger the default case
-        ]
-
-        with app.test_request_context():
-            with patch("app.modules.admin.pages.menu.MENU", test_menu):
-                g.user = Mock()
-
-                # Should raise ValueError for invalid entry
-                with pytest.raises(ValueError, match="Match failed on"):
-                    make_menu("test")
-
-
 @pytest.fixture
 def sample_organisation(db_session: Session) -> Organisation:
     """Create a sample organisation for testing."""
@@ -624,8 +435,7 @@ class TestAdminUsersPage:
         """Test that AdminUsersPage has correct attributes."""
         assert AdminUsersPage.name == "users"
         assert AdminUsersPage.label == "Utilisateurs"
-        # path doesn't have leading slash in class definition
-        assert "users" in AdminUsersPage.path
+        # Note: path is now defined in views_pages.py, not in the Page class
 
     def test_context_creates_table(
         self, app: Flask, db_session: Session, admin_user: User

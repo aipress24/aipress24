@@ -14,15 +14,6 @@ class BaseAdminPage(Page, abc.ABC):
     icon: str
     label: str
 
-    def menus(self):
-        # Lazy import to prevent circular import
-        from .menu import make_menu
-
-        name = self.name
-        return {
-            "secondary": make_menu(name),
-        }
-
 
 class AdminListPage(BaseAdminPage):
     ds_class: type[t.DataSource]

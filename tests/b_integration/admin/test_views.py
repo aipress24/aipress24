@@ -18,7 +18,7 @@ from app.modules.admin.db_export_service import (
     PgDumpExecutionError,
     PgDumpNotFoundError,
 )
-from app.modules.admin.views import create_export_response
+from app.modules.admin.views.db_export import create_export_response
 
 
 class StubExportService(DatabaseExportService):
