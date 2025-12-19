@@ -13,6 +13,7 @@ from app.flask.lib.nav import nav
 from app.flask.routing import url_for
 from app.modules.swork import blueprint
 from app.modules.swork.models import Group
+from app.modules.swork.views._common import get_menus
 
 
 @blueprint.route("/groups/new")
@@ -21,6 +22,7 @@ def new_group():
     """Nouveau groupe"""
     ctx = {
         "title": "Nouveau groupe",
+        "menus": get_menus(),
     }
     return render_template("pages/group-new.j2", **ctx)
 

@@ -13,6 +13,7 @@ from app.flask.lib.nav import nav
 from app.flask.routing import url_for
 from app.modules.kyc.views import profil_groups_initial_level
 from app.modules.preferences import blueprint
+from app.modules.preferences.views._common import get_menus
 
 
 @blueprint.route("/profile")
@@ -20,6 +21,7 @@ def profile():
     """Visibilité du profil public"""
     ctx = profil_groups_initial_level()
     ctx["title"] = "Visibilité du profil public"
+    ctx["menus"] = get_menus("profile")
     return render_template("pages/preferences/public-profile.j2", **ctx)
 
 

@@ -14,6 +14,7 @@ from app.flask.extensions import db
 from app.flask.lib.nav import nav
 from app.flask.routing import url_for
 from app.modules.preferences import blueprint
+from app.modules.preferences.views._common import get_menus
 
 
 @blueprint.route("/interests")
@@ -24,6 +25,7 @@ def interests():
     ctx = {
         "hobbies": profile.get_value("hobbies"),
         "title": "Centres d'intérêts",
+        "menus": get_menus("interests"),
     }
     return render_template("pages/preferences/interests.j2", **ctx)
 

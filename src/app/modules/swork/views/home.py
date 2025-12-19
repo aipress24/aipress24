@@ -16,6 +16,7 @@ from app.flask.lib.nav import nav
 from app.flask.routing import url_for
 from app.modules.swork import blueprint
 from app.modules.swork.models import ShortPost as Post
+from app.modules.swork.views._common import get_menus
 
 new_post_args = {
     "message": webargs.fields.Str(load_default=""),
@@ -42,6 +43,7 @@ def swork():
     ctx = {
         "posts": posts,
         "title": "Social",
+        "menus": get_menus(),
     }
     return render_template("pages/swork.j2", **ctx)
 
