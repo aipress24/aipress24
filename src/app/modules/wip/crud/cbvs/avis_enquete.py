@@ -504,7 +504,7 @@ class SearchForm:
             if k.startswith("expert:"):
                 yield int(k.split(":")[1])
 
-    def get_selectable_experts(self)->list[User]:
+    def get_selectable_experts(self) -> list[User]:
         experts = self.all_experts
 
         if all(not self.state.get(selector.id) for selector in self.selectors):
@@ -515,7 +515,7 @@ class SearchForm:
             if not value:
                 continue
             if selector.id == "metier":
-                experts = [e for e in experts if value in e.metiers]
+                experts = [e for e in experts if value in e.tous_metiers]
             if selector.id == "pays":
                 experts = [e for e in experts if e.profile.country == value]
             if selector.id == "departement":
