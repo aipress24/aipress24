@@ -8,8 +8,8 @@ from __future__ import annotations
 
 
 from app.models.auth import User
-from app.modules.admin.pages.modif_users import (
-    AdminModifUsersPage,
+from app.modules.admin.pages.modif_users import AdminModifUsersPage
+from app.modules.admin.views._modif_users import (
     ModifUserDataSource,
     ModifUsersTable,
 )

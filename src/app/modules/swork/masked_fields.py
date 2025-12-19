@@ -2,6 +2,8 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
+"""MaskFields helper for controlling field visibility based on user permissions."""
+
 from __future__ import annotations
 
 

@@ -9,8 +9,8 @@ from __future__ import annotations
 from sqlalchemy import Select
 
 from app.models.auth import User
-from app.modules.admin.pages.new_users import (
-    AdminNewUsersPage,
+from app.modules.admin.pages.new_users import AdminNewUsersPage
+from app.modules.admin.views._new_users import (
     NewUserDataSource,
     NewUsersTable,
 )

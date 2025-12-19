@@ -108,5 +108,3 @@ class ShowUser(BaseAdminPage):
         db_session = db.session
         db_session.merge(self.user)
         db_session.commit()
-
-

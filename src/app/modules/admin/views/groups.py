@@ -18,7 +18,7 @@ from ._common import build_table_context, handle_table_post
 @nav(parent="index", icon="user-group", label="Groupes")
 def groups():
     """Groups list page."""
-    from app.modules.admin.pages.groups import GroupDataSource, GroupsTable
+    from ._groups import GroupDataSource, GroupsTable
 
     ctx = build_table_context(GroupDataSource, GroupsTable)
     return render_template(
@@ -32,6 +32,6 @@ def groups():
 @nav(hidden=True)
 def groups_post():
     """Handle groups pagination/search."""
-    from app.modules.admin.pages.groups import GroupDataSource
+    from ._groups import GroupDataSource
 
     return handle_table_post(GroupDataSource, "admin.groups")

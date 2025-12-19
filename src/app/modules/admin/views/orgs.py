@@ -18,7 +18,7 @@ from ._common import build_table_context, handle_table_post
 @nav(parent="index", icon="building-2", label="Organisations")
 def orgs():
     """Organizations list page."""
-    from app.modules.admin.pages.orgs import OrgDataSource, OrgsTable
+    from ._orgs import OrgDataSource, OrgsTable
 
     ctx = build_table_context(OrgDataSource, OrgsTable)
     return render_template(
@@ -32,6 +32,6 @@ def orgs():
 @nav(hidden=True)
 def orgs_post():
     """Handle orgs pagination/search."""
-    from app.modules.admin.pages.orgs import OrgDataSource
+    from ._orgs import OrgDataSource
 
     return handle_table_post(OrgDataSource, "admin.orgs")

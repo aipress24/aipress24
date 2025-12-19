@@ -23,7 +23,7 @@ from app.modules.wire.models import ArticlePost
 # from app.services.social_graph import adapt
 
 if TYPE_CHECKING:
-    from app.modules.swork.pages.masked_fields import MaskFields
+    from app.modules.swork.masked_fields import MaskFields
 
 
 # Member page tabs
@@ -149,7 +149,7 @@ def filter_email_mobile(user: User, target_user: User) -> MaskFields:
     If this method does not find a mode (email) in the permitted list,
     the mode *may* be still allowed as FOLLOWEE contact type, in a later stage.
     """
-    from app.modules.swork.pages.masked_fields import MaskFields
+    from app.modules.swork.masked_fields import MaskFields
     from app.services.social_graph import SocialUser, adapt
 
     mask_fields = MaskFields()

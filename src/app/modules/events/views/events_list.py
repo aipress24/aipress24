@@ -22,8 +22,9 @@ from app.flask.sqla import get_multi
 from app.models.lifecycle import PublicationStatus
 from app.modules.events import blueprint
 from app.modules.events.models import EventPost
-from app.modules.events.pages._filters import FilterBar
-from app.modules.events.views._common import TABS, Calendar, DateFilter, EventListVM
+
+from ._common import TABS, Calendar, DateFilter, EventListVM
+from ._filters import FilterBar
 
 list_args = {
     "month": webargs.fields.Str(load_default=""),

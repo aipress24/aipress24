@@ -2,14 +2,14 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
-"""Unit tests for events/pages/_filters.py
+"""Unit tests for events/views/_filters.py
 
 Tests the pure state manipulation logic of FilterBar without Flask dependencies.
 """
 
 from __future__ import annotations
 
-from app.modules.events.pages._filters import (
+from app.modules.events.views._filters import (
     FILTER_SPECS,
     FILTER_TAG_LABEL,
     SORTER_OPTIONS,

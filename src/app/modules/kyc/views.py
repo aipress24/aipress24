@@ -55,7 +55,7 @@ from app.models.repositories import RoleRepository
 from app.modules.admin.utils import gc_all_auto_organisations
 from app.modules.kyc.lib.valid_password import ValidPassword
 from app.modules.kyc.organisation_utils import retrieve_user_organisation
-from app.modules.swork.pages.masked_fields import MaskFields
+from app.modules.swork.masked_fields import MaskFields
 from app.services.roles import generate_roles_map
 from app.services.sessions import SessionService
 

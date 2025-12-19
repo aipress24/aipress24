@@ -50,10 +50,12 @@ def validation_user(uid: str):
     user = get_obj(uid, User)
     context = admin_info_context(user)
     _detect_business_wall_trigger(user, context)
-    context.update({
-        "user": user,
-        "title": "Validation de l'inscription",
-    })
+    context.update(
+        {
+            "user": user,
+            "title": "Validation de l'inscription",
+        }
+    )
     return render_template("admin/pages/validation_user.j2", **context)
 
 

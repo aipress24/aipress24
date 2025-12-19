@@ -13,14 +13,12 @@ import pytest
 from app.models.auth import User
 from app.models.lifecycle import PublicationStatus
 from app.modules.events.models import EventPost
-from app.modules.events.pages._filters import FilterBar
-from app.modules.events.pages.calendar import CalendarPage
-from app.modules.events.pages.event import EventPage, EventVM
-from app.modules.events.pages.events import (
+from app.modules.events.views._common import (
     Calendar,
     DateFilter,
-    EventsPage,
+    EventDetailVM as EventVM,
 )
+from app.modules.events.views._filters import FilterBar
 from flask import Flask
 from flask.testing import FlaskClient
 from sqlalchemy.orm import Session
@@ -77,28 +75,12 @@ def sample_event(db_session: Session, test_user: User) -> EventPost:
     return event
 
 
-class TestEventsPageAttributes:
-    """Test EventsPage class attributes."""
-
-    def test_page_name(self):
-        """Test EventsPage has correct name."""
-        assert EventsPage.name == "events"
-
-    def test_page_label(self):
-        """Test EventsPage has correct label."""
-        assert EventsPage.label == "Evénements"
-
-    def test_page_template(self):
-        """Test EventsPage has correct template."""
-        assert EventsPage.template == "pages/events.j2"
-
-    def test_page_routes(self):
-        """Test EventsPage has correct routes."""
-        assert "/" in EventsPage.routes
+# Note: Page class tests removed - EventsPage, EventPage, CalendarPage
+# have been migrated to Flask views and no longer exist as Page classes.
 
 
-class TestEventsPageEndpoint:
-    """Test EventsPage HTTP endpoint."""
+class TestEventsEndpoints:
+    """Test events HTTP endpoints."""
 
     def test_events_page_requires_auth(self, app: Flask):
         """Test events page requires authentication."""
@@ -125,31 +107,7 @@ class TestEventsPageEndpoint:
         response = authenticated_client.get("/events/")
         assert response.status_code in (200, 302)
 
-
-class TestEventPageAttributes:
-    """Test EventPage class attributes."""
-
-    def test_page_name(self):
-        """Test EventPage has correct name."""
-        assert EventPage.name == "event"
-
-    def test_page_path(self):
-        """Test EventPage has correct path."""
-        assert EventPage.path == "/<int:id>"
-
-    def test_page_template(self):
-        """Test EventPage has correct template."""
-        assert EventPage.template == "pages/event.j2"
-
-    def test_page_parent(self):
-        """Test EventPage has correct parent."""
-        assert EventPage.parent == EventsPage
-
-
-class TestEventPageEndpoint:
-    """Test EventPage HTTP endpoint."""
-
-    def test_event_page_accessible(
+    def test_event_detail_page_accessible(
         self,
         authenticated_client: FlaskClient,
         db_session: Session,
@@ -166,26 +124,6 @@ class TestEventPageEndpoint:
         response = authenticated_client.get("/events/999999")
         # Should get 404 or possibly redirect
         assert response.status_code in (404, 302)
-
-
-class TestCalendarPageAttributes:
-    """Test CalendarPage class attributes."""
-
-    def test_page_name(self):
-        """Test CalendarPage has correct name."""
-        assert CalendarPage.name == "calendar"
-
-    def test_page_label(self):
-        """Test CalendarPage has correct label."""
-        assert CalendarPage.label == "Evénements"
-
-    def test_page_template(self):
-        """Test CalendarPage has correct template."""
-        assert CalendarPage.template == "pages/calendar.j2"
-
-
-class TestCalendarPageEndpoint:
-    """Test CalendarPage HTTP endpoint."""
 
     def test_calendar_page_accessible(
         self, authenticated_client: FlaskClient, db_session: Session
@@ -474,12 +412,8 @@ class TestCalendar:
     def test_calendar_initialization(self, app: Flask):
         """Test Calendar initializes with proper attributes."""
         with app.test_request_context():
-            events_page = EventsPage()
-            events_page.args = {"day": "", "month": "", "tab": "", "loc": ""}
-            events_page.date_filter = DateFilter(events_page.args)
-
             month = arrow.get("2024-06-01")
-            cal = Calendar(events_page, month)
+            cal = Calendar(month, [])
 
             assert cal.month == month
             assert isinstance(cal.cells, list)
@@ -492,61 +426,11 @@ class TestCalendar:
     ):
         """Test Calendar cells have expected structure."""
         with app.test_request_context():
-            events_page = EventsPage()
-            events_page.args = {"day": "", "month": "", "tab": "", "loc": ""}
-            events_page.date_filter = DateFilter(events_page.args)
-
             month = arrow.get("2024-06-01")
-            cal = Calendar(events_page, month)
+            cal = Calendar(month, [])
 
             if cal.cells:
                 cell = cal.cells[0]
                 assert "date" in cell
                 assert "is_today" in cell
                 assert "num_events" in cell
-
-
-class TestEventsPageContext:
-    """Test EventsPage context method."""
-
-    def test_context_returns_dict(self, app: Flask, db_session: Session):
-        """Test context returns expected dictionary."""
-        with app.test_request_context("/events/"):
-            page = EventsPage()
-            ctx = page.context()
-
-            assert isinstance(ctx, dict)
-            assert "grouped_events" in ctx
-            assert "search" in ctx
-            assert "tabs" in ctx
-            assert "calendar" in ctx
-            assert "title" in ctx
-            assert "filter_bar" in ctx
-
-    def test_context_with_event(
-        self, app: Flask, db_session: Session, sample_event: EventPost
-    ):
-        """Test context includes events when present."""
-        with app.test_request_context("/events/"):
-            page = EventsPage()
-            ctx = page.context()
-
-            # grouped_events should be a list of (date, events) tuples
-            assert isinstance(ctx["grouped_events"], list)
-
-
-class TestEventsPageGetTabs:
-    """Test EventsPage get_tabs method."""
-
-    def test_get_tabs_returns_list(self, app: Flask, db_session: Session):
-        """Test get_tabs returns list of tabs."""
-        with app.test_request_context("/events/"):
-            page = EventsPage()
-            tabs = page.get_tabs()
-
-            assert isinstance(tabs, list)
-            if tabs:
-                tab = tabs[0]
-                assert "id" in tab
-                assert "label" in tab
-                assert "active" in tab

@@ -182,5 +182,3 @@ class OrgVM(ViewModel):
         url = f"{base_url}/{self.org.screenshot_id}"
         return url
         # return self.org.logo_url
-
-

@@ -60,10 +60,8 @@ DESCRIPTION_BW = {
     "permet de diffuser des press release.",
     "CORPORATE": "Pour les médias institutionnels, "
     "permet d'être au coeur de l'information.",
-    "ORGANISATION": "Pour les organisations, "
-    "permet d'être au coeur de l'information.",
-    "ACADEMICS": "Pour le corps académique, "
-    "permet d'être au coeur de l'information.",
+    "ORGANISATION": "Pour les organisations, permet d'être au coeur de l'information.",
+    "ACADEMICS": "Pour le corps académique, permet d'être au coeur de l'information.",
 }
 
 # Conversion table from 8 detail types to 7 Stripe products
@@ -155,7 +153,9 @@ def org_registration():
     )
 
 
-@blueprint.route("/org-registration", methods=["POST"], endpoint="org-registration-post")
+@blueprint.route(
+    "/org-registration", methods=["POST"], endpoint="org-registration-post"
+)
 def org_registration_post() -> str | Response:
     """Handle business wall registration form submission."""
     user = g.user
@@ -285,9 +285,7 @@ def _load_prod_info(prod: stripe.Product) -> ProdInfo | None:
         id=prod.id,
         name=prod.name,
         description=prod.description or "",
-        features=[
-            str(x.get("name")) for x in prod.marketing_features if x.get("name")
-        ],
+        features=[str(x.get("name")) for x in prod.marketing_features if x.get("name")],
         default_price=prod.default_price,
         metadata=prod.metadata,
         tax_code=str(prod.tax_code),
@@ -414,9 +412,7 @@ def _do_restore_remotely(org) -> None:
     subscription = _retrieve_subscription(org)
     if not subscription:
         return
-    _info(
-        f"Subscription {org.stripe_subscription_id} status is: {subscription.status}"
-    )
+    _info(f"Subscription {org.stripe_subscription_id} status is: {subscription.status}")
     try:
         if subscription.status == "active":
             stripe.Subscription.modify(
