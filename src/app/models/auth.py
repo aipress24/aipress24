@@ -211,6 +211,10 @@ class User(LifeCycleMixin, Addressable, UserMixin, Base):
         return self.profile.metiers
 
     @hybrid_property
+    def tous_metiers(self) -> set[str]:
+        return set(self.profile.metiers + self.profile.metiers_autres)
+
+    @hybrid_property
     def organisation_name(self) -> str:
         if self.organisation:
             return self.organisation.name
@@ -416,6 +420,10 @@ class KYCProfile(Base):
     @property
     def metiers(self) -> list[str]:
         return self.info_personnelle["metier_principal_detail"] or []
+
+    @property
+    def metiers_autres(self) -> list[str]:
+        return self.info_personnelle["metier_detail"] or []
 
     def get_first_value(self, field_name: str) -> str:
         value = self.get_value(field_name)
