@@ -14,7 +14,6 @@ from werkzeug import Response
 from app.constants import PROFILE_CODE_TO_BW_TYPE
 from app.enums import BWTypeEnum, ProfileEnum
 from app.flask.extensions import db
-from app.flask.lib.pages import page
 from app.flask.routing import url_for
 from app.modules.kyc.renderer import render_field
 from app.modules.wip.pages.base import BaseWipPage
@@ -127,7 +126,8 @@ def _parse_subscription(subscription: stripe.Subscription) -> SubscriptionInfo:
     )
 
 
-@page
+# Disabled: migrated to views/business_wall_registration.py
+# @page
 class BusinessWallRegistrationPage(BaseWipPage):
     name = "org-registration"
     label = "Abonnement à l'offre Aipress24 PRO"

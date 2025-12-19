@@ -8,7 +8,6 @@ This is not used yet.
 
 from __future__ import annotations
 
-from app.flask.lib.pages import page
 from app.models.content import BaseContent
 from app.modules.admin import table as t
 
@@ -58,7 +57,7 @@ def truncate(s: str, n: int) -> str:
     return s
 
 
-@page
+# Note: Route now handled by views/contents.py
 class AdminContentsPage(AdminListPage):
     name = "contents"
     label = "Contenus"

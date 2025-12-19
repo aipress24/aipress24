@@ -44,6 +44,7 @@ class SessionService:
         session_id = flask_session.get("session_id", "")
         if not session_id:
             return None
+
         return repo.get_one_or_none(session_id=session_id)
 
     def __contains__(self, item) -> bool:

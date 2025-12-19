@@ -4,7 +4,6 @@
 
 from __future__ import annotations
 
-from app.flask.lib.pages import page
 from app.flask.routing import url_for
 from app.modules.admin import table as t
 from app.modules.swork.models import Group
@@ -46,7 +45,7 @@ class GroupDataSource(t.DataSource):
         return result
 
 
-@page
+# Note: Route now handled by views/groups.py
 class AdminGroupsPage(AdminListPage):
     name = "groups"
     label = "Groupes"

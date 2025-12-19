@@ -11,11 +11,9 @@ from flask import Response, current_app, request
 from svcs.flask import container
 
 from app.flask.extensions import db
-from app.flask.lib.pages import page
 from app.flask.lib.view_model import ViewModel
 from app.flask.sqla import get_obj
 from app.models.organisation import Organisation
-from app.modules.admin import blueprint
 from app.modules.admin.invitations import emails_invited_to_organisation
 from app.modules.admin.org_email_utils import (
     change_invitations_emails,
@@ -40,7 +38,7 @@ from .base import BaseAdminPage
 from .orgs import AdminOrgsPage
 
 
-@page
+# Note: Route now handled by views/show_org.py
 class ShowOrg(BaseAdminPage):
     name = "show_org"
     label = "Informations sur l'organisation"
@@ -186,7 +184,3 @@ class OrgVM(ViewModel):
         # return self.org.logo_url
 
 
-@blueprint.route("/show_org/<uid>")
-def show_org_detail(uid: str):
-    org_detail = ShowOrg(uid)
-    return org_detail.render()
