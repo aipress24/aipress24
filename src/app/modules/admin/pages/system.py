@@ -9,13 +9,11 @@ from importlib.metadata import distributions
 from pathlib import Path
 from typing import cast
 
-from app.flask.lib.pages import page
-
 from .base import BaseAdminPage
 from .home import AdminHomePage
 
 
-@page
+# Note: Route now handled by views_pages.py
 class AdminSystemPage(BaseAdminPage):
     name = "system"
     label = "Système"

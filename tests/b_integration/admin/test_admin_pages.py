@@ -77,9 +77,15 @@ class TestAdminOrgsPage:
 class TestAdminDashboardPage:
     """Integration tests for admin dashboard page."""
 
+    def test_admin_root_redirects_to_dashboard(self, admin_client: FlaskClient) -> None:
+        """Test admin root redirects to dashboard."""
+        response = admin_client.get("/admin/")
+        assert response.status_code == 302
+        assert "/admin/dashboard" in response.location
+
     def test_dashboard_page_loads(self, admin_client: FlaskClient) -> None:
         """Test dashboard page renders successfully."""
-        response = admin_client.get("/admin/")
+        response = admin_client.get("/admin/dashboard")
         assert response.status_code == 200
 
 

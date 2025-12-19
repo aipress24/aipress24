@@ -4,13 +4,12 @@
 
 from __future__ import annotations
 
-from app.flask.lib.pages import page
 from app.flask.routing import url_for
 
 from .base import BaseAdminPage
 
 
-@page
+# Note: Route now handled by views_pages.py
 class AdminHomePage(BaseAdminPage):
     name = "index"
     label = "Admin"

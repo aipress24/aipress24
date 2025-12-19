@@ -9,7 +9,6 @@ from flask import Response, request, url_for as url_for_orig
 from sqlalchemy import Select, desc, false, func, nulls_last, select, true
 
 from app.flask.extensions import db
-from app.flask.lib.pages import page
 from app.flask.routing import url_for
 from app.models.auth import User
 from app.modules.admin.table import Column, GenericUserDataSource, Table
@@ -78,7 +77,7 @@ class UserDataSource(GenericUserDataSource):
         return result
 
 
-@page
+# Note: Route now handled by views_pages.py
 class AdminUsersPage(BaseAdminPage):
     name = "users"
     label = "Utilisateurs"

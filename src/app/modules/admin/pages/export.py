@@ -19,7 +19,6 @@ from sqlalchemy import desc, false, nulls_last, select, true
 from app.constants import BW_TRIGGER_LABEL, LABEL_INSCRIPTION_VALIDEE, LOCAL_TZ
 from app.enums import OrganisationTypeEnum
 from app.flask.extensions import db
-from app.flask.lib.pages import page
 from app.models.auth import KYCProfile, User
 from app.models.organisation import Organisation
 from app.modules.admin import blueprint
@@ -30,7 +29,7 @@ from .home import AdminHomePage
 LOCALTZ = pytz.timezone(LOCAL_TZ)
 
 
-@page
+# Note: Route now handled by views_pages.py
 class AdminExportPage(BaseAdminPage):
     name = "exports"
     label = "Exports"
