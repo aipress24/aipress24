@@ -9,8 +9,7 @@ from __future__ import annotations
 from flask import g, redirect
 
 from app.flask.routing import url_for
-
-from .. import blueprint
+from app.modules.wip import blueprint
 
 
 @blueprint.route("/")

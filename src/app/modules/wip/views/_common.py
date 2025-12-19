@@ -19,6 +19,6 @@ def check_auth():
 def get_secondary_menu(current_name: str):
     """Get secondary menu for wip pages."""
     # Lazy import to avoid circular import
-    from ..menu import make_menu
+    from app.modules.wip.menu import make_menu
 
     return make_menu(current_name)

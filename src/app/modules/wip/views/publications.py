@@ -14,9 +14,9 @@ from webargs.flaskparser import parser
 from app.flask.routing import url_for
 from app.flask.sqla import get_multi
 from app.models.content.base import BaseContent
+from app.modules.wip import blueprint
 from app.ui.labels import make_label
 
-from .. import blueprint
 from ._common import get_secondary_menu
 
 TABLE_COLUMNS = [

@@ -8,7 +8,6 @@ from flask import g
 from werkzeug.utils import redirect
 
 from app.enums import RoleEnum
-from app.flask.lib.pages import page
 from app.flask.routing import url_for
 
 from .base import BaseWipPage

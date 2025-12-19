@@ -8,7 +8,8 @@ from __future__ import annotations
 
 from flask import render_template
 
-from .. import blueprint
+from app.modules.wip import blueprint
+
 from ._common import get_secondary_menu
 
 

@@ -15,10 +15,10 @@ from werkzeug.exceptions import Forbidden
 from app.enums import RoleEnum
 from app.flask.routing import url_for
 from app.models.mixins import Owned
+from app.modules.wip import blueprint
 from app.services.auth import AuthService
 from app.services.roles import has_role
 
-from .. import blueprint
 from ._common import get_secondary_menu
 
 
@@ -31,7 +31,8 @@ def comroom():
     # Check ACL
     user = g.user
     if not has_role(user, [RoleEnum.PRESS_RELATIONS]):
-        raise Forbidden("Access denied to comroom")
+        msg = "Access denied to comroom"
+        raise Forbidden(msg)
 
     main_items = [
         {

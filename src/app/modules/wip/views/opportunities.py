@@ -13,8 +13,8 @@ from werkzeug import Response
 
 from app.flask.lib.htmx import extract_fragment
 from app.models.auth import User
+from app.modules.wip import blueprint
 
-from .. import blueprint
 from ._common import get_secondary_menu
 
 

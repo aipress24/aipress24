@@ -13,9 +13,9 @@ from svcs.flask import container
 
 from app.flask.routing import url_for
 from app.models.mixins import Owned
+from app.modules.wip import blueprint
 from app.services.auth import AuthService
 
-from .. import blueprint
 from ._common import get_secondary_menu
 
 

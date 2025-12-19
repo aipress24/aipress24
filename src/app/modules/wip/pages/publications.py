@@ -9,7 +9,7 @@ from flask import g, jsonify, request
 from sqlalchemy import select
 from webargs.flaskparser import parser
 
-from app.flask.lib.pages import expose, page
+from app.flask.lib.pages import expose
 from app.flask.routing import url_for
 from app.flask.sqla import get_multi
 from app.models.content.base import BaseContent

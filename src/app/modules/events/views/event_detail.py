@@ -18,7 +18,6 @@ from app.modules.events import blueprint
 from app.modules.events.models import EventPost
 from app.modules.events.views._common import EventDetailVM
 from app.modules.kyc.field_label import country_code_to_label, country_zip_code_to_city
-from app.services.social_graph import SocialUser, adapt
 
 
 @blueprint.route("/<int:id>")
@@ -56,7 +55,10 @@ def event_post(id: int) -> Response | str:
 
 def _toggle_like(user: User, event_obj: EventPost) -> Response:
     """Toggle like status for an event."""
-    social_user: SocialUser = adapt(user)
+    # Lazy import to avoid circular import
+    from app.services.social_graph import adapt
+
+    social_user = adapt(user)
 
     if social_user.is_liking(event_obj):
         social_user.unlike(event_obj)
@@ -106,7 +108,11 @@ def _get_metadata_list(event_vm: EventDetailVM) -> list[dict]:
         )
     if item.url:
         data.append(
-            {"label": "URL de l'événement", "value": item.url, "href": item.url}
+            {
+                "label": "URL de l'événement",
+                "value": item.url,
+                "href": item.url,
+            }
         )
 
     return data

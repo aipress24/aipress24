@@ -133,7 +133,7 @@ class EventsWipView(BaseWipView):
 
         # Use business method to publish (includes validation)
         try:
-            publisher_id = g.user.organisation_id if g.user.organisation_id else None
+            publisher_id = g.user.organisation_id or None
             event.publish(publisher_id=publisher_id)
         except ValueError as e:
             flash(str(e), "error")

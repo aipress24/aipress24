@@ -13,10 +13,10 @@ from werkzeug.exceptions import NotFound, Unauthorized
 from app.flask.extensions import db
 from app.flask.routing import url_for
 from app.models.auth import User
+from app.modules.wip import blueprint
 from app.services.invoicing import Invoice
 from app.services.pdf import to_pdf
 
-from .. import blueprint
 from ._common import get_secondary_menu
 
 COLUMNS_SPECS = {

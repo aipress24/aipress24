@@ -123,7 +123,11 @@ class EventPage(Page):
             )
         if item.url:
             data.append(
-                {"label": "URL de l'événement", "value": item.url, "href": item.url}
+                {
+                    "label": "URL de l'événement",
+                    "value": item.url,
+                    "href": item.url,
+                }
             )
 
         return data

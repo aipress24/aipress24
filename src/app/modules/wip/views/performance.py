@@ -10,7 +10,8 @@ from itertools import pairwise
 
 from flask import g, render_template
 
-from .. import blueprint
+from app.modules.wip import blueprint
+
 from ._common import get_secondary_menu
 
 
@@ -57,6 +58,8 @@ def performance():
 def is_sorted(seq, *, key=None):
     """Check if a sequence is sorted."""
     if key is None:
+
         def key(x):
             return x
+
     return all(key(a) <= key(b) for a, b in pairwise(seq))

@@ -14,7 +14,7 @@ from werkzeug import Response
 
 from app.enums import OrganisationTypeEnum
 from app.flask.extensions import db
-from app.flask.lib.pages import Page, page
+from app.flask.lib.pages import Page
 from app.flask.lib.view_model import Wrapper
 from app.flask.routing import url_for
 from app.flask.sqla import get_obj
