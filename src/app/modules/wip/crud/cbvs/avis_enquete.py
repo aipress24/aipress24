@@ -21,6 +21,7 @@ from svcs.flask import container
 from app.enums import RoleEnum
 from app.flask.lib.htmx import extract_fragment
 from app.flask.routing import url_for
+from app.logging import warn
 from app.models.auth import User
 from app.models.repositories import UserRepository
 from app.modules.wip.models import (
@@ -113,6 +114,9 @@ class AvisEnqueteWipView(BaseWipView):
         self.update_breadcrumbs(label=model.title)
 
         form = SearchForm()
+
+        form.save_state()
+
         action = form.get_action()
 
         match action:
@@ -471,17 +475,45 @@ class SearchForm:
         session = container.get(SessionService)
         self.state = session.get("newsroom:ciblage", {})
 
+    # def _update_state(self) -> None:
+    #     data_source = request.form if request.form else request.args
+
+    #     for k, values in data_source.lists():
+    #         if k.startswith("action:") or k.startswith("expert:"):
+    #             continue
+    #         if len(values) > 1:
+    #             self.state[k] = values
+    #         elif values:
+    #             self.state[k] = values[0]
+    #         else:
+    #             self.state[k] = ""
+
     def _update_state(self) -> None:
-        for k, v in request.form.to_dict().items():
-            if k.startswith("action:"):
+        data_source = request.args if request.method == "GET" else request.form
+
+        incoming_data = dict(data_source.lists())
+        warn("incoming_data", incoming_data)
+
+        if not incoming_data and request.headers.get("HX-Request"):
+            warn("HTMX request with no data, skip")
+            return
+
+        for k, values in data_source.lists():
+            if k.startswith("action:") or k.startswith("expert:"):
                 continue
-            if k.startswith("expert:"):
-                continue
-            self.state[k] = v
+            clean_values = [v for v in values if v]
+
+            if clean_values:
+                self.state[k] = clean_values
+            else:
+                self.state.pop(k, None)
+
+        warn("self.state updated", self.state)
 
     def save_state(self) -> None:
         session = container.get(SessionService)
         session["newsroom:ciblage"] = self.state
+        warn("self.state saved", self.state)
 
     def get_action(self) -> str:
         for name in request.form.to_dict():
@@ -505,36 +537,66 @@ class SearchForm:
                 yield int(k.split(":")[1])
 
     def get_selectable_experts(self) -> list[User]:
-        experts = self.all_experts
-
         if all(not self.state.get(selector.id) for selector in self.selectors):
             return []
 
+        experts = self.all_experts
+
         for selector in self.selectors:
-            value = self.state.get(selector.id)
-            if not value:
+            # selected_values = self.state.get(selector.id)
+            # if not selected_values:
+            #     continue
+            # if isinstance(selected_values, list):
+            #     criteria = set(selected_values)
+            # else:
+            #     criteria = {selected_values}
+            # if selector.id == "metier":
+            #     experts = [
+            #         e for e in experts if any(x in criteria for x in e.tous_metiers)
+            #     ]
+            # if selector.id == "pays":
+            #     experts = [e for e in experts if e.profile.country in criteria]
+            # if selector.id == "departement":
+            #     experts = [e for e in experts if e.profile.departement in criteria]
+            # if selector.id == "ville":
+            #     experts = [e for e in experts if e.profile.ville in criteria]
+
+            selected_values = self.state.get(selector.id)
+            if not selected_values:
                 continue
+
+            criteria = (
+                set(selected_values)
+                if isinstance(selected_values, list)
+                else {selected_values}
+            )
             if selector.id == "metier":
-                experts = [e for e in experts if value in e.tous_metiers]
-            if selector.id == "pays":
-                experts = [e for e in experts if e.profile.country == value]
-            if selector.id == "departement":
-                experts = [e for e in experts if e.profile.departement == value]
-            if selector.id == "ville":
-                experts = [e for e in experts if e.profile.ville == value]
+                experts = [
+                    e for e in experts if any(m in criteria for m in e.tous_metiers)
+                ]
 
-        experts = [
-            e for e in experts if e.id not in self.state.get("selected_experts", [])
-        ]
+            elif selector.id == "pays":
+                experts = [e for e in experts if e.profile.country in criteria]
 
-        experts.sort(key=lambda e: (e.last_name, e.first_name))
-        if len(experts) > 50:
-            experts = experts[:50]
+            elif selector.id == "departement":
+                experts = [e for e in experts if e.profile.departement in criteria]
 
-        return experts
+            elif selector.id == "ville":
+                experts = [e for e in experts if e.profile.ville in criteria]
 
-    def get_selected_experts(self):
-        selected_expert_ids = self.state.get("selected_experts", [])
+            elif selector.id == "secteur":
+                experts = [
+                    e for e in experts if e.profile.get_value("secteur") in criteria
+                ]
+
+        selected_ids = set(self.state.get("selected_experts", []))
+        new_experts = [e for e in experts if e.id not in selected_ids]
+
+        new_experts.sort(key=lambda e: (e.last_name, e.first_name))
+        return new_experts[:50]
+
+    def get_selected_experts(self) -> list[User]:
+        selected_expert_ids = set(self.state.get("selected_experts", []))
         user_repo = container.get(UserRepository)
         experts = user_repo.list()
         experts = [e for e in experts if e.id in selected_expert_ids]
@@ -563,35 +625,38 @@ class Selector(abc.ABC):
     form: SearchForm
     id: str
     label: str
-    value: str
+    values: set[str]  # selected items
 
     def __init__(self, form: SearchForm) -> None:
         self.form = form
-        self.value = form.state.get(self.id, "")
+        raw_values = form.state.get(self.id, [])
+        if isinstance(raw_values, list):
+            self.values = set(raw_values)
+        elif raw_values:
+            self.values = {raw_values}
+        else:
+            self.values = set()
 
     @property
-    def options(self):
-        values = self.get_values()
-        return self._make_options(values)
+    def options(self) -> list[Option]:
+        choice_values = self.get_values()
+        return self._make_options(choice_values)
 
     @abstractmethod
     def get_values(self) -> list[str] | set[str]:
         pass
 
-    def _make_options(self, values) -> list[Option]:
+    def _make_options(self, values: list[str] | set[str]) -> list[Option]:
         options: set[Option] = set()
-        options.add(Option("", ""))
+        # options.add(Option("", ""))
         for value in values:
-            if value == self.value:
-                selected = "selected"
-            else:
-                selected = ""
+            selected = "selected" if value in self.values else ""
             option = Option(value, value, selected)
             options.add(option)
         return sorted(options, key=self.sorter)
 
     def sorter(self, option: Option) -> str:
-        def remove_diacritics(input_str):
+        def remove_diacritics(input_str: str):
             # Normalize the string to decompose characters with diacritics
             normalized_str = unicodedata.normalize("NFKD", input_str)
             # Filter out non-ASCII characters
@@ -602,19 +667,19 @@ class Selector(abc.ABC):
 
         return remove_diacritics(option.label)
 
-    def _get_values_from_experts(self, key) -> set[str]:
+    def _get_values_from_experts(self, key: str) -> set[str]:
         experts = self.form.all_experts
         # debug(experts[0].profile)
-        values = set()
+        merged_values: set[str] = set()
         for expert in experts:
-            value = expert.profile.get_value(key)
+            value: str | list[str] = expert.profile.get_value(key)
             if not value:
                 continue
             if isinstance(value, list):
-                values |= set(value)
+                merged_values |= set(value)
             else:
-                values.add(value)
-        return values
+                merged_values.add(value)
+        return merged_values
 
 
 class SecteurSelector(Selector):
@@ -630,7 +695,9 @@ class MetierSelector(Selector):
     label = "Métier"
 
     def get_values(self):
-        return self._get_values_from_experts("metier_principal_detail")
+        v1 = self._get_values_from_experts("metier_principal_detail")
+        v2 = self._get_values_from_experts("metier_detail")
+        return v1 | v2
 
 
 class FonctionSelector(Selector):
