@@ -65,7 +65,7 @@ class UserDataSource(GenericUserDataSource):
             record = {
                 "$url": url_for(obj),
                 "id": obj.id,
-                "show": url_for_orig(".show_profile", uid=obj.id),
+                "show": url_for_orig(".show_user", uid=obj.id),
                 "name": obj.full_name,
                 "email": obj.email_safe_copy or obj.email,
                 "job_title": obj.job_title,

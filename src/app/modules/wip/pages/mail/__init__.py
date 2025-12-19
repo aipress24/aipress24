@@ -4,12 +4,12 @@
 
 from __future__ import annotations
 
-from app.flask.lib.pages import page
 from app.modules.wip.pages.base import BaseWipPage
 from app.modules.wip.pages.home import HomePage
 
 
-@page
+# Disabled: migrated to views/mail.py
+# @page
 class MailPage(BaseWipPage):
     name = "mail"
     label = "Messages"

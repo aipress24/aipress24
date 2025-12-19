@@ -10,12 +10,8 @@ from flask import Response, g, request
 from app.constants import LABEL_COMPTE_DESACTIVE, LOCAL_TZ
 from app.enums import RoleEnum
 from app.flask.extensions import db
-from app.flask.lib.pages import page
-
-# from app.flask.routing import url_for
 from app.flask.sqla import get_obj
 from app.models.auth import User
-from app.modules.admin import blueprint
 from app.modules.admin.utils import gc_organisation, remove_user_organisation
 from app.modules.kyc.views import admin_info_context
 from app.services.roles import add_role
@@ -28,7 +24,7 @@ from .users import AdminUsersPage
 # from sqlalchemy.orm import selectinload
 
 
-@page
+# Note: Route now handled by views/show_user.py
 class ShowUser(BaseAdminPage):
     name = "show_member"
     label = "Informations sur l'utilisateur"
@@ -114,7 +110,3 @@ class ShowUser(BaseAdminPage):
         db_session.commit()
 
 
-@blueprint.route("/show_user/<uid>")
-def show_profile(uid: str):
-    member = ShowUser(uid)
-    return member.render()

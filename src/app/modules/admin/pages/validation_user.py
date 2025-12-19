@@ -19,10 +19,8 @@ from app.constants import (
     LOCAL_TZ,
 )
 from app.flask.extensions import db
-from app.flask.lib.pages import page
 from app.flask.sqla import get_obj
 from app.models.auth import User, merge_values_from_other_user
-from app.modules.admin import blueprint
 from app.modules.admin.utils import gc_all_auto_organisations
 from app.modules.kyc.organisation_utils import retrieve_user_organisation
 from app.modules.kyc.views import admin_info_context
@@ -31,7 +29,7 @@ from .base import BaseAdminPage
 from .new_users import AdminNewUsersPage
 
 
-@page
+# Note: Route now handled by views/validation.py
 class ValidationUser(BaseAdminPage):
     name = "validate_user"
     path = "/validation_profile/<uid>"
@@ -190,7 +188,3 @@ class ValidationUser(BaseAdminPage):
         db_session.commit()
 
 
-@blueprint.route("/validation_profile/<uid>")
-def validation_profile(uid: str):
-    member = ValidationUser(uid)
-    return member.render()
