@@ -16,7 +16,7 @@ from app.flask.routing import url_for
 from app.modules.wire import blueprint
 
 if TYPE_CHECKING:
-    from app.modules.wire.pages._filters import FilterBar
+    from ._filters import FilterBar
 
 
 @define
@@ -33,8 +33,7 @@ class WirePageContext:
 @blueprint.route("/")
 def wire():
     """News - redirect to active tab."""
-    # Lazy import to avoid circular import
-    from app.modules.wire.pages._tabs import get_tabs
+    from ._tabs import get_tabs
 
     tabs = get_tabs()
     tab = session.get("wire:tab", tabs[0].id)
@@ -44,9 +43,8 @@ def wire():
 @blueprint.route("/tab/<tab>")
 def wire_tab(tab: str):
     """News - tab view."""
-    # Lazy import to avoid circular import
-    from app.modules.wire.pages._filters import FilterBar
-    from app.modules.wire.pages._tabs import get_tabs
+    from ._filters import FilterBar
+    from ._tabs import get_tabs
 
     tabs = get_tabs()
 
@@ -71,9 +69,8 @@ def wire_tab(tab: str):
 @blueprint.route("/tab/<tab>", methods=["POST"])
 def wire_tab_post(tab: str):
     """Handle filter updates via POST."""
-    # Lazy import to avoid circular import
-    from app.modules.wire.pages._filters import FilterBar
-    from app.modules.wire.pages._tabs import get_tabs
+    from ._filters import FilterBar
+    from ._tabs import get_tabs
 
     tabs = get_tabs()
 

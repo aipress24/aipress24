@@ -28,11 +28,9 @@ from app.modules.kyc.field_label import (
 from app.modules.swork.models import Comment
 from app.modules.wire import blueprint
 from app.modules.wire.models import ArticlePost, Post, PressReleasePost
+from app.services.social_graph import SocialUser, adapt
 from app.services.tagging import get_tags
 from app.services.tracking import record_view
-
-if TYPE_CHECKING:
-    pass
 
 
 @blueprint.route("/<id>")
@@ -68,19 +66,47 @@ def item(id: str):
 @blueprint.route("/<id>", methods=["POST"])
 def item_post(id: str) -> str | Response:
     """Handle item actions (like, comment)."""
-    # Lazy import to avoid circular import
-    from app.modules.wire.pages._actions import post_comment, toggle_like
-
     post = get_obj(id, Post)
     action = request.form["action"]
 
     match action:
         case "toggle-like":
-            return toggle_like(post)
+            return _toggle_like(post)
         case "post-comment":
-            return post_comment(post)
+            return _post_comment(post)
         case _:
             return ""
+
+
+def _toggle_like(article) -> str:
+    """Toggle like status for the current user on the given article."""
+    user: SocialUser = adapt(g.user)
+    if user.is_liking(article):
+        user.unlike(article)
+    else:
+        user.like(article)
+    db.session.flush()
+    article.like_count = adapt(article).num_likes()
+    db.session.commit()
+    return str(article.like_count)
+
+
+def _post_comment(article) -> Response:
+    """Post a comment on the given article."""
+    from flask import flash, redirect
+
+    user = g.user
+    comment_text = request.form["comment"].strip()
+    if comment_text:
+        comment = Comment()
+        comment.content = comment_text
+        comment.owner = user
+        comment.object_id = f"article:{article.id}"
+        db.session.add(comment)
+        db.session.commit()
+        flash("Votre commentaire a été posté.")
+
+    return redirect(url_for(article) + "#comments-title")
 
 
 def _get_metadata_list(post: Post) -> list[dict]:
