@@ -27,11 +27,13 @@ def show_user(uid: str):
     """Show user detail page."""
     user = get_obj(uid, User)
     context = admin_info_context(user)
-    context.update({
-        "user": user,
-        "org": user.organisation,
-        "title": "Informations sur l'utilisateur",
-    })
+    context.update(
+        {
+            "user": user,
+            "org": user.organisation,
+            "title": "Informations sur l'utilisateur",
+        }
+    )
     return render_template("admin/pages/show_user.j2", **context)
 
 

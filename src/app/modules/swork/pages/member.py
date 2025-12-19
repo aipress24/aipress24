@@ -16,10 +16,10 @@ from app.flask.lib.toaster import toast
 from app.flask.sqla import get_obj
 from app.models.auth import User
 from app.modules.kyc.views import public_info_context
+from app.modules.swork.masked_fields import MaskFields
 from app.services.social_graph import SocialUser, adapt
 
 from .base import BaseSworkPage
-from .masked_fields import MaskFields
 from .members import MembersPage
 from .viewmodels import UserVM
 

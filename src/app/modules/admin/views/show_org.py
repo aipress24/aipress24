@@ -162,12 +162,16 @@ def show_org_post(uid: str) -> Response:  # noqa: PLR0915
         case "allow_modify_bw":
             session_service = container.get(SessionService)
             session_service.set(ro_session_key, "RW")
-            response.headers["HX-Redirect"] = f"{current_url}?reload=1#bw-form-container"
+            response.headers["HX-Redirect"] = (
+                f"{current_url}?reload=1#bw-form-container"
+            )
 
         case "cancel_modification_bw":
             session_service = container.get(SessionService)
             session_service.set(ro_session_key, "RO")
-            response.headers["HX-Redirect"] = f"{current_url}?reload=2#bw-form-container"
+            response.headers["HX-Redirect"] = (
+                f"{current_url}?reload=2#bw-form-container"
+            )
 
         case "validate_modification_bw":
             results = request.form.to_dict(flat=False)
@@ -175,7 +179,9 @@ def show_org_post(uid: str) -> Response:  # noqa: PLR0915
             merge_organisation(org)
             session_service = container.get(SessionService)
             session_service.set(ro_session_key, "RO")
-            response.headers["HX-Redirect"] = f"{current_url}?reload=3#bw-form-container"
+            response.headers["HX-Redirect"] = (
+                f"{current_url}?reload=3#bw-form-container"
+            )
 
         case "toggle_org_active":
             toggle_org_active(org)

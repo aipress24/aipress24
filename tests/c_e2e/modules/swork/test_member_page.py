@@ -12,7 +12,7 @@ from flask.testing import FlaskClient
 from sqlalchemy.orm import Session
 
 from app.models.auth import KYCProfile, User
-from app.modules.swork.pages.masked_fields import MaskFields
+from app.modules.swork.masked_fields import MaskFields
 from app.modules.swork.pages.member import (
     MASK_FIELDS,
     TABS,

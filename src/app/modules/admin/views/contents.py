@@ -21,7 +21,7 @@ from ._common import build_table_context, handle_table_post
 @nav(parent="index", icon="rectangle-stack", label="Contenus")
 def contents():
     """Contents list page."""
-    from app.modules.admin.pages.contents import ContentsDataSource, ContentsTable
+    from ._contents import ContentsDataSource, ContentsTable
 
     ctx = build_table_context(ContentsDataSource, ContentsTable)
     return render_template(
@@ -35,6 +35,6 @@ def contents():
 @nav(hidden=True)
 def contents_post():
     """Handle contents pagination/search."""
-    from app.modules.admin.pages.contents import ContentsDataSource
+    from ._contents import ContentsDataSource
 
     return handle_table_post(ContentsDataSource, "admin.contents")

@@ -14,7 +14,7 @@ from app.modules.common.components.post_card import (
     PressReleaseVM,
 )
 from app.modules.events.models import EventPost
-from app.modules.events.pages.event import EventVM
+from app.modules.events.views._common import EventDetailVM as EventVM
 from app.modules.wip.models import (
     ArticleRepository,
     ComImage,

@@ -18,7 +18,7 @@ from ._common import build_table_context, handle_table_post
 @nav(parent="index", icon="users", label="Utilisateurs")
 def users():
     """Users list page."""
-    from app.modules.admin.pages.users import UserDataSource, UsersTable
+    from ._users import UserDataSource, UsersTable
 
     ctx = build_table_context(UserDataSource, UsersTable)
     return render_template(
@@ -32,7 +32,7 @@ def users():
 @nav(hidden=True)
 def users_post():
     """Handle users pagination/search."""
-    from app.modules.admin.pages.users import UserDataSource
+    from ._users import UserDataSource
 
     return handle_table_post(UserDataSource, "admin.users")
 
@@ -41,7 +41,7 @@ def users_post():
 @nav(parent="index", icon="user-plus", label="Inscriptions")
 def new_users():
     """New users to validate page."""
-    from app.modules.admin.pages.new_users import NewUserDataSource, NewUsersTable
+    from ._new_users import NewUserDataSource, NewUsersTable
 
     ctx = build_table_context(NewUserDataSource, NewUsersTable)
     return render_template(
@@ -55,7 +55,7 @@ def new_users():
 @nav(hidden=True)
 def new_users_post():
     """Handle new users pagination/search."""
-    from app.modules.admin.pages.new_users import NewUserDataSource
+    from ._new_users import NewUserDataSource
 
     return handle_table_post(NewUserDataSource, "admin.new_users")
 
@@ -64,7 +64,7 @@ def new_users_post():
 @nav(parent="index", icon="user-cog", label="Modifications")
 def modif_users():
     """Modified users to validate page."""
-    from app.modules.admin.pages.modif_users import ModifUserDataSource, ModifUsersTable
+    from ._modif_users import ModifUserDataSource, ModifUsersTable
 
     ctx = build_table_context(ModifUserDataSource, ModifUsersTable)
     return render_template(
@@ -78,6 +78,6 @@ def modif_users():
 @nav(hidden=True)
 def modif_users_post():
     """Handle modif users pagination/search."""
-    from app.modules.admin.pages.modif_users import ModifUserDataSource
+    from ._modif_users import ModifUserDataSource
 
     return handle_table_post(ModifUserDataSource, "admin.modif_users")

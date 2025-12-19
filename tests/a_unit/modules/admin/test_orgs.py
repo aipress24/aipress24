@@ -7,8 +7,8 @@
 from __future__ import annotations
 
 from app.models.organisation import Organisation
-from app.modules.admin.pages.orgs import (
-    AdminOrgsPage,
+from app.modules.admin.pages.orgs import AdminOrgsPage
+from app.modules.admin.views._orgs import (
     OrgDataSource,
     OrgsTable,
 )

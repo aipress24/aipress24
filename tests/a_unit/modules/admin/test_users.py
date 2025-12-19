@@ -11,9 +11,9 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
 from app.models.auth import User
-from app.modules.admin.pages.users import (
+from app.modules.admin.pages.users import AdminUsersPage
+from app.modules.admin.views._users import (
     TABLE_COLUMNS,
-    AdminUsersPage,
     UserDataSource,
     UsersTable,
 )

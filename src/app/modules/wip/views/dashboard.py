@@ -34,8 +34,9 @@ def dashboard():
     from flask import g
 
     from app.modules.wip.models import ArticleRepository, CommuniqueRepository
-    from app.modules.wip.pages.tables import RecentContentsTable
     from app.services.roles import has_role
+
+    from ._tables import RecentContentsTable
 
     user = g.user
     if not has_role(user, ALLOWED_ROLES):

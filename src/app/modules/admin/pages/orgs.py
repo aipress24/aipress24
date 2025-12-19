@@ -8,32 +8,16 @@ from urllib.parse import urlencode
 
 from flask import Response, request
 
-from app.modules.admin.table import Column, GenericOrgDataSource, Table
+from app.modules.admin.views._orgs import (
+    OrgDataSource,
+    OrgsTable,
+)
 
 from .base import BaseAdminPage
 from .home import AdminHomePage
 
-TABLE_COLUMNS = [
-    {"name": "name", "label": "Nom", "width": 50},
-    {"name": "type", "label": "type", "width": 20},
-    {"name": "karma", "label": "Réputation", "width": 8},
-]
 
-
-class OrgsTable(Table):
-    url_label = "Détail"
-    all_search = False
-
-    def compose(self):
-        for col in TABLE_COLUMNS:
-            yield Column(**col)
-
-
-class OrgDataSource(GenericOrgDataSource):
-    pass
-
-
-# Note: Route now handled by views_pages.py
+# Note: Route now handled by views/orgs.py
 class AdminOrgsPage(BaseAdminPage):
     name = "orgs"
     label = "Organisations"

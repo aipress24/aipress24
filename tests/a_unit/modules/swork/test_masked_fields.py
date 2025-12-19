@@ -2,11 +2,11 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
-"""Unit tests for swork/pages/masked_fields.py"""
+"""Unit tests for swork/masked_fields.py"""
 
 from __future__ import annotations
 
-from app.modules.swork.pages.masked_fields import MaskFields
+from app.modules.swork.masked_fields import MaskFields
 
 
 def test_mask_fields_add_and_remove() -> None:
