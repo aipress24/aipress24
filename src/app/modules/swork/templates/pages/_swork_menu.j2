@@ -2,7 +2,7 @@
   <nav aria-label="Sidebar" class="sticky top-4 divide-y divide-gray-300">
 
     <div class="pb-8 space-y-1">
-      {% for menu_item in menus.secondary %}
+      {% for menu_item in nav_secondary_menu %}
         {% if menu_item.active %}
           {% set class="bg-gray-200 text-gray-900 group flex items-center px-3 py-2 text-sm font-medium rounded-md" %}
         {% else %}

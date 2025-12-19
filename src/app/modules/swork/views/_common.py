@@ -26,18 +26,6 @@ if TYPE_CHECKING:
     from app.modules.swork.pages.masked_fields import MaskFields
 
 
-def get_menus() -> dict:
-    """Get menus dict for template context.
-
-    Returns:
-        Dict with 'secondary' key containing menu items
-    """
-    from app.modules.swork.settings import SWORK_MENU
-    from app.services.menus import make_menu
-
-    return {"secondary": make_menu(SWORK_MENU)}
-
-
 # Member page tabs
 MEMBER_TABS = [
     {"id": "profile", "label": "Profil"},

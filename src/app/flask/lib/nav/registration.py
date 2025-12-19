@@ -52,9 +52,12 @@ def register_nav(app: Flask) -> None:
             return {}
 
         return {
+            # New nav_* variables (preferred)
             "nav_breadcrumbs": g.nav.breadcrumbs(),
             "nav_main_menu": g.nav.menu("main"),
             "nav_secondary_menu": g.nav.menu(),
+            "nav_user_menu": g.nav.menu("user"),
+            "nav_create_menu": g.nav.menu("create"),
         }
 
 

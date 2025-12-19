@@ -128,3 +128,57 @@ CREATE_MENU = [
     }
     for d in _CREATE_MENU
 ]
+
+# Admin module secondary menu
+ADMIN_MENU = [
+    {
+        "label": "Dashboard",
+        "endpoint": "admin.dashboard",
+        "icon": "gauge",
+    },
+    {
+        "label": "Utilisateurs",
+        "endpoint": "admin.users",
+        "icon": "users",
+    },
+    {
+        "label": "Nouveaux",
+        "endpoint": "admin.new_users",
+        "icon": "user-plus",
+    },
+    {
+        "label": "Modifiés",
+        "endpoint": "admin.modif_users",
+        "icon": "user-cog",
+    },
+    {
+        "label": "Organisations",
+        "endpoint": "admin.orgs",
+        "icon": "building-2",
+    },
+    {
+        "label": "Promotions",
+        "endpoint": "admin.promotions",
+        "icon": "gift",
+    },
+    {
+        "label": "Système",
+        "endpoint": "admin.system",
+        "icon": "settings",
+    },
+    {
+        "label": "Export",
+        "endpoint": "admin.export",
+        "icon": "download",
+    },
+    {
+        "label": "Ontologie",
+        "endpoint": "/admin/ontology/",
+        "icon": "list-tree",
+    },
+    {
+        "label": "Export DB",
+        "endpoint": "/admin/export-db/",
+        "icon": "database",
+    },
+]
