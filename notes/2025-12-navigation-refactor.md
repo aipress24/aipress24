@@ -1237,25 +1237,142 @@ For complex modules, it's acceptable to add nav config and leave Page classes in
 
 ---
 
-## Remaining Work
+## Remaining Tasks
 
-### Phase 3: Remove Old System (Not Started)
+### Overview
 
-These items are optional cleanup - the new system works alongside the old:
+| Item                        | Status         | Notes                                            |
+|-----------------------------|----------------|--------------------------------------------------|
+| Admin module migration      | Deferred       | Uses Page classes (434 tests, complex)           |
+| Static menus (user/create)  | Not integrated | USER_MENU/CREATE_MENU used directly by templates |
+| MenuService update          | Not done       | Still uses MAIN_MENU from settings               |
+| Template variable migration | Not done       | Templates could use nav_* variables              |
+| Phase 3: Remove Old System  | Not started    | Optional cleanup; old and new systems coexist    |
 
-1. **Delete old Page system** - `src/app/flask/lib/pages/` can be removed once:
-   - Admin module is migrated (currently uses Page classes)
-   - All `@page` decorators are removed
-   - Tests no longer depend on PageRegistry
+### Priority 1: Admin Module Migration
 
-2. **Update MenuService** - `src/app/services/menus.py` still builds menus from MAIN_MENU config. Could be updated to use `nav_tree.build_menu("main", ...)` instead.
+The admin module is the last major module using the old Page class system. While nav config was added, the Page classes remain in place due to complexity (434 tests, many views).
 
-3. **Static menus integration** - The document describes `g.nav.menu("user")` and `g.nav.menu("create")` for curated action menus, but these aren't implemented in `NavTree._build_static_menu()`. Currently, USER_MENU and CREATE_MENU in `src/app/settings/menus.py` are used directly by templates.
+**Why it matters:**
+- Admin uses different patterns than other modules (CRUD, forms, tables)
+- Keeps the old `src/app/flask/lib/pages/` system alive
+- Creates inconsistency in how navigation is configured
 
-4. **Template variable naming** - Templates could be updated to use consistent nav variables:
-   - `nav_breadcrumbs` instead of reading from Context service
-   - `nav_main_menu` instead of MenuService
-   - `nav_secondary_menu` instead of module-specific menu helpers
+**Migration approach:**
+1. Audit all admin Page classes and their dependencies
+2. Create `views/` package structure mirroring other modules
+3. Migrate views in groups (dashboard, users, organisations, content, etc.)
+4. Update tests incrementally
+5. Remove Page class decorators once views are validated
+
+**Files involved:**
+- `src/app/modules/admin/pages/` - 30+ Page classes
+- `src/app/modules/admin/templates/` - Complex templates with left-menu
+- `tests/b_integration/admin/` - 434 tests
+
+### Priority 2: Unified Menu and Breadcrumb System
+
+**The original motivation:** A single source of truth for navigation, with consistent APIs across the application.
+
+**Current state:** Navigation is fragmented:
+- `nav_tree` builds breadcrumbs and section menus ✅
+- `MenuService` still builds main menu from `MAIN_MENU` config ❌
+- Secondary menus use module-specific `get_menus()` helpers ❌
+- Static menus (user/create) used directly in templates ❌
+- Templates access breadcrumbs via `Context` service, not nav ❌
+
+**Target architecture:**
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                           NavTree                                   │
+│                    (Single Source of Truth)                         │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│  Sections (from blueprint.nav)                                      │
+│    └── Pages (from routes + @nav decorator)                         │
+│                                                                     │
+│  Static Menus (from settings: USER_MENU, CREATE_MENU)               │
+│                                                                     │
+├─────────────────────────────────────────────────────────────────────┤
+│                           g.nav                                     │
+│                    (Request-Scoped API)                             │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│  g.nav.breadcrumbs()      → Breadcrumb trail for current page       │
+│  g.nav.menu("main")       → Main navigation sections                │
+│  g.nav.menu()             → Current section's secondary menu        │
+│  g.nav.menu("user")       → User dropdown menu                      │
+│  g.nav.menu("create")     → Create action menu                      │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+                                │
+                                ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│                    Context Processor                                │
+│              (Injects into all templates)                           │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│  nav_breadcrumbs     = g.nav.breadcrumbs()                          │
+│  nav_main_menu       = g.nav.menu("main")                           │
+│  nav_secondary_menu  = g.nav.menu()                                 │
+│  nav_user_menu       = g.nav.menu("user")                           │
+│  nav_create_menu     = g.nav.menu("create")                         │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+**Tasks to achieve this:**
+
+1. **Implement `_build_static_menu()`** in `NavTree`
+   - Load USER_MENU and CREATE_MENU from settings
+   - Apply ACL filtering based on current user
+   - Return consistent `MenuItem` objects
+
+2. **Update `_build_main_menu()`** to use sections from `nav_tree`
+   - Currently returns sections but MenuService still used in templates
+   - Templates should use `nav_main_menu` from context processor
+
+3. **Remove module-specific `get_menus()` helpers**
+   - `preferences/views/_common.py:get_menus()`
+   - `swork/views/_common.py:get_menus()`
+   - `wip/views/_common.py:get_secondary_menu()`
+   - Replace with `menus={"secondary": g.nav.menu()}`
+
+4. **Update context processor** to inject all nav variables:
+   ```python
+   @app.context_processor
+   def inject_nav():
+       if hasattr(g, "nav"):
+           return {
+               "nav_breadcrumbs": g.nav.breadcrumbs(),
+               "nav_main_menu": g.nav.menu("main"),
+               "nav_secondary_menu": g.nav.menu(),
+               "nav_user_menu": g.nav.menu("user"),
+               "nav_create_menu": g.nav.menu("create"),
+               # Legacy compatibility
+               "breadcrumbs": g.nav.breadcrumbs(),
+           }
+       return {}
+   ```
+
+5. **Update templates** to use nav_* variables:
+   - `layout/private.j2` - main menu
+   - `layout/components/header.j2` - user menu
+   - Module left-menu templates - secondary menu
+   - Breadcrumb components - nav_breadcrumbs
+
+6. **Deprecate and remove MenuService**
+   - Once all templates use nav_* variables
+   - Remove `src/app/services/menus.py`
+
+### Design Principles
+
+1. **Single source of truth**: All navigation config flows through `NavTree`
+2. **Consistent API**: `g.nav.menu(name)` for all menu types
+3. **Explicit over magic**: Templates declare what menu they need
+4. **Convention with escape hatches**: Most cases work automatically, `@nav()` for overrides
+5. **Testable**: `flask nav check` validates the navigation tree
 
 ### CLI Commands (Implemented)
 

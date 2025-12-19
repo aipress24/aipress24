@@ -85,6 +85,7 @@ class MenuItem:
     url: str
     icon: str = ""
     active: bool = False
+    tooltip: str = ""
 
 
 class NavTree:
@@ -327,14 +328,26 @@ class NavTree:
         section: str,
         current_endpoint: str,
     ) -> list[MenuItem]:
-        """Build menu for a section."""
+        """Build menu for a section.
+
+        Args:
+            section: Menu type - "main", "user", "create", or a blueprint name
+            current_endpoint: Current request endpoint for active state
+
+        Returns:
+            List of MenuItem objects
+        """
         user = getattr(g, "user", None)
 
         # Main menu = list of sections
         if section == "main":
             return self._build_main_menu(current_endpoint, user)
 
-        # Section submenu
+        # Static menus (user dropdown, create action menu, admin)
+        if section in ("user", "create", "admin"):
+            return self._build_static_menu(section, user, current_endpoint)
+
+        # Section submenu (blueprint secondary menu)
         children = self.children_of(section)
         items = []
 
@@ -356,25 +369,91 @@ class NavTree:
     def _build_main_menu(
         self, current_endpoint: str, user: User | None
     ) -> list[MenuItem]:
-        """Build main navigation from sections."""
-        sections = sorted(self._sections.values(), key=lambda n: n.order)
+        """Build main navigation from MAIN_MENU config."""
+        from app.settings.menus import MAIN_MENU
+
         items = []
 
-        for node in sections:
-            if user and not node.is_visible_to(user):
-                continue
+        for entry in MAIN_MENU:
+            endpoint = entry.get("endpoint", "#")
 
             # Check if current endpoint is in this section
+            section = endpoint.split(".")[0] if "." in endpoint else endpoint
             is_active = (
-                current_endpoint.startswith(node.name + ".")
-                or current_endpoint == node.name
+                current_endpoint.startswith(section + ".")
+                or current_endpoint == section
             )
+
+            try:
+                item_url = url_for(endpoint)
+            except Exception:
+                item_url = "#"
 
             items.append(
                 MenuItem(
-                    label=node.label,
-                    url=node.url_for(),
-                    icon=node.icon,
+                    label=entry.get("label", ""),
+                    url=item_url,
+                    icon=entry.get("icon", ""),
+                    active=is_active,
+                    tooltip=entry.get("tooltip", ""),
+                )
+            )
+
+        return items
+
+    def _build_static_menu(
+        self, menu_name: str, user: User | None, current_endpoint: str = ""
+    ) -> list[MenuItem]:
+        """Build menu from static configuration.
+
+        Args:
+            menu_name: "user", "create", or "admin"
+            user: Current user for ACL filtering
+            current_endpoint: Current request endpoint for active state
+
+        Returns:
+            List of MenuItem objects
+        """
+        from app.services.roles import has_role
+        from app.settings.menus import ADMIN_MENU, CREATE_MENU, USER_MENU
+
+        config = {"user": USER_MENU, "create": CREATE_MENU, "admin": ADMIN_MENU}.get(
+            menu_name, []
+        )
+        items = []
+
+        for entry in config:
+            # Check role-based access
+            roles = entry.get("roles", set())
+            if roles and user:
+                if not any(has_role(user, role) for role in roles):
+                    continue
+            elif roles and not user:
+                # Roles required but no user
+                continue
+
+            # Build URL from endpoint
+            endpoint = entry.get("endpoint", "#")
+            if endpoint.startswith("/"):
+                # Direct URL
+                item_url = endpoint
+                is_active = False
+            elif endpoint == "#":
+                item_url = "#"
+                is_active = False
+            else:
+                try:
+                    item_url = url_for(endpoint)
+                    is_active = endpoint == current_endpoint
+                except Exception:
+                    item_url = "#"
+                    is_active = False
+
+            items.append(
+                MenuItem(
+                    label=entry.get("label", ""),
+                    url=item_url,
+                    icon=entry.get("icon", ""),
                     active=is_active,
                 )
             )

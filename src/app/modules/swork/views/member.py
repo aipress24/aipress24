@@ -17,7 +17,6 @@ from app.flask.lib.toaster import toast
 from app.flask.routing import url_for
 from app.flask.sqla import get_obj
 from app.models.auth import User
-from app.modules.kyc.views import public_info_context
 from app.modules.swork import blueprint
 from app.modules.swork.views._common import MEMBER_TABS, UserVM, filter_email_mobile
 
@@ -65,6 +64,9 @@ def _render_tab(user: User, active_tab: str) -> str:
 
 def _build_context(user: User, active_tab: str) -> dict:
     """Build context for member page."""
+    # Lazy import to avoid circular import
+    from app.modules.kyc.views import public_info_context
+
     user_vm = UserVM(user)
 
     followers = user_vm.followers

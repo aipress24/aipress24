@@ -12,7 +12,6 @@ from werkzeug.utils import redirect
 from app.flask.lib.nav import nav
 from app.flask.routing import url_for
 from app.modules.preferences import blueprint
-from app.modules.preferences.views._common import get_menus
 
 
 @blueprint.route("/password")
@@ -33,7 +32,7 @@ def email():
 @nav(menu=False)  # Placeholder
 def security():
     """Sécurité"""
-    ctx = {"title": "Sécurité", "menus": get_menus("security")}
+    ctx = {"title": "Sécurité"}
     return render_template("pages/preferences/placeholder.j2", **ctx)
 
 
@@ -41,7 +40,7 @@ def security():
 @nav(menu=False)  # Placeholder
 def notification():
     """Notification"""
-    ctx = {"title": "Notification", "menus": get_menus("notification")}
+    ctx = {"title": "Notification"}
     return render_template("pages/preferences/placeholder.j2", **ctx)
 
 
@@ -49,5 +48,5 @@ def notification():
 @nav(menu=False)  # Placeholder
 def integration():
     """Intégration"""
-    ctx = {"title": "Intégration", "menus": get_menus("integration")}
+    ctx = {"title": "Intégration"}
     return render_template("pages/preferences/placeholder.j2", **ctx)

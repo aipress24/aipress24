@@ -21,7 +21,6 @@ from app.models.invitation import Invitation
 from app.models.organisation import Organisation
 from app.modules.admin.utils import gc_all_auto_organisations, set_user_organisation
 from app.modules.preferences import blueprint
-from app.modules.preferences.views._common import get_menus
 from app.ui.labels import LABELS_ORGANISATION_TYPE
 
 
@@ -36,7 +35,6 @@ def invitations():
         "open_invitations": open_invitations,
         "unofficial": _unofficial_organisation(user),
         "title": "Invitation d'organisation",
-        "menus": get_menus("invitations_page"),
     }
     return render_template("pages/preferences/org_invitation.j2", **ctx)
 

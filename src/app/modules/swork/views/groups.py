@@ -10,7 +10,6 @@ from flask import render_template
 
 from app.flask.lib.nav import nav
 from app.modules.swork import blueprint
-from app.modules.swork.views._common import get_menus
 
 
 @blueprint.route("/groups/")
@@ -19,6 +18,5 @@ def groups():
     """Groupes"""
     ctx = {
         "title": "Groupes",
-        "menus": get_menus(),
     }
     return render_template("pages/groups.j2", **ctx)

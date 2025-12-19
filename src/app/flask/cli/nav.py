@@ -19,7 +19,6 @@ from app.flask.lib.nav import nav_tree
 @group(short_help="Navigation debugging commands")
 def nav() -> None:
     """Navigation tree inspection and debugging."""
-    pass
 
 
 @nav.command()

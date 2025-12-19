@@ -15,7 +15,6 @@ from app.flask.extensions import db
 from app.flask.lib.nav import nav
 from app.flask.routing import url_for
 from app.modules.preferences import blueprint
-from app.modules.preferences.views._common import get_menus
 from app.settings.constants import MAX_IMAGE_SIZE
 
 
@@ -27,7 +26,6 @@ def banner():
     ctx = {
         "current_image_url": current_image_url,
         "title": "Image de présentation",
-        "menus": get_menus("banner"),
     }
     return render_template("pages/preferences/banner.j2", **ctx)
 

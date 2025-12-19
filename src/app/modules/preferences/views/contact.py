@@ -14,7 +14,6 @@ from app.flask.extensions import db
 from app.flask.lib.nav import nav
 from app.flask.routing import url_for
 from app.modules.preferences import blueprint
-from app.modules.preferences.views._common import get_menus
 
 
 @blueprint.route("/contact-options")
@@ -25,7 +24,6 @@ def contact_options():
     ctx = {
         "show": profile.all_contact_details(),
         "title": "Options de contact",
-        "menus": get_menus("contact-options"),
     }
     return render_template("pages/preferences/pref-contact.j2", **ctx)
 
