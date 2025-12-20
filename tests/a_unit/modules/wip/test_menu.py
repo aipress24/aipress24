@@ -8,7 +8,8 @@ from __future__ import annotations
 
 import pytest
 
-from app.modules.wip.menu import MenuItem, _get_class
+from app.modules.wip.constants import MenuEntry
+from app.modules.wip.menu import MenuItem
 
 
 def test_menu_item_requires_absolute_href() -> None:
@@ -27,18 +28,31 @@ def test_menu_item_requires_absolute_href() -> None:
         MenuItem(name="empty", label="Empty", icon="x", href="", current=False)
 
 
-def test_get_class_imports_from_module() -> None:
-    """Test _get_class imports class from module path."""
-    key = "menu:app.modules.wip.menu.MenuItem"
-    cls = _get_class(key)
+def test_menu_entry_creation() -> None:
+    """Test MenuEntry can be created with all fields."""
+    entry = MenuEntry(
+        name="test",
+        label="Test Label",
+        icon="test-icon",
+        endpoint="wip.test",
+        allowed_roles=["ADMIN"],
+    )
 
-    assert cls is MenuItem
+    assert entry.name == "test"
+    assert entry.label == "Test Label"
+    assert entry.icon == "test-icon"
+    assert entry.endpoint == "wip.test"
+    assert entry.allowed_roles == ["ADMIN"]
 
 
-def test_get_class_raises_for_invalid_path() -> None:
-    """Test _get_class raises appropriate errors for invalid paths."""
-    with pytest.raises(AttributeError):
-        _get_class("menu:app.modules.wip.menu.NonExistentClass")
+def test_menu_entry_without_roles() -> None:
+    """Test MenuEntry can be created without role restrictions."""
+    entry = MenuEntry(
+        name="public",
+        label="Public Page",
+        icon="globe",
+        endpoint="wip.public",
+    )
 
-    with pytest.raises(ModuleNotFoundError):
-        _get_class("menu:nonexistent.module.SomeClass")
+    assert entry.name == "public"
+    assert entry.allowed_roles is None

@@ -2,6 +2,8 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
+"""Export functionality for admin views."""
+
 from __future__ import annotations
 
 from collections import namedtuple
@@ -23,21 +25,7 @@ from app.models.auth import KYCProfile, User
 from app.models.organisation import Organisation
 from app.modules.admin import blueprint
 
-from .base import BaseAdminPage
-from .home import AdminHomePage
-
 LOCALTZ = pytz.timezone(LOCAL_TZ)
-
-
-# Note: Route now handled by views_pages.py
-class AdminExportPage(BaseAdminPage):
-    name = "exports"
-    label = "Exports"
-    title = "Exports"
-    icon = "file-down"
-
-    template = "admin/pages/exports.j2"
-    parent = AdminHomePage
 
 
 @blueprint.route("/export/<exporter_name>")
@@ -191,8 +179,6 @@ class BaseExporter:
 class InscriptionsExporter(BaseExporter):
     sheet_name = "Inscriptions"
     columns: ClassVar[list] = [
-        # "submited_at",
-        # "validated_at",
         "validation_status",
         "bw_trigger",
         "profile_label",
@@ -472,8 +458,6 @@ class InscriptionsExporter(BaseExporter):
         stmt = (
             select(User)
             .where(
-                # all users, wether inscription validated or not :
-                # User.active == false(),
                 User.is_clone == false(),
                 User.deleted_at.is_(None),
                 User.submited_at >= self.start_date,

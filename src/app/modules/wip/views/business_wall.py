@@ -43,9 +43,7 @@ def org_profile_post() -> str | Response:
         change_managers_emails,
         change_members_emails,
     )
-    from app.modules.wip.pages.business_wall.business_wall_form import (
-        merge_org_results,
-    )
+    from app.modules.wip.forms.business_wall import merge_org_results
 
     user = g.user
     org = user.organisation if user.is_authenticated else None
@@ -108,7 +106,7 @@ def _build_context() -> dict[str, Any]:
     # Lazy imports to avoid circular import
     from app.modules.admin.invitations import emails_invited_to_organisation
     from app.modules.kyc.renderer import render_field
-    from app.modules.wip.pages.business_wall.business_wall_form import BWFormGenerator
+    from app.modules.wip.forms.business_wall import BWFormGenerator
     from app.services.stripe.product import stripe_bw_subscription_dict
     from app.services.stripe.utils import load_stripe_api_key
 

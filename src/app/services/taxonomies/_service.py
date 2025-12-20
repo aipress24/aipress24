@@ -38,7 +38,7 @@ def get_all_taxonomy_names() -> list[str]:
 def get_taxonomy(name) -> list[str]:
     """Get a taxonomy from the database."""
     # TODO: ne retourner que les valeurs qui correspondent à un utilisateur existant
-    T = TaxonomyEntry  # noqa: N806
+    T = TaxonomyEntry
     query = select(T).where(T.taxonomy_name == name).order_by(T.name)
     result = db.session.execute(query).scalars()
     return [r.name for r in result]
@@ -46,7 +46,7 @@ def get_taxonomy(name) -> list[str]:
 
 def get_full_taxonomy(name: str, category: str = "") -> list[tuple[str, str]]:
     """Get a taxonomy from the database."""
-    T = TaxonomyEntry  # noqa: N806
+    T = TaxonomyEntry
     query = select(T)
     if category:
         query = query.where(T.taxonomy_name == name, T.category == category)
@@ -59,7 +59,7 @@ def get_full_taxonomy(name: str, category: str = "") -> list[tuple[str, str]]:
 
 def get_full_taxonomy_category_value(name: str) -> list[tuple[str, str]]:
     """Get a taxonomy from the database, with categories."""
-    T = TaxonomyEntry  # noqa: N806
+    T = TaxonomyEntry
     query = select(T).where(T.taxonomy_name == name).order_by(T.seq)
     results = db.session.scalars(query).all()
     return [(row.category, row.value) for row in results]
@@ -69,7 +69,7 @@ def get_taxonomy_dual_select(
     name: str,
 ) -> dict[str, Any]:
     """Get a taxonomy in dual select format"""
-    T = TaxonomyEntry  # noqa: N806
+    T = TaxonomyEntry
     query = select(T).where(T.taxonomy_name == name).order_by(T.seq)
     results = db.session.scalars(query).all()
     seen: set[str] = set()

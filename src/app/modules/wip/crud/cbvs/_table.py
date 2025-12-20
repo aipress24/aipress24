@@ -24,7 +24,7 @@ class BaseDataSource(DataSource):
     q: str
 
     def query(self):
-        M = self.model_class  # noqa: N806
+        M = self.model_class
         assert issubclass(M, Owned | LifeCycleMixin)
 
         user: User = g.user
