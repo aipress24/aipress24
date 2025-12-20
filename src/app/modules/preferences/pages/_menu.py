@@ -5,42 +5,27 @@
 from __future__ import annotations
 
 from app.flask.routing import url_for
-
-from .banner import PrefBannerPage
-from .contact import PrefContactOptionsPage
-from .interests import PrefInterestsPage
-from .org_invitation import PrefInvitationsPage
-from .others import PrefEditProfilePage, PrefEmailPage, PrefPasswordPage
-from .profile import PrefProfilePage
-
-MENU = [
-    PrefProfilePage,
-    PrefPasswordPage,
-    PrefEmailPage,
-    PrefInvitationsPage,
-    PrefEditProfilePage,
-    PrefInterestsPage,
-    PrefContactOptionsPage,
-    PrefBannerPage,
-    # PrefSecurityPage,
-    # PrefNotificationPage,
-    # PrefIntegrationPage,
-]
+from app.modules.preferences.constants import MENU
 
 
-def make_menu(name: str):
+def make_menu(current_name: str):
+    """Build the preferences secondary menu.
+
+    Args:
+        current_name: The name of the current view function (e.g., "profile", "password")
+
+    Returns:
+        List of menu entry dicts with href, current, label, icon, name
+    """
     menu = []
-    for page_class in MENU:
-        if hasattr(page_class, "url_string"):
-            href = url_for(page_class.url_string)
-        else:
-            href = url_for(f".{page_class.name}")
-        d = {
-            "name": page_class.name,
-            "label": page_class.label,
-            "icon": page_class.icon,
-            "href": href,
-            "current": name == page_class.name,
-        }
-        menu.append(d)
+    for entry in MENU:
+        menu.append(
+            {
+                "name": entry.name,
+                "label": entry.label,
+                "icon": entry.icon,
+                "href": url_for(entry.endpoint),
+                "current": current_name == entry.name,
+            }
+        )
     return menu

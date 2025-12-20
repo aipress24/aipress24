@@ -6,12 +6,24 @@ from __future__ import annotations
 
 import abc
 
-from app.flask.lib.pages import Page
-
 __all__ = ("BasePreferencesPage",)
 
 
-class BasePreferencesPage(Page, abc.ABC):
+class BasePreferencesPage(abc.ABC):
+    """Base class for preferences page metadata.
+
+    Note: This class is kept for backwards compatibility with tests.
+    The actual page rendering is done by Flask views, not Page classes.
+    """
+
+    name: str
+    label: str
+    icon: str
+    template: str = ""
+    path: str = ""
+    parent: type | None = None
+    url_string: str = ""
+
     @property
     def title(self):
         return self.label

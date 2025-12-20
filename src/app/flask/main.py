@@ -28,7 +28,6 @@ from app.flask.hooks import register_hooks
 from app.flask.jinja import register_context_processors
 from app.flask.lib.macros import register_macros
 from app.flask.lib.nav import register_nav
-from app.flask.lib.pages import register_pages
 from app.flask.lib.pywire import (
     register_components,
     register_pywire,
@@ -115,8 +114,7 @@ def register_all(app: Flask) -> None:
     register_hooks(app)
     register_debug_hooks(app)
 
-    # Register pages & blueprints (last)
-    register_pages(app)
+    # Register blueprints
     register_blueprints(app)
 
     # Register new navigation system (after blueprints)

@@ -11,9 +11,7 @@ import svcs
 from flask import Flask
 from flask_super.registry import lookup
 from sqlalchemy.orm import scoped_session
-from svcs.flask import register_factory, register_value
-
-from app.flask.lib.pages import PageRegistry, page_registry
+from svcs.flask import register_factory
 
 __all__ = [
     "register_services",
@@ -28,8 +26,6 @@ def session_factory() -> scoped_session:
 
 def register_services(app: Flask) -> None:
     register_factory(app, scoped_session, session_factory)
-
-    register_value(app, PageRegistry, page_registry)
 
     services = lookup(tag="service")
 

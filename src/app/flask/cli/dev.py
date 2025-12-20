@@ -24,7 +24,6 @@ from flask_super.cli import command
 from sqlalchemy import text
 
 from app.flask.extensions import db
-from app.flask.lib.pages import get_pages
 from app.flask.lib.pywire import get_components
 from app.services.healthcheck import healthcheck
 
@@ -50,15 +49,6 @@ def config() -> None:
 @command(name="debug", short_help="Show debug information")
 @with_appcontext
 def _debug() -> None:
-    rich.print(blue("List of registered pages"))
-    print()
-
-    pages = get_pages()
-    for key, _value in sorted(pages.items()):
-        rich.print(f"{key}")
-
-    print()
-
     rich.print(blue("List of registered components"))
     print()
     components = get_components()
