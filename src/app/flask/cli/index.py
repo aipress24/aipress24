@@ -12,7 +12,7 @@ from flask_super.cli import group
 from rich import print
 
 from app.modules.search.backend import SearchBackend
-from app.modules.search.pages.search import SearchResults
+from app.modules.search.views import SearchResults
 
 backend = SearchBackend()
 

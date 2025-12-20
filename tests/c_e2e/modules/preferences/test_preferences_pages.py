@@ -7,11 +7,13 @@
 from __future__ import annotations
 
 import pytest
-from flask import Flask, g
+from flask import Flask
 from flask.testing import FlaskClient
 from sqlalchemy.orm import Session
 
 from app.models.auth import KYCProfile, User
+from app.modules.preferences.constants import MENU
+from app.modules.preferences.pages._menu import make_menu
 from app.modules.preferences.pages.contact import PrefContactOptionsPage
 from app.modules.preferences.pages.home import PrefHomePage
 from app.modules.preferences.pages.others import (
@@ -20,7 +22,6 @@ from app.modules.preferences.pages.others import (
     PrefPasswordPage,
 )
 from app.modules.preferences.pages.profile import PrefProfilePage
-from app.modules.preferences.pages._menu import MENU, make_menu
 
 
 @pytest.fixture
@@ -242,14 +243,14 @@ class TestPreferencesMenu:
     """Test preferences menu configuration."""
 
     def test_menu_has_expected_pages(self):
-        """Test MENU contains expected page classes."""
+        """Test MENU contains expected menu entries."""
         assert len(MENU) == 8
 
         page_names = [p.name for p in MENU]
         assert "profile" in page_names
-        assert "Mot de passe" in page_names
-        assert "Adresse email" in page_names
-        assert "contact-options" in page_names
+        assert "password" in page_names
+        assert "email" in page_names
+        assert "contact_options" in page_names
 
     def test_make_menu_returns_list(self, app: Flask, db_session: Session):
         """Test make_menu returns list of menu entries."""
@@ -283,56 +284,15 @@ class TestPreferencesMenu:
     def test_make_menu_not_current(self, app: Flask, db_session: Session):
         """Test make_menu marks non-current pages correctly."""
         with app.test_request_context("/preferences/contact-options"):
-            menu = make_menu("contact-options")
+            menu = make_menu("contact_options")
 
             profile_entry = next(e for e in menu if e["name"] == "profile")
             assert profile_entry["current"] is False
 
-            contact_entry = next(e for e in menu if e["name"] == "contact-options")
+            contact_entry = next(e for e in menu if e["name"] == "contact_options")
             assert contact_entry["current"] is True
 
 
-class TestPrefContactOptionsPageContext:
-    """Test PrefContactOptionsPage context method."""
-
-    def test_context_returns_dict(
-        self, app: Flask, db_session: Session, test_user_with_profile: User
-    ):
-        """Test context returns expected dictionary."""
-        with app.test_request_context("/preferences/contact-options"):
-            g.user = test_user_with_profile
-            page = PrefContactOptionsPage()
-            ctx = page.context()
-
-            assert isinstance(ctx, dict)
-            assert "show" in ctx
-
-
-class TestPrefHomePageGet:
-    """Test PrefHomePage get method."""
-
-    def test_get_returns_redirect(self, app: Flask, db_session: Session):
-        """Test get returns redirect response."""
-        with app.test_request_context("/preferences/profile"):
-            page = PrefHomePage()
-            response = page.get()
-
-            # Should be a redirect response
-            assert response.status_code == 302
-            assert "profile" in response.location
-
-
-class TestPrefProfilePagePost:
-    """Test PrefProfilePage post method."""
-
-    def test_post_returns_redirect(
-        self, app: Flask, db_session: Session, test_user_with_profile: User
-    ):
-        """Test post returns redirect response."""
-        with app.test_request_context("/preferences/profile", method="POST"):
-            g.user = test_user_with_profile
-            page = PrefProfilePage()
-            response = page.post()
-
-            # Should be a redirect response
-            assert response.status_code == 302
+# Note: Tests for Page.context(), Page.get(), Page.post() methods
+# have been removed as these classes no longer have those methods.
+# The functionality is now in Flask views.
