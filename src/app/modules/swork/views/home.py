@@ -23,6 +23,7 @@ new_post_args = {
 
 
 @blueprint.route("/")
+@nav(menu=False)
 def swork():
     """Social"""
     from app.services.social_graph import adapt

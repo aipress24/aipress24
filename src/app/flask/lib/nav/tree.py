@@ -204,6 +204,9 @@ class NavTree:
     ) -> str | None:
         """Infer parent from URL pattern."""
         if override:
+            # If override matches section name, point to section directly
+            if override == section:
+                return section
             # If override doesn't contain a dot, prepend section
             if "." not in override:
                 return f"{section}.{override}"
@@ -280,7 +283,7 @@ class NavTree:
             for node in self._nodes.values()
             if node.parent == parent and node.in_menu and not node.is_section
         ]
-        return sorted(children, key=lambda n: (n.order, n.label))
+        return sorted(children, key=lambda n: (n.order or 99, n.label or ""))
 
     def build_breadcrumbs(
         self,

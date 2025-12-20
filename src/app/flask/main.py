@@ -192,6 +192,11 @@ def register_blueprints(app: Flask) -> None:
         if not hasattr(module, "blueprint"):
             continue
 
+        # Call register_views() if available to defer view imports
+        # This helps avoid circular imports during module loading
+        if hasattr(module, "register_views"):
+            module.register_views()
+
         logger.debug("Registering blueprint: {}", module.blueprint)
         app.register_blueprint(module.blueprint)
 

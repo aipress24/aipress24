@@ -39,5 +39,10 @@ def check_admin() -> None:
         raise Unauthorized
 
 
-# Import views to register routes (must be after blueprint is defined)
-from . import views  # noqa: F401, E402
+def register_views() -> None:
+    """Register views with the blueprint.
+
+    This function is called during app initialization to avoid
+    circular imports that occur when views are imported at module load time.
+    """
+    from . import views  # noqa: F401

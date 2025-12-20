@@ -39,5 +39,23 @@ def check_auth() -> None:
         raise Unauthorized
 
 
-# Import views to register routes
-from . import views  # noqa: E402, F401
+@blueprint.context_processor
+def inject_preferences_menu() -> dict:
+    """Inject preferences menu into template context."""
+    from flask import request
+
+    from app.modules.preferences.pages._menu import make_menu
+
+    # Get current page name from endpoint
+    endpoint = request.endpoint or ""
+    name = endpoint.split(".")[-1] if "." in endpoint else endpoint
+    return {"menus": {"secondary": make_menu(name)}}
+
+
+def register_views() -> None:
+    """Register views with the blueprint.
+
+    This function is called during app initialization to avoid
+    circular imports that occur when views are imported at module load time.
+    """
+    from . import views  # noqa: F401

@@ -13,7 +13,7 @@ from app.modules.swork import blueprint
 
 
 @blueprint.route("/organisations/")
-@nav(parent="swork")
+@nav(parent="swork", icon="building-office")
 def organisations():
     """Organisations"""
     ctx = {
