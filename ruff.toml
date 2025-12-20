@@ -59,6 +59,7 @@ lint.ignore = [
     "A002", #    builtin-argument-shadowing
     "A001", #    builtin-variable-shadowing
     "A004", #    builtin-import-shadowing
+    "N806", # Variable names starting with a capital
     #
     # Security issues that are not relevant (a priori)
     #

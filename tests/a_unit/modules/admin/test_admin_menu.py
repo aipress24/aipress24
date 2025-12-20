@@ -135,7 +135,7 @@ class TestMenuConfiguration:
 
     def test_promo_slug_labels_structure(self):
         """Test PROMO_SLUG_LABEL from promotions.py has correct structure."""
-        from app.modules.admin.pages.promotions import PROMO_SLUG_LABEL
+        from app.modules.admin.views._promotions import PROMO_SLUG_LABEL
 
         for item in PROMO_SLUG_LABEL:
             assert "value" in item
@@ -144,8 +144,8 @@ class TestMenuConfiguration:
             assert isinstance(item["label"], str)
 
     def test_widgets_configuration_structure(self):
-        """Test WIDGETS from dashboard.py has correct structure."""
-        from app.modules.admin.pages.dashboard import WIDGETS
+        """Test WIDGETS from _dashboard.py has correct structure."""
+        from app.modules.admin.views._dashboard import WIDGETS
 
         required_keys = {"metric", "duration", "label", "color"}
         for widget in WIDGETS:

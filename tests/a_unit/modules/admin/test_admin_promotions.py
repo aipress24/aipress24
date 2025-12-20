@@ -8,11 +8,10 @@ from __future__ import annotations
 
 import pytest
 
-from app.modules.admin.pages.promotions import (
+from app.modules.admin.views._promotions import (
     BOX_TITLE1,
     BOX_TITLE2,
     PROMO_SLUG_LABEL,
-    AdminPromotionsPage,
 )
 
 
@@ -97,18 +96,3 @@ class TestPromotionTitleLogic:
         assert self._get_title_for_slug("test/3") == BOX_TITLE2
         assert self._get_title_for_slug("test/0") == BOX_TITLE2
         assert self._get_title_for_slug("test/x") == BOX_TITLE2
-
-
-class TestAdminPromotionsPage:
-    """Test AdminPromotionsPage class attributes."""
-
-    def test_page_attributes(self):
-        """Test AdminPromotionsPage has correct attributes."""
-        assert AdminPromotionsPage.name == "promotions"
-        assert AdminPromotionsPage.label == "Promotions"
-        assert AdminPromotionsPage.title == "Promotions"
-        assert AdminPromotionsPage.icon == "megaphone"
-
-    def test_page_template(self):
-        """Test AdminPromotionsPage uses correct template."""
-        assert AdminPromotionsPage.template == "admin/pages/promotions.j2"

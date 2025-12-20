@@ -7,7 +7,7 @@
 from __future__ import annotations
 
 
-from app.modules.admin.pages.dashboard import WIDGETS, AdminDashboardPage, Widget
+from app.modules.admin.views._dashboard import WIDGETS, Widget
 
 
 class TestWidgetClass:
@@ -81,19 +81,3 @@ class TestWidgetsConfiguration:
             "count_contents",
         }
         assert metrics == expected_metrics
-
-
-class TestAdminDashboardPage:
-    """Test AdminDashboardPage class attributes."""
-
-    def test_page_attributes(self):
-        """Test AdminDashboardPage has correct attributes."""
-        assert AdminDashboardPage.name == "dashboard"
-        assert AdminDashboardPage.label == "Tableau de bord"
-        assert AdminDashboardPage.title == "Tableau de bord"
-        assert AdminDashboardPage.icon == "house"
-        assert AdminDashboardPage.path == "/"
-
-    def test_template_path(self):
-        """Test AdminDashboardPage uses correct template."""
-        assert AdminDashboardPage.template == "admin/pages/dashboard.j2"

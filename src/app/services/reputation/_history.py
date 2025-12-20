@@ -32,7 +32,7 @@ def update_reputations(show_progress: bool = False, add_noise: bool = False) -> 
 
 
 def get_reputation_history(user: User) -> list[ReputationRecord]:
-    R = ReputationRecord  # noqa: N806
+    R = ReputationRecord
     stmt = select(R).where(R.user_id == user.id).order_by(R.date)
     return list(db.session.scalars(stmt))
 
@@ -55,7 +55,7 @@ def _update_for_user(user: User, today: date, add_noise: bool = False) -> None:
         karma += _noise()
 
     # Delete today's value if it exists
-    R = ReputationRecord  # noqa: N806
+    R = ReputationRecord
     stmt = select(R).where(R.user_id == user.id, R.date == today)
     record = db.session.scalar(stmt)
 

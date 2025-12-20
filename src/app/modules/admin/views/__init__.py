@@ -8,6 +8,7 @@ from __future__ import annotations
 
 # Import all view modules to register routes
 from . import (
+    _export,
     contents,
     db_export,
     exports,
@@ -23,6 +24,7 @@ from . import (
 )
 
 __all__ = [
+    "_export",
     "contents",
     "db_export",
     "exports",

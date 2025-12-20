@@ -17,7 +17,7 @@ from app.enums import OrganisationTypeEnum, RoleEnum
 from app.flask.routing import url_for
 from app.models.auth import KYCProfile, Role, User
 from app.models.organisation import Organisation
-from app.modules.admin.pages.export import (
+from app.modules.admin.views._export import (
     BaseExporter,
     InscriptionsExporter,
     ModificationsExporter,

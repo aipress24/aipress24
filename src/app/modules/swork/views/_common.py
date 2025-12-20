@@ -17,13 +17,14 @@ from app.flask.lib.view_model import ViewModel
 from app.models.auth import User
 from app.models.lifecycle import PublicationStatus
 from app.modules.swork.models import Group, group_members_table
-from app.modules.wire.models import ArticlePost
 
-# Lazy import to avoid circular import
+# Lazy imports to avoid circular import
 # from app.services.social_graph import adapt
+# from app.modules.wire.models import ArticlePost
 
 if TYPE_CHECKING:
     from app.modules.swork.masked_fields import MaskFields
+    from app.modules.wire.models import ArticlePost
 
 
 # Member page tabs
@@ -132,6 +133,8 @@ class UserVM(ViewModel):
         return UserVM.from_many(followees)
 
     def get_posts(self) -> list[PostVM]:
+        from app.modules.wire.models import ArticlePost
+
         posts = (
             db.session.query(ArticlePost)
             .filter(ArticlePost.owner_id == self.user.id)

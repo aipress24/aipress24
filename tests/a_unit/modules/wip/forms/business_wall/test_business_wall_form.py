@@ -18,7 +18,7 @@ from flask_wtf import FlaskForm
 from app.enums import BWTypeEnum, ProfileEnum
 from app.models.auth import KYCProfile, User
 from app.models.organisation import Organisation
-from app.modules.wip.pages.business_wall.business_wall_form import (
+from app.modules.wip.forms.business_wall.business_wall_form import (
     BWFormGenerator,
     bool_field,
     country_code_field,

@@ -9,7 +9,6 @@ from __future__ import annotations
 from sqlalchemy import Select
 
 from app.models.auth import User
-from app.modules.admin.pages.new_users import AdminNewUsersPage
 from app.modules.admin.views._new_users import (
     NewUserDataSource,
     NewUsersTable,
@@ -142,51 +141,3 @@ class TestNewUserDataSource:
         # The URL building will be tested in integration tests
         assert hasattr(ds, "make_records")
         assert callable(ds.make_records)
-
-
-class TestAdminNewUsersPage:
-    """Test suite for AdminNewUsersPage - testing pure attributes and simple methods."""
-
-    def test_page_attributes(self):
-        """Test AdminNewUsersPage class attributes."""
-        # These are class attributes that don't require instantiation
-        assert AdminNewUsersPage.name == "new_users"
-        assert AdminNewUsersPage.label == "Inscriptions"
-        assert AdminNewUsersPage.title == "Nouveaux utilisateurs à valider"
-        assert AdminNewUsersPage.icon == "users"
-        assert AdminNewUsersPage.template == "admin/pages/generic_table.j2"
-
-    def test_page_instantiation(self, db_session):
-        """Test that AdminNewUsersPage can be instantiated."""
-        # This tests that the page can be created without errors
-        page = AdminNewUsersPage()
-        assert page is not None
-        assert hasattr(page, "context")
-        assert hasattr(page, "hx_post")
-
-    def test_context_method_structure(self, db_session):
-        """Test that context method returns expected structure."""
-        page = AdminNewUsersPage()
-        context = page.context()
-
-        # Verify context has expected keys
-        assert "table" in context
-        assert isinstance(context["table"], NewUsersTable)
-
-    def test_ds_class_and_table_class(self):
-        """Test page uses correct data source and table classes."""
-        assert AdminNewUsersPage.ds_class == NewUserDataSource
-        assert AdminNewUsersPage.table_class == NewUsersTable
-
-    def test_context_table_has_pagination_info(self, db_session):
-        """Test context table has pagination information."""
-        page = AdminNewUsersPage()
-        context = page.context()
-        table = context["table"]
-
-        # Verify table has pagination info
-        assert hasattr(table, "start")
-        assert hasattr(table, "end")
-        assert hasattr(table, "count")
-        assert hasattr(table, "searching")
-        assert table.start >= 1

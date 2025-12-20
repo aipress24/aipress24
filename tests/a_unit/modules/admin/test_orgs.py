@@ -7,7 +7,6 @@
 from __future__ import annotations
 
 from app.models.organisation import Organisation
-from app.modules.admin.pages.orgs import AdminOrgsPage
 from app.modules.admin.views._orgs import (
     OrgDataSource,
     OrgsTable,
@@ -62,24 +61,3 @@ class TestOrgDataSource:
 
         # Should count the organizations
         assert count >= 2  # At least our 2 test orgs
-
-
-class TestAdminOrgsPage:
-    """Test suite for AdminOrgsPage - testing pure attributes."""
-
-    def test_page_attributes(self):
-        """Test AdminOrgsPage class attributes."""
-        # These are class attributes that don't require instantiation
-        assert AdminOrgsPage.name == "orgs"
-        assert AdminOrgsPage.label == "Organisations"
-        assert AdminOrgsPage.title == "Organisations"
-        assert AdminOrgsPage.icon == "building"
-        assert AdminOrgsPage.template == "admin/pages/generic_table.j2"
-
-    def test_page_instantiation(self, db_session):
-        """Test that AdminOrgsPage can be instantiated."""
-        # This tests that the page can be created without errors
-        page = AdminOrgsPage()
-        assert page is not None
-        assert hasattr(page, "context")
-        assert hasattr(page, "hx_post")

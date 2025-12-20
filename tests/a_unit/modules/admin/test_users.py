@@ -11,7 +11,6 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
 from app.models.auth import User
-from app.modules.admin.pages.users import AdminUsersPage
 from app.modules.admin.views._users import (
     TABLE_COLUMNS,
     UserDataSource,
@@ -157,38 +156,6 @@ class TestUserDataSource:
 
             assert isinstance(stmt, Select)
             assert str(stmt).upper().startswith("SELECT")
-
-
-class TestAdminUsersPage:
-    """Test AdminUsersPage class attributes."""
-
-    def test_page_attributes(self):
-        """Test AdminUsersPage has correct attributes."""
-        assert AdminUsersPage.name == "users"
-        assert AdminUsersPage.label == "Utilisateurs"
-        assert AdminUsersPage.title == "Utilisateurs"
-        assert AdminUsersPage.icon == "users"
-
-    def test_page_template(self):
-        """Test AdminUsersPage uses correct template."""
-        assert AdminUsersPage.template == "admin/pages/generic_table.j2"
-
-    def test_page_ds_class(self):
-        """Test AdminUsersPage uses correct data source."""
-        assert AdminUsersPage.ds_class == UserDataSource
-
-    def test_page_table_class(self):
-        """Test AdminUsersPage uses correct table class."""
-        assert AdminUsersPage.table_class == UsersTable
-
-    def test_context_method_structure(self, app: Flask, db: SQLAlchemy) -> None:
-        """Test that context method returns expected structure."""
-        with app.test_request_context("/"):
-            page = AdminUsersPage()
-            context = page.context()
-
-            assert "table" in context
-            assert isinstance(context["table"], UsersTable)
 
 
 class TestTableColumnsConfiguration:

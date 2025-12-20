@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
-"""Integration tests for swork module pages."""
+"""Integration tests for swork module views."""
 
 from __future__ import annotations
 
@@ -15,12 +15,7 @@ from sqlalchemy.orm import Session
 
 from app.models.auth import KYCProfile, User
 from app.modules.swork.models import Group
-from app.modules.swork.pages.groups import GroupsPage
-from app.modules.swork.pages.home import SworkHomePage
-from app.modules.swork.pages.member import MemberPage
-from app.modules.swork.pages.members import MembersPage
-from app.modules.swork.pages.organisations import OrgsPage
-from app.modules.swork.pages.viewmodels import UserVM
+from app.modules.swork.views._common import MEMBER_TABS, UserVM
 
 if TYPE_CHECKING:
     pass
@@ -95,116 +90,7 @@ def sample_group(db_session: Session, test_user_with_profile: User) -> Group:
     return group
 
 
-class TestSworkHomePageAttributes:
-    """Test SworkHomePage class attributes."""
-
-    def test_page_name(self):
-        """Test SworkHomePage has correct name."""
-        assert SworkHomePage.name == "swork"
-
-    def test_page_label(self):
-        """Test SworkHomePage has correct label."""
-        assert SworkHomePage.label == "Social"
-
-    def test_page_path(self):
-        """Test SworkHomePage has correct path."""
-        assert SworkHomePage.path == "/"
-
-    def test_page_template(self):
-        """Test SworkHomePage has correct template."""
-        assert SworkHomePage.template == "pages/swork.j2"
-
-
-class TestMembersPageAttributes:
-    """Test MembersPage class attributes."""
-
-    def test_page_name(self):
-        """Test MembersPage has correct name."""
-        assert MembersPage.name == "members"
-
-    def test_page_label(self):
-        """Test MembersPage has correct label."""
-        assert MembersPage.label == "Membres"
-
-    def test_page_path(self):
-        """Test MembersPage has correct path."""
-        assert MembersPage.path == "/members/"
-
-    def test_page_template(self):
-        """Test MembersPage has correct template."""
-        assert MembersPage.template == "pages/members.j2"
-
-    def test_page_parent(self):
-        """Test MembersPage has correct parent."""
-        assert MembersPage.parent == SworkHomePage
-
-
-class TestGroupsPageAttributes:
-    """Test GroupsPage class attributes."""
-
-    def test_page_name(self):
-        """Test GroupsPage has correct name."""
-        assert GroupsPage.name == "groups"
-
-    def test_page_label(self):
-        """Test GroupsPage has correct label."""
-        assert GroupsPage.label == "Groupes"
-
-    def test_page_path(self):
-        """Test GroupsPage has correct path."""
-        assert GroupsPage.path == "/groups/"
-
-    def test_page_template(self):
-        """Test GroupsPage has correct template."""
-        assert GroupsPage.template == "pages/groups.j2"
-
-    def test_page_parent(self):
-        """Test GroupsPage has correct parent."""
-        assert GroupsPage.parent == SworkHomePage
-
-
-class TestOrgsPageAttributes:
-    """Test OrgsPage class attributes."""
-
-    def test_page_name(self):
-        """Test OrgsPage has correct name."""
-        assert OrgsPage.name == "organisations"
-
-    def test_page_label(self):
-        """Test OrgsPage has correct label."""
-        assert OrgsPage.label == "Organisations"
-
-    def test_page_path(self):
-        """Test OrgsPage has correct path."""
-        assert OrgsPage.path == "/organisations/"
-
-    def test_page_template(self):
-        """Test OrgsPage has correct template."""
-        assert OrgsPage.template == "pages/orgs.j2"
-
-    def test_page_parent(self):
-        """Test OrgsPage has correct parent."""
-        assert OrgsPage.parent == SworkHomePage
-
-
-class TestMemberPageAttributes:
-    """Test MemberPage class attributes."""
-
-    def test_page_name(self):
-        """Test MemberPage has correct name."""
-        assert MemberPage.name == "member"
-
-    def test_page_path(self):
-        """Test MemberPage has correct path."""
-        assert MemberPage.path == "/members/<id>"
-
-    def test_page_template(self):
-        """Test MemberPage has correct template."""
-        assert MemberPage.template == "pages/member.j2"
-
-    def test_page_parent(self):
-        """Test MemberPage has correct parent."""
-        assert MemberPage.parent == MembersPage
+# Note: Page class attribute tests removed - views have been migrated to Flask views.
 
 
 class TestSworkEndpoints:
@@ -255,7 +141,7 @@ class TestSworkEndpoints:
 
 
 class TestMemberPageEndpoint:
-    """Test MemberPage HTTP endpoint."""
+    """Test member page HTTP endpoint."""
 
     def test_member_page_accessible(
         self,
@@ -276,54 +162,6 @@ class TestMemberPageEndpoint:
         response = authenticated_client.get("/swork/members/999999")
         # Should get 404 or possibly 302
         assert response.status_code in {404, 302}
-
-
-class TestBaseSworkPage:
-    """Test BaseSworkPage class."""
-
-    def test_menus_returns_secondary_menu(
-        self, app: Flask, db_session: Session, test_user_with_profile: User
-    ):
-        """Test menus returns dict with secondary menu."""
-        with app.test_request_context():
-            g.user = test_user_with_profile
-            page = SworkHomePage()
-            menus = page.menus()
-
-            assert isinstance(menus, dict)
-            assert "secondary" in menus
-
-
-class TestSworkHomePageContext:
-    """Test SworkHomePage.context method."""
-
-    def test_context_returns_dict(
-        self, app: Flask, db_session: Session, test_user_with_profile: User
-    ):
-        """Test context returns expected dictionary."""
-        with app.test_request_context("/swork/"):
-            g.user = test_user_with_profile
-            page = SworkHomePage()
-            ctx = page.context()
-
-            assert isinstance(ctx, dict)
-            assert "posts" in ctx
-            assert isinstance(ctx["posts"], list)
-
-
-class TestSworkHomePageTopNews:
-    """Test SworkHomePage.top_news method."""
-
-    def test_top_news_returns_list(
-        self, app: Flask, db_session: Session, test_user_with_profile: User
-    ):
-        """Test top_news returns list of posts."""
-        with app.test_request_context("/swork/"):
-            g.user = test_user_with_profile
-            page = SworkHomePage()
-            news = page.top_news()
-
-            assert isinstance(news, list)
 
 
 class TestUserVM:
@@ -419,52 +257,15 @@ class TestUserVM:
             assert isinstance(groups, list)
 
 
-class TestMemberPageInit:
-    """Test MemberPage initialization."""
-
-    def test_member_page_init(
-        self,
-        app: Flask,
-        db_session: Session,
-        test_user_with_profile: User,
-        other_user_with_profile: User,
-    ):
-        """Test MemberPage initializes correctly."""
-        with app.test_request_context():
-            g.user = test_user_with_profile
-            page = MemberPage(id=str(other_user_with_profile.id))
-
-            assert page.user == other_user_with_profile
-            assert page.args == {"id": str(other_user_with_profile.id)}
-
-    def test_member_page_label(
-        self,
-        app: Flask,
-        db_session: Session,
-        test_user_with_profile: User,
-        other_user_with_profile: User,
-    ):
-        """Test MemberPage label property."""
-        with app.test_request_context():
-            g.user = test_user_with_profile
-            page = MemberPage(id=str(other_user_with_profile.id))
-
-            label = page.label
-            assert "Person" in label
-            assert "Other" in label
-
-
-class TestMemberPageTabs:
-    """Test MemberPage tabs configuration."""
+class TestMemberTabs:
+    """Test member tabs configuration."""
 
     def test_tabs_structure(self):
-        """Test TABS constant has correct structure."""
-        from app.modules.swork.pages.member import TABS
+        """Test MEMBER_TABS constant has correct structure."""
+        assert isinstance(MEMBER_TABS, list)
+        assert len(MEMBER_TABS) == 6
 
-        assert isinstance(TABS, list)
-        assert len(TABS) == 6
-
-        tab_ids = [t["id"] for t in TABS]
+        tab_ids = [t["id"] for t in MEMBER_TABS]
         assert "profile" in tab_ids
         assert "publications" in tab_ids
         assert "activities" in tab_ids
@@ -474,9 +275,7 @@ class TestMemberPageTabs:
 
     def test_tabs_have_labels(self):
         """Test all tabs have labels."""
-        from app.modules.swork.pages.member import TABS
-
-        for tab in TABS:
+        for tab in MEMBER_TABS:
             assert "id" in tab
             assert "label" in tab
             assert isinstance(tab["label"], str)

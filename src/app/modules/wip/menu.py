@@ -4,15 +4,12 @@
 
 from __future__ import annotations
 
-import importlib
-
 from attr import define
 from flask import g
 from werkzeug.routing import BuildError
 
-from app.flask.lib.pages import Page
 from app.flask.routing import url_for
-from app.modules.wip.constants import BLUEPRINT_NAME, MENU
+from app.modules.wip.constants import MENU, MenuEntry
 from app.services.roles import has_role
 
 __all__ = ["make_menu"]
@@ -31,76 +28,46 @@ class MenuItem:
 
 
 def make_menu(current_name: str):
+    """Build the WIP secondary menu based on user roles."""
     menu = []
 
-    for key in MENU:
-        cls = _get_class(key)
-
-        if not is_user_allowed(cls):
+    for entry in MENU:
+        if not is_user_allowed(entry):
             continue
 
-        entry = _make_entry(cls, current_name)
-
-        menu.append(entry)
+        item = _make_entry(entry, current_name)
+        menu.append(item)
 
     return menu
 
 
-def is_user_allowed(page_cls: type[Page]) -> bool:
+def is_user_allowed(entry: MenuEntry) -> bool:
+    """Check if the current user is allowed to see this menu entry."""
     user = g.user
 
-    # Check if user is authenticated
     if not user.is_authenticated:
         return False
 
-    # Old style ACL
-    if hasattr(page_cls, "allowed_roles"):
-        roles = page_cls.allowed_roles
-        return has_role(user, roles)
-
-    # New style ACL (WIP)
-    page = page_cls()
-    acl = page.__acl__()
-    if not acl:
+    # If no role restrictions, allow all authenticated users
+    if not entry.allowed_roles:
         return True
 
-    for line in acl:
-        directive, role, _action = line
-        directive = directive.lower()
-        match directive:
-            case "deny":
-                return False
-            case "allow":
-                if has_role(user, role):
-                    return True
-            case _:
-                msg = f"Invalid directive {directive} in ACL for {page_cls}"
-                raise ValueError(msg)
-
-    # False by default?
-    return False
+    # Check if user has any of the allowed roles
+    return has_role(user, entry.allowed_roles)
 
 
-def _get_class(key: str) -> type[Page]:
-    module_name, class_name = key.split(":")[1].rsplit(".", 1)
-    module = importlib.import_module(module_name)
-    cls = getattr(module, class_name)
-    return cls
-
-
-def _make_entry(page_cls: type[Page], name: str) -> MenuItem:
-    url = getattr(page_cls, "path", "")
-    if not url.startswith("/"):
-        page_name = page_cls.name
-        try:
-            url = url_for(f"{BLUEPRINT_NAME}.{page_name}")
-        except BuildError:
-            url = url_for(f"{BLUEPRINT_NAME}.{page_name}__list")
+def _make_entry(entry: MenuEntry, current_name: str) -> MenuItem:
+    """Create a MenuItem from a MenuEntry."""
+    try:
+        url = url_for(entry.endpoint)
+    except BuildError:
+        # Fallback for list views
+        url = url_for(f"{entry.endpoint}__list")
 
     return MenuItem(
-        name=page_cls.name,
-        label=page_cls.label,
-        icon=page_cls.icon,
+        name=entry.name,
+        label=entry.label,
+        icon=entry.icon,
         href=url,
-        current=name == page_cls.name,
+        current=current_name == entry.name,
     )

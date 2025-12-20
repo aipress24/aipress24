@@ -7,7 +7,7 @@
 from __future__ import annotations
 
 import abc
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 from attr import define
 from flask import Response, current_app, g, make_response, render_template, request
@@ -28,7 +28,19 @@ from app.modules.kyc.field_label import (
     country_zip_code_to_city,
 )
 from app.modules.swork import blueprint
-from app.modules.wire.models import ArticlePost, PressReleasePost
+
+# Lazy import to avoid circular import
+# from app.modules.wire.models import ArticlePost, PressReleasePost
+
+if TYPE_CHECKING:
+    pass
+
+
+def _get_wire_models():
+    """Lazy import of wire models to avoid circular import."""
+    from app.modules.wire.models import ArticlePost, PressReleasePost
+
+    return ArticlePost, PressReleasePost
 
 
 @blueprint.route("/organisations/<id>")
@@ -146,6 +158,7 @@ class OrgPublicationsTab(Tab):
 
     @property
     def label(self) -> str:
+        ArticlePost, _ = _get_wire_models()
         stmt = (
             select(func.count())
             .select_from(ArticlePost)
@@ -178,6 +191,7 @@ class OrgPressReleasesTab(Tab):
 
     @property
     def label(self) -> str:
+        _, PressReleasePost = _get_wire_models()
         stmt = (
             select(func.count())
             .select_from(PressReleasePost)
@@ -279,6 +293,7 @@ class OrgVM(ViewModel):
         return f"{base_url}/{self.org.screenshot_id}"
 
     def get_press_releases(self) -> list:
+        _, PressReleasePost = _get_wire_models()
         stmt = (
             select(PressReleasePost)
             .where(PressReleasePost.publisher_id == self.org.id)
@@ -288,6 +303,7 @@ class OrgVM(ViewModel):
         return list(press_releases)
 
     def get_publications(self) -> list:
+        ArticlePost, _ = _get_wire_models()
         stmt = (
             select(ArticlePost)
             .where(ArticlePost.publisher_id == self.org.id)

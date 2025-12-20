@@ -2,6 +2,8 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
+"""Dashboard helpers for admin views."""
+
 from __future__ import annotations
 
 import arrow
@@ -11,8 +13,6 @@ from sqlalchemy import select
 from app.constants import LOCAL_TZ
 from app.flask.extensions import db
 from app.services.stats._models import StatsRecord
-
-from .base import BaseAdminPage
 
 WIDGETS = [
     {
@@ -52,29 +52,6 @@ WIDGETS = [
         "color": "steelblue",
     },
 ]
-
-
-# Note: Route now handled by views_pages.py
-class AdminDashboardPage(BaseAdminPage):
-    name = "dashboard"
-    label = "Tableau de bord"
-    title = "Tableau de bord"
-
-    path = "/"
-    template = "admin/pages/dashboard.j2"
-    icon = "house"
-
-    def context(self):
-        data: dict[str, object] = {}
-        widgets: list[Widget] = []
-        for widget_args in WIDGETS:
-            widget = Widget(**widget_args)
-            widgets.append(widget)
-
-        return {
-            "page_data": data,
-            "widgets": widgets,
-        }
 
 
 @define

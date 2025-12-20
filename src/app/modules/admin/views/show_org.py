@@ -41,7 +41,7 @@ from app.modules.admin.utils import (
     toggle_org_active,
 )
 from app.modules.kyc.renderer import render_field
-from app.modules.wip.pages.business_wall.business_wall_form import (
+from app.modules.wip.forms.business_wall import (
     BWFormGenerator,
     merge_org_results,
 )

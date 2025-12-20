@@ -4,17 +4,74 @@
 
 from __future__ import annotations
 
+from typing import NamedTuple
+
+
+class MenuEntry(NamedTuple):
+    """Menu entry configuration."""
+
+    name: str
+    label: str
+    icon: str
+    endpoint: str
+    allowed_roles: list[str] | None = None
+
+
+# Menu entries for the WIP module
+# Format: (name, label, icon, endpoint, allowed_roles)
 MENU = [
-    "page:app.modules.wip.pages.dashboard.DashboardPage",
-    # "cbv:app.modules.wip.crud.cbvs.articles.ArticlesWipView",
-    "page:app.modules.wip.pages.newsroom.index.NewsroomPage",
-    "page:app.modules.wip.pages.comroom.index.ComRoomPage",
-    "page:app.modules.wip.pages.eventroom.index.EventRoomPage",
-    # "page:app.modules.wip.pages.mail.MailPage",
-    "page:app.modules.wip.pages.opportunities.OpportunitiesPage",
-    "page:app.modules.wip.pages.business_wall.BusinessWallPage",
-    # "page:app.modules.wip.pages.delegate.DelegatePage",
-    "page:app.modules.wip.pages.billing.BillingPage",
-    "page:app.modules.wip.pages.performance.PerformancePage",
+    MenuEntry(
+        name="dashboard",
+        label="Work",
+        icon="chart-pie",
+        endpoint="wip.dashboard",
+        allowed_roles=["PRESS_MEDIA", "ACADEMIC"],
+    ),
+    MenuEntry(
+        name="newsroom",
+        label="Newsroom",
+        icon="newspaper",
+        endpoint="wip.newsroom",
+        allowed_roles=["PRESS_MEDIA", "ACADEMIC"],
+    ),
+    MenuEntry(
+        name="comroom",
+        label="Comroom",
+        icon="megaphone",
+        endpoint="wip.comroom",
+        allowed_roles=["PR_COM"],
+    ),
+    MenuEntry(
+        name="eventroom",
+        label="Eventroom",
+        icon="calendar-days",
+        endpoint="wip.eventroom",
+        allowed_roles=["PRESS_MEDIA", "ACADEMIC", "PR_COM", "EXPERTS", "TRANSFORMER"],
+    ),
+    MenuEntry(
+        name="opportunities",
+        label="Opportunités",
+        icon="bolt",
+        endpoint="wip.opportunities",
+    ),
+    MenuEntry(
+        name="org-profile",
+        label="Business Wall",
+        icon="building-library",
+        endpoint="wip.org-profile",
+    ),
+    MenuEntry(
+        name="billing",
+        label="Achats & Facturation",
+        icon="credit-card",
+        endpoint="wip.billing",
+    ),
+    MenuEntry(
+        name="performance",
+        label="Performance",
+        icon="chart-bar",
+        endpoint="wip.performance",
+    ),
 ]
+
 BLUEPRINT_NAME = "wip"

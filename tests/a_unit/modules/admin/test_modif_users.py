@@ -8,7 +8,6 @@ from __future__ import annotations
 
 
 from app.models.auth import User
-from app.modules.admin.pages.modif_users import AdminModifUsersPage
 from app.modules.admin.views._modif_users import (
     ModifUserDataSource,
     ModifUsersTable,
@@ -133,38 +132,3 @@ class TestModifUserDataSource:
         # The URL building will be tested in integration tests
         assert hasattr(ds, "make_records")
         assert callable(ds.make_records)
-
-
-class TestAdminModifUsersPage:
-    """Test suite for AdminModifUsersPage - testing pure attributes."""
-
-    def test_page_attributes(self):
-        """Test AdminModifUsersPage class attributes."""
-        # These are class attributes that don't require instantiation
-        assert AdminModifUsersPage.name == "modif_users"
-        assert AdminModifUsersPage.label == "Modifications"
-        assert AdminModifUsersPage.title == "Modifications de profils à valider"
-        assert AdminModifUsersPage.icon == "users"
-        assert AdminModifUsersPage.template == "admin/pages/generic_table.j2"
-
-    def test_page_instantiation(self, db_session):
-        """Test that AdminModifUsersPage can be instantiated."""
-        # This tests that the page can be created without errors
-        page = AdminModifUsersPage()
-        assert page is not None
-        assert hasattr(page, "context")
-        assert hasattr(page, "hx_post")
-
-    def test_context_method_structure(self, db_session):
-        """Test that context method returns expected structure."""
-        page = AdminModifUsersPage()
-        context = page.context()
-
-        # Verify context has expected keys
-        assert "table" in context
-        assert isinstance(context["table"], ModifUsersTable)
-
-    def test_ds_class_and_table_class(self):
-        """Test page uses correct data source and table classes."""
-        assert AdminModifUsersPage.ds_class == ModifUserDataSource
-        assert AdminModifUsersPage.table_class == ModifUsersTable

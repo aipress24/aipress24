@@ -1,7 +1,8 @@
-"""Specialized form fields for Business Wall form."""
 # Copyright (c) 2021-2024, Abilian SAS & TCA
 #
-# SPDX-License-Identifier: AGPL-3.0-onlyfrom __future__ import annotations
+# SPDX-License-Identifier: AGPL-3.0-only
+
+"""Specialized form fields for Business Wall form."""
 
 from __future__ import annotations
 
