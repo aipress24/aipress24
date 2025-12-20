@@ -10,10 +10,11 @@ from flask_super.decorators import service
 from app.flask.extensions import db
 from app.flask.routing import url_for
 from app.models.auth import User
-from app.models.organisation import Organisation
-from app.modules.swork.models import Group
 
 from ._models import Activity, ActivityType
+
+# Known activity object types (avoid importing models to prevent circular imports)
+_KNOWN_TYPES = {"Group", "Organisation", "User"}
 
 
 @service
@@ -91,19 +92,15 @@ def get_timeline(*, actor=None, object=None, limit=10) -> list[tuple[Activity, s
 
 
 def _get_type(obj) -> str:
-    match obj:
-        case Group():
-            return "Group"
+    """Get the activity type name for an object.
 
-        case Organisation():
-            return "Organisation"
-
-        case User():
-            return "User"
-
-        case _:
-            msg = f"Uknown object type: {type(obj)}"
-            raise TypeError(msg)
+    Uses class name to avoid importing models and causing circular imports.
+    """
+    type_name = type(obj).__name__
+    if type_name in _KNOWN_TYPES:
+        return type_name
+    msg = f"Unknown object type: {type_name}"
+    raise TypeError(msg)
 
 
 def _get_msg(activity: Activity) -> str:

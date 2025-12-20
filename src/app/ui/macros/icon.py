@@ -22,12 +22,20 @@ from app.flask.util import get_home_path
 
 @macro
 def icon(name: str, type="solid", _class: str = "", **kw):
+    if not name:
+        # Return empty string for missing icon names
+        return Markup("")
+
     if "/" in name:
         type, name = name.split("/")[0:2]
     if "@" in name:
         name, type = name.split("@")[0:2]
 
     path = get_home_path() / "icons" / "svg" / type / f"{name}.svg"
+    if not path.exists():
+        # Return a placeholder for missing icon files
+        return Markup(f"<!-- icon not found: {type}/{name} -->")
+
     body = path.read_text()
 
     # if type == "lucide":

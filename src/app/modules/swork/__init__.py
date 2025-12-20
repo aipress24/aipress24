@@ -38,5 +38,20 @@ def check_auth() -> None:
         raise Unauthorized
 
 
-# Import views to register routes
-from . import views  # noqa: E402, F401
+@blueprint.context_processor
+def inject_swork_menu() -> dict:
+    """Inject swork menu into template context."""
+    from app.modules.swork.settings import SWORK_MENU
+    from app.services.menus import make_menu
+
+    menu = make_menu(SWORK_MENU)
+    return {"nav_secondary_menu": menu}
+
+
+def register_views() -> None:
+    """Register views with the blueprint.
+
+    This function is called during app initialization to avoid
+    circular imports that occur when views are imported at module load time.
+    """
+    from . import views  # noqa: F401

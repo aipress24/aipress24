@@ -22,36 +22,35 @@ class MenuEntry(NamedTuple):
 MENU = [
     MenuEntry(
         name="dashboard",
-        label="Work",
-        icon="chart-pie",
+        label="Tableau de bord",
+        icon="chart-bar",
         endpoint="wip.dashboard",
         allowed_roles=["PRESS_MEDIA", "ACADEMIC"],
     ),
     MenuEntry(
         name="newsroom",
         label="Newsroom",
-        icon="newspaper",
+        icon="rocket-launch",
         endpoint="wip.newsroom",
-        allowed_roles=["PRESS_MEDIA", "ACADEMIC"],
+        allowed_roles=["PRESS_MEDIA"],
     ),
     MenuEntry(
         name="comroom",
-        label="Comroom",
+        label="Com'room",
         icon="megaphone",
         endpoint="wip.comroom",
-        allowed_roles=["PR_COM"],
+        allowed_roles=["PRESS_RELATIONS"],
     ),
     MenuEntry(
         name="eventroom",
-        label="Eventroom",
-        icon="calendar-days",
+        label="Event'room",
+        icon="calendar",
         endpoint="wip.eventroom",
-        allowed_roles=["PRESS_MEDIA", "ACADEMIC", "PR_COM", "EXPERTS", "TRANSFORMER"],
     ),
     MenuEntry(
         name="opportunities",
         label="Opportunités",
-        icon="bolt",
+        icon="cake",
         endpoint="wip.opportunities",
     ),
     MenuEntry(
@@ -62,14 +61,14 @@ MENU = [
     ),
     MenuEntry(
         name="billing",
-        label="Achats & Facturation",
+        label="Facturation",
         icon="credit-card",
         endpoint="wip.billing",
     ),
     MenuEntry(
         name="performance",
         label="Performance",
-        icon="chart-bar",
+        icon="star",
         endpoint="wip.performance",
     ),
 ]

@@ -13,7 +13,7 @@ from app.modules.swork import blueprint
 
 
 @blueprint.route("/members/")
-@nav(parent="swork")
+@nav(parent="swork", icon="users")
 def members():
     """Membres"""
     ctx = {

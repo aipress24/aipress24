@@ -13,7 +13,7 @@ from app.modules.swork import blueprint
 
 
 @blueprint.route("/groups/")
-@nav(parent="swork")
+@nav(parent="swork", icon="user-group")
 def groups():
     """Groupes"""
     ctx = {
