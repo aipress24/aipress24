@@ -11,6 +11,7 @@ from sqlalchemy import select
 from werkzeug.exceptions import NotFound, Unauthorized
 
 from app.flask.extensions import db
+from app.flask.lib.nav import nav
 from app.flask.routing import url_for
 from app.models.auth import User
 from app.modules.wip import blueprint
@@ -40,6 +41,7 @@ TEMPLATE = """
 
 
 @blueprint.route("/billing")
+@nav(icon="credit-card")
 def billing():
     """Facturation"""
     invoices = _get_invoices(g.user)

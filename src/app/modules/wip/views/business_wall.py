@@ -14,6 +14,7 @@ from flask_wtf import FlaskForm
 from werkzeug import Response
 
 from app.flask.extensions import db
+from app.flask.lib.nav import nav
 from app.flask.routing import url_for
 from app.modules.wip import blueprint
 
@@ -21,6 +22,7 @@ from ._common import get_secondary_menu
 
 
 @blueprint.route("/org-profile", endpoint="org-profile")
+@nav(icon="building-library")
 def org_profile():
     """Business Wall"""
     ctx = _build_context()

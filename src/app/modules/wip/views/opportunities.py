@@ -12,6 +12,7 @@ from svcs.flask import container
 from werkzeug import Response
 
 from app.flask.lib.htmx import extract_fragment
+from app.flask.lib.nav import nav
 from app.models.auth import User
 from app.modules.wip import blueprint
 
@@ -19,6 +20,7 @@ from ._common import get_secondary_menu
 
 
 @blueprint.route("/opportunities")
+@nav(icon="cake")
 def opportunities():
     """Opportunités"""
     # Lazy import to avoid circular import

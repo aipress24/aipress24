@@ -11,6 +11,7 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import scoped_session
 from svcs.flask import container
 
+from app.flask.lib.nav import nav
 from app.flask.routing import url_for
 from app.models.mixins import Owned
 from app.modules.wip import blueprint
@@ -20,6 +21,7 @@ from ._common import get_secondary_menu
 
 
 @blueprint.route("/eventroom")
+@nav(icon="calendar")
 def eventroom():
     """Event'room"""
     # Lazy import to avoid circular import
