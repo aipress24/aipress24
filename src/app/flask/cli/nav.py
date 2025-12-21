@@ -6,6 +6,8 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import click
 from flask.cli import with_appcontext
 from flask_super.cli import group
@@ -15,17 +17,81 @@ from rich.tree import Tree
 
 from app.flask.lib.nav import nav_tree
 
+if TYPE_CHECKING:
+    from app.models.auth import User
+
 
 @group(short_help="Navigation debugging commands")
 def nav() -> None:
     """Navigation tree inspection and debugging."""
 
 
+def _get_user_by_email(email: str) -> User | None:
+    """Look up a user by email address."""
+    from sqlalchemy import select
+
+    from app.flask.extensions import db
+    from app.models.auth import User
+
+    stmt = select(User).where(User.email == email)
+    return db.session.scalar(stmt)
+
+
+def _create_mock_user_with_roles(role_names: list[str]) -> object:
+    """Create a mock user object with specified roles for ACL checking."""
+    from app.enums import RoleEnum
+    from app.models.auth import Role
+
+    # Parse role names to RoleEnum values
+    roles = []
+    for role_name in role_names:
+        normalized_name = role_name.strip().upper()
+        try:
+            role_enum = RoleEnum[normalized_name]
+            # Create a mock Role object
+            role = Role(name=role_enum.name, description=role_enum.value)
+            roles.append(role)
+        except KeyError:
+            valid_roles = ", ".join(r.name for r in RoleEnum)
+            msg = f"Unknown role: {normalized_name}. Valid roles: {valid_roles}"
+            raise click.ClickException(msg) from None
+
+    # Create a mock user-like object
+    class MockUser:
+        is_anonymous = False  # Mock users are always authenticated
+
+        def __init__(self, roles):
+            self.roles = roles
+
+        def has_role(self, role):
+            """Check if mock user has a role."""
+            from app.enums import RoleEnum
+
+            if isinstance(role, RoleEnum):
+                return any(r.name == role.name for r in self.roles)
+            if isinstance(role, str):
+                return any(r.name == role for r in self.roles)
+            return False
+
+    return MockUser(roles)
+
+
 @nav.command()
 @click.option("-v", "--verbose", is_flag=True, help="Show detailed info for each route")
+@click.option("--email", "email", help="Filter by user email (shows only visible routes)")
+@click.option("--roles", "roles", help="Filter by roles (comma-separated, e.g., PRESS_MEDIA,ACADEMIC)")
 @with_appcontext
-def tree(verbose: bool) -> None:
-    """Print the full navigation tree."""
+def tree(verbose: bool, email: str | None, roles: str | None) -> None:
+    """Print the full navigation tree.
+
+    Use --email or --roles to filter the tree to only show routes
+    visible to a specific user or role combination.
+
+    Examples:
+        flask nav tree --email user@example.com
+        flask nav tree --roles PRESS_MEDIA
+        flask nav tree --roles PRESS_MEDIA,ACADEMIC
+    """
     console = Console()
 
     # Build tree if not already built
@@ -33,13 +99,46 @@ def tree(verbose: bool) -> None:
 
     nav_tree.build(current_app)
 
+    # Determine user for filtering
+    filter_user = None
+    filter_description = None
+
+    if email and roles:
+        msg = "Cannot use both --email and --roles. Choose one."
+        raise click.ClickException(msg)
+
+    if email:
+        filter_user = _get_user_by_email(email)
+        if not filter_user:
+            msg = f"User with email '{email}' not found"
+            raise click.ClickException(msg)
+        role_names = [r.name for r in filter_user.roles]
+        filter_description = f"user '{email}' with roles: {', '.join(role_names) or '(none)'}"
+
+    if roles:
+        role_list = [r.strip() for r in roles.split(",") if r.strip()]
+        filter_user = _create_mock_user_with_roles(role_list)
+        filter_description = f"roles: {', '.join(role_list)}"
+
     # Create rich tree
-    root = Tree("[bold]Navigation Tree[/bold]")
+    if filter_user:
+        root = Tree(f"[bold]Navigation Tree[/bold] [dim](filtered for {filter_description})[/dim]")
+    else:
+        root = Tree("[bold]Navigation Tree[/bold]")
+
+    # Track stats
+    total_visible = 0
+    total_hidden = 0
 
     # Print sections sorted by order
     sections = sorted(nav_tree._sections.values(), key=lambda n: n.order)
 
     for section in sections:
+        # Check if section is visible to user
+        if filter_user and not section.is_visible_to(filter_user):
+            total_hidden += 1
+            continue
+
         section_label = (
             f"[bold cyan]{section.name}[/bold cyan] - {section.label} "
             f"[dim]({section.url_rule})[/dim]"
@@ -48,20 +147,40 @@ def tree(verbose: bool) -> None:
             section_label += f" [yellow]icon:{section.icon or 'none'}[/yellow]"
             section_label += f" [dim]order:{section.order}[/dim]"
         section_node = root.add(section_label)
+        total_visible += 1
 
-        # Get children
+        # Get children (filtered if user specified)
         children = nav_tree.children_of(section.name)
         for child in children:
-            _add_node_to_tree(section_node, child, verbose)
+            visible, hidden = _add_node_to_tree(
+                section_node, child, verbose, filter_user
+            )
+            total_visible += visible
+            total_hidden += hidden
 
     console.print(root)
     console.print()
-    console.print(f"[dim]Total sections: {len(nav_tree._sections)}[/dim]")
-    console.print(f"[dim]Total nodes: {len(nav_tree._nodes)}[/dim]")
+
+    if filter_user:
+        console.print(f"[dim]Visible nodes: {total_visible}[/dim]")
+        console.print(f"[dim]Hidden nodes (no access): {total_hidden}[/dim]")
+    else:
+        console.print(f"[dim]Total sections: {len(nav_tree._sections)}[/dim]")
+        console.print(f"[dim]Total nodes: {len(nav_tree._nodes)}[/dim]")
 
 
-def _add_node_to_tree(parent_tree: Tree, node, verbose: bool = False) -> None:
-    """Recursively add node and its children to tree."""
+def _add_node_to_tree(
+    parent_tree: Tree, node, verbose: bool = False, filter_user=None
+) -> tuple[int, int]:
+    """Recursively add node and its children to tree.
+
+    Returns:
+        Tuple of (visible_count, hidden_count) for statistics.
+    """
+    # Check visibility if filtering by user
+    if filter_user and not node.is_visible_to(filter_user):
+        return (0, 1)
+
     if verbose:
         # Verbose mode: show all details
         label = f"[green]{node.name}[/green]"
@@ -88,10 +207,19 @@ def _add_node_to_tree(parent_tree: Tree, node, verbose: bool = False) -> None:
 
     child_tree = parent_tree.add(label)
 
+    visible_count = 1
+    hidden_count = 0
+
     # Recursively add grandchildren
     grandchildren = nav_tree.children_of(node.name)
     for grandchild in grandchildren:
-        _add_node_to_tree(child_tree, grandchild, verbose)
+        visible, hidden = _add_node_to_tree(
+            child_tree, grandchild, verbose, filter_user
+        )
+        visible_count += visible
+        hidden_count += hidden
+
+    return (visible_count, hidden_count)
 
 
 @nav.command()
