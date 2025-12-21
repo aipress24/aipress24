@@ -338,7 +338,9 @@ def show(endpoint: str) -> None:
     console.print(f"[bold]Is Section:[/bold] {node.is_section}")
 
     if node.acl:
-        console.print(f"[bold]ACL:[/bold] {node.acl}")
+        console.print("[bold]ACL:[/bold]")
+        for directive, role, action in node.acl:
+            console.print(f"  {directive} [magenta]{role.name}[/magenta] ({action})")
 
     # Show children
     children = nav_tree.children_of(node.name)
@@ -354,3 +356,113 @@ def show(endpoint: str) -> None:
         prefix = "  " * i + "→ " if i > 0 else ""
         current = " [current]" if crumb.current else ""
         console.print(f"{prefix}{crumb.label}{current}")
+
+
+@nav.command()
+@click.option("--by-role", is_flag=True, help="Group routes by required role")
+@with_appcontext
+def acl(by_role: bool) -> None:
+    """List all ACL-protected routes.
+
+    Shows which routes require specific roles to access.
+    Use --by-role to group routes by the role that can access them.
+    """
+    from collections import defaultdict
+
+    from flask import current_app
+
+    nav_tree.build(current_app)
+
+    console = Console()
+
+    # Collect all nodes with ACL
+    protected_nodes = [
+        (name, node)
+        for name, node in nav_tree._nodes.items()
+        if node.acl
+    ]
+
+    if not protected_nodes:
+        console.print("[yellow]No ACL-protected routes found.[/yellow]")
+        return
+
+    if by_role:
+        # Group by role
+        role_to_nodes: dict[str, list[tuple[str, str, str]]] = defaultdict(list)
+        for name, node in protected_nodes:
+            for _directive, role, _action in node.acl:
+                role_to_nodes[role.name].append((name, node.label, node.url_rule))
+
+        # Sort roles alphabetically
+        for role_name in sorted(role_to_nodes.keys()):
+            nodes = role_to_nodes[role_name]
+            console.print(f"\n[bold magenta]{role_name}[/bold magenta] ({len(nodes)} routes)")
+            for name, label, url in sorted(nodes, key=lambda x: x[0]):
+                console.print(f"  [green]{name}[/green] - {label} [dim]({url})[/dim]")
+    else:
+        # Show as table
+        table = Table(title="ACL-Protected Routes")
+        table.add_column("Endpoint", style="green")
+        table.add_column("Label")
+        table.add_column("URL", style="dim")
+        table.add_column("Access Rules", style="magenta")
+
+        for name, node in sorted(protected_nodes, key=lambda x: x[0]):
+            acl_str = ", ".join(
+                f"{d} {r.name}" for d, r, _ in node.acl
+            )
+            table.add_row(name, node.label, node.url_rule, acl_str)
+
+        console.print(table)
+
+    console.print(f"\n[dim]Total ACL-protected routes: {len(protected_nodes)}[/dim]")
+
+
+@nav.command()
+@with_appcontext
+def roles() -> None:
+    """List all roles and which routes they can access."""
+    from collections import defaultdict
+
+    from flask import current_app
+
+    from app.enums import RoleEnum
+
+    nav_tree.build(current_app)
+
+    console = Console()
+
+    # Count routes accessible per role
+    role_access: dict[str, int] = defaultdict(int)
+    total_nodes = len(nav_tree._nodes)
+
+    for node in nav_tree._nodes.values():
+        if not node.acl:
+            # No ACL means everyone can access
+            for role in RoleEnum:
+                role_access[role.name] += 1
+        else:
+            # Check which roles have access
+            for directive, role, _ in node.acl:
+                if directive == "Allow":
+                    role_access[role.name] += 1
+
+    table = Table(title="Role Access Summary")
+    table.add_column("Role", style="cyan")
+    table.add_column("Accessible Routes", justify="right")
+    table.add_column("Restricted", justify="right", style="red")
+    table.add_column("Description")
+
+    # Get role descriptions from enum values
+    for role in RoleEnum:
+        accessible = role_access[role.name]
+        restricted = total_nodes - accessible
+        table.add_row(
+            role.name,
+            str(accessible),
+            str(restricted) if restricted > 0 else "-",
+            role.value,
+        )
+
+    console.print(table)
+    console.print(f"\n[dim]Total navigation nodes: {total_nodes}[/dim]")
