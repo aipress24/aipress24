@@ -22,8 +22,9 @@ def nav() -> None:
 
 
 @nav.command()
+@click.option("-v", "--verbose", is_flag=True, help="Show detailed info for each route")
 @with_appcontext
-def tree() -> None:
+def tree(verbose: bool) -> None:
     """Print the full navigation tree."""
     console = Console()
 
@@ -39,15 +40,19 @@ def tree() -> None:
     sections = sorted(nav_tree._sections.values(), key=lambda n: n.order)
 
     for section in sections:
-        section_node = root.add(
+        section_label = (
             f"[bold cyan]{section.name}[/bold cyan] - {section.label} "
             f"[dim]({section.url_rule})[/dim]"
         )
+        if verbose:
+            section_label += f" [yellow]icon:{section.icon or 'none'}[/yellow]"
+            section_label += f" [dim]order:{section.order}[/dim]"
+        section_node = root.add(section_label)
 
         # Get children
         children = nav_tree.children_of(section.name)
         for child in children:
-            _add_node_to_tree(section_node, child)
+            _add_node_to_tree(section_node, child, verbose)
 
     console.print(root)
     console.print()
@@ -55,24 +60,38 @@ def tree() -> None:
     console.print(f"[dim]Total nodes: {len(nav_tree._nodes)}[/dim]")
 
 
-def _add_node_to_tree(parent_tree: Tree, node) -> None:
+def _add_node_to_tree(parent_tree: Tree, node, verbose: bool = False) -> None:
     """Recursively add node and its children to tree."""
-    label = f"[green]{node.name.split('.')[-1]}[/green] - {node.label}"
-    label += f" [dim]({node.url_rule})[/dim]"
+    if verbose:
+        # Verbose mode: show all details
+        label = f"[green]{node.name}[/green]"
+        label += f"\n  [bold]label:[/bold] {node.label}"
+        label += f"\n  [bold]url:[/bold] {node.url_rule}"
+        label += f"\n  [bold]parent:[/bold] {node.parent or '(section root)'}"
+        label += f"\n  [bold]icon:[/bold] {node.icon or '(none)'}"
+        label += f"\n  [bold]order:[/bold] {node.order}"
+        label += f"\n  [bold]in_menu:[/bold] {node.in_menu}"
+        if node.acl:
+            acl_str = ", ".join(f"{d} {r}" for d, r, _ in node.acl)
+            label += f"\n  [bold]acl:[/bold] [magenta]{acl_str}[/magenta]"
+    else:
+        # Compact mode: one line summary
+        label = f"[green]{node.name.split('.')[-1]}[/green] - {node.label}"
+        label += f" [dim]({node.url_rule})[/dim]"
 
-    if node.icon:
-        label += f" [yellow]icon:{node.icon}[/yellow]"
-    if not node.in_menu:
-        label += " [red](hidden from menu)[/red]"
-    if node.acl:
-        label += " [magenta](ACL protected)[/magenta]"
+        if node.icon:
+            label += f" [yellow]icon:{node.icon}[/yellow]"
+        if not node.in_menu:
+            label += " [red](hidden from menu)[/red]"
+        if node.acl:
+            label += " [magenta](ACL protected)[/magenta]"
 
     child_tree = parent_tree.add(label)
 
     # Recursively add grandchildren
     grandchildren = nav_tree.children_of(node.name)
     for grandchild in grandchildren:
-        _add_node_to_tree(child_tree, grandchild)
+        _add_node_to_tree(child_tree, grandchild, verbose)
 
 
 @nav.command()
