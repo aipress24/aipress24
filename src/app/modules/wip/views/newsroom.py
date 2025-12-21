@@ -15,6 +15,7 @@ from svcs.flask import container
 from werkzeug.exceptions import Forbidden
 
 from app.enums import ProfileEnum, RoleEnum
+from app.flask.lib.nav import nav
 from app.flask.routing import url_for
 from app.models.mixins import Owned
 from app.modules.wip import blueprint
@@ -43,6 +44,7 @@ ALLOW_NEWSROOM_COMMAND: set[ProfileEnum] = {
 
 
 @blueprint.route("/newsroom")
+@nav(icon="rocket-launch", acl=[("Allow", RoleEnum.PRESS_MEDIA, "view")])
 def newsroom():
     """Newsroom"""
     # Lazy import to avoid circular import

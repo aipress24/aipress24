@@ -14,6 +14,7 @@ from svcs.flask import container
 from werkzeug.exceptions import Forbidden
 
 from app.enums import RoleEnum
+from app.flask.lib.nav import nav
 from app.flask.routing import url_for
 from app.models.lifecycle import PublicationStatus
 from app.modules.wip import blueprint
@@ -28,6 +29,13 @@ ALLOWED_ROLES: ClassVar = [RoleEnum.PRESS_MEDIA, RoleEnum.ACADEMIC]
 
 
 @blueprint.route("/dashboard")
+@nav(
+    icon="chart-bar",
+    acl=[
+        ("Allow", RoleEnum.PRESS_MEDIA, "view"),
+        ("Allow", RoleEnum.ACADEMIC, "view"),
+    ],
+)
 def dashboard():
     """Tableau de bord"""
     # Lazy import to avoid circular import

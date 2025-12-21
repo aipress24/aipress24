@@ -13,6 +13,7 @@ from svcs.flask import container
 from werkzeug.exceptions import Forbidden
 
 from app.enums import RoleEnum
+from app.flask.lib.nav import nav
 from app.flask.routing import url_for
 from app.models.mixins import Owned
 from app.modules.wip import blueprint
@@ -23,6 +24,7 @@ from ._common import get_secondary_menu
 
 
 @blueprint.route("/comroom")
+@nav(icon="megaphone", acl=[("Allow", RoleEnum.PRESS_RELATIONS, "view")])
 def comroom():
     """Com'room"""
     # Lazy import to avoid circular import
