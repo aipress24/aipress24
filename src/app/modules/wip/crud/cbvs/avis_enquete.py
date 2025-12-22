@@ -18,7 +18,6 @@ from flask_super.registry import register
 from sqlalchemy.orm import scoped_session
 from svcs.flask import container
 
-from app.enums import RoleEnum
 from app.flask.lib.htmx import extract_fragment
 from app.flask.routing import url_for
 from app.logging import warn
@@ -668,6 +667,8 @@ class Selector(abc.ABC):
         return remove_diacritics(option.label)
 
     def _get_values_from_experts(self, key: str) -> set[str]:
+        # optimisation to implement later: retrieve values for
+        # all keys in one loop on all experts
         experts = self.form.all_experts
         # debug(experts[0].profile)
         merged_values: set[str] = set()
@@ -687,7 +688,8 @@ class SecteurSelector(Selector):
     label = "Secteur d'activité"
 
     def get_values(self):
-        return get_taxonomy("news_sectors")
+
+        # return get_taxonomy("news_sectors")
 
 
 class MetierSelector(Selector):
