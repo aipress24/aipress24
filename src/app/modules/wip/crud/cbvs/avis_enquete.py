@@ -32,8 +32,8 @@ from app.modules.wip.models import (
 from app.services.emails import AvisEnqueteNotificationMail
 from app.services.notifications import NotificationService
 from app.services.sessions import SessionService
-from app.services.taxonomies import get_taxonomy
 
+# from app.services.taxonomies import get_full_taxonomy
 from ._base import BaseWipView
 from ._forms import AvisEnqueteForm
 from ._table import BaseTable
@@ -473,6 +473,7 @@ class SearchForm:
         self._update_state()
         self.selectors = self._get_selectors()
         self.all_experts = self._get_all_users()
+        # self.tailles_orga = get_full_taxonomy("taille_organisation")
 
     def _restore_state(self) -> None:
         session = container.get(SessionService)
@@ -487,7 +488,7 @@ class SearchForm:
         seen_selectors: set[str] = set()
 
         for k, values in data_source.lists():
-            if k.startswith("action:") or k.startswith("expert:"):
+            if k.startswith(("action:", "expert:")):
                 continue
             clean_values = [v for v in values if v]
             if clean_values:

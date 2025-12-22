@@ -928,7 +928,6 @@ def profil_groups_page(level: str):
     except ValueError:
         level_int = 1
     level_init = max(0, min(level_int, 2))
-    from app.logging import warn
 
     content = _public_group_info(level_init)
     replace_file_object_by_name(content)
