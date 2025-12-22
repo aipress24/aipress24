@@ -51,7 +51,7 @@ class TestNavTreeSchemaValidity:
     def test_all_nodes_have_name(self, app: Flask):
         """Every node must have a non-empty name."""
         for name, node in nav_tree._nodes.items():
-            assert node.name, f"Node has empty name"
+            assert node.name, "Node has empty name"
             assert node.name == name, f"Node name mismatch: {node.name} vs {name}"
 
     def test_all_nodes_have_label(self, app: Flask):
@@ -77,16 +77,12 @@ class TestNavTreeSchemaValidity:
         """Non-section nodes should have is_section=False."""
         for name, node in nav_tree._nodes.items():
             if name not in nav_tree._sections:
-                assert node.is_section is False, (
-                    f"Non-section {name} marked as section"
-                )
+                assert node.is_section is False, f"Non-section {name} marked as section"
 
     def test_in_menu_is_boolean(self, app: Flask):
         """in_menu must be a boolean."""
         for name, node in nav_tree._nodes.items():
-            assert isinstance(node.in_menu, bool), (
-                f"Node {name} in_menu is not boolean"
-            )
+            assert isinstance(node.in_menu, bool), f"Node {name} in_menu is not boolean"
 
     def test_order_is_numeric_or_none(self, app: Flask):
         """Order must be a number or None."""
@@ -118,9 +114,7 @@ class TestNavTreeACLValidity:
         """Each ACL rule must be a 3-tuple (directive, role, action)."""
         for name, node in nav_tree._nodes.items():
             for i, acl in enumerate(node.acl):
-                assert len(acl) == 3, (
-                    f"ACL rule {i} on {name} is not a 3-tuple: {acl}"
-                )
+                assert len(acl) == 3, f"ACL rule {i} on {name} is not a 3-tuple: {acl}"
 
     def test_acl_directives_are_valid(self, app: Flask):
         """ACL directives must be 'Allow' or 'Deny'."""
@@ -329,9 +323,7 @@ class TestBreadcrumbsValidity:
         for endpoint in nav_tree._nodes:
             crumbs = nav_tree.build_breadcrumbs(endpoint, {})
             for crumb in crumbs:
-                assert crumb.label, (
-                    f"Breadcrumb for {endpoint} has empty label"
-                )
+                assert crumb.label, f"Breadcrumb for {endpoint} has empty label"
 
 
 class TestNavNodeVisibility:
@@ -343,9 +335,7 @@ class TestNavNodeVisibility:
     def test_nodes_without_acl_are_visible(self, app: Flask):
         """Nodes without ACL rules should be visible to any user."""
         # Find nodes without ACL
-        nodes_without_acl = [
-            node for node in nav_tree._nodes.values() if not node.acl
-        ]
+        nodes_without_acl = [node for node in nav_tree._nodes.values() if not node.acl]
 
         # There should be some nodes without ACL restrictions
         assert len(nodes_without_acl) > 0, "Expected some nodes without ACL"
@@ -361,9 +351,7 @@ class TestNavNodeVisibility:
 
     def test_nodes_with_acl_exist(self, app: Flask):
         """There should be some nodes with ACL restrictions."""
-        nodes_with_acl = [
-            node for node in nav_tree._nodes.values() if node.acl
-        ]
+        nodes_with_acl = [node for node in nav_tree._nodes.values() if node.acl]
         # We expect at least some protected nodes
         assert len(nodes_with_acl) > 0, "Expected some nodes with ACL"
 
@@ -371,12 +359,8 @@ class TestNavNodeVisibility:
         """Nodes with ACL should have at least one Allow rule."""
         for name, node in nav_tree._nodes.items():
             if node.acl:
-                allow_rules = [
-                    acl for acl in node.acl if acl[0] == "Allow"
-                ]
-                assert allow_rules, (
-                    f"Node {name} has ACL but no Allow rules"
-                )
+                allow_rules = [acl for acl in node.acl if acl[0] == "Allow"]
+                assert allow_rules, f"Node {name} has ACL but no Allow rules"
 
 
 class TestNavTreeGet:
