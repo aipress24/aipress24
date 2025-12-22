@@ -52,6 +52,7 @@
                   const ts = new TomSelect(el, {
                       maxOptions: null,
                       maxItems: null,
+                      allowEmptyOption: true,
                       plugins: ['remove_button'],
                       onChange: function() {
                           htmx.ajax('GET', "{{ url_for('AvisEnqueteWipView:ciblage', id=model.id) }}", {

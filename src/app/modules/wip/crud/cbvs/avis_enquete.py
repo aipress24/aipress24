@@ -465,6 +465,7 @@ class SearchForm:
     all_experts: list[User]
 
     def __init__(self) -> None:
+        self.selector_keys: list[str] = [s.id for s in self._selector_classes]
         self._restore_state()
         self._update_state()
         self.selectors = self._get_selectors()
@@ -488,26 +489,24 @@ class SearchForm:
     #             self.state[k] = ""
 
     def _update_state(self) -> None:
-        data_source = request.args if request.method == "GET" else request.form
-
-        incoming_data = dict(data_source.lists())
-        warn("incoming_data", incoming_data)
-
-        if not incoming_data and request.headers.get("HX-Request"):
-            warn("HTMX request with no data, skip")
+        if not request.headers.get("HX-Request"):
+            # initialization
             return
+
+        data_source = request.args if request.method == "GET" else request.form
+        seen_selectors: set[str] = set()
 
         for k, values in data_source.lists():
             if k.startswith("action:") or k.startswith("expert:"):
                 continue
             clean_values = [v for v in values if v]
-
             if clean_values:
                 self.state[k] = clean_values
-            else:
-                self.state.pop(k, None)
+                seen_selectors.add(k)
 
-        warn("self.state updated", self.state)
+        for key in self.selector_keys:
+            if key not in seen_selectors:
+                self.state.pop(key, None)
 
     def save_state(self) -> None:
         session = container.get(SessionService)
@@ -560,8 +559,10 @@ class SearchForm:
             # if selector.id == "ville":
             #     experts = [e for e in experts if e.profile.ville in criteria]
 
+            warn(selector.id)
             selected_values = self.state.get(selector.id)
             if not selected_values:
+                warn("not selected ", selector.id)
                 continue
 
             criteria = (
@@ -569,6 +570,8 @@ class SearchForm:
                 if isinstance(selected_values, list)
                 else {selected_values}
             )
+            if selector.id == "secteur":
+                warn("secteur criteria", criteria)
             if selector.id == "metier":
                 experts = [
                     e for e in experts if any(m in criteria for m in e.tous_metiers)
@@ -601,17 +604,21 @@ class SearchForm:
         experts = [e for e in experts if e.id in selected_expert_ids]
         return experts
 
-    def _get_selectors(self):
+    @property
+    def _selector_classes(self) -> list[type]:
         return [
-            SecteurSelector(self),
-            MetierSelector(self),
-            FonctionSelector(self),
-            TypeOrganisationSelector(self),
-            TailleOrganisationSelector(self),
-            PaysSelector(self),
-            DepartementSelector(self),
-            VilleSelector(self),
+            SecteurSelector,
+            MetierSelector,
+            FonctionSelector,
+            TypeOrganisationSelector,
+            TailleOrganisationSelector,
+            PaysSelector,
+            DepartementSelector,
+            VilleSelector,
         ]
+
+    def _get_selectors(self):
+        return [klass(self) for klass in self._selector_classes]
 
     def _get_all_users(self) -> list[User]:
         user_repo = container.get(UserRepository)
@@ -688,8 +695,12 @@ class SecteurSelector(Selector):
     label = "Secteur d'activité"
 
     def get_values(self):
-
-        # return get_taxonomy("news_sectors")
+        experts = self.form.all_experts
+        # debug(experts[0].profile)
+        merged_values: set[str] = set()
+        for expert in experts:
+            merged_values.update(expert.profile.secteurs_activite)
+        return merged_values
 
 
 class MetierSelector(Selector):
