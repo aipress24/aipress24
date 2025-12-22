@@ -41,6 +41,8 @@ from ._table import BaseTable
 if TYPE_CHECKING:
     from app.models.auth import User
 
+MAX_SELECTABLE_EXPERTS = 50
+
 
 class AvisEnqueteTable(BaseTable):
     id = "avis-enquete-table"
@@ -535,11 +537,11 @@ class SearchForm:
                 yield int(k.split(":")[1])
 
     def get_selectable_experts(self) -> list[User]:
+        # return all expert if no selection filter
         if all(not self.state.get(selector.id) for selector in self.selectors):
-            return []
+            return self.all_experts[:MAX_SELECTABLE_EXPERTS]
 
         experts = self.all_experts
-
         for selector in self.selectors:
             # selected_values = self.state.get(selector.id)
             # if not selected_values:
@@ -562,40 +564,19 @@ class SearchForm:
             warn(selector.id)
             selected_values = self.state.get(selector.id)
             if not selected_values:
-                warn("not selected ", selector.id)
                 continue
-
             criteria = (
                 set(selected_values)
                 if isinstance(selected_values, list)
                 else {selected_values}
             )
-            if selector.id == "secteur":
-                warn("secteur criteria", criteria)
-            if selector.id == "metier":
-                experts = [
-                    e for e in experts if any(m in criteria for m in e.tous_metiers)
-                ]
-
-            elif selector.id == "pays":
-                experts = [e for e in experts if e.profile.country in criteria]
-
-            elif selector.id == "departement":
-                experts = [e for e in experts if e.profile.departement in criteria]
-
-            elif selector.id == "ville":
-                experts = [e for e in experts if e.profile.ville in criteria]
-
-            elif selector.id == "secteur":
-                experts = [
-                    e for e in experts if e.profile.get_value("secteur") in criteria
-                ]
+            experts = selector.filter_experts(criteria, experts)
 
         selected_ids = set(self.state.get("selected_experts", []))
         new_experts = [e for e in experts if e.id not in selected_ids]
 
         new_experts.sort(key=lambda e: (e.last_name, e.first_name))
-        return new_experts[:50]
+        return new_experts[:MAX_SELECTABLE_EXPERTS]
 
     def get_selected_experts(self) -> list[User]:
         selected_expert_ids = set(self.state.get("selected_experts", []))
@@ -652,6 +633,10 @@ class Selector(abc.ABC):
     def get_values(self) -> list[str] | set[str]:
         pass
 
+    @abstractmethod
+    def filter_experts(self, criteria: set[str], experts: list[User]) -> list[User]:
+        pass
+
     def _make_options(self, values: list[str] | set[str]) -> list[Option]:
         options: set[Option] = set()
         # options.add(Option("", ""))
@@ -702,6 +687,15 @@ class SecteurSelector(Selector):
             merged_values.update(expert.profile.secteurs_activite)
         return merged_values
 
+    def filter_experts(self, criteria: set[str], experts: list[User]) -> list[User]:
+        if not criteria:
+            return experts
+        return [
+            e
+            for e in experts
+            if any(m in criteria for m in e.profile.secteurs_activite)
+        ]
+
 
 class MetierSelector(Selector):
     id = "metier"
@@ -711,6 +705,11 @@ class MetierSelector(Selector):
         v1 = self._get_values_from_experts("metier_principal_detail")
         v2 = self._get_values_from_experts("metier_detail")
         return v1 | v2
+
+    def filter_experts(self, criteria: set[str], experts: list[User]) -> list[User]:
+        if not criteria:
+            return experts
+        return [e for e in experts if any(m in criteria for m in e.tous_metiers)]
 
 
 class FonctionSelector(Selector):
@@ -723,13 +722,11 @@ class FonctionSelector(Selector):
         v3 = self._get_values_from_experts("fonctions_org_priv_detail")
         return v1 | v2 | v3
 
-
-class TailleOrganisationSelector(Selector):
-    id = "taille_organisation"
-    label = "Taille de l 'organisation"
-
-    def get_values(self):
-        return self._get_values_from_experts("taille_orga")
+    def filter_experts(self, criteria: set[str], experts: list[User]) -> list[User]:
+        if not criteria:
+            return experts
+        # TO FINISH
+        return experts
 
 
 class TypeOrganisationSelector(Selector):
@@ -739,6 +736,26 @@ class TypeOrganisationSelector(Selector):
     def get_values(self):
         return self._get_values_from_experts("type_orga_detail")
 
+    def filter_experts(self, criteria: set[str], experts: list[User]) -> list[User]:
+        if not criteria:
+            return experts
+        # TO FINISH
+        return experts
+
+
+class TailleOrganisationSelector(Selector):
+    id = "taille_organisation"
+    label = "Taille de l 'organisation"
+
+    def get_values(self):
+        return self._get_values_from_experts("taille_orga")
+
+    def filter_experts(self, criteria: set[str], experts: list[User]) -> list[User]:
+        if not criteria:
+            return experts
+        # TO FINISH
+        return experts
+
 
 class PaysSelector(Selector):
     id = "pays"
@@ -746,6 +763,11 @@ class PaysSelector(Selector):
 
     def get_values(self) -> list[str] | set[str]:
         return {e.profile.country for e in self.form.all_experts}
+
+    def filter_experts(self, criteria: set[str], experts: list[User]) -> list[User]:
+        if not criteria:
+            return experts
+        return [e for e in experts if e.profile.country in criteria]
 
 
 class DepartementSelector(Selector):
@@ -762,6 +784,11 @@ class DepartementSelector(Selector):
             for u in selected_users
             if u.profile.country == selected_country
         }
+
+    def filter_experts(self, criteria: set[str], experts: list[User]) -> list[User]:
+        if not criteria:
+            return experts
+        return [e for e in experts if e.profile.departement in criteria]
 
 
 class VilleSelector(Selector):
@@ -782,6 +809,11 @@ class VilleSelector(Selector):
             if u.profile.country == selected_country
             and u.profile.departement == selected_departement
         }
+
+    def filter_experts(self, criteria: set[str], experts: list[User]) -> list[User]:
+        if not criteria:
+            return experts
+        return [e for e in experts if e.profile.ville in criteria]
 
 
 @frozen(order=True)
