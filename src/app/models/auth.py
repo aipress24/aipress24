@@ -425,6 +425,14 @@ class KYCProfile(Base):
     def metiers_autres(self) -> list[str]:
         return self.info_personnelle["metier_detail"] or []
 
+    @property
+    def secteurs_activite(self) -> list[str]:
+        return (
+            self.info_professionnelle.get("secteurs_activite_medias_detail", [])
+            + self.info_professionnelle.get("secteurs_activite_rp_detail", [])
+            + self.info_professionnelle.get("secteurs_activite_detailles_detail", [])
+        )
+
     def get_first_value(self, field_name: str) -> str:
         value = self.get_value(field_name)
         if isinstance(value, list):
