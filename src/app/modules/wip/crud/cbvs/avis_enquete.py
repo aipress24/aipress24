@@ -643,7 +643,8 @@ class SecteurSelector(Selector):
         return [
             e
             for e in experts
-            if any(x in criteria for x in e.profile.secteurs_activite)
+            if not e.profile.secteurs_activite
+            or any(x in criteria for x in e.profile.secteurs_activite)
         ]
 
 
@@ -660,7 +661,11 @@ class MetierSelector(Selector):
     def filter_experts(self, criteria: set[str], experts: list[User]) -> list[User]:
         if not criteria:
             return experts
-        return [e for e in experts if any(x in criteria for x in e.tous_metiers)]
+        return [
+            e
+            for e in experts
+            if not e.tous_metiers or any(x in criteria for x in e.tous_metiers)
+        ]
 
 
 class FonctionSelector(Selector):
@@ -677,7 +682,10 @@ class FonctionSelector(Selector):
         if not criteria:
             return experts
         return [
-            e for e in experts if any(x in criteria for x in e.profile.toutes_fonctions)
+            e
+            for e in experts
+            if not e.profile.toutes_fonctions
+            or any(x in criteria for x in e.profile.toutes_fonctions)
         ]
 
 
@@ -697,13 +705,14 @@ class TypeOrganisationSelector(Selector):
         return [
             e
             for e in experts
-            if any(x in criteria for x in e.profile.type_organisation)
+            if not e.profile.type_organisation
+            or any(x in criteria for x in e.profile.type_organisation)
         ]
 
 
 class TailleOrganisationSelector(Selector):
     id = "taille_organisation"
-    label = "Taille de l 'organisation"
+    label = "Taille de l'organisation"
 
     def get_values(self) -> set[str]:
         merged_values: set[str] = set()
@@ -739,14 +748,17 @@ class DepartementSelector(Selector):
     label = "Département"
 
     def get_values(self) -> set[str]:
-        selected_country = self.form.state.get("pays")
-        if not selected_country:
+        selected_countries = self.form.state.get("pays")
+        if not selected_countries:
             return []
-        selected_users = self.form.all_experts
+        if isinstance(selected_countries, str):
+            country_criteria = {selected_countries}
+        else:
+            country_criteria = set(selected_countries)
         return {
             u.profile.departement
-            for u in selected_users
-            if u.profile.country == selected_country
+            for u in self.form.all_experts
+            if u.profile.country in country_criteria
         }
 
     def filter_experts(self, criteria: set[str], experts: list[User]) -> list[User]:
@@ -760,18 +772,17 @@ class VilleSelector(Selector):
     label = "Ville"
 
     def get_values(self) -> set[str]:
-        selected_country = self.form.state.get("pays")
-        if not selected_country:
+        selected_departements = self.form.state.get("departement")
+        if not selected_departements:
             return []
-        selected_departement = self.form.state.get("departement")
-        if not selected_departement:
-            return []
-        selected_users = self.form.all_experts
+        if isinstance(selected_departements, str):
+            departement_criteria = {selected_departements}
+        else:
+            departement_criteria = set(selected_departements)
         return {
             u.profile.ville
-            for u in selected_users
-            if u.profile.country == selected_country
-            and u.profile.departement == selected_departement
+            for u in self.form.all_experts
+            if u.profile.departement in departement_criteria
         }
 
     def filter_experts(self, criteria: set[str], experts: list[User]) -> list[User]:
