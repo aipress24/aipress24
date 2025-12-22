@@ -13,9 +13,9 @@
           multiple
           placeholder="Choisir..."
       >
-          {% for option in selector.options %}
-              <option value="{{ option.id }}" {{ option.selected }}>
-                  {{ option.label }}
+          {% for opt in selector.options %}
+              <option value="{{ opt.id }}" {{ opt.selected }}>
+                  {{ opt.label }}
               </option>
           {% endfor %}
       </select>

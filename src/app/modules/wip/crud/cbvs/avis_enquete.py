@@ -42,6 +42,7 @@ if TYPE_CHECKING:
     from app.models.auth import User
 
 MAX_SELECTABLE_EXPERTS = 50
+MAX_OPTIONS = 100
 
 
 class AvisEnqueteTable(BaseTable):
@@ -477,19 +478,6 @@ class SearchForm:
         session = container.get(SessionService)
         self.state = session.get("newsroom:ciblage", {})
 
-    # def _update_state(self) -> None:
-    #     data_source = request.form if request.form else request.args
-
-    #     for k, values in data_source.lists():
-    #         if k.startswith("action:") or k.startswith("expert:"):
-    #             continue
-    #         if len(values) > 1:
-    #             self.state[k] = values
-    #         elif values:
-    #             self.state[k] = values[0]
-    #         else:
-    #             self.state[k] = ""
-
     def _update_state(self) -> None:
         if not request.headers.get("HX-Request"):
             # initialization
@@ -543,24 +531,6 @@ class SearchForm:
 
         experts = self.all_experts
         for selector in self.selectors:
-            # selected_values = self.state.get(selector.id)
-            # if not selected_values:
-            #     continue
-            # if isinstance(selected_values, list):
-            #     criteria = set(selected_values)
-            # else:
-            #     criteria = {selected_values}
-            # if selector.id == "metier":
-            #     experts = [
-            #         e for e in experts if any(x in criteria for x in e.tous_metiers)
-            #     ]
-            # if selector.id == "pays":
-            #     experts = [e for e in experts if e.profile.country in criteria]
-            # if selector.id == "departement":
-            #     experts = [e for e in experts if e.profile.departement in criteria]
-            # if selector.id == "ville":
-            #     experts = [e for e in experts if e.profile.ville in criteria]
-
             warn(selector.id)
             selected_values = self.state.get(selector.id)
             if not selected_values:
@@ -598,13 +568,12 @@ class SearchForm:
             VilleSelector,
         ]
 
-    def _get_selectors(self):
+    def _get_selectors(self) -> list[Selector]:
         return [klass(self) for klass in self._selector_classes]
 
     def _get_all_users(self) -> list[User]:
         user_repo = container.get(UserRepository)
         users = user_repo.list()
-        # experts = [u for u in users if u.has_role(RoleEnum.EXPERT)]
         return users
 
 
@@ -627,10 +596,10 @@ class Selector(abc.ABC):
     @property
     def options(self) -> list[Option]:
         choice_values = self.get_values()
-        return self._make_options(choice_values)
+        return self._make_options(choice_values)[:MAX_OPTIONS]
 
     @abstractmethod
-    def get_values(self) -> list[str] | set[str]:
+    def get_values(self) -> set[str]:
         pass
 
     @abstractmethod
@@ -639,7 +608,6 @@ class Selector(abc.ABC):
 
     def _make_options(self, values: list[str] | set[str]) -> list[Option]:
         options: set[Option] = set()
-        # options.add(Option("", ""))
         for value in values:
             selected = "selected" if value in self.values else ""
             option = Option(value, value, selected)
@@ -658,32 +626,14 @@ class Selector(abc.ABC):
 
         return remove_diacritics(option.label)
 
-    def _get_values_from_experts(self, key: str) -> set[str]:
-        # optimisation to implement later: retrieve values for
-        # all keys in one loop on all experts
-        experts = self.form.all_experts
-        # debug(experts[0].profile)
-        merged_values: set[str] = set()
-        for expert in experts:
-            value: str | list[str] = expert.profile.get_value(key)
-            if not value:
-                continue
-            if isinstance(value, list):
-                merged_values |= set(value)
-            else:
-                merged_values.add(value)
-        return merged_values
-
 
 class SecteurSelector(Selector):
     id = "secteur"
     label = "Secteur d'activité"
 
-    def get_values(self):
-        experts = self.form.all_experts
-        # debug(experts[0].profile)
+    def get_values(self) -> set[str]:
         merged_values: set[str] = set()
-        for expert in experts:
+        for expert in self.form.all_experts:
             merged_values.update(expert.profile.secteurs_activite)
         return merged_values
 
@@ -693,7 +643,7 @@ class SecteurSelector(Selector):
         return [
             e
             for e in experts
-            if any(m in criteria for m in e.profile.secteurs_activite)
+            if any(x in criteria for x in e.profile.secteurs_activite)
         ]
 
 
@@ -701,67 +651,81 @@ class MetierSelector(Selector):
     id = "metier"
     label = "Métier"
 
-    def get_values(self):
-        v1 = self._get_values_from_experts("metier_principal_detail")
-        v2 = self._get_values_from_experts("metier_detail")
-        return v1 | v2
+    def get_values(self) -> set[str]:
+        merged_values: set[str] = set()
+        for expert in self.form.all_experts:
+            merged_values.update(expert.tous_metiers)
+        return merged_values
 
     def filter_experts(self, criteria: set[str], experts: list[User]) -> list[User]:
         if not criteria:
             return experts
-        return [e for e in experts if any(m in criteria for m in e.tous_metiers)]
+        return [e for e in experts if any(x in criteria for x in e.tous_metiers)]
 
 
 class FonctionSelector(Selector):
     id = "fonction"
     label = "Fonction"
 
-    def get_values(self):
-        v1 = self._get_values_from_experts("fonctions_ass_syn_detail")
-        v2 = self._get_values_from_experts("fonctions_pol_adm_detail")
-        v3 = self._get_values_from_experts("fonctions_org_priv_detail")
-        return v1 | v2 | v3
+    def get_values(self) -> set[str]:
+        merged_values: set[str] = set()
+        for expert in self.form.all_experts:
+            merged_values.update(expert.profile.toutes_fonctions)
+        return merged_values
 
     def filter_experts(self, criteria: set[str], experts: list[User]) -> list[User]:
         if not criteria:
             return experts
-        # TO FINISH
-        return experts
+        return [
+            e for e in experts if any(x in criteria for x in e.profile.toutes_fonctions)
+        ]
 
 
 class TypeOrganisationSelector(Selector):
     id = "type_organisation"
     label = "Type d'organisation"
 
-    def get_values(self):
-        return self._get_values_from_experts("type_orga_detail")
+    def get_values(self) -> set[str]:
+        merged_values: set[str] = set()
+        for expert in self.form.all_experts:
+            merged_values.update(expert.profile.type_organisation)
+        return merged_values
 
     def filter_experts(self, criteria: set[str], experts: list[User]) -> list[User]:
         if not criteria:
             return experts
-        # TO FINISH
-        return experts
+        return [
+            e
+            for e in experts
+            if any(x in criteria for x in e.profile.type_organisation)
+        ]
 
 
 class TailleOrganisationSelector(Selector):
     id = "taille_organisation"
     label = "Taille de l 'organisation"
 
-    def get_values(self):
-        return self._get_values_from_experts("taille_orga")
+    def get_values(self) -> set[str]:
+        merged_values: set[str] = set()
+        for expert in self.form.all_experts:
+            merged_values.update(expert.profile.taille_organisation)
+        return merged_values
 
     def filter_experts(self, criteria: set[str], experts: list[User]) -> list[User]:
         if not criteria:
             return experts
-        # TO FINISH
-        return experts
+        return [
+            e
+            for e in experts
+            if any(x in criteria for x in e.profile.taille_organisation)
+        ]
 
 
 class PaysSelector(Selector):
     id = "pays"
     label = "Pays"
 
-    def get_values(self) -> list[str] | set[str]:
+    def get_values(self) -> set[str]:
         return {e.profile.country for e in self.form.all_experts}
 
     def filter_experts(self, criteria: set[str], experts: list[User]) -> list[User]:
@@ -774,7 +738,7 @@ class DepartementSelector(Selector):
     id = "departement"
     label = "Département"
 
-    def get_values(self) -> list[str] | set[str]:
+    def get_values(self) -> set[str]:
         selected_country = self.form.state.get("pays")
         if not selected_country:
             return []
@@ -795,7 +759,7 @@ class VilleSelector(Selector):
     id = "ville"
     label = "Ville"
 
-    def get_values(self) -> list[str] | set[str]:
+    def get_values(self) -> set[str]:
         selected_country = self.form.state.get("pays")
         if not selected_country:
             return []
