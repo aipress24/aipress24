@@ -1,41 +1,71 @@
 {% extends "wip/layout/_base.j2" %}
 
-{% macro render_selector(selector) %}
-  <div class="my-4 mr-4">
-    <label
-        for="{{ selector.id }}"
-        class="block text-sm font-medium leading-6 text-gray-900"
-    >{{ selector.label }}</label>
-    <div class="mt-2">
-      <select
-          hx-post=""
-          name="{{ selector.id }}"
-          id="{{ selector.id }}"
-          class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
-        {% for option in selector.options %}
-          <option {{ option.selected }}>{{ option.label }}</option>
-        {% endfor %}
-      </select>
-    </div>
-  </div>
-{% endmacro %}
+  {% macro render_selector(selector, model) %}
+  <div class="aui-field-group mb-4">
+      <label for="{{ selector.id }}" class="font-bold block mb-1">
+          {{ selector.label }}
+      </label>
 
-{% block body_class %}bg-gray-50{% endblock %}
+      <select
+          id="{{ selector.id }}"
+          name="{{ selector.id }}"
+          class="tom-select-it"
+          multiple
+          placeholder="Choisir..."
+      >
+          {% for option in selector.options %}
+              <option value="{{ option.id }}" {{ option.selected }}>
+                  {{ option.label }}
+              </option>
+          {% endfor %}
+      </select>
+  </div>
+  {% endmacro %}
 
 {% block body_content %}
   <div id="main">
-    <h2 class="aui-title">
-      Cibler les personnes à contacter
-    </h2>
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
 
-    <form hx-target="#main">
-      <div class="grid lg:grid-cols-2">
+    <h2 class="aui-title">Cibler les personnes à contacter</h2>
+
+    <form id="search-form" hx-target="#main">
+      <div class="grid lg:grid-cols-2 gap-4">
         {% for selector in form.selectors %}
-          {{ render_selector(selector) }}
+          {{ render_selector(selector, model) }}
         {% endfor %}
       </div>
     </form>
 
     {% include "wip/avis_enquete/_experts.j2" %}
+
+    <script>
+      (function() {
+          function setup() {
+              if (typeof TomSelect === 'undefined') {
+                  setTimeout(setup, 50);
+                  return;
+              }
+
+              document.querySelectorAll('.tom-select-it').forEach(el => {
+                  if (el.tomselect) return;
+
+                  const ts = new TomSelect(el, {
+                      maxOptions: null,
+                      maxItems: null,
+                      allowEmptyOption: true,
+                      plugins: ['remove_button'],
+                      onChange: function() {
+                          htmx.ajax('GET', "{{ url_for('AvisEnqueteWipView:ciblage', id=model.id) }}", {
+                              target: '#main',
+                              select: '#main',
+                              values: htmx.values(htmx.find('#search-form'))
+                          });
+                      }
+                  });
+              });
+          }
+          setup();
+      })();
+    </script>
   </div>
 {% endblock %}
