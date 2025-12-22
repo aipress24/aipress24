@@ -18,9 +18,9 @@ from flask_super.registry import register
 from sqlalchemy.orm import scoped_session
 from svcs.flask import container
 
-from app.enums import RoleEnum
 from app.flask.lib.htmx import extract_fragment
 from app.flask.routing import url_for
+from app.logging import warn
 from app.models.auth import User
 from app.models.repositories import UserRepository
 from app.modules.wip.models import (
@@ -40,6 +40,8 @@ from ._table import BaseTable
 
 if TYPE_CHECKING:
     from app.models.auth import User
+
+MAX_SELECTABLE_EXPERTS = 50
 
 
 class AvisEnqueteTable(BaseTable):
@@ -113,6 +115,9 @@ class AvisEnqueteWipView(BaseWipView):
         self.update_breadcrumbs(label=model.title)
 
         form = SearchForm()
+
+        form.save_state()
+
         action = form.get_action()
 
         match action:
@@ -462,26 +467,53 @@ class SearchForm:
     all_experts: list[User]
 
     def __init__(self) -> None:
+        self.selector_keys: list[str] = [s.id for s in self._selector_classes]
         self._restore_state()
         self._update_state()
         self.selectors = self._get_selectors()
-        self.all_experts = self._get_all_experts()
+        self.all_experts = self._get_all_users()
 
     def _restore_state(self) -> None:
         session = container.get(SessionService)
         self.state = session.get("newsroom:ciblage", {})
 
+    # def _update_state(self) -> None:
+    #     data_source = request.form if request.form else request.args
+
+    #     for k, values in data_source.lists():
+    #         if k.startswith("action:") or k.startswith("expert:"):
+    #             continue
+    #         if len(values) > 1:
+    #             self.state[k] = values
+    #         elif values:
+    #             self.state[k] = values[0]
+    #         else:
+    #             self.state[k] = ""
+
     def _update_state(self) -> None:
-        for k, v in request.form.to_dict().items():
-            if k.startswith("action:"):
+        if not request.headers.get("HX-Request"):
+            # initialization
+            return
+
+        data_source = request.args if request.method == "GET" else request.form
+        seen_selectors: set[str] = set()
+
+        for k, values in data_source.lists():
+            if k.startswith("action:") or k.startswith("expert:"):
                 continue
-            if k.startswith("expert:"):
-                continue
-            self.state[k] = v
+            clean_values = [v for v in values if v]
+            if clean_values:
+                self.state[k] = clean_values
+                seen_selectors.add(k)
+
+        for key in self.selector_keys:
+            if key not in seen_selectors:
+                self.state.pop(key, None)
 
     def save_state(self) -> None:
         session = container.get(SessionService)
         session["newsroom:ciblage"] = self.state
+        warn("self.state saved", self.state)
 
     def get_action(self) -> str:
         for name in request.form.to_dict():
@@ -504,94 +536,118 @@ class SearchForm:
             if k.startswith("expert:"):
                 yield int(k.split(":")[1])
 
-    def get_selectable_experts(self):
-        experts = self.all_experts
-
+    def get_selectable_experts(self) -> list[User]:
+        # return all expert if no selection filter
         if all(not self.state.get(selector.id) for selector in self.selectors):
-            return []
+            return self.all_experts[:MAX_SELECTABLE_EXPERTS]
 
+        experts = self.all_experts
         for selector in self.selectors:
-            value = self.state.get(selector.id)
-            if not value:
+            # selected_values = self.state.get(selector.id)
+            # if not selected_values:
+            #     continue
+            # if isinstance(selected_values, list):
+            #     criteria = set(selected_values)
+            # else:
+            #     criteria = {selected_values}
+            # if selector.id == "metier":
+            #     experts = [
+            #         e for e in experts if any(x in criteria for x in e.tous_metiers)
+            #     ]
+            # if selector.id == "pays":
+            #     experts = [e for e in experts if e.profile.country in criteria]
+            # if selector.id == "departement":
+            #     experts = [e for e in experts if e.profile.departement in criteria]
+            # if selector.id == "ville":
+            #     experts = [e for e in experts if e.profile.ville in criteria]
+
+            warn(selector.id)
+            selected_values = self.state.get(selector.id)
+            if not selected_values:
                 continue
-            if selector.id == "metier":
-                experts = [e for e in experts if value in e.metiers]
-            if selector.id == "pays":
-                experts = [e for e in experts if e.profile.country == value]
-            if selector.id == "departement":
-                experts = [e for e in experts if e.profile.departement == value]
-            if selector.id == "ville":
-                experts = [e for e in experts if e.profile.ville == value]
+            criteria = (
+                set(selected_values)
+                if isinstance(selected_values, list)
+                else {selected_values}
+            )
+            experts = selector.filter_experts(criteria, experts)
 
-        experts = [
-            e for e in experts if e.id not in self.state.get("selected_experts", [])
-        ]
+        selected_ids = set(self.state.get("selected_experts", []))
+        new_experts = [e for e in experts if e.id not in selected_ids]
 
-        experts.sort(key=lambda e: (e.last_name, e.first_name))
-        if len(experts) > 50:
-            experts = experts[:50]
+        new_experts.sort(key=lambda e: (e.last_name, e.first_name))
+        return new_experts[:MAX_SELECTABLE_EXPERTS]
 
-        return experts
-
-    def get_selected_experts(self):
-        selected_expert_ids = self.state.get("selected_experts", [])
+    def get_selected_experts(self) -> list[User]:
+        selected_expert_ids = set(self.state.get("selected_experts", []))
         user_repo = container.get(UserRepository)
         experts = user_repo.list()
         experts = [e for e in experts if e.id in selected_expert_ids]
         return experts
 
-    def _get_selectors(self):
+    @property
+    def _selector_classes(self) -> list[type]:
         return [
-            SecteurSelector(self),
-            MetierSelector(self),
-            FonctionSelector(self),
-            TypeOrganisationSelector(self),
-            TailleOrganisationSelector(self),
-            PaysSelector(self),
-            DepartementSelector(self),
-            VilleSelector(self),
+            SecteurSelector,
+            MetierSelector,
+            FonctionSelector,
+            TypeOrganisationSelector,
+            TailleOrganisationSelector,
+            PaysSelector,
+            DepartementSelector,
+            VilleSelector,
         ]
 
-    def _get_all_experts(self):
+    def _get_selectors(self):
+        return [klass(self) for klass in self._selector_classes]
+
+    def _get_all_users(self) -> list[User]:
         user_repo = container.get(UserRepository)
         users = user_repo.list()
-        experts = [u for u in users if u.has_role(RoleEnum.EXPERT)]
-        return experts
+        # experts = [u for u in users if u.has_role(RoleEnum.EXPERT)]
+        return users
 
 
 class Selector(abc.ABC):
     form: SearchForm
     id: str
     label: str
-    value: str
+    values: set[str]  # selected items
 
     def __init__(self, form: SearchForm) -> None:
         self.form = form
-        self.value = form.state.get(self.id, "")
+        raw_values = form.state.get(self.id, [])
+        if isinstance(raw_values, list):
+            self.values = set(raw_values)
+        elif raw_values:
+            self.values = {raw_values}
+        else:
+            self.values = set()
 
     @property
-    def options(self):
-        values = self.get_values()
-        return self._make_options(values)
+    def options(self) -> list[Option]:
+        choice_values = self.get_values()
+        return self._make_options(choice_values)
 
     @abstractmethod
     def get_values(self) -> list[str] | set[str]:
         pass
 
-    def _make_options(self, values) -> list[Option]:
+    @abstractmethod
+    def filter_experts(self, criteria: set[str], experts: list[User]) -> list[User]:
+        pass
+
+    def _make_options(self, values: list[str] | set[str]) -> list[Option]:
         options: set[Option] = set()
-        options.add(Option("", ""))
+        # options.add(Option("", ""))
         for value in values:
-            if value == self.value:
-                selected = "selected"
-            else:
-                selected = ""
+            selected = "selected" if value in self.values else ""
             option = Option(value, value, selected)
             options.add(option)
         return sorted(options, key=self.sorter)
 
     def sorter(self, option: Option) -> str:
-        def remove_diacritics(input_str):
+        def remove_diacritics(input_str: str):
             # Normalize the string to decompose characters with diacritics
             normalized_str = unicodedata.normalize("NFKD", input_str)
             # Filter out non-ASCII characters
@@ -602,19 +658,21 @@ class Selector(abc.ABC):
 
         return remove_diacritics(option.label)
 
-    def _get_values_from_experts(self, key) -> set[str]:
+    def _get_values_from_experts(self, key: str) -> set[str]:
+        # optimisation to implement later: retrieve values for
+        # all keys in one loop on all experts
         experts = self.form.all_experts
         # debug(experts[0].profile)
-        values = set()
+        merged_values: set[str] = set()
         for expert in experts:
-            value = expert.profile.get_value(key)
+            value: str | list[str] = expert.profile.get_value(key)
             if not value:
                 continue
             if isinstance(value, list):
-                values |= set(value)
+                merged_values |= set(value)
             else:
-                values.add(value)
-        return values
+                merged_values.add(value)
+        return merged_values
 
 
 class SecteurSelector(Selector):
@@ -622,7 +680,21 @@ class SecteurSelector(Selector):
     label = "Secteur d'activité"
 
     def get_values(self):
-        return get_taxonomy("news_sectors")
+        experts = self.form.all_experts
+        # debug(experts[0].profile)
+        merged_values: set[str] = set()
+        for expert in experts:
+            merged_values.update(expert.profile.secteurs_activite)
+        return merged_values
+
+    def filter_experts(self, criteria: set[str], experts: list[User]) -> list[User]:
+        if not criteria:
+            return experts
+        return [
+            e
+            for e in experts
+            if any(m in criteria for m in e.profile.secteurs_activite)
+        ]
 
 
 class MetierSelector(Selector):
@@ -630,7 +702,14 @@ class MetierSelector(Selector):
     label = "Métier"
 
     def get_values(self):
-        return self._get_values_from_experts("metier_principal_detail")
+        v1 = self._get_values_from_experts("metier_principal_detail")
+        v2 = self._get_values_from_experts("metier_detail")
+        return v1 | v2
+
+    def filter_experts(self, criteria: set[str], experts: list[User]) -> list[User]:
+        if not criteria:
+            return experts
+        return [e for e in experts if any(m in criteria for m in e.tous_metiers)]
 
 
 class FonctionSelector(Selector):
@@ -643,13 +722,11 @@ class FonctionSelector(Selector):
         v3 = self._get_values_from_experts("fonctions_org_priv_detail")
         return v1 | v2 | v3
 
-
-class TailleOrganisationSelector(Selector):
-    id = "taille_organisation"
-    label = "Taille de l 'organisation"
-
-    def get_values(self):
-        return self._get_values_from_experts("taille_orga")
+    def filter_experts(self, criteria: set[str], experts: list[User]) -> list[User]:
+        if not criteria:
+            return experts
+        # TO FINISH
+        return experts
 
 
 class TypeOrganisationSelector(Selector):
@@ -659,6 +736,26 @@ class TypeOrganisationSelector(Selector):
     def get_values(self):
         return self._get_values_from_experts("type_orga_detail")
 
+    def filter_experts(self, criteria: set[str], experts: list[User]) -> list[User]:
+        if not criteria:
+            return experts
+        # TO FINISH
+        return experts
+
+
+class TailleOrganisationSelector(Selector):
+    id = "taille_organisation"
+    label = "Taille de l 'organisation"
+
+    def get_values(self):
+        return self._get_values_from_experts("taille_orga")
+
+    def filter_experts(self, criteria: set[str], experts: list[User]) -> list[User]:
+        if not criteria:
+            return experts
+        # TO FINISH
+        return experts
+
 
 class PaysSelector(Selector):
     id = "pays"
@@ -666,6 +763,11 @@ class PaysSelector(Selector):
 
     def get_values(self) -> list[str] | set[str]:
         return {e.profile.country for e in self.form.all_experts}
+
+    def filter_experts(self, criteria: set[str], experts: list[User]) -> list[User]:
+        if not criteria:
+            return experts
+        return [e for e in experts if e.profile.country in criteria]
 
 
 class DepartementSelector(Selector):
@@ -682,6 +784,11 @@ class DepartementSelector(Selector):
             for u in selected_users
             if u.profile.country == selected_country
         }
+
+    def filter_experts(self, criteria: set[str], experts: list[User]) -> list[User]:
+        if not criteria:
+            return experts
+        return [e for e in experts if e.profile.departement in criteria]
 
 
 class VilleSelector(Selector):
@@ -702,6 +809,11 @@ class VilleSelector(Selector):
             if u.profile.country == selected_country
             and u.profile.departement == selected_departement
         }
+
+    def filter_experts(self, criteria: set[str], experts: list[User]) -> list[User]:
+        if not criteria:
+            return experts
+        return [e for e in experts if e.profile.ville in criteria]
 
 
 @frozen(order=True)
