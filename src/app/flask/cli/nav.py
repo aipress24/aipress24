@@ -78,8 +78,14 @@ def _create_mock_user_with_roles(role_names: list[str]) -> object:
 
 @nav.command()
 @click.option("-v", "--verbose", is_flag=True, help="Show detailed info for each route")
-@click.option("--email", "email", help="Filter by user email (shows only visible routes)")
-@click.option("--roles", "roles", help="Filter by roles (comma-separated, e.g., PRESS_MEDIA,ACADEMIC)")
+@click.option(
+    "--email", "email", help="Filter by user email (shows only visible routes)"
+)
+@click.option(
+    "--roles",
+    "roles",
+    help="Filter by roles (comma-separated, e.g., PRESS_MEDIA,ACADEMIC)",
+)
 @with_appcontext
 def tree(verbose: bool, email: str | None, roles: str | None) -> None:
     """Print the full navigation tree.
@@ -113,7 +119,9 @@ def tree(verbose: bool, email: str | None, roles: str | None) -> None:
             msg = f"User with email '{email}' not found"
             raise click.ClickException(msg)
         role_names = [r.name for r in filter_user.roles]
-        filter_description = f"user '{email}' with roles: {', '.join(role_names) or '(none)'}"
+        filter_description = (
+            f"user '{email}' with roles: {', '.join(role_names) or '(none)'}"
+        )
 
     if roles:
         role_list = [r.strip() for r in roles.split(",") if r.strip()]
@@ -122,7 +130,9 @@ def tree(verbose: bool, email: str | None, roles: str | None) -> None:
 
     # Create rich tree
     if filter_user:
-        root = Tree(f"[bold]Navigation Tree[/bold] [dim](filtered for {filter_description})[/dim]")
+        root = Tree(
+            f"[bold]Navigation Tree[/bold] [dim](filtered for {filter_description})[/dim]"
+        )
     else:
         root = Tree("[bold]Navigation Tree[/bold]")
 
@@ -377,9 +387,7 @@ def acl(by_role: bool) -> None:
 
     # Collect all nodes with ACL
     protected_nodes = [
-        (name, node)
-        for name, node in nav_tree._nodes.items()
-        if node.acl
+        (name, node) for name, node in nav_tree._nodes.items() if node.acl
     ]
 
     if not protected_nodes:
@@ -396,7 +404,9 @@ def acl(by_role: bool) -> None:
         # Sort roles alphabetically
         for role_name in sorted(role_to_nodes.keys()):
             nodes = role_to_nodes[role_name]
-            console.print(f"\n[bold magenta]{role_name}[/bold magenta] ({len(nodes)} routes)")
+            console.print(
+                f"\n[bold magenta]{role_name}[/bold magenta] ({len(nodes)} routes)"
+            )
             for name, label, url in sorted(nodes, key=lambda x: x[0]):
                 console.print(f"  [green]{name}[/green] - {label} [dim]({url})[/dim]")
     else:
@@ -408,9 +418,7 @@ def acl(by_role: bool) -> None:
         table.add_column("Access Rules", style="magenta")
 
         for name, node in sorted(protected_nodes, key=lambda x: x[0]):
-            acl_str = ", ".join(
-                f"{d} {r.name}" for d, r, _ in node.acl
-            )
+            acl_str = ", ".join(f"{d} {r.name}" for d, r, _ in node.acl)
             table.add_row(name, node.label, node.url_rule, acl_str)
 
         console.print(table)

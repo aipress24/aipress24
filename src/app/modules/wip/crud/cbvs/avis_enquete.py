@@ -32,7 +32,6 @@ from app.modules.wip.models import (
 from app.services.emails import AvisEnqueteNotificationMail
 from app.services.notifications import NotificationService
 from app.services.sessions import SessionService
-from app.services.taxonomies import get_taxonomy
 
 from ._base import BaseWipView
 from ._forms import AvisEnqueteForm
@@ -499,7 +498,7 @@ class SearchForm:
         seen_selectors: set[str] = set()
 
         for k, values in data_source.lists():
-            if k.startswith("action:") or k.startswith("expert:"):
+            if k.startswith(("action:", "expert:")):
                 continue
             clean_values = [v for v in values if v]
             if clean_values:
