@@ -33,15 +33,20 @@ if TYPE_CHECKING:
 
 @pytest.fixture(autouse=True)
 def build_nav_tree(app: Flask):
-    """Build the nav tree before each test."""
+    """Build the nav tree before each test.
+
+    Note: nav_tree.build() only reads from app.blueprints and app.url_map,
+    so it doesn't need an app context (which would trigger DB session teardown).
+    """
     # Reset the tree to ensure fresh build
     nav_tree._nodes = {}
     nav_tree._sections = {}
     nav_tree._url_to_endpoint = {}
     nav_tree._built = False
 
-    with app.app_context():
-        nav_tree.build(app)
+    # Build without app context - the build method only reads route metadata
+    nav_tree.build(app)
+
     yield
 
 
