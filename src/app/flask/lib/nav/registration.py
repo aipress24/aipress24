@@ -12,7 +12,7 @@ from flask import g, request
 from svcs.flask import container
 
 from .request import NavRequest
-from .tree import nav_tree
+from .tree import NavTree
 
 if TYPE_CHECKING:
     from flask import Flask
@@ -22,20 +22,24 @@ def register_nav(app: Flask) -> None:
     """Register navigation system with Flask app.
 
     This function:
-    1. Builds the nav tree after all blueprints are registered
-    2. Creates request-scoped NavRequest on each request
-    3. Injects navigation data into templates via context processor
-    4. Populates Context service with breadcrumbs for legacy components
+    1. Creates a NavTree instance bound to this app
+    2. Builds the nav tree after all blueprints are registered
+    3. Creates request-scoped NavRequest on each request
+    4. Injects navigation data into templates via context processor
+    5. Populates Context service with breadcrumbs for legacy components
 
     Call this AFTER registering all blueprints in your app factory.
     """
+    # Create app-bound NavTree instance
+    app.extensions["nav_tree"] = NavTree()
 
     # Build nav tree once, after first request
     # (all blueprints are registered by then)
     @app.before_request
     def build_nav_tree() -> None:
-        if not nav_tree._built:
-            nav_tree.build(app)
+        tree = app.extensions["nav_tree"]
+        if not tree._built:
+            tree.build(app)
 
     # Create request-scoped nav state
     @app.before_request

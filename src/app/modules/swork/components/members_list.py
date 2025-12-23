@@ -118,8 +118,10 @@ class FilterByCompetency(Filter):
 
     @staticmethod
     def selector(user: User) -> list[str]:
+        if not user.profile or not user.profile.info_personnelle:
+            return []
         info = user.profile.info_personnelle
-        return info["competences_journalisme"] + info["competences"]
+        return info.get("competences_journalisme", []) + info.get("competences", [])
 
     def apply(self, stmt, state):
         active_options = self.active_options(state)

@@ -77,9 +77,12 @@ class BaseList(WiredComponent):
 class Filter:
     id: str
     label: str
-    options: list[str]
+    options: list[str] = []
 
     def __init__(self, objects: list | None = None) -> None:
+        # Only initialize if no class-level options defined
+        if not hasattr(self, "options") or self.options is Filter.options:
+            self.options = []
         if not objects:
             return
 

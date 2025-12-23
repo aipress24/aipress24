@@ -74,7 +74,7 @@ class TestNavigationIntegration:
 
     def test_nav_tree_includes_search_section(self, app):
         """Test that nav tree includes search section."""
-        from app.flask.lib.nav import nav_tree
+        nav_tree = app.extensions["nav_tree"]
 
         with app.app_context():
             nav_tree.build(app)
@@ -84,7 +84,7 @@ class TestNavigationIntegration:
 
     def test_nav_tree_includes_search_page(self, app):
         """Test that nav tree includes search page."""
-        from app.flask.lib.nav import nav_tree
+        nav_tree = app.extensions["nav_tree"]
 
         with app.app_context():
             nav_tree.build(app)
@@ -92,7 +92,7 @@ class TestNavigationIntegration:
 
     def test_breadcrumbs_for_search(self, app):
         """Test breadcrumbs generation for search."""
-        from app.flask.lib.nav import nav_tree
+        nav_tree = app.extensions["nav_tree"]
 
         with app.app_context():
             nav_tree.build(app)

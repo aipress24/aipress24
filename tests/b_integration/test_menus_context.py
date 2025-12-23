@@ -13,7 +13,7 @@ from __future__ import annotations
 
 from flask import Flask
 
-from app.flask.lib.nav.tree import MenuItem, nav_tree
+from app.flask.lib.nav.tree import MenuItem
 
 
 class TestNavTree:
@@ -21,6 +21,7 @@ class TestNavTree:
 
     def test_nav_tree_builds_main_menu(self, app: Flask):
         """Test nav_tree builds main menu from MAIN_MENU config."""
+        nav_tree = app.extensions["nav_tree"]
         with app.app_context():
             # Ensure nav tree is built
             if not nav_tree._built:
@@ -34,6 +35,7 @@ class TestNavTree:
 
     def test_nav_main_menu_has_required_attributes(self, app: Flask):
         """Test main menu items have required attributes for template."""
+        nav_tree = app.extensions["nav_tree"]
         with app.app_context():
             if not nav_tree._built:
                 nav_tree.build(app)
@@ -49,6 +51,7 @@ class TestNavTree:
 
     def test_nav_user_menu_built(self, app: Flask):
         """Test nav_tree builds user menu from USER_MENU config."""
+        nav_tree = app.extensions["nav_tree"]
         with app.app_context():
             if not nav_tree._built:
                 nav_tree.build(app)
@@ -61,6 +64,7 @@ class TestNavTree:
 
     def test_nav_admin_menu_built(self, app: Flask):
         """Test nav_tree builds admin menu from ADMIN_MENU config."""
+        nav_tree = app.extensions["nav_tree"]
         with app.app_context():
             if not nav_tree._built:
                 nav_tree.build(app)

@@ -15,7 +15,7 @@ from rich.console import Console
 from rich.table import Table
 from rich.tree import Tree
 
-from app.flask.lib.nav import nav_tree
+from app.flask.lib.nav import get_nav_tree
 
 if TYPE_CHECKING:
     from app.models.auth import User
@@ -103,6 +103,7 @@ def tree(verbose: bool, email: str | None, roles: str | None) -> None:
     # Build tree if not already built
     from flask import current_app
 
+    nav_tree = get_nav_tree()
     nav_tree.build(current_app)
 
     # Determine user for filtering
@@ -163,7 +164,7 @@ def tree(verbose: bool, email: str | None, roles: str | None) -> None:
         children = nav_tree.children_of(section.name)
         for child in children:
             visible, hidden = _add_node_to_tree(
-                section_node, child, verbose, filter_user
+                nav_tree, section_node, child, verbose, filter_user
             )
             total_visible += visible
             total_hidden += hidden
@@ -180,7 +181,7 @@ def tree(verbose: bool, email: str | None, roles: str | None) -> None:
 
 
 def _add_node_to_tree(
-    parent_tree: Tree, node, verbose: bool = False, filter_user=None
+    nav_tree, parent_tree: Tree, node, verbose: bool = False, filter_user=None
 ) -> tuple[int, int]:
     """Recursively add node and its children to tree.
 
@@ -224,7 +225,7 @@ def _add_node_to_tree(
     grandchildren = nav_tree.children_of(node.name)
     for grandchild in grandchildren:
         visible, hidden = _add_node_to_tree(
-            child_tree, grandchild, verbose, filter_user
+            nav_tree, child_tree, grandchild, verbose, filter_user
         )
         visible_count += visible
         hidden_count += hidden
@@ -238,6 +239,7 @@ def check() -> None:
     """Check for navigation issues."""
     from flask import current_app
 
+    nav_tree = get_nav_tree()
     nav_tree.build(current_app)
 
     console = Console()
@@ -295,6 +297,7 @@ def sections() -> None:
     """List all navigation sections (blueprints with nav config)."""
     from flask import current_app
 
+    nav_tree = get_nav_tree()
     nav_tree.build(current_app)
 
     console = Console()
@@ -329,6 +332,7 @@ def show(endpoint: str) -> None:
     """Show details for a specific endpoint."""
     from flask import current_app
 
+    nav_tree = get_nav_tree()
     nav_tree.build(current_app)
 
     console = Console()
@@ -381,6 +385,7 @@ def acl(by_role: bool) -> None:
 
     from flask import current_app
 
+    nav_tree = get_nav_tree()
     nav_tree.build(current_app)
 
     console = Console()
@@ -436,6 +441,7 @@ def roles() -> None:
 
     from app.enums import RoleEnum
 
+    nav_tree = get_nav_tree()
     nav_tree.build(current_app)
 
     console = Console()

@@ -104,7 +104,7 @@ class TestNavigationIntegration:
 
     def test_nav_tree_includes_swork_section(self, app):
         """Test that nav tree includes swork section."""
-        from app.flask.lib.nav import nav_tree
+        nav_tree = app.extensions["nav_tree"]
 
         with app.app_context():
             nav_tree.build(app)
@@ -114,7 +114,7 @@ class TestNavigationIntegration:
 
     def test_nav_tree_includes_members_page(self, app):
         """Test that nav tree includes members page."""
-        from app.flask.lib.nav import nav_tree
+        nav_tree = app.extensions["nav_tree"]
 
         with app.app_context():
             nav_tree.build(app)
@@ -122,7 +122,7 @@ class TestNavigationIntegration:
 
     def test_nav_tree_includes_groups_page(self, app):
         """Test that nav tree includes groups page."""
-        from app.flask.lib.nav import nav_tree
+        nav_tree = app.extensions["nav_tree"]
 
         with app.app_context():
             nav_tree.build(app)
@@ -130,7 +130,7 @@ class TestNavigationIntegration:
 
     def test_nav_tree_includes_organisations_page(self, app):
         """Test that nav tree includes organisations page."""
-        from app.flask.lib.nav import nav_tree
+        nav_tree = app.extensions["nav_tree"]
 
         with app.app_context():
             nav_tree.build(app)
@@ -138,7 +138,7 @@ class TestNavigationIntegration:
 
     def test_breadcrumbs_for_members(self, app):
         """Test breadcrumbs generation for members page."""
-        from app.flask.lib.nav import nav_tree
+        nav_tree = app.extensions["nav_tree"]
 
         with app.app_context():
             nav_tree.build(app)
