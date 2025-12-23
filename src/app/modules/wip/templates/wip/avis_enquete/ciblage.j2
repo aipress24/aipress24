@@ -55,10 +55,12 @@
                       allowEmptyOption: true,
                       plugins: ['remove_button'],
                       onChange: function() {
+                          let values = htmx.values(htmx.find('#search-form'));
+                          values.selector_change = 1;
                           htmx.ajax('GET', "{{ url_for('AvisEnqueteWipView:ciblage', id=model.id) }}", {
                               target: '#main',
                               select: '#main',
-                              values: htmx.values(htmx.find('#search-form'))
+                              values: values
                           });
                       }
                   });

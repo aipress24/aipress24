@@ -488,19 +488,21 @@ class SearchForm:
             return
 
         data_source = request.args if request.method == "GET" else request.form
+        selector_data = dict(data_source.lists())
+        if "selector_change" not in selector_data:
+            return
         seen_selectors: set[str] = set()
-        for k, values in data_source.lists():
+        for k, values in selector_data.items():
             if k in self.selector_keys:
                 clean_values = [v for v in values if v]
                 if clean_values:
                     self.state[k] = clean_values
                     seen_selectors.add(k)
 
-        if seen_selectors:
-            # clean the selectors if some change detected
-            for key in self.selector_keys:
-                if key not in seen_selectors:
-                    self.state.pop(key, None)
+        # clean the selectors if some change detected
+        for key in self.selector_keys:
+            if key not in seen_selectors:
+                self.state.pop(key, None)
 
     def save_state(self) -> None:
         session = container.get(SessionService)
