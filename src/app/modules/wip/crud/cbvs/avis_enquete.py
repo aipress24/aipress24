@@ -647,8 +647,9 @@ class SecteurSelector(Selector):
         return [
             e
             for e in experts
-            if not e.profile.secteurs_activite
-            or any(x in criteria for x in e.profile.secteurs_activite)
+            # if not e.profile.secteurs_activite
+            # or any(x in criteria for x in e.profile.secteurs_activite)
+            if any(x in criteria for x in e.profile.secteurs_activite)
         ]
 
 
@@ -668,7 +669,8 @@ class MetierSelector(Selector):
         return [
             e
             for e in experts
-            if not e.tous_metiers or any(x in criteria for x in e.tous_metiers)
+            # if not e.tous_metiers or any(x in criteria for x in e.tous_metiers)
+            if any(x in criteria for x in e.tous_metiers)
         ]
 
 
@@ -688,8 +690,9 @@ class FonctionSelector(Selector):
         return [
             e
             for e in experts
-            if not e.profile.toutes_fonctions
-            or any(x in criteria for x in e.profile.toutes_fonctions)
+            # if not e.profile.toutes_fonctions
+            # or any(x in criteria for x in e.profile.toutes_fonctions)
+            if any(x in criteria for x in e.profile.toutes_fonctions)
         ]
 
 
@@ -709,8 +712,9 @@ class TypeOrganisationSelector(Selector):
         return [
             e
             for e in experts
-            if not e.profile.type_organisation
-            or any(x in criteria for x in e.profile.type_organisation)
+            # if not e.profile.type_organisation
+            # or any(x in criteria for x in e.profile.type_organisation)
+            if any(x in criteria for x in e.profile.type_organisation)
         ]
 
 
