@@ -15,7 +15,11 @@ from ._common import build_table_context, handle_table_post
 
 
 @blueprint.route("/orgs")
-@nav(parent="index", icon="building-2", label="Organisations")
+@nav(
+    parent="index",
+    icon="building-2",
+    label="Organisations",
+)
 def orgs():
     """Organizations list page."""
     from ._orgs import OrgDataSource, OrgsTable

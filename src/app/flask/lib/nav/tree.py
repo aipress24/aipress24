@@ -31,8 +31,15 @@ class NavNode:
     icon: str = ""
     order: int = 99
     acl: list[tuple[str, Any, str]] = field(default_factory=list)
+    inherited_acl: list[tuple[str, Any, str]] = field(default_factory=list)
+    acl_source: str | None = None  # Where ACL was inherited from (None = own)
     in_menu: bool = True
     is_section: bool = False  # True for blueprint roots
+
+    @property
+    def effective_acl(self) -> list[tuple[str, Any, str]]:
+        """Get effective ACL (own or inherited)."""
+        return self.acl if self.acl else self.inherited_acl
 
     def url_for(self, **kwargs: Any) -> str:
         """Generate URL for this node."""
@@ -51,13 +58,14 @@ class NavNode:
             return "#"
 
     def is_visible_to(self, user: User) -> bool:
-        """Check if user can see this node based on ACL."""
-        if not self.acl:
+        """Check if user can see this node based on ACL (own or inherited)."""
+        acl = self.effective_acl
+        if not acl:
             return True
 
         from app.services.roles import has_role
 
-        for directive, role, _action in self.acl:
+        for directive, role, _action in acl:
             directive_lower = directive.lower()
             if directive_lower == "deny":
                 return False
@@ -109,6 +117,7 @@ class NavTree:
         self._build_sections(app)
         self._build_pages(app)
         self._build_url_index()
+        self._propagate_acl()
         self._validate()
         self._built = True
 
@@ -275,6 +284,60 @@ class NavTree:
                     f"Nav: {name} has parent '{node.parent}' which doesn't exist",
                     stacklevel=2,
                 )
+
+    def _propagate_acl(self) -> None:
+        """Propagate ACL from sections/parents to children without own ACL.
+
+        This allows setting ACL once on a section (e.g., admin) and having
+        all child routes inherit it automatically.
+        """
+        for name, node in self._nodes.items():
+            if node.is_section:
+                continue
+
+            # Skip nodes that have their own ACL
+            if node.acl:
+                continue
+
+            # Find ACL to inherit by walking up the parent chain
+            inherited_acl, source = self._find_inherited_acl(node)
+            if inherited_acl:
+                node.inherited_acl = inherited_acl
+                node.acl_source = source
+                logger.debug(
+                    "Nav ACL inherited: {} <- {} ({})",
+                    name,
+                    source,
+                    [
+                        r[1].name if hasattr(r[1], "name") else r[1]
+                        for r in inherited_acl
+                    ],
+                )
+
+    def _find_inherited_acl(
+        self, node: NavNode
+    ) -> tuple[list[tuple[str, Any, str]], str | None]:
+        """Walk up parent chain to find ACL to inherit."""
+        visited = {node.name}  # Prevent cycles
+        current_name = node.parent
+
+        while current_name:
+            if current_name in visited:
+                break
+            visited.add(current_name)
+
+            parent_node = self._nodes.get(current_name)
+            if not parent_node:
+                break
+
+            # Found ACL - return it with source
+            if parent_node.acl:
+                return parent_node.acl, current_name
+
+            # Continue up the chain
+            current_name = parent_node.parent
+
+        return [], None
 
     def get(self, endpoint: str) -> NavNode | None:
         """Get a node by endpoint name."""

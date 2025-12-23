@@ -18,7 +18,11 @@ from app.modules.admin import blueprint
 
 
 @blueprint.route("/system")
-@nav(parent="index", icon="server-cog", label="Système")
+@nav(
+    parent="index",
+    icon="server-cog",
+    label="Système",
+)
 def system():
     """System information page."""
     sizes = []

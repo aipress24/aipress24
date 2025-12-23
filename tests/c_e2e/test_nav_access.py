@@ -201,15 +201,15 @@ def get_testable_routes(nav_tree) -> list[tuple[str, str]]:
 
 
 def get_acl_protected_routes(nav_tree) -> dict[str, list[RoleEnum]]:
-    """Get routes with ACL and which roles can access them.
+    """Get routes with ACL (own or inherited) and which roles can access them.
 
     Returns dict mapping endpoint name to list of allowed roles.
     """
     protected = {}
     for name, node in nav_tree._nodes.items():
-        if node.acl:
+        if node.effective_acl:  # Check effective ACL (own or inherited)
             allowed_roles = []
-            for directive, role, _action in node.acl:
+            for directive, role, _action in node.effective_acl:
                 if directive.lower() == "allow":
                     allowed_roles.append(role)
             if allowed_roles:
