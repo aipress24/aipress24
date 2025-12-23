@@ -433,6 +433,23 @@ class KYCProfile(Base):
             + self.info_professionnelle.get("secteurs_activite_detailles_detail", [])
         )
 
+    @property
+    def toutes_fonctions(self) -> list[str]:
+        return (
+            self.match_making.get("fonctions_journalisme", [])
+            + self.match_making.get("fonctions_pol_adm_detail", [])
+            + self.match_making.get("fonctions_org_priv_detail", [])
+            + self.match_making.get("fonctions_ass_syn_detail", [])
+        )
+
+    @property
+    def type_organisation(self) -> list[str]:
+        return self.info_professionnelle.get("type_orga_detail", [])
+
+    @property
+    def taille_organisation(self) -> list[str]:
+        return self.info_professionnelle.get("taille_orga", [])
+
     def get_first_value(self, field_name: str) -> str:
         value = self.get_value(field_name)
         if isinstance(value, list):
