@@ -20,7 +20,6 @@ from svcs.flask import container
 
 from app.flask.lib.htmx import extract_fragment
 from app.flask.routing import url_for
-from app.logging import warn
 from app.models.auth import User
 from app.models.repositories import UserRepository
 from app.modules.wip.models import (
@@ -468,7 +467,7 @@ class SearchForm:
     all_experts: list[User]
 
     def __init__(self) -> None:
-        self.selector_keys: list[str] = [s.id for s in self._selector_classes]
+        self.selector_keys: str[str] = {s.id for s in self._selector_classes}
         self._restore_state()
         self._update_state()
         self.selectors = self._get_selectors()
@@ -486,23 +485,22 @@ class SearchForm:
 
         data_source = request.args if request.method == "GET" else request.form
         seen_selectors: set[str] = set()
-
         for k, values in data_source.lists():
-            if k.startswith(("action:", "expert:")):
-                continue
-            clean_values = [v for v in values if v]
-            if clean_values:
-                self.state[k] = clean_values
-                seen_selectors.add(k)
+            if k in self.selector_keys:
+                clean_values = [v for v in values if v]
+                if clean_values:
+                    self.state[k] = clean_values
+                    seen_selectors.add(k)
 
-        for key in self.selector_keys:
-            if key not in seen_selectors:
-                self.state.pop(key, None)
+        if seen_selectors:
+            # clean the selectors if some change detected
+            for key in self.selector_keys:
+                if key not in seen_selectors:
+                    self.state.pop(key, None)
 
     def save_state(self) -> None:
         session = container.get(SessionService)
         session["newsroom:ciblage"] = self.state
-        warn("self.state saved", self.state)
 
     def get_action(self) -> str:
         for name in request.form.to_dict():
@@ -532,7 +530,6 @@ class SearchForm:
 
         experts = self.all_experts
         for selector in self.selectors:
-            warn(selector.id)
             selected_values = self.state.get(selector.id)
             if not selected_values:
                 continue
