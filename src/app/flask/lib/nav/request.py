@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from .tree import BreadCrumb, MenuItem, nav_tree
+from .tree import BreadCrumb, MenuItem, get_nav_tree
 
 
 class NavRequest:
@@ -65,7 +65,7 @@ class NavRequest:
 
     def breadcrumbs(self) -> list[BreadCrumb]:
         """Build breadcrumb trail from current endpoint to root."""
-        return nav_tree.build_breadcrumbs(
+        return get_nav_tree().build_breadcrumbs(
             endpoint=self._endpoint,
             view_args=self._view_args,
             label_override=self._label_override,
@@ -85,7 +85,7 @@ class NavRequest:
         if section is None:
             section = self.current_section
 
-        return nav_tree.build_menu(
+        return get_nav_tree().build_menu(
             section=section,
             current_endpoint=self._endpoint,
         )

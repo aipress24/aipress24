@@ -134,7 +134,7 @@ class TestNavigationIntegration:
 
     def test_nav_tree_includes_preferences_section(self, app):
         """Test that nav tree includes preferences section."""
-        from app.flask.lib.nav import nav_tree
+        nav_tree = app.extensions["nav_tree"]
 
         with app.app_context():
             nav_tree.build(app)
@@ -144,7 +144,7 @@ class TestNavigationIntegration:
 
     def test_nav_tree_includes_preferences_pages(self, app):
         """Test that nav tree includes preferences pages."""
-        from app.flask.lib.nav import nav_tree
+        nav_tree = app.extensions["nav_tree"]
 
         with app.app_context():
             nav_tree.build(app)
@@ -155,7 +155,7 @@ class TestNavigationIntegration:
 
     def test_breadcrumbs_for_preferences(self, app):
         """Test breadcrumbs generation for preferences."""
-        from app.flask.lib.nav import nav_tree
+        nav_tree = app.extensions["nav_tree"]
 
         with app.app_context():
             nav_tree.build(app)

@@ -89,7 +89,11 @@ class MenuItem:
 
 
 class NavTree:
-    """Navigation tree, built at app startup from routes."""
+    """Navigation tree, built at app startup from routes.
+
+    Each Flask app has its own NavTree instance stored in app.extensions.
+    Use get_nav_tree() to access the tree for the current app.
+    """
 
     def __init__(self) -> None:
         self._nodes: dict[str, NavNode] = {}
@@ -478,5 +482,25 @@ class NavTree:
         return False
 
 
-# Global instance, built at app startup
-nav_tree = NavTree()
+def get_nav_tree() -> NavTree:
+    """Get the NavTree for the current Flask app.
+
+    The NavTree is stored in app.extensions['nav_tree'] and created
+    by register_nav() during app initialization.
+
+    Returns:
+        The NavTree instance for the current app.
+
+    Raises:
+        RuntimeError: If called outside of application context or
+            if nav system hasn't been registered.
+    """
+    from flask import current_app
+
+    if "nav_tree" not in current_app.extensions:
+        msg = (
+            "NavTree not initialized. Call register_nav(app) during app initialization."
+        )
+        raise RuntimeError(msg)
+
+    return current_app.extensions["nav_tree"]

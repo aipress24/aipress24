@@ -60,6 +60,7 @@ def publications():
     return render_template(
         "wip/pages/newsroom.j2",
         title="Autres publications",
+        items=[],
         table=table,
         options=OPTIONS,
         menus={"secondary": get_secondary_menu("alt-content")},

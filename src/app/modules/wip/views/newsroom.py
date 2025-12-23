@@ -151,14 +151,20 @@ def _has_active_business_wall() -> bool:
 def _check_article_creation_by_journalist() -> bool:
     """True if user is allowed to create articles."""
     profile = g.user.profile
-    profile_enum = ProfileEnum[profile.profile_code]
+    try:
+        profile_enum = ProfileEnum[profile.profile_code]
+    except KeyError:
+        return False
     return profile_enum in ALLOW_NEWSROOM_ARTICLE
 
 
 def _check_command_creation_by_redac_chief() -> bool:
     """True if user is allowed to create commands."""
     profile = g.user.profile
-    profile_enum = ProfileEnum[profile.profile_code]
+    try:
+        profile_enum = ProfileEnum[profile.profile_code]
+    except KeyError:
+        return False
     return profile_enum in ALLOW_NEWSROOM_COMMAND
 
 

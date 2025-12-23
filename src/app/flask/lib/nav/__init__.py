@@ -40,6 +40,6 @@ from __future__ import annotations
 
 from .decorator import nav
 from .registration import register_nav
-from .tree import nav_tree
+from .tree import NavTree, get_nav_tree
 
-__all__ = ["nav", "nav_tree", "register_nav"]
+__all__ = ["NavTree", "get_nav_tree", "nav", "register_nav"]

@@ -227,7 +227,7 @@ class TestNavigationIntegration:
 
     def test_nav_tree_includes_events_section(self, app):
         """Test that nav tree includes events section."""
-        from app.flask.lib.nav import nav_tree
+        nav_tree = app.extensions["nav_tree"]
 
         with app.app_context():
             nav_tree.build(app)
@@ -237,7 +237,7 @@ class TestNavigationIntegration:
 
     def test_nav_tree_includes_events_pages(self, app):
         """Test that nav tree includes events pages."""
-        from app.flask.lib.nav import nav_tree
+        nav_tree = app.extensions["nav_tree"]
 
         with app.app_context():
             nav_tree.build(app)
@@ -247,7 +247,7 @@ class TestNavigationIntegration:
 
     def test_breadcrumbs_for_events_list(self, app):
         """Test breadcrumbs generation for events list."""
-        from app.flask.lib.nav import nav_tree
+        nav_tree = app.extensions["nav_tree"]
 
         with app.app_context():
             nav_tree.build(app)
@@ -258,7 +258,7 @@ class TestNavigationIntegration:
 
     def test_breadcrumbs_for_event_detail(self, app):
         """Test breadcrumbs generation for event detail."""
-        from app.flask.lib.nav import nav_tree
+        nav_tree = app.extensions["nav_tree"]
 
         with app.app_context():
             nav_tree.build(app)
@@ -268,7 +268,7 @@ class TestNavigationIntegration:
 
     def test_secondary_menu_for_events(self, app):
         """Test secondary menu generation for events section."""
-        from app.flask.lib.nav import nav_tree
+        nav_tree = app.extensions["nav_tree"]
 
         with app.app_context():
             nav_tree.build(app)
@@ -289,7 +289,7 @@ class TestNavigationIntegration:
         """Test that breadcrumbs are injected into Context service."""
         from svcs.flask import container
 
-        from app.flask.lib.nav import nav_tree
+        nav_tree = app.extensions["nav_tree"]
         from app.services.context import Context
 
         with app.test_request_context("/events/"):
