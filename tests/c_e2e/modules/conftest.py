@@ -2,36 +2,32 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
-"""Shared fixtures for modules web tests.
+"""Shared fixtures for modules E2E tests.
 
 These tests use transaction wrapping (savepoints) for isolation,
-similar to b_integration tests. This is more efficient than
-fresh_db for tests that don't need complete database reset.
+which is more efficient than fresh_db for tests that don't need
+complete database reset.
+
+Note: Individual test modules may define their own `authenticated_client`
+fixture that uses make_authenticated_client() from the root conftest.
 """
 
 from __future__ import annotations
-
-from typing import TYPE_CHECKING
 
 import pytest
 from sqlalchemy import event
 
 from app.flask.extensions import db as _db
 
-if TYPE_CHECKING:
-    from flask import Flask
-    from flask.testing import FlaskClient
-    from sqlalchemy.orm import Session
-
-    from app.models.auth import User
-
 
 @pytest.fixture(autouse=True)
 def db_session(db, app):
-    """Override e2e db_session with transaction-wrapped version.
+    """Provide transaction-wrapped database session.
 
     This provides test isolation via savepoints/rollback instead of
     dropping and recreating tables. More efficient for web integration tests.
+
+    Submodules (wip, wire) override this to use fresh_db instead.
     """
     # Remove any existing scoped session to clear thread-local cache
     _db.session.remove()
@@ -74,27 +70,3 @@ def db_session(db, app):
     connection.close()
 
     _db.session.remove()
-
-
-@pytest.fixture
-def authenticated_client(
-    app: Flask, db_session: Session, test_user_with_profile: User
-) -> FlaskClient:
-    """Provide a Flask test client logged in as test user.
-
-    This is a common fixture used by many web tests.
-    Tests should define their own test_user_with_profile fixture.
-    """
-    client = app.test_client()
-
-    with client.session_transaction() as sess:
-        sess["_user_id"] = str(test_user_with_profile.id)
-        sess["_fresh"] = True
-        sess["_permanent"] = True
-        sess["_id"] = (
-            str(test_user_with_profile.fs_uniquifier)
-            if hasattr(test_user_with_profile, "fs_uniquifier")
-            else str(test_user_with_profile.id)
-        )
-
-    return client

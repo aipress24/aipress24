@@ -17,6 +17,7 @@ import pytest
 from app.enums import OrganisationTypeEnum, RoleEnum
 from app.models.auth import Role, User
 from app.models.organisation import Organisation
+from tests.c_e2e.conftest import make_authenticated_client
 
 if TYPE_CHECKING:
     from flask import Flask
@@ -87,18 +88,6 @@ def non_admin_user(db_session: Session) -> User:
 
 
 @pytest.fixture
-def admin_client(app: Flask, db_session: Session, admin_user: User) -> FlaskClient:
+def admin_client(app: Flask, admin_user: User) -> FlaskClient:
     """Provide a Flask test client logged in as admin."""
-    client = app.test_client()
-
-    with client.session_transaction() as sess:
-        sess["_user_id"] = str(admin_user.id)
-        sess["_fresh"] = True
-        sess["_permanent"] = True
-        sess["_id"] = (
-            str(admin_user.fs_uniquifier)
-            if hasattr(admin_user, "fs_uniquifier")
-            else str(admin_user.id)
-        )
-
-    return client
+    return make_authenticated_client(app, admin_user)

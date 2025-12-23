@@ -13,9 +13,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import pytest
-from flask import session
-from flask_login import logout_user
-from flask_security import login_user
 
 from app.enums import RoleEnum
 from app.models.auth import KYCProfile, Role, User
@@ -24,6 +21,7 @@ from app.models.organisation import Organisation
 from app.modules.swork.models import Comment
 from app.modules.wire.models import ArticlePost
 from app.services.social_graph import SocialUser
+from tests.c_e2e.conftest import make_authenticated_client
 
 if TYPE_CHECKING:
     from flask import Flask
@@ -86,21 +84,7 @@ def wire_test_data(app: Flask, fresh_db):
 def authenticated_client(app: Flask, wire_test_data) -> FlaskClient:
     """Provide authenticated Flask test client."""
     user = wire_test_data["user"]
-    client = app.test_client()
-
-    with app.test_request_context():
-        login_user(user)
-        with client.session_transaction() as sess:
-            for key, value in session.items():
-                sess[key] = value
-
-    yield client
-
-    with app.test_request_context():
-        try:
-            logout_user()
-        except Exception:
-            pass
+    return make_authenticated_client(app, user)
 
 
 class TestToggleLike:

@@ -8,6 +8,11 @@
 
 These tests use a fresh database for each test - tables are dropped and recreated
 to ensure complete isolation between tests.
+
+This module provides:
+- fresh_db: Drop/create tables for complete isolation
+- logged_in_client: Authenticated client with test data
+- make_authenticated_client(): Helper for creating authenticated clients
 """
 
 from __future__ import annotations
@@ -34,6 +39,30 @@ if TYPE_CHECKING:
 
 
 _e2e_engine_disposed = False
+
+
+def make_authenticated_client(app: Flask, user: User) -> FlaskClient:
+    """Create an authenticated Flask test client for the given user.
+
+    This is a helper function (not a fixture) that can be used by other
+    fixtures to create authenticated clients without duplicating code.
+
+    Args:
+        app: Flask application instance
+        user: User to authenticate as
+
+    Returns:
+        FlaskClient logged in as the user
+    """
+    client = app.test_client()
+
+    with app.test_request_context():
+        login_user(user)
+        with client.session_transaction() as sess:
+            for key, value in session.items():
+                sess[key] = value
+
+    return client
 
 
 @pytest.fixture
@@ -141,10 +170,9 @@ def fresh_db(app: Flask):
 
 @pytest.fixture
 def logged_in_client(app: Flask, fresh_db) -> FlaskClient:
-    """
-    Provides a logged-in Flask test client with a fresh database.
+    """Provide a logged-in Flask test client with a fresh database.
 
-    Creates test data and authenticates a user.
+    Creates test data (role, org, user, article) and authenticates.
     """
     db_session = fresh_db.session
 
@@ -173,18 +201,6 @@ def logged_in_client(app: Flask, fresh_db) -> FlaskClient:
     db_session.add(article)
     db_session.commit()
 
-    # Create test client
-    client = app.test_client()
+    yield make_authenticated_client(app, user)
 
-    # Use Flask-Security's login_user to properly authenticate
-    with app.test_request_context():
-        login_user(user)
-        # Copy the session to the test client
-        with client.session_transaction() as sess:
-            for key, value in session.items():
-                sess[key] = value
-
-    yield client
-
-    # Cleanup: ensure session is closed
     db_session.close()
