@@ -22,7 +22,10 @@ from app.flask.lib.htmx import extract_fragment
 from app.flask.routing import url_for
 from app.models.auth import User
 from app.models.repositories import UserRepository
-from app.modules.kyc.field_label import country_code_to_country_name
+from app.modules.kyc.field_label import (
+    country_code_to_country_name,
+    taille_orga_code_to_label,
+)
 from app.modules.wip.models import (
     AvisEnquete,
     AvisEnqueteRepository,
@@ -727,6 +730,14 @@ class TailleOrganisationSelector(Selector):
             for e in experts
             if any(x in criteria for x in e.profile.taille_organisation)
         ]
+
+    def _make_options(self, values: list[str] | set[str]) -> list[Option]:
+        options: set[Option] = set()
+        for value in values:
+            selected = "selected" if value in self.values else ""
+            option = Option(value, taille_orga_code_to_label(value), selected)
+            options.add(option)
+        return sorted(options)
 
 
 class PaysSelector(Selector):
