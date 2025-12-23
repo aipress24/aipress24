@@ -96,6 +96,19 @@ def country_zip_code_to_city(code: str) -> str:
     return find_label_city(cities, code)
 
 
+@functools.cache
+def taille_orga_code_to_label(code: str | int) -> str:
+    onto_list = get_ontology_content("taille_organisation")
+    try:
+        index = int(code)
+    except ValueError:
+        index = 0
+    try:
+        return onto_list[index][1]
+    except IndexError:
+        return onto_list[0][1]
+
+
 KEY_LABEL_MAP = {
     "civilite": (label_from_values_simple, "civilite"),
     "competences": (label_from_values_simple, "competence"),
