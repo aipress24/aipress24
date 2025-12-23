@@ -22,6 +22,7 @@ from app.flask.lib.htmx import extract_fragment
 from app.flask.routing import url_for
 from app.models.auth import User
 from app.models.repositories import UserRepository
+from app.modules.kyc.field_label import country_code_to_country_name
 from app.modules.wip.models import (
     AvisEnquete,
     AvisEnqueteRepository,
@@ -739,6 +740,14 @@ class PaysSelector(Selector):
         if not criteria:
             return experts
         return [e for e in experts if e.profile.country in criteria]
+
+    def _make_options(self, values: list[str] | set[str]) -> list[Option]:
+        options: set[Option] = set()
+        for value in values:
+            selected = "selected" if value in self.values else ""
+            option = Option(value, country_code_to_country_name(value), selected)
+            options.add(option)
+        return sorted(options, key=self.sorter)
 
 
 class DepartementSelector(Selector):

@@ -4,6 +4,8 @@
 
 from __future__ import annotations
 
+import functools
+
 from .ontology_loader import get_ontology_content, zip_code_city_list
 
 
@@ -77,6 +79,12 @@ def label_from_values_cities(data: str | list, _key: str, _ontology: str) -> str
 def country_code_to_label(code: str) -> str:
     onto_list = get_ontology_content("pays")
     return labels_string(code, onto_list)
+
+
+@functools.cache
+def country_code_to_country_name(code: str) -> str:
+    onto_list = get_ontology_content("pays")
+    return find_label(onto_list, code)
 
 
 def country_zip_code_to_city(code: str) -> str:
