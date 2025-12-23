@@ -13,7 +13,11 @@ from app.modules.admin import blueprint
 
 
 @blueprint.route("/exports")
-@nav(parent="index", icon="file-down", label="Exports")
+@nav(
+    parent="index",
+    icon="file-down",
+    label="Exports",
+)
 def exports():
     """Export page."""
     return render_template("admin/pages/exports.j2", title="Exports")

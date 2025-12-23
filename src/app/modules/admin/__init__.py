@@ -11,6 +11,7 @@ from flask import Blueprint
 from flask_login import current_user
 from werkzeug.exceptions import Unauthorized
 
+from app.enums import RoleEnum
 from app.models.auth import User
 from app.services.roles import has_role
 
@@ -19,11 +20,12 @@ blueprint = Blueprint(
 )
 route = blueprint.route
 
-# Navigation configuration
+# Navigation configuration - ACL here is inherited by all child routes
 blueprint.nav = {
     "label": "Admin",
     "icon": "cog",
     "order": 100,
+    "acl": [("Allow", RoleEnum.ADMIN, "view")],
 }
 
 

@@ -109,7 +109,11 @@ def index():
 
 
 @blueprint.route("/dashboard")
-@nav(parent="index", icon="gauge", label="Tableau de bord")
+@nav(
+    parent="index",
+    icon="gauge",
+    label="Tableau de bord",
+)
 def dashboard():
     """Admin dashboard."""
     widgets = [Widget(**widget_args) for widget_args in WIDGETS]

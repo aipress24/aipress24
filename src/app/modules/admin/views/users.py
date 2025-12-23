@@ -15,7 +15,11 @@ from ._common import build_table_context, handle_table_post
 
 
 @blueprint.route("/users")
-@nav(parent="index", icon="users", label="Utilisateurs")
+@nav(
+    parent="index",
+    icon="users",
+    label="Utilisateurs",
+)
 def users():
     """Users list page."""
     from ._users import UserDataSource, UsersTable
@@ -38,7 +42,11 @@ def users_post():
 
 
 @blueprint.route("/new_users")
-@nav(parent="index", icon="user-plus", label="Inscriptions")
+@nav(
+    parent="index",
+    icon="user-plus",
+    label="Inscriptions",
+)
 def new_users():
     """New users to validate page."""
     from ._new_users import NewUserDataSource, NewUsersTable
@@ -61,7 +69,11 @@ def new_users_post():
 
 
 @blueprint.route("/modif_users")
-@nav(parent="index", icon="user-cog", label="Modifications")
+@nav(
+    parent="index",
+    icon="user-cog",
+    label="Modifications",
+)
 def modif_users():
     """Modified users to validate page."""
     from ._modif_users import ModifUserDataSource, ModifUsersTable

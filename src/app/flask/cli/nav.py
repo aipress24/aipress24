@@ -204,6 +204,9 @@ def _add_node_to_tree(
         if node.acl:
             acl_str = ", ".join(f"{d} {r}" for d, r, _ in node.acl)
             label += f"\n  [bold]acl:[/bold] [magenta]{acl_str}[/magenta]"
+        elif node.inherited_acl:
+            acl_str = ", ".join(f"{d} {r}" for d, r, _ in node.inherited_acl)
+            label += f"\n  [bold]acl:[/bold] [cyan]{acl_str}[/cyan] [dim](inherited from {node.acl_source})[/dim]"
     else:
         # Compact mode: one line summary
         label = f"[green]{node.name.split('.')[-1]}[/green] - {node.label}"
@@ -214,7 +217,9 @@ def _add_node_to_tree(
         if not node.in_menu:
             label += " [red](hidden from menu)[/red]"
         if node.acl:
-            label += " [magenta](ACL protected)[/magenta]"
+            label += " [magenta](ACL)[/magenta]"
+        elif node.inherited_acl:
+            label += f" [cyan](ACL←{node.acl_source})[/cyan]"
 
     child_tree = parent_tree.add(label)
 
@@ -352,9 +357,17 @@ def show(endpoint: str) -> None:
     console.print(f"[bold]Is Section:[/bold] {node.is_section}")
 
     if node.acl:
-        console.print("[bold]ACL:[/bold]")
+        console.print("[bold]ACL:[/bold] [magenta](own)[/magenta]")
         for directive, role, action in node.acl:
             console.print(f"  {directive} [magenta]{role.name}[/magenta] ({action})")
+    elif node.inherited_acl:
+        console.print(
+            f"[bold]ACL:[/bold] [cyan](inherited from {node.acl_source})[/cyan]"
+        )
+        for directive, role, action in node.inherited_acl:
+            console.print(f"  {directive} [cyan]{role.name}[/cyan] ({action})")
+    else:
+        console.print("[bold]ACL:[/bold] [dim](none - open to all authenticated)[/dim]")
 
     # Show children
     children = nav_tree.children_of(node.name)
@@ -374,12 +387,14 @@ def show(endpoint: str) -> None:
 
 @nav.command()
 @click.option("--by-role", is_flag=True, help="Group routes by required role")
+@click.option("--inherited", is_flag=True, help="Show inherited ACLs separately")
 @with_appcontext
-def acl(by_role: bool) -> None:
+def acl(by_role: bool, inherited: bool) -> None:
     """List all ACL-protected routes.
 
     Shows which routes require specific roles to access.
     Use --by-role to group routes by the role that can access them.
+    Use --inherited to highlight which ACLs are inherited vs own.
     """
     from collections import defaultdict
 
@@ -390,9 +405,9 @@ def acl(by_role: bool) -> None:
 
     console = Console()
 
-    # Collect all nodes with ACL
+    # Collect all nodes with effective ACL (own or inherited)
     protected_nodes = [
-        (name, node) for name, node in nav_tree._nodes.items() if node.acl
+        (name, node) for name, node in nav_tree._nodes.items() if node.effective_acl
     ]
 
     if not protected_nodes:
@@ -401,10 +416,13 @@ def acl(by_role: bool) -> None:
 
     if by_role:
         # Group by role
-        role_to_nodes: dict[str, list[tuple[str, str, str]]] = defaultdict(list)
+        role_to_nodes: dict[str, list[tuple[str, str, str, bool]]] = defaultdict(list)
         for name, node in protected_nodes:
-            for _directive, role, _action in node.acl:
-                role_to_nodes[role.name].append((name, node.label, node.url_rule))
+            is_inherited = bool(node.inherited_acl and not node.acl)
+            for _directive, role, _action in node.effective_acl:
+                role_to_nodes[role.name].append(
+                    (name, node.label, node.url_rule, is_inherited)
+                )
 
         # Sort roles alphabetically
         for role_name in sorted(role_to_nodes.keys()):
@@ -412,23 +430,41 @@ def acl(by_role: bool) -> None:
             console.print(
                 f"\n[bold magenta]{role_name}[/bold magenta] ({len(nodes)} routes)"
             )
-            for name, label, url in sorted(nodes, key=lambda x: x[0]):
-                console.print(f"  [green]{name}[/green] - {label} [dim]({url})[/dim]")
+            for name, label, url, is_inherited in sorted(nodes, key=lambda x: x[0]):
+                marker = " [cyan](inherited)[/cyan]" if is_inherited else ""
+                console.print(
+                    f"  [green]{name}[/green] - {label} [dim]({url})[/dim]{marker}"
+                )
     else:
         # Show as table
         table = Table(title="ACL-Protected Routes")
         table.add_column("Endpoint", style="green")
         table.add_column("Label")
         table.add_column("URL", style="dim")
-        table.add_column("Access Rules", style="magenta")
+        table.add_column("Access Rules")
+        if inherited:
+            table.add_column("Source")
 
         for name, node in sorted(protected_nodes, key=lambda x: x[0]):
-            acl_str = ", ".join(f"{d} {r.name}" for d, r, _ in node.acl)
-            table.add_row(name, node.label, node.url_rule, acl_str)
+            acl_str = ", ".join(f"{d} {r.name}" for d, r, _ in node.effective_acl)
+            is_inherited = bool(node.inherited_acl and not node.acl)
+            style = "cyan" if is_inherited else "magenta"
+            acl_display = f"[{style}]{acl_str}[/{style}]"
+
+            if inherited:
+                source = node.acl_source if is_inherited else "(own)"
+                table.add_row(name, node.label, node.url_rule, acl_display, source)
+            else:
+                table.add_row(name, node.label, node.url_rule, acl_display)
 
         console.print(table)
 
+    own_count = sum(1 for _, n in protected_nodes if n.acl)
+    inherited_count = sum(
+        1 for _, n in protected_nodes if n.inherited_acl and not n.acl
+    )
     console.print(f"\n[dim]Total ACL-protected routes: {len(protected_nodes)}[/dim]")
+    console.print(f"[dim]  Own ACL: {own_count}, Inherited: {inherited_count}[/dim]")
 
 
 @nav.command()
@@ -446,18 +482,19 @@ def roles() -> None:
 
     console = Console()
 
-    # Count routes accessible per role
+    # Count routes accessible per role (using effective ACL)
     role_access: dict[str, int] = defaultdict(int)
     total_nodes = len(nav_tree._nodes)
 
     for node in nav_tree._nodes.values():
-        if not node.acl:
+        effective = node.effective_acl
+        if not effective:
             # No ACL means everyone can access
             for role in RoleEnum:
                 role_access[role.name] += 1
         else:
             # Check which roles have access
-            for directive, role, _ in node.acl:
+            for directive, role, _ in effective:
                 if directive == "Allow":
                     role_access[role.name] += 1
 

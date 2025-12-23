@@ -15,7 +15,11 @@ from ._common import build_table_context, handle_table_post
 
 
 @blueprint.route("/groups")
-@nav(parent="index", icon="user-group", label="Groupes")
+@nav(
+    parent="index",
+    icon="user-group",
+    label="Groupes",
+)
 def groups():
     """Groups list page."""
     from ._groups import GroupDataSource, GroupsTable

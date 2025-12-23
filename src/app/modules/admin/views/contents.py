@@ -18,7 +18,11 @@ from ._common import build_table_context, handle_table_post
 
 
 @blueprint.route("/contents")
-@nav(parent="index", icon="rectangle-stack", label="Contenus")
+@nav(
+    parent="index",
+    icon="rectangle-stack",
+    label="Contenus",
+)
 def contents():
     """Contents list page."""
     from ._contents import ContentsDataSource, ContentsTable

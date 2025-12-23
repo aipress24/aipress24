@@ -30,7 +30,11 @@ BOX_TITLE2 = "AiPRESS24 vous suggère"
 
 
 @blueprint.route("/promotions")
-@nav(parent="index", icon="megaphone", label="Promotions")
+@nav(
+    parent="index",
+    icon="megaphone",
+    label="Promotions",
+)
 def promotions():
     """Promotions management page."""
     promo_service = container.get(PromotionService)

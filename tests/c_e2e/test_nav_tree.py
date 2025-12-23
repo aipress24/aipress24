@@ -347,33 +347,41 @@ class TestNavNodeVisibility:
     """
 
     def test_nodes_without_acl_are_visible(self, nav_tree: NavTree):
-        """Nodes without ACL rules should be visible to any user."""
-        # Find nodes without ACL
-        nodes_without_acl = [node for node in nav_tree._nodes.values() if not node.acl]
+        """Nodes without effective ACL (own or inherited) should be visible to any user."""
+        # Find nodes without effective ACL (neither own nor inherited)
+        nodes_without_acl = [
+            node for node in nav_tree._nodes.values() if not node.effective_acl
+        ]
 
         # There should be some nodes without ACL restrictions
-        assert len(nodes_without_acl) > 0, "Expected some nodes without ACL"
+        assert len(nodes_without_acl) > 0, "Expected some nodes without effective ACL"
 
         # All of them should return True for visibility with any mock user
         class MockUser:
-            pass
+            is_anonymous = False
+            roles = []
+
+            def has_role(self, role):
+                return False
 
         for node in nodes_without_acl:
             assert node.is_visible_to(MockUser()) is True, (
-                f"Node {node.name} without ACL should be visible"
+                f"Node {node.name} without effective ACL should be visible"
             )
 
     def test_nodes_with_acl_exist(self, nav_tree: NavTree):
-        """There should be some nodes with ACL restrictions."""
-        nodes_with_acl = [node for node in nav_tree._nodes.values() if node.acl]
+        """There should be some nodes with ACL restrictions (own or inherited)."""
+        nodes_with_acl = [
+            node for node in nav_tree._nodes.values() if node.effective_acl
+        ]
         # We expect at least some protected nodes
         assert len(nodes_with_acl) > 0, "Expected some nodes with ACL"
 
     def test_acl_protected_nodes_have_allow_rules(self, nav_tree: NavTree):
         """Nodes with ACL should have at least one Allow rule."""
         for name, node in nav_tree._nodes.items():
-            if node.acl:
-                allow_rules = [acl for acl in node.acl if acl[0] == "Allow"]
+            if node.effective_acl:
+                allow_rules = [acl for acl in node.effective_acl if acl[0] == "Allow"]
                 assert allow_rules, f"Node {name} has ACL but no Allow rules"
 
 
