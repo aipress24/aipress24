@@ -10,6 +10,7 @@ from itertools import pairwise
 
 from flask import g, render_template
 
+from app.enums import RoleEnum
 from app.flask.lib.nav import nav
 from app.modules.wip import blueprint
 
@@ -17,7 +18,7 @@ from ._common import get_secondary_menu
 
 
 @blueprint.route("/performance")
-@nav(icon="star")
+@nav(icon="star", acl=[("Allow", RoleEnum.SELF, "view")])
 def performance():
     """Performance"""
     # Lazy import to avoid circular import

@@ -387,9 +387,17 @@ def modify_page():
 
 
 def _role_from_name(name: str) -> Role:
+    """Get a Role object by name.
+
+    Raises:
+        KeyError: If role name is not found in the database.
+    """
     role_repo = container.get(RoleRepository)
     roles_map = {role.name: role for role in role_repo.list()}
-    return roles_map.get(name, roles_map["GUEST"])
+    if name not in roles_map:
+        msg = f"Role '{name}' not found. Available roles: {list(roles_map.keys())}"
+        raise KeyError(msg)
+    return roles_map[name]
 
 
 def _make_new_kyc_user_record() -> User:

@@ -11,6 +11,7 @@ from flask import Blueprint, current_app, send_from_directory
 from flask_login import current_user
 from werkzeug.exceptions import Unauthorized
 
+from app.enums import RoleEnum
 from app.models.auth import User
 
 blueprint = Blueprint(
@@ -18,11 +19,13 @@ blueprint = Blueprint(
 )
 route = blueprint.route
 
-# Navigation configuration for this section
+# Navigation configuration - SELF ACL inherited by all child routes
+# (SELF means "visible to authenticated users, ownership checked in view")
 blueprint.nav = {
     "label": "Préférences",
     "icon": "cog",
     "order": 9,  # Near the end
+    "acl": [("Allow", RoleEnum.SELF, "view")],
 }
 
 

@@ -118,12 +118,12 @@ class TestHasRole:
     def test_has_role_with_role_enum(self, db: SQLAlchemy) -> None:
         """Test checking role with RoleEnum."""
         user = User(email="test@example.com")
-        role = Role(name=RoleEnum.GUEST.name)
+        role = Role(name=RoleEnum.EXPERT.name)
         user.add_role(role)
         db.session.add_all([user, role])
         db.session.flush()
 
-        assert has_role(user, RoleEnum.GUEST) is True
+        assert has_role(user, RoleEnum.EXPERT) is True
 
     def test_has_role_with_role_object(self, db: SQLAlchemy) -> None:
         """Test checking role with Role object."""
