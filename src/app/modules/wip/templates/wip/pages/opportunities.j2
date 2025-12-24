@@ -36,10 +36,7 @@
 {% endmacro %}
 
 {% block body_content %}
-  {% if g.user.has_role("EXPERT") %}
-    {# TODO: if has_role("expert")... #}
     <h2 class="text-lg font-medium text-gray-900 mb-4">Opportunités d'exposition média</h2>
-
     <div class="">
       {% if media_opportunities %}
         {{ render_media_opps(media_opportunities) }}
@@ -47,6 +44,5 @@
         <p>Aucune opportunité d'exposition média pour le moment.</p>
       {% endif %}
     </div>
-  {% endif %}
 
 {% endblock %}
