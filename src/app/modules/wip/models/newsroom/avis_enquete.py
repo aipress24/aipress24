@@ -30,9 +30,9 @@ class TypeAvis(StrEnum):
 
 
 class StatutAvis(StrEnum):
-    EN_ATTENTE = auto()
-    ACCEPTE = auto()
-    REFUSE = auto()
+    EN_ATTENTE = auto()  # converted to "en_attente"
+    ACCEPTE = auto()  # converted to "accepte"
+    REFUSE = auto()  # converted to "refuse"
 
 
 class RDVType(StrEnum):
