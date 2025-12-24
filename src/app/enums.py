@@ -14,17 +14,21 @@ class RoleEnum(StrEnum):
     """User role enumeration."""
 
     ADMIN = "admin"
-    GUEST = "guest"
 
     # for BW organisations
     LEADER = "leader"
     MANAGER = "manager"
 
+    # User types by community
     PRESS_MEDIA = "journalist"
     PRESS_RELATIONS = "press_relations"
     EXPERT = "expert"
     ACADEMIC = "academic"
     TRANSFORMER = "transformer"
+
+    # Magic roles (evaluated at runtime, not stored in database)
+    # SELF means "the current user owns the resource being accessed"
+    SELF = "self"
 
 
 class CommunityEnum(StrEnum):

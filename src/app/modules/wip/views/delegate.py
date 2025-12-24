@@ -8,12 +8,15 @@ from __future__ import annotations
 
 from flask import render_template
 
+from app.enums import RoleEnum
+from app.flask.lib.nav import nav
 from app.modules.wip import blueprint
 
 from ._common import get_secondary_menu
 
 
 @blueprint.route("/delegate")
+@nav(acl=[("Allow", RoleEnum.SELF, "view")])
 def delegate():
     """Délégations"""
     return render_template(

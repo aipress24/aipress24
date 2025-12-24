@@ -58,19 +58,29 @@ class NavNode:
             return "#"
 
     def is_visible_to(self, user: User) -> bool:
-        """Check if user can see this node based on ACL (own or inherited)."""
+        """Check if user can see this node based on ACL (own or inherited).
+
+        Magic roles are handled specially:
+        - SELF: Visible to any authenticated user (ownership checked in view)
+        """
         acl = self.effective_acl
         if not acl:
             return True
 
+        from app.enums import RoleEnum
         from app.services.roles import has_role
 
         for directive, role, _action in acl:
             directive_lower = directive.lower()
             if directive_lower == "deny":
                 return False
-            if directive_lower == "allow" and has_role(user, role):
-                return True
+            if directive_lower == "allow":
+                # Handle SELF magic role: visible to any authenticated user
+                if role == RoleEnum.SELF:
+                    if not getattr(user, "is_anonymous", True):
+                        return True
+                elif has_role(user, role):
+                    return True
 
         # If we had ACL rules but none matched, deny by default
         return False

@@ -10,6 +10,7 @@ from flask import g, render_template, request
 from sqlalchemy import select
 from werkzeug.exceptions import NotFound, Unauthorized
 
+from app.enums import RoleEnum
 from app.flask.extensions import db
 from app.flask.lib.nav import nav
 from app.flask.routing import url_for
@@ -41,7 +42,7 @@ TEMPLATE = """
 
 
 @blueprint.route("/billing")
-@nav(icon="credit-card")
+@nav(icon="credit-card", acl=[("Allow", RoleEnum.SELF, "view")])
 def billing():
     """Facturation"""
     invoices = _get_invoices(g.user)
@@ -59,6 +60,7 @@ def billing():
 
 
 @blueprint.route("/billing/get_pdf")
+@nav(hidden=True)
 def billing_get_pdf():
     """Download invoice as PDF."""
     invoice = _get_invoice()
@@ -72,6 +74,7 @@ def billing_get_pdf():
 
 
 @blueprint.route("/billing/get_csv")
+@nav(hidden=True)
 def billing_get_csv():
     """Download invoice as CSV."""
     invoice = _get_invoice()

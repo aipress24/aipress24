@@ -12,19 +12,31 @@ from typing import Any
 from flask import g, render_template, request
 from flask_wtf import FlaskForm
 from werkzeug import Response
+from werkzeug.exceptions import Forbidden
 
+from app.enums import RoleEnum
 from app.flask.extensions import db
 from app.flask.lib.nav import nav
 from app.flask.routing import url_for
 from app.modules.wip import blueprint
+from app.services.roles import has_role
 
 from ._common import get_secondary_menu
 
 
 @blueprint.route("/org-profile", endpoint="org-profile")
-@nav(icon="building-library")
+@nav(
+    icon="building-library",
+    acl=[("Allow", RoleEnum.MANAGER, "view"), ("Allow", RoleEnum.LEADER, "view")],
+)
 def org_profile():
     """Business Wall"""
+    # Access control: only managers and leaders can access
+    user = g.user
+    if not (has_role(user, RoleEnum.MANAGER) or has_role(user, RoleEnum.LEADER)):
+        msg = "Only managers and leaders can access this page"
+        raise Forbidden(msg)
+
     ctx = _build_context()
 
     return render_template(
@@ -36,6 +48,7 @@ def org_profile():
 
 
 @blueprint.route("/org-profile", methods=["POST"])
+@nav(hidden=True)
 def org_profile_post() -> str | Response:
     """Handle business wall form submission."""
     # Lazy imports to avoid circular import

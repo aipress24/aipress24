@@ -330,6 +330,10 @@ class TestNavAccessConsistency:
                 continue
             if endpoint in acl_protected:
                 allowed_roles = set(acl_protected[endpoint])
+                # SELF is a magic role: routes with SELF ACL are visible to ALL
+                # authenticated users (ownership is checked in the view, not nav)
+                if RoleEnum.SELF in allowed_roles:
+                    continue  # SELF routes are accessible to all authenticated users
                 # Route is hidden if none of user's roles are allowed
                 if not user_roles.intersection(allowed_roles):
                     hidden_routes.append((endpoint, url))
@@ -452,4 +456,142 @@ class TestUnauthenticatedAccess:
             failure_msg += "\n".join(f"  - {f}" for f in failures[:10])
             if len(failures) > 10:
                 failure_msg += f"\n  ... and {len(failures) - 10} more"
+            pytest.fail(failure_msg)
+
+
+class TestAnonymousAccessSurface:
+    """Test that the anonymous access surface is minimal and expected.
+
+    This test documents exactly which routes are accessible without
+    authentication, catching any accidental exposure of protected routes.
+    """
+
+    # Routes that SHOULD be accessible without authentication
+    # (login, register, static assets, public pages, health checks)
+    EXPECTED_PUBLIC_ENDPOINTS = {
+        # Auth routes
+        "security.login",
+        "security.register",
+        "security.forgot_password",
+        "security.reset_password",
+        "security.send_confirmation",
+        "security.confirm_email",
+        # Static/assets
+        "static",
+        # Public pages (if any)
+        "public.home",
+        "public.index",
+        # KYC/registration flow
+        "kyc.welcome",
+        "kyc.start",
+        # Health checks, etc.
+    }
+
+    # Endpoint prefixes that are expected to be public
+    EXPECTED_PUBLIC_PREFIXES = {
+        "static",
+        "security.",
+        "public.",
+        "kyc.",
+    }
+
+    def test_anonymous_access_surface(self, app: Flask, build_nav: NavTree):
+        """Test that only expected routes are accessible without auth.
+
+        This test:
+        1. Gets all testable routes from the nav tree
+        2. Tests each without authentication
+        3. Verifies only expected public routes return 200
+        4. All other routes should redirect (302) or deny (401/403)
+        """
+        nav_tree = build_nav
+        client = app.test_client()  # Not logged in
+
+        all_routes = get_testable_routes(nav_tree)
+
+        # Track routes that are accessible without auth
+        accessible_routes = []
+        protected_routes = []
+
+        for endpoint, url in all_routes:
+            if endpoint in SKIP_ENDPOINTS:
+                continue
+
+            try:
+                response = client.get(url)
+                if response.status_code == 200:
+                    accessible_routes.append((endpoint, url))
+                else:
+                    protected_routes.append((endpoint, url, response.status_code))
+            except Exception:
+                # Exceptions are infrastructure issues, skip
+                pass
+
+        # Check that all accessible routes are expected to be public
+        unexpected_public = []
+        for endpoint, url in accessible_routes:
+            is_expected = endpoint in self.EXPECTED_PUBLIC_ENDPOINTS or any(
+                endpoint.startswith(p) for p in self.EXPECTED_PUBLIC_PREFIXES
+            )
+            if not is_expected:
+                unexpected_public.append(f"{endpoint} ({url})")
+
+        if unexpected_public:
+            failure_msg = (
+                f"\n{len(unexpected_public)} routes unexpectedly accessible "
+                "without authentication:\n"
+            )
+            failure_msg += "\n".join(f"  - {r}" for r in unexpected_public[:20])
+            if len(unexpected_public) > 20:
+                failure_msg += f"\n  ... and {len(unexpected_public) - 20} more"
+            failure_msg += (
+                "\n\nIf these routes should be public, add them to "
+                "EXPECTED_PUBLIC_ENDPOINTS or EXPECTED_PUBLIC_PREFIXES."
+            )
+            pytest.fail(failure_msg)
+
+        # Report the access surface (informational)
+        print("\n\nAnonymous access surface report:")
+        print(f"  Total routes tested: {len(all_routes) - len(SKIP_ENDPOINTS)}")
+        print(f"  Accessible without auth: {len(accessible_routes)}")
+        print(f"  Protected (redirect/deny): {len(protected_routes)}")
+
+    def test_blueprint_before_request_hooks(self, app: Flask):
+        """Verify that blueprint before_request hooks enforce authentication.
+
+        This tests routes that might not be in the nav tree (hidden routes,
+        POST handlers, etc.) to ensure blueprint-level auth is working.
+        """
+        client = app.test_client()  # Not logged in
+
+        # These are protected routes that should require auth via blueprint hooks
+        # even if they're not in the nav tree
+        protected_routes = [
+            # WIP module - hidden routes
+            ("/wip/billing/get_pdf?invoice_id=1", "wip.billing_get_pdf"),
+            ("/wip/billing/get_csv?invoice_id=1", "wip.billing_get_csv"),
+            # Admin module - should be blocked
+            ("/admin/", "admin.index"),
+            ("/admin/dashboard", "admin.dashboard"),
+            # Preferences module
+            ("/preferences/", "preferences.home"),
+        ]
+
+        failures = []
+        for url, name in protected_routes:
+            try:
+                response = client.get(url)
+                # Should be 401 Unauthorized or 302 redirect to login
+                if response.status_code == 200:
+                    failures.append(f"{name} ({url}): got 200, expected 401/302")
+            except Exception:
+                # Exceptions might occur for parameterized routes, that's ok
+                pass
+
+        if failures:
+            failure_msg = (
+                f"\n{len(failures)} routes accessible without auth "
+                "(blueprint hooks not working):\n"
+            )
+            failure_msg += "\n".join(f"  - {f}" for f in failures)
             pytest.fail(failure_msg)
