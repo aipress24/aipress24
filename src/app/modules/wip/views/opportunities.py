@@ -6,6 +6,8 @@
 
 from __future__ import annotations
 
+from datetime import UTC, datetime
+
 from attr import frozen
 from flask import g, render_template, request
 from svcs.flask import container
@@ -59,6 +61,35 @@ def media_opportunity(id: int):
 @blueprint.route("/opportunities/<int:id>", methods=["POST"])
 def media_opportunity_post(id: int) -> str | Response:
     """Handle media opportunity form submission."""
+    # Lazy import to avoid circular import
+    from app.modules.wip.models import ContactAvisEnqueteRepository, StatutAvis
+
+    repo = container.get(ContactAvisEnqueteRepository)
+    contact = repo.get(id)
+
+    reponse = request.form.get("reponse1")
+    if reponse:
+        contact.date_reponse = datetime.now(UTC)
+        if reponse == "oui":
+            contact.status = StatutAvis.ACCEPTE
+            contact.rdv_notes_expert = request.form.get("contribution", "")
+        elif reponse == "non":
+            contact.status = StatutAvis.REFUSE
+        elif reponse == "non-mais":
+            contact.status = StatutAvis.REFUSE_SUGGESTION
+            contact.rdv_notes_expert = request.form.get("suggestion", "")
+
+        repo.session.commit()
+
+    html = _render_media_opportunity(id)
+    html = extract_fragment(html, id="form")
+    return html
+
+
+@blueprint.route("/opportunities/<int:id>/form", methods=["POST"])
+def media_opportunity_form_update(id: int) -> str | Response:
+    """Handle media opportunity form partial updates for HTMX."""
+    # This view does NOT save anything. It just renders the form.
     html = _render_media_opportunity(id)
     html = extract_fragment(html, id="form")
     return html
@@ -67,7 +98,7 @@ def media_opportunity_post(id: int) -> str | Response:
 def _render_media_opportunity(id: int) -> str:
     """Render the media opportunity template."""
     # Lazy import to avoid circular import
-    from app.modules.wip.models import ContactAvisEnqueteRepository
+    from app.modules.wip.models import ContactAvisEnqueteRepository, StatutAvis
 
     repo = container.get(ContactAvisEnqueteRepository)
     contact = repo.get(id)
@@ -76,15 +107,35 @@ def _render_media_opportunity(id: int) -> str:
         avis_enquete=contact.avis_enquete,
         journaliste=contact.journaliste,
     )
+    reponse1 = ""
+    contribution = ""
+    suggestion = ""
+
+    if contact.status == StatutAvis.ACCEPTE:
+        reponse1 = "oui"
+        contribution = contact.rdv_notes_expert or ""
+    elif contact.status == StatutAvis.REFUSE:
+        reponse1 = "non"
+    elif contact.status == StatutAvis.REFUSE_SUGGESTION:
+        reponse1 = "non-mais"
+        suggestion = contact.rdv_notes_expert or ""
+
     form_state = {
-        "reponse1": request.form.get("reponse1", ""),
+        "reponse1": request.form.get("reponse1", reponse1),
+        "contribution": request.form.get("contribution", contribution),
+        "suggestion": request.form.get("suggestion", suggestion),
     }
+
+    is_answered = contact.status != StatutAvis.EN_ATTENTE
+
     return render_template(
         "wip/pages/media_opportunity.j2",
         title="Opportunité média",
         media_opp=media_opp,
+        contact=contact,
         form_state=form_state,
-        menus={"secondary": get_secondary_menu("media_opportunity")},
+        is_answered=is_answered,
+        menus={"secondary": get_secondary_menu("opportunities")},
     )
 
 

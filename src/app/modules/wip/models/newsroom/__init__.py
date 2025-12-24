@@ -16,7 +16,7 @@ Specs:
 from __future__ import annotations
 
 from .article import Article, Image
-from .avis_enquete import AvisEnquete, ContactAvisEnquete
+from .avis_enquete import AvisEnquete, ContactAvisEnquete, StatutAvis
 from .commande import Commande
 from .justif_publication import JustifPublication
 from .repositories import ImageRepository
@@ -30,5 +30,6 @@ __all__ = [
     "Image",
     "ImageRepository",
     "JustifPublication",
+    "StatutAvis",
     "Sujet",
 ]
