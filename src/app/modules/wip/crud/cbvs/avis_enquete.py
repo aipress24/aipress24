@@ -130,7 +130,7 @@ class AvisEnqueteWipView(BaseWipView):
                 new_experts = self.filter_know_experts(model, selected_experts)
                 if new_experts:
                     self.store_contact_avis_enquete(model, new_experts)
-                    self.envoyer_avis_enquete(model, new_experts)
+                    self.notify_avis_enquete(model, new_experts)
                     self.send_avis_enquete_mails(model, new_experts)
                 flash(
                     "Votre avis d'enquête a été envoyé aux contacts sélectionnés",
@@ -189,7 +189,7 @@ class AvisEnqueteWipView(BaseWipView):
         ]
         repo.add_many(contacts)
 
-    def envoyer_avis_enquete(
+    def notify_avis_enquete(
         self, model: AvisEnquete, selected_experts: list[User]
     ) -> None:
         notification_service = container.get(NotificationService)
