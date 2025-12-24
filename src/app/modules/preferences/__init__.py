@@ -47,7 +47,7 @@ def inject_preferences_menu() -> dict:
     """Inject preferences menu into template context."""
     from flask import request
 
-    from app.modules.preferences.pages._menu import make_menu
+    from app.modules.preferences.menu import make_menu
 
     # Get current page name from endpoint
     endpoint = request.endpoint or ""

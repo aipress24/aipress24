@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
-"""Integration tests for preferences module pages."""
+"""Integration tests for preferences module."""
 
 from __future__ import annotations
 
@@ -13,15 +13,7 @@ from sqlalchemy.orm import Session
 
 from app.models.auth import KYCProfile, User
 from app.modules.preferences.constants import MENU
-from app.modules.preferences.pages._menu import make_menu
-from app.modules.preferences.pages.contact import PrefContactOptionsPage
-from app.modules.preferences.pages.home import PrefHomePage
-from app.modules.preferences.pages.others import (
-    PrefEditProfilePage,
-    PrefEmailPage,
-    PrefPasswordPage,
-)
-from app.modules.preferences.pages.profile import PrefProfilePage
+from app.modules.preferences.menu import make_menu
 
 
 @pytest.fixture
@@ -62,134 +54,6 @@ def authenticated_client(
     return client
 
 
-class TestPrefHomePageAttributes:
-    """Test PrefHomePage class attributes."""
-
-    def test_page_name(self):
-        """Test PrefHomePage has correct name."""
-        assert PrefHomePage.name == "home"
-
-    def test_page_label(self):
-        """Test PrefHomePage has correct label."""
-        assert PrefHomePage.label == "Préférences"
-
-    def test_page_path(self):
-        """Test PrefHomePage has correct path."""
-        assert PrefHomePage.path == ""
-
-
-class TestPrefProfilePageAttributes:
-    """Test PrefProfilePage class attributes."""
-
-    def test_page_name(self):
-        """Test PrefProfilePage has correct name."""
-        assert PrefProfilePage.name == "profile"
-
-    def test_page_label(self):
-        """Test PrefProfilePage has correct label."""
-        assert PrefProfilePage.label == "Visibilité du profil public"
-
-    def test_page_template(self):
-        """Test PrefProfilePage has correct template."""
-        assert PrefProfilePage.template == "pages/preferences/public-profile.j2"
-
-    def test_page_icon(self):
-        """Test PrefProfilePage has correct icon."""
-        assert PrefProfilePage.icon == "user-circle"
-
-    def test_page_parent(self):
-        """Test PrefProfilePage has correct parent."""
-        assert PrefProfilePage.parent == PrefHomePage
-
-
-class TestPrefContactOptionsPageAttributes:
-    """Test PrefContactOptionsPage class attributes."""
-
-    def test_page_name(self):
-        """Test PrefContactOptionsPage has correct name."""
-        assert PrefContactOptionsPage.name == "contact-options"
-
-    def test_page_label(self):
-        """Test PrefContactOptionsPage has correct label."""
-        assert PrefContactOptionsPage.label == "Options de contact"
-
-    def test_page_template(self):
-        """Test PrefContactOptionsPage has correct template."""
-        assert PrefContactOptionsPage.template == "pages/preferences/pref-contact.j2"
-
-    def test_page_icon(self):
-        """Test PrefContactOptionsPage has correct icon."""
-        assert PrefContactOptionsPage.icon == "at-symbol"
-
-    def test_page_parent(self):
-        """Test PrefContactOptionsPage has correct parent."""
-        assert PrefContactOptionsPage.parent == PrefHomePage
-
-
-class TestPrefPasswordPageAttributes:
-    """Test PrefPasswordPage class attributes."""
-
-    def test_page_name(self):
-        """Test PrefPasswordPage has correct name."""
-        assert PrefPasswordPage.name == "Mot de passe"
-
-    def test_page_label(self):
-        """Test PrefPasswordPage has correct label."""
-        assert PrefPasswordPage.label == "Mot de passe"
-
-    def test_page_icon(self):
-        """Test PrefPasswordPage has correct icon."""
-        assert PrefPasswordPage.icon == "key"
-
-    def test_page_parent(self):
-        """Test PrefPasswordPage has correct parent."""
-        assert PrefPasswordPage.parent == PrefHomePage
-
-
-class TestPrefEmailPageAttributes:
-    """Test PrefEmailPage class attributes."""
-
-    def test_page_name(self):
-        """Test PrefEmailPage has correct name."""
-        assert PrefEmailPage.name == "Adresse email"
-
-    def test_page_label(self):
-        """Test PrefEmailPage has correct label."""
-        assert PrefEmailPage.label == "Adresse email"
-
-    def test_page_icon(self):
-        """Test PrefEmailPage has correct icon."""
-        assert PrefEmailPage.icon == "at-symbol"
-
-    def test_page_parent(self):
-        """Test PrefEmailPage has correct parent."""
-        assert PrefEmailPage.parent == PrefHomePage
-
-
-class TestPrefEditProfilePageAttributes:
-    """Test PrefEditProfilePage class attributes."""
-
-    def test_page_name(self):
-        """Test PrefEditProfilePage has correct name."""
-        assert PrefEditProfilePage.name == "profile_page"
-
-    def test_page_label(self):
-        """Test PrefEditProfilePage has correct label."""
-        assert PrefEditProfilePage.label == "Modification du profil"
-
-    def test_page_url_string(self):
-        """Test PrefEditProfilePage has correct url_string."""
-        assert PrefEditProfilePage.url_string == "kyc.profile_page"
-
-    def test_page_icon(self):
-        """Test PrefEditProfilePage has correct icon."""
-        assert PrefEditProfilePage.icon == "clipboard-document-list"
-
-    def test_page_parent(self):
-        """Test PrefEditProfilePage has correct parent."""
-        assert PrefEditProfilePage.parent == PrefHomePage
-
-
 class TestPreferencesEndpoints:
     """Test preferences HTTP endpoints."""
 
@@ -218,25 +82,6 @@ class TestPreferencesEndpoints:
         """Test contact options preferences page is accessible."""
         response = authenticated_client.get("/preferences/contact-options")
         assert response.status_code in (200, 302)
-
-
-class TestBasePreferencesPage:
-    """Test BasePreferencesPage class."""
-
-    def test_title_property(self):
-        """Test title property returns label."""
-        page = PrefHomePage()
-        assert page.title == page.label
-
-    def test_menus_returns_secondary_menu(self, app: Flask, db_session: Session):
-        """Test menus returns dict with secondary menu."""
-        with app.test_request_context("/preferences/profile"):
-            page = PrefProfilePage()
-            menus = page.menus()
-
-            assert isinstance(menus, dict)
-            assert "secondary" in menus
-            assert isinstance(menus["secondary"], list)
 
 
 class TestPreferencesMenu:
@@ -291,8 +136,3 @@ class TestPreferencesMenu:
 
             contact_entry = next(e for e in menu if e["name"] == "contact_options")
             assert contact_entry["current"] is True
-
-
-# Note: Tests for Page.context(), Page.get(), Page.post() methods
-# have been removed as these classes no longer have those methods.
-# The functionality is now in Flask views.
