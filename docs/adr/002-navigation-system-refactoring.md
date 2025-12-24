@@ -144,7 +144,7 @@ For each module:
 
 ## Future Considerations
 
-1. **Clean up remaining Page classes**: `preferences/pages/` still has metadata classes for backwards compatibility with some tests
+1. ~~**Clean up remaining Page classes**~~: ✅ Deleted `preferences/pages/` (2025-12), moved `make_menu()` to `preferences/menu.py`
 2. ~~**View-based tests**~~: ✅ Comprehensive navigation access tests added in ADR 003
 3. ~~**Navigation enhancements**~~: ✅ Route-based permission checks implemented in ADR 003
 
