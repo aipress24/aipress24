@@ -58,6 +58,7 @@ def item(id: str):
 
     return render_template(
         template,
+        title=post.title,
         post=view_model,
         metadata_list=metadata_list,
     )
