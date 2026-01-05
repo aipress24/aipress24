@@ -26,7 +26,8 @@ class EditorialProductGenerator(BaseGenerator):
 
         # cast to work around a mypy bug
         product.status = cast(
-            "PublicationStatus", random.choice(list(PublicationStatus))
+            "PublicationStatus",
+            random.choice(list(PublicationStatus)),  # type: ignore[arg-type]
         )
 
         product.title = self.text_faker.text(1)

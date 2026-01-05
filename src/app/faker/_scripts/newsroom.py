@@ -155,7 +155,7 @@ class AvisEnqueteFakerScript(BaseScript):
 
         self.add_metadata(obj)
 
-        obj.status = random.choice(list(PublicationStatus))
+        obj.status = random.choice(list(PublicationStatus))  # type: ignore[arg-type]
 
         obj.content = faker.text(5)
 
@@ -225,14 +225,15 @@ class ArticlesFakerScript(BaseScript):
         obj.summary = " ".join(faker.sentences(3))
         obj.image_url = random.choice(POST_IMAGES)
 
-        obj.published_at = faker.date_time_between(start_date="-1y", end_date="-1d")
-        obj.created_at = obj.published_at
+        published_at = faker.date_time_between(start_date="-1y", end_date="-1d")
+        obj.published_at = published_at
+        obj.created_at = published_at  # type: ignore[assignment]
 
         obj.date_parution_prevue = faker.date_time_between(
-            start_date=obj.published_at, end_date="+1y"
+            start_date=published_at, end_date="+1y"
         )
         obj.date_publication_aip24 = faker.date_time_between(
-            start_date=obj.published_at, end_date="+1y"
+            start_date=published_at, end_date="+1y"
         )
 
         return obj
