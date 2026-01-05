@@ -102,6 +102,9 @@ def import_sql(filename: str) -> None:
     debug(env)
 
     pg_restore = shutil.which("pg_restore")
+    if not pg_restore:
+        print("Error: pg_restore not found in PATH")
+        return
     cmd = [pg_restore, "-d", database, filename]
     print(" ".join(cmd))
     subprocess.run(cmd, env=env, check=True)

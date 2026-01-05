@@ -37,10 +37,10 @@ def register_services(app: Flask) -> None:
 
         elif isinstance(cls_or_factory, type):
             cls = cls_or_factory
-            svcs.flask.register_factory(app, cls, cls)
+            svcs.flask.register_factory(app, cls, cls)  # type: ignore[attr-defined]
 
         else:
             factory = cls_or_factory
             sig = signature(factory)
             cls = sig.return_annotation
-            svcs.flask.register_factory(app, cls, factory)
+            svcs.flask.register_factory(app, cls, factory)  # type: ignore[attr-defined]

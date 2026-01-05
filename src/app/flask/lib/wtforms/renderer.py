@@ -253,7 +253,7 @@ class FormRenderer:
         return Markup(template.render(**ctx).strip())
 
     def get_groups(self):
-        groups_spec = self.form.Meta.groups
+        groups_spec = getattr(self.form.Meta, "groups", {})
         groups = []
         for group_id, _group in groups_spec.items():
             group = _group.copy()

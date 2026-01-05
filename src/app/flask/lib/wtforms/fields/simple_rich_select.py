@@ -23,4 +23,4 @@ class SimpleRichSelectField(SelectField):
         super().__init__(label, validators, **kwargs)
 
     def get_choices_for_js(self):
-        return [list(tup) for tup in self.choices]
+        return [list(tup) for tup in (self.choices or [])]

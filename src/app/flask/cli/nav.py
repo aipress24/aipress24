@@ -52,7 +52,7 @@ def _create_mock_user_with_roles(role_names: list[str]) -> object:
             role = Role(name=role_enum.name, description=role_enum.value)
             roles.append(role)
         except KeyError:
-            valid_roles = ", ".join(r.name for r in RoleEnum)
+            valid_roles = ", ".join(r.name for r in RoleEnum.__members__.values())
             msg = f"Unknown role: {normalized_name}. Valid roles: {valid_roles}"
             raise click.ClickException(msg) from None
 
@@ -146,7 +146,7 @@ def tree(verbose: bool, email: str | None, roles: str | None) -> None:
 
     for section in sections:
         # Check if section is visible to user
-        if filter_user and not section.is_visible_to(filter_user):
+        if filter_user and not section.is_visible_to(filter_user):  # type: ignore[arg-type]
             total_hidden += 1
             continue
 
@@ -490,7 +490,7 @@ def roles() -> None:
         effective = node.effective_acl
         if not effective:
             # No ACL means everyone can access
-            for role in RoleEnum:
+            for role in RoleEnum.__members__.values():
                 role_access[role.name] += 1
         else:
             # Check which roles have access
@@ -505,7 +505,7 @@ def roles() -> None:
     table.add_column("Description")
 
     # Get role descriptions from enum values
-    for role in RoleEnum:
+    for role in RoleEnum.__members__.values():
         accessible = role_access[role.name]
         restricted = total_nodes - accessible
         table.add_row(

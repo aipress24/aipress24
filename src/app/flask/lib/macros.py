@@ -18,4 +18,5 @@ def macro(f: Callable) -> Callable:
 
 def register_macros(app: Flask) -> None:
     for macro in MACROS:
-        app.template_global(macro.__name__)(macro)
+        name = getattr(macro, "__name__", str(macro))
+        app.template_global(name)(macro)

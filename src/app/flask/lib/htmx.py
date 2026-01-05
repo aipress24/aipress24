@@ -3,7 +3,7 @@
 # Copyright (c) 2024, Abilian SAS & TCA
 from __future__ import annotations
 
-from lxml import etree
+from lxml import etree  # type: ignore[import-untyped]
 
 from app.flask.extensions import htmx
 
