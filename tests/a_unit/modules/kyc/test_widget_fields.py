@@ -6,8 +6,8 @@
 
 from __future__ import annotations
 
-
 import pytest
+from typeguard import TypeCheckError
 from wtforms import Form
 
 from app.modules.kyc.lib.country_select import (
@@ -105,7 +105,7 @@ def test_convert_to_tom_choices_js_with_dict():
 
 def test_convert_to_tom_choices_js_with_invalid_type():
     """Test that invalid type raises TypeError."""
-    with pytest.raises(TypeError):
+    with pytest.raises((TypeError, TypeCheckError)):
         convert_to_tom_choices_js("invalid")
 
 

@@ -93,12 +93,12 @@ class DualSelectField(SelectMultipleField):
         """
         return convert_dual_choices_js(self.choices)
 
-    def get_data(self) -> list:
+    def get_data(self) -> str:
         if self.data is None:
             return repr([])
         return repr(self.data)
 
-    def get_data2(self) -> list:
+    def get_data2(self) -> str:
         if self.data2 is None:
             return repr([])
         return repr(self.data2)
