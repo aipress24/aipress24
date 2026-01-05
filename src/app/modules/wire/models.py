@@ -65,7 +65,10 @@ class WireCommonMixin(IdMixin, LifeCycleMixin, Owned):
 
     @orm.declared_attr
     def publisher(cls):
-        return orm.relationship(Organisation, foreign_keys=[cls.publisher_id])
+        return orm.relationship(
+            Organisation,
+            foreign_keys=[cls.publisher_id],  # type: ignore[invalid-argument-type]
+        )
 
     # # Media
     # media_id: Mapped[int] = mapped_column(sa.BigInteger, sa.ForeignKey(Organisation.id))
@@ -154,11 +157,17 @@ class Post(NewsMetadataMixin, BaseContent, LifeCycleMixin):
 
     @orm.declared_attr
     def publisher(cls):
-        return orm.relationship(Organisation, foreign_keys=[cls.publisher_id])
+        return orm.relationship(
+            Organisation,
+            foreign_keys=[cls.publisher_id],  # type: ignore[invalid-argument-type]
+        )
 
     @orm.declared_attr
     def media(cls):
-        return orm.relationship(Organisation, foreign_keys=[cls.media_id])
+        return orm.relationship(
+            Organisation,
+            foreign_keys=[cls.media_id],  # type: ignore[invalid-argument-type]
+        )
 
     # # Media
     # media_id: Mapped[int] = mapped_column(sa.BigInteger, sa.ForeignKey(Organisation.id))
