@@ -52,29 +52,40 @@ class Carousel(Component):
         return self.get_slides()
 
     def get_slides(self):
+        from advanced_alchemy.exceptions import NotFoundError
+
         info_type = self.post.__class__.__name__
         # if isinstance(self.post, (ArticlePost, ArticleVM)):
         if info_type == "ArticleVM":
             try:
                 info_id = self.post.newsroom_id
-                repo = container.get(ArticleRepository)
-                info = repo.get(info_id)
-            except AttributeError:
+                if info_id:
+                    repo = container.get(ArticleRepository)
+                    info = repo.get(info_id)
+                else:
+                    info = self.post
+            except (AttributeError, NotFoundError):
                 info = self.post
         # elif isinstance(self.post, (PressReleasePost, PressReleaseVM)):
         elif info_type == "PressReleaseVM":
             try:
                 info_id = self.post.newsroom_id
-                repo = container.get(CommuniqueRepository)
-                info = repo.get(info_id)
-            except AttributeError:
+                if info_id:
+                    repo = container.get(CommuniqueRepository)
+                    info = repo.get(info_id)
+                else:
+                    info = self.post
+            except (AttributeError, NotFoundError):
                 info = self.post
         elif info_type == "EventVM":
             try:
                 info_id = self.post.eventroom_id
-                repo = container.get(EventRepository)
-                info = repo.get(info_id)
-            except AttributeError:
+                if info_id:
+                    repo = container.get(EventRepository)
+                    info = repo.get(info_id)
+                else:
+                    info = self.post
+            except (AttributeError, NotFoundError):
                 info = self.post
         else:
             msg = f"expected ArticleVM or PressReleaseVM, not {self.post!r}"

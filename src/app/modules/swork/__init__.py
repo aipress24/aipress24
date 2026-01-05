@@ -11,19 +11,14 @@ from flask import Blueprint
 from flask_login import current_user
 from werkzeug.exceptions import Unauthorized
 
+from app.flask.lib.nav import configure_nav
 from app.models.auth import User
 
 blueprint = Blueprint(
     "swork", __name__, url_prefix="/swork", template_folder="templates"
 )
+configure_nav(blueprint, label="Social", icon="users", order=20)
 route = blueprint.route
-
-# Navigation configuration for convention-driven nav
-blueprint.nav = {
-    "label": "Social",
-    "icon": "users",
-    "order": 20,
-}
 
 
 @blueprint.before_request

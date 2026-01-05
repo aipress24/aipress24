@@ -134,9 +134,17 @@ class NavTree:
         logger.debug("Nav tree built with {} nodes", len(self._nodes))
 
     def _build_sections(self, app: Flask) -> None:
-        """Build section nodes from blueprints with .nav attribute."""
+        """Build section nodes from blueprints with nav configuration.
+
+        Supports both:
+        - Registry-based config via configure_nav() (preferred)
+        - Legacy blueprint.nav attribute (deprecated)
+        """
+        from .registry import get_nav_config
+
         for name, bp in app.blueprints.items():
-            nav_config = getattr(bp, "nav", None)
+            # Try registry first, fall back to legacy attribute
+            nav_config = get_nav_config(name) or getattr(bp, "nav", None)
             if nav_config is None:
                 continue
 

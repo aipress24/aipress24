@@ -11,17 +11,12 @@ from flask import Blueprint
 from flask_login import current_user
 from werkzeug.exceptions import Unauthorized
 
+from app.flask.lib.nav import configure_nav
 from app.models.auth import User
 
 blueprint = Blueprint("wire", __name__, url_prefix="/wire", template_folder="templates")
+configure_nav(blueprint, label="News", icon="newspaper", order=10)
 route = blueprint.route
-
-# Navigation configuration
-blueprint.nav = {
-    "label": "News",
-    "icon": "newspaper",
-    "order": 10,
-}
 
 
 @blueprint.before_request

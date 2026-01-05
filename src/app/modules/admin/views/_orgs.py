@@ -6,9 +6,9 @@
 
 from __future__ import annotations
 
-from app.modules.admin.table import Column, GenericOrgDataSource, Table
+from app.modules.admin.table import Column, ColumnSpec, GenericOrgDataSource, Table
 
-TABLE_COLUMNS = [
+TABLE_COLUMNS: list[ColumnSpec] = [
     {"name": "name", "label": "Nom", "width": 50},
     {"name": "type", "label": "type", "width": 20},
     {"name": "karma", "label": "Réputation", "width": 8},

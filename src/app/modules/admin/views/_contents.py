@@ -8,8 +8,9 @@ from __future__ import annotations
 
 from app.models.content import BaseContent
 from app.modules.admin import table as t
+from app.modules.admin.table import ColumnSpec
 
-TABLE_COLUMNS = [
+TABLE_COLUMNS: list[ColumnSpec] = [
     {"name": "type", "label": "Type", "width": 50},
     {"name": "author", "label": "Rédacteur", "width": 50},
     {"name": "created_at", "label": "Créé le", "width": 50},

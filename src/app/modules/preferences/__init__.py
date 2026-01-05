@@ -12,21 +12,22 @@ from flask_login import current_user
 from werkzeug.exceptions import Unauthorized
 
 from app.enums import RoleEnum
+from app.flask.lib.nav import configure_nav
 from app.models.auth import User
 
 blueprint = Blueprint(
     "preferences", __name__, url_prefix="/preferences", template_folder="templates"
 )
-route = blueprint.route
-
 # Navigation configuration - SELF ACL inherited by all child routes
 # (SELF means "visible to authenticated users, ownership checked in view")
-blueprint.nav = {
-    "label": "Préférences",
-    "icon": "cog",
-    "order": 9,  # Near the end
-    "acl": [("Allow", RoleEnum.SELF, "view")],
-}
+configure_nav(
+    blueprint,
+    label="Préférences",
+    icon="cog",
+    order=9,
+    acl=[("Allow", RoleEnum.SELF, "view")],
+)
+route = blueprint.route
 
 
 @blueprint.route("/images/<path:filename>")
