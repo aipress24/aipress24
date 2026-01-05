@@ -308,6 +308,16 @@ reportIncompatibleVariableOverride = false
 
 # -----------------------------------------------------------------------------
 
+[tool.ty.src]
+exclude = [
+    "tests",
+    # FIXME later
+    "src/app/modules/wip/**/*.py",
+    "src/app/modules/wip/forms/business_wall/business_wall_form.py",
+]
+
+# -----------------------------------------------------------------------------
+
 [tool.vulture]
 ignore_decorators = ["@blueprint.before_request", "@expose"]
 
