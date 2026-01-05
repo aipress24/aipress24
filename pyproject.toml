@@ -193,8 +193,6 @@ dev = [
     # S3 mock
     "pytest-minio-mock",
     "responses>=0.25.8",
-    "beartype>=0.22.9",
-    "pytest-beartype>=0.2.0",
 ]
 
 [build-system]
