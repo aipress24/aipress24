@@ -22,7 +22,7 @@ from .base import BaseList, Filter, FilterByCity, FilterByDept
 class GroupsList(BaseList):
     def context(self):
         stmt = select(count(Group.id))
-        item_count: int = db.session.scalar(stmt)
+        item_count: int = db.session.scalar(stmt) or 0
 
         stmt = self.make_stmt()
         groups: list[Group] = list(db.session.scalars(stmt))

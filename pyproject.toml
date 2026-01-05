@@ -314,6 +314,8 @@ exclude = [
     # FIXME later
     "src/app/modules/wip/**/*.py",
     "src/app/modules/wip/forms/business_wall/business_wall_form.py",
+    "src/app/modules/stripe/**/*.py",
+    "src/app/modules/kyc/**/*.py",
 ]
 
 # -----------------------------------------------------------------------------
