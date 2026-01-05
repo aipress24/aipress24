@@ -9,7 +9,7 @@ from __future__ import annotations
 from typing import Any
 
 from advanced_alchemy.types import FileObject
-from wtforms import Field
+from wtforms.fields.core import UnboundField
 
 from .valid_bw_image import ValidBWImageField
 
@@ -37,7 +37,7 @@ def custom_bw_logo_field(
     mandatory: bool = False,
     readonly: bool = False,
     file_object: FileObject | dict[str, Any] | None = None,
-) -> Field:
+) -> UnboundField:
     # FIXME: what's this supposed to do?
     # validators_list = _filter_mandatory_validator(mandatory)
     label = _filter_photo_format(description)
@@ -47,7 +47,8 @@ def custom_bw_logo_field(
         "kyc_code": "M" if mandatory else "",
         # "kyc_message": field.upper_message,
     }
-    return ValidBWImageField(
+    # WTForms metaclass magic: Field() returns UnboundField, not Field
+    return ValidBWImageField(  # type: ignore[return-value]
         id=name,
         name=name,
         label=label,

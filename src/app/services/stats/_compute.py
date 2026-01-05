@@ -33,13 +33,13 @@ def update_stats(date=None) -> None:
         now = arrow.now()
 
     for duration, shift in DURATIONS:
-        end_date = now.date()
-        start_date = now.shift(**shift).date()
+        end_date = now
+        start_date = now.shift(**shift)
         for metric in metrics:
             value = metric.compute(start_date, end_date)
 
             record = StatsRecord(
-                date=start_date,
+                date=start_date.date(),
                 duration=duration,
                 key=metric.id,
                 value=value,

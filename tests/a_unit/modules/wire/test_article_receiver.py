@@ -7,6 +7,7 @@ from __future__ import annotations
 import arrow
 import pytest
 from flask_sqlalchemy import SQLAlchemy
+from typeguard import TypeCheckError
 
 from app.models.auth import User
 from app.models.lifecycle import PublicationStatus
@@ -77,8 +78,10 @@ class TestGetPost:
         """Test get_post raises TypeError for invalid object."""
         invalid_object = object()
 
-        with pytest.raises(AttributeError):
-            get_post(invalid_object)
+        # With typeguard, TypeCheckError is raised at function boundary
+        # Without typeguard, AttributeError is raised when accessing .id
+        with pytest.raises((AttributeError, TypeCheckError)):
+            get_post(invalid_object)  # type: ignore[arg-type]
 
 
 class TestUpdatePost:

@@ -8,8 +8,6 @@ from flask_super.registry import register
 
 from app.flask.lib.pywire import StaticComponent
 
-from .base import Filter
-
 
 @register
 class Selector(StaticComponent):
@@ -17,7 +15,7 @@ class Selector(StaticComponent):
     name: str
     options: list
 
-    def mount(self, parent=None, filter: Filter | None = None, **kwargs) -> None:  # type: ignore[override]
+    def mount(self, parent=None, filter=None, **kwargs) -> None:  # type: ignore[override]
         if filter is None:
             return
         self.label = filter.label

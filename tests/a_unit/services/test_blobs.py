@@ -10,6 +10,7 @@ from pathlib import Path
 import pytest
 from flask_sqlalchemy import SQLAlchemy
 from svcs.flask import container
+from typeguard import TypeCheckError
 from werkzeug.datastructures import FileStorage
 
 from app.services.blobs import BlobService
@@ -60,14 +61,16 @@ def test_save_file_storage(db: SQLAlchemy) -> None:
 
 
 def test_save_unsupported_type(db: SQLAlchemy) -> None:
-    """Test saving with unsupported type raises ValueError."""
+    """Test saving with unsupported type raises ValueError or TypeCheckError."""
     blob_service = container.get(BlobService)
 
-    with pytest.raises(ValueError, match="Unsupported type"):
-        blob_service.save(123)  # type: ignore
+    # With typeguard, TypeCheckError is raised at function boundary
+    # Without typeguard, ValueError is raised when handling the unsupported type
+    with pytest.raises((ValueError, TypeCheckError)):
+        blob_service.save(123)  # type: ignore[arg-type]
 
-    with pytest.raises(ValueError, match="Unsupported type"):
-        blob_service.save("string")  # type: ignore
+    with pytest.raises((ValueError, TypeCheckError)):
+        blob_service.save("string")  # type: ignore[arg-type]
 
 
 def test_get_blob(db: SQLAlchemy) -> None:
