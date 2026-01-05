@@ -10,7 +10,6 @@ from webbits.html import (
     h as H,  # noqa
     html,
 )
-from wtforms.fields.core import Field
 
 ring_class = "ring-1 ring-inset ring-gray-300"
 focus_class = "focus:ring-2 focus:ring-inset focus:ring-indigo-600"
@@ -56,7 +55,7 @@ CSS_CLASS_RO = {
 }
 
 
-def render_field(field: Field) -> str:
+def render_field(field) -> str:
     upper_message_class = "block text-sm font-medium leading-7 text-gray-900 mb-1 mt-1"
     label_class = "block text-sm font-medium leading-6 text-gray-900 mb-1"
     label_right_class = "text-sm font-medium leading-6 text-gray-900 ml-2"
@@ -93,17 +92,17 @@ def render_field(field: Field) -> str:
     return Markup(str(h))
 
 
-def _upper_message(field: Field) -> str:
+def _upper_message(field) -> str:
     render_kw = getattr(field, "render_kw", {}) or {}
     return (render_kw.get("kyc_message") or "").strip()
 
 
-def _field_type(field: Field) -> str:
+def _field_type(field) -> str:
     render_kw = getattr(field, "render_kw", {}) or {}
     return render_kw.get("kyc_type", "string")
 
 
-def _is_mandatory_field(field: Field) -> bool:
+def _is_mandatory_field(field) -> bool:
     render_kw = getattr(field, "render_kw", {})
     return render_kw.get("kyc_code", "") == "M"
 
@@ -116,7 +115,7 @@ def _is_mandatory_field(field: Field) -> bool:
 
 
 @singledispatch
-def _render_field(field: Field) -> Markup:
+def _render_field(field) -> Markup:
     render_kw = getattr(field, "render_kw", {}) or {}
     readonly = render_kw.get("readonly", "")
 

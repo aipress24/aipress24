@@ -13,7 +13,6 @@ from flask_wtf import FlaskForm
 from markupsafe import Markup
 from wtforms import (
     BooleanField,
-    Field,
     IntegerField,
     SelectField,
     SelectMultipleField,
@@ -21,6 +20,7 @@ from wtforms import (
     TextAreaField,
     validators,
 )
+from wtforms.fields.core import UnboundField
 
 from .lib.country_select import CountrySelectField
 from .lib.dual_select_multi import DualSelectField
@@ -106,7 +106,7 @@ def custom_bool_field(
     param: str = "",
     readonly: bool = False,
     **kwargs,
-) -> Field:
+) -> UnboundField:
     validators_list = [validators.Optional()]
     mandatory_code = ""  # because different meaning on boolean widget
     render_kw: dict[str, Any] = {
@@ -138,7 +138,7 @@ def custom_bool_link_field(
     param: str = "",
     readonly: bool = False,
     **kwargs,
-) -> Field:
+) -> UnboundField:
     validators_list = [validators.Optional()]
     mandatory_code = ""
     parts = field.description.split(";")
@@ -168,7 +168,7 @@ def custom_string_field(
     param: str = "",
     readonly: bool = False,
     **kwargs,
-) -> Field:
+) -> UnboundField:
     if readonly:
         mandatory_code = ""
     validators_list = _filter_mandatory_validator(mandatory_code)
@@ -197,7 +197,7 @@ def custom_int_field(
     param: str = "",
     readonly: bool = False,
     **kwargs,
-) -> Field:
+) -> UnboundField:
     if readonly:
         mandatory_code = ""
     validators_list = _filter_mandatory_validator(mandatory_code)
@@ -227,7 +227,7 @@ def custom_photo_field(
     readonly: bool = False,
     file_object: FileObject | None = None,
     **kwargs,
-) -> Field:
+) -> UnboundField:
     if readonly:
         mandatory_code = ""
     # validators_list = _filter_mandatory_validator(code)
@@ -258,7 +258,7 @@ def custom_email_field(
     param: str = "",
     readonly: bool = False,
     **kwargs,
-) -> Field:
+) -> UnboundField:
     if readonly:
         mandatory_code = ""
     validators_list = _filter_mandatory_validator(mandatory_code)
@@ -286,7 +286,7 @@ def custom_email_free_field(
     param: str = "",
     readonly: bool = False,
     **kwargs,
-) -> Field:
+) -> UnboundField:
     if readonly:
         mandatory_code = ""
     validators_list = _filter_mandatory_validator(mandatory_code)
@@ -314,7 +314,7 @@ def custom_tel_field(
     param: str = "",
     readonly: bool = False,
     **kwargs,
-) -> Field:
+) -> UnboundField:
     if readonly:
         mandatory_code = ""
     validators_list = _filter_mandatory_validator(mandatory_code)
@@ -342,7 +342,7 @@ def custom_password_field(
     param: str = "",
     readonly: bool = False,
     **kwargs,
-) -> Field:
+) -> UnboundField:
     if readonly:
         mandatory_code = ""
     validators_list = _filter_mandatory_validator(mandatory_code)
@@ -369,7 +369,7 @@ def custom_postcode_field(
     param: str = "",
     readonly: bool = False,
     **kwargs,
-) -> Field:
+) -> UnboundField:
     if readonly:
         mandatory_code = ""
     validators_list = _filter_mandatory_validator(mandatory_code)
@@ -398,7 +398,7 @@ def custom_url_field(
     param: str = "",
     readonly: bool = False,
     **kwargs,
-) -> Field:
+) -> UnboundField:
     if readonly:
         mandatory_code = ""
     validators_list = _filter_mandatory_validator(mandatory_code)
@@ -426,7 +426,7 @@ def custom_textarea_field(
     param: str = "",
     readonly: bool = False,
     **kwargs,
-) -> Field:
+) -> UnboundField:
     if readonly:
         mandatory_code = ""
     validators_list = _filter_mandatory_validator(mandatory_code)
@@ -458,7 +458,7 @@ def custom_textarea300_field(
     param: str = "",
     readonly: bool = False,
     **kwargs,
-) -> Field:
+) -> UnboundField:
     if readonly:
         mandatory_code = ""
     validators_list = _filter_mandatory_validator(mandatory_code)
@@ -499,7 +499,7 @@ def custom_list_field(
     param: str = "",
     readonly: bool = False,
     **kwargs,
-) -> Field:
+) -> UnboundField:
     if readonly:
         mandatory_code = ""
     validators_list = _filter_mandatory_validator(mandatory_code)
@@ -527,7 +527,7 @@ def custom_country_field(
     param: str = "",
     readonly: bool = False,
     **kwargs,
-) -> Field:
+) -> UnboundField:
     if readonly:
         mandatory_code = ""
     validators_list = _filter_mandatory_validator(mandatory_code)
@@ -562,7 +562,7 @@ def custom_list_free_field(
     param: str = "",
     readonly: bool = False,
     **kwargs,
-) -> Field:
+) -> UnboundField:
     """This list allows a free text for content not in the proposed list."""
     if readonly:
         mandatory_code = ""
@@ -590,7 +590,7 @@ def custom_ajax_field(
     param: str = "",
     readonly: bool = False,
     **kwargs,
-) -> Field:
+) -> UnboundField:
     if readonly:
         mandatory_code = ""
     # TODO: load ontology
@@ -620,7 +620,7 @@ def custom_multi_free_field(
     param: str = "",
     readonly: bool = False,
     **kwargs,
-) -> Field:
+) -> UnboundField:
     # there is no "optgroup" version for multiple/free
     return _custom_multi_free_field_simple(
         field, mandatory_code, param, readonly, **kwargs
@@ -633,7 +633,7 @@ def custom_multi_field(
     param: str = "",
     readonly: bool = False,
     **kwargs,
-) -> Field:
+) -> UnboundField:
     if isinstance(get_choices(param), list):
         return _custom_multi_field_simple(
             field, mandatory_code, param, readonly, **kwargs
@@ -649,7 +649,7 @@ def _custom_multi_field_simple(
     param: str = "",
     readonly: bool = False,
     **kwargs,
-) -> Field:
+) -> UnboundField:
     if readonly:
         mandatory_code = ""
     validators_list = _filter_mandatory_validator(mandatory_code)  # buggy?
@@ -678,7 +678,7 @@ def _custom_multi_free_field_simple(
     param: str = "",
     readonly: bool = False,
     **kwargs,
-) -> Field:
+) -> UnboundField:
     if readonly:
         mandatory_code = ""
     validators_list = _filter_mandatory_validator(mandatory_code)
@@ -708,7 +708,7 @@ def _custom_multi_field_optgroup(
     param: str = "",
     readonly: bool = False,
     **kwargs,
-) -> Field:
+) -> UnboundField:
     if readonly:
         mandatory_code = ""
     validators_list = _filter_mandatory_validator(mandatory_code)  # buggy?
@@ -737,7 +737,7 @@ def custom_dual_multi_field(
     param: str = "",
     readonly: bool = False,
     **kwargs,
-) -> Field:
+) -> UnboundField:
     #  {'Associations': ['Actions humanitaires', 'Communication et sensibilisatio ...
     if readonly:
         mandatory_code = ""
@@ -775,7 +775,7 @@ def custom_multi_opt_field(
     param: str = "",
     readonly: bool = False,
     **kwargs,
-) -> Field:
+) -> UnboundField:
     if readonly:
         mandatory_code = ""
     choices = get_choices(param)

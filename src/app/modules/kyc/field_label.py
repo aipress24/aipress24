@@ -191,7 +191,7 @@ def _format_list_results(data: list | str | bool, key: str) -> str:
     return value
 
 
-def data_to_label(data: str | list, key: str) -> str:
+def data_to_label(data: str | list | bool, key: str) -> str:
     if key in KEY_LABEL_MAP:
         function, ontology_name = KEY_LABEL_MAP[key]
         return function(data, key, ontology_name)

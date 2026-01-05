@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 import pytest
+from typeguard import TypeCheckError
 from wtforms import Form
 
 from app.modules.kyc.lib.dual_select_multi import (
@@ -104,7 +105,7 @@ def test_convert_to_tom_choices_js_dict():
 
 def test_convert_to_tom_choices_js_invalid():
     """Test that invalid type raises TypeError."""
-    with pytest.raises(TypeError):
+    with pytest.raises((TypeError, TypeCheckError)):
         convert_to_tom_choices_js("invalid")
 
 
@@ -127,7 +128,7 @@ def test_convert_to_tom_optgroups_js_dict():
 
 def test_convert_to_tom_optgroups_js_invalid():
     """Test that invalid type raises TypeError."""
-    with pytest.raises(TypeError, match="choices must be a list or a dict"):
+    with pytest.raises((TypeError, TypeCheckError)):
         convert_to_tom_optgroups_js("invalid")
 
 
@@ -427,12 +428,12 @@ class TestConvertToTomChoicesJsFree:
 
     def test_raises_type_error_for_non_list(self) -> None:
         """Test raises TypeError for non-list input."""
-        with pytest.raises(TypeError):
+        with pytest.raises((TypeError, TypeCheckError)):
             convert_to_tom_choices_js_free("invalid")
 
     def test_raises_type_error_for_dict(self) -> None:
         """Test raises TypeError for dict input."""
-        with pytest.raises(TypeError):
+        with pytest.raises((TypeError, TypeCheckError)):
             convert_to_tom_choices_js_free({"key": "value"})
 
 
@@ -454,7 +455,7 @@ class TestConvertToTomOptgroupsJsFree:
 
     def test_raises_type_error_for_invalid(self) -> None:
         """Test raises TypeError for invalid input."""
-        with pytest.raises(TypeError, match="choices must be a list or a dict"):
+        with pytest.raises((TypeError, TypeCheckError)):
             convert_to_tom_optgroups_js_free("invalid")
 
 

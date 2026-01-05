@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 import pytest
+from typeguard import TypeCheckError
 
 from app.modules.kyc.lib.select_multi_simple_free import (
     _dict_to_group_tom_choices,
@@ -39,7 +40,7 @@ def test_convert_to_tom_choices_js_with_dict() -> None:
 
 def test_convert_to_tom_choices_js_invalid_type() -> None:
     """Test convert_to_tom_choices_js raises TypeError for invalid input."""
-    with pytest.raises(TypeError):
+    with pytest.raises((TypeError, TypeCheckError)):
         convert_to_tom_choices_js("invalid")  # type: ignore
 
 
