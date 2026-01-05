@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import functools
 import random
-from typing import ClassVar
+from typing import ClassVar, cast
 
 from arrow import now
 from flask_security import hash_password
@@ -514,7 +514,7 @@ class UserGenerator(BaseGenerator):
 
     def make_obj(self) -> User:
         datastore = security.datastore
-        user: User = datastore.create_user()
+        user = cast("User", datastore.create_user())
 
         self.counter += 1
 

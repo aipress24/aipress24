@@ -22,7 +22,7 @@ class EventGenerator(BaseGenerator):
         event = cls()
         owner = random.choice(users)
         event.owner_id = owner.id
-        event.status = random.choice(list(PublicationStatus))
+        event.status = random.choice(list(PublicationStatus))  # type: ignore[arg-type]
         event.title = self.generate_short_title()
         event.summary = self.text_faker.text(random.randint(1, 2))
         event.content = self.generate_html(1, 3)

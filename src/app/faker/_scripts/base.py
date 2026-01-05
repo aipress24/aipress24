@@ -26,7 +26,7 @@ class FakerScript(abc.ABC):
     def run(self, delete_existing: bool = False) -> None:
         if delete_existing:
             click.secho(f"Deleting existing {self.name}...", fg="yellow")
-            db.session.query(self.model_class).delete()
+            db.session.query(self.model_class).delete()  # type: ignore[call-overload]
             db.session.flush()
 
         stmt = select(func.count()).select_from(self.model_class)

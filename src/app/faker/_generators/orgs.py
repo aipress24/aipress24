@@ -41,7 +41,7 @@ class OrgGenerator(BaseGenerator):
 
         def _random_non_auto_type() -> OrganisationTypeEnum:
             while True:
-                family = random.choice(list(OrganisationTypeEnum))
+                family = random.choice(list(OrganisationTypeEnum))  # type: ignore[arg-type]
                 if family != OrganisationTypeEnum.AUTO:
                     break
             return family
@@ -104,11 +104,11 @@ class OrgGenerator(BaseGenerator):
             case OrganisationTypeEnum.AUTO:
                 pass
             case OrganisationTypeEnum.MEDIA:
-                org.bw_type = BWTypeEnum.MEDIA
+                org.bw_type = BWTypeEnum.MEDIA  # type: ignore[assignment]
             case OrganisationTypeEnum.AGENCY:
-                org.bw_type = BWTypeEnum.AGENCY
+                org.bw_type = BWTypeEnum.AGENCY  # type: ignore[assignment]
             case OrganisationTypeEnum.COM:
-                org.bw_type = BWTypeEnum.COM
+                org.bw_type = BWTypeEnum.COM  # type: ignore[assignment]
             case OrganisationTypeEnum.OTHER:
                 org.bw_type = random.choice(
                     (
