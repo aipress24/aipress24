@@ -94,11 +94,11 @@ def update_post(
     #     post.image_copyright = ""
 
     # Metadata
-    post.start_time = info.start_time
-    post.end_time = info.end_time
+    post.start_time = info.start_time  # type: ignore[invalid-assignment]
+    post.end_time = info.end_time  # type: ignore[invalid-assignment]
     # FIXME
-    post.start_date = info.start_time
-    post.end_date = info.end_time
+    post.start_date = info.start_time  # type: ignore[invalid-assignment]
+    post.end_date = info.end_time  # type: ignore[invalid-assignment]
 
     # post.location = info.location
     post.address = info.address
@@ -107,7 +107,7 @@ def update_post(
 
     post.genre = info.event_type
     post.sector = info.sector
-    post.category = event_type_to_category(info.event_type)
+    post.category = event_type_to_category(info.event_type)  # type: ignore[bad-argument-type]
 
     post.url = info.url
     post.language = info.language
