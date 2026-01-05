@@ -50,7 +50,7 @@ BW_TRIGGER_LABEL = {
 # the possibility to any employee of an organisation to create the relevant
 # BW. So the only remaining empty profil is for students.
 # To reverse this change: just use empty lists on the lines with that comment.
-PROFILE_CODE_TO_BW_TYPE: dict[ProfileEnum, list[BWTypeEnum]] = {
+PROFILE_CODE_TO_BW_TYPE: dict[ProfileEnum, list[BWTypeEnum]] = {  # type: ignore[assignment]
     ProfileEnum.PM_DIR: [BWTypeEnum.MEDIA, BWTypeEnum.AGENCY],
     ProfileEnum.PM_JR_CP_SAL: [
         BWTypeEnum.MEDIA,

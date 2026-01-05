@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import UTC, datetime
 
 import sqlalchemy as sa
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -35,7 +35,7 @@ class ScreenShot(Base):
     __tablename__ = "web_screenshot"
 
     url: Mapped[str] = mapped_column(sa.ForeignKey("web_page.url"), primary_key=True)
-    timestamp: Mapped[datetime] = mapped_column(default=datetime.utcnow)
+    timestamp: Mapped[datetime] = mapped_column(default=lambda: datetime.now(UTC))
     screenshot_id: Mapped[str] = mapped_column(default="")
 
     page: Mapped[WebPage] = relationship(WebPage, back_populates="screenshots")
