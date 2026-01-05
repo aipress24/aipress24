@@ -27,7 +27,7 @@ def on_publish(article: Article) -> None:
         post.newsroom_id = article.id
         post.created_at = article.created_at
 
-    post.status = PublicationStatus.PUBLIC
+    post.status = PublicationStatus.PUBLIC  # type: ignore[invalid-assignment]
 
     update_post(post, article)
 
@@ -40,7 +40,7 @@ def on_unpublish(article: Article) -> None:
     post = get_post(article)
     if not post:
         return
-    post.status = PublicationStatus.DRAFT
+    post.status = PublicationStatus.DRAFT  # type: ignore[invalid-assignment]
 
     db.session.add(post)
     db.session.flush()
@@ -97,7 +97,7 @@ def update_post(post: ArticlePost, info: Article) -> None:
     post.pays_zip_ville = info.pays_zip_ville
     post.pays_zip_ville_detail = info.pays_zip_ville_detail
 
-    post.last_updated_at = now(LOCAL_TZ)
+    post.last_updated_at = now(LOCAL_TZ)  # type: ignore[invalid-assignment]
     post.published_at = info.date_publication_aip24
     # Other possible publication dates:
     # post.published_at = now(LOCAL_TZ)

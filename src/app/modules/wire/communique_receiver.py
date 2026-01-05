@@ -27,7 +27,7 @@ def on_publish_communique(communique: Communique) -> None:
         post.newsroom_id = communique.id
         post.created_at = communique.created_at
 
-    post.status = PublicationStatus.PUBLIC
+    post.status = PublicationStatus.PUBLIC  # type: ignore[invalid-assignment]
 
     update_post(post, communique)
 
@@ -40,7 +40,7 @@ def on_unpublish_communique(communique: Communique) -> None:
     post = get_post(communique)
     if not post:
         return
-    post.status = PublicationStatus.DRAFT
+    post.status = PublicationStatus.DRAFT  # type: ignore[invalid-assignment]
 
     db.session.add(post)
     db.session.flush()
@@ -92,7 +92,7 @@ def update_post(post: PressReleasePost, info: Communique) -> None:
     post.pays_zip_ville = info.pays_zip_ville
     post.pays_zip_ville_detail = info.pays_zip_ville_detail
 
-    post.last_updated_at = now(LOCAL_TZ)
+    post.last_updated_at = now(LOCAL_TZ)  # type: ignore[invalid-assignment]
     post.published_at = info.published_at
     # Other possible publication dates:
     # post.published_at = now(LOCAL_TZ)
