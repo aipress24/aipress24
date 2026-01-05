@@ -97,8 +97,8 @@ def _unofficial_organisation(user: User) -> dict[str, Any]:
     org = user.organisation
     if not org:
         return {}
-    org_type = cast(OrganisationTypeEnum, org.type)
-    if org.type != OrganisationTypeEnum.AUTO:
+    org_type = org.type
+    if org_type != OrganisationTypeEnum.AUTO:
         return {}
     infos = {
         "label": f"{org.name} ({LABELS_ORGANISATION_TYPE.get(org_type, org_type)})",
