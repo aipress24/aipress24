@@ -724,7 +724,7 @@ class OrganisationsExporter(BaseExporter):
         name: str,
     ) -> str | datetime | int | bool | None:
         # Handle special cases
-        value: str | datetime | int | bool | None
+        value: str | datetime | int | bool | list | None
         match name:
             case "members":
                 value = ", ".join(u.email for u in org.members)
@@ -754,7 +754,7 @@ class OrganisationsExporter(BaseExporter):
             case _:
                 return value
 
-    def fetch_data(self) -> list[User]:
+    def fetch_data(self) -> list[Organisation]:
         stmt = (
             select(Organisation)
             .where(

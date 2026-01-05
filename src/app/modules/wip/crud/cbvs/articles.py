@@ -154,7 +154,7 @@ class ArticlesWipView(BaseWipView):
                 model.publisher_id = g.user.organisation_id
         article_updated.send(model)
 
-    def publish(self, id: int):
+    def publish(self, id):
         repo = self._get_repo()
         article = cast("Article", self._get_model(id))
 
@@ -172,7 +172,7 @@ class ArticlesWipView(BaseWipView):
         flash("L'article a été publié")
         return redirect(self._url_for("index"))
 
-    def unpublish(self, id: int):
+    def unpublish(self, id):
         repo = self._get_repo()
         article = cast("Article", self._get_model(id))
 
