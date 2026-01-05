@@ -12,6 +12,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+import arrow
 import pytest
 
 from app.enums import RoleEnum
@@ -72,6 +73,7 @@ def wire_test_data(app: Flask, fresh_db):
         status=PublicationStatus.PUBLIC,
         publisher=org,
         owner=user,
+        published_at=arrow.now(),
     )
     article.like_count = 0
     db_session.add(article)
@@ -85,6 +87,23 @@ def authenticated_client(app: Flask, wire_test_data) -> FlaskClient:
     """Provide authenticated Flask test client."""
     user = wire_test_data["user"]
     return make_authenticated_client(app, user)
+
+
+class TestViewArticle:
+    """E2E tests for viewing article detail page."""
+
+    def test_view_article_renders_successfully(
+        self,
+        authenticated_client: FlaskClient,
+        wire_test_data: dict,
+    ):
+        """Test that viewing an article page renders without errors."""
+        article = wire_test_data["article"]
+
+        response = authenticated_client.get(f"/wire/{article.id}")
+
+        assert response.status_code == 200
+        assert b"Test Article" in response.data
 
 
 class TestToggleLike:
