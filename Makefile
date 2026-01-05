@@ -48,6 +48,9 @@ test-e2e-prod:
 lint/ruff:
 	ruff check
 
+
+check: lint
+
 ## Lint source code and check typing
 lint:
 	ruff check

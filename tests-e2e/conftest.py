@@ -5,12 +5,22 @@
 import contextlib
 import os
 from collections.abc import Generator
+from pathlib import Path
 from typing import Any
 
 import pytest
 from playwright.sync_api import Browser, BrowserContext, Error, Page
-from pytest_playwright.pytest_playwright import _build_artifact_test_folder
 from slugify import slugify
+
+try:
+    from pytest_playwright.pytest_playwright import _build_artifact_test_folder
+except ImportError:
+    # Fallback for newer versions of pytest-playwright
+    def _build_artifact_test_folder(
+        pytestconfig: Any, request: pytest.FixtureRequest, suffix: str
+    ) -> str:
+        output_dir = pytestconfig.getoption("--output")
+        return str(Path(output_dir) / slugify(request.node.nodeid) / suffix)
 
 
 @pytest.fixture(scope="session")

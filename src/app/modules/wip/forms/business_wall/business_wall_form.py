@@ -10,7 +10,7 @@ from advanced_alchemy.types import FileObject
 from flask import request
 from flask_wtf import FlaskForm
 from werkzeug.datastructures import FileStorage
-from wtforms import Field
+from wtforms.fields.core import UnboundField
 
 from app.enums import BWTypeEnum, ProfileEnum
 from app.logging import warn
@@ -1913,7 +1913,7 @@ def merge_org_results(  # noqa: PLR0915
 
 def string_field(
     name="", description="", mandatory: bool = False, readonly: bool = False
-) -> Field:
+) -> UnboundField:
     survey_field = SurveyField(
         id=name, name=name, type="string", description=description
     )
@@ -1925,7 +1925,7 @@ def string_field(
 
 def int_field(
     name="", description="", mandatory: bool = False, readonly: bool = False
-) -> Field:
+) -> UnboundField:
     survey_field = SurveyField(id=name, name=name, type="int", description=description)
     mandatory_code = "M" if mandatory else ""
     return custom_int_field(
@@ -1935,7 +1935,7 @@ def int_field(
 
 def bool_field(
     name="", description="", mandatory: bool = False, readonly: bool = False
-) -> Field:
+) -> UnboundField:
     survey_field = SurveyField(
         id=name, name=name, type="boolean", description=description
     )
@@ -1947,7 +1947,7 @@ def bool_field(
 
 def textarea_field(
     name="", description="", mandatory: bool = False, readonly: bool = False
-) -> Field:
+) -> UnboundField:
     survey_field = SurveyField(
         id=name, name=name, type="textarea", description=description
     )
@@ -1959,7 +1959,7 @@ def textarea_field(
 
 def tel_field(
     name="", description="", mandatory: bool = False, readonly: bool = False
-) -> Field:
+) -> UnboundField:
     survey_field = SurveyField(id=name, name=name, type="tel", description=description)
     mandatory_code = "M" if mandatory else ""
     return custom_tel_field(
@@ -1969,7 +1969,7 @@ def tel_field(
 
 def url_field(
     name="", description="", mandatory: bool = False, readonly: bool = False
-) -> Field:
+) -> UnboundField:
     survey_field = SurveyField(id=name, name=name, type="url", description=description)
     mandatory_code = "M" if mandatory else ""
     return custom_url_field(
@@ -1983,7 +1983,7 @@ def list_field(
     mandatory: bool = False,
     ontology_map: str = "",
     readonly: bool = False,
-) -> Field:
+) -> UnboundField:
     survey_field = SurveyField(id=name, name=name, type="list", description=description)
     mandatory_code = "M" if mandatory else ""
     return custom_list_field(
@@ -2000,7 +2000,7 @@ def dual_multi_field(
     mandatory: bool = False,
     ontology_map: str = "",
     readonly: bool = False,
-) -> Field:
+) -> UnboundField:
     survey_field = SurveyField(
         id=name, name=name, type="multidual", description=description
     )
@@ -2019,7 +2019,7 @@ def multi_field(
     mandatory: bool = False,
     ontology_map: str = "",
     readonly: bool = False,
-) -> Field:
+) -> UnboundField:
     survey_field = SurveyField(
         id=name, name=name, type="multi", description=description
     )
@@ -2038,7 +2038,7 @@ def country_code_field(
     mandatory: bool = False,
     ontology_map: str = "",
     readonly: bool = False,
-) -> Field:
+) -> UnboundField:
     survey_field = SurveyField(
         id=name, name=name, type="country", description=description
     )

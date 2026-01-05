@@ -103,7 +103,9 @@ class SocialUser(FollowableAdapter):
         rows = db.session.execute(stmt)
         return len(list(rows)) == 1
 
-    def get_followees(self, cls: type = User, order_by=None, limit=0) -> list[User]:
+    def get_followees(
+        self, cls: type = User, order_by=None, limit=0
+    ) -> list[User | Organisation]:
         assert cls in {User, Organisation}
 
         if cls is User:

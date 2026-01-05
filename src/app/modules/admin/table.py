@@ -86,7 +86,8 @@ class Table:
         renderer = getattr(self, f"render_{column.name}", None)
         if renderer:
             return renderer(record)
-        return record.get(column.name, "")
+        value = record.get(column.name, "")
+        return str(value) if value != "" else ""
 
     def render(self) -> str:
         ctx = {

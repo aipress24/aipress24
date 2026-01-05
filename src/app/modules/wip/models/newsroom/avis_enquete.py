@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 
 import sqlalchemy as sa
 from aenum import StrEnum, auto
@@ -159,8 +159,6 @@ class ContactAvisEnquete(IdMixin, Base):
         Raises:
             ValueError: If slot is invalid (past, outside business hours, weekend)
         """
-        from datetime import datetime
-
         # If naive datetime, assume UTC
         if slot_dt.tzinfo is None:
             slot_dt = slot_dt.replace(tzinfo=UTC)
@@ -372,8 +370,6 @@ class ContactAvisEnquete(IdMixin, Base):
         Returns:
             timedelta if RDV date is set, None otherwise
         """
-        from datetime import datetime
-
         if not self.date_rdv:
             return None
 
@@ -383,8 +379,6 @@ class ContactAvisEnquete(IdMixin, Base):
     @property
     def is_rdv_soon(self) -> bool:
         """Check if RDV is within next 24 hours."""
-        from datetime import timedelta
-
         delta = self.time_until_rdv()
         if delta is None:
             return False
@@ -393,8 +387,6 @@ class ContactAvisEnquete(IdMixin, Base):
     @property
     def is_rdv_past(self) -> bool:
         """Check if RDV date has passed."""
-        from datetime import timedelta
-
         delta = self.time_until_rdv()
         if delta is None:
             return False
