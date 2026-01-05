@@ -62,6 +62,7 @@ def org_profile_post() -> str | Response:
 
     user = g.user
     org = user.organisation if user.is_authenticated else None
+    assert org is not None  # Protected route requires authenticated user with org
 
     form = request.form
     if "change_bw_data" in form:
@@ -135,6 +136,7 @@ def _build_context() -> dict[str, Any]:
     readonly = not allow_editing
 
     if is_bw_active:
+        assert org is not None  # is_bw_active implies org exists
         load_stripe_api_key()
         _stripe_bw_products = stripe_bw_subscription_dict()
         _current_product = _stripe_bw_products.get(org.stripe_product_id)

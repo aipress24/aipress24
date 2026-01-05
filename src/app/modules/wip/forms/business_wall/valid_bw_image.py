@@ -41,18 +41,18 @@ class ValidBWImageField(FileField):
     @property
     def preload_filename(self) -> str:
         if self.file_object:
-            return self.file_object.filename or ""
+            return self.file_object.filename or ""  # type: ignore[union-attr]
         return ""
 
     @property
     def preload_filesize(self) -> int:
-        if self.file_object and self.file_object.size:
-            return self.file_object.size
+        if self.file_object and self.file_object.size:  # type: ignore[union-attr]
+            return self.file_object.size  # type: ignore[union-attr]
         return 0
 
     def get_image_url(self) -> str | None:
         if self.file_object:
-            return self.file_object.sign()
+            return self.file_object.sign()  # type: ignore[union-attr]
         return None
 
     def id_preload_name(self) -> str:

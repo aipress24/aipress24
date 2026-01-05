@@ -52,7 +52,7 @@ class EventsTable(BaseTable):
     def __init__(self, q="") -> None:
         super().__init__(Event, q)
 
-    def url_for(self, obj, _action="get", **kwargs):
+    def url_for(self, obj, _action="get", **kwargs):  # type: ignore[override]
         return url_for(f"EventsWipView:{_action}", id=obj.id, **kwargs)
 
     def get_actions(self, item):
@@ -121,8 +121,8 @@ class EventsWipView(BaseWipView):
 
     def _post_update_model(self, model: Event) -> None:
         if not model.status:
-            model.status = PublicationStatus.DRAFT
-            model.published_at = arrow.now("Europe/Paris")
+            model.status = PublicationStatus.DRAFT  # type: ignore[assignment]
+            model.published_at = arrow.now("Europe/Paris")  # type: ignore[assignment,union-attr]
             if g.user.organisation_id:
                 model.publisher_id = g.user.organisation_id
         event_updated.send(model)
@@ -186,7 +186,7 @@ class EventsWipView(BaseWipView):
 
     def _add_image(self, event: Event):
         event_repo = self._get_repo()
-        image_repo = EventImageRepository(session=db.session)
+        image_repo = EventImageRepository(session=db.session)  # type: ignore[arg-type]
 
         image = request.files["image"]
         image_bytes = image.read()

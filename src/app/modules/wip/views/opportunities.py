@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
+from typing import TYPE_CHECKING
 
 from attr import frozen
 from flask import g, render_template, request
@@ -18,6 +19,9 @@ from app.flask.lib.nav import nav
 from app.models.auth import User
 from app.modules.wip import blueprint
 
+if TYPE_CHECKING:
+    from app.modules.wip.models.newsroom.avis_enquete import AvisEnquete
+
 from ._common import get_secondary_menu
 
 
@@ -26,7 +30,7 @@ from ._common import get_secondary_menu
 def opportunities():
     """Opportunités"""
     # Lazy import to avoid circular import
-    from app.modules.wip.models import AvisEnquete, ContactAvisEnqueteRepository
+    from app.modules.wip.models import ContactAvisEnqueteRepository
 
     repo = container.get(ContactAvisEnqueteRepository)
     contacts = repo.list()
@@ -71,12 +75,12 @@ def media_opportunity_post(id: int) -> str | Response:
     if reponse:
         contact.date_reponse = datetime.now(UTC)
         if reponse == "oui":
-            contact.status = StatutAvis.ACCEPTE
+            contact.status = StatutAvis.ACCEPTE  # type: ignore[assignment]
             contact.rdv_notes_expert = request.form.get("contribution", "")
         elif reponse == "non":
-            contact.status = StatutAvis.REFUSE
+            contact.status = StatutAvis.REFUSE  # type: ignore[assignment]
         elif reponse == "non-mais":
-            contact.status = StatutAvis.REFUSE_SUGGESTION
+            contact.status = StatutAvis.REFUSE_SUGGESTION  # type: ignore[assignment]
             contact.rdv_notes_expert = request.form.get("suggestion", "")
 
         repo.session.commit()
@@ -145,8 +149,8 @@ class MediaOpportunity:
 
     id: int
     journaliste: User
-    avis_enquete: object
+    avis_enquete: AvisEnquete
 
     @property
-    def titre(self):
+    def titre(self) -> str:
         return self.avis_enquete.titre

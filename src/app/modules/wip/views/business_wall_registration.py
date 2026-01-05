@@ -105,11 +105,11 @@ class SubscriptionInfo(NamedTuple):
 def _parse_subscription(subscription: stripe.Subscription) -> SubscriptionInfo:
     """Return meaningful data from Stripe Subscription object."""
     try:
-        current_period_start = Arrow.fromtimestamp(subscription.current_period_start)
+        current_period_start = Arrow.fromtimestamp(subscription.current_period_start)  # type: ignore[attr-defined]
     except AttributeError:
         current_period_start = utcnow()
     try:
-        current_period_end = Arrow.fromtimestamp(subscription.current_period_end)
+        current_period_end = Arrow.fromtimestamp(subscription.current_period_end)  # type: ignore[attr-defined]
     except AttributeError:
         current_period_end = Arrow(2100, 1, 1)
     return SubscriptionInfo(

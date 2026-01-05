@@ -43,7 +43,7 @@ class NewsroomCommonMixin(IdMixin, LifeCycleMixin, Owned):
 
     @orm.declared_attr
     def media(cls):
-        return orm.relationship(Organisation, foreign_keys=[cls.media_id])
+        return orm.relationship(Organisation, foreign_keys=[cls.media_id])  # type: ignore[arg-type]
 
     # Temp hack
     @property

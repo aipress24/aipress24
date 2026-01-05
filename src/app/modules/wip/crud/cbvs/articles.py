@@ -79,7 +79,7 @@ class ArticlesTable(BaseTable):
             f'<a href="{url_for("ArticlesWipView:get", id=obj.id)}">{obj.title}</a>'
         )
 
-    def url_for(self, obj, _action="get", **kwargs):
+    def url_for(self, obj, _action="get", **kwargs):  # type: ignore[override]
         return url_for(f"ArticlesWipView:{_action}", id=obj.id, **kwargs)
 
     def get_actions(self, item):
@@ -148,8 +148,8 @@ class ArticlesWipView(BaseWipView):
 
     def _post_update_model(self, model: Article) -> None:
         if not model.status:
-            model.status = PublicationStatus.DRAFT
-            model.published_at = arrow.now("Europe/Paris")
+            model.status = PublicationStatus.DRAFT  # type: ignore[assignment]
+            model.published_at = arrow.now("Europe/Paris")  # type: ignore[assignment,union-attr]
             if g.user.organisation_id:
                 model.publisher_id = g.user.organisation_id
         article_updated.send(model)
@@ -213,7 +213,7 @@ class ArticlesWipView(BaseWipView):
 
     def _add_image(self, article: Article):
         article_repo = self._get_repo()
-        image_repo = ImageRepository(session=db.session)
+        image_repo = ImageRepository(session=db.session)  # type: ignore[arg-type]
 
         image = request.files["image"]
         image_bytes = image.read()
