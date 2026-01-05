@@ -11,17 +11,12 @@ from flask import Blueprint
 from flask_login import current_user
 from werkzeug.exceptions import Unauthorized
 
+from app.flask.lib.nav import configure_nav
 from app.models.auth import User
 
 blueprint = Blueprint("biz", __name__, url_prefix="/biz", template_folder="templates")
+configure_nav(blueprint, label="Marketplace", icon="shopping-cart", order=40)
 route = blueprint.route
-
-# Navigation configuration for convention-driven nav
-blueprint.nav = {
-    "label": "Marketplace",
-    "icon": "shopping-cart",
-    "order": 40,
-}
 
 
 @blueprint.before_request

@@ -11,20 +11,14 @@ from flask import Blueprint
 from flask_login import current_user
 from werkzeug.exceptions import Unauthorized
 
+from app.flask.lib.nav import configure_nav
 from app.models.auth import User
 
 blueprint = Blueprint(
     "events", __name__, url_prefix="/events", template_folder="templates"
 )
+configure_nav(blueprint, label="Evénements", icon="calendar", order=4)
 route = blueprint.route
-
-# Navigation configuration for this section
-blueprint.nav = {
-    "label": "Evénements",
-    "icon": "calendar",
-    "order": 4,
-    "menu": ["events", "calendar"],  # submenu order
-}
 
 
 @blueprint.before_request

@@ -8,9 +8,10 @@ from __future__ import annotations
 
 from app.flask.routing import url_for
 from app.modules.admin import table as t
+from app.modules.admin.table import ColumnSpec
 from app.modules.swork.models import Group
 
-TABLE_COLUMNS = [
+TABLE_COLUMNS: list[ColumnSpec] = [
     {"name": "name", "label": "Nom", "width": 50},
     {"name": "num_members", "label": "# membres", "width": 50, "align": "right"},
     {"name": "karma", "label": "Perf.", "width": 50, "align": "right"},

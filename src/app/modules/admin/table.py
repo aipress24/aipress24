@@ -11,7 +11,7 @@ from __future__ import annotations
 
 from collections.abc import Iterable
 from pathlib import Path
-from typing import Any
+from typing import Any, TypedDict
 
 import webargs
 from attr import define
@@ -27,7 +27,16 @@ from app.models.organisation import Organisation
 from app.ui.labels import LABELS_ORGANISATION_TYPE
 from app.ui.macros.icon import icon
 
-__all__ = ["Column", "Table"]
+__all__ = ["Column", "ColumnSpec", "Table"]
+
+
+class ColumnSpec(TypedDict, total=False):
+    """Type specification for column configuration dictionaries."""
+
+    name: str
+    label: str
+    width: int
+    align: str
 
 
 @define

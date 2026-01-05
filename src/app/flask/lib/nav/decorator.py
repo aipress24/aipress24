@@ -10,7 +10,7 @@ from collections.abc import Callable
 from typing import Any
 
 
-def nav(  # noqa: PLR0913
+def nav(
     *,
     parent: str | None = None,
     label: str | None = None,

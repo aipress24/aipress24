@@ -50,6 +50,7 @@ lint.ignore = [
     "N805", # First argument of a method should be named `self`
     "PLR2004", # Magic value used in comparison
     "PLR2044", # Line w/ empty comment
+    "PLR0913", # too many arguments...
     "RET504", # Unnecessary variable assignment before `return` statement
     "RUF001", # String contains ambiguous unicode character
     "RUF002", # Docstring contains ambiguous unicode character

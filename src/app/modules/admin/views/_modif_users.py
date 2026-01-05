@@ -12,11 +12,11 @@ from sqlalchemy import Select, desc, false, func, nulls_last, select, true
 from app.flask.extensions import db
 from app.flask.routing import url_for
 from app.models.auth import User
-from app.modules.admin.table import Column, Table
+from app.modules.admin.table import Column, ColumnSpec, Table
 
 from ._new_users import NewUserDataSource
 
-TABLE_COLUMNS = [
+TABLE_COLUMNS: list[ColumnSpec] = [
     {"name": "name", "label": "Nom", "width": 50},
     {"name": "organisation_name", "label": "Org.", "width": 50},
     {"name": "last_login_at", "label": "Connexion", "width": 35},

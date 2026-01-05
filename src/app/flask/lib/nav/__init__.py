@@ -9,11 +9,11 @@ routes, requiring minimal configuration.
 
 Usage:
     # In blueprint __init__.py
-    blueprint.nav = {
-        "label": "Events",
-        "icon": "calendar",
-        "order": 3,
-    }
+    from flask import Blueprint
+    from app.flask.lib.nav import configure_nav
+
+    blueprint = Blueprint("events", __name__, url_prefix="/events")
+    configure_nav(blueprint, label="Events", icon="calendar", order=30)
 
     # In views (most pages need nothing)
     @blueprint.route("/events/")
@@ -40,6 +40,15 @@ from __future__ import annotations
 
 from .decorator import nav
 from .registration import register_nav
+from .registry import NavConfig, configure_nav, get_nav_config
 from .tree import NavTree, get_nav_tree
 
-__all__ = ["NavTree", "get_nav_tree", "nav", "register_nav"]
+__all__ = [
+    "NavConfig",
+    "NavTree",
+    "configure_nav",
+    "get_nav_config",
+    "get_nav_tree",
+    "nav",
+    "register_nav",
+]

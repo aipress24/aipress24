@@ -5,8 +5,6 @@
 
 from __future__ import annotations
 
-from functools import cache
-
 from attr import frozen
 from attrs import define
 
@@ -43,8 +41,7 @@ class ViewModel:
 
         return getattr(self._model, key)
 
-    @cache
-    def extra_attrs(self):
+    def extra_attrs(self) -> dict:
         """Override to provide additional attributes for the view model."""
         return {}
 

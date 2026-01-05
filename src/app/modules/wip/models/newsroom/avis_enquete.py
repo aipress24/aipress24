@@ -189,7 +189,7 @@ class ContactAvisEnquete(IdMixin, Base):
             self.status == StatutAvis.ACCEPTE and self.rdv_status == RDVStatus.NO_RDV
         )
 
-    def propose_rdv(  # noqa: PLR0913
+    def propose_rdv(
         self,
         rdv_type: RDVType,
         proposed_slots: list[datetime],

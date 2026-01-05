@@ -10,17 +10,12 @@ from flask import Blueprint
 from flask_login import current_user
 from werkzeug.exceptions import Unauthorized
 
+from app.flask.lib.nav import configure_nav
 from app.models.auth import User
 
 blueprint = Blueprint("wip", __name__, url_prefix="/wip", template_folder="templates")
+configure_nav(blueprint, label="Work", icon="briefcase", order=30)
 route = blueprint.route
-
-# Navigation configuration
-blueprint.nav = {
-    "label": "Work",
-    "icon": "briefcase",
-    "order": 30,
-}
 
 
 @blueprint.before_request
