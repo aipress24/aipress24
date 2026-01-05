@@ -95,9 +95,9 @@ class BaseWipView(FlaskView, abc.ABC):
         return html
 
     def _make_table(self, q="") -> BaseTable:
-        table = self.table_class(q)
-        table._action_url = self._url_for("htmx")
-        table._new_url = f"/wip/{self.route_base}/new/"
+        table = self.table_class(q)  # type: ignore[arg-type]
+        table._action_url = self._url_for("htmx")  # type: ignore[attr-defined]
+        table._new_url = f"/wip/{self.route_base}/new/"  # type: ignore[attr-defined]
         return table
 
     # Exposed methods
@@ -218,11 +218,11 @@ class BaseWipView(FlaskView, abc.ABC):
         if hasattr(form, "pays_zip_ville"):
             # load second data field
             if model:
-                form.pays_zip_ville.data2 = model.pays_zip_ville_detail
+                form.pays_zip_ville.data2 = model.pays_zip_ville_detail  # type: ignore[attr-defined]
             if mode == "view":
-                form.pays_zip_ville.lock = 1
+                form.pays_zip_ville.lock = 1  # type: ignore[attr-defined]
             else:
-                form.pays_zip_ville.lock = 0
+                form.pays_zip_ville.lock = 0  # type: ignore[attr-defined]
 
         renderer = FormRenderer(
             form,

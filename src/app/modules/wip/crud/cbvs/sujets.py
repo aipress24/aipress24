@@ -21,7 +21,7 @@ class SujetsTable(BaseTable):
     def __init__(self, q="") -> None:
         super().__init__(Sujet, q)
 
-    def url_for(self, obj, _action="get", **kwargs):
+    def url_for(self, obj, _action="get", **kwargs):  # type: ignore[override]
         return url_for(f"SujetsWipView:{_action}", id=obj.id, **kwargs)
 
 

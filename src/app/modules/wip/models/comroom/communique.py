@@ -150,11 +150,11 @@ class Communique(IdMixin, LifeCycleMixin, Owned, Base):
             raise ValueError(msg)
 
         # Update state
-        self.status = PublicationStatus.PUBLIC
+        self.status = PublicationStatus.PUBLIC  # type: ignore[assignment]
         if not self.published_at:
             import arrow
 
-            self.published_at = arrow.now("Europe/Paris")
+            self.published_at = arrow.now("Europe/Paris")  # type: ignore[assignment]
         if publisher_id:
             self.publisher_id = publisher_id
 
@@ -173,7 +173,7 @@ class Communique(IdMixin, LifeCycleMixin, Owned, Base):
             msg = "Cannot unpublish communique: communique is not PUBLIC"
             raise ValueError(msg)
 
-        self.status = PublicationStatus.DRAFT
+        self.status = PublicationStatus.DRAFT  # type: ignore[assignment]
 
     # ------------------------------------------------------------
     # Query Methods (for templates/views)
@@ -221,7 +221,7 @@ class Communique(IdMixin, LifeCycleMixin, Owned, Base):
     # Images management
     # ------------------------------------------------------------
 
-    def get_image(self, image_id: int) -> ComImage:
+    def get_image(self, image_id: int) -> ComImage | None:
         return next((image for image in self.images if image.id == image_id), None)
 
     @property

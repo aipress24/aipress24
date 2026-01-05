@@ -31,13 +31,13 @@ class BaseDataSource(DataSource):
 
         stmt = (
             select(M)
-            .where(M.owner == user)
-            .where(M.deleted_at.is_(None))
-            .order_by(M.created_at.desc())
+            .where(M.owner == user)  # type: ignore[attr-defined]
+            .where(M.deleted_at.is_(None))  # type: ignore[attr-defined]
+            .order_by(M.created_at.desc())  # type: ignore[attr-defined]
         )
 
         if self.q:
-            stmt = stmt.where(M.titre.ilike(f"%{self.q}%"))
+            stmt = stmt.where(M.titre.ilike(f"%{self.q}%"))  # type: ignore[attr-defined]
 
         return stmt
 

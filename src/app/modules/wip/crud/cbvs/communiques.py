@@ -47,7 +47,7 @@ class CommuniquesTable(BaseTable):
     def __init__(self, q="") -> None:
         super().__init__(Communique, q)
 
-    def url_for(self, obj, _action="get", **kwargs):
+    def url_for(self, obj, _action="get", **kwargs):  # type: ignore[override]
         return url_for(f"CommuniquesWipView:{_action}", id=obj.id, **kwargs)
 
     def get_columns(self):
@@ -138,7 +138,7 @@ class CommuniquesWipView(BaseWipView):
 
     def _post_update_model(self, model: Communique) -> None:
         if not model.status:
-            model.status = PublicationStatus.DRAFT
+            model.status = PublicationStatus.DRAFT  # type: ignore[assignment]
             if g.user.organisation_id:
                 model.publisher_id = g.user.organisation_id
         communique_updated.send(model)
@@ -202,7 +202,7 @@ class CommuniquesWipView(BaseWipView):
 
     def _add_image(self, communique: Communique):
         communique_repo = self._get_repo()
-        image_repo = ComImageRepository(session=db.session)
+        image_repo = ComImageRepository(session=db.session)  # type: ignore[arg-type]
 
         image = request.files["image"]
         image_bytes = image.read()

@@ -242,7 +242,7 @@ class ContactAvisEnquete(IdMixin, Base):
 
         # Update state - store as ISO strings for JSON serialization
         self.rdv_type = rdv_type
-        self.rdv_status = RDVStatus.PROPOSED
+        self.rdv_status = RDVStatus.PROPOSED  # type: ignore[assignment]
         self.proposed_slots = [slot.isoformat() for slot in validated_slots]
         self.rdv_phone = rdv_phone
         self.rdv_video_link = rdv_video_link
@@ -279,7 +279,7 @@ class ContactAvisEnquete(IdMixin, Base):
             raise ValueError(msg)
 
         # Update state
-        self.rdv_status = RDVStatus.ACCEPTED
+        self.rdv_status = RDVStatus.ACCEPTED  # type: ignore[assignment]
         self.date_rdv = selected_slot
         self.rdv_notes_expert = expert_notes
 
@@ -298,7 +298,7 @@ class ContactAvisEnquete(IdMixin, Base):
             msg = "Cannot confirm RDV: RDV has not been accepted yet"
             raise ValueError(msg)
 
-        self.rdv_status = RDVStatus.CONFIRMED
+        self.rdv_status = RDVStatus.CONFIRMED  # type: ignore[assignment]
 
     def cancel_rdv(self) -> None:
         """Cancel the RDV and reset to initial state."""
@@ -307,7 +307,7 @@ class ContactAvisEnquete(IdMixin, Base):
             raise ValueError(msg)
 
         # Reset to initial state
-        self.rdv_status = RDVStatus.NO_RDV
+        self.rdv_status = RDVStatus.NO_RDV  # type: ignore[assignment]
         self.rdv_type = None
         self.proposed_slots = []
         self.date_rdv = None

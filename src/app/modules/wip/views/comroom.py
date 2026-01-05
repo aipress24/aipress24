@@ -49,7 +49,7 @@ def comroom():
 
     items = main_items.copy()
     for item in items:
-        model_class = item["model_class"]
+        model_class: type[Owned] = item["model_class"]  # type: ignore[assignment]
         item["count"] = str(_item_count(model_class))
         item["href"] = url_for(item["endpoint"])
 

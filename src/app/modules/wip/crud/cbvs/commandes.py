@@ -21,7 +21,7 @@ class CommandesTable(BaseTable):
     def __init__(self, q="") -> None:
         super().__init__(Commande, q)
 
-    def url_for(self, obj, _action="get", **kwargs):
+    def url_for(self, obj, _action="get", **kwargs):  # type: ignore[override]
         return url_for(f"CommandesWipView:{_action}", id=obj.id, **kwargs)
 
 

@@ -32,6 +32,7 @@ from app.modules.wip.models import (
     ContactAvisEnquete,
     ContactAvisEnqueteRepository,
 )
+from app.services.auth import AuthService
 from app.services.emails import AvisEnqueteNotificationMail
 from app.services.notifications import NotificationService
 from app.services.sessions import SessionService
@@ -54,7 +55,7 @@ class AvisEnqueteTable(BaseTable):
     def __init__(self, q="") -> None:
         super().__init__(AvisEnquete, q)
 
-    def url_for(self, obj, _action="get", **kwargs):
+    def url_for(self, obj, _action="get", **kwargs):  # type: ignore[override]
         return url_for(f"AvisEnqueteWipView:{_action}", id=obj.id, **kwargs)
 
     def get_actions(self, item):
@@ -379,8 +380,8 @@ class AvisEnqueteWipView(BaseWipView):
             return Response("", headers={"HX-Redirect": url_for("home")})
 
         # Verify that the current user is the expert
-        session_service = container.get(SessionService)
-        current_user = session_service.user
+        auth_service = container.get(AuthService)
+        current_user = auth_service.get_user()
         if current_user.id != contact.expert_id:
             flash("Vous n'êtes pas autorisé à accéder à cette page", "error")
             return Response("", headers={"HX-Redirect": url_for("home")})
@@ -471,7 +472,7 @@ class SearchForm:
     all_experts: list[User]
 
     def __init__(self) -> None:
-        self.selector_keys: str[str] = {s.id for s in self._selector_classes}
+        self.selector_keys: set[str] = {s.id for s in self._selector_classes}  # type: ignore[attr-defined]
         self._restore_state()
         self._update_state()
         self.selectors = self._get_selectors()
@@ -516,12 +517,12 @@ class SearchForm:
 
     def add_experts(self) -> None:
         expert_ids = list(self.get_expert_ids())
-        expert_ids.extend(self.state.get("selected_experts", []))
-        self.state["selected_experts"] = list(set(expert_ids))
+        expert_ids.extend(self.state.get("selected_experts", []))  # type: ignore[arg-type]
+        self.state["selected_experts"] = list(set(expert_ids))  # type: ignore[assignment]
 
     def update_experts(self) -> None:
         expert_ids = list(self.get_expert_ids())
-        self.state["selected_experts"] = expert_ids
+        self.state["selected_experts"] = expert_ids  # type: ignore[assignment]
 
     def get_expert_ids(self) -> Generator[int]:
         form_data = request.form.to_dict()
@@ -774,7 +775,7 @@ class DepartementSelector(Selector):
     def get_values(self) -> set[str]:
         selected_countries = self.form.state.get("pays")
         if not selected_countries:
-            return []
+            return set()
         if isinstance(selected_countries, str):
             country_criteria = {selected_countries}
         else:
@@ -798,7 +799,7 @@ class VilleSelector(Selector):
     def get_values(self) -> set[str]:
         selected_departements = self.form.state.get("departement")
         if not selected_departements:
-            return []
+            return set()
         if isinstance(selected_departements, str):
             departement_criteria = {selected_departements}
         else:

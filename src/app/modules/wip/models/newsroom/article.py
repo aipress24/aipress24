@@ -107,11 +107,11 @@ class Article(
             raise ValueError(msg)
 
         # Update state
-        self.status = PublicationStatus.PUBLIC
+        self.status = PublicationStatus.PUBLIC  # type: ignore[assignment]
         if not self.published_at:
             import arrow
 
-            self.published_at = arrow.now("Europe/Paris")
+            self.published_at = arrow.now("Europe/Paris")  # type: ignore[assignment]
         if publisher_id:
             self.publisher_id = publisher_id
 
@@ -130,7 +130,7 @@ class Article(
             msg = "Cannot unpublish article: article is not PUBLIC"
             raise ValueError(msg)
 
-        self.status = PublicationStatus.DRAFT
+        self.status = PublicationStatus.DRAFT  # type: ignore[assignment]
 
     # ------------------------------------------------------------
     # Query Methods (for templates/views)
@@ -163,7 +163,7 @@ class Article(
     # Images management
     # ------------------------------------------------------------
 
-    def get_image(self, image_id: int) -> Image:
+    def get_image(self, image_id: int) -> Image | None:
         return next((image for image in self.images if image.id == image_id), None)
 
     @property
