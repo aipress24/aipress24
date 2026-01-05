@@ -24,7 +24,7 @@ def version():
 
 @get("/system/boot")
 def bootstrap_view() -> str:
-    zip_code_repo = ZipCodeRepository(session=db.session)
+    zip_code_repo = ZipCodeRepository(session=db.session)  # type: ignore[invalid-argument-type]
     count = zip_code_repo.count()
     if count:
         return "Bootstrap: Already done"

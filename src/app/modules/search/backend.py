@@ -6,13 +6,14 @@ from __future__ import annotations
 
 import contextlib
 from functools import singledispatchmethod
-from typing import Any
+from typing import Any, cast
 
 import typesense
 from attr import frozen
 from flask import current_app
 from loguru import logger
 from typesense.collection import Collection
+from typesense.configuration import ConfigDict, NodeConfigDict
 from typesense.exceptions import ObjectNotFound
 
 from app.flask.routing import url_for
@@ -56,13 +57,12 @@ class SearchBackend:
         host = current_app.config["TYPESENSE_HOST"]
         port = current_app.config.get("TYPESENSE_PORT", 8108)
         api_key = current_app.config["TYPESENSE_API_KEY"]
-        nodes = [{"host": host, "port": port, "protocol": "http"}]
-        return typesense.Client(
-            {
-                "nodes": nodes,
-                "api_key": api_key,
-            }
-        )
+        node: NodeConfigDict = {"host": host, "port": port, "protocol": "http"}
+        config: ConfigDict = {
+            "nodes": [node],
+            "api_key": api_key,
+        }
+        return typesense.Client(config)
 
     def get_collection(self, name) -> Collection:
         client = self.get_client()
@@ -82,7 +82,7 @@ class SearchBackend:
                 collection.delete()
                 logger.info("Deleted collection: {}", name)
 
-            client.collections.create(schema)
+            client.collections.create(cast(Any, schema))
             logger.info("Created collection: {}", name)
 
     def index_all(self) -> None:

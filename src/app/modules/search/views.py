@@ -115,7 +115,7 @@ class ResultSet:
 
         result = backend.get_collection(self.name).documents.search(search_parameters)
         self.count = result["found"]
-        self.hits = [Hit(hit) for hit in result["hits"]]
+        self.hits = [Hit(hit) for hit in result["hits"]]  # type: ignore[invalid-argument-type]
 
 
 @dataclass
