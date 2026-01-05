@@ -7,10 +7,12 @@ from __future__ import annotations
 
 from datetime import datetime
 
+from arrow import Arrow
+
 
 def opening_hours(
-    start: datetime,
-    end: datetime,
+    start: datetime | Arrow,
+    end: datetime | Arrow,
     hour_fmt: str | None = None,
     date_fmt: str | None = None,
 ) -> str:
