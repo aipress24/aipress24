@@ -64,6 +64,11 @@ class EventDetailVM(ViewModel):
         participants: list[User] = get_participants(event)
         participants.sort(key=lambda u: (u.last_name, u.first_name))
 
+        # Convert Arrow dates to datetime for opening_hours function
+        start_dt = event.start_date.datetime if event.start_date else None
+        end_dt = event.end_date.datetime if event.end_date else None
+        opening = opening_hours(start_dt, end_dt) if start_dt and end_dt else ""
+
         return {
             "age": age,
             "author": event.owner,
@@ -73,10 +78,10 @@ class EventDetailVM(ViewModel):
             "type_label": "",
             "type_id": "",
             "participants": participants,
-            "opening": opening_hours(event.start_date, event.end_date),
+            "opening": opening,
             "country_zip_city": (
-                f"{country_zip_code_to_city(event.pays_zip_ville_detail)}, "
-                f"{country_code_to_label(event.pays_zip_ville)}"
+                f"{country_zip_code_to_city(event.pays_zip_ville_detail)}, "  # type: ignore[bad-argument-type]
+                f"{country_code_to_label(event.pays_zip_ville)}"  # type: ignore[bad-argument-type]
             ),
         }
 
