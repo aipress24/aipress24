@@ -17,7 +17,7 @@ def add_tag(obj: Taggable, label: str, type: str = "manual") -> TagApplication:
 
     # Use duck typing - any object with an id attribute
     if hasattr(obj, "id"):
-        tag.object_id = obj.id
+        tag.object_id = obj.id  # type: ignore[invalid-assignment]
     else:  # pragma: no cover
         raise NotImplementedError
 

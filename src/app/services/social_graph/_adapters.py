@@ -116,13 +116,13 @@ class SocialUser(FollowableAdapter):
         stmt1 = sa.select(table.c.followee_id).where(table.c.follower_id == self.id)
         ids = db.session.scalars(stmt1)
 
-        stmt2: sa.Select = sa.select(cls).where(cls.id.in_(ids))
+        stmt2: sa.Select = sa.select(cls).where(cls.id.in_(ids))  # type: ignore[union-attr]
         if order_by is not None:
             stmt2 = stmt2.order_by(order_by)
         if limit:
             stmt2 = stmt2.limit(limit)
 
-        return list(db.session.scalars(stmt2))
+        return list(db.session.scalars(stmt2))  # type: ignore[arg-type]
 
     def num_followees(self, cls: type = User) -> int:
         assert cls in {User, Organisation}
@@ -154,7 +154,7 @@ class SocialUser(FollowableAdapter):
         stmt = sa.insert(table).values(followee_id=object.id, follower_id=subject.id)
         db.session.execute(stmt)
 
-        post_activity(ActivityType.Follow, unadapt(subject), unadapt(object))
+        post_activity(ActivityType.Follow, unadapt(subject), unadapt(object))  # type: ignore[arg-type]
 
     def unfollow(self, object: Followable) -> None:
         subject = self.user
@@ -171,7 +171,7 @@ class SocialUser(FollowableAdapter):
         )
         db.session.execute(stmt)
 
-        post_activity(ActivityType.Unfollow, unadapt(subject), unadapt(object))
+        post_activity(ActivityType.Unfollow, unadapt(subject), unadapt(object))  # type: ignore[arg-type]
 
     #
     # Likes
