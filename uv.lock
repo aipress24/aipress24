@@ -316,6 +316,7 @@ dependencies = [
 dev = [
     { name = "abilian-devtools" },
     { name = "auto-type-annotate" },
+    { name = "beartype" },
     { name = "behave" },
     { name = "buildstr" },
     { name = "coverage", extra = ["toml"] },
@@ -337,6 +338,7 @@ dev = [
     { name = "playwright" },
     { name = "pyrefly" },
     { name = "pytest-archon" },
+    { name = "pytest-beartype" },
     { name = "pytest-custom-exit-code" },
     { name = "pytest-flask" },
     { name = "pytest-minio-mock" },
@@ -466,6 +468,7 @@ requires-dist = [
 dev = [
     { name = "abilian-devtools", specifier = ">=0.7,<1.0" },
     { name = "auto-type-annotate", specifier = ">=1.1.2" },
+    { name = "beartype", specifier = ">=0.22.9" },
     { name = "behave" },
     { name = "buildstr", specifier = ">=0.1.1,<1.0.0" },
     { name = "coverage", extras = ["toml"], specifier = ">=7.4.0,<8.0.0" },
@@ -487,6 +490,7 @@ dev = [
     { name = "playwright" },
     { name = "pyrefly", specifier = ">=0.32.0" },
     { name = "pytest-archon", specifier = ">=0.0.6,<1.0.0" },
+    { name = "pytest-beartype", specifier = ">=0.2.0" },
     { name = "pytest-custom-exit-code", specifier = ">=0.3.0,<1.0.0" },
     { name = "pytest-flask", specifier = ">=1.3.0,<2.0.0" },
     { name = "pytest-minio-mock" },
@@ -769,6 +773,15 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/87/69/edacb37481d360d06fc947dab5734aaf511acb7d1a1f9e2849454376c0f8/bcrypt-4.0.1-cp36-abi3-musllinux_1_1_x86_64.whl", hash = "sha256:e9a51bbfe7e9802b5f3508687758b564069ba937748ad7b9e890086290d2f79e", size = 624290, upload-time = "2022-10-09T15:36:31.251Z" },
     { url = "https://files.pythonhosted.org/packages/aa/ca/6a534669890725cbb8c1fb4622019be31813c8edaa7b6d5b62fc9360a17e/bcrypt-4.0.1-cp36-abi3-win32.whl", hash = "sha256:2caffdae059e06ac23fce178d31b4a702f2a3264c20bfb5ff541b338194d8fab", size = 159428, upload-time = "2022-10-09T15:36:32.893Z" },
     { url = "https://files.pythonhosted.org/packages/46/81/d8c22cd7e5e1c6a7d48e41a1d1d46c92f17dae70a54d9814f746e6027dec/bcrypt-4.0.1-cp36-abi3-win_amd64.whl", hash = "sha256:8a68f4341daf7522fe8d73874de8906f3a339048ba406be6ddc1b3ccb16fc0d9", size = 152930, upload-time = "2022-10-09T15:36:34.635Z" },
+]
+
+[[package]]
+name = "beartype"
+version = "0.22.9"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/c7/94/1009e248bbfbab11397abca7193bea6626806be9a327d399810d523a07cb/beartype-0.22.9.tar.gz", hash = "sha256:8f82b54aa723a2848a56008d18875f91c1db02c32ef6a62319a002e3e25a975f", size = 1608866, upload-time = "2025-12-13T06:50:30.72Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/71/cc/18245721fa7747065ab478316c7fea7c74777d07f37ae60db2e84f8172e8/beartype-0.22.9-py3-none-any.whl", hash = "sha256:d16c9bbc61ea14637596c5f6fbff2ee99cbe3573e46a716401734ef50c3060c2", size = 1333658, upload-time = "2025-12-13T06:50:28.266Z" },
 ]
 
 [[package]]
@@ -3712,6 +3725,19 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/ae/1a/b64ac368de6b993135cb70ca4e5d958a5c268094a3a2a4cac6f0021b6c4f/pytest_base_url-2.1.0.tar.gz", hash = "sha256:02748589a54f9e63fcbe62301d6b0496da0d10231b753e950c63e03aee745d45", size = 6702, upload-time = "2024-01-31T22:43:00.81Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/98/1c/b00940ab9eb8ede7897443b771987f2f4a76f06be02f1b3f01eb7567e24a/pytest_base_url-2.1.0-py3-none-any.whl", hash = "sha256:3ad15611778764d451927b2a53240c1a7a591b521ea44cebfe45849d2d2812e6", size = 5302, upload-time = "2024-01-31T22:42:58.897Z" },
+]
+
+[[package]]
+name = "pytest-beartype"
+version = "0.2.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "beartype" },
+    { name = "pytest" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/63/69/954ee438f1c72f4247b09381cd07a7d776ebdb4f6c0359b3b971676a2eef/pytest_beartype-0.2.0.tar.gz", hash = "sha256:9eeec379f812e0e5c9c1bb7e95d90a33a79c387034f2d735e03bc9aa0fd7cf3f", size = 5871, upload-time = "2024-10-31T17:52:35.974Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/81/69/87efc2482aab172a32e4147eb5666ebc2e4c875e17d3104878553720a83a/pytest_beartype-0.2.0-py3-none-any.whl", hash = "sha256:be6be04be4a143f965f21140d6661bab43dcd7c761d50cf6daa1b16848e5d2d0", size = 4940, upload-time = "2024-10-31T17:52:33.528Z" },
 ]
 
 [[package]]

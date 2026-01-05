@@ -7,11 +7,11 @@
 from __future__ import annotations
 
 import pytest
-from flask_sqlalchemy import SQLAlchemy
-
 from app.models.auth import User
 from app.modules.events.models import EventPost, participation_table
 from app.modules.events.services import get_participants
+from flask_sqlalchemy import SQLAlchemy
+from typeguard import TypeCheckError
 
 
 class TestGetParticipants:
@@ -146,7 +146,7 @@ class TestGetParticipants:
 
     def test_raises_assertion_error_for_invalid_type(self, db: SQLAlchemy) -> None:
         """Test raises AssertionError for non-EventPost object."""
-        with pytest.raises(AssertionError):
+        with pytest.raises((AssertionError, TypeCheckError)):
             get_participants("not an event")  # type: ignore
 
     def test_only_returns_participants_for_specific_event(self, db: SQLAlchemy) -> None:
