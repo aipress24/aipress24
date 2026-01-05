@@ -60,7 +60,7 @@ class PostVM(ViewModel):
         article = cast("ArticlePost", self._model)
 
         if article.published_at:
-            age = article.published_at.humanize(locale="fr")
+            age = article.published_at.humanize(locale="fr")  # type: ignore[union-attr]
         else:
             age = "(not set)"
 
@@ -202,20 +202,20 @@ def is_group_member(user: User, group: Group) -> bool:
 
 def join_group(user: User, group: Group) -> None:
     """Add user to group."""
-    from app.services.activity_stream import post_activity
+    from app.services.activity_stream import ActivityType, post_activity
 
     table = group_members_table
     stmt = sa.insert(table).values(user_id=user.id, group_id=group.id)
     db.session.execute(stmt)
-    post_activity("Join", user, group)
+    post_activity(ActivityType.Join, user, group)  # type: ignore[arg-type]
 
 
 def leave_group(user: User, group: Group) -> None:
     """Remove user from group."""
-    from app.services.activity_stream import post_activity
+    from app.services.activity_stream import ActivityType, post_activity
 
     table = group_members_table
     c = table.c
     stmt = sa.delete(table).where(c.user_id == user.id, c.group_id == group.id)
     db.session.execute(stmt)
-    post_activity("Leave", user, group)
+    post_activity(ActivityType.Leave, user, group)  # type: ignore[arg-type]

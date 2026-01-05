@@ -22,12 +22,12 @@ class BaseList(WiredComponent):
     _attrs: ClassVar = ["search", "filter_states"]
 
     def __init__(self, id=None) -> None:
-        super().__init__(id)
+        super().__init__(id or "")
         self.filter_states = {}
         self.init_filter_states()
 
     def init_filter_states(self) -> None:
-        self.filters = self.get_filters()
+        self.filters = self.get_filters()  # type: ignore[misc]
         for filter in self.filters:
             filter_id = filter.id
             if filter_id not in self.filter_states:
