@@ -3,7 +3,7 @@
 {% block title %}Gérer les Partenaires Externes{% endblock %}
 
 {% block content %}
-<div class="max-w-6xl mx-auto">
+<div class="max-w-6xl mx-auto" x-data="{ noPartner: false }">
     <div class="bg-white p-8 rounded-2xl shadow-lg border border-gray-200">
 
         <h1 class="text-3xl font-bold text-gray-900">5- Gérer les Partenaires Externes</h1>
@@ -15,9 +15,37 @@
             </p>
         </div>
 
-        <!-- Information box -->
-        <div class="mt-6 p-6 bg-yellow-50 rounded-md border border-yellow-200">
-            <h3 class="font-semibold text-yellow-900 mb-2">⚠️ Important</h3>
+        <!-- No partner option -->
+        <div class="mt-6 p-6 bg-gray-50 rounded-lg border border-gray-200">
+            <label class="flex items-center gap-3 cursor-pointer">
+                <input type="checkbox"
+                       name="no_external_partner"
+                       x-model="noPartner"
+                       class="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                <span class="text-base font-medium text-gray-900">
+                    Je n'ai pas de partenaire externe (PR Agency ou PR Consultant)
+                </span>
+            </label>
+            <p class="mt-2 ml-8 text-sm text-gray-600">
+                Cochez cette case si vous gérez vous-même vos relations presse sans faire appel à un prestataire externe.
+            </p>
+        </div>
+
+        <!-- No partner confirmation -->
+        <div class="mt-6 p-4 bg-blue-50 rounded-md border border-blue-200" x-show="noPartner" x-transition>
+            <div class="flex items-center gap-3">
+                <svg class="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+                <p class="text-sm text-blue-800">
+                    <strong>Pas de partenaire externe.</strong> Vous gérez vous-même vos relations presse. Vous pourrez ajouter un partenaire ultérieurement si nécessaire.
+                </p>
+            </div>
+        </div>
+
+        <!-- Information box (hidden when no partner) -->
+        <div class="mt-6 p-6 bg-yellow-50 rounded-md border border-yellow-200" x-show="!noPartner" x-transition>
+            <h3 class="font-semibold text-yellow-900 mb-2">Information importante</h3>
             <div class="text-sm text-yellow-800 space-y-2">
                 <p>
                     Ajoutez les PR Agencies et les PR Indeps qui sont en contrat avec votre organisation, détiennent un abonnement à Business Wall for PR (BW4PR) et doivent vous représenter sur AiPRESS24.
@@ -31,8 +59,8 @@
             </div>
         </div>
 
-        <!-- Section: Add PR Partners -->
-        <div class="mt-8">
+        <!-- Section: Add PR Partners (hidden when no partner) -->
+        <div class="mt-8" x-show="!noPartner" x-transition>
             <h2 class="text-2xl font-semibold text-green-800 border-b pb-3 mb-6">Ajouter des PR Agencies ou PR Consultants</h2>
 
             <div class="mb-6 p-4 bg-gray-50 rounded-md">
@@ -72,8 +100,8 @@
             </div>
         </div>
 
-        <!-- Section: Pending invitations -->
-        <div class="mt-8">
+        <!-- Section: Pending invitations (hidden when no partner) -->
+        <div class="mt-8" x-show="!noPartner" x-transition>
             <h2 class="text-2xl font-semibold text-orange-800 border-b pb-3 mb-6">Invitations en attente</h2>
 
             <div class="p-4 bg-white rounded-md border border-gray-200">
@@ -89,7 +117,8 @@
                 ← Étape précédente : Rôles internes
             </a>
             <a href="{{ url_for('bw_activation_full.assign_missions') }}" class="rounded-md bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-700">
-                Étape suivante : Attribuer des missions →
+                <span x-show="!noPartner">Étape suivante : Attribuer des missions →</span>
+                <span x-show="noPartner">Continuer sans partenaire →</span>
             </a>
         </div>
 

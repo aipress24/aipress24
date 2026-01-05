@@ -94,12 +94,19 @@ def set_pricing(bw_type):
     if bw_type not in BW_TYPES or BW_TYPES[bw_type]["free"]:
         return redirect(url_for("bw_activation_full.index"))
 
+    # Validate CGV acceptance (required for paid types)
+    cgv_accepted = request.form.get("cgv_accepted") == "on"
+    if not cgv_accepted:
+        # CGV not accepted, redirect back to pricing page
+        return redirect(url_for("bw_activation_full.pricing_page", bw_type=bw_type))
+
     pricing_field = BW_TYPES[bw_type]["pricing_field"]
     try:
         pricing_value = int(request.form.get(pricing_field, 0))
         if pricing_value > 0:
             session["bw_type"] = bw_type
             session["pricing_value"] = pricing_value
+            session["cgv_accepted"] = True  # Store CGV acceptance
             return redirect(url_for("bw_activation_full.payment", bw_type=bw_type))
     except ValueError:
         pass

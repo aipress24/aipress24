@@ -19,6 +19,13 @@ BW_TYPES = {
         "free": True,
         "activation_text": "Approuver l'accord de diffusion sur AiPRESS24 + Business Wall CGV",
         "manager_role": "PR Manager",  # For confirmation messages
+        "newsroom_features": [
+            "Propositions de sujets aux rédacteurs en chef",
+            "Commandes de sujets de la part de rédacteurs en chef aux journalistes",
+            "Avis d'enquête des journalistes auprès des parties prenantes concernées",
+            "Justificatifs de publication sur AiPRESS24",
+            "Ventes de copyrights",
+        ],
         "onboarding_messages": [
             "Votre abonnement gratuit à Business Wall for Media sera la vitrine sur AiPRESS24 de l'organe de presse reconnu que vous dirigez.",
             "Vous devez créer un seul Business Wall for Media par organe de presse.",
@@ -34,6 +41,14 @@ BW_TYPES = {
         "free": True,
         "activation_text": "Approuver l'accord de diffusion sur AiPRESS24 + Business Wall CGV",
         "manager_role": "PR Manager",
+        "allows_self_management": True,  # Single-person orgs can self-assign roles
+        "newsroom_features": [
+            "Propositions de sujets aux rédacteurs en chef",
+            "Commandes de sujets de la part de rédacteurs en chef aux journalistes",
+            "Avis d'enquête des journalistes auprès des parties prenantes concernées",
+            "Justificatifs de publication sur AiPRESS24",
+            "Ventes de copyrights",
+        ],
         "onboarding_messages": [
             "Votre abonnement gratuit à Business Wall for Micro sera la vitrine sur AiPRESS24 de votre micro-entreprise de presse travaillant pour des organes de presse reconnus.",
             "Pour bénéficier de Business Wall for Micro, de l'accès aux fonctionnalités de NEWSROOM (propositions et commandes de sujets, Avis d'enquête digital, etc.) et pour commercialiser vos contenus journalistiques (consultations sur NEWS, Consultations Offertes, justificatifs de publication, revente de ©, fonds mutualisé des Avis d'enquêtes), vous devrez approuver notre contrat de diffusion sur AiPRESS24.",
@@ -47,6 +62,12 @@ BW_TYPES = {
         "free": True,
         "activation_text": "Approuver les CGV de Business Wall sur AiPRESS24",
         "manager_role": "PR Manager",
+        "newsroom_features": [
+            "Propositions de sujets aux rédacteurs en chef",
+            "Commandes de sujets de la part de rédacteurs en chef aux journalistes",
+            "Avis d'enquête des journalistes auprès des parties prenantes concernées",
+            # Note: No justificatifs or copyright sales for Corporate Media per CGV
+        ],
         "onboarding_messages": [
             "Votre abonnement gratuit à Business Wall for Corporate Media sera la vitrine sur AiPRESS24 de votre organe de presse institutionnel",
             "Pour bénéficier de Business Wall for Corporate Media et de l'accès aux fonctionnalités de NEWSROOM (propositions et commandes de sujets, Avis d'enquête digital), vous devrez approuver nos Conditions générales de vente.",
@@ -59,6 +80,7 @@ BW_TYPES = {
         "free": True,
         "activation_text": "Approuver les CGV de Business Wall sur AiPRESS24",
         "manager_role": "Press Manager",  # Different from other types
+        "allows_self_management": True,  # Can self-assign roles
         "onboarding_messages": [
             "Votre abonnement gratuit à Business Wall for Union sera la vitrine sur AiPRESS24 de votre syndicat ou fédération de la presse ou des médias, de votre club de la presse ou association de journalistes",
             "Pour bénéficier de Business Wall for Union, vous devrez approuver nos Conditions générales de vente.",
@@ -72,6 +94,7 @@ BW_TYPES = {
         "free": True,
         "activation_text": "Approuver les CGV de Business Wall sur AiPRESS24",
         "manager_role": "PR Manager",
+        "allows_self_management": True,  # Small academic units can self-assign roles
         "onboarding_messages": [
             "Votre abonnement gratuit à Business Wall for Academics sera la vitrine sur AiPRESS24 de votre établissement de recherche ou d'enseignement supérieur",
             "Pour bénéficier de Business Wall for Academics, vous devrez approuver nos Conditions générales de vente.",
@@ -87,10 +110,20 @@ BW_TYPES = {
         "manager_role": "PR Manager",
         "pricing_field": "client_count",
         "pricing_label": "Nombre de clients représentés",
-        "pricing_placeholder": "Ex: 5",
+        "pricing_placeholder": "1",
+        "pricing_default": 1,  # Start all PR Agencies at 1 client
+        "pricing_explanation": (
+            "Le montant du tarif de votre abonnement à Business Wall for PR dépend "
+            "du nombre de clients que vous représentez sur AiPRESS24. Pour démarrer, "
+            "indiquer le nombre « 1 » (pour « 1 client »). Par la suite, le nombre "
+            "de clients qui vous représentez sur AiPRESS24 s'actualisera de façon "
+            "incrémentale car chacun de vos clients va vous déclarer. A votre tour, "
+            "vous validerez chaque client. Votre tarif sera calculé automatiquement "
+            "à la hausse ou à la baisse selon le nombre des clients qui vous déclarent."
+        ),
         "onboarding_messages": [
             "Votre abonnement payant à Business Wall for PR sera la vitrine sur AiPRESS24 de votre PR Agency ou de votre activité de PR Consultant indépendant.e",
-            "Pour bénéficier de Business Wall for PR, vous devez déclarer le nombre de vos clients que vous représentez sur AiPRESS24 car le tarif de votre abonnement en dépend.",
+            "Le montant du tarif de votre abonnement à Business Wall for PR dépend du nombre de clients que vous représentez sur AiPRESS24. Pour démarrer, indiquer « 1 client ». Par la suite, le nombre de clients s'actualisera de façon incrémentale.",
             "Vous devrez aussi approuver nos Conditions générales de vente.",
             "Vous pourrez représenter vos clients sur AiPRESS24, agir en tant que contact presse, publier leurs communiqués de presse et leurs événements après que chacun de vos clients aura déclaré et validé votre organisation sur AiPRESS24.",
             "Les informations que vous allez saisir seront vérifiées par les équipes d'AiPRESS24.",
