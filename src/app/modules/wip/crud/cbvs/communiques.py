@@ -143,7 +143,7 @@ class CommuniquesWipView(BaseWipView):
                 model.publisher_id = g.user.organisation_id
         communique_updated.send(model)
 
-    def publish(self, id: int):
+    def publish(self, id):
         repo = self._get_repo()
         communique = cast("Communique", self._get_model(id))
 
@@ -161,7 +161,7 @@ class CommuniquesWipView(BaseWipView):
         flash("Le communiqué a été publié")
         return redirect(self._url_for("index"))
 
-    def unpublish(self, id: int):
+    def unpublish(self, id):
         repo = self._get_repo()
         communique = cast("Communique", self._get_model(id))
 

@@ -103,7 +103,7 @@ class BaseWipView(FlaskView, abc.ABC):
     # Exposed methods
     @templated(LIST_TEMPLATE)
     def index(self) -> dict:
-        q = request.args.get("q")
+        q = request.args.get("q", "")
         self.update_breadcrumbs()
         return {
             "title": self.label_main,

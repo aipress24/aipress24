@@ -10,7 +10,6 @@ from markupsafe import Markup
 
 from app.enums import RoleEnum
 from app.flask.lib.macros import macro
-from app.models.auth import User
 from app.models.organisation import Organisation
 
 
@@ -42,7 +41,7 @@ def org_logo(org: Organisation, size: int = 24, **kw) -> Markup | str:
 
 
 @macro
-def profile_image(user: User, size: int = 24, **kw) -> Markup:
+def profile_image(user, size: int = 24, **kw) -> Markup:
     cls = kw.get("class", "").split(" ")
     # url = user.profile_image_url
     # quick fix to merge KYC images and faker images urls

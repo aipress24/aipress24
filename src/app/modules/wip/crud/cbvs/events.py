@@ -127,7 +127,7 @@ class EventsWipView(BaseWipView):
                 model.publisher_id = g.user.organisation_id
         event_updated.send(model)
 
-    def publish(self, id: int):
+    def publish(self, id):
         repo = self._get_repo()
         event = cast("Event", self._get_model(id))
 
@@ -145,7 +145,7 @@ class EventsWipView(BaseWipView):
         flash("L'événement a été publié")
         return redirect(self._url_for("index"))
 
-    def unpublish(self, id: int):
+    def unpublish(self, id):
         repo = self._get_repo()
         event = cast("Event", self._get_model(id))
 
