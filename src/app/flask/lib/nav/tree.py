@@ -521,7 +521,7 @@ class NavTree:
                 continue
 
             # Build URL from endpoint
-            endpoint = entry.get("endpoint", "#")
+            endpoint = str(entry.get("endpoint", "#"))
             if endpoint.startswith("/"):
                 # Direct URL
                 item_url = endpoint
@@ -539,9 +539,9 @@ class NavTree:
 
             items.append(
                 MenuItem(
-                    label=entry.get("label", ""),
+                    label=str(entry.get("label", "")),
                     url=item_url,
-                    icon=entry.get("icon", ""),
+                    icon=str(entry.get("icon", "")),
                     active=is_active,
                 )
             )

@@ -37,7 +37,7 @@ def dump_photos_core(db_uri: str) -> None:
 
         for user in users_with_photos:
             user_id = user.id
-            photo_data = user.photo
+            photo_data: bytes = user.photo  # type: ignore[assignment]
             output_path = OUTPUT_DIR / f"{user_id}.png"
             output_path.write_bytes(photo_data)
 
@@ -50,4 +50,7 @@ def dump_photos_core(db_uri: str) -> None:
 def dump_photos_cmd() -> None:
     app = current_app
     db_uri = app.config.get("SQLALCHEMY_DATABASE_URI")
+    if not db_uri:
+        print("Error: SQLALCHEMY_DATABASE_URI not configured")
+        return
     dump_photos_core(db_uri)

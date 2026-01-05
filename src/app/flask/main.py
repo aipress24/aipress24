@@ -70,7 +70,7 @@ def create_app(config=None) -> Flask:
         Flask: Configured Flask application instance.
     """
     app = Flask(__name__, template_folder="../templates", static_folder="../static")
-    app = svcs.flask.init_app(app)
+    app = svcs.flask.init_app(app)  # type: ignore[attr-defined]
 
     # 1: set up app.config properly
     setup_config(app, config)
@@ -280,9 +280,11 @@ def bootstrap_db(app) -> None:
     with app.app_context():
         session = container.get(scoped_session)
         try:
-            country_count: int = session.execute(
-                "SELECT COUNT(*) FROM zip_country"
-            ).scalar()
+            from sqlalchemy import text
+
+            country_count: int = (
+                session.execute(text("SELECT COUNT(*) FROM zip_country")).scalar() or 0
+            )
         except Exception:
             country_count = 0
             db.create_all()

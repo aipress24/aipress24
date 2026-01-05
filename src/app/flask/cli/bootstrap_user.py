@@ -9,10 +9,10 @@ from decimal import Decimal
 from pathlib import Path
 from typing import Any
 
+import arrow
 import yaml
 from arrow import Arrow
 from flask_security import hash_password
-from sqlalchemy_utils.types.arrow import arrow
 
 from app.flask.extensions import db
 from app.models.auth import KYCProfile, User
@@ -67,8 +67,8 @@ def import_user(source: str | Path) -> User:
     data = load_user_data(source)
     session = db.session
 
-    user_repo = UserRepository(session=session)
-    role_repo = RoleRepository(session=session)
+    user_repo = UserRepository(session=session)  # type: ignore[arg-type]
+    role_repo = RoleRepository(session=session)  # type: ignore[arg-type]
 
     _is_merge = False
     if "id" in data:

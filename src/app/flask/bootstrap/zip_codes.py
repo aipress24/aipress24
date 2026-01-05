@@ -60,7 +60,7 @@ def import_zip_codes_for_country(path: Path) -> None:
     iso3 = path.stem
     zip_codes = []
     count = 0
-    repo = ZipCodeRepository(session=db.session)
+    repo = ZipCodeRepository(session=db.session)  # type: ignore[arg-type]
     with path.open() as file:
         parser = ijson.items(file, "item")
 

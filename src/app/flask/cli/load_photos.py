@@ -27,6 +27,9 @@ def load_photo(png: Path) -> None:
     user_id = int(png.stem)
     content = png.read_bytes()
     user = db.session.get(User, user_id)
+    if not user:
+        print(f"User {user_id} not found, skipping")
+        return
 
     image_file_object = FileObject(
         content=content,

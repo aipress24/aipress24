@@ -82,7 +82,7 @@ class TemplateResponse(Response):
             new_context["og_data"] = to_opengraph(model)
             new_context["json_ld"] = to_json_ld(model)
 
-        if "json_data" not in context:
+        if "json_data" not in new_context:
             new_context["json_data"] = {}
 
         return new_context
