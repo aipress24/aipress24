@@ -221,7 +221,8 @@ class User(LifeCycleMixin, Addressable, UserMixin, Base):
         return ""
 
     def first_community(self) -> RoleEnum:
-        for community in (
+        community: RoleEnum
+        for community in (  # type: ignore[invalid-assignment]
             RoleEnum.PRESS_MEDIA,
             RoleEnum.PRESS_RELATIONS,
             RoleEnum.EXPERT,
@@ -234,7 +235,7 @@ class User(LifeCycleMixin, Addressable, UserMixin, Base):
         raise RuntimeError(msg)
 
     # Override Flask-Security
-    def has_role(self, role: str | RoleEnum | Role) -> bool:
+    def has_role(self, role: str | RoleEnum | Role) -> bool:  # type: ignore[override]
         """Returns `True` if the user identifies with the specified role.
 
         :param role: A role name or `Role` instance"""
@@ -294,7 +295,7 @@ class User(LifeCycleMixin, Addressable, UserMixin, Base):
         try:
             return file_obj.sign(expires_in=expires_in, for_upload=False)
         except RuntimeError as e:
-            msg = f"Storage failed to sign URL for banner user.id : {self.id}, key {file_obj.object_key}: {e}"
+            msg = f"Storage failed to sign URL for banner user.id : {self.id}, key {file_obj.path}: {e}"
             raise RuntimeError(msg) from e
 
     def photo_image_signed_url(self, expires_in: int = 3600) -> str:
@@ -304,7 +305,7 @@ class User(LifeCycleMixin, Addressable, UserMixin, Base):
         try:
             return file_obj.sign(expires_in=expires_in, for_upload=False)
         except RuntimeError as e:
-            msg = f"Storage failed to sign URL for photo user.id : {self.id}, key {file_obj.object_key}: {e}"
+            msg = f"Storage failed to sign URL for photo user.id : {self.id}, key {file_obj.path}: {e}"
             raise RuntimeError(msg) from e
 
     def photo_carte_presse_image_signed_url(self, expires_in: int = 3600) -> str:
@@ -314,7 +315,7 @@ class User(LifeCycleMixin, Addressable, UserMixin, Base):
         try:
             return file_obj.sign(expires_in=expires_in, for_upload=False)
         except RuntimeError as e:
-            msg = f"Storage failed to sign URL for carte presse user.id : {self.id}, key {file_obj.object_key}: {e}"
+            msg = f"Storage failed to sign URL for carte presse user.id : {self.id}, key {file_obj.path}: {e}"
             raise RuntimeError(msg) from e
 
 
@@ -576,7 +577,7 @@ class KYCProfile(Base):
 
         data: dict[str, dict[str, str]] = {}
         contact_details = self.show_contact_details
-        for contact_type in ContactTypeEnum:
+        for contact_type in ContactTypeEnum:  # type: ignore[not-iterable]
             data[contact_type.name] = {}
             data[contact_type.name]["label"] = str(contact_type)
             for mode in ("mobile", "email", "email_relation_presse"):
@@ -587,7 +588,7 @@ class KYCProfile(Base):
 
     def parse_form_contact_details(self, data: dict[str, str]) -> None:
         contact_details = deepcopy(self.show_contact_details)
-        for contact_type in ContactTypeEnum:
+        for contact_type in ContactTypeEnum:  # type: ignore[not-iterable]
             for mode in ("mobile", "email", "email_relation_presse"):
                 key = f"{mode}_{contact_type.name}"
                 contact_details[key] = bool(data.get(key))

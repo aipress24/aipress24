@@ -15,7 +15,7 @@ debug: Any = None
 try:
     from devtools import debug
 except ImportError:
-    debug = print
+    debug = print  # type: ignore[assignment]
 
 
 def install() -> None:

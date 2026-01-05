@@ -27,7 +27,7 @@ def configure_logging() -> None:
     Sets up logging configuration and disables dramatiq logging.
     """
     print("Configuring logging")
-    logger.configure(**config)
+    logger.configure(**config)  # type: ignore[arg-type]
     logger.disable("app.dramatiq")
 
 

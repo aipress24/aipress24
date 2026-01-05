@@ -58,6 +58,7 @@ lint:
 	# Typecheck tests - mostly useless
 	# mypy --show-error-codes tests
 	pyright tests
+	ty check src/app
 	# Typecheck src - much more useful but not ready yet
 	# mypy --show-error-codes src
 	# pyright src

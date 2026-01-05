@@ -59,7 +59,7 @@ def list_entries():
             .where(TaxonomyEntry.taxonomy_name == taxonomy_name)
             .order_by(TaxonomyEntry.seq, TaxonomyEntry.name)
         )
-        entries = db.session.scalars(query).all()
+        entries = list(db.session.scalars(query))
 
     return render_template(
         "ontology/list.html",
@@ -87,7 +87,7 @@ def create():
             name=form.name.data,
             category=form.category.data,
             value=form.value.data,
-            seq=form.seq.data,
+            seq=form.seq.data or 0,
         )
         db.session.commit()
         flash(f"Entry '{form.name.data}' created successfully.", "success")
@@ -117,7 +117,7 @@ def edit(entry_id: int):
             name=form.name.data,
             category=form.category.data,
             value=form.value.data,
-            seq=form.seq.data,
+            seq=form.seq.data or 0,
         )
         db.session.commit()
         flash(f"Entry '{form.name.data}' updated successfully.", "success")

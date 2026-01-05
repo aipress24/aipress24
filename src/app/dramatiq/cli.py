@@ -174,6 +174,7 @@ def guess_code_directory(broker):
     actor = next(iter(broker.actors.values()))
     modname, *_ = actor.fn.__module__.partition(".")
     mod = sys.modules[modname]
+    assert mod.__file__ is not None
     return Path(mod.__file__).parent
 
 
