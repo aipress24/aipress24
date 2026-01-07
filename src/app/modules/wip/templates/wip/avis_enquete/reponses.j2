@@ -32,9 +32,6 @@
                   <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
                     RDV
                   </th>
-                  <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-0">
-                    <span class="sr-only">Actions</span>
-                  </th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-gray-200">
@@ -77,24 +74,26 @@
                         -
                       {% endif %}
                     </td>
-                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                        {{ response.get_rdv_summary() }}
-                    </td>
-                    <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
+                    <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-sm font-medium sm:pr-0">
+                      {{ response.get_rdv_summary() }}
                       {% if response.can_propose_rdv() %}
-                        <a
-                          href="{{ url_for('AvisEnqueteWipView:rdv_propose', id=model.id, contact_id=response.id) }}"
-                          class="text-indigo-600 hover:text-indigo-900"
-                        >
-                          Proposer un RDV
-                        </a>
+                        <div>
+                          <a
+                            href="{{ url_for('AvisEnqueteWipView:rdv_propose', id=model.id, contact_id=response.id) }}"
+                            class="text-indigo-600 hover:text-indigo-900"
+                          >
+                            Proposer un RDV
+                          </a>
+                        </div>
                       {% elif response.has_rdv %}
-                        <a
-                          href="{{ url_for('AvisEnqueteWipView:rdv', id=model.id) }}"
-                          class="text-indigo-600 hover:text-indigo-900"
-                        >
-                          Voir le RDV
-                        </a>
+                        <div>
+                          <a
+                            href="{{ url_for('AvisEnqueteWipView:rdv', id=model.id) }}"
+                            class="text-indigo-600 hover:text-indigo-900"
+                          >
+                            Voir le RDV
+                          </a>
+                        </div>
                       {% endif %}
                     </td>
                   </tr>
