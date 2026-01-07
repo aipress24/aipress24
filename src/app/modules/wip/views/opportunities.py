@@ -36,20 +36,10 @@ def opportunities():
     contacts = repo.list()
     contacts = [contact for contact in contacts if contact.expert == g.user]
 
-    media_opportunities = []
-    for contact in contacts:
-        avis_enquete: AvisEnquete = contact.avis_enquete
-        media_opp = MediaOpportunity(
-            id=contact.id,
-            avis_enquete=avis_enquete,
-            journaliste=contact.journaliste,
-        )
-        media_opportunities.append(media_opp)
-
     return render_template(
         "wip/pages/opportunities.j2",
         title="Mes opportunités",
-        media_opportunities=media_opportunities,
+        contacts=contacts,
         menus={"secondary": get_secondary_menu("opportunities")},
     )
 
