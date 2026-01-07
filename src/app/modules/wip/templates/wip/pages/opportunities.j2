@@ -1,6 +1,6 @@
 {% extends "wip/layout/_base.j2" %}
 
-{% macro render_media_opps(media_opps) %}
+{% macro render_contacts(contacts) %}
   <div class="overflow-x-auto">
     <table class="dui-table dui-table-zebra border w-full">
       <!-- head -->
@@ -9,25 +9,43 @@
         <th>Journaliste</th>
         <th>Media</th>
         <th>Titre</th>
+        <th>RDV</th>
       </tr>
       </thead>
       <tbody>
 
-      {% for media_opp in media_opps %}
-        {% set organisation=media_opp.journaliste.organisation %}
+      {% for contact in contacts %}
+        {% set organisation=contact.journaliste.organisation %}
         <tr>
-          <td><a href="{{ url_for(media_opp.journaliste) }}"
+          <td><a href="{{ url_for(contact.journaliste) }}"
                  class="underline">
-            {{ media_opp.journaliste.name }}
+            {{ contact.journaliste.name }}
           </a></td>
           <td><a href="{{ url_for(organisation) }}"
                  class="underline">
             {{ organisation.name }}
           </a></td>
-          <td><a href="{{ url_for(".media_opportunity", id=media_opp.id) }}"
+          <td><a href="{{ url_for(".media_opportunity", id=contact.id) }}"
                  class="underline">
-            {{ media_opp.titre }}
+            {{ contact.avis_enquete.titre }}
           </a></td>
+          <td>
+            {% if contact.is_waiting_expert_response %}
+              <a href="{{ url_for('AvisEnqueteWipView:rdv_accept', id=contact.avis_enquete.id, contact_id=contact.id) }}"
+                 class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                Voir la proposition
+              </a>
+            {% elif contact.is_rdv_accepted %}
+              <div class="text-sm">
+                <p class="font-semibold">RDV Accepté:</p>
+                <p>{{ contact.date_rdv.strftime('%d/%m/%Y à %H:%M') if contact.date_rdv else 'Date non définie' }}</p>
+                <a href="{{ url_for('AvisEnqueteWipView:rdv_details', id=contact.avis_enquete.id, contact_id=contact.id) }}"
+                   class="text-blue-500 hover:underline">
+                  Voir les détails
+                </a>
+              </div>
+            {% endif %}
+          </td>
         </tr>
       {% endfor %}
       </tbody>
@@ -38,8 +56,8 @@
 {% block body_content %}
     <h2 class="text-lg font-medium text-gray-900 mb-4">Opportunités d'exposition média</h2>
     <div class="">
-      {% if media_opportunities %}
-        {{ render_media_opps(media_opportunities) }}
+      {% if contacts %}
+        {{ render_contacts(contacts) }}
       {% else %}
         <p>Aucune opportunité d'exposition média pour le moment.</p>
       {% endif %}
