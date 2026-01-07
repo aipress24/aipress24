@@ -57,7 +57,6 @@ def media_opportunity_post(id: int) -> str | Response:
     """Handle media opportunity form submission."""
     # Lazy import to avoid circular import
     from app.modules.wip.models import ContactAvisEnqueteRepository, StatutAvis
-    from flask import redirect, url_for
 
     repo = container.get(ContactAvisEnqueteRepository)
     contact = repo.get(id)
