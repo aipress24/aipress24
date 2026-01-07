@@ -328,12 +328,10 @@ class AvisEnqueteWipView(BaseWipView):
             # Collect proposed slots and convert to datetime objects
             proposed_slots = []
             for i in range(1, 6):  # Support up to 5 slots
-                slot_date = request.form.get(f"slot_date_{i}")
-                slot_time = request.form.get(f"slot_time_{i}")
-                if slot_date and slot_time:
+                slot_str = request.form.get(f"slot_datetime_{i}")
+                if slot_str:
                     try:
                         # Parse string to datetime object
-                        slot_str = f"{slot_date}T{slot_time}"
                         slot_dt = datetime.fromisoformat(slot_str)
                         proposed_slots.append(slot_dt)
                     except ValueError:
