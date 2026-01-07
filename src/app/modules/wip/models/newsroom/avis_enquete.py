@@ -142,6 +142,13 @@ class ContactAvisEnquete(IdMixin, Base):
     rdv_notes_journaliste: Mapped[str] = mapped_column(default="")
     rdv_notes_expert: Mapped[str] = mapped_column(default="")
 
+    @property
+    def proposed_slots_dt(self) -> list[datetime]:
+        """Return proposed_slots as datetime objects."""
+        if not self.proposed_slots:
+            return []
+        return [datetime.fromisoformat(slot) for slot in self.proposed_slots]
+
     # ------------------------------------------------------------
     # Business Logic
     # ------------------------------------------------------------
@@ -328,6 +335,11 @@ class ContactAvisEnquete(IdMixin, Base):
     def is_rdv_confirmed(self) -> bool:
         """Check if RDV is confirmed."""
         return bool(self.rdv_status == RDVStatus.CONFIRMED)
+
+    @property
+    def is_rdv_accepted(self) -> bool:
+        """Check if RDV is accepted."""
+        return bool(self.rdv_status == RDVStatus.ACCEPTED)
 
     @property
     def is_waiting_expert_response(self) -> bool:
