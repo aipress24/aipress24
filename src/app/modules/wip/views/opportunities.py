@@ -144,3 +144,7 @@ class MediaOpportunity:
     @property
     def titre(self) -> str:
         return self.avis_enquete.titre
+
+    @property
+    def brief(self) -> str:
+        return self.avis_enquete.contenu

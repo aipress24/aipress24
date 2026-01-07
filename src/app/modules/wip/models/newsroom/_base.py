@@ -26,7 +26,7 @@ class NewsroomCommonMixin(IdMixin, LifeCycleMixin, Owned):
     # Titre
     titre: Mapped[str] = mapped_column(default="")
 
-    # Titre
+    # Brief
     brief: Mapped[str] = mapped_column(default="")
 
     # N° d’édition
