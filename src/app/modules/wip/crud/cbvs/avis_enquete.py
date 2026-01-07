@@ -28,7 +28,6 @@ from app.modules.wip.services.newsroom import (
     RDVProposalData,
 )
 from app.services.auth import AuthService
-from app.services.emails import AvisEnqueteNotificationMail
 
 from ._base import BaseWipView
 from ._forms import AvisEnqueteForm
@@ -121,10 +120,11 @@ class AvisEnqueteWipView(BaseWipView):
                 selected_experts = filter_service.get_selected_experts()
                 new_experts = avis_service.filter_known_experts(model, selected_experts)
                 if new_experts:
+                    sender = cast("User", current_user)
                     avis_service.store_contacts(model, new_experts)
                     avis_service.notify_experts(model, new_experts, "#TODO")
+                    avis_service.send_avis_enquete_emails(model, new_experts, sender)
                     avis_service.commit()
-                    self._send_avis_enquete_mails(model, new_experts)
                 flash(
                     "Votre avis d'enquête a été envoyé aux contacts sélectionnés",
                     "success",
@@ -158,27 +158,6 @@ class AvisEnqueteWipView(BaseWipView):
         html = render_template("wip/avis_enquete/ciblage.j2", **ctx)
         html = extract_fragment(html, "main")
         return html
-
-    def _send_avis_enquete_mails(
-        self, model: AvisEnquete, selected_experts: list
-    ) -> None:
-        """Send notification emails to selected experts."""
-        actual_sender = cast("User", current_user)
-        sender_name = actual_sender.email
-        organisation = actual_sender.organisation
-        org_name = organisation.name if organisation else "inconnue"
-        abstract = model.title
-
-        for expert_user in selected_experts:
-            recipient = expert_user.email
-            notification_mail = AvisEnqueteNotificationMail(
-                sender="contact@aipress24.com",
-                recipient=recipient,
-                sender_name=sender_name,
-                bw_name=org_name,
-                abstract=abstract,
-            )
-            notification_mail.send()
 
     @route("/<id>/reponses", methods=["GET"])
     def reponses(self, id):
