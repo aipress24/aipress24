@@ -10,7 +10,7 @@ from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
 from attr import frozen
-from flask import g, render_template, request
+from flask import g, redirect, render_template, request, url_for
 from svcs.flask import container
 from werkzeug import Response
 
@@ -57,6 +57,7 @@ def media_opportunity_post(id: int) -> str | Response:
     """Handle media opportunity form submission."""
     # Lazy import to avoid circular import
     from app.modules.wip.models import ContactAvisEnqueteRepository, StatutAvis
+    from flask import redirect, url_for
 
     repo = container.get(ContactAvisEnqueteRepository)
     contact = repo.get(id)
@@ -75,9 +76,7 @@ def media_opportunity_post(id: int) -> str | Response:
 
         repo.session.commit()
 
-    html = _render_media_opportunity(id)
-    html = extract_fragment(html, id="form")
-    return html
+    return redirect(url_for("wip.opportunities"))
 
 
 @blueprint.route("/opportunities/<int:id>/form", methods=["POST"])
