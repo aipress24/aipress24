@@ -1,0 +1,70 @@
+{% extends "wip/layout/_base.j2" %}
+
+{% block body_class %}bg-gray-50{% endblock %}
+
+{% block body_content %}
+<div class="p-4">
+  <div class="bg-white p-6 rounded-lg shadow-lg">
+    <h1 class="text-2xl font-bold mb-4">{{ title }}</h1>
+
+    <div class="space-y-4">
+      <div>
+        <h3 class="font-semibold">Expert:</h3>
+        <p>{{ contact.expert.full_name }}</p>
+      </div>
+      <div>
+        <h3 class="font-semibold">Statut du RDV:</h3>
+        <p>{{ contact.rdv_status.value if contact.rdv_status else 'Non défini' }}</p>
+      </div>
+      <div>
+        <h3 class="font-semibold">Date du RDV:</h3>
+        <p>{{ contact.date_rdv.strftime('%d/%m/%Y à %H:%M') if contact.date_rdv else 'Non défini' }}</p>
+      </div>
+      <div>
+        <h3 class="font-semibold">Type de RDV:</h3>
+        <p>{{ contact.rdv_type.value if contact.rdv_type else 'Non défini' }}</p>
+      </div>
+      {% if contact.rdv_type and contact.rdv_type.name == 'PHONE' %}
+      <div>
+        <h3 class="font-semibold">Numéro de téléphone:</h3>
+        <p>{{ contact.rdv_phone }}</p>
+      </div>
+      {% elif contact.rdv_type and contact.rdv_type.name == 'VIDEO' %}
+      <div>
+        <h3 class="font-semibold">Lien visioconférence:</h3>
+        <p>{{ contact.rdv_video_link }}</p>
+      </div>
+      {% elif contact.rdv_type and contact.rdv_type.name == 'IN_PERSON' %}
+      <div>
+        <h3 class="font-semibold">Adresse:</h3>
+        <p>{{ contact.rdv_address }}</p>
+      </div>
+      {% endif %}
+      <div>
+        <h3 class="font-semibold">Créneaux proposés:</h3>
+        {% if contact.proposed_slots_dt %}
+        <ul>
+          {% for slot in contact.proposed_slots_dt %}
+          <li class="list-disc ml-4">{{ slot.strftime('%d/%m/%Y à %H:%M') }}</li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <p>Aucun créneau proposé.</p>
+        {% endif %}
+      </div>
+      <div>
+        <h3 class="font-semibold">Notes du journaliste:</h3>
+        <p>{{ contact.rdv_notes_journaliste if contact.rdv_notes_journaliste else 'Aucune note.' }}</p>
+      </div>
+      <div>
+        <h3 class="font-semibold">Notes de l'expert:</h3>
+        <p>{{ contact.rdv_notes_expert if contact.rdv_notes_expert else 'Aucune note.' }}</p>
+      </div>
+    </div>
+
+    <div class="mt-6">
+      <a href="{{ url_for('AvisEnqueteWipView:rdv', id=model.id) }}" class="text-blue-500 hover:underline">Retour à la liste des RDV</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -273,6 +273,32 @@ class AvisEnqueteWipView(BaseWipView):
         html = render_template("wip/avis_enquete/rdv.j2", **ctx)
         return html
 
+    @route("/<id>/rdv-details/<contact_id>", methods=["GET"])
+    def rdv_details(self, id, contact_id):
+        model = self._get_model(id)
+        db_session = container.get(scoped_session)
+
+        # get the contact response
+        contact = db_session.query(ContactAvisEnquete).get(contact_id)
+        if not contact or contact.avis_enquete_id != model.id:
+            flash("Contact introuvable", "error")
+            redirect_url = url_for("AvisEnqueteWipView:rdv", id=id)
+            if request.headers.get("HX-Request"):
+                return Response("", headers={"HX-Redirect": redirect_url})
+            return redirect(redirect_url)
+
+        title = f"Détails du RDV - {contact.expert.full_name}"
+        self.update_breadcrumbs(label=title)
+
+        ctx = {
+            "title": title,
+            "model": model,
+            "contact": contact,
+        }
+
+        html = render_template("wip/avis_enquete/rdv_details.j2", **ctx)
+        return html
+
     @route("/<id>/rdv-propose/<contact_id>", methods=["GET", "POST"])
     def rdv_propose(self, id, contact_id):
         model = self._get_model(id)
@@ -385,17 +411,30 @@ class AvisEnqueteWipView(BaseWipView):
         contact = db_session.query(ContactAvisEnquete).get(contact_id)
         if not contact or contact.avis_enquete_id != model.id:
             flash("Contact introuvable", "error")
-            redirect_url = url_for("home")
+            redirect_url = url_for("public.home")
             if request.headers.get("HX-Request"):
                 return Response("", headers={"HX-Redirect": redirect_url})
             return redirect(redirect_url)
+
+        # RDV already done:
+        if request.method == "GET" and not contact.can_accept_rdv():
+            flash(
+                "Ce RDV a déjà été traité ou n'est plus en attente de réponse.", "info"
+            )
+            return redirect(
+                url_for(
+                    "AvisEnqueteWipView:rdv_details",
+                    id=model.id,
+                    contact_id=contact.id,
+                )
+            )
 
         # Verify that the current user is the expert
         auth_service = container.get(AuthService)
         current_user = auth_service.get_user()
         if current_user.id != contact.expert_id:
             flash("Vous n'êtes pas autorisé à accéder à cette page", "error")
-            redirect_url = url_for("home")
+            redirect_url = url_for("public.home")
             if request.headers.get("HX-Request"):
                 return Response("", headers={"HX-Redirect": redirect_url})
             return redirect(redirect_url)

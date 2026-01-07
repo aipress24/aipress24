@@ -29,8 +29,7 @@
             <td class="py-2 px-4 border-b">{{ contact.rdv_type.value if contact.rdv_type else 'Non défini' }}</td>
             <td class="py-2 px-4 border-b">{{ contact.rdv_status.value if contact.rdv_status else 'Non défini' }}</td>
             <td class="py-2 px-4 border-b">
-              {# todo details #}
-              <a href="#" class="text-blue-500 hover:underline">Détails</a>
+              <a href="{{ url_for('AvisEnqueteWipView:rdv_details', id=model.id, contact_id=contact.id) }}" class="text-blue-500 hover:underline">Détails</a>
             </td>
           </tr>
           {% endfor %}
