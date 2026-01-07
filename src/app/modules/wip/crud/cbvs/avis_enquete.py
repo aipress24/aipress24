@@ -32,6 +32,7 @@ from app.modules.wip.models import (
     ContactAvisEnquete,
     ContactAvisEnqueteRepository,
     RDVStatus,
+    StatutAvis,
 )
 from app.services.auth import AuthService
 from app.services.emails import AvisEnqueteNotificationMail
@@ -239,10 +240,14 @@ class AvisEnqueteWipView(BaseWipView):
             .all()
         )
 
+        for r in responses:
+            print(f"Response ID: {r.id}, Status: {r.status}, RDV Status: {r.rdv_status}")
+
         ctx = {
             "title": title,
             "model": model,
             "responses": responses,
+            "StatutAvis": StatutAvis,
         }
 
         html = render_template("wip/avis_enquete/reponses.j2", **ctx)
@@ -496,7 +501,7 @@ class AvisEnqueteWipView(BaseWipView):
                 "Vous avez accepté le rendez-vous. Le journaliste sera notifié.",
                 "success",
             )
-            redirect_url = url_for("home")
+            redirect_url = url_for("public.home")
             if request.headers.get("HX-Request"):
                 return Response("", headers={"HX-Redirect": redirect_url})
             return redirect(redirect_url)
