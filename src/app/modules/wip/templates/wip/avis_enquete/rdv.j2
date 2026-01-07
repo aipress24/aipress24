@@ -3,7 +3,50 @@
 {% block body_class %}bg-gray-50{% endblock %}
 
 {% block body_content %}
+<div class="p-4">
+  <div class="bg-white p-6 rounded-lg shadow-lg">
+    <h1 class="text-2xl font-bold mb-4">{{ title }}</h1>
 
-  TODO: tableau avec les prises de RDV.
+    {% if contacts_with_rdv %}
+    <div class="overflow-x-auto">
+      <table class="min-w-full bg-white">
+        <thead>
+          <tr>
+            <th class="py-2 px-4 border-b">Expert</th>
+            <th class="py-2 px-4 border-b">Date du RDV</th>
+            <th class="py-2 px-4 border-b">Type</th>
+            <th class="py-2 px-4 border-b">Statut</th>
+            <th class="py-2 px-4 border-b">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for contact in contacts_with_rdv %}
+          <tr>
+            <td class="py-2 px-4 border-b">{{ contact.expert.full_name }}</td>
+            <td class="py-2 px-4 border-b">
+              {{ contact.date_rdv.strftime('%d/%m/%Y à %H:%M') if contact.date_rdv else 'Non défini' }}
+            </td>
+            <td class="py-2 px-4 border-b">{{ contact.rdv_type.value if contact.rdv_type else 'Non défini' }}</td>
+            <td class="py-2 px-4 border-b">{{ contact.rdv_status.value if contact.rdv_status else 'Non défini' }}</td>
+            <td class="py-2 px-4 border-b">
+              {# todo details #}
+              <a href="#" class="text-blue-500 hover:underline">Détails</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p>Aucun rendez-vous programmé pour cet avis d'enquête.</p>
+    {% endif %}
 
+    <div class="mt-6">
+      <a href="{{ url_for('AvisEnqueteWipView:reponses', id=model.id) }}" class="text-blue-500 hover:underline">Gérer les réponses et proposer des RDV</a>
+    </div>
+    <div class="mt-2">
+      <a href="{{ url_for('AvisEnqueteWipView:index') }}" class="text-gray-500 hover:underline">Retour à la liste</a>
+    </div>
+  </div>
+</div>
 {% endblock %}

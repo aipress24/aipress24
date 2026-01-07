@@ -31,6 +31,7 @@ from app.modules.wip.models import (
     AvisEnqueteRepository,
     ContactAvisEnquete,
     ContactAvisEnqueteRepository,
+    RDVStatus,
 )
 from app.services.auth import AuthService
 from app.services.emails import AvisEnqueteNotificationMail
@@ -253,9 +254,20 @@ class AvisEnqueteWipView(BaseWipView):
         title = f"Gestion des rendez-vous - {model.title}"
         self.update_breadcrumbs(label=title)
 
+        db_session = container.get(scoped_session)
+        contacts_with_rdv = (
+            db_session.query(ContactAvisEnquete)
+            .filter(
+                ContactAvisEnquete.avis_enquete_id == model.id,
+                ContactAvisEnquete.rdv_status != RDVStatus.NO_RDV,
+            )
+            .all()
+        )
+
         ctx = {
             "title": title,
             "model": model,
+            "contacts_with_rdv": contacts_with_rdv,
         }
 
         html = render_template("wip/avis_enquete/rdv.j2", **ctx)

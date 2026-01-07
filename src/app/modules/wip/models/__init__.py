@@ -14,6 +14,7 @@ from .newsroom import (
     Image,
     ImageRepository,
     JustifPublication,
+    RDVStatus,
     StatutAvis,
     Sujet,
 )
@@ -47,6 +48,7 @@ __all__ = [
     "ImageRepository",
     "JustifPublication",
     "JustifPublicationRepository",
+    "RDVStatus",
     "StatutAvis",
     "Sujet",
     "SujetRepository",
