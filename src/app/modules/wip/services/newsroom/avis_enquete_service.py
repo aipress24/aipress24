@@ -20,6 +20,7 @@ from app.modules.wip.models import (
     RDVStatus,
     RDVType,
 )
+from app.services.emails import AvisEnqueteNotificationMail
 from app.services.notifications import NotificationService
 
 if TYPE_CHECKING:
@@ -278,6 +279,34 @@ class AvisEnqueteService:
         contacts = self._contact_repo.list(avis_enquete_id=avis.id)
         known_expert_ids = {contact.expert_id for contact in contacts}
         return [e for e in experts if e.id not in known_expert_ids]
+
+    def send_avis_enquete_emails(
+        self,
+        avis: AvisEnquete,
+        experts: list[User],
+        sender: User,
+    ) -> None:
+        """
+        Send notification emails to experts about an Avis d'Enquête.
+
+        Args:
+            avis: The Avis d'Enquête
+            experts: List of experts to email
+            sender: The journalist sending the avis
+        """
+        sender_name = sender.email
+        organisation = sender.organisation
+        org_name = organisation.name if organisation else "inconnue"
+
+        for expert in experts:
+            notification_mail = AvisEnqueteNotificationMail(
+                sender="contact@aipress24.com",
+                recipient=expert.email,
+                sender_name=sender_name,
+                bw_name=org_name,
+                abstract=avis.title,
+            )
+            notification_mail.send()
 
     # ----------------------------------------------------------------
     # Queries
