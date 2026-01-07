@@ -56,11 +56,11 @@
                       </div>
                     </td>
                     <td class="whitespace-nowrap px-3 py-4 text-sm">
-                      {% if response.status == 'accepte' %}
+                      {% if response.status.value == 'ACCEPTE' %}
                         <span class="inline-flex rounded-full bg-green-100 px-2 text-xs font-semibold leading-5 text-green-800">
                           Accepté
                         </span>
-                      {% elif response.status == 'refuse' %}
+                      {% elif response.status.value == 'REFUSE' %}
                         <span class="inline-flex rounded-full bg-red-100 px-2 text-xs font-semibold leading-5 text-red-800">
                           Refusé
                         </span>
@@ -78,33 +78,19 @@
                       {% endif %}
                     </td>
                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                      {% if response.rdv_status == 'NO_RDV' %}
-                        <span class="text-gray-400">Pas de RDV</span>
-                      {% elif response.rdv_status == 'PROPOSED' %}
-                        <span class="inline-flex rounded-full bg-blue-100 px-2 text-xs font-semibold leading-5 text-blue-800">
-                          Proposé
-                        </span>
-                      {% elif response.rdv_status == 'ACCEPTED' %}
-                        <span class="inline-flex rounded-full bg-green-100 px-2 text-xs font-semibold leading-5 text-green-800">
-                          Accepté
-                        </span>
-                      {% elif response.rdv_status == 'CONFIRMED' %}
-                        <span class="inline-flex rounded-full bg-purple-100 px-2 text-xs font-semibold leading-5 text-purple-800">
-                          Confirmé
-                        </span>
-                      {% endif %}
+                        {{ response.get_rdv_summary() }}
                     </td>
                     <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
-                      {% if response.status == 'ACCEPTE' and response.rdv_status == 'NO_RDV' %}
+                      {% if response.can_propose_rdv() %}
                         <a
                           href="{{ url_for('AvisEnqueteWipView:rdv_propose', id=model.id, contact_id=response.id) }}"
                           class="text-indigo-600 hover:text-indigo-900"
                         >
                           Proposer un RDV
                         </a>
-                      {% elif response.rdv_status in ['PROPOSED', 'ACCEPTED', 'CONFIRMED'] %}
+                      {% elif response.has_rdv %}
                         <a
-                          href="{{ url_for('AvisEnqueteWipView:rdv_details', id=model.id, contact_id=response.id) }}"
+                          href="{{ url_for('AvisEnqueteWipView:rdv', id=model.id) }}"
                           class="text-indigo-600 hover:text-indigo-900"
                         >
                           Voir le RDV
