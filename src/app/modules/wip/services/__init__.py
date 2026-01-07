@@ -1,0 +1,14 @@
+# Copyright (c) 2021-2024, Abilian SAS & TCA
+#
+# SPDX-License-Identifier: AGPL-3.0-only
+
+"""WIP module services."""
+
+from __future__ import annotations
+
+from .newsroom import AvisEnqueteService, ExpertFilterService
+
+__all__ = [
+    "AvisEnqueteService",
+    "ExpertFilterService",
+]
