@@ -11,7 +11,7 @@ from collections.abc import Generator
 from typing import TYPE_CHECKING, cast
 
 from attr import frozen
-from flask import Flask, Response, flash, render_template, request
+from flask import Flask, Response, flash, redirect, render_template, request
 from flask_classful import route
 from flask_login import current_user
 from flask_super.registry import register
@@ -282,10 +282,10 @@ class AvisEnqueteWipView(BaseWipView):
         contact = db_session.query(ContactAvisEnquete).get(contact_id)
         if not contact or contact.avis_enquete_id != model.id:
             flash("Contact introuvable", "error")
-            return Response(
-                "",
-                headers={"HX-Redirect": url_for("AvisEnqueteWipView:reponses", id=id)},
-            )
+            redirect_url = url_for("AvisEnqueteWipView:reponses", id=id)
+            if request.headers.get("HX-Request"):
+                return Response("", headers={"HX-Redirect": redirect_url})
+            return redirect(redirect_url)
 
         if request.method == "POST":
             # Handle form submission
@@ -315,16 +315,14 @@ class AvisEnqueteWipView(BaseWipView):
                             f"Format de date/heure invalide pour le créneau {i}",
                             "error",
                         )
-                        return Response(
-                            "",
-                            headers={
-                                "HX-Redirect": url_for(
-                                    "AvisEnqueteWipView:rdv_propose",
-                                    id=id,
-                                    contact_id=contact_id,
-                                )
-                            },
+                        redirect_url = url_for(
+                            "AvisEnqueteWipView:rdv_propose",
+                            id=id,
+                            contact_id=contact_id,
                         )
+                        if request.headers.get("HX-Request"):
+                            return Response("", headers={"HX-Redirect": redirect_url})
+                        return redirect(redirect_url)
 
             # Use business method to propose RDV (includes validation)
             try:
@@ -339,16 +337,14 @@ class AvisEnqueteWipView(BaseWipView):
                 db_session.commit()
             except ValueError as e:
                 flash(str(e), "error")
-                return Response(
-                    "",
-                    headers={
-                        "HX-Redirect": url_for(
-                            "AvisEnqueteWipView:rdv_propose",
-                            id=id,
-                            contact_id=contact_id,
-                        )
-                    },
+                redirect_url = url_for(
+                    "AvisEnqueteWipView:rdv_propose",
+                    id=id,
+                    contact_id=contact_id,
                 )
+                if request.headers.get("HX-Request"):
+                    return Response("", headers={"HX-Redirect": redirect_url})
+                return redirect(redirect_url)
 
             # Send notification to expert
             notification_service = container.get(NotificationService)
@@ -362,10 +358,10 @@ class AvisEnqueteWipView(BaseWipView):
             db_session.commit()
 
             flash("Votre proposition de rendez-vous a été envoyée", "success")
-            return Response(
-                "",
-                headers={"HX-Redirect": url_for("AvisEnqueteWipView:reponses", id=id)},
-            )
+            redirect_url = url_for("AvisEnqueteWipView:reponses", id=id)
+            if request.headers.get("HX-Request"):
+                return Response("", headers={"HX-Redirect": redirect_url})
+            return redirect(redirect_url)
 
         title = f"Proposer un RDV - {contact.expert.full_name}"
         self.update_breadcrumbs(label=title)
@@ -389,14 +385,20 @@ class AvisEnqueteWipView(BaseWipView):
         contact = db_session.query(ContactAvisEnquete).get(contact_id)
         if not contact or contact.avis_enquete_id != model.id:
             flash("Contact introuvable", "error")
-            return Response("", headers={"HX-Redirect": url_for("home")})
+            redirect_url = url_for("home")
+            if request.headers.get("HX-Request"):
+                return Response("", headers={"HX-Redirect": redirect_url})
+            return redirect(redirect_url)
 
         # Verify that the current user is the expert
         auth_service = container.get(AuthService)
         current_user = auth_service.get_user()
         if current_user.id != contact.expert_id:
             flash("Vous n'êtes pas autorisé à accéder à cette page", "error")
-            return Response("", headers={"HX-Redirect": url_for("home")})
+            redirect_url = url_for("home")
+            if request.headers.get("HX-Request"):
+                return Response("", headers={"HX-Redirect": redirect_url})
+            return redirect(redirect_url)
 
         if request.method == "POST":
             # Handle slot acceptance
@@ -407,32 +409,28 @@ class AvisEnqueteWipView(BaseWipView):
 
             if not selected_slot_str:
                 flash("Aucun créneau sélectionné", "error")
-                return Response(
-                    "",
-                    headers={
-                        "HX-Redirect": url_for(
-                            "AvisEnqueteWipView:rdv_accept",
-                            id=id,
-                            contact_id=contact_id,
-                        )
-                    },
+                redirect_url = url_for(
+                    "AvisEnqueteWipView:rdv_accept",
+                    id=id,
+                    contact_id=contact_id,
                 )
+                if request.headers.get("HX-Request"):
+                    return Response("", headers={"HX-Redirect": redirect_url})
+                return redirect(redirect_url)
 
             # Convert selected slot string to datetime object
             try:
                 selected_slot = datetime.fromisoformat(selected_slot_str)
             except ValueError:
                 flash("Format de créneau invalide", "error")
-                return Response(
-                    "",
-                    headers={
-                        "HX-Redirect": url_for(
-                            "AvisEnqueteWipView:rdv_accept",
-                            id=id,
-                            contact_id=contact_id,
-                        )
-                    },
+                redirect_url = url_for(
+                    "AvisEnqueteWipView:rdv_accept",
+                    id=id,
+                    contact_id=contact_id,
                 )
+                if request.headers.get("HX-Request"):
+                    return Response("", headers={"HX-Redirect": redirect_url})
+                return redirect(redirect_url)
 
             # Use business method to accept RDV (includes validation)
             try:
@@ -440,16 +438,14 @@ class AvisEnqueteWipView(BaseWipView):
                 db_session.commit()
             except ValueError as e:
                 flash(str(e), "error")
-                return Response(
-                    "",
-                    headers={
-                        "HX-Redirect": url_for(
-                            "AvisEnqueteWipView:rdv_accept",
-                            id=id,
-                            contact_id=contact_id,
-                        )
-                    },
+                redirect_url = url_for(
+                    "AvisEnqueteWipView:rdv_accept",
+                    id=id,
+                    contact_id=contact_id,
                 )
+                if request.headers.get("HX-Request"):
+                    return Response("", headers={"HX-Redirect": redirect_url})
+                return redirect(redirect_url)
 
             # Send notification to journalist
             notification_service = container.get(NotificationService)
@@ -463,7 +459,10 @@ class AvisEnqueteWipView(BaseWipView):
                 "Vous avez accepté le rendez-vous. Le journaliste sera notifié.",
                 "success",
             )
-            return Response("", headers={"HX-Redirect": url_for("home")})
+            redirect_url = url_for("home")
+            if request.headers.get("HX-Request"):
+                return Response("", headers={"HX-Redirect": redirect_url})
+            return redirect(redirect_url)
 
         title = f"Accepter un rendez-vous - {model.title}"
         self.update_breadcrumbs(label=title)
