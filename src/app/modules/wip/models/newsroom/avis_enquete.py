@@ -14,6 +14,7 @@ from sqlalchemy_utils import ArrowType
 
 from app.models.auth import User
 from app.models.base import Base
+from app.models.lifecycle import PublicationStatus
 from app.models.mixins import IdMixin
 
 from ._base import (
@@ -61,16 +62,17 @@ class AvisEnquete(
 ):
     __tablename__ = "nrm_avis_enquete"
 
-    # Etat: Brouillon, Validé, Publié
+    # Workflow: DRAFT → PENDING (validated) → PUBLIC (published)
+    # Can also be: REJECTED, ARCHIVED
 
     # ------------------------------------------------------------
     # Dates
     # ------------------------------------------------------------
 
-    # Début de l’enquête
+    # Début de l'enquête
     date_debut_enquete: Mapped[datetime] = mapped_column(ArrowType(timezone=True))
 
-    # Fin de l’enquête
+    # Fin de l'enquête
     date_fin_enquete: Mapped[datetime] = mapped_column(ArrowType(timezone=True))
 
     # Bouclage
@@ -84,7 +86,9 @@ class AvisEnquete(
         sa.Enum(TypeAvis), default=TypeAvis.AVIS_D_ENQUETE
     )
 
-    status: Mapped[str] = mapped_column(default="")
+    status: Mapped[PublicationStatus] = mapped_column(
+        sa.Enum(PublicationStatus), default=PublicationStatus.DRAFT
+    )
 
 
 class ContactAvisEnquete(IdMixin, Base):
