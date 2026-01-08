@@ -52,6 +52,8 @@ Le cycle de publication permet aux journalistes de :
 | `MANAGER` | Gestionnaire | - | Gestionnaire d'organisation |
 | `ADMIN` | Administrateur | - | Administration système |
 
+JD: En plus des Leaders & Experts, tous les acteurs peuvent répondre à un avis d'enquête.
+
 ### 2.2 Rôles Métier dans le Cycle
 
 | Rôle Métier | Description | Actions Principales |
@@ -70,7 +72,7 @@ Les permissions sont gérées **au niveau des rôles** (pas individuellement).
 | Créer Sujet | ✓ | ✗ | ✗ | ✓ |
 | Créer Commande | ✓ | ✗ | ✓ | ✓ |
 | Créer Avis d'Enquête | ✓ | ✗ | ✗ | ✓ |
-| Répondre Avis d'Enquête | ✗ | ✓ | ✗ | ✓ |
+| Répondre Avis d'Enquête | ✓ | ✓ | ✓ | ✓ |
 | Créer Article | ✓ | ✗ | ✗ | ✓ |
 | Valider/Publier Article | ✓ | ✗ | ✗ | ✓ |
 | Créer Justificatif | ✓ | ✗ | ✗ | ✓ |
