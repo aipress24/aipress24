@@ -9,7 +9,7 @@ Specs:
 - Commande
 - Avis d'enquête
 - Articles
-- Justificatif de publication
+- Notification de publication
 - Recette (?)
 """
 
@@ -24,7 +24,10 @@ from .avis_enquete import (
     StatutAvis,
 )
 from .commande import Commande
-from .justif_publication import JustifPublication
+from .notification_publication import (
+    NotificationPublication,
+    NotificationPublicationContact,
+)
 from .repositories import ImageRepository
 from .sujet import Sujet
 
@@ -35,7 +38,8 @@ __all__ = [
     "ContactAvisEnquete",
     "Image",
     "ImageRepository",
-    "JustifPublication",
+    "NotificationPublication",
+    "NotificationPublicationContact",
     "RDVStatus",
     "RDVType",
     "StatutAvis",

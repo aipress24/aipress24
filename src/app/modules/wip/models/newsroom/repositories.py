@@ -12,7 +12,10 @@ from app.services.repositories import Repository
 from .article import Article, Image
 from .avis_enquete import AvisEnquete, ContactAvisEnquete
 from .commande import Commande
-from .justif_publication import JustifPublication
+from .notification_publication import (
+    NotificationPublication,
+    NotificationPublicationContact,
+)
 from .sujet import Sujet
 
 
@@ -51,5 +54,12 @@ class CommandeRepository(Repository[Commande]):
 
 
 @service
-class JustifPublicationRepository(Repository[JustifPublication]):
-    model_type = JustifPublication
+class NotificationPublicationRepository(Repository[NotificationPublication]):
+    model_type = NotificationPublication
+
+
+@service
+class NotificationPublicationContactRepository(
+    Repository[NotificationPublicationContact]
+):
+    model_type = NotificationPublicationContact
