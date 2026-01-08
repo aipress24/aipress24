@@ -63,6 +63,13 @@
     </div>
 
     <div class="mt-6">
+      {% if contact.can_confirm_rdv() and current_user.id == contact.journaliste_id %}
+      <form action="{{ url_for('AvisEnqueteWipView:rdv_confirm', id=model.id, contact_id=contact.id) }}" method="POST" class="inline-block">
+        <button type="submit" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+          Confirmer le RDV
+        </button>
+      </form>
+      {% endif %}
       <a href="{{ url_for('AvisEnqueteWipView:rdv', id=model.id) }}" class="text-blue-500 hover:underline">Retour à la liste des RDV</a>
     </div>
   </div>

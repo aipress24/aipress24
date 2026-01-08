@@ -356,6 +356,19 @@ class ContactAvisEnquete(IdMixin, Base):
             slot_count: int = len(self.proposed_slots)  # type: ignore[arg-type]
             return f"RDV proposé ({slot_count} créneaux)"
 
+        if self.rdv_status == RDVStatus.CONFIRMED and self.date_rdv and self.rdv_type:
+            date_str = self.date_rdv.strftime("%d/%m/%Y à %H:%M")
+            rdv_type = self.rdv_type
+            if rdv_type == RDVType.PHONE:
+                type_str = "Téléphone"
+            elif rdv_type == RDVType.VIDEO:
+                type_str = "Visio"
+            elif rdv_type == RDVType.F2F:
+                type_str = "Face-à-face"
+            else:
+                type_str = ""
+            return f"RDV confirmé {type_str} le {date_str}"
+
         if self.date_rdv and self.rdv_type:
             date_str = self.date_rdv.strftime("%d/%m/%Y à %H:%M")
             rdv_type = self.rdv_type  # Narrow type for checker
