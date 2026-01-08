@@ -19,6 +19,7 @@ from app.flask.routing import url_for
 from app.modules.wip.models import (
     AvisEnquete,
     AvisEnqueteRepository,
+    RDVStatus,
     RDVType,
     StatutAvis,
 )
@@ -174,6 +175,7 @@ class AvisEnqueteWipView(BaseWipView):
             "model": model,
             "responses": responses,
             "StatutAvis": StatutAvis,
+            "RDVStatus": RDVStatus,
         }
 
         html = render_template("wip/avis_enquete/reponses.j2", **ctx)
@@ -214,10 +216,39 @@ class AvisEnqueteWipView(BaseWipView):
             "title": title,
             "model": model,
             "contact": contact,
+            "RDVStatus": RDVStatus,
         }
 
         html = render_template("wip/avis_enquete/rdv_details.j2", **ctx)
         return html
+
+    @route("/<id>/rdv-confirm/<contact_id>", methods=["POST"])
+    def rdv_confirm(self, id, contact_id):
+        model = self._get_model(id)
+        service = AvisEnqueteService()
+
+        contact = service.get_contact_for_avis(int(contact_id), model.id)
+        if not contact:
+            flash("Contact introuvable", "error")
+            return self._htmx_redirect("rdv", id=id)
+
+        # Verify current user is the journalist
+        if current_user.id != contact.journaliste_id:
+            flash("Vous n'êtes pas autorisé à confirmer ce RDV", "error")
+            return self._htmx_redirect("rdv_details", id=id, contact_id=contact.id)
+
+        if not contact.can_confirm_rdv():
+            flash("Ce RDV ne peut pas être confirmé", "error")
+            return self._htmx_redirect("rdv_details", id=id, contact_id=contact.id)
+
+        try:
+            contact.confirm_rdv()
+            service.commit()
+            flash("Le RDV a été confirmé", "success")
+        except ValueError as e:
+            flash(str(e), "error")
+
+        return self._htmx_redirect("reponses", id=id)
 
     @route("/<id>/rdv-propose/<contact_id>", methods=["GET", "POST"])
     def rdv_propose(self, id, contact_id):

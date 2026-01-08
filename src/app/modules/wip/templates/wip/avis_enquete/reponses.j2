@@ -53,7 +53,11 @@
                       </div>
                     </td>
                     <td class="whitespace-nowrap px-3 py-4 text-sm">
-                      {% if response.status == StatutAvis.ACCEPTE %}
+                      {% if response.rdv_status == RDVStatus.CONFIRMED %}
+                        <span class="inline-flex rounded-full bg-blue-100 px-2 text-xs font-semibold leading-5 text-blue-800">
+                          Confirmé
+                        </span>
+                      {% elif response.status == StatutAvis.ACCEPTE %}
                         <span class="inline-flex rounded-full bg-green-100 px-2 text-xs font-semibold leading-5 text-green-800">
                           Accepté
                         </span>
