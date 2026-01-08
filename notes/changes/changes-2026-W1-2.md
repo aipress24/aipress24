@@ -11,6 +11,7 @@ Full implementation of the rendez-vous scheduling workflow for journalist-expert
 - Three RDV types: Phone, Video, Face-to-face
 - Experts select a slot and optionally add notes
 - Full state machine: NO_RDV → PROPOSED → ACCEPTED → CONFIRMED
+- JD: last step "CONFIRMED" no currently implemented
 
 **2. RDV Views**
 - New RDV table displaying all contacts with RDV status
@@ -32,7 +33,7 @@ Major refactoring to separate concerns and improve testability.
 
 **1. AvisEnqueteService**
 - Orchestrates RDV workflow (propose, accept, confirm, cancel)
-- Handles expert notifications and emails
+- Handles expert notifications and emails. JD: email notification not implemented
 - Manages contact storage and filtering
 
 **2. ExpertFilterService**
