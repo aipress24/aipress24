@@ -20,6 +20,7 @@ from app.modules.wip.models import (
     AvisEnquete,
     AvisEnqueteRepository,
     RDVType,
+    StatutAvis,
 )
 from app.modules.wip.services.newsroom import (
     AvisEnqueteService,
@@ -172,6 +173,7 @@ class AvisEnqueteWipView(BaseWipView):
             "title": title,
             "model": model,
             "responses": responses,
+            "StatutAvis": StatutAvis,
         }
 
         html = render_template("wip/avis_enquete/reponses.j2", **ctx)
