@@ -112,8 +112,68 @@ New specification documentation for publication workflow.
 - Integrated client feedback (v1.1)
 - Defined entity states, transitions, and business rules
 
+## NotificationPublication Implementation
+
+Simplified notification system for alerting experts when articles are published.
+
+### Key Changes
+
+**1. Model Simplification**
+- Removed JustifPublication (complex lifecycle model)
+- Created NotificationPublication with fire-and-forget design
+- No email/in-app tracking - just records notification was sent
+- NotificationPublicationContact links notification to expert contacts
+
+**2. Design Decisions**
+- Notification ≠ Justificatif (Notification = WIP alert, Justificatif = BIZ product)
+- Fire-and-forget: created = sent, no workflow
+- `notified_at` timestamp set on creation
+
+**3. Database Migration**
+- `8c27eefc5851`: Drop `nrm_justif_publication` table
+- `9763afdb9033`: Create `nrm_notification_publication` and `nrm_notification_publication_contact` tables
+
+## Status Field Enum Migration
+
+Technical debt cleanup: migrated string status fields to proper enums.
+
+### Key Changes
+
+**1. Models Updated**
+- `Sujet.status`: `Mapped[str]` → `Mapped[PublicationStatus]`
+- `Commande.status`: `Mapped[str]` → `Mapped[PublicationStatus]`
+- `AvisEnquete.status`: `Mapped[str]` → `Mapped[PublicationStatus]`
+
+**2. Benefits**
+- Type safety and IDE autocomplete
+- Consistent with Article, Communique, Event models
+- Reuses existing `PublicationStatus` enum (DRAFT, PENDING, PUBLIC, etc.)
+
+**3. Database Migration**
+- `a1b2c3d4e5f6`: Convert VARCHAR columns to `publicationstatus` enum
+- Empty strings converted to 'DRAFT'
+
 ## Testing
 
-- Added anonymous access surface tests
+### Test Plan Implementation (Complete)
+
+Implemented comprehensive test plan for publication cycle (`notes/specs/test-plan-cycle-publication.md`).
+
+- ExpertFilterService tests (29 tests)
+- ContactAvisEnquete response tests (17 tests)
+- NotificationPublication tests (10 tests)
+- Integration - Publication Cycle tests (10 tests)
+- HTMX state update tests (3 tests)
+- Integration - Expert Flow tests (5 tests)
+- NotificationPublication sending readiness tests (4 tests)
+- E2E - Avis Views tests (15 tests)
+- E2E - RDV Workflow tests (13 tests)
+- Integration - Full Cycle tests (3 tests)
+
+### Summary
+
+- 109 new tests from test plan
+- 237 WIP module tests passing (1 skipped - requires reference data)
+- Anonymous access surface tests
 - Navigation e2e tests
-- 1960+ tests passing
+- 1960+ total tests passing
