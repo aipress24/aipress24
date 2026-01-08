@@ -460,18 +460,23 @@ La **Notification de Publication** est une fonctionnalité de communication dans
 
 | Champ | Type | Description |
 |-------|------|-------------|
+| `id` | BigInteger | Identifiant |
+| `owner_id` | FK User | Journaliste qui envoie |
 | `avis_enquete_id` | FK AvisEnquete | L'avis d'enquête concerné |
 | `article_id` | FK Article | L'article publié |
-| `notified_at` | DateTime | Date d'envoi des notifications |
+| `notified_at` | DateTime | Date d'envoi (= date de création) |
+
+**Note** : Pas de lifecycle (created_at, modified_at, deleted_at). La notification est créée au moment de l'envoi et c'est tout.
 
 #### Contacts Notifiés (`nrm_notification_publication_contact`)
 
 | Champ | Type | Description |
 |-------|------|-------------|
+| `id` | BigInteger | Identifiant |
 | `notification_id` | FK NotificationPublication | La notification parente |
 | `contact_id` | FK ContactAvisEnquete | Le contact notifié |
-| `email_sent` | Boolean | Email envoyé |
-| `email_sent_at` | DateTime | Date d'envoi email |
+
+**Note** : Pas de tracking d'envoi email/in-app. Les notifications sont envoyées en "fire-and-forget".
 
 #### Message Email Type
 
@@ -496,9 +501,10 @@ Cordialement
 
 #### Comportement
 
+- **Création unique** : La notification est créée au moment où le journaliste clique "Envoyer"
+- **Fire-and-forget** : Emails et notifications in-app sont envoyés sans tracking de statut
 - **Lien Avis d'Enquête → Article** : La notification établit le lien entre l'enquête et l'article final
 - **Sélection des destinataires** : Le journaliste peut exclure des contacts qui ne sont pas mentionnés
-- **Notification in-app + email** : Deux canaux simultanés
 - **Invitation commerciale** : Le message invite à acheter le justificatif commercial (module BIZ)
 
 ---

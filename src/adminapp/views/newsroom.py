@@ -13,7 +13,6 @@ from app.modules.wip.models import (
     Article,
     AvisEnquete,
     Commande,
-    JustifPublication,
     Sujet,
 )
 
@@ -91,24 +90,6 @@ class AvisEnqueteAdmin(ModelView, model=AvisEnquete):
     column_sortable_list: ClassVar = [AvisEnquete.created_at]
 
 
-class JustifPublicationAdmin(ModelView, model=JustifPublication):
-    """Admin interface for JustifPublication model."""
-
-    icon = "fa-solid fa-medal"
-    category = "Newsroom"
-
-    column_list: ClassVar = [
-        JustifPublication.id,
-        JustifPublication.created_at,
-        JustifPublication.titre,
-    ]
-    column_searchable_list: ClassVar = [
-        JustifPublication.titre,
-        JustifPublication.contenu,
-    ]
-    column_sortable_list: ClassVar = [JustifPublication.created_at]
-
-
 def register(admin: Admin) -> None:
     """Register newsroom-related admin views.
 
@@ -119,4 +100,3 @@ def register(admin: Admin) -> None:
     admin.add_view(CommandeAdmin)
     admin.add_view(ArticleAdmin)
     admin.add_view(AvisEnqueteAdmin)
-    admin.add_view(JustifPublicationAdmin)
