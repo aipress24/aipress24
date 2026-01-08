@@ -2,7 +2,7 @@
 
 ## Spécifications Fonctionnelles Détaillées
 
-**Version**: 1.1
+**Version**: 1.2
 **Date**: 2026-01-08
 **Statut**: Validé
 
@@ -22,15 +22,15 @@ Le cycle de publication permet aux journalistes de :
 2. Recevoir ou émettre des commandes d'articles
 3. Solliciter des experts via des avis d'enquête
 4. Produire et publier des articles
-5. Fournir des justificatifs de publication
+5. Notifier les participants de la publication
 
 ### 1.2 Cycle Simplifié
 
 ```
-┌─────────┐     ┌───────────┐     ┌──────────────┐     ┌─────────┐     ┌─────────────────────┐
-│  SUJET  │ ──▶ │ COMMANDE  │ ──▶ │ AVIS ENQUÊTE │ ──▶ │ ARTICLE │ ──▶ │ JUSTIF PUBLICATION  │
-└─────────┘     └───────────┘     └──────────────┘     └─────────┘     └─────────────────────┘
-   (1)              (2)                (3)                (4)                  (5)
+┌─────────┐     ┌───────────┐     ┌──────────────┐     ┌─────────┐     ┌────────────────────────┐
+│  SUJET  │ ──▶ │ COMMANDE  │ ──▶ │ AVIS ENQUÊTE │ ──▶ │ ARTICLE │ ──▶ │ NOTIF. DE PUBLICATION  │
+└─────────┘     └───────────┘     └──────────────┘     └─────────┘     └────────────────────────┘
+   (1)              (2)                (3)                (4)                   (5)
 ```
 
 **Note importante** : Ce cycle n'est pas strictement linéaire. Un article peut être créé directement sans passer par les étapes Sujet, Commande ou Avis d'Enquête.
@@ -75,7 +75,7 @@ Les permissions sont gérées **au niveau des rôles** (pas individuellement).
 | Répondre Avis d'Enquête | ✓ | ✓ | ✓ | ✓ |
 | Créer Article | ✓ | ✗ | ✗ | ✓ |
 | Valider/Publier Article | ✓ | ✗ | ✗ | ✓ |
-| Créer Justificatif | ✓ | ✗ | ✗ | ✓ |
+| Envoyer Notification Publication | ✓ | ✗ | ✗ | ✓ |
 
 ### 2.4 Visibilité des Avis d'Enquête
 
@@ -435,44 +435,88 @@ article.unpublish()                 # PUBLIC → DRAFT
 
 ---
 
-### 3.7 Justificatif de Publication (`nrm_justif_publication`)
+### 3.7 Notification de Publication (`nrm_notification_publication`)
 
 #### Description
-Le **Justificatif de Publication** atteste qu'un article a été publié. Il est lié à un Article spécifique.
+La **Notification de Publication** est une fonctionnalité de communication dans WIP. Elle permet au journaliste de notifier les personnes ayant participé à son enquête que l'article a été publié.
 
-#### Objectif
-Le justificatif permet à une personne citée dans un article de pouvoir, par exemple, republier l'article sur son propre site web.
+> **Distinction importante** : Ne pas confondre avec le "Justificatif de Publication" qui est un **produit commercial** vendu sur la Marketplace (module BIZ). Le justificatif commercial permet aux entreprises citées d'acheter le droit de republier l'article (PDF non modifiable) sur leur site web.
+
+#### Workflow
+
+1. Le journaliste publie son article
+2. Il va dans "Notifications de publication"
+3. Il voit la liste de ses enquêtes (Avis d'Enquête)
+4. Il sélectionne l'enquête concernée
+5. S'affiche la liste des personnes ayant participé (issue des contacts de l'Avis d'Enquête)
+6. Il retire les personnes non mentionnées dans l'article final
+7. Il sélectionne l'article publié parmi ses articles
+8. Il clique sur "Notifier la publication"
+9. Les destinataires reçoivent :
+   - Une notification in-app dans WORK/OPPORTUNITÉS/Justificatifs
+   - Un email avec le message type (voir ci-dessous)
 
 #### Champs Spécifiques
 
 | Champ | Type | Description |
 |-------|------|-------------|
-| `article_id` | FK Article | Article concerné |
-| `date_parution_prevue` | DateTime | Date prévue |
-| `date_publication_aip24` | DateTime | Date effective sur AIP24 |
-| `status` | Enum | État du justificatif |
+| `avis_enquete_id` | FK AvisEnquete | L'avis d'enquête concerné |
+| `article_id` | FK Article | L'article publié |
+| `notified_at` | DateTime | Date d'envoi des notifications |
 
-#### Contenu du Justificatif
+#### Contacts Notifiés (`nrm_notification_publication_contact`)
 
-Le justificatif est un **document PDF généré automatiquement** à partir d'un template.
+| Champ | Type | Description |
+|-------|------|-------------|
+| `notification_id` | FK NotificationPublication | La notification parente |
+| `contact_id` | FK ContactAvisEnquete | Le contact notifié |
+| `email_sent` | Boolean | Email envoyé |
+| `email_sent_at` | DateTime | Date d'envoi email |
 
-Contenu type :
+#### Message Email Type
+
 ```
-Justificatif de publication
+Bonjour [Prénom, Nom de la personne],
 
-L'article "[TITRE DE L'ARTICLE]" a été publié le [DATE DE PUBLICATION]
-dans le journal [NOM DU MÉDIA].
+Nous avons le plaisir de vous informer que vous êtes mentionné(e)
+dans un article publié sur AiPRESS24.
 
-Justificatif généré le [DATE DE GÉNÉRATION].
+Si vous souhaitez que cet article renforce votre notoriété, nous vous
+invitons à vous connecter à AiPRESS24 et à vous rendre dans votre espace
+personnel WORK, cliquez sur Opportunités en colonne de gauche, puis sur
+Justificatifs.
+
+Vous pourrez alors en acheter le droit de diffusion sur votre profil
+personnel ainsi que sur celui de votre organisation.
+
+A bientôt sur AiPRESS24 pour créer et partager la valeur de l'information.
+
+Cordialement
 ```
 
-#### États du Justificatif
+#### Comportement
 
-| État | Description |
-|------|-------------|
-| `DRAFT` | Brouillon, en préparation |
-| `PUBLIC` | Publié, accessible aux bénéficiaires |
-| `ARCHIVED` | Archivé |
+- **Lien Avis d'Enquête → Article** : La notification établit le lien entre l'enquête et l'article final
+- **Sélection des destinataires** : Le journaliste peut exclure des contacts qui ne sont pas mentionnés
+- **Notification in-app + email** : Deux canaux simultanés
+- **Invitation commerciale** : Le message invite à acheter le justificatif commercial (module BIZ)
+
+---
+
+### 3.8 Justificatif Commercial (Module BIZ - Hors Scope)
+
+> **Note** : Cette section décrit un produit du module BIZ (Marketplace), pas du module WIP.
+
+Le **Justificatif de Publication Commercial** est un produit vendu sur la place de marché :
+
+| Aspect | Description |
+|--------|-------------|
+| **Destinataires** | Entreprises et organisations citées dans un article |
+| **Usage** | Droit d'afficher légalement l'article sur leur site web |
+| **Format** | PDF non modifiable |
+| **Achat** | Via WORK/OPPORTUNITÉS/Justificatifs après notification |
+
+Ce produit n'est pas géré dans le module WIP.
 
 ---
 
@@ -517,8 +561,8 @@ JOURNALISTE                    SYSTÈME                      EXPERT
     │  14. Publie Article        │                            │
     │ ─────────────────────────▶ │                            │
     │                            │                            │
-    │  15. Crée Justificatif     │                            │
-    │ ─────────────────────────▶ │                            │
+    │  15. Notifie publication   │  16. Notification + Email  │
+    │ ─────────────────────────▶ │ ─────────────────────────▶ │
     │                            │                            │
 ```
 
@@ -690,11 +734,15 @@ test_confirm_rdv_success
 test_confirm_rdv_fails_if_not_accepted
 ```
 
-#### JustifPublication
+#### NotificationPublication
 ```
-test_justif_creation_linked_to_article
-test_justif_status_transitions
-test_justif_pdf_generation
+test_notification_requires_avis_enquete
+test_notification_requires_published_article
+test_notification_lists_contacts_from_avis
+test_notification_can_exclude_contacts
+test_notification_sends_email_to_contacts
+test_notification_creates_inapp_notification
+test_notification_sets_notified_at
 ```
 
 ### 7.2 Tests Unitaires - Services
@@ -736,7 +784,8 @@ test_article_publication_with_images
 test_multiple_experts_same_avis
 test_expert_refuses_then_another_accepts
 test_direct_article_creation_without_commande
-test_justificatif_generation_after_publication
+test_notification_after_publication
+test_notification_email_sent_to_all_contacts
 ```
 
 ### 7.4 Tests E2E
@@ -761,7 +810,7 @@ test_expert_can_only_see_own_avis
 | `src/app/modules/wip/models/newsroom/commande.py` | Modèle Commande |
 | `src/app/modules/wip/models/newsroom/avis_enquete.py` | Modèles AvisEnquete, ContactAvisEnquete |
 | `src/app/modules/wip/models/newsroom/article.py` | Modèles Article, Image |
-| `src/app/modules/wip/models/newsroom/justif_publication.py` | Modèle JustifPublication |
+| `src/app/modules/wip/models/newsroom/notification_publication.py` | Modèle NotificationPublication |
 | `src/app/modules/wip/services/newsroom/avis_enquete_service.py` | Service orchestration |
 | `src/app/modules/wip/services/newsroom/expert_filter.py` | Service filtrage experts |
 | `src/app/models/auth.py` | Modèles User, Role |
@@ -777,7 +826,8 @@ test_expert_can_only_see_own_avis
 | `nrm_contact_avis_enquete` | ContactAvisEnquete |
 | `nrm_article` | Article |
 | `nrm_image` | Image |
-| `nrm_justif_publication` | JustifPublication |
+| `nrm_notification_publication` | NotificationPublication |
+| `nrm_notification_publication_contact` | NotificationPublicationContact |
 | `aut_user` | User |
 | `aut_role` | Role |
 | `aut_roles_users` | Association User-Role |
@@ -815,12 +865,6 @@ class RDVStatus(Enum):
 class PublicationStatus(Enum):
     DRAFT = "draft"
     PUBLIC = "public"
-
-# Statut justificatif
-class JustifStatus(Enum):
-    DRAFT = "draft"
-    PUBLIC = "public"
-    ARCHIVED = "archived"
 ```
 
 ---
@@ -831,13 +875,18 @@ class JustifStatus(Enum):
 |---------|------|--------|---------------|
 | 1.0 | 2026-01-08 | SF | Création initiale |
 | 1.1 | 2026-01-08 | SF | Intégration des réponses client |
+| 1.2 | 2026-01-08 | SF | Distinction Notification (WIP) vs Justificatif commercial (BIZ) |
 
 ---
 
 ## 10. Prochaines Étapes
 
-1. **Compléter les tests** : Implémenter les tests listés en section 7
-2. **Ajouter FK article_id au Justificatif** : Si non présent actuellement
-3. **Implémenter génération PDF** : Pour les justificatifs de publication
-4. **Améliorer les Enums** : Remplacer les String status par des Enums stricts
-5. **Documenter les API** : Créer une doc API REST si nécessaire
+1. **Renommer/Créer le modèle NotificationPublication** : Remplacer JustifPublication par le nouveau modèle
+2. **Implémenter le workflow de notification** : Sélection enquête → contacts → article → envoi
+3. **Intégrer les notifications in-app** : Créer les entrées dans WORK/OPPORTUNITÉS/Justificatifs
+4. **Implémenter l'envoi d'emails** : Template d'email de notification
+5. **Compléter les tests** : Implémenter les tests listés en section 7
+6. **Améliorer les Enums Sujet/Commande** : Remplacer les String status par des Enums stricts
+7. **Documenter les API** : Créer une doc API REST si nécessaire
+
+> **Note** : Le Justificatif Commercial (PDF achetable) sera implémenté dans le module BIZ, pas WIP.
