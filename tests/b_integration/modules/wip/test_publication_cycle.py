@@ -722,15 +722,15 @@ class TestFullPublicationCycle:
             date_limite_validite=arrow.get("2025-01-15").datetime,
             date_parution_prevue=arrow.get("2025-03-01").datetime,
         )
-        sujet.status = "brouillon"
         db_session.add(sujet)
         db_session.flush()
 
         assert sujet.id is not None
         assert sujet.titre == "Investigation sur le climat"
+        assert sujet.status == PublicationStatus.DRAFT  # default
 
         # Step 3: Sujet validated
-        sujet.status = "valide"
+        sujet.status = PublicationStatus.PENDING  # type: ignore[assignment]
 
         # Step 4: Commande created
         commande = Commande(
@@ -744,11 +744,11 @@ class TestFullPublicationCycle:
             date_parution_prevue=arrow.get("2025-03-01").datetime,
             date_paiement=arrow.get("2025-04-01").datetime,
         )
-        commande.status = "en_cours"
         db_session.add(commande)
         db_session.flush()
 
         assert commande.id is not None
+        assert commande.status == PublicationStatus.DRAFT  # default
 
         # Step 5: AvisEnquete created
         enquete = AvisEnquete(

@@ -10,6 +10,7 @@ import sqlalchemy as sa
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.base import Base
+from app.models.lifecycle import PublicationStatus
 
 from ._base import CiblageMixin, NewsMetadataMixin, NewsroomCommonMixin
 
@@ -22,8 +23,8 @@ class Commande(
 ):
     __tablename__ = "nrm_commande"
 
-    # Etat: Accepté, Refusé, En discussion, Annulé
-    # Etat: Brouillon, Validé, Publié
+    # Workflow: DRAFT → PENDING (validated) → PUBLIC (published)
+    # Can also be: REJECTED, ARCHIVED
 
     # ------------------------------------------------------------
     # Dates
@@ -41,4 +42,6 @@ class Commande(
     # Paiement
     date_paiement: Mapped[datetime] = mapped_column(sa.DateTime(timezone=True))
 
-    status: Mapped[str] = mapped_column(default="")
+    status: Mapped[PublicationStatus] = mapped_column(
+        sa.Enum(PublicationStatus), default=PublicationStatus.DRAFT
+    )
