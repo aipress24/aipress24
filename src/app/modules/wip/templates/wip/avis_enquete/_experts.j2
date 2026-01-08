@@ -57,6 +57,8 @@
         <input
             hx-post=""
             hx-target="#main"
+            hx-swap="outerHTML"
+            hx-sync="this:replace"
             type="submit"
             class="aui-button"
             name="action:add" value="Valider / mettre à jour la sélection">
@@ -113,6 +115,8 @@
       <input
           hx-post=""
           hx-target="#main"
+          hx-swap="outerHTML"
+          hx-sync="this:replace"
           type="submit"
           name="action:update"
           class="aui-button mr-4"
