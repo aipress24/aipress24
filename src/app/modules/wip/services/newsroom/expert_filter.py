@@ -58,9 +58,9 @@ class ExpertFilterService:
         service.save_state()
     """
 
-    SESSION_KEY = "newsroom:ciblage"
-
-    def __init__(self) -> None:
+    def __init__(self, avis_enquete_id: int | str) -> None:
+        self.avis_enquete_id = avis_enquete_id
+        self.session_key = f"newsroom:ciblage:{self.avis_enquete_id}"
         self._session = container.get(SessionService)
         self._user_repo = container.get(UserRepository)
         self._state: FilterState = {}
@@ -78,12 +78,12 @@ class ExpertFilterService:
 
     def save_state(self) -> None:
         """Persist filter state to session."""
-        self._session[self.SESSION_KEY] = self._state
+        self._session[self.session_key] = self._state
 
     def clear_state(self) -> None:
         """Clear filter state from session."""
         self._state = {}
-        self._session[self.SESSION_KEY] = {}
+        self._session[self.session_key] = {}
 
     def get_selectable_experts(self) -> list[User]:
         """
@@ -182,7 +182,7 @@ class ExpertFilterService:
 
     def _restore_state(self) -> None:
         """Restore state from session."""
-        self._state = self._session.get(self.SESSION_KEY, {})
+        self._state = self._session.get(self.session_key, {})
 
     def _update_state_from_request(self) -> None:
         """Update state from HTMX request data."""
