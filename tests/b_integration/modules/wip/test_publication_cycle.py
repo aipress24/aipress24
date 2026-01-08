@@ -22,12 +22,16 @@ from app.modules.wip.models.newsroom.article import Article, PublicationStatus
 from app.modules.wip.models.newsroom.avis_enquete import (
     AvisEnquete,
     ContactAvisEnquete,
+    RDVStatus,
+    RDVType,
     StatutAvis,
 )
+from app.modules.wip.models.newsroom.commande import Commande
 from app.modules.wip.models.newsroom.notification_publication import (
     NotificationPublication,
     NotificationPublicationContact,
 )
+from app.modules.wip.models.newsroom.sujet import Sujet
 
 
 # ----------------------------------------------------------------
@@ -675,3 +679,350 @@ class TestExpertInvitationFlow:
         assert contact2.status == StatutAvis.REFUSE
         assert contact1.can_propose_rdv() is True
         assert contact2.can_propose_rdv() is False
+
+
+# ----------------------------------------------------------------
+# Full Publication Cycle Tests
+# ----------------------------------------------------------------
+
+
+class TestFullPublicationCycle:
+    """Tests for the complete publication cycle from Sujet to Notification.
+
+    This tests the full workflow:
+    1. Journalist creates Sujet
+    2. Sujet validated (status change)
+    3. Commande created from Sujet
+    4. AvisEnquete created
+    5. Expert targeting and invitation
+    6. Expert accepts
+    7. RDV proposed and accepted
+    8. Article created and published
+    9. Notification de publication sent
+    """
+
+    def test_full_cycle_sujet_to_notification(self, db_session: scoped_session) -> None:
+        """Complete publication cycle from Sujet to Notification."""
+        from datetime import timedelta
+
+        # Step 1: Create journalist, media, and expert
+        journaliste = User(email="journalist@test.com")
+        media = Organisation(name="Le Journal")
+        expert = User(email="expert@test.com")
+        db_session.add_all([journaliste, media, expert])
+        db_session.flush()
+
+        # Step 2: Journalist creates Sujet
+        sujet = Sujet(
+            owner=journaliste,
+            media=media,
+            commanditaire_id=journaliste.id,
+            titre="Investigation sur le climat",
+            brief="Enquête sur les nouvelles réglementations climat",
+            date_limite_validite=arrow.get("2025-01-15").datetime,
+            date_parution_prevue=arrow.get("2025-03-01").datetime,
+        )
+        sujet.status = "brouillon"
+        db_session.add(sujet)
+        db_session.flush()
+
+        assert sujet.id is not None
+        assert sujet.titre == "Investigation sur le climat"
+
+        # Step 3: Sujet validated
+        sujet.status = "valide"
+
+        # Step 4: Commande created
+        commande = Commande(
+            owner=journaliste,
+            media=media,
+            commanditaire_id=journaliste.id,
+            titre=sujet.titre,
+            brief=sujet.brief,
+            date_limite_validite=arrow.get("2025-02-01").datetime,
+            date_bouclage=arrow.get("2025-02-15").datetime,
+            date_parution_prevue=arrow.get("2025-03-01").datetime,
+            date_paiement=arrow.get("2025-04-01").datetime,
+        )
+        commande.status = "en_cours"
+        db_session.add(commande)
+        db_session.flush()
+
+        assert commande.id is not None
+
+        # Step 5: AvisEnquete created
+        enquete = AvisEnquete(
+            owner=journaliste,
+            media=media,
+            commanditaire_id=journaliste.id,
+            date_debut_enquete=arrow.get("2025-01-10").datetime,
+            date_fin_enquete=arrow.get("2025-02-01").datetime,
+            date_bouclage=arrow.get("2025-02-15").datetime,
+            date_parution_prevue=arrow.get("2025-03-01").datetime,
+        )
+        db_session.add(enquete)
+        db_session.flush()
+
+        # Step 6: Expert targeting - create contact
+        contact = ContactAvisEnquete(
+            avis_enquete_id=enquete.id,
+            journaliste_id=journaliste.id,
+            expert_id=expert.id,
+        )
+        db_session.add(contact)
+        db_session.flush()
+
+        # Initially pending
+        assert contact.status == StatutAvis.EN_ATTENTE
+        assert contact.can_propose_rdv() is False
+
+        # Step 7: Expert accepts
+        contact.status = StatutAvis.ACCEPTE
+        contact.date_reponse = datetime.now(timezone.utc)
+
+        assert contact.can_propose_rdv() is True
+
+        # Step 8: RDV proposed
+        now = datetime.now(timezone.utc)
+        days_ahead = 1
+        while (now + timedelta(days=days_ahead)).weekday() >= 5:
+            days_ahead += 1
+        slot = (now + timedelta(days=days_ahead)).replace(
+            hour=10, minute=0, second=0, microsecond=0
+        )
+
+        contact.propose_rdv(
+            rdv_type=RDVType.VIDEO,
+            proposed_slots=[slot],
+            rdv_video_link="https://meet.example.com/interview",
+        )
+
+        assert contact.rdv_status == RDVStatus.PROPOSED
+
+        # Step 9: Expert accepts RDV
+        contact.accept_rdv(selected_slot=slot, expert_notes="Confirmed")
+
+        assert contact.rdv_status == RDVStatus.ACCEPTED
+        assert contact.date_rdv == slot
+
+        # Step 10: Article created
+        article = Article(owner=journaliste, media=media)
+        article.titre = "Le climat en 2025: nouvelles réglementations"
+        article.contenu = "Contenu de l'article basé sur les interviews..."
+        article.commanditaire_id = journaliste.id
+        article.date_parution_prevue = arrow.get("2025-03-01").datetime
+        db_session.add(article)
+        db_session.flush()
+
+        # Step 11: Article published
+        article.publish()
+
+        assert article.status == PublicationStatus.PUBLIC
+        assert article.published_at is not None
+
+        # Step 12: Notification sent
+        notification = NotificationPublication(
+            owner=journaliste,
+            avis_enquete=enquete,
+            article=article,
+        )
+        db_session.add(notification)
+        db_session.flush()
+
+        notif_contact = NotificationPublicationContact(
+            notification=notification,
+            contact=contact,
+        )
+        db_session.add(notif_contact)
+        db_session.flush()
+
+        # Verify final state
+        assert notification.id is not None
+        assert notification.notified_at is not None
+        assert notification.article == article
+        assert notification.avis_enquete == enquete
+        assert len(notification.contacts) == 1
+        assert notification.contacts[0].contact.expert == expert
+
+    def test_cycle_with_multiple_experts(self, db_session: scoped_session) -> None:
+        """Full cycle with multiple experts participating."""
+        from datetime import timedelta
+
+        # Setup
+        journaliste = User(email="journalist@test.com")
+        media = Organisation(name="Media Corp")
+        expert1 = User(email="expert1@test.com")
+        expert2 = User(email="expert2@test.com")
+        expert3 = User(email="expert3@test.com")
+        db_session.add_all([journaliste, media, expert1, expert2, expert3])
+        db_session.flush()
+
+        # Create enquête
+        enquete = AvisEnquete(
+            owner=journaliste,
+            media=media,
+            commanditaire_id=journaliste.id,
+            date_debut_enquete=arrow.get("2025-01-01").datetime,
+            date_fin_enquete=arrow.get("2025-02-01").datetime,
+            date_bouclage=arrow.get("2025-02-15").datetime,
+            date_parution_prevue=arrow.get("2025-03-01").datetime,
+        )
+        db_session.add(enquete)
+        db_session.flush()
+
+        # Create contacts for all experts
+        contacts = []
+        for expert in [expert1, expert2, expert3]:
+            contact = ContactAvisEnquete(
+                avis_enquete_id=enquete.id,
+                journaliste_id=journaliste.id,
+                expert_id=expert.id,
+            )
+            db_session.add(contact)
+            contacts.append(contact)
+        db_session.flush()
+
+        # Expert 1 accepts
+        contacts[0].status = StatutAvis.ACCEPTE
+        contacts[0].date_reponse = datetime.now(timezone.utc)
+
+        # Expert 2 refuses
+        contacts[1].status = StatutAvis.REFUSE
+        contacts[1].date_reponse = datetime.now(timezone.utc)
+
+        # Expert 3 accepts
+        contacts[2].status = StatutAvis.ACCEPTE
+        contacts[2].date_reponse = datetime.now(timezone.utc)
+
+        # RDV with Expert 1
+        now = datetime.now(timezone.utc)
+        days_ahead = 1
+        while (now + timedelta(days=days_ahead)).weekday() >= 5:
+            days_ahead += 1
+        slot = (now + timedelta(days=days_ahead)).replace(
+            hour=10, minute=0, second=0, microsecond=0
+        )
+
+        contacts[0].propose_rdv(
+            rdv_type=RDVType.PHONE,
+            proposed_slots=[slot],
+            rdv_phone="0123456789",
+        )
+        contacts[0].accept_rdv(selected_slot=slot)
+
+        # RDV with Expert 3
+        slot2 = (now + timedelta(days=days_ahead + 1)).replace(
+            hour=14, minute=0, second=0, microsecond=0
+        )
+        # Skip weekend for second slot
+        while slot2.weekday() >= 5:
+            slot2 += timedelta(days=1)
+
+        contacts[2].propose_rdv(
+            rdv_type=RDVType.VIDEO,
+            proposed_slots=[slot2],
+            rdv_video_link="https://meet.example.com/call",
+        )
+        contacts[2].accept_rdv(selected_slot=slot2)
+
+        # Publish article
+        article = Article(owner=journaliste, media=media)
+        article.titre = "Multi-expert investigation"
+        article.contenu = "Content from multiple expert interviews"
+        article.commanditaire_id = journaliste.id
+        article.date_parution_prevue = arrow.get("2025-03-01").datetime
+        db_session.add(article)
+        db_session.flush()
+        article.publish()
+
+        # Send notification to accepted experts only
+        notification = NotificationPublication(
+            owner=journaliste,
+            avis_enquete=enquete,
+            article=article,
+        )
+        db_session.add(notification)
+        db_session.flush()
+
+        # Only notify experts who accepted
+        accepted_contacts = [c for c in contacts if c.status == StatutAvis.ACCEPTE]
+        for contact in accepted_contacts:
+            notif_contact = NotificationPublicationContact(
+                notification=notification,
+                contact=contact,
+            )
+            db_session.add(notif_contact)
+        db_session.flush()
+
+        # Verify: 2 contacts notified (expert1 and expert3)
+        assert len(notification.contacts) == 2
+        notified_experts = [nc.contact.expert for nc in notification.contacts]
+        assert expert1 in notified_experts
+        assert expert2 not in notified_experts  # refused
+        assert expert3 in notified_experts
+
+    def test_cycle_article_without_rdv_completion(
+        self, db_session: scoped_session
+    ) -> None:
+        """Article can be published even if some RDVs are not completed."""
+        journaliste = User(email="journalist@test.com")
+        media = Organisation(name="Fast News")
+        expert = User(email="expert@test.com")
+        db_session.add_all([journaliste, media, expert])
+        db_session.flush()
+
+        # Create enquête
+        enquete = AvisEnquete(
+            owner=journaliste,
+            media=media,
+            commanditaire_id=journaliste.id,
+            date_debut_enquete=arrow.get("2025-01-01").datetime,
+            date_fin_enquete=arrow.get("2025-02-01").datetime,
+            date_bouclage=arrow.get("2025-02-15").datetime,
+            date_parution_prevue=arrow.get("2025-03-01").datetime,
+        )
+        db_session.add(enquete)
+        db_session.flush()
+
+        # Create contact - expert accepts but RDV only proposed (not accepted yet)
+        contact = ContactAvisEnquete(
+            avis_enquete_id=enquete.id,
+            journaliste_id=journaliste.id,
+            expert_id=expert.id,
+            status=StatutAvis.ACCEPTE,
+            date_reponse=datetime.now(timezone.utc),
+            rdv_status=RDVStatus.PROPOSED,  # RDV proposed but not accepted
+        )
+        db_session.add(contact)
+        db_session.flush()
+
+        # Journalist can still publish article (maybe deadline pressure)
+        article = Article(owner=journaliste, media=media)
+        article.titre = "Breaking news article"
+        article.contenu = "Published without expert RDV"
+        article.commanditaire_id = journaliste.id
+        article.date_parution_prevue = arrow.get("2025-03-01").datetime
+        db_session.add(article)
+        db_session.flush()
+
+        # Can publish without RDV completion
+        article.publish()
+        assert article.status == PublicationStatus.PUBLIC
+
+        # Can still send notification (to inform experts that article is out)
+        notification = NotificationPublication(
+            owner=journaliste,
+            avis_enquete=enquete,
+            article=article,
+        )
+        db_session.add(notification)
+        db_session.flush()
+
+        notif_contact = NotificationPublicationContact(
+            notification=notification,
+            contact=contact,
+        )
+        db_session.add(notif_contact)
+        db_session.flush()
+
+        assert notification.id is not None
