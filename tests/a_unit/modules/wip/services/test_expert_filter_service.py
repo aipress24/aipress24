@@ -492,6 +492,103 @@ class TestStateManagement:
         assert isinstance(state["secteur"], list)
         assert isinstance(state["selected_experts"], list)
 
+    def test_update_state_from_htmx_request(self, db_session, app) -> None:
+        """State is updated from HTMX request data."""
+        expert1 = _create_expert_with_profile(
+            db_session, "e1@test.com", secteurs=["Tech"]
+        )
+
+        # Simulate HTMX POST request with selector change
+        with app.test_request_context(
+            method="POST",
+            headers={"HX-Request": "true"},
+            data={
+                "selector_change": "secteur",
+                "secteur": ["Tech", "Finance"],
+            },
+        ):
+            with patch(
+                "app.modules.wip.services.newsroom.expert_filter.container"
+            ) as mock_container:
+                mock_session: dict = {}
+                mock_user_repo = MagicMock()
+                mock_user_repo.list.return_value = [expert1]
+
+                mock_container.get.return_value = mock_session
+
+                service = ExpertFilterService()
+                service._session = mock_session
+                service._user_repo = mock_user_repo
+                service._state = {}
+
+                # Call the internal method directly
+                service._update_state_from_request()
+
+                # State should be updated with selector values
+                assert "secteur" in service._state
+                assert service._state["secteur"] == ["Tech", "Finance"]
+
+    def test_update_state_ignores_non_htmx_request(self, db_session, app) -> None:
+        """State is NOT updated from non-HTMX requests."""
+        # Request without HX-Request header
+        with app.test_request_context(
+            method="POST",
+            data={
+                "selector_change": "secteur",
+                "secteur": ["Tech"],
+            },
+        ):
+            with patch(
+                "app.modules.wip.services.newsroom.expert_filter.container"
+            ) as mock_container:
+                mock_session: dict = {}
+                mock_container.get.return_value = mock_session
+
+                service = ExpertFilterService()
+                service._session = mock_session
+                service._user_repo = MagicMock()
+                service._state = {}
+
+                service._update_state_from_request()
+
+                # State should NOT be updated (no HX-Request header)
+                assert "secteur" not in service._state
+
+    def test_update_state_clears_dependent_selectors(self, db_session, app) -> None:
+        """Changing a selector clears dependent selectors."""
+        # When pays changes, departement and ville should be cleared
+        with app.test_request_context(
+            method="POST",
+            headers={"HX-Request": "true"},
+            data={
+                "selector_change": "pays",
+                "pays": ["BE"],  # Changed from FR to BE
+            },
+        ):
+            with patch(
+                "app.modules.wip.services.newsroom.expert_filter.container"
+            ) as mock_container:
+                mock_session: dict = {}
+                mock_container.get.return_value = mock_session
+
+                service = ExpertFilterService()
+                service._session = mock_session
+                service._user_repo = MagicMock()
+                # Pre-existing state with FR, departement 75, ville Paris
+                service._state = {
+                    "pays": ["FR"],
+                    "departement": ["75"],
+                    "ville": ["Paris"],
+                }
+
+                service._update_state_from_request()
+
+                # Pays should be updated
+                assert service._state["pays"] == ["BE"]
+                # Departement and ville should be cleared (not in request)
+                assert "departement" not in service._state
+                assert "ville" not in service._state
+
 
 # ----------------------------------------------------------------
 # Expert Selection Tests
