@@ -431,3 +431,247 @@ class TestMultipleExpertsContribute:
         db_session.flush()
 
         assert len(notification.contacts) == 3
+
+
+# ----------------------------------------------------------------
+# Avis Enquête to Article Flow Tests
+# ----------------------------------------------------------------
+
+
+class TestAvisEnqueteToArticleFlow:
+    """Tests for the flow from Avis d'Enquête to Article."""
+
+    def test_article_created_after_rdv_accepted(
+        self, db_session: scoped_session
+    ) -> None:
+        """Article can be created after RDV is accepted."""
+        from datetime import timedelta
+
+        from app.modules.wip.models.newsroom.avis_enquete import RDVStatus, RDVType
+
+        journaliste, media = _create_journalist_and_media(db_session)
+        expert = User(email="expert@test.com")
+        db_session.add(expert)
+        db_session.flush()
+
+        enquete, contacts = _create_enquete_with_contacts(
+            db_session, journaliste, media, [expert]
+        )
+        contact = contacts[0]
+
+        # Expert has accepted, now propose RDV
+        assert contact.can_propose_rdv() is True
+
+        # Generate valid future slots (weekday, business hours)
+        now = datetime.now(timezone.utc)
+        days_ahead = 1
+        while (now + timedelta(days=days_ahead)).weekday() >= 5:  # Skip weekend
+            days_ahead += 1
+        slot1 = (now + timedelta(days=days_ahead)).replace(
+            hour=10, minute=0, second=0, microsecond=0
+        )
+
+        # Propose RDV
+        contact.propose_rdv(
+            rdv_type=RDVType.PHONE,
+            proposed_slots=[slot1],
+            rdv_phone="0123456789",
+        )
+        assert contact.rdv_status == RDVStatus.PROPOSED
+
+        # Expert accepts the RDV
+        contact.accept_rdv(selected_slot=slot1, expert_notes="Looking forward to it")
+        assert contact.rdv_status == RDVStatus.ACCEPTED
+        assert contact.date_rdv == slot1
+
+        # After RDV, journalist creates article
+        article = _create_article(
+            db_session,
+            journaliste,
+            media,
+            titre="Article based on expert interview",
+            contenu="Content from the interview with expert.",
+        )
+        article.publish()
+
+        assert article.status == PublicationStatus.PUBLIC
+
+        # Notification can be sent
+        notification = NotificationPublication(
+            owner=journaliste,
+            avis_enquete=enquete,
+            article=article,
+        )
+        db_session.add(notification)
+        db_session.flush()
+
+        notif_contact = NotificationPublicationContact(
+            notification=notification,
+            contact=contact,
+        )
+        db_session.add(notif_contact)
+        db_session.flush()
+
+        assert notification.id is not None
+        assert len(notification.contacts) == 1
+
+    def test_article_can_be_created_before_rdv(
+        self, db_session: scoped_session
+    ) -> None:
+        """Article can be created even before RDV (direct creation path)."""
+        journaliste, media = _create_journalist_and_media(db_session)
+        expert = User(email="expert@test.com")
+        db_session.add(expert)
+        db_session.flush()
+
+        enquete, contacts = _create_enquete_with_contacts(
+            db_session, journaliste, media, [expert]
+        )
+        contact = contacts[0]
+
+        # Expert accepted but no RDV yet
+        assert contact.status == StatutAvis.ACCEPTE
+        assert contact.can_propose_rdv() is True  # RDV not yet proposed
+
+        # Journalist can still create article (maybe from other sources)
+        article = _create_article(db_session, journaliste, media)
+        article.publish()
+
+        assert article.status == PublicationStatus.PUBLIC
+
+
+# ----------------------------------------------------------------
+# Expert Invitation Flow Tests
+# ----------------------------------------------------------------
+
+
+class TestExpertInvitationFlow:
+    """Tests for expert invitation workflow.
+
+    Note: These tests verify the data flow. Actual notification/email
+    sending is tested separately with service mocks.
+    """
+
+    def test_invitation_creates_contact_in_pending_state(
+        self, db_session: scoped_session
+    ) -> None:
+        """When expert is invited, a contact is created in EN_ATTENTE state."""
+        journaliste, media = _create_journalist_and_media(db_session)
+        expert = User(email="expert@test.com")
+        db_session.add(expert)
+        db_session.flush()
+
+        enquete = AvisEnquete(
+            owner=journaliste,
+            media=media,
+            commanditaire_id=journaliste.id,
+            date_debut_enquete=arrow.get("2025-01-01").datetime,
+            date_fin_enquete=arrow.get("2025-02-01").datetime,
+            date_bouclage=arrow.get("2025-02-15").datetime,
+            date_parution_prevue=arrow.get("2025-03-01").datetime,
+        )
+        db_session.add(enquete)
+        db_session.flush()
+
+        # Create invitation (contact)
+        contact = ContactAvisEnquete(
+            avis_enquete_id=enquete.id,
+            journaliste_id=journaliste.id,
+            expert_id=expert.id,
+        )
+        db_session.add(contact)
+        db_session.flush()
+
+        # Contact should be in pending state
+        assert contact.status == StatutAvis.EN_ATTENTE
+        assert contact.date_reponse is None
+        assert contact.can_propose_rdv() is False
+
+    def test_rdv_acceptance_updates_contact_state(
+        self, db_session: scoped_session
+    ) -> None:
+        """When expert accepts RDV, contact state is updated."""
+        from datetime import timedelta
+
+        from app.modules.wip.models.newsroom.avis_enquete import RDVStatus, RDVType
+
+        journaliste, media = _create_journalist_and_media(db_session)
+        expert = User(email="expert@test.com")
+        db_session.add(expert)
+        db_session.flush()
+
+        enquete, contacts = _create_enquete_with_contacts(
+            db_session, journaliste, media, [expert]
+        )
+        contact = contacts[0]
+
+        # Generate valid slot
+        now = datetime.now(timezone.utc)
+        days_ahead = 1
+        while (now + timedelta(days=days_ahead)).weekday() >= 5:
+            days_ahead += 1
+        slot = (now + timedelta(days=days_ahead)).replace(
+            hour=14, minute=0, second=0, microsecond=0
+        )
+
+        # Propose and accept RDV
+        contact.propose_rdv(
+            rdv_type=RDVType.VIDEO,
+            proposed_slots=[slot],
+            rdv_video_link="https://meet.example.com/abc",
+        )
+        contact.accept_rdv(selected_slot=slot)
+
+        # Verify state
+        assert contact.rdv_status == RDVStatus.ACCEPTED
+        assert contact.date_rdv == slot
+        assert contact.rdv_type == RDVType.VIDEO
+
+    def test_multiple_invitations_independent(self, db_session: scoped_session) -> None:
+        """Multiple expert invitations are independent of each other."""
+        journaliste, media = _create_journalist_and_media(db_session)
+
+        expert1 = User(email="expert1@test.com")
+        expert2 = User(email="expert2@test.com")
+        db_session.add_all([expert1, expert2])
+        db_session.flush()
+
+        enquete = AvisEnquete(
+            owner=journaliste,
+            media=media,
+            commanditaire_id=journaliste.id,
+            date_debut_enquete=arrow.get("2025-01-01").datetime,
+            date_fin_enquete=arrow.get("2025-02-01").datetime,
+            date_bouclage=arrow.get("2025-02-15").datetime,
+            date_parution_prevue=arrow.get("2025-03-01").datetime,
+        )
+        db_session.add(enquete)
+        db_session.flush()
+
+        # Create two independent contacts
+        contact1 = ContactAvisEnquete(
+            avis_enquete_id=enquete.id,
+            journaliste_id=journaliste.id,
+            expert_id=expert1.id,
+        )
+        contact2 = ContactAvisEnquete(
+            avis_enquete_id=enquete.id,
+            journaliste_id=journaliste.id,
+            expert_id=expert2.id,
+        )
+        db_session.add_all([contact1, contact2])
+        db_session.flush()
+
+        # Expert 1 accepts
+        contact1.status = StatutAvis.ACCEPTE
+        contact1.date_reponse = datetime.now(timezone.utc)
+
+        # Expert 2 refuses
+        contact2.status = StatutAvis.REFUSE
+        contact2.date_reponse = datetime.now(timezone.utc)
+
+        # States are independent
+        assert contact1.status == StatutAvis.ACCEPTE
+        assert contact2.status == StatutAvis.REFUSE
+        assert contact1.can_propose_rdv() is True
+        assert contact2.can_propose_rdv() is False

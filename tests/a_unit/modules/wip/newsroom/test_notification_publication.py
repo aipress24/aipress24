@@ -377,3 +377,165 @@ class TestFireAndForgetModel:
         assert not hasattr(notif_contact, "email_sent_at")
         assert not hasattr(notif_contact, "inapp_sent")
         assert not hasattr(notif_contact, "inapp_sent_at")
+
+
+# ----------------------------------------------------------------
+# Notification Sending Tests
+# ----------------------------------------------------------------
+
+
+class TestNotificationSendingReadiness:
+    """Tests verifying notification data is ready for sending.
+
+    Note: Actual email/in-app sending is fire-and-forget.
+    These tests verify the data structure is correct.
+    """
+
+    def test_notification_has_all_data_for_email(
+        self, db_session: scoped_session
+    ) -> None:
+        """Notification has all required data for email sending."""
+        journaliste, expert, media, enquete, contact, article = _create_test_data(
+            db_session
+        )
+
+        notification = NotificationPublication(
+            owner=journaliste,
+            avis_enquete=enquete,
+            article=article,
+        )
+        db_session.add(notification)
+        db_session.flush()
+
+        notif_contact = NotificationPublicationContact(
+            notification=notification,
+            contact=contact,
+        )
+        db_session.add(notif_contact)
+        db_session.flush()
+
+        # Verify all data needed for email is accessible
+        # 1. Recipient email (via contact -> expert)
+        assert notif_contact.contact.expert.email == "e@test.com"
+
+        # 2. Article title
+        assert notification.article.titre == "Test Article"
+
+        # 3. Journalist name (sender context)
+        assert notification.owner.email == "j@test.com"
+
+        # 4. Media name
+        assert notification.article.media.name == "Le Journal"
+
+    def test_notification_contacts_have_expert_access(
+        self, db_session: scoped_session
+    ) -> None:
+        """Each notification contact provides access to expert user."""
+        journaliste, expert, media, enquete, contact, article = _create_test_data(
+            db_session
+        )
+
+        notification = NotificationPublication(
+            owner=journaliste,
+            avis_enquete=enquete,
+            article=article,
+        )
+        db_session.add(notification)
+        db_session.flush()
+
+        notif_contact = NotificationPublicationContact(
+            notification=notification,
+            contact=contact,
+        )
+        db_session.add(notif_contact)
+        db_session.flush()
+
+        # Navigate to expert through contact
+        expert_user = notif_contact.contact.expert
+        assert expert_user is not None
+        assert expert_user.email is not None
+
+    def test_all_accepted_contacts_can_be_notified(
+        self, db_session: scoped_session
+    ) -> None:
+        """Only contacts with ACCEPTE status should be notified."""
+        from app.modules.wip.models.newsroom.avis_enquete import StatutAvis
+
+        journaliste, expert1, media, enquete, contact1, article = _create_test_data(
+            db_session
+        )
+
+        # Create second expert who refused
+        expert2 = User(email="e2@test.com")
+        db_session.add(expert2)
+        db_session.flush()
+
+        contact2 = ContactAvisEnquete(
+            avis_enquete_id=enquete.id,
+            journaliste_id=journaliste.id,
+            expert_id=expert2.id,
+            status=StatutAvis.REFUSE,
+            date_reponse=datetime.now(timezone.utc),
+        )
+        db_session.add(contact2)
+        db_session.flush()
+
+        # Create notification
+        notification = NotificationPublication(
+            owner=journaliste,
+            avis_enquete=enquete,
+            article=article,
+        )
+        db_session.add(notification)
+        db_session.flush()
+
+        # Only add accepted contacts to notification
+        accepted_contacts = [contact1]  # contact2 refused
+        for contact in accepted_contacts:
+            if contact.status == StatutAvis.ACCEPTE:
+                notif_contact = NotificationPublicationContact(
+                    notification=notification,
+                    contact=contact,
+                )
+                db_session.add(notif_contact)
+        db_session.flush()
+
+        # Only 1 contact (the accepted one) should be in notification
+        assert len(notification.contacts) == 1
+        assert notification.contacts[0].contact.status == StatutAvis.ACCEPTE
+
+    def test_notification_ready_for_inapp_notification(
+        self, db_session: scoped_session
+    ) -> None:
+        """Notification data is ready for in-app notification creation."""
+        journaliste, expert, media, enquete, contact, article = _create_test_data(
+            db_session
+        )
+
+        notification = NotificationPublication(
+            owner=journaliste,
+            avis_enquete=enquete,
+            article=article,
+        )
+        db_session.add(notification)
+        db_session.flush()
+
+        notif_contact = NotificationPublicationContact(
+            notification=notification,
+            contact=contact,
+        )
+        db_session.add(notif_contact)
+        db_session.flush()
+
+        # Data needed for in-app notification:
+        # 1. Receiver (expert user)
+        receiver = notif_contact.contact.expert
+        assert receiver.id is not None
+
+        # 2. Message content (can be built from article title)
+        article_title = notification.article.titre
+        assert article_title
+
+        # 3. URL (can be built from article id)
+        article_id = notification.article.id
+        assert article_id is not None
