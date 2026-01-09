@@ -44,6 +44,15 @@
                   Voir les détails
                 </a>
               </div>
+            {% elif contact.is_rdv_confirmed %}
+              <div class="text-sm">
+                <p class="font-semibold">RDV Confirmé:</p>
+                <p>{{ contact.date_rdv.strftime('%d/%m/%Y à %H:%M') if contact.date_rdv else 'Date non définie' }}</p>
+                <a href="{{ url_for('AvisEnqueteWipView:rdv_details', id=contact.avis_enquete.id, contact_id=contact.id) }}"
+                    class="text-blue-500 hover:underline">
+                  Voir les détails
+                </a>
+              </div>
             {% endif %}
           </td>
         </tr>
