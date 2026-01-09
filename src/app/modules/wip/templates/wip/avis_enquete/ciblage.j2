@@ -42,7 +42,7 @@
       (function() {
           function setup() {
               if (typeof TomSelect === 'undefined') {
-                  setTimeout(setup, 50);
+                  setTimeout(setup, 10);
                   return;
               }
 
@@ -57,7 +57,8 @@
                       onChange: function() {
                           let values = htmx.values(htmx.find('#search-form'));
                           values.selector_change = 1;
-                          htmx.ajax('GET', "{{ url_for('AvisEnqueteWipView:ciblage', id=model.id) }}", {
+                          const url = "{{ url_for('AvisEnqueteWipView:ciblage', id=model.id) }}";
+                          htmx.ajax('GET', url, {
                               target: '#main',
                               select: '#main',
                               values: values
