@@ -36,6 +36,9 @@ def opportunities():
     contacts = repo.list()
     contacts = [contact for contact in contacts if contact.expert == g.user]
 
+    contacts.sort(key=lambda c: c.avis_enquete.date_fin_enquete, reverse=True)
+    contacts = contacts[:50]
+
     return render_template(
         "wip/pages/opportunities.j2",
         title="Mes opportunités",
