@@ -7,10 +7,11 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from attr import frozen
 from flask import g, redirect, render_template, request, url_for
+from flask_login import current_user
 from svcs.flask import container
 from werkzeug import Response
 
@@ -18,9 +19,13 @@ from app.flask.lib.htmx import extract_fragment
 from app.flask.lib.nav import nav
 from app.models.auth import User
 from app.modules.wip import blueprint
+from app.services.emails import ContactAvisEnqueteAcceptanceMail
 
 if TYPE_CHECKING:
-    from app.modules.wip.models.newsroom.avis_enquete import AvisEnquete
+    from app.modules.wip.models.newsroom.avis_enquete import (
+        AvisEnquete,
+        ContactAvisEnquete,
+    )
 
 from ._common import get_secondary_menu
 
@@ -55,6 +60,40 @@ def media_opportunity(id: int):
     return html
 
 
+def send_avis_enquete_acceptance_email(
+    contact: ContactAvisEnquete,
+    response: str,
+) -> None:
+    """
+    Send notification emails to journalist about an Avis d'Enquête
+    acceptance of the contacted expert.
+
+    Args:
+        contact: ContactAvisEnquete
+        expert: User responding
+        response: either "oui", "non", "non-mais"
+        notes: response notes of the expert
+    """
+    expert = cast(User, current_user)
+    if expert.is_anonymous:
+        return
+    sender_name = expert.email
+
+    recipient = contact.journaliste.email
+    title = contact.avis_enquete.titre
+    notes = contact.rdv_notes_expert
+
+    notification_mail = ContactAvisEnqueteAcceptanceMail(
+        sender="contact@aipress24.com",
+        recipient=recipient,
+        sender_name=sender_name,  # expert
+        title=title,  # avis title
+        response=response,
+        notes=notes,
+    )
+    notification_mail.send()
+
+
 @blueprint.route("/opportunities/<int:id>", methods=["POST"])
 def media_opportunity_post(id: int) -> str | Response:
     """Handle media opportunity form submission."""
@@ -75,6 +114,8 @@ def media_opportunity_post(id: int) -> str | Response:
         elif reponse == "non-mais":
             contact.status = StatutAvis.REFUSE_SUGGESTION  # type: ignore[assignment]
             contact.rdv_notes_expert = request.form.get("suggestion", "")
+
+        send_avis_enquete_acceptance_email(contact, reponse)
 
         repo.session.commit()
 

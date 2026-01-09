@@ -55,3 +55,31 @@ class AvisEnqueteNotificationMail(EmailTemplate):
 
     subject = "[Aipress24] Un nouvel avis d’enquête pourrait vous concerner"
     template_html = "avis_enquete_notification.j2"
+
+
+class ContactAvisEnqueteAcceptanceMail(EmailTemplate):
+    """
+    Create a mail for notification of accaptance of Avis d'Enquête
+
+    Args:
+        - sender (str): mail of actual sender, usually "contact@aipress24.com".
+        - recipient (str): mail of recipient, the journalist.
+        - sender_name (str): user.email (expert sending mail), informative.
+        - title (str): Title of the Avis d' Enquete.
+        - response (str): "oui", "non", "non-mais".
+        - notes: (str): some expert's notes about the response.
+
+    Usage:
+        notification_mail = ContactAvisEnqueteAcceptanceMail(
+            sender="contact@aipress24.com",
+            recipient=mail,
+            sender_name=sender_name,
+            title=title,
+            response=response,
+            notes=notes
+        )
+        notification_mail.send()
+    """
+
+    subject = "[Aipress24] Une réponse à votre avis d'enquête"
+    template_html = "contact_avis_enquete_acceptance_mail.j2"
