@@ -10,6 +10,7 @@ import abc
 import unicodedata
 from collections.abc import Generator
 from dataclasses import dataclass
+from typing import cast
 
 from flask import request
 from svcs.flask import container
@@ -58,9 +59,9 @@ class ExpertFilterService:
         service.save_state()
     """
 
-    def __init__(self, avis_enquete_id: int | str) -> None:
+    def __init__(self, avis_enquete_id: str) -> None:
         self.avis_enquete_id = avis_enquete_id
-        self.session_key = f"newsroom:ciblage:{self.avis_enquete_id}"
+        self.session_key = f"newsroom:ciblage{self.avis_enquete_id}"
         self._session = container.get(SessionService)
         self._user_repo = container.get(UserRepository)
         self._state: FilterState = {}
@@ -83,7 +84,7 @@ class ExpertFilterService:
     def clear_state(self) -> None:
         """Clear filter state from session."""
         self._state = {}
-        self._session[self.session_key] = {}
+        self.save_state()
 
     def get_selectable_experts(self) -> list[User]:
         """
@@ -182,7 +183,7 @@ class ExpertFilterService:
 
     def _restore_state(self) -> None:
         """Restore state from session."""
-        self._state = self._session.get(self.session_key, {})
+        self._state = cast(FilterState, self._session.get(self.session_key, {}))
 
     def _update_state_from_request(self) -> None:
         """Update state from HTMX request data."""
@@ -198,12 +199,12 @@ class ExpertFilterService:
         selector_keys = {s.id for s in self._get_selectors()}
         seen_selectors: set[str] = set()
 
-        for k, values in selector_data.items():
-            if k in selector_keys:
-                clean_values = [v for v in values if v]
-                if clean_values:
-                    self._state[k] = clean_values
-                    seen_selectors.add(k)
+        for key, values in selector_data.items():
+            if key in selector_keys:
+                actual_values = [v for v in values if v]
+                if actual_values:
+                    self._state[key] = actual_values
+                    seen_selectors.add(key)
 
         # Clear unmentioned selectors
         for key in selector_keys:

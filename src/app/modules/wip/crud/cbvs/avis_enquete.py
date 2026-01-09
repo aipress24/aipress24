@@ -104,15 +104,16 @@ class AvisEnqueteWipView(BaseWipView):
     msg_delete_ko = "Vous n'êtes pas autorisé à supprimer cet avis d'enquête"
 
     @route("/<id>/ciblage", methods=["GET", "POST"])
-    def ciblage(self, id):
+    def ciblage(self, id: str | int):
         model: AvisEnquete = self._get_model(id)
         title = f"Ciblage des contacts - {model.title}"
         self.update_breadcrumbs(label=model.title)
 
         # Use services
-        filter_service = ExpertFilterService(avis_enquete_id=id)
+        filter_service = ExpertFilterService(avis_enquete_id=str(id))
         filter_service.initialize()
         filter_service.save_state()
+        filter_service._selectors = None
 
         avis_service = AvisEnqueteService()
         action = filter_service.get_action_from_request()
@@ -159,6 +160,7 @@ class AvisEnqueteWipView(BaseWipView):
 
         html = render_template("wip/avis_enquete/ciblage.j2", **ctx)
         html = extract_fragment(html, "main")
+        filter_service.save_state()
         return html
 
     @route("/<id>/reponses", methods=["GET"])
