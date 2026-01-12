@@ -245,6 +245,7 @@ class AvisEnqueteWipView(BaseWipView):
 
         try:
             contact.confirm_rdv()
+            service.send_rdv_confirmed_email(contact)
             service.commit()
             flash("Le RDV a été confirmé", "success")
         except ValueError as e:
