@@ -104,14 +104,42 @@ class ContactAvisEnqueteRDVProposalMail(EmailTemplate):
             sender="contact@aipress24.com",
             recipient=recipient,
             sender_name=sender_name,
-              title=title,
+            title=title,
             notes=notes,
             proposed_slots=proposed_slots,
-             rdv_type=rdv_type,
-             rdv_info=rdv_info,
+            rdv_type=rdv_type,
+            rdv_info=rdv_info,
         )
         notification_mail.send()
     """
 
     subject = "[Aipress24] Une proposition de RDV pour une enquête"
     template_html = "contact_avis_enquete_RDV_proposal_mail.j2"
+
+
+class ContactAvisEnqueteRDVAcceptedMail(EmailTemplate):
+    """
+    Create a mail for notification of RDV accepted by expert.
+
+    Args:
+        - sender (str): mail of actual sender, usually "contact@aipress24.com".
+        - recipient (str): mail of recipient, the journalist.
+        - sender_name (str): user.email (expert sending mail), informative.
+        - title (str): Title of the Avis d' Enquete.
+        - notes: (str): some expert's notes about the RDV.
+        - date_rdv: (str): date of the accepted RDV.
+
+    Usage:
+        notification_mail = ContactAvisEnqueteRDVAcceptedMail(
+            sender="contact@aipress24.com",
+            recipient=recipient,
+            sender_name=sender_name,
+            title=title,
+            notes=notes,
+            date_rdv=date_rdv,
+        )
+        notification_mail.send()
+    """
+
+    subject = "[Aipress24] Un RDV pour une enquête est accepté"
+    template_html = "contact_avis_enquete_RDV_accepted_mail.j2"

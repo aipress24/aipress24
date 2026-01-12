@@ -368,6 +368,7 @@ class AvisEnqueteWipView(BaseWipView):
                 notification_url = url_for("AvisEnqueteWipView:reponses", id=model.id)
                 service.accept_rdv(int(contact_id), data, notification_url)
                 service.notify_rdv_accepted(contact, notification_url)
+                service.send_rdv_accepted_email(contact)
                 service.commit()
             except ValueError as e:
                 flash(str(e), "error")
