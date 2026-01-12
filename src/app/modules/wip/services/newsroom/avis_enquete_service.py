@@ -22,8 +22,9 @@ from app.modules.wip.models import (
 )
 from app.services.emails import (
     AvisEnqueteNotificationMail,
-    ContactAvisEnqueteRDVProposalMail,
     ContactAvisEnqueteRDVAcceptedMail,
+    ContactAvisEnqueteRDVConfirmationMail,
+    ContactAvisEnqueteRDVProposalMail,
 )
 from app.services.notifications import NotificationService
 
@@ -193,6 +194,51 @@ class AvisEnqueteService:
         contact.confirm_rdv()
         self._db_session.flush()
         return contact
+
+    def send_rdv_confirmed_email(
+        self,
+        contact: ContactAvisEnquete,
+    ) -> None:
+        """
+        Send notification email to expert of RDV confirmation by journalist.
+
+        Args:
+            contact: the ContactAvisEnquete containing RDV informations.
+        """
+        journaliste = contact.journaliste
+        if journaliste.is_anonymous:
+            return
+        sender_name = journaliste.email
+
+        recipient = contact.expert.email
+        title = contact.avis_enquete.titre
+        notes = contact.rdv_notes_journaliste or "Aucune note."
+
+        if contact.rdv_type and contact.rdv_type.name == "PHONE":
+            rdv_type = "Rendez-vous téléphonique"
+            rdv_info = f"Numéro de téléphone: {contact.rdv_phone}"
+        elif contact.rdv_type and contact.rdv_type.name == "VIDEO":
+            rdv_type = "Rendez-vous visioconférence"
+            rdv_info = f"Lien visioconférence: {contact.rdv_video_link}"
+        elif contact.rdv_type and contact.rdv_type.name == "IN_PERSON":
+            rdv_type = "Rendez-vous faceà face"
+            rdv_info = f"Adresse: {contact.contact.rdv_address}"
+        else:
+            rdv_type = ""
+            rdv_info = ""
+        date_rdv = contact.date_rdv.strftime("%d/%m/%Y à %H:%M")
+
+        notification_mail = ContactAvisEnqueteRDVConfirmationMail(
+            sender="contact@aipress24.com",
+            recipient=recipient,
+            sender_name=sender_name,
+            title=title,
+            notes=notes,
+            rdv_type=rdv_type,
+            rdv_info=rdv_info,
+            date_rdv=date_rdv,
+        )
+        notification_mail.send()
 
     def cancel_rdv(self, contact_id: int) -> ContactAvisEnquete:
         """
