@@ -279,7 +279,7 @@ class AvisEnqueteWipView(BaseWipView):
                 )
                 service.propose_rdv(int(contact_id), data, notification_url)
                 service.notify_rdv_proposed(contact, notification_url)
-                service.send_rdv_proposed_email(contact, notification_url)
+                service.send_rdv_proposed_email(contact)
                 service.commit()
             except ValueError as e:
                 flash(str(e), "error")

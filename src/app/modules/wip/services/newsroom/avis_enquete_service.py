@@ -425,14 +425,12 @@ class AvisEnqueteService:
     def send_rdv_proposed_email(
         self,
         contact: ContactAvisEnquete,
-        url: str,
     ) -> None:
         """
         Send notification email to the expert about a RDV proposal.
 
         Args:
             contact: the ContactAvisEnquete containing RDV informations.
-            url: link to the RDV informations.
         """
         journaliste = contact.journaliste
         if journaliste.is_anonymous:
@@ -468,7 +466,6 @@ class AvisEnqueteService:
             proposed_slots=proposed_slots,
             rdv_type=rdv_type,
             rdv_info=rdv_info,
-            url=url,
         )
         notification_mail.send()
 
