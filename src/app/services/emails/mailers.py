@@ -98,7 +98,6 @@ class ContactAvisEnqueteRDVProposalMail(EmailTemplate):
         - proposed_slots: (list[str]): list of proposed dates.
         - rdv_type: (str): type of RDV.
         - rdv_info: (str): info about the RDV (phone, address).
-        - url: link to the RDV informations.
 
     Usage:
         notification_mail = ContactAvisEnqueteRDVProposalMail(
@@ -110,7 +109,6 @@ class ContactAvisEnqueteRDVProposalMail(EmailTemplate):
             proposed_slots=proposed_slots,
              rdv_type=rdv_type,
              rdv_info=rdv_info,
-             url=url
         )
         notification_mail.send()
     """
