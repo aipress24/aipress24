@@ -1,0 +1,52 @@
+<p>
+Bonjour,
+</p>
+
+<p>
+Un journaliste vous propose un RDV pour une enquête:
+</p>
+
+<p>
+Avis d'enquête: {{ title }}
+</p>
+
+<p>
+Journaliste: {{ sender_name }}
+</p>
+
+<p>
+URL: {{ url }}
+</p>
+
+<p>
+Type de RDV: {{ rdv_type }}
+</p>
+
+<p>
+{{ rdv_info }}
+</p>
+
+<div>
+  <p>
+    Créneaux proposés:
+  </p>
+  {% if proposed_slots %}
+    <ul>
+      {% for slot in proposed_slots %}
+        <li>{{ slot }}</li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>
+      Aucun créneau proposé.
+    </p>
+  {% endif %}
+</div>
+
+<p>
+Notes: {{ notes }}
+</p>
+
+<p>
+Envoyé par {{ sender_name }} via le site aipress24.com.
+</p>

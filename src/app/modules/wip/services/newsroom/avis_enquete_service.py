@@ -20,7 +20,10 @@ from app.modules.wip.models import (
     RDVStatus,
     RDVType,
 )
-from app.services.emails import AvisEnqueteNotificationMail
+from app.services.emails import (
+    AvisEnqueteNotificationMail,
+    ContactAvisEnqueteRDVProposalMail,
+)
 from app.services.notifications import NotificationService
 
 if TYPE_CHECKING:
@@ -418,6 +421,56 @@ class AvisEnqueteService:
             f"{contact.avis_enquete.title}"
         )
         self._notification_service.post(contact.expert, message, url)
+
+    def send_rdv_proposed_email(
+        self,
+        contact: ContactAvisEnquete,
+        url: str,
+    ) -> None:
+        """
+        Send notification email to the expert about a RDV proposal.
+
+        Args:
+            contact: the ContactAvisEnquete containing RDV informations.
+            url: link to the RDV informations.
+        """
+        journaliste = contact.journaliste
+        if journaliste.is_anonymous:
+            return
+        sender_name = journaliste.email
+
+        recipient = contact.expert.email
+        title = contact.avis_enquete.titre
+        notes = contact.rdv_notes_journaliste or "Aucune note."
+        proposed_slots = [
+            slot.strftime("%d/%m/%Y à %H:%M") for slot in contact.proposed_slots_dt
+        ]
+
+        if contact.rdv_type and contact.rdv_type.name == "PHONE":
+            rdv_type = "Rendez-vous téléphonique"
+            rdv_info = f"Numéro de téléphone: {contact.rdv_phone}"
+        elif contact.rdv_type and contact.rdv_type.name == "VIDEO":
+            rdv_type = "Rendez-vous visioconférence"
+            rdv_info = f"Lien visioconférence: {contact.rdv_video_link}"
+        elif contact.rdv_type and contact.rdv_type.name == "IN_PERSON":
+            rdv_type = "Rendez-vous faceà face"
+            rdv_info = f"Adresse: {contact.contact.rdv_address}"
+        else:
+            rdv_type = ""
+            rdv_info = ""
+
+        notification_mail = ContactAvisEnqueteRDVProposalMail(
+            sender="contact@aipress24.com",
+            recipient=recipient,
+            sender_name=sender_name,
+            title=title,
+            notes=notes,
+            proposed_slots=proposed_slots,
+            rdv_type=rdv_type,
+            rdv_info=rdv_info,
+            url=url,
+        )
+        notification_mail.send()
 
     def notify_rdv_accepted(
         self,
