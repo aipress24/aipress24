@@ -23,6 +23,7 @@ from app.modules.wip.models import (
 from app.services.emails import (
     AvisEnqueteNotificationMail,
     ContactAvisEnqueteRDVProposalMail,
+    ContactAvisEnqueteRDVAcceptedMail,
 )
 from app.services.notifications import NotificationService
 
@@ -482,3 +483,33 @@ class AvisEnqueteService:
         """
         message = f"{contact.expert.full_name} a accepté un créneau pour le RDV"
         self._notification_service.post(contact.journaliste, message, url)
+
+    def send_rdv_accepted_email(
+        self,
+        contact: ContactAvisEnquete,
+    ) -> None:
+        """
+        Send notification email to the journalist about a RDV accepted by expert.
+
+        Args:
+            contact: the ContactAvisEnquete containing RDV informations.
+        """
+        expert = contact.expert
+        if expert.is_anonymous:
+            return
+        sender_name = expert.email
+
+        recipient = contact.journaliste.email
+        title = contact.avis_enquete.titre
+        notes = contact.rdv_notes_expert or "Aucune note."
+        date_rdv = contact.date_rdv.strftime("%d/%m/%Y à %H:%M")
+
+        notification_mail = ContactAvisEnqueteRDVAcceptedMail(
+            sender="contact@aipress24.com",
+            recipient=recipient,
+            sender_name=sender_name,
+            title=title,
+            notes=notes,
+            date_rdv=date_rdv,
+        )
+        notification_mail.send()
