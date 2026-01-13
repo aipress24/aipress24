@@ -579,6 +579,51 @@ class TestStateManagement:
                 # State should NOT be updated (no HX-Request header)
                 assert "secteur" not in service._state
 
+    def test_one_state_per_avis_enquete_id(self, db_session, app) -> None:
+        """State updated from HTMX request data do not change other
+        Avis d Enquete states."""
+        expert1 = _create_expert_with_profile(
+            db_session, "e1@test.com", secteurs=["Tech"]
+        )
+
+        # Simulate HTMX POST request with selector change
+        with app.test_request_context(
+            method="POST",
+            headers={"HX-Request": "true"},
+            data={
+                "selector_change": "secteur",
+                "secteur": ["Tech", "Finance"],
+            },
+        ):
+            with patch(
+                "app.modules.wip.services.newsroom.expert_filter.container"
+            ) as mock_container:
+                mock_session: dict = {}
+                mock_user_repo = MagicMock()
+                mock_user_repo.list.return_value = [expert1]
+
+                mock_container.get.return_value = mock_session
+
+                service1 = ExpertFilterService()
+                service1._session = mock_session
+                service1._user_repo = mock_user_repo
+                avis_enquete_id_1 = "abcdef1"
+                service1._set_session_key(avis_enquete_id_1)
+                service1._restore_state()
+
+                service2 = ExpertFilterService()
+                service2._session = mock_session
+                service2._user_repo = mock_user_repo
+                avis_enquete_id_2 = "abcdef2"
+                service2._set_session_key(avis_enquete_id_2)
+                service2._restore_state()
+                service2._update_state_from_request()
+
+                # State should be updated with selector values
+                assert "secteur" in service2._state
+                # State of other ExpertFilterService is untouched
+                assert "secteur" not in service1._state
+
     def test_update_state_clears_dependent_selectors(self, db_session, app) -> None:
         """Changing a selector clears dependent selectors."""
         # When pays changes, departement and ville should be cleared
