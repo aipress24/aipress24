@@ -110,8 +110,8 @@ class AvisEnqueteWipView(BaseWipView):
         self.update_breadcrumbs(label=model.title)
 
         # Use services
-        filter_service = ExpertFilterService(avis_enquete_id=str(id))
-        filter_service.initialize()
+        filter_service = ExpertFilterService()
+        filter_service.initialize(avis_enquete_id=str(id))
         filter_service.save_state()
         filter_service._selectors = None
 
