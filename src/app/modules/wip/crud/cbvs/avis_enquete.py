@@ -253,6 +253,36 @@ class AvisEnqueteWipView(BaseWipView):
 
         return self._htmx_redirect("reponses", id=id)
 
+    @route("/<id>/rdv-cancel/<contact_id>", methods=["POST"])
+    def rdv_cancel(self, id, contact_id):
+        model = self._get_model(id)
+        service = AvisEnqueteService()
+
+        contact = service.get_contact_for_avis(int(contact_id), model.id)
+        if not contact:
+            flash("Contact introuvable", "error")
+            return self._htmx_redirect("rdv", id=id)
+
+        # Verify we are the journalist
+        if current_user.id != contact.journaliste_id:
+            flash("Vous n'êtes pas autorisé à annuler ce RDV", "error")
+            return self._htmx_redirect("rdv_details", id=id, contact_id=contact.id)
+
+        if not contact.can_cancel_rdv():
+            flash("Ce RDV ne peut pas être annulé", "error")
+            return self._htmx_redirect("rdv_details", id=id, contact_id=contact.id)
+
+        try:
+            service.cancel_rdv(contact.id)
+            # TODO
+            # service.send_rdv_cancelled_email(contact)
+            service.commit()
+            flash("Le RDV a été annulé", "success")
+        except ValueError as e:
+            flash(str(e), "error")
+
+        return self._htmx_redirect("reponses", id=id)
+
     @route("/<id>/rdv-propose/<contact_id>", methods=["GET", "POST"])
     def rdv_propose(self, id, contact_id):
         model = self._get_model(id)
