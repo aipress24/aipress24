@@ -23,6 +23,7 @@ from app.modules.wip.models import (
 from app.services.emails import (
     AvisEnqueteNotificationMail,
     ContactAvisEnqueteRDVAcceptedMail,
+    ContactAvisEnqueteRDVCancelledJournalistMail,
     ContactAvisEnqueteRDVConfirmationMail,
     ContactAvisEnqueteRDVProposalMail,
 )
@@ -239,6 +240,37 @@ class AvisEnqueteService:
             notes=notes,
             rdv_type=rdv_type,
             rdv_info=rdv_info,
+            date_rdv=date_rdv,
+        )
+        notification_mail.send()
+
+    def send_rdv_cancelled_by_journalist_email(
+        self,
+        contact: ContactAvisEnquete,
+    ) -> None:
+        """
+        Send notification email to expert of RDV cancellation by journalist.
+
+        Args:
+            contact: the ContactAvisEnquete containing RDV informations.
+        """
+        journaliste = contact.journaliste
+        if journaliste.is_anonymous:
+            return
+        sender_name = journaliste.email
+
+        recipient = contact.expert.email
+        title = contact.avis_enquete.titre
+        if contact.date_rdv is None:
+            # Should never happen
+            return
+        date_rdv = contact.date_rdv.strftime("%d/%m/%Y à %H:%M")
+
+        notification_mail = ContactAvisEnqueteRDVCancelledJournalistMail(
+            sender="contact@aipress24.com",
+            recipient=recipient,
+            sender_name=sender_name,
+            title=title,
             date_rdv=date_rdv,
         )
         notification_mail.send()

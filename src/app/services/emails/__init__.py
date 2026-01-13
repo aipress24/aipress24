@@ -19,7 +19,7 @@ from .mailers import (
     BWInvitationMail,
     ContactAvisEnqueteAcceptanceMail,
     ContactAvisEnqueteRDVAcceptedMail,
-    ContactAvisEnqueteRDVCancelledMail,
+    ContactAvisEnqueteRDVCancelledJournalistMail,
     ContactAvisEnqueteRDVConfirmationMail,
     ContactAvisEnqueteRDVProposalMail,
 )
@@ -30,7 +30,7 @@ __all__ = [
     "BWInvitationMail",
     "ContactAvisEnqueteAcceptanceMail",
     "ContactAvisEnqueteRDVAcceptedMail",
-    "ContactAvisEnqueteRDVCancelledMail",
+    "ContactAvisEnqueteRDVCancelledJournalistMail",
     "ContactAvisEnqueteRDVConfirmationMail",
     "ContactAvisEnqueteRDVProposalMail",
     "EmailService",
