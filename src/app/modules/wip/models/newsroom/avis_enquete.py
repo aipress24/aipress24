@@ -48,7 +48,7 @@ class RDVType(StrEnum):
 class RDVStatus(StrEnum):
     """Statut du rendez-vous."""
 
-    NO_RDV = auto()  # Pas de RDV prévu
+    NO_RDV = auto()  # Pas de RDV prévu, or RDV cancelled
     PROPOSED = auto()  # Journaliste a proposé des créneaux
     ACCEPTED = auto()  # Expert a accepté un créneau
     CONFIRMED = auto()  # RDV confirmé par les deux parties (optionnel)
@@ -309,9 +309,19 @@ class ContactAvisEnquete(IdMixin, Base):
 
         self.rdv_status = RDVStatus.CONFIRMED  # type: ignore[assignment]
 
+    def can_cancel_rdv(self) -> bool:
+        """Check if RDV can be cancelled."""
+        if self.is_rdv_past:
+            return False
+        return self.rdv_status in {
+            RDVStatus.PROPOSED,
+            RDVStatus.ACCEPTED,
+            RDVStatus.CONFIRMED,
+        }
+
     def cancel_rdv(self) -> None:
         """Cancel the RDV and reset to initial state."""
-        if self.rdv_status == RDVStatus.NO_RDV:
+        if not self.can_cancel_rdv():
             msg = "No RDV to cancel"
             raise ValueError(msg)
 
@@ -325,6 +335,7 @@ class ContactAvisEnquete(IdMixin, Base):
         self.rdv_address = ""
         self.rdv_notes_journaliste = ""
         self.rdv_notes_expert = ""
+        self.rdv_status = RDVStatus.NO_RDV
 
     # ------------------------------------------------------------
     # Query Methods (for templates/views)
@@ -392,7 +403,7 @@ class ContactAvisEnquete(IdMixin, Base):
     # Temporal Calculations
     # ------------------------------------------------------------
 
-    def time_until_rdv(self):
+    def time_until_rdv(self) -> timedelta | None:
         """
         Get time until RDV.
 
