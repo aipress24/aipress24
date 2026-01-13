@@ -179,7 +179,7 @@ class ContactAvisEnqueteRDVConfirmationMail(EmailTemplate):
     template_html = "contact_avis_enquete_RDV_confirmation_mail.j2"
 
 
-class ContactAvisEnqueteRDVCancelledMail(EmailTemplate):
+class ContactAvisEnqueteRDVCancelledJournalistMail(EmailTemplate):
     """
     Create a mail for notification of RDV cancelled by journalist.
 
@@ -202,4 +202,4 @@ class ContactAvisEnqueteRDVCancelledMail(EmailTemplate):
     """
 
     subject = "[Aipress24] Un RDV pour une enquête a été annulé"
-    template_html = "contact_avis_enquete_RDV_cancelled_mail.j2"
+    template_html = "contact_avis_enquete_RDV_cancelled_by_journalist_mail.j2"

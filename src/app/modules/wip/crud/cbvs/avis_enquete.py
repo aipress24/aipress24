@@ -274,8 +274,7 @@ class AvisEnqueteWipView(BaseWipView):
 
         try:
             service.cancel_rdv(contact.id)
-            # TODO
-            # service.send_rdv_cancelled_email(contact)
+            service.send_rdv_cancelled_by_journalist_email(contact)
             service.commit()
             flash("Le RDV a été annulé", "success")
         except ValueError as e:
