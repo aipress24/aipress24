@@ -177,3 +177,29 @@ class ContactAvisEnqueteRDVConfirmationMail(EmailTemplate):
 
     subject = "[Aipress24] Un RDV pour une enquête est confirmé"
     template_html = "contact_avis_enquete_RDV_confirmation_mail.j2"
+
+
+class ContactAvisEnqueteRDVCancelledMail(EmailTemplate):
+    """
+    Create a mail for notification of RDV cancelled by journalist.
+
+    Args:
+        - sender (str): mail of actual sender, usually "contact@aipress24.com".
+        - recipient (str): mail of recipient, the expert.
+        - sender_name (str): user.email (journalist sending mail), informative.
+        - title (str): Title of the Avis d' Enquete.
+        - date_rdv (str): date of the cancelled RDV.
+
+    Usage:
+        notification_mail = ContactAvisEnqueteRDVCancelledMail(
+            sender="contact@aipress24.com",
+            recipient=recipient,
+            sender_name=sender_name,
+            title=title,
+            date_rdv=date_rdv,
+        )
+        notification_mail.send()
+    """
+
+    subject = "[Aipress24] Un RDV pour une enquête a été annulé"
+    template_html = "contact_avis_enquete_RDV_cancelled_mail.j2"
