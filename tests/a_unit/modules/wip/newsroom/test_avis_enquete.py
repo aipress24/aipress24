@@ -321,6 +321,7 @@ def test_rdv_cancellation(db_session: scoped_session) -> None:
     db_session.flush()
 
     # BUSINESS RULE: Cannot cancel if no RDV exists
+    assert not contact.can_cancel_rdv()
     with pytest.raises(ValueError, match="No RDV to cancel"):
         contact.cancel_rdv()
 
@@ -338,13 +339,15 @@ def test_rdv_cancellation(db_session: scoped_session) -> None:
         rdv_type=RDVType.PHONE,
         proposed_slots=[future_slot],
         rdv_phone="+33 6 12 34 56 78",
+        rdv_notes="Journalist notes",
     )
-    contact.accept_rdv(future_slot)
+    contact.accept_rdv(future_slot, expert_notes="Expert notes")
 
     assert contact.rdv_status == RDVStatus.ACCEPTED
     assert contact.date_rdv is not None
 
     # Cancel the RDV
+    assert contact.can_cancel_rdv()
     contact.cancel_rdv()
 
     # Verify state is reset
@@ -356,8 +359,11 @@ def test_rdv_cancellation(db_session: scoped_session) -> None:
     assert contact.rdv_notes_journaliste == ""
     assert contact.rdv_notes_expert == ""
 
-    # Can propose again after cancellation
-    assert contact.can_propose_rdv() is True
+    # Can't propose again after cancellation
+    # assert not contact.can_propose_rdv()
+    # FIXME: JD: I think thi test was wrong, we can
+    # propose other RDV after cancellation
+    assert contact.can_propose_rdv()
 
 
 def test_rdv_temporal_validation(db_session: scoped_session) -> None:
