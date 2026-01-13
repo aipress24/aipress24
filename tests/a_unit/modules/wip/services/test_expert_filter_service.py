@@ -492,6 +492,31 @@ class TestStateManagement:
         assert isinstance(state["secteur"], list)
         assert isinstance(state["selected_experts"], list)
 
+    def test_session_key_initialization(self, db_session, app) -> None:
+        """Session key depends on avis_enquete_id."""
+        expert1 = _create_expert_with_profile(
+            db_session, "e1@test.com", secteurs=["Tech"]
+        )
+
+        with patch(
+            "app.modules.wip.services.newsroom.expert_filter.container"
+        ) as mock_container:
+            mock_session: dict = {}
+            mock_user_repo = MagicMock()
+            mock_user_repo.list.return_value = [expert1]
+
+            mock_container.get.return_value = mock_session
+
+            service = ExpertFilterService()
+            service._session = mock_session
+            service._user_repo = mock_user_repo
+
+            # initialize session key
+            avis_enquete_id = "abcdef"
+            service._set_session_key(avis_enquete_id)
+
+            assert service._session_key == f"newsroom:ciblage{avis_enquete_id}"
+
     def test_update_state_from_htmx_request(self, db_session, app) -> None:
         """State is updated from HTMX request data."""
         expert1 = _create_expert_with_profile(
