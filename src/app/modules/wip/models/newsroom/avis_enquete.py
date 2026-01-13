@@ -413,6 +413,10 @@ class ContactAvisEnquete(IdMixin, Base):
         if not self.date_rdv:
             return None
 
+        # Ensure self.date_rdv is timezone-aware before subtraction
+        if self.date_rdv.tzinfo is None:
+            self.date_rdv = self.date_rdv.replace(tzinfo=UTC)
+
         now = datetime.now(UTC)
         return self.date_rdv - now
 
