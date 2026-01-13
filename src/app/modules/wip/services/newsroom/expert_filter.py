@@ -59,10 +59,9 @@ class ExpertFilterService:
         service.save_state()
     """
 
-    def __init__(self, avis_enquete_id: str) -> None:
-        self.avis_enquete_id = avis_enquete_id
-        self.session_key = f"newsroom:ciblage{self.avis_enquete_id}"
+    def __init__(self) -> None:
         self._session = container.get(SessionService)
+        self._session_key: str = ""
         self._user_repo = container.get(UserRepository)
         self._state: FilterState = {}
         self._all_experts: list[User] | None = None
@@ -72,14 +71,15 @@ class ExpertFilterService:
     # Public API
     # ----------------------------------------------------------------
 
-    def initialize(self) -> None:
-        """Initialize filter state from session and request."""
+    def initialize(self, avis_enquete_id: str) -> None:
+        """Initialize filter state from avis_enquete_id, session and request."""
+        self._set_session_key(avis_enquete_id)
         self._restore_state()
         self._update_state_from_request()
 
     def save_state(self) -> None:
         """Persist filter state to session."""
-        self._session[self.session_key] = self._state
+        self._session[self._session_key] = self._state
 
     def clear_state(self) -> None:
         """Clear filter state from session."""
@@ -181,9 +181,13 @@ class ExpertFilterService:
     # Private Methods
     # ----------------------------------------------------------------
 
+    def _set_session_key(self, avis_enquete_id: str) -> None:
+        """Set session key for a specific Avis d' Enquête"""
+        self._session_key = f"newsroom:ciblage{avis_enquete_id}"
+
     def _restore_state(self) -> None:
         """Restore state from session."""
-        self._state = cast(FilterState, self._session.get(self.session_key, {}))
+        self._state = cast(FilterState, self._session.get(self._session_key, {}))
 
     def _update_state_from_request(self) -> None:
         """Update state from HTMX request data."""
