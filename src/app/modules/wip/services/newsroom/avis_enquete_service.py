@@ -226,6 +226,9 @@ class AvisEnqueteService:
         else:
             rdv_type = ""
             rdv_info = ""
+        if contact.date_rdv is None:
+            # Should never happen
+            return
         date_rdv = contact.date_rdv.strftime("%d/%m/%Y à %H:%M")
 
         notification_mail = ContactAvisEnqueteRDVConfirmationMail(
@@ -548,6 +551,9 @@ class AvisEnqueteService:
         recipient = contact.journaliste.email
         title = contact.avis_enquete.titre
         notes = contact.rdv_notes_expert or "Aucune note."
+        if contact.date_rdv is None:
+            # Should never happen
+            return
         date_rdv = contact.date_rdv.strftime("%d/%m/%Y à %H:%M")
 
         notification_mail = ContactAvisEnqueteRDVAcceptedMail(
