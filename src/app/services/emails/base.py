@@ -25,6 +25,7 @@ class EmailTemplate:
     subject: str = ""
     template_md: str = ""
     template_html: str = ""
+    bypass_quota: bool = False
 
     def __post_init__(self) -> None:
         self.ctx = {f.name: getattr(self, f.name) for f in fields(self)}
@@ -48,7 +49,7 @@ class EmailTemplate:
         raise ValueError(msg)
 
     def send(self) -> bool:
-        if self.ctx.get("force") or is_email_sending_allowed(self.recipient):
+        if self.bypass_quota or is_email_sending_allowed(self.recipient):
             result = self._send_mail()
             if result:
                 email_log_recipient(self.recipient)
