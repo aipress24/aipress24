@@ -273,8 +273,8 @@ class AvisEnqueteWipView(BaseWipView):
             return self._htmx_redirect("rdv_details", id=id, contact_id=contact.id)
 
         try:
-            service.cancel_rdv(contact.id)
             service.send_rdv_cancelled_by_journalist_email(contact)
+            service.cancel_rdv(contact.id)
             service.commit()
             flash("Le RDV a été annulé", "success")
         except ValueError as e:
