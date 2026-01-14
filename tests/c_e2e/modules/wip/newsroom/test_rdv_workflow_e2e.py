@@ -530,6 +530,50 @@ class TestRdvStatusTransitions:
         assert response.status_code in [200, 302]
 
 
+    def test_journalist_can_cancel_rdv(
+        self,
+        fresh_db,
+        logged_in_client: FlaskClient,
+        test_avis_enquete: AvisEnquete,
+        contact_with_rdv_confirmed: ContactAvisEnquete,
+    ):
+        """Journalist can cancel a confirmed RDV."""
+        url = url_for(
+            "AvisEnqueteWipView:rdv_cancel",
+            id=test_avis_enquete.id,
+            contact_id=contact_with_rdv_confirmed.id,
+        )
+
+        response = logged_in_client.post(url, follow_redirects=False)
+
+        assert response.status_code == 302
+
+        fresh_db.session.refresh(contact_with_rdv_confirmed)
+        assert contact_with_rdv_confirmed.rdv_status == RDVStatus.NO_RDV
+
+
+    def test_expert_can_cancel_rdv(
+        self,
+        fresh_db,
+        expert_logged_in_client: FlaskClient,
+        test_avis_enquete: AvisEnquete,
+        contact_with_rdv_confirmed: ContactAvisEnquete,
+    ):
+        """Expert can cancel a confirmed RDV."""
+        url = url_for(
+            "AvisEnqueteWipView:rdv_cancel",
+            id=test_avis_enquete.id,
+            contact_id=contact_with_rdv_confirmed.id,
+        )
+
+        response = expert_logged_in_client.post(url, follow_redirects=False)
+
+        assert response.status_code == 302
+
+        fresh_db.session.refresh(contact_with_rdv_confirmed)
+        assert contact_with_rdv_confirmed.rdv_status == RDVStatus.NO_RDV
+
+
 # ----------------------------------------------------------------
 # Multiple Slots Tests
 # ----------------------------------------------------------------
