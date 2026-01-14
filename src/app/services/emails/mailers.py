@@ -4,9 +4,12 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
+
 from .base import EmailTemplate
 
 
+@dataclass(kw_only=True)
 class BWInvitationMail(EmailTemplate):
     """
     Create a mail for BW invitation.
@@ -27,10 +30,12 @@ class BWInvitationMail(EmailTemplate):
         invit_mail.send()
     """
 
-    subject = "[Aipress24] Invitation to join AiPRESS24"
-    template_html = "bw_invitation.j2"
+    subject: str = "[Aipress24] Invitation to join AiPRESS24"
+    template_html: str = "bw_invitation.j2"
+    bw_name: str
 
 
+@dataclass(kw_only=True)
 class AvisEnqueteNotificationMail(EmailTemplate):
     """
     Create a mail for notification of AvisEnquete
@@ -53,10 +58,13 @@ class AvisEnqueteNotificationMail(EmailTemplate):
         notification_mail.send()
     """
 
-    subject = "[Aipress24] Un nouvel avis d’enquête pourrait vous concerner"
-    template_html = "avis_enquete_notification.j2"
+    subject: str = "[Aipress24] Un nouvel avis d’enquête pourrait vous concerner"
+    template_html: str = "avis_enquete_notification.j2"
+    bw_name: str
+    abstract: str
 
 
+@dataclass(kw_only=True)
 class ContactAvisEnqueteAcceptanceMail(EmailTemplate):
     """
     Create a mail for notification of accaptance of Avis d'Enquête
@@ -81,10 +89,14 @@ class ContactAvisEnqueteAcceptanceMail(EmailTemplate):
         notification_mail.send()
     """
 
-    subject = "[Aipress24] Une réponse à votre avis d'enquête"
-    template_html = "contact_avis_enquete_acceptance_mail.j2"
+    subject: str = "[Aipress24] Une réponse à votre avis d'enquête"
+    template_html: str = "contact_avis_enquete_acceptance_mail.j2"
+    title: str
+    response: str
+    notes: str
 
 
+@dataclass(kw_only=True)
 class ContactAvisEnqueteRDVProposalMail(EmailTemplate):
     """
     Create a mail for notification of RDV proposal of Avis d'Enquête.
@@ -113,10 +125,16 @@ class ContactAvisEnqueteRDVProposalMail(EmailTemplate):
         notification_mail.send()
     """
 
-    subject = "[Aipress24] Une proposition de RDV pour une enquête"
-    template_html = "contact_avis_enquete_RDV_proposal_mail.j2"
+    subject: str = "[Aipress24] Une proposition de RDV pour une enquête"
+    template_html: str = "contact_avis_enquete_RDV_proposal_mail.j2"
+    title: str
+    notes: str
+    proposed_slots: list[str]
+    rdv_type: str
+    rdv_info: str
 
 
+@dataclass(kw_only=True)
 class ContactAvisEnqueteRDVAcceptedMail(EmailTemplate):
     """
     Create a mail for notification of RDV accepted by expert.
@@ -141,10 +159,14 @@ class ContactAvisEnqueteRDVAcceptedMail(EmailTemplate):
         notification_mail.send()
     """
 
-    subject = "[Aipress24] Un RDV pour une enquête est accepté"
-    template_html = "contact_avis_enquete_RDV_accepted_mail.j2"
+    subject: str = "[Aipress24] Un RDV pour une enquête est accepté"
+    template_html: str = "contact_avis_enquete_RDV_accepted_mail.j2"
+    title: str
+    notes: str
+    date_rdv: str
 
 
+@dataclass(kw_only=True)
 class ContactAvisEnqueteRDVConfirmationMail(EmailTemplate):
     """
     Create a mail for notification of RDV confirmation by journalist.
@@ -155,7 +177,6 @@ class ContactAvisEnqueteRDVConfirmationMail(EmailTemplate):
         - sender_name (str): user.email (expert sending mail), journalist, informative.
         - title (str): Title of the Avis d' Enquete.
         - notes (str): some journalist's notes about the RDV.
-        - title (str): Title of the Avis d' Enquete.
         - rdv_type (str): Type du RDV.
         - rdv_info: (str): info about the RDV (phone, address).
         - date_rdv (str): date of the confirmaed RDV.
@@ -167,7 +188,6 @@ class ContactAvisEnqueteRDVConfirmationMail(EmailTemplate):
             sender_name=sender_name,
             title=title,
             notes=notes,
-            title=title,
             rdv_type=rdv_type,
             rdv_info=rdv_info,
             date_rdv=date_rdv,
@@ -175,10 +195,16 @@ class ContactAvisEnqueteRDVConfirmationMail(EmailTemplate):
         notification_mail.send()
     """
 
-    subject = "[Aipress24] Un RDV pour une enquête est confirmé"
-    template_html = "contact_avis_enquete_RDV_confirmation_mail.j2"
+    subject: str = "[Aipress24] Un RDV pour une enquête est confirmé"
+    template_html: str = "contact_avis_enquete_RDV_confirmation_mail.j2"
+    title: str
+    notes: str
+    rdv_type: str
+    rdv_info: str
+    date_rdv: str
 
 
+@dataclass(kw_only=True)
 class ContactAvisEnqueteRDVCancelledJournalistMail(EmailTemplate):
     """
     Create a mail for notification of RDV cancelled by journalist.
@@ -201,10 +227,13 @@ class ContactAvisEnqueteRDVCancelledJournalistMail(EmailTemplate):
         notification_mail.send()
     """
 
-    subject = "[Aipress24] Un RDV pour une enquête a été annulé"
-    template_html = "contact_avis_enquete_RDV_cancelled_by_journalist_mail.j2"
+    subject: str = "[Aipress24] Un RDV pour une enquête a été annulé"
+    template_html: str = "contact_avis_enquete_RDV_cancelled_by_journalist_mail.j2"
+    title: str
+    date_rdv: str
 
 
+@dataclass(kw_only=True)
 class ContactAvisEnqueteRDVCancelledExpertMail(EmailTemplate):
     """
     Create a mail for notification of RDV cancelled by expert.
@@ -227,5 +256,7 @@ class ContactAvisEnqueteRDVCancelledExpertMail(EmailTemplate):
         notification_mail.send()
     """
 
-    subject = "[Aipress24] Un RDV pour une enquête a été annulé"
-    template_html = "contact_avis_enquete_RDV_cancelled_by_expert_mail.j2"
+    subject: str = "[Aipress24] Un RDV pour une enquête a été annulé"
+    template_html: str = "contact_avis_enquete_RDV_cancelled_by_expert_mail.j2"
+    title: str
+    date_rdv: str
