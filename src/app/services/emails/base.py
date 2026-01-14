@@ -24,16 +24,18 @@ class EmailTemplate:
     def __init__(self, sender: str, recipient: str, **kwargs) -> None:
         self.sender = sender
         self.recipient = recipient
-        self.kwargs = kwargs
+        self.ctx = kwargs
+        self.ctx["sender"] = self.sender
+        self.ctx["recipient"] = self.recipient
 
     def _render_md(self) -> str:
         body = rso.read_text(mail_templates, self.template_md)
-        content = render_template_string(body, **self.kwargs)
+        content = render_template_string(body, **self.ctx)
         return markdown(content)
 
     def _render_html(self) -> str:
         body = rso.read_text(mail_templates, self.template_html)
-        content = render_template_string(body, **self.kwargs)
+        content = render_template_string(body, **self.ctx)
         return content
 
     def render(self) -> str:
@@ -45,7 +47,7 @@ class EmailTemplate:
         raise ValueError(msg)
 
     def send(self) -> bool:
-        if self.kwargs.get("force") or is_email_sending_allowed(self.recipient):
+        if self.ctx.get("force") or is_email_sending_allowed(self.recipient):
             result = self._send_mail()
             if result:
                 email_log_recipient(self.recipient)
