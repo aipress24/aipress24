@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass, fields
 from importlib import resources as rso
 from smtplib import SMTPException
 
@@ -16,17 +17,17 @@ from . import mail_templates
 from .email_limiter import email_log_recipient, is_email_sending_allowed
 
 
+@dataclass(kw_only=True)
 class EmailTemplate:
+    sender: str
+    recipient: str
+    sender_name: str
     subject: str = ""
     template_md: str = ""
     template_html: str = ""
 
-    def __init__(self, sender: str, recipient: str, **kwargs) -> None:
-        self.sender = sender
-        self.recipient = recipient
-        self.ctx = kwargs
-        self.ctx["sender"] = self.sender
-        self.ctx["recipient"] = self.recipient
+    def __post_init__(self) -> None:
+        self.ctx = {f.name: getattr(self, f.name) for f in fields(self)}
 
     def _render_md(self) -> str:
         body = rso.read_text(mail_templates, self.template_md)
