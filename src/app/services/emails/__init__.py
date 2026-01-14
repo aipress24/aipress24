@@ -20,6 +20,7 @@ from .mailers import (
     ContactAvisEnqueteAcceptanceMail,
     ContactAvisEnqueteRDVAcceptedMail,
     ContactAvisEnqueteRDVCancelledJournalistMail,
+    ContactAvisEnqueteRDVCancelledExpertMail,
     ContactAvisEnqueteRDVConfirmationMail,
     ContactAvisEnqueteRDVProposalMail,
 )
@@ -31,6 +32,7 @@ __all__ = [
     "ContactAvisEnqueteAcceptanceMail",
     "ContactAvisEnqueteRDVAcceptedMail",
     "ContactAvisEnqueteRDVCancelledJournalistMail",
+    "ContactAvisEnqueteRDVCancelledExpertMail",
     "ContactAvisEnqueteRDVConfirmationMail",
     "ContactAvisEnqueteRDVProposalMail",
     "EmailService",
