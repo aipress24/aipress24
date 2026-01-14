@@ -335,7 +335,6 @@ class ContactAvisEnquete(IdMixin, Base):
         self.rdv_address = ""
         self.rdv_notes_journaliste = ""
         self.rdv_notes_expert = ""
-        self.rdv_status = RDVStatus.NO_RDV
 
     # ------------------------------------------------------------
     # Query Methods (for templates/views)
