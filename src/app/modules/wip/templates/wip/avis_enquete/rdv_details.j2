@@ -70,7 +70,7 @@
         </button>
       </form>
       {% endif %}
-      {% if contact.can_cancel_rdv() and current_user.id == contact.journaliste_id %}
+      {% if contact.can_cancel_rdv() and (current_user.id == contact.journaliste_id or current_user.id == contact.expert_id) %}
       <form
         action="{{ url_for('AvisEnqueteWipView:rdv_cancel', id=model.id, contact_id=contact.id) }}"
         method="POST"

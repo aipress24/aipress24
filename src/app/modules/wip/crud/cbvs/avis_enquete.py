@@ -263,8 +263,11 @@ class AvisEnqueteWipView(BaseWipView):
             flash("Contact introuvable", "error")
             return self._htmx_redirect("rdv", id=id)
 
-        # Verify we are the journalist
-        if current_user.id != contact.journaliste_id:
+        # Verify we are the journalist or the expert
+        user_is_journalist = current_user.id == contact.journaliste_id
+        user_is_expert = current_user.id == contact.expert_id
+
+        if not (user_is_journalist or user_is_expert):
             flash("Vous n'êtes pas autorisé à annuler ce RDV", "error")
             return self._htmx_redirect("rdv_details", id=id, contact_id=contact.id)
 
@@ -273,8 +276,11 @@ class AvisEnqueteWipView(BaseWipView):
             return self._htmx_redirect("rdv_details", id=id, contact_id=contact.id)
 
         try:
-            service.send_rdv_cancelled_by_journalist_email(contact)
             service.cancel_rdv(contact.id)
+            if user_is_journalist:
+                service.send_rdv_cancelled_by_journalist_email(contact)
+            else:
+                service.send_rdv_cancelled_by_expert_email(contact)
             service.commit()
             flash("Le RDV a été annulé", "success")
         except ValueError as e:
