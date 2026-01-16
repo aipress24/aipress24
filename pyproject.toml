@@ -317,6 +317,8 @@ exclude = [
     "src/app/modules/stripe/**/*.py",
     "src/app/modules/kyc/**/*.py",
 ]
+[tool.ty.rules]
+unused-ignore-comment = "ignore"
 
 # -----------------------------------------------------------------------------
 
