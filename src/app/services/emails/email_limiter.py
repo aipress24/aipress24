@@ -19,7 +19,12 @@ from app.models.email_log import EmailLog
 
 
 def is_email_sending_allowed(recipient_email: str) -> bool:
-    """Check if recipient has reached the mail limit (20 per month)."""
+    """Check if recipient has reached the mail limit
+
+    See constants:
+        EMAILS_MAX_SENT_LAST_PERIOD -> 20
+        EMAILS_PERIOD_DAYS -> 7 days
+    ."""
 
     recipient_email = recipient_email.lower().strip()
 
