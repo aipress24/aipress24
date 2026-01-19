@@ -14,7 +14,7 @@ from loguru import logger
 from markdown import markdown
 
 from . import mail_templates
-from .email_limiter import email_log_recipient, is_email_sending_allowed
+from .email_limiter import count_recipient_mails, is_email_sending_allowed
 
 
 @dataclass(kw_only=True)
@@ -40,6 +40,17 @@ class EmailTemplate:
         content = render_template_string(body, **self.ctx)
         return content
 
+    @property
+    def logged_informations(self) -> str:
+        """Return the mail specific information logged"""
+        return ", ".join(
+            [
+                f"sender: {self.sender!r}",
+                f"recipient: {self.recipient!r}",
+                f"subject: {self.subject!r}",
+            ]
+        )
+
     def render(self) -> str:
         if self.template_md:
             return self._render_md()
@@ -52,7 +63,7 @@ class EmailTemplate:
         if self.bypass_quota or is_email_sending_allowed(self.recipient):
             result = self._send_mail()
             if result:
-                email_log_recipient(self.recipient)
+                count_recipient_mails(self.recipient)
         else:
             msg = f"Mail quota exceeded for recipient: {self.recipient!r}"
             logger.error(msg)
@@ -79,9 +90,11 @@ class EmailTemplate:
         message.content_subtype = "html"
         try:
             message.send()
-            logger.info(f"Mail {self.__class__.__name__} sent to: {self.recipient!r}")
+            logger.info(
+                f"Mail success: {self.__class__.__name__} {self.logged_informations}"
+            )
             return True
         except SMTPException as e:
-            msg = f"Error for recipients: {self.recipient!r} :\nSMTP error {e}"
+            msg = f"Mail error: (SMTP error {e}), {self.logged_informations}"
             logger.error(msg)
             return False

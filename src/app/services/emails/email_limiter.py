@@ -44,7 +44,7 @@ def is_email_sending_allowed(recipient_email: str) -> bool:
     return emails_sent_period < EMAILS_MAX_SENT_LAST_PERIOD
 
 
-def email_log_recipient(recipient_email: str) -> None:
+def count_recipient_mails(recipient_email: str) -> None:
     """Increment the count of sent mails for recipient.
 
     Also clean the back log."""
