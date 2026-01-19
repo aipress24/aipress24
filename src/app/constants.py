@@ -93,9 +93,9 @@ PROFILE_CODE_TO_BW_TYPE: dict[ProfileEnum, list[BWTypeEnum]] = {  # type: ignore
 }
 
 # Contants for the mail service
-# max sent email count on 30 days:
-EMAILS_PERIOD_DAYS = 30
-# max number of mail for the 30 days period:
-EMAILS_MAX_SENT_LAST_PERIOD = 200
+# max sent email count on 1 weeks:
+EMAILS_PERIOD_DAYS = 7
+# max number of mail for the last week:
+EMAILS_MAX_SENT_LAST_PERIOD = 20
 # clean the mail log table of mail older than 90 days:
 EMAILS_LOG_STORAGE_CUTOFF = 90
