@@ -292,6 +292,28 @@ class ContactAvisEnquete(IdMixin, Base):
         self.date_rdv = selected_slot
         self.rdv_notes_expert = expert_notes
 
+    def refuse_rdv(self) -> None:
+        """
+        Business method for expert to refuse all proposed RDV.
+
+        Raises:
+            ValueError: If RDV cannot be accepted or slot is invalid
+        """
+        if not self.can_accept_rdv():
+            msg = "Cannot accept neither refuse RDV: no RDV has been proposed"
+            raise ValueError(msg)
+
+        # Update state
+        self.rdv_status = RDVStatus.NO_RDV  # type: ignore[assignment]
+        self.rdv_type = None
+        self.proposed_slots = []
+        self.date_rdv = None
+        self.rdv_phone = ""
+        self.rdv_video_link = ""
+        self.rdv_address = ""
+        self.rdv_notes_journaliste = ""
+        self.rdv_notes_expert = ""
+
     def can_confirm_rdv(self) -> bool:
         """Check if RDV can be confirmed (optional step)."""
         return bool(self.rdv_status == RDVStatus.ACCEPTED)

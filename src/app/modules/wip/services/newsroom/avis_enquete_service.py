@@ -178,6 +178,42 @@ class AvisEnqueteService:
 
         return contact
 
+    def refuse_rdv(
+        self,
+        contact_id: int,
+        notification_url: str,
+    ) -> ContactAvisEnquete:
+        """
+        Refuse all proposed RDV slot.
+
+        Orchestrates:
+        1. Load contact
+        2. Call domain method (validates + updates state)
+        3. Commit transaction
+        4. Send notification to journalist
+
+        Args:
+            contact_id: ID of the ContactAvisEnquete
+            data: RDV acceptance data (selected slot, notes)
+            notification_url: URL for the notification link
+
+        Returns:
+            Updated contact entity
+
+        Raises:
+            ValueError: If acceptance is invalid (from domain)
+            LookupError: If contact not found
+        """
+        contact = self._get_contact_or_raise(contact_id)
+
+        # Domain logic
+        contact.refuse_rdv()
+
+        # Flush to make changes visible but don't commit
+        self._db_session.flush()
+
+        return contact
+
     def confirm_rdv(self, contact_id: int) -> ContactAvisEnquete:
         """
         Confirm an accepted RDV.
@@ -595,6 +631,20 @@ class AvisEnqueteService:
             Caller should commit after this method.
         """
         message = f"{contact.expert.full_name} a accepté un créneau pour le RDV"
+        self._notification_service.post(contact.journaliste, message, url)
+
+    def notify_rdv_refused(
+        self,
+        contact: ContactAvisEnquete,
+        url: str,
+    ) -> None:
+        """
+        Send notification to journalist about declined RDV.
+
+        Note:
+            Caller should commit after this method.
+        """
+        message = f"{contact.expert.full_name} a refusé les RDV proposés"
         self._notification_service.post(contact.journaliste, message, url)
 
     def send_rdv_accepted_email(
