@@ -16,6 +16,8 @@ from werkzeug.wrappers import Response as WerkzeugResponse
 
 from app.flask.lib.htmx import extract_fragment
 from app.flask.routing import url_for
+
+# from app.logging import warn
 from app.modules.wip.models import (
     AvisEnquete,
     AvisEnqueteRepository,
@@ -108,7 +110,6 @@ class AvisEnqueteWipView(BaseWipView):
         model: AvisEnquete = self._get_model(id)
         title = f"Ciblage des contacts - {model.title}"
         self.update_breadcrumbs(label=model.title)
-
         # Use services
         filter_service = ExpertFilterService()
         filter_service.initialize(avis_enquete_id=str(id))
@@ -122,16 +123,20 @@ class AvisEnqueteWipView(BaseWipView):
             case "confirm":
                 selected_experts = filter_service.get_selected_experts()
                 new_experts = avis_service.filter_known_experts(model, selected_experts)
-                if new_experts:
+                nb_new_experts = len(new_experts)
+                if nb_new_experts > 0:
                     sender = cast("User", current_user)
                     avis_service.store_contacts(model, new_experts)
                     avis_service.notify_experts(model, new_experts, "#TODO")
                     avis_service.send_avis_enquete_emails(model, new_experts, sender)
                     avis_service.commit()
-                flash(
-                    "Votre avis d'enquête a été envoyé aux contacts sélectionnés",
-                    "success",
-                )
+                    if nb_new_experts > 1:
+                        msg = f"Avis d'enquête envoyé aux {len(new_experts)} contacts sélectionnés"
+                    else:
+                        msg = "Avis d'enquête envoyé au contact sélectionné"
+                    flash(msg, "success")
+                else:
+                    flash("Aucun nouvel expert sélectionné", "error")
                 response = Response("")
                 response.headers["HX-Redirect"] = url_for("AvisEnqueteWipView:index")
                 return response
