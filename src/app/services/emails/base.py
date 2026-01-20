@@ -46,6 +46,7 @@ class EmailTemplate:
         return ", ".join(
             [
                 f"sender: {self.sender!r}",
+                f"sender_name: {self.sender_name!r}",
                 f"recipient: {self.recipient!r}",
                 f"subject: {self.subject!r}",
             ]
