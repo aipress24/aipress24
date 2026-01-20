@@ -127,7 +127,7 @@ def media_opportunity_form_update(id: int) -> str | Response:
     """Handle media opportunity form partial updates for HTMX."""
     # This view does NOT save anything. It just renders the form.
     html = _render_media_opportunity(id)
-    html = extract_fragment(html, id="form")
+    html = extract_fragment(html, id="avis-response-form")
     return html
 
 
