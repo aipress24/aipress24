@@ -397,29 +397,83 @@ class AvisEnqueteWipView(BaseWipView):
             return self._htmx_redirect_url(url_for("public.home"))
 
         if request.method == "POST":
-            # Parse acceptance data
-            try:
-                data = self._parse_rdv_acceptance_form()
-            except ValueError as e:
-                flash(str(e), "error")
-                return self._htmx_redirect("rdv_accept", id=id, contact_id=contact_id)
+            action = request.form.get("action")
+            match action:
+                case "refuse":
+                    try:
+                        notification_url = url_for(
+                            "AvisEnqueteWipView:reponses", id=model.id
+                        )
+                        service.refuse_rdv(int(contact_id), notification_url)
+                        service.notify_rdv_refused(contact, notification_url)
+                        # TODO=
+                        # service.send_rdv_refused_email(contact)
+                        service.commit()
+                    except ValueError as e:
+                        flash(str(e), "error")
+                        return self._htmx_redirect(
+                            "rdv_accept", id=id, contact_id=contact_id
+                        )
 
-            # Use service to accept RDV
-            try:
-                notification_url = url_for("AvisEnqueteWipView:reponses", id=model.id)
-                service.accept_rdv(int(contact_id), data, notification_url)
-                service.notify_rdv_accepted(contact, notification_url)
-                service.send_rdv_accepted_email(contact)
-                service.commit()
-            except ValueError as e:
-                flash(str(e), "error")
-                return self._htmx_redirect("rdv_accept", id=id, contact_id=contact_id)
+                    flash(
+                        "Vous avez refusé le rendez-vous.",
+                        "success",
+                    )
+                    return self._htmx_redirect_url(url_for("public.home"))
 
-            flash(
-                "Vous avez accepté le rendez-vous. Le journaliste sera notifié.",
-                "success",
-            )
-            return self._htmx_redirect_url(url_for("public.home"))
+                case "accept":
+                    try:
+                        data: RDVAcceptanceData | None = (
+                            self._parse_rdv_acceptance_form()
+                        )
+                    except ValueError as e:
+                        flash(str(e), "error")
+                        return self._htmx_redirect(
+                            "rdv_accept", id=id, contact_id=contact_id
+                        )
+
+                    if data is None:
+                        try:
+                            notification_url = url_for(
+                                "AvisEnqueteWipView:reponses", id=model.id
+                            )
+                            service.refuse_rdv(int(contact_id), notification_url)
+                            service.notify_rdv_refused(contact, notification_url)
+                            # TODO=
+                            # service.send_rdv_refused_email(contact)
+                            service.commit()
+                        except ValueError as e:
+                            flash(str(e), "error")
+                            return self._htmx_redirect(
+                                "rdv_accept", id=id, contact_id=contact_id
+                            )
+
+                        flash(
+                            "Vous avez refusé le rendez-vous.",
+                            "success",
+                        )
+                        return self._htmx_redirect_url(url_for("public.home"))
+
+                    # Use service to accept RDV
+                    try:
+                        notification_url = url_for(
+                            "AvisEnqueteWipView:reponses", id=model.id
+                        )
+                        service.accept_rdv(int(contact_id), data, notification_url)
+                        service.notify_rdv_accepted(contact, notification_url)
+                        service.send_rdv_accepted_email(contact)
+                        service.commit()
+                    except ValueError as e:
+                        flash(str(e), "error")
+                        return self._htmx_redirect(
+                            "rdv_accept", id=id, contact_id=contact_id
+                        )
+
+                    flash(
+                        "Vous avez accepté le rendez-vous. Le journaliste sera notifié.",
+                        "success",
+                    )
+                    return self._htmx_redirect_url(url_for("public.home"))
 
         title = f"Accepter un rendez-vous - {model.title}"
         self.update_breadcrumbs(label=title)
@@ -433,12 +487,15 @@ class AvisEnqueteWipView(BaseWipView):
         html = render_template("wip/avis_enquete/rdv_accept.j2", **ctx)
         return html
 
-    def _parse_rdv_acceptance_form(self) -> RDVAcceptanceData:
+    def _parse_rdv_acceptance_form(self) -> RDVAcceptanceData | None:
         """Parse and validate form data into RDVAcceptanceData."""
         selected_slot_str = request.form.get("selected_slot")
         if not selected_slot_str:
             msg = "Aucun créneau sélectionné"
             raise ValueError(msg)
+
+        if selected_slot_str == "decline":
+            return None
 
         try:
             selected_slot = datetime.fromisoformat(selected_slot_str)
