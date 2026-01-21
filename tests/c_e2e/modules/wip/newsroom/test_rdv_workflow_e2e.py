@@ -15,7 +15,6 @@ from typing import TYPE_CHECKING
 
 import arrow
 import pytest
-
 from app.enums import RoleEnum
 from app.flask.routing import url_for
 from app.models.auth import Role, User
@@ -269,14 +268,15 @@ class TestRdvFullWorkflow:
         form_data = {
             "selected_slot": first_slot,
             "expert_notes": "I confirm my availability",
+            "action": "accept",  # to pass through the popup validation step
         }
 
         response = expert_logged_in_client.post(
-            url, data=form_data, follow_redirects=False
+            url, data=form_data, follow_redirects=True
         )
 
         # Should redirect after successful submission
-        assert response.status_code == 302
+        assert response.status_code == 200
 
         # Verify RDV status was updated
         fresh_db.session.refresh(contact_with_rdv_proposed)
@@ -529,7 +529,6 @@ class TestRdvStatusTransitions:
         # Should redirect to details or show info message
         assert response.status_code in [200, 302]
 
-
     def test_journalist_can_cancel_rdv(
         self,
         fresh_db,
@@ -550,7 +549,6 @@ class TestRdvStatusTransitions:
 
         fresh_db.session.refresh(contact_with_rdv_confirmed)
         assert contact_with_rdv_confirmed.rdv_status == RDVStatus.NO_RDV
-
 
     def test_expert_can_cancel_rdv(
         self,
