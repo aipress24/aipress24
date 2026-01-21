@@ -5,8 +5,8 @@
 from __future__ import annotations
 
 from attr import define
-from flask import g
-from sqlalchemy import select
+from flask import g, request
+from sqlalchemy import func, select
 
 from app.flask.extensions import db
 from app.models.auth import User
@@ -22,8 +22,17 @@ def get_name(obj):
 class BaseDataSource(DataSource):
     model_class: type
     q: str
+    limit: int
+    offset: int
 
-    def query(self):
+    def __init__(self, model_class: type, q: str = "") -> None:
+        self.model_class = model_class
+        self.q = q
+        # get current page  from request
+        self.limit = request.args.get("limit", 10, type=int)
+        self.offset = request.args.get("offset", 0, type=int)
+
+    def _base_query(self):
         M = self.model_class
         assert issubclass(M, Owned | LifeCycleMixin)
 
@@ -33,8 +42,8 @@ class BaseDataSource(DataSource):
             select(M)
             .where(M.owner == user)  # type: ignore[attr-defined]
             .where(M.deleted_at.is_(None))  # type: ignore[attr-defined]
-            .order_by(M.created_at.desc())  # type: ignore[attr-defined]
         )
+        # no ordering the results here.
 
         if self.q:
             stmt = stmt.where(M.titre.ilike(f"%{self.q}%"))  # type: ignore[attr-defined]
@@ -42,16 +51,40 @@ class BaseDataSource(DataSource):
         return stmt
 
     def get_items(self):
-        query = self.query().limit(10)
+        query = (
+            self._base_query()  # ordering query here
+            .order_by(self.model_class.created_at.desc())  # type: ignore[attr-defined]
+            .offset(self.offset)  # type: ignore[attr-defined]
+            .limit(self.limit)  # type: ignore[attr-defined]
+        )
         return list(db.session.scalars(query))
 
-    def get_count(self):
-        # FIXME:
-        return len(list(db.session.scalars(self.query())))
+    def get_count(self) -> int:
+        M = self.model_class
+        user: User = g.user
+        stmt = (
+            select(func.count())
+            .select_from(M)
+            .where(M.owner == user)  # type: ignore[attr-defined]
+            .where(M.deleted_at.is_(None))  # type: ignore[attr-defined]
+        )
+        if self.q:
+            stmt = stmt.where(M.titre.ilike(f"%{self.q}%"))  # type: ignore[attr-defined]
+
+        return db.session.scalar(stmt) or 0
+
+    def next_offset(self) -> int:
+        new_offset = self.offset + self.limit
+        if new_offset < self.get_count():
+            return new_offset
+        return self.offset
+
+    def prev_offset(self) -> int:
+        return max(0, self.offset - self.limit)
 
 
 def make_datasource(model_class: type, q: str) -> BaseDataSource:
-    return BaseDataSource(q=q, model_class=model_class)
+    return BaseDataSource(model_class=model_class, q=q)
 
 
 class BaseTable(Table):
