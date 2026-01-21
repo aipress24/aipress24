@@ -14,7 +14,6 @@ from typing import TYPE_CHECKING
 
 import arrow
 import pytest
-
 from app.enums import RoleEnum
 from app.flask.routing import url_for
 from app.models.auth import Role, User
@@ -418,14 +417,18 @@ class TestAvisEnqueteFormSubmission:
         form_data = {
             "selected_slot": first_slot,  # Already ISO format
             "expert_notes": "Looking forward to our meeting",
+            "action": "accept",  # to pass through the popup validation step
         }
 
         response = expert_logged_in_client.post(
-            url, data=form_data, follow_redirects=False
+            url,
+            data=form_data,
+            follow_redirects=True,  # check the rediction page content
         )
 
-        # Should redirect after successful submission
-        assert response.status_code == 302
+        # After submission, redirected to the opportunities list table page
+        assert response.status_code == 200
+        assert b"Opportunit" in response.data
 
         # Verify RDV status was updated
         fresh_db.session.refresh(contact_with_rdv_proposed)
