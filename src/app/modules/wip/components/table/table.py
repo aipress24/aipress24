@@ -9,7 +9,7 @@ import uuid
 from abc import ABC, abstractmethod
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Never
+from typing import Any
 from urllib.parse import urlencode
 
 import attrs
@@ -26,12 +26,15 @@ __all__ = []
 
 
 class DataSource(ABC):
+    offset: int
+    limit: int
+
     @abstractmethod
-    def get_items(self) -> Never:
+    def get_items(self) -> list:
         raise NotImplementedError
 
     @abstractmethod
-    def get_count(self) -> Never:
+    def get_count(self) -> int:
         raise NotImplementedError
 
 
@@ -137,7 +140,7 @@ class Pagination:
 
     def render(self) -> str:
         data_source = self.table.data_source
-        total:int = data_source.get_count()
+        total: int = data_source.get_count()
 
         if total == 0:
             return ""
