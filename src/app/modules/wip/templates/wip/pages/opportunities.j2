@@ -53,6 +53,14 @@
                   Voir les détails
                 </a>
               </div>
+            {% elif contact.is_new_opportunity  %}
+              <p class="font-semibold">Nouvelle opportunité</p>
+            {% elif contact.is_declined_opportunity  %}
+              <p>Opportunité déclinée</p>
+            {% elif contact.is_rdv_requested  %}
+              <p>Attente de dates</p>
+            {% else %}
+              <p>{{ contact.status }}</p>
             {% endif %}
           </td>
         </tr>
