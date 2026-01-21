@@ -9,7 +9,8 @@
           <img
             class="h-32 w-full object-cover lg:h-48"
             src="{{ org.cover_image_url }}"
-            alt=""
+            alt="bandeau de l'organisation"
+            onerror="this.onerror=null;this.src='/static/img/transparent-square.png';"
           />
         </div>
       {% endif %}
@@ -19,7 +20,8 @@
             <img
                 class="h-24 w-24 object-contain ring-2 ring-gray-100 sm:h-32 sm:w-32"
                 src="{{ org.logo_url }}"
-                alt=""
+                alt="logo de l'organisation"
+                onerror="this.onerror=null;this.src='/static/img/transparent-square.png';"
             />
           </div>
           <div
