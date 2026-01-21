@@ -419,7 +419,7 @@ class AvisEnqueteWipView(BaseWipView):
                         "Vous avez refusé le rendez-vous.",
                         "success",
                     )
-                    return self._htmx_redirect_url(url_for("public.home"))
+                    return self._htmx_redirect_url(url_for("wip.opportunities"))
 
                 case "accept":
                     try:
@@ -452,7 +452,7 @@ class AvisEnqueteWipView(BaseWipView):
                             "Vous avez refusé le rendez-vous.",
                             "success",
                         )
-                        return self._htmx_redirect_url(url_for("public.home"))
+                        return self._htmx_redirect_url(url_for("wip.opportunities"))
 
                     # Use service to accept RDV
                     try:
@@ -473,7 +473,7 @@ class AvisEnqueteWipView(BaseWipView):
                         "Vous avez accepté le rendez-vous. Le journaliste sera notifié.",
                         "success",
                     )
-                    return self._htmx_redirect_url(url_for("public.home"))
+                    return self._htmx_redirect_url(url_for("wip.opportunities"))
 
         title = f"Accepter un rendez-vous - {model.title}"
         self.update_breadcrumbs(label=title)
