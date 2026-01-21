@@ -421,7 +421,7 @@ class AvisEnqueteWipView(BaseWipView):
                         "Vous avez refusé le rendez-vous.",
                         "success",
                     )
-                    return self._htmx_redirect_url(url_for("wip.opportunities"))
+                    return self._htmx_redirect_url(url_for("wip.opportunities"), refresh=True)
 
                 case "accept":
                     try:
@@ -454,7 +454,7 @@ class AvisEnqueteWipView(BaseWipView):
                             "Vous avez refusé le rendez-vous.",
                             "success",
                         )
-                        return self._htmx_redirect_url(url_for("wip.opportunities"))
+                        return self._htmx_redirect_url(url_for("wip.opportunities"), refresh=True)
 
                     # Use service to accept RDV
                     try:
@@ -475,7 +475,7 @@ class AvisEnqueteWipView(BaseWipView):
                         "Vous avez accepté le rendez-vous. Le journaliste sera notifié.",
                         "success",
                     )
-                    return self._htmx_redirect_url(url_for("wip.opportunities"))
+                    return self._htmx_redirect_url(url_for("wip.opportunities"), refresh=True)
 
         title = f"Accepter un rendez-vous - {model.title}"
         self.update_breadcrumbs(label=title)
@@ -515,10 +515,13 @@ class AvisEnqueteWipView(BaseWipView):
         redirect_url = url_for(f"AvisEnqueteWipView:{action}", **kwargs)
         return self._htmx_redirect_url(redirect_url)
 
-    def _htmx_redirect_url(self, redirect_url: str) -> Response | WerkzeugResponse:
+    def _htmx_redirect_url(self, redirect_url: str, refresh: bool = False) -> Response | WerkzeugResponse:
         """HTMX-aware redirect to a URL."""
         if request.headers.get("HX-Request"):
-            return Response("", headers={"HX-Redirect": redirect_url})
+            headers = {"HX-Redirect": redirect_url}
+            if refresh:
+                headers["HX-Refresh"] = "true"
+            return Response("", headers=headers)
         return redirect(redirect_url)
 
 
