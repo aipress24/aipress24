@@ -10,11 +10,12 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Never
+from urllib.parse import urlencode
 
 import attrs
 from arrow import Arrow
 from attr import define
-from flask import current_app
+from flask import current_app, request
 from jinja2 import Environment, Template
 from markupsafe import Markup
 
@@ -135,18 +136,43 @@ class Pagination:
     table: Table
 
     def render(self) -> str:
+        data_source = self.table.data_source
+        total:int = data_source.get_count()
+
+        if total == 0:
+            return ""
+
         template = get_template(self, "table_pagination.j2")
-        total: int = self.table.data_source.get_count()
-        links = [
-            {"page": 1, "is_current": True},
-            {"page": 2, "is_current": False},
-        ]
+
+        start = data_source.offset + 1
+        end = min(data_source.offset + data_source.limit, total)
+        current_page = (data_source.offset // data_source.limit) + 1
+        total_pages = (total + data_source.limit - 1) // data_source.limit
+
+        def get_url_for_page(page_num):
+            offset = (page_num - 1) * data_source.limit
+            args = request.args.copy()
+            args["offset"] = offset
+            args["limit"] = data_source.limit
+            return f"{request.path}?{urlencode(args)}"
+
+        links = []
+        for i in range(1, total_pages + 1):
+            links.append(
+                {"page": i, "is_current": i == current_page, "url": get_url_for_page(i)}
+            )
+
         ctx = {
             "total": total,
-            "first": 1,
-            "last": total,
-            "current": 1,
+            "first": start,
+            "last": end,
+            "current_page": current_page,
+            "total_pages": total_pages,
             "links": links,
+            "has_prev": data_source.offset > 0,
+            "prev_url": get_url_for_page(current_page - 1) if current_page > 1 else "#",
+            "has_next": end < total,
+            "next_url": get_url_for_page(current_page + 1) if end < total else "#",
         }
         return Markup(template.render(**ctx))
 
