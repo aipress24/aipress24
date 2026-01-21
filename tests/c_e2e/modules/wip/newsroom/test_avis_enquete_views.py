@@ -433,3 +433,74 @@ class TestAvisEnqueteFormSubmission:
         # Verify RDV status was updated
         fresh_db.session.refresh(contact_with_rdv_proposed)
         assert contact_with_rdv_proposed.rdv_status == RDVStatus.ACCEPTED
+
+    def test_expert_refuse_rdv_submission_using_decline_slot(
+        self,
+        fresh_db,
+        expert_logged_in_client: FlaskClient,
+        test_avis_enquete: AvisEnquete,
+        contact_with_rdv_proposed: ContactAvisEnquete,
+    ):
+        """Expert can submit RDV acceptance form but refusing all dates."""
+        url = url_for(
+            "AvisEnqueteWipView:rdv_accept",
+            id=test_avis_enquete.id,
+            contact_id=contact_with_rdv_proposed.id,
+        )
+
+        form_data = {
+            "selected_slot": "decline",
+            "expert_notes": "no meeting",
+            "action": "accept",  # to pass through the popup validation step
+        }
+
+        response = expert_logged_in_client.post(
+            url,
+            data=form_data,
+            follow_redirects=True,  # check the rediction page content
+        )
+
+        # After submission, redirected to the opportunities list table page
+        assert response.status_code == 200
+        assert b"Opportunit" in response.data
+
+        # Verify RDV status was updated
+        fresh_db.session.refresh(contact_with_rdv_proposed)
+        assert contact_with_rdv_proposed.rdv_status == RDVStatus.NO_RDV
+
+    def test_expert_refuse_rdv_submission_using_refuse_button(
+        self,
+        fresh_db,
+        expert_logged_in_client: FlaskClient,
+        test_avis_enquete: AvisEnquete,
+        contact_with_rdv_proposed: ContactAvisEnquete,
+    ):
+        """Expert can submit RDV acceptance form but refusing all dates."""
+        url = url_for(
+            "AvisEnqueteWipView:rdv_accept",
+            id=test_avis_enquete.id,
+            contact_id=contact_with_rdv_proposed.id,
+        )
+
+        # Get the first proposed slot (stored as ISO string)
+        slot = contact_with_rdv_proposed.proposed_slots[0]
+
+        form_data = {
+            "selected_slot": slot,  # can use any slot when declining
+            "expert_notes": "no meeting",
+            "action": "refuse",  # to pass through the popup validation step
+        }
+
+        response = expert_logged_in_client.post(
+            url,
+            data=form_data,
+            follow_redirects=True,  # check the rediction page content
+        )
+
+        # After submission, redirected to the opportunities list table page
+        assert response.status_code == 200
+        assert b"Opportunit" in response.data
+
+        # Verify RDV status was updated
+        fresh_db.session.refresh(contact_with_rdv_proposed)
+        assert contact_with_rdv_proposed.rdv_status == RDVStatus.NO_RDV
