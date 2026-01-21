@@ -382,6 +382,25 @@ class ContactAvisEnquete(IdMixin, Base):
         """Check if waiting for expert to accept proposed RDV."""
         return bool(self.rdv_status == RDVStatus.PROPOSED)
 
+    @property
+    def is_new_opportunity(self) -> bool:
+        """Check if opportunity is new.
+
+        The expert still did not respond yes or no to the Avis Enquete"""
+        return bool(self.status == StatutAvis.EN_ATTENTE)
+
+    @property
+    def is_declined_opportunity(self) -> bool:
+        """Check if opportunity is declined by expert."""
+        return self.status in {StatutAvis.REFUSE, StatutAvis.REFUSE_SUGGESTION}
+
+    @property
+    def is_rdv_requested(self) -> bool:
+        """Check if opportunity is accepted, but still no RDV dates proposed."""
+        return bool(
+            self.status == StatutAvis.ACCEPTE and self.rdv_status == RDVStatus.NO_RDV
+        )
+
     def get_rdv_summary(self) -> str:
         """Get human-readable RDV summary for display."""
         if not self.has_rdv:
