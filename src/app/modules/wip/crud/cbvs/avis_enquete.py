@@ -16,6 +16,7 @@ from werkzeug.wrappers import Response as WerkzeugResponse
 
 from app.flask.lib.htmx import extract_fragment
 from app.flask.routing import url_for
+from app.models.lifecycle import PublicationStatus
 
 # from app.logging import warn
 from app.modules.wip.models import (
@@ -125,6 +126,7 @@ class AvisEnqueteWipView(BaseWipView):
                 new_experts = avis_service.filter_known_experts(model, selected_experts)
                 nb_new_experts = len(new_experts)
                 if nb_new_experts > 0:
+                    model.status = PublicationStatus.PUBLIC
                     sender = cast("User", current_user)
                     avis_service.store_contacts(model, new_experts)
                     avis_service.notify_experts(model, new_experts, "#TODO")
