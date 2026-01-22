@@ -59,6 +59,7 @@ def send_invitation_mails(mails: list[str], org_id: int) -> None:
     organisation = get_obj(org_id, Organisation)
     user = cast(User, current_user)
     sender_mail = user.email
+    sender_full_name = user.full_name
     bw_name = organisation.name
 
     for mail in mails:
@@ -66,6 +67,7 @@ def send_invitation_mails(mails: list[str], org_id: int) -> None:
             sender="contact@aipress24.com",
             recipient=mail,
             sender_mail=sender_mail,
+            sender_full_name=sender_full_name,
             bw_name=bw_name,
         )
         invit_mail.send()

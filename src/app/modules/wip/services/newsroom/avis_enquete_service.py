@@ -247,6 +247,7 @@ class AvisEnqueteService:
         if journaliste.is_anonymous:
             return
         sender_mail = journaliste.email
+        sender_full_name = journaliste.full_name
 
         recipient = contact.expert.email
         title = contact.avis_enquete.titre
@@ -273,6 +274,7 @@ class AvisEnqueteService:
             sender="contact@aipress24.com",
             recipient=recipient,
             sender_mail=sender_mail,
+            sender_full_name=sender_full_name,
             title=title,
             notes=notes,
             rdv_type=rdv_type,
@@ -295,6 +297,7 @@ class AvisEnqueteService:
         if journaliste.is_anonymous:
             return
         sender_mail = journaliste.email
+        sender_full_name = journaliste.full_name
 
         recipient = contact.expert.email
         title = contact.avis_enquete.titre
@@ -307,6 +310,7 @@ class AvisEnqueteService:
             sender="contact@aipress24.com",
             recipient=recipient,
             sender_mail=sender_mail,
+            sender_full_name=sender_full_name,
             title=title,
             date_rdv=date_rdv,
         )
@@ -326,6 +330,7 @@ class AvisEnqueteService:
         if expert.is_anonymous:
             return
         sender_mail = expert.email
+        sender_full_name = expert.full_name
 
         recipient = contact.journaliste.email
         title = contact.avis_enquete.titre
@@ -338,6 +343,7 @@ class AvisEnqueteService:
             sender="contact@aipress24.com",
             recipient=recipient,
             sender_mail=sender_mail,
+            sender_full_name=sender_full_name,
             title=title,
             date_rdv=date_rdv,
         )
@@ -448,6 +454,7 @@ class AvisEnqueteService:
             sender: The journalist sending the avis
         """
         sender_mail = sender.email
+        sender_full_name = sender.full_name
         organisation = sender.organisation
         org_name = organisation.name if organisation else "inconnue"
 
@@ -456,6 +463,7 @@ class AvisEnqueteService:
                 sender="contact@aipress24.com",
                 recipient=expert.email,
                 sender_mail=sender_mail,
+                sender_full_name=sender_full_name,
                 bw_name=org_name,
                 abstract=avis.title,
             )
@@ -586,6 +594,7 @@ class AvisEnqueteService:
         if journaliste.is_anonymous:
             return
         sender_mail = journaliste.email
+        sender_full_name = journaliste.full_name
 
         recipient = contact.expert.email
         title = contact.avis_enquete.titre
@@ -611,6 +620,7 @@ class AvisEnqueteService:
             sender="contact@aipress24.com",
             recipient=recipient,
             sender_mail=sender_mail,
+            sender_full_name=sender_full_name,
             title=title,
             notes=notes,
             proposed_slots=proposed_slots,
@@ -661,6 +671,7 @@ class AvisEnqueteService:
         if expert.is_anonymous:
             return
         sender_mail = expert.email
+        sender_full_name = expert.full_name
 
         recipient = contact.journaliste.email
         title = contact.avis_enquete.titre
@@ -674,6 +685,7 @@ class AvisEnqueteService:
             sender="contact@aipress24.com",
             recipient=recipient,
             sender_mail=sender_mail,
+            sender_full_name=sender_full_name,
             title=title,
             notes=notes,
             date_rdv=date_rdv,
