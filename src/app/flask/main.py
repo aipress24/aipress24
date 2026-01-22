@@ -2,8 +2,15 @@
 # Copyright (c) 2021-2024, Abilian SAS & TCA
 #
 # SPDX-License-Identifier: AGPL-3.0-only
+#
+# ruff: noqa: E402  # warnings filter must be set before other imports
 
 from __future__ import annotations
+
+import warnings
+
+# Suppress deprecation warning from passlib using pkg_resources
+warnings.filterwarnings("ignore", message="pkg_resources is deprecated")
 
 import os
 import time
@@ -22,6 +29,7 @@ from werkzeug.utils import find_modules, import_string
 from app.blueprints.ontology import ontology_bp
 from app.flask import services
 from app.flask.cli.bootstrap import bootstrap
+from app.flask.cli.roles import register_roles_commands, register_users_commands
 from app.flask.config import setup_config
 from app.flask.extensions import db, register_extensions
 from app.flask.hooks import register_hooks
@@ -98,6 +106,8 @@ def register_all(app: Flask) -> None:
 
     # Register CLI commands
     register_commands(app)
+    register_roles_commands(app)
+    register_users_commands(app)
 
     # Register services on the svcs container
     services.register_services(app)
