@@ -78,6 +78,7 @@ def send_avis_enquete_acceptance_email(
     if expert.is_anonymous:
         return
     sender_mail = expert.email
+    sender_full_name = expert.full_name
 
     recipient = contact.journaliste.email
     title = contact.avis_enquete.titre
@@ -87,6 +88,7 @@ def send_avis_enquete_acceptance_email(
         sender="contact@aipress24.com",
         recipient=recipient,
         sender_mail=sender_mail,  # expert
+        sender_full_name=sender_full_name,
         title=title,  # avis title
         response=response,
         notes=notes,

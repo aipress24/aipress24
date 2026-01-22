@@ -24,6 +24,7 @@ def test_bw_invitation_mail():
             sender="contact@aipress24.com",
             recipient="test@example.com",
             sender_mail="sender@example.com",
+            sender_full_name="John Doe",
             bw_name="Test BW",
         )
         invit_mail.send()
@@ -35,6 +36,7 @@ def test_bw_invitation_mail():
         assert kwargs["subject"] == "[Aipress24] Invitation to join AiPRESS24"
         assert "Test BW" in kwargs["body"]
         assert "sender@example.com" in kwargs["body"]
+        assert "John Doe" in kwargs["body"]
 
 
 def test_avis_enquete_notification_mail():
@@ -43,6 +45,7 @@ def test_avis_enquete_notification_mail():
             sender="contact@aipress24.com",
             recipient="expert@example.com",
             sender_mail="journalist@example.com",
+            sender_full_name="John Doe",
             bw_name="Test Organization",
             abstract="Abstract for the avis enquete.",
         )
@@ -59,6 +62,7 @@ def test_avis_enquete_notification_mail():
         assert "Test Organization" in kwargs["body"]
         assert "journalist@example.com" in kwargs["body"]
         assert "Abstract for the avis enquete." in kwargs["body"]
+        assert "John Doe" in kwargs["body"]
 
 
 def test_contact_avis_enquete_acceptance_mail():
@@ -67,6 +71,7 @@ def test_contact_avis_enquete_acceptance_mail():
             sender="contact@aipress24.com",
             recipient="journalist@example.com",
             sender_mail="expert@example.com",
+            sender_full_name="John Doe",
             title="title avis enquete",
             response="oui",
             notes="some notes",
@@ -82,6 +87,7 @@ def test_contact_avis_enquete_acceptance_mail():
         assert "title avis enquete" in kwargs["body"]
         assert "oui" in kwargs["body"]
         assert "some notes" in kwargs["body"]
+        assert "John Doe" in kwargs["body"]
 
 
 def test_contact_avis_enquete_rdv_proposal_mail():
@@ -92,6 +98,7 @@ def test_contact_avis_enquete_rdv_proposal_mail():
             sender="contact@aipress24.com",
             recipient="expert@example.com",
             sender_mail="journalist@example.com",
+            sender_full_name="John Doe",
             title="title avis enquete",
             notes="some notes",
             proposed_slots=slots,
@@ -114,6 +121,7 @@ def test_contact_avis_enquete_rdv_proposal_mail():
             assert item in kwargs["body"]
         assert "téléphone" in kwargs["body"]
         assert "some info" in kwargs["body"]
+        assert "John Doe" in kwargs["body"]
 
 
 def test_contact_avis_enquete_rdv_accepted_mail():
@@ -122,6 +130,7 @@ def test_contact_avis_enquete_rdv_accepted_mail():
             sender="contact@aipress24.com",
             recipient="journalist@example.com",
             sender_mail="expert@example.com",
+            sender_full_name="John Doe",
             title="title avis enquete",
             notes="some notes",
             date_rdv="some date",
@@ -137,6 +146,7 @@ def test_contact_avis_enquete_rdv_accepted_mail():
         assert "title avis enquete" in kwargs["body"]
         assert "some notes" in kwargs["body"]
         assert "some date" in kwargs["body"]
+        assert "John Doe" in kwargs["body"]
 
 
 def test_contact_avis_enquete_rdv_confirm_mail():
@@ -145,6 +155,7 @@ def test_contact_avis_enquete_rdv_confirm_mail():
             sender="contact@aipress24.com",
             recipient="expert@example.com",
             sender_mail="journalist@example.com",
+            sender_full_name="John Doe",
             title="title avis enquete",
             notes="some notes",
             rdv_type="téléphone",
@@ -164,6 +175,7 @@ def test_contact_avis_enquete_rdv_confirm_mail():
         assert "téléphone" in kwargs["body"]
         assert "téléphone" in kwargs["body"]
         assert "some date" in kwargs["body"]
+        assert "John Doe" in kwargs["body"]
 
 
 def test_contact_avis_enquete_rdv_cancel_journalist_mail():
@@ -172,6 +184,7 @@ def test_contact_avis_enquete_rdv_cancel_journalist_mail():
             sender="contact@aipress24.com",
             recipient="expert@example.com",
             sender_mail="journalist@example.com",
+            sender_full_name="John Doe",
             title="title avis enquete",
             date_rdv="some date",
         )
@@ -185,6 +198,7 @@ def test_contact_avis_enquete_rdv_cancel_journalist_mail():
         assert "journalist@example.com" in kwargs["body"]
         assert "title avis enquete" in kwargs["body"]
         assert "some date" in kwargs["body"]
+        assert "John Doe" in kwargs["body"]
 
 
 def test_contact_avis_enquete_rdv_cancel_expert_mail():
@@ -193,6 +207,7 @@ def test_contact_avis_enquete_rdv_cancel_expert_mail():
             sender="contact@aipress24.com",
             recipient="journalist@example.com",
             sender_mail="expert@example.com",
+            sender_full_name="John Doe",
             title="title avis enquete",
             date_rdv="some date",
         )
@@ -206,3 +221,4 @@ def test_contact_avis_enquete_rdv_cancel_expert_mail():
         assert "expert@example.com" in kwargs["body"]
         assert "title avis enquete" in kwargs["body"]
         assert "some date" in kwargs["body"]
+        assert "John Doe" in kwargs["body"]
