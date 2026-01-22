@@ -443,6 +443,7 @@ class AvisEnqueteService:
         self,
         avis: AvisEnquete,
         experts: list[User],
+        urls: list[str],
         sender: User,
     ) -> None:
         """
@@ -458,7 +459,7 @@ class AvisEnqueteService:
         organisation = sender.organisation
         org_name = organisation.name if organisation else "inconnue"
 
-        for expert in experts:
+        for expert, url in zip(experts, urls, strict=True):
             notification_mail = AvisEnqueteNotificationMail(
                 sender="contact@aipress24.com",
                 recipient=expert.email,
@@ -466,6 +467,7 @@ class AvisEnqueteService:
                 sender_full_name=sender_full_name,
                 bw_name=org_name,
                 abstract=avis.title,
+                url=url,
             )
             notification_mail.send()
 

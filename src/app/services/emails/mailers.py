@@ -50,6 +50,7 @@ class AvisEnqueteNotificationMail(EmailTemplate):
         - sender_full_name (str): user.full_name (user sending mail), journalist, informative.
         - bw_name (str): organisation.name, name of inviting organasation.
         - abstract: (str): some information about the AvisEnquete.
+        - url: (str): URL of the opportunity web page.
 
     Usage:
         notification_mail = AvisEnqueteNotificationMail(
@@ -59,6 +60,7 @@ class AvisEnqueteNotificationMail(EmailTemplate):
             sender_full_name=sender_full_name,
             bw_name=bw_name,
             abstract=avis.abstract
+            url=url
         )
         notification_mail.send()
     """
@@ -68,6 +70,7 @@ class AvisEnqueteNotificationMail(EmailTemplate):
     bw_name: str
     abstract: str
     sender_full_name: str
+    url: str
 
 
 @dataclass(kw_only=True)
