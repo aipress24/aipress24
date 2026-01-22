@@ -7,7 +7,15 @@ from __future__ import annotations
 from datetime import datetime
 from typing import TYPE_CHECKING, cast
 
-from flask import Flask, Response, flash, redirect, render_template, request
+from flask import (
+    Flask,
+    Response,
+    current_app,
+    flash,
+    redirect,
+    render_template,
+    request,
+)
 from flask_classful import route
 from flask_login import current_user
 from flask_super.registry import register
@@ -40,6 +48,7 @@ from ._table import BaseTable
 
 if TYPE_CHECKING:
     from app.models.auth import User
+    from app.modules.wip.models import ContactAvisEnquete
 
 
 class AvisEnqueteTable(BaseTable):
@@ -106,6 +115,21 @@ class AvisEnqueteWipView(BaseWipView):
     msg_delete_ok = "L'avis d'enquête a été supprimé"
     msg_delete_ko = "Vous n'êtes pas autorisé à supprimer cet avis d'enquête"
 
+    def _build_opportunity_url(self, contact: ContactAvisEnquete) -> str:
+        domain = str(current_app.config.get("SERVER_NAME"))
+        if domain.startswith("127."):
+            protocol = "http"
+        else:
+            protocol = "https"
+        # url = str(url_for("wip.media_opportunity", id=contact.id, _external=True))
+        url = str(url_for("wip.media_opportunity", id=contact.id))
+        return f"{protocol}://{domain}{url}"
+
+    def _build_opportunities_urls(
+        self, contacts: list[ContactAvisEnquete]
+    ) -> list[str]:
+        return [self._build_opportunity_url(c) for c in contacts]
+
     @route("/<id>/ciblage", methods=["GET", "POST"])
     def ciblage(self, id: str | int):
         model: AvisEnquete = self._get_model(id)
@@ -128,9 +152,14 @@ class AvisEnqueteWipView(BaseWipView):
                 if nb_new_experts > 0:
                     model.status = PublicationStatus.PUBLIC
                     sender = cast("User", current_user)
-                    avis_service.store_contacts(model, new_experts)
+                    contacts: list[ContactAvisEnquete] = avis_service.store_contacts(
+                        model, new_experts
+                    )
+                    urls = self._build_opportunities_urls(contacts)
                     avis_service.notify_experts(model, new_experts, "#TODO")
-                    avis_service.send_avis_enquete_emails(model, new_experts, sender)
+                    avis_service.send_avis_enquete_emails(
+                        model, new_experts, urls, sender
+                    )
                     avis_service.commit()
                     if nb_new_experts > 1:
                         msg = f"Avis d'enquête envoyé aux {len(new_experts)} contacts sélectionnés"
@@ -368,7 +397,7 @@ class AvisEnqueteWipView(BaseWipView):
         )
 
     @route("/<id>/rdv-accept/<contact_id>", methods=["GET", "POST"])
-    def rdv_accept(self, id, contact_id):
+    def rdv_accept(self, id, contact_id):  # noqa: PLR0915
         """Expert view to accept a proposed RDV slot."""
         model = self._get_model(id)
         service = AvisEnqueteService()
