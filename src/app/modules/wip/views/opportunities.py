@@ -55,6 +55,13 @@ def opportunities():
 @blueprint.route("/opportunities/<int:id>")
 def media_opportunity(id: int):
     """Opportunité média"""
+    from app.modules.wip.models import ContactAvisEnqueteRepository
+
+    repo = container.get(ContactAvisEnqueteRepository)
+    contact = repo.get(id)
+    if g.user.id != contact.expert_id:
+        return ""
+
     html = _render_media_opportunity(id)
     html = extract_fragment(html, id="form")
     return html
