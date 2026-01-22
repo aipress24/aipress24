@@ -58,6 +58,9 @@ Complete email notification chain for RDV workflow:
 - Refactored to use dataclasses for mailer templates
 - Added recipient and sender to mailer context
 - Cleaner template rendering with structured data
+- Renamed attribute `sender_name` → `sender_mail` for clarity
+- Added `sender_full_name` field to all mail templates
+- Opportunity URL now included in proposal emails
 
 ## Expert Filter Service
 
@@ -74,11 +77,11 @@ Complete email notification chain for RDV workflow:
 - Selectors now properly synchronized with backend state
 - Ciblage list properly empty for new AvisEnquete instances
 
-## CLI Reorganization
+## CLI Improvements
+
+### Command Reorganization
 
 Reduced Flask CLI commands from 29 to 21 top-level entries by grouping related commands.
-
-### New Command Groups
 
 | Group | Commands |
 |-------|----------|
@@ -97,6 +100,21 @@ flask dev check --full         # was: flask check --full
 flask fix roles                # was: flask fix-roles
 ```
 
+### New List Commands
+
+Added list commands for Flask-Security groups:
+
+- `flask roles list` - Display all available roles in a formatted table
+- `flask users list` - List users with email, name, status, and roles
+  - `--active` (default): show only active users
+  - `--all`: show all users including inactive
+  - `--limit N`: limit output (default 50)
+
+### Console Cleanup
+
+- Suppressed `pkg_resources` deprecation warning from passlib
+- Removed "Configuring logging" message on startup
+
 ## Bug Fixes
 
 - **Table Pagination**: Fixed WIP module Table pagination to match admin/table.py behavior
@@ -104,6 +122,7 @@ flask fix roles                # was: flask fix-roles
 - **RDV Dates**: Fixed handling of naive dates (now default to UTC)
 - **Mail Order**: Cancellation mail now sent before state update
 - **Null Check**: Verify `contact.date_rdv` is not None before mail notification
+- **Opportunity Access**: Access to opportunity page now restricted to the expert only
 
 ## Testing
 
@@ -120,9 +139,14 @@ flask fix roles                # was: flask fix-roles
 
 - Fixed `test_expert_accept_rdv_submission()`
 - Fixed `tests/c_e2e/modules/wip/newsroom/test_rdv_workflow_e2e.py`
+- Fixed `test_avis_enquete_notification_mail()`
+
+### Test Configuration
+
+- Bumped `EMAILS_MAX_SENT_LAST_PERIOD` from 20 to 200 for development tests
 
 ## Infrastructure
 
-- CI configuration updates
+- CI configuration updates (Alpine build profile aligned with Ubuntu/Rocky)
 - Type checker (ty) configuration tweaks
 - Dependency updates
