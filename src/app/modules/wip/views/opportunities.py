@@ -77,7 +77,7 @@ def send_avis_enquete_acceptance_email(
     expert = cast(User, current_user)
     if expert.is_anonymous:
         return
-    sender_name = expert.email
+    sender_mail = expert.email
 
     recipient = contact.journaliste.email
     title = contact.avis_enquete.titre
@@ -86,7 +86,7 @@ def send_avis_enquete_acceptance_email(
     notification_mail = ContactAvisEnqueteAcceptanceMail(
         sender="contact@aipress24.com",
         recipient=recipient,
-        sender_name=sender_name,  # expert
+        sender_mail=sender_mail,  # expert
         title=title,  # avis title
         response=response,
         notes=notes,

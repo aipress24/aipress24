@@ -17,14 +17,14 @@ class BWInvitationMail(EmailTemplate):
     Args:
         - sender (str): mail of actual sender, usually "contact@aipress24.com".
         - recipient (str): mail of recipient.
-        - sender_name (str): user.email (user sending mail), informative.
+        - sender_mail (str): user.email (user sending mail), informative.
         - bw_name (str): organisation.name, name of inviting organisation.
 
     Usage:
         invit_mail = BWInvitationMail(
             sender="contact@aipress24.com",
             recipient=mail,
-            sender_name=sender_name,
+            sender_mail=sender_mail,
             bw_name=bw_name,
         )
         invit_mail.send()
@@ -43,7 +43,7 @@ class AvisEnqueteNotificationMail(EmailTemplate):
     Args:
         - sender (str): mail of actual sender, usually "contact@aipress24.com".
         - recipient (str): mail of recipient.
-        - sender_name (str): user.email (user sending mail), journalist, informative.
+        - sender_mail (str): user.email (user sending mail), journalist, informative.
         - bw_name (str): organisation.name, name of inviting organasation.
         - abstract: (str): some information about the AvisEnquete.
 
@@ -51,7 +51,7 @@ class AvisEnqueteNotificationMail(EmailTemplate):
         notification_mail = AvisEnqueteNotificationMail(
             sender="contact@aipress24.com",
             recipient=mail,
-            sender_name=sender_name,
+            sender_mail=sender_mail,
             bw_name=bw_name,
             abstract=avis.abstract
         )
@@ -72,7 +72,7 @@ class ContactAvisEnqueteAcceptanceMail(EmailTemplate):
     Args:
         - sender (str): mail of actual sender, usually "contact@aipress24.com".
         - recipient (str): mail of recipient, the journalist.
-        - sender_name (str): user.email (expert sending mail), informative.
+        - sender_mail (str): user.email (expert sending mail), informative.
         - title (str): Title of the Avis d' Enquete.
         - response (str): "oui", "non", "non-mais".
         - notes: (str): some expert's notes about the response.
@@ -81,7 +81,7 @@ class ContactAvisEnqueteAcceptanceMail(EmailTemplate):
         notification_mail = ContactAvisEnqueteAcceptanceMail(
             sender="contact@aipress24.com",
             recipient=mail,
-            sender_name=sender_name,
+            sender_mail=sender_mail,
             title=title,
             response=response,
             notes=notes
@@ -104,7 +104,7 @@ class ContactAvisEnqueteRDVProposalMail(EmailTemplate):
     Args:
         - sender (str): mail of actual sender, usually "contact@aipress24.com".
         - recipient (str): mail of recipient, the expert.
-        - sender_name (str): user.email (expert sending mail), journalist, informative.
+        - sender_mail (str): user.email (expert sending mail), journalist, informative.
         - title (str): Title of the Avis d' Enquete.
         - notes: (str): some journalist's notes about the RDV.
         - proposed_slots: (list[str]): list of proposed dates.
@@ -115,7 +115,7 @@ class ContactAvisEnqueteRDVProposalMail(EmailTemplate):
         notification_mail = ContactAvisEnqueteRDVProposalMail(
             sender="contact@aipress24.com",
             recipient=recipient,
-            sender_name=sender_name,
+            sender_mail=sender_mail,
             title=title,
             notes=notes,
             proposed_slots=proposed_slots,
@@ -142,7 +142,7 @@ class ContactAvisEnqueteRDVAcceptedMail(EmailTemplate):
     Args:
         - sender (str): mail of actual sender, usually "contact@aipress24.com".
         - recipient (str): mail of recipient, the journalist.
-        - sender_name (str): user.email (expert sending mail), informative.
+        - sender_mail (str): user.email (expert sending mail), informative.
         - title (str): Title of the Avis d' Enquete.
         - notes (str): some expert's notes about the RDV.
         - date_rdv (str): date of the accepted RDV.
@@ -151,7 +151,7 @@ class ContactAvisEnqueteRDVAcceptedMail(EmailTemplate):
         notification_mail = ContactAvisEnqueteRDVAcceptedMail(
             sender="contact@aipress24.com",
             recipient=recipient,
-            sender_name=sender_name,
+            sender_mail=sender_mail,
             title=title,
             notes=notes,
             date_rdv=date_rdv,
@@ -174,7 +174,7 @@ class ContactAvisEnqueteRDVConfirmationMail(EmailTemplate):
     Args:
         - sender (str): mail of actual sender, usually "contact@aipress24.com".
         - recipient (str): mail of recipient, the expert.
-        - sender_name (str): user.email (expert sending mail), journalist, informative.
+        - sender_mail (str): user.email (expert sending mail), journalist, informative.
         - title (str): Title of the Avis d' Enquete.
         - notes (str): some journalist's notes about the RDV.
         - rdv_type (str): Type du RDV.
@@ -185,7 +185,7 @@ class ContactAvisEnqueteRDVConfirmationMail(EmailTemplate):
         notification_mail = ContactAvisEnqueteRDVProposalMail(
             sender="contact@aipress24.com",
             recipient=recipient,
-            sender_name=sender_name,
+            sender_mail=sender_mail,
             title=title,
             notes=notes,
             rdv_type=rdv_type,
@@ -212,7 +212,7 @@ class ContactAvisEnqueteRDVCancelledJournalistMail(EmailTemplate):
     Args:
         - sender (str): mail of actual sender, usually "contact@aipress24.com".
         - recipient (str): mail of recipient, the expert.
-        - sender_name (str): user.email (journalist sending mail), informative.
+        - sender_mail (str): user.email (journalist sending mail), informative.
         - title (str): Title of the Avis d' Enquete.
         - date_rdv (str): date of the cancelled RDV.
 
@@ -220,7 +220,7 @@ class ContactAvisEnqueteRDVCancelledJournalistMail(EmailTemplate):
         notification_mail = ContactAvisEnqueteRDVCancelledMail(
             sender="contact@aipress24.com",
             recipient=recipient,
-            sender_name=sender_name,
+            sender_mail=sender_mail,
             title=title,
             date_rdv=date_rdv,
         )
@@ -241,7 +241,7 @@ class ContactAvisEnqueteRDVCancelledExpertMail(EmailTemplate):
     Args:
         - sender (str): mail of actual sender, usually "contact@aipress24.com".
         - recipient (str): mail of recipient, the journalist.
-        - sender_name (str): user.email (expert sending mail), informative.
+        - sender_mail (str): user.email (expert sending mail), informative.
         - title (str): Title of the Avis d' Enquete.
         - date_rdv (str): date of the cancelled RDV.
 
@@ -249,7 +249,7 @@ class ContactAvisEnqueteRDVCancelledExpertMail(EmailTemplate):
         notification_mail = ContactAvisEnqueteRDVCancelledExpertMail(
             sender="contact@aipress24.com",
             recipient=recipient,
-            sender_name=sender_name,
+            sender_mail=sender_mail,
             title=title,
             date_rdv=date_rdv,
         )

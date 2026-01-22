@@ -246,7 +246,7 @@ class AvisEnqueteService:
         journaliste = contact.journaliste
         if journaliste.is_anonymous:
             return
-        sender_name = journaliste.email
+        sender_mail = journaliste.email
 
         recipient = contact.expert.email
         title = contact.avis_enquete.titre
@@ -272,7 +272,7 @@ class AvisEnqueteService:
         notification_mail = ContactAvisEnqueteRDVConfirmationMail(
             sender="contact@aipress24.com",
             recipient=recipient,
-            sender_name=sender_name,
+            sender_mail=sender_mail,
             title=title,
             notes=notes,
             rdv_type=rdv_type,
@@ -294,7 +294,7 @@ class AvisEnqueteService:
         journaliste = contact.journaliste
         if journaliste.is_anonymous:
             return
-        sender_name = journaliste.email
+        sender_mail = journaliste.email
 
         recipient = contact.expert.email
         title = contact.avis_enquete.titre
@@ -306,7 +306,7 @@ class AvisEnqueteService:
         notification_mail = ContactAvisEnqueteRDVCancelledJournalistMail(
             sender="contact@aipress24.com",
             recipient=recipient,
-            sender_name=sender_name,
+            sender_mail=sender_mail,
             title=title,
             date_rdv=date_rdv,
         )
@@ -325,7 +325,7 @@ class AvisEnqueteService:
         expert = contact.expert
         if expert.is_anonymous:
             return
-        sender_name = expert.email
+        sender_mail = expert.email
 
         recipient = contact.journaliste.email
         title = contact.avis_enquete.titre
@@ -337,7 +337,7 @@ class AvisEnqueteService:
         notification_mail = ContactAvisEnqueteRDVCancelledExpertMail(
             sender="contact@aipress24.com",
             recipient=recipient,
-            sender_name=sender_name,
+            sender_mail=sender_mail,
             title=title,
             date_rdv=date_rdv,
         )
@@ -447,7 +447,7 @@ class AvisEnqueteService:
             experts: List of experts to email
             sender: The journalist sending the avis
         """
-        sender_name = sender.email
+        sender_mail = sender.email
         organisation = sender.organisation
         org_name = organisation.name if organisation else "inconnue"
 
@@ -455,7 +455,7 @@ class AvisEnqueteService:
             notification_mail = AvisEnqueteNotificationMail(
                 sender="contact@aipress24.com",
                 recipient=expert.email,
-                sender_name=sender_name,
+                sender_mail=sender_mail,
                 bw_name=org_name,
                 abstract=avis.title,
             )
@@ -585,7 +585,7 @@ class AvisEnqueteService:
         journaliste = contact.journaliste
         if journaliste.is_anonymous:
             return
-        sender_name = journaliste.email
+        sender_mail = journaliste.email
 
         recipient = contact.expert.email
         title = contact.avis_enquete.titre
@@ -610,7 +610,7 @@ class AvisEnqueteService:
         notification_mail = ContactAvisEnqueteRDVProposalMail(
             sender="contact@aipress24.com",
             recipient=recipient,
-            sender_name=sender_name,
+            sender_mail=sender_mail,
             title=title,
             notes=notes,
             proposed_slots=proposed_slots,
@@ -660,7 +660,7 @@ class AvisEnqueteService:
         expert = contact.expert
         if expert.is_anonymous:
             return
-        sender_name = expert.email
+        sender_mail = expert.email
 
         recipient = contact.journaliste.email
         title = contact.avis_enquete.titre
@@ -673,7 +673,7 @@ class AvisEnqueteService:
         notification_mail = ContactAvisEnqueteRDVAcceptedMail(
             sender="contact@aipress24.com",
             recipient=recipient,
-            sender_name=sender_name,
+            sender_mail=sender_mail,
             title=title,
             notes=notes,
             date_rdv=date_rdv,
