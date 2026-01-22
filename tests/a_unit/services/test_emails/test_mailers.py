@@ -48,6 +48,7 @@ def test_avis_enquete_notification_mail():
             sender_full_name="John Doe",
             bw_name="Test Organization",
             abstract="Abstract for the avis enquete.",
+            url="https://example.com",
         )
         notification_mail.send()
 
@@ -63,6 +64,7 @@ def test_avis_enquete_notification_mail():
         assert "journalist@example.com" in kwargs["body"]
         assert "Abstract for the avis enquete." in kwargs["body"]
         assert "John Doe" in kwargs["body"]
+        assert "https://example.com" in kwargs["body"]
 
 
 def test_contact_avis_enquete_acceptance_mail():
