@@ -55,6 +55,13 @@ def opportunities():
 @blueprint.route("/opportunities/<int:id>")
 def media_opportunity(id: int):
     """Opportunité média"""
+    from app.modules.wip.models import ContactAvisEnqueteRepository
+
+    repo = container.get(ContactAvisEnqueteRepository)
+    contact = repo.get(id)
+    if g.user.id != contact.expert_id:
+        return ""
+
     html = _render_media_opportunity(id)
     html = extract_fragment(html, id="form")
     return html
@@ -77,7 +84,8 @@ def send_avis_enquete_acceptance_email(
     expert = cast(User, current_user)
     if expert.is_anonymous:
         return
-    sender_name = expert.email
+    sender_mail = expert.email
+    sender_full_name = expert.full_name
 
     recipient = contact.journaliste.email
     title = contact.avis_enquete.titre
@@ -86,7 +94,8 @@ def send_avis_enquete_acceptance_email(
     notification_mail = ContactAvisEnqueteAcceptanceMail(
         sender="contact@aipress24.com",
         recipient=recipient,
-        sender_name=sender_name,  # expert
+        sender_mail=sender_mail,  # expert
+        sender_full_name=sender_full_name,
         title=title,  # avis title
         response=response,
         notes=notes,
