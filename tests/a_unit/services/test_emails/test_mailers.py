@@ -23,7 +23,7 @@ def test_bw_invitation_mail():
         invit_mail = BWInvitationMail(
             sender="contact@aipress24.com",
             recipient="test@example.com",
-            sender_name="sender@example.com",
+            sender_mail="sender@example.com",
             bw_name="Test BW",
         )
         invit_mail.send()
@@ -42,7 +42,7 @@ def test_avis_enquete_notification_mail():
         notification_mail = AvisEnqueteNotificationMail(
             sender="contact@aipress24.com",
             recipient="expert@example.com",
-            sender_name="journalist@example.com",
+            sender_mail="journalist@example.com",
             bw_name="Test Organization",
             abstract="Abstract for the avis enquete.",
         )
@@ -66,7 +66,7 @@ def test_contact_avis_enquete_acceptance_mail():
         accept_mail = ContactAvisEnqueteAcceptanceMail(
             sender="contact@aipress24.com",
             recipient="journalist@example.com",
-            sender_name="expert@example.com",
+            sender_mail="expert@example.com",
             title="title avis enquete",
             response="oui",
             notes="some notes",
@@ -91,7 +91,7 @@ def test_contact_avis_enquete_rdv_proposal_mail():
         rdv_prop_mail = ContactAvisEnqueteRDVProposalMail(
             sender="contact@aipress24.com",
             recipient="expert@example.com",
-            sender_name="journalist@example.com",
+            sender_mail="journalist@example.com",
             title="title avis enquete",
             notes="some notes",
             proposed_slots=slots,
@@ -121,7 +121,7 @@ def test_contact_avis_enquete_rdv_accepted_mail():
         rdv_acc_mail = ContactAvisEnqueteRDVAcceptedMail(
             sender="contact@aipress24.com",
             recipient="journalist@example.com",
-            sender_name="expert@example.com",
+            sender_mail="expert@example.com",
             title="title avis enquete",
             notes="some notes",
             date_rdv="some date",
@@ -144,7 +144,7 @@ def test_contact_avis_enquete_rdv_confirm_mail():
         rdv_conf_mail = ContactAvisEnqueteRDVConfirmationMail(
             sender="contact@aipress24.com",
             recipient="expert@example.com",
-            sender_name="journalist@example.com",
+            sender_mail="journalist@example.com",
             title="title avis enquete",
             notes="some notes",
             rdv_type="téléphone",
@@ -171,7 +171,7 @@ def test_contact_avis_enquete_rdv_cancel_journalist_mail():
         cancel_mail = ContactAvisEnqueteRDVCancelledJournalistMail(
             sender="contact@aipress24.com",
             recipient="expert@example.com",
-            sender_name="journalist@example.com",
+            sender_mail="journalist@example.com",
             title="title avis enquete",
             date_rdv="some date",
         )
@@ -192,7 +192,7 @@ def test_contact_avis_enquete_rdv_cancel_expert_mail():
         cancel_mail = ContactAvisEnqueteRDVCancelledExpertMail(
             sender="contact@aipress24.com",
             recipient="journalist@example.com",
-            sender_name="expert@example.com",
+            sender_mail="expert@example.com",
             title="title avis enquete",
             date_rdv="some date",
         )
