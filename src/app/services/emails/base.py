@@ -21,7 +21,7 @@ from .email_limiter import count_recipient_mails, is_email_sending_allowed
 class EmailTemplate:
     sender: str
     recipient: str
-    sender_name: str
+    sender_mail: str
     subject: str = ""
     template_md: str = ""
     template_html: str = ""
@@ -46,7 +46,7 @@ class EmailTemplate:
         return ", ".join(
             [
                 f"sender: {self.sender!r}",
-                f"sender_name: {self.sender_name!r}",
+                f"sender_mail: {self.sender_mail!r}",
                 f"recipient: {self.recipient!r}",
                 f"subject: {self.subject!r}",
             ]

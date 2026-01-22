@@ -246,7 +246,8 @@ class AvisEnqueteService:
         journaliste = contact.journaliste
         if journaliste.is_anonymous:
             return
-        sender_name = journaliste.email
+        sender_mail = journaliste.email
+        sender_full_name = journaliste.full_name
 
         recipient = contact.expert.email
         title = contact.avis_enquete.titre
@@ -272,7 +273,8 @@ class AvisEnqueteService:
         notification_mail = ContactAvisEnqueteRDVConfirmationMail(
             sender="contact@aipress24.com",
             recipient=recipient,
-            sender_name=sender_name,
+            sender_mail=sender_mail,
+            sender_full_name=sender_full_name,
             title=title,
             notes=notes,
             rdv_type=rdv_type,
@@ -294,7 +296,8 @@ class AvisEnqueteService:
         journaliste = contact.journaliste
         if journaliste.is_anonymous:
             return
-        sender_name = journaliste.email
+        sender_mail = journaliste.email
+        sender_full_name = journaliste.full_name
 
         recipient = contact.expert.email
         title = contact.avis_enquete.titre
@@ -306,7 +309,8 @@ class AvisEnqueteService:
         notification_mail = ContactAvisEnqueteRDVCancelledJournalistMail(
             sender="contact@aipress24.com",
             recipient=recipient,
-            sender_name=sender_name,
+            sender_mail=sender_mail,
+            sender_full_name=sender_full_name,
             title=title,
             date_rdv=date_rdv,
         )
@@ -325,7 +329,8 @@ class AvisEnqueteService:
         expert = contact.expert
         if expert.is_anonymous:
             return
-        sender_name = expert.email
+        sender_mail = expert.email
+        sender_full_name = expert.full_name
 
         recipient = contact.journaliste.email
         title = contact.avis_enquete.titre
@@ -337,7 +342,8 @@ class AvisEnqueteService:
         notification_mail = ContactAvisEnqueteRDVCancelledExpertMail(
             sender="contact@aipress24.com",
             recipient=recipient,
-            sender_name=sender_name,
+            sender_mail=sender_mail,
+            sender_full_name=sender_full_name,
             title=title,
             date_rdv=date_rdv,
         )
@@ -437,6 +443,7 @@ class AvisEnqueteService:
         self,
         avis: AvisEnquete,
         experts: list[User],
+        urls: list[str],
         sender: User,
     ) -> None:
         """
@@ -447,17 +454,20 @@ class AvisEnqueteService:
             experts: List of experts to email
             sender: The journalist sending the avis
         """
-        sender_name = sender.email
+        sender_mail = sender.email
+        sender_full_name = sender.full_name
         organisation = sender.organisation
         org_name = organisation.name if organisation else "inconnue"
 
-        for expert in experts:
+        for expert, url in zip(experts, urls, strict=True):
             notification_mail = AvisEnqueteNotificationMail(
                 sender="contact@aipress24.com",
                 recipient=expert.email,
-                sender_name=sender_name,
+                sender_mail=sender_mail,
+                sender_full_name=sender_full_name,
                 bw_name=org_name,
                 abstract=avis.title,
+                url=url,
             )
             notification_mail.send()
 
@@ -585,7 +595,8 @@ class AvisEnqueteService:
         journaliste = contact.journaliste
         if journaliste.is_anonymous:
             return
-        sender_name = journaliste.email
+        sender_mail = journaliste.email
+        sender_full_name = journaliste.full_name
 
         recipient = contact.expert.email
         title = contact.avis_enquete.titre
@@ -610,7 +621,8 @@ class AvisEnqueteService:
         notification_mail = ContactAvisEnqueteRDVProposalMail(
             sender="contact@aipress24.com",
             recipient=recipient,
-            sender_name=sender_name,
+            sender_mail=sender_mail,
+            sender_full_name=sender_full_name,
             title=title,
             notes=notes,
             proposed_slots=proposed_slots,
@@ -660,7 +672,8 @@ class AvisEnqueteService:
         expert = contact.expert
         if expert.is_anonymous:
             return
-        sender_name = expert.email
+        sender_mail = expert.email
+        sender_full_name = expert.full_name
 
         recipient = contact.journaliste.email
         title = contact.avis_enquete.titre
@@ -673,7 +686,8 @@ class AvisEnqueteService:
         notification_mail = ContactAvisEnqueteRDVAcceptedMail(
             sender="contact@aipress24.com",
             recipient=recipient,
-            sender_name=sender_name,
+            sender_mail=sender_mail,
+            sender_full_name=sender_full_name,
             title=title,
             notes=notes,
             date_rdv=date_rdv,
