@@ -1,3 +1,4 @@
+"""CLI commands for development and debugging."""
 # Copyright (c) 2021-2024, Abilian SAS & TCA
 #
 # SPDX-License-Identifier: AGPL-3.0-only
@@ -5,50 +6,32 @@
 from __future__ import annotations
 
 import operator
-import os
-import shlex
-import subprocess
 from importlib.metadata import distributions
 from pathlib import Path
 from typing import cast
 
 import click
 import rich
-import sqlalchemy.exc
-import yarl
-from cleez.colors import blue, green
+from cleez.colors import blue
 from flask import current_app
 from flask.cli import with_appcontext
 from flask_mailman import EmailMessage
-from flask_super.cli import command
+from flask_super.cli import command, group
 from sqlalchemy import text
 
-from app.flask.extensions import db
-from app.flask.lib.pywire import get_components
+from app.flask.lib.pywire import component_registry, get_components
+from app.lib.names import to_kebab_case
 from app.services.healthcheck import healthcheck
 
 
-@command(short_help="Show config")
+@group(short_help="Development & debugging tools")
+def dev() -> None:
+    """Commands for development inspection and debugging."""
+
+
+@dev.command("debug", short_help="Show debug information")
 @with_appcontext
-def config() -> None:
-    config_ = dict(sorted(current_app.config.items()))
-    print("CONFIG:\n")
-    for k, v in config_.items():
-        try:
-            print(f"{k}: {v}")
-        except Exception as e:
-            print(f"{k}: {e}")
-
-    print("\nENV:\n")
-
-    env_ = dict(sorted(os.environ.items()))
-    for k, v in env_.items():
-        print(f"{k}: {v}")
-
-
-@command(name="debug", short_help="Show debug information")
-@with_appcontext
-def _debug() -> None:
+def debug_cmd() -> None:
     rich.print(blue("List of registered components"))
     print()
     components = get_components()
@@ -65,11 +48,11 @@ def _debug() -> None:
     print()
 
 
-@command(short_help="Health check")
+@dev.command("check", short_help="Health check")
 @click.option("--db", is_flag=True)
 @click.option("--full", is_flag=True)
 @with_appcontext
-def check(db=False, full=False) -> None:
+def check_cmd(db=False, full=False) -> None:
     from app.flask.extensions import db as _db
 
     if db:
@@ -84,61 +67,24 @@ def check(db=False, full=False) -> None:
     print("Smoke test OK")
 
 
-@command("test-email", short_help="Send test email")
-def send_test_email() -> None:
-    for k in sorted(current_app.config.keys()):
-        if not k.startswith("MAIL"):
-            continue
-        print(f"{k}: {current_app.config[k]}")
-
-    message = EmailMessage(
-        subject="Flask-Mailing module",
-        to=["test@aipress24.com", "sfermigier@gmail.com"],
-        body="This is the basic email body",
-    )
-    message.send()
-
-
-@command(short_help="Load DB from a dump")
+@dev.command("components", short_help="List components")
 @with_appcontext
-def load_db() -> None:
-    try:
-        res = db.session.execute(text("select count(*) from aut_user"))
-        first_row = res.first()
-        assert first_row is not None
-        if first_row[0] > 0:
-            print("Database is not empty")
-            return
-    except sqlalchemy.exc.ProgrammingError:
-        pass
+def components_cmd() -> None:
+    print(blue("Static components:"))
+    registry1 = component_registry
+    for k, v in sorted(registry1.items()):
+        print(f"{k}: {v}")
 
-    print(green("Loading database..."))
+    print()
 
-    url = yarl.URL(current_app.config["SQLALCHEMY_DATABASE_URI"])
-    host = url.host
-    port = url.port
-    db_name = url.path[1:]
-    user = url.user
-    password = url.password
-
-    cmd = ["pg_restore", "-c", "-h", host, "-d", db_name]
-    if port:
-        cmd += ["-p", str(port)]
-    if user:
-        cmd += ["-U", user]
-    cmd += ["db/db.dump"]
-
-    env = os.environ.copy()
-    if password:
-        env["PGPASSWORD"] = password
-
-    print(shlex.join(cmd))
-    print(list(Path("db").glob("*")))
-    subprocess.run(cmd, env=env, check=True)
+    print(blue("Live components:"))
+    for component_cls in get_components().values():
+        component_name = to_kebab_case(component_cls.__name__)
+        print(f"{component_name}: {component_cls}")
 
 
-@command(short_help="List installed packages")
-def packages() -> None:
+@dev.command("packages", short_help="List installed packages")
+def packages_cmd() -> None:
     sizes = []
     for distribution in distributions():
         size = 0
@@ -160,3 +106,19 @@ def packages() -> None:
         size_str = f"{size / 1024 / 1024:.2f} MB"
         packages_info += [(size_str, name, version)]
         print(f"{size_str} {name} {version}")
+
+
+# Standalone command (not in a group)
+@command("test-email", short_help="Send test email")
+def send_test_email() -> None:
+    for k in sorted(current_app.config.keys()):
+        if not k.startswith("MAIL"):
+            continue
+        print(f"{k}: {current_app.config[k]}")
+
+    message = EmailMessage(
+        subject="Flask-Mailing module",
+        to=["test@aipress24.com", "sfermigier@gmail.com"],
+        body="This is the basic email body",
+    )
+    message.send()

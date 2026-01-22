@@ -7,7 +7,6 @@ from __future__ import annotations
 
 import subprocess
 import time
-import traceback
 from pathlib import Path
 
 from flask import current_app
@@ -22,8 +21,6 @@ from app.flask.extensions import db
 from app.models.auth import Role
 from app.models.repositories import RoleRepository
 from app.services.promotions import PromotionService
-
-from .bootstrap_user import import_user
 
 BOX_SLUGS = [
     "wire/1",
@@ -44,33 +41,11 @@ DEFAULT_DATA_URL = "https://github.com/aipress24/aipress24-data.git"
 BOOTSTRAP_DATA_PATH = Path("bootstrap_data")
 
 
-#
-# Other operational commands
-#
-@command("bootstrap-users", short_help="Bootstrap users")
-@with_appcontext
-def bootstrap_users_cmd() -> None:
-    for path in Path("users").glob("*.yaml"):
-        try:
-            user = import_user(path)
-            print(f"Imported user {user.email} from file: {path}")
-        except Exception as e:
-            print(f"Error: {e}")
-            traceback.print_exc()
-            print("Could not import user from file: ", path)
-
-
 @command("bootstrap", short_help="Bootstrap the application database")
 @with_appcontext
 def bootstrap_cmd() -> None:
     fetch_bootstrap_data()
     bootstrap()
-
-
-@command("fetch-bootstrap-data", short_help="Fetch the bootstrap data")
-@with_appcontext
-def fetch_bootstrap_data_cmd() -> None:
-    fetch_bootstrap_data()
 
 
 def fetch_bootstrap_data() -> None:
@@ -89,11 +64,11 @@ def bootstrap() -> None:
     t0 = time.time()
     import_taxonomies()
     db.session.commit()
-    print(f"Ellapsed time: {time.time() - t0:.2f} seconds")
+    print(f"Elapsed time: {time.time() - t0:.2f} seconds")
 
     import_countries()
     import_zip_codes()
-    print(f"Ellapsed time: {time.time() - t0:.2f} seconds")
+    print(f"Elapsed time: {time.time() - t0:.2f} seconds")
 
 
 def bootstrap_roles() -> None:
@@ -125,6 +100,5 @@ def bootstrap_promotions() -> None:
             title = BOX_TITLE2
 
         promo_service.store_promotion(slug=slug, title=title, body=BOX_BODY)
-        # slug=slug, title=title, body=BOX_BODY, profile=ProfileEnum.PM_DIR
 
     db.session.commit()
