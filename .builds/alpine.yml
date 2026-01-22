@@ -1,0 +1,52 @@
+# Copyright (c) 2023-2024, Abilian SAS
+#
+# SPDX-License-Identifier: BSD-3-Clause
+
+image: alpine/latest
+
+packages:
+    # Build tools
+    - build-base
+    - make
+    - gcc
+    - g++
+    # Python
+    - python3
+    - python3-dev
+    - py3-pip
+    # Libraries for databases
+    - sqlite-dev
+    - postgresql-dev
+    # Other libraries
+    - libffi-dev
+    - bzip2-dev
+    - musl-dev
+
+tasks:
+    - setup: |
+          sudo pip install --break-system-packages -U uv nox
+          cd aipress24
+          uv sync --frozen
+
+    - lint: |
+          cd aipress24
+          uv run make lint
+
+    - test: |
+          cd aipress24
+          uv run make test-sqlite
+          # TODO: test with postgresql
+
+    - nox-test: |
+          cd aipress24
+          uv run nox -e test-3.12
+          # TODO: postgres
+
+    - nox-lint: |
+          cd aipress24
+          uv run nox -e lint
+
+triggers:
+    - action: email
+      condition: failure
+      to: builds@fermigier.com
