@@ -444,6 +444,10 @@ class KYCProfile(Base):
         )
 
     @property
+    def type_entreprise_media(self) -> list[str]:
+        return self.info_professionnelle.get("type_entreprise_media", [])
+
+    @property
     def type_organisation(self) -> list[str]:
         return self.info_professionnelle.get("type_orga_detail", [])
 
