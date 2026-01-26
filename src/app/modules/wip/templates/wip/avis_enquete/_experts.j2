@@ -1,7 +1,7 @@
 {% if not experts %}
   <div id="no_experts">
     <h2 class="aui-title mt-8">
-        Aucun nouvel expert trouvé avec ces critères
+        Aucun nouveau profil trouvé avec ces critères
     </h2>
   </div>
 {% endif %}
@@ -9,13 +9,13 @@
   <div id="experts">
     <h2 class="aui-title mt-8">
       {% if experts|length == 50 %}
-        Plus de 50 experts trouvés (affichage limité à 50)
+        Plus de 50 profils trouvés (affichage limité à 50)
       {% else %}
-        Experts ({{ experts|length }} experts trouvés)
+        Profils ({{ experts|length }} profils trouvés)
       {% endif %}
     </h2>
 
-    <p class="mb-8">Choisissez les experts que vous souhaitez solliciter dans la liste suivante:</p>
+    <p class="mb-8">Choisissez les profils que vous souhaitez solliciter dans la liste suivante:</p>
 
     <form>
       <div class="overflow-x-auto">
@@ -66,11 +66,11 @@
 {% endif %}
 
 <h2 class="aui-title mt-8">
-  Experts sélectionnés ({{ selected_experts|length }})
+  Profils sélectionnés ({{ selected_experts|length }})
 </h2>
 
 {% if selected_experts %}
-  <p class="mb-8">Vous avez choisi de contacter les experts suivants:</p>
+  <p class="mb-8">Vous avez choisi de contacter les profils suivants:</p>
 
   <form id="send-ciblage-form">
     <div class="overflow-x-auto">
@@ -139,7 +139,7 @@
         <h3
           class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400"
         >
-          Êtes-vous sûr de vouloir envoyer cette demande aux experts sélectionnés ?
+          Êtes-vous sûr de vouloir envoyer cette demande aux profils sélectionnés ?
         </h3>
         <p
           class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400"
@@ -169,5 +169,5 @@
   </div>
 </div>
 {% else %}
-  <p>Vous n'avez encore sélectionné aucun expert</p>
+  <p>Vous n'avez encore sélectionné aucun profil</p>
 {% endif %}
