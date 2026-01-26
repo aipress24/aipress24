@@ -150,6 +150,32 @@ class TypeEntreprisePresseMediasSelector(BaseSelector):
         ]
 
 
+class TypePresseMediasSelector(BaseSelector):
+    """Filter by Type of presse & médias."""
+
+    id = "type_presse_et_media"
+    label = "Type presse et médias"
+
+    def get_values(self) -> set[str]:
+        merged: set[str] = set()
+        for expert in self._experts:
+            merged.update(expert.profile.type_presse_et_media)
+        return merged
+
+    def filter_experts(
+        self,
+        criteria: set[str],
+        experts: list[User],
+    ) -> list[User]:
+        if not criteria:
+            return experts
+        return [
+            e
+            for e in experts
+            if any(x in criteria for x in e.profile.type_presse_et_media)
+        ]
+
+
 class MetierSelector(BaseSelector):
     """Filter by profession/trade."""
 

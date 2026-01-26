@@ -30,6 +30,7 @@ from .expert_selectors import (
     TailleOrganisationSelector,
     TypeEntreprisePresseMediasSelector,
     TypeOrganisationSelector,
+    TypePresseMediasSelector,
     VilleSelector,
 )
 
@@ -232,6 +233,7 @@ class ExpertFilterService:
                 MetierSelector(self._state, experts),
                 FonctionSelector(self._state, experts),
                 TypeEntreprisePresseMediasSelector(self._state, experts),
+                TypePresseMediasSelector(self._state, experts),
                 TypeOrganisationSelector(self._state, experts),
                 TailleOrganisationSelector(self._state, experts),
                 PaysSelector(self._state, experts),
