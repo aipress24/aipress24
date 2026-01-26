@@ -224,7 +224,7 @@ class FonctionSelector(BaseSelector):
     """Filter by job function."""
 
     id = "fonction"
-    label = "Fonction"
+    label = "Toutes fonctions"
 
     def get_values(self) -> set[str]:
         merged: set[str] = set()
@@ -241,6 +241,110 @@ class FonctionSelector(BaseSelector):
             return experts
         return [
             e for e in experts if any(x in criteria for x in e.profile.toutes_fonctions)
+        ]
+
+
+class FonctionJournalismeSelector(BaseSelector):
+    """Filter by job function."""
+
+    id = "fonction_journalisme"
+    label = "Fonctions du journalisme"
+
+    def get_values(self) -> set[str]:
+        merged: set[str] = set()
+        for expert in self._experts:
+            merged.update(expert.profile.fonctions_journalisme)
+        return merged
+
+    def filter_experts(
+        self,
+        criteria: set[str],
+        experts: list[User],
+    ) -> list[User]:
+        if not criteria:
+            return experts
+        return [
+            e
+            for e in experts
+            if any(x in criteria for x in e.profile.fonctions_journalisme)
+        ]
+
+
+class FonctionPolitiquesAdministrativesSelector(BaseSelector):
+    """Filter by job function."""
+
+    id = "fonction_pol_adm"
+    label = "Fonctions politiques et administratives"
+
+    def get_values(self) -> set[str]:
+        merged: set[str] = set()
+        for expert in self._experts:
+            merged.update(expert.profile.fonctions_pol_adm_detail)
+        return merged
+
+    def filter_experts(
+        self,
+        criteria: set[str],
+        experts: list[User],
+    ) -> list[User]:
+        if not criteria:
+            return experts
+        return [
+            e
+            for e in experts
+            if any(x in criteria for x in e.profile.fonctions_pol_adm_detail)
+        ]
+
+
+class FonctionOrganisationsPriveesSelector(BaseSelector):
+    """Filter by job function."""
+
+    id = "fonction_org_priv"
+    label = "Fonctions organisations privées"
+
+    def get_values(self) -> set[str]:
+        merged: set[str] = set()
+        for expert in self._experts:
+            merged.update(expert.profile.fonctions_org_priv_detail)
+        return merged
+
+    def filter_experts(
+        self,
+        criteria: set[str],
+        experts: list[User],
+    ) -> list[User]:
+        if not criteria:
+            return experts
+        return [
+            e
+            for e in experts
+            if any(x in criteria for x in e.profile.fonctions_org_priv_detail)
+        ]
+
+
+class FonctionAssociationsSyndicatsSelector(BaseSelector):
+    """Filter by job function."""
+
+    id = "fonction_ass_syn"
+    label = "Fonctions associations et syndicats"
+
+    def get_values(self) -> set[str]:
+        merged: set[str] = set()
+        for expert in self._experts:
+            merged.update(expert.profile.fonctions_ass_syn_detail)
+        return merged
+
+    def filter_experts(
+        self,
+        criteria: set[str],
+        experts: list[User],
+    ) -> list[User]:
+        if not criteria:
+            return experts
+        return [
+            e
+            for e in experts
+            if any(x in criteria for x in e.profile.fonctions_ass_syn_detail)
         ]
 
 
