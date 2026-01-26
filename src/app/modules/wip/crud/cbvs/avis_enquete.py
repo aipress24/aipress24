@@ -167,7 +167,7 @@ class AvisEnqueteWipView(BaseWipView):
                         msg = "Avis d'enquête envoyé au contact sélectionné"
                     flash(msg, "success")
                 else:
-                    flash("Aucun nouvel expert sélectionné", "error")
+                    flash("Aucun nouveau profil sélectionné", "error")
                 response = Response("")
                 response.headers["HX-Redirect"] = url_for("AvisEnqueteWipView:index")
                 return response
