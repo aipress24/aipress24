@@ -452,6 +452,10 @@ class KYCProfile(Base):
         return self.info_professionnelle.get("type_presse_et_media", [])
 
     @property
+    def langues(self) -> list[str]:
+        return self.info_personnelle.get("langues", [])
+
+    @property
     def type_organisation(self) -> list[str]:
         return self.info_professionnelle.get("type_orga_detail", [])
 
