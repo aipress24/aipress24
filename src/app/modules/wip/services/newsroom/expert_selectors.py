@@ -348,6 +348,54 @@ class FonctionAssociationsSyndicatsSelector(BaseSelector):
         ]
 
 
+class CompetencesGeneralesSelector(BaseSelector):
+    """Filter by competences."""
+
+    id = "competences"
+    label = "Compétences générales"
+
+    def get_values(self) -> set[str]:
+        merged: set[str] = set()
+        for expert in self._experts:
+            merged.update(expert.profile.competences)
+        return merged
+
+    def filter_experts(
+        self,
+        criteria: set[str],
+        experts: list[User],
+    ) -> list[User]:
+        if not criteria:
+            return experts
+        return [e for e in experts if any(x in criteria for x in e.profile.competences)]
+
+
+class CompetencesJournalismeSelector(BaseSelector):
+    """Filter by competences journalisme."""
+
+    id = "competences_journalisme"
+    label = "Compétences journalisme"
+
+    def get_values(self) -> set[str]:
+        merged: set[str] = set()
+        for expert in self._experts:
+            merged.update(expert.profile.competences_journalisme)
+        return merged
+
+    def filter_experts(
+        self,
+        criteria: set[str],
+        experts: list[User],
+    ) -> list[User]:
+        if not criteria:
+            return experts
+        return [
+            e
+            for e in experts
+            if any(x in criteria for x in e.profile.competences_journalisme)
+        ]
+
+
 class TypeOrganisationSelector(BaseSelector):
     """Filter by organization type."""
 
