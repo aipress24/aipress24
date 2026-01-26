@@ -19,7 +19,6 @@ from app.services.sessions import SessionService
 # FilterState : Type alias for filter state that can contain:
 # - Filter values (list[str]) for selectors like secteur, metier, etc.
 # - Expert IDs (list[int]) for selected_experts
-#
 from .expert_selectors import (
     BaseSelector,
     DepartementSelector,
@@ -29,6 +28,7 @@ from .expert_selectors import (
     PaysSelector,
     SecteurSelector,
     TailleOrganisationSelector,
+    TypeEntreprisePresseMediasSelector,
     TypeOrganisationSelector,
     VilleSelector,
 )
@@ -231,7 +231,7 @@ class ExpertFilterService:
                 SecteurSelector(self._state, experts),
                 MetierSelector(self._state, experts),
                 FonctionSelector(self._state, experts),
-                # TypeEntreprisePresseMediasSelector(self._state, experts),
+                TypeEntreprisePresseMediasSelector(self._state, experts),
                 TypeOrganisationSelector(self._state, experts),
                 TailleOrganisationSelector(self._state, experts),
                 PaysSelector(self._state, experts),
