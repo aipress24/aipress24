@@ -472,6 +472,14 @@ class KYCProfile(Base):
         return self.info_personnelle.get("langues", [])
 
     @property
+    def competences(self) -> list[str]:
+        return self.info_personnelle.get("competences", [])
+
+    @property
+    def competences_journalisme(self) -> list[str]:
+        return self.info_personnelle.get("competences_journalisme", [])
+
+    @property
     def type_organisation(self) -> list[str]:
         return self.info_professionnelle.get("type_orga_detail", [])
 

@@ -21,6 +21,8 @@ from app.services.sessions import SessionService
 # - Expert IDs (list[int]) for selected_experts
 from .expert_selectors import (
     BaseSelector,
+    CompetencesGeneralesSelector,
+    CompetencesJournalismeSelector,
     DepartementSelector,
     FilterState,
     FonctionAssociationsSyndicatsSelector,
@@ -241,6 +243,8 @@ class ExpertFilterService:
                 FonctionOrganisationsPriveesSelector(self._state, experts),
                 FonctionAssociationsSyndicatsSelector(self._state, experts),
                 FonctionJournalismeSelector(self._state, experts),
+                CompetencesGeneralesSelector(self._state, experts),
+                CompetencesJournalismeSelector(self._state, experts),
                 TypeEntreprisePresseMediasSelector(self._state, experts),
                 TypePresseMediasSelector(self._state, experts),
                 TypeOrganisationSelector(self._state, experts),
