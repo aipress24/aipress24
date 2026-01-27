@@ -50,10 +50,13 @@ class BaseDataSource(DataSource):
 
         return stmt
 
+    def get_order_by(self):
+        return self.model_class.created_at.desc()  # type: ignore [unresolved-attribute]
+
     def get_items(self):
         query = (
             self._base_query()  # ordering query here
-            .order_by(self.model_class.created_at.desc())  # type: ignore[attr-defined]
+            .order_by(self.get_order_by())  # type: ignore[attr-defined]
             .offset(self.offset)  # type: ignore[attr-defined]
             .limit(self.limit)  # type: ignore[attr-defined]
         )

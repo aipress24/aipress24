@@ -44,11 +44,16 @@ from app.services.auth import AuthService
 
 from ._base import BaseWipView
 from ._forms import AvisEnqueteForm
-from ._table import BaseTable
+from ._table import BaseDataSource, BaseTable
 
 if TYPE_CHECKING:
     from app.models.auth import User
     from app.modules.wip.models import ContactAvisEnquete
+
+
+class AvisEnqueteDataSource(BaseDataSource):
+    def get_order_by(self):
+        return self.model_class.modified_at.desc().nullslast()  # type: ignore [unresolved-attribute]
 
 
 class AvisEnqueteTable(BaseTable):
@@ -56,6 +61,7 @@ class AvisEnqueteTable(BaseTable):
 
     def __init__(self, q="") -> None:
         super().__init__(AvisEnquete, q)
+        self.data_source = AvisEnqueteDataSource(AvisEnquete, q)
 
     def url_for(self, obj, _action="get", **kwargs):  # type: ignore[override]
         return url_for(f"AvisEnqueteWipView:{_action}", id=obj.id, **kwargs)
