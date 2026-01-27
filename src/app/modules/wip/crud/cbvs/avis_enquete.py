@@ -60,6 +60,33 @@ class AvisEnqueteTable(BaseTable):
     def url_for(self, obj, _action="get", **kwargs):  # type: ignore[override]
         return url_for(f"AvisEnqueteWipView:{_action}", id=obj.id, **kwargs)
 
+    def get_columns(self):
+        return [
+            {
+                "name": "titre",
+                "label": "Titre",
+                "class": "max-w-0 w-full truncate",
+            },
+            # {
+            #     "name": "media",
+            #     "label": "Média",
+            #     "class": "max-w-12",
+            #     "render": self.get_media_name,
+            # },
+            {
+                "name": "status",
+                "label": "Statut",
+            },
+            {
+                "name": "modified_at",
+                "label": "Modification",
+            },
+            {
+                "name": "$actions",
+                "label": "",
+            },
+        ]
+
     def get_actions(self, item):
         return [
             {
