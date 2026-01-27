@@ -8,12 +8,13 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock, patch
 
-
 from app.models.auth import KYCProfile, User
 from app.modules.wip.services.newsroom.expert_filter import (
     MAX_SELECTABLE_EXPERTS,
-    DepartementSelector,
     ExpertFilterService,
+)
+from app.modules.wip.services.newsroom.expert_selectors import (
+    DepartementSelector,
     FilterOption,
     FonctionSelector,
     MetierSelector,
