@@ -18,7 +18,11 @@
         x-transition:leave="transition transform duration-300"
         x-transition:leave-start="opacity-100"
         x-transition:leave-end="opacity-0">
-      <img :src="image" alt="Image" class="-z-20 absolute inset-0 z-10 h-full w-full object-cover opacity-70"/>
+      <img :src="image"
+        alt="Image"
+        class="-z-20 absolute inset-0 z-10 h-full w-full object-cover opacity-70"
+        onerror="this.onerror=null;this.src='/static/img/transparent-square.png';"
+        />
       <figcaption
           class="absolute inset-x-0 bottom-1 z-20 w-96 mx-auto p-4 font-light text-sm text-center tracking-widest leading-snug bg-gray-300 bg-opacity-25">
         Any kind of content here!

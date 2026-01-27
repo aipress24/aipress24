@@ -444,6 +444,42 @@ class KYCProfile(Base):
         )
 
     @property
+    def fonctions_journalisme(self) -> list[str]:
+        return self.match_making.get("fonctions_journalisme", [])
+
+    @property
+    def fonctions_pol_adm_detail(self) -> list[str]:
+        return self.match_making.get("fonctions_pol_adm_detail", [])
+
+    @property
+    def fonctions_org_priv_detail(self) -> list[str]:
+        return self.match_making.get("fonctions_org_priv_detail", [])
+
+    @property
+    def fonctions_ass_syn_detail(self) -> list[str]:
+        return self.match_making.get("fonctions_ass_syn_detail", [])
+
+    @property
+    def type_entreprise_media(self) -> list[str]:
+        return self.info_professionnelle.get("type_entreprise_media", [])
+
+    @property
+    def type_presse_et_media(self) -> list[str]:
+        return self.info_professionnelle.get("type_presse_et_media", [])
+
+    @property
+    def langues(self) -> list[str]:
+        return self.info_personnelle.get("langues", [])
+
+    @property
+    def competences(self) -> list[str]:
+        return self.info_personnelle.get("competences", [])
+
+    @property
+    def competences_journalisme(self) -> list[str]:
+        return self.info_personnelle.get("competences_journalisme", [])
+
+    @property
     def type_organisation(self) -> list[str]:
         return self.info_professionnelle.get("type_orga_detail", [])
 
