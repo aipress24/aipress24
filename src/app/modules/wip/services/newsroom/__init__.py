@@ -7,7 +7,8 @@
 from __future__ import annotations
 
 from .avis_enquete_service import AvisEnqueteService, RDVAcceptanceData, RDVProposalData
-from .expert_filter import BaseSelector, ExpertFilterService, FilterOption
+from .expert_filter import ExpertFilterService
+from .expert_selectors import BaseSelector, FilterOption
 
 __all__ = [
     "AvisEnqueteService",
