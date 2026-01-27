@@ -68,11 +68,17 @@ class LifeCycleMixin:
     )
 
 
+@sa.event.listens_for(LifeCycleMixin, "before_insert", propagate=True)
+def lifecycle_before_insert(_mapper, _connection, target) -> None:
+    """Set created_at and modified_at on creation."""
+    if not target.created_at:
+        target.created_at = arrow.utcnow()
+    target.modified_at = target.created_at
+
+
 @sa.event.listens_for(LifeCycleMixin, "before_update", propagate=True)
 def lifecycle_before_update(_mapper, _connection, target) -> None:
-    # TODO: if target.modified_at is None -> target.created_at (or something)
-    # target.modified_at = arrow.now()
-    target.modified_at = arrow.now()
+    target.modified_at = arrow.utcnow()
 
 
 class UserFeedbackMixin:
