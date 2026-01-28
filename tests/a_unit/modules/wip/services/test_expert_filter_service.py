@@ -16,6 +16,7 @@ from app.modules.wip.services.newsroom.expert_filter import (
 from app.modules.wip.services.newsroom.expert_selectors import (
     DepartementSelector,
     FilterOption,
+    FonctionJournalismeSelector,
     FonctionSelector,
     LanguesSelector,
     MetierSelector,
@@ -35,7 +36,10 @@ def _create_expert_with_profile(
     secteurs: list[str] | None = None,
     metiers: list[str] | None = None,
     metiers_autres: list[str] | None = None,
-    fonctions: list[str] | None = None,
+    fonctions_journalisme: list[str] | None = None,
+    fonctions_pol_adm_detail: list[str] | None = None,
+    fonctions_org_priv_detail: list[str] | None = None,
+    fonctions_ass_syn_detail: list[str] | None = None,
     type_entreprise_media: list[str] | None = None,
     type_presse_et_media: list[str] | None = None,
     type_orga: list[str] | None = None,
@@ -76,10 +80,10 @@ def _create_expert_with_profile(
             "langues": langue or [],
         },
         match_making={
-            "fonctions_journalisme": fonctions or [],
-            "fonctions_pol_adm_detail": [],
-            "fonctions_org_priv_detail": [],
-            "fonctions_ass_syn_detail": [],
+            "fonctions_journalisme": fonctions_journalisme or [],
+            "fonctions_pol_adm_detail": fonctions_pol_adm_detail or [],
+            "fonctions_org_priv_detail": fonctions_org_priv_detail or [],
+            "fonctions_ass_syn_detail": fonctions_ass_syn_detail or [],
         },
     )
     db_session.add(profile)
@@ -439,6 +443,96 @@ class TestLanguesSelector:
 
 
 # ----------------------------------------------------------------
+# FonctionJournalismeSelector Tests
+# ----------------------------------------------------------------
+
+
+class TestFonctionJournalismeSelector:
+    """Tests for fonctions journalisme filtering."""
+
+    def test_filter_by_langue_single(self, db_session) -> None:
+        """Filter with a single fonctions journalisme selected."""
+        expert1 = _create_expert_with_profile(
+            db_session,
+            "e1@test.com",
+            fonctions_journalisme=["Journaliste", "Redacteur"],
+        )
+        expert2 = _create_expert_with_profile(
+            db_session, "e2@test.com", fonctions_journalisme=["Chef de Service"]
+        )
+        experts = [expert1, expert2]
+
+        selector = FonctionJournalismeSelector(
+            {"fonction_journalisme": ["Journaliste"]}, experts
+        )
+        result = selector.filter_experts({"Journaliste"}, experts)
+
+        assert len(result) == 1
+        assert result[0].id == expert1.id
+
+    def test_filter_by_langue_multiple(self, db_session) -> None:
+        """Filter with multiple fonctions journalisme (OR logic within criterion)."""
+        expert1 = _create_expert_with_profile(
+            db_session, "e1@test.com", fonctions_journalisme=["Journaliste"]
+        )
+        expert2 = _create_expert_with_profile(
+            db_session, "e2@test.com", fonctions_journalisme=["Redacteur"]
+        )
+        expert3 = _create_expert_with_profile(
+            db_session, "e3@test.com", fonctions_journalisme=["Chef de Service"]
+        )
+        experts = [expert1, expert2, expert3]
+
+        selector = FonctionJournalismeSelector(
+            {
+                "fonction_journalisme": [
+                    "Journaliste",
+                    "Redacteur",
+                ]
+            },
+            experts,
+        )
+        result = selector.filter_experts({"Journaliste", "Redacteur"}, experts)
+
+        assert len(result) == 2
+        result_ids = {e.id for e in result}
+        assert expert1.id in result_ids
+        assert expert2.id in result_ids
+        assert expert3.id not in result_ids
+
+    def test_filter_by_langue_no_match(self, db_session) -> None:
+        """No expert matches the fonctions journalisme."""
+        expert1 = _create_expert_with_profile(
+            db_session, "e1@test.com", fonctions_journalisme=["Journaliste"]
+        )
+        experts = [expert1]
+
+        selector = FonctionJournalismeSelector({"langues": "Redacteur"}, experts)
+        result = selector.filter_experts({"Redacteur"}, experts)
+
+        assert len(result) == 0
+
+    def test_get_values_returns_all_langue(self, db_session) -> None:
+        """get_values() returns all fonctions journalisme from experts."""
+        expert1 = _create_expert_with_profile(
+            db_session,
+            "e1@test.com",
+            fonctions_journalisme=["Journaliste", "Redacteur"],
+        )
+        expert2 = _create_expert_with_profile(
+            db_session,
+            "e2@test.com",
+            fonctions_journalisme=["Journaliste", "Chef de Service"],
+        )
+        experts = [expert1, expert2]
+
+        selector = FonctionJournalismeSelector({}, experts)
+        values = selector.get_values()
+
+        assert values == {"Journaliste", "Redacteur", "Chef de Service"}
+
+
+# ----------------------------------------------------------------
 # MetierSelector Tests
 # ----------------------------------------------------------------
 
@@ -509,10 +603,10 @@ class TestFonctionSelector:
     def test_filter_by_fonction(self, db_session) -> None:
         """Filter by job function."""
         expert1 = _create_expert_with_profile(
-            db_session, "e1@test.com", fonctions=["Directeur"]
+            db_session, "e1@test.com", fonctions_org_priv_detail=["Directeur"]
         )
         expert2 = _create_expert_with_profile(
-            db_session, "e2@test.com", fonctions=["Rédacteur en chef"]
+            db_session, "e2@test.com", fonctions_journalisme=["Rédacteur en chef"]
         )
         experts = [expert1, expert2]
 
