@@ -16,6 +16,7 @@ from app.modules.wip.services.newsroom.expert_filter import (
 from app.modules.wip.services.newsroom.expert_selectors import (
     DepartementSelector,
     FilterOption,
+    FonctionAssociationsSyndicatsSelector,
     FonctionJournalismeSelector,
     FonctionOrganisationsPriveesSelector,
     FonctionPolitiquesAdministrativesSelector,
@@ -718,6 +719,98 @@ class TestFonctionOrganisationsPriveesSelector:
         values = selector.get_values()
 
         assert values == {"Manager", "Comptable", "Consultant"}
+
+
+# ----------------------------------------------------------------
+# FonctionAssociationsSyndicatsSelector Tests
+# ----------------------------------------------------------------
+
+
+class TestFonctionAssociationsSyndicatsSelector:
+    """Tests for fonctions associations et syndicats filtering."""
+
+    def test_filter_by_fonction_ass_syn_single(self, db_session) -> None:
+        """Filter with a single fonctions associations et syndicats selected."""
+        expert1 = _create_expert_with_profile(
+            db_session,
+            "e1@test.com",
+            fonctions_ass_syn_detail=["Président", "Secrétaire"],
+        )
+        expert2 = _create_expert_with_profile(
+            db_session, "e2@test.com", fonctions_ass_syn_detail=["Administrateur"]
+        )
+        experts = [expert1, expert2]
+
+        selector = FonctionAssociationsSyndicatsSelector(
+            {"fonction_ass_syn": ["Président"]}, experts
+        )
+        result = selector.filter_experts({"Président"}, experts)
+
+        assert len(result) == 1
+        assert result[0].id == expert1.id
+
+    def test_filter_by_fonction_ass_syn_multiple(self, db_session) -> None:
+        """Filter with multiple fonctions associations et syndicats (OR logic within criterion)."""
+        expert1 = _create_expert_with_profile(
+            db_session, "e1@test.com", fonctions_ass_syn_detail=["Président"]
+        )
+        expert2 = _create_expert_with_profile(
+            db_session, "e2@test.com", fonctions_ass_syn_detail=["Secrétaire"]
+        )
+        expert3 = _create_expert_with_profile(
+            db_session, "e3@test.com", fonctions_ass_syn_detail=["Administrateur"]
+        )
+        experts = [expert1, expert2, expert3]
+
+        selector = FonctionAssociationsSyndicatsSelector(
+            {
+                "fonction_ass_syn": [
+                    "Président",
+                    "Secrétaire",
+                ]
+            },
+            experts,
+        )
+        result = selector.filter_experts({"Président", "Secrétaire"}, experts)
+
+        assert len(result) == 2
+        result_ids = {e.id for e in result}
+        assert expert1.id in result_ids
+        assert expert2.id in result_ids
+        assert expert3.id not in result_ids
+
+    def test_filter_by_fonction_ass_syn_no_match(self, db_session) -> None:
+        """No expert matches the fonctions associations et syndicats."""
+        expert1 = _create_expert_with_profile(
+            db_session, "e1@test.com", fonctions_ass_syn_detail=["Président"]
+        )
+        experts = [expert1]
+
+        selector = FonctionAssociationsSyndicatsSelector(
+            {"fonction_ass_syn": "Secrétaire"}, experts
+        )
+        result = selector.filter_experts({"Secrétaire"}, experts)
+
+        assert len(result) == 0
+
+    def test_get_values_returns_all_fonction_ass_syn(self, db_session) -> None:
+        """get_values() returns all fonctions organisations associations et syndicats from experts."""
+        expert1 = _create_expert_with_profile(
+            db_session,
+            "e1@test.com",
+            fonctions_ass_syn_detail=["Président", "Secrétaire"],
+        )
+        expert2 = _create_expert_with_profile(
+            db_session,
+            "e2@test.com",
+            fonctions_ass_syn_detail=["Président", "Administrateur"],
+        )
+        experts = [expert1, expert2]
+
+        selector = FonctionAssociationsSyndicatsSelector({}, experts)
+        values = selector.get_values()
+
+        assert values == {"Président", "Secrétaire", "Administrateur"}
 
 
 # ----------------------------------------------------------------
