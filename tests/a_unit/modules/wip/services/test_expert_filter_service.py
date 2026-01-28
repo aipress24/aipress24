@@ -17,6 +17,7 @@ from app.modules.wip.services.newsroom.expert_selectors import (
     DepartementSelector,
     FilterOption,
     FonctionJournalismeSelector,
+    FonctionPolitiquesAdministrativesSelector,
     FonctionSelector,
     LanguesSelector,
     MetierSelector,
@@ -450,7 +451,7 @@ class TestLanguesSelector:
 class TestFonctionJournalismeSelector:
     """Tests for fonctions journalisme filtering."""
 
-    def test_filter_by_langue_single(self, db_session) -> None:
+    def test_filter_by_fonctions_journalisme_single(self, db_session) -> None:
         """Filter with a single fonctions journalisme selected."""
         expert1 = _create_expert_with_profile(
             db_session,
@@ -470,7 +471,7 @@ class TestFonctionJournalismeSelector:
         assert len(result) == 1
         assert result[0].id == expert1.id
 
-    def test_filter_by_langue_multiple(self, db_session) -> None:
+    def test_filter_by_fonctions_journalisme_multiple(self, db_session) -> None:
         """Filter with multiple fonctions journalisme (OR logic within criterion)."""
         expert1 = _create_expert_with_profile(
             db_session, "e1@test.com", fonctions_journalisme=["Journaliste"]
@@ -500,19 +501,21 @@ class TestFonctionJournalismeSelector:
         assert expert2.id in result_ids
         assert expert3.id not in result_ids
 
-    def test_filter_by_langue_no_match(self, db_session) -> None:
+    def test_filter_by_fonctions_journalisme_no_match(self, db_session) -> None:
         """No expert matches the fonctions journalisme."""
         expert1 = _create_expert_with_profile(
             db_session, "e1@test.com", fonctions_journalisme=["Journaliste"]
         )
         experts = [expert1]
 
-        selector = FonctionJournalismeSelector({"langues": "Redacteur"}, experts)
+        selector = FonctionJournalismeSelector(
+            {"fonction_journalisme": "Redacteur"}, experts
+        )
         result = selector.filter_experts({"Redacteur"}, experts)
 
         assert len(result) == 0
 
-    def test_get_values_returns_all_langue(self, db_session) -> None:
+    def test_get_values_returns_all_fonctions_journalisme(self, db_session) -> None:
         """get_values() returns all fonctions journalisme from experts."""
         expert1 = _create_expert_with_profile(
             db_session,
@@ -530,6 +533,98 @@ class TestFonctionJournalismeSelector:
         values = selector.get_values()
 
         assert values == {"Journaliste", "Redacteur", "Chef de Service"}
+
+
+# ----------------------------------------------------------------
+# FonctionPolitiquesAdministrativesSelector Tests
+# ----------------------------------------------------------------
+
+
+class TestFonctionPolitiquesAdministrativesSelector:
+    """Tests for fonctions politiques et administratives filtering."""
+
+    def test_filter_by_fonction_pol_adm_single(self, db_session) -> None:
+        """Filter with a single fonctions politiques et administratives selected."""
+        expert1 = _create_expert_with_profile(
+            db_session,
+            "e1@test.com",
+            fonctions_pol_adm_detail=["Maire", "Ministre"],
+        )
+        expert2 = _create_expert_with_profile(
+            db_session, "e2@test.com", fonctions_pol_adm_detail=["Président"]
+        )
+        experts = [expert1, expert2]
+
+        selector = FonctionPolitiquesAdministrativesSelector(
+            {"fonction_pol_adm": ["Maire"]}, experts
+        )
+        result = selector.filter_experts({"Maire"}, experts)
+
+        assert len(result) == 1
+        assert result[0].id == expert1.id
+
+    def test_filter_by_fonction_pol_adm_multiple(self, db_session) -> None:
+        """Filter with multiple fonctions politiques et administratives (OR logic within criterion)."""
+        expert1 = _create_expert_with_profile(
+            db_session, "e1@test.com", fonctions_pol_adm_detail=["Maire"]
+        )
+        expert2 = _create_expert_with_profile(
+            db_session, "e2@test.com", fonctions_pol_adm_detail=["Ministre"]
+        )
+        expert3 = _create_expert_with_profile(
+            db_session, "e3@test.com", fonctions_pol_adm_detail=["Président"]
+        )
+        experts = [expert1, expert2, expert3]
+
+        selector = FonctionPolitiquesAdministrativesSelector(
+            {
+                "fonction_pol_adm": [
+                    "Maire",
+                    "Ministre",
+                ]
+            },
+            experts,
+        )
+        result = selector.filter_experts({"Maire", "Ministre"}, experts)
+
+        assert len(result) == 2
+        result_ids = {e.id for e in result}
+        assert expert1.id in result_ids
+        assert expert2.id in result_ids
+        assert expert3.id not in result_ids
+
+    def test_filter_by_fonction_pol_adm_no_match(self, db_session) -> None:
+        """No expert matches the fonctions politiques et administratives."""
+        expert1 = _create_expert_with_profile(
+            db_session, "e1@test.com", fonctions_pol_adm_detail=["Maire"]
+        )
+        experts = [expert1]
+
+        selector = FonctionPolitiquesAdministrativesSelector(
+            {"fonction_pol_adm": "Ministre"}, experts
+        )
+        result = selector.filter_experts({"Ministre"}, experts)
+
+        assert len(result) == 0
+
+    def test_get_values_returns_all_fonction_pol_adm(self, db_session) -> None:
+        """get_values() returns all fonctions politiques et administratives from experts."""
+        expert1 = _create_expert_with_profile(
+            db_session,
+            "e1@test.com",
+            fonctions_pol_adm_detail=["Maire", "Ministre"],
+        )
+        expert2 = _create_expert_with_profile(
+            db_session,
+            "e2@test.com",
+            fonctions_pol_adm_detail=["Maire", "Président"],
+        )
+        experts = [expert1, expert2]
+
+        selector = FonctionPolitiquesAdministrativesSelector({}, experts)
+        values = selector.get_values()
+
+        assert values == {"Maire", "Ministre", "Président"}
 
 
 # ----------------------------------------------------------------
