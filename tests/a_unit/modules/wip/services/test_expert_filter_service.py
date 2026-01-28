@@ -21,6 +21,7 @@ from app.modules.wip.services.newsroom.expert_selectors import (
     PaysSelector,
     SecteurSelector,
     TailleOrganisationSelector,
+    TypeEntreprisePresseMediasSelector,
     TypeOrganisationSelector,
     VilleSelector,
 )
@@ -33,6 +34,8 @@ def _create_expert_with_profile(
     metiers: list[str] | None = None,
     metiers_autres: list[str] | None = None,
     fonctions: list[str] | None = None,
+    type_entreprise_media: list[str] | None = None,
+    type_presse_et_media: list[str] | None = None,
     type_orga: list[str] | None = None,
     taille_orga: list[str] | None = None,
     pays: str = "FR",
@@ -57,6 +60,8 @@ def _create_expert_with_profile(
             "secteurs_activite_medias_detail": secteurs or [],
             "secteurs_activite_rp_detail": [],
             "secteurs_activite_detailles_detail": [],
+            "type_entreprise_media": type_entreprise_media or [],
+            "type_presse_et_media": type_presse_et_media or [],
             "type_orga_detail": type_orga or [],
             "taille_orga": taille_orga or [],
             "pays_zip_ville": pays,
@@ -151,6 +156,100 @@ class TestSecteurSelector:
         values = selector.get_values()
 
         assert values == {"Tech", "Finance", "Santé"}
+
+
+# ----------------------------------------------------------------
+# TypeEntreprisePresseMediasSelector Tests
+# ----------------------------------------------------------------
+
+
+class TestTypeEntreprisePresseMediasSelector:
+    """Tests for type d'entreprise presse & médias filtering."""
+
+    def test_filter_by_type_entreprise_media_single(self, db_session) -> None:
+        """Filter with a single type d'entreprise selected."""
+        expert1 = _create_expert_with_profile(
+            db_session,
+            "e1@test.com",
+            type_entreprise_media=["Agence de presse", "Editeur de magazines"],
+        )
+        expert2 = _create_expert_with_profile(
+            db_session, "e2@test.com", type_entreprise_media=["Presse écrite"]
+        )
+        experts = [expert1, expert2]
+
+        selector = TypeEntreprisePresseMediasSelector(
+            {"type_entreprise_presse_medias": ["Agence de presse"]}, experts
+        )
+        result = selector.filter_experts({"Agence de presse"}, experts)
+
+        assert len(result) == 1
+        assert result[0].id == expert1.id
+
+    def test_filter_by_type_entreprise_media_multiple(self, db_session) -> None:
+        """Filter with multiple type d'entreprise (OR logic within criterion)."""
+        expert1 = _create_expert_with_profile(
+            db_session, "e1@test.com", type_entreprise_media=["Agence de presse"]
+        )
+        expert2 = _create_expert_with_profile(
+            db_session, "e2@test.com", type_entreprise_media=["Editeur de magazines"]
+        )
+        expert3 = _create_expert_with_profile(
+            db_session, "e3@test.com", type_entreprise_media=["Presse écrite"]
+        )
+        experts = [expert1, expert2, expert3]
+
+        selector = TypeEntreprisePresseMediasSelector(
+            {
+                "type_entreprise_presse_medias": [
+                    "Agence de presse",
+                    "Editeur de magazines",
+                ]
+            },
+            experts,
+        )
+        result = selector.filter_experts(
+            {"Agence de presse", "Editeur de magazines"}, experts
+        )
+
+        assert len(result) == 2
+        result_ids = {e.id for e in result}
+        assert expert1.id in result_ids
+        assert expert2.id in result_ids
+        assert expert3.id not in result_ids
+
+    def test_filter_by_type_entreprise_media_no_match(self, db_session) -> None:
+        """No expert matches the type d'entreprise."""
+        expert1 = _create_expert_with_profile(
+            db_session, "e1@test.com", type_entreprise_media=["Agence de presse"]
+        )
+        experts = [expert1]
+
+        selector = TypeEntreprisePresseMediasSelector(
+            {"type_entreprise_presse_medias": "Editeur de magazines"}, experts
+        )
+        result = selector.filter_experts({"Editeur de magazines"}, experts)
+
+        assert len(result) == 0
+
+    def test_get_values_returns_all_type_entreprise_media(self, db_session) -> None:
+        """get_values() returns all unique type d'entreprise from experts."""
+        expert1 = _create_expert_with_profile(
+            db_session,
+            "e1@test.com",
+            type_entreprise_media=["Agence de presse", "Editeur de magazines"],
+        )
+        expert2 = _create_expert_with_profile(
+            db_session,
+            "e2@test.com",
+            type_entreprise_media=["Agence de presse", "Presse écrite"],
+        )
+        experts = [expert1, expert2]
+
+        selector = TypeEntreprisePresseMediasSelector({}, experts)
+        values = selector.get_values()
+
+        assert values == {"Agence de presse", "Editeur de magazines", "Presse écrite"}
 
 
 # ----------------------------------------------------------------
