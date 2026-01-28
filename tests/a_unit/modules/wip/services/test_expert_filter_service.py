@@ -17,6 +17,7 @@ from app.modules.wip.services.newsroom.expert_selectors import (
     DepartementSelector,
     FilterOption,
     FonctionJournalismeSelector,
+    FonctionOrganisationsPriveesSelector,
     FonctionPolitiquesAdministrativesSelector,
     FonctionSelector,
     LanguesSelector,
@@ -625,6 +626,98 @@ class TestFonctionPolitiquesAdministrativesSelector:
         values = selector.get_values()
 
         assert values == {"Maire", "Ministre", "Président"}
+
+
+# ----------------------------------------------------------------
+# FonctionOrganisationsPriveesSelector Tests
+# ----------------------------------------------------------------
+
+
+class TestFonctionOrganisationsPriveesSelector:
+    """Tests for fonctions organisations privées filtering."""
+
+    def test_filter_by_fonction_org_priv_single(self, db_session) -> None:
+        """Filter with a single fonctions organisations privées selected."""
+        expert1 = _create_expert_with_profile(
+            db_session,
+            "e1@test.com",
+            fonctions_org_priv_detail=["Manager", "Comptable"],
+        )
+        expert2 = _create_expert_with_profile(
+            db_session, "e2@test.com", fonctions_org_priv_detail=["Consultant"]
+        )
+        experts = [expert1, expert2]
+
+        selector = FonctionOrganisationsPriveesSelector(
+            {"fonction_org_priv": ["Manager"]}, experts
+        )
+        result = selector.filter_experts({"Manager"}, experts)
+
+        assert len(result) == 1
+        assert result[0].id == expert1.id
+
+    def test_filter_by_fonction_org_priv_multiple(self, db_session) -> None:
+        """Filter with multiple fonctions organisations privées (OR logic within criterion)."""
+        expert1 = _create_expert_with_profile(
+            db_session, "e1@test.com", fonctions_org_priv_detail=["Manager"]
+        )
+        expert2 = _create_expert_with_profile(
+            db_session, "e2@test.com", fonctions_org_priv_detail=["Comptable"]
+        )
+        expert3 = _create_expert_with_profile(
+            db_session, "e3@test.com", fonctions_org_priv_detail=["Consultant"]
+        )
+        experts = [expert1, expert2, expert3]
+
+        selector = FonctionOrganisationsPriveesSelector(
+            {
+                "fonction_org_priv": [
+                    "Manager",
+                    "Comptable",
+                ]
+            },
+            experts,
+        )
+        result = selector.filter_experts({"Manager", "Comptable"}, experts)
+
+        assert len(result) == 2
+        result_ids = {e.id for e in result}
+        assert expert1.id in result_ids
+        assert expert2.id in result_ids
+        assert expert3.id not in result_ids
+
+    def test_filter_by_fonction_org_priv_no_match(self, db_session) -> None:
+        """No expert matches the fonctions organisations privées."""
+        expert1 = _create_expert_with_profile(
+            db_session, "e1@test.com", fonctions_org_priv_detail=["Manager"]
+        )
+        experts = [expert1]
+
+        selector = FonctionOrganisationsPriveesSelector(
+            {"fonction_org_priv": "Comptable"}, experts
+        )
+        result = selector.filter_experts({"Comptable"}, experts)
+
+        assert len(result) == 0
+
+    def test_get_values_returns_all_fonction_org_priv(self, db_session) -> None:
+        """get_values() returns all fonctions organisations privées from experts."""
+        expert1 = _create_expert_with_profile(
+            db_session,
+            "e1@test.com",
+            fonctions_org_priv_detail=["Manager", "Comptable"],
+        )
+        expert2 = _create_expert_with_profile(
+            db_session,
+            "e2@test.com",
+            fonctions_org_priv_detail=["Manager", "Consultant"],
+        )
+        experts = [expert1, expert2]
+
+        selector = FonctionOrganisationsPriveesSelector({}, experts)
+        values = selector.get_values()
+
+        assert values == {"Manager", "Comptable", "Consultant"}
 
 
 # ----------------------------------------------------------------
