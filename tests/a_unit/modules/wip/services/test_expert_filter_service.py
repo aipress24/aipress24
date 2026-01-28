@@ -23,6 +23,7 @@ from app.modules.wip.services.newsroom.expert_selectors import (
     TailleOrganisationSelector,
     TypeEntreprisePresseMediasSelector,
     TypeOrganisationSelector,
+    TypePresseMediasSelector,
     VilleSelector,
 )
 
@@ -247,6 +248,100 @@ class TestTypeEntreprisePresseMediasSelector:
         experts = [expert1, expert2]
 
         selector = TypeEntreprisePresseMediasSelector({}, experts)
+        values = selector.get_values()
+
+        assert values == {"Agence de presse", "Editeur de magazines", "Presse écrite"}
+
+
+# ----------------------------------------------------------------
+# TypePresseMediasSelector Tests
+# ----------------------------------------------------------------
+
+
+class TestTypePresseMediasSelector:
+    """Tests for type presse & médias filtering."""
+
+    def test_filter_by_type_media_single(self, db_session) -> None:
+        """Filter with a single type media selected."""
+        expert1 = _create_expert_with_profile(
+            db_session,
+            "e1@test.com",
+            type_presse_et_media=["Presse culturelle", "Presse professionnelle"],
+        )
+        expert2 = _create_expert_with_profile(
+            db_session, "e2@test.com", type_presse_et_media=["Presse quotidienne"]
+        )
+        experts = [expert1, expert2]
+
+        selector = TypePresseMediasSelector(
+            {"type_presse_et_media": ["Presse culturelle"]}, experts
+        )
+        result = selector.filter_experts({"Presse culturelle"}, experts)
+
+        assert len(result) == 1
+        assert result[0].id == expert1.id
+
+    def test_filter_by_type_type_media_multiple(self, db_session) -> None:
+        """Filter with multiple type media (OR logic within criterion)."""
+        expert1 = _create_expert_with_profile(
+            db_session, "e1@test.com", type_presse_et_media=["Agence de presse"]
+        )
+        expert2 = _create_expert_with_profile(
+            db_session, "e2@test.com", type_presse_et_media=["Editeur de magazines"]
+        )
+        expert3 = _create_expert_with_profile(
+            db_session, "e3@test.com", type_presse_et_media=["Presse écrite"]
+        )
+        experts = [expert1, expert2, expert3]
+
+        selector = TypePresseMediasSelector(
+            {
+                "type_presse_et_media": [
+                    "Agence de presse",
+                    "Editeur de magazines",
+                ]
+            },
+            experts,
+        )
+        result = selector.filter_experts(
+            {"Agence de presse", "Editeur de magazines"}, experts
+        )
+
+        assert len(result) == 2
+        result_ids = {e.id for e in result}
+        assert expert1.id in result_ids
+        assert expert2.id in result_ids
+        assert expert3.id not in result_ids
+
+    def test_filter_by_type_media_no_match(self, db_session) -> None:
+        """No expert matches the type media."""
+        expert1 = _create_expert_with_profile(
+            db_session, "e1@test.com", type_presse_et_media=["Agence de presse"]
+        )
+        experts = [expert1]
+
+        selector = TypePresseMediasSelector(
+            {"type_presse_et_media": "Editeur de magazines"}, experts
+        )
+        result = selector.filter_experts({"Editeur de magazines"}, experts)
+
+        assert len(result) == 0
+
+    def test_get_values_returns_all_type_media(self, db_session) -> None:
+        """get_values() returns all unique type media from experts."""
+        expert1 = _create_expert_with_profile(
+            db_session,
+            "e1@test.com",
+            type_presse_et_media=["Agence de presse", "Editeur de magazines"],
+        )
+        expert2 = _create_expert_with_profile(
+            db_session,
+            "e2@test.com",
+            type_presse_et_media=["Agence de presse", "Presse écrite"],
+        )
+        experts = [expert1, expert2]
+
+        selector = TypePresseMediasSelector({}, experts)
         values = selector.get_values()
 
         assert values == {"Agence de presse", "Editeur de magazines", "Presse écrite"}
