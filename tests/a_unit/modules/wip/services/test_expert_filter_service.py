@@ -14,6 +14,7 @@ from app.modules.wip.services.newsroom.expert_filter import (
     ExpertFilterService,
 )
 from app.modules.wip.services.newsroom.expert_selectors import (
+    CompetencesGeneralesSelector,
     DepartementSelector,
     FilterOption,
     FonctionAssociationsSyndicatsSelector,
@@ -46,6 +47,7 @@ def _create_expert_with_profile(
     type_entreprise_media: list[str] | None = None,
     type_presse_et_media: list[str] | None = None,
     type_orga: list[str] | None = None,
+    competences: list[str] | None = None,
     langue: list[str] | None = None,
     taille_orga: list[str] | None = None,
     pays: str = "FR",
@@ -80,6 +82,7 @@ def _create_expert_with_profile(
         info_personnelle={
             "metier_principal_detail": metiers or [],
             "metier_detail": metiers_autres or [],
+            "competences": competences or [],
             "langues": langue or [],
         },
         match_making={
@@ -811,6 +814,90 @@ class TestFonctionAssociationsSyndicatsSelector:
         values = selector.get_values()
 
         assert values == {"Président", "Secrétaire", "Administrateur"}
+
+
+# ----------------------------------------------------------------
+# CompetencesGeneralesSelector Tests
+# ----------------------------------------------------------------
+
+
+class TestCompetencesGeneralesSelector:
+    """Tests for competences filtering."""
+
+    def test_filter_by_competences_single(self, db_session) -> None:
+        """Filter with a single competence selected."""
+        expert1 = _create_expert_with_profile(
+            db_session, "e1@test.com", competences=["Communication", "Conception"]
+        )
+        expert2 = _create_expert_with_profile(
+            db_session, "e2@test.com", competences=["Pilotage"]
+        )
+        experts = [expert1, expert2]
+
+        selector = CompetencesGeneralesSelector(
+            {"competences": ["Communication"]}, experts
+        )
+        result = selector.filter_experts({"Communication"}, experts)
+
+        assert len(result) == 1
+        assert result[0].id == expert1.id
+
+    def test_filter_by_competences_multiple(self, db_session) -> None:
+        """Filter with multiple competences (OR logic within criterion)."""
+        expert1 = _create_expert_with_profile(
+            db_session, "e1@test.com", competences=["Communication"]
+        )
+        expert2 = _create_expert_with_profile(
+            db_session, "e2@test.com", competences=["Conception"]
+        )
+        expert3 = _create_expert_with_profile(
+            db_session, "e3@test.com", competences=["Pilotage"]
+        )
+        experts = [expert1, expert2, expert3]
+
+        selector = CompetencesGeneralesSelector(
+            {
+                "competences": [
+                    "Communication",
+                    "Conception",
+                ]
+            },
+            experts,
+        )
+        result = selector.filter_experts({"Communication", "Conception"}, experts)
+
+        assert len(result) == 2
+        result_ids = {e.id for e in result}
+        assert expert1.id in result_ids
+        assert expert2.id in result_ids
+        assert expert3.id not in result_ids
+
+    def test_filter_by_competences_no_match(self, db_session) -> None:
+        """No expert matches the competences."""
+        expert1 = _create_expert_with_profile(
+            db_session, "e1@test.com", competences=["Communication"]
+        )
+        experts = [expert1]
+
+        selector = CompetencesGeneralesSelector({"competences": "Conception"}, experts)
+        result = selector.filter_experts({"Conception"}, experts)
+
+        assert len(result) == 0
+
+    def test_get_values_returns_all_competences(self, db_session) -> None:
+        """get_values() returns all competences from experts."""
+        expert1 = _create_expert_with_profile(
+            db_session, "e1@test.com", competences=["Communication", "Conception"]
+        )
+        expert2 = _create_expert_with_profile(
+            db_session, "e2@test.com", competences=["Communication", "Pilotage"]
+        )
+        experts = [expert1, expert2]
+
+        selector = CompetencesGeneralesSelector({}, experts)
+        values = selector.get_values()
+
+        assert values == {"Communication", "Conception", "Pilotage"}
 
 
 # ----------------------------------------------------------------
