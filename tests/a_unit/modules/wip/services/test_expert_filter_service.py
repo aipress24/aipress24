@@ -15,6 +15,7 @@ from app.modules.wip.services.newsroom.expert_filter import (
 )
 from app.modules.wip.services.newsroom.expert_selectors import (
     CompetencesGeneralesSelector,
+    CompetencesJournalismeSelector,
     DepartementSelector,
     FilterOption,
     FonctionAssociationsSyndicatsSelector,
@@ -48,6 +49,7 @@ def _create_expert_with_profile(
     type_presse_et_media: list[str] | None = None,
     type_orga: list[str] | None = None,
     competences: list[str] | None = None,
+    competences_journalisme: list[str] | None = None,
     langue: list[str] | None = None,
     taille_orga: list[str] | None = None,
     pays: str = "FR",
@@ -83,6 +85,7 @@ def _create_expert_with_profile(
             "metier_principal_detail": metiers or [],
             "metier_detail": metiers_autres or [],
             "competences": competences or [],
+            "competences_journalisme": competences_journalisme or [],
             "langues": langue or [],
         },
         match_making={
@@ -898,6 +901,98 @@ class TestCompetencesGeneralesSelector:
         values = selector.get_values()
 
         assert values == {"Communication", "Conception", "Pilotage"}
+
+
+# ----------------------------------------------------------------
+# CompetencesJournalismeSelector Tests
+# ----------------------------------------------------------------
+
+
+class TestCompetencesJournalismeSelector:
+    """Tests for competences journalisme filtering."""
+
+    def test_filter_by_competences_journalisme_single(self, db_session) -> None:
+        """Filter with a single competence journalisme selected."""
+        expert1 = _create_expert_with_profile(
+            db_session,
+            "e1@test.com",
+            competences_journalisme=["Animer", "Concevoir"],
+        )
+        expert2 = _create_expert_with_profile(
+            db_session, "e2@test.com", competences_journalisme=["Diriger"]
+        )
+        experts = [expert1, expert2]
+
+        selector = CompetencesJournalismeSelector(
+            {"competences_journalisme": ["Animer"]}, experts
+        )
+        result = selector.filter_experts({"Animer"}, experts)
+
+        assert len(result) == 1
+        assert result[0].id == expert1.id
+
+    def test_filter_by_competences_journalisme_multiple(self, db_session) -> None:
+        """Filter with multiple competences journalisme (OR logic within criterion)."""
+        expert1 = _create_expert_with_profile(
+            db_session, "e1@test.com", competences_journalisme=["Animer"]
+        )
+        expert2 = _create_expert_with_profile(
+            db_session, "e2@test.com", competences_journalisme=["Concevoir"]
+        )
+        expert3 = _create_expert_with_profile(
+            db_session, "e3@test.com", competences_journalisme=["Diriger"]
+        )
+        experts = [expert1, expert2, expert3]
+
+        selector = CompetencesJournalismeSelector(
+            {
+                "competences_journalisme": [
+                    "Animer",
+                    "Concevoir",
+                ]
+            },
+            experts,
+        )
+        result = selector.filter_experts({"Animer", "Concevoir"}, experts)
+
+        assert len(result) == 2
+        result_ids = {e.id for e in result}
+        assert expert1.id in result_ids
+        assert expert2.id in result_ids
+        assert expert3.id not in result_ids
+
+    def test_filter_by_competences_journalisme_no_match(self, db_session) -> None:
+        """No expert matches the competences journalisme."""
+        expert1 = _create_expert_with_profile(
+            db_session, "e1@test.com", competences_journalisme=["Animer"]
+        )
+        experts = [expert1]
+
+        selector = CompetencesJournalismeSelector(
+            {"competences_journalisme": "Concevoir"}, experts
+        )
+        result = selector.filter_experts({"Concevoir"}, experts)
+
+        assert len(result) == 0
+
+    def test_get_values_returns_all_competences_journalisme(self, db_session) -> None:
+        """get_values() returns all competences journalisme from experts."""
+        expert1 = _create_expert_with_profile(
+            db_session,
+            "e1@test.com",
+            competences_journalisme=["Animer", "Concevoir"],
+        )
+        expert2 = _create_expert_with_profile(
+            db_session,
+            "e2@test.com",
+            competences_journalisme=["Animer", "Diriger"],
+        )
+        experts = [expert1, expert2]
+
+        selector = CompetencesJournalismeSelector({}, experts)
+        values = selector.get_values()
+
+        assert values == {"Animer", "Concevoir", "Diriger"}
 
 
 # ----------------------------------------------------------------
