@@ -78,29 +78,29 @@ def org_profile_post() -> str | Response:
             raw_mails = request.form["content"]
             change_members_emails(org, raw_mails)
             response = Response("")
-            response.headers["HX-Redirect"] = url_for(".org_profile")
+            response.headers["HX-Redirect"] = url_for(".org-profile")
         case "change_managers_emails":
             raw_mails = request.form["content"]
             change_managers_emails(org, raw_mails, keep_one=True)
             response = Response("")
-            response.headers["HX-Redirect"] = url_for(".org_profile")
+            response.headers["HX-Redirect"] = url_for(".org-profile")
         case "change_leaders_emails":
             raw_mails = request.form["content"]
             change_leaders_emails(org, raw_mails)
             response = Response("")
-            response.headers["HX-Redirect"] = url_for(".org_profile")
+            response.headers["HX-Redirect"] = url_for(".org-profile")
         case "change_invitations_emails":
             raw_mails = request.form["content"]
             change_invitations_emails(org, raw_mails)
             response = Response("")
-            response.headers["HX-Redirect"] = url_for(".org_profile")
+            response.headers["HX-Redirect"] = url_for(".org-profile")
         case "reload_bw_data":
             response = Response("")
-            response.headers["HX-Redirect"] = url_for(".org_profile")
+            response.headers["HX-Redirect"] = url_for(".org-profile")
             return response
         case _:
             response = Response("")
-            response.headers["HX-Redirect"] = url_for(".org_profile")
+            response.headers["HX-Redirect"] = url_for(".org-profile")
 
     db.session.commit()
     return response
