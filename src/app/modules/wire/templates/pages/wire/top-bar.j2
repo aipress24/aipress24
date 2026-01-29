@@ -86,7 +86,7 @@
         <span class="">{{ filter.tag_label }}: {{ filter.label }}</span>
         {% set action = {'action': 'remove', 'id': filter.id, 'value': filter.label} %}
         <button
-            hx-post="{{ url_for(".wire", tab=tab) }}"
+            hx-post="{{ url_for(".wire_tab", tab=tab) }}"
             hx-target="#wire-main"
             hx-vals='{{ action | tojson }}'
             class="ml-1 hover:bg-gray-300" aria-hidden="true">✖</button>
