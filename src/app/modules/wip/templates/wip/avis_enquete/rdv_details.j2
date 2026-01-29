@@ -137,12 +137,21 @@
     {% endif %}
 
     <div class="mt-4">
-      <a href="{{ url_for('AvisEnqueteWipView:rdv', id=model.id) }}"
-        class="py-2 text-blue-500 hover:underline"
-      >
-        Retour à la liste des RDV
-      </a>
+      {% if current_user.id == contact.journaliste_id %}
+        <a href="{{ url_for('AvisEnqueteWipView:rdv', id=model.id) }}"
+          class="py-2 text-blue-500 hover:underline"
+        >
+          Retour à la liste des RDV
+        </a>
+      {% else %}
+        <a href="{{ url_for('wip.opportunities') }}"
+          class="py-2 text-blue-500 hover:underline"
+        >
+          Retour à la liste des opportunités
+        </a>
+      {% endif %}
     </div>
+
   </div>
 </div>
 
