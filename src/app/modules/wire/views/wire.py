@@ -60,9 +60,6 @@ def wire_tab(tab: str):
         filter_bar.set_tag(tag)
         return redirect(url_for(".wire_tab", tab="wall"))
 
-    if request.method == "POST":
-        return _handle_post(tab, filter_bar, tabs)
-
     return _render_wire(tab, filter_bar, tabs)
 
 
@@ -100,19 +97,6 @@ def _render_wire(tab: str, filter_bar: FilterBar, tabs: list):
         "pages/wire.j2",
         title="News",
         page=page,
-        posts=posts,
-        tabs=_build_tabs(tabs),
-        tab=tab,
-        filter_bar=filter_bar,
-    )
-
-
-def _handle_post(tab: str, filter_bar: FilterBar, tabs: list):
-    """Handle POST request for filter updates."""
-    filter_bar.update_state()
-    posts = _get_posts(tabs, filter_bar)
-    return render_template(
-        "pages/wire/main.j2",
         posts=posts,
         tabs=_build_tabs(tabs),
         tab=tab,
