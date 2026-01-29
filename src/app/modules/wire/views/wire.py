@@ -42,7 +42,7 @@ def wire():
 
 @blueprint.route("/tab/<tab>")
 def wire_tab(tab: str):
-    """News - tab view."""
+    """News - vue générale."""
     from ._filters import FilterBar
     from ._tabs import get_tabs
 
