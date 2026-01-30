@@ -37,6 +37,7 @@ class OrganisationsList(BaseList):
             "filters": self.filters,
             "directory": directory,
             "count": org_count,
+            "active_filters": self.get_active_filters(), # Added active_filters
         }
 
     def get_org_count(self) -> int:
