@@ -73,6 +73,37 @@ class BaseList(WiredComponent):
 
         return stmt
 
+    def get_active_filters(self) -> list[dict[str, str]]:
+        active_filters: list[dict[str, str]] = []
+        for filter in self.filters:
+            state = self.filter_states[filter.id]
+            for i, option_value in enumerate(filter.options):
+                if state.get(str(i)):
+                    active_filters.append(
+                        {
+                            "filter_id": filter.id,
+                            "filter_label": filter.label,
+                            "option_value": option_value,
+                        }
+                    )
+        return active_filters
+
+    def action_apply_filters(self) -> None:
+        """Triggered by wire:click on checkboxes to refresh the component."""
+        # the component will rerender after method call
+
+    def action_remove_filter(self, filter_id: str, option_value: str) -> None:
+        if filter_id in self.filter_states:
+            filter_obj = next((f for f in self.filters if f.id == filter_id), None)
+            if filter_obj:
+                found_index = -1
+                for i, opt in enumerate(filter_obj.options):
+                    if opt == option_value:
+                        found_index = i
+                        break
+                if found_index != -1:
+                    self.filter_states[filter_id][str(found_index)] = False
+
 
 class Filter:
     id: str

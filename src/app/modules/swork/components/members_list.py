@@ -37,6 +37,7 @@ class MembersList(BaseList):
             "directory": directory,
             "count": items_count,
             "filters": self.get_filters(),
+            "active_filters": self.get_active_filters(),
         }
 
     def get_base_statement(self) -> Select:
