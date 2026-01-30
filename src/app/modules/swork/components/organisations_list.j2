@@ -1,15 +1,89 @@
-<div wire:id="this._id">
+{% macro selector(filter) %}
+  <div
+      wire:key="{{ filter.id }}"
+      x-data="{
+        open: false,
+        toggle() {
+            if (this.open) {
+                return this.close();
+            }
+            this.open = true;
+        },
+        close(focusAfter) {
+            this.open = false;
+            focusAfter && focusAfter.focus();
+        }
+    }"
+      x-on:keydown.escape.prevent.stop="close($refs.button)"
+      class="relative"
+  >
+    <!-- Button -->
+    <button
+        x-ref="button"
+        x-on:click="toggle()"
+        :aria-expanded="open"
+        aria-controls="dropdown-panel-{{ filter.id }}"
+        type="button"
+        class="bg-white border text-gray-600 border-gray-200 rounded px-4 py-2 focus:outline-none focus:ring-4 focus:ring-aqua-400"
+    >
+      <span>{{ filter.label }}</span>
+      <span aria-hidden="true">&darr;</span>
+    </button>
+
+    <!-- Panel -->
+    <div
+        x-ref="panel"
+        x-show="open"
+        x-transition.origin.top.left
+        x-on:click.outside="close($refs.button)"
+        id="dropdown-panel-{{ filter.id }}"
+        style="display: none;"
+        class="max-h-[32rem] w-[24rem] overflow-auto absolute z-20 rounded shadow-lg left-0 mt-2 bg-white border border-gray-200"
+    >
+      <div
+          class="p-4 grid grid-cols-1 gap-6"
+      >
+        {% for option in filter.options %}
+          <div class="col-span-1">
+            <div class="">
+              <div class="space-y-2">
+                <label
+                    for="selector.{{ filter.id }}-{{ loop.index0 }}"
+                    class="flex items-center space-x-2 rtl:space-x-reverse cursor-pointer"
+                >
+                  <input
+                      id="selector.{{ filter.id }}-{{ loop.index0 }}"
+                      type="checkbox"
+                      autocomplete="off"
+                      wire:model="filter_states.{{ filter.id }}.{{ loop.index0 }}"
+                      wire:click="action_apply_filters"
+                      class="text-primary-600 transition duration-75 rounded shadow-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500 disabled:opacity-70 border-gray-300"
+                  />
+                  <span class="text-sm font-medium leading-4 text-gray-700">
+                    {{ option }}
+                  </span>
+                </label>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+{% endmacro %}
+
+<div wire:id="{{ this._id }}">
+
   <div class="px-6 pt-6 pb-4">
     <h2 class="text-lg font-medium text-gray-900">
       Annuaire institutionnel
-      <span class="htmx-indicator">(Mise à jour en cours...)</span>
     </h2>
 
     <p class="mt-1 text-sm text-gray-600">
       Il y a actuellement {{ count }} organisations actives dans la plateforme AiPRESS24.
     </p>
 
-    <div class="mt-6 flex flex-col space-y-4" action="#">
+    <div class="mt-6 flex flex-col space-y-4">
       <div class="flex flex-row space-x-4 min-w-0">
         <div class="flex-1 relative rounded-md shadow-sm">
           <div
@@ -18,26 +92,43 @@
             {{ icon("magnifying-glass", class="h-5 w-5 text-gray-400") }}
           </div>
           <input
-              wire:model.lazy="search"
               type="search"
               name="search"
               id="search"
               class="block py-2 w-full pl-10 sm:text-sm border border-gray-400 hover:bg-gray-50 rounded-md"
               placeholder="Chercher (par nom, code postal, etc.)"
+              wire:model.lazy="search"
           />
         </div>
       </div>
 
       <div class="flex flex-row items-center flex-wrap mb-4 gap-2 text-gray-700">
         {% for filter in filters %}
-          {{ component("selector", this, filter) }}
+          <div wire:key="{{ filter.id }}">
+            {{ selector(filter) }}
+          </div>
         {% endfor %}
       </div>
     </div>
+
+    <div class="mb-5 flex flex-wrap gap-2">
+      {% for filter in active_filters %}
+        <span
+            wire:key="active-filter-{{ filter.filter_id }}-{{ filter.option_value }}"
+            class="inline-flex items-center rounded text-sm font-medium text-gray-600 bg-gray-200 my-1 py-1 px-2">
+          <span>{{ filter.filter_label }}: {{ filter.option_value }}</span>
+          <button
+              type="button"
+              wire:click="action_remove_filter('{{ filter.filter_id }}', '{{ filter.option_value }}')"
+              class="ml-1 hover:bg-gray-300" aria-hidden="true">✖</button>
+        </span>
+      {% endfor %}
+    </div>
   </div>
 
-  <div id="search-results" class="my-8 max-w-3xl mx-auto gap-6 sm:px-6 lg:max-w-7xl">
-    <nav class="flex-1 min-h-0" aria-label="Membres">
+  <div id="search-results"
+       class="my-8 max-w-3xl mx-auto gap-6 sm:px-6 lg:max-w-7xl">
+    <nav class="flex-1 min-h-0" aria-label="Organisations">
       {% for letter in directory.keys() %}
         <div class="relative">
           <div
@@ -50,24 +141,20 @@
             {% for org in directory[letter] %}
               <li>
                 <a
-                    href="{{ url_for(org) }}"
+                    href="{{ url_for(org.org) }}"
                     class="px-6 py-5 flex items-center space-x-3 hover:bg-gray-50"
                 >
                   <div class="flex-shrink-0">
-                    <img
-                        class="h-10 w-10 border-2 border-gray-100"
-                        src="{{ org.logo_url }}"
-                        alt=""
-                    />
+                    <img class="h-10 w-10 rounded-full" src="{{ org.logo_url }}" alt="">
                   </div>
                   <div class="flex-1 min-w-0">
                     <!-- Extend touch target to entire panel -->
                     <span class="inset-0" aria-hidden="true"/>
-                    <p class="font-medium text-gray-900">
+                    <p class="text-sm font-medium text-gray-900">
                       {{ org.name }}
                     </p>
-                    <p class="text-sm font-medium text-gray-500">
-                      {{ org.type | label }}
+                    <p class="text-sm text-gray-500 truncate">
+                      {{ org.org.description or org.org.site_url or org.org.city }}
                     </p>
                   </div>
                 </a>
