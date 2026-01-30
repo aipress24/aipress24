@@ -1,5 +1,6 @@
 {% macro selector(filter) %}
   <div
+      wire:key="{{ filter.id }}"
       x-data="{
         open: false,
         toggle() {
@@ -14,8 +15,6 @@
         }
     }"
       x-on:keydown.escape.prevent.stop="close($refs.button)"
-      x-on:focusin.window="! $refs.panel.contains($event.target) && close()"
-      x-id="['dropdown-button']"
       class="relative"
   >
     <!-- Button -->
@@ -23,7 +22,7 @@
         x-ref="button"
         x-on:click="toggle()"
         :aria-expanded="open"
-        :aria-controls="$id('dropdown-button')"
+        aria-controls="dropdown-panel-{{ filter.id }}"
         type="button"
         class="bg-white border text-gray-600 border-gray-200 rounded px-4 py-2 focus:outline-none focus:ring-4 focus:ring-aqua-400"
     >
@@ -37,24 +36,38 @@
         x-show="open"
         x-transition.origin.top.left
         x-on:click.outside="close($refs.button)"
-        :id="$id('dropdown-button')"
+        id="dropdown-panel-{{ filter.id }}"
         style="display: none;"
         class="max-h-[32rem] w-[24rem] overflow-auto absolute z-20 rounded shadow-lg left-0 mt-2 bg-white border border-gray-200"
     >
-      {% for option in filter.options %}
-        <div>
-          {% set action = {'action': 'toggle', 'type': 'selector', 'id': filter.id, 'value': option} %}
-          <a
-              href="#"
-              hx-post="{{ request.path }}"
-              hx-target="#wire-main"
-              hx-vals='{{ action|tojson }}'
-              class="block px-4 py-2 text-left text-sm hover:bg-gray-100 focus:outline-none focus:ring focus:ring-aqua-400 disabled:text-gray-500"
-              aria-hidden="true">
-            {{ option }}
-          </a>
-        </div>
-      {% endfor %}
+      <div
+          class="p-4 grid grid-cols-1 gap-6"
+      >
+        {% for option in filter.options %}
+          <div class="col-span-1">
+            <div class="">
+              <div class="space-y-2">
+                <label
+                    for="selector.{{ filter.id }}-{{ loop.index0 }}"
+                    class="flex items-center space-x-2 rtl:space-x-reverse cursor-pointer"
+                >
+                  <input
+                      id="selector.{{ filter.id }}-{{ loop.index0 }}"
+                      type="checkbox"
+                      autocomplete="off"
+                      wire:model="filter_states.{{ filter.id }}.{{ loop.index0 }}"
+                      wire:click="action_apply_filters"
+                      class="text-primary-600 transition duration-75 rounded shadow-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500 disabled:opacity-70 border-gray-300"
+                  />
+                  <span class="text-sm font-medium leading-4 text-gray-700">
+                    {{ option }}
+                  </span>
+                </label>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
     </div>
   </div>
 {% endmacro %}
@@ -91,9 +104,25 @@
 
       <div class="flex flex-row items-center flex-wrap mb-4 gap-2 text-gray-700">
         {% for filter in filters %}
-          {{ selector(filter) }}
+          <div>
+            {{ selector(filter) }}
+          </div>
         {% endfor %}
       </div>
+    </div>
+
+    <div class="mb-5 flex flex-wrap gap-2">
+      {% for filter in active_filters %}
+        <span
+            wire:key="active-filter-{{ filter.filter_id }}-{{ filter.option_value }}"
+            class="inline-flex items-center rounded text-sm font-medium text-gray-600 bg-gray-200 my-1 py-1 px-2">
+          <span>{{ filter.filter_label }}: {{ filter.option_value }}</span>
+          <button
+              type="button" {# Keep type="button" #}
+              wire:click="action_remove_filter('{{ filter.filter_id }}', '{{ filter.option_value }}')"
+              class="ml-1 hover:bg-gray-300" aria-hidden="true">✖</button>
+        </span>
+      {% endfor %}
     </div>
   </div>
 
