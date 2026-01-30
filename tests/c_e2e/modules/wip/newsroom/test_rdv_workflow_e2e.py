@@ -366,6 +366,14 @@ class TestRdvDetailsDisplay:
 # ----------------------------------------------------------------
 
 
+def _get_future_weekday_datetime(day_after: int = 1) -> datetime:
+    """Returns a datetime object for a next day, ensuring it's not a weekend."""
+    future_date = datetime.now(timezone.utc) + timedelta(days=day_after)
+    while future_date.weekday() >= 5:  # 5=Saturday, 6=Sunday
+        future_date += timedelta(days=1)
+    return future_date
+
+
 class TestRdvTypeVariations:
     """Tests for different RDV types (phone, video, face-to-face)."""
 
@@ -383,11 +391,11 @@ class TestRdvTypeVariations:
             contact_id=accepted_contact.id,
         )
 
-        tomorrow = datetime.now(timezone.utc) + timedelta(days=1)
+        next_weekday = _get_future_weekday_datetime(day_after=1)
 
         form_data = {
             "rdv_type": "VIDEO",
-            "slot_datetime_1": tomorrow.replace(hour=10, minute=0).isoformat(),
+            "slot_datetime_1": next_weekday.replace(hour=10, minute=0).isoformat(),
             "rdv_video_link": "https://meet.example.com/interview-123",
             "rdv_notes": "Video call link provided",
         }
@@ -416,11 +424,11 @@ class TestRdvTypeVariations:
             contact_id=accepted_contact.id,
         )
 
-        tomorrow = datetime.now(timezone.utc) + timedelta(days=1)
+        next_weekday = _get_future_weekday_datetime(day_after=1)
 
         form_data = {
             "rdv_type": "F2F",
-            "slot_datetime_1": tomorrow.replace(hour=10, minute=0).isoformat(),
+            "slot_datetime_1": next_weekday.replace(hour=10, minute=0).isoformat(),
             "rdv_address": "123 Rue de Paris, 75001 Paris",
             "rdv_notes": "Meeting at our office",
         }
@@ -594,7 +602,7 @@ class TestMultipleSlots:
             contact_id=accepted_contact.id,
         )
 
-        base_date = datetime.now(timezone.utc) + timedelta(days=1)
+        base_date = _get_future_weekday_datetime(day_after=1)
 
         form_data = {
             "rdv_type": "PHONE",
