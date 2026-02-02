@@ -140,17 +140,18 @@ class Addressable:
         ]
 
 
-def filter_by_loc(stmt: orm.Query, loc: str, cls: type[Addressable]) -> orm.Query:
-    if not loc:
-        return stmt
+# Unused
+# def filter_by_loc(stmt: orm.Query, loc: str, cls: type[Addressable]) -> orm.Query:
+#     if not loc:
+#         return stmt
 
-    key, value = loc.split(":", 2)
-    match key:
-        case "city":
-            stmt = stmt.where(cls.city == value)
-        case "region":
-            stmt = stmt.where(cls.region == value)
-        case "departement":
-            stmt = stmt.where(cls.departement == value)
+#     key, value = loc.split(":", 2)
+#     match key:
+#         case "city":
+#             stmt = stmt.where(cls.city == value)
+#         case "region":
+#             stmt = stmt.where(cls.region == value)
+#         case "departement":
+#             stmt = stmt.where(cls.departement == value)
 
-    return stmt
+#     return stmt
