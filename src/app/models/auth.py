@@ -18,7 +18,7 @@ from flask_security import RoleMixin, UserMixin
 from sqlalchemy import JSON, DateTime, ForeignKey, orm
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy.sql import func
+from sqlalchemy.sql import case, func
 from sqlalchemy_utils import ArrowType
 
 from app.enums import ContactTypeEnum, OrganisationTypeEnum, RoleEnum
@@ -400,10 +400,10 @@ class KYCProfile(Base):
     def departement(self) -> str:
         """Return the 2 first digit of zip code"""
         pays_zip_ville = self.info_professionnelle["pays_zip_ville_detail"]
-        if isinstance(pays_zip_ville, list):
-            pays_zip_ville = pays_zip_ville[0]
         if not pays_zip_ville:
             return ""
+        if isinstance(pays_zip_ville, list):
+            pays_zip_ville = pays_zip_ville[0]
         try:
             return pays_zip_ville.split()[2][:2]
         except IndexError:
@@ -419,10 +419,10 @@ class KYCProfile(Base):
         )
         return expression
 
-    @property
+    @hybrid_property
     def ville(self) -> str:
         """Return the 4th part of pays_zip_ville_detail"""
-        pays_zip_ville = self.info_professionnelle["pays_zip_ville_detail"]
+        pays_zip_ville = self.info_professionnelle.get("pays_zip_ville_detail")
         if not pays_zip_ville:
             return ""
         if isinstance(pays_zip_ville, list):
@@ -431,6 +431,23 @@ class KYCProfile(Base):
             return pays_zip_ville.split()[3]
         except IndexError:
             return ""
+
+    @ville.expression
+    def ville(cls):
+        """SQL expression for the ville property."""
+        extracted = case(
+            (
+                func.json_typeof(cls.info_professionnelle["pays_zip_ville_detail"])
+                == "array",
+                cls.info_professionnelle["pays_zip_ville_detail"].op("->>")(0),
+            ),
+            else_=cls.info_professionnelle.op("->>")("pays_zip_ville_detail"),
+        )
+        expression = func.coalesce(
+            func.split_part(extracted, " ", 4),
+            "",
+        )
+        return expression
 
     @property
     def metier_fonction(self) -> str:
