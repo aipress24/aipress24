@@ -13,9 +13,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import pytest
-
 from app.enums import RoleEnum
-from app.models.auth import Role, User
+from app.models.auth import KYCProfile, Role, User
 from app.models.organisation import Organisation
 
 # Import the helper from root conftest
@@ -58,7 +57,10 @@ def test_user(fresh_db, test_org: Organisation) -> User:
     db_session.commit()
 
     # Create user
-    user = User(email="wip-test@example.com")
+    match_making = {"fonctions_journalisme": ["Journaliste"]}
+    profile = KYCProfile(match_making=match_making)
+    user = User(email="wip-test@example.com", first_name="John", last_name="Doe")
+    user.profile = profile
     user.photo = b""
     user.active = True
     user.organisation = test_org

@@ -46,6 +46,7 @@ def test_avis_enquete_notification_mail():
             recipient="expert@example.com",
             sender_mail="journalist@example.com",
             sender_full_name="John Doe",
+            sender_job="Rédacteur",
             bw_name="Test Organization",
             abstract="Abstract for the avis enquete.",
             url="https://example.com",
@@ -64,6 +65,7 @@ def test_avis_enquete_notification_mail():
         assert "journalist@example.com" in kwargs["body"]
         assert "Abstract for the avis enquete." in kwargs["body"]
         assert "John Doe" in kwargs["body"]
+        assert "Rédacteur" in kwargs["body"]
         assert "https://example.com" in kwargs["body"]
 
 
@@ -101,6 +103,7 @@ def test_contact_avis_enquete_rdv_proposal_mail():
             recipient="expert@example.com",
             sender_mail="journalist@example.com",
             sender_full_name="John Doe",
+            sender_job="Rédacteur",
             title="title avis enquete",
             notes="some notes",
             proposed_slots=slots,
@@ -124,6 +127,7 @@ def test_contact_avis_enquete_rdv_proposal_mail():
         assert "téléphone" in kwargs["body"]
         assert "some info" in kwargs["body"]
         assert "John Doe" in kwargs["body"]
+        assert "Rédacteur" in kwargs["body"]
 
 
 def test_contact_avis_enquete_rdv_accepted_mail():
@@ -158,6 +162,7 @@ def test_contact_avis_enquete_rdv_confirm_mail():
             recipient="expert@example.com",
             sender_mail="journalist@example.com",
             sender_full_name="John Doe",
+            sender_job="Rédacteur",
             title="title avis enquete",
             notes="some notes",
             rdv_type="téléphone",
@@ -178,6 +183,7 @@ def test_contact_avis_enquete_rdv_confirm_mail():
         assert "téléphone" in kwargs["body"]
         assert "some date" in kwargs["body"]
         assert "John Doe" in kwargs["body"]
+        assert "Rédacteur" in kwargs["body"]
 
 
 def test_contact_avis_enquete_rdv_cancel_journalist_mail():
@@ -187,6 +193,7 @@ def test_contact_avis_enquete_rdv_cancel_journalist_mail():
             recipient="expert@example.com",
             sender_mail="journalist@example.com",
             sender_full_name="John Doe",
+            sender_job="Rédacteur",
             title="title avis enquete",
             date_rdv="some date",
         )
@@ -201,6 +208,7 @@ def test_contact_avis_enquete_rdv_cancel_journalist_mail():
         assert "title avis enquete" in kwargs["body"]
         assert "some date" in kwargs["body"]
         assert "John Doe" in kwargs["body"]
+        assert "Rédacteur" in kwargs["body"]
 
 
 def test_contact_avis_enquete_rdv_cancel_expert_mail():
