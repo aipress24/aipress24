@@ -48,6 +48,7 @@ class AvisEnqueteNotificationMail(EmailTemplate):
         - recipient (str): mail of recipient.
         - sender_mail (str): user.email (user sending mail), journalist, informative.
         - sender_full_name (str): user.full_name (user sending mail), journalist, informative.
+        - sender_job (str): user.metier_fonction (user sending mail), journalist, informative.
         - bw_name (str): organisation.name, name of inviting organasation.
         - abstract: (str): some information about the AvisEnquete.
         - url: (str): URL of the opportunity web page.
@@ -58,6 +59,7 @@ class AvisEnqueteNotificationMail(EmailTemplate):
             recipient=mail,
             sender_mail=sender_mail,
             sender_full_name=sender_full_name,
+            sender_job=sender_job,
             bw_name=bw_name,
             abstract=avis.abstract
             url=url
@@ -70,6 +72,7 @@ class AvisEnqueteNotificationMail(EmailTemplate):
     bw_name: str
     abstract: str
     sender_full_name: str
+    sender_job: str
     url: str
 
 
@@ -118,6 +121,7 @@ class ContactAvisEnqueteRDVProposalMail(EmailTemplate):
         - recipient (str): mail of recipient, the expert.
         - sender_mail (str): user.email (journalist sending mail), journalist, informative.
         - sender_full_name (str): user.full_name (journalist sending mail), journalist, informative.
+        - sender_job (str): user.metier_fonction (journalist sending mail), journalist, informative.
         - title (str): Title of the Avis d' Enquete.
         - notes: (str): some journalist's notes about the RDV.
         - proposed_slots: (list[str]): list of proposed dates.
@@ -130,6 +134,7 @@ class ContactAvisEnqueteRDVProposalMail(EmailTemplate):
             recipient=recipient,
             sender_mail=sender_mail,
             sender_full_name=sender_full_name,
+            sender_job=sender_job,
             title=title,
             notes=notes,
             proposed_slots=proposed_slots,
@@ -147,6 +152,7 @@ class ContactAvisEnqueteRDVProposalMail(EmailTemplate):
     rdv_type: str
     rdv_info: str
     sender_full_name: str
+    sender_job: str
 
 
 @dataclass(kw_only=True)
@@ -194,6 +200,7 @@ class ContactAvisEnqueteRDVConfirmationMail(EmailTemplate):
         - recipient (str): mail of recipient, the expert.
         - sender_mail (str): user.email (journalist sending mail), journalist, informative.
         - sender_full_name (str): user.full_name (journalist sending mail), journalist, informative.
+        - sender_job (str): user.metier_fonction (journalist sending mail), journalist, informative.
         - title (str): Title of the Avis d' Enquete.
         - notes (str): some journalist's notes about the RDV.
         - rdv_type (str): Type du RDV.
@@ -206,6 +213,7 @@ class ContactAvisEnqueteRDVConfirmationMail(EmailTemplate):
             recipient=recipient,
             sender_mail=sender_mail,
             sender_full_name=sender_full_name,
+            sender_job=sender_job,
             title=title,
             notes=notes,
             rdv_type=rdv_type,
@@ -223,6 +231,7 @@ class ContactAvisEnqueteRDVConfirmationMail(EmailTemplate):
     rdv_info: str
     date_rdv: str
     sender_full_name: str
+    sender_job: str
 
 
 @dataclass(kw_only=True)
@@ -235,6 +244,7 @@ class ContactAvisEnqueteRDVCancelledJournalistMail(EmailTemplate):
         - recipient (str): mail of recipient, the expert.
         - sender_mail (str): user.email (journalist sending mail), informative.
         - sender_full_name (str): user.full_name (journalist sending mail), journalist, informative.
+        - sender_job (str): user.metier_fonction (journalist sending mail), journalist, informative.
         - title (str): Title of the Avis d' Enquete.
         - date_rdv (str): date of the cancelled RDV.
 
@@ -244,6 +254,7 @@ class ContactAvisEnqueteRDVCancelledJournalistMail(EmailTemplate):
             recipient=recipient,
             sender_mail=sender_mail,
             sender_full_name=sender_full_name,
+            sender_job=sender_job,
             title=title,
             date_rdv=date_rdv,
         )
@@ -255,6 +266,7 @@ class ContactAvisEnqueteRDVCancelledJournalistMail(EmailTemplate):
     title: str
     date_rdv: str
     sender_full_name: str
+    sender_job: str
 
 
 @dataclass(kw_only=True)
