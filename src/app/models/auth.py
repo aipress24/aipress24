@@ -215,6 +215,10 @@ class User(LifeCycleMixin, Addressable, UserMixin, Base):
         return set(self.profile.metiers + self.profile.metiers_autres)
 
     @hybrid_property
+    def metier_fonction(self) -> str:
+        return self.profile.metier_fonction
+
+    @hybrid_property
     def organisation_name(self) -> str:
         if self.organisation:
             return self.organisation.name
@@ -417,6 +421,14 @@ class KYCProfile(Base):
             return pays_zip_ville.split()[3]
         except IndexError:
             return ""
+
+    @property
+    def metier_fonction(self) -> str:
+        if fonctions := self.fonctions_journalisme:
+            return fonctions[0]
+        if metiers := self.metiers:
+            return metiers[0]
+        return ""
 
     @property
     def metiers(self) -> list[str]:
