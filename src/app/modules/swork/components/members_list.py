@@ -150,16 +150,17 @@ class FilterByDeptOrm(Filter):
     id = "dept"
     label = "Département"
 
-    def selector(self, obj) -> str:
-        if isinstance(obj, Addressable):
-            return str(obj.dept_code)
-        return ""
+    def selector(self, user: User) -> str:
+        return user.profile.departement
 
     def apply(self, stmt, state):
+        # User.profile.has(KYCProfile.departement.in_(active_options))
         active_options = self.active_options(state)
-        if not active_options:
-            return stmt
-        return stmt.where(User.dept_code.in_(active_options))
+        if active_options:
+            stmt = stmt.where(
+                User.profile.has(KYCProfile.departement.in_(active_options))
+            )
+        return stmt
 
 
 class FilterByCityOrm(Filter):
