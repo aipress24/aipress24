@@ -146,6 +146,26 @@ class FilterByCompetency(Filter):
         return stmt
 
 
+class FilterByCountryOrm(Filter):
+    id = "country"
+    label = "Pays"
+
+    def selector(self, user: User) -> str:
+        return user.profile.country
+
+    def apply(self, stmt, state):
+        active_options = self.active_options(state)
+        if active_options:
+            stmt = stmt.where(
+                User.profile.has(
+                    KYCProfile.info_professionnelle.op("->>")("pays_zip_ville").in_(
+                        active_options
+                    )
+                )
+            )
+        return stmt
+
+
 class FilterByDeptOrm(Filter):
     id = "dept"
     label = "Département"
@@ -167,35 +187,13 @@ class FilterByCityOrm(Filter):
     id = "city"
     label = "Ville"
 
-    def selector(self, obj) -> str:
-        if isinstance(obj, Addressable):
-            return str(obj.city)
-        return ""
-
-    def apply(self, stmt, state):
-        active_options = self.active_options(state)
-        if not active_options:
-            return stmt
-        return stmt.where(User.city.in_(active_options))
-
-
-class FilterByCountryOrm(Filter):
-    id = "country"
-    label = "Pays"
-
     def selector(self, user: User) -> str:
-        return user.profile.country
+        return user.profile.ville
 
     def apply(self, stmt, state):
         active_options = self.active_options(state)
         if active_options:
-            stmt = stmt.where(
-                User.profile.has(
-                    KYCProfile.info_professionnelle.op("->>")("pays_zip_ville").in_(
-                        active_options
-                    )
-                )
-            )
+            stmt = stmt.where(User.profile.has(KYCProfile.ville.in_(active_options)))
         return stmt
 
 
@@ -205,8 +203,8 @@ def make_filters(users: list[User]):
         FilterByCompetency(users),
         # FilterBySector(users),
         FilterByCountryOrm(users),
-        FilterByCityOrm(users),
         FilterByDeptOrm(users),
+        FilterByCityOrm(users),
     ]
 
 
