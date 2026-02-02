@@ -178,11 +178,32 @@ class FilterByCityOrm(Filter):
         return stmt.where(User.city.in_(active_options))
 
 
+class FilterByCountryOrm(Filter):
+    id = "country"
+    label = "Pays"
+
+    def selector(self, user: User) -> str:
+        return user.profile.country
+
+    def apply(self, stmt, state):
+        active_options = self.active_options(state)
+        if active_options:
+            stmt = stmt.where(
+                User.profile.has(
+                    KYCProfile.info_professionnelle.op("->>")("pays_zip_ville").in_(
+                        active_options
+                    )
+                )
+            )
+        return stmt
+
+
 def make_filters(users: list[User]):
     return [
         FilterByJobTitle(users),
         FilterByCompetency(users),
         # FilterBySector(users),
+        FilterByCountryOrm(users),
         FilterByCityOrm(users),
         FilterByDeptOrm(users),
     ]
