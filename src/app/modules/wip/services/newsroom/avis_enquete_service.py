@@ -248,6 +248,7 @@ class AvisEnqueteService:
             return
         sender_mail = journaliste.email
         sender_full_name = journaliste.full_name
+        sender_job = journaliste.metier_fonction
 
         recipient = contact.expert.email
         title = contact.avis_enquete.titre
@@ -275,6 +276,7 @@ class AvisEnqueteService:
             recipient=recipient,
             sender_mail=sender_mail,
             sender_full_name=sender_full_name,
+            sender_job=sender_job,
             title=title,
             notes=notes,
             rdv_type=rdv_type,
@@ -298,6 +300,7 @@ class AvisEnqueteService:
             return
         sender_mail = journaliste.email
         sender_full_name = journaliste.full_name
+        sender_job = journaliste.metier_fonction
 
         recipient = contact.expert.email
         title = contact.avis_enquete.titre
@@ -311,6 +314,7 @@ class AvisEnqueteService:
             recipient=recipient,
             sender_mail=sender_mail,
             sender_full_name=sender_full_name,
+            sender_job=sender_job,
             title=title,
             date_rdv=date_rdv,
         )
@@ -456,6 +460,7 @@ class AvisEnqueteService:
         """
         sender_mail = sender.email
         sender_full_name = sender.full_name
+        sender_job = sender.metier_fonction
         organisation = sender.organisation
         org_name = organisation.name if organisation else "inconnue"
 
@@ -465,6 +470,7 @@ class AvisEnqueteService:
                 recipient=expert.email,
                 sender_mail=sender_mail,
                 sender_full_name=sender_full_name,
+                sender_job=sender_job,
                 bw_name=org_name,
                 abstract=avis.title,
                 url=url,
@@ -597,6 +603,7 @@ class AvisEnqueteService:
             return
         sender_mail = journaliste.email
         sender_full_name = journaliste.full_name
+        sender_job = journaliste.metier_fonction
 
         recipient = contact.expert.email
         title = contact.avis_enquete.titre
@@ -623,6 +630,7 @@ class AvisEnqueteService:
             recipient=recipient,
             sender_mail=sender_mail,
             sender_full_name=sender_full_name,
+            sender_job=sender_job,
             title=title,
             notes=notes,
             proposed_slots=proposed_slots,
