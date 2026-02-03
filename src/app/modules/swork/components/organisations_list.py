@@ -65,7 +65,7 @@ class OrganisationsList(BaseList):
         if m:
             zip_code = m.group(1)
             search = search.replace(zip_code, "").strip()
-            stmt = stmt.where(Organisation.zip_code.ilike(f"%{zip_code}%"))
+            stmt = stmt.where(Organisation.code_postal.ilike(f"%{zip_code}%"))
 
         if search:
             stmt = stmt.where(Organisation.name.ilike(f"%{search}%"))
