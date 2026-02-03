@@ -54,13 +54,6 @@ class MembersList(BaseList):
             .limit(100)
         )
 
-    def search_clause(self, search):
-        return or_(
-            User.first_name.ilike(f"%{self.search}%"),
-            User.last_name.ilike(f"%{self.search}%"),
-            User.organisation.has(Organisation.name.ilike(f"%{self.search}%")),
-        )
-
     def apply_search(self, stmt: Select) -> Select:
         search = self.search.strip()
         if not search:
