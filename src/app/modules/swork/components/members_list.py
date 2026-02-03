@@ -16,11 +16,11 @@ from sqlalchemy.sql.functions import count
 from app.flask.extensions import db
 from app.flask.sqla import get_multi
 from app.models.auth import KYCProfile, User
-from app.models.mixins import Addressable
 from app.models.organisation import Organisation
+from app.modules.kyc.field_label import country_code_to_country_name
 from app.modules.swork.common import Directory
 
-from .base import BaseList, Filter
+from .base import BaseList, Filter, FilterOption
 
 
 @register
@@ -150,8 +150,18 @@ class FilterByCountryOrm(Filter):
     id = "country"
     label = "Pays"
 
-    def selector(self, user: User) -> str:
-        return user.profile.country
+    def selector(self, user: User) -> FilterOption:
+        # return user.profile.country
+        code = user.profile.country
+        return FilterOption(country_code_to_country_name(code), code)
+
+    def active_options(self, state):
+        options = []
+        for i in range(len(state)):
+            if state[str(i)]:
+                filter_option = self.options[i]
+                options.append(filter_option.code)
+        return options
 
     def apply(self, stmt, state):
         active_options = self.active_options(state)
