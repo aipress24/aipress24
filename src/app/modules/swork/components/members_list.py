@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 import re
-from typing import Any, ClassVar
+from typing import Any, ClassVar, cast
 
 from flask_super.registry import register
 from sqlalchemy import false, or_, select, true
@@ -158,7 +158,7 @@ class FilterByCountryOrm(Filter):
         options = []
         for i in range(len(state)):
             if state[str(i)]:
-                filter_option = self.options[i]
+                filter_option:FilterOption = cast(FilterOption,self.options[i])
                 options.append(filter_option.code)
         return options
 

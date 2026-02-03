@@ -18,6 +18,7 @@ from advanced_alchemy.types.file_object import FileObject, StoredObject
 from slugify import slugify
 from sqlalchemy import JSON
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.sql import func
 from sqlalchemy_utils import ArrowType
 from sqlalchemy_utils.functions.orm import hybrid_property
 
@@ -283,6 +284,43 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
     @hybrid_property
     def leaders(self) -> list[User]:
         return [user for user in self.members if user.is_leader]
+
+    @hybrid_property
+    def departement(self) -> str:
+        """Return the 2 first digit of zip code"""
+        if not self.pays_zip_ville_detail:
+            return ""
+        try:
+            return self.pays_zip_ville_detail.split()[2][:2]
+        except IndexError:
+            return ""
+
+    @departement.expression
+    def departement(cls):
+        """SQL expression for the departement property."""
+        return  func.coalesce(
+            func.substring(func.split_part(cls.pays_zip_ville_detail, " ", 3), 1, 2),
+            "",
+        )
+
+    @hybrid_property
+    def ville(self) -> str:
+        """Return the 4th part of pays_zip_ville_detail"""
+        if not self.pays_zip_ville_detail:
+            return ""
+        try:
+            data = self.pays_zip_ville_detail.split()[3]
+            if data.endswith('"}'):  # fixme: origin of bad formatting in test data?
+                return data[:-2]
+            return data
+        except IndexError:
+            return ""
+
+    @ville.expression
+    def ville(cls):
+        """SQL expression for the ville property."""
+        part = func.split_part(cls.pays_zip_ville_detail, " ", 4)
+        return func.coalesce(func.rtrim(part, '"}'), "")
 
     def cover_image_signed_url(self, expires_in: int = 3600) -> str:
         file_obj: FileObject | None = self.cover_image
