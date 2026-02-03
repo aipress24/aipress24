@@ -18,7 +18,7 @@ from flask_security import RoleMixin, UserMixin
 from sqlalchemy import JSON, DateTime, ForeignKey, orm
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy.sql import case, func
+from sqlalchemy.sql import func
 from sqlalchemy_utils import ArrowType
 
 from app.enums import ContactTypeEnum, OrganisationTypeEnum, RoleEnum
@@ -435,14 +435,7 @@ class KYCProfile(Base):
     @ville.expression
     def ville(cls):
         """SQL expression for the ville property."""
-        extracted = case(
-            (
-                func.json_typeof(cls.info_professionnelle["pays_zip_ville_detail"])
-                == "array",
-                cls.info_professionnelle["pays_zip_ville_detail"].op("->>")(0),
-            ),
-            else_=cls.info_professionnelle.op("->>")("pays_zip_ville_detail"),
-        )
+        extracted = cls.info_professionnelle["pays_zip_ville_detail"].op("->>")(0)
         expression = func.coalesce(
             func.split_part(extracted, " ", 4),
             "",

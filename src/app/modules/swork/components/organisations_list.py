@@ -17,11 +17,11 @@ from app.enums import OrganisationTypeEnum
 from app.flask.extensions import db
 from app.flask.lib.view_model import ViewModel
 from app.flask.sqla import get_multi
-from app.models.mixins import Addressable
 from app.models.organisation import Organisation
+from app.modules.kyc.field_label import country_code_to_country_name
 from app.modules.swork.common import Directory
 
-from .base import BaseList, Filter
+from .base import BaseList, Filter, FilterOption
 
 
 @register
@@ -81,36 +81,60 @@ class OrganisationsList(BaseList):
         return make_filters(orgs)
 
 
+class FilterByCountryOrm(Filter):
+    id = "country"
+    label = "Pays"
+
+    def selector(self, org: Organisation) -> FilterOption:
+        code = org.pays_zip_ville
+        return FilterOption(country_code_to_country_name(code), code)
+
+    def active_options(self, state):
+        options = []
+        for i in range(len(state)):
+            if state[str(i)]:
+                filter_option:FilterOption = cast(FilterOption,self.options[i])
+                options.append(filter_option.code)
+        return options
+
+    def apply(self, stmt, state):
+        active_options = self.active_options(state)
+        if active_options:
+            stmt = stmt.where(
+                Organisation.pays_zip_ville.in_(active_options)
+            )
+        return stmt
+
+
+
 class FilterByDeptOrm(Filter):
     id = "dept"
     label = "Département"
 
-    def selector(self, obj) -> str:
-        if isinstance(obj, Addressable):
-            return str(obj.dept_code)
-        return ""
+    def selector(self, org: Organisation) -> str:
+        return org.departement
 
     def apply(self, stmt, state):
+        # User.profile.has(KYCProfile.departement.in_(active_options))
         active_options = self.active_options(state)
-        if not active_options:
-            return stmt
-        return stmt.where(Organisation.dept_code.in_(active_options))
-
+        if active_options:
+            stmt = stmt.where(
+                Organisation.departement.in_(active_options)
+            )
+        return stmt
 
 class FilterByCityOrm(Filter):
     id = "city"
     label = "Ville"
 
-    def selector(self, obj) -> str:
-        if isinstance(obj, Addressable):
-            return str(obj.city)
-        return ""
+    def selector(self, org: Organisation) -> str:
+        return org.ville
 
     def apply(self, stmt, state):
         active_options = self.active_options(state)
-        if not active_options:
-            return stmt
-        return stmt.where(Organisation.city.in_(active_options))
+        if active_options:
+            stmt = stmt.where(Organisation.ville.in_(active_options))
+        return stmt
 
 
 class FilterByCategory(Filter):
@@ -160,8 +184,9 @@ def make_filters(orgs: list[Organisation]):
     return [
         FilterByCategory(orgs),
         # FilterBySector(orgs),
-        FilterByCityOrm(orgs),
+        FilterByCountryOrm(orgs),
         FilterByDeptOrm(orgs),
+        FilterByCityOrm(orgs),
     ]
 
 
