@@ -397,6 +397,25 @@ class KYCProfile(Base):
         return self.info_professionnelle["pays_zip_ville"] or ""
 
     @hybrid_property
+    def code_postal(self) -> str:
+        """Return the zip code"""
+        pays_zip_ville = self.info_professionnelle["pays_zip_ville_detail"]
+        if not pays_zip_ville:
+            return ""
+        if isinstance(pays_zip_ville, list):
+            pays_zip_ville = pays_zip_ville[0]
+        try:
+            return pays_zip_ville.split()[2]
+        except IndexError:
+            return ""
+
+    @code_postal.expression
+    def code_postal(cls):
+        """SQL expression for the zip code property."""
+        extracted = cls.info_professionnelle["pays_zip_ville_detail"].op("->>")(0)
+        return func.coalesce(func.split_part(extracted, " ", 3))
+
+    @hybrid_property
     def departement(self) -> str:
         """Return the 2 first digit of zip code"""
         pays_zip_ville = self.info_professionnelle["pays_zip_ville_detail"]
