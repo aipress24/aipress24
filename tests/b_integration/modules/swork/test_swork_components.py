@@ -71,6 +71,7 @@ def test_user_with_profile(db_session: Session) -> User:
     profile.show_contact_details = {}
     profile.profile_label = "Journaliste"
     profile.info_personnelle = {"competences": [], "competences_journalisme": []}
+    profile.info_professionnelle = {"pays_zip_ville": 'FRA', "pays_zip_ville_detail": '75001 Paris'}
     user.profile = profile
 
     db_session.add(user)
@@ -469,7 +470,7 @@ class TestMakeMemberFilters:
         """Test make_filters returns list of filters."""
         filters = make_member_filters([test_user_with_profile])
         assert isinstance(filters, list)
-        assert len(filters) == 4
+        assert len(filters) == 5
 
 
 # =============================================================================

@@ -151,7 +151,6 @@ class FilterByCountryOrm(Filter):
     label = "Pays"
 
     def selector(self, user: User) -> FilterOption:
-        # return user.profile.country
         code = user.profile.country
         return FilterOption(country_code_to_country_name(code), code)
 
