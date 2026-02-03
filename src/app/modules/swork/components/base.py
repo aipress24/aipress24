@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import re
+from dataclasses import dataclass, field
 from typing import ClassVar, Never
 
 from sqlalchemy.sql import Select
@@ -98,17 +99,28 @@ class BaseList(WiredComponent):
             if filter_obj:
                 found_index = -1
                 for i, opt in enumerate(filter_obj.options):
-                    if opt == option_value:
+                    if str(opt) == option_value:
                         found_index = i
                         break
                 if found_index != -1:
                     self.filter_states[filter_id][str(found_index)] = False
 
 
+@dataclass(frozen=True, order=True)
+class FilterOption:
+    """Class to replace simple option strings in Filter when a code is also required."""
+
+    option: str
+    code: str = field(default="", compare=False)
+
+    def __str__(self) -> str:
+        return self.option
+
+
 class Filter:
     id: str
     label: str
-    options: list[str] = []
+    options: list[str | FilterOption] = []
 
     def __init__(self, objects: list | None = None) -> None:
         # Only initialize if no class-level options defined
