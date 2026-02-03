@@ -56,9 +56,6 @@ class OrganisationsList(BaseList):
             .limit(100)
         )
 
-    def search_clause(self, search):
-        return Organisation.name.ilike(f"%{search}%")
-
     def apply_search(self, stmt: Select) -> Select:
         search = self.search.strip()
         if not search:
