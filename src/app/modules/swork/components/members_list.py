@@ -63,7 +63,7 @@ class MembersList(BaseList):
         if m:
             zip_code = m.group(1)
             search = search.replace(zip_code, "").strip()
-            stmt = stmt.where(User.zip_code.ilike(f"%{zip_code}%"))
+            stmt = stmt.where(User.profile.has(KYCProfile.code_postal.ilike(f"%{zip_code}%")))
 
         if search:
             stmt = stmt.where(
