@@ -14,6 +14,7 @@ from app.flask.components.filterset import FilterSet
 from app.flask.sqla import get_multi
 from app.models.lifecycle import PublicationStatus
 from app.modules.events.models import EventPost
+from app.modules.kyc.field_label import country_code_to_country_name
 
 FILTER_SPECS = [
     {
@@ -27,9 +28,20 @@ FILTER_SPECS = [
         "selector": "sector",
     },
     {
-        "id": "pays_zip_ville_detail",
-        "label": "Localisation",
-        "selector": "location",
+        "id": "pays_zip_ville",
+        "label": "Pays",
+        "selector": "pays_zip_ville",
+        "label_function": country_code_to_country_name,
+    },
+    {
+        "id": "departement",
+        "label": "Département",
+        "selector": "departement",
+    },
+    {
+        "id": "ville",
+        "label": "Ville",
+        "selector": "ville",
     },
 ]
 
@@ -43,8 +55,12 @@ SORTER_OPTIONS = [
 FILTER_TAG_LABEL = {
     "sector": "secteur",
     "genre": "type",
-    "pays_zip_ville_detail": "localisation",
+    "pays_zip_ville": "pays",
+    "departement": "dépt",
+    "ville": "ville",
 }
+
+FILTER_SPECS_BY_ID = {spec["id"]: spec for spec in FILTER_SPECS}
 
 
 class FilterBar:
@@ -57,16 +73,23 @@ class FilterBar:
     #
     @property
     def active_filters(self) -> list:
-        return [
-            {
-                "type": "selector",
-                "id": filter["id"],
-                "value": filter["value"],
-                "label": filter["value"],
-                "tag_label": FILTER_TAG_LABEL.get(filter["id"], ""),
-            }
-            for filter in self.state.get("filters", [])
-        ]
+        active = []
+        for filter in self.state.get("filters", []):
+            spec = FILTER_SPECS_BY_ID.get(filter["id"])
+            label = filter["value"]
+            if spec and (label_func := spec.get("label_function")):
+                label = label_func(label)
+
+            active.append(
+                {
+                    "type": "selector",
+                    "id": filter["id"],
+                    "value": filter["value"],
+                    "label": label,
+                    "tag_label": FILTER_TAG_LABEL.get(filter["id"], ""),
+                }
+            )
+        return active
 
     @property
     def tag(self) -> str:
