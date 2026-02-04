@@ -86,7 +86,7 @@
         <span class="">
           {{ filter.tag_label }}: {{ filter.label }}
         </span>
-        {% set action = {'action': 'remove', 'id': filter.id, 'value': filter.label} %}
+        {% set action = {'action': 'remove', 'id': filter.id, 'value': filter.value} %}
         <button
             hx-post="{{ url_for(".wire_tab", tab=tab) }}"
             hx-target="#wire-main"

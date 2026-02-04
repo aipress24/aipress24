@@ -68,6 +68,9 @@ FILTER_TAG_LABEL = {
 }
 
 
+FILTER_SPECS_BY_ID = {spec["id"]: spec for spec in FILTER_SPECS}
+
+
 SORTER_OPTIONS = [
     ("date", "Date"),
     ("views", "Popularité (vues)"),
@@ -88,16 +91,23 @@ class FilterBar:
     #
     @property
     def active_filters(self):
-        return [
-            {
-                "type": "selector",
-                "id": filter["id"],
-                "value": filter["value"],
-                "label": filter["value"],
-                "tag_label": FILTER_TAG_LABEL.get(filter["id"], ""),
-            }
-            for filter in self.state.get("filters", [])
-        ]
+        active = []
+        for filter in self.state.get("filters", []):
+            spec = FILTER_SPECS_BY_ID.get(filter["id"])
+            label = filter["value"]
+            if spec and (label_func := spec.get("label_function")):
+                label = label_func(label)
+
+            active.append(
+                {
+                    "type": "selector",
+                    "id": filter["id"],
+                    "value": filter["value"],
+                    "label": label,
+                    "tag_label": FILTER_TAG_LABEL.get(filter["id"], ""),
+                }
+            )
+        return active
 
     @property
     def tag(self) -> str:
