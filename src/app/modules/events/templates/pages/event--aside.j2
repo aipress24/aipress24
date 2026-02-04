@@ -44,12 +44,12 @@
     {% if event.publisher %}
       <div>
         <h3 class="text-sm font-medium text-gray-500">{{ event.publisher_type }}</h3>
-        <a href="{{ url_for(post.publisher) }}"
+        <a href="{{ url_for(event.publisher) }}"
             class="text-sm font-medium hover:underline">{{ event.publisher.name }}</a>
       </div>
     {% endif %}
 
-    {% for metadata in page.get_metadata_list() %}
+    {% for metadata in metadata_list %}
       <div>
         <h3 class="text-sm font-medium text-gray-500">{{ metadata.label }}</h3>
         {% if 'href' in metadata %}
@@ -107,7 +107,7 @@
 
   <table class="table">
     <tbody>
-    {% for event in page.get_related_events() %}
+    {% for event in related_events %}
       {% set date = event.start_date %}
       <tr class="even:bg-gray-100">
         <td class="flex text-gray-700 w-20" style="vertical-align: top;">
