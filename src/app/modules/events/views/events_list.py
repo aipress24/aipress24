@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 import json
+import re
 from collections import defaultdict
 
 import webargs
@@ -14,6 +15,7 @@ from attrs import asdict
 from flask import render_template, request, session
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
+from sqlalchemy.sql import Select
 from webargs.flaskparser import parser
 
 from app.flask.extensions import htmx
@@ -124,6 +126,20 @@ def _build_events_context(filter_bar: FilterBar) -> dict:
     }
 
 
+def _apply_global_search(stmt: Select, search: str) -> Select:
+    if not search:
+        return stmt
+
+    # code postal
+    m = re.search(r"([0-9]+)", search)
+    if m:
+        zip_code = m.group(1)
+        search = search.replace(zip_code, "").strip()
+        return stmt.where(EventPost.code_postal.ilike(f"%{zip_code}%"))
+
+    return stmt.where(EventPost.title.ilike(f"%{search}%"))
+
+
 def _get_events(
     date_filter: DateFilter, filter_bar: FilterBar, search: str
 ) -> list[EventPost]:
@@ -150,7 +166,9 @@ def _get_events(
     departement_filters = {
         f["value"] for f in filter_bar.active_filters if f["id"] == "departement"
     }
-    ville_filters = {f["value"] for f in filter_bar.active_filters if f["id"] == "ville"}
+    ville_filters = {
+        f["value"] for f in filter_bar.active_filters if f["id"] == "ville"
+    }
 
     if genre_filters:
         stmt = stmt.where(EventPost.genre.in_(genre_filters))
@@ -163,8 +181,7 @@ def _get_events(
     if ville_filters:
         stmt = stmt.where(EventPost.ville.in_(ville_filters))
 
-    if search:
-        stmt = stmt.where(EventPost.title.ilike(f"%{search}%"))
+    stmt = _apply_global_search(stmt, search)
 
     return list(get_multi(EventPost, stmt))
 
