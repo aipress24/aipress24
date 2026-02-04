@@ -4,8 +4,13 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import pipe as p
 from flask import session
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 
 class FilterSet:
@@ -21,7 +26,8 @@ class FilterSet:
             id = spec["id"]
             label = spec["label"]
             options = spec.get("options")
-            filter = Filter(id, label)
+            label_function = spec.get("label_function")
+            filter = Filter(name=id, label=label, label_function=label_function)
             filter.init(objects, options=options)
             self.filters.append(filter)
 
@@ -43,15 +49,25 @@ class Filter:
     label: str
     options: list
 
-    def __init__(self, name: str, label: str) -> None:
+    def __init__(
+        self,
+        name: str,
+        label: str,
+        label_function: Callable | None = None,
+    ) -> None:
         self.name = name
         self.label = label
+        self.label_function = label_function
         self.options = []
 
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__} {self.name} {self.label}>"
 
-    def init(self, objects, options=None) -> None:
+    def init(
+        self,
+        objects,
+        options=None,
+    ) -> None:
         if options is not None:
             for option in options:
                 self.options.append(
@@ -64,6 +80,17 @@ class Filter:
 
         def getter(obj):
             return getattr(obj, self.name)
+
+        if self.label_function:
+            options = list(objects | p.map(getter) | p.sort | p.dedup)
+            for option in options:
+                self.options.append(
+                    {
+                        "id": option,
+                        "label": self.label_function(option),
+                    }
+                )
+            return
 
         options = list(objects | p.map(getter) | p.sort | p.dedup)
         for option in options:

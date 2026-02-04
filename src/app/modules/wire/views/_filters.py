@@ -14,6 +14,7 @@ from werkzeug.exceptions import BadRequest
 from app.flask.components.filterset import FilterSet
 from app.flask.sqla import get_multi
 from app.models.lifecycle import PublicationStatus
+from app.modules.kyc.field_label import country_code_to_country_name
 from app.modules.wire.models import ArticlePost
 
 FILTER_SPECS = [
@@ -38,9 +39,20 @@ FILTER_SPECS = [
         "selector": "section",
     },
     {
-        "id": "pays_zip_ville_detail",
-        "label": "Localisation",
-        "selector": "location",
+        "id": "pays_zip_ville",
+        "label": "Pays",
+        "selector": "pays",
+        "label_function": country_code_to_country_name,
+    },
+    {
+        "id": "departement",
+        "label": "Département",
+        "selector": "departement",
+    },
+    {
+        "id": "ville",
+        "label": "Ville",
+        "selector": "ville",
     },
 ]
 
@@ -50,7 +62,9 @@ FILTER_TAG_LABEL = {
     "topic": "rubrique",
     "genre": "genre",
     "section": "thématique",
-    "pays_zip_ville_detail": "localisation",
+    "pays_zip_ville": "pays",
+    "departement": "dépt",
+    "ville": "ville",
 }
 
 
