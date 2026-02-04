@@ -77,7 +77,7 @@ class Carousel(Component):
                     info = self.post
             except (AttributeError, NotFoundError):
                 info = self.post
-        elif info_type == "EventVM":
+        elif info_type in {"EventVM", "EventDetailVM"}:
             try:
                 info_id = self.post.eventroom_id
                 if info_id:
