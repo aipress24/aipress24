@@ -81,13 +81,18 @@
     {% for filter in filter_bar.active_filters %}
      <span
           class="inline-flex items-center rounded text-sm font-medium text-gray-600 bg-gray-200 my-1 py-1 px-2">
-        <span class="">{{ filter.tag_label }}: {{ filter.label }}</span>
-        {% set action = {'action': 'remove', 'id': filter.id, 'value': filter.label} %}
+        <span class="">
+          {{ filter.tag_label }}: {{ filter.label }}
+        </span>
+        {% set action = {'action': 'remove', 'id': filter.id, 'value': filter.value} %}
         <button
             hx-post="{{ url_for(".events") }}"
             hx-target="#content"
             hx-vals='{{ action | tojson }}'
-            class="ml-1 hover:bg-gray-300" aria-hidden="true">✖</button>
+            class="ml-1 hover:bg-gray-300" aria-hidden="true"
+        >
+          ✖
+        </button>
       </span>
     {% endfor %}
   </div>

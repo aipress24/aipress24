@@ -144,18 +144,24 @@ def _get_events(
     sector_filters = {
         f["value"] for f in filter_bar.active_filters if f["id"] == "sector"
     }
-    localisation_filters = {
-        f["value"]
-        for f in filter_bar.active_filters
-        if f["id"] == "pays_zip_ville_detail"
+    pays_zip_ville_filters = {
+        f["value"] for f in filter_bar.active_filters if f["id"] == "pays_zip_ville"
     }
+    departement_filters = {
+        f["value"] for f in filter_bar.active_filters if f["id"] == "departement"
+    }
+    ville_filters = {f["value"] for f in filter_bar.active_filters if f["id"] == "ville"}
 
     if genre_filters:
         stmt = stmt.where(EventPost.genre.in_(genre_filters))
     if sector_filters:
         stmt = stmt.where(EventPost.sector.in_(sector_filters))
-    if localisation_filters:
-        stmt = stmt.where(EventPost.pays_zip_ville_detail.in_(localisation_filters))
+    if pays_zip_ville_filters:
+        stmt = stmt.where(EventPost.pays_zip_ville.in_(pays_zip_ville_filters))
+    if departement_filters:
+        stmt = stmt.where(EventPost.departement.in_(departement_filters))
+    if ville_filters:
+        stmt = stmt.where(EventPost.ville.in_(ville_filters))
 
     if search:
         stmt = stmt.where(EventPost.title.ilike(f"%{search}%"))
