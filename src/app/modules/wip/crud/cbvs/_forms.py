@@ -303,6 +303,20 @@ class CommandeForm(Form):
         validators=[validators.InputRequired()],
     )
 
+    pays_zip_ville = CountrySelectField(
+        name="pays_zip_ville",
+        name2="pays_zip_ville_detail",
+        label="Pays",
+        id="pzv",
+        id2="pzv_detail",
+        label2="Code postal et ville",
+        choices=[],
+        # validators=validators_list,
+        validate_choice=False,
+        # render_kw=render_kw,
+        readonly=0,
+    )
+
     # Group: dates
     date_limite_validite = DateTimeField("Date/heure de début", render_kw={"width": 3})
     date_bouclage = DateTimeField("Date/heure de bouclage", render_kw={"width": 3})
@@ -316,7 +330,14 @@ class CommandeForm(Form):
             "headers": {"label": "", "fields": ["titre", "contenu"]},
             "metadata": {
                 "label": "Métadonnées",
-                "fields": ["genre", "section", "topic", "sector", "media_id"],
+                "fields": [
+                    "genre",
+                    "section",
+                    "topic",
+                    "sector",
+                    "media_id",
+                    "pays_zip_ville",
+                ],
             },
             "dates": {
                 "label": "Dates-clés",
