@@ -104,7 +104,7 @@ class Addressable:
     address: Mapped[str] = mapped_column(default="")
     city: Mapped[str] = mapped_column(default="")
     region: Mapped[str] = mapped_column(default="")
-    departement: Mapped[str] = mapped_column(default="")
+    departement_deprecated: Mapped[str] = mapped_column(default="")
     country: Mapped[str] = mapped_column(default="")
 
     # Codes
@@ -129,7 +129,7 @@ class Addressable:
             "address",
             "city",
             "region",
-            "departement",
+            "departement_deprecated",
             "country",
             "dept_code",
             "region_code",
