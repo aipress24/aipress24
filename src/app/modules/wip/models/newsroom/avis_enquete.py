@@ -90,6 +90,9 @@ class AvisEnquete(
         sa.Enum(PublicationStatus), default=PublicationStatus.DRAFT
     )
 
+    pays_zip_ville: Mapped[str] = mapped_column(default="")
+    pays_zip_ville_detail: Mapped[str] = mapped_column(default="")
+
 
 class ContactAvisEnquete(IdMixin, Base):
     __tablename__ = "nrm_contact_avis_enquete"
