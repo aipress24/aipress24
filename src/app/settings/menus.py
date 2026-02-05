@@ -168,7 +168,7 @@ ADMIN_MENU = [
     },
     {
         "label": "Export",
-        "endpoint": "admin.export",
+        "endpoint": "admin.exports",
         "icon": "download",
     },
     {
