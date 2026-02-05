@@ -45,3 +45,6 @@ class Commande(
     status: Mapped[PublicationStatus] = mapped_column(
         sa.Enum(PublicationStatus), default=PublicationStatus.DRAFT
     )
+
+    pays_zip_ville: Mapped[str] = mapped_column(default="")
+    pays_zip_ville_detail: Mapped[str] = mapped_column(default="")
