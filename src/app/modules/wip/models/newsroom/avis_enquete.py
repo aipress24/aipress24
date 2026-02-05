@@ -33,6 +33,7 @@ class TypeAvis(StrEnum):
 class StatutAvis(StrEnum):
     EN_ATTENTE = auto()  # converted to "en_attente"
     ACCEPTE = auto()  # converted to "accepte"
+    ACCEPTE_RELATION_PRESSE = auto()  # converted to "accepte"
     REFUSE = auto()  # converted to "refuse"
     REFUSE_SUGGESTION = auto()  # converted to "refuse_suggestion"
 
@@ -148,6 +149,8 @@ class ContactAvisEnquete(IdMixin, Base):
     # Notes
     rdv_notes_journaliste: Mapped[str] = mapped_column(default="")
     rdv_notes_expert: Mapped[str] = mapped_column(default="")
+
+    email_relation_presse: Mapped[str] = mapped_column(default="")
 
     @property
     def proposed_slots_dt(self) -> list[datetime]:

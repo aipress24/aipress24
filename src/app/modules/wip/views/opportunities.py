@@ -112,12 +112,22 @@ def media_opportunity_post(id: int) -> str | Response:
     repo = container.get(ContactAvisEnqueteRepository)
     contact = repo.get(id)
 
+    expert = cast(User, current_user)
+    if expert.is_anonymous:
+        return ""
+
     reponse = request.form.get("reponse1")
     if reponse:
         contact.date_reponse = datetime.now(UTC)
         if reponse == "oui":
             contact.status = StatutAvis.ACCEPTE  # type: ignore[assignment]
             contact.rdv_notes_expert = request.form.get("contribution", "")
+        elif reponse == "oui_relation_presse":
+            contact.status = StatutAvis.ACCEPTE_RELATION_PRESSE  # type: ignore[assignment]
+            contact.rdv_notes_expert = request.form.get("contribution", "")
+            contact.email_relation_presse = expert.profile.get_value(
+                "email_relation_presse"
+            )
         elif reponse == "non":
             contact.status = StatutAvis.REFUSE  # type: ignore[assignment]
         elif reponse == "non-mais":
@@ -152,12 +162,21 @@ def _render_media_opportunity(id: int) -> str:
         avis_enquete=contact.avis_enquete,
         journaliste=contact.journaliste,
     )
+
+    expert = cast(User, current_user)
+    if expert.is_anonymous:
+        return ""
+
     reponse1 = ""
     contribution = ""
     suggestion = ""
+    email_relation_presse = expert.profile.get_value("email_relation_presse")
 
     if contact.status == StatutAvis.ACCEPTE:
         reponse1 = "oui"
+        contribution = contact.rdv_notes_expert or ""
+    elif contact.status == StatutAvis.ACCEPTE_RELATION_PRESSE:
+        reponse1 = "oui_relation_presse"
         contribution = contact.rdv_notes_expert or ""
     elif contact.status == StatutAvis.REFUSE:
         reponse1 = "non"
@@ -169,6 +188,7 @@ def _render_media_opportunity(id: int) -> str:
         "reponse1": request.form.get("reponse1", reponse1),
         "contribution": request.form.get("contribution", contribution),
         "suggestion": request.form.get("suggestion", suggestion),
+        "email_relation_presse": email_relation_presse,
     }
 
     is_answered = contact.status != StatutAvis.EN_ATTENTE
