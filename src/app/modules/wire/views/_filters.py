@@ -15,7 +15,7 @@ from app.flask.components.filterset import FilterSet
 from app.flask.sqla import get_multi
 from app.models.lifecycle import PublicationStatus
 from app.modules.kyc.field_label import country_code_to_country_name
-from app.modules.wire.models import ArticlePost
+from app.modules.wire.models import ArticlePost, PressReleasePost
 
 FILTER_SPECS = [
     {
@@ -56,6 +56,24 @@ FILTER_SPECS = [
     },
 ]
 
+FILTER_SPECS_COM = [
+    {
+        "id": "pays_zip_ville",
+        "label": "Pays",
+        "selector": "pays",
+        "label_function": country_code_to_country_name,
+    },
+    {
+        "id": "departement",
+        "label": "Département",
+        "selector": "departement",
+    },
+    {
+        "id": "ville",
+        "label": "Ville",
+        "selector": "ville",
+    },
+]
 
 FILTER_TAG_LABEL = {
     "sector": "secteur",
@@ -225,13 +243,12 @@ class FilterBar:
         return filter_set.get_filters()
 
     def get_filters_for_com(self):
-        return []
-        # stmt = sa.select(PressRelease).where(
-        #     PressRelease.status == PublicationStatus.PUBLIC
-        # )
-        # press_releases = get_multi(PressRelease, stmt)
-        #
-        # filter_set = FilterSet(FILTER_SPECS)
-        # filter_set.init(press_releases)
-        #
-        # return filter_set.get_filters()
+        stmt = sa.select(PressReleasePost).where(
+            PressReleasePost.status == PublicationStatus.PUBLIC
+        )
+        press_releases = get_multi(PressReleasePost, stmt)
+
+        filter_set = FilterSet(FILTER_SPECS_COM)
+        filter_set.init(press_releases)
+
+        return filter_set.get_filters()
