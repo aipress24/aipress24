@@ -33,7 +33,7 @@ class TypeAvis(StrEnum):
 class StatutAvis(StrEnum):
     EN_ATTENTE = auto()  # converted to "en_attente"
     ACCEPTE = auto()  # converted to "accepte"
-    ACCEPTE_RELATION_PRESSE = auto()  # converted to "accepte"
+    ACCEPTE_RELATION_PRESSE = auto()  # converted to "accepte_relation_presse"
     REFUSE = auto()  # converted to "refuse"
     REFUSE_SUGGESTION = auto()  # converted to "refuse_suggestion"
 
@@ -201,7 +201,8 @@ class ContactAvisEnquete(IdMixin, Base):
     def can_propose_rdv(self) -> bool:
         """Check if a RDV can be proposed for this contact."""
         return bool(
-            self.status == StatutAvis.ACCEPTE and self.rdv_status == RDVStatus.NO_RDV
+            self.status in {StatutAvis.ACCEPTE, StatutAvis.ACCEPTE_RELATION_PRESSE}
+            and self.rdv_status == RDVStatus.NO_RDV
         )
 
     def propose_rdv(
@@ -404,7 +405,8 @@ class ContactAvisEnquete(IdMixin, Base):
     def is_rdv_requested(self) -> bool:
         """Check if opportunity is accepted, but still no RDV dates proposed."""
         return bool(
-            self.status == StatutAvis.ACCEPTE and self.rdv_status == RDVStatus.NO_RDV
+            self.status in {StatutAvis.ACCEPTE, StatutAvis.ACCEPTE_RELATION_PRESSE}
+            and self.rdv_status == RDVStatus.NO_RDV
         )
 
     def get_rdv_summary(self) -> str:

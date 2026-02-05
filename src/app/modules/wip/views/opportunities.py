@@ -78,7 +78,7 @@ def send_avis_enquete_acceptance_email(
     Args:
         contact: ContactAvisEnquete
         expert: User responding
-        response: either "oui", "non", "non-mais"
+        response: either "oui", "oui_relation_presse", "non", "non-mais"
         notes: response notes of the expert
     """
     expert = cast(User, current_user)
@@ -90,6 +90,9 @@ def send_avis_enquete_acceptance_email(
     recipient = contact.journaliste.email
     title = contact.avis_enquete.titre
     notes = contact.rdv_notes_expert
+
+    if response == "oui_relation_presse":
+        response = "oui, avec relation presse"
 
     notification_mail = ContactAvisEnqueteAcceptanceMail(
         sender="contact@aipress24.com",
