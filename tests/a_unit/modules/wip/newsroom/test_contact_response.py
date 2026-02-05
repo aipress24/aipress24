@@ -9,8 +9,6 @@ from __future__ import annotations
 from datetime import datetime, timezone
 
 import arrow
-from sqlalchemy.orm import scoped_session
-
 from app.models.auth import User
 from app.models.organisation import Organisation
 from app.modules.wip.models.newsroom.avis_enquete import (
@@ -19,6 +17,7 @@ from app.modules.wip.models.newsroom.avis_enquete import (
     RDVStatus,
     StatutAvis,
 )
+from sqlalchemy.orm import scoped_session
 
 
 def _create_test_enquete(
@@ -335,7 +334,7 @@ class TestStatusTransitions:
         for status in StatutAvis:
             contact.status = status
             contact.rdv_status = RDVStatus.NO_RDV  # Reset RDV status
-            if status == StatutAvis.ACCEPTE:
+            if status in {StatutAvis.ACCEPTE, StatutAvis.ACCEPTE_RELATION_PRESSE}:
                 assert contact.can_propose_rdv() is True
             else:
                 assert contact.can_propose_rdv() is False
