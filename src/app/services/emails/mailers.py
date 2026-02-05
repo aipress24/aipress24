@@ -87,7 +87,7 @@ class ContactAvisEnqueteAcceptanceMail(EmailTemplate):
         - sender_mail (str): user.email (expert sending mail), informative.
         - sender_full_name (str): user.full_name (expert sending mail), expert, informative.
         - title (str): Title of the Avis d' Enquete.
-        - response (str): "oui", "non", "non-mais".
+        - response (str): "oui", "oui_relation_presse", "non", "non-mais".
         - notes: (str): some expert's notes about the response.
 
     Usage:
