@@ -46,9 +46,9 @@
         </p>
 
           {% if form_state.contribution and form_state.reponse1 in ["oui", "oui_relation_presse"] %}
-          <p>Votre message: {{ form_state.contribution }}</p>
+          <p>Votre message: {{ form_state.contribution.strip() | default("aucun message.", true) }}</p>
         {% elif form_state.suggestion and form_state.reponse1 == "non-mais" %}
-          <p>Votre suggestion: {{ form_state.suggestion }}</p>
+          <p>Votre suggestion: {{ form_state.suggestion | default("aucune suggestion.", true) }}</p>
         {% endif %}
       </div>
 
