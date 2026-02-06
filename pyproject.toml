@@ -208,10 +208,14 @@ excludes = ["**/test_*.py", "**/*_test.py", "**/tests.py"]
 # -----------------------------------------------------------------------------
 
 [tool.pytest]
-python_files = "test_*.py *_test.py tests.py"
-
-[tool.pytest.ini_options]
-addopts = "--disable-warnings --disable-pytest-warnings --ignore=src/app/sandbox/ --tb=short --doctest-modules"
+python_files = ["test_*.py", "*_test.py", "tests.py"]
+addopts = [
+    "--disable-warnings",
+    "--disable-pytest-warnings",
+    "--ignore=src/app/sandbox/",
+    "--tb=short",
+    "--doctest-modules",
+]
 filterwarnings = [
     'ignore:.*contextfunction.*:DeprecationWarning',
     'ignore:.*Unmanaged.*:sqlalchemy.exc.SAWarning',
