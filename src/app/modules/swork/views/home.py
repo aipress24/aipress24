@@ -47,7 +47,7 @@ def swork():
     return render_template("pages/swork.j2", **ctx)
 
 
-@blueprint.route("/new-post", methods=["POST"])
+@blueprint.route("/new_post", methods=["POST"])
 @nav(hidden=True)
 def new_post():
     """Handle new post creation."""
