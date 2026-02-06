@@ -228,7 +228,7 @@ class ExpertFilterService:
     def _get_all_experts(self) -> list[User]:
         """Get all experts (cached)."""
         if self._all_experts is None:
-            self._all_experts = self._user_repo.list()
+            self._all_experts = self._user_repo.list(active=True)
         return self._all_experts
 
     def _get_selectors(self) -> list[BaseSelector]:
