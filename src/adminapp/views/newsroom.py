@@ -47,8 +47,8 @@ class ArticleAdmin(ModelView, model=Article):
         pks = request.query_params.get("pks", "").split(",")
         if pks:
             for pk in pks:
-                # NB: there is a bug here
-                _model: Article = await self.get_object_for_edit(pk)
+                # NB: there is a bug here - get_object_for_edit expects Request, not pk
+                _model: Article = await self.get_object_for_edit(pk)  # type: ignore[arg-type]
                 # ...
 
         referer = request.headers.get("Referer")
