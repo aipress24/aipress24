@@ -415,8 +415,7 @@ class ContactAvisEnquete(IdMixin, Base):
             return "Pas de rendez-vous"
 
         if self.rdv_status == RDVStatus.PROPOSED:
-            # Type checker doesn't recognize InstrumentedAttribute.__len__
-            slot_count: int = len(self.proposed_slots)  # type: ignore[arg-type]
+            slot_count: int = len(self.proposed_slots)
             return f"RDV proposé ({slot_count} créneaux)"
 
         if self.rdv_status == RDVStatus.CONFIRMED and self.date_rdv and self.rdv_type:

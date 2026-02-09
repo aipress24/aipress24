@@ -74,8 +74,8 @@ class BaseList(WiredComponent):
 
         return stmt
 
-    def get_active_filters(self) -> list[dict[str, str|FilterOption]]:
-        active_filters: list[dict[str, str|FilterOption]] = []
+    def get_active_filters(self) -> list[dict[str, str | FilterOption]]:
+        active_filters: list[dict[str, str | FilterOption]] = []
         for filter in self.filters:
             state = self.filter_states[filter.id]
             for i, option_value in enumerate(filter.options):

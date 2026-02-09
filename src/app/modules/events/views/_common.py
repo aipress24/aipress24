@@ -80,8 +80,8 @@ class EventDetailVM(ViewModel):
             "participants": participants,
             "opening": opening,
             "country_zip_city": (
-                f"{country_zip_code_to_city(event.pays_zip_ville_detail)}, "  # type: ignore[bad-argument-type]
-                f"{country_code_to_label(event.pays_zip_ville)}"  # type: ignore[bad-argument-type]
+                f"{country_zip_code_to_city(event.pays_zip_ville_detail)}, "
+                f"{country_code_to_label(event.pays_zip_ville)}"
             ),
         }
 

@@ -84,6 +84,8 @@ def register_users_commands(app):
 
         console.print(table)
         if total > limit:
-            console.print(f"\nShowing {limit} of {total} users (use --limit to show more)")
+            console.print(
+                f"\nShowing {limit} of {total} users (use --limit to show more)"
+            )
         else:
             console.print(f"\nTotal: {total} users")

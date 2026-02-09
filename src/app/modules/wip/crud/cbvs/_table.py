@@ -56,9 +56,9 @@ class BaseDataSource(DataSource):
     def get_items(self):
         query = (
             self._base_query()  # ordering query here
-            .order_by(self.get_order_by())  # type: ignore[attr-defined]
-            .offset(self.offset)  # type: ignore[attr-defined]
-            .limit(self.limit)  # type: ignore[attr-defined]
+            .order_by(self.get_order_by())
+            .offset(self.offset)
+            .limit(self.limit)
         )
         return list(db.session.scalars(query))
 

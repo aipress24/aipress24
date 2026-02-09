@@ -79,13 +79,13 @@ def load_db_cmd() -> None:
     print(green("Loading database..."))
 
     url = yarl.URL(current_app.config["SQLALCHEMY_DATABASE_URI"])
-    host = url.host
+    host = url.host or "localhost"
     port = url.port
-    db_name = url.path[1:]
+    db_name = url.path[1:] if url.path else "aipress24"
     user = url.user
     password = url.password
 
-    cmd = ["pg_restore", "-c", "-h", host, "-d", db_name]
+    cmd: list[str] = ["pg_restore", "-c", "-h", host, "-d", db_name]
     if port:
         cmd += ["-p", str(port)]
     if user:

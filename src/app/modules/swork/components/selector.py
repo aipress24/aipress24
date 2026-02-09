@@ -15,7 +15,7 @@ class Selector(StaticComponent):
     name: str
     options: list
 
-    def mount(self, parent=None, filter=None, **kwargs) -> None:  # type: ignore[override]
+    def mount(self, parent=None, filter=None, **kwargs) -> None:
         if filter is None:
             return
         self.label = filter.label

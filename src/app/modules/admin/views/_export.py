@@ -72,7 +72,7 @@ class BaseExporter:
     WIDTH_TEXT12 = "12cm"
 
     def __init__(self) -> None:
-        self.date_now: datetime = None  # type: ignore
+        self.date_now: datetime | None = None
         self.document: bytes = b""
         self.columns_definition: dict[str, FieldColumn] = {}
         self.sheet: dict[str, Any] = {"name": self.sheet_name, "table": []}
@@ -130,7 +130,11 @@ class BaseExporter:
                 {
                     "row": [
                         {"value": "Date export:"},
-                        {"value": self.date_now.isoformat(" ", "minutes")},
+                        {
+                            "value": self.date_now.isoformat(" ", "minutes")
+                            if self.date_now
+                            else ""
+                        },
                     ],
                     "style": "default_table_row",
                 },
@@ -207,15 +211,17 @@ class InscriptionsExporter(BaseExporter):
 
     def __init__(self) -> None:
         super().__init__()
-        self.start_date: datetime = None  # type: ignore
+        self.start_date: datetime | None = None
 
     @property
     def title(self) -> str:
+        assert self.start_date is not None
         dt = self.start_date.strftime("%d/%m/%Y")
         return f"Demandes d'inscriptions depuis le {dt}"
 
     @property
     def filename(self) -> str:
+        assert self.start_date is not None
         return f"inscriptions_depuis_{self.start_date.strftime('%Y-%m-%d')}.ods"
 
     def do_start_date(self) -> None:
@@ -514,11 +520,13 @@ class ModificationsExporter(InscriptionsExporter):
 
     @property
     def title(self) -> str:
+        assert self.start_date is not None
         dt = self.start_date.strftime("%d/%m/%Y")
         return f"Modification importantes depuis le {dt}"
 
     @property
     def filename(self) -> str:
+        assert self.start_date is not None
         return f"modifications_depuis_{self.start_date.strftime('%Y-%m-%d')}.ods"
 
     def fetch_data(self) -> list[User]:
@@ -610,7 +618,8 @@ class UsersExporter(InscriptionsExporter):
 
     @property
     def filename(self) -> str:
-        return f"utilisateurs_{self.start_date.strftime('%Y-%m-%d')}.ods"
+        assert self.date_now is not None
+        return f"utilisateurs_{self.date_now.strftime('%Y-%m-%d')}.ods"
 
     def fetch_data(self) -> list[User]:
         stmt = (
@@ -654,11 +663,13 @@ class OrganisationsExporter(BaseExporter):
 
     @property
     def title(self) -> str:
+        assert self.date_now is not None
         dt = self.date_now.strftime("%d/%m/%Y")
         return f"Organisations à la date: {dt}"
 
     @property
     def filename(self) -> str:
+        assert self.date_now is not None
         return f"organisation_{self.date_now.strftime('%Y-%m-%d')}.ods"
 
     def init_columns_definition(self) -> None:
@@ -737,7 +748,7 @@ class OrganisationsExporter(BaseExporter):
             case "created_at" | "validated_at" | "modified_at":
                 value = self.get_datetime_attr(org, name)
             case "nb_members":
-                value = len(org.members)  # type: ignore[unused-ignore]
+                value = len(org.members)
             case _ if name in self._ORG_ATTRS:
                 # Handle direct attributes
                 value = getattr(org, name)
