@@ -7,7 +7,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 from typing import TYPE_CHECKING
 from uuid import UUID
 
@@ -21,7 +21,7 @@ if TYPE_CHECKING:
     from .business_wall import BusinessWall
 
 
-class PartnershipStatus(str, Enum):
+class PartnershipStatus(StrEnum):
     """Partnership status for PR Agency relationships."""
 
     INVITED = "invited"

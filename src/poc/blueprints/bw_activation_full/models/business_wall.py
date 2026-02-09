@@ -7,7 +7,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 from typing import TYPE_CHECKING
 
 import sqlalchemy as sa
@@ -22,7 +22,7 @@ if TYPE_CHECKING:
     from .subscription import Subscription
 
 
-class BWType(str, Enum):
+class BWType(StrEnum):
     """Business Wall types."""
 
     MEDIA = "media"
@@ -35,7 +35,7 @@ class BWType(str, Enum):
     TRANSFORMERS = "transformers"
 
 
-class BWStatus(str, Enum):
+class BWStatus(StrEnum):
     """Business Wall status."""
 
     DRAFT = "draft"

@@ -39,7 +39,7 @@ class NavNode:
     @property
     def effective_acl(self) -> list[tuple[str, Any, str]]:
         """Get effective ACL (own or inherited)."""
-        return self.acl if self.acl else self.inherited_acl
+        return self.acl or self.inherited_acl
 
     def url_for(self, **kwargs: Any) -> str:
         """Generate URL for this node."""

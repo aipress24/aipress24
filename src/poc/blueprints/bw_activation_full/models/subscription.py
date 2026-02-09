@@ -7,7 +7,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 from typing import TYPE_CHECKING
 from uuid import UUID
 
@@ -20,7 +20,7 @@ if TYPE_CHECKING:
     from .business_wall import BusinessWall
 
 
-class SubscriptionStatus(str, Enum):
+class SubscriptionStatus(StrEnum):
     """Subscription status."""
 
     PENDING = "pending"
@@ -30,7 +30,7 @@ class SubscriptionStatus(str, Enum):
     EXPIRED = "expired"
 
 
-class PricingTier(str, Enum):
+class PricingTier(StrEnum):
     """Pricing tiers based on client/employee count."""
 
     TIER_1_10 = "1-10"

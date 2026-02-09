@@ -7,7 +7,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 from typing import TYPE_CHECKING
 from uuid import UUID
 
@@ -21,7 +21,7 @@ if TYPE_CHECKING:
     from .business_wall import BusinessWall
 
 
-class BWRoleType(str, Enum):
+class BWRoleType(StrEnum):
     """Business Wall role types (RBAC)."""
 
     BW_OWNER = "BW_OWNER"  # Business Wall Owner
@@ -31,7 +31,7 @@ class BWRoleType(str, Enum):
     BWPRE = "BWPRe"  # PR Manager (external)
 
 
-class InvitationStatus(str, Enum):
+class InvitationStatus(StrEnum):
     """Invitation status for role assignments."""
 
     PENDING = "pending"
@@ -40,7 +40,7 @@ class InvitationStatus(str, Enum):
     EXPIRED = "expired"
 
 
-class PermissionType(str, Enum):
+class PermissionType(StrEnum):
     """Permission types for PR Managers (Stage 6 missions)."""
 
     PRESS_RELEASE = "press_release"
