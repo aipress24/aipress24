@@ -298,7 +298,7 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
     @code_postal.expression
     def code_postal(cls):
         """SQL expression for the zip code property."""
-        return  func.coalesce(func.split_part(cls.pays_zip_ville_detail, " ", 3))
+        return func.coalesce(func.split_part(cls.pays_zip_ville_detail, " ", 3))
 
     @hybrid_property
     def departement(self) -> str:
@@ -313,7 +313,7 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
     @departement.expression
     def departement(cls):
         """SQL expression for the departement property."""
-        return  func.coalesce(
+        return func.coalesce(
             func.substring(func.split_part(cls.pays_zip_ville_detail, " ", 3), 1, 2),
             "",
         )

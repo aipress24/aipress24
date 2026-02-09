@@ -155,8 +155,8 @@ class Pagination:
         def get_url_for_page(page_num):
             offset = (page_num - 1) * data_source.limit
             args = request.args.copy()
-            args["offset"] = offset
-            args["limit"] = data_source.limit
+            args["offset"] = str(offset)
+            args["limit"] = str(data_source.limit)
             return f"{request.path}?{urlencode(args)}"
 
         links = []

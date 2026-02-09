@@ -38,12 +38,12 @@ from __future__ import annotations
 #
 # @to_json.register
 # def to_json_list(objs: list) -> list[dict]:
-#     return [to_json(obj, for_multi=True) for obj in objs]  # type: ignore
+#     return [to_json(obj, for_multi=True) for obj in objs]
 #
 #
 # @to_json.register
 # def to_json_scalarresult(objs: ScalarResult) -> list[dict]:
-#     return to_json(list(objs))  # type: ignore
+#     return to_json(list(objs))
 #
 #
 # @to_json.register

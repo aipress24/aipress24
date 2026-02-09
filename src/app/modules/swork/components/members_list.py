@@ -63,7 +63,9 @@ class MembersList(BaseList):
         if m:
             zip_code = m.group(1)
             search = search.replace(zip_code, "").strip()
-            stmt = stmt.where(User.profile.has(KYCProfile.code_postal.ilike(f"%{zip_code}%")))
+            stmt = stmt.where(
+                User.profile.has(KYCProfile.code_postal.ilike(f"%{zip_code}%"))
+            )
 
         if search:
             stmt = stmt.where(
@@ -151,7 +153,7 @@ class FilterByCountryOrm(Filter):
         options = []
         for i in range(len(state)):
             if state[str(i)]:
-                filter_option:FilterOption = cast(FilterOption,self.options[i])
+                filter_option: FilterOption = cast(FilterOption, self.options[i])
                 options.append(filter_option.code)
         return options
 

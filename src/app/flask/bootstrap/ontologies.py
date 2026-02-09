@@ -156,7 +156,7 @@ def _parse_source_ontologies() -> dict[str, Any]:
         raise FileNotFoundError(msg)
     content = dict(
         odsparsator.ods_to_python(input_path=ONTOLOGY_SRC, export_minimal=True)
-    )  # type: ignore[arg-type]
+    )
     result: dict[str, Any] = {}
     for sheet in content["body"]:
         name = sheet["name"]
@@ -516,7 +516,7 @@ class BaseConvert:
         ]
         """
         all_values = []
-        buffer = dict(self._buffer)  # type: ignore[arg-type]
+        buffer = dict(self._buffer)
         for items in buffer["field2"].values():
             all_values.extend(items)
         return all_values

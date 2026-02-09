@@ -37,7 +37,7 @@ class OrganisationsList(BaseList):
             "filters": self.filters,
             "directory": directory,
             "count": org_count,
-            "active_filters": self.get_active_filters(), # Added active_filters
+            "active_filters": self.get_active_filters(),  # Added active_filters
         }
 
     def get_org_count(self) -> int:
@@ -90,18 +90,15 @@ class FilterByCountryOrm(Filter):
         options = []
         for i in range(len(state)):
             if state[str(i)]:
-                filter_option:FilterOption = cast(FilterOption,self.options[i])
+                filter_option: FilterOption = cast(FilterOption, self.options[i])
                 options.append(filter_option.code)
         return options
 
     def apply(self, stmt, state):
         active_options = self.active_options(state)
         if active_options:
-            stmt = stmt.where(
-                Organisation.pays_zip_ville.in_(active_options)
-            )
+            stmt = stmt.where(Organisation.pays_zip_ville.in_(active_options))
         return stmt
-
 
 
 class FilterByDeptOrm(Filter):
@@ -115,10 +112,9 @@ class FilterByDeptOrm(Filter):
         # User.profile.has(KYCProfile.departement.in_(active_options))
         active_options = self.active_options(state)
         if active_options:
-            stmt = stmt.where(
-                Organisation.departement.in_(active_options)
-            )
+            stmt = stmt.where(Organisation.departement.in_(active_options))
         return stmt
+
 
 class FilterByCityOrm(Filter):
     id = "city"
@@ -151,8 +147,8 @@ class FilterByCategory(Filter):
         "Non officialisées": OrganisationTypeEnum.AUTO,
     }
     options: ClassVar = list(org_type_map.keys())
-    # options = [str(x) for x in OrganisationTypeEnum]  # type: ignore
-    # org_type_map = {str(x): x for x in OrganisationTypeEnum}  # type: ignore
+    # options = [str(x) for x in OrganisationTypeEnum]
+    # org_type_map = {str(x): x for x in OrganisationTypeEnum}
 
     def apply(self, stmt, state):
         active_options = self.active_options(state)

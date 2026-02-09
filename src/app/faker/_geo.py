@@ -29,7 +29,7 @@ def fake_geoloc(obj: Addressable) -> None:
     obj.zip_code = f"{dept_code}000"
     obj.region_code = departement_to_region[obj.dept_code]
 
-    obj.departement = departements[obj.dept_code]
+    obj.departement_deprecated = departements[obj.dept_code]
     obj.region = regions[obj.region_code]
 
     obj.city = street["city"]

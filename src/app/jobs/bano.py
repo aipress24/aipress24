@@ -60,6 +60,6 @@ class BanoJob(Job):
         obj.city = street["city"]
         obj.zip_code = street["postcode"]
         obj.region = street["region"]
-        obj.departement = street["departement"]
+        obj.departement_deprecated = street["departement"]
         obj.geo_lat = street["lat"]
         obj.geo_lng = street["lon"]
