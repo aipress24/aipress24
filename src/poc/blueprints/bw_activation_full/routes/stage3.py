@@ -100,9 +100,9 @@ def set_pricing(bw_type):
         # CGV not accepted, redirect back to pricing page
         return redirect(url_for("bw_activation_full.pricing_page", bw_type=bw_type))
 
-    pricing_field = BW_TYPES[bw_type]["pricing_field"]
+    pricing_field = str(BW_TYPES[bw_type]["pricing_field"])
     try:
-        pricing_value = int(request.form.get(pricing_field, 0))
+        pricing_value = int(request.form.get(pricing_field, "0"))
         if pricing_value > 0:
             session["bw_type"] = bw_type
             session["pricing_value"] = pricing_value
