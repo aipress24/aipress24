@@ -1,25 +1,49 @@
 <!DOCTYPE html>
-<html lang="fr">
-<head>
+<html lang="fr" data-theme="abilian">
+<head prefix="og: https://ogp.me/ns#">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Business Wall Activation POC{% endblock %}</title>
+
+    <!-- choices.js CSS -->
+    <link rel="stylesheet" href="/kyc/static/css/choices.css" />
+
+    <!-- tom-select.js CSS -->
+    <link rel="stylesheet" href="/kyc/static/css/tom-select.css" />
+
+    <!-- Favicons -->
+    <link rel="icon" href="/static/icon/aipress24-favicon.png" />
+    <link rel="shortcut icon" href="/static/icon/aipress24-favicon.png" />
+
+    <!-- Alpine Plugins -->
+    <script
+      defer
+      src="https://unpkg.com/@alpinejs/focus@3.x.x/dist/cdn.min.js"></script>
+
+    <script
+      defer
+      src="https://unpkg.com/@colinaut/alpinejs-plugin-simple-validate@1/dist/alpine.validate.min.js"></script>
+
+    <!-- Alpine Core -->
+    <script
+      defer
+      src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script defer src="https://unpkg.com/hyperscript.org@0.9.4"></script>
+    {% block style %}{% endblock %}
+    <script>
+      window.data = {};
+      window.toasts = [];
+    </script>
+    {{ vite_tags() }}
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100">
+<body class="bg-gray-100 min-h-screen h-full min-h-screen">
+    {% include '_header.html' %}
     <div class="container mx-auto px-4 py-8">
-        <header class="mb-8">
-            <h1 class="text-3xl font-bold text-gray-800">Business Wall Activation - POC</h1>
-            <p class="text-gray-600 mt-2">Prototype de workflow d'activation du Business Wall</p>
-        </header>
-
         <main>
             {% block content %}{% endblock %}
         </main>
-
-        <footer class="mt-12 text-center text-gray-500 text-sm">
-            <p>&copy; 2025 Abilian SAS - POC uniquement</p>
-        </footer>
     </div>
+    {% include '_footer.html' %}
 </body>
 </html>
