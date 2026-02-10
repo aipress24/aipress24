@@ -41,7 +41,7 @@ tasks:
 
     - nox-test: |
           cd aipress24
-          uv run nox -e test-3.12
+          uv run nox -e tests-3.12
           # TODO: postgres
 
     - nox-lint: |
