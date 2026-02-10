@@ -211,6 +211,11 @@ def register_blueprints(app: Flask) -> None:
     # Manual blueprint registrations (if any)
     app.register_blueprint(ontology_bp, url_prefix="/admin/ontology")
 
+    # Register the BW activation module blueprint
+    from app.modules.bw import bw_activation_full_bp
+
+    app.register_blueprint(bw_activation_full_bp, url_prefix="/BW")
+
 
 def register_everything_else(app: Flask) -> None:
     """Register remaining components via callbacks.

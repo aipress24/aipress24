@@ -1,0 +1,184 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- État actuel -->
+    <div class="lg:col-span-1">
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-semibold mb-4 text-gray-800">État actuel</h2>
+
+            <div class="space-y-3">
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600">Type d'organisation:</span>
+                    <span class="font-medium">
+                        {% if org_type %}
+                            <span class="px-3 py-1 rounded-full text-sm
+                                {% if org_type == 'MEDIA' %}bg-blue-100 text-blue-800{% else %}bg-purple-100 text-purple-800{% endif %}">
+                                {{ org_type }}
+                            </span>
+                        {% else %}
+                            <span class="text-gray-400">Non défini</span>
+                        {% endif %}
+                    </span>
+                </div>
+
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600">Business Wall:</span>
+                    <span class="font-medium">
+                        {% if bw_activated %}
+                            <span class="px-3 py-1 rounded-full text-sm bg-green-100 text-green-800">✓ Activé</span>
+                        {% else %}
+                            <span class="px-3 py-1 rounded-full text-sm bg-gray-100 text-gray-600">Non activé</span>
+                        {% endif %}
+                    </span>
+                </div>
+
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600">Rôle:</span>
+                    <span class="font-medium">
+                        {% if role %}
+                            <span class="px-3 py-1 rounded-full text-sm bg-indigo-100 text-indigo-800">{{ role }}</span>
+                        {% else %}
+                            <span class="text-gray-400">Aucun</span>
+                        {% endif %}
+                    </span>
+                </div>
+
+                {% if client_count %}
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600">Clients:</span>
+                    <span class="font-medium">{{ client_count }}</span>
+                </div>
+                {% endif %}
+            </div>
+
+            <form method="POST" action="{{ url_for('bw_activation.reset') }}" class="mt-6">
+                <button type="submit" class="w-full bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded">
+                    Réinitialiser
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Workflow d'activation -->
+    <div class="lg:col-span-2">
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-semibold mb-6 text-gray-800">Workflow d'activation</h2>
+
+            <!-- Étape 1: Choix du type d'organisation -->
+            <div class="mb-8">
+                <h3 class="text-lg font-medium mb-3 text-gray-700">1. Choisir le type d'organisation</h3>
+                <form method="POST" action="{{ url_for('bw_activation.set_org_type') }}" class="flex gap-4">
+                    <button type="submit" name="org_type" value="MEDIA"
+                            class="flex-1 py-3 px-6 border-2 rounded-lg transition
+                                {% if org_type == 'MEDIA' %}border-blue-500 bg-blue-50 text-blue-700{% else %}border-gray-300 hover:border-blue-300{% endif %}">
+                        <div class="font-semibold">Média</div>
+                        <div class="text-sm text-gray-600 mt-1">Activation gratuite</div>
+                    </button>
+                    <button type="submit" name="org_type" value="PR"
+                            class="flex-1 py-3 px-6 border-2 rounded-lg transition
+                                {% if org_type == 'PR' %}border-purple-500 bg-purple-50 text-purple-700{% else %}border-gray-300 hover:border-purple-300{% endif %}">
+                        <div class="font-semibold">Relations Presse</div>
+                        <div class="text-sm text-gray-600 mt-1">Activation payante</div>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Étape 2a: Activation gratuite (Media) -->
+            {% if org_type == 'MEDIA' and not bw_activated %}
+            <div class="mb-8 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                <h3 class="text-lg font-medium mb-3 text-blue-900">2. Activation gratuite (Média)</h3>
+                <form method="POST" action="{{ url_for('bw_activation.activate_free') }}">
+                    <div class="mb-4">
+                        <label class="flex items-start">
+                            <input type="checkbox" name="cgv_accepted" class="mt-1 mr-3 h-5 w-5 text-blue-600">
+                            <span class="text-gray-700">
+                                J'accepte les conditions générales de vente et les conditions d'utilisation du Business Wall.
+                                En tant que média, je bénéficie d'un accès gratuit.
+                            </span>
+                        </label>
+                    </div>
+                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg">
+                        Activer le Business Wall (gratuit)
+                    </button>
+                </form>
+            </div>
+            {% endif %}
+
+            <!-- Étape 2b: Activation payante (PR) -->
+            {% if org_type == 'PR' and not bw_activated %}
+            <div class="mb-8 p-4 bg-purple-50 rounded-lg border border-purple-200">
+                <h3 class="text-lg font-medium mb-3 text-purple-900">2. Activation payante (Relations Presse)</h3>
+
+                {% if not client_count %}
+                <form method="POST" action="{{ url_for('bw_activation.set_client_count') }}">
+                    <div class="mb-4">
+                        <label class="block text-gray-700 font-medium mb-2">
+                            Nombre de clients à gérer:
+                        </label>
+                        <input type="number" name="client_count" min="1" max="1000"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                               placeholder="Ex: 10">
+                        <p class="text-sm text-gray-600 mt-2">
+                            Le prix sera calculé en fonction du nombre de clients.
+                        </p>
+                    </div>
+                    <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-3 px-6 rounded-lg">
+                        Continuer
+                    </button>
+                </form>
+                {% else %}
+                <div class="mb-4">
+                    <div class="bg-white p-4 rounded-lg border border-purple-300">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-gray-700">Nombre de clients:</span>
+                            <span class="font-semibold text-lg">{{ client_count }}</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-700">Prix estimé:</span>
+                            <span class="font-semibold text-lg text-purple-700">{{ client_count * 50 }}€ / mois</span>
+                        </div>
+                    </div>
+                </div>
+                <form method="POST" action="{{ url_for('bw_activation.simulate_payment') }}">
+                    <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-3 px-6 rounded-lg">
+                        Simuler le paiement et activer
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <!-- Activation confirmée -->
+            {% if bw_activated %}
+            <div class="p-6 bg-green-50 rounded-lg border border-green-200">
+                <div class="flex items-center mb-4">
+                    <svg class="w-8 h-8 text-green-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <h3 class="text-xl font-semibold text-green-900">Business Wall activé !</h3>
+                </div>
+                <p class="text-green-800">
+                    Votre Business Wall est maintenant actif. Le rôle "{{ role }}" vous a été attribué automatiquement.
+                </p>
+                {% if org_type == 'PR' and client_count %}
+                <p class="text-green-800 mt-2">
+                    Vous pouvez maintenant gérer jusqu'à {{ client_count }} clients dans votre espace Business Wall.
+                </p>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Informations supplémentaires -->
+        <div class="mt-6 bg-gray-50 rounded-lg p-6 border border-gray-200">
+            <h3 class="text-lg font-semibold mb-3 text-gray-800">À propos de ce POC</h3>
+            <div class="text-sm text-gray-600 space-y-2">
+                <p><strong>Workflow Média (gratuit):</strong> Accepter les CGV → Activation immédiate → Attribution du rôle Owner</p>
+                <p><strong>Workflow RP (payant):</strong> Saisir le nombre de clients → Simuler le paiement → Activation → Attribution du rôle Owner</p>
+                <p class="mt-4 text-xs text-gray-500">Ce POC utilise Flask session pour simuler l'état utilisateur/organisation. Aucune donnée n'est persistée.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
