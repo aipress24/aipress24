@@ -5,42 +5,41 @@
 image: rockylinux/latest
 
 packages:
-  # Python
-  - python3.12
-  - python3.12-pip
-  - python3.12-devel
-  # Build tools
-  - make
-  - gcc
-  # Libraries
-  - libpq-devel
-  # Docker and friends (NB: docker is not available on Rocky Linux)
-  - buildah
-  # Dependencies for buildah
-  - passt-selinux
-
+    # Python
+    - python3.12
+    - python3.12-pip
+    - python3.12-devel
+    # Build tools
+    - make
+    - gcc
+    # Libraries
+    - libpq-devel
+    # Docker and friends (NB: docker is not available on Rocky Linux)
+    - buildah
+    # Dependencies for buildah
+    - passt-selinux
 
 tasks:
-  #- buildah: |
-  #    cd aipress24
-  #    buildah build .
+    #- buildah: |
+    #    cd aipress24
+    #    buildah build .
 
-  - setup: |
-      sudo pip3.12 install -U uv
-      cd aipress24
-      uv version
-      uv sync
+    - setup: |
+          sudo pip3.12 install -U uv
+          cd aipress24
+          uv version
+          uv sync
 
-  - nox-test: |
-      cd aipress24
-      uv run nox --version
-      uv run nox -e test-3.12
+    - nox-test: |
+          cd aipress24
+          uv run nox --version
+          uv run nox -e tests-3.12
 
 # Skip for now
 
 #  - nox-test: |
 #      cd aipress24
-#      nox -e test-3.12
+#      nox -e tests-3.12
 #      # TODO: postgres
 #
 #  - nox-lint: |
