@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 import fsspec
+from advanced_alchemy.base import UUIDAuditBase
 from advanced_alchemy.types.file_object import storages
 from advanced_alchemy.types.file_object.backends.fsspec import FSSpecBackend
 from flask import Flask
@@ -25,10 +26,16 @@ from app.models.base import Base
 
 PARIS_TZ = timezone("Europe/Paris")
 
-#
+# Merge existing Base tables into UUIDAuditBase metadata
+# This allows both bases to coexist and be detected by Alembic
+for table in Base.metadata.tables.values():
+    table.to_metadata(UUIDAuditBase.metadata)
+
 # Create all extensions as global variables
-#
-db = SQLAlchemy(model_class=Base)
+db = SQLAlchemy(
+    model_class=Base,
+    metadata=UUIDAuditBase.metadata,
+)
 migrate = Migrate()
 
 # Alternative to Flask-SQLAlchemy. Not sure if it's better.

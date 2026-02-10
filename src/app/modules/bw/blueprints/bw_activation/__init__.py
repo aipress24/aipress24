@@ -33,6 +33,7 @@ bp = Blueprint("bw_activation", __name__, template_folder="../../templates")
 
 # Import routes - this registers all routes via side effects
 from . import routes  # noqa: E402, F401
+from . import models  # noqa: F401
 
 # Export the blueprint
 __all__ = ["bp"]
