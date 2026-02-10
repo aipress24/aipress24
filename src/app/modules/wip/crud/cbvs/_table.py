@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from attr import define
+from attr import define, field
 from flask import g, request
 from sqlalchemy import func, select
 
@@ -21,14 +21,12 @@ def get_name(obj):
 @define
 class BaseDataSource(DataSource):
     model_class: type
-    q: str
-    limit: int
-    offset: int
+    q: str = ""
+    limit: int = field(init=False)
+    offset: int = field(init=False)
 
-    def __init__(self, model_class: type, q: str = "") -> None:
-        self.model_class = model_class
-        self.q = q
-        # get current page  from request
+    def __attrs_post_init__(self) -> None:
+        # get current page from request
         self.limit = request.args.get("limit", 10, type=int)
         self.offset = request.args.get("offset", 0, type=int)
 
