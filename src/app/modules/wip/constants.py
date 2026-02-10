@@ -60,6 +60,12 @@ MENU = [
         endpoint="wip.org-profile",
     ),
     MenuEntry(
+        name="bw-activation",
+        label="New Business Wall",
+        icon="building-library",
+        endpoint="bw_activation_full.dashboard",
+    ),
+    MenuEntry(
         name="billing",
         label="Facturation",
         icon="credit-card",
