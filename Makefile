@@ -23,15 +23,15 @@ test-postgres:
 test-with-coverage:
 	pytest tests --cov=app --doctest-modules
 
+test-cov: test-with-coverage
+
 test-with-typeguard:
 	pytest tests --typeguard-packages=app
-
 
 test-e2e-local:
 	pytest -v --browser firefox \
 	--base-url=http://127.0.0.1:5000 \
 	--headed e2e_playwright
-
 
 test-e2e-prod:
 	pytest -v --browser firefox \

@@ -69,7 +69,7 @@ class WireCommonMixin(IdMixin, LifeCycleMixin, Owned):
     def publisher(cls):
         return orm.relationship(
             Organisation,
-            foreign_keys=[cls.publisher_id],  # type: ignore[invalid-argument-type]
+            foreign_keys=[cls.publisher_id],  # type: ignore[list-item]
         )
 
     # # Media
@@ -213,14 +213,14 @@ class Post(NewsMetadataMixin, BaseContent, LifeCycleMixin):
     def publisher(cls):
         return orm.relationship(
             Organisation,
-            foreign_keys=[cls.publisher_id],  # type: ignore[invalid-argument-type]
+            foreign_keys=[cls.publisher_id],  # type: ignore[list-item]
         )
 
     @orm.declared_attr
     def media(cls):
         return orm.relationship(
             Organisation,
-            foreign_keys=[cls.media_id],  # type: ignore[invalid-argument-type]
+            foreign_keys=[cls.media_id],  # type: ignore[list-item]
         )
 
     # # Media
