@@ -12,7 +12,6 @@ from arrow import now
 from flask_security import hash_password
 from mimesis import Internet, Person
 from mimesis.enums import Gender
-from sqlalchemy.sql import func
 
 from app.constants import (
     LABEL_INSCRIPTION_NOUVELLE,
