@@ -407,7 +407,15 @@ class AvisEnqueteWipView(BaseWipView):
 
     def _parse_rdv_proposal_form(self) -> RDVProposalData:
         """Parse and validate form data into RDVProposalData."""
-        rdv_type = RDVType[request.form.get("rdv_type", "")]
+        rdv_type_str = request.form.get("rdv_type", "")
+        if not rdv_type_str:
+            msg = "Type de rendez-vous requis"
+            raise ValueError(msg)
+        try:
+            rdv_type = RDVType[rdv_type_str]
+        except KeyError as err:
+            msg = f"Type de rendez-vous invalide: {rdv_type_str}"
+            raise ValueError(msg) from err
 
         proposed_slots = []
         for i in range(1, 6):  # Support up to 5 slots

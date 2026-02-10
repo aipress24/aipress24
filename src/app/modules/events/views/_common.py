@@ -153,7 +153,7 @@ class DateFilter:
         return stmt
 
 
-@define
+@define(init=False)
 class Calendar:
     """Calendar data for event list sidebar."""
 

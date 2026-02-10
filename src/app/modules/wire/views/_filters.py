@@ -157,12 +157,13 @@ class FilterBar:
     #
     def get_state(self) -> dict[str, Any]:
         try:
-            state_json: dict[str, Any] = session[f"wire:{self.tab}:state"]
-        except (JSONDecodeError, KeyError):
-            state_json = {}
-        else:
-            state_json = loads(state_json)
-        return state_json
+            state_str: str = session[f"wire:{self.tab}:state"]
+        except KeyError:
+            return {}
+        try:
+            return loads(state_str)
+        except JSONDecodeError:
+            return {}
 
     def save_state(self) -> None:
         session[f"wire:{self.tab}:state"] = dumps(self.state)
