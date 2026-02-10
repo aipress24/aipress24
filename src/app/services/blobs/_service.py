@@ -64,10 +64,9 @@ class BlobService:
             case bytes():
                 blob_path.write_bytes(file_or_path_or_data)
             case BytesIO() | FileStorage():
-                file = file_or_path_or_data
-                blob_path.write_bytes(file.read())
+                blob_path.write_bytes(file_or_path_or_data.read())
             case Path():
-                file = file_or_path_or_data.open("rb")
+                blob_path.write_bytes(file_or_path_or_data.read_bytes())
             case _:
                 msg = f"Unsupported type {type(file_or_path_or_data)}"
                 raise ValueError(msg)
