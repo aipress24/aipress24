@@ -40,18 +40,18 @@ class BaseDataSource(DataSource):
 
         stmt = (
             select(M)
-            .where(M.owner == user)  # type: ignore[attr-defined]
-            .where(M.deleted_at.is_(None))  # type: ignore[attr-defined]
+            .where(M.owner == user)  # type: ignore[union-attr, arg-type]
+            .where(M.deleted_at.is_(None))  # type: ignore[union-attr]
         )
         # no ordering the results here.
 
         if self.q:
-            stmt = stmt.where(M.titre.ilike(f"%{self.q}%"))  # type: ignore[attr-defined]
+            stmt = stmt.where(M.titre.ilike(f"%{self.q}%"))  # type: ignore[union-attr]
 
         return stmt
 
     def get_order_by(self):
-        return self.model_class.created_at.desc()  # type: ignore [unresolved-attribute]
+        return self.model_class.created_at.desc()  # type: ignore[attr-defined]
 
     def get_items(self):
         query = (

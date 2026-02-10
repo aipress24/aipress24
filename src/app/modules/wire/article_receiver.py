@@ -97,7 +97,7 @@ def update_post(post: ArticlePost, info: Article) -> None:
     post.pays_zip_ville = info.pays_zip_ville
     post.pays_zip_ville_detail = info.pays_zip_ville_detail
 
-    post.last_updated_at = now(LOCAL_TZ)  # type: ignore[invalid-assignment]
+    post.last_updated_at = now(LOCAL_TZ)  # type: ignore[assignment]
     post.published_at = info.date_publication_aip24
     # Other possible publication dates:
     # post.published_at = now(LOCAL_TZ)

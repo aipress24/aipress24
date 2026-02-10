@@ -60,7 +60,7 @@ class PostVM(ViewModel):
         article = cast("ArticlePost", self._model)
 
         if article.published_at:
-            age = article.published_at.humanize(locale="fr")  # type: ignore[union-attr]
+            age = article.published_at.humanize(locale="fr")  # type: ignore[attr-defined]
         else:
             age = "(not set)"
 

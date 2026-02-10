@@ -53,7 +53,7 @@ if TYPE_CHECKING:
 
 class AvisEnqueteDataSource(BaseDataSource):
     def get_order_by(self):
-        return self.model_class.modified_at.desc().nullslast()  # type: ignore [unresolved-attribute]
+        return self.model_class.modified_at.desc().nullslast()  # type: ignore[attr-defined]
 
 
 class AvisEnqueteTable(BaseTable):

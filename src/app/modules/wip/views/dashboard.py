@@ -25,7 +25,7 @@ from ._common import get_secondary_menu
 if TYPE_CHECKING:
     from app.services.repositories import Repository
 
-ALLOWED_ROLES: list[RoleEnum] = [RoleEnum.PRESS_MEDIA, RoleEnum.ACADEMIC]  # type: ignore[assignment]
+ALLOWED_ROLES: list[RoleEnum] = [RoleEnum.PRESS_MEDIA, RoleEnum.ACADEMIC]  # type: ignore[list-item]
 
 
 @blueprint.route("/dashboard")
