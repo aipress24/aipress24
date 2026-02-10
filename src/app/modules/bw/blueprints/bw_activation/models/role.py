@@ -11,10 +11,9 @@ from enum import StrEnum
 from typing import TYPE_CHECKING
 from uuid import UUID
 
-import sqlalchemy as sa
 from advanced_alchemy.base import UUIDAuditBase
 from advanced_alchemy.types import GUID
-from sqlalchemy import ForeignKey, String
+from sqlalchemy import ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 if TYPE_CHECKING:
@@ -69,14 +68,14 @@ class RoleAssignment(UUIDAuditBase):
     )
 
     # User reference - references User ID (no FK constraint for POC)
-    user_id: Mapped[int] = mapped_column(sa.Integer, nullable=False)
+    user_id: Mapped[int] = mapped_column(Integer, nullable=False)
 
     # Role information
-    role_type: Mapped[str] = mapped_column(String(20), nullable=False)
+    role_type: Mapped[str] = mapped_column(String, nullable=False)
 
     # Invitation workflow
     invitation_status: Mapped[str] = mapped_column(
-        String(20), default=InvitationStatus.PENDING.value
+        String, default=InvitationStatus.PENDING.value
     )
     invited_at: Mapped[datetime | None] = mapped_column(nullable=True)
     accepted_at: Mapped[datetime | None] = mapped_column(nullable=True)
@@ -108,7 +107,7 @@ class RolePermission(UUIDAuditBase):
     role_assignment: Mapped[RoleAssignment] = relationship(back_populates="permissions")
 
     # Permission type
-    permission_type: Mapped[str] = mapped_column(String(50), nullable=False)
+    permission_type: Mapped[str] = mapped_column(String, nullable=False)
 
     # Permission state
     is_granted: Mapped[bool] = mapped_column(default=False)

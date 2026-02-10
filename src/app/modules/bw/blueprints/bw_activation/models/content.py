@@ -41,7 +41,7 @@ class BWContent(UUIDAuditBase):
     business_wall: Mapped[BusinessWall] = relationship(back_populates="content")
 
     # Organization information
-    official_name: Mapped[str] = mapped_column(String(200), default="")
+    official_name: Mapped[str] = mapped_column(String, default="")
     organization_type: Mapped[str] = mapped_column(
         String(100), default=""
     )  # Entreprise, Association, etc.
@@ -59,28 +59,28 @@ class BWContent(UUIDAuditBase):
 
     # Descriptive content
     description: Mapped[str] = mapped_column(Text, default="")
-    baseline: Mapped[str] = mapped_column(String(500), default="")
+    baseline: Mapped[str] = mapped_column(String, default="")
 
     # Administrative data
-    siren: Mapped[str] = mapped_column(String(20), default="")
-    tva_number: Mapped[str] = mapped_column(String(50), default="")
-    cppap: Mapped[str] = mapped_column(String(50), default="")
+    siren: Mapped[str] = mapped_column(String, default="")
+    tva_number: Mapped[str] = mapped_column(String, default="")
+    cppap: Mapped[str] = mapped_column(String, default="")
 
     # Contact information
-    website: Mapped[str] = mapped_column(String(500), default="")
-    email: Mapped[str] = mapped_column(String(200), default="")
-    phone: Mapped[str] = mapped_column(String(50), default="")
+    website: Mapped[str] = mapped_column(String, default="")
+    email: Mapped[str] = mapped_column(String, default="")
+    phone: Mapped[str] = mapped_column(String, default="")
 
     # Address
-    address: Mapped[str] = mapped_column(String(500), default="")
-    city: Mapped[str] = mapped_column(String(100), default="")
-    zip_code: Mapped[str] = mapped_column(String(20), default="")
-    country: Mapped[str] = mapped_column(String(100), default="France")
+    address: Mapped[str] = mapped_column(String, default="")
+    city: Mapped[str] = mapped_column(String, default="")
+    zip_code: Mapped[str] = mapped_column(String, default="")
+    country: Mapped[str] = mapped_column(String, default="France")
 
     # Social media
-    twitter_url: Mapped[str] = mapped_column(String(500), default="")
-    linkedin_url: Mapped[str] = mapped_column(String(500), default="")
-    facebook_url: Mapped[str] = mapped_column(String(500), default="")
+    twitter_url: Mapped[str] = mapped_column(String, default="")
+    linkedin_url: Mapped[str] = mapped_column(String, default="")
+    facebook_url: Mapped[str] = mapped_column(String, default="")
 
     # Ontology selections (centres d'intérêt)
     # Stored as JSON array of selected topic IDs or labels

@@ -55,28 +55,24 @@ class Subscription(UUIDAuditBase):
 
     # Subscription status
     status: Mapped[str] = mapped_column(
-        String(20), default=SubscriptionStatus.PENDING.value
+        String, default=SubscriptionStatus.PENDING.value
     )
 
     # Pricing information
     pricing_field: Mapped[str] = mapped_column(
-        String(50), nullable=False
+        String, nullable=False
     )  # "client_count" or "employee_count"
-    pricing_tier: Mapped[str] = mapped_column(String(20), nullable=False)
+    pricing_tier: Mapped[str] = mapped_column(String, nullable=False)
     monthly_price: Mapped[float] = mapped_column(DECIMAL(10, 2), nullable=False)
     annual_price: Mapped[float] = mapped_column(DECIMAL(10, 2), nullable=False)
     billing_cycle: Mapped[str] = mapped_column(
-        String(10), default="monthly"
+        String, default="monthly"
     )  # "monthly" or "annual"
 
     # Payment tracking
-    stripe_customer_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
-    stripe_subscription_id: Mapped[str | None] = mapped_column(
-        String(255), nullable=True
-    )
-    stripe_payment_intent_id: Mapped[str | None] = mapped_column(
-        String(255), nullable=True
-    )
+    stripe_customer_id: Mapped[str | None] = mapped_column(String, nullable=True)
+    stripe_subscription_id: Mapped[str | None] = mapped_column(String, nullable=True)
+    stripe_payment_intent_id: Mapped[str | None] = mapped_column(String, nullable=True)
 
     # Subscription period
     started_at: Mapped[datetime | None] = mapped_column(nullable=True)
@@ -84,13 +80,13 @@ class Subscription(UUIDAuditBase):
     cancelled_at: Mapped[datetime | None] = mapped_column(nullable=True)
 
     # Billing address (stored as JSON-compatible fields)
-    billing_first_name: Mapped[str] = mapped_column(String(100), default="")
-    billing_last_name: Mapped[str] = mapped_column(String(100), default="")
-    billing_company: Mapped[str] = mapped_column(String(200), default="")
-    billing_address: Mapped[str] = mapped_column(String(500), default="")
-    billing_city: Mapped[str] = mapped_column(String(100), default="")
-    billing_zip_code: Mapped[str] = mapped_column(String(20), default="")
-    billing_country: Mapped[str] = mapped_column(String(100), default="")
+    billing_first_name: Mapped[str] = mapped_column(String, default="")
+    billing_last_name: Mapped[str] = mapped_column(String, default="")
+    billing_company: Mapped[str] = mapped_column(String, default="")
+    billing_address: Mapped[str] = mapped_column(String, default="")
+    billing_city: Mapped[str] = mapped_column(String, default="")
+    billing_zip_code: Mapped[str] = mapped_column(String, default="")
+    billing_country: Mapped[str] = mapped_column(String, default="")
 
     def __repr__(self) -> str:
         return f"<Subscription {self.id} status={self.status} tier={self.pricing_tier}>"

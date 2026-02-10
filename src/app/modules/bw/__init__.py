@@ -5,22 +5,21 @@
 
 from __future__ import annotations
 
-from typing import cast
-
-from flask import Blueprint
-from flask_login import current_user
-from werkzeug.exceptions import Unauthorized
-
+# from flask import Blueprint
+# from flask_login import current_user
+# from werkzeug.exceptions import Unauthorized
 from app.flask.lib.nav import configure_nav
-from app.models.auth import User
 
+# from app.models.auth import User
 # Register blueprints
 from .blueprints.bw_activation import bp as bw_activation_bp
+
 # from .blueprints.rights_sales import bp as rights_sales_bp
 
 
 configure_nav(bw_activation_bp, label="Activation BW", icon="users", order=20)
 route = bw_activation_bp.route
+
 
 def register_views() -> None:
     """Register views with the blueprint.
