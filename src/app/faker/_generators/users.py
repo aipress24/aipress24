@@ -286,7 +286,7 @@ class UserGenerator(BaseGenerator):
 
     def _random_validation_gcu(self, user: User, _profile: KYCProfile) -> None:
         user.gcu_acceptation = True
-        user.gcu_acceptation_date = func.now()
+        user.gcu_acceptation_date = now()
 
     def _random_competences_journalisme(self, _user: User, profile: KYCProfile) -> None:
         profile.info_personnelle["competences_journalisme"] = list(
