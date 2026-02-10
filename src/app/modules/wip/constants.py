@@ -63,7 +63,7 @@ MENU = [
         name="bw-activation",
         label="New Business Wall",
         icon="building-library",
-        endpoint="bw_activation_full.dashboard",
+        endpoint="bw_activation.dashboard",
     ),
     MenuEntry(
         name="billing",

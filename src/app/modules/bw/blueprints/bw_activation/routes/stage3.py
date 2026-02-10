@@ -8,8 +8,8 @@ from __future__ import annotations
 
 from flask import redirect, render_template, request, session, url_for
 
-from app.modules.bw.blueprints.bw_activation_full import bp
-from app.modules.bw.blueprints.bw_activation_full.config import BW_TYPES
+from app.modules.bw.blueprints.bw_activation import bp
+from app.modules.bw.blueprints.bw_activation.config import BW_TYPES
 
 # ===== FREE ACTIVATION =====
 
@@ -18,17 +18,17 @@ from app.modules.bw.blueprints.bw_activation_full.config import BW_TYPES
 def activate_free_page(bw_type):
     """Step 3: Page for free BW activation with CGV acceptance."""
     if bw_type not in BW_TYPES or not BW_TYPES[bw_type]["free"]:
-        return redirect(url_for("bw_activation_full.confirm_subscription"))
+        return redirect(url_for("bw_activation.confirm_subscription"))
 
     if not session.get("bw_type_confirmed"):
-        return redirect(url_for("bw_activation_full.confirm_subscription"))
+        return redirect(url_for("bw_activation.confirm_subscription"))
 
     if not session.get("contacts_confirmed"):
-        return redirect(url_for("bw_activation_full.nominate_contacts"))
+        return redirect(url_for("bw_activation.nominate_contacts"))
 
     bw_info = BW_TYPES[bw_type]
     return render_template(
-        "bw_activation_full/activate_free.html",
+        "bw_activation/activate_free.html",
         bw_type=bw_type,
         bw_info=bw_info,
     )
@@ -38,28 +38,28 @@ def activate_free_page(bw_type):
 def activate_free(bw_type):
     """Process free Business Wall activation."""
     if bw_type not in BW_TYPES or not BW_TYPES[bw_type]["free"]:
-        return redirect(url_for("bw_activation_full.index"))
+        return redirect(url_for("bw_activation.index"))
 
     cgv_accepted = request.form.get("cgv_accepted") == "on"
     if cgv_accepted:
         session["bw_type"] = bw_type
         session["bw_activated"] = True
-        return redirect(url_for("bw_activation_full.confirmation_free"))
+        return redirect(url_for("bw_activation.confirmation_free"))
 
-    return redirect(url_for("bw_activation_full.activate_free_page", bw_type=bw_type))
+    return redirect(url_for("bw_activation.activate_free_page", bw_type=bw_type))
 
 
 @bp.route("/confirmation/free")
 def confirmation_free():
     """Confirmation page for free BW activation."""
     if not session.get("bw_activated") or not session.get("bw_type"):
-        return redirect(url_for("bw_activation_full.index"))
+        return redirect(url_for("bw_activation.index"))
 
     bw_type = session["bw_type"]
     bw_info = BW_TYPES.get(bw_type, {})
 
     return render_template(
-        "bw_activation_full/02_activation_gratuit_confirme.html",
+        "bw_activation/02_activation_gratuit_confirme.html",
         bw_type=bw_type,
         bw_info=bw_info,
     )
@@ -72,17 +72,17 @@ def confirmation_free():
 def pricing_page(bw_type):
     """Step 3: Page for paid BW pricing information."""
     if bw_type not in BW_TYPES or BW_TYPES[bw_type]["free"]:
-        return redirect(url_for("bw_activation_full.confirm_subscription"))
+        return redirect(url_for("bw_activation.confirm_subscription"))
 
     if not session.get("bw_type_confirmed"):
-        return redirect(url_for("bw_activation_full.confirm_subscription"))
+        return redirect(url_for("bw_activation.confirm_subscription"))
 
     if not session.get("contacts_confirmed"):
-        return redirect(url_for("bw_activation_full.nominate_contacts"))
+        return redirect(url_for("bw_activation.nominate_contacts"))
 
     bw_info = BW_TYPES[bw_type]
     return render_template(
-        "bw_activation_full/pricing.html",
+        "bw_activation/pricing.html",
         bw_type=bw_type,
         bw_info=bw_info,
     )
@@ -92,13 +92,13 @@ def pricing_page(bw_type):
 def set_pricing(bw_type):
     """Set pricing information for paid BW."""
     if bw_type not in BW_TYPES or BW_TYPES[bw_type]["free"]:
-        return redirect(url_for("bw_activation_full.index"))
+        return redirect(url_for("bw_activation.index"))
 
     # Validate CGV acceptance (required for paid types)
     cgv_accepted = request.form.get("cgv_accepted") == "on"
     if not cgv_accepted:
         # CGV not accepted, redirect back to pricing page
-        return redirect(url_for("bw_activation_full.pricing_page", bw_type=bw_type))
+        return redirect(url_for("bw_activation.pricing_page", bw_type=bw_type))
 
     pricing_field = str(BW_TYPES[bw_type]["pricing_field"])
     try:
@@ -107,25 +107,25 @@ def set_pricing(bw_type):
             session["bw_type"] = bw_type
             session["pricing_value"] = pricing_value
             session["cgv_accepted"] = True  # Store CGV acceptance
-            return redirect(url_for("bw_activation_full.payment", bw_type=bw_type))
+            return redirect(url_for("bw_activation.payment", bw_type=bw_type))
     except ValueError:
         pass
 
-    return redirect(url_for("bw_activation_full.index"))
+    return redirect(url_for("bw_activation.index"))
 
 
 @bp.route("/payment/<bw_type>")
 def payment(bw_type):
     """Payment page for paid BW."""
     if bw_type not in BW_TYPES or BW_TYPES[bw_type]["free"]:
-        return redirect(url_for("bw_activation_full.index"))
+        return redirect(url_for("bw_activation.index"))
 
     if not session.get("pricing_value"):
-        return redirect(url_for("bw_activation_full.index"))
+        return redirect(url_for("bw_activation.index"))
 
     bw_info = BW_TYPES[bw_type]
     return render_template(
-        "bw_activation_full/payment.html",
+        "bw_activation/payment.html",
         bw_type=bw_type,
         bw_info=bw_info,
         pricing_value=session["pricing_value"],
@@ -136,26 +136,26 @@ def payment(bw_type):
 def simulate_payment(bw_type):
     """Simulate payment and activate paid BW."""
     if bw_type not in BW_TYPES or BW_TYPES[bw_type]["free"]:
-        return redirect(url_for("bw_activation_full.index"))
+        return redirect(url_for("bw_activation.index"))
 
     if session.get("pricing_value"):
         session["bw_activated"] = True
-        return redirect(url_for("bw_activation_full.confirmation_paid"))
+        return redirect(url_for("bw_activation.confirmation_paid"))
 
-    return redirect(url_for("bw_activation_full.index"))
+    return redirect(url_for("bw_activation.index"))
 
 
 @bp.route("/confirmation/paid")
 def confirmation_paid():
     """Confirmation page for paid BW activation."""
     if not session.get("bw_activated") or not session.get("bw_type"):
-        return redirect(url_for("bw_activation_full.index"))
+        return redirect(url_for("bw_activation.index"))
 
     bw_type = session["bw_type"]
     bw_info = BW_TYPES.get(bw_type, {})
 
     return render_template(
-        "bw_activation_full/03_activation_payant_confirme.html",
+        "bw_activation/03_activation_payant_confirme.html",
         bw_type=bw_type,
         bw_info=bw_info,
     )

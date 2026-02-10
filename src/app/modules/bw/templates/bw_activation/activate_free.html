@@ -26,7 +26,7 @@
             </div>
         </div>
 
-        <form method="POST" action="{{ url_for('bw_activation_full.activate_free', bw_type=bw_type) }}">
+        <form method="POST" action="{{ url_for('bw_activation.activate_free', bw_type=bw_type) }}">
             <div class="mb-6 p-4 bg-gray-50 rounded-md border border-gray-300">
                 <label class="flex items-start">
                     <input type="checkbox" name="cgv_accepted" required class="mt-1 mr-3 h-5 w-5 text-blue-600">
@@ -42,7 +42,7 @@
             </div>
 
             <div class="flex gap-4">
-                <a href="{{ url_for('bw_activation_full.nominate_contacts') }}" class="flex-1 text-center rounded-md bg-gray-300 px-4 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-400">
+                <a href="{{ url_for('bw_activation.nominate_contacts') }}" class="flex-1 text-center rounded-md bg-gray-300 px-4 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-400">
                     Retour à la nomination des contacts
                 </a>
                 <button type="submit" class="flex-1 rounded-md bg-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-blue-700">

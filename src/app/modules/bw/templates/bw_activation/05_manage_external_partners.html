@@ -113,10 +113,10 @@
 
         <!-- Navigation -->
         <div class="mt-10 flex items-center justify-between gap-x-6 border-t pt-6">
-            <a href="{{ url_for('bw_activation_full.manage_internal_roles') }}" class="text-sm font-semibold leading-6 text-gray-900 hover:text-gray-700">
+            <a href="{{ url_for('bw_activation.manage_internal_roles') }}" class="text-sm font-semibold leading-6 text-gray-900 hover:text-gray-700">
                 ← Étape précédente : Rôles internes
             </a>
-            <a href="{{ url_for('bw_activation_full.assign_missions') }}" class="rounded-md bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-700">
+            <a href="{{ url_for('bw_activation.assign_missions') }}" class="rounded-md bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-700">
                 <span x-show="!noPartner">Étape suivante : Attribuer des missions →</span>
                 <span x-show="noPartner">Continuer sans partenaire →</span>
             </a>

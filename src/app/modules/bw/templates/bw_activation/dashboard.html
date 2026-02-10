@@ -22,7 +22,7 @@
                 <p class="text-sm text-gray-600 mb-4">
                     Nommez des Business Wall Managers et des {{ bw_info.manager_role }}s au sein de votre équipe.
                 </p>
-                <a href="{{ url_for('bw_activation_full.manage_internal_roles') }}" class="inline-block rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">
+                <a href="{{ url_for('bw_activation.manage_internal_roles') }}" class="inline-block rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">
                     Gérer les rôles internes →
                 </a>
             </div>
@@ -34,7 +34,7 @@
                 <p class="text-sm text-gray-600 mb-4">
                     Ajoutez des PR Agencies ou PR Consultants pour vous représenter sur AiPRESS24.
                 </p>
-                <a href="{{ url_for('bw_activation_full.manage_external_partners') }}" class="inline-block rounded-md bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:bg-green-700">
+                <a href="{{ url_for('bw_activation.manage_external_partners') }}" class="inline-block rounded-md bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:bg-green-700">
                     Gérer les partenaires →
                 </a>
             </div>
@@ -46,7 +46,7 @@
                 <p class="text-sm text-gray-600 mb-4">
                     Définissez les permissions accordées aux {{ bw_info.manager_role }}s pour publier du contenu.
                 </p>
-                <a href="{{ url_for('bw_activation_full.assign_missions') }}" class="inline-block rounded-md bg-purple-600 px-4 py-2 text-sm font-semibold text-white hover:bg-purple-700">
+                <a href="{{ url_for('bw_activation.assign_missions') }}" class="inline-block rounded-md bg-purple-600 px-4 py-2 text-sm font-semibold text-white hover:bg-purple-700">
                     Attribuer des missions →
                 </a>
             </div>
@@ -57,7 +57,7 @@
                 <p class="text-sm text-gray-600 mb-4">
                     Remplissez les informations de votre Business Wall (logo, description, contacts, etc.).
                 </p>
-                <a href="{{ url_for('bw_activation_full.configure_content') }}" class="inline-block rounded-md bg-orange-600 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-700">
+                <a href="{{ url_for('bw_activation.configure_content') }}" class="inline-block rounded-md bg-orange-600 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-700">
                     Configurer le contenu →
                 </a>
             </div>
@@ -66,7 +66,7 @@
 
         <!-- Reset button for POC -->
         <div class="mt-10 pt-6 border-t text-center">
-            <form method="POST" action="{{ url_for('bw_activation_full.reset') }}" class="inline">
+            <form method="POST" action="{{ url_for('bw_activation.reset') }}" class="inline">
                 <button type="submit" class="text-sm text-gray-500 hover:text-gray-700 underline">
                     Réinitialiser le POC et recommencer
                 </button>
