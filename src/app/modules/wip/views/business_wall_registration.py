@@ -56,10 +56,13 @@ DESCRIPTION_BW = {
     "MEDIA": "Pour les médias, permet d'acheter des contenus.",
     "PRESSUNION": "Pour les syndicats professionnels",
     "MICRO": "Pour les journalistes en micro-entreprise",
-    "COM": "Pour les PR agencies et agences de relations publiques, "
-    "permet de diffuser des press release.",
-    "CORPORATE": "Pour les médias institutionnels, "
-    "permet d'être au coeur de l'information.",
+    "COM": (
+        "Pour les PR agencies et agences de relations publiques, "
+        "permet de diffuser des press release."
+    ),
+    "CORPORATE": (
+        "Pour les médias institutionnels, permet d'être au coeur de l'information."
+    ),
     "ORGANISATION": "Pour les organisations, permet d'être au coeur de l'information.",
     "ACADEMICS": "Pour le corps académique, permet d'être au coeur de l'information.",
 }
