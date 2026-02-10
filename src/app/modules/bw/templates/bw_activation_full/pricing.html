@@ -1,0 +1,89 @@
+{% extends "layout.html" %}
+
+{% block title %}Tarification {{ bw_info.name }}{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto" x-data="{ cgvAccepted: false }">
+    <div class="bg-white p-8 rounded-lg shadow-md">
+        <h1 class="text-2xl font-bold text-gray-800 mb-6">3- Étape 1 : Conditions d'activation</h1>
+
+        <div class="mb-6 p-4 bg-green-50 rounded-md border border-green-200">
+            <h2 class="font-semibold text-lg text-green-900 mb-2">{{ bw_info.name }}</h2>
+            <p class="text-sm text-gray-700">{{ bw_info.description }}</p>
+            <span class="inline-block mt-2 px-3 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full">
+                Abonnement PAYANT
+            </span>
+        </div>
+
+        <div class="mb-6">
+            <h3 class="font-semibold text-gray-800 mb-3">Conditions d'activation</h3>
+            <div class="prose prose-sm max-w-none text-gray-700">
+                <ol class="list-decimal pl-5 space-y-2">
+                    {% for message in bw_info.onboarding_messages %}
+                    <li>{{ message }}</li>
+                    {% endfor %}
+                </ol>
+            </div>
+        </div>
+
+        <form method="POST" action="{{ url_for('bw_activation_full.set_pricing', bw_type=bw_type) }}">
+            {% if bw_info.pricing_explanation %}
+            <!-- Detailed pricing explanation (for PR type) -->
+            <div class="mb-6 p-4 bg-blue-50 rounded-md border border-blue-200">
+                <p class="text-sm text-blue-800">
+                    {{ bw_info.pricing_explanation }}
+                </p>
+            </div>
+            {% endif %}
+
+            <div class="mb-6 p-4 bg-gray-50 rounded-md border border-gray-300">
+                <label for="{{ bw_info.pricing_field }}" class="block text-sm font-medium text-gray-900 mb-2">
+                    {{ bw_info.pricing_label }} <span class="text-red-600">*</span>
+                </label>
+                <input
+                    type="number"
+                    name="{{ bw_info.pricing_field }}"
+                    id="{{ bw_info.pricing_field }}"
+                    min="1"
+                    required
+                    value="{{ bw_info.pricing_default or '' }}"
+                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm px-4 py-3 border"
+                    placeholder="{{ bw_info.pricing_placeholder }}">
+                {% if not bw_info.pricing_explanation %}
+                <p class="mt-2 text-xs text-gray-600">
+                    Ce nombre déterminera dynamiquement le tarif de votre abonnement.
+                    Les informations que vous allez saisir seront vérifiées par les équipes d'AiPRESS24.
+                </p>
+                {% endif %}
+            </div>
+
+            <!-- CGV Acceptance (required for paid types) -->
+            <div class="mb-6 p-4 bg-yellow-50 rounded-md border border-yellow-200">
+                <label class="flex items-start gap-3 cursor-pointer">
+                    <input type="checkbox"
+                           name="cgv_accepted"
+                           x-model="cgvAccepted"
+                           class="mt-1 h-4 w-4 rounded border-gray-300 text-green-600 focus:ring-green-500">
+                    <span class="text-sm text-gray-700">
+                        J'accepte les conditions générales de vente (CGV) et l'accord de diffusion sur AiPRESS24.
+                        Je comprends que les informations saisies seront vérifiées par les équipes d'AiPRESS24.
+                        <span class="text-red-600">*</span>
+                    </span>
+                </label>
+            </div>
+
+            <div class="flex gap-4">
+                <a href="{{ url_for('bw_activation_full.nominate_contacts') }}" class="flex-1 text-center rounded-md bg-gray-300 px-4 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-400">
+                    Retour à la nomination des contacts
+                </a>
+                <button type="submit"
+                        :disabled="!cgvAccepted"
+                        :class="cgvAccepted ? 'bg-green-600 hover:bg-green-700 cursor-pointer' : 'bg-gray-400 cursor-not-allowed'"
+                        class="flex-1 rounded-md px-4 py-3 text-sm font-semibold text-white shadow-sm transition-colors">
+                    Continuer vers le paiement
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,88 @@
+{% extends "layout.html" %}
+
+{% block title %}POC - Prototypes et Expérimentations{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="bg-white rounded-lg shadow-md p-8">
+        <h2 class="text-2xl font-bold mb-6 text-gray-800">Prototypes et POCs disponibles</h2>
+
+        <div class="space-y-4">
+            <!-- Business Wall Activation POC - Simple -->
+            <div class="border border-gray-200 rounded-lg p-6 hover:border-blue-300 transition">
+                <h3 class="text-xl font-semibold mb-2 text-gray-800">
+                    <a href="{{ url_for('bw_activation.index') }}" class="text-blue-600 hover:text-blue-800">
+                        Business Wall Activation (Simple)
+                    </a>
+                </h3>
+                <p class="text-gray-600 mb-3">
+                    Prototype simplifié du workflow d'activation du Business Wall avec deux parcours distincts :
+                    gratuit pour les médias et payant pour les agences de relations presse.
+                </p>
+                <div class="flex gap-2">
+                    <span class="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">Workflow</span>
+                    <span class="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full">Activation</span>
+                    <span class="px-3 py-1 bg-purple-100 text-purple-800 text-sm rounded-full">Paiement</span>
+                </div>
+            </div>
+
+            <!-- Business Wall Activation POC - Complete -->
+            <div class="border border-green-200 rounded-lg p-6 hover:border-green-400 transition bg-green-50">
+                <h3 class="text-xl font-semibold mb-2 text-gray-800">
+                    <a href="{{ url_for('bw_activation_full.index') }}" class="text-green-600 hover:text-green-800">
+                        Business Wall Activation (Complet) ✨
+                    </a>
+                </h3>
+                <p class="text-gray-600 mb-3">
+                    Prototype complet avec tous les types de Business Wall disponibles :
+                    4 types gratuits (Media, Corporate Media, Union, Academics) et
+                    3 types payants (PR, Leaders & Experts, Transformers).
+                </p>
+                <div class="flex gap-2 flex-wrap">
+                    <span class="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">7 types de BW</span>
+                    <span class="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full">Mockups HTML</span>
+                    <span class="px-3 py-1 bg-purple-100 text-purple-800 text-sm rounded-full">Workflow complet</span>
+                    <span class="px-3 py-1 bg-yellow-100 text-yellow-800 text-sm rounded-full">Validation client</span>
+                </div>
+            </div>
+
+            <!-- Rights Sales Settings POC -->
+            <div class="border border-gray-200 rounded-lg p-6 hover:border-blue-300 transition">
+                <h3 class="text-xl font-semibold mb-2 text-gray-800">
+                    <a href="{{ url_for('rights_sales.index') }}" class="text-blue-600 hover:text-blue-800">
+                        Gestion des Droits de Publication
+                    </a>
+                </h3>
+                <p class="text-gray-600 mb-3">
+                    Interface de configuration des droits de publication et des licences d'exploitation de contenus éditoriaux.
+                    Permet de gérer les listes blanches/noires pour la vente de licences.
+                </p>
+                <div class="flex gap-2 flex-wrap">
+                    <span class="px-3 py-1 bg-purple-100 text-purple-800 text-sm rounded-full">Droits</span>
+                    <span class="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">Licences</span>
+                    <span class="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full">Configuration</span>
+                </div>
+            </div>
+
+            <!-- Placeholder for future POCs -->
+            <div class="border border-gray-200 rounded-lg p-6 opacity-60">
+                <h3 class="text-xl font-semibold mb-2 text-gray-500">
+                    Futurs prototypes...
+                </h3>
+                <p class="text-gray-500">
+                    D'autres POCs seront ajoutés ici pour valider de nouveaux concepts avant intégration.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-6 bg-blue-50 rounded-lg p-6 border border-blue-200">
+        <h3 class="text-lg font-semibold mb-2 text-blue-900">À propos de l'espace POC</h3>
+        <p class="text-blue-800 text-sm">
+            Cet espace est dédié aux expérimentations et prototypes (POC - Proof of Concept).
+            Les fonctionnalités présentées ici ne sont pas encore intégrées dans l'application principale
+            et servent à valider des concepts avec les parties prenantes.
+        </p>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,31 @@
+"""Business Wall registration module."""
+# Copyright (c) 2021-2024, Abilian SAS & TCA
+#
+# SPDX-License-Identifier: AGPL-3.0-only
+
+from __future__ import annotations
+
+from typing import cast
+
+from flask import Blueprint
+from flask_login import current_user
+from werkzeug.exceptions import Unauthorized
+
+from app.flask.lib.nav import configure_nav
+from app.models.auth import User
+
+# Register blueprints
+from .blueprints.bw_activation_full import bp as bw_activation_full_bp
+# from .blueprints.rights_sales import bp as rights_sales_bp
+
+
+configure_nav(bw_activation_full_bp, label="Activation BW", icon="users", order=20)
+route = bw_activation_full_bp.route
+
+def register_views() -> None:
+    """Register views with the blueprint.
+
+    This function is called during app initialization to avoid
+    circular imports that occur when views are imported at module load time.
+    """
+    from . import views  # noqa: F401
