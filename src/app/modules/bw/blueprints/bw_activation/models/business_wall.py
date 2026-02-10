@@ -10,9 +10,8 @@ from datetime import datetime
 from enum import StrEnum
 from typing import TYPE_CHECKING
 
-import sqlalchemy as sa
 from advanced_alchemy.base import UUIDAuditBase
-from sqlalchemy import String
+from sqlalchemy import Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 if TYPE_CHECKING:
@@ -54,20 +53,20 @@ class BusinessWall(UUIDAuditBase):
     __tablename__ = "bw_business_wall"
 
     # Type and status
-    bw_type: Mapped[str] = mapped_column(String(50), nullable=False)
-    status: Mapped[str] = mapped_column(String(20), default=BWStatus.DRAFT.value)
+    bw_type: Mapped[str] = mapped_column(String, nullable=False)
+    status: Mapped[str] = mapped_column(String, default=BWStatus.DRAFT.value)
 
     # Pricing
     is_free: Mapped[bool] = mapped_column(default=False)
 
     # Ownership - references to User IDs (no FK constraint for POC)
-    owner_id: Mapped[int] = mapped_column(sa.Integer, nullable=False)
+    owner_id: Mapped[int] = mapped_column(Integer, nullable=False)
 
     # Payer (can be same as owner) - references to User ID (no FK constraint for POC)
-    payer_id: Mapped[int] = mapped_column(sa.Integer, nullable=False)
+    payer_id: Mapped[int] = mapped_column(Integer, nullable=False)
 
     # Organization reference (if applicable) - references to Organisation ID (no FK constraint for POC)
-    organisation_id: Mapped[int | None] = mapped_column(sa.Integer, nullable=True)
+    organisation_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
     # Activation tracking
     activated_at: Mapped[datetime | None] = mapped_column(nullable=True)
