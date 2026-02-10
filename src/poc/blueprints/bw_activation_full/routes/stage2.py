@@ -20,6 +20,8 @@ def nominate_contacts():
         return redirect(url_for("bw_activation_full.confirm_subscription"))
 
     bw_type = session.get("bw_type")
+    if not bw_type:
+        return redirect(url_for("bw_activation_full.choose_bw_type"))
     bw_info = BW_TYPES.get(bw_type, {})
 
     # Pre-fill with mock user data (in real app, use current_user)
@@ -61,6 +63,8 @@ def submit_contacts():
 
     # Redirect to appropriate activation page based on BW type
     bw_type = session.get("bw_type")
+    if not bw_type:
+        return redirect(url_for("bw_activation_full.choose_bw_type"))
     if BW_TYPES[bw_type]["free"]:
         return redirect(
             url_for("bw_activation_full.activate_free_page", bw_type=bw_type)
