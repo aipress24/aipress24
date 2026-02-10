@@ -45,11 +45,11 @@ class Subscription(UUIDAuditBase):
     Tracks pricing information, payment status, and Stripe integration.
     """
 
-    __tablename__ = "poc_subscription"
+    __tablename__ = "bw_subscription"
 
     # Foreign key to BusinessWall
     business_wall_id: Mapped[UUID] = mapped_column(
-        GUID, ForeignKey("poc_business_wall.id", ondelete="CASCADE"), nullable=False
+        GUID, ForeignKey("bw_business_wall.id", ondelete="CASCADE"), nullable=False
     )
     business_wall: Mapped[BusinessWall] = relationship(back_populates="subscription")
 

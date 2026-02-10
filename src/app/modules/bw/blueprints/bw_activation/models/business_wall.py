@@ -51,7 +51,7 @@ class BusinessWall(UUIDAuditBase):
     and activation status.
     """
 
-    __tablename__ = "poc_business_wall"
+    __tablename__ = "bw_business_wall"
 
     # Type and status
     bw_type: Mapped[str] = mapped_column(String(50), nullable=False)

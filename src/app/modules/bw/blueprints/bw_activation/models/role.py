@@ -58,11 +58,11 @@ class RoleAssignment(UUIDAuditBase):
     Maps users to roles within a Business Wall, with invitation workflow.
     """
 
-    __tablename__ = "poc_role_assignment"
+    __tablename__ = "bw_role_assignment"
 
     # Foreign keys
     business_wall_id: Mapped[UUID] = mapped_column(
-        GUID, ForeignKey("poc_business_wall.id", ondelete="CASCADE"), nullable=False
+        GUID, ForeignKey("bw_business_wall.id", ondelete="CASCADE"), nullable=False
     )
     business_wall: Mapped[BusinessWall] = relationship(
         back_populates="role_assignments"
@@ -99,11 +99,11 @@ class RolePermission(UUIDAuditBase):
     Allows fine-grained control over what PR Managers can do.
     """
 
-    __tablename__ = "poc_role_permission"
+    __tablename__ = "bw_role_permission"
 
     # Foreign key to RoleAssignment
     role_assignment_id: Mapped[UUID] = mapped_column(
-        GUID, ForeignKey("poc_role_assignment.id", ondelete="CASCADE"), nullable=False
+        GUID, ForeignKey("bw_role_assignment.id", ondelete="CASCADE"), nullable=False
     )
     role_assignment: Mapped[RoleAssignment] = relationship(back_populates="permissions")
 
