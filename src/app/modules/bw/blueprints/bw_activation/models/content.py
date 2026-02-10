@@ -29,12 +29,12 @@ class BWContent(UUIDAuditBase):
     Stores all visual and administrative configuration for a Business Wall.
     """
 
-    __tablename__ = "poc_bw_content"
+    __tablename__ = "bw_bw_content"
 
     # Foreign key to BusinessWall (one-to-one)
     business_wall_id: Mapped[UUID] = mapped_column(
         GUID,
-        ForeignKey("poc_business_wall.id", ondelete="CASCADE"),
+        ForeignKey("bw_business_wall.id", ondelete="CASCADE"),
         nullable=False,
         unique=True,
     )
