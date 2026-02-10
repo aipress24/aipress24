@@ -18,7 +18,7 @@
             </p>
         </div>
 
-        <form action="{{ url_for('bw_activation_full.submit_contacts') }}" method="POST" class="mt-8 space-y-10">
+        <form action="{{ url_for('bw_activation.submit_contacts') }}" method="POST" class="mt-8 space-y-10">
             <!-- Section 1: BUSINESS WALL OWNER -->
             <fieldset>
                 <legend class="text-xl font-semibold text-blue-800 border-b pb-3 mb-6 w-full">Business Wall Owner</legend>
@@ -212,7 +212,7 @@
 
             <!-- Navigation -->
             <div class="mt-10 flex items-center justify-end gap-x-6 border-t pt-6">
-                <a href="{{ url_for('bw_activation_full.confirm_subscription') }}" class="text-sm font-semibold leading-6 text-gray-900 hover:text-gray-700">
+                <a href="{{ url_for('bw_activation.confirm_subscription') }}" class="text-sm font-semibold leading-6 text-gray-900 hover:text-gray-700">
                     Retour à l'étape 1
                 </a>
                 <button type="submit" class="rounded-md bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-700">

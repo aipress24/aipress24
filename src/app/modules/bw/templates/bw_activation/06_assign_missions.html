@@ -255,15 +255,15 @@
         <!-- Navigation -->
         <div class="mt-10 flex items-center justify-between gap-x-6 border-t pt-6">
             {% if bw_type != 'pr' %}
-            <a href="{{ url_for('bw_activation_full.manage_external_partners') }}" class="text-sm font-semibold leading-6 text-gray-900 hover:text-gray-700">
+            <a href="{{ url_for('bw_activation.manage_external_partners') }}" class="text-sm font-semibold leading-6 text-gray-900 hover:text-gray-700">
                 ← Étape précédente : Partenaires externes
             </a>
             {% else %}
-            <a href="{{ url_for('bw_activation_full.manage_internal_roles') }}" class="text-sm font-semibold leading-6 text-gray-900 hover:text-gray-700">
+            <a href="{{ url_for('bw_activation.manage_internal_roles') }}" class="text-sm font-semibold leading-6 text-gray-900 hover:text-gray-700">
                 ← Étape précédente : Rôles internes
             </a>
             {% endif %}
-            <a href="{{ url_for('bw_activation_full.configure_content') }}" class="rounded-md bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-700">
+            <a href="{{ url_for('bw_activation.configure_content') }}" class="rounded-md bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-700">
                 Étape suivante : Configurer le contenu →
             </a>
         </div>

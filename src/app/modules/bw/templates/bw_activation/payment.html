@@ -47,10 +47,10 @@
 
         <!-- Actions -->
         <div class="flex gap-4">
-            <a href="{{ url_for('bw_activation_full.index') }}" class="flex-1 text-center rounded-md bg-gray-300 px-4 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-400">
+            <a href="{{ url_for('bw_activation.index') }}" class="flex-1 text-center rounded-md bg-gray-300 px-4 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-400">
                 Annuler
             </a>
-            <form method="POST" action="{{ url_for('bw_activation_full.simulate_payment', bw_type=bw_type) }}" class="flex-1">
+            <form method="POST" action="{{ url_for('bw_activation.simulate_payment', bw_type=bw_type) }}" class="flex-1">
                 <button type="submit" class="w-full rounded-md bg-green-600 px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-green-700">
                     Simuler le paiement et activer
                 </button>

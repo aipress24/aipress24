@@ -7,7 +7,7 @@ This package implements the complete Business Wall activation workflow with a cl
 The blueprint uses a package structure with routes organized by numbered stages for clarity and maintainability.
 
 ```
-bw_activation_full/
+bw_activation/
 ├── __init__.py          # Blueprint creation and routes import
 ├── config.py            # Business Wall types configuration
 ├── utils.py             # Helper functions and session management
@@ -146,7 +146,7 @@ The package uses the standard Flask blueprint pattern:
 1. **Blueprint creation** (`__init__.py`):
    ```python
    from flask import Blueprint
-   bp = Blueprint("bw_activation_full", __name__, template_folder="../../templates")
+   bp = Blueprint("bw_activation", __name__, template_folder="../../templates")
    ```
 
 2. **Route registration** (each route module):
@@ -211,7 +211,7 @@ The workflow uses Flask session to maintain state:
 2. Import blueprint: `from .. import bp`
 3. Add routes with `@bp.route()` decorators
 4. Import module in `routes/__init__.py`
-5. Add corresponding template in `templates/bw_activation_full/`
+5. Add corresponding template in `templates/bw_activation/`
 
 ### To add a new BW type:
 1. Add configuration to `BW_TYPES` in `config.py`
@@ -223,11 +223,11 @@ The workflow uses Flask session to maintain state:
 The blueprint auto-registers routes when imported:
 
 ```python
-from poc.blueprints.bw_activation_full import bp
+from poc.blueprints.bw_activation import bp
 from poc.app import create_app
 
 app = create_app()
-routes = [r for r in app.url_map.iter_rules() if 'bw_activation_full' in r.endpoint]
+routes = [r for r in app.url_map.iter_rules() if 'bw_activation' in r.endpoint]
 
 # Should show 20 routes registered
 print(f"Routes: {len(routes)}")
@@ -235,7 +235,7 @@ print(f"Routes: {len(routes)}")
 
 ## Migration Notes
 
-This package structure was refactored from the original monolithic `bw_activation_full.py` file (backed up as `bw_activation_full.py.old`).
+This package structure was refactored from the original monolithic `bw_activation.py` file (backed up as `bw_activation.py.old`).
 
 **Key improvements:**
 - Route modules renamed to `stageN.py` for clarity

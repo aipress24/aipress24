@@ -8,16 +8,16 @@ from __future__ import annotations
 
 from flask import redirect, render_template, session, url_for
 
-from app.modules.bw.blueprints.bw_activation_full import bp
-from app.modules.bw.blueprints.bw_activation_full.config import BW_TYPES
-from app.modules.bw.blueprints.bw_activation_full.utils import init_missions_state
+from app.modules.bw.blueprints.bw_activation import bp
+from app.modules.bw.blueprints.bw_activation.config import BW_TYPES
+from app.modules.bw.blueprints.bw_activation.utils import init_missions_state
 
 
 @bp.route("/assign-missions")
 def assign_missions():
     """Stage 6: Assign permissions/missions to PR Managers."""
     if not session.get("bw_activated"):
-        return redirect(url_for("bw_activation_full.index"))
+        return redirect(url_for("bw_activation.index"))
 
     bw_type = session["bw_type"]
     bw_info = BW_TYPES.get(bw_type, {})
@@ -26,7 +26,7 @@ def assign_missions():
     init_missions_state()
 
     return render_template(
-        "bw_activation_full/06_assign_missions.html",
+        "bw_activation/06_assign_missions.html",
         bw_type=bw_type,
         bw_info=bw_info,
         missions=session["missions"],

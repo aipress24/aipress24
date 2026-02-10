@@ -15,12 +15,12 @@ from app.flask.lib.nav import configure_nav
 from app.models.auth import User
 
 # Register blueprints
-from .blueprints.bw_activation_full import bp as bw_activation_full_bp
+from .blueprints.bw_activation import bp as bw_activation_bp
 # from .blueprints.rights_sales import bp as rights_sales_bp
 
 
-configure_nav(bw_activation_full_bp, label="Activation BW", icon="users", order=20)
-route = bw_activation_full_bp.route
+configure_nav(bw_activation_bp, label="Activation BW", icon="users", order=20)
+route = bw_activation_bp.route
 
 def register_views() -> None:
     """Register views with the blueprint.
