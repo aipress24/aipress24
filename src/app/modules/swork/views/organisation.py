@@ -47,7 +47,7 @@ class OrganisationDetailView(MethodView):
         g.nav.label = org_obj.name
 
         vm = OrgVM(org_obj)
-        tabs = list(_get_tabs(org_obj))
+        tabs = list(self._get_tabs(org_obj))
 
         is_manager = (
             not org_obj.is_auto_or_inactive
@@ -70,9 +70,34 @@ class OrganisationDetailView(MethodView):
 
         match action:
             case "toggle-follow":
-                return _toggle_follow(org_obj)
+                return self._toggle_follow(org_obj)
             case _:
                 return ""
+
+    def _toggle_follow(self, org_obj: Organisation) -> Response:
+        """Toggle follow status for an organisation."""
+        from app.services.social_graph import SocialUser, adapt
+
+        user: SocialUser = adapt(g.user)
+
+        if user.is_following(org_obj):
+            user.unfollow(org_obj)
+            response = make_response("Suivre")
+            toast(response, f"Vous ne suivez plus {org_obj.name}")
+        else:
+            user.follow(org_obj)
+            response = make_response("Ne plus suivre")
+            toast(response, f"Vous suivez à présent {org_obj.name}")
+
+        db.session.commit()
+        return response
+
+    def _get_tabs(self, org_obj: Organisation):
+        """Generate tabs for the organisation page."""
+        for tab_class in TAB_CLASSES:
+            tab = tab_class(org=org_obj)
+            if tab.guard():
+                yield tab
 
 
 # Register the view
@@ -80,38 +105,6 @@ blueprint.add_url_rule(
     "/organisations/<id>",
     view_func=OrganisationDetailView.as_view("org"),
 )
-
-
-# -----------------------------------------------------------------------------
-# Helper functions
-# -----------------------------------------------------------------------------
-
-
-def _toggle_follow(org_obj: Organisation) -> Response:
-    """Toggle follow status for an organisation."""
-    from app.services.social_graph import SocialUser, adapt
-
-    user: SocialUser = adapt(g.user)
-
-    if user.is_following(org_obj):
-        user.unfollow(org_obj)
-        response = make_response("Suivre")
-        toast(response, f"Vous ne suivez plus {org_obj.name}")
-    else:
-        user.follow(org_obj)
-        response = make_response("Ne plus suivre")
-        toast(response, f"Vous suivez à présent {org_obj.name}")
-
-    db.session.commit()
-    return response
-
-
-def _get_tabs(org_obj: Organisation):
-    """Generate tabs for the organisation page."""
-    for tab_class in TAB_CLASSES:
-        tab = tab_class(org=org_obj)
-        if tab.guard():
-            yield tab
 
 
 # =============================================================================

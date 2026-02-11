@@ -54,9 +54,25 @@ class GroupDetailView(MethodView):
 
         match action:
             case "toggle-join":
-                return _toggle_join(group_obj)
+                return self._toggle_join(group_obj)
             case _:
                 return ""
+
+    def _toggle_join(self, group_obj: Group) -> Response:
+        """Toggle group membership."""
+        user = g.user
+
+        if is_group_member(user, group_obj):
+            leave_group(user, group_obj)
+            response = make_response("Rejoindre")
+            toast(response, f"Vous avez quitté le groupe: {group_obj.name}")
+        else:
+            join_group(user, group_obj)
+            response = make_response("Quitter")
+            toast(response, f"Vous avez rejoint le groupe: {group_obj.name}")
+
+        db.session.commit()
+        return response
 
 
 # Register the view
@@ -64,28 +80,6 @@ blueprint.add_url_rule(
     "/groups/<id>",
     view_func=GroupDetailView.as_view("group"),
 )
-
-
-# -----------------------------------------------------------------------------
-# Helper functions
-# -----------------------------------------------------------------------------
-
-
-def _toggle_join(group_obj: Group) -> Response:
-    """Toggle group membership."""
-    user = g.user
-
-    if is_group_member(user, group_obj):
-        leave_group(user, group_obj)
-        response = make_response("Rejoindre")
-        toast(response, f"Vous avez quitté le groupe: {group_obj.name}")
-    else:
-        join_group(user, group_obj)
-        response = make_response("Quitter")
-        toast(response, f"Vous avez rejoint le groupe: {group_obj.name}")
-
-    db.session.commit()
-    return response
 
 
 # =============================================================================

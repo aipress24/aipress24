@@ -11,7 +11,8 @@ from typing import TYPE_CHECKING, cast
 import arrow
 import sqlalchemy as sa
 from attr import field, frozen
-from flask import g, render_template, request
+from flask import flash, g, redirect, render_template, request
+from flask.views import MethodView
 from werkzeug import Response
 
 from app.enums import OrganisationTypeEnum
@@ -33,125 +34,127 @@ from app.services.tagging import get_tags
 from app.services.tracking import record_view
 
 
-@blueprint.route("/<id>")
-def item(id: str):
-    """Article/Press Release detail page."""
-    post = get_obj(id, Post)
+class ItemDetailView(MethodView):
+    """Article/Press Release detail page with actions."""
 
-    match post:
-        case ArticlePost():
-            view_model = ArticleVM(post)
-            template = "pages/article.j2"
-        case PressReleasePost():
-            view_model = PressReleaseVM(post)
-            template = "pages/press-release.j2"
-        case _:
-            msg = f"Unknown item type: {post}"
-            raise TypeError(msg)
+    def get(self, id: str):
+        post = get_obj(id, Post)
 
-    # Record view
-    record_view(g.user, post)
-    db.session.commit()
+        match post:
+            case ArticlePost():
+                view_model = ArticleVM(post)
+                template = "pages/article.j2"
+            case PressReleasePost():
+                view_model = PressReleaseVM(post)
+                template = "pages/press-release.j2"
+            case _:
+                msg = f"Unknown item type: {post}"
+                raise TypeError(msg)
 
-    # Build metadata
-    metadata_list = _get_metadata_list(post)
-
-    return render_template(
-        template,
-        title=post.title,
-        post=view_model,
-        metadata_list=metadata_list,
-    )
-
-
-@blueprint.route("/<id>", methods=["POST"])
-def item_post(id: str) -> str | Response:
-    """Handle item actions (like, comment)."""
-    post = get_obj(id, Post)
-    action = request.form["action"]
-
-    match action:
-        case "toggle-like":
-            return _toggle_like(post)
-        case "post-comment":
-            return _post_comment(post)
-        case _:
-            return ""
-
-
-def _toggle_like(article) -> str:
-    """Toggle like status for the current user on the given article."""
-    user: SocialUser = adapt(g.user)
-    if user.is_liking(article):
-        user.unlike(article)
-    else:
-        user.like(article)
-    db.session.flush()
-    article.like_count = adapt(article).num_likes()
-    db.session.commit()
-    return str(article.like_count)
-
-
-def _post_comment(article) -> Response:
-    """Post a comment on the given article."""
-    from flask import flash, redirect
-
-    user = g.user
-    comment_text = request.form["comment"].strip()
-    if comment_text:
-        comment = Comment()
-        comment.content = comment_text
-        comment.owner = user
-        comment.object_id = f"article:{article.id}"
-        db.session.add(comment)
+        # Record view
+        record_view(g.user, post)
         db.session.commit()
-        flash("Votre commentaire a été posté.")
 
-    return redirect(url_for(article) + "#comments-title")
+        # Build metadata
+        metadata_list = self._get_metadata_list(post)
 
-
-def _get_metadata_list(post: Post) -> list[dict]:
-    """Build metadata list for display."""
-
-    def elvis(x, y):
-        return x or y
-
-    def post_type() -> str:
-        if post.type == "article":
-            return "Article"
-        if post.type == "press_release":
-            return "Communiqué"
-        return "Non classé"
-
-    data = [
-        {"label": "Type", "value": post_type()},
-        {"label": "Genre", "value": elvis(post.genre, "N/A")},
-        {"label": "Rubrique", "value": elvis(post.section, "N/A")},
-        {"label": "Sujet", "value": elvis(post.topic, "N/A")},
-        {"label": "Secteur d'activité", "value": elvis(post.sector, "N/A")},
-    ]
-
-    if post.address:
-        data.append({"label": "Adresse", "value": post.address})
-    if post.pays_zip_ville:
-        data.append(
-            {
-                "label": "Pays",
-                "value": country_code_to_label(post.pays_zip_ville),
-            }
-        )
-    if post.pays_zip_ville_detail:
-        data.append(
-            {
-                "label": "Ville",
-                "value": country_zip_code_to_city(post.pays_zip_ville_detail),
-            }
+        return render_template(
+            template,
+            title=post.title,
+            post=view_model,
+            metadata_list=metadata_list,
         )
 
-    return data
+    def post(self, id: str) -> str | Response:
+        post = get_obj(id, Post)
+        action = request.form["action"]
+
+        match action:
+            case "toggle-like":
+                return self._toggle_like(post)
+            case "post-comment":
+                return self._post_comment(post)
+            case _:
+                return ""
+
+    def _toggle_like(self, article) -> str:
+        """Toggle like status for the current user on the given article."""
+        user: SocialUser = adapt(g.user)
+        if user.is_liking(article):
+            user.unlike(article)
+        else:
+            user.like(article)
+        db.session.flush()
+        article.like_count = adapt(article).num_likes()
+        db.session.commit()
+        return str(article.like_count)
+
+    def _post_comment(self, article) -> Response:
+        """Post a comment on the given article."""
+        user = g.user
+        comment_text = request.form["comment"].strip()
+        if comment_text:
+            comment = Comment()
+            comment.content = comment_text
+            comment.owner = user
+            comment.object_id = f"article:{article.id}"
+            db.session.add(comment)
+            db.session.commit()
+            flash("Votre commentaire a été posté.")
+
+        return redirect(url_for(article) + "#comments-title")
+
+    def _get_metadata_list(self, post: Post) -> list[dict]:
+        """Build metadata list for display."""
+
+        def elvis(x, y):
+            return x or y
+
+        def post_type() -> str:
+            if post.type == "article":
+                return "Article"
+            if post.type == "press_release":
+                return "Communiqué"
+            return "Non classé"
+
+        data = [
+            {"label": "Type", "value": post_type()},
+            {"label": "Genre", "value": elvis(post.genre, "N/A")},
+            {"label": "Rubrique", "value": elvis(post.section, "N/A")},
+            {"label": "Sujet", "value": elvis(post.topic, "N/A")},
+            {"label": "Secteur d'activité", "value": elvis(post.sector, "N/A")},
+        ]
+
+        if post.address:
+            data.append({"label": "Adresse", "value": post.address})
+        if post.pays_zip_ville:
+            data.append(
+                {
+                    "label": "Pays",
+                    "value": country_code_to_label(post.pays_zip_ville),
+                }
+            )
+        if post.pays_zip_ville_detail:
+            data.append(
+                {
+                    "label": "Ville",
+                    "value": country_zip_code_to_city(post.pays_zip_ville_detail),
+                }
+            )
+
+        return data
 
 
+# Register the view
+blueprint.add_url_rule(
+    "/<id>",
+    view_func=ItemDetailView.as_view("item"),
+)
+
+
+# =============================================================================
 # ViewModels
+# =============================================================================
 
 
 class PostMixin:
