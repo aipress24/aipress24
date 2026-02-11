@@ -11,9 +11,9 @@ from decimal import Decimal
 from typing import TYPE_CHECKING
 
 from poc.blueprints.bw_activation_full.models import (
-    BusinessWall,
-    Subscription,
-    SubscriptionRepository,
+    BusinessWallPoc,
+    SubscriptionPoc,
+    SubscriptionPocRepository,
 )
 from poc.blueprints.bw_activation_full.models.subscription import (
     PricingTier,
@@ -24,14 +24,14 @@ if TYPE_CHECKING:
     from sqlalchemy.orm import Session
 
 
-class TestSubscription:
-    """Tests for Subscription model."""
+class TestSubscriptionPoc:
+    """Tests for SubscriptionPoc model."""
 
     def test_create_subscription(
-        self, db_session: Session, paid_business_wall: BusinessWall
+        self, db_session: Session, paid_business_wall: BusinessWallPoc
     ):
-        """Test creating a Subscription."""
-        sub = Subscription(
+        """Test creating a SubscriptionPoc."""
+        sub = SubscriptionPoc(
             business_wall_id=paid_business_wall.id,
             status=SubscriptionStatus.PENDING.value,
             pricing_field="client_count",
@@ -53,10 +53,10 @@ class TestSubscription:
         assert sub.billing_cycle == "monthly"
 
     def test_subscription_repr(
-        self, db_session: Session, paid_business_wall: BusinessWall
+        self, db_session: Session, paid_business_wall: BusinessWallPoc
     ):
-        """Test Subscription __repr__."""
-        sub = Subscription(
+        """Test SubscriptionPoc __repr__."""
+        sub = SubscriptionPoc(
             business_wall_id=paid_business_wall.id,
             status=SubscriptionStatus.ACTIVE.value,
             pricing_field="client_count",
@@ -69,15 +69,15 @@ class TestSubscription:
         db_session.commit()
 
         repr_str = repr(sub)
-        assert "Subscription" in repr_str
+        assert "SubscriptionPoc" in repr_str
         assert "active" in repr_str
         assert PricingTier.TIER_1_10.value in repr_str
 
     def test_subscription_with_billing_address(
-        self, db_session: Session, paid_business_wall: BusinessWall
+        self, db_session: Session, paid_business_wall: BusinessWallPoc
     ):
-        """Test Subscription with billing address."""
-        sub = Subscription(
+        """Test SubscriptionPoc with billing address."""
+        sub = SubscriptionPoc(
             business_wall_id=paid_business_wall.id,
             status=SubscriptionStatus.ACTIVE.value,
             pricing_field="employee_count",
@@ -105,10 +105,10 @@ class TestSubscription:
         assert sub.billing_country == "France"
 
     def test_subscription_with_stripe_data(
-        self, db_session: Session, paid_business_wall: BusinessWall
+        self, db_session: Session, paid_business_wall: BusinessWallPoc
     ):
-        """Test Subscription with Stripe integration data."""
-        sub = Subscription(
+        """Test SubscriptionPoc with Stripe integration data."""
+        sub = SubscriptionPoc(
             business_wall_id=paid_business_wall.id,
             status=SubscriptionStatus.ACTIVE.value,
             pricing_field="client_count",
@@ -128,10 +128,10 @@ class TestSubscription:
         assert sub.stripe_payment_intent_id == "pi_test789"
 
     def test_subscription_lifecycle(
-        self, db_session: Session, paid_business_wall: BusinessWall
+        self, db_session: Session, paid_business_wall: BusinessWallPoc
     ):
         """Test subscription lifecycle transitions."""
-        sub = Subscription(
+        sub = SubscriptionPoc(
             business_wall_id=paid_business_wall.id,
             status=SubscriptionStatus.PENDING.value,
             pricing_field="client_count",
@@ -162,7 +162,7 @@ class TestSubscription:
     def test_subscription_pricing_tiers(self, db_session: Session, mock_user_id: int):
         """Test all pricing tiers can be created."""
         # Create a business wall for subscriptions
-        bw = BusinessWall(
+        bw = BusinessWallPoc(
             bw_type="pr",
             status="draft",
             is_free=False,
@@ -180,7 +180,7 @@ class TestSubscription:
         ]
 
         for tier, monthly, annual in tiers:
-            sub = Subscription(
+            sub = SubscriptionPoc(
                 business_wall_id=bw.id,
                 status=SubscriptionStatus.PENDING.value,
                 pricing_field="client_count",
@@ -193,20 +193,20 @@ class TestSubscription:
 
         db_session.commit()
 
-        count = db_session.query(Subscription).count()
+        count = db_session.query(SubscriptionPoc).count()
         assert count == len(tiers)
 
 
-class TestSubscriptionRepository:
-    """Tests for SubscriptionRepository."""
+class TestSubscriptionPocRepository:
+    """Tests for SubscriptionPocRepository."""
 
     def test_repository_add(
-        self, db_session: Session, paid_business_wall: BusinessWall
+        self, db_session: Session, paid_business_wall: BusinessWallPoc
     ):
         """Test repository add operation."""
-        repo = SubscriptionRepository(session=db_session)
+        repo = SubscriptionPocRepository(session=db_session)
 
-        sub = Subscription(
+        sub = SubscriptionPoc(
             business_wall_id=paid_business_wall.id,
             status=SubscriptionStatus.PENDING.value,
             pricing_field="client_count",
@@ -222,12 +222,12 @@ class TestSubscriptionRepository:
         assert saved_sub.pricing_tier == PricingTier.TIER_1_10.value
 
     def test_repository_get(
-        self, db_session: Session, paid_business_wall: BusinessWall
+        self, db_session: Session, paid_business_wall: BusinessWallPoc
     ):
         """Test repository get operation."""
-        repo = SubscriptionRepository(session=db_session)
+        repo = SubscriptionPocRepository(session=db_session)
 
-        sub = Subscription(
+        sub = SubscriptionPoc(
             business_wall_id=paid_business_wall.id,
             status=SubscriptionStatus.ACTIVE.value,
             pricing_field="client_count",
@@ -245,12 +245,12 @@ class TestSubscriptionRepository:
         assert retrieved.pricing_tier == PricingTier.TIER_11_50.value
 
     def test_repository_update(
-        self, db_session: Session, paid_business_wall: BusinessWall
+        self, db_session: Session, paid_business_wall: BusinessWallPoc
     ):
         """Test repository update operation."""
-        repo = SubscriptionRepository(session=db_session)
+        repo = SubscriptionPocRepository(session=db_session)
 
-        sub = Subscription(
+        sub = SubscriptionPoc(
             business_wall_id=paid_business_wall.id,
             status=SubscriptionStatus.PENDING.value,
             pricing_field="client_count",

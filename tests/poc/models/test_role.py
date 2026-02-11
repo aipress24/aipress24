@@ -9,33 +9,29 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING
 
-
-from poc.blueprints.bw_activation_full.models import (
-    RoleAssignment,
-    RoleAssignmentRepository,
-    RolePermission,
-    RolePermissionRepository,
-)
 from poc.blueprints.bw_activation_full.models import (
     BWRoleType,
     InvitationStatus,
     PermissionType,
+    RoleAssignmentPoc,
+    RoleAssignmentPocRepository,
+    RolePermissionPoc,
+    RolePermissionPocRepository,
 )
 
 if TYPE_CHECKING:
+    from poc.blueprints.bw_activation_full.models import BusinessWallPoc
     from sqlalchemy.orm import Session
 
-    from poc.blueprints.bw_activation_full.models import BusinessWall
 
-
-class TestRoleAssignment:
-    """Tests for RoleAssignment model."""
+class TestRoleAssignmentPoc:
+    """Tests for RoleAssignmentPoc model."""
 
     def test_create_role_assignment(
-        self, db_session: Session, business_wall: BusinessWall, mock_user_id: int
+        self, db_session: Session, business_wall: BusinessWallPoc, mock_user_id: int
     ):
-        """Test creating a RoleAssignment."""
-        role = RoleAssignment(
+        """Test creating a RoleAssignmentPoc."""
+        role = RoleAssignmentPoc(
             business_wall_id=business_wall.id,
             user_id=mock_user_id,
             role_type=BWRoleType.BWPRI.value,
@@ -51,10 +47,10 @@ class TestRoleAssignment:
         assert role.invitation_status == InvitationStatus.PENDING.value
 
     def test_role_assignment_repr(
-        self, db_session: Session, business_wall: BusinessWall, mock_user_id: int
+        self, db_session: Session, business_wall: BusinessWallPoc, mock_user_id: int
     ):
-        """Test RoleAssignment __repr__."""
-        role = RoleAssignment(
+        """Test RoleAssignmentPoc __repr__."""
+        role = RoleAssignmentPoc(
             business_wall_id=business_wall.id,
             user_id=mock_user_id,
             role_type=BWRoleType.BWMI.value,
@@ -64,12 +60,12 @@ class TestRoleAssignment:
         db_session.commit()
 
         repr_str = repr(role)
-        assert "RoleAssignment" in repr_str
+        assert "RoleAssignmentPoc" in repr_str
         assert BWRoleType.BWMI.value in repr_str
         assert str(mock_user_id) in repr_str
 
     def test_role_types(
-        self, db_session: Session, business_wall: BusinessWall, mock_user_id: int
+        self, db_session: Session, business_wall: BusinessWallPoc, mock_user_id: int
     ):
         """Test all role types can be created."""
         roles = [
@@ -81,7 +77,7 @@ class TestRoleAssignment:
         ]
 
         for role_type in roles:
-            role = RoleAssignment(
+            role = RoleAssignmentPoc(
                 business_wall_id=business_wall.id,
                 user_id=mock_user_id,
                 role_type=role_type.value,
@@ -91,14 +87,14 @@ class TestRoleAssignment:
 
         db_session.commit()
 
-        count = db_session.query(RoleAssignment).count()
+        count = db_session.query(RoleAssignmentPoc).count()
         assert count == len(roles)
 
     def test_invitation_workflow(
-        self, db_session: Session, business_wall: BusinessWall, mock_user_id: int
+        self, db_session: Session, business_wall: BusinessWallPoc, mock_user_id: int
     ):
         """Test invitation workflow transitions."""
-        role = RoleAssignment(
+        role = RoleAssignmentPoc(
             business_wall_id=business_wall.id,
             user_id=mock_user_id,
             role_type=BWRoleType.BWPRI.value,
@@ -121,14 +117,14 @@ class TestRoleAssignment:
         assert role.accepted_at is not None
 
 
-class TestRolePermission:
-    """Tests for RolePermission model."""
+class TestRolePermissionPoc:
+    """Tests for RolePermissionPoc model."""
 
     def test_create_permission(
-        self, db_session: Session, business_wall: BusinessWall, mock_user_id: int
+        self, db_session: Session, business_wall: BusinessWallPoc, mock_user_id: int
     ):
-        """Test creating a RolePermission."""
-        role = RoleAssignment(
+        """Test creating a RolePermissionPoc."""
+        role = RoleAssignmentPoc(
             business_wall_id=business_wall.id,
             user_id=mock_user_id,
             role_type=BWRoleType.BWPRI.value,
@@ -137,7 +133,7 @@ class TestRolePermission:
         db_session.add(role)
         db_session.commit()
 
-        perm = RolePermission(
+        perm = RolePermissionPoc(
             role_assignment_id=role.id,
             permission_type=PermissionType.PRESS_RELEASE.value,
             is_granted=True,
@@ -151,10 +147,10 @@ class TestRolePermission:
         assert perm.is_granted is True
 
     def test_permission_repr(
-        self, db_session: Session, business_wall: BusinessWall, mock_user_id: int
+        self, db_session: Session, business_wall: BusinessWallPoc, mock_user_id: int
     ):
-        """Test RolePermission __repr__."""
-        role = RoleAssignment(
+        """Test RolePermissionPoc __repr__."""
+        role = RoleAssignmentPoc(
             business_wall_id=business_wall.id,
             user_id=mock_user_id,
             role_type=BWRoleType.BWPRI.value,
@@ -163,7 +159,7 @@ class TestRolePermission:
         db_session.add(role)
         db_session.commit()
 
-        perm = RolePermission(
+        perm = RolePermissionPoc(
             role_assignment_id=role.id,
             permission_type=PermissionType.EVENTS.value,
             is_granted=False,
@@ -172,15 +168,15 @@ class TestRolePermission:
         db_session.commit()
 
         repr_str = repr(perm)
-        assert "RolePermission" in repr_str
+        assert "RolePermissionPoc" in repr_str
         assert PermissionType.EVENTS.value in repr_str
         assert "denied" in repr_str
 
     def test_all_permission_types(
-        self, db_session: Session, business_wall: BusinessWall, mock_user_id: int
+        self, db_session: Session, business_wall: BusinessWallPoc, mock_user_id: int
     ):
         """Test all permission types can be created."""
-        role = RoleAssignment(
+        role = RoleAssignmentPoc(
             business_wall_id=business_wall.id,
             user_id=mock_user_id,
             role_type=BWRoleType.BWPRI.value,
@@ -200,7 +196,7 @@ class TestRolePermission:
         ]
 
         for perm_type in permissions:
-            perm = RolePermission(
+            perm = RolePermissionPoc(
                 role_assignment_id=role.id,
                 permission_type=perm_type.value,
                 is_granted=True,
@@ -209,14 +205,14 @@ class TestRolePermission:
 
         db_session.commit()
 
-        count = db_session.query(RolePermission).count()
+        count = db_session.query(RolePermissionPoc).count()
         assert count == len(permissions)
 
     def test_permission_grant_revoke(
-        self, db_session: Session, business_wall: BusinessWall, mock_user_id: int
+        self, db_session: Session, business_wall: BusinessWallPoc, mock_user_id: int
     ):
         """Test granting and revoking permissions."""
-        role = RoleAssignment(
+        role = RoleAssignmentPoc(
             business_wall_id=business_wall.id,
             user_id=mock_user_id,
             role_type=BWRoleType.BWPRI.value,
@@ -225,7 +221,7 @@ class TestRolePermission:
         db_session.add(role)
         db_session.commit()
 
-        perm = RolePermission(
+        perm = RolePermissionPoc(
             role_assignment_id=role.id,
             permission_type=PermissionType.PRESS_RELEASE.value,
             is_granted=False,
@@ -248,16 +244,16 @@ class TestRolePermission:
         assert perm.is_granted is False
 
 
-class TestRoleRepositories:
-    """Tests for Role repositories."""
+class TestRolePocRepositories:
+    """Tests for RolePoc repositories."""
 
     def test_role_assignment_repository(
-        self, db_session: Session, business_wall: BusinessWall, mock_user_id: int
+        self, db_session: Session, business_wall: BusinessWallPoc, mock_user_id: int
     ):
-        """Test RoleAssignmentRepository operations."""
-        repo = RoleAssignmentRepository(session=db_session)
+        """Test RoleAssignmentPocRepository operations."""
+        repo = RoleAssignmentPocRepository(session=db_session)
 
-        role = RoleAssignment(
+        role = RoleAssignmentPoc(
             business_wall_id=business_wall.id,
             user_id=mock_user_id,
             role_type=BWRoleType.BWMI.value,
@@ -273,11 +269,11 @@ class TestRoleRepositories:
         assert retrieved.role_type == BWRoleType.BWMI.value
 
     def test_role_permission_repository(
-        self, db_session: Session, business_wall: BusinessWall, mock_user_id: int
+        self, db_session: Session, business_wall: BusinessWallPoc, mock_user_id: int
     ):
-        """Test RolePermissionRepository operations."""
+        """Test RolePermissionPocRepository operations."""
         # First create a role
-        role = RoleAssignment(
+        role = RoleAssignmentPoc(
             business_wall_id=business_wall.id,
             user_id=mock_user_id,
             role_type=BWRoleType.BWPRI.value,
@@ -287,9 +283,9 @@ class TestRoleRepositories:
         db_session.commit()
 
         # Now test permission repository
-        repo = RolePermissionRepository(session=db_session)
+        repo = RolePermissionPocRepository(session=db_session)
 
-        perm = RolePermission(
+        perm = RolePermissionPoc(
             role_assignment_id=role.id,
             permission_type=PermissionType.PRESS_RELEASE.value,
             is_granted=True,

@@ -9,28 +9,29 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING
 
-
-from poc.blueprints.bw_activation_full.models import Partnership, PartnershipRepository
-from poc.blueprints.bw_activation_full.models import PartnershipStatus
+from poc.blueprints.bw_activation_full.models import (
+    PartnershipPoc,
+    PartnershipPocRepository,
+    PartnershipStatus,
+)
 
 if TYPE_CHECKING:
+    from poc.blueprints.bw_activation_full.models import BusinessWallPoc
     from sqlalchemy.orm import Session
 
-    from poc.blueprints.bw_activation_full.models import BusinessWall
 
-
-class TestPartnership:
-    """Tests for Partnership model."""
+class TestPartnershipPoc:
+    """Tests for PartnershipPoc model."""
 
     def test_create_partnership(
         self,
         db_session: Session,
-        business_wall: BusinessWall,
+        business_wall: BusinessWallPoc,
         mock_user_id: int,
         mock_org_id: int,
     ):
-        """Test creating a Partnership."""
-        partnership = Partnership(
+        """Test creating a PartnershipPoc."""
+        partnership = PartnershipPoc(
             business_wall_id=business_wall.id,
             partner_org_id=mock_org_id,
             invited_by_user_id=mock_user_id,
@@ -50,12 +51,12 @@ class TestPartnership:
     def test_partnership_repr(
         self,
         db_session: Session,
-        business_wall: BusinessWall,
+        business_wall: BusinessWallPoc,
         mock_user_id: int,
         mock_org_id: int,
     ):
-        """Test Partnership __repr__."""
-        partnership = Partnership(
+        """Test PartnershipPoc __repr__."""
+        partnership = PartnershipPoc(
             business_wall_id=business_wall.id,
             partner_org_id=mock_org_id,
             invited_by_user_id=mock_user_id,
@@ -65,14 +66,14 @@ class TestPartnership:
         db_session.commit()
 
         repr_str = repr(partnership)
-        assert "Partnership" in repr_str
+        assert "PartnershipPoc" in repr_str
         assert "active" in repr_str
         assert f"org_id={mock_org_id}" in repr_str
 
     def test_partnership_statuses(
         self,
         db_session: Session,
-        business_wall: BusinessWall,
+        business_wall: BusinessWallPoc,
         mock_user_id: int,
     ):
         """Test all partnership statuses."""
@@ -86,7 +87,7 @@ class TestPartnership:
         ]
 
         for idx, status in enumerate(statuses):
-            partnership = Partnership(
+            partnership = PartnershipPoc(
                 business_wall_id=business_wall.id,
                 partner_org_id=idx + 1,
                 invited_by_user_id=mock_user_id,
@@ -96,18 +97,18 @@ class TestPartnership:
 
         db_session.commit()
 
-        count = db_session.query(Partnership).count()
+        count = db_session.query(PartnershipPoc).count()
         assert count == len(statuses)
 
     def test_partnership_workflow(
         self,
         db_session: Session,
-        business_wall: BusinessWall,
+        business_wall: BusinessWallPoc,
         mock_user_id: int,
         mock_org_id: int,
     ):
         """Test partnership invitation and acceptance workflow."""
-        partnership = Partnership(
+        partnership = PartnershipPoc(
             business_wall_id=business_wall.id,
             partner_org_id=mock_org_id,
             invited_by_user_id=mock_user_id,
@@ -139,12 +140,12 @@ class TestPartnership:
     def test_partnership_rejection(
         self,
         db_session: Session,
-        business_wall: BusinessWall,
+        business_wall: BusinessWallPoc,
         mock_user_id: int,
         mock_org_id: int,
     ):
         """Test partnership rejection workflow."""
-        partnership = Partnership(
+        partnership = PartnershipPoc(
             business_wall_id=business_wall.id,
             partner_org_id=mock_org_id,
             invited_by_user_id=mock_user_id,
@@ -165,7 +166,7 @@ class TestPartnership:
     def test_partnership_with_contract_terms(
         self,
         db_session: Session,
-        business_wall: BusinessWall,
+        business_wall: BusinessWallPoc,
         mock_user_id: int,
         mock_org_id: int,
     ):
@@ -173,7 +174,7 @@ class TestPartnership:
         start_date = datetime.now(timezone.utc)
         end_date = datetime(2025, 12, 31, tzinfo=timezone.utc)
 
-        partnership = Partnership(
+        partnership = PartnershipPoc(
             business_wall_id=business_wall.id,
             partner_org_id=mock_org_id,
             invited_by_user_id=mock_user_id,
@@ -190,20 +191,20 @@ class TestPartnership:
         assert partnership.notes == "Annual contract with renewal option"
 
 
-class TestPartnershipRepository:
-    """Tests for PartnershipRepository."""
+class TestPartnershipPocRepository:
+    """Tests for PartnershipPocRepository."""
 
     def test_repository_add(
         self,
         db_session: Session,
-        business_wall: BusinessWall,
+        business_wall: BusinessWallPoc,
         mock_user_id: int,
         mock_org_id: int,
     ):
         """Test repository add operation."""
-        repo = PartnershipRepository(session=db_session)
+        repo = PartnershipPocRepository(session=db_session)
 
-        partnership = Partnership(
+        partnership = PartnershipPoc(
             business_wall_id=business_wall.id,
             partner_org_id=mock_org_id,
             invited_by_user_id=mock_user_id,
@@ -218,14 +219,14 @@ class TestPartnershipRepository:
     def test_repository_get(
         self,
         db_session: Session,
-        business_wall: BusinessWall,
+        business_wall: BusinessWallPoc,
         mock_user_id: int,
         mock_org_id: int,
     ):
         """Test repository get operation."""
-        repo = PartnershipRepository(session=db_session)
+        repo = PartnershipPocRepository(session=db_session)
 
-        partnership = Partnership(
+        partnership = PartnershipPoc(
             business_wall_id=business_wall.id,
             partner_org_id=mock_org_id,
             invited_by_user_id=mock_user_id,
@@ -242,14 +243,14 @@ class TestPartnershipRepository:
     def test_repository_update(
         self,
         db_session: Session,
-        business_wall: BusinessWall,
+        business_wall: BusinessWallPoc,
         mock_user_id: int,
         mock_org_id: int,
     ):
         """Test repository update operation."""
-        repo = PartnershipRepository(session=db_session)
+        repo = PartnershipPocRepository(session=db_session)
 
-        partnership = Partnership(
+        partnership = PartnershipPoc(
             business_wall_id=business_wall.id,
             partner_org_id=mock_org_id,
             invited_by_user_id=mock_user_id,

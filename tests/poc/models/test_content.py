@@ -9,21 +9,22 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from advanced_alchemy.types.file_object import FileObject
-
-from poc.blueprints.bw_activation_full.models import BWContent, BWContentRepository
+from poc.blueprints.bw_activation_full.models import (
+    BWContentPoc,
+    BWContentPocRepository,
+)
 
 if TYPE_CHECKING:
+    from poc.blueprints.bw_activation_full.models import BusinessWallPoc
     from sqlalchemy.orm import Session
 
-    from poc.blueprints.bw_activation_full.models import BusinessWall
 
+class TestBWContentPoc:
+    """Tests for BWContentPoc model."""
 
-class TestBWContent:
-    """Tests for BWContent model."""
-
-    def test_create_content(self, db_session: Session, business_wall: BusinessWall):
-        """Test creating BWContent."""
-        content = BWContent(
+    def test_create_content(self, db_session: Session, business_wall: BusinessWallPoc):
+        """Test creating BWContentPoc."""
+        content = BWContentPoc(
             business_wall_id=business_wall.id,
             official_name="My Organization",
             organization_type="Entreprise",
@@ -44,9 +45,9 @@ class TestBWContent:
         assert content.baseline == "Innovation in journalism"
         assert content.website == "https://example.com"
 
-    def test_content_repr(self, db_session: Session, business_wall: BusinessWall):
-        """Test BWContent __repr__."""
-        content = BWContent(
+    def test_content_repr(self, db_session: Session, business_wall: BusinessWallPoc):
+        """Test BWContentPoc __repr__."""
+        content = BWContentPoc(
             business_wall_id=business_wall.id,
             official_name="Test Org",
         )
@@ -54,14 +55,14 @@ class TestBWContent:
         db_session.commit()
 
         repr_str = repr(content)
-        assert "BWContent" in repr_str
+        assert "BWContentPoc" in repr_str
         assert "Test Org" in repr_str
 
     def test_content_with_address(
-        self, db_session: Session, business_wall: BusinessWall
+        self, db_session: Session, business_wall: BusinessWallPoc
     ):
-        """Test BWContent with full address."""
-        content = BWContent(
+        """Test BWContentPoc with full address."""
+        content = BWContentPoc(
             business_wall_id=business_wall.id,
             official_name="My Organization",
             address="123 Main Street",
@@ -78,10 +79,10 @@ class TestBWContent:
         assert content.country == "France"
 
     def test_content_with_administrative_data(
-        self, db_session: Session, business_wall: BusinessWall
+        self, db_session: Session, business_wall: BusinessWallPoc
     ):
-        """Test BWContent with administrative identifiers."""
-        content = BWContent(
+        """Test BWContentPoc with administrative identifiers."""
+        content = BWContentPoc(
             business_wall_id=business_wall.id,
             official_name="My Organization",
             siren="123456789",
@@ -96,10 +97,10 @@ class TestBWContent:
         assert content.cppap == "0123A12345"
 
     def test_content_with_social_media(
-        self, db_session: Session, business_wall: BusinessWall
+        self, db_session: Session, business_wall: BusinessWallPoc
     ):
-        """Test BWContent with social media links."""
-        content = BWContent(
+        """Test BWContentPoc with social media links."""
+        content = BWContentPoc(
             business_wall_id=business_wall.id,
             official_name="My Organization",
             twitter_url="https://twitter.com/myorg",
@@ -114,10 +115,10 @@ class TestBWContent:
         assert content.facebook_url == "https://facebook.com/myorg"
 
     def test_content_with_ontology_selections(
-        self, db_session: Session, business_wall: BusinessWall
+        self, db_session: Session, business_wall: BusinessWallPoc
     ):
-        """Test BWContent with ontology selections (JSON arrays)."""
-        content = BWContent(
+        """Test BWContentPoc with ontology selections (JSON arrays)."""
+        content = BWContentPoc(
             business_wall_id=business_wall.id,
             official_name="My Organization",
             topics=["technology", "business", "innovation"],
@@ -132,10 +133,10 @@ class TestBWContent:
         assert content.sectors == ["media", "communication", "digital"]
 
     def test_content_with_member_list(
-        self, db_session: Session, business_wall: BusinessWall
+        self, db_session: Session, business_wall: BusinessWallPoc
     ):
-        """Test BWContent with member IDs list."""
-        content = BWContent(
+        """Test BWContentPoc with member IDs list."""
+        content = BWContentPoc(
             business_wall_id=business_wall.id,
             official_name="My Organization",
             member_ids=[1, 2, 3, 4, 5],
@@ -147,10 +148,10 @@ class TestBWContent:
         assert len(content.member_ids) == 5
 
     def test_content_with_client_list(
-        self, db_session: Session, business_wall: BusinessWall
+        self, db_session: Session, business_wall: BusinessWallPoc
     ):
-        """Test BWContent with client list (for PR type)."""
-        content = BWContent(
+        """Test BWContentPoc with client list (for PR type)."""
+        content = BWContentPoc(
             business_wall_id=business_wall.id,
             official_name="PR Agency",
             client_list=["Acme Corp", "XYZ Industries", "Global Media Ltd"],
@@ -165,8 +166,10 @@ class TestBWContent:
         ]
         assert len(content.client_list) == 3
 
-    def test_content_with_logo(self, db_session: Session, business_wall: BusinessWall):
-        """Test BWContent with logo FileObject."""
+    def test_content_with_logo(
+        self, db_session: Session, business_wall: BusinessWallPoc
+    ):
+        """Test BWContentPoc with logo FileObject."""
         logo = FileObject(
             backend="local",
             filename="logo.png",
@@ -174,7 +177,7 @@ class TestBWContent:
             metadata={"alt": "Company Logo", "width": 200, "height": 100},
         )
 
-        content = BWContent(
+        content = BWContentPoc(
             business_wall_id=business_wall.id,
             official_name="My Organization",
             logo=logo,
@@ -187,9 +190,9 @@ class TestBWContent:
         assert content.logo.metadata["alt"] == "Company Logo"
 
     def test_content_with_banner(
-        self, db_session: Session, business_wall: BusinessWall
+        self, db_session: Session, business_wall: BusinessWallPoc
     ):
-        """Test BWContent with banner FileObject."""
+        """Test BWContentPoc with banner FileObject."""
         banner = FileObject(
             backend="local",
             filename="banner.jpg",
@@ -197,7 +200,7 @@ class TestBWContent:
             metadata={"alt": "Company Banner"},
         )
 
-        content = BWContent(
+        content = BWContentPoc(
             business_wall_id=business_wall.id,
             official_name="My Organization",
             banner=banner,
@@ -209,9 +212,9 @@ class TestBWContent:
         assert content.banner.filename == "banner.jpg"
 
     def test_content_with_gallery(
-        self, db_session: Session, business_wall: BusinessWall
+        self, db_session: Session, business_wall: BusinessWallPoc
     ):
-        """Test BWContent with gallery FileObjectList."""
+        """Test BWContentPoc with gallery FileObjectList."""
         gallery = [
             FileObject(
                 backend="local",
@@ -221,7 +224,7 @@ class TestBWContent:
             for i in range(3)
         ]
 
-        content = BWContent(
+        content = BWContentPoc(
             business_wall_id=business_wall.id,
             official_name="My Organization",
             gallery=gallery,
@@ -236,9 +239,9 @@ class TestBWContent:
         assert content.gallery[2].filename == "gallery_2.jpg"
 
     def test_content_with_all_files(
-        self, db_session: Session, business_wall: BusinessWall
+        self, db_session: Session, business_wall: BusinessWallPoc
     ):
-        """Test BWContent with logo, banner, and gallery."""
+        """Test BWContentPoc with logo, banner, and gallery."""
         logo = FileObject(
             backend="local",
             filename="logo.png",
@@ -258,7 +261,7 @@ class TestBWContent:
             for i in range(5)
         ]
 
-        content = BWContent(
+        content = BWContentPoc(
             business_wall_id=business_wall.id,
             official_name="My Organization",
             logo=logo,
@@ -274,10 +277,10 @@ class TestBWContent:
         assert len(content.gallery) == 5
 
     def test_content_relationship_to_business_wall(
-        self, db_session: Session, business_wall: BusinessWall
+        self, db_session: Session, business_wall: BusinessWallPoc
     ):
-        """Test BWContent relationship to BusinessWall (one-to-one)."""
-        content = BWContent(
+        """Test BWContentPoc relationship to BusinessWallPoc (one-to-one)."""
+        content = BWContentPoc(
             business_wall_id=business_wall.id,
             official_name="My Organization",
         )
@@ -294,10 +297,10 @@ class TestBWContent:
         assert business_wall.content.id == content.id
 
     def test_content_empty_json_fields_default_to_empty_list(
-        self, db_session: Session, business_wall: BusinessWall
+        self, db_session: Session, business_wall: BusinessWallPoc
     ):
         """Test that JSON array fields default to empty lists."""
-        content = BWContent(
+        content = BWContentPoc(
             business_wall_id=business_wall.id,
             official_name="My Organization",
         )
@@ -311,14 +314,14 @@ class TestBWContent:
         assert content.client_list == []
 
 
-class TestBWContentRepository:
-    """Tests for BWContentRepository."""
+class TestBWContentPocRepository:
+    """Tests for BWContentPocRepository."""
 
-    def test_repository_add(self, db_session: Session, business_wall: BusinessWall):
+    def test_repository_add(self, db_session: Session, business_wall: BusinessWallPoc):
         """Test repository add operation."""
-        repo = BWContentRepository(session=db_session)
+        repo = BWContentPocRepository(session=db_session)
 
-        content = BWContent(
+        content = BWContentPoc(
             business_wall_id=business_wall.id,
             official_name="Test Organization",
         )
@@ -328,11 +331,11 @@ class TestBWContentRepository:
         assert saved.id is not None
         assert saved.official_name == "Test Organization"
 
-    def test_repository_get(self, db_session: Session, business_wall: BusinessWall):
+    def test_repository_get(self, db_session: Session, business_wall: BusinessWallPoc):
         """Test repository get operation."""
-        repo = BWContentRepository(session=db_session)
+        repo = BWContentPocRepository(session=db_session)
 
-        content = BWContent(
+        content = BWContentPoc(
             business_wall_id=business_wall.id,
             official_name="Test Organization",
         )
@@ -344,11 +347,13 @@ class TestBWContentRepository:
         assert retrieved.id == content.id
         assert retrieved.official_name == "Test Organization"
 
-    def test_repository_update(self, db_session: Session, business_wall: BusinessWall):
+    def test_repository_update(
+        self, db_session: Session, business_wall: BusinessWallPoc
+    ):
         """Test repository update operation."""
-        repo = BWContentRepository(session=db_session)
+        repo = BWContentPocRepository(session=db_session)
 
-        content = BWContent(
+        content = BWContentPoc(
             business_wall_id=business_wall.id,
             official_name="Old Name",
         )

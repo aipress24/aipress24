@@ -14,10 +14,9 @@ import pytest
 from advanced_alchemy.base import UUIDAuditBase
 from advanced_alchemy.types.file_object import storages
 from advanced_alchemy.types.file_object.backends.fsspec import FSSpecBackend
+from poc.blueprints.bw_activation_full.models import BusinessWallPoc
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
-
-from poc.blueprints.bw_activation_full.models import BusinessWall
 
 
 @pytest.fixture(scope="session")
@@ -48,7 +47,7 @@ def engine(file_storage_backend):
 def tables(engine):
     """Create all POC model tables."""
     # Model is imported at top-level to register with metadata
-    assert BusinessWall  # to ensure models are loaded
+    assert BusinessWallPoc  # to ensure models are loaded
 
     # Create all tables
     UUIDAuditBase.metadata.create_all(engine)
@@ -89,9 +88,9 @@ def mock_org_id() -> int:
 
 
 @pytest.fixture
-def business_wall(db_session: Session, mock_user_id: int) -> BusinessWall:
+def business_wall(db_session: Session, mock_user_id: int) -> BusinessWallPoc:
     """Create a test BusinessWall."""
-    bw = BusinessWall(
+    bw = BusinessWallPoc(
         bw_type="media",
         status="draft",
         is_free=True,
@@ -106,9 +105,9 @@ def business_wall(db_session: Session, mock_user_id: int) -> BusinessWall:
 @pytest.fixture
 def paid_business_wall(
     db_session: Session, mock_user_id: int, mock_payer_id: int
-) -> BusinessWall:
+) -> BusinessWallPoc:
     """Create a paid BusinessWall."""
-    bw = BusinessWall(
+    bw = BusinessWallPoc(
         bw_type="pr",
         status="draft",
         is_free=False,
