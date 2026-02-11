@@ -17,7 +17,7 @@ from sqlalchemy import DECIMAL, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 if TYPE_CHECKING:
-    from .business_wall import BusinessWall
+    from .business_wall import BusinessWallPoc
 
 
 class SubscriptionStatus(StrEnum):
@@ -39,7 +39,7 @@ class PricingTier(StrEnum):
     TIER_201_PLUS = "201+"
 
 
-class Subscription(UUIDAuditBase):
+class SubscriptionPoc(UUIDAuditBase):
     """Subscription for paid Business Walls.
 
     Tracks pricing information, payment status, and Stripe integration.
@@ -51,7 +51,7 @@ class Subscription(UUIDAuditBase):
     business_wall_id: Mapped[UUID] = mapped_column(
         GUID, ForeignKey("poc_business_wall.id", ondelete="CASCADE"), nullable=False
     )
-    business_wall: Mapped[BusinessWall] = relationship(back_populates="subscription")
+    business_wall: Mapped[BusinessWallPoc] = relationship(back_populates="subscription")
 
     # Subscription status
     status: Mapped[str] = mapped_column(
@@ -93,4 +93,6 @@ class Subscription(UUIDAuditBase):
     billing_country: Mapped[str] = mapped_column(String(100), default="")
 
     def __repr__(self) -> str:
-        return f"<Subscription {self.id} status={self.status} tier={self.pricing_tier}>"
+        return (
+            f"<SubscriptionPoc {self.id} status={self.status} tier={self.pricing_tier}>"
+        )

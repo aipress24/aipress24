@@ -18,7 +18,7 @@ from sqlalchemy import ForeignKey, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 if TYPE_CHECKING:
-    from .business_wall import BusinessWall
+    from .business_wall import BusinessWallPoc
 
 
 class PartnershipStatus(StrEnum):
@@ -32,7 +32,7 @@ class PartnershipStatus(StrEnum):
     EXPIRED = "expired"
 
 
-class Partnership(UUIDAuditBase):
+class PartnershipPoc(UUIDAuditBase):
     """Partnership between Business Wall and PR Agency.
 
     Represents Stage 5: Management of external PR Agency relationships.
@@ -44,7 +44,7 @@ class Partnership(UUIDAuditBase):
     business_wall_id: Mapped[UUID] = mapped_column(
         GUID, ForeignKey("poc_business_wall.id", ondelete="CASCADE"), nullable=False
     )
-    business_wall: Mapped[BusinessWall] = relationship(back_populates="partnerships")
+    business_wall: Mapped[BusinessWallPoc] = relationship(back_populates="partnerships")
 
     # Partner organization (PR Agency) - references Organisation ID (no FK constraint for POC)
     partner_org_id: Mapped[int] = mapped_column(sa.Integer, nullable=False)
@@ -70,6 +70,4 @@ class Partnership(UUIDAuditBase):
     notes: Mapped[str] = mapped_column(Text, default="")
 
     def __repr__(self) -> str:
-        return (
-            f"<Partnership {self.id} status={self.status} org_id={self.partner_org_id}>"
-        )
+        return f"<PartnershipPoc {self.id} status={self.status} org_id={self.partner_org_id}>"

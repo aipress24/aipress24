@@ -20,10 +20,10 @@ from sqlalchemy import ForeignKey, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 if TYPE_CHECKING:
-    from .business_wall import BusinessWall
+    from .business_wall import BusinessWallPoc
 
 
-class BWContent(UUIDAuditBase):
+class BWContentPoc(UUIDAuditBase):
     """Business Wall content and configuration (Stage 7).
 
     Stores all visual and administrative configuration for a Business Wall.
@@ -38,7 +38,7 @@ class BWContent(UUIDAuditBase):
         nullable=False,
         unique=True,
     )
-    business_wall: Mapped[BusinessWall] = relationship(back_populates="content")
+    business_wall: Mapped[BusinessWallPoc] = relationship(back_populates="content")
 
     # Organization information
     official_name: Mapped[str] = mapped_column(String(200), default="")
@@ -97,4 +97,4 @@ class BWContent(UUIDAuditBase):
     client_list: Mapped[list[str]] = mapped_column(JsonB, default=list)
 
     def __repr__(self) -> str:
-        return f"<BWContent {self.id} name={self.official_name}>"
+        return f"<BWContentPoc {self.id} name={self.official_name}>"

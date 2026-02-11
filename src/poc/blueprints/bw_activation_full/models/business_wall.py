@@ -16,10 +16,10 @@ from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 if TYPE_CHECKING:
-    from .content import BWContent
-    from .partnership import Partnership
-    from .role import RoleAssignment
-    from .subscription import Subscription
+    from .content import BWContentPoc
+    from .partnership import PartnershipPoc
+    from .role import RoleAssignmentPoc
+    from .subscription import SubscriptionPoc
 
 
 class BWType(StrEnum):
@@ -44,7 +44,7 @@ class BWStatus(StrEnum):
     CANCELLED = "cancelled"
 
 
-class BusinessWall(UUIDAuditBase):
+class BusinessWallPoc(UUIDAuditBase):
     """Core Business Wall entity.
 
     Represents a Business Wall with its configuration, ownership,
@@ -73,18 +73,20 @@ class BusinessWall(UUIDAuditBase):
     activated_at: Mapped[datetime | None] = mapped_column(nullable=True)
 
     # Relationships (using string annotations to avoid circular imports)
-    subscription: Mapped[Subscription | None] = relationship(
-        "Subscription", back_populates="business_wall", cascade="all, delete-orphan"
+    subscription: Mapped[SubscriptionPoc | None] = relationship(
+        "SubscriptionPoc", back_populates="business_wall", cascade="all, delete-orphan"
     )
-    content: Mapped[BWContent | None] = relationship(
-        "BWContent", back_populates="business_wall", cascade="all, delete-orphan"
+    content: Mapped[BWContentPoc | None] = relationship(
+        "BWContentPoc", back_populates="business_wall", cascade="all, delete-orphan"
     )
-    role_assignments: Mapped[list[RoleAssignment]] = relationship(
-        "RoleAssignment", back_populates="business_wall", cascade="all, delete-orphan"
+    role_assignments: Mapped[list[RoleAssignmentPoc]] = relationship(
+        "RoleAssignmentPoc",
+        back_populates="business_wall",
+        cascade="all, delete-orphan",
     )
-    partnerships: Mapped[list[Partnership]] = relationship(
-        "Partnership", back_populates="business_wall", cascade="all, delete-orphan"
+    partnerships: Mapped[list[PartnershipPoc]] = relationship(
+        "PartnershipPoc", back_populates="business_wall", cascade="all, delete-orphan"
     )
 
     def __repr__(self) -> str:
-        return f"<BusinessWall {self.id} type={self.bw_type} status={self.status}>"
+        return f"<BusinessWallPoc {self.id} type={self.bw_type} status={self.status}>"

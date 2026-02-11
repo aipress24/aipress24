@@ -18,7 +18,7 @@ from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 if TYPE_CHECKING:
-    from .business_wall import BusinessWall
+    from .business_wall import BusinessWallPoc
 
 
 class BWRoleType(StrEnum):
@@ -52,7 +52,7 @@ class PermissionType(StrEnum):
     MESSAGES = "messages"
 
 
-class RoleAssignment(UUIDAuditBase):
+class RoleAssignmentPoc(UUIDAuditBase):
     """Role assignment for Business Wall access control.
 
     Maps users to roles within a Business Wall, with invitation workflow.
@@ -64,7 +64,7 @@ class RoleAssignment(UUIDAuditBase):
     business_wall_id: Mapped[UUID] = mapped_column(
         GUID, ForeignKey("poc_business_wall.id", ondelete="CASCADE"), nullable=False
     )
-    business_wall: Mapped[BusinessWall] = relationship(
+    business_wall: Mapped[BusinessWallPoc] = relationship(
         back_populates="role_assignments"
     )
 
@@ -83,17 +83,17 @@ class RoleAssignment(UUIDAuditBase):
     rejected_at: Mapped[datetime | None] = mapped_column(nullable=True)
 
     # Relationship to permissions
-    permissions: Mapped[list[RolePermission]] = relationship(
-        back_populates="role_assignment", cascade="all, delete-orphan"
+    permissions: Mapped[list["RolePermissionPoc"]] = relationship(
+        "RolePermissionPoc",
+        back_populates="role_assignment",
+        cascade="all, delete-orphan",
     )
 
     def __repr__(self) -> str:
-        return (
-            f"<RoleAssignment {self.id} role={self.role_type} user_id={self.user_id}>"
-        )
+        return f"<RoleAssignmentPoc {self.id} role={self.role_type} user_id={self.user_id}>"
 
 
-class RolePermission(UUIDAuditBase):
+class RolePermissionPoc(UUIDAuditBase):
     """Granular permissions for PR Manager roles (Stage 6 missions).
 
     Allows fine-grained control over what PR Managers can do.
@@ -105,7 +105,9 @@ class RolePermission(UUIDAuditBase):
     role_assignment_id: Mapped[UUID] = mapped_column(
         GUID, ForeignKey("poc_role_assignment.id", ondelete="CASCADE"), nullable=False
     )
-    role_assignment: Mapped[RoleAssignment] = relationship(back_populates="permissions")
+    role_assignment: Mapped[RoleAssignmentPoc] = relationship(
+        back_populates="permissions"
+    )
 
     # Permission type
     permission_type: Mapped[str] = mapped_column(String(50), nullable=False)
@@ -115,4 +117,6 @@ class RolePermission(UUIDAuditBase):
 
     def __repr__(self) -> str:
         status = "granted" if self.is_granted else "denied"
-        return f"<RolePermission {self.id} type={self.permission_type} status={status}>"
+        return (
+            f"<RolePermissionPoc {self.id} type={self.permission_type} status={status}>"
+        )

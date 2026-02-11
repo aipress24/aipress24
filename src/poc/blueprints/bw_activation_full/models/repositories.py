@@ -11,54 +11,54 @@ from __future__ import annotations
 
 from advanced_alchemy.repository import SQLAlchemySyncRepository
 
-from .business_wall import BusinessWall
-from .content import BWContent
-from .partnership import Partnership
-from .role import RoleAssignment, RolePermission
-from .subscription import Subscription
+from .business_wall import BusinessWallPoc
+from .content import BWContentPoc
+from .partnership import PartnershipPoc
+from .role import RoleAssignmentPoc, RolePermissionPoc
+from .subscription import SubscriptionPoc
 
 
-class BusinessWallRepository(SQLAlchemySyncRepository[BusinessWall]):
-    """Repository for BusinessWall model."""
+class BusinessWallPocRepository(SQLAlchemySyncRepository[BusinessWallPoc]):
+    """Repository for BusinessWallPoc model."""
 
-    model_type = BusinessWall
-
-
-class SubscriptionRepository(SQLAlchemySyncRepository[Subscription]):
-    """Repository for Subscription model."""
-
-    model_type = Subscription
+    model_type = BusinessWallPoc
 
 
-class RoleAssignmentRepository(SQLAlchemySyncRepository[RoleAssignment]):
-    """Repository for RoleAssignment model."""
+class SubscriptionPocRepository(SQLAlchemySyncRepository[SubscriptionPoc]):
+    """Repository for SubscriptionPoc model."""
 
-    model_type = RoleAssignment
-
-
-class RolePermissionRepository(SQLAlchemySyncRepository[RolePermission]):
-    """Repository for RolePermission model."""
-
-    model_type = RolePermission
+    model_type = SubscriptionPoc
 
 
-class PartnershipRepository(SQLAlchemySyncRepository[Partnership]):
-    """Repository for Partnership model."""
+class RoleAssignmentPocRepository(SQLAlchemySyncRepository[RoleAssignmentPoc]):
+    """Repository for RoleAssignmentPoc model."""
 
-    model_type = Partnership
+    model_type = RoleAssignmentPoc
 
 
-class BWContentRepository(SQLAlchemySyncRepository[BWContent]):
-    """Repository for BWContent model."""
+class RolePermissionPocRepository(SQLAlchemySyncRepository[RolePermissionPoc]):
+    """Repository for RolePermissionPoc model."""
 
-    model_type = BWContent
+    model_type = RolePermissionPoc
+
+
+class PartnershipPocRepository(SQLAlchemySyncRepository[PartnershipPoc]):
+    """Repository for PartnershipPoc model."""
+
+    model_type = PartnershipPoc
+
+
+class BWContentPocRepository(SQLAlchemySyncRepository[BWContentPoc]):
+    """Repository for BWContentPoc model."""
+
+    model_type = BWContentPoc
 
 
 __all__ = [
-    "BWContentRepository",
-    "BusinessWallRepository",
-    "PartnershipRepository",
-    "RoleAssignmentRepository",
-    "RolePermissionRepository",
-    "SubscriptionRepository",
+    "BWContentPocRepository",
+    "BusinessWallPocRepository",
+    "PartnershipPocRepository",
+    "RoleAssignmentPocRepository",
+    "RolePermissionPocRepository",
+    "SubscriptionPocRepository",
 ]
