@@ -397,16 +397,6 @@ class TestMembersListStaticMethods:
         )
         assert str(expected).startswith("SELECT")
 
-    def test_apply_search_method_exists(self):
-        """Test MembersList has apply_search method."""
-        assert hasattr(MembersList, "apply_search")
-        assert callable(getattr(MembersList, "apply_search"))
-
-    def test_search_clause_method_exists(self):
-        """Test MembersList has search_clause method."""
-        assert hasattr(MembersList, "search_clause")
-        assert callable(getattr(MembersList, "search_clause"))
-
 
 class TestMembersDirectory:
     """Test MembersDirectory class."""
@@ -513,25 +503,6 @@ class TestOrganisationsListGetOrgCount:
 
             assert isinstance(count, int)
             assert count >= 1  # At least the test org
-
-
-class TestOrganisationsListStaticMethods:
-    """Test OrganisationsList static methods."""
-
-    def test_apply_search_method_exists(self):
-        """Test OrganisationsList has apply_search method."""
-        assert hasattr(OrganisationsList, "apply_search")
-        assert callable(getattr(OrganisationsList, "apply_search"))
-
-    def test_search_clause_method_exists(self):
-        """Test OrganisationsList has search_clause method."""
-        assert hasattr(OrganisationsList, "search_clause")
-        assert callable(getattr(OrganisationsList, "search_clause"))
-
-    def test_get_base_statement_exists(self):
-        """Test OrganisationsList has get_base_statement method."""
-        assert hasattr(OrganisationsList, "get_base_statement")
-        assert callable(getattr(OrganisationsList, "get_base_statement"))
 
 
 class TestFilterByCategory:

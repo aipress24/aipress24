@@ -12,7 +12,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from app.modules.admin.views import home, promotions, users
+from app.modules.admin.views import home
 from app.modules.admin.views._dashboard import WIDGETS, Widget
 from app.modules.admin.views._modif_users import ModifUserDataSource, ModifUsersTable
 from app.modules.admin.views._new_users import NewUserDataSource, NewUsersTable
