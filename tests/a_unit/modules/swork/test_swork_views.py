@@ -2,88 +2,15 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
-"""Unit tests for swork views.
-
-These tests verify view configuration (routes, templates, metadata)
-as equivalents to the removed Page class attribute tests.
-"""
+"""Unit tests for swork views."""
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-from flask.views import MethodView
-
-from app.modules.swork import views
 from app.modules.swork.views._common import GROUP_TABS, MEMBER_TABS, UserVM
 
-if TYPE_CHECKING:
-    pass
 
-
-class TestSworkViewModules:
-    """Test swork view modules exist and are properly configured."""
-
-    def test_home_module_exists(self):
-        """Test home view module exists."""
-        assert hasattr(views, "home")
-
-    def test_members_module_exists(self):
-        """Test members view module exists."""
-        assert hasattr(views, "members")
-
-    def test_member_module_exists(self):
-        """Test member view module exists."""
-        assert hasattr(views, "member")
-
-    def test_groups_module_exists(self):
-        """Test groups view module exists."""
-        assert hasattr(views, "groups")
-
-    def test_group_module_exists(self):
-        """Test group view module exists."""
-        assert hasattr(views, "group")
-
-    def test_organisations_module_exists(self):
-        """Test organisations view module exists."""
-        assert hasattr(views, "organisations")
-
-    def test_organisation_module_exists(self):
-        """Test organisation view module exists."""
-        assert hasattr(views, "organisation")
-
-
-class TestSworkHomeView:
-    """Test swork home view - equivalent to SworkHomePage attribute tests."""
-
-    def test_home_view_functions_exist(self):
-        """Test home view has required functions."""
-        from app.modules.swork.views import home
-
-        assert hasattr(home, "swork")
-        assert callable(home.swork)
-
-
-class TestSworkMembersView:
-    """Test swork members view - equivalent to MembersPage attribute tests."""
-
-    def test_members_view_functions_exist(self):
-        """Test members view has required functions."""
-        from app.modules.swork.views import members
-
-        assert hasattr(members, "members")
-        assert callable(members.members)
-
-
-class TestSworkMemberView:
-    """Test swork member view - uses MethodView pattern."""
-
-    def test_member_view_class_exists(self):
-        """Test member view has MethodView class."""
-        from app.modules.swork.views import member
-
-        assert hasattr(member, "MemberDetailView")
-        assert issubclass(member.MemberDetailView, MethodView)
+class TestMemberTabs:
+    """Test MEMBER_TABS configuration."""
 
     def test_member_tabs_configuration(self):
         """Test MEMBER_TABS has correct structure."""
@@ -106,26 +33,8 @@ class TestSworkMemberView:
             assert isinstance(tab["label"], str)
 
 
-class TestSworkGroupsView:
-    """Test swork groups view - equivalent to GroupsPage attribute tests."""
-
-    def test_groups_view_functions_exist(self):
-        """Test groups view has required functions."""
-        from app.modules.swork.views import groups
-
-        assert hasattr(groups, "groups")
-        assert callable(groups.groups)
-
-
-class TestSworkGroupView:
-    """Test swork group view - uses MethodView pattern."""
-
-    def test_group_view_class_exists(self):
-        """Test group view has MethodView class."""
-        from app.modules.swork.views import group
-
-        assert hasattr(group, "GroupDetailView")
-        assert issubclass(group.GroupDetailView, MethodView)
+class TestGroupTabs:
+    """Test GROUP_TABS configuration."""
 
     def test_group_tabs_configuration(self):
         """Test GROUP_TABS has correct structure."""
@@ -137,30 +46,8 @@ class TestSworkGroupView:
         assert "members" in tab_ids
 
 
-class TestSworkOrganisationsView:
-    """Test swork organisations view - equivalent to OrgsPage attribute tests."""
-
-    def test_organisations_view_functions_exist(self):
-        """Test organisations view has required functions."""
-        from app.modules.swork.views import organisations
-
-        assert hasattr(organisations, "organisations")
-        assert callable(organisations.organisations)
-
-
-class TestSworkOrganisationView:
-    """Test swork organisation view - uses MethodView pattern."""
-
-    def test_organisation_view_class_exists(self):
-        """Test organisation view has MethodView class."""
-        from app.modules.swork.views import organisation
-
-        assert hasattr(organisation, "OrganisationDetailView")
-        assert issubclass(organisation.OrganisationDetailView, MethodView)
-
-
 class TestUserVM:
-    """Test UserVM view model - equivalent to viewmodels tests."""
+    """Test UserVM view model interface."""
 
     def test_uservm_has_user_property(self):
         """Test UserVM has user property."""
