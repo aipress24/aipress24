@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 from flask import redirect, render_template, request, url_for
+from flask.views import MethodView
 from svcs.flask import container
 
 from app.flask.lib.nav import nav
@@ -29,49 +30,47 @@ BOX_TITLE1 = "AiPRESS24 vous informe"
 BOX_TITLE2 = "AiPRESS24 vous suggère"
 
 
-@blueprint.route("/promotions")
-@nav(
-    parent="index",
-    icon="megaphone",
-    label="Promotions",
-)
-def promotions():
+class PromotionsView(MethodView):
     """Promotions management page."""
-    promo_service = container.get(PromotionService)
-    saved_slug = request.args.get("saved_promo")
-    saved_body = ""
-    promo_title = ""
-    if saved_slug:
-        promo = promo_service.get_promotion(slug=saved_slug)
-        if promo:
-            saved_body = promo.body
-            promo_title = promo.title
 
-    return render_template(
-        "admin/pages/promotions.j2",
-        title="Promotions",
-        promo_options=PROMO_SLUG_LABEL,
-        saved_slug=saved_slug,
-        saved_body=saved_body,
-        promo_title=promo_title,
-    )
+    decorators = [nav(parent="index", icon="megaphone", label="Promotions")]
+
+    def get(self):
+        promo_service = container.get(PromotionService)
+        saved_slug = request.args.get("saved_promo")
+        saved_body = ""
+        promo_title = ""
+        if saved_slug:
+            promo = promo_service.get_promotion(slug=saved_slug)
+            if promo:
+                saved_body = promo.body
+                promo_title = promo.title
+
+        return render_template(
+            "admin/pages/promotions.j2",
+            title="Promotions",
+            promo_options=PROMO_SLUG_LABEL,
+            saved_slug=saved_slug,
+            saved_body=saved_body,
+            promo_title=promo_title,
+        )
+
+    def post(self):
+        data = dict(request.form)
+        warn(data)
+
+        promo_service = container.get(PromotionService)
+        slug = data.get("promo", "")
+        if slug.endswith("1"):
+            title = BOX_TITLE1
+        else:
+            title = BOX_TITLE2
+        body = data.get("content", "")
+        warn(f"post {slug!r} {body!r}")
+        if slug:
+            promo_service.store_promotion(slug=slug, title=title, body=body)
+        return redirect(url_for("admin.promotions", saved_promo=slug))
 
 
-@blueprint.route("/promotions", methods=["POST"])
-@nav(hidden=True)
-def promotions_post():
-    """Handle promotions form submission."""
-    data = dict(request.form)
-    warn(data)
-
-    promo_service = container.get(PromotionService)
-    slug = data.get("promo", "")
-    if slug.endswith("1"):
-        title = BOX_TITLE1
-    else:
-        title = BOX_TITLE2
-    body = data.get("content", "")
-    warn(f"post {slug!r} {body!r}")
-    if slug:
-        promo_service.store_promotion(slug=slug, title=title, body=body)
-    return redirect(url_for("admin.promotions", saved_promo=slug))
+# Register the view
+blueprint.add_url_rule("/promotions", view_func=PromotionsView.as_view("promotions"))
