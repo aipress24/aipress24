@@ -38,9 +38,9 @@ class MemberDetailView(MethodView):
 
         # Handle HTMX tab requests
         if htmx:
-            return _render_tab(user, active_tab)
+            return self._render_tab(user, active_tab)
 
-        return _render_full_page(user, active_tab)
+        return self._render_full_page(user, active_tab)
 
     def post(self, id: str) -> Response | str:
         options = selectinload(User.organisation)
@@ -49,9 +49,71 @@ class MemberDetailView(MethodView):
 
         match action:
             case "toggle-follow":
-                return _toggle_follow(user)
+                return self._toggle_follow(user)
             case _:
                 return ""
+
+    def _render_full_page(self, user: User, active_tab: str) -> str:
+        """Render full member page."""
+        ctx = self._build_context(user, active_tab)
+        ctx["title"] = f"{user.last_name}, {user.first_name}"
+        return render_template("pages/member.j2", **ctx)
+
+    def _render_tab(self, user: User, active_tab: str) -> str:
+        """Render just a tab fragment for HTMX requests."""
+        ctx = self._build_context(user, active_tab)
+        template_map = {
+            "profile": "pages/member/member--tab-profile.j2",
+            "publications": "pages/member/member--tab-publications.j2",
+            "activities": "pages/member/member--tab-activities.j2",
+            "groups": "pages/member/member--tab-groups.j2",
+            "followers": "pages/member/member--tab-followers.j2",
+            "followees": "pages/member/member--tab-followees.j2",
+        }
+        template = template_map.get(active_tab, "pages/member/member--tab-profile.j2")
+        return render_template(template, **ctx)
+
+    def _build_context(self, user: User, active_tab: str) -> dict:
+        """Build context for member page."""
+        from app.modules.kyc.views import public_info_context
+
+        user_vm = UserVM(user)
+
+        followers = user_vm.followers
+        if len(followers) > 5:
+            followers_sample = random.sample(followers, 5)
+        else:
+            followers_sample = followers
+
+        mask_fields = filter_email_mobile(g.user, user)
+        context = public_info_context(user, mask_fields)
+        context.update(
+            {
+                "profile": user_vm,
+                "tabs": MEMBER_TABS,
+                "active_tab": active_tab,
+                "followers_sample": followers_sample,
+            }
+        )
+        return context
+
+    def _toggle_follow(self, user: User) -> Response:
+        """Toggle follow status for a user."""
+        from app.services.social_graph import SocialUser, adapt
+
+        logged_user: SocialUser = adapt(g.user)
+
+        if logged_user.is_following(user):
+            logged_user.unfollow(user)
+            response = make_response("Suivre")
+            toast(response, f"Vous ne suivez plus {user.full_name}")
+        else:
+            logged_user.follow(user)
+            response = make_response("Ne plus suivre")
+            toast(response, f"Vous suivez a présent {user.full_name}")
+
+        db.session.commit()
+        return response
 
 
 # Register the view
@@ -68,75 +130,3 @@ def profile():
     """Redirect to logged user's member page."""
     logged_user = g.user
     return redirect(url_for(logged_user))
-
-
-# -----------------------------------------------------------------------------
-# Helper functions
-# -----------------------------------------------------------------------------
-
-
-def _render_full_page(user: User, active_tab: str) -> str:
-    """Render full member page."""
-    ctx = _build_context(user, active_tab)
-    ctx["title"] = f"{user.last_name}, {user.first_name}"
-    return render_template("pages/member.j2", **ctx)
-
-
-def _render_tab(user: User, active_tab: str) -> str:
-    """Render just a tab fragment for HTMX requests."""
-    ctx = _build_context(user, active_tab)
-    template_map = {
-        "profile": "pages/member/member--tab-profile.j2",
-        "publications": "pages/member/member--tab-publications.j2",
-        "activities": "pages/member/member--tab-activities.j2",
-        "groups": "pages/member/member--tab-groups.j2",
-        "followers": "pages/member/member--tab-followers.j2",
-        "followees": "pages/member/member--tab-followees.j2",
-    }
-    template = template_map.get(active_tab, "pages/member/member--tab-profile.j2")
-    return render_template(template, **ctx)
-
-
-def _build_context(user: User, active_tab: str) -> dict:
-    """Build context for member page."""
-    # Lazy import to avoid circular import
-    from app.modules.kyc.views import public_info_context
-
-    user_vm = UserVM(user)
-
-    followers = user_vm.followers
-    if len(followers) > 5:
-        followers_sample = random.sample(followers, 5)
-    else:
-        followers_sample = followers
-
-    mask_fields = filter_email_mobile(g.user, user)
-    context = public_info_context(user, mask_fields)
-    context.update(
-        {
-            "profile": user_vm,
-            "tabs": MEMBER_TABS,
-            "active_tab": active_tab,
-            "followers_sample": followers_sample,
-        }
-    )
-    return context
-
-
-def _toggle_follow(user: User) -> Response:
-    """Toggle follow status for a user."""
-    from app.services.social_graph import SocialUser, adapt
-
-    logged_user: SocialUser = adapt(g.user)
-
-    if logged_user.is_following(user):
-        logged_user.unfollow(user)
-        response = make_response("Suivre")
-        toast(response, f"Vous ne suivez plus {user.full_name}")
-    else:
-        logged_user.follow(user)
-        response = make_response("Ne plus suivre")
-        toast(response, f"Vous suivez a présent {user.full_name}")
-
-    db.session.commit()
-    return response
