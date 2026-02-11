@@ -105,6 +105,4 @@ class ShowUserView(MethodView):
 
 
 # Register the view
-blueprint.add_url_rule(
-    "/show_user/<uid>", view_func=ShowUserView.as_view("show_user")
-)
+blueprint.add_url_rule("/show_user/<uid>", view_func=ShowUserView.as_view("show_user"))

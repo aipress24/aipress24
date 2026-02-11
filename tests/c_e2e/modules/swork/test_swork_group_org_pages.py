@@ -255,18 +255,6 @@ class TestGroupMembershipFunctions:
             result = is_group_member(test_user_with_profile, test_group)
             assert result is False
 
-    def test_is_group_member_function_exists(self):
-        """Test is_group_member function is callable."""
-        assert callable(is_group_member)
-
-    def test_join_group_function_exists(self):
-        """Test join_group function is callable."""
-        assert callable(join_group)
-
-    def test_leave_group_function_exists(self):
-        """Test leave_group function is callable."""
-        assert callable(leave_group)
-
 
 class TestGroupJoinLeave:
     """Test group join/leave functionality."""
