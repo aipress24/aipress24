@@ -26,10 +26,20 @@ Package Structure:
 
 from __future__ import annotations
 
-from flask import Blueprint
+from flask import Blueprint, g, redirect, url_for
 
 # Create the blueprint
 bp = Blueprint("bw_activation", __name__, template_folder="./templates")
+
+
+@bp.before_request
+def require_login() -> None:
+    """Check if the current user is allowed to activation pages."""
+    user = g.user
+    if not (user and user.is_authenticated):
+        return redirect(url_for("security.login"))
+    return None
+
 
 # Import routes - this registers all routes via side effects
 from . import (  # noqa: E402
