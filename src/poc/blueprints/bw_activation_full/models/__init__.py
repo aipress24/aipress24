@@ -6,56 +6,56 @@
 
 from __future__ import annotations
 
-from .business_wall import BusinessWall, BWStatus, BWType
-from .content import BWContent
-from .partnership import Partnership, PartnershipStatus
+from .business_wall import BusinessWallPoc, BWStatus, BWType
+from .content import BWContentPoc
+from .partnership import PartnershipPoc, PartnershipStatus
 from .repositories import (
-    BusinessWallRepository,
-    BWContentRepository,
-    PartnershipRepository,
-    RoleAssignmentRepository,
-    RolePermissionRepository,
-    SubscriptionRepository,
+    BusinessWallPocRepository,
+    BWContentPocRepository,
+    PartnershipPocRepository,
+    RoleAssignmentPocRepository,
+    RolePermissionPocRepository,
+    SubscriptionPocRepository,
 )
 from .role import (
     BWRoleType,
     InvitationStatus,
     PermissionType,
-    RoleAssignment,
-    RolePermission,
+    RoleAssignmentPoc,
+    RolePermissionPoc,
 )
 from .services import (
-    BusinessWallService,
-    BWContentService,
-    PartnershipService,
-    RoleAssignmentService,
-    RolePermissionService,
-    SubscriptionService,
+    BusinessWallPocService,
+    BWContentPocService,
+    PartnershipPocService,
+    RoleAssignmentPocService,
+    RolePermissionPocService,
+    SubscriptionPocService,
 )
-from .subscription import PricingTier, Subscription, SubscriptionStatus
+from .subscription import PricingTier, SubscriptionPoc, SubscriptionStatus
 
 __all__ = [  # noqa: RUF022
     # Models
-    "BusinessWall",
-    "BWContent",
-    "Partnership",
-    "RoleAssignment",
-    "RolePermission",
-    "Subscription",
+    "BusinessWallPoc",
+    "BWContentPoc",
+    "PartnershipPoc",
+    "RoleAssignmentPoc",
+    "RolePermissionPoc",
+    "SubscriptionPoc",
     # Repositories
-    "BusinessWallRepository",
-    "SubscriptionRepository",
-    "RoleAssignmentRepository",
-    "RolePermissionRepository",
-    "PartnershipRepository",
-    "BWContentRepository",
+    "BusinessWallPocRepository",
+    "SubscriptionPocRepository",
+    "RoleAssignmentPocRepository",
+    "RolePermissionPocRepository",
+    "PartnershipPocRepository",
+    "BWContentPocRepository",
     # Services
-    "BusinessWallService",
-    "SubscriptionService",
-    "RoleAssignmentService",
-    "RolePermissionService",
-    "PartnershipService",
-    "BWContentService",
+    "BusinessWallPocService",
+    "SubscriptionPocService",
+    "RoleAssignmentPocService",
+    "RolePermissionPocService",
+    "PartnershipPocService",
+    "BWContentPocService",
     # Enums
     "BWStatus",
     "BWType",

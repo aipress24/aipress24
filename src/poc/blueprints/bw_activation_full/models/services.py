@@ -12,90 +12,92 @@ from __future__ import annotations
 from advanced_alchemy.extensions.flask import FlaskServiceMixin
 from advanced_alchemy.service import SQLAlchemySyncRepositoryService
 
-from .business_wall import BusinessWall
-from .content import BWContent
-from .partnership import Partnership
+from .business_wall import BusinessWallPoc
+from .content import BWContentPoc
+from .partnership import PartnershipPoc
 from .repositories import (
-    BusinessWallRepository,
-    BWContentRepository,
-    PartnershipRepository,
-    RoleAssignmentRepository,
-    RolePermissionRepository,
-    SubscriptionRepository,
+    BusinessWallPocRepository,
+    BWContentPocRepository,
+    PartnershipPocRepository,
+    RoleAssignmentPocRepository,
+    RolePermissionPocRepository,
+    SubscriptionPocRepository,
 )
-from .role import RoleAssignment, RolePermission
-from .subscription import Subscription
+from .role import RoleAssignmentPoc, RolePermissionPoc
+from .subscription import SubscriptionPoc
 
 
-class BusinessWallService(
-    FlaskServiceMixin, SQLAlchemySyncRepositoryService[BusinessWall]
+class BusinessWallPocService(
+    FlaskServiceMixin, SQLAlchemySyncRepositoryService[BusinessWallPoc]
 ):
-    """Service for BusinessWall operations.
+    """Service for BusinessWallPoc operations.
 
     Provides high-level business logic for managing Business Walls.
     """
 
-    repository_type = BusinessWallRepository
+    repository_type = BusinessWallPocRepository
 
 
-class SubscriptionService(
-    FlaskServiceMixin, SQLAlchemySyncRepositoryService[Subscription]
+class SubscriptionPocService(
+    FlaskServiceMixin, SQLAlchemySyncRepositoryService[SubscriptionPoc]
 ):
-    """Service for Subscription operations.
+    """Service for SubscriptionPoc operations.
 
     Handles subscription creation, updates, and payment tracking.
     """
 
-    repository_type = SubscriptionRepository
+    repository_type = SubscriptionPocRepository
 
 
-class RoleAssignmentService(
-    FlaskServiceMixin, SQLAlchemySyncRepositoryService[RoleAssignment]
+class RoleAssignmentPocService(
+    FlaskServiceMixin, SQLAlchemySyncRepositoryService[RoleAssignmentPoc]
 ):
-    """Service for RoleAssignment operations.
+    """Service for RoleAssignmentPoc operations.
 
     Manages role assignments and invitation workflow.
     """
 
-    repository_type = RoleAssignmentRepository
+    repository_type = RoleAssignmentPocRepository
 
 
-class RolePermissionService(
-    FlaskServiceMixin, SQLAlchemySyncRepositoryService[RolePermission]
+class RolePermissionPocService(
+    FlaskServiceMixin, SQLAlchemySyncRepositoryService[RolePermissionPoc]
 ):
-    """Service for RolePermission operations.
+    """Service for RolePermissionPoc operations.
 
     Manages granular permissions for PR Managers.
     """
 
-    repository_type = RolePermissionRepository
+    repository_type = RolePermissionPocRepository
 
 
-class PartnershipService(
-    FlaskServiceMixin, SQLAlchemySyncRepositoryService[Partnership]
+class PartnershipPocService(
+    FlaskServiceMixin, SQLAlchemySyncRepositoryService[PartnershipPoc]
 ):
-    """Service for Partnership operations.
+    """Service for PartnershipPoc operations.
 
     Manages PR Agency partnerships and invitation workflow.
     """
 
-    repository_type = PartnershipRepository
+    repository_type = PartnershipPocRepository
 
 
-class BWContentService(FlaskServiceMixin, SQLAlchemySyncRepositoryService[BWContent]):
-    """Service for BWContent operations.
+class BWContentPocService(
+    FlaskServiceMixin, SQLAlchemySyncRepositoryService[BWContentPoc]
+):
+    """Service for BWContentPoc operations.
 
     Manages Business Wall content and configuration.
     """
 
-    repository_type = BWContentRepository
+    repository_type = BWContentPocRepository
 
 
 __all__ = [
-    "BWContentService",
-    "BusinessWallService",
-    "PartnershipService",
-    "RoleAssignmentService",
-    "RolePermissionService",
-    "SubscriptionService",
+    "BWContentPocService",
+    "BusinessWallPocService",
+    "PartnershipPocService",
+    "RoleAssignmentPocService",
+    "RolePermissionPocService",
+    "SubscriptionPocService",
 ]
