@@ -8,9 +8,9 @@ from __future__ import annotations
 
 from flask import redirect, render_template, request, session, url_for
 
-from app.modules.bw.blueprints.bw_activation import bp
-from app.modules.bw.blueprints.bw_activation.config import BW_TYPES
-from app.modules.bw.blueprints.bw_activation.utils import get_mock_owner_data
+from app.modules.bw.bw_activation import bp
+from app.modules.bw.bw_activation.config import BW_TYPES
+from app.modules.bw.bw_activation.utils import get_mock_owner_data
 
 
 @bp.route("/nominate-contacts")
@@ -62,7 +62,5 @@ def submit_contacts():
     # Redirect to appropriate activation page based on BW type
     bw_type = session.get("bw_type")
     if BW_TYPES[bw_type]["free"]:
-        return redirect(
-            url_for("bw_activation.activate_free_page", bw_type=bw_type)
-        )
+        return redirect(url_for("bw_activation.activate_free_page", bw_type=bw_type))
     return redirect(url_for("bw_activation.pricing_page", bw_type=bw_type))

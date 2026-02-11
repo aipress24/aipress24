@@ -30,7 +30,7 @@ PARIS_TZ = timezone("Europe/Paris")
 def import_all_models():
     """Import all model modules to register tables."""
     import app.modules.biz.models
-    import app.modules.bw.blueprints.bw_activation.models
+    import app.modules.bw.bw_activation.models
     import app.modules.events.models
     import app.modules.swork.models
     import app.modules.wip.models

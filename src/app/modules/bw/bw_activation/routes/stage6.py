@@ -8,9 +8,9 @@ from __future__ import annotations
 
 from flask import redirect, render_template, session, url_for
 
-from app.modules.bw.blueprints.bw_activation import bp
-from app.modules.bw.blueprints.bw_activation.config import BW_TYPES
-from app.modules.bw.blueprints.bw_activation.utils import init_missions_state
+from app.modules.bw.bw_activation import bp
+from app.modules.bw.bw_activation.config import BW_TYPES
+from app.modules.bw.bw_activation.utils import init_missions_state
 
 
 @bp.route("/assign-missions")
