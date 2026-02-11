@@ -8,8 +8,8 @@ from __future__ import annotations
 
 from flask import redirect, render_template, request, session, url_for
 
-from app.modules.bw.blueprints.bw_activation import bp
-from app.modules.bw.blueprints.bw_activation.config import BW_TYPES
+from app.modules.bw.bw_activation import bp
+from app.modules.bw.bw_activation.config import BW_TYPES
 
 # ===== FREE ACTIVATION =====
 

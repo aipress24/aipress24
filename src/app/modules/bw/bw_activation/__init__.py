@@ -29,7 +29,7 @@ from __future__ import annotations
 from flask import Blueprint
 
 # Create the blueprint
-bp = Blueprint("bw_activation", __name__, template_folder="../../templates")
+bp = Blueprint("bw_activation", __name__, template_folder="./templates")
 
 # Import routes - this registers all routes via side effects
 from . import (  # noqa: E402
