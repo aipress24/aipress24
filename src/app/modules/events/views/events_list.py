@@ -13,13 +13,13 @@ from collections import defaultdict
 import webargs
 from attrs import asdict
 from flask import render_template, request, session
+from flask.views import MethodView
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 from sqlalchemy.sql import Select
 from webargs.flaskparser import parser
 
 from app.flask.extensions import htmx
-from app.flask.lib.nav import nav
 from app.flask.sqla import get_multi
 from app.models.lifecycle import PublicationStatus
 from app.modules.events import blueprint
@@ -28,7 +28,7 @@ from app.modules.events.models import EventPost
 from ._common import TABS, Calendar, DateFilter, EventListVM
 from ._filters import FilterBar
 
-list_args = {
+LIST_ARGS = {
     "month": webargs.fields.Str(load_default=""),
     "day": webargs.fields.Str(load_default=""),
     "search": webargs.fields.Str(load_default=""),
@@ -37,74 +37,68 @@ list_args = {
 }
 
 
-@blueprint.route("/")
-def events():
-    """Evénements"""
-    filter_bar = FilterBar()
+class EventsListView(MethodView):
+    """Events list page with filtering."""
 
-    # Handle HTMX requests (but not boosted - those get full page)
-    # htmx.boosted = True means it's a boosted link click (render full page)
-    # htmx = True (not boosted) means it's a partial HTMX request
-    if htmx.boosted:
+    def get(self):
+        filter_bar = FilterBar()
+
+        # HTMX boosted = full page reload, regular htmx = partial update
+        if htmx.boosted:
+            return _render_events_page(filter_bar)
+
+        if htmx:
+            return _handle_htmx_get(filter_bar)
+
         return _render_events_page(filter_bar)
 
-    if htmx:
-        return _handle_events_htmx_get(filter_bar)
+    def post(self):
+        filter_bar = FilterBar()
+        filter_bar.update_state()
 
-    return _render_events_page(filter_bar)
+        ctx = _build_context(filter_bar)
 
+        if request.headers.get("Hx-Target") == "body":
+            return render_template("pages/events.j2", **ctx)
 
-@blueprint.route("/", methods=["POST"])
-@nav(hidden=True)
-def events_post():
-    """Handle POST for events list (filter updates)."""
-    filter_bar = FilterBar()
-    filter_bar.update_state()
-
-    ctx = _build_events_context(filter_bar)
-
-    if request.headers.get("Hx-Target") == "body":
-        return render_template("pages/events.j2", **ctx)
-
-    return render_template("pages/events--content.j2", **ctx)
+        return render_template("pages/events--content.j2", **ctx)
 
 
-def _handle_events_htmx_get(filter_bar: FilterBar) -> str:
-    """Handle HTMX GET requests for events (partial updates).
+# Register the view
+blueprint.add_url_rule("/", view_func=EventsListView.as_view("events"))
 
-    This handles:
-    - Tag filtering via ?tag=xxx query param
-    - Search results for members-list target
-    """
+
+# -----------------------------------------------------------------------------
+# Helper functions
+# -----------------------------------------------------------------------------
+
+
+def _handle_htmx_get(filter_bar: FilterBar) -> str:
+    """Handle HTMX GET requests (partial updates)."""
     if "tag" in request.args:
         tag = request.args["tag"]
         filter_bar.reset()
         filter_bar.set_tag(tag)
 
-    # Note: Don't call update_state() here - it expects form data
-    # The filter state is already loaded from session in FilterBar.__init__
-
     if request.headers.get("Hx-Target") == "members-list":
-        ctx = _build_events_context(filter_bar)
+        ctx = _build_context(filter_bar)
         return render_template("pages/events--search-results.j2", **ctx)
 
-    # For other HTMX GET requests, just render the full page
     return _render_events_page(filter_bar)
 
 
 def _render_events_page(filter_bar: FilterBar) -> str:
     """Render full events page."""
-    ctx = _build_events_context(filter_bar)
+    ctx = _build_context(filter_bar)
     return render_template("pages/events.j2", **ctx)
 
 
-def _build_events_context(filter_bar: FilterBar) -> dict:
+def _build_context(filter_bar: FilterBar) -> dict:
     """Build context for events templates."""
-    args = parser.parse(list_args, request, location="query")
+    args = parser.parse(LIST_ARGS, request, location="query")
     search = args["search"]
     date_filter = DateFilter(args)
 
-    # Get events
     events_list = _get_events(date_filter, filter_bar, search)
 
     # Group events by day
@@ -126,20 +120,6 @@ def _build_events_context(filter_bar: FilterBar) -> dict:
     }
 
 
-def _apply_global_search(stmt: Select, search: str) -> Select:
-    if not search:
-        return stmt
-
-    # code postal
-    m = re.search(r"([0-9]+)", search)
-    if m:
-        zip_code = m.group(1)
-        search = search.replace(zip_code, "").strip()
-        return stmt.where(EventPost.code_postal.ilike(f"%{zip_code}%"))
-
-    return stmt.where(EventPost.title.ilike(f"%{search}%"))
-
-
 def _get_events(
     date_filter: DateFilter, filter_bar: FilterBar, search: str
 ) -> list[EventPost]:
@@ -152,38 +132,51 @@ def _get_events(
     )
 
     stmt = date_filter.apply(stmt)
-
-    # Apply filter bar filters
-    genre_filters = {
-        f["value"] for f in filter_bar.active_filters if f["id"] == "genre"
-    }
-    sector_filters = {
-        f["value"] for f in filter_bar.active_filters if f["id"] == "sector"
-    }
-    pays_zip_ville_filters = {
-        f["value"] for f in filter_bar.active_filters if f["id"] == "pays_zip_ville"
-    }
-    departement_filters = {
-        f["value"] for f in filter_bar.active_filters if f["id"] == "departement"
-    }
-    ville_filters = {
-        f["value"] for f in filter_bar.active_filters if f["id"] == "ville"
-    }
-
-    if genre_filters:
-        stmt = stmt.where(EventPost.genre.in_(genre_filters))
-    if sector_filters:
-        stmt = stmt.where(EventPost.sector.in_(sector_filters))
-    if pays_zip_ville_filters:
-        stmt = stmt.where(EventPost.pays_zip_ville.in_(pays_zip_ville_filters))
-    if departement_filters:
-        stmt = stmt.where(EventPost.departement.in_(departement_filters))
-    if ville_filters:
-        stmt = stmt.where(EventPost.ville.in_(ville_filters))
-
-    stmt = _apply_global_search(stmt, search)
+    stmt = _apply_filter_bar(stmt, filter_bar)
+    stmt = _apply_search(stmt, search)
 
     return list(get_multi(EventPost, stmt))
+
+
+def _apply_filter_bar(stmt: Select, filter_bar: FilterBar) -> Select:
+    """Apply filter bar filters to query."""
+    filters_by_id = {
+        "genre": [],
+        "sector": [],
+        "pays_zip_ville": [],
+        "departement": [],
+        "ville": [],
+    }
+    for f in filter_bar.active_filters:
+        if f["id"] in filters_by_id:
+            filters_by_id[f["id"]].append(f["value"])
+
+    if filters_by_id["genre"]:
+        stmt = stmt.where(EventPost.genre.in_(filters_by_id["genre"]))
+    if filters_by_id["sector"]:
+        stmt = stmt.where(EventPost.sector.in_(filters_by_id["sector"]))
+    if filters_by_id["pays_zip_ville"]:
+        stmt = stmt.where(EventPost.pays_zip_ville.in_(filters_by_id["pays_zip_ville"]))
+    if filters_by_id["departement"]:
+        stmt = stmt.where(EventPost.departement.in_(filters_by_id["departement"]))
+    if filters_by_id["ville"]:
+        stmt = stmt.where(EventPost.ville.in_(filters_by_id["ville"]))
+
+    return stmt
+
+
+def _apply_search(stmt: Select, search: str) -> Select:
+    """Apply global search filter."""
+    if not search:
+        return stmt
+
+    # Search by postal code if numeric
+    m = re.search(r"([0-9]+)", search)
+    if m:
+        zip_code = m.group(1)
+        return stmt.where(EventPost.code_postal.ilike(f"%{zip_code}%"))
+
+    return stmt.where(EventPost.title.ilike(f"%{search}%"))
 
 
 def _get_active_tab_ids() -> list[str]:
@@ -194,14 +187,11 @@ def _get_active_tab_ids() -> list[str]:
 def _get_tabs() -> list[dict]:
     """Get tabs with active state."""
     active_tab_ids = _get_active_tab_ids()
-    tabs = []
-    for tab in TABS:
-        tab_id = tab["id"]
-        tabs.append(
-            {
-                "id": tab_id,
-                "label": tab["label"],
-                "active": tab_id in active_tab_ids,
-            }
-        )
-    return tabs
+    return [
+        {
+            "id": tab["id"],
+            "label": tab["label"],
+            "active": tab["id"] in active_tab_ids,
+        }
+        for tab in TABS
+    ]

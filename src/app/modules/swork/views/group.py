@@ -11,6 +11,7 @@ from typing import cast
 import sqlalchemy as sa
 from attr import define
 from flask import Response, g, make_response, render_template, request
+from flask.views import MethodView
 
 from app.flask.extensions import db
 from app.flask.lib.nav import nav
@@ -28,36 +29,46 @@ from app.modules.swork.views._common import (
 )
 
 
-@blueprint.route("/groups/<id>")
-@nav(parent="groups")
-def group(id: str):
-    """Groupe"""
-    group_obj = get_obj(id, Group)
+class GroupDetailView(MethodView):
+    """Group detail page with join/leave action."""
 
-    # Set dynamic breadcrumb label
-    g.nav.label = group_obj.name
+    decorators = [nav(parent="groups")]
 
-    vm = GroupVM(group_obj)
-    ctx = {
-        "group": vm,
-        "tabs": GROUP_TABS,
-        "title": group_obj.name,
-    }
-    return render_template("pages/group.j2", **ctx)
+    def get(self, id: str):
+        group_obj = get_obj(id, Group)
+
+        # Set dynamic breadcrumb label
+        g.nav.label = group_obj.name
+
+        vm = GroupVM(group_obj)
+        ctx = {
+            "group": vm,
+            "tabs": GROUP_TABS,
+            "title": group_obj.name,
+        }
+        return render_template("pages/group.j2", **ctx)
+
+    def post(self, id: str) -> Response | str:
+        group_obj = get_obj(id, Group)
+        action = request.form.get("action", "")
+
+        match action:
+            case "toggle-join":
+                return _toggle_join(group_obj)
+            case _:
+                return ""
 
 
-@blueprint.route("/groups/<id>", methods=["POST"])
-@nav(hidden=True)
-def group_post(id: str) -> Response | str:
-    """Handle POST actions on group (join/leave)."""
-    group_obj = get_obj(id, Group)
-    action = request.form.get("action", "")
+# Register the view
+blueprint.add_url_rule(
+    "/groups/<id>",
+    view_func=GroupDetailView.as_view("group"),
+)
 
-    match action:
-        case "toggle-join":
-            return _toggle_join(group_obj)
-        case _:
-            return ""
+
+# -----------------------------------------------------------------------------
+# Helper functions
+# -----------------------------------------------------------------------------
 
 
 def _toggle_join(group_obj: Group) -> Response:
@@ -68,14 +79,18 @@ def _toggle_join(group_obj: Group) -> Response:
         leave_group(user, group_obj)
         response = make_response("Rejoindre")
         toast(response, f"Vous avez quitté le groupe: {group_obj.name}")
-        db.session.commit()
     else:
         join_group(user, group_obj)
         response = make_response("Quitter")
         toast(response, f"Vous avez rejoint le groupe: {group_obj.name}")
-        db.session.commit()
 
+    db.session.commit()
     return response
+
+
+# =============================================================================
+# ViewModel
+# =============================================================================
 
 
 @define

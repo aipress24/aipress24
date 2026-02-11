@@ -9,6 +9,7 @@ from __future__ import annotations
 import random
 
 from flask import Response, g, make_response, redirect, render_template, request
+from flask.views import MethodView
 from sqlalchemy.orm import selectinload
 
 from app.flask.extensions import db, htmx
@@ -21,23 +22,57 @@ from app.modules.swork import blueprint
 from app.modules.swork.views._common import MEMBER_TABS, UserVM, filter_email_mobile
 
 
-@blueprint.route("/members/<id>")
-@nav(parent="members")
-def member(id: str):
-    """Membre"""
-    options = selectinload(User.organisation)
-    user = get_obj(id, User, options=options)
+class MemberDetailView(MethodView):
+    """Member detail page with follow/unfollow action."""
 
-    # Set dynamic breadcrumb label
-    g.nav.label = f"{user.last_name}, {user.first_name}"
+    decorators = [nav(parent="members")]
 
-    active_tab = request.args.get("tab", "profile")
+    def get(self, id: str):
+        options = selectinload(User.organisation)
+        user = get_obj(id, User, options=options)
 
-    # Handle HTMX tab requests
-    if htmx:
-        return _render_tab(user, active_tab)
+        # Set dynamic breadcrumb label
+        g.nav.label = f"{user.last_name}, {user.first_name}"
 
-    return _render_full_page(user, active_tab)
+        active_tab = request.args.get("tab", "profile")
+
+        # Handle HTMX tab requests
+        if htmx:
+            return _render_tab(user, active_tab)
+
+        return _render_full_page(user, active_tab)
+
+    def post(self, id: str) -> Response | str:
+        options = selectinload(User.organisation)
+        user = get_obj(id, User, options=options)
+        action = request.form.get("action", "")
+
+        match action:
+            case "toggle-follow":
+                return _toggle_follow(user)
+            case _:
+                return ""
+
+
+# Register the view
+blueprint.add_url_rule(
+    "/members/<id>",
+    view_func=MemberDetailView.as_view("member"),
+)
+
+
+# Profile redirect (stays as function-based - simple redirect)
+@blueprint.route("/profile/")
+@nav(hidden=True)
+def profile():
+    """Redirect to logged user's member page."""
+    logged_user = g.user
+    return redirect(url_for(logged_user))
+
+
+# -----------------------------------------------------------------------------
+# Helper functions
+# -----------------------------------------------------------------------------
 
 
 def _render_full_page(user: User, active_tab: str) -> str:
@@ -88,21 +123,6 @@ def _build_context(user: User, active_tab: str) -> dict:
     return context
 
 
-@blueprint.route("/members/<id>", methods=["POST"])
-@nav(hidden=True)
-def member_post(id: str) -> Response | str:
-    """Handle POST actions on member (follow/unfollow)."""
-    options = selectinload(User.organisation)
-    user = get_obj(id, User, options=options)
-    action = request.form.get("action", "")
-
-    match action:
-        case "toggle-follow":
-            return _toggle_follow(user)
-        case _:
-            return ""
-
-
 def _toggle_follow(user: User) -> Response:
     """Toggle follow status for a user."""
     from app.services.social_graph import SocialUser, adapt
@@ -120,11 +140,3 @@ def _toggle_follow(user: User) -> Response:
 
     db.session.commit()
     return response
-
-
-@blueprint.route("/profile/")
-@nav(hidden=True)
-def profile():
-    """Redirect to logged user's member page."""
-    logged_user = g.user
-    return redirect(url_for(logged_user))
