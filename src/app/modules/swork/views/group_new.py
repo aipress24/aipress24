@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 from flask import g, redirect, render_template, request
+from flask.views import MethodView
 
 from app.flask.extensions import db
 from app.flask.lib.nav import nav
@@ -15,25 +16,32 @@ from app.modules.swork import blueprint
 from app.modules.swork.models import Group
 
 
-@blueprint.route("/groups/new")
-@nav(parent="groups")
-def new_group():
-    """Nouveau groupe"""
-    ctx = {
-        "title": "Nouveau groupe",
-    }
-    return render_template("pages/group-new.j2", **ctx)
+class NewGroupView(MethodView):
+    """New group creation form."""
+
+    decorators = [nav(parent="groups")]
+
+    def get(self):
+        ctx = {
+            "title": "Nouveau groupe",
+        }
+        return render_template("pages/group-new.j2", **ctx)
+
+    def post(self):
+        form = request.form
+        name = form["name"]
+        description = form["description"]
+
+        group = Group(
+            name=name, description=description, owner=g.user, privacy="public"
+        )
+        db.session.add(group)
+        db.session.commit()
+        return redirect(url_for("swork.groups"))
 
 
-@blueprint.route("/groups/new", methods=["POST"])
-@nav(hidden=True)
-def new_group_post():
-    """Handle new group creation."""
-    form = request.form
-    name = form["name"]
-    description = form["description"]
-
-    group = Group(name=name, description=description, owner=g.user, privacy="public")
-    db.session.add(group)
-    db.session.commit()
-    return redirect(url_for("swork.groups"))
+# Register the view
+blueprint.add_url_rule(
+    "/groups/new",
+    view_func=NewGroupView.as_view("new_group"),
+)

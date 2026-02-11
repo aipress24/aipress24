@@ -11,6 +11,7 @@ from typing import cast
 
 from attr import define
 from flask import Response, current_app, g, make_response, render_template, request
+from flask.views import MethodView
 from sqlalchemy import func, select
 
 from app.enums import OrganisationTypeEnum
@@ -31,49 +32,59 @@ from app.modules.swork import blueprint
 from app.modules.wire.models import ArticlePost, PressReleasePost
 
 
-@blueprint.route("/organisations/<id>")
-@nav(parent="organisations")
-def org(id: str):
-    """Organisation"""
-    from app.services.social_graph import SocialUser, adapt
+class OrganisationDetailView(MethodView):
+    """Organisation detail page with follow/unfollow action."""
 
-    org_obj = get_obj(id, Organisation)
-    soc_user: SocialUser = adapt(g.user)
+    decorators = [nav(parent="organisations")]
 
-    # Set dynamic breadcrumb label
-    g.nav.label = org_obj.name
+    def get(self, id: str):
+        from app.services.social_graph import SocialUser, adapt
 
-    vm = OrgVM(org_obj)
-    tabs = list(_get_tabs(org_obj))
+        org_obj = get_obj(id, Organisation)
+        soc_user: SocialUser = adapt(g.user)
 
-    is_manager = (
-        not org_obj.is_auto_or_inactive
-        and soc_user.user.is_member(org_obj.id)
-        and soc_user.user.is_manager
-    )
+        # Set dynamic breadcrumb label
+        g.nav.label = org_obj.name
 
-    ctx = {
-        "org": vm,
-        "is_member": soc_user.user.is_member(org_obj.id),
-        "is_manager": is_manager,
-        "tabs": tabs,
-        "title": org_obj.name,
-    }
-    return render_template("pages/org.j2", **ctx)
+        vm = OrgVM(org_obj)
+        tabs = list(_get_tabs(org_obj))
+
+        is_manager = (
+            not org_obj.is_auto_or_inactive
+            and soc_user.user.is_member(org_obj.id)
+            and soc_user.user.is_manager
+        )
+
+        ctx = {
+            "org": vm,
+            "is_member": soc_user.user.is_member(org_obj.id),
+            "is_manager": is_manager,
+            "tabs": tabs,
+            "title": org_obj.name,
+        }
+        return render_template("pages/org.j2", **ctx)
+
+    def post(self, id: str) -> Response | str:
+        org_obj = get_obj(id, Organisation)
+        action = request.form.get("action", "")
+
+        match action:
+            case "toggle-follow":
+                return _toggle_follow(org_obj)
+            case _:
+                return ""
 
 
-@blueprint.route("/organisations/<id>", methods=["POST"])
-@nav(hidden=True)
-def org_post(id: str) -> Response | str:
-    """Handle POST actions on organisation (follow/unfollow)."""
-    org_obj = get_obj(id, Organisation)
-    action = request.form.get("action", "")
+# Register the view
+blueprint.add_url_rule(
+    "/organisations/<id>",
+    view_func=OrganisationDetailView.as_view("org"),
+)
 
-    match action:
-        case "toggle-follow":
-            return _toggle_follow(org_obj)
-        case _:
-            return ""
+
+# -----------------------------------------------------------------------------
+# Helper functions
+# -----------------------------------------------------------------------------
 
 
 def _toggle_follow(org_obj: Organisation) -> Response:
