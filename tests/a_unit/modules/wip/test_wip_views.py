@@ -54,6 +54,8 @@ class TestWipMenuConfiguration:
         assert "org-profile" in names
 
     def test_menu_entry_endpoints_start_with_wip(self):
-        """Test all menu endpoints are in wip blueprint."""
+        """Test all menu endpoints are in wip blueprint, except for link to new BW."""
         for entry in MENU:
-            assert entry.endpoint.startswith("wip.")
+            assert entry.endpoint.startswith("wip.") or entry.endpoint.startswith(
+                "bw_activation."
+            )
