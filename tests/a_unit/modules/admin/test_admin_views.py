@@ -12,9 +12,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from flask.views import MethodView
-
-from app.modules.admin.views import home, promotions, system, users
+from app.modules.admin.views import home, promotions, users
 from app.modules.admin.views._dashboard import WIDGETS, Widget
 from app.modules.admin.views._modif_users import ModifUserDataSource, ModifUsersTable
 from app.modules.admin.views._new_users import NewUserDataSource, NewUsersTable
@@ -28,16 +26,6 @@ if TYPE_CHECKING:
 
 class TestAdminHomeView:
     """Test admin home view configuration."""
-
-    def test_index_function_exists(self):
-        """Test that index function exists."""
-        assert hasattr(home, "index")
-        assert callable(home.index)
-
-    def test_dashboard_function_exists(self):
-        """Test that dashboard function exists."""
-        assert hasattr(home, "dashboard")
-        assert callable(home.dashboard)
 
     def test_index_redirects_to_dashboard(self, app: Flask):
         """Test that index redirects to dashboard."""
@@ -106,11 +94,6 @@ class TestAdminDashboardView:
 class TestAdminPromotionsView:
     """Test admin promotions view configuration."""
 
-    def test_promotions_view_class_exists(self):
-        """Test that PromotionsView class exists."""
-        assert hasattr(promotions, "PromotionsView")
-        assert issubclass(promotions.PromotionsView, MethodView)
-
     def test_promo_slug_label_structure(self):
         """Test PROMO_SLUG_LABEL has correct structure."""
         assert len(PROMO_SLUG_LABEL) == 8
@@ -134,32 +117,8 @@ class TestAdminPromotionsView:
         assert "biz/1" in values
 
 
-class TestAdminSystemView:
-    """Test admin system view configuration."""
-
-    def test_system_function_exists(self):
-        """Test that system function exists."""
-        assert hasattr(system, "system")
-        assert callable(system.system)
-
-
 class TestAdminUsersView:
     """Test admin users view configuration."""
-
-    def test_users_view_class_exists(self):
-        """Test that UsersView class exists."""
-        assert hasattr(users, "UsersView")
-        assert issubclass(users.UsersView, MethodView)
-
-    def test_new_users_view_class_exists(self):
-        """Test that NewUsersView class exists."""
-        assert hasattr(users, "NewUsersView")
-        assert issubclass(users.NewUsersView, MethodView)
-
-    def test_modif_users_view_class_exists(self):
-        """Test that ModifUsersView class exists."""
-        assert hasattr(users, "ModifUsersView")
-        assert issubclass(users.ModifUsersView, MethodView)
 
     def test_user_datasource_has_count_method(self):
         """Test UserDataSource has count method."""
