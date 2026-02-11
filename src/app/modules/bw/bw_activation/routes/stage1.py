@@ -6,17 +6,25 @@
 
 from __future__ import annotations
 
-from flask import redirect, render_template, session, url_for
+from typing import TYPE_CHECKING, cast
+
+from flask import g, redirect, render_template, session, url_for
 
 from app.modules.bw.bw_activation import bp
 from app.modules.bw.bw_activation.config import BW_TYPES
+from app.modules.bw.bw_activation.user_utils import guess_best_bw_type
 from app.modules.bw.bw_activation.utils import init_session
+
+if TYPE_CHECKING:
+    from app.models.auth import User
 
 
 @bp.route("/")
 def index():
     """Redirect to confirmation subscription page."""
+    user = cast("User", g.user)
     init_session()
+    session["suggested_bw_type"] = guess_best_bw_type(user).value
     return redirect(url_for("bw_activation.confirm_subscription"))
 
 
