@@ -15,7 +15,7 @@
             </p>
         </div>
 
-        {% if bw_info.allows_self_management %}
+        {% if bw_info.allows_self_management | default(false) %}
         <!-- Self-assignment options for small organizations -->
         <div class="mt-8 p-6 bg-amber-50 rounded-lg border border-amber-200">
             <h3 class="font-semibold text-amber-900 mb-3">Option rapide pour les structures individuelles</h3>
