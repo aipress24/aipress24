@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 from flask import render_template
+from flask.views import MethodView
 
 from app.flask.lib.nav import nav
 from app.modules.admin import blueprint
@@ -14,28 +15,26 @@ from app.modules.admin import blueprint
 from ._common import build_table_context, handle_table_post
 
 
-@blueprint.route("/orgs")
-@nav(
-    parent="index",
-    icon="building-2",
-    label="Organisations",
-)
-def orgs():
+class OrgsView(MethodView):
     """Organizations list page."""
-    from ._orgs import OrgDataSource, OrgsTable
 
-    ctx = build_table_context(OrgDataSource, OrgsTable)
-    return render_template(
-        "admin/pages/generic_table.j2",
-        title="Organisations",
-        **ctx,
-    )
+    decorators = [nav(parent="index", icon="building-2", label="Organisations")]
+
+    def get(self):
+        from ._orgs import OrgDataSource, OrgsTable
+
+        ctx = build_table_context(OrgDataSource, OrgsTable)
+        return render_template(
+            "admin/pages/generic_table.j2",
+            title="Organisations",
+            **ctx,
+        )
+
+    def post(self):
+        from ._orgs import OrgDataSource
+
+        return handle_table_post(OrgDataSource, "admin.orgs")
 
 
-@blueprint.route("/orgs", methods=["POST"])
-@nav(hidden=True)
-def orgs_post():
-    """Handle orgs pagination/search."""
-    from ._orgs import OrgDataSource
-
-    return handle_table_post(OrgDataSource, "admin.orgs")
+# Register the view
+blueprint.add_url_rule("/orgs", view_func=OrgsView.as_view("orgs"))

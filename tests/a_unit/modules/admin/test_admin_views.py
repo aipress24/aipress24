@@ -12,6 +12,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from flask.views import MethodView
 
 from app.modules.admin.views import home, promotions, system, users
 from app.modules.admin.views._dashboard import WIDGETS, Widget
@@ -105,15 +106,10 @@ class TestAdminDashboardView:
 class TestAdminPromotionsView:
     """Test admin promotions view configuration."""
 
-    def test_promotions_function_exists(self):
-        """Test that promotions function exists."""
-        assert hasattr(promotions, "promotions")
-        assert callable(promotions.promotions)
-
-    def test_promotions_post_function_exists(self):
-        """Test that promotions_post function exists."""
-        assert hasattr(promotions, "promotions_post")
-        assert callable(promotions.promotions_post)
+    def test_promotions_view_class_exists(self):
+        """Test that PromotionsView class exists."""
+        assert hasattr(promotions, "PromotionsView")
+        assert issubclass(promotions.PromotionsView, MethodView)
 
     def test_promo_slug_label_structure(self):
         """Test PROMO_SLUG_LABEL has correct structure."""
@@ -150,25 +146,20 @@ class TestAdminSystemView:
 class TestAdminUsersView:
     """Test admin users view configuration."""
 
-    def test_users_function_exists(self):
-        """Test that users function exists."""
-        assert hasattr(users, "users")
-        assert callable(users.users)
+    def test_users_view_class_exists(self):
+        """Test that UsersView class exists."""
+        assert hasattr(users, "UsersView")
+        assert issubclass(users.UsersView, MethodView)
 
-    def test_users_post_function_exists(self):
-        """Test that users_post function exists."""
-        assert hasattr(users, "users_post")
-        assert callable(users.users_post)
+    def test_new_users_view_class_exists(self):
+        """Test that NewUsersView class exists."""
+        assert hasattr(users, "NewUsersView")
+        assert issubclass(users.NewUsersView, MethodView)
 
-    def test_new_users_function_exists(self):
-        """Test that new_users function exists."""
-        assert hasattr(users, "new_users")
-        assert callable(users.new_users)
-
-    def test_modif_users_function_exists(self):
-        """Test that modif_users function exists."""
-        assert hasattr(users, "modif_users")
-        assert callable(users.modif_users)
+    def test_modif_users_view_class_exists(self):
+        """Test that ModifUsersView class exists."""
+        assert hasattr(users, "ModifUsersView")
+        assert issubclass(users.ModifUsersView, MethodView)
 
     def test_user_datasource_has_count_method(self):
         """Test UserDataSource has count method."""

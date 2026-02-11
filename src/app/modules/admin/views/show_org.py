@@ -19,6 +19,7 @@ from typing import cast
 
 from attr import define
 from flask import Response, current_app, render_template, request, url_for
+from flask.views import MethodView
 from svcs.flask import container
 
 from app.flask.extensions import db
@@ -105,118 +106,126 @@ class OrgVM(ViewModel):
         return f"{base_url}/{self.org.screenshot_id}"
 
 
-@blueprint.route("/show_org/<uid>")
-@nav(parent="orgs", icon="clipboard-document-check", label="Détail organisation")
-def show_org(uid: str):
-    """Display the admin detail page for a single organization.
+class ShowOrgView(MethodView):
+    """Organization detail page with management actions."""
 
-    The page shows organization info, membership lists, and an embedded Business Wall
-    form. The BW form is read-only by default to prevent accidental edits; admins
-    must click "Modify" to enable editing. This state is tracked per-organization
-    in the session so multiple browser tabs don't interfere with each other.
-    """
-    org = get_obj(uid, Organisation)
-    ro_session_key = f"readonly_form_bw_{org.id}"
+    decorators = [
+        nav(parent="orgs", icon="clipboard-document-check", label="Détail organisation")
+    ]
 
-    session_service = container.get(SessionService)
-    readonly = session_service.get(ro_session_key)
-    readonly_flag = readonly != "RW"
+    def get(self, uid: str):
+        """Display the admin detail page for a single organization.
 
-    form_generator = BWFormGenerator(org=org, readonly=readonly_flag)
-    form = form_generator.generate()
+        The page shows organization info, membership lists, and an embedded Business
+        Wall form. The BW form is read-only by default to prevent accidental edits;
+        admins must click "Modify" to enable editing. This state is tracked
+        per-organization in the session so multiple browser tabs don't interfere.
+        """
+        org = get_obj(uid, Organisation)
+        ro_session_key = f"readonly_form_bw_{org.id}"
 
-    return render_template(
-        "admin/pages/show_org.j2",
-        title="Informations sur l'organisation",
-        org=OrgVM(org),
-        render_field=render_field,
-        readonly_form_bw=readonly_flag,
-        form=form,
-    )
+        session_service = container.get(SessionService)
+        readonly = session_service.get(ro_session_key)
+        readonly_flag = readonly != "RW"
 
+        form_generator = BWFormGenerator(org=org, readonly=readonly_flag)
+        form = form_generator.generate()
 
-@blueprint.route("/show_org/<uid>", methods=["POST"])
-@nav(hidden=True)
-def show_org_post(uid: str) -> Response:  # noqa: PLR0915
-    """Process admin actions on an organization.
+        return render_template(
+            "admin/pages/show_org.j2",
+            title="Informations sur l'organisation",
+            org=OrgVM(org),
+            render_field=render_field,
+            readonly_form_bw=readonly_flag,
+            form=form,
+        )
 
-    Handles multiple HTMX-triggered actions via the "action" form field:
-    - BW form mode toggling (allow_modify_bw, cancel_modification_bw, validate_modification_bw)
-    - Organization lifecycle (toggle_org_active, delete_org)
-    - Membership management (change_emails, change_managers_emails, change_leaders_emails)
-    - Invitation management (change_invitations_emails)
+    def post(self, uid: str) -> Response:  # noqa: PLR0915
+        """Process admin actions on an organization.
 
-    All actions respond with HX-Redirect headers so HTMX performs a client-side
-    redirect, ensuring the page reflects the updated state. The gc_organisation
-    check after changing members handles cleanup if the org becomes empty.
-    """
-    org = get_obj(uid, Organisation)
-    ro_session_key = f"readonly_form_bw_{org.id}"
-    action = request.form.get("action", "")
-    current_url = url_for("admin.show_org", uid=uid)
-    orgs_url = url_for("admin.orgs")
+        Handles multiple HTMX-triggered actions via the "action" form field:
+        - BW form mode toggling (allow_modify_bw, cancel_modification_bw,
+          validate_modification_bw)
+        - Organization lifecycle (toggle_org_active, delete_org)
+        - Membership management (change_emails, change_managers_emails,
+          change_leaders_emails)
+        - Invitation management (change_invitations_emails)
 
-    response = Response("")
+        All actions respond with HX-Redirect headers so HTMX performs a client-side
+        redirect, ensuring the page reflects the updated state. The gc_organisation
+        check after changing members handles cleanup if the org becomes empty.
+        """
+        org = get_obj(uid, Organisation)
+        ro_session_key = f"readonly_form_bw_{org.id}"
+        action = request.form.get("action", "")
+        current_url = url_for("admin.show_org", uid=uid)
+        orgs_url = url_for("admin.orgs")
 
-    match action:
-        case "allow_modify_bw":
-            session_service = container.get(SessionService)
-            session_service.set(ro_session_key, "RW")
-            response.headers["HX-Redirect"] = (
-                f"{current_url}?reload=1#bw-form-container"
-            )
+        response = Response("")
 
-        case "cancel_modification_bw":
-            session_service = container.get(SessionService)
-            session_service.set(ro_session_key, "RO")
-            response.headers["HX-Redirect"] = (
-                f"{current_url}?reload=2#bw-form-container"
-            )
+        match action:
+            case "allow_modify_bw":
+                session_service = container.get(SessionService)
+                session_service.set(ro_session_key, "RW")
+                response.headers["HX-Redirect"] = (
+                    f"{current_url}?reload=1#bw-form-container"
+                )
 
-        case "validate_modification_bw":
-            results = request.form.to_dict(flat=False)
-            merge_org_results(org, results)
-            merge_organisation(org)
-            session_service = container.get(SessionService)
-            session_service.set(ro_session_key, "RO")
-            response.headers["HX-Redirect"] = (
-                f"{current_url}?reload=3#bw-form-container"
-            )
+            case "cancel_modification_bw":
+                session_service = container.get(SessionService)
+                session_service.set(ro_session_key, "RO")
+                response.headers["HX-Redirect"] = (
+                    f"{current_url}?reload=2#bw-form-container"
+                )
 
-        case "toggle_org_active":
-            toggle_org_active(org)
-            response.headers["HX-Redirect"] = current_url
+            case "validate_modification_bw":
+                results = request.form.to_dict(flat=False)
+                merge_org_results(org, results)
+                merge_organisation(org)
+                session_service = container.get(SessionService)
+                session_service.set(ro_session_key, "RO")
+                response.headers["HX-Redirect"] = (
+                    f"{current_url}?reload=3#bw-form-container"
+                )
 
-        case "delete_org":
-            change_invitations_emails(org, "")
-            delete_full_organisation(org)
-            response.headers["HX-Redirect"] = orgs_url
-
-        case "change_emails":
-            raw_mails = request.form["content"]
-            change_members_emails(org, raw_mails)
-            if gc_organisation(org):
-                response.headers["HX-Redirect"] = orgs_url
-            else:
+            case "toggle_org_active":
+                toggle_org_active(org)
                 response.headers["HX-Redirect"] = current_url
 
-        case "change_managers_emails":
-            raw_mails = request.form["content"]
-            change_managers_emails(org, raw_mails)
-            response.headers["HX-Redirect"] = current_url
+            case "delete_org":
+                change_invitations_emails(org, "")
+                delete_full_organisation(org)
+                response.headers["HX-Redirect"] = orgs_url
 
-        case "change_leaders_emails":
-            raw_mails = request.form["content"]
-            change_leaders_emails(org, raw_mails)
-            response.headers["HX-Redirect"] = current_url
+            case "change_emails":
+                raw_mails = request.form["content"]
+                change_members_emails(org, raw_mails)
+                if gc_organisation(org):
+                    response.headers["HX-Redirect"] = orgs_url
+                else:
+                    response.headers["HX-Redirect"] = current_url
 
-        case "change_invitations_emails":
-            raw_mails = request.form["content"]
-            change_invitations_emails(org, raw_mails)
-            response.headers["HX-Redirect"] = current_url
+            case "change_managers_emails":
+                raw_mails = request.form["content"]
+                change_managers_emails(org, raw_mails)
+                response.headers["HX-Redirect"] = current_url
 
-        case _:
-            response.headers["HX-Redirect"] = orgs_url
+            case "change_leaders_emails":
+                raw_mails = request.form["content"]
+                change_leaders_emails(org, raw_mails)
+                response.headers["HX-Redirect"] = current_url
 
-    db.session.commit()
-    return response
+            case "change_invitations_emails":
+                raw_mails = request.form["content"]
+                change_invitations_emails(org, raw_mails)
+                response.headers["HX-Redirect"] = current_url
+
+            case _:
+                response.headers["HX-Redirect"] = orgs_url
+
+        db.session.commit()
+        return response
+
+
+# Register the view
+blueprint.add_url_rule("/show_org/<uid>", view_func=ShowOrgView.as_view("show_org"))
