@@ -11,23 +11,23 @@ from typing import TYPE_CHECKING
 
 import pytest
 from advanced_alchemy.exceptions import NotFoundError
-
 from poc.blueprints.bw_activation_full.models import (
-    BusinessWall,
-    BusinessWallRepository,
+    BusinessWallPoc,
+    BusinessWallPocRepository,
+    BWStatus,
+    BWType,
 )
-from poc.blueprints.bw_activation_full.models import BWStatus, BWType
 
 if TYPE_CHECKING:
     from sqlalchemy.orm import Session
 
 
-class TestBusinessWall:
-    """Tests for BusinessWall model."""
+class TestBusinessWallPoc:
+    """Tests for BusinessWallPoc model."""
 
     def test_create_business_wall(self, db_session: Session, mock_user_id: int):
-        """Test creating a BusinessWall."""
-        bw = BusinessWall(
+        """Test creating a BusinessWallPoc."""
+        bw = BusinessWallPoc(
             bw_type=BWType.MEDIA.value,
             status=BWStatus.DRAFT.value,
             is_free=True,
@@ -46,15 +46,15 @@ class TestBusinessWall:
         assert bw.created_at is not None
         assert bw.updated_at is not None
 
-    def test_business_wall_repr(self, business_wall: BusinessWall):
-        """Test BusinessWall __repr__."""
+    def test_business_wall_repr(self, business_wall: BusinessWallPoc):
+        """Test BusinessWallPoc __repr__."""
         repr_str = repr(business_wall)
-        assert "BusinessWall" in repr_str
+        assert "BusinessWallPoc" in repr_str
         assert "media" in repr_str
         assert "draft" in repr_str
 
     def test_business_wall_types(self, db_session: Session, mock_user_id: int):
-        """Test all BusinessWall types can be created."""
+        """Test all BusinessWallPoc types can be created."""
         types = [
             BWType.MEDIA,
             BWType.MICRO,
@@ -67,7 +67,7 @@ class TestBusinessWall:
         ]
 
         for bw_type in types:
-            bw = BusinessWall(
+            bw = BusinessWallPoc(
                 bw_type=bw_type.value,
                 status=BWStatus.DRAFT.value,
                 is_free=True,
@@ -78,11 +78,11 @@ class TestBusinessWall:
 
         db_session.commit()
 
-        count = db_session.query(BusinessWall).count()
+        count = db_session.query(BusinessWallPoc).count()
         assert count == len(types)
 
     def test_business_wall_status_transitions(
-        self, db_session: Session, business_wall: BusinessWall
+        self, db_session: Session, business_wall: BusinessWallPoc
     ):
         """Test status transitions."""
         assert business_wall.status == BWStatus.DRAFT.value
@@ -104,8 +104,8 @@ class TestBusinessWall:
     def test_business_wall_with_different_payer(
         self, db_session: Session, mock_user_id: int, mock_payer_id: int
     ):
-        """Test BusinessWall with different owner and payer."""
-        bw = BusinessWall(
+        """Test BusinessWallPoc with different owner and payer."""
+        bw = BusinessWallPoc(
             bw_type=BWType.PR.value,
             status=BWStatus.DRAFT.value,
             is_free=False,
@@ -122,8 +122,8 @@ class TestBusinessWall:
     def test_business_wall_with_organisation(
         self, db_session: Session, mock_user_id: int, mock_org_id: int
     ):
-        """Test BusinessWall with organisation reference."""
-        bw = BusinessWall(
+        """Test BusinessWallPoc with organisation reference."""
+        bw = BusinessWallPoc(
             bw_type=BWType.MEDIA.value,
             status=BWStatus.DRAFT.value,
             is_free=True,
@@ -137,14 +137,14 @@ class TestBusinessWall:
         assert bw.organisation_id == mock_org_id
 
 
-class TestBusinessWallRepository:
-    """Tests for BusinessWallRepository."""
+class TestBusinessWallPocRepository:
+    """Tests for BusinessWallPocRepository."""
 
     def test_repository_add(self, db_session: Session, mock_user_id: int):
         """Test repository add operation."""
-        repo = BusinessWallRepository(session=db_session)
+        repo = BusinessWallPocRepository(session=db_session)
 
-        bw = BusinessWall(
+        bw = BusinessWallPoc(
             bw_type=BWType.MEDIA.value,
             status=BWStatus.DRAFT.value,
             is_free=True,
@@ -157,9 +157,9 @@ class TestBusinessWallRepository:
         assert saved_bw.id is not None
         assert saved_bw.bw_type == "media"
 
-    def test_repository_get(self, db_session: Session, business_wall: BusinessWall):
+    def test_repository_get(self, db_session: Session, business_wall: BusinessWallPoc):
         """Test repository get operation."""
-        repo = BusinessWallRepository(session=db_session)
+        repo = BusinessWallPocRepository(session=db_session)
 
         retrieved = repo.get(business_wall.id)
 
@@ -168,13 +168,13 @@ class TestBusinessWallRepository:
         assert retrieved.bw_type == business_wall.bw_type
 
     def test_repository_list(
-        self, db_session: Session, mock_user_id: int, business_wall: BusinessWall
+        self, db_session: Session, mock_user_id: int, business_wall: BusinessWallPoc
     ):
         """Test repository list operation."""
-        repo = BusinessWallRepository(session=db_session)
+        repo = BusinessWallPocRepository(session=db_session)
 
         # Create another BW
-        bw2 = BusinessWall(
+        bw2 = BusinessWallPoc(
             bw_type=BWType.PR.value,
             status=BWStatus.ACTIVE.value,
             is_free=False,
@@ -187,9 +187,11 @@ class TestBusinessWallRepository:
         all_bws = repo.list()
         assert len(all_bws) == 2
 
-    def test_repository_update(self, db_session: Session, business_wall: BusinessWall):
+    def test_repository_update(
+        self, db_session: Session, business_wall: BusinessWallPoc
+    ):
         """Test repository update operation."""
-        repo = BusinessWallRepository(session=db_session)
+        repo = BusinessWallPocRepository(session=db_session)
 
         # Update entity attributes
         business_wall.status = BWStatus.ACTIVE.value
@@ -197,9 +199,11 @@ class TestBusinessWallRepository:
 
         assert updated.status == BWStatus.ACTIVE.value
 
-    def test_repository_delete(self, db_session: Session, business_wall: BusinessWall):
+    def test_repository_delete(
+        self, db_session: Session, business_wall: BusinessWallPoc
+    ):
         """Test repository delete operation."""
-        repo = BusinessWallRepository(session=db_session)
+        repo = BusinessWallPocRepository(session=db_session)
 
         bw_id = business_wall.id
         repo.delete(bw_id)
