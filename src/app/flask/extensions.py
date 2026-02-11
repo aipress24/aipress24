@@ -26,15 +26,36 @@ from app.models.base import Base
 
 PARIS_TZ = timezone("Europe/Paris")
 
-# Merge existing Base tables into UUIDAuditBase metadata
-# This allows both bases to coexist and be detected by Alembic
-for table in Base.metadata.tables.values():
-    table.to_metadata(UUIDAuditBase.metadata)
+
+def import_all_models():
+    """Import all model modules to register tables."""
+    import app.modules.biz.models
+    import app.modules.bw.blueprints.bw_activation.models
+    import app.modules.events.models
+    import app.modules.swork.models
+    import app.modules.wip.models
+    import app.modules.wire.models
+    from app.models import (
+        admin,
+        auth,
+        base,
+        base_content,
+        content,
+        email_log,
+        geoloc,
+        invitation,
+        jobs,
+        lifecycle,
+        meta,
+        organisation,
+        web,
+    )
+
 
 # Create all extensions as global variables
 db = SQLAlchemy(
     model_class=Base,
-    metadata=UUIDAuditBase.metadata,
+    # metadata=UUIDAuditBase.metadata,
 )
 migrate = Migrate()
 
@@ -52,10 +73,6 @@ security = Security()
 htmx = HTMX()
 
 
-# # Define models
-# fsqla.FsModels.set_db_info(db)
-
-
 def register_extensions(app: Flask) -> None:
     """Register all Flask extensions.
 
@@ -64,12 +81,24 @@ def register_extensions(app: Flask) -> None:
     """
     logger.debug("Registering all extensions")
 
+    import_all_models()
+    # Merge existing Base tables into UUIDAuditBase metadata
+    # This allows both bases to coexist and be detected by Alembic
+    for table in UUIDAuditBase.metadata.tables.values():
+        if table.name not in db.metadata.tables:
+            table.to_metadata(db.metadata)
+
+    print("=== Merged tables ===")
+    for name in db.metadata.tables.keys():
+        print(f"  {name}")
+
     db.init_app(app)
     # register_local_storage(app)
     register_s3_storage(app)
 
     mail.init_app(app)
     babel.init_app(app)
+    # migrate = Migrate(app, db)
     migrate.init_app(app, db)
     vite.init_app(app)
     # rq.init_app(app)
