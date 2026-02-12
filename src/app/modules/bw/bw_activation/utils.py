@@ -29,20 +29,21 @@ def init_session():
         session["pricing_value"] = None
 
 
-def get_mock_owner_data() -> dict[str, str]:
-    """Get mock owner data for pre-filling forms.
+# deprecated
+# def get_mock_owner_data() -> dict[str, str]:
+#     """Get mock owner data for pre-filling forms.
 
-    In production, this would fetch data from the current_user object.
+#     In production, this would fetch data from the current_user object.
 
-    Returns:
-        Dictionary containing owner contact information.
-    """
-    return {
-        "first_name": "Alice",
-        "last_name": "Dupont",
-        "email": "alice.dupont@example.com",
-        "phone": "+33 1 23 45 67 89",
-    }
+#     Returns:
+#         Dictionary containing owner contact information.
+#     """
+#     return {
+#         "first_name": "Alice",
+#         "last_name": "Dupont",
+#         "email": "alice.dupont@example.com",
+#         "phone": "+33 1 23 45 67 89",
+#     }
 
 
 def init_missions_state():

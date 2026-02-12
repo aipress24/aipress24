@@ -6,11 +6,16 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from flask import redirect, render_template, request, session, url_for
 
 from app.modules.bw.bw_activation import bp
 from app.modules.bw.bw_activation.config import BW_TYPES
-from app.modules.bw.bw_activation.utils import get_mock_owner_data
+from app.modules.bw.bw_activation.user_utils import StdDict, get_current_user_data
+
+if TYPE_CHECKING:
+    from app.models.auth import User
 
 
 @bp.route("/nominate-contacts")
@@ -22,8 +27,7 @@ def nominate_contacts():
     bw_type = session.get("bw_type")
     bw_info = BW_TYPES.get(bw_type, {})
 
-    # Pre-fill with mock user data (in real app, use current_user)
-    owner_data = get_mock_owner_data()
+    owner_data: StdDict = get_current_user_data()
 
     return render_template(
         "bw_activation/02_nominate_contacts.html",
