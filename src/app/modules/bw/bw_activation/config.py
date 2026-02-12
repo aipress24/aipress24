@@ -10,10 +10,12 @@ pricing, and onboarding messages.
 
 from __future__ import annotations
 
+from .models import BWType
+
 # Business Wall Types configuration
 BW_TYPES = {
     # Free BW types (5 types)
-    "media": {
+    BWType.MEDIA.value: {
         "name": "Business Wall for Media",
         "description": "Pour les organes de presse reconnus.",
         "free": True,
@@ -35,7 +37,7 @@ BW_TYPES = {
             "Les informations que vous allez saisir seront vérifiées par les équipes d'AiPRESS24.",
         ],
     },
-    "micro": {
+    BWType.MICRO.value: {
         "name": "Business Wall for Micro",
         "description": "Pour les micro-entreprises de presse travaillant pour des organes de presse reconnus.",
         "free": True,
@@ -56,7 +58,7 @@ BW_TYPES = {
             "Les informations que vous allez saisir seront vérifiées par les équipes d'AiPRESS24.",
         ],
     },
-    "corporate_media": {
+    BWType.CORPORATE_MEDIA.value: {
         "name": "Business Wall for Corporate Media",
         "description": "Pour les médias d'entreprise et institutionnels.",
         "free": True,
@@ -74,7 +76,7 @@ BW_TYPES = {
             "Les informations que vous allez saisir seront vérifiées par les équipes d'AiPRESS24.",
         ],
     },
-    "union": {
+    BWType.UNION.value: {
         "name": "Business Wall for Union",
         "description": "Pour les syndicats ou fédérations de la presse ou des médias, clubs de la presse ou associations de journalistes.",
         "free": True,
@@ -88,7 +90,7 @@ BW_TYPES = {
             "Vous devez déclarer également déclarer et valider individuellement chaque PR Agency ou chaque PR Consultant qui vous représentent sur AiPRESS24 et peuvent agir en tant que contact presse, publier vos communiqués de presse et vos événements.",
         ],
     },
-    "academics": {
+    BWType.ACADEMICS.value: {
         "name": "Business Wall for Academics",
         "description": "Pour les établissements de recherche ou d'enseignement supérieur.",
         "free": True,
@@ -103,7 +105,7 @@ BW_TYPES = {
         ],
     },
     # Paid BW types (3 types)
-    "pr": {
+    BWType.PR.value: {
         "name": "Business Wall for PR",
         "description": "Pour les agences de relations presse et les consultants indépendants.",
         "free": False,
@@ -129,7 +131,7 @@ BW_TYPES = {
             "Les informations que vous allez saisir seront vérifiées par les équipes d'AiPRESS24.",
         ],
     },
-    "leaders_experts": {
+    BWType.LEADERS_EXPERTS.value: {
         "name": "Business Wall for Leaders & Experts",
         "description": "Pour les entreprises, associations, experts et leaders d'opinion.",
         "free": False,
@@ -145,7 +147,7 @@ BW_TYPES = {
             "Les informations que vous allez saisir seront vérifiées par les équipes d'AiPRESS24.",
         ],
     },
-    "transformers": {
+    BWType.TRANSFORMERS.value: {
         "name": "Business Wall for Transformers",
         "description": "Pour les acteurs de l'innovation et de la transformation numérique.",
         "free": False,

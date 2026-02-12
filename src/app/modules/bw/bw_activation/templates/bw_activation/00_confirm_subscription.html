@@ -1,95 +1,129 @@
-{% extends "layout.html" %}
-
-{% block title %}Confirmez votre Abonnement Business Wall{% endblock %}
-
-{% block content %}
-<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+{% extends "layout.html" %} {% block title %}Confirmez votre Abonnement Business
+Wall{% endblock %} {% block content %}
+<script
+  defer
+  src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
 <div class="max-w-4xl mx-auto" x-data="{ showOtherOptions: false }">
-    <div class="bg-white p-8 rounded-2xl shadow-lg border border-gray-200">
+  <div class="bg-white p-8 rounded-2xl shadow-lg border border-gray-200">
+    <h1 class="text-3xl font-bold text-gray-900">
+      1- Confirmez l'abonnement qui vous convient
+    </h1>
+    <p class="mt-2 text-gray-600">
+      Sur la base de votre profil, nous vous suggérons l'abonnement suivant.
+      Vous pouvez le confirmer ou en choisir un autre.
+    </p>
 
-        <h1 class="text-3xl font-bold text-gray-900">1- Confirmez l'abonnement qui vous convient</h1>
-        <p class="mt-2 text-gray-600">Sur la base de votre profil, nous vous suggérons l'abonnement suivant. Vous pouvez le confirmer ou en choisir un autre.</p>
-
-        <!-- Reset button -->
-        <div class="mt-4">
-            <form method="POST" action="{{ url_for('bw_activation.reset') }}">
-                <button type="submit" class="text-sm text-gray-500 hover:text-gray-700 underline">
-                    Réinitialiser et recommencer
-                </button>
-            </form>
-        </div>
-
-        <!-- Section de l'abonnement recommandé -->
-        {% set suggested = bw_types[suggested_bw_type] %}
-        <div class="mt-8 p-6 border-2 border-blue-600 rounded-lg bg-blue-50">
-            <h2 class="text-xl font-semibold text-blue-800">Abonnement Suggéré : {{ suggested.name }}</h2>
-            <p class="mt-1 text-sm text-gray-600">{{ suggested.description }}</p>
-
-            <div class="mt-4 prose prose-sm max-w-none text-gray-700">
-                <ol class="list-decimal pl-5 space-y-2">
-                    {% for message in suggested.onboarding_messages %}
-                    <li>{{ message }}</li>
-                    {% endfor %}
-                </ol>
-            </div>
-
-            <div class="mt-6 border-t pt-6">
-                <h3 class="font-medium text-gray-900">Cet abonnement convient-il à votre organisation ?</h3>
-                <div class="mt-4 flex items-center space-x-4">
-                    <form method="POST" action="{{ url_for('bw_activation.select_subscription', bw_type=suggested_bw_type) }}" class="flex-1">
-                        <button type="submit" class="w-full rounded-md bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-700">
-                            Oui, continuer avec cet abonnement
-                        </button>
-                    </form>
-                    <button @click="showOtherOptions = true" class="flex-1 rounded-md bg-white px-4 py-2.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
-                        Non, choisir un autre abonnement
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Section des autres abonnements (cachée par défaut) -->
-        <div x-show="showOtherOptions" x-transition class="mt-10">
-            <h2 class="text-xl font-semibold text-gray-800 mb-2">Choisissez l'abonnement qui correspond à votre organisation</h2>
-            <p class="text-sm text-gray-600 mb-6">Sélectionnez le type de Business Wall qui correspond le mieux à votre activité.</p>
-
-            <div class="space-y-6">
-                {% for type_id, info in bw_types.items() if type_id != suggested_bw_type %}
-                <!-- Carte pour chaque autre option -->
-                <div class="border border-gray-300 p-6 rounded-lg hover:shadow-md hover:border-gray-400 transition">
-                    <div class="flex justify-between items-start mb-3">
-                        <div>
-                            <h3 class="font-semibold text-lg text-gray-800">{{ info.name }}</h3>
-                            <p class="text-sm text-gray-600 mt-1">{{ info.description }}</p>
-                            {% if not info.free %}
-                            <span class="inline-block mt-2 px-3 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full">Abonnement payant</span>
-                            {% else %}
-                            <span class="inline-block mt-2 px-3 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded-full">Abonnement gratuit</span>
-                            {% endif %}
-                        </div>
-                    </div>
-
-                    <div class="mt-4 prose prose-sm max-w-none text-gray-600">
-                        <ol class="list-decimal pl-5 space-y-1">
-                            {% for message in info.onboarding_messages %}
-                            <li class="text-sm">{{ message }}</li>
-                            {% endfor %}
-                        </ol>
-                    </div>
-
-                    <div class="mt-4 text-right">
-                        <form method="POST" action="{{ url_for('bw_activation.select_subscription', bw_type=type_id) }}">
-                            <button type="submit" class="rounded-md bg-gray-700 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-800">
-                                Sélectionner cet abonnement
-                            </button>
-                        </form>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-
+    <!-- Reset button -->
+    <div class="mt-4">
+      <form method="POST" action="{{ url_for('bw_activation.reset') }}">
+        <button
+          type="submit"
+          class="text-sm text-gray-500 hover:text-gray-700 underline">
+          Réinitialiser et recommencer
+        </button>
+      </form>
     </div>
+
+    <!-- Section de l'abonnement recommandé -->
+    {% set suggested = bw_types[suggested_bw_type] %}
+    <div class="mt-8 p-6 border-2 border-blue-600 rounded-lg bg-blue-50">
+      <h2 class="text-xl font-semibold text-blue-800">
+        Abonnement Suggéré : {{ suggested.name }}
+      </h2>
+      <p class="mt-1 text-sm text-gray-600">{{ suggested.description }}</p>
+
+      <div class="mt-4 prose prose-sm max-w-none text-gray-700">
+        <ol class="list-decimal pl-5 space-y-2">
+          {% for message in suggested.onboarding_messages %}
+          <li>{{ message }}</li>
+          {% endfor %}
+        </ol>
+      </div>
+
+      <div class="mt-6 border-t pt-6">
+        <h3 class="font-medium text-gray-900">
+          Cet abonnement convient-il à votre organisation ?
+        </h3>
+        <div class="mt-4 flex items-center space-x-4">
+          <form
+            method="POST"
+            action="{{ url_for('bw_activation.select_subscription', bw_type=suggested_bw_type) }}"
+            class="flex-1">
+            <button
+              type="submit"
+              class="w-full rounded-md bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-700">
+              Oui, continuer avec cet abonnement
+            </button>
+          </form>
+          <button
+            @click="showOtherOptions = true"
+            class="flex-1 rounded-md bg-white px-4 py-2.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+            Non, choisir un autre abonnement
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section des autres abonnements (cachée par défaut) -->
+    <div x-show="showOtherOptions" x-transition class="mt-10">
+      <h2 class="text-xl font-semibold text-gray-800 mb-2">
+        Choisissez l'abonnement qui correspond à votre organisation
+      </h2>
+      <p class="text-sm text-gray-600 mb-6">
+        Sélectionnez le type de Business Wall qui correspond le mieux à votre
+        activité.
+      </p>
+
+      <div class="space-y-6">
+        {% for type_id, info in bw_types.items() if type_id != suggested_bw_type
+        %}
+        <!-- Carte pour chaque autre option -->
+        <div
+          class="border border-gray-300 p-6 rounded-lg hover:shadow-md hover:border-gray-400 transition">
+          <div class="flex justify-between items-start mb-3">
+            <div>
+              <h3 class="font-semibold text-lg text-gray-800">
+                {{ info.name }}
+              </h3>
+              <p class="text-sm text-gray-600 mt-1">{{ info.description }}</p>
+              {% if not info.free %}
+              <span
+                class="inline-block mt-2 px-3 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full"
+                >Abonnement payant</span
+              >
+              {% else %}
+              <span
+                class="inline-block mt-2 px-3 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded-full"
+                >Abonnement gratuit</span
+              >
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="mt-4 prose prose-sm max-w-none text-gray-600">
+            <ol class="list-decimal pl-5 space-y-1">
+              {% for message in info.onboarding_messages %}
+              <li class="text-sm">{{ message }}</li>
+              {% endfor %}
+            </ol>
+          </div>
+
+          <div class="mt-4 text-right">
+            <form
+              method="POST"
+              action="{{ url_for('bw_activation.select_subscription', bw_type=type_id) }}">
+              <button
+                type="submit"
+                class="rounded-md bg-gray-700 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-800">
+                Sélectionner cet abonnement
+              </button>
+            </form>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
 </div>
 {% endblock %}
