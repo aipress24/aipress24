@@ -29,27 +29,46 @@ PARIS_TZ = timezone("Europe/Paris")
 
 def import_all_models():
     """Import all model modules to register tables."""
+    import app.models.admin
+    import app.models.auth
+    import app.models.base
+    import app.models.base_content
+    import app.models.content
+    import app.models.email_log
+    import app.models.geoloc
+    import app.models.invitation
+    import app.models.jobs
+    import app.models.lifecycle
+    import app.models.meta
+    import app.models.organisation
+    import app.models.web
     import app.modules.biz.models
     import app.modules.bw.bw_activation.models
     import app.modules.events.models
     import app.modules.swork.models
     import app.modules.wip.models
     import app.modules.wire.models
-    from app.models import (
-        admin,
-        auth,
-        base,
-        base_content,
-        content,
-        email_log,
-        geoloc,
-        invitation,
-        jobs,
-        lifecycle,
-        meta,
-        organisation,
-        web,
-    )
+
+    # These modules are imported for side effect
+    assert app.modules.biz.models
+    assert app.modules.bw.bw_activation.models
+    assert app.modules.events.models
+    assert app.modules.swork.models
+    assert app.modules.wip.models
+    assert app.modules.wire.models
+    assert app.models.admin
+    assert app.models.auth
+    assert app.models.base
+    assert app.models.base_content
+    assert app.models.content
+    assert app.models.email_log
+    assert app.models.geoloc
+    assert app.models.invitation
+    assert app.models.jobs
+    assert app.models.lifecycle
+    assert app.models.meta
+    assert app.models.organisation
+    assert app.models.web
 
 
 # Create all extensions as global variables
@@ -89,7 +108,7 @@ def register_extensions(app: Flask) -> None:
             table.to_metadata(db.metadata)
 
     print("=== Merged tables ===")
-    for name in db.metadata.tables.keys():
+    for name in db.metadata.tables:
         print(f"  {name}")
 
     db.init_app(app)
