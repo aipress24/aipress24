@@ -59,7 +59,7 @@ PROFILE_CODE_TO_BW2_TYPE: dict[ProfileEnum, BWType] = {
 }
 
 
-def get_user_data() -> StdDict:
+def get_current_user_data() -> StdDict:
     data: StdDict = {}
     user = cast("User", g.user)
     org = user.organisation
