@@ -3,53 +3,86 @@
 {% block title %}Activer {{ bw_info.name }}{% endblock %}
 
 {% block content %}
-<div class="max-w-3xl mx-auto">
-    <div class="bg-white p-8 rounded-lg shadow-md">
-        <h1 class="text-2xl font-bold text-gray-800 mb-6">3- Activer votre {{ bw_info.name }}</h1>
+    <div class="max-w-3xl mx-auto">
+        <div class="bg-white p-8 rounded-lg shadow-md">
+            <h1 class="text-2xl font-bold text-gray-800 mb-6">
+                3- Activer votre {{ bw_info.name }}
+            </h1>
 
-        <div class="mb-6 p-4 bg-blue-50 rounded-md border border-blue-200">
-            <h2 class="font-semibold text-lg text-blue-900 mb-2">{{ bw_info.name }}</h2>
-            <p class="text-sm text-gray-700">{{ bw_info.description }}</p>
-            <span class="inline-block mt-2 px-3 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded-full">
-                Abonnement GRATUIT
-            </span>
+            <div class="mb-6 p-4 bg-blue-50 rounded-md border border-blue-200">
+                <h2 class="font-semibold text-lg text-blue-900 mb-2">
+                    {{ bw_info.name }}
+                </h2>
+                <p class="text-sm text-gray-700">{{ bw_info.description }}</p>
+                <span
+                    class="inline-block mt-2 px-3 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded-full"
+                >
+                    Abonnement GRATUIT
+                </span>
+            </div>
+
+            <div class="mb-6">
+                <h3 class="font-semibold text-gray-800 mb-3">
+                    Conditions d'activation
+                </h3>
+                <div class="prose prose-sm max-w-none text-gray-700">
+                    <ol class="list-decimal pl-5 space-y-2">
+                        {% for message in bw_info.onboarding_messages %}
+                            <li>{{ message }}</li>
+                        {% endfor %}
+                    </ol>
+                </div>
+            </div>
+
+            <form
+                method="POST"
+                action="{{ url_for('bw_activation.activate_free', bw_type=bw_type) }}"
+            >
+                <div
+                    class="mb-6 p-4 bg-gray-50 rounded-md border border-gray-300"
+                >
+                    <label class="flex items-start">
+                        <input
+                            type="checkbox"
+                            name="cgv_accepted"
+                            required
+                            class="mt-1 mr-3 h-5 w-5 text-blue-600"
+                        />
+                        <span class="text-sm text-gray-700">
+                            {% if bw_type in ['media', 'micro'] %}
+                                <strong
+                                    >J'accepte les conditions générales de vente
+                                    (CGV) et l'accord de diffusion sur
+                                    AiPRESS24.</strong
+                                >
+                            {% else %}
+                                <strong
+                                    >J'accepte les conditions générales de vente
+                                    (CGV) de Business Wall sur
+                                    AiPRESS24.</strong
+                                >
+                            {% endif %}
+                            Je comprends que les informations saisies seront
+                            vérifiées par les équipes d'AiPRESS24.
+                        </span>
+                    </label>
+                </div>
+
+                <div class="flex gap-4">
+                    <a
+                        href="{{ url_for('bw_activation.nominate_contacts') }}"
+                        class="flex-1 text-center rounded-md bg-gray-300 px-4 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-400"
+                    >
+                        Retour à la nomination des contacts
+                    </a>
+                    <button
+                        type="submit"
+                        class="flex-1 rounded-md bg-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-blue-700"
+                    >
+                        Activer mon {{ bw_info.name }}
+                    </button>
+                </div>
+            </form>
         </div>
-
-        <div class="mb-6">
-            <h3 class="font-semibold text-gray-800 mb-3">Conditions d'activation</h3>
-            <div class="prose prose-sm max-w-none text-gray-700">
-                <ol class="list-decimal pl-5 space-y-2">
-                    {% for message in bw_info.onboarding_messages %}
-                    <li>{{ message }}</li>
-                    {% endfor %}
-                </ol>
-            </div>
-        </div>
-
-        <form method="POST" action="{{ url_for('bw_activation.activate_free', bw_type=bw_type) }}">
-            <div class="mb-6 p-4 bg-gray-50 rounded-md border border-gray-300">
-                <label class="flex items-start">
-                    <input type="checkbox" name="cgv_accepted" required class="mt-1 mr-3 h-5 w-5 text-blue-600">
-                    <span class="text-sm text-gray-700">
-                        {% if bw_type in ['media', 'micro'] %}
-                        <strong>J'accepte les conditions générales de vente (CGV) et l'accord de diffusion sur AiPRESS24.</strong>
-                        {% else %}
-                        <strong>J'accepte les conditions générales de vente (CGV) de Business Wall sur AiPRESS24.</strong>
-                        {% endif %}
-                        Je comprends que les informations saisies seront vérifiées par les équipes d'AiPRESS24.
-                    </span>
-                </label>
-            </div>
-
-            <div class="flex gap-4">
-                <a href="{{ url_for('bw_activation.nominate_contacts') }}" class="flex-1 text-center rounded-md bg-gray-300 px-4 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-400">
-                    Retour à la nomination des contacts
-                </a>
-                <button type="submit" class="flex-1 rounded-md bg-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-blue-700">
-                    Activer mon {{ bw_info.name }}
-                </button>
-            </div>
-        </form>
     </div>
-</div>
 {% endblock %}
