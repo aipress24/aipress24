@@ -9,6 +9,7 @@ from __future__ import annotations
 from flask import redirect, render_template, request, session, url_for
 
 from app.modules.bw.bw_activation import bp
+from app.modules.bw.bw_activation.bw_creation import create_new_free_bw_record
 from app.modules.bw.bw_activation.config import BW_TYPES
 
 # ===== FREE ACTIVATION =====
@@ -57,12 +58,16 @@ def confirmation_free():
 
     bw_type = session["bw_type"]
     bw_info = BW_TYPES.get(bw_type, {})
-
-    return render_template(
-        "bw_activation/02_activation_gratuit_confirme.html",
-        bw_type=bw_type,
-        bw_info=bw_info,
-    )
+    # here create an actual BW instance
+    created = create_new_free_bw_record(session)
+    if created:
+        return render_template(
+            "bw_activation/02_activation_gratuit_confirme.html",
+            bw_type=bw_type,
+            bw_info=bw_info,
+        )
+    else:
+        return redirect(url_for("bw_activation.index"))
 
 
 # ===== PAID ACTIVATION =====
