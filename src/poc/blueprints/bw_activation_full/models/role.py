@@ -83,7 +83,7 @@ class RoleAssignmentPoc(UUIDAuditBase):
     rejected_at: Mapped[datetime | None] = mapped_column(nullable=True)
 
     # Relationship to permissions
-    permissions: Mapped[list["RolePermissionPoc"]] = relationship(
+    permissions: Mapped[list[RolePermissionPoc]] = relationship(
         "RolePermissionPoc",
         back_populates="role_assignment",
         cascade="all, delete-orphan",
