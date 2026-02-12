@@ -1,225 +1,322 @@
 {% extends "layout.html" %}
-
 {% block title %}Nommer les Responsables{% endblock %}
-
 {% block content %}
-<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script
+        defer
+        src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
+    ></script>
 
-<div class="max-w-4xl mx-auto" x-data="{ sameAsOwner: true }">
-    <div class="bg-white p-8 rounded-2xl shadow-lg border border-gray-200">
-
-        <h1 class="text-3xl font-bold text-gray-900">2- Nommer votre Business Wall Owner et activez votre abonnement</h1>
-        <p class="mt-2 text-gray-600">Veuillez renseigner les contacts clés responsables de cet abonnement pour votre organisation.</p>
-
-        <!-- Info sur le BW sélectionné -->
-        <div class="mt-4 p-4 bg-blue-50 rounded-md border border-blue-200">
-            <p class="text-sm text-gray-700">
-                <strong>Type de Business Wall sélectionné :</strong> {{ bw_info.name }}
+    <div
+        class="max-w-4xl mx-auto"
+        x-data="{ sameAsOwner: true }"
+    >
+        <div class="bg-white p-8 rounded-2xl shadow-lg border border-gray-200">
+            <h1 class="text-3xl font-bold text-gray-900">
+                2- Nommer votre Business Wall Owner et activez votre abonnement
+            </h1>
+            <p class="mt-2 text-gray-600">
+                Veuillez renseigner les contacts clés responsables de cet
+                abonnement pour votre organisation.
             </p>
-        </div>
 
-        <form action="{{ url_for('bw_activation.submit_contacts') }}" method="POST" class="mt-8 space-y-10">
-            <!-- Section 1: BUSINESS WALL OWNER -->
-            <fieldset>
-                <legend class="text-xl font-semibold text-blue-800 border-b pb-3 mb-6 w-full">Business Wall Owner</legend>
-                <p class="text-sm text-gray-600 mb-6">
-                    Renseignez/Modifiez les coordonnées du dirigeant décisionnaire (OWNER) responsable de l'abonnement de votre organisation à Business Wall.
+            <!-- Info sur le BW sélectionné -->
+            <div class="mt-4 p-4 bg-blue-50 rounded-md border border-blue-200">
+                <p class="text-sm text-gray-700">
+                    <strong>Type de Business Wall sélectionné :</strong>
+                    {{ bw_info.name }}
                 </p>
-
-                <div class="grid grid-cols-1 gap-x-6 gap-y-6 sm:grid-cols-6">
-                    <div class="sm:col-span-3">
-                        <label for="owner_first_name" class="block text-sm font-medium leading-6 text-gray-900">
-                            Prénom <span class="text-red-600">*</span>
-                        </label>
-                        <div class="mt-2">
-                            <input
-                                type="text"
-                                name="owner_first_name"
-                                id="owner_first_name"
-                                value="{{ owner_data.first_name }}"
-                                required
-                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-600 focus:ring-blue-600 sm:text-sm px-3 py-2 border">
-                        </div>
-                    </div>
-
-                    <div class="sm:col-span-3">
-                        <label for="owner_last_name" class="block text-sm font-medium leading-6 text-gray-900">
-                            Nom <span class="text-red-600">*</span>
-                        </label>
-                        <div class="mt-2">
-                            <input
-                                type="text"
-                                name="owner_last_name"
-                                id="owner_last_name"
-                                value="{{ owner_data.last_name }}"
-                                required
-                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-600 focus:ring-blue-600 sm:text-sm px-3 py-2 border">
-                        </div>
-                    </div>
-
-                    <div class="sm:col-span-6">
-                        <label for="owner_title" class="block text-sm font-medium leading-6 text-gray-900">
-                            Fonction / Titre
-                        </label>
-                        <div class="mt-2">
-                            <input
-                                type="text"
-                                name="owner_title"
-                                id="owner_title"
-                                placeholder="Ex: Directeur de la Communication"
-                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-600 focus:ring-blue-600 sm:text-sm px-3 py-2 border">
-                        </div>
-                    </div>
-
-                    <div class="sm:col-span-4">
-                        <label for="owner_email" class="block text-sm font-medium leading-6 text-gray-900">
-                            Adresse e-mail <span class="text-red-600">*</span>
-                        </label>
-                        <div class="mt-2">
-                            <input
-                                id="owner_email"
-                                name="owner_email"
-                                type="email"
-                                value="{{ owner_data.email }}"
-                                required
-                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-600 focus:ring-blue-600 sm:text-sm px-3 py-2 border">
-                        </div>
-                    </div>
-
-                    <div class="sm:col-span-2">
-                        <label for="owner_phone" class="block text-sm font-medium leading-6 text-gray-900">
-                            Téléphone
-                        </label>
-                        <div class="mt-2">
-                            <input
-                                type="tel"
-                                name="owner_phone"
-                                id="owner_phone"
-                                value="{{ owner_data.phone }}"
-                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-600 focus:ring-blue-600 sm:text-sm px-3 py-2 border">
-                        </div>
-                    </div>
-                </div>
-            </fieldset>
-
-            <!-- Section 2: BUSINESS WALL PAYING PARTY -->
-            <fieldset>
-                <legend class="text-xl font-semibold text-green-800 border-b pb-3 mb-6 w-full">Contact de Facturation (Paying Party)</legend>
-                <p class="text-sm text-gray-600 mb-6">
-                    Renseignez/Modifiez les coordonnées du payeur de l'abonnement (Nom, coordonnées du payeur). Cette personne n'est pas obligatoirement membre d'AiPRESS24.
-                </p>
-
-                <div class="relative flex items-start mb-6">
-                    <div class="flex h-6 items-center">
-                        <input
-                            id="same_as_owner"
-                            name="same_as_owner"
-                            type="checkbox"
-                            x-model="sameAsOwner"
-                            class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-600">
-                    </div>
-                    <div class="ml-3 text-sm leading-6">
-                        <label for="same_as_owner" class="font-medium text-gray-900">
-                            Les coordonnées du payeur sont les mêmes que celles du dirigeant (Owner).
-                        </label>
-                    </div>
-                </div>
-
-                <div x-show="!sameAsOwner" x-transition class="grid grid-cols-1 gap-x-6 gap-y-6 sm:grid-cols-6">
-                    <div class="sm:col-span-3">
-                        <label for="payer_first_name" class="block text-sm font-medium leading-6 text-gray-900">
-                            Prénom
-                        </label>
-                        <div class="mt-2">
-                            <input
-                                type="text"
-                                name="payer_first_name"
-                                id="payer_first_name"
-                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-3 py-2 border">
-                        </div>
-                    </div>
-
-                    <div class="sm:col-span-3">
-                        <label for="payer_last_name" class="block text-sm font-medium leading-6 text-gray-900">
-                            Nom
-                        </label>
-                        <div class="mt-2">
-                            <input
-                                type="text"
-                                name="payer_last_name"
-                                id="payer_last_name"
-                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-3 py-2 border">
-                        </div>
-                    </div>
-
-                    <div class="sm:col-span-6">
-                        <label for="payer_service" class="block text-sm font-medium leading-6 text-gray-900">
-                            Service
-                        </label>
-                        <div class="mt-2">
-                            <input
-                                type="text"
-                                name="payer_service"
-                                id="payer_service"
-                                placeholder="Ex: Service Comptabilité"
-                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-3 py-2 border">
-                        </div>
-                    </div>
-
-                    <div class="sm:col-span-4">
-                        <label for="payer_email" class="block text-sm font-medium leading-6 text-gray-900">
-                            Adresse e-mail de facturation
-                        </label>
-                        <div class="mt-2">
-                            <input
-                                id="payer_email"
-                                name="payer_email"
-                                type="email"
-                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-3 py-2 border"
-                                placeholder="comptabilite@exemple.com">
-                        </div>
-                    </div>
-
-                    <div class="sm:col-span-2">
-                        <label for="payer_phone" class="block text-sm font-medium leading-6 text-gray-900">
-                            Téléphone
-                        </label>
-                        <div class="mt-2">
-                            <input
-                                type="tel"
-                                name="payer_phone"
-                                id="payer_phone"
-                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-3 py-2 border">
-                        </div>
-                    </div>
-
-                    <div class="sm:col-span-6">
-                        <label for="payer_address" class="block text-sm font-medium leading-6 text-gray-900">
-                            Adresse de facturation (si différente)
-                        </label>
-                        <div class="mt-2">
-                            <textarea
-                                name="payer_address"
-                                id="payer_address"
-                                rows="3"
-                                placeholder="123 rue de la République&#10;75001 Paris&#10;France"
-                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-3 py-2 border"></textarea>
-                            <p class="mt-1 text-xs text-gray-500">Adresse postale pour l'envoi des factures (si différente de l'adresse du siège)</p>
-                        </div>
-                    </div>
-                </div>
-            </fieldset>
-
-            <!-- Navigation -->
-            <div class="mt-10 flex items-center justify-end gap-x-6 border-t pt-6">
-                <a href="{{ url_for('bw_activation.confirm_subscription') }}" class="text-sm font-semibold leading-6 text-gray-900 hover:text-gray-700">
-                    Retour à l'étape 1
-                </a>
-                <button type="submit" class="rounded-md bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-700">
-                    Continuer vers l'activation
-                </button>
             </div>
-        </form>
+
+            <form
+                action="{{ url_for('bw_activation.submit_contacts') }}"
+                method="POST"
+                class="mt-8 space-y-10"
+            >
+                <!-- Section 1: BUSINESS WALL OWNER -->
+                <fieldset>
+                    <legend
+                        class="text-xl font-semibold text-blue-800 border-b pb-3 mb-6 w-full"
+                    >
+                        Business Wall Owner
+                    </legend>
+                    <p class="text-sm text-gray-600 mb-6">
+                        Renseignez/Modifiez les coordonnées du dirigeant
+                        décisionnaire (OWNER) responsable de l'abonnement de
+                        votre organisation à Business Wall.
+                    </p>
+                    <p class="text-sm text-gray-600 mb-6 italic">
+                        Les nom, prénom et e-mail sont issus du formulaire
+                        d'inscription.
+                    </p>
+
+                    <div
+                        class="grid grid-cols-1 gap-x-6 gap-y-6 sm:grid-cols-6"
+                    >
+                        <div class="sm:col-span-3">
+                            <label
+                                for="owner_first_name"
+                                class="block text-sm font-medium leading-6 text-gray-900"
+                            >
+                                Prénom <span class="text-red-600">*</span>
+                            </label>
+                            <div class="mt-2">
+                                <input
+                                    type="text"
+                                    name="owner_first_name"
+                                    id="owner_first_name"
+                                    value="{{ owner_data.first_name }}"
+                                    readonly
+                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-600 focus:ring-blue-600 sm:text-sm px-3 py-2 border"
+                                />
+                            </div>
+                        </div>
+
+                        <div class="sm:col-span-3">
+                            <label
+                                for="owner_last_name"
+                                class="block text-sm font-medium leading-6 text-gray-900"
+                            >
+                                Nom <span class="text-red-600">*</span>
+                            </label>
+                            <div class="mt-2">
+                                <input
+                                    type="text"
+                                    name="owner_last_name"
+                                    id="owner_last_name"
+                                    value="{{ owner_data.last_name }}"
+                                    readonly
+                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-600 focus:ring-blue-600 sm:text-sm px-3 py-2 border"
+                                />
+                            </div>
+                        </div>
+
+                        <div class="sm:col-span-6">
+                            <label
+                                for="owner_title"
+                                class="block text-sm font-medium leading-6 text-gray-900"
+                            >
+                                Fonction / Titre
+                            </label>
+                            <div class="mt-2">
+                                <input
+                                    type="text"
+                                    name="owner_title"
+                                    id="owner_title"
+                                    value="{{ owner_data.fonction }}"
+                                    placeholder="Ex: Directeur de la Communication"
+                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-600 focus:ring-blue-600 sm:text-sm px-3 py-2 border"
+                                />
+                            </div>
+                        </div>
+
+                        <div class="sm:col-span-4">
+                            <label
+                                for="owner_email"
+                                class="block text-sm font-medium leading-6 text-gray-900"
+                            >
+                                Adresse e-mail
+                                <span class="text-red-600">*</span>
+                            </label>
+                            <div class="mt-2">
+                                <input
+                                    id="owner_email"
+                                    name="owner_email"
+                                    type="email"
+                                    value="{{ owner_data.email }}"
+                                    readonly
+                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-600 focus:ring-blue-600 sm:text-sm px-3 py-2 border"
+                                />
+                            </div>
+                        </div>
+
+                        <div class="sm:col-span-2">
+                            <label
+                                for="owner_phone"
+                                class="block text-sm font-medium leading-6 text-gray-900"
+                            >
+                                Téléphone
+                            </label>
+                            <div class="mt-2">
+                                <input
+                                    type="tel"
+                                    name="owner_phone"
+                                    id="owner_phone"
+                                    value="{{ owner_data.phone }}"
+                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-600 focus:ring-blue-600 sm:text-sm px-3 py-2 border"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <!-- Section 2: BUSINESS WALL PAYING PARTY -->
+                <fieldset>
+                    <legend
+                        class="text-xl font-semibold text-green-800 border-b pb-3 mb-6 w-full"
+                    >
+                        Contact de Facturation (Paying Party)
+                    </legend>
+                    <p class="text-sm text-gray-600 mb-6">
+                        Renseignez/Modifiez les coordonnées du payeur de
+                        l'abonnement (Nom, coordonnées du payeur). Cette
+                        personne n'est pas obligatoirement membre d'AiPRESS24.
+                    </p>
+
+                    <div class="relative flex items-start mb-6">
+                        <div class="flex h-6 items-center">
+                            <input
+                                id="same_as_owner"
+                                name="same_as_owner"
+                                type="checkbox"
+                                x-model="sameAsOwner"
+                                class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-600"
+                            />
+                        </div>
+                        <div class="ml-3 text-sm leading-6">
+                            <label
+                                for="same_as_owner"
+                                class="font-medium text-gray-900"
+                            >
+                                Les coordonnées du payeur sont les mêmes que
+                                celles du dirigeant (Owner).
+                            </label>
+                        </div>
+                    </div>
+
+                    <div
+                        x-show="!sameAsOwner"
+                        x-transition
+                        class="grid grid-cols-1 gap-x-6 gap-y-6 sm:grid-cols-6"
+                    >
+                        <div class="sm:col-span-3">
+                            <label
+                                for="payer_first_name"
+                                class="block text-sm font-medium leading-6 text-gray-900"
+                            >
+                                Prénom
+                            </label>
+                            <div class="mt-2">
+                                <input
+                                    type="text"
+                                    name="payer_first_name"
+                                    id="payer_first_name"
+                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-3 py-2 border"
+                                />
+                            </div>
+                        </div>
+
+                        <div class="sm:col-span-3">
+                            <label
+                                for="payer_last_name"
+                                class="block text-sm font-medium leading-6 text-gray-900"
+                            >
+                                Nom
+                            </label>
+                            <div class="mt-2">
+                                <input
+                                    type="text"
+                                    name="payer_last_name"
+                                    id="payer_last_name"
+                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-3 py-2 border"
+                                />
+                            </div>
+                        </div>
+
+                        <div class="sm:col-span-6">
+                            <label
+                                for="payer_service"
+                                class="block text-sm font-medium leading-6 text-gray-900"
+                            >
+                                Service
+                            </label>
+                            <div class="mt-2">
+                                <input
+                                    type="text"
+                                    name="payer_service"
+                                    id="payer_service"
+                                    placeholder="Ex: Service Comptabilité"
+                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-3 py-2 border"
+                                />
+                            </div>
+                        </div>
+
+                        <div class="sm:col-span-4">
+                            <label
+                                for="payer_email"
+                                class="block text-sm font-medium leading-6 text-gray-900"
+                            >
+                                Adresse e-mail de facturation
+                            </label>
+                            <div class="mt-2">
+                                <input
+                                    id="payer_email"
+                                    name="payer_email"
+                                    type="email"
+                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-3 py-2 border"
+                                    placeholder="comptabilite@exemple.com"
+                                />
+                            </div>
+                        </div>
+
+                        <div class="sm:col-span-2">
+                            <label
+                                for="payer_phone"
+                                class="block text-sm font-medium leading-6 text-gray-900"
+                            >
+                                Téléphone
+                            </label>
+                            <div class="mt-2">
+                                <input
+                                    type="tel"
+                                    name="payer_phone"
+                                    id="payer_phone"
+                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-3 py-2 border"
+                                />
+                            </div>
+                        </div>
+
+                        <div class="sm:col-span-6">
+                            <label
+                                for="payer_address"
+                                class="block text-sm font-medium leading-6 text-gray-900"
+                            >
+                                Adresse de facturation (si différente)
+                            </label>
+                            <div class="mt-2">
+                                <textarea
+                                    name="payer_address"
+                                    id="payer_address"
+                                    rows="3"
+                                    placeholder="123 rue de la République&#10;75001 Paris&#10;France"
+                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-3 py-2 border"
+                                ></textarea>
+                                <p class="mt-1 text-xs text-gray-500">
+                                    Adresse postale pour l'envoi des factures
+                                    (si différente de l'adresse du siège)
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <!-- Navigation -->
+                <div
+                    class="mt-10 flex items-center justify-end gap-x-6 border-t pt-6"
+                >
+                    <a
+                        href="{{ url_for('bw_activation.confirm_subscription') }}"
+                        class="text-sm font-semibold leading-6 text-gray-900 hover:text-gray-700"
+                    >
+                        Retour à l'étape 1
+                    </a>
+                    <button
+                        type="submit"
+                        class="rounded-md bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-700"
+                    >
+                        Continuer vers l'activation
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
-</div>
 {% endblock %}
