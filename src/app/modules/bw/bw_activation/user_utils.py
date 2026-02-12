@@ -70,6 +70,7 @@ def get_user_data() -> StdDict:
             "last_name": user.last_name,
             "phone": user.tel_mobile,
             "email": user.email,
+            "fonction": user.metier_fonction,
             "allow_activation": (org and org.is_auto_or_inactive),
         }
     )
