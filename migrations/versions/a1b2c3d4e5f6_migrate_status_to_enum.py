@@ -28,7 +28,9 @@ def upgrade():
     # 2. Convert the column type from VARCHAR to the enum
 
     # nrm_sujet
-    op.execute("UPDATE nrm_sujet SET status = 'DRAFT' WHERE status = '' OR status IS NULL")
+    op.execute(
+        "UPDATE nrm_sujet SET status = 'DRAFT' WHERE status = '' OR status IS NULL"
+    )
     with op.batch_alter_table("nrm_sujet", schema=None) as batch_op:
         batch_op.alter_column(
             "status",

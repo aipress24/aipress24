@@ -44,10 +44,10 @@ def calendar():
 
     stmt = (
         select(EventPost)
-        .where(EventPost.start_date >= start_date)
-        .where(EventPost.start_date < end_date)
+        .where(EventPost.start_datetime >= start_date)
+        .where(EventPost.start_datetime < end_date)
         .where(EventPost.status == PublicationStatus.PUBLIC)
-        .order_by(EventPost.start_date)
+        .order_by(EventPost.start_datetime)
         .options(selectinload(EventPost.owner))
     )
 
@@ -76,11 +76,11 @@ def _make_calendar_cells(
     for day in list(Arrow.range("day", start_date, end_date))[0:-1]:
         todays_events = []
         for event in events:
-            if event.start_date == day.date():
+            if event.start_datetime.date() == day.date():
                 todays_events.append(
                     {
                         "title": event.title,
-                        "time": event.start_time,
+                        "time": event.start_datetime.time(),
                     }
                 )
 

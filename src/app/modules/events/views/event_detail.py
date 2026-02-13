@@ -78,7 +78,7 @@ class EventDetailView(MethodView):
         item = event_vm
         data = [
             {
-                "label": "Type d'événemant",
+                "label": "Type d'événement",
                 "value": item.genre or "N/A",
                 "href": "events",
             },

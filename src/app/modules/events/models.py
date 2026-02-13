@@ -29,8 +29,8 @@ from app.models.mixins import Addressable, UserFeedbackMixin
 abstract class Event {
     +name: string
     +note: string
-    +start_date: DateTime
-    +end_date: DateTime
+    +start_datetime: DateTime
+    +end_datetime: DateTime
     +location: Location
 }
 Event -up-|> BaseContent
@@ -50,19 +50,11 @@ class EventPostBase(
     # - summary: short summary of the event (plain text)
     # - content: more detailed description of the event (html)
 
-    # Or use datetimes?
-    start_date: Mapped[ArrowType | None] = mapped_column(
+    # Event schedule (full datetime with timezone)
+    start_datetime: Mapped[ArrowType | None] = mapped_column(
         ArrowType(timezone=True), info={"group": "dates"}
     )
-    end_date: Mapped[ArrowType | None] = mapped_column(
-        ArrowType(timezone=True), info={"group": "dates"}
-    )
-
-    # FIXME
-    start_time: Mapped[ArrowType | None] = mapped_column(
-        ArrowType(timezone=True), info={"group": "dates"}
-    )
-    end_time: Mapped[ArrowType | None] = mapped_column(
+    end_datetime: Mapped[ArrowType | None] = mapped_column(
         ArrowType(timezone=True), info={"group": "dates"}
     )
 
@@ -84,7 +76,7 @@ class EventPostBase(
 
     class Meta:
         groups: ClassVar[dict] = {
-            "dates": ["start_date", "end_date", "start_time", "end_time"],
+            "dates": ["start_datetime", "end_datetime"],
             "metadata": ["genre", "category", "language", "sector"],
         }
 

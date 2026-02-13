@@ -114,7 +114,7 @@ class EventsListView(MethodView):
         stmt = (
             select(EventPost)
             .where(EventPost.status == PublicationStatus.PUBLIC)
-            .order_by(EventPost.start_date)
+            .order_by(EventPost.start_datetime)
             .options(selectinload(EventPost.owner))
         )
 

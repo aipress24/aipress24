@@ -35,9 +35,13 @@ class EventListVM(ViewModel):
 
     def extra_attrs(self):
         event = cast("EventPost", self._model)
-        age = "fixme"
-        start_date = event.start_date
+        start_date = event.start_datetime
         assert start_date
+
+        if event.published_at:
+            age = event.published_at.humanize(locale="fr")
+        else:
+            age = ""
 
         return {
             "age": age,
@@ -65,8 +69,8 @@ class EventDetailVM(ViewModel):
         participants.sort(key=lambda u: (u.last_name, u.first_name))
 
         # Convert Arrow dates to datetime for opening_hours function
-        start_dt = event.start_date.datetime if event.start_date else None
-        end_dt = event.end_date.datetime if event.end_date else None
+        start_dt = event.start_datetime.datetime if event.start_datetime else None
+        end_dt = event.end_datetime.datetime if event.end_datetime else None
         opening = opening_hours(start_dt, end_dt) if start_dt and end_dt else ""
 
         return {
@@ -132,22 +136,22 @@ class DateFilter:
                 assert self.day
                 stmt = stmt.where(
                     and_(
-                        EventPost.start_date < self.day.shift(days=1),
-                        EventPost.end_date >= self.day,
+                        EventPost.start_datetime < self.day.shift(days=1),
+                        EventPost.end_datetime >= self.day,
                     )
                 )
             case "month":
                 stmt = stmt.where(
                     and_(
-                        EventPost.start_date < self.month_end,
-                        EventPost.end_date >= self.month_start,
+                        EventPost.start_datetime < self.month_end,
+                        EventPost.end_datetime >= self.month_start,
                     )
                 )
             case _:
                 stmt = stmt.where(
                     or_(
-                        EventPost.start_date >= self.today,
-                        EventPost.end_date >= self.today,
+                        EventPost.start_datetime >= self.today,
+                        EventPost.end_datetime >= self.today,
                     )
                 ).limit(30)
         return stmt
@@ -176,18 +180,18 @@ class Calendar:
             select(EventPost)
             .where(
                 or_(
-                    EventPost.start_date >= month_start,
-                    EventPost.end_date >= month_start,
+                    EventPost.start_datetime >= month_start,
+                    EventPost.end_datetime >= month_start,
                 )
             )
             .where(
                 or_(
-                    EventPost.start_date < month_end,
-                    EventPost.end_date < month_end,
+                    EventPost.start_datetime < month_end,
+                    EventPost.end_datetime < month_end,
                 )
             )
             .where(EventPost.status == PublicationStatus.PUBLIC)
-            .order_by(EventPost.start_date)
+            .order_by(EventPost.start_datetime)
             .options(selectinload(EventPost.owner))
         )
 
@@ -200,7 +204,11 @@ class Calendar:
         for day in list(Arrow.range("day", start_date, end_date)):
             num_events = 0
             for event in events:
-                if event.start_date.date() <= day.date() <= event.end_date.date():
+                if (
+                    event.start_datetime.date()
+                    <= day.date()
+                    <= event.end_datetime.date()
+                ):
                     num_events += 1
 
             cell = {

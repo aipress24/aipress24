@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 from arrow import now
+from loguru import logger
 from sqlalchemy import select
 
 from app.constants import LOCAL_TZ
@@ -21,7 +22,7 @@ from app.signals import (
 
 @event_published.connect
 def on_publish_event(event: Event) -> None:
-    print(f"Received 'Event published': {event.title}")
+    logger.debug("Received 'Event published': {}", event.title)
     post = get_post(event)
     if not post:
         post = EventPost()
@@ -39,7 +40,7 @@ def on_publish_event(event: Event) -> None:
 
 @event_unpublished.connect
 def on_unpublish_event(event: Event) -> None:
-    print(f"Event unpublished: {event.title}")
+    logger.debug("Event unpublished: {}", event.title)
     post = get_post(event)
     if not post:
         return
@@ -51,13 +52,13 @@ def on_unpublish_event(event: Event) -> None:
 
 @event_updated.connect
 def on_update_event(event: Event) -> None:
-    print(f"Received 'Event updated': {event.title}")
+    logger.debug("Received 'Event updated': {}", event.title)
     post = get_post(event)
     if not post:
         # Article not published yet, nothing to do
         return
 
-    print(f"Updating post: {post}")
+    logger.debug("Updating post: {}", post)
     update_post(post, event)
     post.last_updated_at = now(LOCAL_TZ)
 
@@ -93,14 +94,11 @@ def update_post(
     #     post.image_caption = ""
     #     post.image_copyright = ""
 
-    # Metadata
-    post.start_time = info.start_time  # type: ignore[invalid-assignment]
-    post.end_time = info.end_time  # type: ignore[invalid-assignment]
-    # FIXME
-    post.start_date = info.start_time  # type: ignore[invalid-assignment]
-    post.end_date = info.end_time  # type: ignore[invalid-assignment]
+    # Schedule
+    post.start_datetime = info.start_time  # type: ignore[assignment]
+    post.end_datetime = info.end_time  # type: ignore[assignment]
 
-    # post.location = info.location
+    # Location
     post.address = info.address
     post.pays_zip_ville = info.pays_zip_ville
     post.pays_zip_ville_detail = info.pays_zip_ville_detail
