@@ -11,7 +11,7 @@ from enum import StrEnum
 from typing import TYPE_CHECKING
 
 from advanced_alchemy.base import UUIDAuditBase
-from sqlalchemy import Integer, String
+from sqlalchemy import BigInteger, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 if TYPE_CHECKING:
@@ -60,13 +60,13 @@ class BusinessWall(UUIDAuditBase):
     is_free: Mapped[bool] = mapped_column(default=False)
 
     # Ownership - references to User IDs (no FK constraint for POC)
-    owner_id: Mapped[int] = mapped_column(Integer, nullable=False)
+    owner_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
 
     # Payer (can be same as owner) - references to User ID (no FK constraint for POC)
-    payer_id: Mapped[int] = mapped_column(Integer, nullable=False)
+    payer_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
 
     # Organization reference (if applicable) - references to Organisation ID (no FK constraint for POC)
-    organisation_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    organisation_id: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
 
     # Activation tracking
     activated_at: Mapped[datetime | None] = mapped_column(nullable=True)
