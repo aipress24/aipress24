@@ -38,7 +38,7 @@ def require_login() -> Response | None:
     """Check if the current user is allowed to activation pages."""
     user = g.user
     if not (user and user.is_authenticated):
-        return redirect(url_for("security.login"))  # type: ignore
+        return redirect(url_for("security.login"))
     return None
 
 
