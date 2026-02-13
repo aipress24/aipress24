@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+import datetime
 from typing import cast
 
 import arrow
@@ -159,7 +160,11 @@ class DateFilter:
 
 @define(init=False)
 class Calendar:
-    """Calendar data for event list sidebar."""
+    """Calendar data for event list sidebar.
+
+    Can also be used to build detailed calendar cells for the full calendar view
+    via the `build_cells()` static method.
+    """
 
     month: Arrow
     cells: list[dict]
@@ -200,25 +205,75 @@ class Calendar:
 
         events = list(get_multi(EventPost, stmt))
 
-        cells = []
-        for day in list(Arrow.range("day", start_date, end_date)):
-            num_events = 0
-            for event in events:
-                if (
-                    event.start_datetime.date()
-                    <= day.date()
-                    <= event.end_datetime.date()
-                ):
-                    num_events += 1
-
-            cell = {
-                "date": day,
-                "is_today": day.date() == today,
-                "num_events": num_events,
-            }
-            cells.append(cell)
-
-        self.cells = cells
+        self.cells = self.build_cells(
+            events, start_date, end_date, today, include_details=False
+        )
         self.prev_month = month_start.shift(months=-1).format("YYYY-MM")
         self.next_month = month_start.shift(months=1).format("YYYY-MM")
         self.num_weeks = (end_date - start_date).days // 7
+
+    @staticmethod
+    def build_cells(
+        events: list[EventPost],
+        start_date: Arrow,
+        end_date: Arrow,
+        today: datetime.date,
+        *,
+        include_details: bool = False,
+    ) -> list[dict]:
+        """Build calendar cells for a date range.
+
+        Args:
+            events: List of events to display
+            start_date: Start of the date range
+            end_date: End of the date range (exclusive for iteration)
+            today: Today's date for highlighting
+            include_details: If True, include event details (title, time) for events
+                starting on each day. If False, count events spanning each day.
+
+        Returns:
+            List of cell dicts with keys:
+            - date: Arrow date for the cell
+            - is_today: Whether this is today
+            - events: (if include_details) List of {title, time} for events starting this day
+            - num_events: (if not include_details) Count of events spanning this day
+        """
+        cells = []
+        # Iterate over days, excluding the end_date itself
+        for day in list(Arrow.range("day", start_date, end_date))[:-1]:
+            cell: dict = {
+                "date": day,
+                "is_today": day.date() == today,
+            }
+
+            if include_details:
+                # List events that START on this day (for calendar page)
+                day_events = []
+                for event in events:
+                    if (
+                        event.start_datetime
+                        and event.start_datetime.date() == day.date()
+                    ):
+                        day_events.append(
+                            {
+                                "title": event.title,
+                                "time": event.start_datetime.time(),
+                            }
+                        )
+                cell["events"] = day_events
+            else:
+                # Count events that SPAN this day (for sidebar)
+                num_events = 0
+                for event in events:
+                    if (
+                        event.start_datetime
+                        and event.end_datetime
+                        and event.start_datetime.date()
+                        <= day.date()
+                        <= event.end_datetime.date()
+                    ):
+                        num_events += 1
+                cell["num_events"] = num_events
+
+            cells.append(cell)
+        return cells
