@@ -15,7 +15,7 @@ from app.modules.bw.bw_activation.config import BW_TYPES
 from app.modules.bw.bw_activation.user_utils import StdDict, get_current_user_data
 
 if TYPE_CHECKING:
-    from app.models.auth import User
+    pass
 
 
 @bp.route("/nominate-contacts")

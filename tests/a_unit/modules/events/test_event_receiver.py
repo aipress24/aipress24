@@ -153,8 +153,8 @@ class TestUpdatePost:
         assert post.pays_zip_ville_detail == "Paris, France"
         assert post.url == "https://example.com/event"
         assert post.language == "fr"
-        assert post.start_time == start_time
-        assert post.end_time == end_time
+        assert post.start_datetime == start_time
+        assert post.end_datetime == end_time
 
     def test_update_post_empty_fields(self, db: SQLAlchemy) -> None:
         """Test update_post handles empty fields correctly."""

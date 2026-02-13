@@ -32,8 +32,8 @@ class TestUrlForEvent:
         event = EventPost(
             owner=user,
             title="Test Event",
-            start_date=arrow.get("2024-01-15 10:00:00").datetime,
-            end_date=arrow.get("2024-01-15 12:00:00").datetime,
+            start_datetime=arrow.get("2024-01-15 10:00:00").datetime,
+            end_datetime=arrow.get("2024-01-15 12:00:00").datetime,
         )
         db.session.add(event)
         db.session.flush()
@@ -55,8 +55,8 @@ class TestUrlForEvent:
         event = EventPost(
             owner=user,
             title="Test Event",
-            start_date=arrow.get("2024-01-15 10:00:00").datetime,
-            end_date=arrow.get("2024-01-15 12:00:00").datetime,
+            start_datetime=arrow.get("2024-01-15 10:00:00").datetime,
+            end_datetime=arrow.get("2024-01-15 12:00:00").datetime,
         )
         db.session.add(event)
         db.session.flush()
@@ -76,8 +76,8 @@ class TestUrlForEvent:
         event = EventPost(
             owner=user,
             title="Test Event",
-            start_date=arrow.get("2024-01-15 10:00:00").datetime,
-            end_date=arrow.get("2024-01-15 12:00:00").datetime,
+            start_datetime=arrow.get("2024-01-15 10:00:00").datetime,
+            end_datetime=arrow.get("2024-01-15 12:00:00").datetime,
         )
         db.session.add(event)
         db.session.flush()
@@ -101,8 +101,8 @@ class TestUrlForEvent:
         event = EventPost(
             owner=user,
             title="Test Event",
-            start_date=arrow.get("2024-01-15 10:00:00").datetime,
-            end_date=arrow.get("2024-01-15 12:00:00").datetime,
+            start_datetime=arrow.get("2024-01-15 10:00:00").datetime,
+            end_datetime=arrow.get("2024-01-15 12:00:00").datetime,
         )
         db.session.add(event)
         db.session.flush()

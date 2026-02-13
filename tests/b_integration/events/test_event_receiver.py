@@ -227,10 +227,9 @@ class TestUpdatePost:
 
         update_post(post, test_event)
 
-        assert post.start_time == test_event.start_time
-        assert post.end_time == test_event.end_time
-        assert post.start_date == test_event.start_time
-        assert post.end_date == test_event.end_time
+        # Event.start_time/end_time are copied to EventPost.start_datetime/end_datetime
+        assert post.start_datetime == test_event.start_time
+        assert post.end_datetime == test_event.end_time
 
     def test_update_post_location_fields(
         self, db_session: Session, test_event: Event, test_user: User

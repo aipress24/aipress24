@@ -66,8 +66,7 @@ def confirmation_free():
             bw_type=bw_type,
             bw_info=bw_info,
         )
-    else:
-        return redirect(url_for("bw_activation.index"))
+    return redirect(url_for("bw_activation.index"))
 
 
 # ===== PAID ACTIVATION =====

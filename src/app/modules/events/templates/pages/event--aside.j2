@@ -108,7 +108,7 @@
   <table class="table">
     <tbody>
     {% for event in related_events %}
-      {% set date = event.start_date %}
+      {% set date = event.start_datetime %}
       <tr class="even:bg-gray-100">
         <td class="flex text-gray-700 w-20" style="vertical-align: top;">
           {{ date.format("DD MMM", locale="fr") }}

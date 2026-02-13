@@ -74,14 +74,14 @@ class StubEvent:
 
     def __init__(
         self,
-        start_date=None,
-        end_date=None,
+        start_datetime=None,
+        end_datetime=None,
         owner=None,
         type_id="",
         type_label="",
     ):
-        self.start_date = start_date or arrow.get("2024-01-15 10:00:00")
-        self.end_date = end_date or arrow.get("2024-01-15 12:00:00")
+        self.start_datetime = start_datetime or arrow.get("2024-01-15 10:00:00")
+        self.end_datetime = end_datetime or arrow.get("2024-01-15 12:00:00")
         self.owner = owner or StubOwner()
         # Allow overriding Meta attributes
         if type_id or type_label:
@@ -133,8 +133,8 @@ class TestEventCard:
     def test_sets_opening_hours(self):
         """Test that __attrs_post_init__ sets opening hours."""
         event = StubEvent(
-            start_date=arrow.get("2024-01-15 14:00:00"),
-            end_date=arrow.get("2024-01-15 16:00:00"),
+            start_datetime=arrow.get("2024-01-15 14:00:00"),
+            end_datetime=arrow.get("2024-01-15 16:00:00"),
         )
 
         EventCard(event=event)
@@ -153,8 +153,8 @@ class TestEventCard:
             Meta = EmptyMeta
 
             def __init__(self):
-                self.start_date = arrow.get("2024-01-15 10:00:00")
-                self.end_date = arrow.get("2024-01-15 12:00:00")
+                self.start_datetime = arrow.get("2024-01-15 10:00:00")
+                self.end_datetime = arrow.get("2024-01-15 12:00:00")
                 self.owner = StubOwner()
 
         event = StubEventNoMeta()

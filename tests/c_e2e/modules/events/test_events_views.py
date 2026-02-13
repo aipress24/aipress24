@@ -55,8 +55,8 @@ def sample_event(db_session: Session, test_user: User) -> EventPost:
         title="Test Event for Views",
         owner_id=test_user.id,
         status=PublicationStatus.PUBLIC,
-        start_date=today,
-        end_date=today.shift(days=1),
+        start_datetime=today,
+        end_datetime=today.shift(days=1),
     )
     db_session.add(event)
     db_session.flush()

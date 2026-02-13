@@ -26,4 +26,4 @@ class EventCard(Component):
         d["organisation_image_url"] = LOGO_URL
         d["type_id"] = get_meta_attr(self.event, "type_id", "")
         d["type_label"] = get_meta_attr(self.event, "type_label", "")
-        d["opening"] = opening_hours(self.event.start_date, self.event.end_date)
+        d["opening"] = opening_hours(self.event.start_datetime, self.event.end_datetime)
