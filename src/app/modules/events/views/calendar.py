@@ -6,11 +6,8 @@
 
 from __future__ import annotations
 
-import datetime
-
 import arrow
 import webargs
-from arrow import Arrow
 from flask import render_template, request
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
@@ -20,6 +17,7 @@ from app.flask.sqla import get_multi
 from app.models.lifecycle import PublicationStatus
 from app.modules.events import blueprint
 from app.modules.events.models import EventPost
+from app.modules.events.views._common import Calendar
 
 calendar_args = {
     "month": webargs.fields.Str(load_default=""),
@@ -52,7 +50,9 @@ def calendar():
     )
 
     events_list = list(get_multi(EventPost, stmt))
-    cells = _make_calendar_cells(events_list, start_date, end_date, today)
+    cells = Calendar.build_cells(
+        events_list, start_date, end_date, today, include_details=True
+    )
 
     ctx = {
         "cells": cells,
@@ -63,31 +63,3 @@ def calendar():
         "title": "Calendrier",
     }
     return render_template("pages/calendar.j2", **ctx)
-
-
-def _make_calendar_cells(
-    events: list[EventPost],
-    start_date: Arrow,
-    end_date: Arrow,
-    today: datetime.date,
-) -> list[dict]:
-    """Build calendar cells with events."""
-    cells = []
-    for day in list(Arrow.range("day", start_date, end_date))[0:-1]:
-        todays_events = []
-        for event in events:
-            if event.start_datetime and event.start_datetime.date() == day.date():
-                todays_events.append(
-                    {
-                        "title": event.title,
-                        "time": event.start_datetime.time(),
-                    }
-                )
-
-        cell = {
-            "day": day,
-            "events": todays_events,
-            "is_today": day.date() == today,
-        }
-        cells.append(cell)
-    return cells

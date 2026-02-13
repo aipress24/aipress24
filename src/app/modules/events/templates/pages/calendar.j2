@@ -65,7 +65,7 @@
             <div class="hidden w-full lg:grid lg:grid-cols-7 lg:grid-rows-{{ num_weeks }} lg:gap-px">
 
               {% for cell in cells %}
-                {% if cell.day.month == month.month %}
+                {% if cell.date.month == month.month %}
                   {% set class="bg-white" %}
                 {% else %}
                   {% set class="bg-gray-50 text-gray-500" %}
@@ -77,9 +77,9 @@
                   {% else %}
                     {% set class="" %}
                   {% endif %}
-                  <time datetime="{{ cell.day.format("YYYY-MM-DD") }}"
+                  <time datetime="{{ cell.date.format("YYYY-MM-DD") }}"
                         class="{{ class }}">
-                    {{ cell.day.format("D") }}
+                    {{ cell.date.format("D") }}
                   </time>
 
                   {% if cell.events %}
