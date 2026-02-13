@@ -7,6 +7,8 @@
 from __future__ import annotations
 
 from flask import redirect, render_template, request, session, url_for
+from sqlalchemy.orm import scoped_session
+from svcs.flask import container
 
 from app.modules.bw.bw_activation import bp
 from app.modules.bw.bw_activation.bw_creation import create_new_free_bw_record
@@ -61,6 +63,9 @@ def confirmation_free():
     # here create an actual BW instance
     created = create_new_free_bw_record(session)
     if created:
+        # Commit the transaction now
+        db_session = container.get(scoped_session)
+        db_session.commit()
         return render_template(
             "bw_activation/02_activation_gratuit_confirme.html",
             bw_type=bw_type,
