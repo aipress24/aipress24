@@ -27,13 +27,14 @@ Package Structure:
 from __future__ import annotations
 
 from flask import Blueprint, g, redirect, url_for
+from werkzeug import Response
 
 # Create the blueprint
 bp = Blueprint("bw_activation", __name__, template_folder="./templates")
 
 
 @bp.before_request
-def require_login() -> None:
+def require_login() -> Response | None:
     """Check if the current user is allowed to activation pages."""
     user = g.user
     if not (user and user.is_authenticated):

@@ -164,7 +164,7 @@ class AvisEnqueteFakerScript(BaseScript):
         obj.image_url = random.choice(POST_IMAGES)
 
         obj.published_at = faker.date_time_between(start_date="-1y", end_date="-1d")
-        obj.created_at = obj.published_at
+        obj.created_at = obj.published_at  # type: ignore[assignment]
 
         obj.date_debut_enquete = faker.date_time_between(
             start_date="-3d", end_date="+5d"
