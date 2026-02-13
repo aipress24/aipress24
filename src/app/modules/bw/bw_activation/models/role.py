@@ -13,7 +13,7 @@ from uuid import UUID
 
 from advanced_alchemy.base import UUIDAuditBase
 from advanced_alchemy.types import GUID
-from sqlalchemy import ForeignKey, Integer, String
+from sqlalchemy import BigInteger, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 if TYPE_CHECKING:
@@ -68,7 +68,7 @@ class RoleAssignment(UUIDAuditBase):
     )
 
     # User reference - references User ID (no FK constraint for POC)
-    user_id: Mapped[int] = mapped_column(Integer, nullable=False)
+    user_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
 
     # Role information
     role_type: Mapped[str] = mapped_column(String, nullable=False)
