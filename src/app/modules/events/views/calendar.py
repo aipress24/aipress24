@@ -76,7 +76,7 @@ def _make_calendar_cells(
     for day in list(Arrow.range("day", start_date, end_date))[0:-1]:
         todays_events = []
         for event in events:
-            if event.start_datetime.date() == day.date():
+            if event.start_datetime and event.start_datetime.date() == day.date():
                 todays_events.append(
                     {
                         "title": event.title,
