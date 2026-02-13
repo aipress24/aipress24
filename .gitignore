@@ -19,6 +19,7 @@
 /etc/secrets.toml
 /debug/
 .aider*
+/private
 
 # Other
 /tmp
