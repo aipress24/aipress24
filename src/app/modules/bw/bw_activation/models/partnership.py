@@ -13,7 +13,7 @@ from uuid import UUID
 
 from advanced_alchemy.base import UUIDAuditBase
 from advanced_alchemy.types import GUID
-from sqlalchemy import ForeignKey, Integer, String, Text
+from sqlalchemy import BigInteger, ForeignKey, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 if TYPE_CHECKING:
@@ -46,13 +46,13 @@ class Partnership(UUIDAuditBase):
     business_wall: Mapped[BusinessWall] = relationship(back_populates="partnerships")
 
     # Partner organization (PR Agency) - references Organisation ID (no FK constraint for POC)
-    partner_org_id: Mapped[int] = mapped_column(Integer, nullable=False)
+    partner_org_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
 
     # Partnership status
     status: Mapped[str] = mapped_column(String, default=PartnershipStatus.INVITED.value)
 
     # Invitation details - references User ID (no FK constraint for POC)
-    invited_by_user_id: Mapped[int] = mapped_column(Integer, nullable=False)
+    invited_by_user_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
     invitation_message: Mapped[str] = mapped_column(Text, default="")
 
     # Status tracking
