@@ -107,10 +107,6 @@ def register_extensions(app: Flask) -> None:
         if table.name not in db.metadata.tables:
             table.to_metadata(db.metadata)
 
-    print("=== Merged tables ===")
-    for name in db.metadata.tables:
-        print(f"  {name}")
-
     db.init_app(app)
     # register_local_storage(app)
     register_s3_storage(app)
