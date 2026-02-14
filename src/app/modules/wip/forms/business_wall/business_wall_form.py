@@ -13,6 +13,7 @@ from werkzeug.datastructures import FileStorage
 from wtforms.fields.core import UnboundField
 
 from app.enums import BWTypeEnum, ProfileEnum
+from app.lib.file_object_utils import create_file_object
 from app.logging import warn
 from app.models.auth import User
 from app.models.organisation import Organisation
@@ -1801,11 +1802,10 @@ def _get_form_image_file_storage(key: str) -> FileObject | None:
         uploaded = request.files[key]
         if uploaded and isinstance(uploaded, FileStorage) and uploaded.filename:
             uploaded.seek(0)
-            file_object = FileObject(
+            file_object = create_file_object(
                 content=uploaded.read(),
-                filename=uploaded.filename,
+                original_filename=uploaded.filename,
                 content_type=uploaded.content_type,
-                backend="s3",
             )
             file_object.save()
             return file_object

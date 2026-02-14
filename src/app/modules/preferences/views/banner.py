@@ -6,7 +6,6 @@
 
 from __future__ import annotations
 
-from advanced_alchemy.types.file_object import FileObject
 from flask import flash, g, render_template, request
 from flask.views import MethodView
 from flask_login import current_user
@@ -14,6 +13,7 @@ from werkzeug.utils import redirect
 
 from app.flask.extensions import db
 from app.flask.routing import url_for
+from app.lib.file_object_utils import create_file_object
 from app.modules.preferences import blueprint
 from app.settings.constants import MAX_IMAGE_SIZE
 
@@ -42,11 +42,10 @@ class BannerView(MethodView):
         if uploaded_image and uploaded_image.filename:
             content = request.files["image"].read()
             if len(content) < MAX_IMAGE_SIZE:
-                image_file_object = FileObject(
+                image_file_object = create_file_object(
                     content=content,
-                    filename=uploaded_image.filename,
+                    original_filename=uploaded_image.filename,
                     content_type=uploaded_image.content_type,
-                    backend="s3",
                 )
                 image_file_object.save()
                 user = g.user

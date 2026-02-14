@@ -8,7 +8,6 @@ from io import BytesIO
 from typing import cast
 
 import advanced_alchemy
-from advanced_alchemy.types.file_object import FileObject
 from flask import (
     Flask,
     flash,
@@ -26,6 +25,7 @@ from werkzeug.exceptions import NotFound
 from app.flask.extensions import db
 from app.flask.lib.constants import EMPTY_PNG
 from app.flask.routing import url_for
+from app.lib.file_object_utils import create_file_object
 from app.logging import warn
 from app.models.lifecycle import PublicationStatus
 from app.modules.wip.models.eventroom import (
@@ -203,11 +203,10 @@ class EventsWipView(BaseWipView):
         caption = request.form.get("caption", "").strip()
         copyright = request.form.get("copyright", "").strip()
 
-        image_file_object = FileObject(
+        image_file_object = create_file_object(
             content=image_bytes,
-            filename=image_filename,
+            original_filename=image_filename,
             content_type=image_content_type,
-            backend="s3",
         )
         image_file_object.save()
 
