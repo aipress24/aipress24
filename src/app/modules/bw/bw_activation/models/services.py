@@ -11,6 +11,9 @@ from __future__ import annotations
 
 from advanced_alchemy.extensions.flask import FlaskServiceMixin
 from advanced_alchemy.service import SQLAlchemySyncRepositoryService
+from flask_super.decorators import service
+from sqlalchemy.orm import scoped_session
+from svcs import Container
 
 from .business_wall import BusinessWall
 from .content import BWContent
@@ -27,6 +30,7 @@ from .role import RoleAssignment, RolePermission
 from .subscription import Subscription
 
 
+@service
 class BusinessWallService(
     FlaskServiceMixin, SQLAlchemySyncRepositoryService[BusinessWall]
 ):
@@ -37,7 +41,12 @@ class BusinessWallService(
 
     repository_type = BusinessWallRepository
 
+    @classmethod
+    def svcs_factory(cls, container: Container) -> BusinessWallService:
+        return cls(session=container.get(scoped_session))
 
+
+@service
 class SubscriptionService(
     FlaskServiceMixin, SQLAlchemySyncRepositoryService[Subscription]
 ):
@@ -48,7 +57,12 @@ class SubscriptionService(
 
     repository_type = SubscriptionRepository
 
+    @classmethod
+    def svcs_factory(cls, container: Container) -> SubscriptionService:
+        return cls(session=container.get(scoped_session))
 
+
+@service
 class RoleAssignmentService(
     FlaskServiceMixin, SQLAlchemySyncRepositoryService[RoleAssignment]
 ):
@@ -59,7 +73,12 @@ class RoleAssignmentService(
 
     repository_type = RoleAssignmentRepository
 
+    @classmethod
+    def svcs_factory(cls, container: Container) -> RoleAssignmentService:
+        return cls(session=container.get(scoped_session))
 
+
+@service
 class RolePermissionService(
     FlaskServiceMixin, SQLAlchemySyncRepositoryService[RolePermission]
 ):
@@ -70,7 +89,12 @@ class RolePermissionService(
 
     repository_type = RolePermissionRepository
 
+    @classmethod
+    def svcs_factory(cls, container: Container) -> RolePermissionService:
+        return cls(session=container.get(scoped_session))
 
+
+@service
 class PartnershipService(
     FlaskServiceMixin, SQLAlchemySyncRepositoryService[Partnership]
 ):
@@ -81,7 +105,12 @@ class PartnershipService(
 
     repository_type = PartnershipRepository
 
+    @classmethod
+    def svcs_factory(cls, container: Container) -> PartnershipService:
+        return cls(session=container.get(scoped_session))
 
+
+@service
 class BWContentService(FlaskServiceMixin, SQLAlchemySyncRepositoryService[BWContent]):
     """Service for BWContent operations.
 
@@ -89,6 +118,10 @@ class BWContentService(FlaskServiceMixin, SQLAlchemySyncRepositoryService[BWCont
     """
 
     repository_type = BWContentRepository
+
+    @classmethod
+    def svcs_factory(cls, container: Container) -> BWContentService:
+        return cls(session=container.get(scoped_session))
 
 
 __all__ = [
