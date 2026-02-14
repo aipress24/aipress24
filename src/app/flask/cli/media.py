@@ -7,7 +7,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from advanced_alchemy.types import FileObject
 from flask import current_app
 from flask.cli import with_appcontext
 from flask_super.cli import group
@@ -16,6 +15,7 @@ from sqlalchemy import Column, Integer, LargeBinary, String, create_engine, sele
 from sqlalchemy.orm import Session, declarative_base
 
 from app.flask.extensions import db
+from app.lib.file_object_utils import create_file_object
 from app.models.auth import User
 
 OUTPUT_DIR = Path("orig_photos")
@@ -77,11 +77,10 @@ def _load_photo(png: Path) -> None:
         print(f"User {user_id} not found, skipping")
         return
 
-    image_file_object = FileObject(
+    image_file_object = create_file_object(
         content=content,
-        filename=f"{user_id}.png",
+        original_filename=f"{user_id}.png",
         content_type="image/png",
-        backend="s3",
     )
     image_file_object.save()
     user.photo_image = image_file_object

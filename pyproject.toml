@@ -195,6 +195,7 @@ dev = [
     # S3 mock
     "pytest-minio-mock",
     "responses>=0.25.8",
+    "httpx>=0.28.1",
 ]
 
 [build-system]

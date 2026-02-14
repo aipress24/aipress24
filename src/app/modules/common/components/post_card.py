@@ -69,8 +69,12 @@ class ArticleVM(Wrapper):
 
     def get_image_url(self):
         post = self._model
-        if post.image_id:
-            return url_for("api.get_blob", id=post.image_id)
+        if post.newsroom_id and post.image_id:
+            return url_for(
+                "ArticlesWipView:image",
+                article_id=post.newsroom_id,
+                image_id=post.image_id,
+            )
         return "/static/img/gray-texture.png"
 
 
@@ -114,15 +118,13 @@ class PressReleaseVM(Wrapper):
 
     def get_image_url(self):
         post = self._model
-        try:
-            if post.image_url:
-                return post.image_url
-        except AttributeError:
-            # because some Communique were created before
-            # PressRelesasePost creation
-            pass
-        else:
-            return "/static/img/gray-texture.png"
+        if post.newsroom_id and post.image_id:
+            return url_for(
+                "CommuniquesWipView:image",
+                communique_id=post.newsroom_id,
+                image_id=post.image_id,
+            )
+        return "/static/img/gray-texture.png"
 
 
 @frozen

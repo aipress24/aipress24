@@ -43,7 +43,7 @@ from app.constants import (
 )
 from app.enums import CommunityEnum
 from app.flask.extensions import db
-from app.lib.file_object_utils import deserialize_file_object
+from app.lib.file_object_utils import create_file_object, deserialize_file_object
 from app.models.auth import (
     KYCProfile,
     Role,
@@ -229,11 +229,10 @@ def _parse_valid_form(form: FlaskForm, profile_id: str) -> None:
                 and field.data.filename
             ):
                 file_content = field.data.read()
-                file_object = FileObject(
+                file_object = create_file_object(
                     content=file_content,
-                    filename=field.data.filename,
+                    original_filename=field.data.filename,
                     content_type=field.data.content_type,
-                    backend="s3",
                 )
                 file_object.save()
                 form_raw_results[key] = file_object.to_dict()
