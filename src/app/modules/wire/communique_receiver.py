@@ -66,19 +66,9 @@ def update_post(post: PressReleasePost, info: Communique) -> None:
     post.owner_id = info.owner_id
     post.publisher_id = info.publisher_id
 
-    # TODO: remove
+    # Set image_id from first image if available
     images = info.sorted_images
-    if images:
-        image = images[0]
-        post.image_id = image.id
-        post.image_url = image.url
-        post.image_caption = image.caption
-        post.image_copyright = image.copyright
-    else:
-        post.image_id = None
-        post.image_url = ""
-        post.image_caption = ""
-        post.image_copyright = ""
+    post.image_id = images[0].id if images else None
 
     # Metadata
     post.genre = info.genre

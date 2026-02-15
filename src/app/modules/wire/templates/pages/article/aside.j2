@@ -43,31 +43,33 @@
 
     <ul role="list" class="mt-3 space-y-3">
       {% if post.published_at %}
-        <div class="flex items-center space-x-2">
+        <li class="flex items-center space-x-2">
           {{ icon("calendar", class="h-5 w-5 text-gray-400") }}
 
           <span class="text-gray-900 text-sm font-medium"
           >Publié le <time datetime="{{ post.published_at.isoformat() }}"
           >{{ post.published_at.format("DD MMMM YYYY, à HH:mm", locale="fr") }}</time></span
           >
-        </div>
+        </li>
       {% endif %}
 
       {% if post.modified_at %}
-        <div class="flex items-center space-x-2">
+        <li class="flex items-center space-x-2">
           {{ icon("calendar", class="h-5 w-5 text-gray-400") }}
 
           <span class="text-gray-900 text-sm font-medium"
           >Modifié le <time datetime="{{ post.modified_at.isoformat() }}"
           >{{ post.modified_at.format("DD MMMM YYYY, à HH:mm", locale="fr") }}</time></span
           >
-        </div>
+        </li>
       {% endif %}
 
-      <a class="flex items-center space-x-2" href="#comments-title">
-        {{ icon("chat-bubble-left-ellipsis", class="h-5 w-5 text-gray-400") }}
-        <span class="text-gray-900 text-sm font-medium">{{ post.comment_count }} commentaires</span>
-      </a>
+      <li>
+        <a class="flex items-center space-x-2" href="#comments-title">
+          {{ icon("chat-bubble-left-ellipsis", class="h-5 w-5 text-gray-400") }}
+          <span class="text-gray-900 text-sm font-medium">{{ post.comment_count }} commentaires</span>
+        </a>
+      </li>
     </ul>
   </div>
 

@@ -9,6 +9,7 @@ from typing import Any
 
 import sqlalchemy as sa
 from flask import request, session
+from loguru import logger
 from werkzeug.exceptions import BadRequest
 
 from app.flask.components.filterset import FilterSet
@@ -162,7 +163,8 @@ class FilterBar:
             return {}
         try:
             return loads(state_str)
-        except JSONDecodeError:
+        except JSONDecodeError as e:
+            logger.warning(f"Corrupted filter state for tab {self.tab}: {e}")
             return {}
 
     def save_state(self) -> None:
@@ -178,9 +180,17 @@ class FilterBar:
 
     def update_state(self) -> None:
         form = request.form
-        action = form["action"]
-        form_value = form["value"]
-        form_id = form["id"]
+        action = form.get("action", "")
+        form_value = form.get("value", "")
+        form_id = form.get("id", "")
+
+        # Validate filter ID against known filters
+        valid_filter_ids = set(FILTER_SPECS_BY_ID.keys()) | {"tag"}
+        if action in ("toggle", "remove") and form_id not in valid_filter_ids:
+            logger.warning(f"Unknown filter ID in request: {form_id}")
+            msg = f"Unknown filter: {form_id}"
+            raise BadRequest(msg)
+
         if action == "toggle":
             self.toggle_filter(form_id, form_value)
         elif action == "remove":
@@ -188,7 +198,8 @@ class FilterBar:
         elif action == "sort-by":
             self.sort_by(form_value)
         else:
-            raise BadRequest
+            msg = f"Unknown action: {action}"
+            raise BadRequest(msg)
 
         self.save_state()
 
