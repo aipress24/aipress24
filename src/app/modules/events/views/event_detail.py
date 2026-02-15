@@ -24,7 +24,7 @@ from app.modules.kyc.field_label import country_code_to_label, country_zip_code_
 class EventDetailView(MethodView):
     """Event detail page with like/unlike action."""
 
-    decorators = [nav(parent="events")]
+    decorators = [nav(parent="events", label="Événement")]
 
     def get(self, id: int):
         event_obj = get_obj(id, EventPost)
@@ -57,16 +57,19 @@ class EventDetailView(MethodView):
         from app.services.social_graph import adapt
 
         social_user = adapt(user)
+        social_content = adapt(event_obj)
 
         if social_user.is_liking(event_obj):
             social_user.unlike(event_obj)
-            message = f"Vous avec retiré votre 'like' au post {event_obj.title!r}"
+            message = (
+                f"Vous avez retiré votre 'like' de l'événement {event_obj.title!r}"
+            )
         else:
-            social_user.like(user, event_obj)
-            message = f"Vous avez 'liké' le post {event_obj.title!r}"
+            social_user.like(event_obj)
+            message = f"Vous avez 'liké' l'événement {event_obj.title!r}"
 
         db.session.flush()
-        event_obj.like_count = social_user.num_likes()
+        event_obj.like_count = social_content.num_likes()
         db.session.commit()
 
         response = make_response(str(event_obj.like_count))

@@ -8,7 +8,6 @@ import sqlalchemy as sa
 
 from app.models.auth import User
 from app.models.base import Base
-from app.models.base_content import BaseContent
 from app.models.organisation import Organisation
 
 #
@@ -54,10 +53,11 @@ likes_table = sa.Table(
         sa.Integer,
         sa.ForeignKey(User.id, onupdate="CASCADE", ondelete="CASCADE"),
     ),
+    # Note: No FK constraint on content_id because the app has two separate
+    # content hierarchies (frt_content and cnt_base) that can both be liked.
     sa.Column(
         "content_id",
         sa.BigInteger,
-        sa.ForeignKey(BaseContent.id, onupdate="CASCADE", ondelete="CASCADE"),
     ),
     sa.UniqueConstraint("user_id", "content_id"),
 )

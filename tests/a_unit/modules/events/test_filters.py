@@ -25,7 +25,7 @@ class TestFilterConstants:
         for spec in FILTER_SPECS:
             assert "id" in spec
             assert "label" in spec
-            assert "selector" in spec
+            assert "column" in spec
 
     def test_sorter_options_are_tuples(self) -> None:
         """Test SORTER_OPTIONS are (value, label) tuples."""

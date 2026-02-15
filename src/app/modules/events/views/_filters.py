@@ -4,44 +4,48 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from json import JSONDecodeError, dumps, loads
+from typing import TYPE_CHECKING
 
 import sqlalchemy as sa
 from flask import request, session
 from werkzeug.exceptions import BadRequest
 
-from app.flask.components.filterset import FilterSet
-from app.flask.sqla import get_multi
+from app.flask.extensions import db
 from app.models.lifecycle import PublicationStatus
 from app.modules.events.models import EventPost
 from app.modules.kyc.field_label import country_code_to_country_name
 
-FILTER_SPECS = [
+if TYPE_CHECKING:
+    from sqlalchemy.orm import InstrumentedAttribute
+
+FILTER_SPECS: list[dict] = [
     {
         "id": "genre",
         "label": "Type d'événement",
-        "selector": "type",
+        "column": "genre",
     },
     {
         "id": "sector",
         "label": "Secteur",
-        "selector": "sector",
+        "column": "sector",
     },
     {
         "id": "pays_zip_ville",
         "label": "Pays",
-        "selector": "pays_zip_ville",
+        "column": "pays_zip_ville",
         "label_function": country_code_to_country_name,
     },
     {
         "id": "departement",
         "label": "Département",
-        "selector": "departement",
+        "column": "departement",
     },
     {
         "id": "ville",
         "label": "Ville",
-        "selector": "ville",
+        "column": "ville",
     },
 ]
 
@@ -190,11 +194,72 @@ class FilterBar:
     #
     # Filtering
     #
-    def get_filters(self) -> list:
-        stmt = sa.select(EventPost).where(EventPost.status == PublicationStatus.PUBLIC)
-        infos = get_multi(EventPost, stmt)
+    def get_filters(self) -> list[dict]:
+        """Build filter options using efficient DISTINCT queries.
 
-        filter_set = FilterSet(FILTER_SPECS)
-        filter_set.init(infos)
+        Instead of loading all events and extracting distinct values in Python,
+        we query distinct values directly from the database for each filter column.
+        """
+        result = []
+        for spec in FILTER_SPECS:
+            filter_id = spec["id"]
+            label = spec["label"]
+            column_name = spec["column"]
+            label_func: Callable[[str], str] | None = spec.get("label_function")
 
-        return filter_set.get_filters()
+            # Get distinct values for this column
+            distinct_values = _get_distinct_values(column_name)
+
+            # Build options list
+            options = []
+            for value in distinct_values:
+                if not value:  # Skip empty values
+                    continue
+                option_label = label_func(value) if label_func else value
+                options.append({"id": value, "label": option_label})
+
+            result.append({"id": filter_id, "label": label, "options": options})
+
+        return result
+
+
+def _get_distinct_values(column_name: str) -> list[str]:
+    """Query distinct non-empty values for a column from public events.
+
+    Only returns values from events that are either:
+    - Starting in the future, or
+    - Currently ongoing (end_date >= today)
+
+    This ensures filter options only show values that will return results.
+
+    Note: Some hybrid_property columns (departement, ville) use PostgreSQL-specific
+    functions (split_part) that don't work on SQLite. In that case, return empty list.
+    """
+    import arrow
+    from sqlalchemy.exc import OperationalError
+
+    column: InstrumentedAttribute = getattr(EventPost, column_name)
+    today = arrow.now().floor("day")
+
+    stmt = (
+        sa.select(column)
+        .where(EventPost.status == PublicationStatus.PUBLIC)
+        .where(column != "")
+        .where(column.is_not(None))
+        # Only include events that haven't ended yet
+        .where(
+            sa.or_(
+                EventPost.start_datetime >= today,
+                EventPost.end_datetime >= today,
+            )
+        )
+        .distinct()
+        .order_by(column)
+    )
+
+    try:
+        return list(db.session.scalars(stmt))
+    except OperationalError:
+        # Hybrid properties may use DB-specific functions (e.g., split_part)
+        # that don't work on all databases (e.g., SQLite)
+        return []

@@ -14,8 +14,12 @@ from app.flask.extensions import db
 from app.lib import adapter
 from app.lib.adapter import Adapter
 from app.models.auth import User
-from app.models.base_content import BaseContent
+
+# Import both BaseContent classes (legacy architecture has two different ones)
+from app.models.base_content import BaseContent as FrontendBaseContent
+from app.models.content.base import BaseContent as ContentBaseContent
 from app.models.organisation import Organisation
+from app.modules.events.models import EventPost
 from app.services.activity_stream import ActivityType, post_activity
 
 from .models import following_orgs_table, following_users_table, likes_table
@@ -68,7 +72,7 @@ class FollowableAdapter(Adapter):
 
 
 class LikeableMixin:
-    content: BaseContent
+    content: FrontendBaseContent | ContentBaseContent
 
     def num_likes(self):
         stmt = sa.select(sa.func.count()).where(
@@ -178,9 +182,13 @@ class SocialUser(FollowableAdapter):
     #
     # Likes
     #
-    def is_liking(self, content: BaseContent | SocialContent) -> bool:
+    def is_liking(
+        self, content: FrontendBaseContent | ContentBaseContent | SocialContent
+    ) -> bool:
         content_id = (
-            content.id if isinstance(content, BaseContent) else content.content.id
+            content.id
+            if isinstance(content, (FrontendBaseContent, ContentBaseContent))
+            else content.content.id
         )
         stmt = sa.select(likes_table).where(
             likes_table.c.user_id == self.user.id,
@@ -189,24 +197,32 @@ class SocialUser(FollowableAdapter):
         rows = db.session.execute(stmt)
         return len(list(rows)) == 1
 
-    def like(self, content: BaseContent | SocialContent) -> None:
+    def like(
+        self, content: FrontendBaseContent | ContentBaseContent | SocialContent
+    ) -> None:
         if self.is_liking(content):
             return
 
         content_id = (
-            content.id if isinstance(content, BaseContent) else content.content.id
+            content.id
+            if isinstance(content, (FrontendBaseContent, ContentBaseContent))
+            else content.content.id
         )
         stmt = sa.insert(likes_table).values(
             user_id=self.user.id, content_id=content_id
         )
         db.session.execute(stmt)
 
-    def unlike(self, content: BaseContent | SocialContent) -> None:
+    def unlike(
+        self, content: FrontendBaseContent | ContentBaseContent | SocialContent
+    ) -> None:
         if not self.is_liking(content):
             return
 
         content_id = (
-            content.id if isinstance(content, BaseContent) else content.content.id
+            content.id
+            if isinstance(content, (FrontendBaseContent, ContentBaseContent))
+            else content.content.id
         )
         stmt = sa.delete(likes_table).where(
             likes_table.c.user_id == self.user.id,
@@ -227,11 +243,12 @@ class SocialOrganisation(FollowableAdapter, LikeableMixin):
 
 @define
 class SocialContent(Adapter, LikeableMixin):
-    content: BaseContent
+    content: FrontendBaseContent | ContentBaseContent
     _adaptee_id = "content"
 
     def __attrs_post_init__(self):
-        assert isinstance(self.content, BaseContent)
+        # Support both BaseContent hierarchies (legacy architecture)
+        assert isinstance(self.content, (FrontendBaseContent, ContentBaseContent))
 
 
 @singledispatch
@@ -251,8 +268,18 @@ def adapt_org(org: Organisation) -> SocialOrganisation:
 
 
 @adapt.register
-def adapt_post(content: BaseContent) -> SocialContent:
+def adapt_frontend_post(content: FrontendBaseContent) -> SocialContent:
     return adapter.adapt(content, SocialContent)
+
+
+@adapt.register
+def adapt_content_post(content: ContentBaseContent) -> SocialContent:
+    return adapter.adapt(content, SocialContent)
+
+
+@adapt.register
+def adapt_event_post(event: EventPost) -> SocialContent:
+    return adapter.adapt(event, SocialContent)
 
 
 unadapt = adapter.unadapt

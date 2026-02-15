@@ -80,20 +80,6 @@ def update_post(
     post.content = info.contenu
     post.owner_id = info.owner_id
 
-    # # TODO: remove
-    # images = info.sorted_images
-    # if images:
-    #     image = images[0]
-    #     post.image_id = image.id
-    #     post.image_url = image.url
-    #     post.image_caption = image.caption
-    #     post.image_copyright = image.copyright
-    # else:
-    #     post.image_id = None
-    #     post.image_url = ""
-    #     post.image_caption = ""
-    #     post.image_copyright = ""
-
     # Schedule
     post.start_datetime = info.start_time  # type: ignore[assignment]
     post.end_datetime = info.end_time  # type: ignore[assignment]
@@ -109,10 +95,6 @@ def update_post(
 
     post.url = info.url
     post.language = info.language
-
-    # post.section = info.section
-    # post.topic = info.topic
-    # post.geo_localisation = info.geo_localisation
 
 
 def get_post(info: Event) -> EventPost | None:
