@@ -13,6 +13,7 @@ import sqlalchemy as sa
 from attr import field, frozen
 from flask import flash, g, redirect, render_template, request
 from flask.views import MethodView
+from sqlalchemy.orm import selectinload
 from werkzeug import Response
 
 from app.enums import OrganisationTypeEnum
@@ -95,27 +96,24 @@ class ItemDetailView(MethodView):
         db.session.commit()
         return str(article.like_count)
 
-    def _post_comment(self, article) -> Response:
-        """Post a comment on the given article."""
+    def _post_comment(self, post: Post) -> Response:
+        """Post a comment on the given post (article or press release)."""
         user = g.user
         comment_text = request.form["comment"].strip()
         if comment_text:
             comment = Comment()
             comment.content = comment_text
             comment.owner = user
-            comment.object_id = f"article:{article.id}"
+            comment.object_id = _get_comment_object_id(post)
             db.session.add(comment)
-            article.comment_count += 1
+            post.comment_count += 1
             db.session.commit()
             flash("Votre commentaire a été posté.")
 
-        return redirect(url_for(article) + "#comments-title")
+        return redirect(url_for(post) + "#comments-title")
 
     def _get_metadata_list(self, post: Post) -> list[dict]:
         """Build metadata list for display."""
-
-        def elvis(x, y):
-            return x or y
 
         def post_type() -> str:
             if post.type == "article":
@@ -126,10 +124,10 @@ class ItemDetailView(MethodView):
 
         data = [
             {"label": "Type", "value": post_type()},
-            {"label": "Genre", "value": elvis(post.genre, "N/A")},
-            {"label": "Rubrique", "value": elvis(post.section, "N/A")},
-            {"label": "Sujet", "value": elvis(post.topic, "N/A")},
-            {"label": "Secteur d'activité", "value": elvis(post.sector, "N/A")},
+            {"label": "Genre", "value": post.genre or "N/A"},
+            {"label": "Rubrique", "value": post.section or "N/A"},
+            {"label": "Sujet", "value": post.topic or "N/A"},
+            {"label": "Secteur d'activité", "value": post.sector or "N/A"},
         ]
 
         if post.address:
@@ -150,6 +148,17 @@ class ItemDetailView(MethodView):
             )
 
         return data
+
+
+def _get_comment_object_id(post: Post) -> str:
+    """Get the comment object_id for a post based on its type."""
+    match post:
+        case ArticlePost():
+            return f"article:{post.id}"
+        case PressReleasePost():
+            return f"press-release:{post.id}"
+        case _:
+            return f"post:{post.id}"
 
 
 # Register the view
@@ -176,10 +185,14 @@ class PostMixin:
         return {
             "age": "?",
             "author": UserVM(post.owner),
-            "summary": post.subheader,
+            "summary": post.summary,
             "likes": post.like_count,
             "replies": post.comment_count,
             "views": post.view_count,
+            "num_likes": post.like_count,
+            "num_replies": post.comment_count,
+            "num_views": post.view_count,
+            "num_comments": post.comment_count,
             "comments": [],
             "tags": get_tags(post),
             "_url": url_for(post),
@@ -258,6 +271,7 @@ class ArticleVM(Wrapper, PostMixin):
             sa.select(Comment)
             .where(Comment.object_id == f"article:{article.id}")
             .order_by(Comment.created_at.desc())
+            .options(selectinload(Comment.owner))
         )
         return list(db.session.scalars(stmt))
 
@@ -315,8 +329,9 @@ class PressReleaseVM(Wrapper, PostMixin):
         post = cast("PressReleasePost", self._model)
         stmt = (
             sa.select(Comment)
-            .where(Comment.object_id == f"article:{post.id}")
+            .where(Comment.object_id == f"press-release:{post.id}")
             .order_by(Comment.created_at.desc())
+            .options(selectinload(Comment.owner))
         )
         return list(db.session.scalars(stmt))
 

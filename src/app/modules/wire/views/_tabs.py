@@ -15,7 +15,6 @@ from sqlalchemy.orm import selectinload
 
 from app.enums import OrganisationTypeEnum
 from app.flask.sqla import get_multi
-from app.logging import warn
 from app.models.auth import User
 from app.models.lifecycle import PublicationStatus
 from app.models.organisation import Organisation
@@ -23,6 +22,19 @@ from app.modules.wire.models import Post
 from app.services.social_graph import adapt
 
 from ._filters import FilterBar
+
+# Allowed filter fields for ORM queries - prevents arbitrary attribute access
+ALLOWED_FILTER_FIELDS = {
+    "sector",
+    "topic",
+    "genre",
+    "section",
+    "pays_zip_ville",
+    "departement",
+    "ville",
+}
+
+DEFAULT_POSTS_LIMIT = 30
 
 
 def get_tabs():
@@ -79,7 +91,7 @@ class Tab(abc.ABC):
             .where(Post.status == PublicationStatus.PUBLIC)
             .order_by(order)
             .options(selectinload(Post.owner))
-            .limit(30)
+            .limit(DEFAULT_POSTS_LIMIT)
         )
 
         if self.post_type_allow:
@@ -88,8 +100,8 @@ class Tab(abc.ABC):
         for filter_id, filter_values in active_filters | groupby(itemgetter("id")):
             if filter_id == "tag":
                 continue
-            if not hasattr(Post, filter_id):
-                warn("unknown attribute for Post:", filter_id)
+            # Use explicit allowlist instead of hasattr for security
+            if filter_id not in ALLOWED_FILTER_FIELDS:
                 continue
             values = {f["value"] for f in filter_values}
             where_clause = getattr(Post, filter_id).in_(values)
