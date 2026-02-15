@@ -13,6 +13,7 @@ from flask import redirect, render_template, request, session
 from flask.views import MethodView
 from werkzeug.exceptions import NotFound
 
+from app.flask.lib.nav import nav
 from app.flask.routing import url_for
 from app.modules.wire import blueprint
 
@@ -45,7 +46,11 @@ def wire():
 class WireTabView(MethodView):
     """Wire tab page with filtering."""
 
+    decorators = [nav(parent="wire", label="Actualités")]
+
     def get(self, tab: str):
+        from flask import g
+
         from ._filters import FilterBar
         from ._tabs import get_tabs
 
@@ -53,6 +58,12 @@ class WireTabView(MethodView):
 
         if tab not in {t.id for t in tabs}:
             raise NotFound
+
+        # Set dynamic breadcrumb label based on active tab
+        for t in tabs:
+            if t.id == tab:
+                g.nav.label = t.label
+                break
 
         session["wire:tab"] = tab
         filter_bar = FilterBar(tab)
