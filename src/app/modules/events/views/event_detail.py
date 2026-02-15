@@ -8,17 +8,19 @@ from __future__ import annotations
 
 import json
 
-from flask import Response, g, make_response, render_template, request
+from flask import Response, flash, g, make_response, redirect, render_template, request
 from flask.views import MethodView
 
 from app.flask.extensions import db
 from app.flask.lib.nav import nav
+from app.flask.routing import url_for
 from app.flask.sqla import get_obj
 from app.models.auth import User
 from app.modules.events import blueprint
 from app.modules.events.models import EventPost
 from app.modules.events.views._common import EventDetailVM
 from app.modules.kyc.field_label import country_code_to_label, country_zip_code_to_city
+from app.modules.swork.models import Comment
 
 
 class EventDetailView(MethodView):
@@ -49,6 +51,8 @@ class EventDetailView(MethodView):
         match action:
             case "toggle-like":
                 return self._toggle_like(user, event_obj)
+            case "post-comment":
+                return self._post_comment(event_obj)
             case _:
                 return ""
 
@@ -75,6 +79,22 @@ class EventDetailView(MethodView):
         response = make_response(str(event_obj.like_count))
         response.headers["HX-Trigger"] = json.dumps({"showToast": message})
         return response
+
+    def _post_comment(self, event_obj: EventPost) -> Response:
+        """Post a comment on the event."""
+        user = g.user
+        comment_text = request.form.get("comment", "").strip()
+        if comment_text:
+            comment = Comment()
+            comment.content = comment_text
+            comment.owner = user
+            comment.object_id = f"event:{event_obj.id}"
+            db.session.add(comment)
+            event_obj.comment_count += 1
+            db.session.commit()
+            flash("Votre commentaire a été posté.")
+
+        return redirect(url_for(event_obj) + "#comments-title")
 
     def _get_metadata_list(self, event_vm: EventDetailVM) -> list[dict]:
         """Build metadata list for event detail page."""
