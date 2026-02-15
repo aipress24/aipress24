@@ -10,11 +10,13 @@ import datetime
 from typing import cast
 
 import arrow
+import sqlalchemy as sa
 from arrow import Arrow
 from attr import define
 from sqlalchemy import or_, select
 from sqlalchemy.orm import selectinload
 
+from app.flask.extensions import db
 from app.flask.lib.view_model import ViewModel
 from app.flask.sqla import get_multi
 from app.models.auth import User
@@ -24,6 +26,7 @@ from app.modules.events.components.opening_hours import opening_hours
 from app.modules.events.models import EVENT_CLASSES, EventPost
 from app.modules.events.services import get_participants
 from app.modules.kyc.field_label import country_code_to_label, country_zip_code_to_city
+from app.modules.swork.models import Comment
 
 # =============================================================================
 # View Models
@@ -88,7 +91,18 @@ class EventDetailVM(ViewModel):
                 f"{country_zip_code_to_city(event.pays_zip_ville_detail)}, "
                 f"{country_code_to_label(event.pays_zip_ville)}"
             ),
+            "comments": self.get_comments(),
         }
+
+    def get_comments(self) -> list[Comment]:
+        """Get comments for this event."""
+        event = cast("EventPost", self._model)
+        stmt = (
+            sa.select(Comment)
+            .where(Comment.object_id == f"event:{event.id}")
+            .order_by(Comment.created_at.desc())
+        )
+        return list(db.session.scalars(stmt))
 
 
 # =============================================================================

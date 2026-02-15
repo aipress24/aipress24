@@ -47,13 +47,16 @@ def register_nav(app: Flask) -> None:
         endpoint = request.endpoint
         if endpoint:
             g.nav = NavRequest(endpoint, request.view_args or {})
-            _inject_breadcrumbs_to_context()
 
     # Inject navigation into all templates
     @app.context_processor
     def inject_nav() -> dict:
         if not hasattr(g, "nav"):
             return {}
+
+        # Inject breadcrumbs to Context service here (after view has run)
+        # so dynamic labels from g.nav.label are picked up
+        _inject_breadcrumbs_to_context()
 
         return {
             # New nav_* variables (preferred)
