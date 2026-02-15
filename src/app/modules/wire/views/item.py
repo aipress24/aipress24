@@ -17,6 +17,7 @@ from werkzeug import Response
 
 from app.enums import OrganisationTypeEnum
 from app.flask.extensions import db
+from app.flask.lib.nav import nav
 from app.flask.lib.view_model import Wrapper
 from app.flask.routing import url_for
 from app.flask.sqla import get_obj
@@ -37,6 +38,8 @@ from app.services.tracking import record_view
 class ItemDetailView(MethodView):
     """Article/Press Release detail page with actions."""
 
+    decorators = [nav(parent="wire", label="Article")]
+
     def get(self, id: str):
         post = get_obj(id, Post)
 
@@ -50,6 +53,9 @@ class ItemDetailView(MethodView):
             case _:
                 msg = f"Unknown item type: {post}"
                 raise TypeError(msg)
+
+        # Set dynamic breadcrumb label
+        g.nav.label = post.title
 
         # Record view
         record_view(g.user, post)
@@ -99,6 +105,7 @@ class ItemDetailView(MethodView):
             comment.owner = user
             comment.object_id = f"article:{article.id}"
             db.session.add(comment)
+            article.comment_count += 1
             db.session.commit()
             flash("Votre commentaire a été posté.")
 
