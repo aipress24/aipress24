@@ -38,7 +38,7 @@ LIST_ARGS = {
 
 
 class EventsListView(MethodView):
-    """Events list page with filtering."""
+    """Liste des événements."""
 
     def get(self):
         filter_bar = FilterBar()
@@ -126,7 +126,7 @@ class EventsListView(MethodView):
 
     def _apply_filter_bar(self, stmt: Select, filter_bar: FilterBar) -> Select:
         """Apply filter bar filters to query."""
-        filters_by_id = {
+        filters_by_id: dict[str, list[str]] = {
             "genre": [],
             "sector": [],
             "pays_zip_ville": [],
@@ -145,29 +145,47 @@ class EventsListView(MethodView):
             stmt = stmt.where(
                 EventPost.pays_zip_ville.in_(filters_by_id["pays_zip_ville"])
             )
+        # Note: departement and ville are hybrid_property, mypy doesn't understand them
         if filters_by_id["departement"]:
-            stmt = stmt.where(EventPost.departement.in_(filters_by_id["departement"]))
+            stmt = stmt.where(
+                EventPost.departement.in_(filters_by_id["departement"])  # type: ignore[attr-defined]
+            )
         if filters_by_id["ville"]:
-            stmt = stmt.where(EventPost.ville.in_(filters_by_id["ville"]))
+            stmt = stmt.where(
+                EventPost.ville.in_(filters_by_id["ville"])  # type: ignore[attr-defined]
+            )
 
         return stmt
 
     def _apply_search(self, stmt: Select, search: str) -> Select:
-        """Apply global search filter."""
+        """Apply global search filter.
+
+        Searches both title and postal code. If the search term contains
+        numbers, also searches by postal code.
+        """
+        from sqlalchemy import or_
+
         if not search:
             return stmt
 
-        # Search by postal code if numeric
+        # Always search by title
+        title_filter = EventPost.title.ilike(f"%{search}%")
+
+        # Also search by postal code if search contains numbers
         m = re.search(r"([0-9]+)", search)
         if m:
             zip_code = m.group(1)
-            return stmt.where(EventPost.code_postal.ilike(f"%{zip_code}%"))
+            # code_postal is a hybrid_property
+            postal_filter = EventPost.code_postal.ilike(  # type: ignore[attr-defined]
+                f"%{zip_code}%"
+            )
+            return stmt.where(or_(title_filter, postal_filter))
 
-        return stmt.where(EventPost.title.ilike(f"%{search}%"))
+        return stmt.where(title_filter)
 
     def _get_active_tab_ids(self) -> list[str]:
         """Get active tab IDs from session."""
-        return json.loads(session.get("events.tabs") or "[]")
+        return json.loads(session.get("events:tabs") or "[]")
 
     def _get_tabs(self) -> list[dict]:
         """Get tabs with active state."""

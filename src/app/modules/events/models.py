@@ -96,7 +96,7 @@ class EventPost(EventPostBase):
     eventroom_id: Mapped[int | None] = mapped_column(
         BigInteger, index=True, nullable=True
     )
-    address: Mapped[str] = mapped_column(default="")
+    # Note: `address` is inherited from Addressable mixin via EventPostBase
     pays_zip_ville: Mapped[str] = mapped_column(default="")
     pays_zip_ville_detail: Mapped[str] = mapped_column(default="")
 

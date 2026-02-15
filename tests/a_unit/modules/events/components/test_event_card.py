@@ -4,14 +4,18 @@
 
 """Tests for events/components/event_card module.
 
-Refactored to test opening_hours directly and use proper stubs instead of mocks.
+Tests opening_hours formatting and EventCardVM view model.
 """
 
 from __future__ import annotations
 
 import arrow
 
-from app.modules.events.components.event_card import LOGO_URL, EventCard
+from app.modules.events.components.event_card import (
+    DEFAULT_LOGO_URL,
+    EventCard,
+    EventCardVM,
+)
 from app.modules.events.components.opening_hours import opening_hours
 
 
@@ -53,7 +57,7 @@ class TestOpeningHours:
         assert result == "Du 15 jan 2024 à 09:00 au 17 jan 2024 à 20:00"
 
 
-# Stub event class with Meta for testing EventCard initialization
+# Stub classes for testing EventCard/EventCardVM without database
 class StubEventMeta:
     """Meta class for stub event."""
 
@@ -61,10 +65,18 @@ class StubEventMeta:
     type_label = "Conference"
 
 
+class StubOrganisation:
+    """Stub organisation for testing."""
+
+    def logo_image_signed_url(self) -> str:
+        return "https://example.com/logo.png"
+
+
 class StubOwner:
     """Stub owner for events."""
 
     name = "Test Owner"
+    organisation = None  # No org by default
 
 
 class StubEvent:
@@ -79,10 +91,18 @@ class StubEvent:
         owner=None,
         type_id="",
         type_label="",
+        like_count=0,
+        comment_count=0,
+        view_count=0,
     ):
         self.start_datetime = start_datetime or arrow.get("2024-01-15 10:00:00")
         self.end_datetime = end_datetime or arrow.get("2024-01-15 12:00:00")
         self.owner = owner or StubOwner()
+        self.like_count = like_count
+        self.comment_count = comment_count
+        self.view_count = view_count
+        self.title = "Test Event"
+        self.summary = "Test Summary"
         # Allow overriding Meta attributes
         if type_id or type_label:
 
@@ -94,54 +114,83 @@ class StubEvent:
             self.Meta = DynamicMeta
 
 
-class TestEventCard:
-    """Test suite for EventCard component using stubs."""
+class TestEventCardVM:
+    """Test suite for EventCardVM view model."""
 
-    def test_sets_author_from_owner(self):
-        """Test that __attrs_post_init__ sets author from owner."""
+    def test_provides_author_from_owner(self):
+        """Test that ViewModel exposes author from owner."""
         owner = StubOwner()
         event = StubEvent(owner=owner)
 
-        EventCard(event=event)
+        vm = EventCardVM(event)
 
-        assert event.__dict__["author"] == owner
+        assert vm.author == owner
 
-    def test_sets_organisation_image_url(self):
-        """Test that __attrs_post_init__ sets organisation_image_url."""
+    def test_provides_organisation_image_url_default(self):
+        """Test that ViewModel provides default logo URL when no org."""
         event = StubEvent()
 
-        EventCard(event=event)
+        vm = EventCardVM(event)
 
-        assert event.__dict__["organisation_image_url"] == LOGO_URL
+        assert vm.organisation_image_url == DEFAULT_LOGO_URL
 
-    def test_sets_type_id_from_meta(self):
-        """Test that __attrs_post_init__ sets type_id from Meta."""
+    def test_provides_organisation_image_url_from_org(self):
+        """Test that ViewModel gets logo URL from organisation."""
+        owner = StubOwner()
+        owner.organisation = StubOrganisation()
+        event = StubEvent(owner=owner)
+
+        vm = EventCardVM(event)
+
+        assert vm.organisation_image_url == "https://example.com/logo.png"
+
+    def test_provides_type_id_from_meta(self):
+        """Test that ViewModel exposes type_id from Meta."""
         event = StubEvent(type_id="conference_123", type_label="")
 
-        EventCard(event=event)
+        vm = EventCardVM(event)
 
-        assert event.__dict__["type_id"] == "conference_123"
+        assert vm.type_id == "conference_123"
 
-    def test_sets_type_label_from_meta(self):
-        """Test that __attrs_post_init__ sets type_label from Meta."""
+    def test_provides_type_label_from_meta(self):
+        """Test that ViewModel exposes type_label from Meta."""
         event = StubEvent(type_id="", type_label="Conference")
 
-        EventCard(event=event)
+        vm = EventCardVM(event)
 
-        assert event.__dict__["type_label"] == "Conference"
+        assert vm.type_label == "Conference"
 
-    def test_sets_opening_hours(self):
-        """Test that __attrs_post_init__ sets opening hours."""
+    def test_provides_opening_hours(self):
+        """Test that ViewModel exposes formatted opening hours."""
         event = StubEvent(
             start_datetime=arrow.get("2024-01-15 14:00:00"),
             end_datetime=arrow.get("2024-01-15 16:00:00"),
         )
 
-        EventCard(event=event)
+        vm = EventCardVM(event)
 
-        assert event.__dict__["opening"] == "De 14:00 à 16:00 le 15 jan 2024"
+        assert vm.opening == "De 14:00 à 16:00 le 15 jan 2024"
 
-    def test_uses_default_for_missing_meta_attrs(self):
+    def test_provides_engagement_counts(self):
+        """Test that ViewModel exposes likes, replies, views."""
+        event = StubEvent(like_count=10, comment_count=5, view_count=100)
+
+        vm = EventCardVM(event)
+
+        assert vm.likes == 10
+        assert vm.replies == 5
+        assert vm.views == 100
+
+    def test_proxies_model_attributes(self):
+        """Test that ViewModel proxies access to model attributes."""
+        event = StubEvent()
+
+        vm = EventCardVM(event)
+
+        assert vm.title == "Test Event"
+        assert vm.summary == "Test Summary"
+
+    def test_defaults_for_missing_meta_attrs(self):
         """Test that defaults are used when Meta attrs are missing."""
 
         class EmptyMeta:
@@ -156,18 +205,43 @@ class TestEventCard:
                 self.start_datetime = arrow.get("2024-01-15 10:00:00")
                 self.end_datetime = arrow.get("2024-01-15 12:00:00")
                 self.owner = StubOwner()
+                self.like_count = 0
+                self.comment_count = 0
+                self.view_count = 0
 
         event = StubEventNoMeta()
 
-        EventCard(event=event)
+        vm = EventCardVM(event)
 
-        assert event.__dict__["type_id"] == ""
-        assert event.__dict__["type_label"] == ""
+        assert vm.type_id == ""
+        assert vm.type_label == ""
 
 
-class TestLogoUrlConstant:
-    """Test suite for LOGO_URL constant."""
+class TestEventCard:
+    """Test suite for EventCard component."""
 
-    def test_logo_url_is_defined(self):
-        """Test that LOGO_URL constant is defined."""
-        assert LOGO_URL == "https://aipress24.demo.abilian.com/static/tmp/logos/1.png"
+    def test_wraps_event_with_viewmodel(self):
+        """Test that EventCard wraps event with EventCardVM."""
+        event = StubEvent()
+
+        card = EventCard(event=event)
+
+        assert isinstance(card.event, EventCardVM)
+
+    def test_wrapped_event_provides_computed_attrs(self):
+        """Test that wrapped event provides computed attributes."""
+        owner = StubOwner()
+        event = StubEvent(owner=owner)
+
+        card = EventCard(event=event)
+
+        assert card.event.author == owner
+        assert card.event.opening == "De 10:00 à 12:00 le 15 jan 2024"
+
+
+class TestDefaultLogoUrl:
+    """Test suite for DEFAULT_LOGO_URL constant."""
+
+    def test_default_logo_url_is_defined(self):
+        """Test that DEFAULT_LOGO_URL constant is defined."""
+        assert DEFAULT_LOGO_URL == "/static/img/transparent-square.png"

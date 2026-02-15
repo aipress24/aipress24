@@ -234,3 +234,110 @@ class TestGetParticipants:
 
         assert isinstance(participants, list)
         assert all(isinstance(p, User) for p in participants)
+
+
+@pytest.mark.skip(
+    reason="EventPost uses cnt_base table but soc_likes FK references frt_content. "
+    "Schema migration needed to support liking EventPost on PostgreSQL."
+)
+class TestEventLikes:
+    """Test suite for event like functionality via social graph.
+
+    NOTE: These tests are skipped because EventPost inherits from
+    app.models.content.base.BaseContent (cnt_base table), but the soc_likes
+    table has a FK constraint to app.models.base_content.BaseContent (frt_content).
+    This is an architectural issue that requires schema changes to resolve.
+    """
+
+    def test_like_event(
+        self, db_session: Session, test_event: EventPost, test_users: list[User]
+    ):
+        """Test liking an event."""
+        from app.services.social_graph import adapt
+
+        user = test_users[0]
+        social_user = adapt(user)
+
+        # Initially not liking
+        assert not social_user.is_liking(test_event)
+
+        # Like the event
+        social_user.like(test_event)
+        db_session.flush()
+
+        # Now liking
+        assert social_user.is_liking(test_event)
+
+    def test_unlike_event(
+        self, db_session: Session, test_event: EventPost, test_users: list[User]
+    ):
+        """Test unliking an event."""
+        from app.services.social_graph import adapt
+
+        user = test_users[0]
+        social_user = adapt(user)
+
+        # Like then unlike
+        social_user.like(test_event)
+        db_session.flush()
+        assert social_user.is_liking(test_event)
+
+        social_user.unlike(test_event)
+        db_session.flush()
+        assert not social_user.is_liking(test_event)
+
+    def test_event_like_count(
+        self, db_session: Session, test_event: EventPost, test_users: list[User]
+    ):
+        """Test counting likes on an event."""
+        from app.services.social_graph import adapt
+
+        social_content = adapt(test_event)
+
+        # Initially no likes
+        assert social_content.num_likes() == 0
+
+        # Add some likes
+        for i in range(3):
+            social_user = adapt(test_users[i])
+            social_user.like(test_event)
+            db_session.flush()
+
+        # Count should be 3
+        assert social_content.num_likes() == 3
+
+    def test_like_idempotent(
+        self, db_session: Session, test_event: EventPost, test_users: list[User]
+    ):
+        """Test that liking twice doesn't duplicate."""
+        from app.services.social_graph import adapt
+
+        user = test_users[0]
+        social_user = adapt(user)
+        social_content = adapt(test_event)
+
+        # Like twice
+        social_user.like(test_event)
+        db_session.flush()
+        social_user.like(test_event)
+        db_session.flush()
+
+        # Should still be 1 like
+        assert social_content.num_likes() == 1
+
+    def test_unlike_idempotent(
+        self, db_session: Session, test_event: EventPost, test_users: list[User]
+    ):
+        """Test that unliking when not liking is a no-op."""
+        from app.services.social_graph import adapt
+
+        user = test_users[0]
+        social_user = adapt(user)
+        social_content = adapt(test_event)
+
+        # Unlike without having liked
+        social_user.unlike(test_event)
+        db_session.flush()
+
+        # Should still be 0 likes
+        assert social_content.num_likes() == 0
