@@ -21,6 +21,7 @@ from app.modules.events.models import EventPost
 from app.modules.events.views._common import EventDetailVM
 from app.modules.kyc.field_label import country_code_to_label, country_zip_code_to_city
 from app.modules.swork.models import Comment
+from app.services.tracking import record_view
 
 
 class EventDetailView(MethodView):
@@ -31,6 +32,10 @@ class EventDetailView(MethodView):
     def get(self, id: int):
         event_obj = get_obj(id, EventPost)
         view_model = EventDetailVM(event_obj)
+
+        # Record view
+        record_view(g.user, event_obj)
+        db.session.commit()
 
         # Set dynamic breadcrumb label
         g.nav.label = event_obj.title
