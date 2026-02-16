@@ -61,7 +61,10 @@ def create_new_free_bw_record(session: MutableMapping) -> bool:
     subscription_service = container.get(SubscriptionService)
     role_service = container.get(RoleAssignmentService)
 
-    payer_is_owner = session.get("payer_is_owner", False)
+    payer_is_owner_raw = session.get("payer_is_owner", False)
+    # try to fix bool type
+    payer_is_owner: bool = payer_is_owner_raw in {True, "true", "on", "yes", "1", 1}
+
     if payer_is_owner:
         payer_first_name = ""
         payer_last_name = ""
@@ -77,23 +80,23 @@ def create_new_free_bw_record(session: MutableMapping) -> bool:
         payer_phone = session.get("payer_phone", "")
         payer_address = session.get("payer_address", "")
 
-    # Create Business Wall using service via arsg mapping
+    # Create Business Wall using service via args mapping
     business_wall = bw_service.create(
         {
             "bw_type": bw_type,
             "status": BWStatus.ACTIVE.value,
             "is_free": True,
-            "owner_id": user.id,
-            "payer_id": user.id,  # Let use for the moment always user_id
-            "organisation_id": org.id,
+            "owner_id": int(user.id),
+            "payer_id": int(user.id),
+            "organisation_id": int(org.id) if org.id else None,
             "activated_at": now,
-            "payer_is_owner": payer_is_owner,
-            "payer_first_name": payer_first_name,
-            "payer_last_name": payer_last_name,
-            "payer_service": payer_service,
-            "payer_email": payer_email,
-            "payer_phone": payer_phone,
-            "payer_address": payer_address,
+            "payer_is_owner": bool(payer_is_owner),
+            "payer_first_name": str(payer_first_name) if payer_first_name else "",
+            "payer_last_name": str(payer_last_name) if payer_last_name else "",
+            "payer_service": str(payer_service) if payer_service else "",
+            "payer_email": str(payer_email) if payer_email else "",
+            "payer_phone": str(payer_phone) if payer_phone else "",
+            "payer_address": str(payer_address) if payer_address else "",
         },
         auto_commit=False,
     )
