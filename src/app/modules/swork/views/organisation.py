@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 
-import abc
+from abc import ABC, abstractmethod
 from typing import cast
 
 from attr import define
@@ -113,14 +113,14 @@ blueprint.add_url_rule(
 
 
 @define
-class Tab(abc.ABC):
+class Tab(ABC):
     org: Organisation
 
-    @abc.abstractmethod
+    @abstractmethod
     def guard(self) -> bool: ...
 
 
-class OrgProfileTab(Tab, abc.ABC):
+class OrgProfileTab(Tab, ABC):
     id = "profile"
     label = "A propos"
 
@@ -259,11 +259,9 @@ class OrgVM(ViewModel):
         }
 
     def get_members(self) -> list[User]:
-        org = self.org
-        members = list(
-            db.session.query(User).filter(User.organisation_id == org.id).all()
+        return list(
+            db.session.scalars(select(User).where(User.organisation_id == self.org.id))
         )
-        return members
 
     def get_logo_url(self) -> str:
         if self.org.is_auto:

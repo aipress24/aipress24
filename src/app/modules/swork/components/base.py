@@ -5,10 +5,14 @@
 from __future__ import annotations
 
 import re
+from abc import abstractmethod
 from dataclasses import dataclass, field
-from typing import ClassVar, Never
+from typing import TYPE_CHECKING, Any, ClassVar
 
 from sqlalchemy.sql import Select
+
+if TYPE_CHECKING:
+    from sqlalchemy.sql.elements import ColumnElement
 
 from app.flask.lib.pywire import WiredComponent
 from app.models.mixins import Addressable
@@ -45,7 +49,7 @@ class BaseList(WiredComponent):
     def get_base_statement(self) -> Select:
         raise NotImplementedError
 
-    def apply_search(self, stmt):
+    def apply_search(self, stmt: Select) -> Select:
         search = self.search.strip()
         if not search:
             return stmt
@@ -61,13 +65,15 @@ class BaseList(WiredComponent):
 
         return stmt
 
-    def search_clause(self, search: str) -> Never:
-        raise NotImplementedError
+    @abstractmethod
+    def search_clause(self, search: str) -> ColumnElement[bool]:
+        """Return a SQLAlchemy filter clause for the search term."""
+        ...
 
-    def get_filters(self):
+    def get_filters(self) -> list[Filter]:
         return []
 
-    def apply_filters(self, stmt):
+    def apply_filters(self, stmt: Select) -> Select:
         for filter in self.filters:
             state = self.filter_states[filter.id]
             stmt = filter.apply(stmt, state)
@@ -122,7 +128,7 @@ class Filter:
     label: str
     options: list[str | FilterOption] = []
 
-    def __init__(self, objects: list | None = None) -> None:
+    def __init__(self, objects: list[Any] | None = None) -> None:
         # Only initialize if no class-level options defined
         if not hasattr(self, "options") or self.options is Filter.options:
             self.options = []
@@ -141,11 +147,12 @@ class Filter:
             msg = f"Invalid selector: {selector}"
             raise TypeError(msg)
 
-    def apply(self, stmt, state) -> Never:
+    def apply(self, stmt: Select, state: dict[str, bool]) -> Select:
+        """Apply this filter to the statement. Override in subclasses."""
         raise NotImplementedError
 
-    def active_options(self, state):
-        options = []
+    def active_options(self, state: dict[str, bool]) -> list[str | FilterOption]:
+        options: list[str | FilterOption] = []
         for i in range(len(state)):
             if state[str(i)]:
                 options.append(self.options[i])
@@ -156,12 +163,12 @@ class FilterByCity(Filter):
     id = "city"
     label = "Ville"
 
-    def selector(self, obj) -> str:
+    def selector(self, obj: Any) -> str:
         if isinstance(obj, Addressable):
             return str(obj.city)
         return ""
 
-    def apply(self, stmt, state):
+    def apply(self, stmt: Select, state: dict[str, bool]) -> Select:
         active_options = self.active_options(state)
         if active_options:
             return stmt.where(Addressable.city.in_(active_options))
@@ -172,12 +179,12 @@ class FilterByDept(Filter):
     id = "dept"
     label = "Département"
 
-    def selector(self, obj) -> str:
+    def selector(self, obj: Any) -> str:
         if isinstance(obj, Addressable):
             return str(obj.dept_code)
         return ""
 
-    def apply(self, stmt, state):
+    def apply(self, stmt: Select, state: dict[str, bool]) -> Select:
         active_options = self.active_options(state)
         if active_options:
             return stmt.where(Addressable.dept_code.in_(active_options))

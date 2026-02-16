@@ -29,7 +29,7 @@ def url_for_org(org: Organisation, _ns: str = "swork", **kw) -> str:
 
 
 @url_for.register
-def url_for_group(org: Group, _ns: str = "swork", **kw):
+def url_for_group(org: Group, _ns: str = "swork", **kw) -> str:
     name = f"{_ns}.group"
     kw["id"] = base62.encode(org.id)
 
