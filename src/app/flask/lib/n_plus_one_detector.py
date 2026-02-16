@@ -222,7 +222,7 @@ def init_n_plus_one_detector(app: Flask) -> None:
     # Register SQLAlchemy event listener
     @event.listens_for(Engine, "before_cursor_execute")
     def receive_before_cursor_execute(
-        conn, cursor, statement, parameters, context, executemany
+        _conn, _cursor, statement, parameters, context, executemany
     ):
         """Track each query execution."""
         tracker = get_tracker()
@@ -238,7 +238,6 @@ def init_n_plus_one_detector(app: Flask) -> None:
 
 class NPlusOneDetectedError(Exception):
     """Raised when N+1 query pattern is detected and N_PLUS_ONE_RAISE is True."""
-
 
 
 # Convenience function for testing
