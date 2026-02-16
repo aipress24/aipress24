@@ -133,14 +133,21 @@ class UserVM(ViewModel):
         return UserVM.from_many(followees)
 
     def get_posts(self) -> list[PostVM]:
+        from sqlalchemy.orm import selectinload
+
         from app.modules.wire.models import ArticlePost
 
-        posts = (
-            db.session.query(ArticlePost)
-            .filter(ArticlePost.owner_id == self.user.id)
-            .filter(ArticlePost.status == PublicationStatus.PUBLIC)
-            .order_by(ArticlePost.published_at.desc())
-            .all()
+        posts = list(
+            db.session.scalars(
+                sa.select(ArticlePost)
+                .where(ArticlePost.owner_id == self.user.id)
+                .where(ArticlePost.status == PublicationStatus.PUBLIC)
+                .options(
+                    selectinload(ArticlePost.owner),
+                    selectinload(ArticlePost.publisher),
+                )
+                .order_by(ArticlePost.published_at.desc())
+            )
         )
         return PostVM.from_many(posts)
 
@@ -156,6 +163,11 @@ def filter_email_mobile(user: User, target_user: User) -> MaskFields:
     from app.services.social_graph import SocialUser, adapt
 
     mask_fields = MaskFields()
+
+    # Return empty mask if profiles are incomplete
+    if not user.profile or not target_user.profile:
+        return mask_fields
+
     contact_type = user.profile.contact_type
     user_allow = target_user.profile.show_contact_details
 
