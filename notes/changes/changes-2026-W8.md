@@ -47,14 +47,7 @@ Created `PostVMMixin` base class for shared logic:
 
 ### Type Hints
 
-Added comprehensive type annotations:
-
-- `routing.py`: URL functions with `-> str`
-- `wire.py`: View methods with `Response`, `FilterBar`, `Tab`, `Callable`
-- `_filters.py`: All properties and methods
-- `_tabs.py`: `get_tabs()`, `is_active`, `get_stmt()`, `get_authors()`
-
-Fixed Liskov violation: `get_authors()` returns `Iterable[User] | None` consistently.
+Added comprehensive type annotations.
 
 ### Security Improvements
 
@@ -67,8 +60,6 @@ Fixed Liskov violation: `get_authors()` returns `Iterable[User] | None` consiste
 - Removed redundant `elvis()` function
 - Extracted `DEFAULT_POSTS_LIMIT = 30` constant
 - Removed commented imports
-
----
 
 ## Swork Module - Code Review and Fixes
 
@@ -113,8 +104,6 @@ Complete code review of `src/app/modules/swork/`. See `local-notes/swork-code-re
    - Converted `db.session.query(User).filter(...)` to `select(User).where(...)`
    - Cleaned up imports: `import abc` → `from abc import ABC, abstractmethod`
 
----
-
 ## N+1 Query Detector - New Infrastructure
 
 Added `src/app/flask/lib/n_plus_one_detector.py`:
@@ -154,15 +143,11 @@ def create_app():
 
 Includes 20 unit tests covering normalization, tracking, and detection.
 
----
-
 ## Events Module
 
 - Fixed view count tracking
 - Fixed comments functionality
 - Fixed like button behavior
-
----
 
 ## Type Checking Migration
 
@@ -185,8 +170,6 @@ Removed 23 unnecessary `# type: ignore` comments across multiple files:
 - Fixed SQLAlchemy query comparisons: `.where(Model.owner == user)` → `.where(Model.owner_id == user.id)`
 - Added `# type: ignore[assignment]` for SQLAlchemy descriptor assignments in faker scripts
 
----
-
 ## Business Wall
 
 - Added tests for free BW creation
@@ -195,14 +178,10 @@ Removed 23 unnecessary `# type: ignore` comments across multiple files:
 - Fixed BigInteger requirements for user.id and org.id in BW classes
 - Added migrations for Integer → BigInteger conversions
 
----
-
 ## FileObject Migration
 
 - Removed old blob-related code
 - Moved everything to FileObject pattern
-
----
 
 ## Event Calendar
 
