@@ -15,6 +15,7 @@ from sqlalchemy import BigInteger, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 if TYPE_CHECKING:
+    from app.models.auth import User
     from app.models.organisation import Organisation
 
     from .content import BWContent
@@ -61,11 +62,15 @@ class BusinessWall(UUIDAuditBase):
     # Pricing
     is_free: Mapped[bool] = mapped_column(default=False)
 
-    # Ownership - references to User IDs (no FK constraint for POC)
-    owner_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    # Ownership - references to User ID
+    owner_id: Mapped[int] = mapped_column(
+        BigInteger, ForeignKey("aut_user.id", name="fk_bw_business_wall_owner_id"), nullable=False
+    )
 
-    # Payer (can be same as owner) - references to User ID (no FK constraint for POC)
-    payer_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    # Payer (can be same as owner) - references to User ID
+    payer_id: Mapped[int] = mapped_column(
+        BigInteger, ForeignKey("aut_user.id", name="fk_bw_business_wall_payer_id"), nullable=False
+    )
 
     # Organization reference (if applicable)
     organisation_id: Mapped[int | None] = mapped_column(
@@ -76,6 +81,8 @@ class BusinessWall(UUIDAuditBase):
     activated_at: Mapped[datetime | None] = mapped_column(nullable=True)
 
     # Relationships (using string annotations to avoid circular imports)
+    owner: Mapped[User] = relationship("User", foreign_keys=[owner_id])
+    payer: Mapped[User] = relationship("User", foreign_keys=[payer_id])
     organisation: Mapped[Organisation | None] = relationship("Organisation")
     subscription: Mapped[Subscription | None] = relationship(
         "Subscription", back_populates="business_wall", cascade="all, delete-orphan"
