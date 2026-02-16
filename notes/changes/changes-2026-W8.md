@@ -11,6 +11,7 @@ Merged `article_receiver.py` and `communique_receiver.py` into single `receivers
 - Shared helper `_update_post_common()` for common field updates
 - Separate type-specific functions for article and communique handling
 - Removed dead code assigning non-existent image attributes (`image_url`, `image_caption`, `image_copyright`)
+- Consistent naming: `on_article_published`, `on_communique_published`, etc.
 - Reduced from 200 lines to 167 lines
 
 ### New Repositories
@@ -67,11 +68,101 @@ Fixed Liskov violation: `get_authors()` returns `Iterable[User] | None` consiste
 - Extracted `DEFAULT_POSTS_LIMIT = 30` constant
 - Removed commented imports
 
+---
+
+## Swork Module - Code Review and Fixes
+
+Complete code review of `src/app/modules/swork/`. See `local-notes/swork-code-review.md` for full report.
+
+### High Priority Fixes
+
+1. **Input validation in group creation** (`views/group_new.py`):
+   - Added `form.get()` with `.strip()` instead of direct access
+   - Added validation for empty group name
+   - Added flash messages for success/error feedback
+
+2. **Null safety for profile access** (`views/_common.py`):
+   - Added null check for `user.profile` and `target_user.profile` before attribute access
+   - Prevents AttributeError when profiles are incomplete
+
+3. **N+1 query prevention** (`views/_common.py`):
+   - Added `selectinload()` for `ArticlePost.owner` and `ArticlePost.publisher`
+   - Converted from `.query()` to `select()` pattern
+
+4. **Accurate filter counts** (`components/members_list.py`, `components/organisations_list.py`):
+   - Count now uses `len(results)` after filtering
+   - Previously count query ignored applied filters
+
+### Medium Priority Fixes
+
+5. **Type hints** (`components/base.py`, `routes.py`):
+   - Added `-> str` to `url_for_group`
+   - Added `Select` type hints to `apply_search`, `apply_filters`
+   - Added proper types to `Filter.apply`, `Filter.active_options`
+   - Used `@abstractmethod` for `search_clause`
+
+6. **Filter improvements** (`components/organisations_list.py`):
+   - Added type hints to all filter methods
+   - Fixed ClassVar type annotations
+
+7. **Dead code removal** (`components/__init__.py`):
+   - Removed all commented-out component registrations
+   - Added docstring explaining auto-registration via `@register`
+
+8. **SQLAlchemy modernization** (`views/organisation.py`):
+   - Converted `db.session.query(User).filter(...)` to `select(User).where(...)`
+   - Cleaned up imports: `import abc` → `from abc import ABC, abstractmethod`
+
+---
+
+## N+1 Query Detector - New Infrastructure
+
+Added `src/app/flask/lib/n_plus_one_detector.py`:
+
+### Features
+
+- Hooks into SQLAlchemy's `before_cursor_execute` event
+- Tracks all queries during a request
+- Normalizes queries by replacing literals with placeholders
+- Detects repeated query patterns (threshold configurable)
+- Generates detailed reports with query counts and sample parameters
+
+### Configuration
+
+```python
+N_PLUS_ONE_ENABLED: bool | None = None  # None = use debug mode
+N_PLUS_ONE_THRESHOLD: int = 3           # Min repeated queries to trigger
+N_PLUS_ONE_LOG_LEVEL: str = "WARNING"   # Log level for alerts
+N_PLUS_ONE_RAISE: bool = False          # Raise exception instead of logging
+```
+
+### Usage
+
+```python
+from app.flask.lib.n_plus_one_detector import init_n_plus_one_detector
+
+def create_app():
+    app = Flask(__name__)
+    init_n_plus_one_detector(app)
+    return app
+```
+
+### Helper Functions
+
+- `get_query_count()` - Get total queries in current request
+- `get_query_stats()` - Get detailed query statistics
+
+Includes 20 unit tests covering normalization, tracking, and detection.
+
+---
+
 ## Events Module
 
 - Fixed view count tracking
 - Fixed comments functionality
 - Fixed like button behavior
+
+---
 
 ## Type Checking Migration
 
@@ -85,12 +176,16 @@ Removed 23 unnecessary `# type: ignore` comments across multiple files:
 - `events_list.py`, `event_card.py`, `event_detail.py`
 - `business_wall_registration.py`, `publications.py`
 - `_table.py`, `avis_enquete.py`, `expert_selectors.py`
+- `social_graph/_adapters.py` (removed 2 unused type ignores)
 
 ### Type Fixes
 
 - Fixed `Mapped[dict]` → `Mapped[list]` in Organisation model (resolved 15+ errors)
 - Added `ClassVar` to Table base class `columns` declaration
 - Fixed SQLAlchemy query comparisons: `.where(Model.owner == user)` → `.where(Model.owner_id == user.id)`
+- Added `# type: ignore[assignment]` for SQLAlchemy descriptor assignments in faker scripts
+
+---
 
 ## Business Wall
 
@@ -100,10 +195,14 @@ Removed 23 unnecessary `# type: ignore` comments across multiple files:
 - Fixed BigInteger requirements for user.id and org.id in BW classes
 - Added migrations for Integer → BigInteger conversions
 
+---
+
 ## FileObject Migration
 
 - Removed old blob-related code
 - Moved everything to FileObject pattern
+
+---
 
 ## Event Calendar
 
