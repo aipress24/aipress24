@@ -69,9 +69,9 @@ class Tab(abc.ABC):
         posts = get_multi(Post, stmt)
         return posts
 
-    def get_authors(self) -> Iterable[User] | None:
+    def get_authors(self) -> Iterable[User]:
         """Override in subclasses to filter by certain authors."""
-        return None
+        return []
 
     def get_stmt(self, filter_bar: FilterBar) -> sa.Select:
         active_filters = filter_bar.active_filters
@@ -117,8 +117,8 @@ class WallTab(Tab):
     tip = "Fil d'actus"
     post_type_allow: ClassVar[set[str]] = {"article", "post"}
 
-    def get_authors(self) -> None:
-        return None
+    def get_authors(self):
+        return []
 
 
 class AgenciesTab(Tab):
@@ -127,7 +127,7 @@ class AgenciesTab(Tab):
     tip = "Agences de Presse"
     post_type_allow: ClassVar[set[str]] = {"article", "post"}
 
-    def get_authors(self) -> Iterable[User]:
+    def get_authors(self):
         orgs: list[Organisation] = adapt(g.user).get_followees(cls=Organisation)
         journalists: set[User] = set()
         for org in orgs:
@@ -142,7 +142,7 @@ class MediasTab(Tab):
     tip = "Médias (presse, en ligne...) auxquels je suis abonné"
     post_type_allow: ClassVar[set[str]] = {"article", "post"}
 
-    def get_authors(self) -> Iterable[User]:
+    def get_authors(self):
         orgs: list[Organisation] = adapt(g.user).get_followees(cls=Organisation)
         journalists: set[User] = set()
         for org in orgs:
@@ -157,7 +157,7 @@ class JournalistsTab(Tab):
     tip = "Les journalistes que je suis"
     post_type_allow: ClassVar[set[str]] = {"article", "post"}
 
-    def get_authors(self) -> Iterable[User]:
+    def get_authors(self):
         return adapt(g.user).get_followees()
 
 
