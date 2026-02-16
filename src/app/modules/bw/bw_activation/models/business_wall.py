@@ -81,6 +81,7 @@ class BusinessWall(UUIDAuditBase):
     activated_at: Mapped[datetime | None] = mapped_column(nullable=True)
 
     # Payer contact details (for invoice/billing)
+    payer_is_owner: Mapped[bool] = mapped_column(default=False)
     payer_first_name: Mapped[str] = mapped_column(String, default="")
     payer_last_name: Mapped[str] = mapped_column(String, default="")
     payer_service: Mapped[str] = mapped_column(String, default="")
