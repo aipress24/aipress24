@@ -108,7 +108,7 @@ class OrgGenerator(BaseGenerator):
             case OrganisationTypeEnum.COM:
                 org.bw_type = BWTypeEnum.COM  # type: ignore[assignment]
             case OrganisationTypeEnum.OTHER:
-                org.bw_type = random.choice(
+                org.bw_type = random.choice(  # type: ignore[assignment]
                     (
                         BWTypeEnum.CORPORATE,
                         BWTypeEnum.PRESSUNION,

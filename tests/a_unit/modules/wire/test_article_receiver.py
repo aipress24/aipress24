@@ -13,12 +13,12 @@ from app.models.auth import User
 from app.models.lifecycle import PublicationStatus
 from app.models.organisation import Organisation
 from app.modules.wip.models import Article
-from app.modules.wire.article_receiver import (
-    get_post,
-    on_publish,
-    on_unpublish,
-    on_update,
-    update_post,
+from app.modules.wire.receivers import (
+    get_article_post,
+    on_article_published,
+    on_article_unpublished,
+    on_article_updated,
+    update_article_post,
 )
 from app.modules.wire.models import ArticlePost
 
@@ -47,7 +47,7 @@ class TestGetPost:
         db.session.add(post)
         db.session.flush()
 
-        result = get_post(article)
+        result = get_article_post(article)
 
         assert result is not None
         assert result.id == post.id
@@ -70,7 +70,7 @@ class TestGetPost:
         db.session.add(article)
         db.session.flush()
 
-        result = get_post(article)
+        result = get_article_post(article)
 
         assert result is None
 
@@ -81,7 +81,7 @@ class TestGetPost:
         # With typeguard, TypeCheckError is raised at function boundary
         # Without typeguard, AttributeError is raised when accessing .id
         with pytest.raises((AttributeError, TypeCheckError)):
-            get_post(invalid_object)  # type: ignore[arg-type]
+            get_article_post(invalid_object)  # type: ignore[arg-type]
 
 
 class TestUpdatePost:
@@ -122,7 +122,7 @@ class TestUpdatePost:
         db.session.add(post)
         db.session.flush()
 
-        update_post(post, article)
+        update_article_post(post, article)
 
         assert post.title == "Article Title"
         assert post.summary == "Article Summary"
@@ -165,7 +165,7 @@ class TestOnPublish:
         db.session.add(article)
         db.session.flush()
 
-        on_publish(article)
+        on_article_published(article)
 
         posts = db.session.query(ArticlePost).filter_by(newsroom_id=article.id).all()
         assert len(posts) == 1
@@ -205,7 +205,7 @@ class TestOnPublish:
         db.session.add(existing_post)
         db.session.flush()
 
-        on_publish(article)
+        on_article_published(article)
 
         updated_post = (
             db.session.query(ArticlePost).filter_by(newsroom_id=article.id).first()
@@ -242,7 +242,7 @@ class TestOnUnpublish:
         db.session.add(post)
         db.session.flush()
 
-        on_unpublish(article)
+        on_article_unpublished(article)
 
         updated_post = (
             db.session.query(ArticlePost).filter_by(newsroom_id=article.id).first()
@@ -269,7 +269,7 @@ class TestOnUnpublish:
         db.session.flush()
 
         # Should not raise an error
-        on_unpublish(article)
+        on_article_unpublished(article)
 
 
 class TestOnUpdate:
@@ -300,7 +300,7 @@ class TestOnUpdate:
         db.session.add(post)
         db.session.flush()
 
-        on_update(article)
+        on_article_updated(article)
 
         updated_post = (
             db.session.query(ArticlePost).filter_by(newsroom_id=article.id).first()
@@ -328,4 +328,4 @@ class TestOnUpdate:
         db.session.flush()
 
         # Should not raise an error
-        on_update(article)
+        on_article_updated(article)
