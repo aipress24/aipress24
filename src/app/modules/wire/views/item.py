@@ -216,94 +216,18 @@ class PostMixin:
         return publisher_type
 
 
-@frozen
-class ArticleVM(Wrapper, PostMixin):
-    """ViewModel for Article posts."""
+class PostVMMixin(PostMixin):
+    """Shared ViewModel mixin for Article and Press Release posts.
 
-    _model: ArticlePost
-    _url: str = field(init=False)
+    Subclasses must define:
+    - _model: The post model instance
+    - _comment_prefix: Prefix for comment object_id (e.g., "article", "press-release")
+    """
 
-    author: User = field(init=False)
+    _comment_prefix: str
 
-    likes: int = field(init=False)
-    replies: int = field(init=False)
-    views: int = field(init=False)
-
-    num_likes: int = field(init=False)
-    num_replies: int = field(init=False)
-    num_views: int = field(init=False)
-    num_comments: int = field(init=False)
-
-    summary: str = field(init=False)
-    age: int = field(init=False)
-    comments: list = field(init=False)
-    tags: list = field(init=False)
-
-    publisher: Organisation = field(init=False)
-    publisher_type: str = field(init=False)
-
-    def extra_attrs(self):
-        post = article = cast("ArticlePost", self._model)
-
-        if article.published_at:
-            age = cast(arrow.Arrow, article.published_at).humanize(locale="fr")
-        else:
-            age = "(not set)"
-
-        publisher_type = self.get_publisher_type()
-
-        extra_attrs = super().extra_attrs()
-        extra_attrs.update(
-            {
-                "age": age,
-                "author": UserVM(post.owner),
-                "publisher_type": publisher_type,
-                "comments": self.get_comments(),
-                "tags": get_tags(article),
-                "_url": url_for(post),
-            }
-        )
-        return extra_attrs
-
-    def get_comments(self) -> list[Comment]:
-        article = cast("ArticlePost", self._model)
-        stmt = (
-            sa.select(Comment)
-            .where(Comment.object_id == f"article:{article.id}")
-            .order_by(Comment.created_at.desc())
-            .options(selectinload(Comment.owner))
-        )
-        return list(db.session.scalars(stmt))
-
-
-@frozen
-class PressReleaseVM(Wrapper, PostMixin):
-    """ViewModel for Press Release posts."""
-
-    _model: PressReleasePost
-    _url: str = field(init=False)
-
-    author: User = field(init=False)
-
-    likes: int = field(init=False)
-    replies: int = field(init=False)
-    views: int = field(init=False)
-
-    num_likes: int = field(init=False)
-    num_replies: int = field(init=False)
-    num_views: int = field(init=False)
-    num_comments: int = field(init=False)
-
-    summary: str = field(init=False)
-    age: int = field(init=False)
-    comments: list = field(init=False)
-    tags: list = field(init=False)
-
-    publisher: Organisation = field(init=False)
-    publisher_type: str = field(init=False)
-
-    def extra_attrs(self):
-        post = cast("PressReleasePost", self._model)
+    def extra_attrs(self) -> dict:
+        post = self._model
 
         if post.published_at:
             age = cast(arrow.Arrow, post.published_at).humanize(locale="fr")
@@ -326,14 +250,71 @@ class PressReleaseVM(Wrapper, PostMixin):
         return extra_attrs
 
     def get_comments(self) -> list[Comment]:
-        post = cast("PressReleasePost", self._model)
+        post = self._model
+        object_id = f"{self._comment_prefix}:{post.id}"
         stmt = (
             sa.select(Comment)
-            .where(Comment.object_id == f"press-release:{post.id}")
+            .where(Comment.object_id == object_id)
             .order_by(Comment.created_at.desc())
             .options(selectinload(Comment.owner))
         )
         return list(db.session.scalars(stmt))
+
+
+@frozen
+class ArticleVM(PostVMMixin, Wrapper):
+    """ViewModel for Article posts."""
+
+    _model: ArticlePost
+    _comment_prefix: str = "article"
+    _url: str = field(init=False)
+
+    author: User = field(init=False)
+
+    likes: int = field(init=False)
+    replies: int = field(init=False)
+    views: int = field(init=False)
+
+    num_likes: int = field(init=False)
+    num_replies: int = field(init=False)
+    num_views: int = field(init=False)
+    num_comments: int = field(init=False)
+
+    summary: str = field(init=False)
+    age: int = field(init=False)
+    comments: list = field(init=False)
+    tags: list = field(init=False)
+
+    publisher: Organisation = field(init=False)
+    publisher_type: str = field(init=False)
+
+
+@frozen
+class PressReleaseVM(PostVMMixin, Wrapper):
+    """ViewModel for Press Release posts."""
+
+    _model: PressReleasePost
+    _comment_prefix: str = "press-release"
+    _url: str = field(init=False)
+
+    author: User = field(init=False)
+
+    likes: int = field(init=False)
+    replies: int = field(init=False)
+    views: int = field(init=False)
+
+    num_likes: int = field(init=False)
+    num_replies: int = field(init=False)
+    num_views: int = field(init=False)
+    num_comments: int = field(init=False)
+
+    summary: str = field(init=False)
+    age: int = field(init=False)
+    comments: list = field(init=False)
+    tags: list = field(init=False)
+
+    publisher: Organisation = field(init=False)
+    publisher_type: str = field(init=False)
 
 
 @frozen

@@ -10,7 +10,9 @@ from app.modules.wire.models import ArticlePost, PressReleasePost
 
 
 @url_for.register
-def _url_for_article(item: ArticlePost, _ns: str = "wire", _action: str = "", **kw):
+def _url_for_article(
+    item: ArticlePost, _ns: str = "wire", _action: str = "", **kw: str
+) -> str:
     name = f"{_ns}.item"
     kw["id"] = base62.encode(item.id)
 
@@ -22,8 +24,8 @@ def _url_for_article(item: ArticlePost, _ns: str = "wire", _action: str = "", **
 
 @url_for.register
 def _url_for_communique(
-    item: PressReleasePost, _ns: str = "wire", _action: str = "", **kw
-):
+    item: PressReleasePost, _ns: str = "wire", _action: str = "", **kw: str
+) -> str:
     name = f"{_ns}.item"
     kw["id"] = base62.encode(item.id)
 

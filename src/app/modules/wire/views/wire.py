@@ -6,11 +6,13 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from typing import TYPE_CHECKING
 
 from attr import define
 from flask import redirect, render_template, request, session
 from flask.views import MethodView
+from werkzeug import Response
 from werkzeug.exceptions import NotFound
 
 from app.flask.lib.nav import nav
@@ -18,7 +20,8 @@ from app.flask.routing import url_for
 from app.modules.wire import blueprint
 
 if TYPE_CHECKING:
-    pass
+    from ._filters import FilterBar
+    from ._tabs import Tab
 
 
 @define
@@ -34,7 +37,7 @@ class WirePageContext:
 
 # Simple redirect - stays as function-based
 @blueprint.route("/")
-def wire():
+def wire() -> Response:
     """News - redirect to active tab."""
     from ._tabs import get_tabs
 
@@ -98,7 +101,7 @@ class WireTabView(MethodView):
             filter_bar=filter_bar,
         )
 
-    def _render_wire(self, tab: str, filter_bar, tabs: list):
+    def _render_wire(self, tab: str, filter_bar: FilterBar, tabs: list[Tab]) -> str:
         """Render the wire page."""
         posts = self._get_posts(tabs, filter_bar)
         page = WirePageContext()
@@ -113,7 +116,7 @@ class WireTabView(MethodView):
             filter_bar=filter_bar,
         )
 
-    def _build_tabs(self, tabs: list) -> list[dict]:
+    def _build_tabs(self, tabs: list[Tab]) -> list[dict]:
         """Build tab data for template."""
         result = []
         for tab in tabs:
@@ -128,7 +131,7 @@ class WireTabView(MethodView):
             )
         return result
 
-    def _get_posts(self, tabs: list, filter_bar):
+    def _get_posts(self, tabs: list[Tab], filter_bar: FilterBar) -> list:
         """Get posts for the active tab."""
         from app.services.tagging import get_tags
 
@@ -145,7 +148,9 @@ class WireTabView(MethodView):
         posts = active_tab.get_posts(filter_bar)
         return self._filter_posts_by_tag(posts, filter_bar, get_tags)
 
-    def _filter_posts_by_tag(self, posts, filter_bar, get_tags):
+    def _filter_posts_by_tag(
+        self, posts: list, filter_bar: FilterBar, get_tags: Callable
+    ) -> list:
         """Filter posts by tag if specified."""
         if not (tag := filter_bar.tag):
             return posts
