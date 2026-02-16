@@ -80,6 +80,14 @@ class BusinessWall(UUIDAuditBase):
     # Activation tracking
     activated_at: Mapped[datetime | None] = mapped_column(nullable=True)
 
+    # Payer contact details (for invoice/billing)
+    payer_first_name: Mapped[str] = mapped_column(String, default="")
+    payer_last_name: Mapped[str] = mapped_column(String, default="")
+    payer_service: Mapped[str] = mapped_column(String, default="")
+    payer_email: Mapped[str] = mapped_column(String, default="")
+    payer_phone: Mapped[str] = mapped_column(String, default="")
+    payer_address: Mapped[str] = mapped_column(String, default="")
+
     # Relationships (using string annotations to avoid circular imports)
     owner: Mapped[User] = relationship("User", foreign_keys=[owner_id])
     payer: Mapped[User] = relationship("User", foreign_keys=[payer_id])
