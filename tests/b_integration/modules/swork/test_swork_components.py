@@ -490,19 +490,19 @@ class TestOrganisationsListContext:
             assert "filter_states" in ctx
 
 
-class TestOrganisationsListGetOrgCount:
-    """Test OrganisationsList.get_org_count method."""
+class TestOrganisationsListCount:
+    """Test OrganisationsList count in context."""
 
-    def test_get_org_count_returns_integer(
+    def test_context_count_returns_integer(
         self, app: Flask, db_session: Session, test_organisation: Organisation
     ):
-        """Test get_org_count returns an integer."""
+        """Test context count is an integer matching filtered results."""
         with app.test_request_context():
             orgs_list = OrganisationsList()
-            count = orgs_list.get_org_count()
+            ctx = orgs_list.context()
 
-            assert isinstance(count, int)
-            assert count >= 1  # At least the test org
+            assert isinstance(ctx["count"], int)
+            assert ctx["count"] >= 1  # At least the test org
 
 
 class TestFilterByCategory:

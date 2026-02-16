@@ -5,13 +5,12 @@
 from __future__ import annotations
 
 import re
-from typing import ClassVar, cast
+from typing import Any, ClassVar, cast
 
 from attr import define
 from flask_super.registry import register
 from sqlalchemy import select
 from sqlalchemy.sql import Select
-from sqlalchemy.sql.functions import count
 
 from app.enums import OrganisationTypeEnum
 from app.flask.extensions import db
@@ -26,9 +25,9 @@ from .base import BaseList, Filter, FilterOption
 
 @register
 class OrganisationsList(BaseList):
-    def context(self):
-        org_count = self.get_org_count()
+    def context(self) -> dict[str, Any]:
         orgs = self.get_orgs()
+        org_count = len(orgs)
         directory = OrgsDirectory(orgs)
 
         return {
@@ -37,12 +36,8 @@ class OrganisationsList(BaseList):
             "filters": self.filters,
             "directory": directory,
             "count": org_count,
-            "active_filters": self.get_active_filters(),  # Added active_filters
+            "active_filters": self.get_active_filters(),
         }
-
-    def get_org_count(self) -> int:
-        stmt = select(count(Organisation.id)).where(Organisation.deleted_at.is_(None))
-        return db.session.scalar(stmt) or 0
 
     def get_orgs(self) -> list[Organisation]:
         stmt = self.make_stmt()
@@ -86,18 +81,19 @@ class FilterByCountryOrm(Filter):
         code = org.pays_zip_ville
         return FilterOption(country_code_to_country_name(code), code)
 
-    def active_options(self, state):
-        options = []
+    def get_country_codes(self, state: dict[str, bool]) -> list[str]:
+        """Extract country codes from active FilterOption selections."""
+        codes: list[str] = []
         for i in range(len(state)):
             if state[str(i)]:
-                filter_option: FilterOption = cast(FilterOption, self.options[i])
-                options.append(filter_option.code)
-        return options
+                filter_option = cast(FilterOption, self.options[i])
+                codes.append(filter_option.code)
+        return codes
 
-    def apply(self, stmt, state):
-        active_options = self.active_options(state)
-        if active_options:
-            stmt = stmt.where(Organisation.pays_zip_ville.in_(active_options))
+    def apply(self, stmt: Select, state: dict[str, bool]) -> Select:
+        codes = self.get_country_codes(state)
+        if codes:
+            stmt = stmt.where(Organisation.pays_zip_ville.in_(codes))
         return stmt
 
 
@@ -108,8 +104,7 @@ class FilterByDeptOrm(Filter):
     def selector(self, org: Organisation) -> str:
         return org.departement
 
-    def apply(self, stmt, state):
-        # User.profile.has(KYCProfile.departement.in_(active_options))
+    def apply(self, stmt: Select, state: dict[str, bool]) -> Select:
         active_options = self.active_options(state)
         if active_options:
             stmt = stmt.where(Organisation.departement.in_(active_options))
@@ -123,7 +118,7 @@ class FilterByCityOrm(Filter):
     def selector(self, org: Organisation) -> str:
         return org.ville
 
-    def apply(self, stmt, state):
+    def apply(self, stmt: Select, state: dict[str, bool]) -> Select:
         active_options = self.active_options(state)
         if active_options:
             stmt = stmt.where(Organisation.ville.in_(active_options))
@@ -133,47 +128,30 @@ class FilterByCityOrm(Filter):
 class FilterByCategory(Filter):
     id = "category"
     label = "Categorie"
-    # options = [
-    #     "Agences",
-    #     "Médias",
-    #     "PR agencies",
-    #     "Autres",
-    # ]
-    org_type_map: ClassVar[dict] = {
+    org_type_map: ClassVar = {
         "Agences de presse": OrganisationTypeEnum.AGENCY,
         "Médias": OrganisationTypeEnum.MEDIA,
         "PR agencies": OrganisationTypeEnum.COM,
         "Autres": OrganisationTypeEnum.OTHER,
         "Non officialisées": OrganisationTypeEnum.AUTO,
     }
-    options: ClassVar = list(org_type_map.keys())
-    # options = [str(x) for x in OrganisationTypeEnum]
-    # org_type_map = {str(x): x for x in OrganisationTypeEnum}
+    options: ClassVar[list[str]] = [
+        "Agences de presse",
+        "Médias",
+        "PR agencies",
+        "Autres",
+        "Non officialisées",
+    ]
 
-    def apply(self, stmt, state):
+    def apply(self, stmt: Select, state: dict[str, bool]) -> Select:
         active_options = self.active_options(state)
-        types = [self.org_type_map[option] for option in active_options]
+        types = [self.org_type_map[str(option)] for option in active_options]
         if types:
             stmt = stmt.where(Organisation.type.in_(types))
         return stmt
 
 
-# class FilterBySector(Filter):
-#     id = "sector"
-#     label = "Secteur"
-#     options = [
-#         "Secteur 1",
-#         "Secteur 2",
-#         "Secteur 3",
-#         "Secteur 4",
-#         "Secteur 5",
-#     ]
-
-#     def apply(self, stmt, state):
-#         return stmt
-
-
-def make_filters(orgs: list[Organisation]):
+def make_filters(orgs: list[Organisation]) -> list[Filter]:
     return [
         FilterByCategory(orgs),
         # FilterBySector(orgs),

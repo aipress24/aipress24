@@ -6,7 +6,6 @@
 
 from __future__ import annotations
 
-import pytest
 
 from app.flask.lib.n_plus_one_detector import (
     QueryTracker,
@@ -31,7 +30,9 @@ class TestNormalizeQuery:
         assert normalize_query(query) == "SELECT * FROM users WHERE id IN (...)"
 
     def test_normalize_uuid(self):
-        query = "SELECT * FROM users WHERE uuid = '550e8400-e29b-41d4-a716-446655440000'"
+        query = (
+            "SELECT * FROM users WHERE uuid = '550e8400-e29b-41d4-a716-446655440000'"
+        )
         assert normalize_query(query) == "SELECT * FROM users WHERE uuid = ?"
 
     def test_normalize_whitespace(self):

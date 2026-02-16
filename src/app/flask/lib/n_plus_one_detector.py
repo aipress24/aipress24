@@ -239,7 +239,6 @@ def init_n_plus_one_detector(app: Flask) -> None:
 class NPlusOneDetectedError(Exception):
     """Raised when N+1 query pattern is detected and N_PLUS_ONE_RAISE is True."""
 
-    pass
 
 
 # Convenience function for testing
