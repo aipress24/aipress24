@@ -61,6 +61,22 @@ def create_new_free_bw_record(session: MutableMapping) -> bool:
     subscription_service = container.get(SubscriptionService)
     role_service = container.get(RoleAssignmentService)
 
+    payer_is_owner = session.get("payer_is_owner", False)
+    if payer_is_owner:
+        payer_first_name = ""
+        payer_last_name = ""
+        payer_service = ""
+        payer_email = ""
+        payer_phone = ""
+        payer_address = ""
+    else:
+        payer_first_name = session.get("payer_first_name", "")
+        payer_last_name = session.get("payer_last_name", "")
+        payer_service = session.get("payer_service", "")
+        payer_email = session.get("payer_email", "")
+        payer_phone = session.get("payer_phone", "")
+        payer_address = session.get("payer_address", "")
+
     # Create Business Wall using service via arsg mapping
     business_wall = bw_service.create(
         {
@@ -71,6 +87,13 @@ def create_new_free_bw_record(session: MutableMapping) -> bool:
             "payer_id": user.id,  # Let use for the moment always user_id
             "organisation_id": org.id,
             "activated_at": now,
+            "payer_is_owner": payer_is_owner,
+            "payer_first_name": payer_first_name,
+            "payer_last_name": payer_last_name,
+            "payer_service": payer_service,
+            "payer_email": payer_email,
+            "payer_phone": payer_phone,
+            "payer_address": payer_address,
         },
         auto_commit=False,
     )
