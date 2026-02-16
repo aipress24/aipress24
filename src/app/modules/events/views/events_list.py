@@ -145,15 +145,10 @@ class EventsListView(MethodView):
             stmt = stmt.where(
                 EventPost.pays_zip_ville.in_(filters_by_id["pays_zip_ville"])
             )
-        # Note: departement and ville are hybrid_property, mypy doesn't understand them
         if filters_by_id["departement"]:
-            stmt = stmt.where(
-                EventPost.departement.in_(filters_by_id["departement"])  # type: ignore[attr-defined]
-            )
+            stmt = stmt.where(EventPost.departement.in_(filters_by_id["departement"]))
         if filters_by_id["ville"]:
-            stmt = stmt.where(
-                EventPost.ville.in_(filters_by_id["ville"])  # type: ignore[attr-defined]
-            )
+            stmt = stmt.where(EventPost.ville.in_(filters_by_id["ville"]))
 
         return stmt
 
@@ -175,10 +170,7 @@ class EventsListView(MethodView):
         m = re.search(r"([0-9]+)", search)
         if m:
             zip_code = m.group(1)
-            # code_postal is a hybrid_property
-            postal_filter = EventPost.code_postal.ilike(  # type: ignore[attr-defined]
-                f"%{zip_code}%"
-            )
+            postal_filter = EventPost.code_postal.ilike(f"%{zip_code}%")
             return stmt.where(or_(title_filter, postal_filter))
 
         return stmt.where(title_filter)

@@ -425,7 +425,7 @@ def _do_restore_remotely(org) -> None:
         else:
             stripe.Subscription.modify(
                 org.stripe_subscription_id,
-                pause_collection=None,
+                pause_collection="",
                 proration_behavior="always_invoice",
                 cancel_at_period_end=False,
             )

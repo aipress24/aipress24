@@ -94,9 +94,9 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
     description: Mapped[str] = mapped_column(default="")
 
     # OBSOLETE
-    metiers: Mapped[dict] = mapped_column(JSON, default=list)
+    metiers: Mapped[list] = mapped_column(JSON, default=list)
     # OBSOLETE
-    metiers_detail: Mapped[dict] = mapped_column(JSON, default=list)
+    metiers_detail: Mapped[list] = mapped_column(JSON, default=list)
 
     # from LifeCycleMixin : created_at
     # from LifeCycleMixin : deleted_at
@@ -187,32 +187,32 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
 
     # discussion: 3 types de secteurs d'activité
     # media, micro, corporate, presunion, com
-    secteurs_activite_medias: Mapped[dict] = mapped_column(JSON, default=list)
-    secteurs_activite_medias_detail: Mapped[dict] = mapped_column(JSON, default=list)
-    secteurs_activite_rp: Mapped[dict] = mapped_column(JSON, default=list)
-    secteurs_activite_rp_detail: Mapped[dict] = mapped_column(JSON, default=list)
-    secteurs_activite: Mapped[dict] = mapped_column(JSON, default=list)
-    secteurs_activite_detail: Mapped[dict] = mapped_column(JSON, default=list)
+    secteurs_activite_medias: Mapped[list] = mapped_column(JSON, default=list)
+    secteurs_activite_medias_detail: Mapped[list] = mapped_column(JSON, default=list)
+    secteurs_activite_rp: Mapped[list] = mapped_column(JSON, default=list)
+    secteurs_activite_rp_detail: Mapped[list] = mapped_column(JSON, default=list)
+    secteurs_activite: Mapped[list] = mapped_column(JSON, default=list)
+    secteurs_activite_detail: Mapped[list] = mapped_column(JSON, default=list)
 
     # OBSOLETE
-    transformation_majeure: Mapped[dict] = mapped_column(JSON, default=list)
-    transformation_majeure_detail: Mapped[dict] = mapped_column(JSON, default=list)
+    transformation_majeure: Mapped[list] = mapped_column(JSON, default=list)
+    transformation_majeure_detail: Mapped[list] = mapped_column(JSON, default=list)
 
     # ONTOLOGIES/Types d’organisation :
-    type_organisation: Mapped[dict] = mapped_column(JSON, default=list)  # all
-    type_organisation_detail: Mapped[dict] = mapped_column(JSON, default=list)  # all
+    type_organisation: Mapped[list] = mapped_column(JSON, default=list)  # all
+    type_organisation_detail: Mapped[list] = mapped_column(JSON, default=list)  # all
 
     # ONTOLOGIES/Types d’entreprise de presse et média
     # média, micro, corporate, pressunion
-    type_entreprise_media: Mapped[dict] = mapped_column(JSON, default=list)
+    type_entreprise_media: Mapped[list] = mapped_column(JSON, default=list)
 
     # ONTOLOGIES/Types de presse et média
     # média, micro, corporate
-    type_presse_et_media: Mapped[dict] = mapped_column(JSON, default=list)
+    type_presse_et_media: Mapped[list] = mapped_column(JSON, default=list)
 
     # ONTOLOGIES/Types PR Agency
     # com
-    type_agence_rp: Mapped[dict] = mapped_column(JSON, default=list)
+    type_agence_rp: Mapped[list] = mapped_column(JSON, default=list)
 
     # NOUVEAU
     # en discussion: clients connus de aipress24
@@ -238,7 +238,7 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
     frequence_publication: Mapped[str] = mapped_column(default="")
 
     # OBSOLETE
-    metiers_presse: Mapped[dict] = mapped_column(JSON, default=list)
+    metiers_presse: Mapped[list] = mapped_column(JSON, default=list)
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)

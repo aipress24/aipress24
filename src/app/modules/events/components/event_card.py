@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from typing import cast
 
+from arrow import Arrow
 from attr import define
 
 from app.flask.lib.pywire import Component, component
@@ -26,7 +27,9 @@ class EventCardVM(ViewModel):
 
         # Compute opening hours only if both dates are set
         if event.start_datetime and event.end_datetime:
-            opening = opening_hours(event.start_datetime, event.end_datetime)
+            start = cast(Arrow, event.start_datetime)
+            end = cast(Arrow, event.end_datetime)
+            opening = opening_hours(start, end)
         else:
             opening = ""
 
@@ -57,4 +60,4 @@ class EventCard(Component):
 
     def __attrs_post_init__(self) -> None:
         # Wrap event in ViewModel for clean computed property access
-        self.event = EventCardVM(self.event)  # type: ignore[assignment]
+        self.event = EventCardVM(self.event)

@@ -8,8 +8,9 @@ from __future__ import annotations
 
 import json
 
-from flask import Response, flash, g, make_response, redirect, render_template, request
+from flask import flash, g, make_response, redirect, render_template, request
 from flask.views import MethodView
+from werkzeug import Response
 
 from app.flask.extensions import db
 from app.flask.lib.nav import nav
