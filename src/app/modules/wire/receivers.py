@@ -40,7 +40,7 @@ if TYPE_CHECKING:
 
 @article_published.connect
 def on_article_published(article: Article) -> None:
-    post = _get_article_post(article)
+    post = get_article_post(article)
     if not post:
         post = ArticlePost()
         post.newsroom_id = article.id
@@ -49,7 +49,7 @@ def on_article_published(article: Article) -> None:
     # SQLAlchemy Mapped attribute assignment
     post.status = PublicationStatus.PUBLIC  # type: ignore[invalid-assignment]
 
-    _update_article_post(post, article)
+    update_article_post(post, article)
 
     db.session.add(post)
     db.session.flush()
@@ -57,7 +57,7 @@ def on_article_published(article: Article) -> None:
 
 @article_unpublished.connect
 def on_article_unpublished(article: Article) -> None:
-    post = _get_article_post(article)
+    post = get_article_post(article)
     if not post:
         return
     # SQLAlchemy Mapped attribute assignment
@@ -69,23 +69,23 @@ def on_article_unpublished(article: Article) -> None:
 
 @article_updated.connect
 def on_article_updated(article: Article) -> None:
-    post = _get_article_post(article)
+    post = get_article_post(article)
     if not post:
         # Article not published yet, nothing to do
         return
 
-    _update_article_post(post, article)
+    update_article_post(post, article)
 
     db.session.add(post)
     db.session.flush()
 
 
-def _get_article_post(article: Article) -> ArticlePost | None:
+def get_article_post(article: Article) -> ArticlePost | None:
     repo = container.get(ArticlePostRepository)
     return repo.get_by_newsroom_id(article.id)
 
 
-def _update_article_post(post: ArticlePost, article: Article) -> None:
+def update_article_post(post: ArticlePost, article: Article) -> None:
     _update_post_common(post, article)
 
     # Article-specific: media_id
@@ -105,7 +105,7 @@ def _update_article_post(post: ArticlePost, article: Article) -> None:
 
 @communique_published.connect
 def on_communique_published(communique: Communique) -> None:
-    post = _get_communique_post(communique)
+    post = get_communique_post(communique)
     if not post:
         post = PressReleasePost()
         post.newsroom_id = communique.id
@@ -114,7 +114,7 @@ def on_communique_published(communique: Communique) -> None:
     # SQLAlchemy Mapped attribute assignment
     post.status = PublicationStatus.PUBLIC  # type: ignore[invalid-assignment]
 
-    _update_communique_post(post, communique)
+    update_communique_post(post, communique)
 
     db.session.add(post)
     db.session.flush()
@@ -122,7 +122,7 @@ def on_communique_published(communique: Communique) -> None:
 
 @communique_unpublished.connect
 def on_communique_unpublished(communique: Communique) -> None:
-    post = _get_communique_post(communique)
+    post = get_communique_post(communique)
     if not post:
         return
     # SQLAlchemy Mapped attribute assignment
@@ -134,23 +134,23 @@ def on_communique_unpublished(communique: Communique) -> None:
 
 @communique_updated.connect
 def on_communique_updated(communique: Communique) -> None:
-    post = _get_communique_post(communique)
+    post = get_communique_post(communique)
     if not post:
         # Communique not published yet, nothing to do
         return
 
-    _update_communique_post(post, communique)
+    update_communique_post(post, communique)
 
     db.session.add(post)
     db.session.flush()
 
 
-def _get_communique_post(communique: Communique) -> PressReleasePost | None:
+def get_communique_post(communique: Communique) -> PressReleasePost | None:
     repo = container.get(PressReleasePostRepository)
     return repo.get_by_newsroom_id(communique.id)
 
 
-def _update_communique_post(post: PressReleasePost, communique: Communique) -> None:
+def update_communique_post(post: PressReleasePost, communique: Communique) -> None:
     _update_post_common(post, communique)
 
     # Communique uses published_at directly

@@ -211,7 +211,7 @@ class ArticlesFakerScript(BaseScript):
 
         self.add_metadata(obj)
 
-        obj.status = random.choice(
+        obj.status = random.choice(  # type: ignore[assignment]
             [
                 PublicationStatus.DRAFT,
                 PublicationStatus.PUBLIC,

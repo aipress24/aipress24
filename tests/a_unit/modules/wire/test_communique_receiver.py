@@ -12,12 +12,12 @@ from app.models.auth import User
 from app.models.lifecycle import PublicationStatus
 from app.models.organisation import Organisation
 from app.modules.wip.models import Communique
-from app.modules.wire.communique_receiver import (
-    get_post,
-    on_publish_communique,
-    on_unpublish_communique,
-    on_update_communique,
-    update_post,
+from app.modules.wire.receivers import (
+    get_communique_post,
+    on_communique_published,
+    on_communique_unpublished,
+    on_communique_updated,
+    update_communique_post,
 )
 from app.modules.wire.models import PressReleasePost
 
@@ -42,7 +42,7 @@ class TestGetPost:
         db.session.add(post)
         db.session.flush()
 
-        result = get_post(communique)
+        result = get_communique_post(communique)
 
         assert result is not None
         assert result.id == post.id
@@ -61,7 +61,7 @@ class TestGetPost:
         db.session.add(communique)
         db.session.flush()
 
-        result = get_post(communique)
+        result = get_communique_post(communique)
 
         assert result is None
 
@@ -72,7 +72,7 @@ class TestGetPost:
         # With typeguard, TypeCheckError is raised at function boundary
         # Without typeguard, AttributeError is raised when accessing .id
         with pytest.raises((AttributeError, TypeCheckError)):
-            get_post(invalid_object)  # type: ignore[arg-type]
+            get_communique_post(invalid_object)  # type: ignore[arg-type]
 
 
 class TestUpdatePost:
@@ -108,7 +108,7 @@ class TestUpdatePost:
         db.session.add(post)
         db.session.flush()
 
-        update_post(post, communique)
+        update_communique_post(post, communique)
 
         assert post.title == "Communique Title"
         assert post.summary == "Communique Summary"
@@ -146,7 +146,7 @@ class TestOnPublish:
         db.session.add(communique)
         db.session.flush()
 
-        on_publish_communique(communique)
+        on_communique_published(communique)
 
         posts = (
             db.session.query(PressReleasePost)
@@ -186,7 +186,7 @@ class TestOnPublish:
         db.session.add(existing_post)
         db.session.flush()
 
-        on_publish_communique(communique)
+        on_communique_published(communique)
 
         updated_post = (
             db.session.query(PressReleasePost)
@@ -221,7 +221,7 @@ class TestOnUnpublish:
         db.session.add(post)
         db.session.flush()
 
-        on_unpublish_communique(communique)
+        on_communique_unpublished(communique)
 
         updated_post = (
             db.session.query(PressReleasePost)
@@ -246,7 +246,7 @@ class TestOnUnpublish:
         db.session.flush()
 
         # Should not raise an error
-        on_unpublish_communique(communique)
+        on_communique_unpublished(communique)
 
 
 class TestOnUpdate:
@@ -273,7 +273,7 @@ class TestOnUpdate:
         db.session.add(post)
         db.session.flush()
 
-        on_update_communique(communique)
+        on_communique_updated(communique)
 
         updated_post = (
             db.session.query(PressReleasePost)
@@ -299,4 +299,4 @@ class TestOnUpdate:
         db.session.flush()
 
         # Should not raise an error
-        on_update_communique(communique)
+        on_communique_updated(communique)
