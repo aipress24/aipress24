@@ -496,7 +496,7 @@ class DepartementSelector(BaseSelector):
         if not selected_countries:
             return set()
         if isinstance(selected_countries, str):
-            country_criteria = {selected_countries}
+            country_criteria: set[str] = {selected_countries}
         else:
             country_criteria = set(selected_countries)
         return {
@@ -526,7 +526,7 @@ class VilleSelector(BaseSelector):
         if not selected_departements:
             return set()
         if isinstance(selected_departements, str):
-            departement_criteria = {selected_departements}
+            departement_criteria: set[str] = {selected_departements}
         else:
             departement_criteria = set(selected_departements)
         return {

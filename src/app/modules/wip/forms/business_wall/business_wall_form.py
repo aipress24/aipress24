@@ -1864,10 +1864,7 @@ def merge_org_results(  # noqa: PLR0915
     org.type_presse_et_media = _parse_list("type_presse_et_media")
     org.type_agence_rp = _parse_list("type_agence_rp")
 
-    # "metier" fields removed: .
-    # org.metiers_presse = _parse_list("metiers_presse")
-    # org.metiers = _parse_list("metiers")
-    # org.metiers_detail = _parse_list("metiers_detail")
+    # "metier" fields removed
     org.metiers_presse = []
     org.metiers = []
     org.metiers_detail = []

@@ -9,7 +9,7 @@ import uuid
 from abc import ABC, abstractmethod
 from datetime import datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, ClassVar
 from urllib.parse import urlencode
 
 import attrs
@@ -40,7 +40,7 @@ class DataSource(ABC):
 
 class Table:
     data_source: DataSource
-    columns: list[dict[str, Any]]
+    columns: ClassVar[list[dict[str, Any]]]
 
     def get_items(self):
         return self.data_source.get_items()

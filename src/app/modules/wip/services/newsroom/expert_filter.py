@@ -108,8 +108,8 @@ class ExpertFilterService:
             selected_values = self._state.get(selector.id)
             if not selected_values:
                 continue
-            criteria = (
-                set(selected_values)
+            criteria: set[str] = (
+                set(selected_values)  # type: ignore[arg-type]
                 if isinstance(selected_values, list)
                 else {selected_values}
             )
