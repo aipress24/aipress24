@@ -15,7 +15,6 @@ from sqlalchemy import BigInteger, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 if TYPE_CHECKING:
-    from app.models.auth import User
     from app.models.organisation import Organisation
 
     from .content import BWContent
@@ -90,8 +89,6 @@ class BusinessWall(UUIDAuditBase):
     payer_address: Mapped[str] = mapped_column(String, default="")
 
     # Relationships (using string annotations to avoid circular imports)
-    owner: Mapped[User] = relationship("User", foreign_keys=[owner_id])
-    payer: Mapped[User] = relationship("User", foreign_keys=[payer_id])
     organisation: Mapped[Organisation | None] = relationship("Organisation")
     subscription: Mapped[Subscription | None] = relationship(
         "Subscription", back_populates="business_wall", cascade="all, delete-orphan"
