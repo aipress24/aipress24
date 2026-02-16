@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 
-from flask import g, redirect, render_template, request
+from flask import flash, g, redirect, render_template, request
 from flask.views import MethodView
 
 from app.flask.extensions import db
@@ -29,14 +29,19 @@ class NewGroupView(MethodView):
 
     def post(self):
         form = request.form
-        name = form["name"]
-        description = form["description"]
+        name = form.get("name", "").strip()
+        description = form.get("description", "").strip()
+
+        if not name:
+            flash("Le nom du groupe est obligatoire.", "error")
+            return redirect(url_for("swork.new_group"))
 
         group = Group(
             name=name, description=description, owner=g.user, privacy="public"
         )
         db.session.add(group)
         db.session.commit()
+        flash("Groupe créé avec succès.")
         return redirect(url_for("swork.groups"))
 
 

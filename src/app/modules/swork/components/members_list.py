@@ -11,7 +11,6 @@ from flask_super.registry import register
 from sqlalchemy import false, or_, select, true
 from sqlalchemy.orm import selectinload
 from sqlalchemy.sql import Select
-from sqlalchemy.sql.functions import count
 
 from app.flask.extensions import db
 from app.flask.sqla import get_multi
@@ -26,11 +25,9 @@ from .base import BaseList, Filter, FilterOption
 @register
 class MembersList(BaseList):
     def context(self) -> dict[str, Any]:
-        stmt = select(count(User.id))
-        items_count: int = db.session.scalar(stmt) or 0
-
         stmt = self.make_stmt()
         users: list[User] = list(db.session.scalars(stmt))
+        items_count = len(users)
         directory = MembersDirectory(users)
 
         return {
