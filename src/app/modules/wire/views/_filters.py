@@ -109,7 +109,7 @@ class FilterBar:
     # Accessors
     #
     @property
-    def active_filters(self):
+    def active_filters(self) -> list[dict[str, str]]:
         active = []
         for filter in self.state.get("filters", []):
             spec = FILTER_SPECS_BY_ID.get(filter["id"])
@@ -137,7 +137,7 @@ class FilterBar:
         return ""
 
     @property
-    def sorter(self):
+    def sorter(self) -> dict[str, list[dict[str, Any]]]:
         return {
             "options": [
                 {
@@ -150,7 +150,7 @@ class FilterBar:
         }
 
     @property
-    def sort_order(self):
+    def sort_order(self) -> str:
         return self.state.get("sort-by", "date")
 
     #
@@ -174,7 +174,7 @@ class FilterBar:
         self.state = {}
         self.save_state()
 
-    def set_tag(self, value) -> None:
+    def set_tag(self, value: str) -> None:
         self.add_filter("tag", value)
         self.save_state()
 
@@ -209,20 +209,20 @@ class FilterBar:
         else:
             self.add_filter(id, value)
 
-    def has_filter(self, id: str, value: str):
+    def has_filter(self, id: str, value: str) -> bool:
         filters = self.state.get("filters", [])
         return any(
             filter["id"] == id and filter["value"] == value for filter in filters
         )
 
-    def remove_filter(self, id, value) -> None:
+    def remove_filter(self, id: str, value: str) -> None:
         filters = self.state.get("filters", [])
         for i, filter in enumerate(filters):
             if filter["id"] == id and filter["value"] == value:
                 del filters[i]
                 break
 
-    def add_filter(self, id, value) -> None:
+    def add_filter(self, id: str, value: str) -> None:
         filters = self.state.get("filters", [])
         filters.append(
             {
@@ -232,18 +232,18 @@ class FilterBar:
         )
         self.state["filters"] = filters
 
-    def sort_by(self, value) -> None:
+    def sort_by(self, value: str) -> None:
         self.state["sort-by"] = value
 
     #
     # Filtering
     #
-    def get_filters(self):
+    def get_filters(self) -> list[dict[str, Any]]:
         if self.tab == "com":
             return self.get_filters_for_com()
         return self.get_filters_for_articles()
 
-    def get_filters_for_articles(self):
+    def get_filters_for_articles(self) -> list[dict[str, Any]]:
         stmt = sa.select(ArticlePost).where(
             ArticlePost.status == PublicationStatus.PUBLIC
         )
@@ -254,7 +254,7 @@ class FilterBar:
 
         return filter_set.get_filters()
 
-    def get_filters_for_com(self):
+    def get_filters_for_com(self) -> list[dict[str, Any]]:
         stmt = sa.select(PressReleasePost).where(
             PressReleasePost.status == PublicationStatus.PUBLIC
         )

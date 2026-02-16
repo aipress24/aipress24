@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import abc
+from collections.abc import Iterable
 from operator import itemgetter
 from typing import ClassVar
 
@@ -37,7 +38,7 @@ ALLOWED_FILTER_FIELDS = {
 DEFAULT_POSTS_LIMIT = 30
 
 
-def get_tabs():
+def get_tabs() -> list[Tab]:
     return [
         WallTab(),
         AgenciesTab(),
@@ -54,7 +55,7 @@ class Tab(abc.ABC):
     post_type_allow: ClassVar[set[str]]
 
     @property
-    def is_active(self):
+    def is_active(self) -> bool:
         return session["wire:tab"] == self.id
 
     def get_posts(self, filter_bar: FilterBar) -> list[Post]:
@@ -68,11 +69,11 @@ class Tab(abc.ABC):
         posts = get_multi(Post, stmt)
         return posts
 
-    def get_authors(self) -> list[User] | None:
+    def get_authors(self) -> Iterable[User] | None:
         """Override in subclasses to filter by certain authors."""
         return None
 
-    def get_stmt(self, filter_bar: FilterBar):
+    def get_stmt(self, filter_bar: FilterBar) -> sa.Select:
         active_filters = filter_bar.active_filters
         sort_order = filter_bar.sort_order
 
@@ -126,9 +127,9 @@ class AgenciesTab(Tab):
     tip = "Agences de Presse"
     post_type_allow: ClassVar[set[str]] = {"article", "post"}
 
-    def get_authors(self):
+    def get_authors(self) -> Iterable[User]:
         orgs: list[Organisation] = adapt(g.user).get_followees(cls=Organisation)
-        journalists = set()
+        journalists: set[User] = set()
         for org in orgs:
             if org.type == OrganisationTypeEnum.AGENCY:
                 journalists.update(list(org.members))
@@ -141,9 +142,9 @@ class MediasTab(Tab):
     tip = "Médias (presse, en ligne...) auxquels je suis abonné"
     post_type_allow: ClassVar[set[str]] = {"article", "post"}
 
-    def get_authors(self):
+    def get_authors(self) -> Iterable[User]:
         orgs: list[Organisation] = adapt(g.user).get_followees(cls=Organisation)
-        journalists = set()
+        journalists: set[User] = set()
         for org in orgs:
             if org.type == OrganisationTypeEnum.MEDIA:
                 journalists.update(list(org.members))
@@ -156,7 +157,7 @@ class JournalistsTab(Tab):
     tip = "Les journalistes que je suis"
     post_type_allow: ClassVar[set[str]] = {"article", "post"}
 
-    def get_authors(self):
+    def get_authors(self) -> Iterable[User]:
         return adapt(g.user).get_followees()
 
 
