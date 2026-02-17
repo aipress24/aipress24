@@ -12,8 +12,11 @@ from flask import g, redirect, render_template, session, url_for
 
 from app.modules.bw.bw_activation import bp
 from app.modules.bw.bw_activation.config import BW_TYPES
-from app.modules.bw.bw_activation.user_utils import guess_best_bw_type
-from app.modules.bw.bw_activation.utils import init_session
+from app.modules.bw.bw_activation.user_utils import (
+    current_business_wall,
+    guess_best_bw_type,
+)
+from app.modules.bw.bw_activation.utils import fill_session, init_session
 
 if TYPE_CHECKING:
     from app.models.auth import User
@@ -24,6 +27,13 @@ def index():
     """Redirect to confirmation subscription page."""
     user = cast("User", g.user)
     init_session()
+    current_bw = current_business_wall(user)
+    if current_bw:
+        if current_bw.owner_id == user.id:
+            fill_session(current_bw)
+            return redirect(url_for("bw_activation.dashboard"))
+        # not enough right to manage BW (not owner)
+        return redirect(url_for("bw_activation.information"))
     session["suggested_bw_type"] = guess_best_bw_type(user).value
     return redirect(url_for("bw_activation.confirm_subscription"))
 
