@@ -11,10 +11,12 @@ from enum import StrEnum
 from typing import TYPE_CHECKING
 
 from advanced_alchemy.base import UUIDAuditBase
-from sqlalchemy import BigInteger, ForeignKey, String
+from sqlalchemy import BigInteger, ForeignKey, String, inspect, select
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 if TYPE_CHECKING:
+    from app.models.organisation import Organisation
+
     from .content import BWContent
     from .partnership import Partnership
     from .role import RoleAssignment
@@ -73,6 +75,17 @@ class BusinessWall(UUIDAuditBase):
     organisation_id: Mapped[int | None] = mapped_column(
         BigInteger, ForeignKey("crp_organisation.id", name="fk_bw_business_wall_org_id"), nullable=True
     )
+    def get_organisation(self) -> Organisation | None:
+        """Get the Organisation associated with this BusinessWall."""
+        from app.models.organisation import Organisation
+        
+        if self.organisation_id is None:
+            return None
+        session = inspect(self).session
+        if session is None:
+            return None
+        stmt = select(Organisation).where(Organisation.id == self.organisation_id)
+        return session.execute(stmt).scalar_one_or_none()
 
     # Activation tracking
     activated_at: Mapped[datetime | None] = mapped_column(nullable=True)
