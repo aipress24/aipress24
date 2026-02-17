@@ -63,7 +63,7 @@ def create_new_free_bw_record(session: MutableMapping) -> bool:
 
     payer_is_owner_raw = session.get("payer_is_owner", False)
     # try to fix bool type
-    payer_is_owner: bool = payer_is_owner_raw in {True, "true", "on", "yes", "1", 1}
+    payer_is_owner: bool = payer_is_owner_raw in {True, "true", "on", "yes", "1"}
 
     if payer_is_owner:
         payer_first_name = ""

@@ -8,6 +8,8 @@ from __future__ import annotations
 
 from flask import session
 
+from app.modules.bw.bw_activation.models import BusinessWall
+
 
 def init_session():
     """Initialize session with default values if not set.
@@ -27,6 +29,16 @@ def init_session():
         session["bw_activated"] = False
     if "pricing_value" not in session:
         session["pricing_value"] = None
+
+
+def fill_session(current_bw: BusinessWall) -> None:
+    """Load into session information from current Businesswall."""
+    session["bw_type"] = current_bw.bw_type
+    session["bw_type_confirmed"] = True
+    session["suggested_bw_type"] = current_bw.bw_type
+    session["contacts_confirmed"] = True
+    session["bw_activated"] = True
+    session["pricing_value"] = None
 
 
 # deprecated
