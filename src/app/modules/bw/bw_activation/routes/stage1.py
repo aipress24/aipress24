@@ -31,6 +31,7 @@ def index():
     if current_bw:
         fill_session(current_bw)
         if current_bw.owner_id == user.id:
+            # fixme: later used the roles.
             return redirect(url_for("bw_activation.dashboard"))
         # not enough right to manage BW (not owner)
         return redirect(url_for("bw_activation.information"))
