@@ -74,6 +74,39 @@
                 </div>
             {% endif %}
 
+            <!-- Section 0: Business Wall Owner -->
+            <div class="mt-8">
+                <h2
+                    class="text-2xl font-semibold text-purple-800 border-b pb-3 mb-6"
+                >
+                    Business Wall Owner
+                </h2>
+
+                <div class="p-4 bg-white rounded-md border border-gray-200">
+                    <h3 class="font-medium text-gray-900 mb-4">
+                        Propriétaire du Business Wall
+                    </h3>
+                    {% if owner_info %}
+                        <div
+                            class="flex items-center gap-4 p-3 bg-purple-50 rounded-md"
+                        >
+                            <div>
+                                <p class="text-sm font-medium text-gray-900">
+                                    {{ owner_info.full_name }}
+                                </p>
+                                <p class="text-sm text-gray-500">
+                                    {{ owner_info.email }}
+                                </p>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="text-sm text-gray-500 italic">
+                            Aucun propriétaire défini.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
             <!-- Section 1: Business Wall Managers Internes (BWMi) -->
             <div
                 class="mt-8"
