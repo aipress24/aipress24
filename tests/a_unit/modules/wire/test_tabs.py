@@ -44,4 +44,4 @@ def test_wall_and_com_tab_post_types() -> None:
     """Test WallTab and ComTab filter for correct post types."""
     assert WallTab().post_type_allow == {"article", "post"}
     assert ComTab().post_type_allow == {"press_release"}
-    assert WallTab().get_authors() is None
+    assert WallTab().get_authors() == []
