@@ -57,6 +57,20 @@ def create_new_free_bw_record(session: MutableMapping) -> bool:
     org = user.organisation
     now = datetime.now(UTC)
 
+    # Edge case: create minimal organisation if user doesn't have one
+    if org is None:
+        from app.flask.extensions import db
+        from app.models.organisation import Organisation
+
+        org_name = bw_info.get("name", f"Org for BW {bw_type}")
+        org = Organisation(name=org_name)
+        db.session.add(org)
+        db.session.flush()  # Get the org ID
+
+        # Associate user with the new organisation
+        user.organisation_id = org.id
+        db.session.flush()
+
     bw_service = container.get(BusinessWallService)
     subscription_service = container.get(SubscriptionService)
     role_service = container.get(RoleAssignmentService)
