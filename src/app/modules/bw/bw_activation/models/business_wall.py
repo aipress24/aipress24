@@ -78,7 +78,7 @@ class BusinessWall(UUIDAuditBase):
     def get_organisation(self) -> Organisation | None:
         """Get the Organisation associated with this BusinessWall."""
         from app.models.organisation import Organisation
-        
+
         if self.organisation_id is None:
             return None
         session = inspect(self).session

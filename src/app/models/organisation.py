@@ -180,7 +180,7 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
         if session is None:
             return None
         stmt = select(BusinessWall).where(BusinessWall.organisation_id == self.id)
-        return session.execute(stmt).scalar_one_or_none()
+        return session.execute(stmt).scalars().first()
 
     # no_siret = sa.Column(sa.UnicodeText, default="")
     # no_siren = sa.Column(sa.UnicodeText, default="")
