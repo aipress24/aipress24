@@ -29,8 +29,8 @@ def index():
     init_session()
     current_bw = current_business_wall(user)
     if current_bw:
+        fill_session(current_bw)
         if current_bw.owner_id == user.id:
-            fill_session(current_bw)
             return redirect(url_for("bw_activation.dashboard"))
         # not enough right to manage BW (not owner)
         return redirect(url_for("bw_activation.information"))
@@ -72,4 +72,20 @@ def activation_choice():
     return render_template(
         "bw_activation/01_activation_choice.html",
         bw_types=BW_TYPES,
+    )
+
+
+@bp.route("/information")
+def information():
+    """Display basic information about the current Business Wall."""
+    user = cast("User", g.user)
+    current_bw = current_business_wall(user)
+    if not current_bw:
+        return redirect(url_for("bw_activation.index"))
+
+    bw_type_info = BW_TYPES.get(current_bw.bw_type, {})
+    return render_template(
+        "bw_activation/information.html",
+        business_wall=current_bw,
+        bw_type_info=bw_type_info,
     )
