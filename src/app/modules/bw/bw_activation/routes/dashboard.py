@@ -23,10 +23,11 @@ if TYPE_CHECKING:
 @bp.route("/dashboard")
 def dashboard():
     """Business Wall management dashboard (after activation)."""
+    warn("in bw.dashboard")
     user = cast("User", g.user)
     current_bw = current_business_wall(user)
     if current_bw:
-        warn(current_bw)
+        warn("current BW", current_bw)
         fill_session(current_bw)
         if current_bw.owner_id != user.id:
             # not enough right to manage BW (not owner)
