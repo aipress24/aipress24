@@ -54,3 +54,21 @@ def fix_test_user_cmd(email, first_name, last_name) -> None:
             user.last_name = last_name
             db.session.commit()
             break
+
+
+@fix.command("remove-all-business-walls", short_help="Remove all BusinessWall records")
+@with_appcontext
+def remove_all_business_walls_cmd() -> None:
+    """Delete all BusinessWall records and related data."""
+    if click.confirm("Vraiment tout supprimer ? ou ctrl-C", default=True):
+        click.echo("delete ...")
+    from app.modules.bw.bw_activation.models import BusinessWall
+
+    count = db.session.query(BusinessWall).count()
+    if count == 0:
+        click.echo("No BusinessWall records found.")
+        return
+
+    db.session.query(BusinessWall).delete(synchronize_session=False)
+    db.session.commit()
+    click.echo(f"deleted {count} BusinessWall.")
