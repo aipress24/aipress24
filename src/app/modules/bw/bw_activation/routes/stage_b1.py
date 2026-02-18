@@ -16,7 +16,13 @@ from app.models.auth import User
 from app.modules.bw.bw_activation import bp
 from app.modules.bw.bw_activation.config import BW_TYPES
 from app.modules.bw.bw_activation.user_utils import current_business_wall
-from app.modules.bw.bw_activation.utils import fill_session
+from app.modules.bw.bw_activation.utils import (
+    ERR_BW_NOT_FOUND,
+    ERR_NO_ORGANISATION,
+    ERR_NOT_MANAGER,
+    bw_managers_ids,
+    fill_session,
+)
 
 if TYPE_CHECKING:
     from app.models.auth import User
@@ -29,12 +35,12 @@ def manage_organisation_membsers():
     user = cast("User", g.user)
     current_bw = current_business_wall(user)
     if not current_bw:
-        warn("current BW not found")
-        return ""
-
-    warn("current BW", current_bw)
+        session["error"] = ERR_BW_NOT_FOUND
+        return redirect(url_for("bw_activation.not_authorized"))
     fill_session(current_bw)
-    # fixme: here test we are owner  or manager
+    if user.id not in bw_managers_ids(current_bw):
+        session["error"] = ERR_NOT_MANAGER
+        return redirect(url_for("bw_activation.not_authorized"))
 
     if not session.get("bw_activated") or not session.get("bw_type"):
         return redirect(url_for("bw_activation.index"))
@@ -45,8 +51,8 @@ def manage_organisation_membsers():
     org = current_bw.get_organisation()
     # organisation must be created for the BW (it was created à BW creation is missing)
     if not org:
-        warn("current BW Organisation not found")
-        return ""
+        session["error"] = ERR_NO_ORGANISATION
+        return redirect(url_for("bw_activation.not_authorized"))
 
     return render_template(
         "bw_activation/B01_manage_organisation_members.html",

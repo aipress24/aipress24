@@ -12,6 +12,12 @@ from app.modules.bw.bw_activation.models import BusinessWall, InvitationStatus
 
 # from app.modules.bw.bw_activation.models.repositories import BusinessWallRepository
 
+ERR_NOT_MANAGER = (
+    "Votre identification ne semble pas permettre la gestion de ce Business Wall."
+)
+ERR_BW_NOT_FOUND = "Aucun Business Wall trouvé."
+ERR_NO_ORGANISATION = "Aucun Organisation trouvée pour le Business Wall."
+
 
 def init_session():
     """Initialize session with default values if not set.
