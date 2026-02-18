@@ -1,0 +1,489 @@
+{% extends "layout.html" %}
+{% block title %}
+    Attribuer des Missions
+{% endblock %}
+{% block content %}
+    <script
+        defer
+        src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
+    ></script>
+
+    <div
+        class="max-w-4xl mx-auto"
+        x-data="{
+    selfActivate: false,
+    missions: {{ missions | tojson }},
+    missionLabels: {
+        'press_release': 'Publier les communiqués de presse',
+        'events': 'Publier des événements',
+        'missions': 'Publier des Missions',
+        'projects': 'Publier des Projets',
+        'internships': 'Publier des offres de stage',
+        'apprenticeships': 'Publier des offres d\'alternance',
+        'doctoral': 'Publier des Offres de convention doctorale'
+    },
+    toggleMission(key) {
+        this.missions[key] = !this.missions[key];
+    },
+    getActiveMissions() {
+        return Object.entries(this.missions).filter(([k, v]) => v).map(([k, v]) => this.missionLabels[k]);
+    }
+}"
+    >
+        <div class="bg-white p-8 rounded-2xl shadow-lg border border-gray-200">
+            <h1 class="text-3xl font-bold text-gray-900">
+                5- Attribuer des Missions
+            </h1>
+            <p class="mt-2 text-gray-600">
+                Définissez les permissions accordées aux
+                {{ bw_info.manager_role }}s pour publier du contenu au nom de
+                votre organisation.
+            </p>
+
+            <div class="mt-4 p-4 bg-blue-50 rounded-md border border-blue-200">
+                <p class="text-sm text-gray-700">
+                    <strong>Type de Business Wall :</strong> {{ bw_info.name }}
+                </p>
+            </div>
+
+            {% if bw_info.newsroom_features %}
+                <!-- Newsroom features explanation for media types -->
+                <div
+                    class="mt-6 p-6 bg-indigo-50 rounded-lg border border-indigo-200"
+                >
+                    <h3 class="text-lg font-semibold text-indigo-900 mb-3">
+                        Fonctionnalités Newsroom
+                    </h3>
+                    <p class="text-sm text-indigo-700 mb-4">
+                        Après vérification par les équipes d'AiPRESS24, vous
+                        accéderez automatiquement aux fonctionnalités suivantes
+                        :
+                    </p>
+                    <ul class="space-y-2">
+                        {% for feature in bw_info.newsroom_features %}
+                            <li
+                                class="flex items-start gap-2 text-sm text-indigo-800"
+                            >
+                                <svg
+                                    class="w-5 h-5 text-indigo-500 mt-0.5 flex-shrink-0"
+                                    fill="currentColor"
+                                    viewBox="0 0 20 20"
+                                >
+                                    <path
+                                        fill-rule="evenodd"
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                        clip-rule="evenodd"
+                                    />
+                                </svg>
+                                {{ feature }}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+            {% if bw_info.allows_self_management | default(false) %}
+                <!-- Self-activation option for small organizations -->
+                <div
+                    class="mt-6 p-6 bg-green-50 rounded-lg border border-green-200"
+                >
+                    <label class="flex items-center gap-3 cursor-pointer">
+                        <input
+                            type="checkbox"
+                            name="self_activate_missions"
+                            x-model="selfActivate"
+                            class="h-5 w-5 rounded border-gray-300 text-green-600 focus:ring-green-500"
+                        />
+                        <span class="text-base font-medium text-green-900">
+                            J'active moi-même mes propres missions
+                        </span>
+                    </label>
+                    <p class="mt-2 ml-8 text-sm text-green-700">
+                        En cochant cette option, vous serez responsable de
+                        toutes les missions de votre Business Wall. Vous n'avez
+                        pas besoin de déléguer à un {{ bw_info.manager_role }}.
+                    </p>
+                </div>
+            {% endif %}
+
+            <!-- Information box -->
+            <div
+                class="mt-6 p-4 bg-purple-50 rounded-md border border-purple-200"
+                x-show="!selfActivate"
+                x-transition
+            >
+                <h3 class="font-semibold text-purple-900 mb-2">
+                    A propos des missions
+                </h3>
+                <p class="text-sm text-purple-800">
+                    Ces missions concernent la gestion de votre propre Business
+                    Wall. Les permissions s'appliquent à tous vos
+                    {{ bw_info.manager_role }}s (internes et externes). Activez
+                    uniquement les missions que vous souhaitez déléguer.
+                </p>
+            </div>
+
+            <!-- Self-activation confirmation -->
+            <div
+                class="mt-6 p-4 bg-green-100 rounded-md border border-green-300"
+                x-show="selfActivate"
+                x-transition
+            >
+                <div class="flex items-center gap-3">
+                    <svg
+                        class="w-6 h-6 text-green-600"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                    >
+                        <path
+                            fill-rule="evenodd"
+                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                            clip-rule="evenodd"
+                        />
+                    </svg>
+                    <p class="text-sm text-green-800">
+                        <strong>Vous gérez vos propres missions.</strong> Vous
+                        pouvez activer les missions ci-dessous pour vous-même.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Missions list -->
+            <form class="mt-8 space-y-6">
+                <!-- Press Releases -->
+                <div class="p-6 bg-gray-50 rounded-lg border border-gray-300">
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1">
+                            <h3 class="text-lg font-semibold text-gray-900">
+                                Publier les communiqués de presse
+                            </h3>
+                            <p class="mt-2 text-sm text-gray-600">
+                                Acceptez-vous de publier les communiqués de
+                                presse de votre organisation ? Ces communiqués
+                                apparaîtront sur le Portail NEWS/Idées & Com'
+                                d'AiPRESS24, sur le Business Wall de votre
+                                organisation et sur votre profil personnel.
+                            </p>
+                        </div>
+                        <div class="ml-6 flex items-center">
+                            <button
+                                type="button"
+                                @click="toggleMission('press_release')"
+                                :class="missions.press_release ? 'bg-green-600' : 'bg-gray-300'"
+                                class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2"
+                            >
+                                <span
+                                    :class="missions.press_release ? 'translate-x-5' : 'translate-x-0'"
+                                    class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
+                                ></span>
+                            </button>
+                            <span
+                                x-text="missions.press_release ? 'Oui' : 'Non'"
+                                class="ml-3 text-sm font-medium"
+                                :class="missions.press_release ? 'text-green-700' : 'text-gray-500'"
+                            ></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Events -->
+                <div class="p-6 bg-gray-50 rounded-lg border border-gray-300">
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1">
+                            <h3 class="text-lg font-semibold text-gray-900">
+                                Publier des événements
+                            </h3>
+                            <p class="mt-2 text-sm text-gray-600">
+                                Acceptez-vous de publier les événements
+                                qu'organise votre entité ou auxquels elle
+                                participe ? Ces événements apparaîtront sur le
+                                Portail NEWS/Idées & Com' d'AiPRESS24, sur le
+                                Business Wall de votre organisation.
+                            </p>
+                        </div>
+                        <div class="ml-6 flex items-center">
+                            <button
+                                type="button"
+                                @click="toggleMission('events')"
+                                :class="missions.events ? 'bg-green-600' : 'bg-gray-300'"
+                                class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2"
+                            >
+                                <span
+                                    :class="missions.events ? 'translate-x-5' : 'translate-x-0'"
+                                    class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
+                                ></span>
+                            </button>
+                            <span
+                                x-text="missions.events ? 'Oui' : 'Non'"
+                                class="ml-3 text-sm font-medium"
+                                :class="missions.events ? 'text-green-700' : 'text-gray-500'"
+                            ></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Missions (projects) -->
+                <div class="p-6 bg-gray-50 rounded-lg border border-gray-300">
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1">
+                            <h3 class="text-lg font-semibold text-gray-900">
+                                Publier des Missions
+                            </h3>
+                            <p class="mt-2 text-sm text-gray-600">
+                                Acceptez-vous de publier sur l'espace
+                                MARKET/Missions d'AiPRESS24 les Missions qui
+                                intéressent votre organisation ? Ces Missions
+                                apparaîtront sur l'espace MARKET/Missions
+                                d'AiPRESS24 et sur le Business Wall de votre
+                                organisation.
+                            </p>
+                        </div>
+                        <div class="ml-6 flex items-center">
+                            <button
+                                type="button"
+                                @click="toggleMission('missions')"
+                                :class="missions.missions ? 'bg-green-600' : 'bg-gray-300'"
+                                class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2"
+                            >
+                                <span
+                                    :class="missions.missions ? 'translate-x-5' : 'translate-x-0'"
+                                    class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
+                                ></span>
+                            </button>
+                            <span
+                                x-text="missions.missions ? 'Oui' : 'Non'"
+                                class="ml-3 text-sm font-medium"
+                                :class="missions.missions ? 'text-green-700' : 'text-gray-500'"
+                            ></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Projects -->
+                <div class="p-6 bg-gray-50 rounded-lg border border-gray-300">
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1">
+                            <h3 class="text-lg font-semibold text-gray-900">
+                                Publier des Projets
+                            </h3>
+                            <p class="mt-2 text-sm text-gray-600">
+                                Acceptez-vous de publier sur l'espace
+                                MARKET/Projets d'AiPRESS24 les Projets qui
+                                intéressent votre organisation ? Ces Projets
+                                apparaîtront sur l'espace MARKET/Projets
+                                d'AiPRESS24 et sur le Business Wall de votre
+                                organisation.
+                            </p>
+                        </div>
+                        <div class="ml-6 flex items-center">
+                            <button
+                                type="button"
+                                @click="toggleMission('projects')"
+                                :class="missions.projects ? 'bg-green-600' : 'bg-gray-300'"
+                                class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2"
+                            >
+                                <span
+                                    :class="missions.projects ? 'translate-x-5' : 'translate-x-0'"
+                                    class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
+                                ></span>
+                            </button>
+                            <span
+                                x-text="missions.projects ? 'Oui' : 'Non'"
+                                class="ml-3 text-sm font-medium"
+                                :class="missions.projects ? 'text-green-700' : 'text-gray-500'"
+                            ></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Internships -->
+                <div class="p-6 bg-gray-50 rounded-lg border border-gray-300">
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1">
+                            <h3 class="text-lg font-semibold text-gray-900">
+                                Publier des offres de stage
+                            </h3>
+                            <p class="mt-2 text-sm text-gray-600">
+                                Acceptez-vous de publier sur l'espace MARKET/Job
+                                Board d'AiPRESS24 les Offres de stages qui
+                                intéressent votre organisation ? Ces Offres de
+                                stages apparaîtront sur l'espace MARKET/Job
+                                Board d'AiPRESS24 et sur le Business Wall de
+                                votre organisation.
+                            </p>
+                        </div>
+                        <div class="ml-6 flex items-center">
+                            <button
+                                type="button"
+                                @click="toggleMission('internships')"
+                                :class="missions.internships ? 'bg-green-600' : 'bg-gray-300'"
+                                class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2"
+                            >
+                                <span
+                                    :class="missions.internships ? 'translate-x-5' : 'translate-x-0'"
+                                    class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
+                                ></span>
+                            </button>
+                            <span
+                                x-text="missions.internships ? 'Oui' : 'Non'"
+                                class="ml-3 text-sm font-medium"
+                                :class="missions.internships ? 'text-green-700' : 'text-gray-500'"
+                            ></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Apprenticeships -->
+                <div class="p-6 bg-gray-50 rounded-lg border border-gray-300">
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1">
+                            <h3 class="text-lg font-semibold text-gray-900">
+                                Publier des offres d'alternance
+                            </h3>
+                            <p class="mt-2 text-sm text-gray-600">
+                                Acceptez-vous de publier sur l'espace MARKET/Job
+                                Board d'AiPRESS24 les offres d'alternance qui
+                                intéressent votre organisation ? Ces offres
+                                d'alternance apparaîtront sur l'espace
+                                MARKET/Job Board d'AiPRESS24 et sur le Business
+                                Wall de votre organisation.
+                            </p>
+                        </div>
+                        <div class="ml-6 flex items-center">
+                            <button
+                                type="button"
+                                @click="toggleMission('apprenticeships')"
+                                :class="missions.apprenticeships ? 'bg-green-600' : 'bg-gray-300'"
+                                class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2"
+                            >
+                                <span
+                                    :class="missions.apprenticeships ? 'translate-x-5' : 'translate-x-0'"
+                                    class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
+                                ></span>
+                            </button>
+                            <span
+                                x-text="missions.apprenticeships ? 'Oui' : 'Non'"
+                                class="ml-3 text-sm font-medium"
+                                :class="missions.apprenticeships ? 'text-green-700' : 'text-gray-500'"
+                            ></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Doctoral Agreements -->
+                <div class="p-6 bg-gray-50 rounded-lg border border-gray-300">
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1">
+                            <h3 class="text-lg font-semibold text-gray-900">
+                                Publier des Offres de convention doctorale
+                            </h3>
+                            <p class="mt-2 text-sm text-gray-600">
+                                Acceptez-vous de publier sur l'espace MARKET/Job
+                                Board d'AiPRESS24 les Offres de convention
+                                doctorale qui intéressent votre organisation ?
+                                Ces Offres de convention doctorale apparaîtront
+                                sur l'espace MARKET/Job Board d'AiPRESS24 et sur
+                                le Business Wall de votre organisation.
+                            </p>
+                        </div>
+                        <div class="ml-6 flex items-center">
+                            <button
+                                type="button"
+                                @click="toggleMission('doctoral')"
+                                :class="missions.doctoral ? 'bg-green-600' : 'bg-gray-300'"
+                                class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2"
+                            >
+                                <span
+                                    :class="missions.doctoral ? 'translate-x-5' : 'translate-x-0'"
+                                    class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
+                                ></span>
+                            </button>
+                            <span
+                                x-text="missions.doctoral ? 'Oui' : 'Non'"
+                                class="ml-3 text-sm font-medium"
+                                :class="missions.doctoral ? 'text-green-700' : 'text-gray-500'"
+                            ></span>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Summary -->
+            <div
+                class="mt-8 p-6 bg-green-50 rounded-lg border border-green-200"
+            >
+                <h3 class="font-semibold text-green-900 mb-3">
+                    Résumé des missions activées
+                </h3>
+                <div class="text-sm text-green-800">
+                    <p
+                        x-show="Object.values(missions).filter(v => v).length === 0"
+                        class="italic text-gray-500"
+                    >
+                        Aucune mission activée pour le moment.
+                    </p>
+                    <div
+                        x-show="Object.values(missions).filter(v => v).length > 0"
+                    >
+                        <p class="font-medium mb-2">
+                            <span
+                                x-text="Object.values(missions).filter(v => v).length"
+                            ></span>
+                            mission(s) activée(s) :
+                        </p>
+                        <ul class="space-y-1">
+                            <template
+                                x-for="(enabled, key) in missions"
+                                :key="key"
+                            >
+                                <li
+                                    x-show="enabled"
+                                    class="flex items-center gap-2"
+                                >
+                                    <svg
+                                        class="w-4 h-4 text-green-600"
+                                        fill="currentColor"
+                                        viewBox="0 0 20 20"
+                                    >
+                                        <path
+                                            fill-rule="evenodd"
+                                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                            clip-rule="evenodd"
+                                        />
+                                    </svg>
+                                    <span x-text="missionLabels[key]"></span>
+                                </li>
+                            </template>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <div
+                class="mt-10 flex items-center justify-between gap-x-6 border-t pt-6"
+            >
+                {% if bw_type != 'pr' %}
+                    <a
+                        href="{{ url_for('bw_activation.manage_external_partners') }}"
+                        class="text-sm font-semibold leading-6 text-gray-900 hover:text-gray-700"
+                    >
+                        ← Étape précédente : Partenaires externes
+                    </a>
+                {% else %}
+                    <a
+                        href="{{ url_for('bw_activation.manage_internal_roles') }}"
+                        class="text-sm font-semibold leading-6 text-gray-900 hover:text-gray-700"
+                    >
+                        ← Étape précédente : Rôles internes
+                    </a>
+                {% endif %}
+                <a
+                    href="{{ url_for('bw_activation.configure_content') }}"
+                    class="rounded-md bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-700"
+                >
+                    Étape suivante : Configurer le contenu →
+                </a>
+            </div>
+        </div>
+    </div>
+{% endblock %}

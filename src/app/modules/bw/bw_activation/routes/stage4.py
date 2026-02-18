@@ -56,7 +56,7 @@ def manage_internal_roles():
                 break
 
     return render_template(
-        "bw_activation/04_manage_internal_roles.html",
+        "bw_activation/B03_manage_internal_roles.html",
         bw_type=bw_type,
         bw_info=bw_info,
         owner_info=owner_info,
