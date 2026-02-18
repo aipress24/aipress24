@@ -17,11 +17,7 @@
                         bg-green-100 text-green-800
                     {% endif %} text-xs font-semibold rounded-full"
                 >
-                    {% if bw_info.free %}
-                        Abonnement GRATUIT
-                    {% else %}
-                        Abonnement PAYANT
-                    {% endif %}
+                    {{ bw_info.rate_message }}
                 </span>
             </div>
 
