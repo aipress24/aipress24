@@ -22,7 +22,7 @@ def manage_external_partners():
     bw_info = BW_TYPES.get(bw_type, {})
 
     return render_template(
-        "bw_activation/05_manage_external_partners.html",
+        "bw_activation/B04_manage_external_partners.html",
         bw_type=bw_type,
         bw_info=bw_info,
     )

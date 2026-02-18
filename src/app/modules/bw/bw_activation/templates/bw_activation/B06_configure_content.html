@@ -1,0 +1,721 @@
+{% extends "layout.html" %}
+
+{% block title %}Configurer le Contenu du Business Wall{% endblock %}
+
+{% block content %}
+    <div class="max-w-4xl mx-auto">
+        <div class="bg-white p-8 rounded-2xl shadow-lg border border-gray-200">
+            <h1 class="text-3xl font-bold text-gray-900">
+                6- Configurer le Contenu du Business Wall
+            </h1>
+            <p class="mt-2 text-gray-600">
+                Remplissez les informations de votre Business Wall qui seront
+                visibles publiquement sur AiPRESS24.
+            </p>
+
+            <div class="mt-4 p-4 bg-blue-50 rounded-md border border-blue-200">
+                <p class="text-sm text-gray-700">
+                    <strong>Type de Business Wall :</strong> {{ bw_info.name }}
+                </p>
+            </div>
+
+            <form class="mt-8 space-y-10">
+                <!-- Section: Graphics (all types) -->
+                <fieldset>
+                    <legend
+                        class="text-2xl font-semibold text-blue-800 border-b pb-3 mb-6 w-full"
+                    >
+                        Graphisme
+                    </legend>
+
+                    <div class="space-y-6">
+                        <div>
+                            <label
+                                class="block text-sm font-medium text-gray-900 mb-2"
+                                >Logo de votre organisation</label
+                            >
+                            <input
+                                type="file"
+                                accept="image/png, image/jpeg"
+                                class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                            />
+                            <p class="mt-1 text-xs text-gray-500">
+                                Format : JPG ou PNG
+                            </p>
+                        </div>
+
+                        <div>
+                            <label
+                                class="block text-sm font-medium text-gray-900 mb-2"
+                                >Bandeau du Business Wall</label
+                            >
+                            <input
+                                type="file"
+                                accept="image/png, image/jpeg"
+                                class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                            />
+                            <p class="mt-1 text-xs text-gray-500">
+                                Format : JPG ou PNG (recommandé : 1200x300px)
+                            </p>
+                        </div>
+
+                        <div>
+                            <label
+                                class="block text-sm font-medium text-gray-900 mb-2"
+                                >Galerie d'images</label
+                            >
+                            <input
+                                type="file"
+                                accept="image/png, image/jpeg"
+                                multiple
+                                class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                            />
+                            <p class="mt-1 text-xs text-gray-500">
+                                Sélectionnez plusieurs images pour votre galerie
+                            </p>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <!-- Section: Administrative Info (type-specific) -->
+                <fieldset>
+                    <legend
+                        class="text-2xl font-semibold text-green-800 border-b pb-3 mb-6 w-full"
+                    >
+                        Informations Administratives
+                    </legend>
+
+                    <div class="space-y-6">
+                        <!-- Generic organization name field (ALL types) -->
+                        <div>
+                            <label
+                                class="block text-sm font-medium text-gray-900 mb-2"
+                                >Nom officiel de votre organisation
+                                <span class="text-red-600">*</span></label
+                            >
+                            <input
+                                type="text"
+                                placeholder="Le nom qui s'affichera sur votre Business Wall"
+                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-4 py-2 border"
+                            />
+                        </div>
+
+                        <!-- Type of organization (for applicable types) -->
+                        {% if bw_type in ['media', 'corporate_media', 'union', 'leaders_experts', 'transformers', 'academics'] %}
+                            <div>
+                                <label
+                                    class="block text-sm font-medium text-gray-900 mb-2"
+                                    >Type de votre organisation</label
+                                >
+                                <select
+                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-4 py-2 border"
+                                >
+                                    <option value="">-- Sélectionnez --</option>
+                                    <option>Entreprise</option>
+                                    <option>Association</option>
+                                    <option>Institution Publique</option>
+                                    <option>Autre</option>
+                                </select>
+                            </div>
+                        {% endif %}
+
+                        <!-- Parent group/entity field (not for Media/Micro/Union) -->
+                        {% if bw_type in ['corporate_media', 'pr', 'leaders_experts', 'transformers', 'academics'] %}
+                            <div>
+                                <label
+                                    class="block text-sm font-medium text-gray-900 mb-2"
+                                    >Groupe ou entité de rattachement (si
+                                    applicable)</label
+                                >
+                                <input
+                                    type="text"
+                                    placeholder="Nom du groupe ou de l'entité mère"
+                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-4 py-2 border"
+                                />
+                            </div>
+                        {% endif %}
+
+                        <!-- Common fields: SIREN -->
+                        {% if bw_type in ['media', 'micro', 'corporate_media', 'union', 'pr', 'leaders_experts', 'transformers', 'academics'] %}
+                            <div>
+                                <label
+                                    class="block text-sm font-medium text-gray-900 mb-2"
+                                    >Numéro de SIREN
+                                    <span class="text-red-600">*</span></label
+                                >
+                                <input
+                                    type="text"
+                                    placeholder="123 456 789"
+                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-4 py-2 border"
+                                />
+                            </div>
+
+                            <div>
+                                <label
+                                    class="block text-sm font-medium text-gray-900 mb-2"
+                                    >Numéro de TVA Intra CEE</label
+                                >
+                                <input
+                                    type="text"
+                                    placeholder="FR 12 345678901"
+                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-4 py-2 border"
+                                />
+                            </div>
+                        {% endif %}
+
+                        <!-- Media-specific: CPPAP -->
+                        {% if bw_type == 'media' %}
+                            <div>
+                                <label
+                                    class="block text-sm font-medium text-gray-900 mb-2"
+                                    >Numéro de CPPAP / Agrément</label
+                                >
+                                <textarea
+                                    rows="3"
+                                    placeholder="Expliquez comment votre organe de presse est officiellement reconnu (n° de CPPAP, agrément ARCOM, etc.)"
+                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-4 py-2 border"
+                                ></textarea>
+                                <p class="mt-1 text-xs text-gray-500">
+                                    Information non publique - vérifiée par les
+                                    équipes d'AiPRESS24
+                                </p>
+                            </div>
+
+                            <div>
+                                <label
+                                    class="block text-sm font-medium text-gray-900 mb-2"
+                                    >Nom officiel de l'organe de presse</label
+                                >
+                                <input
+                                    type="text"
+                                    placeholder="Le nom qui s'affichera sur votre Business Wall"
+                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-4 py-2 border"
+                                />
+                            </div>
+
+                            <div>
+                                <label
+                                    class="block text-sm font-medium text-gray-900 mb-2"
+                                    >Nature de votre organe de presse</label
+                                >
+                                <select
+                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-4 py-2 border"
+                                >
+                                    <option value="">-- Sélectionnez --</option>
+                                    <option>Presse quotidienne</option>
+                                    <option>Presse hebdomadaire</option>
+                                    <option>Presse magazine</option>
+                                    <option>Presse spécialisée</option>
+                                    <option>Presse en ligne</option>
+                                    <option>Agence de presse</option>
+                                    <option>Radio</option>
+                                    <option>Télévision</option>
+                                    <option>Autre</option>
+                                </select>
+                            </div>
+                        {% endif %}
+
+                        <!-- Nature field for Micro/Corporate Media -->
+                        {% if bw_type in ['micro', 'corporate_media'] %}
+                            <div>
+                                <label
+                                    class="block text-sm font-medium text-gray-900 mb-2"
+                                    >Nature de votre organe de presse</label
+                                >
+                                <select
+                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-4 py-2 border"
+                                >
+                                    <option value="">-- Sélectionnez --</option>
+                                    <option>Média d'entreprise</option>
+                                    <option>Média institutionnel</option>
+                                    <option>Publication interne</option>
+                                    <option>Newsletter spécialisée</option>
+                                    <option>Blog d'information</option>
+                                    <option>Autre</option>
+                                </select>
+                            </div>
+                        {% endif %}
+
+                        <!-- PR-specific fields -->
+                        {% if bw_type == 'pr' %}
+                            <div>
+                                <label
+                                    class="block text-sm font-medium text-gray-900 mb-2"
+                                    >Type de votre PR Agency</label
+                                >
+                                <select
+                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-4 py-2 border"
+                                >
+                                    <option value="">-- Sélectionnez --</option>
+                                    <option>
+                                        Agence de communication intégrée
+                                    </option>
+                                    <option>
+                                        Agence de relations presse spécialisée
+                                    </option>
+                                    <option>
+                                        Consultant(e) indépendant(e)
+                                    </option>
+                                    <option>Autre</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label
+                                    class="block text-sm font-medium text-gray-900 mb-2"
+                                    >Liste de vos clients</label
+                                >
+                                <textarea
+                                    rows="4"
+                                    placeholder="Listez vos principaux clients (un par ligne ou séparés par des virgules)"
+                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-4 py-2 border"
+                                ></textarea>
+                                <p class="mt-1 text-xs text-gray-500">
+                                    Dans une vraie application, ceci serait un
+                                    champ dynamique pour ajouter des clients un
+                                    par un.
+                                </p>
+                            </div>
+                        {% endif %}
+
+                        <!-- Leaders & Experts / Transformers fields -->
+                        {% if bw_type in ['leaders_experts', 'transformers'] %}
+                            <div>
+                                <label
+                                    class="block text-sm font-medium text-gray-900 mb-2"
+                                    >Nom officiel de votre organisation</label
+                                >
+                                <input
+                                    type="text"
+                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-4 py-2 border"
+                                />
+                            </div>
+
+                            <div>
+                                <label
+                                    class="block text-sm font-medium text-gray-900 mb-2"
+                                    >Groupe ou entité de rattachement (si
+                                    applicable)</label
+                                >
+                                <input
+                                    type="text"
+                                    placeholder="Optionnel"
+                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-4 py-2 border"
+                                />
+                            </div>
+                        {% endif %}
+
+                        <!-- Academics-specific -->
+                        {% if bw_type == 'academics' %}
+                            <div>
+                                <label
+                                    class="block text-sm font-medium text-gray-900 mb-2"
+                                    >Nom officiel de votre établissement</label
+                                >
+                                <input
+                                    type="text"
+                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-4 py-2 border"
+                                />
+                            </div>
+                        {% endif %}
+
+                        <!-- Member list (for Media, Micro, Corporate Media, Union) -->
+                        {% if bw_type in ['media', 'micro', 'corporate_media', 'union'] %}
+                            <div class="pt-4 border-t border-gray-200">
+                                <label
+                                    class="block text-sm font-medium text-gray-900 mb-2"
+                                    >Liste officielle des membres
+                                    d'AiPRESS24</label
+                                >
+                                <textarea
+                                    rows="4"
+                                    placeholder="Dans une vraie application, ceci serait un composant de recherche et de sélection d'utilisateurs."
+                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-4 py-2 border"
+                                ></textarea>
+                                <p class="mt-1 text-xs text-gray-500">
+                                    Ajoutez les membres de votre organisation
+                                    qui sont inscrits sur AiPRESS24
+                                </p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </fieldset>
+
+                <!-- Section: Activity Description -->
+                <fieldset>
+                    <legend
+                        class="text-2xl font-semibold text-purple-800 border-b pb-3 mb-6 w-full"
+                    >
+                        Description de l'Activité
+                    </legend>
+
+                    <div class="space-y-6">
+                        <!-- For Media types -->
+                        {% if bw_type in ['media', 'micro', 'corporate_media'] %}
+                            <div>
+                                <label
+                                    class="block text-sm font-medium text-gray-900 mb-2"
+                                    >Type de presse</label
+                                >
+                                <select
+                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-600 focus:ring-purple-600 sm:text-sm px-4 py-2 border"
+                                >
+                                    <option value="">-- Sélectionnez --</option>
+                                    <option>
+                                        Presse quotidienne nationale
+                                    </option>
+                                    <option>
+                                        Presse quotidienne régionale
+                                    </option>
+                                    <option>Presse magazine</option>
+                                    <option>Presse spécialisée</option>
+                                    <option>Presse en ligne</option>
+                                    <option>Autre</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label
+                                    class="block text-sm font-medium text-gray-900 mb-2"
+                                    >Positionnement éditorial</label
+                                >
+                                <textarea
+                                    rows="4"
+                                    placeholder="Décrivez en quelques mots votre ligne éditoriale..."
+                                    maxlength="500"
+                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-600 focus:ring-purple-600 sm:text-sm px-4 py-2 border"
+                                ></textarea>
+                                <p class="mt-1 text-xs text-gray-500">
+                                    Maximum 500 caractères
+                                </p>
+                            </div>
+
+                            <div>
+                                <label
+                                    class="block text-sm font-medium text-gray-900 mb-2"
+                                    >Audiences ciblées</label
+                                >
+                                <textarea
+                                    rows="4"
+                                    placeholder="Décrivez vos publics cibles..."
+                                    maxlength="500"
+                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-600 focus:ring-purple-600 sm:text-sm px-4 py-2 border"
+                                ></textarea>
+                                <p class="mt-1 text-xs text-gray-500">
+                                    Maximum 500 caractères
+                                </p>
+                            </div>
+
+                            {% if bw_type in ['media', 'corporate_media'] %}
+                                <div>
+                                    <label
+                                        class="block text-sm font-medium text-gray-900 mb-2"
+                                        >Périodicité</label
+                                    >
+                                    <select
+                                        class="block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-600 focus:ring-purple-600 sm:text-sm px-4 py-2 border"
+                                    >
+                                        <option value="">
+                                            -- Sélectionnez --
+                                        </option>
+                                        <option>Quotidien</option>
+                                        <option>Hebdomadaire</option>
+                                        <option>Mensuel</option>
+                                        <option>Bimestriel</option>
+                                        <option>Trimestriel</option>
+                                        <option>Autre</option>
+                                    </select>
+                                </div>
+                            {% endif %}
+                        {% endif %}
+
+                        <!-- For all types: sectors -->
+                        <div>
+                            <label
+                                class="block text-sm font-medium text-gray-900 mb-2"
+                                >Secteurs d'activité couverts</label
+                            >
+                            <select
+                                multiple
+                                size="5"
+                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-600 focus:ring-purple-600 sm:text-sm px-4 py-2 border"
+                            >
+                                <option>Politique</option>
+                                <option>Économie</option>
+                                <option>Culture</option>
+                                <option>Sport</option>
+                                <option>Technologie</option>
+                                <option>Santé</option>
+                                <option>Éducation</option>
+                                <option>Environnement</option>
+                            </select>
+                            <p class="mt-1 text-xs text-gray-500">
+                                Maintenez Ctrl (ou Cmd) pour sélectionner
+                                plusieurs secteurs
+                            </p>
+                        </div>
+
+                        <div>
+                            <label
+                                class="block text-sm font-medium text-gray-900 mb-2"
+                                >Taille de l'organisation</label
+                            >
+                            <select
+                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-600 focus:ring-purple-600 sm:text-sm px-4 py-2 border"
+                            >
+                                <option value="">-- Sélectionnez --</option>
+                                <option>1-10 salariés</option>
+                                <option>11-50 salariés</option>
+                                <option>51-200 salariés</option>
+                                <option>201-500 salariés</option>
+                                <option>500+ salariés</option>
+                            </select>
+                        </div>
+
+                        <!-- Centres d'intérêt - Common for all types -->
+                        <div class="mt-6 pt-6 border-t border-gray-200">
+                            <h3
+                                class="text-lg font-semibold text-purple-900 mb-4"
+                            >
+                                Centres d'Intérêt
+                            </h3>
+                            <p class="text-sm text-gray-600 mb-4">
+                                Sélectionnez les domaines qui intéressent votre
+                                organisation (maintenez Ctrl ou Cmd pour
+                                sélectionner plusieurs options)
+                            </p>
+                        </div>
+
+                        <div>
+                            <label
+                                class="block text-sm font-medium text-gray-900 mb-2"
+                                >Centres d'intérêt - Tissu politique et
+                                administratif</label
+                            >
+                            <select
+                                multiple
+                                size="8"
+                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-600 focus:ring-purple-600 sm:text-sm px-4 py-2 border"
+                            >
+                                <option>
+                                    Affaires étrangères et diplomatie
+                                </option>
+                                <option>Agriculture et alimentation</option>
+                                <option>Culture et patrimoine</option>
+                                <option>Défense et sécurité nationale</option>
+                                <option>
+                                    Éducation nationale et enseignement
+                                    supérieur
+                                </option>
+                                <option>
+                                    Environnement et transition écologique
+                                </option>
+                                <option>Finances publiques et budget</option>
+                                <option>
+                                    Fonction publique et administration
+                                </option>
+                                <option>Justice et droits</option>
+                                <option>
+                                    Santé publique et affaires sociales
+                                </option>
+                                <option>
+                                    Travail, emploi et formation professionnelle
+                                </option>
+                                <option>Transports et infrastructures</option>
+                                <option>Collectivités territoriales</option>
+                                <option>
+                                    Union européenne et institutions
+                                    internationales
+                                </option>
+                                <option>Politique intérieure</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label
+                                class="block text-sm font-medium text-gray-900 mb-2"
+                                >Centres d'intérêt - Tissu économique et
+                                culturel privé</label
+                            >
+                            <select
+                                multiple
+                                size="8"
+                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-600 focus:ring-purple-600 sm:text-sm px-4 py-2 border"
+                            >
+                                <option>Agroalimentaire</option>
+                                <option>Automobile et mobilité</option>
+                                <option>Banque et assurance</option>
+                                <option>BTP et immobilier</option>
+                                <option>Chimie et matériaux</option>
+                                <option>Commerce et distribution</option>
+                                <option>
+                                    Énergie (pétrole, gaz, nucléaire,
+                                    renouvelables)
+                                </option>
+                                <option>
+                                    Hôtellerie, restauration et tourisme
+                                </option>
+                                <option>Industrie manufacturière</option>
+                                <option>Luxe et mode</option>
+                                <option>Médias et communication</option>
+                                <option>Pharmacie et biotechnologies</option>
+                                <option>Services aux entreprises</option>
+                                <option>Sport et loisirs</option>
+                                <option>Technologies et numérique</option>
+                                <option>Télécommunications</option>
+                                <option>Transport et logistique</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label
+                                class="block text-sm font-medium text-gray-900 mb-2"
+                                >Centres d'intérêt - Tissu associatif</label
+                            >
+                            <select
+                                multiple
+                                size="8"
+                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-600 focus:ring-purple-600 sm:text-sm px-4 py-2 border"
+                            >
+                                <option>Action sociale et humanitaire</option>
+                                <option>Associations de consommateurs</option>
+                                <option>Associations professionnelles</option>
+                                <option>Culture et arts</option>
+                                <option>Défense des droits et libertés</option>
+                                <option>Éducation et formation</option>
+                                <option>
+                                    Environnement et développement durable
+                                </option>
+                                <option>Jeunesse et éducation populaire</option>
+                                <option>Logement et cadre de vie</option>
+                                <option>Santé et prévention</option>
+                                <option>Sport et activités physiques</option>
+                                <option>
+                                    Syndicats et organisations professionnelles
+                                </option>
+                                <option>Vie locale et citoyenne</option>
+                            </select>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <!-- Section: Contact Information (all types) -->
+                <fieldset>
+                    <legend
+                        class="text-2xl font-semibold text-orange-800 border-b pb-3 mb-6 w-full"
+                    >
+                        Pour Nous Contacter
+                    </legend>
+
+                    <div class="space-y-6">
+                        <div>
+                            <label
+                                class="block text-sm font-medium text-gray-900 mb-2"
+                                >Téléphone du standard</label
+                            >
+                            <input
+                                type="tel"
+                                placeholder="+33 1 23 45 67 89"
+                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-600 focus:ring-orange-600 sm:text-sm px-4 py-2 border"
+                            />
+                        </div>
+
+                        <div>
+                            <label
+                                class="block text-sm font-medium text-gray-900 mb-2"
+                                >Adresse postale du siège social</label
+                            >
+                            <textarea
+                                rows="3"
+                                placeholder="123 rue de la République"
+                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-600 focus:ring-orange-600 sm:text-sm px-4 py-2 border"
+                            ></textarea>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label
+                                    class="block text-sm font-medium text-gray-900 mb-2"
+                                    >Ville</label
+                                >
+                                <input
+                                    type="text"
+                                    placeholder="Paris"
+                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-600 focus:ring-orange-600 sm:text-sm px-4 py-2 border"
+                                />
+                            </div>
+
+                            <div>
+                                <label
+                                    class="block text-sm font-medium text-gray-900 mb-2"
+                                    >Code Postal</label
+                                >
+                                <input
+                                    type="text"
+                                    placeholder="75001"
+                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-600 focus:ring-orange-600 sm:text-sm px-4 py-2 border"
+                                />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label
+                                class="block text-sm font-medium text-gray-900 mb-2"
+                                >Géolocalisation</label
+                            >
+                            <input
+                                type="text"
+                                placeholder="Coordonnées GPS ou adresse complète"
+                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-600 focus:ring-orange-600 sm:text-sm px-4 py-2 border"
+                            />
+                            <p class="mt-1 text-xs text-gray-500">
+                                Utilisé pour la géolocalisation sur AiPRESS24
+                            </p>
+                        </div>
+
+                        <div>
+                            <label
+                                class="block text-sm font-medium text-gray-900 mb-2"
+                                >URL du site web</label
+                            >
+                            <input
+                                type="url"
+                                placeholder="https://www.votre-site.fr"
+                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-600 focus:ring-orange-600 sm:text-sm px-4 py-2 border"
+                            />
+                        </div>
+
+                        <div
+                            class="p-4 bg-orange-50 rounded-md border border-orange-200"
+                        >
+                            <p class="text-sm text-orange-800">
+                                <strong>Contact presse :</strong> Les
+                                coordonnées de vos {{ bw_info.manager_role }}s
+                                (internes ou externes) apparaîtront
+                                automatiquement comme contacts presse sur votre
+                                Business Wall une fois que vous les aurez nommés
+                                dans les étapes précédentes.
+                            </p>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <!-- Submit button -->
+                <div class="flex justify-end gap-4 border-t pt-6">
+                    <a
+                        href="{{ url_for('bw_activation.dashboard') }}"
+                        class="rounded-md bg-gray-300 px-5 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-400"
+                    >
+                        Retour au tableau de bord
+                    </a>
+                    <button
+                        type="submit"
+                        class="rounded-md bg-green-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-green-700"
+                    >
+                        Enregistrer la configuration
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

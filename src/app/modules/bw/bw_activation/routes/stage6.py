@@ -26,7 +26,7 @@ def assign_missions():
     init_missions_state()
 
     return render_template(
-        "bw_activation/06_assign_missions.html",
+        "bw_activation/B05_assign_missions.html",
         bw_type=bw_type,
         bw_info=bw_info,
         missions=session["missions"],
