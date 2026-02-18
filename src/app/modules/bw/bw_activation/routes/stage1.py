@@ -16,7 +16,13 @@ from app.modules.bw.bw_activation.user_utils import (
     current_business_wall,
     guess_best_bw_type,
 )
-from app.modules.bw.bw_activation.utils import fill_session, init_session
+from app.modules.bw.bw_activation.utils import (
+    ERR_BW_NOT_FOUND,
+    ERR_NOT_MANAGER,
+    bw_managers_ids,
+    fill_session,
+    init_session,
+)
 
 if TYPE_CHECKING:
     from app.models.auth import User
@@ -30,11 +36,10 @@ def index():
     current_bw = current_business_wall(user)
     if current_bw:
         fill_session(current_bw)
-        if current_bw.owner_id == user.id:
-            # fixme: later used the roles.
-            return redirect(url_for("bw_activation.dashboard"))
-        # not enough right to manage BW (not owner)
-        return redirect(url_for("bw_activation.information"))
+        if user.id not in bw_managers_ids(current_bw):
+            session["error"] = ERR_NOT_MANAGER
+            return redirect(url_for("bw_activation.not_authorized"))
+        return redirect(url_for("bw_activation.dashboard"))
     session["suggested_bw_type"] = guess_best_bw_type(user).value
     return redirect(url_for("bw_activation.confirm_subscription"))
 
@@ -82,7 +87,8 @@ def information():
     user = cast("User", g.user)
     current_bw = current_business_wall(user)
     if not current_bw:
-        return redirect(url_for("bw_activation.index"))
+        session["error"] = ERR_BW_NOT_FOUND
+        return redirect(url_for("bw_activation.not_authorized"))
 
     bw_type_info = BW_TYPES.get(current_bw.bw_type, {})
     return render_template(
