@@ -41,6 +41,7 @@ def fill_session(current_bw: BusinessWall) -> None:
     session["contacts_confirmed"] = True
     session["bw_activated"] = True
     session["pricing_value"] = None
+    session["error"] = ""
 
 
 def init_missions_state():
