@@ -22,30 +22,12 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Stage 1: Manage Organisation Members -->
-                <div
-                    class="border border-gray-300 p-6 rounded-lg hover:shadow-md hover:border-indigo-500 transition"
-                >
-                    <h2 class="text-xl font-semibold text-gray-800 mb-3">
-                        1- Gérer les membres de l'organisation
-                    </h2>
-                    <p class="text-sm text-gray-600 mb-4">
-                        Gérez les membres de votre organisation.
-                    </p>
-                    <a
-                        href="{{ url_for('bw_activation.manage_organisation_members') }}"
-                        class="inline-block rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700"
-                    >
-                        Gérer les membres →
-                    </a>
-                </div>
-
-                <!-- Stage 2: Manage Business Wall Invitations -->
+                <!-- Stage 1: Manage Business Wall Invitations -->
                 <div
                     class="border border-gray-300 p-6 rounded-lg hover:shadow-md hover:border-teal-500 transition"
                 >
                     <h2 class="text-xl font-semibold text-gray-800 mb-3">
-                        2- Gérer les invitations à rejoindre le Business Wall
+                        1- Gérer les invitations à rejoindre le Business Wall
                     </h2>
                     <p class="text-sm text-gray-600 mb-4">
                         Envoyez et gérez les invitations pour rejoindre votre
@@ -56,6 +38,24 @@
                         class="inline-block rounded-md bg-teal-600 px-4 py-2 text-sm font-semibold text-white hover:bg-teal-700"
                     >
                         Gérer les invitations →
+                    </a>
+                </div>
+
+                <!-- Stage 2: Manage Organisation Members -->
+                <div
+                    class="border border-gray-300 p-6 rounded-lg hover:shadow-md hover:border-indigo-500 transition"
+                >
+                    <h2 class="text-xl font-semibold text-gray-800 mb-3">
+                        2- Gérer les membres de l'organisation
+                    </h2>
+                    <p class="text-sm text-gray-600 mb-4">
+                        Gérez les membres de votre organisation.
+                    </p>
+                    <a
+                        href="{{ url_for('bw_activation.manage_organisation_members') }}"
+                        class="inline-block rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700"
+                    >
+                        Gérer les membres →
                     </a>
                 </div>
 
