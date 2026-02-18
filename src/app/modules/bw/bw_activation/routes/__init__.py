@@ -13,6 +13,7 @@ from __future__ import annotations
 # Import all route modules - this registers routes on the blueprint
 from . import (
     dashboard,
+    not_authorized,
     stage1,
     stage2,
     stage3,
@@ -25,6 +26,7 @@ from . import (
 
 __all__ = [
     "dashboard",
+    "not_authorized",
     "stage1",
     "stage2",
     "stage3",
