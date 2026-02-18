@@ -1,77 +1,71 @@
 {% extends "layout.html" %}
 
-{% block title %}Gérer la liste des membres de l'organisation{% endblock %}
+{% block title %}Gérer les invitations à rejoindre le Business Wall{% endblock %}
 
 {% block content %}
     <div class="max-w-6xl mx-auto">
         <div class="bg-white p-8 rounded-2xl shadow-lg border border-gray-200">
             <h1 class="text-3xl font-bold text-gray-900">
-                1- Gérer la liste des membres du Business Wall de l'organisation
+                2- Gérer les invitations à rejoindre le Business Wall
             </h1>
             <p class="mt-2 text-gray-600">
-                Les membres doivent être des utilisateurs déjà inscrits dans
-                Aipress24.
+                Pour modifier la liste des invitations, ajouter ou retirer un
+                email. L'invitation autorise un utilisateur actuel ou futur de
+                Aipress24 à rejoindre le Business Wall de l'organisation.
             </p>
 
             <div class="mt-4 p-4 bg-blue-50 rounded-md border border-blue-200">
                 <p class="text-sm text-gray-700">
-                    <strong>Type de Business Wall :</strong>
-                    {{ bw_info.name }}
+                    <strong>Type de Business Wall :</strong> {{ bw_info.name }}
                 </p>
             </div>
 
-            <!-- Section 1: members management -->
+            <!-- Section 2: invitations management -->
             <div class="mt-8">
                 <h2
-                    class="text-2xl font-semibold text-blue-800 border-b pb-3 mb-6"
+                    class="text-2xl font-semibold text-teal-800 border-b pb-3 mb-6"
                 >
-                    Membres du Business Wall de l'organisation
+                    Invitations à rejoindre le Business Wall
                 </h2>
 
                 <!-- Button to open modal -->
                 <div class="mb-6">
                     <button
                         type="button"
-                        id="list_users_button"
-                        data-modal-target="list_users_modal"
-                        data-modal-toggle="list_users_modal"
-                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                        id="list_invitations_button"
+                        data-modal-target="list_invitations_modal"
+                        data-modal-toggle="list_invitations_modal"
+                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
                     >
-                        Modifier la liste des membres
+                        Liste invitations
                     </button>
                 </div>
 
-                <!-- Current members preview -->
+                <!-- Current invitations preview -->
                 <div class="p-4 bg-white rounded-md border border-gray-200">
                     <h3 class="font-medium text-gray-900 mb-3">
-                        Membres actuels ({{ members|length }})
+                        Invitations en cours ({{ invitations_emails|length }})
                     </h3>
-                    {% if members %}
+                    {% if invitations_emails %}
                         <div
                             class="border border-gray-200 rounded-md divide-y divide-gray-200"
                         >
-                            {% for member in members|sort(attribute='last_name') %}
+                            {% for email in invitations_emails|sort %}
                                 <div
                                     class="flex items-center gap-3 px-3 py-2 bg-gray-50"
                                 >
                                     <div class="flex-shrink-0">
                                         <div
-                                            class="w-7 h-7 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-semibold text-xs"
+                                            class="w-7 h-7 rounded-full bg-teal-100 flex items-center justify-center text-teal-600 font-semibold text-xs"
                                         >
-                                            {{ member.first_name[0] if member.first_name else '?' }}{{ member.last_name[0] if member.last_name else '' }}
+                                            @
                                         </div>
                                     </div>
                                     <div class="min-w-0 flex-1">
                                         <p
                                             class="text-sm font-medium text-gray-900 truncate"
                                         >
-                                            {{ member.last_name }}
-                                            {{ member.first_name }}
-                                        </p>
-                                        <p
-                                            class="text-xs text-gray-500 truncate"
-                                        >
-                                            {{ member.email }}
+                                            {{ email }}
                                         </p>
                                     </div>
                                 </div>
@@ -79,15 +73,15 @@
                         </div>
                     {% else %}
                         <div class="text-sm text-gray-500 italic">
-                            Aucun membre dans l'organisation pour le moment.
+                            Aucune invitation en cours.
                         </div>
                     {% endif %}
                 </div>
             </div>
 
-            <!-- Modal for editing members -->
+            <!-- Modal for editing invitations -->
             <div
-                id="list_users_modal"
+                id="list_invitations_modal"
                 data-modal-backdrop="static"
                 tabindex="-1"
                 aria-hidden="true"
@@ -100,21 +94,16 @@
                         <h4
                             class="pl-2 text-lg font-semibold text-gray-900 dark:text-white"
                         >
-                            Liste des membres du Business Wall de
-                            l'organisation. Les membres sont uniquement des
-                            utilisateurs déjà inscrits dans Aipress24. La
-                            modification de la liste des membres permet
-                            uniquement de radier des utilisateur de la liste:
-                            l'ajout de membres n'est possible que par
-                            invitation.
+                            Liste des invitations à rejoindre le Business Wall
+                            de l'organisation
                         </h4>
                         <p
                             class="bg-white rounded-lg shadow dark:bg-gray-700 pl-2 pr-2 pt-1 text-sm text-gray-900 dark:text-white"
                         >
-                            Pour retirer un membre du Business Wall de
-                            l'organisation, retirer son email de la liste.
-                            Attention: radiation directe sans invitation
-                            préalable.
+                            Pour modifier la liste des invitations, ajouter ou
+                            retirer un email. L'invitation autorise un
+                            utilisateur actuel ou futur de Aipress24 à rejoindre
+                            le Business Wall de l'organisation.
                         </p>
                         <div class="p-2">
                             <form
@@ -130,8 +119,8 @@
                                         focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:gray-100"
                                         rows="10"
                                     >
-                                      {{- members|sort(attribute='email')|join('\n', attribute='email') }}
-                                      </textarea
+                                      {{- invitations_emails|sort|join('\n') -}}
+                                    </textarea
                                     >
                                 </div>
                                 <div
@@ -139,15 +128,15 @@
                                 >
                                     <button
                                         type="submit"
-                                        hx-post="{{ url_for('bw_activation.manage_organisation_members') }}"
-                                        hx-vals='{"action": "change_emails"}'
-                                        data-modal-hide="list_users_modal"
-                                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                                        hx-post="{{ url_for('bw_activation.invite_organisation_members') }}"
+                                        hx-vals='{"action": "change_invitations_emails"}'
+                                        data-modal-hide="list_invitations_modal"
+                                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
                                     >
                                         Valider
                                     </button>
                                     <button
-                                        data-modal-hide="list_users_modal"
+                                        data-modal-hide="list_invitations_modal"
                                         type="button"
                                         class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-gray-500 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400"
                                     >
@@ -165,16 +154,16 @@
                 class="mt-10 flex items-center justify-between gap-x-6 border-t pt-6"
             >
                 <a
-                    href="{{ url_for('bw_activation.dashboard') }}"
+                    href="{{ url_for('bw_activation.manage_organisation_members') }}"
                     class="text-sm font-semibold leading-6 text-gray-900 hover:text-gray-700"
                 >
-                    ← Retour au tableau de bord
+                    ← Étape précédente : Membres de l'organisation
                 </a>
                 <a
-                    href="{{ url_for('bw_activation.invite_organisation_members') }}"') }}"
+                    href="{{ url_for('bw_activation.manage_internal_roles') }}"
                     class="rounded-md bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-700"
                 >
-                    Étape suivante : Gérer les invitations →
+                    Étape suivante : Rôles internes →
                 </a>
             </div>
         </div>
