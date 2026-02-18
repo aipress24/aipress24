@@ -33,7 +33,7 @@
                         Gérez les membres de votre organisation.
                     </p>
                     <a
-                        href="#"
+                        href="{{ url_for('bw_activation.manage_organisation_membsers') }}"
                         class="inline-block rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700"
                     >
                         Gérer les membres →
@@ -59,7 +59,7 @@
                     </a>
                 </div>
 
-                <!-- Stage 4: Manage Internal Roles -->
+                <!-- Stage 3: Manage Internal Roles -->
                 <div
                     class="border border-gray-300 p-6 rounded-lg hover:shadow-md hover:border-blue-500 transition"
                 >
@@ -78,7 +78,7 @@
                     </a>
                 </div>
 
-                <!-- Stage 5: Manage External Partners -->
+                <!-- Stage 4: Manage External Partners -->
                 {% if bw_type != 'pr' %}
                     <div
                         class="border border-gray-300 p-6 rounded-lg hover:shadow-md hover:border-green-500 transition"
@@ -99,7 +99,7 @@
                     </div>
                 {% endif %}
 
-                <!-- Stage 6: Assign Missions/Permissions -->
+                <!-- Stage 5: Assign Missions/Permissions -->
                 <div
                     class="border border-gray-300 p-6 rounded-lg hover:shadow-md hover:border-purple-500 transition"
                 >
@@ -118,7 +118,7 @@
                     </a>
                 </div>
 
-                <!-- Stage 7: Configure BW Content -->
+                <!-- Stage 6: Configure BW Content -->
                 <div
                     class="border border-gray-300 p-6 rounded-lg hover:shadow-md hover:border-orange-500 transition"
                 >
