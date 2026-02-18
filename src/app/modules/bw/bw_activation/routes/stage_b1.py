@@ -10,12 +10,11 @@ from typing import TYPE_CHECKING, cast
 
 from flask import g, redirect, render_template, session, url_for
 
-from app.flask.sqla import get_obj
+# from app.flask.sqla import get_obj
 from app.logging import warn
 from app.models.auth import User
 from app.modules.bw.bw_activation import bp
 from app.modules.bw.bw_activation.config import BW_TYPES
-from app.modules.bw.bw_activation.models import BWRoleType
 from app.modules.bw.bw_activation.user_utils import current_business_wall
 from app.modules.bw.bw_activation.utils import fill_session
 
