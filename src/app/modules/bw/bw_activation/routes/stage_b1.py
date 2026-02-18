@@ -59,7 +59,7 @@ def manage_organisation_members():
         action = request.form.get("action")
         if action == "change_emails":
             raw_mails = request.form["content"]
-            change_members_emails(org, raw_mails)
+            change_members_emails(org, raw_mails, remove_only=True)
             response = Response("")
             response.headers["HX-Redirect"] = url_for(
                 "bw_activation.manage_organisation_members"
