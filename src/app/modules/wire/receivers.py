@@ -9,17 +9,13 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from arrow import now
-from svcs.flask import container
+from sqlalchemy import select
 
 from app.constants import LOCAL_TZ
 from app.flask.extensions import db
 from app.models.lifecycle import PublicationStatus
 from app.modules.wip.models import Article, Communique
 from app.modules.wire.models import ArticlePost, PressReleasePost
-from app.modules.wire.repositories import (
-    ArticlePostRepository,
-    PressReleasePostRepository,
-)
 from app.signals import (
     article_published,
     article_unpublished,
@@ -81,8 +77,9 @@ def on_article_updated(article: Article) -> None:
 
 
 def get_article_post(article: Article) -> ArticlePost | None:
-    repo = container.get(ArticlePostRepository)
-    return repo.get_by_newsroom_id(article.id)
+    """Get the ArticlePost corresponding to the given Article."""
+    stmt = select(ArticlePost).where(ArticlePost.newsroom_id == article.id)
+    return db.session.scalar(stmt)
 
 
 def update_article_post(post: ArticlePost, article: Article) -> None:
@@ -146,8 +143,9 @@ def on_communique_updated(communique: Communique) -> None:
 
 
 def get_communique_post(communique: Communique) -> PressReleasePost | None:
-    repo = container.get(PressReleasePostRepository)
-    return repo.get_by_newsroom_id(communique.id)
+    """Get the PressReleasePost corresponding to the given Communique."""
+    stmt = select(PressReleasePost).where(PressReleasePost.newsroom_id == communique.id)
+    return db.session.scalar(stmt)
 
 
 def update_communique_post(post: PressReleasePost, communique: Communique) -> None:
