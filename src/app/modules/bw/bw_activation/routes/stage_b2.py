@@ -12,7 +12,9 @@ from flask import g, redirect, render_template, request, session, url_for
 from werkzeug import Response
 
 from app.flask.extensions import db
+from app.flask.sqla import get_obj
 from app.logging import warn
+from app.models.auth import User
 from app.modules.admin.org_email_utils import change_members_emails
 from app.modules.bw.bw_activation import bp
 from app.modules.bw.bw_activation.config import BW_TYPES
@@ -58,8 +60,14 @@ def manage_organisation_members():
     if request.method == "POST":
         action = request.form.get("action")
         if action == "change_emails":
+            # prevent removing the owner
+            owner = get_obj(current_bw.owner_id, User)
+            owner_mail: str = owner.email if owner else ""
+
             raw_mails = request.form["content"]
-            change_members_emails(org, raw_mails, remove_only=True)
+            change_members_emails(
+                org, raw_mails, remove_only=True, never_remove=owner_mail
+            )
             response = Response("")
             response.headers["HX-Redirect"] = url_for(
                 "bw_activation.manage_organisation_members"
