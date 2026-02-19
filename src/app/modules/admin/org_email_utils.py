@@ -17,13 +17,31 @@ from .invitations import (
 from .utils import get_user_per_email, remove_user_organisation, set_user_organisation
 
 
+def remove_members_emails(org: Organisation, mails_to_remove: set[str]) -> None:
+    """Remove members from organisation by emails."""
+    for member in org.members:
+        if member.email.lower() in mails_to_remove:
+            remove_user_organisation(member)
+
+
+def add_members_emails(org: Organisation, mails_to_add: set[str]) -> None:
+    """Add members to organisation by emails."""
+    for mail in mails_to_add:
+        user = get_user_per_email(mail)
+        if not user:
+            continue
+        set_user_organisation(user, org)
+
+
 def change_members_emails(
     org: Organisation,
     raw_mails: str,
     remove_only: bool = False,
     never_remove: str | list[str] | None = None,
 ) -> None:
-    new_mails = set(raw_mails.lower().split())
+    """Update organisation members by emails."""
+    updated_mails = set(raw_mails.lower().split())
+
     if never_remove:
         if isinstance(never_remove, str):
             never_remove = [never_remove]
@@ -31,20 +49,18 @@ def change_members_emails(
     else:
         keep_mails = set()
 
-    current_emails = {u.email.lower() for u in org.members}
-    # remove users that are not in the new list of members
-    for member in org.members:
-        if member.email not in new_mails and member.email not in keep_mails:
-            remove_user_organisation(member)
+    current_emails: set[str] = {u.email.lower() for u in org.members}
+
+    mails_to_remove = {
+        m for m in current_emails if m not in updated_mails and m not in keep_mails
+    }
+    remove_members_emails(org, mails_to_remove)
+
     if remove_only:
         return
-    # add users of the new list that are not in the current list of members
-    for mail in new_mails:
-        if mail not in current_emails:
-            user = get_user_per_email(mail)
-            if not user:
-                continue
-            set_user_organisation(user, org)
+
+    mails_to_add = {m for m in updated_mails if m not in current_emails}
+    add_members_emails(org, mails_to_add)
 
 
 def change_managers_emails(
