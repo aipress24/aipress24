@@ -27,7 +27,7 @@ from app.flask.extensions import db
 from app.flask.lib.constants import EMPTY_PNG
 from app.flask.routing import url_for
 from app.lib.file_object_utils import create_file_object
-from app.logging import warn
+from app.logging import logger, warn
 from app.models.lifecycle import PublicationStatus
 from app.modules.wip.models import Article, ArticleRepository, Image, ImageRepository
 from app.settings.constants import MAX_IMAGE_SIZE
@@ -167,7 +167,9 @@ class ArticlesWipView(BaseWipView):
             return redirect(self._url_for("edit", id=id))
 
         repo.update(article, auto_commit=False)
+        logger.info("wip.articles: Sending article_published signal for article {}", article.id)
         article_published.send(article)
+        logger.info("wip.articles: Signal sent, committing transaction for article {}", article.id)
         db.session.commit()
         flash("L'article a été publié")
         return redirect(self._url_for("index"))

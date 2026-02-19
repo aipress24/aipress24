@@ -62,7 +62,9 @@ class Tab(abc.ABC):
         stmt = self.get_stmt(filter_bar)
 
         authors = self.get_authors()
-        if authors is not None:
+        # Only filter by author if there are specific authors to filter by
+        # Empty list means "no filter", not "match no one"
+        if authors:
             author_ids = [f.id for f in authors]
             stmt = stmt.where(Post.owner_id.in_(author_ids))
 

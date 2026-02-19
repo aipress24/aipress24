@@ -13,6 +13,7 @@ from sqlalchemy import select
 
 from app.constants import LOCAL_TZ
 from app.flask.extensions import db
+from app.logging import logger
 from app.models.lifecycle import PublicationStatus
 from app.modules.wip.models import Article, Communique
 from app.modules.wire.models import ArticlePost, PressReleasePost
@@ -28,6 +29,9 @@ from app.signals import (
 if TYPE_CHECKING:
     from app.modules.wire.models import Post
 
+# Log when module is imported (confirms signal handlers are registered)
+logger.debug("wire.receivers: Signal handlers registered")
+
 
 # =============================================================================
 # Article signal handlers
@@ -36,19 +40,26 @@ if TYPE_CHECKING:
 
 @article_published.connect
 def on_article_published(article: Article) -> None:
-    post = get_article_post(article)
-    if not post:
-        post = ArticlePost()
-        post.newsroom_id = article.id
-        post.created_at = article.created_at
+    logger.info("wire.receivers: on_article_published called for article {}", article.id)
+    try:
+        post = get_article_post(article)
+        if not post:
+            logger.debug("wire.receivers: Creating new ArticlePost for article {}", article.id)
+            post = ArticlePost()
+            post.newsroom_id = article.id
+            post.created_at = article.created_at
 
-    # SQLAlchemy Mapped attribute assignment
-    post.status = PublicationStatus.PUBLIC  # type: ignore[invalid-assignment]
+        # SQLAlchemy Mapped attribute assignment
+        post.status = PublicationStatus.PUBLIC  # type: ignore[invalid-assignment]
 
-    update_article_post(post, article)
+        update_article_post(post, article)
 
-    db.session.add(post)
-    db.session.flush()
+        db.session.add(post)
+        db.session.flush()
+        logger.info("wire.receivers: ArticlePost {} created/updated for article {}", post.id, article.id)
+    except Exception:
+        logger.exception("wire.receivers: Error in on_article_published for article {}", article.id)
+        raise
 
 
 @article_unpublished.connect
@@ -91,8 +102,12 @@ def update_article_post(post: ArticlePost, article: Article) -> None:
     else:
         post.media_id = None
 
-    # Article uses date_publication_aip24
-    post.published_at = article.date_publication_aip24
+    # Use article's publication date if valid, otherwise use now
+    pub_date = article.date_publication_aip24
+    if pub_date and pub_date.year >= 2000:
+        post.published_at = pub_date
+    else:
+        post.published_at = now(LOCAL_TZ)  # type: ignore[assignment]
 
 
 # =============================================================================
@@ -102,19 +117,26 @@ def update_article_post(post: ArticlePost, article: Article) -> None:
 
 @communique_published.connect
 def on_communique_published(communique: Communique) -> None:
-    post = get_communique_post(communique)
-    if not post:
-        post = PressReleasePost()
-        post.newsroom_id = communique.id
-        post.created_at = communique.created_at
+    logger.info("wire.receivers: on_communique_published called for communique {}", communique.id)
+    try:
+        post = get_communique_post(communique)
+        if not post:
+            logger.debug("wire.receivers: Creating new PressReleasePost for communique {}", communique.id)
+            post = PressReleasePost()
+            post.newsroom_id = communique.id
+            post.created_at = communique.created_at
 
-    # SQLAlchemy Mapped attribute assignment
-    post.status = PublicationStatus.PUBLIC  # type: ignore[invalid-assignment]
+        # SQLAlchemy Mapped attribute assignment
+        post.status = PublicationStatus.PUBLIC  # type: ignore[invalid-assignment]
 
-    update_communique_post(post, communique)
+        update_communique_post(post, communique)
 
-    db.session.add(post)
-    db.session.flush()
+        db.session.add(post)
+        db.session.flush()
+        logger.info("wire.receivers: PressReleasePost {} created/updated for communique {}", post.id, communique.id)
+    except Exception:
+        logger.exception("wire.receivers: Error in on_communique_published for communique {}", communique.id)
+        raise
 
 
 @communique_unpublished.connect
@@ -151,8 +173,11 @@ def get_communique_post(communique: Communique) -> PressReleasePost | None:
 def update_communique_post(post: PressReleasePost, communique: Communique) -> None:
     _update_post_common(post, communique)
 
-    # Communique uses published_at directly
-    post.published_at = communique.published_at
+    # Use communique's published_at if valid, otherwise use now
+    if communique.published_at and communique.published_at.year >= 2000:
+        post.published_at = communique.published_at
+    else:
+        post.published_at = now(LOCAL_TZ)  # type: ignore[assignment]
 
 
 # =============================================================================
