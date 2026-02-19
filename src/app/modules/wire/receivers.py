@@ -91,8 +91,12 @@ def update_article_post(post: ArticlePost, article: Article) -> None:
     else:
         post.media_id = None
 
-    # Article uses date_publication_aip24
-    post.published_at = article.date_publication_aip24
+    # Use article's publication date if valid, otherwise use now
+    pub_date = article.date_publication_aip24
+    if pub_date and pub_date.year >= 2000:
+        post.published_at = pub_date
+    else:
+        post.published_at = now(LOCAL_TZ)  # type: ignore[assignment]
 
 
 # =============================================================================
@@ -151,8 +155,11 @@ def get_communique_post(communique: Communique) -> PressReleasePost | None:
 def update_communique_post(post: PressReleasePost, communique: Communique) -> None:
     _update_post_common(post, communique)
 
-    # Communique uses published_at directly
-    post.published_at = communique.published_at
+    # Use communique's published_at if valid, otherwise use now
+    if communique.published_at and communique.published_at.year >= 2000:
+        post.published_at = communique.published_at
+    else:
+        post.published_at = now(LOCAL_TZ)  # type: ignore[assignment]
 
 
 # =============================================================================
