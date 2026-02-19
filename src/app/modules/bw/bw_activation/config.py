@@ -10,10 +10,12 @@ pricing, and onboarding messages.
 
 from __future__ import annotations
 
+from typing import Any
+
 from .models import BWType
 
 # Business Wall Types configuration
-BW_TYPES = {
+BW_TYPES: dict[str, dict[str, Any]] = {
     # Free BW types (5 types)
     BWType.MEDIA.value: {
         "name": "Business Wall for Media",

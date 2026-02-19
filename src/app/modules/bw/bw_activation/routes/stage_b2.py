@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from flask import g, redirect, render_template, request, session, url_for
 from werkzeug import Response
@@ -49,7 +49,7 @@ def manage_organisation_members():
         return redirect(url_for("bw_activation.index"))
 
     bw_type = session["bw_type"]
-    bw_info = BW_TYPES.get(bw_type, {})
+    bw_info: dict[str, Any] = BW_TYPES.get(bw_type, {})
 
     org = current_bw.get_organisation()
     # organisation must be created for the BW (it was created at BW creation if missing)
