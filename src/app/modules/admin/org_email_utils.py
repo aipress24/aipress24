@@ -17,13 +17,17 @@ from .invitations import (
 from .utils import get_user_per_email, remove_user_organisation, set_user_organisation
 
 
-def change_members_emails(org: Organisation, raw_mails: str) -> None:
+def change_members_emails(
+    org: Organisation, raw_mails: str, remove_only: bool = False
+) -> None:
     new_mails = set(raw_mails.lower().split())
     current_emails = {u.email.lower() for u in org.members}
     # remove users that are not in the new list of members
     for member in org.members:
         if member.email not in new_mails:
             remove_user_organisation(member)
+    if remove_only:
+        return
     # add users of the new list that are not in the current list of members
     for mail in new_mails:
         if mail not in current_emails:

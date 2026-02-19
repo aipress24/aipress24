@@ -1,0 +1,136 @@
+{% extends "layout.html" %}
+
+{% block title %}Informations Business Wall{% endblock %}
+
+{% block content %}
+    <div class="max-w-6xl mx-auto">
+        <h1 class="text-3xl font-bold text-gray-800 mb-2">
+            Informations Business Wall
+        </h1>
+        <p class="text-gray-600 mb-8">Informations sur votre Business Wall.</p>
+
+        <!-- Business Wall Information  -->
+        <div
+            class="bg-white p-8 rounded-lg shadow-md border border-gray-200 mb-8"
+        >
+            <div class="border-b pb-4 mb-6">
+                <h2 class="text-2xl font-semibold text-blue-600">
+                    {{ bw_type_info.name or 'Business Wall' }}
+                </h2>
+                <p class="text-gray-500 mt-1">
+                    {{ bw_type_info.description or '' }}
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-gray-50 p-4 rounded-md">
+                    <h3
+                        class="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-2"
+                    >
+                        Type
+                    </h3>
+                    <p class="text-gray-900">{{ business_wall.bw_type }}</p>
+                </div>
+
+                <div class="bg-gray-50 p-4 rounded-md">
+                    <h3
+                        class="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-2"
+                    >
+                        Statut
+                    </h3>
+                    <p class="text-gray-900">
+                        {% if business_wall.status == 'active' %}
+                            <span
+                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800"
+                            >
+                                Actif
+                            </span>
+                        {% elif business_wall.status == 'draft' %}
+                            <span
+                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800"
+                            >
+                                En cours de création
+                            </span>
+                        {% elif business_wall.status == 'suspended' %}
+                            <span
+                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800"
+                            >
+                                Suspendu
+                            </span>
+                        {% else %}
+                            <span
+                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800"
+                            >
+                                {{ business_wall.status }}
+                            </span>
+                        {% endif %}
+                    </p>
+                </div>
+
+                <div class="bg-gray-50 p-4 rounded-md">
+                    <h3
+                        class="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-2"
+                    >
+                        Abonnement
+                    </h3>
+                    <p class="text-gray-900">
+                        {% if business_wall.is_free %}
+                            <span class="text-green-600 font-medium"
+                                >Gratuit</span
+                            >
+                        {% else %}
+                            <span class="text-blue-600 font-medium"
+                                >Payant</span
+                            >
+                        {% endif %}
+                    </p>
+                </div>
+
+                <div class="bg-gray-50 p-4 rounded-md">
+                    <h3
+                        class="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-2"
+                    >
+                        Date d'activation
+                    </h3>
+                    <p class="text-gray-900">
+                        {% if business_wall.activated_at %}
+                            {{ business_wall.activated_at.strftime('%d/%m/%Y') }}
+                        {% else %}
+                            <span class="text-gray-400 italic">Non activé</span>
+                        {% endif %}
+                    </p>
+                </div>
+
+                <div class="bg-gray-50 p-4 rounded-md md:col-span-2">
+                    <h3
+                        class="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-2"
+                    >
+                        Organisation
+                    </h3>
+                    {% set org = business_wall.get_organisation() %}
+                    {% if org %}
+                        <p class="text-gray-900 font-medium">{{ org.name }}</p>
+                        {% if org.nom_groupe %}
+                            <p class="text-gray-500 text-sm">
+                                {{ org.nom_groupe }}
+                            </p>
+                        {% endif %}
+                    {% else %}
+                        <p class="text-gray-400 italic">
+                            Aucune organisation associée (impossible)
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="flex justify-start">
+            <a
+                href="/wip/dashboard"
+                class="rounded-md bg-gray-600 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-gray-700"
+            >
+                Retour
+            </a>
+        </div>
+    </div>
+{% endblock %}

@@ -24,6 +24,10 @@ from pytz import timezone
 from app.models.auth import Role, User
 from app.models.base import Base
 
+# Tell UUIDAuditBase to use the same metadata as Base
+# to fix ForeignKey references work across models using different bases
+UUIDAuditBase.metadata = Base.metadata
+
 PARIS_TZ = timezone("Europe/Paris")
 
 
@@ -101,11 +105,8 @@ def register_extensions(app: Flask) -> None:
     logger.debug("Registering all extensions")
 
     import_all_models()
-    # Merge existing Base tables into UUIDAuditBase metadata
-    # This allows both bases to coexist and be detected by Alembic
-    for table in UUIDAuditBase.metadata.tables.values():
-        if table.name not in db.metadata.tables:
-            table.to_metadata(db.metadata)
+    # UUIDAuditBase.metadata is now set to Base.metadata (see UUIDAuditBase.metadata = Base.metadata)
+    # All models should now share the same metadata
 
     db.init_app(app)
     # register_local_storage(app)

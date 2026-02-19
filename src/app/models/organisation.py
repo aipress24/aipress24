@@ -11,12 +11,13 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
+from typing import TYPE_CHECKING
 
 import arrow
 import sqlalchemy as sa
 from advanced_alchemy.types.file_object import FileObject, StoredObject
 from slugify import slugify
-from sqlalchemy import JSON
+from sqlalchemy import JSON, inspect, select
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
 from sqlalchemy_utils import ArrowType
@@ -26,6 +27,9 @@ from app.enums import BWTypeEnum, OrganisationTypeEnum
 from app.models.auth import User
 from app.models.base import Base
 from app.models.mixins import Addressable, IdMixin, LifeCycleMixin
+
+if TYPE_CHECKING:
+    from app.modules.bw.bw_activation.models.business_wall import BusinessWall
 
 
 class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
@@ -167,6 +171,16 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
         primaryjoin="User.organisation_id == Organisation.id",
         back_populates="organisation",
     )
+
+    def get_business_wall(self) -> BusinessWall | None:
+        """Get the BusinessWall associated with this organisation."""
+        from app.modules.bw.bw_activation.models.business_wall import BusinessWall
+
+        session = inspect(self).session
+        if session is None:
+            return None
+        stmt = select(BusinessWall).where(BusinessWall.organisation_id == self.id)
+        return session.execute(stmt).scalars().first()
 
     # no_siret = sa.Column(sa.UnicodeText, default="")
     # no_siren = sa.Column(sa.UnicodeText, default="")

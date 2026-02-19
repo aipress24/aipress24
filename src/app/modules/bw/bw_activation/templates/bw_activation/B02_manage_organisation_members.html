@@ -1,0 +1,182 @@
+{% extends "layout.html" %}
+
+{% block title %}Gérer la liste des membres de l'organisation{% endblock %}
+
+{% block content %}
+    <div class="max-w-6xl mx-auto">
+        <div class="bg-white p-8 rounded-2xl shadow-lg border border-gray-200">
+            <h1 class="text-3xl font-bold text-gray-900">
+                2- Gérer la liste des membres du Business Wall de l'organisation
+            </h1>
+            <p class="mt-2 text-gray-600">
+                Les membres sont des utilisateurs inscrits dans Aipress24,
+                membre de l'Organisation. La modification de la liste des
+                membres permet uniquement de radier des utilisateur de la liste:
+                l'ajout de membres n'est possible que par invitation.
+            </p>
+
+            <div class="mt-4 p-4 bg-blue-50 rounded-md border border-blue-200">
+                <p class="text-sm text-gray-700">
+                    <strong>Type de Business Wall :</strong>
+                    {{ bw_info.name }}
+                </p>
+            </div>
+
+            <!-- Section 1: members management -->
+            <div class="mt-8">
+                <h2
+                    class="text-2xl font-semibold text-blue-800 border-b pb-3 mb-6"
+                >
+                    Membres du Business Wall de l'organisation
+                </h2>
+
+                <!-- Button to open modal -->
+                <div class="mb-6">
+                    <button
+                        type="button"
+                        id="list_users_button"
+                        data-modal-target="list_users_modal"
+                        data-modal-toggle="list_users_modal"
+                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    >
+                        Modifier la liste des membres
+                    </button>
+                </div>
+
+                <!-- Current members preview -->
+                <div class="p-4 bg-white rounded-md border border-gray-200">
+                    <h3 class="font-medium text-gray-900 mb-3">
+                        Membres actuels ({{ members|length }})
+                    </h3>
+                    {% if members %}
+                        <div
+                            class="border border-gray-200 rounded-md divide-y divide-gray-200"
+                        >
+                            {% for member in members|sort(attribute='last_name') %}
+                                <div
+                                    class="flex items-center gap-3 px-3 py-2 bg-gray-50"
+                                >
+                                    <div class="flex-shrink-0">
+                                        <div
+                                            class="w-7 h-7 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-semibold text-xs"
+                                        >
+                                            {{ member.first_name[0] if member.first_name else '?' }}{{ member.last_name[0] if member.last_name else '' }}
+                                        </div>
+                                    </div>
+                                    <div class="min-w-0 flex-1">
+                                        <p
+                                            class="text-sm font-medium text-gray-900 truncate"
+                                        >
+                                            {{ member.last_name }}
+                                            {{ member.first_name }}
+                                        </p>
+                                        <p
+                                            class="text-xs text-gray-500 truncate"
+                                        >
+                                            {{ member.email }}
+                                        </p>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-sm text-gray-500 italic">
+                            Aucun membre dans l'organisation pour le moment.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Modal for editing members -->
+            <div
+                id="list_users_modal"
+                data-modal-backdrop="static"
+                tabindex="-1"
+                aria-hidden="true"
+                class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full"
+            >
+                <div class="relative p-4 w-full max-w-screen-sm max-h-full">
+                    <div
+                        class="relative bg-white rounded-lg shadow dark:bg-gray-700"
+                    >
+                        <h4
+                            class="pl-2 text-lg font-semibold text-gray-900 dark:text-white"
+                        >
+                            Liste des membres du Business Wall de
+                            l'organisation. La modification de la liste des
+                            membres permet uniquement de radier des utilisateur
+                            de la liste: l'ajout de membres n'est possible que
+                            par invitation.
+                        </h4>
+                        <p
+                            class="bg-white rounded-lg shadow dark:bg-gray-700 pl-2 pr-2 pt-1 text-sm text-gray-900 dark:text-white"
+                        >
+                            Pour retirer un membre du Business Wall de
+                            l'organisation, retirer son email de la liste.
+                            Attention: radiation directe sans invitation
+                            préalable.
+                        </p>
+                        <div class="p-2">
+                            <form
+                                class="space-y-4"
+                                action="#"
+                            >
+                                <div>
+                                    <textarea
+                                        name="content"
+                                        id="content"
+                                        class="block p-2 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300
+                                        placeholder:text-gray-900
+                                        focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:gray-100"
+                                        rows="10"
+                                    >
+                                      {{- members|sort(attribute='email')|join('\n', attribute='email') }}
+                                      </textarea
+                                    >
+                                </div>
+                                <div
+                                    class="mt-12 flex items-center justify-end gap-x-6"
+                                >
+                                    <button
+                                        type="submit"
+                                        hx-post="{{ url_for('bw_activation.manage_organisation_members') }}"
+                                        hx-vals='{"action": "change_emails"}'
+                                        data-modal-hide="list_users_modal"
+                                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                                    >
+                                        Valider
+                                    </button>
+                                    <button
+                                        data-modal-hide="list_users_modal"
+                                        type="button"
+                                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-gray-500 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400"
+                                    >
+                                        Annuler
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <div
+                class="mt-10 flex items-center justify-between gap-x-6 border-t pt-6"
+            >
+                <a
+                    href="{{ url_for('bw_activation.invite_organisation_members') }}"
+                    class="text-sm font-semibold leading-6 text-gray-900 hover:text-gray-700"
+                >
+                    ← Étape précédente : Invitations
+                </a>
+                <a
+                    href="{{ url_for('bw_activation.manage_internal_roles') }}"
+                    class="rounded-md bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-700"
+                >
+                    Étape suivante : Rôles internes →
+                </a>
+            </div>
+        </div>
+    </div>
+{% endblock %}

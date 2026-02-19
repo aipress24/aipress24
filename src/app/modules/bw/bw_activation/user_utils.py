@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING, cast
 from flask import g
 
 from app.enums import ProfileEnum
+from app.modules.bw.bw_activation.models import BusinessWall
 
 from .models.business_wall import BWType
 
@@ -81,3 +82,10 @@ def guess_best_bw_type(user: User) -> BWType:
     profile = user.profile
     profile_code = ProfileEnum[profile.profile_code]
     return PROFILE_CODE_TO_BW2_TYPE.get(profile_code, BWType.MEDIA)
+
+
+def current_business_wall(user: User) -> BusinessWall | None:
+    org = user.organisation
+    if not org:
+        return None
+    return org.get_business_wall()

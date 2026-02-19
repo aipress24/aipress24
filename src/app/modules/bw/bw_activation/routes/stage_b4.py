@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
-"""Stage 4: Internal roles management routes."""
+"""Stage 5: External partners management routes."""
 
 from __future__ import annotations
 
@@ -12,9 +12,9 @@ from app.modules.bw.bw_activation import bp
 from app.modules.bw.bw_activation.config import BW_TYPES
 
 
-@bp.route("/manage-internal-roles")
-def manage_internal_roles():
-    """Stage 4: Manage internal Business Wall Managers and PR Managers."""
+@bp.route("/manage-external-partners")
+def manage_external_partners():
+    """Stage 5: Manage external PR Agencies and Consultants."""
     if not session.get("bw_activated"):
         return redirect(url_for("bw_activation.index"))
 
@@ -22,7 +22,7 @@ def manage_internal_roles():
     bw_info = BW_TYPES.get(bw_type, {})
 
     return render_template(
-        "bw_activation/04_manage_internal_roles.html",
+        "bw_activation/B04_manage_external_partners.html",
         bw_type=bw_type,
         bw_info=bw_info,
     )

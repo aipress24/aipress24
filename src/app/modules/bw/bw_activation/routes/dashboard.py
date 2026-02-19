@@ -6,16 +6,39 @@
 
 from __future__ import annotations
 
-from flask import redirect, render_template, session, url_for
+from typing import TYPE_CHECKING, cast
 
+from flask import g, redirect, render_template, session, url_for
+
+from app.logging import warn
 from app.modules.bw.bw_activation import bp
 from app.modules.bw.bw_activation.config import BW_TYPES
+from app.modules.bw.bw_activation.user_utils import current_business_wall
+from app.modules.bw.bw_activation.utils import (
+    ERR_NOT_MANAGER,
+    bw_managers_ids,
+    fill_session,
+)
+
+if TYPE_CHECKING:
+    from app.models.auth import User
 
 
 @bp.route("/dashboard")
 def dashboard():
     """Business Wall management dashboard (after activation)."""
+    warn("in bw.dashboard")
+    user = cast("User", g.user)
+    current_bw = current_business_wall(user)
+    if current_bw:
+        warn("current BW", current_bw)
+        fill_session(current_bw)
+        if user.id not in bw_managers_ids(current_bw):
+            # not enough right to manage BW (not owner)
+            session["error"] = ERR_NOT_MANAGER
+            return redirect(url_for("bw_activation.not_authorized"))
     if not session.get("bw_activated") or not session.get("bw_type"):
+        warn("BW not activated")
         return redirect(url_for("bw_activation.index"))
 
     bw_type = session["bw_type"]

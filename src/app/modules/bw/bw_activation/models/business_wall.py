@@ -11,10 +11,12 @@ from enum import StrEnum
 from typing import TYPE_CHECKING
 
 from advanced_alchemy.base import UUIDAuditBase
-from sqlalchemy import BigInteger, String
+from sqlalchemy import BigInteger, ForeignKey, String, inspect, select
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 if TYPE_CHECKING:
+    from app.models.organisation import Organisation
+
     from .content import BWContent
     from .partnership import Partnership
     from .role import RoleAssignment
@@ -59,17 +61,43 @@ class BusinessWall(UUIDAuditBase):
     # Pricing
     is_free: Mapped[bool] = mapped_column(default=False)
 
-    # Ownership - references to User IDs (no FK constraint for POC)
-    owner_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    # Ownership - references to User ID
+    owner_id: Mapped[int] = mapped_column(
+        BigInteger, ForeignKey("aut_user.id", name="fk_bw_business_wall_owner_id"), nullable=False
+    )
 
-    # Payer (can be same as owner) - references to User ID (no FK constraint for POC)
-    payer_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    # Payer (can be same as owner) - references to User ID
+    payer_id: Mapped[int] = mapped_column(
+        BigInteger, ForeignKey("aut_user.id", name="fk_bw_business_wall_payer_id"), nullable=False
+    )
 
-    # Organization reference (if applicable) - references to Organisation ID (no FK constraint for POC)
-    organisation_id: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
+    # Organization reference (if applicable)
+    organisation_id: Mapped[int | None] = mapped_column(
+        BigInteger, ForeignKey("crp_organisation.id", name="fk_bw_business_wall_org_id"), nullable=True
+    )
+    def get_organisation(self) -> Organisation | None:
+        """Get the Organisation associated with this BusinessWall."""
+        from app.models.organisation import Organisation
+
+        if self.organisation_id is None:
+            return None
+        session = inspect(self).session
+        if session is None:
+            return None
+        stmt = select(Organisation).where(Organisation.id == self.organisation_id)
+        return session.execute(stmt).scalar_one_or_none()
 
     # Activation tracking
     activated_at: Mapped[datetime | None] = mapped_column(nullable=True)
+
+    # Payer contact details (for invoice/billing)
+    payer_is_owner: Mapped[bool] = mapped_column(default=False)
+    payer_first_name: Mapped[str] = mapped_column(String, default="")
+    payer_last_name: Mapped[str] = mapped_column(String, default="")
+    payer_service: Mapped[str] = mapped_column(String, default="")
+    payer_email: Mapped[str] = mapped_column(String, default="")
+    payer_phone: Mapped[str] = mapped_column(String, default="")
+    payer_address: Mapped[str] = mapped_column(String, default="")
 
     # Relationships (using string annotations to avoid circular imports)
     subscription: Mapped[Subscription | None] = relationship(

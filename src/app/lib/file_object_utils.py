@@ -40,11 +40,11 @@ def create_file_object(
 
     Example:
         >>> file_obj = create_file_object(
-        ...     content=uploaded_file.read(),
+        ...     content=b"fake image content",
         ...     original_filename="photo.jpg",
         ...     content_type="image/jpeg",
         ... )
-        >>> user.photo_image = file_obj
+        >>> # user.photo_image = file_obj
     """
     content_hash = hashlib.sha256(content).hexdigest()
     ext = Path(original_filename).suffix.lower()  # .jpg, .png, etc.
