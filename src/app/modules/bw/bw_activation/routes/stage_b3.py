@@ -6,27 +6,37 @@
 
 from __future__ import annotations
 
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
-from flask import g, redirect, render_template, session, url_for
+from flask import g, redirect, render_template, request, session, url_for
+from werkzeug import Response
 
 from app.flask.sqla import get_obj
 from app.logging import warn
 from app.models.auth import User
 from app.modules.bw.bw_activation import bp
+from app.modules.bw.bw_activation.bw_invitation import (
+    change_bwmi_emails,
+    change_bwpri_emails,
+)
 from app.modules.bw.bw_activation.config import BW_TYPES
-from app.modules.bw.bw_activation.models import BWRoleType, InvitationStatus
+from app.modules.bw.bw_activation.models import (
+    BWRoleType,
+    InvitationStatus,
+)
 from app.modules.bw.bw_activation.user_utils import current_business_wall
 from app.modules.bw.bw_activation.utils import (
     ERR_BW_NOT_FOUND,
     ERR_NOT_MANAGER,
-    BusinessWall,
     bw_managers_ids,
     fill_session,
 )
 
+if TYPE_CHECKING:
+    from app.modules.bw.bw_activation.models import BusinessWall
 
-@bp.route("/manage-internal-roles")
+
+@bp.route("/manage-internal-roles", methods=["GET", "POST"])
 def manage_internal_roles():
     """Stage B3: Manage internal Business Wall Managers and PR Managers."""
     # at this stage the BW must be created
@@ -45,6 +55,27 @@ def manage_internal_roles():
 
     bw_type: str = session["bw_type"]
     bw_info: dict[str, str] = BW_TYPES.get(bw_type, {})
+
+    if request.method == "POST":
+        action = request.form.get("action")
+        if action == "change_bwmi_invitations":
+            raw_mails = request.form["content"]
+            change_bwmi_emails(business_wall, raw_mails)
+            response = Response("")
+            response.headers["HX-Redirect"] = url_for(
+                "bw_activation.manage_internal_roles"
+            )
+            return response
+        elif action == "change_bwpri_invitations":
+            raw_mails = request.form["content"]
+            change_bwpri_emails(business_wall, raw_mails)
+            response = Response("")
+            response.headers["HX-Redirect"] = url_for(
+                "bw_activation.manage_internal_roles"
+            )
+            return response
+        else:
+            pass
 
     # Build context for template
     ctx = _build_context(business_wall, bw_type, bw_info)
