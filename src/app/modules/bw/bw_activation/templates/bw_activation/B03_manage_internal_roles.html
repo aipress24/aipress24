@@ -119,51 +119,167 @@
                     Business Wall Managers Internes (BWMi)
                 </h2>
 
-                <div class="mb-6 p-4 bg-gray-50 rounded-md">
-                    <h3 class="font-medium text-gray-900 mb-3">
-                        Inviter des Business Wall Managers
-                    </h3>
-                    <p class="text-sm text-gray-600 mb-4">
-                        Invitez des membres de votre équipe à devenir
-                        co-administrateurs du Business Wall.
-                    </p>
-
-                    <div class="space-y-4">
-                        <div>
-                            <label
-                                class="block text-sm font-medium text-gray-700 mb-2"
-                                >Adresse e-mail du membre à inviter</label
-                            >
-                            <div class="flex gap-3">
-                                <input
-                                    type="email"
-                                    placeholder="exemple@votreorganisation.com"
-                                    class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-blue-600 focus:ring-blue-600 sm:text-sm px-4 py-2 border"
-                                />
-                                <button
-                                    type="button"
-                                    class="rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
-                                >
-                                    Envoyer l'invitation
-                                </button>
-                            </div>
-                            <p class="mt-2 text-xs text-gray-500">
-                                Une notification sera envoyée avec un lien pour
-                                accepter ou refuser la nomination. Pour inviter
-                                plusieurs managers, séparez les adresses e-mail
-                                par des espaces.
-                            </p>
-                        </div>
-                    </div>
+                <!-- Button to open modal for BWMi invitations -->
+                <div class="mb-6">
+                    <button
+                        type="button"
+                        id="list_bwmi_invitations_button"
+                        data-modal-target="list_bwmi_invitations_modal"
+                        data-modal-toggle="list_bwmi_invitations_modal"
+                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                    >
+                        Liste invitations BWMi
+                    </button>
                 </div>
 
-                <div class="p-4 bg-white rounded-md border border-gray-200">
-                    <h3 class="font-medium text-gray-900 mb-4">
-                        Business Wall Managers actuels
+                <!-- Current BWMi invitations preview -->
+                <div
+                    class="p-4 bg-white rounded-md border border-gray-200 mb-6"
+                >
+                    <h3 class="font-medium text-gray-900 mb-3">
+                        Invitations BWMi en cours
+                        ({{ bwmi_invitations|length if bwmi_invitations else 0 }})
                     </h3>
-                    <div class="text-sm text-gray-500 italic">
-                        Aucun Business Wall Manager nommé pour le moment. (POC:
-                        liste simulée après invitation)
+                    {% if bwmi_invitations %}
+                        <div
+                            class="border border-gray-200 rounded-md divide-y divide-gray-200"
+                        >
+                            {% for email in bwmi_invitations|sort %}
+                                <div
+                                    class="flex items-center gap-3 px-3 py-2 bg-blue-50"
+                                >
+                                    <div class="flex-shrink-0">
+                                        <div
+                                            class="w-7 h-7 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-semibold text-xs"
+                                        >
+                                            @
+                                        </div>
+                                    </div>
+                                    <div class="min-w-0 flex-1">
+                                        <p
+                                            class="text-sm font-medium text-gray-900 truncate"
+                                        >
+                                            {{ email }}
+                                        </p>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-sm text-gray-500 italic">
+                            Aucune invitation BWMi en cours.
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Current BWMi members -->
+                <div class="p-4 bg-white rounded-md border border-gray-200">
+                    <h3 class="font-medium text-gray-900 mb-3">
+                        Business Wall Managers actuels
+                        ({{ bwmi_members|length if bwmi_members else 0 }})
+                    </h3>
+                    {% if bwmi_members %}
+                        <div
+                            class="border border-gray-200 rounded-md divide-y divide-gray-200"
+                        >
+                            {% for member in bwmi_members|sort(attribute='last_name') %}
+                                <div
+                                    class="flex items-center gap-3 px-3 py-2 bg-gray-50"
+                                >
+                                    <div class="flex-shrink-0">
+                                        <div
+                                            class="w-7 h-7 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-semibold text-xs"
+                                        >
+                                            {{ member.first_name[0] if member.first_name else '?' }}{{ member.last_name[0] if member.last_name else '' }}
+                                        </div>
+                                    </div>
+                                    <div class="min-w-0 flex-1">
+                                        <p
+                                            class="text-sm font-medium text-gray-900 truncate"
+                                        >
+                                            {{ member.last_name }}
+                                            {{ member.first_name }}
+                                        </p>
+                                        <p
+                                            class="text-xs text-gray-500 truncate"
+                                        >
+                                            {{ member.email }}
+                                        </p>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-sm text-gray-500 italic">
+                            Aucun Business Wall Manager nommé pour le moment.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Modal for editing BWMi invitations -->
+            <div
+                id="list_bwmi_invitations_modal"
+                data-modal-backdrop="static"
+                tabindex="-1"
+                aria-hidden="true"
+                class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full"
+            >
+                <div class="relative p-4 w-full max-w-screen-sm max-h-full">
+                    <div
+                        class="relative bg-white rounded-lg shadow dark:bg-gray-700"
+                    >
+                        <h4
+                            class="pl-2 text-lg font-semibold text-gray-900 dark:text-white"
+                        >
+                            Liste des invitations BWMi
+                        </h4>
+                        <p
+                            class="bg-white rounded-lg shadow dark:bg-gray-700 pl-2 pr-2 pt-1 text-sm text-gray-900 dark:text-white"
+                        >
+                            Pour modifier la liste des invitations BWMi, ajouter
+                            ou retirer un email. Les invitations permettent aux
+                            membres de l'organisation de devenir BW Managers.
+                            Une notification sera envoyée avec un lien pour
+                            accepter ou refuser la nomination.
+                        </p>
+                        <div class="p-2">
+                            <form
+                                class="space-y-4"
+                                action="#"
+                            >
+                                <div>
+                                    <textarea
+                                        name="content"
+                                        id="bwmi_content"
+                                        class="block p-2 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 placeholder:text-gray-900 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:gray-100"
+                                        rows="6"
+                                    >
+{{ bwmi_invitations|sort|join('\n') if bwmi_invitations else '' }}</textarea
+                                    >
+                                </div>
+                                <div
+                                    class="mt-12 flex items-center justify-end gap-x-6"
+                                >
+                                    <button
+                                        type="submit"
+                                        hx-post="{{ url_for('bw_activation.manage_internal_roles') }}"
+                                        hx-vals='{"action": "change_bwmi_invitations"}'
+                                        data-modal-hide="list_bwmi_invitations_modal"
+                                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                                    >
+                                        Valider
+                                    </button>
+                                    <button
+                                        data-modal-hide="list_bwmi_invitations_modal"
+                                        type="button"
+                                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-gray-500 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400"
+                                    >
+                                        Annuler
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -208,52 +324,169 @@
                     (BWPR{{ bw_info.manager_role[0] }}i)
                 </h2>
 
-                <div class="mb-6 p-4 bg-gray-50 rounded-md">
-                    <h3 class="font-medium text-gray-900 mb-3">
-                        Inviter des {{ bw_info.manager_role }}s
-                    </h3>
-                    <p class="text-sm text-gray-600 mb-4">
-                        Invitez des membres de votre équipe à gérer les
-                        relations presse et publier du contenu au nom de votre
-                        organisation.
-                    </p>
-
-                    <div class="space-y-4">
-                        <div>
-                            <label
-                                class="block text-sm font-medium text-gray-700 mb-2"
-                                >Adresse e-mail du membre à inviter</label
-                            >
-                            <div class="flex gap-3">
-                                <input
-                                    type="email"
-                                    placeholder="exemple@votreorganisation.com"
-                                    class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-4 py-2 border"
-                                />
-                                <button
-                                    type="button"
-                                    class="rounded-md bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:bg-green-700"
-                                >
-                                    Envoyer l'invitation
-                                </button>
-                            </div>
-                            <p class="mt-2 text-xs text-gray-500">
-                                Si la personne accepte, elle apparaîtra en tant
-                                que « Contact presse » sur votre Business Wall.
-                                Pour inviter plusieurs managers, séparez les
-                                adresses e-mail par des virgules.
-                            </p>
-                        </div>
-                    </div>
+                <!-- Button to open modal for BWPRi invitations -->
+                <div class="mb-6">
+                    <button
+                        type="button"
+                        id="list_bwpri_invitations_button"
+                        data-modal-target="list_bwpri_invitations_modal"
+                        data-modal-toggle="list_bwpri_invitations_modal"
+                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                    >
+                        Liste invitations BWPRi
+                    </button>
                 </div>
 
-                <div class="p-4 bg-white rounded-md border border-gray-200">
-                    <h3 class="font-medium text-gray-900 mb-4">
-                        {{ bw_info.manager_role }}s actuels
+                <!-- Current BWPRi invitations preview -->
+                <div
+                    class="p-4 bg-white rounded-md border border-gray-200 mb-6"
+                >
+                    <h3 class="font-medium text-gray-900 mb-3">
+                        Invitations BWPRi en cours
+                        ({{ bwpri_invitations|length if bwpri_invitations else 0 }})
                     </h3>
-                    <div class="text-sm text-gray-500 italic">
-                        Aucun {{ bw_info.manager_role }} nommé pour le moment.
-                        (POC: liste simulée après invitation)
+                    {% if bwpri_invitations %}
+                        <div
+                            class="border border-gray-200 rounded-md divide-y divide-gray-200"
+                        >
+                            {% for email in bwpri_invitations|sort %}
+                                <div
+                                    class="flex items-center gap-3 px-3 py-2 bg-green-50"
+                                >
+                                    <div class="flex-shrink-0">
+                                        <div
+                                            class="w-7 h-7 rounded-full bg-green-100 flex items-center justify-center text-green-600 font-semibold text-xs"
+                                        >
+                                            @
+                                        </div>
+                                    </div>
+                                    <div class="min-w-0 flex-1">
+                                        <p
+                                            class="text-sm font-medium text-gray-900 truncate"
+                                        >
+                                            {{ email }}
+                                        </p>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-sm text-gray-500 italic">
+                            Aucune invitation BWPRi en cours.
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Current BWPRi members -->
+                <div class="p-4 bg-white rounded-md border border-gray-200">
+                    <h3 class="font-medium text-gray-900 mb-3">
+                        {{ bw_info.manager_role }}s actuels
+                        ({{ bwpri_members|length if bwpri_members else 0 }})
+                    </h3>
+                    {% if bwpri_members %}
+                        <div
+                            class="border border-gray-200 rounded-md divide-y divide-gray-200"
+                        >
+                            {% for member in bwpri_members|sort(attribute='last_name') %}
+                                <div
+                                    class="flex items-center gap-3 px-3 py-2 bg-gray-50"
+                                >
+                                    <div class="flex-shrink-0">
+                                        <div
+                                            class="w-7 h-7 rounded-full bg-green-100 flex items-center justify-center text-green-600 font-semibold text-xs"
+                                        >
+                                            {{ member.first_name[0] if member.first_name else '?' }}{{ member.last_name[0] if member.last_name else '' }}
+                                        </div>
+                                    </div>
+                                    <div class="min-w-0 flex-1">
+                                        <p
+                                            class="text-sm font-medium text-gray-900 truncate"
+                                        >
+                                            {{ member.last_name }}
+                                            {{ member.first_name }}
+                                        </p>
+                                        <p
+                                            class="text-xs text-gray-500 truncate"
+                                        >
+                                            {{ member.email }}
+                                        </p>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-sm text-gray-500 italic">
+                            Aucun {{ bw_info.manager_role }} nommé pour le
+                            moment.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Modal for editing BWPRi invitations -->
+            <div
+                id="list_bwpri_invitations_modal"
+                data-modal-backdrop="static"
+                tabindex="-1"
+                aria-hidden="true"
+                class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full"
+            >
+                <div class="relative p-4 w-full max-w-screen-sm max-h-full">
+                    <div
+                        class="relative bg-white rounded-lg shadow dark:bg-gray-700"
+                    >
+                        <h4
+                            class="pl-2 text-lg font-semibold text-gray-900 dark:text-white"
+                        >
+                            Liste des invitations BWPRi
+                        </h4>
+                        <p
+                            class="bg-white rounded-lg shadow dark:bg-gray-700 pl-2 pr-2 pt-1 text-sm text-gray-900 dark:text-white"
+                        >
+                            Pour modifier la liste des invitations BWPRi,
+                            ajouter ou retirer un email. Les invitations
+                            permettent aux membres de l'organisation de devenir
+                            {{ bw_info.manager_role }}s. Une notification sera
+                            envoyée avec un lien pour accepter ou refuser la
+                            nomination.
+                        </p>
+                        <div class="p-2">
+                            <form
+                                class="space-y-4"
+                                action="#"
+                            >
+                                <div>
+                                    <textarea
+                                        name="content"
+                                        id="bwpri_content"
+                                        class="block p-2 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 placeholder:text-gray-900 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:gray-100"
+                                        rows="6"
+                                    >
+{{ bwpri_invitations|sort|join('\n') if bwpri_invitations else '' }}</textarea
+                                    >
+                                </div>
+                                <div
+                                    class="mt-12 flex items-center justify-end gap-x-6"
+                                >
+                                    <button
+                                        type="submit"
+                                        hx-post="{{ url_for('bw_activation.manage_internal_roles') }}"
+                                        hx-vals='{"action": "change_bwpri_invitations"}'
+                                        data-modal-hide="list_bwpri_invitations_modal"
+                                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                                    >
+                                        Valider
+                                    </button>
+                                    <button
+                                        data-modal-hide="list_bwpri_invitations_modal"
+                                        type="button"
+                                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-gray-500 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400"
+                                    >
+                                        Annuler
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -295,7 +528,7 @@
                     href="{{ url_for('bw_activation.manage_organisation_members') }}"
                     class="text-sm font-semibold leading-6 text-gray-900 hover:text-gray-700"
                 >
-                    ← Retour à la lieste des membres
+                    ← Retour à la liste des membres
                 </a>
                 <a
                     href="{{ url_for('bw_activation.manage_external_partners') }}"
