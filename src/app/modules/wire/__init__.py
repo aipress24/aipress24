@@ -12,6 +12,7 @@ from flask_login import current_user
 from werkzeug.exceptions import Unauthorized
 
 from app.flask.lib.nav import configure_nav
+from app.logging import logger
 from app.models.auth import User
 
 blueprint = Blueprint("wire", __name__, url_prefix="/wire", template_folder="templates")
@@ -37,4 +38,6 @@ def register_views() -> None:
     This function is called during app initialization to avoid
     circular imports that occur when views are imported at module load time.
     """
+    logger.debug("wire: register_views() called")
     from . import receivers, views  # noqa: F401
+    logger.debug("wire: receivers and views imported")
