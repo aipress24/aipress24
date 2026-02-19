@@ -63,18 +63,25 @@ class BusinessWall(UUIDAuditBase):
 
     # Ownership - references to User ID
     owner_id: Mapped[int] = mapped_column(
-        BigInteger, ForeignKey("aut_user.id", name="fk_bw_business_wall_owner_id"), nullable=False
+        BigInteger,
+        ForeignKey("aut_user.id", name="fk_bw_business_wall_owner_id"),
+        nullable=False,
     )
 
     # Payer (can be same as owner) - references to User ID
     payer_id: Mapped[int] = mapped_column(
-        BigInteger, ForeignKey("aut_user.id", name="fk_bw_business_wall_payer_id"), nullable=False
+        BigInteger,
+        ForeignKey("aut_user.id", name="fk_bw_business_wall_payer_id"),
+        nullable=False,
     )
 
     # Organization reference (if applicable)
     organisation_id: Mapped[int | None] = mapped_column(
-        BigInteger, ForeignKey("crp_organisation.id", name="fk_bw_business_wall_org_id"), nullable=True
+        BigInteger,
+        ForeignKey("crp_organisation.id", name="fk_bw_business_wall_org_id"),
+        nullable=True,
     )
+
     def get_organisation(self) -> Organisation | None:
         """Get the Organisation associated with this BusinessWall."""
         from app.models.organisation import Organisation
