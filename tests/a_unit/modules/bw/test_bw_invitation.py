@@ -9,7 +9,6 @@ from __future__ import annotations
 import uuid
 from typing import TYPE_CHECKING
 
-import pytest
 from app.models.auth import User
 from app.models.organisation import Organisation
 from app.modules.bw.bw_activation.bw_invitation import (
