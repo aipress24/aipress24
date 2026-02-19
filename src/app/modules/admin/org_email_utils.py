@@ -18,13 +18,23 @@ from .utils import get_user_per_email, remove_user_organisation, set_user_organi
 
 
 def change_members_emails(
-    org: Organisation, raw_mails: str, remove_only: bool = False
+    org: Organisation,
+    raw_mails: str,
+    remove_only: bool = False,
+    never_remove: str | list[str] | None = None,
 ) -> None:
     new_mails = set(raw_mails.lower().split())
+    if never_remove:
+        if isinstance(never_remove, str):
+            never_remove = [never_remove]
+        keep_mails: set[str] = {m.lower() for m in never_remove}
+    else:
+        keep_mails = set()
+
     current_emails = {u.email.lower() for u in org.members}
     # remove users that are not in the new list of members
     for member in org.members:
-        if member.email not in new_mails:
+        if member.email not in new_mails and member.email not in keep_mails:
             remove_user_organisation(member)
     if remove_only:
         return
