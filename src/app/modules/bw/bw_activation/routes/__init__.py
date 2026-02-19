@@ -11,15 +11,30 @@ Importing this package registers all routes on the blueprint via side effects.
 from __future__ import annotations
 
 # Import all route modules - this registers routes on the blueprint
-from . import dashboard, stage1, stage2, stage3, stage4, stage5, stage6, stage7
+from . import (
+    dashboard,
+    not_authorized,
+    stage1,
+    stage2,
+    stage3,
+    stage_b1,
+    stage_b2,
+    stage_b3,
+    stage_b4,
+    stage_b5,
+    stage_b6,
+)
 
 __all__ = [
     "dashboard",
+    "not_authorized",
     "stage1",
     "stage2",
     "stage3",
-    "stage4",
-    "stage5",
-    "stage6",
-    "stage7",
+    "stage_b1",
+    "stage_b2",
+    "stage_b3",
+    "stage_b4",
+    "stage_b5",
+    "stage_b6",
 ]

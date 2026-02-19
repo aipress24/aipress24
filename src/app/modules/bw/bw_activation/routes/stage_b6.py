@@ -22,7 +22,7 @@ def configure_content():
     bw_info = BW_TYPES.get(bw_type, {})
 
     return render_template(
-        "bw_activation/07_configure_content.html",
+        "bw_activation/B06_configure_content.html",
         bw_type=bw_type,
         bw_info=bw_info,
     )

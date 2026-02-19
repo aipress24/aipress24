@@ -8,6 +8,16 @@ from __future__ import annotations
 
 from flask import session
 
+from app.modules.bw.bw_activation.models import BusinessWall, InvitationStatus
+
+# from app.modules.bw.bw_activation.models.repositories import BusinessWallRepository
+
+ERR_NOT_MANAGER = (
+    "Votre identification ne semble pas permettre la gestion de ce Business Wall."
+)
+ERR_BW_NOT_FOUND = "Aucun Business Wall trouvé."
+ERR_NO_ORGANISATION = "Aucun Organisation trouvée pour le Business Wall."
+
 
 def init_session():
     """Initialize session with default values if not set.
@@ -29,21 +39,15 @@ def init_session():
         session["pricing_value"] = None
 
 
-# deprecated
-# def get_mock_owner_data() -> dict[str, str]:
-#     """Get mock owner data for pre-filling forms.
-
-#     In production, this would fetch data from the current_user object.
-
-#     Returns:
-#         Dictionary containing owner contact information.
-#     """
-#     return {
-#         "first_name": "Alice",
-#         "last_name": "Dupont",
-#         "email": "alice.dupont@example.com",
-#         "phone": "+33 1 23 45 67 89",
-#     }
+def fill_session(current_bw: BusinessWall) -> None:
+    """Load into session information from current Businesswall."""
+    session["bw_type"] = current_bw.bw_type
+    session["bw_type_confirmed"] = True
+    session["suggested_bw_type"] = current_bw.bw_type
+    session["contacts_confirmed"] = True
+    session["bw_activated"] = True
+    session["pricing_value"] = None
+    session["error"] = ""
 
 
 def init_missions_state():
@@ -61,3 +65,24 @@ def init_missions_state():
             "apprenticeships": False,
             "doctoral": False,
         }
+
+
+def bw_managers_ids(bw: BusinessWall) -> set[int]:
+    """Get the set of user IDs with management rights on the BusinessWall.
+
+    Args:
+        bw: A BusinessWall instance
+
+    Returns:
+        Set of user IDs with management rights
+    """
+
+    manager_ids: set[int] = set()
+
+    manager_ids.add(bw.owner_id)
+    if bw.role_assignments:
+        for assignment in bw.role_assignments:
+            if assignment.invitation_status == InvitationStatus.ACCEPTED.value:
+                manager_ids.add(assignment.user_id)
+
+    return manager_ids

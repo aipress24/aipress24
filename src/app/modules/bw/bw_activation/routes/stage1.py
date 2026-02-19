@@ -12,8 +12,17 @@ from flask import g, redirect, render_template, session, url_for
 
 from app.modules.bw.bw_activation import bp
 from app.modules.bw.bw_activation.config import BW_TYPES
-from app.modules.bw.bw_activation.user_utils import guess_best_bw_type
-from app.modules.bw.bw_activation.utils import init_session
+from app.modules.bw.bw_activation.user_utils import (
+    current_business_wall,
+    guess_best_bw_type,
+)
+from app.modules.bw.bw_activation.utils import (
+    ERR_BW_NOT_FOUND,
+    ERR_NOT_MANAGER,
+    bw_managers_ids,
+    fill_session,
+    init_session,
+)
 
 if TYPE_CHECKING:
     from app.models.auth import User
@@ -24,6 +33,13 @@ def index():
     """Redirect to confirmation subscription page."""
     user = cast("User", g.user)
     init_session()
+    current_bw = current_business_wall(user)
+    if current_bw:
+        fill_session(current_bw)
+        if user.id not in bw_managers_ids(current_bw):
+            session["error"] = ERR_NOT_MANAGER
+            return redirect(url_for("bw_activation.not_authorized"))
+        return redirect(url_for("bw_activation.dashboard"))
     session["suggested_bw_type"] = guess_best_bw_type(user).value
     return redirect(url_for("bw_activation.confirm_subscription"))
 
@@ -62,4 +78,21 @@ def activation_choice():
     return render_template(
         "bw_activation/01_activation_choice.html",
         bw_types=BW_TYPES,
+    )
+
+
+@bp.route("/information")
+def information():
+    """Display basic information about the current Business Wall."""
+    user = cast("User", g.user)
+    current_bw = current_business_wall(user)
+    if not current_bw:
+        session["error"] = ERR_BW_NOT_FOUND
+        return redirect(url_for("bw_activation.not_authorized"))
+
+    bw_type_info = BW_TYPES.get(current_bw.bw_type, {})
+    return render_template(
+        "bw_activation/information.html",
+        business_wall=current_bw,
+        bw_type_info=bw_type_info,
     )

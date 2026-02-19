@@ -19,8 +19,10 @@ BW_TYPES = {
         "name": "Business Wall for Media",
         "description": "Pour les organes de presse reconnus.",
         "free": True,
+        "rate_message": "Abonnement GRATUIT",
         "activation_text": "Approuver l'accord de diffusion sur AiPRESS24 + Business Wall CGV",
         "manager_role": "PR Manager",  # For confirmation messages
+        "allows_self_management": False,  # Single-person orgs can self-assign roles
         "newsroom_features": [
             "Propositions de sujets aux rédacteurs en chef",
             "Commandes de sujets de la part de rédacteurs en chef aux journalistes",
@@ -41,6 +43,7 @@ BW_TYPES = {
         "name": "Business Wall for Micro",
         "description": "Pour les micro-entreprises de presse travaillant pour des organes de presse reconnus.",
         "free": True,
+        "rate_message": "Abonnement GRATUIT",
         "activation_text": "Approuver l'accord de diffusion sur AiPRESS24 + Business Wall CGV",
         "manager_role": "PR Manager",
         "allows_self_management": True,  # Single-person orgs can self-assign roles
@@ -62,8 +65,10 @@ BW_TYPES = {
         "name": "Business Wall for Corporate Media",
         "description": "Pour les médias d'entreprise et institutionnels.",
         "free": True,
+        "rate_message": "Abonnement GRATUIT",
         "activation_text": "Approuver les CGV de Business Wall sur AiPRESS24",
         "manager_role": "PR Manager",
+        "allows_self_management": False,  # Single-person orgs can self-assign roles
         "newsroom_features": [
             "Propositions de sujets aux rédacteurs en chef",
             "Commandes de sujets de la part de rédacteurs en chef aux journalistes",
@@ -80,6 +85,7 @@ BW_TYPES = {
         "name": "Business Wall for Union",
         "description": "Pour les syndicats ou fédérations de la presse ou des médias, clubs de la presse ou associations de journalistes.",
         "free": True,
+        "rate_message": "Abonnement GRATUIT",
         "activation_text": "Approuver les CGV de Business Wall sur AiPRESS24",
         "manager_role": "Press Manager",  # Different from other types
         "allows_self_management": True,  # Can self-assign roles
@@ -94,6 +100,7 @@ BW_TYPES = {
         "name": "Business Wall for Academics",
         "description": "Pour les établissements de recherche ou d'enseignement supérieur.",
         "free": True,
+        "rate_message": "Abonnement GRATUIT",
         "activation_text": "Approuver les CGV de Business Wall sur AiPRESS24",
         "manager_role": "PR Manager",
         "allows_self_management": True,  # Small academic units can self-assign roles
@@ -109,7 +116,9 @@ BW_TYPES = {
         "name": "Business Wall for PR",
         "description": "Pour les agences de relations presse et les consultants indépendants.",
         "free": False,
+        "rate_message": "Abonnement PAYANT",
         "manager_role": "PR Manager",
+        "allows_self_management": False,  # Single-person orgs can self-assign roles
         "pricing_field": "client_count",
         "pricing_label": "Nombre de clients représentés",
         "pricing_placeholder": "1",
@@ -135,10 +144,17 @@ BW_TYPES = {
         "name": "Business Wall for Leaders & Experts",
         "description": "Pour les entreprises, associations, experts et leaders d'opinion.",
         "free": False,
+        "rate_message": "Abonnement PAYANT",
         "manager_role": "PR Manager",
+        "allows_self_management": True,  # Single-person orgs can self-assign roles
         "pricing_field": "employee_count",
         "pricing_label": "Nombre de salariés",
         "pricing_placeholder": "Ex: 50",
+        "pricing_default": 10,  # Start all at 10 salaries
+        "pricing_explanation": (
+            "Le montant du tarif de votre abonnement à Business Wall for Leaders & Experts dépend "
+            "du nombre de salariés de votre organisation."
+        ),
         "onboarding_messages": [
             "Votre abonnement payant à Business Wall for Leaders & Experts (BW4L&E) sera la vitrine de votre groupe, entreprise privée, administration, ministère ou association sur AiPRESS24",
             "Pour bénéficier du BW4L&E, vous devez déclarer le nombre de vos salariés car le tarif de votre abonnement en dépend.",
@@ -151,10 +167,17 @@ BW_TYPES = {
         "name": "Business Wall for Transformers",
         "description": "Pour les acteurs de l'innovation et de la transformation numérique.",
         "free": False,
+        "rate_message": "Abonnement PAYANT",
         "manager_role": "PR Manager",
+        "allows_self_management": True,  # Single-person orgs can self-assign roles
         "pricing_field": "employee_count",
         "pricing_label": "Nombre de salariés",
         "pricing_placeholder": "Ex: 20",
+        "pricing_default": 10,  # Start all at 10 salaries
+        "pricing_explanation": (
+            "Le montant du tarif de votre abonnement à Business Wall for Leaders & Experts dépend "
+            "du nombre de salariés de votre organisation."
+        ),
         "onboarding_messages": [
             "Votre abonnement payant à Business Wall for Transformers (BW4T) sera la vitrine de votre groupe, entreprise privée, administration, ministère ou association sur AiPRESS24",
             "Pour bénéficier du BW4T, vous devez déclarer le nombre de vos salariés car le tarif de votre abonnement en dépend.",

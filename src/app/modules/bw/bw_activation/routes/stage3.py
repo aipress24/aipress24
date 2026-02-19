@@ -6,13 +6,21 @@
 
 from __future__ import annotations
 
-from flask import redirect, render_template, request, session, url_for
+from typing import TYPE_CHECKING, cast
+
+from flask import g, redirect, render_template, request, session, url_for
 from sqlalchemy.orm import scoped_session
 from svcs.flask import container
 
+from app.modules.admin.org_email_utils import change_members_emails
 from app.modules.bw.bw_activation import bp
 from app.modules.bw.bw_activation.bw_creation import create_new_free_bw_record
 from app.modules.bw.bw_activation.config import BW_TYPES
+from app.modules.bw.bw_activation.user_utils import current_business_wall
+
+if TYPE_CHECKING:
+    from app.models.auth import User
+
 
 # ===== FREE ACTIVATION =====
 
@@ -66,6 +74,15 @@ def confirmation_free():
         # Commit the transaction now
         db_session = container.get(scoped_session)
         db_session.commit()
+
+        # ensure  owner of the BW is member of the organisation
+        user = cast("User", g.user)
+        current_bw = current_business_wall(user)
+        if current_bw is not None:
+            org = current_bw.get_organisation()
+            if org:
+                change_members_emails(org, f"{user.email}")
+
         return render_template(
             "bw_activation/02_activation_gratuit_confirme.html",
             bw_type=bw_type,
