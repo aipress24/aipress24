@@ -6,10 +6,11 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from flask import g, redirect, render_template, request, session, url_for
 from werkzeug import Response
+from werkzeug.exceptions import NotFound
 
 from app.flask.sqla import get_obj
 from app.logging import warn
@@ -28,6 +29,7 @@ from app.modules.bw.bw_activation.user_utils import current_business_wall
 from app.modules.bw.bw_activation.utils import (
     ERR_BW_NOT_FOUND,
     ERR_NOT_MANAGER,
+    ERR_UNKNOWN_ACTION,
     bw_managers_ids,
     fill_session,
 )
@@ -53,8 +55,8 @@ def manage_internal_roles():
     if not session.get("bw_activated") or not session.get("bw_type"):
         return redirect(url_for("bw_activation.index"))
 
-    bw_type: str = session["bw_type"]
-    bw_info: dict[str, str] = BW_TYPES.get(bw_type, {})
+    bw_type: str = cast(str, session["bw_type"])
+    bw_info: dict[str, Any] = BW_TYPES.get(bw_type, {})
 
     if request.method == "POST":
         action = request.form.get("action")
@@ -66,7 +68,7 @@ def manage_internal_roles():
                 "bw_activation.manage_internal_roles"
             )
             return response
-        elif action == "change_bwpri_invitations":
+        if action == "change_bwpri_invitations":
             raw_mails = request.form["content"]
             change_bwpri_emails(business_wall, raw_mails)
             response = Response("")
@@ -74,8 +76,9 @@ def manage_internal_roles():
                 "bw_activation.manage_internal_roles"
             )
             return response
-        else:
-            pass
+        session["error"] = ERR_UNKNOWN_ACTION
+        warn("unknown action", action)
+        return redirect(url_for("bw_activation.non_authorized"))
 
     # Build context for template
     ctx = _build_context(business_wall, bw_type, bw_info)
@@ -125,7 +128,7 @@ def _build_context(
 
             try:
                 user = get_obj(user_id, User)
-            except Exception:
+            except NotFound:
                 continue
 
             if role_type == BWRoleType.BWMI.value:

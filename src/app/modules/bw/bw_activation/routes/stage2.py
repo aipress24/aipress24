@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, cast
 
 from flask import redirect, render_template, request, session, url_for
 
@@ -24,8 +24,8 @@ def nominate_contacts():
     if not session.get("bw_type_confirmed"):
         return redirect(url_for("bw_activation.confirm_subscription"))
 
-    bw_type = session.get("bw_type")
-    bw_info = BW_TYPES.get(bw_type, {})
+    bw_type: str = cast(str, session.get("bw_type"))
+    bw_info: dict[str, Any] = BW_TYPES.get(bw_type, {})
 
     owner_data: StdDict = get_current_user_data()
 
@@ -64,7 +64,7 @@ def submit_contacts():
     session["contacts_confirmed"] = True
 
     # Redirect to appropriate activation page based on BW type
-    bw_type = session.get("bw_type")
+    bw_type: str = cast(str, session.get("bw_type"))
     if BW_TYPES[bw_type]["free"]:
         return redirect(url_for("bw_activation.activate_free_page", bw_type=bw_type))
     return redirect(url_for("bw_activation.pricing_page", bw_type=bw_type))
