@@ -44,7 +44,6 @@ from app.modules.bw.bw_activation.utils import (
 )
 
 if TYPE_CHECKING:
-    from flask.testing import FlaskClient
     from sqlalchemy.orm import Session
 
 
@@ -425,9 +424,7 @@ class TestInviteBwmiByEmail:
         test_business_wall: BusinessWall,
     ) -> None:
         """invite_bwmi_by_email should fail for non-existent users."""
-        result = invite_bwmi_by_email(
-            test_business_wall, "nonexistent@example.com"
-        )
+        result = invite_bwmi_by_email(test_business_wall, "nonexistent@example.com")
 
         assert result is False
 
@@ -622,9 +619,7 @@ class TestScenarioRoleManagement:
         db_session.flush()
 
         # Step 1: Owner invites team member as BWMi
-        result = invite_user_role(
-            test_business_wall, team_member, BWRoleType.BWMI
-        )
+        result = invite_user_role(test_business_wall, team_member, BWRoleType.BWMI)
         assert result is True
 
         # Verify pending invitation
@@ -664,9 +659,7 @@ class TestScenarioRoleManagement:
         db_session.flush()
 
         # Invite as BWMi
-        result1 = invite_user_role(
-            test_business_wall, multi_role_user, BWRoleType.BWMI
-        )
+        result1 = invite_user_role(test_business_wall, multi_role_user, BWRoleType.BWMI)
         assert result1 is True
 
         # Invite as BWPRi (should succeed - different role)
