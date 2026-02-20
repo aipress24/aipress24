@@ -46,11 +46,11 @@ def manage_internal_roles():
     business_wall = current_business_wall(user)
     if not business_wall:
         session["error"] = ERR_BW_NOT_FOUND
-        return redirect(url_for("bw_activation.non_authorized"))
+        return redirect(url_for("bw_activation.not_authorized"))
     fill_session(business_wall)
     if user.id not in bw_managers_ids(business_wall):
         session["error"] = ERR_NOT_MANAGER
-        return redirect(url_for("bw_activation.non_authorized"))
+        return redirect(url_for("bw_activation.not_authorized"))
 
     if not session.get("bw_activated") or not session.get("bw_type"):
         return redirect(url_for("bw_activation.index"))
@@ -78,7 +78,7 @@ def manage_internal_roles():
             return response
         session["error"] = ERR_UNKNOWN_ACTION
         warn("unknown action", action)
-        return redirect(url_for("bw_activation.non_authorized"))
+        return redirect(url_for("bw_activation.not_authorized"))
 
     # Build context for template
     ctx = _build_context(business_wall, bw_type, bw_info)
