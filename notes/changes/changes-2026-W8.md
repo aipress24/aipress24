@@ -12,23 +12,19 @@ Merged `article_receiver.py` and `communique_receiver.py` into single `receivers
 - Separate type-specific functions for article and communique handling
 - Removed dead code assigning non-existent image attributes (`image_url`, `image_caption`, `image_copyright`)
 - Consistent naming: `on_article_published`, `on_communique_published`, etc.
-- Reduced from 200 lines to 167 lines
+- Uses direct SQLAlchemy queries for simplicity
 
-### New Repositories
+### Critical Bug Fixes
 
-Added `repositories.py` with proper repository pattern:
+1. **Empty author filter bug** (`_tabs.py:65`):
+   - `WallTab.get_authors()` returns `[]`
+   - Check `if authors is not None` was True for `[]`, causing `owner_id.in_([])` which matched nothing
+   - Fixed: Changed to `if authors:` so empty list means "no filter"
 
-```python
-@service
-class ArticlePostRepository(Repository[ArticlePost]):
-    def get_by_newsroom_id(self, newsroom_id: int) -> ArticlePost | None
-
-@service
-class PressReleasePostRepository(Repository[PressReleasePost]):
-    def get_by_newsroom_id(self, newsroom_id: int) -> PressReleasePost | None
-```
-
-Receivers now use repositories via `svcs.flask.container` instead of direct queries.
+2. **Invalid `published_at` dates** (`receivers.py`):
+   - Communiqués with placeholder dates like `1111-11-11` were copied to Wire posts
+   - Posts with ancient dates sorted to bottom and didn't appear
+   - Fixed: If source date year < 2000, use `now()` instead
 
 ### ViewModel Consolidation
 
@@ -170,13 +166,63 @@ Removed 23 unnecessary `# type: ignore` comments across multiple files:
 - Fixed SQLAlchemy query comparisons: `.where(Model.owner == user)` → `.where(Model.owner_id == user.id)`
 - Added `# type: ignore[assignment]` for SQLAlchemy descriptor assignments in faker scripts
 
-## Business Wall
+## Business Wall - Major Development
+
+### Activation Flow
+
+- Reorganized step numbering in Python files and templates
+- Swapped steps 1 and 2 (invitations before members list)
+- Added "not authorized" page for various error situations
+- Redirect to "not_authorized" page when appropriate
+
+### Organisation Membership
+
+- Page B01: Manage organisation members (remove members from BW)
+- Page B02: Invite organisation members
+- BW owner automatically becomes member of the Organisation
+- BW owner cannot remove themselves from the BW organisation
+- Helper functions: `invite_user_role()`, `revoke_user_role()`, `invite_bwmi_by_email()`, `revoke_bwmi_by_email()`
+
+### Role Management
+
+- Stage B03: Manager lists with POST management for BWMI and BWPRI
+- Stage 4 displays BW owner from role_assignments
+- Added `bw_managers_ids()` function returning BW managers user IDs
+
+### Dashboard Updates
+
+- Management of organisation members and invitations
+- Updated chapter numbers
+- Display `bw_info.rate_message` for "GRATUIT"/"PAYANT"
+- WIP menu redirects to `bw.index` page (was dashboard)
+
+### Payer Information
+
+- Added fields for payer information (when different from owner)
+- Added `payer_is_owner` field to BusinessWall table
+- Added FK for BusinessWall to User table for `owner_id` and `payer_id`
+- Added FK for BusinessWall to Organisation table
+- Collect payer information from BW form
+
+### Bug Fixes
+
+- Organisation can have only one BW (fixed broken test DB case)
+- Remove reset link from BW forms
+- Fixed broken link in `bw_activation/dashboard.html`
+- Create minimal Organisation for user if none exists at BW creation
+- Added missing value in businesswall config.py
+
+### Database Migrations
+
+- Integer → BigInteger in BusinessWall table
+- Added `payer_is_owner` field
+- Added fields and foreign keys for BusinessWall
+
+### Tests
 
 - Added tests for free BW creation
 - Added `@service` decorator to BW services
 - Created free BW using services with deferred commit
-- Fixed BigInteger requirements for user.id and org.id in BW classes
-- Added migrations for Integer → BigInteger conversions
 
 ## FileObject Migration
 
