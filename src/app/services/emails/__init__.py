@@ -17,6 +17,7 @@ from loguru import logger
 from .mailers import (
     AvisEnqueteNotificationMail,
     BWInvitationMail,
+    BWRoleInvitationMail,
     ContactAvisEnqueteAcceptanceMail,
     ContactAvisEnqueteRDVAcceptedMail,
     ContactAvisEnqueteRDVCancelledExpertMail,
@@ -29,6 +30,7 @@ __all__ = [
     "ALERTS_RECIPIENTS",
     "AvisEnqueteNotificationMail",
     "BWInvitationMail",
+    "BWRoleInvitationMail",
     "ContactAvisEnqueteAcceptanceMail",
     "ContactAvisEnqueteRDVAcceptedMail",
     "ContactAvisEnqueteRDVCancelledExpertMail",
