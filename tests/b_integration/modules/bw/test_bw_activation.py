@@ -1,4 +1,4 @@
-# Copyright (c) 2025, Abilian SAS & TCA
+# Copyright (c) 2021-2024, Abilian SAS & TCA
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
@@ -356,16 +356,14 @@ class TestCurrentBusinessWall:
         db_session: Session,
         test_user: User,
         test_business_wall: BusinessWall,
-        mocker,
     ) -> None:
         """current_business_wall should return the org's BW."""
-        # Mock Organisation.get_business_wall
-        org = test_user.organisation
-        mocker.patch.object(org, "get_business_wall", return_value=test_business_wall)
-
+        # The test_business_wall fixture creates a BW linked to test_org
+        # which is the same org as test_user's organisation
         result = current_business_wall(test_user)
 
-        assert result == test_business_wall
+        assert result is not None
+        assert result.id == test_business_wall.id
 
     def test_returns_none_for_user_without_org(
         self,
