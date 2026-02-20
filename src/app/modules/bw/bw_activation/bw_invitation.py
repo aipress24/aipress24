@@ -9,7 +9,7 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, cast
 
-from flask import g
+from flask import g, url_for
 
 from app.flask.extensions import db
 from app.modules.admin.utils import get_user_per_email
@@ -93,7 +93,13 @@ def send_role_invitation_mail(
 
     bw_role = BW_ROLE_TYPE_LABEL.get(role.value, "(rôle inconnu)")
 
-    confirmation_url = "SOME URL NEEDED"
+    confirmation_url = url_for(
+        "bw_activation.confirm_role_invitation",
+        bw_id=business_wall.id,
+        role_type=role.value,
+        user_id=invited_user.id,
+        _external=True,
+    )
 
     invit_mail = BWRoleInvitationMail(
         sender="contact@aipress24.com",
