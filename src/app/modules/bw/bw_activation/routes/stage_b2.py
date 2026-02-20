@@ -17,6 +17,7 @@ from app.logging import warn
 from app.models.auth import User
 from app.modules.admin.org_email_utils import change_members_emails
 from app.modules.bw.bw_activation import bp
+from app.modules.bw.bw_activation.bw_invitation import ensure_roles_membership
 from app.modules.bw.bw_activation.config import BW_TYPES
 from app.modules.bw.bw_activation.user_utils import current_business_wall
 from app.modules.bw.bw_activation.utils import (
@@ -68,6 +69,8 @@ def manage_organisation_members():
             change_members_emails(
                 org, raw_mails, remove_only=True, never_remove=owner_mail
             )
+            # check that non members have no more role assignment:
+            ensure_roles_membership(current_bw)
             response = Response("")
             response.headers["HX-Redirect"] = url_for(
                 "bw_activation.manage_organisation_members"

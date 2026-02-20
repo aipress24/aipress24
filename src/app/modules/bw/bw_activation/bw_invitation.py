@@ -111,6 +111,33 @@ def revoke_bwmi_by_email(business_wall: BusinessWall, email: str) -> bool:
     return revoke_user_role(business_wall, user, BWRoleType.BWMI)
 
 
+def ensure_roles_membership(business_wall: BusinessWall) -> None:
+    """Ensure all role assignments are for current organisation members.
+
+    Revokes all role assignments for users who are no longer members
+    of the Business Wall's organisation.
+
+    Args:
+        business_wall: The BusinessWall instance
+    """
+    org = business_wall.get_organisation()
+    if not org:
+        return
+    revoked = False
+    current_member_ids = {u.id for u in org.members}
+
+    # Check all role assignments for this business wall
+    if business_wall.role_assignments:
+        assignments = list(business_wall.role_assignments)
+        for assignment in assignments:
+            if assignment.user_id not in current_member_ids:
+                db.session.delete(assignment)
+                revoked = True
+
+    if revoked:
+        db.session.flush()
+
+
 def change_bwmi_emails(business_wall: BusinessWall, raw_mails: str) -> None:
     """Update BWMi invitations based on email list."""
 
