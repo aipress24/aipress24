@@ -8,7 +8,9 @@ from __future__ import annotations
 
 import uuid
 from typing import TYPE_CHECKING
+from unittest.mock import patch
 
+import pytest
 from app.models.auth import User
 from app.models.organisation import Organisation
 from app.modules.bw.bw_activation.bw_invitation import (
@@ -25,6 +27,15 @@ if TYPE_CHECKING:
 
 def _unique_email() -> str:
     return f"test_{uuid.uuid4().hex[:8]}@example.com"
+
+
+@pytest.fixture(autouse=True)
+def mock_send_role_invitation_mail():
+    """Mock send_role_invitation_mail for all tests."""
+    with patch(
+        "app.modules.bw.bw_activation.bw_invitation.send_role_invitation_mail"
+    ) as mock:
+        yield mock
 
 
 class TestInviteUserRole:
