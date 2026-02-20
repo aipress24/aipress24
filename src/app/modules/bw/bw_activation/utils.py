@@ -18,6 +18,8 @@ ERR_NOT_MANAGER = (
 ERR_BW_NOT_FOUND = "Aucun Business Wall trouvé."
 ERR_NO_ORGANISATION = "Aucun Organisation trouvée pour le Business Wall."
 ERR_UNKNOWN_ACTION = "Erreur interne, action inconnue."
+ERR_WRONG_VALIDATION_LINK = "Lien de validation erroné."
+ERR_INVITATION_NOT_FOUND = "Invitation non trouvée."
 
 
 def init_session():
