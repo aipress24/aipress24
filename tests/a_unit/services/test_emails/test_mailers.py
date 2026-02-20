@@ -9,6 +9,7 @@ from unittest.mock import patch
 from app.services.emails.mailers import (
     AvisEnqueteNotificationMail,
     BWInvitationMail,
+    BWRoleInvitationMail,
     ContactAvisEnqueteAcceptanceMail,
     ContactAvisEnqueteRDVAcceptedMail,
     ContactAvisEnqueteRDVCancelledExpertMail,
@@ -35,6 +36,33 @@ def test_bw_invitation_mail():
         assert kwargs["from_email"] == "contact@aipress24.com"
         assert kwargs["subject"] == "[Aipress24] Invitation to join AiPRESS24"
         assert "Test BW" in kwargs["body"]
+        assert "sender@example.com" in kwargs["body"]
+        assert "John Doe" in kwargs["body"]
+
+
+def test_bw_role_invitation_mail():
+    with patch("app.services.emails.base.EmailMessage") as mock_email_message:
+        invit_mail = BWRoleInvitationMail(
+            sender="contact@aipress24.com",
+            recipient="test@example.com",
+            sender_mail="sender@example.com",
+            sender_full_name="John Doe",
+            bw_name="Test BW",
+            role="BWMi",
+            confirmation_url="https://example.com/confirm/abc123",
+        )
+        invit_mail.send()
+
+        mock_email_message.assert_called_once()
+        _args, kwargs = mock_email_message.call_args
+        assert kwargs["to"] == ["test@example.com"]
+        assert kwargs["from_email"] == "contact@aipress24.com"
+        assert (
+            kwargs["subject"] == "[Aipress24] Invitation à un rôle sur un Business Wall"
+        )
+        assert "Test BW" in kwargs["body"]
+        assert "BWMi" in kwargs["body"]
+        assert "https://example.com/confirm/abc123" in kwargs["body"]
         assert "sender@example.com" in kwargs["body"]
         assert "John Doe" in kwargs["body"]
 
