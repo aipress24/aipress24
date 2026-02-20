@@ -7,16 +7,28 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
+
+from flask import g
 
 from app.flask.extensions import db
 from app.modules.admin.utils import get_user_per_email
+from app.services.emails import BWRoleInvitationMail
 
 from .models import BWRoleType, InvitationStatus, RoleAssignment
 
 if TYPE_CHECKING:
     from app.models.auth import User
     from app.modules.bw.bw_activation.models import BusinessWall
+
+
+BW_ROLE_TYPE_LABEL: dict[str, str] = {
+    "BW_OWNER": "Business Wall Owner",
+    "BWMi": "Business Wall Manager (internal)",
+    "BWPRi": "PR Manager (internal)",
+    "BWMe": "Business Wall Manager (external)",
+    "BWPRe": "PR Manager (external)",
+}
 
 
 def invite_user_role(business_wall: BusinessWall, user: User, role: BWRoleType) -> bool:
@@ -57,7 +69,42 @@ def invite_user_role(business_wall: BusinessWall, user: User, role: BWRoleType) 
     db.session.add(role_assignment)
     db.session.flush()
 
+    send_role_invitation_mail(business_wall, user, role)
+
     return True
+
+
+def send_role_invitation_mail(
+    business_wall: BusinessWall,
+    invited_user: User,
+    role: BWRoleType,
+) -> None:
+
+    current_user = cast("User", g.user)
+    sender_mail = current_user.email
+    sender_full_name = current_user.full_name
+    # FIXME, maybe the business_wall has still not name
+    # bw_name = business_wall.name
+    org = business_wall.get_organisation()
+    if org:
+        org_name = org.name
+    else:
+        org_name = "(Nom inconnu)"
+
+    bw_role = BW_ROLE_TYPE_LABEL.get(role.value, "(rôle inconnu)")
+
+    confirmation_url = "SOME URL NEEDED"
+
+    invit_mail = BWRoleInvitationMail(
+        sender="contact@aipress24.com",
+        recipient=invited_user.email,
+        sender_mail=sender_mail,
+        sender_full_name=sender_full_name,
+        bw_name=org_name,
+        role=bw_role,
+        confirmation_url=confirmation_url,
+    )
+    invit_mail.send()
 
 
 def revoke_user_role(business_wall: BusinessWall, user: User, role: BWRoleType) -> bool:

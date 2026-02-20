@@ -39,6 +39,41 @@ class BWInvitationMail(EmailTemplate):
 
 
 @dataclass(kw_only=True)
+class BWRoleInvitationMail(EmailTemplate):
+    """
+    Create a mail for BW invitation for a role.
+
+    Args:
+        - sender (str): mail of actual sender, usually "contact@aipress24.com".
+        - recipient (str): mail of recipient (invited user).
+        - sender_mail (str): bw_manager.email (user sending mail), informative.
+        - sender_full_name (str): bw_manager.full_name (user sending mail), informative.
+        - bw_name (str): organisation.name, name of inviting organisation.
+        - role: proposed role
+        - confirmation_url: URL on aipress24.com to confirm invitation
+
+    Usage:
+        invit_mail = BWRoleInvitationMail(
+            sender="contact@aipress24.com",
+            recipient=invited_user.email,
+            sender_mail=sender_mail,
+            sender_full_name=sender_full_name,
+            bw_name=org_name,
+            role=bw_role,
+            confirmation_url=confirmation_url,
+        )
+        invit_mail.send()
+    """
+
+    subject: str = "[Aipress24] Invitation à un rôle sur un Business Wall"
+    template_html: str = "bw_role_invitation.j2"
+    sender_full_name: str
+    bw_name: str
+    role: str
+    confirmation_url: str
+
+
+@dataclass(kw_only=True)
 class AvisEnqueteNotificationMail(EmailTemplate):
     """
     Create a mail for notification of AvisEnquete
