@@ -37,11 +37,11 @@ def invite_organisation_members():
     current_bw = current_business_wall(user)
     if not current_bw:
         session["error"] = ERR_BW_NOT_FOUND
-        return redirect(url_for("bw_activation.non_authorized"))
+        return redirect(url_for("bw_activation.not_authorized"))
     fill_session(current_bw)
     if user.id not in bw_managers_ids(current_bw):
         session["error"] = ERR_NOT_MANAGER
-        return redirect(url_for("bw_activation.non_authorized"))
+        return redirect(url_for("bw_activation.not_authorized"))
 
     if not session.get("bw_activated") or not session.get("bw_type"):
         return redirect(url_for("bw_activation.index"))
@@ -53,7 +53,7 @@ def invite_organisation_members():
     # organisation must be created for the BW (it was created at BW creation if missing)
     if not org:
         session["error"] = ERR_NO_ORGANISATION
-        return redirect(url_for("bw_activation.non_authorized"))
+        return redirect(url_for("bw_activation.not_authorized"))
 
     if request.method == "POST":
         action = request.form.get("action")
