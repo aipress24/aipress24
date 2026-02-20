@@ -315,3 +315,155 @@ class TestRevokeUserRole:
         result = revoke_user_role(business_wall, invited_user, BWRoleType.BWPRI)
 
         assert result is False
+
+
+class TestEnsureRolesMembership:
+    """Tests for ensure_roles_membership function."""
+
+    def test_removes_roles_for_non_members(
+        self,
+        db_session: scoped_session,
+        app_context: AppContext,
+    ) -> None:
+        """Remove role assignments for users no longer in organisation."""
+        from app.modules.bw.bw_activation.bw_invitation import ensure_roles_membership
+
+        org = Organisation(name="Test Org")
+        owner = User(email=_unique_email())
+        db_session.add_all([org, owner])
+        db_session.flush()
+        owner.organisation_id = org.id
+        db_session.flush()
+
+        business_wall = BusinessWall(
+            bw_type="media",
+            status="active",
+            is_free=True,
+            owner_id=owner.id,
+            payer_id=owner.id,
+            organisation_id=org.id,
+        )
+        db_session.add(business_wall)
+        db_session.flush()
+
+        # Create a member who will be invited
+        member = User(email=_unique_email())
+        db_session.add(member)
+        db_session.flush()
+        member.organisation_id = org.id
+        db_session.flush()
+
+        # Invite member to role
+        invite_result = invite_user_role(business_wall, member, BWRoleType.BWMI)
+        assert invite_result is True
+        db_session.flush()
+
+        # Verify role assignment exists
+        db_session.expire_all()
+        from app.modules.bw.bw_activation.models import RoleAssignment
+
+        assignments = (
+            db_session.query(RoleAssignment)
+            .filter_by(business_wall_id=business_wall.id)
+            .all()
+        )
+        assert len(assignments) == 1
+
+        member.organisation_id = None
+        db_session.flush()
+
+        revoked_count = ensure_roles_membership(business_wall)
+        db_session.flush()
+
+        assert revoked_count == 1
+
+        # Verify role assignment was removed
+        db_session.expire_all()
+        assignments = (
+            db_session.query(RoleAssignment)
+            .filter_by(business_wall_id=business_wall.id)
+            .all()
+        )
+        assert len(assignments) == 0
+
+    def test_keeps_roles_for_current_members(
+        self,
+        db_session: scoped_session,
+        app_context: AppContext,
+    ) -> None:
+        """Keep role assignments for current organisation members."""
+        from app.modules.bw.bw_activation.bw_invitation import ensure_roles_membership
+
+        org = Organisation(name="Test Org")
+        owner = User(email=_unique_email())
+        db_session.add_all([org, owner])
+        db_session.flush()
+        owner.organisation_id = org.id
+        db_session.flush()
+
+        business_wall = BusinessWall(
+            bw_type="media",
+            status="active",
+            is_free=True,
+            owner_id=owner.id,
+            payer_id=owner.id,
+            organisation_id=org.id,
+        )
+        db_session.add(business_wall)
+        db_session.flush()
+
+        member = User(email=_unique_email())
+        db_session.add(member)
+        db_session.flush()
+        member.organisation_id = org.id
+        db_session.flush()
+
+        invite_result = invite_user_role(business_wall, member, BWRoleType.BWMI)
+        assert invite_result is True
+        db_session.flush()
+
+        revoked_count = ensure_roles_membership(business_wall)
+        db_session.flush()
+
+        # No roles should be revoked
+        assert revoked_count == 0
+
+        # Verify role assignment still exists
+        db_session.expire_all()
+        from app.modules.bw.bw_activation.models import RoleAssignment
+
+        assignments = (
+            db_session.query(RoleAssignment)
+            .filter_by(business_wall_id=business_wall.id)
+            .all()
+        )
+        assert len(assignments) == 1
+        assert assignments[0].user_id == member.id
+
+    def test_returns_zero_if_no_organisation(
+        self,
+        db_session: scoped_session,
+        app_context: AppContext,
+    ) -> None:
+        """Return 0 if business wall has no organisation."""
+        from app.modules.bw.bw_activation.bw_invitation import ensure_roles_membership
+
+        user = User(email=_unique_email())
+        db_session.add(user)
+        db_session.flush()
+
+        # Create business wall without organisation
+        business_wall = BusinessWall(
+            bw_type="media",
+            status="active",
+            is_free=True,
+            owner_id=user.id,
+            payer_id=user.id,
+            organisation_id=None,
+        )
+        db_session.add(business_wall)
+        db_session.flush()
+
+        revoked_count = ensure_roles_membership(business_wall)
+
+        assert revoked_count == 0
