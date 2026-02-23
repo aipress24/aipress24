@@ -177,6 +177,36 @@ def revoke_bwmi_by_email(business_wall: BusinessWall, email: str) -> bool:
     return revoke_user_role(business_wall, user, BWRoleType.BWMI)
 
 
+def invite_bwpri_by_email(business_wall: BusinessWall, email: str) -> bool:
+    """Invite a user to become BWPRI (PR Manager Internal).
+
+    User must exist with the given email and be a member of the BusinessWall organisation
+
+    Returns:
+        True if invitation was created successfully, False otherwise.
+    """
+    warn("invite_bwpri_by_email", business_wall, email)
+    user = get_user_per_email(email)
+    if not user:
+        warn("get_user_per_email", user)
+        return False
+
+    return invite_user_role(business_wall, user, BWRoleType.BWPRI)
+
+
+def revoke_bwpri_by_email(business_wall: BusinessWall, email: str) -> bool:
+    """Revoke a user from BWPRI (PR Manager Internal).
+
+    Returns:
+        True if done successfully
+    """
+    user = get_user_per_email(email)
+    if not user:
+        return False
+
+    return revoke_user_role(business_wall, user, BWRoleType.BWPRI)
+
+
 def ensure_roles_membership(business_wall: BusinessWall) -> int:
     """Ensure all role assignments are for current organisation members.
 
@@ -241,3 +271,28 @@ def change_bwmi_emails(business_wall: BusinessWall, raw_mails: str) -> None:
 
 def change_bwpri_emails(business_wall: BusinessWall, raw_mails: str) -> None:
     """Update BWPRi invitations based on email list."""
+    new_mails = set(raw_mails.lower().split())
+    warn(new_mails)
+    org = business_wall.get_organisation()
+    warn(org)
+    if not org:
+        return
+    current_bwpri_or_pending_ids = bw_roles_ids(
+        business_wall,
+        {BWRoleType.BWPRI.value},
+        {InvitationStatus.PENDING.value, InvitationStatus.ACCEPTED.value},
+    )
+    warn("current_bwpri_ids", current_bwpri_or_pending_ids)
+    current_bwpri_users = [get_obj(uid, User) for uid in current_bwpri_or_pending_ids]
+    warn("current_bwpri_users", current_bwpri_users)
+    current_bwpri_emails = {u.email.lower() for u in current_bwpri_users}
+    warn("current_bwpri_emails", current_bwpri_emails)
+    # remove users that are not in the new list of bwpri
+    for user in current_bwpri_users:
+        if user.email not in new_mails:
+            revoke_user_role(business_wall, user, BWRoleType.BWPRI)
+
+    # add users of the new list that are not in the current list of bwpri
+    for mail in new_mails:
+        if mail not in current_bwpri_emails:
+            invite_bwpri_by_email(business_wall, mail)

@@ -74,6 +74,7 @@ def manage_internal_roles():
         if action == "change_bwpri_invitations":
             raw_mails = request.form["content"]
             change_bwpri_emails(business_wall, raw_mails)
+            db.session.commit()
             response = Response("")
             response.headers["HX-Redirect"] = url_for(
                 "bw_activation.manage_internal_roles"
