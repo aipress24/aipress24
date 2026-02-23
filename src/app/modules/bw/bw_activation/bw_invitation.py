@@ -58,7 +58,7 @@ def invite_user_role(business_wall: BusinessWall, user: User, role: BWRoleType) 
     if not org:
         return False
 
-    if user not in org.members:
+    if user not in org.members or not user.active:
         return False
 
     if business_wall.role_assignments:
@@ -152,7 +152,7 @@ def invite_bwmi_by_email(business_wall: BusinessWall, email: str) -> bool:
         True if invitation was created successfully, False otherwise.
     """
     user = get_user_per_email(email)
-    if not user:
+    if not user or not user.active:
         return False
 
     return invite_user_role(business_wall, user, BWRoleType.BWMI)
@@ -165,7 +165,7 @@ def revoke_bwmi_by_email(business_wall: BusinessWall, email: str) -> bool:
         True if done successfully
     """
     user = get_user_per_email(email)
-    if not user:
+    if not user or not user.active:
         return False
 
     return revoke_user_role(business_wall, user, BWRoleType.BWMI)
@@ -290,5 +290,6 @@ def _safe_get_user_list(
         except NotFound:
             pass
         else:
-            result.append(user)
+            if user.active:
+                result.append(user)
     return result
