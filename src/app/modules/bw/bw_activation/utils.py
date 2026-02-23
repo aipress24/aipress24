@@ -8,7 +8,11 @@ from __future__ import annotations
 
 from flask import session
 
-from app.modules.bw.bw_activation.models import BusinessWall, InvitationStatus
+from app.modules.bw.bw_activation.models import (
+    BusinessWall,
+    BWRoleType,
+    InvitationStatus,
+)
 
 # from app.modules.bw.bw_activation.models.repositories import BusinessWallRepository
 
@@ -71,21 +75,42 @@ def init_missions_state():
 
 
 def bw_managers_ids(bw: BusinessWall) -> set[int]:
-    """Get the set of user IDs with management rights on the BusinessWall.
+    """Get the set of user IDs with management rights (BWMI, BW_OWNER) on the BusinessWall.
 
     Args:
         bw: A BusinessWall instance
 
     Returns:
-        Set of user IDs with management rights
+        Set of user IDs with management role
+    """
+    required_roles = {
+        BWRoleType.BW_OWNER.value,
+        BWRoleType.BWMI.value,
+        BWRoleType.BWME.value,
+    }
+    manager_ids = bw_roles_ids(bw, required_roles)
+    manager_ids.add(bw.owner_id)  # usefull in first stage of BW registration
+    return manager_ids
+
+
+def bw_roles_ids(bw: BusinessWall, required_roles: set[str]) -> set[int]:
+    """Get the set of user IDs with management rights of given type on the BusinessWall.
+
+    Args:
+        bw: A BusinessWall instance
+        required_roles: set of BWRoleType values
+
+    Returns:
+        Set of user IDs with management role
     """
 
     manager_ids: set[int] = set()
-
-    manager_ids.add(bw.owner_id)
     if bw.role_assignments:
         for assignment in bw.role_assignments:
-            if assignment.invitation_status == InvitationStatus.ACCEPTED.value:
+            if (
+                assignment.invitation_status == InvitationStatus.ACCEPTED.value
+                and assignment.role_type in required_roles
+            ):
                 manager_ids.add(assignment.user_id)
 
     return manager_ids
