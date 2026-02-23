@@ -41,6 +41,37 @@
                 <div
                     class="mb-6 p-4 bg-gray-50 rounded-md border border-gray-300"
                 >
+                    {% if bw_type in ['media', 'micro'] %}
+                        <ul class="list-disc pl-4 mb-3">
+                            <li>
+                                <a
+                                    href="/page/CGV-BusinessWall"
+                                    target="_blank"
+                                    class="text-xs text-gray-600 underline hover:text-gray-800"
+                                    >Conditions Générales de vente</a
+                                >
+                            </li>
+                            <li>
+                                <a
+                                    href="/page/AccordDiffusionContenusJournalistiques"
+                                    target="_blank"
+                                    class="text-xs text-gray-600 underline hover:text-gray-800"
+                                    >Accord de diffusion</a
+                                >
+                            </li>
+                        </ul>
+                    {% else %}
+                        <ul class="list-disc pl-4 mb-3">
+                            <li>
+                                <a
+                                    href="/page/CGV-BusinessWall"
+                                    target="_blank"
+                                    class="text-xs text-gray-600 underline hover:text-gray-800"
+                                    >Conditions Générales de vente</a
+                                >
+                            </li>
+                        </ul>
+                    {% endif %}
                     <label class="flex items-start">
                         <input
                             type="checkbox"
