@@ -12,6 +12,7 @@ from flask import g, redirect, render_template, request, session, url_for
 from werkzeug import Response
 from werkzeug.exceptions import NotFound
 
+from app.flask.extensions import db
 from app.flask.sqla import get_obj
 from app.logging import warn
 from app.models.auth import User
@@ -60,9 +61,11 @@ def manage_internal_roles():
 
     if request.method == "POST":
         action = request.form.get("action")
+        warn("action", action)
         if action == "change_bwmi_invitations":
             raw_mails = request.form["content"]
             change_bwmi_emails(business_wall, raw_mails)
+            db.session.commit()
             response = Response("")
             response.headers["HX-Redirect"] = url_for(
                 "bw_activation.manage_internal_roles"

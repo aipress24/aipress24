@@ -88,17 +88,21 @@ def bw_managers_ids(bw: BusinessWall) -> set[int]:
         BWRoleType.BWMI.value,
         BWRoleType.BWME.value,
     }
-    manager_ids = bw_roles_ids(bw, required_roles)
+    required_status = {InvitationStatus.ACCEPTED.value}
+    manager_ids = bw_roles_ids(bw, required_roles, required_status)
     manager_ids.add(bw.owner_id)  # usefull in first stage of BW registration
     return manager_ids
 
 
-def bw_roles_ids(bw: BusinessWall, required_roles: set[str]) -> set[int]:
+def bw_roles_ids(
+    bw: BusinessWall, required_roles: set[str], required_status: set[str]
+) -> set[int]:
     """Get the set of user IDs with management rights of given type on the BusinessWall.
 
     Args:
         bw: A BusinessWall instance
         required_roles: set of BWRoleType values
+        required_status: set of InvitationStatus values
 
     Returns:
         Set of user IDs with management role
@@ -108,7 +112,7 @@ def bw_roles_ids(bw: BusinessWall, required_roles: set[str]) -> set[int]:
     if bw.role_assignments:
         for assignment in bw.role_assignments:
             if (
-                assignment.invitation_status == InvitationStatus.ACCEPTED.value
+                assignment.invitation_status in required_status
                 and assignment.role_type in required_roles
             ):
                 manager_ids.add(assignment.user_id)
