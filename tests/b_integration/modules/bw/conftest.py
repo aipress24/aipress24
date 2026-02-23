@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import uuid
 from typing import TYPE_CHECKING
+from unittest.mock import patch
 
 import pytest
 from flask import Flask, session
@@ -140,3 +141,16 @@ def unauthenticated_bw_client(
                 if key not in sess:
                     sess[key] = value
     return client
+
+
+@pytest.fixture(autouse=True)
+def mock_send_role_invitation_mail():
+    """Mock send_role_invitation_mail for all tests.
+
+    This prevents actual email sending and avoids the need for g.user
+    to be set in the test context.
+    """
+    with patch(
+        "app.modules.bw.bw_activation.bw_invitation.send_role_invitation_mail"
+    ) as mock:
+        yield mock
