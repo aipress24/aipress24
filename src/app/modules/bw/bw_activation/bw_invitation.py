@@ -12,13 +12,20 @@ from typing import TYPE_CHECKING, cast
 from flask import g, url_for
 
 from app.flask.extensions import db
+from app.flask.sqla import get_obj
+from app.logging import warn
+from app.models.auth import User
 from app.modules.admin.utils import get_user_per_email
+from app.modules.bw.bw_activation.models import (
+    BusinessWall,
+    BWRoleType,
+    InvitationStatus,
+    RoleAssignment,
+)
+from app.modules.bw.bw_activation.utils import bw_roles_ids
 from app.services.emails import BWRoleInvitationMail
 
-from .models import BWRoleType, InvitationStatus, RoleAssignment
-
 if TYPE_CHECKING:
-    from app.models.auth import User
     from app.modules.bw.bw_activation.models import BusinessWall
 
 
@@ -47,17 +54,21 @@ def invite_user_role(business_wall: BusinessWall, user: User, role: BWRoleType) 
     Returns:
         True if done successfully
     """
+    warn("invite_user_role", user)
     org = business_wall.get_organisation()
     if not org:
         return False
 
     if user not in org.members:
         return False
+    warn("user in org")
 
     if business_wall.role_assignments:
         for assignment in business_wall.role_assignments:
             if assignment.user_id == user.id and assignment.role_type == role.value:
                 return False
+
+    warn("user not assigned")
 
     role_assignment = RoleAssignment(
         business_wall_id=business_wall.id,
@@ -144,8 +155,10 @@ def invite_bwmi_by_email(business_wall: BusinessWall, email: str) -> bool:
     Returns:
         True if invitation was created successfully, False otherwise.
     """
+    warn("invite_bwmi_by_email", business_wall, email)
     user = get_user_per_email(email)
     if not user:
+        warn("get_user_per_email", user)
         return False
 
     return invite_user_role(business_wall, user, BWRoleType.BWMI)
@@ -199,6 +212,31 @@ def ensure_roles_membership(business_wall: BusinessWall) -> int:
 
 def change_bwmi_emails(business_wall: BusinessWall, raw_mails: str) -> None:
     """Update BWMi invitations based on email list."""
+    new_mails = set(raw_mails.lower().split())
+    warn(new_mails)
+    org = business_wall.get_organisation()
+    warn(org)
+    if not org:
+        return
+    current_bwmi_or_pending_ids = bw_roles_ids(
+        business_wall,
+        {BWRoleType.BWMI.value},
+        {InvitationStatus.PENDING.value, InvitationStatus.ACCEPTED.value},
+    )
+    warn("current_bwmi_ids", current_bwmi_or_pending_ids)
+    current_bwmi_users = [get_obj(uid, User) for uid in current_bwmi_or_pending_ids]
+    warn("current_bwmi_users", current_bwmi_users)
+    current_bwmi_emails = {u.email.lower() for u in current_bwmi_users}
+    warn("current_bwmi_emails", current_bwmi_emails)
+    # remove users that are not in the new list of bwmi
+    for user in current_bwmi_users:
+        if user.email not in new_mails:
+            revoke_user_role(business_wall, user, BWRoleType.BWMI)
+
+    # add users of the new list that are not in the current list of bwmi
+    for mail in new_mails:
+        if mail not in current_bwmi_emails:
+            invite_bwmi_by_email(business_wall, mail)
 
 
 def change_bwpri_emails(business_wall: BusinessWall, raw_mails: str) -> None:

@@ -109,7 +109,7 @@ def confirm_role_invitation(bw_id: str, role_type: str, user_id: int):
             role_assignment.rejected_at = datetime.now(UTC)
             warn(f"User {user_id} rejected role {role_type} for BW {bw_name!r}")
 
-        db.session.flush()
+        db.session.commit()
 
         return render_template(
             template,
