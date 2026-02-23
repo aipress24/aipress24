@@ -49,7 +49,7 @@ class TestInviteUserRole:
         """Successfully invite a user to a role."""
         # Setup
         org = Organisation(name="Test Org")
-        user = User(email=_unique_email())
+        user = User(email=_unique_email(), active=True)
         db_session.add_all([org, user])
         db_session.flush()
         user.organisation_id = org.id
@@ -67,7 +67,7 @@ class TestInviteUserRole:
         db_session.flush()
 
         # Create another user who will be invited
-        invited_user = User(email=_unique_email())
+        invited_user = User(email=_unique_email(), active=True)
         db_session.add(invited_user)
         db_session.flush()
         invited_user.organisation_id = org.id
@@ -92,7 +92,7 @@ class TestInviteUserRole:
     ) -> None:
         """Cannot invite user who is not an organisation member."""
         org = Organisation(name="Test Org")
-        user = User(email=_unique_email())
+        user = User(email=_unique_email(), active=True)
         db_session.add_all([org, user])
         db_session.flush()
         user.organisation_id = org.id
@@ -110,7 +110,7 @@ class TestInviteUserRole:
         db_session.flush()
 
         # Create user who is NOT in the organisation
-        external_user = User(email=_unique_email())
+        external_user = User(email=_unique_email(), active=True)
         db_session.add(external_user)
         db_session.flush()
 
@@ -125,7 +125,7 @@ class TestInviteUserRole:
     ) -> None:
         """Cannot invite user who already has the same role."""
         org = Organisation(name="Test Org")
-        user = User(email=_unique_email())
+        user = User(email=_unique_email(), active=True)
         db_session.add_all([org, user])
         db_session.flush()
         user.organisation_id = org.id
@@ -142,7 +142,7 @@ class TestInviteUserRole:
         db_session.add(business_wall)
         db_session.flush()
 
-        invited_user = User(email=_unique_email())
+        invited_user = User(email=_unique_email(), active=True)
         db_session.add(invited_user)
         db_session.flush()
         invited_user.organisation_id = org.id
@@ -164,7 +164,7 @@ class TestInviteUserRole:
     ) -> None:
         """User can have multiple different roles."""
         org = Organisation(name="Test Org")
-        user = User(email=_unique_email())
+        user = User(email=_unique_email(), active=True)
         db_session.add_all([org, user])
         db_session.flush()
         user.organisation_id = org.id
@@ -181,7 +181,7 @@ class TestInviteUserRole:
         db_session.add(business_wall)
         db_session.flush()
 
-        invited_user = User(email="invited2@example.com")
+        invited_user = User(email="invited2@example.com", active=True)
         db_session.add(invited_user)
         db_session.flush()
         invited_user.organisation_id = org.id
@@ -214,7 +214,7 @@ class TestRevokeUserRole:
     ) -> None:
         """Successfully revoke a role from a user."""
         org = Organisation(name="Test Org")
-        user = User(email=_unique_email())
+        user = User(email=_unique_email(), active=True)
         db_session.add_all([org, user])
         db_session.flush()
         user.organisation_id = org.id
@@ -231,7 +231,7 @@ class TestRevokeUserRole:
         db_session.add(business_wall)
         db_session.flush()
 
-        invited_user = User(email=_unique_email())
+        invited_user = User(email=_unique_email(), active=True)
         db_session.add(invited_user)
         db_session.flush()
         invited_user.organisation_id = org.id
@@ -259,7 +259,7 @@ class TestRevokeUserRole:
     ) -> None:
         """Cannot revoke a role that user doesn't have."""
         org = Organisation(name="Test Org")
-        user = User(email=_unique_email())
+        user = User(email=_unique_email(), active=True)
         db_session.add_all([org, user])
         db_session.flush()
         user.organisation_id = org.id
@@ -277,7 +277,7 @@ class TestRevokeUserRole:
         db_session.flush()
 
         # Create user without any role
-        invited_user = User(email=_unique_email())
+        invited_user = User(email=_unique_email(), active=True)
         db_session.add(invited_user)
         db_session.flush()
         invited_user.organisation_id = org.id
@@ -295,7 +295,7 @@ class TestRevokeUserRole:
     ) -> None:
         """Cannot revoke a different role than what user has."""
         org = Organisation(name="Test Org")
-        user = User(email=_unique_email())
+        user = User(email=_unique_email(), active=True)
         db_session.add_all([org, user])
         db_session.flush()
         user.organisation_id = org.id
@@ -313,7 +313,7 @@ class TestRevokeUserRole:
         db_session.flush()
 
         # Create another user and give them BWMI role
-        invited_user = User(email=_unique_email())
+        invited_user = User(email=_unique_email(), active=True)
         db_session.add(invited_user)
         db_session.flush()
         invited_user.organisation_id = org.id
@@ -340,7 +340,7 @@ class TestEnsureRolesMembership:
         from app.modules.bw.bw_activation.bw_invitation import ensure_roles_membership
 
         org = Organisation(name="Test Org")
-        owner = User(email=_unique_email())
+        owner = User(email=_unique_email(), active=True)
         db_session.add_all([org, owner])
         db_session.flush()
         owner.organisation_id = org.id
@@ -358,7 +358,7 @@ class TestEnsureRolesMembership:
         db_session.flush()
 
         # Create a member who will be invited
-        member = User(email=_unique_email())
+        member = User(email=_unique_email(), active=True)
         db_session.add(member)
         db_session.flush()
         member.organisation_id = org.id
@@ -406,7 +406,7 @@ class TestEnsureRolesMembership:
         from app.modules.bw.bw_activation.bw_invitation import ensure_roles_membership
 
         org = Organisation(name="Test Org")
-        owner = User(email=_unique_email())
+        owner = User(email=_unique_email(), active=True)
         db_session.add_all([org, owner])
         db_session.flush()
         owner.organisation_id = org.id
@@ -423,7 +423,7 @@ class TestEnsureRolesMembership:
         db_session.add(business_wall)
         db_session.flush()
 
-        member = User(email=_unique_email())
+        member = User(email=_unique_email(), active=True)
         db_session.add(member)
         db_session.flush()
         member.organisation_id = org.id
@@ -459,7 +459,7 @@ class TestEnsureRolesMembership:
         """Return 0 if business wall has no organisation."""
         from app.modules.bw.bw_activation.bw_invitation import ensure_roles_membership
 
-        user = User(email=_unique_email())
+        user = User(email=_unique_email(), active=True)
         db_session.add(user)
         db_session.flush()
 
