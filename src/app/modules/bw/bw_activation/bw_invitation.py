@@ -10,10 +10,10 @@ from datetime import UTC, datetime
 from typing import TYPE_CHECKING, cast
 
 from flask import g, url_for
+from werkzeug.exceptions import NotFound
 
 from app.flask.extensions import db
 from app.flask.sqla import get_obj
-from app.logging import warn
 from app.models.auth import User
 from app.modules.admin.utils import get_user_per_email
 from app.modules.bw.bw_activation.models import (
@@ -54,21 +54,17 @@ def invite_user_role(business_wall: BusinessWall, user: User, role: BWRoleType) 
     Returns:
         True if done successfully
     """
-    warn("invite_user_role", user)
     org = business_wall.get_organisation()
     if not org:
         return False
 
     if user not in org.members:
         return False
-    warn("user in org")
 
     if business_wall.role_assignments:
         for assignment in business_wall.role_assignments:
             if assignment.user_id == user.id and assignment.role_type == role.value:
                 return False
-
-    warn("user not assigned")
 
     role_assignment = RoleAssignment(
         business_wall_id=business_wall.id,
@@ -155,10 +151,8 @@ def invite_bwmi_by_email(business_wall: BusinessWall, email: str) -> bool:
     Returns:
         True if invitation was created successfully, False otherwise.
     """
-    warn("invite_bwmi_by_email", business_wall, email)
     user = get_user_per_email(email)
     if not user:
-        warn("get_user_per_email", user)
         return False
 
     return invite_user_role(business_wall, user, BWRoleType.BWMI)
@@ -185,10 +179,8 @@ def invite_bwpri_by_email(business_wall: BusinessWall, email: str) -> bool:
     Returns:
         True if invitation was created successfully, False otherwise.
     """
-    warn("invite_bwpri_by_email", business_wall, email)
     user = get_user_per_email(email)
     if not user:
-        warn("get_user_per_email", user)
         return False
 
     return invite_user_role(business_wall, user, BWRoleType.BWPRI)
@@ -243,9 +235,7 @@ def ensure_roles_membership(business_wall: BusinessWall) -> int:
 def change_bwmi_emails(business_wall: BusinessWall, raw_mails: str) -> None:
     """Update BWMi invitations based on email list."""
     new_mails = set(raw_mails.lower().split())
-    warn(new_mails)
     org = business_wall.get_organisation()
-    warn(org)
     if not org:
         return
     current_bwmi_or_pending_ids = bw_roles_ids(
@@ -253,11 +243,8 @@ def change_bwmi_emails(business_wall: BusinessWall, raw_mails: str) -> None:
         {BWRoleType.BWMI.value},
         {InvitationStatus.PENDING.value, InvitationStatus.ACCEPTED.value},
     )
-    warn("current_bwmi_ids", current_bwmi_or_pending_ids)
-    current_bwmi_users = [get_obj(uid, User) for uid in current_bwmi_or_pending_ids]
-    warn("current_bwmi_users", current_bwmi_users)
+    current_bwmi_users = _safe_get_user_list(current_bwmi_or_pending_ids)
     current_bwmi_emails = {u.email.lower() for u in current_bwmi_users}
-    warn("current_bwmi_emails", current_bwmi_emails)
     # remove users that are not in the new list of bwmi
     for user in current_bwmi_users:
         if user.email not in new_mails:
@@ -272,9 +259,7 @@ def change_bwmi_emails(business_wall: BusinessWall, raw_mails: str) -> None:
 def change_bwpri_emails(business_wall: BusinessWall, raw_mails: str) -> None:
     """Update BWPRi invitations based on email list."""
     new_mails = set(raw_mails.lower().split())
-    warn(new_mails)
     org = business_wall.get_organisation()
-    warn(org)
     if not org:
         return
     current_bwpri_or_pending_ids = bw_roles_ids(
@@ -282,11 +267,8 @@ def change_bwpri_emails(business_wall: BusinessWall, raw_mails: str) -> None:
         {BWRoleType.BWPRI.value},
         {InvitationStatus.PENDING.value, InvitationStatus.ACCEPTED.value},
     )
-    warn("current_bwpri_ids", current_bwpri_or_pending_ids)
-    current_bwpri_users = [get_obj(uid, User) for uid in current_bwpri_or_pending_ids]
-    warn("current_bwpri_users", current_bwpri_users)
+    current_bwpri_users = _safe_get_user_list(current_bwpri_or_pending_ids)
     current_bwpri_emails = {u.email.lower() for u in current_bwpri_users}
-    warn("current_bwpri_emails", current_bwpri_emails)
     # remove users that are not in the new list of bwpri
     for user in current_bwpri_users:
         if user.email not in new_mails:
@@ -296,3 +278,17 @@ def change_bwpri_emails(business_wall: BusinessWall, raw_mails: str) -> None:
     for mail in new_mails:
         if mail not in current_bwpri_emails:
             invite_bwpri_by_email(business_wall, mail)
+
+
+def _safe_get_user_list(
+    uids: set[int] | set[str] | list[int] | list[str],
+) -> list[User]:
+    result: list[User] = []
+    for uid in uids:
+        try:
+            user = cast(User, get_obj(uid, User))
+        except NotFound:
+            pass
+        else:
+            result.append(user)
+    return result
