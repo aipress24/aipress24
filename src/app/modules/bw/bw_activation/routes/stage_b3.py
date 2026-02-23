@@ -61,7 +61,6 @@ def manage_internal_roles():
 
     if request.method == "POST":
         action = request.form.get("action")
-        warn("action", action)
         if action == "change_bwmi_invitations":
             raw_mails = request.form["content"]
             change_bwmi_emails(business_wall, raw_mails)
