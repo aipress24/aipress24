@@ -13,8 +13,6 @@ import uuid
 from typing import TYPE_CHECKING
 
 import pytest
-from flask import Flask, g, session
-
 from app.enums import ProfileEnum
 from app.models.auth import KYCProfile, User
 from app.models.organisation import Organisation
@@ -42,6 +40,7 @@ from app.modules.bw.bw_activation.utils import (
     init_missions_state,
     init_session,
 )
+from flask import Flask, g, session
 
 if TYPE_CHECKING:
     from sqlalchemy.orm import Session
@@ -389,9 +388,11 @@ class TestInviteBwmiByEmail:
 
     def test_invite_existing_org_member(
         self,
+        app: Flask,
         db_session: Session,
         test_business_wall: BusinessWall,
         test_org: Organisation,
+        test_user: User,
     ) -> None:
         """invite_bwmi_by_email should succeed for org members."""
         # Create an active user in the organisation
@@ -402,7 +403,9 @@ class TestInviteBwmiByEmail:
         db_session.add(member)
         db_session.flush()
 
-        result = invite_bwmi_by_email(test_business_wall, "member@example.com")
+        with app.test_request_context():
+            g.user = test_user
+            result = invite_bwmi_by_email(test_business_wall, "member@example.com")
 
         assert result is True
 
@@ -432,9 +435,11 @@ class TestRevokeBwmiByEmail:
 
     def test_revoke_existing_bwmi_role(
         self,
+        app: Flask,
         db_session: Session,
         test_business_wall: BusinessWall,
         test_org: Organisation,
+        test_user: User,
     ) -> None:
         """revoke_bwmi_by_email should remove the BWMI role."""
         # Create an active user and assign BWMI role
@@ -445,9 +450,11 @@ class TestRevokeBwmiByEmail:
         db_session.flush()
 
         # Add the role first using invite_bwmi_by_email
-        invite_result = invite_bwmi_by_email(
-            test_business_wall, "revoke_test@example.com"
-        )
+        with app.test_request_context():
+            g.user = test_user
+            invite_result = invite_bwmi_by_email(
+                test_business_wall, "revoke_test@example.com"
+            )
         assert invite_result is True, "Failed to invite user first"
         db_session.flush()
 
@@ -603,21 +610,24 @@ class TestScenarioRoleManagement:
 
     def test_scenario_invite_and_accept_bwmi_role(
         self,
+        app: Flask,
         db_session: Session,
         test_business_wall: BusinessWall,
         test_org: Organisation,
         test_user: User,
     ) -> None:
         """Scenario: Owner invites a member as BWMi manager."""
-        # Create team member
-        team_member = User(email="team_member@example.com")
+        # Create active team member
+        team_member = User(email="team_member@example.com", active=True)
         team_member.organisation = test_org
         team_member.organisation_id = test_org.id
         db_session.add(team_member)
         db_session.flush()
 
         # Step 1: Owner invites team member as BWMi
-        result = invite_user_role(test_business_wall, team_member, BWRoleType.BWMI)
+        with app.test_request_context():
+            g.user = test_user
+            result = invite_user_role(test_business_wall, team_member, BWRoleType.BWMI)
         assert result is True
 
         # Verify pending invitation
@@ -645,19 +655,25 @@ class TestScenarioRoleManagement:
 
     def test_scenario_multiple_roles_same_user(
         self,
+        app: Flask,
         db_session: Session,
         test_business_wall: BusinessWall,
         test_org: Organisation,
+        test_user: User,
     ) -> None:
         """Scenario: A user can have multiple roles (BWMi + BWPRi)."""
-        multi_role_user = User(email="multi_role@example.com")
+        multi_role_user = User(email="multi_role@example.com", active=True)
         multi_role_user.organisation = test_org
         multi_role_user.organisation_id = test_org.id
         db_session.add(multi_role_user)
         db_session.flush()
 
         # Invite as BWMi
-        result1 = invite_user_role(test_business_wall, multi_role_user, BWRoleType.BWMI)
+        with app.test_request_context():
+            g.user = test_user
+            result1 = invite_user_role(
+                test_business_wall, multi_role_user, BWRoleType.BWMI
+            )
         assert result1 is True
 
         # Invite as BWPRi (should succeed - different role)
