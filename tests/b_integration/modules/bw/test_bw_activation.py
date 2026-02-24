@@ -36,6 +36,7 @@ from app.modules.bw.bw_activation.user_utils import (
 )
 from app.modules.bw.bw_activation.utils import (
     bw_managers_ids,
+    bw_pr_managers_ids,
     fill_session,
     init_missions_state,
     init_session,
@@ -292,6 +293,141 @@ class TestBwManagersIds:
 
         assert test_user.id in manager_ids
         assert pending_user.id not in manager_ids
+
+
+class TestBwPRManagersIds:
+    """Tests for bw_pr_managers_ids function."""
+
+    def test_returns_owner_id(
+        self,
+        db_session: Session,
+        test_business_wall: BusinessWall,
+        test_user: User,
+    ) -> None:
+        """bw_pr_managers_ids should include the owner."""
+        manager_ids = bw_pr_managers_ids(test_business_wall)
+
+        assert test_user.id in manager_ids
+
+    def test_returns_accepted_bwpri_role_users(
+        self,
+        db_session: Session,
+        test_business_wall: BusinessWall,
+        test_org: Organisation,
+        test_user: User,
+    ) -> None:
+        """bw_pr_managers_ids should include users with accepted BWPRI role."""
+        # Create another user with accepted BWPRI role
+        other_user = User(email=_unique_email(), active=True)
+        other_user.organisation = test_org
+        other_user.organisation_id = test_org.id
+        db_session.add(other_user)
+        db_session.flush()
+
+        bwpri_role = RoleAssignment(
+            business_wall_id=test_business_wall.id,
+            user_id=other_user.id,
+            role_type=BWRoleType.BWPRI.value,
+            invitation_status=InvitationStatus.ACCEPTED.value,
+        )
+        db_session.add(bwpri_role)
+        db_session.flush()
+
+        db_session.refresh(test_business_wall)
+        manager_ids = bw_pr_managers_ids(test_business_wall)
+
+        assert test_user.id in manager_ids
+        assert other_user.id in manager_ids
+
+    def test_returns_accepted_bwpre_role_users(
+        self,
+        db_session: Session,
+        test_business_wall: BusinessWall,
+        test_org: Organisation,
+        test_user: User,
+    ) -> None:
+        """bw_pr_managers_ids should include users with accepted BWPRE role."""
+        # Create another user with accepted BWPRE role
+        other_user = User(email=_unique_email(), active=True)
+        other_user.organisation = test_org
+        other_user.organisation_id = test_org.id
+        db_session.add(other_user)
+        db_session.flush()
+
+        bwpre_role = RoleAssignment(
+            business_wall_id=test_business_wall.id,
+            user_id=other_user.id,
+            role_type=BWRoleType.BWPRE.value,
+            invitation_status=InvitationStatus.ACCEPTED.value,
+        )
+        db_session.add(bwpre_role)
+        db_session.flush()
+
+        db_session.refresh(test_business_wall)
+        manager_ids = bw_pr_managers_ids(test_business_wall)
+
+        assert test_user.id in manager_ids
+        assert other_user.id in manager_ids
+
+    def test_excludes_pending_bwpri_role_users(
+        self,
+        db_session: Session,
+        test_business_wall: BusinessWall,
+        test_org: Organisation,
+        test_user: User,
+    ) -> None:
+        """bw_pr_managers_ids should exclude users with pending BWPRI roles."""
+        # Create another user with PENDING BWPRI role
+        pending_user = User(email=_unique_email(), active=True)
+        pending_user.organisation = test_org
+        pending_user.organisation_id = test_org.id
+        db_session.add(pending_user)
+        db_session.flush()
+
+        pending_role = RoleAssignment(
+            business_wall_id=test_business_wall.id,
+            user_id=pending_user.id,
+            role_type=BWRoleType.BWPRI.value,
+            invitation_status=InvitationStatus.PENDING.value,
+        )
+        db_session.add(pending_role)
+        db_session.flush()
+
+        db_session.refresh(test_business_wall)
+        manager_ids = bw_pr_managers_ids(test_business_wall)
+
+        assert test_user.id in manager_ids
+        assert pending_user.id not in manager_ids
+
+    def test_excludes_bwmi_role_users(
+        self,
+        db_session: Session,
+        test_business_wall: BusinessWall,
+        test_org: Organisation,
+        test_user: User,
+    ) -> None:
+        """bw_pr_managers_ids should exclude users with BWMI role (not PR)."""
+        # Create user with BWMI role (should NOT be in PR managers)
+        bwmi_user = User(email=_unique_email(), active=True)
+        bwmi_user.organisation = test_org
+        bwmi_user.organisation_id = test_org.id
+        db_session.add(bwmi_user)
+        db_session.flush()
+
+        bwmi_role = RoleAssignment(
+            business_wall_id=test_business_wall.id,
+            user_id=bwmi_user.id,
+            role_type=BWRoleType.BWMI.value,
+            invitation_status=InvitationStatus.ACCEPTED.value,
+        )
+        db_session.add(bwmi_role)
+        db_session.flush()
+
+        db_session.refresh(test_business_wall)
+        manager_ids = bw_pr_managers_ids(test_business_wall)
+
+        assert test_user.id in manager_ids
+        assert bwmi_user.id not in manager_ids
 
 
 # =============================================================================
