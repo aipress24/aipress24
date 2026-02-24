@@ -27,6 +27,8 @@ from app.modules.bw.bw_activation.models import (
     BWRoleType,
     BWStatus,
     InvitationStatus,
+    Partnership,
+    PartnershipStatus,
     RoleAssignment,
 )
 from app.modules.bw.bw_activation.user_utils import (
@@ -38,6 +40,7 @@ from app.modules.bw.bw_activation.utils import (
     bw_managers_ids,
     bw_pr_managers_ids,
     fill_session,
+    get_current_press_relation_bw_list,
     get_press_relation_bw_list,
     init_missions_state,
     init_session,
@@ -508,6 +511,147 @@ class TestGetPressRelationBWList:
         # Should NOT include the draft PR BW
         bw_ids = {bw.id for bw in result}
         assert draft_pr_bw.id not in bw_ids
+
+
+class TestGetCurrentPressRelationBWList:
+    """Tests for get_current_press_relation_bw_list()"""
+
+    def test_returns_active_partner_pr_bws(
+        self,
+        db_session: Session,
+        test_org: Organisation,
+        test_user: User,
+        test_business_wall: BusinessWall,
+    ) -> None:
+        """Return active PR Business Walls partnered with given BW."""
+        pr_bw = BusinessWall(
+            bw_type="pr",
+            status=BWStatus.ACTIVE.value,
+            is_free=False,
+            owner_id=test_user.id,
+            payer_id=test_user.id,
+            organisation_id=test_org.id,
+        )
+        db_session.add(pr_bw)
+        db_session.flush()
+
+        # Create an ACTIVE partnership between test_business_wall and pr_bw
+        partnership = Partnership(
+            business_wall_id=test_business_wall.id,
+            partner_bw_id=str(pr_bw.id),
+            status=PartnershipStatus.ACTIVE.value,
+            invited_by_user_id=test_user.id,
+        )
+        db_session.add(partnership)
+        db_session.flush()
+        db_session.refresh(test_business_wall)
+
+        result = get_current_press_relation_bw_list(test_business_wall)
+
+        assert len(result) == 1
+        assert result[0].id == pr_bw.id
+
+    def test_excludes_non_active_partnerships(
+        self,
+        db_session: Session,
+        test_org: Organisation,
+        test_user: User,
+        test_business_wall: BusinessWall,
+    ) -> None:
+        """Exclude PR Business Walls with non-active partnership status."""
+        from app.modules.bw.bw_activation.models import (
+            BusinessWall,
+            BWStatus,
+            Partnership,
+            PartnershipStatus,
+        )
+
+        pr_bw = BusinessWall(
+            bw_type="pr",
+            status=BWStatus.ACTIVE.value,
+            is_free=False,
+            owner_id=test_user.id,
+            payer_id=test_user.id,
+            organisation_id=test_org.id,
+        )
+        db_session.add(pr_bw)
+        db_session.flush()
+
+        partnership = Partnership(
+            business_wall_id=test_business_wall.id,
+            partner_bw_id=str(pr_bw.id),
+            status=PartnershipStatus.INVITED.value,
+            invited_by_user_id=test_user.id,
+        )
+        db_session.add(partnership)
+        db_session.flush()
+        db_session.refresh(test_business_wall)
+
+        result = get_current_press_relation_bw_list(test_business_wall)
+
+        assert len(result) == 0
+
+    def test_returns_empty_list_when_no_partnerships(
+        self,
+        test_business_wall: BusinessWall,
+    ) -> None:
+        """Return empty list when BusinessWall has no partnerships."""
+        result = get_current_press_relation_bw_list(test_business_wall)
+
+        assert result == []
+
+    def test_returns_multiple_active_partners(
+        self,
+        db_session: Session,
+        test_org: Organisation,
+        test_user: User,
+        test_business_wall: BusinessWall,
+    ) -> None:
+        """Return multiple active PR partners if present."""
+
+        pr_bw1 = BusinessWall(
+            bw_type="pr",
+            status=BWStatus.ACTIVE.value,
+            is_free=False,
+            owner_id=test_user.id,
+            payer_id=test_user.id,
+            organisation_id=test_org.id,
+        )
+        pr_bw2 = BusinessWall(
+            bw_type="pr",
+            status=BWStatus.ACTIVE.value,
+            is_free=False,
+            owner_id=test_user.id,
+            payer_id=test_user.id,
+            organisation_id=test_org.id,
+        )
+        db_session.add_all([pr_bw1, pr_bw2])
+        db_session.flush()
+
+        partnership1 = Partnership(
+            business_wall_id=test_business_wall.id,
+            partner_bw_id=str(pr_bw1.id),
+            status=PartnershipStatus.ACTIVE.value,
+            invited_by_user_id=test_user.id,
+        )
+        partnership2 = Partnership(
+            business_wall_id=test_business_wall.id,
+            partner_bw_id=str(pr_bw2.id),
+            status=PartnershipStatus.ACTIVE.value,
+            invited_by_user_id=test_user.id,
+        )
+        db_session.add_all([partnership1, partnership2])
+        db_session.flush()
+
+        db_session.refresh(test_business_wall)
+
+        result = get_current_press_relation_bw_list(test_business_wall)
+
+        # Should include both partnered PR BWs
+        assert len(result) == 2
+        result_ids = {bw.id for bw in result}
+        assert pr_bw1.id in result_ids
+        assert pr_bw2.id in result_ids
 
 
 # =============================================================================
