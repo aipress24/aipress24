@@ -558,8 +558,6 @@ class TestScenarioPRAgencyPaidActivation:
     ) -> None:
         """Complete scenario: PR agency paid BW activation workflow."""
         with app.test_request_context():
-            g.user = test_user_pr
-
             # Step 1: Detect PR type
             suggested_type = guess_best_bw_type(test_user_pr)
             assert suggested_type.value == "pr"
