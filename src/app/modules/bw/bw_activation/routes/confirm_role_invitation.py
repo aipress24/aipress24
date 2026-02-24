@@ -74,13 +74,7 @@ def confirm_role_invitation(bw_id: str, role_type: str, user_id: int):
         session["error"] = ERR_INVITATION_NOT_FOUND
         return redirect(url_for("bw_activation.not_authorized"))
 
-    # fixme need bw name first
-    org = business_wall.get_organisation()
-    if org:
-        bw_name = org.name
-    else:
-        bw_name = "(Nom inconnu)"
-
+    bw_name = business_wall.name_safe or "(Nom inconnu)"
     bw_role_name = BW_ROLE_TYPE_LABEL.get(role_assignment.role_type, "(rôle inconnu)")
 
     # Check invitation is pending
