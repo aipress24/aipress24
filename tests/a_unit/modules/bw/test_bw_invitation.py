@@ -14,6 +14,8 @@ import pytest
 from app.models.auth import User
 from app.models.organisation import Organisation
 from app.modules.bw.bw_activation.bw_invitation import (
+    change_bwmi_emails,
+    change_bwpri_emails,
     invite_user_role,
     revoke_user_role,
 )
@@ -478,3 +480,309 @@ class TestEnsureRolesMembership:
         revoked_count = ensure_roles_membership(business_wall)
 
         assert revoked_count == 0
+
+
+class TestChangeBWMiEmails:
+    """Tests for change_bwmi_emails function."""
+
+    def test_add_new_bwmi_invitation(
+        self,
+        db_session: scoped_session,
+        app_context: AppContext,
+    ) -> None:
+        """Add BWMi invitation for org member."""
+
+        org = Organisation(name="Test Org")
+        owner = User(email=_unique_email(), active=True)
+        db_session.add_all([org, owner])
+        db_session.flush()
+        owner.organisation_id = org.id
+        db_session.flush()
+
+        business_wall = BusinessWall(
+            bw_type="media",
+            status="active",
+            is_free=True,
+            owner_id=owner.id,
+            payer_id=owner.id,
+            organisation_id=org.id,
+        )
+        db_session.add(business_wall)
+        db_session.flush()
+
+        member = User(email="member@example.com", active=True)
+        member.organisation = org
+        member.organisation_id = org.id
+        db_session.add(member)
+        db_session.flush()
+
+        # Invite
+        change_bwmi_emails(business_wall, "member@example.com")
+        db_session.flush()
+
+        db_session.refresh(business_wall)
+        bwmi_roles = [
+            role
+            for role in business_wall.role_assignments
+            if role.role_type == BWRoleType.BWMI.value
+        ]
+        assert len(bwmi_roles) == 1
+        assert bwmi_roles[0].user_id == member.id
+        assert bwmi_roles[0].invitation_status == InvitationStatus.PENDING.value
+
+    def test_remove_bwmi_invitation(
+        self,
+        db_session: scoped_session,
+        app_context: AppContext,
+    ) -> None:
+        """Remove BWMi invitation when email not in list."""
+
+        org = Organisation(name="Test Org")
+        owner = User(email=_unique_email(), active=True)
+        db_session.add_all([org, owner])
+        db_session.flush()
+        owner.organisation_id = org.id
+        db_session.flush()
+
+        business_wall = BusinessWall(
+            bw_type="media",
+            status="active",
+            is_free=True,
+            owner_id=owner.id,
+            payer_id=owner.id,
+            organisation_id=org.id,
+        )
+        db_session.add(business_wall)
+        db_session.flush()
+
+        member = User(email="member@example.com", active=True)
+        member.organisation = org
+        member.organisation_id = org.id
+        db_session.add(member)
+        db_session.flush()
+
+        # add BWMi role
+        invite_user_role(business_wall, member, BWRoleType.BWMI)
+        db_session.flush()
+
+        # Verify role exists
+        db_session.refresh(business_wall)
+        assert len(business_wall.role_assignments) == 1
+
+        # remove , empty list for change
+        change_bwmi_emails(business_wall, "")
+        db_session.flush()
+
+        db_session.refresh(business_wall)
+        bwmi_roles = [
+            role
+            for role in business_wall.role_assignments
+            if role.role_type == BWRoleType.BWMI.value
+        ]
+        assert len(bwmi_roles) == 0
+
+    def test_multiple_emails_at_once(
+        self,
+        db_session: scoped_session,
+        app_context: AppContext,
+    ) -> None:
+        """Add multiple BWMi invitations at once."""
+
+        org = Organisation(name="Test Org")
+        owner = User(email=_unique_email(), active=True)
+        db_session.add_all([org, owner])
+        db_session.flush()
+        owner.organisation_id = org.id
+        db_session.flush()
+
+        business_wall = BusinessWall(
+            bw_type="media",
+            status="active",
+            is_free=True,
+            owner_id=owner.id,
+            payer_id=owner.id,
+            organisation_id=org.id,
+        )
+        db_session.add(business_wall)
+        db_session.flush()
+
+        member1 = User(email="member1@example.com", active=True)
+        member1.organisation = org
+        member1.organisation_id = org.id
+        member2 = User(email="member2@example.com", active=True)
+        member2.organisation = org
+        member2.organisation_id = org.id
+        db_session.add(member1)
+        db_session.add(member2)
+        db_session.flush()
+
+        # Invite both
+        change_bwmi_emails(
+            business_wall,
+            "member1@example.com member2@example.com",
+        )
+        db_session.flush()
+
+        db_session.refresh(business_wall)
+        bwmi_roles = [
+            role
+            for role in business_wall.role_assignments
+            if role.role_type == BWRoleType.BWMI.value
+        ]
+        assert len(bwmi_roles) == 2
+
+
+class TestChangeBWPRiEmails:
+    """Tests for change_bwpri_emails function."""
+
+    def test_add_new_bwpri_invitation(
+        self,
+        db_session: scoped_session,
+        app_context: AppContext,
+    ) -> None:
+        """Add new BWPRi invitation for org member."""
+
+        org = Organisation(name="Test Org")
+        owner = User(email=_unique_email(), active=True)
+        db_session.add_all([org, owner])
+        db_session.flush()
+        owner.organisation_id = org.id
+        db_session.flush()
+
+        business_wall = BusinessWall(
+            bw_type="media",
+            status="active",
+            is_free=True,
+            owner_id=owner.id,
+            payer_id=owner.id,
+            organisation_id=org.id,
+        )
+        db_session.add(business_wall)
+        db_session.flush()
+
+        # Create member to invite
+        member = User(email="member@example.com", active=True)
+        member.organisation = org
+        member.organisation_id = org.id
+        db_session.add(member)
+        db_session.flush()
+
+        change_bwpri_emails(business_wall, "member@example.com")
+        db_session.flush()
+
+        db_session.refresh(business_wall)
+        bwpri_roles = [
+            role
+            for role in business_wall.role_assignments
+            if role.role_type == BWRoleType.BWPRI.value
+        ]
+        assert len(bwpri_roles) == 1
+        assert bwpri_roles[0].user_id == member.id
+        assert bwpri_roles[0].invitation_status == InvitationStatus.PENDING.value
+
+    def test_remove_bwpri_invitation(
+        self,
+        db_session: scoped_session,
+        app_context: AppContext,
+    ) -> None:
+        """Remove BWPRi invitation when email not in list."""
+
+        org = Organisation(name="Test Org")
+        owner = User(email=_unique_email(), active=True)
+        db_session.add_all([org, owner])
+        db_session.flush()
+        owner.organisation_id = org.id
+        db_session.flush()
+
+        business_wall = BusinessWall(
+            bw_type="media",
+            status="active",
+            is_free=True,
+            owner_id=owner.id,
+            payer_id=owner.id,
+            organisation_id=org.id,
+        )
+        db_session.add(business_wall)
+        db_session.flush()
+
+        member = User(email="member@example.com", active=True)
+        member.organisation = org
+        member.organisation_id = org.id
+        db_session.add(member)
+        db_session.flush()
+
+        # Add BWPRi role
+        invite_user_role(business_wall, member, BWRoleType.BWPRI)
+        db_session.flush()
+
+        db_session.refresh(business_wall)
+        assert len(business_wall.role_assignments) == 1
+
+        # Remove
+        change_bwpri_emails(business_wall, "")
+        db_session.flush()
+
+        db_session.refresh(business_wall)
+        bwpri_roles = [
+            role
+            for role in business_wall.role_assignments
+            if role.role_type == BWRoleType.BWPRI.value
+        ]
+        assert len(bwpri_roles) == 0
+
+    def test_both_roles_independent(
+        self,
+        db_session: scoped_session,
+        app_context: AppContext,
+    ) -> None:
+        """BWMi and BWPRi lists are independent."""
+
+        org = Organisation(name="Test Org")
+        owner = User(email=_unique_email(), active=True)
+        db_session.add_all([org, owner])
+        db_session.flush()
+        owner.organisation_id = org.id
+        db_session.flush()
+
+        business_wall = BusinessWall(
+            bw_type="media",
+            status="active",
+            is_free=True,
+            owner_id=owner.id,
+            payer_id=owner.id,
+            organisation_id=org.id,
+        )
+        db_session.add(business_wall)
+        db_session.flush()
+
+        bwmi_member = User(email="bwmi@example.com", active=True)
+        bwmi_member.organisation = org
+        bwmi_member.organisation_id = org.id
+        bwpri_member = User(email="bwpri@example.com", active=True)
+        bwpri_member.organisation = org
+        bwpri_member.organisation_id = org.id
+        db_session.add(bwmi_member)
+        db_session.add(bwpri_member)
+        db_session.flush()
+
+        # Invite to different roles
+        change_bwmi_emails(business_wall, "bwmi@example.com")
+        change_bwpri_emails(business_wall, "bwpri@example.com")
+        db_session.flush()
+
+        db_session.refresh(business_wall)
+        bwmi_roles = [
+            role
+            for role in business_wall.role_assignments
+            if role.role_type == BWRoleType.BWMI.value
+        ]
+        bwpri_roles = [
+            role
+            for role in business_wall.role_assignments
+            if role.role_type == BWRoleType.BWPRI.value
+        ]
+
+        assert len(bwmi_roles) == 1
+        assert len(bwpri_roles) == 1
+        assert bwmi_roles[0].user_id == bwmi_member.id
+        assert bwpri_roles[0].user_id == bwpri_member.id
