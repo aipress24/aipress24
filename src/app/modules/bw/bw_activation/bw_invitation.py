@@ -91,13 +91,7 @@ def send_role_invitation_mail(
     sender_mail = current_user.email
     sender_full_name = current_user.full_name
     # FIXME, maybe the business_wall has still not name
-    # bw_name = business_wall.name
-    org = business_wall.get_organisation()
-    if org:
-        org_name = org.name
-    else:
-        org_name = "(Nom inconnu)"
-
+    bw_name = business_wall.name_safe or "(Nom inconnu)"
     bw_role = BW_ROLE_TYPE_LABEL.get(role.value, "(rôle inconnu)")
 
     confirmation_url = url_for(
@@ -113,7 +107,7 @@ def send_role_invitation_mail(
         recipient=invited_user.email,
         sender_mail=sender_mail,
         sender_full_name=sender_full_name,
-        bw_name=org_name,
+        bw_name=bw_name,
         role=bw_role,
         confirmation_url=confirmation_url,
     )
