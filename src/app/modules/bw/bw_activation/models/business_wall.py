@@ -106,6 +106,8 @@ class BusinessWall(UUIDAuditBase):
     payer_phone: Mapped[str] = mapped_column(String, default="")
     payer_address: Mapped[str] = mapped_column(String, default="")
 
+    name: Mapped[str] = mapped_column(nullable=True)
+
     # Relationships (using string annotations to avoid circular imports)
     subscription: Mapped[Subscription | None] = relationship(
         "Subscription", back_populates="business_wall", cascade="all, delete-orphan"
@@ -122,3 +124,13 @@ class BusinessWall(UUIDAuditBase):
 
     def __repr__(self) -> str:
         return f"<BusinessWall {self.id} type={self.bw_type} status={self.status}>"
+
+    @property
+    def name_safe(self) -> str:
+        """Return the BusinessWall.name, or by default its Organisation.name or "" """
+        name = self.name
+        if not name:
+            org = self.get_organisation()
+            if org:
+                name = org.name
+        return name or ""
