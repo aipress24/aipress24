@@ -45,8 +45,8 @@ class Partnership(UUIDAuditBase):
     )
     business_wall: Mapped[BusinessWall] = relationship(back_populates="partnerships")
 
-    # Partner organization (PR Agency) - references Organisation ID (no FK constraint for POC)
-    partner_org_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    # Partner BW (PR Agency) - references BW ID (no FK constraint)
+    partner_bw_id: Mapped[str] = mapped_column(String, nullable=False)
 
     # Partnership status
     status: Mapped[str] = mapped_column(String, default=PartnershipStatus.INVITED.value)
