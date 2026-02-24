@@ -305,9 +305,7 @@ class TestGetCurrentUserData:
     def test_returns_user_data(
         self,
         app: Flask,
-        db_session: Session,
         test_user: User,
-        test_org: Organisation,
     ) -> None:
         """get_current_user_data should return user info."""
         with app.test_request_context():
@@ -328,7 +326,6 @@ class TestGuessBestBwType:
 
     def test_media_profile_returns_media_type(
         self,
-        db_session: Session,
         test_user: User,
     ) -> None:
         """PM_DIR profile should return MEDIA BW type."""
@@ -338,7 +335,6 @@ class TestGuessBestBwType:
 
     def test_pr_profile_returns_pr_type(
         self,
-        db_session: Session,
         test_user_pr: User,
     ) -> None:
         """PR_DIR profile should return PR BW type."""
@@ -352,7 +348,6 @@ class TestCurrentBusinessWall:
 
     def test_returns_bw_for_user_with_org(
         self,
-        db_session: Session,
         test_user: User,
         test_business_wall: BusinessWall,
     ) -> None:
@@ -418,7 +413,6 @@ class TestInviteBwmiByEmail:
 
     def test_invite_nonexistent_user_fails(
         self,
-        db_session: Session,
         test_business_wall: BusinessWall,
     ) -> None:
         """invite_bwmi_by_email should fail for non-existent users."""
@@ -513,9 +507,7 @@ class TestScenarioMediaOrgActivation:
     def test_scenario_complete_free_activation(
         self,
         app: Flask,
-        db_session: Session,
         test_user: User,
-        test_org: Organisation,
     ) -> None:
         """Complete scenario: Media org free BW activation."""
         with app.test_request_context():
@@ -562,7 +554,6 @@ class TestScenarioPRAgencyPaidActivation:
     def test_scenario_paid_activation_workflow(
         self,
         app: Flask,
-        db_session: Session,
         test_user_pr: User,
     ) -> None:
         """Complete scenario: PR agency paid BW activation workflow."""
@@ -687,8 +678,6 @@ class TestScenarioAccessControl:
 
     def test_owner_has_access_to_dashboard(
         self,
-        app: Flask,
-        db_session: Session,
         test_business_wall: BusinessWall,
         test_user: User,
     ) -> None:
