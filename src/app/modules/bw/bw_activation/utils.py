@@ -18,6 +18,7 @@ from app.modules.bw.bw_activation.models import (
     BWStatus,
     BWType,
     InvitationStatus,
+    PartnershipStatus,
 )
 
 # from app.modules.bw.bw_activation.models.repositories import BusinessWallRepository
@@ -157,3 +158,26 @@ def get_press_relation_bw_list() -> list[BusinessWall]:
             status=BWStatus.ACTIVE.value,
         ),
     )
+
+
+def get_current_press_relation_bw_list(bw: BusinessWall) -> list[BusinessWall]:
+    """Returns the list of active PR BW partners of the given BusinessWall."""
+    from uuid import UUID
+
+    bw_service = container.get(BusinessWallService)
+
+    active_partnerships = [
+        partner
+        for partner in (bw.partnerships or [])
+        if partner.status == PartnershipStatus.ACTIVE.value
+    ]
+
+    result: list[BusinessWall] = []
+    for partnership in active_partnerships:
+        # partner_bw_id is the UUID of the partner BusinessWall
+        if partnership.partner_bw_id:
+            partner_bw = bw_service.get(UUID(partnership.partner_bw_id))
+            if partner_bw:
+                result.append(partner_bw)
+
+    return result
