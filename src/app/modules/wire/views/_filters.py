@@ -4,8 +4,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from json import JSONDecodeError, dumps, loads
-from typing import Any
+from typing import Any, cast
 
 import sqlalchemy as sa
 from flask import request, session
@@ -115,7 +116,10 @@ class FilterBar:
             spec = FILTER_SPECS_BY_ID.get(filter["id"])
             label = filter["value"]
             if spec and (label_func := spec.get("label_function")):
-                label = label_func(label)
+                if not callable(label_func):
+                    msg = f"label_function for filter '{filter['id']}' is not callable"
+                    raise TypeError(msg)
+                label = cast(Callable[[str], str], label_func)(label)
 
             active.append(
                 {
