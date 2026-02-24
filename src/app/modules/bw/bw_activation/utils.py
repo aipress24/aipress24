@@ -75,8 +75,7 @@ def init_missions_state():
 
 
 def bw_managers_ids(bw: BusinessWall) -> set[int]:
-    """Get the set of user IDs with management rights (BWMI, BW_OWNER) on the BusinessWall.
-
+    """Get the set of user IDs with management rights (BWMI, BWME, BW_OWNER) on the BusinessWall.
     Args:
         bw: A BusinessWall instance
 
@@ -91,6 +90,27 @@ def bw_managers_ids(bw: BusinessWall) -> set[int]:
     required_status = {InvitationStatus.ACCEPTED.value}
     manager_ids = bw_roles_ids(bw, required_roles, required_status)
     manager_ids.add(bw.owner_id)  # usefull in first stage of BW registration
+    return manager_ids
+
+
+def bw_pr_managers_ids(bw: BusinessWall) -> set[int]:
+    """Get the set of user IDs with PR management rights
+    (BWPRI, BWPRE, BW_OWNER) on the BusinessWall.
+
+    Args:
+        bw: A BusinessWall instance
+
+    Returns:
+        Set of user IDs with PR management role
+    """
+    required_roles = {
+        BWRoleType.BW_OWNER.value,
+        BWRoleType.BWPRI.value,
+        BWRoleType.BWPRE.value,
+    }
+    required_status = {InvitationStatus.ACCEPTED.value}
+    manager_ids = bw_roles_ids(bw, required_roles, required_status)
+    manager_ids.add(bw.owner_id)
     return manager_ids
 
 
