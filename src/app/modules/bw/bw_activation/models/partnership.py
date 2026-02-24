@@ -34,7 +34,7 @@ class PartnershipStatus(StrEnum):
 class Partnership(UUIDAuditBase):
     """Partnership between Business Wall and PR Agency.
 
-    Represents Stage 5: Management of external PR Agency relationships.
+    Represents Stage 4: Management of external PR Agency relationships.
     """
 
     __tablename__ = "bw_partnership"

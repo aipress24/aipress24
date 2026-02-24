@@ -122,7 +122,7 @@
                         liste des prestataires inscrits sur AiPRESS24.
                     </p>
 
-                    <div class="space-y-4">
+                    <form method="POST" class="space-y-4">
                         <div>
                             <label
                                 class="block text-sm font-medium text-gray-700 mb-2"
@@ -130,31 +130,21 @@
                             >
                             <div class="flex gap-3">
                                 <select
+                                    name="pr_provider"
                                     class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-4 py-2 border"
                                 >
                                     <option value="">
                                         -- Sélectionnez une PR Agency ou PR
                                         Consultant --
                                     </option>
-                                    <option value="1">
-                                        Agence COM+ (Paris)
-                                    </option>
-                                    <option value="2">
-                                        RP Consultants (Lyon)
-                                    </option>
-                                    <option value="3">
-                                        MediaLink Agency (Marseille)
-                                    </option>
-                                    <option value="4">
-                                        Sophie Martin - Consultante indépendante
-                                        (Bordeaux)
-                                    </option>
-                                    <option value="5">
-                                        PressContact Pro (Lille)
-                                    </option>
+                                    {% for pr_bw in pr_bw_list %}
+                                        <option value="{{ pr_bw.id }}">
+                                            {{ pr_bw.name_safe }}
+                                        </option>
+                                    {% endfor %}
                                 </select>
                                 <button
-                                    type="button"
+                                    type="submit"
                                     class="rounded-md bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:bg-green-700"
                                 >
                                     Envoyer l'invitation
@@ -165,7 +155,7 @@
                                 accepter avant d'être ajouté à votre liste.
                             </p>
                         </div>
-                    </div>
+                    </form>
                 </div>
 
                 <div class="p-4 bg-white rounded-md border border-gray-200">
