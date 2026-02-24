@@ -388,11 +388,9 @@ class TestInviteBwmiByEmail:
 
     def test_invite_existing_org_member(
         self,
-        app: Flask,
         db_session: Session,
         test_business_wall: BusinessWall,
         test_org: Organisation,
-        test_user: User,
     ) -> None:
         """invite_bwmi_by_email should succeed for org members."""
         # Create an active user in the organisation
@@ -403,9 +401,8 @@ class TestInviteBwmiByEmail:
         db_session.add(member)
         db_session.flush()
 
-        with app.test_request_context():
-            g.user = test_user
-            result = invite_bwmi_by_email(test_business_wall, "member@example.com")
+        # send_role_invitation_mail is mocked
+        result = invite_bwmi_by_email(test_business_wall, "member@example.com")
 
         assert result is True
 
@@ -435,11 +432,9 @@ class TestRevokeBwmiByEmail:
 
     def test_revoke_existing_bwmi_role(
         self,
-        app: Flask,
         db_session: Session,
         test_business_wall: BusinessWall,
         test_org: Organisation,
-        test_user: User,
     ) -> None:
         """revoke_bwmi_by_email should remove the BWMI role."""
         # Create an active user and assign BWMI role
@@ -450,11 +445,10 @@ class TestRevokeBwmiByEmail:
         db_session.flush()
 
         # Add the role first using invite_bwmi_by_email
-        with app.test_request_context():
-            g.user = test_user
-            invite_result = invite_bwmi_by_email(
-                test_business_wall, "revoke_test@example.com"
-            )
+        # send_role_invitation_mail is mocked
+        invite_result = invite_bwmi_by_email(
+            test_business_wall, "revoke_test@example.com"
+        )
         assert invite_result is True, "Failed to invite user first"
         db_session.flush()
 
@@ -610,11 +604,9 @@ class TestScenarioRoleManagement:
 
     def test_scenario_invite_and_accept_bwmi_role(
         self,
-        app: Flask,
         db_session: Session,
         test_business_wall: BusinessWall,
         test_org: Organisation,
-        test_user: User,
     ) -> None:
         """Scenario: Owner invites a member as BWMi manager."""
         # Create active team member
@@ -625,9 +617,8 @@ class TestScenarioRoleManagement:
         db_session.flush()
 
         # Step 1: Owner invites team member as BWMi
-        with app.test_request_context():
-            g.user = test_user
-            result = invite_user_role(test_business_wall, team_member, BWRoleType.BWMI)
+        # send_role_invitation_mail is mocked
+        result = invite_user_role(test_business_wall, team_member, BWRoleType.BWMI)
         assert result is True
 
         # Verify pending invitation
@@ -655,11 +646,9 @@ class TestScenarioRoleManagement:
 
     def test_scenario_multiple_roles_same_user(
         self,
-        app: Flask,
         db_session: Session,
         test_business_wall: BusinessWall,
         test_org: Organisation,
-        test_user: User,
     ) -> None:
         """Scenario: A user can have multiple roles (BWMi + BWPRi)."""
         multi_role_user = User(email="multi_role@example.com", active=True)
@@ -669,11 +658,8 @@ class TestScenarioRoleManagement:
         db_session.flush()
 
         # Invite as BWMi
-        with app.test_request_context():
-            g.user = test_user
-            result1 = invite_user_role(
-                test_business_wall, multi_role_user, BWRoleType.BWMI
-            )
+        # send_role_invitation_mail is mocked
+        result1 = invite_user_role(test_business_wall, multi_role_user, BWRoleType.BWMI)
         assert result1 is True
 
         # Invite as BWPRi (should succeed - different role)
