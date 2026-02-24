@@ -38,6 +38,7 @@ from app.modules.bw.bw_activation.utils import (
     bw_managers_ids,
     bw_pr_managers_ids,
     fill_session,
+    get_press_relation_bw_list,
     init_missions_state,
     init_session,
 )
@@ -428,6 +429,85 @@ class TestBwPRManagersIds:
 
         assert test_user.id in manager_ids
         assert bwmi_user.id not in manager_ids
+
+
+class TestGetPressRelationBWList:
+    """Tests for get_press_relation_bw_list()."""
+
+    def test_returns_active_pr_business_walls(
+        self,
+        db_session: Session,
+        test_org: Organisation,
+        test_user: User,
+    ) -> None:
+        """Should return only active PR Business Walls."""
+        # Create an active PR Business Wall
+        pr_bw = BusinessWall(
+            bw_type="pr",
+            status=BWStatus.ACTIVE.value,
+            is_free=False,
+            owner_id=test_user.id,
+            payer_id=test_user.id,
+            organisation_id=test_org.id,
+        )
+        db_session.add(pr_bw)
+        db_session.flush()
+
+        result = get_press_relation_bw_list()
+
+        assert len(result) >= 1
+        bw_ids = {bw.id for bw in result}
+        assert pr_bw.id in bw_ids
+
+    def test_excludes_non_pr_business_walls(
+        self,
+        db_session: Session,
+        test_org: Organisation,
+        test_user: User,
+    ) -> None:
+        """Exclude Business Walls that are not type PR."""
+        # Create a media BW (not PR)
+        media_bw = BusinessWall(
+            bw_type="media",
+            status=BWStatus.ACTIVE.value,
+            is_free=True,
+            owner_id=test_user.id,
+            payer_id=test_user.id,
+            organisation_id=test_org.id,
+        )
+        db_session.add(media_bw)
+        db_session.flush()
+
+        result = get_press_relation_bw_list()
+
+        # Should NOT include the media BW
+        bw_ids = {bw.id for bw in result}
+        assert media_bw.id not in bw_ids
+
+    def test_excludes_non_active_pr_business_walls(
+        self,
+        db_session: Session,
+        test_org: Organisation,
+        test_user: User,
+    ) -> None:
+        """Exclude PR Business Walls that are not active."""
+        # Create a draft PR BW (not active)
+        draft_pr_bw = BusinessWall(
+            bw_type="pr",
+            status=BWStatus.DRAFT.value,
+            is_free=False,
+            owner_id=test_user.id,
+            payer_id=test_user.id,
+            organisation_id=test_org.id,
+        )
+        db_session.add(draft_pr_bw)
+        db_session.flush()
+
+        result = get_press_relation_bw_list()
+
+        # Should NOT include the draft PR BW
+        bw_ids = {bw.id for bw in result}
+        assert draft_pr_bw.id not in bw_ids
 
 
 # =============================================================================

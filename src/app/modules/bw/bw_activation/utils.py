@@ -6,11 +6,17 @@
 
 from __future__ import annotations
 
+from typing import cast
+
 from flask import session
+from svcs.flask import container
 
 from app.modules.bw.bw_activation.models import (
     BusinessWall,
+    BusinessWallService,
     BWRoleType,
+    BWStatus,
+    BWType,
     InvitationStatus,
 )
 
@@ -138,3 +144,16 @@ def bw_roles_ids(
                 manager_ids.add(assignment.user_id)
 
     return manager_ids
+
+
+def get_press_relation_bw_list() -> list[BusinessWall]:
+    """Return the list of active PR BusinessWall instances"""
+
+    bw_service = container.get(BusinessWallService)
+    return cast(
+        list[BusinessWall],
+        bw_service.list(
+            bw_type=BWType.PR.value,
+            status=BWStatus.ACTIVE.value,
+        ),
+    )
