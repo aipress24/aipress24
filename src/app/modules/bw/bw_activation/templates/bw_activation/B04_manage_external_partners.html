@@ -184,8 +184,9 @@
                     </h3>
                     <div
                         id="current_pr_bw"
-                        class="{% if not current_pr_bw_list %}text-sm
-                        text-gray-500 italic{% endif %}"
+                        class="{% if not current_pr_bw_list %}
+                            text-sm text-gray-500 italic
+                        {% endif %}"
                     >
                         {% if current_pr_bw_list %}
                             <ul class="space-y-2">
@@ -204,6 +205,7 @@
 
             <!-- Section: Pending invitations (hidden when no partner) -->
             <div
+                id="pending_pr_bw"
                 class="mt-8"
                 x-show="!noPartner"
                 x-transition
@@ -215,10 +217,27 @@
                 </h2>
 
                 <div class="p-4 bg-white rounded-md border border-gray-200">
-                    <div class="text-sm text-gray-500 italic">
-                        Aucune invitation en attente. (POC: invitations envoyées
-                        mais pas encore acceptées apparaîtraient ici)
-                    </div>
+                    {% if pending_pr_bw_info %}
+                        <ul class="space-y-3">
+                            {% for info in pending_pr_bw_info %}
+                                <li class="text-sm">
+                                    <span class="font-medium text-gray-900">
+                                        {{ info.bw_name }}
+                                    </span>
+                                    <span class="text-gray-500">
+                                        ({{ info.bw_contact_name }})
+                                    </span>
+                                    <span class="text-gray-500">
+                                        ({{ info.bw_contact_email }})
+                                    </span>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <div class="text-sm text-gray-500 italic">
+                            Aucune invitation en attente.
+                        </div>
+                    {% endif %}
                 </div>
             </div>
 
