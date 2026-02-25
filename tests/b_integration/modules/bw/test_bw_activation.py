@@ -41,6 +41,7 @@ from app.modules.bw.bw_activation.utils import (
     bw_pr_managers_ids,
     fill_session,
     get_current_press_relation_bw_list,
+    get_pending_press_relation_bw_list,
     get_press_relation_bw_list,
     init_missions_state,
     init_session,
@@ -652,6 +653,142 @@ class TestGetCurrentPressRelationBWList:
         result_ids = {bw.id for bw in result}
         assert pr_bw1.id in result_ids
         assert pr_bw2.id in result_ids
+
+
+class TestGetPendingPressRelationBWList:
+    """Tests for get_pending_press_relation_bw_list function."""
+
+    def test_returns_pending_partner_pr_bws(
+        self,
+        db_session: Session,
+        test_org: Organisation,
+        test_user: User,
+        test_business_wall: BusinessWall,
+    ) -> None:
+        """Return pending PR Business Walls partnered with given BW."""
+
+        # Create a PR Business Wall
+        pr_bw = BusinessWall(
+            bw_type="pr",
+            status=BWStatus.ACTIVE.value,
+            is_free=False,
+            owner_id=test_user.id,
+            payer_id=test_user.id,
+            organisation_id=test_org.id,
+        )
+        db_session.add(pr_bw)
+        db_session.flush()
+
+        # Create INVITED pending) partnershi
+        partnership = Partnership(
+            business_wall_id=test_business_wall.id,
+            partner_bw_id=str(pr_bw.id),
+            status=PartnershipStatus.INVITED.value,
+            invited_by_user_id=test_user.id,
+        )
+        db_session.add(partnership)
+        db_session.flush()
+
+        db_session.refresh(test_business_wall)
+        result = get_pending_press_relation_bw_list(test_business_wall)
+
+        assert len(result) == 1
+        assert result[0].id == pr_bw.id
+
+    def test_excludes_active_partnerships(
+        self,
+        db_session: Session,
+        test_org: Organisation,
+        test_user: User,
+        test_business_wall: BusinessWall,
+    ) -> None:
+        """Exclude PR Business Walls with active status."""
+
+        # Create a PR Business Wall
+        pr_bw = BusinessWall(
+            bw_type="pr",
+            status=BWStatus.ACTIVE.value,
+            is_free=False,
+            owner_id=test_user.id,
+            payer_id=test_user.id,
+            organisation_id=test_org.id,
+        )
+        db_session.add(pr_bw)
+        db_session.flush()
+
+        # Create an ACTIVE partnership
+        partnership = Partnership(
+            business_wall_id=test_business_wall.id,
+            partner_bw_id=str(pr_bw.id),
+            status=PartnershipStatus.ACTIVE.value,
+            invited_by_user_id=test_user.id,
+        )
+        db_session.add(partnership)
+        db_session.flush()
+        db_session.refresh(test_business_wall)
+
+        result = get_pending_press_relation_bw_list(test_business_wall)
+        assert len(result) == 0
+
+    def test_returns_multiple_pending_partners(
+        self,
+        db_session: Session,
+        test_org: Organisation,
+        test_user: User,
+        test_business_wall: BusinessWall,
+    ) -> None:
+        """Return multiple pending PR partners."""
+
+        pr_bw1 = BusinessWall(
+            bw_type="pr",
+            status=BWStatus.ACTIVE.value,
+            is_free=False,
+            owner_id=test_user.id,
+            payer_id=test_user.id,
+            organisation_id=test_org.id,
+        )
+        pr_bw2 = BusinessWall(
+            bw_type="pr",
+            status=BWStatus.ACTIVE.value,
+            is_free=False,
+            owner_id=test_user.id,
+            payer_id=test_user.id,
+            organisation_id=test_org.id,
+        )
+        db_session.add_all([pr_bw1, pr_bw2])
+        db_session.flush()
+
+        partnership1 = Partnership(
+            business_wall_id=test_business_wall.id,
+            partner_bw_id=str(pr_bw1.id),
+            status=PartnershipStatus.INVITED.value,
+            invited_by_user_id=test_user.id,
+        )
+        partnership2 = Partnership(
+            business_wall_id=test_business_wall.id,
+            partner_bw_id=str(pr_bw2.id),
+            status=PartnershipStatus.REVOKED.value,
+            invited_by_user_id=test_user.id,
+        )
+        db_session.add_all([partnership1, partnership2])
+        db_session.flush()
+
+        db_session.refresh(test_business_wall)
+
+        result = get_pending_press_relation_bw_list(test_business_wall)
+        assert len(result) == 2
+        result_ids = {bw.id for bw in result}
+        assert pr_bw1.id in result_ids
+        assert pr_bw2.id in result_ids
+
+    def test_returns_empty_list_when_no_partnerships(
+        self,
+        test_business_wall: BusinessWall,
+    ) -> None:
+        """Return empty list when no partnerships."""
+        result = get_pending_press_relation_bw_list(test_business_wall)
+
+        assert result == []
 
 
 # =============================================================================
