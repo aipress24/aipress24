@@ -68,5 +68,5 @@ class Partnership(UUIDAuditBase):
 
     def __repr__(self) -> str:
         return (
-            f"<Partnership {self.id} status={self.status} org_id={self.partner_org_id}>"
+            f"<Partnership {self.id} status={self.status} org_id={self.partner_bw_id}>"
         )
