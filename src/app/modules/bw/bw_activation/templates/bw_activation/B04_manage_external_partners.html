@@ -182,9 +182,22 @@
                     <h3 class="font-medium text-gray-900 mb-4">
                         PR Agencies et PR Consultants actifs
                     </h3>
-                    <div class="text-sm text-gray-500 italic">
-                        Aucun prestataire externe validé pour le moment. (POC:
-                        liste simulée après invitation et acceptation)
+                    <div
+                        id="current_pr_bw"
+                        class="{% if not current_pr_bw_list %}text-sm
+                        text-gray-500 italic{% endif %}"
+                    >
+                        {% if current_pr_bw_list %}
+                            <ul class="space-y-2">
+                                {% for bw in current_pr_bw_list %}
+                                    <li class="text-sm text-gray-900">
+                                        {{ bw.name_safe }}
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            Aucun prestataire externe validé pour le moment.
+                        {% endif %}
                     </div>
                 </div>
             </div>
