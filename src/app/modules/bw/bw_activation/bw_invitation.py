@@ -42,7 +42,9 @@ BW_ROLE_TYPE_LABEL: dict[str, str] = {
 }
 
 
-def invite_user_role(business_wall: BusinessWall, user: User, role: BWRoleType) -> bool:
+def invite_user_role(
+    business_wall: BusinessWall, user: User, role: BWRoleType, is_internal=True
+) -> bool:
     """Invite a user to take a specific role in the Business Wall.
 
     Conditions:
@@ -54,20 +56,31 @@ def invite_user_role(business_wall: BusinessWall, user: User, role: BWRoleType) 
         business_wall: The BusinessWall instance
         user: The User to invite
         role: The role to assign
+        is_internal: if the invitation is for an internal role
 
     Returns:
         True if done successfully
     """
-    org = business_wall.get_organisation()
-    if not org:
+    if not user.active:
+        warn("invite_user_role: not user active")
         return False
 
-    if user not in org.members or not user.active:
-        return False
+    if is_internal:
+        org = business_wall.get_organisation()
+        if not org:
+            warn("invite_user_role: no org")
+            return False
+
+        if user not in org.members:
+            warn(
+                f"invite_user_role: user {user.email} not in its organisation {org.name}"
+            )
+            return False
 
     if business_wall.role_assignments:
         for assignment in business_wall.role_assignments:
             if assignment.user_id == user.id and assignment.role_type == role.value:
+                warn("invite_user_role: already assigned")
                 return False
 
     role_assignment = RoleAssignment(
@@ -314,26 +327,6 @@ def invite_pr_provider(business_wall: BusinessWall, uuid: str | None) -> bool:
 
     pr_owner = cast(User, get_obj(pr_bw.owner_id, User))
 
-    # Check if the owner already has a BWPRE role assignment
-    if business_wall.role_assignments:
-        for assignment in business_wall.role_assignments:
-            if (
-                assignment.user_id == pr_owner.id
-                and assignment.role_type == BWRoleType.BWPRE.value
-            ):
-                warn("PR BW already has BWPRE role:", pr_bw)
-                return False
-
-    role_assignment = RoleAssignment(
-        business_wall_id=business_wall.id,
-        user_id=pr_owner.id,
-        role_type=BWRoleType.BWPRE.value,
-        invitation_status=InvitationStatus.PENDING.value,
-        invited_at=datetime.now(UTC),
+    return invite_user_role(
+        business_wall, pr_owner, BWRoleType.BWPRE, is_internal=False
     )
-    db.session.add(role_assignment)
-    db.session.flush()
-
-    send_role_invitation_mail(business_wall, pr_owner, BWRoleType.BWPRE)
-
-    return True
