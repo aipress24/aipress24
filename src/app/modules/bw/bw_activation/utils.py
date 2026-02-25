@@ -217,7 +217,7 @@ def bw_contact_name_email(bw: BusinessWall) -> tuple[str, str]:
 def get_pending_pr_bw_info_list(businesswall: BusinessWall) -> list[dict[str, str]]:
     """Returns list of pending PR Business Walls with their info."""
     pending_bw_list = get_pending_press_relation_bw_list(businesswall)
-    result: list[dict[str, str]] = {}
+    result: list[dict[str, str]] = []
     for bw in pending_bw_list:
         info = bw_contact_name_email(bw)
         result.append(
@@ -227,3 +227,4 @@ def get_pending_pr_bw_info_list(businesswall: BusinessWall) -> list[dict[str, st
                 "bw_contact_email": info[1],
             }
         )
+    return result

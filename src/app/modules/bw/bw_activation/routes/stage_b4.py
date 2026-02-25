@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, cast
+from typing import Any, cast
 
 from flask import g, redirect, render_template, request, session, url_for
 
@@ -29,9 +29,6 @@ from app.modules.bw.bw_activation.utils import (
     get_pending_pr_bw_info_list,
     get_press_relation_bw_list,
 )
-
-if TYPE_CHECKING:
-    from app.modules.bw.bw_activation.models import BusinessWall
 
 
 @bp.route("/manage-external-partners", methods=["GET", "POST"])
