@@ -25,6 +25,7 @@ from app.modules.bw.bw_activation.utils import (
     bw_managers_ids,
     fill_session,
     get_current_press_relation_bw_list,
+    get_pending_pr_bw_info_list,
     get_press_relation_bw_list,
 )
 
@@ -60,6 +61,7 @@ def manage_external_partners():
         return redirect(url_for("bw_activation.index"))
 
     current_pr_bw_list = get_current_press_relation_bw_list(business_wall)
+    pending_pr_bw_info = get_pending_pr_bw_info_list(business_wall)
     pr_bw_list = get_press_relation_bw_list()
     pr_bw_list = [bw for bw in pr_bw_list if bw not in current_pr_bw_list]
 
@@ -77,4 +79,5 @@ def manage_external_partners():
         bw_info=bw_info,
         pr_bw_list=pr_bw_list,
         current_pr_bw_list=current_pr_bw_list,
+        pending_pr_bw_info=pending_pr_bw_info,
     )
