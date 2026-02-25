@@ -8,16 +8,20 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, cast
+from uuid import UUID
 
 from flask import g, url_for
+from svcs.flask import container
 from werkzeug.exceptions import NotFound
 
 from app.flask.extensions import db
 from app.flask.sqla import get_obj
+from app.logging import warn
 from app.models.auth import User
 from app.modules.admin.utils import get_user_per_email
 from app.modules.bw.bw_activation.models import (
     BusinessWall,
+    BusinessWallService,
     BWRoleType,
     InvitationStatus,
     RoleAssignment,
@@ -287,3 +291,49 @@ def _safe_get_user_list(
             if user.active:
                 result.append(user)
     return result
+
+
+def invite_pr_provider(business_wall: BusinessWall, uuid: str | None) -> bool:
+    """Invite a PR provider as partner with the Business Wall.
+
+    Args:
+        business_wall: The BusinessWall instance inviting the PR provider
+        uuid: The UUID string of the PR BusinessWall to invite
+
+    Returns:
+        True if invitation was created successfully, False otherwise
+    """
+    if not uuid:
+        return False
+
+    bw_service = container.get(BusinessWallService)
+    pr_bw = bw_service.get(UUID(uuid))
+    if not pr_bw:
+        warn("PR BusinessWall not found:", uuid)
+        return False
+
+    pr_owner = cast(User, get_obj(pr_bw.owner_id, User))
+
+    # Check if the owner already has a BWPRE role assignment
+    if business_wall.role_assignments:
+        for assignment in business_wall.role_assignments:
+            if (
+                assignment.user_id == pr_owner.id
+                and assignment.role_type == BWRoleType.BWPRE.value
+            ):
+                warn("PR BW already has BWPRE role:", pr_bw)
+                return False
+
+    role_assignment = RoleAssignment(
+        business_wall_id=business_wall.id,
+        user_id=pr_owner.id,
+        role_type=BWRoleType.BWPRE.value,
+        invitation_status=InvitationStatus.PENDING.value,
+        invited_at=datetime.now(UTC),
+    )
+    db.session.add(role_assignment)
+    db.session.flush()
+
+    send_role_invitation_mail(business_wall, pr_owner, BWRoleType.BWPRE)
+
+    return True

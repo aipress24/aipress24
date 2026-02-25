@@ -10,13 +10,14 @@ from typing import TYPE_CHECKING, Any, cast
 
 from flask import g, redirect, render_template, request, session, url_for
 
+from app.flask.extensions import db
+
 # from werkzeug import Response
 # from werkzeug.exceptions import NotFound
-from app.flask.extensions import db
-from app.flask.sqla import get_obj
 from app.logging import warn
 from app.models.auth import User
 from app.modules.bw.bw_activation import bp
+from app.modules.bw.bw_activation.bw_invitation import invite_pr_provider
 from app.modules.bw.bw_activation.config import BW_TYPES
 from app.modules.bw.bw_activation.user_utils import current_business_wall
 from app.modules.bw.bw_activation.utils import (
@@ -68,9 +69,9 @@ def manage_external_partners():
     if request.method == "POST":
         selected_pr_id = request.form.get("pr_provider")
         warn("Selected PR provider:", selected_pr_id)
-        # TODO: Process the invitation
-        #
-        # db.session.commit()
+        if invite_pr_provider(business_wall, selected_pr_id):
+            warn("invite_pr_provider success")
+            db.session.commit()
         return redirect(url_for("bw_activation.manage_external_partners"))
 
     return render_template(
