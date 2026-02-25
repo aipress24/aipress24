@@ -169,7 +169,10 @@ def create_new_paid_bw_record(session: MutableMapping) -> bool:
         return False
 
     bw_info = BW_TYPES.get(bw_type, {})
-    # TOnly got paid types:
+    if not bw_info:
+        # wrong bw_type
+        return False
+    # Only got paid types:
     if bw_info.get("free"):
         return False
 
