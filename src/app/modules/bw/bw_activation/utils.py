@@ -187,23 +187,26 @@ def get_current_press_relation_bw_list(bw: BusinessWall) -> list[BusinessWall]:
 
 def get_pending_press_relation_bw_list(bw: BusinessWall) -> list[BusinessWall]:
     """Returns the list of pending PR BW partners of the given BusinessWall."""
-    from uuid import UUID
-
     bw_service = container.get(BusinessWallService)
 
-    active_partnerships = [
-        partner
-        for partner in (bw.partnerships or [])
-        if partner.status != PartnershipStatus.ACTIVE.value
+    # Look for pending BWPRE (PR Manager External) role assignments
+    pending_roles = [
+        assignment
+        for assignment in (bw.role_assignments or [])
+        if assignment.role_type == BWRoleType.BWPRE.value
+        and assignment.invitation_status == InvitationStatus.PENDING.value
     ]
 
     result: list[BusinessWall] = []
-    for partnership in active_partnerships:
-        # partner_bw_id is the UUID of the partner BusinessWall
-        if partnership.partner_bw_id:
-            partner_bw = bw_service.get(UUID(partnership.partner_bw_id))
-            if partner_bw:
-                result.append(partner_bw)
+    for role in pending_roles:
+        invited_user = cast(User, get_obj(role.user_id, User))
+        if invited_user:
+            # Find the PR BusinessWall owned by this user
+            user_bws = bw_service.list(owner_id=invited_user.id)
+            # Filter to only include PR type BWs
+            for user_bw in user_bws:
+                if user_bw.bw_type == "pr":
+                    result.append(user_bw)
 
     return result
 
