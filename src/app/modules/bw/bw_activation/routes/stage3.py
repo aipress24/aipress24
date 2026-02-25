@@ -12,9 +12,13 @@ from flask import g, redirect, render_template, request, session, url_for
 from sqlalchemy.orm import scoped_session
 from svcs.flask import container
 
+from app.logging import warn
 from app.modules.admin.org_email_utils import change_members_emails
 from app.modules.bw.bw_activation import bp
-from app.modules.bw.bw_activation.bw_creation import create_new_free_bw_record
+from app.modules.bw.bw_activation.bw_creation import (
+    create_new_free_bw_record,
+    create_new_paid_bw_record,
+)
 from app.modules.bw.bw_activation.config import BW_TYPES
 from app.modules.bw.bw_activation.user_utils import current_business_wall
 
@@ -179,9 +183,26 @@ def confirmation_paid():
 
     bw_type = session["bw_type"]
     bw_info = BW_TYPES.get(bw_type, {})
+    # here create an actual BW instance
+    created = create_new_paid_bw_record(session)
+    warn("paid created", created)
+    if created:
+        # Commit the transaction now
+        db_session = container.get(scoped_session)
+        db_session.commit()
 
-    return render_template(
-        "bw_activation/03_activation_payant_confirme.html",
-        bw_type=bw_type,
-        bw_info=bw_info,
-    )
+        # ensure  owner of the BW is member of the organisation
+        user = cast("User", g.user)
+        current_bw = current_business_wall(user)
+        if current_bw is not None:
+            org = current_bw.get_organisation()
+            if org:
+                change_members_emails(org, f"{user.email}")
+
+        return render_template(
+            "bw_activation/03_activation_payant_confirme.html",
+            bw_type=bw_type,
+            bw_info=bw_info,
+        )
+
+    return redirect(url_for("bw_activation.index"))
