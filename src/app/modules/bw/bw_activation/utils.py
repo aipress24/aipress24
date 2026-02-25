@@ -11,6 +11,8 @@ from typing import cast
 from flask import session
 from svcs.flask import container
 
+from app.flask.sqla import get_obj
+from app.models.auth import User
 from app.modules.bw.bw_activation.models import (
     BusinessWall,
     BusinessWallService,
@@ -204,3 +206,24 @@ def get_pending_press_relation_bw_list(bw: BusinessWall) -> list[BusinessWall]:
                 result.append(partner_bw)
 
     return result
+
+
+def bw_contact_name_email(bw: BusinessWall) -> tuple[str, str]:
+    """Returns the contact name and email of the Business Wall owner."""
+    owner = cast(User, get_obj(bw.owner_id, User))
+    return owner.full_name, owner.email
+
+
+def get_pending_pr_bw_info_list(businesswall: BusinessWall) -> list[dict[str, str]]:
+    """Returns list of pending PR Business Walls with their info."""
+    pending_bw_list = get_pending_press_relation_bw_list(businesswall)
+    result: list[dict[str, str]] = {}
+    for bw in pending_bw_list:
+        info = bw_contact_name_email(bw)
+        result.append(
+            {
+                "bw_name": bw.name_safe,
+                "bw_contact_name": info[0],
+                "bw_contact_email": info[1],
+            }
+        )
