@@ -122,34 +122,54 @@
                         liste des prestataires inscrits sur AiPRESS24.
                     </p>
 
-                    <form method="POST" class="space-y-4">
+                    <form
+                        method="POST"
+                        class="space-y-4"
+                    >
                         <div>
                             <label
                                 class="block text-sm font-medium text-gray-700 mb-2"
                                 >Rechercher un prestataire</label
                             >
-                            <div class="flex gap-3">
-                                <select
-                                    name="pr_provider"
-                                    class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-4 py-2 border"
-                                >
-                                    <option value="">
-                                        -- Sélectionnez une PR Agency ou PR
-                                        Consultant --
-                                    </option>
-                                    {% for pr_bw in pr_bw_list %}
-                                        <option value="{{ pr_bw.id }}">
-                                            {{ pr_bw.name_safe }}
+                            {% if pr_bw_list %}
+                                <div class="flex gap-3">
+                                    <select
+                                        name="pr_provider"
+                                        class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-4 py-2 border"
+                                    >
+                                        <option value="">
+                                            -- Sélectionnez une PR Agency ou PR
+                                            Consultant --
                                         </option>
-                                    {% endfor %}
-                                </select>
-                                <button
-                                    type="submit"
-                                    class="rounded-md bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:bg-green-700"
-                                >
-                                    Envoyer l'invitation
-                                </button>
-                            </div>
+                                        {% for pr_bw in pr_bw_list %}
+                                            <option value="{{ pr_bw.id }}">
+                                                {{ pr_bw.name_safe }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                    <button
+                                        type="submit"
+                                        class="rounded-md bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:bg-green-700"
+                                    >
+                                        Envoyer l'invitation
+                                    </button>
+                                </div>
+                            {% else %}
+                                <div class="flex gap-3">
+                                    <div
+                                        class="flex-1 rounded-md border-gray-200 bg-gray-100 text-gray-500 sm:text-sm px-4 py-2 border"
+                                    >
+                                        Aucun nouveau prestataire disponible
+                                    </div>
+                                    <button
+                                        type="submit"
+                                        disabled
+                                        class="rounded-md bg-gray-400 px-4 py-2 text-sm font-semibold text-white cursor-not-allowed"
+                                    >
+                                        Envoyer l'invitation
+                                    </button>
+                                </div>
+                            {% endif %}
                             <p class="mt-2 text-xs text-gray-500">
                                 Le prestataire recevra une notification et devra
                                 accepter avant d'être ajouté à votre liste.
