@@ -679,14 +679,14 @@ class TestGetPendingPressRelationBWList:
         db_session.add(pr_bw)
         db_session.flush()
 
-        # Create INVITED pending) partnershi
-        partnership = Partnership(
+        # Create PENDING BWPRE role assignment
+        role_assignment = RoleAssignment(
             business_wall_id=test_business_wall.id,
-            partner_bw_id=str(pr_bw.id),
-            status=PartnershipStatus.INVITED.value,
-            invited_by_user_id=test_user.id,
+            user_id=test_user.id,  # Owner of the PR BW
+            role_type=BWRoleType.BWPRE.value,
+            invitation_status=InvitationStatus.PENDING.value,
         )
-        db_session.add(partnership)
+        db_session.add(role_assignment)
         db_session.flush()
 
         db_session.refresh(test_business_wall)
@@ -695,14 +695,14 @@ class TestGetPendingPressRelationBWList:
         assert len(result) == 1
         assert result[0].id == pr_bw.id
 
-    def test_excludes_active_partnerships(
+    def test_excludes_active_role_assignments(
         self,
         db_session: Session,
         test_org: Organisation,
         test_user: User,
         test_business_wall: BusinessWall,
     ) -> None:
-        """Exclude PR Business Walls with active status."""
+        """Exclude PR Business Walls with ACCEPTED role status."""
 
         # Create a PR Business Wall
         pr_bw = BusinessWall(
@@ -716,14 +716,14 @@ class TestGetPendingPressRelationBWList:
         db_session.add(pr_bw)
         db_session.flush()
 
-        # Create an ACTIVE partnership
-        partnership = Partnership(
+        # Create an ACCEPTED BWPRE role assignment
+        role_assignment = RoleAssignment(
             business_wall_id=test_business_wall.id,
-            partner_bw_id=str(pr_bw.id),
-            status=PartnershipStatus.ACTIVE.value,
-            invited_by_user_id=test_user.id,
+            user_id=test_user.id,
+            role_type=BWRoleType.BWPRE.value,
+            invitation_status=InvitationStatus.ACCEPTED.value,
         )
-        db_session.add(partnership)
+        db_session.add(role_assignment)
         db_session.flush()
         db_session.refresh(test_business_wall)
 
@@ -734,43 +734,50 @@ class TestGetPendingPressRelationBWList:
         self,
         db_session: Session,
         test_org: Organisation,
-        test_user: User,
         test_business_wall: BusinessWall,
     ) -> None:
         """Return multiple pending PR partners."""
+
+        user1 = User(email="pr_owner1@example.com", active=True)
+        user1.organisation_id = test_org.id
+        user2 = User(email="pr_owner2@example.com", active=True)
+        user2.organisation_id = test_org.id
+        db_session.add_all([user1, user2])
+        db_session.flush()
 
         pr_bw1 = BusinessWall(
             bw_type="pr",
             status=BWStatus.ACTIVE.value,
             is_free=False,
-            owner_id=test_user.id,
-            payer_id=test_user.id,
+            owner_id=user1.id,
+            payer_id=user1.id,
             organisation_id=test_org.id,
         )
         pr_bw2 = BusinessWall(
             bw_type="pr",
             status=BWStatus.ACTIVE.value,
             is_free=False,
-            owner_id=test_user.id,
-            payer_id=test_user.id,
+            owner_id=user2.id,
+            payer_id=user2.id,
             organisation_id=test_org.id,
         )
         db_session.add_all([pr_bw1, pr_bw2])
         db_session.flush()
 
-        partnership1 = Partnership(
+        # Create PENDING BWPRE role assignments for both
+        role1 = RoleAssignment(
             business_wall_id=test_business_wall.id,
-            partner_bw_id=str(pr_bw1.id),
-            status=PartnershipStatus.INVITED.value,
-            invited_by_user_id=test_user.id,
+            user_id=user1.id,
+            role_type=BWRoleType.BWPRE.value,
+            invitation_status=InvitationStatus.PENDING.value,
         )
-        partnership2 = Partnership(
+        role2 = RoleAssignment(
             business_wall_id=test_business_wall.id,
-            partner_bw_id=str(pr_bw2.id),
-            status=PartnershipStatus.REVOKED.value,
-            invited_by_user_id=test_user.id,
+            user_id=user2.id,
+            role_type=BWRoleType.BWPRE.value,
+            invitation_status=InvitationStatus.PENDING.value,
         )
-        db_session.add_all([partnership1, partnership2])
+        db_session.add_all([role1, role2])
         db_session.flush()
 
         db_session.refresh(test_business_wall)
