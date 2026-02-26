@@ -260,7 +260,7 @@ def get_current_pr_bw_info_list(businesswall: BusinessWall) -> list[dict[str, st
                 "bw_name": bw.name_safe,
                 "bw_contact_name": info[0],
                 "bw_contact_email": info[1],
-                "bw_id": bw.id,
+                "bw_id": str(bw.id),
             }
         )
     return result
