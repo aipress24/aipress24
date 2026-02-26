@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 from typing import cast
+from uuid import UUID
 
 from flask import session
 from svcs.flask import container
@@ -163,71 +164,42 @@ def get_press_relation_bw_list() -> list[BusinessWall]:
     )
 
 
-def get_current_press_relation_bw_list(bw: BusinessWall) -> list[BusinessWall]:
-    """Returns the list of active PR BW partners of the given BusinessWall."""
-    from uuid import UUID
-
-    warn(f"get_current_press_relation_bw_list: bw.id={bw.id}, bw.name={bw.name_safe}")
-    warn(f"bw.partnerships: {bw.partnerships}")
-    if bw.partnerships:
-        for p in bw.partnerships:
-            warn(
-                f"list partnership: partner_bw_id={p.partner_bw_id}, status={p.status}"
-            )
-
-    warn(f"bw.role_assignments: {bw.role_assignments}")
-    if bw.role_assignments:
-        for ra in bw.role_assignments:
-            warn(
-                f"list role_assignment: user_id={ra.user_id}, role_type={ra.role_type}, status={ra.invitation_status}"
-            )
+def _get_press_relation_bw_list_for_status(
+    businesswall: BusinessWall,
+    partnership_status: str,
+) -> list[BusinessWall]:
+    """Returns the list of PR BW partners of the given BusinessWall for given status."""
 
     bw_service = container.get(BusinessWallService)
 
-    active_partnerships = [
-        partner
-        for partner in (bw.partnerships or [])
-        if partner.status == PartnershipStatus.ACTIVE.value
-    ]
-
-    warn(f"DEBUG active_partnerships count: {len(active_partnerships)}")
-
     result: list[BusinessWall] = []
-    for partnership in active_partnerships:
-        # partner_bw_id is the UUID of the partner BusinessWall
-        if partnership.partner_bw_id:
+    for partnership in businesswall.partnerships or []:
+        if partnership.status == partnership_status and partnership.partner_bw_id:
             partner_bw = bw_service.get(UUID(partnership.partner_bw_id))
             if partner_bw:
-                warn(f"found partner_bw: {partner_bw.id}, name={partner_bw.name_safe}")
                 result.append(partner_bw)
 
     return result
 
 
-def get_pending_press_relation_bw_list(bw: BusinessWall) -> list[BusinessWall]:
+def get_current_press_relation_bw_list(
+    businesswall: BusinessWall,
+) -> list[BusinessWall]:
+    """Returns the list of active PR BW partners of the given BusinessWall."""
+
+    return _get_press_relation_bw_list_for_status(
+        businesswall, PartnershipStatus.ACTIVE.value
+    )
+
+
+def get_pending_press_relation_bw_list(
+    businesswall: BusinessWall,
+) -> list[BusinessWall]:
     """Returns the list of pending PR BW partners of the given BusinessWall."""
-    bw_service = container.get(BusinessWallService)
 
-    # Look for pending BWPRE (PR Manager External) role assignments
-    pending_roles = [
-        assignment
-        for assignment in (bw.role_assignments or [])
-        if assignment.role_type == BWRoleType.BWPRE.value
-        and assignment.invitation_status == InvitationStatus.PENDING.value
-    ]
-
-    result: list[BusinessWall] = []
-    for role in pending_roles:
-        invited_user = cast(User, get_obj(role.user_id, User))
-        if invited_user:
-            # Find the PR BusinessWall owned by this user
-            user_bws = bw_service.list(owner_id=invited_user.id)
-            # Filter to only include PR type BWs
-            for user_bw in user_bws:
-                if user_bw.bw_type == "pr":
-                    result.append(user_bw)
-
-    return result
+    return _get_press_relation_bw_list_for_status(
+        businesswall, PartnershipStatus.INVITED.value
+    )
 
 
 def bw_contact_name_email(bw: BusinessWall) -> tuple[str, str]:
