@@ -26,6 +26,7 @@ from app.modules.bw.bw_activation.utils import (
     bw_managers_ids,
     fill_session,
     get_current_press_relation_bw_list,
+    get_invited_press_relation_bw_list,
     get_pending_pr_bw_info_list,
     get_press_relation_bw_list,
 )
@@ -60,8 +61,13 @@ def manage_external_partners():
 
     current_pr_bw_list = get_current_press_relation_bw_list(business_wall)
     pending_pr_bw_info = get_pending_pr_bw_info_list(business_wall)
+    invited_pr_bw_list = get_invited_press_relation_bw_list(business_wall)
     pr_bw_list = get_press_relation_bw_list()
-    pr_bw_list = [bw for bw in pr_bw_list if bw not in current_pr_bw_list]
+    pr_bw_list = [
+        bw
+        for bw in pr_bw_list
+        if bw not in current_pr_bw_list and bw not in invited_pr_bw_list
+    ]
 
     if request.method == "POST":
         selected_pr_id = request.form.get("pr_provider")

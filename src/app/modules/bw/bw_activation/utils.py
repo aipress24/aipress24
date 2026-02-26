@@ -197,7 +197,7 @@ def get_current_press_relation_bw_list(
 def get_pending_press_relation_bw_list(
     businesswall: BusinessWall,
 ) -> list[tuple[BusinessWall, str]]:
-    """Returns the list of pending PR BW partners of the given BusinessWall."""
+    """Returns the list of pending and status PR BW partners of the given BusinessWall."""
 
     return _get_press_relation_bw_list_for_status(
         businesswall,
@@ -207,6 +207,18 @@ def get_pending_press_relation_bw_list(
             PartnershipStatus.EXPIRED,
         },
     )
+
+
+def get_invited_press_relation_bw_list(
+    businesswall: BusinessWall,
+) -> list[BusinessWall]:
+    """Returns the list of PR BW partners with invited status for given BusinessWall."""
+    return [
+        bw_status[0]
+        for bw_status in _get_press_relation_bw_list_for_status(
+            businesswall, {PartnershipStatus.INVITED.value}
+        )
+    ]
 
 
 def bw_contact_name_email(bw: BusinessWall) -> tuple[str, str]:
