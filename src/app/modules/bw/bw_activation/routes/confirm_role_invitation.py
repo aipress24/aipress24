@@ -105,15 +105,12 @@ def confirm_role_invitation(bw_id: str, role_type: str, user_id: int):
 
         db.session.commit()
 
-        return render_template(
-            template,
-            role_assignment=role_assignment,
-            action=role_assignment.invitation_status,
-            already_processed=False,
-            bw_name=bw_name,
-            bw_type=business_wall.bw_type,
-            bw_role_name=bw_role_name,
-        )
+        return redirect(url_for(
+            "bw_activation.confirm_role_invitation",
+            bw_id=bw_id,
+            role_type=role_type,
+            user_id=user_id,
+        ))
 
     return render_template(
         template,
