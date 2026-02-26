@@ -693,7 +693,7 @@ class TestGetPendingPressRelationBWList:
         result = get_pending_press_relation_bw_list(test_business_wall)
 
         assert len(result) == 1
-        assert result[0].id == pr_bw.id
+        assert result[0][0].id == pr_bw.id
 
     def test_excludes_active_partnerships(
         self,
@@ -776,7 +776,7 @@ class TestGetPendingPressRelationBWList:
 
         result = get_pending_press_relation_bw_list(test_business_wall)
         assert len(result) == 2
-        result_ids = {bw.id for bw in result}
+        result_ids = {bw_status[0].id for bw_status in result}
         assert pr_bw1.id in result_ids
         assert pr_bw2.id in result_ids
 
