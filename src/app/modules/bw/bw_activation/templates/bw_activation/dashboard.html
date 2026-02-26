@@ -104,7 +104,8 @@
                     class="border border-gray-300 p-6 rounded-lg hover:shadow-md hover:border-purple-500 transition"
                 >
                     <h2 class="text-xl font-semibold text-gray-800 mb-3">
-                        5- Attribuer des missions
+                        {% if bw_type != 'pr' %}5{% else %}4{% endif %}-
+                        Attribuer des missions
                     </h2>
                     <p class="text-sm text-gray-600 mb-4">
                         Définissez les permissions accordées aux
@@ -123,7 +124,8 @@
                     class="border border-gray-300 p-6 rounded-lg hover:shadow-md hover:border-orange-500 transition"
                 >
                     <h2 class="text-xl font-semibold text-gray-800 mb-3">
-                        6- Configurer le contenu
+                        {% if bw_type != 'pr' %}6{% else %}5{% endif %}-
+                        Configurer le contenu
                     </h2>
                     <p class="text-sm text-gray-600 mb-4">
                         Remplissez les informations de votre Business Wall
