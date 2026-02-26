@@ -12,6 +12,7 @@ from flask import session
 from svcs.flask import container
 
 from app.flask.sqla import get_obj
+from app.logging import warn
 from app.models.auth import User
 from app.modules.bw.bw_activation.models import (
     BusinessWall,
@@ -166,6 +167,21 @@ def get_current_press_relation_bw_list(bw: BusinessWall) -> list[BusinessWall]:
     """Returns the list of active PR BW partners of the given BusinessWall."""
     from uuid import UUID
 
+    warn(f"get_current_press_relation_bw_list: bw.id={bw.id}, bw.name={bw.name_safe}")
+    warn(f"bw.partnerships: {bw.partnerships}")
+    if bw.partnerships:
+        for p in bw.partnerships:
+            warn(
+                f"list partnership: partner_bw_id={p.partner_bw_id}, status={p.status}"
+            )
+
+    warn(f"bw.role_assignments: {bw.role_assignments}")
+    if bw.role_assignments:
+        for ra in bw.role_assignments:
+            warn(
+                f"list role_assignment: user_id={ra.user_id}, role_type={ra.role_type}, status={ra.invitation_status}"
+            )
+
     bw_service = container.get(BusinessWallService)
 
     active_partnerships = [
@@ -174,12 +190,15 @@ def get_current_press_relation_bw_list(bw: BusinessWall) -> list[BusinessWall]:
         if partner.status == PartnershipStatus.ACTIVE.value
     ]
 
+    warn(f"DEBUG active_partnerships count: {len(active_partnerships)}")
+
     result: list[BusinessWall] = []
     for partnership in active_partnerships:
         # partner_bw_id is the UUID of the partner BusinessWall
         if partnership.partner_bw_id:
             partner_bw = bw_service.get(UUID(partnership.partner_bw_id))
             if partner_bw:
+                warn(f"found partner_bw: {partner_bw.id}, name={partner_bw.name_safe}")
                 result.append(partner_bw)
 
     return result
