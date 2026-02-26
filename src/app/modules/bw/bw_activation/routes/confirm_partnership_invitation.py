@@ -1,23 +1,24 @@
 # Copyright (c) 2025, Abilian SAS & TCA
 #
 # SPDX-License-Identifier: AGPL-3.0-only
-
 """Partnership invitation confirmation route."""
 
 from __future__ import annotations
 
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, cast
+from uuid import UUID
 
 from flask import g, redirect, render_template, request, session, url_for
 from sqlalchemy import select
+from svcs.flask import container
 
 from app.flask.extensions import db
-from app.flask.sqla import get_obj
 from app.logging import warn
 from app.modules.bw.bw_activation import bp
 from app.modules.bw.bw_activation.models import (
     BusinessWall,
+    BusinessWallService,
     BWRoleType,
     InvitationStatus,
     Partnership,
@@ -73,8 +74,8 @@ def confirm_partnership_invitation(bw_id: str, partnership_id: str):
         session["error"] = ERR_INVITATION_NOT_FOUND
         return redirect(url_for("bw_activation.not_authorized"))
 
-    # Get the PR BusinessWall
-    pr_bw = cast(BusinessWall, get_obj(partnership.partner_bw_id, BusinessWall))
+    bw_service = container.get(BusinessWallService)
+    pr_bw = bw_service.get(UUID(partnership.partner_bw_id))
     if not pr_bw:
         warn(f"Partner BW not found: {partnership.partner_bw_id}")
         session["error"] = ERR_INVITATION_NOT_FOUND
