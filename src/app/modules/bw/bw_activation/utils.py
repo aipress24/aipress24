@@ -13,7 +13,6 @@ from flask import session
 from svcs.flask import container
 
 from app.flask.sqla import get_obj
-from app.logging import warn
 from app.models.auth import User
 from app.modules.bw.bw_activation.models import (
     BusinessWall,
@@ -166,18 +165,18 @@ def get_press_relation_bw_list() -> list[BusinessWall]:
 
 def _get_press_relation_bw_list_for_status(
     businesswall: BusinessWall,
-    partnership_status: str,
-) -> list[BusinessWall]:
+    partnership_status: set[str],
+) -> list[tuple[BusinessWall, str]]:
     """Returns the list of PR BW partners of the given BusinessWall for given status."""
 
     bw_service = container.get(BusinessWallService)
 
-    result: list[BusinessWall] = []
+    result: list[tuple[BusinessWall, str]] = []
     for partnership in businesswall.partnerships or []:
-        if partnership.status == partnership_status and partnership.partner_bw_id:
+        if partnership.status in partnership_status and partnership.partner_bw_id:
             partner_bw = bw_service.get(UUID(partnership.partner_bw_id))
             if partner_bw:
-                result.append(partner_bw)
+                result.append((partner_bw, partnership.status))
 
     return result
 
@@ -187,18 +186,26 @@ def get_current_press_relation_bw_list(
 ) -> list[BusinessWall]:
     """Returns the list of active PR BW partners of the given BusinessWall."""
 
-    return _get_press_relation_bw_list_for_status(
-        businesswall, PartnershipStatus.ACTIVE.value
-    )
+    return [
+        bw_status[0]
+        for bw_status in _get_press_relation_bw_list_for_status(
+            businesswall, {PartnershipStatus.ACTIVE.value}
+        )
+    ]
 
 
 def get_pending_press_relation_bw_list(
     businesswall: BusinessWall,
-) -> list[BusinessWall]:
+) -> list[tuple[BusinessWall, str]]:
     """Returns the list of pending PR BW partners of the given BusinessWall."""
 
     return _get_press_relation_bw_list_for_status(
-        businesswall, PartnershipStatus.INVITED.value
+        businesswall,
+        {
+            PartnershipStatus.INVITED.value,
+            PartnershipStatus.REJECTED,
+            PartnershipStatus.EXPIRED,
+        },
     )
 
 
@@ -210,15 +217,21 @@ def bw_contact_name_email(bw: BusinessWall) -> tuple[str, str]:
 
 def get_pending_pr_bw_info_list(businesswall: BusinessWall) -> list[dict[str, str]]:
     """Returns list of pending PR Business Walls with their info."""
-    pending_bw_list = get_pending_press_relation_bw_list(businesswall)
+    pending_bw_status_list = get_pending_press_relation_bw_list(businesswall)
     result: list[dict[str, str]] = []
-    for bw in pending_bw_list:
-        info = bw_contact_name_email(bw)
+    TRANSLATION = {
+        "invited": "invitation en cours",
+        "rejected": "invitation rejetée",
+        "expired": "invitation expirée",
+    }
+    for bw_status in pending_bw_status_list:
+        info = bw_contact_name_email(bw_status[0])
         result.append(
             {
-                "bw_name": bw.name_safe,
+                "bw_name": bw_status[0].name_safe,
                 "bw_contact_name": info[0],
                 "bw_contact_email": info[1],
+                "bw_status": TRANSLATION[bw_status[1]],
             }
         )
     return result
