@@ -247,3 +247,20 @@ def get_pending_pr_bw_info_list(businesswall: BusinessWall) -> list[dict[str, st
             }
         )
     return result
+
+
+def get_current_pr_bw_info_list(businesswall: BusinessWall) -> list[dict[str, str]]:
+    """Returns list of active PR BW with their info."""
+    current_bw_list = get_current_press_relation_bw_list(businesswall)
+    result: list[dict[str, str]] = []
+    for bw in current_bw_list:
+        info = bw_contact_name_email(bw)
+        result.append(
+            {
+                "bw_name": bw.name_safe,
+                "bw_contact_name": info[0],
+                "bw_contact_email": info[1],
+                "bw_id": bw.id,
+            }
+        )
+    return result
