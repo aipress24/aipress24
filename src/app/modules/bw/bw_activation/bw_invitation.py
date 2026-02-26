@@ -24,6 +24,8 @@ from app.modules.bw.bw_activation.models import (
     BusinessWallService,
     BWRoleType,
     InvitationStatus,
+    Partnership,
+    PartnershipStatus,
     RoleAssignment,
 )
 from app.modules.bw.bw_activation.utils import bw_roles_ids
@@ -306,15 +308,21 @@ def _safe_get_user_list(
     return result
 
 
-def invite_pr_provider(business_wall: BusinessWall, uuid: str | None) -> bool:
+def invite_pr_provider(
+    business_wall: BusinessWall, uuid: str | None, invited_by_user_id: int | None = None
+) -> bool:
     """Invite a PR provider as partner with the Business Wall.
 
+    Only create a Partnership record to manage invitation . The RoleAssignment
+    to be created later, after partnership invitation accepted.
+
     Args:
-        business_wall: The BusinessWall instance inviting the PR provider
-        uuid: The UUID string of the PR BusinessWall to invite
+        business_wall: BusinessWall instance inviting the PR provider
+        uuid: The UUID string of the PR BusinessWall invited
+        invited_by_user_id: ID of the user sending invitation
 
     Returns:
-        True if invitation was created successfully, False otherwise
+        Success of invitation creation
     """
     if not uuid:
         return False
@@ -325,8 +333,59 @@ def invite_pr_provider(business_wall: BusinessWall, uuid: str | None) -> bool:
         warn("PR BusinessWall not found:", uuid)
         return False
 
-    pr_owner = cast(User, get_obj(pr_bw.owner_id, User))
+    # check if partnership already exists
+    if business_wall.partnerships:
+        for p in business_wall.partnerships:
+            if p.partner_bw_id == uuid and p.status in (
+                PartnershipStatus.INVITED.value,
+                PartnershipStatus.ACTIVE.value,
+            ):
+                warn(f"Partnership already exists with {uuid}")
+                return False
 
-    return invite_user_role(
-        business_wall, pr_owner, BWRoleType.BWPRE, is_internal=False
+    partnership = Partnership(
+        business_wall_id=business_wall.id,
+        partner_bw_id=uuid,
+        status=PartnershipStatus.INVITED.value,
+        invited_by_user_id=invited_by_user_id or business_wall.owner_id,
+        invited_at=datetime.now(UTC),
     )
+    db.session.add(partnership)
+    db.session.flush()
+
+    pr_owner = cast(User, get_obj(pr_bw.owner_id, User))
+    send_partnership_invitation_mail(business_wall, pr_bw, pr_owner, partnership)
+
+    return True
+
+
+def send_partnership_invitation_mail(
+    business_wall: BusinessWall,
+    pr_bw: BusinessWall,
+    invited_user: User,
+    partnership: Partnership,
+) -> None:
+    """Send invitation email to PR provider."""
+
+    current_user = cast("User", g.user)
+    sender_mail = current_user.email
+    sender_full_name = current_user.full_name
+    bw_name = business_wall.name_safe or "(Nom inconnu)"
+
+    confirmation_url = url_for(
+        "bw_activation.confirm_partnership_invitation",
+        bw_id=business_wall.id,
+        partnership_id=partnership.id,
+        _external=True,
+    )
+
+    invit_mail = BWRoleInvitationMail(
+        sender="contact@aipress24.com",
+        recipient=invited_user.email,
+        sender_mail=sender_mail,
+        sender_full_name=sender_full_name,
+        bw_name=bw_name,
+        role="PR Manager (external)",
+        confirmation_url=confirmation_url,
+    )
+    invit_mail.send()

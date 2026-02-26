@@ -66,7 +66,7 @@ def manage_external_partners():
     if request.method == "POST":
         selected_pr_id = request.form.get("pr_provider")
         warn("Selected PR provider:", selected_pr_id)
-        if invite_pr_provider(business_wall, selected_pr_id):
+        if invite_pr_provider(business_wall, selected_pr_id, user.id):
             warn("invite_pr_provider success")
             db.session.commit()
         return redirect(url_for("bw_activation.manage_external_partners"))
