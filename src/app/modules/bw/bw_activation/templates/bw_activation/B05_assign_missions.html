@@ -46,7 +46,7 @@
                 </p>
             </div>
 
-            {% if bw_info.newsroom_features %}
+            {% if bw_info.get('newsroom_features') %}
                 <!-- Newsroom features explanation for media types -->
                 <div
                     class="mt-6 p-6 bg-indigo-50 rounded-lg border border-indigo-200"
@@ -60,7 +60,7 @@
                         :
                     </p>
                     <ul class="space-y-2">
-                        {% for feature in bw_info.newsroom_features %}
+                        {% for feature in bw_info.get('newsroom_features', []) %}
                             <li
                                 class="flex items-start gap-2 text-sm text-indigo-800"
                             >
