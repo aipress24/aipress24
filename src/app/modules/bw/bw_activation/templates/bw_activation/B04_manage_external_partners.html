@@ -184,15 +184,23 @@
                     </h3>
                     <div
                         id="current_pr_bw"
-                        class="{% if not current_pr_bw_list %}
+                        class="{% if not current_pr_bw_info %}
                             text-sm text-gray-500 italic
                         {% endif %}"
                     >
-                        {% if current_pr_bw_list %}
-                            <ul class="space-y-2">
-                                {% for bw in current_pr_bw_list %}
-                                    <li class="text-sm text-gray-900">
-                                        {{ bw.name_safe }}
+                        {% if current_pr_bw_info %}
+                            <ul class="space-y-3">
+                                {% for info in current_pr_bw_info %}
+                                    <li class="text-sm">
+                                        <span class="font-medium text-gray-900">
+                                            {{ info.bw_name }}
+                                        </span>
+                                        <span class="text-gray-500">
+                                            ({{ info.bw_contact_name }},
+                                        </span>
+                                        <span class="text-gray-500">
+                                            {{ info.bw_contact_email }})
+                                        </span>
                                     </li>
                                 {% endfor %}
                             </ul>
