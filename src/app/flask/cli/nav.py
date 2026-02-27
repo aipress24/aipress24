@@ -153,7 +153,9 @@ def tree(verbose: bool, email: str | None, roles: str | None) -> None:
     _print_tree_stats(console, nav_tree, filter_user, total_visible, total_hidden)
 
 
-def _build_tree_sections(nav_tree, root: Tree, verbose: bool, filter_user) -> tuple[int, int]:
+def _build_tree_sections(
+    nav_tree, root: Tree, verbose: bool, filter_user
+) -> tuple[int, int]:
     """Build tree sections and return (visible_count, hidden_count)."""
     total_visible = 0
     total_hidden = 0
