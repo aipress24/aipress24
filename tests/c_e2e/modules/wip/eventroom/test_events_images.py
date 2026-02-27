@@ -53,9 +53,7 @@ def published_event(
 class TestEventsIndex:
     """Tests for the events index view."""
 
-    def test_index_loads(
-        self, logged_in_client: FlaskClient, event_with_title: Event
-    ):
+    def test_index_loads(self, logged_in_client: FlaskClient, event_with_title: Event):
         """Test that index page loads successfully."""
         assert event_with_title is not None
         url = url_for("EventsWipView:index")
@@ -142,9 +140,7 @@ class TestEventsCRUD:
         response = logged_in_client.get(url)
         assert response.status_code == 200
 
-    def test_create_event_form(
-        self, logged_in_client: FlaskClient, test_user: User
-    ):
+    def test_create_event_form(self, logged_in_client: FlaskClient, test_user: User):
         """Test loading event creation form."""
         assert test_user is not None
         url = url_for("EventsWipView:new")

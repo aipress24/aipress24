@@ -34,8 +34,8 @@ class TestGeneratePasswordHash:
 
     def test_generate_password_hash_different_passwords(self):
         """Test that different passwords produce different hashes."""
-        salt1, key1 = generate_password_hash("password1")
-        salt2, key2 = generate_password_hash("password2")
+        _salt1, key1 = generate_password_hash("password1")
+        _salt2, key2 = generate_password_hash("password2")
 
         assert key1 != key2
 

@@ -66,10 +66,13 @@ def test_css_class_dictionaries_have_expected_keys() -> None:
     """Test CSS_CLASS and CSS_CLASS_RO have expected field types."""
     expected = ["boolean", "string", "photo", "email", "tel", "password", "code", "url"]
     for field_type in expected:
-        assert field_type in CSS_CLASS and field_type in CSS_CLASS_RO
+        assert field_type in CSS_CLASS
+        assert field_type in CSS_CLASS_RO
 
-    assert DEFAULT_CSS and DEFAULT_CSS_RO
-    assert "focus:" in DEFAULT_CSS and "focus:" in DEFAULT_CSS_RO
+    assert DEFAULT_CSS
+    assert DEFAULT_CSS_RO
+    assert "focus:" in DEFAULT_CSS
+    assert "focus:" in DEFAULT_CSS_RO
 
 
 def test_render_field_returns_markup_for_string_field() -> None:

@@ -25,7 +25,6 @@ class NoMeta:
     """Class without Meta."""
 
 
-
 class WithLabel:
     class Meta:
         type_label = "Custom Label"

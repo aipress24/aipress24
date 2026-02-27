@@ -15,7 +15,7 @@ class TestTokenize:
     """Test suite for tokenize function."""
 
     @pytest.mark.parametrize(
-        "input_text,expected",
+        ("input_text", "expected"),
         [
             # Basic tokenization
             ("Hello world", ["hello", "world"]),
@@ -56,7 +56,7 @@ class TestUnicodeToAscii:
     """Test suite for unicode_to_ascii function."""
 
     @pytest.mark.parametrize(
-        "input_text,expected",
+        ("input_text", "expected"),
         [
             # Accented characters
             ("café", "cafe"),

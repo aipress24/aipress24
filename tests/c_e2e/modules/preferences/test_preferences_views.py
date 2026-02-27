@@ -53,7 +53,7 @@ class TestPreferencesHome:
         """Test home redirects to profile."""
         response = authenticated_client.get("/preferences/")
         # Should redirect to profile or auth
-        assert response.status_code in (302,)
+        assert response.status_code == 302
 
 
 class TestPreferencesProfile:
@@ -75,14 +75,14 @@ class TestPreferencesOther:
     ):
         """Test password page redirects to security."""
         response = authenticated_client.get("/preferences/password")
-        assert response.status_code in (302,)
+        assert response.status_code == 302
 
     def test_email_redirects(
         self, authenticated_client: FlaskClient, db_session: Session
     ):
         """Test email page redirects to security."""
         response = authenticated_client.get("/preferences/email")
-        assert response.status_code in (302,)
+        assert response.status_code == 302
 
 
 class TestPreferencesInterests:

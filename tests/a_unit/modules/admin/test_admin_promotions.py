@@ -74,7 +74,7 @@ class TestPromotionTitleLogic:
         return BOX_TITLE2
 
     @pytest.mark.parametrize(
-        "slug,expected_title",
+        ("slug", "expected_title"),
         [
             ("wire/1", BOX_TITLE1),
             ("wire/2", BOX_TITLE2),
