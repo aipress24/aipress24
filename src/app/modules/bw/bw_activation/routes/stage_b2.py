@@ -2,22 +2,19 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
-"""Stage B2: Manage organisation members."""
+"""Stage B1: Invite organisation members."""
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, cast
 
 from flask import g, redirect, render_template, request, session, url_for
 from werkzeug import Response
 
 from app.flask.extensions import db
-from app.flask.sqla import get_obj
-from app.logging import warn
-from app.models.auth import User
-from app.modules.admin.org_email_utils import change_members_emails
+from app.modules.admin.invitations import emails_invited_to_organisation
+from app.modules.admin.org_email_utils import change_invitations_emails
 from app.modules.bw.bw_activation import bp
-from app.modules.bw.bw_activation.bw_invitation import ensure_roles_membership
 from app.modules.bw.bw_activation.config import BW_TYPES
 from app.modules.bw.bw_activation.user_utils import current_business_wall
 from app.modules.bw.bw_activation.utils import (
@@ -32,9 +29,9 @@ if TYPE_CHECKING:
     from app.models.auth import User
 
 
-@bp.route("/manage-organisation-members", methods=["GET", "POST"])
-def manage_organisation_members():
-    """Stage B2: Manage members of Business Wall organisation."""
+@bp.route("/invite-organisation-members", methods=["GET", "POST"])
+def invite_organisation_members():
+    """Stage B1: Manage invitations to join Business Wall organisation."""
     # at this stage the BW must be created
     user = cast("User", g.user)
     current_bw = current_business_wall(user)
@@ -50,7 +47,7 @@ def manage_organisation_members():
         return redirect(url_for("bw_activation.index"))
 
     bw_type = session["bw_type"]
-    bw_info: dict[str, Any] = BW_TYPES.get(bw_type, {})
+    bw_info = BW_TYPES.get(bw_type, {})
 
     org = current_bw.get_organisation()
     # organisation must be created for the BW (it was created at BW creation if missing)
@@ -60,32 +57,23 @@ def manage_organisation_members():
 
     if request.method == "POST":
         action = request.form.get("action")
-        if action == "change_emails":
-            # prevent removing the owner
-            owner = get_obj(current_bw.owner_id, User)
-            owner_mail: str = owner.email if owner else ""
-
+        if action == "change_invitations_emails":
             raw_mails = request.form["content"]
-            change_members_emails(
-                org, raw_mails, remove_only=True, never_remove=owner_mail
-            )
-            # check that non members have no more role assignment:
-            ensure_roles_membership(current_bw)
+            change_invitations_emails(org, raw_mails)
+            db.session.commit()
             response = Response("")
             response.headers["HX-Redirect"] = url_for(
-                "bw_activation.manage_organisation_members"
+                "bw_activation.invite_organisation_members"
             )
-            db.session.commit()
             return response
 
-    members = list(org.members) if org else []
-    warn(members)
+    invitations_emails = emails_invited_to_organisation(org.id) if org else []
 
     return render_template(
-        "bw_activation/B02_manage_organisation_members.html",
+        "bw_activation/B02_invite_organisation_members.html",
         bw_type=bw_type,
         bw_info=bw_info,
         business_wall=current_bw,
         org=org,
-        members=members,
+        invitations_emails=invitations_emails,
     )
