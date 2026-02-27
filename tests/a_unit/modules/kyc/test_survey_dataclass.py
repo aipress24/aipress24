@@ -157,7 +157,7 @@ def test_survey_field_str():
     assert "field_name" in result
     assert "text" in result
     # Description should be truncated to 20 chars
-    assert len(result.split("This is a test field")[1].split(",")[0]) <= 20
+    assert len(result.split("This is a test field")[1].split(",", maxsplit=1)[0]) <= 20
 
 
 def test_survey_communities_add_profile():

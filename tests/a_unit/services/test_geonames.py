@@ -10,7 +10,6 @@ import pytest
 
 from app.services.geonames._service import get_dept_name, is_dept_in_region
 
-
 # Valid department/region pairs for metropolitan France
 VALID_DEPT_REGION_PAIRS = [
     ("Paris", "Île-de-France"),

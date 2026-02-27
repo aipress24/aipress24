@@ -15,12 +15,13 @@ from collections.abc import Generator
 from urllib.parse import urlparse
 
 import pytest
-from app.flask.extensions import db as _db
-from app.flask.main import create_app
 from flask.ctx import AppContext
 from sqlalchemy import create_engine, event, text
 from sqlalchemy.exc import OperationalError, ProgrammingError
 from sqlalchemy.pool import StaticPool
+
+from app.flask.extensions import db as _db
+from app.flask.main import create_app
 
 
 class TestConfig:

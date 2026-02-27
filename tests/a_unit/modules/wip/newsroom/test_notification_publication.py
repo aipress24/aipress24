@@ -13,7 +13,7 @@ product in the BIZ module.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import arrow
 from sqlalchemy.orm import scoped_session
@@ -59,7 +59,7 @@ def _create_test_data(
         journaliste_id=journaliste.id,
         expert_id=expert.id,
         status=StatutAvis.ACCEPTE,
-        date_reponse=datetime.now(timezone.utc),
+        date_reponse=datetime.now(UTC),
     )
     db_session.add(contact)
     db_session.flush()
@@ -127,7 +127,7 @@ class TestNotificationCreation:
             db_session
         )
 
-        before = datetime.now(timezone.utc)
+        before = datetime.now(UTC)
         notification = NotificationPublication(
             owner=journaliste,
             avis_enquete=enquete,
@@ -138,7 +138,7 @@ class TestNotificationCreation:
 
         assert notification.notified_at is not None
         # notified_at should be around the time of creation
-        notified_utc = notification.notified_at.replace(tzinfo=timezone.utc)
+        notified_utc = notification.notified_at.replace(tzinfo=UTC)
         # Allow some tolerance for timezone differences
         assert notified_utc.date() == before.date()
 
@@ -186,7 +186,7 @@ class TestNotificationContacts:
             journaliste_id=journaliste.id,
             expert_id=expert2.id,
             status=StatutAvis.ACCEPTE,
-            date_reponse=datetime.now(timezone.utc),
+            date_reponse=datetime.now(UTC),
         )
         db_session.add(contact2)
         db_session.flush()
@@ -475,7 +475,7 @@ class TestNotificationSendingReadiness:
             journaliste_id=journaliste.id,
             expert_id=expert2.id,
             status=StatutAvis.REFUSE,
-            date_reponse=datetime.now(timezone.utc),
+            date_reponse=datetime.now(UTC),
         )
         db_session.add(contact2)
         db_session.flush()

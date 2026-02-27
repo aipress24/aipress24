@@ -13,6 +13,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import pytest
+
 from app.enums import RoleEnum
 from app.models.auth import KYCProfile, Role, User
 from app.models.organisation import Organisation
@@ -33,7 +34,7 @@ def db_session(fresh_db) -> Session:
     WIP tests use the fresh_db (drop/create) approach rather than
     transaction wrapping.
     """
-    yield fresh_db.session
+    return fresh_db.session
 
 
 @pytest.fixture

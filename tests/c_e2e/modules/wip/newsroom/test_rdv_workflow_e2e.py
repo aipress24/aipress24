@@ -10,11 +10,12 @@ journalists and experts, including proposal, acceptance, and confirmation.
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING
 
 import arrow
 import pytest
+
 from app.enums import RoleEnum
 from app.flask.routing import url_for
 from app.models.auth import Role, User
@@ -26,7 +27,6 @@ from app.modules.wip.models.newsroom.avis_enquete import (
     RDVType,
     StatutAvis,
 )
-
 from tests.c_e2e.conftest import make_authenticated_client
 
 if TYPE_CHECKING:
@@ -96,7 +96,7 @@ def accepted_contact(
         journaliste_id=test_user.id,
         expert_id=expert_user.id,
         status=StatutAvis.ACCEPTE,
-        date_reponse=datetime.now(timezone.utc),
+        date_reponse=datetime.now(UTC),
     )
     db_session.add(contact)
     db_session.commit()
@@ -113,15 +113,15 @@ def contact_with_rdv_proposed(
     """Create a contact with RDV proposed."""
     db_session = fresh_db.session
     # Use future dates for slots
-    tomorrow = datetime.now(timezone.utc) + timedelta(days=1)
-    day_after = datetime.now(timezone.utc) + timedelta(days=2)
+    tomorrow = datetime.now(UTC) + timedelta(days=1)
+    day_after = datetime.now(UTC) + timedelta(days=2)
 
     contact = ContactAvisEnquete(
         avis_enquete_id=test_avis_enquete.id,
         journaliste_id=test_user.id,
         expert_id=expert_user.id,
         status=StatutAvis.ACCEPTE,
-        date_reponse=datetime.now(timezone.utc),
+        date_reponse=datetime.now(UTC),
         rdv_status=RDVStatus.PROPOSED,
         rdv_type=RDVType.PHONE,
         proposed_slots=[
@@ -144,7 +144,7 @@ def contact_with_rdv_accepted(
 ) -> ContactAvisEnquete:
     """Create a contact with RDV accepted (pending confirmation)."""
     db_session = fresh_db.session
-    tomorrow = datetime.now(timezone.utc) + timedelta(days=1)
+    tomorrow = datetime.now(UTC) + timedelta(days=1)
     selected_slot = tomorrow.replace(hour=10, minute=0)
 
     contact = ContactAvisEnquete(
@@ -152,7 +152,7 @@ def contact_with_rdv_accepted(
         journaliste_id=test_user.id,
         expert_id=expert_user.id,
         status=StatutAvis.ACCEPTE,
-        date_reponse=datetime.now(timezone.utc),
+        date_reponse=datetime.now(UTC),
         rdv_status=RDVStatus.ACCEPTED,
         rdv_type=RDVType.PHONE,
         proposed_slots=[selected_slot.isoformat()],
@@ -173,7 +173,7 @@ def contact_with_rdv_confirmed(
 ) -> ContactAvisEnquete:
     """Create a contact with RDV confirmed."""
     db_session = fresh_db.session
-    tomorrow = datetime.now(timezone.utc) + timedelta(days=1)
+    tomorrow = datetime.now(UTC) + timedelta(days=1)
     selected_slot = tomorrow.replace(hour=10, minute=0)
 
     contact = ContactAvisEnquete(
@@ -181,7 +181,7 @@ def contact_with_rdv_confirmed(
         journaliste_id=test_user.id,
         expert_id=expert_user.id,
         status=StatutAvis.ACCEPTE,
-        date_reponse=datetime.now(timezone.utc),
+        date_reponse=datetime.now(UTC),
         rdv_status=RDVStatus.CONFIRMED,
         rdv_type=RDVType.PHONE,
         proposed_slots=[selected_slot.isoformat()],
@@ -223,7 +223,7 @@ class TestRdvFullWorkflow:
 
         # Use future dates - ensure weekday (Monday-Friday)
         # Add enough days to skip weekends if needed
-        future_date = datetime.now(timezone.utc) + timedelta(days=7)
+        future_date = datetime.now(UTC) + timedelta(days=7)
         # Adjust to Monday if needed
         while future_date.weekday() >= 5:  # 5=Saturday, 6=Sunday
             future_date += timedelta(days=1)
@@ -368,7 +368,7 @@ class TestRdvDetailsDisplay:
 
 def _get_future_weekday_datetime(day_after: int = 1) -> datetime:
     """Returns a datetime object for a next day, ensuring it's not a weekend."""
-    future_date = datetime.now(timezone.utc) + timedelta(days=day_after)
+    future_date = datetime.now(UTC) + timedelta(days=day_after)
     while future_date.weekday() >= 5:  # 5=Saturday, 6=Sunday
         future_date += timedelta(days=1)
     return future_date
@@ -482,7 +482,7 @@ class TestRdvStatusTransitions:
         assert response.status_code == 200
 
         # POST should fail or show error
-        tomorrow = datetime.now(timezone.utc) + timedelta(days=1)
+        tomorrow = datetime.now(UTC) + timedelta(days=1)
         form_data = {
             "rdv_type": "PHONE",
             "slot_datetime_1": tomorrow.replace(hour=10, minute=0).isoformat(),

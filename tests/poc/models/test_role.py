@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
 from poc.blueprints.bw_activation_full.models import (
@@ -20,8 +20,9 @@ from poc.blueprints.bw_activation_full.models import (
 )
 
 if TYPE_CHECKING:
-    from poc.blueprints.bw_activation_full.models import BusinessWallPoc
     from sqlalchemy.orm import Session
+
+    from poc.blueprints.bw_activation_full.models import BusinessWallPoc
 
 
 class TestRoleAssignmentPoc:
@@ -99,7 +100,7 @@ class TestRoleAssignmentPoc:
             user_id=mock_user_id,
             role_type=BWRoleType.BWPRI.value,
             invitation_status=InvitationStatus.PENDING.value,
-            invited_at=datetime.now(timezone.utc),
+            invited_at=datetime.now(UTC),
         )
         db_session.add(role)
         db_session.commit()
@@ -110,7 +111,7 @@ class TestRoleAssignmentPoc:
 
         # Accept invitation
         role.invitation_status = InvitationStatus.ACCEPTED.value
-        role.accepted_at = datetime.now(timezone.utc)
+        role.accepted_at = datetime.now(UTC)
         db_session.commit()
 
         assert role.invitation_status == InvitationStatus.ACCEPTED.value

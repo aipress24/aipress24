@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
 from poc.blueprints.bw_activation_full.models import (
@@ -16,8 +16,9 @@ from poc.blueprints.bw_activation_full.models import (
 )
 
 if TYPE_CHECKING:
-    from poc.blueprints.bw_activation_full.models import BusinessWallPoc
     from sqlalchemy.orm import Session
+
+    from poc.blueprints.bw_activation_full.models import BusinessWallPoc
 
 
 class TestPartnershipPoc:
@@ -114,7 +115,7 @@ class TestPartnershipPoc:
             invited_by_user_id=mock_user_id,
             status=PartnershipStatus.INVITED.value,
             invitation_message="Let's collaborate",
-            invited_at=datetime.now(timezone.utc),
+            invited_at=datetime.now(UTC),
         )
         db_session.add(partnership)
         db_session.commit()
@@ -125,7 +126,7 @@ class TestPartnershipPoc:
 
         # Accept partnership
         partnership.status = PartnershipStatus.ACCEPTED.value
-        partnership.accepted_at = datetime.now(timezone.utc)
+        partnership.accepted_at = datetime.now(UTC)
         db_session.commit()
 
         assert partnership.status == PartnershipStatus.ACCEPTED.value
@@ -150,14 +151,14 @@ class TestPartnershipPoc:
             partner_org_id=mock_org_id,
             invited_by_user_id=mock_user_id,
             status=PartnershipStatus.INVITED.value,
-            invited_at=datetime.now(timezone.utc),
+            invited_at=datetime.now(UTC),
         )
         db_session.add(partnership)
         db_session.commit()
 
         # Reject partnership
         partnership.status = PartnershipStatus.REJECTED.value
-        partnership.rejected_at = datetime.now(timezone.utc)
+        partnership.rejected_at = datetime.now(UTC)
         db_session.commit()
 
         assert partnership.status == PartnershipStatus.REJECTED.value
@@ -171,8 +172,8 @@ class TestPartnershipPoc:
         mock_org_id: int,
     ):
         """Test partnership with contract terms."""
-        start_date = datetime.now(timezone.utc)
-        end_date = datetime(2025, 12, 31, tzinfo=timezone.utc)
+        start_date = datetime.now(UTC)
+        end_date = datetime(2025, 12, 31, tzinfo=UTC)
 
         partnership = PartnershipPoc(
             business_wall_id=business_wall.id,

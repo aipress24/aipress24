@@ -34,7 +34,7 @@ class TestDetectBusinessWallTrigger:
         organisation_name: str | None = None
 
     def _detect_business_wall_trigger(
-        self, user: "TestDetectBusinessWallTrigger.StubUser", context: dict[str, Any]
+        self, user: TestDetectBusinessWallTrigger.StubUser, context: dict[str, Any]
     ) -> None:
         """Mirror of detect_business_wall_trigger logic for testing."""
         media_satus = {"bw_trigger": False, "bw_organisation": ""}

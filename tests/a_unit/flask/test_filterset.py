@@ -30,7 +30,7 @@ class TestFilter:
 
         result = repr(filter)
 
-        assert "<Filter category Category>" == result
+        assert result == "<Filter category Category>"
 
     def test_init_with_static_options(self) -> None:
         """Test init with provided static options."""

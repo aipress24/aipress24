@@ -13,6 +13,8 @@ import uuid
 from typing import TYPE_CHECKING
 
 import pytest
+from flask import Flask, g, session
+
 from app.enums import ProfileEnum
 from app.models.auth import KYCProfile, User
 from app.models.organisation import Organisation
@@ -46,7 +48,6 @@ from app.modules.bw.bw_activation.utils import (
     init_missions_state,
     init_session,
 )
-from flask import Flask, g, session
 
 if TYPE_CHECKING:
     from sqlalchemy.orm import Session

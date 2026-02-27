@@ -11,7 +11,7 @@ These tests cover the integration between different components:
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import arrow
 from sqlalchemy.orm import scoped_session
@@ -32,7 +32,6 @@ from app.modules.wip.models.newsroom.notification_publication import (
     NotificationPublicationContact,
 )
 from app.modules.wip.models.newsroom.sujet import Sujet
-
 
 # ----------------------------------------------------------------
 # Helper Functions
@@ -94,7 +93,7 @@ def _create_enquete_with_contacts(
             journaliste_id=journaliste.id,
             expert_id=expert.id,
             status=StatutAvis.ACCEPTE,
-            date_reponse=datetime.now(timezone.utc),
+            date_reponse=datetime.now(UTC),
         )
         db_session.add(contact)
         contacts.append(contact)
@@ -318,7 +317,7 @@ class TestExpertRefusalScenario:
         db_session.flush()
 
         contact_a.status = StatutAvis.REFUSE
-        contact_a.date_reponse = datetime.now(timezone.utc)
+        contact_a.date_reponse = datetime.now(UTC)
 
         # Expert B accepts
         contact_b = ContactAvisEnquete(
@@ -330,7 +329,7 @@ class TestExpertRefusalScenario:
         db_session.flush()
 
         contact_b.status = StatutAvis.ACCEPTE
-        contact_b.date_reponse = datetime.now(timezone.utc)
+        contact_b.date_reponse = datetime.now(UTC)
 
         # Verify states
         assert contact_a.status == StatutAvis.REFUSE
@@ -374,7 +373,7 @@ class TestExpertRefusalScenario:
         # All experts refuse
         for contact in contacts:
             contact.status = StatutAvis.REFUSE
-            contact.date_reponse = datetime.now(timezone.utc)
+            contact.date_reponse = datetime.now(UTC)
 
         # Verify all refused
         for contact in contacts:
@@ -467,7 +466,7 @@ class TestAvisEnqueteToArticleFlow:
         assert contact.can_propose_rdv() is True
 
         # Generate valid future slots (weekday, business hours)
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         days_ahead = 1
         while (now + timedelta(days=days_ahead)).weekday() >= 5:  # Skip weekend
             days_ahead += 1
@@ -610,7 +609,7 @@ class TestExpertInvitationFlow:
         contact = contacts[0]
 
         # Generate valid slot
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         days_ahead = 1
         while (now + timedelta(days=days_ahead)).weekday() >= 5:
             days_ahead += 1
@@ -668,11 +667,11 @@ class TestExpertInvitationFlow:
 
         # Expert 1 accepts
         contact1.status = StatutAvis.ACCEPTE
-        contact1.date_reponse = datetime.now(timezone.utc)
+        contact1.date_reponse = datetime.now(UTC)
 
         # Expert 2 refuses
         contact2.status = StatutAvis.REFUSE
-        contact2.date_reponse = datetime.now(timezone.utc)
+        contact2.date_reponse = datetime.now(UTC)
 
         # States are independent
         assert contact1.status == StatutAvis.ACCEPTE
@@ -778,12 +777,12 @@ class TestFullPublicationCycle:
 
         # Step 7: Expert accepts
         contact.status = StatutAvis.ACCEPTE
-        contact.date_reponse = datetime.now(timezone.utc)
+        contact.date_reponse = datetime.now(UTC)
 
         assert contact.can_propose_rdv() is True
 
         # Step 8: RDV proposed
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         days_ahead = 1
         while (now + timedelta(days=days_ahead)).weekday() >= 5:
             days_ahead += 1
@@ -884,18 +883,18 @@ class TestFullPublicationCycle:
 
         # Expert 1 accepts
         contacts[0].status = StatutAvis.ACCEPTE
-        contacts[0].date_reponse = datetime.now(timezone.utc)
+        contacts[0].date_reponse = datetime.now(UTC)
 
         # Expert 2 refuses
         contacts[1].status = StatutAvis.REFUSE
-        contacts[1].date_reponse = datetime.now(timezone.utc)
+        contacts[1].date_reponse = datetime.now(UTC)
 
         # Expert 3 accepts
         contacts[2].status = StatutAvis.ACCEPTE
-        contacts[2].date_reponse = datetime.now(timezone.utc)
+        contacts[2].date_reponse = datetime.now(UTC)
 
         # RDV with Expert 1
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         days_ahead = 1
         while (now + timedelta(days=days_ahead)).weekday() >= 5:
             days_ahead += 1
@@ -990,7 +989,7 @@ class TestFullPublicationCycle:
             journaliste_id=journaliste.id,
             expert_id=expert.id,
             status=StatutAvis.ACCEPTE,
-            date_reponse=datetime.now(timezone.utc),
+            date_reponse=datetime.now(UTC),
             rdv_status=RDVStatus.PROPOSED,  # RDV proposed but not accepted
         )
         db_session.add(contact)

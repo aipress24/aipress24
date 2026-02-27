@@ -11,8 +11,8 @@ from typing import TYPE_CHECKING
 import pytest
 from werkzeug.test import Client
 
-from app.models.organisation import Organisation
 from app.models.auth import User
+from app.models.organisation import Organisation
 
 if TYPE_CHECKING:
     from sqlalchemy.orm import Session
@@ -44,21 +44,18 @@ class TestOrgsPage:
     def test_orgs_page_loads(self, client: Client, admin_user: User) -> None:
         """Test that orgs page loads successfully."""
         # Would test the orgs page route
-        pass
 
     def test_orgs_page_shows_organisations(
         self, client: Client, admin_user: User, test_organisation: Organisation
     ) -> None:
         """Test that orgs page shows organisations."""
         # Would verify the organisation appears in the page
-        pass
 
     def test_orgs_page_toggle_active(
         self, client: Client, admin_user: User, test_organisation: Organisation
     ) -> None:
         """Test toggle active functionality."""
         # Would test the toggle_active endpoint
-        pass
 
 
 class TestUsersPages:
@@ -67,12 +64,10 @@ class TestUsersPages:
     def test_new_users_page_loads(self, client: Client, admin_user: User) -> None:
         """Test that new users page loads successfully."""
         # Would test the new_users page route
-        pass
 
     def test_modif_users_page_loads(self, client: Client, admin_user: User) -> None:
         """Test that modif users page loads successfully."""
         # Would test the modif_users page route
-        pass
 
 
 class TestShowUserPage:
@@ -83,11 +78,9 @@ class TestShowUserPage:
     ) -> None:
         """Test that show user page loads successfully."""
         # Would test the show_user page route
-        pass
 
     def test_show_user_page_displays_user_info(
         self, client: Client, admin_user: User, test_user_with_org: User
     ) -> None:
         """Test that show user page displays correct user information."""
         # Would verify user information is displayed correctly
-        pass

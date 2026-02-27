@@ -6,7 +6,6 @@
 
 from __future__ import annotations
 
-
 from arrow import now as arrow_now
 from flask_sqlalchemy import SQLAlchemy
 

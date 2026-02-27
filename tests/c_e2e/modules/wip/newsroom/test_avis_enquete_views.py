@@ -9,11 +9,12 @@ These tests verify the journalist and expert views for avis d'enquête managemen
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
 import arrow
 import pytest
+
 from app.enums import RoleEnum
 from app.flask.routing import url_for
 from app.models.auth import Role, User
@@ -25,7 +26,6 @@ from app.modules.wip.models.newsroom.avis_enquete import (
     RDVType,
     StatutAvis,
 )
-
 from tests.c_e2e.conftest import make_authenticated_client
 
 if TYPE_CHECKING:
@@ -115,7 +115,7 @@ def accepted_contact(
         journaliste_id=test_user.id,
         expert_id=expert_user.id,
         status=StatutAvis.ACCEPTE,
-        date_reponse=datetime.now(timezone.utc),
+        date_reponse=datetime.now(UTC),
     )
     db_session.add(contact)
     db_session.commit()
@@ -136,7 +136,7 @@ def contact_with_rdv_proposed(
         journaliste_id=test_user.id,
         expert_id=expert_user.id,
         status=StatutAvis.ACCEPTE,
-        date_reponse=datetime.now(timezone.utc),
+        date_reponse=datetime.now(UTC),
         rdv_status=RDVStatus.PROPOSED,
         rdv_type=RDVType.PHONE,
         proposed_slots=[

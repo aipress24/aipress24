@@ -71,8 +71,7 @@ class TestPromotionTitleLogic:
         """Mirror the title determination logic from AdminPromotionsPage.post."""
         if slug.endswith("1"):
             return BOX_TITLE1
-        else:
-            return BOX_TITLE2
+        return BOX_TITLE2
 
     @pytest.mark.parametrize(
         "slug,expected_title",

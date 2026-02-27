@@ -7,11 +7,12 @@
 from __future__ import annotations
 
 import pytest
+from flask_sqlalchemy import SQLAlchemy
+from typeguard import TypeCheckError
+
 from app.models.auth import User
 from app.modules.events.models import EventPost, participation_table
 from app.modules.events.services import get_participants
-from flask_sqlalchemy import SQLAlchemy
-from typeguard import TypeCheckError
 
 
 class TestGetParticipants:

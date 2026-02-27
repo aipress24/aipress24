@@ -23,11 +23,7 @@ from app.modules.swork.components.base import (
 )
 from app.modules.swork.components.members_list import (
     FilterByCityOrm as MemberFilterByCityOrm,
-)
-from app.modules.swork.components.members_list import (
     FilterByDeptOrm as MemberFilterByDeptOrm,
-)
-from app.modules.swork.components.members_list import (
     FilterByJobTitle,
     MembersDirectory,
     MembersList,
@@ -35,21 +31,11 @@ from app.modules.swork.components.members_list import (
 )
 from app.modules.swork.components.organisations_list import (
     FilterByCategory,
-)
-from app.modules.swork.components.organisations_list import (
     FilterByCityOrm as OrgFilterByCityOrm,
-)
-from app.modules.swork.components.organisations_list import (
     FilterByDeptOrm as OrgFilterByDeptOrm,
-)
-from app.modules.swork.components.organisations_list import (
     OrganisationsList,
     OrgsDirectory,
-)
-from app.modules.swork.components.organisations_list import (
     OrgVM as OrgListOrgVM,
-)
-from app.modules.swork.components.organisations_list import (
     make_filters as make_org_filters,
 )
 

@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import arrow
 import pytest
@@ -30,7 +30,7 @@ from app.modules.wip.services.newsroom import (
 
 def _get_next_weekday_slot(days_ahead: int = 1, hour: int = 10) -> datetime:
     """Get a valid future weekday slot at the given hour."""
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     target = now + timedelta(days=days_ahead)
     while target.weekday() >= 5:  # Skip weekends
         target += timedelta(days=1)

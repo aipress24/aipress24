@@ -39,7 +39,6 @@ from app.modules.kyc.organisation_utils import (
     store_auto_organisation,
 )
 
-
 # Profile IDs mapped to their organisation_field values
 PROFILE_ID_NOM_MEDIA = "P001"  # organisation_field = "nom_media"
 PROFILE_ID_NOM_ORGA = "P012"  # organisation_field = "nom_orga"

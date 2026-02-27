@@ -6,7 +6,6 @@
 
 from __future__ import annotations
 
-
 from app.modules.admin.views._dashboard import WIDGETS, Widget
 
 

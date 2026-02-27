@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 import pytest
+
 from app.enums import ContactTypeEnum
 from app.modules.kyc.populate_profile import (
     default_business_wall,
