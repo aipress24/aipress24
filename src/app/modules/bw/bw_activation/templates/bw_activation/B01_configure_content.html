@@ -6,7 +6,7 @@
     <div class="max-w-4xl mx-auto">
         <div class="bg-white p-8 rounded-2xl shadow-lg border border-gray-200">
             <h1 class="text-3xl font-bold text-gray-900">
-                6- Configurer le Contenu du Business Wall
+                1- Configurer le Contenu du Business Wall
             </h1>
             <p class="mt-2 text-gray-600">
                 Remplissez les informations de votre Business Wall qui seront
@@ -19,7 +19,31 @@
                 </p>
             </div>
 
-            <form class="mt-8 space-y-10">
+            <!-- Flash messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="mt-4 space-y-2">
+                        {% for category, message in messages %}
+                            <div
+                                class="p-4 rounded-md {% if category == 'error' %}
+                                    bg-red-50 text-red-800 border border-red-200
+                                {% else %}
+                                    bg-green-50 text-green-800 border
+                                    border-green-200
+                                {% endif %}"
+                            >
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <form
+                method="POST"
+                enctype="multipart/form-data"
+                class="mt-8 space-y-10"
+            >
                 <!-- Section: Graphics (all types) -->
                 <fieldset>
                     <legend
@@ -27,21 +51,66 @@
                     >
                         Graphisme
                     </legend>
-
+                    
+                    <!-- Logo image -->
                     <div class="space-y-6">
                         <div>
                             <label
                                 class="block text-sm font-medium text-gray-900 mb-2"
-                                >Logo de votre organisation</label
                             >
-                            <input
-                                type="file"
-                                accept="image/png, image/jpeg"
-                                class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                            />
-                            <p class="mt-1 text-xs text-gray-500">
-                                Format : JPG ou PNG
-                            </p>
+                                Logo de votre organisation
+                            </label>
+
+                            <div class="mb-4">
+                                <div class="text-xs text-gray-500 mb-2">
+                                    Logo actuel
+                                </div>
+                                <div
+                                    id="current_logo_wrapper"
+                                    class="p-4 bg-gray-50 rounded-md flex items-center justify-center min-h-[100px]"
+                                >
+                                    {% if business_wall.logo_image %}
+                                        <img
+                                            id="currentLogo"
+                                            src="{{ business_wall.logo_image_signed_url() }}"
+                                            alt="Logo actuel"
+                                            class="h-20 w-auto object-contain max-w-full"
+                                        />
+                                    {% else %}
+                                        <p class="text-gray-500 text-sm">
+                                            Aucun logo.
+                                        </p>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <!-- New logo hidden by default -->
+                            <div
+                                class="mb-4"
+                                id="new_logo_block"
+                                style="display: none;"
+                            >
+                                <div class="text-xs text-gray-500 mb-2">
+                                    Aperçu du nouveau logo
+                                </div>
+                                <div
+                                    id="new_logo_container"
+                                    class="p-4 bg-blue-50 rounded-md flex items-center justify-center min-h-[100px]"
+                                ></div>
+                            </div>
+
+                            <div class="pt-2">
+                                <input
+                                    type="file"
+                                    id="logo_image"
+                                    name="logo_image"
+                                    accept=".png,.jpeg,.jpg,image/png,image/jpeg"
+                                    class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none"
+                                />
+                                <p class="mt-1 text-xs text-gray-500">
+                                    Format PNG, JPG, JPEG (Max 4MB)
+                                </p>
+                            </div>
                         </div>
 
                         <div>
@@ -700,22 +769,70 @@
                     </div>
                 </fieldset>
 
-                <!-- Submit button -->
-                <div class="flex justify-end gap-4 border-t pt-6">
+                <!-- Navigation -->
+                <div
+                    class="mt-10 flex items-center justify-between gap-x-6 border-t pt-6"
+                >
                     <a
                         href="{{ url_for('bw_activation.dashboard') }}"
-                        class="rounded-md bg-gray-300 px-5 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-400"
+                        class="text-sm font-semibold leading-6 text-gray-900 hover:text-gray-700"
                     >
-                        Retour au tableau de bord
+                        ← Retour au tableau de bord
                     </a>
-                    <button
-                        type="submit"
-                        class="rounded-md bg-green-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-green-700"
-                    >
-                        Enregistrer la configuration
-                    </button>
+                    <div class="flex gap-4">
+                        <a
+                            href="{{ url_for('bw_activation.invite_organisation_members') }}"
+                            class="rounded-md bg-gray-300 px-5 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-400"
+                        >
+                            Passer cette étape →
+                        </a>
+                        <button
+                            type="submit"
+                            class="rounded-md bg-green-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-green-700"
+                        >
+                            Enregistrer et continuer →
+                        </button>
+                    </div>
                 </div>
             </form>
         </div>
     </div>
+
+    <!-- JavaScript for immediate logo preview -->
+    <script>
+        const logo_input = document.getElementById("logo_image");
+        const new_logo_block = document.getElementById("new_logo_block");
+        const new_logo_container =
+            document.getElementById("new_logo_container");
+
+        logo_input.addEventListener("change", function (event) {
+            const file = event.target.files[0];
+
+            if (file) {
+                new_logo_block.style.display = "block";
+
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+                    let imgElement =
+                        document.getElementById("new_logo_preview");
+
+                    if (!imgElement) {
+                        imgElement = document.createElement("img");
+                        imgElement.id = "new_logo_preview";
+                        imgElement.className =
+                            "h-20 w-auto object-contain max-w-full";
+                        new_logo_container.innerHTML = "";
+                        new_logo_container.appendChild(imgElement);
+                    }
+                    imgElement.src = e.target.result;
+                };
+
+                reader.readAsDataURL(file);
+            } else {
+                new_logo_block.style.display = "none";
+                new_logo_container.innerHTML = "";
+            }
+        });
+    </script>
 {% endblock %}
