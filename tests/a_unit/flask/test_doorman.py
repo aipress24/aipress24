@@ -13,7 +13,7 @@ from app.flask.doorman import Doorman
 login_manager = LoginManager()
 
 
-@pytest.fixture()
+@pytest.fixture
 def app_():
     """Create a minimal Flask app for testing the before_request hook."""
     app = Flask(__name__)
@@ -45,7 +45,7 @@ def app_():
     return app
 
 
-@pytest.fixture()
+@pytest.fixture
 def client(app_):
     """A test client for the app."""
     return app_.test_client()

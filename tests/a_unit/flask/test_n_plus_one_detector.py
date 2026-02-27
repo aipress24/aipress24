@@ -6,7 +6,6 @@
 
 from __future__ import annotations
 
-
 from app.flask.lib.n_plus_one_detector import (
     QueryTracker,
     normalize_query,

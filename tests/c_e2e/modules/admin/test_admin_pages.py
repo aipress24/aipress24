@@ -13,8 +13,11 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import pytest
+from sqlalchemy import select
+
 from app.models.auth import User
 from app.models.content import BaseContent
+from app.models.organisation import Organisation
 from app.modules.admin.views._contents import (
     ContentsDataSource,
     ContentsTable,
@@ -25,9 +28,6 @@ from app.modules.admin.views._groups import GroupDataSource, GroupsTable
 from app.modules.admin.views._show_org import OrgVM
 from app.modules.admin.views._users import UserDataSource
 from app.modules.swork.models import Group
-from sqlalchemy import select
-
-from app.models.organisation import Organisation
 
 if TYPE_CHECKING:
     from flask import Flask

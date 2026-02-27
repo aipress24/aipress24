@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import pytz
 
@@ -26,7 +26,7 @@ def test_make_naivedt() -> None:
 
 def test_make_localdt() -> None:
     """Test make_localdt converts timezone-aware datetime to local."""
-    utc_dt = datetime(2024, 6, 15, 12, 0, 0, tzinfo=timezone.utc)
+    utc_dt = datetime(2024, 6, 15, 12, 0, 0, tzinfo=UTC)
     result = make_localdt(utc_dt)
 
     assert "2024" in result

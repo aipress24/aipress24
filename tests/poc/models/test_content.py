@@ -9,14 +9,16 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from advanced_alchemy.types.file_object import FileObject
+
 from poc.blueprints.bw_activation_full.models import (
     BWContentPoc,
     BWContentPocRepository,
 )
 
 if TYPE_CHECKING:
-    from poc.blueprints.bw_activation_full.models import BusinessWallPoc
     from sqlalchemy.orm import Session
+
+    from poc.blueprints.bw_activation_full.models import BusinessWallPoc
 
 
 class TestBWContentPoc:

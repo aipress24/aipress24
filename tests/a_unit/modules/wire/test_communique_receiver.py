@@ -12,6 +12,7 @@ from app.models.auth import User
 from app.models.lifecycle import PublicationStatus
 from app.models.organisation import Organisation
 from app.modules.wip.models import Communique
+from app.modules.wire.models import PressReleasePost
 from app.modules.wire.receivers import (
     get_communique_post,
     on_communique_published,
@@ -19,7 +20,6 @@ from app.modules.wire.receivers import (
     on_communique_updated,
     update_communique_post,
 )
-from app.modules.wire.models import PressReleasePost
 
 
 class TestGetPost:

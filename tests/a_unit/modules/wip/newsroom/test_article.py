@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import arrow
 import pytest
@@ -145,11 +145,11 @@ def test_article_expiration(db_session: scoped_session) -> None:
     assert article.is_expired is False
 
     # Set expiration in the past
-    article.expired_at = datetime.now(timezone.utc) - timedelta(days=1)
+    article.expired_at = datetime.now(UTC) - timedelta(days=1)
     assert article.is_expired is True
 
     # Set expiration in the future
-    article.expired_at = datetime.now(timezone.utc) + timedelta(days=1)
+    article.expired_at = datetime.now(UTC) + timedelta(days=1)
     assert article.is_expired is False
 
 

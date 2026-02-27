@@ -26,4 +26,4 @@ def db_session(fresh_db) -> Session:
     Wire tests use the fresh_db (drop/create) approach rather than
     transaction wrapping.
     """
-    yield fresh_db.session
+    return fresh_db.session

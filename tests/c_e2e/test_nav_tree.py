@@ -50,7 +50,6 @@ def build_nav_tree(app: Flask):
     # Build without app context - the build method only reads route metadata
     nav_tree.build(app)
 
-    yield
 
 
 @pytest.fixture

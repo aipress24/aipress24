@@ -91,7 +91,7 @@ def db_session(db, app):
         _db.create_all()
         _e2e_engine_disposed = True
 
-    yield _db.session
+    return _db.session
 
 
 def _terminate_postgres_connections(db_url: str) -> None:

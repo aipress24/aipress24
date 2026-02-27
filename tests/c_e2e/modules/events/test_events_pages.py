@@ -10,6 +10,10 @@ from typing import TYPE_CHECKING
 
 import arrow
 import pytest
+from flask import Flask
+from flask.testing import FlaskClient
+from sqlalchemy.orm import Session
+
 from app.models.auth import User
 from app.models.lifecycle import PublicationStatus
 from app.modules.events.models import EventPost
@@ -19,9 +23,6 @@ from app.modules.events.views._common import (
     EventDetailVM as EventVM,
 )
 from app.modules.events.views._filters import FilterBar
-from flask import Flask
-from flask.testing import FlaskClient
-from sqlalchemy.orm import Session
 
 if TYPE_CHECKING:
     pass

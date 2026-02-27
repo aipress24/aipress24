@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import arrow
 import pytest
@@ -85,7 +85,7 @@ def test_rdv_workflow_business_logic(db_session: scoped_session) -> None:
 
     # BUSINESS RULE: Propose RDV with validation
     # Generate future weekday slots
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     days_ahead = 1
     while (now + timedelta(days=days_ahead)).weekday() >= 5:
         days_ahead += 1
@@ -159,7 +159,7 @@ def test_rdv_proposal_validation(db_session: scoped_session) -> None:
     db_session.flush()
 
     # Generate dynamic future slots
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     days_ahead = 1
     while (now + timedelta(days=days_ahead)).weekday() >= 5:
         days_ahead += 1
@@ -248,7 +248,7 @@ def test_rdv_acceptance_validation(db_session: scoped_session) -> None:
     db_session.flush()
 
     # Generate dynamic future slots
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     days_ahead = 1
     while (now + timedelta(days=days_ahead)).weekday() >= 5:
         days_ahead += 1
@@ -326,7 +326,7 @@ def test_rdv_cancellation(db_session: scoped_session) -> None:
         contact.cancel_rdv()
 
     # Generate dynamic future slot
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     days_ahead = 1
     while (now + timedelta(days=days_ahead)).weekday() >= 5:
         days_ahead += 1
@@ -397,7 +397,7 @@ def test_rdv_temporal_validation(db_session: scoped_session) -> None:
     db_session.flush()
 
     # BUSINESS RULE: Cannot propose slot in the past
-    past_slot = datetime.now(timezone.utc) - timedelta(hours=1)
+    past_slot = datetime.now(UTC) - timedelta(hours=1)
     with pytest.raises(ValueError, match="must be in the future"):
         contact.propose_rdv(
             rdv_type=RDVType.PHONE,
@@ -406,7 +406,7 @@ def test_rdv_temporal_validation(db_session: scoped_session) -> None:
         )
 
     # BUSINESS RULE: Cannot propose slot outside business hours (before 9h)
-    early_morning = (datetime.now(timezone.utc) + timedelta(days=1)).replace(
+    early_morning = (datetime.now(UTC) + timedelta(days=1)).replace(
         hour=7, minute=0
     )
     with pytest.raises(ValueError, match="business hours"):
@@ -417,7 +417,7 @@ def test_rdv_temporal_validation(db_session: scoped_session) -> None:
         )
 
     # BUSINESS RULE: Cannot propose slot outside business hours (after 18h)
-    late_evening = (datetime.now(timezone.utc) + timedelta(days=1)).replace(
+    late_evening = (datetime.now(UTC) + timedelta(days=1)).replace(
         hour=19, minute=0
     )
     with pytest.raises(ValueError, match="business hours"):
@@ -429,7 +429,7 @@ def test_rdv_temporal_validation(db_session: scoped_session) -> None:
 
     # BUSINESS RULE: Cannot propose slot on weekend
     # Find next Saturday
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     days_until_saturday = (5 - now.weekday()) % 7
     if days_until_saturday == 0:
         days_until_saturday = 7
@@ -475,7 +475,7 @@ def test_rdv_type_coordinates_validation(db_session: scoped_session) -> None:
     db_session.flush()
 
     # Get a valid future weekday slot at 10h
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     # Find next weekday
     days_ahead = 1
     while (now + timedelta(days=days_ahead)).weekday() >= 5:
@@ -554,7 +554,7 @@ def test_rdv_query_methods(db_session: scoped_session) -> None:
     assert contact.get_rdv_summary() == "Pas de rendez-vous"
 
     # Get valid future slot
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     days_ahead = 1
     while (now + timedelta(days=days_ahead)).weekday() >= 5:
         days_ahead += 1
@@ -629,7 +629,7 @@ def test_rdv_temporal_calculations(db_session: scoped_session) -> None:
     assert contact.is_rdv_past is False
 
     # Create RDV "soon" (within 24h) - must be in future and business hours
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
 
     # Try to find a time within next few hours that's in business hours
     target_time = now + timedelta(hours=1)

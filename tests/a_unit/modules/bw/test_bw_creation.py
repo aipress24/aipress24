@@ -10,6 +10,8 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 
 import pytest
+from flask import g
+
 from app.models.auth import User
 from app.models.organisation import Organisation
 from app.modules.bw.bw_activation.bw_creation import (
@@ -24,7 +26,6 @@ from app.modules.bw.bw_activation.models import (
 )
 from app.modules.bw.bw_activation.models.role import BWRoleType, InvitationStatus
 from app.modules.bw.bw_activation.models.subscription import SubscriptionStatus
-from flask import g
 
 if TYPE_CHECKING:
     from flask.ctx import AppContext

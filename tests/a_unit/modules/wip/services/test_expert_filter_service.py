@@ -69,7 +69,7 @@ def _create_expert_with_profile(
 
     profile = KYCProfile(
         user_id=user.id,
-        profile_id=f"profile_{email.split('@')[0]}",
+        profile_id=f"profile_{email.split('@', maxsplit=1)[0]}",
         info_professionnelle={
             "secteurs_activite_medias_detail": secteurs or [],
             "secteurs_activite_rp_detail": [],
@@ -1374,27 +1374,26 @@ class TestStateManagement:
                 "selector_change": "secteur",
                 "secteur": ["Tech", "Finance"],
             },
-        ):
-            with patch(
-                "app.modules.wip.services.newsroom.expert_filter.container"
-            ) as mock_container:
-                mock_session: dict = {}
-                mock_user_repo = MagicMock()
-                mock_user_repo.list.return_value = [expert1]
+        ), patch(
+            "app.modules.wip.services.newsroom.expert_filter.container"
+        ) as mock_container:
+            mock_session: dict = {}
+            mock_user_repo = MagicMock()
+            mock_user_repo.list.return_value = [expert1]
 
-                mock_container.get.return_value = mock_session
+            mock_container.get.return_value = mock_session
 
-                service = ExpertFilterService()
-                service._session = mock_session
-                service._user_repo = mock_user_repo
-                service._state = {}
+            service = ExpertFilterService()
+            service._session = mock_session
+            service._user_repo = mock_user_repo
+            service._state = {}
 
-                # Call the internal method directly
-                service._update_state_from_request()
+            # Call the internal method directly
+            service._update_state_from_request()
 
-                # State should be updated with selector values
-                assert "secteur" in service._state
-                assert service._state["secteur"] == ["Tech", "Finance"]
+            # State should be updated with selector values
+            assert "secteur" in service._state
+            assert service._state["secteur"] == ["Tech", "Finance"]
 
     def test_update_state_ignores_non_htmx_request(self, db_session, app) -> None:
         """State is NOT updated from non-HTMX requests."""
@@ -1405,22 +1404,21 @@ class TestStateManagement:
                 "selector_change": "secteur",
                 "secteur": ["Tech"],
             },
-        ):
-            with patch(
-                "app.modules.wip.services.newsroom.expert_filter.container"
-            ) as mock_container:
-                mock_session: dict = {}
-                mock_container.get.return_value = mock_session
+        ), patch(
+            "app.modules.wip.services.newsroom.expert_filter.container"
+        ) as mock_container:
+            mock_session: dict = {}
+            mock_container.get.return_value = mock_session
 
-                service = ExpertFilterService()
-                service._session = mock_session
-                service._user_repo = MagicMock()
-                service._state = {}
+            service = ExpertFilterService()
+            service._session = mock_session
+            service._user_repo = MagicMock()
+            service._state = {}
 
-                service._update_state_from_request()
+            service._update_state_from_request()
 
-                # State should NOT be updated (no HX-Request header)
-                assert "secteur" not in service._state
+            # State should NOT be updated (no HX-Request header)
+            assert "secteur" not in service._state
 
     def test_one_state_per_avis_enquete_id(self, db_session, app) -> None:
         """State updated from HTMX request data do not change other
@@ -1437,35 +1435,34 @@ class TestStateManagement:
                 "selector_change": "secteur",
                 "secteur": ["Tech", "Finance"],
             },
-        ):
-            with patch(
-                "app.modules.wip.services.newsroom.expert_filter.container"
-            ) as mock_container:
-                mock_session: dict = {}
-                mock_user_repo = MagicMock()
-                mock_user_repo.list.return_value = [expert1]
+        ), patch(
+            "app.modules.wip.services.newsroom.expert_filter.container"
+        ) as mock_container:
+            mock_session: dict = {}
+            mock_user_repo = MagicMock()
+            mock_user_repo.list.return_value = [expert1]
 
-                mock_container.get.return_value = mock_session
+            mock_container.get.return_value = mock_session
 
-                service1 = ExpertFilterService()
-                service1._session = mock_session
-                service1._user_repo = mock_user_repo
-                avis_enquete_id_1 = "abcdef1"
-                service1._set_session_key(avis_enquete_id_1)
-                service1._restore_state()
+            service1 = ExpertFilterService()
+            service1._session = mock_session
+            service1._user_repo = mock_user_repo
+            avis_enquete_id_1 = "abcdef1"
+            service1._set_session_key(avis_enquete_id_1)
+            service1._restore_state()
 
-                service2 = ExpertFilterService()
-                service2._session = mock_session
-                service2._user_repo = mock_user_repo
-                avis_enquete_id_2 = "abcdef2"
-                service2._set_session_key(avis_enquete_id_2)
-                service2._restore_state()
-                service2._update_state_from_request()
+            service2 = ExpertFilterService()
+            service2._session = mock_session
+            service2._user_repo = mock_user_repo
+            avis_enquete_id_2 = "abcdef2"
+            service2._set_session_key(avis_enquete_id_2)
+            service2._restore_state()
+            service2._update_state_from_request()
 
-                # State should be updated with selector values
-                assert "secteur" in service2._state
-                # State of other ExpertFilterService is untouched
-                assert "secteur" not in service1._state
+            # State should be updated with selector values
+            assert "secteur" in service2._state
+            # State of other ExpertFilterService is untouched
+            assert "secteur" not in service1._state
 
     def test_update_state_clears_dependent_selectors(self, db_session, app) -> None:
         """Changing a selector clears dependent selectors."""
@@ -1535,25 +1532,24 @@ class TestExpertSelection:
         with app.test_request_context(
             method="POST",
             data={f"expert:{expert2.id}": "on"},
-        ):
-            with patch(
-                "app.modules.wip.services.newsroom.expert_filter.container"
-            ) as mock_container:
-                mock_session: dict = {}
-                mock_user_repo = MagicMock()
-                mock_user_repo.list.return_value = [expert1, expert2]
+        ), patch(
+            "app.modules.wip.services.newsroom.expert_filter.container"
+        ) as mock_container:
+            mock_session: dict = {}
+            mock_user_repo = MagicMock()
+            mock_user_repo.list.return_value = [expert1, expert2]
 
-                mock_container.get.return_value = mock_session
+            mock_container.get.return_value = mock_session
 
-                service = ExpertFilterService()
-                service._session = mock_session
-                service._user_repo = mock_user_repo
-                service._state = {"selected_experts": [expert1.id]}
-                service.add_experts_from_request()
+            service = ExpertFilterService()
+            service._session = mock_session
+            service._user_repo = mock_user_repo
+            service._state = {"selected_experts": [expert1.id]}
+            service.add_experts_from_request()
 
-                selected = service._state["selected_experts"]
-                assert expert1.id in selected
-                assert expert2.id in selected
+            selected = service._state["selected_experts"]
+            assert expert1.id in selected
+            assert expert2.id in selected
 
     def test_update_experts_from_request(self, db_session, app) -> None:
         """Replace selection with experts from form."""
@@ -1563,25 +1559,24 @@ class TestExpertSelection:
         with app.test_request_context(
             method="POST",
             data={f"expert:{expert2.id}": "on"},
-        ):
-            with patch(
-                "app.modules.wip.services.newsroom.expert_filter.container"
-            ) as mock_container:
-                mock_session: dict = {}
-                mock_user_repo = MagicMock()
-                mock_user_repo.list.return_value = [expert1, expert2]
+        ), patch(
+            "app.modules.wip.services.newsroom.expert_filter.container"
+        ) as mock_container:
+            mock_session: dict = {}
+            mock_user_repo = MagicMock()
+            mock_user_repo.list.return_value = [expert1, expert2]
 
-                mock_container.get.return_value = mock_session
+            mock_container.get.return_value = mock_session
 
-                service = ExpertFilterService()
-                service._session = mock_session
-                service._user_repo = mock_user_repo
-                service._state = {"selected_experts": [expert1.id]}
-                service.update_experts_from_request()
+            service = ExpertFilterService()
+            service._session = mock_session
+            service._user_repo = mock_user_repo
+            service._state = {"selected_experts": [expert1.id]}
+            service.update_experts_from_request()
 
-                selected = service._state["selected_experts"]
-                assert expert1.id not in selected
-                assert expert2.id in selected
+            selected = service._state["selected_experts"]
+            assert expert1.id not in selected
+            assert expert2.id in selected
 
     def test_max_selectable_experts_limit(self, db_session) -> None:
         """Selection is limited to MAX_SELECTABLE_EXPERTS (50)."""

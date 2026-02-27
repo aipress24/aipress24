@@ -6,11 +6,12 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
 import pytest
 from advanced_alchemy.exceptions import NotFoundError
+
 from poc.blueprints.bw_activation_full.models import (
     BusinessWallPoc,
     BusinessWallPocRepository,
@@ -89,7 +90,7 @@ class TestBusinessWallPoc:
 
         # Draft -> Active
         business_wall.status = BWStatus.ACTIVE.value
-        business_wall.activated_at = datetime.now(timezone.utc)
+        business_wall.activated_at = datetime.now(UTC)
         db_session.commit()
 
         assert business_wall.status == BWStatus.ACTIVE.value

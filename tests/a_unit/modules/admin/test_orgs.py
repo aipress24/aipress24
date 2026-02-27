@@ -7,11 +7,11 @@
 from __future__ import annotations
 
 from app.models.organisation import Organisation
+from app.modules.admin.table import GenericOrgDataSource
 from app.modules.admin.views._orgs import (
     OrgDataSource,
     OrgsTable,
 )
-from app.modules.admin.table import GenericOrgDataSource
 
 
 class TestOrgsTable:

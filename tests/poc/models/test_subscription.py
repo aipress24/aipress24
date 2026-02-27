@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from decimal import Decimal
 from typing import TYPE_CHECKING
 
@@ -145,7 +145,7 @@ class TestSubscriptionPoc:
 
         # Activate subscription
         sub.status = SubscriptionStatus.ACTIVE.value
-        sub.started_at = datetime.now(timezone.utc)
+        sub.started_at = datetime.now(UTC)
         db_session.commit()
 
         assert sub.status == SubscriptionStatus.ACTIVE.value
@@ -153,7 +153,7 @@ class TestSubscriptionPoc:
 
         # Cancel subscription
         sub.status = SubscriptionStatus.CANCELLED.value
-        sub.cancelled_at = datetime.now(timezone.utc)
+        sub.cancelled_at = datetime.now(UTC)
         db_session.commit()
 
         assert sub.status == SubscriptionStatus.CANCELLED.value

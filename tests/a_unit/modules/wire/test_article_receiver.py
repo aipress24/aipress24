@@ -13,6 +13,7 @@ from app.models.auth import User
 from app.models.lifecycle import PublicationStatus
 from app.models.organisation import Organisation
 from app.modules.wip.models import Article
+from app.modules.wire.models import ArticlePost
 from app.modules.wire.receivers import (
     get_article_post,
     on_article_published,
@@ -20,7 +21,6 @@ from app.modules.wire.receivers import (
     on_article_updated,
     update_article_post,
 )
-from app.modules.wire.models import ArticlePost
 
 
 class TestGetPost:

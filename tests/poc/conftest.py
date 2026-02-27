@@ -14,9 +14,10 @@ import pytest
 from advanced_alchemy.base import UUIDAuditBase
 from advanced_alchemy.types.file_object import storages
 from advanced_alchemy.types.file_object.backends.fsspec import FSSpecBackend
-from poc.blueprints.bw_activation_full.models import BusinessWallPoc
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
+
+from poc.blueprints.bw_activation_full.models import BusinessWallPoc
 
 
 @pytest.fixture(scope="session")
@@ -31,7 +32,7 @@ def file_storage_backend():
     backend = FSSpecBackend(fs=fs, key="local", prefix=str(temp_path))
     storages.register_backend(backend)
 
-    yield temp_path
+    return temp_path
 
     # Cleanup is handled automatically by tempfile
 

@@ -110,9 +110,10 @@ class TestCommuniquesTable:
 
     def test_get_actions_draft(self, app):
         """Test get_actions for draft communique."""
-        from app.modules.wip.crud.cbvs.communiques import CommuniquesTable
-        from app.models.lifecycle import PublicationStatus
         from unittest.mock import MagicMock
+
+        from app.models.lifecycle import PublicationStatus
+        from app.modules.wip.crud.cbvs.communiques import CommuniquesTable
 
         with app.test_request_context():
             table = CommuniquesTable()
@@ -133,9 +134,10 @@ class TestCommuniquesTable:
 
     def test_get_actions_published(self, app):
         """Test get_actions for published communique."""
-        from app.modules.wip.crud.cbvs.communiques import CommuniquesTable
-        from app.models.lifecycle import PublicationStatus
         from unittest.mock import MagicMock
+
+        from app.models.lifecycle import PublicationStatus
+        from app.modules.wip.crud.cbvs.communiques import CommuniquesTable
 
         with app.test_request_context():
             table = CommuniquesTable()

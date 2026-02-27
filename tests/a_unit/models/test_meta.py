@@ -24,7 +24,6 @@ class C(A):
 class NoMeta:
     """Class without Meta."""
 
-    pass
 
 
 class WithLabel:

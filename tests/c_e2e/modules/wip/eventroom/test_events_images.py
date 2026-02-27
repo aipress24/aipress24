@@ -164,9 +164,10 @@ class TestEventsTable:
 
     def test_get_actions_draft(self, app):
         """Test get_actions for draft event."""
-        from app.modules.wip.crud.cbvs.events import EventsTable
-        from app.models.lifecycle import PublicationStatus
         from unittest.mock import MagicMock
+
+        from app.models.lifecycle import PublicationStatus
+        from app.modules.wip.crud.cbvs.events import EventsTable
 
         with app.test_request_context():
             table = EventsTable()
@@ -187,9 +188,10 @@ class TestEventsTable:
 
     def test_get_actions_published(self, app):
         """Test get_actions for published event."""
-        from app.modules.wip.crud.cbvs.events import EventsTable
-        from app.models.lifecycle import PublicationStatus
         from unittest.mock import MagicMock
+
+        from app.models.lifecycle import PublicationStatus
+        from app.modules.wip.crud.cbvs.events import EventsTable
 
         with app.test_request_context():
             table = EventsTable()

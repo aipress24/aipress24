@@ -6,9 +6,11 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import arrow
+from sqlalchemy.orm import scoped_session
+
 from app.models.auth import User
 from app.models.organisation import Organisation
 from app.modules.wip.models.newsroom.avis_enquete import (
@@ -17,7 +19,6 @@ from app.modules.wip.models.newsroom.avis_enquete import (
     RDVStatus,
     StatutAvis,
 )
-from sqlalchemy.orm import scoped_session
 
 
 def _create_test_enquete(
@@ -139,7 +140,7 @@ class TestContactAccept:
 
         # Accept the avis
         contact.status = StatutAvis.ACCEPTE
-        contact.date_reponse = datetime.now(timezone.utc)
+        contact.date_reponse = datetime.now(UTC)
 
         assert contact.status == StatutAvis.ACCEPTE
 
@@ -155,7 +156,7 @@ class TestContactAccept:
         contact = _create_test_contact(db_session, enquete, journaliste, expert)
 
         # Accept the avis with timestamp
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         contact.status = StatutAvis.ACCEPTE
         contact.date_reponse = now
 
@@ -178,7 +179,7 @@ class TestContactAccept:
 
         # Accept the avis
         contact.status = StatutAvis.ACCEPTE
-        contact.date_reponse = datetime.now(timezone.utc)
+        contact.date_reponse = datetime.now(UTC)
 
         # Now can propose RDV
         assert contact.can_propose_rdv() is True
@@ -205,7 +206,7 @@ class TestContactRefuse:
 
         # Refuse the avis
         contact.status = StatutAvis.REFUSE
-        contact.date_reponse = datetime.now(timezone.utc)
+        contact.date_reponse = datetime.now(UTC)
 
         assert contact.status == StatutAvis.REFUSE
 
@@ -221,7 +222,7 @@ class TestContactRefuse:
         contact = _create_test_contact(db_session, enquete, journaliste, expert)
 
         # Refuse with timestamp
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         contact.status = StatutAvis.REFUSE
         contact.date_reponse = now
 
@@ -241,7 +242,7 @@ class TestContactRefuse:
 
         # Refuse the avis
         contact.status = StatutAvis.REFUSE
-        contact.date_reponse = datetime.now(timezone.utc)
+        contact.date_reponse = datetime.now(UTC)
 
         # Cannot propose RDV to refused contact
         assert contact.can_propose_rdv() is False
@@ -270,7 +271,7 @@ class TestContactRefuseWithSuggestion:
 
         # Refuse with suggestion
         contact.status = StatutAvis.REFUSE_SUGGESTION
-        contact.date_reponse = datetime.now(timezone.utc)
+        contact.date_reponse = datetime.now(UTC)
 
         assert contact.status == StatutAvis.REFUSE_SUGGESTION
 
@@ -289,7 +290,7 @@ class TestContactRefuseWithSuggestion:
 
         # Refuse with suggestion
         contact.status = StatutAvis.REFUSE_SUGGESTION
-        contact.date_reponse = datetime.now(timezone.utc)
+        contact.date_reponse = datetime.now(UTC)
 
         # Cannot propose RDV
         assert contact.can_propose_rdv() is False
