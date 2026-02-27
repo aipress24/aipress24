@@ -10,9 +10,15 @@ from datetime import datetime
 from enum import StrEnum
 from typing import TYPE_CHECKING
 
+import sqlalchemy as sa
 from advanced_alchemy.base import UUIDAuditBase
-from sqlalchemy import BigInteger, ForeignKey, String, inspect, select
+from advanced_alchemy.types.file_object import FileObject, StoredObject
+from sqlalchemy import JSON, BigInteger, ForeignKey, String, inspect, select
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.sql import func
+from sqlalchemy_utils.functions.orm import hybrid_property
+
+from app.enums import OrganisationTypeEnum
 
 if TYPE_CHECKING:
     from app.models.organisation import Organisation
@@ -82,6 +88,101 @@ class BusinessWall(UUIDAuditBase):
         nullable=True,
     )
 
+    logo_image: Mapped[FileObject | None] = mapped_column(
+        StoredObject(backend="s3"), nullable=True
+    )
+    cover_image: Mapped[FileObject | None] = mapped_column(
+        StoredObject(backend="s3"), nullable=True
+    )
+
+    # here Galerie d'images
+
+    name: Mapped[str] = mapped_column(nullable=True)
+
+    type: Mapped[OrganisationTypeEnum] = mapped_column(
+        sa.Enum(OrganisationTypeEnum),
+        default=OrganisationTypeEnum.AUTO,
+        index=True,
+    )
+
+    # nom officiel du titre (média, agence presse) pour les media ou aggency,
+    # ou administration. Ou nom de micro entreprise (label different dans forms)
+    # BW: media, micro, corporate, pressunion
+    name_entity: Mapped[str] = mapped_column(default="")
+
+    # involding the id of the organisation
+    siren: Mapped[str] = mapped_column(nullable=True)
+    tva: Mapped[str] = mapped_column(nullable=True)
+
+    agrement: Mapped[str] = mapped_column(default="")
+
+    name_press: Mapped[str] = mapped_column(default="")
+
+    # ONTOLOGIES/Types de presse et média
+    # média, micro, corporate
+    type_presse_et_media: Mapped[list] = mapped_column(JSON, default=list)
+
+    # ONTOLOGIES/Types d’entreprise de presse et média
+    # média, micro, corporate, pressunion
+    type_entreprise_media: Mapped[list] = mapped_column(JSON, default=list)
+
+    # ONTOLOGIES/Types PR Agency
+    # com
+    type_agence_rp: Mapped[list] = mapped_column(JSON, default=list)
+
+    # en discussion: clients connus de aipress24
+    clients: Mapped[str] = mapped_column(default="")
+
+    # nom officiel du titre (média, agence presse) pour les media ou aggency,
+    # ou administration. Ou nom de micro entreprise (label different dans forms)
+    # BW: media, micro, corporate, pressunion
+    name_official: Mapped[str] = mapped_column(default="")
+
+    # nom officiel du titre (média, agence presse) pour les media ou aggency,
+    # ou administration. Ou nom de micro entreprise (label different dans forms)
+    # BW: media, micro, corporate, pressunion
+    name_group: Mapped[str] = mapped_column(default="")
+
+    name_institution: Mapped[str] = mapped_column(default="")
+
+    # média, micro, corporate.  300 signes
+    positionnement_editorial: Mapped[str] = mapped_column(default="")
+
+    # média, micro, corporate.  500 signes
+    audience_cible: Mapped[str] = mapped_column(default="")
+
+    # ONTOLOGIES/Périodicité
+    # media, corporate
+    periodicite: Mapped[str] = mapped_column(default="")
+
+    secteurs_activite_medias: Mapped[list] = mapped_column(JSON, default=list)
+    secteurs_activite_medias_detail: Mapped[list] = mapped_column(JSON, default=list)
+    secteurs_activite_rp: Mapped[list] = mapped_column(JSON, default=list)
+    secteurs_activite_rp_detail: Mapped[list] = mapped_column(JSON, default=list)
+    secteurs_activite: Mapped[list] = mapped_column(JSON, default=list)
+    secteurs_activite_detail: Mapped[list] = mapped_column(JSON, default=list)
+
+    # ONTOLOGIES/Tailles des organisations
+    # all
+    taille_orga: Mapped[str] = mapped_column(default="")  # cf ontologies
+
+    interest_political: Mapped[list] = mapped_column(JSON, default=list)
+    interest_economics: Mapped[list] = mapped_column(JSON, default=list)
+    interest_association: Mapped[list] = mapped_column(JSON, default=list)
+
+    tel_standard: Mapped[str] = mapped_column(default="")
+
+    postal_address: Mapped[str] = mapped_column(default="")
+
+    # adresse postale du siège
+    pays_zip_ville: Mapped[str] = mapped_column(default="")
+    pays_zip_ville_detail: Mapped[str] = mapped_column(default="")
+
+    geolocalisation: Mapped[str] = mapped_column(default="")
+
+    # Web presence
+    site_url: Mapped[str] = mapped_column(default="")
+
     def get_organisation(self) -> Organisation | None:
         """Get the Organisation associated with this BusinessWall."""
         from app.models.organisation import Organisation
@@ -105,8 +206,6 @@ class BusinessWall(UUIDAuditBase):
     payer_email: Mapped[str] = mapped_column(String, default="")
     payer_phone: Mapped[str] = mapped_column(String, default="")
     payer_address: Mapped[str] = mapped_column(String, default="")
-
-    name: Mapped[str] = mapped_column(nullable=True)
 
     # Relationships (using string annotations to avoid circular imports)
     subscription: Mapped[Subscription | None] = relationship(
@@ -134,3 +233,79 @@ class BusinessWall(UUIDAuditBase):
             if org:
                 name = org.name
         return name or ""
+
+    @property
+    def is_agency(self) -> bool:
+        return self.type == OrganisationTypeEnum.AGENCY
+
+    @hybrid_property
+    def code_postal(self) -> str:
+        """Return the zip code"""
+        if not self.pays_zip_ville_detail:
+            return ""
+        try:
+            return self.pays_zip_ville_detail.split()[2]
+        except IndexError:
+            return ""
+
+    @code_postal.expression
+    def code_postal(cls):
+        """SQL expression for the zip code property."""
+        return func.coalesce(func.split_part(cls.pays_zip_ville_detail, " ", 3))
+
+    @hybrid_property
+    def departement(self) -> str:
+        """Return the 2 first digit of zip code"""
+        if not self.pays_zip_ville_detail:
+            return ""
+        try:
+            return self.pays_zip_ville_detail.split()[2][:2]
+        except IndexError:
+            return ""
+
+    @departement.expression
+    def departement(cls):
+        """SQL expression for the departement property."""
+        return func.coalesce(
+            func.substring(func.split_part(cls.pays_zip_ville_detail, " ", 3), 1, 2),
+            "",
+        )
+
+    @hybrid_property
+    def ville(self) -> str:
+        """Return the 4th part of pays_zip_ville_detail"""
+        if not self.pays_zip_ville_detail:
+            return ""
+        try:
+            data = self.pays_zip_ville_detail.split()[3]
+            if data.endswith('"}'):  # fixme: origin of bad formatting in test data?
+                return data[:-2]
+            return data
+        except IndexError:
+            return ""
+
+    @ville.expression
+    def ville(cls):
+        """SQL expression for the ville property."""
+        part = func.split_part(cls.pays_zip_ville_detail, " ", 4)
+        return func.coalesce(func.rtrim(part, '"}'), "")
+
+    def cover_image_signed_url(self, expires_in: int = 3600) -> str:
+        file_obj: FileObject | None = self.cover_image
+        if file_obj is None:
+            return "/static/img/transparent-square.png"
+        try:
+            return file_obj.sign(expires_in=expires_in, for_upload=False)
+        except RuntimeError as e:
+            msg = f"Storage failed to sign URL for cover image org.id : {self.id}, key {file_obj.path}: {e}"
+            raise RuntimeError(msg) from e
+
+    def logo_image_signed_url(self, expires_in: int = 3600) -> str:
+        file_obj: FileObject | None = self.logo_image
+        if file_obj is None:
+            return "/static/img/transparent-square.png"
+        try:
+            return file_obj.sign(expires_in=expires_in, for_upload=False)
+        except RuntimeError as e:
+            msg = f"Storage failed to sign URL for logo image org.id : {self.id}, key {file_obj.path}: {e}"
+            raise RuntimeError(msg) from e
