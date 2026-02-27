@@ -22,12 +22,31 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Stage 1: Manage Business Wall Invitations -->
+                <!-- Stage 1: Configure BW Content -->
+                <div
+                    class="border border-gray-300 p-6 rounded-lg hover:shadow-md hover:border-orange-500 transition"
+                >
+                    <h2 class="text-xl font-semibold text-gray-800 mb-3">
+                        1- Configurer le contenu
+                    </h2>
+                    <p class="text-sm text-gray-600 mb-4">
+                        Remplissez les informations de votre Business Wall
+                        (logo, description, contacts, etc.).
+                    </p>
+                    <a
+                        href="{{ url_for('bw_activation.configure_content') }}"
+                        class="inline-block rounded-md bg-orange-600 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-700"
+                    >
+                        Configurer le contenu →
+                    </a>
+                </div>
+
+                <!-- Stage 2: Manage Business Wall Invitations -->
                 <div
                     class="border border-gray-300 p-6 rounded-lg hover:shadow-md hover:border-teal-500 transition"
                 >
                     <h2 class="text-xl font-semibold text-gray-800 mb-3">
-                        1- Gérer les invitations à rejoindre le Business Wall
+                        2- Gérer les invitations à rejoindre le Business Wall
                     </h2>
                     <p class="text-sm text-gray-600 mb-4">
                         Envoyez et gérez les invitations pour rejoindre votre
@@ -41,12 +60,12 @@
                     </a>
                 </div>
 
-                <!-- Stage 2: Manage Organisation Members -->
+                <!-- Stage 3: Manage Organisation Members -->
                 <div
                     class="border border-gray-300 p-6 rounded-lg hover:shadow-md hover:border-indigo-500 transition"
                 >
                     <h2 class="text-xl font-semibold text-gray-800 mb-3">
-                        2- Gérer les membres de l'organisation
+                        3- Gérer les membres de l'organisation
                     </h2>
                     <p class="text-sm text-gray-600 mb-4">
                         Gérez les membres de votre organisation.
@@ -59,12 +78,12 @@
                     </a>
                 </div>
 
-                <!-- Stage 3: Manage Internal Roles -->
+                <!-- Stage 4: Manage Internal Roles -->
                 <div
                     class="border border-gray-300 p-6 rounded-lg hover:shadow-md hover:border-blue-500 transition"
                 >
                     <h2 class="text-xl font-semibold text-gray-800 mb-3">
-                        3- Gérer les rôles internes
+                        4- Gérer les rôles internes
                     </h2>
                     <p class="text-sm text-gray-600 mb-4">
                         Nommez des Business Wall Managers et des
@@ -78,13 +97,13 @@
                     </a>
                 </div>
 
-                <!-- Stage 4: Manage External Partners -->
+                <!-- Stage 5: Manage External Partners -->
                 {% if bw_type != 'pr' %}
                     <div
                         class="border border-gray-300 p-6 rounded-lg hover:shadow-md hover:border-green-500 transition"
                     >
                         <h2 class="text-xl font-semibold text-gray-800 mb-3">
-                            4- Gérer les partenaires externes
+                            5- Gérer les partenaires externes
                         </h2>
                         <p class="text-sm text-gray-600 mb-4">
                             Ajoutez des PR Agencies ou PR Consultants pour vous
@@ -99,12 +118,12 @@
                     </div>
                 {% endif %}
 
-                <!-- Stage 5: Assign Missions/Permissions -->
+                <!-- Stage 6: Assign Missions/Permissions -->
                 <div
                     class="border border-gray-300 p-6 rounded-lg hover:shadow-md hover:border-purple-500 transition"
                 >
                     <h2 class="text-xl font-semibold text-gray-800 mb-3">
-                        {% if bw_type != 'pr' %}5{% else %}4{% endif %}-
+                        {% if bw_type != 'pr' %}6{% else %}5{% endif %}-
                         Attribuer des missions
                     </h2>
                     <p class="text-sm text-gray-600 mb-4">
@@ -116,26 +135,6 @@
                         class="inline-block rounded-md bg-purple-600 px-4 py-2 text-sm font-semibold text-white hover:bg-purple-700"
                     >
                         Attribuer des missions →
-                    </a>
-                </div>
-
-                <!-- Stage 6: Configure BW Content -->
-                <div
-                    class="border border-gray-300 p-6 rounded-lg hover:shadow-md hover:border-orange-500 transition"
-                >
-                    <h2 class="text-xl font-semibold text-gray-800 mb-3">
-                        {% if bw_type != 'pr' %}6{% else %}5{% endif %}-
-                        Configurer le contenu
-                    </h2>
-                    <p class="text-sm text-gray-600 mb-4">
-                        Remplissez les informations de votre Business Wall
-                        (logo, description, contacts, etc.).
-                    </p>
-                    <a
-                        href="{{ url_for('bw_activation.configure_content') }}"
-                        class="inline-block rounded-md bg-orange-600 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-700"
-                    >
-                        Configurer le contenu →
                     </a>
                 </div>
             </div>
