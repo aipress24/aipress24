@@ -9,6 +9,7 @@ from __future__ import annotations
 from datetime import date
 from typing import TYPE_CHECKING
 
+from app.modules.wip.views.performance import is_sorted
 from app.services.reputation._models import ReputationRecord
 
 if TYPE_CHECKING:
@@ -79,44 +80,30 @@ class TestIsSorted:
 
     def test_empty_sequence_is_sorted(self):
         """Empty sequence is considered sorted."""
-        from app.modules.wip.views.performance import is_sorted
-
         assert is_sorted([]) is True
 
     def test_single_element_is_sorted(self):
         """Single element sequence is considered sorted."""
-        from app.modules.wip.views.performance import is_sorted
-
         assert is_sorted([1]) is True
 
     def test_sorted_sequence(self):
         """Sorted sequence returns True."""
-        from app.modules.wip.views.performance import is_sorted
-
         assert is_sorted([1, 2, 3, 4, 5]) is True
 
     def test_unsorted_sequence(self):
         """Unsorted sequence returns False."""
-        from app.modules.wip.views.performance import is_sorted
-
         assert is_sorted([1, 3, 2, 4, 5]) is False
 
     def test_sorted_with_key_function(self):
         """Sorted with key function works."""
-        from app.modules.wip.views.performance import is_sorted
-
         data = [{"x": 1}, {"x": 2}, {"x": 3}]
         assert is_sorted(data, key=lambda d: d["x"]) is True
 
     def test_unsorted_with_key_function(self):
         """Unsorted with key function returns False."""
-        from app.modules.wip.views.performance import is_sorted
-
         data = [{"x": 1}, {"x": 3}, {"x": 2}]
         assert is_sorted(data, key=lambda d: d["x"]) is False
 
     def test_equal_elements_is_sorted(self):
         """Sequence with equal elements is considered sorted."""
-        from app.modules.wip.views.performance import is_sorted
-
         assert is_sorted([1, 1, 1, 1]) is True

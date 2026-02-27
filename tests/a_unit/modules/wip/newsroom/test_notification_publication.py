@@ -459,8 +459,6 @@ class TestNotificationSendingReadiness:
         self, db_session: scoped_session
     ) -> None:
         """Only contacts with ACCEPTE status should be notified."""
-        from app.modules.wip.models.newsroom.avis_enquete import StatutAvis
-
         journaliste, _expert1, _media, enquete, contact1, article = _create_test_data(
             db_session
         )

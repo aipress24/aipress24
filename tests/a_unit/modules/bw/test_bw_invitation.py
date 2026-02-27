@@ -17,10 +17,11 @@ from app.models.organisation import Organisation
 from app.modules.bw.bw_activation.bw_invitation import (
     change_bwmi_emails,
     change_bwpri_emails,
+    ensure_roles_membership,
     invite_user_role,
     revoke_user_role,
 )
-from app.modules.bw.bw_activation.models import BusinessWall
+from app.modules.bw.bw_activation.models import BusinessWall, RoleAssignment
 from app.modules.bw.bw_activation.models.role import BWRoleType, InvitationStatus
 
 if TYPE_CHECKING:
@@ -340,8 +341,6 @@ class TestEnsureRolesMembership:
         app_context: AppContext,
     ) -> None:
         """Remove role assignments for users no longer in organisation."""
-        from app.modules.bw.bw_activation.bw_invitation import ensure_roles_membership
-
         org = Organisation(name="Test Org")
         owner = User(email=_unique_email(), active=True)
         db_session.add_all([org, owner])
@@ -374,8 +373,6 @@ class TestEnsureRolesMembership:
 
         # Verify role assignment exists
         db_session.expire_all()
-        from app.modules.bw.bw_activation.models import RoleAssignment
-
         assignments = (
             db_session.query(RoleAssignment)
             .filter_by(business_wall_id=business_wall.id)
@@ -406,8 +403,6 @@ class TestEnsureRolesMembership:
         app_context: AppContext,
     ) -> None:
         """Keep role assignments for current organisation members."""
-        from app.modules.bw.bw_activation.bw_invitation import ensure_roles_membership
-
         org = Organisation(name="Test Org")
         owner = User(email=_unique_email(), active=True)
         db_session.add_all([org, owner])
@@ -444,8 +439,6 @@ class TestEnsureRolesMembership:
 
         # Verify role assignment still exists
         db_session.expire_all()
-        from app.modules.bw.bw_activation.models import RoleAssignment
-
         assignments = (
             db_session.query(RoleAssignment)
             .filter_by(business_wall_id=business_wall.id)
@@ -460,8 +453,6 @@ class TestEnsureRolesMembership:
         app_context: AppContext,
     ) -> None:
         """Return 0 if business wall has no organisation."""
-        from app.modules.bw.bw_activation.bw_invitation import ensure_roles_membership
-
         user = User(email=_unique_email(), active=True)
         db_session.add(user)
         db_session.flush()

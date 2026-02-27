@@ -8,6 +8,12 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from app.modules.admin.views.promotions import (
+    BOX_TITLE1,
+    BOX_TITLE2,
+    PROMO_SLUG_LABEL,
+)
+
 if TYPE_CHECKING:
     from flask.testing import FlaskClient
 
@@ -82,8 +88,6 @@ class TestPromoConstants:
 
     def test_promo_slug_label_structure(self):
         """Test that PROMO_SLUG_LABEL has correct structure."""
-        from app.modules.admin.views.promotions import PROMO_SLUG_LABEL
-
         assert len(PROMO_SLUG_LABEL) == 8
         for item in PROMO_SLUG_LABEL:
             assert "value" in item
@@ -91,8 +95,6 @@ class TestPromoConstants:
 
     def test_promo_slug_label_values(self):
         """Test that PROMO_SLUG_LABEL has expected values."""
-        from app.modules.admin.views.promotions import PROMO_SLUG_LABEL
-
         values = [item["value"] for item in PROMO_SLUG_LABEL]
         assert "wire/1" in values
         assert "wire/2" in values
@@ -105,7 +107,5 @@ class TestPromoConstants:
 
     def test_box_titles(self):
         """Test box title constants."""
-        from app.modules.admin.views.promotions import BOX_TITLE1, BOX_TITLE2
-
         assert BOX_TITLE1 == "AiPRESS24 vous informe"
         assert BOX_TITLE2 == "AiPRESS24 vous suggère"

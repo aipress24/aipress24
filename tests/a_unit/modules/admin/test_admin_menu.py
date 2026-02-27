@@ -8,6 +8,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from app.modules.admin.views._dashboard import WIDGETS
+from app.modules.admin.views._promotions import PROMO_SLUG_LABEL
+
 
 @dataclass
 class StubPage:
@@ -135,8 +138,6 @@ class TestMenuConfiguration:
 
     def test_promo_slug_labels_structure(self):
         """Test PROMO_SLUG_LABEL from promotions.py has correct structure."""
-        from app.modules.admin.views._promotions import PROMO_SLUG_LABEL
-
         for item in PROMO_SLUG_LABEL:
             assert "value" in item
             assert "label" in item
@@ -145,8 +146,6 @@ class TestMenuConfiguration:
 
     def test_widgets_configuration_structure(self):
         """Test WIDGETS from _dashboard.py has correct structure."""
-        from app.modules.admin.views._dashboard import WIDGETS
-
         required_keys = {"metric", "duration", "label", "color"}
         for widget in WIDGETS:
             assert required_keys.issubset(widget.keys())

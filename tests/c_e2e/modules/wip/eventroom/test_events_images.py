@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
+from unittest.mock import MagicMock
 
 import pytest
 
@@ -14,6 +15,7 @@ from app.flask.routing import url_for
 from app.models.auth import User
 from app.models.lifecycle import PublicationStatus
 from app.models.organisation import Organisation
+from app.modules.wip.crud.cbvs.events import EventsTable, EventsWipView
 from app.modules.wip.models.eventroom import Event
 
 if TYPE_CHECKING:
@@ -153,18 +155,11 @@ class TestEventsTable:
 
     def test_table_id(self):
         """Test that table has correct id."""
-        from app.modules.wip.crud.cbvs.events import EventsTable
-
         table = EventsTable()
         assert table.id == "events-table"
 
     def test_get_actions_draft(self, app):
         """Test get_actions for draft event."""
-        from unittest.mock import MagicMock
-
-        from app.models.lifecycle import PublicationStatus
-        from app.modules.wip.crud.cbvs.events import EventsTable
-
         with app.test_request_context():
             table = EventsTable()
 
@@ -184,11 +179,6 @@ class TestEventsTable:
 
     def test_get_actions_published(self, app):
         """Test get_actions for published event."""
-        from unittest.mock import MagicMock
-
-        from app.models.lifecycle import PublicationStatus
-        from app.modules.wip.crud.cbvs.events import EventsTable
-
         with app.test_request_context():
             table = EventsTable()
 
@@ -208,8 +198,6 @@ class TestEventsWipViewAttributes:
 
     def test_view_attributes(self):
         """Test view has expected attributes."""
-        from app.modules.wip.crud.cbvs.events import EventsWipView
-
         assert EventsWipView.name == "events"
         assert EventsWipView.route_base == "events"
         assert EventsWipView.icon == "calendar"
@@ -217,8 +205,6 @@ class TestEventsWipViewAttributes:
 
     def test_view_labels(self):
         """Test view has expected labels."""
-        from app.modules.wip.crud.cbvs.events import EventsWipView
-
         # Note: label_main is plural "Evénements"
         assert "vénement" in EventsWipView.label_main.lower()
         assert "vénement" in EventsWipView.label_new.lower()

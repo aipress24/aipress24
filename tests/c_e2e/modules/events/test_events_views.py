@@ -8,13 +8,17 @@ from __future__ import annotations
 
 import arrow
 import pytest
-from flask import Flask
+from flask import Flask, g
 from flask.testing import FlaskClient
 from sqlalchemy.orm import Session
+from svcs.flask import container
 
+from app.flask.lib.nav.registration import _inject_breadcrumbs_to_context
+from app.flask.lib.nav.request import NavRequest
 from app.models.auth import User
 from app.models.lifecycle import PublicationStatus
 from app.modules.events.models import EventPost
+from app.services.context import Context
 
 
 @pytest.fixture
@@ -346,21 +350,13 @@ class TestNavigationIntegration:
 
     def test_breadcrumbs_injected_to_context_service(self, app):
         """Test that breadcrumbs are injected into Context service."""
-        from svcs.flask import container
-
         nav_tree = app.extensions["nav_tree"]
-        from app.services.context import Context
 
         with app.test_request_context("/events/"):
             # Build nav tree
             nav_tree.build(app)
 
             # Simulate before_request
-            from flask import g
-
-            from app.flask.lib.nav.registration import _inject_breadcrumbs_to_context
-            from app.flask.lib.nav.request import NavRequest
-
             g.nav = NavRequest("events.events", {})
             _inject_breadcrumbs_to_context()
 

@@ -9,6 +9,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from unittest.mock import Mock
 
+import app.modules.admin.views._show_org as show_org_module
 from app.modules.admin.views._show_org import OrgVM
 
 
@@ -96,8 +97,6 @@ class TestOrgVMExtraAttrs:
         vm = OrgVM(org)
 
         # Mock invitations function since it requires DB
-        import app.modules.admin.views._show_org as show_org_module
-
         original_fn = show_org_module.emails_invited_to_organisation
         show_org_module.emails_invited_to_organisation = lambda org_id: ["a@b.com"]
 
@@ -120,8 +119,6 @@ class TestOrgVMExtraAttrs:
         members = [Mock(), Mock(), Mock()]
         org = StubOrganisation(members=members)
         vm = OrgVM(org)
-
-        import app.modules.admin.views._show_org as show_org_module
 
         original_fn = show_org_module.emails_invited_to_organisation
         show_org_module.emails_invited_to_organisation = lambda org_id: []

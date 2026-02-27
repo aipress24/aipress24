@@ -19,6 +19,7 @@ from app.modules.wip.models.newsroom.avis_enquete import (
     ContactAvisEnquete,
     StatutAvis,
 )
+from app.modules.wip.views.opportunities import MediaOpportunity
 
 if TYPE_CHECKING:
     from flask.testing import FlaskClient
@@ -313,10 +314,6 @@ class TestMediaOpportunityClass:
         test_org: Organisation,
     ):
         """Test MediaOpportunity exposes correct properties."""
-        from datetime import UTC, datetime, timedelta
-
-        from app.modules.wip.views.opportunities import MediaOpportunity
-
         # Create journalist inline to avoid fixture ordering issues
         journalist = User(
             email="journalist-for-class-test@example.com",

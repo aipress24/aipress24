@@ -10,12 +10,16 @@ This file tests views, helper classes, and utility functions directly.
 
 from __future__ import annotations
 
+import uuid
+from importlib.metadata import distributions
 from typing import TYPE_CHECKING
 
 import pytest
 from sqlalchemy import select
 
-from app.models.auth import User
+import app.modules.admin.views._show_org as show_org_module
+from app.enums import OrganisationTypeEnum, RoleEnum
+from app.models.auth import KYCProfile, Role, User
 from app.models.content import BaseContent
 from app.models.organisation import Organisation
 from app.modules.admin.views._contents import (
@@ -27,6 +31,7 @@ from app.modules.admin.views._dashboard import WIDGETS, Widget
 from app.modules.admin.views._groups import GroupDataSource, GroupsTable
 from app.modules.admin.views._show_org import OrgVM
 from app.modules.admin.views._users import UserDataSource
+from app.modules.admin.views.home import WIDGETS as HOME_WIDGETS
 from app.modules.swork.models import Group
 
 if TYPE_CHECKING:
@@ -329,11 +334,6 @@ class TestAdminEndpoints:
 @pytest.fixture
 def organisation_with_members(db_session: Session) -> Organisation:
     """Create an organisation with members for show_org tests."""
-    import uuid
-
-    from app.enums import OrganisationTypeEnum, RoleEnum
-    from app.models.auth import KYCProfile, Role
-
     unique_id = uuid.uuid4().hex[:8]
 
     for role_enum in [RoleEnum.MANAGER, RoleEnum.LEADER]:
@@ -407,8 +407,6 @@ class TestOrgVMExtended:
     ):
         """Test OrgVM extra_attrs returns all expected keys."""
         # Mock the invitations function
-        import app.modules.admin.views._show_org as show_org_module
-
         original_fn = show_org_module.emails_invited_to_organisation
         show_org_module.emails_invited_to_organisation = lambda org_id: []
 
@@ -434,10 +432,6 @@ class TestOrgVMExtended:
         db_session: Session,
     ):
         """Test get_logo_url returns static image for AUTO organisations."""
-        import uuid
-
-        from app.enums import OrganisationTypeEnum
-
         unique_id = uuid.uuid4().hex[:8]
 
         org = Organisation(
@@ -464,16 +458,12 @@ class TestDashboardEndpoint:
 
     def test_dashboard_has_six_widget_configs(self):
         """Test dashboard WIDGETS configuration has 6 items."""
-        from app.modules.admin.views.home import WIDGETS
-
-        assert len(WIDGETS) == 6
+        assert len(HOME_WIDGETS) == 6
 
     def test_dashboard_widgets_have_required_keys(self):
         """Test dashboard widgets have required keys."""
-        from app.modules.admin.views.home import WIDGETS
-
         required_keys = {"metric", "duration", "label", "color"}
-        for widget in WIDGETS:
+        for widget in HOME_WIDGETS:
             assert required_keys <= set(widget.keys())
 
 
@@ -487,8 +477,6 @@ class TestSystemEndpoint:
 
     def test_system_packages_info_structure(self):
         """Test system view can generate package info structure."""
-        from importlib.metadata import distributions
-
         # Just verify we can iterate distributions (same logic as view)
         count = sum(1 for _ in distributions())
         assert count > 0

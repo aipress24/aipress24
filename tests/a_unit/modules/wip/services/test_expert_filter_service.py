@@ -12,6 +12,7 @@ from app.models.auth import KYCProfile, User
 from app.modules.wip.services.newsroom.expert_filter import (
     MAX_SELECTABLE_EXPERTS,
     ExpertFilterService,
+    FilterState,
 )
 from app.modules.wip.services.newsroom.expert_selectors import (
     CompetencesGeneralesSelector,
@@ -1324,8 +1325,6 @@ class TestStateManagement:
 
     def test_filter_state_type_alias(self) -> None:
         """FilterState type can hold different value types."""
-        from app.modules.wip.services.newsroom.expert_filter import FilterState
-
         # FilterState can hold strings, list of strings, or list of ints
         state: FilterState = {
             "secteur": ["Tech", "Finance"],
