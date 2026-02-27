@@ -4,11 +4,14 @@
 
 from __future__ import annotations
 
-from flask_sqlalchemy import SQLAlchemy
+from typing import TYPE_CHECKING
 
 from app.models.auth import User
 from app.services.activity_stream import get_timeline, post_activity
 from app.services.activity_stream._models import ActivityType
+
+if TYPE_CHECKING:
+    from flask_sqlalchemy import SQLAlchemy
 
 
 def test_single_user(db: SQLAlchemy) -> None:

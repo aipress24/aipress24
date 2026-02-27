@@ -15,14 +15,16 @@ where we focus on testing state (return values) rather than behavior.
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
 from unittest.mock import MagicMock, patch
-
-from flask import Flask
 
 from app.services.stripe.product import (
     fetch_stripe_product_list,
     stripe_bw_subscription_dict,
 )
+
+if TYPE_CHECKING:
+    from flask import Flask
 
 
 class TestFetchStripeProductList:

@@ -25,10 +25,11 @@ from typing import TYPE_CHECKING, ClassVar
 import pytest
 
 from app.enums import RoleEnum
-from app.flask.lib.nav import NavTree
 
 if TYPE_CHECKING:
     from flask import Flask
+
+    from app.flask.lib.nav import NavTree
 
 
 @pytest.fixture(autouse=True)

@@ -12,9 +12,9 @@ These tests cover the integration between different components:
 from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
+from typing import TYPE_CHECKING
 
 import arrow
-from sqlalchemy.orm import scoped_session
 
 from app.models.auth import User
 from app.models.organisation import Organisation
@@ -32,6 +32,9 @@ from app.modules.wip.models.newsroom.notification_publication import (
     NotificationPublicationContact,
 )
 from app.modules.wip.models.newsroom.sujet import Sujet
+
+if TYPE_CHECKING:
+    from sqlalchemy.orm import scoped_session
 
 # ----------------------------------------------------------------
 # Helper Functions

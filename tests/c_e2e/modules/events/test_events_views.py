@@ -6,11 +6,11 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import arrow
 import pytest
 from flask import Flask, g
-from flask.testing import FlaskClient
-from sqlalchemy.orm import Session
 from svcs.flask import container
 
 from app.flask.lib.nav.registration import _inject_breadcrumbs_to_context
@@ -19,6 +19,10 @@ from app.models.auth import User
 from app.models.lifecycle import PublicationStatus
 from app.modules.events.models import EventPost
 from app.services.context import Context
+
+if TYPE_CHECKING:
+    from flask.testing import FlaskClient
+    from sqlalchemy.orm import Session
 
 
 @pytest.fixture

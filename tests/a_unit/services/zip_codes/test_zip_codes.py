@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 
-from flask_sqlalchemy import SQLAlchemy
+from typing import TYPE_CHECKING
 
 from app.services.zip_codes import (
     check_zip_code_exist,
@@ -15,6 +15,9 @@ from app.services.zip_codes import (
     get_zip_code_country,
     update_zip_code_entry,
 )
+
+if TYPE_CHECKING:
+    from flask_sqlalchemy import SQLAlchemy
 
 
 class TestCheckZipCodeExist:

@@ -10,10 +10,7 @@ from typing import TYPE_CHECKING
 
 import arrow
 import pytest
-from flask import Flask
-from flask.testing import FlaskClient
 from sqlalchemy import select
-from sqlalchemy.orm import Session
 
 from app.models.auth import User
 from app.models.lifecycle import PublicationStatus
@@ -26,7 +23,9 @@ from app.modules.events.views._common import (
 from app.modules.events.views._filters import FilterBar
 
 if TYPE_CHECKING:
-    pass
+    from flask import Flask
+    from flask.testing import FlaskClient
+    from sqlalchemy.orm import Session
 
 
 @pytest.fixture

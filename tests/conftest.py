@@ -11,17 +11,21 @@ Provides database lifecycle management and fixtures for both SQLite and PostgreS
 
 from __future__ import annotations
 
-from collections.abc import Generator
+from typing import TYPE_CHECKING
 from urllib.parse import urlparse
 
 import pytest
-from flask.ctx import AppContext
 from sqlalchemy import create_engine, event, text
 from sqlalchemy.exc import OperationalError, ProgrammingError
 from sqlalchemy.pool import StaticPool
 
 from app.flask.extensions import db as _db
 from app.flask.main import create_app
+
+if TYPE_CHECKING:
+    from collections.abc import Generator
+
+    from flask.ctx import AppContext
 
 
 class TestConfig:

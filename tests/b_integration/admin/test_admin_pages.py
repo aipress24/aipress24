@@ -10,7 +10,10 @@ Uses transaction isolation - no commits allowed.
 
 from __future__ import annotations
 
-from flask.testing import FlaskClient
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from flask.testing import FlaskClient
 
 
 class TestAdminUsersPage:

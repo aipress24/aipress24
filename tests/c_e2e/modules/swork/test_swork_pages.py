@@ -10,15 +10,14 @@ from typing import TYPE_CHECKING
 
 import pytest
 from flask import Flask, g
-from flask.testing import FlaskClient
-from sqlalchemy.orm import Session
 
 from app.models.auth import KYCProfile, User
 from app.modules.swork.models import Group
 from app.modules.swork.views._common import MEMBER_TABS, UserVM
 
 if TYPE_CHECKING:
-    pass
+    from flask.testing import FlaskClient
+    from sqlalchemy.orm import Session
 
 
 @pytest.fixture

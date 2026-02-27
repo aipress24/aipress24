@@ -13,10 +13,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from app.modules.bw.bw_activation.models import BusinessWall
-
 if TYPE_CHECKING:
     from flask.testing import FlaskClient
+
+    from app.modules.bw.bw_activation.models import BusinessWall
 
 
 class TestStageB1InviteOrgMembersRoutes:

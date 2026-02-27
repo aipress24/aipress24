@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 
-from flask_sqlalchemy import SQLAlchemy
+from typing import TYPE_CHECKING
 
 from app.services.taxonomies import (
     check_taxonomy_exists,
@@ -18,6 +18,9 @@ from app.services.taxonomies import (
     get_taxonomy_dual_select,
     update_entry,
 )
+
+if TYPE_CHECKING:
+    from flask_sqlalchemy import SQLAlchemy
 
 
 class TestCheckTaxonomyExists:

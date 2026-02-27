@@ -4,13 +4,17 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import arrow
-from flask_sqlalchemy import SQLAlchemy
 
 from app.models.auth import User
 from app.models.lifecycle import PublicationStatus
 from app.models.organisation import Organisation
 from app.modules.wire.models import ArticlePost, Post, PressReleasePost, PublisherType
+
+if TYPE_CHECKING:
+    from flask_sqlalchemy import SQLAlchemy
 
 
 class TestPublisherType:

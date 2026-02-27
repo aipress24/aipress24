@@ -4,11 +4,15 @@
 
 from __future__ import annotations
 
-from flask import Flask
+from typing import TYPE_CHECKING
+
 from svcs.flask import container
 
 from app.services.activity_stream import ActivityStream
 from app.services.screenshots import ScreenshotService
+
+if TYPE_CHECKING:
+    from flask import Flask
 
 
 def test_services(app: Flask) -> None:

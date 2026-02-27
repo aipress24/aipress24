@@ -4,13 +4,17 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import pytest
 from flask import g, session as flask_session
-from flask_sqlalchemy import SQLAlchemy
 from svcs.flask import container
 
 from app.services.sessions import Session, SessionService
 from app.services.sessions._models import SessionRepository
+
+if TYPE_CHECKING:
+    from flask_sqlalchemy import SQLAlchemy
 
 
 class FakeUser:

@@ -6,14 +6,18 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import pytest
-from flask_sqlalchemy import SQLAlchemy
 from svcs.flask import container
 
 from app.enums import RoleEnum
 from app.models.auth import Role, User
 from app.models.repositories import RoleRepository
 from app.services.roles import add_role, generate_roles_map, has_role
+
+if TYPE_CHECKING:
+    from flask_sqlalchemy import SQLAlchemy
 
 
 class TestGenerateRolesMap:

@@ -9,13 +9,13 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import pytest
-from werkzeug.test import Client
 
 from app.models.auth import User
 from app.models.organisation import Organisation
 
 if TYPE_CHECKING:
     from sqlalchemy.orm import Session
+    from werkzeug.test import Client
 
 
 @pytest.fixture

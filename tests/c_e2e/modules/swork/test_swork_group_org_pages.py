@@ -11,8 +11,6 @@ from unittest.mock import patch
 
 import pytest
 from flask import Flask, g
-from flask.testing import FlaskClient
-from sqlalchemy.orm import Session
 
 from app.enums import OrganisationTypeEnum
 from app.models.auth import KYCProfile, User
@@ -37,7 +35,8 @@ from app.modules.swork.views.organisation import (
 )
 
 if TYPE_CHECKING:
-    pass
+    from flask.testing import FlaskClient
+    from sqlalchemy.orm import Session
 
 
 @pytest.fixture

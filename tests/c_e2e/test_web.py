@@ -13,12 +13,11 @@ from __future__ import annotations
 import time
 import typing
 
-from flask_sqlalchemy import SQLAlchemy
-
 from app.flask.routing import url_for
 
 if typing.TYPE_CHECKING:
     from flask.app import Flask
+    from flask_sqlalchemy import SQLAlchemy
     from werkzeug.routing import Rule
 
 

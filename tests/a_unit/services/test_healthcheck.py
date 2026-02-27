@@ -6,9 +6,12 @@
 
 from __future__ import annotations
 
-from flask_sqlalchemy import SQLAlchemy
+from typing import TYPE_CHECKING
 
 from app.services.healthcheck import healthcheck
+
+if TYPE_CHECKING:
+    from flask_sqlalchemy import SQLAlchemy
 
 
 def test_healthcheck_succeeds_with_database(db: SQLAlchemy) -> None:

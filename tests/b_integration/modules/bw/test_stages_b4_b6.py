@@ -16,10 +16,10 @@ from typing import TYPE_CHECKING
 from flask import Flask, session
 from flask_security import login_user
 
-from app.models.auth import User
-
 if TYPE_CHECKING:
     from flask.testing import FlaskClient
+
+    from app.models.auth import User
 
 
 class TestStageB4ExternalPartnersRoutes:

@@ -6,8 +6,9 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from arrow import now as arrow_now
-from flask_sqlalchemy import SQLAlchemy
 
 from app.constants import LOCAL_TZ
 from app.enums import OrganisationTypeEnum, RoleEnum
@@ -24,6 +25,9 @@ from app.modules.admin.utils import (
     set_user_organisation,
     toggle_org_active,
 )
+
+if TYPE_CHECKING:
+    from flask_sqlalchemy import SQLAlchemy
 
 
 class TestGetUserPerEmail:

@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 
-from flask_sqlalchemy import SQLAlchemy
+from typing import TYPE_CHECKING
 
 from app.enums import OrganisationTypeEnum, RoleEnum
 from app.models.auth import KYCProfile, Role, User
@@ -17,6 +17,9 @@ from app.modules.admin.org_email_utils import (
     change_managers_emails,
     change_members_emails,
 )
+
+if TYPE_CHECKING:
+    from flask_sqlalchemy import SQLAlchemy
 
 
 def get_or_create_role(db: SQLAlchemy, role_enum: RoleEnum) -> Role:

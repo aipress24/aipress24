@@ -4,8 +4,9 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import pytest
-from flask_sqlalchemy import SQLAlchemy
 from typeguard import TypeCheckError
 
 from app.models.auth import User
@@ -20,6 +21,9 @@ from app.modules.wire.receivers import (
     on_communique_updated,
     update_communique_post,
 )
+
+if TYPE_CHECKING:
+    from flask_sqlalchemy import SQLAlchemy
 
 
 class TestGetPost:

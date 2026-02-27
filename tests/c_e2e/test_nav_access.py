@@ -19,13 +19,14 @@ from typing import TYPE_CHECKING, ClassVar
 import pytest
 
 from app.enums import RoleEnum
-from app.flask.lib.nav import NavTree
 from app.models.auth import KYCProfile, Role, User
 from app.models.organisation import Organisation
 from tests.c_e2e.conftest import make_authenticated_client
 
 if TYPE_CHECKING:
     from flask import Flask
+
+    from app.flask.lib.nav import NavTree
 
 
 # Community roles (required for first_community())

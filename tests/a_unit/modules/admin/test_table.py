@@ -9,8 +9,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import arrow
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
 
 from app.enums import OrganisationTypeEnum
 from app.models.auth import User
@@ -23,7 +21,8 @@ from app.modules.admin.table import (
 )
 
 if TYPE_CHECKING:
-    pass
+    from flask import Flask
+    from flask_sqlalchemy import SQLAlchemy
 
 
 class TestColumn:

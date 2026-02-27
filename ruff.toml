@@ -66,18 +66,17 @@ lint.ignore = [
     #
     # Later
     "ERA001", #  commented-out-code
-    "T201", #    print
     "E501", #    line-too-long
     #
     # Fixable ?
     #
     "BLE001", # 	blind-except
-    # "RUF012", # 	mutable-class-default
     "C901", #   	complex-structure
     "PLR0911", #	too-many-return-statements
     "PLR0912", #	too-many-branches
     "PLR0915", #    too many statements
     "RUF100", #  [*] Unused `noqa` directive
+    "T201", #    print
 ]
 
 [lint.extend-per-file-ignores]
@@ -96,6 +95,10 @@ lint.ignore = [
     "PT011", #   pytest-raises-too-broad
     "RUF043", #  pytest-raises-ambiguous-pattern
     "B017", #    assert-raises-exception
+    "T201", #    print
+]
+"tasks.py" = [
+    "T201", #    print
 ]
 
 [lint.isort]
