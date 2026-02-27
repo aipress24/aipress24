@@ -15,7 +15,7 @@ returns to read-only after saving or canceling.
 
 from __future__ import annotations
 
-from typing import cast
+from typing import ClassVar, cast
 
 from attr import define
 from flask import Response, current_app, render_template, request, url_for
@@ -109,7 +109,7 @@ class OrgVM(ViewModel):
 class ShowOrgView(MethodView):
     """Organization detail page with management actions."""
 
-    decorators = [
+    decorators: ClassVar[list] = [
         nav(parent="orgs", icon="clipboard-document-check", label="Détail organisation")
     ]
 

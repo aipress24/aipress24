@@ -1488,26 +1488,26 @@ class TestStateManagement:
                 "app.modules.wip.services.newsroom.expert_filter.container"
             ) as mock_container,
         ):
-                mock_session: dict = {}
-                mock_container.get.return_value = mock_session
+            mock_session: dict = {}
+            mock_container.get.return_value = mock_session
 
-                service = ExpertFilterService()
-                service._session = mock_session
-                service._user_repo = MagicMock()
-                # Pre-existing state with FR, departement 75, ville Paris
-                service._state = {
-                    "pays": ["FR"],
-                    "departement": ["75"],
-                    "ville": ["Paris"],
-                }
+            service = ExpertFilterService()
+            service._session = mock_session
+            service._user_repo = MagicMock()
+            # Pre-existing state with FR, departement 75, ville Paris
+            service._state = {
+                "pays": ["FR"],
+                "departement": ["75"],
+                "ville": ["Paris"],
+            }
 
-                service._update_state_from_request()
+            service._update_state_from_request()
 
-                # Pays should be updated
-                assert service._state["pays"] == ["BE"]
-                # Departement and ville should be cleared (not in request)
-                assert "departement" not in service._state
-                assert "ville" not in service._state
+            # Pays should be updated
+            assert service._state["pays"] == ["BE"]
+            # Departement and ville should be cleared (not in request)
+            assert "departement" not in service._state
+            assert "ville" not in service._state
 
 
 # ----------------------------------------------------------------

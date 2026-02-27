@@ -9,6 +9,8 @@ Note: This page is not currently used in production.
 
 from __future__ import annotations
 
+from typing import ClassVar
+
 from flask import render_template
 from flask.views import MethodView
 
@@ -21,7 +23,9 @@ from ._common import build_table_context, handle_table_post
 class ContentsView(MethodView):
     """Contents list page."""
 
-    decorators = [nav(parent="index", icon="rectangle-stack", label="Contenus")]
+    decorators: ClassVar[list] = [
+        nav(parent="index", icon="rectangle-stack", label="Contenus")
+    ]
 
     def get(self):
         from ._contents import ContentsDataSource, ContentsTable

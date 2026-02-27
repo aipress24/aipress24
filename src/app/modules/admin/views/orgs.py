@@ -6,6 +6,8 @@
 
 from __future__ import annotations
 
+from typing import ClassVar
+
 from flask import render_template
 from flask.views import MethodView
 
@@ -18,7 +20,9 @@ from ._common import build_table_context, handle_table_post
 class OrgsView(MethodView):
     """Organizations list page."""
 
-    decorators = [nav(parent="index", icon="building-2", label="Organisations")]
+    decorators: ClassVar[list] = [
+        nav(parent="index", icon="building-2", label="Organisations")
+    ]
 
     def get(self):
         from ._orgs import OrgDataSource, OrgsTable

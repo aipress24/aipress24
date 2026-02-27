@@ -6,6 +6,8 @@
 
 from __future__ import annotations
 
+from typing import ClassVar
+
 from flask import redirect, render_template, request, url_for
 from flask.views import MethodView
 from svcs.flask import container
@@ -33,7 +35,9 @@ BOX_TITLE2 = "AiPRESS24 vous suggère"
 class PromotionsView(MethodView):
     """Promotions management page."""
 
-    decorators = [nav(parent="index", icon="megaphone", label="Promotions")]
+    decorators: ClassVar[list] = [
+        nav(parent="index", icon="megaphone", label="Promotions")
+    ]
 
     def get(self):
         promo_service = container.get(PromotionService)

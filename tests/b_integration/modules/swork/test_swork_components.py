@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, ClassVar
 
 import pytest
 from flask import Flask
@@ -144,13 +144,13 @@ class TestBaseListInit:
         class TestFilter(Filter):
             id = "test"
             label = "Test"
-            options = ["A", "B", "C"]
+            options: ClassVar[list] = ["A", "B", "C"]
 
             def apply(self, stmt, state):
                 return stmt
 
         class TestList(BaseList):
-            filters = [TestFilter()]
+            filters: ClassVar[list] = [TestFilter()]
 
             def get_base_statement(self):
                 return select(User)
@@ -242,7 +242,7 @@ class TestFilterActiveOptions:
         class TestFilter(Filter):
             id = "test"
             label = "Test"
-            options = ["A", "B", "C"]
+            options: ClassVar[list] = ["A", "B", "C"]
 
             def apply(self, stmt, state):
                 return stmt
@@ -260,7 +260,7 @@ class TestFilterActiveOptions:
         class TestFilter(Filter):
             id = "test"
             label = "Test"
-            options = ["A", "B", "C"]
+            options: ClassVar[list] = ["A", "B", "C"]
 
             def apply(self, stmt, state):
                 return stmt
