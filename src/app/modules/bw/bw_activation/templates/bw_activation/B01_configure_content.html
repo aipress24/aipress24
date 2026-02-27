@@ -19,7 +19,11 @@
                 </p>
             </div>
 
-            <form class="mt-8 space-y-10">
+            <form
+                method="POST"
+                enctype="multipart/form-data"
+                class="mt-8 space-y-10"
+            >
                 <!-- Section: Graphics (all types) -->
                 <fieldset>
                     <legend
@@ -32,15 +36,38 @@
                         <div>
                             <label
                                 class="block text-sm font-medium text-gray-900 mb-2"
-                                >Logo de votre organisation</label
                             >
+                                Logo de votre organisation
+                            </label>
+
+                            {% if business_wall.logo_image %}
+                                <div class="mb-4 p-4 bg-gray-50 rounded-md">
+                                    <p class="text-xs text-gray-500 mb-2">
+                                        Logo actuel :
+                                    </p>
+                                    <img
+                                        src="{{ business_wall.logo_image_signed_url() }}"
+                                        alt="Logo actuel"
+                                        class="h-16 w-auto object-contain"
+                                    />
+                                </div>
+                            {% endif %}
+
                             <input
                                 type="file"
+                                name="logo_image"
                                 accept="image/png, image/jpeg"
                                 class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                             />
                             <p class="mt-1 text-xs text-gray-500">
-                                Format : JPG ou PNG
+                                {% if business_wall.logo_image %}
+                                    Sélectionnez une nouvelle image pour
+                                    remplacer le logo existant (format JPG ou
+                                    PNG).
+                                {% else %}
+                                    Sélectionnez une image pour le logo de votre
+                                    organisation (format JPG ou PNG).
+                                {% endif %}
                             </p>
                         </div>
 
