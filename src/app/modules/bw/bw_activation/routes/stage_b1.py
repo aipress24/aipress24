@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, cast
 
-from flask import g, redirect, render_template, request, session, url_for
+from flask import flash, g, redirect, render_template, request, session, url_for
 
 from app.flask.extensions import db
 from app.lib.file_object_utils import create_file_object
@@ -22,6 +22,7 @@ from app.modules.bw.bw_activation.utils import (
     bw_managers_ids,
     fill_session,
 )
+from app.settings.constants import MAX_IMAGE_SIZE
 
 if TYPE_CHECKING:
     from app.models.auth import User
@@ -52,19 +53,25 @@ def configure_content():
         if logo_file and logo_file.filename:
             try:
                 content = logo_file.read()
-                file_obj = create_file_object(
-                    content=content,
-                    original_filename=logo_file.filename,
-                    content_type=logo_file.content_type,
-                )
-                # Save the file to S3 storage (required before assigning to model)
-                saved_file_obj = file_obj.save()
-                business_wall.logo_image = saved_file_obj
-                db.session.commit()
-                warn(f"Logo updated for BW {logo_file.filename!r} {business_wall.id}")
+                if len(content) < MAX_IMAGE_SIZE:
+                    file_obj = create_file_object(
+                        content=content,
+                        original_filename=logo_file.filename,
+                        content_type=logo_file.content_type,
+                    )
+                    # Save the file to S3 storage (required before assigning to model)
+                    saved_file_obj = file_obj.save()
+                    business_wall.logo_image = saved_file_obj
+                    db.session.commit()
+                    flash("Logo mis à jour avec succès", "success")
+                    warn(
+                        f"Logo updated for BW {logo_file.filename!r} {business_wall.id}"
+                    )
+                else:
+                    flash("L'image est trop volumineuse (max 4MB)", "error")
             except Exception as e:
                 warn(f"Error uploading logo: {e}")
-                session["error"] = f"Erreur lors de l'upload du logo: {e}"
+                flash(f"Erreur lors de l'upload du logo: {e}", "error")
 
         return redirect(url_for("bw_activation.configure_content"))
 
