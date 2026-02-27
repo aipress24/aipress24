@@ -63,7 +63,6 @@ lint.ignore = [
     #
     # Security issues that are not relevant (a priori)
     #
-    "S311", # Standard pseudo-random generators are not suitable for cryptographic purposes
     "S603", # Using subprocess
     "S704", # Unsafe use of `markupsafe.Markup` detected
     #
@@ -75,7 +74,6 @@ lint.ignore = [
     # Fixable ?
     #
     "BLE001", # 	blind-except
-    "PLC0415", #	import-outside-top-level
     "RUF012", # 	mutable-class-default
     "C901", #   	complex-structure
     "PLR0911", #	too-many-return-statements
@@ -85,8 +83,11 @@ lint.ignore = [
 ]
 
 [lint.extend-per-file-ignores]
-"test_*.py" = [
-    "BLE001", #  blind-except
+"src/**/*.py" = [
+    "PLC0415", #	import-outside-top-level
+]
+"src/app/faker/**/*.py" = [
+    "S311", # Standard pseudo-random generators are not suitable for cryptographic purposes
 ]
 
 [lint.isort]
