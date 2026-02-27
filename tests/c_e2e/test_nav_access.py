@@ -14,7 +14,7 @@ This catches inconsistencies between nav tree metadata and view decorators.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, ClassVar
 
 import pytest
 
@@ -468,7 +468,7 @@ class TestAnonymousAccessSurface:
 
     # Routes that SHOULD be accessible without authentication
     # (login, register, static assets, public pages, health checks)
-    EXPECTED_PUBLIC_ENDPOINTS = {
+    EXPECTED_PUBLIC_ENDPOINTS: ClassVar[set[str]] = {
         # Auth routes
         "security.login",
         "security.register",
@@ -488,7 +488,7 @@ class TestAnonymousAccessSurface:
     }
 
     # Endpoint prefixes that are expected to be public
-    EXPECTED_PUBLIC_PREFIXES = {
+    EXPECTED_PUBLIC_PREFIXES: ClassVar[set[str]] = {
         "static",
         "security.",
         "public.",

@@ -321,7 +321,7 @@ class InscriptionsExporter(BaseExporter):
         self.columns_definition = {f.name: f for f in fields}
 
     # Field name to data source mapping
-    _USER_ATTRS = {
+    _USER_ATTRS: ClassVar[set[str]] = {
         "id",
         "validation_status",
         "last_login_at",
@@ -338,8 +338,8 @@ class InscriptionsExporter(BaseExporter):
         "karma",
         "organisation_name",
     }
-    _PROFILE_ATTRS = {"profile_label", "presentation"}
-    _INFO_PERSONNELLE_ATTRS = {
+    _PROFILE_ATTRS: ClassVar[set[str]] = {"profile_label", "presentation"}
+    _INFO_PERSONNELLE_ATTRS: ClassVar[set[str]] = {
         "pseudo",
         "no_carte_presse",
         "metier_principal",
@@ -352,7 +352,7 @@ class InscriptionsExporter(BaseExporter):
         "formations",
         "experiences",
     }
-    _INFO_PRO_ATTRS = {
+    _INFO_PRO_ATTRS: ClassVar[set[str]] = {
         "nom_groupe_presse",
         "nom_media",
         "nom_media_instit",
@@ -381,7 +381,7 @@ class InscriptionsExporter(BaseExporter):
         "ligne_directe",
         "url_site_web",
     }
-    _MATCH_MAKING_ATTRS = {
+    _MATCH_MAKING_ATTRS: ClassVar[set[str]] = {
         "fonctions_journalisme",
         "fonctions_pol_adm",
         "fonctions_pol_adm_detail",
@@ -398,7 +398,7 @@ class InscriptionsExporter(BaseExporter):
         "transformation_majeure",
         "transformation_majeure_detail",
     }
-    _INFO_HOBBY_ATTRS = {
+    _INFO_HOBBY_ATTRS: ClassVar[set[str]] = {
         "hobbies",
         "macaron_hebergement",
         "macaron_repas",
@@ -708,7 +708,7 @@ class OrganisationsExporter(BaseExporter):
         self.columns_definition = {f.name: f for f in fields}
 
     # Organization attribute names that are directly accessible
-    _ORG_ATTRS = {
+    _ORG_ATTRS: ClassVar[set[str]] = {
         "name",
         "slug",
         "type",

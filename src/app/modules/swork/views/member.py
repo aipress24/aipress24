@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 import random
+from typing import ClassVar
 
 from flask import Response, g, make_response, redirect, render_template, request
 from flask.views import MethodView
@@ -25,7 +26,7 @@ from app.modules.swork.views._common import MEMBER_TABS, UserVM, filter_email_mo
 class MemberDetailView(MethodView):
     """Member detail page with follow/unfollow action."""
 
-    decorators = [nav(parent="members")]
+    decorators: ClassVar[list] = [nav(parent="members")]
 
     def get(self, id: str):
         options = selectinload(User.organisation)

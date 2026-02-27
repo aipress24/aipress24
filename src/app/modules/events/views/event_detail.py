@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 import json
+from typing import ClassVar
 
 from flask import flash, g, make_response, redirect, render_template, request
 from flask.views import MethodView
@@ -28,7 +29,7 @@ from app.services.tracking import record_view
 class EventDetailView(MethodView):
     """Event detail page with like/unlike action."""
 
-    decorators = [nav(parent="events", label="Événement")]
+    decorators: ClassVar[list] = [nav(parent="events", label="Événement")]
 
     def get(self, id: int):
         event_obj = get_obj(id, EventPost)

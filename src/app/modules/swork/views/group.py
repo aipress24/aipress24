@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 
-from typing import cast
+from typing import ClassVar, cast
 
 import sqlalchemy as sa
 from attr import define
@@ -32,7 +32,7 @@ from app.modules.swork.views._common import (
 class GroupDetailView(MethodView):
     """Group detail page with join/leave action."""
 
-    decorators = [nav(parent="groups")]
+    decorators: ClassVar[list] = [nav(parent="groups")]
 
     def get(self, id: str):
         group_obj = get_obj(id, Group)

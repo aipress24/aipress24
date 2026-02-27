@@ -6,6 +6,8 @@
 
 from __future__ import annotations
 
+from typing import ClassVar
+
 from arrow import now
 from flask import Response, render_template, request, url_for
 from flask.views import MethodView
@@ -25,7 +27,7 @@ from app.services.roles import add_role
 class ShowUserView(MethodView):
     """Show user detail page with actions."""
 
-    decorators = [
+    decorators: ClassVar[list] = [
         nav(parent="users", icon="clipboard-document-check", label="Détail utilisateur")
     ]
 

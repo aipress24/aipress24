@@ -7,7 +7,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import cast
+from typing import ClassVar, cast
 
 from attr import define
 from flask import Response, current_app, g, make_response, render_template, request
@@ -35,7 +35,7 @@ from app.modules.wire.models import ArticlePost, PressReleasePost
 class OrganisationDetailView(MethodView):
     """Organisation detail page with follow/unfollow action."""
 
-    decorators = [nav(parent="organisations")]
+    decorators: ClassVar[list] = [nav(parent="organisations")]
 
     def get(self, id: str):
         from app.services.social_graph import SocialUser, adapt

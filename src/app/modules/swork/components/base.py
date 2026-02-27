@@ -126,7 +126,7 @@ class FilterOption:
 class Filter:
     id: str
     label: str
-    options: list[str | FilterOption] = []
+    options: ClassVar[list[str | FilterOption]] = []
 
     def __init__(self, objects: list[Any] | None = None) -> None:
         # Only initialize if no class-level options defined

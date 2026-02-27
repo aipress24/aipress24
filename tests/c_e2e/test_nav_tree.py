@@ -20,7 +20,7 @@ They SHOULD catch:
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, ClassVar
 
 import pytest
 
@@ -218,7 +218,7 @@ class TestNavTreeCompleteness:
     """Test that required sections exist (but don't check exact content)."""
 
     # These are the core sections that must exist for the app to function
-    REQUIRED_SECTIONS = {
+    REQUIRED_SECTIONS: ClassVar[set[str]] = {
         "events",
         "swork",
         "wip",
@@ -357,7 +357,7 @@ class TestNavNodeVisibility:
         # All of them should return True for visibility with any mock user
         class MockUser:
             is_anonymous = False
-            roles = []
+            roles: ClassVar[list] = []
 
             def has_role(self, role):
                 return False

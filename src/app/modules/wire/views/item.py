@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, ClassVar, cast
 
 import arrow
 import sqlalchemy as sa
@@ -39,7 +39,7 @@ from app.services.tracking import record_view
 class ItemDetailView(MethodView):
     """Article/Press Release detail page with actions."""
 
-    decorators = [nav(parent="wire", label="Article")]
+    decorators: ClassVar[list] = [nav(parent="wire", label="Article")]
 
     def get(self, id: str):
         post = get_obj(id, Post)

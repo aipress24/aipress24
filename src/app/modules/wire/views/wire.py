@@ -7,7 +7,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, ClassVar
 
 from attr import define
 from flask import redirect, render_template, request, session
@@ -49,7 +49,7 @@ def wire() -> Response:
 class WireTabView(MethodView):
     """Wire tab page with filtering."""
 
-    decorators = [nav(parent="wire", label="Actualités")]
+    decorators: ClassVar[list] = [nav(parent="wire", label="Actualités")]
 
     def get(self, tab: str):
         from flask import g

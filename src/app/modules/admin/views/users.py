@@ -6,6 +6,8 @@
 
 from __future__ import annotations
 
+from typing import ClassVar
+
 from flask import render_template
 from flask.views import MethodView
 
@@ -18,7 +20,9 @@ from ._common import build_table_context, handle_table_post
 class UsersView(MethodView):
     """Users list page."""
 
-    decorators = [nav(parent="index", icon="users", label="Utilisateurs")]
+    decorators: ClassVar[list] = [
+        nav(parent="index", icon="users", label="Utilisateurs")
+    ]
 
     def get(self):
         from ._users import UserDataSource, UsersTable
@@ -39,7 +43,9 @@ class UsersView(MethodView):
 class NewUsersView(MethodView):
     """New users to validate page."""
 
-    decorators = [nav(parent="index", icon="user-plus", label="Inscriptions")]
+    decorators: ClassVar[list] = [
+        nav(parent="index", icon="user-plus", label="Inscriptions")
+    ]
 
     def get(self):
         from ._new_users import NewUserDataSource, NewUsersTable
@@ -60,7 +66,9 @@ class NewUsersView(MethodView):
 class ModifUsersView(MethodView):
     """Modified users to validate page."""
 
-    decorators = [nav(parent="index", icon="user-cog", label="Modifications")]
+    decorators: ClassVar[list] = [
+        nav(parent="index", icon="user-cog", label="Modifications")
+    ]
 
     def get(self):
         from ._modif_users import ModifUserDataSource, ModifUsersTable

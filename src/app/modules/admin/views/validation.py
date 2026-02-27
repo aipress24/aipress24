@@ -9,7 +9,7 @@ from __future__ import annotations
 import sys
 import uuid
 from datetime import UTC, datetime
-from typing import Any
+from typing import Any, ClassVar
 
 from arrow import now
 from flask import Response, render_template, request, url_for
@@ -34,7 +34,7 @@ from app.modules.kyc.views import admin_info_context
 class ValidationUserView(MethodView):
     """User validation page with approve/reject actions."""
 
-    decorators = [
+    decorators: ClassVar[list] = [
         nav(parent="new_users", icon="check-circle", label="Validation inscription")
     ]
 

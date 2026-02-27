@@ -6,6 +6,8 @@
 
 from __future__ import annotations
 
+from typing import ClassVar
+
 from flask import flash, g, redirect, render_template, request
 from flask.views import MethodView
 
@@ -19,7 +21,7 @@ from app.modules.swork.models import Group
 class NewGroupView(MethodView):
     """New group creation form."""
 
-    decorators = [nav(parent="groups")]
+    decorators: ClassVar[list] = [nav(parent="groups")]
 
     def get(self):
         ctx = {
