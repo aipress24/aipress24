@@ -46,7 +46,8 @@ class NotFoundExportService(DatabaseExportService):
 
     def export_gzipped(self, chunk_size: int = 8192) -> Iterator[bytes]:
         """Raise not found error."""
-        raise PgDumpNotFoundError("pg_dump not found")
+        msg = "pg_dump not found"
+        raise PgDumpNotFoundError(msg)
 
 
 class TestCreateExportResponse:

@@ -290,7 +290,7 @@ class TestMoveImage:
         logged_in_client.post(url, data=data2, content_type="multipart/form-data")
 
         db_session.refresh(test_article)
-        first_image = [i for i in test_article.images if i.position == 0][0]
+        first_image = next(i for i in test_article.images if i.position == 0)
 
         # Move first image down
         move_url = url_for(
@@ -336,7 +336,7 @@ class TestMoveImage:
         logged_in_client.post(url, data=data2, content_type="multipart/form-data")
 
         db_session.refresh(test_article)
-        second_image = [i for i in test_article.images if i.position == 1][0]
+        second_image = next(i for i in test_article.images if i.position == 1)
 
         # Move second image up
         move_url = url_for(

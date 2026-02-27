@@ -87,7 +87,7 @@ class TestNotificationCreation:
         self, db_session: scoped_session
     ) -> None:
         """A notification must be linked to an avis d'enquête."""
-        journaliste, expert, media, enquete, contact, article = _create_test_data(
+        journaliste, _expert, _media, enquete, _contact, article = _create_test_data(
             db_session
         )
 
@@ -104,7 +104,7 @@ class TestNotificationCreation:
 
     def test_notification_requires_article(self, db_session: scoped_session) -> None:
         """A notification must be linked to an article."""
-        journaliste, expert, media, enquete, contact, article = _create_test_data(
+        journaliste, _expert, _media, enquete, _contact, article = _create_test_data(
             db_session
         )
 
@@ -123,7 +123,7 @@ class TestNotificationCreation:
         self, db_session: scoped_session
     ) -> None:
         """The notification date is set automatically on creation."""
-        journaliste, expert, media, enquete, contact, article = _create_test_data(
+        journaliste, _expert, _media, enquete, _contact, article = _create_test_data(
             db_session
         )
 
@@ -144,7 +144,7 @@ class TestNotificationCreation:
 
     def test_notification_has_owner(self, db_session: scoped_session) -> None:
         """The notification is linked to the journalist (owner)."""
-        journaliste, expert, media, enquete, contact, article = _create_test_data(
+        journaliste, _expert, _media, enquete, _contact, article = _create_test_data(
             db_session
         )
 
@@ -172,7 +172,7 @@ class TestNotificationContacts:
         self, db_session: scoped_session
     ) -> None:
         """A notification can have multiple contacts."""
-        journaliste, expert, media, enquete, contact1, article = _create_test_data(
+        journaliste, _expert, _media, enquete, contact1, article = _create_test_data(
             db_session
         )
 
@@ -218,7 +218,7 @@ class TestNotificationContacts:
         self, db_session: scoped_session
     ) -> None:
         """Each notification contact is linked to a ContactAvisEnquete."""
-        journaliste, expert, media, enquete, contact, article = _create_test_data(
+        journaliste, _expert, _media, enquete, contact, article = _create_test_data(
             db_session
         )
 
@@ -244,7 +244,7 @@ class TestNotificationContacts:
         self, db_session: scoped_session
     ) -> None:
         """NotificationPublicationContact links back to its notification."""
-        journaliste, expert, media, enquete, contact, article = _create_test_data(
+        journaliste, _expert, _media, enquete, contact, article = _create_test_data(
             db_session
         )
 
@@ -279,7 +279,7 @@ class TestCascadeDelete:
         self, db_session: scoped_session
     ) -> None:
         """Deleting a notification also deletes its contacts."""
-        journaliste, expert, media, enquete, contact, article = _create_test_data(
+        journaliste, _expert, _media, enquete, contact, article = _create_test_data(
             db_session
         )
 
@@ -330,7 +330,7 @@ class TestFireAndForgetModel:
         self, db_session: scoped_session
     ) -> None:
         """NotificationPublication doesn't have lifecycle tracking fields."""
-        journaliste, expert, media, enquete, contact, article = _create_test_data(
+        journaliste, _expert, _media, enquete, _contact, article = _create_test_data(
             db_session
         )
 
@@ -353,7 +353,7 @@ class TestFireAndForgetModel:
         self, db_session: scoped_session
     ) -> None:
         """NotificationPublicationContact doesn't have email/in-app tracking."""
-        journaliste, expert, media, enquete, contact, article = _create_test_data(
+        journaliste, _expert, _media, enquete, contact, article = _create_test_data(
             db_session
         )
 
@@ -395,7 +395,7 @@ class TestNotificationSendingReadiness:
         self, db_session: scoped_session
     ) -> None:
         """Notification has all required data for email sending."""
-        journaliste, expert, media, enquete, contact, article = _create_test_data(
+        journaliste, _expert, _media, enquete, contact, article = _create_test_data(
             db_session
         )
 
@@ -431,7 +431,7 @@ class TestNotificationSendingReadiness:
         self, db_session: scoped_session
     ) -> None:
         """Each notification contact provides access to expert user."""
-        journaliste, expert, media, enquete, contact, article = _create_test_data(
+        journaliste, _expert, _media, enquete, contact, article = _create_test_data(
             db_session
         )
 
@@ -461,7 +461,7 @@ class TestNotificationSendingReadiness:
         """Only contacts with ACCEPTE status should be notified."""
         from app.modules.wip.models.newsroom.avis_enquete import StatutAvis
 
-        journaliste, expert1, media, enquete, contact1, article = _create_test_data(
+        journaliste, _expert1, _media, enquete, contact1, article = _create_test_data(
             db_session
         )
 
@@ -508,7 +508,7 @@ class TestNotificationSendingReadiness:
         self, db_session: scoped_session
     ) -> None:
         """Notification data is ready for in-app notification creation."""
-        journaliste, expert, media, enquete, contact, article = _create_test_data(
+        journaliste, _expert, _media, enquete, contact, article = _create_test_data(
             db_session
         )
 

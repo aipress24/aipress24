@@ -406,9 +406,7 @@ def test_rdv_temporal_validation(db_session: scoped_session) -> None:
         )
 
     # BUSINESS RULE: Cannot propose slot outside business hours (before 9h)
-    early_morning = (datetime.now(UTC) + timedelta(days=1)).replace(
-        hour=7, minute=0
-    )
+    early_morning = (datetime.now(UTC) + timedelta(days=1)).replace(hour=7, minute=0)
     with pytest.raises(ValueError, match="business hours"):
         contact.propose_rdv(
             rdv_type=RDVType.PHONE,
@@ -417,9 +415,7 @@ def test_rdv_temporal_validation(db_session: scoped_session) -> None:
         )
 
     # BUSINESS RULE: Cannot propose slot outside business hours (after 18h)
-    late_evening = (datetime.now(UTC) + timedelta(days=1)).replace(
-        hour=19, minute=0
-    )
+    late_evening = (datetime.now(UTC) + timedelta(days=1)).replace(hour=19, minute=0)
     with pytest.raises(ValueError, match="business hours"):
         contact.propose_rdv(
             rdv_type=RDVType.PHONE,

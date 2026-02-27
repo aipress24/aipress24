@@ -177,7 +177,9 @@ class TestBaseTable:
 
             # Mock url_for
             table.url_for = MagicMock(
-                side_effect=lambda item, action="get": f"/wip/articles/{item.id}/{action}"
+                side_effect=lambda item, action="get": (
+                    f"/wip/articles/{item.id}/{action}"
+                )
             )
 
             actions = table.get_actions(mock_item)

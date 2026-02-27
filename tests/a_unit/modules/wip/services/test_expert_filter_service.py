@@ -1367,16 +1367,19 @@ class TestStateManagement:
         )
 
         # Simulate HTMX POST request with selector change
-        with app.test_request_context(
-            method="POST",
-            headers={"HX-Request": "true"},
-            data={
-                "selector_change": "secteur",
-                "secteur": ["Tech", "Finance"],
-            },
-        ), patch(
-            "app.modules.wip.services.newsroom.expert_filter.container"
-        ) as mock_container:
+        with (
+            app.test_request_context(
+                method="POST",
+                headers={"HX-Request": "true"},
+                data={
+                    "selector_change": "secteur",
+                    "secteur": ["Tech", "Finance"],
+                },
+            ),
+            patch(
+                "app.modules.wip.services.newsroom.expert_filter.container"
+            ) as mock_container,
+        ):
             mock_session: dict = {}
             mock_user_repo = MagicMock()
             mock_user_repo.list.return_value = [expert1]
@@ -1398,15 +1401,18 @@ class TestStateManagement:
     def test_update_state_ignores_non_htmx_request(self, db_session, app) -> None:
         """State is NOT updated from non-HTMX requests."""
         # Request without HX-Request header
-        with app.test_request_context(
-            method="POST",
-            data={
-                "selector_change": "secteur",
-                "secteur": ["Tech"],
-            },
-        ), patch(
-            "app.modules.wip.services.newsroom.expert_filter.container"
-        ) as mock_container:
+        with (
+            app.test_request_context(
+                method="POST",
+                data={
+                    "selector_change": "secteur",
+                    "secteur": ["Tech"],
+                },
+            ),
+            patch(
+                "app.modules.wip.services.newsroom.expert_filter.container"
+            ) as mock_container,
+        ):
             mock_session: dict = {}
             mock_container.get.return_value = mock_session
 
@@ -1428,16 +1434,19 @@ class TestStateManagement:
         )
 
         # Simulate HTMX POST request with selector change
-        with app.test_request_context(
-            method="POST",
-            headers={"HX-Request": "true"},
-            data={
-                "selector_change": "secteur",
-                "secteur": ["Tech", "Finance"],
-            },
-        ), patch(
-            "app.modules.wip.services.newsroom.expert_filter.container"
-        ) as mock_container:
+        with (
+            app.test_request_context(
+                method="POST",
+                headers={"HX-Request": "true"},
+                data={
+                    "selector_change": "secteur",
+                    "secteur": ["Tech", "Finance"],
+                },
+            ),
+            patch(
+                "app.modules.wip.services.newsroom.expert_filter.container"
+            ) as mock_container,
+        ):
             mock_session: dict = {}
             mock_user_repo = MagicMock()
             mock_user_repo.list.return_value = [expert1]
@@ -1529,12 +1538,15 @@ class TestExpertSelection:
         expert1 = _create_expert_with_profile(db_session, "e1@test.com")
         expert2 = _create_expert_with_profile(db_session, "e2@test.com")
 
-        with app.test_request_context(
-            method="POST",
-            data={f"expert:{expert2.id}": "on"},
-        ), patch(
-            "app.modules.wip.services.newsroom.expert_filter.container"
-        ) as mock_container:
+        with (
+            app.test_request_context(
+                method="POST",
+                data={f"expert:{expert2.id}": "on"},
+            ),
+            patch(
+                "app.modules.wip.services.newsroom.expert_filter.container"
+            ) as mock_container,
+        ):
             mock_session: dict = {}
             mock_user_repo = MagicMock()
             mock_user_repo.list.return_value = [expert1, expert2]
@@ -1556,12 +1568,15 @@ class TestExpertSelection:
         expert1 = _create_expert_with_profile(db_session, "e1@test.com")
         expert2 = _create_expert_with_profile(db_session, "e2@test.com")
 
-        with app.test_request_context(
-            method="POST",
-            data={f"expert:{expert2.id}": "on"},
-        ), patch(
-            "app.modules.wip.services.newsroom.expert_filter.container"
-        ) as mock_container:
+        with (
+            app.test_request_context(
+                method="POST",
+                data={f"expert:{expert2.id}": "on"},
+            ),
+            patch(
+                "app.modules.wip.services.newsroom.expert_filter.container"
+            ) as mock_container,
+        ):
             mock_session: dict = {}
             mock_user_repo = MagicMock()
             mock_user_repo.list.return_value = [expert1, expert2]

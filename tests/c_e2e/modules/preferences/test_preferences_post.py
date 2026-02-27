@@ -27,13 +27,10 @@ def pref_test_user(db_session: Session) -> User:
     unique_id = uuid.uuid4().hex[:8]
 
     # Get or create role
-    role = db_session.query(Role).filter_by(
-        name=RoleEnum.PRESS_MEDIA.name
-    ).first()
+    role = db_session.query(Role).filter_by(name=RoleEnum.PRESS_MEDIA.name).first()
     if not role:
         role = Role(
-            name=RoleEnum.PRESS_MEDIA.name,
-            description=RoleEnum.PRESS_MEDIA.value
+            name=RoleEnum.PRESS_MEDIA.name, description=RoleEnum.PRESS_MEDIA.value
         )
         db_session.add(role)
         db_session.flush()
@@ -75,9 +72,7 @@ def pref_auth_client(app: Flask, pref_test_user: User) -> FlaskClient:
 class TestBannerPost:
     """Tests for banner POST view."""
 
-    def test_banner_cancel(
-        self, pref_auth_client: FlaskClient, pref_test_user: User
-    ):
+    def test_banner_cancel(self, pref_auth_client: FlaskClient, pref_test_user: User):
         """Test cancel action redirects to banner."""
         response = pref_auth_client.post(
             "/preferences/banner",
@@ -87,9 +82,7 @@ class TestBannerPost:
         assert response.status_code == 302
         assert "/preferences/banner" in response.location
 
-    def test_banner_no_image(
-        self, pref_auth_client: FlaskClient, pref_test_user: User
-    ):
+    def test_banner_no_image(self, pref_auth_client: FlaskClient, pref_test_user: User):
         """Test POST without image redirects."""
         response = pref_auth_client.post(
             "/preferences/banner",

@@ -219,7 +219,7 @@ class TestNotificationAfterPublication:
         db_session.add(expert)
         db_session.flush()
 
-        enquete, contacts = _create_enquete_with_contacts(
+        enquete, _contacts = _create_enquete_with_contacts(
             db_session, journaliste, media, [expert]
         )
 
@@ -251,7 +251,7 @@ class TestNotificationAfterPublication:
         db_session.add(expert)
         db_session.flush()
 
-        enquete, contacts = _create_enquete_with_contacts(
+        enquete, _contacts = _create_enquete_with_contacts(
             db_session, journaliste, media, [expert]
         )
 
@@ -527,7 +527,7 @@ class TestAvisEnqueteToArticleFlow:
         db_session.add(expert)
         db_session.flush()
 
-        enquete, contacts = _create_enquete_with_contacts(
+        _enquete, contacts = _create_enquete_with_contacts(
             db_session, journaliste, media, [expert]
         )
         contact = contacts[0]
@@ -603,7 +603,7 @@ class TestExpertInvitationFlow:
         db_session.add(expert)
         db_session.flush()
 
-        enquete, contacts = _create_enquete_with_contacts(
+        _enquete, contacts = _create_enquete_with_contacts(
             db_session, journaliste, media, [expert]
         )
         contact = contacts[0]

@@ -51,7 +51,6 @@ def build_nav_tree(app: Flask):
     nav_tree.build(app)
 
 
-
 @pytest.fixture
 def nav_tree(app: Flask) -> NavTree:
     """Provide access to the app's nav tree."""

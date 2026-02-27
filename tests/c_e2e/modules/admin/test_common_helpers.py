@@ -13,7 +13,6 @@ if TYPE_CHECKING:
     from flask import Flask
 
 
-
 class TestBuildUrl:
     """Tests for the build_url helper function."""
 

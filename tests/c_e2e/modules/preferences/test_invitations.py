@@ -200,22 +200,17 @@ class TestInvitationsJoinOrg:
 class TestInvitationsUserWithAutoOrg:
     """Tests for user with auto-created organization."""
 
-    def test_invitations_shows_auto_org(
-        self, db_session: Session, app: Flask
-    ):
+    def test_invitations_shows_auto_org(self, db_session: Session, app: Flask):
         """Test invitations page shows auto organization."""
         from tests.c_e2e.conftest import make_authenticated_client
 
         unique_id = uuid.uuid4().hex[:8]
 
         # Get or create role
-        role = db_session.query(Role).filter_by(
-            name=RoleEnum.PRESS_MEDIA.name
-        ).first()
+        role = db_session.query(Role).filter_by(name=RoleEnum.PRESS_MEDIA.name).first()
         if not role:
             role = Role(
-                name=RoleEnum.PRESS_MEDIA.name,
-                description=RoleEnum.PRESS_MEDIA.value
+                name=RoleEnum.PRESS_MEDIA.name, description=RoleEnum.PRESS_MEDIA.value
             )
             db_session.add(role)
             db_session.flush()

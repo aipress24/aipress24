@@ -17,6 +17,7 @@ This module provides:
 
 from __future__ import annotations
 
+import contextlib
 from typing import TYPE_CHECKING
 from urllib.parse import urlparse
 
@@ -153,11 +154,8 @@ def fresh_db(app: Flask):
     _db.create_all()
 
     # Clear Flask-Login's cached user (important for test isolation)
-    with app.test_request_context():
-        try:
-            logout_user()
-        except Exception:
-            pass
+    with app.test_request_context(), contextlib.suppress(Exception):
+        logout_user()
 
     yield _db
 

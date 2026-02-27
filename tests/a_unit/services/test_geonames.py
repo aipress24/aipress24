@@ -83,23 +83,23 @@ SPECIAL_TERRITORY_CODES = [
 class TestIsDeptInRegion:
     """Test suite for is_dept_in_region function."""
 
-    @pytest.mark.parametrize("dept,region", VALID_DEPT_REGION_PAIRS)
+    @pytest.mark.parametrize(("dept", "region"), VALID_DEPT_REGION_PAIRS)
     def test_valid_metropolitan_pairs(self, dept: str, region: str) -> None:
         """Test valid department/region pairs for metropolitan France."""
         assert is_dept_in_region(dept, region) is True
 
-    @pytest.mark.parametrize("dept,region", INVALID_DEPT_REGION_PAIRS)
+    @pytest.mark.parametrize(("dept", "region"), INVALID_DEPT_REGION_PAIRS)
     def test_invalid_metropolitan_pairs(self, dept: str, region: str) -> None:
         """Test mismatched department/region pairs return False."""
         assert is_dept_in_region(dept, region) is False
 
-    @pytest.mark.parametrize("dept,region", OVERSEAS_DEPT_REGION_PAIRS)
+    @pytest.mark.parametrize(("dept", "region"), OVERSEAS_DEPT_REGION_PAIRS)
     def test_overseas_departments(self, dept: str, region: str) -> None:
         """Test overseas departments match their regions."""
         assert is_dept_in_region(dept, region) is True
 
     @pytest.mark.parametrize(
-        "dept,wrong_region",
+        ("dept", "wrong_region"),
         [
             ("Guadeloupe", "Île-de-France"),
             ("Martinique", "Provence-Alpes-Côte d'Azur"),
@@ -109,13 +109,13 @@ class TestIsDeptInRegion:
         """Test overseas departments are not in metropolitan regions."""
         assert is_dept_in_region(dept, wrong_region) is False
 
-    @pytest.mark.parametrize("dept,region", CORSICA_DEPT_REGION_PAIRS)
+    @pytest.mark.parametrize(("dept", "region"), CORSICA_DEPT_REGION_PAIRS)
     def test_corsica_departments(self, dept: str, region: str) -> None:
         """Test Corsica departments (special codes 2A and 2B)."""
         assert is_dept_in_region(dept, region) is True
 
     @pytest.mark.parametrize(
-        "dept,wrong_region",
+        ("dept", "wrong_region"),
         [
             ("South Corsica", "Provence-Alpes-Côte d'Azur"),
             ("Upper Corsica", "Île-de-France"),
@@ -126,7 +126,7 @@ class TestIsDeptInRegion:
         assert is_dept_in_region(dept, wrong_region) is False
 
     @pytest.mark.parametrize(
-        "invalid_dept,region",
+        ("invalid_dept", "region"),
         [
             ("InvalidDepartment", "Île-de-France"),
             ("NonExistent", "Grand Est"),
@@ -137,7 +137,7 @@ class TestIsDeptInRegion:
         assert is_dept_in_region(invalid_dept, region) is False
 
     @pytest.mark.parametrize(
-        "dept,invalid_region",
+        ("dept", "invalid_region"),
         [
             ("Paris", "InvalidRegion"),
             ("Ain", "NonExistentRegion"),
@@ -151,13 +151,13 @@ class TestIsDeptInRegion:
 class TestGetDeptName:
     """Test suite for get_dept_name function."""
 
-    @pytest.mark.parametrize("code,expected_name", STANDARD_DEPT_CODES)
+    @pytest.mark.parametrize(("code", "expected_name"), STANDARD_DEPT_CODES)
     def test_standard_codes(self, code: str, expected_name: str) -> None:
         """Test getting department names with standard codes."""
         assert get_dept_name(code) == expected_name
 
     @pytest.mark.parametrize(
-        "code,expected_name",
+        ("code", "expected_name"),
         [
             ("2A", "South Corsica"),
             ("2B", "Upper Corsica"),
@@ -167,12 +167,12 @@ class TestGetDeptName:
         """Test Corsica department codes (2A, 2B)."""
         assert get_dept_name(code) == expected_name
 
-    @pytest.mark.parametrize("code,expected_name", OVERSEAS_DEPT_CODES)
+    @pytest.mark.parametrize(("code", "expected_name"), OVERSEAS_DEPT_CODES)
     def test_overseas_codes(self, code: str, expected_name: str) -> None:
         """Test overseas territories codes."""
         assert get_dept_name(code) == expected_name
 
-    @pytest.mark.parametrize("code,expected_name", SPECIAL_TERRITORY_CODES)
+    @pytest.mark.parametrize(("code", "expected_name"), SPECIAL_TERRITORY_CODES)
     def test_special_territories(self, code: str, expected_name: str) -> None:
         """Test special territories."""
         assert get_dept_name(code) == expected_name

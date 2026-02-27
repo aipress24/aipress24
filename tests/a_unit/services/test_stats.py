@@ -246,6 +246,6 @@ class TestDurationsConstant:
 
     def test_durations_has_valid_shifts(self) -> None:
         """Test that each duration has a valid shift dict."""
-        for name, shift in DURATIONS:
+        for _name, shift in DURATIONS:
             assert isinstance(shift, dict)
             assert len(shift) == 1  # Each should have one key

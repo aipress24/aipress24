@@ -29,12 +29,14 @@ def test_cell_renders_boolean_values() -> None:
     cell = Cell({"name": "active"}, StubItem(active=True))
     result = cell.render()
     assert isinstance(result, Markup)
-    assert "fa-check" in result and "text-green" in result
+    assert "fa-check" in result
+    assert "text-green" in result
 
     # False renders as red times
     cell = Cell({"name": "active"}, StubItem(active=False))
     result = cell.render()
-    assert "fa-times" in result and "text-red" in result
+    assert "fa-times" in result
+    assert "text-red" in result
 
 
 def test_cell_renders_datetime_and_arrow() -> None:
@@ -42,12 +44,14 @@ def test_cell_renders_datetime_and_arrow() -> None:
     # datetime
     cell = Cell({"name": "created"}, StubItem(created=datetime(2024, 3, 15, 14, 30)))  # noqa: DTZ001
     result = cell.render()
-    assert "15/03/2024" in result and "14:30" in result
+    assert "15/03/2024" in result
+    assert "14:30" in result
 
     # Arrow
     cell = Cell({"name": "updated"}, StubItem(updated=Arrow(2024, 6, 20, 10, 15)))
     result = cell.render()
-    assert "20/06/2024" in result and "10:15" in result
+    assert "20/06/2024" in result
+    assert "10:15" in result
 
 
 def test_cell_renders_other_types() -> None:
