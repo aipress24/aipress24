@@ -19,6 +19,26 @@
                 </p>
             </div>
 
+            <!-- Flash messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="mt-4 space-y-2">
+                        {% for category, message in messages %}
+                            <div
+                                class="p-4 rounded-md {% if category == 'error' %}
+                                    bg-red-50 text-red-800 border border-red-200
+                                {% else %}
+                                    bg-green-50 text-green-800 border
+                                    border-green-200
+                                {% endif %}"
+                            >
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
             <form
                 method="POST"
                 enctype="multipart/form-data"
@@ -31,7 +51,8 @@
                     >
                         Graphisme
                     </legend>
-
+                    
+                    <!-- Logo image -->
                     <div class="space-y-6">
                         <div>
                             <label
@@ -40,35 +61,56 @@
                                 Logo de votre organisation
                             </label>
 
-                            {% if business_wall.logo_image %}
-                                <div class="mb-4 p-4 bg-gray-50 rounded-md">
-                                    <p class="text-xs text-gray-500 mb-2">
-                                        Logo actuel :
-                                    </p>
-                                    <img
-                                        src="{{ business_wall.logo_image_signed_url() }}"
-                                        alt="Logo actuel"
-                                        class="h-16 w-auto object-contain"
-                                    />
+                            <div class="mb-4">
+                                <div class="text-xs text-gray-500 mb-2">
+                                    Logo actuel
                                 </div>
-                            {% endif %}
+                                <div
+                                    id="current_logo_wrapper"
+                                    class="p-4 bg-gray-50 rounded-md flex items-center justify-center min-h-[100px]"
+                                >
+                                    {% if business_wall.logo_image %}
+                                        <img
+                                            id="currentLogo"
+                                            src="{{ business_wall.logo_image_signed_url() }}"
+                                            alt="Logo actuel"
+                                            class="h-20 w-auto object-contain max-w-full"
+                                        />
+                                    {% else %}
+                                        <p class="text-gray-500 text-sm">
+                                            Aucun logo.
+                                        </p>
+                                    {% endif %}
+                                </div>
+                            </div>
 
-                            <input
-                                type="file"
-                                name="logo_image"
-                                accept="image/png, image/jpeg"
-                                class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                            />
-                            <p class="mt-1 text-xs text-gray-500">
-                                {% if business_wall.logo_image %}
-                                    Sélectionnez une nouvelle image pour
-                                    remplacer le logo existant (format JPG ou
-                                    PNG).
-                                {% else %}
-                                    Sélectionnez une image pour le logo de votre
-                                    organisation (format JPG ou PNG).
-                                {% endif %}
-                            </p>
+                            <!-- New logo hidden by default -->
+                            <div
+                                class="mb-4"
+                                id="new_logo_block"
+                                style="display: none;"
+                            >
+                                <div class="text-xs text-gray-500 mb-2">
+                                    Aperçu du nouveau logo
+                                </div>
+                                <div
+                                    id="new_logo_container"
+                                    class="p-4 bg-blue-50 rounded-md flex items-center justify-center min-h-[100px]"
+                                ></div>
+                            </div>
+
+                            <div class="pt-2">
+                                <input
+                                    type="file"
+                                    id="logo_image"
+                                    name="logo_image"
+                                    accept=".png,.jpeg,.jpg,image/png,image/jpeg"
+                                    class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none"
+                                />
+                                <p class="mt-1 text-xs text-gray-500">
+                                    Format PNG, JPG, JPEG (Max 4MB)
+                                </p>
+                            </div>
                         </div>
 
                         <div>
@@ -755,4 +797,42 @@
             </form>
         </div>
     </div>
+
+    <!-- JavaScript for immediate logo preview -->
+    <script>
+        const logo_input = document.getElementById("logo_image");
+        const new_logo_block = document.getElementById("new_logo_block");
+        const new_logo_container =
+            document.getElementById("new_logo_container");
+
+        logo_input.addEventListener("change", function (event) {
+            const file = event.target.files[0];
+
+            if (file) {
+                new_logo_block.style.display = "block";
+
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+                    let imgElement =
+                        document.getElementById("new_logo_preview");
+
+                    if (!imgElement) {
+                        imgElement = document.createElement("img");
+                        imgElement.id = "new_logo_preview";
+                        imgElement.className =
+                            "h-20 w-auto object-contain max-w-full";
+                        new_logo_container.innerHTML = "";
+                        new_logo_container.appendChild(imgElement);
+                    }
+                    imgElement.src = e.target.result;
+                };
+
+                reader.readAsDataURL(file);
+            } else {
+                new_logo_block.style.display = "none";
+                new_logo_container.innerHTML = "";
+            }
+        });
+    </script>
 {% endblock %}
