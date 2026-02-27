@@ -1475,17 +1475,19 @@ class TestStateManagement:
     def test_update_state_clears_dependent_selectors(self, db_session, app) -> None:
         """Changing a selector clears dependent selectors."""
         # When pays changes, departement and ville should be cleared
-        with app.test_request_context(
-            method="POST",
-            headers={"HX-Request": "true"},
-            data={
-                "selector_change": "pays",
-                "pays": ["BE"],  # Changed from FR to BE
-            },
-        ):
-            with patch(
+        with (
+            app.test_request_context(
+                method="POST",
+                headers={"HX-Request": "true"},
+                data={
+                    "selector_change": "pays",
+                    "pays": ["BE"],  # Changed from FR to BE
+                },
+            ),
+            patch(
                 "app.modules.wip.services.newsroom.expert_filter.container"
-            ) as mock_container:
+            ) as mock_container,
+        ):
                 mock_session: dict = {}
                 mock_container.get.return_value = mock_session
 

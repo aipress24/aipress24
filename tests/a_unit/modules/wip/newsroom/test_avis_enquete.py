@@ -75,7 +75,7 @@ def test_rdv_workflow_business_logic(db_session: scoped_session) -> None:
         journaliste_id=journaliste.id,
         expert_id=expert.id,
         status=StatutAvis.ACCEPTE,
-        date_reponse=datetime.now(),
+        date_reponse=datetime.now(UTC),
     )
     db_session.add(contact)
     db_session.flush()
