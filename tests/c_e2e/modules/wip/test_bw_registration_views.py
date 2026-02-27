@@ -27,17 +27,23 @@ if TYPE_CHECKING:
 @pytest.fixture
 def mock_stripe():
     """Mock all Stripe-related functions."""
-    with patch(
-        "app.modules.wip.views.business_wall_registration.stripe_bw_subscription_dict"
-    ) as mock_dict, patch(
-        "app.modules.wip.views.business_wall_registration._retrieve_subscription"
-    ) as mock_retrieve, patch(
-        "app.modules.wip.views.business_wall_registration.load_pricing_table_id"
-    ) as mock_pricing, patch(
-        "app.modules.wip.views.business_wall_registration.get_stripe_public_key"
-    ) as mock_key, patch(
-        "app.modules.wip.views.business_wall_registration._find_profile_allowed_subscription"
-    ) as mock_find_allowed:
+    with (
+        patch(
+            "app.modules.wip.views.business_wall_registration.stripe_bw_subscription_dict"
+        ) as mock_dict,
+        patch(
+            "app.modules.wip.views.business_wall_registration._retrieve_subscription"
+        ) as mock_retrieve,
+        patch(
+            "app.modules.wip.views.business_wall_registration.load_pricing_table_id"
+        ) as mock_pricing,
+        patch(
+            "app.modules.wip.views.business_wall_registration.get_stripe_public_key"
+        ) as mock_key,
+        patch(
+            "app.modules.wip.views.business_wall_registration._find_profile_allowed_subscription"
+        ) as mock_find_allowed,
+    ):
         mock_dict.return_value = {}
         mock_retrieve.return_value = None
         mock_pricing.return_value = "prctbl_test_123"
