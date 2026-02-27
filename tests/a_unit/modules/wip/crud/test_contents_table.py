@@ -9,7 +9,6 @@ from __future__ import annotations
 from unittest.mock import MagicMock
 
 from app.modules.wip.crud.tables.contents import (
-    RecentContentsDataSource,
     RecentContentsTable,
     get_name,
 )
@@ -27,14 +26,6 @@ class TestGetName:
     def test_get_name_with_none(self):
         """Test get_name returns empty string for None."""
         assert get_name(None) == ""
-
-
-class TestRecentContentsDataSource:
-    """Tests for the RecentContentsDataSource class."""
-
-    def test_data_source_exists(self):
-        """Test that RecentContentsDataSource is importable."""
-        assert RecentContentsDataSource is not None
 
 
 class TestRecentContentsTable:
