@@ -2,78 +2,27 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
-"""Stage B1: Invite organisation members."""
+"""Stage B1: Content configuration routes."""
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, cast
+from flask import redirect, render_template, session, url_for
 
-from flask import g, redirect, render_template, request, session, url_for
-from werkzeug import Response
-
-from app.flask.extensions import db
-from app.modules.admin.invitations import emails_invited_to_organisation
-from app.modules.admin.org_email_utils import change_invitations_emails
 from app.modules.bw.bw_activation import bp
 from app.modules.bw.bw_activation.config import BW_TYPES
-from app.modules.bw.bw_activation.user_utils import current_business_wall
-from app.modules.bw.bw_activation.utils import (
-    ERR_BW_NOT_FOUND,
-    ERR_NO_ORGANISATION,
-    ERR_NOT_MANAGER,
-    bw_managers_ids,
-    fill_session,
-)
-
-if TYPE_CHECKING:
-    from app.models.auth import User
 
 
-@bp.route("/invite-organisation-members", methods=["GET", "POST"])
-def invite_organisation_members():
-    """Stage B1: Manage invitations to join Business Wall organisation."""
-    # at this stage the BW must be created
-    user = cast("User", g.user)
-    current_bw = current_business_wall(user)
-    if not current_bw:
-        session["error"] = ERR_BW_NOT_FOUND
-        return redirect(url_for("bw_activation.not_authorized"))
-    fill_session(current_bw)
-    if user.id not in bw_managers_ids(current_bw):
-        session["error"] = ERR_NOT_MANAGER
-        return redirect(url_for("bw_activation.not_authorized"))
-
-    if not session.get("bw_activated") or not session.get("bw_type"):
+@bp.route("/configure-content")
+def configure_content():
+    """Stage B1: Configure Business Wall content."""
+    if not session.get("bw_activated"):
         return redirect(url_for("bw_activation.index"))
 
     bw_type = session["bw_type"]
     bw_info = BW_TYPES.get(bw_type, {})
 
-    org = current_bw.get_organisation()
-    # organisation must be created for the BW (it was created at BW creation if missing)
-    if not org:
-        session["error"] = ERR_NO_ORGANISATION
-        return redirect(url_for("bw_activation.not_authorized"))
-
-    if request.method == "POST":
-        action = request.form.get("action")
-        if action == "change_invitations_emails":
-            raw_mails = request.form["content"]
-            change_invitations_emails(org, raw_mails)
-            db.session.commit()
-            response = Response("")
-            response.headers["HX-Redirect"] = url_for(
-                "bw_activation.invite_organisation_members"
-            )
-            return response
-
-    invitations_emails = emails_invited_to_organisation(org.id) if org else []
-
     return render_template(
-        "bw_activation/B01_invite_organisation_members.html",
+        "bw_activation/B01_configure_content.html",
         bw_type=bw_type,
         bw_info=bw_info,
-        business_wall=current_bw,
-        org=org,
-        invitations_emails=invitations_emails,
     )
