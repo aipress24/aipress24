@@ -35,7 +35,7 @@ class EventCardVM(ViewModel):
 
         return {
             "author": event.owner,
-            "organisation_image_url": self._get_organisation_logo_url(event),
+            "organisation_image_url": self._get_organisation_logo_url(),
             "type_id": get_meta_attr(event, "type_id", ""),
             "type_label": get_meta_attr(event, "type_label", ""),
             "opening": opening,
@@ -44,9 +44,9 @@ class EventCardVM(ViewModel):
             "views": event.view_count,
         }
 
-    @staticmethod
-    def _get_organisation_logo_url(event: EventPost) -> str:
+    def _get_organisation_logo_url(self) -> str:
         """Get the organisation logo URL from the event owner."""
+        event = cast("EventPost", self._model)
         owner = event.owner
         if owner and owner.organisation:
             return owner.organisation.logo_image_signed_url()
