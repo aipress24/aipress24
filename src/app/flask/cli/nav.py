@@ -76,6 +76,35 @@ def _create_mock_user_with_roles(role_names: list[str]) -> object:
     return MockUser(roles)
 
 
+def _resolve_filter_user(
+    email: str | None, roles: str | None
+) -> tuple[object | None, str | None]:
+    """Resolve filter user from email or roles options.
+
+    Returns:
+        Tuple of (filter_user, filter_description).
+    """
+    if email and roles:
+        msg = "Cannot use both --email and --roles. Choose one."
+        raise click.ClickException(msg)
+
+    if email:
+        filter_user = _get_user_by_email(email)
+        if not filter_user:
+            msg = f"User with email '{email}' not found"
+            raise click.ClickException(msg)
+        role_names = [r.name for r in filter_user.roles]
+        description = f"user '{email}' with roles: {', '.join(role_names) or '(none)'}"
+        return filter_user, description
+
+    if roles:
+        role_list = [r.strip() for r in roles.split(",") if r.strip()]
+        filter_user = _create_mock_user_with_roles(role_list)
+        return filter_user, f"roles: {', '.join(role_list)}"
+
+    return None, None
+
+
 @nav.command()
 @click.option("-v", "--verbose", is_flag=True, help="Show detailed info for each route")
 @click.option(
@@ -98,36 +127,13 @@ def tree(verbose: bool, email: str | None, roles: str | None) -> None:
         flask nav tree --roles PRESS_MEDIA
         flask nav tree --roles PRESS_MEDIA,ACADEMIC
     """
-    console = Console()
-
-    # Build tree if not already built
     from flask import current_app
 
+    console = Console()
     nav_tree = get_nav_tree()
     nav_tree.build(current_app)
 
-    # Determine user for filtering
-    filter_user = None
-    filter_description = None
-
-    if email and roles:
-        msg = "Cannot use both --email and --roles. Choose one."
-        raise click.ClickException(msg)
-
-    if email:
-        filter_user = _get_user_by_email(email)
-        if not filter_user:
-            msg = f"User with email '{email}' not found"
-            raise click.ClickException(msg)
-        role_names = [r.name for r in filter_user.roles]
-        filter_description = (
-            f"user '{email}' with roles: {', '.join(role_names) or '(none)'}"
-        )
-
-    if roles:
-        role_list = [r.strip() for r in roles.split(",") if r.strip()]
-        filter_user = _create_mock_user_with_roles(role_list)
-        filter_description = f"roles: {', '.join(role_list)}"
+    filter_user, filter_description = _resolve_filter_user(email, roles)
 
     # Create rich tree
     if filter_user:
@@ -137,16 +143,24 @@ def tree(verbose: bool, email: str | None, roles: str | None) -> None:
     else:
         root = Tree("[bold]Navigation Tree[/bold]")
 
-    # Track stats
+    # Build tree and collect stats
+    total_visible, total_hidden = _build_tree_sections(
+        nav_tree, root, verbose, filter_user
+    )
+
+    console.print(root)
+    console.print()
+    _print_tree_stats(console, nav_tree, filter_user, total_visible, total_hidden)
+
+
+def _build_tree_sections(nav_tree, root: Tree, verbose: bool, filter_user) -> tuple[int, int]:
+    """Build tree sections and return (visible_count, hidden_count)."""
     total_visible = 0
     total_hidden = 0
-
-    # Print sections sorted by order
     sections = sorted(nav_tree._sections.values(), key=lambda n: n.order)
 
     for section in sections:
-        # Check if section is visible to user
-        if filter_user and not section.is_visible_to(filter_user):  # type: ignore[arg-type]
+        if filter_user and not section.is_visible_to(filter_user):
             total_hidden += 1
             continue
 
@@ -160,18 +174,20 @@ def tree(verbose: bool, email: str | None, roles: str | None) -> None:
         section_node = root.add(section_label)
         total_visible += 1
 
-        # Get children (filtered if user specified)
-        children = nav_tree.children_of(section.name)
-        for child in children:
+        for child in nav_tree.children_of(section.name):
             visible, hidden = _add_node_to_tree(
                 nav_tree, section_node, child, verbose, filter_user
             )
             total_visible += visible
             total_hidden += hidden
 
-    console.print(root)
-    console.print()
+    return total_visible, total_hidden
 
+
+def _print_tree_stats(
+    console: Console, nav_tree, filter_user, total_visible: int, total_hidden: int
+) -> None:
+    """Print tree statistics."""
     if filter_user:
         console.print(f"[dim]Visible nodes: {total_visible}[/dim]")
         console.print(f"[dim]Hidden nodes (no access): {total_hidden}[/dim]")
