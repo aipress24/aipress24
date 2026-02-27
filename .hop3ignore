@@ -1,0 +1,10 @@
+.venv
+bootstrap_data
+db
+.git
+vite/node_modules
+icons/git
+icons/git/heroicons
+icons/git/lucide
+htmlcov
+src/app

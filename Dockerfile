@@ -10,7 +10,6 @@ WORKDIR /app
 RUN adduser app
 RUN chown -R app:app .
 
-
 COPY pyproject.toml .
 COPY uv.lock .
 COPY README.md .
@@ -22,16 +21,18 @@ COPY vite/dist vite/dist
 COPY etc etc
 COPY scripts scripts
 COPY src src
-COPY db db
-COPY users users
+# COPY db db
+# COPY users users
 
 RUN chown -R app:app .
 
 USER app
 
-RUN uv sync --frozen --no-dev
+RUN uv venv -p python3.12
+RUN uv sync -q --frozen --no-dev
 RUN ln -s .venv/bin bin
-RUN DATABASE_URL='sqlite:///' bin/flask check
+# Smoke test - verify app loads correctly (dummy URL, no actual connection)
+RUN DATABASE_URL='postgresql://x:x@localhost/x' bin/flask dev check
 
 ENV PORT=8080
 CMD ["/app/.venv/bin/python", "-m", "server"]
