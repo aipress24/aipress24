@@ -69,4 +69,4 @@ def _update_for_user(user: User, today: date, add_noise: bool = False) -> None:
 
 def _noise() -> float:
     # TEMP: add some noise to avoid having a constant reputation
-    return random.uniform(-0.1, 0.1)
+    return random.uniform(-0.1, 0.1)  # noqa: S311

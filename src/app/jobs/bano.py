@@ -55,7 +55,7 @@ class BanoJob(Job):
         rich.print(f"[green]Fixed {len(objs)} {cls.__name__}[/green]")
 
     def fix_obj(self, obj: Addressable) -> None:
-        street = choice(self.streets)
+        street = choice(self.streets)  # noqa:S311
         obj.address = street["name"]
         obj.city = street["city"]
         obj.zip_code = street["postcode"]
