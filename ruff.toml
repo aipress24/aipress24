@@ -35,7 +35,6 @@ lint.ignore = [
     "D4", # pydocstyle
     "FBT", # flake8-boolean-trap
     "FIX", # flake8-fixme
-    "INP", # flake8-no-pep420
     "PERF", # Perflint
     "PGH", # pygrep-hooks
     "SLF", # flake8-self
@@ -45,7 +44,6 @@ lint.ignore = [
     #
     # False positive, don't remove
     #
-    "B019", # Use of `functools.lru_cache` or `functools.cache` on methods can lead to memory leaks
     "N805", # First argument of a method should be named `self`
     "PLR2004", # Magic value used in comparison
     "PLR2044", # Line w/ empty comment
