@@ -16,6 +16,8 @@ from app.enums import OrganisationTypeEnum, RoleEnum
 from app.models.auth import KYCProfile, Role, User
 from app.models.invitation import Invitation
 from app.models.organisation import Organisation
+from app.modules.preferences.views.invitations import InvitationsView
+from tests.c_e2e.conftest import make_authenticated_client
 
 if TYPE_CHECKING:
     from flask import Flask
@@ -61,8 +63,6 @@ def invitations_test_user(db_session: Session) -> User:
 @pytest.fixture
 def invitations_auth_client(app: Flask, invitations_test_user: User) -> FlaskClient:
     """Provide an authenticated client for invitations tests."""
-    from tests.c_e2e.conftest import make_authenticated_client
-
     return make_authenticated_client(app, invitations_test_user)
 
 
@@ -132,8 +132,6 @@ class TestInvitationsViewHelpers:
 
     def test_unofficial_organisation_no_org(self, app: Flask):
         """Test _unofficial_organisation returns empty dict when no org."""
-        from app.modules.preferences.views.invitations import InvitationsView
-
         view = InvitationsView()
         user = MagicMock()
         user.organisation = None
@@ -144,8 +142,6 @@ class TestInvitationsViewHelpers:
 
     def test_unofficial_organisation_non_auto_org(self, app: Flask):
         """Test _unofficial_organisation returns empty dict for non-AUTO org."""
-        from app.modules.preferences.views.invitations import InvitationsView
-
         view = InvitationsView()
         user = MagicMock()
         user.organisation = MagicMock()
@@ -157,8 +153,6 @@ class TestInvitationsViewHelpers:
 
     def test_unofficial_organisation_auto_org(self, app: Flask):
         """Test _unofficial_organisation returns dict for AUTO org."""
-        from app.modules.preferences.views.invitations import InvitationsView
-
         view = InvitationsView()
         user = MagicMock()
         user.organisation = MagicMock()
@@ -202,8 +196,6 @@ class TestInvitationsUserWithAutoOrg:
 
     def test_invitations_shows_auto_org(self, db_session: Session, app: Flask):
         """Test invitations page shows auto organization."""
-        from tests.c_e2e.conftest import make_authenticated_client
-
         unique_id = uuid.uuid4().hex[:8]
 
         # Get or create role

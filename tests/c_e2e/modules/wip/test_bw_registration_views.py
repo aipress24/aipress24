@@ -15,6 +15,18 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from app.enums import BWTypeEnum, ProfileEnum
+from app.models.organisation import OrganisationTypeEnum
+from app.modules.wip.views.business_wall_registration import (
+    DESCRIPTION_BW,
+    ORG_TYPE_CONVERSION,
+    PRICE_BW,
+    PRODUCT_BW,
+    ProdInfo,
+    _filter_bw_subscriptions,
+    _find_profile_allowed_subscription,
+    _get_logo_url,
+    _parse_subscription,
+)
 
 if TYPE_CHECKING:
     from flask.testing import FlaskClient
@@ -165,10 +177,6 @@ class TestProfileAllowedSubscription:
 
     def test_press_media_profile_allowed_types(self, test_user: User):
         """Test that PRESS_MEDIA profile gets correct allowed types."""
-        from app.modules.wip.views.business_wall_registration import (
-            _find_profile_allowed_subscription,
-        )
-
         # Set user profile to a press media profile
         test_user.profile.profile_code = ProfileEnum.PM_DIR.name
 
@@ -186,11 +194,6 @@ class TestFilterBWSubscriptions:
 
     def test_filter_empty_allowed_returns_empty(self):
         """Test that empty allowed list returns empty result."""
-        from app.modules.wip.views.business_wall_registration import (
-            ProdInfo,
-            _filter_bw_subscriptions,
-        )
-
         prod_info = [
             ProdInfo(
                 id="prod_1",
@@ -210,11 +213,6 @@ class TestFilterBWSubscriptions:
 
     def test_filter_matches_allowed_types(self):
         """Test that filter returns only products matching allowed types."""
-        from app.modules.wip.views.business_wall_registration import (
-            ProdInfo,
-            _filter_bw_subscriptions,
-        )
-
         prod_info = [
             ProdInfo(
                 id="prod_1",
@@ -252,10 +250,6 @@ class TestParseSubscription:
 
     def test_parse_subscription_extracts_data(self):
         """Test that subscription data is correctly parsed."""
-        from app.modules.wip.views.business_wall_registration import (
-            _parse_subscription,
-        )
-
         # Create a mock subscription
         mock_sub = MagicMock()
         mock_sub.id = "sub_123"
@@ -271,10 +265,6 @@ class TestParseSubscription:
 
     def test_parse_subscription_inactive_status(self):
         """Test that inactive subscription status is correctly parsed."""
-        from app.modules.wip.views.business_wall_registration import (
-            _parse_subscription,
-        )
-
         mock_sub = MagicMock()
         mock_sub.id = "sub_456"
         mock_sub.created = 1704067200
@@ -293,8 +283,6 @@ class TestGetLogoUrl:
 
     def test_no_org_returns_default(self):
         """Test that no org returns default logo."""
-        from app.modules.wip.views.business_wall_registration import _get_logo_url
-
         result = _get_logo_url(None)
         assert result == "/static/img/transparent-square.png"
 
@@ -302,9 +290,6 @@ class TestGetLogoUrl:
         self, db_session: Session, test_org: Organisation
     ):
         """Test that auto org returns unofficial logo."""
-        from app.models.organisation import OrganisationTypeEnum
-        from app.modules.wip.views.business_wall_registration import _get_logo_url
-
         # Set org type to AUTO to make is_auto return True
         test_org.type = OrganisationTypeEnum.AUTO
         db_session.flush()
@@ -318,8 +303,6 @@ class TestProductConstants:
 
     def test_product_bw_has_all_types(self):
         """Test that PRODUCT_BW has entries for all expected types."""
-        from app.modules.wip.views.business_wall_registration import PRODUCT_BW
-
         expected_types = [
             "MEDIA",
             "PRESSUNION",
@@ -334,8 +317,6 @@ class TestProductConstants:
 
     def test_price_bw_has_all_types(self):
         """Test that PRICE_BW has entries for all expected types."""
-        from app.modules.wip.views.business_wall_registration import PRICE_BW
-
         expected_types = [
             "MEDIA",
             "PRESSUNION",
@@ -350,8 +331,6 @@ class TestProductConstants:
 
     def test_description_bw_has_all_types(self):
         """Test that DESCRIPTION_BW has entries for all expected types."""
-        from app.modules.wip.views.business_wall_registration import DESCRIPTION_BW
-
         expected_types = [
             "MEDIA",
             "PRESSUNION",
@@ -366,8 +345,6 @@ class TestProductConstants:
 
     def test_org_type_conversion_has_all_types(self):
         """Test that ORG_TYPE_CONVERSION covers all org types."""
-        from app.modules.wip.views.business_wall_registration import ORG_TYPE_CONVERSION
-
         expected_types = [
             "AGENCY",
             "MEDIA",

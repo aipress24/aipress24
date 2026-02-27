@@ -561,13 +561,6 @@ class TestGetCurrentPressRelationBWList:
         test_business_wall: BusinessWall,
     ) -> None:
         """Exclude PR Business Walls with non-active partnership status."""
-        from app.modules.bw.bw_activation.models import (
-            BusinessWall,
-            BWStatus,
-            Partnership,
-            PartnershipStatus,
-        )
-
         pr_bw = BusinessWall(
             bw_type="pr",
             status=BWStatus.ACTIVE.value,

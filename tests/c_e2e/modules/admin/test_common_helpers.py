@@ -9,6 +9,12 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from unittest.mock import MagicMock
 
+from app.modules.admin.views._common import (
+    build_table_context,
+    build_url,
+    handle_table_post,
+)
+
 if TYPE_CHECKING:
     from flask import Flask
 
@@ -18,32 +24,24 @@ class TestBuildUrl:
 
     def test_build_url_no_params(self, app: Flask):
         """Test build_url with no params returns base URL."""
-        from app.modules.admin.views._common import build_url
-
         with app.test_request_context():
             url = build_url("admin.users")
             assert url == "/admin/users"
 
     def test_build_url_with_offset(self, app: Flask):
         """Test build_url with offset parameter."""
-        from app.modules.admin.views._common import build_url
-
         with app.test_request_context():
             url = build_url("admin.users", offset=10)
             assert url == "/admin/users?offset=10"
 
     def test_build_url_with_search(self, app: Flask):
         """Test build_url with search parameter."""
-        from app.modules.admin.views._common import build_url
-
         with app.test_request_context():
             url = build_url("admin.users", search="test")
             assert url == "/admin/users?search=test"
 
     def test_build_url_with_offset_and_search(self, app: Flask):
         """Test build_url with both offset and search."""
-        from app.modules.admin.views._common import build_url
-
         with app.test_request_context():
             url = build_url("admin.users", offset=20, search="query")
             assert "offset=20" in url
@@ -51,16 +49,12 @@ class TestBuildUrl:
 
     def test_build_url_zero_offset_not_included(self, app: Flask):
         """Test that zero offset is not included in URL."""
-        from app.modules.admin.views._common import build_url
-
         with app.test_request_context():
             url = build_url("admin.users", offset=0)
             assert "offset" not in url
 
     def test_build_url_empty_search_not_included(self, app: Flask):
         """Test that empty search is not included in URL."""
-        from app.modules.admin.views._common import build_url
-
         with app.test_request_context():
             url = build_url("admin.users", search="")
             assert "search" not in url
@@ -71,8 +65,6 @@ class TestBuildTableContext:
 
     def test_build_table_context_returns_dict(self, app: Flask):
         """Test that build_table_context returns expected structure."""
-        from app.modules.admin.views._common import build_table_context
-
         # Create mock classes
         mock_ds_class = MagicMock()
         mock_ds_instance = MagicMock()
@@ -96,8 +88,6 @@ class TestBuildTableContext:
 
     def test_build_table_context_sets_table_attrs(self, app: Flask):
         """Test that build_table_context sets table attributes."""
-        from app.modules.admin.views._common import build_table_context
-
         mock_ds_class = MagicMock()
         mock_ds_instance = MagicMock()
         mock_ds_instance.records.return_value = [1, 2, 3]
@@ -126,8 +116,6 @@ class TestHandleTablePost:
 
     def test_handle_table_post_next(self, app: Flask):
         """Test handle_table_post with next action."""
-        from app.modules.admin.views._common import handle_table_post
-
         mock_ds_class = MagicMock()
         mock_ds_instance = MagicMock()
         mock_ds_instance.next_offset.return_value = 10
@@ -143,8 +131,6 @@ class TestHandleTablePost:
 
     def test_handle_table_post_previous(self, app: Flask):
         """Test handle_table_post with previous action."""
-        from app.modules.admin.views._common import handle_table_post
-
         mock_ds_class = MagicMock()
         mock_ds_instance = MagicMock()
         mock_ds_instance.prev_offset.return_value = 0
@@ -159,8 +145,6 @@ class TestHandleTablePost:
 
     def test_handle_table_post_search(self, app: Flask):
         """Test handle_table_post with search action."""
-        from app.modules.admin.views._common import handle_table_post
-
         mock_ds_class = MagicMock()
         mock_ds_instance = MagicMock()
         mock_ds_instance.search = ""
@@ -176,8 +160,6 @@ class TestHandleTablePost:
 
     def test_handle_table_post_search_same_resets_offset(self, app: Flask):
         """Test that same search query keeps offset, new search resets."""
-        from app.modules.admin.views._common import handle_table_post
-
         mock_ds_class = MagicMock()
         mock_ds_instance = MagicMock()
         mock_ds_instance.search = "existing"
@@ -192,8 +174,6 @@ class TestHandleTablePost:
 
     def test_handle_table_post_no_action(self, app: Flask):
         """Test handle_table_post with no action redirects to base."""
-        from app.modules.admin.views._common import handle_table_post
-
         mock_ds_class = MagicMock()
         mock_ds_instance = MagicMock()
         mock_ds_class.return_value = mock_ds_instance
@@ -207,8 +187,6 @@ class TestHandleTablePost:
 
     def test_handle_table_post_next_with_search(self, app: Flask):
         """Test handle_table_post next action preserves search."""
-        from app.modules.admin.views._common import handle_table_post
-
         mock_ds_class = MagicMock()
         mock_ds_instance = MagicMock()
         mock_ds_instance.next_offset.return_value = 10

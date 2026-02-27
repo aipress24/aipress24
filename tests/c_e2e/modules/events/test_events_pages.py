@@ -12,6 +12,7 @@ import arrow
 import pytest
 from flask import Flask
 from flask.testing import FlaskClient
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.models.auth import User
@@ -182,8 +183,6 @@ class TestDateFilter:
         args = {"day": "", "month": ""}
         df = DateFilter(args)
 
-        from sqlalchemy import select
-
         stmt = select(EventPost)
         result_stmt = df.apply(stmt)
 
@@ -195,8 +194,6 @@ class TestDateFilter:
         args = {"day": "2024-06-15", "month": ""}
         df = DateFilter(args)
 
-        from sqlalchemy import select
-
         stmt = select(EventPost)
         result_stmt = df.apply(stmt)
 
@@ -207,8 +204,6 @@ class TestDateFilter:
         """Test apply with month filter."""
         args = {"day": "", "month": "2024-06"}
         df = DateFilter(args)
-
-        from sqlalchemy import select
 
         stmt = select(EventPost)
         result_stmt = df.apply(stmt)

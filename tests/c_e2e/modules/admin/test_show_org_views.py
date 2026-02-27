@@ -14,6 +14,7 @@ import pytest
 from app.enums import OrganisationTypeEnum
 from app.models.auth import User
 from app.models.organisation import Organisation
+from app.modules.admin.views.show_org import OrgVM
 
 if TYPE_CHECKING:
     from flask import Flask
@@ -136,8 +137,6 @@ class TestOrgVM:
 
     def test_org_vm_exposes_org(self, app: Flask, db_session: Session):
         """Test that OrgVM exposes the org property."""
-        from app.modules.admin.views.show_org import OrgVM
-
         unique_id = uuid.uuid4().hex[:8]
         org = Organisation(
             name=f"VM Test Org {unique_id}",
@@ -152,8 +151,6 @@ class TestOrgVM:
 
     def test_org_vm_logo_url_auto_org(self, app: Flask, db_session: Session):
         """Test logo URL for auto organisation."""
-        from app.modules.admin.views.show_org import OrgVM
-
         unique_id = uuid.uuid4().hex[:8]
         org = Organisation(
             name=f"Auto Org {unique_id}",
@@ -168,8 +165,6 @@ class TestOrgVM:
 
     def test_org_vm_screenshot_url_empty(self, app: Flask, db_session: Session):
         """Test screenshot URL is empty when no screenshot."""
-        from app.modules.admin.views.show_org import OrgVM
-
         unique_id = uuid.uuid4().hex[:8]
         org = Organisation(
             name=f"Screenshot Test Org {unique_id}",
@@ -185,8 +180,6 @@ class TestOrgVM:
 
     def test_org_vm_get_members(self, app: Flask, db_session: Session):
         """Test get_members returns list of members."""
-        from app.modules.admin.views.show_org import OrgVM
-
         unique_id = uuid.uuid4().hex[:8]
         org = Organisation(
             name=f"Members Test Org {unique_id}",

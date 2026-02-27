@@ -14,6 +14,8 @@ import pytest
 from app.enums import OrganisationTypeEnum, RoleEnum
 from app.models.auth import KYCProfile, Role, User
 from app.models.organisation import Organisation
+from app.modules.preferences.views.others import email, password
+from tests.c_e2e.conftest import make_authenticated_client
 
 if TYPE_CHECKING:
     from flask import Flask
@@ -64,8 +66,6 @@ def pref_test_user(db_session: Session) -> User:
 @pytest.fixture
 def pref_auth_client(app: Flask, pref_test_user: User) -> FlaskClient:
     """Provide a Flask test client logged in as test user."""
-    from tests.c_e2e.conftest import make_authenticated_client
-
     return make_authenticated_client(app, pref_test_user)
 
 
@@ -199,12 +199,8 @@ class TestPasswordEmailRedirects:
 
     def test_password_view_exists(self, app: Flask):
         """Test password view function exists."""
-        from app.modules.preferences.views.others import password
-
         assert callable(password)
 
     def test_email_view_exists(self, app: Flask):
         """Test email view function exists."""
-        from app.modules.preferences.views.others import email
-
         assert callable(email)

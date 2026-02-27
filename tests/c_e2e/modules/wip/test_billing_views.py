@@ -12,13 +12,13 @@ from unittest.mock import patch
 import arrow
 import pytest
 
+from app.models.auth import User
 from app.services.invoicing import Invoice, InvoiceLine
 
 if TYPE_CHECKING:
     from flask.testing import FlaskClient
     from sqlalchemy.orm import Session
 
-    from app.models.auth import User
     from app.models.organisation import Organisation
 
 
@@ -50,8 +50,6 @@ def test_invoice(db_session: Session, test_user: User) -> Invoice:
 @pytest.fixture
 def other_user(db_session: Session, test_org: Organisation) -> User:
     """Create another user for authorization tests."""
-    from app.models.auth import User
-
     user = User(
         email="other-user@example.com",
         first_name="Other",

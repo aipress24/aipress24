@@ -9,6 +9,7 @@ from __future__ import annotations
 import arrow
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import Select
 
 from app.models.auth import User
 from app.modules.admin.views._users import (
@@ -148,8 +149,6 @@ class TestUserDataSource:
 
     def test_get_base_select_returns_select(self, app: Flask, db: SQLAlchemy) -> None:
         """Test get_base_select returns proper select statement."""
-        from sqlalchemy import Select
-
         with app.test_request_context("/"):
             ds = UserDataSource()
             stmt = ds.get_base_select()

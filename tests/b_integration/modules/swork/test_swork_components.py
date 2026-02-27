@@ -10,7 +10,8 @@ from typing import TYPE_CHECKING
 
 import pytest
 from flask import Flask
-from sqlalchemy.orm import Session
+from sqlalchemy import false, select, true
+from sqlalchemy.orm import Session, selectinload
 
 from app.enums import OrganisationTypeEnum
 from app.models.auth import KYCProfile, User
@@ -128,8 +129,6 @@ class TestBaseListInit:
 
         class TestList(BaseList):
             def get_base_statement(self):
-                from sqlalchemy import select
-
                 return select(User)
 
             def search_clause(self, search):
@@ -154,8 +153,6 @@ class TestBaseListInit:
             filters = [TestFilter()]
 
             def get_base_statement(self):
-                from sqlalchemy import select
-
                 return select(User)
 
             def search_clause(self, search):
@@ -182,8 +179,6 @@ class TestBaseListMakeStmt:
 
         class TestList(BaseList):
             def get_base_statement(self):
-                from sqlalchemy import select
-
                 return select(User)
 
             def search_clause(self, search):
@@ -203,16 +198,12 @@ class TestBaseListApplySearch:
 
         class TestList(BaseList):
             def get_base_statement(self):
-                from sqlalchemy import select
-
                 return select(User)
 
             def search_clause(self, search):
                 return User.first_name.ilike(f"%{search}%")
 
         with app.test_request_context():
-            from sqlalchemy import select
-
             test_list = TestList()
             test_list.search = ""
             stmt = select(User)
@@ -224,16 +215,12 @@ class TestBaseListApplySearch:
 
         class TestList(BaseList):
             def get_base_statement(self):
-                from sqlalchemy import select
-
                 return select(User)
 
             def search_clause(self, search):
                 return User.first_name.ilike(f"%{search}%")
 
         with app.test_request_context():
-            from sqlalchemy import select
-
             test_list = TestList()
             test_list.search = "John"
             stmt = select(User)
@@ -305,8 +292,6 @@ class TestFilterByCity:
 
     def test_apply_with_no_active_options(self, db_session: Session):
         """Test apply returns unchanged stmt when no options active."""
-        from sqlalchemy import select
-
         filter = FilterByCity()
         filter.options = ["Paris", "Lyon"]
         state = {"0": False, "1": False}
@@ -367,9 +352,6 @@ class TestMembersListStaticMethods:
 
     def test_get_base_statement_structure(self, app: Flask, db_session: Session):
         """Test get_base_statement returns expected structure when called directly."""
-        from sqlalchemy import false, select, true
-        from sqlalchemy.orm import selectinload
-
         # Test the expected structure directly
         expected = (
             select(User)
@@ -512,8 +494,6 @@ class TestFilterByCategory:
 
     def test_apply_with_no_active_options(self, db_session: Session):
         """Test apply returns unchanged stmt when no options active."""
-        from sqlalchemy import select
-
         filter = FilterByCategory()
         state = {str(i): False for i in range(len(filter.options))}
 

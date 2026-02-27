@@ -11,7 +11,7 @@ These tests cover the integration between different components:
 
 from __future__ import annotations
 
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 
 import arrow
 from sqlalchemy.orm import scoped_session
@@ -448,10 +448,6 @@ class TestAvisEnqueteToArticleFlow:
         self, db_session: scoped_session
     ) -> None:
         """Article can be created after RDV is accepted."""
-        from datetime import timedelta
-
-        from app.modules.wip.models.newsroom.avis_enquete import RDVStatus, RDVType
-
         journaliste, media = _create_journalist_and_media(db_session)
         expert = User(email="expert@test.com")
         db_session.add(expert)
@@ -594,10 +590,6 @@ class TestExpertInvitationFlow:
         self, db_session: scoped_session
     ) -> None:
         """When expert accepts RDV, contact state is updated."""
-        from datetime import timedelta
-
-        from app.modules.wip.models.newsroom.avis_enquete import RDVStatus, RDVType
-
         journaliste, media = _create_journalist_and_media(db_session)
         expert = User(email="expert@test.com")
         db_session.add(expert)
@@ -702,8 +694,6 @@ class TestFullPublicationCycle:
 
     def test_full_cycle_sujet_to_notification(self, db_session: scoped_session) -> None:
         """Complete publication cycle from Sujet to Notification."""
-        from datetime import timedelta
-
         # Step 1: Create journalist, media, and expert
         journaliste = User(email="journalist@test.com")
         media = Organisation(name="Le Journal")
@@ -845,8 +835,6 @@ class TestFullPublicationCycle:
 
     def test_cycle_with_multiple_experts(self, db_session: scoped_session) -> None:
         """Full cycle with multiple experts participating."""
-        from datetime import timedelta
-
         # Setup
         journaliste = User(email="journalist@test.com")
         media = Organisation(name="Media Corp")

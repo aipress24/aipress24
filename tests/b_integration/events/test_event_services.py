@@ -15,6 +15,7 @@ from app.models.auth import KYCProfile, User
 from app.models.organisation import Organisation
 from app.modules.events.models import EventPost, participation_table
 from app.modules.events.services import get_participants
+from app.services.social_graph import adapt
 
 if TYPE_CHECKING:
     from sqlalchemy.orm import Session
@@ -253,8 +254,6 @@ class TestEventLikes:
         self, db_session: Session, test_event: EventPost, test_users: list[User]
     ):
         """Test liking an event."""
-        from app.services.social_graph import adapt
-
         user = test_users[0]
         social_user = adapt(user)
 
@@ -272,8 +271,6 @@ class TestEventLikes:
         self, db_session: Session, test_event: EventPost, test_users: list[User]
     ):
         """Test unliking an event."""
-        from app.services.social_graph import adapt
-
         user = test_users[0]
         social_user = adapt(user)
 
@@ -290,8 +287,6 @@ class TestEventLikes:
         self, db_session: Session, test_event: EventPost, test_users: list[User]
     ):
         """Test counting likes on an event."""
-        from app.services.social_graph import adapt
-
         social_content = adapt(test_event)
 
         # Initially no likes
@@ -310,8 +305,6 @@ class TestEventLikes:
         self, db_session: Session, test_event: EventPost, test_users: list[User]
     ):
         """Test that liking twice doesn't duplicate."""
-        from app.services.social_graph import adapt
-
         user = test_users[0]
         social_user = adapt(user)
         social_content = adapt(test_event)
@@ -329,8 +322,6 @@ class TestEventLikes:
         self, db_session: Session, test_event: EventPost, test_users: list[User]
     ):
         """Test that unliking when not liking is a no-op."""
-        from app.services.social_graph import adapt
-
         user = test_users[0]
         social_user = adapt(user)
         social_content = adapt(test_event)

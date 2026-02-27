@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
+from unittest.mock import MagicMock
 
 import pytest
 
@@ -14,6 +15,7 @@ from app.flask.routing import url_for
 from app.models.auth import User
 from app.models.lifecycle import PublicationStatus
 from app.models.organisation import Organisation
+from app.modules.wip.crud.cbvs.communiques import CommuniquesTable, CommuniquesWipView
 from app.modules.wip.models.comroom.communique import Communique
 
 if TYPE_CHECKING:
@@ -90,15 +92,11 @@ class TestCommuniquesTable:
 
     def test_table_id(self):
         """Test that table has correct id."""
-        from app.modules.wip.crud.cbvs.communiques import CommuniquesTable
-
         table = CommuniquesTable()
         assert table.id == "communiques-table"
 
     def test_get_columns(self):
         """Test get_columns returns expected columns."""
-        from app.modules.wip.crud.cbvs.communiques import CommuniquesTable
-
         table = CommuniquesTable()
         columns = table.get_columns()
 
@@ -110,11 +108,6 @@ class TestCommuniquesTable:
 
     def test_get_actions_draft(self, app):
         """Test get_actions for draft communique."""
-        from unittest.mock import MagicMock
-
-        from app.models.lifecycle import PublicationStatus
-        from app.modules.wip.crud.cbvs.communiques import CommuniquesTable
-
         with app.test_request_context():
             table = CommuniquesTable()
 
@@ -134,11 +127,6 @@ class TestCommuniquesTable:
 
     def test_get_actions_published(self, app):
         """Test get_actions for published communique."""
-        from unittest.mock import MagicMock
-
-        from app.models.lifecycle import PublicationStatus
-        from app.modules.wip.crud.cbvs.communiques import CommuniquesTable
-
         with app.test_request_context():
             table = CommuniquesTable()
 
@@ -158,8 +146,6 @@ class TestCommuniquesWipViewAttributes:
 
     def test_view_attributes(self):
         """Test view has expected attributes."""
-        from app.modules.wip.crud.cbvs.communiques import CommuniquesWipView
-
         assert CommuniquesWipView.name == "communiques"
         assert CommuniquesWipView.route_base == "communiques"
         assert CommuniquesWipView.icon == "megaphone"
@@ -167,8 +153,6 @@ class TestCommuniquesWipViewAttributes:
 
     def test_view_labels(self):
         """Test view has expected labels."""
-        from app.modules.wip.crud.cbvs.communiques import CommuniquesWipView
-
         assert "communiqué" in CommuniquesWipView.label_main.lower()
         assert "communiqué" in CommuniquesWipView.label_new.lower()
         assert "communiqué" in CommuniquesWipView.label_edit.lower()

@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from sqlalchemy import Select
 
-from app.models.auth import User
+from app.models.auth import KYCProfile, User
 from app.modules.admin.views._new_users import (
     NewUserDataSource,
     NewUsersTable,
@@ -125,8 +125,6 @@ class TestNewUserDataSource:
         # Create a real user with profile
         user = User(email="john@example.com", first_name="John", last_name="Doe")
         # Create a profile for the user
-        from app.models.auth import KYCProfile
-
         profile = KYCProfile(user=user, profile_label="Developer")
         db_session.add(user)
         db_session.add(profile)

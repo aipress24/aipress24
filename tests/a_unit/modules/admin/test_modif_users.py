@@ -6,6 +6,8 @@
 
 from __future__ import annotations
 
+from sqlalchemy import Select
+
 from app.models.auth import User
 from app.modules.admin.views._modif_users import (
     ModifUserDataSource,
@@ -101,8 +103,6 @@ class TestModifUserDataSource:
 
     def test_get_base_select_returns_select(self, db_session):
         """Test get_base_select method returns proper select statement."""
-        from sqlalchemy import Select
-
         ds = ModifUserDataSource()
         stmt = ds.get_base_select()
 
