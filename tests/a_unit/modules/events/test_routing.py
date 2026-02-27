@@ -6,16 +6,20 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import arrow
 import pytest
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
 from werkzeug.routing.exceptions import BuildError
 
 from app.flask.routing import url_for
 from app.models.auth import User
 from app.modules.events import routing as events_routing  # noqa: F401
 from app.modules.events.models import EventPost
+
+if TYPE_CHECKING:
+    from flask import Flask
+    from flask_sqlalchemy import SQLAlchemy
 
 
 class TestUrlForEvent:

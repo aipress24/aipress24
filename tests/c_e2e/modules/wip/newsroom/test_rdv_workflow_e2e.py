@@ -19,7 +19,6 @@ import pytest
 from app.enums import RoleEnum
 from app.flask.routing import url_for
 from app.models.auth import Role, User
-from app.models.organisation import Organisation
 from app.modules.wip.models.newsroom.avis_enquete import (
     AvisEnquete,
     ContactAvisEnquete,
@@ -32,6 +31,8 @@ from tests.c_e2e.conftest import make_authenticated_client
 if TYPE_CHECKING:
     from flask import Flask
     from flask.testing import FlaskClient
+
+    from app.models.organisation import Organisation
 
 
 # ----------------------------------------------------------------

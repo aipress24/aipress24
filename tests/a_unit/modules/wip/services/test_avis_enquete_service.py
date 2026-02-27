@@ -7,10 +7,10 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
+from typing import TYPE_CHECKING
 
 import arrow
 import pytest
-from sqlalchemy.orm import scoped_session
 
 from app.models.auth import User
 from app.models.organisation import Organisation
@@ -26,6 +26,9 @@ from app.modules.wip.services.newsroom import (
     RDVAcceptanceData,
     RDVProposalData,
 )
+
+if TYPE_CHECKING:
+    from sqlalchemy.orm import scoped_session
 
 
 def _get_next_weekday_slot(days_ahead: int = 1, hour: int = 10) -> datetime:

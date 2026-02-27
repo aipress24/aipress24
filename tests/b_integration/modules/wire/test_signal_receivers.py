@@ -10,9 +10,9 @@ correctly creates posts in the Wire module via signals.
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import arrow
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
 
 from app.models.auth import User
 from app.models.lifecycle import PublicationStatus
@@ -25,6 +25,10 @@ from app.signals import (
     communique_published,
     communique_unpublished,
 )
+
+if TYPE_CHECKING:
+    from flask import Flask
+    from flask_sqlalchemy import SQLAlchemy
 
 
 class TestArticleSignalIntegration:

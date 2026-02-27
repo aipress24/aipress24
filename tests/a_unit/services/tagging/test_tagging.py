@@ -4,11 +4,14 @@
 
 from __future__ import annotations
 
-from flask_sqlalchemy import SQLAlchemy
+from typing import TYPE_CHECKING
 
 from app.models.auth import User
 from app.modules.wire.models import ArticlePost
 from app.services.tagging import add_tag, get_tag_applications, get_tags
+
+if TYPE_CHECKING:
+    from flask_sqlalchemy import SQLAlchemy
 
 
 def test_tags(db: SQLAlchemy) -> None:

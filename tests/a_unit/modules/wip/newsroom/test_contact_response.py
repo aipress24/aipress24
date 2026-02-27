@@ -7,9 +7,9 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
+from typing import TYPE_CHECKING
 
 import arrow
-from sqlalchemy.orm import scoped_session
 
 from app.models.auth import User
 from app.models.organisation import Organisation
@@ -19,6 +19,9 @@ from app.modules.wip.models.newsroom.avis_enquete import (
     RDVStatus,
     StatutAvis,
 )
+
+if TYPE_CHECKING:
+    from sqlalchemy.orm import scoped_session
 
 
 def _create_test_enquete(

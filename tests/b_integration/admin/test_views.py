@@ -6,10 +6,9 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterator
+from typing import TYPE_CHECKING
 
 import pytest
-from flask import Flask
 from sqlalchemy.engine import URL
 
 from app.modules.admin.db_export_service import (
@@ -19,6 +18,11 @@ from app.modules.admin.db_export_service import (
     PgDumpNotFoundError,
 )
 from app.modules.admin.views.db_export import create_export_response
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+
+    from flask import Flask
 
 
 class StubExportService(DatabaseExportService):

@@ -6,10 +6,10 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import pytest
 from flask import Flask, g
-from flask.testing import FlaskClient
-from sqlalchemy.orm import Session
 
 from app.models.auth import KYCProfile, User
 from app.modules.swork.masked_fields import MaskFields
@@ -19,6 +19,10 @@ from app.modules.swork.views._common import (
     filter_email_mobile,
 )
 from app.services.social_graph import adapt
+
+if TYPE_CHECKING:
+    from flask.testing import FlaskClient
+    from sqlalchemy.orm import Session
 
 
 @pytest.fixture

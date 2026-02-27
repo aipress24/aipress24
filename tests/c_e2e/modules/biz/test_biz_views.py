@@ -6,12 +6,16 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import pytest
-from flask import Flask
-from flask.testing import FlaskClient
-from sqlalchemy.orm import Session
 
 from app.models.auth import User
+
+if TYPE_CHECKING:
+    from flask import Flask
+    from flask.testing import FlaskClient
+    from sqlalchemy.orm import Session
 
 
 @pytest.fixture

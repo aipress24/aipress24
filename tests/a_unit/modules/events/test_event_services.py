@@ -6,13 +6,17 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import pytest
-from flask_sqlalchemy import SQLAlchemy
 from typeguard import TypeCheckError
 
 from app.models.auth import User
 from app.modules.events.models import EventPost, participation_table
 from app.modules.events.services import get_participants
+
+if TYPE_CHECKING:
+    from flask_sqlalchemy import SQLAlchemy
 
 
 class TestGetParticipants:

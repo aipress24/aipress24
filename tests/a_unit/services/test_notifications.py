@@ -4,11 +4,15 @@
 
 from __future__ import annotations
 
-from flask_sqlalchemy import SQLAlchemy
+from typing import TYPE_CHECKING
+
 from svcs.flask import container
 
 from app.models.auth import User
 from app.services.notifications import Notification, NotificationService
+
+if TYPE_CHECKING:
+    from flask_sqlalchemy import SQLAlchemy
 
 
 def test_single_user(db: SQLAlchemy) -> None:

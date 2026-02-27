@@ -16,7 +16,7 @@ Survey Profile ID to organisation_field mapping:
 
 from __future__ import annotations
 
-from flask_sqlalchemy import SQLAlchemy
+from typing import TYPE_CHECKING
 
 from app.enums import BWTypeEnum, OrganisationTypeEnum, ProfileEnum
 from app.models.auth import KYCProfile, User
@@ -38,6 +38,9 @@ from app.modules.kyc.organisation_utils import (
     specialize_organization_type,
     store_auto_organisation,
 )
+
+if TYPE_CHECKING:
+    from flask_sqlalchemy import SQLAlchemy
 
 # Profile IDs mapped to their organisation_field values
 PROFILE_ID_NOM_MEDIA = "P001"  # organisation_field = "nom_media"

@@ -11,9 +11,12 @@ templates access nav_secondary_menu, nav_main_menu, etc.
 
 from __future__ import annotations
 
-from flask import Flask
+from typing import TYPE_CHECKING
 
 from app.flask.lib.nav.tree import MenuItem
+
+if TYPE_CHECKING:
+    from flask import Flask
 
 
 class TestNavTree:

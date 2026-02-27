@@ -6,12 +6,16 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from flask import Flask, g
-from flask_sqlalchemy import SQLAlchemy
 from svcs.flask import container
 
 from app.models.auth import Role, User
 from app.services.menus import MenuService, _make_menu_entry, make_menu
+
+if TYPE_CHECKING:
+    from flask_sqlalchemy import SQLAlchemy
 
 
 def test_menu_service_getitem(app: Flask, app_context, db: SQLAlchemy) -> None:

@@ -4,8 +4,9 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import arrow
-from flask_sqlalchemy import SQLAlchemy
 
 from app.models.auth import User
 from app.models.content import BaseContent
@@ -17,6 +18,9 @@ from app.services.stats._metrics import (
     Metric,
 )
 from app.services.stats._models import StatsRecord
+
+if TYPE_CHECKING:
+    from flask_sqlalchemy import SQLAlchemy
 
 
 def test_create_record(db: SQLAlchemy) -> None:

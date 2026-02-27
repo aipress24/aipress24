@@ -6,14 +6,18 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import pytest
-from flask import Flask
-from flask.testing import FlaskClient
-from sqlalchemy.orm import Session
 
 from app.models.auth import KYCProfile, User
 from app.modules.preferences.constants import MENU
 from app.modules.preferences.menu import make_menu
+
+if TYPE_CHECKING:
+    from flask import Flask
+    from flask.testing import FlaskClient
+    from sqlalchemy.orm import Session
 
 
 @pytest.fixture

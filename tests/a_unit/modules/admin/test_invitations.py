@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 
-from flask_sqlalchemy import SQLAlchemy
+from typing import TYPE_CHECKING
 
 from app.enums import OrganisationTypeEnum
 from app.models.invitation import Invitation
@@ -16,6 +16,9 @@ from app.modules.admin.invitations import (
     cancel_invitation_users,
     emails_invited_to_organisation,
 )
+
+if TYPE_CHECKING:
+    from flask_sqlalchemy import SQLAlchemy
 
 
 def _create_org(db: SQLAlchemy, name: str) -> Organisation:

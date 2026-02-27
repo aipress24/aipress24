@@ -6,11 +6,15 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import arrow
-from flask_sqlalchemy import SQLAlchemy
 
 from app.models.auth import User
 from app.services.invoicing import Invoice, InvoiceLine
+
+if TYPE_CHECKING:
+    from flask_sqlalchemy import SQLAlchemy
 
 
 class TestInvoiceModel:

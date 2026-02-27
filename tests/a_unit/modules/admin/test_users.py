@@ -6,9 +6,9 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import arrow
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Select
 
 from app.models.auth import User
@@ -17,6 +17,10 @@ from app.modules.admin.views._users import (
     UserDataSource,
     UsersTable,
 )
+
+if TYPE_CHECKING:
+    from flask import Flask
+    from flask_sqlalchemy import SQLAlchemy
 
 
 class TestUsersTable:

@@ -4,11 +4,14 @@
 
 from __future__ import annotations
 
-from flask_sqlalchemy import SQLAlchemy
+from typing import TYPE_CHECKING
 
 from app.models.auth import User
 from app.modules.wire.models import ArticlePost
 from app.services.tracking import get_unique_view_count, get_view_count, record_view
+
+if TYPE_CHECKING:
+    from flask_sqlalchemy import SQLAlchemy
 
 
 def test_view_counter(db: SQLAlchemy) -> None:

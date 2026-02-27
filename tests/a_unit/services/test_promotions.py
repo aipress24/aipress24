@@ -6,12 +6,16 @@
 
 from __future__ import annotations
 
-from flask_sqlalchemy import SQLAlchemy
+from typing import TYPE_CHECKING
+
 from svcs.flask import container
 
 from app.models.admin import Promotion
 from app.services.promotions import PromotionService
 from app.services.promotions._models import PromotionRepository
+
+if TYPE_CHECKING:
+    from flask_sqlalchemy import SQLAlchemy
 
 
 class TestPromotionService:

@@ -12,14 +12,15 @@ import arrow
 import pytest
 
 from app.flask.routing import url_for
-from app.models.auth import User
 from app.models.lifecycle import PublicationStatus
-from app.models.organisation import Organisation
 from app.modules.wip.models.newsroom.article import Article
 
 if TYPE_CHECKING:
     from flask.testing import FlaskClient
     from sqlalchemy.orm import Session
+
+    from app.models.auth import User
+    from app.models.organisation import Organisation
 
 
 @pytest.fixture

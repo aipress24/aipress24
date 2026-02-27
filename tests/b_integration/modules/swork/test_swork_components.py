@@ -9,7 +9,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, ClassVar
 
 import pytest
-from flask import Flask
 from sqlalchemy import false, select, true
 from sqlalchemy.orm import Session, selectinload
 
@@ -41,7 +40,7 @@ from app.modules.swork.components.organisations_list import (
 )
 
 if TYPE_CHECKING:
-    pass
+    from flask import Flask
 
 
 @pytest.fixture

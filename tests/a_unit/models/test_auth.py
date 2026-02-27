@@ -6,12 +6,16 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import pytest
-from flask_sqlalchemy import SQLAlchemy
 
 from app.enums import RoleEnum
 from app.models.auth import KYCProfile, Role, User
 from app.models.organisation import Organisation
+
+if TYPE_CHECKING:
+    from flask_sqlalchemy import SQLAlchemy
 
 
 def get_or_create_role(db: SQLAlchemy, role_enum: RoleEnum) -> Role:

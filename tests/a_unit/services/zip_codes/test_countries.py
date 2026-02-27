@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from flask_sqlalchemy import SQLAlchemy
+from typing import TYPE_CHECKING
 
 from app.services.zip_codes import create_country_entry, get_country
 from app.services.zip_codes._country_service import (
@@ -13,6 +13,9 @@ from app.services.zip_codes._country_service import (
     get_full_countries,
     update_country_entry,
 )
+
+if TYPE_CHECKING:
+    from flask_sqlalchemy import SQLAlchemy
 
 
 class TestGetCountry:

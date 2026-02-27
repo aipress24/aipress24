@@ -4,14 +4,18 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import pytest
-from flask_sqlalchemy import SQLAlchemy
 
 from app.models.auth import User
 from app.models.organisation import Organisation
 from app.modules.wire.models import ArticlePost
 from app.services.social_graph import adapt
 from app.services.social_graph._adapters import SocialGraphError
+
+if TYPE_CHECKING:
+    from flask_sqlalchemy import SQLAlchemy
 
 
 def test_followers_users(db: SQLAlchemy) -> None:

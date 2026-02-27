@@ -12,15 +12,16 @@ from unittest.mock import MagicMock
 import pytest
 
 from app.flask.routing import url_for
-from app.models.auth import User
 from app.models.lifecycle import PublicationStatus
-from app.models.organisation import Organisation
 from app.modules.wip.crud.cbvs.events import EventsTable, EventsWipView
 from app.modules.wip.models.eventroom import Event
 
 if TYPE_CHECKING:
     from flask.testing import FlaskClient
     from sqlalchemy.orm import Session
+
+    from app.models.auth import User
+    from app.models.organisation import Organisation
 
 
 @pytest.fixture
