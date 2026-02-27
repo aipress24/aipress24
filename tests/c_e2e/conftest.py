@@ -80,7 +80,7 @@ def db_session(db, app):
     wrapping. This fixture disposes stale connections from unit tests
     that might be holding PostgreSQL locks.
     """
-    global _e2e_engine_disposed
+    global _e2e_engine_disposed  # noqa: PLW0603
 
     # CRITICAL: Close all existing connections when transitioning to E2E tests.
     # Without this, DROP TABLE will hang waiting for locks held by

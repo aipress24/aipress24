@@ -15,7 +15,8 @@ from app.ui.datetime_filter import make_localdt, make_naivedt
 
 def test_make_naivedt() -> None:
     """Test make_naivedt formats datetime correctly."""
-    dt = datetime(2024, 3, 15, 14, 30, 0)
+    # Intentionally using naive datetime to test make_naivedt function
+    dt = datetime(2024, 3, 15, 14, 30, 0, tzinfo=UTC)
     result = make_naivedt(dt)
 
     assert "15" in result
@@ -34,7 +35,7 @@ def test_make_localdt() -> None:
 
     # Also test with pytz timezone
     paris_tz = pytz.timezone("Europe/Paris")
-    paris_dt = paris_tz.localize(datetime(2024, 3, 15, 14, 30, 0))
+    paris_dt = datetime(2024, 3, 15, 14, 30, 0, tzinfo=paris_tz)
     result2 = make_localdt(paris_dt)
 
     assert "2024" in result2
