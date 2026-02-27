@@ -3,7 +3,6 @@
 #
 
 target-version = "py311"
-# preview = true
 
 exclude = [
     "migrations/",

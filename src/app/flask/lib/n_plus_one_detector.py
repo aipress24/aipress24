@@ -167,6 +167,43 @@ def _is_enabled(app: Flask) -> bool:
     return bool(enabled)
 
 
+def _log_report(report: str, log_level: str) -> None:
+    """Log a report at the specified level."""
+    level = log_level.upper()
+    if level == "WARNING":
+        logger.warning(report)
+    elif level == "ERROR":
+        logger.error(report)
+    elif level == "INFO":
+        logger.info(report)
+    else:
+        logger.debug(report)
+
+
+def _should_track_query(statement: str) -> bool:
+    """Check if a query should be tracked (not a system query)."""
+    stmt_upper = statement.upper().strip()
+    skip_prefixes = ("PRAGMA", "SAVEPOINT", "RELEASE", "ROLLBACK TO")
+    return not any(stmt_upper.startswith(prefix) for prefix in skip_prefixes)
+
+
+def _check_n_plus_one(app: Flask, response):
+    """Check for N+1 issues after the request."""
+    tracker = get_tracker()
+    if not tracker:
+        return response
+
+    threshold = app.config["N_PLUS_ONE_THRESHOLD"]
+    report = tracker.get_report(threshold)
+
+    if report:
+        if app.config["N_PLUS_ONE_RAISE"]:
+            raise NPlusOneDetectedError(report)
+        _log_report(report, app.config["N_PLUS_ONE_LOG_LEVEL"])
+
+    return response
+
+
 def init_n_plus_one_detector(app: Flask) -> None:
     """Initialize the N+1 query detector for a Flask app.
 
@@ -186,54 +223,24 @@ def init_n_plus_one_detector(app: Flask) -> None:
     @app.before_request
     def start_query_tracking() -> None:
         """Start tracking queries for this request."""
-        if not _is_enabled(app):
-            return
-        g._query_tracker = QueryTracker()
+        if _is_enabled(app):
+            g._query_tracker = QueryTracker()
 
     @app.after_request
     def check_n_plus_one(response):
         """Check for N+1 issues after the request."""
-        if not _is_enabled(app):
-            return response
-
-        tracker = get_tracker()
-        if not tracker:
-            return response
-
-        threshold = app.config["N_PLUS_ONE_THRESHOLD"]
-        report = tracker.get_report(threshold)
-
-        if report:
-            if app.config["N_PLUS_ONE_RAISE"]:
-                raise NPlusOneDetectedError(report)
-
-            log_level = app.config["N_PLUS_ONE_LOG_LEVEL"].upper()
-            if log_level == "WARNING":
-                logger.warning(report)
-            elif log_level == "ERROR":
-                logger.error(report)
-            elif log_level == "INFO":
-                logger.info(report)
-            else:
-                logger.debug(report)
-
+        if _is_enabled(app):
+            return _check_n_plus_one(app, response)
         return response
 
-    # Register SQLAlchemy event listener
     @event.listens_for(Engine, "before_cursor_execute")
     def receive_before_cursor_execute(
         _conn, _cursor, statement, parameters, context, executemany
     ):
         """Track each query execution."""
         tracker = get_tracker()
-        if tracker and not executemany:
-            # Skip certain system queries
-            stmt_upper = statement.upper().strip()
-            if not any(
-                stmt_upper.startswith(prefix)
-                for prefix in ("PRAGMA", "SAVEPOINT", "RELEASE", "ROLLBACK TO")
-            ):
-                tracker.add_query(statement, parameters)
+        if tracker and not executemany and _should_track_query(statement):
+            tracker.add_query(statement, parameters)
 
 
 class NPlusOneDetectedError(Exception):
