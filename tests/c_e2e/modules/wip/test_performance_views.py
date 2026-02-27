@@ -9,7 +9,6 @@ from __future__ import annotations
 from datetime import date
 from typing import TYPE_CHECKING
 
-import pytest
 
 from app.services.reputation._models import ReputationRecord
 

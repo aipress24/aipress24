@@ -20,7 +20,6 @@ import pytest
 
 from app.flask.routing import url_for
 from app.models.lifecycle import PublicationStatus
-from app.modules.wip.models import Image
 from app.modules.wip.models.newsroom.article import Article
 
 
