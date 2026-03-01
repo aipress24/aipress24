@@ -240,106 +240,26 @@ class TestBWFormGeneratorGenerate:
         # Should return a FlaskForm (possibly empty)
         assert isinstance(form, FlaskForm)
 
-    def test_generate_with_agency_type_returns_form(self, db_session: Session):
-        """Test generate() with AGENCY bw_type returns a valid form."""
+    @pytest.mark.parametrize(
+        "bw_type",
+        [
+            BWTypeEnum.AGENCY,
+            BWTypeEnum.MEDIA,
+            BWTypeEnum.MICRO,
+            BWTypeEnum.CORPORATE,
+            BWTypeEnum.PRESSUNION,
+            BWTypeEnum.COM,
+            BWTypeEnum.ORGANISATION,
+            BWTypeEnum.TRANSFORMER,
+            BWTypeEnum.ACADEMICS,
+        ],
+    )
+    def test_generate_with_bw_type_returns_form(
+        self, db_session: Session, bw_type: BWTypeEnum
+    ):
+        """Test generate() returns a valid FlaskForm for all bw_type values."""
         org = Organisation(name="Test Org", creator_profile_code="PM_DIR")
-        org.bw_type = BWTypeEnum.AGENCY
-        db_session.add(org)
-        db_session.flush()
-
-        generator = BWFormGenerator(org=org)
-        form = generator.generate()
-
-        assert isinstance(form, FlaskForm)
-
-    def test_generate_with_media_type_returns_form(self, db_session: Session):
-        """Test generate() with MEDIA bw_type returns a valid form."""
-        org = Organisation(name="Test Org", creator_profile_code="PM_DIR")
-        org.bw_type = BWTypeEnum.MEDIA
-        db_session.add(org)
-        db_session.flush()
-
-        generator = BWFormGenerator(org=org)
-        form = generator.generate()
-
-        assert isinstance(form, FlaskForm)
-
-    def test_generate_with_micro_type_returns_form(self, db_session: Session):
-        """Test generate() with MICRO bw_type returns a valid form."""
-        org = Organisation(name="Test Org", creator_profile_code="PM_DIR")
-        org.bw_type = BWTypeEnum.MICRO
-        db_session.add(org)
-        db_session.flush()
-
-        generator = BWFormGenerator(org=org)
-        form = generator.generate()
-
-        assert isinstance(form, FlaskForm)
-
-    def test_generate_with_corporate_type_returns_form(self, db_session: Session):
-        """Test generate() with CORPORATE bw_type returns a valid form."""
-        org = Organisation(name="Test Org", creator_profile_code="PM_DIR")
-        org.bw_type = BWTypeEnum.CORPORATE
-        db_session.add(org)
-        db_session.flush()
-
-        generator = BWFormGenerator(org=org)
-        form = generator.generate()
-
-        assert isinstance(form, FlaskForm)
-
-    def test_generate_with_pressunion_type_returns_form(self, db_session: Session):
-        """Test generate() with PRESSUNION bw_type returns a valid form."""
-        org = Organisation(name="Test Org", creator_profile_code="PM_DIR")
-        org.bw_type = BWTypeEnum.PRESSUNION
-        db_session.add(org)
-        db_session.flush()
-
-        generator = BWFormGenerator(org=org)
-        form = generator.generate()
-
-        assert isinstance(form, FlaskForm)
-
-    def test_generate_with_com_type_returns_form(self, db_session: Session):
-        """Test generate() with COM bw_type returns a valid form."""
-        org = Organisation(name="Test Org", creator_profile_code="PM_DIR")
-        org.bw_type = BWTypeEnum.COM
-        db_session.add(org)
-        db_session.flush()
-
-        generator = BWFormGenerator(org=org)
-        form = generator.generate()
-
-        assert isinstance(form, FlaskForm)
-
-    def test_generate_with_organisation_type_returns_form(self, db_session: Session):
-        """Test generate() with ORGANISATION bw_type returns a valid form."""
-        org = Organisation(name="Test Org", creator_profile_code="PM_DIR")
-        org.bw_type = BWTypeEnum.ORGANISATION
-        db_session.add(org)
-        db_session.flush()
-
-        generator = BWFormGenerator(org=org)
-        form = generator.generate()
-
-        assert isinstance(form, FlaskForm)
-
-    def test_generate_with_transformer_type_returns_form(self, db_session: Session):
-        """Test generate() with TRANSFORMER bw_type returns a valid form."""
-        org = Organisation(name="Test Org", creator_profile_code="PM_DIR")
-        org.bw_type = BWTypeEnum.TRANSFORMER
-        db_session.add(org)
-        db_session.flush()
-
-        generator = BWFormGenerator(org=org)
-        form = generator.generate()
-
-        assert isinstance(form, FlaskForm)
-
-    def test_generate_with_academics_type_returns_form(self, db_session: Session):
-        """Test generate() with ACADEMICS bw_type returns a valid form."""
-        org = Organisation(name="Test Org", creator_profile_code="PM_DIR")
-        org.bw_type = BWTypeEnum.ACADEMICS
+        org.bw_type = bw_type
         db_session.add(org)
         db_session.flush()
 

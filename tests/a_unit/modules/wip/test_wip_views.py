@@ -9,6 +9,8 @@ These tests verify view configuration as equivalents to removed Page class tests
 
 from __future__ import annotations
 
+import pytest
+
 from app.modules.wip.constants import MENU, MenuEntry
 
 
@@ -28,30 +30,14 @@ class TestWipMenuConfiguration:
             assert entry.icon
             assert entry.endpoint
 
-    def test_menu_has_dashboard(self):
-        """Test menu has dashboard entry."""
+    @pytest.mark.parametrize(
+        "entry_name",
+        ["dashboard", "newsroom", "comroom", "eventroom", "org-profile"],
+    )
+    def test_menu_has_required_entry(self, entry_name: str):
+        """Test menu has required entries."""
         names = [entry.name for entry in MENU]
-        assert "dashboard" in names
-
-    def test_menu_has_newsroom(self):
-        """Test menu has newsroom entry."""
-        names = [entry.name for entry in MENU]
-        assert "newsroom" in names
-
-    def test_menu_has_comroom(self):
-        """Test menu has comroom entry."""
-        names = [entry.name for entry in MENU]
-        assert "comroom" in names
-
-    def test_menu_has_eventroom(self):
-        """Test menu has eventroom entry."""
-        names = [entry.name for entry in MENU]
-        assert "eventroom" in names
-
-    def test_menu_has_business_wall(self):
-        """Test menu has business wall entry (org-profile)."""
-        names = [entry.name for entry in MENU]
-        assert "org-profile" in names
+        assert entry_name in names
 
     def test_menu_entry_endpoints_start_with_wip(self):
         """Test all menu endpoints are in wip blueprint, except for link to new BW."""
