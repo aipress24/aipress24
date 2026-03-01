@@ -58,7 +58,9 @@ from app.modules.kyc.survey_dataclass import SurveyField
         ("Test description", False, ""),
     ],
 )
-def test_filter_public_info(input_text: str, public: bool, expected_suffix: str) -> None:
+def test_filter_public_info(
+    input_text: str, public: bool, expected_suffix: str
+) -> None:
     """Test _filter_public_info function adds TAG_PUBLIC when public=True."""
     result = _filter_public_info(input_text, public)
     if expected_suffix:
@@ -94,7 +96,9 @@ def test_filter_mandatory_label(
         (_filter_photo_format, "Upload photo", TAG_PHOTO_FORMAT),
     ],
 )
-def test_filter_functions_add_tags(filter_func, input_text: str, expected_tag: str) -> None:
+def test_filter_functions_add_tags(
+    filter_func, input_text: str, expected_tag: str
+) -> None:
     """Test filter functions append their respective tags to input text."""
     result = filter_func(input_text)
     assert result == f"{input_text} {expected_tag}"
