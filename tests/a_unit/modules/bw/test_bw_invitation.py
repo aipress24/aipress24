@@ -42,6 +42,75 @@ def mock_send_role_invitation_mail():
         yield mock
 
 
+@pytest.fixture
+def org(db_session: scoped_session) -> Organisation:
+    """Create a test organisation."""
+    org = Organisation(name="Test Org")
+    db_session.add(org)
+    db_session.flush()
+    return org
+
+
+@pytest.fixture
+def owner(db_session: scoped_session, org: Organisation) -> User:
+    """Create an owner user linked to the organisation."""
+    user = User(email=_unique_email(), active=True)
+    db_session.add(user)
+    db_session.flush()
+    user.organisation_id = org.id
+    db_session.flush()
+    return user
+
+
+@pytest.fixture
+def business_wall(
+    db_session: scoped_session, org: Organisation, owner: User
+) -> BusinessWall:
+    """Create a business wall owned by owner in org."""
+    bw = BusinessWall(
+        bw_type="media",
+        status="active",
+        is_free=True,
+        owner_id=owner.id,
+        payer_id=owner.id,
+        organisation_id=org.id,
+    )
+    db_session.add(bw)
+    db_session.flush()
+    return bw
+
+
+@pytest.fixture
+def invited_user(db_session: scoped_session, org: Organisation) -> User:
+    """Create an invited user linked to the organisation."""
+    user = User(email=_unique_email(), active=True)
+    db_session.add(user)
+    db_session.flush()
+    user.organisation_id = org.id
+    db_session.flush()
+    return user
+
+
+@pytest.fixture
+def external_user(db_session: scoped_session) -> User:
+    """Create a user NOT linked to any organisation."""
+    user = User(email=_unique_email(), active=True)
+    db_session.add(user)
+    db_session.flush()
+    return user
+
+
+@pytest.fixture
+def member_with_known_email(db_session: scoped_session, org: Organisation) -> User:
+    """Create a member with a known email for testing email-based functions."""
+    user = User(email="member@example.com", active=True)
+    user.organisation = org
+    user.organisation_id = org.id
+    db_session.add(user)
+    db_session.flush()
+    return user
+
+
 class TestInviteUserRole:
     """Tests for invite_user_role function."""
 
@@ -49,34 +118,10 @@ class TestInviteUserRole:
         self,
         db_session: scoped_session,
         app_context: AppContext,
+        business_wall: BusinessWall,
+        invited_user: User,
     ) -> None:
         """Successfully invite a user to a role."""
-        # Setup
-        org = Organisation(name="Test Org")
-        user = User(email=_unique_email(), active=True)
-        db_session.add_all([org, user])
-        db_session.flush()
-        user.organisation_id = org.id
-        db_session.flush()
-
-        business_wall = BusinessWall(
-            bw_type="media",
-            status="active",
-            is_free=True,
-            owner_id=user.id,
-            payer_id=user.id,
-            organisation_id=org.id,
-        )
-        db_session.add(business_wall)
-        db_session.flush()
-
-        # Create another user who will be invited
-        invited_user = User(email=_unique_email(), active=True)
-        db_session.add(invited_user)
-        db_session.flush()
-        invited_user.organisation_id = org.id
-        db_session.flush()
-
         result = invite_user_role(business_wall, invited_user, BWRoleType.BWMI)
 
         assert result is True
@@ -93,31 +138,10 @@ class TestInviteUserRole:
         self,
         db_session: scoped_session,
         app_context: AppContext,
+        business_wall: BusinessWall,
+        external_user: User,
     ) -> None:
         """Cannot invite user who is not an organisation member."""
-        org = Organisation(name="Test Org")
-        user = User(email=_unique_email(), active=True)
-        db_session.add_all([org, user])
-        db_session.flush()
-        user.organisation_id = org.id
-        db_session.flush()
-
-        business_wall = BusinessWall(
-            bw_type="media",
-            status="active",
-            is_free=True,
-            owner_id=user.id,
-            payer_id=user.id,
-            organisation_id=org.id,
-        )
-        db_session.add(business_wall)
-        db_session.flush()
-
-        # Create user who is NOT in the organisation
-        external_user = User(email=_unique_email(), active=True)
-        db_session.add(external_user)
-        db_session.flush()
-
         result = invite_user_role(business_wall, external_user, BWRoleType.BWMI)
 
         assert result is False
@@ -126,32 +150,10 @@ class TestInviteUserRole:
         self,
         db_session: scoped_session,
         app_context: AppContext,
+        business_wall: BusinessWall,
+        invited_user: User,
     ) -> None:
         """Cannot invite user who already has the same role."""
-        org = Organisation(name="Test Org")
-        user = User(email=_unique_email(), active=True)
-        db_session.add_all([org, user])
-        db_session.flush()
-        user.organisation_id = org.id
-        db_session.flush()
-
-        business_wall = BusinessWall(
-            bw_type="media",
-            status="active",
-            is_free=True,
-            owner_id=user.id,
-            payer_id=user.id,
-            organisation_id=org.id,
-        )
-        db_session.add(business_wall)
-        db_session.flush()
-
-        invited_user = User(email=_unique_email(), active=True)
-        db_session.add(invited_user)
-        db_session.flush()
-        invited_user.organisation_id = org.id
-        db_session.flush()
-
         # First invitation - should succeed
         result1 = invite_user_role(business_wall, invited_user, BWRoleType.BWMI)
         assert result1 is True
@@ -165,37 +167,15 @@ class TestInviteUserRole:
         self,
         db_session: scoped_session,
         app_context: AppContext,
+        business_wall: BusinessWall,
+        invited_user: User,
     ) -> None:
         """User can have multiple different roles."""
-        org = Organisation(name="Test Org")
-        user = User(email=_unique_email(), active=True)
-        db_session.add_all([org, user])
-        db_session.flush()
-        user.organisation_id = org.id
-        db_session.flush()
-
-        business_wall = BusinessWall(
-            bw_type="media",
-            status="active",
-            is_free=True,
-            owner_id=user.id,
-            payer_id=user.id,
-            organisation_id=org.id,
-        )
-        db_session.add(business_wall)
-        db_session.flush()
-
-        invited_user = User(email="invited2@example.com", active=True)
-        db_session.add(invited_user)
-        db_session.flush()
-        invited_user.organisation_id = org.id
-        db_session.flush()
-
         # First role - BWMI
         result1 = invite_user_role(business_wall, invited_user, BWRoleType.BWMI)
         assert result1 is True
 
-        # Second role - BWPRi (should succeed - different role)
+        # Second role - BWPRI (should succeed - different role)
         db_session.refresh(business_wall)
         result2 = invite_user_role(business_wall, invited_user, BWRoleType.BWPRI)
         assert result2 is True
@@ -215,32 +195,10 @@ class TestRevokeUserRole:
         self,
         db_session: scoped_session,
         app_context: AppContext,
+        business_wall: BusinessWall,
+        invited_user: User,
     ) -> None:
         """Successfully revoke a role from a user."""
-        org = Organisation(name="Test Org")
-        user = User(email=_unique_email(), active=True)
-        db_session.add_all([org, user])
-        db_session.flush()
-        user.organisation_id = org.id
-        db_session.flush()
-
-        business_wall = BusinessWall(
-            bw_type="media",
-            status="active",
-            is_free=True,
-            owner_id=user.id,
-            payer_id=user.id,
-            organisation_id=org.id,
-        )
-        db_session.add(business_wall)
-        db_session.flush()
-
-        invited_user = User(email=_unique_email(), active=True)
-        db_session.add(invited_user)
-        db_session.flush()
-        invited_user.organisation_id = org.id
-        db_session.flush()
-
         # Add role first
         invite_user_role(business_wall, invited_user, BWRoleType.BWMI)
         db_session.flush()
@@ -260,33 +218,10 @@ class TestRevokeUserRole:
         self,
         db_session: scoped_session,
         app_context: AppContext,
+        business_wall: BusinessWall,
+        invited_user: User,
     ) -> None:
         """Cannot revoke a role that user doesn't have."""
-        org = Organisation(name="Test Org")
-        user = User(email=_unique_email(), active=True)
-        db_session.add_all([org, user])
-        db_session.flush()
-        user.organisation_id = org.id
-        db_session.flush()
-
-        business_wall = BusinessWall(
-            bw_type="media",
-            status="active",
-            is_free=True,
-            owner_id=user.id,
-            payer_id=user.id,
-            organisation_id=org.id,
-        )
-        db_session.add(business_wall)
-        db_session.flush()
-
-        # Create user without any role
-        invited_user = User(email=_unique_email(), active=True)
-        db_session.add(invited_user)
-        db_session.flush()
-        invited_user.organisation_id = org.id
-        db_session.flush()
-
         # Test - should fail (no role to revoke)
         result = revoke_user_role(business_wall, invited_user, BWRoleType.BWMI)
 
@@ -296,37 +231,14 @@ class TestRevokeUserRole:
         self,
         db_session: scoped_session,
         app_context: AppContext,
+        business_wall: BusinessWall,
+        invited_user: User,
     ) -> None:
         """Cannot revoke a different role than what user has."""
-        org = Organisation(name="Test Org")
-        user = User(email=_unique_email(), active=True)
-        db_session.add_all([org, user])
-        db_session.flush()
-        user.organisation_id = org.id
-        db_session.flush()
-
-        business_wall = BusinessWall(
-            bw_type="media",
-            status="active",
-            is_free=True,
-            owner_id=user.id,
-            payer_id=user.id,
-            organisation_id=org.id,
-        )
-        db_session.add(business_wall)
-        db_session.flush()
-
-        # Create another user and give them BWMI role
-        invited_user = User(email=_unique_email(), active=True)
-        db_session.add(invited_user)
-        db_session.flush()
-        invited_user.organisation_id = org.id
-        db_session.flush()
-
         invite_result = invite_user_role(business_wall, invited_user, BWRoleType.BWMI)
         assert invite_result is True
 
-        # Test - should fail (trying to revoke BWPRi when user has BWMI)
+        # Test - should fail (trying to revoke BWPRI when user has BWMI)
         result = revoke_user_role(business_wall, invited_user, BWRoleType.BWPRI)
 
         assert result is False
@@ -339,35 +251,12 @@ class TestEnsureRolesMembership:
         self,
         db_session: scoped_session,
         app_context: AppContext,
+        business_wall: BusinessWall,
+        invited_user: User,
     ) -> None:
         """Remove role assignments for users no longer in organisation."""
-        org = Organisation(name="Test Org")
-        owner = User(email=_unique_email(), active=True)
-        db_session.add_all([org, owner])
-        db_session.flush()
-        owner.organisation_id = org.id
-        db_session.flush()
-
-        business_wall = BusinessWall(
-            bw_type="media",
-            status="active",
-            is_free=True,
-            owner_id=owner.id,
-            payer_id=owner.id,
-            organisation_id=org.id,
-        )
-        db_session.add(business_wall)
-        db_session.flush()
-
-        # Create a member who will be invited
-        member = User(email=_unique_email(), active=True)
-        db_session.add(member)
-        db_session.flush()
-        member.organisation_id = org.id
-        db_session.flush()
-
         # Invite member to role
-        invite_result = invite_user_role(business_wall, member, BWRoleType.BWMI)
+        invite_result = invite_user_role(business_wall, invited_user, BWRoleType.BWMI)
         assert invite_result is True
         db_session.flush()
 
@@ -380,7 +269,8 @@ class TestEnsureRolesMembership:
         )
         assert len(assignments) == 1
 
-        member.organisation_id = None
+        # Remove user from organisation
+        invited_user.organisation_id = None
         db_session.flush()
 
         revoked_count = ensure_roles_membership(business_wall)
@@ -401,33 +291,11 @@ class TestEnsureRolesMembership:
         self,
         db_session: scoped_session,
         app_context: AppContext,
+        business_wall: BusinessWall,
+        invited_user: User,
     ) -> None:
         """Keep role assignments for current organisation members."""
-        org = Organisation(name="Test Org")
-        owner = User(email=_unique_email(), active=True)
-        db_session.add_all([org, owner])
-        db_session.flush()
-        owner.organisation_id = org.id
-        db_session.flush()
-
-        business_wall = BusinessWall(
-            bw_type="media",
-            status="active",
-            is_free=True,
-            owner_id=owner.id,
-            payer_id=owner.id,
-            organisation_id=org.id,
-        )
-        db_session.add(business_wall)
-        db_session.flush()
-
-        member = User(email=_unique_email(), active=True)
-        db_session.add(member)
-        db_session.flush()
-        member.organisation_id = org.id
-        db_session.flush()
-
-        invite_result = invite_user_role(business_wall, member, BWRoleType.BWMI)
+        invite_result = invite_user_role(business_wall, invited_user, BWRoleType.BWMI)
         assert invite_result is True
         db_session.flush()
 
@@ -445,25 +313,22 @@ class TestEnsureRolesMembership:
             .all()
         )
         assert len(assignments) == 1
-        assert assignments[0].user_id == member.id
+        assert assignments[0].user_id == invited_user.id
 
     def test_returns_zero_if_no_organisation(
         self,
         db_session: scoped_session,
         app_context: AppContext,
+        external_user: User,
     ) -> None:
         """Return 0 if business wall has no organisation."""
-        user = User(email=_unique_email(), active=True)
-        db_session.add(user)
-        db_session.flush()
-
         # Create business wall without organisation
         business_wall = BusinessWall(
             bw_type="media",
             status="active",
             is_free=True,
-            owner_id=user.id,
-            payer_id=user.id,
+            owner_id=external_user.id,
+            payer_id=external_user.id,
             organisation_id=None,
         )
         db_session.add(business_wall)
@@ -481,34 +346,10 @@ class TestChangeBWMiEmails:
         self,
         db_session: scoped_session,
         app_context: AppContext,
+        business_wall: BusinessWall,
+        member_with_known_email: User,
     ) -> None:
         """Add BWMi invitation for org member."""
-
-        org = Organisation(name="Test Org")
-        owner = User(email=_unique_email(), active=True)
-        db_session.add_all([org, owner])
-        db_session.flush()
-        owner.organisation_id = org.id
-        db_session.flush()
-
-        business_wall = BusinessWall(
-            bw_type="media",
-            status="active",
-            is_free=True,
-            owner_id=owner.id,
-            payer_id=owner.id,
-            organisation_id=org.id,
-        )
-        db_session.add(business_wall)
-        db_session.flush()
-
-        member = User(email="member@example.com", active=True)
-        member.organisation = org
-        member.organisation_id = org.id
-        db_session.add(member)
-        db_session.flush()
-
-        # Invite
         change_bwmi_emails(business_wall, "member@example.com")
         db_session.flush()
 
@@ -519,49 +360,26 @@ class TestChangeBWMiEmails:
             if role.role_type == BWRoleType.BWMI.value
         ]
         assert len(bwmi_roles) == 1
-        assert bwmi_roles[0].user_id == member.id
+        assert bwmi_roles[0].user_id == member_with_known_email.id
         assert bwmi_roles[0].invitation_status == InvitationStatus.PENDING.value
 
     def test_remove_bwmi_invitation(
         self,
         db_session: scoped_session,
         app_context: AppContext,
+        business_wall: BusinessWall,
+        member_with_known_email: User,
     ) -> None:
         """Remove BWMi invitation when email not in list."""
-
-        org = Organisation(name="Test Org")
-        owner = User(email=_unique_email(), active=True)
-        db_session.add_all([org, owner])
-        db_session.flush()
-        owner.organisation_id = org.id
-        db_session.flush()
-
-        business_wall = BusinessWall(
-            bw_type="media",
-            status="active",
-            is_free=True,
-            owner_id=owner.id,
-            payer_id=owner.id,
-            organisation_id=org.id,
-        )
-        db_session.add(business_wall)
-        db_session.flush()
-
-        member = User(email="member@example.com", active=True)
-        member.organisation = org
-        member.organisation_id = org.id
-        db_session.add(member)
-        db_session.flush()
-
         # add BWMi role
-        invite_user_role(business_wall, member, BWRoleType.BWMI)
+        invite_user_role(business_wall, member_with_known_email, BWRoleType.BWMI)
         db_session.flush()
 
         # Verify role exists
         db_session.refresh(business_wall)
         assert len(business_wall.role_assignments) == 1
 
-        # remove , empty list for change
+        # remove, empty list for change
         change_bwmi_emails(business_wall, "")
         db_session.flush()
 
@@ -577,35 +395,17 @@ class TestChangeBWMiEmails:
         self,
         db_session: scoped_session,
         app_context: AppContext,
+        business_wall: BusinessWall,
+        org: Organisation,
     ) -> None:
         """Add multiple BWMi invitations at once."""
-
-        org = Organisation(name="Test Org")
-        owner = User(email=_unique_email(), active=True)
-        db_session.add_all([org, owner])
-        db_session.flush()
-        owner.organisation_id = org.id
-        db_session.flush()
-
-        business_wall = BusinessWall(
-            bw_type="media",
-            status="active",
-            is_free=True,
-            owner_id=owner.id,
-            payer_id=owner.id,
-            organisation_id=org.id,
-        )
-        db_session.add(business_wall)
-        db_session.flush()
-
         member1 = User(email="member1@example.com", active=True)
         member1.organisation = org
         member1.organisation_id = org.id
         member2 = User(email="member2@example.com", active=True)
         member2.organisation = org
         member2.organisation_id = org.id
-        db_session.add(member1)
-        db_session.add(member2)
+        db_session.add_all([member1, member2])
         db_session.flush()
 
         # Invite both
@@ -631,34 +431,10 @@ class TestChangeBWPRiEmails:
         self,
         db_session: scoped_session,
         app_context: AppContext,
+        business_wall: BusinessWall,
+        member_with_known_email: User,
     ) -> None:
         """Add new BWPRi invitation for org member."""
-
-        org = Organisation(name="Test Org")
-        owner = User(email=_unique_email(), active=True)
-        db_session.add_all([org, owner])
-        db_session.flush()
-        owner.organisation_id = org.id
-        db_session.flush()
-
-        business_wall = BusinessWall(
-            bw_type="media",
-            status="active",
-            is_free=True,
-            owner_id=owner.id,
-            payer_id=owner.id,
-            organisation_id=org.id,
-        )
-        db_session.add(business_wall)
-        db_session.flush()
-
-        # Create member to invite
-        member = User(email="member@example.com", active=True)
-        member.organisation = org
-        member.organisation_id = org.id
-        db_session.add(member)
-        db_session.flush()
-
         change_bwpri_emails(business_wall, "member@example.com")
         db_session.flush()
 
@@ -669,42 +445,19 @@ class TestChangeBWPRiEmails:
             if role.role_type == BWRoleType.BWPRI.value
         ]
         assert len(bwpri_roles) == 1
-        assert bwpri_roles[0].user_id == member.id
+        assert bwpri_roles[0].user_id == member_with_known_email.id
         assert bwpri_roles[0].invitation_status == InvitationStatus.PENDING.value
 
     def test_remove_bwpri_invitation(
         self,
         db_session: scoped_session,
         app_context: AppContext,
+        business_wall: BusinessWall,
+        member_with_known_email: User,
     ) -> None:
         """Remove BWPRi invitation when email not in list."""
-
-        org = Organisation(name="Test Org")
-        owner = User(email=_unique_email(), active=True)
-        db_session.add_all([org, owner])
-        db_session.flush()
-        owner.organisation_id = org.id
-        db_session.flush()
-
-        business_wall = BusinessWall(
-            bw_type="media",
-            status="active",
-            is_free=True,
-            owner_id=owner.id,
-            payer_id=owner.id,
-            organisation_id=org.id,
-        )
-        db_session.add(business_wall)
-        db_session.flush()
-
-        member = User(email="member@example.com", active=True)
-        member.organisation = org
-        member.organisation_id = org.id
-        db_session.add(member)
-        db_session.flush()
-
         # Add BWPRi role
-        invite_user_role(business_wall, member, BWRoleType.BWPRI)
+        invite_user_role(business_wall, member_with_known_email, BWRoleType.BWPRI)
         db_session.flush()
 
         db_session.refresh(business_wall)
@@ -726,35 +479,17 @@ class TestChangeBWPRiEmails:
         self,
         db_session: scoped_session,
         app_context: AppContext,
+        business_wall: BusinessWall,
+        org: Organisation,
     ) -> None:
         """BWMi and BWPRi lists are independent."""
-
-        org = Organisation(name="Test Org")
-        owner = User(email=_unique_email(), active=True)
-        db_session.add_all([org, owner])
-        db_session.flush()
-        owner.organisation_id = org.id
-        db_session.flush()
-
-        business_wall = BusinessWall(
-            bw_type="media",
-            status="active",
-            is_free=True,
-            owner_id=owner.id,
-            payer_id=owner.id,
-            organisation_id=org.id,
-        )
-        db_session.add(business_wall)
-        db_session.flush()
-
         bwmi_member = User(email="bwmi@example.com", active=True)
         bwmi_member.organisation = org
         bwmi_member.organisation_id = org.id
         bwpri_member = User(email="bwpri@example.com", active=True)
         bwpri_member.organisation = org
         bwpri_member.organisation_id = org.id
-        db_session.add(bwmi_member)
-        db_session.add(bwpri_member)
+        db_session.add_all([bwmi_member, bwpri_member])
         db_session.flush()
 
         # Invite to different roles

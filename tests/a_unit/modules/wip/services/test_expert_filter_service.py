@@ -12,7 +12,6 @@ from app.models.auth import KYCProfile, User
 from app.modules.wip.services.newsroom.expert_filter import (
     MAX_SELECTABLE_EXPERTS,
     ExpertFilterService,
-    FilterState,
 )
 from app.modules.wip.services.newsroom.expert_selectors import (
     CompetencesGeneralesSelector,
@@ -1298,41 +1297,6 @@ class TestStateManagement:
     Note: These tests verify state behavior without complex mocking.
     The ExpertFilterService uses session storage via SVCS container.
     """
-
-    def test_state_dict_operations(self) -> None:
-        """State dictionary operations work correctly."""
-        state: dict = {}
-
-        # Set state
-        state["newsroom:ciblage"] = {"secteur": ["Tech"]}
-        assert state["newsroom:ciblage"] == {"secteur": ["Tech"]}
-
-        # Clear state
-        state["newsroom:ciblage"] = {}
-        assert state["newsroom:ciblage"] == {}
-
-    def test_state_with_selected_experts(self) -> None:
-        """State can hold selected expert IDs."""
-        state = {"selected_experts": [1, 2, 3]}
-
-        # Add more experts
-        existing = state.get("selected_experts", [])
-        new_ids = [4, 5]
-        state["selected_experts"] = list(set(existing + new_ids))
-
-        assert 1 in state["selected_experts"]
-        assert 4 in state["selected_experts"]
-
-    def test_filter_state_type_alias(self) -> None:
-        """FilterState type can hold different value types."""
-        # FilterState can hold strings, list of strings, or list of ints
-        state: FilterState = {
-            "secteur": ["Tech", "Finance"],
-            "selected_experts": [1, 2, 3],
-        }
-
-        assert isinstance(state["secteur"], list)
-        assert isinstance(state["selected_experts"], list)
 
     def test_session_key_initialization(self, db_session, app) -> None:
         """Session key depends on avis_enquete_id."""

@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+import pytest
 from wtforms import BooleanField, IntegerField, StringField, TextAreaField, validators
 from wtforms.fields.core import UnboundField
 
@@ -50,50 +51,53 @@ from app.modules.kyc.dynform import (
 from app.modules.kyc.survey_dataclass import SurveyField
 
 
-def test_filter_public_info() -> None:
-    """Test _filter_public_info function."""
-    # With public=True
-    result = _filter_public_info("Test description", True)
-    assert result == f"Test description {TAG_PUBLIC}"
-
-    # With public=False
-    result = _filter_public_info("Test description", False)
-    assert result == "Test description"
-
-
-def test_filter_mandatory_label() -> None:
-    """Test _filter_mandatory_label function."""
-    # With mandatory code
-    result = _filter_mandatory_label("Test field", "M")
-    assert result == f"Test field {TAG_MANDATORY}"
-
-    # Without mandatory code
-    result = _filter_mandatory_label("Test field", "O")
-    assert result == "Test field"
+@pytest.mark.parametrize(
+    ("input_text", "public", "expected_suffix"),
+    [
+        ("Test description", True, TAG_PUBLIC),
+        ("Test description", False, ""),
+    ],
+)
+def test_filter_public_info(input_text: str, public: bool, expected_suffix: str) -> None:
+    """Test _filter_public_info function adds TAG_PUBLIC when public=True."""
+    result = _filter_public_info(input_text, public)
+    if expected_suffix:
+        assert result == f"{input_text} {expected_suffix}"
+    else:
+        assert result == input_text
 
 
-def test_filter_many_choices() -> None:
-    """Test _filter_many_choices function."""
-    result = _filter_many_choices("Select options")
-    assert result == f"Select options {TAG_MANY_CHOICES}"
+@pytest.mark.parametrize(
+    ("input_text", "mandatory_code", "expected_suffix"),
+    [
+        ("Test field", "M", TAG_MANDATORY),
+        ("Test field", "O", ""),
+    ],
+)
+def test_filter_mandatory_label(
+    input_text: str, mandatory_code: str, expected_suffix: str
+) -> None:
+    """Test _filter_mandatory_label function adds TAG_MANDATORY when code is 'M'."""
+    result = _filter_mandatory_label(input_text, mandatory_code)
+    if expected_suffix:
+        assert result == f"{input_text} {expected_suffix}"
+    else:
+        assert result == input_text
 
 
-def test_filter_max_textarea_size() -> None:
-    """Test _filter_max_textarea_size function."""
-    result = _filter_max_textarea_size("Enter text")
-    assert result == f"Enter text {TAG_AREA_SIZE}"
-
-
-def test_filter_max_textarea300_size() -> None:
-    """Test _filter_max_textarea300_size function."""
-    result = _filter_max_textarea300_size("Enter short text")
-    assert result == f"Enter short text {TAG_AREA300_SIZE}"
-
-
-def test_filter_photo_format() -> None:
-    """Test _filter_photo_format function."""
-    result = _filter_photo_format("Upload photo")
-    assert result == f"Upload photo {TAG_PHOTO_FORMAT}"
+@pytest.mark.parametrize(
+    ("filter_func", "input_text", "expected_tag"),
+    [
+        (_filter_many_choices, "Select options", TAG_MANY_CHOICES),
+        (_filter_max_textarea_size, "Enter text", TAG_AREA_SIZE),
+        (_filter_max_textarea300_size, "Enter short text", TAG_AREA300_SIZE),
+        (_filter_photo_format, "Upload photo", TAG_PHOTO_FORMAT),
+    ],
+)
+def test_filter_functions_add_tags(filter_func, input_text: str, expected_tag: str) -> None:
+    """Test filter functions append their respective tags to input text."""
+    result = filter_func(input_text)
+    assert result == f"{input_text} {expected_tag}"
 
 
 def test_filter_mandatory_label_free() -> None:

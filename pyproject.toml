@@ -196,6 +196,10 @@ dev = [
     "pytest-minio-mock",
     "responses>=0.25.8",
     "httpx>=0.28.1",
+    "pytest>=9.0.2",
+    "pytest-cov>=7.0.0",
+    "mypy>=1.19.1",
+    "pre-commit>=4.5.1",
 ]
 
 [build-system]

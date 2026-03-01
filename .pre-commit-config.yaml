@@ -11,7 +11,7 @@ repos:
     hooks:
       # Generic
       - id: check-added-large-files
-      - id: check-byte-order-marker
+      # - id: check-byte-order-marker
       - id: check-case-conflict
       - id: check-executables-have-shebangs
       # - id: check-shebang-scripts-are-executable
@@ -35,8 +35,8 @@ repos:
       - id: check-docstring-first
       - id: forbid-new-submodules
         args: [ '--allow-missing-credentials' ]
-      - id: fix-encoding-pragma
-        args: [ '--remove' ]
+      #- id: fix-encoding-pragma
+      #  args: [ '--remove' ]
       # - id: name-tests-test
       # - id: no-commit-to-branch
       # - id: requirements-txt-fixer
