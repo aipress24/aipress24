@@ -10,6 +10,7 @@ from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
 import arrow
+import pytest
 
 from app.models.auth import User
 from app.models.organisation import Organisation
@@ -24,10 +25,41 @@ if TYPE_CHECKING:
     from sqlalchemy.orm import scoped_session
 
 
-def _create_test_enquete(
-    db_session: scoped_session,
-    journaliste: User,
-    media: Organisation,
+# ----------------------------------------------------------------
+# Fixtures
+# ----------------------------------------------------------------
+
+
+@pytest.fixture
+def journaliste(db_session: scoped_session) -> User:
+    """Create a test journalist user."""
+    user = User(email="j@test.com")
+    db_session.add(user)
+    db_session.flush()
+    return user
+
+
+@pytest.fixture
+def expert(db_session: scoped_session) -> User:
+    """Create a test expert user."""
+    user = User(email="e@test.com")
+    db_session.add(user)
+    db_session.flush()
+    return user
+
+
+@pytest.fixture
+def media(db_session: scoped_session) -> Organisation:
+    """Create a test media organisation."""
+    org = Organisation(name="Media")
+    db_session.add(org)
+    db_session.flush()
+    return org
+
+
+@pytest.fixture
+def enquete(
+    db_session: scoped_session, journaliste: User, media: Organisation
 ) -> AvisEnquete:
     """Create a test AvisEnquete."""
     enquete = AvisEnquete(
@@ -44,7 +76,8 @@ def _create_test_enquete(
     return enquete
 
 
-def _create_test_contact(
+@pytest.fixture
+def contact(
     db_session: scoped_session,
     enquete: AvisEnquete,
     journaliste: User,
@@ -69,56 +102,20 @@ def _create_test_contact(
 class TestContactInitialState:
     """Tests for the initial state of a contact."""
 
-    def test_initial_status_is_en_attente(self, db_session: scoped_session) -> None:
+    def test_initial_status_is_en_attente(self, contact: ContactAvisEnquete) -> None:
         """The initial status is EN_ATTENTE."""
-        journaliste = User(email="j@test.com")
-        expert = User(email="e@test.com")
-        media = Organisation(name="Media")
-        db_session.add_all([journaliste, expert, media])
-        db_session.flush()
-
-        enquete = _create_test_enquete(db_session, journaliste, media)
-        contact = _create_test_contact(db_session, enquete, journaliste, expert)
-
         assert contact.status == StatutAvis.EN_ATTENTE
 
-    def test_initial_date_reponse_is_none(self, db_session: scoped_session) -> None:
+    def test_initial_date_reponse_is_none(self, contact: ContactAvisEnquete) -> None:
         """The response date is None initially."""
-        journaliste = User(email="j@test.com")
-        expert = User(email="e@test.com")
-        media = Organisation(name="Media")
-        db_session.add_all([journaliste, expert, media])
-        db_session.flush()
-
-        enquete = _create_test_enquete(db_session, journaliste, media)
-        contact = _create_test_contact(db_session, enquete, journaliste, expert)
-
         assert contact.date_reponse is None
 
-    def test_initial_rdv_status_is_no_rdv(self, db_session: scoped_session) -> None:
+    def test_initial_rdv_status_is_no_rdv(self, contact: ContactAvisEnquete) -> None:
         """The RDV status is NO_RDV initially."""
-        journaliste = User(email="j@test.com")
-        expert = User(email="e@test.com")
-        media = Organisation(name="Media")
-        db_session.add_all([journaliste, expert, media])
-        db_session.flush()
-
-        enquete = _create_test_enquete(db_session, journaliste, media)
-        contact = _create_test_contact(db_session, enquete, journaliste, expert)
-
         assert contact.rdv_status == RDVStatus.NO_RDV
 
-    def test_cannot_propose_rdv_initially(self, db_session: scoped_session) -> None:
+    def test_cannot_propose_rdv_initially(self, contact: ContactAvisEnquete) -> None:
         """Cannot propose RDV when contact is in EN_ATTENTE status."""
-        journaliste = User(email="j@test.com")
-        expert = User(email="e@test.com")
-        media = Organisation(name="Media")
-        db_session.add_all([journaliste, expert, media])
-        db_session.flush()
-
-        enquete = _create_test_enquete(db_session, journaliste, media)
-        contact = _create_test_contact(db_session, enquete, journaliste, expert)
-
         assert contact.can_propose_rdv() is False
 
 
@@ -130,35 +127,15 @@ class TestContactInitialState:
 class TestContactAccept:
     """Tests for accepting an avis."""
 
-    def test_accept_changes_status(self, db_session: scoped_session) -> None:
+    def test_accept_changes_status(self, contact: ContactAvisEnquete) -> None:
         """Setting status to ACCEPTE changes the status."""
-        journaliste = User(email="j@test.com")
-        expert = User(email="e@test.com")
-        media = Organisation(name="Media")
-        db_session.add_all([journaliste, expert, media])
-        db_session.flush()
-
-        enquete = _create_test_enquete(db_session, journaliste, media)
-        contact = _create_test_contact(db_session, enquete, journaliste, expert)
-
-        # Accept the avis
         contact.status = StatutAvis.ACCEPTE
         contact.date_reponse = datetime.now(UTC)
 
         assert contact.status == StatutAvis.ACCEPTE
 
-    def test_accept_sets_date_reponse(self, db_session: scoped_session) -> None:
+    def test_accept_sets_date_reponse(self, contact: ContactAvisEnquete) -> None:
         """Accepting sets the response date."""
-        journaliste = User(email="j@test.com")
-        expert = User(email="e@test.com")
-        media = Organisation(name="Media")
-        db_session.add_all([journaliste, expert, media])
-        db_session.flush()
-
-        enquete = _create_test_enquete(db_session, journaliste, media)
-        contact = _create_test_contact(db_session, enquete, journaliste, expert)
-
-        # Accept the avis with timestamp
         now = datetime.now(UTC)
         contact.status = StatutAvis.ACCEPTE
         contact.date_reponse = now
@@ -166,17 +143,8 @@ class TestContactAccept:
         assert contact.date_reponse is not None
         assert contact.date_reponse == now
 
-    def test_accept_enables_rdv_proposal(self, db_session: scoped_session) -> None:
+    def test_accept_enables_rdv_proposal(self, contact: ContactAvisEnquete) -> None:
         """After accepting, can_propose_rdv() returns True."""
-        journaliste = User(email="j@test.com")
-        expert = User(email="e@test.com")
-        media = Organisation(name="Media")
-        db_session.add_all([journaliste, expert, media])
-        db_session.flush()
-
-        enquete = _create_test_enquete(db_session, journaliste, media)
-        contact = _create_test_contact(db_session, enquete, journaliste, expert)
-
         # Initially cannot propose
         assert contact.can_propose_rdv() is False
 
@@ -196,35 +164,15 @@ class TestContactAccept:
 class TestContactRefuse:
     """Tests for refusing an avis."""
 
-    def test_refuse_changes_status(self, db_session: scoped_session) -> None:
+    def test_refuse_changes_status(self, contact: ContactAvisEnquete) -> None:
         """Setting status to REFUSE changes the status."""
-        journaliste = User(email="j@test.com")
-        expert = User(email="e@test.com")
-        media = Organisation(name="Media")
-        db_session.add_all([journaliste, expert, media])
-        db_session.flush()
-
-        enquete = _create_test_enquete(db_session, journaliste, media)
-        contact = _create_test_contact(db_session, enquete, journaliste, expert)
-
-        # Refuse the avis
         contact.status = StatutAvis.REFUSE
         contact.date_reponse = datetime.now(UTC)
 
         assert contact.status == StatutAvis.REFUSE
 
-    def test_refuse_sets_date_reponse(self, db_session: scoped_session) -> None:
+    def test_refuse_sets_date_reponse(self, contact: ContactAvisEnquete) -> None:
         """Refusing sets the response date."""
-        journaliste = User(email="j@test.com")
-        expert = User(email="e@test.com")
-        media = Organisation(name="Media")
-        db_session.add_all([journaliste, expert, media])
-        db_session.flush()
-
-        enquete = _create_test_enquete(db_session, journaliste, media)
-        contact = _create_test_contact(db_session, enquete, journaliste, expert)
-
-        # Refuse with timestamp
         now = datetime.now(UTC)
         contact.status = StatutAvis.REFUSE
         contact.date_reponse = now
@@ -232,18 +180,8 @@ class TestContactRefuse:
         assert contact.date_reponse is not None
         assert contact.date_reponse == now
 
-    def test_refuse_disables_rdv_proposal(self, db_session: scoped_session) -> None:
+    def test_refuse_disables_rdv_proposal(self, contact: ContactAvisEnquete) -> None:
         """After refusing, can_propose_rdv() returns False."""
-        journaliste = User(email="j@test.com")
-        expert = User(email="e@test.com")
-        media = Organisation(name="Media")
-        db_session.add_all([journaliste, expert, media])
-        db_session.flush()
-
-        enquete = _create_test_enquete(db_session, journaliste, media)
-        contact = _create_test_contact(db_session, enquete, journaliste, expert)
-
-        # Refuse the avis
         contact.status = StatutAvis.REFUSE
         contact.date_reponse = datetime.now(UTC)
 
@@ -260,38 +198,18 @@ class TestContactRefuseWithSuggestion:
     """Tests for refusing with a suggestion."""
 
     def test_refuse_with_suggestion_changes_status(
-        self, db_session: scoped_session
+        self, contact: ContactAvisEnquete
     ) -> None:
         """Status becomes REFUSE_SUGGESTION."""
-        journaliste = User(email="j@test.com")
-        expert = User(email="e@test.com")
-        media = Organisation(name="Media")
-        db_session.add_all([journaliste, expert, media])
-        db_session.flush()
-
-        enquete = _create_test_enquete(db_session, journaliste, media)
-        contact = _create_test_contact(db_session, enquete, journaliste, expert)
-
-        # Refuse with suggestion
         contact.status = StatutAvis.REFUSE_SUGGESTION
         contact.date_reponse = datetime.now(UTC)
 
         assert contact.status == StatutAvis.REFUSE_SUGGESTION
 
     def test_refuse_suggestion_disables_rdv_proposal(
-        self, db_session: scoped_session
+        self, contact: ContactAvisEnquete
     ) -> None:
         """After refusing with suggestion, can_propose_rdv() returns False."""
-        journaliste = User(email="j@test.com")
-        expert = User(email="e@test.com")
-        media = Organisation(name="Media")
-        db_session.add_all([journaliste, expert, media])
-        db_session.flush()
-
-        enquete = _create_test_enquete(db_session, journaliste, media)
-        contact = _create_test_contact(db_session, enquete, journaliste, expert)
-
-        # Refuse with suggestion
         contact.status = StatutAvis.REFUSE_SUGGESTION
         contact.date_reponse = datetime.now(UTC)
 
@@ -307,34 +225,14 @@ class TestContactRefuseWithSuggestion:
 class TestStatusTransitions:
     """Tests for status transition behavior."""
 
-    def test_all_statuses_are_valid(self, db_session: scoped_session) -> None:
+    def test_all_statuses_are_valid(self, contact: ContactAvisEnquete) -> None:
         """All StatutAvis values can be assigned."""
-        journaliste = User(email="j@test.com")
-        expert = User(email="e@test.com")
-        media = Organisation(name="Media")
-        db_session.add_all([journaliste, expert, media])
-        db_session.flush()
-
-        enquete = _create_test_enquete(db_session, journaliste, media)
-        contact = _create_test_contact(db_session, enquete, journaliste, expert)
-
-        # All statuses should be assignable
         for status in StatutAvis:
             contact.status = status
             assert contact.status == status
 
-    def test_only_accepte_enables_rdv(self, db_session: scoped_session) -> None:
+    def test_only_accepte_enables_rdv(self, contact: ContactAvisEnquete) -> None:
         """Only ACCEPTE status enables RDV proposal."""
-        journaliste = User(email="j@test.com")
-        expert = User(email="e@test.com")
-        media = Organisation(name="Media")
-        db_session.add_all([journaliste, expert, media])
-        db_session.flush()
-
-        enquete = _create_test_enquete(db_session, journaliste, media)
-        contact = _create_test_contact(db_session, enquete, journaliste, expert)
-
-        # Test each status
         for status in StatutAvis:
             contact.status = status
             contact.rdv_status = RDVStatus.NO_RDV  # Reset RDV status
@@ -352,44 +250,23 @@ class TestStatusTransitions:
 class TestContactRelationships:
     """Tests for contact relationships."""
 
-    def test_contact_links_to_avis_enquete(self, db_session: scoped_session) -> None:
+    def test_contact_links_to_avis_enquete(
+        self, contact: ContactAvisEnquete, enquete: AvisEnquete
+    ) -> None:
         """Contact is linked to its AvisEnquete."""
-        journaliste = User(email="j@test.com")
-        expert = User(email="e@test.com")
-        media = Organisation(name="Media")
-        db_session.add_all([journaliste, expert, media])
-        db_session.flush()
-
-        enquete = _create_test_enquete(db_session, journaliste, media)
-        contact = _create_test_contact(db_session, enquete, journaliste, expert)
-
         assert contact.avis_enquete_id == enquete.id
         assert contact.avis_enquete == enquete
 
-    def test_contact_links_to_journaliste(self, db_session: scoped_session) -> None:
+    def test_contact_links_to_journaliste(
+        self, contact: ContactAvisEnquete, journaliste: User
+    ) -> None:
         """Contact is linked to the journalist."""
-        journaliste = User(email="j@test.com")
-        expert = User(email="e@test.com")
-        media = Organisation(name="Media")
-        db_session.add_all([journaliste, expert, media])
-        db_session.flush()
-
-        enquete = _create_test_enquete(db_session, journaliste, media)
-        contact = _create_test_contact(db_session, enquete, journaliste, expert)
-
         assert contact.journaliste_id == journaliste.id
         assert contact.journaliste == journaliste
 
-    def test_contact_links_to_expert(self, db_session: scoped_session) -> None:
+    def test_contact_links_to_expert(
+        self, contact: ContactAvisEnquete, expert: User
+    ) -> None:
         """Contact is linked to the expert."""
-        journaliste = User(email="j@test.com")
-        expert = User(email="e@test.com")
-        media = Organisation(name="Media")
-        db_session.add_all([journaliste, expert, media])
-        db_session.flush()
-
-        enquete = _create_test_enquete(db_session, journaliste, media)
-        contact = _create_test_contact(db_session, enquete, journaliste, expert)
-
         assert contact.expert_id == expert.id
         assert contact.expert == expert
