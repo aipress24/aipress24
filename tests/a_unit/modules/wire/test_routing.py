@@ -19,24 +19,51 @@ if TYPE_CHECKING:
     from flask_sqlalchemy import SQLAlchemy
 
 
+# ----------------------------------------------------------------
+# Fixtures
+# ----------------------------------------------------------------
+
+
+@pytest.fixture
+def user(db: SQLAlchemy) -> User:
+    """Create a test user."""
+    user = User(email="test@example.com")
+    db.session.add(user)
+    db.session.flush()
+    return user
+
+
+@pytest.fixture
+def article_post(db: SQLAlchemy, user: User) -> ArticlePost:
+    """Create a test article post."""
+    article = ArticlePost(owner=user, title="Test Article")
+    db.session.add(article)
+    db.session.flush()
+    return article
+
+
+@pytest.fixture
+def press_release_post(db: SQLAlchemy, user: User) -> PressReleasePost:
+    """Create a test press release post."""
+    press_release = PressReleasePost(owner=user, title="Test Press Release")
+    db.session.add(press_release)
+    db.session.flush()
+    return press_release
+
+
+# ----------------------------------------------------------------
+# Tests
+# ----------------------------------------------------------------
+
+
 class TestArticlePostRouting:
     """Test suite for ArticlePost URL routing."""
 
     def test_url_for_article_default(
-        self, app: Flask, app_context, db: SQLAlchemy
+        self, app: Flask, app_context, article_post: ArticlePost
     ) -> None:
         """Test _url_for_article with default parameters."""
-        user = User(email="test_article_default@example.com")
-        db.session.add(user)
-        db.session.flush()
-
-        article = ArticlePost(owner=user, title="Test Article")
-        db.session.add(article)
-        db.session.flush()
-
-        # Import the routing module to ensure functions are registered
-        # Call the generic url_for dispatcher which will find our registered function
-        result = url_for(article)
+        result = url_for(article_post)
 
         # Should generate a URL with base62 encoded ID
         assert result is not None
@@ -44,50 +71,26 @@ class TestArticlePostRouting:
         assert result.startswith("/wire/")
 
     def test_url_for_article_with_action(
-        self, app: Flask, app_context, db: SQLAlchemy
+        self, app: Flask, app_context, article_post: ArticlePost
     ) -> None:
         """Test _url_for_article with _action parameter fails when route doesn't exist."""
-        user = User(email="test_article_action@example.com")
-        db.session.add(user)
-        db.session.flush()
-
-        article = ArticlePost(owner=user, title="Test Article")
-        db.session.add(article)
-        db.session.flush()
-
         # The article_action route doesn't exist, so this should raise BuildError
         with pytest.raises(BuildError):
-            url_for(article, _action="edit")
+            url_for(article_post, _action="edit")
 
     def test_url_for_article_with_namespace(
-        self, app: Flask, app_context, db: SQLAlchemy
+        self, app: Flask, app_context, article_post: ArticlePost
     ) -> None:
         """Test _url_for_article with custom namespace fails when route doesn't exist."""
-        user = User(email="test_article_namespace@example.com")
-        db.session.add(user)
-        db.session.flush()
-
-        article = ArticlePost(owner=user, title="Test Article")
-        db.session.add(article)
-        db.session.flush()
-
         # Custom namespace route doesn't exist, so this should raise BuildError
         with pytest.raises(BuildError):
-            url_for(article, _ns="custom")
+            url_for(article_post, _ns="custom")
 
     def test_url_for_article_with_kwargs(
-        self, app: Flask, app_context, db: SQLAlchemy
+        self, app: Flask, app_context, article_post: ArticlePost
     ) -> None:
         """Test _url_for_article with additional kwargs passes them through."""
-        user = User(email="test_article_kwargs@example.com")
-        db.session.add(user)
-        db.session.flush()
-
-        article = ArticlePost(owner=user, title="Test Article")
-        db.session.add(article)
-        db.session.flush()
-
-        result = url_for(article, tab="content")
+        result = url_for(article_post, tab="content")
 
         assert result is not None
         assert isinstance(result, str)
@@ -99,68 +102,36 @@ class TestPressReleasePostRouting:
     """Test suite for PressReleasePost URL routing."""
 
     def test_url_for_press_release_default(
-        self, app: Flask, app_context, db: SQLAlchemy
+        self, app: Flask, app_context, press_release_post: PressReleasePost
     ) -> None:
         """Test _url_for_communique with default parameters."""
-        user = User(email="test_press_default@example.com")
-        db.session.add(user)
-        db.session.flush()
-
-        press_release = PressReleasePost(owner=user, title="Test Press Release")
-        db.session.add(press_release)
-        db.session.flush()
-
-        result = url_for(press_release)
+        result = url_for(press_release_post)
 
         assert result is not None
         assert isinstance(result, str)
         assert result.startswith("/wire/")
 
     def test_url_for_press_release_with_action(
-        self, app: Flask, app_context, db: SQLAlchemy
+        self, app: Flask, app_context, press_release_post: PressReleasePost
     ) -> None:
         """Test _url_for_communique with _action parameter fails when route doesn't exist."""
-        user = User(email="test_press_action@example.com")
-        db.session.add(user)
-        db.session.flush()
-
-        press_release = PressReleasePost(owner=user, title="Test Press Release")
-        db.session.add(press_release)
-        db.session.flush()
-
         # The article_action route doesn't exist, so this should raise BuildError
         with pytest.raises(BuildError):
-            url_for(press_release, _action="delete")
+            url_for(press_release_post, _action="delete")
 
     def test_url_for_press_release_with_namespace(
-        self, app: Flask, app_context, db: SQLAlchemy
+        self, app: Flask, app_context, press_release_post: PressReleasePost
     ) -> None:
         """Test _url_for_communique with custom namespace fails when route doesn't exist."""
-        user = User(email="test_press_namespace@example.com")
-        db.session.add(user)
-        db.session.flush()
-
-        press_release = PressReleasePost(owner=user, title="Test Press Release")
-        db.session.add(press_release)
-        db.session.flush()
-
         # Custom namespace route doesn't exist, so this should raise BuildError
         with pytest.raises(BuildError):
-            url_for(press_release, _ns="admin")
+            url_for(press_release_post, _ns="admin")
 
     def test_url_for_press_release_with_kwargs(
-        self, app: Flask, app_context, db: SQLAlchemy
+        self, app: Flask, app_context, press_release_post: PressReleasePost
     ) -> None:
         """Test _url_for_communique with additional kwargs passes them through."""
-        user = User(email="test_press_kwargs@example.com")
-        db.session.add(user)
-        db.session.flush()
-
-        press_release = PressReleasePost(owner=user, title="Test Press Release")
-        db.session.add(press_release)
-        db.session.flush()
-
-        result = url_for(press_release, view="detail")
+        result = url_for(press_release_post, view="detail")
 
         assert result is not None
         assert isinstance(result, str)

@@ -27,26 +27,65 @@ if TYPE_CHECKING:
     from flask_sqlalchemy import SQLAlchemy
 
 
+# ----------------------------------------------------------------
+# Fixtures
+# ----------------------------------------------------------------
+
+
+@pytest.fixture
+def user(db: SQLAlchemy) -> User:
+    """Create a test user."""
+    user = User(email="test@example.com")
+    db.session.add(user)
+    db.session.flush()
+    return user
+
+
+@pytest.fixture
+def publisher(db: SQLAlchemy) -> Organisation:
+    """Create a test publisher organisation."""
+    org = Organisation(name="Publisher")
+    db.session.add(org)
+    db.session.flush()
+    return org
+
+
+@pytest.fixture
+def media(db: SQLAlchemy) -> Organisation:
+    """Create a test media organisation."""
+    org = Organisation(name="Media")
+    db.session.add(org)
+    db.session.flush()
+    return org
+
+
+@pytest.fixture
+def article(db: SQLAlchemy, user: User, media: Organisation) -> Article:
+    """Create a test article."""
+    article = Article(
+        owner=user,
+        titre="Test Article",
+        date_parution_prevue=arrow.now().datetime,
+        media_id=media.id,
+        commanditaire_id=user.id,
+    )
+    db.session.add(article)
+    db.session.flush()
+    return article
+
+
+# ----------------------------------------------------------------
+# Tests
+# ----------------------------------------------------------------
+
+
 class TestGetPost:
     """Test suite for get_post function on articles."""
 
-    def test_get_post_article_exists(self, db: SQLAlchemy) -> None:
+    def test_get_post_article_exists(
+        self, db: SQLAlchemy, user: User, article: Article
+    ) -> None:
         """Test get_post returns ArticlePost when it exists."""
-        user = User(email="test_get_article@example.com")
-        media = Organisation(name="Media")
-        db.session.add_all([user, media])
-        db.session.flush()
-
-        article = Article(
-            owner=user,
-            titre="Test Article",
-            date_parution_prevue=arrow.now().datetime,
-            media_id=media.id,
-            commanditaire_id=user.id,
-        )
-        db.session.add(article)
-        db.session.flush()
-
         post = ArticlePost(owner=user, newsroom_id=article.id)
         db.session.add(post)
         db.session.flush()
@@ -57,28 +96,12 @@ class TestGetPost:
         assert result.id == post.id
         assert isinstance(result, ArticlePost)
 
-    def test_get_post_article_not_exists(self, db: SQLAlchemy) -> None:
+    def test_get_post_article_not_exists(self, article: Article) -> None:
         """Test get_post returns None when ArticlePost doesn't exist."""
-        user = User(email="test_get_article_none@example.com")
-        media = Organisation(name="Media")
-        db.session.add_all([user, media])
-        db.session.flush()
-
-        article = Article(
-            owner=user,
-            titre="Test Article",
-            date_parution_prevue=arrow.now().datetime,
-            media_id=media.id,
-            commanditaire_id=user.id,
-        )
-        db.session.add(article)
-        db.session.flush()
-
         result = get_article_post(article)
-
         assert result is None
 
-    def test_get_post_invalid_type(self, db: SQLAlchemy) -> None:
+    def test_get_post_invalid_type(self) -> None:
         """Test get_post raises TypeError for invalid object."""
         invalid_object = object()
 
@@ -91,14 +114,10 @@ class TestGetPost:
 class TestUpdatePost:
     """Test suite for update_post function on articles."""
 
-    def test_update_post_basic_fields(self, db: SQLAlchemy) -> None:
+    def test_update_post_basic_fields(
+        self, db: SQLAlchemy, user: User, publisher: Organisation, media: Organisation
+    ) -> None:
         """Test update_post updates basic fields correctly."""
-        user = User(email="test_update_basic@example.com")
-        publisher = Organisation(name="Publisher")
-        media = Organisation(name="Media")
-        db.session.add_all([user, publisher, media])
-        db.session.flush()
-
         article = Article(
             owner=user,
             titre="Article Title",
@@ -148,56 +167,24 @@ class TestUpdatePost:
 class TestOnPublish:
     """Test suite for on_publish signal handler."""
 
-    def test_on_publish_creates_new_post(self, db: SQLAlchemy) -> None:
+    def test_on_publish_creates_new_post(
+        self, db: SQLAlchemy, article: Article
+    ) -> None:
         """Test on_publish creates new ArticlePost when none exists."""
-        user = User(email="test_publish_new@example.com")
-        publisher = Organisation(name="Publisher")
-        media = Organisation(name="Media")
-        db.session.add_all([user, publisher, media])
-        db.session.flush()
-
-        article = Article(
-            owner=user,
-            titre="New Article",
-            chapo="Summary",
-            contenu="Content",
-            publisher_id=publisher.id,
-            media_id=media.id,
-            commanditaire_id=user.id,
-            date_parution_prevue=arrow.now().datetime,
-        )
-        db.session.add(article)
-        db.session.flush()
-
         on_article_published(article)
 
         posts = db.session.query(ArticlePost).filter_by(newsroom_id=article.id).all()
         assert len(posts) == 1
         post = posts[0]
-        assert post.title == "New Article"
+        assert post.title == "Test Article"
         assert post.status == PublicationStatus.PUBLIC
         assert post.newsroom_id == article.id
 
-    def test_on_publish_updates_existing_post(self, db: SQLAlchemy) -> None:
+    def test_on_publish_updates_existing_post(
+        self, db: SQLAlchemy, user: User, article: Article
+    ) -> None:
         """Test on_publish updates existing ArticlePost."""
-        user = User(email="test_publish_update@example.com")
-        publisher = Organisation(name="Publisher")
-        media = Organisation(name="Media")
-        db.session.add_all([user, publisher, media])
-        db.session.flush()
-
-        article = Article(
-            owner=user,
-            titre="Updated Title",
-            chapo="Summary",
-            contenu="Content",
-            publisher_id=publisher.id,
-            media_id=media.id,
-            commanditaire_id=user.id,
-            date_parution_prevue=arrow.now().datetime,
-        )
-        db.session.add(article)
-        db.session.flush()
+        article.titre = "Updated Title"
 
         # Create existing post
         existing_post = ArticlePost(
@@ -221,25 +208,10 @@ class TestOnPublish:
 class TestOnUnpublish:
     """Test suite for on_unpublish signal handler."""
 
-    def test_on_unpublish_sets_draft_status(self, db: SQLAlchemy) -> None:
+    def test_on_unpublish_sets_draft_status(
+        self, db: SQLAlchemy, user: User, article: Article
+    ) -> None:
         """Test on_unpublish sets post status to DRAFT."""
-        user = User(email="test_unpublish@example.com")
-        publisher = Organisation(name="Publisher")
-        media = Organisation(name="Media")
-        db.session.add_all([user, publisher, media])
-        db.session.flush()
-
-        article = Article(
-            owner=user,
-            titre="Test",
-            publisher_id=publisher.id,
-            media_id=media.id,
-            commanditaire_id=user.id,
-            date_parution_prevue=arrow.now().datetime,
-        )
-        db.session.add(article)
-        db.session.flush()
-
         post = ArticlePost(
             owner=user, newsroom_id=article.id, status=PublicationStatus.PUBLIC
         )
@@ -253,25 +225,8 @@ class TestOnUnpublish:
         )
         assert updated_post.status == PublicationStatus.DRAFT
 
-    def test_on_unpublish_no_post_exists(self, db: SQLAlchemy) -> None:
+    def test_on_unpublish_no_post_exists(self, article: Article) -> None:
         """Test on_unpublish does nothing when post doesn't exist."""
-        user = User(email="test_unpublish_none@example.com")
-        publisher = Organisation(name="Publisher")
-        media = Organisation(name="Media")
-        db.session.add_all([user, publisher, media])
-        db.session.flush()
-
-        article = Article(
-            owner=user,
-            titre="Nonexistent",
-            publisher_id=publisher.id,
-            media_id=media.id,
-            commanditaire_id=user.id,
-            date_parution_prevue=arrow.now().datetime,
-        )
-        db.session.add(article)
-        db.session.flush()
-
         # Should not raise an error
         on_article_unpublished(article)
 
@@ -279,26 +234,11 @@ class TestOnUnpublish:
 class TestOnUpdate:
     """Test suite for on_update signal handler."""
 
-    def test_on_update_updates_post(self, db: SQLAlchemy) -> None:
+    def test_on_update_updates_post(
+        self, db: SQLAlchemy, user: User, article: Article
+    ) -> None:
         """Test on_update updates existing post."""
-        user = User(email="test_update_post@example.com")
-        publisher = Organisation(name="Publisher")
-        media = Organisation(name="Media")
-        db.session.add_all([user, publisher, media])
-        db.session.flush()
-
-        article = Article(
-            owner=user,
-            titre="Modified",
-            chapo="",
-            contenu="",
-            publisher_id=publisher.id,
-            media_id=media.id,
-            commanditaire_id=user.id,
-            date_parution_prevue=arrow.now().datetime,
-        )
-        db.session.add(article)
-        db.session.flush()
+        article.titre = "Modified"
 
         post = ArticlePost(owner=user, newsroom_id=article.id, title="Original")
         db.session.add(post)
@@ -312,24 +252,7 @@ class TestOnUpdate:
         assert updated_post.title == "Modified"
         assert updated_post.last_updated_at is not None
 
-    def test_on_update_no_post_exists(self, db: SQLAlchemy) -> None:
+    def test_on_update_no_post_exists(self, article: Article) -> None:
         """Test on_update does nothing when post doesn't exist."""
-        user = User(email="test_update_none@example.com")
-        publisher = Organisation(name="Publisher")
-        media = Organisation(name="Media")
-        db.session.add_all([user, publisher, media])
-        db.session.flush()
-
-        article = Article(
-            owner=user,
-            titre="Nonexistent",
-            publisher_id=publisher.id,
-            media_id=media.id,
-            commanditaire_id=user.id,
-            date_parution_prevue=arrow.now().datetime,
-        )
-        db.session.add(article)
-        db.session.flush()
-
         # Should not raise an error
         on_article_updated(article)

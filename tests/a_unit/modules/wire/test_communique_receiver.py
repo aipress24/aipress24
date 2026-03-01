@@ -26,22 +26,53 @@ if TYPE_CHECKING:
     from flask_sqlalchemy import SQLAlchemy
 
 
+# ----------------------------------------------------------------
+# Fixtures
+# ----------------------------------------------------------------
+
+
+@pytest.fixture
+def user(db: SQLAlchemy) -> User:
+    """Create a test user."""
+    user = User(email="test@example.com")
+    db.session.add(user)
+    db.session.flush()
+    return user
+
+
+@pytest.fixture
+def publisher(db: SQLAlchemy) -> Organisation:
+    """Create a test publisher organisation."""
+    org = Organisation(name="Publisher")
+    db.session.add(org)
+    db.session.flush()
+    return org
+
+
+@pytest.fixture
+def communique(db: SQLAlchemy, user: User) -> Communique:
+    """Create a test communique."""
+    communique = Communique(
+        owner=user,
+        titre="Test Communique",
+    )
+    db.session.add(communique)
+    db.session.flush()
+    return communique
+
+
+# ----------------------------------------------------------------
+# Tests
+# ----------------------------------------------------------------
+
+
 class TestGetPost:
     """Test suite for get_post function on Communique."""
 
-    def test_get_post_communique_exists(self, db: SQLAlchemy) -> None:
+    def test_get_post_communique_exists(
+        self, db: SQLAlchemy, user: User, communique: Communique
+    ) -> None:
         """Test get_post returns PressReleasePost when it exists."""
-        user = User(email="test_get_communique@example.com")
-        db.session.add_all([user])
-        db.session.flush()
-
-        communique = Communique(
-            owner=user,
-            titre="Test Communique",
-        )
-        db.session.add(communique)
-        db.session.flush()
-
         post = PressReleasePost(owner=user, newsroom_id=communique.id)
         db.session.add(post)
         db.session.flush()
@@ -52,24 +83,12 @@ class TestGetPost:
         assert result.id == post.id
         assert isinstance(result, PressReleasePost)
 
-    def test_get_post_communique_not_exists(self, db: SQLAlchemy) -> None:
+    def test_get_post_communique_not_exists(self, communique: Communique) -> None:
         """Test get_post returns None when PressReleasePost doesn't exist."""
-        user = User(email="test_get_communique_none@example.com")
-        db.session.add_all([user])
-        db.session.flush()
-
-        communique = Communique(
-            owner=user,
-            titre="Test Article",
-        )
-        db.session.add(communique)
-        db.session.flush()
-
         result = get_communique_post(communique)
-
         assert result is None
 
-    def test_get_post_invalid_type(self, db: SQLAlchemy) -> None:
+    def test_get_post_invalid_type(self) -> None:
         """Test get_post raises TypeError for invalid object."""
         invalid_object = object()
 
@@ -82,13 +101,10 @@ class TestGetPost:
 class TestUpdatePost:
     """Test suite for update_post function on communiques."""
 
-    def test_update_post_basic_fields(self, db: SQLAlchemy) -> None:
+    def test_update_post_basic_fields(
+        self, db: SQLAlchemy, user: User, publisher: Organisation
+    ) -> None:
         """Test update_post updates basic fields correctly."""
-        user = User(email="test_update_basic@example.com")
-        publisher = Organisation(name="Publisher")
-        db.session.add_all([user, publisher])
-        db.session.flush()
-
         communique = Communique(
             owner=user,
             titre="Communique Title",
@@ -131,25 +147,12 @@ class TestUpdatePost:
 
 
 class TestOnPublish:
-    """Test suite for on_unpublish_communique signal handler."""
+    """Test suite for on_publish_communique signal handler."""
 
-    def test_on_publish_creates_new_post(self, db: SQLAlchemy) -> None:
+    def test_on_publish_creates_new_post(
+        self, db: SQLAlchemy, communique: Communique
+    ) -> None:
         """Test on_publish creates new PressReleasePost when none exists."""
-        user = User(email="test_publish_new_communique@example.com")
-        publisher = Organisation(name="Publisher")
-        db.session.add_all([user, publisher])
-        db.session.flush()
-
-        communique = Communique(
-            owner=user,
-            titre="New Communique",
-            chapo="Summary",
-            contenu="Content",
-            publisher_id=publisher.id,
-        )
-        db.session.add(communique)
-        db.session.flush()
-
         on_communique_published(communique)
 
         posts = (
@@ -159,26 +162,15 @@ class TestOnPublish:
         )
         assert len(posts) == 1
         post = posts[0]
-        assert post.title == "New Communique"
+        assert post.title == "Test Communique"
         assert post.status == PublicationStatus.PUBLIC
         assert post.newsroom_id == communique.id
 
-    def test_on_publish_updates_existing_post(self, db: SQLAlchemy) -> None:
+    def test_on_publish_updates_existing_post(
+        self, db: SQLAlchemy, user: User, communique: Communique
+    ) -> None:
         """Test on_publish_communique updates existing PressReleasePost."""
-        user = User(email="test_publish_update_communique@example.com")
-        publisher = Organisation(name="Publisher")
-        db.session.add_all([user, publisher])
-        db.session.flush()
-
-        communique = Communique(
-            owner=user,
-            titre="Updated Title",
-            chapo="Summary",
-            contenu="Content",
-            publisher_id=publisher.id,
-        )
-        db.session.add(communique)
-        db.session.flush()
+        communique.titre = "Updated Title"
 
         # Create existing post
         existing_post = PressReleasePost(
@@ -204,21 +196,10 @@ class TestOnPublish:
 class TestOnUnpublish:
     """Test suite for on_unpublish_communique signal handler."""
 
-    def test_on_unpublish_sets_draft_status(self, db: SQLAlchemy) -> None:
+    def test_on_unpublish_sets_draft_status(
+        self, db: SQLAlchemy, user: User, communique: Communique
+    ) -> None:
         """Test on_unpublish sets post status to DRAFT."""
-        user = User(email="test_unpublish_communique@example.com")
-        publisher = Organisation(name="Publisher")
-        db.session.add_all([user, publisher])
-        db.session.flush()
-
-        communique = Communique(
-            owner=user,
-            titre="Test",
-            publisher_id=publisher.id,
-        )
-        db.session.add(communique)
-        db.session.flush()
-
         post = PressReleasePost(
             owner=user, newsroom_id=communique.id, status=PublicationStatus.PUBLIC
         )
@@ -234,21 +215,8 @@ class TestOnUnpublish:
         )
         assert updated_post.status == PublicationStatus.DRAFT
 
-    def test_on_unpublish_no_post_exists(self, db: SQLAlchemy) -> None:
-        """Test on_publish_communique does nothing when post doesn't exist."""
-        user = User(email="test_unpublish_none@example.com")
-        publisher = Organisation(name="Publisher")
-        db.session.add_all([user, publisher])
-        db.session.flush()
-
-        communique = Communique(
-            owner=user,
-            titre="Nonexistent",
-            publisher_id=publisher.id,
-        )
-        db.session.add(communique)
-        db.session.flush()
-
+    def test_on_unpublish_no_post_exists(self, communique: Communique) -> None:
+        """Test on_unpublish_communique does nothing when post doesn't exist."""
         # Should not raise an error
         on_communique_unpublished(communique)
 
@@ -256,22 +224,11 @@ class TestOnUnpublish:
 class TestOnUpdate:
     """Test suite for on_update_communique signal handler."""
 
-    def test_on_update_updates_post(self, db: SQLAlchemy) -> None:
+    def test_on_update_updates_post(
+        self, db: SQLAlchemy, user: User, communique: Communique
+    ) -> None:
         """Test on_update_communique updates existing post."""
-        user = User(email="test_update_post_communique@example.com")
-        publisher = Organisation(name="Publisher")
-        db.session.add_all([user, publisher])
-        db.session.flush()
-
-        communique = Communique(
-            owner=user,
-            titre="Modified",
-            chapo="",
-            contenu="",
-            publisher_id=publisher.id,
-        )
-        db.session.add(communique)
-        db.session.flush()
+        communique.titre = "Modified"
 
         post = PressReleasePost(owner=user, newsroom_id=communique.id, title="Original")
         db.session.add(post)
@@ -287,20 +244,7 @@ class TestOnUpdate:
         assert updated_post.title == "Modified"
         assert updated_post.last_updated_at is not None
 
-    def test_on_update_no_post_exists(self, db: SQLAlchemy) -> None:
+    def test_on_update_no_post_exists(self, communique: Communique) -> None:
         """Test on_update_communique does nothing when post doesn't exist."""
-        user = User(email="test_update_none@example.com")
-        publisher = Organisation(name="Publisher")
-        db.session.add_all([user, publisher])
-        db.session.flush()
-
-        communique = Communique(
-            owner=user,
-            titre="Nonexistent",
-            publisher_id=publisher.id,
-        )
-        db.session.add(communique)
-        db.session.flush()
-
         # Should not raise an error
         on_communique_updated(communique)
