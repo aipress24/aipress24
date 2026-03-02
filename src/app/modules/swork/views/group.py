@@ -103,8 +103,9 @@ class GroupVM(ViewModel):
             "members": self.get_members(),
             "is_member": is_group_member(g.user, self.group),
             "timeline": timeline,
-            "cover_image_url": "/static/tmp/hupstream.jpg",
-            "logo_url": "/static/tmp/logo-square.jpg",
+            "cover_image_url": self.group.cover_image_url
+            or "/static/img/gray-texture.png",
+            "logo_url": self.group.logo_url or "/static/img/blank-square.png",
         }
 
     def get_members(self) -> list[User]:

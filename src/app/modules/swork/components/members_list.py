@@ -18,12 +18,15 @@ from app.models.auth import KYCProfile, User
 from app.models.organisation import Organisation
 from app.modules.kyc.field_label import country_code_to_country_name
 from app.modules.swork.common import Directory
+from app.modules.swork.settings import SWORK_LIST_LIMIT
 
 from .base import BaseList, Filter, FilterOption
 
 
 @register
 class MembersList(BaseList):
+    """Filterable list of platform members."""
+
     def context(self) -> dict[str, Any]:
         stmt = self.make_stmt()
         users: list[User] = list(db.session.scalars(stmt))
@@ -48,7 +51,7 @@ class MembersList(BaseList):
             .options(
                 selectinload(User.organisation),
             )
-            .limit(100)
+            .limit(SWORK_LIST_LIMIT)
         )
 
     def apply_search(self, stmt: Select) -> Select:

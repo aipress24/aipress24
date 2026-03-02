@@ -19,6 +19,14 @@ from app.models.mixins import Addressable
 
 
 class BaseList(WiredComponent):
+    """Base class for filterable, searchable list components.
+
+    Subclasses must implement:
+    - get_base_statement(): Return the base SQLAlchemy select statement
+    - search_clause(search): Return a filter clause for search terms
+    - context(): Return template context dict
+    """
+
     search: str = ""
     filter_states: dict
 
@@ -124,6 +132,15 @@ class FilterOption:
 
 
 class Filter:
+    """Base class for list filters.
+
+    Subclasses must define:
+    - id: Unique identifier for this filter
+    - label: Display label for the filter
+    - selector: Either a string (attribute name) or callable returning filter value
+    - apply(stmt, state): Apply filter to SQLAlchemy statement
+    """
+
     id: str
     label: str
     options: list[str | FilterOption] = []  # noqa: RUF012 - intentionally mutable for subclass override
@@ -160,6 +177,8 @@ class Filter:
 
 
 class FilterByCity(Filter):
+    """Filter by city for Addressable objects."""
+
     id = "city"
     label = "Ville"
 
@@ -176,6 +195,8 @@ class FilterByCity(Filter):
 
 
 class FilterByDept(Filter):
+    """Filter by department code for Addressable objects."""
+
     id = "dept"
     label = "Département"
 

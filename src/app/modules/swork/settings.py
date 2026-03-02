@@ -4,6 +4,9 @@
 
 from __future__ import annotations
 
+# Maximum number of items to display in list views
+SWORK_LIST_LIMIT = 100
+
 SWORK_MENU = [
     {
         "endpoint": "swork.swork",
