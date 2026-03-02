@@ -98,6 +98,59 @@ def configure_content():
                 warn(f"Error uploading bandeau: {e}")
                 flash(f"Erreur lors de l'upload du bandeau: {e}", "error")
 
+        # Handle gallery image removal
+        remove_index = request.form.get("remove_gallery_image")
+        if remove_index is not None:
+            try:
+                idx = int(remove_index)
+                removed_file = business_wall.remove_gallery_image(idx)
+                if removed_file:
+                    # Delete the file from storage
+                    try:
+                        removed_file.delete()
+                    except Exception as e:
+                        warn(f"Could not delete gallery file: {e}")
+                    db.session.commit()
+                    flash("Image supprimée de la galerie", "success")
+                else:
+                    flash("Image non trouvée", "error")
+            except Exception as e:
+                warn(f"Error removing gallery image: {e}")
+                flash(f"Erreur lors de la suppression: {e}", "error")
+
+        # Handle gallery image uploads
+        gallery_files = request.files.getlist("gallery_images")
+        uploaded_count = 0
+        for gallery_file in gallery_files:
+            if gallery_file and gallery_file.filename:
+                try:
+                    content = gallery_file.read()
+                    if len(content) < MAX_IMAGE_SIZE:
+                        file_obj = create_file_object(
+                            content=content,
+                            original_filename=gallery_file.filename,
+                            content_type=gallery_file.content_type,
+                        )
+                        saved_file_obj = file_obj.save()
+                        business_wall.add_gallery_image(saved_file_obj)
+                        uploaded_count += 1
+                    else:
+                        flash(
+                            f"L'image {gallery_file.filename!r} est trop volumineuse (max 4MB)",
+                            "error",
+                        )
+                except Exception as e:
+                    warn(f"Error uploading gallery image: {e}")
+                    flash(
+                        f"Erreur lors de l'upload de {gallery_file.filename!r}",
+                        "error",
+                    )
+
+        if uploaded_count > 0:
+            db.session.commit()
+            flash(f"{uploaded_count} image(s) ajoutée(s) à la galerie", "success")
+            warn(f"Gallery updated for BW {business_wall.id}: {uploaded_count} images")
+
         return redirect(url_for("bw_activation.configure_content"))
 
     return render_template(

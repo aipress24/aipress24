@@ -15,10 +15,13 @@ from advanced_alchemy.base import UUIDAuditBase
 from advanced_alchemy.types.file_object import FileObject, StoredObject
 from sqlalchemy import JSON, BigInteger, ForeignKey, String, inspect, select
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm.attributes import flag_modified
 from sqlalchemy.sql import func
 from sqlalchemy_utils.functions.orm import hybrid_property
 
 from app.enums import OrganisationTypeEnum
+from app.lib.file_object_utils import deserialize_file_object
+from app.logging import warn
 
 if TYPE_CHECKING:
     from app.models.organisation import Organisation
@@ -311,34 +314,54 @@ class BusinessWall(UUIDAuditBase):
             msg = f"Storage failed to sign URL for logo image org.id : {self.id}, key {file_obj.path}: {e}"
             raise RuntimeError(msg) from e
 
-    def gallery_image_signed_urls(self, expires_in: int = 3600) -> list[dict]:
+    def gallery_image_signed_urls(
+        self, expires_in: int = 3600
+    ) -> list[dict[str, int | str]]:
         """Return list of gallery images with their signed URLs."""
-        result = []
+        result: list[dict[str, int | str]] = []
         for idx, img_data in enumerate(self.gallery_images or []):
             if not img_data:
                 continue
             try:
-                file_obj = FileObject.from_dict(img_data)
+                file_obj = deserialize_file_object(img_data)
+                if not file_obj:
+                    continue
                 url = file_obj.sign(expires_in=expires_in, for_upload=False)
+                # Use original_name if available, otherwise fall back to filename
+                display_name = (
+                    img_data.get("original_name")
+                    or file_obj.filename
+                    or f"image_{idx + 1}"
+                )
                 result.append(
                     {
                         "index": idx,
                         "url": url,
-                        "filename": file_obj.filename or f"image_{idx + 1}",
+                        "filename": display_name,
                     }
                 )
             except Exception as e:
-                continue
+                warn(f"gallery_image_signed_urls: {e}")
         return result
 
     def add_gallery_image(self, file_obj: FileObject) -> None:
         """Add a new image to the gallery."""
+
         if self.gallery_images is None:
             self.gallery_images = []
-        self.gallery_images.append(file_obj.to_dict())
+        img_dict = file_obj.to_dict()
+        img_dict["original_name"] = getattr(file_obj, "_filename", file_obj.filename)
+        self.gallery_images.append(img_dict)
+        flag_modified(self, "gallery_images")
 
-    def remove_gallery_image(self, index: int) -> None:
-        """Remove an image from the gallery by index."""
+    def remove_gallery_image(self, index: int) -> FileObject | None:
+        """Remove an image from the gallery by index.
+
+        Returns the FileObject that was removed, or None if index is invalid.
+        """
         if not self.gallery_images or index < 0 or index >= len(self.gallery_images):
             return None
-        self.gallery_images.pop(index)
+        img_data = self.gallery_images.pop(index)
+        flag_modified(self, "gallery_images")
+
+        return deserialize_file_object(img_data)
