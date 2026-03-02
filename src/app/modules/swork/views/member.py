@@ -50,7 +50,9 @@ class MemberDetailView(MethodView):
 
         match action:
             case "toggle-follow":
-                return self._toggle_follow(user)
+                response = self._toggle_follow(user)
+                db.session.commit()
+                return response
             case _:
                 return ""
 
@@ -99,7 +101,10 @@ class MemberDetailView(MethodView):
         return context
 
     def _toggle_follow(self, user: User) -> Response:
-        """Toggle follow status for a user."""
+        """Toggle follow status for a user.
+
+        Note: Does NOT commit - caller is responsible for committing.
+        """
         from app.services.social_graph import SocialUser, adapt
 
         logged_user: SocialUser = adapt(g.user)
@@ -113,7 +118,6 @@ class MemberDetailView(MethodView):
             response = make_response("Ne plus suivre")
             toast(response, f"Vous suivez a présent {user.full_name}")
 
-        db.session.commit()
         return response
 
 

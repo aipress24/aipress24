@@ -59,6 +59,8 @@ class ValidationUserView(MethodView):
         elif action == "reject":
             self._reject_profile(user)
 
+        db.session.commit()
+
         response = Response("")
         response.headers["HX-Redirect"] = url_for("admin.new_users")
         return response
@@ -78,21 +80,27 @@ class ValidationUserView(MethodView):
         context.update(media_status)
 
     def _validate_profile(self, user: User) -> None:
-        """Validate user profile - either new or modified."""
+        """Validate user profile - either new or modified.
+
+        Note: Does NOT commit - caller is responsible for committing.
+        """
         if user.email_safe_copy:
             self._validate_profile_modified(user)
         else:
             self._validate_profile_created(user)
 
     def _reject_profile(self, user: User) -> None:
-        """Reject user profile."""
+        """Reject user profile.
+
+        Note: Does NOT commit - caller is responsible for committing.
+        """
         user.deleted_at = now(LOCAL_TZ)
         user.active = False
         # Free the rejected user email (unique field)
         user.email = f"fake_{uuid.uuid4().hex}@example.com"
 
         db.session.merge(user)
-        db.session.commit()
+        db.session.flush()
 
         msg = f"User marked as deleted {user.id} {user.email}"
         logger.info(msg)
@@ -100,10 +108,12 @@ class ValidationUserView(MethodView):
 
         # Clean up orphan auto organisations
         gc_all_auto_organisations()
-        db.session.commit()
 
     def _validate_profile_modified(self, user: User) -> None:
-        """Validate modified profile (user is a clone)."""
+        """Validate modified profile (user is a clone).
+
+        Note: Does NOT commit - caller is responsible for committing.
+        """
         orig_user = get_obj(user.cloned_user_id, User)
         merge_values_from_other_user(orig_user, user)
 
@@ -117,14 +127,16 @@ class ValidationUserView(MethodView):
 
         db.session.merge(orig_user)
         db.session.delete(user)
-        db.session.commit()
+        db.session.flush()
 
         # Clean up orphan auto organisations
         gc_all_auto_organisations()
-        db.session.commit()
 
     def _validate_profile_created(self, user: User) -> None:
-        """Validate newly created profile."""
+        """Validate newly created profile.
+
+        Note: Does NOT commit - caller is responsible for committing.
+        """
         auto_organisation = retrieve_user_organisation(user)
         if auto_organisation:
             user.organisation_id = auto_organisation.id
@@ -134,7 +146,6 @@ class ValidationUserView(MethodView):
         user.validated_at = now(LOCAL_TZ)
 
         db.session.merge(user)
-        db.session.commit()
 
 
 # Register the view

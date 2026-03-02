@@ -57,14 +57,21 @@ class EventDetailView(MethodView):
 
         match action:
             case "toggle-like":
-                return self._toggle_like(user, event_obj)
+                response = self._toggle_like(user, event_obj)
+                db.session.commit()
+                return response
             case "post-comment":
-                return self._post_comment(event_obj)
+                response = self._post_comment(event_obj)
+                db.session.commit()
+                return response
             case _:
                 return ""
 
     def _toggle_like(self, user: User, event_obj: EventPost) -> Response:
-        """Toggle like status for an event."""
+        """Toggle like status for an event.
+
+        Note: Does NOT commit - caller is responsible for committing.
+        """
         from app.services.social_graph import adapt
 
         social_user = adapt(user)
@@ -81,14 +88,16 @@ class EventDetailView(MethodView):
 
         db.session.flush()
         event_obj.like_count = social_content.num_likes()
-        db.session.commit()
 
         response = make_response(str(event_obj.like_count))
         response.headers["HX-Trigger"] = json.dumps({"showToast": message})
         return response
 
     def _post_comment(self, event_obj: EventPost) -> Response:
-        """Post a comment on the event."""
+        """Post a comment on the event.
+
+        Note: Does NOT commit - caller is responsible for committing.
+        """
         user = g.user
         comment_text = request.form.get("comment", "").strip()
         if comment_text:
@@ -98,7 +107,6 @@ class EventDetailView(MethodView):
             comment.object_id = f"event:{event_obj.id}"
             db.session.add(comment)
             event_obj.comment_count += 1
-            db.session.commit()
             flash("Votre commentaire a été posté.")
 
         return redirect(url_for(event_obj) + "#comments-title")
