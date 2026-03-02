@@ -174,20 +174,89 @@
                             </div>
                         </div>
 
+                        <!-- Gallery images -->
                         <div>
                             <label
                                 class="block text-sm font-medium text-gray-900 mb-2"
-                                >Galerie d'images</label
                             >
-                            <input
-                                type="file"
-                                accept="image/png, image/jpeg"
-                                multiple
-                                class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                            />
-                            <p class="mt-1 text-xs text-gray-500">
-                                Sélectionnez plusieurs images pour votre galerie
-                            </p>
+                                Galerie d'images
+                            </label>
+
+                            <!-- Current gallery images -->
+                            {% set gallery_images = business_wall.gallery_image_signed_urls() %}
+                            {% if gallery_images %}
+                                <div class="mb-4">
+                                    <div class="text-xs text-gray-500 mb-2">
+                                        Images actuelles
+                                        ({{ gallery_images|length }})
+                                    </div>
+                                    <div
+                                        class="grid grid-cols-2 md:grid-cols-3 gap-4"
+                                    >
+                                        {% for img in gallery_images %}
+                                            <div class="relative group">
+                                                <img
+                                                    src="{{ img.url }}"
+                                                    alt="{{ img.filename }}"
+                                                    class="w-full max-h-48 object-contain rounded-md border border-gray-200"
+                                                />
+                                                <div
+                                                    class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all rounded-md flex items-center justify-center"
+                                                >
+                                                    <button
+                                                        type="submit"
+                                                        name="remove_gallery_image"
+                                                        value="{{ img.index }}"
+                                                        class="opacity-0 group-hover:opacity-100 bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700 transition-all"
+                                                        onclick="return confirm('Supprimer cette image ?')"
+                                                    >
+                                                        Supprimer
+                                                    </button>
+                                                </div>
+                                                <div
+                                                    class="text-xs text-gray-500 mt-1 truncate"
+                                                >
+                                                    {{ img.filename }}
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            {% else %}
+                                <p class="text-gray-500 text-sm mb-4">
+                                    Aucune image dans la galerie.
+                                </p>
+                            {% endif %}
+
+                            <!-- New gallery images preview -->
+                            <div
+                                class="mb-4"
+                                id="new_gallery_block"
+                                style="display: none;"
+                            >
+                                <div class="text-xs text-gray-500 mb-2">
+                                    Nouvelles images à ajouter
+                                </div>
+                                <div
+                                    id="new_gallery_container"
+                                    class="grid grid-cols-2 md:grid-cols-3 gap-4"
+                                ></div>
+                            </div>
+
+                            <div class="pt-2">
+                                <input
+                                    type="file"
+                                    id="gallery_images"
+                                    name="gallery_images"
+                                    accept=".png,.jpeg,.jpg,image/png,image/jpeg"
+                                    multiple
+                                    class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none"
+                                />
+                                <p class="mt-1 text-xs text-gray-500">
+                                    Format PNG, JPG, JPEG (Max 4MB par image).
+                                    Sélectionnez une ou plusieurs images.
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </fieldset>
@@ -916,6 +985,50 @@
             } else {
                 new_bandeau_block.style.display = "none";
                 new_bandeau_container.innerHTML = "";
+            }
+        });
+
+        // JavaScript for gallery images preview
+        const gallery_input = document.getElementById("gallery_images");
+        const new_gallery_block = document.getElementById("new_gallery_block");
+        const new_gallery_container = document.getElementById(
+            "new_gallery_container"
+        );
+
+        gallery_input.addEventListener("change", function (event) {
+            const files = event.target.files;
+
+            if (files && files.length > 0) {
+                new_gallery_block.style.display = "block";
+                new_gallery_container.innerHTML = "";
+
+                Array.from(files).forEach((file, index) => {
+                    const reader = new FileReader();
+
+                    reader.onload = function (e) {
+                        const div = document.createElement("div");
+                        div.className = "relative";
+
+                        const img = document.createElement("img");
+                        img.src = e.target.result;
+                        img.className =
+                            "w-full max-h-48 object-contain rounded-md border border-gray-200";
+
+                        const filename = document.createElement("div");
+                        filename.className =
+                            "text-xs text-gray-500 mt-1 truncate";
+                        filename.textContent = file.name;
+
+                        div.appendChild(img);
+                        div.appendChild(filename);
+                        new_gallery_container.appendChild(div);
+                    };
+
+                    reader.readAsDataURL(file);
+                });
+            } else {
+                new_gallery_block.style.display = "none";
+                new_gallery_container.innerHTML = "";
             }
         });
     </script>
