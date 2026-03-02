@@ -19,8 +19,9 @@ class TestCheckUnsecure:
         """Test raises Forbidden when UNSECURE config is False."""
         app.config["UNSECURE"] = False
 
-        with app.app_context(), pytest.raises(
-            Forbidden, match="not an unsecure environment"
+        with (
+            app.app_context(),
+            pytest.raises(Forbidden, match="not an unsecure environment"),
         ):
             check_unsecure()
 
@@ -28,8 +29,9 @@ class TestCheckUnsecure:
         """Test raises Forbidden when UNSECURE config is not set."""
         app.config.pop("UNSECURE", None)
 
-        with app.app_context(), pytest.raises(
-            Forbidden, match="not an unsecure environment"
+        with (
+            app.app_context(),
+            pytest.raises(Forbidden, match="not an unsecure environment"),
         ):
             check_unsecure()
 
