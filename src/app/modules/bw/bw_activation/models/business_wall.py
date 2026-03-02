@@ -103,16 +103,14 @@ class BusinessWall(UUIDAuditBase):
 
     name: Mapped[str] = mapped_column(nullable=True)
 
-    type: Mapped[OrganisationTypeEnum] = mapped_column(
-        sa.Enum(OrganisationTypeEnum),
-        default=OrganisationTypeEnum.AUTO,
-        index=True,
-    )
-
     # nom officiel du titre (média, agence presse) pour les media ou aggency,
     # ou administration. Ou nom de micro entreprise (label different dans forms)
     # BW: media, micro, corporate, pressunion
     name_entity: Mapped[str] = mapped_column(default="")
+
+    # Type organisation (dual field with detail)
+    type_organisation: Mapped[list] = mapped_column(JSON, default=list)
+    type_organisation_detail: Mapped[list] = mapped_column(JSON, default=list)
 
     # involding the id of the organisation
     siren: Mapped[str] = mapped_column(nullable=True)
