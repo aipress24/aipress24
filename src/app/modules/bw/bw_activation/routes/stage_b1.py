@@ -73,6 +73,31 @@ def configure_content():
                 warn(f"Error uploading logo: {e}")
                 flash(f"Erreur lors de l'upload du logo: {e}", "error")
 
+        # second image item: cover_image
+        bandeau_file = request.files.get("bandeau_image")
+        if bandeau_file and bandeau_file.filename:
+            try:
+                content = bandeau_file.read()
+                if len(content) < MAX_IMAGE_SIZE:
+                    file_obj = create_file_object(
+                        content=content,
+                        original_filename=bandeau_file.filename,
+                        content_type=bandeau_file.content_type,
+                    )
+                    # Save the file to S3 storage (required before assigning to model)
+                    saved_file_obj = file_obj.save()
+                    business_wall.cover_image = saved_file_obj
+                    db.session.commit()
+                    flash("Bandeau mis à jour avec succès", "success")
+                    warn(
+                        f"Bandeau updated for BW {bandeau_file.filename!r} {business_wall.id}"
+                    )
+                else:
+                    flash("L'image du bandeau est trop volumineuse (max 4MB)", "error")
+            except Exception as e:
+                warn(f"Error uploading bandeau: {e}")
+                flash(f"Erreur lors de l'upload du bandeau: {e}", "error")
+
         return redirect(url_for("bw_activation.configure_content"))
 
     return render_template(
