@@ -108,26 +108,3 @@ class TestModifUserDataSource:
 
         assert isinstance(stmt, Select)
         assert str(stmt).upper().startswith("SELECT")
-
-    def test_make_records_with_real_user(self, db_session):
-        """Test make_records method with real user data."""
-        # Create a real user
-        user = User(
-            email="john@example.com",
-            first_name="John",
-            last_name="Doe",
-            is_clone=True,
-            active=False,
-        )
-        db_session.add(user)
-        db_session.flush()
-
-        # Test the make_records method
-        # Since this method requires Flask app context for URL building,
-        # we'll test it in integration tests instead
-        ds = ModifUserDataSource()
-
-        # Test the parts we can test without Flask context
-        # The URL building will be tested in integration tests
-        assert hasattr(ds, "make_records")
-        assert callable(ds.make_records)
