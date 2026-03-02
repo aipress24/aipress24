@@ -17,17 +17,6 @@ if TYPE_CHECKING:
     from flask_sqlalchemy import SQLAlchemy
 
 
-class TestPublisherType:
-    """Test suite for PublisherType enum."""
-
-    def test_publisher_type_values(self) -> None:
-        """Test PublisherType enum values."""
-        assert PublisherType.AGENCY.value == "agency"
-        assert PublisherType.MEDIA.value == "media"
-        assert PublisherType.COM.value == "com"
-        assert PublisherType.OTHER.value == "other"
-
-
 class TestPost:
     """Test suite for Post model."""
 

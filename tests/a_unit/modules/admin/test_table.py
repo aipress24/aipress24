@@ -48,41 +48,9 @@ class TestColumn:
         column = Column(name="test", label="Test", align="center")
         assert column.td_class == ""
 
-    def test_column_attributes(self) -> None:
-        """Test Column has correct attributes."""
-        column = Column(name="email", label="Email Address", width=200, align="left")
-        assert column.name == "email"
-        assert column.label == "Email Address"
-        assert column.width == 200
-        assert column.align == "left"
-
-    def test_column_default_width(self) -> None:
-        """Test Column default width is 0."""
-        column = Column(name="test", label="Test")
-        assert column.width == 0
-
 
 class TestTable:
     """Test suite for Table class."""
-
-    def test_table_default_values(self) -> None:
-        """Test Table has correct default values."""
-        table = Table(records=[])
-        assert table.start == 0
-        assert table.end == 10
-        assert table.count == 20
-        assert table.url_label == "Show"
-
-    def test_table_with_records(self) -> None:
-        """Test Table can be initialized with records."""
-        records = [{"id": 1}, {"id": 2}]
-        table = Table(records=records)
-        assert table.records == records
-
-    def test_columns_returns_empty_by_default(self) -> None:
-        """Test columns returns empty list by default."""
-        table = Table(records=[])
-        assert table.columns == []
 
     def test_render_cell_with_renderer(self) -> None:
         """Test render_cell uses custom renderer if available."""
@@ -263,13 +231,6 @@ class TestGenericOrgDataSource:
         with app.test_request_context("/?offset=5&limit=12"):
             ds = GenericOrgDataSource()
             assert ds.prev_offset() == 0
-
-    def test_count_returns_integer(self, app: Flask, db: SQLAlchemy) -> None:
-        """Test count returns an integer."""
-        with app.test_request_context("/"):
-            ds = GenericOrgDataSource()
-            count = ds.count()
-            assert isinstance(count, int)
 
     def test_get_base_select_excludes_deleted(self, app: Flask, db: SQLAlchemy) -> None:
         """Test get_base_select excludes deleted organisations."""

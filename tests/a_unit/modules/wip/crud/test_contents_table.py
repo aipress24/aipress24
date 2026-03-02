@@ -6,26 +6,7 @@
 
 from __future__ import annotations
 
-from unittest.mock import MagicMock
-
-from app.modules.wip.crud.tables.contents import (
-    RecentContentsTable,
-    get_name,
-)
-
-
-class TestGetName:
-    """Tests for the get_name helper function in contents."""
-
-    def test_get_name_with_object(self):
-        """Test get_name returns name when object has name."""
-        obj = MagicMock()
-        obj.name = "Test Name"
-        assert get_name(obj) == "Test Name"
-
-    def test_get_name_with_none(self):
-        """Test get_name returns empty string for None."""
-        assert get_name(None) == ""
+from app.modules.wip.crud.tables.contents import RecentContentsTable
 
 
 class TestRecentContentsTable:

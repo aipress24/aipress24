@@ -4,15 +4,7 @@
 
 from __future__ import annotations
 
-import pytest
-
 from app.modules.kyc.field_label import data_to_label
-
-
-@pytest.mark.skip
-def test_field_label_unknown(app, db) -> None:
-    with pytest.raises(KeyError):
-        _result = data_to_label("something", "unknown_field")
 
 
 def test_civilite(app, db) -> None:
@@ -30,32 +22,7 @@ def test_langues(app, db) -> None:
     )
 
 
-@pytest.mark.skip
-def test_country(app, db) -> None:
-    assert data_to_label("FRA", "pays_zip_ville") == "France"
-    assert data_to_label("ITA", "pays_zip_ville") == "Italie"
-    assert data_to_label("bad", "pays_zip_ville") == "bad"
-
-
-@pytest.mark.skip
-def test_zip_code(app, db) -> None:
-    assert (
-        data_to_label(
-            "FRA;01000 Bourg-en-Bresse",
-            "pays_zip_ville_detail",
-        )
-        == "01000 Bourg-en-Bresse"
-    )
-    assert (
-        data_to_label(
-            "FRA;81170 Tonnac",
-            "pays_zip_ville_detail",
-        )
-        == "81170 Tonnac"
-    )
-
-
-def test_metier_1(app, db) -> None:
+def test_metier(app, db) -> None:
     assert data_to_label("AGRICULTURE", "metier") == "AGRICULTURE"
     assert data_to_label("BANDE DESSINÉE", "metier_detail") == "BANDE DESSINÉE"
     assert (
@@ -67,26 +34,4 @@ def test_metier_1(app, db) -> None:
             "metier_detail",
         )
         == "BANDE DESSINÉE, AGRICULTURE"
-    )
-
-
-@pytest.mark.skip
-def test_metier_2(app, db) -> None:
-    assert (
-        data_to_label("ADMIN.PUBLIQUE;Agent.e de développement rural", "metier_detail")
-        == "ADMIN.PUBLIQUE / Agent.e de développement rural"
-    )
-    assert (
-        data_to_label("AGRICULTURE;Analyste de données agricoles", "metier_detail")
-        == "AGRICULTURE / Analyste de données agricoles"
-    )
-    assert data_to_label(
-        [
-            "AGRICULTURE;Analyste de données agricoles",
-            "ADMIN.PUBLIQUE;Agent.e de développement rural",
-        ],
-        "metier_detail",
-    ) == (
-        "AGRICULTURE / Analyste de données agricoles, "
-        "ADMIN.PUBLIQUE / Agent.e de développement rural"
     )

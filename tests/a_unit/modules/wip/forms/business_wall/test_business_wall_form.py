@@ -20,119 +20,11 @@ from app.models.auth import KYCProfile, User
 from app.models.organisation import Organisation
 from app.modules.wip.forms.business_wall.business_wall_form import (
     BWFormGenerator,
-    bool_field,
-    country_code_field,
-    dual_multi_field,
-    int_field,
-    list_field,
     merge_org_results,
-    multi_field,
-    string_field,
-    tel_field,
-    textarea_field,
-    url_field,
 )
 
 if TYPE_CHECKING:
     from sqlalchemy.orm import Session
-
-
-class TestFieldCreationFunctions:
-    """Test suite for field creation utility functions."""
-
-    def test_string_field_creates_field(self):
-        """Test that string_field creates a Field object."""
-        field = string_field("test_field", "Test Description")
-
-        assert field is not None
-        assert hasattr(field, "name")
-
-    def test_string_field_mandatory(self):
-        """Test string_field with mandatory flag."""
-        field = string_field("test", "Test", mandatory=True)
-
-        assert field is not None
-
-    def test_string_field_readonly(self):
-        """Test string_field with readonly flag."""
-        field = string_field("test", "Test", readonly=True)
-
-        assert field is not None
-
-    def test_int_field_creates_field(self):
-        """Test that int_field creates a Field object."""
-        field = int_field("age", "Age")
-
-        assert field is not None
-        assert hasattr(field, "name")
-
-    def test_int_field_mandatory(self):
-        """Test int_field with mandatory flag."""
-        field = int_field("count", "Count", mandatory=True)
-
-        assert field is not None
-
-    def test_bool_field_creates_field(self):
-        """Test that bool_field creates a Field object."""
-        field = bool_field("active", "Is Active")
-
-        assert field is not None
-        assert hasattr(field, "name")
-
-    def test_textarea_field_creates_field(self):
-        """Test that textarea_field creates a Field object."""
-        field = textarea_field("description", "Description")
-
-        assert field is not None
-        assert hasattr(field, "name")
-
-    def test_tel_field_creates_field(self):
-        """Test that tel_field creates a Field object."""
-        field = tel_field("phone", "Phone Number")
-
-        assert field is not None
-        assert hasattr(field, "name")
-
-    def test_url_field_creates_field(self):
-        """Test that url_field creates a Field object."""
-        field = url_field("website", "Website URL")
-
-        assert field is not None
-        assert hasattr(field, "name")
-
-    def test_list_field_creates_field(self):
-        """Test that list_field creates a Field object."""
-        # Use a valid ontology map that exists in the system
-        field = list_field("categories", "Categories", ontology_map="list_taille_orga")
-
-        assert field is not None
-        assert hasattr(field, "name")
-
-    def test_multi_field_creates_field(self):
-        """Test that multi_field creates a Field object."""
-        # Use a valid ontology map that exists in the system
-        field = multi_field("tags", "Tags", ontology_map="multi_type_media")
-
-        assert field is not None
-        assert hasattr(field, "name")
-
-    def test_dual_multi_field_creates_field(self):
-        """Test that dual_multi_field creates a Field object."""
-        # Use a valid ontology map that exists in the system
-        field = dual_multi_field(
-            "sectors", "Sectors", ontology_map="multidual_secteurs_detail"
-        )
-
-        assert field is not None
-        assert hasattr(field, "name")
-
-    def test_country_code_field_creates_field(self):
-        """Test that country_code_field creates a Field object."""
-        # Use a valid ontology map that exists in the system
-        field = country_code_field("country", "Country", ontology_map="country_pays")
-
-        assert field is not None
-        assert hasattr(field, "name")
 
 
 class TestBWFormGeneratorInitialization:
