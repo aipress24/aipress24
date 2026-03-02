@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from sqlalchemy import Select
 
-from app.models.auth import KYCProfile, User
+from app.models.auth import User
 from app.modules.admin.views._new_users import (
     NewUserDataSource,
     NewUsersTable,
@@ -119,23 +119,3 @@ class TestNewUserDataSource:
         assert isinstance(stmt, Select)
         # Verify it starts with SELECT
         assert str(stmt).upper().startswith("SELECT")
-
-    def test_make_records_with_real_user(self, db_session):
-        """Test make_records method with real user data."""
-        # Create a real user with profile
-        user = User(email="john@example.com", first_name="John", last_name="Doe")
-        # Create a profile for the user
-        profile = KYCProfile(user=user, profile_label="Developer")
-        db_session.add(user)
-        db_session.add(profile)
-        db_session.flush()
-
-        # Test the make_records method
-        # Since this method requires Flask app context for URL building,
-        # we'll test it in integration tests instead
-        ds = NewUserDataSource()
-
-        # Test the parts we can test without Flask context
-        # The URL building will be tested in integration tests
-        assert hasattr(ds, "make_records")
-        assert callable(ds.make_records)
