@@ -12,7 +12,7 @@ import pytest
 
 from app.constants import LABEL_COMPTE_DESACTIVE
 from app.enums import OrganisationTypeEnum, RoleEnum
-from app.models.auth import Role, User
+from app.models.auth import KYCProfile, Role, User
 from app.models.organisation import Organisation
 from app.modules.admin.views.show_user import ShowUserView
 
@@ -52,8 +52,6 @@ def auto_organisation(db_session: Session) -> Organisation:
 @pytest.fixture
 def user_with_org(db_session: Session, organisation: Organisation) -> User:
     """Create a user with an organisation and profile."""
-    from app.models.auth import KYCProfile
-
     user = User(
         email="member@example.com",
         first_name="Test",
