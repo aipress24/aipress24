@@ -95,7 +95,8 @@ class BusinessWall(UUIDAuditBase):
         StoredObject(backend="s3"), nullable=True
     )
 
-    # here Galerie d'images
+    # Galerie d'images - list of FileObject stored as JSON
+    gallery_images: Mapped[list[dict]] = mapped_column(JSON, default=list)
 
     name: Mapped[str] = mapped_column(nullable=True)
 
@@ -309,3 +310,35 @@ class BusinessWall(UUIDAuditBase):
         except RuntimeError as e:
             msg = f"Storage failed to sign URL for logo image org.id : {self.id}, key {file_obj.path}: {e}"
             raise RuntimeError(msg) from e
+
+    def gallery_image_signed_urls(self, expires_in: int = 3600) -> list[dict]:
+        """Return list of gallery images with their signed URLs."""
+        result = []
+        for idx, img_data in enumerate(self.gallery_images or []):
+            if not img_data:
+                continue
+            try:
+                file_obj = FileObject.from_dict(img_data)
+                url = file_obj.sign(expires_in=expires_in, for_upload=False)
+                result.append(
+                    {
+                        "index": idx,
+                        "url": url,
+                        "filename": file_obj.filename or f"image_{idx + 1}",
+                    }
+                )
+            except Exception as e:
+                continue
+        return result
+
+    def add_gallery_image(self, file_obj: FileObject) -> None:
+        """Add a new image to the gallery."""
+        if self.gallery_images is None:
+            self.gallery_images = []
+        self.gallery_images.append(file_obj.to_dict())
+
+    def remove_gallery_image(self, index: int) -> None:
+        """Remove an image from the gallery by index."""
+        if not self.gallery_images or index < 0 or index >= len(self.gallery_images):
+            return None
+        self.gallery_images.pop(index)
