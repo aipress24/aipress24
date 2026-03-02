@@ -22,6 +22,7 @@ from app.modules.bw.bw_activation.utils import (
     bw_managers_ids,
     fill_session,
 )
+from app.services.taxonomies import get_taxonomy_dual_select
 from app.settings.constants import MAX_IMAGE_SIZE
 
 if TYPE_CHECKING:
@@ -167,14 +168,29 @@ def configure_content():
             flash(f"{uploaded_count} image(s) ajoutée(s) à la galerie", "success")
             warn(f"Gallery updated for BW {business_wall.id}: {uploaded_count} images")
 
+        # type_organisation dual select
+        type_orga = request.form.get("type_organisation")
+        type_orga_detail = request.form.getlist("type_organisation_detail")
+        if type_orga:
+            business_wall.type_organisation = [type_orga]
+            business_wall.type_organisation_detail = (
+                type_orga_detail if type_orga_detail else []
+            )
+            db.session.flush()
+            modified = True
+
         if modified:
             db.session.commit()
 
         return redirect(url_for("bw_activation.configure_content"))
+
+    # Load ontology for type_organisation dual select
+    type_orga_ontology = get_taxonomy_dual_select("type_organisation_detail")
 
     return render_template(
         "bw_activation/B01_configure_content.html",
         bw_type=bw_type,
         bw_info=bw_info,
         business_wall=business_wall,
+        type_orga_ontology=type_orga_ontology,
     )

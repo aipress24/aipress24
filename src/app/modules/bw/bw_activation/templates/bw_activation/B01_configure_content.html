@@ -287,23 +287,83 @@
                             />
                         </div>
 
-                        <!-- Type of organization (for applicable types) -->
+                        <!-- Type of organization - Dual select -->
                         {% if bw_type in ['media', 'corporate_media', 'union', 'leaders_experts', 'transformers', 'academics'] %}
                             <div>
-                                <label
-                                    class="block text-sm font-medium text-gray-900 mb-2"
-                                    >Type de votre organisation</label
-                                >
+                                <label class="block text-sm font-medium text-gray-900 mb-2">
+                                    Type de votre organisation
+                                </label>
+                                <!-- Main category select-->
                                 <select
-                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-4 py-2 border"
+                                    id="type_organisation"
+                                    name="type_organisation"
+                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-4 py-2 border mb-2"
+                                    onchange="updateTypeOrganisationDetail()"
                                 >
-                                    <option value="">-- Sélectionnez --</option>
-                                    <option>Entreprise</option>
-                                    <option>Association</option>
-                                    <option>Institution Publique</option>
-                                    <option>Autre</option>
+                                    <option value="">-- Sélectionnez une catégorie --</option>
+                                    {% for category, label in type_orga_ontology.field1 %}
+                                        <option value="{{ category }}" {% if business_wall.type_organisation and category in business_wall.type_organisation %}selected{% endif %}>
+                                            {{ label }}
+                                        </option>
+                                    {% endfor %}
                                 </select>
+                                <!-- Detail select -->
+                                <select
+                                    id="type_organisation_detail"
+                                    name="type_organisation_detail"
+                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-4 py-2 border"
+                                    {% if not business_wall.type_organisation %}disabled{% endif %}
+                                >
+                                    <option value="">-- Sélectionnez un type détaillé --</option>
+                                </select>
+                                <p class="mt-1 text-xs text-gray-500">
+                                    Sélectionnez d'abord une catégorie, puis un type détaillé
+                                </p>
                             </div>
+
+                            <script>
+                                const typeOrganisationDetailData = {{ type_orga_ontology.field2 | tojson }};
+                                const currentTypeOrganisation = {{ business_wall.type_organisation | tojson }};
+                                const currentTypeOrganisationDetail = {{ business_wall.type_organisation_detail | tojson }};
+
+                                function updateTypeOrganisationDetail() {
+                                    const mainSelect = document.getElementById('type_organisation');
+                                    const detailSelect = document.getElementById('type_organisation_detail');
+                                    const selectedCategory = mainSelect.value;
+
+                                    // Clear and disable if no category selected
+                                    if (!selectedCategory) {
+                                        detailSelect.innerHTML = '<option value="">-- Sélectionnez un type détaillé --</option>';
+                                        detailSelect.disabled = true;
+                                        return;
+                                    }
+
+                                    //  populate
+                                    detailSelect.disabled = false;
+                                    detailSelect.innerHTML = '<option value="">-- Sélectionnez un type détaillé --</option>';
+
+                                    const options = typeOrganisationDetailData[selectedCategory] || [];
+                                    options.forEach(function(item) {
+                                        const value = item[0];
+                                        const label = item[1];
+                                        const option = document.createElement('option');
+                                        option.value = value;
+                                        option.textContent = label;
+                                        // Select if  previously selected
+                                        if (currentTypeOrganisationDetail && currentTypeOrganisationDetail.includes(value)) {
+                                            option.selected = true;
+                                        }
+                                        detailSelect.appendChild(option);
+                                    });
+                                }
+
+                                // Initialize on page load
+                                document.addEventListener('DOMContentLoaded', function() {
+                                    if (currentTypeOrganisation && currentTypeOrganisation.length > 0) {
+                                        updateTypeOrganisationDetail();
+                                    }
+                                });
+                            </script>
                         {% endif %}
 
                         <!-- Parent group/entity field (not for Media/Micro/Union) -->
