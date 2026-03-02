@@ -6,9 +6,11 @@
 
 from __future__ import annotations
 
+from datetime import UTC, datetime
+
 import pytest
 
-from app.models.auth import User
+from app.models.auth import KYCProfile, User
 from app.models.organisation import Organisation
 from app.modules.search.backend import SearchBackend
 from app.modules.swork.models import Group
@@ -90,8 +92,6 @@ class TestSearchBackendAdapt:
 
     def test_adapt_article_post(self, db_session, app):
         """Test adapting ArticlePost to search document."""
-        from app.models.auth import User
-
         with app.test_request_context():
             user = User(email="author@example.com", first_name="John", last_name="Doe")
             db_session.add(user)
@@ -118,8 +118,6 @@ class TestSearchBackendAdapt:
 
     def test_adapt_press_release(self, db_session, app):
         """Test adapting PressReleasePost to search document."""
-        from app.models.auth import User
-
         with app.test_request_context():
             user = User(email="pr_author@example.com")
             db_session.add(user)
@@ -143,8 +141,6 @@ class TestSearchBackendAdapt:
 
     def test_adapt_user(self, db_session, app):
         """Test adapting User to search document with special handling."""
-        from app.models.auth import KYCProfile, User
-
         with app.test_request_context():
             user = User(
                 email="searchable@example.com",
@@ -180,8 +176,6 @@ class TestSearchBackendAdapt:
 
     def test_adapt_handles_missing_fields(self, db_session, app):
         """Test adapt handles objects with missing optional fields."""
-        from app.models.auth import User
-
         with app.test_request_context():
             user = User(email="minimal@example.com")
             db_session.add(user)
@@ -201,16 +195,12 @@ class TestSearchBackendAdapt:
 
     def test_adapt_timestamp_from_published_at(self, db_session, app):
         """Test adapt uses published_at for timestamp when available."""
-        from datetime import datetime
-
-        from app.models.auth import User
-
         with app.test_request_context():
             user = User(email="timestamped@example.com")
             db_session.add(user)
             db_session.flush()
 
-            pub_time = datetime(2024, 6, 15, 12, 0, 0)
+            pub_time = datetime(2024, 6, 15, 12, 0, 0, tzinfo=UTC)
             article = ArticlePost(
                 owner=user, title="Timestamped", published_at=pub_time
             )

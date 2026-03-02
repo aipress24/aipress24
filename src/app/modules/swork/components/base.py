@@ -126,11 +126,11 @@ class FilterOption:
 class Filter:
     id: str
     label: str
-    options: ClassVar[list[str | FilterOption]] = []
+    options: list[str | FilterOption] = []  # noqa: RUF012 - intentionally mutable for subclass override
 
     def __init__(self, objects: list[Any] | None = None) -> None:
         # Only initialize if no class-level options defined
-        if not hasattr(self, "options") or self.options is Filter.options:
+        if type(self).options is Filter.options:
             self.options = []
         if not objects:
             return
