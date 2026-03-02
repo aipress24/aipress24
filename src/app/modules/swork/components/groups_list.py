@@ -14,12 +14,15 @@ from app.flask.extensions import db
 from app.flask.sqla import get_multi
 from app.modules.swork.common import Directory
 from app.modules.swork.models import Group
+from app.modules.swork.settings import SWORK_LIST_LIMIT
 
 from .base import BaseList, Filter, FilterByCity, FilterByDept
 
 
 @register
 class GroupsList(BaseList):
+    """Filterable list of public groups."""
+
     def context(self):
         stmt = select(count(Group.id))
         item_count: int = db.session.scalar(stmt) or 0
@@ -45,7 +48,7 @@ class GroupsList(BaseList):
             select(Group)
             .where(Group.privacy == "public")
             .order_by(Group.name)
-            .limit(100)
+            .limit(SWORK_LIST_LIMIT)
         )
 
     def search_clause(self, search):

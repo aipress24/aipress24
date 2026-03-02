@@ -19,12 +19,15 @@ from app.flask.sqla import get_multi
 from app.models.organisation import Organisation
 from app.modules.kyc.field_label import country_code_to_country_name
 from app.modules.swork.common import Directory
+from app.modules.swork.settings import SWORK_LIST_LIMIT
 
 from .base import BaseList, Filter, FilterOption
 
 
 @register
 class OrganisationsList(BaseList):
+    """Filterable list of organisations."""
+
     def context(self) -> dict[str, Any]:
         orgs = self.get_orgs()
         org_count = len(orgs)
@@ -48,7 +51,7 @@ class OrganisationsList(BaseList):
             select(Organisation)
             .where(Organisation.deleted_at.is_(None))
             .order_by(Organisation.name)
-            .limit(100)
+            .limit(SWORK_LIST_LIMIT)
         )
 
     def apply_search(self, stmt: Select) -> Select:

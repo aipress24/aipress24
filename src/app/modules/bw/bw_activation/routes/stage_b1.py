@@ -174,7 +174,7 @@ def configure_content():
         if type_orga:
             business_wall.type_organisation = [type_orga]
             business_wall.type_organisation_detail = (
-                type_orga_detail if type_orga_detail else []
+                type_orga_detail or []
             )
             db.session.flush()
             modified = True

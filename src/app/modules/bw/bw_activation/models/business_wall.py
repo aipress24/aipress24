@@ -10,7 +10,6 @@ from datetime import datetime
 from enum import StrEnum
 from typing import TYPE_CHECKING
 
-import sqlalchemy as sa
 from advanced_alchemy.base import UUIDAuditBase
 from advanced_alchemy.types.file_object import FileObject, StoredObject
 from sqlalchemy import JSON, BigInteger, ForeignKey, String, inspect, select
