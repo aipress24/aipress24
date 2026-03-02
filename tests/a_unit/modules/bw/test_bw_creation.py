@@ -32,6 +32,43 @@ if TYPE_CHECKING:
     from sqlalchemy.orm import scoped_session
 
 
+# ----------------------------------------------------------------
+# Fixtures
+# ----------------------------------------------------------------
+
+
+@pytest.fixture
+def org(db_session: scoped_session) -> Organisation:
+    """Create a test organisation."""
+    org = Organisation(name="Test Org")
+    db_session.add(org)
+    db_session.flush()
+    return org
+
+
+@pytest.fixture
+def user(db_session: scoped_session, org: Organisation) -> User:
+    """Create a test user associated with an organisation."""
+    user = User(email="test@example.com")
+    db_session.add(user)
+    db_session.flush()
+    user.organisation_id = org.id
+    db_session.flush()
+    return user
+
+
+@pytest.fixture
+def set_current_user(app_context: AppContext, user: User):
+    """Set the current user in Flask's g object."""
+    g.user = user
+    return user
+
+
+# ----------------------------------------------------------------
+# Tests
+# ----------------------------------------------------------------
+
+
 class TestCreateNewFreeBwRecord:
     """Tests for create_new_free_bw_record function."""
 
@@ -56,18 +93,9 @@ class TestCreateNewFreeBwRecord:
     def test_creates_free_bw_for_media_type(
         self,
         db_session: scoped_session,
-        app_context: AppContext,
+        set_current_user: User,
+        org: Organisation,
     ) -> None:
-        org = Organisation(name="Test Media")
-        user = User(email="test@exemple.com")
-        db_session.add_all([org, user])
-        db_session.flush()
-
-        user.organisation_id = org.id
-        db_session.flush()
-
-        g.user = user
-
         session_data = {"bw_activated": True, "bw_type": "media"}
         result = create_new_free_bw_record(session_data)
 
@@ -82,26 +110,17 @@ class TestCreateNewFreeBwRecord:
         assert bw.bw_type == "media"
         assert bw.status == BWStatus.ACTIVE.value
         assert bw.is_free is True
-        assert bw.owner_id == user.id
-        assert bw.payer_id == user.id
+        assert bw.owner_id == set_current_user.id
+        assert bw.payer_id == set_current_user.id
         assert bw.organisation_id == org.id
         assert bw.activated_at is not None
 
     def test_creates_subscription_of_free_bw(
         self,
         db_session: scoped_session,
-        app_context: AppContext,
+        set_current_user: User,
     ) -> None:
         """Subscription for the Business Wall creation."""
-        org = Organisation(name="Test Org")
-        user = User(email="test@example.com")
-        db_session.add_all([org, user])
-        db_session.flush()
-        user.organisation_id = org.id
-        db_session.flush()
-
-        g.user = user
-
         session_data = {"bw_activated": True, "bw_type": "micro"}
         result = create_new_free_bw_record(session_data)
 
@@ -123,18 +142,9 @@ class TestCreateNewFreeBwRecord:
     def test_creates_role_assignment_for_owner_of_bw(
         self,
         db_session: scoped_session,
-        app_context: AppContext,
+        set_current_user: User,
     ) -> None:
         """Check BW_OWNER role assignment for the user."""
-        org = Organisation(name="Test Org")
-        user = User(email="test@example.com")
-        db_session.add_all([org, user])
-        db_session.flush()
-        user.organisation_id = org.id
-        db_session.flush()
-
-        g.user = user
-
         session_data = {"bw_activated": True, "bw_type": "union"}
         result = create_new_free_bw_record(session_data)
 
@@ -146,7 +156,7 @@ class TestCreateNewFreeBwRecord:
         assert len(roles) == 1
 
         role = roles[0]
-        assert role.user_id == user.id
+        assert role.user_id == set_current_user.id
         assert role.role_type == BWRoleType.BW_OWNER.value
         assert role.invitation_status == InvitationStatus.ACCEPTED.value
         assert role.accepted_at is not None
@@ -158,18 +168,9 @@ class TestCreateNewFreeBwRecord:
     def test_creates_bw_for_all_free_types(
         self,
         db_session: scoped_session,
-        app_context: AppContext,
+        set_current_user: User,
         bw_type: str,
     ) -> None:
-        org = Organisation(name=f"Test Org {bw_type}")
-        user = User(email=f"test@{bw_type}.com")
-        db_session.add_all([org, user])
-        db_session.flush()
-        user.organisation_id = org.id
-        db_session.flush()
-
-        g.user = user
-
         session_data = {"bw_activated": True, "bw_type": bw_type}
         result = create_new_free_bw_record(session_data)
 
@@ -200,18 +201,9 @@ class TestCreateNewFreeBwRecordFull:
     def test_complete_workflow_creates_all_records(
         self,
         db_session: scoped_session,
-        app_context: AppContext,
+        set_current_user: User,
     ) -> None:
         """Complete workflow: create BusinessWall, Subscription, and RoleAssignment"""
-        org = Organisation(name="Test Org")
-        user = User(email="complete@exemple.com")
-        db_session.add_all([org, user])
-        db_session.flush()
-        user.organisation_id = org.id
-        db_session.flush()
-
-        g.user = user
-
         session_data = {"bw_activated": True, "bw_type": "academics"}
         result = create_new_free_bw_record(session_data)
 
@@ -260,19 +252,10 @@ class TestCreateNewPaidBwRecord:
     def test_creates_paid_bw_for_pr_type(
         self,
         db_session: scoped_session,
-        app_context: AppContext,
+        set_current_user: User,
+        org: Organisation,
     ) -> None:
         """Create paid BusinessWall for PR type."""
-        org = Organisation(name="Test PR Agency")
-        user = User(email="test@pragency.com")
-        db_session.add_all([org, user])
-        db_session.flush()
-
-        user.organisation_id = org.id
-        db_session.flush()
-
-        g.user = user
-
         session_data = {"bw_activated": True, "bw_type": "pr"}
         result = create_new_paid_bw_record(session_data)
 
@@ -287,26 +270,17 @@ class TestCreateNewPaidBwRecord:
         assert bw.bw_type == "pr"
         assert bw.status == BWStatus.ACTIVE.value
         assert bw.is_free is False  # Paid BW
-        assert bw.owner_id == user.id
-        assert bw.payer_id == user.id
+        assert bw.owner_id == set_current_user.id
+        assert bw.payer_id == set_current_user.id
         assert bw.organisation_id == org.id
         assert bw.activated_at is not None
 
     def test_creates_subscription_for_paid_bw(
         self,
         db_session: scoped_session,
-        app_context: AppContext,
+        set_current_user: User,
     ) -> None:
         """Subscription for paid Business Wall creation."""
-        org = Organisation(name="Test Org")
-        user = User(email="test@example.com")
-        db_session.add_all([org, user])
-        db_session.flush()
-        user.organisation_id = org.id
-        db_session.flush()
-
-        g.user = user
-
         session_data = {"bw_activated": True, "bw_type": "pr"}
         result = create_new_paid_bw_record(session_data)
 
@@ -328,18 +302,9 @@ class TestCreateNewPaidBwRecord:
     def test_creates_role_assignment_for_owner_of_paid_bw(
         self,
         db_session: scoped_session,
-        app_context: AppContext,
+        set_current_user: User,
     ) -> None:
         """Check BW_OWNER role assignment for paid BW."""
-        org = Organisation(name="Test Org")
-        user = User(email="test@example.com")
-        db_session.add_all([org, user])
-        db_session.flush()
-        user.organisation_id = org.id
-        db_session.flush()
-
-        g.user = user
-
         session_data = {"bw_activated": True, "bw_type": "pr"}
         result = create_new_paid_bw_record(session_data)
 
@@ -351,7 +316,7 @@ class TestCreateNewPaidBwRecord:
         assert len(roles) == 1
 
         role = roles[0]
-        assert role.user_id == user.id
+        assert role.user_id == set_current_user.id
         assert role.role_type == BWRoleType.BW_OWNER.value
         assert role.invitation_status == InvitationStatus.ACCEPTED.value
         assert role.accepted_at is not None
@@ -363,19 +328,10 @@ class TestCreateNewPaidBwRecord:
     def test_creates_bw_for_all_paid_types(
         self,
         db_session: scoped_session,
-        app_context: AppContext,
+        set_current_user: User,
         bw_type: str,
     ) -> None:
         """Test creation for all paid BW types."""
-        org = Organisation(name=f"Test Org {bw_type}")
-        user = User(email=f"test@{bw_type}.com")
-        db_session.add_all([org, user])
-        db_session.flush()
-        user.organisation_id = org.id
-        db_session.flush()
-
-        g.user = user
-
         session_data = {"bw_activated": True, "bw_type": bw_type}
         result = create_new_paid_bw_record(session_data)
 
@@ -410,18 +366,9 @@ class TestCreateNewPaidBwRecordFull:
     def test_complete_workflow_creates_all_records(
         self,
         db_session: scoped_session,
-        app_context: AppContext,
+        set_current_user: User,
     ) -> None:
         """Complete workflow: create paid BW, Subscription, and RoleAssignment"""
-        org = Organisation(name="Test Org")
-        user = User(email="complete@example.com")
-        db_session.add_all([org, user])
-        db_session.flush()
-        user.organisation_id = org.id
-        db_session.flush()
-
-        g.user = user
-
         session_data = {"bw_activated": True, "bw_type": "pr"}
         result = create_new_paid_bw_record(session_data)
 

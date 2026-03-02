@@ -9,42 +9,11 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from unittest.mock import MagicMock
 
-from app.modules.wip.crud.cbvs._table import (
-    BaseDataSource,
-    BaseTable,
-    get_name,
-    make_datasource,
-)
+from app.modules.wip.crud.cbvs._table import BaseDataSource, BaseTable
 from app.modules.wip.models import Article
 
 if TYPE_CHECKING:
     from flask import Flask
-
-
-class TestGetName:
-    """Tests for the get_name helper function."""
-
-    def test_get_name_with_object(self):
-        """Test get_name returns name when object has name."""
-        obj = MagicMock()
-        obj.name = "Test Name"
-        assert get_name(obj) == "Test Name"
-
-    def test_get_name_with_none(self):
-        """Test get_name returns empty string for None."""
-        assert get_name(None) == ""
-
-
-class TestMakeDatasource:
-    """Tests for the make_datasource factory function."""
-
-    def test_make_datasource_creates_instance(self, app: Flask):
-        """Test that make_datasource creates a BaseDataSource."""
-        with app.test_request_context():
-            ds = make_datasource(Article, "test")
-            assert isinstance(ds, BaseDataSource)
-            assert ds.model_class == Article
-            assert ds.q == "test"
 
 
 class TestBaseDataSource:

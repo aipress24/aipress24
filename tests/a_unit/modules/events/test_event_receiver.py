@@ -27,6 +27,34 @@ if TYPE_CHECKING:
     from flask_sqlalchemy import SQLAlchemy
 
 
+# ----------------------------------------------------------------
+# Fixtures
+# ----------------------------------------------------------------
+
+
+@pytest.fixture
+def user(db: SQLAlchemy) -> User:
+    """Create a test user."""
+    user = User(email="test@example.com")
+    db.session.add(user)
+    db.session.flush()
+    return user
+
+
+@pytest.fixture
+def event(db: SQLAlchemy, user: User) -> Event:
+    """Create a test event."""
+    event = Event(owner=user, titre="Test Event")
+    db.session.add(event)
+    db.session.flush()
+    return event
+
+
+# ----------------------------------------------------------------
+# Tests
+# ----------------------------------------------------------------
+
+
 class TestEventTypeToCategory:
     """Test suite for event_type_to_category utility function."""
 
@@ -59,19 +87,10 @@ class TestEventTypeToCategory:
 class TestGetPost:
     """Test suite for get_post function on Events."""
 
-    def test_get_post_event_exists(self, db: SQLAlchemy) -> None:
+    def test_get_post_event_exists(
+        self, db: SQLAlchemy, user: User, event: Event
+    ) -> None:
         """Test get_post returns EventPost when it exists."""
-        user = User(email="test_get_event@example.com")
-        db.session.add(user)
-        db.session.flush()
-
-        event = Event(
-            owner=user,
-            titre="Test Event",
-        )
-        db.session.add(event)
-        db.session.flush()
-
         post = EventPost(owner=user, eventroom_id=event.id)
         db.session.add(post)
         db.session.flush()
@@ -82,21 +101,9 @@ class TestGetPost:
         assert result.id == post.id
         assert isinstance(result, EventPost)
 
-    def test_get_post_event_not_exists(self, db: SQLAlchemy) -> None:
+    def test_get_post_event_not_exists(self, event: Event) -> None:
         """Test get_post returns None when EventPost doesn't exist."""
-        user = User(email="test_get_event_none@example.com")
-        db.session.add(user)
-        db.session.flush()
-
-        event = Event(
-            owner=user,
-            titre="Test Event",
-        )
-        db.session.add(event)
-        db.session.flush()
-
         result = get_post(event)
-
         assert result is None
 
     def test_get_post_invalid_type(self) -> None:
@@ -112,12 +119,8 @@ class TestGetPost:
 class TestUpdatePost:
     """Test suite for update_post function on events."""
 
-    def test_update_post_basic_fields(self, db: SQLAlchemy) -> None:
+    def test_update_post_basic_fields(self, db: SQLAlchemy, user: User) -> None:
         """Test update_post updates basic fields correctly."""
-        user = User(email="test_update_basic@example.com")
-        db.session.add(user)
-        db.session.flush()
-
         start_time = arrow.now().shift(days=1).datetime
         end_time = arrow.now().shift(days=1, hours=2).datetime
 
@@ -160,18 +163,9 @@ class TestUpdatePost:
         assert post.start_datetime == start_time
         assert post.end_datetime == end_time
 
-    def test_update_post_empty_fields(self, db: SQLAlchemy) -> None:
+    def test_update_post_empty_fields(self, db: SQLAlchemy, user: User) -> None:
         """Test update_post handles empty fields correctly."""
-        user = User(email="test_update_empty@example.com")
-        db.session.add(user)
-        db.session.flush()
-
-        event = Event(
-            owner=user,
-            titre="",
-            chapo="",
-            contenu="",
-        )
+        event = Event(owner=user, titre="", chapo="", contenu="")
         db.session.add(event)
         db.session.flush()
 
@@ -189,45 +183,22 @@ class TestUpdatePost:
 class TestOnPublishEvent:
     """Test suite for on_publish_event signal handler."""
 
-    def test_on_publish_creates_new_post(self, db: SQLAlchemy) -> None:
+    def test_on_publish_creates_new_post(self, db: SQLAlchemy, event: Event) -> None:
         """Test on_publish_event creates new EventPost when none exists."""
-        user = User(email="test_publish_new_event@example.com")
-        db.session.add(user)
-        db.session.flush()
-
-        event = Event(
-            owner=user,
-            titre="New Event",
-            chapo="Summary",
-            contenu="Content",
-            event_type="Conference",
-        )
-        db.session.add(event)
-        db.session.flush()
-
         on_publish_event(event)
 
         posts = db.session.query(EventPost).filter_by(eventroom_id=event.id).all()
         assert len(posts) == 1
         post = posts[0]
-        assert post.title == "New Event"
+        assert post.title == "Test Event"
         assert post.status == PublicationStatus.PUBLIC
         assert post.eventroom_id == event.id
 
-    def test_on_publish_updates_existing_post(self, db: SQLAlchemy) -> None:
+    def test_on_publish_updates_existing_post(
+        self, db: SQLAlchemy, user: User, event: Event
+    ) -> None:
         """Test on_publish_event updates existing EventPost."""
-        user = User(email="test_publish_update_event@example.com")
-        db.session.add(user)
-        db.session.flush()
-
-        event = Event(
-            owner=user,
-            titre="Updated Title",
-            chapo="Summary",
-            contenu="Content",
-        )
-        db.session.add(event)
-        db.session.flush()
+        event.titre = "Updated Title"
 
         # Create existing post
         existing_post = EventPost(
@@ -247,19 +218,8 @@ class TestOnPublishEvent:
         assert updated_post.title == "Updated Title"
         assert updated_post.status == PublicationStatus.PUBLIC
 
-    def test_on_publish_sets_published_at(self, db: SQLAlchemy) -> None:
+    def test_on_publish_sets_published_at(self, db: SQLAlchemy, event: Event) -> None:
         """Test on_publish_event sets published_at timestamp."""
-        user = User(email="test_publish_timestamp@example.com")
-        db.session.add(user)
-        db.session.flush()
-
-        event = Event(
-            owner=user,
-            titre="Timestamped Event",
-        )
-        db.session.add(event)
-        db.session.flush()
-
         on_publish_event(event)
 
         post = db.session.query(EventPost).filter_by(eventroom_id=event.id).first()
@@ -269,19 +229,10 @@ class TestOnPublishEvent:
 class TestOnUnpublishEvent:
     """Test suite for on_unpublish_event signal handler."""
 
-    def test_on_unpublish_sets_draft_status(self, db: SQLAlchemy) -> None:
+    def test_on_unpublish_sets_draft_status(
+        self, db: SQLAlchemy, user: User, event: Event
+    ) -> None:
         """Test on_unpublish_event sets post status to DRAFT."""
-        user = User(email="test_unpublish_event@example.com")
-        db.session.add(user)
-        db.session.flush()
-
-        event = Event(
-            owner=user,
-            titre="Test Event",
-        )
-        db.session.add(event)
-        db.session.flush()
-
         post = EventPost(
             owner=user, eventroom_id=event.id, status=PublicationStatus.PUBLIC
         )
@@ -295,19 +246,8 @@ class TestOnUnpublishEvent:
         )
         assert updated_post.status == PublicationStatus.DRAFT
 
-    def test_on_unpublish_no_post_exists(self, db: SQLAlchemy) -> None:
+    def test_on_unpublish_no_post_exists(self, event: Event) -> None:
         """Test on_unpublish_event does nothing when post doesn't exist."""
-        user = User(email="test_unpublish_none_event@example.com")
-        db.session.add(user)
-        db.session.flush()
-
-        event = Event(
-            owner=user,
-            titre="Nonexistent",
-        )
-        db.session.add(event)
-        db.session.flush()
-
         # Should not raise an error
         on_unpublish_event(event)
 
@@ -315,20 +255,11 @@ class TestOnUnpublishEvent:
 class TestOnUpdateEvent:
     """Test suite for on_update_event signal handler."""
 
-    def test_on_update_updates_post(self, db: SQLAlchemy) -> None:
+    def test_on_update_updates_post(
+        self, db: SQLAlchemy, user: User, event: Event
+    ) -> None:
         """Test on_update_event updates existing post."""
-        user = User(email="test_update_post_event@example.com")
-        db.session.add(user)
-        db.session.flush()
-
-        event = Event(
-            owner=user,
-            titre="Modified",
-            chapo="",
-            contenu="",
-        )
-        db.session.add(event)
-        db.session.flush()
+        event.titre = "Modified"
 
         post = EventPost(owner=user, eventroom_id=event.id, title="Original")
         db.session.add(post)
@@ -342,18 +273,7 @@ class TestOnUpdateEvent:
         assert updated_post.title == "Modified"
         assert updated_post.last_updated_at is not None
 
-    def test_on_update_no_post_exists(self, db: SQLAlchemy) -> None:
+    def test_on_update_no_post_exists(self, event: Event) -> None:
         """Test on_update_event does nothing when post doesn't exist."""
-        user = User(email="test_update_none_event@example.com")
-        db.session.add(user)
-        db.session.flush()
-
-        event = Event(
-            owner=user,
-            titre="Nonexistent",
-        )
-        db.session.add(event)
-        db.session.flush()
-
         # Should not raise an error
         on_update_event(event)

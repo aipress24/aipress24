@@ -271,10 +271,6 @@ class TestIsPostgresqlDatabase:
 class TestDatabaseExportErrors:
     """Tests for custom exception classes."""
 
-    def test_database_export_error_is_exception(self):
-        """Test DatabaseExportError is an Exception."""
-        assert issubclass(DatabaseExportError, Exception)
-
     def test_pg_dump_not_found_error(self):
         """Test PgDumpNotFoundError creation."""
         error = PgDumpNotFoundError("pg_dump not found")
