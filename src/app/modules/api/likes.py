@@ -20,10 +20,16 @@ def likes(cls: str, id: int) -> str:
     # Assume cls == "post" for now
 
     obj = get_obj(id, Post)
-    return toggle_like(obj)
+    result = toggle_like(obj)
+    db.session.commit()
+    return result
 
 
 def toggle_like(obj: Post) -> str:
+    """Toggle like status for current user on given object.
+
+    Note: Does NOT commit - caller is responsible for committing.
+    """
     user: SocialUser = adapt(g.user)
     if user.is_liking(obj):
         user.unlike(obj)
@@ -31,5 +37,4 @@ def toggle_like(obj: Post) -> str:
         user.like(obj)
     db.session.flush()
     obj.like_count = adapt(obj).num_likes()
-    db.session.commit()
     return str(obj.like_count)

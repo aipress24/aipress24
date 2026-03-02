@@ -50,17 +50,21 @@ class ShowUserView(MethodView):
         match action:
             case "deactivate":
                 self._deactivate_profile(user)
+                db.session.commit()
                 response = Response("")
                 response.headers["HX-Redirect"] = url_for("admin.users")
             case "remove_org":
                 self._remove_organisation(user)
+                db.session.commit()
                 response = Response("")
                 response.headers["HX-Redirect"] = url_for("admin.show_user", uid=uid)
             case "toggle-manager":
                 self._toggle_manager(user)
+                db.session.commit()
                 response = Response("")
             case "toggle-leader":
                 self._toggle_leader(user)
+                db.session.commit()
                 response = Response("")
             case _:
                 response = Response("")
@@ -69,22 +73,29 @@ class ShowUserView(MethodView):
         return response
 
     def _deactivate_profile(self, user: User) -> None:
-        """Deactivate user profile."""
+        """Deactivate user profile.
+
+        Note: Does NOT commit - caller is responsible for committing.
+        """
         user.active = False
         user.validation_status = LABEL_COMPTE_DESACTIVE
         user.validated_at = now(LOCAL_TZ)
         db.session.merge(user)
-        db.session.commit()
 
     def _remove_organisation(self, user: User) -> None:
-        """Remove user from organisation."""
+        """Remove user from organisation.
+
+        Note: Does NOT commit - caller is responsible for committing.
+        """
         previous_organisation = user.organisation
         remove_user_organisation(user)
         gc_organisation(previous_organisation)
-        db.session.commit()
 
     def _toggle_manager(self, user: User) -> None:
-        """Toggle manager role for user."""
+        """Toggle manager role for user.
+
+        Note: Does NOT commit - caller is responsible for committing.
+        """
         if not user.organisation or user.organisation.is_auto:
             return
         if user.is_manager:
@@ -92,10 +103,12 @@ class ShowUserView(MethodView):
         else:
             add_role(user, RoleEnum.MANAGER)
         db.session.merge(user)
-        db.session.commit()
 
     def _toggle_leader(self, user: User) -> None:
-        """Toggle leader role for user."""
+        """Toggle leader role for user.
+
+        Note: Does NOT commit - caller is responsible for committing.
+        """
         if not user.organisation or user.organisation.is_auto:
             return
         if user.is_leader:
@@ -103,7 +116,6 @@ class ShowUserView(MethodView):
         else:
             add_role(user, RoleEnum.LEADER)
         db.session.merge(user)
-        db.session.commit()
 
 
 # Register the view
