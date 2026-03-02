@@ -47,6 +47,8 @@ def configure_content():
     bw_type = session["bw_type"]
     bw_info = BW_TYPES.get(bw_type, {})
 
+    modified = False
+
     if request.method == "POST":
         # first item: logo
         logo_file = request.files.get("logo_image")
@@ -62,7 +64,8 @@ def configure_content():
                     # Save the file to S3 storage (required before assigning to model)
                     saved_file_obj = file_obj.save()
                     business_wall.logo_image = saved_file_obj
-                    db.session.commit()
+                    db.session.flush()
+                    modified = True
                     flash("Logo mis à jour avec succès", "success")
                     warn(
                         f"Logo updated for BW {logo_file.filename!r} {business_wall.id}"
@@ -87,7 +90,8 @@ def configure_content():
                     # Save the file to S3 storage (required before assigning to model)
                     saved_file_obj = file_obj.save()
                     business_wall.cover_image = saved_file_obj
-                    db.session.commit()
+                    db.session.flush()
+                    modified = True
                     flash("Bandeau mis à jour avec succès", "success")
                     warn(
                         f"Bandeau updated for BW {bandeau_file.filename!r} {business_wall.id}"
@@ -110,7 +114,8 @@ def configure_content():
                         removed_file.delete()
                     except Exception as e:
                         warn(f"Could not delete gallery file: {e}")
-                    db.session.commit()
+                    db.session.flush()
+                    modified = True
                     flash("Image supprimée de la galerie", "success")
                 else:
                     flash("Image non trouvée", "error")
@@ -147,9 +152,13 @@ def configure_content():
                     )
 
         if uploaded_count > 0:
-            db.session.commit()
+            db.session.flush()
+            modified = True
             flash(f"{uploaded_count} image(s) ajoutée(s) à la galerie", "success")
             warn(f"Gallery updated for BW {business_wall.id}: {uploaded_count} images")
+
+        if modified:
+            db.session.commit()
 
         return redirect(url_for("bw_activation.configure_content"))
 
