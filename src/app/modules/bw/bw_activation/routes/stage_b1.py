@@ -50,6 +50,16 @@ def configure_content():
     modified = False
 
     if request.method == "POST":
+        # Handle name field (mandatory)
+        name = request.form.get("name", "").strip()
+        if name:
+            business_wall.name = name
+            db.session.flush()
+            modified = True
+        else:
+            flash("Le nom officiel de l'organisation est obligatoire", "error")
+            return redirect(url_for("bw_activation.configure_content"))
+
         # first item: logo
         logo_file = request.files.get("logo_image")
         if logo_file and logo_file.filename:
