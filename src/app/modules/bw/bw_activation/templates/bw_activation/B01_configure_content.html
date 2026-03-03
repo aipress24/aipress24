@@ -660,17 +660,15 @@
                                         >Périodicité</label
                                     >
                                     <select
+                                        name="periodicite"
                                         class="block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-600 focus:ring-purple-600 sm:text-sm px-4 py-2 border"
                                     >
-                                        <option value="">
-                                            -- Sélectionnez --
-                                        </option>
-                                        <option>Quotidien</option>
-                                        <option>Hebdomadaire</option>
-                                        <option>Mensuel</option>
-                                        <option>Bimestriel</option>
-                                        <option>Trimestriel</option>
-                                        <option>Autre</option>
+                                        <option value="">-- Sélectionnez --</option>
+                                        {% for value, label in periodicite_ontology %}
+                                            <option value="{{ value }}" {% if business_wall.periodicite == value %}selected{% endif %}>
+                                                {{ label }}
+                                            </option>
+                                        {% endfor %}
                                     </select>
                                 </div>
                             {% endif %}

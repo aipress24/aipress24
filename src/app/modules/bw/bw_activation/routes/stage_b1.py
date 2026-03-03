@@ -236,6 +236,12 @@ def configure_content():
             business_wall.audience_cible = audience_cible
             modified = True
 
+        # periodicite (Périodicité - single selection)
+        periodicite = request.form.get("periodicite", "").strip()
+        if periodicite:
+            business_wall.periodicite = periodicite
+            modified = True
+
         # type_agence_rp (Type de votre PR Agency / multi select)
         type_agence_rp = request.form.getlist("type_agence_rp")
         if type_agence_rp:
@@ -263,6 +269,11 @@ def configure_content():
     type_entreprise_media_ontology = get_full_taxonomy("type_entreprises_medias")
     type_agence_rp_ontology = get_full_taxonomy("type_agence_rp")
     type_presse_et_media_ontology = get_full_taxonomy("media_type")
+    periodicite_ontology = get_full_taxonomy("periodicite")
+
+    # from app.services.taxonomies import get_all_taxonomy_names
+
+    # warn(get_all_taxonomy_names())
 
     return render_template(
         "bw_activation/B01_configure_content.html",
@@ -273,4 +284,5 @@ def configure_content():
         type_entreprise_media_ontology=type_entreprise_media_ontology,
         type_agence_rp_ontology=type_agence_rp_ontology,
         type_presse_et_media_ontology=type_presse_et_media_ontology,
+        periodicite_ontology=periodicite_ontology,
     )
