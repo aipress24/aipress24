@@ -674,31 +674,98 @@
                             {% endif %}
                         {% endif %}
 
-                        <!-- For all types: sectors -->
+                        <!-- For all types: sectors - Dual multi select -->
                         <div>
-                            <label
-                                class="block text-sm font-medium text-gray-900 mb-2"
-                                >Secteurs d'activité couverts</label
-                            >
+                            <label class="block text-sm font-medium text-gray-900 mb-2">
+                                Secteurs d'activité couverts
+                            </label>
+                            <!-- Main category select (multiple) -->
                             <select
+                                id="secteurs_activite"
+                                name="secteurs_activite"
                                 multiple
                                 size="5"
-                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-600 focus:ring-purple-600 sm:text-sm px-4 py-2 border"
+                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-600 focus:ring-purple-600 sm:text-sm px-4 py-2 border mb-2"
+                                onchange="updateSecteursActiviteDetail()"
                             >
-                                <option>Politique</option>
-                                <option>Économie</option>
-                                <option>Culture</option>
-                                <option>Sport</option>
-                                <option>Technologie</option>
-                                <option>Santé</option>
-                                <option>Éducation</option>
-                                <option>Environnement</option>
+                                {% for category, label in secteurs_activite_ontology.field1 %}
+                                    <option value="{{ category }}" {% if business_wall.secteurs_activite and category in business_wall.secteurs_activite %}selected{% endif %}>
+                                        {{ label }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            <p class="mt-1 text-xs text-gray-500 mb-2">
+                              Sélectionnez une ou plusieurs options
+                            </p>
+                            <!-- Detail select (multiple) -->
+                            <select
+                                id="secteurs_activite_detail"
+                                name="secteurs_activite_detail"
+                                multiple
+                                size="8"
+                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-600 focus:ring-purple-600 sm:text-sm px-4 py-2 border"
+                                {% if not business_wall.secteurs_activite %}disabled{% endif %}
+                            >
                             </select>
                             <p class="mt-1 text-xs text-gray-500">
-                                Maintenez Ctrl (ou Cmd) pour sélectionner
-                                plusieurs secteurs
+                                Sélectionnez les détails pour chaque secteur choisi
                             </p>
                         </div>
+
+                        <script>
+                            // Data for detail options
+                            const secteursActiviteDetailData = {{ secteurs_activite_ontology.field2 | tojson }};
+                            const currentSecteursActivite = {{ business_wall.secteurs_activite | tojson }};
+                            const currentSecteursActiviteDetail = {{ business_wall.secteurs_activite_detail | tojson }};
+
+                            function updateSecteursActiviteDetail() {
+                                const mainSelect = document.getElementById('secteurs_activite');
+                                const detailSelect = document.getElementById('secteurs_activite_detail');
+                                const selectedOptions = Array.from(mainSelect.selectedOptions).map(opt => opt.value);
+
+                                // Clear and disable if no category selected
+                                if (selectedOptions.length === 0) {
+                                    detailSelect.innerHTML = '';
+                                    detailSelect.disabled = true;
+                                    return;
+                                }
+
+                                // Enable and populate with options from all selected categories
+                                detailSelect.disabled = false;
+                                detailSelect.innerHTML = '';
+
+                                selectedOptions.forEach(function(category) {
+                                    const options = secteursActiviteDetailData[category] || [];
+                                    if (options.length > 0) {
+                                        // Add optgroup for this category
+                                        const optgroup = document.createElement('optgroup');
+                                        optgroup.label = category;
+
+                                        options.forEach(function(item) {
+                                            const value = item[0];
+                                            const label = item[1];
+                                            const option = document.createElement('option');
+                                            option.value = value;
+                                            option.textContent = label;
+                                            // Select if it was previously selected
+                                            if (currentSecteursActiviteDetail && currentSecteursActiviteDetail.includes(value)) {
+                                                option.selected = true;
+                                            }
+                                            optgroup.appendChild(option);
+                                        });
+
+                                        detailSelect.appendChild(optgroup);
+                                    }
+                                });
+                            }
+
+                            // Initialize on page load
+                            document.addEventListener('DOMContentLoaded', function() {
+                                if (currentSecteursActivite && currentSecteursActivite.length > 0) {
+                                    updateSecteursActiviteDetail();
+                                }
+                            });
+                        </script>
 
                         <div>
                             <label
