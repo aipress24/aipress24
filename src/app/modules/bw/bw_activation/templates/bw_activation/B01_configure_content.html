@@ -456,19 +456,20 @@
                                     >Nature de votre organe de presse</label
                                 >
                                 <select
+                                    name="type_entreprise_media"
+                                    multiple
+                                    size="5"
                                     class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-4 py-2 border"
                                 >
-                                    <option value="">-- Sélectionnez --</option>
-                                    <option>Presse quotidienne</option>
-                                    <option>Presse hebdomadaire</option>
-                                    <option>Presse magazine</option>
-                                    <option>Presse spécialisée</option>
-                                    <option>Presse en ligne</option>
-                                    <option>Agence de presse</option>
-                                    <option>Radio</option>
-                                    <option>Télévision</option>
-                                    <option>Autre</option>
+                                    {% for value, label in type_entreprise_media_ontology %}
+                                        <option value="{{ value }}" {% if value in business_wall.type_entreprise_media %}selected{% endif %}>
+                                            {{ label }}
+                                        </option>
+                                    {% endfor %}
                                 </select>
+                                <p class="mt-1 text-xs text-gray-500">
+                                    Sélectionnez une ou plusieurs options
+                                </p>
                             </div>
                         {% endif %}
 
@@ -480,16 +481,20 @@
                                     >Nature de votre organe de presse</label
                                 >
                                 <select
+                                    name="type_entreprise_media"
+                                    multiple
+                                    size="5"
                                     class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-4 py-2 border"
                                 >
-                                    <option value="">-- Sélectionnez --</option>
-                                    <option>Média d'entreprise</option>
-                                    <option>Média institutionnel</option>
-                                    <option>Publication interne</option>
-                                    <option>Newsletter spécialisée</option>
-                                    <option>Blog d'information</option>
-                                    <option>Autre</option>
+                                    {% for value, label in type_entreprise_media_ontology %}
+                                        <option value="{{ value }}" {% if value in business_wall.type_entreprise_media %}selected{% endif %}>
+                                            {{ label }}
+                                        </option>
+                                    {% endfor %}
                                 </select>
+                                <p class="mt-1 text-xs text-gray-500">
+                                  Sélectionnez une ou plusieurs options
+                                </p>
                             </div>
                         {% endif %}
 
