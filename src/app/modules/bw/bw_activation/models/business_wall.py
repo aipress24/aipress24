@@ -18,7 +18,6 @@ from sqlalchemy.orm.attributes import flag_modified
 from sqlalchemy.sql import func
 from sqlalchemy_utils.functions.orm import hybrid_property
 
-from app.enums import OrganisationTypeEnum
 from app.lib.file_object_utils import deserialize_file_object
 from app.logging import warn
 
