@@ -235,9 +235,9 @@ class BusinessWall(UUIDAuditBase):
                 name = org.name
         return name or ""
 
-    @property
-    def is_agency(self) -> bool:
-        return self.type == OrganisationTypeEnum.AGENCY
+    # @property
+    # def is_agency(self) -> bool:
+    #     return self.bw_type == BWType.MEDIA.value
 
     @hybrid_property
     def code_postal(self) -> str:
