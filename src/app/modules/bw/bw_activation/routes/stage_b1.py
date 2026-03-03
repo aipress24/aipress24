@@ -22,7 +22,7 @@ from app.modules.bw.bw_activation.utils import (
     bw_managers_ids,
     fill_session,
 )
-from app.services.taxonomies import get_taxonomy_dual_select
+from app.services.taxonomies import get_full_taxonomy, get_taxonomy_dual_select
 from app.settings.constants import MAX_IMAGE_SIZE
 
 if TYPE_CHECKING:
@@ -210,13 +210,19 @@ def configure_content():
             business_wall.name_official = name_official
             modified = True
 
+        # type_entreprise_media (Nature de votre organe de presse / multi select)
+        type_entreprise_media = request.form.getlist("type_entreprise_media")
+        if type_entreprise_media:
+            business_wall.type_entreprise_media = type_entreprise_media
+            modified = True
+
         if modified:
             db.session.commit()
 
         return redirect(url_for("bw_activation.configure_content"))
 
-    # Load ontology for type_organisation dual select
     type_orga_ontology = get_taxonomy_dual_select("type_organisation_detail")
+    type_entreprise_media_ontology = get_full_taxonomy("type_entreprises_medias")
 
     return render_template(
         "bw_activation/B01_configure_content.html",
@@ -224,4 +230,5 @@ def configure_content():
         bw_info=bw_info,
         business_wall=business_wall,
         type_orga_ontology=type_orga_ontology,
+        type_entreprise_media_ontology=type_entreprise_media_ontology,
     )
