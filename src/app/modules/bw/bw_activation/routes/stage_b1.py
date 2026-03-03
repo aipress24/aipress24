@@ -173,10 +173,41 @@ def configure_content():
         type_orga_detail = request.form.getlist("type_organisation_detail")
         if type_orga:
             business_wall.type_organisation = [type_orga]
-            business_wall.type_organisation_detail = (
-                type_orga_detail or []
-            )
+            business_wall.type_organisation_detail = type_orga_detail or []
+            modified = True
+
+        # name_group (Groupe ou entité de rattachement)
+        name_group = request.form.get("name_group", "").strip()
+        if name_group:
+            business_wall.name_group = name_group
+            modified = True
+
+        # siren (mandatory)
+        siren = request.form.get("siren", "").strip()
+        if siren:
+            business_wall.siren = siren
+            modified = True
+        else:
+            flash("Le numéro SIREN est obligatoire", "error")
             db.session.flush()
+            return redirect(url_for("bw_activation.configure_content"))
+
+        # tva (optional)
+        tva = request.form.get("tva", "").strip()
+        if tva:
+            business_wall.tva = tva
+            modified = True
+
+        # agrement (CPPAP / Agrément - for media type)
+        agrement = request.form.get("agrement", "").strip()
+        if agrement:
+            business_wall.agrement = agrement
+            modified = True
+
+        # name_official (Nom officiel de l'organe de presse)
+        name_official = request.form.get("name_official", "").strip()
+        if name_official:
+            business_wall.name_official = name_official
             modified = True
 
         if modified:
