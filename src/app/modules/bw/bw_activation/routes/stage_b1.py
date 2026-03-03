@@ -228,6 +228,12 @@ def configure_content():
             business_wall.clients = clients
             modified = True
 
+        # name_institution (Nom officiel de votre établissement - for academics)
+        name_institution = request.form.get("name_institution", "").strip()
+        if name_institution:
+            business_wall.name_institution = name_institution
+            modified = True
+
         if modified:
             db.session.commit()
 
