@@ -506,20 +506,20 @@
                                     >Type de votre PR Agency</label
                                 >
                                 <select
+                                    name="type_agence_rp"
+                                    multiple
+                                    size="4"
                                     class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-4 py-2 border"
                                 >
-                                    <option value="">-- Sélectionnez --</option>
-                                    <option>
-                                        Agence de communication intégrée
-                                    </option>
-                                    <option>
-                                        Agence de relations presse spécialisée
-                                    </option>
-                                    <option>
-                                        Consultant(e) indépendant(e)
-                                    </option>
-                                    <option>Autre</option>
+                                    {% for value, label in type_agence_rp_ontology %}
+                                        <option value="{{ value }}" {% if value in business_wall.type_agence_rp %}selected{% endif %}>
+                                            {{ label }}
+                                        </option>
+                                    {% endfor %}
                                 </select>
+                                <p class="mt-1 text-xs text-gray-500">
+                                  Sélectionnez une ou plusieurs options
+                                </p>
                             </div>
 
                             <div>

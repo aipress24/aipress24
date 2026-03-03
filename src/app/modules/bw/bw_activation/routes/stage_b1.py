@@ -216,6 +216,12 @@ def configure_content():
             business_wall.type_entreprise_media = type_entreprise_media
             modified = True
 
+        # type_agence_rp (Type de votre PR Agency / multi select)
+        type_agence_rp = request.form.getlist("type_agence_rp")
+        if type_agence_rp:
+            business_wall.type_agence_rp = type_agence_rp
+            modified = True
+
         if modified:
             db.session.commit()
 
@@ -223,6 +229,7 @@ def configure_content():
 
     type_orga_ontology = get_taxonomy_dual_select("type_organisation_detail")
     type_entreprise_media_ontology = get_full_taxonomy("type_entreprises_medias")
+    type_agence_rp_ontology = get_full_taxonomy("type_agence_rp")
 
     return render_template(
         "bw_activation/B01_configure_content.html",
@@ -231,4 +238,5 @@ def configure_content():
         business_wall=business_wall,
         type_orga_ontology=type_orga_ontology,
         type_entreprise_media_ontology=type_entreprise_media_ontology,
+        type_agence_rp_ontology=type_agence_rp_ontology,
     )
