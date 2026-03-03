@@ -528,15 +528,12 @@
                                     >Liste de vos clients</label
                                 >
                                 <textarea
+                                    name="clients"
                                     rows="4"
                                     placeholder="Listez vos principaux clients (un par ligne ou séparés par des virgules)"
                                     class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-4 py-2 border"
-                                ></textarea>
-                                <p class="mt-1 text-xs text-gray-500">
-                                    Dans une vraie application, ceci serait un
-                                    champ dynamique pour ajouter des clients un
-                                    par un.
-                                </p>
+                                >{{ business_wall.clients or '' }}
+                                </textarea>
                             </div>
                         {% endif %}
 

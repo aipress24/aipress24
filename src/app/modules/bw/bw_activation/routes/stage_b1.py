@@ -222,6 +222,12 @@ def configure_content():
             business_wall.type_agence_rp = type_agence_rp
             modified = True
 
+        # clients (Liste de vos clients)
+        clients = request.form.get("clients", "").strip()
+        if clients:
+            business_wall.clients = clients
+            modified = True
+
         if modified:
             db.session.commit()
 
