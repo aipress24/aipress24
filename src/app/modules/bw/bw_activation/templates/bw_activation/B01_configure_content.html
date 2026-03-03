@@ -546,6 +546,8 @@
                                 >
                                 <input
                                     type="text"
+                                    name="name_official"
+                                    value="{{ business_wall.name_official or '' }}"
                                     class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-4 py-2 border"
                                 />
                             </div>
@@ -558,6 +560,8 @@
                                 >
                                 <input
                                     type="text"
+                                    name="name_group"
+                                    value="{{ business_wall.name_group or '' }}"
                                     placeholder="Optionnel"
                                     class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-4 py-2 border"
                                 />
