@@ -222,6 +222,20 @@ def configure_content():
             business_wall.type_presse_et_media = type_presse_et_media
             modified = True
 
+        # positionnement_editorial (Positionnement éditorial)
+        positionnement_editorial = request.form.get(
+            "positionnement_editorial", ""
+        ).strip()
+        if positionnement_editorial:
+            business_wall.positionnement_editorial = positionnement_editorial
+            modified = True
+
+        # audience_cible (Audiences ciblées)
+        audience_cible = request.form.get("audience_cible", "").strip()
+        if audience_cible:
+            business_wall.audience_cible = audience_cible
+            modified = True
+
         # type_agence_rp (Type de votre PR Agency / multi select)
         type_agence_rp = request.form.getlist("type_agence_rp")
         if type_agence_rp:
