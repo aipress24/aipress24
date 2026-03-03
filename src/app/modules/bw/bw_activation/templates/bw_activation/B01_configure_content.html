@@ -376,6 +376,8 @@
                                 >
                                 <input
                                     type="text"
+                                    name="name_group"
+                                    value="{{ business_wall.name_group or '' }}"
                                     placeholder="Nom du groupe ou de l'entité mère"
                                     class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-4 py-2 border"
                                 />
@@ -392,7 +394,10 @@
                                 >
                                 <input
                                     type="text"
+                                    name="siren"
+                                    value="{{ business_wall.siren or '' }}"
                                     placeholder="123 456 789"
+                                    required
                                     class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-4 py-2 border"
                                 />
                             </div>
@@ -404,6 +409,8 @@
                                 >
                                 <input
                                     type="text"
+                                    name="tva"
+                                    value="{{ business_wall.tva or '' }}"
                                     placeholder="FR 12 345678901"
                                     class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-4 py-2 border"
                                 />
@@ -418,10 +425,11 @@
                                     >Numéro de CPPAP / Agrément</label
                                 >
                                 <textarea
+                                    name="agrement"
                                     rows="3"
                                     placeholder="Expliquez comment votre organe de presse est officiellement reconnu (n° de CPPAP, agrément ARCOM, etc.)"
                                     class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-4 py-2 border"
-                                ></textarea>
+                                >{{ business_wall.agrement or '' }}</textarea>
                                 <p class="mt-1 text-xs text-gray-500">
                                     Information non publique - vérifiée par les
                                     équipes d'AiPRESS24
@@ -435,6 +443,8 @@
                                 >
                                 <input
                                     type="text"
+                                    name="name_official"
+                                    value="{{ business_wall.name_official or '' }}"
                                     placeholder="Le nom qui s'affichera sur votre Business Wall"
                                     class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-4 py-2 border"
                                 />
