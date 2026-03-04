@@ -167,8 +167,11 @@ class BusinessWall(UUIDAuditBase):
     taille_orga: Mapped[str] = mapped_column(default="")  # cf ontologies
 
     interest_political: Mapped[list] = mapped_column(JSON, default=list)
+    interest_political_detail: Mapped[list] = mapped_column(JSON, default=list)
     interest_economics: Mapped[list] = mapped_column(JSON, default=list)
+    interest_economics_detail: Mapped[list] = mapped_column(JSON, default=list)
     interest_association: Mapped[list] = mapped_column(JSON, default=list)
+    interest_association_detail: Mapped[list] = mapped_column(JSON, default=list)
 
     tel_standard: Mapped[str] = mapped_column(default="")
 
