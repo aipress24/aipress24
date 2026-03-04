@@ -23,6 +23,7 @@ from app.modules.bw.bw_activation.utils import (
     fill_session,
 )
 from app.services.taxonomies import get_full_taxonomy, get_taxonomy_dual_select
+from app.services.zip_codes import get_full_countries
 from app.settings.constants import MAX_IMAGE_SIZE
 
 if TYPE_CHECKING:
@@ -290,6 +291,17 @@ def configure_content():
             business_wall.postal_address = postal_address
             modified = True
 
+        # pays_zip_ville and pays_zip_ville_detail (Pays, Code postal et ville)
+        pays_zip_ville = request.form.get("pays_zip_ville", "").strip()
+        pays_zip_ville_detail = request.form.get("pays_zip_ville_detail", "").strip()
+        if pays_zip_ville:
+            business_wall.pays_zip_ville = pays_zip_ville
+            modified = True
+            if pays_zip_ville_detail:
+                business_wall.pays_zip_ville_detail = pays_zip_ville_detail
+            else:
+                pays_zip_ville_detail = ""
+
         # taille_orga (Taille de l'organisation - single selection)
         taille_orga = request.form.get("taille_orga", "").strip()
         if taille_orga:
@@ -329,6 +341,7 @@ def configure_content():
     interest_political_ontology = get_taxonomy_dual_select("interet_politique")
     interest_economics_ontology = get_taxonomy_dual_select("interet_orga")
     interest_association_ontology = get_taxonomy_dual_select("interet_asso")
+    pays_ontology = get_full_countries()
 
     # from app.services.taxonomies import get_all_taxonomy_names
 
@@ -349,4 +362,5 @@ def configure_content():
         interest_political_ontology=interest_political_ontology,
         interest_economics_ontology=interest_economics_ontology,
         interest_association_ontology=interest_association_ontology,
+        pays_ontology=pays_ontology,
     )
