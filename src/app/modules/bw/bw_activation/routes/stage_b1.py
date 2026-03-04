@@ -302,6 +302,12 @@ def configure_content():
             else:
                 pays_zip_ville_detail = ""
 
+        # geolocalisation (Géolocalisation)
+        geolocalisation = request.form.get("geolocalisation", "").strip()
+        if geolocalisation:
+            business_wall.geolocalisation = geolocalisation
+            modified = True
+
         # taille_orga (Taille de l'organisation - single selection)
         taille_orga = request.form.get("taille_orga", "").strip()
         if taille_orga:
