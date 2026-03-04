@@ -889,10 +889,11 @@
                                 >Adresse postale du siège social</label
                             >
                             <textarea
+                                name="postal_address"
                                 rows="3"
                                 placeholder="123 rue de la République"
                                 class="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-600 focus:ring-orange-600 sm:text-sm px-4 py-2 border"
-                            ></textarea>
+                            >{{ business_wall.postal_address or '' }}</textarea>
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">

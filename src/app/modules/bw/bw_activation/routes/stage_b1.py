@@ -284,6 +284,12 @@ def configure_content():
             business_wall.tel_standard = tel_standard
             modified = True
 
+        # postal_address (Adresse postale du siège social)
+        postal_address = request.form.get("postal_address", "").strip()
+        if postal_address:
+            business_wall.postal_address = postal_address
+            modified = True
+
         # taille_orga (Taille de l'organisation - single selection)
         taille_orga = request.form.get("taille_orga", "").strip()
         if taille_orga:
