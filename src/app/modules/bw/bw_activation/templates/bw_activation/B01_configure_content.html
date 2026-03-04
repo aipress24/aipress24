@@ -744,115 +744,118 @@
                             </p>
                         </div>
 
+                        <!-- Centres d'intérêt - Tissu politique et administratif - Dual multi select -->
                         <div>
-                            <label
-                                class="block text-sm font-medium text-gray-900 mb-2"
-                                >Centres d'intérêt - Tissu politique et
-                                administratif</label
-                            >
+                            <label class="block text-sm font-medium text-gray-900 mb-2">
+                                Centres d'intérêt - Tissu politique et administratif
+                            </label>
+                            <!-- Main category select (multiple) -->
                             <select
+                                id="interest_political"
+                                name="interest_political"
+                                multiple
+                                size="5"
+                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-600 focus:ring-purple-600 sm:text-sm px-4 py-2 border mb-2"
+                                onchange="updateDualMultiSelect('interest_political', 'interest_political_detail', interestPoliticalDetailData, currentInterestPoliticalDetail)"
+                            >
+                                {% for category, label in interest_political_ontology.field1 %}
+                                    <option value="{{ category }}" {% if business_wall.interest_political and category in business_wall.interest_political %}selected{% endif %}>
+                                        {{ label }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            <p class="mt-1 text-xs text-gray-500 mb-2">
+                                Sélectionnez une ou plusieurs options
+                            </p>
+                            <!-- Detail select (multiple) -->
+                            <select
+                                id="interest_political_detail"
+                                name="interest_political_detail"
                                 multiple
                                 size="8"
                                 class="block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-600 focus:ring-purple-600 sm:text-sm px-4 py-2 border"
+                                {% if not business_wall.interest_political %}disabled{% endif %}
                             >
-                                <option>
-                                    Affaires étrangères et diplomatie
-                                </option>
-                                <option>Agriculture et alimentation</option>
-                                <option>Culture et patrimoine</option>
-                                <option>Défense et sécurité nationale</option>
-                                <option>
-                                    Éducation nationale et enseignement
-                                    supérieur
-                                </option>
-                                <option>
-                                    Environnement et transition écologique
-                                </option>
-                                <option>Finances publiques et budget</option>
-                                <option>
-                                    Fonction publique et administration
-                                </option>
-                                <option>Justice et droits</option>
-                                <option>
-                                    Santé publique et affaires sociales
-                                </option>
-                                <option>
-                                    Travail, emploi et formation professionnelle
-                                </option>
-                                <option>Transports et infrastructures</option>
-                                <option>Collectivités territoriales</option>
-                                <option>
-                                    Union européenne et institutions
-                                    internationales
-                                </option>
-                                <option>Politique intérieure</option>
                             </select>
+                            <p class="mt-1 text-xs text-gray-500">
+                                Sélectionnez les détails pour chaque catégorie choisie
+                            </p>
                         </div>
 
+                        <!-- Centres d'intérêt - Tissu économique et culturel privé - Dual multi select -->
                         <div>
-                            <label
-                                class="block text-sm font-medium text-gray-900 mb-2"
-                                >Centres d'intérêt - Tissu économique et
-                                culturel privé</label
-                            >
+                            <label class="block text-sm font-medium text-gray-900 mb-2">
+                                Centres d'intérêt - Tissu économique et culturel privé
+                            </label>
+                            <!-- Main category select (multiple) -->
                             <select
+                                id="interest_economics"
+                                name="interest_economics"
+                                multiple
+                                size="5"
+                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-600 focus:ring-purple-600 sm:text-sm px-4 py-2 border mb-2"
+                                onchange="updateDualMultiSelect('interest_economics', 'interest_economics_detail', interestEconomicsDetailData, currentInterestEconomicsDetail)"
+                            >
+                                {% for category, label in interest_economics_ontology.field1 %}
+                                    <option value="{{ category }}" {% if business_wall.interest_economics and category in business_wall.interest_economics %}selected{% endif %}>
+                                        {{ label }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            <p class="mt-1 text-xs text-gray-500 mb-2">
+                                Sélectionnez une ou plusieurs options
+                            </p>
+                            <!-- Detail select (multiple) -->
+                            <select
+                                id="interest_economics_detail"
+                                name="interest_economics_detail"
                                 multiple
                                 size="8"
                                 class="block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-600 focus:ring-purple-600 sm:text-sm px-4 py-2 border"
+                                {% if not business_wall.interest_economics %}disabled{% endif %}
                             >
-                                <option>Agroalimentaire</option>
-                                <option>Automobile et mobilité</option>
-                                <option>Banque et assurance</option>
-                                <option>BTP et immobilier</option>
-                                <option>Chimie et matériaux</option>
-                                <option>Commerce et distribution</option>
-                                <option>
-                                    Énergie (pétrole, gaz, nucléaire,
-                                    renouvelables)
-                                </option>
-                                <option>
-                                    Hôtellerie, restauration et tourisme
-                                </option>
-                                <option>Industrie manufacturière</option>
-                                <option>Luxe et mode</option>
-                                <option>Médias et communication</option>
-                                <option>Pharmacie et biotechnologies</option>
-                                <option>Services aux entreprises</option>
-                                <option>Sport et loisirs</option>
-                                <option>Technologies et numérique</option>
-                                <option>Télécommunications</option>
-                                <option>Transport et logistique</option>
                             </select>
+                            <p class="mt-1 text-xs text-gray-500">
+                                Sélectionnez les détails pour chaque catégorie choisie
+                            </p>
                         </div>
 
+                        <!-- Centres d'intérêt - Tissu associatif - Dual multi select -->
                         <div>
-                            <label
-                                class="block text-sm font-medium text-gray-900 mb-2"
-                                >Centres d'intérêt - Tissu associatif</label
-                            >
+                            <label class="block text-sm font-medium text-gray-900 mb-2">
+                                Centres d'intérêt - Tissu associatif
+                            </label>
+                            <!-- Main category select (multiple) -->
                             <select
+                                id="interest_association"
+                                name="interest_association"
+                                multiple
+                                size="5"
+                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-600 focus:ring-purple-600 sm:text-sm px-4 py-2 border mb-2"
+                                onchange="updateDualMultiSelect('interest_association', 'interest_association_detail', interestAssociationDetailData, currentInterestAssociationDetail)"
+                            >
+                                {% for category, label in interest_association_ontology.field1 %}
+                                    <option value="{{ category }}" {% if business_wall.interest_association and category in business_wall.interest_association %}selected{% endif %}>
+                                        {{ label }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            <p class="mt-1 text-xs text-gray-500 mb-2">
+                                Sélectionnez une ou plusieurs options
+                            </p>
+                            <!-- Detail select (multiple) -->
+                            <select
+                                id="interest_association_detail"
+                                name="interest_association_detail"
                                 multiple
                                 size="8"
                                 class="block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-600 focus:ring-purple-600 sm:text-sm px-4 py-2 border"
+                                {% if not business_wall.interest_association %}disabled{% endif %}
                             >
-                                <option>Action sociale et humanitaire</option>
-                                <option>Associations de consommateurs</option>
-                                <option>Associations professionnelles</option>
-                                <option>Culture et arts</option>
-                                <option>Défense des droits et libertés</option>
-                                <option>Éducation et formation</option>
-                                <option>
-                                    Environnement et développement durable
-                                </option>
-                                <option>Jeunesse et éducation populaire</option>
-                                <option>Logement et cadre de vie</option>
-                                <option>Santé et prévention</option>
-                                <option>Sport et activités physiques</option>
-                                <option>
-                                    Syndicats et organisations professionnelles
-                                </option>
-                                <option>Vie locale et citoyenne</option>
                             </select>
+                            <p class="mt-1 text-xs text-gray-500">
+                                Sélectionnez les détails pour chaque catégorie choisie
+                            </p>
                         </div>
                     </div>
                 </fieldset>
@@ -1109,6 +1112,15 @@
         const secteursActiviteDetailData = {{ secteurs_activite_ontology.field2 | tojson }};
         const currentSecteursActiviteDetail = {{ business_wall.secteurs_activite_detail | tojson }};
 
+        const interestPoliticalDetailData = {{ interest_political_ontology.field2 | tojson }};
+        const currentInterestPoliticalDetail = {{ business_wall.interest_political_detail | tojson }};
+
+        const interestEconomicsDetailData = {{ interest_economics_ontology.field2 | tojson }};
+        const currentInterestEconomicsDetail = {{ business_wall.interest_economics_detail | tojson }};
+
+        const interestAssociationDetailData = {{ interest_association_ontology.field2 | tojson }};
+        const currentInterestAssociationDetail = {{ business_wall.interest_association_detail | tojson }};
+
         function updateDualMultiSelect(mainSelectId, detailSelectId, detailData, currentDetailValues) {
             const mainSelect = document.getElementById(mainSelectId);
             const detailSelect = document.getElementById(detailSelectId);
@@ -1150,11 +1162,24 @@
             });
         }
 
-        // Initialize Secteurs d'activité on page load
+
         document.addEventListener('DOMContentLoaded', function() {
+            // Initialize multi select fields
             const mainSelect = document.getElementById('secteurs_activite');
             if (mainSelect && mainSelect.selectedOptions.length > 0) {
                 updateDualMultiSelect('secteurs_activite', 'secteurs_activite_detail', secteursActiviteDetailData, currentSecteursActiviteDetail);
+            }
+            const interestPoliticalSelect = document.getElementById('interest_political');
+            if (interestPoliticalSelect && interestPoliticalSelect.selectedOptions.length > 0) {
+                updateDualMultiSelect('interest_political', 'interest_political_detail', interestPoliticalDetailData, currentInterestPoliticalDetail);
+            }
+            const interestEconomicsSelect = document.getElementById('interest_economics');
+            if (interestEconomicsSelect && interestEconomicsSelect.selectedOptions.length > 0) {
+                updateDualMultiSelect('interest_economics', 'interest_economics_detail', interestEconomicsDetailData, currentInterestEconomicsDetail);
+            }
+            const interestAssociationSelect = document.getElementById('interest_association');
+            if (interestAssociationSelect && interestAssociationSelect.selectedOptions.length > 0) {
+                updateDualMultiSelect('interest_association', 'interest_association_detail', interestAssociationDetailData, currentInterestAssociationDetail);
             }
         });
     </script>
