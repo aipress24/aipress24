@@ -278,6 +278,12 @@ def configure_content():
             )
             modified = True
 
+        # tel_standard (Téléphone du standard)
+        tel_standard = request.form.get("tel_standard", "").strip()
+        if tel_standard:
+            business_wall.tel_standard = tel_standard
+            modified = True
+
         # taille_orga (Taille de l'organisation - single selection)
         taille_orga = request.form.get("taille_orga", "").strip()
         if taille_orga:
