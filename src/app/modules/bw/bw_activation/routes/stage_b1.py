@@ -250,6 +250,12 @@ def configure_content():
             business_wall.secteurs_activite_detail = secteurs_activite_detail or []
             modified = True
 
+        # taille_orga (Taille de l'organisation - single selection)
+        taille_orga = request.form.get("taille_orga", "").strip()
+        if taille_orga:
+            business_wall.taille_orga = taille_orga
+            modified = True
+
         # type_agence_rp (Type de votre PR Agency / multi select)
         type_agence_rp = request.form.getlist("type_agence_rp")
         if type_agence_rp:
@@ -279,6 +285,7 @@ def configure_content():
     type_presse_et_media_ontology = get_full_taxonomy("media_type")
     periodicite_ontology = get_full_taxonomy("periodicite")
     secteurs_activite_ontology = get_taxonomy_dual_select("secteur_detaille")
+    taille_orga_ontology = get_full_taxonomy("taille_organisation")
 
     # from app.services.taxonomies import get_all_taxonomy_names
 
@@ -295,4 +302,5 @@ def configure_content():
         type_presse_et_media_ontology=type_presse_et_media_ontology,
         periodicite_ontology=periodicite_ontology,
         secteurs_activite_ontology=secteurs_activite_ontology,
+        taille_orga_ontology=taille_orga_ontology,
     )
