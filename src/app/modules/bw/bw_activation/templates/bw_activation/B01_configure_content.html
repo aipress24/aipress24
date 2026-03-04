@@ -773,14 +773,15 @@
                                 >Taille de l'organisation</label
                             >
                             <select
+                                name="taille_orga"
                                 class="block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-600 focus:ring-purple-600 sm:text-sm px-4 py-2 border"
                             >
                                 <option value="">-- Sélectionnez --</option>
-                                <option>1-10 salariés</option>
-                                <option>11-50 salariés</option>
-                                <option>51-200 salariés</option>
-                                <option>201-500 salariés</option>
-                                <option>500+ salariés</option>
+                                {% for value, label in taille_orga_ontology %}
+                                    <option value="{{ value }}" {% if business_wall.taille_orga == value %}selected{% endif %}>
+                                        {{ label }}
+                                    </option>
+                                {% endfor %}
                             </select>
                         </div>
 
