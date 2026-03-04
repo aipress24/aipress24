@@ -250,6 +250,34 @@ def configure_content():
             business_wall.secteurs_activite_detail = secteurs_activite_detail or []
             modified = True
 
+        # interest_political and interest_political_detail (dual multi select)
+        interest_political = request.form.getlist("interest_political")
+        interest_political_detail = request.form.getlist("interest_political_detail")
+        if interest_political:
+            business_wall.interest_political = interest_political
+            business_wall.interest_political_detail = interest_political_detail or []
+            modified = True
+
+        # interest_economics and interest_economics_detail (dual multi select)
+        interest_economics = request.form.getlist("interest_economics")
+        interest_economics_detail = request.form.getlist("interest_economics_detail")
+        if interest_economics:
+            business_wall.interest_economics = interest_economics
+            business_wall.interest_economics_detail = interest_economics_detail or []
+            modified = True
+
+        # interest_association and interest_association_detail (dual multi select)
+        interest_association = request.form.getlist("interest_association")
+        interest_association_detail = request.form.getlist(
+            "interest_association_detail"
+        )
+        if interest_association:
+            business_wall.interest_association = interest_association
+            business_wall.interest_association_detail = (
+                interest_association_detail or []
+            )
+            modified = True
+
         # taille_orga (Taille de l'organisation - single selection)
         taille_orga = request.form.get("taille_orga", "").strip()
         if taille_orga:
@@ -286,6 +314,9 @@ def configure_content():
     periodicite_ontology = get_full_taxonomy("periodicite")
     secteurs_activite_ontology = get_taxonomy_dual_select("secteur_detaille")
     taille_orga_ontology = get_full_taxonomy("taille_organisation")
+    interest_political_ontology = get_taxonomy_dual_select("interet_politique")
+    interest_economics_ontology = get_taxonomy_dual_select("interet_orga")
+    interest_association_ontology = get_taxonomy_dual_select("interet_asso")
 
     # from app.services.taxonomies import get_all_taxonomy_names
 
@@ -303,4 +334,7 @@ def configure_content():
         periodicite_ontology=periodicite_ontology,
         secteurs_activite_ontology=secteurs_activite_ontology,
         taille_orga_ontology=taille_orga_ontology,
+        interest_political_ontology=interest_political_ontology,
+        interest_economics_ontology=interest_economics_ontology,
+        interest_association_ontology=interest_association_ontology,
     )
