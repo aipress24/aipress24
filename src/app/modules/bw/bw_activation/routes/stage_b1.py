@@ -308,6 +308,12 @@ def configure_content():
             business_wall.geolocalisation = geolocalisation
             modified = True
 
+        # site_url (URL du site web)
+        site_url = request.form.get("site_url", "").strip()
+        if site_url:
+            business_wall.site_url = site_url
+            modified = True
+
         # taille_orga (Taille de l'organisation - single selection)
         taille_orga = request.form.get("taille_orga", "").strip()
         if taille_orga:
