@@ -896,29 +896,28 @@
                             >{{ business_wall.postal_address or '' }}</textarea>
                         </div>
 
+                        <!-- Pays, Code postal et ville - Tom Select version -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label
-                                    class="block text-sm font-medium text-gray-900 mb-2"
-                                    >Ville</label
-                                >
-                                <input
-                                    type="text"
-                                    placeholder="Paris"
-                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-600 focus:ring-orange-600 sm:text-sm px-4 py-2 border"
-                                />
+                                <label class="block text-sm font-medium text-gray-900 mb-2">Pays</label>
+                                <select id="pays_zip_ville" name="pays_zip_ville" class="block w-full">
+                                    <option value="">-- Sélectionnez --</option>
+                                    {% for value, label in pays_ontology %}
+                                        <option value="{{ value }}" {% if business_wall.pays_zip_ville == value %}selected{% endif %}>
+                                            {{ label }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
                             </div>
 
                             <div>
-                                <label
-                                    class="block text-sm font-medium text-gray-900 mb-2"
-                                    >Code Postal</label
-                                >
-                                <input
-                                    type="text"
-                                    placeholder="75001"
-                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-600 focus:ring-orange-600 sm:text-sm px-4 py-2 border"
-                                />
+                                <label class="block text-sm font-medium text-gray-900 mb-2">
+                                    Code postal et ville
+                                    <span id="zip-loading" class="hidden text-xs text-gray-500 font-normal italic ml-2">Chargement...</span>
+                                </label>
+                                <select id="pays_zip_ville_detail" name="pays_zip_ville_detail" class="block w-full">
+                                    <option value="">-- Sélectionnez d'abord un pays --</option>
+                                </select>
                             </div>
                         </div>
 
@@ -992,6 +991,9 @@
             </form>
         </div>
     </div>
+
+    <!-- Tom Select JS -->
+    <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
 
     <!-- JavaScript for immediate logo preview -->
     <script>
@@ -1166,7 +1168,122 @@
         }
 
 
+        // Tom Select config for pays and code/ville
+        let countrySelectTom = null;
+        let zipSelectTom = null;
+        let currentZipValue = {{ (business_wall.pays_zip_ville_detail or '') | tojson }};
+
+        function initCountryZipSelects() {
+            const countrySelect = document.getElementById('pays_zip_ville');
+            const zipSelect = document.getElementById('pays_zip_ville_detail');
+            const loadingIndicator = document.getElementById('zip-loading');
+
+            if (!countrySelect || !zipSelect) return;
+
+            countrySelectTom = new TomSelect(countrySelect, {
+                create: false,
+                maxItems: 1,
+                preload: true,
+                labelField: 'text',
+                searchField: ['text'],
+                diacritics: true,
+                placeholder: 'Sélectionnez un pays'
+            });
+
+            zipSelectTom = new TomSelect(zipSelect, {
+                create: true,
+                createOnBlur: true,
+                maxOptions: 1000,
+                maxItems: 1,
+                preload: false,
+                labelField: 'label',
+                searchField: ['label'],
+                valueField: 'value',
+                diacritics: true,
+                placeholder: 'Entrez des caractères de la ville ou du code postal',
+                load: function(query, callback) {
+                    const countryCode = countrySelectTom.getValue();
+                    if (!countryCode || countryCode.length !== 3) {
+                        callback([]);
+                        return;
+                    }
+                    if (loadingIndicator) loadingIndicator.classList.remove('hidden');
+                    const url = `/kyc/towns/${countryCode}`;
+                    fetch(url)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (loadingIndicator) loadingIndicator.classList.add('hidden');
+                            callback(data);
+                        })
+                        .catch(() => {
+                            if (loadingIndicator) loadingIndicator.classList.add('hidden');
+                            callback([]);
+                        });
+                },
+                shouldLoad: function(query) {
+                    return true;
+                }
+            });
+
+            zipSelectTom.disable();
+
+            // country change
+            countrySelectTom.on('change', function(value) {
+                zipSelectTom.clear();
+                zipSelectTom.clearOptions();
+                if (value && value.length === 3) {
+                    zipSelectTom.enable();
+                    zipSelectTom.load(function(callback) {
+                        if (loadingIndicator) loadingIndicator.classList.remove('hidden');
+                        const url = `/kyc/towns/${value}`;
+                        fetch(url)
+                            .then(response => response.json())
+                            .then(data => {
+                                if (loadingIndicator) loadingIndicator.classList.add('hidden');
+                                callback(data);
+                                // Restore saved value if exists
+                                if (currentZipValue) {
+                                    zipSelectTom.setValue(currentZipValue);
+                                    currentZipValue = ''; // Clear after restore
+                                }
+                            })
+                            .catch(() => {
+                                if (loadingIndicator) loadingIndicator.classList.add('hidden');
+                                callback([]);
+                            });
+                    });
+                } else {
+                    zipSelectTom.disable();
+                }
+            });
+
+            // If country selected, load zip codes
+            const initialCountry = countrySelectTom.getValue();
+            if (initialCountry && initialCountry.length === 3) {
+                zipSelectTom.enable();
+                zipSelectTom.load(function(callback) {
+                    if (loadingIndicator) loadingIndicator.classList.remove('hidden');
+                    const url = `/kyc/towns/${initialCountry}`;
+                    fetch(url)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (loadingIndicator) loadingIndicator.classList.add('hidden');
+                            callback(data);
+                            if (currentZipValue) {
+                                zipSelectTom.setValue(currentZipValue);
+                            }
+                        })
+                        .catch(() => {
+                            if (loadingIndicator) loadingIndicator.classList.add('hidden');
+                            callback([]);
+                        });
+                });
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
+            initCountryZipSelects();
+
             // Initialize multi select fields
             const mainSelect = document.getElementById('secteurs_activite');
             if (mainSelect && mainSelect.selectedOptions.length > 0) {
