@@ -8,9 +8,9 @@ from __future__ import annotations
 
 from typing import Any, cast
 
-from flask import redirect, render_template, request, session, url_for
+from flask import g, redirect, render_template, request, session, url_for
 
-# from app.flask.extensions import db
+from app.flask.extensions import db
 from app.logging import warn
 from app.models.auth import User
 from app.modules.bw.bw_activation import bp
@@ -49,19 +49,30 @@ def assign_missions():
     if not session.get("bw_activated"):
         return redirect(url_for("bw_activation.index"))
 
-    # Initialize missions state in session if not present
-    init_missions_state()
+    missions: dict[str, bool] = {}
+    if business_wall.missions:
+        missions = cast(dict[str, bool], business_wall.missions)
+        session["missions"] = missions
+    else:
+        init_missions_state()
 
     if request.method == "POST":
         # Update missions from form data
-        missions = session["missions"]
-        missions["press_release"] = bool(request.form.get("mission_press_release"))
-        missions["events"] = bool(request.form.get("mission_events"))
-        missions["missions"] = bool(request.form.get("mission_missions"))
-        missions["projects"] = bool(request.form.get("mission_projects"))
-        missions["internships"] = bool(request.form.get("mission_internships"))
-        missions["apprenticeships"] = bool(request.form.get("mission_apprenticeships"))
-        missions["doctoral"] = bool(request.form.get("mission_doctoral"))
+        missions = {
+            "press_release": bool(request.form.get("mission_press_release")),
+            "events": bool(request.form.get("mission_events")),
+            "missions": bool(request.form.get("mission_missions")),
+            "projects": bool(request.form.get("mission_projects")),
+            "internships": bool(request.form.get("mission_internships")),
+            "apprenticeships": bool(request.form.get("mission_apprenticeships")),
+            "doctoral": bool(request.form.get("mission_doctoral")),
+        }
+
+        # Save to BusinessWall
+        business_wall.missions = missions
+        db.session.commit()
+
+        # Also update session for UI consistency
         session["missions"] = missions
 
         warn(missions)
