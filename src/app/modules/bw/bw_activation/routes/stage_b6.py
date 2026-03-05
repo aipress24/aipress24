@@ -15,6 +15,7 @@ from app.logging import warn
 from app.models.auth import User
 from app.modules.bw.bw_activation import bp
 from app.modules.bw.bw_activation.config import BW_TYPES
+from app.modules.bw.bw_activation.models.role import PermissionType
 from app.modules.bw.bw_activation.user_utils import current_business_wall
 from app.modules.bw.bw_activation.utils import (
     ERR_BW_NOT_FOUND,
@@ -59,13 +60,19 @@ def assign_missions():
     if request.method == "POST":
         # Update missions from form data
         missions = {
-            "press_release": bool(request.form.get("mission_press_release")),
-            "events": bool(request.form.get("mission_events")),
-            "missions": bool(request.form.get("mission_missions")),
-            "projects": bool(request.form.get("mission_projects")),
-            "internships": bool(request.form.get("mission_internships")),
-            "apprenticeships": bool(request.form.get("mission_apprenticeships")),
-            "doctoral": bool(request.form.get("mission_doctoral")),
+            PermissionType.PRESS_RELEASE.value: bool(
+                request.form.get("mission_press_release")
+            ),
+            PermissionType.EVENTS.value: bool(request.form.get("mission_events")),
+            PermissionType.MISSIONS.value: bool(request.form.get("mission_missions")),
+            PermissionType.PROJECTS.value: bool(request.form.get("mission_projects")),
+            PermissionType.INTERNSHIPS.value: bool(
+                request.form.get("mission_internships")
+            ),
+            PermissionType.APPRENTICESHIPS.value: bool(
+                request.form.get("mission_apprenticeships")
+            ),
+            PermissionType.DOCTORAL.value: bool(request.form.get("mission_doctoral")),
         }
 
         # Save to BusinessWall

@@ -22,6 +22,7 @@ from app.modules.bw.bw_activation.models import (
     BWType,
     InvitationStatus,
     PartnershipStatus,
+    PermissionType,
 )
 
 # from app.modules.bw.bw_activation.models.repositories import BusinessWallRepository
@@ -74,13 +75,13 @@ def init_missions_state():
     """
     if "missions" not in session:
         session["missions"] = {
-            "press_release": False,
-            "events": False,
-            "missions": False,
-            "projects": False,
-            "internships": False,
-            "apprenticeships": False,
-            "doctoral": False,
+            PermissionType.PRESS_RELEASE.value: False,
+            PermissionType.EVENTS.value: False,
+            PermissionType.MISSIONS.value: False,
+            PermissionType.PROJECTS.value: False,
+            PermissionType.INTERNSHIPS.value: False,
+            PermissionType.APPRENTICESHIPS.value: False,
+            PermissionType.DOCTORAL.value: False,
         }
 
 
