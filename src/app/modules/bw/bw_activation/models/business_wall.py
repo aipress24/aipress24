@@ -186,6 +186,9 @@ class BusinessWall(UUIDAuditBase):
     # Web presence
     site_url: Mapped[str] = mapped_column(default="")
 
+    # PR Manager missions/permissions (Stage 6), as dict
+    missions: Mapped[dict] = mapped_column(JSON, default=dict)
+
     def get_organisation(self) -> Organisation | None:
         """Get the Organisation associated with this BusinessWall."""
         from app.models.organisation import Organisation
