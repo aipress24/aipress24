@@ -16,6 +16,7 @@ from svcs.flask import container
 from app.flask.extensions import db
 from app.logging import warn
 from app.modules.bw.bw_activation import bp
+from app.modules.bw.bw_activation.bw_invitation import apply_bw_missions_to_pr_user
 from app.modules.bw.bw_activation.models import (
     BusinessWall,
     BusinessWallService,
@@ -122,6 +123,10 @@ def confirm_partnership_invitation(bw_id: str, partnership_id: str):
                 accepted_at=datetime.now(UTC),
             )
             db.session.add(role_assignment)
+            db.session.flush()  # Need ID for RolePermission creation
+
+            # Apply BW missions to the external PR user
+            apply_bw_missions_to_pr_user(business_wall, current_user, BWRoleType.BWPRE)
 
             warn(
                 f"User {current_user.id} accepted partnership for BW {bw_name!r}",
