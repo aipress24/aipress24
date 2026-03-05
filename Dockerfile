@@ -3,7 +3,7 @@ FROM python:3.12
 # Install uv
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 RUN cp /root/.local/bin/uv /usr/local/bin/uv
-RUN apt-get update && apt-get install -y postgresql-client vim
+RUN apt-get update && apt-get install -y postgresql-client vim curl
 
 WORKDIR /app
 
@@ -35,4 +35,6 @@ RUN ln -s .venv/bin bin
 RUN DATABASE_URL='postgresql://x:x@localhost/x' bin/flask dev check
 
 ENV PORT=8080
-CMD ["/app/.venv/bin/python", "-m", "server"]
+EXPOSE 8080
+
+CMD ["/app/.venv/bin/gunicorn", "-b", "0.0.0.0:5000", "-w", "2", "app.flask.main:create_app()"]

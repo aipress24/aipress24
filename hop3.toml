@@ -16,6 +16,9 @@ builder = "docker"
 type = "postgres"
 
 [env]
+# Hostname
+HOST_NAME = "aipress24.hop3.test"
+
 # Flask configuration
 FLASK_SECURITY_PASSWORD_SALT = "change-me-to-random-salt"
 
