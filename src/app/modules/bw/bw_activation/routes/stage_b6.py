@@ -14,6 +14,7 @@ from app.flask.extensions import db
 from app.logging import warn
 from app.models.auth import User
 from app.modules.bw.bw_activation import bp
+from app.modules.bw.bw_activation.bw_invitation import sync_all_pr_missions
 from app.modules.bw.bw_activation.config import BW_TYPES
 from app.modules.bw.bw_activation.models.role import PermissionType
 from app.modules.bw.bw_activation.user_utils import current_business_wall
@@ -77,6 +78,10 @@ def assign_missions():
 
         # Save to BusinessWall
         business_wall.missions = missions
+
+        # sync missions to allcurrent PR users
+        sync_all_pr_missions(business_wall)
+
         db.session.commit()
 
         # Also update session for UI consistency
