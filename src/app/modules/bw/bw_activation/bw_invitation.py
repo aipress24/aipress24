@@ -26,7 +26,9 @@ from app.modules.bw.bw_activation.models import (
     InvitationStatus,
     Partnership,
     PartnershipStatus,
+    PermissionType,
     RoleAssignment,
+    RolePermission,
 )
 from app.modules.bw.bw_activation.utils import bw_roles_ids
 from app.services.emails import BWRoleInvitationMail
@@ -389,3 +391,101 @@ def send_partnership_invitation_mail(
         confirmation_url=confirmation_url,
     )
     invit_mail.send()
+
+
+def apply_bw_missions_to_pr_user(
+    business_wall: BusinessWall, user: User, role: BWRoleType
+) -> bool:
+    """Apply BusinessWall missions to a PR user via RolePermission records.
+
+    Args:
+        business_wall: The BusinessWall containing the missions
+        user: The User to apply permissions to
+        role: The PR role (BWPRI or BWPRE)
+
+    Returns:
+        True if permissions were applied successfully, False otherwise
+    """
+    if role not in (BWRoleType.BWPRI, BWRoleType.BWPRE):
+        warn(f"apply_bw_missions_to_pr_user: invalid role {role.value}")
+        return False
+
+    role_assignment = None
+    if business_wall.role_assignments:
+        for assignment in business_wall.role_assignments:
+            if assignment.user_id == user.id and assignment.role_type == role.value:
+                role_assignment = assignment
+                break
+
+    if not role_assignment:
+        warn(
+            f"apply_bw_missions_to_pr_user: no role assignment found for user {user.id}"
+        )
+        return False
+
+    missions = business_wall.missions or {}
+
+    mission_to_permission = {
+        "press_release": PermissionType.PRESS_RELEASE,
+        "events": PermissionType.EVENTS,
+        "missions": PermissionType.MISSIONS,
+        "projects": PermissionType.PROJECTS,
+        "internships": PermissionType.INTERNSHIPS,
+        "apprenticeships": PermissionType.APPRENTICESHIPS,
+        "doctoral": PermissionType.DOCTORAL,
+    }
+
+    existing_permissions = {p.permission_type: p for p in role_assignment.permissions}
+
+    for mission_key, permission_type in mission_to_permission.items():
+        is_granted = missions.get(mission_key, False)
+        permission_type_value = permission_type.value
+
+        if permission_type_value in existing_permissions:
+            existing_permissions[permission_type_value].is_granted = is_granted
+        else:
+            # Create new permission
+            role_permission = RolePermission(
+                role_assignment_id=role_assignment.id,
+                permission_type=permission_type_value,
+                is_granted=is_granted,
+            )
+            db.session.add(role_permission)
+
+    db.session.flush()
+    return True
+
+
+def sync_all_pr_missions(business_wall: BusinessWall) -> int:
+    """Synchronize missions for all PR users in a BusinessWall.
+
+    Args:
+        business_wall: The BusinessWall to sync permissions for
+
+    Returns:
+        Number of PR users whose permissions were updated
+    """
+    updated_count = 0
+
+    if not business_wall.role_assignments:
+        return 0
+
+    for assignment in business_wall.role_assignments:
+        if assignment.role_type not in (BWRoleType.BWPRI.value, BWRoleType.BWPRE.value):
+            continue
+
+        try:
+            user = cast(User, get_obj(assignment.user_id, User))
+        except NotFound:
+            continue
+
+        role = (
+            BWRoleType.BWPRI
+            if assignment.role_type == BWRoleType.BWPRI.value
+            else BWRoleType.BWPRE
+        )
+
+        if apply_bw_missions_to_pr_user(business_wall, user, role):
+            updated_count += 1
+
+    return updated_count
