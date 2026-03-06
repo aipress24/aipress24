@@ -164,30 +164,9 @@ class JournalistsTab(Tab):
 
 
 class ComTab(Tab):
+    """Tab for press releases (communiqués de presse)."""
+
     id = "com"
     label = "Idées & Comm"
     tip = "Communiqués de presse"
     post_type_allow: ClassVar[set[str]] = {"press_release"}
-
-    # def get_posts(self, filter_bar):
-    #     return []
-    # sort_order = filter_bar.sort_order
-    #
-    # match sort_order:
-    #     # TODO
-    #     # case "likes":
-    #     #     order = PressRelease.like_count.desc()
-    #     # case "comments":
-    #     #     order = PressRelease.comment_count.desc()
-    #     case _:
-    #         # TODO
-    #         order = PressRelease.created_at.desc()
-    #
-    # stmt = (
-    #     sa.select(PressRelease)
-    #     .where(PressRelease.status == PublicationStatus.PUBLIC)
-    #     .order_by(order)
-    #     .options(selectinload(PressRelease.owner))
-    #     .limit(30)
-    # )
-    # return get_multi(PressRelease, stmt)
