@@ -214,34 +214,71 @@ stats = get_query_stats()
 
 ## Integration in Tests
 
-### Assert No N+1 in Test
+### Command-Line Options
+
+Run tests with N+1 detection enabled:
+
+```bash
+# Log warnings when N+1 patterns detected
+pytest --n-plus-one
+
+# Fail tests that trigger N+1 patterns
+pytest --n-plus-one-strict
+
+# Combine with other options
+pytest tests/b_integration/ --n-plus-one-strict -x
+```
+
+### Using the `assert_no_n_plus_one` Fixture
+
+The `assert_no_n_plus_one` fixture is available for testing specific endpoints:
 
 ```python
-def test_list_users_no_n_plus_one(app, db_session):
+def test_list_users_no_n_plus_one(client, assert_no_n_plus_one):
+    # Create test data
+    # ...
+
+    response = client.get("/users")
+    assert response.status_code == 200
+
+    # Assert no N+1 patterns were detected
+    assert_no_n_plus_one()
+```
+
+### Manual N+1 Checking in Tests
+
+```python
+from app.flask.lib.n_plus_one_detector import get_query_stats
+
+def test_list_users_query_efficiency(client, db_session):
     # Create test data
     for i in range(10):
         user = User(email=f"user{i}@test.com")
         db_session.add(user)
     db_session.flush()
 
-    with app.test_client() as client:
-        response = client.get("/users")
+    response = client.get("/users")
 
-        stats = get_query_stats()
-        n_plus_one = stats["potential_n_plus_one"]
-        assert len(n_plus_one) == 0, f"N+1 detected: {n_plus_one}"
+    stats = get_query_stats()
+    n_plus_one = stats["potential_n_plus_one"]
+    assert len(n_plus_one) == 0, f"N+1 detected: {n_plus_one}"
 ```
 
-### Fail Test on N+1
+### CI Integration
 
-```python
-@pytest.fixture
-def strict_n_plus_one(app):
-    """Fixture that fails tests on N+1 detection."""
-    app.config["N_PLUS_ONE_ENABLED"] = True
-    app.config["N_PLUS_ONE_RAISE"] = True
-    app.config["N_PLUS_ONE_THRESHOLD"] = 3
-    yield app
+Add to your CI workflow to catch N+1 regressions:
+
+```yaml
+# In .github/workflows/tests.yml
+- name: Run integration tests with N+1 detection
+  run: pytest tests/b_integration/ --n-plus-one
+```
+
+For strict enforcement on specific test suites:
+
+```yaml
+- name: Run performance-critical tests
+  run: pytest tests/b_integration/test_api.py --n-plus-one-strict
 ```
 
 ## Excluded Queries
