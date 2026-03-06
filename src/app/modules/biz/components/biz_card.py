@@ -16,8 +16,3 @@ from app.flask.lib.pywire import Component, component
 class BizCard(Component):
     obj: Any
     show_author: bool = True
-
-    def __attrs_post_init__(self) -> None:
-        # "Hot fixes" for the marketplace object.
-        self.obj._url = "#"
-        self.obj.author = self.obj.owner
