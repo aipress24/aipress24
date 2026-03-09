@@ -9,7 +9,7 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, cast
 
-from flask import flash, g, redirect, render_template, request, session, url_for
+from flask import flash, g, make_response, redirect, render_template, request, session, url_for
 
 from app.flask.extensions import db
 from app.lib.file_object_utils import create_file_object
@@ -386,17 +386,23 @@ def configure_content():
 def cancel_subscription():
     """Cancel Business Wall subscription."""
     if not session.get("bw_activated"):
-        return redirect(url_for("bw_activation.index"))
+        response = make_response()
+        response.headers["HX-Redirect"] = url_for("bw_activation.index")
+        return response
 
     user = cast("User", g.user)
     business_wall = current_business_wall(user)
     if not business_wall:
         session["error"] = ERR_BW_NOT_FOUND
-        return redirect(url_for("bw_activation.not_authorized"))
+        response = make_response()
+        response.headers["HX-Redirect"] = url_for("bw_activation.not_authorized")
+        return response
 
     if user.id not in bw_managers_ids(business_wall):
         session["error"] = ERR_NOT_MANAGER
-        return redirect(url_for("bw_activation.not_authorized"))
+        response = make_response()
+        response.headers["HX-Redirect"] = url_for("bw_activation.not_authorized")
+        return response
 
     try:
         # Update BusinessWall status
@@ -412,10 +418,14 @@ def cancel_subscription():
         clear_bw_session()
 
         flash("Votre abonnement a été résilié avec succès.", "success")
-        return redirect(url_for("bw_activation.dashboard"))
+        response = make_response()
+        response.headers["HX-Redirect"] = url_for("wip.wip_home")
+        return response
 
     except Exception as e:
         db.session.rollback()
         warn(f"Error cancelling subscription: {e}")
         flash("Une erreur est survenue lors de la résiliation.", "error")
-        return redirect(url_for("bw_activation.configure_content"))
+        response = make_response()
+        response.headers["HX-Redirect"] = url_for("bw_activation.configure_content")
+        return response
