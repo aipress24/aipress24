@@ -27,6 +27,10 @@ from app.enums import BWTypeEnum, OrganisationTypeEnum
 from app.models.auth import User
 from app.models.base import Base
 from app.models.mixins import Addressable, IdMixin, LifeCycleMixin
+from app.modules.bw.bw_activation.models.business_wall import (
+    BusinessWall,
+    BWStatus,
+)
 
 if TYPE_CHECKING:
     from app.modules.bw.bw_activation.models.business_wall import BusinessWall
@@ -173,13 +177,17 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
     )
 
     def get_business_wall(self) -> BusinessWall | None:
-        """Get the BusinessWall associated with this organisation."""
-        from app.modules.bw.bw_activation.models.business_wall import BusinessWall
+        """Get the active BusinessWall associated with this organisation."""
 
         session = inspect(self).session
         if session is None:
             return None
-        stmt = select(BusinessWall).where(BusinessWall.organisation_id == self.id)
+        stmt = (
+            select(BusinessWall)
+            .where(BusinessWall.organisation_id == self.id)
+            .where(BusinessWall.status != BWStatus.CANCELLED.value)
+            .order_by(BusinessWall.created_at.desc())
+        )
         return session.execute(stmt).scalars().first()
 
     # no_siret = sa.Column(sa.UnicodeText, default="")
