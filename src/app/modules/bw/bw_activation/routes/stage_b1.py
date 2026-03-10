@@ -9,7 +9,16 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, cast
 
-from flask import flash, g, make_response, redirect, render_template, request, session, url_for
+from flask import (
+    flash,
+    g,
+    make_response,
+    redirect,
+    render_template,
+    request,
+    session,
+    url_for,
+)
 
 from app.flask.extensions import db
 from app.lib.file_object_utils import create_file_object
@@ -419,7 +428,7 @@ def cancel_subscription():
 
         flash("Votre abonnement a été résilié avec succès.", "success")
         response = make_response()
-        response.headers["HX-Redirect"] = url_for("wip.wip_home")
+        response.headers["HX-Redirect"] = url_for("bw_activation.dashboard")
         return response
 
     except Exception as e:
