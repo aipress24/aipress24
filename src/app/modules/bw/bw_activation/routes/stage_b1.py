@@ -426,7 +426,6 @@ def cancel_subscription():
 
         clear_bw_session()
 
-        flash("Votre abonnement a été résilié avec succès.", "success")
         response = make_response()
         response.headers["HX-Redirect"] = url_for("bw_activation.dashboard")
         return response
