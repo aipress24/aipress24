@@ -81,7 +81,10 @@ def get_current_user_data() -> StdDict:
 
 def guess_best_bw_type(user: User) -> BWType:
     profile = user.profile
-    profile_code = ProfileEnum[profile.profile_code]
+    try:
+        profile_code = ProfileEnum[profile.profile_code]
+    except KeyError:
+        return BWType.MEDIA
     return PROFILE_CODE_TO_BW2_TYPE.get(profile_code, BWType.MEDIA)
 
 
