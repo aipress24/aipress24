@@ -1221,28 +1221,28 @@
                 field1: {{ secteurs_activite_ontology.field1 | tojson }}.map(item => ({ value: item[0], label: item[1] })),
                 field2: [],
                 raw: {{ secteurs_activite_ontology.field2 | tojson }},
-                current_main: {{ (business_wall.secteurs_activite or []) | tojson }}
+                current_main: {{ (business_wall.secteurs_activite or []) | tojson }},
                 current_detail: {{ (business_wall.secteurs_activite_detail or []) | tojson }},
             },
             interestPolitical: {
                 field1: {{ interest_political_ontology.field1 | tojson }}.map(item => ({ value: item[0], label: item[1] })),
                 field2: [],
                 raw: {{ interest_political_ontology.field2 | tojson }},
-                current_main: {{ (business_wall.interest_political or []) | tojson }}
+                current_main: {{ (business_wall.interest_political or []) | tojson }},
                 current_detail: {{ (business_wall.interest_political_detail or []) | tojson }},
             },
             interestEconomics: {
                 field1: {{ interest_economics_ontology.field1 | tojson }}.map(item => ({ value: item[0], label: item[1] })),
                 field2: [],
                 raw: {{ interest_economics_ontology.field2 | tojson }},
-                current_main: {{ (business_wall.interest_economics or []) | tojson }}
+                current_main: {{ (business_wall.interest_economics or []) | tojson }},
                 current_detail: {{ (business_wall.interest_economics_detail or []) | tojson }},
             },
             interestAssociation: {
                 field1: {{ interest_association_ontology.field1 | tojson }}.map(item => ({ value: item[0], label: item[1] })),
                 field2: [],
                 raw: {{ interest_association_ontology.field2 | tojson }},
-                current_main: {{ (business_wall.interest_association or []) | tojson }}
+                current_main: {{ (business_wall.interest_association or []) | tojson }},
                 current_detail: {{ (business_wall.interest_association_detail or []) | tojson }},
             }
         };
