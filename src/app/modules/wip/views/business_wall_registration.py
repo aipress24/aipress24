@@ -230,10 +230,10 @@ def _build_context(user: User, org: Organisation | None) -> dict[str, Any]:
         allowed_list_str = ""
         debug_display_prod_info = []
         allowed_prod = []
-        _current_product = stripe_bw_products.get(org.stripe_product_id)
+        _current_product = stripe_bw_products.get(org.stripe_product_id)  # type: ignore[union-attr]
         current_product_name = _current_product.name if _current_product else ""
 
-    org_bw_type_name = org.bw_type.name if is_bw_active else ""
+    org_bw_type_name = org.bw_type.name if is_bw_active else ""  # type: ignore[union-attr]
     print(f"//// current org_bw_type_name: {org_bw_type_name!r}")
 
     # First time, if no org.bw_type, assume the first allowed_subs is allowed

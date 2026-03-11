@@ -426,7 +426,7 @@ def cancel_subscription():
         # Revert organisation type to AUTO
         org = business_wall.get_organisation()
         if org:
-            org.type = OrganisationTypeEnum.AUTO
+            org.type = OrganisationTypeEnum.AUTO  # type: ignore[assignment]
 
         db.session.commit()
 

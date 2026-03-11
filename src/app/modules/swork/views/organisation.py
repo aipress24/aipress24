@@ -246,10 +246,6 @@ class OrgVM(ViewModel):
             self._cached_bw = get_active_business_wall_for_organisation(self.org)
         return self._cached_bw
 
-    @property
-    def has_bw(self) -> bool:
-        return self.bw is not None
-
     def extra_attrs(self):
         from app.services.activity_stream import get_timeline
         from app.services.social_graph import adapt
@@ -280,21 +276,21 @@ class OrgVM(ViewModel):
         )
 
     def _got_cover_image(self) -> bool:
-        if self.has_bw:
+        if self.bw is not None:
             return self.bw.cover_image is not None
         return self.org.cover_image is not None
 
     def get_logo_url(self) -> str:
         if self.org.is_auto:
             return "/static/img/logo-page-non-officielle.png"
-        if self.has_bw:
+        if self.bw is not None:
             return self.bw.logo_image_signed_url()
         return self.org.logo_image_signed_url()
 
     def get_cover_image_url(self) -> str:
         if self.org.is_auto:
             return ""
-        if self.has_bw:
+        if self.bw is not None:
             return self.bw.cover_image_signed_url()
         return self.org.cover_image_signed_url()
 
@@ -324,17 +320,17 @@ class OrgVM(ViewModel):
         return list(articles)
 
     def _get_address_formatted(self) -> str:
-        if self.has_bw:
+        if self.bw is not None:
             return self.bw.formatted_address
         return self.org.formatted_address
 
     def _get_taille_orga(self) -> str:
-        if self.has_bw:
+        if self.bw is not None:
             return self.bw.taille_orga
         return self.org.taille_orga
 
     def _get_country_zip_city(self) -> str:
-        if self.has_bw:
+        if self.bw is not None:
             return (
                 f"{country_code_to_label(self.bw.pays_zip_ville)}, "
                 f"{country_zip_code_to_city(self.bw.pays_zip_ville_detail)}"
@@ -345,17 +341,17 @@ class OrgVM(ViewModel):
         )
 
     def _get_site_url(self) -> str:
-        if self.has_bw:
+        if self.bw is not None:
             return self.bw.site_url
         return self.org.site_url
 
     def _get_description(self) -> str:
-        if self.has_bw:
+        if self.bw is not None:
             return self.bw.positionnement_editorial
         return self.org.description or ""
 
     def get_type_organisation(self) -> str:
-        if self.has_bw:
+        if self.bw is not None:
             return "\n".join(
                 (
                     ", ".join(self.bw.type_organisation),
@@ -370,7 +366,7 @@ class OrgVM(ViewModel):
         )
 
     def get_secteurs_activite(self) -> str:
-        if self.has_bw:
+        if self.bw is not None:
             return "\n".join(
                 (
                     ", ".join(self.bw.secteurs_activite),
