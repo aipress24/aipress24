@@ -30,21 +30,21 @@ from .config import BW_TYPES
 
 StdDict = dict[str, str | int | float | bool | None]
 
-BW_TYPE_TO_ORG_TYPE = {
-    BWType.MEDIA.value: OrganisationTypeEnum.MEDIA,
-    BWType.MICRO.value: OrganisationTypeEnum.OTHER,
-    BWType.CORPORATE_MEDIA.value: OrganisationTypeEnum.OTHER,
-    BWType.UNION.value: OrganisationTypeEnum.OTHER,
-    BWType.ACADEMICS.value: OrganisationTypeEnum.OTHER,
-    BWType.PR.value: OrganisationTypeEnum.COM,
-    BWType.LEADERS_EXPERTS.value: OrganisationTypeEnum.OTHER,
-    BWType.TRANSFORMERS.value: OrganisationTypeEnum.OTHER,
-}
+BW_TYPE_TO_ORG_TYPE: dict[str, OrganisationTypeEnum] = {
+    str(BWType.MEDIA): OrganisationTypeEnum.MEDIA,
+    str(BWType.MICRO): OrganisationTypeEnum.OTHER,
+    str(BWType.CORPORATE_MEDIA): OrganisationTypeEnum.OTHER,
+    str(BWType.UNION): OrganisationTypeEnum.OTHER,
+    str(BWType.ACADEMICS): OrganisationTypeEnum.OTHER,
+    str(BWType.PR): OrganisationTypeEnum.COM,
+    str(BWType.LEADERS_EXPERTS): OrganisationTypeEnum.OTHER,
+    str(BWType.TRANSFORMERS): OrganisationTypeEnum.OTHER,
+}  # type: ignore[var-assign]
 
 
 def _bw_type_to_org_type(bw_type: str) -> OrganisationTypeEnum:
     """Map BW type value to OrganisationTypeEnum."""
-    return BW_TYPE_TO_ORG_TYPE.get(bw_type, OrganisationTypeEnum.OTHER)
+    return BW_TYPE_TO_ORG_TYPE.get(bw_type, OrganisationTypeEnum.OTHER)  # type: ignore[return-value]
 
 
 if TYPE_CHECKING:

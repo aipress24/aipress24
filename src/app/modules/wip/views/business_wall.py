@@ -6,7 +6,6 @@
 
 from __future__ import annotations
 
-import sys
 from typing import Any, cast
 
 from flask import g, render_template, request
