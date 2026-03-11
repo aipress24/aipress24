@@ -23,6 +23,10 @@ from app.flask.sqla import get_multi, get_obj
 from app.models.auth import User
 from app.models.lifecycle import PublicationStatus
 from app.models.organisation import Organisation
+from app.modules.bw.bw_activation.models.business_wall import BusinessWall
+from app.modules.bw.bw_activation.user_utils import (
+    get_active_business_wall_for_organisation,
+)
 from app.modules.events.models import EventPost
 from app.modules.kyc.field_label import (
     country_code_to_label,
@@ -229,9 +233,22 @@ TAB_CLASSES = [
 class OrgVM(ViewModel):
     """ViewModel for Organisation."""
 
+    _cached_bw: BusinessWall | None = None
+
     @property
     def org(self):
         return cast("Organisation", self._model)
+
+    @property
+    def bw(self) -> BusinessWall | None:
+        """Get active BusinessWall for this organisation (lazy load)."""
+        if self._cached_bw is None and not self.org.is_auto:
+            self._cached_bw = get_active_business_wall_for_organisation(self.org)
+        return self._cached_bw
+
+    @property
+    def has_bw(self) -> bool:
+        return self.bw is not None
 
     def extra_attrs(self):
         from app.services.activity_stream import get_timeline
@@ -241,21 +258,20 @@ class OrgVM(ViewModel):
         return {
             "members": self.get_members(),
             "logo_url": self.get_logo_url(),
-            "got_cover_image": self.org.cover_image is not None,
+            "got_cover_image": self._got_cover_image(),
             "cover_image_url": self.get_cover_image_url(),
             "screenshot_url": self.get_screenshot_url(),
             "press_releases": self.get_press_releases(),
             "publications": self.get_publications(),
             "is_following": adapt(g.user).is_following(self.org),
             "timeline": timeline,
-            "address_formatted": self.org.formatted_address,
+            "address_formatted": self._get_address_formatted(),
             "type_organisation": self.get_type_organisation(),
-            "taille_orga": self.org.taille_orga,
-            "country_zip_city": (
-                f"{country_code_to_label(self.org.pays_zip_ville)}, "
-                f"{country_zip_code_to_city(self.org.pays_zip_ville_detail)}"
-            ),
+            "taille_orga": self._get_taille_orga(),
+            "country_zip_city": self._get_country_zip_city(),
             "secteurs_activite": self.get_secteurs_activite(),
+            "site_url": self._get_site_url(),
+            "description": self._get_description(),
         }
 
     def get_members(self) -> list[User]:
@@ -263,14 +279,23 @@ class OrgVM(ViewModel):
             db.session.scalars(select(User).where(User.organisation_id == self.org.id))
         )
 
+    def _got_cover_image(self) -> bool:
+        if self.has_bw:
+            return self.bw.cover_image is not None
+        return self.org.cover_image is not None
+
     def get_logo_url(self) -> str:
         if self.org.is_auto:
             return "/static/img/logo-page-non-officielle.png"
+        if self.has_bw:
+            return self.bw.logo_image_signed_url()
         return self.org.logo_image_signed_url()
 
     def get_cover_image_url(self) -> str:
         if self.org.is_auto:
             return ""
+        if self.has_bw:
+            return self.bw.cover_image_signed_url()
         return self.org.cover_image_signed_url()
 
     def get_screenshot_url(self) -> str:
@@ -298,7 +323,45 @@ class OrgVM(ViewModel):
         articles = get_multi(ArticlePost, stmt)
         return list(articles)
 
+    def _get_address_formatted(self) -> str:
+        if self.has_bw:
+            return self.bw.formatted_address
+        return self.org.formatted_address
+
+    def _get_taille_orga(self) -> str:
+        if self.has_bw:
+            return self.bw.taille_orga
+        return self.org.taille_orga
+
+    def _get_country_zip_city(self) -> str:
+        if self.has_bw:
+            return (
+                f"{country_code_to_label(self.bw.pays_zip_ville)}, "
+                f"{country_zip_code_to_city(self.bw.pays_zip_ville_detail)}"
+            )
+        return (
+            f"{country_code_to_label(self.org.pays_zip_ville)}, "
+            f"{country_zip_code_to_city(self.org.pays_zip_ville_detail)}"
+        )
+
+    def _get_site_url(self) -> str:
+        if self.has_bw:
+            return self.bw.site_url
+        return self.org.site_url
+
+    def _get_description(self) -> str:
+        if self.has_bw:
+            return self.bw.positionnement_editorial
+        return self.org.description or ""
+
     def get_type_organisation(self) -> str:
+        if self.has_bw:
+            return "\n".join(
+                (
+                    ", ".join(self.bw.type_organisation),
+                    ", ".join(self.bw.type_organisation_detail),
+                )
+            )
         return "\n".join(
             (
                 ", ".join(self.org.type_organisation),
@@ -307,6 +370,13 @@ class OrgVM(ViewModel):
         )
 
     def get_secteurs_activite(self) -> str:
+        if self.has_bw:
+            return "\n".join(
+                (
+                    ", ".join(self.bw.secteurs_activite),
+                    ", ".join(self.bw.secteurs_activite_detail),
+                )
+            )
         return "\n".join(
             (
                 ", ".join(self.org.secteurs_activite),
