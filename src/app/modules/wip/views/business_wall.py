@@ -20,7 +20,9 @@ from app.flask.lib.nav import nav
 from app.flask.routing import url_for
 from app.logging import warn
 from app.models.auth import User
-from app.modules.bw.bw_activation.user_utils import get_business_wall_for_organisation
+from app.modules.bw.bw_activation.user_utils import (
+    get_active_business_wall_for_organisation,
+)
 from app.modules.wip import blueprint
 from app.services.roles import has_role
 
@@ -141,7 +143,7 @@ def _build_context() -> dict[str, Any]:
         readonly = True
     else:
         is_auto = org.is_auto
-        bw = get_business_wall_for_organisation(org)
+        bw = get_active_business_wall_for_organisation(org)
         is_bw_active = bw is not None
         is_bw_inactive = bw and not is_bw_active
         allow_editing = is_bw_active and user.is_manager
