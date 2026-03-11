@@ -154,24 +154,11 @@ def _build_context() -> dict[str, Any]:
         _current_product = _stripe_bw_products.get(org.stripe_product_id)
         current_product_name = _current_product.name if _current_product else ""
         if not current_product_name:
-            print("///// BusinessWallPage.context() BUG", file=sys.stderr)
-            print("/////   is_bw_active", is_bw_active, file=sys.stderr)
-            print(
-                "/////   _stripe_bw_products keys",
-                list(_stripe_bw_products.keys()),
-                file=sys.stderr,
-            )
-            print(
-                "/////   org.stripe_product_id",
-                org.stripe_product_id,
-                file=sys.stderr,
-            )
-            print("/////   _current_product", _current_product, file=sys.stderr)
-            print(
-                "/////   current_product_name",
-                current_product_name,
-                file=sys.stderr,
-            )
+            warn("BusinessWallPage.context() BUG")
+            warn("  _stripe_bw_products keys", list(_stripe_bw_products.keys()))
+            warn("  org.stripe_product_id", org.stripe_product_id)
+            warn("  _current_product", _current_product)
+            warn("  current_product_name", current_product_name)
         form_generator = BWFormGenerator(user=user, readonly=readonly)
         form = form_generator.generate()
     else:
