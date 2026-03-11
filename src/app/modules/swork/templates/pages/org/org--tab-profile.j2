@@ -18,7 +18,7 @@
     {% endif %}
   </dl>
 
-  {% if  not org.is_auto %}
+  {% if not org.is_auto %}
     <h2 class="text-lg font-medium mt-6 mb-2">Coordonnées</h2>
     <dl class="mt-2 border-t border-b border-gray-200 divide-y divide-gray-200">
       {{ line("Site web", org.site_url) }}
@@ -29,7 +29,7 @@
 
   {{ line_long("Type d&apos;organisation", org.type_organisation) }}
   {{ line("Taille d&apos;organisation", org.taille_orga) }}
-  {{ line_long("Pays, code postal et ville", org.country_zip_city) }}
+
   {{ line_long("Secteurs d&apos;activité", org.secteurs_activite) }}
 
 </div>
