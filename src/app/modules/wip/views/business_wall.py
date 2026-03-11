@@ -7,7 +7,7 @@
 from __future__ import annotations
 
 import sys
-from typing import Any
+from typing import Any, cast
 
 from flask import g, render_template, request
 from flask_wtf import FlaskForm
@@ -18,6 +18,9 @@ from app.enums import RoleEnum
 from app.flask.extensions import db
 from app.flask.lib.nav import nav
 from app.flask.routing import url_for
+from app.logging import warn
+from app.models.auth import User
+from app.modules.bw.bw_activation.user_utils import get_business_wall_for_organisation
 from app.modules.wip import blueprint
 from app.services.roles import has_role
 
@@ -126,14 +129,23 @@ def _build_context() -> dict[str, Any]:
     from app.services.stripe.product import stripe_bw_subscription_dict
     from app.services.stripe.utils import load_stripe_api_key
 
-    user = g.user
+    user = cast(User, g.user)
     org = user.organisation if user.is_authenticated else None
 
-    is_auto = org and org.is_auto
-    is_bw_active = org and org.is_bw_active
-    is_bw_inactive = org and org.is_bw_inactive
-    allow_editing = is_bw_active and user.is_manager
-    readonly = not allow_editing
+    if org is None:
+        is_auto: bool = False
+        bw = None
+        is_bw_active = False
+        is_bw_inactive = False
+        allow_editing = False
+        readonly = True
+    else:
+        is_auto = org.is_auto
+        bw = get_business_wall_for_organisation(org)
+        is_bw_active = bw is not None
+        is_bw_inactive = bw and not is_bw_active
+        allow_editing = is_bw_active and user.is_manager
+        readonly = not allow_editing
 
     if is_bw_active:
         assert org is not None  # is_bw_active implies org exists
