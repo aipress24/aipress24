@@ -96,7 +96,7 @@ def get_business_wall_for_organisation(org: Organisation) -> BusinessWall | None
     stmt = (
         select(BusinessWall)
         .where(BusinessWall.organisation_id == org.id)
-        .where(BusinessWall.status != BWStatus.CANCELLED.value)
+        .where(BusinessWall.status == BWStatus.ACTIVE.value)
         .order_by(BusinessWall.created_at.desc())
     )
     return session.execute(stmt).scalars().first()
