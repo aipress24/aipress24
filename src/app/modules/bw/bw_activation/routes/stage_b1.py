@@ -20,6 +20,7 @@ from flask import (
     url_for,
 )
 
+from app.enums import OrganisationTypeEnum
 from app.flask.extensions import db
 from app.lib.file_object_utils import create_file_object
 from app.logging import warn
@@ -421,6 +422,11 @@ def cancel_subscription():
         if business_wall.subscription:
             business_wall.subscription.status = SubscriptionStatus.CANCELLED.value
             business_wall.subscription.cancelled_at = datetime.now(UTC)
+
+        # Revert organisation type to AUTO
+        org = business_wall.get_organisation()
+        if org:
+            org.type = OrganisationTypeEnum.AUTO
 
         db.session.commit()
 
