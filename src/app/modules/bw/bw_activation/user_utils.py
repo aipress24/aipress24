@@ -88,7 +88,20 @@ def guess_best_bw_type(user: User) -> BWType:
     return PROFILE_CODE_TO_BW2_TYPE.get(profile_code, BWType.MEDIA)
 
 
-def get_business_wall_for_organisation(org: Organisation) -> BusinessWall | None:
+def get_any_business_wall_for_organisation(org: Organisation) -> BusinessWall | None:
+    """Returns the a BusinessWall of any type associated with this organisation."""
+    session = inspect(org).session
+    if session is None:
+        return None
+    stmt = (
+        select(BusinessWall)
+        .where(BusinessWall.organisation_id == org.id)
+        .order_by(BusinessWall.created_at.desc())
+    )
+    return session.execute(stmt).scalars().first()
+
+
+def get_active_business_wall_for_organisation(org: Organisation) -> BusinessWall | None:
     """Returns the active BusinessWall associated with this organisation."""
     session = inspect(org).session
     if session is None:
@@ -107,7 +120,7 @@ def get_business_wall_for_user(user: User) -> BusinessWall | None:
     org = user.organisation
     if not org:
         return None
-    return get_business_wall_for_organisation(org)
+    return get_active_business_wall_for_organisation(org)
 
 
 def current_business_wall(user: User) -> BusinessWall | None:

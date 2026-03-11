@@ -18,7 +18,9 @@ from app.enums import BWTypeEnum, ProfileEnum
 from app.flask.extensions import db
 from app.flask.routing import url_for
 from app.models.auth import User
-from app.modules.bw.bw_activation.user_utils import get_business_wall_for_organisation
+from app.modules.bw.bw_activation.user_utils import (
+    get_active_business_wall_for_organisation,
+)
 from app.modules.kyc.renderer import render_field
 from app.modules.wip import blueprint
 from app.modules.wip.models.newsroom.article import Organisation
@@ -202,7 +204,7 @@ def _build_context(user: User, org: Organisation | None) -> dict[str, Any]:
         is_bw_inactive = False
     else:
         is_auto = org.is_auto
-        bw = get_business_wall_for_organisation(org)
+        bw = get_active_business_wall_for_organisation(org)
         is_bw_active = bw is not None
         is_bw_inactive = bw and not is_bw_active
 
@@ -337,7 +339,7 @@ def _update_bw_subscription_state(org) -> None:
     """Update BW subscription state from Stripe."""
     if not org or org.is_auto:
         return
-    bw = get_business_wall_for_organisation(org)
+    bw = get_active_business_wall_for_organisation(org)
     if not bw:
         return
     # verify current subscription is still active on Stripe Reference
