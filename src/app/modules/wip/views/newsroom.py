@@ -18,6 +18,7 @@ from app.enums import ProfileEnum, RoleEnum
 from app.flask.lib.nav import nav
 from app.flask.routing import url_for
 from app.models.mixins import Owned
+from app.modules.bw.bw_activation.user_utils import get_business_wall_for_user
 from app.modules.wip import blueprint
 from app.services.auth import AuthService
 from app.services.roles import has_role
@@ -142,10 +143,8 @@ def _item_count(model_class: type[Owned]) -> int:
 
 def _has_active_business_wall() -> bool:
     """True if user's organisation has an active Business Wall."""
-    org = g.user.organisation
-    if not org:
-        return False
-    return org.is_bw_active
+    bw = get_business_wall_for_user(g.user)
+    return bw is not None
 
 
 def _check_article_creation_by_journalist() -> bool:
