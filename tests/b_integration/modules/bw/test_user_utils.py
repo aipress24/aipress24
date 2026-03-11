@@ -17,7 +17,8 @@ from app.modules.bw.bw_activation.models.business_wall import (
     BWType,
 )
 from app.modules.bw.bw_activation.user_utils import (
-    get_business_wall_for_organisation,
+    get_active_business_wall_for_organisation,
+    get_any_business_wall_for_organisation,
     get_business_wall_for_user,
     guess_best_bw_type,
 )
@@ -26,8 +27,8 @@ if TYPE_CHECKING:
     from sqlalchemy.orm import Session
 
 
-class TestGetBusinessWallForOrganisation:
-    """Tests for get_business_wall_for_organisation function."""
+class TestGetActiveBusinessWallForOrganisation:
+    """Tests for get_active_business_wall_for_organisation function."""
 
     def test_returns_none_when_no_business_wall(self, db_session: Session):
         """Should return None when organisation has no BusinessWall."""
@@ -38,7 +39,7 @@ class TestGetBusinessWallForOrganisation:
         db_session.add(org)
         db_session.flush()
 
-        result = get_business_wall_for_organisation(org)
+        result = get_active_business_wall_for_organisation(org)
 
         assert result is None
 
@@ -61,14 +62,14 @@ class TestGetBusinessWallForOrganisation:
         db_session.add(bw)
         db_session.flush()
 
-        result = get_business_wall_for_organisation(org)
+        result = get_active_business_wall_for_organisation(org)
 
         assert result is not None
         assert result.id == bw.id
         assert result.status == BWStatus.ACTIVE.value
 
-    def test_returns_draft_business_wall(self, db_session: Session):
-        """Should return draft BusinessWall for organisation."""
+    def test_returns_none_for_draft_business_wall(self, db_session: Session):
+        """Should return None for draft BusinessWall (not active)."""
         org = Organisation(
             name="Test Org",
             type=OrganisationTypeEnum.AGENCY,
@@ -86,13 +87,12 @@ class TestGetBusinessWallForOrganisation:
         db_session.add(bw)
         db_session.flush()
 
-        result = get_business_wall_for_organisation(org)
+        result = get_active_business_wall_for_organisation(org)
 
-        assert result is not None
-        assert result.status == BWStatus.DRAFT.value
+        assert result is None
 
-    def test_returns_suspended_business_wall(self, db_session: Session):
-        """Should return suspended BusinessWall for organisation."""
+    def test_returns_none_for_suspended_business_wall(self, db_session: Session):
+        """Should return None for suspended BusinessWall (not active)."""
         org = Organisation(
             name="Test Org",
             type=OrganisationTypeEnum.AGENCY,
@@ -110,10 +110,9 @@ class TestGetBusinessWallForOrganisation:
         db_session.add(bw)
         db_session.flush()
 
-        result = get_business_wall_for_organisation(org)
+        result = get_active_business_wall_for_organisation(org)
 
-        assert result is not None
-        assert result.status == BWStatus.SUSPENDED.value
+        assert result is None
 
     def test_returns_none_for_cancelled_business_wall(self, db_session: Session):
         """Should return None when only BusinessWall is cancelled."""
@@ -134,7 +133,7 @@ class TestGetBusinessWallForOrganisation:
         db_session.add(bw)
         db_session.flush()
 
-        result = get_business_wall_for_organisation(org)
+        result = get_active_business_wall_for_organisation(org)
 
         assert result is None
 
@@ -169,7 +168,7 @@ class TestGetBusinessWallForOrganisation:
         db_session.add(new_bw)
         db_session.flush()
 
-        result = get_business_wall_for_organisation(org)
+        result = get_active_business_wall_for_organisation(org)
 
         assert result is not None
         assert result.id == new_bw.id
@@ -206,10 +205,160 @@ class TestGetBusinessWallForOrganisation:
         db_session.add(active_bw)
         db_session.flush()
 
-        result = get_business_wall_for_organisation(org)
+        result = get_active_business_wall_for_organisation(org)
 
         assert result is not None
         assert result.id == active_bw.id
+
+
+class TestGetAnyBusinessWallForOrganisation:
+    """Tests for get_any_business_wall_for_organisation function."""
+
+    def test_returns_none_when_no_business_wall(self, db_session: Session):
+        """Should return None when organisation has no BusinessWall."""
+        org = Organisation(
+            name="Test Org",
+            type=OrganisationTypeEnum.AGENCY,
+        )
+        db_session.add(org)
+        db_session.flush()
+
+        result = get_any_business_wall_for_organisation(org)
+
+        assert result is None
+
+    def test_returns_cancelled_business_wall(self, db_session: Session):
+        """Should return cancelled BusinessWall (including cancelled)."""
+        org = Organisation(
+            name="Test Org",
+            type=OrganisationTypeEnum.AGENCY,
+        )
+        db_session.add(org)
+        db_session.flush()
+
+        bw = BusinessWall(
+            bw_type=BWType.MEDIA.value,
+            status=BWStatus.CANCELLED.value,
+            owner_id=1,
+            payer_id=1,
+            organisation_id=org.id,
+        )
+        db_session.add(bw)
+        db_session.flush()
+
+        result = get_any_business_wall_for_organisation(org)
+
+        assert result is not None
+        assert result.id == bw.id
+        assert result.status == BWStatus.CANCELLED.value
+
+    def test_returns_active_business_wall(self, db_session: Session):
+        """Should return active BusinessWall."""
+        org = Organisation(
+            name="Test Org",
+            type=OrganisationTypeEnum.AGENCY,
+        )
+        db_session.add(org)
+        db_session.flush()
+
+        bw = BusinessWall(
+            bw_type=BWType.MEDIA.value,
+            status=BWStatus.ACTIVE.value,
+            owner_id=1,
+            payer_id=1,
+            organisation_id=org.id,
+        )
+        db_session.add(bw)
+        db_session.flush()
+
+        result = get_any_business_wall_for_organisation(org)
+
+        assert result is not None
+        assert result.id == bw.id
+        assert result.status == BWStatus.ACTIVE.value
+
+    def test_returns_most_recent_any_bw(self, db_session: Session):
+        """Should return the most recent BusinessWall regardless of status."""
+        org = Organisation(
+            name="Test Org",
+            type=OrganisationTypeEnum.AGENCY,
+        )
+        db_session.add(org)
+        db_session.flush()
+
+        old_bw = BusinessWall(
+            bw_type=BWType.MEDIA.value,
+            status=BWStatus.CANCELLED.value,
+            owner_id=1,
+            payer_id=1,
+            organisation_id=org.id,
+        )
+        db_session.add(old_bw)
+        db_session.flush()
+
+        new_bw = BusinessWall(
+            bw_type=BWType.PR.value,
+            status=BWStatus.CANCELLED.value,
+            owner_id=1,
+            payer_id=1,
+            organisation_id=org.id,
+        )
+        db_session.add(new_bw)
+        db_session.flush()
+
+        result = get_any_business_wall_for_organisation(org)
+
+        assert result is not None
+        assert result.id == new_bw.id
+        assert result.status == BWStatus.CANCELLED.value
+
+    def test_returns_draft_business_wall(self, db_session: Session):
+        """Should return draft BusinessWall (any status)."""
+        org = Organisation(
+            name="Test Org",
+            type=OrganisationTypeEnum.AGENCY,
+        )
+        db_session.add(org)
+        db_session.flush()
+
+        bw = BusinessWall(
+            bw_type=BWType.MEDIA.value,
+            status=BWStatus.DRAFT.value,
+            owner_id=1,
+            payer_id=1,
+            organisation_id=org.id,
+        )
+        db_session.add(bw)
+        db_session.flush()
+
+        result = get_any_business_wall_for_organisation(org)
+
+        assert result is not None
+        assert result.status == BWStatus.DRAFT.value
+
+    def test_returns_suspended_business_wall(self, db_session: Session):
+        """Should return suspended BusinessWall (any status)."""
+        org = Organisation(
+            name="Test Org",
+            type=OrganisationTypeEnum.AGENCY,
+        )
+        db_session.add(org)
+        db_session.flush()
+
+        bw = BusinessWall(
+            bw_type=BWType.MEDIA.value,
+            status=BWStatus.SUSPENDED.value,
+            owner_id=1,
+            payer_id=1,
+            organisation_id=org.id,
+        )
+        db_session.add(bw)
+        db_session.flush()
+
+        result = get_any_business_wall_for_organisation(org)
+
+        assert result is not None
+        assert result.status == BWStatus.SUSPENDED.value
 
 
 class TestGetBusinessWallForUser:
