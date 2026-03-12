@@ -115,6 +115,16 @@ def get_active_business_wall_for_organisation(org: Organisation) -> BusinessWall
     return session.execute(stmt).scalars().first()
 
 
+def get_organisation_logo_url(org: Organisation) -> str:
+    if org.is_auto:
+        return "/static/img/logo-page-non-officielle.png"
+    # Use BusinessWall logo if available
+    bw = get_active_business_wall_for_organisation(org)
+    if bw is not None:
+        return bw.logo_image_signed_url()
+    return "/static/img/logo-page-non-officielle.png"
+
+
 def get_business_wall_for_user(user: User) -> BusinessWall | None:
     """Get the active BusinessWall for a user (via their organisation)."""
     org = user.organisation
