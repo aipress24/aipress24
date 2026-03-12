@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 
-from typing import Any, NamedTuple
+from typing import TYPE_CHECKING, Any, NamedTuple, cast
 
 import stripe
 from arrow import Arrow, utcnow
@@ -17,8 +17,14 @@ from app.constants import PROFILE_CODE_TO_BW_TYPE
 from app.enums import BWTypeEnum, ProfileEnum
 from app.flask.extensions import db
 from app.flask.routing import url_for
+from app.models.auth import User
+from app.modules.bw.bw_activation.user_utils import (
+    get_active_business_wall_for_organisation,
+    get_organisation_logo_url,
+)
 from app.modules.kyc.renderer import render_field
 from app.modules.wip import blueprint
+from app.modules.wip.models.newsroom.article import Organisation
 from app.services.stripe.product import stripe_bw_subscription_dict
 from app.services.stripe.retriever import retrieve_subscription
 from app.services.stripe.utils import (
@@ -28,6 +34,9 @@ from app.services.stripe.utils import (
 )
 
 from ._common import get_secondary_menu
+
+if TYPE_CHECKING:
+    from app.models.organisation import Organisation
 
 # Product dictionaries - could be replaced by actual queries
 PRODUCT_BW = {
@@ -141,7 +150,7 @@ def _warning(*args):
 @blueprint.route("/org-registration", endpoint="org-registration")
 def org_registration():
     """Business Wall Registration Page."""
-    user = g.user
+    user = cast(User, g.user)
     org = user.organisation
 
     # Update subscription state from Stripe
@@ -186,15 +195,23 @@ def org_registration_post() -> str | Response:
     return response
 
 
-def _build_context(user, org) -> dict[str, Any]:
+def _build_context(user: User, org: Organisation | None) -> dict[str, Any]:
     """Build template context for business wall registration."""
     allowed_subs = _find_profile_allowed_subscription(user)
     stripe_bw_products: dict[str, stripe.Product] = {}
     prod_info: list[ProdInfo] = []
 
-    is_auto = org and org.is_auto
-    is_bw_active = org and org.is_bw_active
-    is_bw_inactive = org and org.is_bw_inactive
+    if org is None:
+        is_auto: bool = False
+        bw = None
+        is_bw_active = False
+        is_bw_inactive = False
+    else:
+        is_auto = org.is_auto
+        bw = get_active_business_wall_for_organisation(org)
+        is_bw_active = bw is not None
+        is_bw_inactive = bw and not is_bw_active
+
     current_product_name = ""
 
     # Always load available products
@@ -217,10 +234,10 @@ def _build_context(user, org) -> dict[str, Any]:
         allowed_list_str = ""
         debug_display_prod_info = []
         allowed_prod = []
-        _current_product = stripe_bw_products.get(org.stripe_product_id)
+        _current_product = stripe_bw_products.get(org.stripe_product_id)  # type: ignore[union-attr]
         current_product_name = _current_product.name if _current_product else ""
 
-    org_bw_type_name = org.bw_type.name if is_bw_active else ""
+    org_bw_type_name = org.bw_type.name if is_bw_active else ""  # type: ignore[union-attr]
     print(f"//// current org_bw_type_name: {org_bw_type_name!r}")
 
     # First time, if no org.bw_type, assume the first allowed_subs is allowed
@@ -270,13 +287,11 @@ def _build_context(user, org) -> dict[str, Any]:
     }
 
 
-def _get_logo_url(org) -> str:
+def _get_logo_url(org: Organisation | None) -> str:
     """Get logo URL for organisation."""
     if not org:
         return "/static/img/transparent-square.png"
-    if org.is_auto:
-        return "/static/img/logo-page-non-officielle.png"
-    return org.logo_image_signed_url()
+    return get_organisation_logo_url(org)
 
 
 def _load_prod_info(prod: stripe.Product) -> ProdInfo | None:
@@ -324,7 +339,10 @@ def _find_profile_allowed_subscription(user) -> list[BWTypeEnum]:
 
 def _update_bw_subscription_state(org) -> None:
     """Update BW subscription state from Stripe."""
-    if not org or org.is_bw_inactive:
+    if not org or org.is_auto:
+        return
+    bw = get_active_business_wall_for_organisation(org)
+    if not bw:
         return
     # verify current subscription is still active on Stripe Reference
     load_stripe_api_key()

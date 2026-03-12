@@ -53,15 +53,15 @@ MENU = [
         icon="cake",
         endpoint="wip.opportunities",
     ),
-    MenuEntry(
-        name="org-profile",
-        label="Business Wall",
-        icon="building-library",
-        endpoint="wip.org-profile",
-    ),
+    # MenuEntry(
+    #     name="org-profile",
+    #     label="Business Wall",
+    #     icon="building-library",
+    #     endpoint="wip.org-profile",
+    # ),
     MenuEntry(
         name="bw-activation",
-        label="New Business Wall",
+        label="Business Wall",
         icon="building-library",
         endpoint="bw_activation.index",
     ),
