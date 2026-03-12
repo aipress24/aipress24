@@ -47,8 +47,8 @@ class TestOrgVMGetLogoUrl:
         vm = OrgVM(org)
 
         result = vm.get_logo_url()
-
-        assert result == "https://s3.example.com/logo.png"
+        # The organisation has no Businesswall.
+        assert result == "/static/img/logo-page-non-officielle.png"
 
 
 class TestOrgVMGetScreenshotUrl:

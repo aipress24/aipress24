@@ -6,10 +6,12 @@
 
 from __future__ import annotations
 
+import contextlib
 from typing import TYPE_CHECKING, cast
 
 from flask import g
 from sqlalchemy import inspect, select
+from sqlalchemy.exc import NoInspectionAvailable
 
 from app.enums import ProfileEnum
 from app.modules.admin.utils import Organisation
@@ -121,9 +123,10 @@ def get_organisation_logo_url(org: Organisation) -> str:
     if org.is_auto:
         return "/static/img/logo-page-non-officielle.png"
     # Use BusinessWall logo if available
-    bw = get_active_business_wall_for_organisation(org)
-    if bw is not None:
-        return bw.logo_image_signed_url()
+    with contextlib.suppress(NoInspectionAvailable):
+        bw = get_active_business_wall_for_organisation(org)
+        if bw is not None:
+            return bw.logo_image_signed_url()
     return "/static/img/logo-page-non-officielle.png"
 
 
