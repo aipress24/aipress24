@@ -559,7 +559,8 @@ class TestOrgListOrgVM:
         with app.test_request_context():
             vm = OrgListOrgVM(test_organisation)
             url = vm.get_logo_url()
-            assert url == "/static/img/transparent-square.png"
+            # The organisation has no active BusinessWall
+            assert url == "/static/img/logo-page-non-officielle.png"
 
 
 class TestOrgsDirectory:

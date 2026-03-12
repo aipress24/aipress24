@@ -173,8 +173,11 @@ class OrgVM(ViewModel):
 
     def extra_attrs(self):
         return {
-            "logo_url": get_organisation_logo_url(self.org),
+            "logo_url": self.get_logo_url(),
         }
+
+    def get_logo_url(self) -> str:
+        return get_organisation_logo_url(self.org)
 
 
 class OrgsDirectory(Directory):
