@@ -666,7 +666,7 @@ class OrganisationsExporter(BaseExporter):
         text4 = self.WIDTH_TEXT4
         text8 = self.WIDTH_TEXT8
         text12 = self.WIDTH_TEXT12
-        short = self.WIDTH_SHORT
+        # short = self.WIDTH_SHORT
         small = self.WIDTH_SMALL
         fields = [
             FieldColumn("id", "ID", text3),
