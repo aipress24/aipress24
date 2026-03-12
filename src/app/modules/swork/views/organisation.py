@@ -26,6 +26,7 @@ from app.models.organisation import Organisation
 from app.modules.bw.bw_activation.models.business_wall import BusinessWall
 from app.modules.bw.bw_activation.user_utils import (
     get_active_business_wall_for_organisation,
+    get_organisation_cover_image_url,
     get_organisation_logo_url,
 )
 from app.modules.events.models import EventPost
@@ -279,17 +280,13 @@ class OrgVM(ViewModel):
     def _got_cover_image(self) -> bool:
         if self.bw is not None:
             return self.bw.cover_image is not None
-        return self.org.cover_image is not None
+        return False
 
     def get_logo_url(self) -> str:
         return get_organisation_logo_url(self.org)
 
     def get_cover_image_url(self) -> str:
-        if self.org.is_auto:
-            return ""
-        if self.bw is not None:
-            return self.bw.cover_image_signed_url()
-        return self.org.cover_image_signed_url()
+        return get_organisation_cover_image_url(self.org)
 
     def get_screenshot_url(self) -> str:
         if not self.org.screenshot_id:
