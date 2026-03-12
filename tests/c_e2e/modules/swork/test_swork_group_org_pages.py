@@ -575,8 +575,8 @@ class TestOrgVM:
             g.user = test_user_with_profile
             vm = OrgVM(test_organisation)
             url = vm.get_logo_url()
-
-            assert url == "/static/img/transparent-square.png"
+            # The organisation has no BusinessWall
+            assert url == "/static/img/logo-page-non-officielle.png"
 
     def test_get_cover_image_url_for_auto(
         self,
@@ -591,7 +591,7 @@ class TestOrgVM:
             vm = OrgVM(auto_organisation)
             url = vm.get_cover_image_url()
 
-            assert url == ""
+            assert url == "/static/img/transparent-square.png"
 
     def test_get_cover_image_url_no_image(
         self,

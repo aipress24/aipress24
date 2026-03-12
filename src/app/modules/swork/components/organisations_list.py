@@ -12,16 +12,31 @@ from flask_super.registry import register
 from sqlalchemy import select
 from sqlalchemy.sql import Select
 
-from app.enums import OrganisationTypeEnum
 from app.flask.extensions import db
 from app.flask.lib.view_model import ViewModel
 from app.flask.sqla import get_multi
 from app.models.organisation import Organisation
+from app.modules.bw.bw_activation.models import BusinessWall
+from app.modules.bw.bw_activation.models.business_wall import BWStatus
+from app.modules.bw.bw_activation.user_utils import (
+    get_active_business_wall_for_organisation,
+    get_organisation_logo_url,
+)
 from app.modules.kyc.field_label import country_code_to_country_name
 from app.modules.swork.common import Directory
 from app.modules.swork.settings import SWORK_LIST_LIMIT
 
 from .base import BaseList, Filter, FilterOption
+
+
+def _has_bw_join(stmt: Select) -> bool:
+    """Check if BusinessWall is already joined in the statement."""
+    if hasattr(stmt, "_setup_joins"):
+        for join in stmt._setup_joins:
+            target = join[0]
+            if hasattr(target, "name") and target.name == "bw_business_wall":
+                return True
+    return False
 
 
 @register
@@ -47,6 +62,7 @@ class OrganisationsList(BaseList):
         return list(db.session.scalars(stmt))
 
     def get_base_statement(self) -> Select:
+        # includes all organisations (including AUTO)
         return (
             select(Organisation)
             .where(Organisation.deleted_at.is_(None))
@@ -63,7 +79,14 @@ class OrganisationsList(BaseList):
         if m:
             zip_code = m.group(1)
             search = search.replace(zip_code, "").strip()
-            stmt = stmt.where(Organisation.code_postal.ilike(f"%{zip_code}%"))
+            # When searching by zip code, only search in orgs with active BusinessWall
+            if not _has_bw_join(stmt):
+                stmt = stmt.join(
+                    BusinessWall, Organisation.id == BusinessWall.organisation_id
+                )
+            stmt = stmt.where(BusinessWall.status == BWStatus.ACTIVE.value).where(
+                BusinessWall.code_postal.ilike(f"%{zip_code}%")
+            )
 
         if search:
             stmt = stmt.where(Organisation.name.ilike(f"%{search}%"))
@@ -81,8 +104,11 @@ class FilterByCountryOrm(Filter):
     label = "Pays"
 
     def selector(self, org: Organisation) -> FilterOption:
-        code = org.pays_zip_ville
-        return FilterOption(country_code_to_country_name(code), code)
+        bw = get_active_business_wall_for_organisation(org)
+        code = bw.pays_zip_ville if bw else ""
+        if code:
+            return FilterOption(country_code_to_country_name(code), code)
+        return FilterOption("", "")
 
     def get_country_codes(self, state: dict[str, bool]) -> list[str]:
         """Extract country codes from active FilterOption selections."""
@@ -96,7 +122,13 @@ class FilterByCountryOrm(Filter):
     def apply(self, stmt: Select, state: dict[str, bool]) -> Select:
         codes = self.get_country_codes(state)
         if codes:
-            stmt = stmt.where(Organisation.pays_zip_ville.in_(codes))
+            if not _has_bw_join(stmt):
+                stmt = stmt.join(
+                    BusinessWall, Organisation.id == BusinessWall.organisation_id
+                )
+            stmt = stmt.where(BusinessWall.status == BWStatus.ACTIVE.value).where(
+                BusinessWall.pays_zip_ville.in_(codes)
+            )
         return stmt
 
 
@@ -105,12 +137,19 @@ class FilterByDeptOrm(Filter):
     label = "Département"
 
     def selector(self, org: Organisation) -> str:
-        return org.departement
+        bw = get_active_business_wall_for_organisation(org)
+        return bw.departement if bw else ""
 
     def apply(self, stmt: Select, state: dict[str, bool]) -> Select:
         active_options = self.active_options(state)
         if active_options:
-            stmt = stmt.where(Organisation.departement.in_(active_options))
+            if not _has_bw_join(stmt):
+                stmt = stmt.join(
+                    BusinessWall, Organisation.id == BusinessWall.organisation_id
+                )
+            stmt = stmt.where(BusinessWall.status == BWStatus.ACTIVE.value).where(
+                BusinessWall.departement.in_(active_options)
+            )
         return stmt
 
 
@@ -119,38 +158,55 @@ class FilterByCityOrm(Filter):
     label = "Ville"
 
     def selector(self, org: Organisation) -> str:
-        return org.ville
+        bw = get_active_business_wall_for_organisation(org)
+        return bw.ville if bw else ""
 
     def apply(self, stmt: Select, state: dict[str, bool]) -> Select:
         active_options = self.active_options(state)
         if active_options:
-            stmt = stmt.where(Organisation.ville.in_(active_options))
+            if not _has_bw_join(stmt):
+                stmt = stmt.join(
+                    BusinessWall, Organisation.id == BusinessWall.organisation_id
+                )
+            stmt = stmt.where(BusinessWall.status == BWStatus.ACTIVE.value).where(
+                BusinessWall.ville.in_(active_options)
+            )
         return stmt
 
 
 class FilterByCategory(Filter):
     id = "category"
     label = "Categorie"
-    org_type_map: ClassVar = {
-        "Agences de presse": OrganisationTypeEnum.AGENCY,
-        "Médias": OrganisationTypeEnum.MEDIA,
-        "PR agencies": OrganisationTypeEnum.COM,
-        "Autres": OrganisationTypeEnum.OTHER,
-        "Non officialisées": OrganisationTypeEnum.AUTO,
+    # Map display names to BWType values (since we filter on BW now)
+    bw_type_map: ClassVar = {
+        "Agences de presse": "media",  # BWType.MEDIA
+        "Médias": "media",  # BWType.MEDIA
+        "PR agencies": "pr",  # BWType.PR
+        "Autres": None,  # Will be handled separately
+        "Non officialisées": None,  # Excluded - no active BW
     }
     options: ClassVar[list[str]] = [
         "Agences de presse",
         "Médias",
         "PR agencies",
         "Autres",
-        "Non officialisées",
     ]
 
     def apply(self, stmt: Select, state: dict[str, bool]) -> Select:
         active_options = self.active_options(state)
-        types = [self.org_type_map[str(option)] for option in active_options]
-        if types:
-            stmt = stmt.where(Organisation.type.in_(types))
+        bw_types: list[str] = []
+        for option in active_options:
+            bw_type = self.bw_type_map.get(str(option))
+            if bw_type:
+                bw_types.append(bw_type)
+        if bw_types:
+            if not _has_bw_join(stmt):
+                stmt = stmt.join(
+                    BusinessWall, Organisation.id == BusinessWall.organisation_id
+                )
+            stmt = stmt.where(BusinessWall.status == BWStatus.ACTIVE.value).where(
+                BusinessWall.bw_type.in_(bw_types)
+            )
         return stmt
 
 
@@ -176,9 +232,7 @@ class OrgVM(ViewModel):
         }
 
     def get_logo_url(self) -> str:
-        if self.org.is_auto:
-            return "/static/img/logo-page-non-officielle.png"
-        return self.org.logo_image_signed_url()
+        return get_organisation_logo_url(self.org)
 
 
 class OrgsDirectory(Directory):

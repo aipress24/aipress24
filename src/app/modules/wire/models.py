@@ -8,7 +8,7 @@ from datetime import datetime
 from typing import ClassVar
 
 from aenum import StrEnum, auto
-from sqlalchemy import BigInteger, Enum, ForeignKey, String, orm
+from sqlalchemy import BigInteger, Enum, ForeignKey, orm
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql import func
 from sqlalchemy_utils import ArrowType
@@ -16,7 +16,7 @@ from sqlalchemy_utils.functions.orm import hybrid_property
 
 from app.models.base_content import BaseContent
 from app.models.lifecycle import PublicationStatus
-from app.models.mixins import IdMixin, LifeCycleMixin, Owned
+from app.models.mixins import LifeCycleMixin
 from app.models.organisation import Organisation
 from app.services.tagging.interfaces import Taggable
 
@@ -28,77 +28,6 @@ class PublisherType(StrEnum):
     MEDIA = auto()
     COM = auto()  # PR agency
     OTHER = auto()
-
-
-class WireCommonMixin(IdMixin, LifeCycleMixin, Owned):
-    @orm.declared_attr
-    def title(cls):
-        # title: Mapped[str] = mapped_column(default="")
-        return mapped_column(String, default="")
-
-    @orm.declared_attr
-    def content(cls):
-        # content: Mapped[str] = mapped_column(default="")
-        return mapped_column(String, default="")
-
-    @orm.declared_attr
-    def summary(cls):
-        # summary: Mapped[str] = mapped_column(default="")
-        return mapped_column(String, default="")
-
-    # Etat: Brouillon, Publié, Archivé
-    status: Mapped[PublicationStatus] = mapped_column(
-        Enum(PublicationStatus), default=DRAFT
-    )
-
-    published_at: Mapped[datetime | None] = mapped_column(
-        ArrowType(timezone=True), nullable=True
-    )
-    last_updated_at: Mapped[datetime | None] = mapped_column(
-        ArrowType(timezone=True), nullable=True
-    )
-    expires_at: Mapped[datetime | None] = mapped_column(
-        ArrowType(timezone=True), nullable=True
-    )
-
-    publisher_id: Mapped[int | None] = mapped_column(ForeignKey(Organisation.id))
-
-    image_id: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
-
-    @orm.declared_attr
-    def publisher(cls):
-        return orm.relationship(
-            Organisation,
-            foreign_keys=[cls.publisher_id],  # type: ignore[list-item]
-        )
-
-    # # Media
-    # media_id: Mapped[int] = mapped_column(sa.BigInteger, sa.ForeignKey(Organisation.id))
-    #
-    # @orm.declared_attr
-    # def media(cls):
-    #     return orm.relationship(Organisation, foreign_keys=[cls.media_id])
-    #
-    # # Commanditaire
-    # commanditaire_id: Mapped[int] = mapped_column(sa.BigInteger, sa.ForeignKey(User.id))
-    #
-    # # Titre
-    # titre: Mapped[str] = mapped_column(default="")
-    #
-    # # Titre
-    # brief: Mapped[str] = mapped_column(default="")
-    #
-    # # N° d’édition
-    # numero_edition: Mapped[str] = mapped_column(default="")
-    #
-    # # Contenu
-    # contenu: Mapped[str] = mapped_column(default="")
-    #
-    # # Type
-    # type_contenu: Mapped[str] = mapped_column(default="")
-    #
-    # # Taille
-    # taille_contenu: Mapped[str] = mapped_column(default="")
 
 
 class NewsMetadataMixin:
@@ -207,6 +136,9 @@ class Post(NewsMetadataMixin, BaseContent, LifeCycleMixin):
     publisher_id: Mapped[int | None] = mapped_column(ForeignKey(Organisation.id))
     media_id: Mapped[int | None] = mapped_column(ForeignKey(Organisation.id))
 
+    # Reference to first image from newsroom Article or Communique.
+    # No FK because images are stored in polymorphic tables (wip_article_image,
+    # wip_communique_image) depending on post type. Set by receivers.py.
     image_id: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
 
     @orm.declared_attr
@@ -223,31 +155,6 @@ class Post(NewsMetadataMixin, BaseContent, LifeCycleMixin):
             foreign_keys=[cls.media_id],  # type: ignore[list-item]
         )
 
-    # # Media
-    # media_id: Mapped[int] = mapped_column(sa.BigInteger, sa.ForeignKey(Organisation.id))
-    #
-    # @orm.declared_attr
-    # def media(cls):
-    #     return orm.relationship(Organisation, foreign_keys=[cls.media_id])
-    #
-    # # Commanditaire
-    # commanditaire_id: Mapped[int] = mapped_column(sa.BigInteger, sa.ForeignKey(User.id))
-    #
-    # # Titre
-    # titre: Mapped[str] = mapped_column(default="")
-    #
-    # # Titre
-    # brief: Mapped[str] = mapped_column(default="")
-    #
-    # # N° d’édition
-    # numero_edition: Mapped[str] = mapped_column(default="")
-    #
-    # # Contenu
-    # contenu: Mapped[str] = mapped_column(default="")
-    #
-    # # Type
-    # type_contenu: Mapped[str] = mapped_column(default="")
-    #
     # # Taille
     # taille_contenu: Mapped[str] = mapped_column(default="")
 

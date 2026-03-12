@@ -20,6 +20,7 @@ from sqlalchemy.exc import OperationalError, ProgrammingError
 from sqlalchemy.pool import StaticPool
 
 from app.flask.extensions import db as _db
+from app.flask.lib.n_plus_one_detector import get_query_stats
 from app.flask.main import create_app
 
 if TYPE_CHECKING:
@@ -60,6 +61,12 @@ class TestConfig:
 
     # Note: Talisman is disabled when app.testing is True (see extensions.py)
 
+    # N+1 detection (disabled by default, enable with --n-plus-one flag)
+    N_PLUS_ONE_ENABLED: bool | None = None
+    N_PLUS_ONE_THRESHOLD: int = 3
+    N_PLUS_ONE_RAISE: bool = False
+    N_PLUS_ONE_LOG_LEVEL: str = "WARNING"
+
 
 def pytest_addoption(parser):
     """Add the --db-url command-line option to pytest."""
@@ -68,6 +75,18 @@ def pytest_addoption(parser):
         action="store",
         default=TestConfig.SQLALCHEMY_DATABASE_URI,
         help="Database URL for tests. Defaults to in-memory SQLite.",
+    )
+    parser.addoption(
+        "--n-plus-one",
+        action="store_true",
+        default=False,
+        help="Enable N+1 query detection during tests (logs warnings).",
+    )
+    parser.addoption(
+        "--n-plus-one-strict",
+        action="store_true",
+        default=False,
+        help="Fail tests that trigger N+1 query patterns.",
     )
 
 
@@ -129,7 +148,21 @@ def _manage_postgres_database(db_url: str, action: str) -> None:
 
 
 @pytest.fixture(scope="session")
-def app(db_url: str):
+def n_plus_one_enabled(request):
+    """Check if N+1 detection is enabled via command line."""
+    return request.config.getoption("--n-plus-one") or request.config.getoption(
+        "--n-plus-one-strict"
+    )
+
+
+@pytest.fixture(scope="session")
+def n_plus_one_strict(request):
+    """Check if N+1 strict mode (fail on detection) is enabled."""
+    return request.config.getoption("--n-plus-one-strict")
+
+
+@pytest.fixture(scope="session")
+def app(db_url: str, n_plus_one_enabled: bool, n_plus_one_strict: bool):
     """Session-wide test Flask application.
 
     Handles the creation and teardown of a PostgreSQL database for the
@@ -139,6 +172,13 @@ def app(db_url: str):
 
     config = TestConfig()
     config.SQLALCHEMY_DATABASE_URI = db_url
+
+    # N+1 detection configuration
+    if n_plus_one_enabled:
+        config.N_PLUS_ONE_ENABLED = True
+        config.N_PLUS_ONE_THRESHOLD = 3
+        config.N_PLUS_ONE_RAISE = n_plus_one_strict
+        config.N_PLUS_ONE_LOG_LEVEL = "WARNING"
 
     # Use StaticPool for PostgreSQL tests to ensure a single connection is shared.
     # This fixes connection pool exhaustion when authenticated_client tests trigger
@@ -269,3 +309,38 @@ def db_session(db, app, request):
         check_connection.close()
 
     _db.session.remove()
+
+
+@pytest.fixture
+def assert_no_n_plus_one(app):
+    """Fixture for asserting no N+1 queries in a specific test.
+
+    Usage:
+        def test_list_users(client, assert_no_n_plus_one):
+            response = client.get('/users')
+            assert_no_n_plus_one()  # Fails if N+1 patterns detected
+
+    Note: Requires requests to be made via the test client for detection to work.
+    """
+
+    def _assert():
+        stats = get_query_stats()
+        n_plus_one = stats.get("potential_n_plus_one", [])
+        if n_plus_one:
+            patterns = "\n".join(
+                f"  [{count}x] {pattern}" for pattern, count in n_plus_one
+            )
+            msg = (
+                f"N+1 query patterns detected:\n{patterns}\n"
+                f"Total queries: {stats['total']}"
+            )
+            raise AssertionError(msg)
+
+    # Enable N+1 detection for this test
+    old_enabled = app.config.get("N_PLUS_ONE_ENABLED")
+    app.config["N_PLUS_ONE_ENABLED"] = True
+
+    yield _assert
+
+    # Restore original setting
+    app.config["N_PLUS_ONE_ENABLED"] = old_enabled

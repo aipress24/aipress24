@@ -26,13 +26,3 @@ class TestGetLogoUrl:
 
         result = _get_logo_url(org)
         assert result == "/static/img/logo-page-non-officielle.png"
-
-    def test_returns_signed_url_for_regular_org(self):
-        """Test returns signed URL for regular org."""
-        org = MagicMock()
-        org.is_auto = False
-        org.logo_image_signed_url.return_value = "https://example.com/logo.png"
-
-        result = _get_logo_url(org)
-        assert result == "https://example.com/logo.png"
-        org.logo_image_signed_url.assert_called_once()

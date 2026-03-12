@@ -642,20 +642,8 @@ class OrganisationsExporter(BaseExporter):
         "modified_at",
         "name",
         "type",
-        "siren",
-        "tva",
-        "tel_standard",
-        "taille_orga",
-        "description",
-        "metiers",
         "status",
-        "karma",
         "nb_members",
-        "agree_cppap",
-        "membre_sapi",
-        "membre_satev",
-        "membre_saphir",
-        "site_url",
         "members",
         "managers",
         "leaders",
@@ -678,7 +666,7 @@ class OrganisationsExporter(BaseExporter):
         text4 = self.WIDTH_TEXT4
         text8 = self.WIDTH_TEXT8
         text12 = self.WIDTH_TEXT12
-        short = self.WIDTH_SHORT
+        # short = self.WIDTH_SHORT
         small = self.WIDTH_SMALL
         fields = [
             FieldColumn("id", "ID", text3),
@@ -686,47 +674,19 @@ class OrganisationsExporter(BaseExporter):
             FieldColumn("leaders", "Dirigeants", text12),
             FieldColumn("modified_at", "Modification", text3),
             FieldColumn("name", "Nom", text4),
-            FieldColumn("slug", "Slug", text4),
             FieldColumn("type", "Type", text4),
-            FieldColumn("siren", "SIREN", text3),
-            FieldColumn("tva", "TVA", text4),
-            FieldColumn("tel_standard", "Tél standard", text3),
-            FieldColumn("taille_orga", "Taille orga.", text3),
-            FieldColumn("description", "Description", text8),
             FieldColumn("managers", "Managers", text12),
             FieldColumn("members", "Membres", text12),
-            FieldColumn("metiers", "Métiers", text8),
             FieldColumn("status", "Statut", text8),
-            FieldColumn("karma", "Réputation", small),
-            FieldColumn("site_url", "URL site", text4),
             FieldColumn("nb_members", "Nb membres", small),
-            FieldColumn("agree_cppap", "CPPAP", short),
-            FieldColumn("membre_sapi", "SAPI", short),
-            FieldColumn("membre_satev", "SATEV", short),
-            FieldColumn("membre_saphir", "SAPHIR", short),
         ]
         self.columns_definition = {f.name: f for f in fields}
 
     # Organization attribute names that are directly accessible
     _ORG_ATTRS: ClassVar[set[str]] = {
         "name",
-        "slug",
         "type",
-        "siren",
-        "tva",
-        "tel_standard",
-        "taille_orga",
-        "description",
-        "metiers",
         "status",
-        "karma",
-        "site_url",
-        "logo_url",
-        "cover_image_url",
-        "agree_cppap",
-        "membre_sapi",
-        "membre_satev",
-        "membre_saphir",
     }
 
     def cell_value(
