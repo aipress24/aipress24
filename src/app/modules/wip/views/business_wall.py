@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 
-from typing import Any, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from flask import g, render_template, request
 from flask_wtf import FlaskForm
@@ -21,11 +21,15 @@ from app.logging import warn
 from app.models.auth import User
 from app.modules.bw.bw_activation.user_utils import (
     get_active_business_wall_for_organisation,
+    get_organisation_logo_url,
 )
 from app.modules.wip import blueprint
 from app.services.roles import has_role
 
 from ._common import get_secondary_menu
+
+if TYPE_CHECKING:
+    from app.models.organisation import Organisation
 
 
 @blueprint.route("/org-profile", endpoint="org-profile")
@@ -190,10 +194,8 @@ def _build_context() -> dict[str, Any]:
     }
 
 
-def _get_logo_url(org) -> str:
+def _get_logo_url(org: Organisation | None) -> str:
     """Get logo URL for organisation."""
     if not org:
         return "/static/img/transparent-square.png"
-    if org.is_auto:
-        return "/static/img/logo-page-non-officielle.png"
-    return org.logo_image_signed_url()
+    return get_organisation_logo_url(org)

@@ -41,6 +41,7 @@ from app.modules.admin.utils import (
     merge_organisation,
     toggle_org_active,
 )
+from app.modules.bw.bw_activation.user_utils import get_organisation_logo_url
 from app.modules.kyc.renderer import render_field
 from app.modules.wip.forms.business_wall import (
     BWFormGenerator,
@@ -93,9 +94,7 @@ class OrgVM(ViewModel):
         without an existing org) display a placeholder logo to signal they are
         not officially claimed pages.
         """
-        if self.org.is_auto:
-            return "/static/img/logo-page-non-officielle.png"
-        return self.org.logo_image_signed_url()
+        return get_organisation_logo_url(self.org)
 
     def get_screenshot_url(self):
         """Build the public S3 URL for the organization's screenshot if present."""

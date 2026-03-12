@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 
-from typing import Any, NamedTuple, cast
+from typing import TYPE_CHECKING, Any, NamedTuple, cast
 
 import stripe
 from arrow import Arrow, utcnow
@@ -20,6 +20,7 @@ from app.flask.routing import url_for
 from app.models.auth import User
 from app.modules.bw.bw_activation.user_utils import (
     get_active_business_wall_for_organisation,
+    get_organisation_logo_url,
 )
 from app.modules.kyc.renderer import render_field
 from app.modules.wip import blueprint
@@ -33,6 +34,9 @@ from app.services.stripe.utils import (
 )
 
 from ._common import get_secondary_menu
+
+if TYPE_CHECKING:
+    from app.models.organisation import Organisation
 
 # Product dictionaries - could be replaced by actual queries
 PRODUCT_BW = {
@@ -283,13 +287,11 @@ def _build_context(user: User, org: Organisation | None) -> dict[str, Any]:
     }
 
 
-def _get_logo_url(org) -> str:
+def _get_logo_url(org: Organisation | None) -> str:
     """Get logo URL for organisation."""
     if not org:
         return "/static/img/transparent-square.png"
-    if org.is_auto:
-        return "/static/img/logo-page-non-officielle.png"
-    return org.logo_image_signed_url()
+    return get_organisation_logo_url(org)
 
 
 def _load_prod_info(prod: stripe.Product) -> ProdInfo | None:

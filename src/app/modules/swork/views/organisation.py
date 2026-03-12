@@ -26,6 +26,7 @@ from app.models.organisation import Organisation
 from app.modules.bw.bw_activation.models.business_wall import BusinessWall
 from app.modules.bw.bw_activation.user_utils import (
     get_active_business_wall_for_organisation,
+    get_organisation_logo_url,
 )
 from app.modules.events.models import EventPost
 from app.modules.kyc.field_label import (
@@ -281,11 +282,7 @@ class OrgVM(ViewModel):
         return self.org.cover_image is not None
 
     def get_logo_url(self) -> str:
-        if self.org.is_auto:
-            return "/static/img/logo-page-non-officielle.png"
-        if self.bw is not None:
-            return self.bw.logo_image_signed_url()
-        return self.org.logo_image_signed_url()
+        return get_organisation_logo_url(self.org)
 
     def get_cover_image_url(self) -> str:
         if self.org.is_auto:
