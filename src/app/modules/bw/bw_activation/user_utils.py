@@ -116,6 +116,8 @@ def get_active_business_wall_for_organisation(org: Organisation) -> BusinessWall
 
 
 def get_organisation_logo_url(org: Organisation) -> str:
+    """Returns the URL of the active BusinessWall of the Organisation if active,
+    else default logo."""
     if org.is_auto:
         return "/static/img/logo-page-non-officielle.png"
     # Use BusinessWall logo if available
