@@ -12,7 +12,6 @@ from flask_super.registry import register
 from sqlalchemy import select
 from sqlalchemy.sql import Select
 
-from app.enums import OrganisationTypeEnum
 from app.flask.extensions import db
 from app.flask.lib.view_model import ViewModel
 from app.flask.sqla import get_multi
@@ -32,7 +31,12 @@ from .base import BaseList, Filter, FilterOption
 
 def _has_bw_join(stmt: Select) -> bool:
     """Check if BusinessWall is already joined in the statement."""
-    return any(table.name == "bw_business_wall" for table in stmt.froms)
+    if hasattr(stmt, "_setup_joins"):
+        for join in stmt._setup_joins:
+            target = join[0]
+            if hasattr(target, "name") and target.name == "bw_business_wall":
+                return True
+    return False
 
 
 @register
