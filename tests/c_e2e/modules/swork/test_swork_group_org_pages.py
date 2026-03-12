@@ -591,7 +591,7 @@ class TestOrgVM:
             vm = OrgVM(auto_organisation)
             url = vm.get_cover_image_url()
 
-            assert url == ""
+            assert url == "/static/img/transparent-square.png"
 
     def test_get_cover_image_url_no_image(
         self,
