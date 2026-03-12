@@ -330,16 +330,6 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
             msg = f"Storage failed to sign URL for cover image org.id : {self.id}, key {file_obj.path}: {e}"
             raise RuntimeError(msg) from e
 
-    def logo_image_signed_url(self, expires_in: int = 3600) -> str:
-        file_obj: FileObject | None = self.logo_image
-        if file_obj is None:
-            return "/static/img/transparent-square.png"
-        try:
-            return file_obj.sign(expires_in=expires_in, for_upload=False)
-        except RuntimeError as e:
-            msg = f"Storage failed to sign URL for logo image org.id : {self.id}, key {file_obj.path}: {e}"
-            raise RuntimeError(msg) from e
-
 
 __1 = """
 
