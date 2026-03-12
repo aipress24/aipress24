@@ -17,6 +17,9 @@ from app.flask.extensions import db
 from app.flask.lib.view_model import ViewModel
 from app.flask.sqla import get_multi
 from app.models.organisation import Organisation
+from app.modules.bw.bw_activation.user_utils import (
+    get_active_business_wall_for_organisation,
+)
 from app.modules.kyc.field_label import country_code_to_country_name
 from app.modules.swork.common import Directory
 from app.modules.swork.settings import SWORK_LIST_LIMIT
@@ -178,7 +181,11 @@ class OrgVM(ViewModel):
     def get_logo_url(self) -> str:
         if self.org.is_auto:
             return "/static/img/logo-page-non-officielle.png"
-        return self.org.logo_image_signed_url()
+        # Use BusinessWall logo if available
+        bw = get_active_business_wall_for_organisation(self.org)
+        if bw is not None:
+            return bw.logo_image_signed_url()
+        return "/static/img/logo-page-non-officielle.png"
 
 
 class OrgsDirectory(Directory):
