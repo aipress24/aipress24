@@ -20,11 +20,88 @@ from app.modules.bw.bw_activation.user_utils import (
     get_active_business_wall_for_organisation,
     get_any_business_wall_for_organisation,
     get_business_wall_for_user,
+    get_organisation_logo_url,
     guess_best_bw_type,
 )
 
 if TYPE_CHECKING:
     from sqlalchemy.orm import Session
+
+
+class TestGetOrganisationLogoUrl:
+    """Tests for get_organisation_logo_url function."""
+
+    def test_returns_default_logo_for_auto_org(self, db_session: Session):
+        """Should return default logo for AUTO organisation."""
+        org = Organisation(
+            name="Test Auto Org",
+            type=OrganisationTypeEnum.AUTO,
+        )
+        db_session.add(org)
+        db_session.flush()
+
+        result = get_organisation_logo_url(org)
+
+        assert result == "/static/img/logo-page-non-officielle.png"
+
+    def test_returns_default_logo_when_no_bw(self, db_session: Session):
+        """Should return default logo when org has no BusinessWall."""
+        org = Organisation(
+            name="Test Org",
+            type=OrganisationTypeEnum.MEDIA,
+        )
+        db_session.add(org)
+        db_session.flush()
+
+        result = get_organisation_logo_url(org)
+
+        assert result == "/static/img/logo-page-non-officielle.png"
+
+    def test_returns_default_logo_for_non_active_bw(self, db_session: Session):
+        """Should return default logo when BW is not active (e.g., DRAFT)."""
+        org = Organisation(
+            name="Test Org",
+            type=OrganisationTypeEnum.MEDIA,
+        )
+        db_session.add(org)
+        db_session.flush()
+
+        bw = BusinessWall(
+            bw_type=BWType.MEDIA.value,
+            status=BWStatus.DRAFT.value,
+            owner_id=1,
+            payer_id=1,
+            organisation_id=org.id,
+        )
+        db_session.add(bw)
+        db_session.flush()
+
+        result = get_organisation_logo_url(org)
+
+        assert result == "/static/img/logo-page-non-officielle.png"
+
+    def test_returns_bw_logo_when_active_bw_exists(self, db_session: Session):
+        """Should return BW logo when active BusinessWall exists."""
+        org = Organisation(
+            name="Test Org",
+            type=OrganisationTypeEnum.MEDIA,
+        )
+        db_session.add(org)
+        db_session.flush()
+
+        bw = BusinessWall(
+            bw_type=BWType.MEDIA.value,
+            status=BWStatus.ACTIVE.value,
+            owner_id=1,
+            payer_id=1,
+            organisation_id=org.id,
+        )
+        db_session.add(bw)
+        db_session.flush()
+
+        result = get_organisation_logo_url(org)
+
+        assert result != "/static/img/logo-page-non-officielle.png"
 
 
 class TestGetActiveBusinessWallForOrganisation:
