@@ -118,8 +118,8 @@ def get_active_business_wall_for_organisation(org: Organisation) -> BusinessWall
 
 
 def get_organisation_logo_url(org: Organisation) -> str:
-    """Returns the URL of the active BusinessWall of the Organisation if active,
-    else default logo."""
+    """Returns the logo URL of the active BusinessWall of the Organisation if
+    active, else default logo."""
     if org.is_auto:
         return "/static/img/logo-page-non-officielle.png"
     # Use BusinessWall logo if available
@@ -128,6 +128,19 @@ def get_organisation_logo_url(org: Organisation) -> str:
         if bw is not None:
             return bw.logo_image_signed_url()
     return "/static/img/logo-page-non-officielle.png"
+
+
+def get_organisation_cover_image_url(org: Organisation) -> str:
+    """Returns the cover image URL of the active BusinessWall of the Organisation
+    if active, else default image."""
+    if org.is_auto:
+        return "/static/img/transparent-square.png"
+    # Use BusinessWall image if available
+    with contextlib.suppress(NoInspectionAvailable):
+        bw = get_active_business_wall_for_organisation(org)
+        if bw is not None:
+            return bw.cover_image_signed_url()
+    return "/static/img/transparent-square.png"
 
 
 def get_business_wall_for_user(user: User) -> BusinessWall | None:
