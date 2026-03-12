@@ -485,11 +485,11 @@ class TestFilterByCategory:
 
     def test_org_type_map_has_all_types(self):
         """Test org_type_map has expected categories."""
-        assert "Agences de presse" in FilterByCategory.org_type_map
-        assert "Médias" in FilterByCategory.org_type_map
-        assert "PR agencies" in FilterByCategory.org_type_map
-        assert "Autres" in FilterByCategory.org_type_map
-        assert "Non officialisées" in FilterByCategory.org_type_map
+        assert "Agences de presse" in FilterByCategory.bw_type_map
+        assert "Médias" in FilterByCategory.bw_type_map
+        assert "PR agencies" in FilterByCategory.bw_type_map
+        assert "Autres" in FilterByCategory.bw_type_map
+        assert "Non officialisées" in FilterByCategory.bw_type_map
 
     def test_apply_with_no_active_options(self, db_session: Session):
         """Test apply returns unchanged stmt when no options active."""
