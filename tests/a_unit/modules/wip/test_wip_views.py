@@ -32,7 +32,7 @@ class TestWipMenuConfiguration:
 
     @pytest.mark.parametrize(
         "entry_name",
-        ["dashboard", "newsroom", "comroom", "eventroom", "org-profile"],
+        ["dashboard", "newsroom", "comroom", "eventroom", "bw-activation"],
     )
     def test_menu_has_required_entry(self, entry_name: str):
         """Test menu has required entries."""
