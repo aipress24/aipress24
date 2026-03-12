@@ -316,12 +316,12 @@ class OrgVM(ViewModel):
     def _get_address_formatted(self) -> str:
         if self.bw is not None:
             return self.bw.formatted_address
-        return self.org.formatted_address
+        return ""
 
     def _get_taille_orga(self) -> str:
         if self.bw is not None:
             return self.bw.taille_orga
-        return self.org.taille_orga
+        return ""
 
     def _get_country_zip_city(self) -> str:
         if self.bw is not None:
@@ -329,10 +329,7 @@ class OrgVM(ViewModel):
                 f"{country_code_to_label(self.bw.pays_zip_ville)}, "
                 f"{country_zip_code_to_city(self.bw.pays_zip_ville_detail)}"
             )
-        return (
-            f"{country_code_to_label(self.org.pays_zip_ville)}, "
-            f"{country_zip_code_to_city(self.org.pays_zip_ville_detail)}"
-        )
+        return ""
 
     def _get_site_url(self) -> str:
         if self.bw is not None:
@@ -352,12 +349,7 @@ class OrgVM(ViewModel):
                     ", ".join(self.bw.type_organisation_detail),
                 )
             )
-        return "\n".join(
-            (
-                ", ".join(self.org.type_organisation),
-                ", ".join(self.org.type_organisation_detail),
-            )
-        )
+        return ""
 
     def get_secteurs_activite(self) -> str:
         if self.bw is not None:
@@ -367,9 +359,4 @@ class OrgVM(ViewModel):
                     ", ".join(self.bw.secteurs_activite_detail),
                 )
             )
-        return "\n".join(
-            (
-                ", ".join(self.org.secteurs_activite),
-                ", ".join(self.org.secteurs_activite_detail),
-            )
-        )
+        return ""
