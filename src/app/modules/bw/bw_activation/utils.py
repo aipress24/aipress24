@@ -68,6 +68,17 @@ def fill_session(current_bw: BusinessWall) -> None:
     session["error"] = ""
 
 
+def clear_bw_session() -> None:
+    """Clear session BW information when cancelling subscription."""
+    session["bw_type"] = None
+    session["bw_type_confirmed"] = False
+    session["suggested_bw_type"] = ""
+    session["contacts_confirmed"] = False
+    session["bw_activated"] = False
+    session["pricing_value"] = None
+    session["error"] = ""
+
+
 def init_missions_state():
     """Initialize missions state in session if not present.
 

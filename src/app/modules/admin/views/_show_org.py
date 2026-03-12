@@ -14,6 +14,7 @@ from flask import current_app
 from app.flask.lib.view_model import ViewModel
 from app.models.organisation import Organisation
 from app.modules.admin.invitations import emails_invited_to_organisation
+from app.modules.bw.bw_activation.user_utils import get_organisation_logo_url
 
 
 @define
@@ -39,9 +40,7 @@ class OrgVM(ViewModel):
         return list(self.org.members)
 
     def get_logo_url(self):
-        if self.org.is_auto:
-            return "/static/img/logo-page-non-officielle.png"
-        return self.org.logo_image_signed_url()
+        return get_organisation_logo_url(self.org)
 
     def get_screenshot_url(self):
         if not self.org.screenshot_id:

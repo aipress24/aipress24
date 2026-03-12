@@ -6,14 +6,17 @@
 
 from __future__ import annotations
 
+import contextlib
 from typing import TYPE_CHECKING, cast
 
 from flask import g
+from sqlalchemy import inspect, select
+from sqlalchemy.exc import NoInspectionAvailable
 
 from app.enums import ProfileEnum
+from app.modules.admin.utils import Organisation
 from app.modules.bw.bw_activation.models import BusinessWall
-
-from .models.business_wall import BWType
+from app.modules.bw.bw_activation.models.business_wall import BWStatus, BWType
 
 # from flask import session
 
@@ -80,12 +83,74 @@ def get_current_user_data() -> StdDict:
 
 def guess_best_bw_type(user: User) -> BWType:
     profile = user.profile
-    profile_code = ProfileEnum[profile.profile_code]
+    try:
+        profile_code = ProfileEnum[profile.profile_code]
+    except KeyError:
+        return BWType.MEDIA
     return PROFILE_CODE_TO_BW2_TYPE.get(profile_code, BWType.MEDIA)
 
 
-def current_business_wall(user: User) -> BusinessWall | None:
+def get_any_business_wall_for_organisation(org: Organisation) -> BusinessWall | None:
+    """Returns the a BusinessWall of any type associated with this organisation."""
+    session = inspect(org).session
+    if session is None:
+        return None
+    stmt = (
+        select(BusinessWall)
+        .where(BusinessWall.organisation_id == org.id)
+        .order_by(BusinessWall.created_at.desc())
+    )
+    return session.execute(stmt).scalars().first()
+
+
+def get_active_business_wall_for_organisation(org: Organisation) -> BusinessWall | None:
+    """Returns the active BusinessWall associated with this organisation."""
+    session = inspect(org).session
+    if session is None:
+        return None
+    stmt = (
+        select(BusinessWall)
+        .where(BusinessWall.organisation_id == org.id)
+        .where(BusinessWall.status == BWStatus.ACTIVE.value)
+        .order_by(BusinessWall.created_at.desc())
+    )
+    return session.execute(stmt).scalars().first()
+
+
+def get_organisation_logo_url(org: Organisation) -> str:
+    """Returns the logo URL of the active BusinessWall of the Organisation if
+    active, else default logo."""
+    if org.is_auto:
+        return "/static/img/logo-page-non-officielle.png"
+    # Use BusinessWall logo if available
+    with contextlib.suppress(NoInspectionAvailable):
+        bw = get_active_business_wall_for_organisation(org)
+        if bw is not None:
+            return bw.logo_image_signed_url()
+    return "/static/img/logo-page-non-officielle.png"
+
+
+def get_organisation_cover_image_url(org: Organisation) -> str:
+    """Returns the cover image URL of the active BusinessWall of the Organisation
+    if active, else default image."""
+    if org.is_auto:
+        return "/static/img/transparent-square.png"
+    # Use BusinessWall image if available
+    with contextlib.suppress(NoInspectionAvailable):
+        bw = get_active_business_wall_for_organisation(org)
+        if bw is not None:
+            return bw.cover_image_signed_url()
+    return "/static/img/transparent-square.png"
+
+
+def get_business_wall_for_user(user: User) -> BusinessWall | None:
+    """Get the active BusinessWall for a user (via their organisation)."""
     org = user.organisation
     if not org:
         return None
-    return org.get_business_wall()
+    return get_active_business_wall_for_organisation(org)
+
+
+def current_business_wall(user: User) -> BusinessWall | None:
+    """Get the active BusinessWall for a user (backward compatibility alias)."""
+    return get_business_wall_for_user(user)

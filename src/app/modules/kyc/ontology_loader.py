@@ -4,8 +4,9 @@
 
 from __future__ import annotations
 
-import functools
 from collections.abc import Callable
+
+from cachetools import TTLCache, cached
 
 from app.enums import OrganisationTypeEnum
 from app.services.taxonomies import (
@@ -140,7 +141,7 @@ def nom_orga_choices() -> list[str]:
     return get_taxonomy("groupes_cotes") + get_organisation_for_noms_orgas()
 
 
-@functools.cache
+@cached(cache=TTLCache(maxsize=25, ttl=600))
 def get_ontology_content(ontology: str) -> list | dict:
     if ontology == "pays":
         return get_full_countries()
@@ -164,8 +165,8 @@ def get_choices(field_type: str) -> list | dict:
     return choices_map[field_type]()
 
 
-@functools.cache
-def zip_code_city_list(country_code: str) -> list:
+@cached(cache=TTLCache(maxsize=100, ttl=3600))
+def zip_code_city_list(country_code: str) -> list[dict[str, str]]:
     return get_zip_code_country(country_code)
 
 

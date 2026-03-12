@@ -68,8 +68,7 @@ class StubEventMeta:
 class StubOrganisation:
     """Stub organisation for testing."""
 
-    def logo_image_signed_url(self) -> str:
-        return "https://example.com/logo.png"
+    is_auto = True
 
 
 class StubOwner:
@@ -142,7 +141,7 @@ class TestEventCardVM:
 
         vm = EventCardVM(event)
 
-        assert vm.organisation_image_url == "https://example.com/logo.png"
+        assert vm.organisation_image_url == "/static/img/logo-page-non-officielle.png"
 
     def test_provides_type_id_from_meta(self):
         """Test that ViewModel exposes type_id from Meta."""

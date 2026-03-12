@@ -229,6 +229,7 @@ dependencies = [
     { name = "boltons" },
     { name = "boto3" },
     { name = "buildstr" },
+    { name = "cachetools" },
     { name = "case-convert" },
     { name = "cleez" },
     { name = "click" },
@@ -384,6 +385,7 @@ requires-dist = [
     { name = "boltons", specifier = ">=25,<26" },
     { name = "boto3", specifier = ">=1.34.16,<2.0.0" },
     { name = "buildstr", specifier = ">=0.1.1,<1.0.0" },
+    { name = "cachetools", specifier = ">=7.0.3" },
     { name = "case-convert", specifier = ">=1.1.0,<2.0.0" },
     { name = "cleez", specifier = ">=0.1.11,<1.0.0" },
     { name = "click", specifier = "<8.2" },
@@ -943,6 +945,15 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/62/85/7ff647c2429f58737d7508f62206fd8e1efc370f507104919010d731cb04/buildstr-0.1.1.tar.gz", hash = "sha256:e22d13b40d601b4fa8345604cf260cb2277d1e0bf98f9ae1f7b6ca5eaa0de29b", size = 3742, upload-time = "2023-08-08T13:23:18.664Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/b6/e7/fe00c6f9f32f32975cd392ed80cd72a905a8564f84406537141406780f4f/buildstr-0.1.1-py3-none-any.whl", hash = "sha256:b27b24e0e447460c1c828887fe79bb102743d2ced59882530fed6275959682da", size = 4062, upload-time = "2023-08-08T13:23:17.658Z" },
+]
+
+[[package]]
+name = "cachetools"
+version = "7.0.5"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/af/dd/57fe3fdb6e65b25a5987fd2cdc7e22db0aef508b91634d2e57d22928d41b/cachetools-7.0.5.tar.gz", hash = "sha256:0cd042c24377200c1dcd225f8b7b12b0ca53cc2c961b43757e774ebe190fd990", size = 37367, upload-time = "2026-03-09T20:51:29.451Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/06/f3/39cf3367b8107baa44f861dc802cbf16263c945b62d8265d36034fc07bea/cachetools-7.0.5-py3-none-any.whl", hash = "sha256:46bc8ebefbe485407621d0a4264b23c080cedd913921bad7ac3ed2f26c183114", size = 13918, upload-time = "2026-03-09T20:51:27.33Z" },
 ]
 
 [[package]]

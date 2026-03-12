@@ -6,20 +6,34 @@
 
 from __future__ import annotations
 
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING, cast
 
-from flask import flash, g, redirect, render_template, request, session, url_for
+from flask import (
+    flash,
+    g,
+    make_response,
+    redirect,
+    render_template,
+    request,
+    session,
+    url_for,
+)
 
+from app.enums import OrganisationTypeEnum
 from app.flask.extensions import db
 from app.lib.file_object_utils import create_file_object
 from app.logging import warn
 from app.modules.bw.bw_activation import bp
 from app.modules.bw.bw_activation.config import BW_TYPES
+from app.modules.bw.bw_activation.models.business_wall import BWStatus
+from app.modules.bw.bw_activation.models.subscription import SubscriptionStatus
 from app.modules.bw.bw_activation.user_utils import current_business_wall
 from app.modules.bw.bw_activation.utils import (
     ERR_BW_NOT_FOUND,
     ERR_NOT_MANAGER,
     bw_managers_ids,
+    clear_bw_session,
     fill_session,
 )
 from app.services.taxonomies import get_full_taxonomy, get_taxonomy_dual_select
@@ -376,3 +390,56 @@ def configure_content():
         interest_association_ontology=interest_association_ontology,
         pays_ontology=pays_ontology,
     )
+
+
+@bp.route("/cancel-subscription", methods=["POST"])
+def cancel_subscription():
+    """Cancel Business Wall subscription."""
+    if not session.get("bw_activated"):
+        response = make_response()
+        response.headers["HX-Redirect"] = url_for("bw_activation.index")
+        return response
+
+    user = cast("User", g.user)
+    business_wall = current_business_wall(user)
+    if not business_wall:
+        session["error"] = ERR_BW_NOT_FOUND
+        response = make_response()
+        response.headers["HX-Redirect"] = url_for("bw_activation.not_authorized")
+        return response
+
+    if user.id not in bw_managers_ids(business_wall):
+        session["error"] = ERR_NOT_MANAGER
+        response = make_response()
+        response.headers["HX-Redirect"] = url_for("bw_activation.not_authorized")
+        return response
+
+    try:
+        # Update BusinessWall status
+        business_wall.status = BWStatus.CANCELLED.value
+
+        # Update subscription status if exists
+        if business_wall.subscription:
+            business_wall.subscription.status = SubscriptionStatus.CANCELLED.value
+            business_wall.subscription.cancelled_at = datetime.now(UTC)
+
+        # Revert organisation type to AUTO
+        org = business_wall.get_organisation()
+        if org:
+            org.type = OrganisationTypeEnum.AUTO  # type: ignore[assignment]
+
+        db.session.commit()
+
+        clear_bw_session()
+
+        response = make_response()
+        response.headers["HX-Redirect"] = url_for("bw_activation.dashboard")
+        return response
+
+    except Exception as e:
+        db.session.rollback()
+        warn(f"Error cancelling subscription: {e}")
+        flash("Une erreur est survenue lors de la résiliation.", "error")
+        response = make_response()
+        response.headers["HX-Redirect"] = url_for("bw_activation.configure_content")
+        return response
