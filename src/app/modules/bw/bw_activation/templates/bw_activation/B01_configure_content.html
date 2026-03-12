@@ -13,10 +13,59 @@
                 visibles publiquement sur AiPRESS24.
             </p>
 
-            <div class="mt-4 p-4 bg-blue-50 rounded-md border border-blue-200">
+            <div class="mt-4 p-4 bg-blue-50 rounded-md border border-blue-200 flex justify-between items-center">
                 <p class="text-sm text-gray-700">
                     <strong>Type de Business Wall :</strong> {{ bw_info.name }}
                 </p>
+                <button
+                    type="button"
+                    data-modal-target="confirm_resiliation_popup"
+                    data-modal-toggle="confirm_resiliation_popup"
+                    class="text-red-600 hover:text-red-800 text-sm font-medium underline"
+                >
+                    Résilier l'abonnement
+                </button>
+            </div>
+
+            <!-- Resiliation Confirmation Modal -->
+            <div id="confirm_resiliation_popup"
+                 data-modal-backdrop="static"
+                 tabindex="-1"
+                 aria-hidden="true"
+                 class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+                <div class="relative p-4 w-full max-w-md max-h-full">
+                    <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+                        <div class="p-4 md:p-5 text-center">
+                            <svg class="mx-auto mb-4 text-red-500 w-12 h-12 dark:text-red-400" aria-hidden="true"
+                                 xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+                            </svg>
+
+                            <h3 class="mb-1 text-lg font-normal text-gray-500 dark:text-gray-400"
+                            >Confirmer la résiliation de l'abonnement ?
+                            </h3>
+
+                            <p class="text-sm text-gray-600 mb-4">
+                                Cette action est irréversible. Votre Business Wall sera définitivement désactivé.
+                            </p>
+
+                            <button
+                                type="button"
+                                hx-post="{{ url_for('bw_activation.cancel_subscription') }}"
+                                data-modal-hide="confirm_resiliation_popup"
+                                class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center"
+                            >Oui, résilier
+                            </button>
+                            <button
+                                type="button"
+                                data-modal-hide="confirm_resiliation_popup"
+                                class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
+                            >Annuler
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Flash messages -->
@@ -293,12 +342,11 @@
                                 <label class="block text-sm font-medium text-gray-900 mb-2">
                                     Type de votre organisation
                                 </label>
-                                <!-- Main category select-->
+                                <!-- Main category select -->
                                 <select
                                     id="type_organisation"
                                     name="type_organisation"
-                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-4 py-2 border mb-2"
-                                    onchange="updateTypeOrganisationDetail()"
+                                    class="block w-full mb-2"
                                 >
                                     <option value="">-- Sélectionnez une catégorie --</option>
                                     {% for category, label in type_orga_ontology.field1 %}
@@ -308,61 +356,119 @@
                                     {% endfor %}
                                 </select>
                                 <!-- Detail select -->
-                                <select
-                                    id="type_organisation_detail"
-                                    name="type_organisation_detail"
-                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-4 py-2 border"
-                                    {% if not business_wall.type_organisation %}disabled{% endif %}
-                                >
-                                    <option value="">-- Sélectionnez un type détaillé --</option>
-                                </select>
+                                <div class="min-h-10 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm sm:text-sm sm:leading-6">
+                                    <label class="block text-xs text-gray-500 mb-1">Type détaillé</label>
+                                    <select
+                                        id="type_organisation_detail"
+                                        name="type_organisation_detail"
+                                        class="block w-full"
+                                    >
+                                        <option value="">-- Sélectionnez d'abord une catégorie --</option>
+                                    </select>
+                                </div>
                                 <p class="mt-1 text-xs text-gray-500">
                                     Sélectionnez d'abord une catégorie, puis un type détaillé
                                 </p>
                             </div>
 
                             <script>
-                                const typeOrganisationDetailData = {{ type_orga_ontology.field2 | tojson }};
-                                const currentTypeOrganisation = {{ business_wall.type_organisation | tojson }};
-                                const currentTypeOrganisationDetail = {{ business_wall.type_organisation_detail | tojson }};
+                                // Convert ontology data to Tom Select format
+                                const typeOrgaTomChoices = {
+                                    field1: {{ type_orga_ontology.field1 | tojson }}.map(item => ({ value: item[0], label: item[1] })),
+                                    field2: []
+                                };
+                                // Prepare field2 options with category prefix
+                                const field2Data = {{ type_orga_ontology.field2 | tojson }};
+                                for (const [category, items] of Object.entries(field2Data)) {
+                                    items.forEach(item => {
+                                        typeOrgaTomChoices.field2.push({
+                                            value: item[0],
+                                            label: item[1],
+                                            category: category
+                                        });
+                                    });
+                                }
+                                const currentTypeOrganisation = {{ (business_wall.type_organisation or []) | tojson }};
+                                const currentTypeOrganisationDetail = {{ (business_wall.type_organisation_detail or []) | tojson }};
 
-                                function updateTypeOrganisationDetail() {
+                                let typeOrgaTomSelect = null;
+                                let typeOrgaDetailTomSelect = null;
+
+                                function initTypeOrganisationTomSelect() {
                                     const mainSelect = document.getElementById('type_organisation');
                                     const detailSelect = document.getElementById('type_organisation_detail');
-                                    const selectedCategory = mainSelect.value;
+                                    if (!mainSelect || !detailSelect) return;
 
-                                    // Clear and disable if no category selected
+                                    // Initialize main select (single selection)
+                                    typeOrgaTomSelect = new TomSelect(mainSelect, {
+                                        create: false,
+                                        maxItems: 1,
+                                        preload: true,
+                                        labelField: 'label',
+                                        searchField: ['label'],
+                                        diacritics: true,
+                                        placeholder: 'Sélectionnez une catégorie',
+                                        plugins: {
+                                            remove_button: {
+                                                title: 'Retirer'
+                                            }
+                                        }
+                                    });
+
+                                    // Initialize detail select (multi selection)
+                                    typeOrgaDetailTomSelect = new TomSelect(detailSelect, {
+                                        create: false,
+                                        maxItems: null,
+                                        preload: false,
+                                        labelField: 'label',
+                                        searchField: ['label'],
+                                        diacritics: true,
+                                        placeholder: 'Sélectionnez un ou plusieurs types détaillés',
+                                        plugins: {
+                                            remove_button: {
+                                                title: 'Retirer'
+                                            }
+                                        }
+                                    });
+
+                                    typeOrgaDetailTomSelect.disable();
+
+                                    // Update detail options when main selection changes
+                                    typeOrgaTomSelect.on('change', function(value) {
+                                        updateTypeOrganisationDetailOptions(value);
+                                    });
+
+                                    // Initialize with current values
+                                    if (currentTypeOrganisation && currentTypeOrganisation.length > 0) {
+                                        const category = currentTypeOrganisation[0];
+                                        updateTypeOrganisationDetailOptions(category);
+                                        setTimeout(() => {
+                                            if (currentTypeOrganisationDetail && currentTypeOrganisationDetail.length > 0) {
+                                                typeOrgaDetailTomSelect.setValue(currentTypeOrganisationDetail);
+                                            }
+                                        }, 50);
+                                    }
+                                }
+
+                                function updateTypeOrganisationDetailOptions(selectedCategory) {
                                     if (!selectedCategory) {
-                                        detailSelect.innerHTML = '<option value="">-- Sélectionnez un type détaillé --</option>';
-                                        detailSelect.disabled = true;
+                                        typeOrgaDetailTomSelect.clear();
+                                        typeOrgaDetailTomSelect.clearOptions();
+                                        typeOrgaDetailTomSelect.disable();
                                         return;
                                     }
 
-                                    //  populate
-                                    detailSelect.disabled = false;
-                                    detailSelect.innerHTML = '<option value="">-- Sélectionnez un type détaillé --</option>';
+                                    const filteredOptions = typeOrgaTomChoices.field2.filter(
+                                        opt => opt.category === selectedCategory
+                                    );
 
-                                    const options = typeOrganisationDetailData[selectedCategory] || [];
-                                    options.forEach(function(item) {
-                                        const value = item[0];
-                                        const label = item[1];
-                                        const option = document.createElement('option');
-                                        option.value = value;
-                                        option.textContent = label;
-                                        // Select if  previously selected
-                                        if (currentTypeOrganisationDetail && currentTypeOrganisationDetail.includes(value)) {
-                                            option.selected = true;
-                                        }
-                                        detailSelect.appendChild(option);
-                                    });
+                                    typeOrgaDetailTomSelect.clear();
+                                    typeOrgaDetailTomSelect.clearOptions();
+                                    typeOrgaDetailTomSelect.addOptions(filteredOptions);
+                                    typeOrgaDetailTomSelect.enable();
                                 }
 
-                                // Initialize on page load
-                                document.addEventListener('DOMContentLoaded', function() {
-                                    if (currentTypeOrganisation && currentTypeOrganisation.length > 0) {
-                                        updateTypeOrganisationDetail();
-                                    }
-                                });
+                                document.addEventListener('DOMContentLoaded', initTypeOrganisationTomSelect);
                             </script>
                         {% endif %}
 
@@ -456,10 +562,10 @@
                                     >Nature de votre organe de presse</label
                                 >
                                 <select
+                                    id="type_entreprise_media"
                                     name="type_entreprise_media"
                                     multiple
-                                    size="5"
-                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-4 py-2 border"
+                                    class="block w-full tom-select-multi"
                                 >
                                     {% for value, label in type_entreprise_media_ontology %}
                                         <option value="{{ value }}" {% if value in business_wall.type_entreprise_media %}selected{% endif %}>
@@ -481,10 +587,10 @@
                                     >Nature de votre organe de presse</label
                                 >
                                 <select
+                                    id="type_entreprise_media"
                                     name="type_entreprise_media"
                                     multiple
-                                    size="5"
-                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-4 py-2 border"
+                                    class="block w-full tom-select-multi"
                                 >
                                     {% for value, label in type_entreprise_media_ontology %}
                                         <option value="{{ value }}" {% if value in business_wall.type_entreprise_media %}selected{% endif %}>
@@ -506,10 +612,10 @@
                                     >Type de votre PR Agency</label
                                 >
                                 <select
+                                    id="type_agence_rp"
                                     name="type_agence_rp"
                                     multiple
-                                    size="4"
-                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-4 py-2 border"
+                                    class="block w-full tom-select-multi"
                                 >
                                     {% for value, label in type_agence_rp_ontology %}
                                         <option value="{{ value }}" {% if value in business_wall.type_agence_rp %}selected{% endif %}>
@@ -603,10 +709,10 @@
                                     >Type de presse</label
                                 >
                                 <select
+                                    id="type_presse_et_media"
                                     name="type_presse_et_media"
                                     multiple
-                                    size="5"
-                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-600 focus:ring-purple-600 sm:text-sm px-4 py-2 border"
+                                    class="block w-full tom-select-multi"
                                 >
                                     {% for value, label in type_presse_et_media_ontology %}
                                         <option value="{{ value }}" {% if value in business_wall.type_presse_et_media %}selected{% endif %}>
@@ -660,8 +766,9 @@
                                         >Périodicité</label
                                     >
                                     <select
+                                        id="periodicite"
                                         name="periodicite"
-                                        class="block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-600 focus:ring-purple-600 sm:text-sm px-4 py-2 border"
+                                        class="block w-full tom-select-single"
                                     >
                                         <option value="">-- Sélectionnez --</option>
                                         {% for value, label in periodicite_ontology %}
@@ -679,14 +786,14 @@
                             <label class="block text-sm font-medium text-gray-900 mb-2">
                                 Secteurs d'activité couverts
                             </label>
-                            <!-- Main category select (multiple) -->
+                            <!-- Main category select -->
                             <select
                                 id="secteurs_activite"
                                 name="secteurs_activite"
                                 multiple
-                                size="5"
-                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-600 focus:ring-purple-600 sm:text-sm px-4 py-2 border mb-2"
-                                onchange="updateDualMultiSelect('secteurs_activite', 'secteurs_activite_detail', secteursActiviteDetailData, currentSecteursActiviteDetail)"
+                                class="block w-full mb-2 tom-select-dual-main"
+                                data-detail-id="secteurs_activite_detail"
+                                data-ontology="secteursActivite"
                             >
                                 {% for category, label in secteurs_activite_ontology.field1 %}
                                     <option value="{{ category }}" {% if business_wall.secteurs_activite and category in business_wall.secteurs_activite %}selected{% endif %}>
@@ -697,16 +804,18 @@
                             <p class="mt-1 text-xs text-gray-500 mb-2">
                               Sélectionnez une ou plusieurs options
                             </p>
-                            <!-- Detail select (multiple) -->
-                            <select
-                                id="secteurs_activite_detail"
-                                name="secteurs_activite_detail"
-                                multiple
-                                size="8"
-                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-600 focus:ring-purple-600 sm:text-sm px-4 py-2 border"
-                                {% if not business_wall.secteurs_activite %}disabled{% endif %}
-                            >
-                            </select>
+                            <!-- Detail select -->
+                            <div class="min-h-10 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm sm:text-sm sm:leading-6">
+                                <label class="block text-xs text-gray-500 mb-1">Sous-secteurs</label>
+                                <select
+                                    id="secteurs_activite_detail"
+                                    name="secteurs_activite_detail"
+                                    multiple
+                                    class="block w-full tom-select-dual-detail"
+                                >
+                                    <option value="">-- Sélectionnez d'abord un secteur --</option>
+                                </select>
+                            </div>
                             <p class="mt-1 text-xs text-gray-500">
                                 Sélectionnez les détails pour chaque secteur choisi
                             </p>
@@ -718,8 +827,9 @@
                                 >Taille de l'organisation</label
                             >
                             <select
+                                id="taille_orga"
                                 name="taille_orga"
-                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-600 focus:ring-purple-600 sm:text-sm px-4 py-2 border"
+                                class="block w-full tom-select-single"
                             >
                                 <option value="">-- Sélectionnez --</option>
                                 {% for value, label in taille_orga_ontology %}
@@ -739,8 +849,7 @@
                             </h3>
                             <p class="text-sm text-gray-600 mb-4">
                                 Sélectionnez les domaines qui intéressent votre
-                                organisation (maintenez Ctrl ou Cmd pour
-                                sélectionner plusieurs options)
+                                organisation
                             </p>
                         </div>
 
@@ -749,14 +858,13 @@
                             <label class="block text-sm font-medium text-gray-900 mb-2">
                                 Centres d'intérêt - Tissu politique et administratif
                             </label>
-                            <!-- Main category select (multiple) -->
                             <select
                                 id="interest_political"
                                 name="interest_political"
                                 multiple
-                                size="5"
-                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-600 focus:ring-purple-600 sm:text-sm px-4 py-2 border mb-2"
-                                onchange="updateDualMultiSelect('interest_political', 'interest_political_detail', interestPoliticalDetailData, currentInterestPoliticalDetail)"
+                                class="block w-full mb-2 tom-select-dual-main"
+                                data-detail-id="interest_political_detail"
+                                data-ontology="interestPolitical"
                             >
                                 {% for category, label in interest_political_ontology.field1 %}
                                     <option value="{{ category }}" {% if business_wall.interest_political and category in business_wall.interest_political %}selected{% endif %}>
@@ -767,16 +875,18 @@
                             <p class="mt-1 text-xs text-gray-500 mb-2">
                                 Sélectionnez une ou plusieurs options
                             </p>
-                            <!-- Detail select (multiple) -->
-                            <select
-                                id="interest_political_detail"
-                                name="interest_political_detail"
-                                multiple
-                                size="8"
-                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-600 focus:ring-purple-600 sm:text-sm px-4 py-2 border"
-                                {% if not business_wall.interest_political %}disabled{% endif %}
-                            >
-                            </select>
+                            <!-- Detail select -->
+                            <div class="min-h-10 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm sm:text-sm sm:leading-6">
+                                <label class="block text-xs text-gray-500 mb-1">Détails</label>
+                                <select
+                                    id="interest_political_detail"
+                                    name="interest_political_detail"
+                                    multiple
+                                    class="block w-full tom-select-dual-detail"
+                                >
+                                    <option value="">-- Sélectionnez d'abord une catégorie --</option>
+                                </select>
+                            </div>
                             <p class="mt-1 text-xs text-gray-500">
                                 Sélectionnez les détails pour chaque catégorie choisie
                             </p>
@@ -787,14 +897,13 @@
                             <label class="block text-sm font-medium text-gray-900 mb-2">
                                 Centres d'intérêt - Tissu économique et culturel privé
                             </label>
-                            <!-- Main category select (multiple) -->
                             <select
                                 id="interest_economics"
                                 name="interest_economics"
                                 multiple
-                                size="5"
-                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-600 focus:ring-purple-600 sm:text-sm px-4 py-2 border mb-2"
-                                onchange="updateDualMultiSelect('interest_economics', 'interest_economics_detail', interestEconomicsDetailData, currentInterestEconomicsDetail)"
+                                class="block w-full mb-2 tom-select-dual-main"
+                                data-detail-id="interest_economics_detail"
+                                data-ontology="interestEconomics"
                             >
                                 {% for category, label in interest_economics_ontology.field1 %}
                                     <option value="{{ category }}" {% if business_wall.interest_economics and category in business_wall.interest_economics %}selected{% endif %}>
@@ -805,16 +914,17 @@
                             <p class="mt-1 text-xs text-gray-500 mb-2">
                                 Sélectionnez une ou plusieurs options
                             </p>
-                            <!-- Detail select (multiple) -->
-                            <select
-                                id="interest_economics_detail"
-                                name="interest_economics_detail"
-                                multiple
-                                size="8"
-                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-600 focus:ring-purple-600 sm:text-sm px-4 py-2 border"
-                                {% if not business_wall.interest_economics %}disabled{% endif %}
-                            >
-                            </select>
+                            <div class="min-h-10 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm sm:text-sm sm:leading-6">
+                                <label class="block text-xs text-gray-500 mb-1">Détails</label>
+                                <select
+                                    id="interest_economics_detail"
+                                    name="interest_economics_detail"
+                                    multiple
+                                    class="block w-full tom-select-dual-detail"
+                                >
+                                    <option value="">-- Sélectionnez d'abord une catégorie --</option>
+                                </select>
+                            </div>
                             <p class="mt-1 text-xs text-gray-500">
                                 Sélectionnez les détails pour chaque catégorie choisie
                             </p>
@@ -825,14 +935,13 @@
                             <label class="block text-sm font-medium text-gray-900 mb-2">
                                 Centres d'intérêt - Tissu associatif
                             </label>
-                            <!-- Main category select (multiple) -->
                             <select
                                 id="interest_association"
                                 name="interest_association"
                                 multiple
-                                size="5"
-                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-600 focus:ring-purple-600 sm:text-sm px-4 py-2 border mb-2"
-                                onchange="updateDualMultiSelect('interest_association', 'interest_association_detail', interestAssociationDetailData, currentInterestAssociationDetail)"
+                                class="block w-full mb-2 tom-select-dual-main"
+                                data-detail-id="interest_association_detail"
+                                data-ontology="interestAssociation"
                             >
                                 {% for category, label in interest_association_ontology.field1 %}
                                     <option value="{{ category }}" {% if business_wall.interest_association and category in business_wall.interest_association %}selected{% endif %}>
@@ -843,16 +952,17 @@
                             <p class="mt-1 text-xs text-gray-500 mb-2">
                                 Sélectionnez une ou plusieurs options
                             </p>
-                            <!-- Detail select (multiple) -->
-                            <select
-                                id="interest_association_detail"
-                                name="interest_association_detail"
-                                multiple
-                                size="8"
-                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-600 focus:ring-purple-600 sm:text-sm px-4 py-2 border"
-                                {% if not business_wall.interest_association %}disabled{% endif %}
-                            >
-                            </select>
+                            <div class="min-h-10 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm sm:text-sm sm:leading-6">
+                                <label class="block text-xs text-gray-500 mb-1">Détails</label>
+                                <select
+                                    id="interest_association_detail"
+                                    name="interest_association_detail"
+                                    multiple
+                                    class="block w-full tom-select-dual-detail"
+                                >
+                                    <option value="">-- Sélectionnez d'abord une catégorie --</option>
+                                </select>
+                            </div>
                             <p class="mt-1 text-xs text-gray-500">
                                 Sélectionnez les détails pour chaque catégorie choisie
                             </p>
@@ -1105,59 +1215,192 @@
             }
         });
 
-        const secteursActiviteDetailData = {{ secteurs_activite_ontology.field2 | tojson }};
-        const currentSecteursActiviteDetail = {{ business_wall.secteurs_activite_detail | tojson }};
-
-        const interestPoliticalDetailData = {{ interest_political_ontology.field2 | tojson }};
-        const currentInterestPoliticalDetail = {{ business_wall.interest_political_detail | tojson }};
-
-        const interestEconomicsDetailData = {{ interest_economics_ontology.field2 | tojson }};
-        const currentInterestEconomicsDetail = {{ business_wall.interest_economics_detail | tojson }};
-
-        const interestAssociationDetailData = {{ interest_association_ontology.field2 | tojson }};
-        const currentInterestAssociationDetail = {{ business_wall.interest_association_detail | tojson }};
-
-        function updateDualMultiSelect(mainSelectId, detailSelectId, detailData, currentDetailValues) {
-            const mainSelect = document.getElementById(mainSelectId);
-            const detailSelect = document.getElementById(detailSelectId);
-            if (!mainSelect || !detailSelect) return;
-
-            const selectedOptions = Array.from(mainSelect.selectedOptions).map(opt => opt.value);
-
-            if (selectedOptions.length === 0) {
-                detailSelect.innerHTML = '';
-                detailSelect.disabled = true;
-                return;
+        // Ontology data for dual selects
+        const ontologies = {
+            secteursActivite: {
+                field1: {{ secteurs_activite_ontology.field1 | tojson }}.map(item => ({ value: item[0], label: item[1] })),
+                field2: [],
+                raw: {{ secteurs_activite_ontology.field2 | tojson }},
+                current_main: {{ (business_wall.secteurs_activite or []) | tojson }},
+                current_detail: {{ (business_wall.secteurs_activite_detail or []) | tojson }},
+            },
+            interestPolitical: {
+                field1: {{ interest_political_ontology.field1 | tojson }}.map(item => ({ value: item[0], label: item[1] })),
+                field2: [],
+                raw: {{ interest_political_ontology.field2 | tojson }},
+                current_main: {{ (business_wall.interest_political or []) | tojson }},
+                current_detail: {{ (business_wall.interest_political_detail or []) | tojson }},
+            },
+            interestEconomics: {
+                field1: {{ interest_economics_ontology.field1 | tojson }}.map(item => ({ value: item[0], label: item[1] })),
+                field2: [],
+                raw: {{ interest_economics_ontology.field2 | tojson }},
+                current_main: {{ (business_wall.interest_economics or []) | tojson }},
+                current_detail: {{ (business_wall.interest_economics_detail or []) | tojson }},
+            },
+            interestAssociation: {
+                field1: {{ interest_association_ontology.field1 | tojson }}.map(item => ({ value: item[0], label: item[1] })),
+                field2: [],
+                raw: {{ interest_association_ontology.field2 | tojson }},
+                current_main: {{ (business_wall.interest_association or []) | tojson }},
+                current_detail: {{ (business_wall.interest_association_detail or []) | tojson }},
             }
+        };
 
-            detailSelect.disabled = false;
-            detailSelect.innerHTML = '';
-
-            selectedOptions.forEach(function(category) {
-                const options = detailData[category] || [];
-                if (options.length > 0) {
-                    // Add optgroup for this category
-                    const optgroup = document.createElement('optgroup');
-                    optgroup.label = category;
-
-                    options.forEach(function(item) {
-                        const value = item[0];
-                        const label = item[1];
-                        const option = document.createElement('option');
-                        option.value = value;
-                        option.textContent = label;
-                        // Select if it was previously selected
-                        if (currentDetailValues && currentDetailValues.includes(value)) {
-                            option.selected = true;
-                        }
-                        optgroup.appendChild(option);
+        // Prepare field2 options for all ontologies
+        for (const [key, ontology] of Object.entries(ontologies)) {
+            for (const [category, items] of Object.entries(ontology.raw)) {
+                items.forEach(item => {
+                    ontology.field2.push({
+                        value: item[0],
+                        label: item[1],
+                        category: category
                     });
+                });
+            }
+        }
 
-                    detailSelect.appendChild(optgroup);
+        // Store Tom Select instances
+        const tomSelectInstances = {};
+
+        function initMultiSelects() {
+            const multiSelectIds = [
+                'type_entreprise_media',
+                'type_agence_rp',
+                'type_presse_et_media'
+            ];
+
+            multiSelectIds.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    tomSelectInstances[id] = new TomSelect(el, {
+                        create: false,
+                        maxItems: null,
+                        preload: true,
+                        labelField: 'text',
+                        searchField: ['text'],
+                        diacritics: true,
+                        placeholder: 'Sélectionnez une ou plusieurs options',
+                        plugins: {
+                            remove_button: {
+                                title: 'Retirer'
+                            }
+                        }
+                    });
                 }
             });
         }
 
+        function initSingleSelects() {
+            const singleSelectIds = [
+                'periodicite',
+                'taille_orga'
+            ];
+
+            singleSelectIds.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    tomSelectInstances[id] = new TomSelect(el, {
+                        create: false,
+                        maxItems: 1,
+                        preload: true,
+                        labelField: 'text',
+                        searchField: ['text'],
+                        diacritics: true,
+                        placeholder: 'Sélectionnez',
+                        plugins: {
+                            remove_button: {
+                                title: 'Retirer'
+                            }
+                        }
+                    });
+                }
+            });
+        }
+
+        function initDualMultiSelects() {
+            const dualMainElements = document.querySelectorAll('.tom-select-dual-main');
+
+            dualMainElements.forEach(element => {
+                const detailId = element.dataset.detailId;
+                const ontologyKey = element.dataset.ontology;
+                const detailEl = document.getElementById(detailId);
+                const ontology = ontologies[ontologyKey];
+
+                if (!detailEl || !ontology) return;
+
+                // Initialize main select
+                const mainTom = new TomSelect(element, {
+                    create: false,
+                    maxItems: null,
+                    preload: true,
+                    labelField: 'label',
+                    searchField: ['label'],
+                    diacritics: true,
+                    placeholder: 'Sélectionnez une ou plusieurs catégories',
+                    plugins: {
+                        remove_button: {
+                            title: 'Retirer'
+                        }
+                    }
+                });
+
+                // Initialize detail select
+                const detailTom = new TomSelect(detailEl, {
+                    create: false,
+                    maxItems: null,
+                    preload: false,
+                    labelField: 'label',
+                    searchField: ['label'],
+                    diacritics: true,
+                    placeholder: 'Sélectionnez les détails',
+                    plugins: {
+                        remove_button: {
+                            title: 'Retirer'
+                        }
+                    }
+                });
+
+                detailTom.disable();
+
+                // Store instances
+                tomSelectInstances[element.id] = mainTom;
+                tomSelectInstances[detailId] = detailTom;
+
+                mainTom.on('change', function(values) {
+                    updateDualSelectOptions(detailTom, ontology, values);
+                });
+
+                if (ontology.current_main && ontology.current_main.length > 0) {
+                    updateDualSelectOptions(detailTom, ontology, ontology.current_main);
+                    // Restore selected details
+                    setTimeout(() => {
+                        if (ontology.current_detail && ontology.current_detail.length > 0) {
+                            detailTom.setValue(ontology.current_detail);
+                        }
+                    }, 50);
+                }
+            });
+        }
+
+        function updateDualSelectOptions(detailTom, ontology, selectedCategories) {
+            if (!selectedCategories || selectedCategories.length === 0) {
+                detailTom.clear();
+                detailTom.clearOptions();
+                detailTom.disable();
+                return;
+            }
+
+            // Filter options for selected categories
+            const filteredOptions = ontology.field2.filter(
+                opt => selectedCategories.includes(opt.category)
+            );
+
+            detailTom.clear();
+            detailTom.clearOptions();
+            detailTom.addOptions(filteredOptions);
+            detailTom.enable();
+        }
 
         // Tom Select config for pays and code/ville
         let countrySelectTom = null;
@@ -1274,24 +1517,9 @@
 
         document.addEventListener('DOMContentLoaded', function() {
             initCountryZipSelects();
-
-            // Initialize multi select fields
-            const mainSelect = document.getElementById('secteurs_activite');
-            if (mainSelect && mainSelect.selectedOptions.length > 0) {
-                updateDualMultiSelect('secteurs_activite', 'secteurs_activite_detail', secteursActiviteDetailData, currentSecteursActiviteDetail);
-            }
-            const interestPoliticalSelect = document.getElementById('interest_political');
-            if (interestPoliticalSelect && interestPoliticalSelect.selectedOptions.length > 0) {
-                updateDualMultiSelect('interest_political', 'interest_political_detail', interestPoliticalDetailData, currentInterestPoliticalDetail);
-            }
-            const interestEconomicsSelect = document.getElementById('interest_economics');
-            if (interestEconomicsSelect && interestEconomicsSelect.selectedOptions.length > 0) {
-                updateDualMultiSelect('interest_economics', 'interest_economics_detail', interestEconomicsDetailData, currentInterestEconomicsDetail);
-            }
-            const interestAssociationSelect = document.getElementById('interest_association');
-            if (interestAssociationSelect && interestAssociationSelect.selectedOptions.length > 0) {
-                updateDualMultiSelect('interest_association', 'interest_association_detail', interestAssociationDetailData, currentInterestAssociationDetail);
-            }
+            initMultiSelects();
+            initSingleSelects();
+            initDualMultiSelects();
         });
     </script>
 {% endblock %}

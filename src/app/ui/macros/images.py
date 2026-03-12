@@ -11,6 +11,7 @@ from markupsafe import Markup
 from app.enums import RoleEnum
 from app.flask.lib.macros import macro
 from app.models.organisation import Organisation
+from app.modules.bw.bw_activation.user_utils import get_organisation_logo_url
 
 
 @macro
@@ -20,11 +21,8 @@ def org_logo(org: Organisation, size: int = 24, **kw) -> Markup | str:
 
     cls = kw.get("class", "").split(" ")
 
-    # Generate logo URL
-    if org.is_auto:
-        url = "/static/img/logo-page-non-officielle.png"
-    else:
-        url = org.logo_image_signed_url()
+    # Generate logo URL (use BW logo if active, else default)
+    url = get_organisation_logo_url(org)
 
     cls += [f"h-{size}", f"w-{size}"]
 

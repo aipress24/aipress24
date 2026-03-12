@@ -13,6 +13,7 @@ from flask import g, redirect, render_template, session, url_for
 from app.logging import warn
 from app.modules.bw.bw_activation import bp
 from app.modules.bw.bw_activation.config import BW_TYPES
+from app.modules.bw.bw_activation.models.business_wall import BWStatus
 from app.modules.bw.bw_activation.user_utils import current_business_wall
 from app.modules.bw.bw_activation.utils import (
     ERR_NOT_MANAGER,
@@ -31,6 +32,8 @@ def dashboard():
     user = cast("User", g.user)
     current_bw = current_business_wall(user)
     if current_bw:
+        if current_bw.status == BWStatus.CANCELLED.value:
+            return redirect(url_for("bw_activation.index"))
         warn("current BW", current_bw)
         fill_session(current_bw)
         if user.id not in bw_managers_ids(current_bw):

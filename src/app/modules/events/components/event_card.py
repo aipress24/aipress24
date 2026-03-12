@@ -12,6 +12,7 @@ from attr import define
 from app.flask.lib.pywire import Component, component
 from app.flask.lib.view_model import ViewModel
 from app.models.meta import get_meta_attr
+from app.modules.bw.bw_activation.user_utils import get_organisation_logo_url
 from app.modules.events.components.opening_hours import opening_hours
 from app.modules.events.models import EventPost
 
@@ -46,10 +47,11 @@ class EventCardVM(ViewModel):
 
     def _get_organisation_logo_url(self) -> str:
         """Get the organisation logo URL from the event owner."""
+
         event = cast("EventPost", self._model)
         owner = event.owner
         if owner and owner.organisation:
-            return owner.organisation.logo_image_signed_url()
+            return get_organisation_logo_url(owner.organisation)
         return DEFAULT_LOGO_URL
 
 

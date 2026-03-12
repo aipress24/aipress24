@@ -12,6 +12,7 @@ from flask import g, redirect, render_template, session, url_for
 
 from app.modules.bw.bw_activation import bp
 from app.modules.bw.bw_activation.config import BW_TYPES
+from app.modules.bw.bw_activation.models.business_wall import BWStatus
 from app.modules.bw.bw_activation.user_utils import (
     current_business_wall,
     guess_best_bw_type,
@@ -34,7 +35,7 @@ def index():
     user = cast("User", g.user)
     init_session()
     current_bw = current_business_wall(user)
-    if current_bw:
+    if current_bw and current_bw.status != BWStatus.CANCELLED.value:
         fill_session(current_bw)
         if user.id not in bw_managers_ids(current_bw):
             session["error"] = ERR_NOT_MANAGER

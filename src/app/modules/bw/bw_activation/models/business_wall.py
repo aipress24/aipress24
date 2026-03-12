@@ -296,6 +296,19 @@ class BusinessWall(UUIDAuditBase):
         part = func.split_part(cls.pays_zip_ville_detail, " ", 4)
         return func.coalesce(func.rtrim(part, '"}'), "")
 
+    @property
+    def formatted_address(self) -> str:
+        return ", ".join(
+            x
+            for x in (
+                self.postal_address,
+                self.code_postal,
+                self.ville,
+                self.pays_zip_ville,
+            )
+            if x
+        )
+
     def cover_image_signed_url(self, expires_in: int = 3600) -> str:
         file_obj: FileObject | None = self.cover_image
         if file_obj is None:

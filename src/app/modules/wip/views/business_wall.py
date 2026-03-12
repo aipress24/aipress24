@@ -6,8 +6,7 @@
 
 from __future__ import annotations
 
-import sys
-from typing import Any
+from typing import TYPE_CHECKING, Any, cast
 
 from flask import g, render_template, request
 from flask_wtf import FlaskForm
@@ -18,10 +17,19 @@ from app.enums import RoleEnum
 from app.flask.extensions import db
 from app.flask.lib.nav import nav
 from app.flask.routing import url_for
+from app.logging import warn
+from app.models.auth import User
+from app.modules.bw.bw_activation.user_utils import (
+    get_active_business_wall_for_organisation,
+    get_organisation_logo_url,
+)
 from app.modules.wip import blueprint
 from app.services.roles import has_role
 
 from ._common import get_secondary_menu
+
+if TYPE_CHECKING:
+    from app.models.organisation import Organisation
 
 
 @blueprint.route("/org-profile", endpoint="org-profile")
@@ -126,14 +134,23 @@ def _build_context() -> dict[str, Any]:
     from app.services.stripe.product import stripe_bw_subscription_dict
     from app.services.stripe.utils import load_stripe_api_key
 
-    user = g.user
+    user = cast(User, g.user)
     org = user.organisation if user.is_authenticated else None
 
-    is_auto = org and org.is_auto
-    is_bw_active = org and org.is_bw_active
-    is_bw_inactive = org and org.is_bw_inactive
-    allow_editing = is_bw_active and user.is_manager
-    readonly = not allow_editing
+    if org is None:
+        is_auto: bool = False
+        bw = None
+        is_bw_active = False
+        is_bw_inactive = False
+        allow_editing = False
+        readonly = True
+    else:
+        is_auto = org.is_auto
+        bw = get_active_business_wall_for_organisation(org)
+        is_bw_active = bw is not None
+        is_bw_inactive = bw and not is_bw_active
+        allow_editing = is_bw_active and user.is_manager
+        readonly = not allow_editing
 
     if is_bw_active:
         assert org is not None  # is_bw_active implies org exists
@@ -142,24 +159,11 @@ def _build_context() -> dict[str, Any]:
         _current_product = _stripe_bw_products.get(org.stripe_product_id)
         current_product_name = _current_product.name if _current_product else ""
         if not current_product_name:
-            print("///// BusinessWallPage.context() BUG", file=sys.stderr)
-            print("/////   is_bw_active", is_bw_active, file=sys.stderr)
-            print(
-                "/////   _stripe_bw_products keys",
-                list(_stripe_bw_products.keys()),
-                file=sys.stderr,
-            )
-            print(
-                "/////   org.stripe_product_id",
-                org.stripe_product_id,
-                file=sys.stderr,
-            )
-            print("/////   _current_product", _current_product, file=sys.stderr)
-            print(
-                "/////   current_product_name",
-                current_product_name,
-                file=sys.stderr,
-            )
+            warn("BusinessWallPage.context() BUG")
+            warn("  _stripe_bw_products keys", list(_stripe_bw_products.keys()))
+            warn("  org.stripe_product_id", org.stripe_product_id)
+            warn("  _current_product", _current_product)
+            warn("  current_product_name", current_product_name)
         form_generator = BWFormGenerator(user=user, readonly=readonly)
         form = form_generator.generate()
     else:
@@ -190,10 +194,8 @@ def _build_context() -> dict[str, Any]:
     }
 
 
-def _get_logo_url(org) -> str:
+def _get_logo_url(org: Organisation | None) -> str:
     """Get logo URL for organisation."""
     if not org:
         return "/static/img/transparent-square.png"
-    if org.is_auto:
-        return "/static/img/logo-page-non-officielle.png"
-    return org.logo_image_signed_url()
+    return get_organisation_logo_url(org)
