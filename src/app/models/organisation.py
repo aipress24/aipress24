@@ -320,16 +320,6 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
         part = func.split_part(cls.pays_zip_ville_detail, " ", 4)
         return func.coalesce(func.rtrim(part, '"}'), "")
 
-    def cover_image_signed_url(self, expires_in: int = 3600) -> str:
-        file_obj: FileObject | None = self.cover_image
-        if file_obj is None:
-            return "/static/img/transparent-square.png"
-        try:
-            return file_obj.sign(expires_in=expires_in, for_upload=False)
-        except RuntimeError as e:
-            msg = f"Storage failed to sign URL for cover image org.id : {self.id}, key {file_obj.path}: {e}"
-            raise RuntimeError(msg) from e
-
 
 __1 = """
 
