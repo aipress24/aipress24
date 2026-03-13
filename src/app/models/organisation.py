@@ -17,10 +17,31 @@ import sqlalchemy as sa
 from advanced_alchemy.types.file_object import FileObject, StoredObject
 from slugify import slugify
 from sqlalchemy import JSON
+from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
+from sqlalchemy.sql.expression import FunctionElement
 from sqlalchemy_utils import ArrowType
 from sqlalchemy_utils.functions.orm import hybrid_property
+
+class split_part(FunctionElement):
+    name = "split_part"
+    inherit_cache = True
+
+@compiles(split_part, "sqlite")
+def _compile_split_part_sqlite(element, compiler, **kw):
+    args = list(element.clauses)
+    s = compiler.process(args[0], **kw)
+    index = compiler.process(args[2], **kw)
+    return (
+        f"json_extract('[\"' || "
+        f"replace(replace(replace({s}, '\\\\', '\\\\\\\\'), '\"', '\\\\\"'), ' ', '\",\"') || "
+        f"'\"]', '$[' || ({index} - 1) || ']')"
+    )
+
+@compiles(split_part)
+def _compile_split_part_default(element, compiler, **kw):
+    return f"split_part({compiler.process(element.clauses, **kw)})"
 
 from app.enums import BWTypeEnum, OrganisationTypeEnum
 from app.models.auth import User
@@ -281,7 +302,7 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
     @code_postal.expression
     def code_postal(cls):
         """SQL expression for the zip code property."""
-        return func.coalesce(func.split_part(cls.pays_zip_ville_detail, " ", 3))
+        return func.coalesce(split_part(cls.pays_zip_ville_detail, " ", 3))
 
     @hybrid_property
     def departement(self) -> str:
@@ -297,7 +318,7 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
     def departement(cls):
         """SQL expression for the departement property."""
         return func.coalesce(
-            func.substring(func.split_part(cls.pays_zip_ville_detail, " ", 3), 1, 2),
+            func.substr(split_part(cls.pays_zip_ville_detail, " ", 3), 1, 2),
             "",
         )
 
@@ -317,7 +338,7 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
     @ville.expression
     def ville(cls):
         """SQL expression for the ville property."""
-        part = func.split_part(cls.pays_zip_ville_detail, " ", 4)
+        part = split_part(cls.pays_zip_ville_detail, " ", 4)
         return func.coalesce(func.rtrim(part, '"}'), "")
 
 
