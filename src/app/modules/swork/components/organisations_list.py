@@ -9,12 +9,12 @@ from typing import Any, ClassVar, cast
 
 from attr import define
 from flask_super.registry import register
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.sql import Select
 
 from app.flask.extensions import db
 from app.flask.lib.view_model import ViewModel
-from app.flask.sqla import get_multi
+from app.logging import warn
 from app.models.organisation import Organisation
 from app.modules.bw.bw_activation.models import BusinessWall
 from app.modules.bw.bw_activation.models.business_wall import BWStatus
@@ -27,16 +27,6 @@ from app.modules.swork.common import Directory
 from app.modules.swork.settings import SWORK_LIST_LIMIT
 
 from .base import BaseList, Filter, FilterOption
-
-
-def _has_bw_join(stmt: Select) -> bool:
-    """Check if BusinessWall is already joined in the statement."""
-    if hasattr(stmt, "_setup_joins"):
-        for join in stmt._setup_joins:
-            target = join[0]
-            if hasattr(target, "name") and target.name == "bw_business_wall":
-                return True
-    return False
 
 
 @register
@@ -58,13 +48,53 @@ class OrganisationsList(BaseList):
         }
 
     def get_orgs(self) -> list[Organisation]:
+        """Fetch organisations and attach BusinessWall data if found."""
         stmt = self.make_stmt()
-        return list(db.session.scalars(stmt))
+        results = db.session.execute(stmt).all()
+        orgs = []
+        for row in results:
+            org = row[0]
+            org._bw_name = getattr(row, "bw_name", None)
+            org._bw_pays_zip_ville = getattr(row, "bw_pays_zip_ville", None)
+            org._bw_departement = getattr(row, "bw_departement", None)
+            org._bw_ville = getattr(row, "bw_ville", None)
+            orgs.append(org)
+        return orgs
+
+    def _get_latest_bw_subquery(self):
+        """Get subquery for latest active BusinessWall per organisation."""
+        return (
+            select(
+                BusinessWall.organisation_id,
+                func.max(BusinessWall.created_at).label("latest_created_at"),
+            )
+            .where(BusinessWall.status == BWStatus.ACTIVE.value)
+            .group_by(BusinessWall.organisation_id)
+            .subquery()
+        )
 
     def get_base_statement(self) -> Select:
-        # includes all organisations (including AUTO)
+        """Return base statement with Organisation and joined BusinessWall data."""
+        # includes all organisations (including AUTO) with optional BW data
+        latest_bw_sub = self._get_latest_bw_subquery()
         return (
-            select(Organisation)
+            select(
+                Organisation,
+                BusinessWall.name.label("bw_name"),
+                BusinessWall.pays_zip_ville.label("bw_pays_zip_ville"),
+                BusinessWall.departement.label("bw_departement"),
+                BusinessWall.ville.label("bw_ville"),
+            )
+            .outerjoin(
+                latest_bw_sub,
+                Organisation.id == latest_bw_sub.c.organisation_id,
+            )
+            .outerjoin(
+                BusinessWall,
+                (BusinessWall.organisation_id == latest_bw_sub.c.organisation_id)
+                & (BusinessWall.created_at == latest_bw_sub.c.latest_created_at)
+                & (BusinessWall.status == BWStatus.ACTIVE.value),
+            )
             .where(Organisation.deleted_at.is_(None))
             .order_by(Organisation.name)
             .limit(SWORK_LIST_LIMIT)
@@ -79,11 +109,6 @@ class OrganisationsList(BaseList):
         if m:
             zip_code = m.group(1)
             search = search.replace(zip_code, "").strip()
-            # When searching by zip code, only search in orgs with active BusinessWall
-            if not _has_bw_join(stmt):
-                stmt = stmt.join(
-                    BusinessWall, Organisation.id == BusinessWall.organisation_id
-                )
             stmt = stmt.where(BusinessWall.status == BWStatus.ACTIVE.value).where(
                 BusinessWall.code_postal.ilike(f"%{zip_code}%")
             )
@@ -93,28 +118,65 @@ class OrganisationsList(BaseList):
 
         return stmt
 
-    def get_filters(self):
-        stmt = select(Organisation).where(Organisation.deleted_at.is_(None))
-        orgs: list[Organisation] = get_multi(Organisation, stmt)
-        return make_filters(orgs)
+    def get_filters(self) -> list[Filter]:
+        """Return list of filters with options fetched from database."""
+        countries = (
+            db.session.execute(
+                select(func.distinct(BusinessWall.pays_zip_ville))
+                .where(BusinessWall.status == BWStatus.ACTIVE.value)
+                .order_by(BusinessWall.pays_zip_ville)
+            )
+            .scalars()
+            .all()
+        )
+        countries = [str(c) for c in countries if c]
+
+        depts = (
+            db.session.execute(
+                select(func.distinct(BusinessWall.departement))
+                .where(BusinessWall.status == BWStatus.ACTIVE.value)
+                .order_by(BusinessWall.departement)
+            )
+            .scalars()
+            .all()
+        )
+        depts = [str(d) for d in depts if d]
+
+        cities = (
+            db.session.execute(
+                select(func.distinct(BusinessWall.ville))
+                .where(BusinessWall.status == BWStatus.ACTIVE.value)
+                .order_by(BusinessWall.ville)
+            )
+            .scalars()
+            .all()
+        )
+        cities = [str(c) for c in cities if c]
+
+        return [
+            FilterByCategory(),
+            FilterByCountryOrm(codes=countries),
+            FilterByDeptOrm(names=depts),
+            FilterByCityOrm(names=cities),
+        ]
 
 
 class FilterByCountryOrm(Filter):
     id = "country"
     label = "Pays"
 
-    def selector(self, org: Organisation) -> FilterOption:
-        bw = get_active_business_wall_for_organisation(org)
-        code = bw.pays_zip_ville if bw else ""
-        if code:
-            return FilterOption(country_code_to_country_name(code), code)
-        return FilterOption("", "")
+    def __init__(self, codes: list[str] | None = None) -> None:
+        super().__init__()
+        if codes:
+            self.options = [
+                FilterOption(country_code_to_country_name(code), code) for code in codes
+            ]
 
     def get_country_codes(self, state: dict[str, bool]) -> list[str]:
         """Extract country codes from active FilterOption selections."""
         codes: list[str] = []
         for i in range(len(state)):
-            if state[str(i)]:
+            if state.get(str(i)):
                 filter_option = cast(FilterOption, self.options[i])
                 codes.append(filter_option.code)
         return codes
@@ -122,10 +184,6 @@ class FilterByCountryOrm(Filter):
     def apply(self, stmt: Select, state: dict[str, bool]) -> Select:
         codes = self.get_country_codes(state)
         if codes:
-            if not _has_bw_join(stmt):
-                stmt = stmt.join(
-                    BusinessWall, Organisation.id == BusinessWall.organisation_id
-                )
             stmt = stmt.where(BusinessWall.status == BWStatus.ACTIVE.value).where(
                 BusinessWall.pays_zip_ville.in_(codes)
             )
@@ -136,17 +194,14 @@ class FilterByDeptOrm(Filter):
     id = "dept"
     label = "Département"
 
-    def selector(self, org: Organisation) -> str:
-        bw = get_active_business_wall_for_organisation(org)
-        return bw.departement if bw else ""
+    def __init__(self, names: list[str] | None = None) -> None:
+        super().__init__()
+        if names:
+            self.options = names
 
     def apply(self, stmt: Select, state: dict[str, bool]) -> Select:
         active_options = self.active_options(state)
         if active_options:
-            if not _has_bw_join(stmt):
-                stmt = stmt.join(
-                    BusinessWall, Organisation.id == BusinessWall.organisation_id
-                )
             stmt = stmt.where(BusinessWall.status == BWStatus.ACTIVE.value).where(
                 BusinessWall.departement.in_(active_options)
             )
@@ -157,17 +212,14 @@ class FilterByCityOrm(Filter):
     id = "city"
     label = "Ville"
 
-    def selector(self, org: Organisation) -> str:
-        bw = get_active_business_wall_for_organisation(org)
-        return bw.ville if bw else ""
+    def __init__(self, names: list[str] | None = None) -> None:
+        super().__init__()
+        if names:
+            self.options = names
 
     def apply(self, stmt: Select, state: dict[str, bool]) -> Select:
         active_options = self.active_options(state)
         if active_options:
-            if not _has_bw_join(stmt):
-                stmt = stmt.join(
-                    BusinessWall, Organisation.id == BusinessWall.organisation_id
-                )
             stmt = stmt.where(BusinessWall.status == BWStatus.ACTIVE.value).where(
                 BusinessWall.ville.in_(active_options)
             )
@@ -200,24 +252,10 @@ class FilterByCategory(Filter):
             if bw_type:
                 bw_types.append(bw_type)
         if bw_types:
-            if not _has_bw_join(stmt):
-                stmt = stmt.join(
-                    BusinessWall, Organisation.id == BusinessWall.organisation_id
-                )
             stmt = stmt.where(BusinessWall.status == BWStatus.ACTIVE.value).where(
                 BusinessWall.bw_type.in_(bw_types)
             )
         return stmt
-
-
-def make_filters(orgs: list[Organisation]) -> list[Filter]:
-    return [
-        FilterByCategory(orgs),
-        # FilterBySector(orgs),
-        FilterByCountryOrm(orgs),
-        FilterByDeptOrm(orgs),
-        FilterByCityOrm(orgs),
-    ]
 
 
 @define
@@ -229,7 +267,26 @@ class OrgVM(ViewModel):
     def extra_attrs(self):
         return {
             "logo_url": self.get_logo_url(),
+            "display_name": self.get_display_name(),
         }
+
+    def get_display_name(self) -> str:
+        """Return BusinessWall name if available, else Organisation name."""
+        # debug
+        warn("DEBUG", self.org, self.org.name)
+        bw = get_active_business_wall_for_organisation(self.org)
+        if bw:
+            warn(self.org.pays_zip_ville)
+            warn(self.org.pays_zip_ville_detail)
+            warn(bw)
+            warn(bw.name)
+            warn(bw.pays_zip_ville)
+            warn(bw.pays_zip_ville_detail)
+        bw_name = getattr(self.org, "_bw_name", None)
+        if bw_name:
+            warn("bw_name", bw_name)
+            return bw_name
+        return self.org.name
 
     def get_logo_url(self) -> str:
         return get_organisation_logo_url(self.org)
