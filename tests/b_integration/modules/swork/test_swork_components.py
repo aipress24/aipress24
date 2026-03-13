@@ -36,7 +36,6 @@ from app.modules.swork.components.organisations_list import (
     OrganisationsList,
     OrgsDirectory,
     OrgVM as OrgListOrgVM,
-    make_filters as make_org_filters,
 )
 
 if TYPE_CHECKING:
@@ -517,14 +516,15 @@ class TestOrgFilterByCityOrm:
         assert OrgFilterByCityOrm.id == "city"
 
 
-class TestMakeOrgFilters:
-    """Test make_filters function for organisations."""
+class TestOrganisationsListFilters:
+    """Test get_filters method for organisations."""
 
-    def test_make_filters_returns_list(
+    def test_get_filters_returns_list(
         self, db_session: Session, test_organisation: Organisation
     ):
-        """Test make_filters returns list of filters."""
-        filters = make_org_filters([test_organisation])
+        """Test get_filters returns list of filters."""
+        orgs_list = OrganisationsList()
+        filters = orgs_list.get_filters()
         assert isinstance(filters, list)
         assert len(filters) == 4
 
