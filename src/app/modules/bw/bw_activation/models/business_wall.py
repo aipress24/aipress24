@@ -249,9 +249,30 @@ class BusinessWall(UUIDAuditBase):
 
     def update_location_fields(self) -> None:
         """Update code_postal, departement, and ville from pays_zip_ville_detail."""
-        self.code_postal = None
-        self.departement = None
-        self.ville = None
+        if not self.pays_zip_ville_detail:
+            self.code_postal = None
+            self.departement = None
+            self.ville = None
+            return
+        try:
+            self.code_postal = self.pays_zip_ville_detail.split()[2]
+        except IndexError:
+            self.code_postal = ""
+        if self.pays_zip_ville == "FRA":
+            # only for France
+            try:
+                self.departement = self.code_postal[:2]
+            except IndexError:
+                self.departement = ""
+        else:
+            self.departement = ""
+        try:
+            ville = self.pays_zip_ville_detail.split()[3]
+            # origin of bad formatting in test data?
+            ville = ville.removesuffix('"}')
+        except IndexError:
+            ville = ""
+        self.ville = ville
 
     @property
     def formatted_address(self) -> str:
