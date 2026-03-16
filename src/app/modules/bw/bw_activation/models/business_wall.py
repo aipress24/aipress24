@@ -267,7 +267,8 @@ class BusinessWall(UUIDAuditBase):
         else:
             self.departement = ""
         try:
-            ville = self.pays_zip_ville_detail.split()[3]
+            parts = self.pays_zip_ville_detail.split()
+            ville = " ".join(parts[3:]) if len(parts) > 3 else ""
             # origin of bad formatting in test data?
             ville = ville.removesuffix('"}')
         except IndexError:
