@@ -29,5 +29,5 @@ class TestCarouselTypeValidation:
 
             carousel = Carousel(post=article)
 
-            with pytest.raises(TypeError, match="expected ArticleVM or PressReleaseVM"):
+            with pytest.raises(TypeError, match="expected ArticleVM, PressReleaseVM, or CommuniqueVM"):
                 carousel.get_slides()
