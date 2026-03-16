@@ -136,8 +136,10 @@ class UserVM(ViewModel):
         from sqlalchemy.orm import selectinload
 
         from app.modules.wire.models import ArticlePost
+        from app.modules.wip.models.comroom import Communique
 
-        posts = list(
+        # Fetch articles
+        articles = list(
             db.session.scalars(
                 sa.select(ArticlePost)
                 .where(ArticlePost.owner_id == self.user.id)
@@ -149,7 +151,26 @@ class UserVM(ViewModel):
                 .order_by(ArticlePost.published_at.desc())
             )
         )
-        return PostVM.from_many(posts)
+
+        # Fetch communiqués (press releases)
+        communiques = list(
+            db.session.scalars(
+                sa.select(Communique)
+                .where(Communique.owner_id == self.user.id)
+                .where(Communique.status == PublicationStatus.PUBLIC)
+                .options(
+                    selectinload(Communique.owner),
+                    selectinload(Communique.publisher),
+                )
+                .order_by(Communique.published_at.desc())
+            )
+        )
+
+        # Combine and sort by published_at (most recent first)
+        all_posts = articles + communiques
+        all_posts.sort(key=lambda p: p.published_at or p.created_at, reverse=True)
+
+        return PostVM.from_many(all_posts)
 
 
 def filter_email_mobile(user: User, target_user: User) -> MaskFields:

@@ -11,6 +11,7 @@ from app.flask.lib.pywire import Component, component
 from app.flask.lib.types import JSON
 from app.modules.common.components.post_card import (
     ArticleVM,
+    CommuniqueVM,
     PressReleaseVM,
 )
 from app.modules.events.models import EventPost
@@ -37,6 +38,7 @@ class Carousel(Component):
         | PressReleasePost
         | ArticleVM
         | PressReleaseVM
+        | CommuniqueVM
         | EventPost
         | EventVM
     )
@@ -77,6 +79,9 @@ class Carousel(Component):
                     info = self.post
             except (AttributeError, NotFoundError):
                 info = self.post
+        elif info_type == "CommuniqueVM":
+            # CommuniqueVM wraps a Communique directly
+            info = self.post._unwrap()
         elif info_type in {"EventVM", "EventDetailVM"}:
             try:
                 info_id = self.post.eventroom_id
@@ -88,7 +93,7 @@ class Carousel(Component):
             except (AttributeError, NotFoundError):
                 info = self.post
         else:
-            msg = f"expected ArticleVM or PressReleaseVM, not {self.post!r}"
+            msg = f"expected ArticleVM, PressReleaseVM, or CommuniqueVM, not {self.post!r}"
             raise TypeError(msg)
 
         try:
