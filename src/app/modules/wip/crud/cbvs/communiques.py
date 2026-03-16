@@ -24,6 +24,7 @@ from werkzeug.exceptions import NotFound
 from app.flask.extensions import db
 from app.flask.lib.constants import EMPTY_PNG
 from app.flask.routing import url_for
+from app.flask.sqla import get_obj
 from app.lib.file_object_utils import create_file_object
 from app.logging import warn
 from app.models.lifecycle import PublicationStatus
@@ -135,6 +136,10 @@ class CommuniquesWipView(BaseWipView):
 
     msg_delete_ok = "Le communiqué a été supprimé"
     msg_delete_ko = "Vous n'êtes pas autorisé à supprimer ce communiqué"
+
+    def _get_model(self, id):
+        """Override to handle base62 encoded IDs from URLs."""
+        return get_obj(id, self.model_class)
 
     def _post_update_model(self, model: Communique) -> None:
         if not model.status:
