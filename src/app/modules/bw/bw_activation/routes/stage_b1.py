@@ -315,6 +315,7 @@ def configure_content():
                 business_wall.pays_zip_ville_detail = pays_zip_ville_detail
             else:
                 pays_zip_ville_detail = ""
+            business_wall.update_location_fields()
 
         # geolocalisation (Géolocalisation)
         geolocalisation = request.form.get("geolocalisation", "").strip()
