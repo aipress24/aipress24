@@ -13,31 +13,8 @@ from typing import TYPE_CHECKING
 from advanced_alchemy.base import UUIDAuditBase
 from advanced_alchemy.types.file_object import FileObject, StoredObject
 from sqlalchemy import JSON, BigInteger, ForeignKey, String, inspect, select
-from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.orm.attributes import flag_modified
-from sqlalchemy.sql import func
-from sqlalchemy.sql.expression import FunctionElement
-from sqlalchemy_utils.functions.orm import hybrid_property
-
-class split_part(FunctionElement):
-    name = "split_part"
-    inherit_cache = True
-
-@compiles(split_part, "sqlite")
-def _compile_split_part_sqlite(element, compiler, **kw):
-    args = list(element.clauses)
-    s = compiler.process(args[0], **kw)
-    index = compiler.process(args[2], **kw)
-    return (
-        f"json_extract('[\"' || "
-        f"replace(replace(replace({s}, '\\\\', '\\\\\\\\'), '\"', '\\\\\"'), ' ', '\",\"') || "
-        f"'\"]', '$[' || ({index} - 1) || ']')"
-    )
-
-@compiles(split_part)
-def _compile_split_part_default(element, compiler, **kw):
-    return f"split_part({compiler.process(element.clauses, **kw)})"
 
 from app.lib.file_object_utils import deserialize_file_object
 from app.logging import warn
@@ -202,6 +179,11 @@ class BusinessWall(UUIDAuditBase):
     pays_zip_ville: Mapped[str] = mapped_column(default="")
     pays_zip_ville_detail: Mapped[str] = mapped_column(default="")
 
+    # location fields (computed from pays_zip_ville_detail)
+    code_postal: Mapped[str | None] = mapped_column(nullable=True)
+    departement: Mapped[str | None] = mapped_column(nullable=True)
+    ville: Mapped[str | None] = mapped_column(nullable=True)
+
     geolocalisation: Mapped[str] = mapped_column(default="")
 
     # Web presence
@@ -265,57 +247,11 @@ class BusinessWall(UUIDAuditBase):
     # def is_agency(self) -> bool:
     #     return self.bw_type == BWType.MEDIA.value
 
-    @hybrid_property
-    def code_postal(self) -> str:
-        """Return the zip code"""
-        if not self.pays_zip_ville_detail:
-            return ""
-        try:
-            return self.pays_zip_ville_detail.split()[2]
-        except IndexError:
-            return ""
-
-    @code_postal.expression
-    def code_postal(cls):
-        """SQL expression for the zip code property."""
-        return func.coalesce(split_part(cls.pays_zip_ville_detail, " ", 3))
-
-    @hybrid_property
-    def departement(self) -> str:
-        """Return the 2 first digit of zip code"""
-        if not self.pays_zip_ville_detail:
-            return ""
-        try:
-            return self.pays_zip_ville_detail.split()[2][:2]
-        except IndexError:
-            return ""
-
-    @departement.expression
-    def departement(cls):
-        """SQL expression for the departement property."""
-        return func.coalesce(
-            func.substr(split_part(cls.pays_zip_ville_detail, " ", 3), 1, 2),
-            "",
-        )
-
-    @hybrid_property
-    def ville(self) -> str:
-        """Return the 4th part of pays_zip_ville_detail"""
-        if not self.pays_zip_ville_detail:
-            return ""
-        try:
-            data = self.pays_zip_ville_detail.split()[3]
-            if data.endswith('"}'):  # fixme: origin of bad formatting in test data?
-                return data[:-2]
-            return data
-        except IndexError:
-            return ""
-
-    @ville.expression
-    def ville(cls):
-        """SQL expression for the ville property."""
-        part = split_part(cls.pays_zip_ville_detail, " ", 4)
-        return func.coalesce(func.rtrim(part, '"}'), "")
+    def update_location_fields(self) -> None:
+        """Update code_postal, departement, and ville from pays_zip_ville_detail."""
+        self.code_postal = None
+        self.departement = None
+        self.ville = None
 
     @property
     def formatted_address(self) -> str:
