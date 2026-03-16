@@ -1467,51 +1467,58 @@
                 zipSelectTom.clearOptions();
                 if (value && value.length === 3) {
                     zipSelectTom.enable();
-                    zipSelectTom.load(function(callback) {
-                        if (loadingIndicator) loadingIndicator.classList.remove('hidden');
-                        const url = `/kyc/towns/${value}`;
-                        fetch(url)
-                            .then(response => response.json())
-                            .then(data => {
-                                if (loadingIndicator) loadingIndicator.classList.add('hidden');
-                                callback(data);
-                                // Restore saved value if exists
-                                if (currentZipValue) {
-                                    zipSelectTom.setValue(currentZipValue);
-                                    currentZipValue = ''; // Clear after restore
-                                }
-                            })
-                            .catch(() => {
-                                if (loadingIndicator) loadingIndicator.classList.add('hidden');
-                                callback([]);
+                    if (loadingIndicator) loadingIndicator.classList.remove('hidden');
+                    const url = `/kyc/towns/${value}`;
+                    fetch(url)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (loadingIndicator) loadingIndicator.classList.add('hidden');
+                            // Add all options to the select
+                            data.forEach(item => {
+                                zipSelectTom.addOption(item);
                             });
-                    });
+                            zipSelectTom.refreshOptions(false);
+                        })
+                        .catch(() => {
+                            if (loadingIndicator) loadingIndicator.classList.add('hidden');
+                        });
                 } else {
                     zipSelectTom.disable();
                 }
             });
 
-            // If country selected, load zip codes
             const initialCountry = countrySelectTom.getValue();
             if (initialCountry && initialCountry.length === 3) {
                 zipSelectTom.enable();
-                zipSelectTom.load(function(callback) {
-                    if (loadingIndicator) loadingIndicator.classList.remove('hidden');
-                    const url = `/kyc/towns/${initialCountry}`;
-                    fetch(url)
-                        .then(response => response.json())
-                        .then(data => {
-                            if (loadingIndicator) loadingIndicator.classList.add('hidden');
-                            callback(data);
-                            if (currentZipValue) {
-                                zipSelectTom.setValue(currentZipValue);
-                            }
-                        })
-                        .catch(() => {
-                            if (loadingIndicator) loadingIndicator.classList.add('hidden');
-                            callback([]);
+                if (loadingIndicator) loadingIndicator.classList.remove('hidden');
+                const url = `/kyc/towns/${initialCountry}`;
+                fetch(url)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (loadingIndicator) loadingIndicator.classList.add('hidden');
+                        // Add all options to the select
+                        data.forEach(item => {
+                            zipSelectTom.addOption(item);
                         });
-                });
+                        // Refresh options and set the saved value
+                        zipSelectTom.refreshOptions(false);
+                        if (currentZipValue) {
+                            const existingOption = zipSelectTom.getOption(currentZipValue);
+                            if (!existingOption) {
+                                const parts = currentZipValue.split(' / ');
+                                if (parts.length >= 2) {
+                                    const label = parts[1];  // "17000 La Rochelle"
+                                    zipSelectTom.addOption({value: currentZipValue, label: label});
+                                } else {
+                                    zipSelectTom.addOption({value: currentZipValue, label: currentZipValue});
+                                }
+                            }
+                            zipSelectTom.setValue(currentZipValue);
+                        }
+                    })
+                    .catch(() => {
+                        if (loadingIndicator) loadingIndicator.classList.add('hidden');
+                    });
             }
         }
 
