@@ -135,8 +135,8 @@ class UserVM(ViewModel):
     def get_posts(self) -> list[PostVM]:
         from sqlalchemy.orm import selectinload
 
-        from app.modules.wire.models import ArticlePost
         from app.modules.wip.models.comroom import Communique
+        from app.modules.wire.models import ArticlePost
 
         # Fetch articles
         articles = list(
