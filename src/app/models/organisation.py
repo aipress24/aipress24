@@ -24,9 +24,11 @@ from sqlalchemy.sql.expression import FunctionElement
 from sqlalchemy_utils import ArrowType
 from sqlalchemy_utils.functions.orm import hybrid_property
 
+
 class split_part(FunctionElement):
     name = "split_part"
     inherit_cache = True
+
 
 @compiles(split_part, "sqlite")
 def _compile_split_part_sqlite(element, compiler, **kw):
@@ -39,9 +41,11 @@ def _compile_split_part_sqlite(element, compiler, **kw):
         f"'\"]', '$[' || ({index} - 1) || ']')"
     )
 
+
 @compiles(split_part)
 def _compile_split_part_default(element, compiler, **kw):
     return f"split_part({compiler.process(element.clauses, **kw)})"
+
 
 from app.enums import BWTypeEnum, OrganisationTypeEnum
 from app.models.auth import User
