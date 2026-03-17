@@ -143,6 +143,151 @@ def unauthenticated_bw_client(
     return client
 
 
+@pytest.fixture
+def test_user_with_profile(
+    db_session: Session,
+    test_org: Organisation,
+) -> User:
+    """Create a test user with organisation and PM_DIR profile (for BW tests)."""
+    user = User(
+        email=_unique_email(),
+        first_name="Test",
+        last_name="User",
+        active=True,
+    )
+    user.organisation = test_org
+    user.organisation_id = test_org.id
+    db_session.add(user)
+    db_session.flush()
+
+    profile = KYCProfile(
+        user_id=user.id,
+        profile_code=ProfileEnum.PM_DIR.name,
+    )
+    db_session.add(profile)
+    db_session.flush()
+    return user
+
+
+@pytest.fixture
+def test_user_no_org(db_session: Session) -> User:
+    """Create a test user without organisation."""
+    user = User(
+        email=_unique_email(),
+        first_name="Test",
+        last_name="User",
+        active=True,
+    )
+    db_session.add(user)
+    db_session.flush()
+    return user
+
+
+@pytest.fixture
+def test_user_pm_dir(db_session: Session) -> User:
+    """Create a test user with PM_DIR profile (Media)."""
+    user = User(
+        email=_unique_email(),
+        first_name="Test",
+        last_name="User",
+        active=True,
+    )
+    db_session.add(user)
+    db_session.flush()
+
+    profile = KYCProfile(
+        user_id=user.id,
+        profile_code=ProfileEnum.PM_DIR.name,
+    )
+    db_session.add(profile)
+    db_session.flush()
+    return user
+
+
+@pytest.fixture
+def test_user_pr_dir(db_session: Session) -> User:
+    """Create a test user with PR_DIR profile (PR)."""
+    user = User(
+        email=_unique_email(),
+        first_name="Test",
+        last_name="User",
+        active=True,
+    )
+    db_session.add(user)
+    db_session.flush()
+
+    profile = KYCProfile(
+        user_id=user.id,
+        profile_code=ProfileEnum.PR_DIR.name,
+    )
+    db_session.add(profile)
+    db_session.flush()
+    return user
+
+
+@pytest.fixture
+def test_user_ac_dir(db_session: Session) -> User:
+    """Create a test user with AC_DIR profile (Academics)."""
+    user = User(
+        email=_unique_email(),
+        first_name="Test",
+        last_name="User",
+        active=True,
+    )
+    db_session.add(user)
+    db_session.flush()
+
+    profile = KYCProfile(
+        user_id=user.id,
+        profile_code=ProfileEnum.AC_DIR.name,
+    )
+    db_session.add(profile)
+    db_session.flush()
+    return user
+
+
+@pytest.fixture
+def test_user_tp_dir_org(db_session: Session) -> User:
+    """Create a test user with TP_DIR_ORG profile (Transformers)."""
+    user = User(
+        email=_unique_email(),
+        first_name="Test",
+        last_name="User",
+        active=True,
+    )
+    db_session.add(user)
+    db_session.flush()
+
+    profile = KYCProfile(
+        user_id=user.id,
+        profile_code=ProfileEnum.TP_DIR_ORG.name,
+    )
+    db_session.add(profile)
+    db_session.flush()
+    return user
+
+
+@pytest.fixture
+def test_user_unknown_profile(db_session: Session) -> User:
+    """Create a test user with unknown profile code."""
+    user = User(
+        email=_unique_email(),
+        first_name="Test",
+        last_name="User",
+        active=True,
+    )
+    db_session.add(user)
+    db_session.flush()
+
+    profile = KYCProfile(
+        user_id=user.id,
+        profile_code="UNKNOWN_PROFILE",
+    )
+    db_session.add(profile)
+    db_session.flush()
+    return user
+
+
 @pytest.fixture(autouse=True)
 def mock_send_role_invitation_mail():
     """Mock send_role_invitation_mail for all tests.

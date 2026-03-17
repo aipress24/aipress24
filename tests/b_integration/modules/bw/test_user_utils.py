@@ -8,8 +8,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from app.enums import OrganisationTypeEnum, ProfileEnum
-from app.models.auth import KYCProfile, User
+from app.enums import OrganisationTypeEnum
+from app.models.auth import User
 from app.models.organisation import Organisation
 from app.modules.bw.bw_activation.models.business_wall import (
     BusinessWall,
@@ -57,49 +57,43 @@ class TestGetOrganisationLogoUrl:
 
         assert result == "/static/img/logo-page-non-officielle.png"
 
-    def test_returns_default_logo_for_non_active_bw(self, db_session: Session):
+    def test_returns_default_logo_for_non_active_bw(
+        self, db_session: Session, test_org: Organisation, test_user_owner: User
+    ):
         """Should return default logo when BW is not active (e.g., DRAFT)."""
-        org = Organisation(
-            name="Test Org",
-            type=OrganisationTypeEnum.MEDIA,
-        )
-        db_session.add(org)
-        db_session.flush()
-
         bw = BusinessWall(
             bw_type=BWType.MEDIA.value,
             status=BWStatus.DRAFT.value,
-            owner_id=1,
-            payer_id=1,
-            organisation_id=org.id,
+            owner_id=test_user_owner.id,
+            payer_id=test_user_owner.id,
+            organisation_id=test_org.id,
         )
         db_session.add(bw)
         db_session.flush()
 
-        result = get_organisation_logo_url(org)
+        result = get_organisation_logo_url(test_org)
 
         assert result == "/static/img/logo-page-non-officielle.png"
 
-    def test_returns_bw_logo_when_active_bw_exists(self, db_session: Session):
+    def test_returns_bw_logo_when_active_bw_exists(
+        self, db_session: Session, test_org: Organisation, test_user_owner: User
+    ):
         """Should return BW logo when active BusinessWall exists."""
-        org = Organisation(
-            name="Test Org",
-            type=OrganisationTypeEnum.MEDIA,
-        )
-        db_session.add(org)
+        # Set org type to non-AUTO for this test
+        test_org.type = OrganisationTypeEnum.MEDIA
         db_session.flush()
 
         bw = BusinessWall(
             bw_type=BWType.MEDIA.value,
             status=BWStatus.ACTIVE.value,
-            owner_id=1,
-            payer_id=1,
-            organisation_id=org.id,
+            owner_id=test_user_owner.id,
+            payer_id=test_user_owner.id,
+            organisation_id=test_org.id,
         )
         db_session.add(bw)
         db_session.flush()
 
-        result = get_organisation_logo_url(org)
+        result = get_organisation_logo_url(test_org)
 
         assert result != "/static/img/logo-page-non-officielle.png"
 
@@ -120,116 +114,91 @@ class TestGetActiveBusinessWallForOrganisation:
 
         assert result is None
 
-    def test_returns_active_business_wall(self, db_session: Session):
+    def test_returns_active_business_wall(
+        self, db_session: Session, test_org: Organisation, test_user_owner: User
+    ):
         """Should return active BusinessWall for organisation."""
-        org = Organisation(
-            name="Test Org",
-            type=OrganisationTypeEnum.AGENCY,
-        )
-        db_session.add(org)
-        db_session.flush()
-
         bw = BusinessWall(
             bw_type=BWType.MEDIA.value,
             status=BWStatus.ACTIVE.value,
-            owner_id=1,
-            payer_id=1,
-            organisation_id=org.id,
+            owner_id=test_user_owner.id,
+            payer_id=test_user_owner.id,
+            organisation_id=test_org.id,
         )
         db_session.add(bw)
         db_session.flush()
 
-        result = get_active_business_wall_for_organisation(org)
+        result = get_active_business_wall_for_organisation(test_org)
 
         assert result is not None
         assert result.id == bw.id
         assert result.status == BWStatus.ACTIVE.value
 
-    def test_returns_none_for_draft_business_wall(self, db_session: Session):
+    def test_returns_none_for_draft_business_wall(
+        self, db_session: Session, test_org: Organisation, test_user_owner: User
+    ):
         """Should return None for draft BusinessWall (not active)."""
-        org = Organisation(
-            name="Test Org",
-            type=OrganisationTypeEnum.AGENCY,
-        )
-        db_session.add(org)
-        db_session.flush()
-
         bw = BusinessWall(
             bw_type=BWType.MEDIA.value,
             status=BWStatus.DRAFT.value,
-            owner_id=1,
-            payer_id=1,
-            organisation_id=org.id,
+            owner_id=test_user_owner.id,
+            payer_id=test_user_owner.id,
+            organisation_id=test_org.id,
         )
         db_session.add(bw)
         db_session.flush()
 
-        result = get_active_business_wall_for_organisation(org)
+        result = get_active_business_wall_for_organisation(test_org)
 
         assert result is None
 
-    def test_returns_none_for_suspended_business_wall(self, db_session: Session):
+    def test_returns_none_for_suspended_business_wall(
+        self, db_session: Session, test_org: Organisation, test_user_owner: User
+    ):
         """Should return None for suspended BusinessWall (not active)."""
-        org = Organisation(
-            name="Test Org",
-            type=OrganisationTypeEnum.AGENCY,
-        )
-        db_session.add(org)
-        db_session.flush()
-
         bw = BusinessWall(
             bw_type=BWType.MEDIA.value,
             status=BWStatus.SUSPENDED.value,
-            owner_id=1,
-            payer_id=1,
-            organisation_id=org.id,
+            owner_id=test_user_owner.id,
+            payer_id=test_user_owner.id,
+            organisation_id=test_org.id,
         )
         db_session.add(bw)
         db_session.flush()
 
-        result = get_active_business_wall_for_organisation(org)
+        result = get_active_business_wall_for_organisation(test_org)
 
         assert result is None
 
-    def test_returns_none_for_cancelled_business_wall(self, db_session: Session):
+    def test_returns_none_for_cancelled_business_wall(
+        self, db_session: Session, test_org: Organisation, test_user_owner: User
+    ):
         """Should return None when only BusinessWall is cancelled."""
-        org = Organisation(
-            name="Test Org",
-            type=OrganisationTypeEnum.AGENCY,
-        )
-        db_session.add(org)
-        db_session.flush()
-
         bw = BusinessWall(
             bw_type=BWType.MEDIA.value,
             status=BWStatus.CANCELLED.value,
-            owner_id=1,
-            payer_id=1,
-            organisation_id=org.id,
+            owner_id=test_user_owner.id,
+            payer_id=test_user_owner.id,
+            organisation_id=test_org.id,
         )
         db_session.add(bw)
         db_session.flush()
 
-        result = get_active_business_wall_for_organisation(org)
+        result = get_active_business_wall_for_organisation(test_org)
 
         assert result is None
 
-    def test_returns_most_recent_active_bw(self, db_session: Session):
+    def test_returns_most_recent_active_bw(
+        self, db_session: Session, test_org: Organisation, test_user_owner: User
+    ):
         """Should return the most recent non-cancelled BusinessWall."""
-        org = Organisation(
-            name="Test Org",
-            type=OrganisationTypeEnum.AGENCY,
-        )
-        db_session.add(org)
-        db_session.flush()
-
         # Create older active BW
         old_bw = BusinessWall(
             bw_type=BWType.MEDIA.value,
             status=BWStatus.ACTIVE.value,
-            owner_id=1,
-            payer_id=1,
-            organisation_id=org.id,
+            owner_id=test_user_owner.id,
+            payer_id=test_user_owner.id,
+            organisation_id=test_org.id,
         )
         db_session.add(old_bw)
         db_session.flush()
@@ -238,35 +207,30 @@ class TestGetActiveBusinessWallForOrganisation:
         new_bw = BusinessWall(
             bw_type=BWType.PR.value,
             status=BWStatus.ACTIVE.value,
-            owner_id=1,
-            payer_id=1,
-            organisation_id=org.id,
+            owner_id=test_user_owner.id,
+            payer_id=test_user_owner.id,
+            organisation_id=test_org.id,
         )
         db_session.add(new_bw)
         db_session.flush()
 
-        result = get_active_business_wall_for_organisation(org)
+        result = get_active_business_wall_for_organisation(test_org)
 
         assert result is not None
         assert result.id == new_bw.id
         assert result.bw_type == BWType.PR.value
 
-    def test_skips_cancelled_returns_active(self, db_session: Session):
+    def test_skips_cancelled_returns_active(
+        self, db_session: Session, test_org: Organisation, test_user_owner: User
+    ):
         """Should skip cancelled BWs and return the active one."""
-        org = Organisation(
-            name="Test Org",
-            type=OrganisationTypeEnum.AGENCY,
-        )
-        db_session.add(org)
-        db_session.flush()
-
         # Create cancelled BW (older)
         cancelled_bw = BusinessWall(
             bw_type=BWType.MEDIA.value,
             status=BWStatus.CANCELLED.value,
-            owner_id=1,
-            payer_id=1,
-            organisation_id=org.id,
+            owner_id=test_user_owner.id,
+            payer_id=test_user_owner.id,
+            organisation_id=test_org.id,
         )
         db_session.add(cancelled_bw)
         db_session.flush()
@@ -275,14 +239,14 @@ class TestGetActiveBusinessWallForOrganisation:
         active_bw = BusinessWall(
             bw_type=BWType.PR.value,
             status=BWStatus.ACTIVE.value,
-            owner_id=1,
-            payer_id=1,
-            organisation_id=org.id,
+            owner_id=test_user_owner.id,
+            payer_id=test_user_owner.id,
+            organisation_id=test_org.id,
         )
         db_session.add(active_bw)
         db_session.flush()
 
-        result = get_active_business_wall_for_organisation(org)
+        result = get_active_business_wall_for_organisation(test_org)
 
         assert result is not None
         assert result.id == active_bw.id
@@ -304,71 +268,56 @@ class TestGetAnyBusinessWallForOrganisation:
 
         assert result is None
 
-    def test_returns_cancelled_business_wall(self, db_session: Session):
+    def test_returns_cancelled_business_wall(
+        self, db_session: Session, test_org: Organisation, test_user_owner: User
+    ):
         """Should return cancelled BusinessWall (including cancelled)."""
-        org = Organisation(
-            name="Test Org",
-            type=OrganisationTypeEnum.AGENCY,
-        )
-        db_session.add(org)
-        db_session.flush()
-
         bw = BusinessWall(
             bw_type=BWType.MEDIA.value,
             status=BWStatus.CANCELLED.value,
-            owner_id=1,
-            payer_id=1,
-            organisation_id=org.id,
+            owner_id=test_user_owner.id,
+            payer_id=test_user_owner.id,
+            organisation_id=test_org.id,
         )
         db_session.add(bw)
         db_session.flush()
 
-        result = get_any_business_wall_for_organisation(org)
+        result = get_any_business_wall_for_organisation(test_org)
 
         assert result is not None
         assert result.id == bw.id
         assert result.status == BWStatus.CANCELLED.value
 
-    def test_returns_active_business_wall(self, db_session: Session):
+    def test_returns_active_business_wall(
+        self, db_session: Session, test_org: Organisation, test_user_owner: User
+    ):
         """Should return active BusinessWall."""
-        org = Organisation(
-            name="Test Org",
-            type=OrganisationTypeEnum.AGENCY,
-        )
-        db_session.add(org)
-        db_session.flush()
-
         bw = BusinessWall(
             bw_type=BWType.MEDIA.value,
             status=BWStatus.ACTIVE.value,
-            owner_id=1,
-            payer_id=1,
-            organisation_id=org.id,
+            owner_id=test_user_owner.id,
+            payer_id=test_user_owner.id,
+            organisation_id=test_org.id,
         )
         db_session.add(bw)
         db_session.flush()
 
-        result = get_any_business_wall_for_organisation(org)
+        result = get_any_business_wall_for_organisation(test_org)
 
         assert result is not None
         assert result.id == bw.id
         assert result.status == BWStatus.ACTIVE.value
 
-    def test_returns_most_recent_any_bw(self, db_session: Session):
+    def test_returns_most_recent_any_bw(
+        self, db_session: Session, test_org: Organisation, test_user_owner: User
+    ):
         """Should return the most recent BusinessWall regardless of status."""
-        org = Organisation(
-            name="Test Org",
-            type=OrganisationTypeEnum.AGENCY,
-        )
-        db_session.add(org)
-        db_session.flush()
-
         old_bw = BusinessWall(
             bw_type=BWType.MEDIA.value,
             status=BWStatus.CANCELLED.value,
-            owner_id=1,
-            payer_id=1,
-            organisation_id=org.id,
+            owner_id=test_user_owner.id,
+            payer_id=test_user_owner.id,
+            organisation_id=test_org.id,
         )
         db_session.add(old_bw)
         db_session.flush()
@@ -376,63 +325,53 @@ class TestGetAnyBusinessWallForOrganisation:
         new_bw = BusinessWall(
             bw_type=BWType.PR.value,
             status=BWStatus.CANCELLED.value,
-            owner_id=1,
-            payer_id=1,
-            organisation_id=org.id,
+            owner_id=test_user_owner.id,
+            payer_id=test_user_owner.id,
+            organisation_id=test_org.id,
         )
         db_session.add(new_bw)
         db_session.flush()
 
-        result = get_any_business_wall_for_organisation(org)
+        result = get_any_business_wall_for_organisation(test_org)
 
         assert result is not None
         assert result.id == new_bw.id
         assert result.status == BWStatus.CANCELLED.value
 
-    def test_returns_draft_business_wall(self, db_session: Session):
+    def test_returns_draft_business_wall(
+        self, db_session: Session, test_org: Organisation, test_user_owner: User
+    ):
         """Should return draft BusinessWall (any status)."""
-        org = Organisation(
-            name="Test Org",
-            type=OrganisationTypeEnum.AGENCY,
-        )
-        db_session.add(org)
-        db_session.flush()
-
         bw = BusinessWall(
             bw_type=BWType.MEDIA.value,
             status=BWStatus.DRAFT.value,
-            owner_id=1,
-            payer_id=1,
-            organisation_id=org.id,
+            owner_id=test_user_owner.id,
+            payer_id=test_user_owner.id,
+            organisation_id=test_org.id,
         )
         db_session.add(bw)
         db_session.flush()
 
-        result = get_any_business_wall_for_organisation(org)
+        result = get_any_business_wall_for_organisation(test_org)
 
         assert result is not None
         assert result.status == BWStatus.DRAFT.value
 
-    def test_returns_suspended_business_wall(self, db_session: Session):
+    def test_returns_suspended_business_wall(
+        self, db_session: Session, test_org: Organisation, test_user_owner: User
+    ):
         """Should return suspended BusinessWall (any status)."""
-        org = Organisation(
-            name="Test Org",
-            type=OrganisationTypeEnum.AGENCY,
-        )
-        db_session.add(org)
-        db_session.flush()
-
         bw = BusinessWall(
             bw_type=BWType.MEDIA.value,
             status=BWStatus.SUSPENDED.value,
-            owner_id=1,
-            payer_id=1,
-            organisation_id=org.id,
+            owner_id=test_user_owner.id,
+            payer_id=test_user_owner.id,
+            organisation_id=test_org.id,
         )
         db_session.add(bw)
         db_session.flush()
 
-        result = get_any_business_wall_for_organisation(org)
+        result = get_any_business_wall_for_organisation(test_org)
 
         assert result is not None
         assert result.status == BWStatus.SUSPENDED.value
@@ -441,96 +380,52 @@ class TestGetAnyBusinessWallForOrganisation:
 class TestGetBusinessWallForUser:
     """Tests for get_business_wall_for_user function."""
 
-    def test_returns_none_when_user_has_no_organisation(self, db_session: Session):
+    def test_returns_none_when_user_has_no_organisation(self, test_user_no_org: User):
         """Should return None when user has no organisation."""
-        user = User(
-            email="test@example.com",
-            first_name="Test",
-            last_name="User",
-        )
-        db_session.add(user)
-        db_session.flush()
-
-        result = get_business_wall_for_user(user)
+        result = get_business_wall_for_user(test_user_no_org)
 
         assert result is None
 
-    def test_returns_bw_when_user_has_organisation(self, db_session: Session):
+    def test_returns_bw_when_user_has_organisation(
+        self,
+        db_session: Session,
+        test_org: Organisation,
+        test_user_with_profile: User,
+    ):
         """Should return BW when user's organisation has one."""
-        org = Organisation(
-            name="Test Org",
-            type=OrganisationTypeEnum.AGENCY,
-        )
-        db_session.add(org)
-        db_session.flush()
-
-        user = User(
-            email="test-bw-user1@example.com",
-            first_name="Test",
-            last_name="User",
-            organisation_id=org.id,
-        )
-        db_session.add(user)
-        db_session.flush()
-
-        profile = KYCProfile(
-            user_id=user.id,
-            profile_code=ProfileEnum.PM_DIR.name,
-        )
-        db_session.add(profile)
-        db_session.flush()
-
         bw = BusinessWall(
             bw_type=BWType.MEDIA.value,
             status=BWStatus.ACTIVE.value,
-            owner_id=user.id,
-            payer_id=user.id,
-            organisation_id=org.id,
+            owner_id=test_user_with_profile.id,
+            payer_id=test_user_with_profile.id,
+            organisation_id=test_org.id,
         )
         db_session.add(bw)
         db_session.flush()
 
-        result = get_business_wall_for_user(user)
+        result = get_business_wall_for_user(test_user_with_profile)
 
         assert result is not None
         assert result.id == bw.id
 
-    def test_returns_none_for_cancelled_bw(self, db_session: Session):
+    def test_returns_none_for_cancelled_bw(
+        self,
+        db_session: Session,
+        test_org: Organisation,
+        test_user_with_profile: User,
+    ):
         """Should return None when user's only BW is cancelled."""
-        org = Organisation(
-            name="Test Org 2",
-            type=OrganisationTypeEnum.AGENCY,
-        )
-        db_session.add(org)
-        db_session.flush()
-
-        user = User(
-            email="test-bw-user2@example.com",
-            first_name="Test",
-            last_name="User",
-            organisation_id=org.id,
-        )
-        db_session.add(user)
-        db_session.flush()
-
-        profile = KYCProfile(
-            user_id=user.id,
-            profile_code=ProfileEnum.PM_DIR.name,
-        )
-        db_session.add(profile)
-        db_session.flush()
-
         bw = BusinessWall(
             bw_type=BWType.MEDIA.value,
             status=BWStatus.CANCELLED.value,
-            owner_id=user.id,
-            payer_id=user.id,
-            organisation_id=org.id,
+            owner_id=test_user_with_profile.id,
+            payer_id=test_user_with_profile.id,
+            organisation_id=test_org.id,
         )
         db_session.add(bw)
         db_session.flush()
 
-        result = get_business_wall_for_user(user)
+        result = get_business_wall_for_user(test_user_with_profile)
 
         assert result is None
 
@@ -538,107 +433,34 @@ class TestGetBusinessWallForUser:
 class TestGuessBestBwType:
     """Tests for guess_best_bw_type function."""
 
-    def test_media_for_pm_dir(self, db_session: Session):
+    def test_media_for_pm_dir(self, test_user_pm_dir: User):
         """Should return MEDIA for PM_DIR profile."""
-        user = User(
-            email="test-bw-user4@example.com",
-            first_name="Test",
-            last_name="User",
-        )
-        db_session.add(user)
-        db_session.flush()
-
-        profile = KYCProfile(
-            user_id=user.id,
-            profile_code=ProfileEnum.PM_DIR.name,
-        )
-        db_session.add(profile)
-        db_session.flush()
-
-        result = guess_best_bw_type(user)
+        result = guess_best_bw_type(test_user_pm_dir)
 
         assert result == BWType.MEDIA
 
-    def test_pr_for_pr_dir(self, db_session: Session):
+    def test_pr_for_pr_dir(self, test_user_pr_dir: User):
         """Should return PR for PR_DIR profile."""
-        user = User(
-            email="test-bw-user5@example.com",
-            first_name="Test",
-            last_name="User",
-        )
-        db_session.add(user)
-        db_session.flush()
-
-        profile = KYCProfile(
-            user_id=user.id,
-            profile_code=ProfileEnum.PR_DIR.name,
-        )
-        db_session.add(profile)
-        db_session.flush()
-
-        result = guess_best_bw_type(user)
+        result = guess_best_bw_type(test_user_pr_dir)
 
         assert result == BWType.PR
 
-    def test_academics_for_ac_dir(self, db_session: Session):
+    def test_academics_for_ac_dir(self, test_user_ac_dir: User):
         """Should return ACADEMICS for AC_DIR profile."""
-        user = User(
-            email="test-bw-user6@example.com",
-            first_name="Test",
-            last_name="User",
-        )
-        db_session.add(user)
-        db_session.flush()
-
-        profile = KYCProfile(
-            user_id=user.id,
-            profile_code=ProfileEnum.AC_DIR.name,
-        )
-        db_session.add(profile)
-        db_session.flush()
-
-        result = guess_best_bw_type(user)
+        result = guess_best_bw_type(test_user_ac_dir)
 
         assert result == BWType.ACADEMICS
 
-    def test_transformers_for_tp_dir_org(self, db_session: Session):
+    def test_transformers_for_tp_dir_org(self, test_user_tp_dir_org: User):
         """Should return TRANSFORMERS for TP_DIR_ORG profile."""
-        user = User(
-            email="test-bw-user7@example.com",
-            first_name="Test",
-            last_name="User",
-        )
-        db_session.add(user)
-        db_session.flush()
-
-        profile = KYCProfile(
-            user_id=user.id,
-            profile_code=ProfileEnum.TP_DIR_ORG.name,
-        )
-        db_session.add(profile)
-        db_session.flush()
-
-        result = guess_best_bw_type(user)
+        result = guess_best_bw_type(test_user_tp_dir_org)
 
         assert result == BWType.TRANSFORMERS
 
-    def test_default_to_media_for_unknown_profile(self, db_session: Session):
+    def test_default_to_media_for_unknown_profile(
+        self, test_user_unknown_profile: User
+    ):
         """Should default to MEDIA for unknown profile."""
-        user = User(
-            email="test-bw-user8@example.com",
-            first_name="Test",
-            last_name="User",
-        )
-        db_session.add(user)
-        db_session.flush()
-
-        profile = KYCProfile(
-            user_id=user.id,
-            profile_code="UNKNOWN_PROFILE",
-        )
-        db_session.add(profile)
-        db_session.flush()
-
-        result = guess_best_bw_type(user)
+        result = guess_best_bw_type(test_user_unknown_profile)
 
         assert result == BWType.MEDIA
