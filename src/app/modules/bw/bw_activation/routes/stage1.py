@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, cast
 
-from flask import g, redirect, render_template, session, url_for
+from flask import Response, g, redirect, render_template, session, url_for
 
 from app.modules.bw.bw_activation import bp
 from app.modules.bw.bw_activation.config import BW_TYPES
@@ -29,11 +29,29 @@ if TYPE_CHECKING:
     from app.models.auth import User
 
 
+def _check_valid_organisation(user: User) -> Response | None:
+    """Check that user has a valid (non-deleted) organisation.
+
+    Returns:
+        Redirect response if organisation is invalid, None if valid.
+    """
+    org = user.organisation
+    if not org or org.deleted_at is not None:
+        session["error"] = "Vous devez appartenir à une organisation valide pour activer un Business Wall."
+        return redirect(url_for("bw_activation.not_authorized"))
+    return None
+
+
 @bp.route("/")
 def index():
     """Redirect to confirmation subscription page."""
     user = cast("User", g.user)
     init_session()
+
+    # Check user has a valid (non-deleted) organisation
+    if (error_response := _check_valid_organisation(user)):
+        return error_response
+
     current_bw = current_business_wall(user)
     if current_bw and current_bw.status != BWStatus.CANCELLED.value:
         fill_session(current_bw)
@@ -48,7 +66,13 @@ def index():
 @bp.route("/confirm-subscription")
 def confirm_subscription():
     """Step 1: Confirm or change subscription type."""
+    user = cast("User", g.user)
     init_session()
+
+    # Check user has a valid (non-deleted) organisation
+    if (error_response := _check_valid_organisation(user)):
+        return error_response
+
     suggested_type = session.get("suggested_bw_type", "media")
     return render_template(
         "bw_activation/00_confirm_subscription.html",
@@ -60,6 +84,12 @@ def confirm_subscription():
 @bp.route("/select-subscription/<bw_type>", methods=["POST"])
 def select_subscription(bw_type):
     """Confirm or select a subscription type and redirect to contacts nomination."""
+    user = cast("User", g.user)
+
+    # Check user has a valid (non-deleted) organisation
+    if (error_response := _check_valid_organisation(user)):
+        return error_response
+
     if bw_type not in BW_TYPES:
         return redirect(url_for("bw_activation.confirm_subscription"))
 
@@ -73,6 +103,12 @@ def select_subscription(bw_type):
 @bp.route("/activation-choice")
 def activation_choice():
     """Step 2: Business Wall activation page (all types - for visual validation)."""
+    user = cast("User", g.user)
+
+    # Check user has a valid (non-deleted) organisation
+    if (error_response := _check_valid_organisation(user)):
+        return error_response
+
     if not session.get("bw_type_confirmed"):
         return redirect(url_for("bw_activation.confirm_subscription"))
 
