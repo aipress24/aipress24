@@ -32,6 +32,7 @@ from app.modules.bw.bw_activation.user_utils import current_business_wall
 from app.modules.bw.bw_activation.utils import (
     ERR_BW_NOT_FOUND,
     ERR_NOT_MANAGER,
+    bw_managers_ids,
     clear_bw_session,
     fill_session,
     is_bw_manager_or_admin,
