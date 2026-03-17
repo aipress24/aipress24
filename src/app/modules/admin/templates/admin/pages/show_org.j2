@@ -66,15 +66,6 @@
     </div>
     <hr>
     <div class="mt-4 mb-4 flex items-center justify-end gap-x-6">
-      {% if not org.is_auto %}
-        <button
-          type="button"
-          id="list_managers_button"
-          data-modal-target="list_managers_modal"
-          data-modal-toggle="list_managers_modal"
-          class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-400"
-        >Liste managers</button>
-      {% endif %}
         <button
           type="button"
           id="list_users_button"
@@ -201,48 +192,6 @@
               class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-500 hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-400"
             >Valider</button>
             <button data-modal-hide="list_users_modal"
-              type="button"
-              class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-400"
-            >Annuler</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div id="list_managers_modal"
-  data-modal-backdrop="static"
-  tabindex="-1"
-  aria-hidden="true"
-  class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
-  <div class="relative p-4 w-full max-w-screen-sm max-h-full">
-    <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
-      <h4 class="pl-2 text-lg font-semibold text-gray-900   dark:text-white"
-      >Liste des managers du Business Wall de l'organisation
-      </h4>
-      <p class="bg-white rounded-lg shadow dark:bg-gray-700 pl-2 pr-2 pt-1 text-sm text-gray-900  dark:text-white"
-      >Pour modifier la liste des managers du Business Wall, ajouter ou retirer un email. Les managers doivent déjà faire partie de l'organisation.
-      </p>
-      <div class="p-2">
-        <form class="space-y-4" action="#">
-          <div>
-            <textarea name="content" id="content"
-              class="block p-2 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300
-              placeholder:text-gray-900
-              focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:gray-100"
-              rows="6"
-            >{{ org.managers|sort(attribute='email')|join('\n', attribute='email') }}</textarea>
-          </div>
-          <div class="mt-12 flex items-center justify-end gap-x-6">
-            <button
-              type="submit"
-              hx-post="/admin/show_org/{{org.id}}"
-              hx-vals='{"action": "change_managers_emails"}'
-              data-modal-hide="list_managers_modal"
-              class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-500 hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-400"
-            >Valider</button>
-            <button data-modal-hide="list_managers_modal"
               type="button"
               class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-400"
             >Annuler</button>
