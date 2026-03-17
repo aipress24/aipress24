@@ -84,8 +84,22 @@ def invite_user_role(
     if business_wall.role_assignments:
         for assignment in business_wall.role_assignments:
             if assignment.user_id == user.id and assignment.role_type == role.value:
-                warn("invite_user_role: already assigned")
-                return False
+                # do not invite already accepted
+                if assignment.invitation_status == InvitationStatus.ACCEPTED.value:
+                    warn("invite_user_role: already assigned")
+                    return False
+                # neither invite twice
+                if assignment.invitation_status == InvitationStatus.PENDING.value:
+                    warn("invite_user_role: already pending")
+                    return False
+                # we can re-invite previous removed users
+                assignment.invitation_status = InvitationStatus.PENDING.value
+                assignment.invited_at = datetime.now(UTC)
+                assignment.accepted_at = None
+                assignment.rejected_at = None
+                db.session.flush()
+                send_role_invitation_mail(business_wall, user, role)
+                return True
 
     role_assignment = RoleAssignment(
         business_wall_id=business_wall.id,
@@ -253,21 +267,30 @@ def change_bwmi_emails(business_wall: BusinessWall, raw_mails: str) -> None:
     org = business_wall.get_organisation()
     if not org:
         return
-    current_bwmi_or_pending_ids = bw_roles_ids(
+    current_bwmi_pending_ids = bw_roles_ids(
+        business_wall,
+        {BWRoleType.BWMI.value},
+        {InvitationStatus.PENDING.value},
+    )
+    current_bwmi_pending_users = _safe_get_user_list(current_bwmi_pending_ids)
+    # current_bwmi_pending_emails = {u.email.lower() for u in current_bwmi_pending_users}
+
+    # Get all current BWMi pending or accepted) to check for new invitations
+    current_bwmi_all_ids = bw_roles_ids(
         business_wall,
         {BWRoleType.BWMI.value},
         {InvitationStatus.PENDING.value, InvitationStatus.ACCEPTED.value},
     )
-    current_bwmi_users = _safe_get_user_list(current_bwmi_or_pending_ids)
-    current_bwmi_emails = {u.email.lower() for u in current_bwmi_users}
-    # remove users that are not in the new list of bwmi
-    for user in current_bwmi_users:
+    current_bwmi_all_users = _safe_get_user_list(current_bwmi_all_ids)
+    current_bwmi_all_emails = {u.email.lower() for u in current_bwmi_all_users}
+
+    for user in current_bwmi_pending_users:
         if user.email not in new_mails:
             revoke_user_role(business_wall, user, BWRoleType.BWMI)
 
     # add users of the new list that are not in the current list of bwmi
     for mail in new_mails:
-        if mail not in current_bwmi_emails:
+        if mail not in current_bwmi_all_emails:
             invite_bwmi_by_email(business_wall, mail)
 
 
@@ -277,21 +300,30 @@ def change_bwpri_emails(business_wall: BusinessWall, raw_mails: str) -> None:
     org = business_wall.get_organisation()
     if not org:
         return
-    current_bwpri_or_pending_ids = bw_roles_ids(
+    current_bwpri_pending_ids = bw_roles_ids(
+        business_wall,
+        {BWRoleType.BWPRI.value},
+        {InvitationStatus.PENDING.value},
+    )
+    current_bwpri_pending_users = _safe_get_user_list(current_bwpri_pending_ids)
+    # current_bwpri_pending_emails = {
+    #     u.email.lower() for u in current_bwpri_pending_users
+    # }
+
+    current_bwpri_all_ids = bw_roles_ids(
         business_wall,
         {BWRoleType.BWPRI.value},
         {InvitationStatus.PENDING.value, InvitationStatus.ACCEPTED.value},
     )
-    current_bwpri_users = _safe_get_user_list(current_bwpri_or_pending_ids)
-    current_bwpri_emails = {u.email.lower() for u in current_bwpri_users}
-    # remove users that are not in the new list of bwpri
-    for user in current_bwpri_users:
+    current_bwpri_all_users = _safe_get_user_list(current_bwpri_all_ids)
+    current_bwpri_all_emails = {u.email.lower() for u in current_bwpri_all_users}
+
+    for user in current_bwpri_pending_users:
         if user.email not in new_mails:
             revoke_user_role(business_wall, user, BWRoleType.BWPRI)
 
-    # add users of the new list that are not in the current list of bwpri
     for mail in new_mails:
-        if mail not in current_bwpri_emails:
+        if mail not in current_bwpri_all_emails:
             invite_bwpri_by_email(business_wall, mail)
 
 

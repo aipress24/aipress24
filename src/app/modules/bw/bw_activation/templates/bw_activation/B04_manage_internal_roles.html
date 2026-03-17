@@ -206,6 +206,83 @@
                                             {{ member.email }}
                                         </p>
                                     </div>
+                                    <button
+                                        type="button"
+                                        data-modal-target="confirm_remove_bwmi_{{ member.id }}"
+                                        data-modal-toggle="confirm_remove_bwmi_{{ member.id }}"
+                                        class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-red-500 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-400"
+                                    >
+                                        Retirer
+                                    </button>
+                                </div>
+
+                                <!-- Confirmation modal for removing BWMi -->
+                                <div
+                                    id="confirm_remove_bwmi_{{ member.id }}"
+                                    data-modal-backdrop="static"
+                                    tabindex="-1"
+                                    aria-hidden="true"
+                                    class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full"
+                                >
+                                    <div
+                                        class="relative p-4 w-full max-w-md max-h-full"
+                                    >
+                                        <div
+                                            class="relative bg-white rounded-lg shadow dark:bg-gray-700"
+                                        >
+                                            <div class="p-4 md:p-5 text-center">
+                                                <svg
+                                                    class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200"
+                                                    aria-hidden="true"
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    fill="none"
+                                                    viewBox="0 0 20 20"
+                                                >
+                                                    <path
+                                                        stroke="currentColor"
+                                                        stroke-linecap="round"
+                                                        stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                                                    />
+                                                </svg>
+                                                <h3
+                                                    class="mb-1 text-lg font-normal text-gray-500 dark:text-gray-400"
+                                                >
+                                                    Confirmer le retrait de :
+                                                </h3>
+                                                <p
+                                                    class="pt-2 pb-3 mb-4 text-center font-medium text-gray-900"
+                                                >
+                                                    {{ member.first_name }}
+                                                    {{ member.last_name }}
+                                                </p>
+                                                <p
+                                                    class="text-sm text-gray-500 mb-4"
+                                                >
+                                                    Cette action retirera
+                                                    définitivement ce manager du
+                                                    Business Wall.
+                                                </p>
+                                                <button
+                                                    data-modal-hide="confirm_remove_bwmi_{{ member.id }}"
+                                                    type="button"
+                                                    hx-post="{{ url_for('bw_activation.manage_internal_roles') }}"
+                                                    hx-vals='{"action": "remove_bwmi", "user_id": "{{ member.id }}" }'
+                                                    class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center"
+                                                >
+                                                    Oui, retirer
+                                                </button>
+                                                <button
+                                                    data-modal-hide="confirm_remove_bwmi_{{ member.id }}"
+                                                    type="button"
+                                                    class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
+                                                >
+                                                    Annuler
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             {% endfor %}
                         </div>
@@ -241,9 +318,7 @@
                             ou retirer un email. Les invitations permettent aux
                             membres de l'organisation de devenir BW Managers.
                             Une notification sera envoyée avec un lien pour
-                            accepter ou refuser la nomination. Retirer de la
-                            liste d'invitations un BWMi actif le retire aussi de
-                            la liste des BWMi actuels.
+                            accepter ou refuser la nomination.
                         </p>
                         <div class="p-2">
                             <form
@@ -257,7 +332,7 @@
                                         class="block p-2 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 placeholder:text-gray-900 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:gray-100"
                                         rows="6"
                                     >
-{{ bwmi_invitations|sort|join('\n') if bwmi_invitations else '' }}</textarea
+                                      {{ bwmi_invitations|sort|join('\n') if bwmi_invitations else '' }}</textarea
                                     >
                                 </div>
                                 <div
@@ -412,6 +487,83 @@
                                             {{ member.email }}
                                         </p>
                                     </div>
+                                    <button
+                                        type="button"
+                                        data-modal-target="confirm_remove_bwpri_{{ member.id }}"
+                                        data-modal-toggle="confirm_remove_bwpri_{{ member.id }}"
+                                        class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-red-500 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-400"
+                                    >
+                                        Retirer
+                                    </button>
+                                </div>
+
+                                <!-- Confirmation modal for removing BWPRi -->
+                                <div
+                                    id="confirm_remove_bwpri_{{ member.id }}"
+                                    data-modal-backdrop="static"
+                                    tabindex="-1"
+                                    aria-hidden="true"
+                                    class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full"
+                                >
+                                    <div
+                                        class="relative p-4 w-full max-w-md max-h-full"
+                                    >
+                                        <div
+                                            class="relative bg-white rounded-lg shadow dark:bg-gray-700"
+                                        >
+                                            <div class="p-4 md:p-5 text-center">
+                                                <svg
+                                                    class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200"
+                                                    aria-hidden="true"
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    fill="none"
+                                                    viewBox="0 0 20 20"
+                                                >
+                                                    <path
+                                                        stroke="currentColor"
+                                                        stroke-linecap="round"
+                                                        stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                                                    />
+                                                </svg>
+                                                <h3
+                                                    class="mb-1 text-lg font-normal text-gray-500 dark:text-gray-400"
+                                                >
+                                                    Confirmer le retrait de :
+                                                </h3>
+                                                <p
+                                                    class="pt-2 pb-3 mb-4 text-center font-medium text-gray-900"
+                                                >
+                                                    {{ member.first_name }}
+                                                    {{ member.last_name }}
+                                                </p>
+                                                <p
+                                                    class="text-sm text-gray-500 mb-4"
+                                                >
+                                                    Cette action retirera
+                                                    définitivement ce manager du
+                                                    Business Wall.
+                                                </p>
+                                                <button
+                                                    data-modal-hide="confirm_remove_bwpri_{{ member.id }}"
+                                                    type="button"
+                                                    hx-post="{{ url_for('bw_activation.manage_internal_roles') }}"
+                                                    hx-vals='{"action": "remove_bwpri", "user_id": "{{ member.id }}" }'
+                                                    class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center"
+                                                >
+                                                    Oui, retirer
+                                                </button>
+                                                <button
+                                                    data-modal-hide="confirm_remove_bwpri_{{ member.id }}"
+                                                    type="button"
+                                                    class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
+                                                >
+                                                    Annuler
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             {% endfor %}
                         </div>
@@ -449,9 +601,7 @@
                             permettent aux membres de l'organisation de devenir
                             {{ bw_info.manager_role }}s. Une notification sera
                             envoyée avec un lien pour accepter ou refuser la
-                            nomination. Retirer de la liste d'invitations un
-                            BWPRi actif le retire aussi de la liste des BWPRi
-                            actuels.
+                            nomination.
                         </p>
                         <div class="p-2">
                             <form
@@ -465,7 +615,7 @@
                                         class="block p-2 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 placeholder:text-gray-900 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:gray-100"
                                         rows="6"
                                     >
-{{ bwpri_invitations|sort|join('\n') if bwpri_invitations else '' }}</textarea
+                                      {{ bwpri_invitations|sort|join('\n') if bwpri_invitations else '' }}</textarea
                                     >
                                 </div>
                                 <div

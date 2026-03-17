@@ -20,6 +20,7 @@ from app.modules.bw.bw_activation import bp
 from app.modules.bw.bw_activation.bw_invitation import (
     change_bwmi_emails,
     change_bwpri_emails,
+    revoke_user_role,
 )
 from app.modules.bw.bw_activation.config import BW_TYPES
 from app.modules.bw.bw_activation.models import (
@@ -74,6 +75,34 @@ def manage_internal_roles():
             raw_mails = request.form["content"]
             change_bwpri_emails(business_wall, raw_mails)
             db.session.commit()
+            response = Response("")
+            response.headers["HX-Redirect"] = url_for(
+                "bw_activation.manage_internal_roles"
+            )
+            return response
+        if action == "remove_bwmi":
+            user_id = request.form.get("user_id")
+            if user_id:
+                try:
+                    user_to_remove = cast(User, get_obj(user_id, User))
+                    revoke_user_role(business_wall, user_to_remove, BWRoleType.BWMI)
+                    db.session.commit()
+                except Exception as e:
+                    warn(f"Failed to remove BWMi {user_id}: {e}")
+            response = Response("")
+            response.headers["HX-Redirect"] = url_for(
+                "bw_activation.manage_internal_roles"
+            )
+            return response
+        if action == "remove_bwpri":
+            user_id = request.form.get("user_id")
+            if user_id:
+                try:
+                    user_to_remove = cast(User, get_obj(user_id, User))
+                    revoke_user_role(business_wall, user_to_remove, BWRoleType.BWPRI)
+                    db.session.commit()
+                except Exception as e:
+                    warn(f"Failed to remove BWPRi {user_id}: {e}")
             response = Response("")
             response.headers["HX-Redirect"] = url_for(
                 "bw_activation.manage_internal_roles"
