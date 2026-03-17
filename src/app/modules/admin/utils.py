@@ -265,10 +265,26 @@ def merge_organisation(org: Organisation) -> None:
 def delete_full_organisation(org: Organisation) -> None:
     """Full deletion or Organisation.
 
-    step 1: remove users organisation link and their roles.
-    step 2: mark organisation as deleted
+    step 1: deactivate any active BusinessWall.
+    step 2: remove users organisation link and their roles.
+    step 3: mark organisation as deleted
     """
+    # import here to avoid circular imports
+    from app.modules.bw.bw_activation.models import BWStatus
+    from app.modules.bw.bw_activation.user_utils import (
+        get_active_business_wall_for_organisation,
+    )
+
     db_session = db.session
+
+    # Step 1: Deactivate any active BusinessWall
+    active_bw = get_active_business_wall_for_organisation(org)
+    if active_bw:
+        active_bw.status = BWStatus.SUSPENDED.value
+        db_session.merge(active_bw)
+        db_session.flush()
+
+    # Step 2: Remove users organisation link and their roles
     current_members = org.members
     for user in current_members:
         _remove_organisational_roles(user)
@@ -276,4 +292,6 @@ def delete_full_organisation(org: Organisation) -> None:
         _remove_user_profile_organisation(user)
         _mark_user_as_modified(user)
         db_session.merge(user)
+
+    # Step 3: Mark organisation as deleted
     _mark_organisation_as_deleted(db_session, org)
