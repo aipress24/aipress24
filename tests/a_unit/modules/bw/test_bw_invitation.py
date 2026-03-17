@@ -15,14 +15,24 @@ import pytest
 from app.models.auth import User
 from app.models.organisation import Organisation
 from app.modules.bw.bw_activation.bw_invitation import (
+    apply_bw_missions_to_pr_user,
     change_bwmi_emails,
     change_bwpri_emails,
     ensure_roles_membership,
     invite_user_role,
     revoke_user_role,
+    sync_all_pr_missions,
 )
-from app.modules.bw.bw_activation.models import BusinessWall, RoleAssignment
-from app.modules.bw.bw_activation.models.role import BWRoleType, InvitationStatus
+from app.modules.bw.bw_activation.models import (
+    BusinessWall,
+    RoleAssignment,
+    RolePermission,
+)
+from app.modules.bw.bw_activation.models.role import (
+    BWRoleType,
+    InvitationStatus,
+    PermissionType,
+)
 
 if TYPE_CHECKING:
     from flask.ctx import AppContext
@@ -513,3 +523,225 @@ class TestChangeBWPRiEmails:
         assert len(bwpri_roles) == 1
         assert bwmi_roles[0].user_id == bwmi_member.id
         assert bwpri_roles[0].user_id == bwpri_member.id
+
+
+class TestApplyBwMissionsToPrUser:
+    """Tests for apply_bw_missions_to_pr_user function."""
+
+    def test_apply_missions_creates_permissions(
+        self,
+        db_session: scoped_session,
+        app_context: AppContext,
+        business_wall: BusinessWall,
+        invited_user: User,
+    ) -> None:
+        """Apply missions creates permission records."""
+        # Create role assignment for BWPRI
+        role_assignment = RoleAssignment(
+            business_wall_id=business_wall.id,
+            user_id=invited_user.id,
+            role_type=BWRoleType.BWPRI.value,
+            invitation_status=InvitationStatus.ACCEPTED.value,
+        )
+        db_session.add(role_assignment)
+        db_session.flush()
+
+        # Set missions on the business wall
+        business_wall.missions = {
+            "press_release": True,
+            "events": True,
+            "missions": False,
+            "projects": True,
+        }
+        db_session.flush()
+
+        db_session.refresh(business_wall)
+        result = apply_bw_missions_to_pr_user(
+            business_wall, invited_user, BWRoleType.BWPRI
+        )
+
+        assert result is True
+
+        # Verify permissions were created
+        db_session.refresh(role_assignment)
+        assert len(role_assignment.permissions) > 0
+
+        # Check specific permissions
+        permission_map = {
+            p.permission_type: p.is_granted for p in role_assignment.permissions
+        }
+        assert permission_map.get(PermissionType.PRESS_RELEASE.value) is True
+        assert permission_map.get(PermissionType.EVENTS.value) is True
+        assert permission_map.get(PermissionType.MISSIONS.value) is False
+        assert permission_map.get(PermissionType.PROJECTS.value) is True
+
+    def test_apply_missions_fails_for_invalid_role(
+        self,
+        db_session: scoped_session,
+        app_context: AppContext,
+        business_wall: BusinessWall,
+        invited_user: User,
+    ) -> None:
+        """Fails for non-PR roles."""
+        # Create role assignment for BWMI (not PR)
+        role_assignment = RoleAssignment(
+            business_wall_id=business_wall.id,
+            user_id=invited_user.id,
+            role_type=BWRoleType.BWMI.value,
+            invitation_status=InvitationStatus.ACCEPTED.value,
+        )
+        db_session.add(role_assignment)
+        db_session.flush()
+
+        db_session.refresh(business_wall)
+        result = apply_bw_missions_to_pr_user(
+            business_wall, invited_user, BWRoleType.BWMI
+        )
+
+        assert result is False
+
+    def test_apply_missions_fails_without_role_assignment(
+        self,
+        db_session: scoped_session,
+        app_context: AppContext,
+        business_wall: BusinessWall,
+        invited_user: User,
+    ) -> None:
+        """Fails when user has no role assignment."""
+        result = apply_bw_missions_to_pr_user(
+            business_wall, invited_user, BWRoleType.BWPRI
+        )
+
+        assert result is False
+
+    def test_apply_missions_updates_existing_permissions(
+        self,
+        db_session: scoped_session,
+        app_context: AppContext,
+        business_wall: BusinessWall,
+        invited_user: User,
+    ) -> None:
+        """Updates existing permission records."""
+        # Create role assignment
+        role_assignment = RoleAssignment(
+            business_wall_id=business_wall.id,
+            user_id=invited_user.id,
+            role_type=BWRoleType.BWPRI.value,
+            invitation_status=InvitationStatus.ACCEPTED.value,
+        )
+        db_session.add(role_assignment)
+        db_session.flush()
+
+        # Create existing permission
+        existing_permission = RolePermission(
+            role_assignment_id=role_assignment.id,
+            permission_type=PermissionType.PRESS_RELEASE.value,
+            is_granted=False,
+        )
+        db_session.add(existing_permission)
+        db_session.flush()
+
+        # Set missions (press_release should become True)
+        business_wall.missions = {"press_release": True}
+        db_session.flush()
+
+        db_session.refresh(business_wall)
+        result = apply_bw_missions_to_pr_user(
+            business_wall, invited_user, BWRoleType.BWPRI
+        )
+
+        assert result is True
+
+        # Verify existing permission was updated
+        db_session.refresh(existing_permission)
+        assert existing_permission.is_granted is True
+
+
+class TestSyncAllPrMissions:
+    """Tests for sync_all_pr_missions function."""
+
+    def test_sync_updates_all_pr_users(
+        self,
+        db_session: scoped_session,
+        app_context: AppContext,
+        business_wall: BusinessWall,
+        org: Organisation,
+    ) -> None:
+        """Syncs missions to all PR users."""
+        # Create two users with PR roles
+        pr_user1 = User(email="pr1@example.com", active=True)
+        pr_user1.organisation = org
+        pr_user1.organisation_id = org.id
+        pr_user2 = User(email="pr2@example.com", active=True)
+        pr_user2.organisation = org
+        pr_user2.organisation_id = org.id
+        db_session.add_all([pr_user1, pr_user2])
+        db_session.flush()
+
+        # Create BWPRI role assignments
+        role1 = RoleAssignment(
+            business_wall_id=business_wall.id,
+            user_id=pr_user1.id,
+            role_type=BWRoleType.BWPRI.value,
+            invitation_status=InvitationStatus.ACCEPTED.value,
+        )
+        role2 = RoleAssignment(
+            business_wall_id=business_wall.id,
+            user_id=pr_user2.id,
+            role_type=BWRoleType.BWPRI.value,
+            invitation_status=InvitationStatus.ACCEPTED.value,
+        )
+        db_session.add_all([role1, role2])
+        db_session.flush()
+
+        # Set missions
+        business_wall.missions = {"press_release": True, "events": True}
+        db_session.flush()
+
+        db_session.refresh(business_wall)
+        updated_count = sync_all_pr_missions(business_wall)
+
+        assert updated_count == 2
+
+        # Verify both users have permissions
+        db_session.refresh(role1)
+        db_session.refresh(role2)
+        assert len(role1.permissions) > 0
+        assert len(role2.permissions) > 0
+
+    def test_sync_ignores_non_pr_roles(
+        self,
+        db_session: scoped_session,
+        app_context: AppContext,
+        business_wall: BusinessWall,
+        invited_user: User,
+    ) -> None:
+        """Only syncs PR roles, not BWMI."""
+        # Create BWMI role assignment (not PR)
+        role_assignment = RoleAssignment(
+            business_wall_id=business_wall.id,
+            user_id=invited_user.id,
+            role_type=BWRoleType.BWMI.value,
+            invitation_status=InvitationStatus.ACCEPTED.value,
+        )
+        db_session.add(role_assignment)
+        db_session.flush()
+
+        business_wall.missions = {"press_release": True}
+        db_session.flush()
+
+        db_session.refresh(business_wall)
+        updated_count = sync_all_pr_missions(business_wall)
+
+        assert updated_count == 0
+
+    def test_sync_returns_zero_for_no_assignments(
+        self,
+        db_session: scoped_session,
+        app_context: AppContext,
+        business_wall: BusinessWall,
+    ) -> None:
+        """Returns 0 when BW has no role assignments."""
+        updated_count = sync_all_pr_missions(business_wall)
+
+        assert updated_count == 0
