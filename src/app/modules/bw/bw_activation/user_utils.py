@@ -18,13 +18,10 @@ from app.modules.admin.utils import Organisation
 from app.modules.bw.bw_activation.models import BusinessWall
 from app.modules.bw.bw_activation.models.business_wall import BWStatus, BWType
 
-# from flask import session
-
 StdDict = dict[str, str | int | float | bool | None]
 
 if TYPE_CHECKING:
     from app.models.auth import User
-    # from app.models.organisation import Organisation
 
 PROFILE_CODE_TO_BW2_TYPE: dict[ProfileEnum, BWType] = {
     ProfileEnum.PM_DIR: BWType.MEDIA,
