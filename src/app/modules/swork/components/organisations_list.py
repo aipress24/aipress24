@@ -197,7 +197,7 @@ class FilterByDeptOrm(Filter):
     def __init__(self, names: list[str] | None = None) -> None:
         super().__init__()
         if names:
-            self.options = names
+            self.options: list[str | FilterOption] = list(names)
 
     def apply(self, stmt: Select, state: dict[str, bool]) -> Select:
         active_options = self.active_options(state)
@@ -215,7 +215,7 @@ class FilterByCityOrm(Filter):
     def __init__(self, names: list[str] | None = None) -> None:
         super().__init__()
         if names:
-            self.options = names
+            self.options: list[str | FilterOption] = list(names)
 
     def apply(self, stmt: Select, state: dict[str, bool]) -> Select:
         active_options = self.active_options(state)

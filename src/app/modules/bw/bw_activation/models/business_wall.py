@@ -261,7 +261,7 @@ class BusinessWall(UUIDAuditBase):
         if self.pays_zip_ville == "FRA":
             # only for France
             try:
-                self.departement = self.code_postal[:2]
+                self.departement = self.code_postal[:2] if self.code_postal else ""
             except IndexError:
                 self.departement = ""
         else:

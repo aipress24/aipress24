@@ -96,10 +96,7 @@ class Carousel(Component):
             msg = f"expected ArticleVM, PressReleaseVM, or CommuniqueVM, not {self.post!r}"
             raise TypeError(msg)
 
-        try:
-            images: list[Image | ComImage | EventImage] = info.sorted_images
-        except AttributeError:
-            images = []
+        images: list[Image | ComImage | EventImage] = getattr(info, "sorted_images", [])
 
         if not images:
             return [
