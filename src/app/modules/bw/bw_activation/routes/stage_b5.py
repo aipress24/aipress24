@@ -23,12 +23,12 @@ from app.modules.bw.bw_activation.user_utils import current_business_wall
 from app.modules.bw.bw_activation.utils import (
     ERR_BW_NOT_FOUND,
     ERR_NOT_MANAGER,
-    bw_managers_ids,
     fill_session,
     get_current_pr_bw_info_list,
     get_invited_press_relation_bw_list,
     get_pending_pr_bw_info_list,
     get_press_relation_bw_list,
+    is_bw_manager_or_admin,
 )
 
 
@@ -46,7 +46,7 @@ def manage_external_partners():
         session["error"] = ERR_BW_NOT_FOUND
         return redirect(url_for("bw_activation.not_authorized"))
     fill_session(business_wall)
-    if user.id not in bw_managers_ids(business_wall):
+    if not is_bw_manager_or_admin(user, business_wall):
         session["error"] = ERR_NOT_MANAGER
         return redirect(url_for("bw_activation.not_authorized"))
 

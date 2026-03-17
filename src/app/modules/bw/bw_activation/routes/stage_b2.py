@@ -21,8 +21,8 @@ from app.modules.bw.bw_activation.utils import (
     ERR_BW_NOT_FOUND,
     ERR_NO_ORGANISATION,
     ERR_NOT_MANAGER,
-    bw_managers_ids,
     fill_session,
+    is_bw_manager_or_admin,
 )
 
 if TYPE_CHECKING:
@@ -39,7 +39,7 @@ def invite_organisation_members():
         session["error"] = ERR_BW_NOT_FOUND
         return redirect(url_for("bw_activation.not_authorized"))
     fill_session(current_bw)
-    if user.id not in bw_managers_ids(current_bw):
+    if not is_bw_manager_or_admin(user, current_bw):
         session["error"] = ERR_NOT_MANAGER
         return redirect(url_for("bw_activation.not_authorized"))
 

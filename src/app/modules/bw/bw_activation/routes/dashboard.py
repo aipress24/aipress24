@@ -17,8 +17,8 @@ from app.modules.bw.bw_activation.models.business_wall import BWStatus
 from app.modules.bw.bw_activation.user_utils import current_business_wall
 from app.modules.bw.bw_activation.utils import (
     ERR_NOT_MANAGER,
-    bw_managers_ids,
     fill_session,
+    is_bw_manager_or_admin,
 )
 
 if TYPE_CHECKING:
@@ -36,8 +36,8 @@ def dashboard():
             return redirect(url_for("bw_activation.index"))
         warn("current BW", current_bw)
         fill_session(current_bw)
-        if user.id not in bw_managers_ids(current_bw):
-            # not enough right to manage BW (not owner)
+        if not is_bw_manager_or_admin(user, current_bw):
+            # not enough right to manage BW (not owner and not admin)
             session["error"] = ERR_NOT_MANAGER
             return redirect(url_for("bw_activation.not_authorized"))
     if not session.get("bw_activated") or not session.get("bw_type"):
