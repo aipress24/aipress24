@@ -8,7 +8,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, cast
 
-from flask import Response, g, redirect, render_template, session, url_for
+from flask import g, redirect, render_template, session, url_for
+from werkzeug.wrappers import Response
 
 from app.modules.bw.bw_activation import bp
 from app.modules.bw.bw_activation.config import BW_TYPES
