@@ -20,6 +20,8 @@ from typing import ClassVar, cast
 from attr import define
 from flask import Response, current_app, render_template, request, url_for
 from flask.views import MethodView
+from sqlalchemy import select
+from sqlalchemy.exc import NoInspectionAvailable
 from svcs.flask import container
 
 from app.flask.extensions import db
@@ -41,7 +43,11 @@ from app.modules.admin.utils import (
     merge_organisation,
     toggle_org_active,
 )
-from app.modules.bw.bw_activation.user_utils import get_organisation_logo_url
+from app.modules.bw.bw_activation.models import BusinessWall, BWStatus
+from app.modules.bw.bw_activation.user_utils import (
+    get_active_business_wall_for_organisation,
+    get_organisation_logo_url,
+)
 from app.modules.kyc.renderer import render_field
 from app.modules.wip.forms.business_wall import (
     BWFormGenerator,
@@ -72,6 +78,7 @@ class OrgVM(ViewModel):
         edge cases like auto-generated organizations.
         """
         members = self.get_members()
+        active_bw = self.get_active_business_wall()
         return {
             "members": members,
             "count_members": len(self.org.members),
@@ -81,6 +88,8 @@ class OrgVM(ViewModel):
             "logo_url": self.get_logo_url(),
             "screenshot_url": self.get_screenshot_url(),
             "address_formatted": self.org.formatted_address,
+            "active_business_wall": active_bw,
+            "has_active_bw": active_bw is not None,
         }
 
     def get_members(self) -> list:
@@ -103,6 +112,13 @@ class OrgVM(ViewModel):
         config = current_app.config
         base_url = config["S3_PUBLIC_URL"]
         return f"{base_url}/{self.org.screenshot_id}"
+
+    def get_active_business_wall(self) -> BusinessWall | None:
+        """Return the active BusinessWall associated with this organisation."""
+        try:
+            return get_active_business_wall_for_organisation(self.org)
+        except NoInspectionAvailable:
+            return None
 
 
 class ShowOrgView(MethodView):
@@ -189,6 +205,14 @@ class ShowOrgView(MethodView):
 
             case "toggle_org_active":
                 toggle_org_active(org)
+                response.headers["HX-Redirect"] = current_url
+
+            case "deactivate_bw":
+                # Set the active BusinessWall to inactive (SUSPENDED)
+                active_bw = get_active_business_wall_for_organisation(org)
+                if active_bw:
+                    active_bw.status = BWStatus.SUSPENDED.value
+                    db.session.commit()
                 response.headers["HX-Redirect"] = current_url
 
             case "delete_org":
