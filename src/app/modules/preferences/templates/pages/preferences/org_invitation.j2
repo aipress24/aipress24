@@ -92,4 +92,36 @@
       </div>
     {% endif %}
   {% endif %}
+
+  {# Role Invitations #}
+  <h2 class="pb-4 pt-8 mt-8 border-t border-gray-200">Invitations à un rôle Business Wall</h2>
+  {% if open_role_invitations > 0 %}
+    <p class="mt-1 text-sm text-gray-500">
+      {% if open_role_invitations > 1 %}
+        Vous avez été invité à occuper un rôle dans les Business Walls suivants&nbsp;:
+      {% else %}
+        Vous avez été invité à occuper un rôle dans le Business Wall suivant&nbsp;:
+      {% endif %}
+    </p>
+    <div class="space-y-4 mt-4">
+      {% for role_invit in role_invitations %}
+        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
+          <div>
+            <div class="font-medium text-gray-900">{{ role_invit.bw_name }}</div>
+            <div class="text-sm text-gray-600">
+              Rôle proposé&nbsp;: <span class="font-semibold">{{ role_invit.role_label }}</span>
+            </div>
+          </div>
+          <a href="{{ url_for('bw_activation.confirm_role_invitation', bw_id=role_invit.bw_id, role_type=role_invit.role_type, user_id=role_invit.user_id) }}"
+             class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm !text-white bg-indigo-500 hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-400">
+            Voir l'invitation
+          </a>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="pt-0 items-center self-center text-left font-medium font-bold text-black">
+      Vous n'avez actuellement aucune invitation à un rôle Business Wall.
+    </div>
+  {% endif %}
 {% endblock %}
