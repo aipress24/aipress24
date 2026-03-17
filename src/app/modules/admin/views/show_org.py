@@ -17,20 +17,15 @@ from __future__ import annotations
 
 from typing import ClassVar, cast
 
-from attr import define
-from flask import Response, current_app, render_template, request, url_for
+from flask import Response, render_template, request, url_for
 from flask.views import MethodView
-from sqlalchemy import select
-from sqlalchemy.exc import NoInspectionAvailable
 from svcs.flask import container
 
 from app.flask.extensions import db
 from app.flask.lib.nav import nav
-from app.flask.lib.view_model import ViewModel
 from app.flask.sqla import get_obj
 from app.models.organisation import Organisation
 from app.modules.admin import blueprint
-from app.modules.admin.invitations import emails_invited_to_organisation
 from app.modules.admin.org_email_utils import (
     change_invitations_emails,
     change_leaders_emails,
@@ -43,10 +38,10 @@ from app.modules.admin.utils import (
     merge_organisation,
     toggle_org_active,
 )
-from app.modules.bw.bw_activation.models import BusinessWall, BWStatus
+from app.modules.admin.views._show_org import OrgVM
+from app.modules.bw.bw_activation.models import BWStatus
 from app.modules.bw.bw_activation.user_utils import (
     get_active_business_wall_for_organisation,
-    get_organisation_logo_url,
 )
 from app.modules.kyc.renderer import render_field
 from app.modules.wip.forms.business_wall import (
@@ -54,71 +49,6 @@ from app.modules.wip.forms.business_wall import (
     merge_org_results,
 )
 from app.services.sessions import SessionService
-
-
-@define
-class OrgVM(ViewModel):
-    """View model that prepares organization data for admin templates.
-
-    Wraps the Organisation model to provide template-friendly computed properties.
-    This separation keeps presentation logic out of the domain model while giving
-    templates direct attribute access to all needed data.
-    """
-
-    @property
-    def org(self):
-        """Access the underlying Organisation with proper typing."""
-        return cast("Organisation", self._model)
-
-    def extra_attrs(self):
-        """Provide additional attributes needed by the admin detail template.
-
-        Aggregates membership data, invitation state, and media URLs in one place
-        so the template doesn't need to make multiple service calls or handle
-        edge cases like auto-generated organizations.
-        """
-        members = self.get_members()
-        active_bw = self.get_active_business_wall()
-        return {
-            "members": members,
-            "count_members": len(self.org.members),
-            "managers": self.org.managers,
-            "leaders": self.org.leaders,
-            "invitations_emails": emails_invited_to_organisation(self.org.id),
-            "logo_url": self.get_logo_url(),
-            "screenshot_url": self.get_screenshot_url(),
-            "address_formatted": self.org.formatted_address,
-            "active_business_wall": active_bw,
-            "has_active_bw": active_bw is not None,
-        }
-
-    def get_members(self) -> list:
-        """Materialize the members relationship for template iteration."""
-        return list(self.org.members)
-
-    def get_logo_url(self):
-        """Return the appropriate logo URL based on organization type.
-
-        Auto-generated organizations (created automatically when a user registers
-        without an existing org) display a placeholder logo to signal they are
-        not officially claimed pages.
-        """
-        return get_organisation_logo_url(self.org)
-
-    def get_screenshot_url(self):
-        """Build the public S3 URL for the organization's screenshot if present."""
-        if not self.org.screenshot_id:
-            return ""
-        config = current_app.config
-        base_url = config["S3_PUBLIC_URL"]
-        return f"{base_url}/{self.org.screenshot_id}"
-
-    def get_active_business_wall(self) -> BusinessWall | None:
-        """Return the active BusinessWall associated with this organisation."""
-        try:
-            return get_active_business_wall_for_organisation(self.org)
-        except NoInspectionAvailable:
-            return None
 
 
 class ShowOrgView(MethodView):
@@ -136,7 +66,7 @@ class ShowOrgView(MethodView):
         admins must click "Modify" to enable editing. This state is tracked
         per-organization in the session so multiple browser tabs don't interfere.
         """
-        org = get_obj(uid, Organisation)
+        org = cast(Organisation, get_obj(uid, Organisation))
         ro_session_key = f"readonly_form_bw_{org.id}"
 
         session_service = container.get(SessionService)
