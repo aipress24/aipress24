@@ -12,6 +12,7 @@ from uuid import UUID
 from flask import session
 from svcs.flask import container
 
+from app.enums import RoleEnum
 from app.flask.sqla import get_obj
 from app.models.auth import User
 from app.modules.bw.bw_activation.models import (
@@ -35,6 +36,21 @@ ERR_NO_ORGANISATION = "Aucun Organisation trouvée pour le Business Wall."
 ERR_UNKNOWN_ACTION = "Erreur interne, action inconnue."
 ERR_WRONG_VALIDATION_LINK = "Lien de validation erroné."
 ERR_INVITATION_NOT_FOUND = "Invitation non trouvée."
+
+
+def is_bw_manager_or_admin(user: User, bw: BusinessWall) -> bool:
+    """Check if user has management rights on the BW or is an admin.
+
+    Args:
+        user: The User to check
+        bw: The BusinessWall instance
+
+    Returns:
+        True if user is a manager of the BW or has admin role
+    """
+    if user.has_role(RoleEnum.ADMIN):
+        return True
+    return user.id in bw_managers_ids(bw)
 
 
 def init_session():
