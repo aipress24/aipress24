@@ -36,8 +36,12 @@ tasks:
     - test: |
           cd aipress24
           uv run make test-sqlite
+
+    - test-wth-typeguard: |
+          cd aipress24
           uv run pytest tests --typeguard-packages=app tests
-          # TODO: test with postgresql
+
+    # TODO: test with postgresql
 
     - nox-test: |
           cd aipress24
