@@ -28,7 +28,6 @@ from app.models.organisation import Organisation
 from app.modules.admin import blueprint
 from app.modules.admin.org_email_utils import (
     change_invitations_emails,
-    change_leaders_emails,
     change_managers_emails,
     change_members_emails,
 )
@@ -92,8 +91,7 @@ class ShowOrgView(MethodView):
         - BW form mode toggling (allow_modify_bw, cancel_modification_bw,
           validate_modification_bw)
         - Organization lifecycle (toggle_org_active, delete_org)
-        - Membership management (change_emails, change_managers_emails,
-          change_leaders_emails)
+        - Membership management (change_emails, change_managers_emails)
         - Invitation management (change_invitations_emails)
 
         All actions respond with HX-Redirect headers so HTMX performs a client-side
@@ -161,11 +159,6 @@ class ShowOrgView(MethodView):
             case "change_managers_emails":
                 raw_mails = request.form["content"]
                 change_managers_emails(org, raw_mails)
-                response.headers["HX-Redirect"] = current_url
-
-            case "change_leaders_emails":
-                raw_mails = request.form["content"]
-                change_leaders_emails(org, raw_mails)
                 response.headers["HX-Redirect"] = current_url
 
             case "change_invitations_emails":
