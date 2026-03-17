@@ -36,24 +36,23 @@
     </div>
     {% else %}
     <div class="mt-4 flex items-center justify-start gap-x-8">
-      BW: «{{ org.bw_type }}»
-      <label class="inline-flex items-left cursor-pointer">
-        <input
-          type="checkbox"
-          value="true"
-          class="sr-only peer"
-          {% if org.active %}
-            checked
-          {% endif %}
-          hx-post="/admin/show_org/{{org.id}}"
-          hx-vals='{"action": "toggle_org_active"}'
-          hx-trigger="change"
-        >
-        <div class="relative w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-orange-300 dark:peer-focus:ring-orange-800 dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-orange-600"></div>
-        <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300"
-        >Activation (organisation avec abonnement Business Wall à jour)
+      {% if org.has_active_bw %}
+        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+          BW Actif: {{ org.active_business_wall.bw_type }}
         </span>
-      </label>
+        <button
+          type="button"
+          data-modal-target="deactivate_bw_confirm"
+          data-modal-toggle="deactivate_bw_confirm"
+          class="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-500 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-400"
+        >
+          Désactiver le BW
+        </button>
+      {% else %}
+        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
+          BW: Inactif (aucun Business Wall actif)
+        </span>
+      {% endif %}
     </div>
     {% endif %}
     <div class="mt-4 mb-4 flex items-center justify-end gap-x-6">
@@ -134,6 +133,46 @@
     </div>
   </div>
 </div>
+
+{% if org.has_active_bw %}
+<div id="deactivate_bw_confirm"
+  data-modal-backdrop="static"
+  tabindex="-1"
+  aria-hidden="true"
+  class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+  <div class="relative p-4 w-full max-w-md max-h-full">
+    <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+      <div class="p-4 md:p-5 text-center">
+        <svg class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+        </svg>
+        <h3 class="mb-1 text-lg font-normal text-gray-500 dark:text-gray-400"
+        >Confirmer la désactivation du Business Wall&nbsp;?
+        </h3>
+        <p class="pt-2 pb-3 mb-4 text-center">
+          BW Type: {{ org.active_business_wall.bw_type }}<br>
+          Statut actuel: {{ org.active_business_wall.status }}
+        </p>
+        <p class="text-sm text-gray-500 mb-4">
+          Cette action suspendra le Business Wall. Il pourra être réactivé plus tard en reprenant un abonnement.
+        </p>
+        <button
+          data-modal-hide="deactivate_bw_confirm"
+          type="button"
+          hx-post="/admin/show_org/{{org.id}}"
+          hx-vals='{"action": "deactivate_bw"}'
+          class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center"
+        >Oui, désactiver</button>
+        <button
+          data-modal-hide="deactivate_bw_confirm"
+          type="button"
+          class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
+        >Annuler</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
 
 <div id="list_users_modal"
   data-modal-backdrop="static"
