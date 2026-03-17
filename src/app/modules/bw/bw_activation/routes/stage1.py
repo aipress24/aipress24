@@ -38,7 +38,9 @@ def _check_valid_organisation(user: User) -> Response | None:
     """
     org = user.organisation
     if not org or org.deleted_at is not None:
-        session["error"] = "Vous devez appartenir à une organisation valide pour activer un Business Wall."
+        session["error"] = (
+            "Vous devez appartenir à une organisation valide pour activer un Business Wall."
+        )
         return redirect(url_for("bw_activation.not_authorized"))
     return None
 
@@ -50,7 +52,7 @@ def index():
     init_session()
 
     # Check user has a valid (non-deleted) organisation
-    if (error_response := _check_valid_organisation(user)):
+    if error_response := _check_valid_organisation(user):
         return error_response
 
     current_bw = current_business_wall(user)
@@ -71,7 +73,7 @@ def confirm_subscription():
     init_session()
 
     # Check user has a valid (non-deleted) organisation
-    if (error_response := _check_valid_organisation(user)):
+    if error_response := _check_valid_organisation(user):
         return error_response
 
     suggested_type = session.get("suggested_bw_type", "media")
@@ -88,7 +90,7 @@ def select_subscription(bw_type):
     user = cast("User", g.user)
 
     # Check user has a valid (non-deleted) organisation
-    if (error_response := _check_valid_organisation(user)):
+    if error_response := _check_valid_organisation(user):
         return error_response
 
     if bw_type not in BW_TYPES:
@@ -107,7 +109,7 @@ def activation_choice():
     user = cast("User", g.user)
 
     # Check user has a valid (non-deleted) organisation
-    if (error_response := _check_valid_organisation(user)):
+    if error_response := _check_valid_organisation(user):
         return error_response
 
     if not session.get("bw_type_confirmed"):
