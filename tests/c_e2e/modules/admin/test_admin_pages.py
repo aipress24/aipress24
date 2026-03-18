@@ -345,7 +345,6 @@ def organisation_with_members(db_session: Session) -> Organisation:
 
     org = Organisation(
         name=f"Test Media Company {unique_id}",
-        type=OrganisationTypeEnum.MEDIA,
         active=True,
     )
     db_session.add(org)
@@ -432,10 +431,7 @@ class TestOrgVMExtended:
         """Test get_logo_url returns static image for AUTO organisations."""
         unique_id = uuid.uuid4().hex[:8]
 
-        org = Organisation(
-            name=f"Auto Org {unique_id}",
-            type=OrganisationTypeEnum.AUTO,
-        )
+        org = Organisation(name=f"Auto Org {unique_id}", active=False)
         db_session.add(org)
         db_session.flush()
 

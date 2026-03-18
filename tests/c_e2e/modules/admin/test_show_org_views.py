@@ -26,10 +26,7 @@ if TYPE_CHECKING:
 def test_org_for_admin(db_session: Session) -> Organisation:
     """Create an organisation for admin tests with unique name."""
     unique_id = uuid.uuid4().hex[:8]
-    org = Organisation(
-        name=f"Admin Test Org {unique_id}",
-        type=OrganisationTypeEnum.MEDIA,
-    )
+    org = Organisation(name=f"Admin Test Org {unique_id}")
     org.active = True
     db_session.add(org)
     db_session.flush()
@@ -138,10 +135,7 @@ class TestOrgVM:
     def test_org_vm_exposes_org(self, app: Flask, db_session: Session):
         """Test that OrgVM exposes the org property."""
         unique_id = uuid.uuid4().hex[:8]
-        org = Organisation(
-            name=f"VM Test Org {unique_id}",
-            type=OrganisationTypeEnum.MEDIA,
-        )
+        org = Organisation(name=f"VM Test Org {unique_id}")
         db_session.add(org)
         db_session.flush()
 
@@ -152,10 +146,7 @@ class TestOrgVM:
     def test_org_vm_logo_url_auto_org(self, app: Flask, db_session: Session):
         """Test logo URL for auto organisation."""
         unique_id = uuid.uuid4().hex[:8]
-        org = Organisation(
-            name=f"Auto Org {unique_id}",
-            type=OrganisationTypeEnum.AUTO,
-        )
+        org = Organisation(name=f"Auto Org {unique_id}")
         db_session.add(org)
         db_session.flush()
 
@@ -166,10 +157,7 @@ class TestOrgVM:
     def test_org_vm_screenshot_url_empty(self, app: Flask, db_session: Session):
         """Test screenshot URL is empty when no screenshot."""
         unique_id = uuid.uuid4().hex[:8]
-        org = Organisation(
-            name=f"Screenshot Test Org {unique_id}",
-            type=OrganisationTypeEnum.MEDIA,
-        )
+        org = Organisation(name=f"Screenshot Test Org {unique_id}")
         org.screenshot_id = None
         db_session.add(org)
         db_session.flush()
@@ -181,10 +169,7 @@ class TestOrgVM:
     def test_org_vm_get_members(self, app: Flask, db_session: Session):
         """Test get_members returns list of members."""
         unique_id = uuid.uuid4().hex[:8]
-        org = Organisation(
-            name=f"Members Test Org {unique_id}",
-            type=OrganisationTypeEnum.MEDIA,
-        )
+        org = Organisation(name=f"Members Test Org {unique_id}")
         db_session.add(org)
         db_session.flush()
 
