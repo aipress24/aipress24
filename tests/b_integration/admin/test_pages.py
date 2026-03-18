@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 @pytest.fixture
 def test_organisation(db_session: Session) -> Organisation:
     """Create a test organisation."""
-    org = Organisation(name="Test Organisation", description="Test description")
+    org = Organisation(name="Test Organisation")
     db_session.add(org)
     db_session.flush()
     return org

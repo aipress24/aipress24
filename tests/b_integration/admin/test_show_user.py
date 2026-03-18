@@ -11,7 +11,6 @@ from typing import TYPE_CHECKING
 import pytest
 
 from app.constants import LABEL_COMPTE_DESACTIVE
-from app.enums import OrganisationTypeEnum
 from app.models.auth import KYCProfile, Role, User
 from app.models.organisation import Organisation
 from app.modules.admin.views.show_user import ShowUserView
@@ -34,16 +33,7 @@ def _get_or_create_role(db_session: Session, name: str) -> Role:
 @pytest.fixture
 def organisation(db_session: Session) -> Organisation:
     """Create a test organisation."""
-    org = Organisation(name="Test Org", type=OrganisationTypeEnum.MEDIA)
-    db_session.add(org)
-    db_session.flush()
-    return org
-
-
-@pytest.fixture
-def auto_organisation(db_session: Session) -> Organisation:
-    """Create an auto-generated organisation."""
-    org = Organisation(name="Auto Org", type=OrganisationTypeEnum.AUTO)
+    org = Organisation(name="Test Org")
     db_session.add(org)
     db_session.flush()
     return org

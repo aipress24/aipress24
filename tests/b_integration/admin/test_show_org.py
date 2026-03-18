@@ -25,7 +25,6 @@ def organisation(db_session: Session) -> Organisation:
     """Create a test organisation."""
     org = Organisation(
         name="Test Organisation",
-        type=OrganisationTypeEnum.MEDIA,
         address="123 Test Street",
         zip_code="75001",
         city="Paris",
@@ -38,10 +37,10 @@ def organisation(db_session: Session) -> Organisation:
 
 @pytest.fixture
 def auto_organisation(db_session: Session) -> Organisation:
-    """Create an auto-generated organisation."""
+    """Create an auto-generated organisation (inactive/AUTO)."""
     org = Organisation(
         name="Auto Organisation",
-        type=OrganisationTypeEnum.AUTO,
+        active=False,
     )
     db_session.add(org)
     db_session.flush()
