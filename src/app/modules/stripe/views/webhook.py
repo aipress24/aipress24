@@ -587,14 +587,18 @@ def _update_organisation_subscription_info(
 
 
 def _guess_bw_type(user: User, org: Organisation) -> BWTypeEnum:
-    if not org.creator_profile_code:
-        profile = user.profile
-        org.creator_profile_code = profile.profile_code
-    try:
-        profile_code = ProfileEnum[org.creator_profile_code]
-    except KeyError:
-        # fixme, choose a not-so-far profile for current BW type
-        profile_code = ProfileEnum.PM_DIR
+    # Get profile code from user directly
+    profile = user.profile
+    profile_code_str = profile.profile_code
+    if profile_code_str:
+        try:
+            profile_code = ProfileEnum[profile_code_str]
+        except KeyError:
+            # should never happen
+            profile_code = ProfileEnum.XP_IND
+    else:
+        # should never happen
+        profile_code = ProfileEnum.XP_IND
 
     possible_bw = PROFILE_CODE_TO_BW_TYPE.get(profile_code, [])
     if not possible_bw:
