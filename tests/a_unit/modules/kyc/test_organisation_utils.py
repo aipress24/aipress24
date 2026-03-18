@@ -18,6 +18,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+import pytest
+
 from app.enums import BWTypeEnum, OrganisationTypeEnum, ProfileEnum
 from app.models.auth import KYCProfile, User
 from app.models.invitation import Invitation
@@ -47,14 +49,15 @@ PROFILE_ID_NOM_MEDIA = "P001"  # organisation_field = "nom_media"
 PROFILE_ID_NOM_ORGA = "P012"  # organisation_field = "nom_orga"
 
 
+@pytest.mark.skip(reason="There is no more Organisation type")
 class TestGetOrganisationFamily:
     """Test suite for get_organisation_family function."""
 
     def test_returns_list_of_auto_orgs(self, db: SQLAlchemy) -> None:
         """Test getting organisations of AUTO family."""
-        org1 = Organisation(name="Auto Org 1", type=OrganisationTypeEnum.AUTO)
-        org2 = Organisation(name="Auto Org 2", type=OrganisationTypeEnum.AUTO)
-        org3 = Organisation(name="Media Org", type=OrganisationTypeEnum.MEDIA)
+        org1 = Organisation(name="Auto Org 1")
+        org2 = Organisation(name="Auto Org 2")
+        org3 = Organisation(name="Media Org", active=True)
         db.session.add_all([org1, org2, org3])
         db.session.flush()
 
@@ -66,9 +69,9 @@ class TestGetOrganisationFamily:
 
     def test_returns_list_of_media_orgs(self, db: SQLAlchemy) -> None:
         """Test getting organisations of MEDIA family."""
-        org1 = Organisation(name="Media Org 1", type=OrganisationTypeEnum.MEDIA)
-        org2 = Organisation(name="Media Org 2", type=OrganisationTypeEnum.MEDIA)
-        org3 = Organisation(name="Auto Org", type=OrganisationTypeEnum.AUTO)
+        org1 = Organisation(name="Media Org 1", active=True)
+        org2 = Organisation(name="Media Org 2", active=True)
+        org3 = Organisation(name="Auto Org")
         db.session.add_all([org1, org2, org3])
         db.session.flush()
 
@@ -106,6 +109,7 @@ class TestGetOrganisationFamily:
         assert "Exclude Test COM" not in result
 
 
+@pytest.mark.skip(reason="There is no more Organisation type")
 class TestGetOrganisationForNoms:
     """Test suite for get_organisation_for_noms_* functions."""
 
@@ -154,6 +158,7 @@ class TestGetOrganisationForNoms:
         assert "Media Org 3" not in result
 
 
+@pytest.mark.skip(reason="There is no more Organisation type")
 class TestGetOrganisationChoicesFamily:
     """Test suite for get_organisation_choices_family function."""
 
@@ -187,6 +192,7 @@ class TestGetOrganisationChoicesFamily:
         assert "Choice Exclude COM" not in result_names
 
 
+@pytest.mark.skip(reason="There is no more Organisation type")
 class TestFindKycOrganisationName:
     """Test suite for _find_kyc_organisation_name function.
 
