@@ -97,7 +97,10 @@ class TestIndex:
         response = client.get("/BW/", follow_redirects=False)
 
         assert response.status_code == 302
-        assert "not-authorized" in response.location or "not_authorized" in response.location
+        assert (
+            "not-authorized" in response.location
+            or "not_authorized" in response.location
+        )
 
     def test_redirects_non_manager_to_not_authorized(self, app: Flask, fresh_db):
         """Index redirects to not-authorized if user is not BW manager."""
@@ -120,7 +123,10 @@ class TestIndex:
         response = client.get("/BW/", follow_redirects=False)
 
         assert response.status_code == 302
-        assert "not-authorized" in response.location or "not_authorized" in response.location
+        assert (
+            "not-authorized" in response.location
+            or "not_authorized" in response.location
+        )
 
 
 # -----------------------------------------------------------------------------
@@ -170,7 +176,10 @@ class TestConfirmSubscription:
         response = client.get("/BW/confirm-subscription", follow_redirects=False)
 
         assert response.status_code == 302
-        assert "not-authorized" in response.location or "not_authorized" in response.location
+        assert (
+            "not-authorized" in response.location
+            or "not_authorized" in response.location
+        )
 
 
 # -----------------------------------------------------------------------------
@@ -332,4 +341,7 @@ class TestInformation:
         response = client.get("/BW/information", follow_redirects=False)
 
         assert response.status_code == 302
-        assert "not-authorized" in response.location or "not_authorized" in response.location
+        assert (
+            "not-authorized" in response.location
+            or "not_authorized" in response.location
+        )
