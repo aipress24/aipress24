@@ -282,43 +282,6 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
     def is_auto_or_inactive(self) -> bool:
         return self.type == OrganisationTypeEnum.AUTO or not self.active
 
-    @hybrid_property
-    def departement(self) -> str:
-        """Return the 2 first digit of zip code"""
-        if not self.pays_zip_ville_detail:
-            return ""
-        try:
-            return self.pays_zip_ville_detail.split()[2][:2]
-        except IndexError:
-            return ""
-
-    @departement.expression
-    def departement(cls):
-        """SQL expression for the departement property."""
-        return func.coalesce(
-            func.substr(SplitPart(cls.pays_zip_ville_detail, " ", 3), 1, 2),
-            "",
-        )
-
-    @hybrid_property
-    def ville(self) -> str:
-        """Return the 4th part of pays_zip_ville_detail"""
-        if not self.pays_zip_ville_detail:
-            return ""
-        try:
-            data = self.pays_zip_ville_detail.split()[3]
-            if data.endswith('"}'):  # fixme: origin of bad formatting in test data?
-                return data[:-2]
-            return data
-        except IndexError:
-            return ""
-
-    @ville.expression
-    def ville(cls):
-        """SQL expression for the ville property."""
-        part = SplitPart(cls.pays_zip_ville_detail, " ", 4)
-        return func.coalesce(func.rtrim(part, '"}'), "")
-
 
 __1 = """
 
