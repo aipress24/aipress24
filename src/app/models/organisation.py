@@ -283,21 +283,6 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
         return self.type == OrganisationTypeEnum.AUTO or not self.active
 
     @hybrid_property
-    def code_postal(self) -> str:
-        """Return the zip code"""
-        if not self.pays_zip_ville_detail:
-            return ""
-        try:
-            return self.pays_zip_ville_detail.split()[2]
-        except IndexError:
-            return ""
-
-    @code_postal.expression
-    def code_postal(cls):
-        """SQL expression for the zip code property."""
-        return func.coalesce(SplitPart(cls.pays_zip_ville_detail, " ", 3))
-
-    @hybrid_property
     def departement(self) -> str:
         """Return the 2 first digit of zip code"""
         if not self.pays_zip_ville_detail:
