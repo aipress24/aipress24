@@ -188,11 +188,11 @@ class CommuniquesWipView(BaseWipView):
         communique = cast("Communique", self._get_model(id))
 
         action = request.form.get("_action")
-        if action == "cancel":
-            return redirect(self._url_for("index"))
-
-        if action == "add-image":
-            return self._add_image(communique)
+        match action:
+            case "cancel":
+                return redirect(self._url_for("index"))
+            case "add-image":
+                return self._add_image(communique)
 
         title = f"Images pour le communiqué - {communique.title}"
         self.update_breadcrumbs(label=communique.title)

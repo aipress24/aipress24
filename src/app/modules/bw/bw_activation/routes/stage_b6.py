@@ -93,17 +93,19 @@ def assign_missions():
         action = request.form.get("action", "finish")
         warn(action)
 
-        if action == "previous":
-            if bw_type == "pr":
-                previous = "bw_activation.manage_internal_roles"
-            else:
-                previous = "bw_activation.manage_external_partners"
-            return redirect(url_for(previous))
-        if action == "finish":
-            return redirect(url_for("bw_activation.dashboard"))
-        msg = f"Unknown action {action!r}"
-        warn(msg)
-        raise ValueError(msg)
+        match action:
+            case "previous":
+                if bw_type == "pr":
+                    previous = "bw_activation.manage_internal_roles"
+                else:
+                    previous = "bw_activation.manage_external_partners"
+                return redirect(url_for(previous))
+            case "finish":
+                return redirect(url_for("bw_activation.dashboard"))
+            case _:
+                msg = f"Unknown action {action!r}"
+                warn(msg)
+                raise ValueError(msg)
 
     return render_template(
         "bw_activation/B06_assign_missions.html",

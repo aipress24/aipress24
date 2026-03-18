@@ -167,11 +167,11 @@ class EventsWipView(BaseWipView):
         event = cast("Event", self._get_model(id))
 
         action = request.form.get("_action")
-        if action == "cancel":
-            return redirect(self._url_for("index"))
-
-        if action == "add-image":
-            return self._add_image(event)
+        match action:
+            case "cancel":
+                return redirect(self._url_for("index"))
+            case "add-image":
+                return self._add_image(event)
 
         title = f"Images pour l'événement - {event.title}"
         self.update_breadcrumbs(label=event.title)

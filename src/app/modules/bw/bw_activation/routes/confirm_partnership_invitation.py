@@ -110,35 +110,38 @@ def confirm_partnership_invitation(bw_id: str, partnership_id: str):
     if request.method == "POST":
         action = request.form.get("action")
 
-        if action == "accept":
-            partnership.status = PartnershipStatus.ACTIVE.value
-            partnership.accepted_at = datetime.now(UTC)
+        match action:
+            case "accept":
+                partnership.status = PartnershipStatus.ACTIVE.value
+                partnership.accepted_at = datetime.now(UTC)
 
-            # Create RoleAssignment for the PR owner
-            role_assignment = RoleAssignment(
-                business_wall_id=business_wall.id,
-                user_id=current_user.id,
-                role_type=BWRoleType.BWPRE.value,
-                invitation_status=InvitationStatus.ACCEPTED.value,
-                accepted_at=datetime.now(UTC),
-            )
-            db.session.add(role_assignment)
-            db.session.flush()  # Need ID for RolePermission creation
+                # Create RoleAssignment for the PR owner
+                role_assignment = RoleAssignment(
+                    business_wall_id=business_wall.id,
+                    user_id=current_user.id,
+                    role_type=BWRoleType.BWPRE.value,
+                    invitation_status=InvitationStatus.ACCEPTED.value,
+                    accepted_at=datetime.now(UTC),
+                )
+                db.session.add(role_assignment)
+                db.session.flush()  # Need ID for RolePermission creation
 
-            # Apply BW missions to the external PR user
-            apply_bw_missions_to_pr_user(business_wall, current_user, BWRoleType.BWPRE)
+                # Apply BW missions to the external PR user
+                apply_bw_missions_to_pr_user(
+                    business_wall, current_user, BWRoleType.BWPRE
+                )
 
-            warn(
-                f"User {current_user.id} accepted partnership for BW {bw_name!r}",
-                f"from PR BW {pr_bw_name!r}",
-            )
-        else:
-            partnership.status = PartnershipStatus.REJECTED.value
-            partnership.rejected_at = datetime.now(UTC)
-            warn(
-                f"User {current_user.id} rejected partnership for BW {bw_name!r}",
-                f"from PR BW {pr_bw_name!r}",
-            )
+                warn(
+                    f"User {current_user.id} accepted partnership for BW {bw_name!r}",
+                    f"from PR BW {pr_bw_name!r}",
+                )
+            case _:
+                partnership.status = PartnershipStatus.REJECTED.value
+                partnership.rejected_at = datetime.now(UTC)
+                warn(
+                    f"User {current_user.id} rejected partnership for BW {bw_name!r}",
+                    f"from PR BW {pr_bw_name!r}",
+                )
 
         db.session.commit()
 

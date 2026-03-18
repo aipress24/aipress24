@@ -98,23 +98,24 @@ def confirm_role_invitation(bw_id: str, role_type: str, user_id: int):
     if request.method == "POST":
         action = request.form.get("action")
 
-        if action == "accept":
-            role_assignment.invitation_status = InvitationStatus.ACCEPTED.value
-            role_assignment.accepted_at = datetime.now(UTC)
-            warn(f"User {user_id} accepted role {role_type} for BW {bw_name!r}")
+        match action:
+            case "accept":
+                role_assignment.invitation_status = InvitationStatus.ACCEPTED.value
+                role_assignment.accepted_at = datetime.now(UTC)
+                warn(f"User {user_id} accepted role {role_type} for BW {bw_name!r}")
 
-            # Apply BW missions to PR users when they accept
-            if role_type in (BWRoleType.BWPRI.value, BWRoleType.BWPRE.value):
-                role_enum = (
-                    BWRoleType.BWPRI
-                    if role_type == BWRoleType.BWPRI.value
-                    else BWRoleType.BWPRE
-                )
-                apply_bw_missions_to_pr_user(business_wall, current_user, role_enum)
-        else:
-            role_assignment.invitation_status = InvitationStatus.REJECTED.value
-            role_assignment.rejected_at = datetime.now(UTC)
-            warn(f"User {user_id} rejected role {role_type} for BW {bw_name!r}")
+                # Apply BW missions to PR users when they accept
+                if role_type in (BWRoleType.BWPRI.value, BWRoleType.BWPRE.value):
+                    role_enum = (
+                        BWRoleType.BWPRI
+                        if role_type == BWRoleType.BWPRI.value
+                        else BWRoleType.BWPRE
+                    )
+                    apply_bw_missions_to_pr_user(business_wall, current_user, role_enum)
+            case _:
+                role_assignment.invitation_status = InvitationStatus.REJECTED.value
+                role_assignment.rejected_at = datetime.now(UTC)
+                warn(f"User {user_id} rejected role {role_type} for BW {bw_name!r}")
 
         db.session.commit()
 

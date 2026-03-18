@@ -54,10 +54,11 @@ class ValidationUserView(MethodView):
         user = get_obj(uid, User)
         action = request.form.get("action")
 
-        if action == "validate":
-            self._validate_profile(user)
-        elif action == "reject":
-            self._reject_profile(user)
+        match action:
+            case "validate":
+                self._validate_profile(user)
+            case "reject":
+                self._reject_profile(user)
 
         db.session.commit()
 
