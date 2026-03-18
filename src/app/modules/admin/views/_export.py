@@ -645,7 +645,6 @@ class OrganisationsExporter(BaseExporter):
         "status",
         "nb_members",
         "members",
-        "managers",
     ]
 
     @property
