@@ -17,7 +17,6 @@ from app.models.organisation import Organisation
 from app.modules.admin.org_email_utils import (
     add_managers_emails,
     change_invitations_emails,
-    change_leaders_emails,
     change_managers_emails,
     change_members_emails,
 )
@@ -340,104 +339,6 @@ class TestAddManagersEmails:
         db_session.refresh(user)
         # Should not duplicate the role
         assert len(user.roles) == initial_roles_count
-
-
-class TestChangeLeadersEmails:
-    """Test suite for change_leaders_emails function."""
-
-    def test_add_leader_to_existing_member(
-        self,
-        db_session: Session,
-        test_org: Organisation,
-        test_users: list[User],
-        leader_role: Role,
-    ):
-        """Test adding leader role to existing member."""
-        user = test_users[0]
-        user.organisation_id = test_org.id
-        db_session.flush()
-
-        change_leaders_emails(test_org, user.email)
-
-        db_session.refresh(user)
-        assert RoleEnum.LEADER.name in [r.name for r in user.roles]
-
-    def test_remove_leader_role(
-        self,
-        db_session: Session,
-        test_org: Organisation,
-        test_users: list[User],
-        leader_role: Role,
-    ):
-        """Test removing leader role."""
-        user1, user2 = test_users[0], test_users[1]
-        user1.organisation_id = test_org.id
-        user2.organisation_id = test_org.id
-        user1.roles.append(leader_role)
-        user2.roles.append(leader_role)
-        db_session.flush()
-
-        # Update to only have user1 as leader
-        change_leaders_emails(test_org, user1.email)
-
-        db_session.refresh(user1)
-        db_session.refresh(user2)
-        assert RoleEnum.LEADER.name in [r.name for r in user1.roles]
-        assert RoleEnum.LEADER.name not in [r.name for r in user2.roles]
-
-    def test_skip_non_members(
-        self,
-        db_session: Session,
-        test_org: Organisation,
-        test_users: list[User],
-        leader_role: Role,
-    ):
-        """Test that non-members cannot be made leaders."""
-        user = test_users[0]
-        assert user.organisation_id is None
-
-        change_leaders_emails(test_org, user.email)
-
-        db_session.refresh(user)
-        assert RoleEnum.LEADER.name not in [r.name for r in user.roles]
-
-    def test_case_insensitive_matching(
-        self,
-        db_session: Session,
-        test_org: Organisation,
-        test_users: list[User],
-        leader_role: Role,
-    ):
-        """Test case-insensitive email matching."""
-        user = test_users[0]
-        user.organisation_id = test_org.id
-        db_session.flush()
-
-        change_leaders_emails(test_org, user.email.upper())
-
-        db_session.refresh(user)
-        assert RoleEnum.LEADER.name in [r.name for r in user.roles]
-
-    def test_add_multiple_leaders(
-        self,
-        db_session: Session,
-        test_org: Organisation,
-        test_users: list[User],
-        leader_role: Role,
-    ):
-        """Test adding multiple leaders at once."""
-        user1, user2 = test_users[0], test_users[1]
-        user1.organisation_id = test_org.id
-        user2.organisation_id = test_org.id
-        db_session.flush()
-
-        emails = f"{user1.email} {user2.email}"
-        change_leaders_emails(test_org, emails)
-
-        db_session.refresh(user1)
-        db_session.refresh(user2)
-        assert RoleEnum.LEADER.name in [r.name for r in user1.roles]
-        assert RoleEnum.LEADER.name in [r.name for r in user2.roles]
 
 
 class TestChangeInvitationsEmails:

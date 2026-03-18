@@ -13,7 +13,6 @@ from app.models.auth import KYCProfile, Role, User
 from app.models.organisation import Organisation
 from app.modules.admin.org_email_utils import (
     add_managers_emails,
-    change_leaders_emails,
     change_managers_emails,
     change_members_emails,
 )
@@ -220,55 +219,3 @@ class TestAddManagersEmails:
         add_managers_emails(org, ["  whitespace@example.com  "])
 
         assert user.is_manager
-
-
-class TestChangeLeadersEmails:
-    """Test suite for change_leaders_emails function."""
-
-    def test_adds_leader_role_to_existing_member(self, db: SQLAlchemy) -> None:
-        """Test adding leader role to existing member."""
-        org = Organisation(name="Test Org Leader", type=OrganisationTypeEnum.MEDIA)
-        get_or_create_role(db, RoleEnum.LEADER)
-        user = User(email="member_leader@example.com", active=True)
-        profile = KYCProfile()
-        user.profile = profile
-        user.organisation = org
-        db.session.add_all([org, user, profile])
-        db.session.flush()
-
-        change_leaders_emails(org, "member_leader@example.com")
-
-        assert user.is_leader
-
-    def test_removes_leader_role(self, db: SQLAlchemy) -> None:
-        """Test removing leader role from user."""
-        org = Organisation(name="Test Org Leader Rm", type=OrganisationTypeEnum.MEDIA)
-        leader_role = get_or_create_role(db, RoleEnum.LEADER)
-        user = User(email="leader_remove@example.com", active=True)
-        profile = KYCProfile()
-        user.profile = profile
-        user.organisation = org
-        user.roles.append(leader_role)
-        db.session.add_all([org, user, profile])
-        db.session.flush()
-
-        # Call with empty string to remove all leaders
-        change_leaders_emails(org, "")
-
-        assert not user.is_leader
-
-    def test_requires_user_to_be_member(self, db: SQLAlchemy) -> None:
-        """Test leader must already be a member of the org."""
-        org = Organisation(name="Test Org Leader Req", type=OrganisationTypeEnum.MEDIA)
-        get_or_create_role(db, RoleEnum.LEADER)
-        user = User(email="nonmember_leader@example.com", active=True)
-        profile = KYCProfile()
-        user.profile = profile
-        # User is NOT a member of org
-        db.session.add_all([org, user, profile])
-        db.session.flush()
-
-        change_leaders_emails(org, "nonmember_leader@example.com")
-
-        # User should not become leader because not a member
-        assert not user.is_leader
