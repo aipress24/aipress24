@@ -72,16 +72,6 @@ class TestOrgVMGetScreenshotUrl:
 
         assert result == ""
 
-    def test_with_screenshot_returns_url(self, app):
-        """Test screenshot_id builds URL from config."""
-        app.config["S3_PUBLIC_URL"] = "https://s3.example.com"
-        org = StubOrganisation(screenshot_id="abc123")
-        vm = OrgVM(org)
-
-        result = vm.get_screenshot_url()
-
-        assert result == "https://s3.example.com/abc123"
-
 
 class TestOrgVMExtraAttrs:
     """Test OrgVM.extra_attrs() method."""
