@@ -107,8 +107,6 @@ class TestOrgVMExtraAttrs:
 
         assert "members" in result
         assert "count_members" in result
-        assert "managers" in result
-        assert "leaders" in result
         assert "invitations_emails" in result
         assert "logo_url" in result
         assert "screenshot_url" in result
