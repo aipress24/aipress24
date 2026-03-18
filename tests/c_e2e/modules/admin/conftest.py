@@ -24,12 +24,6 @@ if TYPE_CHECKING:
     from sqlalchemy.orm import Session
 
 
-@pytest.fixture(autouse=True)
-def db_session(fresh_db) -> Session:
-    """Override modules/conftest.py db_session to use fresh_db."""
-    return fresh_db.session
-
-
 @pytest.fixture
 def sample_organisations(db_session: Session) -> list[Organisation]:
     """Create sample organisations for export tests."""
