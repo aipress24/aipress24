@@ -13,7 +13,6 @@ from flask import Response, render_template, request, url_for
 from flask.views import MethodView
 
 from app.constants import LABEL_COMPTE_DESACTIVE, LOCAL_TZ
-from app.enums import RoleEnum
 from app.flask.extensions import db
 from app.flask.lib.nav import nav
 from app.flask.sqla import get_obj
@@ -21,7 +20,6 @@ from app.models.auth import User
 from app.modules.admin import blueprint
 from app.modules.admin.utils import gc_organisation, remove_user_organisation
 from app.modules.kyc.views import admin_info_context
-from app.services.roles import add_role
 
 
 class ShowUserView(MethodView):
@@ -58,14 +56,6 @@ class ShowUserView(MethodView):
                 db.session.commit()
                 response = Response("")
                 response.headers["HX-Redirect"] = url_for("admin.show_user", uid=uid)
-            case "toggle-manager":
-                self._toggle_manager(user)
-                db.session.commit()
-                response = Response("")
-            case "toggle-leader":
-                self._toggle_leader(user)
-                db.session.commit()
-                response = Response("")
             case _:
                 response = Response("")
                 response.headers["HX-Redirect"] = url_for("admin.users")
@@ -90,32 +80,6 @@ class ShowUserView(MethodView):
         previous_organisation = user.organisation
         remove_user_organisation(user)
         gc_organisation(previous_organisation)
-
-    def _toggle_manager(self, user: User) -> None:
-        """Toggle manager role for user.
-
-        Note: Does NOT commit - caller is responsible for committing.
-        """
-        if not user.organisation or user.organisation.is_auto:
-            return
-        if user.is_manager:
-            user.remove_role(RoleEnum.MANAGER)
-        else:
-            add_role(user, RoleEnum.MANAGER)
-        db.session.merge(user)
-
-    def _toggle_leader(self, user: User) -> None:
-        """Toggle leader role for user.
-
-        Note: Does NOT commit - caller is responsible for committing.
-        """
-        if not user.organisation or user.organisation.is_auto:
-            return
-        if user.is_leader:
-            user.remove_role(RoleEnum.LEADER)
-        else:
-            add_role(user, RoleEnum.LEADER)
-        db.session.merge(user)
 
 
 # Register the view

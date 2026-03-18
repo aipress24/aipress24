@@ -70,47 +70,7 @@
         >Affecter une organisation</button> -->
     </div>
 
-    {% if org and not org.is_auto %}
-      <div
-          class="mt-6 flex flex-col justify-end gap-x-6 space-y-2 sm:flex-row sm:space-y-0 sm:space-x-4"
-      >
-        <label class="inline-flex items-left cursor-pointer">
-          <input
-            type="checkbox"
-            value="true"
-            class="sr-only peer"
-            {% if user.is_leader %}
-              checked
-            {% endif %}
-            hx-post="/admin/show_user/{{user.id}}"
-            hx-vals='{"action": "toggle-leader"}'
-            hx-trigger="change"
-          >
-          <div class="relative w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
-          <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300"
-          >Rôle dirigeant de l'organisation
-          </span>
-        </label>
 
-        <label class="inline-flex items-left cursor-pointer">
-          <input
-            type="checkbox"
-            value=""
-            class="sr-only peer"
-            {% if user.is_manager %}
-              checked
-            {% endif %}
-            hx-post="/admin/show_user/{{user.id}}"
-            hx-vals='{"action": "toggle-manager"}'
-            hx-trigger="change"
-          >
-          <div class="relative w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
-          <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300"
-          >Rôle manager du Business Wall de l'organisation
-          </span>
-        </label>
-      </div>
-    {% endif %}
 </div>
 
 <div id="confirm_deactivate_user"
