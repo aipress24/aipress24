@@ -6,6 +6,16 @@
 
 from __future__ import annotations
 
+from typing import TypedDict
+
+
+class FilterSpec(TypedDict, total=False):
+    id: str
+    label: str
+    selector: str
+    options: list[str]
+
+
 TABS = [
     {
         "id": "stories",
@@ -34,7 +44,7 @@ TABS = [
     },
 ]
 
-FILTER_SPECS = [
+FILTER_SPECS: list[FilterSpec] = [
     {
         "id": "sector",
         "label": "Secteur",
