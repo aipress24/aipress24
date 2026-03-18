@@ -646,7 +646,6 @@ class OrganisationsExporter(BaseExporter):
         "nb_members",
         "members",
         "managers",
-        "leaders",
     ]
 
     @property
@@ -671,11 +670,9 @@ class OrganisationsExporter(BaseExporter):
         fields = [
             FieldColumn("id", "ID", text3),
             FieldColumn("created_at", "Création", text3),
-            FieldColumn("leaders", "Dirigeants", text12),
             FieldColumn("modified_at", "Modification", text3),
             FieldColumn("name", "Nom", text4),
             FieldColumn("type", "Type", text4),
-            FieldColumn("managers", "Managers", text12),
             FieldColumn("members", "Membres", text12),
             FieldColumn("status", "Statut", text8),
             FieldColumn("nb_members", "Nb membres", small),
@@ -699,10 +696,6 @@ class OrganisationsExporter(BaseExporter):
         match name:
             case "members":
                 value = ", ".join(u.email for u in org.members)
-            case "managers":
-                value = ", ".join(u.email for u in org.managers)
-            case "leaders":
-                value = ", ".join(u.email for u in org.leaders)
             case "id":
                 value = str(org.id)
             case "created_at" | "validated_at" | "modified_at":

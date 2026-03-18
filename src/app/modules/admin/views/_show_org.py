@@ -34,8 +34,6 @@ class OrgVM(ViewModel):
         return {
             "members": members,
             "count_members": len(self.org.members),
-            "managers": self.org.managers,
-            "leaders": self.org.leaders,
             "invitations_emails": emails_invited_to_organisation(self.org.id),
             "logo_url": self.get_logo_url(),
             "screenshot_url": self.get_screenshot_url(),
