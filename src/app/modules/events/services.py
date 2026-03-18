@@ -15,8 +15,21 @@ from .models import EventPost, participation_table
 #
 # Participation to event
 #
-def get_participants(event: EventPost, order_by=None, limit: int = 0) -> list[User]:
-    assert isinstance(event, EventPost)
+def get_participants(
+    event: EventPost,
+    order_by=None,
+    limit: int = 0,
+) -> list[User]:
+    """Get participants for an event.
+
+    Args:
+        event: The event to get participants for.
+        order_by: Column or tuple of columns to order by.
+        limit: Maximum number of participants to return (0 = no limit).
+    """
+    if not isinstance(event, EventPost):
+        msg = f"Expected EventPost, got {type(event)}"
+        raise TypeError(msg)
 
     table = participation_table
 
@@ -26,7 +39,10 @@ def get_participants(event: EventPost, order_by=None, limit: int = 0) -> list[Us
     stmt2 = sa.select(User).where(User.id.in_(ids))
 
     if order_by is not None:
-        stmt2 = stmt2.order_by(order_by)
+        if isinstance(order_by, tuple):
+            stmt2 = stmt2.order_by(*order_by)
+        else:
+            stmt2 = stmt2.order_by(order_by)
 
     if limit:
         stmt2 = stmt2.limit(limit)

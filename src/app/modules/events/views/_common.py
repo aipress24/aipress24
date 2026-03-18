@@ -69,8 +69,9 @@ class EventDetailVM(ViewModel):
         else:
             age = "(not set)"
 
-        participants: list[User] = get_participants(event)
-        participants.sort(key=lambda u: (u.last_name, u.first_name))
+        participants: list[User] = get_participants(
+            event, order_by=(User.last_name, User.first_name)
+        )
 
         # Convert Arrow dates to datetime for opening_hours function
         start_dt = event.start_datetime.datetime if event.start_datetime else None
@@ -100,6 +101,7 @@ class EventDetailVM(ViewModel):
         stmt = (
             sa.select(Comment)
             .where(Comment.object_id == f"event:{event.id}")
+            .options(selectinload(Comment.owner))
             .order_by(Comment.created_at.desc())
         )
         return list(db.session.scalars(stmt))

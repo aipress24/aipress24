@@ -130,9 +130,9 @@ class TestGetParticipants:
         assert result[0].first_name == "Alice"
         assert result[1].first_name == "Bob"
 
-    def test_raises_assertion_error_for_invalid_type(self) -> None:
-        """Test raises AssertionError for non-EventPost object."""
-        with pytest.raises((AssertionError, TypeCheckError)):
+    def test_raises_error_for_invalid_type(self) -> None:
+        """Test raises error for non-EventPost object."""
+        with pytest.raises((TypeError, AssertionError, TypeCheckError)):
             get_participants("not an event")  # type: ignore
 
     def test_only_returns_participants_for_specific_event(
