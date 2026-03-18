@@ -110,11 +110,6 @@
                     {% set org = business_wall.get_organisation() %}
                     {% if org %}
                         <p class="text-gray-900 font-medium">{{ org.name }}</p>
-                        {% if org.nom_groupe %}
-                            <p class="text-gray-500 text-sm">
-                                {{ org.nom_groupe }}
-                            </p>
-                        {% endif %}
                     {% else %}
                         <p class="text-gray-400 italic">
                             Aucune organisation associée (impossible)
