@@ -144,18 +144,19 @@ class FilterBar:
 
     def update_state(self) -> None:
         form = request.form
-        action = form["action"]
-        form_value = form["value"]
-        form_id = form["id"]
+        action = form.get("action", "")
+        form_value = form.get("value", "")
+        form_id = form.get("id", "")
 
-        if action == "toggle":
-            self.toggle_filter(form_id, form_value)
-        elif action == "remove":
-            self.remove_filter(form_id, form_value)
-        elif action == "sort-by":
-            self.sort_by(form_value)
-        else:
-            raise BadRequest
+        match action:
+            case "toggle" if form_id and form_value:
+                self.toggle_filter(form_id, form_value)
+            case "remove" if form_id and form_value:
+                self.remove_filter(form_id, form_value)
+            case "sort-by" if form_value:
+                self.sort_by(form_value)
+            case _:
+                raise BadRequest
 
         self.save_state()
 
@@ -165,7 +166,7 @@ class FilterBar:
         else:
             self.add_filter(id, value)
 
-    def has_filter(self, id: str, value: str):
+    def has_filter(self, id: str, value: str) -> bool:
         filters = self.state.get("filters", [])
         return any(
             filter["id"] == id and filter["value"] == value for filter in filters

@@ -43,15 +43,20 @@ def handle_table_post(ds_class, endpoint: str) -> Response:
     action = request.form.get("action")
     search_string = request.form.get("search", "")
 
-    if action == "next":
-        redirect_url = build_url(endpoint, offset=ds.next_offset(), search=ds.search)
-    elif action == "previous":
-        redirect_url = build_url(endpoint, offset=ds.prev_offset(), search=ds.search)
-    elif search_string:
-        offset = 0 if search_string != ds.search else ds.offset
-        redirect_url = build_url(endpoint, offset=offset, search=search_string)
-    else:
-        redirect_url = build_url(endpoint)
+    match action:
+        case "next":
+            redirect_url = build_url(
+                endpoint, offset=ds.next_offset(), search=ds.search
+            )
+        case "previous":
+            redirect_url = build_url(
+                endpoint, offset=ds.prev_offset(), search=ds.search
+            )
+        case _ if search_string:
+            offset = 0 if search_string != ds.search else ds.offset
+            redirect_url = build_url(endpoint, offset=offset, search=search_string)
+        case _:
+            redirect_url = build_url(endpoint)
 
     response = Response("")
     response.headers["HX-Redirect"] = redirect_url

@@ -195,15 +195,16 @@ class FilterBar:
             msg = f"Unknown filter: {form_id}"
             raise BadRequest(msg)
 
-        if action == "toggle":
-            self.toggle_filter(form_id, form_value)
-        elif action == "remove":
-            self.remove_filter(form_id, form_value)
-        elif action == "sort-by":
-            self.sort_by(form_value)
-        else:
-            msg = f"Unknown action: {action}"
-            raise BadRequest(msg)
+        match action:
+            case "toggle":
+                self.toggle_filter(form_id, form_value)
+            case "remove":
+                self.remove_filter(form_id, form_value)
+            case "sort-by":
+                self.sort_by(form_value)
+            case _:
+                msg = f"Unknown action: {action}"
+                raise BadRequest(msg)
 
         self.save_state()
 

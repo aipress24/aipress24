@@ -194,11 +194,11 @@ class ArticlesWipView(BaseWipView):
         article = cast("Article", self._get_model(id))
 
         action = request.form.get("_action")
-        if action == "cancel":
-            return redirect(self._url_for("index"))
-
-        if action == "add-image":
-            return self._add_image(article)
+        match action:
+            case "cancel":
+                return redirect(self._url_for("index"))
+            case "add-image":
+                return self._add_image(article)
 
         title = f"Images pour l'article - {article.title}"
         self.update_breadcrumbs(label=article.title)

@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, NamedTuple, cast
+from typing import Any, NamedTuple, cast
 
 import stripe
 from arrow import Arrow, utcnow
@@ -34,9 +34,6 @@ from app.services.stripe.utils import (
 )
 
 from ._common import get_secondary_menu
-
-if TYPE_CHECKING:
-    from app.models.organisation import Organisation
 
 # Product dictionaries - could be replaced by actual queries
 PRODUCT_BW = {
@@ -174,17 +171,17 @@ def org_registration_post() -> str | Response:
     org = user.organisation
 
     action = request.form.get("action", "")
-    if action:
-        if action in {"change_bw_data", "reload_bw_data"}:
+    match action:
+        case "change_bw_data" | "reload_bw_data":
             response = Response("")
             response.headers["HX-Redirect"] = url_for(".org-registration")
             return response
-        if action == "suspend":
+        case "suspend":
             _on_suspend_subscription(org)
             response = Response("")
             response.headers["HX-Redirect"] = url_for(".org-registration")
             return response
-        if action == "restore":
+        case "restore":
             _on_restore_subscription(org)
             response = Response("")
             response.headers["HX-Redirect"] = url_for(".org-registration")
