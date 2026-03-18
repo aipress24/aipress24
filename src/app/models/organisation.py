@@ -283,10 +283,6 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
         return self.type == OrganisationTypeEnum.AUTO or not self.active
 
     @hybrid_property
-    def managers(self) -> list[User]:
-        return [user for user in self.members if user.is_manager]
-
-    @hybrid_property
     def code_postal(self) -> str:
         """Return the zip code"""
         if not self.pays_zip_ville_detail:
