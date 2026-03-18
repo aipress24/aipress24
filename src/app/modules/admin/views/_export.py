@@ -641,7 +641,6 @@ class OrganisationsExporter(BaseExporter):
         "created_at",
         "modified_at",
         "name",
-        "type",
         "status",
         "nb_members",
         "members",
@@ -681,7 +680,6 @@ class OrganisationsExporter(BaseExporter):
     # Organization attribute names that are directly accessible
     _ORG_ATTRS: ClassVar[set[str]] = {
         "name",
-        "type",
         "status",
     }
 
@@ -718,11 +716,12 @@ class OrganisationsExporter(BaseExporter):
                 return value
 
     def fetch_data(self) -> list[Organisation]:
+        # FIXME: type AUTO deprecated
         stmt = (
             select(Organisation)
-            .where(
-                Organisation.type != OrganisationTypeEnum.AUTO,
-            )
+            # .where(
+            #     Organisation.type != OrganisationTypeEnum.AUTO,
+            # )
             .order_by(nulls_last(Organisation.name))
         )
         return list(db.session.scalars(stmt))
