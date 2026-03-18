@@ -289,11 +289,12 @@ class OrgVM(ViewModel):
         return get_organisation_cover_image_url(self.org)
 
     def get_screenshot_url(self) -> str:
-        if not self.org.screenshot_id:
-            return ""
-        config = current_app.config
-        base_url = config["S3_PUBLIC_URL"]
-        return f"{base_url}/{self.org.screenshot_id}"
+        return ""
+        # if not self.org.screenshot_id:
+        #     return ""
+        # config = current_app.config
+        # base_url = config["S3_PUBLIC_URL"]
+        # return f"{base_url}/{self.org.screenshot_id}"
 
     def get_press_releases(self) -> list:
         stmt = (
