@@ -162,7 +162,6 @@ class TestBuildContext:
             ctx = _build_context()
 
             assert "is_manager" in ctx
-            assert "is_leader" in ctx
             assert ctx["is_manager"] is True
 
     def test_context_contains_member_lists(
@@ -176,8 +175,6 @@ class TestBuildContext:
 
             assert "members" in ctx
             assert "count_members" in ctx
-            assert "managers" in ctx
-            assert "leaders" in ctx
 
     def test_context_for_auto_org(
         self, app: Flask, db_session: Session, auto_organisation: Organisation

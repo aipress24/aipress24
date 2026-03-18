@@ -62,8 +62,6 @@ def org_profile_post() -> str | Response:
     # Lazy imports to avoid circular import
     from app.modules.admin.org_email_utils import (
         change_invitations_emails,
-        change_leaders_emails,
-        change_managers_emails,
         change_members_emails,
     )
     from app.modules.wip.forms.business_wall import merge_org_results
@@ -85,16 +83,6 @@ def org_profile_post() -> str | Response:
         case "change_emails":
             raw_mails = request.form["content"]
             change_members_emails(org, raw_mails)
-            response = Response("")
-            response.headers["HX-Redirect"] = url_for(".org-profile")
-        case "change_managers_emails":
-            raw_mails = request.form["content"]
-            change_managers_emails(org, raw_mails, keep_one=True)
-            response = Response("")
-            response.headers["HX-Redirect"] = url_for(".org-profile")
-        case "change_leaders_emails":
-            raw_mails = request.form["content"]
-            change_leaders_emails(org, raw_mails)
             response = Response("")
             response.headers["HX-Redirect"] = url_for(".org-profile")
         case "change_invitations_emails":
@@ -182,11 +170,8 @@ def _build_context() -> dict[str, Any]:
         "is_bw_inactive": is_bw_inactive,
         "allow_editing": allow_editing,
         "is_manager": user.is_manager,
-        "is_leader": user.is_leader,
         "members": members,
         "count_members": len(members),
-        "managers": org.managers if org else [],
-        "leaders": org.leaders if org else [],
         "invitations_emails": (emails_invited_to_organisation(org.id) if org else []),
         "address_formatted": org.formatted_address if org else "",
         "render_field": render_field,

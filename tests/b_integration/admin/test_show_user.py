@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING
 import pytest
 
 from app.constants import LABEL_COMPTE_DESACTIVE
-from app.enums import OrganisationTypeEnum, RoleEnum
+from app.enums import OrganisationTypeEnum
 from app.models.auth import KYCProfile, Role, User
 from app.models.organisation import Organisation
 from app.modules.admin.views.show_user import ShowUserView
@@ -102,104 +102,3 @@ class TestRemoveOrganisation:
             view._remove_organisation(user_with_org)
 
         assert user_with_org.organisation_id is None
-
-
-class TestToggleManager:
-    """Tests for toggling manager role."""
-
-    def test_toggle_manager_adds_role(
-        self, app: Flask, db_session: Session, user_with_org: User
-    ):
-        """Test that toggle_manager adds manager role."""
-        _get_or_create_role(db_session, RoleEnum.MANAGER.name)
-        view = ShowUserView()
-        assert not user_with_org.is_manager
-
-        with app.test_request_context():
-            view._toggle_manager(user_with_org)
-
-        assert user_with_org.is_manager
-
-    def test_toggle_manager_removes_role(
-        self, app: Flask, db_session: Session, user_with_org: User
-    ):
-        """Test that toggle_manager removes manager role when present."""
-        manager_role = _get_or_create_role(db_session, RoleEnum.MANAGER.name)
-        user_with_org.roles.append(manager_role)
-        db_session.flush()
-        assert user_with_org.is_manager
-
-        view = ShowUserView()
-
-        with app.test_request_context():
-            view._toggle_manager(user_with_org)
-
-        assert not user_with_org.is_manager
-
-    def test_toggle_manager_no_org_does_nothing(self, app: Flask, db_session: Session):
-        """Test that toggle_manager does nothing when user has no org."""
-        user = User(email="no_org@example.com", active=True)
-        db_session.add(user)
-        db_session.flush()
-
-        view = ShowUserView()
-
-        with app.test_request_context():
-            view._toggle_manager(user)
-
-        # Should not raise, should do nothing
-        assert not user.is_manager
-
-    def test_toggle_manager_auto_org_does_nothing(
-        self, app: Flask, db_session: Session, auto_organisation: Organisation
-    ):
-        """Test that toggle_manager does nothing for auto organisations."""
-        user = User(
-            email="auto_org_user@example.com",
-            active=True,
-        )
-        user.organisation = auto_organisation
-        user.organisation_id = auto_organisation.id
-        db_session.add(user)
-        db_session.flush()
-
-        view = ShowUserView()
-
-        with app.test_request_context():
-            view._toggle_manager(user)
-
-        # Should not add role for auto org
-        assert not user.is_manager
-
-
-class TestToggleLeader:
-    """Tests for toggling leader role."""
-
-    def test_toggle_leader_adds_role(
-        self, app: Flask, db_session: Session, user_with_org: User
-    ):
-        """Test that toggle_leader adds leader role."""
-        _get_or_create_role(db_session, RoleEnum.LEADER.name)
-        view = ShowUserView()
-        assert not user_with_org.is_leader
-
-        with app.test_request_context():
-            view._toggle_leader(user_with_org)
-
-        assert user_with_org.is_leader
-
-    def test_toggle_leader_removes_role(
-        self, app: Flask, db_session: Session, user_with_org: User
-    ):
-        """Test that toggle_leader removes leader role when present."""
-        leader_role = _get_or_create_role(db_session, RoleEnum.LEADER.name)
-        user_with_org.roles.append(leader_role)
-        db_session.flush()
-        assert user_with_org.is_leader
-
-        view = ShowUserView()
-
-        with app.test_request_context():
-            view._toggle_leader(user_with_org)
-
-        assert not user_with_org.is_leader
