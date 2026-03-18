@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 
 def _create_org(db: SQLAlchemy, name: str) -> Organisation:
     """Helper to create and flush an organisation."""
-    org = Organisation(name=name, type=OrganisationTypeEnum.MEDIA)
+    org = Organisation(name=name)
     db.session.add(org)
     db.session.flush()
     return org

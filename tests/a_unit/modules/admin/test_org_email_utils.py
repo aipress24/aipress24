@@ -36,7 +36,7 @@ class TestChangeMembersEmails:
 
     def test_adds_new_member(self, db: SQLAlchemy) -> None:
         """Test adding a new member by email."""
-        org = Organisation(name="Test Org", type=OrganisationTypeEnum.MEDIA)
+        org = Organisation(name="Test Org")
         new_user = User(email="newmember@example.com", active=True)
         profile = KYCProfile()
         new_user.profile = profile
@@ -49,7 +49,7 @@ class TestChangeMembersEmails:
 
     def test_removes_member_not_in_list(self, db: SQLAlchemy) -> None:
         """Test removing a member not in the new email list."""
-        org = Organisation(name="Test Org Remove", type=OrganisationTypeEnum.MEDIA)
+        org = Organisation(name="Test Org Remove")
         existing_user = User(email="existing@example.com", active=True)
         profile = KYCProfile()
         existing_user.profile = profile
@@ -64,7 +64,7 @@ class TestChangeMembersEmails:
 
     def test_handles_multiple_emails(self, db: SQLAlchemy) -> None:
         """Test handling multiple emails separated by whitespace."""
-        org = Organisation(name="Test Org Multi", type=OrganisationTypeEnum.MEDIA)
+        org = Organisation(name="Test Org Multi")
         user1 = User(email="multi_user1@example.com", active=True)
         user2 = User(email="multi_user2@example.com", active=True)
         profile1 = KYCProfile()
@@ -81,7 +81,7 @@ class TestChangeMembersEmails:
 
     def test_case_insensitive_email_matching(self, db: SQLAlchemy) -> None:
         """Test email matching is case insensitive."""
-        org = Organisation(name="Test Org Case", type=OrganisationTypeEnum.MEDIA)
+        org = Organisation(name="Test Org Case")
         user = User(email="CaseTest@Example.COM", active=True)
         profile = KYCProfile()
         user.profile = profile
@@ -94,7 +94,7 @@ class TestChangeMembersEmails:
 
     def test_ignores_nonexistent_emails(self, db: SQLAlchemy) -> None:
         """Test non-existent emails are ignored."""
-        org = Organisation(name="Test Org Ignore", type=OrganisationTypeEnum.MEDIA)
+        org = Organisation(name="Test Org Ignore")
         db.session.add(org)
         db.session.flush()
 
@@ -107,7 +107,7 @@ class TestChangeManagersEmails:
 
     def test_adds_manager_role_to_existing_member(self, db: SQLAlchemy) -> None:
         """Test adding manager role to existing member."""
-        org = Organisation(name="Test Org Mgr", type=OrganisationTypeEnum.MEDIA)
+        org = Organisation(name="Test Org Mgr")
         get_or_create_role(db, RoleEnum.MANAGER)
         user = User(email="member_mgr@example.com", active=True)
         profile = KYCProfile()
@@ -122,7 +122,7 @@ class TestChangeManagersEmails:
 
     def test_removes_manager_role(self, db: SQLAlchemy) -> None:
         """Test removing manager role from user."""
-        org = Organisation(name="Test Org Mgr Remove", type=OrganisationTypeEnum.MEDIA)
+        org = Organisation(name="Test Org Mgr Remove")
         manager_role = get_or_create_role(db, RoleEnum.MANAGER)
         user = User(email="manager_remove@example.com", active=True)
         profile = KYCProfile()
@@ -139,7 +139,7 @@ class TestChangeManagersEmails:
 
     def test_requires_user_to_be_member(self, db: SQLAlchemy) -> None:
         """Test manager must already be a member of the org."""
-        org = Organisation(name="Test Org Mgr Req", type=OrganisationTypeEnum.MEDIA)
+        org = Organisation(name="Test Org Mgr Req")
         get_or_create_role(db, RoleEnum.MANAGER)
         user = User(email="nonmember_mgr@example.com", active=True)
         profile = KYCProfile()
@@ -155,7 +155,7 @@ class TestChangeManagersEmails:
 
     def test_keep_one_prevents_removing_last_manager(self, db: SQLAlchemy) -> None:
         """Test keep_one=True prevents removing the last manager."""
-        org = Organisation(name="Test Org Keep", type=OrganisationTypeEnum.MEDIA)
+        org = Organisation(name="Test Org Keep")
         manager_role = get_or_create_role(db, RoleEnum.MANAGER)
         user = User(email="last_manager@example.com", active=True)
         profile = KYCProfile()
@@ -177,7 +177,7 @@ class TestAddManagersEmails:
 
     def test_adds_manager_from_string(self, db: SQLAlchemy) -> None:
         """Test adding manager from string email."""
-        org = Organisation(name="Test Org Add Mgr", type=OrganisationTypeEnum.MEDIA)
+        org = Organisation(name="Test Org Add Mgr")
         get_or_create_role(db, RoleEnum.MANAGER)
         user = User(email="add_mgr_str@example.com", active=True)
         profile = KYCProfile()
@@ -192,7 +192,7 @@ class TestAddManagersEmails:
 
     def test_adds_manager_from_list(self, db: SQLAlchemy) -> None:
         """Test adding manager from list of emails."""
-        org = Organisation(name="Test Org Add List", type=OrganisationTypeEnum.MEDIA)
+        org = Organisation(name="Test Org Add List")
         get_or_create_role(db, RoleEnum.MANAGER)
         user = User(email="add_mgr_list@example.com", active=True)
         profile = KYCProfile()
@@ -207,7 +207,7 @@ class TestAddManagersEmails:
 
     def test_handles_whitespace_in_emails(self, db: SQLAlchemy) -> None:
         """Test handling whitespace around emails."""
-        org = Organisation(name="Test Org Whitespace", type=OrganisationTypeEnum.MEDIA)
+        org = Organisation(name="Test Org Whitespace")
         get_or_create_role(db, RoleEnum.MANAGER)
         user = User(email="whitespace@example.com", active=True)
         profile = KYCProfile()
