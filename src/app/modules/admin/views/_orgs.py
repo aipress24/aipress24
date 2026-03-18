@@ -14,7 +14,7 @@ from app.flask.routing import url_for
 from app.models.organisation import Organisation
 from app.modules.admin.table import Column, ColumnSpec, GenericOrgDataSource, Table
 from app.modules.bw.bw_activation.models.business_wall import BusinessWall, BWStatus
-from app.ui.labels import LABELS_BW_TYPE_V2, LABELS_ORGANISATION_TYPE
+from app.ui.labels import LABELS_BW_TYPE_V2
 
 TABLE_COLUMNS: list[ColumnSpec] = [
     {"name": "name", "label": "Nom", "width": 50},
