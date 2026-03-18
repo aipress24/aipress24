@@ -4,13 +4,14 @@
 
 from __future__ import annotations
 
-from typing import Any, ClassVar
+from typing import ClassVar
 
 from attr import frozen
 
 from app.flask.lib.macros import macro
 from app.flask.lib.pywire import Component, component
 from app.lib.html import a, div, nav, span
+from app.modules.biz.views._common import TabSpec
 from app.ui.macros.icon import icon
 
 from .biz_card import BizCard
@@ -35,7 +36,7 @@ BUTTONS = """
 @component
 @frozen
 class BizTabs(Component):
-    tabs: list[Any]
+    tabs: list[TabSpec]
     components: ClassVar = [BizCard]
 
     def __call__(self):

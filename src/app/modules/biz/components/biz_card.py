@@ -4,15 +4,14 @@
 
 from __future__ import annotations
 
-from typing import Any
-
 from attr import frozen
 
 from app.flask.lib.pywire import Component, component
+from app.modules.biz.models import MarketplaceContent
 
 
 @component
 @frozen
 class BizCard(Component):
-    obj: Any
+    obj: MarketplaceContent
     show_author: bool = True

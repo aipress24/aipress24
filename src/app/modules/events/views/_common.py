@@ -13,7 +13,7 @@ import arrow
 import sqlalchemy as sa
 from arrow import Arrow
 from attr import define
-from sqlalchemy import or_, select
+from sqlalchemy import Select, or_, select
 from sqlalchemy.orm import selectinload
 
 from app.flask.extensions import db
@@ -37,10 +37,12 @@ from app.modules.swork.models import Comment
 class EventListVM(ViewModel):
     """View model for event list items."""
 
-    def extra_attrs(self):
+    def extra_attrs(self) -> dict:
         event = cast("EventPost", self._model)
         start_date = event.start_datetime
-        assert start_date
+        if not start_date:
+            msg = f"Event {event.id} has no start_datetime"
+            raise ValueError(msg)
 
         if event.published_at:
             age = event.published_at.humanize(locale="fr")
@@ -61,7 +63,7 @@ class EventListVM(ViewModel):
 class EventDetailVM(ViewModel):
     """View model for event detail page."""
 
-    def extra_attrs(self):
+    def extra_attrs(self) -> dict:
         event = cast("EventPost", self._model)
 
         if event.published_at:
@@ -145,12 +147,11 @@ class DateFilter:
         self.month = self.month_start
         self.month_end = self.month_start.shift(months=1)
 
-    def apply(self, stmt):
+    def apply(self, stmt) -> Select:
         from sqlalchemy import and_
 
         match self.filter_on:
-            case "day":
-                assert self.day
+            case "day" if self.day:
                 stmt = stmt.where(
                     and_(
                         EventPost.start_datetime < self.day.shift(days=1),
