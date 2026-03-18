@@ -24,7 +24,7 @@ class TestOrgsTable:
 
         expected_columns = [
             {"name": "name", "label": "Nom", "width": 50},
-            {"name": "type", "label": "type", "width": 20},
+            {"name": "type", "label": "Type", "width": 20},
             {"name": "karma", "label": "Réputation", "width": 8},
         ]
 
