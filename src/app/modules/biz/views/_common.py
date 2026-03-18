@@ -16,7 +16,15 @@ class FilterSpec(TypedDict, total=False):
     options: list[str]
 
 
-TABS = [
+class TabSpec(TypedDict, total=False):
+    id: str
+    label: str
+    tip: str
+    href: str
+    current: bool
+
+
+TABS: list[TabSpec] = [
     {
         "id": "stories",
         "label": "©",  # ex: "Stories"
