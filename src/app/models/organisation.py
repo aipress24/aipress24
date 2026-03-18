@@ -74,11 +74,17 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
 
     @property
     def is_auto(self) -> bool:
-        return self.type == OrganisationTypeEnum.AUTO
+        """To be fixed later (make it a bool attribute or remove)
+
+        Always returns False.
+        Organisations are now considered 'auto' only if they have no active BW.
+        """
+        return not self.active
 
     @property
     def is_auto_or_inactive(self) -> bool:
-        return self.type == OrganisationTypeEnum.AUTO or not self.active
+        """Returns True if organisation is inactive (no active BW)."""
+        return not self.active
 
 
 __1 = """
