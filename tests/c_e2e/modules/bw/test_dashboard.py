@@ -101,7 +101,10 @@ class TestDashboard:
         response = client.get("/BW/dashboard", follow_redirects=False)
 
         assert response.status_code == 302
-        assert "not-authorized" in response.location or "not_authorized" in response.location
+        assert (
+            "not-authorized" in response.location
+            or "not_authorized" in response.location
+        )
 
 
 # -----------------------------------------------------------------------------
