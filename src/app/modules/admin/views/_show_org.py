@@ -57,9 +57,6 @@ class OrgVM(ViewModel):
         return get_organisation_logo_url(self.org)
 
     def get_screenshot_url(self):
-        if not self.org.screenshot_id:
-            return ""
-        config = current_app.config
-        base_url = config["S3_PUBLIC_URL"]
-        url = f"{base_url}/{self.org.screenshot_id}"
-        return url
+        # screenshot_id field removed from Organisation
+        # FIXME: to be removed
+        return ""
