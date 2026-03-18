@@ -20,10 +20,12 @@ from app.models.organisation import Organisation
 def get_organisation_family(
     family: OrganisationTypeEnum = OrganisationTypeEnum.AUTO,  # type: ignore
 ) -> list[str]:
-    """Get list of Organisation of specified family."""
+    """FIXME: there is no organisation type
+
+    Get list of Organisation of specified family."""
     query = (
         select(Organisation)
-        .where(Organisation.type == family)
+        # .where(Organisation.type == family)
         .order_by(Organisation.name)
     )
     result = db.session.execute(query).scalars()
@@ -31,55 +33,76 @@ def get_organisation_family(
 
 
 def get_organisation_for_noms_medias() -> list[str]:
-    """Get list of Organisation of MEDIA AGENCY and AUTO families.
+    """FIXME: there is no organisation type
+
+    Get list of Organisation of MEDIA AGENCY and AUTO families.
 
     List not filtered for duplicates.
     (Then will add the required ontologie if needed, there or in a later stage)
     """
-    query = select(Organisation).where(
-        Organisation.type.in_(
-            [
-                OrganisationTypeEnum.MEDIA,
-                OrganisationTypeEnum.AGENCY,
-                OrganisationTypeEnum.AUTO,
-            ]
-        )
+    # query = select(Organisation).where(
+    #     Organisation.type.in_(
+    #         [
+    #             OrganisationTypeEnum.MEDIA,
+    #             OrganisationTypeEnum.AGENCY,
+    #             OrganisationTypeEnum.AUTO,
+    #         ]
+    #     )
+    # )
+    query = (
+        select(Organisation)
+        # .where(Organisation.type == family)
+        .order_by(Organisation.name)
     )
     result = db.session.execute(query).scalars()
     return [org.name for org in result]
 
 
 def get_organisation_for_noms_orgas() -> list[str]:
-    """Get list of Organisation of OTHER and AUTO families.
+    """FIXME: there is no organisation type
+
+    Get list of Organisation of OTHER and AUTO families.
 
     List not filtered for duplicates.
     (Then will add the required ontologie if needed, there or in a later stage)
     """
-    query = select(Organisation).where(
-        Organisation.type.in_(
-            [
-                OrganisationTypeEnum.OTHER,
-                OrganisationTypeEnum.AUTO,
-            ]
-        )
+    # query = select(Organisation).where(
+    #     Organisation.type.in_(
+    #         [
+    #             OrganisationTypeEnum.OTHER,
+    #             OrganisationTypeEnum.AUTO,
+    #         ]
+    #     )
+    # )
+    query = (
+        select(Organisation)
+        # .where(Organisation.type == family)
+        .order_by(Organisation.name)
     )
     result = db.session.execute(query).scalars()
     return [org.name for org in result]
 
 
 def get_organisation_for_noms_com() -> list[str]:
-    """Get list of Organisation of COM and AUTO families.
+    """FIXME: there is no organisation type
+
+    Get list of Organisation of COM and AUTO families.
 
     List not filtered for duplicates.
     (Then will add the required ontologie if needed, there or in a later stage)
     """
-    query = select(Organisation).where(
-        Organisation.type.in_(
-            [
-                OrganisationTypeEnum.COM,
-                OrganisationTypeEnum.AUTO,
-            ]
-        )
+    # query = select(Organisation).where(
+    #     Organisation.type.in_(
+    #         [
+    #             OrganisationTypeEnum.COM,
+    #             OrganisationTypeEnum.AUTO,
+    #         ]
+    #     )
+    # )
+    query = (
+        select(Organisation)
+        # .where(Organisation.type == family)
+        .order_by(Organisation.name)
     )
     result = db.session.execute(query).scalars()
     return [org.name for org in result]
