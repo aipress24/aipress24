@@ -84,16 +84,8 @@ def sample_users(db_session: Session) -> list[User]:
 def sample_organisations(db_session: Session) -> list[Organisation]:
     """Create sample organisations for export testing."""
     organisations = []
-    org_types = [
-        OrganisationTypeEnum.MEDIA,
-        OrganisationTypeEnum.AGENCY,
-        OrganisationTypeEnum.COM,
-    ]
     for i in range(3):
-        org = Organisation(
-            name=f"Organisation {i}",
-            type=org_types[i],
-        )
+        org = Organisation(name=f"Organisation {i}")
         db_session.add(org)
         organisations.append(org)
 
