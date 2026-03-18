@@ -276,8 +276,8 @@ class TestFindInvitingOrganisations:
 
     def test_returns_orgs_with_invitations(self, db: SQLAlchemy) -> None:
         """Test returns organisations that have invited the email."""
-        org1 = Organisation(name="Inviting Org 1", type=OrganisationTypeEnum.MEDIA)
-        org2 = Organisation(name="Inviting Org 2", type=OrganisationTypeEnum.COM)
+        org1 = Organisation(name="Inviting Org 1", active=True)
+        org2 = Organisation(name="Inviting Org 2", active=True)
         db.session.add_all([org1, org2])
         db.session.flush()
 
@@ -294,9 +294,7 @@ class TestFindInvitingOrganisations:
 
     def test_case_insensitive_email_matching(self, db: SQLAlchemy) -> None:
         """Test email matching is case insensitive."""
-        org = Organisation(
-            name="KYC Case Test Org Unique", type=OrganisationTypeEnum.MEDIA
-        )
+        org = Organisation(name="KYC Case Test Org Unique", active=True)
         db.session.add(org)
         db.session.flush()
 
@@ -344,9 +342,7 @@ class TestStoreAutoOrganisation:
 
     def test_returns_existing_auto_org(self, db: SQLAlchemy) -> None:
         """Test returns existing AUTO org instead of creating duplicate."""
-        existing_org = Organisation(
-            name="Existing Auto", type=OrganisationTypeEnum.AUTO
-        )
+        existing_org = Organisation(name="Existing Auto", active=False)
         db.session.add(existing_org)
         db.session.flush()
 
