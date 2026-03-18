@@ -24,17 +24,6 @@ from tests.c_e2e.conftest import make_authenticated_client
 if TYPE_CHECKING:
     from flask import Flask
     from flask.testing import FlaskClient
-    from sqlalchemy.orm import Session
-
-
-@pytest.fixture(autouse=True)
-def db_session(fresh_db) -> Session:
-    """Override modules/conftest.py db_session to use fresh_db.
-
-    WIP tests use the fresh_db (drop/create) approach rather than
-    transaction wrapping.
-    """
-    return fresh_db.session
 
 
 @pytest.fixture

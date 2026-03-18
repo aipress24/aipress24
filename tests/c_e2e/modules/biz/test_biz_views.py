@@ -29,9 +29,7 @@ def test_user(db_session: Session) -> User:
 
 
 @pytest.fixture
-def authenticated_client(
-    app: Flask, db_session: Session, test_user: User
-) -> FlaskClient:
+def authenticated_client(app: Flask, test_user: User) -> FlaskClient:
     """Provide a Flask test client logged in as test user."""
     client = app.test_client()
 
@@ -39,11 +37,7 @@ def authenticated_client(
         sess["_user_id"] = str(test_user.id)
         sess["_fresh"] = True
         sess["_permanent"] = True
-        sess["_id"] = (
-            str(test_user.fs_uniquifier)
-            if hasattr(test_user, "fs_uniquifier")
-            else str(test_user.id)
-        )
+        sess["_id"] = getattr(test_user, "fs_uniquifier", str(test_user.id))
 
     return client
 
@@ -51,16 +45,12 @@ def authenticated_client(
 class TestBizHomeView:
     """Test biz home (marketplace) view."""
 
-    def test_biz_home_accessible(
-        self, authenticated_client: FlaskClient, db_session: Session
-    ):
+    def test_biz_home_accessible(self, authenticated_client: FlaskClient):
         """Test biz home page is accessible."""
         response = authenticated_client.get("/biz/")
         assert response.status_code in (200, 302)
 
-    def test_biz_home_with_tab(
-        self, authenticated_client: FlaskClient, db_session: Session
-    ):
+    def test_biz_home_with_tab(self, authenticated_client: FlaskClient):
         """Test biz home page with tab parameter."""
         response = authenticated_client.get("/biz/?current_tab=subscriptions")
         assert response.status_code in (200, 302)
@@ -69,9 +59,7 @@ class TestBizHomeView:
 class TestBizPurchasesView:
     """Test biz purchases view."""
 
-    def test_purchases_accessible(
-        self, authenticated_client: FlaskClient, db_session: Session
-    ):
+    def test_purchases_accessible(self, authenticated_client: FlaskClient):
         """Test purchases page is accessible."""
         response = authenticated_client.get("/biz/purchases/")
         assert response.status_code in (200, 302)

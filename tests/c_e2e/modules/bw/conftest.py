@@ -30,21 +30,11 @@ from app.modules.bw.bw_activation.models import (
 )
 
 if TYPE_CHECKING:
-    from sqlalchemy.orm import Session
+    pass
 
 
 def _unique_email() -> str:
     return f"test_{uuid.uuid4().hex[:8]}@example.com"
-
-
-@pytest.fixture(autouse=True)
-def db_session(fresh_db) -> Session:
-    """Override modules/conftest.py db_session to use fresh_db.
-
-    BW tests use the fresh_db (drop/create) approach rather than
-    transaction wrapping.
-    """
-    return fresh_db.session
 
 
 # -----------------------------------------------------------------------------
