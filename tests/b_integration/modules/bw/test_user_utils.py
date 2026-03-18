@@ -8,7 +8,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from app.enums import OrganisationTypeEnum
 from app.models.auth import User
 from app.models.organisation import Organisation
 from app.modules.bw.bw_activation.models.business_wall import (
@@ -31,11 +30,11 @@ if TYPE_CHECKING:
 class TestGetOrganisationLogoUrl:
     """Tests for get_organisation_logo_url function."""
 
-    def test_returns_default_logo_for_auto_org(self, db_session: Session):
-        """Should return default logo for AUTO organisation."""
+    def test_returns_default_logo_for_inactive_org(self, db_session: Session):
+        """Should return default logo for inactive/AUTO organisation."""
         org = Organisation(
-            name="Test Auto Org",
-            type=OrganisationTypeEnum.AUTO,
+            name="Test Inactive Org",
+            active=False,
         )
         db_session.add(org)
         db_session.flush()
@@ -48,7 +47,6 @@ class TestGetOrganisationLogoUrl:
         """Should return default logo when org has no BusinessWall."""
         org = Organisation(
             name="Test Org",
-            type=OrganisationTypeEnum.MEDIA,
         )
         db_session.add(org)
         db_session.flush()
@@ -79,8 +77,7 @@ class TestGetOrganisationLogoUrl:
         self, db_session: Session, test_org: Organisation, test_user_owner: User
     ):
         """Should return BW logo when active BusinessWall exists."""
-        # Set org type to non-AUTO for this test
-        test_org.type = OrganisationTypeEnum.MEDIA
+        test_org.active = True
         db_session.flush()
 
         bw = BusinessWall(
@@ -105,7 +102,6 @@ class TestGetActiveBusinessWallForOrganisation:
         """Should return None when organisation has no BusinessWall."""
         org = Organisation(
             name="Test Org",
-            type=OrganisationTypeEnum.AGENCY,
         )
         db_session.add(org)
         db_session.flush()
@@ -259,7 +255,6 @@ class TestGetAnyBusinessWallForOrganisation:
         """Should return None when organisation has no BusinessWall."""
         org = Organisation(
             name="Test Org",
-            type=OrganisationTypeEnum.AGENCY,
         )
         db_session.add(org)
         db_session.flush()
