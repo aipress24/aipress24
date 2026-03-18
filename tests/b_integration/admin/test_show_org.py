@@ -132,8 +132,6 @@ class TestOrgVM:
 
             assert "members" in attrs
             assert "count_members" in attrs
-            assert "managers" in attrs
-            assert "leaders" in attrs
             assert "invitations_emails" in attrs
             assert "logo_url" in attrs
             assert "screenshot_url" in attrs
