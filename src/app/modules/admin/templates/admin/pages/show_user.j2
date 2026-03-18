@@ -42,6 +42,21 @@
             {% endif %}
         </dd>
     </div>
+    <div>
+        <dt class="text-sm font-medium text-gray-500">Organisation</dt>
+        <dd class="mb-2 text-sm text-gray-900">
+            {% if org %}
+                {{ org.name }}
+                {% if active_bw %}
+                    ({{ LABELS_BW_TYPE_V2.get(active_bw.bw_type, active_bw.bw_type) }})
+                {% else %}
+                    (sans Business Wall)
+                {% endif %}
+            {% else %}
+                (sans organisation)
+            {% endif %}
+        </dd>
+    </div>
     <div class="mt-12 flex items-center justify-end gap-x-6">
         <button
             type="button"
