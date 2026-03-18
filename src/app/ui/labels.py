@@ -11,6 +11,18 @@ from typing import Any
 from app.enums import BWTypeEnum, OrganisationTypeEnum, ProfileEnum
 from app.models.meta import get_label
 
+# Labels for new BWType (keys from /bw/bw_activation/models/business_wall/BWType values)
+LABELS_BW_TYPE_V2 = {
+    "media": "Média",
+    "micro": "Micro-entreprise",
+    "corporate_media": "Média institutionnel",
+    "union": "Syndicat ou fédération",
+    "academics": "Académique",
+    "pr": "Agence de relations presse",
+    "leaders_experts": "Experts et leaders",
+    "transformers": "Transformers",
+}
+
 LABELS_ORGANISATION_TYPE = {
     OrganisationTypeEnum.AUTO: "Non officialisée",
     OrganisationTypeEnum.MEDIA: "Média",
