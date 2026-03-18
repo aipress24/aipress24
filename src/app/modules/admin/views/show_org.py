@@ -19,7 +19,6 @@ from typing import ClassVar, cast
 
 from flask import Response, render_template, request, url_for
 from flask.views import MethodView
-from svcs.flask import container
 
 from app.flask.extensions import db
 from app.flask.lib.nav import nav
@@ -33,7 +32,6 @@ from app.modules.admin.org_email_utils import (
 from app.modules.admin.utils import (
     delete_full_organisation,
     gc_organisation,
-    merge_organisation,
     toggle_org_active,
 )
 from app.modules.admin.views._show_org import OrgVM
@@ -41,12 +39,6 @@ from app.modules.bw.bw_activation.models import BWStatus
 from app.modules.bw.bw_activation.user_utils import (
     get_active_business_wall_for_organisation,
 )
-from app.modules.kyc.renderer import render_field
-from app.modules.wip.forms.business_wall import (
-    BWFormGenerator,
-    merge_org_results,
-)
-from app.services.sessions import SessionService
 
 
 class ShowOrgView(MethodView):
@@ -59,28 +51,14 @@ class ShowOrgView(MethodView):
     def get(self, uid: str):
         """Display the admin detail page for a single organization.
 
-        The page shows organization info, membership lists, and an embedded Business
-        Wall form. The BW form is read-only by default to prevent accidental edits;
-        admins must click "Modify" to enable editing. This state is tracked
-        per-organization in the session so multiple browser tabs don't interfere.
+        The page shows organization info, membership lists, and BW management options.
         """
         org = cast(Organisation, get_obj(uid, Organisation))
-        ro_session_key = f"readonly_form_bw_{org.id}"
-
-        session_service = container.get(SessionService)
-        readonly = session_service.get(ro_session_key)
-        readonly_flag = readonly != "RW"
-
-        form_generator = BWFormGenerator(org=org, readonly=readonly_flag)
-        form = form_generator.generate()
 
         return render_template(
             "admin/pages/show_org.j2",
             title="Informations sur l'organisation",
             org=OrgVM(org),
-            render_field=render_field,
-            readonly_form_bw=readonly_flag,
-            form=form,
         )
 
     def post(self, uid: str) -> Response:  # noqa: PLR0915
@@ -98,7 +76,6 @@ class ShowOrgView(MethodView):
         check after changing members handles cleanup if the org becomes empty.
         """
         org = get_obj(uid, Organisation)
-        ro_session_key = f"readonly_form_bw_{org.id}"
         action = request.form.get("action", "")
         current_url = url_for("admin.show_org", uid=uid)
         orgs_url = url_for("admin.orgs")
@@ -106,30 +83,6 @@ class ShowOrgView(MethodView):
         response = Response("")
 
         match action:
-            case "allow_modify_bw":
-                session_service = container.get(SessionService)
-                session_service.set(ro_session_key, "RW")
-                response.headers["HX-Redirect"] = (
-                    f"{current_url}?reload=1#bw-form-container"
-                )
-
-            case "cancel_modification_bw":
-                session_service = container.get(SessionService)
-                session_service.set(ro_session_key, "RO")
-                response.headers["HX-Redirect"] = (
-                    f"{current_url}?reload=2#bw-form-container"
-                )
-
-            case "validate_modification_bw":
-                results = request.form.to_dict(flat=False)
-                merge_org_results(org, results)
-                merge_organisation(org)
-                session_service = container.get(SessionService)
-                session_service.set(ro_session_key, "RO")
-                response.headers["HX-Redirect"] = (
-                    f"{current_url}?reload=3#bw-form-container"
-                )
-
             case "toggle_org_active":
                 toggle_org_active(org)
                 response.headers["HX-Redirect"] = current_url
