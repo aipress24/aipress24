@@ -25,10 +25,7 @@ def test_user_for_admin(db_session: Session) -> User:
     """Create a test user with organisation for admin tests."""
     unique_id = uuid.uuid4().hex[:8]
 
-    org = Organisation(
-        name=f"User Test Org {unique_id}",
-        type=OrganisationTypeEnum.MEDIA,
-    )
+    org = Organisation(name=f"User Test Org {unique_id}")
     org.active = True
     db_session.add(org)
     db_session.flush()
