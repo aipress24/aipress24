@@ -77,10 +77,12 @@ class InvitationsView(MethodView):
         )
         organisations = db_session.scalars(stmt)
         result = []
+        # FIXME: display information about BW, not org type
         for org in organisations:
-            org_type = cast(OrganisationTypeEnum, org.type)
+            # org_type = cast(OrganisationTypeEnum, org.type)
             infos = {
-                "label": f"{org.name} ({LABELS_ORGANISATION_TYPE.get(org_type, org_type)})",
+                "label": f"{org.name}",
+                # "label": f"{org.name} ({LABELS_ORGANISATION_TYPE.get(org_type, org_type)})",
                 "org_id": str(org.id),
             }
             if user.organisation_id == org.id:
@@ -128,11 +130,15 @@ class InvitationsView(MethodView):
         org = user.organisation
         if not org:
             return {}
-        org_type = org.type
-        if org_type != OrganisationTypeEnum.AUTO:
+        # FIXME: display information about BW, not org type
+        # org_type = org.type
+        if org.active:
             return {}
+        # if org_type != OrganisationTypeEnum.AUTO:
+        # return {}
         infos = {
-            "label": f"{org.name} ({LABELS_ORGANISATION_TYPE.get(org_type, org_type)})",
+            # "label": f"{org.name} ({LABELS_ORGANISATION_TYPE.get(org_type, org_type)})",
+            "label": f"{org.name}",
             "org_id": str(org.id),
             "disabled": "disabled",
         }
