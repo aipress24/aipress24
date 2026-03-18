@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from app.enums import OrganisationTypeEnum, RoleEnum
+from app.enums import RoleEnum
 from app.models.auth import KYCProfile, Role, User
 from app.models.organisation import Organisation
 from app.modules.admin.org_email_utils import (

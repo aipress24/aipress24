@@ -18,7 +18,7 @@ import pytest
 from sqlalchemy import select
 
 import app.modules.admin.views._show_org as show_org_module
-from app.enums import OrganisationTypeEnum, RoleEnum
+from app.enums import RoleEnum
 from app.models.auth import KYCProfile, Role, User
 from app.models.content import BaseContent
 from app.models.organisation import Organisation

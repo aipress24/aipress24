@@ -16,7 +16,6 @@ from werkzeug import Response
 from wtforms import Form as WTForm
 
 from app.constants import LOCAL_TZ
-from app.enums import OrganisationTypeEnum
 from app.flask.extensions import db
 from app.flask.lib.breadcrumbs import BreadCrumb
 from app.flask.lib.htmx import extract_fragment

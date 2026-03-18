@@ -19,7 +19,6 @@ from odsgenerator import odsgenerator
 from sqlalchemy import desc, false, nulls_last, select, true
 
 from app.constants import BW_TRIGGER_LABEL, LABEL_INSCRIPTION_VALIDEE, LOCAL_TZ
-from app.enums import OrganisationTypeEnum
 from app.flask.extensions import db
 from app.models.auth import KYCProfile, User
 from app.models.organisation import Organisation

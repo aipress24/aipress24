@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING
 from arrow import now as arrow_now
 
 from app.constants import LOCAL_TZ
-from app.enums import OrganisationTypeEnum, RoleEnum
+from app.enums import RoleEnum
 from app.models.auth import KYCProfile, Role, User
 from app.models.organisation import Organisation
 from app.modules.admin.utils import (

@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from app.enums import OrganisationTypeEnum, RoleEnum
+from app.enums import RoleEnum
 from app.models.auth import KYCProfile, Role, User
 from app.models.organisation import Organisation
 from app.modules.preferences.views.others import email, password
