@@ -11,7 +11,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import scoped_session
 
 from app.constants import LABEL_MODIFICATION_ORGANISATION, LOCAL_TZ
-from app.enums import OrganisationTypeEnum
+from app.enums import BWTypeEnum
 from app.flask.extensions import db
 from app.flask.sqla import get_obj
 from app.models.auth import User, clone_kycprofile
@@ -67,19 +67,23 @@ def _set_user_organisation_id(user: User, org_id: int) -> None:
 def _set_user_profile_organisation(user: User, organisation: Organisation) -> None:
     new_profile = clone_kycprofile(user.profile)
     name = organisation.name
-    match organisation.type:
-        case OrganisationTypeEnum.MEDIA:
-            new_profile.info_professionnelle["nom_media"] = [name]
-        case OrganisationTypeEnum.AGENCY:
-            new_profile.info_professionnelle["nom_media"] = [name]
-        case OrganisationTypeEnum.COM:
-            new_profile.info_professionnelle["nom_agence_rp"] = name
-        case OrganisationTypeEnum.OTHER:
-            new_profile.info_professionnelle["nom_orga"] = name
-        case OrganisationTypeEnum.AUTO:
-            new_profile.info_professionnelle["nom_orga"] = name
-    # new_profile.info_professionnelle["nom_adm"] = ""
-    # new_profile.info_professionnelle["nom_media_instit"] = ""
+    # Use bw_type if available, or default to nom_orga
+    bw_type = organisation.bw_type
+    if bw_type:
+        match bw_type:
+            case (
+                BWTypeEnum.MEDIA
+                | BWTypeEnum.AGENCY
+                | BWTypeEnum.CORPORATE
+                | BWTypeEnum.PRESSUNION
+            ):
+                new_profile.info_professionnelle["nom_media"] = [name]
+            case BWTypeEnum.COM:
+                new_profile.info_professionnelle["nom_agence_rp"] = name
+            case _:
+                new_profile.info_professionnelle["nom_orga"] = name
+    else:
+        new_profile.info_professionnelle["nom_orga"] = name
     user.profile = new_profile
 
 
@@ -179,14 +183,14 @@ def gc_organisation(organisation: Organisation | None) -> bool:
 
 
 def gc_all_auto_organisations() -> int:
-    """Garbage collect all Organisation of type AUTO with no member.
+    """Garbage collect all inactive/AUTO Organisation with no member.
 
     Return True is deletion occured.
     """
     db_session = db.session
     stmt = select(Organisation).where(
         Organisation.deleted_at.is_(None),
-        Organisation.type == OrganisationTypeEnum.AUTO,
+        Organisation.active.is_(False),  # WIP, FIXME when AUTO field has meaning
         ~Organisation.members.any(),
     )
     empty_orgs = db_session.scalars(stmt)
