@@ -338,7 +338,7 @@ class TestStoreAutoOrganisation:
 
         assert result is not None
         assert result.name == "New Auto Org"
-        assert result.type == OrganisationTypeEnum.AUTO
+        assert result.is_auto is True
 
     def test_returns_existing_auto_org(self, db: SQLAlchemy) -> None:
         """Test returns existing AUTO org instead of creating duplicate."""

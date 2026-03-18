@@ -321,6 +321,8 @@ def store_auto_organisation(
 ) -> Organisation | None:
     """Store a new AUTO organisation if the organisation does not exists.
 
+    FIXME: Organisation have no type
+
     Return: created or existent Auto Organisation, or None if fail to create (empty name)
 
     2 possible situations:
@@ -339,14 +341,12 @@ def store_auto_organisation(
     # identification of AUTO organisation is only the organisation name
     if db_session is None:
         db_session = db.session
-    query = select(Organisation).where(
-        Organisation.name == org_name, Organisation.type == OrganisationTypeEnum.AUTO
-    )
+    query = select(Organisation).where(Organisation.name == org_name)
     found_organisation = db.session.execute(query).scalars().first()
     if found_organisation:
         return found_organisation
     # No Organisatin with both same type and other params found:
-    created_organisation = Organisation(name=org_name, type=OrganisationTypeEnum.AUTO)
+    created_organisation = Organisation(name=org_name, active=False)
     db_session.add(created_organisation)
     db_session.flush()
     return created_organisation
