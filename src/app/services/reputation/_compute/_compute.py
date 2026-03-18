@@ -50,15 +50,18 @@ def compute_reputation_user(user: User) -> dict[str, Real]:
 
 @compute_reputation.register
 def compute_reputation_org(org: Organisation) -> dict[str, Real]:
-    """Compute the reputation of an organisation."""
-    match org.type:
-        case OrganisationTypeEnum.MEDIA | OrganisationTypeEnum.AGENCY:
-            spec = REPUT_MEDIA_SPEC
-        case OrganisationTypeEnum.COM:
-            spec = REPUT_COM_SPEC
-        case _:
-            spec = REPUT_GENERIC_ORG_SPEC
-    return compute_reputation_with_spec(org, spec)
+    """Compute the reputation of an organisation.
+
+    FIXME: no organisation type -> reputation to move to BW class ?"""
+    # match org.type:
+    #     case OrganisationTypeEnum.MEDIA | OrganisationTypeEnum.AGENCY:
+    #         spec = REPUT_MEDIA_SPEC
+    #     case OrganisationTypeEnum.COM:
+    #         spec = REPUT_COM_SPEC
+    #     case _:
+    #         spec = REPUT_GENERIC_ORG_SPEC
+    # return compute_reputation_with_spec(org, spec)
+    return {"total": 0}
 
 
 def compute_reputation_with_spec(obj, spec: Spec) -> dict[str, Real]:
