@@ -178,7 +178,7 @@ class TestGcOrganisation:
 
     def test_returns_false_for_non_auto_org(self, db: SQLAlchemy) -> None:
         """Test non-AUTO organisation returns False."""
-        org = Organisation(name="Media Org", type=OrganisationTypeEnum.MEDIA)
+        org = Organisation(name="Media Org")
         db.session.add(org)
         db.session.flush()
 
@@ -188,7 +188,7 @@ class TestGcOrganisation:
 
     def test_returns_false_for_auto_org_with_members(self, db: SQLAlchemy) -> None:
         """Test AUTO organisation with members returns False."""
-        org = Organisation(name="Auto Org", type=OrganisationTypeEnum.AUTO)
+        org = Organisation(name="Auto Org")
         user = User(email="member@example.com", active=True)
         user.organisation = org
         db.session.add_all([org, user])
@@ -200,7 +200,7 @@ class TestGcOrganisation:
 
     def test_deletes_empty_auto_org(self, db: SQLAlchemy) -> None:
         """Test empty AUTO organisation is deleted."""
-        org = Organisation(name="Empty Auto Org", type=OrganisationTypeEnum.AUTO)
+        org = Organisation(name="Empty Auto Org", active=False)
         db.session.add(org)
         db.session.flush()
         org_id = org.id
@@ -218,7 +218,7 @@ class TestSetUserOrganisation:
 
     def test_sets_user_organisation(self, db: SQLAlchemy) -> None:
         """Test setting user's organisation."""
-        org = Organisation(name="New Org", type=OrganisationTypeEnum.MEDIA)
+        org = Organisation(name="New Org")
         user = User(email="set_org_user@example.com", active=True)
         profile = KYCProfile()
         user.profile = profile
@@ -232,8 +232,8 @@ class TestSetUserOrganisation:
 
     def test_removes_previous_organisation(self, db: SQLAlchemy) -> None:
         """Test previous organisation is removed."""
-        old_org = Organisation(name="Old Org", type=OrganisationTypeEnum.MEDIA)
-        new_org = Organisation(name="New Org", type=OrganisationTypeEnum.COM)
+        old_org = Organisation(name="Old Org")
+        new_org = Organisation(name="New Org")
         user = User(email="user_prev_org@example.com", active=True)
         profile = KYCProfile()
         user.profile = profile
@@ -251,7 +251,7 @@ class TestRemoveUserOrganisation:
 
     def test_removes_user_organisation(self, db: SQLAlchemy) -> None:
         """Test removing user's organisation."""
-        org = Organisation(name="Test Org Remove", type=OrganisationTypeEnum.MEDIA)
+        org = Organisation(name="Test Org Remove")
         user = User(email="user_remove_org@example.com", active=True)
         profile = KYCProfile()
         user.profile = profile
@@ -266,7 +266,7 @@ class TestRemoveUserOrganisation:
 
     def test_removes_manager_role(self, db: SQLAlchemy) -> None:
         """Test manager role is removed when leaving organisation."""
-        org = Organisation(name="Test Org Manager", type=OrganisationTypeEnum.MEDIA)
+        org = Organisation(name="Test Org Manager")
         # Get or create the role to avoid UNIQUE constraint issues
         manager_role = (
             db.session.query(Role).filter_by(name=RoleEnum.MANAGER.name).first()
@@ -288,83 +288,14 @@ class TestRemoveUserOrganisation:
         assert not user.is_manager
 
 
-class TestSetUserOrganisationTypes:
-    """Test suite for _set_user_profile_organisation with different org types."""
-
-    def test_sets_media_org_profile(self, db: SQLAlchemy) -> None:
-        """Test setting MEDIA organisation updates profile correctly."""
-        org = Organisation(name="Media Corp", type=OrganisationTypeEnum.MEDIA)
-        user = User(email="media_user@example.com", active=True)
-        profile = KYCProfile()
-        user.profile = profile
-        db.session.add_all([org, user, profile])
-        db.session.flush()
-
-        set_user_organisation(user, org)
-
-        assert user.profile.info_professionnelle.get("nom_media") == ["Media Corp"]
-
-    def test_sets_agency_org_profile(self, db: SQLAlchemy) -> None:
-        """Test setting AGENCY organisation updates profile correctly."""
-        org = Organisation(name="Agency Inc", type=OrganisationTypeEnum.AGENCY)
-        user = User(email="agency_user@example.com", active=True)
-        profile = KYCProfile()
-        user.profile = profile
-        db.session.add_all([org, user, profile])
-        db.session.flush()
-
-        set_user_organisation(user, org)
-
-        assert user.profile.info_professionnelle.get("nom_media") == ["Agency Inc"]
-
-    def test_sets_com_org_profile(self, db: SQLAlchemy) -> None:
-        """Test setting COM organisation updates profile correctly."""
-        org = Organisation(name="PR Agency", type=OrganisationTypeEnum.COM)
-        user = User(email="com_user@example.com", active=True)
-        profile = KYCProfile()
-        user.profile = profile
-        db.session.add_all([org, user, profile])
-        db.session.flush()
-
-        set_user_organisation(user, org)
-
-        assert user.profile.info_professionnelle.get("nom_agence_rp") == "PR Agency"
-
-    def test_sets_other_org_profile(self, db: SQLAlchemy) -> None:
-        """Test setting OTHER organisation updates profile correctly."""
-        org = Organisation(name="Other Org", type=OrganisationTypeEnum.OTHER)
-        user = User(email="other_user@example.com", active=True)
-        profile = KYCProfile()
-        user.profile = profile
-        db.session.add_all([org, user, profile])
-        db.session.flush()
-
-        set_user_organisation(user, org)
-
-        assert user.profile.info_professionnelle.get("nom_orga") == "Other Org"
-
-    def test_sets_auto_org_profile(self, db: SQLAlchemy) -> None:
-        """Test setting AUTO organisation updates profile correctly."""
-        org = Organisation(name="Auto Org", type=OrganisationTypeEnum.AUTO)
-        user = User(email="auto_user@example.com", active=True)
-        profile = KYCProfile()
-        user.profile = profile
-        db.session.add_all([org, user, profile])
-        db.session.flush()
-
-        set_user_organisation(user, org)
-
-        assert user.profile.info_professionnelle.get("nom_orga") == "Auto Org"
-
-
 class TestGcAllAutoOrganisations:
     """Test suite for gc_all_auto_organisations function."""
 
     def test_deletes_empty_auto_orgs(self, db: SQLAlchemy) -> None:
         """Test deletes all empty AUTO organisations."""
         # Create empty AUTO organisations
-        org1 = Organisation(name="Empty Auto 1", type=OrganisationTypeEnum.AUTO)
-        org2 = Organisation(name="Empty Auto 2", type=OrganisationTypeEnum.AUTO)
+        org1 = Organisation(name="Empty Auto 1", active=False)
+        org2 = Organisation(name="Empty Auto 2", active=False)
         db.session.add_all([org1, org2])
         db.session.flush()
 
@@ -374,7 +305,7 @@ class TestGcAllAutoOrganisations:
 
     def test_preserves_auto_orgs_with_members(self, db: SQLAlchemy) -> None:
         """Test preserves AUTO organisations with members."""
-        org = Organisation(name="Auto With Member", type=OrganisationTypeEnum.AUTO)
+        org = Organisation(name="Auto With Member")
         user = User(email="member_auto@example.com", active=True)
         user.organisation = org
         db.session.add_all([org, user])
@@ -390,7 +321,7 @@ class TestGcAllAutoOrganisations:
 
     def test_preserves_non_auto_orgs(self, db: SQLAlchemy) -> None:
         """Test preserves non-AUTO empty organisations."""
-        org = Organisation(name="Media Empty", type=OrganisationTypeEnum.MEDIA)
+        org = Organisation(name="Media Empty")
         db.session.add(org)
         db.session.flush()
         org_id = org.id
@@ -408,7 +339,7 @@ class TestDeleteFullOrganisation:
 
     def test_removes_all_members(self, db: SQLAlchemy) -> None:
         """Test all members are removed from organisation."""
-        org = Organisation(name="Org To Delete", type=OrganisationTypeEnum.MEDIA)
+        org = Organisation(name="Org To Delete", active=True)
         user1 = User(email="delete_member1@example.com", active=True)
         user2 = User(email="delete_member2@example.com", active=True)
         profile1 = KYCProfile()
@@ -427,7 +358,7 @@ class TestDeleteFullOrganisation:
 
     def test_marks_organisation_as_deleted(self, db: SQLAlchemy) -> None:
         """Test organisation is marked as deleted."""
-        org = Organisation(name="Org Mark Deleted", type=OrganisationTypeEnum.COM)
+        org = Organisation(name="Org Mark Deleted", active=True)
         db.session.add(org)
         db.session.flush()
 
@@ -438,7 +369,7 @@ class TestDeleteFullOrganisation:
 
     def test_removes_leader_role_from_members(self, db: SQLAlchemy) -> None:
         """Test leader role is removed from members."""
-        org = Organisation(name="Org Leader Delete", type=OrganisationTypeEnum.MEDIA)
+        org = Organisation(name="Org Leader Delete", active=True)
         leader_role = (
             db.session.query(Role).filter_by(name=RoleEnum.LEADER.name).first()
         )

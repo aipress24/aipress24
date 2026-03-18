@@ -234,12 +234,8 @@ class TestGenericOrgDataSource:
 
     def test_get_base_select_excludes_deleted(self, app: Flask, db: SQLAlchemy) -> None:
         """Test get_base_select excludes deleted organisations."""
-        org1 = Organisation(name="ActiveOrgUnique", type=OrganisationTypeEnum.AUTO.name)
-        org2 = Organisation(
-            name="DeletedOrgUnique",
-            type=OrganisationTypeEnum.AUTO.name,
-            deleted_at=arrow.now().datetime,
-        )
+        org1 = Organisation(name="ActiveOrgUnique")
+        org2 = Organisation(name="DeletedOrgUnique", deleted_at=arrow.now().datetime)
         db.session.add_all([org1, org2])
         db.session.flush()
 
@@ -256,9 +252,7 @@ class TestGenericOrgDataSource:
     def test_next_offset_increases_offset(self, app: Flask, db: SQLAlchemy) -> None:
         """Test next_offset increases offset by limit when more records exist."""
         for i in range(5):
-            org = Organisation(
-                name=f"IncOrg{i}Unique", type=OrganisationTypeEnum.AUTO.name
-            )
+            org = Organisation(name=f"IncOrg{i}Unique")
             db.session.add(org)
         db.session.flush()
 
@@ -271,10 +265,8 @@ class TestGenericOrgDataSource:
         self, app: Flask, db: SQLAlchemy
     ) -> None:
         """Test add_search_filter filters by name."""
-        org1 = Organisation(
-            name="SearchableOrgUnique", type=OrganisationTypeEnum.AUTO.name
-        )
-        org2 = Organisation(name="OtherOrgUnique", type=OrganisationTypeEnum.AUTO.name)
+        org1 = Organisation(name="SearchableOrgUnique")
+        org2 = Organisation(name="OtherOrgUnique")
         db.session.add_all([org1, org2])
         db.session.flush()
 
