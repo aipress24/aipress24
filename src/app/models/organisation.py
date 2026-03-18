@@ -282,10 +282,6 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
     def is_auto_or_inactive(self) -> bool:
         return self.type == OrganisationTypeEnum.AUTO or not self.active
 
-    @property
-    def is_agency(self) -> bool:
-        return self.type == OrganisationTypeEnum.AGENCY
-
     @hybrid_property
     def managers(self) -> list[User]:
         return [user for user in self.members if user.is_manager]
