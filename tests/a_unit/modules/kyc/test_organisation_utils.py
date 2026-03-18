@@ -394,6 +394,7 @@ class TestStoreAutoOrganisation:
         assert result is not None
         assert result.name == "Stripped Org"
 
+    @pytest.mark.skip(reason="FIXME: There is no more Organisation type / AUTO")
     def test_creates_auto_org_even_if_non_auto_exists(self, db: SQLAlchemy) -> None:
         """Test creates AUTO org even if non-AUTO org with same name exists."""
         media_org = Organisation(name="Dual Name Org", type=OrganisationTypeEnum.MEDIA)
@@ -422,7 +423,7 @@ class TestRetrieveUserOrganisation:
 
     def test_returns_inviting_org_when_name_matches(self, db: SQLAlchemy) -> None:
         """Test returns inviting organisation when name matches."""
-        org = Organisation(name="Matching Org", type=OrganisationTypeEnum.MEDIA)
+        org = Organisation(name="Matching Org")
         db.session.add(org)
         db.session.flush()
 
@@ -458,6 +459,7 @@ class TestRetrieveUserOrganisation:
 
         assert result is None
 
+    @pytest.mark.skip(reason="FIXME: There is no more Organisation type / AUTO")
     def test_creates_auto_org_when_no_invitation_match(self, db: SQLAlchemy) -> None:
         """Test creates AUTO org when no inviting org matches."""
         user = User(email="retrieve_auto@example.com")
