@@ -335,12 +335,12 @@ class OrgVM(ViewModel):
     def _get_site_url(self) -> str:
         if self.bw is not None:
             return self.bw.site_url
-        return self.org.site_url
+        return ""
 
     def _get_description(self) -> str:
         if self.bw is not None:
             return self.bw.positionnement_editorial
-        return self.org.description or ""
+        return ""
 
     def get_type_organisation(self) -> str:
         if self.bw is not None:
