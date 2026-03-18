@@ -9,7 +9,6 @@ from __future__ import annotations
 from typing import cast
 
 from attr import define
-from flask import current_app
 from sqlalchemy.exc import NoInspectionAvailable
 
 from app.flask.lib.view_model import ViewModel
