@@ -145,6 +145,7 @@ class TestInvitationsViewHelpers:
             result = view._unofficial_organisation(user)
             assert result == {}
 
+    @pytest.mark.skip(reason="FIXME: There is no more Organisation type / AUTO")
     def test_unofficial_organisation_auto_org(self, app: Flask):
         """Test _unofficial_organisation returns dict for AUTO org."""
         view = InvitationsView()
