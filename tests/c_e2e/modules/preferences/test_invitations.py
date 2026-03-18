@@ -36,10 +36,7 @@ def invitations_test_user(db_session: Session) -> User:
     db_session.flush()
 
     # Create organisation for user
-    org = Organisation(
-        name=f"Test Org {unique_id}",
-        type=OrganisationTypeEnum.MEDIA,
-    )
+    org = Organisation(name=f"Test Org {unique_id}")
     org.active = True
     db_session.add(org)
     db_session.flush()
@@ -70,10 +67,7 @@ def invitations_auth_client(app: Flask, invitations_test_user: User) -> FlaskCli
 def inviting_org(db_session: Session) -> Organisation:
     """Create an organization that sends invitations."""
     unique_id = uuid.uuid4().hex[:8]
-    org = Organisation(
-        name=f"Inviting Org {unique_id}",
-        type=OrganisationTypeEnum.MEDIA,
-    )
+    org = Organisation(name=f"Inviting Org {unique_id}")
     org.active = True
     db_session.add(org)
     db_session.flush()
@@ -208,10 +202,7 @@ class TestInvitationsUserWithAutoOrg:
             db_session.flush()
 
         # Create auto org
-        auto_org = Organisation(
-            name=f"Auto Org {unique_id}",
-            type=OrganisationTypeEnum.AUTO,
-        )
+        auto_org = Organisation(name=f"Auto Org {unique_id}")
         db_session.add(auto_org)
         db_session.flush()
 
