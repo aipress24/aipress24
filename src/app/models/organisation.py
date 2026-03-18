@@ -10,48 +10,16 @@
 
 from __future__ import annotations
 
-from datetime import UTC, datetime
-
 import arrow
 import sqlalchemy as sa
-from advanced_alchemy.types.file_object import FileObject, StoredObject
 from slugify import slugify
-from sqlalchemy import JSON
-from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy.sql import func
-from sqlalchemy.sql.expression import FunctionElement
 from sqlalchemy_utils import ArrowType
-from sqlalchemy_utils.functions.orm import hybrid_property
 
 from app.enums import BWTypeEnum, OrganisationTypeEnum
 from app.models.auth import User
 from app.models.base import Base
 from app.models.mixins import Addressable, IdMixin, LifeCycleMixin
-
-
-class SplitPart(FunctionElement):
-    """SQLAlchemy function element for PostgreSQL's split_part function."""
-
-    name = "split_part"
-    inherit_cache = True
-
-
-@compiles(SplitPart, "sqlite")
-def _compile_split_part_sqlite(element, compiler, **kw):
-    args = list(element.clauses)
-    s = compiler.process(args[0], **kw)
-    index = compiler.process(args[2], **kw)
-    return (
-        f"json_extract('[\"' || "
-        f"replace(replace(replace({s}, '\\\\', '\\\\\\\\'), '\"', '\\\\\"'), ' ', '\",\"') || "
-        f"'\"]', '$[' || ({index} - 1) || ']')"
-    )
-
-
-@compiles(SplitPart)
-def _compile_split_part_default(element, compiler, **kw):
-    return f"split_part({compiler.process(element.clauses, **kw)})"
 
 
 class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
@@ -68,76 +36,11 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
     name: Mapped[str]  # nom officiel de l'organisation  # all
     slug: Mapped[str]  # internal
 
-    # note: adding unique=True to siren and TVA breaks session.merge(), this would
-    # require a composite key, thus requiring to provide siren and tva on all requests
-    # involding the id of the organisation
-    siren: Mapped[str] = mapped_column(nullable=True)  # all
-    tva: Mapped[str] = mapped_column(nullable=True)  # all
-
-    # nom officiel du titre (média, agence presse) pour les media ou aggency,
-    # ou administration. Ou nom de micro entreprise (label different dans forms)
-    # BW: media, micro, corporate, pressunion
-    nom_groupe: Mapped[str] = mapped_column(default="")
-
-    # OBSOLETE
-    tel_standard: Mapped[str] = mapped_column(default="")
-
-    # ONTOLOGIES/Tailles des organisations
-    # all
-    taille_orga: Mapped[str] = mapped_column(default="")  # cf ontologies
-
-    # Nom et coordonnées directes du dirigeant
-    # Préférer "Contact officiel" ?
-    # -> champ descriptif
-    # all
-    leader_name: Mapped[str] = mapped_column(default="")
-    leader_coords: Mapped[str] = mapped_column(default="")
-
-    # Nom et coordonnées directes du payeur
-    # -> champ descriptif
-    payer_name: Mapped[str] = mapped_column(default="")
-    payer_coords: Mapped[str] = mapped_column(default="")
-
-    #  Adresse du siège social ;
-    #  Code postal ;
-    # Géolocalisation : macro-région, pays, région, département, ville (ONTOLOGIES/Géolocalisation) ;
-
-    # secteurs d’activité : ONTOLOGIES/Secteur détaillés
-    # métiers : ONTOLOGIES/Domaines & Métiers ;
-    # nombre de salariés  : ONTOLOGIES/Tailles des Organisations ;
-    # nombre de salariés  : ONTOLOGIES/Tailles des Organisations ;
-
-    # Principaux événements organisés
-
-    # question :
-    # le type d'organisation (cf ONTOLOGIES/Types d'organisation)
-    # -> ce n'est pas pour les medias/agencies...'
-    # le secteur d’activité (cf ONTOLOGIES/Secteurs détaillés) ;
-    # -> uniquement pour presse / media ?
-    #  + question unicité...
-
-    # OBSOLETE
-    description: Mapped[str] = mapped_column(default="")
-
-    # OBSOLETE
-    metiers: Mapped[list] = mapped_column(JSON, default=list)
-    # OBSOLETE
-    metiers_detail: Mapped[list] = mapped_column(JSON, default=list)
-
     # from LifeCycleMixin : created_at
     # from LifeCycleMixin : deleted_at
 
     modified_at: Mapped[arrow.Arrow | None] = mapped_column(
         ArrowType(timezone=True), nullable=True, onupdate=arrow.utcnow
-    )
-
-    # geoloc_id = sa.Column(sa.Integer, sa.ForeignKey("geo_loc.id"), nullable=True)
-    # geoloc = sa.orm.relationship(GeoLocation)
-    #
-    type: Mapped[OrganisationTypeEnum] = mapped_column(
-        sa.Enum(OrganisationTypeEnum),
-        default=OrganisationTypeEnum.AUTO,
-        index=True,
     )
 
     # keep only organisation.type?
@@ -147,124 +50,19 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
         nullable=True,
     )
 
-    creator_profile_code: Mapped[str] = mapped_column(default="")
-
     # active flag : by default organisations are active, they can be
     # deactivated by site admin or when they lose their BW registration
     # In that case they become like "AUTO" orgs as regards display of pages
     active: Mapped[bool] = mapped_column(default=True)
-    stripe_subscription_status: Mapped[str] = mapped_column(nullable=True)
-    stripe_product_id: Mapped[str] = mapped_column(default="")
-    stripe_product_quantity: Mapped[int] = mapped_column(default=0)
-    stripe_subscription_id: Mapped[str] = mapped_column(default="")
-    stripe_latest_invoice_url: Mapped[str] = mapped_column(default="")
-    stripe_subs_creation_date: Mapped[datetime] = mapped_column(
-        ArrowType(timezone=True), default=datetime(2000, 1, 1, tzinfo=UTC)
-    )
-    # stripe_subs_current_period_end: Mapped[datetime] = mapped_column(
-    #     ArrowType, default=datetime(2000, 1, 1, tzinfo=timezone.utc)
-    # )
-    stripe_subs_current_period_start: Mapped[datetime] = mapped_column(
-        ArrowType(timezone=True), default=datetime(2000, 1, 1, tzinfo=UTC)
-    )
-    validity_date: Mapped[datetime] = mapped_column(
-        ArrowType(timezone=True), default=datetime(2000, 1, 1, tzinfo=UTC)
-    )
 
     status: Mapped[str] = mapped_column(default="")
     karma: Mapped[int] = mapped_column(default=0)
-
-    # Web presence
-    site_url: Mapped[str] = mapped_column(default="")
-
-    # NOUVEAU
-    # galerie d'images
-
-    logo_image: Mapped[FileObject | None] = mapped_column(
-        StoredObject(backend="s3"), nullable=True
-    )
-    cover_image: Mapped[FileObject | None] = mapped_column(
-        StoredObject(backend="s3"), nullable=True
-    )
-    screenshot_id: Mapped[str] = mapped_column(default="")
 
     members = relationship(
         User,
         primaryjoin="User.organisation_id == Organisation.id",
         back_populates="organisation",
     )
-
-    # no_siret = sa.Column(sa.UnicodeText, default="")
-    # no_siren = sa.Column(sa.UnicodeText, default="")
-    # no_tva = sa.Column(sa.UnicodeText, default="")
-
-    # NOUVEAU
-    # adresse postale du siège
-    pays_zip_ville: Mapped[str] = mapped_column(default="")  # all
-    pays_zip_ville_detail: Mapped[str] = mapped_column(default="")  # all
-
-    # Specifique aux agences de presse
-    agree_arcom: Mapped[bool] = mapped_column(default=False)
-    agree_cppap: Mapped[bool] = mapped_column(default=False)
-    number_cppap: Mapped[str] = mapped_column(default="")
-    membre_saphir: Mapped[bool] = mapped_column(default=False)
-    membre_sapi: Mapped[bool] = mapped_column(default=False)
-    membre_satev: Mapped[bool] = mapped_column(default=False)
-
-    # discussion: 3 types de secteurs d'activité
-    # media, micro, corporate, presunion, com
-    secteurs_activite_medias: Mapped[list] = mapped_column(JSON, default=list)
-    secteurs_activite_medias_detail: Mapped[list] = mapped_column(JSON, default=list)
-    secteurs_activite_rp: Mapped[list] = mapped_column(JSON, default=list)
-    secteurs_activite_rp_detail: Mapped[list] = mapped_column(JSON, default=list)
-    secteurs_activite: Mapped[list] = mapped_column(JSON, default=list)
-    secteurs_activite_detail: Mapped[list] = mapped_column(JSON, default=list)
-
-    # OBSOLETE
-    transformation_majeure: Mapped[list] = mapped_column(JSON, default=list)
-    transformation_majeure_detail: Mapped[list] = mapped_column(JSON, default=list)
-
-    # ONTOLOGIES/Types d’organisation :
-    type_organisation: Mapped[list] = mapped_column(JSON, default=list)  # all
-    type_organisation_detail: Mapped[list] = mapped_column(JSON, default=list)  # all
-
-    # ONTOLOGIES/Types d’entreprise de presse et média
-    # média, micro, corporate, pressunion
-    type_entreprise_media: Mapped[list] = mapped_column(JSON, default=list)
-
-    # ONTOLOGIES/Types de presse et média
-    # média, micro, corporate
-    type_presse_et_media: Mapped[list] = mapped_column(JSON, default=list)
-
-    # ONTOLOGIES/Types PR Agency
-    # com
-    type_agence_rp: Mapped[list] = mapped_column(JSON, default=list)
-
-    # NOUVEAU
-    # en discussion: clients connus de aipress24
-    # clients: Mapped[str] = mapped_column(default="")
-
-    # OBSOLETE
-    main_events: Mapped[str] = mapped_column(default="")  #
-    number_customers: Mapped[int] = mapped_column(default=0)  #
-    main_customers: Mapped[str] = mapped_column(default="")  #
-    main_prizes: Mapped[str] = mapped_column(default="")  #
-
-    # média, micro, corporate.  300 signes
-    positionnement_editorial: Mapped[str] = mapped_column(default="")
-
-    # média, micro, corporate.  500 signes
-    audience_cible: Mapped[str] = mapped_column(default="")
-
-    # OBSOLETE
-    tirage: Mapped[str] = mapped_column(default="")  #
-
-    # ONTOLOGIES/Périodicité
-    # media, corporate
-    frequence_publication: Mapped[str] = mapped_column(default="")
-
-    # OBSOLETE
-    metiers_presse: Mapped[list] = mapped_column(JSON, default=list)
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
@@ -390,27 +188,3 @@ demande de partenariat
 demande de stage
 
 """
-
-# class Employer(IdMixin, LifeCycleMixin, Owned, Base):
-#     __tablename__ = "job_employer"
-#
-#     name = sa.Column(sa.UnicodeText, nullable=False)
-#     slug = sa.Column(sa.UnicodeText, nullable=False)
-#     siren = sa.Column(sa.UnicodeText, default="")
-#     description = sa.Column(sa.UnicodeText, default="")
-#     #
-#     status = sa.Column(sa.UnicodeText, default=STATUS.PENDING, index=True)
-#     karma = sa.Column(sa.Integer, default=0)
-#     #
-#     domain = sa.Column(sa.UnicodeText, default="")
-#     site_url = sa.Column(sa.UnicodeText, default="")
-#     jobs_url = sa.Column(sa.UnicodeText, default="")
-#     github_url = sa.Column(sa.UnicodeText, default="")
-#     linkedin_url = sa.Column(sa.UnicodeText, default="")
-#     # Backrefs
-#     job_posts = sa.orm.relationship("JobPost", back_populates="employer")
-#
-#     def __init__(self, **kwargs):
-#         super().__init__(**kwargs)
-#         if "slug" not in kwargs:
-#             self.slug = slugify(self.name)
