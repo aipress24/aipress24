@@ -38,10 +38,7 @@ def pref_test_user(db_session: Session) -> User:
         db_session.flush()
 
     # Create organisation for user
-    org = Organisation(
-        name=f"Pref Test Org {unique_id}",
-        type=OrganisationTypeEnum.MEDIA,
-    )
+    org = Organisation(name=f"Pref Test Org {unique_id}")
     org.active = True
     db_session.add(org)
     db_session.flush()
