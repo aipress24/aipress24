@@ -4,8 +4,7 @@
 
 """Fixtures for admin module E2E tests.
 
-Admin-specific test fixtures. The db_session fixture (transaction wrapping)
-is inherited from modules/conftest.py.
+Uses fresh_db (drop/create) to ensure database tables exist.
 """
 
 from __future__ import annotations
@@ -23,6 +22,12 @@ if TYPE_CHECKING:
     from flask import Flask
     from flask.testing import FlaskClient
     from sqlalchemy.orm import Session
+
+
+@pytest.fixture(autouse=True)
+def db_session(fresh_db) -> Session:
+    """Override modules/conftest.py db_session to use fresh_db."""
+    return fresh_db.session
 
 
 @pytest.fixture
