@@ -8,8 +8,6 @@ from __future__ import annotations
 
 from . import (
     billing,
-    business_wall,
-    business_wall_registration,
     comroom,
     dashboard,
     delegate,
@@ -24,8 +22,6 @@ from . import (
 
 __all__ = [
     "billing",
-    "business_wall",
-    "business_wall_registration",
     "comroom",
     "dashboard",
     "delegate",
