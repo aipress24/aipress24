@@ -11,7 +11,6 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from app.enums import OrganisationTypeEnum
 from app.models.auth import User
 from app.models.organisation import Organisation
 from app.modules.admin.views.show_org import OrgVM

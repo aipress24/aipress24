@@ -16,7 +16,6 @@ from flask.views import MethodView
 from sqlalchemy.orm import selectinload
 from werkzeug import Response
 
-from app.enums import OrganisationTypeEnum
 from app.flask.extensions import db
 from app.flask.lib.nav import nav
 from app.flask.lib.view_model import Wrapper
@@ -200,19 +199,22 @@ class PostMixin:
         }
 
     def get_publisher_type(self):
-        publisher = self.publisher
-        if publisher:
-            match publisher.type:
-                case OrganisationTypeEnum.MEDIA:
-                    publisher_type = "Publié par (Média)"
-                case OrganisationTypeEnum.AGENCY:
-                    publisher_type = "Publié par (Agence de presse)"
-                case OrganisationTypeEnum.COM:
-                    publisher_type = "Publié par (PR Agency)"
-                case _:
-                    publisher_type = "Publié par"
-        else:
-            publisher_type = "Publié par"
+        # FIXME: publisher (Organisation) has no type,
+
+        # publisher = self.publisher
+        # if publisher:
+        #     match publisher.type:
+        #         case OrganisationTypeEnum.MEDIA:
+        #             publisher_type = "Publié par (Média)"
+        #         case OrganisationTypeEnum.AGENCY:
+        #             publisher_type = "Publié par (Agence de presse)"
+        #         case OrganisationTypeEnum.COM:
+        #             publisher_type = "Publié par (PR Agency)"
+        #         case _:
+        #             publisher_type = "Publié par"
+        # else:
+        #     publisher_type = "Publié par"
+        publisher_type = "Publié par"
         return publisher_type
 
 

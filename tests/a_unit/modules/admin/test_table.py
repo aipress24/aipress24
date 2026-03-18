@@ -10,7 +10,6 @@ from typing import TYPE_CHECKING
 
 import arrow
 
-from app.enums import OrganisationTypeEnum
 from app.models.auth import User
 from app.models.organisation import Organisation
 from app.modules.admin.table import (

@@ -13,7 +13,7 @@ from uuid import uuid4
 import pytest
 from arrow import Arrow
 
-from app.enums import OrganisationTypeEnum, RoleEnum
+from app.enums import RoleEnum
 from app.flask.routing import url_for
 from app.models.auth import KYCProfile, Role, User
 from app.models.organisation import Organisation

@@ -7,17 +7,14 @@ from __future__ import annotations
 from collections.abc import Callable
 from functools import singledispatch
 
-from app.enums import OrganisationTypeEnum, RoleEnum
+from app.enums import RoleEnum
 from app.models.auth import User
 from app.models.organisation import Organisation
 from app.services.roles import has_role
 
 from ._constants import (
-    REPUT_COM_SPEC,
-    REPUT_GENERIC_ORG_SPEC,
     REPUT_GENERIC_USER_SPEC,
     REPUT_JOURNALIST_SPEC,
-    REPUT_MEDIA_SPEC,
 )
 from ._functions import export_functions
 from ._types import Real, Spec

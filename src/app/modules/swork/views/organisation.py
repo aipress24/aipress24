@@ -10,7 +10,7 @@ from abc import ABC, abstractmethod
 from typing import ClassVar, cast
 
 from attr import define
-from flask import Response, current_app, g, make_response, render_template, request
+from flask import Response, g, make_response, render_template, request
 from flask.views import MethodView
 from sqlalchemy import func, select
 

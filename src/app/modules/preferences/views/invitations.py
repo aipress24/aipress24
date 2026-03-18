@@ -12,7 +12,6 @@ from flask import Response, g, render_template, request
 from flask.views import MethodView
 from sqlalchemy import func, select
 
-from app.enums import OrganisationTypeEnum
 from app.flask.extensions import db
 from app.flask.routing import url_for
 from app.flask.sqla import get_obj
@@ -27,7 +26,6 @@ from app.modules.bw.bw_activation.models import (
     RoleAssignment,
 )
 from app.modules.preferences import blueprint
-from app.ui.labels import LABELS_ORGANISATION_TYPE
 
 
 class InvitationsView(MethodView):
