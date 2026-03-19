@@ -150,6 +150,17 @@ class DataSource:
         # TODO: make a generic version
         return []
 
+    def next_offset(self) -> int:
+        """Calculate offset for next page."""
+        new_offset = self.offset + self.limit
+        if new_offset < self.count():
+            return new_offset
+        return self.offset
+
+    def prev_offset(self) -> int:
+        """Calculate offset for previous page."""
+        return max(0, self.offset - self.limit)
+
 
 class GenericUserDataSource:
     """Data source for paginated user lists.
