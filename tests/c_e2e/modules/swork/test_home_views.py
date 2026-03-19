@@ -115,8 +115,6 @@ class TestSworkHomeView:
         followee_user: User,
     ):
         """Test swork home shows posts from followees."""
-        from app.services.social_graph import adapt
-
         # Make test_user follow followee_user
         adapt(test_user).follow(followee_user)
         db_session.commit()
