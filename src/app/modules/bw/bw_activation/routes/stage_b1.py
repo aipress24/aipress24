@@ -426,7 +426,8 @@ def cancel_subscription():
         org = business_wall.get_organisation()
         if org:
             org.bw_active = ""
-            org.bw_id = None
+            # org.bw_id is nummable
+            org.bw_id = None  # type: ignore [invalid-assignment]
 
         db.session.commit()
 

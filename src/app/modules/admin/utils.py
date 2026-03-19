@@ -289,7 +289,8 @@ def delete_full_organisation(org: Organisation) -> None:
         db_session.flush()
         # Clear organisation BW fields
         org.bw_active = ""
-        org.bw_id = None
+        # org.bw_id is nummable
+        org.bw_id = None  # type: ignore [invalid-assignment]
         db_session.merge(org)
         db_session.flush()
 
