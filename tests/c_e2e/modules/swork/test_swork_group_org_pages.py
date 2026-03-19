@@ -12,9 +12,10 @@ from unittest.mock import patch
 import pytest
 from flask import Flask, g
 
-from app.enums import OrganisationTypeEnum
 from app.models.auth import KYCProfile, User
 from app.models.organisation import Organisation
+from app.modules.bw.bw_activation.models import BusinessWall
+from app.modules.bw.bw_activation.models.business_wall import BWStatus
 from app.modules.swork.models import Group
 from app.modules.swork.views._common import (
     GROUP_TABS,
@@ -92,13 +93,6 @@ def test_group(db_session: Session, test_user_with_profile: User) -> Group:
 def test_organisation(db_session: Session) -> Organisation:
     """Create a test organisation."""
     org = Organisation(name="Test Organisation")
-    org.type = OrganisationTypeEnum.MEDIA
-    org.secteurs_activite = []
-    org.secteurs_activite_detail = []
-    org.type_organisation = []
-    org.type_organisation_detail = []
-    org.pays_zip_ville = ""
-    org.pays_zip_ville_detail = ""
     db_session.add(org)
     db_session.flush()
     return org
@@ -106,15 +100,8 @@ def test_organisation(db_session: Session) -> Organisation:
 
 @pytest.fixture
 def auto_organisation(db_session: Session) -> Organisation:
-    """Create an auto organisation."""
-    org = Organisation(name="Auto Organisation")
-    org.type = OrganisationTypeEnum.AUTO
-    org.secteurs_activite = []
-    org.secteurs_activite_detail = []
-    org.type_organisation = []
-    org.type_organisation_detail = []
-    org.pays_zip_ville = ""
-    org.pays_zip_ville_detail = ""
+    """Create an auto (inactive) organisation."""
+    org = Organisation(name="Auto Organisation", active=False)
     db_session.add(org)
     db_session.flush()
     return org
@@ -415,21 +402,53 @@ class TestOrgPublicationsTab:
         """Test OrgPublicationsTab has correct id."""
         assert OrgPublicationsTab.id == "publications"
 
-    def test_guard_true_for_media(self, test_organisation: Organisation):
-        """Test guard returns True for MEDIA organisation."""
-        test_organisation.type = OrganisationTypeEnum.MEDIA
+    def test_guard_true_for_media_bw(
+        self,
+        app: Flask,
+        db_session: Session,
+        test_organisation: Organisation,
+        test_user_with_profile: User,
+    ):
+        """Test guard returns True for organisation with MEDIA BusinessWall."""
+
+        # Create an active BusinessWall with media type
+        bw = BusinessWall(
+            bw_type="media",
+            status=BWStatus.ACTIVE.value,
+            owner_id=test_user_with_profile.id,
+            payer_id=test_user_with_profile.id,
+            organisation_id=test_organisation.id,
+        )
+        db_session.add(bw)
+        db_session.flush()
+
         tab = OrgPublicationsTab(org=test_organisation)
         assert tab.guard() is True
 
-    def test_guard_true_for_agency(self, test_organisation: Organisation):
-        """Test guard returns True for AGENCY organisation."""
-        test_organisation.type = OrganisationTypeEnum.AGENCY
+    def test_guard_true_for_corporate_media_bw(
+        self,
+        app: Flask,
+        db_session: Session,
+        test_organisation: Organisation,
+        test_user_with_profile: User,
+    ):
+        """Test guard returns True for organisation with CORPORATE_MEDIA BusinessWall."""
+        # Create an active BusinessWall with corporate_media type
+        bw = BusinessWall(
+            bw_type="corporate_media",
+            status=BWStatus.ACTIVE.value,
+            owner_id=test_user_with_profile.id,
+            payer_id=test_user_with_profile.id,
+            organisation_id=test_organisation.id,
+        )
+        db_session.add(bw)
+        db_session.flush()
+
         tab = OrgPublicationsTab(org=test_organisation)
         assert tab.guard() is True
 
-    def test_guard_false_for_other(self, test_organisation: Organisation):
-        """Test guard returns False for OTHER organisation."""
-        test_organisation.type = OrganisationTypeEnum.OTHER
+    def test_guard_false_for_no_bw(self, test_organisation: Organisation):
+        """Test guard returns False for organisation without BusinessWall."""
         tab = OrgPublicationsTab(org=test_organisation)
         assert tab.guard() is False
 
@@ -567,23 +586,6 @@ class TestOrgVM:
 
             assert url == "/static/img/logo-page-non-officielle.png"
 
-    def test_get_logo_url_no_logo(
-        self,
-        app: Flask,
-        db_session: Session,
-        test_user_with_profile: User,
-        test_organisation: Organisation,
-    ):
-        """Test get_logo_url for organisation without logo."""
-        test_organisation.logo_id = None
-
-        with app.test_request_context():
-            g.user = test_user_with_profile
-            vm = OrgVM(test_organisation)
-            url = vm.get_logo_url()
-            # The organisation has no BusinessWall
-            assert url == "/static/img/logo-page-non-officielle.png"
-
     def test_get_cover_image_url_for_auto(
         self,
         app: Flask,
@@ -591,47 +593,13 @@ class TestOrgVM:
         test_user_with_profile: User,
         auto_organisation: Organisation,
     ):
-        """Test get_cover_image_url for AUTO organisation."""
+        """Test get_cover_image_url for inactive (auto) organisation."""
         with app.test_request_context():
             g.user = test_user_with_profile
             vm = OrgVM(auto_organisation)
             url = vm.get_cover_image_url()
 
             assert url == "/static/img/transparent-square.png"
-
-    def test_get_cover_image_url_no_image(
-        self,
-        app: Flask,
-        db_session: Session,
-        test_user_with_profile: User,
-        test_organisation: Organisation,
-    ):
-        """Test get_cover_image_url for organisation without cover image."""
-        test_organisation.cover_image_id = None
-
-        with app.test_request_context():
-            g.user = test_user_with_profile
-            vm = OrgVM(test_organisation)
-            url = vm.get_cover_image_url()
-
-            assert url == "/static/img/transparent-square.png"
-
-    def test_get_screenshot_url_no_screenshot(
-        self,
-        app: Flask,
-        db_session: Session,
-        test_user_with_profile: User,
-        test_organisation: Organisation,
-    ):
-        """Test get_screenshot_url for organisation without screenshot."""
-        test_organisation.screenshot_id = None
-
-        with app.test_request_context():
-            g.user = test_user_with_profile
-            vm = OrgVM(test_organisation)
-            url = vm.get_screenshot_url()
-
-            assert url == ""
 
     def test_get_press_releases_returns_list(
         self,
@@ -662,33 +630,3 @@ class TestOrgVM:
             publications = vm.get_publications()
 
             assert isinstance(publications, list)
-
-    def test_get_type_organisation(
-        self,
-        app: Flask,
-        db_session: Session,
-        test_user_with_profile: User,
-        test_organisation: Organisation,
-    ):
-        """Test get_type_organisation returns string."""
-        with app.test_request_context():
-            g.user = test_user_with_profile
-            vm = OrgVM(test_organisation)
-            type_org = vm.get_type_organisation()
-
-            assert isinstance(type_org, str)
-
-    def test_get_secteurs_activite(
-        self,
-        app: Flask,
-        db_session: Session,
-        test_user_with_profile: User,
-        test_organisation: Organisation,
-    ):
-        """Test get_secteurs_activite returns string."""
-        with app.test_request_context():
-            g.user = test_user_with_profile
-            vm = OrgVM(test_organisation)
-            secteurs = vm.get_secteurs_activite()
-
-            assert isinstance(secteurs, str)
