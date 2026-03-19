@@ -422,10 +422,11 @@ def cancel_subscription():
             business_wall.subscription.status = SubscriptionStatus.CANCELLED.value
             business_wall.subscription.cancelled_at = datetime.now(UTC)
 
-        # Revert organisation type to AUTO
-        # org = business_wall.get_organisation()
-        # if org:
-        #     org.type = OrganisationTypeEnum.AUTO
+        # Clear organisation BW fields
+        org = business_wall.get_organisation()
+        if org:
+            org.bw_active = ""
+            org.bw_id = None
 
         db.session.commit()
 

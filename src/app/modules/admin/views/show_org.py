@@ -92,6 +92,9 @@ class ShowOrgView(MethodView):
                 active_bw = get_active_business_wall_for_organisation(org)
                 if active_bw:
                     active_bw.status = BWStatus.SUSPENDED.value
+                    # Clear organisation BW fields
+                    org.bw_active = ""
+                    org.bw_id = None
                     db.session.commit()
                 response.headers["HX-Redirect"] = current_url
 
