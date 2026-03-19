@@ -276,8 +276,8 @@ class OrgVM(ViewModel):
         warn("DEBUG", self.org, self.org.name)
         bw = get_active_business_wall_for_organisation(self.org)
         if bw:
-            warn(self.org.pays_zip_ville)
-            warn(self.org.pays_zip_ville_detail)
+            # warn(self.org.pays_zip_ville)
+            # warn(self.org.pays_zip_ville_detail)
             warn(bw)
             warn(bw.name)
             warn(bw.pays_zip_ville)
@@ -289,7 +289,9 @@ class OrgVM(ViewModel):
         return self.org.name
 
     def get_logo_url(self) -> str:
-        return get_organisation_logo_url(self.org)
+        url = get_organisation_logo_url(self.org) or ""
+        warn("org url", url)
+        return url
 
 
 class OrgsDirectory(Directory):
