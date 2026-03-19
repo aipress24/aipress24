@@ -287,6 +287,11 @@ def delete_full_organisation(org: Organisation) -> None:
         active_bw.status = BWStatus.SUSPENDED.value
         db_session.merge(active_bw)
         db_session.flush()
+        # Clear organisation BW fields
+        org.bw_active = ""
+        org.bw_id = None
+        db_session.merge(org)
+        db_session.flush()
 
     # Step 2: Remove users organisation link and their roles
     current_members = org.members
