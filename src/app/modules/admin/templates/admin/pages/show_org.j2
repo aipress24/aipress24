@@ -99,7 +99,7 @@
         >Confirmer la suppression définitive de l'organisation&nbsp;?
         </h3>
         <p class="pl-14 pt-1 pb-1 mb-4 text-left ">
-          Organisation: {{org.name}} ({{org.type| label}})
+          Organisation: {{org.name}} ({{org.bw_active or 'AUTO'}})
         </p>
         <button
           data-modal-hide="delete_org_confirm"
@@ -262,7 +262,7 @@
         Type
       </dt>
       <dd>
-        <div class="mt-1 text-sm text-gray-900">{{ org.type| label }}</div>
+        <div class="mt-1 text-sm text-gray-900">{{ org.bw_active or 'AUTO' }}</div>
       </dd>
     </div>
     <div>
