@@ -149,7 +149,8 @@ def create_new_free_bw_record(session: MutableMapping) -> bool:
         auto_commit=False,  # Don't commit yet
     )
 
-    # Update organisation type from AUTO to the relevant type
+    org.bw_active = business_wall.bw_type
+    org.bw_id = business_wall.id
 
     # commit do not happen in the utility fonction
     return True
@@ -258,8 +259,8 @@ def create_new_paid_bw_record(session: MutableMapping) -> bool:
         auto_commit=False,  # Don't commit yet
     )
 
-    # Update organisation type from AUTO to the relevant type
-    # db.session.merge(org)
+    org.bw_active = business_wall.bw_type
+    org.bw_id = business_wall.id
 
     # commit do not happen in the utility fonction
     return True
