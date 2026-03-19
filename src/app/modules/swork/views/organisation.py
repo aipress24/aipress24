@@ -14,7 +14,7 @@ from flask import Response, g, make_response, render_template, request
 from flask.views import MethodView
 from sqlalchemy import func, select
 
-from app.enums import OrganisationTypeEnum
+# from app.enums import OrganisationTypeEnum
 from app.flask.extensions import db
 from app.flask.lib.nav import nav
 from app.flask.lib.toaster import toast
@@ -166,10 +166,10 @@ class OrgPublicationsTab(Tab):
         return f"Publications ({count})"
 
     def guard(self) -> bool:
-        return self.org.type in {
-            OrganisationTypeEnum.MEDIA,
-            OrganisationTypeEnum.AGENCY,
-        }
+        # publications tab for orgs with active BusinessWall (media/agency types)
+
+        bw = get_active_business_wall_for_organisation(self.org)
+        return bw is not None and bw.bw_type in {"media", "corporate_media"}
 
 
 class OrgPressBookTab(Tab):
