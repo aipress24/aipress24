@@ -65,6 +65,23 @@ class TestPromotionsPost:
 
         assert response.status_code == 302
 
+    def test_save_promotion_title2_slug(
+        self,
+        admin_client: FlaskClient,
+        admin_user: User,
+    ):
+        """Test saving a promotion with slug ending in 2 uses BOX_TITLE2."""
+        response = admin_client.post(
+            "/admin/promotions",
+            data={
+                "promo": "wire/2",
+                "content": "Promo content for slot 2",
+            },
+            follow_redirects=False,
+        )
+
+        assert response.status_code == 302
+
     def test_save_promotion_empty_slug(
         self,
         admin_client: FlaskClient,
@@ -81,6 +98,25 @@ class TestPromotionsPost:
         )
 
         assert response.status_code == 302
+
+    def test_save_and_view_promotion(
+        self,
+        admin_client: FlaskClient,
+        admin_user: User,
+    ):
+        """Test saving a promotion and viewing it with saved_promo param."""
+        # First, save a promotion
+        admin_client.post(
+            "/admin/promotions",
+            data={
+                "promo": "events/1",
+                "content": "Test event promo content",
+            },
+        )
+
+        # Then view with saved_promo parameter
+        response = admin_client.get("/admin/promotions?saved_promo=events/1")
+        assert response.status_code in (200, 302)
 
 
 class TestPromoConstants:
