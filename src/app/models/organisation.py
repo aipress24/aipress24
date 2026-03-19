@@ -10,6 +10,8 @@
 
 from __future__ import annotations
 
+from uuid import UUID
+
 import arrow
 import sqlalchemy as sa
 from slugify import slugify
@@ -23,12 +25,12 @@ from app.models.mixins import Addressable, IdMixin, LifeCycleMixin
 
 
 class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
-    """
-    Remarques:
-        - pas de SIRET
+    """Organisation minimal data
 
-        Ajouts:
-            - tva
+    Organisations with an active BusinessWall subscription shall have
+    the corresponding bw_active attribute, containig the value
+    of (new) BW type.
+    Other "Auto" organisations shall never have a bw_type attribute.
     """
 
     __tablename__ = "crp_organisation"
@@ -43,12 +45,16 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
         ArrowType(timezone=True), nullable=True, onupdate=arrow.utcnow
     )
 
-    # keep only organisation.type?
-    # -> mandatory for the organisation edit page
+    # deprecated
     bw_type: Mapped[BWTypeEnum] = mapped_column(
         sa.Enum(BWTypeEnum),
         nullable=True,
     )
+
+    # new BW type value (if any active BW subscription)
+    bw_active: Mapped[str] = mapped_column(nullable=True)
+    # new BW id (if any active BW subscription)
+    bw_id: Mapped[UUID] = mapped_column(nullable=True)
 
     # active flag : by default organisations are active, they can be
     # deactivated by site admin or when they lose their BW registration
