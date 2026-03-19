@@ -13,13 +13,11 @@ from typing import TYPE_CHECKING, Any, cast
 from flask import g
 from svcs.flask import container
 
-from app.enums import OrganisationTypeEnum
 from app.flask.extensions import db
 from app.models.organisation import Organisation
 from app.modules.bw.bw_activation.models import (
     BusinessWallService,
     BWStatus,
-    BWType,
     RoleAssignmentService,
     SubscriptionService,
 )
