@@ -30,22 +30,6 @@ from .config import BW_TYPES
 
 StdDict = dict[str, str | int | float | bool | None]
 
-BW_TYPE_TO_ORG_TYPE: dict[str, OrganisationTypeEnum] = {
-    str(BWType.MEDIA): OrganisationTypeEnum.MEDIA,
-    str(BWType.MICRO): OrganisationTypeEnum.OTHER,
-    str(BWType.CORPORATE_MEDIA): OrganisationTypeEnum.OTHER,
-    str(BWType.UNION): OrganisationTypeEnum.OTHER,
-    str(BWType.ACADEMICS): OrganisationTypeEnum.OTHER,
-    str(BWType.PR): OrganisationTypeEnum.COM,
-    str(BWType.LEADERS_EXPERTS): OrganisationTypeEnum.OTHER,
-    str(BWType.TRANSFORMERS): OrganisationTypeEnum.OTHER,
-}  # type: ignore[var-assign]
-
-
-def _bw_type_to_org_type(bw_type: str) -> OrganisationTypeEnum:
-    """Map BW type value to OrganisationTypeEnum."""
-    return BW_TYPE_TO_ORG_TYPE.get(bw_type, OrganisationTypeEnum.OTHER)  # type: ignore[return-value]
-
 
 if TYPE_CHECKING:
     from app.models.auth import User
@@ -166,8 +150,6 @@ def create_new_free_bw_record(session: MutableMapping) -> bool:
     )
 
     # Update organisation type from AUTO to the relevant type
-    org.type = _bw_type_to_org_type(bw_type)
-    # db.session.merge(org)
 
     # commit do not happen in the utility fonction
     return True
@@ -277,7 +259,6 @@ def create_new_paid_bw_record(session: MutableMapping) -> bool:
     )
 
     # Update organisation type from AUTO to the relevant type
-    org.type = _bw_type_to_org_type(bw_type)
     # db.session.merge(org)
 
     # commit do not happen in the utility fonction
