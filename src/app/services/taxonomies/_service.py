@@ -103,8 +103,8 @@ def export_taxonomy_to_ods(taxonomy_name: str) -> io.BytesIO:
     entries = db.session.scalars(query).all()
 
     # 2. Prepare the data in a list-of-lists format for pyexcel
-    headers = ["Name", "Category", "Value", "Sequence"]
-    data = [headers]
+    headers: list[str | int] = ["Name", "Category", "Value", "Sequence"]
+    data: list[list[str | int]] = [headers]
     for entry in entries:
         data.append([entry.name, entry.category, entry.value, entry.seq])
 
