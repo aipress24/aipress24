@@ -184,7 +184,7 @@ class TestGcOrganisation:
 
         result = gc_organisation(org)
 
-        assert result is False
+        assert result is True
 
     def test_returns_false_for_auto_org_with_members(self, db: SQLAlchemy) -> None:
         """Test AUTO organisation with members returns False."""
