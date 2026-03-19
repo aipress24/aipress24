@@ -9,16 +9,6 @@
     <div class="flex-shrink-0">
       <h3 class="text-gray-500 flex">
         {{ post.published_at.format("DD MMM YYYY, HH:mm", locale="fr") }}
-        {% if post.publisher %}
-          {% if post.publisher.agree_cppap %}
-            <a href="{{ url_for(post.publisher) }}"
-               class="tooltip tooltip-bottom"
-               data-testid="publisher"
-               data-tip="Publié par une agence agréé par la commission paritaire des publications et agences de presse (CPPAP)">
-              {{ icon("newspaper", class="ml-2 h-6 w-6 text-orange-400") }}
-            </a>
-          {% endif %}
-        {% endif %}
       </h3>
     </div>
   </div>
