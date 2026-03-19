@@ -14,7 +14,6 @@ from flask import g, session
 from pipe import groupby
 from sqlalchemy.orm import selectinload
 
-from app.enums import OrganisationTypeEnum
 from app.flask.sqla import get_multi
 from app.models.auth import User
 from app.models.lifecycle import PublicationStatus
@@ -133,7 +132,7 @@ class AgenciesTab(Tab):
         orgs: list[Organisation] = adapt(g.user).get_followees(cls=Organisation)
         journalists: set[User] = set()
         for org in orgs:
-            if org.type == OrganisationTypeEnum.AGENCY:
+            if org.bw_active == "media":
                 journalists.update(list(org.members))
         return journalists
 
@@ -148,7 +147,7 @@ class MediasTab(Tab):
         orgs: list[Organisation] = adapt(g.user).get_followees(cls=Organisation)
         journalists: set[User] = set()
         for org in orgs:
-            if org.type == OrganisationTypeEnum.MEDIA:
+            if org.bw_active == "media":
                 journalists.update(list(org.members))
         return journalists
 
