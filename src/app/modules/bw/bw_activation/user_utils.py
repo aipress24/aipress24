@@ -105,13 +105,23 @@ def get_active_business_wall_for_organisation(org: Organisation) -> BusinessWall
     session = inspect(org).session
     if session is None:
         return None
+    if org.bw_id is None:
+        return None
     stmt = (
         select(BusinessWall)
-        .where(BusinessWall.organisation_id == org.id)
+        .where(BusinessWall.id == org.bw_id)
         .where(BusinessWall.status == BWStatus.ACTIVE.value)
-        .order_by(BusinessWall.created_at.desc())
     )
-    return session.execute(stmt).scalars().first()
+    return session.execute(stmt).scalars().one_or_none()
+
+    # Deprecated implementation
+    # stmt = (
+    #     select(BusinessWall)
+    #     .where(BusinessWall.organisation_id == org.id)
+    #     .where(BusinessWall.status == BWStatus.ACTIVE.value)
+    #     .order_by(BusinessWall.created_at.desc())
+    # )
+    # return session.execute(stmt).scalars().first()
 
 
 def get_organisation_logo_url(org: Organisation) -> str:
