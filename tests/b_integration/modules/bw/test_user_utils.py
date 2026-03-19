@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
+from unittest import mock
 
 from app.models.auth import User
 from app.models.organisation import Organisation
@@ -90,9 +91,18 @@ class TestGetOrganisationLogoUrl:
         db_session.add(bw)
         db_session.flush()
 
-        result = get_organisation_logo_url(test_org)
+        test_org.bw_id = bw.id
+        test_org.bw_active = bw.bw_type
+        db_session.flush()
 
-        assert result != "/static/img/logo-page-non-officielle.png"
+        # Mock the BW logo URL
+        expected_logo_url = "https://mocked.com/bw-logo.png"
+        with mock.patch.object(
+            bw, "logo_image_signed_url", return_value=expected_logo_url
+        ):
+            result = get_organisation_logo_url(test_org)
+
+        assert result == expected_logo_url
 
 
 class TestGetActiveBusinessWallForOrganisation:
