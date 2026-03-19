@@ -11,9 +11,11 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from app.models.auth import User
+from app.models.auth import KYCProfile, User
+from app.models.invitation import Invitation
 from app.models.organisation import Organisation
-from app.modules.admin.views.show_org import OrgVM
+from app.modules.admin.views._show_org import OrgVM
+from app.modules.bw.bw_activation.models import BusinessWall, BWStatus
 
 if TYPE_CHECKING:
     from flask import Flask
@@ -38,6 +40,67 @@ def test_org_for_admin(db_session: Session) -> Organisation:
     member.active = True
     member.organisation = org
     db_session.add(member)
+    db_session.flush()
+
+    # Create KYCProfile for member (required for email change operations)
+    profile = KYCProfile(user=member, profile_id="P001", match_making={})
+    db_session.add(profile)
+    db_session.commit()
+    return org
+
+
+@pytest.fixture
+def org_with_bw(db_session: Session, admin_user: User) -> Organisation:
+    """Create an organisation with an active Business Wall."""
+    unique_id = uuid.uuid4().hex[:8]
+    org = Organisation(name=f"BW Test Org {unique_id}")
+    org.active = True
+    org.bw_active = "media"
+    db_session.add(org)
+    db_session.flush()
+
+    # Create BusinessWall with required fields
+    bw = BusinessWall(
+        organisation_id=org.id,
+        status=BWStatus.ACTIVE.value,
+        bw_type="media",
+        owner_id=admin_user.id,
+        payer_id=admin_user.id,
+    )
+    db_session.add(bw)
+    db_session.flush()
+
+    org.bw_id = bw.id
+    db_session.commit()
+    return org
+
+
+@pytest.fixture
+def org_with_invitation(db_session: Session) -> Organisation:
+    """Create an organisation with pending invitations."""
+    unique_id = uuid.uuid4().hex[:8]
+    org = Organisation(name=f"Invitation Test Org {unique_id}")
+    org.active = True
+    db_session.add(org)
+    db_session.flush()
+
+    # Create invitation
+    invitation = Invitation(
+        email=f"invited-{unique_id}@test.com",
+        organisation_id=org.id,
+    )
+    db_session.add(invitation)
+    db_session.commit()
+    return org
+
+
+@pytest.fixture
+def org_for_deletion(db_session: Session) -> Organisation:
+    """Create an organisation for deletion test (no members)."""
+    unique_id = uuid.uuid4().hex[:8]
+    org = Organisation(name=f"Delete Test Org {unique_id}")
+    org.active = True
+    db_session.add(org)
     db_session.commit()
     return org
 
@@ -123,6 +186,70 @@ class TestShowOrgActions:
         response = admin_client.post(
             f"/admin/show_org/{test_org_for_admin.id}",
             data={"action": "unknown_action"},
+        )
+
+        assert response.status_code in (200, 302)
+
+    def test_deactivate_bw(
+        self,
+        admin_client: FlaskClient,
+        admin_user: User,
+        org_with_bw: Organisation,
+    ):
+        """Test deactivating Business Wall."""
+        response = admin_client.post(
+            f"/admin/show_org/{org_with_bw.id}",
+            data={"action": "deactivate_bw"},
+        )
+
+        assert response.status_code in (200, 302)
+
+    def test_delete_org(
+        self,
+        admin_client: FlaskClient,
+        admin_user: User,
+        org_for_deletion: Organisation,
+    ):
+        """Test deleting organisation."""
+        response = admin_client.post(
+            f"/admin/show_org/{org_for_deletion.id}",
+            data={"action": "delete_org"},
+        )
+
+        assert response.status_code in (200, 302)
+
+    def test_change_emails(
+        self,
+        admin_client: FlaskClient,
+        admin_user: User,
+        test_org_for_admin: Organisation,
+        db_session: Session,
+    ):
+        """Test changing member emails."""
+        # Get existing member email
+        unique_id = uuid.uuid4().hex[:8]
+        new_email = f"new-member-{unique_id}@test.com"
+
+        response = admin_client.post(
+            f"/admin/show_org/{test_org_for_admin.id}",
+            data={"action": "change_emails", "content": new_email},
+        )
+
+        assert response.status_code in (200, 302)
+
+    def test_change_invitations_emails(
+        self,
+        admin_client: FlaskClient,
+        admin_user: User,
+        org_with_invitation: Organisation,
+    ):
+        """Test changing invitation emails."""
+        unique_id = uuid.uuid4().hex[:8]
+        new_emails = f"invite1-{unique_id}@test.com\ninvite2-{unique_id}@test.com"
+
+        response = admin_client.post(
+            f"/admin/show_org/{org_with_invitation.id}",
+            data={"action": "change_invitations_emails", "content": new_emails},
         )
 
         assert response.status_code in (200, 302)

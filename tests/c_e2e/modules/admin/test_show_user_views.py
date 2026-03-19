@@ -13,6 +13,7 @@ import pytest
 
 from app.models.auth import KYCProfile, User
 from app.models.organisation import Organisation
+from app.modules.bw.bw_activation.models import BusinessWall, BWStatus
 
 if TYPE_CHECKING:
     from flask.testing import FlaskClient
@@ -29,16 +30,80 @@ def test_user_for_admin(db_session: Session) -> User:
     db_session.add(org)
     db_session.flush()
 
-    profile = KYCProfile(match_making={})
     user = User(
         email=f"testuser-{unique_id}@admin-show-user.com",
         first_name="Test",
         last_name="User",
         active=True,
     )
-    user.profile = profile
     user.organisation = org
     db_session.add(user)
+    db_session.flush()
+
+    # Create KYCProfile with valid profile_id (P001 = Journaliste)
+    profile = KYCProfile(user=user, profile_id="P001", match_making={})
+    db_session.add(profile)
+    db_session.commit()
+    return user
+
+
+@pytest.fixture
+def user_without_org(db_session: Session) -> User:
+    """Create a test user without organisation."""
+    unique_id = uuid.uuid4().hex[:8]
+    user = User(
+        email=f"noorg-{unique_id}@admin-show-user.com",
+        first_name="NoOrg",
+        last_name="User",
+        active=True,
+    )
+    db_session.add(user)
+    db_session.flush()
+
+    # Create KYCProfile with valid profile_id (P001 = Journaliste)
+    profile = KYCProfile(user=user, profile_id="P001", match_making={})
+    db_session.add(profile)
+    db_session.commit()
+    return user
+
+
+@pytest.fixture
+def user_with_bw_org(db_session: Session, admin_user: User) -> User:
+    """Create a test user with organisation that has active Business Wall."""
+    unique_id = uuid.uuid4().hex[:8]
+
+    org = Organisation(name=f"BW User Org {unique_id}")
+    org.active = True
+    org.bw_active = "media"
+    db_session.add(org)
+    db_session.flush()
+
+    # Create BusinessWall with required fields
+    bw = BusinessWall(
+        organisation_id=org.id,
+        status=BWStatus.ACTIVE.value,
+        bw_type="media",
+        owner_id=admin_user.id,
+        payer_id=admin_user.id,
+    )
+    db_session.add(bw)
+    db_session.flush()
+
+    org.bw_id = bw.id
+
+    user = User(
+        email=f"bwuser-{unique_id}@admin-show-user.com",
+        first_name="BW",
+        last_name="User",
+        active=True,
+    )
+    user.organisation = org
+    db_session.add(user)
+    db_session.flush()
+
+    # Create KYCProfile with valid profile_id (P001 = Journaliste)
+    profile = KYCProfile(user=user, profile_id="P001", match_making={})
+    db_session.add(profile)
     db_session.commit()
     return user
 
@@ -64,6 +129,26 @@ class TestShowUserPage:
         """Test that show_user page returns 404 for non-existent user."""
         response = admin_client.get("/admin/show_user/999999999")
         assert response.status_code in (404, 302)
+
+    def test_show_user_without_organisation(
+        self,
+        admin_client: FlaskClient,
+        admin_user: User,
+        user_without_org: User,
+    ):
+        """Test show_user page for user without organisation."""
+        response = admin_client.get(f"/admin/show_user/{user_without_org.id}")
+        assert response.status_code in (200, 302)
+
+    def test_show_user_with_bw_organisation(
+        self,
+        admin_client: FlaskClient,
+        admin_user: User,
+        user_with_bw_org: User,
+    ):
+        """Test show_user page for user with Business Wall org."""
+        response = admin_client.get(f"/admin/show_user/{user_with_bw_org.id}")
+        assert response.status_code in (200, 302)
 
 
 class TestShowUserActions:
