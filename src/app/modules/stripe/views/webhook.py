@@ -16,13 +16,14 @@ from arrow import Arrow
 from flask import request, session
 
 from app.constants import PROFILE_CODE_TO_BW_TYPE
-from app.enums import BWTypeEnum, OrganisationTypeEnum, ProfileEnum
+from app.enums import BWTypeEnum, ProfileEnum
 from app.flask.extensions import db
 from app.models.auth import User
 from app.models.organisation import Organisation
 from app.modules.admin.invitations import add_invited_users
 from app.modules.admin.org_email_utils import add_managers_emails
 from app.modules.admin.utils import get_user_per_email
+from app.modules.bw.bw_activation.models.business_wall import BWType
 from app.modules.stripe import blueprint
 from app.services.stripe.product import stripe_bw_subscription_dict
 from app.services.stripe.retriever import (
@@ -555,7 +556,7 @@ def _update_organisation_subscription_info(
     org: Organisation,
     subinfo: SubscriptionInfo,
 ) -> None:
-    # need to also update org.type from OrganisationTypeEnum.AUTO
+    # Update org.bw_active with the BW type from subscription
     org.stripe_subscription_id = subinfo.subscription_id
     org.stripe_product_id = subinfo.product_id
     org.stripe_product_quantity = subinfo.quantity
@@ -565,7 +566,13 @@ def _update_organisation_subscription_info(
         subinfo.current_period_start
     )
     org.stripe_latest_invoice_url = subinfo.latest_invoice_url
-    org.type = OrganisationTypeEnum[subinfo.org_type]  # type: ignore
+    # Map org_type to bw_active value
+    org_type_to_bw = {
+        "AGENCY": BWType.PR.value,
+        "MEDIA": BWType.MEDIA.value,
+        "OTHER": BWType.MEDIA.value,
+    }
+    org.bw_active = org_type_to_bw.get(subinfo.org_type, BWType.MEDIA.value)
     org.active = subinfo.status
     org.stripe_subscription_status = subinfo.stripe_subscription_status
     org.bw_type = _guess_bw_type(user, org)
@@ -576,12 +583,12 @@ def _update_organisation_subscription_info(
 
     if subinfo.operation == "create":
         info(
-            f"Organisation {org.name} subscribed to BW of type: {org.type} "
+            f"Organisation {org.name} subscribed to BW of type: {org.bw_active} "
             f"(qty: {org.stripe_product_quantity})"
         )
     else:
         info(
-            f"Organisation {org.name} with BW of type: {org.type} "
+            f"Organisation {org.name} with BW of type: {org.bw_active} "
             f"(qty: {org.stripe_product_quantity}) has a new Stripe status: {subinfo.stripe_subscription_status}"
         )
 
@@ -607,7 +614,7 @@ def _guess_bw_type(user: User, org: Organisation) -> BWTypeEnum:
         return possible_bw[0]
     # here the only double possibility is:
     # [BWTypeEnum.MEDIA, BWTypeEnum.AGENCY]
-    if org.type == "AGENCY":
+    if org.bw_active == BWType.PR.value:
         return BWTypeEnum.AGENCY  # type: ignore
     return BWTypeEnum.MEDIA  # type: ignore
 
