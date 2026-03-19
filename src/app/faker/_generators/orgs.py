@@ -8,7 +8,6 @@ import random
 
 from mimesis import Person
 
-from app.enums import BWTypeEnum
 from app.faker._constants import ORGANISATIONS
 from app.models.organisation import Organisation
 
@@ -35,7 +34,7 @@ class OrgGenerator(BaseGenerator):
 
         org = Organisation(name=_random_name())
         self._set_basic_info(org)
-        self._set_business_wall_type(org)
+        # self._set_business_wall_type(org)
 
         return org
 
@@ -43,8 +42,8 @@ class OrgGenerator(BaseGenerator):
         """Set basic organization information."""
         org.karma = random.randint(1, 10)
 
-    def _set_business_wall_type(self, org: Organisation) -> None:
-        """Set business wall subscription type randomly."""
-        org.bw_type = random.choice(  # type: ignore[assignment]
-            list(BWTypeEnum)
-        )
+    # def _set_business_wall_type(self, org: Organisation) -> None:
+    #     """Set business wall subscription type randomly."""
+    #     org.bw_type = random.choice(
+    #         list(BWTypeEnum)
+    #     )
