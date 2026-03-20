@@ -5,6 +5,7 @@ import "@/htmx.js";
 import "@/quill.js";
 import "@/postbox.js";
 import "@/trix.js";
+import "@/cropperjs.js";
 
 import "@/vendor/alpine-components.js";
 
