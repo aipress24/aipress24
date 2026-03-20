@@ -1,107 +1,114 @@
-{% extends "pages/preferences/_base.j2" %}
+{% extends "pages/preferences/_base.j2" %} {% block main %}
+<h2>Image de présentation</h2>
 
-{% block main %}
-  <h2>Image de présentation</h2>
-
-  <div class="pt-2">
+<div class="pt-2">
     <form
         class="divide-y divide-gray-200 lg:col-span-9"
         action=""
         method="POST"
         enctype="multipart/form-data"
     >
+        <div class="mb-4">
+            <div class="font-semibold mb-1">Image actuelle</div>
+            <div
+                id="currentImageWrapper"
+                class="p-2 flex items-center justify-center min-h-[120px]"
+            >
+                {% if current_image_url and current_image_url != 'None' %}
+                <img
+                    id="currentImage"
+                    src="{{ current_image_url }}"
+                    alt="Image de présentation actuelle"
+                    class="h-32 w-full object-cover lg:h-48 max-w-full max-h-[200px]"
+                    style="max-height: 250px"
+                />
+                {% else %}
+                <p class="text-gray-500">Aucune image.</p>
+                {% endif %}
+            </div>
+        </div>
 
-      <div class="mb-4">
-        <div class="font-semibold mb-1">Image actuelle</div>
-        <div id="currentImageWrapper" class="p-2 flex items-center justify-center min-h-[120px]">
-          {% if current_image_url and current_image_url != 'None' %}
-            <img
-                id="currentImage"
-                src="{{ current_image_url }}"
-                alt="Image de présentation actuelle"
-                class="h-32 w-full object-cover lg:h-48 max-w-full max-h-[200px]"
-                style="max-height: 250px;"
+        <div
+            class="mb-4 pt-2"
+            id="newImageBlock"
+            style="display: none"
+        >
+            <div class="font-semibold mb-1">Aperçu de la nouvelle image</div>
+            <div
+                id="newImageContainer"
+                class="p-2 flex items-center justify-center min-h-[120px]"
+            ></div>
+        </div>
+
+        <div class="pt-2">
+            <div class="mb-2 font-semibold">Charger une nouvelle image</div>
+            <input
+                type="file"
+                id="image"
+                name="image"
+                accept=".png,.jpeg,.jpg,image/png,image/jpeg"
+                class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none"
             />
-          {% else %}
-            <p class="text-gray-500">Aucune image.</p>
-          {% endif %}
+            <p class="mt-1 text-sm text-gray-500">
+                Ratio de l'image environ 4&nbsp;/&nbsp;1. Format PNG, JPG, JPEG
+                (Max 4MB)
+            </p>
         </div>
-      </div>
 
-      <div class="mb-4 pt-2" id="newImageBlock" style="display:none;">
-        <div class="font-semibold mb-1">Aperçu de la nouvelle image</div>
-        <div id="newImageContainer" class="p-2 flex items-center justify-center min-h-[120px]">
+        <div class="mt-4 py-4 px-4 flex justify-end sm:px-6">
+            <button
+                type="submit"
+                name="submit"
+                value="cancel"
+                class="bg-white border border-gray-300 rounded-md shadow-sm py-2 px-4 inline-flex justify-center text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500"
+            >
+                Annuler
+            </button>
+            <button
+                type="submit"
+                name="submit"
+                value="save"
+                class="ml-5 bg-sky-700 border border-transparent rounded-md shadow-sm py-2 px-4 inline-flex justify-center text-sm font-medium text-white hover:bg-sky-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500"
+            >
+                Valider
+            </button>
         </div>
-      </div>
-
-      <div class="pt-2">
-        <div class="mb-2 font-semibold">
-          Charger une nouvelle image
-        </div>
-        <input
-            type="file"
-            id="image"
-            name="image"
-            accept=".png,.jpeg,.jpg,image/png,image/jpeg"
-            class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none"
-        />
-        <p class="mt-1 text-sm text-gray-500">Ratio de l'image environ 4&nbsp;/&nbsp;1. Format PNG, JPG, JPEG (Max 4MB)</p>
-      </div>
-
-      <div class="mt-4 py-4 px-4 flex justify-end sm:px-6">
-        <button
-            type="submit"
-            name="submit"
-            value="cancel"
-            class="bg-white border border-gray-300 rounded-md shadow-sm py-2 px-4 inline-flex justify-center text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500"
-        >
-          Annuler
-        </button>
-        <button
-            type="submit"
-            name="submit"
-            value="save"
-            class="ml-5 bg-sky-700 border border-transparent rounded-md shadow-sm py-2 px-4 inline-flex justify-center text-sm font-medium text-white hover:bg-sky-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500"
-        >
-          Valider
-        </button>
-      </div>
     </form>
-  </div>
+</div>
 
-  <script>
-      const imageInput = document.getElementById('image');
-      const newImageBlock = document.getElementById('newImageBlock');
-      const newImageContainer = document.getElementById('newImageContainer');
+<script>
+    const imageInput = document.getElementById("image");
+    const newImageBlock = document.getElementById("newImageBlock");
+    const newImageContainer = document.getElementById("newImageContainer");
 
-      imageInput.addEventListener('change', function(event) {
-          const file = event.target.files[0];
+    imageInput.addEventListener("change", function (event) {
+        const file = event.target.files[0];
 
-          if (file) {
-              newImageBlock.style.display = 'block';
+        if (file) {
+            newImageBlock.style.display = "block";
 
-              const reader = new FileReader();
+            const reader = new FileReader();
 
-              reader.onload = function(e) {
-                  let imgElement = document.getElementById('newImagePreview');
+            reader.onload = function (e) {
+                let imgElement = document.getElementById("newImagePreview");
 
-                  if (!imgElement) {
-                      imgElement = document.createElement('img');
-                      imgElement.id = 'newImagePreview';
-                      imgElement.className = "h-32 w-full object-cover lg:h-48 max-w-full max-h-[200px]";
-                      imgElement.style.maxHeight = '200px';
-                      newImageContainer.innerHTML = '';
-                      newImageContainer.appendChild(imgElement);
+                if (!imgElement) {
+                    imgElement = document.createElement("img");
+                    imgElement.id = "newImagePreview";
+                    imgElement.className =
+                        "h-32 w-full object-cover lg:h-48 max-w-full max-h-[200px]";
+                    imgElement.style.maxHeight = "200px";
+                    newImageContainer.innerHTML = "";
+                    newImageContainer.appendChild(imgElement);
+                }
+                imgElement.src = e.target.result;
+            };
 
-                  }
-                  imgElement.src = e.target.result;
-              };
-
-              reader.readAsDataURL(file);
-          } else {
-             newImageBlock.style.display = 'none';
-             newImageContainer.innerHTML = '';
-          }
-      });
-  </script>
+            reader.readAsDataURL(file);
+        } else {
+            newImageBlock.style.display = "none";
+            newImageContainer.innerHTML = "";
+        }
+    });
+</script>
 {% endblock %}
