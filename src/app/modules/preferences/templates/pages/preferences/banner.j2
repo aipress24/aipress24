@@ -1,12 +1,17 @@
 {% extends "pages/preferences/_base.j2" %} {% block main %}
 <h2>Image de présentation</h2>
 
-<div class="pt-2">
+<div
+    class="pt-2"
+    x-data="bannerCropper()"
+>
     <form
+        id="bannerForm"
         class="divide-y divide-gray-200 lg:col-span-9"
         action=""
         method="POST"
         enctype="multipart/form-data"
+        @submit.prevent="submitForm"
     >
         <div class="mb-4">
             <div class="font-semibold mb-1">Image actuelle</div>
@@ -31,13 +36,22 @@
         <div
             class="mb-4 pt-2"
             id="newImageBlock"
+            x-show="imageUrl"
             style="display: none"
         >
-            <div class="font-semibold mb-1">Aperçu de la nouvelle image</div>
+            <div class="font-semibold mb-1">Recadrer la nouvelle image (Ratio 4:1)</div>
             <div
                 id="newImageContainer"
-                class="p-2 flex items-center justify-center min-h-[120px]"
-            ></div>
+                class="bg-gray-100 rounded-lg overflow-hidden w-full"
+                style="height: 400px;"
+            >
+                <img
+                    id="newImagePreview"
+                    :src="imageUrl"
+                    class="block w-full"
+                    @load="initCropper"
+                />
+            </div>
         </div>
 
         <div class="pt-2">
@@ -48,6 +62,7 @@
                 name="image"
                 accept=".png,.jpeg,.jpg,image/png,image/jpeg"
                 class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none"
+                @change="fileChosen"
             />
             <p class="mt-1 text-sm text-gray-500">
                 Ratio de l'image environ 4&nbsp;/&nbsp;1. Format PNG, JPG, JPEG
@@ -57,18 +72,16 @@
 
         <div class="mt-4 py-4 px-4 flex justify-end sm:px-6">
             <button
-                type="submit"
-                name="submit"
-                value="cancel"
+                type="button"
+                @click="window.location.reload()"
                 class="bg-white border border-gray-300 rounded-md shadow-sm py-2 px-4 inline-flex justify-center text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500"
             >
                 Annuler
             </button>
             <button
                 type="submit"
-                name="submit"
-                value="save"
                 class="ml-5 bg-sky-700 border border-transparent rounded-md shadow-sm py-2 px-4 inline-flex justify-center text-sm font-medium text-white hover:bg-sky-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500"
+                :disabled="!imageUrl && !cropper"
             >
                 Valider
             </button>
@@ -77,38 +90,113 @@
 </div>
 
 <script>
-    const imageInput = document.getElementById("image");
-    const newImageBlock = document.getElementById("newImageBlock");
-    const newImageContainer = document.getElementById("newImageContainer");
+    function bannerCropper() {
+        return {
+            imageUrl: "",
+            cropper: null,
 
-    imageInput.addEventListener("change", function (event) {
-        const file = event.target.files[0];
-
-        if (file) {
-            newImageBlock.style.display = "block";
-
-            const reader = new FileReader();
-
-            reader.onload = function (e) {
-                let imgElement = document.getElementById("newImagePreview");
-
-                if (!imgElement) {
-                    imgElement = document.createElement("img");
-                    imgElement.id = "newImagePreview";
-                    imgElement.className =
-                        "h-32 w-full object-cover lg:h-48 max-w-full max-h-[200px]";
-                    imgElement.style.maxHeight = "200px";
-                    newImageContainer.innerHTML = "";
-                    newImageContainer.appendChild(imgElement);
+            fileChosen(event) {
+                const file = event.target.files[0];
+                if (!file) {
+                    this.imageUrl = "";
+                    if (this.cropper) {
+                        this.cropper.destroy();
+                        this.cropper = null;
+                    }
+                    return;
                 }
-                imgElement.src = e.target.result;
-            };
 
-            reader.readAsDataURL(file);
-        } else {
-            newImageBlock.style.display = "none";
-            newImageContainer.innerHTML = "";
-        }
-    });
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    this.imageUrl = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            },
+
+            initCropper() {
+                this.$nextTick(() => {
+                    if (this.cropper) {
+                        this.cropper.destroy();
+                    }
+
+                    const image = document.getElementById("newImagePreview");
+                    this.cropper = new Cropper(image, {
+                        aspectRatio: 4 / 1,
+                        viewMode: 2, // The canvas should not be smaller than the container
+                        autoCropArea: 1,
+                        responsive: true,
+                        dragMode: 'move',
+                        guides: true,
+                        center: true,
+                        highlight: false,
+                        cropBoxMovable: true,
+                        cropBoxResizable: true,
+                        background: true, // Show the checkerboard
+                    });
+                });
+            },
+
+            async submitForm() {
+                if (!this.cropper) {
+                    document.getElementById("bannerForm").submit();
+                    return;
+                }
+
+                // Get cropped canvas
+                const canvas = this.cropper.getCroppedCanvas({
+                    width: 1200, // Reasonable width for a banner
+                    height: 300,
+                    imageSmoothingEnabled: true,
+                    imageSmoothingQuality: "high",
+                });
+
+                if (!canvas) {
+                    alert("Erreur lors du recadrage de l'image.");
+                    return;
+                }
+
+                canvas.toBlob(
+                    (blob) => {
+                        const formData = new FormData();
+                        formData.append("image", blob, "banner.jpg");
+                        formData.append("submit", "save");
+
+                        // CSRF token handling
+                        const headers = {
+                            "X-Requested-With": "XMLHttpRequest",
+                        };
+                        const csrfTokenTag = document.querySelector(
+                            'meta[name="csrf-token"]'
+                        );
+                        if (csrfTokenTag) {
+                            headers["X-CSRF-TOKEN"] =
+                                csrfTokenTag.getAttribute("content");
+                        }
+
+                        fetch("", {
+                            method: "POST",
+                            body: formData,
+                            headers: headers,
+                        })
+                            .then((response) => {
+                                if (response.ok) {
+                                    window.location.reload();
+                                } else {
+                                    alert(
+                                        "Erreur lors de l'enregistrement de l'image."
+                                    );
+                                }
+                            })
+                            .catch((error) => {
+                                console.error("Error:", error);
+                                alert("Une erreur est survenue.");
+                            });
+                    },
+                    "image/jpeg",
+                    0.9
+                );
+            },
+        };
+    }
 </script>
 {% endblock %}
