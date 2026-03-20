@@ -39,11 +39,13 @@
             x-show="imageUrl"
             style="display: none"
         >
-            <div class="font-semibold mb-1">Recadrer la nouvelle image (Ratio 4:1)</div>
+            <div class="font-semibold mb-1">
+                Recadrer la nouvelle image (Ratio 4:1)
+            </div>
             <div
                 id="newImageContainer"
                 class="bg-gray-100 rounded-lg overflow-hidden w-full"
-                style="height: 400px;"
+                style="height: 400px"
             >
                 <img
                     id="newImagePreview"
@@ -68,6 +70,17 @@
                 Ratio de l'image environ 4&nbsp;/&nbsp;1. Format PNG, JPG, JPEG
                 (Max 4MB)
             </p>
+        </div>
+
+        <div class="pt-4">
+            <div class="mb-2 font-semibold">Mention de copyright</div>
+            <input
+                type="text"
+                id="copyright"
+                name="copyright"
+                value="{{ copyright }}"
+                class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-sky-500 focus:border-sky-500 p-2.5"
+            />
         </div>
 
         <div class="mt-4 py-4 px-4 flex justify-end sm:px-6">
@@ -125,7 +138,7 @@
                         viewMode: 2, // The canvas should not be smaller than the container
                         autoCropArea: 1,
                         responsive: true,
-                        dragMode: 'move',
+                        dragMode: "move",
                         guides: true,
                         center: true,
                         highlight: false,
@@ -137,8 +150,12 @@
             },
 
             async submitForm() {
+                const copyright = document.getElementById("copyright").value;
+
                 if (!this.cropper) {
-                    document.getElementById("bannerForm").submit();
+                    const form = document.getElementById("bannerForm");
+                    // Ensure copyright is submitted even if no new image
+                    form.submit();
                     return;
                 }
 
@@ -160,6 +177,7 @@
                         const formData = new FormData();
                         formData.append("image", blob, "banner.jpg");
                         formData.append("submit", "save");
+                        formData.append("copyright", copyright);
 
                         // CSRF token handling
                         const headers = {
