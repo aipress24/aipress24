@@ -32,6 +32,7 @@ from .lib.select_one_free import SelectOneFreeField
 from .lib.valid_email import ValidEmail
 from .lib.valid_email_free import ValidEmailFree
 from .lib.valid_image import ValidImageField
+from .lib.valid_image_square import ValidImageFieldSquare
 from .lib.valid_password import ValidPassword
 from .lib.valid_tel import ValidTel
 from .lib.valid_url import ValidURL
@@ -220,7 +221,7 @@ def custom_int_field(
     )
 
 
-def custom_photo_field(
+def custom_photo_field_standard(
     field: SurveyField,
     mandatory_code: str = "",
     param: str = "",
@@ -240,6 +241,38 @@ def custom_photo_field(
         "kyc_message": field.upper_message,
     }
     return ValidImageField(
+        name=field.name,
+        label=label,
+        id=field.id,
+        # validators=validators_list,
+        is_required=_is_required(mandatory_code),
+        render_kw=render_kw,
+        readonly=1 if readonly else 0,
+        max_image_size=4096,
+        file_object=file_object,
+    )
+
+
+def custom_photo_field(
+    field: SurveyField,
+    mandatory_code: str = "",
+    param: str = "",
+    readonly: bool = False,
+    file_object: FileObject | None = None,
+    **kwargs,
+) -> UnboundField:
+    if readonly:
+        mandatory_code = ""
+    # validators_list = _filter_mandatory_validator(code)
+    label = _filter_photo_format(field.description)
+    label = _filter_public_info(label, field.public_maxi)
+    label = _filter_mandatory_label(label, mandatory_code)
+    render_kw: dict[str, Any] = {
+        "kyc_type": "photo",
+        "kyc_code": mandatory_code,
+        "kyc_message": field.upper_message,
+    }
+    return ValidImageFieldSquare(
         name=field.name,
         label=label,
         id=field.id,
@@ -864,7 +897,7 @@ def _collect_managed_data(form: FlaskForm, form_data: dict[str, Any]) -> dict[st
             | SelectMultipleField,
         ):
             managed_data[key] = value
-        elif isinstance(wt_field, ValidImageField):
+        elif isinstance(wt_field, ValidImageField | ValidImageFieldSquare):
             pass
     return managed_data
 
@@ -877,7 +910,7 @@ def _fill_managed_data(form: FlaskForm, managed_data: dict[str, Any]) -> None:
             first, second = value
             wt_field.data = first
             wt_field.data2 = second
-        elif isinstance(wt_field, ValidImageField):
+        elif isinstance(wt_field, ValidImageField | ValidImageFieldSquare):
             pass
         else:
             wt_field.data = value
