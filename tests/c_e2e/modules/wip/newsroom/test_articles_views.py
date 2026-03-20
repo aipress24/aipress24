@@ -215,6 +215,47 @@ class TestArticlesCRUD:
         assert response.status_code == 200
 
 
+class TestArticlesDelete:
+    """Tests for deleting articles."""
+
+    def test_delete_own_article(
+        self,
+        logged_in_client: FlaskClient,
+        db_session: Session,
+        test_article: Article,
+    ):
+        """Test deleting own article redirects."""
+        url = url_for("ArticlesWipView:delete", id=test_article.id)
+        response = logged_in_client.get(url, follow_redirects=False)
+        assert response.status_code == 302
+
+    def test_delete_article_sets_deleted_at(
+        self,
+        logged_in_client: FlaskClient,
+        db_session: Session,
+        test_article: Article,
+    ):
+        """Test delete sets deleted_at timestamp."""
+        url = url_for("ArticlesWipView:delete", id=test_article.id)
+        logged_in_client.get(url, follow_redirects=False)
+        db_session.refresh(test_article)
+        assert test_article.deleted_at is not None
+
+
+class TestArticlesHtmx:
+    """Tests for HTMX table views."""
+
+    def test_htmx_table_loads(
+        self,
+        logged_in_client: FlaskClient,
+        test_article: Article,
+    ):
+        """Test HTMX table endpoint returns HTML fragment."""
+        url = url_for("ArticlesWipView:htmx")
+        response = logged_in_client.get(url)
+        assert response.status_code == 200
+
+
 class TestArticlesValidation:
     """Tests for article validation logic."""
 

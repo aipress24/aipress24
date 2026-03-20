@@ -19,6 +19,7 @@ from app.models.auth import KYCProfile, Role, User
 from app.models.lifecycle import PublicationStatus
 from app.models.organisation import Organisation
 from app.modules.kyc.field_label import country_code_to_country_name
+from app.modules.kyc.ontology_loader import get_ontology_content
 from app.modules.wire.models import ArticlePost, PressReleasePost
 from app.modules.wire.views._filters import (
     FILTER_SPECS,
@@ -122,8 +123,9 @@ def test_press_releases(
 @pytest.fixture
 def france_country(db_session: Session) -> CountryEntry:
     """Create France country entry for label_function tests."""
-    # Clear the cache on country_code_to_country_name
+    # Clear caches on both country lookup functions
     country_code_to_country_name.cache_clear()
+    get_ontology_content.cache.clear()
 
     country = CountryEntry(iso3="FR", name="France", seq=1)
     db_session.add(country)
@@ -134,9 +136,7 @@ def france_country(db_session: Session) -> CountryEntry:
 class TestFilterBarInitialization:
     """Test FilterBar initialization with Flask context."""
 
-    def test_filterbar_init_creates_empty_state(
-        self, app: Flask, db_session: Session
-    ):
+    def test_filterbar_init_creates_empty_state(self, app: Flask, db_session: Session):
         """Test FilterBar initializes with empty state when no session data."""
         with app.test_request_context():
             bar = FilterBar("wall")
@@ -150,15 +150,15 @@ class TestFilterBarInitialization:
         """Test FilterBar loads existing state from session."""
         with app.test_request_context():
             # Pre-populate session
-            session["wire:wall:state"] = '{"filters": [{"id": "sector", "value": "tech"}]}'
+            session["wire:wall:state"] = (
+                '{"filters": [{"id": "sector", "value": "tech"}]}'
+            )
 
             bar = FilterBar("wall")
 
             assert bar.state["filters"] == [{"id": "sector", "value": "tech"}]
 
-    def test_filterbar_handles_corrupted_session(
-        self, app: Flask, db_session: Session
-    ):
+    def test_filterbar_handles_corrupted_session(self, app: Flask, db_session: Session):
         """Test FilterBar handles corrupted JSON in session gracefully."""
         with app.test_request_context():
             session["wire:wall:state"] = "not valid json{"
@@ -172,9 +172,7 @@ class TestFilterBarInitialization:
 class TestFilterBarSessionOperations:
     """Test FilterBar session save/load operations."""
 
-    def test_save_state_persists_to_session(
-        self, app: Flask, db_session: Session
-    ):
+    def test_save_state_persists_to_session(self, app: Flask, db_session: Session):
         """Test save_state writes to session."""
         with app.test_request_context():
             bar = FilterBar("wall")
@@ -187,12 +185,12 @@ class TestFilterBarSessionOperations:
             saved = json.loads(session["wire:wall:state"])
             assert saved["filters"][0]["id"] == "topic"
 
-    def test_reset_clears_state(
-        self, app: Flask, db_session: Session
-    ):
+    def test_reset_clears_state(self, app: Flask, db_session: Session):
         """Test reset clears state and saves."""
         with app.test_request_context():
-            session["wire:wall:state"] = '{"filters": [{"id": "sector", "value": "tech"}]}'
+            session["wire:wall:state"] = (
+                '{"filters": [{"id": "sector", "value": "tech"}]}'
+            )
             bar = FilterBar("wall")
 
             bar.reset()
@@ -201,9 +199,7 @@ class TestFilterBarSessionOperations:
             saved = json.loads(session["wire:wall:state"])
             assert saved == {}
 
-    def test_set_tag_adds_tag_filter(
-        self, app: Flask, db_session: Session
-    ):
+    def test_set_tag_adds_tag_filter(self, app: Flask, db_session: Session):
         """Test set_tag adds tag filter and saves."""
         with app.test_request_context():
             bar = FilterBar("wall")
@@ -216,9 +212,7 @@ class TestFilterBarSessionOperations:
 class TestFilterBarUpdateState:
     """Test FilterBar update_state method with form data."""
 
-    def test_update_state_toggle_action(
-        self, app: Flask, db_session: Session
-    ):
+    def test_update_state_toggle_action(self, app: Flask, db_session: Session):
         """Test update_state with toggle action."""
         with app.test_request_context(
             method="POST",
@@ -230,9 +224,7 @@ class TestFilterBarUpdateState:
 
             assert bar.has_filter("sector", "tech")
 
-    def test_update_state_remove_action(
-        self, app: Flask, db_session: Session
-    ):
+    def test_update_state_remove_action(self, app: Flask, db_session: Session):
         """Test update_state with remove action."""
         with app.test_request_context(
             method="POST",
@@ -245,9 +237,7 @@ class TestFilterBarUpdateState:
 
             assert not bar.has_filter("sector", "tech")
 
-    def test_update_state_sort_by_action(
-        self, app: Flask, db_session: Session
-    ):
+    def test_update_state_sort_by_action(self, app: Flask, db_session: Session):
         """Test update_state with sort-by action."""
         with app.test_request_context(
             method="POST",
@@ -259,9 +249,7 @@ class TestFilterBarUpdateState:
 
             assert bar.sort_order == "likes"
 
-    def test_update_state_unknown_action_raises(
-        self, app: Flask, db_session: Session
-    ):
+    def test_update_state_unknown_action_raises(self, app: Flask, db_session: Session):
         """Test update_state with unknown action raises BadRequest."""
         with app.test_request_context(
             method="POST",
@@ -289,9 +277,7 @@ class TestFilterBarUpdateState:
 class TestFilterBarProperties:
     """Test FilterBar property methods."""
 
-    def test_sorter_property_returns_options(
-        self, app: Flask, db_session: Session
-    ):
+    def test_sorter_property_returns_options(self, app: Flask, db_session: Session):
         """Test sorter property returns formatted options."""
         with app.test_request_context():
             bar = FilterBar("wall")
@@ -306,9 +292,7 @@ class TestFilterBarProperties:
             assert "label" in first_opt
             assert "selected" in first_opt
 
-    def test_sorter_marks_current_as_selected(
-        self, app: Flask, db_session: Session
-    ):
+    def test_sorter_marks_current_as_selected(self, app: Flask, db_session: Session):
         """Test sorter marks current sort option as selected."""
         with app.test_request_context():
             bar = FilterBar("wall")

@@ -224,6 +224,47 @@ class TestEventsTemporalValidation:
         assert test_event.status == PublicationStatus.PUBLIC
 
 
+class TestEventsDelete:
+    """Tests for deleting events."""
+
+    def test_delete_own_event(
+        self,
+        logged_in_client: FlaskClient,
+        db_session: Session,
+        test_event: Event,
+    ):
+        """Test deleting own event redirects."""
+        url = url_for("EventsWipView:delete", id=test_event.id)
+        response = logged_in_client.get(url, follow_redirects=False)
+        assert response.status_code == 302
+
+    def test_delete_event_sets_deleted_at(
+        self,
+        logged_in_client: FlaskClient,
+        db_session: Session,
+        test_event: Event,
+    ):
+        """Test delete sets deleted_at timestamp."""
+        url = url_for("EventsWipView:delete", id=test_event.id)
+        logged_in_client.get(url, follow_redirects=False)
+        db_session.refresh(test_event)
+        assert test_event.deleted_at is not None
+
+
+class TestEventsHtmx:
+    """Tests for HTMX table views."""
+
+    def test_htmx_table_loads(
+        self,
+        logged_in_client: FlaskClient,
+        test_event: Event,
+    ):
+        """Test HTMX table endpoint returns HTML fragment."""
+        url = url_for("EventsWipView:htmx")
+        response = logged_in_client.get(url)
+        assert response.status_code == 200
+
+
 class TestEventsValidation:
     """Tests for event validation logic."""
 

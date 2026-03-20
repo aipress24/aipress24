@@ -230,6 +230,35 @@ class TestCommuniquesEmbargo:
         assert embargoed_communique.status == PublicationStatus.PUBLIC
 
 
+class TestCommuniquesDelete:
+    """Tests for deleting communiques."""
+
+    def test_delete_own_communique(
+        self,
+        logged_in_client: FlaskClient,
+        db_session: Session,
+        test_communique: Communique,
+    ):
+        """Test deleting own communique redirects."""
+        url = url_for("CommuniquesWipView:delete", id=test_communique.id)
+        response = logged_in_client.get(url, follow_redirects=False)
+        assert response.status_code == 302
+
+
+class TestCommuniquesHtmx:
+    """Tests for HTMX table views."""
+
+    def test_htmx_table_loads(
+        self,
+        logged_in_client: FlaskClient,
+        test_communique: Communique,
+    ):
+        """Test HTMX table endpoint returns HTML fragment."""
+        url = url_for("CommuniquesWipView:htmx")
+        response = logged_in_client.get(url)
+        assert response.status_code == 200
+
+
 class TestCommuniquesValidation:
     """Tests for communique validation logic."""
 
