@@ -6,6 +6,8 @@
 
 from __future__ import annotations
 
+from typing import cast
+
 from flask import flash, g, render_template, request
 from flask.views import MethodView
 from flask_login import current_user
@@ -14,6 +16,7 @@ from werkzeug.utils import redirect
 from app.flask.extensions import db
 from app.flask.routing import url_for
 from app.lib.file_object_utils import create_file_object
+from app.models.auth import User
 from app.modules.preferences import blueprint
 from app.settings.constants import MAX_IMAGE_SIZE
 
@@ -22,10 +25,11 @@ class BannerView(MethodView):
     """Banner/cover image settings."""
 
     def get(self):
-        user = g.user
+        user = cast(User, g.user)
         current_image_url = user.cover_image_signed_url()
         ctx = {
             "current_image_url": current_image_url,
+            "copyright": user.cover_image_copyright or "",
             "title": "Image de présentation",
         }
         return render_template("pages/preferences/banner.j2", **ctx)
@@ -38,6 +42,9 @@ class BannerView(MethodView):
         if request.form.get("submit") == "cancel":
             return redirect(url_for(".banner"))
 
+        user = cast(User, g.user)
+        user.cover_image_copyright = request.form.get("copyright", "").strip()
+
         uploaded_image = request.files.get("image")
         if uploaded_image and uploaded_image.filename:
             content = request.files["image"].read()
@@ -48,12 +55,12 @@ class BannerView(MethodView):
                     content_type=uploaded_image.content_type,
                 )
                 image_file_object.save()
-                user = g.user
                 user.cover_image = image_file_object
-                db.session.merge(user)
-                db.session.commit()
             else:
                 flash("L'image est trop volumineuse")
+
+        db.session.merge(user)
+        db.session.commit()
         return redirect(url_for(".banner"))
 
 
