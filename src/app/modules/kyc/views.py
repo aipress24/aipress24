@@ -210,6 +210,51 @@ def _filter_out_label_tags(name: Any) -> str:
     return name
 
 
+def _process_photo_field(field: Field, form_raw_results: dict, key: str) -> str:
+    # Handle base64 data from cropped image for ValidImageFieldSquare compatibility
+    if isinstance(field.data, str) and field.data.startswith("data:image/"):
+        try:
+            from base64 import b64decode
+
+            header, encoded = field.data.split(",", 1)
+            content_type = header.split(";")[0].split(":")[1]
+            file_content = b64decode(encoded)
+            extension = content_type.split("/")[1]
+            filename = f"cropped_image_{uuid.uuid4().hex[:8]}.{extension}"
+
+            file_object = create_file_object(
+                content=file_content,
+                original_filename=filename,
+                content_type=content_type,
+            )
+            file_object.save()
+            form_raw_results[key] = file_object.to_dict()
+            return f"fichier {filename!r}"
+        except Exception as e:
+            print(f"Error processing base64 image: {e}", file=sys.stderr)
+            return ""
+
+    # Standard FileStorage upload
+    if field.data and isinstance(field.data, FileStorage) and field.data.filename:
+        file_content = field.data.read()
+        file_object = create_file_object(
+            content=file_content,
+            original_filename=field.data.filename,
+            content_type=field.data.content_type,
+        )
+        file_object.save()
+        form_raw_results[key] = file_object.to_dict()
+        return f"fichier {field.data.filename!r}"
+
+    # If no new file uploaded, keep current filename for display
+    existing_file_data_for_display = form_raw_results.get(key)
+    if isinstance(
+        existing_file_data_for_display, dict
+    ) and existing_file_data_for_display.get("filename"):
+        return f"fichier {existing_file_data_for_display['filename']!r}"
+    return ""
+
+
 def _parse_valid_form(form: FlaskForm, profile_id: str) -> None:
     session_service = container.get(SessionService)
     form_raw_results: dict[str, Any] = session_service.get("form_raw_results", {})
@@ -222,32 +267,8 @@ def _parse_valid_form(form: FlaskForm, profile_id: str) -> None:
             continue
         id_field = field.id
         form_id_key[id_field] = key
-        if field.type == "ValidImageField":
-            if (
-                field.data
-                and isinstance(field.data, FileStorage)
-                and field.data.filename
-            ):
-                file_content = field.data.read()
-                file_object = create_file_object(
-                    content=file_content,
-                    original_filename=field.data.filename,
-                    content_type=field.data.content_type,
-                )
-                file_object.save()
-                form_raw_results[key] = file_object.to_dict()
-                form_results[key] = f"fichier {field.data.filename!r}"
-            else:
-                # If no new file uploaded, keep current filename for display
-                existing_file_data_for_display = form_raw_results.get(key)
-                if isinstance(
-                    existing_file_data_for_display, dict
-                ) and existing_file_data_for_display.get("filename"):
-                    form_results[key] = (
-                        f"fichier {existing_file_data_for_display['filename']!r}"
-                    )
-                else:
-                    form_results[key] = ""
+        if field.type in {"ValidImageField", "ValidImageFieldSquare"}:
+            form_results[key] = _process_photo_field(field, form_raw_results, key)
             form_labels_results[key] = _filter_out_label_tags(field.label.text)
         else:
             _parse_result(form_results, form_raw_results, field=field)
