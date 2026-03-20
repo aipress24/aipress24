@@ -94,7 +94,6 @@
             <button
                 type="submit"
                 class="ml-5 bg-sky-700 border border-transparent rounded-md shadow-sm py-2 px-4 inline-flex justify-center text-sm font-medium text-white hover:bg-sky-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500"
-                :disabled="!imageUrl && !cropper"
             >
                 Valider
             </button>
@@ -151,11 +150,11 @@
 
             async submitForm() {
                 const copyright = document.getElementById("copyright").value;
+                const imageInput = document.getElementById("image");
+                const hasNewImage = imageInput.files && imageInput.files.length > 0;
 
-                if (!this.cropper) {
-                    const form = document.getElementById("bannerForm");
-                    // Ensure copyright is submitted even if no new image
-                    form.submit();
+                if (!hasNewImage || !this.cropper) {
+                    document.getElementById("bannerForm").submit();
                     return;
                 }
 
