@@ -1,0 +1,134 @@
+<div x-data="validImageSquareCropper({
+    maxImageSize: {{ field.max_image_size }},
+    preloadedImageUrl: '{{ field.get_image_url() or "" }}',
+    preloadFilesize: {{ field.preload_filesize }}
+})">
+    <template x-if="imagePreloaded && !imgsrc">
+        <div>
+            <p class="my-0 mx-0 text-gray-900 text-sm">Image actuelle&nbsp;:</p>
+            <img :src="preloaded_image_url" class="my-2 max-w-32 max-h-32 rounded-lg border">
+            <p class="my-2 mx-0 text-gray-900 text-sm">Remplacer par&nbsp;:</p>
+        </div>
+    </template>
+
+    <div x-show="imgsrc" class="mb-4" style="display: none;">
+        <p class="font-semibold mb-1 text-sm">Recadrer l'image (Carré)</p>
+        <div class="bg-gray-100 rounded-lg overflow-hidden w-full" style="height: 300px;">
+            <img x-ref="cropperImage" :src="imgsrc" class="block w-full" @load="initCropper">
+        </div>
+        <p class="mt-2 text-xs text-gray-500" x-show="image.size">
+            Taille originale: <span x-text="image.size"></span>KB <span x-text="image.dimension"></span>
+        </p>
+    </div>
+
+    <input
+        type="file"
+        {% if field.is_required and field.preload_filesize == 0 %}required{% endif %}
+        {% if field.readonly %}readonly{% endif %}
+        class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm sm:text-sm sm:leading-6 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600"
+        id="{{ field.id }}_file"
+        x-ref="myFile"
+        @change="fileChosen"
+        accept="image/png, image/jpeg"
+    >
+
+    {# Hidden input to store the cropped image data if we decide to use it,
+       or we can just let the server handle the original file if no crop is needed.
+       But for 'Square' we probably want to enforce cropping. #}
+    <input type="hidden" name="{{ field.name }}" id="{{ field.id }}" x-ref="croppedData">
+
+    <input
+        id="{{ field.id_preload_name() }}"
+        name="{{ field.name_preload_name() }}"
+        type="hidden"
+        value="{{ field.preload_filename }}"
+    >
+
+    <template x-if="imageError">
+        <p class="mt-2 text-sm text-red-600" x-text="imageError"></p>
+    </template>
+</div>
+
+<script>
+if (typeof validImageSquareCropper === 'undefined') {
+    window.validImageSquareCropper = function(config) {
+        return {
+            imagePreloaded: config.preloadFilesize > 0,
+            preloaded_image_url: config.preloadedImageUrl,
+            imgsrc: null,
+            cropper: null,
+            imageError: '',
+            image: {
+                size: null,
+                dimension: null,
+            },
+
+            fileChosen(event) {
+                this.imageError = '';
+                this.imgsrc = null;
+                if (this.cropper) {
+                    this.cropper.destroy();
+                    this.cropper = null;
+                }
+
+                const file = event.target.files[0];
+                if (!file) return;
+                if (file.type.indexOf('image/') !== 0) {
+                    this.imageError = 'Le fichier doit être une image.';
+                    return;
+                }
+
+                this.image.size = Math.floor(file.size / 1024);
+                if (this.image.size > config.maxImageSize) {
+                    this.imageError = `L'image est trop grande (${this.image.size}KB, max ${config.maxImageSize}KB)`;
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    this.imgsrc = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            },
+
+            initCropper() {
+                this.$nextTick(() => {
+                    if (this.cropper) this.cropper.destroy();
+                    const image = this.$refs.cropperImage;
+                    this.cropper = new Cropper(image, {
+                        aspectRatio: 1 / 1,
+                        viewMode: 2,
+                        autoCropArea: 1,
+                        responsive: true,
+                        background: true,
+                        ready: () => {
+                            this.updateCroppedData();
+                        },
+                        cropend: () => {
+                            this.updateCroppedData();
+                        }
+                    });
+
+                    // Also update when image is loaded/dimensions ready
+                    const img = new Image();
+                    img.onload = () => {
+                        this.image.dimension = `(${img.width}x${img.height})`;
+                    };
+                    img.src = this.imgsrc;
+                });
+            },
+
+            updateCroppedData() {
+                if (!this.cropper) return;
+                const canvas = this.cropper.getCroppedCanvas({
+                    width: 400,
+                    height: 400,
+                });
+                if (canvas) {
+                    this.$refs.croppedData.value = canvas.toDataURL('image/jpeg', 0.9);
+                }
+            }
+        }
+    }
+}
+</script>
