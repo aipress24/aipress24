@@ -140,6 +140,7 @@ class User(LifeCycleMixin, Addressable, UserMixin, Base):
     cover_image: Mapped[FileObject | None] = mapped_column(
         StoredObject(backend="s3"), nullable=True
     )
+    cover_image_copyright: Mapped[str] = mapped_column(default="")
 
     status: Mapped[str] = mapped_column(default="Débutant")
 
