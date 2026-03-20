@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+from io import BytesIO
 from typing import TYPE_CHECKING
 from unittest.mock import MagicMock
 
@@ -192,6 +193,30 @@ class TestEventsTable:
 
             assert "Dépublier" in labels
             assert "Publier" not in labels
+
+
+class TestEventsImageUpload:
+    """Tests for image upload functionality."""
+
+    def test_add_empty_image_rejected(
+        self,
+        logged_in_client: FlaskClient,
+        event_with_title: Event,
+    ):
+        """Test that uploading an empty image is rejected."""
+        url = url_for("EventsWipView:images", id=event_with_title.id)
+        response = logged_in_client.post(
+            url,
+            data={
+                "_action": "add-image",
+                "image": (BytesIO(b""), "empty.jpg"),
+                "caption": "Test caption",
+            },
+            content_type="multipart/form-data",
+            follow_redirects=False,
+        )
+        # Should redirect with flash message about empty image
+        assert response.status_code == 302
 
 
 class TestEventsWipViewAttributes:

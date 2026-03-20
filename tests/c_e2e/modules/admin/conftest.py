@@ -79,7 +79,9 @@ def admin_user(db_session: Session) -> User:
         db_session.add(admin_role)
 
     # Create press_media role (required for community detection)
-    press_role = db_session.query(Role).filter_by(name=RoleEnum.PRESS_MEDIA.name).first()
+    press_role = (
+        db_session.query(Role).filter_by(name=RoleEnum.PRESS_MEDIA.name).first()
+    )
     if not press_role:
         press_role = Role(name=RoleEnum.PRESS_MEDIA.name, description="Press & Media")
         db_session.add(press_role)
