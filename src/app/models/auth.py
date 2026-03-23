@@ -114,6 +114,8 @@ class User(LifeCycleMixin, Addressable, UserMixin, Base):
     photo_image: Mapped[FileObject | None] = mapped_column(
         StoredObject(backend="s3"), nullable=True
     )
+    photo_image_copyright: Mapped[str] = mapped_column(default="")
+
     photo_carte_presse_image: Mapped[FileObject | None] = mapped_column(
         StoredObject(backend="s3"), nullable=True
     )
