@@ -40,7 +40,7 @@ from app.modules.kyc.dynform import (
     custom_multi_field,
     custom_multi_free_field,
     custom_password_field,
-    custom_photo_field,
+    custom_photo_field_standard,
     custom_postcode_field,
     custom_string_field,
     custom_tel_field,
@@ -321,7 +321,7 @@ class TestCustomIntField:
 
 
 class TestCustomPhotoField:
-    """Test custom_photo_field function."""
+    """Test custom_photo_field_standard function."""
 
     def test_label_contains_photo_format_tag(self) -> None:
         """Test photo field label contains format instructions."""
@@ -333,7 +333,7 @@ class TestCustomPhotoField:
             upper_message="Test message",
         )
 
-        result = custom_photo_field(field, "M")
+        result = custom_photo_field_standard(field, "M")
 
         assert isinstance(result, UnboundField)
         assert TAG_PHOTO_FORMAT in result.kwargs["label"]
@@ -348,7 +348,7 @@ class TestCustomPhotoField:
             upper_message="",
         )
 
-        result = custom_photo_field(field, "M")
+        result = custom_photo_field_standard(field, "M")
 
         assert result.kwargs["is_required"] is True
 
@@ -362,7 +362,7 @@ class TestCustomPhotoField:
             upper_message="",
         )
 
-        result = custom_photo_field(field, "O")
+        result = custom_photo_field_standard(field, "O")
 
         assert result.kwargs["is_required"] is False
 
