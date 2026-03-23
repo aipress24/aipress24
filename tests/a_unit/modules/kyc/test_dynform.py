@@ -41,6 +41,7 @@ from app.modules.kyc.dynform import (
     custom_multi_free_field,
     custom_password_field,
     custom_photo_field_standard,
+    custom_photo_square_field,
     custom_postcode_field,
     custom_string_field,
     custom_tel_field,
@@ -363,6 +364,53 @@ class TestCustomPhotoField:
         )
 
         result = custom_photo_field_standard(field, "O")
+
+        assert result.kwargs["is_required"] is False
+
+
+class TestCustomPhotoSquareField:
+    """Test custom_photo_square_field function."""
+
+    def test_label_contains_photo_format_tag(self) -> None:
+        """Test photo field label contains format instructions."""
+        field = SurveyField(
+            id="test_id",
+            name="test_photo",
+            description="Upload photo",
+            public_maxi=True,
+            upper_message="Test message",
+        )
+
+        result = custom_photo_square_field(field, "M")
+
+        assert isinstance(result, UnboundField)
+        assert TAG_PHOTO_FORMAT in result.kwargs["label"]
+
+    def test_mandatory_photo_sets_is_required(self) -> None:
+        """Test mandatory photo has is_required=True."""
+        field = SurveyField(
+            id="test_id",
+            name="test_photo",
+            description="Upload photo",
+            public_maxi=False,
+            upper_message="",
+        )
+
+        result = custom_photo_square_field(field, "M")
+
+        assert result.kwargs["is_required"] is True
+
+    def test_optional_photo_sets_is_required_false(self) -> None:
+        """Test optional photo has is_required=False."""
+        field = SurveyField(
+            id="test_id",
+            name="test_photo",
+            description="Upload photo",
+            public_maxi=False,
+            upper_message="",
+        )
+
+        result = custom_photo_square_field(field, "O")
 
         assert result.kwargs["is_required"] is False
 
