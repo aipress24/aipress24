@@ -20,12 +20,19 @@ class ValidImageWidgetSquare(widgets.Input):
         return template.render(field=field, **kwargs)
 
     def get_template(self):
-        template_path = Path(__file__).parent / "valid_image_square.j2"
+        template_path = Path(__file__).parent / "valid_image_widget.j2"
         return current_app.jinja_env.from_string(template_path.read_text())
 
 
 class ValidImageFieldSquare(FileField):
     widget = ValidImageWidgetSquare()
+
+    # configuration for square images
+    aspect_ratio = 1  # 1:1 ratio
+    auto_crop_area = 1.0
+    max_output_width = 400
+    max_output_height = 400
+    crop_label = "Recadrer l'image (carré)"
 
     def __init__(
         self,

@@ -20,12 +20,19 @@ class ValidImageWidget(widgets.Input):
         return template.render(field=field, **kwargs)
 
     def get_template(self):
-        template_path = Path(__file__).parent / "valid_image.j2"
+        template_path = Path(__file__).parent / "valid_image_widget.j2"
         return current_app.jinja_env.from_string(template_path.read_text())
 
 
 class ValidImageField(FileField):
     widget = ValidImageWidget()
+
+    # configuration for free-ratio images
+    aspect_ratio = None  # free ratio
+    auto_crop_area = 1.0
+    max_output_width = 1200
+    max_output_height = 1200
+    crop_label = "Recadrer l'image"
 
     def __init__(
         self,
