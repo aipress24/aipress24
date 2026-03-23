@@ -4,9 +4,8 @@
 
 from __future__ import annotations
 
-import base64
 from io import BytesIO
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 import advanced_alchemy
 from flask import (
@@ -28,6 +27,7 @@ from app.flask.extensions import db
 from app.flask.lib.constants import EMPTY_PNG
 from app.flask.routing import url_for
 from app.lib.file_object_utils import create_file_object
+from app.lib.image_utils import extract_image_from_request
 from app.logging import warn
 from app.models.lifecycle import PublicationStatus
 from app.modules.wip.models import Article, ArticleRepository, Image, ImageRepository
@@ -37,6 +37,9 @@ from app.signals import article_published, article_unpublished, article_updated
 from ._base import BaseWipView
 from ._forms import ArticleForm
 from ._table import BaseTable
+
+if TYPE_CHECKING:
+    from app.lib.image_utils import UploadedImageData
 
 
 class ArticlesTable(BaseTable):
@@ -216,35 +219,20 @@ class ArticlesWipView(BaseWipView):
         article_repo = self._get_repo()
         image_repo = ImageRepository(session=db.session)  # type: ignore[arg-type]
 
-        image_bytes = b""
-        image_filename = "noname.jpg"
-        image_content_type = "application/binary"
+        # Handle both regular file upload and base64 data URL from cropper
+        result: UploadedImageData | None = extract_image_from_request(
+            file_storage=request.files.get("image"),
+            data_url=request.form.get("image"),
+            orig_filename=request.form.get("image_filename") or None,
+        )
 
-        if "image" in request.files:
-            # Regular file upload
-            image = request.files["image"]
-            image_bytes = image.read()
-            image_filename = image.filename or "noname.jpg"
-            image_content_type = image.content_type or "application/binary"
-        elif "image" in request.form:
-            # Base64 data URL from cropper
-            data_url = request.form["image"]
-            if data_url.startswith("data:image"):
-                header, base64_data = data_url.split(",", 1)
-                image_bytes = base64.b64decode(base64_data)
-                if "image/jpeg" in header or "image/jpg" in header:
-                    image_content_type = "image/jpeg"
-                    image_filename = "image.jpg"
-                elif "image/png" in header:
-                    image_content_type = "image/png"
-                    image_filename = "image.png"
-                else:
-                    image_content_type = "image/jpeg"
-                    image_filename = "image.jpg"
-
-        if not image_bytes:
+        if result is None:
             flash("L'image est vide")
             return redirect(url_for("ArticlesWipView:images", id=article.id))
+
+        image_bytes = result.bytes
+        image_filename = result.filename
+        image_content_type = result.content_type
         if len(image_bytes) >= MAX_IMAGE_SIZE:
             flash("L'image est trop volumineuse")
             return redirect(url_for("ArticlesWipView:images", id=article.id))
