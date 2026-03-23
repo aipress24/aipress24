@@ -459,6 +459,7 @@ def _make_new_kyc_user_record() -> User:
         last_name=results.get("last_name", ""),
         first_name=results.get("first_name", ""),
         photo_image=photo_image,
+        photo_image_copyright=results.get("photo_image_copyright", ""),
         photo_carte_presse_image=photo_carte_presse_image,
         gender=results.get("civilite", ""),
         email=results.get("email", ""),
@@ -538,7 +539,9 @@ def _update_from_current_user(orig_user: User) -> User:
 
     cloned_user.last_name = results.get("last_name", "")
     cloned_user.first_name = results.get("first_name", "")
+
     cloned_user.photo_image = deserialize_file_object(results.get("photo"))
+    cloned_user.photo_image_copyright = results.get("photo_image_copyright", "")
 
     cloned_user.photo_carte_presse_image = deserialize_file_object(
         results.get("photo_carte_presse")
@@ -685,6 +688,7 @@ def _populate_kyc_data_from_user(user: User) -> dict[str, Any]:
         data["photo_carte_presse"] = user.photo_carte_presse_image
     else:
         data["photo_carte_presse"] = None
+    data["photo_image_copyright"] = user.photo_image_copyright
     data["last_name"] = user.last_name
     data["first_name"] = user.first_name
     data["civilite"] = user.gender
