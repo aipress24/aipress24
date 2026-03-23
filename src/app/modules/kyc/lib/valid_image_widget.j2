@@ -1,12 +1,16 @@
-<div x-data="validImageSquareCropper({
+<div x-data="validImageCropper({
     maxImageSize: {{ field.max_image_size }},
     preloadedImageUrl: '{{ field.get_image_url() or "" }}',
-    preloadFilesize: {{ field.preload_filesize }}
+    preloadFilesize: {{ field.preload_filesize }},
+    aspectRatio: {{ field.aspect_ratio if field.aspect_ratio else 'null' }},
+    autoCropArea: {{ field.auto_crop_area }},
+    maxOutputWidth: {{ field.max_output_width }},
+    maxOutputHeight: {{ field.max_output_height }}
 })">
     <template x-if="imagePreloaded && !imgsrc && !imageValidated">
         <div>
             <p class="my-0 mx-0 text-gray-900 text-sm">Image actuelle&nbsp;:</p>
-            <img :src="preloaded_image_url" class="my-2 max-w-32 max-h-32 rounded-lg border">
+            <img :src="preloaded_image_url" class="my-2 max-w-32 max-h-32 border">
             <p class="my-2 mx-0 text-gray-900 text-sm">Remplacer par&nbsp;:</p>
         </div>
     </template>
@@ -14,13 +18,13 @@
     <template x-if="imageValidated">
         <div>
             <p class="my-0 mx-0 text-gray-900 text-sm">Image validée&nbsp;:</p>
-            <img :src="validatedImageUrl" class="my-2 max-w-32 max-h-32 rounded-lg border">
+            <img :src="validatedImageUrl" class="my-2 max-w-32 max-h-32 border">
             <p class="my-2 mx-0 text-gray-900 text-sm">Remplacer par&nbsp;:</p>
         </div>
     </template>
 
     <div x-show="imgsrc && !imageValidated" class="mb-4" style="display: none;">
-        <p class="font-semibold mb-1 text-sm">Recadrer l'image (Carré)</p>
+        <p class="font-semibold mb-1 text-sm">{{ field.crop_label }}</p>
         <div class="bg-gray-100 rounded-lg overflow-hidden w-full" style="height: 300px;">
             <img x-ref="cropperImage" :src="imgsrc" class="block w-full" @load="initCropper">
         </div>
@@ -60,9 +64,6 @@
         accept="image/png, image/jpeg"
     >
 
-    {# Hidden input to store the cropped image data if we decide to use it,
-       or we can just let the server handle the original file if no crop is needed.
-       But for 'Square' we probably want to enforce cropping. #}
     <input type="hidden" name="{{ field.name }}" id="{{ field.id }}" x-ref="croppedData">
 
     <input
@@ -78,8 +79,8 @@
 </div>
 
 <script>
-if (typeof validImageSquareCropper === 'undefined') {
-    window.validImageSquareCropper = function(config) {
+if (typeof validImageCropper === 'undefined') {
+    window.validImageCropper = function(config) {
         return {
             imagePreloaded: config.preloadFilesize > 0,
             preloaded_image_url: config.preloadedImageUrl,
@@ -92,6 +93,7 @@ if (typeof validImageSquareCropper === 'undefined') {
             },
             imageValidated: false,
             validatedImageUrl: null,
+            cropperConfig: config,
 
             fileChosen(event) {
                 this.imageError = '';
@@ -126,10 +128,10 @@ if (typeof validImageSquareCropper === 'undefined') {
                 this.$nextTick(() => {
                     if (this.cropper) this.cropper.destroy();
                     const image = this.$refs.cropperImage;
-                    this.cropper = new Cropper(image, {
-                        aspectRatio: 1 / 1,
+
+                    const cropperOptions = {
                         viewMode: 2,
-                        autoCropArea: 1,
+                        autoCropArea: config.autoCropArea,
                         responsive: true,
                         background: true,
                         ready: () => {
@@ -139,7 +141,13 @@ if (typeof validImageSquareCropper === 'undefined') {
                         cropend: () => {
                             this.imageValidated = false;
                         }
-                    });
+                    };
+
+                    if (config.aspectRatio !== null) {
+                        cropperOptions.aspectRatio = config.aspectRatio;
+                    }
+
+                    this.cropper = new Cropper(image, cropperOptions);
 
                     // Also update when image is loaded/dimensions ready
                     const img = new Image();
@@ -153,14 +161,13 @@ if (typeof validImageSquareCropper === 'undefined') {
             validateCrop() {
                 if (!this.cropper) return;
                 const canvas = this.cropper.getCroppedCanvas({
-                    width: 400,
-                    height: 400,
+                    maxWidth: config.maxOutputWidth,
+                    maxHeight: config.maxOutputHeight,
                 });
                 if (canvas) {
                     this.validatedImageUrl = canvas.toDataURL('image/jpeg', 0.9);
                     this.$refs.croppedData.value = this.validatedImageUrl;
                     this.imageValidated = true;
-                    // Destroy cropper to free resources
                     if (this.cropper) {
                         this.cropper.destroy();
                         this.cropper = null;
