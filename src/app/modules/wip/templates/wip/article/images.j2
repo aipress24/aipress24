@@ -120,6 +120,7 @@
               :class="{ 'hidden': imageValidated }"
             >
             <input type="hidden" name="image" x-ref="croppedData">
+            <input type="hidden" name="image_filename" x-ref="imageFilename">
           </div>
         </div>
 
@@ -171,13 +172,16 @@
         },
         imageValidated: false,
         validatedImageUrl: null,
+        originalFilename: null,
         maxImageSize: 4096, // 4MB in KB
 
         fileChosen(event) {
           this.imageError = '';
           this.imgsrc = null;
           this.imageValidated = false;
+          this.originalFilename = null;
           this.$refs.croppedData.value = '';
+          this.$refs.imageFilename.value = '';
           if (this.cropper) {
             this.cropper.destroy();
             this.cropper = null;
@@ -195,6 +199,9 @@
             this.imageError = `L'image est trop grande (${this.image.size}KB, max ${this.maxImageSize}KB)`;
             return;
           }
+
+          this.originalFilename = file.name;
+          this.$refs.imageFilename.value = file.name;
 
           const reader = new FileReader();
           reader.onload = (e) => {
@@ -245,7 +252,9 @@
           this.imgsrc = null;
           this.imageValidated = false;
           this.validatedImageUrl = null;
+          this.originalFilename = null;
           this.$refs.croppedData.value = '';
+          this.$refs.imageFilename.value = '';
           this.$refs.imageFile.value = '';
           if (this.cropper) {
             this.cropper.destroy();
