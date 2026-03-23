@@ -729,6 +729,7 @@ def clone_user(orig_user: User) -> User:
         first_name=orig_user.first_name,
         last_name=orig_user.last_name,
         photo_image=orig_user.photo_image,
+        photo_image_copyright=orig_user.photo_image_copyright,
         photo_carte_presse_image=orig_user.photo_carte_presse_image,
         # job_title=orig_user.job_title,
         tel_mobile=orig_user.tel_mobile,
@@ -781,6 +782,7 @@ def merge_values_from_other_user(orig_user: User, modified_user: User) -> None:
     orig_user.first_name = modified_user.first_name
     orig_user.last_name = modified_user.last_name
     orig_user.photo_image = modified_user.photo_image
+    orig_user.photo_image_copyright = modified_user.photo_image_copyright
     orig_user.photo_carte_presse_image = modified_user.photo_carte_presse_image
     # orig_user.job_title = modified_user.job_title
     orig_user.tel_mobile = modified_user.tel_mobile
