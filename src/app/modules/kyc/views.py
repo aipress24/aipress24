@@ -744,7 +744,7 @@ def collect_photo_url(
     survey_field: SurveyField,
 ) -> str:
     url = ""
-    if survey_field.type == "photo":
+    if survey_field.type in {"photo", "photo_square"}:
         file_object = kyc_data.get(survey_field.name)
         if isinstance(file_object, FileObject):
             url = file_object.sign()
