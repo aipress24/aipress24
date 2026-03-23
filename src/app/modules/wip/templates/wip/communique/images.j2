@@ -4,22 +4,6 @@
 
 {% block body_content %}
 
-  <script type="module">
-    import {Application, Controller} from "https://unpkg.com/@hotwired/stimulus/dist/stimulus.js";
-
-    window.Stimulus = Application.start();
-
-    Stimulus.register("hello", class extends Controller {
-      static targets = ["name"];
-
-      connect() {
-        const element = this.nameTarget
-        const name = element.value
-        console.log(`Hello, ${name}!`)
-      }
-    })
-  </script>
-
   <h1 class="aui-title">Editeur d'images</h1>
 
   <h2 class="aui-title">Images</h2>
@@ -82,7 +66,7 @@
     {% endfor %}
   </div>
 
-  <form action="" method="post" enctype="multipart/form-data">
+  <form action="" method="post" enctype="multipart/form-data" x-data="communiqueImageCropper()">
     <div class="border-y border-gray-900/10 pb-12">
       <h2 class="aui-title mt-6">Ajouter une image</h2>
 
@@ -90,7 +74,37 @@
         <div class="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
           <div class="col-span-full">
             <label for="photo" class="block text-sm font-medium leading-6 text-gray-900">Image (max. 4 Mo)</label>
-            <input type="file" name="image" accept=".png,.jpeg,.jpg,image/png,image/jpeg">
+
+            {# Cropper container #}
+            <div x-show="imgsrc && !imageValidated" class="mb-4 mt-4" style="display: none;">
+              <p class="font-semibold mb-1 text-sm">Recadrer l'image</p>
+              <div class="bg-gray-100 rounded-lg overflow-hidden w-full" style="height: 400px;">
+                <img x-ref="cropperImage" :src="imgsrc" class="block w-full" @load="initCropper">
+              </div>
+              <p class="mt-2 text-xs text-gray-500" x-show="image.size">
+                Taille originale: <span x-text="image.size"></span>KB <span x-text="image.dimension"></span>
+              </p>
+            </div>
+
+            {# Validated image preview #}
+            <template x-if="imageValidated">
+              <div class="mt-4">
+                <p class="my-0 mx-0 text-gray-900 text-sm">Image validée :</p>
+                <img :src="validatedImageUrl" class="my-2 max-w-64 max-h-48 border">
+              </div>
+            </template>
+
+            <input
+              type="file"
+              name="image_file"
+              accept=".png,.jpeg,.jpg,image/png,image/jpeg"
+              x-ref="imageFile"
+              @change="fileChosen"
+              class="mt-2 block w-full text-sm text-gray-900"
+              :class="{ 'hidden': imageValidated }"
+            >
+            <input type="hidden" name="image" x-ref="croppedData">
+            <input type="hidden" name="image_filename" x-ref="imageFilename">
           </div>
         </div>
 
@@ -112,21 +126,140 @@
           </div>
         </div>
 
+        {# Submit button - shown when image is selected, validates crop and submits #}
+        <div class="sm:col-span-6 flex items-center gap-3" x-show="imgsrc" style="display: none;">
+          <button
+            type="submit"
+            name="_action" value="add-image"
+            @click="validateCrop()"
+            class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+          >
+            Valider le recadrage et ajouter l'image
+          </button>
+          <button
+            type="button"
+            @click="resetImage()"
+            class="text-sm text-gray-500 hover:text-gray-700"
+          >
+            Annuler
+          </button>
+        </div>
+
       </div>
     </div>
 
     <div class="mt-6 flex items-center justify-end gap-x-6">
       <button
           name="_action" value="cancel"
-          type="submit" class="text-sm font-semibold leading-6 text-gray-900"
-          >Retour</button>
-      <button
           type="submit"
-          name="_action" value="add-image"
-          class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-          >Ajouter</button>
+          class="rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600"
+          >Retour aux communiqués</button>
     </div>
   </form>
 
+  <script>
+    function communiqueImageCropper() {
+      return {
+        imgsrc: null,
+        cropper: null,
+        imageError: '',
+        image: {
+          size: null,
+          dimension: null,
+        },
+        imageValidated: false,
+        validatedImageUrl: null,
+        originalFilename: null,
+        maxImageSize: 4096, // 4MB in KB
+
+        fileChosen(event) {
+          this.imageError = '';
+          this.imgsrc = null;
+          this.imageValidated = false;
+          this.originalFilename = null;
+          this.$refs.croppedData.value = '';
+          this.$refs.imageFilename.value = '';
+          if (this.cropper) {
+            this.cropper.destroy();
+            this.cropper = null;
+          }
+
+          const file = event.target.files[0];
+          if (!file) return;
+          if (file.type.indexOf('image/') !== 0) {
+            this.imageError = 'Le fichier doit être une image.';
+            return;
+          }
+
+          this.image.size = Math.floor(file.size / 1024);
+          if (this.image.size > this.maxImageSize) {
+            this.imageError = `L'image est trop grande (${this.image.size}KB, max ${this.maxImageSize}KB)`;
+            return;
+          }
+
+          this.originalFilename = file.name;
+          this.$refs.imageFilename.value = file.name;
+
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            this.imgsrc = e.target.result;
+          };
+          reader.readAsDataURL(file);
+        },
+
+        initCropper() {
+          this.$nextTick(() => {
+            if (this.cropper) this.cropper.destroy();
+            const image = this.$refs.cropperImage;
+            this.cropper = new Cropper(image, {
+              viewMode: 2,
+              autoCropArea: 1,
+              responsive: true,
+              background: true,
+            });
+
+            // Get image dimensions
+            const img = new Image();
+            img.onload = () => {
+              this.image.dimension = `(${img.width}x${img.height})`;
+            };
+            img.src = this.imgsrc;
+          });
+        },
+
+        validateCrop() {
+          if (!this.cropper) return;
+          const canvas = this.cropper.getCroppedCanvas({
+            maxWidth: 1600,
+            maxHeight: 1600,
+          });
+          if (canvas) {
+            this.validatedImageUrl = canvas.toDataURL('image/jpeg', 0.9);
+            this.$refs.croppedData.value = this.validatedImageUrl;
+            this.imageValidated = true;
+            // Destroy cropper to free resources
+            if (this.cropper) {
+              this.cropper.destroy();
+              this.cropper = null;
+            }
+          }
+        },
+
+        resetImage() {
+          this.imgsrc = null;
+          this.imageValidated = false;
+          this.validatedImageUrl = null;
+          this.originalFilename = null;
+          this.$refs.croppedData.value = '';
+          this.$refs.imageFilename.value = '';
+          this.$refs.imageFile.value = '';
+          if (this.cropper) {
+            this.cropper.destroy();
+            this.cropper = null;
+          }
+        }
+      }
+    }
+  </script>
 
 {% endblock %}
