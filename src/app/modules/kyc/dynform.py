@@ -253,7 +253,7 @@ def custom_photo_field_standard(
     )
 
 
-def custom_photo_field(
+def custom_photo_square_field(
     field: SurveyField,
     mandatory_code: str = "",
     param: str = "",
@@ -268,7 +268,7 @@ def custom_photo_field(
     label = _filter_public_info(label, field.public_maxi)
     label = _filter_mandatory_label(label, mandatory_code)
     render_kw: dict[str, Any] = {
-        "kyc_type": "photo",
+        "kyc_type": "photo_square",
         "kyc_code": mandatory_code,
         "kyc_message": field.upper_message,
     }
@@ -839,7 +839,8 @@ FIELD_TYPE_SELECTOR: Mapping[str, Callable] = {
     "string": custom_string_field,
     "textarea": custom_textarea_field,
     "textarea300": custom_textarea300_field,
-    "photo": custom_photo_field,
+    "photo_square": custom_photo_square_field,
+    "photo": custom_photo_field_standard,
     "email": custom_email_field,
     "email_free": custom_email_free_field,
     "tel": custom_tel_field,
@@ -953,7 +954,7 @@ def generate_form(
                 continue
             group_ordered_fields.append(profile_field.name)
             extra_params = {}
-            if profile_key == "photo":
+            if profile_key in {"photo", "photo_square"}:
                 extra_params["file_object"] = form_data.get(profile_field.name)
 
             field_widget = field_fct(
