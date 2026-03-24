@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 from io import BytesIO
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 import advanced_alchemy
 from flask import (
@@ -26,6 +26,7 @@ from app.flask.extensions import db
 from app.flask.lib.constants import EMPTY_PNG
 from app.flask.routing import url_for
 from app.lib.file_object_utils import create_file_object
+from app.lib.image_utils import extract_image_from_request
 from app.logging import warn
 from app.models.lifecycle import PublicationStatus
 from app.modules.wip.models.eventroom import (
@@ -44,6 +45,9 @@ from app.signals import (
 from ._base import BaseWipView
 from ._forms import EventForm
 from ._table import BaseTable
+
+if TYPE_CHECKING:
+    from app.lib.image_utils import UploadedImageData
 
 
 class EventsTable(BaseTable):
@@ -188,18 +192,23 @@ class EventsWipView(BaseWipView):
         event_repo = self._get_repo()
         image_repo = EventImageRepository(session=db.session)  # type: ignore[arg-type]
 
-        image = request.files["image"]
-        image_bytes = image.read()
+        # Handle both regular file upload and base64 data URL from cropper
+        result: UploadedImageData | None = extract_image_from_request(
+            file_storage=request.files.get("image"),
+            data_url=request.form.get("image"),
+            orig_filename=request.form.get("image_filename") or None,
+        )
 
-        if not image_bytes:
+        if result is None:
             flash("L'image est vide")
             return redirect(url_for("EventsWipView:images", id=event.id))
+
+        image_bytes = result.bytes
+        image_filename = result.filename
+        image_content_type = result.content_type
         if len(image_bytes) >= MAX_IMAGE_SIZE:
             flash("L'image est trop volumineuse")
             return redirect(url_for("EventsWipView:images", id=event.id))
-
-        image_filename = image.filename or "noname.jpg"
-        image_content_type = image.content_type or "application/binary"
         caption = request.form.get("caption", "").strip()
         copyright = request.form.get("copyright", "").strip()
 
