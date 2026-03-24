@@ -106,16 +106,20 @@ def configure_content():
                 warn(f"Error uploading logo: {e}")
                 flash(f"Erreur lors de l'upload du logo: {e}", "error")
 
-        # second image item: cover_image
-        bandeau_file = request.files.get("bandeau_image")
-        if bandeau_file and bandeau_file.filename:
+        # cover_image (bandeau)
+        bandeau_result = extract_image_from_request(
+            file_storage=request.files.get("bandeau_image"),
+            data_url=request.form.get("bandeau_image"),
+            orig_filename=request.form.get("bandeau_image_filename") or None,
+        )
+        if bandeau_result:
             try:
-                content = bandeau_file.read()
+                content = bandeau_result.bytes
                 if len(content) < MAX_IMAGE_SIZE:
                     file_obj = create_file_object(
                         content=content,
-                        original_filename=bandeau_file.filename,
-                        content_type=bandeau_file.content_type,
+                        original_filename=bandeau_result.filename,
+                        content_type=bandeau_result.content_type,
                     )
                     # Save the file to S3 storage (required before assigning to model)
                     saved_file_obj = file_obj.save()
@@ -124,7 +128,7 @@ def configure_content():
                     modified = True
                     flash("Bandeau mis à jour avec succès", "success")
                     warn(
-                        f"Bandeau updated for BW {bandeau_file.filename!r} {business_wall.id}"
+                        f"Bandeau updated for BW {bandeau_result.filename!r} {business_wall.id}"
                     )
                 else:
                     flash("L'image du bandeau est trop volumineuse (max 4MB)", "error")
