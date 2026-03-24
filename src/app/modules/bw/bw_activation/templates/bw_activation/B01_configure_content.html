@@ -1,32 +1,59 @@
 {% extends "layout.html" %}
-
 {% block title %}Configurer le Contenu du Business Wall{% endblock %}
-
 {% block content %}
+    <script id="ontology-data" type="application/json">
+        {
+            "typeOrga": {
+                "field1": {{ type_orga_ontology.field1 | tojson }},
+                "field2": {{ type_orga_ontology.field2 | tojson }},
+                "current_main": {{ (business_wall.type_organisation or []) | tojson }},
+                "current_detail": {{ (business_wall.type_organisation_detail or []) | tojson }}
+            },
+            "secteursActivite": {
+                "field1": {{ secteurs_activite_ontology.field1 | tojson }},
+                "field2": {{ secteurs_activite_ontology.field2 | tojson }},
+                "current_main": {{ (business_wall.secteurs_activite or []) | tojson }},
+                "current_detail": {{ (business_wall.secteurs_activite_detail or []) | tojson }}
+            },
+            "interestPolitical": {
+                "field1": {{ interest_political_ontology.field1 | tojson }},
+                "field2": {{ interest_political_ontology.field2 | tojson }},
+                "current_main": {{ (business_wall.interest_political or []) | tojson }},
+                "current_detail": {{ (business_wall.interest_political_detail or []) | tojson }}
+            },
+            "interestEconomics": {
+                "field1": {{ interest_economics_ontology.field1 | tojson }},
+                "field2": {{ interest_economics_ontology.field2 | tojson }},
+                "current_main": {{ (business_wall.interest_economics or []) | tojson }},
+                "current_detail": {{ (business_wall.interest_economics_detail or []) | tojson }}
+            },
+            "interestAssociation": {
+                "field1": {{ interest_association_ontology.field1 | tojson }},
+                "field2": {{ interest_association_ontology.field2 | tojson }},
+                "current_main": {{ (business_wall.interest_association or []) | tojson }},
+                "current_detail": {{ (business_wall.interest_association_detail or []) | tojson }}
+            },
+            "currentZipValue": {{ (business_wall.pays_zip_ville_detail or '') | tojson }}
+        }
+    </script>
     <div class="max-w-4xl mx-auto">
         <div class="bg-white p-8 rounded-2xl shadow-lg border border-gray-200">
-            <h1 class="text-3xl font-bold text-gray-900">
-                1- Configurer le Contenu du Business Wall
-            </h1>
+            <h1 class="text-3xl font-bold text-gray-900">1- Configurer le Contenu du Business Wall</h1>
             <p class="mt-2 text-gray-600">
                 Remplissez les informations de votre Business Wall qui seront
                 visibles publiquement sur AiPRESS24.
             </p>
-
             <div class="mt-4 p-4 bg-blue-50 rounded-md border border-blue-200 flex justify-between items-center">
                 <p class="text-sm text-gray-700">
                     <strong>Type de Business Wall :</strong> {{ bw_info.name }}
                 </p>
-                <button
-                    type="button"
-                    data-modal-target="confirm_resiliation_popup"
-                    data-modal-toggle="confirm_resiliation_popup"
-                    class="text-red-600 hover:text-red-800 text-sm font-medium underline"
-                >
+                <button type="button"
+                        data-modal-target="confirm_resiliation_popup"
+                        data-modal-toggle="confirm_resiliation_popup"
+                        class="text-red-600 hover:text-red-800 text-sm font-medium underline">
                     Résilier l'abonnement
                 </button>
             </div>
-
             <!-- Resiliation Confirmation Modal -->
             <div id="confirm_resiliation_popup"
                  data-modal-backdrop="static"
@@ -36,201 +63,121 @@
                 <div class="relative p-4 w-full max-w-md max-h-full">
                     <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
                         <div class="p-4 md:p-5 text-center">
-                            <svg class="mx-auto mb-4 text-red-500 w-12 h-12 dark:text-red-400" aria-hidden="true"
-                                 xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                      d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+                            <svg class="mx-auto mb-4 text-red-500 w-12 h-12 dark:text-red-400"
+                                 aria-hidden="true"
+                                 xmlns="http://www.w3.org/2000/svg"
+                                 fill="none"
+                                 viewBox="0 0 20 20">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                             </svg>
-
-                            <h3 class="mb-1 text-lg font-normal text-gray-500 dark:text-gray-400"
-                            >Confirmer la résiliation de l'abonnement ?
-                            </h3>
-
+                            <h3 class="mb-1 text-lg font-normal text-gray-500 dark:text-gray-400">Confirmer la résiliation de l'abonnement ?</h3>
                             <p class="text-sm text-gray-600 mb-4">
                                 Cette action est irréversible. Votre Business Wall sera définitivement désactivé.
                             </p>
-
-                            <button
-                                type="button"
-                                hx-post="{{ url_for('bw_activation.cancel_subscription') }}"
-                                data-modal-hide="confirm_resiliation_popup"
-                                class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center"
-                            >Oui, résilier
+                            <button type="button"
+                                    hx-post="{{ url_for('bw_activation.cancel_subscription') }}"
+                                    data-modal-hide="confirm_resiliation_popup"
+                                    class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center">
+                                Oui, résilier
                             </button>
-                            <button
-                                type="button"
-                                data-modal-hide="confirm_resiliation_popup"
-                                class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
-                            >Annuler
+                            <button type="button"
+                                    data-modal-hide="confirm_resiliation_popup"
+                                    class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">
+                                Annuler
                             </button>
                         </div>
                     </div>
                 </div>
             </div>
-
             <!-- Flash messages -->
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
                     <div class="mt-4 space-y-2">
                         {% for category, message in messages %}
-                            <div
-                                class="p-4 rounded-md {% if category == 'error' %}
-                                    bg-red-50 text-red-800 border border-red-200
-                                {% else %}
-                                    bg-green-50 text-green-800 border
-                                    border-green-200
-                                {% endif %}"
-                            >
+                            <div class="p-4 rounded-md {% if category == 'error' %} bg-red-50 text-red-800 border border-red-200 {% else %} bg-green-50 text-green-800 border border-green-200 {% endif %}">
                                 {{ message }}
                             </div>
                         {% endfor %}
                     </div>
                 {% endif %}
             {% endwith %}
-
-            <form
-                method="POST"
-                enctype="multipart/form-data"
-                class="mt-8 space-y-10"
-            >
+            <form method="POST" enctype="multipart/form-data" class="mt-8 space-y-10">
                 <!-- Section: Graphics (all types) -->
                 <fieldset>
-                    <legend
-                        class="text-2xl font-semibold text-blue-800 border-b pb-3 mb-6 w-full"
-                    >
-                        Graphisme
-                    </legend>
-
+                    <legend class="text-2xl font-semibold text-blue-800 border-b pb-3 mb-6 w-full">Graphisme</legend>
                     <!-- Logo image -->
                     <div class="space-y-6">
                         <div>
-                            <label
-                                class="block text-sm font-medium text-gray-900 mb-2"
-                            >
-                                Logo de votre organisation
-                            </label>
-
+                            <label class="block text-sm font-medium text-gray-900 mb-2">Logo de votre organisation</label>
                             <div class="mb-4">
-                                <div class="text-xs text-gray-500 mb-2">
-                                    Logo actuel
-                                </div>
-                                <div
-                                    id="current_logo_wrapper"
-                                    class="p-4 bg-gray-50 rounded-md flex items-center justify-center min-h-[100px]"
-                                >
+                                <div class="text-xs text-gray-500 mb-2">Logo actuel</div>
+                                <div id="current_logo_wrapper"
+                                     class="p-4 bg-gray-50 rounded-md flex items-center justify-center min-h-[100px]">
                                     {% if business_wall.logo_image %}
-                                        <img
-                                            id="currentLogo"
-                                            src="{{ business_wall.logo_image_signed_url() }}"
-                                            alt="Logo actuel"
-                                            class="h-20 w-auto object-contain max-w-full"
-                                        />
+                                        <img id="currentLogo"
+                                             src="{{ business_wall.logo_image_signed_url() }}"
+                                             alt="Logo actuel"
+                                             class="h-20 w-auto object-contain max-w-full" />
                                     {% else %}
-                                        <p class="text-gray-500 text-sm">
-                                            Aucun logo.
-                                        </p>
+                                        <p class="text-gray-500 text-sm">Aucun logo.</p>
                                     {% endif %}
                                 </div>
                             </div>
-
                             <!-- New logo hidden by default -->
-                            <div
-                                class="mb-4"
-                                id="new_logo_block"
-                                style="display: none;"
-                            >
-                                <div class="text-xs text-gray-500 mb-2">
-                                    Aperçu du nouveau logo
+                            <div class="mb-4" id="new_logo_block" style="display: none;">
+                                <div class="text-xs text-gray-500 mb-2">Aperçu du nouveau logo</div>
+                                <div id="new_logo_container"
+                                     class="p-4 bg-blue-50 rounded-md flex items-center justify-center min-h-[100px]">
                                 </div>
-                                <div
-                                    id="new_logo_container"
-                                    class="p-4 bg-blue-50 rounded-md flex items-center justify-center min-h-[100px]"
-                                ></div>
                             </div>
-
                             <div class="pt-2">
-                                <input
-                                    type="file"
-                                    id="logo_image"
-                                    name="logo_image"
-                                    accept=".png,.jpeg,.jpg,image/png,image/jpeg"
-                                    class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none"
-                                />
-                                <p class="mt-1 text-xs text-gray-500">
-                                    Format PNG, JPG, JPEG (Max 4MB)
-                                </p>
+                                <input type="file"
+                                       id="logo_image"
+                                       name="logo_image"
+                                       accept=".png,.jpeg,.jpg,image/png,image/jpeg"
+                                       class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none" />
+                                <p class="mt-1 text-xs text-gray-500">Format PNG, JPG, JPEG (Max 4MB)</p>
                             </div>
                         </div>
-
                         <!-- Cover image -->
                         <div>
-                            <label
-                                class="block text-sm font-medium text-gray-900 mb-2"
-                            >
-                                Bandeau du Business Wall
-                            </label>
-
+                            <label class="block text-sm font-medium text-gray-900 mb-2">Bandeau du Business Wall</label>
                             <div class="mb-4">
-                                <div class="text-xs text-gray-500 mb-2">
-                                    Bandeau actuel
-                                </div>
-                                <div
-                                    id="current_bandeau_wrapper"
-                                    class="p-4 bg-gray-50 rounded-md flex items-center justify-center min-h-[100px]"
-                                >
+                                <div class="text-xs text-gray-500 mb-2">Bandeau actuel</div>
+                                <div id="current_bandeau_wrapper"
+                                     class="p-4 bg-gray-50 rounded-md flex items-center justify-center min-h-[100px]">
                                     {% if business_wall.cover_image %}
-                                        <img
-                                            id="currentBandeau"
-                                            src="{{ business_wall.cover_image_signed_url() }}"
-                                            alt="Bandeau actuel"
-                                            class="w-full max-w-md h-auto object-contain aspect-[4/1]"
-                                        />
+                                        <img id="currentBandeau"
+                                             src="{{ business_wall.cover_image_signed_url() }}"
+                                             alt="Bandeau actuel"
+                                             class="w-full max-w-md h-auto object-contain aspect-[4/1]" />
                                     {% else %}
-                                        <p class="text-gray-500 text-sm">
-                                            Aucun bandeau.
-                                        </p>
+                                        <p class="text-gray-500 text-sm">Aucun bandeau.</p>
                                     {% endif %}
                                 </div>
                             </div>
-
                             <!-- New bandeau hidden by default -->
-                            <div
-                                class="mb-4"
-                                id="new_bandeau_block"
-                                style="display: none;"
-                            >
-                                <div class="text-xs text-gray-500 mb-2">
-                                    Aperçu du nouveau bandeau
+                            <div class="mb-4" id="new_bandeau_block" style="display: none;">
+                                <div class="text-xs text-gray-500 mb-2">Aperçu du nouveau bandeau</div>
+                                <div id="new_bandeau_container"
+                                     class="p-4 bg-blue-50 rounded-md flex items-center justify-center min-h-[100px]">
                                 </div>
-                                <div
-                                    id="new_bandeau_container"
-                                    class="p-4 bg-blue-50 rounded-md flex items-center justify-center min-h-[100px]"
-                                ></div>
                             </div>
-
                             <div class="pt-2">
-                                <input
-                                    type="file"
-                                    id="bandeau_image"
-                                    name="bandeau_image"
-                                    accept=".png,.jpeg,.jpg,image/png,image/jpeg"
-                                    class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none"
-                                />
+                                <input type="file"
+                                       id="bandeau_image"
+                                       name="bandeau_image"
+                                       accept=".png,.jpeg,.jpg,image/png,image/jpeg"
+                                       class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none" />
                                 <p class="mt-1 text-xs text-gray-500">
                                     Format PNG, JPG, JPEG (Max 4MB). Ratio
                                     recommandé 4:1 (ex: 1200x300px)
                                 </p>
                             </div>
                         </div>
-
                         <!-- Gallery images -->
                         <div>
-                            <label
-                                class="block text-sm font-medium text-gray-900 mb-2"
-                            >
-                                Galerie d'images
-                            </label>
-
+                            <label class="block text-sm font-medium text-gray-900 mb-2">Galerie d'images</label>
                             <!-- Current gallery images -->
                             {% set gallery_images = business_wall.gallery_image_signed_urls() %}
                             {% if gallery_images %}
@@ -239,68 +186,42 @@
                                         Images actuelles
                                         ({{ gallery_images|length }})
                                     </div>
-                                    <div
-                                        class="grid grid-cols-2 md:grid-cols-3 gap-4"
-                                    >
+                                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
                                         {% for img in gallery_images %}
                                             <div class="relative group">
-                                                <img
-                                                    src="{{ img.url }}"
-                                                    alt="{{ img.filename }}"
-                                                    class="w-full max-h-48 object-contain rounded-md border border-gray-200"
-                                                />
-                                                <div
-                                                    class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all rounded-md flex items-center justify-center"
-                                                >
-                                                    <button
-                                                        type="submit"
-                                                        name="remove_gallery_image"
-                                                        value="{{ img.index }}"
-                                                        class="opacity-0 group-hover:opacity-100 bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700 transition-all"
-                                                        onclick="return confirm('Supprimer cette image ?')"
-                                                    >
+                                                <img src="{{ img.url }}"
+                                                     alt="{{ img.filename }}"
+                                                     class="w-full max-h-48 object-contain rounded-md border border-gray-200" />
+                                                <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all rounded-md flex items-center justify-center">
+                                                    <button type="submit"
+                                                            name="remove_gallery_image"
+                                                            value="{{ img.index }}"
+                                                            class="opacity-0 group-hover:opacity-100 bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700 transition-all"
+                                                            onclick="return confirm('Supprimer cette image ?')">
                                                         Supprimer
                                                     </button>
                                                 </div>
-                                                <div
-                                                    class="text-xs text-gray-500 mt-1 truncate"
-                                                >
-                                                    {{ img.filename }}
-                                                </div>
+                                                <div class="text-xs text-gray-500 mt-1 truncate">{{ img.filename }}</div>
                                             </div>
                                         {% endfor %}
                                     </div>
                                 </div>
                             {% else %}
-                                <p class="text-gray-500 text-sm mb-4">
-                                    Aucune image dans la galerie.
-                                </p>
+                                <p class="text-gray-500 text-sm mb-4">Aucune image dans la galerie.</p>
                             {% endif %}
-
                             <!-- New gallery images preview -->
-                            <div
-                                class="mb-4"
-                                id="new_gallery_block"
-                                style="display: none;"
-                            >
-                                <div class="text-xs text-gray-500 mb-2">
-                                    Nouvelles images à ajouter
-                                </div>
-                                <div
-                                    id="new_gallery_container"
-                                    class="grid grid-cols-2 md:grid-cols-3 gap-4"
-                                ></div>
+                            <div class="mb-4" id="new_gallery_block" style="display: none;">
+                                <div class="text-xs text-gray-500 mb-2">Nouvelles images à ajouter</div>
+                                <div id="new_gallery_container"
+                                     class="grid grid-cols-2 md:grid-cols-3 gap-4"></div>
                             </div>
-
                             <div class="pt-2">
-                                <input
-                                    type="file"
-                                    id="gallery_images"
-                                    name="gallery_images"
-                                    accept=".png,.jpeg,.jpg,image/png,image/jpeg"
-                                    multiple
-                                    class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none"
-                                />
+                                <input type="file"
+                                       id="gallery_images"
+                                       name="gallery_images"
+                                       accept=".png,.jpeg,.jpg,image/png,image/jpeg"
+                                       multiple
+                                       class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none" />
                                 <p class="mt-1 text-xs text-gray-500">
                                     Format PNG, JPG, JPEG (Max 4MB par image).
                                     Sélectionnez une ou plusieurs images.
@@ -309,48 +230,35 @@
                         </div>
                     </div>
                 </fieldset>
-
                 <!-- Section: Administrative Info (type-specific) -->
                 <fieldset>
-                    <legend
-                        class="text-2xl font-semibold text-green-800 border-b pb-3 mb-6 w-full"
-                    >
-                        Informations Administratives
-                    </legend>
-
+                    <legend class="text-2xl font-semibold text-green-800 border-b pb-3 mb-6 w-full">Informations Administratives</legend>
                     <div class="space-y-6">
                         <!-- Generic organization name field (ALL types) -->
                         <div>
-                            <label
-                                class="block text-sm font-medium text-gray-900 mb-2"
-                                >Nom officiel de votre organisation
-                                <span class="text-red-600">*</span></label
-                            >
-                            <input
-                                type="text"
-                                name="name"
-                                value="{{ business_wall.name or '' }}"
-                                placeholder="Le nom qui s'affichera sur votre Business Wall"
-                                required
-                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-4 py-2 border"
-                            />
+                            <label class="block text-sm font-medium text-gray-900 mb-2">
+                                Nom officiel de votre organisation
+                                <span class="text-red-600">*</span>
+                            </label>
+                            <input type="text"
+                                   name="name"
+                                   value="{{ business_wall.name or '' }}"
+                                   placeholder="Le nom qui s'affichera sur votre Business Wall"
+                                   required
+                                   class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-4 py-2 border" />
                         </div>
-
                         <!-- Type of organization - Dual select -->
                         {% if bw_type in ['media', 'corporate_media', 'union', 'leaders_experts', 'transformers', 'academics'] %}
                             <div>
-                                <label class="block text-sm font-medium text-gray-900 mb-2">
-                                    Type de votre organisation
-                                </label>
+                                <label class="block text-sm font-medium text-gray-900 mb-2">Type de votre organisation</label>
                                 <!-- Main category select -->
-                                <select
-                                    id="type_organisation"
-                                    name="type_organisation"
-                                    class="block w-full mb-2"
-                                >
+                                <select id="type_organisation"
+                                        name="type_organisation"
+                                        class="block w-full mb-2">
                                     <option value="">-- Sélectionnez une catégorie --</option>
                                     {% for category, label in type_orga_ontology.field1 %}
-                                        <option value="{{ category }}" {% if business_wall.type_organisation and category in business_wall.type_organisation %}selected{% endif %}>
+                                        <option value="{{ category }}"
+                                                {% if business_wall.type_organisation and category in business_wall.type_organisation %}selected{% endif %}>
                                             {{ label }}
                                         </option>
                                     {% endfor %}
@@ -358,27 +266,23 @@
                                 <!-- Detail select -->
                                 <div class="min-h-10 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm sm:text-sm sm:leading-6">
                                     <label class="block text-xs text-gray-500 mb-1">Type détaillé</label>
-                                    <select
-                                        id="type_organisation_detail"
-                                        name="type_organisation_detail"
-                                        class="block w-full"
-                                    >
+                                    <select id="type_organisation_detail"
+                                            name="type_organisation_detail"
+                                            class="block w-full">
                                         <option value="">-- Sélectionnez d'abord une catégorie --</option>
                                     </select>
                                 </div>
-                                <p class="mt-1 text-xs text-gray-500">
-                                    Sélectionnez d'abord une catégorie, puis un type détaillé
-                                </p>
+                                <p class="mt-1 text-xs text-gray-500">Sélectionnez d'abord une catégorie, puis un type détaillé</p>
                             </div>
-
                             <script>
                                 // Convert ontology data to Tom Select format
+                                const rawOntologyData = JSON.parse(document.getElementById('ontology-data').textContent);
                                 const typeOrgaTomChoices = {
-                                    field1: {{ type_orga_ontology.field1 | tojson }}.map(item => ({ value: item[0], label: item[1] })),
+                                    field1: rawOntologyData.typeOrga.field1.map(item => ({ value: item[0], label: item[1] })),
                                     field2: []
                                 };
                                 // Prepare field2 options with category prefix
-                                const field2Data = {{ type_orga_ontology.field2 | tojson }};
+                                const field2Data = rawOntologyData.typeOrga.field2;
                                 for (const [category, items] of Object.entries(field2Data)) {
                                     items.forEach(item => {
                                         typeOrgaTomChoices.field2.push({
@@ -388,8 +292,8 @@
                                         });
                                     });
                                 }
-                                const currentTypeOrganisation = {{ (business_wall.type_organisation or []) | tojson }};
-                                const currentTypeOrganisationDetail = {{ (business_wall.type_organisation_detail or []) | tojson }};
+                                const currentTypeOrganisation = rawOntologyData.typeOrga.current_main;
+                                const currentTypeOrganisationDetail = rawOntologyData.typeOrga.current_detail;
 
                                 let typeOrgaTomSelect = null;
                                 let typeOrgaDetailTomSelect = null;
@@ -451,7 +355,7 @@
                                 }
 
                                 function updateTypeOrganisationDetailOptions(selectedCategory) {
-                                    if (!selectedCategory) {
+                                    if (!selectedCategory)  {
                                         typeOrgaDetailTomSelect.clear();
                                         typeOrgaDetailTomSelect.clearOptions();
                                         typeOrgaDetailTomSelect.disable();
@@ -471,308 +375,203 @@
                                 document.addEventListener('DOMContentLoaded', initTypeOrganisationTomSelect);
                             </script>
                         {% endif %}
-
                         <!-- Parent group/entity field (not for Media/Micro/Union) -->
                         {% if bw_type in ['corporate_media', 'pr', 'leaders_experts', 'transformers', 'academics'] %}
                             <div>
-                                <label
-                                    class="block text-sm font-medium text-gray-900 mb-2"
-                                    >Groupe ou entité de rattachement (si
-                                    applicable)</label
-                                >
-                                <input
-                                    type="text"
-                                    name="name_group"
-                                    value="{{ business_wall.name_group or '' }}"
-                                    placeholder="Nom du groupe ou de l'entité mère"
-                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-4 py-2 border"
-                                />
+                                <label class="block text-sm font-medium text-gray-900 mb-2">
+                                    Groupe ou entité de rattachement (si
+                                    applicable)
+                                </label>
+                                <input type="text"
+                                       name="name_group"
+                                       value="{{ business_wall.name_group or '' }}"
+                                       placeholder="Nom du groupe ou de l'entité mère"
+                                       class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-4 py-2 border" />
                             </div>
                         {% endif %}
-
                         <!-- Common fields: SIREN -->
                         {% if bw_type in ['media', 'micro', 'corporate_media', 'union', 'pr', 'leaders_experts', 'transformers', 'academics'] %}
                             <div>
-                                <label
-                                    class="block text-sm font-medium text-gray-900 mb-2"
-                                    >Numéro de SIREN
-                                    <span class="text-red-600">*</span></label
-                                >
-                                <input
-                                    type="text"
-                                    name="siren"
-                                    value="{{ business_wall.siren or '' }}"
-                                    placeholder="123 456 789"
-                                    required
-                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-4 py-2 border"
-                                />
+                                <label class="block text-sm font-medium text-gray-900 mb-2">
+                                    Numéro de SIREN
+                                    <span class="text-red-600">*</span>
+                                </label>
+                                <input type="text"
+                                       name="siren"
+                                       value="{{ business_wall.siren or '' }}"
+                                       placeholder="123 456 789"
+                                       required
+                                       class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-4 py-2 border" />
                             </div>
-
                             <div>
-                                <label
-                                    class="block text-sm font-medium text-gray-900 mb-2"
-                                    >Numéro de TVA Intra CEE</label
-                                >
-                                <input
-                                    type="text"
-                                    name="tva"
-                                    value="{{ business_wall.tva or '' }}"
-                                    placeholder="FR 12 345678901"
-                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-4 py-2 border"
-                                />
+                                <label class="block text-sm font-medium text-gray-900 mb-2">Numéro de TVA Intra CEE</label>
+                                <input type="text"
+                                       name="tva"
+                                       value="{{ business_wall.tva or '' }}"
+                                       placeholder="FR 12 345678901"
+                                       class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-4 py-2 border" />
                             </div>
                         {% endif %}
-
                         <!-- Media-specific: CPPAP -->
                         {% if bw_type == 'media' %}
                             <div>
-                                <label
-                                    class="block text-sm font-medium text-gray-900 mb-2"
-                                    >Numéro de CPPAP / Agrément</label
-                                >
-                                <textarea
-                                    name="agrement"
-                                    rows="3"
-                                    placeholder="Expliquez comment votre organe de presse est officiellement reconnu (n° de CPPAP, agrément ARCOM, etc.)"
-                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-4 py-2 border"
-                                >{{ business_wall.agrement or '' }}</textarea>
+                                <label class="block text-sm font-medium text-gray-900 mb-2">Numéro de CPPAP / Agrément</label>
+                                <textarea name="agrement"
+                                          rows="3"
+                                          placeholder="Expliquez comment votre organe de presse est officiellement reconnu (n° de CPPAP, agrément ARCOM, etc.)"
+                                          class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-4 py-2 border">{{ business_wall.agrement or '' }}</textarea>
                                 <p class="mt-1 text-xs text-gray-500">
                                     Information non publique - vérifiée par les
                                     équipes d'AiPRESS24
                                 </p>
                             </div>
-
                             <div>
-                                <label
-                                    class="block text-sm font-medium text-gray-900 mb-2"
-                                    >Nom officiel de l'organe de presse</label
-                                >
-                                <input
-                                    type="text"
-                                    name="name_official"
-                                    value="{{ business_wall.name_official or '' }}"
-                                    placeholder="Le nom qui s'affichera sur votre Business Wall"
-                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-4 py-2 border"
-                                />
+                                <label class="block text-sm font-medium text-gray-900 mb-2">Nom officiel de l'organe de presse</label>
+                                <input type="text"
+                                       name="name_official"
+                                       value="{{ business_wall.name_official or '' }}"
+                                       placeholder="Le nom qui s'affichera sur votre Business Wall"
+                                       class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-4 py-2 border" />
                             </div>
-
                             <div>
-                                <label
-                                    class="block text-sm font-medium text-gray-900 mb-2"
-                                    >Nature de votre organe de presse</label
-                                >
-                                <select
-                                    id="type_entreprise_media"
-                                    name="type_entreprise_media"
-                                    multiple
-                                    class="block w-full tom-select-multi"
-                                >
+                                <label class="block text-sm font-medium text-gray-900 mb-2">Nature de votre organe de presse</label>
+                                <select id="type_entreprise_media"
+                                        name="type_entreprise_media"
+                                        multiple
+                                        class="block w-full tom-select-multi">
                                     {% for value, label in type_entreprise_media_ontology %}
-                                        <option value="{{ value }}" {% if value in business_wall.type_entreprise_media %}selected{% endif %}>
+                                        <option value="{{ value }}"
+                                                {% if value in business_wall.type_entreprise_media %}selected{% endif %}>
                                             {{ label }}
                                         </option>
                                     {% endfor %}
                                 </select>
-                                <p class="mt-1 text-xs text-gray-500">
-                                    Sélectionnez une ou plusieurs options
-                                </p>
+                                <p class="mt-1 text-xs text-gray-500">Sélectionnez une ou plusieurs options</p>
                             </div>
                         {% endif %}
-
                         <!-- Nature field for Micro/Corporate Media -->
                         {% if bw_type in ['micro', 'corporate_media'] %}
                             <div>
-                                <label
-                                    class="block text-sm font-medium text-gray-900 mb-2"
-                                    >Nature de votre organe de presse</label
-                                >
-                                <select
-                                    id="type_entreprise_media"
-                                    name="type_entreprise_media"
-                                    multiple
-                                    class="block w-full tom-select-multi"
-                                >
+                                <label class="block text-sm font-medium text-gray-900 mb-2">Nature de votre organe de presse</label>
+                                <select id="type_entreprise_media"
+                                        name="type_entreprise_media"
+                                        multiple
+                                        class="block w-full tom-select-multi">
                                     {% for value, label in type_entreprise_media_ontology %}
-                                        <option value="{{ value }}" {% if value in business_wall.type_entreprise_media %}selected{% endif %}>
+                                        <option value="{{ value }}"
+                                                {% if value in business_wall.type_entreprise_media %}selected{% endif %}>
                                             {{ label }}
                                         </option>
                                     {% endfor %}
                                 </select>
-                                <p class="mt-1 text-xs text-gray-500">
-                                  Sélectionnez une ou plusieurs options
-                                </p>
+                                <p class="mt-1 text-xs text-gray-500">Sélectionnez une ou plusieurs options</p>
                             </div>
                         {% endif %}
-
                         <!-- PR-specific fields -->
                         {% if bw_type == 'pr' %}
                             <div>
-                                <label
-                                    class="block text-sm font-medium text-gray-900 mb-2"
-                                    >Type de votre PR Agency</label
-                                >
-                                <select
-                                    id="type_agence_rp"
-                                    name="type_agence_rp"
-                                    multiple
-                                    class="block w-full tom-select-multi"
-                                >
+                                <label class="block text-sm font-medium text-gray-900 mb-2">Type de votre PR Agency</label>
+                                <select id="type_agence_rp"
+                                        name="type_agence_rp"
+                                        multiple
+                                        class="block w-full tom-select-multi">
                                     {% for value, label in type_agence_rp_ontology %}
-                                        <option value="{{ value }}" {% if value in business_wall.type_agence_rp %}selected{% endif %}>
+                                        <option value="{{ value }}"
+                                                {% if value in business_wall.type_agence_rp %}selected{% endif %}>
                                             {{ label }}
                                         </option>
                                     {% endfor %}
                                 </select>
-                                <p class="mt-1 text-xs text-gray-500">
-                                  Sélectionnez une ou plusieurs options
-                                </p>
+                                <p class="mt-1 text-xs text-gray-500">Sélectionnez une ou plusieurs options</p>
                             </div>
-
                             <div>
-                                <label
-                                    class="block text-sm font-medium text-gray-900 mb-2"
-                                    >Liste de vos clients</label
-                                >
-                                <textarea
-                                    name="clients"
-                                    rows="4"
-                                    placeholder="Listez vos principaux clients (un par ligne ou séparés par des virgules)"
-                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-4 py-2 border"
-                                >{{ business_wall.clients or '' }}
+                                <label class="block text-sm font-medium text-gray-900 mb-2">Liste de vos clients</label>
+                                <textarea name="clients" rows="4" placeholder="Listez vos principaux clients (un par ligne ou séparés par des virgules)" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-4 py-2 border">{{ business_wall.clients or '' }}
                                 </textarea>
                             </div>
                         {% endif %}
-
                         <!-- Leaders & Experts / Transformers fields -->
                         {% if bw_type in ['leaders_experts', 'transformers'] %}
                             <div>
-                                <label
-                                    class="block text-sm font-medium text-gray-900 mb-2"
-                                    >Nom officiel de votre organisation</label
-                                >
-                                <input
-                                    type="text"
-                                    name="name_official"
-                                    value="{{ business_wall.name_official or '' }}"
-                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-4 py-2 border"
-                                />
+                                <label class="block text-sm font-medium text-gray-900 mb-2">Nom officiel de votre organisation</label>
+                                <input type="text"
+                                       name="name_official"
+                                       value="{{ business_wall.name_official or '' }}"
+                                       class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-4 py-2 border" />
                             </div>
-
                             <div>
-                                <label
-                                    class="block text-sm font-medium text-gray-900 mb-2"
-                                    >Groupe ou entité de rattachement (si
-                                    applicable)</label
-                                >
-                                <input
-                                    type="text"
-                                    name="name_group"
-                                    value="{{ business_wall.name_group or '' }}"
-                                    placeholder="Optionnel"
-                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-4 py-2 border"
-                                />
+                                <label class="block text-sm font-medium text-gray-900 mb-2">
+                                    Groupe ou entité de rattachement (si
+                                    applicable)
+                                </label>
+                                <input type="text"
+                                       name="name_group"
+                                       value="{{ business_wall.name_group or '' }}"
+                                       placeholder="Optionnel"
+                                       class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-4 py-2 border" />
                             </div>
                         {% endif %}
-
                         <!-- Academics-specific -->
                         {% if bw_type == 'academics' %}
                             <div>
-                                <label
-                                    class="block text-sm font-medium text-gray-900 mb-2"
-                                    >Nom officiel de votre établissement</label
-                                >
-                                <input
-                                    type="text"
-                                    name="name_institution"
-                                    value="{{ business_wall.name_institution or '' }}"
-                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-4 py-2 border"
-                                />
+                                <label class="block text-sm font-medium text-gray-900 mb-2">Nom officiel de votre établissement</label>
+                                <input type="text"
+                                       name="name_institution"
+                                       value="{{ business_wall.name_institution or '' }}"
+                                       class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-4 py-2 border" />
                             </div>
                         {% endif %}
                     </div>
                 </fieldset>
-
                 <!-- Section: Activity Description -->
                 <fieldset>
-                    <legend
-                        class="text-2xl font-semibold text-purple-800 border-b pb-3 mb-6 w-full"
-                    >
-                        Description de l'Activité
-                    </legend>
-
+                    <legend class="text-2xl font-semibold text-purple-800 border-b pb-3 mb-6 w-full">Description de l'Activité</legend>
                     <div class="space-y-6">
                         <!-- For Media types -->
                         {% if bw_type in ['media', 'micro', 'corporate_media'] %}
                             <div>
-                                <label
-                                    class="block text-sm font-medium text-gray-900 mb-2"
-                                    >Type de presse</label
-                                >
-                                <select
-                                    id="type_presse_et_media"
-                                    name="type_presse_et_media"
-                                    multiple
-                                    class="block w-full tom-select-multi"
-                                >
+                                <label class="block text-sm font-medium text-gray-900 mb-2">Type de presse</label>
+                                <select id="type_presse_et_media"
+                                        name="type_presse_et_media"
+                                        multiple
+                                        class="block w-full tom-select-multi">
                                     {% for value, label in type_presse_et_media_ontology %}
-                                        <option value="{{ value }}" {% if value in business_wall.type_presse_et_media %}selected{% endif %}>
+                                        <option value="{{ value }}"
+                                                {% if value in business_wall.type_presse_et_media %}selected{% endif %}>
                                             {{ label }}
                                         </option>
                                     {% endfor %}
                                 </select>
-                                <p class="mt-1 text-xs text-gray-500">
-                                  Sélectionnez une ou plusieurs options
-                                </p>
+                                <p class="mt-1 text-xs text-gray-500">Sélectionnez une ou plusieurs options</p>
                             </div>
-
                             <div>
-                                <label
-                                    class="block text-sm font-medium text-gray-900 mb-2"
-                                    >Positionnement éditorial</label
-                                >
-                                <textarea
-                                    name="positionnement_editorial"
-                                    rows="4"
-                                    placeholder="Décrivez en quelques mots votre ligne éditoriale..."
-                                    maxlength="500"
-                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-600 focus:ring-purple-600 sm:text-sm px-4 py-2 border"
-                                >{{ business_wall.positionnement_editorial or '' }}</textarea>
-                                <p class="mt-1 text-xs text-gray-500">
-                                    Maximum 500 caractères
-                                </p>
+                                <label class="block text-sm font-medium text-gray-900 mb-2">Positionnement éditorial</label>
+                                <textarea name="positionnement_editorial"
+                                          rows="4"
+                                          placeholder="Décrivez en quelques mots votre ligne éditoriale..."
+                                          maxlength="500"
+                                          class="block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-600 focus:ring-purple-600 sm:text-sm px-4 py-2 border">{{ business_wall.positionnement_editorial or '' }}</textarea>
+                                <p class="mt-1 text-xs text-gray-500">Maximum 500 caractères</p>
                             </div>
-
                             <div>
-                                <label
-                                    class="block text-sm font-medium text-gray-900 mb-2"
-                                    >Audiences ciblées</label
-                                >
-                                <textarea
-                                    name="audience_cible"
-                                    rows="4"
-                                    placeholder="Décrivez vos publics cibles..."
-                                    maxlength="500"
-                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-600 focus:ring-purple-600 sm:text-sm px-4 py-2 border"
-                                >{{ business_wall.audience_cible or '' }}</textarea>
-                                <p class="mt-1 text-xs text-gray-500">
-                                    Maximum 500 caractères
-                                </p>
+                                <label class="block text-sm font-medium text-gray-900 mb-2">Audiences ciblées</label>
+                                <textarea name="audience_cible"
+                                          rows="4"
+                                          placeholder="Décrivez vos publics cibles..."
+                                          maxlength="500"
+                                          class="block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-600 focus:ring-purple-600 sm:text-sm px-4 py-2 border">{{ business_wall.audience_cible or '' }}</textarea>
+                                <p class="mt-1 text-xs text-gray-500">Maximum 500 caractères</p>
                             </div>
-
                             {% if bw_type in ['media', 'corporate_media'] %}
                                 <div>
-                                    <label
-                                        class="block text-sm font-medium text-gray-900 mb-2"
-                                        >Périodicité</label
-                                    >
-                                    <select
-                                        id="periodicite"
-                                        name="periodicite"
-                                        class="block w-full tom-select-single"
-                                    >
+                                    <label class="block text-sm font-medium text-gray-900 mb-2">Périodicité</label>
+                                    <select id="periodicite"
+                                            name="periodicite"
+                                            class="block w-full tom-select-single">
                                         <option value="">-- Sélectionnez --</option>
                                         {% for value, label in periodicite_ontology %}
-                                            <option value="{{ value }}" {% if business_wall.periodicite == value %}selected{% endif %}>
+                                            <option value="{{ value }}"
+                                                    {% if business_wall.periodicite == value %}selected{% endif %}>
                                                 {{ label }}
                                             </option>
                                         {% endfor %}
@@ -780,232 +579,168 @@
                                 </div>
                             {% endif %}
                         {% endif %}
-
                         <!-- For all types: sectors - Dual multi select -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-900 mb-2">
-                                Secteurs d'activité couverts
-                            </label>
+                            <label class="block text-sm font-medium text-gray-900 mb-2">Secteurs d'activité couverts</label>
                             <!-- Main category select -->
-                            <select
-                                id="secteurs_activite"
-                                name="secteurs_activite"
-                                multiple
-                                class="block w-full mb-2 tom-select-dual-main"
-                                data-detail-id="secteurs_activite_detail"
-                                data-ontology="secteursActivite"
-                            >
+                            <select id="secteurs_activite"
+                                    name="secteurs_activite"
+                                    multiple
+                                    class="block w-full mb-2 tom-select-dual-main"
+                                    data-detail-id="secteurs_activite_detail"
+                                    data-ontology="secteursActivite">
                                 {% for category, label in secteurs_activite_ontology.field1 %}
-                                    <option value="{{ category }}" {% if business_wall.secteurs_activite and category in business_wall.secteurs_activite %}selected{% endif %}>
+                                    <option value="{{ category }}"
+                                            {% if business_wall.secteurs_activite and category in business_wall.secteurs_activite %}selected{% endif %}>
                                         {{ label }}
                                     </option>
                                 {% endfor %}
                             </select>
-                            <p class="mt-1 text-xs text-gray-500 mb-2">
-                              Sélectionnez une ou plusieurs options
-                            </p>
+                            <p class="mt-1 text-xs text-gray-500 mb-2">Sélectionnez une ou plusieurs options</p>
                             <!-- Detail select -->
                             <div class="min-h-10 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm sm:text-sm sm:leading-6">
                                 <label class="block text-xs text-gray-500 mb-1">Sous-secteurs</label>
-                                <select
-                                    id="secteurs_activite_detail"
-                                    name="secteurs_activite_detail"
-                                    multiple
-                                    class="block w-full tom-select-dual-detail"
-                                >
+                                <select id="secteurs_activite_detail"
+                                        name="secteurs_activite_detail"
+                                        multiple
+                                        class="block w-full tom-select-dual-detail">
                                     <option value="">-- Sélectionnez d'abord un secteur --</option>
                                 </select>
                             </div>
-                            <p class="mt-1 text-xs text-gray-500">
-                                Sélectionnez les détails pour chaque secteur choisi
-                            </p>
+                            <p class="mt-1 text-xs text-gray-500">Sélectionnez les détails pour chaque secteur choisi</p>
                         </div>
-
                         <div>
-                            <label
-                                class="block text-sm font-medium text-gray-900 mb-2"
-                                >Taille de l'organisation</label
-                            >
-                            <select
-                                id="taille_orga"
-                                name="taille_orga"
-                                class="block w-full tom-select-single"
-                            >
+                            <label class="block text-sm font-medium text-gray-900 mb-2">Taille de l'organisation</label>
+                            <select id="taille_orga"
+                                    name="taille_orga"
+                                    class="block w-full tom-select-single">
                                 <option value="">-- Sélectionnez --</option>
                                 {% for value, label in taille_orga_ontology %}
-                                    <option value="{{ value }}" {% if business_wall.taille_orga == value %}selected{% endif %}>
+                                    <option value="{{ value }}"
+                                            {% if business_wall.taille_orga == value %}selected{% endif %}>
                                         {{ label }}
                                     </option>
                                 {% endfor %}
                             </select>
                         </div>
-
                         <!-- Centres d'intérêt - Common for all types -->
                         <div class="mt-6 pt-6 border-t border-gray-200">
-                            <h3
-                                class="text-lg font-semibold text-purple-900 mb-4"
-                            >
-                                Centres d'Intérêt
-                            </h3>
+                            <h3 class="text-lg font-semibold text-purple-900 mb-4">Centres d'Intérêt</h3>
                             <p class="text-sm text-gray-600 mb-4">
                                 Sélectionnez les domaines qui intéressent votre
                                 organisation
                             </p>
                         </div>
-
                         <!-- Centres d'intérêt - Tissu politique et administratif - Dual multi select -->
                         <div>
                             <label class="block text-sm font-medium text-gray-900 mb-2">
                                 Centres d'intérêt - Tissu politique et administratif
                             </label>
-                            <select
-                                id="interest_political"
-                                name="interest_political"
-                                multiple
-                                class="block w-full mb-2 tom-select-dual-main"
-                                data-detail-id="interest_political_detail"
-                                data-ontology="interestPolitical"
-                            >
+                            <select id="interest_political"
+                                    name="interest_political"
+                                    multiple
+                                    class="block w-full mb-2 tom-select-dual-main"
+                                    data-detail-id="interest_political_detail"
+                                    data-ontology="interestPolitical">
                                 {% for category, label in interest_political_ontology.field1 %}
-                                    <option value="{{ category }}" {% if business_wall.interest_political and category in business_wall.interest_political %}selected{% endif %}>
+                                    <option value="{{ category }}"
+                                            {% if business_wall.interest_political and category in business_wall.interest_political %}selected{% endif %}>
                                         {{ label }}
                                     </option>
                                 {% endfor %}
                             </select>
-                            <p class="mt-1 text-xs text-gray-500 mb-2">
-                                Sélectionnez une ou plusieurs options
-                            </p>
+                            <p class="mt-1 text-xs text-gray-500 mb-2">Sélectionnez une ou plusieurs options</p>
                             <!-- Detail select -->
                             <div class="min-h-10 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm sm:text-sm sm:leading-6">
                                 <label class="block text-xs text-gray-500 mb-1">Détails</label>
-                                <select
-                                    id="interest_political_detail"
-                                    name="interest_political_detail"
-                                    multiple
-                                    class="block w-full tom-select-dual-detail"
-                                >
+                                <select id="interest_political_detail"
+                                        name="interest_political_detail"
+                                        multiple
+                                        class="block w-full tom-select-dual-detail">
                                     <option value="">-- Sélectionnez d'abord une catégorie --</option>
                                 </select>
                             </div>
-                            <p class="mt-1 text-xs text-gray-500">
-                                Sélectionnez les détails pour chaque catégorie choisie
-                            </p>
+                            <p class="mt-1 text-xs text-gray-500">Sélectionnez les détails pour chaque catégorie choisie</p>
                         </div>
-
                         <!-- Centres d'intérêt - Tissu économique et culturel privé - Dual multi select -->
                         <div>
                             <label class="block text-sm font-medium text-gray-900 mb-2">
                                 Centres d'intérêt - Tissu économique et culturel privé
                             </label>
-                            <select
-                                id="interest_economics"
-                                name="interest_economics"
-                                multiple
-                                class="block w-full mb-2 tom-select-dual-main"
-                                data-detail-id="interest_economics_detail"
-                                data-ontology="interestEconomics"
-                            >
+                            <select id="interest_economics"
+                                    name="interest_economics"
+                                    multiple
+                                    class="block w-full mb-2 tom-select-dual-main"
+                                    data-detail-id="interest_economics_detail"
+                                    data-ontology="interestEconomics">
                                 {% for category, label in interest_economics_ontology.field1 %}
-                                    <option value="{{ category }}" {% if business_wall.interest_economics and category in business_wall.interest_economics %}selected{% endif %}>
+                                    <option value="{{ category }}"
+                                            {% if business_wall.interest_economics and category in business_wall.interest_economics %}selected{% endif %}>
                                         {{ label }}
                                     </option>
                                 {% endfor %}
                             </select>
-                            <p class="mt-1 text-xs text-gray-500 mb-2">
-                                Sélectionnez une ou plusieurs options
-                            </p>
+                            <p class="mt-1 text-xs text-gray-500 mb-2">Sélectionnez une ou plusieurs options</p>
                             <div class="min-h-10 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm sm:text-sm sm:leading-6">
                                 <label class="block text-xs text-gray-500 mb-1">Détails</label>
-                                <select
-                                    id="interest_economics_detail"
-                                    name="interest_economics_detail"
-                                    multiple
-                                    class="block w-full tom-select-dual-detail"
-                                >
+                                <select id="interest_economics_detail"
+                                        name="interest_economics_detail"
+                                        multiple
+                                        class="block w-full tom-select-dual-detail">
                                     <option value="">-- Sélectionnez d'abord une catégorie --</option>
                                 </select>
                             </div>
-                            <p class="mt-1 text-xs text-gray-500">
-                                Sélectionnez les détails pour chaque catégorie choisie
-                            </p>
+                            <p class="mt-1 text-xs text-gray-500">Sélectionnez les détails pour chaque catégorie choisie</p>
                         </div>
-
                         <!-- Centres d'intérêt - Tissu associatif - Dual multi select -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-900 mb-2">
-                                Centres d'intérêt - Tissu associatif
-                            </label>
-                            <select
-                                id="interest_association"
-                                name="interest_association"
-                                multiple
-                                class="block w-full mb-2 tom-select-dual-main"
-                                data-detail-id="interest_association_detail"
-                                data-ontology="interestAssociation"
-                            >
+                            <label class="block text-sm font-medium text-gray-900 mb-2">Centres d'intérêt - Tissu associatif</label>
+                            <select id="interest_association"
+                                    name="interest_association"
+                                    multiple
+                                    class="block w-full mb-2 tom-select-dual-main"
+                                    data-detail-id="interest_association_detail"
+                                    data-ontology="interestAssociation">
                                 {% for category, label in interest_association_ontology.field1 %}
-                                    <option value="{{ category }}" {% if business_wall.interest_association and category in business_wall.interest_association %}selected{% endif %}>
+                                    <option value="{{ category }}"
+                                            {% if business_wall.interest_association and category in business_wall.interest_association %}selected{% endif %}>
                                         {{ label }}
                                     </option>
                                 {% endfor %}
                             </select>
-                            <p class="mt-1 text-xs text-gray-500 mb-2">
-                                Sélectionnez une ou plusieurs options
-                            </p>
+                            <p class="mt-1 text-xs text-gray-500 mb-2">Sélectionnez une ou plusieurs options</p>
                             <div class="min-h-10 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm sm:text-sm sm:leading-6">
                                 <label class="block text-xs text-gray-500 mb-1">Détails</label>
-                                <select
-                                    id="interest_association_detail"
-                                    name="interest_association_detail"
-                                    multiple
-                                    class="block w-full tom-select-dual-detail"
-                                >
+                                <select id="interest_association_detail"
+                                        name="interest_association_detail"
+                                        multiple
+                                        class="block w-full tom-select-dual-detail">
                                     <option value="">-- Sélectionnez d'abord une catégorie --</option>
                                 </select>
                             </div>
-                            <p class="mt-1 text-xs text-gray-500">
-                                Sélectionnez les détails pour chaque catégorie choisie
-                            </p>
+                            <p class="mt-1 text-xs text-gray-500">Sélectionnez les détails pour chaque catégorie choisie</p>
                         </div>
                     </div>
                 </fieldset>
-
                 <!-- Section: Contact Information (all types) -->
                 <fieldset>
-                    <legend
-                        class="text-2xl font-semibold text-orange-800 border-b pb-3 mb-6 w-full"
-                    >
-                        Pour Nous Contacter
-                    </legend>
-
+                    <legend class="text-2xl font-semibold text-orange-800 border-b pb-3 mb-6 w-full">Pour Nous Contacter</legend>
                     <div class="space-y-6">
                         <div>
-                            <label
-                                class="block text-sm font-medium text-gray-900 mb-2"
-                                >Téléphone du standard</label
-                            >
-                            <input
-                                type="tel"
-                                name="tel_standard"
-                                value="{{ business_wall.tel_standard or '' }}"
-                                placeholder="+33 1 23 45 67 89"
-                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-600 focus:ring-orange-600 sm:text-sm px-4 py-2 border"
-                            />
+                            <label class="block text-sm font-medium text-gray-900 mb-2">Téléphone du standard</label>
+                            <input type="tel"
+                                   name="tel_standard"
+                                   value="{{ business_wall.tel_standard or '' }}"
+                                   placeholder="+33 1 23 45 67 89"
+                                   class="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-600 focus:ring-orange-600 sm:text-sm px-4 py-2 border" />
                         </div>
-
                         <div>
-                            <label
-                                class="block text-sm font-medium text-gray-900 mb-2"
-                                >Adresse postale du siège social</label
-                            >
-                            <textarea
-                                name="postal_address"
-                                rows="3"
-                                placeholder="123 rue de la République"
-                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-600 focus:ring-orange-600 sm:text-sm px-4 py-2 border"
-                            >{{ business_wall.postal_address or '' }}</textarea>
+                            <label class="block text-sm font-medium text-gray-900 mb-2">Adresse postale du siège social</label>
+                            <textarea name="postal_address"
+                                      rows="3"
+                                      placeholder="123 rue de la République"
+                                      class="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-600 focus:ring-orange-600 sm:text-sm px-4 py-2 border">{{ business_wall.postal_address or '' }}</textarea>
                         </div>
-
                         <!-- Pays, Code postal et ville - Tom Select version -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
@@ -1013,78 +748,58 @@
                                 <select id="pays_zip_ville" name="pays_zip_ville" class="block w-full">
                                     <option value="">-- Sélectionnez --</option>
                                     {% for value, label in pays_ontology %}
-                                        <option value="{{ value }}" {% if business_wall.pays_zip_ville == value %}selected{% endif %}>
+                                        <option value="{{ value }}"
+                                                {% if business_wall.pays_zip_ville == value %}selected{% endif %}>
                                             {{ label }}
                                         </option>
                                     {% endfor %}
                                 </select>
                             </div>
-
                             <div>
                                 <label class="block text-sm font-medium text-gray-900 mb-2">
                                     Code postal et ville
-                                    <span id="zip-loading" class="hidden text-xs text-gray-500 font-normal italic ml-2">Chargement...</span>
+                                    <span id="zip-loading"
+                                          class="hidden text-xs text-gray-500 font-normal italic ml-2">Chargement...</span>
                                 </label>
-                                <select id="pays_zip_ville_detail" name="pays_zip_ville_detail" class="block w-full">
+                                <select id="pays_zip_ville_detail"
+                                        name="pays_zip_ville_detail"
+                                        class="block w-full">
                                     <option value="">-- Sélectionnez d'abord un pays --</option>
                                 </select>
                             </div>
                         </div>
-
                         <div>
-                            <label
-                                class="block text-sm font-medium text-gray-900 mb-2"
-                                >Géolocalisation</label
-                            >
-                            <input
-                                type="text"
-                                name="geolocalisation"
-                                value="{{ business_wall.geolocalisation or '' }}"
-                                placeholder="Coordonnées GPS ou adresse complète"
-                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-600 focus:ring-orange-600 sm:text-sm px-4 py-2 border"
-                            />
-                            <p class="mt-1 text-xs text-gray-500">
-                                Utilisé pour la géolocalisation sur AiPRESS24
-                            </p>
+                            <label class="block text-sm font-medium text-gray-900 mb-2">Géolocalisation</label>
+                            <input type="text"
+                                   name="geolocalisation"
+                                   value="{{ business_wall.geolocalisation or '' }}"
+                                   placeholder="Coordonnées GPS ou adresse complète"
+                                   class="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-600 focus:ring-orange-600 sm:text-sm px-4 py-2 border" />
+                            <p class="mt-1 text-xs text-gray-500">Utilisé pour la géolocalisation sur AiPRESS24</p>
                         </div>
-
                         <div>
-                            <label
-                                class="block text-sm font-medium text-gray-900 mb-2"
-                                >URL du site web</label
-                            >
-                            <input
-                                type="url"
-                                name="site_url"
-                                value="{{ business_wall.site_url or '' }}"
-                                placeholder="https://www.votre-site.fr"
-                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-600 focus:ring-orange-600 sm:text-sm px-4 py-2 border"
-                            />
+                            <label class="block text-sm font-medium text-gray-900 mb-2">URL du site web</label>
+                            <input type="url"
+                                   name="site_url"
+                                   value="{{ business_wall.site_url or '' }}"
+                                   placeholder="https://www.votre-site.fr"
+                                   class="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-600 focus:ring-orange-600 sm:text-sm px-4 py-2 border" />
                         </div>
                     </div>
                 </fieldset>
-
                 <!-- Navigation -->
-                <div
-                    class="mt-10 flex items-center justify-between gap-x-6 border-t pt-6"
-                >
-                    <a
-                        href="{{ url_for('bw_activation.dashboard') }}"
-                        class="text-sm font-semibold leading-6 text-gray-900 hover:text-gray-700"
-                    >
+                <div class="mt-10 flex items-center justify-between gap-x-6 border-t pt-6">
+                    <a href="{{ url_for('bw_activation.dashboard') }}"
+                       class="text-sm font-semibold leading-6 text-gray-900 hover:text-gray-700">
                         ← Retour au tableau de bord
                     </a>
                     <div class="flex gap-4">
-                        <a
-                            href="{{ url_for('bw_activation.invite_organisation_members') }}"
-                            class="rounded-md bg-gray-300 px-5 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-400"
-                        >
+                        <a href="{{ url_for('bw_activation.invite_organisation_members') }}"
+                           class="rounded-md bg-gray-300 px-5 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-400">
                             Passer cette étape →
                         </a>
-                        <button
-                            type="submit"
-                            class="rounded-md bg-green-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-green-700"
-                        >
+                        <button type="submit"
+                                class="rounded-md bg-green-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-green-700">
                             Enregistrer et continuer →
                         </button>
                     </div>
@@ -1092,10 +807,8 @@
             </form>
         </div>
     </div>
-
     <!-- Tom Select JS -->
     <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
-
     <!-- JavaScript for immediate logo preview -->
     <script>
         const logo_input = document.getElementById("logo_image");
@@ -1216,34 +929,35 @@
         });
 
         // Ontology data for dual selects
+        const rawOntologyDataGlobal = JSON.parse(document.getElementById('ontology-data').textContent);
         const ontologies = {
             secteursActivite: {
-                field1: {{ secteurs_activite_ontology.field1 | tojson }}.map(item => ({ value: item[0], label: item[1] })),
+                field1: rawOntologyDataGlobal.secteursActivite.field1.map(item => ({ value: item[0], label: item[1] })),
                 field2: [],
-                raw: {{ secteurs_activite_ontology.field2 | tojson }},
-                current_main: {{ (business_wall.secteurs_activite or []) | tojson }},
-                current_detail: {{ (business_wall.secteurs_activite_detail or []) | tojson }},
+                raw: rawOntologyDataGlobal.secteursActivite.field2,
+                current_main: rawOntologyDataGlobal.secteursActivite.current_main,
+                current_detail: rawOntologyDataGlobal.secteursActivite.current_detail,
             },
             interestPolitical: {
-                field1: {{ interest_political_ontology.field1 | tojson }}.map(item => ({ value: item[0], label: item[1] })),
+                field1: rawOntologyDataGlobal.interestPolitical.field1.map(item => ({ value: item[0], label: item[1] })),
                 field2: [],
-                raw: {{ interest_political_ontology.field2 | tojson }},
-                current_main: {{ (business_wall.interest_political or []) | tojson }},
-                current_detail: {{ (business_wall.interest_political_detail or []) | tojson }},
+                raw: rawOntologyDataGlobal.interestPolitical.field2,
+                current_main: rawOntologyDataGlobal.interestPolitical.current_main,
+                current_detail: rawOntologyDataGlobal.interestPolitical.current_detail,
             },
             interestEconomics: {
-                field1: {{ interest_economics_ontology.field1 | tojson }}.map(item => ({ value: item[0], label: item[1] })),
+                field1: rawOntologyDataGlobal.interestEconomics.field1.map(item => ({ value: item[0], label: item[1] })),
                 field2: [],
-                raw: {{ interest_economics_ontology.field2 | tojson }},
-                current_main: {{ (business_wall.interest_economics or []) | tojson }},
-                current_detail: {{ (business_wall.interest_economics_detail or []) | tojson }},
+                raw: rawOntologyDataGlobal.interestEconomics.field2,
+                current_main: rawOntologyDataGlobal.interestEconomics.current_main,
+                current_detail: rawOntologyDataGlobal.interestEconomics.current_detail,
             },
             interestAssociation: {
-                field1: {{ interest_association_ontology.field1 | tojson }}.map(item => ({ value: item[0], label: item[1] })),
+                field1: rawOntologyDataGlobal.interestAssociation.field1.map(item => ({ value: item[0], label: item[1] })),
                 field2: [],
-                raw: {{ interest_association_ontology.field2 | tojson }},
-                current_main: {{ (business_wall.interest_association or []) | tojson }},
-                current_detail: {{ (business_wall.interest_association_detail or []) | tojson }},
+                raw: rawOntologyDataGlobal.interestAssociation.field2,
+                current_main: rawOntologyDataGlobal.interestAssociation.current_main,
+                current_detail: rawOntologyDataGlobal.interestAssociation.current_detail,
             }
         };
 
@@ -1405,7 +1119,7 @@
         // Tom Select config for pays and code/ville
         let countrySelectTom = null;
         let zipSelectTom = null;
-        let currentZipValue = {{ (business_wall.pays_zip_ville_detail or '') | tojson }};
+        let currentZipValue = rawOntologyDataGlobal.currentZipValue;
 
         function initCountryZipSelects() {
             const countrySelect = document.getElementById('pays_zip_ville');
