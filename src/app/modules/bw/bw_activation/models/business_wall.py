@@ -90,9 +90,12 @@ class BusinessWall(UUIDAuditBase):
     logo_image: Mapped[FileObject | None] = mapped_column(
         StoredObject(backend="s3"), nullable=True
     )
+    logo_image_copyright: Mapped[str] = mapped_column(default="")
+
     cover_image: Mapped[FileObject | None] = mapped_column(
         StoredObject(backend="s3"), nullable=True
     )
+    cover_image_copyright: Mapped[str] = mapped_column(default="")
 
     # Galerie d'images - list of FileObject stored as JSON
     gallery_images: Mapped[list[dict]] = mapped_column(JSON, default=list)
