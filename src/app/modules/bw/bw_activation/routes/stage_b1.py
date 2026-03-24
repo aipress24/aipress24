@@ -22,6 +22,7 @@ from flask import (
 
 from app.flask.extensions import db
 from app.lib.file_object_utils import create_file_object
+from app.lib.image_utils import extract_image_from_request
 from app.logging import warn
 from app.modules.bw.bw_activation import bp
 from app.modules.bw.bw_activation.config import BW_TYPES
@@ -76,16 +77,19 @@ def configure_content():
             flash("Le nom officiel de l'organisation est obligatoire", "error")
             return redirect(url_for("bw_activation.configure_content"))
 
-        # first item: logo
-        logo_file = request.files.get("logo_image")
-        if logo_file and logo_file.filename:
+        logo_result = extract_image_from_request(
+            file_storage=request.files.get("logo_image"),
+            data_url=request.form.get("logo_image"),
+            orig_filename=request.form.get("logo_image_filename") or None,
+        )
+        if logo_result:
             try:
-                content = logo_file.read()
+                content = logo_result.bytes
                 if len(content) < MAX_IMAGE_SIZE:
                     file_obj = create_file_object(
                         content=content,
-                        original_filename=logo_file.filename,
-                        content_type=logo_file.content_type,
+                        original_filename=logo_result.filename,
+                        content_type=logo_result.content_type,
                     )
                     # Save the file to S3 storage (required before assigning to model)
                     saved_file_obj = file_obj.save()
@@ -94,7 +98,7 @@ def configure_content():
                     modified = True
                     flash("Logo mis à jour avec succès", "success")
                     warn(
-                        f"Logo updated for BW {logo_file.filename!r} {business_wall.id}"
+                        f"Logo updated for BW {logo_result.filename!r} {business_wall.id}"
                     )
                 else:
                     flash("L'image est trop volumineuse (max 4MB)", "error")
