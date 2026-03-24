@@ -139,6 +139,15 @@
                                 <p class="mt-1 text-xs text-gray-500">Format PNG, JPG, JPEG (Max 4MB)</p>
                             </div>
                         </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-900 mb-2">
+                              Copyright de l'image du logo
+                            </label>
+                            <input type="text"
+                                   name="logo_image_copyright"
+                                   value="{{ business_wall.logo_image_copyright or '' }}"
+                                   class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-4 py-2 border" />
+                        </div>
                         <!-- Cover image -->
                         <div>
                             <label class="block text-sm font-medium text-gray-900 mb-2">Bandeau du Business Wall</label>
@@ -174,6 +183,15 @@
                                     recommandé 4:1 (ex: 1200x300px)
                                 </p>
                             </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-900 mb-2">
+                              Copyright de l'image du bandeau
+                            </label>
+                            <input type="text"
+                                   name="cover_image_copyright"
+                                   value="{{ business_wall.cover_image_copyright or '' }}"
+                                   class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-4 py-2 border" />
                         </div>
                         <!-- Gallery images -->
                         <div>
