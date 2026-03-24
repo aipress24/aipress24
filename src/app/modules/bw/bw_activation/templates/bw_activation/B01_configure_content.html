@@ -106,7 +106,7 @@
                 <fieldset>
                     <legend class="text-2xl font-semibold text-blue-800 border-b pb-3 mb-6 w-full">Graphisme</legend>
                     <!-- Logo image -->
-                    <div class="space-y-6">
+                    <div class="space-y-6" x-data="logoCropper()">
                         <div>
                             <label class="block text-sm font-medium text-gray-900 mb-2">Logo de votre organisation</label>
                             <div class="mb-4">
@@ -123,20 +123,52 @@
                                     {% endif %}
                                 </div>
                             </div>
-                            <!-- New logo hidden by default -->
-                            <div class="mb-4" id="new_logo_block" style="display: none;">
-                                <div class="text-xs text-gray-500 mb-2">Aperçu du nouveau logo</div>
+                            <!-- Cropper container -->
+                            <div x-show="imgsrc && !imageValidated" class="mb-4" style="display: none;">
+                                <div class="text-xs text-gray-500 mb-2">Recadrer l'image du nouveau logo</div>
+                                <div class="bg-gray-100 rounded-lg overflow-hidden w-full" style="height: 300px;">
+                                    <img x-ref="cropperImage" :src="imgsrc" class="block w-full" @load="initCropper">
+                                </div>
+                                <p class="mt-2 text-xs text-gray-500" x-show="image.size">
+                                    Taille originale: <span x-text="image.size"></span>KB <span x-text="image.dimension"></span>
+                                </p>
+                            </div>
+                            <!-- New logo preview after crop -->
+                            <div class="mb-4" id="new_logo_block" x-show="imageValidated" style="display: none;">
+                                <div class="text-xs text-gray-500 mb-2">Nouveau logo (recadré)</div>
                                 <div id="new_logo_container"
                                      class="p-4 bg-blue-50 rounded-md flex items-center justify-center min-h-[100px]">
+                                    <img :src="validatedImageUrl" class="h-20 w-auto object-contain max-w-full">
                                 </div>
                             </div>
                             <div class="pt-2">
                                 <input type="file"
                                        id="logo_image"
-                                       name="logo_image"
+                                       name="logo_image_file"
                                        accept=".png,.jpeg,.jpg,image/png,image/jpeg"
+                                       x-ref="logoFile"
+                                       @change="fileChosen"
                                        class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none" />
+                                <input type="hidden" name="logo_image" x-ref="croppedData">
+                                <input type="hidden" name="logo_image_filename" x-ref="imageFilename">
                                 <p class="mt-1 text-xs text-gray-500">Format PNG, JPG, JPEG (Max 4MB)</p>
+                            </div>
+                            <!-- Buttons validateCrop -->
+                            <div class="mt-3 flex items-center gap-3" x-show="imgsrc && !imageValidated" style="display: none;">
+                                <button
+                                    type="button"
+                                    @click="validateCrop()"
+                                    class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                                >
+                                    Valider le recadrage
+                                </button>
+                                <button
+                                    type="button"
+                                    @click="resetImage()"
+                                    class="text-sm text-gray-500 hover:text-gray-700"
+                                >
+                                    Annuler
+                                </button>
                             </div>
                         </div>
                         <div>
@@ -827,44 +859,7 @@
     </div>
     <!-- Tom Select JS -->
     <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
-    <!-- JavaScript for immediate logo preview -->
     <script>
-        const logo_input = document.getElementById("logo_image");
-        const new_logo_block = document.getElementById("new_logo_block");
-        const new_logo_container =
-            document.getElementById("new_logo_container");
-
-        logo_input.addEventListener("change", function (event) {
-            const file = event.target.files[0];
-
-            if (file) {
-                new_logo_block.style.display = "block";
-
-                const reader = new FileReader();
-
-                reader.onload = function (e) {
-                    let imgElement =
-                        document.getElementById("new_logo_preview");
-
-                    if (!imgElement) {
-                        imgElement = document.createElement("img");
-                        imgElement.id = "new_logo_preview";
-                        imgElement.className =
-                            "h-20 w-auto object-contain max-w-full";
-                        new_logo_container.innerHTML = "";
-                        new_logo_container.appendChild(imgElement);
-                    }
-                    imgElement.src = e.target.result;
-                };
-
-                reader.readAsDataURL(file);
-            } else {
-                new_logo_block.style.display = "none";
-                new_logo_container.innerHTML = "";
-            }
-        });
-
-        // JavaScript for immediate bandeau preview
         const bandeau_input = document.getElementById("bandeau_image");
         const new_bandeau_block = document.getElementById("new_bandeau_block");
         const new_bandeau_container = document.getElementById(
@@ -1260,5 +1255,110 @@
             initSingleSelects();
             initDualMultiSelects();
         });
+
+        // Alpine.js Logo Cropper
+        function logoCropper() {
+            return {
+                imgsrc: null,
+                cropper: null,
+                imageError: '',
+                image: {
+                    size: null,
+                    dimension: null,
+                },
+                imageValidated: false,
+                validatedImageUrl: null,
+                originalFilename: null,
+                maxImageSize: 4096, // 4MB in KB
+
+                fileChosen(event) {
+                    this.imageError = '';
+                    this.imgsrc = null;
+                    this.imageValidated = false;
+                    this.originalFilename = null;
+                    this.$refs.croppedData.value = '';
+                    this.$refs.imageFilename.value = '';
+                    if (this.cropper) {
+                        this.cropper.destroy();
+                        this.cropper = null;
+                    }
+
+                    const file = event.target.files[0];
+                    if (!file) return;
+                    if (file.type.indexOf('image/') !== 0) {
+                        this.imageError = 'Le fichier doit être une image.';
+                        return;
+                    }
+
+                    this.image.size = Math.floor(file.size / 1024);
+                    if (this.image.size > this.maxImageSize) {
+                        this.imageError = `L'image est trop grande (${this.image.size}KB, max ${this.maxImageSize}KB)`;
+                        return;
+                    }
+
+                    // Store original filename
+                    this.originalFilename = file.name;
+                    this.$refs.imageFilename.value = file.name;
+
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        this.imgsrc = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                },
+
+                initCropper() {
+                    this.$nextTick(() => {
+                        if (this.cropper) this.cropper.destroy();
+                        const image = this.$refs.cropperImage;
+                        this.cropper = new Cropper(image, {
+                            viewMode: 2,
+                            autoCropArea: 1.0,
+                            responsive: true,
+                            background: true,
+                        });
+
+                        // Get image dimensions
+                        const img = new Image();
+                        img.onload = () => {
+                            this.image.dimension = `(${img.width}x${img.height})`;
+                        };
+                        img.src = this.imgsrc;
+                    });
+                },
+
+                validateCrop() {
+                    if (!this.cropper) return;
+                    const canvas = this.cropper.getCroppedCanvas({
+                        maxWidth: 800,
+                        maxHeight: 800,
+                    });
+                    if (canvas) {
+                        this.validatedImageUrl = canvas.toDataURL('image/jpeg', 0.9);
+                        this.$refs.croppedData.value = this.validatedImageUrl;
+                        this.imageValidated = true;
+                        // Destroy cropper to free resources
+                        if (this.cropper) {
+                            this.cropper.destroy();
+                            this.cropper = null;
+                        }
+                    }
+                },
+
+                resetImage() {
+                    this.imgsrc = null;
+                    this.imageValidated = false;
+                    this.validatedImageUrl = null;
+                    this.originalFilename = null;
+                    this.$refs.croppedData.value = '';
+                    this.$refs.imageFilename.value = '';
+                    this.$refs.logoFile.value = '';
+                    if (this.cropper) {
+                        this.cropper.destroy();
+                        this.cropper = null;
+                    }
+                }
+            }
+        }
     </script>
 {% endblock %}
