@@ -183,6 +183,18 @@ def configure_content():
             flash(f"{uploaded_count} image(s) ajoutée(s) à la galerie", "success")
             warn(f"Gallery updated for BW {business_wall.id}: {uploaded_count} images")
 
+        # copyright of logo
+        logo_image_copyright = request.form.get("logo_image_copyright", "").strip()
+        if logo_image_copyright:
+            business_wall.logo_image_copyright = logo_image_copyright
+            modified = True
+
+        # Copyright of image banner
+        cover_image_copyright = request.form.get("cover_image_copyright", "").strip()
+        if cover_image_copyright:
+            business_wall.cover_image_copyright = cover_image_copyright
+            modified = True
+
         # type_organisation dual select
         type_orga = request.form.get("type_organisation")
         type_orga_detail = request.form.getlist("type_organisation_detail")
