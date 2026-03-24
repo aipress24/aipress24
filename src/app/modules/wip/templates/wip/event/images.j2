@@ -4,25 +4,9 @@
 
 {% block body_content %}
 
-  <script type="module">
-    import {Application, Controller} from "https://unpkg.com/@hotwired/stimulus/dist/stimulus.js";
-
-    window.Stimulus = Application.start();
-
-    Stimulus.register("hello", class extends Controller {
-      static targets = ["name"];
-
-      connect() {
-        const element = this.nameTarget
-        const name = element.value
-        console.log(`Hello, ${name}!`)
-      }
-    })
-  </script>
-
   <h1 class="aui-title">Editeur d'images</h1>
 
-  <h2 class="aui-title">Images</h2>
+  <h2 class="aui-title">Images</2>
 
   <div class="mb-8 space-y-4">
     {% for image in event.sorted_images %}
