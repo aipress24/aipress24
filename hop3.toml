@@ -3,11 +3,10 @@
 
 [metadata]
 id = "aipress24"
-version = "2026.02"
+version = "2026.03"
 title = "AIPress24"
 description = "Press and media management platform"
 license = "AGPL-3.0-only"
-categories = ["media", "press", "cms"]
 
 [build]
 builder = "docker"
@@ -17,7 +16,7 @@ type = "postgres"
 
 [env]
 # Hostname
-HOST_NAME = "aipress24.hop3.test"
+HOST_NAME = "aipress24.hop3.abilian.com"
 
 # Flask configuration
 FLASK_SECURITY_PASSWORD_SALT = "change-me-to-random-salt"
@@ -35,9 +34,11 @@ FLASK_FAKE_DATA = "False"
 # FLASK_STRIPE_WEBHOOK_SECRET = ""
 
 [run]
+# Main web process (uses gunicorn via Dockerfile CMD)
+start = "gunicorn -b 0.0.0.0:$PORT -w 2 'app.flask.main:create_app()'"
 # Run database migrations before starting the app
-before = ["flask db upgrade"]
+before-run = ["flask db upgrade"]
 
 [healthcheck]
-path = "/"
+path = "/system/health"
 timeout = 30
