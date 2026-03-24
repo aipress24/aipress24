@@ -37,4 +37,5 @@ RUN DATABASE_URL='postgresql://x:x@localhost/x' bin/flask dev check
 ENV PORT=8080
 EXPOSE 8080
 
-CMD ["/app/.venv/bin/gunicorn", "-b", "0.0.0.0:5000", "-w", "2", "app.flask.main:create_app()"]
+# Use shell form to expand $PORT environment variable
+CMD /app/.venv/bin/gunicorn -b 0.0.0.0:$PORT -w 2 "app.flask.main:create_app()"
