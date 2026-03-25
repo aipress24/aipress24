@@ -422,6 +422,16 @@ class BWImage(UUIDAuditBase):
         """URL to serve the image."""
         return f"/bw/{self.business_wall_id}/images/{self.id}"
 
+    def signed_url(self, expires_in: int = 3600) -> str:
+        """Get signed URL for the S3 image content."""
+        if self.content is None:
+            return "/static/img/transparent-square.png"
+        try:
+            return self.content.sign(expires_in=expires_in, for_upload=False)
+        except RuntimeError as e:
+            msg = f"Storage failed to sign URL for BWImage {self.id}: {e}"
+            raise RuntimeError(msg) from e
+
     @property
     def is_first(self) -> bool:
         """Check if this is the first image in the gallery."""
