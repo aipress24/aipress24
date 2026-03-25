@@ -1,0 +1,365 @@
+{% extends "layout.html" %}
+{% block title %}Configurer la Galerie du Business Wall{% endblock %}
+{% block content %}
+    <div class="max-w-4xl mx-auto">
+        <div class="bg-white p-8 rounded-2xl shadow-lg border border-gray-200">
+            <h1 class="text-3xl font-bold text-gray-900">
+                2- Configurer la Galerie
+            </h1>
+            <p class="mt-2 text-gray-600">
+                Ajoutez des images à la galerie de votre Business Wall.
+            </p>
+
+            {# Existing Gallery Images #}
+            <h2 class="mt-8 text-xl font-semibold text-gray-800">
+                Images actuelles
+            </h2>
+
+            <div class="mb-8 space-y-4">
+                {% for image in gallery_images %}
+                    {% if image.is_last %}
+                        <div id="last_image"></div>
+                    {% endif %}
+                    <div class="flex border rounded">
+                        <div class="mr-4 flex-shrink-0 border rounded-l">
+                            {% if image.content %}
+                                <img
+                                    src="{{ image.signed_url() }}"
+                                    alt=""
+                                    class="max-h-48 w-64 object-contain"
+                                />
+                            {% endif %}
+                        </div>
+
+                        <div class="p-4 text-gray-900">
+                            <h4 class="text-lg font-bold">
+                                ({{ image.position }})
+                                {{ image.caption or "Pas de description" }}
+                            </h4>
+
+                            <p class="mt-1">
+                                {{ image.copyright or "Pas de mention de copyright" }}
+                            </p>
+
+                            <div class="flex items-center mt-8 space-x-4">
+                                <form
+                                    method="post"
+                                    action="{{ url_for('bw_activation.delete_gallery_image', image_id=image.id) }}"
+                                    class="inline"
+                                >
+                                    <button
+                                        type="submit"
+                                        class="rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500"
+                                        onclick="return confirm('Etes-vous sûr de vouloir supprimer cette image?')"
+                                    >
+                                        Supprimer
+                                    </button>
+                                </form>
+
+                                {% if not image.is_first %}
+                                    <button
+                                        hx-post="{{ url_for('bw_activation.move_gallery_image', image_id=image.id) }}"
+                                        hx-vals='{"direction": "up"}'
+                                        hx-target="body"
+                                        class="rounded-md bg-gray-200 px-3 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-300"
+                                    >
+                                        ↑
+                                    </button>
+                                {% endif %}
+
+                                {% if not image.is_last %}
+                                    <button
+                                        hx-post="{{ url_for('bw_activation.move_gallery_image', image_id=image.id) }}"
+                                        hx-vals='{"direction": "down"}'
+                                        hx-target="body"
+                                        class="rounded-md bg-gray-200 px-3 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-300"
+                                    >
+                                        ↓
+                                    </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% else %}
+                    <p class="text-gray-500 text-sm">
+                        Aucune image dans la galerie pour le moment.
+                    </p>
+                {% endfor %}
+            </div>
+
+            {# Add New Image Form #}
+            <form
+                action="{{ url_for('bw_activation.configure_gallery') }}"
+                method="post"
+                enctype="multipart/form-data"
+                x-data="galleryImageCropper()"
+            >
+                <div class="border-t border-gray-200 pt-8">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-6">
+                        Ajouter une image
+                    </h2>
+
+                    <div class="space-y-6">
+                        <div>
+                            <label
+                                for="photo"
+                                class="block text-sm font-medium leading-6 text-gray-900"
+                                >Image (max. 4 Mo)</label
+                            >
+
+                            {# Cropper container #}
+                            <div
+                                x-show="imgsrc && !imageValidated"
+                                class="mb-4 mt-4"
+                                style="display: none;"
+                            >
+                                <p class="font-semibold mb-1 text-sm">
+                                    Recadrer l'image
+                                </p>
+                                <div
+                                    class="bg-gray-100 rounded-lg overflow-hidden w-full"
+                                    style="height: 400px;"
+                                >
+                                    <img
+                                        x-ref="cropperImage"
+                                        :src="imgsrc"
+                                        class="block w-full"
+                                        @load="initCropper"
+                                    />
+                                </div>
+                                <p
+                                    class="mt-2 text-xs text-gray-500"
+                                    x-show="image.size"
+                                >
+                                    Taille originale:
+                                    <span x-text="image.size"></span>KB
+                                    <span x-text="image.dimension"></span>
+                                </p>
+                            </div>
+
+                            {# Validated image preview #}
+                            <template x-if="imageValidated">
+                                <div class="mt-4">
+                                    <p class="my-0 mx-0 text-gray-900 text-sm">
+                                        Image validée :
+                                    </p>
+                                    <img
+                                        :src="validatedImageUrl"
+                                        class="my-2 max-w-64 max-h-48 border"
+                                    />
+                                </div>
+                            </template>
+
+                            <input
+                                type="file"
+                                name="image_file"
+                                accept=".png,.jpeg,.jpg,image/png,image/jpeg"
+                                x-ref="imageFile"
+                                @change="fileChosen"
+                                class="mt-2 block w-full text-sm text-gray-900"
+                                :class="{ 'hidden': imageValidated }"
+                            />
+                            <input
+                                type="hidden"
+                                name="image"
+                                x-ref="croppedData"
+                            />
+                            <input
+                                type="hidden"
+                                name="image_filename"
+                                x-ref="imageFilename"
+                            />
+                        </div>
+
+                        <div>
+                            <label
+                                for="caption"
+                                class="block text-sm font-medium leading-6 text-gray-900"
+                                >Description</label
+                            >
+                            <div class="mt-2">
+                                <input
+                                    id="caption"
+                                    name="caption"
+                                    type="text"
+                                    class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label
+                                for="copyright"
+                                class="block text-sm font-medium leading-6 text-gray-900"
+                                >Mention de copyright</label
+                            >
+                            <div class="mt-2">
+                                <input
+                                    id="copyright"
+                                    name="copyright"
+                                    type="text"
+                                    class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                />
+                            </div>
+                        </div>
+
+                        <div
+                            class="sm:col-span-6 flex items-center gap-3"
+                            x-show="imgsrc"
+                            style="display: none;"
+                        >
+                            <button
+                                type="submit"
+                                @click="validateCrop()"
+                                class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                            >
+                                Valider le recadrage et ajouter l'image
+                            </button>
+                            <button
+                                type="button"
+                                @click="resetImage()"
+                                class="text-sm text-gray-500 hover:text-gray-700"
+                            >
+                                Annuler
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div
+                    class="mt-8 pt-6 border-t flex justify-between items-center"
+                >
+                    <a
+                        href="{{ url_for('bw_activation.configure_content') }}"
+                        class="text-sm font-semibold leading-6 text-gray-900 hover:text-gray-700"
+                    >
+                        ← Retour à la configuration du contenu
+                    </a>
+                    <div class="flex gap-4">
+                        <a
+                            href="{{ url_for('bw_activation.invite_organisation_members') }}"
+                            class="rounded-md bg-gray-300 px-5 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-400"
+                        >
+                            Passer cette étape →
+                        </a>
+                        <button
+                            type="submit"
+                            name="skip_add"
+                            class="rounded-md bg-green-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-green-700"
+                        >
+                            Enregistrer et continuer →
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function galleryImageCropper() {
+            return {
+                imgsrc: null,
+                cropper: null,
+                imageError: "",
+                image: {
+                    size: null,
+                    dimension: null,
+                },
+                imageValidated: false,
+                validatedImageUrl: null,
+                originalFilename: null,
+                maxImageSize: 4096, // 4MB in KB
+
+                fileChosen(event) {
+                    this.imageError = "";
+                    this.imgsrc = null;
+                    this.imageValidated = false;
+                    this.originalFilename = null;
+                    this.$refs.croppedData.value = "";
+                    this.$refs.imageFilename.value = "";
+                    if (this.cropper) {
+                        this.cropper.destroy();
+                        this.cropper = null;
+                    }
+
+                    const file = event.target.files[0];
+                    if (!file) return;
+                    if (file.type.indexOf("image/") !== 0) {
+                        this.imageError = "Le fichier doit être une image.";
+                        return;
+                    }
+
+                    this.image.size = Math.floor(file.size / 1024);
+                    if (this.image.size > this.maxImageSize) {
+                        this.imageError = `L'image est trop grande (${this.image.size}KB, max ${this.maxImageSize}KB)`;
+                        return;
+                    }
+
+                    this.originalFilename = file.name;
+                    this.$refs.imageFilename.value = file.name;
+
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        this.imgsrc = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                },
+
+                initCropper() {
+                    this.$nextTick(() => {
+                        if (this.cropper) this.cropper.destroy();
+                        const image = this.$refs.cropperImage;
+                        this.cropper = new Cropper(image, {
+                            viewMode: 2,
+                            autoCropArea: 1,
+                            responsive: true,
+                            background: true,
+                        });
+
+                        // Get image dimensions
+                        const img = new Image();
+                        img.onload = () => {
+                            this.image.dimension = `(${img.width}x${img.height})`;
+                        };
+                        img.src = this.imgsrc;
+                    });
+                },
+
+                validateCrop() {
+                    if (!this.cropper) return;
+                    const canvas = this.cropper.getCroppedCanvas({
+                        maxWidth: 1600,
+                        maxHeight: 1600,
+                    });
+                    if (canvas) {
+                        this.validatedImageUrl = canvas.toDataURL(
+                            "image/jpeg",
+                            0.9
+                        );
+                        this.$refs.croppedData.value = this.validatedImageUrl;
+                        this.imageValidated = true;
+                        // Destroy cropper to free resources
+                        if (this.cropper) {
+                            this.cropper.destroy();
+                            this.cropper = null;
+                        }
+                    }
+                },
+
+                resetImage() {
+                    this.imgsrc = null;
+                    this.imageValidated = false;
+                    this.validatedImageUrl = null;
+                    this.originalFilename = null;
+                    this.$refs.croppedData.value = "";
+                    this.$refs.imageFilename.value = "";
+                    this.$refs.imageFile.value = "";
+                    if (this.cropper) {
+                        this.cropper.destroy();
+                        this.cropper = null;
+                    }
+                },
+            };
+        }
+    </script>
+{% endblock %}

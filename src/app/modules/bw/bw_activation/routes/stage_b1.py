@@ -374,7 +374,7 @@ def configure_content():
         if modified:
             db.session.commit()
 
-        return redirect(url_for("bw_activation.invite_organisation_members"))
+        return redirect(url_for("bw_activation.configure_gallery"))
 
     type_orga_ontology = get_taxonomy_dual_select("type_organisation_detail")
     type_entreprise_media_ontology = get_full_taxonomy("type_entreprises_medias")
