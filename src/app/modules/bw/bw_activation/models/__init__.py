@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 
-from .business_wall import BusinessWall, BWStatus, BWType
+from .business_wall import BusinessWall, BWImage, BWStatus, BWType
 from .content import BWContent
 from .partnership import Partnership, PartnershipStatus
 from .repositories import (
@@ -38,6 +38,7 @@ __all__ = [  # noqa: RUF022
     # Models
     "BusinessWall",
     "BWContent",
+    "BWImage",
     "Partnership",
     "RoleAssignment",
     "RolePermission",

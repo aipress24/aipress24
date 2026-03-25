@@ -8,11 +8,12 @@ from __future__ import annotations
 
 from datetime import datetime
 from enum import StrEnum
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, ClassVar
+from uuid import UUID
 
 from advanced_alchemy.base import UUIDAuditBase
 from advanced_alchemy.types.file_object import FileObject, StoredObject
-from sqlalchemy import JSON, BigInteger, ForeignKey, String, inspect, select
+from sqlalchemy import JSON, BigInteger, ForeignKey, String, inspect, orm, select
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.orm.attributes import flag_modified
 
@@ -99,6 +100,10 @@ class BusinessWall(UUIDAuditBase):
 
     # Galerie d'images - list of FileObject stored as JSON
     gallery_images: Mapped[list[dict]] = mapped_column(JSON, default=list)
+
+    # New gallery images (BWImage) - similar to Event.images
+    # Relationship defined via backref in BWImage
+    bw_images: ClassVar[list[BWImage]] = []
 
     name: Mapped[str] = mapped_column(nullable=True)
 
@@ -362,3 +367,67 @@ class BusinessWall(UUIDAuditBase):
         flag_modified(self, "gallery_images")
 
         return deserialize_file_object(img_data)
+
+    # Gallery management with BWImage
+
+    @property
+    def sorted_bw_images(self) -> list[BWImage]:
+        """Return gallery images sorted by position."""
+        return sorted(self.bw_images, key=lambda x: x.position)
+
+    def get_bw_image(self, image_id: UUID) -> BWImage | None:
+        """Get a specific gallery image by ID."""
+        return next((img for img in self.bw_images if img.id == image_id), None)
+
+    def add_bw_image(self, image: BWImage) -> None:
+        """Add a new image to the gallery."""
+        image.position = len(self.bw_images)
+        self.bw_images.append(image)
+
+    def delete_bw_image(self, image: BWImage) -> None:
+        """Delete an image from the gallery and update positions."""
+        self.bw_images.remove(image)
+        self._update_bw_image_positions()
+
+    def _update_bw_image_positions(self) -> None:
+        """Update positions after reordering."""
+        for i, image in enumerate(self.sorted_bw_images):
+            image.position = i
+
+
+class BWImage(UUIDAuditBase):
+    """Images for Business Wall gallery (similar to EventImage)."""
+
+    __tablename__ = "bw_image"
+
+    content: Mapped[FileObject | None] = mapped_column(
+        StoredObject(backend="s3"), nullable=True
+    )
+
+    business_wall_id: Mapped[UUID] = mapped_column(
+        ForeignKey("bw_business_wall.id", ondelete="CASCADE"), nullable=False
+    )
+
+    caption: Mapped[str] = mapped_column(default="")
+    copyright: Mapped[str] = mapped_column(default="")
+
+    position: Mapped[int] = mapped_column(default=0)
+
+    business_wall: Mapped[BusinessWall] = orm.relationship(
+        BusinessWall, foreign_keys=[business_wall_id], backref="bw_images"
+    )
+
+    @property
+    def url(self) -> str:
+        """URL to serve the image."""
+        return f"/bw/{self.business_wall_id}/images/{self.id}"
+
+    @property
+    def is_first(self) -> bool:
+        """Check if this is the first image in the gallery."""
+        return self.position == 0
+
+    @property
+    def is_last(self) -> bool:
+        """Check if this is the last image in the gallery."""
+        return self.position == len(self.business_wall.bw_images) - 1
