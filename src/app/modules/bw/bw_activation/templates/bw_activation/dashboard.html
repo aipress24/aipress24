@@ -41,12 +41,31 @@
                     </a>
                 </div>
 
+                <!-- Stage 1b: Gallery -->
+                <div
+                    class="border border-gray-300 p-6 rounded-lg hover:shadow-md hover:border-pink-500 transition"
+                >
+                    <h2 class="text-xl font-semibold text-gray-800 mb-3">
+                        2- Configurer la galerie
+                    </h2>
+                    <p class="text-sm text-gray-600 mb-4">
+                        Ajoutez des images à la galerie de votre Business Wall
+                        pour mettre en valeur votre organisation.
+                    </p>
+                    <a
+                        href="{{ url_for('bw_activation.configure_gallery') }}"
+                        class="inline-block rounded-md bg-pink-600 px-4 py-2 text-sm font-semibold text-white hover:bg-pink-700"
+                    >
+                        Configurer la galerie →
+                    </a>
+                </div>
+
                 <!-- Stage 2: Manage Business Wall Invitations -->
                 <div
                     class="border border-gray-300 p-6 rounded-lg hover:shadow-md hover:border-teal-500 transition"
                 >
                     <h2 class="text-xl font-semibold text-gray-800 mb-3">
-                        2- Gérer les invitations à rejoindre le Business Wall
+                        3- Gérer les invitations à rejoindre le Business Wall
                     </h2>
                     <p class="text-sm text-gray-600 mb-4">
                         Envoyez et gérez les invitations pour rejoindre votre
@@ -65,7 +84,7 @@
                     class="border border-gray-300 p-6 rounded-lg hover:shadow-md hover:border-indigo-500 transition"
                 >
                     <h2 class="text-xl font-semibold text-gray-800 mb-3">
-                        3- Gérer les membres de l'organisation
+                        4- Gérer les membres de l'organisation
                     </h2>
                     <p class="text-sm text-gray-600 mb-4">
                         Gérez les membres de votre organisation.
@@ -83,7 +102,7 @@
                     class="border border-gray-300 p-6 rounded-lg hover:shadow-md hover:border-blue-500 transition"
                 >
                     <h2 class="text-xl font-semibold text-gray-800 mb-3">
-                        4- Gérer les rôles internes
+                        5- Gérer les rôles internes
                     </h2>
                     <p class="text-sm text-gray-600 mb-4">
                         Nommez des Business Wall Managers et des
@@ -103,7 +122,7 @@
                         class="border border-gray-300 p-6 rounded-lg hover:shadow-md hover:border-green-500 transition"
                     >
                         <h2 class="text-xl font-semibold text-gray-800 mb-3">
-                            5- Gérer les partenaires externes
+                            6- Gérer les partenaires externes
                         </h2>
                         <p class="text-sm text-gray-600 mb-4">
                             Ajoutez des PR Agencies ou PR Consultants pour vous
@@ -123,7 +142,7 @@
                     class="border border-gray-300 p-6 rounded-lg hover:shadow-md hover:border-purple-500 transition"
                 >
                     <h2 class="text-xl font-semibold text-gray-800 mb-3">
-                        {% if bw_type != 'pr' %}6{% else %}5{% endif %}-
+                        {% if bw_type != 'pr' %}7{% else %}6{% endif %}-
                         Attribuer des missions
                     </h2>
                     <p class="text-sm text-gray-600 mb-4">
