@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import contextlib
 from typing import TYPE_CHECKING, cast
+from uuid import UUID
 
 from flask import flash, g, redirect, render_template, request, session, url_for
 
@@ -111,7 +112,7 @@ def delete_gallery_image(image_id: str):
         session["error"] = ERR_NOT_MANAGER
         return redirect(url_for("bw_activation.not_authorized"))
 
-    bw_image = business_wall.get_bw_image(image_id)
+    bw_image = business_wall.get_bw_image(UUID(image_id))
     if bw_image:
         if bw_image.content:
             with contextlib.suppress(RuntimeError):
@@ -140,7 +141,7 @@ def move_gallery_image(image_id: str):
         return redirect(url_for("bw_activation.not_authorized"))
 
     direction = request.form.get("direction", "")
-    bw_image = business_wall.get_bw_image(image_id)
+    bw_image = business_wall.get_bw_image(UUID(image_id))
 
     if bw_image and direction in ("up", "down"):
         images = list(business_wall.sorted_bw_images)
