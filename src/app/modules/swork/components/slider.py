@@ -9,4 +9,5 @@ from app.flask.lib.pywire import Component, component
 
 @component
 class Slider(Component):
-    pass
+    def __init__(self, images: list[dict[str, str]] | None = None):
+        self.images: list[dict[str, str]] = images or []
