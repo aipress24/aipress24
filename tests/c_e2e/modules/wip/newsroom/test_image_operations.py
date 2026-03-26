@@ -11,12 +11,13 @@ if storage is not available.
 
 from __future__ import annotations
 
-import socket
 from io import BytesIO
 from typing import TYPE_CHECKING
 
 import arrow
+import boto3
 import pytest
+from botocore.exceptions import BotoCoreError, ClientError
 
 from app.flask.routing import url_for
 from app.models.lifecycle import PublicationStatus
@@ -24,20 +25,24 @@ from app.modules.wip.models.newsroom.article import Article
 
 
 def is_minio_available() -> bool:
-    """Check if MinIO server is available."""
+    """Check if MinIO server is available and accepts test credentials."""
     try:
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.settimeout(1)
-        result = sock.connect_ex(("127.0.0.1", 9000))
-        sock.close()
-        return result == 0
-    except OSError:
+        client = boto3.client(
+            "s3",
+            endpoint_url="http://127.0.0.1:9000",
+            aws_access_key_id="minioadmin",
+            aws_secret_access_key="minioadmin",
+            region_name="fr-paris",
+        )
+        client.list_buckets()
+        return True
+    except (ClientError, BotoCoreError, OSError):
         return False
 
 
 requires_storage = pytest.mark.skipif(
     not is_minio_available(),
-    reason="MinIO server not available at localhost:9000",
+    reason="MinIO server not available or credentials invalid at localhost:9000",
 )
 
 if TYPE_CHECKING:
