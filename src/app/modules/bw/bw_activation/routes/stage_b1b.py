@@ -97,7 +97,7 @@ def configure_gallery():
 
 
 @bp.route("/delete-gallery-image/<uuid:image_id>", methods=["POST"])
-def delete_gallery_image(image_id: str):
+def delete_gallery_image(image_id: UUID):
     """Delete an image from the Business Wall."""
     if not session.get("bw_activated"):
         return redirect(url_for("bw_activation.index"))
@@ -112,7 +112,7 @@ def delete_gallery_image(image_id: str):
         session["error"] = ERR_NOT_MANAGER
         return redirect(url_for("bw_activation.not_authorized"))
 
-    bw_image = business_wall.get_bw_image(UUID(image_id))
+    bw_image = business_wall.get_bw_image(image_id)
     if bw_image:
         if bw_image.content:
             with contextlib.suppress(RuntimeError):
@@ -125,7 +125,7 @@ def delete_gallery_image(image_id: str):
 
 
 @bp.route("/move-gallery-image/<uuid:image_id>", methods=["POST"])
-def move_gallery_image(image_id: str):
+def move_gallery_image(image_id: UUID):
     """Move a gallery image up or down."""
     if not session.get("bw_activated"):
         return redirect(url_for("bw_activation.index"))
@@ -141,7 +141,7 @@ def move_gallery_image(image_id: str):
         return redirect(url_for("bw_activation.not_authorized"))
 
     direction = request.form.get("direction", "")
-    bw_image = business_wall.get_bw_image(UUID(image_id))
+    bw_image = business_wall.get_bw_image(image_id)
 
     if bw_image and direction in ("up", "down"):
         images = list(business_wall.sorted_bw_images)
