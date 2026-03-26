@@ -258,7 +258,6 @@ class OrgVM(ViewModel):
             "logo_url": self.get_logo_url(),
             "got_cover_image": self._got_cover_image(),
             "cover_image_url": self.get_cover_image_url(),
-            "screenshot_url": self.get_screenshot_url(),
             "press_releases": self.get_press_releases(),
             "publications": self.get_publications(),
             "is_following": adapt(g.user).is_following(self.org),
@@ -287,14 +286,6 @@ class OrgVM(ViewModel):
 
     def get_cover_image_url(self) -> str:
         return get_organisation_cover_image_url(self.org)
-
-    def get_screenshot_url(self) -> str:
-        return ""
-        # if not self.org.screenshot_id:
-        #     return ""
-        # config = current_app.config
-        # base_url = config["S3_PUBLIC_URL"]
-        # return f"{base_url}/{self.org.screenshot_id}"
 
     def get_press_releases(self) -> list:
         stmt = (
