@@ -13,6 +13,7 @@
             {# Existing Gallery Images #}
             <h2 class="mt-8 text-xl font-semibold text-gray-800">
                 Images actuelles
+                ({{ gallery_images|length }}/{{ max_gallery_images }})
             </h2>
 
             <div class="mb-8 space-y-4">
@@ -88,170 +89,187 @@
             </div>
 
             {# Add New Image Form #}
-            <form
-                action="{{ url_for('bw_activation.configure_gallery') }}"
-                method="post"
-                enctype="multipart/form-data"
-                x-data="galleryImageCropper()"
-            >
+            {% if gallery_limit_reached %}
                 <div class="border-t border-gray-200 pt-8">
-                    <h2 class="text-xl font-semibold text-gray-800 mb-6">
-                        Ajouter une image
-                    </h2>
+                    <div
+                        class="bg-yellow-50 border border-yellow-200 rounded-md p-4"
+                    >
+                        <p class="text-sm text-yellow-800">
+                            <strong>Limite atteinte :</strong> La galerie est
+                            limitée à {{ max_gallery_images }} images. Pour
+                            ajouter une nouvelle image, veuillez d'abord en
+                            supprimer une existante.
+                        </p>
+                    </div>
+                </div>
+            {% else %}
+                <form
+                    action="{{ url_for('bw_activation.configure_gallery') }}"
+                    method="post"
+                    enctype="multipart/form-data"
+                    x-data="galleryImageCropper()"
+                >
+                    <div class="border-t border-gray-200 pt-8">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-6">
+                            Ajouter une image
+                        </h2>
 
-                    <div class="space-y-6">
-                        <div>
-                            <label
-                                for="photo"
-                                class="block text-sm font-medium leading-6 text-gray-900"
-                                >Image (max. 4 Mo)</label
-                            >
+                        <div class="space-y-6">
+                            <div>
+                                <label
+                                    for="photo"
+                                    class="block text-sm font-medium leading-6 text-gray-900"
+                                    >Image (max. 4 Mo)</label
+                                >
 
-                            {# Cropper container #}
+                                {# Cropper container #}
+                                <div
+                                    x-show="imgsrc && !imageValidated"
+                                    class="mb-4 mt-4"
+                                    style="display: none;"
+                                >
+                                    <p class="font-semibold mb-1 text-sm">
+                                        Recadrer l'image
+                                    </p>
+                                    <div
+                                        class="bg-gray-100 rounded-lg overflow-hidden w-full"
+                                        style="height: 400px;"
+                                    >
+                                        <img
+                                            x-ref="cropperImage"
+                                            :src="imgsrc"
+                                            class="block w-full"
+                                            @load="initCropper"
+                                        />
+                                    </div>
+                                    <p
+                                        class="mt-2 text-xs text-gray-500"
+                                        x-show="image.size"
+                                    >
+                                        Taille originale:
+                                        <span x-text="image.size"></span>KB
+                                        <span x-text="image.dimension"></span>
+                                    </p>
+                                </div>
+
+                                {# Validated image preview #}
+                                <template x-if="imageValidated">
+                                    <div class="mt-4">
+                                        <p
+                                            class="my-0 mx-0 text-gray-900 text-sm"
+                                        >
+                                            Image validée :
+                                        </p>
+                                        <img
+                                            :src="validatedImageUrl"
+                                            class="my-2 max-w-64 max-h-48 border"
+                                        />
+                                    </div>
+                                </template>
+
+                                <input
+                                    type="file"
+                                    name="image_file"
+                                    accept=".png,.jpeg,.jpg,image/png,image/jpeg"
+                                    x-ref="imageFile"
+                                    @change="fileChosen"
+                                    class="mt-2 block w-full text-sm text-gray-900"
+                                    :class="{ 'hidden': imageValidated }"
+                                />
+                                <input
+                                    type="hidden"
+                                    name="image"
+                                    x-ref="croppedData"
+                                />
+                                <input
+                                    type="hidden"
+                                    name="image_filename"
+                                    x-ref="imageFilename"
+                                />
+                            </div>
+
+                            <div>
+                                <label
+                                    for="caption"
+                                    class="block text-sm font-medium leading-6 text-gray-900"
+                                    >Description</label
+                                >
+                                <div class="mt-2">
+                                    <input
+                                        id="caption"
+                                        name="caption"
+                                        type="text"
+                                        class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                    />
+                                </div>
+                            </div>
+
+                            <div>
+                                <label
+                                    for="copyright"
+                                    class="block text-sm font-medium leading-6 text-gray-900"
+                                    >Mention de copyright</label
+                                >
+                                <div class="mt-2">
+                                    <input
+                                        id="copyright"
+                                        name="copyright"
+                                        type="text"
+                                        class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                    />
+                                </div>
+                            </div>
+
                             <div
-                                x-show="imgsrc && !imageValidated"
-                                class="mb-4 mt-4"
+                                class="sm:col-span-6 flex items-center gap-3"
+                                x-show="imgsrc"
                                 style="display: none;"
                             >
-                                <p class="font-semibold mb-1 text-sm">
-                                    Recadrer l'image
-                                </p>
-                                <div
-                                    class="bg-gray-100 rounded-lg overflow-hidden w-full"
-                                    style="height: 400px;"
+                                <button
+                                    type="submit"
+                                    @click="validateCrop()"
+                                    class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                                 >
-                                    <img
-                                        x-ref="cropperImage"
-                                        :src="imgsrc"
-                                        class="block w-full"
-                                        @load="initCropper"
-                                    />
-                                </div>
-                                <p
-                                    class="mt-2 text-xs text-gray-500"
-                                    x-show="image.size"
+                                    Valider le recadrage et ajouter l'image
+                                </button>
+                                <button
+                                    type="button"
+                                    @click="resetImage()"
+                                    class="text-sm text-gray-500 hover:text-gray-700"
                                 >
-                                    Taille originale:
-                                    <span x-text="image.size"></span>KB
-                                    <span x-text="image.dimension"></span>
-                                </p>
-                            </div>
-
-                            {# Validated image preview #}
-                            <template x-if="imageValidated">
-                                <div class="mt-4">
-                                    <p class="my-0 mx-0 text-gray-900 text-sm">
-                                        Image validée :
-                                    </p>
-                                    <img
-                                        :src="validatedImageUrl"
-                                        class="my-2 max-w-64 max-h-48 border"
-                                    />
-                                </div>
-                            </template>
-
-                            <input
-                                type="file"
-                                name="image_file"
-                                accept=".png,.jpeg,.jpg,image/png,image/jpeg"
-                                x-ref="imageFile"
-                                @change="fileChosen"
-                                class="mt-2 block w-full text-sm text-gray-900"
-                                :class="{ 'hidden': imageValidated }"
-                            />
-                            <input
-                                type="hidden"
-                                name="image"
-                                x-ref="croppedData"
-                            />
-                            <input
-                                type="hidden"
-                                name="image_filename"
-                                x-ref="imageFilename"
-                            />
-                        </div>
-
-                        <div>
-                            <label
-                                for="caption"
-                                class="block text-sm font-medium leading-6 text-gray-900"
-                                >Description</label
-                            >
-                            <div class="mt-2">
-                                <input
-                                    id="caption"
-                                    name="caption"
-                                    type="text"
-                                    class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                                />
+                                    Annuler
+                                </button>
                             </div>
                         </div>
+                    </div>
 
-                        <div>
-                            <label
-                                for="copyright"
-                                class="block text-sm font-medium leading-6 text-gray-900"
-                                >Mention de copyright</label
-                            >
-                            <div class="mt-2">
-                                <input
-                                    id="copyright"
-                                    name="copyright"
-                                    type="text"
-                                    class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                                />
-                            </div>
-                        </div>
-
-                        <div
-                            class="sm:col-span-6 flex items-center gap-3"
-                            x-show="imgsrc"
-                            style="display: none;"
+                    <div
+                        class="mt-8 pt-6 border-t flex justify-between items-center"
+                    >
+                        <a
+                            href="{{ url_for('bw_activation.configure_content') }}"
+                            class="text-sm font-semibold leading-6 text-gray-900 hover:text-gray-700"
                         >
+                            ← Retour à la configuration du contenu
+                        </a>
+                        <div class="flex gap-4">
+                            <a
+                                href="{{ url_for('bw_activation.invite_organisation_members') }}"
+                                class="rounded-md bg-gray-300 px-5 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-400"
+                            >
+                                Passer cette étape →
+                            </a>
                             <button
                                 type="submit"
-                                @click="validateCrop()"
-                                class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                                name="skip_add"
+                                class="rounded-md bg-green-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-green-700"
                             >
-                                Valider le recadrage et ajouter l'image
-                            </button>
-                            <button
-                                type="button"
-                                @click="resetImage()"
-                                class="text-sm text-gray-500 hover:text-gray-700"
-                            >
-                                Annuler
+                                Enregistrer et continuer →
                             </button>
                         </div>
                     </div>
-                </div>
-
-                <div
-                    class="mt-8 pt-6 border-t flex justify-between items-center"
-                >
-                    <a
-                        href="{{ url_for('bw_activation.configure_content') }}"
-                        class="text-sm font-semibold leading-6 text-gray-900 hover:text-gray-700"
-                    >
-                        ← Retour à la configuration du contenu
-                    </a>
-                    <div class="flex gap-4">
-                        <a
-                            href="{{ url_for('bw_activation.invite_organisation_members') }}"
-                            class="rounded-md bg-gray-300 px-5 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-400"
-                        >
-                            Passer cette étape →
-                        </a>
-                        <button
-                            type="submit"
-                            name="skip_add"
-                            class="rounded-md bg-green-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-green-700"
-                        >
-                            Enregistrer et continuer →
-                        </button>
-                    </div>
-                </div>
-            </form>
+                </form>
+            {% endif %}
         </div>
     </div>
 

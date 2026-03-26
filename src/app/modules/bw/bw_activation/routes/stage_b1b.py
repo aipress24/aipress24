@@ -24,7 +24,7 @@ from app.modules.bw.bw_activation.utils import (
     ERR_NOT_MANAGER,
     is_bw_manager_or_admin,
 )
-from app.settings.constants import MAX_IMAGE_SIZE
+from app.settings.constants import MAX_GALLERY_IMAGES, MAX_IMAGE_SIZE
 
 if TYPE_CHECKING:
     from app.lib.image_utils import UploadedImageData
@@ -50,6 +50,11 @@ def configure_gallery():
         if "skip_add" in request.form:
             # got to next step
             return redirect(url_for("bw_activation.invite_organisation_members"))
+
+        # limmit the number of images
+        if len(business_wall.sorted_bw_images) >= MAX_GALLERY_IMAGES:
+            flash(f"La galerie est limitée à {MAX_GALLERY_IMAGES} images")
+            return redirect(url_for("bw_activation.configure_gallery"))
 
         # Add gallery image
         image_data: UploadedImageData | None = extract_image_from_request(
@@ -93,6 +98,8 @@ def configure_gallery():
         "bw_activation/B01b_configure_gallery.html",
         business_wall=business_wall,
         gallery_images=gallery_images,
+        max_gallery_images=MAX_GALLERY_IMAGES,
+        gallery_limit_reached=len(gallery_images) >= MAX_GALLERY_IMAGES,
     )
 
 
