@@ -1,57 +1,166 @@
 <div
-    x-data="slider"
-    x-init="loop"
-    class="relative w-full flex flex-shrink-0 overflow-hidden shadow-2xl">
+    x-data="gallerySlider({{ images|length }})"
+    x-init="startAutoPlay()"
+    class="w-full bg-gray-100"
+>
+    <div class="relative w-full flex flex-shrink-0 overflow-hidden">
+        <div
+            class="rounded-full bg-gray-600/70 text-white absolute top-3 right-3 text-xs px-2 py-1 text-center z-10"
+        >
+            <span x-text="currentIndex"></span>/<span
+                x-text="totalImages"
+            ></span>
+        </div>
 
-  <div class="rounded-full bg-gray-600 text-white absolute top-5 right-5 text-sm px-2 text-center z-10">
-    <span x-text="currentIndex"></span>/
-    <span x-text="images.length"></span>
-  </div>
+        {% for image in images %}
+        <figure
+            class="w-full flex-shrink-0"
+            x-show="currentIndex === {{ loop.index }}"
+            x-transition:enter="transition ease-out duration-300"
+            x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100"
+            x-transition:leave="transition ease-in duration-300"
+            x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0"
+            style="display: none"
+        >
+            <div class="h-56 w-full relative">
+                <img
+                    src="{{ image.url }}"
+                    alt="{{ 'Image' ~ loop.index }}"
+                    class="absolute inset-0 h-full w-full object-contain bg-gray-100"
+                    loading="lazy"
+                    onerror="
+                        this.onerror = null;
+                        this.src = '/static/img/transparent-square.png';
+                    "
+                />
+            </div>
+        </figure>
+        {% endfor %} {% if images|length > 1 %}
+        <button
+            @click="prev()"
+            class="absolute left-2 top-1/2 -translate-y-1/2 w-10 h-10 flex justify-center items-center rounded-full shadow-md z-10 bg-white/80 hover:bg-white text-gray-700"
+            aria-label="Image précédente"
+        >
+            <svg
+                class="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+            >
+                <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M15 19l-7-7 7-7"
+                />
+            </svg>
+        </button>
 
-  <template x-for="(image, index) in images">
-    <figure
-        class="h-72"
-        x-show="currentIndex == index + 1"
-        x-transition:enter="transition transform duration-300"
-        x-transition:enter-start="opacity-0"
-        x-transition:enter-end="opacity-100"
-        x-transition:leave="transition transform duration-300"
-        x-transition:leave-start="opacity-100"
-        x-transition:leave-end="opacity-0">
-      <img :src="image"
-        alt="Image"
-        class="-z-20 absolute inset-0 z-10 h-full w-full object-cover opacity-70"
-        onerror="this.onerror=null;this.src='/static/img/transparent-square.png';"
-        />
-      <figcaption
-          class="absolute inset-x-0 bottom-1 z-20 w-96 mx-auto p-4 font-light text-sm text-center tracking-widest leading-snug bg-gray-300 bg-opacity-25">
-        Any kind of content here!
-        Primum in nostrane potestate est, quid meminerimus? Nulla erit controversia. Vestri haec verecundius, illi
-        fortasse constantius.
-      </figcaption>
-    </figure>
-  </template>
+        <button
+            @click="next()"
+            class="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 flex justify-center items-center rounded-full shadow-md z-10 bg-white/80 hover:bg-white text-gray-700"
+            aria-label="Image suivante"
+        >
+            <svg
+                class="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+            >
+                <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 5l7 7-7 7"
+                />
+            </svg>
+        </button>
 
-  <button
-      @click="back()"
-      class="absolute left-10 top-1/3 w-11 h-11 flex justify-center items-center rounded-full shadow-md z-10 bg-gray-100 hover:bg-gray-200">
-    <svg
-        class=" w-8 h-8 font-bold transition duration-500 ease-in-out transform motion-reduce:transform-none text-gray-500 hover:text-gray-600 hover:-translate-x-0.5"
-        fill="none" stroke="currentColor" viewBox="0 0 24 24"
-        xmlns="http://www.w3.org/2000/svg">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7">
-      </path>
-    </svg>
-  </button>
+        <div
+            class="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 z-10"
+        >
+            {% for image in images %}
+            <button
+                @click="goTo({{ loop.index }})"
+                class="w-2 h-2 rounded-full transition-colors"
+                :class="currentIndex === {{ loop.index }} ? 'bg-gray-800' : 'bg-gray-400'"
+                aria-label="Aller à l'image {{ loop.index }}"
+            ></button>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
 
-  <button
-      @click="next()"
-      class="absolute right-10 top-1/3 w-11 h-11 flex justify-center items-center rounded-full shadow-md z-10 bg-gray-100 hover:bg-gray-200">
-    <svg
-        class=" w-8 h-8 font-bold transition duration-500 ease-in-out transform motion-reduce:transform-none text-gray-500 hover:text-gray-600 hover:translate-x-0.5"
-        fill="none" stroke="currentColor" viewBox="0 0 24 24"
-        xmlns="http://www.w3.org/2000/svg">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path>
-    </svg>
-  </button>
+    <div
+        class="bg-gray-100 px-4 py-3 text-sm border-t border-gray-200 min-h-[3.5rem]"
+    >
+        {% for image in images %}
+        <div
+            x-show="currentIndex === {{ loop.index }}"
+            {%
+            if
+            not
+            loop.first
+            %}
+            style="display: none"
+            {%
+            endif
+            %}
+        >
+            {% if image.caption %}
+            <p class="font-medium text-gray-800">{{ image.caption }}</p>
+            {% endif %} {% if image.copyright %}
+            <p class="text-xs text-gray-500 mt-1">{{ image.copyright }}</p>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
 </div>
+
+<script>
+    function gallerySlider(totalImages) {
+        return {
+            currentIndex: 1,
+            totalImages: totalImages,
+            autoPlayInterval: null,
+
+            prev() {
+                if (this.currentIndex > 1) {
+                    this.currentIndex--;
+                } else {
+                    this.currentIndex = this.totalImages;
+                }
+                this.resetAutoPlay();
+            },
+
+            next() {
+                if (this.currentIndex < this.totalImages) {
+                    this.currentIndex++;
+                } else {
+                    this.currentIndex = 1;
+                }
+                this.resetAutoPlay();
+            },
+
+            goTo(index) {
+                this.currentIndex = index;
+                this.resetAutoPlay();
+            },
+
+            startAutoPlay() {
+                this.autoPlayInterval = setInterval(() => {
+                    this.next();
+                }, 5000);
+            },
+
+            resetAutoPlay() {
+                if (this.autoPlayInterval) {
+                    clearInterval(this.autoPlayInterval);
+                    this.startAutoPlay();
+                }
+            },
+        };
+    }
+</script>

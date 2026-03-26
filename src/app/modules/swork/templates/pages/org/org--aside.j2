@@ -7,17 +7,14 @@ class="") %}
 
     <div class="px-4 py-3">{{ caller() }}</div>
 </div>
-{% endmacro %}
-
+{% endmacro %} {% if org.bw_gallery_images %}
 <div class="bg-white shadow sm:rounded-md">
     <h2 class="bg-gray-200 sm:rounded-t-md font-medium px-4 py-3 text-gray-900">
-        Images à votre disposition
+        Galerie
     </h2>
-
-    {{ component("slider") }}
+    {{ component("slider", images=org.bw_gallery_images) }}
 </div>
-
-{#{% call box("Recherches de collaborations ponctuelles") %}#} {#
+{% endif %} {#{% call box("Recherches de collaborations ponctuelles") %}#} {#
 <p>...</p>
 #} {#{% endcall %}#} {##} {#{% call box("Appels à projets") %}#} {#
 <p>...</p>
@@ -39,36 +36,3 @@ class="") %}
     </ul>
 </div>
 {% endcall %}
-
-<script>
-    document.addEventListener("alpine:init", () => {
-        Alpine.data("slider", () => ({
-            currentIndex: 1,
-            images: [
-                "https://source.unsplash.com/800x600/?beach",
-                "https://source.unsplash.com/800x600/?cat",
-                "https://source.unsplash.com/800x600/?dog",
-                "https://source.unsplash.com/800x600/?lego",
-                "https://source.unsplash.com/800x600/?textures&patterns",
-            ],
-            back() {
-                if (this.currentIndex > 1) {
-                    this.currentIndex = this.currentIndex - 1;
-                }
-            },
-            next() {
-                if (this.currentIndex < this.images.length) {
-                    this.currentIndex = this.currentIndex + 1;
-                } else if (this.currentIndex <= this.images.length) {
-                    this.currentIndex =
-                        this.images.length - this.currentIndex + 1;
-                }
-            },
-            loop() {
-                setInterval(() => {
-                    this.next();
-                }, 5000);
-            },
-        }));
-    });
-</script>
