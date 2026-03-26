@@ -269,6 +269,7 @@ class OrgVM(ViewModel):
             "secteurs_activite": self.get_secteurs_activite(),
             "site_url": self._get_site_url(),
             "description": self._get_description(),
+            "bw_gallery_images": self._get_bw_gallery_images(),
         }
 
     def get_members(self) -> list[User]:
@@ -286,6 +287,26 @@ class OrgVM(ViewModel):
 
     def get_cover_image_url(self) -> str:
         return get_organisation_cover_image_url(self.org)
+
+    def _get_bw_gallery_images(self) -> list[dict[str, str]]:
+        """Get BW gallery images for the organisation (its BW)."""
+        if self.bw is None:
+            return []
+
+        images: list[dict[str, str]] = []
+        for img in self.bw.sorted_bw_images:
+            if img.content:
+                try:
+                    images.append(
+                        {
+                            "url": img.signed_url(),
+                            "caption": img.caption or "",
+                            "copyright": img.copyright or "",
+                        }
+                    )
+                except RuntimeError:
+                    continue
+        return images
 
     def get_press_releases(self) -> list:
         stmt = (
