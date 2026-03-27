@@ -272,20 +272,9 @@ class OrgVM(ViewModel):
 
     def get_display_name(self) -> str:
         """Return BusinessWall name if available, else Organisation name."""
-        # debug
-        warn("DEBUG", self.org, self.org.name)
         bw = get_active_business_wall_for_organisation(self.org)
-        if bw:
-            # warn(self.org.pays_zip_ville)
-            # warn(self.org.pays_zip_ville_detail)
-            warn(bw)
-            warn(bw.name)
-            warn(bw.pays_zip_ville)
-            warn(bw.pays_zip_ville_detail)
-        bw_name = getattr(self.org, "_bw_name", None)
-        if bw_name:
-            warn("bw_name", bw_name)
-            return bw_name
+        if bw and bw.name:
+            return bw.name
         return self.org.name
 
     def get_logo_url(self) -> str:
