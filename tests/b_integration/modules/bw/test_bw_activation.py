@@ -133,6 +133,10 @@ def test_business_wall(
     db_session.add(bw)
     db_session.flush()
 
+    # Link organisation to BW
+    test_org.bw_id = bw.id
+    db_session.flush()
+
     # Create owner role assignment
     owner_role = RoleAssignment(
         business_wall_id=bw.id,
