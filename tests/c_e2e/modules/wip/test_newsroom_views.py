@@ -60,6 +60,10 @@ def journalist_with_bw(db_session: Session, test_org: Organisation) -> User:
         name="Test Media BW",
     )
     db_session.add(bw)
+    db_session.flush()
+
+    # Link organisation to BW
+    test_org.bw_id = bw.id
     db_session.commit()
 
     return user

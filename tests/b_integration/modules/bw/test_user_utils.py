@@ -134,6 +134,10 @@ class TestGetActiveBusinessWallForOrganisation:
         db_session.add(bw)
         db_session.flush()
 
+        # Link organisation to BW
+        test_org.bw_id = bw.id
+        db_session.flush()
+
         result = get_active_business_wall_for_organisation(test_org)
 
         assert result is not None
@@ -220,6 +224,10 @@ class TestGetActiveBusinessWallForOrganisation:
         db_session.add(new_bw)
         db_session.flush()
 
+        # Link organisation to newest BW
+        test_org.bw_id = new_bw.id
+        db_session.flush()
+
         result = get_active_business_wall_for_organisation(test_org)
 
         assert result is not None
@@ -250,6 +258,10 @@ class TestGetActiveBusinessWallForOrganisation:
             organisation_id=test_org.id,
         )
         db_session.add(active_bw)
+        db_session.flush()
+
+        # Link organisation to active BW
+        test_org.bw_id = active_bw.id
         db_session.flush()
 
         result = get_active_business_wall_for_organisation(test_org)
@@ -406,6 +418,10 @@ class TestGetBusinessWallForUser:
             organisation_id=test_org.id,
         )
         db_session.add(bw)
+        db_session.flush()
+
+        # Link organisation to BW
+        test_org.bw_id = bw.id
         db_session.flush()
 
         result = get_business_wall_for_user(test_user_with_profile)

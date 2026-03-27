@@ -104,6 +104,10 @@ def create_bw_test_data(
     session.add(media_bw)
     session.commit()
 
+    # Link organisation to BW
+    media_org.bw_id = media_bw.id
+    session.commit()
+
     result = {
         "media_org": media_org,
         "media_owner": media_owner,
@@ -148,6 +152,10 @@ def create_bw_test_data(
                 name="Test PR Agency BW",
             )
             session.add(pr_bw)
+            session.commit()
+
+            # Link PR organisation to BW
+            pr_org.bw_id = pr_bw.id
             session.commit()
 
             # Create owner role assignment for PR BW

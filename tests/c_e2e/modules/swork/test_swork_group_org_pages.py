@@ -422,6 +422,10 @@ class TestOrgPublicationsTab:
         db_session.add(bw)
         db_session.flush()
 
+        # Link organisation to BW
+        test_organisation.bw_id = bw.id
+        db_session.flush()
+
         tab = OrgPublicationsTab(org=test_organisation)
         assert tab.guard() is True
 
@@ -442,6 +446,10 @@ class TestOrgPublicationsTab:
             organisation_id=test_organisation.id,
         )
         db_session.add(bw)
+        db_session.flush()
+
+        # Link organisation to BW
+        test_organisation.bw_id = bw.id
         db_session.flush()
 
         tab = OrgPublicationsTab(org=test_organisation)
