@@ -7,7 +7,8 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import ClassVar, cast
+from time import time
+from typing import Any, ClassVar, cast
 
 from attr import define
 from flask import Response, g, make_response, render_template, request
@@ -20,6 +21,7 @@ from app.flask.lib.nav import nav
 from app.flask.lib.toaster import toast
 from app.flask.lib.view_model import ViewModel
 from app.flask.sqla import get_multi, get_obj
+from app.logging import warn
 from app.models.auth import User
 from app.models.lifecycle import PublicationStatus
 from app.models.organisation import Organisation
@@ -46,7 +48,7 @@ class OrganisationDetailView(MethodView):
     def get(self, id: str):
         from app.services.social_graph import SocialUser, adapt
 
-        org_obj = get_obj(id, Organisation)
+        org_obj = cast(Organisation, get_obj(id, Organisation))
         soc_user: SocialUser = adapt(g.user)
 
         # Set dynamic breadcrumb label
@@ -236,6 +238,9 @@ class OrgVM(ViewModel):
     """ViewModel for Organisation."""
 
     _cached_bw: BusinessWall | None = None
+    _cached_attrs: dict[str, Any] | None = None
+    _cached_attrs_time: float = 0.0
+    _CACHE_TTL: ClassVar[float] = 60.0  # 1 minute
 
     @property
     def org(self):
@@ -248,19 +253,23 @@ class OrgVM(ViewModel):
             self._cached_bw = get_active_business_wall_for_organisation(self.org)
         return self._cached_bw
 
-    def extra_attrs(self):
+    def _get_cached_attrs(self) -> dict[str, Any]:
+        """Get cached attributes, refresh if expired (1 minute TTL)."""
+
+        if time() - self._cached_attrs_time < self._CACHE_TTL:
+            return self._cached_attrs or {}
+
         from app.services.activity_stream import get_timeline
-        from app.services.social_graph import adapt
 
         timeline = get_timeline(object=self.org, limit=5)
-        return {
+
+        self._cached_attrs = {
             "members": self.get_members(),
             "logo_url": self.get_logo_url(),
             "got_cover_image": self._got_cover_image(),
             "cover_image_url": self.get_cover_image_url(),
             "press_releases": self.get_press_releases(),
             "publications": self.get_publications(),
-            "is_following": adapt(g.user).is_following(self.org),
             "timeline": timeline,
             "address_formatted": self._get_address_formatted(),
             "type_organisation": self.get_type_organisation(),
@@ -270,6 +279,15 @@ class OrgVM(ViewModel):
             "site_url": self._get_site_url(),
             "description": self._get_description(),
             "bw_gallery_images": self._get_bw_gallery_images(),
+        }
+        self._cached_attrs_time = time()
+        return self._cached_attrs
+
+    def extra_attrs(self):
+        from app.services.social_graph import adapt
+
+        return self._get_cached_attrs() | {
+            "is_following": adapt(g.user).is_following(self.org)
         }
 
     def get_members(self) -> list[User]:
@@ -290,22 +308,25 @@ class OrgVM(ViewModel):
 
     def _get_bw_gallery_images(self) -> list[dict[str, str]]:
         """Get BW gallery images for the organisation (its BW)."""
-        if self.bw is None:
-            return []
-
         images: list[dict[str, str]] = []
+        if self.bw is None:
+            return images
+
         for img in self.bw.sorted_bw_images:
-            if img.content:
-                try:
-                    images.append(
-                        {
-                            "url": img.signed_url(),
-                            "caption": img.caption or "",
-                            "copyright": img.copyright or "",
-                        }
-                    )
-                except RuntimeError:
-                    continue
+            # if img.content:
+            try:
+                url = img.signed_url()
+                images.append(
+                    {
+                        "url": url,
+                        "caption": img.caption or "",
+                        "copyright": img.copyright or "",
+                    }
+                )
+                warn("DEBUG", self.bw, url)
+            except RuntimeError as e:
+                warn("DEBUG", self.bw, f"Error: {e}")
+                continue
         return images
 
     def get_press_releases(self) -> list:
