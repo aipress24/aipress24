@@ -268,6 +268,7 @@ class OrgVM(ViewModel):
         return {
             "logo_url": self.get_logo_url(),
             "display_name": self.get_display_name(),
+            "bw_name": getattr(self.org, "_bw_name", None),
         }
 
     def get_display_name(self) -> str:
