@@ -1,133 +1,157 @@
 <main
     class="bg-white shadow sm:rounded-lg"
 >
-  <article>
+    <article>
     <!-- Profile header -->
-    <div>
-      <div class="relative">
-        <img
-            class="h-32 w-full object-cover lg:h-48"
-            src="{{ profile.banner_url }}"
-            onerror="this.onerror=null;this.src='/static/img/transparent-square.png';"
-            alt="cover image"
-        />
+        <div>
+            <div class="relative">
+                <img
+                    class="h-32 w-full object-cover lg:h-48"
+                    src="{{ profile.banner_url }}"
+                    onerror="this.onerror=null;this.src='/static/img/transparent-square.png';"
+                    alt="cover image"
+                    data-tooltip-target="member-cover-{{ profile.id }}-tooltip"
+                    data-tooltip-placement="bottom"
+                />
+                {%- if profile.cover_image_copyright %}
+                    <div
+                        id="member-cover-{{ profile.id }}-tooltip"
+                        role="tooltip"
+                        class="absolute z-10 invisible px-3 py-2 text-sm text-white bg-gray-700 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700 max-w-xs text-left break-words">
+                        {{ profile.cover_image_copyright }}
+                        <div class="tooltip-arrow" data-popper-arrow></div>
+                    </div>
+                {%- endif %}
 
-        <div class="absolute bottom-0 right-0 mr-4 mb-3">
-          {# Ouvert au couchsurfing #}
-          <a href="#" class="rounded-full bg-gray-500 text-gray-100 tooltip tooltip-bottom"
-             data-tip="Dispo pour une rencontre">
-            {{ icon("beer", "lucide", "w-10 h-10 p-2") }}
-          </a>
+                <div class="absolute bottom-0 right-0 mr-4 mb-3">
+                    {# Ouvert au couchsurfing #}
+                    <a href="#" class="rounded-full bg-gray-500 text-gray-100 tooltip tooltip-bottom"
+                       data-tip="Dispo pour une rencontre">
+                        {{ icon("beer", "lucide", "w-10 h-10 p-2") }}
+                    </a>
 
-          {# Ouvert au couchsurfing #}
-          <a href="#" class="rounded-full bg-gray-500 text-gray-100 tooltip tooltip-bottom"
-             data-tip="Ouvert au couchsurfing">
-            {# from: https://lucide.dev/icon/sofa?search=sofa #}
-            {{ icon("sofa", "lucide", "w-10 h-10 p-2") }}
-          </a>
-        </div>
-      </div>
-
-      <div class="z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="-mt-12 sm:-mt-16 sm:flex sm:items-end sm:space-x-5">
-          <div class="flex z-10">
-            {{ profile_image(profile, size=24, class="sm:h-32 sm:w-32") }}
-          </div>
-          <div
-              class="mt-10 sm:flex-1 sm:min-w-0 sm:flex sm:items-center sm:justify-end sm:space-x-6 sm:pb-1"
-          >
-            <div class="sm:hidden 2xl:block mt-6 min-w-0 flex-1">
-              <div class="text-2xl font-bold text-gray-900 truncate flex truncate">
-                <span>{{ profile.name }} </span>
-                {% if profile.karma > 10 %}
-                  🥇
-                {% elif profile.karma > 6 %}
-                  🥈
-                {% elif profile.karma > 3 %}
-                  🥉
-                {% endif %}
-              </div>
-              {# Job title - displayed below name #}
-              {% if profile.job_title %}
-                <div class="text-base font-medium text-gray-600 truncate">
-                  {{ profile.job_title }}
+                    {# Ouvert au couchsurfing #}
+                    <a href="#" class="rounded-full bg-gray-500 text-gray-100 tooltip tooltip-bottom"
+                       data-tip="Ouvert au couchsurfing">
+                        {# from: https://lucide.dev/icon/sofa?search=sofa #}
+                        {{ icon("sofa", "lucide", "w-10 h-10 p-2") }}
+                    </a>
                 </div>
-              {% endif %}
-              {# Organization - displayed below job title #}
-              {% if profile.organisation_name %}
-                <a
-                  class="text-base font-medium text-gray-500 hover:text-gray-700 truncate flex items-center"
-                  href="{{ url_for(profile.organisation) }}"
-                >
-                  {{ icon("building-office", class="h-4 w-4 mr-1") }}
-                  {{ profile.organisation_name }}
-                </a>
-              {% endif %}
             </div>
-            <div
-                class="mt-6 flex flex-col justify-stretch space-y-3 sm:flex-row sm:space-y-0 sm:space-x-4"
-            >
-              <button
-                  type="button"
-                  class="aui-button"
-                  hx-post="{{ url_for(profile) }}"
-                  hx-vals='{"action": "toggle-follow"}'
-                  hx-target="#follow-{{ profile.id }}"
-                  hx-swap="innerHTML"
-              >
-                {%- if profile.is_following -%}
-                  {% set label="Ne plus suivre" %}
-                  {% set color="text-yellow-400" %}
-                {% else %}
-                  {% set label="Suivre" %}
-                  {% set color="text-gray-400" %}
-                {% endif %}
 
-                {{ icon("star", class="-ml-1 mr-2 h-5 w-5 " + color) }}
-                <span id="follow-{{ profile.id }}" class="font-medium text-gray-900">
-                  {{ label }}
-                </span>
-              </button>
+            <div class="z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="-mt-12 sm:-mt-16 sm:flex sm:items-end sm:space-x-5">
+                    {%- if profile.photo_image_copyright %}
+                        <div class="flex z-10" data-tooltip-target="member-photo-{{ profile.id }}-tooltip" data-tooltip-placement="bottom">
+                            {{ profile_image(profile, size=24, class="sm:h-32 sm:w-32") }}
+                        </div>
+                        <div
+                            id="member-photo-{{ profile.id }}-tooltip"
+                            role="tooltip"
+                            class="absolute z-10 invisible px-3 py-2 text-sm text-white bg-gray-700 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700 max-w-xs text-left break-words">
+                            {{ profile.photo_image_copyright }}
+                            <div class="tooltip-arrow" data-popper-arrow></div>
+                        </div>
+                    {%- else %}
+                        <div class="flex z-10">
+                            {{ profile_image(profile, size=24, class="sm:h-32 sm:w-32") }}
+                        </div>
+                    {%- endif %}
+                    <div
+                        class="mt-10 sm:flex-1 sm:min-w-0 sm:flex sm:items-center sm:justify-end sm:space-x-6 sm:pb-1"
+                    >
+                        <div class="sm:hidden 2xl:block mt-6 min-w-0 flex-1">
+                            <div class="text-2xl font-bold text-gray-900 truncate flex truncate">
+                                <span>{{ profile.name }} </span>
+                                {% if profile.karma > 10 %}
+                                    🥇
+                                {% elif profile.karma > 6 %}
+                                    🥈
+                                {% elif profile.karma > 3 %}
+                                    🥉
+                                {% endif %}
+                            </div>
+                            {# Job title - displayed below name #}
+                            {% if profile.job_title %}
+                                <div class="text-base font-medium text-gray-600 truncate">
+                                    {{ profile.job_title }}
+                                </div>
+                            {% endif %}
+                            {# Organization - displayed below job title #}
+                            {% if profile.organisation_name %}
+                                <a
+                                    class="text-base font-medium text-gray-500 hover:text-gray-700 truncate flex items-center"
+                                    href="{{ url_for(profile.organisation) }}"
+                                >
+                                    {{ icon("building-office", class="h-4 w-4 mr-1") }}
+                                    {{ profile.organisation_name }}
+                                </a>
+                            {% endif %}
+                        </div>
+                        <div
+                            class="mt-6 flex flex-col justify-stretch space-y-3 sm:flex-row sm:space-y-0 sm:space-x-4"
+                        >
+                            <button
+                                type="button"
+                                class="aui-button"
+                                hx-post="{{ url_for(profile) }}"
+                                hx-vals='{"action": "toggle-follow"}'
+                                hx-target="#follow-{{ profile.id }}"
+                                hx-swap="innerHTML"
+                            >
+                                {%- if profile.is_following -%}
+                                    {% set label="Ne plus suivre" %}
+                                    {% set color="text-yellow-400" %}
+                                {% else %}
+                                    {% set label="Suivre" %}
+                                    {% set color="text-gray-400" %}
+                                {% endif %}
+
+                                {{ icon("star", class="-ml-1 mr-2 h-5 w-5 " + color) }}
+                                <span id="follow-{{ profile.id }}" class="font-medium text-gray-900">
+                                    {{ label }}
+                                </span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="hidden sm:block 2xl:hidden mt-10 min-w-0 flex-1">
+                    <div class="text-2xl font-bold text-gray-900 truncate">
+                        {{ profile.name }}
+                        {% if profile.karma > 10 %}
+                            🥇
+                        {% elif profile.karma > 6 %}
+                            🥈
+                        {% elif profile.karma > 3 %}
+                            🥉
+                        {% endif %}
+                    </div>
+                    {# Job title - displayed below name #}
+                    {% if profile.job_title %}
+                        <div class="text-base font-medium text-gray-600 truncate">
+                            {{ profile.job_title }}
+                        </div>
+                    {% endif %}
+                    {# Organization - displayed below job title #}
+                    {% if profile.organisation_name %}
+                        <a
+                            class="text-base font-medium text-gray-500 hover:text-gray-700 truncate flex items-center"
+                            href="{{ url_for(profile.organisation) }}"
+                        >
+                            {{ icon("building-office", class="h-4 w-4 mr-1") }}
+                            {{ profile.organisation_name }}
+                        </a>
+                    {% endif %}
+                </div>
             </div>
-          </div>
         </div>
 
-        <div class="hidden sm:block 2xl:hidden mt-10 min-w-0 flex-1">
-          <div class="text-2xl font-bold text-gray-900 truncate">
-            {{ profile.name }}
-            {% if profile.karma > 10 %}
-              🥇
-            {% elif profile.karma > 6 %}
-              🥈
-            {% elif profile.karma > 3 %}
-              🥉
-            {% endif %}
-          </div>
-          {# Job title - displayed below name #}
-          {% if profile.job_title %}
-            <div class="text-base font-medium text-gray-600 truncate">
-              {{ profile.job_title }}
-            </div>
-          {% endif %}
-          {# Organization - displayed below job title #}
-          {% if profile.organisation_name %}
-            <a
-              class="text-base font-medium text-gray-500 hover:text-gray-700 truncate flex items-center"
-              href="{{ url_for(profile.organisation) }}"
-            >
-              {{ icon("building-office", class="h-4 w-4 mr-1") }}
-              {{ profile.organisation_name }}
-            </a>
-          {% endif %}
+        <div id="tabs" hx-get="?tab={{ active_tab }}"
+             hx-trigger="load"
+             hx-target="#tabs"
+             hx-swap="innerHTML">
         </div>
-      </div>
-    </div>
 
-    <div id="tabs" hx-get="?tab={{ active_tab }}"
-         hx-trigger="load"
-         hx-target="#tabs"
-         hx-swap="innerHTML">
-    </div>
-
-  </article>
+    </article>
 </main>
