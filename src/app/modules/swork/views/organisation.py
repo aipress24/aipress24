@@ -266,8 +266,10 @@ class OrgVM(ViewModel):
         self._cached_attrs = {
             "members": self.get_members(),
             "logo_url": self.get_logo_url(),
+            "logo_copyright": self.get_logo_copyright(),
             "got_cover_image": self._got_cover_image(),
             "cover_image_url": self.get_cover_image_url(),
+            "cover_image_copyright": self.get_cover_image_copyright(),
             "press_releases": self.get_press_releases(),
             "publications": self.get_publications(),
             "timeline": timeline,
@@ -303,8 +305,18 @@ class OrgVM(ViewModel):
     def get_logo_url(self) -> str:
         return get_organisation_logo_url(self.org)
 
+    def get_logo_copyright(self) -> str:
+        if self.bw is not None:
+            return self.bw.logo_image_copyright or ""
+        return ""
+
     def get_cover_image_url(self) -> str:
         return get_organisation_cover_image_url(self.org)
+
+    def get_cover_image_copyright(self) -> str:
+        if self.bw is not None:
+            return self.bw.cover_image_copyright or ""
+        return ""
 
     def _get_bw_gallery_images(self) -> list[dict[str, str]]:
         """Get BW gallery images for the organisation (its BW)."""
