@@ -102,7 +102,7 @@
         <div
             id="slider-image-{{ loop.index }}-tooltip"
             role="tooltip"
-            class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-700 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700"
+            class="absolute z-10 invisible px-3 py-2 text-sm text-white bg-gray-700 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700 max-w-xs text-left break-words"
         >
             {% if image.caption %}
                 {{ image.caption }}
