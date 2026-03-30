@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from typing import ClassVar
 
-from flask import redirect, render_template, request, url_for
+from flask import jsonify, redirect, render_template, request, url_for
 from flask.views import MethodView
 from svcs.flask import container
 
@@ -16,6 +16,9 @@ from app.flask.lib.nav import nav
 from app.logging import warn
 from app.modules.admin import blueprint
 from app.services.promotions import PromotionService
+
+BOX_TITLE1 = "AiPRESS24 vous informe"
+BOX_TITLE2 = "AiPRESS24 vous suggère"
 
 PROMO_SLUG_LABEL = [
     {"value": "wire/1", "label": "Wire / promo 1"},
@@ -27,9 +30,6 @@ PROMO_SLUG_LABEL = [
     {"value": "swork/1", "label": "Swork / promo 1"},
     {"value": "swork/2", "label": "Swork / promo 2"},
 ]
-
-BOX_TITLE1 = "AiPRESS24 vous informe"
-BOX_TITLE2 = "AiPRESS24 vous suggère"
 
 
 class PromotionsView(MethodView):
@@ -76,5 +76,33 @@ class PromotionsView(MethodView):
         return redirect(url_for("admin.promotions", saved_promo=slug))
 
 
-# Register the view
+class PromotionLoadView(MethodView):
+    def post(self):
+        data = request.get_json() or {}
+        promo_key = str(data.get("promo_key", ""))
+
+        if not promo_key:
+            return jsonify({"success": False, "message": "No promo key provided"}), 400
+
+        promo_service = container.get(PromotionService)
+        promo = promo_service.get_promotion(slug=promo_key)
+
+        if promo_key.endswith("1"):
+            title = BOX_TITLE1
+        else:
+            title = BOX_TITLE2
+
+        return jsonify(
+            {
+                "success": True,
+                "content": promo.body if promo else "",
+                "promo_title": title,
+            }
+        )
+
+
+# Register the views
 blueprint.add_url_rule("/promotions", view_func=PromotionsView.as_view("promotions"))
+blueprint.add_url_rule(
+    "/promotions/load", view_func=PromotionLoadView.as_view("promotion_load")
+)
