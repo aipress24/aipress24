@@ -16,6 +16,8 @@ from app.models.auth import User
 blueprint = Blueprint("api", __name__, url_prefix="/api")
 route = blueprint.route
 
+from . import trix_blobs  # noqa: E402, F401
+
 
 @blueprint.before_request
 def check_auth() -> None:
