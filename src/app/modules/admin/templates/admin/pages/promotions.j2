@@ -47,7 +47,7 @@
       name="content"
       id="trix-input"
       type="hidden"
-      value="{{ saved_body | e }}"
+      value="{{ saved_body | safe }}"
     >
     <trix-editor
       input="trix-input"
@@ -67,7 +67,7 @@
 if (typeof Trix !== 'undefined') {
   Trix.config.attachments.preview.present = false;
   document.addEventListener('trix-initialize', function(event) {
-  const savedBody = '{{ saved_body | e }}';
+  const savedBody = '{{ saved_body | safe }}';
   if (savedBody) {
     event.target.editor.loadHTML(savedBody);
   }

@@ -1,28 +1,29 @@
 import Trix from "trix";
 import "trix/dist/trix.css";
 
-var UPLOAD_URL = "/api/blobs/";
+var UPLOAD_URL = "/api/trix_blobs/";
 
 async function uploadAttachment(attachment) {
-  const file = attachment.file;
-  const formData = new FormData();
-  formData.append("Content-Type", file.type);
-  formData.append("file", file);
+    const file = attachment.file;
+    const formData = new FormData();
+    formData.append("Content-Type", file.type);
+    formData.append("file", file);
 
-  const response = await fetch(UPLOAD_URL, {
-    method: "POST",
-    body: formData,
-  });
+    const response = await fetch(UPLOAD_URL, {
+        method: "POST",
+        credentials: "same-origin",
+        body: formData,
+    });
 
-  const responseData = await response.json();
-  console.log(responseData);
+    const responseData = await response.json();
+    console.log(responseData);
 
-  const attributes = {
-    url: responseData.url,
-    href: responseData.href + "?content-disposition=attachment",
-  };
-  console.log(attributes);
-  attachment.setAttributes(attributes);
+    const attributes = {
+        url: responseData.url,
+        href: responseData.href + "?content-disposition=attachment",
+    };
+    console.log(attributes);
+    attachment.setAttributes(attributes);
 }
 
 //
@@ -39,24 +40,24 @@ async function uploadAttachment(attachment) {
 // }
 
 export default function initTrix() {
-  Trix.config.attachments.preview.caption.name = false;
-  Trix.config.attachments.preview.caption.size = false;
+    Trix.config.attachments.preview.caption.name = false;
+    Trix.config.attachments.preview.caption.size = false;
 
-  addEventListener("trix-attachment-add", function (event) {
-    if (event.attachment.file) {
-      uploadAttachment(event.attachment);
-    }
-  });
+    addEventListener("trix-attachment-add", function (event) {
+        if (event.attachment.file) {
+            uploadAttachment(event.attachment);
+        }
+    });
 
-  // document.addEventListener("trix-initialize", updateActions);
+    // document.addEventListener("trix-initialize", updateActions);
 
-  // document.addEventListener("trix-before-initialize", (event) => {
-  //   console.log("trix-before-initialize");
-  //   console.log(event);
-  //   console.log("config", Trix.config);
-  // });
+    // document.addEventListener("trix-before-initialize", (event) => {
+    //   console.log("trix-before-initialize");
+    //   console.log(event);
+    //   console.log("config", Trix.config);
+    // });
 
-  // document.addEventListener("trix-change", (event) => {
-  //   console.log(event)
-  // });
+    // document.addEventListener("trix-change", (event) => {
+    //   console.log(event)
+    // });
 }
