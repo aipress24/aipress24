@@ -575,7 +575,8 @@ def _update_organisation_subscription_info(
     org.bw_active = org_type_to_bw.get(subinfo.org_type, BWType.MEDIA.value)
     org.active = subinfo.status
     org.stripe_subscription_status = subinfo.stripe_subscription_status
-    org.bw_type = _guess_bw_type(user, org)
+    # deprecated, use BW attributes:
+    # org.bw_type = _guess_bw_type(user, org)
 
     db_session = db.session
     db_session.merge(org)

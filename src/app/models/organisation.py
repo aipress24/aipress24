@@ -45,12 +45,6 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
         ArrowType(timezone=True), nullable=True, onupdate=arrow.utcnow
     )
 
-    # deprecated
-    bw_type: Mapped[BWTypeEnum] = mapped_column(
-        sa.Enum(BWTypeEnum),
-        nullable=True,
-    )
-
     # new BW type value (if any active BW subscription)
     bw_active: Mapped[str] = mapped_column(nullable=True)
     # new BW id (if any active BW subscription)

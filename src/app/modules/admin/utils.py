@@ -68,19 +68,15 @@ def _set_user_profile_organisation(user: User, organisation: Organisation) -> No
     new_profile = clone_kycprofile(user.profile)
     name = organisation.name
     # Use bw_type if available, or default to nom_orga
-    bw_type = organisation.bw_type
+    bw_type = organisation.bw_active
     if bw_type:
+        # new BW enum (BWType) of bw model
         match bw_type:
-            case (
-                BWTypeEnum.MEDIA
-                | BWTypeEnum.AGENCY
-                | BWTypeEnum.CORPORATE
-                | BWTypeEnum.PRESSUNION
-            ):
+            case "media" | "corporate_media" | "union" | "micro":
                 new_profile.info_professionnelle["nom_media"] = [name]
-            case BWTypeEnum.COM:
+            case "pr":
                 new_profile.info_professionnelle["nom_agence_rp"] = name
-            case _:
+            case _:  # "academics"  "leaders_experts"  "transformers"
                 new_profile.info_professionnelle["nom_orga"] = name
     else:
         new_profile.info_professionnelle["nom_orga"] = name
