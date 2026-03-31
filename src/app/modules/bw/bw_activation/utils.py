@@ -185,7 +185,7 @@ def get_press_relation_bw_list() -> list[BusinessWall]:
     return cast(
         list[BusinessWall],
         bw_service.list(
-            bw_type=BWType.PR.value,
+            bw_type=BWType.PR.value,  # type: ignore [unresolved-attribute]
             status=BWStatus.ACTIVE.value,
         ),
     )

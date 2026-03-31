@@ -5,7 +5,6 @@
 
 from __future__ import annotations
 
-from .enums import BWTypeEnum, ProfileEnum
 # DEPRECATED: BWTypeEnum
 
 # DIRECTION_PROFILE_LABELS = {
@@ -51,47 +50,41 @@ BW_TRIGGER_LABEL = {
 # the possibility to any employee of an organisation to create the relevant
 # BW. So the only remaining empty profil is for students.
 # To reverse this change: just use empty lists on the lines with that comment.
-PROFILE_CODE_TO_BW_TYPE: dict[ProfileEnum, list[BWTypeEnum]] = {  # type: ignore[assignment]
-    ProfileEnum.PM_DIR: [BWTypeEnum.MEDIA, BWTypeEnum.AGENCY],
-    ProfileEnum.PM_JR_CP_SAL: [
-        BWTypeEnum.MEDIA,
-        BWTypeEnum.AGENCY,
-    ],  # open to all employees
-    ProfileEnum.PM_JR_PIG: [
-        BWTypeEnum.MEDIA,
-        BWTypeEnum.AGENCY,
-    ],  # open to all employees
-    ProfileEnum.PM_JR_CP_ME: [BWTypeEnum.MICRO, BWTypeEnum.AGENCY],
-    ProfileEnum.PM_JR_ME: [BWTypeEnum.MICRO, BWTypeEnum.AGENCY],
-    ProfileEnum.PM_DIR_INST: [BWTypeEnum.CORPORATE],
-    ProfileEnum.PM_JR_INST: [BWTypeEnum.CORPORATE],  # open to all employees
-    ProfileEnum.PM_DIR_SYND: [BWTypeEnum.PRESSUNION],
-    ProfileEnum.PR_DIR: [BWTypeEnum.COM],
-    ProfileEnum.PR_CS: [BWTypeEnum.COM],  # open to all employees
-    ProfileEnum.PR_CS_IND: [BWTypeEnum.COM],
-    ProfileEnum.PR_DIR_COM: [BWTypeEnum.ORGANISATION],
-    ProfileEnum.PR_CS_COM: [BWTypeEnum.ORGANISATION],  # open to all employees
-    ProfileEnum.XP_DIR_ANY: [BWTypeEnum.ORGANISATION],
-    ProfileEnum.XP_ANY: [BWTypeEnum.ORGANISATION],  # open to all employees
-    ProfileEnum.XP_PR: [BWTypeEnum.ORGANISATION],  # open to all employees
-    ProfileEnum.XP_IND: [BWTypeEnum.ORGANISATION],
-    ProfileEnum.XP_DIR_SU: [BWTypeEnum.ORGANISATION],
-    ProfileEnum.XP_INV_PUB: [BWTypeEnum.ORGANISATION],
-    ProfileEnum.XP_DIR_EVT: [BWTypeEnum.ORGANISATION],
-    ProfileEnum.TP_DIR_ORG: [BWTypeEnum.TRANSFORMER],
-    ProfileEnum.TR_CS_ORG: [BWTypeEnum.TRANSFORMER],  # open to all employees
-    ProfileEnum.TR_CS_ORG_PR: [BWTypeEnum.TRANSFORMER],  # open to all employees
-    ProfileEnum.TR_CS_ORG_IND: [BWTypeEnum.TRANSFORMER],
-    ProfileEnum.TR_DIR_SU_ORG: [BWTypeEnum.TRANSFORMER],
-    ProfileEnum.TR_INV_ORG: [BWTypeEnum.TRANSFORMER],
-    ProfileEnum.TR_DIR_POLE: [BWTypeEnum.TRANSFORMER],
-    ProfileEnum.AC_DIR: [BWTypeEnum.ACADEMICS],
-    ProfileEnum.AC_DIR_JR: [BWTypeEnum.ACADEMICS],
-    ProfileEnum.AC_ENS: [BWTypeEnum.ACADEMICS],  # open to all employees
-    ProfileEnum.AC_DOC: [BWTypeEnum.ACADEMICS],  # open to all employees
-    ProfileEnum.AC_ST: [],  # open to all employees except students
-    ProfileEnum.AC_ST_ENT: [BWTypeEnum.ACADEMICS],
-}
+# PROFILE_CODE_TO_BW_TYPE: dict[ProfileEnum, list[BWType]] = {  # type: ignore[assignment]
+#     ProfileEnum.PM_DIR: [BWType.MEDIA],
+#     ProfileEnum.PM_JR_CP_SAL: [BWType.MEDIA],  # open to all employees
+#     ProfileEnum.PM_JR_PIG: [BWType.MEDIA],  # open to all employees
+#     ProfileEnum.PM_JR_CP_ME: [BWType.MICRO],
+#     ProfileEnum.PM_JR_ME: [BWType.MICRO],
+#     ProfileEnum.PM_DIR_INST: [BWType.CORPORATE_MEDIA],
+#     ProfileEnum.PM_JR_INST: [BWType.CORPORATE_MEDIA],  # open to all employees
+#     ProfileEnum.PM_DIR_SYND: [BWType.UNION],
+#     ProfileEnum.PR_DIR: [BWType.PR],
+#     ProfileEnum.PR_CS: [BWType.PR],  # open to all employees
+#     ProfileEnum.PR_CS_IND: [BWType.PR],
+#     ProfileEnum.PR_DIR_COM: [BWType.LEADERS_EXPERTS],
+#     ProfileEnum.PR_CS_COM: [BWType.LEADERS_EXPERTS],  # open to all employees
+#     ProfileEnum.XP_DIR_ANY: [BWType.LEADERS_EXPERTS],
+#     ProfileEnum.XP_ANY: [BWType.LEADERS_EXPERTS],  # open to all employees
+#     ProfileEnum.XP_PR: [BWType.LEADERS_EXPERTS],  # open to all employees
+#     ProfileEnum.XP_IND: [BWType.LEADERS_EXPERTS],
+#     ProfileEnum.XP_DIR_SU: [BWType.LEADERS_EXPERTS],
+#     ProfileEnum.XP_INV_PUB: [BWType.LEADERS_EXPERTS],
+#     ProfileEnum.XP_DIR_EVT: [BWType.LEADERS_EXPERTS],
+#     ProfileEnum.TP_DIR_ORG: [BWType.TRANSFORMER],
+#     ProfileEnum.TR_CS_ORG: [BWType.TRANSFORMER],  # open to all employees
+#     ProfileEnum.TR_CS_ORG_PR: [BWType.TRANSFORMER],  # open to all employees
+#     ProfileEnum.TR_CS_ORG_IND: [BWType.TRANSFORMER],
+#     ProfileEnum.TR_DIR_SU_ORG: [BWType.TRANSFORMER],
+#     ProfileEnum.TR_INV_ORG: [BWType.TRANSFORMER],
+#     ProfileEnum.TR_DIR_POLE: [BWType.TRANSFORMER],
+#     ProfileEnum.AC_DIR: [BWType.ACADEMICS],
+#     ProfileEnum.AC_DIR_JR: [BWType.ACADEMICS],
+#     ProfileEnum.AC_ENS: [BWType.ACADEMICS],  # open to all employees
+#     ProfileEnum.AC_DOC: [BWType.ACADEMICS],  # open to all employees
+#     ProfileEnum.AC_ST: [],  # open to all employees except students
+#     ProfileEnum.AC_ST_ENT: [BWType.ACADEMICS],
+# }
 
 # Contants for the mail service
 # max sent email count on 1 weeks:

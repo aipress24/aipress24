@@ -23,7 +23,7 @@ StdDict = dict[str, str | int | float | bool | None]
 if TYPE_CHECKING:
     from app.models.auth import User
 
-PROFILE_CODE_TO_BW2_TYPE: dict[ProfileEnum, BWType] = {
+PROFILE_CODE_TO_BW2_TYPE: dict[ProfileEnum, BWType | str] = {
     ProfileEnum.PM_DIR: BWType.MEDIA,
     ProfileEnum.PM_JR_CP_SAL: BWType.MEDIA,  # open to all employees
     ProfileEnum.PM_JR_PIG: BWType.MEDIA,  # open to all employees
@@ -83,8 +83,8 @@ def guess_best_bw_type(user: User) -> BWType:
     try:
         profile_code = ProfileEnum[profile.profile_code]
     except KeyError:
-        return BWType.MEDIA
-    return PROFILE_CODE_TO_BW2_TYPE.get(profile_code, BWType.MEDIA)
+        return BWType.MEDIA  # type: ignore [invalid-return-type]
+    return PROFILE_CODE_TO_BW2_TYPE.get(profile_code, BWType.MEDIA)  # type: ignore [invalid-return-type]
 
 
 def get_any_business_wall_for_organisation(org: Organisation) -> BusinessWall | None:

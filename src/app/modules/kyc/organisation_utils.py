@@ -4,12 +4,8 @@
 
 from __future__ import annotations
 
-from typing import Any
+from sqlalchemy import func, select, true
 
-from sqlalchemy import func, select
-
-from app.constants import PROFILE_CODE_TO_BW_TYPE
-from app.enums import BWTypeEnum, OrganisationTypeEnum, ProfileEnum
 from app.flask.extensions import db
 from app.flask.sqla import get_obj
 from app.models.auth import User
@@ -17,15 +13,13 @@ from app.models.invitation import Invitation
 from app.models.organisation import Organisation
 
 
-def get_organisation_family(
-    family: OrganisationTypeEnum = OrganisationTypeEnum.AUTO,  # type: ignore
-) -> list[str]:
+def get_organisation_family() -> list[str]:
     """FIXME: there is no organisation type
 
-    Get list of Organisation of specified family."""
+    Get list of Organisation of ANY family."""
     query = (
         select(Organisation)
-        # .where(Organisation.type == family)
+        .where(Organisation.active == true())
         .order_by(Organisation.name)
     )
     result = db.session.execute(query).scalars()
@@ -51,7 +45,7 @@ def get_organisation_for_noms_medias() -> list[str]:
     # )
     query = (
         select(Organisation)
-        # .where(Organisation.type == family)
+        .where(Organisation.active == true())
         .order_by(Organisation.name)
     )
     result = db.session.execute(query).scalars()
@@ -76,7 +70,7 @@ def get_organisation_for_noms_orgas() -> list[str]:
     # )
     query = (
         select(Organisation)
-        # .where(Organisation.type == family)
+        .where(Organisation.active == true())
         .order_by(Organisation.name)
     )
     result = db.session.execute(query).scalars()
@@ -101,18 +95,11 @@ def get_organisation_for_noms_com() -> list[str]:
     # )
     query = (
         select(Organisation)
-        # .where(Organisation.type == family)
+        .where(Organisation.active == true())
         .order_by(Organisation.name)
     )
     result = db.session.execute(query).scalars()
     return [org.name for org in result]
-
-
-def get_organisation_choices_family(
-    family: OrganisationTypeEnum = OrganisationTypeEnum.AUTO,  # type: ignore
-) -> list[tuple[str, str]]:
-    """Get list of light organisations of specified famille in HTML select format"""
-    return [(name, name) for name in get_organisation_family(family)]
 
 
 def _find_kyc_organisation_name(user: User) -> str:
@@ -158,162 +145,6 @@ def find_inviting_organisations(mail: str) -> list[Organisation]:
     return [get_obj(i.organisation_id, Organisation) for i in invitations]
 
 
-def specialize_organization_type(
-    org: Organisation,
-    profile_code_str: str,
-    info_pro: dict[str, Any],
-    info_mm: dict[str, Any],
-) -> None:
-    profile_code = ProfileEnum[profile_code_str]
-    allowed_bw_types = set(PROFILE_CODE_TO_BW_TYPE.get(profile_code, []))
-
-    _set_nom_groupe(org, profile_code, info_pro)
-    _set_media_types(org, allowed_bw_types, info_pro)
-    _set_organization_types(org, profile_code, allowed_bw_types, info_pro)
-    _set_activity_sectors(org, profile_code, allowed_bw_types, info_mm)
-
-
-def _set_nom_groupe(
-    org: Organisation, profile_code: ProfileEnum, info_pro: dict[str, Any]
-) -> None:
-    """Set nom_groupe based on profile code."""
-    nom_groupe = ""
-    if profile_code in {
-        ProfileEnum.PM_DIR,
-        ProfileEnum.PM_JR_CP_SAL,
-        ProfileEnum.PM_JR_PIG,
-    }:
-        nom_groupe = info_pro["nom_groupe_presse"]
-    elif profile_code in {ProfileEnum.PR_DIR, ProfileEnum.PR_CS}:
-        nom_groupe = info_pro["nom_group_com"]
-    elif profile_code in {
-        ProfileEnum.PR_DIR_COM,
-        ProfileEnum.PR_CS_COM,
-        ProfileEnum.XP_DIR_ANY,
-        ProfileEnum.XP_ANY,
-        ProfileEnum.XP_PR,
-        ProfileEnum.XP_INV_PUB,
-        ProfileEnum.XP_DIR_EVT,
-        ProfileEnum.TP_DIR_ORG,
-        ProfileEnum.TR_CS_ORG,
-        ProfileEnum.TR_CS_ORG_PR,
-        ProfileEnum.TR_INV_ORG,
-        ProfileEnum.AC_DIR,
-        ProfileEnum.AC_DIR_JR,
-        ProfileEnum.AC_ENS,
-    }:
-        nom_groupe = info_pro["nom_adm"]
-    org.nom_groupe = nom_groupe
-
-
-def _set_media_types(
-    org: Organisation, allowed_bw_types: set, info_pro: dict[str, Any]
-) -> None:
-    """Set media and agency type attributes."""
-    # type_entreprise_media
-    type_entreprise_media = []
-    if {BWTypeEnum.MEDIA, BWTypeEnum.AGENCY, BWTypeEnum.MICRO} & allowed_bw_types:
-        type_entreprise_media = info_pro["type_entreprise_media"]
-    org.type_entreprise_media = type_entreprise_media
-
-    # type_presse_et_media
-    type_presse_et_media = []
-    if {
-        BWTypeEnum.MEDIA,
-        BWTypeEnum.AGENCY,
-        BWTypeEnum.CORPORATE,
-        BWTypeEnum.MICRO,
-    } & allowed_bw_types:
-        type_presse_et_media = info_pro["type_presse_et_media"]
-    org.type_presse_et_media = type_presse_et_media
-
-
-def _set_organization_types(
-    org: Organisation,
-    profile_code: ProfileEnum,
-    allowed_bw_types: set,
-    info_pro: dict[str, Any],
-) -> None:
-    """Set organization type attributes."""
-    # type_agence_rp
-    type_agence_rp = []
-    if profile_code in {
-        ProfileEnum.PR_DIR,
-        ProfileEnum.PR_CS,
-        ProfileEnum.PR_CS_IND,
-    }:
-        type_agence_rp = info_pro["type_agence_rp"]
-    org.type_agence_rp = type_agence_rp
-
-    # type_orga
-    type_organisation = []
-    type_organisation_detail = []
-    if {
-        BWTypeEnum.ORGANISATION,
-        BWTypeEnum.TRANSFORMER,
-        BWTypeEnum.ACADEMICS,
-    } & allowed_bw_types:
-        type_organisation = info_pro["type_orga"]
-        type_organisation_detail = info_pro["type_orga_detail"]
-    org.type_organisation = type_organisation
-    org.type_organisation_detail = type_organisation_detail
-
-
-def _set_activity_sectors(
-    org: Organisation,
-    profile_code: ProfileEnum,
-    allowed_bw_types: set,
-    info_mm: dict[str, Any],
-) -> None:
-    """Set activity sector attributes."""
-    # Media sectors
-    secteurs_activite_medias = []
-    secteurs_activite_medias_detail = []
-    if {BWTypeEnum.MEDIA, BWTypeEnum.AGENCY} & allowed_bw_types:
-        secteurs_activite_medias = info_mm["secteurs_activite_medias"]
-        secteurs_activite_medias_detail = info_mm["secteurs_activite_medias_detail"]
-    org.secteurs_activite_medias = secteurs_activite_medias
-    org.secteurs_activite_medias_detail = secteurs_activite_medias_detail
-
-    # RP sectors
-    secteurs_activite_rp = []
-    secteurs_activite_rp_detail = []
-    if profile_code in {
-        ProfileEnum.PR_DIR,
-        ProfileEnum.PR_CS,
-        ProfileEnum.PR_CS_IND,
-        ProfileEnum.PR_DIR_COM,
-        ProfileEnum.PR_CS_COM,
-    }:
-        secteurs_activite_rp = info_mm["secteurs_activite_rp"]
-        secteurs_activite_rp_detail = info_mm["secteurs_activite_rp_detail"]
-    org.secteurs_activite_rp = secteurs_activite_rp
-    org.secteurs_activite_rp_detail = secteurs_activite_rp_detail
-
-    # General sectors
-    secteurs_activite = []
-    secteurs_activite_detail = []
-    if {
-        BWTypeEnum.COM,
-        BWTypeEnum.ORGANISATION,
-        BWTypeEnum.TRANSFORMER,
-        BWTypeEnum.ACADEMICS,
-    } & allowed_bw_types:
-        secteurs_activite = info_mm["secteurs_activite_detailles"]
-        secteurs_activite_detail = info_mm["secteurs_activite_detailles_detail"]
-    org.secteurs_activite = secteurs_activite
-    org.secteurs_activite_detail = secteurs_activite_detail
-
-    # Transformation sectors
-    transformation_majeure = []
-    transformation_majeure_detail = []
-    if {BWTypeEnum.TRANSFORMER} & allowed_bw_types:
-        transformation_majeure = info_mm["transformation_majeure"]
-        transformation_majeure_detail = info_mm["transformation_majeure_detail"]
-    org.transformation_majeure = transformation_majeure
-    org.transformation_majeure_detail = transformation_majeure_detail
-
-
 def store_auto_organisation(
     user: User,
     org_name: str | None = None,
@@ -346,7 +177,7 @@ def store_auto_organisation(
     if found_organisation:
         return found_organisation
     # No Organisatin with both same type and other params found:
-    created_organisation = Organisation(name=org_name, active=False)
+    created_organisation = Organisation(name=org_name, active=True)
     db_session.add(created_organisation)
     db_session.flush()
     return created_organisation

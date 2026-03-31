@@ -11,7 +11,6 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import scoped_session
 
 from app.constants import LABEL_MODIFICATION_ORGANISATION, LOCAL_TZ
-from app.enums import BWTypeEnum
 from app.flask.extensions import db
 from app.flask.sqla import get_obj
 from app.models.auth import User, clone_kycprofile

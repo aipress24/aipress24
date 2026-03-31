@@ -65,18 +65,18 @@ class OrganisationTypeEnum(StrEnum):
 
 
 # DEPRECATED
-class BWTypeEnum(StrEnum):
-    """Business Wall type enumeration."""
+# class BWTypeEnum(StrEnum):
+#     """Business Wall type enumeration."""
 
-    AGENCY = "Business Wall for Press Agencies"
-    MEDIA = "Business Wall for Medias"
-    MICRO = "Business Wall for Micro-entreprise"
-    CORPORATE = "Business Wall for Corporate Medias"
-    PRESSUNION = "Business Wall for Press Union"
-    COM = "Business Wall for PR Agencies"
-    ORGANISATION = "Business Wall for Organisations"
-    TRANSFORMER = "Business Wall for Transformers"
-    ACADEMICS = "Business Wall for Academics"
+#     AGENCY = "Business Wall for Press Agencies"
+#     MEDIA = "Business Wall for Medias"
+#     MICRO = "Business Wall for Micro-entreprise"
+#     CORPORATE = "Business Wall for Corporate Medias"
+#     PRESSUNION = "Business Wall for Press Union"
+#     COM = "Business Wall for PR Agencies"
+#     ORGANISATION = "Business Wall for Organisations"
+#     TRANSFORMER = "Business Wall for Transformers"
+#     ACADEMICS = "Business Wall for Academics"
 
 
 class BWType(StrEnum):

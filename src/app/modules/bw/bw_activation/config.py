@@ -17,7 +17,7 @@ from .models import BWType
 # Business Wall Types configuration
 BW_TYPES: dict[str, dict[str, Any]] = {
     # Free BW types (5 types)
-    BWType.MEDIA.value: {
+    BWType.MEDIA.value: {  # type: ignore [unresolved-attribute]
         "name": "Business Wall for Media",
         "description": "Pour les organes de presse reconnus.",
         "free": True,
@@ -41,7 +41,7 @@ BW_TYPES: dict[str, dict[str, Any]] = {
             "Les informations que vous allez saisir seront vérifiées par les équipes d'AiPRESS24.",
         ],
     },
-    BWType.MICRO.value: {
+    BWType.MICRO.value: {  # type: ignore [unresolved-attribute]
         "name": "Business Wall for Micro",
         "description": "Pour les micro-entreprises de presse travaillant pour des organes de presse reconnus.",
         "free": True,
@@ -63,7 +63,7 @@ BW_TYPES: dict[str, dict[str, Any]] = {
             "Les informations que vous allez saisir seront vérifiées par les équipes d'AiPRESS24.",
         ],
     },
-    BWType.CORPORATE_MEDIA.value: {
+    BWType.CORPORATE_MEDIA.value: {  # type: ignore [unresolved-attribute]
         "name": "Business Wall for Corporate Media",
         "description": "Pour les médias d'entreprise et institutionnels.",
         "free": True,
@@ -83,7 +83,7 @@ BW_TYPES: dict[str, dict[str, Any]] = {
             "Les informations que vous allez saisir seront vérifiées par les équipes d'AiPRESS24.",
         ],
     },
-    BWType.UNION.value: {
+    BWType.UNION.value: {  # type: ignore [unresolved-attribute]
         "name": "Business Wall for Union",
         "description": "Pour les syndicats ou fédérations de la presse ou des médias, clubs de la presse ou associations de journalistes.",
         "free": True,
@@ -98,7 +98,7 @@ BW_TYPES: dict[str, dict[str, Any]] = {
             "Vous devez déclarer également déclarer et valider individuellement chaque PR Agency ou chaque PR Consultant qui vous représentent sur AiPRESS24 et peuvent agir en tant que contact presse, publier vos communiqués de presse et vos événements.",
         ],
     },
-    BWType.ACADEMICS.value: {
+    BWType.ACADEMICS.value: {  # type: ignore [unresolved-attribute]
         "name": "Business Wall for Academics",
         "description": "Pour les établissements de recherche ou d'enseignement supérieur.",
         "free": True,
@@ -114,7 +114,7 @@ BW_TYPES: dict[str, dict[str, Any]] = {
         ],
     },
     # Paid BW types (3 types)
-    BWType.PR.value: {
+    BWType.PR.value: {  # type: ignore [unresolved-attribute]
         "name": "Business Wall for PR",
         "description": "Pour les agences de relations presse et les consultants indépendants.",
         "free": False,
@@ -142,7 +142,7 @@ BW_TYPES: dict[str, dict[str, Any]] = {
             "Les informations que vous allez saisir seront vérifiées par les équipes d'AiPRESS24.",
         ],
     },
-    BWType.LEADERS_EXPERTS.value: {
+    BWType.LEADERS_EXPERTS.value: {  # type: ignore [unresolved-attribute]
         "name": "Business Wall for Leaders & Experts",
         "description": "Pour les entreprises, associations, experts et leaders d'opinion.",
         "free": False,
@@ -165,7 +165,7 @@ BW_TYPES: dict[str, dict[str, Any]] = {
             "Les informations que vous allez saisir seront vérifiées par les équipes d'AiPRESS24.",
         ],
     },
-    BWType.TRANSFORMERS.value: {
+    BWType.TRANSFORMERS.value: {  # type: ignore [unresolved-attribute]
         "name": "Business Wall for Transformers",
         "description": "Pour les acteurs de l'innovation et de la transformation numérique.",
         "free": False,

@@ -13,12 +13,10 @@ from __future__ import annotations
 from uuid import UUID
 
 import arrow
-import sqlalchemy as sa
 from slugify import slugify
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy_utils import ArrowType
 
-from app.enums import BWTypeEnum
 from app.models.auth import User
 from app.models.base import Base
 from app.models.mixins import Addressable, IdMixin, LifeCycleMixin

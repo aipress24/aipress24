@@ -8,7 +8,7 @@ from __future__ import annotations
 from functools import singledispatch
 from typing import Any
 
-from app.enums import BWTypeEnum, OrganisationTypeEnum, ProfileEnum
+from app.enums import OrganisationTypeEnum, ProfileEnum
 from app.models.meta import get_label
 
 # Labels for new BWType (keys from /bw/bw_activation/models/business_wall/BWType values)
@@ -33,17 +33,17 @@ LABELS_ORGANISATION_TYPE = {
     # OrganisationTypeEnum.INSTIT: "Média institutionnel",
 }
 
-LABELS_BW_TYPE = {
-    BWTypeEnum.AGENCY: str(BWTypeEnum.AGENCY),
-    BWTypeEnum.MEDIA: str(BWTypeEnum.MEDIA),
-    BWTypeEnum.MICRO: str(BWTypeEnum.MICRO),
-    BWTypeEnum.CORPORATE: str(BWTypeEnum.CORPORATE),
-    BWTypeEnum.PRESSUNION: str(BWTypeEnum.PRESSUNION),
-    BWTypeEnum.COM: str(BWTypeEnum.COM),
-    BWTypeEnum.ORGANISATION: str(BWTypeEnum.ORGANISATION),
-    BWTypeEnum.TRANSFORMER: str(BWTypeEnum.TRANSFORMER),
-    BWTypeEnum.ACADEMICS: str(BWTypeEnum.ACADEMICS),
-}
+# LABELS_BW_TYPE = {
+#     BWTypeEnum.AGENCY: str(BWTypeEnum.AGENCY),
+#     BWTypeEnum.MEDIA: str(BWTypeEnum.MEDIA),
+#     BWTypeEnum.MICRO: str(BWTypeEnum.MICRO),
+#     BWTypeEnum.CORPORATE: str(BWTypeEnum.CORPORATE),
+#     BWTypeEnum.PRESSUNION: str(BWTypeEnum.PRESSUNION),
+#     BWTypeEnum.COM: str(BWTypeEnum.COM),
+#     BWTypeEnum.ORGANISATION: str(BWTypeEnum.ORGANISATION),
+#     BWTypeEnum.TRANSFORMER: str(BWTypeEnum.TRANSFORMER),
+#     BWTypeEnum.ACADEMICS: str(BWTypeEnum.ACADEMICS),
+# }
 
 LABELS_PROFILE = {
     ProfileEnum.PM_DIR: "Dirigeant de média",
@@ -92,9 +92,9 @@ def _make_label_orga(obj: OrganisationTypeEnum) -> str:
     return LABELS_ORGANISATION_TYPE[obj]
 
 
-@make_label.register
-def _make_label_bw(obj: BWTypeEnum) -> str:
-    return LABELS_BW_TYPE[obj]
+# @make_label.register
+# def _make_label_bw(obj: BWTypeEnum) -> str:
+#     return LABELS_BW_TYPE[obj]
 
 
 @make_label.register
