@@ -68,7 +68,7 @@ def _get_full_taxo_category_value(taxonomy: str) -> list[tuple[str, str]]:
 
 @functools.cache
 def _get_full_organisation_family(family: OrganisationTypeEnum) -> list[str]:
-    return get_organisation_family(family)
+    return get_organisation_family()
 
 
 def random_profile_id() -> str:

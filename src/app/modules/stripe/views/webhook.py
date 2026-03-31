@@ -15,8 +15,7 @@ import stripe
 from arrow import Arrow
 from flask import request, session
 
-from app.constants import PROFILE_CODE_TO_BW_TYPE
-from app.enums import BWTypeEnum, ProfileEnum
+# from app.enums import BWTypeEnum, ProfileEnum
 from app.flask.extensions import db
 from app.models.auth import User
 from app.models.organisation import Organisation
@@ -594,30 +593,30 @@ def _update_organisation_subscription_info(
         )
 
 
-def _guess_bw_type(user: User, org: Organisation) -> BWTypeEnum:
-    # Get profile code from user directly
-    profile = user.profile
-    profile_code_str = profile.profile_code
-    if profile_code_str:
-        try:
-            profile_code = ProfileEnum[profile_code_str]
-        except KeyError:
-            # should never happen
-            profile_code = ProfileEnum.XP_IND
-    else:
-        # should never happen
-        profile_code = ProfileEnum.XP_IND
+# def _guess_bw_type(user: User, org: Organisation) -> BWTypeEnum:
+#     # Get profile code from user directly
+#     profile = user.profile
+#     profile_code_str = profile.profile_code
+#     if profile_code_str:
+#         try:
+#             profile_code = ProfileEnum[profile_code_str]
+#         except KeyError:
+#             # should never happen
+#             profile_code = ProfileEnum.XP_IND
+#     else:
+#         # should never happen
+#         profile_code = ProfileEnum.XP_IND
 
-    possible_bw = PROFILE_CODE_TO_BW_TYPE.get(profile_code, [])
-    if not possible_bw:
-        return BWTypeEnum.ORGANISATION  # type: ignore
-    if len(possible_bw) == 1:
-        return possible_bw[0]
-    # here the only double possibility is:
-    # [BWTypeEnum.MEDIA, BWTypeEnum.AGENCY]
-    if org.bw_active == BWType.PR.value:
-        return BWTypeEnum.AGENCY  # type: ignore
-    return BWTypeEnum.MEDIA  # type: ignore
+#     possible_bw = PROFILE_CODE_TO_BW_TYPE.get(profile_code, [])
+#     if not possible_bw:
+#         return BWTypeEnum.ORGANISATION  # type: ignore
+#     if len(possible_bw) == 1:
+#         return possible_bw[0]
+#     # here the only double possibility is:
+#     # [BWTypeEnum.MEDIA, BWTypeEnum.AGENCY]
+#     if org.bw_active == BWType.PR.value:
+#         return BWTypeEnum.AGENCY  # type: ignore
+#     return BWTypeEnum.MEDIA  # type: ignore
 
 
 def _get_bw_product(subinfo: SubscriptionInfo) -> stripe.Product | None:
