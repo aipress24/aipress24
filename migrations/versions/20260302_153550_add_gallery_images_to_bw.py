@@ -5,6 +5,7 @@ Revises: f7ad3e8a0230
 Create Date: 2026-03-02 15:35:50.000000
 
 """
+
 from __future__ import annotations
 
 from alembic import op
@@ -25,8 +26,9 @@ def upgrade():
         batch_op.add_column(
             sa.Column(
                 "gallery_images",
-                sa.JSON()
-                .with_variant(postgresql.JSONB(astext_type=sa.Text()), "postgresql"),
+                sa.JSON().with_variant(
+                    postgresql.JSONB(astext_type=sa.Text()), "postgresql"
+                ),
                 nullable=True,
                 server_default="[]",
             )

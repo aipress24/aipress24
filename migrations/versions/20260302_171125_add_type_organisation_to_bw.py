@@ -5,6 +5,7 @@ Revises: 54637ddf161a
 Create Date: 2026-03-02 17:11:25.000000
 
 """
+
 from __future__ import annotations
 
 from alembic import op
@@ -25,8 +26,9 @@ def upgrade():
         batch_op.add_column(
             sa.Column(
                 "type_organisation",
-                sa.JSON()
-                .with_variant(postgresql.JSONB(astext_type=sa.Text()), "postgresql"),
+                sa.JSON().with_variant(
+                    postgresql.JSONB(astext_type=sa.Text()), "postgresql"
+                ),
                 nullable=True,
                 server_default="[]",
             )
@@ -34,8 +36,9 @@ def upgrade():
         batch_op.add_column(
             sa.Column(
                 "type_organisation_detail",
-                sa.JSON()
-                .with_variant(postgresql.JSONB(astext_type=sa.Text()), "postgresql"),
+                sa.JSON().with_variant(
+                    postgresql.JSONB(astext_type=sa.Text()), "postgresql"
+                ),
                 nullable=True,
                 server_default="[]",
             )
