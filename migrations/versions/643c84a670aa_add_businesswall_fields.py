@@ -5,6 +5,7 @@ Revises: 7923cc2f1526
 Create Date: 2026-02-27 15:32:25.815041
 
 """
+
 from __future__ import annotations
 
 import advanced_alchemy
@@ -23,45 +24,200 @@ def upgrade():
 
     with op.batch_alter_table("bw_business_wall", schema=None) as batch_op:
         # Nullable columns (no default needed)
-        batch_op.add_column(sa.Column("logo_image", advanced_alchemy.types.file_object.data_type.StoredObject(backend="s3"), nullable=True))
-        batch_op.add_column(sa.Column("cover_image", advanced_alchemy.types.file_object.data_type.StoredObject(backend="s3"), nullable=True))
+        batch_op.add_column(
+            sa.Column(
+                "logo_image",
+                advanced_alchemy.types.file_object.data_type.StoredObject(backend="s3"),
+                nullable=True,
+            )
+        )
+        batch_op.add_column(
+            sa.Column(
+                "cover_image",
+                advanced_alchemy.types.file_object.data_type.StoredObject(backend="s3"),
+                nullable=True,
+            )
+        )
         batch_op.add_column(sa.Column("siren", sa.String(), nullable=True))
         batch_op.add_column(sa.Column("tva", sa.String(), nullable=True))
 
-        batch_op.add_column(sa.Column("type", sa.Enum("AUTO", "MEDIA", "AGENCY", "COM", "OTHER", name="organisationtypeenum"), nullable=False, server_default="AUTO"))
+        batch_op.add_column(
+            sa.Column(
+                "type",
+                sa.Enum(
+                    "AUTO",
+                    "MEDIA",
+                    "AGENCY",
+                    "COM",
+                    "OTHER",
+                    name="organisationtypeenum",
+                ),
+                nullable=False,
+                server_default="AUTO",
+            )
+        )
 
-        batch_op.add_column(sa.Column("name_entity", sa.String(), nullable=False, server_default=""))
-        batch_op.add_column(sa.Column("agrement", sa.String(), nullable=False, server_default=""))
-        batch_op.add_column(sa.Column("name_press", sa.String(), nullable=False, server_default=""))
-        batch_op.add_column(sa.Column("clients", sa.String(), nullable=False, server_default=""))
-        batch_op.add_column(sa.Column("name_official", sa.String(), nullable=False, server_default=""))
-        batch_op.add_column(sa.Column("name_group", sa.String(), nullable=False, server_default=""))
-        batch_op.add_column(sa.Column("name_institution", sa.String(), nullable=False, server_default=""))
-        batch_op.add_column(sa.Column("positionnement_editorial", sa.String(), nullable=False, server_default=""))
-        batch_op.add_column(sa.Column("audience_cible", sa.String(), nullable=False, server_default=""))
-        batch_op.add_column(sa.Column("periodicite", sa.String(), nullable=False, server_default=""))
-        batch_op.add_column(sa.Column("taille_orga", sa.String(), nullable=False, server_default=""))
-        batch_op.add_column(sa.Column("tel_standard", sa.String(), nullable=False, server_default=""))
-        batch_op.add_column(sa.Column("postal_address", sa.String(), nullable=False, server_default=""))
-        batch_op.add_column(sa.Column("pays_zip_ville", sa.String(), nullable=False, server_default=""))
-        batch_op.add_column(sa.Column("pays_zip_ville_detail", sa.String(), nullable=False, server_default=""))
-        batch_op.add_column(sa.Column("geolocalisation", sa.String(), nullable=False, server_default=""))
-        batch_op.add_column(sa.Column("site_url", sa.String(), nullable=False, server_default=""))
+        batch_op.add_column(
+            sa.Column("name_entity", sa.String(), nullable=False, server_default="")
+        )
+        batch_op.add_column(
+            sa.Column("agrement", sa.String(), nullable=False, server_default="")
+        )
+        batch_op.add_column(
+            sa.Column("name_press", sa.String(), nullable=False, server_default="")
+        )
+        batch_op.add_column(
+            sa.Column("clients", sa.String(), nullable=False, server_default="")
+        )
+        batch_op.add_column(
+            sa.Column("name_official", sa.String(), nullable=False, server_default="")
+        )
+        batch_op.add_column(
+            sa.Column("name_group", sa.String(), nullable=False, server_default="")
+        )
+        batch_op.add_column(
+            sa.Column(
+                "name_institution", sa.String(), nullable=False, server_default=""
+            )
+        )
+        batch_op.add_column(
+            sa.Column(
+                "positionnement_editorial",
+                sa.String(),
+                nullable=False,
+                server_default="",
+            )
+        )
+        batch_op.add_column(
+            sa.Column("audience_cible", sa.String(), nullable=False, server_default="")
+        )
+        batch_op.add_column(
+            sa.Column("periodicite", sa.String(), nullable=False, server_default="")
+        )
+        batch_op.add_column(
+            sa.Column("taille_orga", sa.String(), nullable=False, server_default="")
+        )
+        batch_op.add_column(
+            sa.Column("tel_standard", sa.String(), nullable=False, server_default="")
+        )
+        batch_op.add_column(
+            sa.Column("postal_address", sa.String(), nullable=False, server_default="")
+        )
+        batch_op.add_column(
+            sa.Column("pays_zip_ville", sa.String(), nullable=False, server_default="")
+        )
+        batch_op.add_column(
+            sa.Column(
+                "pays_zip_ville_detail", sa.String(), nullable=False, server_default=""
+            )
+        )
+        batch_op.add_column(
+            sa.Column("geolocalisation", sa.String(), nullable=False, server_default="")
+        )
+        batch_op.add_column(
+            sa.Column("site_url", sa.String(), nullable=False, server_default="")
+        )
 
-        batch_op.add_column(sa.Column("type_presse_et_media", sa.JSON(), nullable=False, server_default=sa.text("'[]'")))
-        batch_op.add_column(sa.Column("type_entreprise_media", sa.JSON(), nullable=False, server_default=sa.text("'[]'")))
-        batch_op.add_column(sa.Column("type_agence_rp", sa.JSON(), nullable=False, server_default=sa.text("'[]'")))
-        batch_op.add_column(sa.Column("secteurs_activite_medias", sa.JSON(), nullable=False, server_default=sa.text("'[]'")))
-        batch_op.add_column(sa.Column("secteurs_activite_medias_detail", sa.JSON(), nullable=False, server_default=sa.text("'[]'")))
-        batch_op.add_column(sa.Column("secteurs_activite_rp", sa.JSON(), nullable=False, server_default=sa.text("'[]'")))
-        batch_op.add_column(sa.Column("secteurs_activite_rp_detail", sa.JSON(), nullable=False, server_default=sa.text("'[]'")))
-        batch_op.add_column(sa.Column("secteurs_activite", sa.JSON(), nullable=False, server_default=sa.text("'[]'")))
-        batch_op.add_column(sa.Column("secteurs_activite_detail", sa.JSON(), nullable=False, server_default=sa.text("'[]'")))
-        batch_op.add_column(sa.Column("interest_political", sa.JSON(), nullable=False, server_default=sa.text("'[]'")))
-        batch_op.add_column(sa.Column("interest_economics", sa.JSON(), nullable=False, server_default=sa.text("'[]'")))
-        batch_op.add_column(sa.Column("interest_association", sa.JSON(), nullable=False, server_default=sa.text("'[]'")))
+        batch_op.add_column(
+            sa.Column(
+                "type_presse_et_media",
+                sa.JSON(),
+                nullable=False,
+                server_default=sa.text("'[]'"),
+            )
+        )
+        batch_op.add_column(
+            sa.Column(
+                "type_entreprise_media",
+                sa.JSON(),
+                nullable=False,
+                server_default=sa.text("'[]'"),
+            )
+        )
+        batch_op.add_column(
+            sa.Column(
+                "type_agence_rp",
+                sa.JSON(),
+                nullable=False,
+                server_default=sa.text("'[]'"),
+            )
+        )
+        batch_op.add_column(
+            sa.Column(
+                "secteurs_activite_medias",
+                sa.JSON(),
+                nullable=False,
+                server_default=sa.text("'[]'"),
+            )
+        )
+        batch_op.add_column(
+            sa.Column(
+                "secteurs_activite_medias_detail",
+                sa.JSON(),
+                nullable=False,
+                server_default=sa.text("'[]'"),
+            )
+        )
+        batch_op.add_column(
+            sa.Column(
+                "secteurs_activite_rp",
+                sa.JSON(),
+                nullable=False,
+                server_default=sa.text("'[]'"),
+            )
+        )
+        batch_op.add_column(
+            sa.Column(
+                "secteurs_activite_rp_detail",
+                sa.JSON(),
+                nullable=False,
+                server_default=sa.text("'[]'"),
+            )
+        )
+        batch_op.add_column(
+            sa.Column(
+                "secteurs_activite",
+                sa.JSON(),
+                nullable=False,
+                server_default=sa.text("'[]'"),
+            )
+        )
+        batch_op.add_column(
+            sa.Column(
+                "secteurs_activite_detail",
+                sa.JSON(),
+                nullable=False,
+                server_default=sa.text("'[]'"),
+            )
+        )
+        batch_op.add_column(
+            sa.Column(
+                "interest_political",
+                sa.JSON(),
+                nullable=False,
+                server_default=sa.text("'[]'"),
+            )
+        )
+        batch_op.add_column(
+            sa.Column(
+                "interest_economics",
+                sa.JSON(),
+                nullable=False,
+                server_default=sa.text("'[]'"),
+            )
+        )
+        batch_op.add_column(
+            sa.Column(
+                "interest_association",
+                sa.JSON(),
+                nullable=False,
+                server_default=sa.text("'[]'"),
+            )
+        )
 
-        batch_op.create_index(batch_op.f("ix_bw_business_wall_type"), ["type"], unique=False)
+        batch_op.create_index(
+            batch_op.f("ix_bw_business_wall_type"), ["type"], unique=False
+        )
 
     # ### end Alembic commands ###
 

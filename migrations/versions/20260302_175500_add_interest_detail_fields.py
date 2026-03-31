@@ -5,6 +5,7 @@ Revises: 1299393538bd
 Create Date: 2026-03-02 17:55:00.000000
 
 """
+
 from alembic import op
 import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
@@ -22,8 +23,9 @@ def upgrade():
         batch_op.add_column(
             sa.Column(
                 "interest_political_detail",
-                sa.JSON()
-                .with_variant(postgresql.JSONB(astext_type=sa.Text()), "postgresql"),
+                sa.JSON().with_variant(
+                    postgresql.JSONB(astext_type=sa.Text()), "postgresql"
+                ),
                 nullable=True,
                 server_default="[]",
             )
@@ -31,8 +33,9 @@ def upgrade():
         batch_op.add_column(
             sa.Column(
                 "interest_economics_detail",
-                sa.JSON()
-                .with_variant(postgresql.JSONB(astext_type=sa.Text()), "postgresql"),
+                sa.JSON().with_variant(
+                    postgresql.JSONB(astext_type=sa.Text()), "postgresql"
+                ),
                 nullable=True,
                 server_default="[]",
             )
@@ -40,8 +43,9 @@ def upgrade():
         batch_op.add_column(
             sa.Column(
                 "interest_association_detail",
-                sa.JSON()
-                .with_variant(postgresql.JSONB(astext_type=sa.Text()), "postgresql"),
+                sa.JSON().with_variant(
+                    postgresql.JSONB(astext_type=sa.Text()), "postgresql"
+                ),
                 nullable=True,
                 server_default="[]",
             )
