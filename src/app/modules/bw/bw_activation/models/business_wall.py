@@ -17,6 +17,7 @@ from sqlalchemy import JSON, BigInteger, ForeignKey, String, inspect, orm, selec
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.orm.attributes import flag_modified
 
+from app.enums import BWType  # noqa: F401
 from app.lib.file_object_utils import deserialize_file_object
 from app.logging import warn
 
@@ -29,17 +30,18 @@ if TYPE_CHECKING:
     from .subscription import Subscription
 
 
-class BWType(StrEnum):
-    """Business Wall types."""
+# Now imported from app.enums
+# class BWType(StrEnum):
+#     """Business Wall types."""
 
-    MEDIA = "media"
-    MICRO = "micro"
-    CORPORATE_MEDIA = "corporate_media"
-    UNION = "union"
-    ACADEMICS = "academics"
-    PR = "pr"
-    LEADERS_EXPERTS = "leaders_experts"
-    TRANSFORMERS = "transformers"
+#     MEDIA = "media"
+#     MICRO = "micro"
+#     CORPORATE_MEDIA = "corporate_media"
+#     UNION = "union"
+#     ACADEMICS = "academics"
+#     PR = "pr"
+#     LEADERS_EXPERTS = "leaders_experts"
+#     TRANSFORMERS = "transformers"
 
 
 class BWStatus(StrEnum):

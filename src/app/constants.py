@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 from .enums import BWTypeEnum, ProfileEnum
+# DEPRECATED: BWTypeEnum
 
 # DIRECTION_PROFILE_LABELS = {
 #     "Dirigeant.e d’une Agence de presse, d’un journal, d’un magazine, d’un média ou d’un SPEL reconnus par la CPPAP ou l’ARCOM"
