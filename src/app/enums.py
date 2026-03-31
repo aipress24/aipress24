@@ -64,6 +64,7 @@ class OrganisationTypeEnum(StrEnum):
     OTHER = "Other"  # general companies, and "Médias institutionnels"
 
 
+# DEPRECATED
 class BWTypeEnum(StrEnum):
     """Business Wall type enumeration."""
 
@@ -76,6 +77,19 @@ class BWTypeEnum(StrEnum):
     ORGANISATION = "Business Wall for Organisations"
     TRANSFORMER = "Business Wall for Transformers"
     ACADEMICS = "Business Wall for Academics"
+
+
+class BWType(StrEnum):
+    """Business Wall types."""
+
+    MEDIA = "media"
+    MICRO = "micro"
+    CORPORATE_MEDIA = "corporate_media"
+    UNION = "union"
+    ACADEMICS = "academics"
+    PR = "pr"
+    LEADERS_EXPERTS = "leaders_experts"
+    TRANSFORMERS = "transformers"
 
 
 class ProfileEnum(Enum):
