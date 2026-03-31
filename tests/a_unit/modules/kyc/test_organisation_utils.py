@@ -27,7 +27,6 @@ from app.models.organisation import Organisation
 from app.modules.kyc.organisation_utils import (
     _find_kyc_organisation_name,
     find_inviting_organisations,
-    get_organisation_choices_family,
     get_organisation_family,
     get_organisation_for_noms_com,
     get_organisation_for_noms_medias,
@@ -151,40 +150,6 @@ class TestGetOrganisationForNoms:
         assert "Com Org 2" in result
         assert "Auto Org 3" in result
         assert "Media Org 3" not in result
-
-
-@pytest.mark.skip(reason="There is no more Organisation type")
-class TestGetOrganisationChoicesFamily:
-    """Test suite for get_organisation_choices_family function."""
-
-    def test_returns_tuple_format(self, db: SQLAlchemy) -> None:
-        """Test returns list of (name, name) tuples for HTML select."""
-        org1 = Organisation(name="Choice Org 1", type=OrganisationTypeEnum.MEDIA)
-        org2 = Organisation(name="Choice Org 2", type=OrganisationTypeEnum.MEDIA)
-        db.session.add_all([org1, org2])
-        db.session.flush()
-
-        result = get_organisation_choices_family(OrganisationTypeEnum.MEDIA)
-
-        assert ("Choice Org 1", "Choice Org 1") in result
-        assert ("Choice Org 2", "Choice Org 2") in result
-
-    def test_excludes_other_types_from_choices(self, db: SQLAlchemy) -> None:
-        """Test excludes organisations of different types from choices."""
-        # Create orgs of different types
-        org1 = Organisation(
-            name="Choice Exclude Media", type=OrganisationTypeEnum.MEDIA
-        )
-        org2 = Organisation(name="Choice Exclude COM", type=OrganisationTypeEnum.COM)
-        db.session.add_all([org1, org2])
-        db.session.flush()
-
-        result = get_organisation_choices_family(OrganisationTypeEnum.OTHER)
-
-        # Should not include the MEDIA or COM orgs we just created
-        result_names = [item[0] for item in result]
-        assert "Choice Exclude Media" not in result_names
-        assert "Choice Exclude COM" not in result_names
 
 
 @pytest.mark.skip(reason="There is no more Organisation type")
