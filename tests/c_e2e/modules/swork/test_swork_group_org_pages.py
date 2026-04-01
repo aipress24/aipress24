@@ -99,6 +99,33 @@ def test_organisation(db_session: Session) -> Organisation:
 
 
 @pytest.fixture
+def test_organisation_media(
+    db_session: Session, test_user_with_profile: User
+) -> Organisation:
+    """Create a test organisation."""
+    org = Organisation(name="Test Organisation")
+    db_session.add(org)
+    db_session.flush()
+
+    bw = BusinessWall(
+        bw_type="media",
+        status=BWStatus.ACTIVE.value,
+        owner_id=test_user_with_profile.id,
+        payer_id=test_user_with_profile.id,
+        organisation_id=org.id,
+    )
+    db_session.add(bw)
+    db_session.flush()
+
+    # Link organisation to BW
+    org.bw_id = bw.id
+    org.bw_active = bw.bw_type
+    db_session.flush()
+
+    return org
+
+
+@pytest.fixture
 def auto_organisation(db_session: Session) -> Organisation:
     """Create an auto (no bw_id) organisation."""
     org = Organisation(name="Auto Organisation")
@@ -406,28 +433,11 @@ class TestOrgPublicationsTab:
         self,
         app: Flask,
         db_session: Session,
-        test_organisation: Organisation,
-        test_user_with_profile: User,
+        test_organisation_media: Organisation,
     ):
         """Test guard returns True for organisation with MEDIA BusinessWall."""
 
-        # Create an active BusinessWall with media type
-        bw = BusinessWall(
-            bw_type="media",
-            status=BWStatus.ACTIVE.value,
-            owner_id=test_user_with_profile.id,
-            payer_id=test_user_with_profile.id,
-            organisation_id=test_organisation.id,
-        )
-        db_session.add(bw)
-        db_session.flush()
-
-        # Link organisation to BW
-        test_organisation.bw_id = bw.id
-        test_organisation.bw_active = bw.bw_type
-        db_session.flush()
-
-        tab = OrgPublicationsTab(org=test_organisation)
+        tab = OrgPublicationsTab(org=test_organisation_media)
         assert tab.guard() is True
 
     def test_guard_true_for_corporate_media_bw(
@@ -470,7 +480,6 @@ class TestOrgPressBookTab:
         """Test OrgPressBookTab has correct id."""
         assert OrgPressBookTab.id == "press-book"
 
-    @pytest.mark.skip(reason="FIXME: There is no more Organisation type / AUTO")
     def test_guard_false_for_auto(self, auto_organisation: Organisation):
         """Test guard returns False for AUTO organisation."""
         tab = OrgPressBookTab(org=auto_organisation)
