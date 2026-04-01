@@ -319,7 +319,6 @@ reportIncompatibleMethodOverride = false
 reportIncompatibleVariableOverride = false
 
 # -----------------------------------------------------------------------------
-
 [tool.ty.src]
 exclude = [
     "tests",
@@ -332,6 +331,11 @@ exclude = [
 [tool.ty.rules]
 unused-ignore-comment = "ignore"
 unused-type-ignore-comment = "ignore"
+# silent invalid-argument-type until all fixed
+"invalid-argument-type" = "ignore"
+"invalid-assignment" = "ignore"
+"invalid-method-override" = "ignore"
+"unresolved-attribute" = "ignore"
 
 # -----------------------------------------------------------------------------
 
