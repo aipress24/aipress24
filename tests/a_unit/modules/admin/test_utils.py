@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
+from uuid import uuid4
 
 from arrow import now as arrow_now
 
@@ -179,12 +180,13 @@ class TestGcOrganisation:
     def test_returns_false_for_non_auto_org(self, db: SQLAlchemy) -> None:
         """Test non-AUTO organisation returns False."""
         org = Organisation(name="Media Org")
+        org.bw_id = uuid4()  # org is non-AUTO
         db.session.add(org)
         db.session.flush()
 
         result = gc_organisation(org)
 
-        assert result is True
+        assert result is False
 
     def test_returns_false_for_auto_org_with_members(self, db: SQLAlchemy) -> None:
         """Test AUTO organisation with members returns False."""
