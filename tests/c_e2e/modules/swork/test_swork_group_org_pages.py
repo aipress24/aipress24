@@ -516,7 +516,6 @@ class TestOrgEventsTab:
         """Test OrgEventsTab has correct id."""
         assert OrgEventsTab.id == "events"
 
-    @pytest.mark.skip(reason="FIXME: There is no more Organisation type / AUTO")
     def test_guard_false_for_auto(self, auto_organisation: Organisation):
         """Test guard returns False for AUTO organisation."""
         tab = OrgEventsTab(org=auto_organisation)
