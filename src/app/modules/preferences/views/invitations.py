@@ -128,14 +128,10 @@ class InvitationsView(MethodView):
         org = user.organisation
         if not org:
             return {}
-        # FIXME: display information about BW, not org type
-        # org_type = org.type
-        if org.active:
+        # Auto organisations are those without a BusinessWall (bw_id is None)
+        if not org.is_auto:
             return {}
-        # if org_type != OrganisationTypeEnum.AUTO:
-        # return {}
         infos = {
-            # "label": f"{org.name} ({LABELS_ORGANISATION_TYPE.get(org_type, org_type)})",
             "label": f"{org.name}",
             "org_id": str(org.id),
             "disabled": "disabled",
