@@ -163,6 +163,11 @@ def _mark_organisation_as_deleted(
     for committing at the request boundary.
     """
     organisation.active = False
+
+    # as a security, remove link to any remaining BW
+    organisation.bw_id = None
+    organisation.bw_active = None
+
     organisation.deleted_at = now(LOCAL_TZ)
     db_session.merge(organisation)
     db_session.flush()
@@ -175,7 +180,7 @@ def gc_organisation(organisation: Organisation | None) -> bool:
     """
     if not organisation or not organisation.is_auto or len(organisation.members) > 0:
         return False
-    # AUTO organisation with zero member: felete it
+    # AUTO organisation with zero member: delete it
     db_session = db.session
     if not _delete_organisation_from_db(db_session, organisation):
         _mark_organisation_as_deleted(db_session, organisation)
