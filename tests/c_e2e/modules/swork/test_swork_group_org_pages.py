@@ -100,8 +100,8 @@ def test_organisation(db_session: Session) -> Organisation:
 
 @pytest.fixture
 def auto_organisation(db_session: Session) -> Organisation:
-    """Create an auto (inactive) organisation."""
-    org = Organisation(name="Auto Organisation", active=False)
+    """Create an auto (no bw_id) organisation."""
+    org = Organisation(name="Auto Organisation")
     db_session.add(org)
     db_session.flush()
     return org
@@ -424,6 +424,7 @@ class TestOrgPublicationsTab:
 
         # Link organisation to BW
         test_organisation.bw_id = bw.id
+        test_organisation.bw_active = bw.bw_type
         db_session.flush()
 
         tab = OrgPublicationsTab(org=test_organisation)
@@ -450,6 +451,7 @@ class TestOrgPublicationsTab:
 
         # Link organisation to BW
         test_organisation.bw_id = bw.id
+        test_organisation.bw_active = bw.bw_type
         db_session.flush()
 
         tab = OrgPublicationsTab(org=test_organisation)
