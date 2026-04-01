@@ -14,7 +14,6 @@ from sqlalchemy.sql import Select
 
 from app.flask.extensions import db
 from app.flask.lib.view_model import ViewModel
-from app.logging import warn
 from app.models.organisation import Organisation
 from app.modules.bw.bw_activation.models import BusinessWall
 from app.modules.bw.bw_activation.models.business_wall import BWStatus
@@ -280,7 +279,6 @@ class OrgVM(ViewModel):
 
     def get_logo_url(self) -> str:
         url = get_organisation_logo_url(self.org) or ""
-        warn("org url", url)
         return url
 
 
