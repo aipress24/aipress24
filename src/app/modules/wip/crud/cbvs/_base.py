@@ -128,21 +128,20 @@ class BaseWipView(FlaskView, abc.ABC):
     def get_media_organisations(self) -> list[tuple[str, str]]:
         """Get list of Organisation and their ID of type MEDIA AGENCY and AUTO.
 
-        FIXME: Organisation have no type, make test on associated BW
+        Organisations are included if either:
+        - They are auto (no bw_id)
+        - or they have bw_active equal to "media"
 
         List not filtered for duplicates.
         """
-        # query = select(Organisation).where(
-        #     Organisation.type.in_(
-        #         [
-        #             OrganisationTypeEnum.MEDIA,
-        #             OrganisationTypeEnum.AGENCY,
-        #             OrganisationTypeEnum.OTHER,
-        #             OrganisationTypeEnum.AUTO,
-        #         ]
-        #     )
-        # )
-        query = select(Organisation)
+        from sqlalchemy import or_
+
+        query = select(Organisation).where(
+            or_(
+                Organisation.bw_id.is_(None),  # auto organisations
+                Organisation.bw_active == "media",  # media organisations
+            )
+        )
         query_result = db.session.execute(query).scalars()
         result = sorted(
             [(str(org.id), org.name) for org in query_result], key=itemgetter(1)
