@@ -14,6 +14,7 @@ from sqlalchemy import inspect, select
 from sqlalchemy.exc import NoInspectionAvailable
 
 from app.enums import ProfileEnum
+from app.logging import warn
 from app.modules.admin.utils import Organisation
 from app.modules.bw.bw_activation.models import BusinessWall
 from app.modules.bw.bw_activation.models.business_wall import BWStatus, BWType
@@ -113,6 +114,16 @@ def get_active_business_wall_for_organisation(org: Organisation) -> BusinessWall
         .where(BusinessWall.status == BWStatus.ACTIVE.value)
     )
     return session.execute(stmt).scalars().one_or_none()
+
+
+def is_organisation_an_agency(org: Organisation) -> bool:
+    result: bool = False
+    if org.bw_active == "media":
+        bw = get_active_business_wall_for_organisation(org)
+        if bw and "Agence de presse" in bw.type_entreprise_media:
+            result = True
+    warn(f"BW {bw.name} is agency: {result}")
+    return result
 
     # Deprecated implementation
     # stmt = (
