@@ -18,6 +18,9 @@ from app.flask.sqla import get_multi
 from app.models.auth import User
 from app.models.lifecycle import PublicationStatus
 from app.models.organisation import Organisation
+from app.modules.bw.bw_activation.user_utils import (
+    is_organisation_an_agency,
+)
 from app.modules.wire.models import Post
 from app.services.social_graph import adapt
 
@@ -132,7 +135,7 @@ class AgenciesTab(Tab):
         orgs: list[Organisation] = adapt(g.user).get_followees(cls=Organisation)
         journalists: set[User] = set()
         for org in orgs:
-            if org.bw_active == "media":
+            if is_organisation_an_agency(org):
                 journalists.update(list(org.members))
         return journalists
 
@@ -147,7 +150,7 @@ class MediasTab(Tab):
         orgs: list[Organisation] = adapt(g.user).get_followees(cls=Organisation)
         journalists: set[User] = set()
         for org in orgs:
-            if org.bw_active == "media":
+            if org.bw_active == "media" and not is_organisation_an_agency(org):
                 journalists.update(list(org.members))
         return journalists
 
