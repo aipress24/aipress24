@@ -16,6 +16,8 @@ from app.enums import OrganisationTypeEnum, RoleEnum
 from app.models.auth import KYCProfile, Role, User
 from app.models.invitation import Invitation
 from app.models.organisation import Organisation
+from app.modules.bw.bw_activation.models import BusinessWall
+from app.modules.bw.bw_activation.models.business_wall import BWStatus
 from app.modules.preferences.views.invitations import InvitationsView
 from tests.c_e2e.conftest import make_authenticated_client
 
@@ -26,8 +28,29 @@ if TYPE_CHECKING:
 
 
 @pytest.fixture
+def test_inviting_user_with_profile(db_session: Session) -> User:
+    """Create a test user with profile managing a BW."""
+    user = User(email="inviting_user@example.com")
+    user.first_name = "Test"
+    user.last_name = "User"
+    user.active = True
+    user.photo = b""
+
+    profile = KYCProfile(contact_type="PRESSE")
+    profile.show_contact_details = {}
+    user.profile = profile
+
+    db_session.add(user)
+    db_session.add(profile)
+    db_session.flush()
+    return user
+
+
+@pytest.fixture
 def invitations_test_user(db_session: Session) -> User:
-    """Create a test user for invitations tests."""
+    """Create a test user for invitations tests.
+
+    Invitation must be sent for an organisation with an active BW."""
     unique_id = uuid.uuid4().hex[:8]
 
     # Create role
@@ -36,8 +59,7 @@ def invitations_test_user(db_session: Session) -> User:
     db_session.flush()
 
     # Create organisation for user
-    org = Organisation(name=f"Test Org {unique_id}")
-    org.active = True
+    org = Organisation(name=f"Test Auto Org {unique_id}")
     db_session.add(org)
     db_session.flush()
 
@@ -45,8 +67,8 @@ def invitations_test_user(db_session: Session) -> User:
     user.first_name = "Invit"
     user.last_name = "Test"
     user.photo = b""
-    user.active = True
     user.organisation = org
+    user.active = True
     user.roles.append(role)
 
     profile = KYCProfile(contact_type="PRESSE", match_making={})
@@ -64,13 +86,31 @@ def invitations_auth_client(app: Flask, invitations_test_user: User) -> FlaskCli
 
 
 @pytest.fixture
-def inviting_org(db_session: Session) -> Organisation:
-    """Create an organization that sends invitations."""
-    unique_id = uuid.uuid4().hex[:8]
-    org = Organisation(name=f"Inviting Org {unique_id}")
-    org.active = True
+def inviting_org(
+    db_session: Session, test_inviting_user_with_profile: User
+) -> Organisation:
+    """Create an organization that sends invitations.
+
+    Invitation must be sent for an organisation with an active BW."""
+    org = Organisation(name="Inviting Organisation")
     db_session.add(org)
     db_session.flush()
+
+    bw = BusinessWall(
+        bw_type="media",
+        status=BWStatus.ACTIVE.value,
+        owner_id=test_inviting_user_with_profile.id,
+        payer_id=test_inviting_user_with_profile.id,
+        organisation_id=org.id,
+    )
+    db_session.add(bw)
+    db_session.flush()
+
+    # Link organisation to BW
+    org.bw_id = bw.id
+    org.bw_active = bw.bw_type
+    db_session.flush()
+
     return org
 
 
@@ -139,24 +179,26 @@ class TestInvitationsViewHelpers:
         view = InvitationsView()
         user = MagicMock()
         user.organisation = MagicMock()
-        user.organisation.type = OrganisationTypeEnum.MEDIA
+        user.organisation.is_auto = False
 
         with app.test_request_context():
             result = view._unofficial_organisation(user)
             assert result == {}
 
-    @pytest.mark.skip(reason="FIXME: There is no more Organisation type / AUTO")
     def test_unofficial_organisation_auto_org(self, app: Flask):
         """Test _unofficial_organisation returns dict for AUTO org."""
         view = InvitationsView()
         user = MagicMock()
         user.organisation = MagicMock()
-        user.organisation.type = OrganisationTypeEnum.AUTO
+        user.organisation.bw_id = None  # an AUTO organisation
+        user.organisation.bw_active = ""
+        user.organisation.is_auto = True  # for the mock
         user.organisation.name = "Auto Organization"
         user.organisation.id = 123
 
         with app.test_request_context():
             result = view._unofficial_organisation(user)
+            print(result)
             assert result["org_id"] == "123"
             assert result["disabled"] == "disabled"
             assert "Auto Organization" in result["label"]
@@ -189,35 +231,14 @@ class TestInvitationsJoinOrg:
 class TestInvitationsUserWithAutoOrg:
     """Tests for user with auto-created organization."""
 
-    def test_invitations_shows_auto_org(self, db_session: Session, app: Flask):
+    def test_invitations_shows_auto_org(
+        self,
+        db_session: Session,
+        invitations_test_user: User,
+        app: Flask,
+    ):
         """Test invitations page shows auto organization."""
-        unique_id = uuid.uuid4().hex[:8]
 
-        # Get or create role
-        role = db_session.query(Role).filter_by(name=RoleEnum.PRESS_MEDIA.name).first()
-        if not role:
-            role = Role(
-                name=RoleEnum.PRESS_MEDIA.name, description=RoleEnum.PRESS_MEDIA.value
-            )
-            db_session.add(role)
-            db_session.flush()
-
-        # Create auto org
-        auto_org = Organisation(name=f"Auto Org {unique_id}")
-        db_session.add(auto_org)
-        db_session.flush()
-
-        # Create user with auto org
-        user = User(email=f"auto-org-user-{unique_id}@test.com")
-        user.photo = b""
-        user.active = True
-        profile = KYCProfile(match_making={})
-        user.profile = profile
-        user.organisation = auto_org
-        user.roles.append(role)
-        db_session.add(user)
-        db_session.commit()
-
-        client = make_authenticated_client(app, user)
+        client = make_authenticated_client(app, invitations_test_user)
         response = client.get("/preferences/invitations")
         assert response.status_code == 200
