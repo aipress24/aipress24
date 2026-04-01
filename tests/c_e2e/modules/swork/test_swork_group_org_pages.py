@@ -498,7 +498,6 @@ class TestOrgPressReleasesTab:
         """Test OrgPressReleasesTab has correct id."""
         assert OrgPressReleasesTab.id == "press-releases"
 
-    @pytest.mark.skip(reason="FIXME: There is no more Organisation type / AUTO")
     def test_guard_false_for_auto(self, auto_organisation: Organisation):
         """Test guard returns False for AUTO organisation."""
         tab = OrgPressReleasesTab(org=auto_organisation)
