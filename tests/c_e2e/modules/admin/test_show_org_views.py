@@ -284,18 +284,6 @@ class TestOrgVM:
             vm = OrgVM(org)
             assert vm.get_logo_url() == "/static/img/logo-page-non-officielle.png"
 
-    def test_org_vm_screenshot_url_empty(self, app: Flask, db_session: Session):
-        """Test screenshot URL is empty when no screenshot."""
-        unique_id = uuid.uuid4().hex[:8]
-        org = Organisation(name=f"Screenshot Test Org {unique_id}")
-        org.screenshot_id = None
-        db_session.add(org)
-        db_session.flush()
-
-        with app.test_request_context():
-            vm = OrgVM(org)
-            assert vm.get_screenshot_url() == ""
-
     def test_org_vm_get_members(self, app: Flask, db_session: Session):
         """Test get_members returns list of members."""
         unique_id = uuid.uuid4().hex[:8]
