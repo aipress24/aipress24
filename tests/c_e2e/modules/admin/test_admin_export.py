@@ -24,6 +24,7 @@ from app.modules.admin.views._export import (
     OrganisationsExporter,
     UsersExporter,
 )
+from app.modules.bw.bw_activation.models import BusinessWall, BWStatus
 
 if TYPE_CHECKING:
     from flask import Flask
@@ -87,6 +88,23 @@ def sample_organisations(db_session: Session) -> list[Organisation]:
     for i in range(3):
         org = Organisation(name=f"Organisation {i}")
         db_session.add(org)
+        db_session.flush()
+
+        bw = BusinessWall(
+            bw_type="media",
+            status=BWStatus.ACTIVE.value,
+            owner_id=1,
+            payer_id=1,
+            organisation_id=org.id,
+        )
+        db_session.add(bw)
+        db_session.flush()
+
+        # Link organisation to BW
+        org.bw_id = bw.id
+        org.bw_active = bw.bw_type
+        db_session.flush()
+
         organisations.append(org)
 
     db_session.flush()  # Use flush() instead of commit() to preserve transaction isolation
