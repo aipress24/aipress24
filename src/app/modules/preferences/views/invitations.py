@@ -26,6 +26,7 @@ from app.modules.bw.bw_activation.models import (
     RoleAssignment,
 )
 from app.modules.preferences import blueprint
+from app.ui.labels import LABELS_BW_TYPE_V2
 
 
 class InvitationsView(MethodView):
@@ -75,12 +76,13 @@ class InvitationsView(MethodView):
         )
         organisations = db_session.scalars(stmt)
         result = []
-        # FIXME: display information about BW, not org type
         for org in organisations:
-            # org_type = cast(OrganisationTypeEnum, org.type)
+            if org.bw_id:
+                label = f"{org.name} ({LABELS_BW_TYPE_V2.get(org.bw_active, org.bw_active)})"
+            else:
+                label = f"{org.name}"
             infos = {
-                "label": f"{org.name}",
-                # "label": f"{org.name} ({LABELS_ORGANISATION_TYPE.get(org_type, org_type)})",
+                "label": label,
                 "org_id": str(org.id),
             }
             if user.organisation_id == org.id:
