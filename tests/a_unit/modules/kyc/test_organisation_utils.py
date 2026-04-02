@@ -24,6 +24,7 @@ from app.enums import OrganisationTypeEnum
 from app.models.auth import KYCProfile, User
 from app.models.invitation import Invitation
 from app.models.organisation import Organisation
+from app.modules.bw.bw_activation.models import BusinessWall, BWStatus
 from app.modules.kyc.organisation_utils import (
     _find_kyc_organisation_name,
     find_inviting_organisations,
@@ -51,6 +52,9 @@ class TestGetOrganisationFamily:
         """Test getting organisations of AUTO family."""
         org1 = Organisation(name="Auto Org 1")
         org2 = Organisation(name="Auto Org 2")
+        
+        
+        
         org3 = Organisation(name="Media Org", active=True)
         db.session.add_all([org1, org2, org3])
         db.session.flush()

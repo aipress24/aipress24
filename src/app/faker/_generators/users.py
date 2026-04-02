@@ -67,8 +67,8 @@ def _get_full_taxo_category_value(taxonomy: str) -> list[tuple[str, str]]:
 
 
 @functools.cache
-def _get_full_organisation_family(family: OrganisationTypeEnum) -> list[str]:
-    return get_organisation_family()
+def _get_full_organisation_family(family: str) -> list[str]:
+    return get_organisation_family(family)
 
 
 def random_profile_id() -> str:
@@ -215,7 +215,7 @@ class UserGenerator(BaseGenerator):
         )
 
     def _random_nom_orga(self, _user: User, profile: KYCProfile) -> None:
-        organisations = _get_full_organisation_family(OrganisationTypeEnum.OTHER)
+        organisations = _get_full_organisation_family("leaders_experts")
         if not organisations or random.randint(1, 4) == 1:
             name = _use_known_organisation_name()
             if not name:
@@ -230,7 +230,7 @@ class UserGenerator(BaseGenerator):
         # special case: several possible free or from list but first one taken
         # as organisation_name
         def _nom_media() -> str:
-            medias = _get_full_organisation_family(OrganisationTypeEnum.MEDIA)
+            medias = _get_full_organisation_family("media")
             if not medias or random.randint(1, 4) == 1:
                 name = _use_known_organisation_name()
                 if not name:
@@ -254,7 +254,7 @@ class UserGenerator(BaseGenerator):
         profile.info_professionnelle["nom_media_instit"] = name
 
     def _random_nom_agence_rp(self, _user: User, profile: KYCProfile) -> None:
-        agencies = _get_full_organisation_family(OrganisationTypeEnum.COM)
+        agencies = _get_full_organisation_family("pr")
         if not agencies or random.randint(1, 4) == 1:
             name = _use_known_organisation_name()
             if not name:
