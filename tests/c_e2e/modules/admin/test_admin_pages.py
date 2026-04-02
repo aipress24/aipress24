@@ -14,10 +14,8 @@ import uuid
 from importlib.metadata import distributions
 from typing import TYPE_CHECKING
 
-import pytest
-from sqlalchemy import select
-
 import app.modules.admin.views._show_org as show_org_module
+import pytest
 from app.enums import RoleEnum
 from app.models.auth import KYCProfile, Role, User
 from app.models.content import BaseContent
@@ -33,6 +31,7 @@ from app.modules.admin.views._show_org import OrgVM
 from app.modules.admin.views._users import UserDataSource
 from app.modules.admin.views.home import WIDGETS as HOME_WIDGETS
 from app.modules.swork.models import Group
+from sqlalchemy import select
 
 if TYPE_CHECKING:
     from flask import Flask
@@ -343,10 +342,7 @@ def organisation_with_members(db_session: Session) -> Organisation:
             db_session.add(role)
     db_session.flush()
 
-    org = Organisation(
-        name=f"Test Media Company {unique_id}",
-        active=True,
-    )
+    org = Organisation(name=f"Test Media Company {unique_id}")
     db_session.add(org)
     db_session.flush()
 
@@ -431,7 +427,7 @@ class TestOrgVMExtended:
         """Test get_logo_url returns static image for AUTO organisations."""
         unique_id = uuid.uuid4().hex[:8]
 
-        org = Organisation(name=f"Auto Org {unique_id}", active=False)
+        org = Organisation(name=f"Auto Org {unique_id}")
         db_session.add(org)
         db_session.flush()
 
