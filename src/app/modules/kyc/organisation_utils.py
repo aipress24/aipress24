@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from sqlalchemy import func, select, true
+from sqlalchemy import func, or_, select
 
 from app.flask.extensions import db
 from app.flask.sqla import get_obj
@@ -35,25 +35,22 @@ def get_organisation_family(bw_type: str | None) -> list[str]:
 
 
 def get_organisation_for_noms_medias() -> list[str]:
-    """FIXME: there is no organisation type
+    """Get list of Organisation of MEDIA AGENCY and AUTO families.
 
-    Get list of Organisation of MEDIA AGENCY and AUTO families.
+    FIXME: there is no BW for agency
 
     List not filtered for duplicates.
     (Then will add the required ontologie if needed, there or in a later stage)
     """
-    # query = select(Organisation).where(
-    #     Organisation.type.in_(
-    #         [
-    #             OrganisationTypeEnum.MEDIA,
-    #             OrganisationTypeEnum.AGENCY,
-    #             OrganisationTypeEnum.AUTO,
-    #         ]
-    #     )
-    # )
     query = (
         select(Organisation)
-        .where(Organisation.active == true())
+        .where(
+            or_(
+                # media organisations (and implicit: agency)
+                Organisation.bw_active == "media",
+                Organisation.bw_id.is_(None),  # AUTO organisations
+            )
+        )
         .order_by(Organisation.name)
     )
     result = db.session.execute(query).scalars()
@@ -61,24 +58,30 @@ def get_organisation_for_noms_medias() -> list[str]:
 
 
 def get_organisation_for_noms_orgas() -> list[str]:
-    """FIXME: there is no organisation type
+    """Get list of Organisation of OTHER and AUTO families.
 
-    Get list of Organisation of OTHER and AUTO families.
+    OTHER: micro corporate_media union academics leaders_experts transformers
+    (aka all except media and pr)
 
     List not filtered for duplicates.
-    (Then will add the required ontologie if needed, there or in a later stage)
     """
-    # query = select(Organisation).where(
-    #     Organisation.type.in_(
-    #         [
-    #             OrganisationTypeEnum.OTHER,
-    #             OrganisationTypeEnum.AUTO,
-    #         ]
-    #     )
-    # )
     query = (
         select(Organisation)
-        .where(Organisation.active == true())
+        .where(
+            or_(
+                Organisation.bw_id.is_(None),  # AUTO organisations
+                Organisation.bw_active.in_(
+                    [
+                        "micro",
+                        "corporate_media",
+                        "union",
+                        "academics",
+                        "leaders_experts",
+                        "transformers",
+                    ]
+                ),
+            )
+        )
         .order_by(Organisation.name)
     )
     result = db.session.execute(query).scalars()
@@ -86,9 +89,7 @@ def get_organisation_for_noms_orgas() -> list[str]:
 
 
 def get_organisation_for_noms_com() -> list[str]:
-    """FIXME: there is no organisation type
-
-    Get list of Organisation of COM and AUTO families.
+    """Get list of Organisation of COM and AUTO families.
 
     List not filtered for duplicates.
     (Then will add the required ontologie if needed, there or in a later stage)
@@ -103,7 +104,12 @@ def get_organisation_for_noms_com() -> list[str]:
     # )
     query = (
         select(Organisation)
-        .where(Organisation.active == true())
+        .where(
+            or_(
+                Organisation.bw_active == "pr",
+                Organisation.bw_id.is_(None),  # AUTO organisations
+            )
+        )
         .order_by(Organisation.name)
     )
     result = db.session.execute(query).scalars()
@@ -177,10 +183,13 @@ def store_auto_organisation(
     org_name = str(org_name).strip()
     if not org_name:
         return None
-    # identification of AUTO organisation is only the organisation name
     if db_session is None:
         db_session = db.session
-    query = select(Organisation).where(Organisation.name == org_name)
+    # identification of AUTO organisation is only the organisation name
+    query = select(Organisation).where(
+        Organisation.name == org_name,
+        Organisation.bw_id.is_(None),
+    )
     found_organisation = db.session.execute(query).scalars().first()
     if found_organisation:
         return found_organisation
