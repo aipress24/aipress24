@@ -28,7 +28,6 @@ def test_org_for_admin(db_session: Session) -> Organisation:
     """Create an organisation for admin tests with unique name."""
     unique_id = uuid.uuid4().hex[:8]
     org = Organisation(name=f"Admin Test Org {unique_id}")
-    org.active = True
     db_session.add(org)
     db_session.flush()
 
@@ -52,45 +51,50 @@ def test_org_for_admin(db_session: Session) -> Organisation:
 @pytest.fixture
 def org_with_bw(db_session: Session, admin_user: User) -> Organisation:
     """Create an organisation with an active Business Wall."""
-    unique_id = uuid.uuid4().hex[:8]
-    org = Organisation(name=f"BW Test Org {unique_id}")
-    org.active = True
-    org.bw_active = "media"
+    org = Organisation(name="Test Organisation with BW")
     db_session.add(org)
     db_session.flush()
 
-    # Create BusinessWall with required fields
     bw = BusinessWall(
-        organisation_id=org.id,
-        status=BWStatus.ACTIVE.value,
         bw_type="media",
+        status=BWStatus.ACTIVE.value,
         owner_id=admin_user.id,
         payer_id=admin_user.id,
+        organisation_id=org.id,
     )
     db_session.add(bw)
     db_session.flush()
 
+    # Link organisation to BW
     org.bw_id = bw.id
-    db_session.commit()
+    org.bw_active = bw.bw_type
+    db_session.flush()
+
     return org
 
 
 @pytest.fixture
-def org_with_invitation(db_session: Session) -> Organisation:
+def org_with_invitation(db_session: Session, admin_user: User) -> Organisation:
     """Create an organisation with pending invitations."""
-    unique_id = uuid.uuid4().hex[:8]
-    org = Organisation(name=f"Invitation Test Org {unique_id}")
-    org.active = True
+    org = Organisation(name="Test Organisation with Invitation")
     db_session.add(org)
     db_session.flush()
 
-    # Create invitation
-    invitation = Invitation(
-        email=f"invited-{unique_id}@test.com",
+    bw = BusinessWall(
+        bw_type="media",
+        status=BWStatus.ACTIVE.value,
+        owner_id=admin_user.id,
+        payer_id=admin_user.id,
         organisation_id=org.id,
     )
-    db_session.add(invitation)
-    db_session.commit()
+    db_session.add(bw)
+    db_session.flush()
+
+    # Link organisation to BW
+    org.bw_id = bw.id
+    org.bw_active = bw.bw_type
+    db_session.flush()
+
     return org
 
 
