@@ -13,15 +13,23 @@ from app.models.invitation import Invitation
 from app.models.organisation import Organisation
 
 
-def get_organisation_family() -> list[str]:
-    """FIXME: there is no organisation type
+def get_organisation_family(bw_type: str | None) -> list[str]:
+    """Return list of names of organisations of required BW type.
 
-    Get list of Organisation of ANY family."""
-    query = (
-        select(Organisation)
-        .where(Organisation.active == true())
-        .order_by(Organisation.name)
-    )
+    Function used only for the _faker of test data.
+    (There is no organisation type)."""
+    if bw_type:
+        query = (
+            select(Organisation)
+            .where(Organisation.bw_id.is_(None)),
+            .order_by(Organisation.name)
+        )
+    else:
+        query = (
+            select(Organisation)
+            .where(Organisation.bw_active == bw_type)
+            .order_by(Organisation.name)
+        )
     result = db.session.execute(query).scalars()
     return [org.name for org in result]
 
