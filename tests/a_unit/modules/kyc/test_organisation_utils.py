@@ -52,14 +52,12 @@ class TestGetOrganisationFamily:
         """Test getting organisations of AUTO family."""
         org1 = Organisation(name="Auto Org 1")
         org2 = Organisation(name="Auto Org 2")
-        
-        
-        
-        org3 = Organisation(name="Media Org", active=True)
+
+        org3 = Organisation(name="Media Org", bw_active="media")
         db.session.add_all([org1, org2, org3])
         db.session.flush()
 
-        result = get_organisation_family(OrganisationTypeEnum.AUTO)
+        result = get_organisation_family(None)
 
         assert "Auto Org 1" in result
         assert "Auto Org 2" in result
@@ -67,13 +65,13 @@ class TestGetOrganisationFamily:
 
     def test_returns_list_of_media_orgs(self, db: SQLAlchemy) -> None:
         """Test getting organisations of MEDIA family."""
-        org1 = Organisation(name="Media Org 1", active=True)
-        org2 = Organisation(name="Media Org 2", active=True)
+        org1 = Organisation(name="Media Org 1", bw_active="media")
+        org2 = Organisation(name="Media Org 2", bw_active="media")
         org3 = Organisation(name="Auto Org")
         db.session.add_all([org1, org2, org3])
         db.session.flush()
 
-        result = get_organisation_family(OrganisationTypeEnum.MEDIA)
+        result = get_organisation_family("media")
 
         assert "Media Org 1" in result
         assert "Media Org 2" in result
@@ -81,13 +79,13 @@ class TestGetOrganisationFamily:
 
     def test_returns_sorted_list(self, db: SQLAlchemy) -> None:
         """Test that results are sorted by name."""
-        org1 = Organisation(name="Zebra Corp", type=OrganisationTypeEnum.COM)
-        org2 = Organisation(name="Alpha Inc", type=OrganisationTypeEnum.COM)
-        org3 = Organisation(name="Beta Ltd", type=OrganisationTypeEnum.COM)
+        org1 = Organisation(name="Zebra Corp", bw_active="pr")
+        org2 = Organisation(name="Alpha Inc", bw_active="pr")
+        org3 = Organisation(name="Beta Ltd", bw_active="pr")
         db.session.add_all([org1, org2, org3])
         db.session.flush()
 
-        result = get_organisation_family(OrganisationTypeEnum.COM)
+        result = get_organisation_family("pr")
 
         assert result.index("Alpha Inc") < result.index("Beta Ltd")
         assert result.index("Beta Ltd") < result.index("Zebra Corp")
@@ -95,12 +93,12 @@ class TestGetOrganisationFamily:
     def test_excludes_other_types(self, db: SQLAlchemy) -> None:
         """Test excludes organisations of different types."""
         # Create orgs of different types, none with AGENCY type
-        org1 = Organisation(name="Exclude Test Media", type=OrganisationTypeEnum.MEDIA)
-        org2 = Organisation(name="Exclude Test COM", type=OrganisationTypeEnum.COM)
+        org1 = Organisation(name="Exclude Test Media", bw_active="media")
+        org2 = Organisation(name="Exclude Test COM", bw_active="pr")
         db.session.add_all([org1, org2])
         db.session.flush()
 
-        result = get_organisation_family(OrganisationTypeEnum.AGENCY)
+        result = get_organisation_family("transformers")
 
         # Should not include the MEDIA or COM orgs we just created
         assert "Exclude Test Media" not in result
