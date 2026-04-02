@@ -17,6 +17,7 @@ Survey Profile ID to organisation_field mapping:
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
+from uuid import uuid4
 
 import pytest
 
@@ -53,7 +54,7 @@ class TestGetOrganisationFamily:
         org1 = Organisation(name="Auto Org 1")
         org2 = Organisation(name="Auto Org 2")
 
-        org3 = Organisation(name="Media Org", bw_active="media")
+        org3 = Organisation(name="Media Org", bw_active="media", bw_id=uuid4())
         db.session.add_all([org1, org2, org3])
         db.session.flush()
 
@@ -65,8 +66,8 @@ class TestGetOrganisationFamily:
 
     def test_returns_list_of_media_orgs(self, db: SQLAlchemy) -> None:
         """Test getting organisations of MEDIA family."""
-        org1 = Organisation(name="Media Org 1", bw_active="media")
-        org2 = Organisation(name="Media Org 2", bw_active="media")
+        org1 = Organisation(name="Media Org 1", bw_active="media", bw_id=uuid4())
+        org2 = Organisation(name="Media Org 2", bw_active="media", bw_id=uuid4())
         org3 = Organisation(name="Auto Org")
         db.session.add_all([org1, org2, org3])
         db.session.flush()
@@ -79,9 +80,9 @@ class TestGetOrganisationFamily:
 
     def test_returns_sorted_list(self, db: SQLAlchemy) -> None:
         """Test that results are sorted by name."""
-        org1 = Organisation(name="Zebra Corp", bw_active="pr")
-        org2 = Organisation(name="Alpha Inc", bw_active="pr")
-        org3 = Organisation(name="Beta Ltd", bw_active="pr")
+        org1 = Organisation(name="Zebra Corp", bw_active="pr", bw_id=uuid4())
+        org2 = Organisation(name="Alpha Inc", bw_active="pr", bw_id=uuid4())
+        org3 = Organisation(name="Beta Ltd", bw_active="pr", bw_id=uuid4())
         db.session.add_all([org1, org2, org3])
         db.session.flush()
 
@@ -93,8 +94,8 @@ class TestGetOrganisationFamily:
     def test_excludes_other_types(self, db: SQLAlchemy) -> None:
         """Test excludes organisations of different types."""
         # Create orgs of different types, none with AGENCY type
-        org1 = Organisation(name="Exclude Test Media", bw_active="media")
-        org2 = Organisation(name="Exclude Test COM", bw_active="pr")
+        org1 = Organisation(name="Exclude Test Media", bw_active="media", bw_id=uuid4())
+        org2 = Organisation(name="Exclude Test COM", bw_active="pr", bw_id=uuid4())
         db.session.add_all([org1, org2])
         db.session.flush()
 
@@ -105,16 +106,15 @@ class TestGetOrganisationFamily:
         assert "Exclude Test COM" not in result
 
 
-@pytest.mark.skip(reason="There is no more Organisation type")
 class TestGetOrganisationForNoms:
     """Test suite for get_organisation_for_noms_* functions."""
 
     def test_get_noms_medias_returns_media_agency_auto(self, db: SQLAlchemy) -> None:
-        """Test get_organisation_for_noms_medias returns MEDIA, AGENCY, AUTO orgs."""
-        org_media = Organisation(name="Media Org", type=OrganisationTypeEnum.MEDIA)
-        org_agency = Organisation(name="Agency Org", type=OrganisationTypeEnum.AGENCY)
-        org_auto = Organisation(name="Auto Org", type=OrganisationTypeEnum.AUTO)
-        org_com = Organisation(name="Com Org", type=OrganisationTypeEnum.COM)
+        """Test get_organisation_for_noms_medias returns MEDIA, AUTO orgs (no more AGENCY)."""
+        org_media = Organisation(name="Media Org", bw_active="media", bw_id=uuid4())
+        org_agency = Organisation(name="Agency Org", bw_active="media", bw_id=uuid4())
+        org_auto = Organisation(name="Auto Org")
+        org_com = Organisation(name="Com Org", bw_active="pr", bw_id=uuid4())
         db.session.add_all([org_media, org_agency, org_auto, org_com])
         db.session.flush()
 
@@ -127,9 +127,9 @@ class TestGetOrganisationForNoms:
 
     def test_get_noms_orgas_returns_other_auto(self, db: SQLAlchemy) -> None:
         """Test get_organisation_for_noms_orgas returns OTHER, AUTO orgs."""
-        org_other = Organisation(name="Other Org", type=OrganisationTypeEnum.OTHER)
-        org_auto = Organisation(name="Auto Org 2", type=OrganisationTypeEnum.AUTO)
-        org_media = Organisation(name="Media Org 2", type=OrganisationTypeEnum.MEDIA)
+        org_other = Organisation(name="Other Org", bw_active="academics", bw_id=uuid4())
+        org_auto = Organisation(name="Auto Org 2")
+        org_media = Organisation(name="Media Org 2", bw_active="media", bw_id=uuid4())
         db.session.add_all([org_other, org_auto, org_media])
         db.session.flush()
 
@@ -141,9 +141,9 @@ class TestGetOrganisationForNoms:
 
     def test_get_noms_com_returns_com_auto(self, db: SQLAlchemy) -> None:
         """Test get_organisation_for_noms_com returns COM, AUTO orgs."""
-        org_com = Organisation(name="Com Org 2", type=OrganisationTypeEnum.COM)
-        org_auto = Organisation(name="Auto Org 3", type=OrganisationTypeEnum.AUTO)
-        org_media = Organisation(name="Media Org 3", type=OrganisationTypeEnum.MEDIA)
+        org_com = Organisation(name="Com Org 2", bw_active="pr", bw_id=uuid4())
+        org_auto = Organisation(name="Auto Org 3")
+        org_media = Organisation(name="Media Org 3", bw_active="media", bw_id=uuid4())
         db.session.add_all([org_com, org_auto, org_media])
         db.session.flush()
 
@@ -154,7 +154,7 @@ class TestGetOrganisationForNoms:
         assert "Media Org 3" not in result
 
 
-@pytest.mark.skip(reason="There is no more Organisation type")
+# @pytest.mark.skip(reason="There is no more Organisation type")
 class TestFindKycOrganisationName:
     """Test suite for _find_kyc_organisation_name function.
 
