@@ -22,11 +22,10 @@ if TYPE_CHECKING:
 
 @pytest.fixture
 def test_user_for_admin(db_session: Session) -> User:
-    """Create a test user with organisation for admin tests."""
+    """Create a test user with organisation (auto) for admin tests."""
     unique_id = uuid.uuid4().hex[:8]
 
     org = Organisation(name=f"User Test Org {unique_id}")
-    org.active = True
     db_session.add(org)
     db_session.flush()
 
@@ -71,10 +70,7 @@ def user_without_org(db_session: Session) -> User:
 def user_with_bw_org(db_session: Session, admin_user: User) -> User:
     """Create a test user with organisation that has active Business Wall."""
     unique_id = uuid.uuid4().hex[:8]
-
     org = Organisation(name=f"BW User Org {unique_id}")
-    org.active = True
-    org.bw_active = "media"
     db_session.add(org)
     db_session.flush()
 
@@ -89,7 +85,10 @@ def user_with_bw_org(db_session: Session, admin_user: User) -> User:
     db_session.add(bw)
     db_session.flush()
 
+    # Link organisation to BW
     org.bw_id = bw.id
+    org.bw_active = bw.bw_type
+    db_session.flush()
 
     user = User(
         email=f"bwuser-{unique_id}@admin-show-user.com",
