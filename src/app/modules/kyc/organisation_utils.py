@@ -21,7 +21,7 @@ def get_organisation_family(bw_type: str | None) -> list[str]:
     if bw_type:
         query = (
             select(Organisation)
-            .where(Organisation.bw_id.is_(None)),
+            .where(Organisation.bw_id.is_(None))
             .order_by(Organisation.name)
         )
     else:
