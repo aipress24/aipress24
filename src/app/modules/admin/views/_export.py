@@ -641,6 +641,8 @@ class OrganisationsExporter(BaseExporter):
         "modified_at",
         "name",
         "status",
+        "bw_id",
+        "bw_active",
         "nb_members",
         "members",
     ]
@@ -669,10 +671,11 @@ class OrganisationsExporter(BaseExporter):
             FieldColumn("created_at", "Création", text3),
             FieldColumn("modified_at", "Modification", text3),
             FieldColumn("name", "Nom", text4),
-            FieldColumn("type", "Type", text4),
-            FieldColumn("members", "Membres", text12),
             FieldColumn("status", "Statut", text8),
+            FieldColumn("bw_id", "Statut", text12),
+            FieldColumn("bw_active", "Statut", text8),
             FieldColumn("nb_members", "Nb membres", small),
+            FieldColumn("members", "Membres", text12),
         ]
         self.columns_definition = {f.name: f for f in fields}
 
@@ -680,6 +683,7 @@ class OrganisationsExporter(BaseExporter):
     _ORG_ATTRS: ClassVar[set[str]] = {
         "name",
         "status",
+        "bw_active",
     }
 
     def cell_value(
@@ -696,6 +700,8 @@ class OrganisationsExporter(BaseExporter):
                 value = str(org.id)
             case "created_at" | "validated_at" | "modified_at":
                 value = self.get_datetime_attr(org, name)
+            case "bw_id":
+                value = str(self.get_datetime_attr(org, "bw_id"))
             case "nb_members":
                 value = len(org.members)
             case _ if name in self._ORG_ATTRS:
@@ -715,12 +721,11 @@ class OrganisationsExporter(BaseExporter):
                 return value
 
     def fetch_data(self) -> list[Organisation]:
-        # FIXME: type AUTO deprecated
         stmt = (
             select(Organisation)
-            # .where(
-            #     Organisation.type != OrganisationTypeEnum.AUTO,
-            # )
+            .where(
+                Organisation.bw_id.is_not(None),
+            )
             .order_by(nulls_last(Organisation.name))
         )
         return list(db.session.scalars(stmt))
