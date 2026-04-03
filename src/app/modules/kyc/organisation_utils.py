@@ -37,7 +37,7 @@ def get_organisation_family(bw_type: str | None) -> list[str]:
 def get_organisation_for_noms_medias() -> list[str]:
     """Get list of Organisation of MEDIA AGENCY and AUTO families.
 
-    FIXME: there is no BW for agency
+    Remark: there is no BW for agency
 
     List not filtered for duplicates.
     (Then will add the required ontologie if needed, there or in a later stage)
@@ -138,7 +138,6 @@ def retrieve_user_organisation(user: User) -> Organisation | None:
     org_name = _find_kyc_organisation_name(user)
     if not org_name:
         return None
-    # family = profile.organisation_family  # select the target family
     inviting_orgs = find_inviting_organisations(user.email)
     for org in inviting_orgs:
         if org.name.lower() == org_name.lower():
@@ -166,8 +165,6 @@ def store_auto_organisation(
 ) -> Organisation | None:
     """Store a new AUTO organisation if the organisation does not exists.
 
-    FIXME: Organisation have no type
-
     Return: created or existent Auto Organisation, or None if fail to create (empty name)
 
     2 possible situations:
@@ -194,7 +191,7 @@ def store_auto_organisation(
     if found_organisation:
         return found_organisation
     # No Organisatin with both same type and other params found:
-    created_organisation = Organisation(name=org_name, active=True)
+    created_organisation = Organisation(name=org_name)
     db_session.add(created_organisation)
     db_session.flush()
     return created_organisation
