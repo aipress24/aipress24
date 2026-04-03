@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
+from uuid import uuid4
 
 from app.models.invitation import Invitation
 from app.models.organisation import Organisation
@@ -22,7 +23,7 @@ if TYPE_CHECKING:
 
 def _create_org(db: SQLAlchemy, name: str) -> Organisation:
     """Helper to create and flush an organisation."""
-    org = Organisation(name=name)
+    org = Organisation(name=name, bw_active="media", bw_id=uuid4())
     db.session.add(org)
     db.session.flush()
     return org
