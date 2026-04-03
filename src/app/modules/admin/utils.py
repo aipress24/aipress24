@@ -190,7 +190,7 @@ def gc_all_auto_organisations() -> int:
     db_session = db.session
     stmt = select(Organisation).where(
         Organisation.deleted_at.is_(None),
-        Organisation.active.is_(False),  # WIP, FIXME when AUTO field has meaning
+        Organisation.bw_id.is_(None),
         ~Organisation.members.any(),
     )
     empty_orgs = db_session.scalars(stmt)
