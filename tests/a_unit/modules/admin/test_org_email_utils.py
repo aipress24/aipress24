@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
+from uuid import uuid4
 
 from app.enums import RoleEnum
 from app.models.auth import KYCProfile, Role, User
@@ -107,7 +108,7 @@ class TestChangeManagersEmails:
 
     def test_adds_manager_role_to_existing_member(self, db: SQLAlchemy) -> None:
         """Test adding manager role to existing member."""
-        org = Organisation(name="Test Org Mgr")
+        org = Organisation(name="Test Org Mgr", bw_active="media", bw_id=uuid4())
         get_or_create_role(db, RoleEnum.MANAGER)
         user = User(email="member_mgr@example.com", active=True)
         profile = KYCProfile()
@@ -122,7 +123,7 @@ class TestChangeManagersEmails:
 
     def test_removes_manager_role(self, db: SQLAlchemy) -> None:
         """Test removing manager role from user."""
-        org = Organisation(name="Test Org Mgr Remove")
+        org = Organisation(name="Test Org Mgr Remove", bw_active="media", bw_id=uuid4())
         manager_role = get_or_create_role(db, RoleEnum.MANAGER)
         user = User(email="manager_remove@example.com", active=True)
         profile = KYCProfile()
@@ -139,7 +140,7 @@ class TestChangeManagersEmails:
 
     def test_requires_user_to_be_member(self, db: SQLAlchemy) -> None:
         """Test manager must already be a member of the org."""
-        org = Organisation(name="Test Org Mgr Req")
+        org = Organisation(name="Test Org Mgr Req", bw_active="media", bw_id=uuid4())
         get_or_create_role(db, RoleEnum.MANAGER)
         user = User(email="nonmember_mgr@example.com", active=True)
         profile = KYCProfile()
@@ -155,7 +156,7 @@ class TestChangeManagersEmails:
 
     def test_keep_one_prevents_removing_last_manager(self, db: SQLAlchemy) -> None:
         """Test keep_one=True prevents removing the last manager."""
-        org = Organisation(name="Test Org Keep")
+        org = Organisation(name="Test Org Keep", bw_active="media", bw_id=uuid4())
         manager_role = get_or_create_role(db, RoleEnum.MANAGER)
         user = User(email="last_manager@example.com", active=True)
         profile = KYCProfile()
@@ -177,7 +178,7 @@ class TestAddManagersEmails:
 
     def test_adds_manager_from_string(self, db: SQLAlchemy) -> None:
         """Test adding manager from string email."""
-        org = Organisation(name="Test Org Add Mgr")
+        org = Organisation(name="Test Org Add Mgr", bw_active="media", bw_id=uuid4())
         get_or_create_role(db, RoleEnum.MANAGER)
         user = User(email="add_mgr_str@example.com", active=True)
         profile = KYCProfile()
@@ -192,7 +193,7 @@ class TestAddManagersEmails:
 
     def test_adds_manager_from_list(self, db: SQLAlchemy) -> None:
         """Test adding manager from list of emails."""
-        org = Organisation(name="Test Org Add List")
+        org = Organisation(name="Test Org Add List", bw_active="media", bw_id=uuid4())
         get_or_create_role(db, RoleEnum.MANAGER)
         user = User(email="add_mgr_list@example.com", active=True)
         profile = KYCProfile()
@@ -207,7 +208,7 @@ class TestAddManagersEmails:
 
     def test_handles_whitespace_in_emails(self, db: SQLAlchemy) -> None:
         """Test handling whitespace around emails."""
-        org = Organisation(name="Test Org Whitespace")
+        org = Organisation(name="Test Org Whitespace", bw_active="media", bw_id=uuid4())
         get_or_create_role(db, RoleEnum.MANAGER)
         user = User(email="whitespace@example.com", active=True)
         profile = KYCProfile()
