@@ -133,7 +133,7 @@ class TestToggleOrgActive:
 
     def test_toggles_active_to_inactive(self, db: SQLAlchemy) -> None:
         """Test toggling active org to inactive."""
-        org = Organisation(name="Test Org", active=True)
+        org = Organisation(name="Test Org")
         db.session.add(org)
         db.session.flush()
 
@@ -179,8 +179,7 @@ class TestGcOrganisation:
 
     def test_returns_false_for_non_auto_org(self, db: SQLAlchemy) -> None:
         """Test non-AUTO organisation returns False."""
-        org = Organisation(name="Media Org")
-        org.bw_id = uuid4()  # org is non-AUTO
+        org = Organisation(name="Media Org", bw_active="media", bw_id=uuid4())
         db.session.add(org)
         db.session.flush()
 
@@ -202,7 +201,7 @@ class TestGcOrganisation:
 
     def test_deletes_empty_auto_org(self, db: SQLAlchemy) -> None:
         """Test empty AUTO organisation is deleted."""
-        org = Organisation(name="Empty Auto Org", active=False)
+        org = Organisation(name="Empty Auto Org")
         db.session.add(org)
         db.session.flush()
         org_id = org.id
@@ -268,7 +267,7 @@ class TestRemoveUserOrganisation:
 
     def test_removes_manager_role(self, db: SQLAlchemy) -> None:
         """Test manager role is removed when leaving organisation."""
-        org = Organisation(name="Test Org Manager")
+        org = Organisation(name="Test Org Manager", bw_active="media", bw_id=uuid4())
         # Get or create the role to avoid UNIQUE constraint issues
         manager_role = (
             db.session.query(Role).filter_by(name=RoleEnum.MANAGER.name).first()
@@ -296,8 +295,8 @@ class TestGcAllAutoOrganisations:
     def test_deletes_empty_auto_orgs(self, db: SQLAlchemy) -> None:
         """Test deletes all empty AUTO organisations."""
         # Create empty AUTO organisations
-        org1 = Organisation(name="Empty Auto 1", active=False)
-        org2 = Organisation(name="Empty Auto 2", active=False)
+        org1 = Organisation(name="Empty Auto 1")
+        org2 = Organisation(name="Empty Auto 2")
         db.session.add_all([org1, org2])
         db.session.flush()
 
@@ -341,7 +340,7 @@ class TestDeleteFullOrganisation:
 
     def test_removes_all_members(self, db: SQLAlchemy) -> None:
         """Test all members are removed from organisation."""
-        org = Organisation(name="Org To Delete", active=True)
+        org = Organisation(name="Org To Delete")
         user1 = User(email="delete_member1@example.com", active=True)
         user2 = User(email="delete_member2@example.com", active=True)
         profile1 = KYCProfile()
@@ -360,7 +359,7 @@ class TestDeleteFullOrganisation:
 
     def test_marks_organisation_as_deleted(self, db: SQLAlchemy) -> None:
         """Test organisation is marked as deleted."""
-        org = Organisation(name="Org Mark Deleted", active=True)
+        org = Organisation(name="Org Mark Deleted")
         db.session.add(org)
         db.session.flush()
 
@@ -371,7 +370,7 @@ class TestDeleteFullOrganisation:
 
     def test_removes_leader_role_from_members(self, db: SQLAlchemy) -> None:
         """Test leader role is removed from members."""
-        org = Organisation(name="Org Leader Delete", active=True)
+        org = Organisation(name="Org Leader Delete", bw_active="media", bw_id=uuid4())
         leader_role = (
             db.session.query(Role).filter_by(name=RoleEnum.LEADER.name).first()
         )
