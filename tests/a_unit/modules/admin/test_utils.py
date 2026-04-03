@@ -322,7 +322,7 @@ class TestGcAllAutoOrganisations:
 
     def test_preserves_non_auto_orgs(self, db: SQLAlchemy) -> None:
         """Test preserves non-AUTO empty organisations."""
-        org = Organisation(name="Media Empty")
+        org = Organisation(name="Media Empty", bw_active="media", bw_id=uuid4())
         db.session.add(org)
         db.session.flush()
         org_id = org.id
