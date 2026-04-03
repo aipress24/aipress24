@@ -9,13 +9,10 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from unittest import mock
 
+from app.enums import BWType
 from app.models.auth import User
 from app.models.organisation import Organisation
-from app.modules.bw.bw_activation.models.business_wall import (
-    BusinessWall,
-    BWStatus,
-    BWType,
-)
+from app.modules.bw.bw_activation.models.business_wall import BusinessWall, BWStatus
 from app.modules.bw.bw_activation.user_utils import (
     get_active_business_wall_for_organisation,
     get_any_business_wall_for_organisation,
@@ -46,9 +43,7 @@ class TestGetOrganisationLogoUrl:
 
     def test_returns_default_logo_when_no_bw(self, db_session: Session):
         """Should return default logo when org has no BusinessWall."""
-        org = Organisation(
-            name="Test Org",
-        )
+        org = Organisation(name="Test Org")
         db_session.add(org)
         db_session.flush()
 
@@ -61,7 +56,7 @@ class TestGetOrganisationLogoUrl:
     ):
         """Should return default logo when BW is not active (e.g., DRAFT)."""
         bw = BusinessWall(
-            bw_type=BWType.MEDIA.value,
+            bw_type=str(BWType.MEDIA.value),
             status=BWStatus.DRAFT.value,
             owner_id=test_user_owner.id,
             payer_id=test_user_owner.id,
@@ -78,16 +73,15 @@ class TestGetOrganisationLogoUrl:
         self, db_session: Session, test_org: Organisation, test_user_owner: User
     ):
         """Should return BW logo when active BusinessWall exists."""
-        test_org.active = True
-        db_session.flush()
 
         bw = BusinessWall(
-            bw_type=BWType.MEDIA.value,
+            bw_type=str(BWType.MEDIA.value),
             status=BWStatus.ACTIVE.value,
             owner_id=test_user_owner.id,
             payer_id=test_user_owner.id,
             organisation_id=test_org.id,
         )
+
         db_session.add(bw)
         db_session.flush()
 
@@ -110,9 +104,7 @@ class TestGetActiveBusinessWallForOrganisation:
 
     def test_returns_none_when_no_business_wall(self, db_session: Session):
         """Should return None when organisation has no BusinessWall."""
-        org = Organisation(
-            name="Test Org",
-        )
+        org = Organisation(name="Test Org")
         db_session.add(org)
         db_session.flush()
 
@@ -136,6 +128,7 @@ class TestGetActiveBusinessWallForOrganisation:
 
         # Link organisation to BW
         test_org.bw_id = bw.id
+        test_org.bw_active = bw.bw_type
         db_session.flush()
 
         result = get_active_business_wall_for_organisation(test_org)
@@ -204,7 +197,7 @@ class TestGetActiveBusinessWallForOrganisation:
         """Should return the most recent non-cancelled BusinessWall."""
         # Create older active BW
         old_bw = BusinessWall(
-            bw_type=BWType.MEDIA.value,
+            bw_type=str(BWType.MEDIA.value),
             status=BWStatus.ACTIVE.value,
             owner_id=test_user_owner.id,
             payer_id=test_user_owner.id,
@@ -215,7 +208,7 @@ class TestGetActiveBusinessWallForOrganisation:
 
         # Create newer active BW
         new_bw = BusinessWall(
-            bw_type=BWType.PR.value,
+            bw_type=str(BWType.PR.value),
             status=BWStatus.ACTIVE.value,
             owner_id=test_user_owner.id,
             payer_id=test_user_owner.id,
@@ -226,6 +219,7 @@ class TestGetActiveBusinessWallForOrganisation:
 
         # Link organisation to newest BW
         test_org.bw_id = new_bw.id
+        test_org.bw_active = new_bw.bw_type
         db_session.flush()
 
         result = get_active_business_wall_for_organisation(test_org)
@@ -240,7 +234,7 @@ class TestGetActiveBusinessWallForOrganisation:
         """Should skip cancelled BWs and return the active one."""
         # Create cancelled BW (older)
         cancelled_bw = BusinessWall(
-            bw_type=BWType.MEDIA.value,
+            bw_type=str(BWType.MEDIA.value),
             status=BWStatus.CANCELLED.value,
             owner_id=test_user_owner.id,
             payer_id=test_user_owner.id,
@@ -251,7 +245,7 @@ class TestGetActiveBusinessWallForOrganisation:
 
         # Create active BW (newer)
         active_bw = BusinessWall(
-            bw_type=BWType.PR.value,
+            bw_type=str(BWType.PR.value),
             status=BWStatus.ACTIVE.value,
             owner_id=test_user_owner.id,
             payer_id=test_user_owner.id,
@@ -262,6 +256,7 @@ class TestGetActiveBusinessWallForOrganisation:
 
         # Link organisation to active BW
         test_org.bw_id = active_bw.id
+        test_org.bw_active = active_bw.bw_type
         db_session.flush()
 
         result = get_active_business_wall_for_organisation(test_org)
@@ -275,9 +270,7 @@ class TestGetAnyBusinessWallForOrganisation:
 
     def test_returns_none_when_no_business_wall(self, db_session: Session):
         """Should return None when organisation has no BusinessWall."""
-        org = Organisation(
-            name="Test Org",
-        )
+        org = Organisation(name="Test Org")
         db_session.add(org)
         db_session.flush()
 
@@ -290,7 +283,7 @@ class TestGetAnyBusinessWallForOrganisation:
     ):
         """Should return cancelled BusinessWall (including cancelled)."""
         bw = BusinessWall(
-            bw_type=BWType.MEDIA.value,
+            bw_type=str(BWType.MEDIA.value),
             status=BWStatus.CANCELLED.value,
             owner_id=test_user_owner.id,
             payer_id=test_user_owner.id,
@@ -310,7 +303,7 @@ class TestGetAnyBusinessWallForOrganisation:
     ):
         """Should return active BusinessWall."""
         bw = BusinessWall(
-            bw_type=BWType.MEDIA.value,
+            bw_type=str(BWType.MEDIA.value),
             status=BWStatus.ACTIVE.value,
             owner_id=test_user_owner.id,
             payer_id=test_user_owner.id,
@@ -330,7 +323,7 @@ class TestGetAnyBusinessWallForOrganisation:
     ):
         """Should return the most recent BusinessWall regardless of status."""
         old_bw = BusinessWall(
-            bw_type=BWType.MEDIA.value,
+            bw_type=str(BWType.MEDIA.value),
             status=BWStatus.CANCELLED.value,
             owner_id=test_user_owner.id,
             payer_id=test_user_owner.id,
@@ -340,7 +333,7 @@ class TestGetAnyBusinessWallForOrganisation:
         db_session.flush()
 
         new_bw = BusinessWall(
-            bw_type=BWType.PR.value,
+            bw_type=str(BWType.PR.value),
             status=BWStatus.CANCELLED.value,
             owner_id=test_user_owner.id,
             payer_id=test_user_owner.id,
@@ -360,7 +353,7 @@ class TestGetAnyBusinessWallForOrganisation:
     ):
         """Should return draft BusinessWall (any status)."""
         bw = BusinessWall(
-            bw_type=BWType.MEDIA.value,
+            bw_type=str(BWType.MEDIA.value),
             status=BWStatus.DRAFT.value,
             owner_id=test_user_owner.id,
             payer_id=test_user_owner.id,
@@ -379,7 +372,7 @@ class TestGetAnyBusinessWallForOrganisation:
     ):
         """Should return suspended BusinessWall (any status)."""
         bw = BusinessWall(
-            bw_type=BWType.MEDIA.value,
+            bw_type=str(BWType.MEDIA.value),
             status=BWStatus.SUSPENDED.value,
             owner_id=test_user_owner.id,
             payer_id=test_user_owner.id,
@@ -411,7 +404,7 @@ class TestGetBusinessWallForUser:
     ):
         """Should return BW when user's organisation has one."""
         bw = BusinessWall(
-            bw_type=BWType.MEDIA.value,
+            bw_type=str(BWType.MEDIA.value),
             status=BWStatus.ACTIVE.value,
             owner_id=test_user_with_profile.id,
             payer_id=test_user_with_profile.id,
@@ -422,6 +415,7 @@ class TestGetBusinessWallForUser:
 
         # Link organisation to BW
         test_org.bw_id = bw.id
+        test_org.bw_active = bw.bw_type
         db_session.flush()
 
         result = get_business_wall_for_user(test_user_with_profile)
@@ -437,7 +431,7 @@ class TestGetBusinessWallForUser:
     ):
         """Should return None when user's only BW is cancelled."""
         bw = BusinessWall(
-            bw_type=BWType.MEDIA.value,
+            bw_type=str(BWType.MEDIA.value),
             status=BWStatus.CANCELLED.value,
             owner_id=test_user_with_profile.id,
             payer_id=test_user_with_profile.id,
