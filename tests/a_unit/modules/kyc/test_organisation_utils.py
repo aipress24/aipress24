@@ -21,11 +21,9 @@ from uuid import uuid4
 
 import pytest
 
-from app.enums import OrganisationTypeEnum
 from app.models.auth import KYCProfile, User
 from app.models.invitation import Invitation
 from app.models.organisation import Organisation
-from app.modules.bw.bw_activation.models import BusinessWall, BWStatus
 from app.modules.kyc.organisation_utils import (
     _find_kyc_organisation_name,
     find_inviting_organisations,
@@ -154,7 +152,6 @@ class TestGetOrganisationForNoms:
         assert "Media Org 3" not in result
 
 
-# @pytest.mark.skip(reason="There is no more Organisation type")
 class TestFindKycOrganisationName:
     """Test suite for _find_kyc_organisation_name function.
 
@@ -238,8 +235,8 @@ class TestFindInvitingOrganisations:
 
     def test_returns_orgs_with_invitations(self, db: SQLAlchemy) -> None:
         """Test returns organisations that have invited the email."""
-        org1 = Organisation(name="Inviting Org 1", active=True)
-        org2 = Organisation(name="Inviting Org 2", active=True)
+        org1 = Organisation(name="Inviting Org 1", bw_active="media", bw_id=uuid4())
+        org2 = Organisation(name="Inviting Org 2", bw_active="pr", bw_id=uuid4())
         db.session.add_all([org1, org2])
         db.session.flush()
 
@@ -256,7 +253,9 @@ class TestFindInvitingOrganisations:
 
     def test_case_insensitive_email_matching(self, db: SQLAlchemy) -> None:
         """Test email matching is case insensitive."""
-        org = Organisation(name="KYC Case Test Org Unique", active=True)
+        org = Organisation(
+            name="KYC Case Test Org Unique", bw_active="media", bw_id=uuid4()
+        )
         db.session.add(org)
         db.session.flush()
 
@@ -304,7 +303,7 @@ class TestStoreAutoOrganisation:
 
     def test_returns_existing_auto_org(self, db: SQLAlchemy) -> None:
         """Test returns existing AUTO org instead of creating duplicate."""
-        existing_org = Organisation(name="Existing Auto", active=False)
+        existing_org = Organisation(name="Existing Auto")
         db.session.add(existing_org)
         db.session.flush()
 
@@ -356,10 +355,9 @@ class TestStoreAutoOrganisation:
         assert result is not None
         assert result.name == "Stripped Org"
 
-    @pytest.mark.skip(reason="FIXME: There is no more Organisation type / AUTO")
     def test_creates_auto_org_even_if_non_auto_exists(self, db: SQLAlchemy) -> None:
         """Test creates AUTO org even if non-AUTO org with same name exists."""
-        media_org = Organisation(name="Dual Name Org", type=OrganisationTypeEnum.MEDIA)
+        media_org = Organisation(name="Dual Name Org", bw_active="media", bw_id=uuid4())
         db.session.add(media_org)
         db.session.flush()
 
@@ -372,7 +370,7 @@ class TestStoreAutoOrganisation:
         result = store_auto_organisation(user, org_name="Dual Name Org")
 
         assert result is not None
-        assert result.type == OrganisationTypeEnum.AUTO
+        assert result.is_auto
         assert result.id != media_org.id
 
 
@@ -385,7 +383,7 @@ class TestRetrieveUserOrganisation:
 
     def test_returns_inviting_org_when_name_matches(self, db: SQLAlchemy) -> None:
         """Test returns inviting organisation when name matches."""
-        org = Organisation(name="Matching Org")
+        org = Organisation(name="Matching Org", bw_active="media", bw_id=uuid4())
         db.session.add(org)
         db.session.flush()
 
@@ -436,4 +434,4 @@ class TestRetrieveUserOrganisation:
 
         assert result is not None
         assert result.name == "Non Invited Org"
-        assert result.type == OrganisationTypeEnum.AUTO
+        assert result.is_auto
