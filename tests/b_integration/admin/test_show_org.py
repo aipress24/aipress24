@@ -10,9 +10,11 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from app.models.auth import User
+from app.models.auth import KYCProfile, User
 from app.models.organisation import Organisation
+from app.modules.admin.org_email_utils import set_user_organisation
 from app.modules.admin.views.show_org import OrgVM
+from app.modules.bw.bw_activation.models import BusinessWall, BWStatus
 
 if TYPE_CHECKING:
     from flask import Flask
@@ -21,26 +23,73 @@ if TYPE_CHECKING:
 
 @pytest.fixture
 def organisation(db_session: Session) -> Organisation:
-    """Create a test organisation."""
+    """Create a test organisation with BW."""
+    user = User(
+        email=f"org_owner@example.com",
+        first_name="John",
+        last_name="Doe",
+        active=True,
+    )
+    profile = KYCProfile()
+    user.profile = profile
+    db_session.add(user)
+    db_session.flush()
+
     org = Organisation(
         name="Test Organisation",
-        address="123 Test Street",
-        zip_code="75001",
-        city="Paris",
-        country="France",
     )
     db_session.add(org)
+    db_session.flush()
+
+    set_user_organisation(user, org)
+
+    # Create BusinessWall with required fields
+    bw = BusinessWall(
+        organisation_id=org.id,
+        bw_type="media",
+        status=BWStatus.ACTIVE.value,
+        owner_id=user.id,
+        payer_id=user.id,
+        name="bw different name",
+        name_entity="bw entity name",
+        # type_organisation
+        # type_organisation_detail
+        # siren
+        # tva
+        # agrement
+        name_press="bw journal name",
+        # type_presse_et_media
+        # type_entreprise_media
+        # type_agence_rp
+        # clients
+        # name_official
+        # name_group
+        # name_institution
+        # positionnement_editorial
+        # audience_cible
+        # periodicite
+        postal_address="123 rue Abc",
+        pays_zip_ville="FRA",
+        pays_zip_ville_detail="{FRA / 75001 Paris}",
+    )
+
+    bw.update_location_fields()
+
+    db_session.add(bw)
+    db_session.flush()
+
+    # Link organisation to BW
+    org.bw_id = bw.id
+    org.bw_active = bw.bw_type
+
     db_session.flush()
     return org
 
 
 @pytest.fixture
 def auto_organisation(db_session: Session) -> Organisation:
-    """Create an auto-generated organisation (inactive/AUTO)."""
-    org = Organisation(
-        name="Auto Organisation",
-        active=False,
-    )
+    """Create an auto-generated organisation."""
+    org = Organisation(name="Auto Organisation")
     db_session.add(org)
     db_session.flush()
     return org
@@ -87,7 +136,7 @@ class TestOrgVM:
             members = vm.get_members()
 
             assert isinstance(members, list)
-            assert len(members) == 2
+            assert len(members) == 3  # 2 + owner
 
     def test_get_logo_url_for_auto_org(
         self, app: Flask, db_session: Session, auto_organisation: Organisation
@@ -110,16 +159,6 @@ class TestOrgVM:
             # Should return a URL (possibly empty if no logo)
             assert isinstance(url, str)
 
-    def test_get_screenshot_url_empty_when_no_screenshot(
-        self, app: Flask, db_session: Session, organisation: Organisation
-    ):
-        """Test get_screenshot_url returns empty when no screenshot."""
-        with app.test_request_context():
-            vm = OrgVM(organisation)
-            url = vm.get_screenshot_url()
-
-            assert url == ""
-
     def test_extra_attrs_contains_expected_keys(
         self, app: Flask, db_session: Session, org_with_members: Organisation
     ):
@@ -132,7 +171,6 @@ class TestOrgVM:
             assert "count_members" in attrs
             assert "invitations_emails" in attrs
             assert "logo_url" in attrs
-            assert "screenshot_url" in attrs
             assert "address_formatted" in attrs
 
     def test_extra_attrs_count_members_matches_members_length(
@@ -144,4 +182,4 @@ class TestOrgVM:
             attrs = vm.extra_attrs()
 
             assert attrs["count_members"] == len(attrs["members"])
-            assert attrs["count_members"] == 2
+            assert attrs["count_members"] == 3
