@@ -40,7 +40,7 @@ class BaseList(WiredComponent):
         self.init_filter_states()
 
     def init_filter_states(self) -> None:
-        self.filters = self.get_filters()  # type: ignore[misc]
+        self.filters = self.get_filters()  # type: ignore[misc, ty:invalid-attribute-access]
         for filter in self.filters:
             filter_id = filter.id
             if filter_id not in self.filter_states:
