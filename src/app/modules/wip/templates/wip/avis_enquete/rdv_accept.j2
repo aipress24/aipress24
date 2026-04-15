@@ -3,258 +3,280 @@
 {% block body_class %}bg-gray-50{% endblock %}
 
 {% block body_content %}
-  <div class="px-4 sm:px-6 lg:px-8">
-    <div class="sm:flex sm:items-center">
-      <div class="sm:flex-auto">
-        <h1 class="text-2xl font-semibold text-gray-900">{{ title }}</h1>
-        <p class="mt-2 text-sm text-gray-700">
-          {{ contact.journaliste.full_name }} souhaite vous rencontrer pour un entretien
-        </p>
-      </div>
-    </div>
+    <div class="px-4 sm:px-6 lg:px-8">
+        <div class="sm:flex sm:items-center">
+            <div class="sm:flex-auto">
+                <h1 class="text-2xl font-semibold text-gray-900">{{ title }}</h1>
+                <p class="mt-2 text-sm text-gray-700">
+                    {{ contact.journaliste.full_name }} souhaite vous rencontrer pour un entretien
+                </p>
+            </div>
+        </div>
 
-    <div class="mt-8">
-      <form id="rdv-accept-form" method="POST" action="{{ url_for('AvisEnqueteWipView:rdv_accept', id=model.id, contact_id=contact.id) }}" class="space-y-8">
+        <div class="mt-8">
+            <form id="rdv-accept-form" method="POST" action="{{ url_for('AvisEnqueteWipView:rdv_accept', id=model.id, contact_id=contact.id) }}" class="space-y-8">
 
         {# Avis d'enquête details #}
-        <div class="bg-white shadow sm:rounded-lg p-6">
-          <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">À propos de l'enquête</h3>
-          <dl class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div>
-              <dt class="text-sm font-medium text-gray-500">Titre de l'enquête</dt>
-              <dd class="mt-1 text-sm text-gray-900">{{ model.titre }}</dd>
-            </div>
-            <div>
-              <dt class="text-sm font-medium text-gray-500">Journaliste</dt>
-              <dd class="mt-1 text-sm text-gray-900">{{ contact.journaliste.full_name }}</dd>
-            </div>
-            {% if model.date_bouclage %}
-            <div>
-              <dt class="text-sm font-medium text-gray-500">Date de bouclage</dt>
-              <dd class="mt-1 text-sm text-gray-900">{{ model.date_bouclage.strftime('%d/%m/%Y') }}</dd>
-            </div>
-            {% endif %}
-          </dl>
-        </div>
+                <div class="bg-white shadow sm:rounded-lg p-6">
+                    <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">À propos de l'enquête</h3>
+                    <dl class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Titre de l'enquête</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ model.titre }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Journaliste</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ contact.journaliste.full_name }}</dd>
+                        </div>
+                        {% if model.date_bouclage %}
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Date de bouclage</dt>
+                                <dd class="mt-1 text-sm text-gray-900">{{ model.date_bouclage.strftime('%d/%m/%Y') }}</dd>
+                            </div>
+                        {% endif %}
+                    </dl>
+                </div>
 
         {# RDV Type and Contact Info #}
-        <div class="bg-white shadow sm:rounded-lg p-6">
-          <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Type et coordonnées</h3>
-          <dl class="grid grid-cols-1 gap-4">
-            <div>
-              <dt class="text-sm font-medium text-gray-500">Type de rendez-vous</dt>
-              <dd class="mt-1 text-sm text-gray-900">
-                {% if contact.rdv_type == 'PHONE' %}
-                  {{ icon("phone", class="inline h-4 w-4 mr-1") }} Téléphone
-                {% elif contact.rdv_type == 'VIDEO' %}
-                  {{ icon("video-camera", class="inline h-4 w-4 mr-1") }} Visioconférence
-                {% elif contact.rdv_type == 'F2F' %}
-                  {{ icon("user-group", class="inline h-4 w-4 mr-1") }} Face-à-face
-                {% endif %}
-              </dd>
-            </div>
+                <div class="bg-white shadow sm:rounded-lg p-6">
+                    <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Type et coordonnées</h3>
+                    <dl class="grid grid-cols-1 gap-4">
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Type de rendez-vous</dt>
+                            <dd class="mt-1 text-sm text-gray-900">
+                                {% if contact.rdv_type == 'PHONE' %}
+                                    {{ icon("phone", class="inline h-4 w-4 mr-1") }} Téléphone
+                                {% elif contact.rdv_type == 'VIDEO' %}
+                                    {{ icon("video-camera", class="inline h-4 w-4 mr-1") }} Visioconférence
+                                {% elif contact.rdv_type == 'F2F' %}
+                                    {{ icon("user-group", class="inline h-4 w-4 mr-1") }} Face-à-face
+                                {% endif %}
+                            </dd>
+                        </div>
 
-            {% if contact.rdv_phone %}
-            <div>
-              <dt class="text-sm font-medium text-gray-500">Téléphone</dt>
-              <dd class="mt-1 text-sm text-gray-900">{{ contact.rdv_phone }}</dd>
-            </div>
-            {% endif %}
+                        {% if contact.rdv_phone %}
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Téléphone</dt>
+                                <dd class="mt-1 text-sm text-gray-900">{{ contact.rdv_phone }}</dd>
+                            </div>
+                        {% endif %}
 
-            {% if contact.rdv_video_link %}
-            <div>
-              <dt class="text-sm font-medium text-gray-500">Lien de visioconférence</dt>
-              <dd class="mt-1 text-sm text-gray-900">
-                <a href="{{ contact.rdv_video_link }}" target="_blank" class="text-indigo-600 hover:text-indigo-900">
-                  {{ contact.rdv_video_link }}
-                </a>
-              </dd>
-            </div>
-            {% endif %}
+                        {% if contact.rdv_video_link %}
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Lien de visioconférence</dt>
+                                <dd class="mt-1 text-sm text-gray-900">
+                                    <a href="{{ contact.rdv_video_link }}" target="_blank" class="text-indigo-600 hover:text-indigo-900">
+                                        {{ contact.rdv_video_link }}
+                                    </a>
+                                </dd>
+                            </div>
+                        {% endif %}
 
-            {% if contact.rdv_address %}
-            <div>
-              <dt class="text-sm font-medium text-gray-500">Adresse</dt>
-              <dd class="mt-1 text-sm text-gray-900">{{ contact.rdv_address }}</dd>
-            </div>
-            {% endif %}
+                        {% if contact.rdv_address %}
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Adresse</dt>
+                                <dd class="mt-1 text-sm text-gray-900">{{ contact.rdv_address }}</dd>
+                            </div>
+                        {% endif %}
 
-            {% if contact.rdv_notes_journaliste %}
-            <div>
-              <dt class="text-sm font-medium text-gray-500">Notes du journaliste</dt>
-              <dd class="mt-1 text-sm text-gray-900">{{ contact.rdv_notes_journaliste }}</dd>
-            </div>
-            {% endif %}
-          </dl>
-        </div>
+                        {% if contact.rdv_notes_journaliste %}
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Notes du journaliste</dt>
+                                <dd class="mt-1 text-sm text-gray-900">{{ contact.rdv_notes_journaliste }}</dd>
+                            </div>
+                        {% endif %}
+                    </dl>
+                </div>
 
         {# Proposed Slots Selection #}
-        <div class="bg-white shadow sm:rounded-lg p-6">
-          <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Créneaux proposés</h3>
-          <p class="text-sm text-gray-500 mb-4">Sélectionnez le créneau qui vous convient</p>
-          <div class="space-y-3">
-            {% for slot in contact.proposed_slots %}
-              {% set slot_datetime = slot | replace('T', ' ') %}
-              <div class="flex items-center">
-                <input
-                  id="slot_{{ loop.index }}"
-                  name="selected_slot"
-                  type="radio"
-                  value="{{ slot }}"
-                  class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300"
-                  required
-                />
-                <label for="slot_{{ loop.index }}" class="ml-3 block text-sm font-medium text-gray-700">
-                  {{ slot[:10] | replace('-', '/') }} à {{ slot[11:16] }}
-                </label>
-              </div>
-            {% endfor %}
-              <div class="flex items-center">
-                <input
-                  id="slot_decline"
-                  name="selected_slot"
-                  type="radio"
-                  value="decline"
-                  class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300"
-                  required
-                />
-                <label for="slot_decline" class="ml-3 block text-sm font-medium text-gray-700">
-                  Aucune date
-                </label>
-              </div>
-          </div>
-        </div>
+                <div class="bg-white shadow sm:rounded-lg p-6">
+                    <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Créneaux proposés</h3>
+                    <p class="text-sm text-gray-500 mb-4">Sélectionnez le créneau qui vous convient</p>
+                    <div class="space-y-3">
+                        {% for slot in contact.proposed_slots %}
+                            {% set slot_datetime = slot | replace('T', ' ') %}
+                            <div class="flex items-center">
+                                <input
+                                    id="slot_{{ loop.index }}"
+                                    name="selected_slot"
+                                    type="radio"
+                                    value="{{ slot }}"
+                                    class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300"
+                                    required
+                                />
+                                <label for="slot_{{ loop.index }}" class="ml-3 block text-sm font-medium text-gray-700">
+                                    {{ slot[:10] | replace('-', '/') }} à {{ slot[11:16] }}
+                                </label>
+                            </div>
+                        {% endfor %}
+                        <div class="flex items-center">
+                            <input
+                                id="slot_decline"
+                                name="selected_slot"
+                                type="radio"
+                                value="decline"
+                                class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300"
+                                required
+                            />
+                            <label for="slot_decline" class="ml-3 block text-sm font-medium text-gray-700">
+                                Aucune date
+                            </label>
+                        </div>
+                    </div>
+                </div>
 
         {# Expert Notes #}
-        <div class="bg-white shadow sm:rounded-lg p-6">
-          <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Vos notes (optionnel)</h3>
-          <div>
-            <label for="expert_notes" class="block text-sm font-medium text-gray-700">
-              Informations complémentaires pour le journaliste
-            </label>
-            <textarea
-              id="expert_notes"
-              name="expert_notes"
-              rows="4"
-              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-              placeholder="Ajoutez des informations complémentaires si nécessaire"
-            ></textarea>
-          </div>
-        </div>
+                <div class="bg-white shadow sm:rounded-lg p-6">
+                    <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Vos notes (optionnel)</h3>
+                    <div>
+                        <label for="expert_notes" class="block text-sm font-medium text-gray-700">
+                            Informations complémentaires pour le journaliste
+                        </label>
+                        <textarea
+                            id="expert_notes"
+                            name="expert_notes"
+                            rows="4"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                            placeholder="Ajoutez des informations complémentaires si nécessaire"
+                        ></textarea>
+                    </div>
+                </div>
 
         {# Actions #}
-        <div class="flex justify-end space-x-3">
-          <a
-            href="{{ url_for('public.home') }}"
-            class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-          >
-            Annuler
-          </a>
-          <button
-            type="button"
-            data-modal-target="rdv-refuse-modal"
-            data-modal-toggle="rdv-refuse-modal"
-            name="action"
-            value="refuse"
-            class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-          >
-            Refuser les dates
-          </button>
-          <button
-            type="button"
-            data-modal-target="rdv-accept-modal"
-            data-modal-toggle="rdv-accept-modal"
-            name="action"
-            value="accept"
-            class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-          >
-            {{ icon("check", class="h-4 w-4 mr-2") }}
-            Accepter le rendez-vous
-          </button>
-        </div>
-      </form>
+                <div class="flex justify-end space-x-3">
+                    <a
+                        href="{{ url_for('public.home') }}"
+                        class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    >
+                        Annuler
+                    </a>
+                    <button
+                        type="button"
+                        data-modal-target="rdv-refuse-modal"
+                        data-modal-toggle="rdv-refuse-modal"
+                        name="action"
+                        value="refuse"
+                        class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                    >
+                        Refuser les dates
+                    </button>
+                    <button
+                        type="button"
+                        data-modal-target="rdv-accept-modal"
+                        data-modal-toggle="rdv-accept-modal"
+                        name="action"
+                        value="accept"
+                        class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    >
+                        {{ icon("check", class="h-4 w-4 mr-2") }}
+                        Accepter le rendez-vous
+                    </button>
+                </div>
+            </form>
 
-      <div id="rdv-refuse-modal"
-        data-modal-backdrop="static"
-        tabindex="-1"
-        aria-hidden="true"
-        class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
-        <div class="relative p-4 w-full max-w-md max-h-full">
-          <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
-            <div class="p-4 md:p-5 text-center">
-              <svg class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
-              </svg>
-              <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
-                Êtes-vous sûr de vouloir refuser tous les créneaux proposés ?
-              </h3>
-              <p
-                class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400"
-              >
-                Important: votre adresse mail sera dans ce message.
-              </p>
-              <button
-                type="submit"
-                form="rdv-accept-form"
-                name="action"
-                value="refuse"
-                data-modal-hide="rdv-refuse-modal"
-                class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center"
-              >
-                Oui, refuser
-              </button>
-              <button
-                type="button"
-                data-modal-hide="rdv-refuse-modal"
-                class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
-              >
-                Non, annuler
-              </button>
+            <div id="rdv-refuse-modal"
+                 data-modal-backdrop="static"
+                 tabindex="-1"
+                 aria-hidden="true"
+                 class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+                <div class="relative p-4 w-full max-w-md max-h-full">
+                    <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+                        <div class="p-4 md:p-5 text-center">
+                            <svg class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+                            </svg>
+                            <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
+                                Êtes-vous sûr de vouloir refuser tous les créneaux proposés ?
+                            </h3>
+                            <p
+                                class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400"
+                            >
+                                Important: votre adresse mail sera dans ce message.
+                            </p>
+                            <button
+                                type="submit"
+                                form="rdv-accept-form"
+                                name="action"
+                                value="refuse"
+                                data-modal-hide="rdv-refuse-modal"
+                                class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center"
+                            >
+                                Oui, refuser
+                            </button>
+                            <button
+                                type="button"
+                                data-modal-hide="rdv-refuse-modal"
+                                class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
+                            >
+                                Non, annuler
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
-        </div>
-      </div>
 
-      <div id="rdv-accept-modal"
-        data-modal-backdrop="static"
-        tabindex="-1"
-        aria-hidden="true"
-        class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
-        <div class="relative p-4 w-full max-w-md max-h-full">
-          <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
-            <div class="p-4 md:p-5 text-center">
-              <svg class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
-              </svg>
-              <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
-                Êtes-vous sûr de vouloir accepter ce rendez-vous ?
-              </h3>
-              <p
-                class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400"
-              >
-                Important: votre adresse mail sera dans ce message.
-              </p>
-              <button
-                type="submit"
-                form="rdv-accept-form"
-                name="action"
-                value="accept"
-                data-modal-hide="rdv-accept-modal"
-                class="text-white bg-indigo-600 hover:bg-indigo-800 focus:ring-4 focus:outline-none focus:ring-indigo-300 dark:focus:ring-indigo-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center"
-              >
-                Oui, accepter
-              </button>
-              <button
-                type="button"
-                data-modal-hide="rdv-accept-modal"
-                class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
-              >
-                Non, annuler
-              </button>
+            <div id="rdv-accept-modal"
+                 data-modal-backdrop="static"
+                 tabindex="-1"
+                 aria-hidden="true"
+                 class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+                <div class="relative p-4 w-full max-w-md max-h-full">
+                    <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+                        <div class="p-4 md:p-5 text-center">
+                            <svg class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+                            </svg>
+                            <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
+                                Êtes-vous sûr de vouloir accepter ce rendez-vous ?
+                            </h3>
+                            <p
+                                class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400"
+                            >
+                                Important: votre adresse mail sera dans ce message.
+                            </p>
+                            <button
+                                type="submit"
+                                form="rdv-accept-form"
+                                name="action"
+                                value="accept"
+                                data-modal-hide="rdv-accept-modal"
+                                class="text-white bg-indigo-600 hover:bg-indigo-800 focus:ring-4 focus:outline-none focus:ring-indigo-300 dark:focus:ring-indigo-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center"
+                            >
+                                Oui, accepter
+                            </button>
+                            <button
+                                type="button"
+                                data-modal-hide="rdv-accept-modal"
+                                class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
+                            >
+                                Non, annuler
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
         </div>
-      </div>
     </div>
-  </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const acceptBtn = document.querySelector('[data-modal-target="rdv-accept-modal"]');
+            const declineRadio = document.getElementById('slot_decline');
+            const acceptModal = document.getElementById('rdv-accept-modal');
+            const refuseModal = document.getElementById('rdv-refuse-modal');
+
+            if (acceptBtn && declineRadio && acceptModal && refuseModal) {
+                acceptBtn.addEventListener('click', function (e) {
+                    if (declineRadio.checked) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        acceptModal.classList.add('hidden');
+                        acceptModal.classList.remove('flex');
+                        refuseModal.classList.remove('hidden');
+                        refuseModal.classList.add('flex');
+                    }
+                });
+            }
+        });
+    </script>
 {% endblock %}
