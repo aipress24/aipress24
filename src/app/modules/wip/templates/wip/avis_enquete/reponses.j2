@@ -3,114 +3,118 @@
 {% block body_class %}bg-gray-50{% endblock %}
 
 {% block body_content %}
-  <div class="px-4 sm:px-6 lg:px-8">
-    <div class="sm:flex sm:items-center">
-      <div class="sm:flex-auto">
-        <h1 class="text-2xl font-semibold text-gray-900">{{ title }}</h1>
-        <p class="mt-2 text-sm text-gray-700">
-          Liste des réponses reçues pour cet avis d'enquête
-        </p>
-      </div>
-    </div>
-
-    <div class="mt-8 flow-root">
-      <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-        <div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
-          {% if responses %}
-            <table class="min-w-full divide-y divide-gray-300">
-              <thead>
-                <tr>
-                  <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0">
-                    Contact
-                  </th>
-                  <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                    Statut
-                  </th>
-                  <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                    Date de réponse
-                  </th>
-                  <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                    RDV
-                  </th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-gray-200">
-                {% for response in responses %}
-                  <tr>
-                    <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-0">
-                      <div class="flex items-center">
-                        <div class="h-10 w-10 flex-shrink-0">
-                          {{ profile_image(response.expert, size=10) }}
-                        </div>
-                        <div class="ml-4">
-                          <div class="font-medium text-gray-900">
-                            {{ response.expert.full_name }}
-                          </div>
-                          <div class="text-gray-500">
-                            {{ response.expert.email }}
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                    <td class="whitespace-nowrap px-3 py-4 text-sm">
-                      {% if response.rdv_status == RDVStatus.CONFIRMED %}
-                        <span class="inline-flex rounded-full bg-blue-100 px-2 text-xs font-semibold leading-5 text-blue-800">
-                          Confirmé
-                        </span>
-                      {% elif response.status == StatutAvis.ACCEPTE %}
-                        <span class="inline-flex rounded-full bg-green-100 px-2 text-xs font-semibold leading-5 text-green-800">
-                          Accepté
-                        </span>
-                      {% elif response.status == StatutAvis.REFUSE %}
-                        <span class="inline-flex rounded-full bg-red-100 px-2 text-xs font-semibold leading-5 text-red-800">
-                          Refusé
-                        </span>
-                      {% else %}
-                        <span class="inline-flex rounded-full bg-yellow-100 px-2 text-xs font-semibold leading-5 text-yellow-800">
-                          En attente
-                        </span>
-                      {% endif %}
-                    </td>
-                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                      {% if response.date_reponse %}
-                        {{ response.date_reponse.strftime('%d/%m/%Y %H:%M') }}
-                      {% else %}
-                        -
-                      {% endif %}
-                    </td>
-                    <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-sm font-medium sm:pr-0">
-                      {{ response.get_rdv_summary() }}
-                      {% if response.can_propose_rdv() %}
-                        <div>
-                          <a
-                            href="{{ url_for('AvisEnqueteWipView:rdv_propose', id=model.id, contact_id=response.id) }}"
-                            class="text-indigo-600 hover:text-indigo-900"
-                          >
-                            Proposer un RDV
-                          </a>
-                        </div>
-                      {% elif response.has_rdv %}
-                        <div>
-                          <a
-                            href="{{ url_for('AvisEnqueteWipView:rdv', id=model.id) }}"
-                            class="text-indigo-600 hover:text-indigo-900"
-                          >
-                            Voir le RDV
-                          </a>
-                        </div>
-                      {% endif %}
-                    </td>
-                  </tr>
-                {% endfor %}
-              </tbody>
-            </table>
-          {% else %}
-            <div class="text-center py-12">
-              <p class="text-sm text-gray-500">Aucune réponse pour le moment</p>
+    <div class="px-4 sm:px-6 lg:px-8">
+        <div class="sm:flex sm:items-center">
+            <div class="sm:flex-auto">
+                <h1 class="text-2xl font-semibold text-gray-900">{{ title }}</h1>
+                <p class="mt-2 text-sm text-gray-700">
+                    Liste des réponses reçues pour cet avis d'enquête
+                </p>
             </div>
-          {% endif %}
         </div>
-      </div>
+
+        <div class="mt-8 flow-root">
+            <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                <div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
+                    {% if responses %}
+                        <table class="min-w-full divide-y divide-gray-300">
+                            <thead>
+                                <tr>
+                                    <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0">
+                                        Contact
+                                    </th>
+                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                                        Statut
+                                    </th>
+                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                                        Date de réponse
+                                    </th>
+                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                                        RDV
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                {% for response in responses %}
+                                    <tr>
+                                        <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-0">
+                                            <div class="flex items-center">
+                                                <div class="h-10 w-10 flex-shrink-0">
+                                                    {{ profile_image(response.expert, size=10) }}
+                                                </div>
+                                                <div class="ml-4">
+                                                    <div class="font-medium text-gray-900">
+                                                        {{ response.expert.full_name }}
+                                                    </div>
+                                                    <div class="text-gray-500">
+                                                        {{ response.expert.email }}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="whitespace-nowrap px-3 py-4 text-sm">
+                                            {% if response.rdv_status == RDVStatus.CONFIRMED %}
+                                                <span class="inline-flex rounded-full bg-blue-100 px-2 text-xs font-semibold leading-5 text-blue-800">
+                                                    Confirmé
+                                                </span>
+                                            {% elif response.status == StatutAvis.ACCEPTE %}
+                                                <span class="inline-flex rounded-full bg-green-100 px-2 text-xs font-semibold leading-5 text-green-800">
+                                                    Accepté
+                                                </span>
+                                            {% elif response.status == StatutAvis.REFUSE %}
+                                                <span class="inline-flex rounded-full bg-red-100 px-2 text-xs font-semibold leading-5 text-red-800">
+                                                    Refusé
+                                                </span>
+                                            {% elif response.status == StatutAvis.REFUSE_SUGGESTION %}
+                                                <span class="inline-flex rounded-full bg-orange-100 px-2 text-xs font-semibold leading-5 text-orange-800">
+                                                    Refusé, suggestion
+                                                </span>
+                                            {% else %}
+                                                <span class="inline-flex rounded-full bg-yellow-100 px-2 text-xs font-semibold leading-5 text-yellow-800">
+                                                    En attente
+                                                </span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                                            {% if response.date_reponse %}
+                                                {{ response.date_reponse.strftime('%d/%m/%Y %H:%M') }}
+                                            {% else %}
+                                                -
+                                            {% endif %}
+                                        </td>
+                                        <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-sm font-medium sm:pr-0">
+                                            {{ response.get_rdv_summary() }}
+                                            {% if response.can_propose_rdv() %}
+                                                <div>
+                                                    <a
+                                                        href="{{ url_for('AvisEnqueteWipView:rdv_propose', id=model.id, contact_id=response.id) }}"
+                                                        class="text-indigo-600 hover:text-indigo-900"
+                                                    >
+                                                        Proposer un RDV
+                                                    </a>
+                                                </div>
+                                            {% elif response.has_rdv %}
+                                                <div>
+                                                    <a
+                                                        href="{{ url_for('AvisEnqueteWipView:rdv', id=model.id) }}"
+                                                        class="text-indigo-600 hover:text-indigo-900"
+                                                    >
+                                                        Voir le RDV
+                                                    </a>
+                                                </div>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <div class="text-center py-12">
+                            <p class="text-sm text-gray-500">Aucune réponse pour le moment</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
 {% endblock %}
