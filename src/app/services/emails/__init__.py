@@ -24,6 +24,7 @@ from .mailers import (
     ContactAvisEnqueteRDVCancelledJournalistMail,
     ContactAvisEnqueteRDVConfirmationMail,
     ContactAvisEnqueteRDVProposalMail,
+    ContactAvisEnqueteRDVRefusedMail,
 )
 
 __all__ = [
@@ -37,6 +38,7 @@ __all__ = [
     "ContactAvisEnqueteRDVCancelledJournalistMail",
     "ContactAvisEnqueteRDVConfirmationMail",
     "ContactAvisEnqueteRDVProposalMail",
+    "ContactAvisEnqueteRDVRefusedMail",
     "EmailService",
 ]
 
