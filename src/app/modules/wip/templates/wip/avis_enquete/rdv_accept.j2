@@ -261,6 +261,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const acceptBtn = document.querySelector('[data-modal-target="rdv-accept-modal"]');
+            const refuseBtn = document.querySelector('[data-modal-target="rdv-refuse-modal"]');
             const declineRadio = document.getElementById('slot_decline');
             const acceptModal = document.getElementById('rdv-accept-modal');
             const refuseModal = document.getElementById('rdv-refuse-modal');
@@ -275,6 +276,12 @@
                         refuseModal.classList.remove('hidden');
                         refuseModal.classList.add('flex');
                     }
+                });
+            }
+
+            if (refuseBtn && declineRadio) {
+                refuseBtn.addEventListener('click', function () {
+                    declineRadio.checked = true;
                 });
             }
         });
