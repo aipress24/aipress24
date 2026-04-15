@@ -478,8 +478,7 @@ class AvisEnqueteWipView(BaseWipView):
                         )
                         service.refuse_rdv(int(contact_id), notification_url)
                         service.notify_rdv_refused(contact, notification_url)
-                        # TODO=
-                        # service.send_rdv_refused_email(contact)
+                        service.send_rdv_refused_email(contact)
                         service.commit()
                     except ValueError as e:
                         flash(str(e), "error")
@@ -513,8 +512,7 @@ class AvisEnqueteWipView(BaseWipView):
                             )
                             service.refuse_rdv(int(contact_id), notification_url)
                             service.notify_rdv_refused(contact, notification_url)
-                            # TODO=
-                            # service.send_rdv_refused_email(contact)
+                            service.send_rdv_refused_email(contact)
                             service.commit()
                         except ValueError as e:
                             flash(str(e), "error")

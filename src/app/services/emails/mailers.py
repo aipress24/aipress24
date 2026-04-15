@@ -334,3 +334,35 @@ class ContactAvisEnqueteRDVCancelledExpertMail(EmailTemplate):
     title: str
     date_rdv: str
     sender_full_name: str
+
+
+@dataclass(kw_only=True)
+class ContactAvisEnqueteRDVRefusedMail(EmailTemplate):
+    """
+    Create a mail for notification of RDV refused by expert.
+
+    Args:
+        - sender (str): mail of actual sender, usually "contact@aipress24.com".
+        - recipient (str): mail of recipient, the journalist.
+        - sender_mail (str): user.email (expert sending mail), informative.
+        - sender_full_name (str): user.full_name (expert sending mail), expert, informative.
+        - title (str): Title of the Avis d' Enquete.
+        - notes (str): some expert's notes about the refusal.
+
+    Usage:
+        notification_mail = ContactAvisEnqueteRDVRefusedMail(
+            sender="contact@aipress24.com",
+            recipient=recipient,
+            sender_mail=sender_mail,
+            sender_full_name=sender_full_name,
+            title=title,
+            notes=notes,
+        )
+        notification_mail.send()
+    """
+
+    subject: str = "[Aipress24] Un RDV pour une enquête a été refusé"
+    template_html: str = "contact_avis_enquete_RDV_refused_mail.j2"
+    title: str
+    notes: str
+    sender_full_name: str

@@ -27,6 +27,7 @@ from app.services.emails import (
     ContactAvisEnqueteRDVCancelledJournalistMail,
     ContactAvisEnqueteRDVConfirmationMail,
     ContactAvisEnqueteRDVProposalMail,
+    ContactAvisEnqueteRDVRefusedMail,
 )
 from app.services.notifications import NotificationService
 
@@ -666,6 +667,36 @@ class AvisEnqueteService:
         """
         message = f"{contact.expert.full_name} a refusé les RDV proposés"
         self._notification_service.post(contact.journaliste, message, url)
+
+    def send_rdv_refused_email(
+        self,
+        contact: ContactAvisEnquete,
+    ) -> None:
+        """
+        Send notification email to the journalist about a RDV refused by expert.
+
+        Args:
+            contact: the ContactAvisEnquete containing RDV informations.
+        """
+        expert = contact.expert
+        if expert.is_anonymous:
+            return
+        sender_mail = expert.email
+        sender_full_name = expert.full_name
+
+        recipient = contact.journaliste.email
+        title = contact.avis_enquete.titre
+        notes = contact.rdv_notes_expert or "Aucune note."
+
+        notification_mail = ContactAvisEnqueteRDVRefusedMail(
+            sender="contact@aipress24.com",
+            recipient=recipient,
+            sender_mail=sender_mail,
+            sender_full_name=sender_full_name,
+            title=title,
+            notes=notes,
+        )
+        notification_mail.send()
 
     def send_rdv_accepted_email(
         self,
