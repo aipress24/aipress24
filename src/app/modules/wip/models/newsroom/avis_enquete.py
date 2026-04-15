@@ -465,7 +465,7 @@ class ContactAvisEnquete(IdMixin, Base):
             self.date_rdv = self.date_rdv.replace(tzinfo=UTC)
 
         now = datetime.now(UTC)
-        return self.date_rdv - now  # type: ignore[operator]
+        return self.date_rdv - now  # type: ignore[operator, ty:unsupported-operator]
 
     @property
     def is_rdv_soon(self) -> bool:
