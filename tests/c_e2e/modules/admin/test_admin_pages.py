@@ -14,8 +14,10 @@ import uuid
 from importlib.metadata import distributions
 from typing import TYPE_CHECKING
 
-import app.modules.admin.views._show_org as show_org_module
 import pytest
+from sqlalchemy import select
+
+import app.modules.admin.views._show_org as show_org_module
 from app.enums import RoleEnum
 from app.models.auth import KYCProfile, Role, User
 from app.models.content import BaseContent
@@ -31,7 +33,6 @@ from app.modules.admin.views._show_org import OrgVM
 from app.modules.admin.views._users import UserDataSource
 from app.modules.admin.views.home import WIDGETS as HOME_WIDGETS
 from app.modules.swork.models import Group
-from sqlalchemy import select
 
 if TYPE_CHECKING:
     from flask import Flask

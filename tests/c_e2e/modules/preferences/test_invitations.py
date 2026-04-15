@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING
 from unittest.mock import MagicMock
 
 import pytest
+
 from app.enums import RoleEnum
 from app.models.auth import KYCProfile, Role, User
 from app.models.invitation import Invitation
@@ -18,7 +19,6 @@ from app.models.organisation import Organisation
 from app.modules.bw.bw_activation.models import BusinessWall
 from app.modules.bw.bw_activation.models.business_wall import BWStatus
 from app.modules.preferences.views.invitations import InvitationsView
-
 from tests.c_e2e.conftest import make_authenticated_client
 
 if TYPE_CHECKING:

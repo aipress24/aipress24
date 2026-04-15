@@ -12,7 +12,8 @@ from typing import TYPE_CHECKING
 import pytest
 
 from app.models.auth import KYCProfile, User
-from app.models.invitation import Invitation
+
+# from app.models.invitation import Invitation
 from app.models.organisation import Organisation
 from app.modules.admin.views._show_org import OrgVM
 from app.modules.bw.bw_activation.models import BusinessWall, BWStatus
