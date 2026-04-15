@@ -25,7 +25,7 @@ if TYPE_CHECKING:
 def organisation(db_session: Session) -> Organisation:
     """Create a test organisation with BW."""
     user = User(
-        email=f"org_owner@example.com",
+        email="org_owner@example.com",
         first_name="John",
         last_name="Doe",
         active=True,
