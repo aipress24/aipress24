@@ -13,7 +13,6 @@ from sqlalchemy.orm import selectinload
 from sqlalchemy.sql import Select
 
 from app.flask.extensions import db
-from app.flask.sqla import get_multi
 from app.models.auth import KYCProfile, User
 from app.models.organisation import Organisation
 from app.modules.kyc.field_label import country_code_to_country_name
@@ -79,8 +78,18 @@ class MembersList(BaseList):
         return stmt
 
     def get_filters(self):
-        stmt = select(User)
-        users: list[User] = get_multi(User, stmt)
+        stmt = (
+            select(User)
+            .where(
+                User.active == true(),
+                User.is_clone == false(),
+                User.deleted_at.is_(None),
+            )
+            .options(
+                selectinload(User.organisation),
+            )
+        )
+        users: list[User] = list(db.session.scalars(stmt))
         return make_filters(users)
 
 
