@@ -8,11 +8,14 @@ import re
 from typing import Any, ClassVar, cast
 
 from flask_super.registry import register
-from sqlalchemy import false, or_, select, true
+from sqlalchemy import cast as sqla_cast, false, or_, select, true
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import selectinload
 from sqlalchemy.sql import Select
 
 from app.flask.extensions import db
+
+# from app.logging import warn
 from app.models.auth import KYCProfile, User
 from app.models.organisation import Organisation
 from app.modules.kyc.field_label import country_code_to_country_name
@@ -90,6 +93,9 @@ class MembersList(BaseList):
             )
         )
         users: list[User] = list(db.session.scalars(stmt))
+        # warn(
+        #     f"[MembersList.get_filters] fetched {len(users)} active users for filter building"
+        # )
         return make_filters(users)
 
 
@@ -131,14 +137,10 @@ class FilterByTypeOrganisation(Filter):
         active_options = self.active_options(state)
         if not active_options:
             return stmt
-        or_parts = [
-            User.profile.has(
-                KYCProfile.info_professionnelle["type_orga_detail"]
-                .as_string()
-                .icontains(opt)
-            )
-            for opt in active_options
+        jsonb_col = sqla_cast(KYCProfile.info_professionnelle, JSONB)[
+            "type_orga_detail"
         ]
+        or_parts = [User.profile.has(jsonb_col.op("?")(opt)) for opt in active_options]
         stmt = stmt.where(or_(*or_parts))
         return stmt
 
