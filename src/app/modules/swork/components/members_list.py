@@ -145,6 +145,36 @@ class FilterByTypeOrganisation(Filter):
         return stmt
 
 
+class FilterByTypeEntrepriseMedia(Filter):
+    id = "type_entreprise_media"
+    label = "Type entreprise presse et média"
+    options: ClassVar[list[str]] = []
+
+    def __init__(self, objects: list | None = None) -> None:
+        if not objects:
+            return
+
+        options = sorted({value for obj in objects for value in self.selector(obj)})
+        self.options = [opt for opt in options if opt]  # type: ignore[misc, ty:invalid-attribute-access]
+
+    @staticmethod
+    def selector(user: User) -> list[str]:
+        if not user.profile:
+            return []
+        return user.profile.type_entreprise_media
+
+    def apply(self, stmt, state):
+        active_options = self.active_options(state)
+        if not active_options:
+            return stmt
+        jsonb_col = sqla_cast(KYCProfile.info_professionnelle, JSONB)[
+            "type_entreprise_media"
+        ]
+        or_parts = [User.profile.has(jsonb_col.op("?")(opt)) for opt in active_options]
+        stmt = stmt.where(or_(*or_parts))
+        return stmt
+
+
 class FilterByCompetency(Filter):
     id = "competency"
     label = "Compétences"
@@ -249,6 +279,7 @@ class FilterByCityOrm(Filter):
 def make_filters(users: list[User]):
     return [
         FilterByTypeOrganisation(users),
+        FilterByTypeEntrepriseMedia(users),
         FilterByJobTitle(users),
         FilterByCompetency(users),
         # FilterBySector(users),
