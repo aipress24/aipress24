@@ -233,6 +233,61 @@ class FilterByTypeAgenceRP(Filter):
         return stmt
 
 
+def _taille_orga_label(value: str) -> str:
+    if value == "+":
+        return "Plus de 1 000 000"
+    if value == "1":
+        return "1 personne"
+    try:
+        num = int(value)
+        return f"Jusqu’à {num}"
+    except ValueError:
+        return value
+
+
+class FilterByTailleOrganisation(Filter):
+    id = "taille_organisation"
+    label = "Tailles d’organisation"
+    options: ClassVar[list[str | FilterOption]] = []
+
+    def __init__(self, objects: list | None = None) -> None:
+        if not objects:
+            return
+
+        options = sorted({self.selector(obj) for obj in objects})
+        self.options = [opt for opt in options if opt]
+
+    @staticmethod
+    def selector(user: User) -> FilterOption:
+        if not user.profile:
+            return FilterOption("", "")
+        raw = user.profile.info_professionnelle.get("taille_orga", "")
+        if not raw:
+            return FilterOption("", "")
+        code = str(raw)
+        return FilterOption(_taille_orga_label(code), code)
+
+    def active_options(self, state):
+        options = []
+        for i in range(len(state)):
+            if state[str(i)]:
+                filter_option: FilterOption = cast(FilterOption, self.options[i])
+                options.append(filter_option.code)
+        return options
+
+    def apply(self, stmt, state):
+        active_options = self.active_options(state)
+        if active_options:
+            stmt = stmt.where(
+                User.profile.has(
+                    KYCProfile.info_professionnelle.op("->>")("taille_orga").in_(
+                        active_options
+                    )
+                )
+            )
+        return stmt
+
+
 class FilterByCompetency(Filter):
     id = "competency"
     label = "Compétences"
@@ -340,6 +395,7 @@ def make_filters(users: list[User]):
         FilterByTypeEntrepriseMedia(users),
         FilterByTypePresseEtMedia(users),
         FilterByTypeAgenceRP(users),
+        FilterByTailleOrganisation(users),
         FilterByJobTitle(users),
         FilterByCompetency(users),
         # FilterBySector(users),
