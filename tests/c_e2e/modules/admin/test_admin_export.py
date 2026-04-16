@@ -84,6 +84,15 @@ def sample_users(db_session: Session) -> list[User]:
 @pytest.fixture
 def sample_organisations(db_session: Session) -> list[Organisation]:
     """Create sample organisations for export testing."""
+    unique_id = str(uuid4())[:8]
+    owner = User(email=f"bw-owner-{unique_id}@example.com")
+    owner.photo = b""
+    owner.first_name = "Owner"
+    owner.last_name = "Test"
+    owner.active = True
+    db_session.add(owner)
+    db_session.flush()
+
     organisations = []
     for i in range(3):
         org = Organisation(name=f"Organisation {i}")
@@ -93,8 +102,8 @@ def sample_organisations(db_session: Session) -> list[Organisation]:
         bw = BusinessWall(
             bw_type="media",
             status=BWStatus.ACTIVE.value,
-            owner_id=1,
-            payer_id=1,
+            owner_id=owner.id,
+            payer_id=owner.id,
             organisation_id=org.id,
         )
         db_session.add(bw)
