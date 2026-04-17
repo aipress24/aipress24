@@ -1,122 +1,116 @@
 {% extends "admin/layout/_base.j2" %}
 
 {% block main %}
-  <form method="POST">
+    <form method="POST">
 
-    <div class="mb-2 font-semibold">
-      Promo à éditer
+        <div class="mb-2 font-semibold">
+            Promo à éditer
+        </div>
+        <select
+            id="promo-select"
+            name="promo"
+            class="dui-select dui-select-primary w-full max-w-xs"
+            onchange="loadPromoContent(this.value)"
+        >
+            <option
+                value=""
+                {% if not saved_slug %} selected {% endif %}
+                disabled
+            >
+                Choisissez la promo à éditer
+            </option>
+
+            {% for promo in promo_options %}
+                <option value="{{ promo.value }}" {% if saved_slug == promo.value %}selected{% endif %}>{{ promo.label }}</option>
+            {% endfor %}
+        </select>
+
+        {% if promo_title is defined and promo_title %}
+            <div class="mt-6 font-semibold" id="promo-title-container">
+        {% else %}
+            <div class="mt-6 font-semibold hidden" id="promo-title-container">
+        {% endif %}
+        Titre de la promo
+        <p id="promo-title-display" class="mt-2 ml-4 font-bold">
+            {{ promo_title or '' }}
+        </p>
     </div>
-    <select
-      id="promo-select"
-      name="promo"
-      class="dui-select dui-select-primary w-full max-w-xs"
-      onchange="loadPromoContent(this.value)"
->
-  <option
-    value=""
-    {% if not saved_slug %} selected {% endif %}
-    disabled
-  >
-    Choisissez la promo à éditer
-  </option>
 
-  {% for promo in promo_options %}
-    <option value="{{ promo.value }}" {% if saved_slug == promo.value %}selected{% endif %}>{{ promo.label }}</option>
-  {% endfor %}
-</select>
+    <div class="mt-6 font-semibold">Texte de la promo</div>
 
-{% if promo_title is defined and promo_title %}
-  <div class="mt-6 font-semibold" id="promo-title-container">
-{% else %}
-  <div class="mt-6 font-semibold hidden" id="promo-title-container">
-{% endif %}
-  Titre de la promo
-  <p id="promo-title-display" class="mt-2 ml-4 font-bold">
-    {{ promo_title or '' }}
-  </p>
-</div>
-
-<div class="mt-6 font-semibold">Texte de la promo</div>
-
-  <div
-    class="mt-2"
-    x-data
-    x-id="['trix']"
-  >
-    <input
-      name="content"
-      id="trix-input"
-      type="hidden"
-      value="{{ saved_body | safe }}"
+    <div
+        class="mt-2"
+        x-data
+        x-id="['trix']"
     >
-    <trix-editor
-      input="trix-input"
-      class="prose">
-    </trix-editor>
+        <input
+            name="content"
+            id="trix-input"
+            type="hidden"
+            value="{{ saved_body | e }}"
+        >
+        <trix-editor
+            input="trix-input"
+            class="prose">
+        </trix-editor>
 
-  </div>
+    </div>
 
-  <input
-    class="mt-6 dui-btn dui-btn-primary"
-    type="submit"
-    value="Enregistrer"
-  >
-</form>
+    <input
+        class="mt-6 dui-btn dui-btn-primary"
+        type="submit"
+        value="Enregistrer"
+    >
+    </form>
 
-<script>
-if (typeof Trix !== 'undefined') {
-  Trix.config.attachments.preview.present = false;
-  document.addEventListener('trix-initialize', function(event) {
-  const savedBody = '{{ saved_body | safe }}';
-  if (savedBody) {
-    event.target.editor.loadHTML(savedBody);
-  }
-});
-}
-
-function loadPromoContent(promoKey) {
-  const trixEditor = document.querySelector('trix-editor');
-  const titleDisplay = document.getElementById('promo-title-display');
-  const titleContainer = document.getElementById('promo-title-container');
-  if (!promoKey) {
-    if (trixEditor && trixEditor.editor) {
-        trixEditor.editor.loadHTML('');
-    }
-    if (titleDisplay) titleDisplay.textContent = '';
-    if (titleContainer) titleContainer.classList.add('hidden');
-    return;
-  }
-
-fetch('promotions/load', {
-  method: 'POST',
-  headers: {'Content-Type': 'application/json'},
-  body: JSON.stringify({'promo_key': promoKey})
-}).then(response =>  response.json())
-  .then(data => {
-    if (data.success) {
-      const newPromoTitle = data.promo_title || '';
-      if (trixEditor && trixEditor.editor) {
-        trixEditor.editor.loadHTML(data.content || '');
-      } else {
-        console.error('Trix editor not found or initialized.');
-      }
-      if (titleDisplay && titleContainer) {
-        titleDisplay.textContent = newPromoTitle;
-        if (newPromoTitle) {
-          titleContainer.classList.remove('hidden');
-        } else {
-          titleContainer.classList.add('hidden');
+    <script>
+        if (typeof Trix !== 'undefined') {
+            Trix.config.attachments.preview.present = false;
         }
-      }
-  } else {
-    alert('Erreur lors du chargement du contenu : ' + data.message);
-  }
-}
-).catch(error => {
-  console.error('Erreur de requête:', error);
-  alert('Une erreur de communication est survenue');
-});
-}
-</script>
+
+        function loadPromoContent(promoKey) {
+            const trixEditor = document.querySelector('trix-editor');
+            const titleDisplay = document.getElementById('promo-title-display');
+            const titleContainer = document.getElementById('promo-title-container');
+            if (!promoKey) {
+                if (trixEditor && trixEditor.editor) {
+                    trixEditor.editor.loadHTML('');
+                }
+                if (titleDisplay) titleDisplay.textContent = '';
+                if (titleContainer) titleContainer.classList.add('hidden');
+                return;
+            }
+
+            fetch('promotions/load', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({'promo_key': promoKey})
+            }).then(response =>  response.json())
+                .then(data => {
+                    if (data.success) {
+                        const newPromoTitle = data.promo_title || '';
+                        if (trixEditor && trixEditor.editor) {
+                            trixEditor.editor.loadHTML(data.content || '');
+                        } else {
+                            console.error('Trix editor not found or initialized.');
+                        }
+                        if (titleDisplay && titleContainer) {
+                            titleDisplay.textContent = newPromoTitle;
+                            if (newPromoTitle) {
+                                titleContainer.classList.remove('hidden');
+                            } else {
+                                titleContainer.classList.add('hidden');
+                            }
+                        }
+                    } else {
+                        alert('Erreur lors du chargement du contenu : ' + data.message);
+                    }
+                }
+                ).catch(error => {
+                    console.error('Erreur de requête:', error);
+                    alert('Une erreur de communication est survenue');
+                });
+        }
+    </script>
 
 {% endblock %}
