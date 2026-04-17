@@ -288,6 +288,49 @@ class FilterByTailleOrganisation(Filter):
         return stmt
 
 
+class FilterBySecteurActivite(Filter):
+    id = "secteur_activite"
+    label = "Secteur activité"
+    options: ClassVar[list[str]] = []
+
+    def __init__(self, objects: list | None = None) -> None:
+        if not objects:
+            return
+
+        options = sorted({value for obj in objects for value in self.selector(obj)})
+        self.options = [opt for opt in options if opt]  # type: ignore[misc, ty:invalid-attribute-access]
+
+    @staticmethod
+    def selector(user: User) -> list[str]:
+        if not user.profile:
+            return []
+        return user.profile.secteurs_activite
+
+    def apply(self, stmt, state):
+        active_options = self.active_options(state)
+        if not active_options:
+            return stmt
+        jsonb_col_medias = sqla_cast(KYCProfile.info_professionnelle, JSONB)[
+            "secteurs_activite_medias_detail"
+        ]
+        jsonb_col_rp = sqla_cast(KYCProfile.info_professionnelle, JSONB)[
+            "secteurs_activite_rp_detail"
+        ]
+        jsonb_col_detailles = sqla_cast(KYCProfile.info_professionnelle, JSONB)[
+            "secteurs_activite_detailles_detail"
+        ]
+        or_parts = (
+            [User.profile.has(jsonb_col_medias.op("?")(opt)) for opt in active_options]
+            + [User.profile.has(jsonb_col_rp.op("?")(opt)) for opt in active_options]
+            + [
+                User.profile.has(jsonb_col_detailles.op("?")(opt))
+                for opt in active_options
+            ]
+        )
+        stmt = stmt.where(or_(*or_parts))
+        return stmt
+
+
 class FilterByCompetency(Filter):
     id = "competency"
     label = "Compétences"
@@ -396,6 +439,7 @@ def make_filters(users: list[User]):
         FilterByTypePresseEtMedia(users),
         FilterByTypeAgenceRP(users),
         FilterByTailleOrganisation(users),
+        FilterBySecteurActivite(users),
         FilterByJobTitle(users),
         FilterByCompetency(users),
         # FilterBySector(users),
