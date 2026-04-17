@@ -545,6 +545,10 @@ class KYCProfile(Base):
     def taille_organisation(self) -> list[str]:
         return self.info_professionnelle.get("taille_orga", [])
 
+    @property
+    def transformations_majeures(self) -> list[str]:
+        return self.match_making.get("transformation_majeure_detail", [])
+
     def get_first_value(self, field_name: str) -> str:
         value = self.get_value(field_name)
         if isinstance(value, list):
