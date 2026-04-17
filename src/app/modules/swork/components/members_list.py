@@ -331,9 +331,9 @@ class FilterBySecteurActivite(Filter):
         return stmt
 
 
-class FilterByCompetency(Filter):
-    id = "competency"
-    label = "Compétences"
+class FilterByCompetencesGenerales(Filter):
+    id = "competences_generales"
+    label = "Compétences générales"
     options: ClassVar[list[str]] = []
 
     def __init__(self, objects: list | None = None) -> None:
@@ -345,31 +345,59 @@ class FilterByCompetency(Filter):
 
     @staticmethod
     def selector(user: User) -> list[str]:
-        if not user.profile or not user.profile.info_personnelle:
+        if not user.profile:
             return []
-        info = user.profile.info_personnelle
-        return info.get("competences_journalisme", []) + info.get("competences", [])
+        return user.profile.competences
 
     def apply(self, stmt, state):
         active_options = self.active_options(state)
         if not active_options:
             return stmt
-        or_parts_orgas = [
-            User.profile.has(
-                KYCProfile.info_personnelle["competences"].as_string().icontains(opt)
-            )
-            for opt in active_options
-        ]
-        or_parts_journalisme = [
-            User.profile.has(
-                KYCProfile.info_personnelle["competences_journalisme"]
-                .as_string()
-                .icontains(opt)
-            )
-            for opt in active_options
-        ]
-        stmt = stmt.where(or_(*or_parts_orgas, *or_parts_journalisme))
+        jsonb_col = sqla_cast(KYCProfile.info_personnelle, JSONB)["competences"]
+        or_parts = [User.profile.has(jsonb_col.op("?")(opt)) for opt in active_options]
+        stmt = stmt.where(or_(*or_parts))
         return stmt
+
+
+# class FilterByCompetency(Filter):
+#     id = "competency"
+#     label = "Compétences"
+#     options: ClassVar[list[str]] = []
+
+#     def __init__(self, objects: list | None = None) -> None:
+#         if not objects:
+#             return
+
+#         options = sorted({value for obj in objects for value in self.selector(obj)})
+#         self.options = [opt for opt in options if opt]  # type: ignore[misc, ty:invalid-attribute-access]
+
+#     @staticmethod
+#     def selector(user: User) -> list[str]:
+#         if not user.profile or not user.profile.info_personnelle:
+#             return []
+#         info = user.profile.info_personnelle
+#         return info.get("competences_journalisme", []) + info.get("competences", [])
+
+#     def apply(self, stmt, state):
+#         active_options = self.active_options(state)
+#         if not active_options:
+#             return stmt
+#         or_parts_orgas = [
+#             User.profile.has(
+#                 KYCProfile.info_personnelle["competences"].as_string().icontains(opt)
+#             )
+#             for opt in active_options
+#         ]
+#         or_parts_journalisme = [
+#             User.profile.has(
+#                 KYCProfile.info_personnelle["competences_journalisme"]
+#                 .as_string()
+#                 .icontains(opt)
+#             )
+#             for opt in active_options
+#         ]
+#         stmt = stmt.where(or_(*or_parts_orgas, *or_parts_journalisme))
+#         return stmt
 
 
 class FilterByCountryOrm(Filter):
@@ -440,8 +468,9 @@ def make_filters(users: list[User]):
         FilterByTypeAgenceRP(users),
         FilterByTailleOrganisation(users),
         FilterBySecteurActivite(users),
+        FilterByCompetencesGenerales(users),
         FilterByJobTitle(users),
-        FilterByCompetency(users),
+        # FilterByCompetency(users),
         # FilterBySector(users),
         FilterByCountryOrm(users),
         FilterByDeptOrm(users),
