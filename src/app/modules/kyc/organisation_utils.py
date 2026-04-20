@@ -17,17 +17,17 @@ def get_organisation_family(bw_type: str | None) -> list[str]:
     """Return list of names of organisations of required BW type.
 
     Function used only for the _faker of test data.
-    (There is no organisation type)."""
+    """
     if bw_type:
         query = (
             select(Organisation)
-            .where(Organisation.bw_id.is_(None))
+            .where(Organisation.bw_active == bw_type)
             .order_by(Organisation.name)
         )
     else:
         query = (
             select(Organisation)
-            .where(Organisation.bw_active == bw_type)
+            .where(Organisation.bw_id.is_(None))
             .order_by(Organisation.name)
         )
     result = db.session.execute(query).scalars()

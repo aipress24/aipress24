@@ -83,7 +83,10 @@ class BaseList(WiredComponent):
 
     def apply_filters(self, stmt: Select) -> Select:
         for filter in self.filters:
-            state = self.filter_states[filter.id]
+            state = self.filter_states.get(filter.id)
+            if state is None:
+                state = {str(i): False for i in range(len(filter.options))}
+                self.filter_states[filter.id] = state
             stmt = filter.apply(stmt, state)
 
         return stmt
@@ -91,7 +94,9 @@ class BaseList(WiredComponent):
     def get_active_filters(self) -> list[dict[str, str | FilterOption]]:
         active_filters: list[dict[str, str | FilterOption]] = []
         for filter in self.filters:
-            state = self.filter_states[filter.id]
+            state = self.filter_states.get(filter.id)
+            if state is None:
+                continue
             for i, option_value in enumerate(filter.options):
                 if state.get(str(i)):
                     active_filters.append(

@@ -43,7 +43,6 @@ PROFILE_ID_NOM_MEDIA = "P001"  # organisation_field = "nom_media"
 PROFILE_ID_NOM_ORGA = "P012"  # organisation_field = "nom_orga"
 
 
-@pytest.mark.skip(reason="There is no more Organisation type")
 class TestGetOrganisationFamily:
     """Test suite for get_organisation_family function."""
 
@@ -300,6 +299,7 @@ class TestStoreAutoOrganisation:
         assert result is not None
         assert result.name == "New Auto Org"
         assert result.is_auto is True
+        assert result.has_bw is False
 
     def test_returns_existing_auto_org(self, db: SQLAlchemy) -> None:
         """Test returns existing AUTO org instead of creating duplicate."""
@@ -371,6 +371,7 @@ class TestStoreAutoOrganisation:
 
         assert result is not None
         assert result.is_auto
+        assert not result.has_bw
         assert result.id != media_org.id
 
 
@@ -419,7 +420,6 @@ class TestRetrieveUserOrganisation:
 
         assert result is None
 
-    @pytest.mark.skip(reason="FIXME: There is no more Organisation type / AUTO")
     def test_creates_auto_org_when_no_invitation_match(self, db: SQLAlchemy) -> None:
         """Test creates AUTO org when no inviting org matches."""
         user = User(email="retrieve_auto@example.com")
