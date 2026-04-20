@@ -80,6 +80,11 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
         """Returns True if organisation is auto or inactive."""
         return not self.bw_id or not self.active
 
+    @property
+    def has_bw(self) -> bool:
+        """Returns True if organisation has a BW (non-auto organisation)."""
+        return bool(self.bw_id)
+
 
 __1 = """
 
