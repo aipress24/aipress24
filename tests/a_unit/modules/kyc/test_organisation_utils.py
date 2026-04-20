@@ -420,7 +420,6 @@ class TestRetrieveUserOrganisation:
 
         assert result is None
 
-    @pytest.mark.skip(reason="FIXME: There is no more Organisation type / AUTO")
     def test_creates_auto_org_when_no_invitation_match(self, db: SQLAlchemy) -> None:
         """Test creates AUTO org when no inviting org matches."""
         user = User(email="retrieve_auto@example.com")
