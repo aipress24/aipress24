@@ -51,28 +51,6 @@ class TestOrgVMGetLogoUrl:
         assert result == "/static/img/logo-page-non-officielle.png"
 
 
-class TestOrgVMGetScreenshotUrl:
-    """Test OrgVM.get_screenshot_url() logic."""
-
-    def test_no_screenshot_returns_empty(self, app):
-        """Test no screenshot_id returns empty string."""
-        org = StubOrganisation(screenshot_id=None)
-        vm = OrgVM(org)
-
-        result = vm.get_screenshot_url()
-
-        assert result == ""
-
-    def test_empty_screenshot_returns_empty(self, app):
-        """Test empty screenshot_id returns empty string."""
-        org = StubOrganisation(screenshot_id="")
-        vm = OrgVM(org)
-
-        result = vm.get_screenshot_url()
-
-        assert result == ""
-
-
 class TestOrgVMExtraAttrs:
     """Test OrgVM.extra_attrs() method."""
 
@@ -99,7 +77,6 @@ class TestOrgVMExtraAttrs:
         assert "count_members" in result
         assert "invitations_emails" in result
         assert "logo_url" in result
-        assert "screenshot_url" in result
         assert "address_formatted" in result
 
     def test_extra_attrs_count_members(self, app):

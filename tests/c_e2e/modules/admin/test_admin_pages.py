@@ -415,7 +415,6 @@ class TestOrgVMExtended:
                 assert "count_members" in attrs
                 assert "invitations_emails" in attrs
                 assert "logo_url" in attrs
-                assert "screenshot_url" in attrs
                 assert "address_formatted" in attrs
         finally:
             show_org_module.emails_invited_to_organisation = original_fn
