@@ -43,7 +43,6 @@ PROFILE_ID_NOM_MEDIA = "P001"  # organisation_field = "nom_media"
 PROFILE_ID_NOM_ORGA = "P012"  # organisation_field = "nom_orga"
 
 
-@pytest.mark.skip(reason="There is no more Organisation type")
 class TestGetOrganisationFamily:
     """Test suite for get_organisation_family function."""
 
