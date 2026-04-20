@@ -255,7 +255,7 @@ class FilterByTailleOrganisation(Filter):
             return
 
         options = sorted({self.selector(obj) for obj in objects})
-        self.options = [opt for opt in options if opt]
+        self.options = [opt for opt in options if opt]  # ty:ignore[invalid-attribute-access]
 
     @staticmethod
     def selector(user: User) -> FilterOption:
