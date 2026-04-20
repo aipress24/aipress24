@@ -40,7 +40,6 @@ class InvitationsView(MethodView):
         ctx = {
             "invitations": invitations_list,
             "open_invitations": open_invitations,
-            "unofficial": self._unofficial_organisation(user),
             "role_invitations": role_invitations_list,
             "open_role_invitations": len(role_invitations_list),
             "title": "Invitation d'organisation",
@@ -131,7 +130,7 @@ class InvitationsView(MethodView):
         if not org:
             return {}
         # Auto organisations are those without a BusinessWall (bw_id is None)
-        if not org.is_auto:
+        if org.has_bw:
             return {}
         infos = {
             "label": f"{org.name}",
