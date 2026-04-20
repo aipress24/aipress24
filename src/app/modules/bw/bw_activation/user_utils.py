@@ -84,8 +84,8 @@ def guess_best_bw_type(user: User) -> BWType:
     try:
         profile_code = ProfileEnum[profile.profile_code]
     except KeyError:
-        return BWType.MEDIA  # type: ignore [invalid-return-type]
-    return PROFILE_CODE_TO_BW2_TYPE.get(profile_code, BWType.MEDIA)  # type: ignore [invalid-return-type]
+        return BWType.MEDIA  # type: ignore[invalid-return-type]  # ty:ignore[invalid-return-type]
+    return PROFILE_CODE_TO_BW2_TYPE.get(profile_code, BWType.MEDIA)  # type: ignore[invalid-return-type]  # ty:ignore[invalid-return-type]
 
 
 def get_any_business_wall_for_organisation(org: Organisation) -> BusinessWall | None:

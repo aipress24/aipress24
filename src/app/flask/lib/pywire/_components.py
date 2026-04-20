@@ -50,7 +50,7 @@ class StaticComponent:
         ctx = self.context()
 
         if self._template:
-            return self._template.format(self=self, ctx=ctx)  # type: ignore[str-format]
+            return self._template.format(self=self, ctx=ctx)  # type: ignore[str-format]  # ty:ignore[no-matching-overload]
 
         template: Template = self._get_template()
         return render_template(template, this=self, **ctx)
@@ -107,7 +107,7 @@ class WiredComponent:
         ctx = self.context()
 
         if self._template:
-            return self._template.format(self=self, ctx=ctx)  # type: ignore[str-format]
+            return self._template.format(self=self, ctx=ctx)  # type: ignore[str-format]  # ty:ignore[no-matching-overload]
 
         template: Template = self._get_template()
         return render_template(template, this=self, **ctx)

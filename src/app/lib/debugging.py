@@ -15,7 +15,7 @@ debug: Any = None
 try:
     from devtools import debug
 except ImportError:
-    debug = print  # type: ignore[assignment]
+    debug = print  # type: ignore[assignment]  # ty:ignore[conflicting-declarations]
 
 
 def install() -> None:
