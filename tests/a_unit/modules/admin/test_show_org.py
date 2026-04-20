@@ -18,6 +18,7 @@ class StubOrganisation:
     """Stub organisation for testing OrgVM logic."""
 
     is_auto: bool = False
+    has_bw: bool = True
     screenshot_id: str | None = None
     formatted_address: str = ""
     members: list = field(default_factory=list)
@@ -34,7 +35,7 @@ class TestOrgVMGetLogoUrl:
 
     def test_auto_org_returns_static_logo(self):
         """Test is_auto=True returns static placeholder logo."""
-        org = StubOrganisation(is_auto=True)
+        org = StubOrganisation(is_auto=True, has_bw=False)
         vm = OrgVM(org)
 
         result = vm.get_logo_url()
@@ -43,7 +44,7 @@ class TestOrgVMGetLogoUrl:
 
     def test_non_auto_org_returns_signed_url(self):
         """Test is_auto=False returns S3 signed URL."""
-        org = StubOrganisation(is_auto=False)
+        org = StubOrganisation(is_auto=False, has_bw=True)
         vm = OrgVM(org)
 
         result = vm.get_logo_url()

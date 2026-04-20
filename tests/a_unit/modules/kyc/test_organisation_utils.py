@@ -300,6 +300,7 @@ class TestStoreAutoOrganisation:
         assert result is not None
         assert result.name == "New Auto Org"
         assert result.is_auto is True
+        assert result.has_bw is False
 
     def test_returns_existing_auto_org(self, db: SQLAlchemy) -> None:
         """Test returns existing AUTO org instead of creating duplicate."""
@@ -371,6 +372,7 @@ class TestStoreAutoOrganisation:
 
         assert result is not None
         assert result.is_auto
+        assert not result.has_bw
         assert result.id != media_org.id
 
 

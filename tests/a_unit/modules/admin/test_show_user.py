@@ -29,10 +29,15 @@ class StubOrganisation:
 
     name: str = "Test Org"
     type: OrganisationTypeEnum = OrganisationTypeEnum.MEDIA
+    bw_id: str = "some uuid"
 
     @property
     def is_auto(self) -> bool:
-        return self.type == OrganisationTypeEnum.AUTO
+        return not self.bw_id
+
+    @property
+    def has_bw(self) -> bool:
+        return bool(self.bw_id)
 
 
 @dataclass
@@ -147,7 +152,7 @@ class TestToggleRoleLogic:
     )
     def test_toggle_auto_org_does_nothing(self, toggle_func, check_attr) -> None:
         """Test toggling with AUTO org does nothing."""
-        org = StubOrganisation(type=OrganisationTypeEnum.AUTO)
+        org = StubOrganisation(bw_id=None)
         user = StubUser(organisation=org)
 
         result = toggle_func(user)
