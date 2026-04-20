@@ -32,7 +32,7 @@ from app.ui.labels import LABELS_BW_TYPE_V2
 
 
 class InvitationsView(MethodView):
-    """Organization invitations settings."""
+    """invitations d'organisations"""
 
     def get(self):
         user = cast(User, g.user)
