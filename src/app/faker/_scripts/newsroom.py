@@ -15,7 +15,7 @@ from loguru import logger
 from svcs.flask import container
 
 import app.settings.vocabularies as voc
-from app.enums import OrganisationTypeEnum, RoleEnum
+from app.enums import RoleEnum
 from app.faker._constants import POST_IMAGES
 from app.faker._scripts.base import FakerScript
 from app.flask.extensions import db
@@ -37,9 +37,9 @@ MAX_COUNT = 10
 
 @functools.lru_cache
 def get_medias():
-    media_type = OrganisationTypeEnum.MEDIA
+    # media_type = OrganisationTypeEnum.MEDIA
     org_repo = container.get(OrganisationRepository)
-    return org_repo.list(type=media_type)
+    return org_repo.list()
 
 
 @functools.lru_cache

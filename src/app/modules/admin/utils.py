@@ -173,7 +173,7 @@ def gc_organisation(organisation: Organisation | None) -> bool:
 
     Return True is deletion occured.
     """
-    if not organisation or not organisation.is_auto or len(organisation.members) > 0:
+    if not organisation or organisation.has_bw or len(organisation.members) > 0:
         return False
     # AUTO organisation with zero member: delete it
     db_session = db.session

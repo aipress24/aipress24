@@ -35,7 +35,6 @@ class OrgVM(ViewModel):
             "count_members": len(self.org.members),
             "invitations_emails": emails_invited_to_organisation(self.org.id),
             "logo_url": self.get_logo_url(),
-            "screenshot_url": self.get_screenshot_url(),
             "address_formatted": self.org.formatted_address,
             "active_business_wall": active_bw,
             "has_active_bw": active_bw is not None,
@@ -54,8 +53,3 @@ class OrgVM(ViewModel):
 
     def get_logo_url(self):
         return get_organisation_logo_url(self.org)
-
-    def get_screenshot_url(self):
-        # screenshot_id field removed from Organisation
-        # FIXME: to be removed
-        return ""

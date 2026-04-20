@@ -23,6 +23,8 @@ from app.modules.bw.bw_activation.bw_invitation import BW_ROLE_TYPE_LABEL
 from app.modules.bw.bw_activation.models import (
     BusinessWall,
     InvitationStatus,
+    Partnership,
+    PartnershipStatus,
     RoleAssignment,
 )
 from app.modules.preferences import blueprint
@@ -30,19 +32,21 @@ from app.ui.labels import LABELS_BW_TYPE_V2
 
 
 class InvitationsView(MethodView):
-    """Organization invitations settings."""
+    """invitations d'organisations"""
 
     def get(self):
         user = cast(User, g.user)
         invitations_list = self._organisation_inviting(user)
         open_invitations = sum(i["disabled"] == "" for i in invitations_list)
         role_invitations_list = self._role_invitations(user)
+        partnership_invitations_list = self._partnership_invitations(user)
         ctx = {
             "invitations": invitations_list,
             "open_invitations": open_invitations,
-            "unofficial": self._unofficial_organisation(user),
             "role_invitations": role_invitations_list,
             "open_role_invitations": len(role_invitations_list),
+            "partnership_invitations": partnership_invitations_list,
+            "open_partnership_invitations": len(partnership_invitations_list),
             "title": "Invitation d'organisation",
         }
         return render_template("pages/preferences/org_invitation.j2", **ctx)
@@ -125,13 +129,47 @@ class InvitationsView(MethodView):
             role_invitations.append(infos)
         return role_invitations
 
+    def _partnership_invitations(self, user: User) -> list[dict[str, Any]]:
+        """Return the list of pending BusinessWall partnership invitations for this user.
+
+        Partnership invitations are sent to a PR Agency's BusinessWall owner
+        to become an external PR Manager for another BusinessWall.
+        """
+        db_session = db.session
+        org = user.organisation
+        if not org or not org.has_bw:
+            return []
+
+        user_bw_id = str(org.bw_id)
+        stmt = (
+            select(Partnership, BusinessWall)
+            .join(BusinessWall, Partnership.business_wall_id == BusinessWall.id)
+            .where(
+                Partnership.partner_bw_id == user_bw_id,
+                Partnership.status == PartnershipStatus.INVITED.value,
+            )
+        )
+        results = db_session.execute(stmt).all()
+
+        partnership_invitations = []
+        for partnership, business_wall in results:
+            infos = {
+                "id": str(partnership.id),
+                "bw_id": str(business_wall.id),
+                "bw_name": business_wall.name_safe or "(Nom inconnu)",
+                "role_label": "PR Manager (external)",
+                "invited_at": partnership.invited_at,
+            }
+            partnership_invitations.append(infos)
+        return partnership_invitations
+
     def _unofficial_organisation(self, user: User) -> dict[str, Any]:
         """Get user's unofficial (auto-created) organization if any."""
         org = user.organisation
         if not org:
             return {}
         # Auto organisations are those without a BusinessWall (bw_id is None)
-        if not org.is_auto:
+        if org.has_bw:
             return {}
         infos = {
             "label": f"{org.name}",

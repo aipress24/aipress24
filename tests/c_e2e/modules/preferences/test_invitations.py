@@ -180,6 +180,7 @@ class TestInvitationsViewHelpers:
         user = MagicMock()
         user.organisation = MagicMock()
         user.organisation.is_auto = False
+        user.organisation.has_bw = True
 
         with app.test_request_context():
             result = view._unofficial_organisation(user)
@@ -193,6 +194,7 @@ class TestInvitationsViewHelpers:
         user.organisation.bw_id = None  # an AUTO organisation
         user.organisation.bw_active = ""
         user.organisation.is_auto = True  # for the mock
+        user.organisation.has_bw = False  # for the mock
         user.organisation.name = "Auto Organization"
         user.organisation.id = 123
 

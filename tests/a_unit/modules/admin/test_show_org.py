@@ -18,6 +18,7 @@ class StubOrganisation:
     """Stub organisation for testing OrgVM logic."""
 
     is_auto: bool = False
+    has_bw: bool = True
     screenshot_id: str | None = None
     formatted_address: str = ""
     members: list = field(default_factory=list)
@@ -34,7 +35,7 @@ class TestOrgVMGetLogoUrl:
 
     def test_auto_org_returns_static_logo(self):
         """Test is_auto=True returns static placeholder logo."""
-        org = StubOrganisation(is_auto=True)
+        org = StubOrganisation(is_auto=True, has_bw=False)
         vm = OrgVM(org)
 
         result = vm.get_logo_url()
@@ -43,34 +44,12 @@ class TestOrgVMGetLogoUrl:
 
     def test_non_auto_org_returns_signed_url(self):
         """Test is_auto=False returns S3 signed URL."""
-        org = StubOrganisation(is_auto=False)
+        org = StubOrganisation(is_auto=False, has_bw=True)
         vm = OrgVM(org)
 
         result = vm.get_logo_url()
         # The organisation has no Businesswall.
         assert result == "/static/img/logo-page-non-officielle.png"
-
-
-class TestOrgVMGetScreenshotUrl:
-    """Test OrgVM.get_screenshot_url() logic."""
-
-    def test_no_screenshot_returns_empty(self, app):
-        """Test no screenshot_id returns empty string."""
-        org = StubOrganisation(screenshot_id=None)
-        vm = OrgVM(org)
-
-        result = vm.get_screenshot_url()
-
-        assert result == ""
-
-    def test_empty_screenshot_returns_empty(self, app):
-        """Test empty screenshot_id returns empty string."""
-        org = StubOrganisation(screenshot_id="")
-        vm = OrgVM(org)
-
-        result = vm.get_screenshot_url()
-
-        assert result == ""
 
 
 class TestOrgVMExtraAttrs:
@@ -99,7 +78,6 @@ class TestOrgVMExtraAttrs:
         assert "count_members" in result
         assert "invitations_emails" in result
         assert "logo_url" in result
-        assert "screenshot_url" in result
         assert "address_formatted" in result
 
     def test_extra_attrs_count_members(self, app):

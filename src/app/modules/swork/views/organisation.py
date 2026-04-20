@@ -57,7 +57,7 @@ class OrganisationDetailView(MethodView):
         tabs = list(self._get_tabs(org_obj))
 
         is_manager = (
-            not org_obj.is_auto_or_inactive
+            org_obj.has_bw
             and soc_user.user.is_member(org_obj.id)
             and soc_user.user.is_manager
         )
@@ -179,14 +179,14 @@ class OrgPressBookTab(Tab):
     label = "Press Book (0)"
 
     def guard(self) -> bool:
-        return not self.org.is_auto
+        return self.org.has_bw
 
 
 class OrgPressReleasesTab(Tab):
     id = "press-releases"
 
     def guard(self) -> bool:
-        return not self.org.is_auto
+        return self.org.has_bw
 
     @property
     def label(self) -> str:
@@ -204,7 +204,7 @@ class OrgEventsTab(Tab):
     id = "events"
 
     def guard(self) -> bool:
-        return not self.org.is_auto
+        return self.org.has_bw
 
     @property
     def label(self) -> str:
@@ -249,7 +249,7 @@ class OrgVM(ViewModel):
     @property
     def bw(self) -> BusinessWall | None:
         """Get active BusinessWall for this organisation (lazy load)."""
-        if self._cached_bw is None and not self.org.is_auto:
+        if self._cached_bw is None and self.org.has_bw:
             self._cached_bw = get_active_business_wall_for_organisation(self.org)
         return self._cached_bw
 
