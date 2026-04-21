@@ -73,6 +73,15 @@ class Subscription(UUIDAuditBase):
     stripe_customer_id: Mapped[str | None] = mapped_column(String, nullable=True)
     stripe_subscription_id: Mapped[str | None] = mapped_column(String, nullable=True)
     stripe_payment_intent_id: Mapped[str | None] = mapped_column(String, nullable=True)
+    # Stripe Checkout session that initiated this subscription (unique per
+    # session; used as idempotency key when processing webhooks).
+    stripe_checkout_session_id: Mapped[str | None] = mapped_column(
+        String, nullable=True, unique=True
+    )
+
+    # CGV / legal
+    cgv_accepted_at: Mapped[datetime | None] = mapped_column(nullable=True)
+    cgv_version: Mapped[str] = mapped_column(String, default="v1")
 
     # Subscription period
     started_at: Mapped[datetime | None] = mapped_column(nullable=True)

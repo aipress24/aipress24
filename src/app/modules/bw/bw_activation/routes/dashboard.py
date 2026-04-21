@@ -51,6 +51,7 @@ def dashboard():
         "bw_activation/dashboard.html",
         bw_type=bw_type,
         bw_info=bw_info,
+        current_bw=current_bw,
     )
 
 

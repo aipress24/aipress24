@@ -8,7 +8,15 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, cast
 
-from flask import g, redirect, render_template, request, session, url_for
+from flask import (
+    current_app,
+    g,
+    redirect,
+    render_template,
+    request,
+    session,
+    url_for,
+)
 from sqlalchemy.orm import scoped_session
 from svcs.flask import container
 
@@ -21,6 +29,10 @@ from app.modules.bw.bw_activation.bw_creation import (
 )
 from app.modules.bw.bw_activation.config import BW_TYPES
 from app.modules.bw.bw_activation.user_utils import current_business_wall
+from app.services.stripe.utils import (
+    get_stripe_public_key,
+    load_pricing_table_id,
+)
 
 if TYPE_CHECKING:
     from app.models.auth import User
@@ -146,7 +158,16 @@ def set_pricing(bw_type):
 
 @bp.route("/payment/<bw_type>")
 def payment(bw_type):
-    """Payment page for paid BW."""
+    """Payment page for paid BW.
+
+    Two modes :
+    - **Simulation** (default, flag `STRIPE_LIVE_ENABLED=False`) : form
+      cheapskate + POST to `simulate_payment` for dev.
+    - **Stripe live** : embeds a `<stripe-pricing-table>` widget pointing
+      at the Pricing Table configured for this BW type. The widget
+      creates the Checkout Session client-side and the
+      `checkout.session.completed` webhook activates the BW.
+    """
     if bw_type not in BW_TYPES or BW_TYPES[bw_type]["free"]:
         return redirect(url_for("bw_activation.index"))
 
@@ -154,12 +175,82 @@ def payment(bw_type):
         return redirect(url_for("bw_activation.index"))
 
     bw_info = BW_TYPES[bw_type]
-    return render_template(
-        "bw_activation/payment.html",
-        bw_type=bw_type,
-        bw_info=bw_info,
-        pricing_value=session["pricing_value"],
+    ctx: dict = {
+        "bw_type": bw_type,
+        "bw_info": bw_info,
+        "pricing_value": session["pricing_value"],
+        "stripe_live": False,
+    }
+
+    if current_app.config.get("STRIPE_LIVE_ENABLED"):
+        draft_bw = _get_or_create_draft_bw_for_checkout(g.user, bw_type)
+        if draft_bw is not None:
+            ctx.update(
+                {
+                    "stripe_live": True,
+                    "bw_id": str(draft_bw.id),
+                    "pricing_table_id": load_pricing_table_id(bw_type),
+                    "stripe_public_key": get_stripe_public_key(),
+                    "user_email": g.user.email,
+                }
+            )
+
+    return render_template("bw_activation/payment.html", **ctx)
+
+
+def _get_or_create_draft_bw_for_checkout(user, bw_type):
+    """Return a DRAFT Business Wall for this user/bw_type, creating one
+    if none exists yet. Used as the target of the Stripe Pricing Table's
+    `client-reference-id`.
+    """
+    from datetime import UTC, datetime
+
+    from app.flask.extensions import db
+    from app.modules.bw.bw_activation.models import (
+        BusinessWall,
+        BWStatus,
+        Subscription,
+        SubscriptionStatus,
     )
+
+    org = getattr(user, "organisation", None)
+    if org is None:
+        warn("payment: user has no organisation, cannot draft BW for checkout")
+        return None
+
+    existing = (
+        db.session.query(BusinessWall)
+        .filter(BusinessWall.organisation_id == org.id)
+        .filter(BusinessWall.bw_type == bw_type)
+        .filter(BusinessWall.status == BWStatus.DRAFT.value)
+        .first()
+    )
+    if existing is not None:
+        return existing
+
+    bw = BusinessWall(
+        bw_type=bw_type,
+        status=BWStatus.DRAFT.value,
+        is_free=False,
+        owner_id=int(user.id),
+        payer_id=int(user.id),
+        organisation_id=int(org.id),
+    )
+    db.session.add(bw)
+    db.session.flush()
+    # Placeholder Subscription row so the webhook can update it cleanly
+    sub = Subscription(
+        business_wall_id=bw.id,
+        status=SubscriptionStatus.PENDING.value,
+        pricing_field="stripe",
+        pricing_tier="via_pricing_table",
+        monthly_price=0,
+        annual_price=0,
+        cgv_accepted_at=datetime.now(UTC),
+    )
+    db.session.add(sub)
+    db.session.commit()
+    return bw
 
 
 @bp.route("/simulate_payment/<bw_type>", methods=["POST"])
