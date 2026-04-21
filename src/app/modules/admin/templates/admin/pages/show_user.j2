@@ -99,6 +99,137 @@
 
     </div>
 
+    {# Autorisations #}
+    <div class="py-6 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-xl font-medium mb-4">Autorisations</h2>
+
+        {% if owned_bws %}
+            <h3 class="font-medium pt-2 pb-1">Business Walls propriétaire</h3>
+            <ul class="list-disc list-inside text-sm text-gray-900 mb-4">
+                {% for bw in owned_bws %}
+                    <li>{{ bw.name_safe }} ({{ LABELS_BW_TYPE_V2.get(bw.bw_type, bw.bw_type) }})</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        {% if role_assignments %}
+            <h3 class="font-medium pt-2 pb-1">Rôles Business Wall</h3>
+            <table class="min-w-full text-sm border mb-4">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-3 py-2 text-left font-medium text-gray-500">Business Wall</th>
+                        <th class="px-3 py-2 text-left font-medium text-gray-500">Rôle</th>
+                        <th class="px-3 py-2 text-left font-medium text-gray-500">Statut</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ra in role_assignments %}
+                        <tr class="border-t">
+                            <td class="px-3 py-2">{{ bw_name_map.get(ra.business_wall_id|string, ra.business_wall_id) }}</td>
+                            <td class="px-3 py-2">{{ BW_ROLE_TYPE_LABEL.get(ra.role_type, ra.role_type) }}</td>
+                            <td class="px-3 py-2">{{ ra.invitation_status }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+
+        {% if partner_partnerships %}
+            <h3 class="font-medium pt-2 pb-1">Partenariats (PR Agency)</h3>
+            <table class="min-w-full text-sm border mb-4">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-3 py-2 text-left font-medium text-gray-500">Client (BW)</th>
+                        <th class="px-3 py-2 text-left font-medium text-gray-500">Statut</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in partner_partnerships %}
+                        <tr class="border-t">
+                            <td class="px-3 py-2">{{ bw_name_map.get(p.business_wall_id|string, p.business_wall_id) }}</td>
+                            <td class="px-3 py-2">{{ p.status }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+
+        {% if not owned_bws and not role_assignments and not partner_partnerships %}
+            <p class="text-sm text-gray-500">Aucune autorisation.</p>
+        {% endif %}
+    </div>
+
+    {# Invitations #}
+    <div class="py-6 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-xl font-medium mb-4">Invitations</h2>
+
+        {% if org_invitations %}
+            <h3 class="font-medium pt-2 pb-1">Invitations d'organisation</h3>
+            <table class="min-w-full text-sm border mb-4">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-3 py-2 text-left font-medium text-gray-500">Organisation</th>
+                        <th class="px-3 py-2 text-left font-medium text-gray-500">Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for inv in org_invitations %}
+                        <tr class="border-t">
+                            <td class="px-3 py-2">{{ org_name_map.get(inv.organisation_id, inv.organisation_id) }}</td>
+                            <td class="px-3 py-2">{{ inv.created_at|localdt }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+
+        {% if role_invitations %}
+            <h3 class="font-medium pt-2 pb-1">Invitations à un rôle</h3>
+            <table class="min-w-full text-sm border mb-4">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-3 py-2 text-left font-medium text-gray-500">Business Wall</th>
+                        <th class="px-3 py-2 text-left font-medium text-gray-500">Rôle</th>
+                        <th class="px-3 py-2 text-left font-medium text-gray-500">Statut</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ri in role_invitations %}
+                        <tr class="border-t">
+                            <td class="px-3 py-2">{{ bw_name_map.get(ri.business_wall_id|string, ri.business_wall_id) }}</td>
+                            <td class="px-3 py-2">{{ BW_ROLE_TYPE_LABEL.get(ri.role_type, ri.role_type) }}</td>
+                            <td class="px-3 py-2">{{ ri.invitation_status }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+
+        {% if partnership_invitations %}
+            <h3 class="font-medium pt-2 pb-1">Invitations à un partenariat</h3>
+            <table class="min-w-full text-sm border mb-4">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-3 py-2 text-left font-medium text-gray-500">Business Wall client</th>
+                        <th class="px-3 py-2 text-left font-medium text-gray-500">Statut</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for pi in partnership_invitations %}
+                        <tr class="border-t">
+                            <td class="px-3 py-2">{{ bw_name_map.get(pi.business_wall_id|string, pi.business_wall_id) }}</td>
+                            <td class="px-3 py-2">{{ pi.status }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+
+        {% if not org_invitations and not role_invitations and not partnership_invitations %}
+            <p class="text-sm text-gray-500">Aucune invitation.</p>
+        {% endif %}
+    </div>
+
     <div id="confirm_deactivate_user"
          data-modal-backdrop="static"
          tabindex="-1"
