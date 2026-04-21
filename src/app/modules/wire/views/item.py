@@ -64,11 +64,26 @@ class ItemDetailView(MethodView):
         # Build metadata
         metadata_list = self._get_metadata_list(post)
 
+        from app.modules.bw.bw_activation.rights_policy import (
+            is_eligible_for_cession,
+        )
+        from app.modules.wire.services.article_access import (
+            truncate_body,
+            user_can_read_full,
+        )
+
+        can_cede = is_eligible_for_cession(g.user, post)
+        can_read_full = user_can_read_full(g.user, post)
+        body_preview = post.content if can_read_full else truncate_body(post.content)
+
         return render_template(
             template,
             title=post.title,
             post=view_model,
             metadata_list=metadata_list,
+            can_cede=can_cede,
+            can_read_full=can_read_full,
+            body_preview=body_preview,
         )
 
     def post(self, id: str) -> str | Response:

@@ -66,6 +66,19 @@ def buy(post_id: str, product: str):
         flash("Les achats en ligne ne sont pas encore activés.", "error")
         return redirect(_back_to_post(post))
 
+    if product_type == PurchaseProduct.CESSION:
+        from app.modules.bw.bw_activation.rights_policy import (
+            is_eligible_for_cession,
+        )
+
+        if not is_eligible_for_cession(user, post):
+            flash(
+                "Vous n'êtes pas autorisé à acquérir les droits de "
+                "reproduction de cet article.",
+                "error",
+            )
+            return redirect(_back_to_post(post))
+
     price_id = _price_id_for(product_type)
     if not price_id:
         warn(f"No Stripe price configured for product {product_type.value}")
