@@ -31,7 +31,9 @@
       </button>
     </form>
 
-    {# Droits de reproduction / Cession #}
+    {# Droits de reproduction / Cession — hidden when clearly ineligible
+       per the article's frozen rights-sales policy. #}
+    {% if can_cede %}
     <form method="POST"
           action="{{ url_for('wire.buy', post_id=post_id, product='cession') }}">
       <button type="submit"
@@ -42,6 +44,7 @@
         Droits de reproduction
       </button>
     </form>
+    {% endif %}
   </div>
 
   {% if not stripe_live %}

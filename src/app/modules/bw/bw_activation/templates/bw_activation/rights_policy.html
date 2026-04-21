@@ -1,0 +1,77 @@
+{% extends "layout.html" %}
+{% block title %}Modalités de cession de droits{% endblock %}
+{% block content %}
+<div class="py-10">
+  <div class="mx-auto max-w-3xl px-6">
+    <h1 class="text-2xl font-semibold text-gray-900 mb-4">
+      Modalités de cession de droits
+    </h1>
+    <p class="text-gray-700 mb-6">
+      Je désire augmenter les revenus de mon organe de presse avec la
+      cession de droits sur mes contenus journalistiques pour une
+      publication. Définissez ici les règles par défaut qui
+      s'appliqueront à vos prochaines publications.
+    </p>
+
+    <div class="mb-6 p-4 bg-blue-50 border border-blue-200 rounded text-sm text-blue-900">
+      Les modifications apportées ici ne s'appliqueront qu'aux
+      <strong>futures publications</strong> et ne sont pas
+      rétroactives.
+    </div>
+
+    <form method="POST"
+          class="bg-white p-6 rounded-lg shadow space-y-6"
+          x-data="{ option: '{{ option }}' }">
+      <fieldset class="space-y-3">
+        <legend class="text-base font-medium text-gray-900 mb-2">
+          Je veux vendre la licence d'exploitation d'un contenu
+          éditorial pour une publication :
+        </legend>
+        {% set radios = [
+          ("all_subscribed", "À tous les éditeurs de presse ou médias reconnus et abonnés à BW4Media (par défaut)"),
+          ("whitelist", "Seulement aux éditeurs et médias que je choisis dans la liste ci-dessous"),
+          ("blacklist", "À tous les éditeurs, sauf ceux qui figurent dans la liste ci-dessous"),
+          ("none", "À personne (les contenus n'apparaîtront pas sur MARKET/©)"),
+        ] %}
+        {% for value, label in radios %}
+          <label class="flex items-start gap-2 text-sm text-gray-800">
+            <input type="radio"
+                   name="option"
+                   value="{{ value }}"
+                   {% if option == value %}checked{% endif %}
+                   x-model="option"
+                   class="mt-1 h-4 w-4 text-blue-600 border-gray-300">
+            <span>{{ label }}</span>
+          </label>
+        {% endfor %}
+      </fieldset>
+
+      <div x-show="option === 'whitelist' || option === 'blacklist'" x-cloak>
+        <label for="media_ids" class="block text-sm font-medium text-gray-700 mb-1">
+          IDs des Business Walls (un identifiant par ligne).
+        </label>
+        <p class="text-xs text-gray-500 mb-2">
+          Recopiez les identifiants BW depuis l'annuaire ; la recherche
+          intégrée arrive en v0.1.
+        </p>
+        <textarea id="media_ids"
+                  name="media_ids"
+                  rows="6"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md font-mono text-sm"
+                  placeholder="e.g. 00000000-0000-0000-0000-000000000042">{{ media_ids_text }}</textarea>
+      </div>
+
+      <div class="flex gap-3">
+        <button type="submit"
+                class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md">
+          Enregistrer les préférences
+        </button>
+        <a href="{{ url_for('.dashboard') }}"
+           class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-md">
+          Retour au dashboard
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

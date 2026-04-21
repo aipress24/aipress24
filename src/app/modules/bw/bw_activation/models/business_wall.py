@@ -202,6 +202,15 @@ class BusinessWall(UUIDAuditBase):
     # PR Manager missions/permissions (Stage 6), as dict
     missions: Mapped[dict] = mapped_column(JSON, default=dict)
 
+    # Rights assignment policy (cession de droits MVP v0) — see
+    # `local-notes/specs/cession-droits-mvp.md`. Nullable: a BW with
+    # no explicit policy behaves as `all_subscribed` (default).
+    # Shape: {"option": "all_subscribed|whitelist|blacklist|none",
+    #         "media_ids": [<bw_uuid_str>, ...]}
+    rights_sales_policy: Mapped[dict | None] = mapped_column(
+        JSON, nullable=True, default=None
+    )
+
     def get_organisation(self) -> Organisation | None:
         """Get the Organisation associated with this BusinessWall."""
         from app.models.organisation import Organisation
