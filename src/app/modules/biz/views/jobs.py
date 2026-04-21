@@ -146,9 +146,7 @@ def jobs_detail(id: int):
 def jobs_apply(id: int):
     job = get_offer_or_404(JobOffer, id)
     cv_url = (request.form.get("cv_url") or "").strip()
-    return handle_apply(
-        job, detail_endpoint=".jobs_detail", cv_url=cv_url
-    )
+    return handle_apply(job, detail_endpoint=".jobs_detail", cv_url=cv_url)
 
 
 @blueprint.route("/jobs/<int:id>/applications")
@@ -163,9 +161,7 @@ def jobs_applications(id: int):
     )
 
 
-@blueprint.route(
-    "/jobs/<int:id>/applications/<int:app_id>/select", methods=["POST"]
-)
+@blueprint.route("/jobs/<int:id>/applications/<int:app_id>/select", methods=["POST"])
 def jobs_application_select(id: int, app_id: int):
     job = get_offer_or_404(JobOffer, id)
     return update_application_status(
@@ -173,9 +169,7 @@ def jobs_application_select(id: int, app_id: int):
     )
 
 
-@blueprint.route(
-    "/jobs/<int:id>/applications/<int:app_id>/reject", methods=["POST"]
-)
+@blueprint.route("/jobs/<int:id>/applications/<int:app_id>/reject", methods=["POST"])
 def jobs_application_reject(id: int, app_id: int):
     job = get_offer_or_404(JobOffer, id)
     return update_application_status(

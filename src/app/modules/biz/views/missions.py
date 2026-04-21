@@ -50,12 +50,8 @@ class MissionOfferForm(Form):
     )
     sector = StringField("Secteur", validators=[validators.Optional()])
     location = StringField("Localisation", validators=[validators.Optional()])
-    budget_min = IntegerField(
-        "Budget min (€)", validators=[validators.Optional()]
-    )
-    budget_max = IntegerField(
-        "Budget max (€)", validators=[validators.Optional()]
-    )
+    budget_min = IntegerField("Budget min (€)", validators=[validators.Optional()])
+    budget_max = IntegerField("Budget max (€)", validators=[validators.Optional()])
     deadline = DateField("Date limite", validators=[validators.Optional()])
     contact_email = StringField(
         "E-mail de contact (optionnel)",

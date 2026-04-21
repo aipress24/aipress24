@@ -114,9 +114,7 @@ def test_pending_offer_hidden_from_listing(
     assert b"Hidden pending mission" not in response.data
 
 
-def test_pending_offer_visible_to_owner(
-    app: Flask, db_session: Session, emitter: User
-):
+def test_pending_offer_visible_to_owner(app: Flask, db_session: Session, emitter: User):
     mission = MissionOffer(
         title="Owner can see pending",
         description="x",
@@ -184,9 +182,7 @@ def test_admin_can_approve_pending_offer(
     db_session.commit()
 
     admin_client = make_authenticated_client(app, admin)
-    response = admin_client.post(
-        f"/admin/biz/moderation/{mission.id}/approve"
-    )
+    response = admin_client.post(f"/admin/biz/moderation/{mission.id}/approve")
     assert response.status_code == 302
     db_session.refresh(mission)
     assert mission.status == PublicationStatus.PUBLIC
@@ -206,17 +202,13 @@ def test_admin_can_reject_pending_offer(
     db_session.commit()
 
     admin_client = make_authenticated_client(app, admin)
-    response = admin_client.post(
-        f"/admin/biz/moderation/{mission.id}/reject"
-    )
+    response = admin_client.post(f"/admin/biz/moderation/{mission.id}/reject")
     assert response.status_code == 302
     db_session.refresh(mission)
     assert mission.status == PublicationStatus.REJECTED
 
 
-def test_non_admin_cannot_access_moderation(
-    app: Flask, emitter: User
-):
+def test_non_admin_cannot_access_moderation(app: Flask, emitter: User):
     client = make_authenticated_client(app, emitter)
     response = client.get("/admin/biz/moderation")
     assert response.status_code in (401, 403)

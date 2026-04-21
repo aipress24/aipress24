@@ -89,13 +89,9 @@ class MissionOffer(MarketplaceContent, ClassificationMixin, Publishable):
     emitter_org_id: Mapped[int | None] = mapped_column(
         BigInteger, ForeignKey("crp_organisation.id"), default=None
     )
-    mission_status: Mapped[MissionStatus] = mapped_column(
-        default=MissionStatus.OPEN
-    )
+    mission_status: Mapped[MissionStatus] = mapped_column(default=MissionStatus.OPEN)
 
-    emitter_org = relationship(
-        "Organisation", foreign_keys=[emitter_org_id]
-    )
+    emitter_org = relationship("Organisation", foreign_keys=[emitter_org_id])
 
 
 class ProjectOffer(MarketplaceContent, ClassificationMixin, Publishable):
@@ -119,16 +115,12 @@ class ProjectOffer(MarketplaceContent, ClassificationMixin, Publishable):
     emitter_org_id: Mapped[int | None] = mapped_column(
         BigInteger, ForeignKey("crp_organisation.id"), default=None
     )
-    mission_status: Mapped[MissionStatus] = mapped_column(
-        default=MissionStatus.OPEN
-    )
+    mission_status: Mapped[MissionStatus] = mapped_column(default=MissionStatus.OPEN)
     team_size: Mapped[int | None] = mapped_column(default=None)
     duration_months: Mapped[int | None] = mapped_column(default=None)
     project_type: Mapped[str] = mapped_column(default="")
 
-    emitter_org = relationship(
-        "Organisation", foreign_keys=[emitter_org_id]
-    )
+    emitter_org = relationship("Organisation", foreign_keys=[emitter_org_id])
 
 
 class JobOffer(MarketplaceContent, ClassificationMixin, Publishable):
@@ -152,18 +144,12 @@ class JobOffer(MarketplaceContent, ClassificationMixin, Publishable):
     emitter_org_id: Mapped[int | None] = mapped_column(
         BigInteger, ForeignKey("crp_organisation.id"), default=None
     )
-    mission_status: Mapped[MissionStatus] = mapped_column(
-        default=MissionStatus.OPEN
-    )
-    contract_type: Mapped[ContractType] = mapped_column(
-        default=ContractType.CDI
-    )
+    mission_status: Mapped[MissionStatus] = mapped_column(default=MissionStatus.OPEN)
+    contract_type: Mapped[ContractType] = mapped_column(default=ContractType.CDI)
     full_time: Mapped[bool] = mapped_column(default=True)
     remote_ok: Mapped[bool] = mapped_column(default=False)
 
-    emitter_org = relationship(
-        "Organisation", foreign_keys=[emitter_org_id]
-    )
+    emitter_org = relationship("Organisation", foreign_keys=[emitter_org_id])
 
 
 class OfferApplication(IdMixin, LifeCycleMixin, Owned, Base):
@@ -176,9 +162,7 @@ class OfferApplication(IdMixin, LifeCycleMixin, Owned, Base):
 
     __tablename__ = "mkp_offer_application"
     __table_args__ = (
-        UniqueConstraint(
-            "offer_id", "owner_id", name="uq_mkp_offer_application_user"
-        ),
+        UniqueConstraint("offer_id", "owner_id", name="uq_mkp_offer_application_user"),
     )
 
     offer_id: Mapped[int] = mapped_column(
@@ -187,6 +171,4 @@ class OfferApplication(IdMixin, LifeCycleMixin, Owned, Base):
     )
     message: Mapped[str] = mapped_column(default="")
     cv_url: Mapped[str] = mapped_column(default="")
-    status: Mapped[ApplicationStatus] = mapped_column(
-        default=ApplicationStatus.PENDING
-    )
+    status: Mapped[ApplicationStatus] = mapped_column(default=ApplicationStatus.PENDING)

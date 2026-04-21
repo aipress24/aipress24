@@ -123,9 +123,7 @@ class TestMissionDeposit:
             "/biz/missions/new",
             data={
                 "title": "Nouvelle mission test",
-                "description": (
-                    "Une description suffisamment longue pour le test."
-                ),
+                "description": ("Une description suffisamment longue pour le test."),
                 "sector": "media",
                 "location": "Lyon",
                 "budget_min": "500",

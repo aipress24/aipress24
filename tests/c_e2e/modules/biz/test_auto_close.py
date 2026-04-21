@@ -46,9 +46,7 @@ def owner(db_session: Session) -> User:
     return user
 
 
-def test_close_expired_closes_past_deadlines(
-    db_session: Session, owner: User
-):
+def test_close_expired_closes_past_deadlines(db_session: Session, owner: User):
     past = datetime.now(UTC) - timedelta(days=1)
     future = datetime.now(UTC) + timedelta(days=10)
 
@@ -91,9 +89,7 @@ def test_close_expired_closes_past_deadlines(
         starting_date=past,
         owner_id=owner.id,
     )
-    db_session.add_all(
-        [expired, still_open, no_deadline, expired_project, expired_job]
-    )
+    db_session.add_all([expired, still_open, no_deadline, expired_project, expired_job])
     db_session.commit()
 
     counts = close_expired_offers()
@@ -101,12 +97,10 @@ def test_close_expired_closes_past_deadlines(
 
     db_session.expire_all()
     assert (
-        db_session.get(MissionOffer, expired.id).mission_status
-        == MissionStatus.CLOSED
+        db_session.get(MissionOffer, expired.id).mission_status == MissionStatus.CLOSED
     )
     assert (
-        db_session.get(MissionOffer, still_open.id).mission_status
-        == MissionStatus.OPEN
+        db_session.get(MissionOffer, still_open.id).mission_status == MissionStatus.OPEN
     )
     assert (
         db_session.get(MissionOffer, no_deadline.id).mission_status
@@ -117,14 +111,11 @@ def test_close_expired_closes_past_deadlines(
         == MissionStatus.CLOSED
     )
     assert (
-        db_session.get(JobOffer, expired_job.id).mission_status
-        == MissionStatus.CLOSED
+        db_session.get(JobOffer, expired_job.id).mission_status == MissionStatus.CLOSED
     )
 
 
-def test_close_expired_skips_already_closed(
-    db_session: Session, owner: User
-):
+def test_close_expired_skips_already_closed(db_session: Session, owner: User):
     past = datetime.now(UTC) - timedelta(days=1)
     already_filled = MissionOffer(
         title="already filled",

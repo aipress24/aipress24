@@ -62,20 +62,12 @@ def notify_emitter_of_application(
     mail.send()
 
 
-def notify_applicant_selected(
-    *, offer, application: OfferApplication
-) -> None:
-    _notify_applicant_decision(
-        offer=offer, application=application, selected=True
-    )
+def notify_applicant_selected(*, offer, application: OfferApplication) -> None:
+    _notify_applicant_decision(offer=offer, application=application, selected=True)
 
 
-def notify_applicant_rejected(
-    *, offer, application: OfferApplication
-) -> None:
-    _notify_applicant_decision(
-        offer=offer, application=application, selected=False
-    )
+def notify_applicant_rejected(*, offer, application: OfferApplication) -> None:
+    _notify_applicant_decision(offer=offer, application=application, selected=False)
 
 
 def _notify_applicant_decision(

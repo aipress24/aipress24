@@ -76,9 +76,7 @@ def applicant(db_session: Session, press_role: Role) -> User:
 
 
 @pytest.fixture
-def published_job(
-    db_session: Session, emitter: User, org: Organisation
-) -> JobOffer:
+def published_job(db_session: Session, emitter: User, org: Organisation) -> JobOffer:
     job = JobOffer(
         title="Journaliste web — CDI",
         description="<p>Poste de journaliste web en CDI, plein temps.</p>",
@@ -99,18 +97,14 @@ def published_job(
     return job
 
 
-def test_jobs_tab_lists_public_jobs(
-    app: Flask, emitter: User, published_job: JobOffer
-):
+def test_jobs_tab_lists_public_jobs(app: Flask, emitter: User, published_job: JobOffer):
     client = make_authenticated_client(app, emitter)
     response = client.get("/biz/?current_tab=jobs")
     assert response.status_code == 200
     assert b"Journaliste web" in response.data
 
 
-def test_emitter_can_post_job(
-    app: Flask, emitter: User, db_session: Session
-):
+def test_emitter_can_post_job(app: Flask, emitter: User, db_session: Session):
     client = make_authenticated_client(app, emitter)
     response = client.post(
         "/biz/jobs/new",
@@ -127,11 +121,7 @@ def test_emitter_can_post_job(
         follow_redirects=False,
     )
     assert response.status_code == 302
-    job = (
-        db_session.query(JobOffer)
-        .filter_by(title="Reporter — CDD 6 mois")
-        .first()
-    )
+    job = db_session.query(JobOffer).filter_by(title="Reporter — CDD 6 mois").first()
     assert job is not None
     assert job.contract_type == ContractType.CDD
     assert job.full_time is True
@@ -183,16 +173,12 @@ def test_job_fill_blocks_new_applications(
     assert published_job.mission_status == MissionStatus.FILLED
 
     applicant_client = make_authenticated_client(app, applicant)
-    with patch(
-        "app.modules.biz.views._offers_common.notify_emitter_of_application"
-    ):
+    with patch("app.modules.biz.views._offers_common.notify_emitter_of_application"):
         applicant_client.post(
             f"/biz/jobs/{published_job.id}/apply",
             data={"message": "Trop tard"},
         )
     count = (
-        db_session.query(OfferApplication)
-        .filter_by(offer_id=published_job.id)
-        .count()
+        db_session.query(OfferApplication).filter_by(offer_id=published_job.id).count()
     )
     assert count == 0

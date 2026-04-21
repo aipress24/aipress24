@@ -105,9 +105,7 @@ def test_projects_tab_lists_public_projects(
     assert b"Enqu" in response.data  # "Enquête" sans accents problèmes
 
 
-def test_emitter_can_post_project(
-    app: Flask, emitter: User, db_session: Session
-):
+def test_emitter_can_post_project(app: Flask, emitter: User, db_session: Session):
     client = make_authenticated_client(app, emitter)
     response = client.post(
         "/biz/projects/new",
@@ -126,9 +124,7 @@ def test_emitter_can_post_project(
     )
     assert response.status_code == 302
     project = (
-        db_session.query(ProjectOffer)
-        .filter_by(title="Nouveau projet test")
-        .first()
+        db_session.query(ProjectOffer).filter_by(title="Nouveau projet test").first()
     )
     assert project is not None
     assert project.team_size == 2
@@ -172,17 +168,13 @@ def test_emitter_sees_project_applications(
     applicant: User,
 ):
     applicant_client = make_authenticated_client(app, applicant)
-    with patch(
-        "app.modules.biz.views._offers_common.notify_emitter_of_application"
-    ):
+    with patch("app.modules.biz.views._offers_common.notify_emitter_of_application"):
         applicant_client.post(
             f"/biz/projects/{published_project.id}/apply",
             data={"message": "Motivation pour projet"},
         )
     emitter_client = make_authenticated_client(app, emitter)
-    response = emitter_client.get(
-        f"/biz/projects/{published_project.id}/applications"
-    )
+    response = emitter_client.get(f"/biz/projects/{published_project.id}/applications")
     assert response.status_code == 200
     assert b"Motivation pour projet" in response.data
 
@@ -200,9 +192,7 @@ def test_project_fill_blocks_new_applications(
     assert published_project.mission_status == MissionStatus.FILLED
 
     applicant_client = make_authenticated_client(app, applicant)
-    with patch(
-        "app.modules.biz.views._offers_common.notify_emitter_of_application"
-    ):
+    with patch("app.modules.biz.views._offers_common.notify_emitter_of_application"):
         applicant_client.post(
             f"/biz/projects/{published_project.id}/apply",
             data={"message": "Trop tard"},
