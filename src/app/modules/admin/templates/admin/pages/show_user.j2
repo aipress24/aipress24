@@ -85,6 +85,12 @@
         >Affecter une organisation</button> -->
     </div>
 
+    {% if not user.photo_image %}
+    <div class="mt-8">
+        <dt class="text-sm font-medium text-gray-500">Portrait</dt>
+        <dd class="mb-2 text-sm text-gray-900">Portrait : non disponible</dd>
+    </div>
+    {% endif %}
 
 </div>
 
