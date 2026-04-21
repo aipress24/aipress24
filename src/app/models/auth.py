@@ -316,7 +316,7 @@ class User(LifeCycleMixin, Addressable, UserMixin, Base):
             raise RuntimeError(msg) from e
 
     def photo_carte_presse_image_signed_url(self, expires_in: int = 3600) -> str:
-        file_obj: FileObject | None = self.photo_image
+        file_obj: FileObject | None = self.photo_carte_presse_image
         if file_obj is None:
             return "/static/img/transparent-square.png"
         try:
