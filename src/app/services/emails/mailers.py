@@ -121,6 +121,16 @@ class MissionApplicationMail(EmailTemplate):
 
 
 @dataclass(kw_only=True)
+class JustificatifReadyMail(EmailTemplate):
+    """Notify the buyer that their justificatif PDF is downloadable."""
+
+    subject: str = "[Aipress24] Votre justificatif de publication est disponible"
+    template_html: str = "justificatif_ready.j2"
+    article_title: str
+    pdf_url: str
+
+
+@dataclass(kw_only=True)
 class ApplicationSelectedMail(EmailTemplate):
     """Notify a candidate that their application has been selected.
 
@@ -131,9 +141,7 @@ class ApplicationSelectedMail(EmailTemplate):
         - emitter_name: full name of the offer owner (who selected).
     """
 
-    subject: str = (
-        "[Aipress24] Votre candidature a été sélectionnée"
-    )
+    subject: str = "[Aipress24] Votre candidature a été sélectionnée"
     template_html: str = "application_selected.j2"
     offer_title: str
     offer_url: str
@@ -150,9 +158,7 @@ class ApplicationRejectedMail(EmailTemplate):
         - offer_url: absolute URL to the offer detail page.
     """
 
-    subject: str = (
-        "[Aipress24] Votre candidature n'a pas été retenue"
-    )
+    subject: str = "[Aipress24] Votre candidature n'a pas été retenue"
     template_html: str = "application_rejected.j2"
     offer_title: str
     offer_url: str
