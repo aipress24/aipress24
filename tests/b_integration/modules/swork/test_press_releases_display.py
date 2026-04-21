@@ -83,26 +83,20 @@ class TestEmitterVisibility:
         db_session.flush()
         owner = _make_user_in_org(db_session, emitter_org, "EmitterUser")
 
-        _make_press_release(
-            db_session, owner, emitter_org.id, title="Our own PR"
-        )
+        _make_press_release(db_session, owner, emitter_org.id, title="Our own PR")
 
         posts = _fetch_for_org(emitter_org)
 
         assert [p.title for p in posts] == ["Our own PR"]
 
-    def test_emitter_does_not_see_unrelated_press_releases(
-        self, db_session: Session
-    ):
+    def test_emitter_does_not_see_unrelated_press_releases(self, db_session: Session):
         emitter_org = Organisation(name=f"Emitter2-{uuid.uuid4().hex[:6]}")
         other_org = Organisation(name=f"Other-{uuid.uuid4().hex[:6]}")
         db_session.add_all([emitter_org, other_org])
         db_session.flush()
         other_owner = _make_user_in_org(db_session, other_org, "OtherUser")
 
-        _make_press_release(
-            db_session, other_owner, other_org.id, title="Unrelated"
-        )
+        _make_press_release(db_session, other_owner, other_org.id, title="Unrelated")
 
         assert _count_for_org(emitter_org) == 0
 
@@ -111,18 +105,14 @@ class TestAgencyRepresentingClientVisibility:
     """When an agency's user publishes a PR attributed to a client, it must
     appear on the agency's BW (as well as the client's BW)."""
 
-    def test_agency_bw_shows_pr_published_for_client(
-        self, db_session: Session
-    ):
+    def test_agency_bw_shows_pr_published_for_client(self, db_session: Session):
         agency_org = Organisation(name=f"Agency-{uuid.uuid4().hex[:6]}")
         client_org = Organisation(name=f"Client-{uuid.uuid4().hex[:6]}")
         db_session.add_all([agency_org, client_org])
         db_session.flush()
 
         agency_user = _make_user_in_org(db_session, agency_org, "AgencyUser")
-        _make_press_release(
-            db_session, agency_user, client_org.id, title="For client"
-        )
+        _make_press_release(db_session, agency_user, client_org.id, title="For client")
 
         agency_titles = {p.title for p in _fetch_for_org(agency_org)}
         client_titles = {p.title for p in _fetch_for_org(client_org)}
@@ -130,9 +120,7 @@ class TestAgencyRepresentingClientVisibility:
         assert "For client" in agency_titles
         assert "For client" in client_titles
 
-    def test_unrelated_org_does_not_see_agency_published_pr(
-        self, db_session: Session
-    ):
+    def test_unrelated_org_does_not_see_agency_published_pr(self, db_session: Session):
         agency_org = Organisation(name=f"AgencyU-{uuid.uuid4().hex[:6]}")
         client_org = Organisation(name=f"ClientU-{uuid.uuid4().hex[:6]}")
         stranger_org = Organisation(name=f"StrangerU-{uuid.uuid4().hex[:6]}")
@@ -146,18 +134,14 @@ class TestAgencyRepresentingClientVisibility:
 
         assert _count_for_org(stranger_org) == 0
 
-    def test_no_duplicate_when_agency_publishes_for_itself(
-        self, db_session: Session
-    ):
+    def test_no_duplicate_when_agency_publishes_for_itself(self, db_session: Session):
         """If publisher_id == owner's org_id, the OR must not double-count."""
         agency_org = Organisation(name=f"SelfPub-{uuid.uuid4().hex[:6]}")
         db_session.add(agency_org)
         db_session.flush()
         user = _make_user_in_org(db_session, agency_org, "Self")
 
-        _make_press_release(
-            db_session, user, agency_org.id, title="Self-published"
-        )
+        _make_press_release(db_session, user, agency_org.id, title="Self-published")
 
         assert _count_for_org(agency_org) == 1
 
@@ -168,9 +152,7 @@ class TestAgencyRepresentingClientVisibility:
         db_session.flush()
         user = _make_user_in_org(db_session, agency_org, "Drafter")
 
-        post = _make_press_release(
-            db_session, user, client_org.id, title="Draft PR"
-        )
+        post = _make_press_release(db_session, user, client_org.id, title="Draft PR")
         post.status = PublicationStatus.DRAFT  # type: ignore[assignment]
         db_session.flush()
 

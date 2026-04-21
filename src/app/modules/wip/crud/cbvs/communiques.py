@@ -29,12 +29,19 @@ from app.lib.file_object_utils import create_file_object
 from app.lib.image_utils import extract_image_from_request
 from app.logging import warn
 from app.models.lifecycle import PublicationStatus
-from app.modules.bw.bw_activation.user_utils import can_user_publish_for
+from app.modules.bw.bw_activation.user_utils import (
+    can_user_publish_for,
+    get_validated_client_orgs_for_user,
+)
 from app.modules.wip.models import (
     ComImage,
     ComImageRepository,
     Communique,
     CommuniqueRepository,
+)
+from app.modules.wip.services.pr_notifications import (
+    absolute_url_for,
+    notify_client_of_pr_publication,
 )
 from app.settings.constants import MAX_IMAGE_SIZE
 from app.signals import communique_published, communique_unpublished, communique_updated
@@ -147,23 +154,36 @@ class CommuniquesWipView(BaseWipView):
         return get_obj(id, self.model_class)
 
     def _post_update_model(self, model: Communique) -> None:
-        # Allow PR agency users to publish on behalf of a validated client by
-        # passing `publisher_id` in the form; otherwise default to the user's
-        # own organisation. Unauthorized choices are rejected silently here
-        # and again (with a flash) at publish time.
-        requested = request.form.get("publisher_id")
-        if requested and requested.isdigit():
-            publisher_id = int(requested)
-            if can_user_publish_for(g.user, publisher_id):
-                model.publisher_id = publisher_id
-            elif g.user.organisation_id:
-                model.publisher_id = g.user.organisation_id
-        elif not model.status and g.user.organisation_id:
+        # Sanity-check publisher_id set by the form: reject unauthorized
+        # choices silently (fall back to the user's own organisation).
+        if model.publisher_id and not can_user_publish_for(g.user, model.publisher_id):
+            model.publisher_id = g.user.organisation_id  # type: ignore[assignment]
+        if not model.publisher_id and g.user.organisation_id:
             model.publisher_id = g.user.organisation_id
 
         if not model.status:
             model.status = PublicationStatus.DRAFT  # type: ignore[assignment]
         communique_updated.send(model)
+
+    def _view_ctx(self, model=None, form=None, mode="edit", title=""):
+        if not form:
+            form = self.form_class(obj=model)
+        self._make_publisher_choices(form)
+        return super()._view_ctx(model, form, mode, title)
+
+    def _make_publisher_choices(self, form) -> None:
+        """Populate the `publisher_id` select with the user's org + validated
+        clients (for PR agency users)."""
+        if not hasattr(form, "publisher_id"):
+            return
+        choices = []
+        user = g.user
+        own_org = getattr(user, "organisation", None)
+        if user.organisation_id and own_org is not None:
+            choices.append((user.organisation_id, f"Mon organisation — {own_org.name}"))
+        for client_org in get_validated_client_orgs_for_user(user):
+            choices.append((client_org.id, client_org.name))
+        form.publisher_id.choices = choices
 
     def publish(self, id):
         repo = self._get_repo()
@@ -186,6 +206,26 @@ class CommuniquesWipView(BaseWipView):
         repo.update(communique, auto_commit=False)
         communique_published.send(communique)
         db.session.commit()
+
+        # Notify the client's BW owner when an agency publishes on behalf.
+        if (
+            communique.publisher
+            and g.user.organisation_id
+            and communique.publisher_id != g.user.organisation_id
+        ):
+            try:
+                notify_client_of_pr_publication(
+                    author=g.user,
+                    client_org=communique.publisher,
+                    content_type="communiqué",
+                    content_title=communique.titre,
+                    content_url=absolute_url_for(
+                        "CommuniquesWipView:get", id=communique.id
+                    ),
+                )
+            except Exception as exc:  # noqa: BLE001
+                warn(f"PR publication notif failed (communique {communique.id}): {exc}")
+
         flash("Le communiqué a été publié")
         return redirect(self._url_for("index"))
 

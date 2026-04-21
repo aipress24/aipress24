@@ -106,15 +106,9 @@ class TestGetValidatedClientOrgsForUser:
         _, _, client_b_bw = _mk_user_org_bw(db_session, "ClientB")
         _, _, client_c_bw = _mk_user_org_bw(db_session, "ClientC")
 
-        _mk_partnership(
-            db_session, client_a_bw, agency_bw, PartnershipStatus.ACTIVE
-        )
-        _mk_partnership(
-            db_session, client_b_bw, agency_bw, PartnershipStatus.INVITED
-        )
-        _mk_partnership(
-            db_session, client_c_bw, agency_bw, PartnershipStatus.REVOKED
-        )
+        _mk_partnership(db_session, client_a_bw, agency_bw, PartnershipStatus.ACTIVE)
+        _mk_partnership(db_session, client_b_bw, agency_bw, PartnershipStatus.INVITED)
+        _mk_partnership(db_session, client_c_bw, agency_bw, PartnershipStatus.REVOKED)
 
         orgs = get_validated_client_orgs_for_user(agency_user)
 
@@ -124,17 +118,13 @@ class TestGetValidatedClientOrgsForUser:
     def test_accepted_status_also_qualifies(self, db_session: Session):
         agency_user, _, agency_bw = _mk_user_org_bw(db_session, "Agency2", "pr")
         _, client_org, client_bw = _mk_user_org_bw(db_session, "ClientAccepted")
-        _mk_partnership(
-            db_session, client_bw, agency_bw, PartnershipStatus.ACCEPTED
-        )
+        _mk_partnership(db_session, client_bw, agency_bw, PartnershipStatus.ACCEPTED)
 
         orgs = get_validated_client_orgs_for_user(agency_user)
 
         assert [o.id for o in orgs] == [client_org.id]
 
-    def test_ignores_partnerships_pointing_to_other_agency(
-        self, db_session: Session
-    ):
+    def test_ignores_partnerships_pointing_to_other_agency(self, db_session: Session):
         agency_user, _, _ = _mk_user_org_bw(db_session, "AgencyA", "pr")
         _, _, other_agency_bw = _mk_user_org_bw(db_session, "AgencyB", "pr")
         _, _, client_bw = _mk_user_org_bw(db_session, "ClientShared")
@@ -159,9 +149,7 @@ class TestCanUserPublishFor:
     def test_allows_publishing_for_validated_client(self, db_session: Session):
         agency_user, _, agency_bw = _mk_user_org_bw(db_session, "AgencyOK", "pr")
         _, client_org, client_bw = _mk_user_org_bw(db_session, "ClientValid")
-        _mk_partnership(
-            db_session, client_bw, agency_bw, PartnershipStatus.ACTIVE
-        )
+        _mk_partnership(db_session, client_bw, agency_bw, PartnershipStatus.ACTIVE)
 
         assert can_user_publish_for(agency_user, client_org.id) is True
 
@@ -174,9 +162,7 @@ class TestCanUserPublishFor:
     def test_rejects_publishing_for_revoked_client(self, db_session: Session):
         agency_user, _, agency_bw = _mk_user_org_bw(db_session, "AgencyRevk", "pr")
         _, client_org, client_bw = _mk_user_org_bw(db_session, "ClientRevoked")
-        _mk_partnership(
-            db_session, client_bw, agency_bw, PartnershipStatus.REVOKED
-        )
+        _mk_partnership(db_session, client_bw, agency_bw, PartnershipStatus.REVOKED)
 
         assert can_user_publish_for(agency_user, client_org.id) is False
 
@@ -194,28 +180,20 @@ class TestGetRepresentingAgencyOrgIds:
 
         assert get_representing_agency_org_ids_for_client(org) == []
 
-    def test_returns_agency_ids_for_active_partnerships(
-        self, db_session: Session
-    ):
+    def test_returns_agency_ids_for_active_partnerships(self, db_session: Session):
         _, _, agency_bw = _mk_user_org_bw(db_session, "AgencyRep", "pr")
         agency_org_id = agency_bw.organisation_id
         _, client_org, client_bw = _mk_user_org_bw(db_session, "ClientRep")
 
-        _mk_partnership(
-            db_session, client_bw, agency_bw, PartnershipStatus.ACTIVE
-        )
+        _mk_partnership(db_session, client_bw, agency_bw, PartnershipStatus.ACTIVE)
 
-        assert get_representing_agency_org_ids_for_client(client_org) == [
-            agency_org_id
-        ]
+        assert get_representing_agency_org_ids_for_client(client_org) == [agency_org_id]
 
     def test_excludes_non_active_partnerships(self, db_session: Session):
         _, _, agency_bw = _mk_user_org_bw(db_session, "AgencyInvited", "pr")
         _, client_org, client_bw = _mk_user_org_bw(db_session, "ClientInvited")
 
-        _mk_partnership(
-            db_session, client_bw, agency_bw, PartnershipStatus.INVITED
-        )
+        _mk_partnership(db_session, client_bw, agency_bw, PartnershipStatus.INVITED)
 
         assert get_representing_agency_org_ids_for_client(client_org) == []
 
@@ -225,10 +203,10 @@ class TestGetRepresentingAgencyOrgIds:
 # ---------------------------------------------------------------------------
 
 
-@pytest.mark.parametrize("status", [PartnershipStatus.ACTIVE, PartnershipStatus.ACCEPTED])
-def test_query_shapes_work_against_db(
-    db_session: Session, status: PartnershipStatus
-):
+@pytest.mark.parametrize(
+    "status", [PartnershipStatus.ACTIVE, PartnershipStatus.ACCEPTED]
+)
+def test_query_shapes_work_against_db(db_session: Session, status: PartnershipStatus):
     """Guards against regressions in SQL type-casting (UUID <-> String)."""
     agency_user, _, agency_bw = _mk_user_org_bw(db_session, f"A-{status.value}", "pr")
     _, client_org, client_bw = _mk_user_org_bw(db_session, f"C-{status.value}")

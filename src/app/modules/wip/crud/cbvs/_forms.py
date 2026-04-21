@@ -426,11 +426,12 @@ class CommuniqueForm(Form):
         readonly=0,
     )
 
-    # publisher_id = SimpleRichSelectField(
-    #     "Éditeur / Organisme",
-    #     render_kw={"width": 6},
-    #     validators=[validators.InputRequired()],
-    # )
+    publisher_id = SimpleRichSelectField(
+        "Publier pour",
+        render_kw={"width": 6},
+        coerce=int,
+        validate_choice=False,
+    )
 
     # --- Groupe: Dates ---
     embargoed_until = DateTimeField(
@@ -463,7 +464,7 @@ class CommuniqueForm(Form):
                     "section",
                     "topic",
                     "sector",
-                    # "publisher_id",
+                    "publisher_id",
                     "pays_zip_ville",
                 ],
             },
@@ -531,6 +532,13 @@ class EventForm(Form):
         validators=[validators.Optional()],
     )
 
+    publisher_id = SimpleRichSelectField(
+        "Publier pour",
+        render_kw={"width": 6},
+        coerce=int,
+        validate_choice=False,
+    )
+
     # --- Groupe: Dates ---
     start_time = DateTimeField(
         "Date/heure de début de l'événement",
@@ -563,7 +571,7 @@ class EventForm(Form):
                     "address",
                     "pays_zip_ville",
                     "url",
-                    # "publisher_id",
+                    "publisher_id",
                 ],
             },
             "dates": {

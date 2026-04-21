@@ -162,18 +162,18 @@ class TestPublishForValidatedClient:
         agency_setup,
         stranger_org: Organisation,
     ):
-        communique = _draft_communique_for(
-            fresh_db.session, test_user, stranger_org
-        )
+        communique = _draft_communique_for(fresh_db.session, test_user, stranger_org)
         url = url_for("CommuniquesWipView:publish", id=communique.id)
 
         response = logged_in_client.get(url, follow_redirects=False)
 
         # Rejected -> redirect back to edit page, still DRAFT.
         assert response.status_code == 302
-        assert "/edit/" in response.headers.get("Location", "") or "/new" in (
-            response.headers.get("Location") or ""
-        ) or "edit" in (response.headers.get("Location") or "").lower()
+        assert (
+            "/edit/" in response.headers.get("Location", "")
+            or "/new" in (response.headers.get("Location") or "")
+            or "edit" in (response.headers.get("Location") or "").lower()
+        )
         fresh_db.session.refresh(communique)
         assert communique.status == PublicationStatus.DRAFT
 
