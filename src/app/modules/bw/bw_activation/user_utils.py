@@ -172,3 +172,90 @@ def get_business_wall_for_user(user: User) -> BusinessWall | None:
 def current_business_wall(user: User) -> BusinessWall | None:
     """Get the active BusinessWall for a user (backward compatibility alias)."""
     return get_business_wall_for_user(user)
+
+
+# ---------------------------------------------------------------------------
+# Partnership-aware publication authorization
+# ---------------------------------------------------------------------------
+
+_ACTIVE_PARTNERSHIP_STATUSES = ("accepted", "active")
+
+
+def get_validated_client_orgs_for_user(user: User) -> list[Organisation]:
+    """Return client Organisations the user's agency is authorized to publish for.
+
+    A client is "validated" when there exists a Partnership between the client's
+    BusinessWall and the user's agency BusinessWall, with status ACTIVE (or
+    ACCEPTED).
+    """
+    from app.modules.bw.bw_activation.models import Partnership
+
+    agency_bw = get_business_wall_for_user(user)
+    if agency_bw is None:
+        return []
+
+    session = inspect(agency_bw).session
+    if session is None:
+        return []
+
+    stmt = (
+        select(Organisation)
+        .join(BusinessWall, Organisation.id == BusinessWall.organisation_id)
+        .join(Partnership, Partnership.business_wall_id == BusinessWall.id)
+        .where(Partnership.partner_bw_id == str(agency_bw.id))
+        .where(Partnership.status.in_(_ACTIVE_PARTNERSHIP_STATUSES))
+    )
+    return list(session.execute(stmt).scalars())
+
+
+def can_user_publish_for(user: User, publisher_org_id: int) -> bool:
+    """Check whether `user` may publish content attributed to `publisher_org_id`.
+
+    A user may always publish for their own organisation. A user whose agency
+    has an active Partnership with the target organisation may also publish
+    on that organisation's behalf.
+    """
+    if user.organisation_id and publisher_org_id == user.organisation_id:
+        return True
+
+    return any(
+        org.id == publisher_org_id
+        for org in get_validated_client_orgs_for_user(user)
+    )
+
+
+def get_representing_agency_org_ids_for_client(client_org: Organisation) -> list[int]:
+    """Return IDs of agency Organisations that actively represent this client.
+
+    Used when rendering the client's BW to mark press releases as "published
+    on our behalf by Agency X", or when rendering the agency's BW to include
+    press releases it produced for its clients.
+    """
+    from app.modules.bw.bw_activation.models import Partnership
+
+    if client_org.bw_id is None:
+        return []
+
+    session = inspect(client_org).session
+    if session is None:
+        return []
+
+    # partner_bw_id is stored as String (no FK) while BusinessWall.id is a UUID.
+    # To avoid cross-dialect cast quirks, fetch the matching Partnerships first
+    # and resolve each partner BW separately.
+    partner_uuids = list(
+        session.execute(
+            select(Partnership.partner_bw_id)
+            .where(Partnership.business_wall_id == client_org.bw_id)
+            .where(Partnership.status.in_(_ACTIVE_PARTNERSHIP_STATUSES))
+        ).scalars()
+    )
+    if not partner_uuids:
+        return []
+
+    rows = session.execute(
+        select(BusinessWall.organisation_id)
+        .where(BusinessWall.id.in_(partner_uuids))
+        .where(BusinessWall.organisation_id.is_not(None))
+    ).scalars()
+    return [org_id for org_id in rows if org_id is not None]

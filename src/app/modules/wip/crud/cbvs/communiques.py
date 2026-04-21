@@ -29,6 +29,7 @@ from app.lib.file_object_utils import create_file_object
 from app.lib.image_utils import extract_image_from_request
 from app.logging import warn
 from app.models.lifecycle import PublicationStatus
+from app.modules.bw.bw_activation.user_utils import can_user_publish_for
 from app.modules.wip.models import (
     ComImage,
     ComImageRepository,
@@ -146,19 +147,37 @@ class CommuniquesWipView(BaseWipView):
         return get_obj(id, self.model_class)
 
     def _post_update_model(self, model: Communique) -> None:
+        # Allow PR agency users to publish on behalf of a validated client by
+        # passing `publisher_id` in the form; otherwise default to the user's
+        # own organisation. Unauthorized choices are rejected silently here
+        # and again (with a flash) at publish time.
+        requested = request.form.get("publisher_id")
+        if requested and requested.isdigit():
+            publisher_id = int(requested)
+            if can_user_publish_for(g.user, publisher_id):
+                model.publisher_id = publisher_id
+            elif g.user.organisation_id:
+                model.publisher_id = g.user.organisation_id
+        elif not model.status and g.user.organisation_id:
+            model.publisher_id = g.user.organisation_id
+
         if not model.status:
             model.status = PublicationStatus.DRAFT  # type: ignore[assignment]
-            if g.user.organisation_id:
-                model.publisher_id = g.user.organisation_id
         communique_updated.send(model)
 
     def publish(self, id):
         repo = self._get_repo()
         communique = cast("Communique", self._get_model(id))
 
-        # Use business method to publish (includes validation)
+        publisher_id = communique.publisher_id or g.user.organisation_id or None
+        if publisher_id and not can_user_publish_for(g.user, publisher_id):
+            flash(
+                "Vous n'êtes pas autorisé à publier pour cette organisation.",
+                "error",
+            )
+            return redirect(self._url_for("edit", id=id))
+
         try:
-            publisher_id = g.user.organisation_id or None
             communique.publish(publisher_id=publisher_id)
         except ValueError as e:
             flash(str(e), "error")
