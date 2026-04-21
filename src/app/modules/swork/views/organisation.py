@@ -13,7 +13,7 @@ from typing import Any, ClassVar, cast
 from attr import define
 from flask import Response, g, make_response, render_template, request
 from flask.views import MethodView
-from sqlalchemy import func, select
+from sqlalchemy import and_, func, or_, select
 
 from app.flask.extensions import db
 from app.flask.lib.nav import nav
@@ -182,6 +182,23 @@ class OrgPressBookTab(Tab):
         return self.org.has_bw
 
 
+def _press_releases_for_org_clause(org_id: int):
+    """Build the WHERE clause selecting press releases shown on an org's BW.
+
+    Covers both cases:
+    - the org is the direct publisher (emitter);
+    - a user member of the org (acting as a PR agency) has published on a
+      client's behalf (content attributed to a different publisher_id).
+    """
+    return or_(
+        PressReleasePost.publisher_id == org_id,
+        and_(
+            PressReleasePost.publisher_id != org_id,
+            PressReleasePost.owner.has(User.organisation_id == org_id),
+        ),
+    )
+
+
 class OrgPressReleasesTab(Tab):
     id = "press-releases"
 
@@ -193,7 +210,7 @@ class OrgPressReleasesTab(Tab):
         stmt = (
             select(func.count())
             .select_from(PressReleasePost)
-            .where(PressReleasePost.publisher_id == self.org.id)
+            .where(_press_releases_for_org_clause(self.org.id))
             .where(PressReleasePost.status == PublicationStatus.PUBLIC)
         )
         count = db.session.execute(stmt).scalar()
@@ -344,7 +361,7 @@ class OrgVM(ViewModel):
     def get_press_releases(self) -> list:
         stmt = (
             select(PressReleasePost)
-            .where(PressReleasePost.publisher_id == self.org.id)
+            .where(_press_releases_for_org_clause(self.org.id))
             .where(PressReleasePost.status == PublicationStatus.PUBLIC)
         )
         press_releases = get_multi(PressReleasePost, stmt)
