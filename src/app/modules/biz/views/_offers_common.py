@@ -25,17 +25,44 @@ from app.modules.biz.models import (
     MissionStatus,
     OfferApplication,
 )
-from app.modules.biz.services.mission_notifications import (
+from app.modules.biz.services.offer_notifications import (
+    notify_applicant_rejected,
+    notify_applicant_selected,
     notify_emitter_of_application,
 )
 
 
 def get_offer_or_404(model: type, id: int):
-    """Load an offer of the given type and enforce PUBLIC status."""
+    """Load an offer of the given type, enforce visibility rules.
+
+    Visible to anyone when `status == PUBLIC`. Also visible to the
+    owner and admins when `status == PENDING` (moderation in progress)
+    so the submitter can still see and edit their offer.
+    """
     offer = db.session.get(model, id)
-    if offer is None or offer.status != PublicationStatus.PUBLIC:
+    if offer is None:
         abort(404)
-    return offer
+    if offer.status == PublicationStatus.PUBLIC:
+        return offer
+    if offer.status == PublicationStatus.PENDING:
+        user = cast(User, g.user)
+        if not user.is_anonymous and user.id == offer.owner_id:
+            return offer
+    abort(404)
+    return None  # unreachable, keeps the type-checker happy
+
+
+def default_new_offer_status():
+    """Return PublicationStatus to assign to a freshly-created offer.
+
+    When `MARKETPLACE_MODERATION_REQUIRED` is truthy, new offers go
+    to `PENDING` (hidden from listings, awaiting admin review).
+    """
+    from flask import current_app
+
+    if current_app.config.get("MARKETPLACE_MODERATION_REQUIRED"):
+        return PublicationStatus.PENDING
+    return PublicationStatus.PUBLIC
 
 
 def get_user_application(offer_id: int, user: User) -> OfferApplication | None:
@@ -112,8 +139,17 @@ def update_application_status(
     application = db.session.get(OfferApplication, app_id)
     if application is None or application.offer_id != offer.id:
         abort(404)
+
+    previous_status = application.status
     application.status = new_status
     db.session.commit()
+
+    if previous_status != new_status:
+        if new_status == ApplicationStatus.SELECTED:
+            notify_applicant_selected(offer=offer, application=application)
+        elif new_status == ApplicationStatus.REJECTED:
+            notify_applicant_rejected(offer=offer, application=application)
+
     flash(f"Candidature {new_status.value}.", "success")
     return redirect(url_for(redirect_endpoint, id=offer.id))
 
