@@ -154,10 +154,17 @@ class CommuniquesWipView(BaseWipView):
         return get_obj(id, self.model_class)
 
     def _post_update_model(self, model: Communique) -> None:
-        # Sanity-check publisher_id set by the form: reject unauthorized
-        # choices silently (fall back to the user's own organisation).
+        # Validate publisher_id: if the user selected a client org they are
+        # not authorized to publish for, warn but DO NOT silently reset.
+        # The publish() step will enforce the auth and show an explicit error.
+        # Otherwise a draft saved before the partnership is active ends up
+        # attributed to the wrong org forever (should not happen very often).
         if model.publisher_id and not can_user_publish_for(g.user, model.publisher_id):
-            model.publisher_id = g.user.organisation_id  # type: ignore[assignment]
+            warn(
+                f"Communique {model.id}: user {g.user.id} selected publisher_id="
+                f"{model.publisher_id} but can_user_publish_for is False. "
+                "Keeping the value so the user sees the error at publish time."
+            )
         if not model.publisher_id and g.user.organisation_id:
             model.publisher_id = g.user.organisation_id
 

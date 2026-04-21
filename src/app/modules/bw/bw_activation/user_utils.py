@@ -192,20 +192,31 @@ def get_validated_client_orgs_for_user(user: User) -> list[Organisation]:
 
     agency_bw = get_business_wall_for_user(user)
     if agency_bw is None:
+        warn(f"get_validated_client_orgs_for_user: user {user.id} has no agency_bw")
         return []
 
     session = inspect(agency_bw).session
     if session is None:
+        warn(
+            f"get_validated_client_orgs_for_user: no session for agency_bw {agency_bw.id}"
+        )
         return []
 
+    agency_bw_id_str = str(agency_bw.id)
     stmt = (
         select(Organisation)
         .join(BusinessWall, Organisation.id == BusinessWall.organisation_id)
         .join(Partnership, Partnership.business_wall_id == BusinessWall.id)
-        .where(Partnership.partner_bw_id == str(agency_bw.id))
+        .where(Partnership.partner_bw_id == agency_bw_id_str)
         .where(Partnership.status.in_(_ACTIVE_PARTNERSHIP_STATUSES))
     )
-    return list(session.execute(stmt).scalars())
+    results = list(session.execute(stmt).scalars())
+    if not results:
+        warn(
+            f"get_validated_client_orgs_for_user: user {user.id} agency_bw="
+            f"{agency_bw_id_str} -> no validated clients found"
+        )
+    return results
 
 
 def can_user_publish_for(user: User, publisher_org_id: int) -> bool:
@@ -218,9 +229,16 @@ def can_user_publish_for(user: User, publisher_org_id: int) -> bool:
     if user.organisation_id and publisher_org_id == user.organisation_id:
         return True
 
-    return any(
-        org.id == publisher_org_id for org in get_validated_client_orgs_for_user(user)
-    )
+    client_orgs = get_validated_client_orgs_for_user(user)
+    result = any(org.id == publisher_org_id for org in client_orgs)
+    if not result:
+        client_ids = [org.id for org in client_orgs]
+        warn(
+            f"can_user_publish_for: user {user.id} (org={user.organisation_id}) "
+            f"cannot publish for org {publisher_org_id}. "
+            f"Validated clients: {client_ids}"
+        )
+    return result
 
 
 def get_representing_agency_org_ids_for_client(client_org: Organisation) -> list[int]:

@@ -132,10 +132,15 @@ class EventsWipView(BaseWipView):
     msg_delete_ko = "Vous n'êtes pas autorisé à supprimer cet événement"
 
     def _post_update_model(self, model: Event) -> None:
-        # Sanity-check publisher_id set by the form; unauthorized choices
-        # fall back silently to the user's own organisation.
+        # Validate publisher_id: if the user selected a client org they are
+        # not auth to publish for, warn but DO NOT silently reset — the
+        # publish() step will enforce the auth and show an explicit error.
         if model.publisher_id and not can_user_publish_for(g.user, model.publisher_id):
-            model.publisher_id = g.user.organisation_id  # type: ignore[assignment]
+            warn(
+                f"Event {model.id}: user {g.user.id} selected publisher_id="
+                f"{model.publisher_id} but can_user_publish_for is False. "
+                "Keeping the value so the user sees the error at publish time."
+            )
         if not model.publisher_id and g.user.organisation_id:
             model.publisher_id = g.user.organisation_id
 
