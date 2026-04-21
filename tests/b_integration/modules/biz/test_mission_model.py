@@ -59,9 +59,7 @@ def test_mission_offer_polymorphic_identity(
     assert isinstance(fetched, MissionOffer)
 
 
-def test_mission_offer_defaults(
-    db_session: Session, test_emitter, test_org
-):
+def test_mission_offer_defaults(db_session: Session, test_emitter, test_org):
     mission = _make_mission(db_session, test_emitter, test_org)
     assert mission.mission_status == MissionStatus.OPEN
     assert mission.currency == "EUR"
