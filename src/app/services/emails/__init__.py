@@ -15,6 +15,8 @@ from jinja2 import Environment
 from loguru import logger
 
 from .mailers import (
+    ApplicationRejectedMail,
+    ApplicationSelectedMail,
     AvisEnqueteNotificationMail,
     BWInvitationMail,
     BWRoleInvitationMail,
@@ -25,11 +27,15 @@ from .mailers import (
     ContactAvisEnqueteRDVConfirmationMail,
     ContactAvisEnqueteRDVProposalMail,
     ContactAvisEnqueteRDVRefusedMail,
+    JustificatifReadyMail,
+    MissionApplicationMail,
     PRPublicationNotificationMail,
 )
 
 __all__ = [
     "ALERTS_RECIPIENTS",
+    "ApplicationRejectedMail",
+    "ApplicationSelectedMail",
     "AvisEnqueteNotificationMail",
     "BWInvitationMail",
     "BWRoleInvitationMail",
@@ -41,6 +47,8 @@ __all__ = [
     "ContactAvisEnqueteRDVProposalMail",
     "ContactAvisEnqueteRDVRefusedMail",
     "EmailService",
+    "JustificatifReadyMail",
+    "MissionApplicationMail",
     "PRPublicationNotificationMail",
 ]
 

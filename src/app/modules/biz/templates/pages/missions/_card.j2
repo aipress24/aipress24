@@ -1,0 +1,28 @@
+{# Partial: card for a MissionOffer in listings.
+   Expects `obj` to be a MissionOffer in scope. #}
+<a href="{{ url_for('biz.missions_detail', id=obj.id) }}" class="block p-4">
+  <div class="flex items-start justify-between mb-2">
+    <span class="text-xs uppercase tracking-wide text-gray-500">Mission</span>
+    {% if obj.mission_status.value == "FILLED" %}
+      <span class="bg-gray-200 text-gray-700 text-xs px-2 py-0.5 rounded">Pourvue</span>
+    {% elif obj.mission_status.value == "CLOSED" %}
+      <span class="bg-red-100 text-red-700 text-xs px-2 py-0.5 rounded">Fermée</span>
+    {% else %}
+      <span class="bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded">Ouverte</span>
+    {% endif %}
+  </div>
+  <h3 class="text-lg font-semibold text-gray-900 mb-1">{{ obj.title }}</h3>
+  <div class="text-sm text-gray-600 flex flex-wrap gap-x-4 gap-y-1 mb-3">
+    {% if obj.sector %}<span>{{ obj.sector }}</span>{% endif %}
+    {% if obj.location %}<span>📍 {{ obj.location }}</span>{% endif %}
+    {% if obj.budget_min and obj.budget_max %}
+      <span>{{ (obj.budget_min / 100)|int }}&nbsp;€ — {{ (obj.budget_max / 100)|int }}&nbsp;€</span>
+    {% elif obj.budget_min %}
+      <span>à partir de {{ (obj.budget_min / 100)|int }}&nbsp;€</span>
+    {% elif obj.budget_max %}
+      <span>jusqu'à {{ (obj.budget_max / 100)|int }}&nbsp;€</span>
+    {% endif %}
+    {% if obj.deadline %}<span>⏱ avant le {{ obj.deadline.strftime("%d/%m/%Y") }}</span>{% endif %}
+  </div>
+  <p class="text-sm text-gray-700 line-clamp-3">{{ obj.description|striptags|truncate(180) }}</p>
+</a>

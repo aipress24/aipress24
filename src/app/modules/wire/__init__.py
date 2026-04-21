@@ -37,4 +37,4 @@ def register_views() -> None:
     This function is called during app initialization to avoid
     circular imports that occur when views are imported at module load time.
     """
-    from . import receivers, views  # noqa: F401
+    from . import hooks, receivers, views  # noqa: F401
