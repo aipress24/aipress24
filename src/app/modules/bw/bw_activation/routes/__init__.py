@@ -12,6 +12,7 @@ from __future__ import annotations
 
 # Import all route modules - this registers routes on the blueprint
 from . import (
+    billing_portal,
     confirm_partnership_invitation,
     confirm_role_invitation,
     dashboard,
@@ -29,6 +30,7 @@ from . import (
 )
 
 __all__ = [
+    "billing_portal",
     "confirm_partnership_invitation",
     "confirm_role_invitation",
     "dashboard",

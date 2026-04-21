@@ -297,15 +297,113 @@ def on_customer_subscription_updated(event) -> None:
 
 
 def on_checkout_session_completed(event) -> None:
-    pass
-    # not used for subscriptions.
-    # May be used later for other products tthan subscriptions
-    # data_obj = _get_event_object(event)
-    # if not _filter_unknown_checkout(data_obj):
-    #     return
-    # subinfo = _make_subscription_info(data_obj)
-    # _log_checkout_subinfo(subinfo)
-    # _parse_bw_subscription(subinfo)
+    """Activate a BW when a Stripe Checkout Session succeeds.
+
+    The Pricing Table embed on the BW activation page passes
+    `client-reference-id=<bw_id>` and `customer-email=<user.email>`, so
+    the session carries the info we need to link the Stripe subscription
+    to the right local BW + Subscription.
+
+    Idempotent : subsequent calls for the same session id are no-ops.
+    """
+    from uuid import UUID
+
+    from sqlalchemy import select as sa_select
+
+    from app.modules.bw.bw_activation.models import (
+        BusinessWall,
+        Subscription,
+    )
+
+    data_obj = _get_event_object(event)
+    # `data_obj` is a stripe.api_resources.checkout.Session; support both
+    # dict-like access (as per the mapping table in this file) and
+    # attribute access (as delivered by Stripe CLI simulations).
+    get = data_obj.get if hasattr(data_obj, "get") else lambda k, d=None: getattr(
+        data_obj, k, d
+    )
+
+    if get("mode") != "subscription":
+        # MVP handles subscription checkouts only; one-off payments land
+        # in a dedicated handler later.
+        return
+
+    session_id = get("id")
+    bw_id = get("client_reference_id") or (get("metadata") or {}).get("bw_id")
+    if not bw_id:
+        warning(f"checkout.session.completed without bw_id: {session_id}")
+        return
+
+    try:
+        bw_uuid = UUID(str(bw_id))
+    except (ValueError, TypeError):
+        warning(f"invalid bw_id on checkout session {session_id}: {bw_id!r}")
+        return
+
+    # Idempotency: if we've already processed this session, stop here.
+    existing = db.session.execute(
+        sa_select(Subscription).where(
+            Subscription.stripe_checkout_session_id == session_id
+        )
+    ).scalar_one_or_none()
+    if existing is not None:
+        info(f"checkout session {session_id} already recorded; skip")
+        return
+
+    bw = db.session.execute(
+        sa_select(BusinessWall).where(BusinessWall.id == bw_uuid)
+    ).scalar_one_or_none()
+    if bw is None:
+        warning(f"checkout.session.completed for unknown BW {bw_uuid}")
+        return
+
+    _activate_bw_from_checkout(
+        bw=bw,
+        customer_id=get("customer"),
+        subscription_id=get("subscription"),
+        checkout_session_id=session_id,
+    )
+
+
+def _activate_bw_from_checkout(
+    *,
+    bw,
+    customer_id: str,
+    subscription_id: str,
+    checkout_session_id: str,
+) -> None:
+    """Wire a Stripe Checkout success into the local BW / Subscription."""
+    from datetime import UTC, datetime
+
+    from app.modules.bw.bw_activation.models import (
+        BWStatus,
+        Subscription,
+        SubscriptionStatus,
+    )
+
+    sub = bw.subscription
+    if sub is None:
+        sub = Subscription(
+            business_wall_id=bw.id,
+            pricing_field="stripe",
+            pricing_tier="via_pricing_table",
+            monthly_price=0,
+            annual_price=0,
+        )
+        db.session.add(sub)
+
+    sub.stripe_customer_id = customer_id
+    sub.stripe_subscription_id = subscription_id
+    sub.stripe_checkout_session_id = checkout_session_id
+    sub.status = SubscriptionStatus.ACTIVE.value
+    sub.started_at = datetime.now(UTC)
+
+    bw.status = BWStatus.ACTIVE.value
+    db.session.commit()
+    info(
+        f"BW {bw.id} activated via Stripe Checkout "
+        f"(customer={customer_id}, subscription={subscription_id})"
+    )
 
 
 # def _filter_unknown_checkout(data_obj: dict[str, Any]) -> bool:
