@@ -22,8 +22,25 @@
       {{ carousel(post, img_class="min-h-96") }}
     </div>
 
-    <div class="mt-5 content overflow-hidden">
-      {{ post.content }}
+    <div class="mt-5 content overflow-hidden {% if not can_read_full %}relative{% endif %}">
+      {{ body_preview|safe if body_preview is defined else post.content }}
+
+      {% if not can_read_full and config.get("STRIPE_LIVE_ENABLED") %}
+        <div class="paywall-overlay pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-white via-white/90 to-white/0"></div>
+        <div class="mt-6 p-6 border border-amber-300 rounded-lg bg-amber-50 text-center">
+          <p class="text-gray-800 mb-3">
+            Pour lire la suite, achetez un droit de consultation.
+          </p>
+          {% set post_id = post._model.id if post._model is defined else post.id %}
+          <form method="POST"
+                action="{{ url_for('wire.buy', post_id=post_id, product='consultation') }}">
+            <button type="submit"
+                    class="inline-flex items-center px-5 py-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium rounded-md">
+              Acheter la consultation
+            </button>
+          </form>
+        </div>
+      {% endif %}
     </div>
   </div>
 </div>

@@ -7,8 +7,9 @@ from __future__ import annotations
 from datetime import datetime
 from typing import ClassVar
 
+from advanced_alchemy.types.file_object import FileObject, StoredObject
 from aenum import StrEnum, auto
-from sqlalchemy import BigInteger, Enum, ForeignKey, orm
+from sqlalchemy import JSON, BigInteger, Enum, ForeignKey, orm
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql import func
 from sqlalchemy_utils import ArrowType
@@ -142,6 +143,13 @@ class Post(NewsMetadataMixin, BaseContent, LifeCycleMixin):
     # wip_communique_image) depending on post type. Set by receivers.py.
     image_id: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
 
+    # Rights assignment policy — frozen at publication (DRAFT → PUBLIC).
+    # Null = pre-MVP content, treated as `all_subscribed` for back-compat.
+    # Shape matches `BusinessWall.rights_sales_policy`.
+    rights_sales_snapshot: Mapped[dict | None] = mapped_column(
+        JSON, nullable=True, default=None
+    )
+
     @orm.declared_attr
     def publisher(cls):
         return orm.relationship(
@@ -252,4 +260,21 @@ class ArticlePurchase(IdMixin, Owned, Timestamped, Base):
         ArrowType(timezone=True), nullable=True
     )
 
+    # Justificatif PDF (article-paywall MVP v0). Populated by the
+    # Dramatiq job after a JUSTIFICATIF purchase reaches PAID. Null for
+    # other product types or until generation completes.
+    pdf_file: Mapped[FileObject | None] = mapped_column(
+        StoredObject(backend="s3"), nullable=True
+    )
+
     post = orm.relationship(Post, foreign_keys=[post_id])
+
+    def pdf_signed_url(self, expires_in: int = 3600) -> str | None:
+        """Return a temporary download URL for the justificatif PDF."""
+        file_obj: FileObject | None = self.pdf_file
+        if file_obj is None:
+            return None
+        try:
+            return file_obj.sign(expires_in=expires_in, for_upload=False)
+        except RuntimeError:
+            return None

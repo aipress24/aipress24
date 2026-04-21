@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <title>Justificatif de publication — {{ article_title }}</title>
+  <style>
+    @page { size: A4; margin: 2cm; }
+    body { font-family: serif; color: #222; font-size: 11pt; line-height: 1.4; }
+    .header { border-bottom: 2px solid #1f2937; padding-bottom: 10mm; margin-bottom: 10mm; }
+    .header h1 { font-size: 20pt; margin: 0; }
+    .header .brand { font-size: 9pt; letter-spacing: 0.1em; color: #6b7280; text-transform: uppercase; margin-bottom: 4mm; }
+    h2 { font-size: 13pt; margin: 8mm 0 3mm; }
+    dl { display: grid; grid-template-columns: 35% 65%; row-gap: 2mm; }
+    dt { font-weight: 600; color: #4b5563; }
+    dd { margin: 0; }
+    .excerpt { background: #f3f4f6; padding: 4mm; border-left: 3px solid #1f2937; font-style: italic; }
+    .footer { border-top: 1px solid #d1d5db; margin-top: 15mm; padding-top: 4mm; font-size: 8pt; color: #6b7280; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="brand">Aipress24</div>
+    <h1>Justificatif de publication</h1>
+  </div>
+
+  <h2>Article publié</h2>
+  <dl>
+    <dt>Titre</dt><dd>{{ article_title }}</dd>
+    <dt>Auteur</dt><dd>{{ author_name }}</dd>
+    {% if media_name %}<dt>Média</dt><dd>{{ media_name }}</dd>{% endif %}
+    <dt>Date de publication</dt><dd>{{ published_at }}</dd>
+    <dt>URL canonique</dt><dd>{{ canonical_url }}</dd>
+  </dl>
+
+  {% if excerpt %}
+    <h2>Extrait</h2>
+    <div class="excerpt">{{ excerpt }}</div>
+  {% endif %}
+
+  <h2>Acquisition</h2>
+  <dl>
+    <dt>Acheteur</dt><dd>{{ buyer_name }} ({{ buyer_email }})</dd>
+    <dt>Date d'achat</dt><dd>{{ purchase_date }}</dd>
+    {% if amount %}<dt>Montant</dt><dd>{{ amount }} {{ currency }}</dd>{% endif %}
+  </dl>
+
+  <div class="footer">
+    Document généré automatiquement par aipress24.com — référence
+    purchase #{{ purchase_id }}.
+  </div>
+</body>
+</html>

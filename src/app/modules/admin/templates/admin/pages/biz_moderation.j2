@@ -1,0 +1,57 @@
+{% extends "layout/private.j2" %}
+
+{% block content %}
+<div class="py-10">
+  <div class="mx-auto max-w-5xl px-6">
+    <h1 class="text-2xl font-semibold text-gray-900 mb-6">
+      Modération des offres Marketplace
+    </h1>
+
+    {% if not offers %}
+      <div class="bg-white p-6 rounded-lg shadow text-gray-600">
+        Aucune offre en attente de modération.
+      </div>
+    {% else %}
+      <ul class="space-y-4">
+        {% for offer in offers %}
+          <li class="bg-white p-4 rounded-lg shadow border border-gray-100">
+            <div class="flex items-start justify-between">
+              <div>
+                <div class="text-xs uppercase tracking-wide text-gray-500">
+                  {% if offer.type == "project_offer" %}Projet
+                  {% elif offer.type == "job_offer" %}Emploi
+                  {% else %}Mission{% endif %}
+                </div>
+                <h3 class="text-lg font-medium text-gray-900">
+                  {{ offer.title or "(sans titre)" }}
+                </h3>
+                <div class="text-xs text-gray-500">
+                  Par {{ offer.owner.full_name if offer.owner else "?" }}
+                  · {{ offer.created_at.format("DD/MM/YYYY HH:mm", locale="fr") if offer.created_at else "" }}
+                </div>
+              </div>
+              <div class="flex gap-2">
+                <form method="post" action="{{ url_for('.biz_moderation_approve', id=offer.id) }}">
+                  <button type="submit"
+                          class="bg-green-600 hover:bg-green-700 text-white text-sm py-1 px-3 rounded">
+                    Approuver
+                  </button>
+                </form>
+                <form method="post" action="{{ url_for('.biz_moderation_reject', id=offer.id) }}">
+                  <button type="submit"
+                          class="bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm py-1 px-3 rounded">
+                    Rejeter
+                  </button>
+                </form>
+              </div>
+            </div>
+            <div class="mt-3 prose max-w-none text-sm text-gray-700">
+              {{ (offer.description or "")|striptags|truncate(400) }}
+            </div>
+          </li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -99,6 +99,72 @@ class PRPublicationNotificationMail(EmailTemplate):
 
 
 @dataclass(kw_only=True)
+class MissionApplicationMail(EmailTemplate):
+    """Notify a mission emitter that someone has applied to their mission.
+
+    Args:
+        - sender / recipient / sender_mail: standard EmailTemplate fields.
+        - sender_full_name: applicant's full name.
+        - mission_title: title of the mission.
+        - applicant_message: free-text message from the applicant.
+        - applicant_profile_url: absolute URL to the applicant's profile.
+        - applications_url: absolute URL to the emitter's dashboard.
+    """
+
+    subject: str = "[Aipress24] Nouvelle candidature sur votre mission"
+    template_html: str = "mission_application_notification.j2"
+    sender_full_name: str
+    mission_title: str
+    applicant_message: str
+    applicant_profile_url: str
+    applications_url: str
+
+
+@dataclass(kw_only=True)
+class JustificatifReadyMail(EmailTemplate):
+    """Notify the buyer that their justificatif PDF is downloadable."""
+
+    subject: str = "[Aipress24] Votre justificatif de publication est disponible"
+    template_html: str = "justificatif_ready.j2"
+    article_title: str
+    pdf_url: str
+
+
+@dataclass(kw_only=True)
+class ApplicationSelectedMail(EmailTemplate):
+    """Notify a candidate that their application has been selected.
+
+    Args:
+        - sender / recipient / sender_mail: standard fields.
+        - offer_title: title of the offer.
+        - offer_url: absolute URL to the offer detail page.
+        - emitter_name: full name of the offer owner (who selected).
+    """
+
+    subject: str = "[Aipress24] Votre candidature a été sélectionnée"
+    template_html: str = "application_selected.j2"
+    offer_title: str
+    offer_url: str
+    emitter_name: str
+
+
+@dataclass(kw_only=True)
+class ApplicationRejectedMail(EmailTemplate):
+    """Notify a candidate that their application has been declined.
+
+    Args:
+        - sender / recipient / sender_mail: standard fields.
+        - offer_title: title of the offer.
+        - offer_url: absolute URL to the offer detail page.
+    """
+
+    subject: str = "[Aipress24] Votre candidature n'a pas été retenue"
+    template_html: str = "application_rejected.j2"
+    offer_title: str
+    offer_url: str
+
+
+@dataclass(kw_only=True)
 class AvisEnqueteNotificationMail(EmailTemplate):
     """
     Create a mail for notification of AvisEnquete

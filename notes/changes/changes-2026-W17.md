@@ -125,6 +125,145 @@ runs when the flag is off.
 - E2E tests cover subscription activation, payment persistence,
   idempotency on both modes, reconciliation paths, and CLI exit codes.
 
+## Marketplace MVP v0 — Missions shipped
+
+First real marketplace use case goes live. The `/biz` Missions tab is
+no longer empty.
+
+- New `MissionOffer` (polymorphic sub-class of `MarketplaceContent`)
+  and `MissionApplication` models, with unique `(mission_id, owner_id)`
+  constraint to prevent double candidacy and cascade delete.
+- New migration `949ffb955454_biz_missions_mvp`.
+- `POST /biz/missions/new` form (title, description, sector, location,
+  budget range, deadline, optional contact e-mail). Euros converted to
+  cents at save time.
+- `GET /biz/missions/<id>` detail page with inline apply form; same
+  template handles the owner view (dashboard CTA + "mark as filled"
+  button) and the candidate view (message textarea / "already applied"
+  banner).
+- `GET /biz/missions/<id>/applications` emitter dashboard listing all
+  candidacies with Sélectionner / Refuser buttons.
+- `POST /biz/missions/<id>/fill` flips `MissionStatus` to `FILLED` and
+  hides the apply form on subsequent visits.
+- `MissionApplicationMail` + template +
+  `biz/services/mission_notifications.py` helper: e-mail the emitter
+  with applicant name, message, profile URL, and dashboard URL on
+  every new candidacy. Silently skipped when no recipient e-mail can
+  be resolved.
+- `biz/views/home.py` now wires the `missions` tab; the listing uses a
+  dedicated `pages/missions/_card.j2` partial that branches on
+  polymorphic type.
+- 14 tests cover model invariants (polymorphic identity, unique
+  constraint, cascade), the deposit flow, the candidacy flow
+  (including double-apply rejection, self-apply rejection, filled
+  mission blocking new candidacies), the dashboard, and the owner-only
+  authorization checks.
+- No feature flag: the feature is purely additive and doesn't touch
+  money, so it rolls out on merge. Rollback path: hide the `missions`
+  tab in `_common.TABS` — data stays in DB.
+- Post-v0 (Projets, Emplois, matchmaking, modération, auto-close,
+  candidate notification) remains in the spec as deferred phases; see
+  `local-notes/plans/marketplace-mvp.md` § 8.
+
+## Marketplace v0.1 + v0.2 — Projects and Jobs shipped
+
+Same day as the v0, the next two sub-releases ship.
+
+- `MissionApplication` refactored into generic `OfferApplication`
+  with FK to `mkp_content.id` (polymorphic). One candidature table
+  serves all three offer kinds; migration round-trips cleanly.
+- Shared helpers in `biz/views/_offers_common.py` drive the common
+  lifecycle (apply, list, select/reject, mark filled, e-mail notif);
+  per-type view files are thin coquilles.
+- `ProjectOffer` (`mkp_project_offer`) — editorial project type with
+  `team_size`, `duration_months`, `project_type`. Home tab
+  `projects` wired with dedicated card partial and deposit button.
+- `JobOffer` (`mkp_job_offer`) — salaried/fixed-term positions with
+  `contract_type` (CDI/CDD/STAGE/APPRENTISSAGE/FREELANCE),
+  `full_time`, `remote_ok`, `salary_min/max`, `starting_date`.
+  Candidacy form accepts an optional `cv_url`; native S3 upload
+  deferred to v0.2.x.
+- 9 additional e2e tests (5 Projects + 4 Jobs). Marketplace suite
+  total: 31 tests across missions + projects + jobs + 1 skipped
+  cascade assertion.
+
+## Marketplace v0.4 + v0.5 + v0.6 — Moderation, auto-close, outcome notifications
+
+Three shorter-but-structural sub-releases complete the marketplace
+loop (only matchmaking v0.3 and monetization V2 remain open).
+
+- **v0.6 — applicant notifications**: new mailers
+  `ApplicationSelectedMail` and `ApplicationRejectedMail` + HTML
+  templates. The select/reject routes e-mail the candidate on
+  status transition; clicking the same button twice does not
+  re-send. The notifications service is renamed
+  `offer_notifications.py` and gains per-kind URL helpers
+  (missions / projects / jobs).
+- **v0.5 — auto-close CLI**: `flask biz close-expired` (wire it to
+  a nightly cron) flips OPEN offers to CLOSED when their deadline
+  (missions/projects) or starting_date (jobs) is past. Lives in
+  `biz/services/auto_close.py`, returns per-kind counts for log
+  output. Zero external dependency.
+- **v0.4 — optional moderation**: new Dynaconf flag
+  `MARKETPLACE_MODERATION_REQUIRED` (off by default, no behaviour
+  change). When ON, new offers default to `PENDING` (hidden from
+  listings, visible to owner only). Admin dashboard at
+  `/admin/biz/moderation` lists the queue and offers
+  Approve/Reject buttons. Logic sits in `default_new_offer_status()`
+  and `get_offer_or_404()` helpers so the three offer kinds pick it
+  up for free.
+- Tests: 13 new e2e (3 outcome + 2 auto-close + 8 moderation).
+  Marketplace suite now 44 tests + 1 skipped cascade. No regression
+  on the 774 e2e and 463 integration tests.
+
+## Cession de droits MVP v0 — Editor policy + per-Post snapshot + checkout guard
+
+The W17 cession buy button can no longer trigger a sale that the
+emitter didn't authorise. Mode défaut `all_subscribed` keeps
+existing content sellable.
+
+- New JSON columns: `BusinessWall.rights_sales_policy` (4 modes)
+  and `Post.rights_sales_snapshot`.
+- SQLAlchemy `before_update`/`before_insert` hook freezes the
+  emitter BW's policy onto a Post the first time it reaches PUBLIC.
+  Non-retroactive: subsequent edits never overwrite the snapshot.
+- `bw_activation/rights_policy.py` exposes `get_policy`,
+  `snapshot_policy_for`, `is_eligible_for_cession`,
+  `emitter_bw_for_post`. Null-snapshot content stays buyable
+  (back-compat).
+- Editor settings page at `GET/POST /BW/rights-policy`
+  (owner-only) + dashboard card visible only for BW of type
+  `media`.
+- Guard in `POST /wire/<id>/buy/cession`: refuses purchases the
+  snapshot doesn't authorise (no Stripe session created on refusal).
+- The cession button is hidden on `aside.j2` when the connected
+  user is clearly ineligible.
+- 15 tests (10 unit + 5 e2e). Migration round-trips.
+
+## Article paywall MVP v0 — Consultation unlock + justificatif PDF + Mes achats
+
+The downstream effect of the W17 buy buttons. The cession button
+is covered by the cession-droits MVP above.
+
+- **Consultation**: `wire/services/article_access.py` with
+  `user_can_read_full` (author, admin, or paid CONSULTATION
+  purchaser) and `truncate_body` (BeautifulSoup HTML-aware
+  truncation with word-boundary cut + ellipsis). Article template
+  shows preview + overlay + buy CTA otherwise. Gated by
+  `STRIPE_LIVE_ENABLED` so the feature is invisible until go-live.
+- **Justificatif**: new `ArticlePurchase.pdf_file` (StoredObject
+  S3) + `pdf_signed_url` helper. Service
+  `wire/services/justificatif.py` renders an HTML template via
+  WeasyPrint, stores the PDF, persists, and sends a new
+  `JustificatifReadyMail` with the signed download link.
+  Idempotent. Triggered from a Dramatiq actor
+  (`app.actors.justificatif.generate_justificatif`) enqueued by
+  the webhook on PAID.
+- **Mes achats**: `GET /wire/me/purchases` lists the user's PAID
+  purchases with article link or PDF download.
+- 16 tests (9 unit + 7 e2e). Suite total unchanged: 786 e2e + 482
+  integration.
+
 ## Infrastructure
 
 - Nix flake support removed.

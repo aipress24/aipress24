@@ -1,0 +1,103 @@
+{% extends "layout/private.j2" %}
+
+{% block content %}
+<div class="py-10">
+  <div class="mx-auto max-w-4xl px-6">
+    <div class="bg-white p-6 rounded-lg shadow">
+      <div class="flex items-center justify-between mb-4">
+        <h1 class="text-2xl font-semibold text-gray-900">{{ project.title }}</h1>
+        {% if project.mission_status.value == "FILLED" %}
+          <span class="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded">Pourvu</span>
+        {% elif project.mission_status.value == "CLOSED" %}
+          <span class="bg-red-100 text-red-700 text-xs px-2 py-1 rounded">Fermé</span>
+        {% else %}
+          <span class="bg-green-100 text-green-700 text-xs px-2 py-1 rounded">Ouvert</span>
+        {% endif %}
+      </div>
+
+      <dl class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-gray-600 mb-6">
+        {% if project.sector %}
+          <div><dt class="text-gray-500">Secteur</dt><dd>{{ project.sector }}</dd></div>
+        {% endif %}
+        {% if project.location %}
+          <div><dt class="text-gray-500">Localisation</dt><dd>{{ project.location }}</dd></div>
+        {% endif %}
+        {% if project.project_type %}
+          <div><dt class="text-gray-500">Type</dt><dd>{{ project.project_type }}</dd></div>
+        {% endif %}
+        {% if project.team_size %}
+          <div><dt class="text-gray-500">Équipe</dt><dd>{{ project.team_size }} personne(s)</dd></div>
+        {% endif %}
+        {% if project.duration_months %}
+          <div><dt class="text-gray-500">Durée</dt><dd>{{ project.duration_months }} mois</dd></div>
+        {% endif %}
+        {% if project.budget_min or project.budget_max %}
+          <div>
+            <dt class="text-gray-500">Budget</dt>
+            <dd>
+              {% if project.budget_min and project.budget_max %}
+                {{ (project.budget_min / 100)|int }}&nbsp;€ — {{ (project.budget_max / 100)|int }}&nbsp;€
+              {% elif project.budget_min %}
+                à partir de {{ (project.budget_min / 100)|int }}&nbsp;€
+              {% elif project.budget_max %}
+                jusqu'à {{ (project.budget_max / 100)|int }}&nbsp;€
+              {% endif %}
+            </dd>
+          </div>
+        {% endif %}
+        {% if project.deadline %}
+          <div><dt class="text-gray-500">Deadline</dt><dd>{{ project.deadline.strftime("%d/%m/%Y") }}</dd></div>
+        {% endif %}
+      </dl>
+
+      <div class="prose max-w-none text-gray-800 mb-8">{{ project.description|safe }}</div>
+
+      {% if is_owner %}
+        <div class="border-t pt-6 flex flex-wrap gap-2">
+          <a href="{{ url_for('.projects_applications', id=project.id) }}"
+             class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md">
+            Voir les candidatures reçues
+          </a>
+          {% if project.mission_status.value == "OPEN" %}
+            <form method="post" action="{{ url_for('.projects_fill', id=project.id) }}" class="inline">
+              <button type="submit"
+                      class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-md">
+                Marquer comme pourvu
+              </button>
+            </form>
+          {% endif %}
+        </div>
+      {% elif user_application %}
+        <div class="border-t pt-6 text-sm text-gray-700">
+          Vous avez déjà candidaté le {{ user_application.created_at.format("DD/MM/YYYY") if user_application.created_at else "" }}.
+          Statut : <strong>{{ user_application.status.value }}</strong>.
+        </div>
+      {% elif project.mission_status.value == "OPEN" %}
+        <form method="post" action="{{ url_for('.projects_apply', id=project.id) }}" class="border-t pt-6">
+          <label class="block text-sm font-medium text-gray-700 mb-1">
+            Votre message
+          </label>
+          <textarea name="message" rows="4" required
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md mb-4"
+                    placeholder="Présentez votre intérêt pour ce projet et votre approche."></textarea>
+          <button type="submit"
+                  class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md">
+            Candidater
+          </button>
+        </form>
+      {% else %}
+        <div class="border-t pt-6 text-sm text-gray-500 italic">
+          Ce projet n'accepte plus de candidatures.
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="mt-6">
+      <a href="{{ url_for('biz.biz', current_tab='projects') }}"
+         class="text-blue-600 hover:underline text-sm">
+        ← Retour aux projets
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

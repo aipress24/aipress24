@@ -1,0 +1,66 @@
+{% extends "layout/private.j2" %}
+
+{% block content %}
+<div class="py-10">
+  <div class="mx-auto max-w-4xl px-6">
+    <h1 class="text-2xl font-semibold text-gray-900 mb-6">Mes achats</h1>
+
+    {% if not purchases %}
+      <div class="bg-white p-6 rounded-lg shadow text-gray-600">
+        Vous n'avez pas encore d'achat enregistré.
+      </div>
+    {% else %}
+      <ul class="space-y-3">
+        {% for p in purchases %}
+          {% set product_label = {
+            "consultation": "Consultation",
+            "justificatif": "Justificatif",
+            "cession": "Cession de droits",
+          }.get(p.product_type.value, p.product_type.value) %}
+          <li class="bg-white p-4 rounded-lg shadow border border-gray-100">
+            <div class="flex items-start justify-between">
+              <div>
+                <div class="text-xs uppercase tracking-wide text-gray-500">
+                  {{ product_label }}
+                </div>
+                <div class="text-sm font-medium text-gray-900">
+                  {{ p.post.title if p.post else "Article inconnu" }}
+                </div>
+                <div class="text-xs text-gray-500 mt-1">
+                  {{ p.timestamp.format("DD/MM/YYYY HH:mm", locale="fr") if p.timestamp else "" }}
+                  {% if p.amount_cents %}
+                    · {{ "%.2f"|format(p.amount_cents / 100) }} {{ p.currency }}
+                  {% endif %}
+                </div>
+              </div>
+              <div class="flex flex-col items-end gap-2">
+                {% if p.product_type.value == "justificatif" %}
+                  {% set pdf_url = p.pdf_signed_url() %}
+                  {% if pdf_url %}
+                    <a href="{{ pdf_url }}"
+                       target="_blank"
+                       class="text-blue-600 hover:underline text-sm">
+                      📄 Télécharger le PDF
+                    </a>
+                  {% else %}
+                    <span class="text-xs text-gray-500 italic">
+                      PDF en cours de génération…
+                    </span>
+                  {% endif %}
+                {% else %}
+                  {% if p.post %}
+                    <a href="{{ url_for('wire.item', id=p.post.id) }}"
+                       class="text-blue-600 hover:underline text-sm">
+                      Lire l'article
+                    </a>
+                  {% endif %}
+                {% endif %}
+              </div>
+            </div>
+          </li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

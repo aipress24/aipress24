@@ -157,6 +157,27 @@
                     </a>
                 </div>
 
+                {% if current_bw and current_bw.bw_type == 'media' %}
+                <!-- Cession de droits (media only) -->
+                <div
+                    class="border border-gray-300 p-6 rounded-lg hover:shadow-md hover:border-slate-500 transition"
+                >
+                    <h2 class="text-xl font-semibold text-gray-800 mb-3">
+                        Modalités de cession de droits
+                    </h2>
+                    <p class="text-sm text-gray-600 mb-4">
+                        Définissez à qui vous acceptez de céder les
+                        droits de reproduction de vos futurs contenus.
+                    </p>
+                    <a
+                        href="{{ url_for('bw_activation.rights_policy') }}"
+                        class="inline-block rounded-md bg-purple-600 px-4 py-2 text-sm font-semibold text-white hover:bg-purple-700"
+                    >
+                        Configurer →
+                    </a>
+                </div>
+                {% endif %}
+
                 {% if config.get('STRIPE_LIVE_ENABLED')
                       and current_bw and current_bw.subscription
                       and current_bw.subscription.stripe_customer_id %}
