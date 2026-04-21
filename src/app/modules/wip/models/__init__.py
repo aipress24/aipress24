@@ -9,6 +9,7 @@ from .eventroom import Event, EventImage, EventImageRepository, EventRepository
 from .newsroom import (
     Article,
     AvisEnquete,
+    AvisNotificationLog,
     Commande,
     ContactAvisEnquete,
     Image,
@@ -35,6 +36,7 @@ __all__ = [
     "ArticleRepository",
     "AvisEnquete",
     "AvisEnqueteRepository",
+    "AvisNotificationLog",
     "ComImage",
     "ComImageRepository",
     "Commande",

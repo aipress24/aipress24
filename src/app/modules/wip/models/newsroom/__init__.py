@@ -23,6 +23,7 @@ from .avis_enquete import (
     RDVType,
     StatutAvis,
 )
+from .avis_notification_log import AvisNotificationLog
 from .commande import Commande
 from .notification_publication import (
     NotificationPublication,
@@ -34,6 +35,7 @@ from .sujet import Sujet
 __all__ = [
     "Article",
     "AvisEnquete",
+    "AvisNotificationLog",
     "Commande",
     "ContactAvisEnquete",
     "Image",

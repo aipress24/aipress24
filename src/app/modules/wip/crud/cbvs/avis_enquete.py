@@ -170,7 +170,7 @@ class AvisEnqueteWipView(BaseWipView):
         self.update_breadcrumbs(label=model.title)
         # Use services
         filter_service = ExpertFilterService()
-        filter_service.initialize(avis_enquete_id=str(id))
+        filter_service.initialize(avis_enquete_id=str(id), avis_enquete=model)
         filter_service.save_state()
         filter_service._selectors = None
 
@@ -181,6 +181,15 @@ class AvisEnqueteWipView(BaseWipView):
             case "confirm":
                 selected_experts = filter_service.get_selected_experts()
                 new_experts = avis_service.filter_known_experts(model, selected_experts)
+                new_experts, skipped_experts = (
+                    avis_service.partition_by_notification_cap(new_experts)
+                )
+                if skipped_experts:
+                    flash(
+                        f"{len(skipped_experts)} expert(s) ignoré(s) : "
+                        "plafond de 10 notifications sur 30 jours atteint.",
+                        "warning",
+                    )
                 nb_new_experts = len(new_experts)
                 if nb_new_experts > 0:
                     model.status = PublicationStatus.PUBLIC
@@ -193,13 +202,14 @@ class AvisEnqueteWipView(BaseWipView):
                     avis_service.send_avis_enquete_emails(
                         model, new_experts, urls, sender
                     )
+                    avis_service.record_notifications(new_experts, model)
                     avis_service.commit()
                     if nb_new_experts > 1:
                         msg = f"Avis d'enquête envoyé aux {len(new_experts)} contacts sélectionnés"
                     else:
                         msg = "Avis d'enquête envoyé au contact sélectionné"
                     flash(msg, "success")
-                else:
+                elif not skipped_experts:
                     flash("Aucun nouveau profil sélectionné", "error")
                 response = Response("")
                 response.headers["HX-Redirect"] = url_for("AvisEnqueteWipView:index")
