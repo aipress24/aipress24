@@ -99,6 +99,28 @@ class PRPublicationNotificationMail(EmailTemplate):
 
 
 @dataclass(kw_only=True)
+class MissionApplicationMail(EmailTemplate):
+    """Notify a mission emitter that someone has applied to their mission.
+
+    Args:
+        - sender / recipient / sender_mail: standard EmailTemplate fields.
+        - sender_full_name: applicant's full name.
+        - mission_title: title of the mission.
+        - applicant_message: free-text message from the applicant.
+        - applicant_profile_url: absolute URL to the applicant's profile.
+        - applications_url: absolute URL to the emitter's dashboard.
+    """
+
+    subject: str = "[Aipress24] Nouvelle candidature sur votre mission"
+    template_html: str = "mission_application_notification.j2"
+    sender_full_name: str
+    mission_title: str
+    applicant_message: str
+    applicant_profile_url: str
+    applications_url: str
+
+
+@dataclass(kw_only=True)
 class AvisEnqueteNotificationMail(EmailTemplate):
     """
     Create a mail for notification of AvisEnquete

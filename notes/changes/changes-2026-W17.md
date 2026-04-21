@@ -125,6 +125,46 @@ runs when the flag is off.
 - E2E tests cover subscription activation, payment persistence,
   idempotency on both modes, reconciliation paths, and CLI exit codes.
 
+## Marketplace MVP v0 — Missions shipped
+
+First real marketplace use case goes live. The `/biz` Missions tab is
+no longer empty.
+
+- New `MissionOffer` (polymorphic sub-class of `MarketplaceContent`)
+  and `MissionApplication` models, with unique `(mission_id, owner_id)`
+  constraint to prevent double candidacy and cascade delete.
+- New migration `949ffb955454_biz_missions_mvp`.
+- `POST /biz/missions/new` form (title, description, sector, location,
+  budget range, deadline, optional contact e-mail). Euros converted to
+  cents at save time.
+- `GET /biz/missions/<id>` detail page with inline apply form; same
+  template handles the owner view (dashboard CTA + "mark as filled"
+  button) and the candidate view (message textarea / "already applied"
+  banner).
+- `GET /biz/missions/<id>/applications` emitter dashboard listing all
+  candidacies with Sélectionner / Refuser buttons.
+- `POST /biz/missions/<id>/fill` flips `MissionStatus` to `FILLED` and
+  hides the apply form on subsequent visits.
+- `MissionApplicationMail` + template +
+  `biz/services/mission_notifications.py` helper: e-mail the emitter
+  with applicant name, message, profile URL, and dashboard URL on
+  every new candidacy. Silently skipped when no recipient e-mail can
+  be resolved.
+- `biz/views/home.py` now wires the `missions` tab; the listing uses a
+  dedicated `pages/missions/_card.j2` partial that branches on
+  polymorphic type.
+- 14 tests cover model invariants (polymorphic identity, unique
+  constraint, cascade), the deposit flow, the candidacy flow
+  (including double-apply rejection, self-apply rejection, filled
+  mission blocking new candidacies), the dashboard, and the owner-only
+  authorization checks.
+- No feature flag: the feature is purely additive and doesn't touch
+  money, so it rolls out on merge. Rollback path: hide the `missions`
+  tab in `_common.TABS` — data stays in DB.
+- Post-v0 (Projets, Emplois, matchmaking, modération, auto-close,
+  candidate notification) remains in the spec as deferred phases; see
+  `local-notes/plans/marketplace-mvp.md` § 8.
+
 ## Infrastructure
 
 - Nix flake support removed.
