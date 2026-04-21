@@ -121,9 +121,7 @@ class TestMatchExpertsToAvis:
             for _ in range(6)
         ]
         # Off-topic expert, should be excluded (enough matches without them)
-        off_topic = _mk_expert(
-            db_session, secteurs=["Sport"], last_login_at=recent
-        )
+        off_topic = _mk_expert(db_session, secteurs=["Sport"], last_login_at=recent)
         # Dormant expert on topic, excluded regardless
         dormant = _mk_expert(
             db_session,
@@ -131,29 +129,21 @@ class TestMatchExpertsToAvis:
             last_login_at=datetime.now(UTC) - timedelta(days=365),
         )
 
-        result = match_experts_to_avis(
-            [*matching, off_topic, dormant], avis
-        )
+        result = match_experts_to_avis([*matching, off_topic, dormant], avis)
 
         result_ids = {e.id for e in result}
         assert {e.id for e in matching}.issubset(result_ids)
         assert off_topic.id not in result_ids
         assert dormant.id not in result_ids
 
-    def test_fallback_when_too_few_matches(
-        self, db_session: Session, journalist: User
-    ):
+    def test_fallback_when_too_few_matches(self, db_session: Session, journalist: User):
         """If fewer than 5 sector-matches, fall back to the active pool."""
         recent = datetime.now(UTC) - timedelta(days=10)
         avis = _mk_avis(db_session, journaliste=journalist, sector="Nucléaire")
 
-        one_match = _mk_expert(
-            db_session, secteurs=["Nucléaire"], last_login_at=recent
-        )
+        one_match = _mk_expert(db_session, secteurs=["Nucléaire"], last_login_at=recent)
         off_topic_actives = [
-            _mk_expert(
-                db_session, secteurs=["Sport"], last_login_at=recent
-            )
+            _mk_expert(db_session, secteurs=["Sport"], last_login_at=recent)
             for _ in range(3)
         ]
         dormant = _mk_expert(
@@ -179,9 +169,7 @@ class TestMatchExpertsToAvis:
         recent = datetime.now(UTC) - timedelta(days=10)
         avis = _mk_avis(db_session, journaliste=journalist, sector="")
 
-        active = _mk_expert(
-            db_session, secteurs=["Économie"], last_login_at=recent
-        )
+        active = _mk_expert(db_session, secteurs=["Économie"], last_login_at=recent)
         dormant = _mk_expert(
             db_session,
             secteurs=["Économie"],
@@ -207,14 +195,10 @@ class TestMatchExpertsToAvis:
         )
 
         in_sante = [
-            _mk_expert(
-                db_session, secteurs=["Santé"], last_login_at=recent
-            )
+            _mk_expert(db_session, secteurs=["Santé"], last_login_at=recent)
             for _ in range(5)
         ]
-        off_topic = _mk_expert(
-            db_session, secteurs=["Sport"], last_login_at=recent
-        )
+        off_topic = _mk_expert(db_session, secteurs=["Sport"], last_login_at=recent)
 
         result = match_experts_to_avis([*in_sante, off_topic], avis)
 
@@ -229,9 +213,7 @@ class TestMatchExpertsToAvis:
         """Users who never logged in are considered dormant."""
         avis = _mk_avis(db_session, journaliste=journalist, sector="Économie")
 
-        never_logged = _mk_expert(
-            db_session, secteurs=["Économie"], last_login_at=None
-        )
+        never_logged = _mk_expert(db_session, secteurs=["Économie"], last_login_at=None)
         five_ok = [
             _mk_expert(
                 db_session,
@@ -257,16 +239,12 @@ def _log_notifications(
 ) -> None:
     base = datetime.now(UTC) - timedelta(days=days_ago)
     for _ in range(n):
-        db_session.add(
-            AvisNotificationLog(user_id=expert.id, sent_at=base)
-        )
+        db_session.add(AvisNotificationLog(user_id=expert.id, sent_at=base))
     db_session.flush()
 
 
 class TestAntiSpamCap:
-    def test_no_history_returns_empty(
-        self, db_session: Session
-    ):
+    def test_no_history_returns_empty(self, db_session: Session):
         recent = datetime.now(UTC) - timedelta(days=10)
         experts = [
             _mk_expert(db_session, secteurs=["X"], last_login_at=recent)
@@ -276,12 +254,8 @@ class TestAntiSpamCap:
 
     def test_experts_at_cap_are_reported(self, db_session: Session):
         recent = datetime.now(UTC) - timedelta(days=10)
-        spammed = _mk_expert(
-            db_session, secteurs=["X"], last_login_at=recent
-        )
-        clean = _mk_expert(
-            db_session, secteurs=["X"], last_login_at=recent
-        )
+        spammed = _mk_expert(db_session, secteurs=["X"], last_login_at=recent)
+        clean = _mk_expert(db_session, secteurs=["X"], last_login_at=recent)
         _log_notifications(db_session, spammed, n=NOTIFICATION_CAP)
 
         over = experts_over_notification_cap(db_session, [spammed, clean])
@@ -289,13 +263,9 @@ class TestAntiSpamCap:
         assert spammed.id in over
         assert clean.id not in over
 
-    def test_old_notifications_outside_window_are_ignored(
-        self, db_session: Session
-    ):
+    def test_old_notifications_outside_window_are_ignored(self, db_session: Session):
         recent = datetime.now(UTC) - timedelta(days=10)
-        expert = _mk_expert(
-            db_session, secteurs=["X"], last_login_at=recent
-        )
+        expert = _mk_expert(db_session, secteurs=["X"], last_login_at=recent)
         _log_notifications(db_session, expert, n=NOTIFICATION_CAP, days_ago=40)
 
         over = experts_over_notification_cap(db_session, [expert])
@@ -315,9 +285,7 @@ class TestAntiSpamCap:
 
 
 class TestRecordNotifications:
-    def test_one_row_per_expert(
-        self, db_session: Session, journalist: User
-    ):
+    def test_one_row_per_expert(self, db_session: Session, journalist: User):
         avis = _mk_avis(db_session, journaliste=journalist, sector="X")
         e1 = _mk_expert(db_session, secteurs=["X"])
         e2 = _mk_expert(db_session, secteurs=["X"])
@@ -329,9 +297,7 @@ class TestRecordNotifications:
         assert {r.user_id for r in rows} == {e1.id, e2.id}
         assert all(r.avis_enquete_id == avis.id for r in rows)
 
-    def test_record_then_cap_roundtrip(
-        self, db_session: Session, journalist: User
-    ):
+    def test_record_then_cap_roundtrip(self, db_session: Session, journalist: User):
         """Recording NOTIFICATION_CAP times should flip expert into 'over cap'."""
         avis = _mk_avis(db_session, journaliste=journalist, sector="X")
         expert = _mk_expert(db_session, secteurs=["X"])
@@ -360,20 +326,12 @@ class TestRecordNotifications:
 
 def test_activity_lookback_uses_default_constant(db_session: Session, journalist: User):
     """Expert logged in just within the 180-day window remains eligible."""
-    just_inside = datetime.now(UTC) - timedelta(
-        days=ACTIVITY_LOOKBACK_DAYS - 1
-    )
-    just_outside = datetime.now(UTC) - timedelta(
-        days=ACTIVITY_LOOKBACK_DAYS + 1
-    )
+    just_inside = datetime.now(UTC) - timedelta(days=ACTIVITY_LOOKBACK_DAYS - 1)
+    just_outside = datetime.now(UTC) - timedelta(days=ACTIVITY_LOOKBACK_DAYS + 1)
     avis = _mk_avis(db_session, journaliste=journalist, sector="Économie")
 
-    inside = _mk_expert(
-        db_session, secteurs=["Économie"], last_login_at=just_inside
-    )
-    outside = _mk_expert(
-        db_session, secteurs=["Économie"], last_login_at=just_outside
-    )
+    inside = _mk_expert(db_session, secteurs=["Économie"], last_login_at=just_inside)
+    outside = _mk_expert(db_session, secteurs=["Économie"], last_login_at=just_outside)
 
     result = match_experts_to_avis([inside, outside], avis)
     result_ids = {e.id for e in result}

@@ -219,8 +219,7 @@ def can_user_publish_for(user: User, publisher_org_id: int) -> bool:
         return True
 
     return any(
-        org.id == publisher_org_id
-        for org in get_validated_client_orgs_for_user(user)
+        org.id == publisher_org_id for org in get_validated_client_orgs_for_user(user)
     )
 
 

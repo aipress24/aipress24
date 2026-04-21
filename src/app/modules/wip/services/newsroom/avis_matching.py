@@ -65,11 +65,7 @@ def match_experts_to_avis(
     if not avis_sectors:
         return active
 
-    matched = [
-        e
-        for e in active
-        if _expert_sectors(e) & avis_sectors
-    ]
+    matched = [e for e in active if _expert_sectors(e) & avis_sectors]
     if len(matched) < min_candidates:
         return active
     return matched
@@ -133,9 +129,7 @@ def record_notifications(
     """
     avis_id = getattr(avis, "id", None)
     for expert in experts:
-        session.add(
-            AvisNotificationLog(user_id=expert.id, avis_enquete_id=avis_id)
-        )
+        session.add(AvisNotificationLog(user_id=expert.id, avis_enquete_id=avis_id))
 
 
 # ---------------------------------------------------------------------------

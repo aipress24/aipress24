@@ -25,6 +25,7 @@ from .mailers import (
     ContactAvisEnqueteRDVConfirmationMail,
     ContactAvisEnqueteRDVProposalMail,
     ContactAvisEnqueteRDVRefusedMail,
+    PRPublicationNotificationMail,
 )
 
 __all__ = [
@@ -40,6 +41,7 @@ __all__ = [
     "ContactAvisEnqueteRDVProposalMail",
     "ContactAvisEnqueteRDVRefusedMail",
     "EmailService",
+    "PRPublicationNotificationMail",
 ]
 
 ALERTS_RECIPIENTS = ["test@aipress24.com"]

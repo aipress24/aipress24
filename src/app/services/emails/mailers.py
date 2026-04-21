@@ -74,6 +74,31 @@ class BWRoleInvitationMail(EmailTemplate):
 
 
 @dataclass(kw_only=True)
+class PRPublicationNotificationMail(EmailTemplate):
+    """Notify a client's BW owner that their PR agency has published on
+    their behalf.
+
+    Args:
+        - sender / recipient / sender_mail: standard EmailTemplate fields.
+        - sender_full_name: full name of the publishing agency user.
+        - agency_name: name of the PR agency's organisation.
+        - client_name: name of the client organisation (publisher).
+        - content_type: localized content type ("communiqué", "événement").
+        - content_title: title of the published content.
+        - content_url: absolute URL to the published content.
+    """
+
+    subject: str = "[Aipress24] Votre agence RP a publié un contenu en votre nom"
+    template_html: str = "pr_publication_notification.j2"
+    sender_full_name: str
+    agency_name: str
+    client_name: str
+    content_type: str
+    content_title: str
+    content_url: str
+
+
+@dataclass(kw_only=True)
 class AvisEnqueteNotificationMail(EmailTemplate):
     """
     Create a mail for notification of AvisEnquete

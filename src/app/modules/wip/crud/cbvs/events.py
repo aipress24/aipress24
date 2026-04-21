@@ -29,11 +29,19 @@ from app.lib.file_object_utils import create_file_object
 from app.lib.image_utils import extract_image_from_request
 from app.logging import warn
 from app.models.lifecycle import PublicationStatus
+from app.modules.bw.bw_activation.user_utils import (
+    can_user_publish_for,
+    get_validated_client_orgs_for_user,
+)
 from app.modules.wip.models.eventroom import (
     Event,
     EventImage,
     EventImageRepository,
     EventRepository,
+)
+from app.modules.wip.services.pr_notifications import (
+    absolute_url_for,
+    notify_client_of_pr_publication,
 )
 from app.settings.constants import MAX_IMAGE_SIZE
 from app.signals import (
@@ -124,20 +132,49 @@ class EventsWipView(BaseWipView):
     msg_delete_ko = "Vous n'êtes pas autorisé à supprimer cet événement"
 
     def _post_update_model(self, model: Event) -> None:
+        # Sanity-check publisher_id set by the form; unauthorized choices
+        # fall back silently to the user's own organisation.
+        if model.publisher_id and not can_user_publish_for(g.user, model.publisher_id):
+            model.publisher_id = g.user.organisation_id  # type: ignore[assignment]
+        if not model.publisher_id and g.user.organisation_id:
+            model.publisher_id = g.user.organisation_id
+
         if not model.status:
             model.status = PublicationStatus.DRAFT  # type: ignore[assignment]
             model.published_at = arrow.now("Europe/Paris")  # type: ignore[assignment,union-attr]
-            if g.user.organisation_id:
-                model.publisher_id = g.user.organisation_id
         event_updated.send(model)
+
+    def _view_ctx(self, model=None, form=None, mode="edit", title=""):
+        if not form:
+            form = self.form_class(obj=model)
+        self._make_publisher_choices(form)
+        return super()._view_ctx(model, form, mode, title)
+
+    def _make_publisher_choices(self, form) -> None:
+        if not hasattr(form, "publisher_id"):
+            return
+        choices = []
+        user = g.user
+        own_org = getattr(user, "organisation", None)
+        if user.organisation_id and own_org is not None:
+            choices.append((user.organisation_id, f"Mon organisation — {own_org.name}"))
+        for client_org in get_validated_client_orgs_for_user(user):
+            choices.append((client_org.id, client_org.name))
+        form.publisher_id.choices = choices
 
     def publish(self, id):
         repo = self._get_repo()
         event = cast("Event", self._get_model(id))
 
-        # Use business method to publish (includes validation)
+        publisher_id = event.publisher_id or g.user.organisation_id or None
+        if publisher_id and not can_user_publish_for(g.user, publisher_id):
+            flash(
+                "Vous n'êtes pas autorisé à publier pour cette organisation.",
+                "error",
+            )
+            return redirect(self._url_for("edit", id=id))
+
         try:
-            publisher_id = g.user.organisation_id or None
             event.publish(publisher_id=publisher_id)
         except ValueError as e:
             flash(str(e), "error")
@@ -146,6 +183,23 @@ class EventsWipView(BaseWipView):
         repo.update(event, auto_commit=False)
         event_published.send(event)
         db.session.commit()
+
+        if (
+            event.publisher
+            and g.user.organisation_id
+            and event.publisher_id != g.user.organisation_id
+        ):
+            try:
+                notify_client_of_pr_publication(
+                    author=g.user,
+                    client_org=event.publisher,
+                    content_type="événement",
+                    content_title=event.titre,
+                    content_url=absolute_url_for("EventsWipView:get", id=event.id),
+                )
+            except Exception as exc:  # noqa: BLE001
+                warn(f"PR publication notif failed (event {event.id}): {exc}")
+
         flash("L'événement a été publié")
         return redirect(self._url_for("index"))
 

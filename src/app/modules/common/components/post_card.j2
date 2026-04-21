@@ -61,6 +61,13 @@
     </div>
   </div>
 
+  {% if post.author.organisation and post.publisher
+        and post.author.organisation.id != post.publisher.id %}
+    <div class="px-4 py-1 text-xs italic text-gray-500">
+      Publié par {{ post.author.organisation.name }} en tant que contact presse de {{ post.publisher.name }}.
+    </div>
+  {% endif %}
+
   <hr class=""/>
     <div class="flex flex-col space-y-1">
       <div class="px-4 py-1.5 border-b min-w-0">
