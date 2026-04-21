@@ -1,0 +1,24 @@
+<p>
+Bonjour,
+</p>
+
+<p>
+{{ sender_full_name }} vient de candidater à votre mission :
+<strong>« {{ mission_title }} »</strong>.
+</p>
+
+{% if applicant_message %}
+<p><strong>Message du candidat :</strong></p>
+<blockquote style="border-left: 3px solid #ccc; padding-left: 12px; color: #555;">
+{{ applicant_message }}
+</blockquote>
+{% endif %}
+
+<p>
+<a href="{{ applicant_profile_url }}">Voir le profil du candidat</a><br>
+<a href="{{ applications_url }}">Gérer les candidatures</a>
+</p>
+
+<p>
+Envoyé par {{ sender_mail }} via le site aipress24.com.
+</p>

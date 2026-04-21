@@ -1,0 +1,66 @@
+{% extends "layout/private.j2" %}
+
+{% block content %}
+<div class="py-10">
+  <div class="mx-auto max-w-4xl px-6">
+    <h1 class="text-2xl font-semibold text-gray-900 mb-2">
+      Candidatures : {{ mission.title }}
+    </h1>
+    <a href="{{ url_for('.missions_detail', id=mission.id) }}"
+       class="text-blue-600 hover:underline text-sm">
+      ← Retour à la mission
+    </a>
+
+    {% if not applications %}
+      <p class="mt-6 text-gray-600">Aucune candidature pour le moment.</p>
+    {% else %}
+      <ul class="mt-6 space-y-4">
+        {% for app in applications %}
+          <li class="bg-white p-4 rounded-lg shadow border border-gray-100">
+            <div class="flex items-start justify-between">
+              <div>
+                <div class="font-medium text-gray-900">
+                  {{ app.owner.full_name if app.owner else "Candidat inconnu" }}
+                </div>
+                <div class="text-xs text-gray-500">
+                  {{ app.created_at.format("DD/MM/YYYY HH:mm", locale="fr") if app.created_at else "" }}
+                </div>
+              </div>
+              <div>
+                {% if app.status.value == "SELECTED" %}
+                  <span class="bg-green-100 text-green-700 text-xs px-2 py-1 rounded">Sélectionné</span>
+                {% elif app.status.value == "REJECTED" %}
+                  <span class="bg-red-100 text-red-700 text-xs px-2 py-1 rounded">Refusé</span>
+                {% else %}
+                  <span class="bg-yellow-100 text-yellow-700 text-xs px-2 py-1 rounded">En attente</span>
+                {% endif %}
+              </div>
+            </div>
+
+            {% if app.message %}
+              <div class="mt-3 text-sm text-gray-700 whitespace-pre-line">{{ app.message }}</div>
+            {% endif %}
+
+            {% if app.status.value == "PENDING" %}
+              <div class="mt-4 flex gap-2">
+                <form method="post" action="{{ url_for('.missions_application_select', id=mission.id, app_id=app.id) }}">
+                  <button type="submit"
+                          class="bg-green-600 hover:bg-green-700 text-white text-sm py-1 px-3 rounded">
+                    Sélectionner
+                  </button>
+                </form>
+                <form method="post" action="{{ url_for('.missions_application_reject', id=mission.id, app_id=app.id) }}">
+                  <button type="submit"
+                          class="bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm py-1 px-3 rounded">
+                    Refuser
+                  </button>
+                </form>
+              </div>
+            {% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
