@@ -121,6 +121,44 @@ class MissionApplicationMail(EmailTemplate):
 
 
 @dataclass(kw_only=True)
+class ApplicationSelectedMail(EmailTemplate):
+    """Notify a candidate that their application has been selected.
+
+    Args:
+        - sender / recipient / sender_mail: standard fields.
+        - offer_title: title of the offer.
+        - offer_url: absolute URL to the offer detail page.
+        - emitter_name: full name of the offer owner (who selected).
+    """
+
+    subject: str = (
+        "[Aipress24] Votre candidature a été sélectionnée"
+    )
+    template_html: str = "application_selected.j2"
+    offer_title: str
+    offer_url: str
+    emitter_name: str
+
+
+@dataclass(kw_only=True)
+class ApplicationRejectedMail(EmailTemplate):
+    """Notify a candidate that their application has been declined.
+
+    Args:
+        - sender / recipient / sender_mail: standard fields.
+        - offer_title: title of the offer.
+        - offer_url: absolute URL to the offer detail page.
+    """
+
+    subject: str = (
+        "[Aipress24] Votre candidature n'a pas été retenue"
+    )
+    template_html: str = "application_rejected.j2"
+    offer_title: str
+    offer_url: str
+
+
+@dataclass(kw_only=True)
 class AvisEnqueteNotificationMail(EmailTemplate):
     """
     Create a mail for notification of AvisEnquete

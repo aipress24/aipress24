@@ -187,6 +187,35 @@ Same day as the v0, the next two sub-releases ship.
   total: 31 tests across missions + projects + jobs + 1 skipped
   cascade assertion.
 
+## Marketplace v0.4 + v0.5 + v0.6 — Moderation, auto-close, outcome notifications
+
+Three shorter-but-structural sub-releases complete the marketplace
+loop (only matchmaking v0.3 and monetization V2 remain open).
+
+- **v0.6 — applicant notifications**: new mailers
+  `ApplicationSelectedMail` and `ApplicationRejectedMail` + HTML
+  templates. The select/reject routes e-mail the candidate on
+  status transition; clicking the same button twice does not
+  re-send. The notifications service is renamed
+  `offer_notifications.py` and gains per-kind URL helpers
+  (missions / projects / jobs).
+- **v0.5 — auto-close CLI**: `flask biz close-expired` (wire it to
+  a nightly cron) flips OPEN offers to CLOSED when their deadline
+  (missions/projects) or starting_date (jobs) is past. Lives in
+  `biz/services/auto_close.py`, returns per-kind counts for log
+  output. Zero external dependency.
+- **v0.4 — optional moderation**: new Dynaconf flag
+  `MARKETPLACE_MODERATION_REQUIRED` (off by default, no behaviour
+  change). When ON, new offers default to `PENDING` (hidden from
+  listings, visible to owner only). Admin dashboard at
+  `/admin/biz/moderation` lists the queue and offers
+  Approve/Reject buttons. Logic sits in `default_new_offer_status()`
+  and `get_offer_or_404()` helpers so the three offer kinds pick it
+  up for free.
+- Tests: 13 new e2e (3 outcome + 2 auto-close + 8 moderation).
+  Marketplace suite now 44 tests + 1 skipped cascade. No regression
+  on the 774 e2e and 463 integration tests.
+
 ## Infrastructure
 
 - Nix flake support removed.

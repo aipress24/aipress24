@@ -20,7 +20,6 @@ from wtforms import (
 
 from app.flask.extensions import db
 from app.models.auth import User
-from app.models.lifecycle import PublicationStatus
 from app.modules.biz import blueprint
 from app.modules.biz.models import (
     ApplicationStatus,
@@ -29,6 +28,7 @@ from app.modules.biz.models import (
 )
 from app.modules.biz.views._offers_common import (
     date_to_datetime,
+    default_new_offer_status,
     euros_to_cents,
     get_offer_or_404,
     get_user_application,
@@ -78,14 +78,19 @@ def missions_new():
             budget_max=euros_to_cents(form.budget_max.data),
             deadline=date_to_datetime(form.deadline.data),
             contact_email=form.contact_email.data or "",
-            status=PublicationStatus.PUBLIC,
+            status=default_new_offer_status(),
             mission_status=MissionStatus.OPEN,
             owner_id=user.id,
             emitter_org_id=getattr(user, "organisation_id", None),
         )
         db.session.add(mission)
         db.session.commit()
-        flash("Mission publiée.", "success")
+        msg = (
+            "Mission envoyée pour modération."
+            if mission.status.value == "pending"
+            else "Mission publiée."
+        )
+        flash(msg, "success")
         return redirect(url_for(".missions_detail", id=mission.id))
 
     return render_template(
