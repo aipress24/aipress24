@@ -108,6 +108,11 @@ def squared(src: bytes) -> bytes:
     with transparent borders.
     """
     try:
+        # Validate integrity before processing. Weasyprint (imported elsewhere
+        # in the app) sets PIL.ImageFile.LOAD_TRUNCATED_IMAGES globally, which
+        # makes Image.open/convert silently accept truncated PNGs; verify()
+        # still raises on them.
+        Image.open(io.BytesIO(src)).verify()
         src_bytes = io.BytesIO(src)
         src_bytes.seek(0)
         img = Image.open(src_bytes).convert("RGBA")

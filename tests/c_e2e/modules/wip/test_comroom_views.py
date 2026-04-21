@@ -102,44 +102,14 @@ class TestComroomAccess:
 
         assert response.status_code == 403
 
-    def test_comroom_loads_for_xp_pr_profile(
+    def test_comroom_loads_for_transformer(
         self, app: Flask, db_session: Session, test_org: Organisation
     ):
-        """Expert with a PR role (profile XP_PR) may access Com'room — bug #0098/#0100."""
-        user = _make_profile_user(
-            db_session, test_org, "xp-pr@example.com", "XP_PR", RoleEnum.EXPERT
-        )
-        client = make_authenticated_client(app, user)
-
-        response = client.get("/wip/comroom")
-
-        assert response.status_code == 200
-
-    def test_comroom_loads_for_transformer_pr_profile(
-        self, app: Flask, db_session: Session, test_org: Organisation
-    ):
-        """Transformer Consultant with PR role (TR_CS_ORG_PR) may access Com'room."""
+        """Any Transformer may access Com'room — bug #0100."""
         user = _make_profile_user(
             db_session,
             test_org,
-            "tr-pr@example.com",
-            "TR_CS_ORG_PR",
-            RoleEnum.TRANSFORMER,
-        )
-        client = make_authenticated_client(app, user)
-
-        response = client.get("/wip/comroom")
-
-        assert response.status_code == 200
-
-    def test_comroom_forbidden_for_transformer_non_pr_profile(
-        self, app: Flask, db_session: Session, test_org: Organisation
-    ):
-        """A Transformer profile without PR responsibility still can't access Com'room."""
-        user = _make_profile_user(
-            db_session,
-            test_org,
-            "tr-no-pr@example.com",
+            "tr@example.com",
             "TR_CS_ORG",
             RoleEnum.TRANSFORMER,
         )
@@ -147,7 +117,33 @@ class TestComroomAccess:
 
         response = client.get("/wip/comroom")
 
-        assert response.status_code == 403
+        assert response.status_code == 200
+
+    def test_comroom_loads_for_expert(
+        self, app: Flask, db_session: Session, test_org: Organisation
+    ):
+        """Any Expert may access Com'room."""
+        user = _make_profile_user(
+            db_session, test_org, "xp@example.com", "XP_ANY", RoleEnum.EXPERT
+        )
+        client = make_authenticated_client(app, user)
+
+        response = client.get("/wip/comroom")
+
+        assert response.status_code == 200
+
+    def test_comroom_loads_for_academic(
+        self, app: Flask, db_session: Session, test_org: Organisation
+    ):
+        """Any Academic may access Com'room."""
+        user = _make_profile_user(
+            db_session, test_org, "ac@example.com", "AC_DIR", RoleEnum.ACADEMIC
+        )
+        client = make_authenticated_client(app, user)
+
+        response = client.get("/wip/comroom")
+
+        assert response.status_code == 200
 
 
 class TestComroomContent:
