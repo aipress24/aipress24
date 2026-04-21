@@ -4,7 +4,10 @@
 
 from __future__ import annotations
 
-from typing import NamedTuple
+from collections.abc import Callable
+from typing import Any, NamedTuple
+
+from app.modules.wip.pr_access import user_can_access_comroom
 
 
 class MenuEntry(NamedTuple):
@@ -15,6 +18,9 @@ class MenuEntry(NamedTuple):
     icon: str
     endpoint: str
     allowed_roles: list[str] | None = None
+    # Optional callable evaluated against the current user; when set it takes
+    # precedence over `allowed_roles`.
+    allowed_check: Callable[[Any], bool] | None = None
 
 
 # Menu entries for the WIP module
@@ -39,7 +45,7 @@ MENU = [
         label="Com'room",
         icon="megaphone",
         endpoint="wip.comroom",
-        allowed_roles=["PRESS_RELATIONS"],
+        allowed_check=user_can_access_comroom,
     ),
     MenuEntry(
         name="eventroom",

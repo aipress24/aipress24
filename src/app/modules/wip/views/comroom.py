@@ -17,8 +17,8 @@ from app.flask.lib.nav import nav
 from app.flask.routing import url_for
 from app.models.mixins import Owned
 from app.modules.wip import blueprint
+from app.modules.wip.pr_access import user_can_access_comroom
 from app.services.auth import AuthService
-from app.services.roles import has_role
 
 from ._common import get_secondary_menu
 
@@ -30,9 +30,8 @@ def comroom():
     # Lazy import to avoid circular import
     from app.modules.wip.models import Communique
 
-    # Check ACL
     user = g.user
-    if not has_role(user, [RoleEnum.PRESS_RELATIONS]):
+    if not user_can_access_comroom(user):
         msg = "Access denied to comroom"
         raise Forbidden(msg)
 

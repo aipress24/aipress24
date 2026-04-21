@@ -76,9 +76,7 @@ def _user_has_media_bw() -> bool:
         return False
     bw = current_business_wall(user)
     return (
-        bw is not None
-        and bw.bw_type == "media"
-        and bw.status == BWStatus.ACTIVE.value
+        bw is not None and bw.bw_type == "media" and bw.status == BWStatus.ACTIVE.value
     )
 
 
