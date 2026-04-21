@@ -2,80 +2,85 @@
 
 {% block main %}
 
-<div class="py-6 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-    <h2 class="text-xl font-medium mb-2">Données techniques</h2>
-    <div>
-        <dt class="text-sm font-medium text-gray-500">Identifiant technique (User.id)</dt>
-        <dd class="mb-2 text-sm text-gray-900">
-            {{ user.id }}
-        </dd>
-    </div>
-    <div>
-        <dt class="text-sm font-medium text-gray-500">Date de soumission du formulaire d'inscription</dt>
-        <dd class="mb-2 text-sm text-gray-900">
-            {{ user.submited_at| localdt }}
-        </dd>
-    </div>
-    <div>
-        <dt class="text-sm font-medium text-gray-500">Date de validation</dt>
-        <dd class="mb-2 text-sm text-gray-900">
-            {% if user.validated_at %}
-              {{ user.validated_at| localdt }}
-            {% else %}
-              Jamais validé
-            {% endif %}
-        </dd>
-    </div>
-    <div>
-        <dt class="text-sm font-medium text-gray-500">Commentaire de validation</dt>
-        <dd class="mb-2 text-sm text-gray-900">
-            {{ user.validation_status }}
-        </dd>
-    </div>
-    <div>
-        <dt class="text-sm font-medium text-gray-500">Date de dernière connexion</dt>
-        <dd class="mb-2 text-sm text-gray-900">
-            {% if user.last_login_at %}
-                {{ user.last_login_at| localdt }}
-            {% else %}
-                Jamais connecté
-            {% endif %}
-        </dd>
-    </div>
-    <div>
-        <dt class="text-sm font-medium text-gray-500">Organisation</dt>
-        <dd class="mb-2 text-sm text-gray-900">
-            {% if org %}
-                {{ org.name }}
-                {% if active_bw %}
-                    ({{ LABELS_BW_TYPE_V2.get(active_bw.bw_type, active_bw.bw_type) }})
+    <div class="py-6 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-xl font-medium mb-2">Données techniques</h2>
+        <div>
+            <dt class="text-sm font-medium text-gray-500">Identifiant technique (User.id)</dt>
+            <dd class="mb-2 text-sm text-gray-900">
+                {{ user.id }}
+            </dd>
+        </div>
+        <div>
+            <dt class="text-sm font-medium text-gray-500">Date de soumission du formulaire d'inscription</dt>
+            <dd class="mb-2 text-sm text-gray-900">
+                {{ user.submited_at| localdt }}
+            </dd>
+        </div>
+        <div>
+            <dt class="text-sm font-medium text-gray-500">Date de validation</dt>
+            <dd class="mb-2 text-sm text-gray-900">
+                {% if user.validated_at %}
+                    {{ user.validated_at| localdt }}
                 {% else %}
-                    (sans Business Wall)
+                    Jamais validé
                 {% endif %}
-            {% else %}
-                (sans organisation)
-            {% endif %}
-        </dd>
-    </div>
-    <div class="mt-12 flex items-center justify-end gap-x-6">
-        <button
-            type="button"
-            id="deactivate"
-            data-modal-target="confirm_deactivate_user"
-            data-modal-toggle="confirm_deactivate_user"
-            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-400"
-        >Désactiver l'utilisateur</button>
-        <button
-            type="button"
-            {% if not org %}
-            disabled
-            {% endif %}
-            id="remove_org"
-            data-modal-target="confirm_remove_org"
-            data-modal-toggle="confirm_remove_org"
+            </dd>
+        </div>
+        <div>
+            <dt class="text-sm font-medium text-gray-500">Commentaire de validation</dt>
+            <dd class="mb-2 text-sm text-gray-900">
+                {{ user.validation_status }}
+            </dd>
+        </div>
+        <div>
+            <dt class="text-sm font-medium text-gray-500">Date de dernière connexion</dt>
+            <dd class="mb-2 text-sm text-gray-900">
+                {% if user.last_login_at %}
+                    {{ user.last_login_at| localdt }}
+                {% else %}
+                    Jamais connecté
+                {% endif %}
+            </dd>
+        </div>
+        <div>
+            <dt class="text-sm font-medium text-gray-500">Organisation</dt>
+            <dd class="mb-2 text-sm text-gray-900">
+                {% if org %}
+                    {{ org.name }}
+                {% else %}
+                    (sans organisation)
+                {% endif %}
+            </dd>
+        </div>
+        <div>
+            <dt class="text-sm font-medium text-gray-500">Business Wall</dt>
+            <dd class="mb-2 text-sm text-gray-900">
+                {% if active_bw %}
+                    {{ active_bw.name_safe }} ({{ LABELS_BW_TYPE_V2.get(active_bw.bw_type, active_bw.bw_type) }})
+                {% else %}
+                    pas de BusinessWall
+                {% endif %}
+            </dd>
+        </div>
+        <div class="mt-12 flex items-center justify-end gap-x-6">
+            <button
+                type="button"
+                id="deactivate"
+                data-modal-target="confirm_deactivate_user"
+                data-modal-toggle="confirm_deactivate_user"
+                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-400"
+            >Désactiver l'utilisateur</button>
+            <button
+                type="button"
+                {% if not org %}
+                    disabled
+                {% endif %}
+                id="remove_org"
+                data-modal-target="confirm_remove_org"
+                data-modal-toggle="confirm_remove_org"
 
-            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-400 disabled:opacity-50"
-        >Exclure de l'organisation</button>
+                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-400 disabled:opacity-50"
+            >Exclure de l'organisation</button>
         <!-- <button
             type="button"
             class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-500 hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-400"
@@ -83,132 +88,132 @@
             hx-post="/admin/show_user/{{user.id}}"
             hx-vals='{"action": "set_org"}'
         >Affecter une organisation</button> -->
+        </div>
+
+        {% if not user.photo_image %}
+            <div class="mt-8">
+                <dt class="text-sm font-medium text-gray-500">Portrait</dt>
+                <dd class="mb-2 text-sm text-gray-900">Portrait : non disponible</dd>
+            </div>
+        {% endif %}
+
     </div>
 
-    {% if not user.photo_image %}
-    <div class="mt-8">
-        <dt class="text-sm font-medium text-gray-500">Portrait</dt>
-        <dd class="mb-2 text-sm text-gray-900">Portrait : non disponible</dd>
+    <div id="confirm_deactivate_user"
+         data-modal-backdrop="static"
+         tabindex="-1"
+         aria-hidden="true"
+         class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+        <div class="relative p-4 w-full max-w-md max-h-full">
+            <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+                <div class="p-4 md:p-5 text-center">
+                    <svg class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+                    </svg>
+                    <h3 class="mb-1 text-lg font-normal text-gray-500 dark:text-gray-400"
+                    >Confirmer la désactivation de l'utilisateur&nbsp;?
+                    </h3>
+                    <p class="pl-14 pt-1 pb-1 mb-4 text-left ">
+                        nom: {{user.name}}<br/>
+                        email: {{user.email}}<br/>
+                        {% if org %}
+                            organisation: {{org.name}} ({{org.bw_active or 'AUTO'}})
+                        {% endif %}
+                    </p>
+                    <button
+                        data-modal-hide="confirm_deactivate_user"
+                        type="button"
+                        hx-post="/admin/show_user/{{user.id}}"
+                        hx-vals='{"action": "deactivate"}'
+                        class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center"
+                    >Oui, désactiver</button>
+                    <button
+                        data-modal-hide="confirm_deactivate_user"
+                        type="button"
+                        class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
+                    >Annuler</button>
+                </div>
+            </div>
+        </div>
     </div>
-    {% endif %}
 
-</div>
-
-<div id="confirm_deactivate_user"
-  data-modal-backdrop="static"
-  tabindex="-1"
-  aria-hidden="true"
-  class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
-  <div class="relative p-4 w-full max-w-md max-h-full">
-    <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
-      <div class="p-4 md:p-5 text-center">
-        <svg class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
-        </svg>
-        <h3 class="mb-1 text-lg font-normal text-gray-500 dark:text-gray-400"
-        >Confirmer la désactivation de l'utilisateur&nbsp;?
-        </h3>
-        <p class="pl-14 pt-1 pb-1 mb-4 text-left ">
-            nom: {{user.name}}<br/>
-            email: {{user.email}}<br/>
-            {% if org %}
-              organisation: {{org.name}} ({{org.bw_active or 'AUTO'}})
-            {% endif %}
-        </p>
-        <button
-          data-modal-hide="confirm_deactivate_user"
-          type="button"
-          hx-post="/admin/show_user/{{user.id}}"
-          hx-vals='{"action": "deactivate"}'
-          class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center"
-        >Oui, désactiver</button>
-        <button
-          data-modal-hide="confirm_deactivate_user"
-          type="button"
-          class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
-        >Annuler</button>
-      </div>
+    <div id="confirm_remove_org"
+         data-modal-backdrop="static"
+         tabindex="-1"
+         aria-hidden="true"
+         class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+        <div class="relative p-4 w-full max-w-md max-h-full">
+            <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+                <div class="p-4 md:p-5 text-center">
+                    <svg class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+                    </svg>
+                    <h3 class="mb-1 text-lg font-normal text-gray-500 dark:text-gray-400"
+                    >Confirmer l'exclusion de l'organisation&nbsp;?
+                    </h3>
+                    <p class="pl-14 pt-1 pb-1 mb-4 text-left ">
+                        nom: {{user.name}}<br/>
+                        email: {{user.email}}<br/>
+                        {% if org %}
+                            organisation: {{org.name}} ({{org.bw_active or 'AUTO'}})
+                        {% endif %}
+                    </p>
+                    <button
+                        data-modal-hide="confirm_remove_org"
+                        type="button"
+                        hx-post="/admin/show_user/{{user.id}}"
+                        hx-vals='{"action": "remove_org"}'
+                        class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center"
+                    >Oui, exclure</button>
+                    <button
+                        data-modal-hide="confirm_remove_org"
+                        type="button"
+                        class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
+                    >Annuler</button>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
-</div>
 
-<div id="confirm_remove_org"
-  data-modal-backdrop="static"
-  tabindex="-1"
-  aria-hidden="true"
-  class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
-  <div class="relative p-4 w-full max-w-md max-h-full">
-    <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
-      <div class="p-4 md:p-5 text-center">
-        <svg class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
-        </svg>
-        <h3 class="mb-1 text-lg font-normal text-gray-500 dark:text-gray-400"
-        >Confirmer l'exclusion de l'organisation&nbsp;?
-        </h3>
-        <p class="pl-14 pt-1 pb-1 mb-4 text-left ">
-            nom: {{user.name}}<br/>
-            email: {{user.email}}<br/>
-            {% if org %}
-              organisation: {{org.name}} ({{org.bw_active or 'AUTO'}})
-            {% endif %}
-        </p>
-        <button
-          data-modal-hide="confirm_remove_org"
-          type="button"
-          hx-post="/admin/show_user/{{user.id}}"
-          hx-vals='{"action": "remove_org"}'
-          class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center"
-        >Oui, exclure</button>
-        <button
-          data-modal-hide="confirm_remove_org"
-          type="button"
-          class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
-        >Annuler</button>
-      </div>
+    <hr>
+
+    <div class="py-6 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div>
+            <h2 class="text-xl font-medium mb-2">Profil complet</h2>
+
+            <h2 class="text-xl font-medium mb-2">{{profile_description}}</h2>
+
+            <div class="space-y-3">
+                {% for group in kycgroups %}
+                    <h3 class="font-medium pt-2 pb-1">{{ group.label }}</h3>
+
+                    <dl class="grid grid-cols-1 gap-y-6">
+                        {% for idx in group.ids %}
+                            {% set value=results[idx] %}
+                            {% if value %}
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500">
+                                        {{ labels[idx] }}
+                                    </dt>
+
+                                    <dd>
+                                        {% if idx in urls %}
+                                            <img class="mt-1 max-w-32 max-h-32"
+                                                 src="{{ urls[idx] }}" alt=""/>
+                                        {% else %}
+                                            <div class="mt-1 text-sm text-gray-900">
+                                                {{ results[idx] }}
+                                            </div>
+                                        {% endif %}
+                                    </dd>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </dl>
+                {% endfor %}
+                <hr>
+            </div>
+        </div>
     </div>
-  </div>
-</div>
-
-<hr>
-
-<div class="py-6 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-  <div>
-    <h2 class="text-xl font-medium mb-2">Profil complet</h2>
-
-    <h2 class="text-xl font-medium mb-2">{{profile_description}}</h2>
-
-    <div class="space-y-3">
-      {% for group in kycgroups %}
-        <h3 class="font-medium pt-2 pb-1">{{ group.label }}</h3>
-
-        <dl class="grid grid-cols-1 gap-y-6">
-          {% for idx in group.ids %}
-            {% set value=results[idx] %}
-            {% if value %}
-              <div>
-                <dt class="text-sm font-medium text-gray-500">
-                  {{ labels[idx] }}
-                </dt>
-
-                <dd>
-                  {% if idx in urls %}
-                    <img class="mt-1 max-w-32 max-h-32"
-                         src="{{ urls[idx] }}" alt=""/>
-                  {% else %}
-                    <div class="mt-1 text-sm text-gray-900">
-                      {{ results[idx] }}
-                    </div>
-                  {% endif %}
-                </dd>
-              </div>
-            {% endif %}
-          {% endfor %}
-        </dl>
-      {% endfor %}
-      <hr>
-    </div>
-  </div>
-</div>
 
 {% endblock %}
