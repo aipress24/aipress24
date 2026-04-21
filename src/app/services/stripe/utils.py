@@ -101,7 +101,5 @@ def load_pricing_table_id(bw_type_name: str) -> str:
         pricing = config.get(env_name)
         if pricing:
             return pricing
-    print(
-        f"Warning: no Stripe pricing table found for bw_type_name {bw_type_name!r}"
-    )
+    print(f"Warning: no Stripe pricing table found for bw_type_name {bw_type_name!r}")
     return ""

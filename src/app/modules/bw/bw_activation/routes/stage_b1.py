@@ -368,8 +368,7 @@ def cancel_subscription():
     """
     if current_app.config.get("STRIPE_LIVE_ENABLED"):
         flash(
-            "Merci de résilier depuis « Gérer mon abonnement » "
-            "(portail Stripe).",
+            "Merci de résilier depuis « Gérer mon abonnement » (portail Stripe).",
             "error",
         )
         response = make_response()

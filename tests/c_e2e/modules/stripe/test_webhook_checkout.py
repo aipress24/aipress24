@@ -87,9 +87,7 @@ class TestCheckoutSessionCompleted:
         bw = _make_bw_draft(session)
         session.commit()
 
-        event = _fake_checkout_event(
-            session_id="cs_test_abc", bw_id=str(bw.id)
-        )
+        event = _fake_checkout_event(session_id="cs_test_abc", bw_id=str(bw.id))
         on_checkout_session_completed(event)
 
         session.refresh(bw)
@@ -109,16 +107,12 @@ class TestCheckoutSessionCompleted:
         session = fresh_db.session
         bw = _make_bw_draft(session)
         session.commit()
-        event = _fake_checkout_event(
-            session_id="cs_test_dup", bw_id=str(bw.id)
-        )
+        event = _fake_checkout_event(session_id="cs_test_dup", bw_id=str(bw.id))
         on_checkout_session_completed(event)
         on_checkout_session_completed(event)  # second call = no-op
 
         subs = list(
-            session.query(Subscription).filter(
-                Subscription.business_wall_id == bw.id
-            )
+            session.query(Subscription).filter(Subscription.business_wall_id == bw.id)
         )
         assert len(subs) == 1
 
@@ -140,9 +134,7 @@ class TestCheckoutSessionCompleted:
         session = fresh_db.session
         bw = _make_bw_draft(session)
         session.commit()
-        event = _fake_checkout_event(
-            session_id="cs_test_noref", bw_id=""
-        )
+        event = _fake_checkout_event(session_id="cs_test_noref", bw_id="")
         event.data.object["client_reference_id"] = None
         on_checkout_session_completed(event)
 
@@ -152,16 +144,12 @@ class TestCheckoutSessionCompleted:
     def test_ignores_unknown_bw(self, fresh_db):
         session = fresh_db.session
         bogus_id = str(uuid.uuid4())
-        event = _fake_checkout_event(
-            session_id="cs_test_unknown", bw_id=bogus_id
-        )
+        event = _fake_checkout_event(session_id="cs_test_unknown", bw_id=bogus_id)
         on_checkout_session_completed(event)
 
         assert (
             session.query(Subscription)
-            .filter(
-                Subscription.stripe_checkout_session_id == "cs_test_unknown"
-            )
+            .filter(Subscription.stripe_checkout_session_id == "cs_test_unknown")
             .count()
             == 0
         )
@@ -172,9 +160,7 @@ class TestCheckoutSessionCompleted:
         session = fresh_db.session
         bw = _make_bw_draft(session)
         session.commit()
-        event = _fake_checkout_event(
-            session_id="cs_test_meta", bw_id=""
-        )
+        event = _fake_checkout_event(session_id="cs_test_meta", bw_id="")
         event.data.object["client_reference_id"] = None
         event.data.object["metadata"] = {"bw_id": str(bw.id)}
         on_checkout_session_completed(event)

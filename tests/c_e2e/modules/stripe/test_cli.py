@@ -108,12 +108,15 @@ class TestReconcileCLI:
         session.commit()
 
         runner = CliRunner()
-        with patch(
-            "app.services.stripe.reconciliation.load_stripe_api_key",
-            return_value=True,
-        ), patch(
-            "stripe.Subscription.retrieve",
-            return_value=SimpleNamespace(status="canceled"),
+        with (
+            patch(
+                "app.services.stripe.reconciliation.load_stripe_api_key",
+                return_value=True,
+            ),
+            patch(
+                "stripe.Subscription.retrieve",
+                return_value=SimpleNamespace(status="canceled"),
+            ),
         ):
             result = runner.invoke(reconcile, [])
 
