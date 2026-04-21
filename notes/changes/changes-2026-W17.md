@@ -165,6 +165,28 @@ no longer empty.
   candidate notification) remains in the spec as deferred phases; see
   `local-notes/plans/marketplace-mvp.md` § 8.
 
+## Marketplace v0.1 + v0.2 — Projects and Jobs shipped
+
+Same day as the v0, the next two sub-releases ship.
+
+- `MissionApplication` refactored into generic `OfferApplication`
+  with FK to `mkp_content.id` (polymorphic). One candidature table
+  serves all three offer kinds; migration round-trips cleanly.
+- Shared helpers in `biz/views/_offers_common.py` drive the common
+  lifecycle (apply, list, select/reject, mark filled, e-mail notif);
+  per-type view files are thin coquilles.
+- `ProjectOffer` (`mkp_project_offer`) — editorial project type with
+  `team_size`, `duration_months`, `project_type`. Home tab
+  `projects` wired with dedicated card partial and deposit button.
+- `JobOffer` (`mkp_job_offer`) — salaried/fixed-term positions with
+  `contract_type` (CDI/CDD/STAGE/APPRENTISSAGE/FREELANCE),
+  `full_time`, `remote_ok`, `salary_min/max`, `starting_date`.
+  Candidacy form accepts an optional `cv_url`; native S3 upload
+  deferred to v0.2.x.
+- 9 additional e2e tests (5 Projects + 4 Jobs). Marketplace suite
+  total: 31 tests across missions + projects + jobs + 1 skipped
+  cascade assertion.
+
 ## Infrastructure
 
 - Nix flake support removed.

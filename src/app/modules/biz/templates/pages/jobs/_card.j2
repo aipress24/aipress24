@@ -1,0 +1,26 @@
+{# Partial: card for a JobOffer in listings. `obj` is a JobOffer. #}
+<a href="{{ url_for('biz.jobs_detail', id=obj.id) }}" class="block p-4">
+  <div class="flex items-start justify-between mb-2">
+    <span class="text-xs uppercase tracking-wide text-gray-500">Emploi</span>
+    {% if obj.mission_status.value == "FILLED" %}
+      <span class="bg-gray-200 text-gray-700 text-xs px-2 py-0.5 rounded">Pourvu</span>
+    {% elif obj.mission_status.value == "CLOSED" %}
+      <span class="bg-red-100 text-red-700 text-xs px-2 py-0.5 rounded">Fermé</span>
+    {% else %}
+      <span class="bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded">Ouvert</span>
+    {% endif %}
+  </div>
+  <h3 class="text-lg font-semibold text-gray-900 mb-1">{{ obj.title }}</h3>
+  <div class="text-sm text-gray-600 flex flex-wrap gap-x-4 gap-y-1 mb-3">
+    <span class="font-medium">{{ obj.contract_type.value }}{% if not obj.full_time %} (temps partiel){% endif %}</span>
+    {% if obj.sector %}<span>{{ obj.sector }}</span>{% endif %}
+    {% if obj.location %}<span>📍 {{ obj.location }}{% if obj.remote_ok %} / remote{% endif %}</span>{% endif %}
+    {% if obj.salary_min and obj.salary_max %}
+      <span>{{ (obj.salary_min / 100)|int }}&nbsp;€ — {{ (obj.salary_max / 100)|int }}&nbsp;€ brut/an</span>
+    {% elif obj.salary_min %}
+      <span>à partir de {{ (obj.salary_min / 100)|int }}&nbsp;€ brut/an</span>
+    {% endif %}
+    {% if obj.starting_date %}<span>🗓 {{ obj.starting_date.strftime("%d/%m/%Y") }}</span>{% endif %}
+  </div>
+  <p class="text-sm text-gray-700 line-clamp-3">{{ obj.description|striptags|truncate(180) }}</p>
+</a>

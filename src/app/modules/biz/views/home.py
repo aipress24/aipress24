@@ -17,8 +17,10 @@ from app.models.lifecycle import PublicationStatus
 from app.modules.biz import blueprint
 from app.modules.biz.models import (
     EditorialProduct,
+    JobOffer,
     MarketplaceContent,
     MissionOffer,
+    ProjectOffer,
 )
 from app.modules.biz.views._common import FILTER_SPECS, TABS
 
@@ -54,6 +56,22 @@ def _get_objs() -> list[MarketplaceContent]:
                 .limit(30)
             )
             return get_multi(MissionOffer, stmt)
+        case "projects":
+            stmt = (
+                sa.select(ProjectOffer)
+                .where(ProjectOffer.status == PublicationStatus.PUBLIC)
+                .order_by(ProjectOffer.created_at.desc())
+                .limit(30)
+            )
+            return get_multi(ProjectOffer, stmt)
+        case "jobs":
+            stmt = (
+                sa.select(JobOffer)
+                .where(JobOffer.status == PublicationStatus.PUBLIC)
+                .order_by(JobOffer.created_at.desc())
+                .limit(30)
+            )
+            return get_multi(JobOffer, stmt)
         case _:
             return []
 
