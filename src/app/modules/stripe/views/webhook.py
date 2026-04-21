@@ -319,8 +319,10 @@ def on_checkout_session_completed(event) -> None:
     # `data_obj` is a stripe.api_resources.checkout.Session; support both
     # dict-like access (as per the mapping table in this file) and
     # attribute access (as delivered by Stripe CLI simulations).
-    get = data_obj.get if hasattr(data_obj, "get") else lambda k, d=None: getattr(
-        data_obj, k, d
+    get = (
+        data_obj.get
+        if hasattr(data_obj, "get")
+        else lambda k, d=None: getattr(data_obj, k, d)
     )
 
     mode = get("mode")
@@ -423,8 +425,10 @@ def _record_article_purchase_from_checkout(data_obj) -> None:
 
     from app.modules.wire.models import ArticlePurchase, PurchaseStatus
 
-    get = data_obj.get if hasattr(data_obj, "get") else lambda k, d=None: getattr(
-        data_obj, k, d
+    get = (
+        data_obj.get
+        if hasattr(data_obj, "get")
+        else lambda k, d=None: getattr(data_obj, k, d)
     )
     session_id = get("id")
     metadata = get("metadata") or {}
@@ -444,12 +448,12 @@ def _record_article_purchase_from_checkout(data_obj) -> None:
 
     try:
         purchase = db.session.execute(
-            sa_select(ArticlePurchase).where(
-                ArticlePurchase.id == int(purchase_id)
-            )
+            sa_select(ArticlePurchase).where(ArticlePurchase.id == int(purchase_id))
         ).scalar_one_or_none()
     except (ValueError, TypeError):
-        warning(f"invalid purchase_id metadata on session {session_id}: {purchase_id!r}")
+        warning(
+            f"invalid purchase_id metadata on session {session_id}: {purchase_id!r}"
+        )
         return
 
     if purchase is None:

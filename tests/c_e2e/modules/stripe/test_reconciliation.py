@@ -144,9 +144,7 @@ class TestReconcileSubscriptions:
             ),
             patch(
                 "stripe.Subscription.retrieve",
-                side_effect=stripe.InvalidRequestError(
-                    "No such subscription", "id"
-                ),
+                side_effect=stripe.InvalidRequestError("No such subscription", "id"),
             ),
         ):
             drifts = reconcile_subscriptions(session)
@@ -157,9 +155,7 @@ class TestReconcileSubscriptions:
 
     def test_subscriptions_without_stripe_id_are_skipped(self, fresh_db):
         session = fresh_db.session
-        _mk_subscription(
-            session, status=SubscriptionStatus.PENDING, stripe_id=None
-        )
+        _mk_subscription(session, status=SubscriptionStatus.PENDING, stripe_id=None)
 
         with (
             patch(
@@ -178,10 +174,13 @@ class TestReconcileSubscriptions:
         session = fresh_db.session
         _mk_subscription(session, status=SubscriptionStatus.ACTIVE)
 
-        with patch(
-            "app.services.stripe.reconciliation.load_stripe_api_key",
-            return_value=False,
-        ), patch("stripe.Subscription.retrieve") as m:
+        with (
+            patch(
+                "app.services.stripe.reconciliation.load_stripe_api_key",
+                return_value=False,
+            ),
+            patch("stripe.Subscription.retrieve") as m,
+        ):
             drifts = reconcile_subscriptions(session)
 
         assert drifts == []

@@ -77,9 +77,7 @@ class TestArticlePurchaseCheckout:
         session = fresh_db.session
         _, _, purchase = _mk_article_purchase(session)
 
-        event = _fake_payment_event(
-            session_id="cs_paym_1", purchase_id=purchase.id
-        )
+        event = _fake_payment_event(session_id="cs_paym_1", purchase_id=purchase.id)
         on_checkout_session_completed(event)
 
         session.refresh(purchase)
@@ -93,18 +91,14 @@ class TestArticlePurchaseCheckout:
     def test_is_idempotent(self, fresh_db):
         session = fresh_db.session
         _, _, purchase = _mk_article_purchase(session)
-        event = _fake_payment_event(
-            session_id="cs_paym_dup", purchase_id=purchase.id
-        )
+        event = _fake_payment_event(session_id="cs_paym_dup", purchase_id=purchase.id)
         on_checkout_session_completed(event)
         on_checkout_session_completed(event)  # no-op
 
         # Only one purchase per session_id (unique constraint)
         count = (
             session.query(ArticlePurchase)
-            .filter(
-                ArticlePurchase.stripe_checkout_session_id == "cs_paym_dup"
-            )
+            .filter(ArticlePurchase.stripe_checkout_session_id == "cs_paym_dup")
             .count()
         )
         assert count == 1
@@ -125,9 +119,7 @@ class TestArticlePurchaseCheckout:
         session = fresh_db.session
         _, _, purchase = _mk_article_purchase(session)
 
-        event = _fake_payment_event(
-            session_id="cs_paym_noref", purchase_id=purchase.id
-        )
+        event = _fake_payment_event(session_id="cs_paym_noref", purchase_id=purchase.id)
         event.data.object["metadata"] = {}
         on_checkout_session_completed(event)
 
