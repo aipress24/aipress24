@@ -9,7 +9,7 @@ from typing import Any, ClassVar, cast
 
 from attr import define
 from flask_super.registry import register
-from sqlalchemy import func, select
+from sqlalchemy import func, or_, select
 from sqlalchemy.sql import Select
 
 from app.flask.extensions import db
@@ -113,7 +113,12 @@ class OrganisationsList(BaseList):
             )
 
         if search:
-            stmt = stmt.where(Organisation.name.ilike(f"%{search}%"))
+            stmt = stmt.where(
+                or_(
+                    Organisation.name.ilike(f"%{search}%"),
+                    BusinessWall.name.ilike(f"%{search}%"),
+                )
+            )
 
         return stmt
 
