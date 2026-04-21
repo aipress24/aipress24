@@ -20,6 +20,11 @@ from app.modules.wip.models import (
     RDVStatus,
     RDVType,
 )
+from app.modules.wip.services.newsroom.avis_matching import (
+    match_experts_to_avis,
+    partition_by_cap,
+    record_notifications,
+)
 from app.services.emails import (
     AvisEnqueteNotificationMail,
     ContactAvisEnqueteRDVAcceptedMail,
@@ -443,6 +448,30 @@ class AvisEnqueteService:
         contacts = self._contact_repo.list(avis_enquete_id=avis.id)
         known_expert_ids = {contact.expert_id for contact in contacts}
         return [e for e in experts if e.id not in known_expert_ids]
+
+    def prefilter_candidates(
+        self,
+        avis: AvisEnquete,
+        experts: list[User],
+    ) -> list[User]:
+        """Apply the MVP topical/activity pre-filter (see avis_matching)."""
+        return match_experts_to_avis(experts, avis)
+
+    def partition_by_notification_cap(
+        self,
+        experts: list[User],
+    ) -> tuple[list[User], list[User]]:
+        """Split `experts` into (to_notify, skipped) per the anti-spam cap."""
+        return partition_by_cap(self._db_session, experts)
+
+    def record_notifications(
+        self,
+        experts: list[User],
+        avis: AvisEnquete | None,
+    ) -> None:
+        """Log sent notifications so the anti-spam counter stays accurate."""
+        record_notifications(self._db_session, experts, avis)
+        self._db_session.flush()
 
     def send_avis_enquete_emails(
         self,

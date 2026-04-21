@@ -69,14 +69,20 @@ class ExpertFilterService:
         self._state: FilterState = {}
         self._all_experts: list[User] | None = None
         self._selectors: list[BaseSelector] | None = None
+        self._avis_enquete = None
 
     # ----------------------------------------------------------------
     # Public API
     # ----------------------------------------------------------------
 
-    def initialize(self, avis_enquete_id: str) -> None:
-        """Initialize filter state from avis_enquete_id, session and request."""
+    def initialize(self, avis_enquete_id: str, avis_enquete=None) -> None:
+        """Initialize filter state from avis_enquete_id, session and request.
+
+        When `avis_enquete` is provided, the candidate pool is pre-scoped to
+        experts with a thematic match and recent activity (MVP matchmaking).
+        """
         self._set_session_key(avis_enquete_id)
+        self._avis_enquete = avis_enquete
         self._restore_state()
         self._update_state_from_request()
 
@@ -218,7 +224,7 @@ class ExpertFilterService:
             if key not in seen_selectors:
                 self._state.pop(key, None)
 
-    def _get_expert_ids_from_request(self) -> Generator[int, None, None]:
+    def _get_expert_ids_from_request(self) -> Generator[int]:
         """Extract expert IDs from form data."""
         form_data = request.form.to_dict()
         for k in form_data:
@@ -226,9 +232,21 @@ class ExpertFilterService:
                 yield int(k.split(":")[1])
 
     def _get_all_experts(self) -> list[User]:
-        """Get all experts (cached)."""
+        """Get all experts (cached).
+
+        When an `AvisEnquete` is set on the service (via `initialize`),
+        the candidate pool is first pre-scoped with the MVP matchmaking
+        pre-filter (thematic match + recent activity).
+        """
         if self._all_experts is None:
-            self._all_experts = self._user_repo.list(active=True)
+            experts = self._user_repo.list(active=True)
+            if self._avis_enquete is not None:
+                from app.modules.wip.services.newsroom.avis_matching import (
+                    match_experts_to_avis,
+                )
+
+                experts = match_experts_to_avis(experts, self._avis_enquete)
+            self._all_experts = experts
         return self._all_experts
 
     def _get_selectors(self) -> list[BaseSelector]:
