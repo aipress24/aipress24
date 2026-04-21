@@ -23,4 +23,6 @@ class SimpleRichSelectField(SelectField):
         super().__init__(label, validators, **kwargs)
 
     def get_choices_for_js(self):
-        return [list(tup) for tup in (self.choices or [])]
+        # Serialize values as strings so JavaScript does not lose precision
+        # on large integers (e.g. Snowflake IDs > 2^53).
+        return [[str(v), label] for v, label in (self.choices or [])]
