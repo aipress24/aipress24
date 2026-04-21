@@ -1,0 +1,19 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto py-12 px-6">
+  <div class="bg-white p-8 rounded-lg shadow border border-gray-200">
+    <h1 class="text-2xl font-semibold text-gray-800 mb-4">
+      Paiement annulé
+    </h1>
+    <p class="text-gray-700">
+      Aucun montant n'a été prélevé. Vous pouvez revenir à l'article et
+      reprendre l'achat si besoin.
+    </p>
+    <a href="{{ back_url }}"
+       class="mt-6 inline-flex items-center text-blue-600 hover:underline">
+      ← Retour à l'article
+    </a>
+  </div>
+</div>
+{% endblock %}

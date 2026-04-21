@@ -323,9 +323,13 @@ def on_checkout_session_completed(event) -> None:
         data_obj, k, d
     )
 
-    if get("mode") != "subscription":
-        # MVP handles subscription checkouts only; one-off payments land
-        # in a dedicated handler later.
+    mode = get("mode")
+    if mode == "payment":
+        _record_article_purchase_from_checkout(data_obj)
+        return
+
+    if mode != "subscription":
+        warning(f"checkout.session.completed with unexpected mode={mode!r}")
         return
 
     session_id = get("id")
@@ -403,6 +407,65 @@ def _activate_bw_from_checkout(
     info(
         f"BW {bw.id} activated via Stripe Checkout "
         f"(customer={customer_id}, subscription={subscription_id})"
+    )
+
+
+def _record_article_purchase_from_checkout(data_obj) -> None:
+    """Persist an ArticlePurchase on successful one-off checkout.
+
+    Reads `purchase_id` from the session `metadata` (set when we created
+    the session) and flips the local row to PAID. Idempotent via unique
+    `stripe_checkout_session_id`.
+    """
+    from datetime import UTC, datetime
+
+    from sqlalchemy import select as sa_select
+
+    from app.modules.wire.models import ArticlePurchase, PurchaseStatus
+
+    get = data_obj.get if hasattr(data_obj, "get") else lambda k, d=None: getattr(
+        data_obj, k, d
+    )
+    session_id = get("id")
+    metadata = get("metadata") or {}
+    purchase_id = metadata.get("purchase_id")
+    if not purchase_id:
+        warning(f"payment checkout without purchase_id metadata: {session_id}")
+        return
+
+    existing = db.session.execute(
+        sa_select(ArticlePurchase).where(
+            ArticlePurchase.stripe_checkout_session_id == session_id
+        )
+    ).scalar_one_or_none()
+    if existing is not None:
+        info(f"article purchase checkout {session_id} already recorded; skip")
+        return
+
+    try:
+        purchase = db.session.execute(
+            sa_select(ArticlePurchase).where(
+                ArticlePurchase.id == int(purchase_id)
+            )
+        ).scalar_one_or_none()
+    except (ValueError, TypeError):
+        warning(f"invalid purchase_id metadata on session {session_id}: {purchase_id!r}")
+        return
+
+    if purchase is None:
+        warning(f"payment checkout for unknown purchase {purchase_id}")
+        return
+
+    purchase.stripe_checkout_session_id = session_id
+    purchase.stripe_payment_intent_id = get("payment_intent")
+    purchase.amount_cents = get("amount_total")
+    purchase.currency = (get("currency") or "eur").upper()
+    purchase.status = PurchaseStatus.PAID  # type: ignore[assignment]
+    purchase.paid_at = datetime.now(UTC)  # type: ignore[assignment]
+    db.session.commit()
+    info(
+        f"ArticlePurchase {purchase.id} PAID "
+        f"(post={purchase.post_id}, product={purchase.product_type})"
     )
 
 

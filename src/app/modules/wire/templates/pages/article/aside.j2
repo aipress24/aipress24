@@ -1,38 +1,54 @@
-{# Purchase Actions #}
+{# Purchase Actions — MVP Stripe one-off checkout #}
 <div class="mb-6 pb-6 border-b border-gray-200">
   <h2 class="text-xl font-medium text-gray-700 mb-4">Acquisition</h2>
 
+  {% set btn_class = "w-full flex items-center justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" %}
+  {% set stripe_live = config.get("STRIPE_LIVE_ENABLED") %}
+  {% set post_id = post._model.id if post._model is defined else post.id %}
+
   <div class="space-y-3">
-    {# Button 1: Consultation #}
-    <a
-      href="#"
-      class="w-full flex items-center justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition-colors"
-      title="Accéder au contenu complet de l'article"
-    >
-      {{ icon("eye", class="h-5 w-5 mr-2 text-gray-500") }}
-      Droit de consultation
-    </a>
+    {# Droit de consultation #}
+    <form method="POST"
+          action="{{ url_for('wire.buy', post_id=post_id, product='consultation') }}">
+      <button type="submit"
+              class="{{ btn_class }}"
+              title="Accéder au contenu complet de l'article"
+              {% if not stripe_live %}disabled{% endif %}>
+        {{ icon("eye", class="h-5 w-5 mr-2 text-gray-500") }}
+        Droit de consultation
+      </button>
+    </form>
 
-    {# Button 2: Justificatif de publication #}
-    <a
-      href="#"
-      class="w-full flex items-center justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition-colors"
-      title="Obtenir un justificatif officiel de publication"
-    >
-      {{ icon("document-check", class="h-5 w-5 mr-2 text-gray-500") }}
-      Justificatif de publication
-    </a>
+    {# Justificatif de publication #}
+    <form method="POST"
+          action="{{ url_for('wire.buy', post_id=post_id, product='justificatif') }}">
+      <button type="submit"
+              class="{{ btn_class }}"
+              title="Obtenir un justificatif officiel de publication"
+              {% if not stripe_live %}disabled{% endif %}>
+        {{ icon("document-check", class="h-5 w-5 mr-2 text-gray-500") }}
+        Justificatif de publication
+      </button>
+    </form>
 
-    {# Button 3: Cession de droits #}
-    <a
-      href="#"
-      class="w-full flex items-center justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition-colors"
-      title="Acquérir les droits de reproduction de l'article"
-    >
-      {{ icon("shield-check", class="h-5 w-5 mr-2 text-gray-500") }}
-      Droits de reproduction
-    </a>
+    {# Droits de reproduction / Cession #}
+    <form method="POST"
+          action="{{ url_for('wire.buy', post_id=post_id, product='cession') }}">
+      <button type="submit"
+              class="{{ btn_class }}"
+              title="Acquérir les droits de reproduction de l'article"
+              {% if not stripe_live %}disabled{% endif %}>
+        {{ icon("shield-check", class="h-5 w-5 mr-2 text-gray-500") }}
+        Droits de reproduction
+      </button>
+    </form>
   </div>
+
+  {% if not stripe_live %}
+    <p class="mt-3 text-xs text-gray-500 italic">
+      Ces boutons seront activés dès la mise en place du paiement Stripe.
+    </p>
+  {% endif %}
 </div>
 
 <h2 class="text-xl font-medium text-gray-700">Métadonnées</h2>

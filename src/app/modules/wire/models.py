@@ -14,9 +14,10 @@ from sqlalchemy.sql import func
 from sqlalchemy_utils import ArrowType
 from sqlalchemy_utils.functions.orm import hybrid_property
 
+from app.models.base import Base
 from app.models.base_content import BaseContent
 from app.models.lifecycle import PublicationStatus
-from app.models.mixins import LifeCycleMixin
+from app.models.mixins import IdMixin, LifeCycleMixin, Owned, Timestamped
 from app.models.organisation import Organisation
 from app.services.tagging.interfaces import Taggable
 
@@ -187,3 +188,68 @@ class PressReleasePost(Post, Taggable):
     publisher_type: Mapped[PublisherType] = mapped_column(
         Enum(PublisherType), default=PublisherType.COM, use_existing_column=True
     )
+
+
+# --------------------------------------------------------------------------
+# Article-level one-off purchases (consultation / justif / cession de droits)
+# --------------------------------------------------------------------------
+
+
+class PurchaseProduct(StrEnum):
+    """Kinds of article-level one-off purchases.
+
+    Matches the three buy buttons on the article page (wire aside):
+    - `consultation` : read-access to an otherwise truncated article.
+    - `justificatif` : official PDF proof of publication.
+    - `cession` : reproduction licence for another media.
+    """
+
+    CONSULTATION = auto()
+    JUSTIFICATIF = auto()
+    CESSION = auto()
+
+
+class PurchaseStatus(StrEnum):
+    PENDING = auto()
+    PAID = auto()
+    FAILED = auto()
+    REFUNDED = auto()
+
+
+class ArticlePurchase(IdMixin, Owned, Timestamped, Base):
+    """One-off purchase attached to a wire Post (article or press release).
+
+    Persisted right after Stripe Checkout success via
+    `checkout.session.completed` in `mode=payment`. The "effect" of the
+    purchase (access unlock, PDF generation, licence creation) is left
+    to downstream specs — this model just records the transaction.
+    """
+
+    __tablename__ = "wire_article_purchase"
+
+    # FK to the wire Post (article or press release).
+    post_id: Mapped[int] = mapped_column(
+        BigInteger, ForeignKey("frt_content.id"), nullable=False, index=True
+    )
+
+    product_type: Mapped[PurchaseProduct] = mapped_column(
+        Enum(PurchaseProduct), nullable=False
+    )
+    status: Mapped[PurchaseStatus] = mapped_column(
+        Enum(PurchaseStatus), default=PurchaseStatus.PENDING
+    )
+
+    # Stripe references (idempotency via `stripe_checkout_session_id`).
+    stripe_checkout_session_id: Mapped[str | None] = mapped_column(
+        default=None, unique=True
+    )
+    stripe_payment_intent_id: Mapped[str | None] = mapped_column(default=None)
+
+    amount_cents: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
+    currency: Mapped[str] = mapped_column(default="EUR")
+
+    paid_at: Mapped[datetime | None] = mapped_column(
+        ArrowType(timezone=True), nullable=True
+    )
+
+    post = orm.relationship(Post, foreign_keys=[post_id])
