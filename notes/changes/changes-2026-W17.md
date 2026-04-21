@@ -216,6 +216,54 @@ loop (only matchmaking v0.3 and monetization V2 remain open).
   Marketplace suite now 44 tests + 1 skipped cascade. No regression
   on the 774 e2e and 463 integration tests.
 
+## Cession de droits MVP v0 — Editor policy + per-Post snapshot + checkout guard
+
+The W17 cession buy button can no longer trigger a sale that the
+emitter didn't authorise. Mode défaut `all_subscribed` keeps
+existing content sellable.
+
+- New JSON columns: `BusinessWall.rights_sales_policy` (4 modes)
+  and `Post.rights_sales_snapshot`.
+- SQLAlchemy `before_update`/`before_insert` hook freezes the
+  emitter BW's policy onto a Post the first time it reaches PUBLIC.
+  Non-retroactive: subsequent edits never overwrite the snapshot.
+- `bw_activation/rights_policy.py` exposes `get_policy`,
+  `snapshot_policy_for`, `is_eligible_for_cession`,
+  `emitter_bw_for_post`. Null-snapshot content stays buyable
+  (back-compat).
+- Editor settings page at `GET/POST /BW/rights-policy`
+  (owner-only) + dashboard card visible only for BW of type
+  `media`.
+- Guard in `POST /wire/<id>/buy/cession`: refuses purchases the
+  snapshot doesn't authorise (no Stripe session created on refusal).
+- The cession button is hidden on `aside.j2` when the connected
+  user is clearly ineligible.
+- 15 tests (10 unit + 5 e2e). Migration round-trips.
+
+## Article paywall MVP v0 — Consultation unlock + justificatif PDF + Mes achats
+
+The downstream effect of the W17 buy buttons. The cession button
+is covered by the cession-droits MVP above.
+
+- **Consultation**: `wire/services/article_access.py` with
+  `user_can_read_full` (author, admin, or paid CONSULTATION
+  purchaser) and `truncate_body` (BeautifulSoup HTML-aware
+  truncation with word-boundary cut + ellipsis). Article template
+  shows preview + overlay + buy CTA otherwise. Gated by
+  `STRIPE_LIVE_ENABLED` so the feature is invisible until go-live.
+- **Justificatif**: new `ArticlePurchase.pdf_file` (StoredObject
+  S3) + `pdf_signed_url` helper. Service
+  `wire/services/justificatif.py` renders an HTML template via
+  WeasyPrint, stores the PDF, persists, and sends a new
+  `JustificatifReadyMail` with the signed download link.
+  Idempotent. Triggered from a Dramatiq actor
+  (`app.actors.justificatif.generate_justificatif`) enqueued by
+  the webhook on PAID.
+- **Mes achats**: `GET /wire/me/purchases` lists the user's PAID
+  purchases with article link or PDF download.
+- 16 tests (9 unit + 7 e2e). Suite total unchanged: 786 e2e + 482
+  integration.
+
 ## Infrastructure
 
 - Nix flake support removed.

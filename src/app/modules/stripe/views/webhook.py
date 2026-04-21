@@ -472,6 +472,14 @@ def _record_article_purchase_from_checkout(data_obj) -> None:
         f"(post={purchase.post_id}, product={purchase.product_type})"
     )
 
+    # Trigger downstream effects per product type.
+    from app.modules.wire.models import PurchaseProduct
+
+    if purchase.product_type == PurchaseProduct.JUSTIFICATIF:
+        from app.actors.justificatif import generate_justificatif
+
+        generate_justificatif.send(purchase.id)
+
 
 # def _filter_unknown_checkout(data_obj: dict[str, Any]) -> bool:
 #     def _check_pay_status() -> bool:
