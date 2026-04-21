@@ -6,6 +6,6 @@
 
 from __future__ import annotations
 
-from . import home, item, missions, purchases
+from . import home, item, jobs, missions, projects, purchases
 
-__all__ = ["home", "item", "missions", "purchases"]
+__all__ = ["home", "item", "jobs", "missions", "projects", "purchases"]

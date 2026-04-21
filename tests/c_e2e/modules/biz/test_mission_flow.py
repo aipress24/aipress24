@@ -18,9 +18,9 @@ from app.models.lifecycle import PublicationStatus
 from app.models.organisation import Organisation
 from app.modules.biz.models import (
     ApplicationStatus,
-    MissionApplication,
     MissionOffer,
     MissionStatus,
+    OfferApplication,
 )
 from tests.c_e2e.conftest import make_authenticated_client
 
@@ -148,7 +148,7 @@ class TestMissionDeposit:
         assert mission.status == PublicationStatus.PUBLIC
 
 
-class TestMissionApplication:
+class TestOfferApplication:
     def test_applicant_can_apply(
         self,
         app: Flask,
@@ -158,7 +158,7 @@ class TestMissionApplication:
     ):
         client = make_authenticated_client(app, applicant)
         with patch(
-            "app.modules.biz.views.missions.notify_emitter_of_application"
+            "app.modules.biz.views._offers_common.notify_emitter_of_application"
         ) as mock_notify:
             response = client.post(
                 f"/biz/missions/{published_mission.id}/apply",
@@ -168,9 +168,9 @@ class TestMissionApplication:
 
         assert response.status_code == 302
         application = (
-            db_session.query(MissionApplication)
+            db_session.query(OfferApplication)
             .filter_by(
-                mission_id=published_mission.id,
+                offer_id=published_mission.id,
                 owner_id=applicant.id,
             )
             .first()
@@ -193,8 +193,8 @@ class TestMissionApplication:
             follow_redirects=False,
         )
         count = (
-            db_session.query(MissionApplication)
-            .filter_by(mission_id=published_mission.id)
+            db_session.query(OfferApplication)
+            .filter_by(offer_id=published_mission.id)
             .count()
         )
         assert count == 0
@@ -208,7 +208,7 @@ class TestMissionApplication:
     ):
         client = make_authenticated_client(app, applicant)
         with patch(
-            "app.modules.biz.views.missions.notify_emitter_of_application"
+            "app.modules.biz.views._offers_common.notify_emitter_of_application"
         ):
             client.post(
                 f"/biz/missions/{published_mission.id}/apply",
@@ -219,9 +219,9 @@ class TestMissionApplication:
                 data={"message": "Deuxième"},
             )
         count = (
-            db_session.query(MissionApplication)
+            db_session.query(OfferApplication)
             .filter_by(
-                mission_id=published_mission.id,
+                offer_id=published_mission.id,
                 owner_id=applicant.id,
             )
             .count()
@@ -240,7 +240,7 @@ class TestMissionDashboard:
     ):
         applicant_client = make_authenticated_client(app, applicant)
         with patch(
-            "app.modules.biz.views.missions.notify_emitter_of_application"
+            "app.modules.biz.views._offers_common.notify_emitter_of_application"
         ):
             applicant_client.post(
                 f"/biz/missions/{published_mission.id}/apply",
@@ -264,15 +264,15 @@ class TestMissionDashboard:
     ):
         applicant_client = make_authenticated_client(app, applicant)
         with patch(
-            "app.modules.biz.views.missions.notify_emitter_of_application"
+            "app.modules.biz.views._offers_common.notify_emitter_of_application"
         ):
             applicant_client.post(
                 f"/biz/missions/{published_mission.id}/apply",
                 data={"message": "Test"},
             )
         application = (
-            db_session.query(MissionApplication)
-            .filter_by(mission_id=published_mission.id)
+            db_session.query(OfferApplication)
+            .filter_by(offer_id=published_mission.id)
             .first()
         )
         assert application is not None
@@ -302,7 +302,7 @@ class TestMissionDashboard:
 
         applicant_client = make_authenticated_client(app, applicant)
         with patch(
-            "app.modules.biz.views.missions.notify_emitter_of_application"
+            "app.modules.biz.views._offers_common.notify_emitter_of_application"
         ):
             applicant_client.post(
                 f"/biz/missions/{published_mission.id}/apply",
@@ -310,8 +310,8 @@ class TestMissionDashboard:
             )
 
         count = (
-            db_session.query(MissionApplication)
-            .filter_by(mission_id=published_mission.id)
+            db_session.query(OfferApplication)
+            .filter_by(offer_id=published_mission.id)
             .count()
         )
         assert count == 0

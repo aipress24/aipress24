@@ -15,11 +15,26 @@
   </div>
 </div>
 
-{% if request.args.get("current_tab", "stories") == "missions" %}
+{% set _tab = request.args.get("current_tab", "stories") %}
+{% if _tab == "missions" %}
   <div class="mb-4">
     <a href="{{ url_for('biz.missions_new') }}"
        class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-2 px-4 rounded-md">
       + Publier une mission
+    </a>
+  </div>
+{% elif _tab == "projects" %}
+  <div class="mb-4">
+    <a href="{{ url_for('biz.projects_new') }}"
+       class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-2 px-4 rounded-md">
+      + Publier un projet
+    </a>
+  </div>
+{% elif _tab == "jobs" %}
+  <div class="mb-4">
+    <a href="{{ url_for('biz.jobs_new') }}"
+       class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-2 px-4 rounded-md">
+      + Publier une offre d'emploi
     </a>
   </div>
 {% endif %}
@@ -29,6 +44,10 @@
     <li class="bg-white rounded-lg shadow">
       {% if obj.type == "mission_offer" %}
         {% include "pages/missions/_card.j2" %}
+      {% elif obj.type == "project_offer" %}
+        {% include "pages/projects/_card.j2" %}
+      {% elif obj.type == "job_offer" %}
+        {% include "pages/jobs/_card.j2" %}
       {% else %}
         {{ biz_card(obj) }}
       {% endif %}

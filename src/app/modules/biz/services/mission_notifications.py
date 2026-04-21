@@ -16,13 +16,13 @@ from app.models.auth import User
 from app.services.emails import MissionApplicationMail
 
 if TYPE_CHECKING:
-    from app.modules.biz.models import MissionApplication, MissionOffer
+    from app.modules.biz.models import MissionOffer, OfferApplication
 
 
 def notify_emitter_of_application(
     *,
     mission: MissionOffer,
-    application: MissionApplication,
+    application: OfferApplication,
 ) -> None:
     """Send an e-mail to the mission emitter when a new application lands.
 
