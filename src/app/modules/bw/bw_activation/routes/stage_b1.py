@@ -10,6 +10,7 @@ from datetime import UTC, datetime
 from typing import TYPE_CHECKING, cast
 
 from flask import (
+    current_app,
     flash,
     g,
     make_response,
@@ -358,7 +359,23 @@ def configure_content():
 
 @bp.route("/cancel-subscription", methods=["POST"])
 def cancel_subscription():
-    """Cancel Business Wall subscription."""
+    """Cancel a Business Wall subscription locally (legacy flow).
+
+    When `STRIPE_LIVE_ENABLED` is on, cancellation must go through the
+    Stripe Billing Portal instead — otherwise Stripe would keep
+    charging the customer while the local BW is already deactivated.
+    This route refuses to act in that case.
+    """
+    if current_app.config.get("STRIPE_LIVE_ENABLED"):
+        flash(
+            "Merci de résilier depuis « Gérer mon abonnement » "
+            "(portail Stripe).",
+            "error",
+        )
+        response = make_response()
+        response.headers["HX-Redirect"] = url_for("bw_activation.dashboard")
+        return response
+
     if not session.get("bw_activated"):
         response = make_response()
         response.headers["HX-Redirect"] = url_for("bw_activation.index")

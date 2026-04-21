@@ -47,12 +47,24 @@
                 <p class="text-sm text-gray-700">
                     <strong>Type de Business Wall :</strong> {{ bw_info.name }}
                 </p>
-                <button type="button"
-                        data-modal-target="confirm_resiliation_popup"
-                        data-modal-toggle="confirm_resiliation_popup"
-                        class="text-red-600 hover:text-red-800 text-sm font-medium underline">
-                    Résilier l'abonnement
-                </button>
+                {% if config.get('STRIPE_LIVE_ENABLED') %}
+                    {# When Stripe is live, cancellation goes through the
+                       official Billing Portal (dashboard card). We hide
+                       this local-only button to avoid leaving Stripe in a
+                       billing state out of sync with the app. #}
+                    <span class="text-xs italic text-gray-500">
+                        Résilier depuis
+                        <a href="{{ url_for('bw_activation.dashboard') }}"
+                           class="underline">mon tableau de bord</a>.
+                    </span>
+                {% else %}
+                    <button type="button"
+                            data-modal-target="confirm_resiliation_popup"
+                            data-modal-toggle="confirm_resiliation_popup"
+                            class="text-red-600 hover:text-red-800 text-sm font-medium underline">
+                        Résilier l'abonnement
+                    </button>
+                {% endif %}
             </div>
             <!-- Resiliation Confirmation Modal -->
             <div id="confirm_resiliation_popup"
