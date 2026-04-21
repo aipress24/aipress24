@@ -13,7 +13,12 @@ import pytest
 
 from app.flask.routing import url_for
 from app.models.lifecycle import PublicationStatus
+from app.modules.bw.bw_activation.models.business_wall import (
+    BusinessWall,
+    BWStatus,
+)
 from app.modules.wip.models.newsroom.article import Article
+from tests.c_e2e.conftest import make_authenticated_client
 
 if TYPE_CHECKING:
     from flask.testing import FlaskClient
@@ -66,6 +71,46 @@ class TestArticlesIndex:
         url = url_for("ArticlesWipView:index")
         response = logged_in_client.get(url)
         assert response.status_code == 200
+
+    def test_index_no_rights_reminder_without_media_bw(
+        self, logged_in_client: FlaskClient, test_article: Article
+    ):
+        """Without an active media BW, the rights-policy banner is hidden."""
+        url = url_for("ArticlesWipView:index")
+        response = logged_in_client.get(url)
+        assert response.status_code == 200
+        assert "Gérer les modalités" not in response.data.decode()
+
+    def test_index_shows_rights_reminder_for_media_bw(
+        self,
+        app,
+        db_session: Session,
+        test_user: User,
+        test_org: Organisation,
+        test_article: Article,
+    ):
+        """A user whose active BW is `media` sees a link to rights-policy."""
+        bw = BusinessWall(
+            bw_type="media",
+            status=BWStatus.ACTIVE.value,
+            owner_id=test_user.id,
+            payer_id=test_user.id,
+            organisation_id=test_org.id,
+            name="Test Media BW",
+        )
+        db_session.add(bw)
+        db_session.commit()
+        test_org.bw_id = bw.id
+        test_org.bw_active = "media"
+        db_session.commit()
+
+        client = make_authenticated_client(app, test_user)
+        url = url_for("ArticlesWipView:index")
+        response = client.get(url)
+        assert response.status_code == 200
+        body = response.data.decode()
+        assert "Gérer les modalités" in body
+        assert "/BW/rights-policy" in body
 
 
 class TestArticlesPublish:
