@@ -34,4 +34,5 @@ class RichSelectField(SelectField):
 
     def get_choices_for_js(self):
         values = get_choices(self.key)
-        return [[value, value] for value in values]
+        # Ensure string values so JavaScript cannot corrupt large integers.
+        return [[str(value), str(value)] for value in values]
