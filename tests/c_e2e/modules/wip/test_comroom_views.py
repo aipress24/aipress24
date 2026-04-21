@@ -51,6 +51,35 @@ def pr_user(db_session: Session, test_org: Organisation) -> User:
     return user
 
 
+def _ensure_role(db_session: Session, role_enum: RoleEnum) -> Role:
+    role = db_session.query(Role).filter_by(name=role_enum.name).first()
+    if role is None:
+        role = Role(name=role_enum.name, description=role_enum.value)
+        db_session.add(role)
+        db_session.flush()
+    return role
+
+
+def _make_profile_user(
+    db_session: Session,
+    test_org: Organisation,
+    email: str,
+    profile_code: str,
+    community_role: RoleEnum,
+) -> User:
+    """Create a user with a KYC profile_code and community role (no PRESS_RELATIONS)."""
+    profile = KYCProfile()
+    profile.profile_code = profile_code
+    user = User(email=email, first_name="X", last_name="Y", active=True)
+    user.profile = profile
+    user.organisation = test_org
+    user.organisation_id = test_org.id
+    user.roles.append(_ensure_role(db_session, community_role))
+    db_session.add(user)
+    db_session.commit()
+    return user
+
+
 class TestComroomAccess:
     """Tests for comroom access control."""
 
@@ -70,6 +99,53 @@ class TestComroomAccess:
     ):
         """Test that comroom returns 403 for PRESS_MEDIA users."""
         response = logged_in_client.get("/wip/comroom")
+
+        assert response.status_code == 403
+
+    def test_comroom_loads_for_xp_pr_profile(
+        self, app: Flask, db_session: Session, test_org: Organisation
+    ):
+        """Expert with a PR role (profile XP_PR) may access Com'room — bug #0098/#0100."""
+        user = _make_profile_user(
+            db_session, test_org, "xp-pr@example.com", "XP_PR", RoleEnum.EXPERT
+        )
+        client = make_authenticated_client(app, user)
+
+        response = client.get("/wip/comroom")
+
+        assert response.status_code == 200
+
+    def test_comroom_loads_for_transformer_pr_profile(
+        self, app: Flask, db_session: Session, test_org: Organisation
+    ):
+        """Transformer Consultant with PR role (TR_CS_ORG_PR) may access Com'room."""
+        user = _make_profile_user(
+            db_session,
+            test_org,
+            "tr-pr@example.com",
+            "TR_CS_ORG_PR",
+            RoleEnum.TRANSFORMER,
+        )
+        client = make_authenticated_client(app, user)
+
+        response = client.get("/wip/comroom")
+
+        assert response.status_code == 200
+
+    def test_comroom_forbidden_for_transformer_non_pr_profile(
+        self, app: Flask, db_session: Session, test_org: Organisation
+    ):
+        """A Transformer profile without PR responsibility still can't access Com'room."""
+        user = _make_profile_user(
+            db_session,
+            test_org,
+            "tr-no-pr@example.com",
+            "TR_CS_ORG",
+            RoleEnum.TRANSFORMER,
+        )
+        client = make_authenticated_client(app, user)
+
+        response = client.get("/wip/comroom")
 
         assert response.status_code == 403
 

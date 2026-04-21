@@ -48,6 +48,9 @@ def is_user_allowed(entry: MenuEntry) -> bool:
     if not user.is_authenticated:
         return False
 
+    if entry.allowed_check is not None:
+        return entry.allowed_check(user)
+
     # If no role restrictions, allow all authenticated users
     if not entry.allowed_roles:
         return True
