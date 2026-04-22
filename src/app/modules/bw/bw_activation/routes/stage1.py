@@ -16,12 +16,13 @@ from app.modules.bw.bw_activation.config import BW_TYPES
 from app.modules.bw.bw_activation.models.business_wall import BWStatus
 from app.modules.bw.bw_activation.user_utils import (
     current_business_wall,
+    get_business_wall_for_user,
+    get_manageable_business_walls_for_user,
     guess_best_bw_type,
 )
 from app.modules.bw.bw_activation.utils import (
     ERR_BW_NOT_FOUND,
     ERR_NOT_MANAGER,
-    bw_managers_ids,
     fill_session,
     init_session,
 )
@@ -47,7 +48,7 @@ def _check_valid_organisation(user: User) -> Response | None:
 
 @bp.route("/")
 def index():
-    """Redirect to confirmation subscription page."""
+    """Entry point for BW dashboard / activation flow."""
     user = cast("User", g.user)
     init_session()
 
@@ -55,15 +56,30 @@ def index():
     if error_response := _check_valid_organisation(user):
         return error_response
 
-    current_bw = current_business_wall(user)
-    if current_bw and current_bw.status != BWStatus.CANCELLED.value:
-        fill_session(current_bw)
-        if user.id not in bw_managers_ids(current_bw):
+    # Check all BWs the user can manage (owner, BWMi, BWMe, BWPRe, etc.)
+    manageable_bws = get_manageable_business_walls_for_user(user)
+    active_manageable = [
+        bw for bw in manageable_bws if bw.status != BWStatus.CANCELLED.value
+    ]
+
+    if not active_manageable:
+        # No manageable BW — check if org has an active BW but user lacks rights
+        org_bw = get_business_wall_for_user(user)
+        if org_bw and org_bw.status != BWStatus.CANCELLED.value:
             session["error"] = ERR_NOT_MANAGER
             return redirect(url_for("bw_activation.not_authorized"))
+        else:
+            # No BW at all — start activation flow
+            session["suggested_bw_type"] = guess_best_bw_type(user).value
+            return redirect(url_for("bw_activation.confirm_subscription"))
+
+    if len(active_manageable) == 1:
+        # Only one BW, direct access
+        bw = active_manageable[0]
+        fill_session(bw)
         return redirect(url_for("bw_activation.dashboard"))
-    session["suggested_bw_type"] = guess_best_bw_type(user).value
-    return redirect(url_for("bw_activation.confirm_subscription"))
+    # several BW: select BW page
+    return redirect(url_for("bw_activation.select_bw"))
 
 
 @bp.route("/confirm-subscription")
