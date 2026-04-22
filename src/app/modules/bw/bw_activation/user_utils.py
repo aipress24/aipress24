@@ -8,15 +8,22 @@ from __future__ import annotations
 
 import contextlib
 from typing import TYPE_CHECKING, cast
+from uuid import UUID
 
-from flask import g
+from flask import g, session
 from sqlalchemy import inspect, select
 from sqlalchemy.exc import NoInspectionAvailable
 
 from app.enums import ProfileEnum
+from app.flask.extensions import db
 from app.logging import warn
 from app.modules.admin.utils import Organisation
-from app.modules.bw.bw_activation.models import BusinessWall
+from app.modules.bw.bw_activation.models import (
+    BusinessWall,
+    BWRoleType,
+    InvitationStatus,
+    RoleAssignment,
+)
 from app.modules.bw.bw_activation.models.business_wall import BWStatus, BWType
 
 StdDict = dict[str, str | int | float | bool | None]
@@ -169,9 +176,64 @@ def get_business_wall_for_user(user: User) -> BusinessWall | None:
     return get_active_business_wall_for_organisation(org)
 
 
-def current_business_wall(user: User) -> BusinessWall | None:
-    """Get the active BusinessWall for a user (backward compatibility alias)."""
+def get_selected_business_wall_for_user(user: User) -> BusinessWall | None:
+    """Get the currently selected BusinessWall for the user.
+
+    First checks session for an explicitly selected BW (e.g. via the
+    select-bw page), then falls back to the user's organisation BW.
+    """
+    bw_id: str | None = session.get("bw_id")
+    if bw_id:
+        try:
+            stmt = select(BusinessWall).where(BusinessWall.id == UUID(bw_id))
+            bw = db.session.execute(stmt).scalars().one_or_none()
+            if bw:
+                return bw
+        except ValueError:
+            pass  # invalid UUID
     return get_business_wall_for_user(user)
+
+
+def current_business_wall(user: User) -> BusinessWall | None:
+    """Get the active BusinessWall for a user (checks session first)."""
+    return get_selected_business_wall_for_user(user)
+
+
+def get_manageable_business_walls_for_user(user: User) -> list[BusinessWall]:
+    """Return all BusinessWalls the user can manage.
+
+    Includes BWs owned by the user and BWs where the user has an accepted
+    role assignment with management or PR permissions.
+    """
+    manageable_ids: set[UUID] = set()
+
+    # BWs owned by user
+    stmt_owner = select(BusinessWall.id).where(BusinessWall.owner_id == user.id)
+    manageable_ids.update(db.session.execute(stmt_owner).scalars().all())
+
+    # BWs where user has an accepted managementrole
+    stmt_roles = select(RoleAssignment.business_wall_id).where(
+        RoleAssignment.user_id == user.id,
+        RoleAssignment.invitation_status == InvitationStatus.ACCEPTED.value,
+        RoleAssignment.role_type.in_(
+            {
+                BWRoleType.BW_OWNER.value,
+                BWRoleType.BWMI.value,
+                BWRoleType.BWME.value,
+            }
+        ),
+    )
+    manageable_ids.update(db.session.execute(stmt_roles).scalars().all())
+
+    if not manageable_ids:
+        return []
+
+    stmt = (
+        select(BusinessWall)
+        .where(BusinessWall.id.in_(manageable_ids))
+        .order_by(BusinessWall.name)
+    )
+    return list(db.session.execute(stmt).scalars().all())
 
 
 # ---------------------------------------------------------------------------
