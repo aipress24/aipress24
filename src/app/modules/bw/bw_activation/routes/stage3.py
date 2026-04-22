@@ -29,7 +29,6 @@ from app.modules.bw.bw_activation.bw_creation import (
     create_new_paid_bw_record,
 )
 from app.modules.bw.bw_activation.config import BW_TYPES
-from app.modules.bw.bw_activation.models.business_wall import BWType
 from app.modules.bw.bw_activation.user_utils import current_business_wall
 from app.services.stripe.utils import (
     get_stripe_public_key,
