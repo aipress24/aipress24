@@ -1,19 +1,28 @@
+{# Styled AiPRESS24 wordmark: bold, with a red lowercase "i". Inline
+   styles for email-client compatibility. #}
+{%- set AIPRESS24 -%}
+<strong>A<span style="color:#E30613">i</span>PRESS24</strong>
+{%- endset -%}
 <p>
 Bonjour,
 </p>
 
 <p>
-Un avis d'enquête vient d'être diffusé:
+Un avis d'enquête vient d'être diffusé par un journaliste membre d'{{ AIPRESS24 }} :
 </p>
 
 <p>
-Emetteur: {{ sender_full_name }}, {{ sender_job }}
+<strong>Emetteur :</strong> {{ sender_full_name }}, {{ sender_job }}
 </p>
 <p>
-Organisation: {{ bw_name }}
+<strong>Organisation :</strong> {{ bw_name }}
 </p>
 <p>
-Sujet: {{ abstract }}
+<strong>Sujet :</strong> {{ abstract }}
+</p>
+
+<p>
+Pour participer à cette enquête journalistique, connectez-vous à {{ AIPRESS24 }}, puis collez le lien ci-dessous dans une nouvelle fenêtre :
 </p>
 <p>
 URL: {{ url }}

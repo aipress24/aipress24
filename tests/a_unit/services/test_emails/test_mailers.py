@@ -87,7 +87,7 @@ def test_avis_enquete_notification_mail():
         assert kwargs["from_email"] == "contact@aipress24.com"
         assert (
             kwargs["subject"]
-            == "[Aipress24] Un nouvel avis d’enquête pourrait vous concerner"
+            == "[AiPRESS24] Un nouvel avis d’enquête pourrait vous concerner"
         )
         assert "Test Organization" in kwargs["body"]
         assert "journalist@example.com" in kwargs["body"]

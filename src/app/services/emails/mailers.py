@@ -193,7 +193,7 @@ class AvisEnqueteNotificationMail(EmailTemplate):
         notification_mail.send()
     """
 
-    subject: str = "[Aipress24] Un nouvel avis d’enquête pourrait vous concerner"
+    subject: str = "[AiPRESS24] Un nouvel avis d’enquête pourrait vous concerner"
     template_html: str = "avis_enquete_notification.j2"
     bw_name: str
     abstract: str
