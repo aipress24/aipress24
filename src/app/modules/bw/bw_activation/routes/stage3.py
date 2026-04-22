@@ -20,6 +20,7 @@ from flask import (
 from sqlalchemy.orm import scoped_session
 from svcs.flask import container
 
+from app.flask.extensions import db
 from app.logging import warn
 from app.modules.admin.org_email_utils import change_members_emails
 from app.modules.bw.bw_activation import bp
@@ -28,6 +29,7 @@ from app.modules.bw.bw_activation.bw_creation import (
     create_new_paid_bw_record,
 )
 from app.modules.bw.bw_activation.config import BW_TYPES
+from app.modules.bw.bw_activation.models.business_wall import BWType
 from app.modules.bw.bw_activation.user_utils import current_business_wall
 from app.services.stripe.utils import (
     get_stripe_public_key,
@@ -42,7 +44,7 @@ if TYPE_CHECKING:
 
 
 @bp.route("/activate-free/<bw_type>")
-def activate_free_page(bw_type):
+def activate_free_page(bw_type: str):
     """Step 3: Page for free BW activation with CGV acceptance."""
     if bw_type not in BW_TYPES or not BW_TYPES[bw_type]["free"]:
         return redirect(url_for("bw_activation.confirm_subscription"))
@@ -62,7 +64,7 @@ def activate_free_page(bw_type):
 
 
 @bp.route("/activate_free/<bw_type>", methods=["POST"])
-def activate_free(bw_type):
+def activate_free(bw_type: str):
     """Process free Business Wall activation."""
     if bw_type not in BW_TYPES or not BW_TYPES[bw_type]["free"]:
         return redirect(url_for("bw_activation.index"))
@@ -111,7 +113,7 @@ def confirmation_free():
 
 
 @bp.route("/pricing/<bw_type>")
-def pricing_page(bw_type):
+def pricing_page(bw_type: str):
     """Step 3: Page for paid BW pricing information."""
     if bw_type not in BW_TYPES or BW_TYPES[bw_type]["free"]:
         return redirect(url_for("bw_activation.confirm_subscription"))
@@ -131,7 +133,7 @@ def pricing_page(bw_type):
 
 
 @bp.route("/set_pricing/<bw_type>", methods=["POST"])
-def set_pricing(bw_type):
+def set_pricing(bw_type: str):
     """Set pricing information for paid BW."""
     if bw_type not in BW_TYPES or BW_TYPES[bw_type]["free"]:
         return redirect(url_for("bw_activation.index"))
@@ -157,7 +159,7 @@ def set_pricing(bw_type):
 
 
 @bp.route("/payment/<bw_type>")
-def payment(bw_type):
+def payment(bw_type: str):
     """Payment page for paid BW.
 
     Two modes :
@@ -198,7 +200,61 @@ def payment(bw_type):
     return render_template("bw_activation/payment.html", **ctx)
 
 
-def _get_or_create_draft_bw_for_checkout(user, bw_type):
+@bp.route("/stripe-info/<bw_type>", methods=["GET", "POST"])
+def stripe_info(bw_type: str):
+    """Collect Stripe billing information for PR BW before checkout.
+
+    When Stripe live mode is enabled. The collected SIRET, email, etc.
+    are stored on a draft BusinessWall so the subsequent Pricing Table
+    checkout and webhook flow uses them.
+    """
+    if bw_type not in BW_TYPES or BW_TYPES[bw_type]["free"]:
+        return redirect(url_for("bw_activation.index"))
+
+    if not session.get("bw_type_confirmed"):
+        return redirect(url_for("bw_activation.confirm_subscription"))
+
+    # if not session.get("contacts_confirmed"):
+    #     return redirect(url_for("bw_activation.nominate_contacts"))
+
+    bw_info = BW_TYPES[bw_type]
+    user = cast("User", g.user)
+
+    if request.method == "POST":
+        cgv_accepted = request.form.get("cgv_accepted") == "on"
+        if not cgv_accepted:
+            return redirect(url_for("bw_activation.stripe_info", bw_type=bw_type))
+
+        draft_bw = _get_or_create_draft_bw_for_checkout(user, bw_type)
+        if draft_bw is not None:
+            draft_bw.siren = request.form.get("siren", "").strip()
+            draft_bw.payer_email = request.form.get(
+                "payer_email", user.email or ""
+            ).strip()
+            draft_bw.name = request.form.get("company_name", "").strip()
+            draft_bw.postal_address = request.form.get("postal_address", "").strip()
+            draft_bw.tel_standard = request.form.get("tel_standard", "").strip()
+            db.session.commit()
+
+        session["bw_type"] = bw_type
+        session["pricing_value"] = bw_info.get("pricing_default", 1)
+        session["cgv_accepted"] = True
+        return redirect(url_for("bw_activation.payment", bw_type=bw_type))
+
+    default_name = ""
+    if user.organisation and user.organisation.name:
+        default_name = user.organisation.name
+
+    ctx = {
+        "bw_type": bw_type,
+        "bw_info": bw_info,
+        "default_email": user.email or "",
+        "default_name": default_name,
+    }
+    return render_template("bw_activation/stripe_info.html", **ctx)
+
+
+def _get_or_create_draft_bw_for_checkout(user: User, bw_type: str):
     """Return a DRAFT Business Wall for this user/bw_type, creating one
     if none exists yet. Used as the target of the Stripe Pricing Table's
     `client-reference-id`.
@@ -254,7 +310,7 @@ def _get_or_create_draft_bw_for_checkout(user, bw_type):
 
 
 @bp.route("/simulate_payment/<bw_type>", methods=["POST"])
-def simulate_payment(bw_type):
+def simulate_payment(bw_type: str):
     """Simulate payment and activate paid BW."""
     if bw_type not in BW_TYPES or BW_TYPES[bw_type]["free"]:
         return redirect(url_for("bw_activation.index"))
