@@ -10,7 +10,6 @@ import sys
 from urllib.parse import urlparse
 
 import click
-from devtools import debug
 from flask import current_app
 from flask.cli import with_appcontext
 from flask_super.cli import group
@@ -19,6 +18,7 @@ from sqlalchemy import text
 from tenacity import retry, stop_after_attempt, wait_exponential
 
 from app.flask.extensions import db
+from app.lib.debugging import debug
 
 from . import db_util
 

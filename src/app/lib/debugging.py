@@ -2,23 +2,26 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
-"""Add devtools `debug` function to builtins."""
+"""Add devtools `debug` function to builtins.
+
+Both `snoop` and `devtools` are optional (dev-only) dependencies: in
+production images we fall back silently to `print`.
+"""
 
 from __future__ import annotations
 
+import contextlib
 from typing import Any
 
-import snoop
+debug: Any = print
 
-debug: Any = None
-
-try:
-    from devtools import debug
-except ImportError:
-    debug = print  # type: ignore[assignment]  # ty:ignore[conflicting-declarations]
+with contextlib.suppress(ImportError):
+    from devtools import debug  # type: ignore[assignment,no-redef]
 
 
 def install() -> None:
-    if debug is not None:
-        __builtins__["debug"] = debug
+    __builtins__["debug"] = debug
+    with contextlib.suppress(ImportError):
+        import snoop  # noqa: PLC0415
+
         snoop.install()

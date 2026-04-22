@@ -14,7 +14,6 @@ from flask_super.registry import lookup
 from sqlalchemy.exc import NoResultFound
 from svcs.flask import container
 
-from app.faker import FakerScript, FakerService
 from app.flask.extensions import db
 from app.flask.sqla import get_multi
 from app.models.auth import User
@@ -25,6 +24,11 @@ from app.services.roles import generate_roles_map
 from . import db_util
 from .bootstrap import bootstrap
 
+# `app.faker` pulls in `faker` + `mimesis` (dev-only deps) and is
+# excluded from the flask-super startup scan. Import lazily inside the
+# CLI functions below so the module is only loaded when `flask fake`
+# actually runs.
+
 
 #
 # Faker
@@ -33,6 +37,8 @@ from .bootstrap import bootstrap
 @click.option("--clean/--no-clean", default=False)
 @with_appcontext
 def fake(clean) -> None:
+    from app.faker import FakerService  # noqa: PLC0415
+
     print(green("Setting up database"))
     db_setup(clean)
 
@@ -98,6 +104,8 @@ def create_admins() -> None:
 
 
 def run_fake_scripts() -> None:
+    from app.faker import FakerScript  # noqa: PLC0415
+
     scripts = [cls() for cls in lookup(FakerScript)]
     for script in scripts:
         print(dim(f"Running faker script: {script.name}"))
