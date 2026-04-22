@@ -6,14 +6,19 @@ from __future__ import annotations
 
 import sys
 from dataclasses import dataclass
+from datetime import UTC, datetime
 from decimal import Decimal
 
 # from pprint import pformat
 from typing import Any
+from uuid import UUID
 
 import stripe
 from arrow import Arrow
 from flask import request, session
+from sqlalchemy import select as sa_select
+
+from app.actors.justificatif import generate_justificatif
 
 # from app.enums import BWTypeEnum, ProfileEnum
 from app.flask.extensions import db
@@ -22,8 +27,15 @@ from app.models.organisation import Organisation
 from app.modules.admin.invitations import add_invited_users
 from app.modules.admin.org_email_utils import add_managers_emails
 from app.modules.admin.utils import get_user_per_email
+from app.modules.bw.bw_activation.models import (
+    BusinessWall,
+    BWStatus,
+    Subscription,
+    SubscriptionStatus,
+)
 from app.modules.bw.bw_activation.models.business_wall import BWType
 from app.modules.stripe import blueprint
+from app.modules.wire.models import ArticlePurchase, PurchaseProduct, PurchaseStatus
 from app.services.stripe.product import stripe_bw_subscription_dict
 from app.services.stripe.retriever import (
     retrieve_customer,
@@ -146,7 +158,7 @@ _EVENT_HANDLER_NAMES = {
 }
 
 
-def on_received_event(event) -> None:
+def on_received_event(event: stripe.Event) -> None:
     handler_name = _EVENT_HANDLER_NAMES.get(event.type)
     if handler_name:
         handler = globals()[handler_name]
@@ -154,60 +166,60 @@ def on_received_event(event) -> None:
     return unmanaged_event(event)
 
 
-def _get_event_object(event) -> object:
+def _get_event_object(event: stripe.Event) -> object:
     session.clear()
     info(f"on event:{event.id}, type={event.type}")
     data = event.data
     return data.object
 
 
-def unmanaged_event(event) -> None:
+def unmanaged_event(event: stripe.Event) -> None:
     warning(f"Stripe event not managed: event: id={event.id}, type={event.type}")
 
 
-def on_subscription_schedule_aborted(event) -> None:
+def on_subscription_schedule_aborted(event: stripe.Event) -> None:
     pass
     # data_obj = _get_event_object(event)
     # subs_schedule = _parse_schedule_object(data_obj)
 
 
-def on_subscription_schedule_canceled(event) -> None:
+def on_subscription_schedule_canceled(event: stripe.Event) -> None:
     pass
     # data_obj = _get_event_object(event)
     # subs_schedule = _parse_schedule_object(data_obj)
 
 
-def on_subscription_schedule_completed(event) -> None:
+def on_subscription_schedule_completed(event: stripe.Event) -> None:
     pass
     # data_obj = _get_event_object(event)
     # subs_schedule = _parse_schedule_object(data_obj)
 
 
-def on_subscription_schedule_created(event) -> None:
+def on_subscription_schedule_created(event: stripe.Event) -> None:
     pass
     # data_obj = _get_event_object(event)
     # subs_schedule = _parse_schedule_object(data_obj)
 
 
-def on_subscription_schedule_expiring(event) -> None:
+def on_subscription_schedule_expiring(event: stripe.Event) -> None:
     pass
     # data_obj = _get_event_object(event)
     # subs_schedule = _parse_schedule_object(data_obj)
 
 
-def on_subscription_schedule_released(event) -> None:
+def on_subscription_schedule_released(event: stripe.Event) -> None:
     pass
     # data_obj = _get_event_object(event)
     # subs_schedule = _parse_schedule_object(data_obj)
 
 
-def on_subscription_schedule_updated(event) -> None:
+def on_subscription_schedule_updated(event: stripe.Event) -> None:
     pass
     # data_obj = _get_event_object(event)
     # subs_schedule = _parse_schedule_object(data_obj)
 
 
-def on_customer_subscription_created(event) -> None:
+def on_customer_subscription_created(event: stripe.Event) -> None:
     """Occurs whenever a customer is signed up for a new plan.
 
     data.object is a subscription"""
@@ -217,7 +229,7 @@ def on_customer_subscription_created(event) -> None:
     _register_bw_subscription(subinfo)
 
 
-def on_customer_subscription_deleted(event) -> None:
+def on_customer_subscription_deleted(event: stripe.Event) -> None:
     """Occurs whenever a customer’s subscription ends.
 
     data.object is a subscription"""
@@ -227,7 +239,7 @@ def on_customer_subscription_deleted(event) -> None:
     _register_bw_subscription(subinfo)
 
 
-def on_customer_subscription_paused(event) -> None:
+def on_customer_subscription_paused(event: stripe.Event) -> None:
     """Occurs whenever a customer’s subscription is paused.
 
     Only applies when subscriptions enter status=paused, not when
@@ -240,7 +252,7 @@ def on_customer_subscription_paused(event) -> None:
     _register_bw_subscription(subinfo)
 
 
-def on_customer_subscription_pending_update_applied(event) -> None:
+def on_customer_subscription_pending_update_applied(event: stripe.Event) -> None:
     """Occurs whenever a customer’s subscription’s pending
     update is applied, and the subscription is updated.
 
@@ -251,7 +263,7 @@ def on_customer_subscription_pending_update_applied(event) -> None:
     _register_bw_subscription(subinfo)
 
 
-def on_customer_subscription_pending_update_expired(event) -> None:
+def on_customer_subscription_pending_update_expired(event: stripe.Event) -> None:
     """Occurs whenever a customer’s subscription’s pending update
     expires before the related invoice is paid.
 
@@ -262,7 +274,7 @@ def on_customer_subscription_pending_update_expired(event) -> None:
     _register_bw_subscription(subinfo)
 
 
-def on_customer_subscription_resumed(event) -> None:
+def on_customer_subscription_resumed(event: stripe.Event) -> None:
     """Occurs whenever a customer’s subscription is no longer paused.
     Only applies when a status=paused subscription is resumed,
     not when payment collection is resumed.
@@ -274,7 +286,7 @@ def on_customer_subscription_resumed(event) -> None:
     _register_bw_subscription(subinfo)
 
 
-def on_customer_subscription_trial_will_end(event) -> None:
+def on_customer_subscription_trial_will_end(event: stripe.Event) -> None:
     """Occurs three days before a subscription’s trial period is scheduled
     to end, or when a trial is ended immediately (using trial_end=now).
 
@@ -285,7 +297,7 @@ def on_customer_subscription_trial_will_end(event) -> None:
     _register_bw_subscription(subinfo)
 
 
-def on_customer_subscription_updated(event) -> None:
+def on_customer_subscription_updated(event: stripe.Event) -> None:
     """Occurs whenever a subscription changes (e.g., switching from one
     plan to another, or changing the status from trial to active).
 
@@ -296,7 +308,7 @@ def on_customer_subscription_updated(event) -> None:
     _register_bw_subscription(subinfo)
 
 
-def on_checkout_session_completed(event) -> None:
+def on_checkout_session_completed(event: stripe.Event) -> None:
     """Activate a BW when a Stripe Checkout Session succeeds.
 
     The Pricing Table embed on the BW activation page passes
@@ -306,14 +318,6 @@ def on_checkout_session_completed(event) -> None:
 
     Idempotent : subsequent calls for the same session id are no-ops.
     """
-    from uuid import UUID
-
-    from sqlalchemy import select as sa_select
-
-    from app.modules.bw.bw_activation.models import (
-        BusinessWall,
-        Subscription,
-    )
 
     data_obj = _get_event_object(event)
     # `data_obj` is a stripe.api_resources.checkout.Session; support both
@@ -379,14 +383,6 @@ def _activate_bw_from_checkout(
     checkout_session_id: str,
 ) -> None:
     """Wire a Stripe Checkout success into the local BW / Subscription."""
-    from datetime import UTC, datetime
-
-    from app.modules.bw.bw_activation.models import (
-        BWStatus,
-        Subscription,
-        SubscriptionStatus,
-    )
-
     sub = bw.subscription
     if sub is None:
         sub = Subscription(
@@ -419,12 +415,6 @@ def _record_article_purchase_from_checkout(data_obj) -> None:
     the session) and flips the local row to PAID. Idempotent via unique
     `stripe_checkout_session_id`.
     """
-    from datetime import UTC, datetime
-
-    from sqlalchemy import select as sa_select
-
-    from app.modules.wire.models import ArticlePurchase, PurchaseStatus
-
     get = (
         data_obj.get
         if hasattr(data_obj, "get")
@@ -473,11 +463,8 @@ def _record_article_purchase_from_checkout(data_obj) -> None:
     )
 
     # Trigger downstream effects per product type.
-    from app.modules.wire.models import PurchaseProduct
 
     if purchase.product_type == PurchaseProduct.JUSTIFICATIF:
-        from app.actors.justificatif import generate_justificatif
-
         generate_justificatif.send(purchase.id)
 
 
