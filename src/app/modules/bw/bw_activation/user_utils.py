@@ -73,13 +73,17 @@ def get_current_user_data() -> StdDict:
     user = cast("User", g.user)
     org = user.organisation
 
+    # Pick the "fonction" contextualised to the BW type being activated,
+    # otherwise `metier_fonction` would often return a misleading value
+    # (bug #0107). Falls back to `metier_fonction` when bw_type unknown.
+    bw_type = session.get("bw_type")
     data.update(
         {
             "first_name": user.first_name,
             "last_name": user.last_name,
             "phone": user.tel_mobile,
             "email": user.email,
-            "fonction": user.metier_fonction,
+            "fonction": user.metier_fonction_for_bw(bw_type),
             "allow_activation": (org and org.is_auto_or_inactive),
         }
     )

@@ -573,3 +573,93 @@ class TestKYCProfileSetValue:
         profile.match_making = {"expertise": "Old"}
         profile.set_value("expertise", "New Expertise")
         assert profile.match_making["expertise"] == "New Expertise"
+
+
+class TestMetierFonctionForBW:
+    """Regression tests for bug #0107.
+
+    `metier_fonction` falls back to `metiers[0]` when no journalistic
+    function is set — which is often misleading. `metier_fonction_for_bw`
+    picks the right source per BW type and returns "" if nothing fits.
+    """
+
+    def _make_profile(
+        self,
+        db: SQLAlchemy,
+        email: str,
+        match_making: dict,
+        metiers: list[str] | None = None,
+    ) -> KYCProfile:
+        user = User(email=email)
+        profile = KYCProfile(
+            match_making=match_making,
+            info_personnelle={"metier_principal_detail": metiers or []},
+        )
+        user.profile = profile
+        db.session.add_all([user, profile])
+        db.session.flush()
+        return profile
+
+    def test_media_uses_fonctions_journalisme(self, db: SQLAlchemy) -> None:
+        profile = self._make_profile(
+            db,
+            "media_ok@test.com",
+            match_making={"fonctions_journalisme": ["Rédacteur en chef"]},
+            metiers=["chef de projet média"],
+        )
+        assert profile.metier_fonction_for_bw("media") == "Rédacteur en chef"
+
+    def test_media_returns_empty_when_no_journalism_function(
+        self, db: SQLAlchemy
+    ) -> None:
+        """Gaspar's case: fonctions_journalisme empty, metier set —
+        we must NOT fall back to metiers[0]."""
+        profile = self._make_profile(
+            db,
+            "media_empty@test.com",
+            match_making={},
+            metiers=["chef de projet média"],
+        )
+        assert profile.metier_fonction_for_bw("media") == ""
+        # And the legacy property still returns the misleading value —
+        # proving we correctly kept the two codepaths separate.
+        assert profile.metier_fonction == "chef de projet média"
+
+    def test_pr_prefers_org_priv_then_pol_adm(self, db: SQLAlchemy) -> None:
+        profile = self._make_profile(
+            db,
+            "pr_fn@test.com",
+            match_making={
+                "fonctions_org_priv_detail": ["Directeur de la communication"],
+                "fonctions_pol_adm_detail": ["Attaché de presse"],
+            },
+        )
+        assert profile.metier_fonction_for_bw("pr") == "Directeur de la communication"
+
+    def test_pr_falls_through_to_pol_adm(self, db: SQLAlchemy) -> None:
+        profile = self._make_profile(
+            db,
+            "pr_pol@test.com",
+            match_making={"fonctions_pol_adm_detail": ["Attaché de presse"]},
+        )
+        assert profile.metier_fonction_for_bw("pr") == "Attaché de presse"
+
+    def test_unknown_bw_type_falls_back_to_legacy(self, db: SQLAlchemy) -> None:
+        """When context is unknown, preserve the historical behaviour."""
+        profile = self._make_profile(
+            db,
+            "unknown_bw@test.com",
+            match_making={"fonctions_journalisme": ["Pigiste"]},
+            metiers=["autre"],
+        )
+        assert profile.metier_fonction_for_bw("totally_unknown") == "Pigiste"
+        assert profile.metier_fonction_for_bw(None) == "Pigiste"
+
+    def test_user_proxy(self, db: SQLAlchemy) -> None:
+        """User.metier_fonction_for_bw delegates to the profile."""
+        profile = self._make_profile(
+            db,
+            "user_proxy@test.com",
+            match_making={"fonctions_journalisme": ["Rédactrice en chef"]},
+        )
+        assert profile.user.metier_fonction_for_bw("media") == "Rédactrice en chef"

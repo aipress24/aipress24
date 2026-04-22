@@ -22,6 +22,7 @@ from flask_super.registry import register
 from svcs.flask import container
 from werkzeug.wrappers import Response as WerkzeugResponse
 
+from app.flask.lib.breadcrumbs import BreadCrumb
 from app.flask.lib.htmx import extract_fragment
 from app.flask.routing import url_for
 from app.models.lifecycle import PublicationStatus
@@ -41,6 +42,7 @@ from app.modules.wip.services.newsroom import (
     RDVProposalData,
 )
 from app.services.auth import AuthService
+from app.services.context import Context
 
 from ._base import BaseWipView
 from ._forms import AvisEnqueteForm
@@ -163,11 +165,30 @@ class AvisEnqueteWipView(BaseWipView):
     ) -> list[str]:
         return [self._build_opportunity_url(c) for c in contacts]
 
+    def _update_phase_breadcrumbs(self, model: AvisEnquete, phase: str) -> None:
+        """Breadcrumb dédié aux sous-phases (ciblage, réponses, rdv…).
+
+        Remplace l'appel standard `update_breadcrumbs(label=...)` par une
+        chaîne enrichie :
+        `Work > Avis d'enquête > <titre> (lien vers détail) > <phase>`
+        Le <titre> redevient cliquable, ce qui permet de remonter à la
+        vue détail et donc au menu « ⋯ » qui mène aux autres phases
+        (bug #0070).
+        """
+        context = container.get(Context)
+        crumbs = [
+            BreadCrumb(label="Work", url=url_for("wip.wip")),
+            BreadCrumb(label=self.label_list, url=self._url_for("index")),
+            BreadCrumb(label=model.title, url=self._url_for("get", id=model.id)),
+            BreadCrumb(label=phase, url=""),
+        ]
+        context.update(breadcrumbs=crumbs)
+
     @route("/<id>/ciblage", methods=["GET", "POST"])
     def ciblage(self, id: str | int):
         model: AvisEnquete = self._get_model(id)
         title = f"Ciblage des contacts - {model.title}"
-        self.update_breadcrumbs(label=model.title)
+        self._update_phase_breadcrumbs(model, "Ciblage")
         # Use services
         filter_service = ExpertFilterService()
         filter_service.initialize(avis_enquete_id=str(id), avis_enquete=model)
@@ -246,7 +267,7 @@ class AvisEnqueteWipView(BaseWipView):
     def reponses(self, id):
         model = self._get_model(id)
         title = f"Gestion des réponses - {model.title}"
-        self.update_breadcrumbs(label=title)
+        self._update_phase_breadcrumbs(model, "Réponses")
 
         service = AvisEnqueteService()
         responses = service.get_contacts_for_avis(model.id)
@@ -266,7 +287,7 @@ class AvisEnqueteWipView(BaseWipView):
     def rdv(self, id):
         model = self._get_model(id)
         title = f"Gestion des rendez-vous - {model.title}"
-        self.update_breadcrumbs(label=title)
+        self._update_phase_breadcrumbs(model, "RDV")
 
         service = AvisEnqueteService()
         contacts_with_rdv = service.get_contacts_with_rdv(model.id)
@@ -291,7 +312,7 @@ class AvisEnqueteWipView(BaseWipView):
             return self._htmx_redirect("rdv", id=id)
 
         title = f"Détails du RDV - {contact.expert.full_name}"
-        self.update_breadcrumbs(label=title)
+        self._update_phase_breadcrumbs(model, f"RDV › {contact.expert.full_name}")
 
         ctx = {
             "title": title,
@@ -404,7 +425,9 @@ class AvisEnqueteWipView(BaseWipView):
             return self._htmx_redirect("reponses", id=id)
 
         title = f"Proposer un RDV - {contact.expert.full_name}"
-        self.update_breadcrumbs(label=title)
+        self._update_phase_breadcrumbs(
+            model, f"RDV › Proposer à {contact.expert.full_name}"
+        )
 
         ctx = {
             "title": title,

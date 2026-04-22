@@ -120,6 +120,11 @@ def create_app(config=None) -> Flask:
     # buys little — session cookies are already HttpOnly + SameSite.
     # `private` alone still prevents shared proxies from caching.
     app.config["SECURITY_CACHE_CONTROL"] = {"private": True}
+    # Without this, Flask-Security's change-email confirmation falls back
+    # to url_for_security("change_email") — i.e. the "request a change"
+    # form — instead of landing the user somewhere useful. Redirect to
+    # preferences (where the action originated). ref: bug #0088.
+    app.config["SECURITY_POST_CHANGE_EMAIL_VIEW"] = "/preferences/"
 
     # 2: Scan to pre-register callbacks, services, etc.
     _scan_packages_filtered(SCAN_PACKAGES)
