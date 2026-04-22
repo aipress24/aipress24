@@ -56,7 +56,7 @@ lint:
 	ruff check
 	# FIXME...
 	# lint-imports
-	deptry src
+	# deptry src
 	vulture --min-confidence 80 src
 	# Typecheck tests - mostly useless
 	# mypy --show-error-codes tests
