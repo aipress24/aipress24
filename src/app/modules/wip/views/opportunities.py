@@ -10,7 +10,7 @@ from datetime import UTC, datetime
 from typing import TYPE_CHECKING, cast
 
 from attr import frozen
-from flask import g, redirect, render_template, request, url_for
+from flask import flash, g, redirect, render_template, request, url_for
 from flask_login import current_user
 from svcs.flask import container
 from werkzeug import Response
@@ -19,6 +19,7 @@ from app.flask.lib.htmx import extract_fragment
 from app.flask.lib.nav import nav
 from app.models.auth import User
 from app.modules.wip import blueprint
+from app.modules.wip.services.newsroom import AvisEnqueteService
 from app.services.emails import ContactAvisEnqueteAcceptanceMail
 
 if TYPE_CHECKING:
@@ -134,8 +135,33 @@ def media_opportunity_post(id: int) -> str | Response:
         elif reponse == "non":
             contact.status = StatutAvis.REFUSE  # type: ignore[assignment]
         elif reponse == "non-mais":
+            try:
+                suggested_id = int(request.form.get("suggested_colleague_id", ""))
+            except ValueError:
+                flash(
+                    "Merci de sélectionner un collègue dans la liste.",
+                    "error",
+                )
+                return redirect(url_for("wip.opportunities"))
+
+            colleague_user = repo.session.get(User, suggested_id)
+            if colleague_user is None:
+                flash("Collègue introuvable.", "error")
+                return redirect(url_for("wip.opportunities"))
+
+            avis_service = AvisEnqueteService()
+            try:
+                avis_service.suggest_colleague(
+                    contact=contact,
+                    colleague=colleague_user,
+                    url_builder=lambda c: url_for("wip.media_opportunity", id=c.id),
+                )
+            except ValueError as e:
+                flash(str(e), "error")
+                return redirect(url_for("wip.opportunities"))
+
             contact.status = StatutAvis.REFUSE_SUGGESTION  # type: ignore[assignment]
-            contact.rdv_notes_expert = request.form.get("suggestion", "")
+            contact.rdv_notes_expert = f"Suggéré: {colleague_user.full_name}"
 
         send_avis_enquete_acceptance_email(contact, reponse)
 
@@ -191,10 +217,12 @@ def _render_media_opportunity(id: int) -> str:
         "reponse1": request.form.get("reponse1", reponse1),
         "contribution": request.form.get("contribution", contribution),
         "suggestion": request.form.get("suggestion", suggestion),
+        "suggested_colleague_id": request.form.get("suggested_colleague_id", ""),
         "email_relation_presse": email_relation_presse,
     }
 
     is_answered = contact.status != StatutAvis.EN_ATTENTE
+    eligible_colleagues = AvisEnqueteService().list_eligible_colleagues(contact)
 
     return render_template(
         "wip/pages/media_opportunity.j2",
@@ -203,6 +231,7 @@ def _render_media_opportunity(id: int) -> str:
         contact=contact,
         form_state=form_state,
         is_answered=is_answered,
+        eligible_colleagues=eligible_colleagues,
         menus={"secondary": get_secondary_menu("opportunities")},
     )
 
