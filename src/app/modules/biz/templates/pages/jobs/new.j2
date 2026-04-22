@@ -1,4 +1,5 @@
 {% extends "layout/private.j2" %}
+{% from "pages/_poster_card.j2" import poster_card %}
 
 {% macro render_field(field, extra_class="") %}
   <div class="mb-4">
@@ -20,11 +21,27 @@
 {% endmacro %}
 
 {% block content %}
+{# Hide browser spin buttons on numeric inputs marked .no-spinner
+   (salary fields). Ref bug #0073. #}
+<style>
+  input.no-spinner::-webkit-outer-spin-button,
+  input.no-spinner::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input.no-spinner { -moz-appearance: textfield; }
+</style>
 <div class="py-10">
   <div class="mx-auto max-w-3xl px-6">
     <h1 class="text-2xl font-semibold text-gray-800 mb-6">
       Publier une offre d'emploi
     </h1>
+    <p class="text-sm text-gray-600 mb-6">
+      Remplissez le formulaire ci-dessous pour publier votre offre
+      d'emploi. Elle s'affichera dans l'espace MARKET / Job Board et les
+      candidatures apparaîtront dans votre espace WORK / OPPORTUNITÉS /
+      Jobs sous forme de notifications.
+    </p>
     <form method="post" class="bg-white p-6 rounded-lg shadow">
       {{ render_field(form.title) }}
       {{ render_field(form.description, extra_class="min-h-[160px]") }}
@@ -33,13 +50,15 @@
         {{ render_field(form.location) }}
         {{ render_field(form.contract_type) }}
         {{ render_field(form.starting_date) }}
-        {{ render_field(form.salary_min) }}
-        {{ render_field(form.salary_max) }}
-        {{ render_field(form.contact_email) }}
+        {{ render_field(form.salary_min, extra_class="no-spinner") }}
+        {{ render_field(form.salary_max, extra_class="no-spinner") }}
       </div>
       <div class="flex gap-4">
         {{ render_checkbox(form.full_time) }}
         {{ render_checkbox(form.remote_ok) }}
+      </div>
+      <div class="mt-6">
+        {{ poster_card(g.user) }}
       </div>
       <div class="flex space-x-3 mt-6">
         <button type="submit"

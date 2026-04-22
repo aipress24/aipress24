@@ -1,0 +1,40 @@
+{# Card showing the identity of the offer poster. Replaces the free
+   `contact_email` input on Mission/Project/Job forms — the poster is
+   always the logged-in user (offer.owner_id = g.user.id) and showing
+   their card removes the double-saisie of an email we already know.
+
+   Ref bug #0073 item 4. #}
+{% macro poster_card(user) %}
+<div>
+  <p class="block text-sm font-medium text-gray-700 mb-2">
+    Information de contact
+  </p>
+  <div class="flex items-center gap-4 p-4 border border-gray-200 rounded-md bg-gray-50">
+    {{ profile_image(user, size=14) }}
+    <div class="flex-1 min-w-0">
+      <p class="font-medium text-gray-900 truncate">
+        {{ user.full_name }}
+      </p>
+      {% if user.metier_fonction %}
+        <p class="text-sm text-gray-600 truncate">
+          {{ user.metier_fonction }}
+        </p>
+      {% endif %}
+      {% if user.organisation_name %}
+        <p class="text-sm text-gray-500 truncate">
+          {{ user.organisation_name }}
+        </p>
+      {% endif %}
+    </div>
+    <a href="{{ url_for('swork.member', id=user.id) }}"
+       class="text-sm text-blue-600 hover:underline whitespace-nowrap"
+       target="_blank" rel="noopener">
+      Voir le profil →
+    </a>
+  </div>
+  <p class="mt-1 text-xs text-gray-500">
+    Les candidatures vous parviendront par notification et par e-mail.
+    Votre profil s'affichera sur l'annonce.
+  </p>
+</div>
+{% endmacro %}
