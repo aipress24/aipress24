@@ -17,6 +17,24 @@ from typing import Any
 
 from advanced_alchemy.types import FileObject
 
+_PLACEHOLDER_IMAGE_URL = "/static/img/gray-texture.png"
+
+
+def media_url(file_object: FileObject | None) -> str:
+    """Return the /media URL for a content-addressed FileObject.
+
+    Uses the hash-based storage key so the URL is stable, cache-friendly,
+    and independent of the parent row. FileObject.path returns the
+    to_filename (the sha256-based storage name set by create_file_object)
+    when present, else the original filename. Legacy non-hashed names get
+    rejected by the /media endpoint's regex and fall through to a broken-
+    image icon — same visible result as the placeholder fallback used for
+    missing content.
+    """
+    if file_object and file_object.path:
+        return f"/media/{file_object.path}"
+    return _PLACEHOLDER_IMAGE_URL
+
 
 def create_file_object(
     content: bytes,

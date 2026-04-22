@@ -13,6 +13,7 @@ from sqlalchemy import orm
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy_utils import ArrowType
 
+from app.lib.file_object_utils import media_url
 from app.models.base import Base
 from app.models.lifecycle import PublicationStatus
 from app.models.mixins import IdMixin, LifeCycleMixin, Owned
@@ -264,7 +265,7 @@ class ComImage(IdMixin, LifeCycleMixin, Owned, Base):
 
     @property
     def url(self) -> str:
-        return f"/wip/communiques/{self.communique_id}/images/{self.id}"
+        return media_url(self.content)
 
     @property
     def is_first(self) -> bool:
