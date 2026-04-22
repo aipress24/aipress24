@@ -24,7 +24,15 @@ from ._common import get_secondary_menu
 
 
 @blueprint.route("/comroom")
-@nav(icon="megaphone", acl=[("Allow", RoleEnum.PRESS_RELATIONS, "view")])
+@nav(
+    icon="megaphone",
+    acl=[
+        ("Allow", RoleEnum.PRESS_RELATIONS, "view"),
+        ("Allow", RoleEnum.EXPERT, "view"),
+        ("Allow", RoleEnum.TRANSFORMER, "view"),
+        ("Allow", RoleEnum.ACADEMIC, "view"),
+    ],
+)
 def comroom():
     """Com'room"""
     # Lazy import to avoid circular import
