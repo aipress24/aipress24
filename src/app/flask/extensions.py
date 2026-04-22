@@ -162,10 +162,14 @@ def register_local_storage(app: Flask) -> None:
 def setup_debug_toolbar(app: Flask) -> None:
     """Setup Flask debug toolbar for development.
 
-    Args:
-        app: Flask application instance.
+    `flask_debugtoolbar` is a dev-only dependency: if it's missing (e.g.
+    a prod image accidentally booted with `FLASK_DEBUG=1`) the toolbar
+    is silently skipped rather than crashing app startup.
     """
-    from flask_debugtoolbar import DebugToolbarExtension
+    try:
+        from flask_debugtoolbar import DebugToolbarExtension
+    except ImportError:
+        return
 
     DebugToolbarExtension(app)
 

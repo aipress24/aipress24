@@ -60,7 +60,9 @@ def target_user(db_session: Session, press_role: Role) -> User:
     user.active = True
     user.roles.append(press_role)
 
-    profile = KYCProfile(contact_type="PRESSE")
+    # profile_id must resolve to a known SurveyProfile for GET /swork/members/<id>
+    # (used by the detail-view edge-case tests).
+    profile = KYCProfile(contact_type="PRESSE", profile_id="P001")
     profile.show_contact_details = {
         "email_PRESSE": True,
         "mobile_PRESSE": True,
@@ -237,7 +239,6 @@ class TestProfileRedirect:
 class TestMemberDetailViewEdgeCases:
     """Test edge cases for member detail view."""
 
-    @pytest.mark.skip(reason="Requires missing selector.j2 template")
     def test_member_page_with_many_followers(
         self,
         authenticated_client: FlaskClient,
@@ -269,7 +270,6 @@ class TestMemberDetailViewEdgeCases:
         response = authenticated_client.get(f"/swork/members/{target_user.id}")
         assert response.status_code == 200
 
-    @pytest.mark.skip(reason="Requires missing selector.j2 template")
     def test_member_page_sets_breadcrumb_label(
         self,
         authenticated_client: FlaskClient,

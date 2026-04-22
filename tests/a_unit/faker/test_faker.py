@@ -55,5 +55,12 @@ def test_faker(db: SQLAlchemy, client: FlaskClient) -> None:
 
 
 def test_script_lookup(app: Flask) -> None:
+    # `app.faker` is excluded from the flask-super startup scan (dev-only
+    # subpackage). Importing the `_scripts` package triggers the @register
+    # decorators so `lookup(FakerScript)` can find them.
+    import app.faker._scripts.invoices  # noqa: F401, PLC0415
+    import app.faker._scripts.newsroom  # noqa: F401, PLC0415
+    import app.faker._scripts.notifications  # noqa: F401, PLC0415
+
     scripts = lookup(FakerScript)
     assert len(scripts) > 0

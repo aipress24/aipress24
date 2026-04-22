@@ -28,7 +28,11 @@ def test_single_user(db: SQLAlchemy) -> None:
     assert score == 0
 
 
-@pytest.mark.skip
+@pytest.mark.skip(
+    reason="Reputation formula changed since these expected scores (0.1 per "
+    "follow) were written; needs re-baseline against current compute_reputation. "
+    "Cannot use xfail: uses the session-scoped `db` fixture which leaks data."
+)
 def test_two_users(db: SQLAlchemy) -> None:
     joe = User(email="joe@example.com")
     jim = User(email="jim@example.com")
@@ -60,7 +64,11 @@ def test_single_org(db: SQLAlchemy) -> None:
     assert score == 0
 
 
-@pytest.mark.skip
+@pytest.mark.skip(
+    reason="Reputation formula changed since these expected scores (0.1 per "
+    "follow) were written; needs re-baseline against current compute_reputation. "
+    "Cannot use xfail: uses the session-scoped `db` fixture which leaks data."
+)
 def test_record(db: SQLAlchemy) -> None:
     joe = User(email="joe@example.com")
     jim = User(email="jim@example.com")

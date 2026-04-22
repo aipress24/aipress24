@@ -25,5 +25,15 @@
     href="{{ url_for('admin.export_route', exporter_name='organisations') }}">
     Liste des organisations </a>
 </div>
+<div>
+    - <a class="text-sm font-medium text-indigo-800 underline pl-1"
+    href="{{ url_for('admin.export_route', exporter_name='business_walls') }}">
+    Liste des Business Walls </a>
+</div>
+<div>
+    - <a class="text-sm font-medium text-indigo-800 underline pl-1"
+    href="{{ url_for('admin.export_route', exporter_name='mixed_org_bw') }}">
+    Export mixte (Organisations + BW + Membres) </a>
+</div>
 
 {% endblock %}

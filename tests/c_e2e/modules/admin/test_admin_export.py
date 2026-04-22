@@ -19,7 +19,9 @@ from app.models.auth import KYCProfile, Role, User
 from app.models.organisation import Organisation
 from app.modules.admin.views._export import (
     BaseExporter,
+    BusinessWallExporter,
     InscriptionsExporter,
+    MixedBWOrgExporter,
     ModificationsExporter,
     OrganisationsExporter,
     UsersExporter,
@@ -473,3 +475,85 @@ class TestOrganisationsExporter:
         assert isinstance(data, list)
         assert len(data) >= 3  # At least the 3 we created
         assert all(isinstance(org, Organisation) for org in data)
+
+
+class TestBusinessWallExporter:
+    """Test BusinessWallExporter class — spec `items-mineurs.md` §2.8."""
+
+    def test_exporter_creates_document(
+        self, db_session: Session, sample_organisations: list[Organisation]
+    ):
+        """BusinessWallExporter generates a valid ODS document."""
+        exporter = BusinessWallExporter()
+        exporter.run()
+
+        assert len(exporter.document) > 0
+        assert exporter.document[:4] == b"PK\x03\x04"
+
+    def test_exporter_filename(
+        self, db_session: Session, sample_organisations: list[Organisation]
+    ):
+        exporter = BusinessWallExporter()
+        exporter.run()
+        assert exporter.filename.startswith("business_walls_")
+        assert exporter.filename.endswith(".ods")
+
+    def test_fetch_data_includes_created_bws(
+        self, db_session: Session, sample_organisations: list[Organisation]
+    ):
+        exporter = BusinessWallExporter()
+        data = exporter.fetch_data()
+        assert len(data) >= 3
+
+    def test_export_route_business_walls(
+        self,
+        admin_client: FlaskClient,
+        sample_organisations: list[Organisation],
+    ):
+        response = admin_client.get(
+            url_for("admin.export_route", exporter_name="business_walls")
+        )
+        assert response.status_code in (200, 302)
+        if response.status_code == 200:
+            assert response.mimetype == "application/vnd.oasis.opendocument.spreadsheet"
+            assert response.data[:4] == b"PK\x03\x04"
+
+
+class TestMixedBWOrgExporter:
+    """Test MixedBWOrgExporter — 3-sheet ODS (Orgs + BWs + Members)."""
+
+    def test_exporter_creates_document(
+        self,
+        db_session: Session,
+        sample_organisations: list[Organisation],
+        sample_users: list[User],
+    ):
+        exporter = MixedBWOrgExporter()
+        exporter.run()
+
+        assert len(exporter.document) > 0
+        assert exporter.document[:4] == b"PK\x03\x04"
+
+    def test_exporter_filename(
+        self,
+        db_session: Session,
+        sample_organisations: list[Organisation],
+    ):
+        exporter = MixedBWOrgExporter()
+        exporter.run()
+        assert exporter.filename.startswith("mixte_org_bw_")
+        assert exporter.filename.endswith(".ods")
+
+    def test_export_route_mixed(
+        self,
+        admin_client: FlaskClient,
+        sample_organisations: list[Organisation],
+        sample_users: list[User],
+    ):
+        response = admin_client.get(
+            url_for("admin.export_route", exporter_name="mixed_org_bw")
+        )
+        assert response.status_code in (200, 302)
+        if response.status_code == 200:
+            assert response.mimetype == "application/vnd.oasis.opendocument.spreadsheet"
+            assert response.data[:4] == b"PK\x03\x04"

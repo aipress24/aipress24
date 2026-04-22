@@ -23,6 +23,7 @@ from app.flask.extensions import db
 from app.models.auth import KYCProfile, User
 from app.models.organisation import Organisation
 from app.modules.admin import blueprint
+from app.modules.bw.bw_activation.models.business_wall import BusinessWall
 
 LOCALTZ = pytz.timezone(LOCAL_TZ)
 
@@ -744,12 +745,273 @@ class OrganisationsExporter(BaseExporter):
         super().make_sheet()
 
 
+class BusinessWallExporter(BaseExporter):
+    """Export all Business Walls (any status) as a single sheet."""
+
+    sheet_name = "Business Walls"
+    columns: ClassVar[list] = [
+        "id",
+        "created_at",
+        "activated_at",
+        "bw_type",
+        "status",
+        "name",
+        "name_entity",
+        "name_official",
+        "organisation_id",
+        "organisation_name",
+        "owner_email",
+        "payer_email",
+        "siren",
+        "tva",
+        "tel_standard",
+        "postal_address",
+        "pays_zip_ville",
+        "site_url",
+    ]
+
+    @property
+    def title(self) -> str:
+        assert self.date_now is not None
+        dt = self.date_now.strftime("%d/%m/%Y")
+        return f"Business Walls à la date: {dt}"
+
+    @property
+    def filename(self) -> str:
+        assert self.date_now is not None
+        return f"business_walls_{self.date_now.strftime('%Y-%m-%d')}.ods"
+
+    def init_columns_definition(self) -> None:
+        text3 = self.WIDTH_TEXT3
+        text4 = self.WIDTH_TEXT4
+        text6 = self.WIDTH_TEXT6
+        text8 = self.WIDTH_TEXT8
+        text12 = self.WIDTH_TEXT12
+        fields = [
+            FieldColumn("id", "ID", text12),
+            FieldColumn("created_at", "Création", text3),
+            FieldColumn("activated_at", "Activation", text3),
+            FieldColumn("bw_type", "Type", text3),
+            FieldColumn("status", "Statut", text3),
+            FieldColumn("name", "Nom du BW", text6),
+            FieldColumn("name_entity", "Nom entité", text6),
+            FieldColumn("name_official", "Nom officiel", text6),
+            FieldColumn("organisation_id", "Org ID", text3),
+            FieldColumn("organisation_name", "Organisation", text6),
+            FieldColumn("owner_email", "Owner", text6),
+            FieldColumn("payer_email", "Payer", text6),
+            FieldColumn("siren", "SIREN", text4),
+            FieldColumn("tva", "TVA", text4),
+            FieldColumn("tel_standard", "Tél.", text4),
+            FieldColumn("postal_address", "Adresse", text8),
+            FieldColumn("pays_zip_ville", "Pays/Ville", text6),
+            FieldColumn("site_url", "Site", text6),
+        ]
+        self.columns_definition = {f.name: f for f in fields}
+
+    # Direct attributes on BusinessWall
+    _BW_ATTRS: ClassVar[set[str]] = {
+        "bw_type",
+        "status",
+        "name",
+        "name_entity",
+        "name_official",
+        "siren",
+        "tva",
+        "tel_standard",
+        "postal_address",
+        "pays_zip_ville",
+        "site_url",
+    }
+
+    def cell_value(
+        self,
+        bw: BusinessWall,
+        name: str,
+    ) -> str | datetime | int | bool | None:
+        value: str | datetime | int | bool | None
+        match name:
+            case "id":
+                value = str(bw.id)
+            case "created_at" | "activated_at":
+                value = self.get_datetime_attr(bw, name)
+            case "organisation_id":
+                value = bw.organisation_id or ""
+            case "organisation_name":
+                org = (
+                    db.session.get(Organisation, bw.organisation_id)
+                    if bw.organisation_id
+                    else None
+                )
+                value = org.name if org else ""
+            case "owner_email":
+                owner = db.session.get(User, bw.owner_id)
+                value = owner.email if owner else ""
+            case "payer_email":
+                payer = db.session.get(User, bw.payer_id)
+                value = payer.email if payer else ""
+            case _ if name in self._BW_ATTRS:
+                value = getattr(bw, name, "") or ""
+            case _:
+                msg = f"cell_value() Inconsistent key: {name}"
+                raise KeyError(msg)
+
+        if isinstance(value, datetime):
+            return as_naive_localtz(value)
+        return value
+
+    def fetch_data(self) -> list[BusinessWall]:
+        stmt = select(BusinessWall).order_by(
+            BusinessWall.bw_type,
+            nulls_last(BusinessWall.created_at),
+        )
+        return list(db.session.scalars(stmt))
+
+    def bw_row(self, bw: BusinessWall) -> dict[str, Any]:
+        row = [self.cell_value(bw, name) for name in self.columns]
+        return {"row": row, "style": "default_table_row"}
+
+    def do_content_lines(self) -> None:
+        for bw in self.fetch_data():
+            self.sheet["table"].append(self.bw_row(bw))
+
+    def make_sheet(self) -> None:
+        self.date_now = datetime.now(tz=ZoneInfo(LOCAL_TZ))
+        super().make_sheet()
+
+
+class MixedBWOrgExporter(BaseExporter):
+    """Export a 3-tab ODS: Organisations, Business Walls, Members.
+
+    Members sheet includes cross-references (user → org → bw) so spreadsheet
+    users can filter/sort both axes.
+    """
+
+    sheet_name = "Mixte"  # unused — we override make_sheet()
+
+    @property
+    def title(self) -> str:
+        assert self.date_now is not None
+        dt = self.date_now.strftime("%d/%m/%Y")
+        return f"Export mixte Organisations / Business Walls à la date: {dt}"
+
+    @property
+    def filename(self) -> str:
+        assert self.date_now is not None
+        return f"mixte_org_bw_{self.date_now.strftime('%Y-%m-%d')}.ods"
+
+    # We don't use the default single-sheet pipeline; `run()` builds three.
+    def init_columns_definition(self) -> None:
+        pass
+
+    def fetch_data(self) -> list[Any]:
+        return []
+
+    def do_content_lines(self) -> None:
+        pass
+
+    def run(self) -> None:
+        self.date_now = datetime.now(tz=ZoneInfo(LOCAL_TZ))
+
+        orgs_exporter = OrganisationsExporter()
+        orgs_exporter.run()
+        bws_exporter = BusinessWallExporter()
+        bws_exporter.run()
+
+        members_sheet = self._build_members_sheet()
+
+        content = {
+            "body": [
+                orgs_exporter.sheet,
+                bws_exporter.sheet,
+                members_sheet,
+            ]
+        }
+        self.document = odsgenerator.ods_bytes(content)
+
+    _MEMBER_COLUMNS: ClassVar[list[FieldColumn]] = [
+        FieldColumn("user_id", "User ID", "3cm"),
+        FieldColumn("email", "Email", "6cm"),
+        FieldColumn("last_name", "Nom", "4cm"),
+        FieldColumn("first_name", "Prénom", "4cm"),
+        FieldColumn("organisation_id", "Org ID", "3cm"),
+        FieldColumn("organisation_name", "Organisation", "6cm"),
+        FieldColumn("bw_id", "BW ID", "6cm"),
+        FieldColumn("bw_type", "BW Type", "3cm"),
+        FieldColumn("bw_status", "BW Statut", "3cm"),
+    ]
+
+    def _build_members_sheet(self) -> dict[str, Any]:
+        sheet: dict[str, Any] = {"name": "Membres", "table": []}
+        # Header rows mirror BaseExporter.do_top_info / do_header_line
+        sheet["table"].extend(
+            [
+                {"row": ["AiPRESS24"], "style": "bold"},
+                {
+                    "row": [
+                        {
+                            "value": "Membres (utilisateurs × organisations × BW)",
+                            "style": "bold",
+                        }
+                    ],
+                    "style": "default_table_row",
+                },
+                {"row": [], "style": "default_table_row"},
+            ]
+        )
+        header_row = [
+            {
+                "style": "bold_left_bg_gray_grid_06pt",
+                "value": col.header,
+            }
+            for col in self._MEMBER_COLUMNS
+        ]
+        sheet["table"].append({"row": header_row, "style": "default_table_row"})
+
+        # Fetch members — only active, non-clone, non-deleted users attached
+        # to an organisation, eagerly resolving org and its active BW.
+        stmt = (
+            select(User)
+            .where(
+                User.active == true(),
+                User.is_clone == false(),
+                User.deleted_at.is_(None),
+                User.organisation_id.is_not(None),
+            )
+            .order_by(nulls_last(User.last_name))
+        )
+        users = list(db.session.scalars(stmt))
+
+        for user in users:
+            org = user.organisation
+            bw = None
+            if org is not None and org.bw_id is not None:
+                bw = db.session.get(BusinessWall, org.bw_id)
+            row = [
+                str(user.id),
+                user.email or "",
+                user.last_name or "",
+                user.first_name or "",
+                str(org.id) if org else "",
+                org.name if org else "",
+                str(bw.id) if bw else "",
+                bw.bw_type if bw else "",
+                bw.status if bw else "",
+            ]
+            sheet["table"].append({"row": row, "style": "default_table_row"})
+
+        sheet["width"] = [col.width for col in self._MEMBER_COLUMNS]
+        return sheet
+
+
 # Mapping of exporter names to exporter classes
 EXPORTERS = {
     "inscription": InscriptionsExporter,
     "modification": ModificationsExporter,
     "users": UsersExporter,
     "organisations": OrganisationsExporter,
+    "business_walls": BusinessWallExporter,
+    "mixed_org_bw": MixedBWOrgExporter,
 }
 
 

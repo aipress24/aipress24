@@ -70,9 +70,6 @@ dependencies = [
     # CLI
     "rich<14.0.0,>=13.7.0",
     "cleez<1.0.0,>=0.1.11",
-    # Debug / develop (currently used in prod too)
-    "devtools<1.0.0,>=0.12.2",
-    "snoop<1.0,>=0.6",
     # Images
     "pillow<12,>=11",
     # Full text search
@@ -84,9 +81,6 @@ dependencies = [
     "dramatiq-pg<1.0.0,>=0.11.0",
     "apscheduler<4.0.0,>=3.10.4",
     "redis<6.0.0,>=5.0.1",
-    # Fake data generators (used currently in prod, will be removed later)
-    "faker>=30",
-    "mimesis>=18",
     # PDF generation
     "weasyprint<64,>=63",
     # Security / auth
@@ -138,6 +132,12 @@ dev = [
     "honcho>=2,<3",
     # Code generation
     "buildstr<1.0.0,>=0.1.1",
+    # Debug helpers (optional at runtime — app falls back to `print`)
+    "devtools<1.0.0,>=0.12.2",
+    "snoop<1.0,>=0.6",
+    # Fake data generation (used only by `flask fake` and tests)
+    "faker>=30",
+    "mimesis>=18",
     # Main QA tools
     "abilian-devtools<1.0,>=0.7",
     "flask-debugtoolbar<1.0,>=0.16",

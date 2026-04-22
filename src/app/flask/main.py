@@ -12,15 +12,17 @@ import warnings
 # Suppress deprecation warning from passlib using pkg_resources
 warnings.filterwarnings("ignore", message="pkg_resources is deprecated")
 
+import importlib
 import os
+import pkgutil
 import time
+from collections.abc import Iterable
 
 import stripe
 import svcs
 from flask import Flask, Response, g, request, session
 from flask_super import register_commands
 from flask_super.registry import lookup
-from flask_super.scanner import scan_packages
 from loguru import logger
 from sqlalchemy.orm import scoped_session
 from svcs.flask import container
@@ -62,6 +64,34 @@ SCAN_PACKAGES = [
     "app",
 ]
 
+# Sub-packages excluded from the scan. `app.faker` depends on `faker` +
+# `mimesis` (dev-only deps) and is only ever used by the `flask fake` CLI;
+# it must not be imported during normal app startup.
+SCAN_EXCLUDES: frozenset[str] = frozenset({"app.faker"})
+
+
+def _scan_packages_filtered(packages: Iterable[str]) -> None:
+    """Scan packages for side effects, skipping `SCAN_EXCLUDES` subtrees."""
+    for package_name in packages:
+        if _is_excluded(package_name):
+            continue
+        root = importlib.import_module(package_name)
+        if not hasattr(root, "__path__"):
+            continue
+        prefix = root.__name__ + "."
+        for _, module_name, _ in pkgutil.walk_packages(root.__path__, prefix):
+            if _is_excluded(module_name):
+                continue
+            importlib.import_module(module_name)
+
+
+def _is_excluded(module_name: str) -> bool:
+    for excluded in SCAN_EXCLUDES:
+        if module_name == excluded or module_name.startswith(excluded + "."):
+            return True
+    return False
+
+
 MAX_REQUEST_DURATION = 0.5
 
 debugging.install()
@@ -86,7 +116,7 @@ def create_app(config=None) -> Flask:
     app.config["SECURITY_DATETIME_FACTORY"] = utcnow
 
     # 2: Scan to pre-register callbacks, services, etc.
-    scan_packages(SCAN_PACKAGES)
+    _scan_packages_filtered(SCAN_PACKAGES)
 
     # 3. Perform registrations on app
     register_all(app)
