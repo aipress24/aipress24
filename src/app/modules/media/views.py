@@ -36,9 +36,7 @@ def serve(storage_name: str) -> Response:
 
     mimetype, _ = mimetypes.guess_type(storage_name)
     sha256 = storage_name.split(".", 1)[0]
-    # Cache-Control is set centrally by the blueprint's after_request hook
-    # so it survives Flask-Security's global no-store mutation.
-    return send_file(
+    response = send_file(
         BytesIO(content),
         mimetype=mimetype or "application/octet-stream",
         download_name=storage_name,
@@ -46,3 +44,9 @@ def serve(storage_name: str) -> Response:
         max_age=_MAX_AGE,
         conditional=True,
     )
+    # Override send_file's default `public` with `private` (content is
+    # session-gated) and add `immutable` (URL is content-addressed, bytes
+    # never change). Flask-Security's global hook still flips `private`
+    # → `private=True` via dict-style assignment (cosmetic only).
+    response.headers["Cache-Control"] = f"private, max-age={_MAX_AGE}, immutable"
+    return response
