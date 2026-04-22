@@ -221,6 +221,10 @@ class User(LifeCycleMixin, Addressable, UserMixin, Base):
     def metier_fonction(self) -> str:
         return self.profile.metier_fonction
 
+    def metier_fonction_for_bw(self, bw_type: str | None) -> str:
+        """Fonction contextualisée au type de BW (cf. bug #0107)."""
+        return self.profile.metier_fonction_for_bw(bw_type)
+
     @hybrid_property
     def organisation_name(self) -> str:
         if self.organisation:
@@ -335,6 +339,38 @@ class Role(Base, RoleMixin):
 
     def __repr__(self) -> str:
         return f"<Role {self.name}>"
+
+
+# Per-BW-type priority list of KYCProfile attributes to pick the
+# "fonction" from. First non-empty list wins; if nothing matches we
+# return "" rather than falling back on `metiers[0]` which is often
+# misleading (bug #0107).
+_BW_TYPE_FONCTION_SOURCES: dict[str, tuple[str, ...]] = {
+    "media": ("fonctions_journalisme",),
+    "corporate_media": ("fonctions_journalisme", "fonctions_org_priv_detail"),
+    "pr": (
+        "fonctions_org_priv_detail",
+        "fonctions_pol_adm_detail",
+        "fonctions_ass_syn_detail",
+    ),
+    "leaders_experts": (
+        "fonctions_org_priv_detail",
+        "fonctions_pol_adm_detail",
+        "fonctions_ass_syn_detail",
+    ),
+    "transformers": (
+        "fonctions_org_priv_detail",
+        "fonctions_pol_adm_detail",
+    ),
+    "academics": (
+        "fonctions_pol_adm_detail",
+        "fonctions_org_priv_detail",
+    ),
+    "union": (
+        "fonctions_ass_syn_detail",
+        "fonctions_pol_adm_detail",
+    ),
+}
 
 
 class KYCProfile(Base):
@@ -470,6 +506,26 @@ class KYCProfile(Base):
             return fonctions[0]
         if metiers := self.metiers:
             return metiers[0]
+        return ""
+
+    def metier_fonction_for_bw(self, bw_type: str | None) -> str:
+        """Fonction à afficher sur un Business Wall, contextualisée.
+
+        Le générique `metier_fonction` retombe sur `metiers[0]` en l'
+        absence d'une fonction de journalisme explicite, ce qui remonte
+        souvent un métier brut trompeur (bug #0107). Ici, on sélectionne
+        la bonne source selon le type de BW et on renvoie vide si rien
+        de pertinent n'est trouvé — le champ reste alors pré-rempli
+        uniquement par son placeholder.
+        """
+        sources = _BW_TYPE_FONCTION_SOURCES.get(bw_type or "")
+        if sources is None:
+            # BW type inconnu ou vide : on conserve le comportement existant.
+            return self.metier_fonction
+        for attr in sources:
+            values = getattr(self, attr, None) or []
+            if values:
+                return values[0]
         return ""
 
     @property

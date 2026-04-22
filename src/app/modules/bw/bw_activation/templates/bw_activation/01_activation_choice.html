@@ -119,6 +119,22 @@
                                 >
                                     Saisir les informations de facturation →
                                 </a>
+                            {% elif info.get('skip_pricing_input') %}
+                                {# PR Agency: activation à 1 client imposée.
+                                   Ref. bug #0050. On saute la saisie du
+                                   nombre de clients sur activation_choice
+                                   et on va directement à pricing_page, où
+                                   le nombre est pré-rempli et l'utilisateur
+                                   n'a plus qu'à accepter les CGV. #}
+                                <p class="text-sm text-gray-700 mb-4">
+                                    {{ info.pricing_explanation }}
+                                </p>
+                                <a
+                                    href="{{ url_for('bw_activation.pricing_page', bw_type=type_id) }}"
+                                    class="block w-full text-center rounded-md bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-700"
+                                >
+                                    Activer pour {{ info.pricing_default }} client →
+                                </a>
                             {% else %}
                                 <p class="text-xs text-gray-500 mb-2">
                                     Étape 1 : Saisir les informations de
@@ -143,6 +159,7 @@
                                             required
                                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm px-3 py-2 border"
                                             placeholder="{{ info.pricing_placeholder }}"
+                                            value="{{ info.pricing_default }}"
                                         />
                                         <p class="mt-1 text-xs text-gray-500">
                                             Ce nombre déterminera le

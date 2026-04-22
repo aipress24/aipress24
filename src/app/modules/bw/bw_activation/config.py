@@ -125,6 +125,12 @@ BW_TYPES: dict[str, dict[str, Any]] = {
         "pricing_label": "Nombre de clients représentés",
         "pricing_placeholder": "1",
         "pricing_default": 1,  # Start all PR Agencies at 1 client
+        # Decision (ref. bug #0050): don't ask the PR agency for the
+        # client count at activation — everyone starts at 1, the counter
+        # grows incrementally as clients declare the agency. The UI
+        # renders a direct "Activer pour 1 client" button instead of an
+        # input, POSTing client_count=1 implicitly.
+        "skip_pricing_input": True,
         "pricing_explanation": (
             "Le montant du tarif de votre abonnement à Business Wall for PR dépend "
             "du nombre de clients que vous représentez sur AiPRESS24. Pour démarrer, "
