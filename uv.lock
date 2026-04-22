@@ -38,7 +38,7 @@ wheels = [
 
 [[package]]
 name = "advanced-alchemy"
-version = "1.7.0"
+version = "1.9.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "alembic" },
@@ -46,9 +46,9 @@ dependencies = [
     { name = "sqlalchemy" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/17/b8/947e4bc8ab1d19c656379a4c8639e4a046a52fb22a1be3ba73a6f73591f9/advanced_alchemy-1.7.0.tar.gz", hash = "sha256:ee15913f066a06a43c376402041f2a013f2d51893d54f52c4612782cd16023ab", size = 943135, upload-time = "2025-10-14T03:52:20.694Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/45/6c/21597e2a4fc849356f7ca97ffe2c02e97fd03a3e165b7657b750715bc708/advanced_alchemy-1.9.3.tar.gz", hash = "sha256:70d49883d58adb89ff96d9606d8722810a36d9c3567c508f266ebe85388829bf", size = 1152397, upload-time = "2026-04-09T00:20:11.412Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/0b/2b/2eb9e33ce7c963cfd8d0238a8c031fc9c857a5e86279e845820313a06fd1/advanced_alchemy-1.7.0-py3-none-any.whl", hash = "sha256:25de86c89e7ace55b4ec5d0dac19c321d05a843f728c8d939ec89d2931fa6394", size = 256682, upload-time = "2025-10-14T03:52:18.844Z" },
+    { url = "https://files.pythonhosted.org/packages/19/da/dc53be44a4fd5005218f5e28f4bd23399a07456cfe813028ead3dc501254/advanced_alchemy-1.9.3-py3-none-any.whl", hash = "sha256:697a6fb85ba99c6eb26afe3be70bed7e191cad227f3d5fd592a88aa8df69771d", size = 316502, upload-time = "2026-04-09T00:20:09.014Z" },
 ]
 
 [[package]]
@@ -372,7 +372,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "advanced-alchemy", specifier = "<1.8" },
+    { name = "advanced-alchemy", specifier = ">=1.9,<1.10" },
     { name = "aenum", specifier = ">=3.1.15,<4.0.0" },
     { name = "apscheduler", specifier = ">=3.10.4,<4.0.0" },
     { name = "argon2-cffi", specifier = ">=23.1.0,<24.0.0" },
@@ -965,11 +965,11 @@ sdist = { url = "https://files.pythonhosted.org/packages/bd/7b/eda64cbd50cc0e37b
 
 [[package]]
 name = "certifi"
-version = "2026.2.25"
+version = "2026.4.22"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/af/2d/7bf41579a8986e348fa033a31cdd0e4121114f6bce2457e8876010b092dd/certifi-2026.2.25.tar.gz", hash = "sha256:e887ab5cee78ea814d3472169153c2d12cd43b14bd03329a39a9c6e2e80bfba7", size = 155029, upload-time = "2026-02-25T02:54:17.342Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/25/ee/6caf7a40c36a1220410afe15a1cc64993a1f864871f698c0f93acb72842a/certifi-2026.4.22.tar.gz", hash = "sha256:8d455352a37b71bf76a79caa83a3d6c25afee4a385d632127b6afb3963f1c580", size = 137077, upload-time = "2026-04-22T11:26:11.191Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/9a/3c/c17fb3ca2d9c3acff52e30b309f538586f9f5b9c9cf454f3845fc9af4881/certifi-2026.2.25-py3-none-any.whl", hash = "sha256:027692e4402ad994f1c42e52a4997a9763c646b73e4096e4d5d6db8af1d6f0fa", size = 153684, upload-time = "2026-02-25T02:54:15.766Z" },
+    { url = "https://files.pythonhosted.org/packages/22/30/7cd8fdcdfbc5b869528b079bfb76dcdf6056b1a2097a662e5e8c04f42965/certifi-2026.4.22-py3-none-any.whl", hash = "sha256:3cb2210c8f88ba2318d29b0388d1023c8492ff72ecdde4ebdaddbb13a31b1c4a", size = 135707, upload-time = "2026-04-22T11:26:09.372Z" },
 ]
 
 [[package]]
