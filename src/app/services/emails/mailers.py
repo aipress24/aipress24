@@ -200,6 +200,10 @@ class AvisEnqueteNotificationMail(EmailTemplate):
     sender_full_name: str
     sender_job: str
     url: str
+    # If set, the mail is being sent "par ricochet" because a colleague
+    # of the recipient's organisation answered "non-mais" and suggested
+    # them. Rendered as an extra paragraph at the top of the body.
+    suggested_by_name: str = ""
 
 
 @dataclass(kw_only=True)

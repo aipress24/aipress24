@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime
 from typing import TYPE_CHECKING
@@ -479,6 +480,7 @@ class AvisEnqueteService:
         experts: list[User],
         urls: list[str],
         sender: User,
+        suggested_by_name: str = "",
     ) -> None:
         """
         Send notification emails to experts about an Avis d'Enquête.
@@ -487,6 +489,9 @@ class AvisEnqueteService:
             avis: The Avis d'Enquête
             experts: List of experts to email
             sender: The journalist sending the avis
+            suggested_by_name: If non-empty, indicates the recipient was
+                suggested by a colleague of theirs (same organisation) —
+                the email adds a paragraph naming the suggester.
         """
         sender_mail = sender.email
         sender_full_name = sender.full_name
@@ -504,8 +509,108 @@ class AvisEnqueteService:
                 bw_name=org_name,
                 abstract=avis.title,
                 url=url,
+                suggested_by_name=suggested_by_name,
             )
             notification_mail.send()
+
+    # ----------------------------------------------------------------
+    # Suggestion (bug #0061): "Non, mais je vous suggère une personne de
+    # mon organisation mieux placée que moi"
+    # ----------------------------------------------------------------
+
+    def list_eligible_colleagues(
+        self,
+        contact: ContactAvisEnquete,
+    ) -> list[User]:
+        """Return users in the expert's organisation who could be suggested.
+
+        Excludes: the expert themselves, users without an organisation,
+        inactive users, and users already contacted for this avis.
+        """
+        expert = contact.expert
+        if not expert.organisation_id:
+            return []
+
+        already_contacted_ids = {
+            c.expert_id
+            for c in self._contact_repo.list(avis_enquete_id=contact.avis_enquete_id)
+        }
+
+        return [
+            u
+            for u in expert.organisation.members
+            if u.id != expert.id and u.id not in already_contacted_ids and u.active
+        ]
+
+    def suggest_colleague(
+        self,
+        contact: ContactAvisEnquete,
+        colleague: User,
+        url_builder: Callable[[ContactAvisEnquete], str],
+    ) -> ContactAvisEnquete:
+        """Chain a new ContactAvisEnquete from an expert's "non-mais" answer.
+
+        Validates the colleague (same org, active, not already contacted
+        for this avis), creates a new ContactAvisEnquete for them marked
+        as suggested by the original expert, posts an in-app notification,
+        sends the avis-d'enquête email with a "suggéré par" banner, and
+        records the notification for audit. Anti-spam cap is bypassed on
+        purpose — suggestions are rare and explicitly member-triggered.
+
+        The caller is responsible for setting the original contact's
+        status to REFUSE_SUGGESTION and for committing the transaction.
+
+        Args:
+            contact: the original ContactAvisEnquete that answered non-mais.
+            colleague: the User being suggested.
+            url_builder: callable that returns an opportunity URL for a
+                given (flushed) ContactAvisEnquete. Used for both the
+                in-app notification target and the email link.
+
+        Returns:
+            The newly-created ContactAvisEnquete.
+
+        Raises:
+            ValueError: if the colleague is not eligible.
+        """
+        eligible_ids = {u.id for u in self.list_eligible_colleagues(contact)}
+        if colleague.id not in eligible_ids:
+            msg = (
+                f"User {colleague.id} is not an eligible colleague "
+                f"for contact {contact.id}"
+            )
+            raise ValueError(msg)
+
+        suggester = contact.expert
+        avis = contact.avis_enquete
+
+        new_contact = ContactAvisEnquete(
+            avis_enquete=avis,
+            journaliste=contact.journaliste,
+            expert=colleague,
+            suggested_by_user=suggester,
+        )
+        self._contact_repo.add(new_contact)
+        self._db_session.flush()
+
+        url = url_builder(new_contact)
+        message = f"Un nouvel avis d'enquête est disponible: {avis.title}"
+        self._notification_service.post(colleague, message, url)
+
+        self.send_avis_enquete_emails(
+            avis=avis,
+            experts=[colleague],
+            urls=[url],
+            sender=contact.journaliste,
+            suggested_by_name=suggester.full_name,
+        )
+
+        # Record so analytics are consistent, but don't count against the
+        # cap — we bypassed it on purpose.
+        record_notifications(self._db_session, [colleague], avis)
+        self._db_session.flush()
+
+        return new_contact
 
     # ----------------------------------------------------------------
     # Queries

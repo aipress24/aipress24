@@ -107,10 +107,20 @@ class ContactAvisEnquete(IdMixin, Base):
     )
     expert_id: Mapped[int] = mapped_column(sa.ForeignKey("aut_user.id"), nullable=False)
 
+    # Set when this contact was created because another contact (same org)
+    # answered "non-mais" and suggested this user. Points to the suggesting
+    # user, so the journalist can trace the chain.
+    suggested_by_user_id: Mapped[int | None] = mapped_column(
+        sa.ForeignKey("aut_user.id"), nullable=True
+    )
+
     # Relations
     avis_enquete: Mapped[AvisEnquete] = orm.relationship("AvisEnquete")
     journaliste: Mapped[User] = orm.relationship("User", foreign_keys=[journaliste_id])
     expert: Mapped[User] = orm.relationship("User", foreign_keys=[expert_id])
+    suggested_by_user: Mapped[User | None] = orm.relationship(
+        "User", foreign_keys=[suggested_by_user_id]
+    )
 
     # Other
     status: Mapped[StatutAvis] = mapped_column(

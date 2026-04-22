@@ -41,7 +41,7 @@
           {% elif form_state.reponse1 == "non" %}
             Non
           {% elif form_state.reponse1 == "non-mais" %}
-            Non, mais je vous suggère une personne mieux placée que moi
+            Non, mais je vous suggère une personne de mon organisation mieux placée que moi
           {% endif %}
         </p>
 
@@ -106,9 +106,17 @@
               name="reponse1"
               value="non-mais"
               {% if form_state.reponse1 == "non-mais" %}checked{% endif %}
+              {% if not eligible_colleagues %}disabled{% endif %}
             />
-            <label for="non-mais">
-              Non, mais je vous suggère une personne mieux placée que moi
+            <label for="non-mais"
+              {% if not eligible_colleagues %}class="text-gray-400"{% endif %}>
+              Non, mais je vous suggère une personne de mon organisation mieux placée que moi
+              {% if not eligible_colleagues %}
+                <span class="text-sm italic">
+                  (aucun collègue disponible — écrivez-nous à
+                  <a href="mailto:contact@aipress24.com">contact@aipress24.com</a>)
+                </span>
+              {% endif %}
             </label>
           </div>
         </fieldset>
@@ -125,15 +133,23 @@
           </textarea>
         {% endif %}
 
-        {% if form_state["reponse1"] == "non-mais" %}
-          <p>Merci de saisir le nom de la personne</p>
+        {% if form_state["reponse1"] == "non-mais" and eligible_colleagues %}
+          <p>Merci de sélectionner un collègue de votre organisation :</p>
 
-          <input
-            type="text"
-            name="suggestion"
+          <select
+            name="suggested_colleague_id"
             class="w-full"
-            value="{{ form_state.suggestion }}"
-            {% if is_answered %}disabled{% endif %}/>
+            {% if is_answered %}disabled{% endif %}
+            required
+          >
+            <option value="">— choisir un collègue —</option>
+            {% for colleague in eligible_colleagues %}
+              <option
+                value="{{ colleague.id }}"
+                {% if form_state.suggested_colleague_id == colleague.id|string %}selected{% endif %}
+              >{{ colleague.full_name }}{% if colleague.job_title %} — {{ colleague.job_title }}{% endif %}</option>
+            {% endfor %}
+          </select>
         {% endif %}
 
         {% if not is_answered %}

@@ -261,15 +261,35 @@ class TestOpportunityResponse:
         test_contact: ContactAvisEnquete,
         db_session: Session,
     ):
-        """Test refusing with a suggestion."""
-        with patch(
-            "app.modules.wip.views.opportunities.send_avis_enquete_acceptance_email"
+        """Test refusing with a suggestion of an org colleague.
+
+        The 'non-mais' answer now requires picking a colleague from the
+        expert's organisation (bug #0061). The suggested colleague must
+        end up with a new ContactAvisEnquete pointing back to the
+        suggesting user via suggested_by_user_id.
+        """
+        colleague = User(
+            email="colleague@example.com",
+            first_name="Layelle",
+            last_name="Lekun",
+            active=True,
+        )
+        colleague.organisation = test_user.organisation
+        colleague.organisation_id = test_user.organisation_id
+        db_session.add(colleague)
+        db_session.commit()
+
+        with (
+            patch(
+                "app.modules.wip.views.opportunities.send_avis_enquete_acceptance_email"
+            ),
+            patch("app.services.emails.base.EmailMessage"),
         ):
             response = logged_in_client.post(
                 f"/wip/opportunities/{test_contact.id}",
                 data={
                     "reponse1": "non-mais",
-                    "suggestion": "Try contacting Dr. Smith instead",
+                    "suggested_colleague_id": str(colleague.id),
                 },
             )
 
@@ -277,7 +297,18 @@ class TestOpportunityResponse:
 
         db_session.refresh(test_contact)
         assert test_contact.status == StatutAvis.REFUSE_SUGGESTION
-        assert test_contact.rdv_notes_expert == "Try contacting Dr. Smith instead"
+        assert "Layelle" in test_contact.rdv_notes_expert
+
+        chained = (
+            db_session.query(ContactAvisEnquete)
+            .filter_by(
+                avis_enquete_id=test_contact.avis_enquete_id,
+                expert_id=colleague.id,
+            )
+            .one()
+        )
+        assert chained.suggested_by_user_id == test_user.id
+        assert chained.status == StatutAvis.EN_ATTENTE
 
 
 class TestOpportunityFormUpdate:

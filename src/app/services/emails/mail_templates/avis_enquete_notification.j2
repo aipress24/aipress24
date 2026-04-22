@@ -7,6 +7,12 @@
 Bonjour,
 </p>
 
+{% if suggested_by_name %}
+<p>
+Cette enquête vous a été suggérée par <strong>{{ suggested_by_name }}</strong>, collègue de votre organisation, qui a jugé que vous seriez mieux placé·e pour y répondre.
+</p>
+{% endif %}
+
 <p>
 Un avis d'enquête vient d'être diffusé par un journaliste membre d'{{ AIPRESS24 }} :
 </p>

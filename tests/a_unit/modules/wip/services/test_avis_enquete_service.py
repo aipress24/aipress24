@@ -8,11 +8,12 @@ from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING
+from unittest.mock import patch
 
 import arrow
 import pytest
 
-from app.models.auth import User
+from app.models.auth import KYCProfile, User
 from app.models.organisation import Organisation
 from app.modules.wip.models import (
     AvisEnquete,
@@ -456,3 +457,157 @@ class TestAvisEnqueteServiceCiblage:
         assert expert1.id not in expert_ids
         assert expert2.id in expert_ids
         assert expert3.id in expert_ids
+
+
+class TestSuggestColleague:
+    """Tests for the 'non-mais' suggestion flow (bug #0061)."""
+
+    def _setup(self, db_session):
+        journaliste = User(email="j@test.com", active=True)
+        # metier_fonction reads from the KYCProfile's JSON fields, so
+        # the email-rendering path requires a profile with at least the
+        # nested keys it looks up present.
+        journaliste.profile = KYCProfile(
+            profile_label="Journaliste",
+            info_personnelle={"metier_principal_detail": []},
+            match_making={"fonctions_journalisme": ["Rédacteur en chef"]},
+        )
+        media = Organisation(name="Media")
+        expert_org = Organisation(name="Strada Transports")
+        expert = User(email="expert@test.com", active=True)
+        colleague = User(email="colleague@test.com", active=True)
+        outsider = User(email="outsider@other.com", active=True)
+        other_org = Organisation(name="Other Co")
+
+        db_session.add_all(
+            [journaliste, media, expert_org, expert, colleague, outsider, other_org]
+        )
+        db_session.flush()
+
+        expert.organisation_id = expert_org.id
+        colleague.organisation_id = expert_org.id
+        outsider.organisation_id = other_org.id
+        db_session.flush()
+
+        enquete = _create_test_enquete(db_session, journaliste, media)
+        contact = _create_test_contact(
+            db_session, enquete, journaliste, expert, StatutAvis.EN_ATTENTE
+        )
+        return journaliste, expert, colleague, outsider, enquete, contact
+
+    def test_list_eligible_colleagues_returns_org_members(self, db_session) -> None:
+        _, _, colleague, outsider, _, contact = self._setup(db_session)
+
+        service = AvisEnqueteService(db_session=db_session)
+        eligible = service.list_eligible_colleagues(contact)
+        ids = {u.id for u in eligible}
+
+        assert colleague.id in ids
+        assert outsider.id not in ids
+
+    def test_list_eligible_colleagues_excludes_self(self, db_session) -> None:
+        _, expert, _, _, _, contact = self._setup(db_session)
+
+        service = AvisEnqueteService(db_session=db_session)
+        eligible = service.list_eligible_colleagues(contact)
+        assert expert.id not in {u.id for u in eligible}
+
+    def test_list_eligible_colleagues_excludes_already_contacted(
+        self, db_session
+    ) -> None:
+        journaliste, _, colleague, _, enquete, contact = self._setup(db_session)
+        # Pre-existing contact for colleague → must be filtered out
+        _create_test_contact(
+            db_session, enquete, journaliste, colleague, StatutAvis.EN_ATTENTE
+        )
+
+        service = AvisEnqueteService(db_session=db_session)
+        eligible = service.list_eligible_colleagues(contact)
+        assert colleague.id not in {u.id for u in eligible}
+
+    def test_list_eligible_colleagues_excludes_inactive(self, db_session) -> None:
+        _, _, colleague, _, _, contact = self._setup(db_session)
+        colleague.active = False
+        db_session.flush()
+
+        service = AvisEnqueteService(db_session=db_session)
+        eligible = service.list_eligible_colleagues(contact)
+        assert colleague.id not in {u.id for u in eligible}
+
+    def test_suggest_colleague_creates_chained_contact(self, db_session) -> None:
+        journaliste, expert, colleague, _, enquete, contact = self._setup(db_session)
+
+        service = AvisEnqueteService(db_session=db_session)
+        with patch("app.services.emails.base.EmailMessage"):
+            new_contact = service.suggest_colleague(
+                contact=contact,
+                colleague=colleague,
+                url_builder=lambda c: f"/opp/{c.id}",
+            )
+
+        assert new_contact.expert_id == colleague.id
+        assert new_contact.journaliste_id == journaliste.id
+        assert new_contact.avis_enquete_id == enquete.id
+        assert new_contact.suggested_by_user_id == expert.id
+        assert new_contact.status == StatutAvis.EN_ATTENTE
+
+    def test_suggest_colleague_rejects_outsider(self, db_session) -> None:
+        _, _, _, outsider, _, contact = self._setup(db_session)
+
+        service = AvisEnqueteService(db_session=db_session)
+        with patch("app.services.emails.base.EmailMessage"):
+            with pytest.raises(ValueError, match="not an eligible colleague"):
+                service.suggest_colleague(
+                    contact=contact,
+                    colleague=outsider,
+                    url_builder=lambda c: f"/opp/{c.id}",
+                )
+
+    def test_suggest_colleague_rejects_self(self, db_session) -> None:
+        _, expert, _, _, _, contact = self._setup(db_session)
+
+        service = AvisEnqueteService(db_session=db_session)
+        with patch("app.services.emails.base.EmailMessage"):
+            with pytest.raises(ValueError, match="not an eligible colleague"):
+                service.suggest_colleague(
+                    contact=contact,
+                    colleague=expert,
+                    url_builder=lambda c: f"/opp/{c.id}",
+                )
+
+    def test_suggest_colleague_rejects_duplicate(self, db_session) -> None:
+        journaliste, _, colleague, _, enquete, contact = self._setup(db_session)
+        # Colleague already has a contact for this avis
+        _create_test_contact(
+            db_session, enquete, journaliste, colleague, StatutAvis.EN_ATTENTE
+        )
+
+        service = AvisEnqueteService(db_session=db_session)
+        with patch("app.services.emails.base.EmailMessage"):
+            with pytest.raises(ValueError, match="not an eligible colleague"):
+                service.suggest_colleague(
+                    contact=contact,
+                    colleague=colleague,
+                    url_builder=lambda c: f"/opp/{c.id}",
+                )
+
+    def test_suggest_colleague_sends_email_with_suggester_name(
+        self, db_session
+    ) -> None:
+        _, expert, colleague, _, _, contact = self._setup(db_session)
+        expert.first_name = "Jocelyne"
+        expert.last_name = "Strada"
+        db_session.flush()
+
+        service = AvisEnqueteService(db_session=db_session)
+        with patch("app.services.emails.base.EmailMessage") as mock_email:
+            service.suggest_colleague(
+                contact=contact,
+                colleague=colleague,
+                url_builder=lambda c: f"/opp/{c.id}",
+            )
+
+        mock_email.assert_called_once()
+        body = mock_email.call_args.kwargs["body"]
+        assert "Jocelyne Strada" in body
+        assert "collègue de votre organisation" in body
