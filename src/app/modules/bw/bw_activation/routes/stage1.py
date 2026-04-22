@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, cast
 
-from flask import g, redirect, render_template, session, url_for
+from flask import current_app, g, redirect, render_template, session, url_for
 from werkzeug.wrappers import Response
 
 from app.modules.bw.bw_activation import bp
@@ -100,7 +100,7 @@ def confirm_subscription():
 
 
 @bp.route("/select-subscription/<bw_type>", methods=["POST"])
-def select_subscription(bw_type):
+def select_subscription(bw_type: str):
     """Confirm or select a subscription type and redirect to contacts nomination."""
     user = cast("User", g.user)
 
@@ -133,6 +133,7 @@ def activation_choice():
     return render_template(
         "bw_activation/01_activation_choice.html",
         bw_types=BW_TYPES,
+        stripe_live_enabled=current_app.config.get("STRIPE_LIVE_ENABLED", False),
     )
 
 
