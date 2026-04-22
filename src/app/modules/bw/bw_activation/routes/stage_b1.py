@@ -359,14 +359,25 @@ def configure_content():
 
 @bp.route("/cancel-subscription", methods=["POST"])
 def cancel_subscription():
-    """Cancel a Business Wall subscription locally (legacy flow).
+    """Cancel a Business Wall subscription locally.
 
-    When `STRIPE_LIVE_ENABLED` is on, cancellation must go through the
-    Stripe Billing Portal instead — otherwise Stripe would keep
-    charging the customer while the local BW is already deactivated.
-    This route refuses to act in that case.
+    When `STRIPE_LIVE_ENABLED` is on *and* this BW has an actual Stripe
+    subscription, cancellation go through the Stripe Billing Portal
+    so that Stripe stops billing.
+
+    If the BW was created before Stripe was enabled (or via simulation)
+    and has no Stripe customer id, the local cancellation is still allowed.
     """
-    if current_app.config.get("STRIPE_LIVE_ENABLED"):
+    user = cast("User", g.user)
+    business_wall = current_business_wall(user)
+
+    has_stripe_sub = (
+        business_wall is not None
+        and business_wall.subscription is not None
+        and business_wall.subscription.stripe_customer_id
+    )
+
+    if current_app.config.get("STRIPE_LIVE_ENABLED") and has_stripe_sub:
         flash(
             "Merci de résilier depuis « Gérer mon abonnement » (portail Stripe).",
             "error",
@@ -380,8 +391,6 @@ def cancel_subscription():
         response.headers["HX-Redirect"] = url_for("bw_activation.index")
         return response
 
-    user = cast("User", g.user)
-    business_wall = current_business_wall(user)
     if not business_wall:
         session["error"] = ERR_BW_NOT_FOUND
         response = make_response()
