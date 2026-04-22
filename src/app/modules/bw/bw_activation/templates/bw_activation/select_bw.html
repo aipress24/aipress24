@@ -1,0 +1,59 @@
+{% extends "layout.html" %}
+
+{% block title %}Sélectionner un Business Wall{% endblock %}
+
+{% block content %}
+    <div class="max-w-4xl mx-auto">
+        <div class="bg-white p-8 rounded-2xl shadow-lg border border-gray-200">
+            <div class="border-b pb-6 mb-8">
+                <h1 class="text-3xl font-bold text-gray-900">
+                    Sélectionner un Business Wall
+                </h1>
+                <p class="mt-2 text-gray-600">
+                    Vous gérez plusieurs Business Walls. Veuillez choisir celui
+                    que vous souhaitez administrer.
+                </p>
+            </div>
+
+            <div class="space-y-4">
+                {% for bw in business_walls %}
+                    <div
+                        class="border border-gray-300 p-6 rounded-lg hover:shadow-md hover:border-orange-500 transition flex items-center justify-between"
+                    >
+                        <div>
+                            <h2 class="text-xl font-semibold text-gray-800">
+                                {{ bw.name_safe }}
+                            </h2>
+                            <p class="text-sm text-gray-600 mt-1">
+                                Type :
+                                <span class="font-medium">
+                                    {{ labels.get(bw.bw_type, bw.bw_type) }}
+                                </span>
+                                {% set org = bw.get_organisation() %}
+                                {% if org %}
+                                    — Organisation :
+                                    <span class="font-medium">{{ org.name }}</span>
+                                {% endif %}
+                            </p>
+                            <p class="text-xs text-gray-500 mt-1">
+                                Statut :
+                                <span class="capitalize">{{ bw.status }}</span>
+                            </p>
+                        </div>
+                        <form
+                            method="POST"
+                            action="{{ url_for('bw_activation.select_bw_post', bw_id=bw.id) }}"
+                        >
+                            <button
+                                type="submit"
+                                class="rounded-md bg-orange-600 px-5 py-2 text-sm font-semibold text-white hover:bg-orange-700"
+                            >
+                                Gérer →
+                            </button>
+                        </form>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
