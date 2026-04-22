@@ -179,3 +179,36 @@ def setup_security(app: Flask, db: SQLAlchemy) -> None:
 
     user_datastore = SQLAlchemySessionUserDatastore(db.session, User, Role)
     security.init_app(app, user_datastore)
+    _patch_flask_security_cache_control(app)
+
+
+def _patch_flask_security_cache_control(app: Flask) -> None:
+    """Replace Flask-Security's `add_cache_control` hook with a clean one.
+
+    Upstream iterates the CACHE_CONTROL config dict and writes each key
+    via `resp.cache_control[attr] = value`, which is dict-style access
+    on Werkzeug's CacheControl proxy. Standalone directives (`private`,
+    `no-store`, ...) then serialise as `private=True`, which is invalid
+    per RFC 7234 — browsers fall back to treating it as the bare token,
+    but the header on the wire is malformed on every authenticated
+    response. Our replacement uses attribute setters, which Werkzeug
+    knows to serialise as bare tokens. Preserves the original's
+    registration slot so handler ordering is unchanged; no-ops if the
+    upstream hook can't be found (future Flask-Security rewrite).
+    """
+    from flask_security.utils import config_value
+
+    def clean_add_cache_control(resp):
+        cc = config_value("CACHE_CONTROL", app=app) or {}
+        for attr, value in cc.items():
+            setattr(resp.cache_control, attr.replace("-", "_"), value)
+        return resp
+
+    hooks = app.after_request_funcs.get(None, [])
+    for i, hook in enumerate(hooks):
+        if (
+            getattr(hook, "__name__", "") == "add_cache_control"
+            and getattr(hook, "__module__", "").startswith("flask_security")
+        ):
+            hooks[i] = clean_add_cache_control
+            return
