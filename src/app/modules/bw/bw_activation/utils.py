@@ -75,6 +75,7 @@ def init_session():
 
 def fill_session(current_bw: BusinessWall) -> None:
     """Load into session information from current Businesswall."""
+    session["bw_id"] = str(current_bw.id)
     session["bw_type"] = current_bw.bw_type
     session["bw_type_confirmed"] = True
     session["suggested_bw_type"] = current_bw.bw_type
@@ -86,6 +87,7 @@ def fill_session(current_bw: BusinessWall) -> None:
 
 def clear_bw_session() -> None:
     """Clear session BW information when cancelling subscription."""
+    session["bw_id"] = None
     session["bw_type"] = None
     session["bw_type_confirmed"] = False
     session["suggested_bw_type"] = ""
