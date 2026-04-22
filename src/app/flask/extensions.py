@@ -206,9 +206,10 @@ def _patch_flask_security_cache_control(app: Flask) -> None:
 
     hooks = app.after_request_funcs.get(None, [])
     for i, hook in enumerate(hooks):
-        if (
-            getattr(hook, "__name__", "") == "add_cache_control"
-            and getattr(hook, "__module__", "").startswith("flask_security")
+        hook_name = getattr(hook, "__name__", "")
+        hook_module = getattr(hook, "__module__", "")
+        if hook_name == "add_cache_control" and hook_module.startswith(
+            "flask_security"
         ):
             hooks[i] = clean_add_cache_control
             return
