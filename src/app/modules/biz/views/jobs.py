@@ -78,10 +78,6 @@ class JobOfferForm(Form):
     starting_date = DateField(
         "Date de prise de poste", validators=[validators.Optional()]
     )
-    contact_email = StringField(
-        "E-mail de contact (optionnel)",
-        validators=[validators.Optional(), validators.Email()],
-    )
 
 
 @blueprint.route("/jobs/new", methods=["GET", "POST"])
@@ -103,7 +99,8 @@ def jobs_new():
             salary_min=euros_to_cents(form.salary_min.data),
             salary_max=euros_to_cents(form.salary_max.data),
             starting_date=date_to_datetime(form.starting_date.data),
-            contact_email=form.contact_email.data or "",
+            # contact_email left empty on new offers; notifications
+            # fall back to owner.email. Ref bug #0073 item 4.
             status=default_new_offer_status(),
             mission_status=MissionStatus.OPEN,
             owner_id=user.id,

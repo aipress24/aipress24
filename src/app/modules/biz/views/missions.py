@@ -53,10 +53,6 @@ class MissionOfferForm(Form):
     budget_min = IntegerField("Budget min (€)", validators=[validators.Optional()])
     budget_max = IntegerField("Budget max (€)", validators=[validators.Optional()])
     deadline = DateField("Date limite", validators=[validators.Optional()])
-    contact_email = StringField(
-        "E-mail de contact (optionnel)",
-        validators=[validators.Optional(), validators.Email()],
-    )
 
 
 @blueprint.route("/missions/new", methods=["GET", "POST"])
@@ -73,7 +69,9 @@ def missions_new():
             budget_min=euros_to_cents(form.budget_min.data),
             budget_max=euros_to_cents(form.budget_max.data),
             deadline=date_to_datetime(form.deadline.data),
-            contact_email=form.contact_email.data or "",
+            # contact_email left empty on new offers; notifications
+            # fall back to owner.email (cf. _pick_emitter_email). Ref bug
+            # #0073 item 4.
             status=default_new_offer_status(),
             mission_status=MissionStatus.OPEN,
             owner_id=user.id,

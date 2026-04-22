@@ -66,10 +66,6 @@ class ProjectOfferForm(Form):
         "Type de projet (dossier, série, enquête...)",
         validators=[validators.Optional()],
     )
-    contact_email = StringField(
-        "E-mail de contact (optionnel)",
-        validators=[validators.Optional(), validators.Email()],
-    )
 
 
 @blueprint.route("/projects/new", methods=["GET", "POST"])
@@ -89,7 +85,8 @@ def projects_new():
             team_size=form.team_size.data,
             duration_months=form.duration_months.data,
             project_type=form.project_type.data or "",
-            contact_email=form.contact_email.data or "",
+            # contact_email left empty on new offers; notifications
+            # fall back to owner.email. Ref bug #0073 item 4.
             status=default_new_offer_status(),
             mission_status=MissionStatus.OPEN,
             owner_id=user.id,

@@ -1,4 +1,5 @@
 {% extends "layout/private.j2" %}
+{% from "pages/_poster_card.j2" import poster_card %}
 
 {% macro render_field(field, extra_class="") %}
   <div class="mb-4">
@@ -13,21 +14,40 @@
 {% endmacro %}
 
 {% block content %}
+{# Hide browser spin buttons on numeric inputs marked .no-spinner
+   (budget fields). Click-by-click entry was unusable in practice ;
+   users now type the amount directly. Ref bug #0073. #}
+<style>
+  input.no-spinner::-webkit-outer-spin-button,
+  input.no-spinner::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input.no-spinner { -moz-appearance: textfield; }
+</style>
 <div class="py-10">
   <div class="mx-auto max-w-3xl px-6">
     <h1 class="text-2xl font-semibold text-gray-800 mb-6">
       Publier une mission
     </h1>
+    <p class="text-sm text-gray-600 mb-6">
+      Remplissez le formulaire ci-dessous pour publier votre proposition
+      de mission ponctuelle. Elle s'affichera dans l'espace MARKET /
+      Missions et les candidatures apparaîtront dans votre espace WORK /
+      OPPORTUNITÉS / Missions sous forme de notifications.
+    </p>
     <form method="post" class="bg-white p-6 rounded-lg shadow">
       {{ render_field(form.title) }}
       {{ render_field(form.description, extra_class="min-h-[160px]") }}
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         {{ render_field(form.sector) }}
         {{ render_field(form.location) }}
-        {{ render_field(form.budget_min) }}
-        {{ render_field(form.budget_max) }}
+        {{ render_field(form.budget_min, extra_class="no-spinner") }}
+        {{ render_field(form.budget_max, extra_class="no-spinner") }}
         {{ render_field(form.deadline) }}
-        {{ render_field(form.contact_email) }}
+      </div>
+      <div class="mt-6">
+        {{ poster_card(g.user) }}
       </div>
       <div class="flex space-x-3 mt-6">
         <button type="submit"
