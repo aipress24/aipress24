@@ -126,6 +126,11 @@ def create_entry(
     seq: int = 0,
 ) -> None:
     """Create a new entry in a taxonomy."""
+    # Strip stray whitespace — stray trailing spaces in the source ODS
+    # were splitting categories into phantom duplicates (bug #0095).
+    name = name.strip()
+    category = category.strip()
+    value = value.strip()
     entry = TaxonomyEntry(
         taxonomy_name=taxonomy_name, name=name, category=category, value=value, seq=seq
     )
@@ -144,6 +149,9 @@ def update_entry(
     - id is used for faster queries, and should not be stored between updates
     - seq number is only used for sorting
     """
+    name = name.strip()
+    category = category.strip()
+    value = value.strip()
     query = select(TaxonomyEntry).filter(
         TaxonomyEntry.taxonomy_name == taxonomy_name, TaxonomyEntry.value == value
     )
