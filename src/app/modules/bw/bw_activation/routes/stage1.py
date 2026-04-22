@@ -68,10 +68,9 @@ def index():
         if org_bw and org_bw.status != BWStatus.CANCELLED.value:
             session["error"] = ERR_NOT_MANAGER
             return redirect(url_for("bw_activation.not_authorized"))
-        else:
-            # No BW at all — start activation flow
-            session["suggested_bw_type"] = guess_best_bw_type(user).value
-            return redirect(url_for("bw_activation.confirm_subscription"))
+        # No BW at all — start activation flow
+        session["suggested_bw_type"] = guess_best_bw_type(user).value
+        return redirect(url_for("bw_activation.confirm_subscription"))
 
     if len(active_manageable) == 1:
         # Only one BW, direct access
