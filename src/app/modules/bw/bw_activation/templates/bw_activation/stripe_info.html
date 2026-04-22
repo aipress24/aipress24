@@ -1,0 +1,153 @@
+{% extends "layout.html" %}
+
+{% block title %}Informations de facturation - {{ bw_info.name }}{% endblock %}
+
+{% block content %}
+    <div class="max-w-3xl mx-auto">
+        <div class="bg-white p-8 rounded-lg shadow-md">
+            <h1 class="text-2xl font-bold text-gray-800 mb-2">
+                Informations de facturation Stripe
+            </h1>
+            <p class="text-gray-600 mb-6">
+                Ces informations sont nécessaires pour créer votre abonnement
+                Business Wall for PR via Stripe.
+            </p>
+
+            <div class="mb-6 p-4 bg-green-50 rounded-md border border-green-200">
+                <h2 class="font-semibold text-lg text-gray-800 mb-1">
+                    {{ bw_info.name }}
+                </h2>
+                <p class="text-sm text-gray-600">
+                    {{ bw_info.description }}
+                </p>
+            </div>
+
+            <form
+                method="POST"
+                action="{{ url_for('bw_activation.stripe_info', bw_type=bw_type) }}"
+                class="space-y-5"
+            >
+                <div>
+                    <label
+                        for="company_name"
+                        class="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                        Nom de l'entreprise
+                    </label>
+                    <input
+                        type="text"
+                        name="company_name"
+                        id="company_name"
+                        value="{{ default_name }}"
+                        required
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm px-3 py-2 border"
+                    />
+                </div>
+
+                <div>
+                    <label
+                        for="siren"
+                        class="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                        Numéro SIRET
+                    </label>
+                    <input
+                        type="text"
+                        name="siren"
+                        id="siren"
+                        required
+                        pattern="[0-9]{14}"
+                        maxlength="14"
+                        placeholder="12345678901234"
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm px-3 py-2 border"
+                    />
+                    <p class="mt-1 text-xs text-gray-500">
+                        14 chiffres requis.
+                    </p>
+                </div>
+
+                <div>
+                    <label
+                        for="payer_email"
+                        class="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                        Email de facturation
+                    </label>
+                    <input
+                        type="email"
+                        name="payer_email"
+                        id="payer_email"
+                        value="{{ default_email }}"
+                        required
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm px-3 py-2 border"
+                    />
+                </div>
+
+                <div>
+                    <label
+                        for="tel_standard"
+                        class="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                        Téléphone
+                    </label>
+                    <input
+                        type="tel"
+                        name="tel_standard"
+                        id="tel_standard"
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm px-3 py-2 border"
+                    />
+                </div>
+
+                <div>
+                    <label
+                        for="postal_address"
+                        class="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                        Adresse postale
+                    </label>
+                    <textarea
+                        name="postal_address"
+                        id="postal_address"
+                        rows="2"
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm px-3 py-2 border"
+                    ></textarea>
+                </div>
+
+                <div class="pt-4 border-t">
+                    <label class="flex items-start gap-2">
+                        <input
+                            type="checkbox"
+                            name="cgv_accepted"
+                            required
+                            class="mt-1 h-5 w-5 text-green-600"
+                        />
+                        <span class="text-sm text-gray-700">
+                            J'accepte les
+                            <a
+                                href="/page/CGV-BusinessWall.md"
+                                target="_blank"
+                                class="text-green-600 underline"
+                            >Conditions générales de vente</a
+                                >.
+                            </span>
+                        </label>
+                    </div>
+
+                    <div class="flex gap-4 pt-2">
+                        <a
+                            href="{{ url_for('bw_activation.activation_choice') }}"
+                            class="flex-1 text-center rounded-md bg-gray-300 px-4 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-400"
+                        >
+                            ← Retour
+                        </a>
+                        <button
+                            type="submit"
+                            class="flex-1 rounded-md bg-green-600 px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-green-700"
+                        >
+                            Procéder au paiement Stripe →
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+{% endblock %}

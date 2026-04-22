@@ -47,16 +47,20 @@
                 <p class="text-sm text-gray-700">
                     <strong>Type de Business Wall :</strong> {{ bw_info.name }}
                 </p>
-                {% if config.get('STRIPE_LIVE_ENABLED') %}
-                    {# When Stripe is live, cancellation goes through the
-                       official Billing Portal (dashboard card). We hide
-                       this local-only button to avoid leaving Stripe in a
-                       billing state out of sync with the app. #}
-                    <span class="text-xs italic text-gray-500">
-                        Résilier depuis
-                        <a href="{{ url_for('bw_activation.dashboard') }}"
-                           class="underline">mon tableau de bord</a>.
-                    </span>
+                {% if config.get('STRIPE_LIVE_ENABLED') and business_wall.subscription and business_wall.subscription.stripe_customer_id %}
+                    {# This BW has a real Stripe subscription → go to the Billing Portal so Stripe stops billing in sync. #}
+                    <form
+                        method="POST"
+                        action="{{ url_for('bw_activation.billing_portal') }}"
+                        class="inline"
+                    >
+                        <button
+                            type="submit"
+                            class="text-xs italic text-gray-500 underline bg-transparent border-0 p-0 cursor-pointer hover:text-gray-700"
+                        >
+                            Résilier via le portail Stripe →
+                        </button>
+                    </form>
                 {% else %}
                     <button type="button"
                             data-modal-target="confirm_resiliation_popup"
