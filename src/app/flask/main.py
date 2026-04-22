@@ -114,6 +114,12 @@ def create_app(config=None) -> Flask:
     setup_config(app, config)
     # force flask-security to use non naive datetime
     app.config["SECURITY_DATETIME_FACTORY"] = utcnow
+    # Flask-Security's default is {"private": True, "no-store": True},
+    # applied globally via an after_app_request hook. `no-store` kills
+    # caching on every response (including /media immutable assets) and
+    # buys little — session cookies are already HttpOnly + SameSite.
+    # `private` alone still prevents shared proxies from caching.
+    app.config["SECURITY_CACHE_CONTROL"] = {"private": True}
 
     # 2: Scan to pre-register callbacks, services, etc.
     _scan_packages_filtered(SCAN_PACKAGES)

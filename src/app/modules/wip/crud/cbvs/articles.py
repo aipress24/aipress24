@@ -4,10 +4,8 @@
 
 from __future__ import annotations
 
-from io import BytesIO
 from typing import TYPE_CHECKING, cast
 
-import advanced_alchemy
 from flask import (
     Flask,
     flash,
@@ -15,7 +13,6 @@ from flask import (
     redirect,
     render_template,
     request,
-    send_file,
 )
 from flask_classful import route
 from flask_super.registry import register
@@ -24,7 +21,6 @@ from sqlalchemy_utils.types.arrow import arrow
 from werkzeug.exceptions import NotFound
 
 from app.flask.extensions import db
-from app.flask.lib.constants import EMPTY_PNG
 from app.flask.lib.templates import templated
 from app.flask.routing import url_for
 from app.lib.file_object_utils import create_file_object
@@ -321,36 +317,10 @@ class ArticlesWipView(BaseWipView):
     @route("/<int:article_id>/images/<int:image_id>")
     def image(self, article_id: int, image_id: int):
         article = cast("Article", self._get_model(article_id))
-        for image in article.images:
-            if image.id == image_id:
-                break
-        else:
+        image = next((im for im in article.images if im.id == image_id), None)
+        if image is None:
             raise NotFound
-
-        stored_file = image.content
-        if stored_file:
-            try:
-                file_bytes = stored_file.get_content()
-                file_like_object = BytesIO(file_bytes)
-                mimetype = stored_file.content_type
-                download_name = stored_file.filename
-            except (
-                FileNotFoundError,
-                advanced_alchemy.exceptions.ImproperConfigurationError,
-            ) as e:
-                msg = f"Image not found (article {article_id}): {e}"
-                warn(msg)
-                file_like_object = BytesIO(EMPTY_PNG)
-                mimetype = "image/png"
-                download_name = "empty.png"
-        else:
-            file_like_object = BytesIO(EMPTY_PNG)
-            mimetype = "image/png"
-            download_name = "empty.png"
-
-        return send_file(
-            file_like_object, mimetype=mimetype, download_name=download_name
-        )
+        return redirect(image.url, code=301)
 
     @route("/<int:article_id>/images/<int:image_id>/delete", methods=["POST"])
     def delete_image(self, article_id: int, image_id: int):
