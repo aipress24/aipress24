@@ -145,10 +145,15 @@ class TestCaching:
         assert "private" in cache_control
         assert "immutable" in cache_control
         assert "max-age=31536000" in cache_control
-        # Flask-Security appends no-store to every authenticated response
-        # by default; our after_request override must strip it for /media,
-        # otherwise browsers would refuse to cache immutable assets.
+        # Flask-Security's default appends `no-store` to every authed
+        # response, which defeats caching on immutable assets; we drop
+        # it via SECURITY_CACHE_CONTROL config.
         assert "no-store" not in cache_control
+        # Flask-Security's upstream add_cache_control writes directives
+        # via dict-style access, producing malformed `private=True`; our
+        # patched hook uses attribute setters so the standalone directive
+        # serialises as a bare token. This asserts the patch is active.
+        assert "private=True" not in cache_control
 
     def test_emits_etag_from_sha256(
         self, client: FlaskClient, local_media_backend: Path
