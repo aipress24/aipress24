@@ -77,6 +77,11 @@ def _inject_breadcrumbs_to_context() -> None:
     if not hasattr(g, "nav"):
         return
 
+    nav_crumbs = g.nav.breadcrumbs()
+    if not nav_crumbs:
+        # if endpoint not in nav tree, keep manually-set breadcrumbs
+        return
+
     try:
         from app.services.context import Context
 
@@ -84,7 +89,7 @@ def _inject_breadcrumbs_to_context() -> None:
         # Convert from nav format (label, url) to Page format (name, href)
         breadcrumbs = [
             {"name": crumb.label, "href": crumb.url, "current": crumb.current}
-            for crumb in g.nav.breadcrumbs()
+            for crumb in nav_crumbs
         ]
         context.update(breadcrumbs=breadcrumbs)
     except Exception:  # noqa: S110
