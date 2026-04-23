@@ -134,6 +134,7 @@ def media_opportunity_post(id: int) -> str | Response:
             )
         elif reponse == "non":
             contact.status = StatutAvis.REFUSE  # type: ignore[assignment]
+            contact.rdv_notes_expert = request.form.get("refusal_reason", "")
         elif reponse == "non-mais":
             try:
                 suggested_id = int(request.form.get("suggested_colleague_id", ""))
@@ -198,6 +199,7 @@ def _render_media_opportunity(id: int) -> str:
 
     reponse1 = ""
     contribution = ""
+    refusal_reason = ""
     suggestion = ""
     email_relation_presse = expert.profile.get_value("email_relation_presse")
 
@@ -209,6 +211,7 @@ def _render_media_opportunity(id: int) -> str:
         contribution = contact.rdv_notes_expert or ""
     elif contact.status == StatutAvis.REFUSE:
         reponse1 = "non"
+        refusal_reason = contact.rdv_notes_expert or ""
     elif contact.status == StatutAvis.REFUSE_SUGGESTION:
         reponse1 = "non-mais"
         suggestion = contact.rdv_notes_expert or ""
@@ -216,6 +219,7 @@ def _render_media_opportunity(id: int) -> str:
     form_state = {
         "reponse1": request.form.get("reponse1", reponse1),
         "contribution": request.form.get("contribution", contribution),
+        "refusal_reason": request.form.get("refusal_reason", refusal_reason),
         "suggestion": request.form.get("suggestion", suggestion),
         "suggested_colleague_id": request.form.get("suggested_colleague_id", ""),
         "email_relation_presse": email_relation_presse,
