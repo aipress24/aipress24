@@ -10,7 +10,7 @@ from datetime import UTC, datetime
 from typing import TYPE_CHECKING, cast
 
 from attr import frozen
-from flask import flash, g, redirect, render_template, request, url_for
+from flask import current_app, flash, g, redirect, render_template, request, url_for
 from flask_login import current_user
 from svcs.flask import container
 from werkzeug import Response
@@ -150,12 +150,22 @@ def media_opportunity_post(id: int) -> str | Response:
                 flash("Collègue introuvable.", "error")
                 return redirect(url_for("wip.opportunities"))
 
+            def _build_opportunity_url(contact: ContactAvisEnquete) -> str:
+                domain = str(current_app.config.get("SERVER_NAME"))
+                if domain.startswith("127."):
+                    protocol = "http"
+                else:
+                    protocol = "https"
+                # url = str(url_for("wip.media_opportunity", id=contact.id, _external=True))
+                path = str(url_for("wip.media_opportunity", id=contact.id))
+                return f"{protocol}://{domain}{path}"
+
             avis_service = AvisEnqueteService()
             try:
                 avis_service.suggest_colleague(
                     contact=contact,
                     colleague=colleague_user,
-                    url_builder=lambda c: url_for("wip.media_opportunity", id=c.id),
+                    url_builder=_build_opportunity_url,
                 )
             except ValueError as e:
                 flash(str(e), "error")
