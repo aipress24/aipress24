@@ -1,219 +1,231 @@
 {% extends "wip/layout/_base.j2" %}
 
 {% macro line(label, value) %}
-  <div class="py-4 sm:flex">
-    <dt class="font-medium text-gray-900 sm:w-64 sm:flex-none sm:pr-6">{{ label }}</dt>
-    <dd class="flex justify-between gap-x-6 sm:flex-auto">
-      <div class="text-gray-900">{{ value }}</div>
-    </dd>
-  </div>
+    <div class="py-4 sm:flex">
+        <dt class="font-medium text-gray-900 sm:w-64 sm:flex-none sm:pr-6">{{ label }}</dt>
+        <dd class="flex justify-between gap-x-6 sm:flex-auto">
+            <div class="text-gray-900">{{ value }}</div>
+        </dd>
+    </div>
 {% endmacro %}
 
 {% block body_content %}
 
-  <h2 class="h2">Opportunité média: {{ media_opp.titre }}</h2>
+    <h2 class="h2">Opportunité média: {{ media_opp.titre }}</h2>
 
-  <div class="prose max-w-full mt-4">
-    <p>Un/une journaliste a lancé une enquête est pense que votre expertise pourrait être mise à contribution.</p>
-  </div>
-
-  <dl class="my-6 divide-y divide-gray-200">
-    {{ line("Media", media_opp.journaliste.organisation_name) }}
-    {{ line("Titre", media_opp.titre) }}
-    {{ line("Auteur", media_opp.journaliste.name) }}
-    {{ line("Date de fin de l'enquête",
-      media_opp.avis_enquete.date_fin_enquete.format('DD/MM/YYYY à HH:mm:ss (ZZ)')) }}
-    {{ line("Date de bouclage",
-      media_opp.avis_enquete.date_bouclage.format('DD/MM/YYYY à HH:mm:ss (ZZ)')) }}
-    {{ line("Brief", media_opp.brief) }}
-  </dl>
-
-  <div class="prose max-w-prose">
-    <h3>Cette enquête vous concerne-t-elle?</h3>
-
-    {% if is_answered %}
-      <div class="aui-alert aui-alert-info">
-        <p>Vous avez répondu:
-          {% if form_state.reponse1 == "oui" %}
-            Oui
-          {% elif form_state.reponse1 == "oui_relation_presse" %}
-            Oui, en associant mon attaché.e de presse ou le-la responsable de la communication de mon organisation: {{form_state.email_relation_presse}}
-          {% elif form_state.reponse1 == "non" %}
-            Non
-          {% elif form_state.reponse1 == "non-mais" %}
-            Non, mais je vous suggère une personne de mon organisation mieux placée que moi
-          {% endif %}
-        </p>
-
-          {% if form_state.contribution and form_state.reponse1 in ["oui", "oui_relation_presse"] %}
-          <p>Votre message: {{ form_state.contribution.strip() | default("aucun message.", true) }}</p>
-        {% elif form_state.suggestion and form_state.reponse1 == "non-mais" %}
-          <p>Votre suggestion: {{ form_state.suggestion | default("aucune suggestion.", true) }}</p>
-        {% endif %}
-      </div>
-
-    {% else %}
-      <form
-        id="avis-response-form"
-        action="{{ url_for('wip.media_opportunity_post', id=media_opp.id) }}" method="post"
-        hx-target="#avis-response-form"
-      >
-
-        <fieldset
-          class="my-4"
-          hx-post="{{ url_for('wip.media_opportunity_form_update', id=media_opp.id) }}"
-          {% if is_answered %}disabled{% endif %}
-        >
-          <div>
-            <input
-              type="radio"
-              id="oui"
-              name="reponse1"
-              value="oui"
-              {% if form_state.reponse1 == "oui" %}checked{% endif %}
-            />
-            <label for="oui">Oui</label>
-          </div>
-
-          {% if form_state.email_relation_presse and form_state.email_relation_presse != '' %}
-          <div>
-            <input
-              type="radio"
-              id="oui_relation_presse"
-              name="reponse1"
-              value="oui_relation_presse"
-              {% if form_state.reponse1 == "oui_relation_presse" %}checked{% endif %}
-            />
-            <label for="oui_relation_presse">Oui et je voudrais associer mon attaché.e de presse ou le-la responsable de la communication de mon organisation: {{form_state.email_relation_presse}}</label>
-          </div>
-          {% endif %}
-
-          <div>
-            <input
-              type="radio"
-              id="non"
-              name="reponse1"
-              value="non"
-              {% if form_state.reponse1 == "non" %}checked{% endif %}
-            />
-            <label for="non">Non</label>
-          </div>
-
-          <div>
-            <input
-              type="radio"
-              id="non-mais"
-              name="reponse1"
-              value="non-mais"
-              {% if form_state.reponse1 == "non-mais" %}checked{% endif %}
-              {% if not eligible_colleagues %}disabled{% endif %}
-            />
-            <label for="non-mais"
-              {% if not eligible_colleagues %}class="text-gray-400"{% endif %}>
-              Non, mais je vous suggère une personne de mon organisation mieux placée que moi
-              {% if not eligible_colleagues %}
-                <span class="text-sm italic">
-                  (aucun collègue disponible — écrivez-nous à
-                  <a href="mailto:contact@aipress24.com">contact@aipress24.com</a>)
-                </span>
-              {% endif %}
-            </label>
-          </div>
-        </fieldset>
-
-        {% if form_state["reponse1"] in ["oui", "oui_relation_presse"] %}
-          <p>Merci d'indiquer en quoi vous pouvez contribuer à cette enquête</p>
-
-          <textarea
-            name="contribution"
-            class="w-full h-48"
-            {% if is_answered %}disabled{% endif %}
-          >
-            {{ form_state.contribution }}
-          </textarea>
-        {% endif %}
-
-        {% if form_state["reponse1"] == "non-mais" and eligible_colleagues %}
-          <p>Merci de sélectionner un collègue de votre organisation :</p>
-
-          <select
-            name="suggested_colleague_id"
-            class="w-full"
-            {% if is_answered %}disabled{% endif %}
-            required
-          >
-            <option value="">— choisir un collègue —</option>
-            {% for colleague in eligible_colleagues %}
-              <option
-                value="{{ colleague.id }}"
-                {% if form_state.suggested_colleague_id == colleague.id|string %}selected{% endif %}
-              >{{ colleague.full_name }}{% if colleague.job_title %} — {{ colleague.job_title }}{% endif %}</option>
-            {% endfor %}
-          </select>
-        {% endif %}
-
-        {% if not is_answered %}
-          <button
-            class="mt-6 aui-button aui-button-primary"
-            type="button"
-            data-modal-target="accept-modal"
-            data-modal-toggle="accept-modal"
-            >
-              Envoyer
-          </button>
-        {% endif %}
-      </form>
-
-<div id="accept-modal"
-  data-modal-backdrop="static"
-  tabindex="-1"
-  aria-hidden="true"
-  class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
-  <div class="relative p-4 w-full max-w-md max-h-full">
-    <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
-      <div class="p-4 md:p-5 text-center">
-        <svg class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
-        </svg>
-        <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
-          Êtes-vous sûr de vouloir envoyer votre réponse ?
-        </h3>
-        <p
-          class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400"
-        >
-          Important: votre adresse mail sera dans ce message.
-        </p>
-        <button
-          type="submit"
-          form="avis-response-form"
-          data-modal-hide="accept-modal"
-          hx-post="{{ url_for('wip.media_opportunity_post', id=media_opp.id) }}"
-          hx-include="#avis-response-form"
-          name="action:confirm"
-          class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center"
-        >
-          Oui, envoyer
-        </button>
-        <button
-          type="button"
-          data-modal-hide="accept-modal"
-          class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
-        >
-          Non, annuler
-        </button>
-      </div>
+    <div class="prose max-w-full mt-4">
+        <p>Un/une journaliste a lancé une enquête est pense que votre expertise pourrait être mise à contribution.</p>
     </div>
-  </div>
-</div>
-    {% endif %}
 
-  <div class="mt-4">
-    <a href="{{ url_for('wip.opportunities') }}"
-      class="py-2 text-blue-500 hover:underline"
-    >
-      Retour à la liste des opportunités
-    </a>
-  </div>
+    <dl class="my-6 divide-y divide-gray-200">
+        {{ line("Media", media_opp.journaliste.organisation_name) }}
+        {{ line("Titre", media_opp.titre) }}
+        {{ line("Auteur", media_opp.journaliste.name) }}
+        {{ line("Date de fin de l'enquête",
+        media_opp.avis_enquete.date_fin_enquete.format('DD/MM/YYYY à HH:mm:ss (ZZ)')) }}
+        {{ line("Date de bouclage",
+        media_opp.avis_enquete.date_bouclage.format('DD/MM/YYYY à HH:mm:ss (ZZ)')) }}
+        {{ line("Brief", media_opp.brief) }}
+    </dl>
 
-  </div>
+    <div class="prose max-w-prose">
+        <h3>Cette enquête vous concerne-t-elle?</h3>
+
+        {% if is_answered %}
+            <div class="aui-alert aui-alert-info">
+                <p>Vous avez répondu:
+                    {% if form_state.reponse1 == "oui" %}
+                        Oui
+                    {% elif form_state.reponse1 == "oui_relation_presse" %}
+                        Oui, en associant mon attaché.e de presse ou le-la responsable de la communication de mon organisation: {{form_state.email_relation_presse}}
+                    {% elif form_state.reponse1 == "non" %}
+                        Non
+                    {% elif form_state.reponse1 == "non-mais" %}
+                        Non, mais je vous suggère une personne de mon organisation mieux placée que moi
+                    {% endif %}
+                </p>
+
+                {% if form_state.contribution and form_state.reponse1 in ["oui", "oui_relation_presse"] %}
+                    <p>Votre message: {{ form_state.contribution.strip() | default("aucun message.", true) }}</p>
+                {% elif form_state.suggestion and form_state.reponse1 == "non-mais" %}
+                    <p>Votre suggestion: {{ form_state.suggestion | default("aucune suggestion.", true) }}</p>
+                {% endif %}
+            </div>
+
+        {% else %}
+            <form
+                id="avis-response-form"
+                action="{{ url_for('wip.media_opportunity_post', id=media_opp.id) }}" method="post"
+                hx-target="#avis-response-form"
+            >
+
+                <fieldset
+                    class="my-4"
+                    hx-post="{{ url_for('wip.media_opportunity_form_update', id=media_opp.id) }}"
+                    {% if is_answered %}disabled{% endif %}
+                >
+                    <div>
+                        <input
+                            type="radio"
+                            id="oui"
+                            name="reponse1"
+                            value="oui"
+                            {% if form_state.reponse1 == "oui" %}checked{% endif %}
+                        />
+                        <label for="oui">Oui</label>
+                    </div>
+
+                    {% if form_state.email_relation_presse and form_state.email_relation_presse != '' %}
+                        <div>
+                            <input
+                                type="radio"
+                                id="oui_relation_presse"
+                                name="reponse1"
+                                value="oui_relation_presse"
+                                {% if form_state.reponse1 == "oui_relation_presse" %}checked{% endif %}
+                            />
+                            <label for="oui_relation_presse">Oui et je voudrais associer mon attaché.e de presse ou le-la responsable de la communication de mon organisation: {{form_state.email_relation_presse}}</label>
+                        </div>
+                    {% endif %}
+
+                    <div>
+                        <input
+                            type="radio"
+                            id="non"
+                            name="reponse1"
+                            value="non"
+                            {% if form_state.reponse1 == "non" %}checked{% endif %}
+                        />
+                        <label for="non">Non</label>
+                    </div>
+
+                    <div>
+                        <input
+                            type="radio"
+                            id="non-mais"
+                            name="reponse1"
+                            value="non-mais"
+                            {% if form_state.reponse1 == "non-mais" %}checked{% endif %}
+                            {% if not eligible_colleagues %}disabled{% endif %}
+                        />
+                        <label for="non-mais"
+                               {% if not eligible_colleagues %}class="text-gray-400"{% endif %}>
+                            Non, mais je vous suggère une personne de mon organisation mieux placée que moi
+                            {% if not eligible_colleagues %}
+                                <span class="text-sm italic">
+                                    (aucun collègue disponible — écrivez-nous à
+                                    <a href="mailto:contact@aipress24.com">contact@aipress24.com</a>)
+                                </span>
+                            {% endif %}
+                        </label>
+                    </div>
+                </fieldset>
+
+                {% if form_state["reponse1"] in ["oui", "oui_relation_presse"] %}
+                    <p>Merci d'indiquer en quoi vous pouvez contribuer à cette enquête</p>
+
+                    <textarea
+                        name="contribution"
+                        class="w-full h-48"
+                        {% if is_answered %}disabled{% endif %}
+                    >
+                        {{ form_state.contribution }}
+                    </textarea>
+                {% endif %}
+
+                {% if form_state["reponse1"] == "non" %}
+                    <p>Merci d'indiquer pourquoi vous ne désirez pas contribuer à cette enquête</p>
+
+                    <textarea
+                        name="refusal_reason"
+                        class="w-full h-48"
+                        {% if is_answered %}disabled{% endif %}
+                    >
+                        {{ form_state.refusal_reason }}
+                    </textarea>
+                {% endif %}
+
+                {% if form_state["reponse1"] == "non-mais" and eligible_colleagues %}
+                    <p>Merci de sélectionner un collègue de votre organisation :</p>
+
+                    <select
+                        name="suggested_colleague_id"
+                        class="w-full"
+                        {% if is_answered %}disabled{% endif %}
+                        required
+                    >
+                        <option value="">— choisir un collègue —</option>
+                        {% for colleague in eligible_colleagues %}
+                            <option
+                                value="{{ colleague.id }}"
+                                {% if form_state.suggested_colleague_id == colleague.id|string %}selected{% endif %}
+                            >{{ colleague.full_name }}{% if colleague.job_title %} — {{ colleague.job_title }}{% endif %}</option>
+                        {% endfor %}
+                    </select>
+                {% endif %}
+
+                {% if not is_answered %}
+                    <button
+                        class="mt-6 aui-button aui-button-primary"
+                        type="button"
+                        data-modal-target="accept-modal"
+                        data-modal-toggle="accept-modal"
+                    >
+                        Envoyer
+                    </button>
+                {% endif %}
+            </form>
+
+            <div id="accept-modal"
+                 data-modal-backdrop="static"
+                 tabindex="-1"
+                 aria-hidden="true"
+                 class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+                <div class="relative p-4 w-full max-w-md max-h-full">
+                    <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+                        <div class="p-4 md:p-5 text-center">
+                            <svg class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+                            </svg>
+                            <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
+                                Êtes-vous sûr de vouloir envoyer votre réponse ?
+                            </h3>
+                            <p
+                                class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400"
+                            >
+                                Important: votre adresse mail sera dans ce message.
+                            </p>
+                            <button
+                                type="submit"
+                                form="avis-response-form"
+                                data-modal-hide="accept-modal"
+                                hx-post="{{ url_for('wip.media_opportunity_post', id=media_opp.id) }}"
+                                hx-include="#avis-response-form"
+                                name="action:confirm"
+                                class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center"
+                            >
+                                Oui, envoyer
+                            </button>
+                            <button
+                                type="button"
+                                data-modal-hide="accept-modal"
+                                class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
+                            >
+                                Non, annuler
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="mt-4">
+            <a href="{{ url_for('wip.opportunities') }}"
+               class="py-2 text-blue-500 hover:underline"
+            >
+                Retour à la liste des opportunités
+            </a>
+        </div>
+
+    </div>
 {% endblock %}
