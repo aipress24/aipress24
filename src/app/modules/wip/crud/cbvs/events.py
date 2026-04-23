@@ -233,7 +233,7 @@ class EventsWipView(BaseWipView):
                 return self._add_image(event)
 
         title = f"Images pour l'événement - {event.title}"
-        self.update_breadcrumbs(label=event.title)
+        self.update_phase_breadcrumbs(event, "Images")
 
         ctx = {
             "title": title,

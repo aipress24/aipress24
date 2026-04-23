@@ -22,7 +22,6 @@ from flask_super.registry import register
 from svcs.flask import container
 from werkzeug.wrappers import Response as WerkzeugResponse
 
-from app.flask.lib.breadcrumbs import BreadCrumb
 from app.flask.lib.htmx import extract_fragment
 from app.flask.routing import url_for
 from app.models.lifecycle import PublicationStatus
@@ -42,7 +41,6 @@ from app.modules.wip.services.newsroom import (
     RDVProposalData,
 )
 from app.services.auth import AuthService
-from app.services.context import Context
 
 from ._base import BaseWipView
 from ._forms import AvisEnqueteForm
@@ -166,23 +164,12 @@ class AvisEnqueteWipView(BaseWipView):
         return [self._build_opportunity_url(c) for c in contacts]
 
     def _update_phase_breadcrumbs(self, model: AvisEnquete, phase: str) -> None:
-        """Breadcrumb dédié aux sous-phases (ciblage, réponses, rdv…).
+        """Alias to the shared `BaseWipView.update_phase_breadcrumbs`.
 
-        Remplace l'appel standard `update_breadcrumbs(label=...)` par une
-        chaîne enrichie :
-        `Work > Avis d'enquête > <titre> (lien vers détail) > <phase>`
-        Le <titre> redevient cliquable, ce qui permet de remonter à la
-        vue détail et donc au menu « ⋯ » qui mène aux autres phases
-        (bug #0070).
+        Kept as a thin wrapper for now — callers in this CBV already use
+        the underscore-prefixed name (ref bug #0070).
         """
-        context = container.get(Context)
-        crumbs = [
-            BreadCrumb(label="Work", url=url_for("wip.wip")),
-            BreadCrumb(label=self.label_list, url=self._url_for("index")),
-            BreadCrumb(label=model.title, url=self._url_for("get", id=model.id)),
-            BreadCrumb(label=phase, url=""),
-        ]
-        context.update(breadcrumbs=crumbs)
+        self.update_phase_breadcrumbs(model, phase)
 
     @route("/<id>/ciblage", methods=["GET", "POST"])
     def ciblage(self, id: str | int):

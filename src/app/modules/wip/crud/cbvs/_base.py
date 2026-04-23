@@ -302,6 +302,26 @@ class BaseWipView(FlaskView, abc.ABC):
 
         context.update(breadcrumbs=breadcrumbs)
 
+    def update_phase_breadcrumbs(self, model, phase: str) -> None:
+        """Breadcrumb for a sub-page of a model (images, ciblage, …).
+
+        Produces:
+          `Work > <label_list> > <model.title> (lien vers détail) > <phase>`
+
+        The `<titre>` crumb is clickable and points to the detail view —
+        it lets the user come back to the "⋯" menu from any sub-page
+        without going all the way up to the Work dashboard. Refs bugs
+        #0070 (Avis d'enquête) and #0085 (article images).
+        """
+        context = container.get(Context)
+        breadcrumbs = [
+            BreadCrumb(label="Work", url=url_for("wip.wip")),
+            BreadCrumb(label=self.label_list, url=self._url_for("index")),
+            BreadCrumb(label=model.title, url=self._url_for("get", id=model.id)),
+            BreadCrumb(label=phase, url=""),
+        ]
+        context.update(breadcrumbs=breadcrumbs)
+
     def _get_repo(self):
         return container.get(self.repo_class)
 

@@ -261,7 +261,7 @@ class CommuniquesWipView(BaseWipView):
                 return self._add_image(communique)
 
         title = f"Images pour le communiqué - {communique.title}"
-        self.update_breadcrumbs(label=communique.title)
+        self.update_phase_breadcrumbs(communique, "Images")
 
         ctx = {
             "title": title,

@@ -253,7 +253,7 @@ class ArticlesWipView(BaseWipView):
                 return self._add_image(article)
 
         title = f"Images pour l'article - {article.title}"
-        self.update_breadcrumbs(label=article.title)
+        self.update_phase_breadcrumbs(article, "Images")
 
         ctx = {
             "title": title,
