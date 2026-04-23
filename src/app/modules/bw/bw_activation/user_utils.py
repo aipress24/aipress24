@@ -129,11 +129,11 @@ def get_active_business_wall_for_organisation(org: Organisation) -> BusinessWall
 
 def is_organisation_an_agency(org: Organisation) -> bool:
     result: bool = False
-    if org.bw_active == "media":
-        bw = get_active_business_wall_for_organisation(org)
-        if bw and "Agence de presse" in bw.type_entreprise_media:
+    bw = get_active_business_wall_for_organisation(org)
+    if org.bw_active == "media" and bw:
+        if "Agence de presse" in bw.type_entreprise_media:
             result = True
-    warn(f"BW {bw.name} is agency: {result}")
+        warn(f"BW {bw.name} is agency: {result}")
     return result
 
     # Deprecated implementation
