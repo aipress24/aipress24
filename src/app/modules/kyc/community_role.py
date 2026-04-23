@@ -15,6 +15,14 @@ COMMUNITY_TO_ROLE = {
     CommunityEnum.ACADEMICS: RoleEnum.ACADEMIC,
 }
 
+# Roles that are "community" roles in the sense above. A user should
+# have AT MOST ONE of these at any time, matching their current KYC
+# profile's community. Other roles (ADMIN, MANAGER, LEADER, ...) are
+# orthogonal and are not touched by this module.
+COMMUNITY_ROLE_NAMES: frozenset[str] = frozenset(
+    role.name for role in COMMUNITY_TO_ROLE.values()
+)
+
 
 def community_to_role_name(community: str | CommunityEnum) -> str:
     """Return RoleEnum.name derivating from from CommunityEnum.name ."""
@@ -29,10 +37,30 @@ def community_to_role_enum(
     return role_map[community_to_role_name(community)]
 
 
-def append_user_role_from_community(
+def set_user_role_from_community(
     role_map: dict[str, Role],
     user: User,
     community: str | CommunityEnum,
 ) -> None:
-    role = community_to_role_enum(role_map, community)
-    user.add_role(role)
+    """Set the user's community role, replacing any previous one.
+
+    A user should have at most one community role at any time — the one
+    matching their current KYC profile's community. The previous version
+    of this helper (`append_user_role_from_community`) only added the
+    new role without stripping the old, so users who changed profile
+    across communities ended up with multiple community roles, granting
+    cross-community menu/route access they shouldn't have (e.g. a user
+    who switched from PRESS_MEDIA to COMMUNICANTS still saw Newsroom).
+    This replacement enforces the single-community invariant.
+    """
+    target_role = community_to_role_enum(role_map, community)
+    for existing in list(user.roles):
+        if existing.name in COMMUNITY_ROLE_NAMES and existing.name != target_role.name:
+            user.remove_role(existing)
+    user.add_role(target_role)
+
+
+# Back-compat alias — the old name is imported from a few call sites.
+# The semantics change (it now _replaces_ the community role), which is
+# the whole point of the fix: existing callers _want_ the new behaviour.
+append_user_role_from_community = set_user_role_from_community
