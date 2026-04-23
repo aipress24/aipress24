@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 from flask_super.decorators import service
-from sqlalchemy import ForeignKey
+from sqlalchemy import ForeignKey, Index
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.auth import User
@@ -25,6 +25,18 @@ class Notification(IdMixin, Timestamped, Base):
     is_read: Mapped[bool] = mapped_column(default=False)
 
     receiver: Mapped[User] = relationship(User, foreign_keys=[receiver_id])
+
+    # Query pattern: `WHERE receiver_id = ? AND is_read = false` (badge
+    # count, per authenticated page render) and `WHERE receiver_id = ?
+    # ORDER BY is_read, timestamp DESC LIMIT 10` (dropdown).
+    __table_args__ = (
+        Index(
+            "ix_not_notifications_receiver_read_ts",
+            "receiver_id",
+            "is_read",
+            "timestamp",
+        ),
+    )
 
     def get_abstract(self, max_length: int = 100) -> str:
         if len(self.message) < max_length:

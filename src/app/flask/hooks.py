@@ -80,6 +80,11 @@ def inject_extra_context():
     def get_notifications() -> list:
         return notification_service.get_notifications(g.user)
 
+    def get_unread_notification_count() -> int:
+        if not getattr(g, "user", None) or g.user.is_anonymous:
+            return 0
+        return notification_service.get_unread_count(g.user)
+
     return {
         "get_promotion": promotion_service.get_promotion,
         "url_for": url_for,
@@ -87,6 +92,7 @@ def inject_extra_context():
         "app_version": version,
         "menus": menu_service,
         "get_notifications": get_notifications,
+        "get_unread_notification_count": get_unread_notification_count,
         "settings": get_settings(),
     }
 
