@@ -1,24 +1,61 @@
+{# Bell dropdown content. Rendered by
+   `fragments/header-menu-dropdowns.j2` when the bell is opened. #}
 {% set notifications = get_notifications() %}
 
 {% if notifications %}
-  <div class="flow-root">
-    <ul role="list" class="-mb-8">
+  <div class="flow-root w-80">
+    <ul role="list" class="divide-y divide-gray-200">
       {% for notification in notifications %}
-        <li>
-          <div class="relative pb-8">
-            <div class="relative flex space-x-3">
-              <div class="min-w-0 pt-1.5">
-                <p class="text-sm text-gray-500">{{ notification.get_abstract() }}</p>
-                <div class="text-right text-sm whitespace-nowrap text-gray-500">
-                  <time datetime="{{ notification.timestamp.format() }}">
-                    {{ notification.timestamp.format('YYYY-MM-DD HH:mm') }}
-                  </time>
-                </div>
-              </div>
-            </div>
-          </div>
+        <li class="py-2 px-1">
+          <form
+            method="post"
+            action="{{ url_for('notifications.mark_read', notification_id=notification.id) }}"
+            class="block"
+          >
+            {% if notification.url %}
+              <input type="hidden" name="url" value="{{ notification.url }}">
+            {% endif %}
+            <button
+              type="submit"
+              class="w-full text-left flex items-start gap-2 hover:bg-gray-50 rounded px-2 py-1"
+            >
+              <span
+                class="mt-1 inline-block w-2 h-2 rounded-full
+                       {% if notification.is_read %}bg-transparent{% else %}bg-blue-500{% endif %}"
+                aria-hidden="true"
+              ></span>
+              <span class="flex-1 min-w-0">
+                <span class="block text-sm text-gray-800 truncate">
+                  {{ notification.get_abstract() }}
+                </span>
+                <time
+                  datetime="{{ notification.timestamp.format() }}"
+                  class="block text-xs text-gray-500"
+                >
+                  {{ notification.timestamp.humanize(locale='fr') }}
+                </time>
+              </span>
+            </button>
+          </form>
         </li>
       {% endfor %}
     </ul>
+
+    <form
+      method="post"
+      action="{{ url_for('notifications.mark_all_read') }}"
+      class="border-t border-gray-200 px-3 py-2 text-right"
+    >
+      <button
+        type="submit"
+        class="text-xs text-blue-600 hover:underline"
+      >
+        Tout marquer comme lu
+      </button>
+    </form>
+  </div>
+{% else %}
+  <div class="w-64 px-4 py-3 text-sm text-gray-500 text-center">
+    Pas de nouvelle notification.
   </div>
 {% endif %}

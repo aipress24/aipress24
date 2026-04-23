@@ -52,37 +52,9 @@
 {% endmacro %}
 
 <div class="hidden sm:ml-6 sm:flex sm:items-center">
-  {#  {% call simple_dropdown("credit-card") %}#}
-  {#    <div class="block w-32 px-4 py-2 text-sm font-medium text-gray-600"#}
-  {#         data-tip="Mes comptes">#}
-  {#      Vous avez 123 MOJO sur votre compte.#}
-  {#    </div>#}
-  {#  {% endcall %}#}
-  {##}
-  {#  {% call simple_dropdown("sparkles") %}#}
-  {#    <div class="block w-32 px-4 py-2 text-sm font-medium text-gray-600"#}
-  {#         data-tip="Mes performances">#}
-  {#      Vous avez 12123 points de performance.#}
-  {#    </div>#}
-  {#  {% endcall %}#}
-  {##}
-  {#  {% set notifications=get_notifications() %}#}
-  {#  {% set notification_count=notifications|length %}#}
-  {#  {% call simple_dropdown("bell", count=notification_count) %}#}
-  {#    {% if notifications %}#}
-  {#      <div class="block w-64 px-4 py-4 text-sm font-medium text-gray-600"#}
-  {#           data-tip="Mes notifications">#}
-  {#        {% include "fragments/dropdown-notifications.j2" %}#}
-  {#      </div>#}
-  {#    {% endif %}#}
-  {#  {% endcall %}#}
-  {##}
-  {#  {% call simple_dropdown("plus", class="ml-4") %}#}
-  {#    <div class="block w-64 px-4 py-4 text-sm font-medium text-gray-600"#}
-  {#         data-tip="Nouveau contenu / projet éditorial">#}
-  {#      {% include "fragments/dropdown-add.j2" %}#}
-  {#    </div>#}
-  {#  {% endcall %}#}
+  {% call simple_dropdown("bell", count=get_unread_notification_count()) %}
+    {% include "fragments/dropdown-notifications.j2" %}
+  {% endcall %}
 
   {% if g.user.has_role("admin") %}
     <a href="/admin/" class="bg-white p-2 rounded-full text-gray-400 hover:text-gray-500 tooltip tooltip-bottom"
