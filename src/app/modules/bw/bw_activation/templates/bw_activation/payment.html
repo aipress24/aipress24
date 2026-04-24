@@ -1,6 +1,9 @@
 {% extends "layout.html" %}
+{% import "bw_activation/_tunnel_breadcrumb.html" as bc %}
 
 {% block title %}Paiement - {{ bw_info.name }}{% endblock %}
+
+{% block breadcrumb %}{{ bc.tunnel("payment") }}{% endblock %}
 
 {% block content %}
 <div class="max-w-3xl mx-auto">
@@ -31,9 +34,7 @@
                     <input type="checkbox" id="cgv-accepted" class="mt-1" required>
                     <span class="text-sm text-gray-700">
                         J'accepte les
-                        <a href="{{ url_for('bw_activation.cgv', _anchor='cgv')
-                            if 'bw_activation.cgv' in config.get('URL_MAP_ENDPOINTS', [])
-                            else '#' }}"
+                        <a href="/page/CGV-BusinessWall"
                            target="_blank"
                            class="text-blue-600 underline">Conditions générales de vente</a>.
                     </span>

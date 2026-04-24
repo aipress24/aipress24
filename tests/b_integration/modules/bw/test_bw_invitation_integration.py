@@ -25,6 +25,7 @@ from app.modules.bw.bw_activation.bw_invitation import (
     ensure_roles_membership,
     invite_pr_provider,
     invite_user_role,
+    revoke_partnership,
     revoke_user_role,
     sync_all_pr_missions,
 )
@@ -566,3 +567,99 @@ class TestInvitePrProviderIntegration:
         )
 
         assert len(partnerships) == 1
+
+
+# -----------------------------------------------------------------------------
+# Tests: revoke_partnership
+# -----------------------------------------------------------------------------
+
+
+class TestRevokePartnershipIntegration:
+    """Integration tests for revoke_partnership function."""
+
+    def test_revoke_flips_status_and_stamps_time(
+        self,
+        app_context,
+        db_session: Session,
+        media_bw: BusinessWall,
+        pr_bw: BusinessWall,
+    ):
+        """An active partnership is flipped to REVOKED with a timestamp."""
+        partnership = Partnership(
+            business_wall_id=media_bw.id,
+            partner_bw_id=str(pr_bw.id),
+            status=PartnershipStatus.ACTIVE.value,
+            invited_by_user_id=media_bw.owner_id,
+            invited_at=datetime.now(UTC),
+            accepted_at=datetime.now(UTC),
+        )
+        db_session.add(partnership)
+        db_session.flush()
+
+        result = revoke_partnership(media_bw, str(pr_bw.id))
+
+        assert result is True
+        db_session.refresh(partnership)
+        assert partnership.status == PartnershipStatus.REVOKED.value
+        assert partnership.revoked_at is not None
+
+    def test_revoke_strips_agency_member_roles_on_client_bw(
+        self,
+        app_context,
+        db_session: Session,
+        media_bw: BusinessWall,
+        pr_bw: BusinessWall,
+        pr_org: Organisation,
+        pr_owner: User,
+    ):
+        """Revoking a partnership strips BWME/BWPRE/BWPRI for agency members."""
+        partnership = Partnership(
+            business_wall_id=media_bw.id,
+            partner_bw_id=str(pr_bw.id),
+            status=PartnershipStatus.ACTIVE.value,
+            invited_by_user_id=media_bw.owner_id,
+            invited_at=datetime.now(UTC),
+        )
+        db_session.add(partnership)
+        # pr_owner is a member of pr_org; grant them a BWPRE role on the media BW
+        assignment = RoleAssignment(
+            business_wall_id=media_bw.id,
+            user_id=pr_owner.id,
+            role_type=BWRoleType.BWPRE.value,
+            invitation_status=InvitationStatus.ACCEPTED.value,
+        )
+        db_session.add(assignment)
+        db_session.flush()
+
+        result = revoke_partnership(media_bw, str(pr_bw.id))
+
+        assert result is True
+        remaining = (
+            db_session.query(RoleAssignment)
+            .filter_by(business_wall_id=media_bw.id, user_id=pr_owner.id)
+            .all()
+        )
+        assert remaining == []
+
+    def test_revoke_returns_false_when_no_active_partnership(
+        self,
+        app_context,
+        db_session: Session,
+        media_bw: BusinessWall,
+        pr_bw: BusinessWall,
+    ):
+        """No-op when the partnership is absent or already revoked."""
+        partnership = Partnership(
+            business_wall_id=media_bw.id,
+            partner_bw_id=str(pr_bw.id),
+            status=PartnershipStatus.REVOKED.value,
+            invited_by_user_id=media_bw.owner_id,
+            invited_at=datetime.now(UTC),
+            revoked_at=datetime.now(UTC),
+        )
+        db_session.add(partnership)
+        db_session.flush()
+
+        result = revoke_partnership(media_bw, str(pr_bw.id))
+
+        assert result is False

@@ -7,7 +7,7 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
-from typing import TYPE_CHECKING, cast
+from typing import cast
 from uuid import UUID
 
 from flask import g, url_for
@@ -32,10 +32,6 @@ from app.modules.bw.bw_activation.models import (
 )
 from app.modules.bw.bw_activation.utils import bw_roles_ids
 from app.services.emails import BWRoleInvitationMail
-
-if TYPE_CHECKING:
-    from app.modules.bw.bw_activation.models import BusinessWall
-
 
 BW_ROLE_TYPE_LABEL: dict[str, str] = {
     "BW_OWNER": "Business Wall Owner",
@@ -423,6 +419,58 @@ def send_partnership_invitation_mail(
         confirmation_url=confirmation_url,
     )
     invit_mail.send()
+
+
+def revoke_partnership(
+    business_wall: BusinessWall,
+    partner_bw_id: str,
+) -> bool:
+    """Revoke an active or pending partnership with a PR agency.
+
+    Marks the Partnership row as REVOKED and strips BWME / BWPRE /
+    BWPRI roles on the client BW for members of the partner agency's
+    organisation. After revocation the agency no longer has
+    publishing rights for this client.
+
+    Args:
+        business_wall: The client BusinessWall revoking the partnership.
+        partner_bw_id: UUID (as str) of the partner PR agency BW.
+
+    Returns:
+        True if a partnership was found and marked as revoked.
+    """
+    partnership: Partnership | None = None
+    for p in business_wall.partnerships or ():
+        if p.partner_bw_id == partner_bw_id and p.status in (
+            PartnershipStatus.INVITED.value,
+            PartnershipStatus.ACCEPTED.value,
+            PartnershipStatus.ACTIVE.value,
+        ):
+            partnership = p
+            break
+    if partnership is None:
+        return False
+
+    partnership.status = PartnershipStatus.REVOKED.value
+    partnership.revoked_at = datetime.now(UTC)
+
+    bw_service = container.get(BusinessWallService)
+    partner_bw = bw_service.get(UUID(partner_bw_id))
+    if partner_bw is not None and partner_bw.organisation_id:
+        from app.models.organisation import Organisation
+
+        partner_org = get_obj(partner_bw.organisation_id, Organisation)
+        agency_member_ids = {m.id for m in partner_org.members}
+        for assignment in list(business_wall.role_assignments or ()):
+            if assignment.user_id in agency_member_ids and assignment.role_type in (
+                BWRoleType.BWME.value,
+                BWRoleType.BWPRE.value,
+                BWRoleType.BWPRI.value,
+            ):
+                db.session.delete(assignment)
+
+    db.session.flush()
+    return True
 
 
 def apply_bw_missions_to_pr_user(

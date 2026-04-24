@@ -1,6 +1,9 @@
 {% extends "layout.html" %}
+{% import "bw_activation/_tunnel_breadcrumb.html" as bc %}
 
 {% block title %}Activer votre Business Wall{% endblock %}
+
+{% block breadcrumb %}{{ bc.tunnel("choice") }}{% endblock %}
 
 {% block content %}
     <div class="max-w-6xl mx-auto">
@@ -57,7 +60,7 @@
                             >
                                 <div class="mb-4">
                                     <a
-                                        href="/page/CGV-BusinessWall.md"
+                                        href="/page/CGV-BusinessWall"
                                         target="_blank"
                                     >Conditions Générales de vente</a
                                         >
