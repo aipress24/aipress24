@@ -1,0 +1,56 @@
+{% extends "admin/layout/_base.j2" %}
+
+{% block main %}
+    <p class="text-sm text-gray-600 pb-6">
+        Éditez les contenus « corporate » publiés sur
+        <code>/page/&lt;slug&gt;</code> (CGV, conditions générales
+        d'utilisation, politique de confidentialité, pages
+        « Notre offre », etc.). Les modifications sont visibles
+        immédiatement côté public.
+    </p>
+
+    {% if pages %}
+        <table class="min-w-full divide-y divide-gray-200 text-sm">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-4 py-2 text-left font-semibold text-gray-700">Slug</th>
+                    <th class="px-4 py-2 text-left font-semibold text-gray-700">Titre</th>
+                    <th class="px-4 py-2 text-left font-semibold text-gray-700">Mis à jour</th>
+                    <th class="px-4 py-2 text-left font-semibold text-gray-700">Par</th>
+                    <th class="px-4 py-2"></th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200 bg-white">
+                {% for page in pages %}
+                    <tr>
+                        <td class="px-4 py-2 font-mono text-xs text-gray-900">{{ page.slug }}</td>
+                        <td class="px-4 py-2 text-gray-900">{{ page.title or '—' }}</td>
+                        <td class="px-4 py-2 text-gray-600">
+                            {% if page.timestamp %}
+                                {{ page.timestamp.format('DD/MM/YYYY HH:mm') }}
+                            {% else %}—{% endif %}
+                        </td>
+                        <td class="px-4 py-2 text-gray-600">
+                            {{ page.updated_by.full_name if page.updated_by else '—' }}
+                        </td>
+                        <td class="px-4 py-2 text-right">
+                            <a href="{{ url_for('admin.corporate_pages_edit', slug=page.slug) }}"
+                               class="text-indigo-700 hover:underline font-medium">
+                                Éditer
+                            </a>
+                            <a href="/page/{{ page.slug }}" target="_blank"
+                               class="ml-3 text-gray-500 hover:text-gray-700">
+                                Voir
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div class="bg-yellow-50 border border-yellow-200 text-yellow-900 p-4 rounded">
+            Aucune page en base. Importez depuis les fichiers avec la
+            commande <code>flask corporate-pages seed</code>.
+        </div>
+    {% endif %}
+{% endblock %}
