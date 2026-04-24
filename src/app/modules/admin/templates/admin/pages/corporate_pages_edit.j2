@@ -1,0 +1,96 @@
+{% extends "admin/layout/_base.j2" %}
+
+{% block main %}
+    <div x-data="cmsEditor('{{ url_for('admin.corporate_pages_preview') }}')">
+        <form method="POST" class="space-y-4">
+            <div>
+                <label for="slug" class="block text-sm font-medium text-gray-700">Slug</label>
+                <input
+                    id="slug"
+                    type="text"
+                    value="{{ page.slug }}"
+                    disabled
+                    class="mt-1 block w-full rounded border-gray-200 bg-gray-50 text-gray-500 font-mono text-xs px-3 py-2"
+                />
+            </div>
+
+            <div>
+                <label for="title" class="block text-sm font-medium text-gray-700">Titre</label>
+                <input
+                    id="title"
+                    name="title"
+                    type="text"
+                    value="{{ page.title }}"
+                    class="mt-1 block w-full rounded border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-3 py-2"
+                />
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div>
+                    <label for="body_md" class="block text-sm font-medium text-gray-700">
+                        Contenu Markdown
+                    </label>
+                    <textarea
+                        id="body_md"
+                        name="body_md"
+                        rows="25"
+                        @input.debounce.400ms="refreshPreview($event.target.value)"
+                        class="mt-1 block w-full rounded border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 font-mono text-xs px-3 py-2"
+                    >{{ page.body_md }}</textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Aperçu</label>
+                    <div
+                        x-ref="preview"
+                        class="mt-1 border border-gray-200 rounded bg-white p-4 prose prose-sm max-w-none overflow-auto"
+                        style="max-height: 38rem;"
+                    ></div>
+                </div>
+            </div>
+
+            <div class="flex justify-between items-center pt-4 border-t">
+                <a href="{{ url_for('admin.corporate_pages_list') }}"
+                   class="text-sm text-gray-600 hover:text-gray-900">
+                    ← Retour à la liste
+                </a>
+                <div class="space-x-3">
+                    <a href="/page/{{ page.slug }}" target="_blank"
+                       class="text-sm text-gray-700 underline">
+                        Voir la page publique
+                    </a>
+                    <button type="submit"
+                            class="rounded bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700">
+                        Enregistrer
+                    </button>
+                </div>
+            </div>
+        </form>
+
+        <script>
+            function cmsEditor(previewUrl) {
+                return {
+                    async init() {
+                        const ta = document.getElementById('body_md');
+                        if (ta) {
+                            await this.refreshPreview(ta.value);
+                        }
+                    },
+                    async refreshPreview(body_md) {
+                        try {
+                            const formData = new FormData();
+                            formData.append('body_md', body_md);
+                            const res = await fetch(previewUrl, {
+                                method: 'POST',
+                                body: formData,
+                                credentials: 'same-origin',
+                            });
+                            this.$refs.preview.innerHTML = await res.text();
+                        } catch (e) {
+                            this.$refs.preview.innerHTML = '<em>Erreur de rendu</em>';
+                        }
+                    },
+                };
+            }
+        </script>
+    </div>
+{% endblock %}
