@@ -1,0 +1,95 @@
+{% extends "wip/layout/_base.j2" %}
+
+{% block body_class %}bg-gray-50{% endblock %}
+
+{% block body_content %}
+    <div class="px-4 sm:px-6 lg:px-8 max-w-4xl">
+        <h1 class="text-2xl font-semibold text-gray-900">{{ title }}</h1>
+        <p class="mt-2 text-sm text-gray-700">
+            Signalez la publication de votre article aux personnes
+            contactées pour cet avis d'enquête. Celles qui avaient
+            accepté sont cochées par défaut.
+        </p>
+
+        <form method="POST" class="mt-6 space-y-6">
+            <div>
+                <label for="article_url"
+                       class="block text-sm font-medium text-gray-700">
+                    URL de l'article <span class="text-red-600">*</span>
+                </label>
+                <input id="article_url" name="article_url" type="url" required
+                       placeholder="https://aipress24.com/wire/article/… ou site externe"
+                       class="mt-1 block w-full rounded border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm px-3 py-2"/>
+            </div>
+
+            <div>
+                <label for="article_title"
+                       class="block text-sm font-medium text-gray-700">
+                    Titre de l'article
+                </label>
+                <input id="article_title" name="article_title" type="text"
+                       placeholder="{{ model.title }}"
+                       class="mt-1 block w-full rounded border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm px-3 py-2"/>
+                <p class="mt-1 text-xs text-gray-500">
+                    Facultatif — par défaut le titre de l'avis d'enquête.
+                </p>
+            </div>
+
+            <div>
+                <label for="message"
+                       class="block text-sm font-medium text-gray-700">
+                    Message personnel (optionnel)
+                </label>
+                <textarea id="message" name="message" rows="4"
+                          maxlength="500"
+                          class="mt-1 block w-full rounded border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm px-3 py-2"></textarea>
+                <p class="mt-1 text-xs text-gray-500">500 caractères max.</p>
+            </div>
+
+            <div>
+                <h3 class="text-sm font-semibold text-gray-800 mb-2">
+                    Destinataires
+                </h3>
+                {% if contacts %}
+                    <div class="divide-y divide-gray-200 rounded border border-gray-200 bg-white">
+                        {% for c in contacts %}
+                            <label class="flex items-start gap-3 px-3 py-2 hover:bg-gray-50">
+                                <input type="checkbox" name="contact_ids"
+                                       value="{{ c.id }}"
+                                       {% if c.id in eligible_ids %}checked{% endif %}
+                                       class="mt-1 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"/>
+                                <span class="text-sm">
+                                    <span class="font-medium text-gray-900">
+                                        {{ c.expert.full_name if c.expert else '—' }}
+                                    </span>
+                                    <span class="text-gray-500">
+                                        · statut : {{ c.status.value if c.status else '—' }}
+                                    </span>
+                                </span>
+                            </label>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-sm text-gray-600 italic">
+                        Aucun contact sur cet avis d'enquête. Passez par le
+                        <a class="underline"
+                           href="{{ url_for('wip.notifications_publication_new') }}">
+                           mode saisie libre
+                        </a>.
+                    </p>
+                {% endif %}
+            </div>
+
+            <div class="flex justify-between items-center border-t pt-4">
+                <a href="{{ url_for('AvisEnqueteWipView:get', id=model.id) }}"
+                   class="text-sm text-gray-700 hover:text-gray-900">
+                    ← Retour à l'avis
+                </a>
+                <button type="submit"
+                        class="rounded bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700">
+                    Envoyer la notification
+                </button>
+            </div>
+        </form>
+    </div>
+{% endblock %}

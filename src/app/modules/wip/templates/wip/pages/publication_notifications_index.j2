@@ -1,0 +1,54 @@
+{% extends "wip/layout/_base.j2" %}
+
+{% block body_content %}
+    <div class="px-4 sm:px-6 lg:px-8 max-w-5xl">
+        <div class="flex items-center justify-between mb-4">
+            <h1 class="text-2xl font-semibold text-gray-900">{{ title }}</h1>
+            <a href="{{ url_for('wip.notifications_publication_new') }}"
+               class="rounded bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700">
+                + Nouvelle notification
+            </a>
+        </div>
+
+        {% if notifications %}
+            <div class="divide-y divide-gray-200 rounded border border-gray-200 bg-white">
+                {% for n in notifications %}
+                    <div class="px-4 py-3">
+                        <div class="flex justify-between items-baseline">
+                            <div>
+                                <p class="text-sm font-medium text-gray-900">
+                                    {{ n.article_title or n.article_url }}
+                                </p>
+                                <p class="text-xs text-gray-500">
+                                    <a href="{{ n.article_url }}" target="_blank"
+                                       class="hover:underline">{{ n.article_url }}</a>
+                                </p>
+                            </div>
+                            <span class="text-xs text-gray-500">
+                                {{ n.notified_at.strftime('%d/%m/%Y %H:%M')
+                                   if n.notified_at else '—' }}
+                            </span>
+                        </div>
+                        <p class="text-xs text-gray-600 mt-1">
+                            {{ n.contacts | length }} destinataire(s)
+                            {% if n.avis_enquete_id %}
+                                · depuis l'avis #{{ n.avis_enquete_id }}
+                            {% else %}
+                                · saisie libre
+                            {% endif %}
+                        </p>
+                        {% if n.message %}
+                            <p class="text-xs text-gray-600 mt-1 italic">
+                                « {{ n.message }} »
+                            </p>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-sm text-gray-600 italic">
+                Aucune notification envoyée pour le moment.
+            </p>
+        {% endif %}
+    </div>
+{% endblock %}

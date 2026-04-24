@@ -1,0 +1,76 @@
+{% extends "wip/layout/_base.j2" %}
+
+{% block body_content %}
+    <div class="px-4 sm:px-6 lg:px-8 max-w-3xl">
+        <h1 class="text-2xl font-semibold text-gray-900">{{ title }}</h1>
+
+        <div class="mt-6 rounded border border-gray-200 bg-white p-6 space-y-4">
+            <div>
+                <p class="text-xs uppercase tracking-wide text-gray-500">
+                    Titre
+                </p>
+                <p class="text-sm font-medium text-gray-900">
+                    {{ notification.article_title or '(sans titre)' }}
+                </p>
+            </div>
+
+            <div>
+                <p class="text-xs uppercase tracking-wide text-gray-500">
+                    Lien
+                </p>
+                <p class="text-sm">
+                    <a href="{{ notification.article_url }}" target="_blank"
+                       class="text-indigo-700 hover:underline break-all">
+                        {{ notification.article_url }}
+                    </a>
+                </p>
+            </div>
+
+            <div>
+                <p class="text-xs uppercase tracking-wide text-gray-500">
+                    Signalé par
+                </p>
+                <p class="text-sm text-gray-900">
+                    {{ notification.owner.full_name if notification.owner else '—' }}
+                </p>
+            </div>
+
+            {% if notification.message %}
+                <div>
+                    <p class="text-xs uppercase tracking-wide text-gray-500">
+                        Message
+                    </p>
+                    <p class="text-sm text-gray-900 italic">
+                        « {{ notification.message }} »
+                    </p>
+                </div>
+            {% endif %}
+
+            <div>
+                <p class="text-xs uppercase tracking-wide text-gray-500">
+                    Date
+                </p>
+                <p class="text-sm text-gray-900">
+                    {{ contact.sent_at.strftime('%d/%m/%Y %H:%M')
+                       if contact.sent_at else '—' }}
+                </p>
+            </div>
+        </div>
+
+        <div class="mt-6 flex gap-3">
+            <a href="{{ notification.article_url }}" target="_blank"
+               class="rounded bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700">
+                Consulter l'article
+            </a>
+            <a href="{{ url_for('wip.opportunities_notifications_publication') }}"
+               class="rounded border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                ← Retour à la liste
+            </a>
+        </div>
+
+        <p class="text-xs text-gray-500 mt-6">
+            Vous pouvez acheter le justificatif de publication depuis la page
+            de l'article si elle est publiée sur AiPRESS24.
+        </p>
+    </div>
+{% endblock %}

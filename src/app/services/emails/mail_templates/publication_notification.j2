@@ -1,0 +1,36 @@
+{# Styled AiPRESS24 wordmark: bold, with a red lowercase "i". Inline
+   styles for email-client compatibility. #}
+{%- set AIPRESS24 -%}
+<strong>A<span style="color:#E30613">i</span>PRESS24</strong>
+{%- endset -%}
+<p>
+Bonjour {{ recipient_first_name }},
+</p>
+
+<p>
+<strong>{{ sender_full_name }}</strong>{% if sender_bw_name %} ({{ sender_bw_name }}){% endif %} vient de publier un article dans lequel vous apparaissez (ou dans lequel votre client apparaît).
+</p>
+
+<p>
+<strong>Titre :</strong> {{ article_title }}<br/>
+<strong>Lien :</strong> <a href="{{ article_url }}">{{ article_url }}</a>
+</p>
+
+{% if personal_message %}
+<p>
+<strong>Message de l'auteur :</strong><br/>
+<em>{{ personal_message }}</em>
+</p>
+{% endif %}
+
+<p>
+Vous pouvez consulter cet article et, si vous le souhaitez, acheter le justificatif de publication qui vous permettra de le partager sur votre profil et sur le Business Wall de votre organisation.
+</p>
+
+<p>
+Pour cela, connectez-vous à votre espace WORK sur {{ AIPRESS24 }}, rubrique <a href="{{ opportunities_url }}">Opportunités → Notifications de publication</a>.
+</p>
+
+<p>
+À bientôt sur {{ AIPRESS24 }}.
+</p>

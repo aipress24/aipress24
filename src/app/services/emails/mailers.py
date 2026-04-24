@@ -461,3 +461,35 @@ class ContactAvisEnqueteRDVRefusedMail(EmailTemplate):
     title: str
     notes: str
     sender_full_name: str
+
+
+@dataclass(kw_only=True)
+class PublicationNotificationMail(EmailTemplate):
+    """Mail informing a recipient that they (or their client) appear in
+    a newly-published article. Triggered from the journalist's
+    "Notification de publication" workflow.
+
+    Args:
+        - sender / recipient / sender_mail: standard EmailTemplate fields.
+        - sender_full_name: the publishing journalist.
+        - sender_bw_name: the media/BW the journalist publishes for.
+        - recipient_first_name: first name of the recipient.
+        - article_title: title of the published article.
+        - article_url: canonical URL (internal or external).
+        - personal_message: free-text message from the journalist
+          (optional, empty string if none).
+        - opportunities_url: link to the recipient's dashboard
+          (WORK / OPPORTUNITÉS / Notifications de publication).
+    """
+
+    subject: str = (
+        "[AiPRESS24] Un journaliste vous signale une publication"
+    )
+    template_html: str = "publication_notification.j2"
+    sender_full_name: str
+    sender_bw_name: str
+    recipient_first_name: str
+    article_title: str
+    article_url: str
+    personal_message: str
+    opportunities_url: str
