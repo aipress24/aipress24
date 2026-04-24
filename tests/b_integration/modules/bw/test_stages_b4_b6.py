@@ -18,8 +18,11 @@ from flask_security import login_user
 
 if TYPE_CHECKING:
     from flask.testing import FlaskClient
+    from sqlalchemy.orm import Session
 
     from app.models.auth import User
+    from app.models.organisation import Organisation
+    from app.modules.bw.bw_activation.models import BusinessWall
 
 
 class TestStageB4ExternalPartnersRoutes:
@@ -118,3 +121,23 @@ class TestStageB6ContentRoutes:
         """configure-content should render when activated."""
         response = authenticated_owner_client.get("/BW/configure-content")
         assert response.status_code == 200
+
+    def test_configure_content_post_syncs_name_and_bw_name(
+        self,
+        authenticated_owner_client: FlaskClient,
+        test_business_wall: BusinessWall,
+        test_org: Organisation,
+        db_session: Session,
+    ) -> None:
+        """POST to configure-content updates BW.name and syncs Organisation.bw_name."""
+        response = authenticated_owner_client.post(
+            "/BW/configure-content",
+            data={"name": "My New BW Name"},
+            follow_redirects=True,
+        )
+        assert response.status_code == 200
+
+        db_session.refresh(test_business_wall)
+        db_session.refresh(test_org)
+        assert test_business_wall.name == "My New BW Name"
+        assert test_org.bw_name == "My New BW Name"
