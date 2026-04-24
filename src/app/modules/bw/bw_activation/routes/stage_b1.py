@@ -72,6 +72,10 @@ def configure_content():
         name = request.form.get("name", "").strip()
         if name:
             business_wall.name = name
+            org = business_wall.get_organisation()
+            if org:
+                # sync org.bw_name with new BW.name
+                org.bw_name = name
             db.session.flush()
             modified = True
         else:
