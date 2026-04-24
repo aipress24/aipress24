@@ -98,7 +98,9 @@ def test_user(db_session: Session, test_org: Organisation) -> User:
 @pytest.fixture
 def test_user_pr(db_session: Session, test_org: Organisation) -> User:
     """Create a test user with PR profile."""
-    user = User(email=_unique_email(), first_name="PR", last_name="Manager")
+    user = User(
+        email=_unique_email(), first_name="PR", last_name="Manager", active=True
+    )
     user.organisation = test_org
     user.organisation_id = test_org.id
     db_session.add(user)

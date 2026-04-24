@@ -230,9 +230,14 @@ def stripe_info(bw_type: str):
             draft_bw.payer_email = request.form.get(
                 "payer_email", user.email or ""
             ).strip()
-            draft_bw.name = request.form.get("company_name", "").strip()
+            company_name = request.form.get("company_name", "").strip()
+            draft_bw.name = company_name
             draft_bw.postal_address = request.form.get("postal_address", "").strip()
             draft_bw.tel_standard = request.form.get("tel_standard", "").strip()
+            org = user.organisation
+            if org and company_name:
+                # sync org.bw_name with new BW.name
+                org.bw_name = company_name
             db.session.commit()
 
         session["bw_type"] = bw_type
