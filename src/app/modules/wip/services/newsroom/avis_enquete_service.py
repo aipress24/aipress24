@@ -493,11 +493,25 @@ class AvisEnqueteService:
                 suggested by a colleague of theirs (same organisation) —
                 the email adds a paragraph naming the suggester.
         """
+        from app.modules.bw.bw_activation.user_utils import (
+            get_active_business_wall_for_organisation,
+        )
+
         sender_mail = sender.email
         sender_full_name = sender.full_name
         sender_job = sender.metier_fonction
         organisation = sender.organisation
-        org_name = organisation.name if organisation else "inconnue"
+        # Prefer the active BW name (media-group case: org = LVMH, BW = Les
+        # Échos; the expert expects to see the media name, not the parent).
+        bw_name = ""
+        if organisation is not None:
+            active_bw = get_active_business_wall_for_organisation(organisation)
+            if active_bw is not None:
+                bw_name = active_bw.name_safe or ""
+            if not bw_name:
+                bw_name = organisation.name
+        if not bw_name:
+            bw_name = "inconnue"
 
         for expert, url in zip(experts, urls, strict=True):
             notification_mail = AvisEnqueteNotificationMail(
@@ -506,7 +520,7 @@ class AvisEnqueteService:
                 sender_mail=sender_mail,
                 sender_full_name=sender_full_name,
                 sender_job=sender_job,
-                bw_name=org_name,
+                bw_name=bw_name,
                 abstract=avis.title,
                 url=url,
                 suggested_by_name=suggested_by_name,

@@ -1,7 +1,9 @@
 {% extends "layout.html" %}
+{% import "bw_activation/_tunnel_breadcrumb.html" as bc %}
 {% block title %}
     Confirmez votre Abonnement Business Wall
 {% endblock %}
+{% block breadcrumb %}{{ bc.tunnel("confirm") }}{% endblock %}
 {% block content %}
     <script
         defer

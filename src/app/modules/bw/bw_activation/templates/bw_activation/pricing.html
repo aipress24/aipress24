@@ -1,6 +1,9 @@
 {% extends "layout.html" %}
+{% import "bw_activation/_tunnel_breadcrumb.html" as bc %}
 
 {% block title %}Tarification {{ bw_info.name }}{% endblock %}
+
+{% block breadcrumb %}{{ bc.tunnel("pricing") }}{% endblock %}
 
 {% block content %}
     <div

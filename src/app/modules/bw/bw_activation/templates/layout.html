@@ -40,6 +40,7 @@
 <body class="bg-gray-100 min-h-screen h-full min-h-screen">
     {% include '_header.html' %}
     <div class="container mx-auto px-4 py-8">
+        {% block breadcrumb %}{% endblock %}
         <main>
             {% block content %}{% endblock %}
         </main>
