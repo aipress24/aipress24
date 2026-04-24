@@ -82,7 +82,7 @@ class InvitationsView(MethodView):
         result = []
         for org in organisations:
             if org.bw_id:
-                label = f"{org.name} ({LABELS_BW_TYPE_V2.get(org.bw_active, org.bw_active)})"
+                label = f"{org.bw_name} ({LABELS_BW_TYPE_V2.get(org.bw_active, org.bw_active)})"
             else:
                 label = f"{org.name}"
             infos = {
