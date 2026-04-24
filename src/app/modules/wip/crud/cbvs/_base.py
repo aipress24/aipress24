@@ -152,7 +152,7 @@ class BaseWipView(FlaskView, abc.ABC):
             )
             user_org = db.session.execute(query2).scalar()
             if user_org:
-                result.insert(0, (str(user_org.id), user_org.name))
+                result.insert(0, (str(user_org.id), user_org.bw_name))
         return result
 
     @templated(UPDATE_TEMPLATE)
