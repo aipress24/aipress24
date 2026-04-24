@@ -109,6 +109,7 @@ def inviting_org(
     # Link organisation to BW
     org.bw_id = bw.id
     org.bw_active = bw.bw_type
+    org.bw_name = org.name
     db_session.flush()
 
     return org
@@ -158,7 +159,7 @@ class TestInvitationsView:
         response = invitations_auth_client.get("/preferences/invitations")
         assert response.status_code == 200
         html = response.data.decode()
-        assert inviting_org.name in html
+        assert inviting_org.bw_name in html
 
 
 class TestInvitationsViewHelpers:
