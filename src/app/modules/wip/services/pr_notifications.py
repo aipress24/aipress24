@@ -39,11 +39,11 @@ def notify_client_of_pr_publication(
 
     recipient_email = _pick_bw_owner_email(client_org)
     if not recipient_email:
-        warn(f"No BW owner email for {client_org.name}; skipping PR notif")
+        warn(f"No BW owner email for {client_org.bw_name}; skipping PR notif")
         return
 
     agency_org = getattr(author, "organisation", None)
-    agency_name = agency_org.name if agency_org is not None else "Votre agence RP"
+    agency_name = agency_org.bw_name if agency_org is not None else "Votre agence RP"
 
     mail = PRPublicationNotificationMail(
         sender="contact@aipress24.com",
@@ -51,7 +51,7 @@ def notify_client_of_pr_publication(
         sender_mail=author.email,
         sender_full_name=author.full_name,
         agency_name=agency_name,
-        client_name=client_org.name,
+        client_name=client_org.bw_name,
         content_type=content_type,
         content_title=content_title,
         content_url=content_url,
