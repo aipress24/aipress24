@@ -2,11 +2,11 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
-"""Corporate pages (mini-CMS) CLI commands.
+"""Mini-CMS CLI commands.
 
-- `flask corporate-pages seed` : import every `static-pages/*.md`
-  into the `CorporatePage` table. Idempotent — existing slugs are
-  skipped unless `--overwrite` is passed.
+- `flask cms seed` : import every `static-pages/*.md` into the
+  `CorporatePage` table. Idempotent — existing slugs are skipped
+  unless `--overwrite` is passed.
 
 Spec: `local-notes/specs/corporate-pages-cms.md`.
 """
@@ -23,15 +23,15 @@ from flask_super.cli import group
 from svcs.flask import container
 
 from app.flask.extensions import db
-from app.services.corporate_pages import CorporatePageService
+from app.modules.admin.cms import CorporatePageService
 
 
-@group(name="corporate-pages", short_help="Corporate pages (mini-CMS)")
-def corporate_pages() -> None:
-    """Corporate pages utilities."""
+@group(name="cms", short_help="Mini-CMS utilities")
+def cms() -> None:
+    """Mini-CMS utilities."""
 
 
-@corporate_pages.command("seed")
+@cms.command("seed")
 @click.option(
     "--overwrite",
     is_flag=True,

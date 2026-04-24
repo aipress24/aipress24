@@ -1,7 +1,7 @@
 {% extends "admin/layout/_base.j2" %}
 
 {% block main %}
-    <div x-data="cmsEditor('{{ url_for('admin.corporate_pages_preview') }}')">
+    <div x-data="cmsEditor('{{ url_for('admin.cms_preview') }}')">
         <form method="POST" class="space-y-4">
             <div>
                 <label for="slug" class="block text-sm font-medium text-gray-700">Slug</label>
@@ -49,7 +49,7 @@
             </div>
 
             <div class="flex justify-between items-center pt-4 border-t">
-                <a href="{{ url_for('admin.corporate_pages_list') }}"
+                <a href="{{ url_for('admin.cms_list') }}"
                    class="text-sm text-gray-600 hover:text-gray-900">
                     ← Retour à la liste
                 </a>
