@@ -48,6 +48,10 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
     # new BW id (if any active BW subscription)
     bw_id: Mapped[UUID] = mapped_column(nullable=True)
 
+    # Shortcut to BusinessWall .name for display:
+    # bw_name is synced from BusinessWall.name
+    bw_name: Mapped[str] = mapped_column(default="", nullable=False)
+
     # active flag : by default organisations are active, they can be
     # deactivated by site admin or when they lose their BW registration
     # In that case they become like "AUTO" orgs as regards display of pages
