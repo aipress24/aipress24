@@ -127,6 +127,22 @@ def get_active_business_wall_for_organisation(org: Organisation) -> BusinessWall
     return session.execute(stmt).scalars().one_or_none()
 
 
+def resolve_user_bw_name(user: User, fallback: str = "inconnue") -> str:
+    """Best-effort name of the BW a user publishes for.
+
+    Prefer the active BW's `name_safe` (media-group case: organisation
+    is « LVMH », BW is « Les Échos » — readers expect the media name).
+    Falls back to the organisation's own name, then `fallback`.
+    """
+    org = user.organisation
+    if org is None:
+        return fallback
+    active_bw = get_active_business_wall_for_organisation(org)
+    if active_bw is not None and active_bw.name_safe:
+        return active_bw.name_safe
+    return org.name or fallback
+
+
 def is_organisation_an_agency(org: Organisation) -> bool:
     result: bool = False
     bw = get_active_business_wall_for_organisation(org)

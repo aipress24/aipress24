@@ -1,0 +1,45 @@
+{% extends "wip/layout/_base.j2" %}
+
+{% block body_content %}
+    <div class="px-4 sm:px-6 lg:px-8 max-w-4xl">
+        <h1 class="text-2xl font-semibold text-gray-900">{{ title }}</h1>
+        <p class="mt-2 text-sm text-gray-700">
+            Articles dans lesquels vous apparaissez (ou votre client) et pour
+            lesquels un journaliste vous a signalé la publication.
+        </p>
+
+        {% if contacts %}
+            <div class="divide-y divide-gray-200 rounded border border-gray-200 bg-white mt-4">
+                {% for c in contacts %}
+                    {% set n = c.notification %}
+                    <a href="{{ url_for('wip.opportunities_notification_publication_detail',
+                                        contact_id=c.id) }}"
+                       class="block px-4 py-3 hover:bg-gray-50">
+                        <div class="flex items-baseline justify-between">
+                            <p class="text-sm font-medium text-gray-900">
+                                {% if c.read_at is none %}
+                                    <span class="inline-block w-2 h-2 rounded-full bg-blue-500 align-middle mr-2"></span>
+                                {% endif %}
+                                {{ n.article_title or n.article_url }}
+                            </p>
+                            <span class="text-xs text-gray-500">
+                                {{ c.sent_at.strftime('%d/%m/%Y %H:%M')
+                                   if c.sent_at else '—' }}
+                            </span>
+                        </div>
+                        <p class="text-xs text-gray-600 mt-1">
+                            Signalé par
+                            <span class="font-medium">
+                                {{ n.owner.full_name if n.owner else '—' }}
+                            </span>
+                        </p>
+                    </a>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-sm text-gray-600 italic mt-4">
+                Vous n'avez reçu aucune notification de publication.
+            </p>
+        {% endif %}
+    </div>
+{% endblock %}

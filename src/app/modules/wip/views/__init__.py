@@ -17,6 +17,7 @@ from . import (
     newsroom,
     opportunities,
     performance,
+    publication_notifications,
     publications,
 )
 
@@ -31,5 +32,6 @@ __all__ = [
     "newsroom",
     "opportunities",
     "performance",
+    "publication_notifications",
     "publications",
 ]

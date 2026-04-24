@@ -40,6 +40,11 @@ from app.modules.wip.services.newsroom import (
     RDVAcceptanceData,
     RDVProposalData,
 )
+from app.modules.wip.services.newsroom.publication_notification_service import (
+    PublicationNotificationError,
+    PublicationNotificationService,
+)
+from app.modules.wip.services.pr_notifications import absolute_url_for
 from app.services.auth import AuthService
 
 from ._base import BaseWipView
@@ -249,6 +254,79 @@ class AvisEnqueteWipView(BaseWipView):
         html = extract_fragment(html, "main")
         filter_service.save_state()
         return html
+
+    @route("/<id>/notify-publication", methods=["GET", "POST"])
+    def notify_publication(self, id):
+        """Mode A of the publication-notification workflow.
+
+        The journalist picks which of the avis contacts to notify, plus
+        the published article URL and an optional personal message.
+        """
+        from app.flask.extensions import db as _db
+
+        model = self._get_model(id)
+        self._update_phase_breadcrumbs(model, "Notifier une publication")
+        user = cast("User", current_user)
+        if user.is_anonymous:
+            return redirect(url_for("security.login"))
+
+        svc = container.get(PublicationNotificationService)
+        all_contacts = svc.contacts_for_avis(model)
+
+        if request.method == "GET":
+            eligible_ids = {
+                c.id for c in svc.eligible_contacts_for_avis(model)
+            }
+            return render_template(
+                "wip/avis_enquete/notify_publication.j2",
+                title=f"Notifier une publication — {model.title}",
+                model=model,
+                contacts=all_contacts,
+                eligible_ids=eligible_ids,
+            )
+
+        back = url_for("AvisEnqueteWipView:notify_publication", id=model.id)
+        try:
+            selected_ids = {
+                int(x) for x in request.form.getlist("contact_ids")
+            }
+        except ValueError:
+            selected_ids = set()
+        selected = [c for c in all_contacts if c.id in selected_ids]
+        if not selected:
+            flash("Sélectionnez au moins un destinataire.", "error")
+            return redirect(back)
+
+        try:
+            _notif, skipped = svc.notify_from_avis(
+                journalist=user,
+                avis=model,
+                article_url=request.form.get("article_url", ""),
+                article_title=request.form.get("article_title", ""),
+                contacts=selected,
+                message=request.form.get("message", ""),
+                opportunities_url_builder=_opportunities_url_builder,
+            )
+        except PublicationNotificationError as e:
+            flash(str(e), "error")
+            return redirect(back)
+
+        if skipped:
+            names = ", ".join(u.full_name for u in skipped[:5])
+            extra = (
+                ""
+                if len(skipped) <= 5
+                else f" (et {len(skipped) - 5} autre(s))"
+            )
+            flash(
+                f"{len(skipped)} destinataire(s) sauté(s) (plafond "
+                f"anti-spam ou notification déjà envoyée) : "
+                f"{names}{extra}.",
+                "warning",
+            )
+        _db.session.commit()
+        flash("Notification envoyée.", "success")
+        return redirect(url_for("AvisEnqueteWipView:get", id=model.id))
 
     @route("/<id>/reponses", methods=["GET"])
     def reponses(self, id):
@@ -619,6 +697,15 @@ class AvisEnqueteWipView(BaseWipView):
                 headers["HX-Refresh"] = "true"
             return Response("", headers=headers)
         return redirect(redirect_url)
+
+
+def _opportunities_url_builder(_notif) -> str:
+    """Absolute URL to the recipient's opportunities-notifications listing.
+
+    Used by `PublicationNotificationService` to set the `url` field on the
+    in-app notification and the « Opportunités » link in the outgoing mail.
+    """
+    return absolute_url_for("wip.opportunities_notifications_publication")
 
 
 @register
