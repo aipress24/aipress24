@@ -60,6 +60,7 @@ def _mk_user_org_bw(
     db_session.flush()
     org.bw_id = bw.id
     org.bw_active = bw_type
+    org.bw_name = org.name
     db_session.flush()
     return user, org, bw
 
@@ -180,7 +181,7 @@ class TestNotifyClientOfPrPublication:
                 content_url="https://example.com/42",
             )
 
-        assert captured["agency_name"] == agency_user.organisation.name
-        assert captured["client_name"] == client_org.name
+        assert captured["agency_name"] == agency_user.organisation.bw_name
+        assert captured["client_name"] == client_org.bw_name
         assert captured["content_type"] == "communiqué"
         assert captured["content_title"] == "Titre test"

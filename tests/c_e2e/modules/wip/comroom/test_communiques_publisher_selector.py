@@ -60,6 +60,7 @@ def agency_setup(fresh_db, test_user: User, test_org: Organisation):
     session = fresh_db.session
 
     agency_bw = _attach_bw(session, test_org, test_user, "pr")
+    test_org.bw_name = test_org.name
 
     client_org = Organisation(name=f"Client-{uuid.uuid4().hex[:6]}")
     session.add(client_org)
@@ -75,6 +76,7 @@ def agency_setup(fresh_db, test_user: User, test_org: Organisation):
     session.flush()
     client_owner.organisation_id = client_org.id
     client_bw = _attach_bw(session, client_org, client_owner, "media")
+    client_org.bw_name = client_org.name
 
     session.add(
         Partnership(
@@ -105,8 +107,8 @@ class TestPublisherSelectorRendering:
         assert response.status_code == 200
         body = response.data.decode()
         assert "Publier pour" in body
-        assert test_org.name in body
-        assert client_org.name in body
+        assert test_org.bw_name in body
+        assert client_org.bw_name in body
 
 
 class TestPublishTriggersNotification:
