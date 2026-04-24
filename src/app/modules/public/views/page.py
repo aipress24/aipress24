@@ -11,8 +11,8 @@ from flask import current_app, render_template
 from markdown import markdown
 from svcs.flask import container
 
+from app.modules.admin.cms import CorporatePageService
 from app.modules.public import get
-from app.services.corporate_pages import CorporatePageService
 
 
 @get("/page/<path:path>")

@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
-"""E2E tests for the admin corporate-pages (mini-CMS) surface."""
+"""E2E tests for the admin mini-CMS surface."""
 
 from __future__ import annotations
 
@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING
 import pytest
 from svcs.flask import container
 
-from app.services.corporate_pages import CorporatePageService
+from app.modules.admin.cms import CorporatePageService
 
 if TYPE_CHECKING:
     from flask.testing import FlaskClient
@@ -37,7 +37,7 @@ class TestCorporatePagesEdit:
         admin_client: FlaskClient,
     ):
         resp = admin_client.post(
-            "/admin/corporate-pages/CGV-BusinessWall/edit",
+            "/admin/cms/CGV-BusinessWall/edit",
             data={"title": "Nouveau titre", "body_md": "Nouveau contenu."},
             follow_redirects=False,
         )
@@ -55,7 +55,7 @@ class TestCorporatePagesEdit:
         admin_user: User,
     ):
         admin_client.post(
-            "/admin/corporate-pages/CGV-BusinessWall/edit",
+            "/admin/cms/CGV-BusinessWall/edit",
             data={"title": "t", "body_md": "b"},
             follow_redirects=False,
         )
@@ -68,7 +68,7 @@ class TestCorporatePagesEdit:
         self,
         admin_client: FlaskClient,
     ):
-        resp = admin_client.get("/admin/corporate-pages/does-not-exist/edit")
+        resp = admin_client.get("/admin/cms/does-not-exist/edit")
         assert resp.status_code in (302, 303)
 
 
@@ -79,7 +79,7 @@ class TestCorporatePagesPreview:
         admin_client: FlaskClient,
     ):
         resp = admin_client.post(
-            "/admin/corporate-pages/preview",
+            "/admin/cms/preview",
             data={"body_md": "# Title\n\n**bold**"},
         )
         assert resp.status_code == 200
@@ -93,7 +93,7 @@ class TestCorporatePagesPreview:
         admin_client: FlaskClient,
     ):
         resp = admin_client.post(
-            "/admin/corporate-pages/preview",
+            "/admin/cms/preview",
             data={"body_md": '<script>alert("xss")</script>hello'},
         )
         assert resp.status_code == 200
@@ -107,7 +107,7 @@ class TestCorporatePagesPreview:
         admin_client: FlaskClient,
     ):
         resp = admin_client.post(
-            "/admin/corporate-pages/preview",
+            "/admin/cms/preview",
             data={"body_md": '<iframe src="http://evil"></iframe>visible'},
         )
         assert resp.status_code == 200

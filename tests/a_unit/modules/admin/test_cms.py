@@ -10,7 +10,7 @@ import pytest
 from svcs.flask import container
 
 from app.models.auth import User
-from app.services.corporate_pages import (
+from app.modules.admin.cms import (
     CorporatePage,
     CorporatePageRepository,
     CorporatePageService,

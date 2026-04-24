@@ -10,8 +10,8 @@ from __future__ import annotations
 from . import (
     _export,
     biz_moderation,
+    cms,
     contents,
-    corporate_pages,
     db_export,
     exports,
     groups,
@@ -28,8 +28,8 @@ from . import (
 __all__ = [
     "_export",
     "biz_moderation",
+    "cms",
     "contents",
-    "corporate_pages",
     "db_export",
     "exports",
     "groups",

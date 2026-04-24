@@ -172,6 +172,11 @@ ADMIN_MENU = [
         "icon": "download",
     },
     {
+        "label": "CMS",
+        "endpoint": "admin.cms_list",
+        "icon": "file-text",
+    },
+    {
         "label": "Ontologie",
         "endpoint": "/admin/ontology/",
         "icon": "list-tree",

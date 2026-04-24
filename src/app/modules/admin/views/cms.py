@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
-"""Admin — corporate pages (mini-CMS) views.
+"""Admin — mini-CMS views.
 
 Lists and edits the `CorporatePage` rows that back the public
 `/page/<slug>` route. The public route falls back to the
@@ -28,7 +28,7 @@ from app.flask.extensions import db
 from app.flask.lib.nav import nav
 from app.models.auth import User
 from app.modules.admin import blueprint
-from app.services.corporate_pages import CorporatePageService
+from app.modules.admin.cms import CorporatePageService
 
 # Strips whole unsafe blocks (tag + content) before markdown sees them.
 _UNSAFE_BLOCK_RE = re.compile(
@@ -37,27 +37,27 @@ _UNSAFE_BLOCK_RE = re.compile(
 )
 
 
-@blueprint.route("/corporate-pages")
-@nav(parent="index", icon="file-text", label="Contenus corporate")
-def corporate_pages_list():
-    """List all editable corporate pages (DB rows)."""
+@blueprint.route("/cms")
+@nav(parent="index", icon="file-text", label="CMS")
+def cms_list():
+    """List all editable CMS pages (DB rows)."""
     svc = container.get(CorporatePageService)
     pages = sorted(svc.list_all(), key=lambda p: p.slug)
     return render_template(
-        "admin/pages/corporate_pages_list.j2",
-        title="Contenus corporate",
+        "admin/pages/cms_list.j2",
+        title="CMS",
         pages=pages,
     )
 
 
-@blueprint.route("/corporate-pages/<slug>/edit", methods=["GET", "POST"])
-def corporate_pages_edit(slug: str) -> str | Response:
-    """Edit a corporate page's title and body."""
+@blueprint.route("/cms/<slug>/edit", methods=["GET", "POST"])
+def cms_edit(slug: str) -> str | Response:
+    """Edit a CMS page's title and body."""
     svc = container.get(CorporatePageService)
     page = svc.get(slug=slug)
     if page is None:
         flash(f"Page « {slug} » introuvable.", "error")
-        return redirect(url_for("admin.corporate_pages_list"))
+        return redirect(url_for("admin.cms_list"))
 
     if request.method == "POST":
         title = request.form.get("title", "").strip()
@@ -71,17 +71,17 @@ def corporate_pages_edit(slug: str) -> str | Response:
         )
         db.session.commit()
         flash("Page enregistrée.", "success")
-        return redirect(url_for("admin.corporate_pages_list"))
+        return redirect(url_for("admin.cms_list"))
 
     return render_template(
-        "admin/pages/corporate_pages_edit.j2",
+        "admin/pages/cms_edit.j2",
         title=f"Éditer — {page.title or page.slug}",
         page=page,
     )
 
 
-@blueprint.route("/corporate-pages/preview", methods=["POST"])
-def corporate_pages_preview() -> str:
+@blueprint.route("/cms/preview", methods=["POST"])
+def cms_preview() -> str:
     """Render a Markdown preview for the inline editor."""
     body_md = request.form.get("body_md", "") or request.json.get("body_md", "")  # type: ignore[union-attr]
     # Strip dangerous tag+content blocks (script, style, iframe, object,
