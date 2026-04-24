@@ -264,6 +264,295 @@ is covered by the cession-droits MVP above.
 - 16 tests (9 unit + 7 e2e). Suite total unchanged: 786 e2e + 482
   integration.
 
+## Media Endpoint Refactor — Content-Addressed `/media`
+
+Three copy-pasted `image()` handlers across articles, events and
+communiqués collapsed into a single authenticated, cache-friendly
+endpoint, while two latent bugs are fixed in passing.
+
+- New `app.modules.media` blueprint with a single DB-free handler
+  `/media/<storage_name>` that serves bytes by SHA-256 key (already
+  produced by `create_file_object`), reading the S3 backend directly
+  via `storages.get_backend("s3").get_content(...)`.
+- `Image.url` on the three models now routes through a shared
+  `media_url(file_object)` helper; the legacy
+  `/wip/articles/<A>/images/<I>` URLs 301 to the new endpoint.
+- Response headers:
+  `Cache-Control: private, max-age=31536000, immutable`, ETag,
+  conditional GET. Anonymous requests get a plain `401` (not a
+  Flask-Security redirect) so `<img>` breaks cleanly without
+  logging the user out.
+- Incidental fix: public `/wire/article/...` pages used to embed
+  `<img src="/wip/articles/...">` that `401` for anonymous
+  visitors. Images on the public site now work for logged-out users
+  (still authenticated, but the redirect loop is gone).
+- 11 unit tests using a fake backend.
+
+**Flask-Security Cache-Control patch**
+
+- Flask-Security-Too's `add_cache_control` hook uses dict-style
+  assignment on Werkzeug's `CacheControl` proxy
+  (`resp.cache_control["private"] = True`), which serialises as
+  `private=True, no-store=True` — malformed directives on every
+  authenticated response, breaking `/media` caching too.
+- Hook replaced in-place in `app.after_request_funcs[None]` with an
+  attribute-setter version (bare tokens). `SECURITY_CACHE_CONTROL`
+  reduced to `{"private": True}` — session cookies are already
+  HttpOnly + SameSite, no need for `no-store`.
+- Regression test asserts `"private=True"` never appears in
+  `Cache-Control`.
+
+## Avis d'Enquête — Colleague Suggestion Flow (Bug #0061)
+
+The free-text "suggest someone by email" path never notified the
+suggested person. Redesigned per Erick's instructions.
+
+- Label changed to "Non, mais je vous suggère une personne **de mon
+  organisation** mieux placée que moi".
+- Free-text email input replaced with a `<select>` listing active
+  colleagues of the expert's organisation (excluding self, excluding
+  those already contacted for this Avis).
+- New FK column `ContactAvisEnquete.suggested_by_user_id`
+  (migration `b8242090d938`) traces the chain.
+- `AvisEnqueteService.suggest_colleague(...)` creates a new
+  `ContactAvisEnquete` linked to the suggester, posts an in-app
+  notification (Opportunités Média), sends
+  `AvisEnqueteNotificationMail` with a new "suggérée par <nom>"
+  banner (new `suggested_by_name` field on the mailer),
+  **bypasses the anti-spam cap** (rare, member-triggered).
+- When no eligible colleague exists, the option is greyed out with
+  a mailto to `contact@aipress24.com`.
+- 9 unit tests + existing integration test updated.
+
+Follow-up fixes (JD, same day and day after):
+
+- Persist a refusal reason (`rdv_notes_expert`) on the "non"
+  branch, symmetrical with "non-mais" and "oui".
+- Mail sent to the suggested colleague now contains an absolute URL
+  (dedicated `_build_opportunity_url` using `SERVER_NAME`); the
+  previous `url_for(...)` returned a relative path.
+- Breadcrumb regression: `_inject_breadcrumbs_to_context` was
+  clobbering manually-set breadcrumbs on routes absent from the
+  nav tree; short-circuit when `g.nav.breadcrumbs()` is empty.
+
+Rebranded `avis_enquete_notification.j2` as a side task: AiPRESS24
+wordmark (bold, red "i" `#E30613`), bolded labels, intro and
+instruction paragraphs.
+
+## Bug Batch — #0088, #0050, #0107, #0070
+
+Four tickets closed the same day. Ticket files in
+`local-notes/bugs/en-attente-retour/` hold the detailed
+post-mortems.
+
+- **#0088** — post-email-change redirected to the change-email
+  form instead of the login page. Root cause: neither
+  `SECURITY_POST_CHANGE_EMAIL_VIEW` nor `POST_LOGIN_VIEW` set. Fix:
+  `SECURITY_POST_CHANGE_EMAIL_VIEW = "/preferences/"` in
+  `flask/main.py`.
+- **#0050** — BW PR Agency activation prompted for number of
+  clients though the product decision was "1 client at
+  activation". New `skip_pricing_input` flag on `BWType.PR` renders
+  a direct link to `pricing_page` (client_count pre-filled to 1).
+  Pricing defaults also plumbed for Leaders & Experts / Transformers
+  to avoid re-entry.
+- **#0107** — BW card showed "chef de projet média" for a press
+  redacteur-en-chef. Root cause: `KYCProfile.metier_fonction` fell
+  back to `metiers[0]` when `fonctions_journalisme` was empty.
+  New `metier_fonction_for_bw(bw_type)` with a priority source
+  table per BW type — no misleading fallback. 6 tests.
+- **#0070** — Avis d'enquête breadcrumbs degraded to
+  `Work > Avis d'enquête > <title>` with no phase label nor link
+  back. New `_update_phase_breadcrumbs(model, phase)` produces
+  `Work > Avis d'enquête > <title clickable> > <phase>` across
+  5 sub-routes.
+
+## Taxonomies — Bug #0095
+
+Erick couldn't select "Presse & Médias" when configuring a BW.
+DB inspection found a phantom `"ORGANISATIONS PRIVÉES "` category
+(trailing space) sequestering 7 entries including "Presse &
+Médias". Caused by stray whitespace in the source ODS.
+
+- Defensive `str.strip()` in
+  `app.services.taxonomies._service.create_entry` /
+  `update_entry` — future bootstraps heal on the fly.
+- Alembic data migration `a1c3f8b0e5d2`:
+  `UPDATE tax_taxonomy SET category = trim(category) ...` for
+  existing rows. Round-trip tested.
+
+## MARKET — Quick Wins (Bug #0073)
+
+Erick's `0073` epic lists ~14 UX improvements for Missions /
+Projects / Jobs. Drastic prioritisation after review: three
+quick-wins that fix objective friction ship now; the rest is
+**deliberately deferred** until we have real traffic on MARKET.
+
+- Intro paragraph on each of the three offer-creation forms
+  (says where the offer will be listed and how candidacies reach
+  the emitter).
+- CSS class `.no-spinner` + `<style>` hiding WebKit/Firefox arrow
+  buttons on budget / salary / team_size / duration_months number
+  inputs.
+- Shared macro `poster_card(user)` replacing the free-text
+  `contact_email` field: shows author photo, name, role,
+  organisation, profile link. Email/phone not exposed. Column
+  left in the schema for back-compat.
+- Deferred: 14-select targeting on the three sub-modules,
+  reusing the Avis-d'enquête targeting module in Missions,
+  Commande/Dates-clés module, transversal refactor.
+
+## Upload Diagnostic Endpoint
+
+Minimal `/tests/upload` (`app.modules.tests`): GET form + POST on
+the same URL, bytes drained and discarded, metadata displayed
+(sent vs received size, Flask `MAX_CONTENT_LENGTH`). Isolates
+whether photo upload failures (BW gallery, profiles) come from
+nginx (413 before the app) or Flask. Flask's
+`MAX_CONTENT_LENGTH` is **not** wired — if a photo of X MB fails
+it's almost certainly nginx.
+
+## BW — Multi-Select and PR Stripe Form (WIP, JD)
+
+- Helpers `get_manageable_business_walls_for_user()` and
+  `get_selected_business_wall_for_user()`.
+- Selector page when a user manages several BW (BWMi, BWMe,
+  owner).
+- Current-managed-BW name now displayed in the UI.
+- Stripe form for PR Agency (WIP).
+- Helper `count_pr_bw_customers()` + unit test.
+- Refactor of `stripe/webhook.py` (imports, type hints).
+- Fix Stripe drift for BW created before Stripe was wired.
+- `is_organisation_an_agency()`: NPE when org has no BW —
+  warn call now gated inside `bw is not None`.
+
+## Community Role Regression — RP Saw Newsroom
+
+Critical regression found in staging: a user with KYC profile
+"Relations presse" (RP) could see and enter the Newsroom,
+reserved to journalists (PRESS_MEDIA).
+
+**Root cause**: `append_user_role_from_community` (in
+`modules/kyc/community_role.py`) only *added* the target role
+without removing previous community roles. Any user who changed
+community (e.g. journalist → relations presse) ended up with the
+union of both menus and ACLs. The legacy test
+`assert len(user.roles) == 2` was locking in the exact symptom.
+
+**DB impact (prod scan)**: 4 users with multiple community roles,
+including Eliane (PR_CS_IND + stale PRESS_MEDIA), Erick (PM_DIR +
+stale EXPERT), JD (XP_DIR_ANY + PRESS_MEDIA), and Denise (faker,
+EXPERT + TRANSFORMER).
+
+**Fix**:
+
+- `set_user_role_from_community` rewrites: drops all other
+  community roles before adding the target. Orthogonal roles
+  (MANAGER, ADMIN, LEADER…) preserved.
+- Legacy name `append_user_role_from_community` kept as alias —
+  the 3 call sites (kyc/views.py, faker/users.py) pick up the new
+  semantics automatically.
+- Migration `d3f7a49c20b1`: PostgreSQL `DELETE ... USING` that
+  removes, for each user, community roles that don't match their
+  `kyc_profile.profile_community`. Round-trip tested. Post-migration:
+  0 multi-community users, 0 orphans.
+- Tests: 5 new cases replace the buggy legacy test — initial
+  assignment, replacement (Eliane), idempotence, orthogonal-role
+  preservation, alias.
+
+**Cross-check**: for each of the 5 communities, the Work menu
+visibility matches the expected community with no cross-leak
+(PRESS_MEDIA sees Newsroom and not Com'room; the other 4 see
+Com'room and not Newsroom).
+
+## Breadcrumb Fix on Image Pages (Bug #0085)
+
+Same family as #0070 but on the articles / events / communiqués
+image-management pages (`.../images/`): breadcrumb was a flat
+`Work > List > <title>` with no link back and no phase label —
+journalists uploading photos had to walk all the way back to the
+dashboard to reach the "⋯" menu.
+
+- Shared `update_phase_breadcrumbs(model, phase)` extracted on
+  `BaseWipView`, producing
+  `Work > <label_list> > <title clickable> > <phase>`.
+- Wired into `ArticlesWipView.images()`,
+  `EventsWipView.images()`, `CommuniquesWipView.images()`.
+- `AvisEnqueteWipView._update_phase_breadcrumbs` (fix #0070)
+  becomes a thin wrapper — no duplication.
+
+## In-App Notifications Surfaced in the Header
+
+The notification service was already producing DB rows (Avis
+d'enquête, Partnership, …) but no UI surface exposed them — the
+header bell had been commented out during a previous menu
+refactor.
+
+- Bell dropdown re-enabled in
+  `fragments/header-menu-dropdowns.j2` with an unread-count
+  badge (`get_unread_notification_count()` context processor).
+- New `app.modules.notifications` blueprint:
+  `POST /notifications/mark-all-read` and
+  `POST /notifications/<id>/read`. Login-gated; open-redirect
+  protection via `urllib.parse.urlparse` on `next`.
+- Typed service methods on `NotificationRepository`:
+  `get_notifications(user, max)`, `get_unread_count(user)`,
+  `mark_all_as_read(user)`, `mark_as_read(id, user)`.
+- `dropdown-notifications.j2` rewritten: each row is a `<form>`
+  POST that marks as read before redirecting to the target URL;
+  blue dot for unread, humanized timestamp, "Tout marquer comme
+  lu" footer, empty state.
+- Composite index
+  `ix_not_notifications_receiver_read_ts (receiver_id, is_read,
+  timestamp)` (migration `e5b2a97f3c14`) — avoids a full scan on
+  `not_notifications` for every authenticated render.
+- 5 new unit tests covering scoping to receiver + mark
+  transitions.
+
+## Organisation Refactoring (JD)
+
+- `Organisation.has_bw` property (inverse of `is_auto`, more
+  explicit); `admin/utils`, `swork/organisation` view,
+  `InvitationsView` context migrated. Deprecated `unofficial` key
+  removed.
+- Deprecated `org.screenshot_url` removed.
+- Faker scripts simplified for organisations without type.
+
+## Reactivated Tests (JD)
+
+- `test_creates_auto_org_when_no_invitation_match` re-enabled.
+- `TestGetOrganisationFamily` re-enabled;
+  `get_organisation_family()` updated to use `bw_type`.
+
+## Invitations / Partnership PR External (JD)
+
+- Partnership proposals (external PR Manager) listed on the
+  "invitations d'organisation" page.
+- Access button hidden for a Partnership's own initiator.
+- Breadcrumb translation: "Organization invitations settings" →
+  "invitations d'organisation".
+- Avis d'Enquête status translations: accepted → accepté, phone →
+  téléphone, etc.
+
+## Admin `/show_user` Improvements (JD)
+
+- Display of all available role / auth / invitation information.
+- Show BW name and type if the user's org has a BW.
+- Explicit message when no portrait photo available.
+- Fix: actually display the "carte presse" image rather than the
+  portrait.
+
+## Misc Fixes (JD)
+
+- SWORK organisation list search now matches both organisation
+  name and BW name (for cases where they differ).
+- Long integer (snowflake IDs) no longer corrupted by JS integer
+  size limit.
+- PR unauthorised publication: no longer silently ignored (fixed
+  a subtle bug where a Communiqué draft written before actual
+  authorisation of the PR agent behaved incorrectly at publish
+  time).
+
 ## Infrastructure
 
 - Nix flake support removed.
@@ -271,6 +560,14 @@ is covered by the cession-droits MVP above.
   alongside existing `# type: ignore`.
 - POC updated.
 - Dependencies refreshed.
+- New weekly notes W15 / W16 / W17 in `local-notes/weekly/`.
+- `local-notes/plans-2026.md` rewritten MVP-focused (executive
+  summary + itemized list, ship-blockers, bug-fix batch, go/no-go
+  checks, nice-to-haves).
+- New `local-notes/plan-post-mvp.md` (executive summary +
+  measurement-driven iterations for Avis matchmaking / Marketplace
+  / paywall / cession, monetisation pointers, infrastructure
+  follow-ups, technical debt).
 
 ## Documentation
 
@@ -284,5 +581,4 @@ is covered by the cession-droits MVP above.
   (Stripe dashboard clicks, env vars, CGV, phased rollout, FAQ).
 - `local-notes/plans-2026.md` updated (pending work reorganised by
   priority, delivered H1 2026 snapshot).
-- Weekly notes W15 / W16 / W17 added in `local-notes/weekly/`.
 - Open-todos backlog reviewed against code state.
