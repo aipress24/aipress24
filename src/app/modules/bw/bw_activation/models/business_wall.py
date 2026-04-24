@@ -254,12 +254,13 @@ class BusinessWall(UUIDAuditBase):
 
     @property
     def name_safe(self) -> str:
-        """Return the BusinessWall.name, or by default its Organisation.name or "" """
+        """Return the BusinessWall.name, or fall back to Organisation.bw_name,
+        then Organisation.name, or ""."""
         name = self.name
         if not name:
             org = self.get_organisation()
             if org:
-                name = org.name
+                name = org.bw_name or org.name
         return name or ""
 
     # @property
