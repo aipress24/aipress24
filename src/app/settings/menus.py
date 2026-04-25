@@ -4,6 +4,8 @@
 
 from __future__ import annotations
 
+from app.enums import RoleEnum
+
 MAIN_MENU = [
     {
         "label": "News",
@@ -53,7 +55,7 @@ USER_MENU = [
     {
         "label": "Administration",
         "endpoint": "admin.index",
-        "roles": {"admin"},
+        "roles": {RoleEnum.ADMIN.name},
     },
     {
         "label": "Déconnexion",

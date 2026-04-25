@@ -1,40 +1,43 @@
 {% extends "admin/layout/_base.j2" %}
 
 {% block main %}
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-  <div class="grid gap-4 grid-cols-1">
+    <div class="grid gap-6 grid-cols-1 lg:grid-cols-2">
+        {% for widget in widgets %}
+            {% set data = widget.get_data() %}
+            <div class="bg-white rounded border border-gray-200 p-4">
+                <h2 class="text-base font-semibold text-gray-900 mb-3">
+                    {{ widget.label }}
+                </h2>
 
-    {% for widget in widgets %}
-      <div>
-        <h2 class="text-xl mt-8 mb-4">{{ widget.label }}</h2>
-
-        <div class="mb-12">
-          <canvas id="widget-{{ widget.id }}"></canvas>
-        </div>
-
-        <script>
-          (() => {
-            const config = {
-              type: 'line',
-              data: {{ widget.get_data() }},
-              options: {
-                scales: {
-                  y: {
-                    beginAtZero: true,
-                  },
-                },
-              },
-            };
-
-            new Chart(
-                document.getElementById('widget-{{ widget.id }}'),
-                config,
-            );
-          })();
-        </script>
-      </div>
-    {% endfor %}
-  </div>
-
+                {% if data.labels %}
+                    <div style="height: 220px;">
+                        <canvas id="widget-{{ widget.id }}"></canvas>
+                    </div>
+                    <script>
+                        (() => {
+                            const ctx = document.getElementById(
+                                'widget-{{ widget.id }}');
+                            if (!ctx) return;
+                            new Chart(ctx, {
+                                type: 'line',
+                                data: {{ data | tojson }},
+                                options: {
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    plugins: {legend: {display: false}},
+                                    scales: {y: {beginAtZero: true}},
+                                },
+                            });
+                        })();
+                    </script>
+                {% else %}
+                    <p class="text-sm text-gray-500 italic py-12 text-center">
+                        Pas de données pour cette période.
+                    </p>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
 {% endblock %}
