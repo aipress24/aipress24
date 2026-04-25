@@ -52,6 +52,7 @@ from app.services.stripe.utils import (
     check_stripe_secret_key,
     check_stripe_webhook_secret,
 )
+from app.settings.constants import MAX_CONTENT_LENGTH
 from app.ui.datetime_filter import make_localdt, make_naivedt
 from app.ui.labels import make_label
 
@@ -125,6 +126,10 @@ def create_app(config=None) -> Flask:
     # form — instead of landing the user somewhere useful. Redirect to
     # preferences (where the action originated). ref: bug #0088.
     app.config["SECURITY_POST_CHANGE_EMAIL_VIEW"] = "/preferences/"
+    # Cap on incoming request body size — defence in depth alongside
+    # nginx's `client_max_body_size`. Werkzeug rejects oversize uploads
+    # before the view sees them.
+    app.config["MAX_CONTENT_LENGTH"] = MAX_CONTENT_LENGTH
 
     # 2: Scan to pre-register callbacks, services, etc.
     _scan_packages_filtered(SCAN_PACKAGES)
