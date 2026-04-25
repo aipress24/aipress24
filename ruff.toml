@@ -17,6 +17,7 @@ exclude = [
     #
     "docker/run.py",
     "tests-e2e/",
+    "e2e_playwright/",
     "features/steps/steps.py",
     "gunicorn.conf.py",
     "icons/tasks.py",
