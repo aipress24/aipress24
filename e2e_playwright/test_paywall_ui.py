@@ -29,19 +29,32 @@ from playwright.sync_api import Page, expect
 def _first_article_url(page: Page, base_url: str) -> str | None:
     """Find any article URL on the current Wire wall.
 
-    Returns the absolute URL of the first article card, or None.
+    Articles live at ``/wire/<base62-id>`` (route ``wire.item``). The
+    bare ``/wire/`` root, ``/wire/me/...``, ``/wire/tab/...`` and
+    ``/wire/purchase/...`` are *not* article URLs and must be excluded.
     """
-    page.goto(f"{base_url}/wire/", wait_until="domcontentloaded")
-    # Look for any link going to /wire/article/...
-    locator = page.locator('a[href*="/wire/article/"]').first
-    if locator.count() == 0:
-        return None
-    href = locator.get_attribute("href")
-    if not href:
-        return None
-    if href.startswith("http"):
-        return href
-    return f"{base_url}{href}"
+    page.goto(f"{base_url}/wire/tab/wall", wait_until="domcontentloaded")
+    # All anchors under /wire/, then keep the ones whose suffix has no
+    # slash (i.e. /wire/<id>) and isn't a known reserved sub-path.
+    reserved = ("me", "tab", "purchase", "")
+    for href in page.locator('a[href*="/wire/"]').evaluate_all(
+        "els => els.map(e => e.getAttribute('href'))"
+    ):
+        if not href:
+            continue
+        # Normalise to path-only (strip query, fragment, scheme).
+        path = href.split("#", 1)[0].split("?", 1)[0]
+        if path.startswith("http"):
+            # Strip scheme + host.
+            path = "/" + path.split("/", 3)[-1]
+        # Must look like /wire/<token> with no further slash.
+        if not path.startswith("/wire/"):
+            continue
+        suffix = path[len("/wire/"):].rstrip("/")
+        if "/" in suffix or suffix in reserved:
+            continue
+        return f"{base_url}{path}"
+    return None
 
 
 def test_wire_landing_renders(

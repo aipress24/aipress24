@@ -9,8 +9,6 @@ Reads test credentials from the project CSV and exposes :
 - `base_url`         the target host (from `--base-url`).
 - `profile(section)` first known-good profile for a given community.
 - `login(page, p)`   helper that logs `page` in as profile `p`.
-- `block_mutations_on_prod`  autouse guard that fails any test
-  marked `mutating` if pointed at production.
 """
 
 from __future__ import annotations
@@ -48,13 +46,6 @@ SECTION_TO_COMMUNITY = {
     "Transformers": "TRANSFORMER",
     "Academics": "ACADEMIC",
 }
-
-
-def pytest_collection_modifyitems(items):
-    """Mark tests in `test_upload_limits.py` as `mutating`."""
-    for item in items:
-        if "test_upload_limits" in item.nodeid:
-            item.add_marker(pytest.mark.mutating)
 
 
 @pytest.fixture(scope="session")
@@ -132,20 +123,6 @@ def login(page: Page, base_url: str) -> Callable[[dict], None]:
         expect(page).not_to_have_url(re.compile(r".*/auth/login.*"), timeout=15_000)
 
     return _login
-
-
-@pytest.fixture(autouse=True)
-def block_mutations_on_prod(request, base_url):
-    """Refuse to run `mutating` tests against production hosts.
-
-    `base_url` is provided by pytest-base-url (session-scoped). It is
-    populated from the `--base-url` CLI option ; tests that need it
-    request it directly.
-    """
-    if "mutating" not in request.keywords:
-        return
-    if "aipress24.com" in (base_url or ""):
-        pytest.skip("mutating test skipped on production target")
 
 
 @pytest.fixture(scope="session", autouse=True)
