@@ -35,6 +35,12 @@ COMMON_SURFACES = (
     "/wip/billing",
     "/wip/performance",
     "/wip/opportunities",
+    "/wip/eventroom",
+    "/wip/events/",
+    "/wip/delegate",
+    "/wip/mail",
+    "/wip/alt-content",
+    "/wip/opportunities/notifications-publication",
     "/events/",
     "/events/calendar",
     "/biz/",
@@ -73,19 +79,37 @@ DEEP_AGNOSTIC_SURFACES = (
 PER_COMMUNITY_SURFACES: dict[str, tuple[str, ...]] = {
     "PRESS_MEDIA": (
         "/wip/newsroom",
+        "/wip/newsroom/notifications-publication",
         "/wip/dashboard",
         "/wip/articles/",
+        "/wip/articles/new/",
         "/wip/avis-enquete/",
+        "/wip/avis-enquete/new/",
         "/wip/sujets/",
+        "/wip/sujets/new/",
         "/wip/commandes/",
+        "/wip/commandes/new/",
     ),
-    "PRESS_RELATIONS": ("/wip/comroom", "/wip/communiques/"),
-    "EXPERT": ("/wip/comroom", "/wip/communiques/"),
-    "TRANSFORMER": ("/wip/comroom", "/wip/communiques/"),
+    "PRESS_RELATIONS": (
+        "/wip/comroom",
+        "/wip/communiques/",
+        "/wip/communiques/new/",
+    ),
+    "EXPERT": (
+        "/wip/comroom",
+        "/wip/communiques/",
+        "/wip/communiques/new/",
+    ),
+    "TRANSFORMER": (
+        "/wip/comroom",
+        "/wip/communiques/",
+        "/wip/communiques/new/",
+    ),
     "ACADEMIC": (
         "/wip/comroom",
         "/wip/dashboard",
         "/wip/communiques/",
+        "/wip/communiques/new/",
     ),
 }
 
