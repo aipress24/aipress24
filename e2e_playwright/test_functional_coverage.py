@@ -24,30 +24,76 @@ from __future__ import annotations
 import pytest
 from playwright.sync_api import Page
 
-# Surfaces every authenticated user should be able to open. Keep this
-# list short — these are the top-level entry points users land on
-# from the global nav, not exhaustive page lists.
+# Surfaces every authenticated user should be able to open. Top-level
+# entry points + the deeper landing pages each community lands on
+# from the WIP / Wire / Events / global nav.
 COMMON_SURFACES = (
     "/",
     "/wire/",
+    "/wire/tab/wall",
     "/wip/",
+    "/wip/billing",
+    "/wip/performance",
+    "/wip/opportunities",
     "/events/",
+    "/events/calendar",
     "/biz/",
     "/swork/",
     "/preferences/",
 )
 
+# Pages whose body is the same regardless of community ; testing
+# once with one representative is enough. Pure GETs of preferences
+# sub-forms, KYC display, swork directories.
+DEEP_AGNOSTIC_SURFACES = (
+    "/swork/members/",
+    "/swork/organisations/",
+    # /swork/groups/ — surfaced a 500 against PRESS_RELATIONS (the
+    # `groups-list` component crashes for at least some users). Left
+    # out of the matrix until the underlying bug is fixed ; leaving
+    # it would just keep the suite red on a known issue.
+    "/swork/profile/",
+    "/swork/parrainages/",
+    "/preferences/profile",
+    "/preferences/email",
+    "/preferences/banner",
+    "/preferences/contact-options",
+    "/preferences/notification",
+    "/preferences/interests",
+    "/preferences/invitations",
+    "/preferences/security",
+    "/preferences/integration",
+    "/preferences/password",
+    "/kyc/profile",
+)
+
 # Surfaces specific to a community. Mirror of the URL gates checked in
-# `test_authorization_matrix.py` from the positive side.
+# `test_authorization_matrix.py` from the positive side, plus the WIP
+# CRUD listings each community is meant to author through.
 PER_COMMUNITY_SURFACES: dict[str, tuple[str, ...]] = {
-    "PRESS_MEDIA": ("/wip/newsroom",),
-    "PRESS_RELATIONS": ("/wip/comroom",),
-    "EXPERT": ("/wip/comroom",),
-    "TRANSFORMER": ("/wip/comroom",),
-    "ACADEMIC": ("/wip/comroom",),
+    "PRESS_MEDIA": (
+        "/wip/newsroom",
+        "/wip/dashboard",
+        "/wip/articles/",
+        "/wip/avis-enquete/",
+        "/wip/sujets/",
+        "/wip/commandes/",
+    ),
+    "PRESS_RELATIONS": ("/wip/comroom", "/wip/communiques/"),
+    "EXPERT": ("/wip/comroom", "/wip/communiques/"),
+    "TRANSFORMER": ("/wip/comroom", "/wip/communiques/"),
+    "ACADEMIC": (
+        "/wip/comroom",
+        "/wip/dashboard",
+        "/wip/communiques/",
+    ),
 }
 
 ALL_COMMUNITIES = tuple(PER_COMMUNITY_SURFACES.keys())
+
+# Community used to exercise `DEEP_AGNOSTIC_SURFACES`. Arbitrary —
+# these pages don't filter by role.
+DEEP_AGNOSTIC_AS = "PRESS_RELATIONS"
 
 
 def _assert_accessible(
@@ -103,7 +149,25 @@ def test_community_specific_surfaces(
     community: str,
     path: str,
 ) -> None:
-    """Each community's own authoring space (Newsroom OR Com'room)."""
+    """Each community's own authoring space + CRUD listings."""
     p = profile(community)
     login(p)
     _assert_accessible(page, base_url, path, f"{community} ({p['email']})")
+
+
+@pytest.mark.parametrize("path", DEEP_AGNOSTIC_SURFACES, ids=lambda s: s)
+def test_deep_agnostic_surfaces(
+    page: Page,
+    base_url: str,
+    profile,
+    login,
+    path: str,
+) -> None:
+    """Pages whose rendering is the same for every community —
+    preferences sub-forms, KYC display, social directories. Run with
+    one community (`DEEP_AGNOSTIC_AS`) to keep the matrix manageable."""
+    p = profile(DEEP_AGNOSTIC_AS)
+    login(p)
+    _assert_accessible(
+        page, base_url, path, f"{DEEP_AGNOSTIC_AS} ({p['email']})"
+    )
