@@ -22,10 +22,8 @@ Why we still want it :
 
 from __future__ import annotations
 
-import re
-
 import pytest
-from playwright.sync_api import Page, expect
+from playwright.sync_api import Page
 
 
 @pytest.mark.slow
@@ -33,16 +31,17 @@ def test_each_profile_logs_in(
     profile_smoke: dict,
     page: Page,
     base_url: str,
+    login,
     known_broken: frozenset[str],
 ) -> None:
-    """Every CSV profile must reach a non-login page."""
+    """Every CSV profile must reach a non-login page.
+
+    Delegates to the shared `login` fixture — same retry semantics
+    as every other test, so a smoke pass means the fixture works
+    for that account.
+    """
     if profile_smoke["email"] in known_broken:
         pytest.skip(
             f"known credential mismatch for {profile_smoke['email']}"
         )
-
-    page.goto(f"{base_url}/auth/login", wait_until="domcontentloaded")
-    page.fill('input[name="email"]', profile_smoke["email"])
-    page.fill('input[name="password"]', profile_smoke["password"])
-    page.click('button[type="submit"], input[type="submit"]')
-    expect(page).not_to_have_url(re.compile(r".*/auth/login.*"), timeout=15_000)
+    login(profile_smoke)

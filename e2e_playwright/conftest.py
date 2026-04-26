@@ -194,17 +194,50 @@ def _bump_navigation_timeout(page: Page) -> None:
     page.set_default_timeout(15_000)
 
 
+_LOGIN_URL_RE = re.compile(r".*/auth/login.*")
+
+
+def _try_submit_login(page: Page, base_url: str, p: dict) -> bool:
+    """Single login attempt. Returns True iff URL leaves /auth/login.
+
+    Click + assert use 30 s (vs the 15 s page default) because the
+    dev server occasionally takes >15 s on the post-login landing
+    (Wire wall query for users with a lot of activity).
+    """
+    page.goto(f"{base_url}/auth/login", wait_until="domcontentloaded")
+    page.fill('input[name="email"]', p["email"])
+    page.fill('input[name="password"]', p["password"])
+    page.click(
+        'button[type="submit"], input[type="submit"]', timeout=30_000
+    )
+    try:
+        expect(page).not_to_have_url(_LOGIN_URL_RE, timeout=30_000)
+    except AssertionError:
+        return False
+    return True
+
+
 @pytest.fixture
 def login(page: Page, base_url: str) -> Callable[[dict], None]:
-    """Returns a function `login(profile)` that authenticates `page`."""
+    """Returns a function `login(profile)` that authenticates `page`.
+
+    Retries once on failure : observed flake rate ~0.4 % from
+    sporadic JS interception on the form submit (URL stays at
+    ``/auth/login#`` with no navigation). A genuine bad credential
+    fails twice, so retry doesn't mask real bugs.
+    """
 
     def _login(p: dict) -> None:
-        page.goto(f"{base_url}/auth/login", wait_until="domcontentloaded")
-        page.fill('input[name="email"]', p["email"])
-        page.fill('input[name="password"]', p["password"])
-        page.click('button[type="submit"], input[type="submit"]')
-        # Successful login lands away from /auth/login.
-        expect(page).not_to_have_url(re.compile(r".*/auth/login.*"), timeout=15_000)
+        if _try_submit_login(page, base_url, p):
+            return
+        # One retry — wait briefly for any in-flight JS to settle.
+        page.wait_for_timeout(500)
+        if not _try_submit_login(page, base_url, p):
+            msg = (
+                f"login failed twice for {p['email']} "
+                f"(URL still {page.url})"
+            )
+            raise AssertionError(msg)
 
     return _login
 
