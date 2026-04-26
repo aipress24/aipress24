@@ -5,7 +5,8 @@ resolution-markers = [
     "python_full_version >= '3.15'",
     "python_full_version == '3.14.*'",
     "python_full_version == '3.13.*'",
-    "python_full_version < '3.13'",
+    "python_full_version == '3.12.*'",
+    "python_full_version < '3.12'",
 ]
 
 [[package]]
@@ -322,6 +323,7 @@ dev = [
     { name = "flake8-ecocode" },
     { name = "flake8-requirements" },
     { name = "flake8-use-pathlib" },
+    { name = "flask-coverage", marker = "python_full_version >= '3.12'" },
     { name = "flask-debugtoolbar" },
     { name = "flynt" },
     { name = "honcho" },
@@ -479,6 +481,7 @@ dev = [
     { name = "flake8-ecocode" },
     { name = "flake8-requirements", specifier = ">=2.0.1,<3.0.0" },
     { name = "flake8-use-pathlib", specifier = ">=0.3.0,<1.0.0" },
+    { name = "flask-coverage", marker = "python_full_version >= '3.12'", specifier = ">=0.1.0" },
     { name = "flask-debugtoolbar", specifier = ">=0.16,<1.0" },
     { name = "flynt", specifier = ">=1.0.1,<2.0.0" },
     { name = "honcho", specifier = ">=2,<3" },
@@ -1696,6 +1699,19 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/54/9f/0a2e2144e3e32d1d8e5bd66acb3cb54f76b7072ab832a6be9b7d707d2015/flask_classful-0.16.0.tar.gz", hash = "sha256:9073dc705f59e301da84d981f48bdff1901a5170700b685f42548d6f754156d5", size = 8806, upload-time = "2023-09-07T21:44:49.908Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/bc/c4/2d11d7b9190e478107078f158ba69cb0fe5c5632ad486c1115cc6d3a4163/flask_classful-0.16.0-py3-none-any.whl", hash = "sha256:4a2f9020588caf62ee0662e98b02503a99b2422ed29e9832c85f143f652e6ed1", size = 9482, upload-time = "2023-09-07T21:44:48.135Z" },
+]
+
+[[package]]
+name = "flask-coverage"
+version = "0.1.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "coverage", marker = "python_full_version >= '3.12'" },
+    { name = "flask", marker = "python_full_version >= '3.12'" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/4c/97/36636e0afa808dd12cc26be03bc59b735d4862e0f85e9289d1ee3a5bc725/flask_coverage-0.1.0.tar.gz", hash = "sha256:3f62207ebfd4f6cde34943182f631adb1aae5fb72a04fcbe3817ed8b771b7e9a", size = 9649, upload-time = "2026-04-26T14:34:07.663Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/91/e1/046ecd5fc86d69c4eb8a99d74df47c432dc319663d782dd5135e10f7d031/flask_coverage-0.1.0-py3-none-any.whl", hash = "sha256:83d5669f1ce4ecb1eccc427b1c7dcf84b52329138b50731d1f99b2acc87b8d63", size = 12296, upload-time = "2026-04-26T14:34:09.189Z" },
 ]
 
 [[package]]
