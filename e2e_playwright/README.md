@@ -29,6 +29,8 @@ The fixture `block_mutations_on_prod` raises if a test marked `mutating` is run 
 
 The CSV holds 169 profiles. Each test picks one or two representatives of a community via `e2e_playwright/conftest.py::profile()`. Update the CSV when accounts rotate ; do **not** hard-code credentials in tests.
 
+The suite **does not seed** these accounts. They must already exist on the target with the password listed in the CSV. If they don't (typical for a fresh dev DB), every test is skipped with a clear message — the right fix is then to point `--base-url` at production, or to seed the dev DB out-of-band so its passwords match what the dev server's `FLASK_SECURITY_PASSWORD_SALT` will verify against.
+
 ## Browser
 
 Default browser is Firefox (matches `Makefile` targets). To use Chromium:

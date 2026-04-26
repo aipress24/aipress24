@@ -189,12 +189,12 @@ def _profiles_loaded_on_target(base_url, profiles):
             )
             if post.status_code != 302:
                 pytest.skip(
-                    "Test profiles not loaded on the target DB "
-                    f"({base_url}) — first profile {probe['email']} "
-                    "failed to log in. Either run `make test-e2e-prod` "
-                    "or seed the target with the credentials listed in "
-                    "local-notes/cards/attachments/"
-                    "00-ListeDesProfilsDeTests-7.2.csv."
+                    f"Login failed for first CSV profile {probe['email']} "
+                    f"on {base_url}. Either point `--base-url` at a target "
+                    "where the CSV accounts exist (production), or check "
+                    "your local DB has them with the original passwords "
+                    "(no recent --update with a different "
+                    "FLASK_SECURITY_PASSWORD_SALT)."
                 )
     except httpx.RequestError as e:
         pytest.skip(f"Cannot reach {base_url} : {e}")
