@@ -12,8 +12,8 @@ sidebar surface.
 For each community, log in as a representative and inspect `/wip/`
 HTML for the labels declared in `app.modules.wip.constants.MENU`.
 
-Plus a separate check that `/admin/` is genuinely 403-gated for
-non-admins (the only URL-level gate we rely on).
+URL-level gates (Newsroom, Com'room, /admin/) live in
+``test_authorization_matrix.py``.
 """
 
 from __future__ import annotations
@@ -89,20 +89,3 @@ def test_wip_sidebar_per_community(
             f"{community} ({p['email']}) : « {label} » visible dans le "
             f"WIP sidebar — fuite cross-communauté"
         )
-
-
-def test_admin_gated_against_non_admin(
-    page: Page,
-    base_url: str,
-    profile,
-    login,
-) -> None:
-    """A non-admin user must hit 403 on /admin/."""
-    p = profile("ACADEMIC")
-    login(p)
-    resp = page.goto(f"{base_url}/admin/", wait_until="domcontentloaded")
-    assert resp is not None
-    assert resp.status == 403, (
-        f"ACADEMIC {p['email']} ne devrait PAS atteindre /admin/ "
-        f"(status={resp.status})"
-    )
