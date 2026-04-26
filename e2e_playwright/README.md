@@ -54,3 +54,31 @@ Default browser is Firefox (matches `Makefile` targets). To use Chromium:
 ```bash
 pytest -v --browser chromium e2e_playwright
 ```
+
+## Coverage
+
+The dev server registers the [`flask-coverage`](https://pypi.org/project/flask-coverage/) extension when `app.debug` is on (or `FLASK_COVERAGE_PASSWORD` is set), exposing a live coverage dashboard at <http://127.0.0.1:5000/debug/coverage/>. Use it to see which lines of `src/app/` actually execute under the e2e suite.
+
+Workflow :
+
+1. Start the dev server with coverage tracing from the very first import (so module-level lines count too) :
+
+   ```bash
+   COVERAGE_PROCESS_START=$(pwd)/pyproject.toml make run
+   ```
+
+   Without that env var the tracer only starts after `create_app` returns, so view bodies are still measured but module-level imports are not.
+
+2. Run the e2e suite to drive traffic :
+
+   ```bash
+   make test-e2e-local-full
+   ```
+
+3. Inspect the dashboard live :
+   - <http://127.0.0.1:5000/debug/coverage/> — text report + links
+   - <http://127.0.0.1:5000/debug/coverage/html/> — per-file source w/ line highlighting
+   - `POST /debug/coverage/snapshot` to flush counters to disk
+   - `POST /debug/coverage/reset` between runs to clear
+
+Coverage scope is `src/app` with the same omits as the unit-test runs (`tests/`, `**/*test.py`, `src/app/faker/**`) — see `[tool.coverage.run]` in `pyproject.toml`. The extension is fail-closed : in prod (no debug, no password) `register_coverage` is a no-op even if the package is installed.

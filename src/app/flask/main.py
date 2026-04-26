@@ -148,6 +148,7 @@ def register_all(app: Flask) -> None:
     """
     # Extensions
     register_extensions(app)
+    register_coverage(app)
     register_stripe(app)
 
     # Register CLI commands
@@ -321,6 +322,23 @@ def register_stripe(app: Flask) -> None:
         app: Flask application instance.
     """
     stripe.api_key = app.config.get("STRIPE_API_KEY")
+
+
+def register_coverage(app: Flask) -> None:
+    """Mount /debug/coverage in dev/CI for live coverage of e2e runs.
+
+    Fail-closed by design — only registers if the app is in debug mode
+    or ``FLASK_COVERAGE_PASSWORD`` is set. The package itself is a dev
+    dep, so on prod (no debug, no password, package likely missing)
+    this is a no-op.
+    """
+    if not (app.debug or os.environ.get("FLASK_COVERAGE_PASSWORD")):
+        return
+    try:
+        from flask_coverage import FlaskCoverage
+    except ImportError:
+        return
+    FlaskCoverage(app)
 
 
 def register_extra_apps(app: Flask) -> None:
