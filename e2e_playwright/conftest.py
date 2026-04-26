@@ -156,47 +156,44 @@ def _profiles_loaded_on_target(base_url, profiles):
     Background : `local-notes/cards/attachments/00-…` lists prod-seeded
     accounts. A fresh dev DB or a randomly-faked DB will not have
     them, so every login would fail with the same opaque assertion.
-    Probe the first profile's login via httpx ; if it doesn't pass,
-    skip every test in the session with a single, actionable message.
+
+    The probe drives a real browser (Playwright) rather than httpx so
+    its success condition matches what individual tests will see.
+    Earlier httpx attempts failed where Playwright succeeded — likely
+    a Flask-Security CSRF / cookie subtlety we don't need to debug
+    when we can just use the same engine the real tests use.
     """
     if not base_url or not profiles:
         return
     probe = profiles[0]
     try:
-        import re
+        from playwright.sync_api import sync_playwright
 
-        import httpx
-
-        with httpx.Client(timeout=10, follow_redirects=False) as c:
-            r = c.get(f"{base_url}/auth/login")
-            m = re.search(
-                r'name="csrf_token"[^>]*value="([^"]+)"', r.text
-            )
-            if not m:
-                pytest.skip(
-                    "Login form not reachable at {} — is the dev "
-                    "server running ?".format(base_url)
+        with sync_playwright() as pw:
+            browser = pw.firefox.launch(headless=True)
+            try:
+                page = browser.new_page()
+                page.set_default_timeout(15_000)
+                page.goto(
+                    f"{base_url}/auth/login", wait_until="domcontentloaded"
                 )
-            post = c.post(
-                f"{base_url}/auth/login",
-                data={
-                    "csrf_token": m.group(1),
-                    "email": probe["email"],
-                    "password": probe["password"],
-                    "next": "",
-                    "submit": "Login",
-                },
-            )
-            if post.status_code != 302:
-                pytest.skip(
-                    f"Login failed for first CSV profile {probe['email']} "
-                    f"on {base_url}. Either point `--base-url` at a target "
-                    "where the CSV accounts exist (production), or check "
-                    "your local DB has them with the original passwords "
-                    "(no recent --update with a different "
-                    "FLASK_SECURITY_PASSWORD_SALT)."
-                )
-    except httpx.RequestError as e:
+                page.fill('input[name="email"]', probe["email"])
+                page.fill('input[name="password"]', probe["password"])
+                page.click('button[type="submit"], input[type="submit"]')
+                page.wait_for_load_state("domcontentloaded")
+                if "/auth/login" in page.url:
+                    pytest.skip(
+                        f"Login failed for first CSV profile "
+                        f"{probe['email']} on {base_url}. Either point "
+                        "`--base-url` at a target where the CSV accounts "
+                        "exist (production), or check your local DB has "
+                        "them with the original passwords (no recent "
+                        "--update with a different "
+                        "FLASK_SECURITY_PASSWORD_SALT)."
+                    )
+            finally:
+                browser.close()
+    except Exception as e:
         pytest.skip(f"Cannot reach {base_url} : {e}")
 
 
