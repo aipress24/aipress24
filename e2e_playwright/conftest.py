@@ -180,6 +180,26 @@ def non_admin_profile(profiles) -> Callable[[str], dict]:
     return _pick
 
 
+@pytest.fixture(scope="session")
+def admin_profile(profiles) -> Callable[[], dict]:
+    """Return one of the `KNOWN_ADMINS` accounts (project owners
+    holding ADMIN locally). Used by admin-positive coverage tests."""
+
+    def _pick() -> dict:
+        good = [
+            p for p in profiles
+            if p["email"] in KNOWN_ADMINS
+            and p["email"] not in KNOWN_BROKEN
+        ]
+        if not good:
+            raise RuntimeError(
+                "no usable admin profile — KNOWN_ADMINS not present in CSV"
+            )
+        return good[0]
+
+    return _pick
+
+
 @pytest.fixture(autouse=True)
 def _bump_navigation_timeout(page: Page) -> None:
     """Don't block on third-party assets (Stripe, Sentry, fonts).
