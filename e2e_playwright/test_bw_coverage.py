@@ -382,6 +382,66 @@ def test_bw_manage_internal_roles_post(
         )
 
 
+@pytest.mark.mutates_db
+def test_bw_manage_external_partners_post(
+    page: Page,
+    base_url: str,
+    profile,
+    login,
+    authed_post,
+    mail_outbox,
+) -> None:
+    """POST /BW/manage-external-partners with `pr_provider=<bw_id>`
+    invites a PR partnership. Drives the partnership branch of
+    bw_invitation.py — invite_pr_provider →
+    send_partnership_invitation_mail.
+
+    Cleanup : POST `revoke_partner_bw_id=<same>` to drop the
+    partnership row created by this test.
+    """
+    p = profile("PRESS_MEDIA")
+    login(p)
+    sel = authed_post(
+        f"{base_url}/BW/select-bw/{_ERICK_NAMED_BW_ID}", {}
+    )
+    assert sel["status"] < 400 and "/auth/login" not in sel["url"]
+
+    # Read the form ; `pr_provider` is a select with PR-type BWs
+    # that aren't yet partners of erick's BW.
+    page.goto(
+        f"{base_url}/BW/manage-external-partners",
+        wait_until="domcontentloaded",
+    )
+    options = page.locator(
+        'select[name="pr_provider"] option[value]'
+    ).evaluate_all(
+        "els => els.map(e => e.value).filter(v => v && v !== '')"
+    )
+    if not options:
+        pytest.skip("no PR-BW available as partner — pool exhausted")
+    partner_bw = options[0]
+
+    try:
+        resp = authed_post(
+            f"{base_url}/BW/manage-external-partners",
+            {"pr_provider": partner_bw},
+        )
+        assert resp["status"] < 400, (
+            f"POST manage-external-partners returned {resp['status']}"
+        )
+        assert "/auth/login" not in resp["url"]
+        captured = mail_outbox.messages()
+        assert len(captured) >= 1, (
+            f"expected partnership invitation mail, got {len(captured)}"
+        )
+    finally:
+        # Revoke the partnership so the test stays idempotent.
+        authed_post(
+            f"{base_url}/BW/manage-external-partners",
+            {"revoke_partner_bw_id": partner_bw},
+        )
+
+
 @pytest.mark.parametrize(
     "path",
     CONFIRMATION_URLS,

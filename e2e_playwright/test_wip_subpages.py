@@ -510,6 +510,53 @@ def test_avis_rdv_propose_happy_path(
 
 
 @pytest.mark.mutates_db
+def test_notifications_publication_free_form_post(
+    page: Page,
+    base_url: str,
+    profile,
+    login,
+    mail_outbox,
+) -> None:
+    """POST ``/wip/newsroom/notifications-publication/new`` (mode B)
+    with a free-form recipient list. Drives
+    ``PublicationNotificationService.notify_free_form`` (vs the
+    Mode A `notify_from_avis` covered elsewhere) — different
+    branch through `_dispatch` (no avis, no contact_provenance)."""
+    p = profile("PRESS_MEDIA")
+    login(p)
+
+    # User 22 (jd@abilian.com) is a known active user in the dev DB.
+    body = (
+        "recipient_ids=22"
+        "&article_url=https%3A%2F%2Fexample.com%2Fe2e-free-form"
+        "&article_title=Free-form+test"
+        "&message=Notification+envoy%C3%A9e+via+test+e2e."
+    )
+    js = """async (args) => {
+        const r = await fetch(args.url, {
+            method: 'POST', credentials: 'same-origin',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            body: args.body,
+        });
+        return {status: r.status, url: r.url};
+    }"""
+    resp = page.evaluate(js, {
+        "url": (
+            f"{base_url}/wip/newsroom/notifications-publication/new"
+        ),
+        "body": body,
+    })
+    assert resp["status"] < 400, (
+        f"POST notifications-publication/new returned {resp['status']}"
+    )
+    assert "/auth/login" not in resp["url"]
+    captured = mail_outbox.messages()
+    assert len(captured) >= 1, (
+        f"expected free-form notification mail, got {len(captured)}"
+    )
+
+
+@pytest.mark.mutates_db
 def test_avis_notify_publication_post(
     page: Page,
     base_url: str,
