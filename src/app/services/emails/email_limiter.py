@@ -26,6 +26,11 @@ def is_email_sending_allowed(recipient_email: str) -> bool:
         EMAILS_PERIOD_DAYS -> 7 days
     ."""
 
+    if _mail_debug_active():
+        # E2e tests run dozens of sends per recipient ; the quota
+        # would block them on the second go.
+        return True
+
     recipient_email = recipient_email.lower().strip()
 
     db_session = container.get(scoped_session)
@@ -49,6 +54,11 @@ def count_recipient_mails(recipient_email: str) -> None:
 
     Also clean the back log."""
 
+    if _mail_debug_active():
+        # In debug mode no real mail leaves the process, so we
+        # don't pollute the quota log.
+        return
+
     recipient_email = recipient_email.lower().strip()
     now = arrow.now("Europe/Paris")
     cleanup_limit = now.shift(days=-EMAILS_LOG_STORAGE_CUTOFF)
@@ -68,3 +78,10 @@ def count_recipient_mails(recipient_email: str) -> None:
 
     db_session.add(mail_log)
     db_session.flush()
+
+
+def _mail_debug_active() -> bool:
+    """Local import to avoid a circular dep at module load."""
+    from app.lib.mail_debug import is_active
+
+    return is_active()
