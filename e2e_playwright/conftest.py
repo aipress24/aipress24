@@ -178,6 +178,50 @@ def authed_post(page: Page) -> Callable[[str, dict[str, str]], dict]:
     return _post
 
 
+class MailOutbox:
+    """Helper for the ``mail_outbox`` fixture. Wraps the
+    ``/debug/mail/*`` HTTP surface.
+
+    The endpoints are gated only on debug mode (no login required),
+    so we can use ``page.request`` here — its quirky separate cookie
+    jar that bites authenticated routes elsewhere is irrelevant for
+    /debug/mail."""
+
+    def __init__(self, page: Page, base_url: str) -> None:
+        self._page = page
+        self._base = base_url
+
+    def reset(self) -> None:
+        """Clear the captured-mail buffer."""
+        self._page.request.post(
+            f"{self._base}/debug/mail/reset",
+            headers={"Accept": "application/json"},
+        )
+
+    def messages(self) -> list[dict]:
+        """Return the current list of captured messages."""
+        resp = self._page.request.get(
+            f"{self._base}/debug/mail/messages"
+        )
+        return resp.json()
+
+    def __len__(self) -> int:
+        return len(self.messages())
+
+
+@pytest.fixture
+def mail_outbox(page: Page, base_url: str) -> MailOutbox:
+    """Per-test mail capture. Resets the in-process buffer before
+    the test runs ; tests assert on ``mail_outbox.messages()``.
+
+    Requires the dev server to have ``MailDebug`` mounted (which it
+    does whenever ``app.debug`` is on — see
+    ``app.flask.main.register_mail_debug``)."""
+    box = MailOutbox(page, base_url)
+    box.reset()
+    return box
+
+
 @pytest.fixture
 def authed_get(page: Page) -> Callable[[str], dict]:
     """Returns ``get(url)`` — same cookie-aware behaviour as
