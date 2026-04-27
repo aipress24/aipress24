@@ -220,11 +220,26 @@ _LOGIN_URL_RE = re.compile(r".*/auth/login.*")
 def _try_submit_login(page: Page, base_url: str, p: dict) -> bool:
     """Single login attempt. Returns True iff URL leaves /auth/login.
 
+    If we land off /auth/login on the first goto, an earlier session
+    is still active (it redirected to the dashboard) — bounce through
+    /auth/logout, drop cookies, and retry the goto. Keeps the fixture
+    usable in tests that switch users mid-flow (e.g. profile
+    scanning in test_deep_navigation).
+
     Click + assert use 30 s (vs the 15 s page default) because the
     dev server occasionally takes >15 s on the post-login landing
     (Wire wall query for users with a lot of activity).
     """
     page.goto(f"{base_url}/auth/login", wait_until="domcontentloaded")
+    if "/auth/login" not in page.url:
+        try:
+            page.goto(
+                f"{base_url}/auth/logout", wait_until="domcontentloaded"
+            )
+        except Exception:
+            pass
+        page.context.clear_cookies()
+        page.goto(f"{base_url}/auth/login", wait_until="domcontentloaded")
     page.fill('input[name="email"]', p["email"])
     page.fill('input[name="password"]', p["password"])
     page.click(
