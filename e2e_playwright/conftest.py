@@ -108,12 +108,16 @@ def _load_profiles_from_csv() -> list[dict]:
 
 
 def pytest_configure(config):
-    """Register custom markers so `-m slow` works without
-    `PytestUnknownMarkWarning`."""
+    """Register custom markers."""
     config.addinivalue_line(
         "markers",
         "slow: long-running tests (e.g. 169-profile smoke). "
         "Skip with `-m 'not slow'`.",
+    )
+    config.addinivalue_line(
+        "markers",
+        "mutates_db: tests that write to the database — auto-skipped "
+        "against the prod target.",
     )
 
 
@@ -275,6 +279,15 @@ def login(page: Page, base_url: str) -> Callable[[dict], None]:
             raise AssertionError(msg)
 
     return _login
+
+
+@pytest.fixture(autouse=True)
+def _block_db_writes_on_prod(request, base_url):
+    """Skip tests marked `mutates_db` when pointed at production."""
+    if "mutates_db" not in request.keywords:
+        return
+    if "aipress24.com" in (base_url or ""):
+        pytest.skip("mutates_db test skipped on production target")
 
 
 @pytest.fixture(scope="session", autouse=True)
