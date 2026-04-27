@@ -108,12 +108,24 @@ def partition_by_cap(
     days: int = NOTIFICATION_WINDOW_DAYS,
 ) -> tuple[list[User], list[User]]:
     """Split `experts` into (to_notify, skipped_due_to_cap)."""
+    if _mail_debug_active():
+        # The dev DB AvisNotificationLog accumulates across e2e runs ;
+        # without this bypass the test that exercises the confirm
+        # path systematically hits the cap on the second run.
+        return list(experts), []
     over = experts_over_notification_cap(session, experts, cap=cap, days=days)
     if not over:
         return list(experts), []
     to_notify = [e for e in experts if e.id not in over]
     skipped = [e for e in experts if e.id in over]
     return to_notify, skipped
+
+
+def _mail_debug_active() -> bool:
+    """Local import — circular dep otherwise."""
+    from app.lib.mail_debug import is_active
+
+    return is_active()
 
 
 def record_notifications(
