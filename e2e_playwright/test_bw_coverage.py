@@ -233,6 +233,73 @@ def test_bw_configure_content_post_idempotent(
     )
 
 
+@pytest.mark.mutates_db
+def test_bw_invite_organisation_members_post(
+    page: Page,
+    base_url: str,
+    profile,
+    login,
+    authed_post,
+    mail_outbox,
+) -> None:
+    """POST ``/BW/invite-organisation-members`` adding a one-shot
+    test email to the existing list. Drives ``bw_invitation.py``
+    (14 % at the time of writing) and the invitation-mail path.
+
+    Cleanup : re-POST with the original email list so the test
+    invitation is canceled — `change_invitations_emails` diffs
+    cancel-vs-invite, so the second POST removes our addition.
+    """
+    p = profile("PRESS_MEDIA")
+    login(p)
+    # Warm up + select the named BW (configure-content style).
+    sel = authed_post(
+        f"{base_url}/BW/select-bw/{_ERICK_NAMED_BW_ID}", {}
+    )
+    assert sel["status"] < 400 and "/auth/login" not in sel["url"]
+
+    # Capture the existing invitation list to restore later.
+    page.goto(
+        f"{base_url}/BW/invite-organisation-members",
+        wait_until="domcontentloaded",
+    )
+    content_box = page.locator('textarea[name="content"]').first
+    if content_box.count() == 0:
+        pytest.skip("no `content` textarea on invite page")
+    original = content_box.input_value() or ""
+
+    test_email = "e2e-bw-invite-test@example.invalid"
+    new_content = original + ("\n" if original else "") + test_email
+    try:
+        resp = authed_post(
+            f"{base_url}/BW/invite-organisation-members",
+            {"action": "change_invitations_emails", "content": new_content},
+        )
+        assert resp["status"] < 400, (
+            f"POST invite returned {resp['status']}"
+        )
+        assert "/auth/login" not in resp["url"]
+        captured = mail_outbox.messages()
+        assert any(
+            test_email in (m["to"] or [])
+            for m in captured
+        ), (
+            f"no captured email targeted at {test_email!r} "
+            f"(captured {len(captured)} total)"
+        )
+    finally:
+        # Restore : POST original list, which (per
+        # change_invitations_emails diff logic) cancels the test
+        # invitation we just added.
+        revert = authed_post(
+            f"{base_url}/BW/invite-organisation-members",
+            {"action": "change_invitations_emails", "content": original},
+        )
+        assert revert["status"] < 400, (
+            f"revert POST returned {revert['status']} — manual cleanup"
+        )
+
+
 @pytest.mark.parametrize(
     "path",
     CONFIRMATION_URLS,
