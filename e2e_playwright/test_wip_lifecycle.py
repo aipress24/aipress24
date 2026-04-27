@@ -52,6 +52,14 @@ RESOURCES = [
         "/wip/communiques/publish/{id}/",
         "/wip/communiques/unpublish/{id}/",
     ),
+    (
+        "event",
+        "PRESS_MEDIA",
+        "/wip/events/",
+        re.compile(r"^/wip/events/\d+/$"),
+        "/wip/events/publish/{id}/",
+        "/wip/events/unpublish/{id}/",
+    ),
 ]
 
 

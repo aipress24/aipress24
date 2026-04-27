@@ -112,6 +112,94 @@ def _first_owned_id(
     return None
 
 
+def test_avis_ciblage_add_post(
+    page: Page,
+    base_url: str,
+    profile,
+    login,
+) -> None:
+    """POST ``/ciblage`` with ``action:add`` — exercises the
+    `add_experts_from_request` branch of ExpertFilterService
+    (different from `update`, which replaces the selection).
+    Empty selection again, no DB write."""
+    p = profile("PRESS_MEDIA")
+    login(p)
+
+    avis_pat = re.compile(r"^/wip/avis-enquete/\d+/$")
+    avis_id = _OWNED_IDS.get(("PRESS_MEDIA", "/wip/avis-enquete/"))
+    if avis_id is None:
+        avis_id = _first_owned_id(
+            page, base_url, "/wip/avis-enquete/", avis_pat
+        )
+        _OWNED_IDS[("PRESS_MEDIA", "/wip/avis-enquete/")] = avis_id
+    if avis_id is None:
+        pytest.skip(f"avis-enquete: no item for {p['email']}")
+
+    resp = page.request.post(
+        f"{base_url}/wip/avis-enquete/{avis_id}/ciblage",
+        form={"action:add": "1"},
+    )
+    assert resp.status < 400, (
+        f"POST /ciblage action:add returned {resp.status} : "
+        f"{resp.text()[:200]}"
+    )
+
+
+def test_avis_rdv_propose_post_validation_error(
+    page: Page,
+    base_url: str,
+    profile,
+    login,
+) -> None:
+    """POST ``/rdv-propose/<contact>`` with no `rdv_type` field —
+    triggers the ValueError branch of `_parse_rdv_proposal_form` and
+    the flash + redirect path. Exercises the form-parsing helper +
+    its error branch without ever hitting `service.propose_rdv`
+    (which would commit + email)."""
+    p = profile("PRESS_MEDIA")
+    login(p)
+
+    avis_id = _OWNED_IDS.get(("PRESS_MEDIA", "/wip/avis-enquete/"))
+    if avis_id is None:
+        pytest.skip("no avis cached — run rdv_details first")
+
+    # Find a contact id from the rdv page.
+    page.goto(
+        f"{base_url}/wip/avis-enquete/{avis_id}/rdv",
+        wait_until="domcontentloaded",
+    )
+    rdv_re = re.compile(
+        rf"^/wip/avis-enquete/{avis_id}/rdv-details/(\d+)$"
+    )
+    contact_id: str | None = None
+    for href in page.locator("a[href]").evaluate_all(
+        "els => els.map(e => e.getAttribute('href'))"
+    ) or ():
+        if not href:
+            continue
+        path = href.split("#", 1)[0].split("?", 1)[0]
+        if path.startswith("http"):
+            path = "/" + path.split("/", 3)[-1]
+        m = rdv_re.match(path)
+        if m:
+            contact_id = m.group(1)
+            break
+    if contact_id is None:
+        pytest.skip(f"no rdv contact under avis {avis_id}")
+
+    # Empty form ⇒ no rdv_type ⇒ ValueError raised before any
+    # email / commit. The handler flashes + redirects (HX-Redirect
+    # via _htmx_redirect → 200 with header).
+    resp = page.request.post(
+        f"{base_url}/wip/avis-enquete/{avis_id}/rdv-propose/{contact_id}",
+        form={},
+    )
+    assert resp.status < 400, (
+        f"POST /rdv-propose returned {resp.status} : "
+        f"{resp.text()[:200]}"
+    )
+
+
 def test_avis_ciblage_update_post(
     page: Page,
     base_url: str,
