@@ -112,6 +112,79 @@ def _first_owned_id(
     return None
 
 
+def test_avis_ciblage_update_post(
+    page: Page,
+    base_url: str,
+    profile,
+    login,
+) -> None:
+    """POST ``/ciblage`` with ``action:update`` and an empty
+    selection.
+
+    Goes through the heavy expert_filter + expert_selectors code
+    paths that are unreachable from a GET (the GET only renders ;
+    update / add actions exercise the parse → state-update → save
+    pipeline). Empty selection means ``selected_experts = []`` —
+    purely a session-state change, no DB write, no email.
+    """
+    p = profile("PRESS_MEDIA")
+    login(p)
+
+    avis_pat = re.compile(r"^/wip/avis-enquete/\d+/$")
+    avis_id = _OWNED_IDS.get(("PRESS_MEDIA", "/wip/avis-enquete/"))
+    if avis_id is None:
+        avis_id = _first_owned_id(
+            page, base_url, "/wip/avis-enquete/", avis_pat
+        )
+        _OWNED_IDS[("PRESS_MEDIA", "/wip/avis-enquete/")] = avis_id
+    if avis_id is None:
+        pytest.skip(f"avis-enquete: no item for {p['email']}")
+
+    resp = page.request.post(
+        f"{base_url}/wip/avis-enquete/{avis_id}/ciblage",
+        form={"action:update": "1"},
+    )
+    assert resp.status < 400, (
+        f"POST /ciblage returned {resp.status} for avis {avis_id}: "
+        f"{resp.text()[:200]}"
+    )
+
+
+def test_opportunity_form_post(
+    page: Page,
+    base_url: str,
+    profile,
+    login,
+) -> None:
+    """POST ``/wip/opportunities/<id>/form`` — the source code
+    explicitly documents that this view does *not* save anything,
+    it just re-renders the response form fragment for HTMX. Safe
+    coverage for the form-rendering branches."""
+    p = profile("PRESS_RELATIONS")
+    login(p)
+
+    opp_id = _OWNED_IDS.get(("PRESS_RELATIONS", "/wip/opportunities"))
+    if opp_id is None:
+        opp_id = _first_owned_id(
+            page,
+            base_url,
+            "/wip/opportunities",
+            re.compile(r"^/wip/opportunities/\d+$"),
+        )
+        _OWNED_IDS[("PRESS_RELATIONS", "/wip/opportunities")] = opp_id
+    if opp_id is None:
+        pytest.skip(f"opportunities: no item for {p['email']}")
+
+    resp = page.request.post(
+        f"{base_url}/wip/opportunities/{opp_id}/form",
+        form={"reponse1": "non"},
+    )
+    assert resp.status < 400, (
+        f"POST /opportunities/{opp_id}/form returned "
+        f"{resp.status} : {resp.text()[:200]}"
+    )
+
+
 def test_avis_rdv_details_renders(
     page: Page,
     base_url: str,
