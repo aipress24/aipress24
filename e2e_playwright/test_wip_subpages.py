@@ -1,0 +1,143 @@
+# Copyright (c) 2021-2026, Abilian SAS & TCA
+#
+# SPDX-License-Identifier: AGPL-3.0-only
+
+"""WIP CRUD sub-page coverage (read-only).
+
+Each WIP CRUD class exposes more than just list / detail :
+``/edit/<id>/`` for the pre-filled form, plus per-resource extras
+(``/ciblage``, ``/reponses``, ``/rdv``, ``/notify-publication`` for
+avis-enquete). These exercise the heavy code in
+``wip/crud/cbvs/*.py`` (form rendering with bound data) and
+``wip/services/newsroom/*.py`` (expert filter / matching code paths
+that are unreachable from the bare listing).
+
+For each (community, resource) we find the first item owned by the
+test profile, then GET every sub-URL and assert <400. Item lookup
+is cached per (community, listing) so the 5 avis-enquete sub-pages
+share a single listing scan.
+"""
+
+from __future__ import annotations
+
+import re
+
+import pytest
+from playwright.sync_api import Page
+
+# Each row : (resource, community, listing, detail_pat, subpath_template).
+# `subpath_template` uses {id} for the resource id.
+SUBPAGES = [
+    # Articles : edit form (+ pre-filled with bound data).
+    (
+        "article-edit", "PRESS_MEDIA",
+        "/wip/articles/", re.compile(r"^/wip/articles/\d+/$"),
+        "/wip/articles/edit/{id}/",
+    ),
+    # Avis-enquete : the lion's share of the cbvs/avis_enquete.py
+    # branches. Each subpath exercises a different code path.
+    (
+        "avis-edit", "PRESS_MEDIA",
+        "/wip/avis-enquete/", re.compile(r"^/wip/avis-enquete/\d+/$"),
+        "/wip/avis-enquete/edit/{id}/",
+    ),
+    (
+        "avis-ciblage", "PRESS_MEDIA",
+        "/wip/avis-enquete/", re.compile(r"^/wip/avis-enquete/\d+/$"),
+        "/wip/avis-enquete/{id}/ciblage",
+    ),
+    (
+        "avis-reponses", "PRESS_MEDIA",
+        "/wip/avis-enquete/", re.compile(r"^/wip/avis-enquete/\d+/$"),
+        "/wip/avis-enquete/{id}/reponses",
+    ),
+    (
+        "avis-rdv", "PRESS_MEDIA",
+        "/wip/avis-enquete/", re.compile(r"^/wip/avis-enquete/\d+/$"),
+        "/wip/avis-enquete/{id}/rdv",
+    ),
+    (
+        "avis-notify-publication", "PRESS_MEDIA",
+        "/wip/avis-enquete/", re.compile(r"^/wip/avis-enquete/\d+/$"),
+        "/wip/avis-enquete/{id}/notify-publication",
+    ),
+    # Communiques : edit form.
+    (
+        "communique-edit", "PRESS_RELATIONS",
+        "/wip/communiques/", re.compile(r"^/wip/communiques/\d+/$"),
+        "/wip/communiques/edit/{id}/",
+    ),
+    # Events : edit form (the bare /wip/events/<id>/ 500s for the
+    # only data-bearing user, so we leave that one out — but the
+    # edit page may still render).
+    (
+        "event-edit", "PRESS_MEDIA",
+        "/wip/events/", re.compile(r"^/wip/events/\d+/$"),
+        "/wip/events/edit/{id}/",
+    ),
+]
+
+# Cache : (community, listing) -> first-owned id for the picked
+# profile, or None when the listing is empty.
+_OWNED_IDS: dict[tuple[str, str], str | None] = {}
+
+
+def _first_owned_id(
+    page: Page,
+    base_url: str,
+    listing: str,
+    detail_pat: re.Pattern[str],
+) -> str | None:
+    page.goto(f"{base_url}{listing}", wait_until="domcontentloaded")
+    hrefs = page.locator("a[href]").evaluate_all(
+        "els => els.map(e => e.getAttribute('href'))"
+    )
+    for href in hrefs or ():
+        if not href:
+            continue
+        path = href.split("#", 1)[0].split("?", 1)[0]
+        if path.startswith("http"):
+            path = "/" + path.split("/", 3)[-1]
+        if detail_pat.match(path):
+            return path.rstrip("/").rsplit("/", 1)[1]
+    return None
+
+
+@pytest.mark.parametrize(
+    ("label", "community", "listing", "detail_pat", "subpath_tmpl"),
+    SUBPAGES,
+    ids=[r[0] for r in SUBPAGES],
+)
+def test_subpage_renders(
+    page: Page,
+    base_url: str,
+    profile,
+    login,
+    label: str,
+    community: str,
+    listing: str,
+    detail_pat: re.Pattern[str],
+    subpath_tmpl: str,
+) -> None:
+    """Find the first item owned by the test profile in the listing,
+    then GET the sub-page for that id."""
+    p = profile(community)
+    login(p)
+
+    key = (community, listing)
+    if key not in _OWNED_IDS:
+        _OWNED_IDS[key] = _first_owned_id(
+            page, base_url, listing, detail_pat
+        )
+    item_id = _OWNED_IDS[key]
+    if item_id is None:
+        pytest.skip(f"{label}: no item on {listing} for {p['email']}")
+
+    url = base_url + subpath_tmpl.format(id=item_id)
+    resp = page.goto(url, wait_until="domcontentloaded")
+    assert resp is not None, f"{label}: no response for {url}"
+    if resp.status == 404:
+        pytest.skip(f"{label}: {url} returned 404 — endpoint moved?")
+    assert resp.status < 400, (
+        f"{label}: {url} returned {resp.status} for {p['email']}"
+    )

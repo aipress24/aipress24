@@ -6,18 +6,23 @@
 
 Read-only crawls top out around 10 % of `app.modules.wip.*` because
 the heavy code (publication notification service, model lifecycle,
-post-handlers) only runs on state-changing requests. This file
-exercises one such path without leaking new DB rows : flip an
-existing article's published flag, then flip it back.
+post-handlers, pr_notifications) only runs on state-changing
+requests. This file exercises that path without leaking new DB rows :
+flip an existing item's published flag, then flip it back.
 
-Steps for each test :
-1. Find an existing article belonging to the test user (queried
-   from the DB ; erick@ has 4 in the seeded dev DB).
-2. GET ``/wip/articles/publish/<id>/`` and assert <400.
-3. GET ``/wip/articles/unpublish/<id>/`` (always, in finally)
+Steps for each resource :
+1. Find an item belonging to the test user via its WIP listing.
+2. ``GET /wip/<resource>/publish/<id>/`` — assert <400.
+3. ``GET /wip/<resource>/unpublish/<id>/`` always, in `finally`,
    to restore the original state.
 
 Marked `mutates_db` so it auto-skips against the prod target.
+
+Resources covered :
+- article (PRESS_MEDIA) — exercises wip.crud.cbvs.articles +
+  publication_notification_service.
+- communique (PRESS_RELATIONS) — exercises wip.crud.cbvs.communiques
+  + pr_notifications.
 """
 
 from __future__ import annotations
@@ -26,6 +31,28 @@ import re
 
 import pytest
 from playwright.sync_api import Page
+
+# Each row : (resource_label, community, listing_path, detail_pat,
+#             publish_url_template, unpublish_url_template).
+# `*_template` use {id} for the resource id.
+RESOURCES = [
+    (
+        "article",
+        "PRESS_MEDIA",
+        "/wip/articles/",
+        re.compile(r"^/wip/articles/\d+/$"),
+        "/wip/articles/publish/{id}/",
+        "/wip/articles/unpublish/{id}/",
+    ),
+    (
+        "communique",
+        "PRESS_RELATIONS",
+        "/wip/communiques/",
+        re.compile(r"^/wip/communiques/\d+/$"),
+        "/wip/communiques/publish/{id}/",
+        "/wip/communiques/unpublish/{id}/",
+    ),
+]
 
 
 def _first_owned_id(
@@ -52,41 +79,50 @@ def _first_owned_id(
 
 
 @pytest.mark.mutates_db
-def test_article_publish_unpublish_toggle(
+@pytest.mark.parametrize(
+    (
+        "resource",
+        "community",
+        "listing",
+        "detail_pat",
+        "publish_tmpl",
+        "unpublish_tmpl",
+    ),
+    RESOURCES,
+    ids=[r[0] for r in RESOURCES],
+)
+def test_publish_unpublish_toggle(
     page: Page,
     base_url: str,
     profile,
     login,
+    resource: str,
+    community: str,
+    listing: str,
+    detail_pat: re.Pattern[str],
+    publish_tmpl: str,
+    unpublish_tmpl: str,
 ) -> None:
-    """Toggle an existing article's published flag and revert.
-
-    Exercises wip.crud.cbvs.articles publish/unpublish routes plus
-    the underlying article model `set_published` / lifecycle hooks.
-    """
-    p = profile("PRESS_MEDIA")
+    """Toggle an existing item's published flag and revert."""
+    p = profile(community)
     login(p)
 
-    article_id = _first_owned_id(
-        page,
-        base_url,
-        "/wip/articles/",
-        re.compile(r"^/wip/articles/\d+/$"),
-    )
-    if article_id is None:
-        pytest.skip(f"no article owned by {p['email']}")
+    item_id = _first_owned_id(page, base_url, listing, detail_pat)
+    if item_id is None:
+        pytest.skip(f"{resource}: no item owned by {p['email']}")
 
-    publish_url = f"{base_url}/wip/articles/publish/{article_id}/"
-    unpublish_url = f"{base_url}/wip/articles/unpublish/{article_id}/"
+    publish_url = base_url + publish_tmpl.format(id=item_id)
+    unpublish_url = base_url + unpublish_tmpl.format(id=item_id)
     try:
         resp = page.goto(publish_url, wait_until="domcontentloaded")
         assert resp is not None and resp.status < 400, (
-            f"publish toggle failed for article {article_id}: "
+            f"publish toggle failed for {resource} {item_id}: "
             f"{resp.status if resp else '?'}"
         )
     finally:
         # Always try to revert, even if the assert above fired.
         revert = page.goto(unpublish_url, wait_until="domcontentloaded")
         assert revert is not None and revert.status < 400, (
-            f"unpublish (revert) failed for article {article_id}: "
+            f"unpublish (revert) failed for {resource} {item_id}: "
             f"{revert.status if revert else '?'} — manual cleanup needed"
         )
