@@ -98,7 +98,7 @@ CONFIRMATION_URLS = (
 # has no BW → most routes redirect to /BW/confirm-subscription or
 # /BW/not-authorized, exercising the « no BW yet » paths. Both are
 # meaningful coverage.
-COMMUNITIES = ("PRESS_MEDIA", "ACADEMIC")
+COMMUNITIES = ("PRESS_MEDIA", "PRESS_RELATIONS", "ACADEMIC")
 
 
 @pytest.mark.parametrize("community", COMMUNITIES, ids=COMMUNITIES)
@@ -118,6 +118,13 @@ def test_bw_url_renders(
     """
     p = profile(community)
     login(p)
+    # Warm-up : /BW/dashboard always calls `fill_session(current_bw)`
+    # if the user has any BW, populating `session["bw_activated"]` &
+    # friends. Without this step, configure-content / configure-gallery
+    # short-circuit on the `if not session.get("bw_activated")` redirect
+    # before reaching the actual view body. (`/BW/` only auto-fills
+    # when the user has *exactly one* BW — erick@ has three.)
+    page.goto(f"{base_url}/BW/dashboard", wait_until="domcontentloaded")
     resp = page.goto(f"{base_url}{path}", wait_until="domcontentloaded")
     assert resp is not None, f"{path}: no response"
     if resp.status == 404:
@@ -168,6 +175,61 @@ def test_bw_select_bw_post(
     )
     assert "/auth/login" not in resp["url"], (
         f"{label}: redirected to login — session lost"
+    )
+
+
+# Erick owns three BWs ; only this one has a non-empty `name` field
+# in the dev DB. We need the named one for the idempotent POST
+# below — re-saving an empty name would fail the « obligatoire »
+# validation branch (which is itself useful coverage but we test
+# it separately if we want).
+_ERICK_NAMED_BW_ID = "3be67123-b68d-48ad-9043-e2a206d18893"
+
+
+@pytest.mark.mutates_db
+def test_bw_configure_content_post_idempotent(
+    page: Page,
+    base_url: str,
+    profile,
+    login,
+    authed_post,
+) -> None:
+    """POST ``/BW/configure-content`` with the existing name —
+    re-saves the same value but exercises the form-parsing /
+    db.flush / etc. code path that's unreachable from the GET.
+
+    Idempotent : select the named BW, read the current ``name`` from
+    the GET-rendered form, send it back unchanged. No real state
+    mutation, no email.
+    """
+    p = profile("PRESS_MEDIA")
+    login(p)
+    # Select the BW that has a non-empty name (the warm-up via
+    # /BW/dashboard would pick erick's first BW, which has NULL name).
+    sel_resp = authed_post(
+        f"{base_url}/BW/select-bw/{_ERICK_NAMED_BW_ID}", {}
+    )
+    assert sel_resp["status"] < 400 and "/auth/login" not in sel_resp["url"], (
+        f"select-bw warm-up failed : {sel_resp}"
+    )
+    page.goto(
+        f"{base_url}/BW/configure-content", wait_until="domcontentloaded"
+    )
+    name_input = page.locator('input[name="name"]').first
+    if name_input.count() == 0:
+        pytest.skip("configure-content has no `name` field for this user")
+    name = name_input.get_attribute("value") or ""
+    if not name:
+        pytest.skip("configure-content `name` field is empty")
+
+    resp = authed_post(
+        f"{base_url}/BW/configure-content", {"name": name}
+    )
+    assert resp["status"] < 400, (
+        f"POST /BW/configure-content returned {resp['status']}"
+    )
+    assert "/auth/login" not in resp["url"], (
+        "POST /BW/configure-content redirected to login — session lost"
     )
 
 
