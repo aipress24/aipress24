@@ -497,6 +497,18 @@ def test_avis_rdv_propose_happy_path(
     )
 
 
+# test_avis_rdv_cancel_happy_path : tried, removed.
+# Cancel happy path requires a contact in PROPOSED|ACCEPTED|
+# CONFIRMED with a *future* date_rdv. The dev DB's existing
+# CONFIRMED contacts all have Feb-2026 dates (past as of today),
+# so can_cancel_rdv() returns False on every page-discoverable
+# candidate. PROPOSED contacts left over from rdv-propose runs
+# don't bind date_rdv (it's set only when the expert accepts a
+# slot via /rdv-accept). Until we have a fixture that puts a
+# contact into ACCEPTED state with a future slot, this branch is
+# unreachable in a clean repeatable way — left as a follow-up.
+
+
 @pytest.mark.mutates_db
 def test_avis_notify_publication_post(
     page: Page,
