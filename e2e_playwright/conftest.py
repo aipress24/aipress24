@@ -142,6 +142,60 @@ def profiles() -> list[dict]:
     return _load_profiles_from_csv()
 
 
+@pytest.fixture
+def authed_post(page: Page) -> Callable[[str, dict[str, str]], dict]:
+    """Returns ``post(url, form)`` that POSTs ``form`` (as
+    application/x-www-form-urlencoded) to ``url`` from inside the
+    page's JS context, so its session cookies travel with the
+    request.
+
+    ``page.request.post`` looks tempting but is a footgun : it runs
+    in a *separate* cookie jar (authenticated endpoints redirect to
+    /auth/login → status 200 with the login form, AND its response
+    cookies overwrite the real session in the BrowserContext,
+    logging the user out for the rest of the test). Use this
+    fixture instead.
+
+    Returns ``{"status": int, "url": str, "len": int}``.
+    """
+    js = """async (args) => {
+        const body = new URLSearchParams(args.form).toString();
+        const r = await fetch(args.url, {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: body,
+        });
+        const text = await r.text();
+        return {status: r.status, url: r.url, len: text.length};
+    }"""
+
+    def _post(url: str, form: dict[str, str]) -> dict:
+        return page.evaluate(js, {"url": url, "form": form})
+
+    return _post
+
+
+@pytest.fixture
+def authed_get(page: Page) -> Callable[[str], dict]:
+    """Returns ``get(url)`` — same cookie-aware behaviour as
+    `authed_post` but for GET. Useful when the route returns a file
+    download (``page.goto`` would error with « Download is starting »
+    in headed mode)."""
+    js = """async (url) => {
+        const r = await fetch(url, {credentials: 'same-origin'});
+        const text = await r.text();
+        return {status: r.status, url: r.url, len: text.length};
+    }"""
+
+    def _get(url: str) -> dict:
+        return page.evaluate(js, url)
+
+    return _get
+
+
 @pytest.fixture(scope="session")
 def known_broken() -> frozenset[str]:
     """Emails whose stored credentials don't match the CSV. Tests

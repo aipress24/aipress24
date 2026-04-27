@@ -53,6 +53,44 @@ BW_URLS = (
     "/BW/activate-free/media",
 )
 
+# Real BW + partnership/role IDs from the dev DB. Valid format,
+# but the logged-in test user is generally NOT the owner of the
+# PR BW / the invited user, so the routes redirect to
+# /BW/not-authorized — that still exercises the BW lookup,
+# partnership lookup, and owner-check code paths in
+# routes/confirm_partnership_invitation.py and
+# routes/confirm_role_invitation.py.
+# BW erick owns (active media BW). Used for select-bw POST tests :
+# POSTing /BW/select-bw/<id> as erick with this id is the
+# « happy path » (manager check passes, session is updated, dashboard
+# redirect). Other id values exercise the not-authorized branches.
+_ERICK_BW_ID = "03029f34-0548-4ce4-83f5-ad7a29097a3c"
+
+_VALID_BW_ID = "166c36dc-4096-4d53-84ea-c97148bb616a"
+_VALID_PARTNERSHIP_ID = "1a4202e9-fccc-413a-87fe-8522be4e681c"
+_VALID_ROLE_BW_ID = "eebe5695-ecec-4484-929c-2e7f88fafecf"
+_VALID_ROLE_USER_ID = 22  # jd@abilian.com (BW_OWNER)
+_NULL_UUID = "00000000-0000-0000-0000-000000000000"
+
+CONFIRMATION_URLS = (
+    # Valid UUIDs but caller isn't the partnership target → exercises
+    # the lookup-then-redirect branches.
+    (
+        f"/BW/confirm-partnership-invitation/{_VALID_BW_ID}/"
+        f"{_VALID_PARTNERSHIP_ID}"
+    ),
+    # Invalid UUIDs → exercises the not-found branches (sets
+    # session error, redirects to not-authorized).
+    f"/BW/confirm-partnership-invitation/{_NULL_UUID}/{_NULL_UUID}",
+    # Real role assignment → owner-check branch.
+    (
+        f"/BW/confirm-role-invitation/{_VALID_ROLE_BW_ID}/BW_OWNER/"
+        f"{_VALID_ROLE_USER_ID}"
+    ),
+    # Invalid → not-found branch.
+    f"/BW/confirm-role-invitation/{_NULL_UUID}/BW_OWNER/0",
+)
+
 
 # Communities exercise different code paths : PRESS_MEDIA's first
 # profile (erick) has an activated BW → routes hit the
@@ -91,4 +129,74 @@ def test_bw_url_renders(
         )
     assert resp.status < 400, (
         f"{community} {p['email']}: {path} returned {resp.status}"
+    )
+
+
+# `/BW/select-bw/<bw_id>` POST cases. Each exercises a distinct
+# branch of routes/select_bw.py and only mutates session state.
+SELECT_BW_POSTS = (
+    # Owner of an active BW → fill_session + redirect to dashboard.
+    ("select-bw-owner-ok", _ERICK_BW_ID),
+    # Real BW but caller isn't manager → not-authorized branch.
+    ("select-bw-not-manager", _VALID_BW_ID),
+    # Non-existent BW → not-found branch.
+    ("select-bw-missing", _NULL_UUID),
+)
+
+
+@pytest.mark.parametrize(
+    ("label", "bw_id"),
+    SELECT_BW_POSTS,
+    ids=[r[0] for r in SELECT_BW_POSTS],
+)
+def test_bw_select_bw_post(
+    page: Page,
+    base_url: str,
+    profile,
+    login,
+    authed_post,
+    label: str,
+    bw_id: str,
+) -> None:
+    """POST ``/BW/select-bw/<bw_id>`` — session-only state change.
+    Three branches : owner-ok, not-manager, not-found."""
+    p = profile("PRESS_MEDIA")
+    login(p)
+    resp = authed_post(f"{base_url}/BW/select-bw/{bw_id}", {})
+    assert resp["status"] < 400, (
+        f"{label}: POST /BW/select-bw/{bw_id} returned {resp['status']}"
+    )
+    assert "/auth/login" not in resp["url"], (
+        f"{label}: redirected to login — session lost"
+    )
+
+
+@pytest.mark.parametrize(
+    "path",
+    CONFIRMATION_URLS,
+    ids=[
+        "partnership-valid", "partnership-invalid",
+        "role-valid", "role-invalid",
+    ],
+)
+def test_bw_confirmation_url_renders(
+    page: Page,
+    base_url: str,
+    profile,
+    login,
+    path: str,
+) -> None:
+    """Partnership / role confirmation URLs.
+
+    The logged-in test user (PRESS_MEDIA, erick) is not the target
+    of any of these invitations, so the routes redirect to
+    /BW/not-authorized — but the BW + partnership / role lookup
+    code runs first, which is the coverage we want.
+    """
+    p = profile("PRESS_MEDIA")
+    login(p)
+    resp = page.goto(f"{base_url}{path}", wait_until="domcontentloaded")
+    assert resp is not None, f"{path}: no response"
+    assert resp.status < 400, (
+        f"{path} returned {resp.status} for {p['email']}"
     )
