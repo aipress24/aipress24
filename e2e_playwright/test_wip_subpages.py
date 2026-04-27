@@ -396,6 +396,108 @@ def test_avis_ciblage_confirm_post(
 
 
 @pytest.mark.mutates_db
+def test_avis_rdv_propose_happy_path(
+    page: Page,
+    base_url: str,
+    profile,
+    login,
+    mail_outbox,
+) -> None:
+    """POST ``/rdv-propose/<contact>`` with a valid form (RDV type
+    + 1 slot). Drives ``AvisEnqueteService.propose_rdv``,
+    ``notify_rdv_proposed`` and ``send_rdv_proposed_email`` — the
+    happy path that the validation-error test only nicked.
+
+    Side effect : flips ``contact.rdv_status`` from NO_RDV to
+    PROPOSED on whichever contact we pick. The /reponses page
+    only links « propose RDV » for contacts in ACCEPTE + NO_RDV
+    state, so once a contact has been used the test soft-skips
+    until another contact reaches that state.
+    """
+    p = profile("PRESS_MEDIA")
+    login(p)
+
+    # Find a (avis, contact) that has a propose-rdv link visible
+    # on /reponses (template only renders it when can_propose_rdv()).
+    page.goto(
+        f"{base_url}/wip/avis-enquete/", wait_until="domcontentloaded"
+    )
+    avis_pat = re.compile(r"^/wip/avis-enquete/(\d+)/$")
+    avis_ids = [
+        m.group(1)
+        for href in page.locator("a[href]").evaluate_all(
+            "els => els.map(e => e.getAttribute('href'))"
+        )
+        or ()
+        if href
+        and (m := avis_pat.match(
+            href.split("#", 1)[0].split("?", 1)[0]
+        ))
+    ]
+    if not avis_ids:
+        pytest.skip(f"avis-enquete: no item for {p['email']}")
+
+    propose_pat = re.compile(
+        r"^/wip/avis-enquete/(\d+)/rdv-propose/(\d+)$"
+    )
+    chosen_avis: str | None = None
+    chosen_contact: str | None = None
+    for avis_id in avis_ids:
+        page.goto(
+            f"{base_url}/wip/avis-enquete/{avis_id}/reponses",
+            wait_until="domcontentloaded",
+        )
+        for href in page.locator("a[href]").evaluate_all(
+            "els => els.map(e => e.getAttribute('href'))"
+        ) or ():
+            if not href:
+                continue
+            m = propose_pat.match(href.split("#", 1)[0].split("?", 1)[0])
+            if m:
+                chosen_avis, chosen_contact = m.group(1), m.group(2)
+                break
+        if chosen_contact:
+            break
+    if chosen_contact is None:
+        pytest.skip(
+            "no contact in ACCEPTE + NO_RDV state — every "
+            "candidate is already past the propose stage"
+        )
+
+    # Build a valid proposal form. RDVType members are PHONE /
+    # VIDEO / F2F ; rdv_type_str is matched as RDVType[name].
+    body = (
+        "rdv_type=PHONE"
+        "&slot_datetime_1=2030-01-15T14%3A00"
+        "&rdv_phone=%2B33000000000"
+        "&rdv_notes=e2e+test+proposal"
+    )
+    js = """async (args) => {
+        const r = await fetch(args.url, {
+            method: 'POST', credentials: 'same-origin',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            body: args.body,
+        });
+        return {status: r.status, url: r.url};
+    }"""
+    resp = page.evaluate(js, {
+        "url": (
+            f"{base_url}/wip/avis-enquete/{chosen_avis}"
+            f"/rdv-propose/{chosen_contact}"
+        ),
+        "body": body,
+    })
+    assert resp["status"] < 400, (
+        f"POST /rdv-propose returned {resp['status']}"
+    )
+    assert "/auth/login" not in resp["url"]
+    captured = mail_outbox.messages()
+    assert len(captured) >= 1, (
+        f"expected at least one captured email, got {len(captured)}"
+    )
+
+
+@pytest.mark.mutates_db
 def test_avis_notify_publication_post(
     page: Page,
     base_url: str,
