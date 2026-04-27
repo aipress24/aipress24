@@ -98,7 +98,10 @@ class PublicationNotificationService:
         opportunities_url_builder: UrlBuilder = _NO_URL,
     ) -> tuple[NotificationPublication, list[User]]:
         """Mode A : notify a selection of an avis's contacts."""
-        if avis.journaliste_id != journalist.id:
+        # `AvisEnquete` exposes ownership via the standard `owner_id`
+        # (via the Owned mixin) ; `journaliste_id` lives on
+        # `ContactAvisEnquete`, not on the avis itself.
+        if avis.owner_id != journalist.id:
             msg = (
                 "Vous ne pouvez notifier qu'à partir d'un de vos "
                 "avis d'enquête."

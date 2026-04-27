@@ -304,12 +304,6 @@ def test_opportunity_form_post(
 
 
 @pytest.mark.mutates_db
-@pytest.mark.xfail(
-    reason="surfaces a real bug : AttributeError 'AvisEnquete' object has "
-    "no attribute 'journaliste_id' in PublicationNotificationService."
-    "notify_from_avis. Test stays so we notice when the bug is fixed.",
-    strict=False,
-)
 def test_avis_notify_publication_post(
     page: Page,
     base_url: str,
