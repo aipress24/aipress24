@@ -303,6 +303,142 @@ def test_opportunity_form_post(
     )
 
 
+@pytest.mark.mutates_db
+@pytest.mark.xfail(
+    reason="surfaces a real bug : AttributeError 'AvisEnquete' object has "
+    "no attribute 'journaliste_id' in PublicationNotificationService."
+    "notify_from_avis. Test stays so we notice when the bug is fixed.",
+    strict=False,
+)
+def test_avis_notify_publication_post(
+    page: Page,
+    base_url: str,
+    profile,
+    login,
+    authed_post,
+    mail_outbox,
+) -> None:
+    """POST ``/wip/avis-enquete/<id>/notify-publication`` — picks
+    one contact, posts the form, asserts the notification email
+    lands in the outbox.
+
+    Drives ``PublicationNotificationService.notify_from_avis`` and
+    its email-sending path (the publication notification template,
+    quota-skipped via MAIL_DEBUG_ACTIVE)."""
+    p = profile("PRESS_MEDIA")
+    login(p)
+
+    avis_pat = re.compile(r"^/wip/avis-enquete/\d+/$")
+    avis_id = _OWNED_IDS.get(("PRESS_MEDIA", "/wip/avis-enquete/"))
+    if avis_id is None:
+        avis_id = _first_owned_id(
+            page, base_url, "/wip/avis-enquete/", avis_pat
+        )
+        _OWNED_IDS[("PRESS_MEDIA", "/wip/avis-enquete/")] = avis_id
+    if avis_id is None:
+        pytest.skip(f"avis-enquete: no item for {p['email']}")
+
+    # The form has one checkbox per ContactAvisEnquete ; pick all of
+    # them. Empty selection would fall through the « no recipient »
+    # flash branch instead of the notification path we want.
+    page.goto(
+        f"{base_url}/wip/avis-enquete/{avis_id}/notify-publication",
+        wait_until="domcontentloaded",
+    )
+    contact_ids = page.locator(
+        'input[name="contact_ids"]'
+    ).evaluate_all(
+        "els => els.map(e => e.value)"
+    )
+    if not contact_ids:
+        pytest.skip(f"no contact on avis {avis_id}")
+
+    # Build URL-encoded body manually because we need contact_ids
+    # repeated (form list semantics).
+    form: dict[str, str] = {
+        "article_url": "https://example.com/e2e-test-article",
+        "article_title": "E2E test article",
+        "message": "Notification triggered by e2e test.",
+    }
+    body = "&".join(f"contact_ids={cid}" for cid in contact_ids)
+    body += "&" + "&".join(
+        f"{k}={v}".replace(" ", "+") for k, v in form.items()
+    )
+    js = """async (args) => {
+        const r = await fetch(args.url, {
+            method: 'POST', credentials: 'same-origin',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            body: args.body,
+        });
+        return {status: r.status, url: r.url};
+    }"""
+    resp = page.evaluate(js, {
+        "url": f"{base_url}/wip/avis-enquete/{avis_id}/notify-publication",
+        "body": body,
+    })
+    assert resp["status"] < 400, (
+        f"POST /notify-publication returned {resp['status']}"
+    )
+    assert "/auth/login" not in resp["url"], (
+        "POST /notify-publication redirected to login"
+    )
+    captured = mail_outbox.messages()
+    assert len(captured) >= 1, (
+        f"expected at least one captured email, got {len(captured)}"
+    )
+
+
+@pytest.mark.mutates_db
+def test_opportunity_response_oui(
+    page: Page,
+    base_url: str,
+    profile,
+    login,
+    authed_post,
+    mail_outbox,
+) -> None:
+    """POST ``/wip/opportunities/<id>`` with ``reponse=oui`` + a
+    contribution. Different code branch from the « non » smoke
+    test : sets contact.status = ACCEPTE and uses the
+    ``contribution`` field instead of ``refusal_reason``."""
+    p = profile("PRESS_RELATIONS")
+    login(p)
+
+    page.goto(
+        f"{base_url}/wip/opportunities", wait_until="domcontentloaded"
+    )
+    hrefs = page.locator("a[href]").evaluate_all(
+        "els => els.map(e => e.getAttribute('href'))"
+    )
+    opp_pat = re.compile(r"^/wip/opportunities/(\d+)$")
+    opp_id: str | None = None
+    for href in hrefs or ():
+        if not href:
+            continue
+        m = opp_pat.match(href.split("?", 1)[0].split("#", 1)[0])
+        if m:
+            opp_id = m.group(1)
+            break
+    if opp_id is None:
+        pytest.skip(f"no opportunity for {p['email']}")
+
+    resp = authed_post(
+        f"{base_url}/wip/opportunities/{opp_id}",
+        {"reponse1": "oui", "contribution": "e2e test contribution"},
+    )
+    assert resp["status"] < 400, (
+        f"POST opportunity reponse=oui returned {resp['status']}"
+    )
+    assert "/auth/login" not in resp["url"], (
+        "POST /opportunities redirected to login"
+    )
+    captured = mail_outbox.messages()
+    assert len(captured) == 1, (
+        f"expected 1 captured email, got {len(captured)}"
+    )
+    assert captured[0]["to"], "captured email has no recipient"
+
+
 def test_avis_rdv_propose_get_renders(
     page: Page,
     base_url: str,
