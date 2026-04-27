@@ -64,17 +64,21 @@ def test_admin_export_db_serves_dump(
     base_url: str,
     admin_profile,
     login,
+    authed_get,
 ) -> None:
     """``/admin/export-db/`` streams a SQL dump rather than rendering a
-    page — `page.goto` would error with « Download is starting ». Use
-    the authenticated request context to GET the endpoint and assert
-    we got a non-empty body, without writing the dump to disk.
+    page — `page.goto` would error with « Download is starting ».
+    Use the cookie-aware fetch helper from conftest to GET the
+    endpoint and assert we got a non-empty body, without writing the
+    dump to disk.
     """
     p = admin_profile()
     login(p)
-    resp = page.request.get(f"{base_url}/admin/export-db/")
-    assert resp.status == 200, (
-        f"/admin/export-db/ returned {resp.status} for {p['email']}"
+    resp = authed_get(f"{base_url}/admin/export-db/")
+    assert resp["status"] == 200, (
+        f"/admin/export-db/ returned {resp['status']} for {p['email']}"
     )
-    body = resp.body()
-    assert len(body) > 0, "/admin/export-db/ returned an empty body"
+    assert "/auth/login" not in resp["url"], (
+        "/admin/export-db/ redirected to login — session lost"
+    )
+    assert resp["len"] > 0, "/admin/export-db/ returned an empty body"

@@ -134,6 +134,7 @@ def test_avis_ciblage_add_post(
     base_url: str,
     profile,
     login,
+    authed_post,
 ) -> None:
     """POST ``/ciblage`` with ``action:add`` — exercises the
     `add_experts_from_request` branch of ExpertFilterService
@@ -152,13 +153,16 @@ def test_avis_ciblage_add_post(
     if avis_id is None:
         pytest.skip(f"avis-enquete: no item for {p['email']}")
 
-    resp = page.request.post(
+    resp = authed_post(
         f"{base_url}/wip/avis-enquete/{avis_id}/ciblage",
-        form={"action:add": "1"},
+        {"action:add": "1"},
     )
-    assert resp.status < 400, (
-        f"POST /ciblage action:add returned {resp.status} : "
-        f"{resp.text()[:200]}"
+    assert resp["status"] < 400, (
+        f"POST /ciblage action:add returned {resp['status']} "
+        f"(landed on {resp['url']})"
+    )
+    assert "/auth/login" not in resp["url"], (
+        "POST /ciblage redirected to login — session lost"
     )
 
 
@@ -167,6 +171,7 @@ def test_avis_rdv_propose_post_validation_error(
     base_url: str,
     profile,
     login,
+    authed_post,
 ) -> None:
     """POST ``/rdv-propose/<contact>`` with no `rdv_type` field —
     triggers the ValueError branch of `_parse_rdv_proposal_form` and
@@ -207,13 +212,15 @@ def test_avis_rdv_propose_post_validation_error(
     # Empty form ⇒ no rdv_type ⇒ ValueError raised before any
     # email / commit. The handler flashes + redirects (HX-Redirect
     # via _htmx_redirect → 200 with header).
-    resp = page.request.post(
+    resp = authed_post(
         f"{base_url}/wip/avis-enquete/{avis_id}/rdv-propose/{contact_id}",
-        form={},
+        {},
     )
-    assert resp.status < 400, (
-        f"POST /rdv-propose returned {resp.status} : "
-        f"{resp.text()[:200]}"
+    assert resp["status"] < 400, (
+        f"POST /rdv-propose returned {resp['status']}"
+    )
+    assert "/auth/login" not in resp["url"], (
+        "POST /rdv-propose redirected to login — session lost"
     )
 
 
@@ -222,6 +229,7 @@ def test_avis_ciblage_update_post(
     base_url: str,
     profile,
     login,
+    authed_post,
 ) -> None:
     """POST ``/ciblage`` with ``action:update`` and an empty
     selection.
@@ -245,13 +253,15 @@ def test_avis_ciblage_update_post(
     if avis_id is None:
         pytest.skip(f"avis-enquete: no item for {p['email']}")
 
-    resp = page.request.post(
+    resp = authed_post(
         f"{base_url}/wip/avis-enquete/{avis_id}/ciblage",
-        form={"action:update": "1"},
+        {"action:update": "1"},
     )
-    assert resp.status < 400, (
-        f"POST /ciblage returned {resp.status} for avis {avis_id}: "
-        f"{resp.text()[:200]}"
+    assert resp["status"] < 400, (
+        f"POST /ciblage returned {resp['status']} for avis {avis_id}"
+    )
+    assert "/auth/login" not in resp["url"], (
+        "POST /ciblage redirected to login — session lost"
     )
 
 
@@ -260,6 +270,7 @@ def test_opportunity_form_post(
     base_url: str,
     profile,
     login,
+    authed_post,
 ) -> None:
     """POST ``/wip/opportunities/<id>/form`` — the source code
     explicitly documents that this view does *not* save anything,
@@ -280,13 +291,15 @@ def test_opportunity_form_post(
     if opp_id is None:
         pytest.skip(f"opportunities: no item for {p['email']}")
 
-    resp = page.request.post(
+    resp = authed_post(
         f"{base_url}/wip/opportunities/{opp_id}/form",
-        form={"reponse1": "non"},
+        {"reponse1": "non"},
     )
-    assert resp.status < 400, (
-        f"POST /opportunities/{opp_id}/form returned "
-        f"{resp.status} : {resp.text()[:200]}"
+    assert resp["status"] < 400, (
+        f"POST /opportunities/{opp_id}/form returned {resp['status']}"
+    )
+    assert "/auth/login" not in resp["url"], (
+        "POST /opportunities/.../form redirected to login — session lost"
     )
 
 
