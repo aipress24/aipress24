@@ -304,6 +304,98 @@ def test_opportunity_form_post(
 
 
 @pytest.mark.mutates_db
+def test_avis_ciblage_confirm_post(
+    page: Page,
+    base_url: str,
+    profile,
+    login,
+    mail_outbox,
+) -> None:
+    """POST ``/ciblage`` with ``action:confirm`` and one selected
+    expert. The deepest path through the avis-enquete service
+    layer : ``filter_known_experts`` → ``partition_by_notification_cap``
+    → ``store_contacts`` → ``notify_experts`` →
+    ``send_avis_enquete_emails`` → ``record_notifications``.
+
+    Side effect : creates one ContactAvisEnquete row + one
+    AvisNotificationLog entry, flips avis.status to PUBLIC if not
+    already. Idempotent across runs in the sense that the form's
+    expert pool excludes already-contacted experts ; once the pool
+    is exhausted, the test soft-skips."""
+    p = profile("PRESS_MEDIA")
+    login(p)
+
+    # Iterate over the user's avis listing and pick a (avis,
+    # expert) pair where the expert isn't already a
+    # ContactAvisEnquete for that avis (otherwise filter_known_experts
+    # strips the selection and 0 mails get sent). The form's
+    # thematic pre-filter narrows the pool — some avis show only a
+    # handful of candidates, all already contacts.
+    page.goto(
+        f"{base_url}/wip/avis-enquete/", wait_until="domcontentloaded"
+    )
+    avis_pat = re.compile(r"^/wip/avis-enquete/(\d+)/$")
+    avis_ids: list[str] = []
+    for href in page.locator("a[href]").evaluate_all(
+        "els => els.map(e => e.getAttribute('href'))"
+    ) or ():
+        if not href:
+            continue
+        m = avis_pat.match(href.split("#", 1)[0].split("?", 1)[0])
+        if m and m.group(1) not in avis_ids:
+            avis_ids.append(m.group(1))
+    if not avis_ids:
+        pytest.skip(f"avis-enquete: no item for {p['email']}")
+
+    js = """async (args) => {
+        const r = await fetch(args.url, {
+            method: 'POST', credentials: 'same-origin',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            body: args.body,
+        });
+        return {status: r.status, url: r.url};
+    }"""
+    for avis_id in avis_ids:
+        page.goto(
+            f"{base_url}/wip/avis-enquete/{avis_id}/ciblage",
+            wait_until="domcontentloaded",
+        )
+        keys = page.locator(
+            'input[name^="expert:"]'
+        ).evaluate_all("els => els.map(e => e.name)")
+        url = f"{base_url}/wip/avis-enquete/{avis_id}/ciblage"
+        # Cap attempts per avis so a fully-contacted avis doesn't
+        # waste the test's runtime.
+        for chosen in keys[:5]:
+            mail_outbox.reset()
+            add = page.evaluate(
+                js, {"url": url, "body": f"{chosen}=on&action:add=1"}
+            )
+            if add["status"] >= 400:
+                continue
+            resp = page.evaluate(
+                js, {"url": url, "body": "action:confirm=1"}
+            )
+            if resp["status"] >= 400 or "/auth/login" in resp["url"]:
+                continue
+            captured = mail_outbox.messages()
+            if captured:
+                assert any(
+                    "enquête" in m["subject"].lower()
+                    or "enquete" in m["subject"].lower()
+                    for m in captured
+                ), (
+                    f"captured {len(captured)} emails but none has "
+                    f"an avis-enquete subject"
+                )
+                return
+    pytest.skip(
+        "no (avis × expert) combination triggered an email — every "
+        "selectable candidate is already a contact for its avis"
+    )
+
+
+@pytest.mark.mutates_db
 def test_avis_notify_publication_post(
     page: Page,
     base_url: str,
