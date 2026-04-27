@@ -84,6 +84,23 @@ SUBPAGES = [
         "/wip/opportunities", re.compile(r"^/wip/opportunities/\d+$"),
         "/wip/opportunities/{id}",
     ),
+    # Image listings : exercises the per-resource image gallery view
+    # in cbvs/{articles,communiques,events}.py.
+    (
+        "article-images", "PRESS_MEDIA",
+        "/wip/articles/", re.compile(r"^/wip/articles/\d+/$"),
+        "/wip/articles/{id}/images/",
+    ),
+    (
+        "communique-images", "PRESS_RELATIONS",
+        "/wip/communiques/", re.compile(r"^/wip/communiques/\d+/$"),
+        "/wip/communiques/{id}/images/",
+    ),
+    (
+        "event-images", "PRESS_MEDIA",
+        "/wip/events/", re.compile(r"^/wip/events/\d+/$"),
+        "/wip/events/{id}/images/",
+    ),
 ]
 
 # Cache : (community, listing) -> first-owned id for the picked
@@ -270,6 +287,54 @@ def test_opportunity_form_post(
     assert resp.status < 400, (
         f"POST /opportunities/{opp_id}/form returned "
         f"{resp.status} : {resp.text()[:200]}"
+    )
+
+
+def test_avis_rdv_propose_get_renders(
+    page: Page,
+    base_url: str,
+    profile,
+    login,
+) -> None:
+    """GET ``/rdv-propose/<contact>`` renders the proposal form
+    (different code branch from POST validation error)."""
+    p = profile("PRESS_MEDIA")
+    login(p)
+
+    avis_id = _OWNED_IDS.get(("PRESS_MEDIA", "/wip/avis-enquete/"))
+    if avis_id is None:
+        pytest.skip("no avis cached — run rdv_details first")
+
+    page.goto(
+        f"{base_url}/wip/avis-enquete/{avis_id}/rdv",
+        wait_until="domcontentloaded",
+    )
+    rdv_re = re.compile(
+        rf"^/wip/avis-enquete/{avis_id}/rdv-details/(\d+)$"
+    )
+    contact_id: str | None = None
+    for href in page.locator("a[href]").evaluate_all(
+        "els => els.map(e => e.getAttribute('href'))"
+    ) or ():
+        if not href:
+            continue
+        path = href.split("#", 1)[0].split("?", 1)[0]
+        if path.startswith("http"):
+            path = "/" + path.split("/", 3)[-1]
+        m = rdv_re.match(path)
+        if m:
+            contact_id = m.group(1)
+            break
+    if contact_id is None:
+        pytest.skip(f"no rdv contact under avis {avis_id}")
+
+    url = (
+        f"{base_url}/wip/avis-enquete/{avis_id}"
+        f"/rdv-propose/{contact_id}"
+    )
+    resp = page.goto(url, wait_until="domcontentloaded")
+    assert resp is not None and resp.status < 400, (
+        f"GET {url} returned {resp.status if resp else '?'}"
     )
 
 
