@@ -382,6 +382,31 @@ def test_bw_manage_internal_roles_post(
         )
 
 
+def test_bw_billing_portal_post(
+    page: Page,
+    base_url: str,
+    profile,
+    login,
+    authed_post,
+) -> None:
+    """POST /BW/billing-portal — exercises the Stripe-portal entry
+    point. In dev (no STRIPE_LIVE_ENABLED, no stripe_customer_id),
+    the handler short-circuits with a flash + redirect, but its
+    initial branches (manager check, subscription lookup, config
+    gate) all run and bump routes/billing_portal.py from 40 %."""
+    p = profile("PRESS_MEDIA")
+    login(p)
+    sel = authed_post(
+        f"{base_url}/BW/select-bw/{_ERICK_NAMED_BW_ID}", {}
+    )
+    assert sel["status"] < 400 and "/auth/login" not in sel["url"]
+    resp = authed_post(f"{base_url}/BW/billing-portal", {})
+    assert resp["status"] < 400, (
+        f"POST /BW/billing-portal returned {resp['status']}"
+    )
+    assert "/auth/login" not in resp["url"]
+
+
 @pytest.mark.mutates_db
 def test_bw_manage_external_partners_post(
     page: Page,
