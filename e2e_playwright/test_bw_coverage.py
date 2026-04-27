@@ -300,6 +300,88 @@ def test_bw_invite_organisation_members_post(
         )
 
 
+@pytest.mark.mutates_db
+def test_bw_manage_internal_roles_post(
+    page: Page,
+    base_url: str,
+    profile,
+    login,
+    authed_post,
+    mail_outbox,
+) -> None:
+    """POST /BW/manage-internal-roles action=change_bwmi_invitations
+    with a one-shot test email. Drives the bw_invitation.py role
+    invitation path (change_bwmi_emails → invite_user_role →
+    send_role_invitation_mail) — bw_invitation.py sat at 14 % until
+    this test was added.
+
+    Cleanup : POST original content (empty in the dev DB) which
+    cancels the test invitation per change_bwmi_emails diff
+    semantics.
+    """
+    p = profile("PRESS_MEDIA")
+    login(p)
+    sel = authed_post(
+        f"{base_url}/BW/select-bw/{_ERICK_NAMED_BW_ID}", {}
+    )
+    assert sel["status"] < 400 and "/auth/login" not in sel["url"]
+
+    page.goto(
+        f"{base_url}/BW/manage-internal-roles",
+        wait_until="domcontentloaded",
+    )
+    # Two textareas named `content` ; the first is the BWMi one
+    # (Media internal members). Capture its current value so we
+    # can revert exactly.
+    boxes = page.locator('textarea[name="content"]').evaluate_all(
+        "els => els.map(e => e.value || '')"
+    )
+    if not boxes:
+        pytest.skip("no `content` textareas on manage-internal-roles")
+    original_bwmi = boxes[0]
+
+    # invite_user_role requires the invitee to be (1) an existing
+    # active User and (2) already a member of the BW's organisation.
+    # sf@abilian.com is in erick's BW org with no role assignment in
+    # the dev DB.
+    test_email = "sf@abilian.com"
+    new_content = (
+        original_bwmi + ("\n" if original_bwmi.strip() else "") + test_email
+    )
+    try:
+        resp = authed_post(
+            f"{base_url}/BW/manage-internal-roles",
+            {
+                "action": "change_bwmi_invitations",
+                "content": new_content,
+            },
+        )
+        assert resp["status"] < 400, (
+            f"POST manage-internal-roles returned {resp['status']}"
+        )
+        assert "/auth/login" not in resp["url"]
+        captured = mail_outbox.messages()
+        assert any(
+            test_email in (m["to"] or [])
+            for m in captured
+        ), (
+            f"no captured email targeted at {test_email!r} "
+            f"(captured {len(captured)} total)"
+        )
+    finally:
+        # Restore the original list — diff cancels our addition.
+        revert = authed_post(
+            f"{base_url}/BW/manage-internal-roles",
+            {
+                "action": "change_bwmi_invitations",
+                "content": original_bwmi,
+            },
+        )
+        assert revert["status"] < 400, (
+            f"revert POST returned {revert['status']} — manual cleanup"
+        )
+
+
 @pytest.mark.parametrize(
     "path",
     CONFIRMATION_URLS,
