@@ -75,6 +75,15 @@ SUBPAGES = [
         "/wip/events/", re.compile(r"^/wip/events/\d+/$"),
         "/wip/events/edit/{id}/",
     ),
+    # Opportunities : an opportunity is an ContactAvisEnquete row
+    # where I'm the expert, so the listing populates per user. The
+    # first PRESS_RELATIONS profile in the dev DB has one. Listing
+    # URL has no trailing slash and the detail href doesn't either.
+    (
+        "opportunity-detail", "PRESS_RELATIONS",
+        "/wip/opportunities", re.compile(r"^/wip/opportunities/\d+$"),
+        "/wip/opportunities/{id}",
+    ),
 ]
 
 # Cache : (community, listing) -> first-owned id for the picked
@@ -101,6 +110,60 @@ def _first_owned_id(
         if detail_pat.match(path):
             return path.rstrip("/").rsplit("/", 1)[1]
     return None
+
+
+def test_avis_rdv_details_renders(
+    page: Page,
+    base_url: str,
+    profile,
+    login,
+) -> None:
+    """Chain listing → rdv → first rdv-details link, exercising the
+    contact-meeting branches of cbvs/avis_enquete.py."""
+    p = profile("PRESS_MEDIA")
+    login(p)
+
+    avis_pat = re.compile(r"^/wip/avis-enquete/\d+/$")
+    avis_id = _OWNED_IDS.get(("PRESS_MEDIA", "/wip/avis-enquete/"))
+    if avis_id is None:
+        avis_id = _first_owned_id(
+            page, base_url, "/wip/avis-enquete/", avis_pat
+        )
+        _OWNED_IDS[("PRESS_MEDIA", "/wip/avis-enquete/")] = avis_id
+    if avis_id is None:
+        pytest.skip(f"avis-enquete: no item for {p['email']}")
+
+    page.goto(
+        f"{base_url}/wip/avis-enquete/{avis_id}/rdv",
+        wait_until="domcontentloaded",
+    )
+    rdv_re = re.compile(
+        rf"^/wip/avis-enquete/{avis_id}/rdv-details/(\d+)$"
+    )
+    hrefs = page.locator("a[href]").evaluate_all(
+        "els => els.map(e => e.getAttribute('href'))"
+    )
+    contact_url: str | None = None
+    for href in hrefs or ():
+        if not href:
+            continue
+        path = href.split("#", 1)[0].split("?", 1)[0]
+        if path.startswith("http"):
+            path = "/" + path.split("/", 3)[-1]
+        if rdv_re.match(path):
+            contact_url = f"{base_url}{path}"
+            break
+    if contact_url is None:
+        pytest.skip(
+            f"avis-enquete {avis_id} has no rdv-details link "
+            f"for {p['email']}"
+        )
+
+    resp = page.goto(contact_url, wait_until="domcontentloaded")
+    assert resp is not None and resp.status < 400, (
+        f"{contact_url} returned "
+        f"{resp.status if resp else '?'} for {p['email']}"
+    )
 
 
 @pytest.mark.parametrize(
