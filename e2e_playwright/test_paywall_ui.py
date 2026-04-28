@@ -104,7 +104,7 @@ def test_paywalled_article_shows_buy_buttons(
     if article_url is None:
         pytest.skip("no article available on this target's Wire wall")
 
-    resp = page.goto(article_url)
+    resp = page.goto(article_url, wait_until="domcontentloaded")
     assert resp is not None and resp.status < 400, (
         f"article URL {article_url} status={resp.status if resp else '?'}"
     )
