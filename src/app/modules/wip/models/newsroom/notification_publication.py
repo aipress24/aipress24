@@ -108,9 +108,7 @@ class NotificationPublicationContact(IdMixin, Base):
         sa.ForeignKey(User.id, ondelete="CASCADE"),
         nullable=False,
     )
-    recipient: Mapped[User] = orm.relationship(
-        User, foreign_keys=[recipient_user_id]
-    )
+    recipient: Mapped[User] = orm.relationship(User, foreign_keys=[recipient_user_id])
 
     # Provenance optionnelle : contact d'avis d'enquête (mode A).
     contact_avis_enquete_id: Mapped[int | None] = mapped_column(

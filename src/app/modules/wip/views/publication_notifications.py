@@ -62,9 +62,7 @@ def notifications_publication_index():
     )
 
 
-@blueprint.route(
-    "/newsroom/notifications-publication/new", methods=["GET", "POST"]
-)
+@blueprint.route("/newsroom/notifications-publication/new", methods=["GET", "POST"])
 def notifications_publication_new():
     user = cast(User, current_user)
     if user.is_anonymous:
@@ -93,11 +91,15 @@ def _handle_free_form_post(*, journalist: User) -> Response:
             id_ints.append(int(raw))
         except ValueError:
             continue
-    recipients = list(
-        db.session.execute(
-            select(User).where(User.id.in_(id_ints), User.active)
-        ).scalars()
-    ) if id_ints else []
+    recipients = (
+        list(
+            db.session.execute(
+                select(User).where(User.id.in_(id_ints), User.active)
+            ).scalars()
+        )
+        if id_ints
+        else []
+    )
     if not recipients:
         flash("Aucun destinataire valide.", "error")
         return redirect(url_for("wip.notifications_publication_new"))
@@ -148,9 +150,7 @@ def opportunities_notifications_publication():
     )
 
 
-@blueprint.route(
-    "/opportunities/notifications-publication/<int:contact_id>"
-)
+@blueprint.route("/opportunities/notifications-publication/<int:contact_id>")
 def opportunities_notification_publication_detail(contact_id: int):
     user = cast(User, current_user)
     if user.is_anonymous:

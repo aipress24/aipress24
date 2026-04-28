@@ -206,11 +206,15 @@ class TestNotificationContacts:
         # Add contacts to notification
         notif_contact1 = NotificationPublicationContact(
             notification=notification,
-            contact_avis_enquete=contact1, recipient_user_id=contact1.expert_id, sent_at=arrow.now("UTC").datetime,
+            contact_avis_enquete=contact1,
+            recipient_user_id=contact1.expert_id,
+            sent_at=arrow.now("UTC").datetime,
         )
         notif_contact2 = NotificationPublicationContact(
             notification=notification,
-            contact_avis_enquete=contact2, recipient_user_id=contact2.expert_id, sent_at=arrow.now("UTC").datetime,
+            contact_avis_enquete=contact2,
+            recipient_user_id=contact2.expert_id,
+            sent_at=arrow.now("UTC").datetime,
         )
         db_session.add_all([notif_contact1, notif_contact2])
         db_session.flush()
@@ -235,7 +239,9 @@ class TestNotificationContacts:
 
         notif_contact = NotificationPublicationContact(
             notification=notification,
-            contact_avis_enquete=contact, recipient_user_id=contact.expert_id, sent_at=arrow.now("UTC").datetime,
+            contact_avis_enquete=contact,
+            recipient_user_id=contact.expert_id,
+            sent_at=arrow.now("UTC").datetime,
         )
         db_session.add(notif_contact)
         db_session.flush()
@@ -261,7 +267,9 @@ class TestNotificationContacts:
 
         notif_contact = NotificationPublicationContact(
             notification=notification,
-            contact_avis_enquete=contact, recipient_user_id=contact.expert_id, sent_at=arrow.now("UTC").datetime,
+            contact_avis_enquete=contact,
+            recipient_user_id=contact.expert_id,
+            sent_at=arrow.now("UTC").datetime,
         )
         db_session.add(notif_contact)
         db_session.flush()
@@ -296,7 +304,9 @@ class TestCascadeDelete:
 
         notif_contact = NotificationPublicationContact(
             notification=notification,
-            contact_avis_enquete=contact, recipient_user_id=contact.expert_id, sent_at=arrow.now("UTC").datetime,
+            contact_avis_enquete=contact,
+            recipient_user_id=contact.expert_id,
+            sent_at=arrow.now("UTC").datetime,
         )
         db_session.add(notif_contact)
         db_session.flush()
@@ -370,7 +380,9 @@ class TestFireAndForgetModel:
 
         notif_contact = NotificationPublicationContact(
             notification=notification,
-            contact_avis_enquete=contact, recipient_user_id=contact.expert_id, sent_at=arrow.now("UTC").datetime,
+            contact_avis_enquete=contact,
+            recipient_user_id=contact.expert_id,
+            sent_at=arrow.now("UTC").datetime,
         )
         db_session.add(notif_contact)
         db_session.flush()
@@ -412,7 +424,9 @@ class TestNotificationSendingReadiness:
 
         notif_contact = NotificationPublicationContact(
             notification=notification,
-            contact_avis_enquete=contact, recipient_user_id=contact.expert_id, sent_at=arrow.now("UTC").datetime,
+            contact_avis_enquete=contact,
+            recipient_user_id=contact.expert_id,
+            sent_at=arrow.now("UTC").datetime,
         )
         db_session.add(notif_contact)
         db_session.flush()
@@ -448,7 +462,9 @@ class TestNotificationSendingReadiness:
 
         notif_contact = NotificationPublicationContact(
             notification=notification,
-            contact_avis_enquete=contact, recipient_user_id=contact.expert_id, sent_at=arrow.now("UTC").datetime,
+            contact_avis_enquete=contact,
+            recipient_user_id=contact.expert_id,
+            sent_at=arrow.now("UTC").datetime,
         )
         db_session.add(notif_contact)
         db_session.flush()
@@ -496,14 +512,18 @@ class TestNotificationSendingReadiness:
             if contact.status == StatutAvis.ACCEPTE:
                 notif_contact = NotificationPublicationContact(
                     notification=notification,
-                    contact_avis_enquete=contact, recipient_user_id=contact.expert_id, sent_at=arrow.now("UTC").datetime,
+                    contact_avis_enquete=contact,
+                    recipient_user_id=contact.expert_id,
+                    sent_at=arrow.now("UTC").datetime,
                 )
                 db_session.add(notif_contact)
         db_session.flush()
 
         # Only 1 contact (the accepted one) should be in notification
         assert len(notification.contacts) == 1
-        assert notification.contacts[0].contact_avis_enquete.status == StatutAvis.ACCEPTE
+        assert (
+            notification.contacts[0].contact_avis_enquete.status == StatutAvis.ACCEPTE
+        )
 
     def test_notification_ready_for_inapp_notification(
         self, db_session: scoped_session
@@ -523,7 +543,9 @@ class TestNotificationSendingReadiness:
 
         notif_contact = NotificationPublicationContact(
             notification=notification,
-            contact_avis_enquete=contact, recipient_user_id=contact.expert_id, sent_at=arrow.now("UTC").datetime,
+            contact_avis_enquete=contact,
+            recipient_user_id=contact.expert_id,
+            sent_at=arrow.now("UTC").datetime,
         )
         db_session.add(notif_contact)
         db_session.flush()

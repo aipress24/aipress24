@@ -482,9 +482,7 @@ class PublicationNotificationMail(EmailTemplate):
           (WORK / OPPORTUNITÉS / Notifications de publication).
     """
 
-    subject: str = (
-        "[AiPRESS24] Un journaliste vous signale une publication"
-    )
+    subject: str = "[AiPRESS24] Un journaliste vous signale une publication"
     template_html: str = "publication_notification.j2"
     sender_full_name: str
     sender_bw_name: str

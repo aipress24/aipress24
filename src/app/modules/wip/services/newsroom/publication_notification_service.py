@@ -79,9 +79,7 @@ class PublicationNotificationService:
         )
         return list(self._session.execute(stmt).scalars())
 
-    def eligible_contacts_for_avis(
-        self, avis: AvisEnquete
-    ) -> list[ContactAvisEnquete]:
+    def eligible_contacts_for_avis(self, avis: AvisEnquete) -> list[ContactAvisEnquete]:
         accepted = {StatutAvis.ACCEPTE, StatutAvis.ACCEPTE_RELATION_PRESSE}
         return [c for c in self.contacts_for_avis(avis) if c.status in accepted]
 
@@ -102,10 +100,7 @@ class PublicationNotificationService:
         # (via the Owned mixin) ; `journaliste_id` lives on
         # `ContactAvisEnquete`, not on the avis itself.
         if avis.owner_id != journalist.id:
-            msg = (
-                "Vous ne pouvez notifier qu'à partir d'un de vos "
-                "avis d'enquête."
-            )
+            msg = "Vous ne pouvez notifier qu'à partir d'un de vos avis d'enquête."
             raise PublicationNotificationError(msg)
         own_ids = {c.id for c in self.contacts_for_avis(avis)}
         contacts = [c for c in contacts if c.id in own_ids]
@@ -253,9 +248,7 @@ class PublicationNotificationService:
 
         return notif, skipped
 
-    def _recent_dups(
-        self, article_url: str, recipient_ids: list[int]
-    ) -> set[int]:
+    def _recent_dups(self, article_url: str, recipient_ids: list[int]) -> set[int]:
         """Recipients already notified for the same URL within the window."""
         if not recipient_ids:
             return set()
@@ -268,9 +261,7 @@ class PublicationNotificationService:
                 == NotificationPublication.id,
             )
             .where(
-                NotificationPublicationContact.recipient_user_id.in_(
-                    recipient_ids
-                ),
+                NotificationPublicationContact.recipient_user_id.in_(recipient_ids),
                 NotificationPublicationContact.sent_at >= since,
                 NotificationPublication.article_url == article_url,
             )
@@ -288,9 +279,7 @@ class PublicationNotificationService:
                 func.count().label("n"),
             )
             .where(
-                NotificationPublicationContact.recipient_user_id.in_(
-                    recipient_ids
-                ),
+                NotificationPublicationContact.recipient_user_id.in_(recipient_ids),
                 NotificationPublicationContact.sent_at >= since,
             )
             .group_by(NotificationPublicationContact.recipient_user_id)

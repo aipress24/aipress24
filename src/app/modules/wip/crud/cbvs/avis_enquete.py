@@ -274,9 +274,7 @@ class AvisEnqueteWipView(BaseWipView):
         all_contacts = svc.contacts_for_avis(model)
 
         if request.method == "GET":
-            eligible_ids = {
-                c.id for c in svc.eligible_contacts_for_avis(model)
-            }
+            eligible_ids = {c.id for c in svc.eligible_contacts_for_avis(model)}
             return render_template(
                 "wip/avis_enquete/notify_publication.j2",
                 title=f"Notifier une publication — {model.title}",
@@ -287,9 +285,7 @@ class AvisEnqueteWipView(BaseWipView):
 
         back = url_for("AvisEnqueteWipView:notify_publication", id=model.id)
         try:
-            selected_ids = {
-                int(x) for x in request.form.getlist("contact_ids")
-            }
+            selected_ids = {int(x) for x in request.form.getlist("contact_ids")}
         except ValueError:
             selected_ids = set()
         selected = [c for c in all_contacts if c.id in selected_ids]
@@ -313,11 +309,7 @@ class AvisEnqueteWipView(BaseWipView):
 
         if skipped:
             names = ", ".join(u.full_name for u in skipped[:5])
-            extra = (
-                ""
-                if len(skipped) <= 5
-                else f" (et {len(skipped) - 5} autre(s))"
-            )
+            extra = "" if len(skipped) <= 5 else f" (et {len(skipped) - 5} autre(s))"
             flash(
                 f"{len(skipped)} destinataire(s) sauté(s) (plafond "
                 f"anti-spam ou notification déjà envoyée) : "

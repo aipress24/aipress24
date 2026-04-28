@@ -78,6 +78,4 @@ def seed(overwrite: bool) -> None:
             skipped += 1
 
     db.session.commit()
-    click.echo(
-        f"Done: created={created}, overwritten={overwritten}, skipped={skipped}"
-    )
+    click.echo(f"Done: created={created}, overwritten={overwritten}, skipped={skipped}")

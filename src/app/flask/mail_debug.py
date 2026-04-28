@@ -70,9 +70,7 @@ class EmailBackend(BaseEmailBackend):
     instead of sending it. Returns the count of accepted messages
     so the caller's success heuristic still passes."""
 
-    def send_messages(
-        self, email_messages: list[EmailMessage]
-    ) -> int:
+    def send_messages(self, email_messages: list[EmailMessage]) -> int:
         if not email_messages:
             return 0
         sent = 0
@@ -222,6 +220,4 @@ class MailDebug:
         mailman = app.extensions.get("mailman")
         if mailman is not None:
             mailman.backend = backend_path
-        app.register_blueprint(
-            make_blueprint(), url_prefix="/debug/mail"
-        )
+        app.register_blueprint(make_blueprint(), url_prefix="/debug/mail")

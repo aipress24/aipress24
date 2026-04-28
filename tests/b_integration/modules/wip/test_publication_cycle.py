@@ -205,7 +205,9 @@ class TestNotificationAfterPublication:
         for contact in contacts:
             notif_contact = NotificationPublicationContact(
                 notification=notification,
-                contact_avis_enquete=contact, recipient_user_id=contact.expert_id, sent_at=arrow.now("UTC").datetime,
+                contact_avis_enquete=contact,
+                recipient_user_id=contact.expert_id,
+                sent_at=arrow.now("UTC").datetime,
             )
             db_session.add(notif_contact)
         db_session.flush()
@@ -431,7 +433,9 @@ class TestMultipleExpertsContribute:
         for contact in contacts:
             notif_contact = NotificationPublicationContact(
                 notification=notification,
-                contact_avis_enquete=contact, recipient_user_id=contact.expert_id, sent_at=arrow.now("UTC").datetime,
+                contact_avis_enquete=contact,
+                recipient_user_id=contact.expert_id,
+                sent_at=arrow.now("UTC").datetime,
             )
             db_session.add(notif_contact)
         db_session.flush()
@@ -509,7 +513,9 @@ class TestAvisEnqueteToArticleFlow:
 
         notif_contact = NotificationPublicationContact(
             notification=notification,
-            contact_avis_enquete=contact, recipient_user_id=contact.expert_id, sent_at=arrow.now("UTC").datetime,
+            contact_avis_enquete=contact,
+            recipient_user_id=contact.expert_id,
+            sent_at=arrow.now("UTC").datetime,
         )
         db_session.add(notif_contact)
         db_session.flush()
@@ -823,7 +829,9 @@ class TestFullPublicationCycle:
 
         notif_contact = NotificationPublicationContact(
             notification=notification,
-            contact_avis_enquete=contact, recipient_user_id=contact.expert_id, sent_at=arrow.now("UTC").datetime,
+            contact_avis_enquete=contact,
+            recipient_user_id=contact.expert_id,
+            sent_at=arrow.now("UTC").datetime,
         )
         db_session.add(notif_contact)
         db_session.flush()
@@ -939,14 +947,18 @@ class TestFullPublicationCycle:
         for contact in accepted_contacts:
             notif_contact = NotificationPublicationContact(
                 notification=notification,
-                contact_avis_enquete=contact, recipient_user_id=contact.expert_id, sent_at=arrow.now("UTC").datetime,
+                contact_avis_enquete=contact,
+                recipient_user_id=contact.expert_id,
+                sent_at=arrow.now("UTC").datetime,
             )
             db_session.add(notif_contact)
         db_session.flush()
 
         # Verify: 2 contacts notified (expert1 and expert3)
         assert len(notification.contacts) == 2
-        notified_experts = [nc.contact_avis_enquete.expert for nc in notification.contacts]
+        notified_experts = [
+            nc.contact_avis_enquete.expert for nc in notification.contacts
+        ]
         assert expert1 in notified_experts
         assert expert2 not in notified_experts  # refused
         assert expert3 in notified_experts
@@ -1010,7 +1022,9 @@ class TestFullPublicationCycle:
 
         notif_contact = NotificationPublicationContact(
             notification=notification,
-            contact_avis_enquete=contact, recipient_user_id=contact.expert_id, sent_at=arrow.now("UTC").datetime,
+            contact_avis_enquete=contact,
+            recipient_user_id=contact.expert_id,
+            sent_at=arrow.now("UTC").datetime,
         )
         db_session.add(notif_contact)
         db_session.flush()
