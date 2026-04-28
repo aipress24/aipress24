@@ -40,9 +40,7 @@ class CorporatePage(IdMixin, Timestamped, Base):
         ForeignKey(User.id, ondelete="SET NULL"),
         nullable=True,
     )
-    updated_by: Mapped[User | None] = relationship(
-        User, foreign_keys=[updated_by_id]
-    )
+    updated_by: Mapped[User | None] = relationship(User, foreign_keys=[updated_by_id])
 
 
 @service

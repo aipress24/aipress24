@@ -158,7 +158,9 @@ class EventsWipView(BaseWipView):
         user = g.user
         own_org = getattr(user, "organisation", None)
         if user.organisation_id and own_org is not None:
-            choices.append((user.organisation_id, f"Mon organisation — {own_org.bw_name}"))
+            choices.append(
+                (user.organisation_id, f"Mon organisation — {own_org.bw_name}")
+            )
         for client_org in get_validated_client_orgs_for_user(user):
             choices.append((client_org.id, client_org.bw_name))
         form.publisher_id.choices = choices

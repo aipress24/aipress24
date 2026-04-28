@@ -43,9 +43,7 @@ if TYPE_CHECKING:
 # --------------------------------------------------------------------
 
 
-def _mk_user(
-    db_session: Session, *, active: bool = True, first: str = "E"
-) -> User:
+def _mk_user(db_session: Session, *, active: bool = True, first: str = "E") -> User:
     u = User(
         email=f"u-{uuid.uuid4().hex[:6]}@example.com",
         first_name=first,
@@ -108,9 +106,7 @@ def avis(db_session: Session, journalist: User) -> AvisEnquete:
 
 @pytest.fixture
 def no_mail():
-    with patch(
-        "app.services.emails.mailers.EmailTemplate.send"
-    ) as mock_send:
+    with patch("app.services.emails.mailers.EmailTemplate.send") as mock_send:
         yield mock_send
 
 
