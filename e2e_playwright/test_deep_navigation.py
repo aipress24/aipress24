@@ -60,9 +60,12 @@ RESOURCES = [
         re.compile(r"^/wip/communiques/\d+/$"),
         "PRESS_RELATIONS",
     ),
-    # /wip/events/<id>/ — 500 against the owner of the only event'room
-    # event in the dev DB (erick@). Left out until the underlying view
-    # bug is fixed ; the listing /wip/events/ itself still renders.
+    (
+        "wip-event",
+        "/wip/events/",
+        re.compile(r"^/wip/events/\d+/$"),
+        "PRESS_MEDIA",
+    ),
 ]
 
 # Cap on how many profiles to try before giving up — keeps the
