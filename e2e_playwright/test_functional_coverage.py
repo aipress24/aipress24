@@ -55,10 +55,7 @@ COMMON_SURFACES = (
 DEEP_AGNOSTIC_SURFACES = (
     "/swork/members/",
     "/swork/organisations/",
-    # /swork/groups/ — surfaced a 500 against PRESS_RELATIONS (the
-    # `groups-list` component crashes for at least some users). Left
-    # out of the matrix until the underlying bug is fixed ; leaving
-    # it would just keep the suite red on a known issue.
+    "/swork/groups/",
     "/swork/profile/",
     "/swork/parrainages/",
     "/preferences/profile",
