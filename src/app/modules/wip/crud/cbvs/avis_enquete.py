@@ -441,11 +441,16 @@ class AvisEnqueteWipView(BaseWipView):
             return self._htmx_redirect("rdv_details", id=id, contact_id=contact.id)
 
         try:
-            service.cancel_rdv(contact.id)
+            # Send email *before* cancelling : `cancel_rdv` resets
+            # `date_rdv` to None, and the email functions early-out
+            # when `date_rdv is None` (the cancellation notice
+            # quotes the cancelled date) — so swapping these would
+            # silently skip the email.
             if user_is_journalist:
                 service.send_rdv_cancelled_by_journalist_email(contact)
             else:
                 service.send_rdv_cancelled_by_expert_email(contact)
+            service.cancel_rdv(contact.id)
             service.commit()
             flash("Le RDV a été annulé", "success")
         except ValueError as e:
