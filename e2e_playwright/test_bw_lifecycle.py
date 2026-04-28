@@ -137,6 +137,141 @@ def test_bw_partnership_full_lifecycle(
 
 
 @pytest.mark.mutates_db
+def test_bw_partnership_reject_branch(
+    page: Page,
+    base_url: str,
+    profile,
+    profiles,
+    login,
+    authed_post,
+    mail_outbox,
+) -> None:
+    """Partnership flow with the invitee REJECTING. The reject
+    branch is `case _` in confirm_partnership_invitation.py — sets
+    partnership.status=REJECTED, no role assignment created. No
+    cleanup needed : invite_pr_provider is happy to re-invite over
+    a REJECTED row."""
+    journalist = profile("PRESS_MEDIA")
+    pr_owner = next(
+        (p for p in profiles if p["email"] == _PR_BW_OWNER_EMAIL), None
+    )
+    if pr_owner is None:
+        pytest.skip(f"{_PR_BW_OWNER_EMAIL} not in CSV")
+
+    login(journalist)
+    sel = authed_post(
+        f"{base_url}/BW/select-bw/{_ERICK_NAMED_BW_ID}", {}
+    )
+    assert sel["status"] < 400 and "/auth/login" not in sel["url"]
+    page.goto(
+        f"{base_url}/BW/manage-external-partners",
+        wait_until="domcontentloaded",
+    )
+    options = page.locator(
+        'select[name="pr_provider"] option[value]'
+    ).evaluate_all(
+        "els => els.map(e => e.value).filter(v => v && v !== '')"
+    )
+    if not options:
+        pytest.skip("no PR-BW option available")
+    partner_bw_id = options[0]
+    mail_outbox.reset()
+    invite = authed_post(
+        f"{base_url}/BW/manage-external-partners",
+        {"pr_provider": partner_bw_id},
+    )
+    assert invite["status"] < 400 and "/auth/login" not in invite["url"]
+    captured = mail_outbox.messages()
+    assert captured, "partnership invitation mail not captured"
+    confirm_path: str | None = next(
+        (
+            m.group(1)
+            for body in (msg["body"] for msg in captured)
+            if (m := _CONFIRM_PARTNERSHIP_URL_RE.search(body))
+        ),
+        None,
+    )
+    if confirm_path is None:
+        pytest.skip("no confirmation URL in mail body")
+
+    login(pr_owner)
+    resp = authed_post(f"{base_url}{confirm_path}", {"action": "reject"})
+    assert resp["status"] < 400 and "/auth/login" not in resp["url"]
+
+
+@pytest.mark.mutates_db
+def test_bw_role_invitation_reject_branch(
+    page: Page,
+    base_url: str,
+    profile,
+    profiles,
+    login,
+    authed_post,
+    mail_outbox,
+) -> None:
+    """BWMi invitation with the invitee REJECTING. After rejection
+    the assignment is in REJECTED state ; invite_user_role treats
+    that as « can re-invite », so no cleanup needed."""
+    journalist = profile("PRESS_MEDIA")
+    invitee = next(
+        (p for p in profiles if p["email"] == _BWMI_INVITEE_EMAIL), None
+    )
+    if invitee is None:
+        pytest.skip(f"{_BWMI_INVITEE_EMAIL} not in CSV")
+
+    login(journalist)
+    sel = authed_post(
+        f"{base_url}/BW/select-bw/{_ERICK_NAMED_BW_ID}", {}
+    )
+    assert sel["status"] < 400 and "/auth/login" not in sel["url"]
+    page.goto(
+        f"{base_url}/BW/manage-internal-roles",
+        wait_until="domcontentloaded",
+    )
+    boxes = page.locator('textarea[name="content"]').evaluate_all(
+        "els => els.map(e => e.value || '')"
+    )
+    if not boxes:
+        pytest.skip("no `content` textarea")
+    original_bwmi = boxes[0]
+    new_content = (
+        original_bwmi
+        + ("\n" if original_bwmi.strip() else "")
+        + _BWMI_INVITEE_EMAIL
+    )
+    mail_outbox.reset()
+    invite = authed_post(
+        f"{base_url}/BW/manage-internal-roles",
+        {
+            "action": "change_bwmi_invitations",
+            "content": new_content,
+        },
+    )
+    assert invite["status"] < 400 and "/auth/login" not in invite["url"]
+    captured = mail_outbox.messages()
+    if not captured:
+        # Concurrent test or leftover ACCEPTED row blocks invite.
+        pytest.skip(
+            "BWMi invitation not sent — invitee already accepted "
+            "(see test_bw_role_invitation_full_lifecycle's cleanup)"
+        )
+    confirm_path = next(
+        (
+            m.group(1)
+            for body in (msg["body"] for msg in captured)
+            if (m := _CONFIRM_ROLE_URL_RE.search(body))
+        ),
+        None,
+    )
+    if confirm_path is None:
+        pytest.skip("no confirmation URL in mail body")
+
+    login(invitee)
+    resp = authed_post(f"{base_url}{confirm_path}", {"action": "reject"})
+    assert resp["status"] < 400 and "/auth/login" not in resp["url"]
+
+
+@pytest.mark.mutates_db
 def test_bw_role_invitation_full_lifecycle(
     page: Page,
     base_url: str,
