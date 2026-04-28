@@ -271,7 +271,21 @@ def test_bw_role_invitation_reject_branch(
     assert resp["status"] < 400 and "/auth/login" not in resp["url"]
 
 
+# Both BWMi (media internal) and BWPRi (PR internal) flows route
+# through manage-internal-roles, but with different action keys
+# (`change_bwmi_invitations` vs `change_bwpri_invitations`),
+# different remove_* keys, and different textarea positions in the
+# rendered template (BWMi is the first textarea[name=content], BWPRi
+# the second).
 @pytest.mark.mutates_db
+@pytest.mark.parametrize(
+    ("role_label", "change_action", "remove_action", "textarea_index"),
+    [
+        ("bwmi", "change_bwmi_invitations", "remove_bwmi", 0),
+        ("bwpri", "change_bwpri_invitations", "remove_bwpri", 1),
+    ],
+    ids=["bwmi", "bwpri"],
+)
 def test_bw_role_invitation_full_lifecycle(
     page: Page,
     base_url: str,
@@ -280,18 +294,21 @@ def test_bw_role_invitation_full_lifecycle(
     login,
     authed_post,
     mail_outbox,
+    role_label: str,
+    change_action: str,
+    remove_action: str,
+    textarea_index: int,
 ) -> None:
     """Multi-user role-invitation flow :
 
-      media-BW owner adds invitee to BWMi list
+      media-BW owner adds invitee to <role> list
         -> invitee clicks confirmation URL from mail
         -> invitee POST action=accept
-        -> media-BW owner reverts (empty BWMi list)
+        -> media-BW owner reverts via remove_<role> + restore list
 
-    Drives the role branch of bw_invitation.py
-    (change_bwmi_emails -> invite_user_role ->
-    send_role_invitation_mail) AND the accept path of
-    routes/confirm_role_invitation.py — both at <40 % before this.
+    Drives the role branch of bw_invitation.py for both BWMi
+    (media internal members) and BWPRi (PR internal members) ;
+    the parametrize covers both at minimal cost.
     """
     journalist = profile("PRESS_MEDIA")
     invitee = next(
@@ -300,7 +317,7 @@ def test_bw_role_invitation_full_lifecycle(
     if invitee is None:
         pytest.skip(f"{_BWMI_INVITEE_EMAIL} not in CSV")
 
-    # ----- step 1 : owner invites the user as BWMi ----------------
+    # ----- step 1 : owner invites the user as <role> ---------------
     login(journalist)
     sel = authed_post(
         f"{base_url}/BW/select-bw/{_ERICK_NAMED_BW_ID}", {}
@@ -313,25 +330,27 @@ def test_bw_role_invitation_full_lifecycle(
     boxes = page.locator('textarea[name="content"]').evaluate_all(
         "els => els.map(e => e.value || '')"
     )
-    if not boxes:
-        pytest.skip("no `content` textarea on manage-internal-roles")
-    original_bwmi = boxes[0]
+    if len(boxes) <= textarea_index:
+        pytest.skip(
+            f"`content` textarea #{textarea_index} not on page"
+        )
+    original = boxes[textarea_index]
     new_content = (
-        original_bwmi
-        + ("\n" if original_bwmi.strip() else "")
+        original
+        + ("\n" if original.strip() else "")
         + _BWMI_INVITEE_EMAIL
     )
     mail_outbox.reset()
     invite = authed_post(
         f"{base_url}/BW/manage-internal-roles",
         {
-            "action": "change_bwmi_invitations",
+            "action": change_action,
             "content": new_content,
         },
     )
     assert invite["status"] < 400 and "/auth/login" not in invite["url"]
     captured = mail_outbox.messages()
-    assert captured, "BWMi invitation mail not captured"
+    assert captured, f"{role_label} invitation mail not captured"
 
     confirm_path: str | None = None
     invitee_user_id: str | None = None
@@ -345,7 +364,7 @@ def test_bw_role_invitation_full_lifecycle(
             break
     if confirm_path is None:
         pytest.skip(
-            "no confirmation URL in BWMi invitation mail body"
+            f"no confirmation URL in {role_label} invitation mail body"
         )
 
     # ----- step 2 : invitee accepts via the email link ------------
@@ -365,9 +384,9 @@ def test_bw_role_invitation_full_lifecycle(
         assert accept["status"] < 400 and "/auth/login" not in accept["url"]
     finally:
         # ----- step 3 : owner cleans up ---------------------------
-        # `change_bwmi_invitations content=…` only revokes PENDING
+        # `change_<role>_invitations content=…` only revokes PENDING
         # invites — once accepted, the role assignment stays.
-        # `remove_bwmi user_id=…` revokes regardless of state, so
+        # `remove_<role> user_id=…` revokes regardless of state, so
         # this keeps the test idempotent across runs.
         login(journalist)
         authed_post(
@@ -377,14 +396,14 @@ def test_bw_role_invitation_full_lifecycle(
             authed_post(
                 f"{base_url}/BW/manage-internal-roles",
                 {
-                    "action": "remove_bwmi",
+                    "action": remove_action,
                     "user_id": invitee_user_id,
                 },
             )
         authed_post(
             f"{base_url}/BW/manage-internal-roles",
             {
-                "action": "change_bwmi_invitations",
-                "content": original_bwmi,
+                "action": change_action,
+                "content": original,
             },
         )
