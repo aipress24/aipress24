@@ -213,7 +213,7 @@ class MailDebug:
                 "mode and FLASK_MAIL_DEBUG_PASSWORD is not set."
             )
             raise RuntimeError(msg)
-        backend_path = "app.lib.mail_debug.EmailBackend"
+        backend_path = "app.flask.mail_debug.EmailBackend"
         app.config["MAIL_BACKEND"] = backend_path
         app.config["MAIL_DEBUG_ACTIVE"] = True
         # Override the already-initialized flask-mailman backend.

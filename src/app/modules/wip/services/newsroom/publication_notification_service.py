@@ -181,9 +181,16 @@ class PublicationNotificationService:
             unique.setdefault(u.id, u)
         target_ids = list(unique.keys())
 
-        # Batched anti-spam + anti-dedup pre-checks.
-        dup_ids = self._recent_dups(article_url, target_ids)
-        capped_ids = self._over_cap(target_ids)
+        # Batched anti-spam + anti-dedup pre-checks. Skipped in
+        # debug mode so e2e tests can re-fire the same notification
+        # without hitting the cap or the « same URL recently sent »
+        # dedup.
+        if _mail_debug_active():
+            dup_ids: set[int] = set()
+            capped_ids: set[int] = set()
+        else:
+            dup_ids = self._recent_dups(article_url, target_ids)
+            capped_ids = self._over_cap(target_ids)
         accepted_users: list[User] = []
         skipped: list[User] = []
         for uid, user in unique.items():
@@ -293,3 +300,10 @@ class PublicationNotificationService:
             for row in self._session.execute(stmt)
             if row.n >= SPAM_CAP
         }
+
+
+def _mail_debug_active() -> bool:
+    """Local import — circular dep otherwise."""
+    from app.flask.mail_debug import is_active
+
+    return is_active()
