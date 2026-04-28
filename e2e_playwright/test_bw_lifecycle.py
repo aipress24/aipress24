@@ -199,10 +199,14 @@ def test_bw_role_invitation_full_lifecycle(
     assert captured, "BWMi invitation mail not captured"
 
     confirm_path: str | None = None
+    invitee_user_id: str | None = None
     for m in captured:
         match = _CONFIRM_ROLE_URL_RE.search(m["body"])
         if match:
             confirm_path = match.group(1)
+            # The URL ends with .../<role>/<user_id> ; capture
+            # invitee's user_id for the cleanup remove_bwmi POST.
+            invitee_user_id = confirm_path.rsplit("/", 1)[1]
             break
     if confirm_path is None:
         pytest.skip(
@@ -225,11 +229,23 @@ def test_bw_role_invitation_full_lifecycle(
         )
         assert accept["status"] < 400 and "/auth/login" not in accept["url"]
     finally:
-        # ----- step 3 : owner reverts the BWMi list (cleanup) ----
+        # ----- step 3 : owner cleans up ---------------------------
+        # `change_bwmi_invitations content=…` only revokes PENDING
+        # invites — once accepted, the role assignment stays.
+        # `remove_bwmi user_id=…` revokes regardless of state, so
+        # this keeps the test idempotent across runs.
         login(journalist)
         authed_post(
             f"{base_url}/BW/select-bw/{_ERICK_NAMED_BW_ID}", {}
         )
+        if invitee_user_id:
+            authed_post(
+                f"{base_url}/BW/manage-internal-roles",
+                {
+                    "action": "remove_bwmi",
+                    "user_id": invitee_user_id,
+                },
+            )
         authed_post(
             f"{base_url}/BW/manage-internal-roles",
             {
