@@ -8,6 +8,7 @@
 .venv
 .hypothesis/
 .ropeproject/
+.flask-coverage-cache/
 # Runtime
 /src/instance/
 
