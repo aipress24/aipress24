@@ -32,25 +32,25 @@ test-with-typeguard:
 test-e2e-local:
 	pytest -v --browser firefox \
 	--base-url=http://127.0.0.1:5000 \
-	--headed -m "not slow" e2e_playwright
+	-m "not slow" e2e_playwright
 
 ## Full e2e including the 169-profile slow smoke (~10 minutes).
 test-e2e-local-full:
 	pytest -v --browser firefox \
 	--base-url=http://127.0.0.1:5000 \
-	--headed e2e_playwright
+	e2e_playwright
 
 ## Quick e2e against prod — skips slow smoke and any mutating test.
 test-e2e-prod:
 	pytest -v --browser firefox \
 	--base-url=$(PROD_URL) \
-	--headed -m "not slow" e2e_playwright
+	-m "not slow" e2e_playwright
 
 ## Full e2e against prod — includes the 169-profile credential smoke.
 test-e2e-prod-full:
 	pytest -v --browser firefox \
 	--base-url=$(PROD_URL) \
-	--headed e2e_playwright
+	e2e_playwright
 
 
 #
