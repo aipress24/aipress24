@@ -31,10 +31,17 @@ from playwright.sync_api import Page
 
 _ERICK_NAMED_BW_ID = "3be67123-b68d-48ad-9043-e2a206d18893"
 _PR_BW_OWNER_EMAIL = "eliane+BrigitteWasser@agencetca.info"
+# Member of erick's BW org and present in the CSV — eligible
+# target for a BWMi role invitation.
+_BWMI_INVITEE_EMAIL = "eliane+ElianeKan@agencetca.info"
 
-_CONFIRM_URL_RE = re.compile(
+_CONFIRM_PARTNERSHIP_URL_RE = re.compile(
     r"http[s]?://[^/\s]+(/BW/confirm-partnership-invitation/"
     r"[a-f0-9-]+/[a-f0-9-]+)"
+)
+_CONFIRM_ROLE_URL_RE = re.compile(
+    r"http[s]?://[^/\s]+(/BW/confirm-role-invitation/"
+    r"[a-f0-9-]+/[A-Za-z0-9_]+/\d+)"
 )
 
 
@@ -86,7 +93,7 @@ def test_bw_partnership_full_lifecycle(
     # Pull the confirmation URL out of the body.
     confirm_path: str | None = None
     for m in captured:
-        match = _CONFIRM_URL_RE.search(m["body"])
+        match = _CONFIRM_PARTNERSHIP_URL_RE.search(m["body"])
         if match:
             confirm_path = match.group(1)
             break
@@ -126,4 +133,107 @@ def test_bw_partnership_full_lifecycle(
         authed_post(
             f"{base_url}/BW/manage-external-partners",
             {"revoke_partner_bw_id": partner_bw_id},
+        )
+
+
+@pytest.mark.mutates_db
+def test_bw_role_invitation_full_lifecycle(
+    page: Page,
+    base_url: str,
+    profile,
+    profiles,
+    login,
+    authed_post,
+    mail_outbox,
+) -> None:
+    """Multi-user role-invitation flow :
+
+      media-BW owner adds invitee to BWMi list
+        -> invitee clicks confirmation URL from mail
+        -> invitee POST action=accept
+        -> media-BW owner reverts (empty BWMi list)
+
+    Drives the role branch of bw_invitation.py
+    (change_bwmi_emails -> invite_user_role ->
+    send_role_invitation_mail) AND the accept path of
+    routes/confirm_role_invitation.py — both at <40 % before this.
+    """
+    journalist = profile("PRESS_MEDIA")
+    invitee = next(
+        (p for p in profiles if p["email"] == _BWMI_INVITEE_EMAIL), None
+    )
+    if invitee is None:
+        pytest.skip(f"{_BWMI_INVITEE_EMAIL} not in CSV")
+
+    # ----- step 1 : owner invites the user as BWMi ----------------
+    login(journalist)
+    sel = authed_post(
+        f"{base_url}/BW/select-bw/{_ERICK_NAMED_BW_ID}", {}
+    )
+    assert sel["status"] < 400 and "/auth/login" not in sel["url"]
+    page.goto(
+        f"{base_url}/BW/manage-internal-roles",
+        wait_until="domcontentloaded",
+    )
+    boxes = page.locator('textarea[name="content"]').evaluate_all(
+        "els => els.map(e => e.value || '')"
+    )
+    if not boxes:
+        pytest.skip("no `content` textarea on manage-internal-roles")
+    original_bwmi = boxes[0]
+    new_content = (
+        original_bwmi
+        + ("\n" if original_bwmi.strip() else "")
+        + _BWMI_INVITEE_EMAIL
+    )
+    mail_outbox.reset()
+    invite = authed_post(
+        f"{base_url}/BW/manage-internal-roles",
+        {
+            "action": "change_bwmi_invitations",
+            "content": new_content,
+        },
+    )
+    assert invite["status"] < 400 and "/auth/login" not in invite["url"]
+    captured = mail_outbox.messages()
+    assert captured, "BWMi invitation mail not captured"
+
+    confirm_path: str | None = None
+    for m in captured:
+        match = _CONFIRM_ROLE_URL_RE.search(m["body"])
+        if match:
+            confirm_path = match.group(1)
+            break
+    if confirm_path is None:
+        pytest.skip(
+            "no confirmation URL in BWMi invitation mail body"
+        )
+
+    # ----- step 2 : invitee accepts via the email link ------------
+    try:
+        login(invitee)
+        # GET first to render the form (lookup branches).
+        resp = page.goto(
+            f"{base_url}{confirm_path}",
+            wait_until="domcontentloaded",
+        )
+        assert resp is not None and resp.status < 400
+        assert "/auth/login" not in page.url
+
+        accept = authed_post(
+            f"{base_url}{confirm_path}", {"action": "accept"}
+        )
+        assert accept["status"] < 400 and "/auth/login" not in accept["url"]
+    finally:
+        # ----- step 3 : owner reverts the BWMi list (cleanup) ----
+        login(journalist)
+        authed_post(
+            f"{base_url}/BW/select-bw/{_ERICK_NAMED_BW_ID}", {}
+        )
+        authed_post(
+            f"{base_url}/BW/manage-internal-roles",
+            {
+                "action": "change_bwmi_invitations",
+                "content": original_bwmi,
+            },
         )
