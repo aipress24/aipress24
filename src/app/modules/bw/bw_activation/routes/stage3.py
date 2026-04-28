@@ -29,6 +29,7 @@ from app.modules.bw.bw_activation.bw_creation import (
     create_new_paid_bw_record,
 )
 from app.modules.bw.bw_activation.config import BW_TYPES
+from app.modules.bw.bw_activation.models import BWStatus
 from app.modules.bw.bw_activation.user_utils import current_business_wall
 from app.services.stripe.utils import (
     get_stripe_public_key,
@@ -85,6 +86,21 @@ def confirmation_free():
 
     bw_type = session["bw_type"]
     bw_info = BW_TYPES.get(bw_type, {})
+
+    # Idempotence guard : Firefox occasionally prefetches the
+    # /confirmation/free URL after the activate_free POST redirect,
+    # firing this handler twice while session["bw_activated"] is
+    # still set. Without this guard, `create_new_free_bw_record`
+    # would create two BW rows on a single user-visible navigation.
+    user = cast("User", g.user)
+    existing = current_business_wall(user)
+    if existing is not None and existing.status != BWStatus.CANCELLED.value:
+        return render_template(
+            "bw_activation/02_activation_gratuit_confirme.html",
+            bw_type=bw_type,
+            bw_info=bw_info,
+        )
+
     # here create an actual BW instance
     created = create_new_free_bw_record(session)
     if created:
