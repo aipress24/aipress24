@@ -15,13 +15,17 @@ from starlette.routing import Mount
 
 from adminapp.main import create_app as create_admin_app
 from app.flask.main import create_app as create_flask_app
-from poc.app import create_app as create_poc_app
 from server.scheduler import scheduler
 
 config = Config()
 
 PORT = config("PORT", cast=int, default=5000)
 DEBUG = config("FLASK_DEBUG", cast=bool, default=False)
+# Mount the /poc/ playground only when explicitly enabled. The POC code
+# imports its own blueprint tree and noticeably increases resident
+# memory; in production (Heroku 512MB dyno) it pushed us into R14.
+POC_ENABLED = config("POC_ENABLED", cast=bool, default=False)
+WORKERS = config("WEB_CONCURRENCY", cast=int, default=1)
 if DEBUG:
     LOG_LEVEL = LogLevels.debug
 else:
@@ -32,20 +36,21 @@ def create_app():
     """Create combined ASGI application with Flask and admin apps.
 
     Returns:
-        Starlette: Combined application with mounted Flask, admin, and POC apps.
+        Starlette: Combined application with mounted Flask and admin apps,
+        plus the POC app when ``POC_ENABLED`` is set.
     """
     flask_app = WsgiToAsgi(create_flask_app())
     admin_app = create_admin_app()
-    poc_app = WsgiToAsgi(create_poc_app())
 
-    app = Starlette(
-        routes=[
-            Mount("/db/", app=admin_app),
-            Mount("/poc/", app=poc_app),
-            Mount("/", app=flask_app),
-        ]
-    )
-    return app
+    routes = [Mount("/db/", app=admin_app)]
+    if POC_ENABLED:
+        from poc.app import create_app as create_poc_app
+
+        poc_app = WsgiToAsgi(create_poc_app())
+        routes.append(Mount("/poc/", app=poc_app))
+    routes.append(Mount("/", app=flask_app))
+
+    return Starlette(routes=routes)
 
 
 def serve(
@@ -70,6 +75,7 @@ def serve(
         address="0.0.0.0",  # noqa: S104
         port=port,
         interface=Interfaces.ASGI,
+        workers=WORKERS,
         log_dictconfig={"root": {"level": "INFO"}} if not debug else {},
         log_level=log_level,
         loop=Loops.uvloop,
