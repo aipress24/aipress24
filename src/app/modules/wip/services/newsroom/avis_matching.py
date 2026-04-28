@@ -123,7 +123,7 @@ def partition_by_cap(
 
 def _mail_debug_active() -> bool:
     """Local import — circular dep otherwise."""
-    from app.lib.mail_debug import is_active
+    from app.flask.mail_debug import is_active
 
     return is_active()
 

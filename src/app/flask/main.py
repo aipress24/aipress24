@@ -345,10 +345,10 @@ def register_coverage(app: Flask) -> None:
 def register_mail_debug(app: Flask) -> None:
     """Mount /debug/mail and swap the SMTP backend for an in-memory
     one. Fail-closed (debug or ``FLASK_MAIL_DEBUG_PASSWORD``) — see
-    `app.lib.mail_debug.MailDebug.init_app`."""
+    `app.flask.mail_debug.MailDebug.init_app`."""
     if not (app.debug or os.environ.get("FLASK_MAIL_DEBUG_PASSWORD")):
         return
-    from app.lib.mail_debug import MailDebug
+    from app.flask.mail_debug import MailDebug
 
     MailDebug(app)
 
