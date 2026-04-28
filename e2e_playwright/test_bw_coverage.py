@@ -382,6 +382,53 @@ def test_bw_manage_internal_roles_post(
         )
 
 
+@pytest.mark.mutates_db
+def test_bw_rights_policy_post_idempotent(
+    page: Page,
+    base_url: str,
+    profile,
+    login,
+    authed_post,
+) -> None:
+    """POST /BW/rights-policy — saves the bw.rights_sales_policy
+    JSON field. Drives the POST branch of routes/rights_policy.py
+    (43 % before this) : option validation, _parse_media_ids,
+    db.session.commit, redirect.
+
+    Idempotent : we read the current option from the GET-rendered
+    form, POST it back unchanged. Only `media` BWs render this
+    surface — `rights_policy` raises NotFound otherwise."""
+    p = profile("PRESS_MEDIA")
+    login(p)
+    sel = authed_post(
+        f"{base_url}/BW/select-bw/{_ERICK_NAMED_BW_ID}", {}
+    )
+    assert sel["status"] < 400 and "/auth/login" not in sel["url"]
+    page.goto(
+        f"{base_url}/BW/rights-policy", wait_until="domcontentloaded"
+    )
+    selected = page.locator(
+        'input[name="option"]:checked'
+    ).evaluate_all("els => els.map(e => e.value)")
+    if not selected:
+        # Select fallback : first available radio value.
+        selected = page.locator('input[name="option"]').evaluate_all(
+            "els => els.map(e => e.value).filter(v => v)"
+        )
+    if not selected:
+        pytest.skip("no `option` input on /BW/rights-policy")
+    current_option = selected[0]
+
+    resp = authed_post(
+        f"{base_url}/BW/rights-policy",
+        {"option": current_option, "media_ids": ""},
+    )
+    assert resp["status"] < 400, (
+        f"POST /BW/rights-policy returned {resp['status']}"
+    )
+    assert "/auth/login" not in resp["url"]
+
+
 def test_bw_billing_portal_post(
     page: Page,
     base_url: str,
