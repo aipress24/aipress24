@@ -40,12 +40,14 @@ sujet_form = {
             "group": "dates",
             "type": "datetime",
             "width": 3,
+            "required": True,
         },
         "date_parution_prevue": {
             "label": "Date/heure de parution prévue",
             "group": "dates",
             "type": "datetime",
             "width": 3,
+            "required": True,
         },
     },
 }

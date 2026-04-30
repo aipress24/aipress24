@@ -123,13 +123,11 @@ def test_wip_content_create_edit_delete(
             )
         create_payload[name] = v
     title = f"e2e-{slug}-{int(time.time() * 1000) % 10**10}"
-    # Date placeholders : the WIP forms render `DateTimeField` with
-    # no `InputRequired()` validator while the DB columns are
-    # `Mapped[datetime]` (NOT NULL) — a model/form mismatch
-    # (filed in `bugs/qualifies/wip-content-form-date-mismatch.md`).
-    # The browser sidesteps this by always letting the user fill in
-    # the dates ; we have to do the same explicitly. Use the
-    # WTForms `format="%Y-%m-%dT%H:%M"` from the form definitions.
+    # Date placeholders : `DateTimeField` columns that map to
+    # `Mapped[datetime]` (NOT NULL) now have `validators=[InputRequired()]`
+    # (fixed in bugs/resolus/wip-content-form-date-mismatch.md), so we
+    # must provide them explicitly — partial POST would now be
+    # rejected with a form error rather than the previous 500.
     future_date = "2030-01-15T10:00"
     for date_name in (
         "date_parution_prevue",
@@ -276,6 +274,76 @@ def test_wip_content_create_edit_delete(
             f"{base_url}/wip/{slug}/{new_id}/delete"
         )
         assert cleanup["status"] < 400
+
+
+@pytest.mark.mutates_db
+@pytest.mark.parametrize(
+    ("slug", "community"),
+    [
+        ("articles", "PRESS_MEDIA"),
+        ("sujets", "PRESS_MEDIA"),
+        ("commandes", "PRESS_MEDIA"),
+    ],
+    ids=["articles", "sujets", "commandes"],
+)
+def test_wip_create_without_dates_is_rejected_cleanly(
+    page: Page,
+    base_url: str,
+    profile,
+    login,
+    slug: str,
+    community: str,
+) -> None:
+    """Regression test for `wip-content-form-date-mismatch.md` :
+    POST /wip/<resource>/ avec un payload qui omet les date fields
+    NOT NULL doit être rejeté en form-error (status < 500), pas
+    en 500 IntegrityError.
+
+    Pre-fix : populate_obj setait `model.date_<x> = None`,
+    SQLAlchemy raise IntegrityError → 500.
+    Post-fix : DateTimeField a `InputRequired()` → form.errors
+    populé, le route re-render le form avec un message d'erreur,
+    pas de tentative de DB insert.
+
+    On n'asserte pas la forme exacte du re-render (peut être un
+    HTMX fragment, un full re-render, ou un redirect avec flash) ;
+    juste qu'on ne 500 pas.
+    """
+    journalist = profile(community)
+    login(journalist)
+
+    page.goto(
+        f"{base_url}/wip/{slug}/new/", wait_until="domcontentloaded"
+    )
+    # Minimal payload : just the title and content, no dates,
+    # no required selects. Pre-fix this would 500 on
+    # NotNullViolation. Post-fix the form rejects with errors.
+    minimal_payload = {
+        "_action": "save",
+        "titre": f"e2e-no-date-{int(time.time() * 1000)}",
+        "chapo": "Chapô",
+        "contenu": "<p>Test</p>",
+        "copyright": "all-rights-reserved",
+    }
+    resp = page.evaluate(
+        """async (args) => {
+            const r = await fetch(args.url, {
+                method: 'POST', credentials: 'same-origin',
+                body: new URLSearchParams(args.data),
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+            });
+            return {status: r.status, url: r.url};
+        }""",
+        {"url": f"{base_url}/wip/{slug}/", "data": minimal_payload},
+    )
+    assert resp["status"] < 500, (
+        f"{slug} partial POST without dates : got {resp['status']} "
+        "— DateTimeField InputRequired should reject the form "
+        "before populate_obj reaches the DB. If this is 500, the "
+        "fix has regressed."
+    )
 
 
 # --- Helpers (duplicated from test_eventroom for now) -----------------
