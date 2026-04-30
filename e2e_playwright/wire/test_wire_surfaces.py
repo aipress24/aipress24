@@ -131,15 +131,14 @@ def test_wire_post_unknown_numeric_id_returns_404(
     )
 
 
-def test_wire_post_non_numeric_id_500s_known_bug(
+def test_wire_post_non_numeric_id_returns_404(
     page: Page, base_url: str, profile, login
 ) -> None:
-    """``/wire/<non-numeric-id>`` (logged-in) currently 500s :
-    `get_obj` does `int(id)` and lets the ValueError escape.
+    """``/wire/<non-numeric-id>`` (logged-in) returns 404.
 
-    Pin the current behavior — qualified in
-    ``local-notes/bugs/qualifies/wire-item-non-numeric-id-500.md``.
-    Flip to `< 400` once the route catches the ValueError.
+    Regression test for the parse-error bug fixed alongside this
+    test : ``get_obj`` now catches ``ValueError``/``TypeError`` from
+    ``int(id)`` / ``base62.decode(id)`` and raises ``NotFound``.
     """
     p = profile("EXPERT")
     login(p)
@@ -148,10 +147,9 @@ def test_wire_post_non_numeric_id_500s_known_bug(
         wait_until="domcontentloaded",
     )
     assert resp is not None
-    assert resp.status == 500, (
-        f"/wire/<non-numeric> : expected 500 (known bug), got "
-        f"{resp.status}. If the route now catches the parse "
-        "error, flip this to `< 400` and update the bug note."
+    assert resp.status == 404, (
+        f"/wire/<non-numeric> : expected 404 (parse error → "
+        f"NotFound), got {resp.status}"
     )
 
 
