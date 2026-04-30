@@ -46,6 +46,7 @@ _BW_TYPE = "micro"
 
 
 @pytest.mark.mutates_db
+@pytest.mark.parallel_unsafe
 def test_cm5_bw_activation_propagates_to_swork(
     page: Page,
     base_url: str,

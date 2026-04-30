@@ -61,12 +61,32 @@ test-e2e-prod-full:
 ##   make test-e2e MOD=bw
 ##   make test-e2e MOD=common
 ##
-## Available modules : admin bw common infra security wip wire
+## Available modules : admin api biz bw common cross_modules events
+##                     infra kyc notifications preferences public
+##                     regressions security swork wip wire
 MOD ?= wip
 test-e2e:
 	pytest -v --browser firefox \
 	--base-url=http://127.0.0.1:5000 \
 	-m "not slow" e2e_playwright/$(MOD)
+
+## Parallel e2e — pytest-xdist with mail buffer per-worker isolation.
+## 2 passes : (1) parallel-safe tests in N workers, (2) parallel_unsafe
+## tests serial. The split is needed because some tests share seed-user
+## state (password change, in-flight email change, BW activation on a
+## specific guinea pig user). When multi-tenant fixtures (Sprint 7
+## phase B) lands, parallel_unsafe should disappear.
+##
+## NWORKERS controls the parallel pass : `make test-e2e-parallel NWORKERS=4`.
+NWORKERS ?= 4
+test-e2e-parallel:
+	pytest -v --browser firefox \
+	--base-url=http://127.0.0.1:5000 \
+	-n $(NWORKERS) --dist=loadfile \
+	-m "not slow and not parallel_unsafe" e2e_playwright
+	pytest -v --browser firefox \
+	--base-url=http://127.0.0.1:5000 \
+	-m "parallel_unsafe" e2e_playwright
 
 
 #

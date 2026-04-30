@@ -296,6 +296,7 @@ def test_bug_0070_avis_enquete_phase_breadcrumbs(
 
 
 @pytest.mark.mutates_db
+@pytest.mark.parallel_unsafe
 def test_bug_0088_change_email_confirm_lands_on_preferences(
     page: Page,
     base_url: str,

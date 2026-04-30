@@ -43,6 +43,7 @@ _MISSION_REDIRECT_RE = re.compile(r"/biz/missions/(\d+)$")
 
 
 @pytest.mark.mutates_db
+@pytest.mark.parallel_unsafe
 def test_cm4_application_triggers_owner_notification(
     page: Page,
     base_url: str,
