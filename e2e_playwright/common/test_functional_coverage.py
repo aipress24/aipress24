@@ -130,8 +130,18 @@ def _assert_accessible(
     page: Page, base_url: str, path: str, who: str
 ) -> None:
     """Open `path` and assert the response is neither a server
-    crash nor an authorization rejection. 404 is soft-skipped."""
-    resp = page.goto(f"{base_url}{path}", wait_until="domcontentloaded")
+    crash nor an authorization rejection. 404 is soft-skipped.
+
+    The dev server runs single-worker, so back-to-back tests can
+    starve a slow render (e.g. ``/preferences/`` ⇒ ``/profile``)
+    enough to blow Playwright's default 45s. Retry once on timeout
+    — a real perf regression would still time out twice."""
+    from playwright.sync_api import TimeoutError as _PWTimeout
+
+    try:
+        resp = page.goto(f"{base_url}{path}", wait_until="domcontentloaded")
+    except _PWTimeout:
+        resp = page.goto(f"{base_url}{path}", wait_until="domcontentloaded")
     assert resp is not None, f"{who}: no response for {path}"
     status = resp.status
     if status == 404:
