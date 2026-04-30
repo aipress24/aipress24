@@ -129,6 +129,7 @@ def _force_reset_via_email(
 
 
 @pytest.mark.mutates_db
+@pytest.mark.parallel_unsafe
 def test_change_password_full_round_trip(
     page: Page,
     base_url: str,
@@ -196,6 +197,7 @@ def test_change_password_full_round_trip(
 
 
 @pytest.mark.mutates_db
+@pytest.mark.parallel_unsafe
 def test_password_reset_full_round_trip(
     page: Page,
     base_url: str,
@@ -312,6 +314,7 @@ def test_password_reset_unknown_email_does_not_5xx(
 
 
 @pytest.mark.mutates_db
+@pytest.mark.parallel_unsafe
 def test_change_email_request_sends_confirmation_mail(
     page: Page,
     base_url: str,

@@ -44,6 +44,7 @@ _BW_TYPE = "micro"
 
 
 @pytest.mark.mutates_db
+@pytest.mark.parallel_unsafe
 def test_bw_full_wizard_free_activation(
     page: Page,
     base_url: str,
