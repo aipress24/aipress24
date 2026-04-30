@@ -241,6 +241,39 @@ def authed_get(page: Page) -> Callable[[str], dict]:
 
 
 @pytest.fixture(scope="session")
+def tiny_jpeg_bytes() -> bytes:
+    """A 4×4 red JPEG, generated once per session via PIL.
+
+    Used as upload payload by tests that drive image-upload routes
+    (BW configure-content / configure-gallery, KYC logo upload, etc.).
+    Tiny enough to keep request bodies small ; valid enough that
+    the server-side `extract_image_from_request` round-trip + S3
+    save succeeds."""
+    import io
+
+    from PIL import Image
+
+    img = Image.new("RGB", (4, 4), color=(255, 0, 0))
+    buf = io.BytesIO()
+    img.save(buf, format="JPEG", quality=80)
+    return buf.getvalue()
+
+
+@pytest.fixture(scope="session")
+def tiny_jpeg_data_url(tiny_jpeg_bytes: bytes) -> str:
+    """Base64 data-URL form of `tiny_jpeg_bytes`.
+
+    Routes that mount cropper.js widgets accept the cropped image as
+    `request.form.get(<name>)` with content `data:image/jpeg;base64,…`
+    — see `app.lib.image_utils.extract_image_from_request`. Sending a
+    data-URL avoids juggling multipart in `fetch` and works through
+    `authed_post` directly."""
+    import base64
+
+    return f"data:image/jpeg;base64,{base64.b64encode(tiny_jpeg_bytes).decode('ascii')}"
+
+
+@pytest.fixture(scope="session")
 def known_broken() -> frozenset[str]:
     """Emails whose stored credentials don't match the CSV. Tests
     that need a working login should skip these."""
