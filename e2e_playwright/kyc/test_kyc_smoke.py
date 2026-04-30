@@ -254,39 +254,29 @@ def test_kyc_undone_renders(page: Page, base_url: str) -> None:
     assert resp is not None and resp.status < 400
 
 
-def test_kyc_validation_500s_with_empty_session_known_bug(
+def test_kyc_validation_empty_session_redirects_to_profile(
     page: Page, base_url: str
 ) -> None:
-    """``/kyc/validation`` GET with an empty session 500s — known
-    bug, qualified in
-    ``local-notes/bugs/qualifies/kyc-validation-empty-session-500.md``.
+    """``/kyc/validation`` GET with an empty session redirects to
+    ``/kyc/profile`` instead of 500ing.
 
-    The route looks up ``get_survey_profile(profile_id)`` where
-    ``profile_id`` defaults to "" — that raises
-    ``ValueError('Unknown profile: ')``. Proper users always go
-    through ``/kyc/profile`` first, which sets the session. But a
-    direct visit (URL bookmark, prefetch, crawler) crashes.
-
-    This test pins the **current** behavior so we don't shrug it
-    off when fixing : the regression test should flip to
-    ``status < 400`` once the fix lands.
+    Regression test for the empty-session crash fixed alongside
+    this test : the route now early-returns to
+    ``/kyc/profile`` when ``profile_id`` is empty in session,
+    rather than calling ``get_survey_profile("")`` which raised
+    ``ValueError``.
     """
     resp = page.goto(
         f"{base_url}/kyc/validation", wait_until="domcontentloaded"
     )
     assert resp is not None
-    # Current state : 500 because profile_id="" → ValueError.
-    # When the bug is fixed (e.g. early-return to /kyc/profile),
-    # update this assertion.
-    assert resp.status == 500, (
-        f"/kyc/validation : expected 500 (known bug), got "
-        f"{resp.status}. If the bug was fixed, flip the test to "
-        "`assert resp.status < 400` and update the bug note."
+    assert resp.status < 400, (
+        f"/kyc/validation : expected redirect (<400), got "
+        f"{resp.status}"
     )
-    body = page.content()
-    assert "Unknown profile" in body, (
-        "/kyc/validation : 500 but not the expected 'Unknown "
-        "profile' fragment — different bug, investigate"
+    assert "/kyc/profile" in page.url, (
+        f"/kyc/validation empty session : expected redirect to "
+        f"/kyc/profile, got {page.url}"
     )
 
 
