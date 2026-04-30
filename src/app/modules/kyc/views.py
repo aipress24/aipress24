@@ -343,11 +343,17 @@ def images_page(filename):
 @blueprint.route("/validation")
 def validation_page():
     session_service = container.get(SessionService)
+    profile_id = session_service.get("profile_id", "")
+    if not profile_id:
+        # Direct visit (bookmark, prefetch, monitoring) without
+        # going through /kyc/profile first — send the user back
+        # to the entry point rather than 500ing on
+        # `get_survey_profile("")`.
+        return redirect(url_for(".profile_page"))
     results = session_service.get("form_results", {"nothing": "nothing"})
     raw_results = session_service.get("form_raw_results", {"nothing": "nothing"})
     labels = session_service.get("form_labels_results", {"nothing": "nothing"})
     id_key = session_service.get("form_id_key", {"nothing": "nothing"})
-    profile_id = session_service.get("profile_id", "")
     images = {}
     session_service.set("modify_form", False)
     profile = get_survey_profile(profile_id)
