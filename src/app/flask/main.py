@@ -52,7 +52,7 @@ from app.services.stripe.utils import (
     check_stripe_secret_key,
     check_stripe_webhook_secret,
 )
-from app.settings.constants import MAX_CONTENT_LENGTH
+from app.settings.constants import MAX_CONTENT_LENGTH, MAX_FORM_MEMORY_SIZE
 from app.ui.datetime_filter import make_localdt, make_naivedt
 from app.ui.labels import make_label
 
@@ -130,6 +130,12 @@ def create_app(config=None) -> Flask:
     # nginx's `client_max_body_size`. Werkzeug rejects oversize uploads
     # before the view sees them.
     app.config["MAX_CONTENT_LENGTH"] = MAX_CONTENT_LENGTH
+    # Werkzeug 3+ caps individual form fields at 500 KB by default —
+    # too small for the cropper.js base64 data-URL flow (a 1 MB image
+    # encodes to ~1.4 MB data-URL → 413 before the view runs). Bump
+    # to 12 MB to cover MAX_IMAGE_SIZE (4 MB) base64-encoded with
+    # headroom. ref: bug #0106.
+    app.config["MAX_FORM_MEMORY_SIZE"] = MAX_FORM_MEMORY_SIZE
 
     # 2: Scan to pre-register callbacks, services, etc.
     _scan_packages_filtered(SCAN_PACKAGES)
