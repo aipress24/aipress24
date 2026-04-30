@@ -18,14 +18,19 @@ from app.services.notifications import NotificationService
 from . import blueprint
 
 
-def _safe_next_url(fallback: str = "/") -> str:
-    """Return the referring URL if it's local, otherwise fallback.
-
-    Prevents open-redirect from a crafted `next` or Referer.
-    """
-    target = request.form.get("next") or request.referrer or fallback
+def _is_safe_url(target: str) -> bool:
+    """True iff `target` is same-origin (or relative)."""
     parsed = urlparse(target)
-    if parsed.netloc and parsed.netloc != request.host:
+    return not parsed.netloc or parsed.netloc == request.host
+
+
+def _safe_next_url(fallback: str = "/", form_key: str = "next") -> str:
+    """Return the form-`form_key` URL if it's local, otherwise fallback.
+
+    Prevents open-redirect from a crafted `next` / `url` / Referer.
+    """
+    target = request.form.get(form_key) or request.referrer or fallback
+    if not _is_safe_url(target):
         return fallback
     return target or fallback
 
@@ -44,12 +49,12 @@ def mark_read(notification_id: int) -> Response:
     """Mark one notification as read and follow its target URL if any.
 
     Used by the bell dropdown: clicking a notification flags it read
-    and navigates to the content it points to.
+    and navigates to the content it points to. The `url` form param
+    is sanitised against open-redirect — same-origin only.
     """
     user = cast(User, g.user)
     service = container.get(NotificationService)
     service.mark_as_read(notification_id, user)
     db.session.commit()
 
-    target = request.form.get("url") or _safe_next_url()
-    return redirect(target)
+    return redirect(_safe_next_url(form_key="url"))

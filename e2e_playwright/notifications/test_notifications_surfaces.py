@@ -90,54 +90,32 @@ def test_notifications_mark_one_read_unknown_id_no_5xx(
     assert "/auth/login" not in resp["url"]
 
 
-def test_notifications_mark_one_read_open_redirect_known_bug(
-    page: Page, base_url: str, profile, login
+def test_notifications_mark_one_read_open_redirect_safe(
+    page: Page, base_url: str, profile, login, authed_post
 ) -> None:
-    """``POST /notifications/<id>/read`` blindly redirects to the
-    ``url`` form param without sanitisation — open-redirect.
+    """``POST /notifications/<id>/read`` with ``url=https://evil``
+    must NOT redirect there.
 
-    Pin the **current** behavior (302 to external URL). Qualified
-    in ``local-notes/bugs/qualifies/notifications-mark-read-open-redirect.md``.
-    Flip to assert sanitisation once the route is fixed.
-
-    Implementation note : we drive ``fetch`` from the page JS
-    context (so cookies travel) but with ``redirect: 'manual'``
-    so the fetch doesn't follow the 302 to evil.example.com
-    (which would DNS-fail and surface as "Failed to fetch").
-    With ``redirect: 'manual'`` the response is opaqueredirect
-    (status 0, type "opaqueredirect") — but in that mode the
-    browser never made the second request, so cookies stay safe
-    AND fetch resolves cleanly.
+    Regression test for the open-redirect P1 fixed in this same
+    commit (``_safe_next_url`` now applies to the ``url`` form
+    param via ``form_key="url"``). The post-fix redirect lands
+    on the fallback ``/`` instead of the external URL, and the
+    final URL is on our host.
     """
     p = profile(_PRESS_MEDIA)
     login(p)
     page.goto(f"{base_url}/swork/", wait_until="domcontentloaded")
 
-    js_post_no_follow = """async (args) => {
-        const r = await fetch(args.url, {
-            method: 'POST', credentials: 'same-origin',
-            redirect: 'manual',
-            body: new URLSearchParams(args.data),
-            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-        });
-        return {status: r.status, type: r.type, url: r.url};
-    }"""
-    resp = page.evaluate(
-        js_post_no_follow,
-        {
-            "url": f"{base_url}/notifications/999999999/read",
-            "data": {"url": "https://evil.example.com/phish"},
-        },
+    resp = authed_post(
+        f"{base_url}/notifications/999999999/read",
+        {"url": "https://evil.example.com/phish"},
     )
-    # opaqueredirect mode masks the actual 302 — status is 0, type
-    # is "opaqueredirect". That alone doesn't prove the redirect
-    # went to evil.example.com (could be /, could be evil). But
-    # since the route's source code is `target = request.form.get("url")
-    # or _safe_next_url()`, and we passed `url=evil`, we know the
-    # 302 Location IS evil. The opaqueredirect status confirms a
-    # redirect HAPPENED (not a 4xx in-place). The bug is in the
-    # source.
-    assert resp["type"] == "opaqueredirect", (
-        f"expected opaqueredirect (mark_read returned a redirect), "
-        f"got type={resp['type']!r} status={resp['status']}"
+    # _safe_next_url rejects external host → fallback "/"
+    # → /, which itself redirects to the user's community home.
+    # We don't pin the exact final URL, just assert it's on our
+    # host and not on evil.example.com.
+    assert resp["status"] < 400, f"mark_read POST : {resp}"
+    assert "evil.example.com" not in resp["url"], (
+        f"open-redirect : POST followed `url=evil` to "
+        f"{resp['url']} — _safe_next_url is broken"
     )
