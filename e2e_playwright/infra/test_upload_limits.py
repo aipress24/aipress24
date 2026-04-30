@@ -2,19 +2,25 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
-"""Werkzeug ``MAX_CONTENT_LENGTH`` boundary check.
+"""Werkzeug ``MAX_CONTENT_LENGTH`` + ``MAX_FORM_MEMORY_SIZE``
+boundary checks.
 
 Targets the dedicated diagnostic endpoint ``/tests/upload`` (drains
-the body and reports back, no DB write — safe on prod). This
-verifies the regression we fixed at commit ``b4e6b248`` : without
-``app.config['MAX_CONTENT_LENGTH']`` wired, a 50 MB upload would
-silently time out at nginx instead of producing a clean Flask 413.
+the body and reports back, no DB write — safe on prod) plus a
+form-field POST against an authenticated endpoint.
 
-Two cases :
-- A small upload succeeds and the page reports the bytes received.
-- An oversized upload is rejected with a 413.
+Verified regressions :
 
-Both are read-only with respect to application state.
+- ``b4e6b248`` (#0106 amont) : without ``app.config['MAX_CONTENT_LENGTH']``
+  wired, a 50 MB upload would silently time out at nginx instead of
+  producing a clean Flask 413.
+- ``MAX_FORM_MEMORY_SIZE`` (#0106 aval) : Werkzeug 3+ caps form
+  fields at 500 KB by default. The cropper.js base64 data-URL flow
+  (BW configure-content / configure-gallery / KYC photo) would 413
+  on any image > ~370 KB once base64-encoded, even though the file
+  itself was well under MAX_IMAGE_SIZE (4 MB). Fix : bumped to 12 MB.
+
+All tests are read-only with respect to application state.
 """
 
 from __future__ import annotations
@@ -74,3 +80,54 @@ def test_oversized_upload_is_rejected_with_413(
         f"Oversized upload to /tests/upload should return 413, got "
         f"{resp.status} — MAX_CONTENT_LENGTH likely not wired."
     )
+
+
+def test_large_form_field_is_accepted(
+    page: Page,
+    base_url: str,
+    profile,
+    login,
+) -> None:
+    """A ~1.5 MB form field (cropper.js base64 data-URL shape) is
+    accepted post-fix.
+
+    Regression test for bug #0106 : pre-fix, Werkzeug 3+ default
+    ``MAX_FORM_MEMORY_SIZE`` (500 KB) rejected any data-URL form
+    field bigger than ~370 KB once base64-encoded, even though the
+    underlying image was well within MAX_IMAGE_SIZE (4 MB).
+
+    We POST to ``/preferences/banner`` (existing test surface, takes
+    a `copyright` form field — the copyright text is short in real
+    use but the form parser doesn't care about field semantics, only
+    field size). Pre-fix : 413. Post-fix : < 400.
+    """
+    p = profile("PRESS_MEDIA")
+    login(p)
+    page.goto(
+        f"{base_url}/preferences/banner",
+        wait_until="domcontentloaded",
+    )
+    # ~1.5 MB form field — bigger than the 500 KB Werkzeug default,
+    # smaller than the 12 MB MAX_FORM_MEMORY_SIZE we set.
+    big_field = "x" * (1_500_000)
+    js_post = """async (args) => {
+        const r = await fetch(args.url, {
+            method: 'POST', credentials: 'same-origin',
+            body: new URLSearchParams(args.data),
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        });
+        return {status: r.status, url: r.url};
+    }"""
+    resp = page.evaluate(
+        js_post,
+        {
+            "url": f"{base_url}/preferences/banner",
+            "data": {"submit": "cancel", "copyright": big_field},
+        },
+    )
+    assert resp["status"] < 400, (
+        f"large form field POST : got {resp['status']} — "
+        "MAX_FORM_MEMORY_SIZE likely back to Werkzeug's 500 KB "
+        "default. Bump in src/app/settings/constants.py + main.py."
+    )
+    assert "/auth/login" not in resp["url"]
