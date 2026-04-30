@@ -327,6 +327,38 @@ def test_bw_role_invitation_full_lifecycle(
         f"{base_url}/BW/manage-internal-roles",
         wait_until="domcontentloaded",
     )
+
+    # If a previous run died mid-lifecycle the invitee may linger
+    # as PENDING or ACCEPTED. In either state `change_<role>` treats
+    # them as already-known and skips the invite — no mail sent.
+    # Wipe both flavours of leftover up-front:
+    #   - ACCEPTED rows render in the member list with a remove button
+    #     (`data-modal-target="confirm_<remove_action>_<user_id>"`).
+    #   - PENDING rows live only in the textarea ; submitting the
+    #     textarea without the invitee's email revokes them.
+    leftover_id = page.evaluate(
+        """(args) => {
+            const target = `confirm_${args.role}_`;
+            for (const btn of document.querySelectorAll(
+                'button[data-modal-target]'
+            )) {
+                const t = btn.getAttribute('data-modal-target') || '';
+                if (!t.startsWith(target)) continue;
+                const row = btn.closest('div.flex');
+                if (row && row.textContent.includes(args.email)) {
+                    return t.slice(target.length);
+                }
+            }
+            return null;
+        }""",
+        {"role": remove_action, "email": _BWMI_INVITEE_EMAIL},
+    )
+    if leftover_id:
+        authed_post(
+            f"{base_url}/BW/manage-internal-roles",
+            {"action": remove_action, "user_id": leftover_id},
+        )
+
     boxes = page.locator('textarea[name="content"]').evaluate_all(
         "els => els.map(e => e.value || '')"
     )
@@ -335,6 +367,18 @@ def test_bw_role_invitation_full_lifecycle(
             f"`content` textarea #{textarea_index} not on page"
         )
     original = boxes[textarea_index]
+    # Strip a leftover PENDING entry (case-insensitive) so the invite
+    # path sees the invitee as net-new.
+    cleaned_lines = [
+        ln for ln in original.splitlines()
+        if ln.strip().lower() != _BWMI_INVITEE_EMAIL.lower()
+    ]
+    if cleaned_lines != original.splitlines():
+        authed_post(
+            f"{base_url}/BW/manage-internal-roles",
+            {"action": change_action, "content": "\n".join(cleaned_lines)},
+        )
+        original = "\n".join(cleaned_lines)
     new_content = (
         original
         + ("\n" if original.strip() else "")
