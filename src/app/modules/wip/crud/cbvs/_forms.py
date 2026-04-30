@@ -78,7 +78,9 @@ class ArticleForm(Form):
 
     # Group: dates
     date_parution_prevue = DateTimeField(
-        "Date/heure de parution prévue", render_kw={"width": 3}
+        "Date/heure de parution prévue",
+        render_kw={"width": 3},
+        validators=[validators.InputRequired()],
     )
     date_publication_aip24 = DateTimeField(
         "Date/heure de publication sur AiPRESS24", render_kw={"width": 3}
@@ -262,9 +264,15 @@ class SujetForm(Form):
     )
 
     # Group: dates
-    date_limite_validite = DateTimeField("Date/heure de début", render_kw={"width": 3})
+    date_limite_validite = DateTimeField(
+        "Date/heure de début",
+        render_kw={"width": 3},
+        validators=[validators.InputRequired()],
+    )
     date_parution_prevue = DateTimeField(
-        "Date/heure de parution prévue", render_kw={"width": 3}
+        "Date/heure de parution prévue",
+        render_kw={"width": 3},
+        validators=[validators.InputRequired()],
     )
 
     class Meta:
@@ -339,12 +347,26 @@ class CommandeForm(Form):
     )
 
     # Group: dates
-    date_limite_validite = DateTimeField("Date/heure de début", render_kw={"width": 3})
-    date_bouclage = DateTimeField("Date/heure de bouclage", render_kw={"width": 3})
-    date_parution_prevue = DateTimeField(
-        "Date/heure de parution prévue", render_kw={"width": 3}
+    date_limite_validite = DateTimeField(
+        "Date/heure de début",
+        render_kw={"width": 3},
+        validators=[validators.InputRequired()],
     )
-    date_paiement = DateTimeField("Date/heure de paiement", render_kw={"width": 3})
+    date_bouclage = DateTimeField(
+        "Date/heure de bouclage",
+        render_kw={"width": 3},
+        validators=[validators.InputRequired()],
+    )
+    date_parution_prevue = DateTimeField(
+        "Date/heure de parution prévue",
+        render_kw={"width": 3},
+        validators=[validators.InputRequired()],
+    )
+    date_paiement = DateTimeField(
+        "Date/heure de paiement",
+        render_kw={"width": 3},
+        validators=[validators.InputRequired()],
+    )
 
     class Meta:
         groups = {
