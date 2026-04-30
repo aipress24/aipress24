@@ -52,6 +52,22 @@ test-e2e-prod-full:
 	--base-url=$(PROD_URL) \
 	e2e_playwright
 
+## Per-module e2e shortcuts. Use `MOD=<name>` (default `wip`) to run a
+## single module's tests against the local dev server. Faster than the
+## full `test-e2e-local` (~3 min full → 30-60 s per module).
+##
+## Examples :
+##   make test-e2e MOD=wip
+##   make test-e2e MOD=bw
+##   make test-e2e MOD=common
+##
+## Available modules : admin bw common infra security wip wire
+MOD ?= wip
+test-e2e:
+	pytest -v --browser firefox \
+	--base-url=http://127.0.0.1:5000 \
+	-m "not slow" e2e_playwright/$(MOD)
+
 
 #
 # Lint

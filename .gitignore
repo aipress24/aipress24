@@ -9,6 +9,7 @@
 .hypothesis/
 .ropeproject/
 .flask-coverage-cache/
+.flask-coverage-snapshots/
 # Runtime
 /src/instance/
 
