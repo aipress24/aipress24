@@ -38,23 +38,34 @@ import time
 import pytest
 from playwright.sync_api import Page
 
-# Pattern : /biz/missions/<int> redirect target after POST.
-_MISSION_REDIRECT_RE = re.compile(r"/biz/missions/(\d+)$")
+
+def _redirect_re(resource: str) -> re.Pattern[str]:
+    """Extracteur du nouvel id depuis la redirection POST /<r>/new."""
+    return re.compile(rf"/biz/{resource}/(\d+)$")
 
 
 @pytest.mark.mutates_db
 @pytest.mark.parallel_unsafe
+@pytest.mark.parametrize(
+    "resource",
+    ["missions", "projects", "jobs"],
+    ids=["missions", "projects", "jobs"],
+)
 def test_cm4_application_triggers_owner_notification(
     page: Page,
     base_url: str,
     profile,
     login,
     mail_outbox,
+    resource: str,
 ) -> None:
-    """End-to-end CM-4 : offerer creates mission, candidate
-    applies, owner receives mail.
+    """End-to-end CM-4 : offerer creates an offer, candidate
+    applies, owner receives mail. Paramétré sur (missions, projects,
+    jobs) pour exercer les 3 branches de
+    `offer_notifications._dashboard_for` / `_detail_for` (match
+    sur ``offer.type``) et les 3 routes apply.
     """
-    # ───── step 1 : offerer creates a mission ─────
+    # ───── step 1 : offerer creates the offer ─────
     offerer = profile("PRESS_RELATIONS")
     candidate = profile("PRESS_MEDIA")
     if offerer["email"] == candidate["email"]:
@@ -65,12 +76,12 @@ def test_cm4_application_triggers_owner_notification(
 
     login(offerer)
     page.goto(
-        f"{base_url}/biz/missions/new",
+        f"{base_url}/biz/{resource}/new",
         wait_until="domcontentloaded",
     )
-    marker = f"e2e-cm4-{int(time.time() * 1000)}"
+    marker = f"e2e-cm4-{resource}-{int(time.time() * 1000)}"
     payload = {
-        "title": f"Mission CM-4 {marker}",
+        "title": f"Offre CM-4 {marker}",
         "description": (
             f"Description CM-4 — {marker}. Test de propagation "
             "candidature → notifications. Description >= 20 chars."
@@ -87,27 +98,24 @@ def test_cm4_application_triggers_owner_notification(
             });
             return {status: r.status, url: r.url};
         }""",
-        {"url": f"{base_url}/biz/missions/new", "data": payload},
+        {"url": f"{base_url}/biz/{resource}/new", "data": payload},
     )
     assert create_resp["status"] < 400, (
-        f"offerer create POST : {create_resp}"
+        f"offerer create POST {resource} : {create_resp}"
     )
-    m = _MISSION_REDIRECT_RE.search(create_resp["url"])
+    m = _redirect_re(resource).search(create_resp["url"])
     assert m, (
-        f"offerer create : expected redirect to /biz/missions/<id>, "
+        f"offerer create : expected redirect to /biz/{resource}/<id>, "
         f"got {create_resp['url']}"
     )
-    mission_id = m.group(1)
+    offer_id = m.group(1)
 
     # ───── step 2 : candidate applies ─────
     login(candidate)
-    # Reset the mail buffer just before the apply so we capture
-    # only the notification mail (not the create-side mails if
-    # any).
     mail_outbox.reset()
 
     page.goto(
-        f"{base_url}/biz/missions/{mission_id}",
+        f"{base_url}/biz/{resource}/{offer_id}",
         wait_until="domcontentloaded",
     )
     apply_resp = page.evaluate(
@@ -122,38 +130,31 @@ def test_cm4_application_triggers_owner_notification(
             return {status: r.status, url: r.url};
         }""",
         {
-            "url": f"{base_url}/biz/missions/{mission_id}/apply",
+            "url": f"{base_url}/biz/{resource}/{offer_id}/apply",
             "data": {
-                "message": (
-                    f"Candidature test {marker} — généré e2e CM-4."
-                ),
+                "message": (f"Candidature test {marker} — généré e2e CM-4."),
             },
         },
     )
-    assert apply_resp["status"] < 400, (
-        f"candidate apply : {apply_resp}"
-    )
+    assert apply_resp["status"] < 400, f"candidate apply {resource} : {apply_resp}"
     assert "/auth/login" not in apply_resp["url"]
 
     # ───── step 3 : assert mail captured for the owner ─────
     captured = mail_outbox.messages()
     assert captured, (
-        "candidate apply : no mail captured — "
+        f"candidate apply {resource} : no mail captured — "
         "notify_emitter_of_application didn't fire"
     )
-    # The mail goes to the offerer's email (or the org's
-    # contact_email, falling back to owner.email per
-    # _pick_emitter_email). We assert the offerer's email
-    # appears in at least one mail's `to`.
     offerer_email = offerer["email"]
     targets = [
-        m for m in captured
+        m
+        for m in captured
         if offerer_email in (m.get("to") or [])
         or offerer_email in str(m.get("to") or "")
     ]
     assert targets, (
-        f"candidate apply : no mail addressed to offerer "
-        f"({offerer_email!r}) ; got "
+        f"candidate apply {resource} : no mail addressed to "
+        f"offerer ({offerer_email!r}) ; got "
         f"{[m.get('to') for m in captured]!r}"
     )
 
@@ -171,17 +172,13 @@ def test_cm4_application_triggers_owner_notification(
             return {status: r.status, url: r.url};
         }""",
         {
-            "url": f"{base_url}/biz/missions/{mission_id}/apply",
+            "url": f"{base_url}/biz/{resource}/{offer_id}/apply",
             "data": {"message": "second time"},
         },
     )
-    assert second_apply["status"] < 400, (
-        f"double apply : {second_apply}"
-    )
-    # The route flashes "Vous avez déjà candidaté" and short-circuits
-    # before notify_emitter_of_application — no second mail.
+    assert second_apply["status"] < 400, f"double apply {resource} : {second_apply}"
     assert not mail_outbox.messages(), (
-        "double apply : duplicate notification mail sent — "
-        "handle_apply's `existing is not None` short-circuit "
+        f"double apply {resource} : duplicate notification mail "
+        "sent — handle_apply's `existing is not None` short-circuit "
         "is broken"
     )
