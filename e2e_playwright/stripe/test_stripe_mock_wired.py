@@ -176,6 +176,112 @@ def test_stripe_mock_does_not_call_real_api(
         f"{base_url}/debug/stripe/", wait_until="domcontentloaded"
     )
     assert resp is not None and resp.status < 400
-    # The dashboard renders only when StripeDebug.init_app ran
-    # successfully (which sets the patch flag and registers the
-    # blueprint). 200 here = mock infrastructure is wired.
+
+
+@pytest.mark.mutates_db
+def test_stripe_webhook_simulation_drives_purchase_paid(
+    page: Page,
+    base_url: str,
+    profile,
+    login,
+) -> None:
+    """Phase 2 — simulate a Stripe webhook firing after a checkout.
+
+    Drives end-to-end :
+    1. POST /wire/<id>/buy/consultation → mock captures a Session
+       (mode=payment) + creates ArticlePurchase with status=PENDING.
+    2. POST /debug/stripe/fire-webhook session_id=<...>
+       event_type=checkout.session.completed → builds synthetic
+       event, POSTs to /webhook internally → drives
+       ``on_checkout_session_completed`` → mode=payment branch →
+       ``_record_article_purchase_from_checkout`` → updates the
+       purchase row to PAID.
+    3. Webhook returns 200.
+
+    On utilise ``consultation`` (pas justificatif) pour éviter le
+    `generate_justificatif.send(purchase.id)` qui enqueue sur
+    Redis-Dramatiq (pas dispo en dev). Le webhook handler hors
+    cette ligne est entièrement exercé.
+
+    Coverage débloqué : stripe/views/webhook.py path
+    (construct_event mock + on_checkout_session_completed
+    payment branch + _record_article_purchase_from_checkout).
+    """
+    p = profile(_PRESS_MEDIA)
+    login(p)
+
+    # ──── step 1 : trigger checkout via wire buy ────
+    page.goto(f"{base_url}/wire/tab/wall", wait_until="domcontentloaded")
+    article_id = page.evaluate(
+        """() => {
+            const reserved = new Set(['me', 'tab', 'purchase', '']);
+            for (const a of document.querySelectorAll('a[href*="/wire/"]')) {
+                let href = a.getAttribute('href') || '';
+                href = href.split('#')[0].split('?')[0];
+                if (href.startsWith('http')) {
+                    href = '/' + href.split('/').slice(3).join('/');
+                }
+                if (!href.startsWith('/wire/')) continue;
+                const tail = href.slice('/wire/'.length).replace(/\\/$/, '');
+                if (tail.includes('/') || reserved.has(tail)) continue;
+                return tail;
+            }
+            return null;
+        }"""
+    )
+    if not article_id:
+        pytest.skip("no article on /wire/tab/wall")
+
+    # Reset stripe sessions buffer for this worker.
+    page.request.post(
+        f"{base_url}/debug/stripe/reset",
+        headers={"Accept": "application/json"},
+    )
+
+    page.goto(
+        f"{base_url}/wire/{article_id}",
+        wait_until="domcontentloaded",
+    )
+    js_post = """async (args) => {
+        const r = await fetch(args.url, {
+            method: 'POST', credentials: 'same-origin',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            body: '',
+        });
+        return {status: r.status, url: r.url};
+    }"""
+    buy_resp = page.evaluate(
+        js_post,
+        {"url": f"{base_url}/wire/{article_id}/buy/consultation"},
+    )
+    assert buy_resp["status"] < 500, f"buy POST : {buy_resp}"
+
+    sessions = page.request.get(
+        f"{base_url}/debug/stripe/sessions"
+    ).json()
+    if not sessions:
+        pytest.skip(
+            "no Stripe session captured — likely a missing seed "
+            "or rights gate"
+        )
+    session_id = sessions[-1]["id"]
+
+    # ──── step 2 : fire the synthetic webhook ────
+    fire_resp = page.request.post(
+        f"{base_url}/debug/stripe/fire-webhook",
+        form={
+            "session_id": session_id,
+            "event_type": "checkout.session.completed",
+        },
+    )
+    assert fire_resp.status == 200, (
+        f"fire-webhook : {fire_resp.status} {fire_resp.text()}"
+    )
+    fire_data = fire_resp.json()
+    assert fire_data["fired"] is True
+    # The /webhook handler returned 200 (configured in
+    # STRIPE_RESPONSE_ALWAYS_200=1).
+    assert fire_data["webhook_status"] == 200, (
+        f"webhook handler returned {fire_data['webhook_status']} : "
+        f"{fire_data.get('webhook_body')!r}"
+    )

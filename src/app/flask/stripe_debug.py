@@ -17,15 +17,19 @@ When active :
   handler. No network calls to Stripe.
 - Captures every call's args + the synthetic session into a
   process-local list, exposed via ``/debug/stripe/sessions``.
-- Force-enables ``STRIPE_LIVE_ENABLED`` for the duration so the
-  app code doesn't short-circuit the buy/subscribe path before
-  the mock kicks in.
-
-Webhook simulation (POST a synthetic ``checkout.session.completed``
-event back to ``/webhook``) is **not** included in this phase —
-Phase 2. Most e2e flows can be tested with the simple session-
-redirect mock alone, since the user-visible state changes happen
-on the success_url path.
+- Force-enables ``STRIPE_LIVE_ENABLED`` and provides placeholder
+  STRIPE_PRICE_* / STRIPE_PRICING_SUBS_* config keys.
+- Monkey-patches ``stripe.Webhook.construct_event`` to skip
+  signature verification when called via the in-tree mock —
+  tests can POST raw JSON event payloads to ``/webhook``
+  without forging an HMAC.
+- ``/debug/stripe/fire-webhook`` POST helper : tests pass a
+  ``session_id`` (or arbitrary event payload) ; the route
+  builds a synthetic event and POSTs it to ``/webhook``
+  internally via the test client. Drives the full webhook
+  handler chain (`on_checkout_session_completed`,
+  `_record_article_purchase_from_checkout`,
+  `_activate_bw_from_checkout`, etc.) end-to-end.
 """
 
 from __future__ import annotations
@@ -121,6 +125,30 @@ def _patched_session_create(*args: Any, **kwargs: Any) -> MockSession:
     with _lock:
         _sessions.setdefault(bucket, []).append(session.to_dict())
     return session
+
+
+def _patched_construct_event(
+    payload: bytes | str, sig_header: str | None, secret: str, *args: Any, **kwargs: Any
+) -> Any:
+    """Replacement for ``stripe.Webhook.construct_event`` when the
+    mock is active : skip the HMAC signature verification entirely
+    and just return the parsed event. Tests can POST a raw JSON
+    payload to ``/webhook`` with any (or no) ``Stripe-Signature``
+    header — the webhook handler accepts it and runs the full
+    event-dispatch chain.
+
+    Safe : guarded by ``STRIPE_DEBUG_ACTIVE`` config flag (set only
+    when the mock extension is registered, which itself is
+    fail-closed on debug mode).
+    """
+    import json
+
+    from stripe import Event
+
+    if isinstance(payload, bytes):
+        payload = payload.decode("utf-8")
+    data = json.loads(payload)
+    return Event.construct_from(data, "sk_test_mock_inline")
 
 
 def is_active() -> bool:
@@ -224,6 +252,110 @@ def make_blueprint() -> Blueprint:
             "page.</p></body></html>"
         )
 
+    @bp.route("/fire-webhook", methods=["POST"])
+    def fire_webhook() -> Response:
+        """Build a synthetic Stripe webhook event and POST it
+        internally to ``/webhook``. Tests use this to drive the
+        webhook handler after a checkout flow (since real Stripe
+        wouldn't deliver in dev).
+
+        Form params :
+        - ``session_id`` : a captured MockSession id (looked up
+          in the bucket). Defaults to the latest captured session.
+        - ``event_type`` : default
+          ``"checkout.session.completed"`` ; can be set to any
+          handled type from `_EVENT_HANDLER_NAMES` in
+          ``stripe.views.webhook``.
+        """
+        from uuid import uuid4
+
+        worker = _request_worker()
+        captured = sessions(worker)
+        session_id = request.form.get("session_id", "")
+        event_type = request.form.get(
+            "event_type", "checkout.session.completed"
+        )
+
+        # Resolve the source session.
+        src: dict | None = None
+        if session_id:
+            src = next(
+                (s for s in captured if s.get("id") == session_id),
+                None,
+            )
+        elif captured:
+            src = captured[-1]
+        if src is None:
+            return jsonify(
+                {
+                    "error": "no captured session matches session_id",
+                    "session_id": session_id,
+                    "captured_count": len(captured),
+                }
+            ), 404
+
+        # Build a minimal-but-realistic event payload. The webhook
+        # handler accesses event.type, event.id, event.data.object
+        # and within the object: id, mode, customer_email,
+        # payment_intent, amount_total, currency, metadata,
+        # client_reference_id, customer, subscription.
+        event_id = f"evt_test_{uuid4().hex[:24]}"
+        raw_metadata = src.get("metadata") or {}
+        event_payload = {
+            "id": event_id,
+            "object": "event",
+            "type": event_type,
+            "data": {
+                "object": {
+                    "id": src["id"],
+                    "object": "checkout.session",
+                    "mode": src.get("mode", "payment"),
+                    "status": src.get("status", "complete"),
+                    "payment_status": src.get(
+                        "payment_status", "paid"
+                    ),
+                    "customer_email": src.get("customer_email"),
+                    "metadata": raw_metadata,
+                    "client_reference_id": raw_metadata.get(
+                        "bw_id"
+                    ),
+                    "amount_total": 1000,
+                    "currency": "eur",
+                    "payment_intent": f"pi_test_{uuid4().hex[:24]}",
+                    "customer": f"cus_test_{uuid4().hex[:24]}",
+                    "subscription": (
+                        f"sub_test_{uuid4().hex[:24]}"
+                        if src.get("mode") == "subscription"
+                        else None
+                    ),
+                }
+            },
+        }
+
+        # POST internally to /webhook via the test client.
+        # This stays in-process so the webhook's DB writes share
+        # the same dev-server context.
+        with current_app.test_client() as client:
+            resp = client.post(
+                "/webhook",
+                json=event_payload,
+                headers={
+                    "Stripe-Signature": "t=0,v1=mock",
+                    "Content-Type": "application/json",
+                    "X-Mail-Worker": worker,
+                },
+            )
+            return jsonify(
+                {
+                    "fired": True,
+                    "event_id": event_id,
+                    "event_type": event_type,
+                    "session_id": src["id"],
+                    "webhook_status": resp.status_code,
+                    "webhook_body": resp.get_data(as_text=True)[:500],
+                }
+            )
+
     return bp
 
 
@@ -279,16 +411,27 @@ class StripeDebug:
         ):
             app.config.setdefault(env, f"price_mock_{env.lower()}")
 
+        # Set a placeholder STRIPE_WEBHOOK_SECRET so the webhook
+        # handler doesn't `raise ValueError` on the missing-secret
+        # check before we get to the construct_event monkey-patch.
+        app.config.setdefault(
+            "STRIPE_WEBHOOK_SECRET", "whsec_mock_inline"
+        )
+
         # Monkey-patch the Stripe SDK. Idempotent : a second
         # init_app on the same process is a no-op.
         import stripe
 
-        if getattr(stripe.checkout.Session, "_stripe_debug_patched", False):
-            pass
-        else:
+        if not getattr(stripe.checkout.Session, "_stripe_debug_patched", False):
             stripe.checkout.Session.create = staticmethod(  # type: ignore[method-assign]
                 _patched_session_create
             )
             stripe.checkout.Session._stripe_debug_patched = True  # type: ignore[attr-defined]
+
+        if not getattr(stripe.Webhook, "_stripe_debug_patched", False):
+            stripe.Webhook.construct_event = staticmethod(  # type: ignore[method-assign]
+                _patched_construct_event
+            )
+            stripe.Webhook._stripe_debug_patched = True  # type: ignore[attr-defined]
 
         app.register_blueprint(make_blueprint(), url_prefix="/debug/stripe")
