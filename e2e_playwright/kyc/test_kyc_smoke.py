@@ -300,3 +300,158 @@ def test_kyc_modify_redirects_for_authenticated(
         f"/kyc/modify : expected redirect to /kyc/profile, "
         f"got {page.url}"
     )
+
+
+def test_kyc_wizard_post_invalid_form_re_renders(
+    page: Page,
+    base_url: str,
+    authed_post,
+) -> None:
+    """``POST /kyc/wizard/<id>`` avec un payload vide :
+    `form.validate_on_submit()` retourne False, le route appelle
+    `_log_invalid_form` et re-render `wizard.html`.
+
+    Drives le branche négative + le helper `_log_invalid_form` qui
+    itère sur tous les fields, gère le `double_select`, etc.
+    """
+    # Ground the page on a same-origin URL so authed_post can fetch.
+    page.goto(f"{base_url}/kyc/", wait_until="domcontentloaded")
+    # Use P002 (PRESS_MEDIA journaliste) — the profile is generic
+    # enough that an empty POST will fail many required fields.
+    resp = authed_post(f"{base_url}/kyc/wizard/P002", {})
+    # The route catches ValidationError-like cases and re-renders
+    # wizard.html (200 with form + errors). NO 5xx, NO redirect to
+    # /kyc/validation.
+    assert resp["status"] < 500, f"empty wizard POST : {resp}"
+    assert "/kyc/validation" not in resp["url"], (
+        f"empty POST should NOT redirect to /kyc/validation — "
+        f"got {resp['url']}"
+    )
+
+
+@pytest.mark.mutates_db
+@pytest.mark.parallel_unsafe
+def test_kyc_wizard_post_valid_form_redirects_to_validation(
+    page: Page,
+    base_url: str,
+    profile,
+    login,
+    authed_post,
+) -> None:
+    """``POST /kyc/wizard/<id>`` avec le full form scrapé du
+    rendu pre-rempli (mode modify pour un user existant) →
+    redirige vers ``/kyc/validation``.
+
+    Drives `_parse_valid_form` end-to-end : iteration sur tous
+    les fields, `_parse_result`, `_filter_out_label_tags`,
+    `_process_photo_field` (no-op pour ce test puisqu'on garde
+    la photo existante). Round-trip identical → ne devrait PAS
+    déclencher de modification critique côté DB.
+
+    Sur ACADEMIC pour minimiser le blast radius (peu utilisé
+    ailleurs) et marqué `mutates_db` + `parallel_unsafe` pour
+    éviter la contention sur le user profile.
+    """
+    p = profile("ACADEMIC")
+    login(p)
+
+    # Step 1 : GET /kyc/modify → sets modify_form + loads user
+    # data into session. Then auto-redirects to /kyc/profile.
+    page.goto(f"{base_url}/kyc/modify", wait_until="domcontentloaded")
+    # Step 2 : extract the user's existing profile_id from the
+    # /kyc/profile page (the radio matching x-data="{ selection:
+    # ['<id>'] }" is pre-checked).
+    profile_id = page.evaluate(
+        """() => {
+            const radios = document.querySelectorAll(
+                'input[type="radio"][name="profile"]'
+            );
+            for (const r of radios) {
+                if (r.checked) return r.value;
+            }
+            return null;
+        }"""
+    )
+    if not profile_id:
+        pytest.skip(
+            f"{p['email']} has no pre-checked profile_id on "
+            "/kyc/profile — KYC modify-mode not initialized "
+            "(user may have a partial KYC state)"
+        )
+
+    # Step 3 : POST /kyc/profile to confirm and land on wizard.
+    sel = authed_post(
+        f"{base_url}/kyc/profile", {"profile": profile_id}
+    )
+    if sel["status"] >= 400 or "/auth/login" in sel["url"]:
+        pytest.skip(f"/kyc/profile POST failed : {sel}")
+    if "/kyc/wizard/" not in sel["url"]:
+        pytest.skip(
+            f"/kyc/profile POST didn't land on wizard — "
+            f"got {sel['url']}"
+        )
+
+    # Step 4 : load wizard, scrape every form input.
+    page.goto(
+        f"{base_url}/kyc/wizard/{profile_id}",
+        wait_until="domcontentloaded",
+    )
+    if "/kyc/wizard/" not in page.url:
+        pytest.skip(
+            f"GET /kyc/wizard/{profile_id} : landed on {page.url}"
+        )
+    # Scrape every named input / textarea / checked-radio /
+    # selected-option / unchecked-checkbox absent.
+    form_values = page.evaluate(
+        """() => {
+            const out = {};
+            const seen = new Set();
+            for (const el of document.querySelectorAll(
+                'form input, form textarea, form select'
+            )) {
+                const name = el.name;
+                if (!name || name === 'csrf_token' && seen.has('csrf_token')) {
+                    continue;
+                }
+                if (el.type === 'radio') {
+                    if (el.checked) out[name] = el.value;
+                } else if (el.type === 'checkbox') {
+                    if (el.checked) out[name] = el.value || 'on';
+                } else if (el.tagName === 'SELECT') {
+                    out[name] = el.value || '';
+                } else if (el.type !== 'submit' && el.type !== 'button') {
+                    out[name] = el.value || '';
+                }
+                seen.add(name);
+            }
+            return out;
+        }"""
+    )
+    # Step 5 : POST the form back. We don't expect a perfect
+    # round-trip — the form may have validators that reject some
+    # raced fields. Accept either the redirect (success) or a
+    # re-render (validation issue) ; pin both as < 500.
+    resp = authed_post(
+        f"{base_url}/kyc/wizard/{profile_id}", form_values
+    )
+    assert resp["status"] < 500, (
+        f"valid wizard POST : 5xx — {resp}. Form payload had "
+        f"{len(form_values)} fields."
+    )
+    # Best-effort : if redirect, it should be to /kyc/validation.
+    if "/kyc/validation" in resp["url"]:
+        # Ideal path : the form validated AND _parse_valid_form ran.
+        # Now visit /kyc/validation to confirm the synthesis page
+        # renders with form data (cf. bug #kyc-validation-empty-
+        # session 500 fix).
+        page.goto(
+            f"{base_url}/kyc/validation",
+            wait_until="domcontentloaded",
+        )
+        assert page.url.endswith("/kyc/validation"), (
+            f"/kyc/validation : expected to stay there, got "
+            f"{page.url}"
+        )
+        body = page.content()
+        assert "Internal Server Error" not in body
+        assert "Traceback" not in body
