@@ -157,6 +157,7 @@ def register_all(app: Flask) -> None:
     register_coverage(app)
     register_mail_debug(app)
     register_stripe(app)
+    register_stripe_debug(app)
 
     # Register CLI commands
     register_commands(app)
@@ -357,6 +358,18 @@ def register_mail_debug(app: Flask) -> None:
     from app.flask.mail_debug import MailDebug
 
     MailDebug(app)
+
+
+def register_stripe_debug(app: Flask) -> None:
+    """Mount /debug/stripe and monkey-patch ``stripe.checkout.Session.create``
+    to short-circuit Stripe API calls. Fail-closed (debug or
+    ``FLASK_STRIPE_DEBUG_PASSWORD``) — see
+    `app.flask.stripe_debug.StripeDebug.init_app`."""
+    if not (app.debug or os.environ.get("FLASK_STRIPE_DEBUG_PASSWORD")):
+        return
+    from app.flask.stripe_debug import StripeDebug
+
+    StripeDebug(app)
 
 
 def register_extra_apps(app: Flask) -> None:
