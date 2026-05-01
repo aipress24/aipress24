@@ -259,9 +259,17 @@ def make_blueprint() -> Blueprint:
         webhook handler after a checkout flow (since real Stripe
         wouldn't deliver in dev).
 
-        Form params :
-        - ``session_id`` : a captured MockSession id (looked up
-          in the bucket). Defaults to the latest captured session.
+        Two modes :
+        - **From captured session** : pass ``session_id`` (or omit
+          to use the latest captured). Used by the wire purchase
+          path where Stripe call is server-side and intercepted.
+        - **Synthetic** : pass ``synthetic=1`` + form params
+          (``bw_id``, ``mode``, ``customer_email``). Used for
+          client-side checkout flows (BW paid activation via
+          Stripe Pricing Table widget) where no captured session
+          exists.
+
+        Other form params :
         - ``event_type`` : default
           ``"checkout.session.completed"`` ; can be set to any
           handled type from `_EVENT_HANDLER_NAMES` in
@@ -275,24 +283,41 @@ def make_blueprint() -> Blueprint:
         event_type = request.form.get(
             "event_type", "checkout.session.completed"
         )
+        synthetic = request.form.get("synthetic") == "1"
 
         # Resolve the source session.
         src: dict | None = None
-        if session_id:
-            src = next(
-                (s for s in captured if s.get("id") == session_id),
-                None,
-            )
-        elif captured:
-            src = captured[-1]
-        if src is None:
-            return jsonify(
-                {
-                    "error": "no captured session matches session_id",
-                    "session_id": session_id,
-                    "captured_count": len(captured),
-                }
-            ), 404
+        if synthetic:
+            mode = request.form.get("mode", "subscription")
+            bw_id = request.form.get("bw_id", "")
+            customer_email = request.form.get("customer_email", "")
+            metadata: dict = {}
+            if bw_id:
+                metadata["bw_id"] = bw_id
+            src = {
+                "id": f"cs_test_synthetic_{uuid4().hex[:16]}",
+                "mode": mode,
+                "status": "complete",
+                "payment_status": "paid",
+                "customer_email": customer_email,
+                "metadata": metadata,
+            }
+        else:
+            if session_id:
+                src = next(
+                    (s for s in captured if s.get("id") == session_id),
+                    None,
+                )
+            elif captured:
+                src = captured[-1]
+            if src is None:
+                return jsonify(
+                    {
+                        "error": "no captured session matches session_id",
+                        "session_id": session_id,
+                        "captured_count": len(captured),
+                    }
+                ), 404
 
         # Build a minimal-but-realistic event payload. The webhook
         # handler accesses event.type, event.id, event.data.object
@@ -322,7 +347,17 @@ def make_blueprint() -> Blueprint:
                     "amount_total": 1000,
                     "currency": "eur",
                     "payment_intent": f"pi_test_{uuid4().hex[:24]}",
-                    "customer": f"cus_test_{uuid4().hex[:24]}",
+                    # In synthetic mode (BW paid activation tests),
+                    # leave `customer` empty so the cancel-
+                    # subscription cleanup path doesn't bail with
+                    # "go to Stripe portal" (which it does when
+                    # subscription.stripe_customer_id is truthy
+                    # AND STRIPE_LIVE_ENABLED is True).
+                    "customer": (
+                        ""
+                        if synthetic
+                        else f"cus_test_{uuid4().hex[:24]}"
+                    ),
                     "subscription": (
                         f"sub_test_{uuid4().hex[:24]}"
                         if src.get("mode") == "subscription"
