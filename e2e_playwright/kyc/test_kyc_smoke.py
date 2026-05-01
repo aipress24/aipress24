@@ -455,3 +455,26 @@ def test_kyc_wizard_post_valid_form_redirects_to_validation(
         body = page.content()
         assert "Internal Server Error" not in body
         assert "Traceback" not in body
+
+        # Step 6 : GET /kyc/done — drives `export_kyc_data` →
+        # `_update_current_user_data` (logged-in path) →
+        # soit `_minor_modification_validated` (round-trip
+        # identique → pas de critical fields changed), soit
+        # `_modification_validation_required`. Pour ACADEMIC qui
+        # re-postule sa propre data, on est dans le path minor.
+        # Render `thanks.html` ou redirect undone selon gcu.
+        done_resp = page.goto(
+            f"{base_url}/kyc/done",
+            wait_until="domcontentloaded",
+        )
+        assert done_resp is not None
+        # < 500 : pas de db_error.html template crash, pas
+        # d'IntegrityError sur le commit.
+        assert done_resp.status < 500, (
+            f"/kyc/done : 5xx — {done_resp.status}. "
+            "_update_current_user_data ou _minor_modification_"
+            "validated a probablement crashé."
+        )
+        body = page.content()
+        assert "Internal Server Error" not in body
+        assert "Traceback" not in body
