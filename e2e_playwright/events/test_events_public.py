@@ -145,6 +145,66 @@ def test_events_toggle_like_round_trip(
     assert second["status"] < 400, f"second toggle-like : {second}"
 
 
+@pytest.mark.parametrize(
+    ("action", "form_data"),
+    [
+        ("toggle-genre", {"action": "toggle", "id": "genre", "value": "conference"}),
+        ("toggle-sector", {"action": "toggle", "id": "sector", "value": "presse"}),
+        ("toggle-pays", {"action": "toggle", "id": "pays_zip_ville", "value": "FRA"}),
+        ("toggle-departement", {"action": "toggle", "id": "departement", "value": "75"}),
+        ("toggle-ville", {"action": "toggle", "id": "ville", "value": "Paris"}),
+        ("remove-genre", {"action": "remove", "id": "genre", "value": "conference"}),
+        ("sort-date", {"action": "sort-by", "value": "date"}),
+        ("sort-views", {"action": "sort-by", "value": "views"}),
+        ("sort-likes", {"action": "sort-by", "value": "likes"}),
+        ("sort-shares", {"action": "sort-by", "value": "shares"}),
+    ],
+    ids=lambda a: a if isinstance(a, str) else None,
+)
+def test_events_filter_post_action(
+    page: Page,
+    base_url: str,
+    profile,
+    login,
+    authed_post,
+    action: str,
+    form_data: dict,
+) -> None:
+    """``POST /events/`` avec un payload de filtre :
+    drives ``EventsListView.post`` + ``FilterBar.update_state``
+    pour les 3 actions (toggle, remove, sort-by) sur les 5 filter
+    columns + 4 sorters. Hits all branches of `update_state`'s
+    match statement and the helpers
+    `toggle_filter` / `remove_filter` / `sort_by`.
+
+    Read-only sur la DB (filtre côté session uniquement)."""
+    p = profile(_PRESS_MEDIA)
+    login(p)
+    page.goto(f"{base_url}/events/", wait_until="domcontentloaded")
+    resp = authed_post(f"{base_url}/events/", form_data)
+    assert resp["status"] < 400, f"events filter {action} : {resp}"
+    assert "/auth/login" not in resp["url"]
+
+
+def test_events_filter_post_invalid_action_400(
+    page: Page,
+    base_url: str,
+    profile,
+    login,
+    authed_post,
+) -> None:
+    """``POST /events/`` avec un payload qui matche `case _:` →
+    `BadRequest`. Drives the catch-all branch of `update_state`."""
+    p = profile(_PRESS_MEDIA)
+    login(p)
+    page.goto(f"{base_url}/events/", wait_until="domcontentloaded")
+    # No `action` form key → falls through to `case _: raise BadRequest`.
+    resp = authed_post(f"{base_url}/events/", {})
+    assert resp["status"] == 400, (
+        f"events filter no-action : expected 400, got {resp['status']}"
+    )
+
+
 @pytest.mark.mutates_db
 def test_events_post_comment_creates_comment(
     page: Page,
