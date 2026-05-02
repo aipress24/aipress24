@@ -469,4 +469,21 @@ class StripeDebug:
             )
             stripe.Webhook._stripe_debug_patched = True  # type: ignore[attr-defined]
 
+        # Patch the Dramatiq `generate_justificatif` actor so its
+        # `.send()` runs the underlying PDF-generation function
+        # inline rather than enqueueing to Redis (not available in
+        # dev). Same idempotency guard pattern. The patch is
+        # narrowly targeted at this actor — other Dramatiq actors
+        # are unaffected.
+        try:
+            from app.actors.justificatif import generate_justificatif
+
+            if not getattr(
+                generate_justificatif, "_stripe_debug_patched", False
+            ):
+                generate_justificatif.send = generate_justificatif.fn  # type: ignore[method-assign]
+                generate_justificatif._stripe_debug_patched = True  # type: ignore[attr-defined]
+        except ImportError:
+            pass
+
         app.register_blueprint(make_blueprint(), url_prefix="/debug/stripe")
