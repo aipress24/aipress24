@@ -108,16 +108,29 @@ def test_bug_0050_pr_card_renders_direct_pricing_link(
     )
     body = page.content()
 
-    # Post-fix : the PR card has the link to /BW/pricing/pr with
-    # "Activer pour 1 client" wording.
-    assert "/BW/pricing/pr" in body, (
-        "PR card on activation-choice : no direct link to "
-        "/BW/pricing/pr — `skip_pricing_input` may have regressed."
+    # Post-fix : the PR card must NOT render the client-count
+    # input form. Two valid renderings exist :
+    # - Stripe path (`STRIPE_LIVE_ENABLED=True`) → link to
+    #   `/BW/stripe-info/pr` ("Saisir les informations de
+    #   facturation").
+    # - Pre-Stripe path (`STRIPE_LIVE_ENABLED=False`) → link to
+    #   `/BW/pricing/pr` ("Activer pour 1 client") via the
+    #   `skip_pricing_input` branch.
+    # In both modes, the bug #0050 symptom (set_pricing/pr form)
+    # must be absent.
+    has_pricing_link = "/BW/pricing/pr" in body
+    has_stripe_link = "/BW/stripe-info/pr" in body
+    assert has_pricing_link or has_stripe_link, (
+        "PR card on activation-choice : neither /BW/pricing/pr "
+        "nor /BW/stripe-info/pr link present — the card is "
+        "rendering an unexpected variant."
     )
-    assert "Activer pour 1 client" in body, (
-        "PR card : missing 'Activer pour 1 client' wording — "
-        "`pricing_default` may have changed."
-    )
+    if has_pricing_link:
+        # Specific to the skip_pricing_input branch.
+        assert "Activer pour 1 client" in body, (
+            "PR card : missing 'Activer pour 1 client' wording — "
+            "`pricing_default` may have changed."
+        )
 
     # No client-count input form for the PR type. The set_pricing
     # form action would expose `action="/BW/set_pricing/pr"`. If

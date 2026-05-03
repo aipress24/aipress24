@@ -151,6 +151,61 @@ def _patched_construct_event(
     return Event.construct_from(data, "sk_test_mock_inline")
 
 
+# ─── Synthetic resource retrievers ─────────────────────────────────
+
+
+def _patched_customer_retrieve(item_id: str, **kwargs: Any) -> Any:
+    """Synthetic ``stripe.Customer.retrieve`` — returns a Customer-
+    shaped dict. The webhook handler accesses ``customer["email"]``
+    only, so a minimal payload suffices."""
+    from stripe import Customer
+
+    return Customer.construct_from(
+        {
+            "id": item_id,
+            "object": "customer",
+            "email": f"{item_id}@mock-stripe.invalid",
+            "name": "Mock Customer",
+        },
+        "sk_test_mock_inline",
+    )
+
+
+def _patched_product_retrieve(item_id: str, **kwargs: Any) -> Any:
+    """Synthetic ``stripe.Product.retrieve`` — returns a Product
+    with ``metadata.BW`` set to a placeholder so the webhook's
+    ``_check_subscription_product`` falls into the « OTHER » branch
+    (returns True). Tests fire customer.subscription.* events
+    against arbitrary user emails without provisioning a matching
+    BW row, so OTHER is the safe path."""
+    from stripe import Product
+
+    return Product.construct_from(
+        {
+            "id": item_id,
+            "object": "product",
+            "name": f"Mock Product {item_id}",
+            "metadata": {"BW": "other"},
+        },
+        "sk_test_mock_inline",
+    )
+
+
+def _patched_invoice_retrieve(item_id: str, **kwargs: Any) -> Any:
+    """Synthetic ``stripe.Invoice.retrieve`` — minimal payload with
+    a hosted invoice URL placeholder."""
+    from stripe import Invoice
+
+    return Invoice.construct_from(
+        {
+            "id": item_id,
+            "object": "invoice",
+            "hosted_invoice_url": f"https://mock-stripe.invalid/invoice/{item_id}",
+        },
+        "sk_test_mock_inline",
+    )
+
+
 def is_active() -> bool:
     """True when the mock is wired up. Used by tests / debug."""
     try:
@@ -321,50 +376,79 @@ def make_blueprint() -> Blueprint:
 
         # Build a minimal-but-realistic event payload. The webhook
         # handler accesses event.type, event.id, event.data.object
-        # and within the object: id, mode, customer_email,
-        # payment_intent, amount_total, currency, metadata,
-        # client_reference_id, customer, subscription.
+        # and within the object various per-event-type fields.
         event_id = f"evt_test_{uuid4().hex[:24]}"
         raw_metadata = src.get("metadata") or {}
+
+        if event_type.startswith("customer.subscription."):
+            # data.object is a Subscription — populate every field
+            # accessed by `_make_customer_subscription_info` and
+            # `_check_subscription_product`. Customer/Product/
+            # Invoice retrievals are mocked at extension load time.
+            now_ts = int(time.time())
+            sub_id = f"sub_test_{uuid4().hex[:16]}"
+            customer_id = (
+                request.form.get("customer_id")
+                or f"cus_test_{uuid4().hex[:16]}"
+            )
+            data_obj = {
+                "id": sub_id,
+                "object": "subscription",
+                "customer": customer_id,
+                "created": now_ts - 60,
+                "current_period_start": now_ts,
+                "current_period_end": now_ts + 30 * 86400,
+                "quantity": int(request.form.get("quantity", "1")),
+                "status": request.form.get("sub_status", "active"),
+                "plan": {
+                    "id": f"price_mock_{uuid4().hex[:8]}",
+                    "nickname": "BW4PR_Y",
+                    "interval": "month",
+                    "product": f"prod_mock_{uuid4().hex[:8]}",
+                },
+                "latest_invoice": (
+                    f"in_test_{uuid4().hex[:16]}"
+                ),
+            }
+        else:
+            # Default (checkout.session.* + subscription_schedule.*
+            # + unmanaged) : checkout.session-shaped object.
+            data_obj = {
+                "id": src["id"],
+                "object": "checkout.session",
+                "mode": src.get("mode", "payment"),
+                "status": src.get("status", "complete"),
+                "payment_status": src.get(
+                    "payment_status", "paid"
+                ),
+                "customer_email": src.get("customer_email"),
+                "metadata": raw_metadata,
+                "client_reference_id": raw_metadata.get("bw_id"),
+                "amount_total": 1000,
+                "currency": "eur",
+                "payment_intent": f"pi_test_{uuid4().hex[:24]}",
+                # In synthetic mode (BW paid activation tests),
+                # leave `customer` empty so the cancel-
+                # subscription cleanup path doesn't bail with
+                # "go to Stripe portal" (which it does when
+                # subscription.stripe_customer_id is truthy
+                # AND STRIPE_LIVE_ENABLED is True).
+                "customer": (
+                    ""
+                    if synthetic
+                    else f"cus_test_{uuid4().hex[:24]}"
+                ),
+                "subscription": (
+                    f"sub_test_{uuid4().hex[:24]}"
+                    if src.get("mode") == "subscription"
+                    else None
+                ),
+            }
         event_payload = {
             "id": event_id,
             "object": "event",
             "type": event_type,
-            "data": {
-                "object": {
-                    "id": src["id"],
-                    "object": "checkout.session",
-                    "mode": src.get("mode", "payment"),
-                    "status": src.get("status", "complete"),
-                    "payment_status": src.get(
-                        "payment_status", "paid"
-                    ),
-                    "customer_email": src.get("customer_email"),
-                    "metadata": raw_metadata,
-                    "client_reference_id": raw_metadata.get(
-                        "bw_id"
-                    ),
-                    "amount_total": 1000,
-                    "currency": "eur",
-                    "payment_intent": f"pi_test_{uuid4().hex[:24]}",
-                    # In synthetic mode (BW paid activation tests),
-                    # leave `customer` empty so the cancel-
-                    # subscription cleanup path doesn't bail with
-                    # "go to Stripe portal" (which it does when
-                    # subscription.stripe_customer_id is truthy
-                    # AND STRIPE_LIVE_ENABLED is True).
-                    "customer": (
-                        ""
-                        if synthetic
-                        else f"cus_test_{uuid4().hex[:24]}"
-                    ),
-                    "subscription": (
-                        f"sub_test_{uuid4().hex[:24]}"
-                        if src.get("mode") == "subscription"
-                        else None
-                    ),
-                }
-            },
+            "data": {"object": data_obj},
         }
 
         # POST internally to /webhook via the test client.
@@ -468,6 +552,19 @@ class StripeDebug:
                 _patched_construct_event
             )
             stripe.Webhook._stripe_debug_patched = True  # type: ignore[attr-defined]
+
+        # Patch Customer/Product/Invoice retrieve to return synthetic
+        # objects. Used by `customer.subscription.*` event handlers
+        # which call `retrieve_customer`, `retrieve_product`,
+        # `retrieve_invoice` from `services/stripe/retriever.py`.
+        for klass, fn in (
+            (stripe.Customer, _patched_customer_retrieve),
+            (stripe.Product, _patched_product_retrieve),
+            (stripe.Invoice, _patched_invoice_retrieve),
+        ):
+            if not getattr(klass, "_stripe_debug_patched", False):
+                klass.retrieve = staticmethod(fn)  # type: ignore[method-assign]
+                klass._stripe_debug_patched = True  # type: ignore[attr-defined]
 
         # Patch the Dramatiq `generate_justificatif` actor so its
         # `.send()` runs the underlying PDF-generation function
