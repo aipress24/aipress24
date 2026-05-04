@@ -31,6 +31,10 @@ from app.modules.bw.bw_activation.bw_creation import (
 from app.modules.bw.bw_activation.config import BW_TYPES
 from app.modules.bw.bw_activation.models import BWStatus
 from app.modules.bw.bw_activation.user_utils import current_business_wall
+from app.modules.bw.bw_activation.utils import (
+    fill_session,
+    is_bw_manager_or_admin,
+)
 from app.services.stripe.utils import (
     get_stripe_public_key,
     load_pricing_table_id,
@@ -92,14 +96,33 @@ def confirmation_free():
     # firing this handler twice while session["bw_activated"] is
     # still set. Without this guard, `create_new_free_bw_record`
     # would create two BW rows on a single user-visible navigation.
+    #
+    # We require the existing BW to be MANAGED by the current user
+    # — not merely « exists somewhere ». Without this strictness, a
+    # stale `session["bw_id"]` left over from a previous attempt
+    # (or from a different org the user briefly belonged to) made
+    # this idempotency check « find an existing BW » → bail without
+    # creating anything new → user sees « Activation réussie » but
+    # nothing was persisted, then « Accès non autorisé » on the
+    # next click. Ref: bugs #0110, #0115, #0116, #0117.
     user = cast("User", g.user)
     existing = current_business_wall(user)
-    if existing is not None and existing.status != BWStatus.CANCELLED.value:
+    if (
+        existing is not None
+        and existing.status != BWStatus.CANCELLED.value
+        and is_bw_manager_or_admin(user, existing)
+    ):
+        fill_session(existing)
         return render_template(
             "bw_activation/02_activation_gratuit_confirme.html",
             bw_type=bw_type,
             bw_info=bw_info,
         )
+    # Stale `session["bw_id"]` would otherwise prevent a fresh
+    # creation attempt from succeeding. Drop it so the new BW
+    # picked by `current_business_wall(user)` post-creation is the
+    # one we just made.
+    session.pop("bw_id", None)
 
     # here create an actual BW instance
     created = create_new_free_bw_record(session)
@@ -112,6 +135,10 @@ def confirmation_free():
         user = cast("User", g.user)
         current_bw = current_business_wall(user)
         if current_bw is not None:
+            # Pin the new BW into the session so /BW/dashboard
+            # resolves to it directly (instead of falling back to
+            # the org's previously-active BW, which may be stale).
+            fill_session(current_bw)
             org = current_bw.get_organisation()
             if org:
                 change_members_emails(org, f"{user.email}")
@@ -350,6 +377,27 @@ def confirmation_paid():
 
     bw_type = session["bw_type"]
     bw_info = BW_TYPES.get(bw_type, {})
+
+    # Same idempotency guard as `confirmation_free` — if the user
+    # is already the manager of an active BW, just render the
+    # confirmation page (no duplicate creation). Otherwise drop a
+    # potentially-stale `session["bw_id"]` so the new BW resolves
+    # cleanly post-creation. Ref: bug #0116.
+    user = cast("User", g.user)
+    existing = current_business_wall(user)
+    if (
+        existing is not None
+        and existing.status != BWStatus.CANCELLED.value
+        and is_bw_manager_or_admin(user, existing)
+    ):
+        fill_session(existing)
+        return render_template(
+            "bw_activation/03_activation_payant_confirme.html",
+            bw_type=bw_type,
+            bw_info=bw_info,
+        )
+    session.pop("bw_id", None)
+
     # here create an actual BW instance
     created = create_new_paid_bw_record(session)
     warn("paid created", created)
@@ -362,6 +410,7 @@ def confirmation_paid():
         user = cast("User", g.user)
         current_bw = current_business_wall(user)
         if current_bw is not None:
+            fill_session(current_bw)
             org = current_bw.get_organisation()
             if org:
                 change_members_emails(org, f"{user.email}")
