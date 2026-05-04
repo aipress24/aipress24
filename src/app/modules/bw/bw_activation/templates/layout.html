@@ -41,9 +41,15 @@
     {% include '_header.html' %}
     <div class="container mx-auto px-4 py-8">
         {% block breadcrumb %}{% endblock %}
+        {# « Retour vers la plateforme » : visible top + bottom on
+           every BW activation/management page. Ref: bugs #0109,
+           #0111, #0114 — testers were lost in the BW tunnel with
+           no obvious way back to the public site. #}
+        {% include 'bw_activation/_back_to_platform.html' %}
         <main>
             {% block content %}{% endblock %}
         </main>
+        {% include 'bw_activation/_back_to_platform.html' %}
     </div>
     {% include '_footer.html' %}
 </body>

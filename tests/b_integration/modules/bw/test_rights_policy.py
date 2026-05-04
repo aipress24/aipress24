@@ -270,3 +270,128 @@ def test_eligibility_null_snapshot_treated_as_all_subscribed(
     db_session.flush()
 
     assert is_eligible_for_cession(buyer, post) is True
+
+
+# ─── BW Micro as rights holder (bug #0112 follow-up) ────────────
+
+
+def _make_micro_bw(
+    db_session: Session,
+    owner: User,
+    org: Organisation,
+    policy: dict | None = None,
+) -> BusinessWall:
+    """Build an active BW of type ``micro`` — the
+    journalist-in-micro-entreprise scenario where the journalist
+    themselves owns the rights to their content."""
+    bw = BusinessWall(
+        bw_type="micro",
+        status=BWStatus.ACTIVE.value,
+        owner_id=owner.id,
+        payer_id=owner.id,
+        organisation_id=org.id,
+        name=f"Micro Org {uuid.uuid4().hex[:4]}",
+    )
+    if policy is not None:
+        bw.rights_sales_policy = policy
+    db_session.add(bw)
+    db_session.flush()
+    return bw
+
+
+def test_eligibility_buyer_with_micro_bw_can_buy(db_session: Session):
+    """A buyer holding a BW of type ``micro`` is eligible — same
+    as a media-BW buyer."""
+    seller_org = Organisation(name="Seller Media Org")
+    buyer_org = Organisation(name="Buyer Micro Org")
+    db_session.add_all([seller_org, buyer_org])
+    db_session.flush()
+
+    seller = User(email=_unique_email(), active=True)
+    seller.organisation = seller_org
+    seller.organisation_id = seller_org.id
+    buyer = User(email=_unique_email(), active=True)
+    buyer.organisation = buyer_org
+    buyer.organisation_id = buyer_org.id
+    db_session.add_all([seller, buyer])
+    db_session.flush()
+
+    _make_media_bw(db_session, seller, seller_org)
+    _make_micro_bw(db_session, buyer, buyer_org)
+
+    post = ArticlePost(
+        title="t",
+        content="x",
+        owner_id=seller.id,
+        publisher_id=seller.organisation_id,
+        status=PublicationStatus.PUBLIC,
+    )
+    db_session.add(post)
+    db_session.flush()
+
+    # Default snapshot (all_subscribed) → micro-BW buyer is in.
+    assert is_eligible_for_cession(buyer, post) is True
+
+
+def test_eligibility_micro_seller_policy_honoured(
+    db_session: Session,
+):
+    """A journalist with a ``micro`` BW publishes a post ; their
+    rights-sales policy should be honoured by buyers (the
+    `none` option blocks every cession)."""
+    seller_org = Organisation(name="Seller Micro Org")
+    buyer_org = Organisation(name="Buyer Media Org")
+    db_session.add_all([seller_org, buyer_org])
+    db_session.flush()
+
+    seller = User(email=_unique_email(), active=True)
+    seller.organisation = seller_org
+    seller.organisation_id = seller_org.id
+    buyer = User(email=_unique_email(), active=True)
+    buyer.organisation = buyer_org
+    buyer.organisation_id = buyer_org.id
+    db_session.add_all([seller, buyer])
+    db_session.flush()
+
+    seller_bw = _make_micro_bw(db_session, seller, seller_org)
+    _make_media_bw(db_session, buyer, buyer_org)
+
+    seller_bw.rights_sales_policy = {
+        "option": "none",
+        "media_ids": [],
+    }
+    db_session.flush()
+
+    post = ArticlePost(
+        title="t",
+        content="x",
+        owner_id=seller.id,
+        publisher_id=seller.organisation_id,
+        status=PublicationStatus.PUBLIC,
+    )
+    db_session.add(post)
+    db_session.flush()
+
+    assert is_eligible_for_cession(buyer, post) is False
+
+
+def test_eligibility_buyer_without_rights_holder_bw(
+    db_session: Session, seller_and_buyer
+):
+    """A buyer whose only BW is `pr` (not in `_RIGHTS_HOLDER_BW_TYPES`)
+    is NOT eligible. Pins the « only media + micro hold rights » rule."""
+    seller, _, buyer, buyer_bw, _ = seller_and_buyer
+    buyer_bw.bw_type = "pr"
+    db_session.flush()
+
+    post = ArticlePost(
+        title="t",
+        content="x",
+        owner_id=seller.id,
+        publisher_id=seller.organisation_id,
+        status=PublicationStatus.PUBLIC,
+    )
+    db_session.add(post)
+    db_session.flush()
+
+    assert is_eligible_for_cession(buyer, post) is False
