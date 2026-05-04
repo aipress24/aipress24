@@ -58,7 +58,7 @@ class GroupsList(BaseList):
 class FilterByCategory(Filter):
     id = "category"
     label = "Categorie"
-    options: ClassVar[list[str]] = []
+    options: ClassVar[list[str]] = []  # ty:ignore[invalid-attribute-override]
 
     def apply(self, stmt, state):
         return stmt
@@ -67,7 +67,7 @@ class FilterByCategory(Filter):
 class FilterBySector(Filter):
     id = "sector"
     label = "Secteur"
-    options: ClassVar = [
+    options: ClassVar = [  # ty:ignore[invalid-attribute-override]
         "Secteur 1",
         "Secteur 2",
         "Secteur 3",

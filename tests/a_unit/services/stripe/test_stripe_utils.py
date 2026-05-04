@@ -156,29 +156,21 @@ class TestLoadPricingTableId:
         app.config.pop("STRIPE_PRICING_SUBS_LEADERS_EXPERTS", None)
         app.config["STRIPE_PRICING_SUBS_ORGANISATION"] = "prctbl_org_legacy"
         with app.app_context():
-            assert (
-                load_pricing_table_id("LEADERS_EXPERTS")
-                == "prctbl_org_legacy"
-            )
+            assert load_pricing_table_id("LEADERS_EXPERTS") == "prctbl_org_legacy"
 
     def test_returns_transformers_legacy_fallback(self, app):
         """TRANSFORMERS falls back to legacy ORGANISATION key."""
         app.config.pop("STRIPE_PRICING_SUBS_TRANSFORMERS", None)
         app.config["STRIPE_PRICING_SUBS_ORGANISATION"] = "prctbl_org_legacy"
         with app.app_context():
-            assert (
-                load_pricing_table_id("TRANSFORMERS") == "prctbl_org_legacy"
-            )
+            assert load_pricing_table_id("TRANSFORMERS") == "prctbl_org_legacy"
 
     def test_returns_corporate_media_legacy_fallback(self, app):
         """CORPORATE_MEDIA falls back to legacy CORPORATE key."""
         app.config.pop("STRIPE_PRICING_SUBS_CORPORATE_MEDIA", None)
         app.config["STRIPE_PRICING_SUBS_CORPORATE"] = "prctbl_corp_legacy"
         with app.app_context():
-            assert (
-                load_pricing_table_id("CORPORATE_MEDIA")
-                == "prctbl_corp_legacy"
-            )
+            assert load_pricing_table_id("CORPORATE_MEDIA") == "prctbl_corp_legacy"
 
     def test_returns_academics_pricing(self, app):
         """ACADEMICS uses modern key (no legacy fallback)."""

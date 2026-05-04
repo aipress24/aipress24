@@ -25,9 +25,7 @@ if TYPE_CHECKING:
     from flask_sqlalchemy import SQLAlchemy
 
 
-def _mk_user(
-    db: SQLAlchemy, *, email: str, organisation_id: int | None = None
-) -> User:
+def _mk_user(db: SQLAlchemy, *, email: str, organisation_id: int | None = None) -> User:
     user = User(
         email=email,
         first_name="X",
@@ -43,9 +41,7 @@ def _mk_user(
 class TestNotifyClientOfPRPublication:
     """Cover the early-return / no-recipient branches."""
 
-    def test_skipped_when_author_same_org_as_client(
-        self, db: SQLAlchemy
-    ) -> None:
+    def test_skipped_when_author_same_org_as_client(self, db: SQLAlchemy) -> None:
         """No mail sent when author belongs to the client org
         (it's a self-publication, not a PR-agency-on-behalf
         scenario)."""
@@ -58,8 +54,7 @@ class TestNotifyClientOfPRPublication:
             organisation_id=org.id,
         )
         with patch(
-            "app.modules.wip.services.pr_notifications."
-            "PRPublicationNotificationMail"
+            "app.modules.wip.services.pr_notifications.PRPublicationNotificationMail"
         ) as mail_cls:
             notify_client_of_pr_publication(
                 author=author,
@@ -70,9 +65,7 @@ class TestNotifyClientOfPRPublication:
             )
         mail_cls.assert_not_called()
 
-    def test_skipped_when_no_owner_email_resolvable(
-        self, db: SQLAlchemy
-    ) -> None:
+    def test_skipped_when_no_owner_email_resolvable(self, db: SQLAlchemy) -> None:
         """`_pick_bw_owner_email` returns "" → no mail sent."""
         author_org = Organisation(name="Author Org")
         client_org = Organisation(name="Client Org with no member")
@@ -85,8 +78,7 @@ class TestNotifyClientOfPRPublication:
         )
         # client_org has no members and no BW → resolver returns "".
         with patch(
-            "app.modules.wip.services.pr_notifications."
-            "PRPublicationNotificationMail"
+            "app.modules.wip.services.pr_notifications.PRPublicationNotificationMail"
         ) as mail_cls:
             notify_client_of_pr_publication(
                 author=author,
@@ -101,18 +93,14 @@ class TestNotifyClientOfPRPublication:
 class TestPickBwOwnerEmail:
     """Cover `_pick_bw_owner_email` resolver branches."""
 
-    def test_returns_empty_string_when_no_bw_no_members(
-        self, db: SQLAlchemy
-    ) -> None:
+    def test_returns_empty_string_when_no_bw_no_members(self, db: SQLAlchemy) -> None:
         """Org without BW and without members → returns ""."""
         org = Organisation(name="Empty Org")
         db.session.add(org)
         db.session.flush()
         assert _pick_bw_owner_email(org) == ""
 
-    def test_falls_back_to_first_active_member_when_no_bw(
-        self, db: SQLAlchemy
-    ) -> None:
+    def test_falls_back_to_first_active_member_when_no_bw(self, db: SQLAlchemy) -> None:
         """No BW → fallback to first active member's email."""
         org = Organisation(name="Org No BW")
         db.session.add(org)
@@ -129,9 +117,7 @@ class TestPickBwOwnerEmail:
         ):
             assert _pick_bw_owner_email(org) == member.email
 
-    def test_skips_inactive_members_in_fallback(
-        self, db: SQLAlchemy
-    ) -> None:
+    def test_skips_inactive_members_in_fallback(self, db: SQLAlchemy) -> None:
         """Inactive members are skipped — returns "" if no active
         ones exist."""
         org = Organisation(name="Org Inactive Members")
@@ -154,9 +140,7 @@ class TestPickBwOwnerEmail:
         ):
             assert _pick_bw_owner_email(org) == ""
 
-    def test_returns_bw_owner_email_when_resolvable(
-        self, db: SQLAlchemy
-    ) -> None:
+    def test_returns_bw_owner_email_when_resolvable(self, db: SQLAlchemy) -> None:
         """When the BW has an owner with an email, return that
         email (preferred path)."""
         org = Organisation(name="Org With BW")

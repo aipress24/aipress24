@@ -115,11 +115,14 @@ class MockSession:
         }
 
 
-def _patched_session_create(*args: Any, **kwargs: Any) -> MockSession:
+def _patched_session_create(*_args: Any, **kwargs: Any) -> MockSession:
     """Replacement for ``stripe.checkout.Session.create`` when the
     mock is active. Returns a ``MockSession`` whose ``.url`` is the
     caller-provided ``success_url`` — when the app redirects to it,
-    the user immediately lands on the success handler."""
+    the user immediately lands on the success handler.
+
+    Positional args are accepted to match Stripe's API (the SDK
+    accepts both styles) but only kwargs are read."""
     session = MockSession(**kwargs)
     bucket = _bucket_for(_request_worker())
     with _lock:
@@ -128,7 +131,11 @@ def _patched_session_create(*args: Any, **kwargs: Any) -> MockSession:
 
 
 def _patched_construct_event(
-    payload: bytes | str, sig_header: str | None, secret: str, *args: Any, **kwargs: Any
+    payload: bytes | str,
+    _sig_header: str | None,
+    _secret: str,
+    *_args: Any,
+    **_kwargs: Any,
 ) -> Any:
     """Replacement for ``stripe.Webhook.construct_event`` when the
     mock is active : skip the HMAC signature verification entirely
@@ -136,6 +143,10 @@ def _patched_construct_event(
     payload to ``/webhook`` with any (or no) ``Stripe-Signature``
     header — the webhook handler accepts it and runs the full
     event-dispatch chain.
+
+    The signature / secret arguments are kept on the function
+    signature (prefixed with `_`) only to match Stripe's
+    ``construct_event`` API — the mock intentionally ignores them.
 
     Safe : guarded by ``STRIPE_DEBUG_ACTIVE`` config flag (set only
     when the mock extension is registered, which itself is
@@ -308,7 +319,7 @@ def make_blueprint() -> Blueprint:
         )
 
     @bp.route("/fire-webhook", methods=["POST"])
-    def fire_webhook() -> Response:
+    def fire_webhook() -> Response | tuple[Response, int]:
         """Build a synthetic Stripe webhook event and POST it
         internally to ``/webhook``. Tests use this to drive the
         webhook handler after a checkout flow (since real Stripe
@@ -335,9 +346,7 @@ def make_blueprint() -> Blueprint:
         worker = _request_worker()
         captured = sessions(worker)
         session_id = request.form.get("session_id", "")
-        event_type = request.form.get(
-            "event_type", "checkout.session.completed"
-        )
+        event_type = request.form.get("event_type", "checkout.session.completed")
         synthetic = request.form.get("synthetic") == "1"
 
         # Resolve the source session.
@@ -388,8 +397,7 @@ def make_blueprint() -> Blueprint:
             now_ts = int(time.time())
             sub_id = f"sub_test_{uuid4().hex[:16]}"
             customer_id = (
-                request.form.get("customer_id")
-                or f"cus_test_{uuid4().hex[:16]}"
+                request.form.get("customer_id") or f"cus_test_{uuid4().hex[:16]}"
             )
             data_obj = {
                 "id": sub_id,
@@ -406,9 +414,7 @@ def make_blueprint() -> Blueprint:
                     "interval": "month",
                     "product": f"prod_mock_{uuid4().hex[:8]}",
                 },
-                "latest_invoice": (
-                    f"in_test_{uuid4().hex[:16]}"
-                ),
+                "latest_invoice": (f"in_test_{uuid4().hex[:16]}"),
             }
         else:
             # Default (checkout.session.* + subscription_schedule.*
@@ -418,9 +424,7 @@ def make_blueprint() -> Blueprint:
                 "object": "checkout.session",
                 "mode": src.get("mode", "payment"),
                 "status": src.get("status", "complete"),
-                "payment_status": src.get(
-                    "payment_status", "paid"
-                ),
+                "payment_status": src.get("payment_status", "paid"),
                 "customer_email": src.get("customer_email"),
                 "metadata": raw_metadata,
                 "client_reference_id": raw_metadata.get("bw_id"),
@@ -433,11 +437,7 @@ def make_blueprint() -> Blueprint:
                 # "go to Stripe portal" (which it does when
                 # subscription.stripe_customer_id is truthy
                 # AND STRIPE_LIVE_ENABLED is True).
-                "customer": (
-                    ""
-                    if synthetic
-                    else f"cus_test_{uuid4().hex[:24]}"
-                ),
+                "customer": ("" if synthetic else f"cus_test_{uuid4().hex[:24]}"),
                 "subscription": (
                     f"sub_test_{uuid4().hex[:24]}"
                     if src.get("mode") == "subscription"
@@ -533,9 +533,7 @@ class StripeDebug:
         # Set a placeholder STRIPE_WEBHOOK_SECRET so the webhook
         # handler doesn't `raise ValueError` on the missing-secret
         # check before we get to the construct_event monkey-patch.
-        app.config.setdefault(
-            "STRIPE_WEBHOOK_SECRET", "whsec_mock_inline"
-        )
+        app.config.setdefault("STRIPE_WEBHOOK_SECRET", "whsec_mock_inline")
 
         # Monkey-patch the Stripe SDK. Idempotent : a second
         # init_app on the same process is a no-op.
@@ -575,9 +573,7 @@ class StripeDebug:
         try:
             from app.actors.justificatif import generate_justificatif
 
-            if not getattr(
-                generate_justificatif, "_stripe_debug_patched", False
-            ):
+            if not getattr(generate_justificatif, "_stripe_debug_patched", False):
                 generate_justificatif.send = generate_justificatif.fn  # type: ignore[method-assign]
                 generate_justificatif._stripe_debug_patched = True  # type: ignore[attr-defined]
         except ImportError:

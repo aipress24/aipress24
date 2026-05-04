@@ -6,9 +6,10 @@ from __future__ import annotations
 
 import importlib.metadata
 
-from flask import Flask, current_app, g, redirect, request
+from flask import Flask, current_app, g, redirect, request, session
 from flask_login import current_user
 from flask_security.core import AnonymousUser
+from flask_security.signals import user_authenticated
 from svcs.flask import container
 from werkzeug.exceptions import NotFound, Unauthorized
 
@@ -25,6 +26,17 @@ from app.settings import get_settings
 
 TIMEOUT = 5
 
+# Session keys whose prefix indicates per-module UI state (search
+# filters, active tab, sort, etc). Cleared at every login so a
+# user never inherits the previous occupant's view of a list.
+# Ref: bug #0118 — events filter persisted across users.
+_PER_USER_SESSION_KEY_PREFIXES: tuple[str, ...] = (
+    "events:",
+    "wire:",
+    "swork:",
+    "biz:",
+)
+
 
 def register_hooks(app: Flask) -> None:
     app.before_request(inject_extensions)
@@ -32,9 +44,24 @@ def register_hooks(app: Flask) -> None:
     app.before_request(doorman.check_access)
     app.context_processor(inject_extra_context)
     app.errorhandler(Unauthorized)(handle_authentication_error)
+    user_authenticated.connect(_clear_per_user_session_state, app)
 
     # app.after_request(dump_session)
     # template_rendered.connect_via(app)(log_template_info)
+
+
+def _clear_per_user_session_state(_sender, **_kwargs) -> None:
+    """Drop all `<module>:<key>` session entries on login.
+
+    Flask-Security keeps the same browser session cookie when one
+    user logs out and another logs in (only the auth identifiers
+    are rotated). Without this hook, UI state stored under module
+    prefixes (e.g. `events:state`, `wire:tab`) would leak between
+    users sharing a browser.
+    """
+    for key in list(session.keys()):
+        if key.startswith(_PER_USER_SESSION_KEY_PREFIXES):
+            session.pop(key, None)
 
 
 def inject_extensions() -> None:
