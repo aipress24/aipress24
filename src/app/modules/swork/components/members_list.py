@@ -103,7 +103,7 @@ class FilterByJobTitle(Filter):
     id = "job_title"
     label = "Fonction"
     selector = "job_title"
-    options: ClassVar[list[str]] = []
+    options: ClassVar[list[str]] = []  # ty:ignore[invalid-attribute-override]
 
     def apply(self, stmt, state):
         active_options = self.active_options(state)
@@ -118,7 +118,7 @@ class FilterByJobTitle(Filter):
 class FilterByTypeOrganisation(Filter):
     id = "type_organisation"
     label = "Type Organisation"
-    options: ClassVar[list[str]] = []
+    options: ClassVar[list[str]] = []  # ty:ignore[invalid-attribute-override]
 
     def __init__(self, objects: list | None = None) -> None:
         if not objects:
@@ -148,7 +148,7 @@ class FilterByTypeOrganisation(Filter):
 class FilterByTypeEntrepriseMedia(Filter):
     id = "type_entreprise_media"
     label = "Type entreprise presse et média"
-    options: ClassVar[list[str]] = []
+    options: ClassVar[list[str]] = []  # ty:ignore[invalid-attribute-override]
 
     def __init__(self, objects: list | None = None) -> None:
         if not objects:
@@ -178,7 +178,7 @@ class FilterByTypeEntrepriseMedia(Filter):
 class FilterByTypePresseEtMedia(Filter):
     id = "type_presse_et_media"
     label = "Type presse & média"
-    options: ClassVar[list[str]] = []
+    options: ClassVar[list[str]] = []  # ty:ignore[invalid-attribute-override]
 
     def __init__(self, objects: list | None = None) -> None:
         if not objects:
@@ -208,7 +208,7 @@ class FilterByTypePresseEtMedia(Filter):
 class FilterByTypeAgenceRP(Filter):
     id = "type_agence_rp"
     label = "Types de PR Agencies"
-    options: ClassVar[list[str]] = []
+    options: ClassVar[list[str]] = []  # ty:ignore[invalid-attribute-override]
 
     def __init__(self, objects: list | None = None) -> None:
         if not objects:
@@ -248,7 +248,7 @@ def _taille_orga_label(value: str) -> str:
 class FilterByTailleOrganisation(Filter):
     id = "taille_organisation"
     label = "Tailles d’organisation"
-    options: ClassVar[list[str | FilterOption]] = []
+    options: ClassVar[list[str | FilterOption]] = []  # ty:ignore[invalid-attribute-override]
 
     def __init__(self, objects: list | None = None) -> None:
         if not objects:
@@ -291,7 +291,7 @@ class FilterByTailleOrganisation(Filter):
 class FilterBySecteurActivite(Filter):
     id = "secteur_activite"
     label = "Secteur activité"
-    options: ClassVar[list[str]] = []
+    options: ClassVar[list[str]] = []  # ty:ignore[invalid-attribute-override]
 
     def __init__(self, objects: list | None = None) -> None:
         if not objects:
@@ -334,7 +334,7 @@ class FilterBySecteurActivite(Filter):
 class FilterByCompetencesGenerales(Filter):
     id = "competences_generales"
     label = "Compétences générales"
-    options: ClassVar[list[str]] = []
+    options: ClassVar[list[str]] = []  # ty:ignore[invalid-attribute-override]
 
     def __init__(self, objects: list | None = None) -> None:
         if not objects:
@@ -362,7 +362,7 @@ class FilterByCompetencesGenerales(Filter):
 class FilterByCompetencesJournalisme(Filter):
     id = "competences_journalisme"
     label = "Compétences journalisme"
-    options: ClassVar[list[str]] = []
+    options: ClassVar[list[str]] = []  # ty:ignore[invalid-attribute-override]
 
     def __init__(self, objects: list | None = None) -> None:
         if not objects:
@@ -392,7 +392,7 @@ class FilterByCompetencesJournalisme(Filter):
 class FilterByTransformationsMajeures(Filter):
     id = "transformations_majeures"
     label = "Transformations majeures"
-    options: ClassVar[list[str]] = []
+    options: ClassVar[list[str]] = []  # ty:ignore[invalid-attribute-override]
 
     def __init__(self, objects: list | None = None) -> None:
         if not objects:
