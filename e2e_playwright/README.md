@@ -11,6 +11,9 @@ make test-e2e-local            # http://127.0.0.1:5000
 # Local dev server, full (includes 169-profile login smoke, ~10 min)
 make test-e2e-local-full
 
+# Single module — much faster, default MOD=wip
+make test-e2e MOD=bw           # or: common, infra, wip, wire, admin, security
+
 # Production, quick
 PROD_URL=https://aipress24.com make test-e2e-prod
 
@@ -18,27 +21,57 @@ PROD_URL=https://aipress24.com make test-e2e-prod
 PROD_URL=https://aipress24.com make test-e2e-prod-full
 ```
 
+## Layout
+
+Tests are grouped by application module so a session can target one layer at a time. Fixtures live in the root `conftest.py` and are inherited by every subdir.
+
+```
+e2e_playwright/
+├── conftest.py            # shared fixtures (login, profile, mail_outbox, …)
+├── admin/      test_admin_coverage.py
+├── bw/         test_bw_coverage.py + test_bw_lifecycle.py + test_bw_wizard.py
+├── common/     test_all_profiles_smoke.py + test_authorization_matrix.py
+│                + test_communities.py + test_deep_navigation.py
+│                + test_functional_coverage.py
+├── infra/      test_mail_harness.py + test_upload_limits.py
+├── security/   test_auth_flows.py
+├── wip/        test_avis_lifecycle.py + test_wip_lifecycle.py + test_wip_subpages.py
+└── wire/       test_paywall_ui.py
+```
+
+New module dirs (`kyc/`, `swork/`, `biz/`, `events/`, `stripe/`, `notifications/`, `preferences/`, `public/`, `api/`) are added as the plan in `local-notes/plans/e2e-tests-playwright.md` progresses.
+
 ## Test layers
 
-| File | Layer | Mode | Notes |
-|---|---|---|---|
-| `test_auth_flows.py` | auth | read-only | login + logout + password-reset *form* (no token consumption) |
-| `test_communities.py` | menu visibility | read-only | sidebar matrix per community (5 communities × 3 labels) |
-| `test_authorization_matrix.py` | URL gates (negative) | read-only | `/wip/newsroom`, `/wip/comroom`, `/admin/` reject the wrong audience |
-| `test_functional_coverage.py` | URL gates (positive) | read-only | each community can open every common surface (Wire, Events, Biz, Swork, …) plus its own authoring space |
-| `test_paywall_ui.py` | paywall surface | read-only | renders paywalled-article aside + asserts buy buttons are wired (no click-through to Stripe) |
-| `test_upload_limits.py` | upload size limit | read-only | targets `/tests/upload` (drains body, no DB write) ; verifies a small upload succeeds and an oversized one returns 413 |
-| `test_all_profiles_smoke.py` | credential smoke | read-only, **slow** | logs in *every* CSV profile (~5 minutes) |
+| Sub-dir | Layer | Mode |
+|---|---|---|
+| `security/test_auth_flows.py` | auth | read-only |
+| `common/test_communities.py` | menu visibility | read-only |
+| `common/test_authorization_matrix.py` | URL gates (negative) | read-only |
+| `common/test_functional_coverage.py` | URL gates (positive) | read-only |
+| `common/test_deep_navigation.py` | deep GET crawl | read-only |
+| `common/test_all_profiles_smoke.py` | credential smoke | read-only, **slow** |
+| `infra/test_mail_harness.py` | `/debug/mail/*` smoke | read-only |
+| `infra/test_upload_limits.py` | upload size limit | read-only |
+| `wire/test_paywall_ui.py` | paywall surface | read-only |
+| `wip/test_wip_subpages.py` | WIP detail pages | read-only |
+| `wip/test_wip_lifecycle.py` | publish/unpublish toggle | mutates_db |
+| `wip/test_avis_lifecycle.py` | RDV state machine multi-user | mutates_db |
+| `bw/test_bw_coverage.py` | BW URL surfaces | read-only |
+| `bw/test_bw_lifecycle.py` | partnership + role-invitation lifecycles | mutates_db |
+| `bw/test_bw_wizard.py` | full free-activation wizard | mutates_db |
+| `admin/test_admin_coverage.py` | admin URL surfaces | mostly read-only |
 
 ## Markers
 
 - `slow` — long-running (the 169-profile smoke). Skipped from `make test-e2e-local` / `test-e2e-prod`. Included in the `-full` variants.
+- `mutates_db` — tests that perform writes. Auto-skipped against the prod target (see `_block_db_writes_on_prod` in `conftest.py`).
 
-Run a single layer manually :
+Run a single file manually :
 
 ```bash
 pytest -v --browser firefox --base-url=http://127.0.0.1:5000 \
-    e2e_playwright/test_authorization_matrix.py
+    e2e_playwright/common/test_authorization_matrix.py
 ```
 
 ## Test profiles

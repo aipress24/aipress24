@@ -26,6 +26,7 @@ Parametrized fixtures :
 from __future__ import annotations
 
 import csv
+import os
 import re
 from collections.abc import Callable
 from pathlib import Path
@@ -119,6 +120,16 @@ def pytest_configure(config):
         "mutates_db: tests that write to the database — auto-skipped "
         "against the prod target.",
     )
+    config.addinivalue_line(
+        "markers",
+        "parallel_unsafe: tests that contend on shared seed-user "
+        "state (password, pending email change, in-flight Stripe "
+        "subscription, …) and must run sequentially. With "
+        "pytest-xdist : `pytest -n auto -m 'not parallel_unsafe'` "
+        "for the parallel pass, then `pytest -m parallel_unsafe` "
+        "for the serial pass. Until a multi-tenant fixture pool "
+        "(Sprint 7 phase B) lands.",
+    )
 
 
 def pytest_generate_tests(metafunc):
@@ -178,6 +189,17 @@ def authed_post(page: Page) -> Callable[[str, dict[str, str]], dict]:
     return _post
 
 
+def _worker_id() -> str:
+    """Return the pytest-xdist worker id (``gw0``, ``gw1``, ...) or
+    ``"default"`` for sequential runs.
+
+    The buffer in ``app.flask.mail_debug`` is keyed on this so
+    parallel workers don't cross-pollute. The same id rides on
+    every page request via the ``X-Mail-Worker`` header (set on the
+    BrowserContext via ``context_args``)."""
+    return os.environ.get("PYTEST_XDIST_WORKER", "") or "default"
+
+
 class MailOutbox:
     """Helper for the ``mail_outbox`` fixture. Wraps the
     ``/debug/mail/*`` HTTP surface.
@@ -185,23 +207,34 @@ class MailOutbox:
     The endpoints are gated only on debug mode (no login required),
     so we can use ``page.request`` here — its quirky separate cookie
     jar that bites authenticated routes elsewhere is irrelevant for
-    /debug/mail."""
+    /debug/mail.
+
+    Per-worker isolation : each request carries the ``X-Mail-Worker``
+    header so the server's ``EmailBackend`` and the
+    ``/debug/mail/{messages,reset}`` endpoints route to a per-worker
+    bucket. Required for ``pytest-xdist -n auto`` parallel runs."""
 
     def __init__(self, page: Page, base_url: str) -> None:
         self._page = page
         self._base = base_url
+        self._headers = {
+            "Accept": "application/json",
+            "X-Mail-Worker": _worker_id(),
+        }
 
     def reset(self) -> None:
-        """Clear the captured-mail buffer."""
+        """Clear the captured-mail buffer for this worker."""
         self._page.request.post(
             f"{self._base}/debug/mail/reset",
-            headers={"Accept": "application/json"},
+            headers=self._headers,
         )
 
     def messages(self) -> list[dict]:
-        """Return the current list of captured messages."""
+        """Return the current list of captured messages for this
+        worker."""
         resp = self._page.request.get(
-            f"{self._base}/debug/mail/messages"
+            f"{self._base}/debug/mail/messages",
+            headers={"X-Mail-Worker": _worker_id()},
         )
         return resp.json()
 
@@ -238,6 +271,39 @@ def authed_get(page: Page) -> Callable[[str], dict]:
         return page.evaluate(js, url)
 
     return _get
+
+
+@pytest.fixture(scope="session")
+def tiny_jpeg_bytes() -> bytes:
+    """A 4×4 red JPEG, generated once per session via PIL.
+
+    Used as upload payload by tests that drive image-upload routes
+    (BW configure-content / configure-gallery, KYC logo upload, etc.).
+    Tiny enough to keep request bodies small ; valid enough that
+    the server-side `extract_image_from_request` round-trip + S3
+    save succeeds."""
+    import io
+
+    from PIL import Image
+
+    img = Image.new("RGB", (4, 4), color=(255, 0, 0))
+    buf = io.BytesIO()
+    img.save(buf, format="JPEG", quality=80)
+    return buf.getvalue()
+
+
+@pytest.fixture(scope="session")
+def tiny_jpeg_data_url(tiny_jpeg_bytes: bytes) -> str:
+    """Base64 data-URL form of `tiny_jpeg_bytes`.
+
+    Routes that mount cropper.js widgets accept the cropped image as
+    `request.form.get(<name>)` with content `data:image/jpeg;base64,…`
+    — see `app.lib.image_utils.extract_image_from_request`. Sending a
+    data-URL avoids juggling multipart in `fetch` and works through
+    `authed_post` directly."""
+    import base64
+
+    return f"data:image/jpeg;base64,{base64.b64encode(tiny_jpeg_bytes).decode('ascii')}"
 
 
 @pytest.fixture(scope="session")
@@ -314,6 +380,32 @@ def _bump_navigation_timeout(page: Page) -> None:
     """
     page.set_default_navigation_timeout(45_000)
     page.set_default_timeout(15_000)
+
+
+@pytest.fixture(autouse=True)
+def _abort_vite_dev_assets(page: Page) -> None:
+    """Block ``http://localhost:3000`` (the Vite dev server) at the
+    Playwright network layer.
+
+    The app templates emit ``<script src="http://localhost:3000/
+    @vite/client">`` and ``<script src="http://localhost:3000/main.js">``
+    in dev mode. Vite serves a recursive ES-module graph (each
+    `import` is a separate HTTP request, plus an HMR websocket per
+    page). After 20+ Playwright contexts in a single run, Firefox's
+    resource scheduler ends up serializing scripts behind older
+    HMR sockets, blocking ``domcontentloaded`` indefinitely on heavy
+    pages — verified by direct curl returning the same HTML in
+    130 ms while the browser hangs past 180 s.
+
+    Aborting these requests fail-fast lets DCL fire as soon as the
+    HTML is parsed. Tests don't need hot-module-reload ; they only
+    need the rendered DOM, the inline ``<style>`` block, and the
+    non-Vite scripts (htmx, alpine, choices.js, tom-select) which
+    are already inlined or served by the Flask blueprint.
+    """
+    page.route(
+        "**://localhost:3000/**", lambda route: route.abort()
+    )
 
 
 _LOGIN_URL_RE = re.compile(r".*/auth/login.*")
@@ -443,5 +535,14 @@ def _profiles_loaded_on_target(base_url, profiles):
 
 @pytest.fixture(scope="session")
 def context_args() -> dict:
-    """Tighter timeouts than the pytest-playwright defaults."""
-    return {"java_script_enabled": True, "ignore_https_errors": False}
+    """Per-context options for the BrowserContext.
+
+    Adds ``X-Mail-Worker`` to every HTTP request the page makes so
+    the server-side mail buffer is namespaced per pytest-xdist
+    worker (cf. `app/flask/mail_debug.py`). Without this, parallel
+    workers would cross-pollute the shared in-process buffer."""
+    return {
+        "java_script_enabled": True,
+        "ignore_https_errors": False,
+        "extra_http_headers": {"X-Mail-Worker": _worker_id()},
+    }

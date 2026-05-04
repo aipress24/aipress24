@@ -80,6 +80,18 @@ def test_avis_rdv_full_lifecycle(
     def post(url: str, body: str) -> dict:
         return page.evaluate(js_post, {"url": url, "body": body})
 
+    # ----- step 0 : normalise RDV state to NO_RDV ------------------
+    # If a previous run failed mid-flight, the contact may sit in
+    # PROPOSED/ACCEPTED/CONFIRMED. rdv-cancel resets to NO_RDV when
+    # one of those is true ; flashes "no RDV to cancel" and redirects
+    # otherwise (idempotent either way). Done as journalist so the
+    # cancel handler sees the right "current_user" branch.
+    login(journalist)
+    post(
+        f"{base_url}/wip/avis-enquete/{AVIS_ID}/rdv-cancel/{CONTACT_ID}",
+        "",
+    )
+
     # ----- step 1 : expert responds OUI on the opportunity --------
     login(expert)
     mail_outbox.reset()
