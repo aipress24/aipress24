@@ -3,24 +3,41 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
-"""Run the Playwright e2e suite with a fresh, properly-configured
-dev server.
+"""Run the Playwright e2e suite against a foreground dev server.
 
-Why a wrapper script ?
+Server lifecycle
+----------------
 
-- The Werkzeug dev server (``flask --debug run --reload``) is only
-  marginally threaded. Under sustained Playwright load (many
-  parallel sub-resources per page, htmx / Vite / debug-toolbar
-  scripts, websockets), it serializes badly enough that
-  ``domcontentloaded`` can stall arbitrarily long. Starting a
-  fresh server right before the run and tearing it down right
-  after eliminates the « long-running dev server accumulating
-  state » class of flakiness.
+- **First run** — spawns ``make run`` (honcho + Procfile-dev),
+  waits for ``/auth/login`` to answer, runs pytest, then **blocks
+  in foreground** holding the server. The user can re-run pytest
+  in another terminal (``run_e2e.py --no-server <args>``), tail
+  the server log, etc. Ctrl-C in this terminal triggers a clean
+  SIGTERM to the whole honcho/vite/backend process group.
+- **Subsequent runs** (server already up) — detects the running
+  server and reuses it, skipping the ~30 s cold boot. The script
+  exits as soon as pytest finishes ; ownership stays with the
+  process that spawned the server.
+- **--no-server** — refuses to start if the server isn't already
+  up. Useful for iterating with a server kept up by another
+  ``run_e2e.py`` instance, or by ``make run`` in another tab.
+
+Why foreground supervision ? The `make run` ergonomic — one
+script holds the server, you Ctrl-C to stop everything, no leaked
+processes. But you also want tests to run automatically up front,
+without a second window.
+
+Why this script and not raw ``pytest`` ?
+
 - Coverage tracking needs ``COVERAGE_PROCESS_START`` to point at
   ``pyproject.toml`` so subprocess coverage works (used by
   flask-coverage).
-- Pytest needs a stack of CLI flags (`--base-url`, `--browser`,
-  rerun policy, …) that are tedious to type each time.
+- Pytest needs a stack of CLI flags (``--base-url``,
+  ``--browser``, rerun policy, …) that are tedious to type each
+  time.
+- Server logs go to a timestamped file
+  (``local-notes/e2e-logs/<run_id>/server.log``) so the live
+  pytest feed doesn't mix with backend output.
 
 Usage
 -----
@@ -42,7 +59,7 @@ Usage
     # Run on chromium instead.
     uv run scripts/run_e2e.py --browser=chromium
 
-    # Reuse an already-running dev server (no spawn / no teardown).
+    # Force « no spawn » mode (errors if no server is up).
     uv run scripts/run_e2e.py --no-server
 
     # Stop on first failure (mirrors `pytest -x`).
@@ -91,52 +108,89 @@ def main() -> int:
     print(f"[run_e2e] logs : {run_dir}/", file=sys.stderr)
 
     server_proc: subprocess.Popen | None = None
-    server_tee: _Tee | None = None
-    try:
-        if not args.no_server:
-            if _server_already_up(base_url):
-                print(
-                    f"[run_e2e] {base_url} already responding ; "
-                    "use --no-server to opt-in to reuse, or stop "
-                    "the running server first.",
-                    file=sys.stderr,
-                )
-                return 2
-            server_proc, server_tee = _spawn_server(server_log)
-            if not _wait_for_server(base_url, SERVER_BOOT_TIMEOUT_S):
-                print(
-                    f"[run_e2e] server didn't come up within "
-                    f"{SERVER_BOOT_TIMEOUT_S} s — aborting "
-                    f"(server.log : {server_log}).",
-                    file=sys.stderr,
-                )
-                return 3
-        elif not _server_already_up(base_url):
+    spawned_now = False
+    if args.no_server:
+        if not _server_already_up(base_url):
             print(
                 f"[run_e2e] --no-server but {base_url} is unreachable.",
                 file=sys.stderr,
             )
             return 4
-
-        return _run_pytest(
-            test_targets=args.tests,
-            base_url=base_url,
-            browser=args.browser,
-            stop_on_first=args.stop_on_first,
-            verbose=args.verbose,
-            extra=pytest_extra,
-            log_path=pytest_log,
-        )
-    finally:
-        if server_proc is not None:
-            _shutdown_server(server_proc)
-        if server_tee is not None:
-            server_tee.close()
+    elif _server_already_up(base_url):
+        # Reuse a server already running on this port — first run
+        # spawns it, subsequent runs skip the ~30 s cold boot.
         print(
-            f"[run_e2e] logs saved to {run_dir}/ "
-            f"(server.log, pytest.log)",
+            f"[run_e2e] reusing existing server at {base_url}",
             file=sys.stderr,
         )
+    else:
+        server_proc = _spawn_server(server_log)
+        spawned_now = True
+        if not _wait_for_server(base_url, SERVER_BOOT_TIMEOUT_S):
+            print(
+                f"[run_e2e] server didn't come up within "
+                f"{SERVER_BOOT_TIMEOUT_S} s — aborting "
+                f"(server.log : {server_log}).",
+                file=sys.stderr,
+            )
+            return 3
+
+    rc = _run_pytest(
+        test_targets=args.tests,
+        base_url=base_url,
+        browser=args.browser,
+        stop_on_first=args.stop_on_first,
+        verbose=args.verbose,
+        extra=pytest_extra,
+        log_path=pytest_log,
+    )
+
+    print(
+        f"[run_e2e] logs saved to {run_dir}/ "
+        f"(server.log, pytest.log)",
+        file=sys.stderr,
+    )
+
+    # If we spawned the server, this script owns it — block in
+    # foreground so the user can keep iterating (re-run pytest in
+    # another terminal with --no-server, watch the server log,
+    # etc.). Ctrl-C / SIGTERM triggers a clean shutdown of the
+    # whole honcho/vite/backend process group via explicit signal
+    # handlers (relying on Python's default `KeyboardInterrupt`
+    # is unreliable under `uv run` and similar wrappers — they
+    # may swallow or delay the signal).
+    #
+    # If we reused an existing server, we don't own it ; exit
+    # immediately and let whoever started it keep ownership.
+    # Same when --no-server was passed.
+    if spawned_now and server_proc is not None:
+        _install_shutdown_handlers(server_proc)
+        print(
+            f"[run_e2e] tests done (rc={rc}). Server still up "
+            f"(pid {server_proc.pid}). Press Ctrl-C to stop the "
+            "server and exit.",
+            file=sys.stderr,
+        )
+        print(
+            f"[run_e2e] tail server log : tail -f {server_log}",
+            file=sys.stderr,
+        )
+        # Block until the server exits or a signal handler calls
+        # `sys.exit()`. `proc.wait()` is interruptible by signals
+        # delivered to the main thread.
+        try:
+            server_proc.wait()
+        except KeyboardInterrupt:
+            # Belt-and-braces : if KeyboardInterrupt did escape
+            # the signal handler somehow, still shut down.
+            _shutdown_server(server_proc)
+            return 130
+        print(
+            f"[run_e2e] server exited on its own "
+            f"(rc={server_proc.returncode}).",
+            file=sys.stderr,
+        )
+    return rc
 
 
 def _parse_args() -> tuple[argparse.Namespace, list[str]]:
@@ -156,8 +210,11 @@ def _parse_args() -> tuple[argparse.Namespace, list[str]]:
     parser = argparse.ArgumentParser(
         prog="run_e2e.py",
         description=(
-            "Spawn the dev server, run the Playwright e2e suite "
-            "with sane defaults, then tear the server down."
+            "Run the Playwright e2e suite against a dev server. "
+            "Spawns the server on first run, reuses it on "
+            "subsequent runs (the server is left running between "
+            "invocations — stop it manually with `pkill -f "
+            "'flask --debug run'`)."
         ),
     )
     parser.add_argument(
@@ -184,8 +241,11 @@ def _parse_args() -> tuple[argparse.Namespace, list[str]]:
         "--no-server",
         action="store_true",
         help=(
-            "Don't spawn (or stop) the dev server ; assume one is "
-            "already running at --base-url."
+            "Don't spawn the dev server (require one to be "
+            "running at --base-url already). Without this flag, "
+            "the script auto-detects an existing server and "
+            "reuses it ; this flag turns the missing-server "
+            "case into an error instead."
         ),
     )
     parser.add_argument(
@@ -215,23 +275,24 @@ def _server_already_up(base_url: str) -> bool:
         return False
 
 
-def _spawn_server(
-    log_path: Path,
-) -> tuple[subprocess.Popen, _Tee]:
+def _spawn_server(log_path: Path) -> subprocess.Popen:
     """Spawn `make run` (which itself runs `honcho -f Procfile-dev
     start`) with `COVERAGE_PROCESS_START` set so subprocess
     coverage tracking works.
 
-    Returns the `Popen` handle and a `_Tee` that drains the
-    child's combined stdout/stderr to ``log_path``. Server logs
-    are NOT mirrored to the console — they would drown out the
-    pytest feed, and the file is right there for postmortem.
+    The server's combined stdout+stderr is redirected DIRECTLY to
+    ``log_path`` (no pipe through this process). Two consequences :
+
+    1. The server keeps writing to the file even after this
+       script exits — which is what we want, since we leave the
+       server running between runs.
+    2. We can't add per-line timestamps to the log ourselves ; we
+       rely on honcho's built-in `HH:MM:SS process |` prefix.
     """
     env = os.environ.copy()
     env["COVERAGE_PROCESS_START"] = str(ROOT / "pyproject.toml")
-    # Stop Python from buffering child stdout — without this,
-    # `make run` output only flushes when the buffer fills, which
-    # means the live console feed lags by chunks.
+    # Stop Python from buffering child stdout — without this the
+    # server log file only flushes when the buffer fills.
     env.setdefault("PYTHONUNBUFFERED", "1")
     print(
         f"[run_e2e] spawning dev server : "
@@ -239,23 +300,17 @@ def _spawn_server(
         f"make run",
         file=sys.stderr,
     )
-    # `start_new_session=True` puts the child in its own process
-    # group so SIGTERM/SIGINT to it (via os.killpg) takes down
-    # honcho + the worker(s) it spawned.
-    proc = subprocess.Popen(
+    log_fp = log_path.open("w", encoding="utf-8", buffering=1)
+    # `start_new_session=True` decouples the child from this
+    # process group so it survives our exit cleanly.
+    return subprocess.Popen(
         ["make", "run"],
         cwd=ROOT,
         env=env,
         start_new_session=True,
-        stdout=subprocess.PIPE,
+        stdout=log_fp,
         stderr=subprocess.STDOUT,
-        bufsize=1,  # line-buffered
-        text=True,
     )
-    assert proc.stdout is not None  # for type checker
-    tee = _Tee(proc.stdout, log_path, mirror=None)
-    tee.start()
-    return proc, tee
 
 
 def _wait_for_server(base_url: str, timeout_s: int) -> bool:
@@ -272,9 +327,40 @@ def _wait_for_server(base_url: str, timeout_s: int) -> bool:
     return False
 
 
+def _install_shutdown_handlers(server_proc: subprocess.Popen) -> None:
+    """Install SIGINT/SIGTERM handlers that shut the server down
+    and exit cleanly.
+
+    Why explicit handlers and not Python's default Ctrl-C →
+    KeyboardInterrupt machinery ? Wrappers like ``uv run`` can
+    swallow or delay SIGINT delivery to the child Python process ;
+    a registered handler bypasses that. The handler is registered
+    AFTER pytest finishes so it doesn't interfere with pytest's
+    own Ctrl-C handling during the test run.
+
+    The exit code on signal is 128 + signum (the conventional
+    shell convention) — preserves visibility into « was this a
+    clean run that finished, or a Ctrl-C kill ? ».
+    """
+
+    def _handler(signum: int, _frame: object) -> None:
+        sig_name = signal.Signals(signum).name
+        print(
+            f"\n[run_e2e] {sig_name} received, stopping dev server …",
+            file=sys.stderr,
+        )
+        _shutdown_server(server_proc)
+        # Use `os._exit` to bypass any cleanup that might re-raise
+        # a different signal — we've already done the cleanup we
+        # care about (server shutdown).
+        os._exit(128 + signum)
+
+    signal.signal(signal.SIGINT, _handler)
+    signal.signal(signal.SIGTERM, _handler)
+
+
 def _shutdown_server(proc: subprocess.Popen) -> None:
     """SIGTERM the whole process group, then SIGKILL fallback."""
-    print("[run_e2e] stopping dev server …", file=sys.stderr)
     try:
         os.killpg(os.getpgid(proc.pid), signal.SIGTERM)
     except (ProcessLookupError, PermissionError):

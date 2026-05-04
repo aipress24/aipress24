@@ -217,6 +217,23 @@ def _patched_invoice_retrieve(item_id: str, **kwargs: Any) -> Any:
     )
 
 
+def _patched_billing_portal_session_create(*_args: Any, **kwargs: Any) -> Any:
+    """Synthetic ``stripe.billing_portal.Session.create`` — used by
+    `bw/bw_activation/routes/billing_portal.py:billing_portal`.
+    The route follows ``portal_session.url`` via 303 redirect, so
+    we just need a URL the browser can land on. Point it at the
+    debug auto-success page."""
+    return _MockBillingPortalSession(
+        return_url=kwargs.get("return_url", ""),
+    )
+
+
+class _MockBillingPortalSession:
+    def __init__(self, *, return_url: str) -> None:
+        self.id = f"bps_test_{uuid4().hex[:24]}"
+        self.url = return_url or "/debug/stripe/auto-success"
+
+
 def is_active() -> bool:
     """True when the mock is wired up. Used by tests / debug."""
     try:
@@ -563,6 +580,22 @@ class StripeDebug:
             if not getattr(klass, "_stripe_debug_patched", False):
                 klass.retrieve = staticmethod(fn)  # type: ignore[method-assign]
                 klass._stripe_debug_patched = True  # type: ignore[attr-defined]
+
+        # Patch the Billing Portal Session.create — used by
+        # `bw/bw_activation/routes/billing_portal.py` to redirect
+        # users to Stripe's hosted customer portal. The route
+        # follows the returned `.url` via 303, so a synthetic
+        # session pointing at our debug auto-success page is
+        # enough for the redirect to resolve cleanly.
+        if not getattr(
+            stripe.billing_portal.Session,
+            "_stripe_debug_patched",
+            False,
+        ):
+            stripe.billing_portal.Session.create = staticmethod(  # type: ignore[method-assign]
+                _patched_billing_portal_session_create
+            )
+            stripe.billing_portal.Session._stripe_debug_patched = True  # type: ignore[attr-defined]
 
         # Patch the Dramatiq `generate_justificatif` actor so its
         # `.send()` runs the underlying PDF-generation function

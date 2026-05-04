@@ -80,9 +80,7 @@ class TestIndex:
         assert response.status_code == 302
         assert "confirm-subscription" in response.location
 
-    def test_no_organisation_proceeds_into_wizard(
-        self, app: Flask, fresh_db
-    ):
+    def test_no_organisation_proceeds_into_wizard(self, app: Flask, fresh_db):
         """Index allows users without an organisation to enter the
         BW wizard (the org is auto-created downstream during
         `create_new_free_bw_record`). Bug #0117 lifted the
@@ -106,8 +104,7 @@ class TestIndex:
         # Org-less users now proceed to the subscription
         # confirmation step rather than the rejection page.
         assert "confirm-subscription" in response.location, (
-            f"expected redirect to confirm-subscription, got "
-            f"{response.location!r}"
+            f"expected redirect to confirm-subscription, got {response.location!r}"
         )
 
     def test_redirects_to_not_authorized_when_organisation_deleted(
@@ -198,9 +195,7 @@ class TestConfirmSubscription:
 
         assert response.status_code == 200
 
-    def test_no_organisation_proceeds_to_subscription_page(
-        self, app: Flask, fresh_db
-    ):
+    def test_no_organisation_proceeds_to_subscription_page(self, app: Flask, fresh_db):
         """Confirm-subscription renders for users without an
         organisation — bug #0117 lifted the org gate so
         single-person profiles can start the BW wizard. The org
@@ -217,9 +212,7 @@ class TestConfirmSubscription:
 
         client = make_authenticated_client(app, user)
 
-        response = client.get(
-            "/BW/confirm-subscription", follow_redirects=False
-        )
+        response = client.get("/BW/confirm-subscription", follow_redirects=False)
 
         assert response.status_code == 200, (
             f"expected the subscription page to render (200), got "
