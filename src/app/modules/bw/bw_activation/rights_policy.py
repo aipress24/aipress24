@@ -33,6 +33,13 @@ DEFAULT_POLICY: dict[str, Any] = {
 
 _VALID_OPTIONS = {"all_subscribed", "whitelist", "blacklist", "none"}
 
+# BW types that hold reproduction rights on their content :
+# - `media` : the publisher of staff-produced articles.
+# - `micro` : a journalist-in-micro-entreprise — per the platform
+#   CGV, the rights holder of their own production. Ref : bug
+#   #0112.
+_RIGHTS_HOLDER_BW_TYPES: tuple[str, ...] = ("media", "micro")
+
 
 def get_policy(bw: BusinessWall | None) -> dict[str, Any]:
     """Return the BW's current policy, falling back to `all_subscribed`.
@@ -60,7 +67,9 @@ def is_eligible_for_cession(user: User | None, post: Post) -> bool:
     """Can `user` buy a reproduction licence on `post`?
 
     Rules:
-    - The user must have an active BW of type ``media``.
+    - The user must have an active BW of type ``media`` or
+      ``micro`` (both are recognised as rights-holder BWs — see
+      `_RIGHTS_HOLDER_BW_TYPES`).
     - The Post's frozen policy must authorise that BW.
     - A Null snapshot (pre-MVP content) is treated as ``all_subscribed``.
     """
@@ -91,14 +100,14 @@ def is_eligible_for_cession(user: User | None, post: Post) -> bool:
 
 
 def _buyer_media_bw_for(user: User) -> BusinessWall | None:
-    """Return the user's active BW of type `media`, if any."""
+    """Return the user's active rights-holder BW (media or micro)."""
     org_id = getattr(user, "organisation_id", None)
     if org_id is None:
         return None
     stmt = (
         sa.select(BusinessWall)
         .where(BusinessWall.organisation_id == org_id)
-        .where(BusinessWall.bw_type == "media")
+        .where(BusinessWall.bw_type.in_(_RIGHTS_HOLDER_BW_TYPES))
         .where(BusinessWall.status == BWStatus.ACTIVE.value)
         .limit(1)
     )
@@ -109,9 +118,9 @@ def emitter_bw_for_post(post: Post) -> BusinessWall | None:
     """Return the BW of the org that emitted a given Post, if any.
 
     Priority: `post.publisher` (explicit), then `post.media`, then the
-    BW tied to the Post owner's organisation. Returns None if no media
-    BW can be resolved — the caller should treat that as
-    ``all_subscribed`` (the default).
+    BW tied to the Post owner's organisation. Returns None if no
+    rights-holder BW (media or micro) can be resolved — the caller
+    should treat that as ``all_subscribed`` (the default).
     """
     candidate_org_ids: list[int] = []
     for attr in ("publisher_id", "media_id"):
@@ -128,7 +137,7 @@ def emitter_bw_for_post(post: Post) -> BusinessWall | None:
     stmt = (
         sa.select(BusinessWall)
         .where(BusinessWall.organisation_id.in_(candidate_org_ids))
-        .where(BusinessWall.bw_type == "media")
+        .where(BusinessWall.bw_type.in_(_RIGHTS_HOLDER_BW_TYPES))
         .where(BusinessWall.status == BWStatus.ACTIVE.value)
         .limit(1)
     )

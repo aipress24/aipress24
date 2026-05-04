@@ -1,0 +1,14 @@
+{# « Retour vers la plateforme » button — included at top + bottom
+   of the BW layout to give testers / users a clear way out of the
+   BW tunnel back to the public site. The link points at the home
+   page (`/`) which routes to `wire.wire` for authenticated users.
+   `data-testid` makes the button locatable from e2e tests. #}
+<div class="my-3 flex justify-end">
+    <a
+        href="/"
+        data-testid="back-to-platform"
+        class="inline-flex items-center gap-1 rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 hover:text-gray-900"
+    >
+        ← Retour vers la plateforme
+    </a>
+</div>
