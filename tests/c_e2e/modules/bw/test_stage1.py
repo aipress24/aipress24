@@ -11,6 +11,7 @@ activation_choice, and information routes.
 from __future__ import annotations
 
 import uuid
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
 from app.enums import ProfileEnum
@@ -79,10 +80,15 @@ class TestIndex:
         assert response.status_code == 302
         assert "confirm-subscription" in response.location
 
-    def test_redirects_to_not_authorized_when_no_organisation(
+    def test_no_organisation_proceeds_into_wizard(
         self, app: Flask, fresh_db
     ):
-        """Index redirects to not-authorized if user has no organisation."""
+        """Index allows users without an organisation to enter the
+        BW wizard (the org is auto-created downstream during
+        `create_new_free_bw_record`). Bug #0117 lifted the
+        previous « must have an org » gate that blocked
+        single-person profiles like associations of journalists.
+        """
         user = User(
             email=f"noorg_{uuid.uuid4().hex[:8]}@example.com",
             first_name="No",
@@ -97,10 +103,42 @@ class TestIndex:
         response = client.get("/BW/", follow_redirects=False)
 
         assert response.status_code == 302
+        # Org-less users now proceed to the subscription
+        # confirmation step rather than the rejection page.
+        assert "confirm-subscription" in response.location, (
+            f"expected redirect to confirm-subscription, got "
+            f"{response.location!r}"
+        )
+
+    def test_redirects_to_not_authorized_when_organisation_deleted(
+        self, app: Flask, fresh_db
+    ):
+        """A user whose organisation is soft-deleted (e.g. a user
+        whose registration was rejected) IS still blocked at the
+        index gate."""
+        org = Organisation(name=f"DeletedOrg_{uuid.uuid4().hex[:8]}")
+        org.deleted_at = datetime.now(UTC)
+        fresh_db.session.add(org)
+        fresh_db.session.flush()
+        user = User(
+            email=f"deleted_{uuid.uuid4().hex[:8]}@example.com",
+            first_name="Del",
+            last_name="Org",
+            active=True,
+            organisation_id=org.id,
+        )
+        fresh_db.session.add(user)
+        fresh_db.session.commit()
+
+        client = make_authenticated_client(app, user)
+
+        response = client.get("/BW/", follow_redirects=False)
+
+        assert response.status_code == 302
         assert (
             "not-authorized" in response.location
             or "not_authorized" in response.location
-        )
+        ), f"got {response.location!r}"
 
     def test_redirects_non_manager_to_not_authorized(self, app: Flask, fresh_db):
         """Index redirects to not-authorized if user is not BW manager."""
@@ -160,8 +198,14 @@ class TestConfirmSubscription:
 
         assert response.status_code == 200
 
-    def test_redirects_when_no_organisation(self, app: Flask, fresh_db):
-        """Confirm subscription redirects if user has no organisation."""
+    def test_no_organisation_proceeds_to_subscription_page(
+        self, app: Flask, fresh_db
+    ):
+        """Confirm-subscription renders for users without an
+        organisation — bug #0117 lifted the org gate so
+        single-person profiles can start the BW wizard. The org
+        is auto-created later by `_create_required_organisation`.
+        """
         user = User(
             email=f"nosub_{uuid.uuid4().hex[:8]}@example.com",
             first_name="No",
@@ -173,12 +217,13 @@ class TestConfirmSubscription:
 
         client = make_authenticated_client(app, user)
 
-        response = client.get("/BW/confirm-subscription", follow_redirects=False)
+        response = client.get(
+            "/BW/confirm-subscription", follow_redirects=False
+        )
 
-        assert response.status_code == 302
-        assert (
-            "not-authorized" in response.location
-            or "not_authorized" in response.location
+        assert response.status_code == 200, (
+            f"expected the subscription page to render (200), got "
+            f"{response.status_code}"
         )
 
 
