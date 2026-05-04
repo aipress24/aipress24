@@ -22,6 +22,7 @@ exclude = [
     "gunicorn.conf.py",
     "icons/tasks.py",
     "nua/nua-install-build-agent.py",
+    "tasks.py",
 ]
 
 lint.select = ["ALL"]
@@ -87,6 +88,8 @@ lint.ignore = [
     "S311", # Standard pseudo-random generators are not suitable for cryptographic purposes
 ]
 "tests/**/*.py" = [
+    "ANN", # flake8-annotations
+    "C901", #   	complex-structure
     "INP001", #  implicit-namespace-package
     "S105", #    hardcoded-password-string
     "S106", #    hardcoded-password-func-arg
@@ -95,7 +98,6 @@ lint.ignore = [
     "PT011", #   pytest-raises-too-broad
     "RUF043", #  pytest-raises-ambiguous-pattern
     "B017", #    assert-raises-exception
-    "T201", #    print
     "SIM117",
 ]
 "tasks.py" = [
