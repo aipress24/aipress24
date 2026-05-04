@@ -119,7 +119,7 @@ def _pick_emitter_email(offer) -> str:
 def _absolute_profile_url(user: User) -> str:
     try:
         path = url_for("swork.member", id=user.id)
-    except Exception:  # noqa: BLE001
+    except Exception:
         path = f"/swork/members/{user.id}"
     return _absolutize(path)
 
@@ -128,7 +128,7 @@ def _absolute_applications_url(offer) -> str:
     endpoint, fallback = _dashboard_for(offer)
     try:
         return _absolutize(url_for(endpoint, id=offer.id))
-    except Exception:  # noqa: BLE001
+    except Exception:
         return _absolutize(fallback)
 
 
@@ -136,7 +136,7 @@ def _absolute_offer_url(offer) -> str:
     endpoint, fallback = _detail_for(offer)
     try:
         return _absolutize(url_for(endpoint, id=offer.id))
-    except Exception:  # noqa: BLE001
+    except Exception:
         return _absolutize(fallback)
 
 

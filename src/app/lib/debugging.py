@@ -22,6 +22,6 @@ with contextlib.suppress(ImportError):
 def install() -> None:
     __builtins__["debug"] = debug
     with contextlib.suppress(ImportError):
-        import snoop  # noqa: PLC0415
+        import snoop
 
         snoop.install()

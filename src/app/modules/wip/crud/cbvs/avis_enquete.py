@@ -533,7 +533,7 @@ class AvisEnqueteWipView(BaseWipView):
         )
 
     @route("/<id>/rdv-accept/<contact_id>", methods=["GET", "POST"])
-    def rdv_accept(self, id, contact_id):  # noqa: PLR0915
+    def rdv_accept(self, id, contact_id):
         """Expert view to accept a proposed RDV slot."""
         model = self._get_model(id)
         service = AvisEnqueteService()

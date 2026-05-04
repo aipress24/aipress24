@@ -46,7 +46,7 @@ def require_login() -> Response | None:
 # Import routes - this registers all routes via side effects
 from . import (  # noqa: E402
     models,  # noqa: F401
-    routes,  # noqa: E402, F401
+    routes,  # noqa: F401
 )
 
 # Export the blueprint

@@ -76,7 +76,6 @@ lint.ignore = [
     "PLR0911", #	too-many-return-statements
     "PLR0912", #	too-many-branches
     "PLR0915", #    too many statements
-    "RUF100", #     [*] Unused `noqa` directive
     "T201", #       print
 ]
 

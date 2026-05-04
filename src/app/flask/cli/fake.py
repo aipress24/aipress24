@@ -37,7 +37,7 @@ from .bootstrap import bootstrap
 @click.option("--clean/--no-clean", default=False)
 @with_appcontext
 def fake(clean) -> None:
-    from app.faker import FakerService  # noqa: PLC0415
+    from app.faker import FakerService
 
     print(green("Setting up database"))
     db_setup(clean)
@@ -104,7 +104,7 @@ def create_admins() -> None:
 
 
 def run_fake_scripts() -> None:
-    from app.faker import FakerScript  # noqa: PLC0415
+    from app.faker import FakerScript
 
     scripts = [cls() for cls in lookup(FakerScript)]
     for script in scripts:

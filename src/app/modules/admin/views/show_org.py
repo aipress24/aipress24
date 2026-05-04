@@ -61,7 +61,7 @@ class ShowOrgView(MethodView):
             org=OrgVM(org),
         )
 
-    def post(self, uid: str) -> Response:  # noqa: PLR0915
+    def post(self, uid: str) -> Response:
         """Process admin actions on an organization.
 
         Handles multiple HTMX-triggered actions via the "action" form field:

@@ -200,7 +200,7 @@ class EventsWipView(BaseWipView):
                     content_title=event.titre,
                     content_url=absolute_url_for("EventsWipView:get", id=event.id),
                 )
-            except Exception as exc:  # noqa: BLE001
+            except Exception as exc:
                 warn(f"PR publication notif failed (event {event.id}): {exc}")
 
         flash("L'événement a été publié")
