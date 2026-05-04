@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
-# ruff: noqa: S608
 
 """E2E tests configuration.
 

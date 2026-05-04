@@ -92,7 +92,7 @@ def reconcile_subscriptions(session: Session | None = None) -> list[Drift]:
                 )
             )
             continue
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             warn(f"reconcile: unexpected error fetching {stripe_id}: {exc}")
             continue
 

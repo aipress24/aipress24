@@ -117,7 +117,7 @@ def _canonical_url(post: Post) -> str:
 
     try:
         path = url_for("wire.item", id=post.id)
-    except Exception:  # noqa: BLE001
+    except Exception:
         path = f"/wire/{post.id}"
     domain = str(current_app.config.get("SERVER_NAME") or "aipress24.com")
     protocol = "http" if domain.startswith("127.") else "https"

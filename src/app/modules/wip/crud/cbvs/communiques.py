@@ -228,7 +228,7 @@ class CommuniquesWipView(BaseWipView):
                         "CommuniquesWipView:get", id=communique.id
                     ),
                 )
-            except Exception as exc:  # noqa: BLE001
+            except Exception as exc:
                 warn(f"PR publication notif failed (communique {communique.id}): {exc}")
 
         flash("Le communiqué a été publié")
