@@ -39,7 +39,9 @@ from playwright.sync_api import Page
 
 def _first_admin_org_uid(page: Page, base_url: str) -> str | None:
     """Open /admin/orgs and return the first scrapable uid."""
-    page.goto(f"{base_url}/admin/orgs", wait_until="domcontentloaded")
+    page.goto(
+        f"{base_url}/admin/orgs", wait_until="domcontentloaded"
+    )
     hrefs = page.locator("a[href]").evaluate_all(
         "els => els.map(e => e.getAttribute('href'))"
     )

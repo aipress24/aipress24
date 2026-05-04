@@ -382,6 +382,32 @@ def _bump_navigation_timeout(page: Page) -> None:
     page.set_default_timeout(15_000)
 
 
+@pytest.fixture(autouse=True)
+def _abort_vite_dev_assets(page: Page) -> None:
+    """Block ``http://localhost:3000`` (the Vite dev server) at the
+    Playwright network layer.
+
+    The app templates emit ``<script src="http://localhost:3000/
+    @vite/client">`` and ``<script src="http://localhost:3000/main.js">``
+    in dev mode. Vite serves a recursive ES-module graph (each
+    `import` is a separate HTTP request, plus an HMR websocket per
+    page). After 20+ Playwright contexts in a single run, Firefox's
+    resource scheduler ends up serializing scripts behind older
+    HMR sockets, blocking ``domcontentloaded`` indefinitely on heavy
+    pages — verified by direct curl returning the same HTML in
+    130 ms while the browser hangs past 180 s.
+
+    Aborting these requests fail-fast lets DCL fire as soon as the
+    HTML is parsed. Tests don't need hot-module-reload ; they only
+    need the rendered DOM, the inline ``<style>`` block, and the
+    non-Vite scripts (htmx, alpine, choices.js, tom-select) which
+    are already inlined or served by the Flask blueprint.
+    """
+    page.route(
+        "**://localhost:3000/**", lambda route: route.abort()
+    )
+
+
 _LOGIN_URL_RE = re.compile(r".*/auth/login.*")
 
 
