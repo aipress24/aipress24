@@ -15,6 +15,7 @@ from flask import flash, g, redirect, render_template, request, session, url_for
 from app.flask.extensions import db
 from app.lib.file_object_utils import create_file_object
 from app.lib.image_utils import extract_image_from_request
+from app.logging import warn
 from app.models.auth import User
 from app.modules.bw.bw_activation import bp
 from app.modules.bw.bw_activation.models import BWImage
@@ -73,21 +74,29 @@ def configure_gallery():
             caption = request.form.get("caption", "").strip()
             copyright = request.form.get("copyright", "").strip()
 
-            image_file_object = create_file_object(
-                content=image_bytes,
-                original_filename=image_filename,
-                content_type=image_content_type,
-            )
-            saved_file_object = image_file_object.save()
+            try:
+                image_file_object = create_file_object(
+                    content=image_bytes,
+                    original_filename=image_filename,
+                    content_type=image_content_type,
+                )
+                # S3 backend (Hetzner Object Storage in prod) — must
+                # match stage_b1's defensive pattern : a transient
+                # network hoquet shouldn't surface as a 500.
+                saved_file_object = image_file_object.save()
 
-            # Add to business wall gallery
-            bw_image = BWImage(
-                content=saved_file_object,
-                caption=caption,
-                copyright=copyright,
-            )
-            business_wall.add_bw_image(bw_image)
-            db.session.commit()
+                # Add to business wall gallery
+                bw_image = BWImage(
+                    content=saved_file_object,
+                    caption=caption,
+                    copyright=copyright,
+                )
+                business_wall.add_bw_image(bw_image)
+                db.session.commit()
+                flash("Image ajoutée avec succès", "success")
+            except Exception as e:
+                warn(f"Error uploading gallery image: {e}")
+                flash(f"Erreur lors de l'upload de l'image: {e}", "error")
 
         return redirect(url_for("bw_activation.configure_gallery"))
 

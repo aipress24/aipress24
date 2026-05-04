@@ -52,6 +52,42 @@ test-e2e-prod-full:
 	--base-url=$(PROD_URL) \
 	e2e_playwright
 
+## Per-module e2e shortcuts. Use `MOD=<name>` (default `wip`) to run a
+## single module's tests against the local dev server. Faster than the
+## full `test-e2e-local` (~3 min full → 30-60 s per module).
+##
+## Examples :
+##   make test-e2e MOD=wip
+##   make test-e2e MOD=bw
+##   make test-e2e MOD=common
+##
+## Available modules : admin api biz bw common cross_modules events
+##                     infra kyc notifications preferences public
+##                     regressions security swork wip wire
+MOD ?= wip
+test-e2e:
+	pytest -v --browser firefox \
+	--base-url=http://127.0.0.1:5000 \
+	-m "not slow" e2e_playwright/$(MOD)
+
+## Parallel e2e — pytest-xdist with mail buffer per-worker isolation.
+## 2 passes : (1) parallel-safe tests in N workers, (2) parallel_unsafe
+## tests serial. The split is needed because some tests share seed-user
+## state (password change, in-flight email change, BW activation on a
+## specific guinea pig user). When multi-tenant fixtures (Sprint 7
+## phase B) lands, parallel_unsafe should disappear.
+##
+## NWORKERS controls the parallel pass : `make test-e2e-parallel NWORKERS=4`.
+NWORKERS ?= 4
+test-e2e-parallel:
+	pytest -v --browser firefox \
+	--base-url=http://127.0.0.1:5000 \
+	-n $(NWORKERS) --dist=loadfile \
+	-m "not slow and not parallel_unsafe" e2e_playwright
+	pytest -v --browser firefox \
+	--base-url=http://127.0.0.1:5000 \
+	-m "parallel_unsafe" e2e_playwright
+
 
 #
 # Lint

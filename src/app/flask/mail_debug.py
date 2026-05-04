@@ -38,22 +38,44 @@ if TYPE_CHECKING:
     from flask import Flask
     from flask_mailman.message import EmailMessage
 
-# Process-local message store. Each entry is a dict — already-
-# serialised, so /debug/mail/messages is a simple jsonify().
-_inbox: list[dict] = []
+# Process-local message store, namespaced by worker_id so pytest-xdist
+# parallel runs don't cross-pollute. Default bucket is `"default"`
+# for sequential runs (no `X-Mail-Worker` header sent).
+_DEFAULT_BUCKET = "default"
+_inbox: dict[str, list[dict]] = {_DEFAULT_BUCKET: []}
 _lock = Lock()
 
 
-def reset() -> None:
-    """Clear the captured-message buffer."""
-    with _lock:
-        _inbox.clear()
+def _bucket_for(worker: str | None) -> str:
+    """Resolve a worker tag to a bucket key. Empty / None → default."""
+    return worker or _DEFAULT_BUCKET
 
 
-def messages() -> list[dict]:
-    """Return a snapshot copy of all captured messages."""
+def reset(worker: str | None = None) -> None:
+    """Clear the captured-message buffer for ``worker`` (or default)."""
+    bucket = _bucket_for(worker)
     with _lock:
-        return list(_inbox)
+        _inbox[bucket] = []
+
+
+def messages(worker: str | None = None) -> list[dict]:
+    """Return a snapshot copy of all messages captured for ``worker``."""
+    bucket = _bucket_for(worker)
+    with _lock:
+        return list(_inbox.get(bucket, []))
+
+
+def _request_worker() -> str:
+    """Extract the `X-Mail-Worker` header from the current request,
+    if any. Used by both the EmailBackend (when a server-side mail
+    send is triggered by an authenticated test request) and by the
+    debug HTTP routes (when the test fetches the buffer directly,
+    routing on the same header)."""
+    try:
+        return request.headers.get("X-Mail-Worker", "") or _DEFAULT_BUCKET
+    except RuntimeError:
+        # Outside a request context (e.g. CLI commands sending mail).
+        return _DEFAULT_BUCKET
 
 
 def is_active() -> bool:
@@ -73,11 +95,16 @@ class EmailBackend(BaseEmailBackend):
     def send_messages(self, email_messages: list[EmailMessage]) -> int:
         if not email_messages:
             return 0
+        # Resolve the worker bucket from the originating request's
+        # `X-Mail-Worker` header. Mail sends triggered outside a
+        # request context (CLI commands, scheduler) fall into the
+        # default bucket.
+        bucket = _bucket_for(_request_worker())
         sent = 0
         for msg in email_messages:
             try:
                 with _lock:
-                    _inbox.append(_serialise(msg))
+                    _inbox.setdefault(bucket, []).append(_serialise(msg))
                 sent += 1
             except Exception:
                 if not self.fail_silently:
@@ -169,22 +196,25 @@ def make_blueprint() -> Blueprint:
 
     @bp.route("/")
     def dashboard() -> str:
+        # Dashboard always renders the default bucket (humans browsing
+        # the dev server). Test fixtures use the JSON endpoints with
+        # the X-Mail-Worker header.
         return render_template_string(_DASHBOARD, messages=messages())
 
     @bp.route("/messages")
     def list_messages() -> Response:
-        return jsonify(messages())
+        return jsonify(messages(_request_worker()))
 
     @bp.route("/messages/<int:idx>")
     def get_message(idx: int) -> Response:
-        snap = messages()
+        snap = messages(_request_worker())
         if not 0 <= idx < len(snap):
             return Response("not found", status=404)
         return jsonify(snap[idx])
 
     @bp.route("/reset", methods=["POST"])
     def reset_buffer():
-        reset()
+        reset(_request_worker())
         if request.headers.get("Accept") == "application/json":
             return jsonify({"status": "reset", "count": 0})
         return redirect("/debug/mail/")

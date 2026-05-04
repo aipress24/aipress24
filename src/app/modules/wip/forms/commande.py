@@ -33,24 +33,28 @@ commande_form = {
             "group": "dates",
             "type": "datetime",
             "width": 3,
+            "required": True,
         },
         "date_bouclage": {
             "label": "Date/heure de bouclage",
             "group": "dates",
             "type": "datetime",
             "width": 3,
+            "required": True,
         },
         "date_parution_prevue": {
             "label": "Date/heure de parution prévue",
             "group": "dates",
             "type": "datetime",
             "width": 3,
+            "required": True,
         },
         "date_paiement": {
             "label": "Date/heure de paiement",
             "group": "dates",
             "type": "datetime",
             "width": 3,
+            "required": True,
         },
     },
 }

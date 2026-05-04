@@ -14,10 +14,17 @@ from app.lib.base62 import base62
 def get_obj(id: int | str, cls: type, options=None):
     match id:
         case str():
-            if id.startswith("x"):
-                id = base62.decode(id)
-            else:
-                id = int(id)
+            try:
+                if id.startswith("x"):
+                    id = base62.decode(id)
+                else:
+                    id = int(id)
+            except (ValueError, TypeError):
+                # Non-numeric / non-base62 string — treat as a
+                # 404 rather than letting a 500 escape (crawlers,
+                # truncated URL pastes, scanner fuzz).
+                msg = f"Can't match id {id}"
+                raise NotFound(msg) from None
         case int():
             pass
         case _:
