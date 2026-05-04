@@ -166,8 +166,12 @@
                     </a>
                 </div>
 
-                {% if current_bw and current_bw.bw_type == 'media' %}
-                <!-- Cession de droits (media only) -->
+                {# Cession de droits — applicable to media (employer is
+                   the rights holder) AND micro (journalists in
+                   micro-entreprise are rights holders per the
+                   platform's CGV — they may sell their own
+                   content). Ref: bug #0112. #}
+                {% if current_bw and current_bw.bw_type in ('media', 'micro') %}
                     <div
                         class="border border-gray-300 p-6 rounded-lg hover:shadow-md hover:border-slate-500 transition"
                     >

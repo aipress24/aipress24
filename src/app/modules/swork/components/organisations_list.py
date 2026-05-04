@@ -241,7 +241,7 @@ class FilterByCategory(Filter):
         "Autres": None,  # Will be handled separately
         "Non officialisées": None,  # Excluded - no active BW
     }
-    options: ClassVar[list[str]] = [
+    options: ClassVar[list[str]] = [  # ty:ignore[invalid-attribute-override]
         "Agences de presse",
         "Médias",
         "PR agencies",
