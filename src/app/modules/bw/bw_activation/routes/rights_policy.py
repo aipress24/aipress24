@@ -5,7 +5,10 @@
 """Cession de droits — editor settings page (MVP v0).
 
 Route: GET/POST `/BW/rights-policy`. Owner-only. Visible on the BW
-dashboard as a card, but only for BW of type `media`.
+dashboard as a card, for BW of type `media` (employer's
+rights-sales policy on staff content) and `micro` (the
+micro-enterprise journalist's policy on their own content per the
+platform CGV — bug #0112).
 """
 
 from __future__ import annotations
@@ -35,7 +38,7 @@ def rights_policy():
         raise NotFound
     if not is_bw_manager_or_admin(user, bw):
         raise Forbidden
-    if bw.bw_type != "media":
+    if bw.bw_type not in ("media", "micro"):
         raise NotFound
 
     if request.method == "POST":

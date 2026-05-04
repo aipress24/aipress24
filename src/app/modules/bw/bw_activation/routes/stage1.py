@@ -34,11 +34,21 @@ if TYPE_CHECKING:
 def _check_valid_organisation(user: User) -> Response | None:
     """Check that user has a valid (non-deleted) organisation.
 
+    Users without any organisation are NOT blocked here — the BW
+    activation flow will auto-create one in
+    `bw_creation._create_required_organisation` once the user
+    reaches the free-BW persistence step. Blocking earlier denied
+    standalone profiles (associations, individual journalists)
+    access to the wizard. Ref: bug #0117.
+
+    Only soft-deleted organisations remain a hard gate (a rejected
+    user keeps a `deleted_at`-flagged org and shouldn't pass).
+
     Returns:
         Redirect response if organisation is invalid, None if valid.
     """
     org = user.organisation
-    if not org or org.deleted_at is not None:
+    if org is not None and org.deleted_at is not None:
         session["error"] = (
             "Vous devez appartenir à une organisation valide pour activer un Business Wall."
         )

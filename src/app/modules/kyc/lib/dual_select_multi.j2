@@ -71,13 +71,16 @@
           };
 
           let displaySecondList = () => {
-             console.log('in displaySecondList');
              if (this.current_val === this.last_val) return;
-             console.log('new second list updating');
              second_choices.clear();
              second_choices.clearOptions();
              second_choices.addOptions(this.second_list);
-             second_choices.refreshOptions(this.second_list);
+             // refreshOptions(triggerDropdown: bool) — passing the
+             // option array (the previous code) misfires the API
+             // and can leave the dropdown rendering only the first
+             // batch of options. Ref: bug #0119 — type d'organisation
+             // truncated at « Entreprise de décoration ».
+             second_choices.refreshOptions(false);
              second_choices.enable();
              this.current_val = this.last_val;
           };
