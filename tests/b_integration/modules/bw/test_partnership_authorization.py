@@ -135,6 +135,92 @@ class TestGetValidatedClientOrgsForUser:
 
         assert get_validated_client_orgs_for_user(agency_user) == []
 
+    def test_returns_clients_partnered_with_any_bw_of_agency_org(
+        self, db_session: Session
+    ):
+        """Regression for bug 0124-B.
+
+        An agency organisation may have several BusinessWalls (multiple brands
+        or historical clutter — Brigitte Wasser's prod org has 8 PR BWs but
+        only one is `Organisation.bw_id`). Partnerships are stored per-BW.
+
+        Previously, `get_validated_client_orgs_for_user` only queried
+        partnerships pointing to the agency org's *active* BW (`org.bw_id`),
+        silently dropping clients whose partnership lived on any sibling BW.
+        Now it must union across all BWs of the agency organisation.
+        """
+        # Agency user with the org's primary (active) BW.
+        agency_user, agency_org, primary_bw = _mk_user_org_bw(
+            db_session, "MultiBwAgency", "pr"
+        )
+
+        # Add a SECOND BW to the same agency org. Do NOT update org.bw_id —
+        # we want to prove the query doesn't depend on it.
+        secondary_bw = BusinessWall(
+            bw_type="pr",
+            status=BWStatus.ACTIVE.value,
+            is_free=True,
+            owner_id=agency_user.id,
+            payer_id=agency_user.id,
+            organisation_id=agency_org.id,
+        )
+        db_session.add(secondary_bw)
+        db_session.flush()
+
+        # Two distinct clients: one partners with the primary BW, the other
+        # with the secondary BW. Both should be returned.
+        _, client_primary_org, client_primary_bw = _mk_user_org_bw(
+            db_session, "ClientPrimary"
+        )
+        _, client_secondary_org, client_secondary_bw = _mk_user_org_bw(
+            db_session, "ClientSecondary"
+        )
+        _mk_partnership(
+            db_session, client_primary_bw, primary_bw, PartnershipStatus.ACTIVE
+        )
+        _mk_partnership(
+            db_session, client_secondary_bw, secondary_bw, PartnershipStatus.ACCEPTED
+        )
+
+        orgs = get_validated_client_orgs_for_user(agency_user)
+        org_ids = {o.id for o in orgs}
+
+        assert client_primary_org.id in org_ids, (
+            "client partnered with the org's primary (active) BW must be returned"
+        )
+        assert client_secondary_org.id in org_ids, (
+            "client partnered with a sibling BW of the same agency org must be "
+            "returned (bug 0124-B)"
+        )
+
+    def test_does_not_double_count_when_same_client_partners_two_agency_bws(
+        self, db_session: Session
+    ):
+        """If a client somehow has partnerships with two BWs of the same
+        agency, the result list should still contain the client only once."""
+        agency_user, agency_org, primary_bw = _mk_user_org_bw(
+            db_session, "DupAgency", "pr"
+        )
+        secondary_bw = BusinessWall(
+            bw_type="pr",
+            status=BWStatus.ACTIVE.value,
+            is_free=True,
+            owner_id=agency_user.id,
+            payer_id=agency_user.id,
+            organisation_id=agency_org.id,
+        )
+        db_session.add(secondary_bw)
+        db_session.flush()
+
+        _, client_org, client_bw = _mk_user_org_bw(db_session, "DupClient")
+        _mk_partnership(db_session, client_bw, primary_bw, PartnershipStatus.ACTIVE)
+        _mk_partnership(db_session, client_bw, secondary_bw, PartnershipStatus.ACTIVE)
+
+        orgs = get_validated_client_orgs_for_user(agency_user)
+
+        ids = [o.id for o in orgs if o.id == client_org.id]
+        assert len(ids) == 1, f"client returned {len(ids)} times: {orgs}"
+
 
 # ---------------------------------------------------------------------------
 # can_user_publish_for

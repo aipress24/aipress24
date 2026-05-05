@@ -274,36 +274,58 @@ def get_validated_client_orgs_for_user(user: User) -> list[Organisation]:
     """Return client Organisations the user's agency is authorized to publish for.
 
     A client is "validated" when there exists a Partnership between the client's
-    BusinessWall and the user's agency BusinessWall, with status ACTIVE (or
-    ACCEPTED).
+    BusinessWall and any of the agency organisation's BusinessWalls, with status
+    ACTIVE (or ACCEPTED).
+
+    Note: an agency organisation may have several BWs (one per brand, or
+    historical clutter from re-creations). Partnerships are stored per-BW. We
+    union across all BWs of the user's organisation so the user sees every
+    client the agency may publish for, regardless of which specific BW the
+    partnership was negotiated against. (Bug 0124-B: previously this query
+    only considered `Organisation.bw_id` — the single "active" BW — so clients
+    tied to other BWs of the same org were silently dropped.)
     """
     from app.modules.bw.bw_activation.models import Partnership
 
-    agency_bw = get_business_wall_for_user(user)
-    if agency_bw is None:
-        warn(f"get_validated_client_orgs_for_user: user {user.id} has no agency_bw")
+    if not user.organisation_id:
+        warn(f"get_validated_client_orgs_for_user: user {user.id} has no organisation")
         return []
 
-    session = inspect(agency_bw).session
-    if session is None:
+    session = db.session
+
+    # All BWs belonging to the user's organisation (agent side).
+    agency_bw_ids = list(
+        session.execute(
+            select(BusinessWall.id).where(
+                BusinessWall.organisation_id == user.organisation_id
+            )
+        ).scalars()
+    )
+    if not agency_bw_ids:
         warn(
-            f"get_validated_client_orgs_for_user: no session for agency_bw {agency_bw.id}"
+            f"get_validated_client_orgs_for_user: user {user.id} (org="
+            f"{user.organisation_id}) has no BusinessWall on the agency side"
         )
         return []
 
-    agency_bw_id_str = str(agency_bw.id)
+    # `Partnership.partner_bw_id` is a String column (no FK) holding a UUID
+    # string — compare as strings to avoid cross-dialect cast quirks.
+    agency_bw_id_strs = [str(bw_id) for bw_id in agency_bw_ids]
+
     stmt = (
         select(Organisation)
         .join(BusinessWall, Organisation.id == BusinessWall.organisation_id)
         .join(Partnership, Partnership.business_wall_id == BusinessWall.id)
-        .where(Partnership.partner_bw_id == agency_bw_id_str)
+        .where(Partnership.partner_bw_id.in_(agency_bw_id_strs))
         .where(Partnership.status.in_(_ACTIVE_PARTNERSHIP_STATUSES))
+        .distinct()
     )
     results = list(session.execute(stmt).scalars())
     if not results:
         warn(
-            f"get_validated_client_orgs_for_user: user {user.id} agency_bw="
-            f"{agency_bw_id_str} -> no validated clients found"
+            f"get_validated_client_orgs_for_user: user {user.id} (org="
+            f"{user.organisation_id}, {len(agency_bw_id_strs)} agency BW(s)) "
+            f"-> no validated clients found"
         )
     return results
 
