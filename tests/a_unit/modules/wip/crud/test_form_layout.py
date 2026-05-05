@@ -20,6 +20,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from app.flask.lib.wtforms.renderer import FIELD_TEMPLATE, FIELD_VIEW_TEMPLATE
 from app.modules.wip.crud.cbvs._forms import CommuniqueForm, EventForm
 
 
@@ -44,6 +45,37 @@ class TestPublisherIdRenderedLast:
         """EventForm already had publisher_id last; lock that in."""
         fields = EventForm.Meta.groups["metadata"]["fields"]
         assert fields[-1] == "publisher_id"
+
+
+class TestPublisherIdHelpText:
+    """Bug 0124-C: clarify that the CP/event appears on the agency's BW too,
+    and in NEWS / Idées & Comm', without requiring a multi-select. The fix is
+    a help-text rendered under the "Publier pour" select."""
+
+    def test_communique_form_publisher_id_has_description(self):
+        form = CommuniqueForm()
+        assert form.publisher_id.description, (
+            "publisher_id must carry a description explaining the dual-BW + "
+            "NEWS visibility behavior."
+        )
+        # Spot-check the wording covers the three destinations.
+        text = form.publisher_id.description
+        assert "agence" in text or "votre propre organisation" in text.lower() or (
+            "votre" in text.lower() and "bw" in text.lower()
+        )
+        assert "NEWS" in text or "Idées" in text or "Comm" in text
+
+    def test_event_form_publisher_id_has_description(self):
+        form = EventForm()
+        assert form.publisher_id.description, (
+            "EventForm.publisher_id must carry the same help-text."
+        )
+
+    def test_renderer_surfaces_description_in_html(self):
+        """The renderer's FIELD_TEMPLATE must render `field.description` so the
+        text actually reaches the page."""
+        assert "{{ description }}" in FIELD_TEMPLATE
+        assert "{{ description }}" in FIELD_VIEW_TEMPLATE
 
 
 class TestWidgetTemplateStackingContext:
