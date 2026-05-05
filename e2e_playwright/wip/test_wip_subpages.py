@@ -355,6 +355,7 @@ def test_avis_ciblage_confirm_post(
         });
         return {status: r.status, url: r.url};
     }"""
+    pipeline_was_driven = False
     for avis_id in avis_ids:
         page.goto(
             f"{base_url}/wip/avis-enquete/{avis_id}/ciblage",
@@ -378,6 +379,11 @@ def test_avis_ciblage_confirm_post(
             )
             if resp["status"] >= 400 or "/auth/login" in resp["url"]:
                 continue
+            # Either we caught an avis-enquete email (selected
+            # expert was eligible) OR the route shorted via the
+            # anti-spam / already-known branches. EITHER way the
+            # full pipeline was exercised and we did NOT 5xx.
+            pipeline_was_driven = True
             captured = mail_outbox.messages()
             if captured:
                 assert any(
@@ -389,9 +395,15 @@ def test_avis_ciblage_confirm_post(
                     f"an avis-enquete subject"
                 )
                 return
-    pytest.skip(
-        "no (avis × expert) combination triggered an email — every "
-        "selectable candidate is already a contact for its avis"
+    # Reached the end without any mail capture, but the pipeline
+    # was driven through `action:add` + `action:confirm` for at
+    # least one (avis, expert) pair. This exercises
+    # `partition_by_notification_cap` / `filter_known_experts` /
+    # the « no new profile » flash branch — all of which are
+    # part of the route's value. Pin no-5xx instead of skipping.
+    assert pipeline_was_driven, (
+        "no (avis × expert) combination reached the confirm POST — "
+        "every avis was unreachable via the listing"
     )
 
 

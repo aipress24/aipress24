@@ -165,25 +165,27 @@ def test_cm1_article_publish_then_visible_on_wire_and_swork(
         member_url = page.url.rstrip("/")
         # Drop any existing query string before appending ours.
         member_url = member_url.split("?", 1)[0]
-        page.goto(
-            f"{member_url}?tab=publications",
-            wait_until="domcontentloaded",
-        )
         # The tab content is HTMX-loaded after page-load (cf.
         # `member--main.j2` : `<div id="tabs" hx-get="?tab=...
-        # hx-trigger="load">`). Wait for the publications h2 to
-        # appear before scraping.
-        try:
-            page.wait_for_selector(
-                'h2:has-text("Publications")', timeout=8_000
-            )
-        except Exception:
-            pytest.skip(
-                "/swork/members/<id>?tab=publications : HTMX tab "
-                "content didn't load. Either the seed user has no "
-                "publications, or HTMX is mis-wired."
-            )
-        swork_body = page.content()
+        # hx-trigger="load">`). Rather than trust htmx to fire
+        # on time (it sometimes lags under Vite-asset-blocking),
+        # we fetch the same URL with `HX-Request: true` directly
+        # — Flask's `swork.member` view returns the fragment that
+        # htmx would have inlined, without any extra round-trip.
+        page.goto(
+            f"{member_url}?tab=publications",
+            wait_until="commit",
+        )
+        swork_body = page.evaluate(
+            """async (url) => {
+                const r = await fetch(url, {
+                    credentials: 'same-origin',
+                    headers: {'HX-Request': 'true'},
+                });
+                return await r.text();
+            }""",
+            f"{member_url}?tab=publications",
+        )
         if needle not in swork_body:
             empty_marker = "n'a pas encore publié de contenu"
             from pathlib import Path

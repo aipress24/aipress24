@@ -340,13 +340,50 @@ def test_bw_manage_internal_roles_post(
         pytest.skip("no `content` textareas on manage-internal-roles")
     original_bwmi = boxes[0]
 
-    # invite_user_role requires the invitee to be (1) an existing
-    # active User and (2) already a member of the BW's organisation.
-    # sf@abilian.com is in erick's BW org with no role assignment in
-    # the dev DB.
-    test_email = "sf@abilian.com"
+    # `invite_user_role` (called by `change_bwmi_emails`) requires
+    # the invitee to be (1) an existing active User AND (2)
+    # already a member of the BW's organisation
+    # (`user in org.members`). The previous version of this test
+    # hard-coded `sf@abilian.com` ; that user's `organisation_id`
+    # has since been unset by other test runs that call
+    # `change_members_emails`, so the invariant no longer holds.
+    #
+    # Best-effort fix : scrape the « current members » section of
+    # the page for an `@` text node, pick one and propose them as
+    # BWMi. If no eligible email is scrapable, skip — there's no
+    # one to invite.
+    page_text = page.evaluate(
+        """() => document.documentElement.innerText || ''"""
+    )
+    import re as _re
+    candidates = _re.findall(
+        r"[\w.+-]+@[\w-]+\.[\w.-]+", page_text
+    )
+    # Strip the user's own email and emails already in the
+    # textarea (those would skip the « new mail » diff branch).
+    own = (p["email"] or "").lower()
+    already = {
+        line.strip().lower() for line in original_bwmi.splitlines()
+    }
+    eligible = [
+        c for c in candidates
+        if c.lower() != own
+        and c.lower() not in already
+        and "no-reply" not in c.lower()
+    ]
+    if not eligible:
+        pytest.skip(
+            "no eligible email scrapable from "
+            "/BW/manage-internal-roles — the BW's organisation has "
+            "no other members the test can invite. Run "
+            "`make seed-reset` to restore the baseline."
+        )
+    test_email = eligible[0].lower()
+
     new_content = (
-        original_bwmi + ("\n" if original_bwmi.strip() else "") + test_email
+        original_bwmi
+        + ("\n" if original_bwmi.strip() else "")
+        + test_email
     )
     try:
         resp = authed_post(
