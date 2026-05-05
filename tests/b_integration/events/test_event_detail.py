@@ -160,6 +160,32 @@ class TestGetMetadataList:
             labels = [m["label"] for m in metadata]
             assert "URL de l'événement" in labels
 
+    def test_metadata_list_includes_country_when_present(
+        self, app: Flask, db_session: Session, event_post: EventPost
+    ):
+        """Geoloc: Pays entry appears when pays_zip_ville is set."""
+        view = EventDetailView()
+        event_vm = EventDetailVM(event_post)
+
+        with app.test_request_context():
+            metadata = view._get_metadata_list(event_vm)
+
+            labels = [m["label"] for m in metadata]
+            assert "Pays" in labels
+
+    def test_metadata_list_includes_city_when_detail_present(
+        self, app: Flask, db_session: Session, event_post: EventPost
+    ):
+        """Geoloc: Ville entry appears when pays_zip_ville_detail is set."""
+        view = EventDetailView()
+        event_vm = EventDetailVM(event_post)
+
+        with app.test_request_context():
+            metadata = view._get_metadata_list(event_vm)
+
+            labels = [m["label"] for m in metadata]
+            assert "Ville" in labels
+
     def test_metadata_list_omits_empty_fields(
         self, app: Flask, db_session: Session, event_owner: User
     ):
@@ -182,8 +208,10 @@ class TestGetMetadataList:
             metadata = view._get_metadata_list(event_vm)
 
             labels = [m["label"] for m in metadata]
-            # Should have genre and sector but not address or URL
+            # Should have genre and sector but not address, URL or geoloc
             assert "Type d'événement" in labels
             assert "Secteur" in labels
             assert "Adresse" not in labels
             assert "URL de l'événement" not in labels
+            assert "Pays" not in labels
+            assert "Ville" not in labels
