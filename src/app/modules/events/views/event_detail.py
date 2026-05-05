@@ -20,6 +20,12 @@ from app.flask.sqla import get_obj
 from app.models.auth import User
 from app.modules.events import blueprint
 from app.modules.events.models import EventPost
+from app.modules.events.services import (
+    add_participant,
+    can_user_accredit,
+    is_participant,
+    remove_participant,
+)
 from app.modules.events.views._common import EventDetailVM
 from app.modules.kyc.field_label import country_code_to_label, country_zip_code_to_city
 from app.modules.swork.models import Comment
@@ -47,6 +53,8 @@ class EventDetailView(MethodView):
             "metadata_list": self._get_metadata_list(view_model),
             "title": event_obj.title,
             "related_events": [],
+            "is_participating": is_participant(event_obj, g.user),
+            "can_accredit": can_user_accredit(g.user, event_obj),
         }
         return render_template("pages/event.j2", **ctx)
 
@@ -62,6 +70,10 @@ class EventDetailView(MethodView):
                 return response
             case "post-comment":
                 response = self._post_comment(event_obj)
+                db.session.commit()
+                return response
+            case "toggle-participate":
+                response = self._toggle_participate(user, event_obj)
                 db.session.commit()
                 return response
             case _:
@@ -91,6 +103,34 @@ class EventDetailView(MethodView):
 
         response = make_response(str(event_obj.like_count))
         response.headers["HX-Trigger"] = json.dumps({"showToast": message})
+        return response
+
+    def _toggle_participate(self, user: User, event_obj: EventPost) -> Response:
+        """Toggle the user's accreditation to an event.
+
+        Bug 0127. Refuses with HTTP 403 when the user lacks the required role
+        (journalists only). Otherwise toggles `participation_table` and
+        returns the new button label so HTMX can swap it in place.
+
+        Note: does NOT commit — caller is responsible.
+        """
+        if not can_user_accredit(user, event_obj):
+            response = make_response("Accréditation réservée aux journalistes.", 403)
+            return response
+
+        if is_participant(event_obj, user):
+            remove_participant(event_obj, user)
+            new_label = "S'accréditer"
+            toast_msg = (
+                f"Vous n'êtes plus accrédité à l'événement {event_obj.title!r}"
+            )
+        else:
+            add_participant(event_obj, user)
+            new_label = "Annuler mon accréditation"
+            toast_msg = f"Vous êtes accrédité à l'événement {event_obj.title!r}"
+
+        response = make_response(new_label)
+        response.headers["HX-Trigger"] = json.dumps({"showToast": toast_msg})
         return response
 
     def _post_comment(self, event_obj: EventPost) -> Response:

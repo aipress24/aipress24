@@ -3,22 +3,10 @@
     style="background-size: cover;">
 
   <div class="lg:max-w-7xl mx-auto">
-    <div class="py-8 px-6 flex items-center space-x-8">
+    <div class="py-8 px-6 flex items-center justify-between space-x-8">
 
 
       <div class="text-gray-50">
-        <!--<div class="dui-badge dui-badge dui-badge-primary">
-          <button
-              href="#"
-              hx-trigger="click"
-              hx-post="{{ url_for('.events') }}"
-              hx-push-url="true"
-              hx-vals='{"force-tab": "'
-              hx-target="#body"
-              hx-swap="outerHTML"
-          >{# event.type_label #}</button>
-        </div>-->
-
         <h1 class="text-2xl font-bold my-2">
           {{ event.title }}
         </h1>
@@ -34,6 +22,27 @@
           </div>
         </div>
       </div>
+
+      {# Bug #127: self-accreditation, journalists only. #}
+      {% if can_accredit %}
+        <div>
+          <button
+              id="accredit-button-{{ event.id }}"
+              type="button"
+              class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-gray-900 bg-white hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900"
+              hx-post="{{ request.path }}"
+              hx-vals='{"action": "toggle-participate"}'
+              hx-target="this"
+              hx-swap="innerHTML"
+          >
+            {% if is_participating %}
+              Annuler mon accréditation
+            {% else %}
+              S'accréditer
+            {% endif %}
+          </button>
+        </div>
+      {% endif %}
     </div>
   </div>
 </section>
