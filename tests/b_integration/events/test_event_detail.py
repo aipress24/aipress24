@@ -11,8 +11,10 @@ from typing import TYPE_CHECKING
 import pytest
 from flask import g
 
-from app.models.auth import User
+from app.enums import RoleEnum
+from app.models.auth import Role, User
 from app.modules.events.models import EventPost
+from app.modules.events.services import is_participant
 from app.modules.events.views._common import EventDetailVM
 from app.modules.events.views.event_detail import EventDetailView
 from app.services.social_graph import adapt
@@ -187,3 +189,90 @@ class TestGetMetadataList:
             assert "Secteur" in labels
             assert "Adresse" not in labels
             assert "URL de l'événement" not in labels
+
+
+# ----------------------------------------------------------------
+# Bug 0127 — accreditation toggle
+# ----------------------------------------------------------------
+
+
+def _grant_press_media_role(db_session: Session, user: User) -> None:
+    """Give the user the PRESS_MEDIA role (idempotent)."""
+    role = (
+        db_session.query(Role).filter_by(name=RoleEnum.PRESS_MEDIA.name).first()
+    )
+    if role is None:
+        role = Role(name=RoleEnum.PRESS_MEDIA.name, description="Press & Media")
+        db_session.add(role)
+        db_session.flush()
+    if role not in user.roles:
+        user.roles.append(role)
+        db_session.flush()
+
+
+@pytest.fixture
+def journalist_user(db_session: Session) -> User:
+    user = User(email="journo@example.com", first_name="Jane", last_name="Doe")
+    db_session.add(user)
+    db_session.flush()
+    _grant_press_media_role(db_session, user)
+    return user
+
+
+class TestToggleParticipate:
+    """Bug 0127: simplest accreditation toggle, journalists only."""
+
+    def test_journalist_can_self_accredit(
+        self,
+        app: Flask,
+        db_session: Session,
+        event_post: EventPost,
+        journalist_user: User,
+    ):
+        view = EventDetailView()
+        with app.test_request_context():
+            g.user = journalist_user
+
+            assert is_participant(event_post, journalist_user) is False
+
+            response = view._toggle_participate(journalist_user, event_post)
+
+            assert response.status_code == 200
+            assert is_participant(event_post, journalist_user) is True
+            assert b"Annuler" in response.data
+            assert "HX-Trigger" in response.headers
+
+    def test_second_toggle_removes_accreditation(
+        self,
+        app: Flask,
+        db_session: Session,
+        event_post: EventPost,
+        journalist_user: User,
+    ):
+        view = EventDetailView()
+        with app.test_request_context():
+            g.user = journalist_user
+            view._toggle_participate(journalist_user, event_post)
+
+            response = view._toggle_participate(journalist_user, event_post)
+
+            assert response.status_code == 200
+            assert is_participant(event_post, journalist_user) is False
+            assert b"S'accr" in response.data  # "S'accréditer"
+
+    def test_non_journalist_is_refused(
+        self,
+        app: Flask,
+        db_session: Session,
+        event_post: EventPost,
+        viewer_user: User,
+    ):
+        """A user without PRESS_MEDIA role gets a 403 and no row inserted."""
+        view = EventDetailView()
+        with app.test_request_context():
+            g.user = viewer_user
+
+            response = view._toggle_participate(viewer_user, event_post)
+
+            assert response.status_code == 403
+            assert is_participant(event_post, viewer_user) is False
