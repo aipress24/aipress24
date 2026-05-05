@@ -1,13 +1,22 @@
+{# Trix-rendered admin content can carry full-resolution
+   <img> (e.g. 3840×2160) and long URLs ; without these
+   defensive rules a wide image overflows its grid column
+   and squeezes adjacent columns to a paper-thin width. #}
 {% macro promo_box(id) %}
   {% set box = get_promotion(id) %}
   {% if box and box.body %}
-    <section>
+    <style>
+      .promo-body { overflow-wrap: anywhere; }
+      .promo-body img { max-width: 100% !important; height: auto !important; }
+      .promo-body a { word-break: break-word; text-decoration: underline; }
+    </style>
+    <section class="promo-body">
       <div class="card p-0 border-0 bg-white rounded shadow">
         <h2 class="flex justify-between px-4 py-3 text-base font-medium text-gray-900 bg-gray-200">
           {{ box.title }}
         </h2>
 
-        <div class="py-2 px-4 text-gray-700 text-sm">
+        <div class="py-2 px-4 text-gray-700 text-sm overflow-hidden">
           <div class="my-3">
             {{ box.body }}
           </div>
