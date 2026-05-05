@@ -13,6 +13,7 @@ import pytest
 from flask import Flask, g
 
 from app.models.auth import KYCProfile, User
+from app.models.lifecycle import PublicationStatus
 from app.models.organisation import Organisation
 from app.modules.bw.bw_activation.models import BusinessWall
 from app.modules.bw.bw_activation.models.business_wall import BWStatus
@@ -34,6 +35,7 @@ from app.modules.swork.views.organisation import (
     OrgPublicationsTab,
     OrgVM,
 )
+from app.modules.wire.models import PressReleasePost
 
 if TYPE_CHECKING:
     from flask.testing import FlaskClient
@@ -489,6 +491,94 @@ class TestOrgPressBookTab:
         """Test guard returns True for non-AUTO organisation."""
         tab = OrgPressBookTab(org=test_organisation_media)
         assert tab.guard() is True
+
+    def test_label_dynamic_count_zero(
+        self,
+        app: Flask,
+        db_session: Session,
+        test_organisation_media: Organisation,
+    ):
+        """Regression for bug 0125-A: label was hardcoded "Press Book (0)".
+
+        With no press releases, count must still resolve dynamically (and
+        equal 0), not be a static string.
+        """
+        with app.test_request_context():
+            tab = OrgPressBookTab(org=test_organisation_media)
+            assert tab.label == "Press Book (0)"
+
+    def test_label_counts_direct_publisher(
+        self,
+        app: Flask,
+        db_session: Session,
+        test_organisation_media: Organisation,
+        test_user_with_profile: User,
+    ):
+        """Press releases directly attributed to the org increment the label."""
+        post = PressReleasePost()
+        post.title = "Direct PR"
+        post.owner_id = test_user_with_profile.id
+        post.publisher_id = test_organisation_media.id
+        post.status = PublicationStatus.PUBLIC  # type: ignore[assignment]
+        db_session.add(post)
+        db_session.flush()
+
+        with app.test_request_context():
+            tab = OrgPressBookTab(org=test_organisation_media)
+            assert tab.label == "Press Book (1)"
+
+    def test_label_counts_pr_published_on_behalf_by_agency_member(
+        self,
+        app: Flask,
+        db_session: Session,
+        test_organisation_media: Organisation,
+        test_user_with_profile: User,
+    ):
+        """When an agency member publishes a PR for a client (publisher_id=client),
+        the PR counts on the agency's BW too, via the owner.organisation clause.
+        Same semantics as OrgPressReleasesTab; bug 0125 wanted this visible.
+        """
+        # The fixture user is in `test_organisation_media` (set on creation? not
+        # quite — re-attach to be explicit).
+        test_user_with_profile.organisation = test_organisation_media
+        test_user_with_profile.organisation_id = test_organisation_media.id
+        client_org = Organisation(name="Client Org")
+        db_session.add(client_org)
+        db_session.flush()
+
+        post = PressReleasePost()
+        post.title = "Delegated PR"
+        post.owner_id = test_user_with_profile.id
+        post.publisher_id = client_org.id
+        post.status = PublicationStatus.PUBLIC  # type: ignore[assignment]
+        db_session.add(post)
+        db_session.flush()
+
+        with app.test_request_context():
+            agency_tab = OrgPressBookTab(org=test_organisation_media)
+            client_tab = OrgPressBookTab(org=client_org)
+            assert agency_tab.label == "Press Book (1)"
+            assert client_tab.label == "Press Book (1)"
+
+    def test_label_excludes_drafts(
+        self,
+        app: Flask,
+        db_session: Session,
+        test_organisation_media: Organisation,
+        test_user_with_profile: User,
+    ):
+        """Draft press releases should not appear in the count."""
+        post = PressReleasePost()
+        post.title = "Draft PR"
+        post.owner_id = test_user_with_profile.id
+        post.publisher_id = test_organisation_media.id
+        post.status = PublicationStatus.DRAFT  # type: ignore[assignment]
+        db_session.add(post)
+        db_session.flush()
+
+        with app.test_request_context():
+            tab = OrgPressBookTab(org=test_organisation_media)
+            assert tab.label == "Press Book (0)"
 
 
 class TestOrgPressReleasesTab:
