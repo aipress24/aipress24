@@ -486,8 +486,11 @@ class CommuniqueForm(Form):
                     "section",
                     "topic",
                     "sector",
-                    "publisher_id",
                     "pays_zip_ville",
+                    # Render publisher_id LAST: its Choices.js dropdown panel
+                    # extends downward and was being visually masked by the
+                    # CountrySelectField tom-select widget when rendered above.
+                    "publisher_id",
                 ],
             },
             "dates": {
