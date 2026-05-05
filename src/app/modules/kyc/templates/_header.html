@@ -1,9 +1,24 @@
+{# `hx-boost` is INTENTIONALLY off on the logo. When the user
+   clicks « back to home » from a KYC or BW page, htmx-boost
+   would do a partial body swap rather than a full page load.
+   The destination wire / news feed renders article cards via
+   an Alpine-driven `Carousel` component whose slides start
+   with `style="display: none"` ; Alpine flips them to visible
+   on `x-init`. With htmx-boost on, Alpine init never fires on
+   the swapped components → carousels stay hidden → user sees
+   the news page with no photos until they hit refresh.
+   Ref: bug #0109 part 1.
+
+   Note : this `_header.html` lives in the `kyc` blueprint but
+   is also resolved by the `bw_activation` blueprint when its
+   own `templates/_header.html` is shadowed by the loader's
+   resolution order. Keep the two files in sync. #}
 <nav class="border-b border-gray-200 bg-white">
   <div class="max-w-7xl mx-auto px-4">
     <div class="flex justify-between h-16">
       <div class="flex">
         <div class="flex-shrink-0 flex items-center">
-          <a hx-boost="true" href="/">
+          <a href="/">
             <img
               class="block lg:hidden h-8 w-auto"
               src="/static/img/aipress24-logo-small.png"

@@ -6,11 +6,16 @@
 
 from __future__ import annotations
 
+import base64
 import io
 
 from PIL import Image
 
-from app.lib.image_utils import resized, squared
+from app.lib.image_utils import (
+    extract_image_from_request,
+    resized,
+    squared,
+)
 
 
 class TestResized:
@@ -217,3 +222,124 @@ class TestSquared:
         center_pixel = result_img.getpixel((200, 200))
         assert center_pixel[0] == 255  # Red
         assert center_pixel[3] == 255  # Opaque
+
+
+# Helpers for the cropper.js priority tests below.
+
+
+class _StubFileStorage:
+    """Minimal FileStorage stand-in for unit tests : just exposes
+    `read()`, `filename`, `content_type` like the Werkzeug type."""
+
+    def __init__(self, content: bytes, filename: str, content_type: str) -> None:
+        self._content = content
+        self.filename = filename
+        self.content_type = content_type
+
+    def read(self) -> bytes:
+        return self._content
+
+
+def _png_data_url() -> str:
+    """Return a valid `data:image/png;base64,…` URL of a 1×1 red
+    pixel — small but well-formed enough to round-trip through
+    `extract_image_from_request`."""
+    img = Image.new("RGB", (1, 1), color="red")
+    buf = io.BytesIO()
+    img.save(buf, format="PNG")
+    return "data:image/png;base64," + base64.b64encode(buf.getvalue()).decode("ascii")
+
+
+class TestExtractImageFromRequest:
+    """Test suite for extract_image_from_request — pin the
+    cropper-data-URL-takes-precedence invariant (bug #0121)."""
+
+    def test_returns_none_when_both_inputs_empty(self):
+        """No file_storage AND no data_url → None."""
+        assert extract_image_from_request() is None
+
+    def test_returns_none_for_empty_file_storage(self):
+        """A FileStorage that reads to empty bytes → None."""
+        empty = _StubFileStorage(b"", "x.png", "image/png")
+        assert extract_image_from_request(file_storage=empty) is None
+
+    def test_returns_file_when_only_file_storage_provided(self):
+        """Cropper not used : the upload is the only signal."""
+        fs = _StubFileStorage(b"\x89PNGoriginal", "shot.png", "image/png")
+        result = extract_image_from_request(file_storage=fs)
+        assert result is not None
+        assert result.bytes == b"\x89PNGoriginal"
+        assert result.filename == "shot.png"
+        assert result.content_type == "image/png"
+
+    def test_returns_data_url_when_only_data_url_provided(self):
+        """User cropped without an active file upload : data-URL
+        is the sole signal."""
+        result = extract_image_from_request(data_url=_png_data_url())
+        assert result is not None
+        assert result.content_type == "image/png"
+        # Tiny 1×1 PNG → bytes len > 0.
+        assert len(result.bytes) > 0
+
+    def test_data_url_takes_precedence_over_file_storage(self):
+        """REGRESSION : bug #0121.
+
+        When the user picks a file (`file_storage`) AND uses
+        the cropper to crop it (`data_url` filled with the
+        cropped bytes), the function MUST return the cropped
+        version. Before the fix, the original was returned and
+        the user's crop was silently discarded.
+        """
+        fs = _StubFileStorage(
+            b"ORIGINAL_BYTES_NOT_CROPPED",
+            "shot.png",
+            "image/png",
+        )
+        result = extract_image_from_request(
+            file_storage=fs,
+            data_url=_png_data_url(),
+        )
+        assert result is not None
+        # The crop was returned (≠ original).
+        assert result.bytes != b"ORIGINAL_BYTES_NOT_CROPPED", (
+            "cropper data-URL should override file_storage. "
+            "If this fails, the priority in "
+            "`extract_image_from_request` regressed — bug #0121 "
+            "is back."
+        )
+        # `data_url` parsing yields content_type from the URL,
+        # not the FileStorage's.
+        assert result.content_type == "image/png"
+
+    def test_falls_back_to_file_storage_on_malformed_data_url(self):
+        """A garbage `data:image/...` payload (e.g. truncated
+        base64) should NOT swallow the upload — fall back to
+        the file storage so the user's image isn't lost."""
+        fs = _StubFileStorage(b"GOOD_FILE_BYTES", "shot.png", "image/png")
+        result = extract_image_from_request(
+            file_storage=fs,
+            data_url="data:image/png;base64,!!!not-base64!!!",
+        )
+        assert result is not None
+        assert result.bytes == b"GOOD_FILE_BYTES"
+
+    def test_data_url_uses_orig_filename_when_provided(self):
+        """When `orig_filename` matches the data-URL's media
+        type, the original filename is preserved — keeps
+        gallery captions and S3 paths consistent."""
+        result = extract_image_from_request(
+            data_url=_png_data_url(),
+            orig_filename="custom-crop.png",
+        )
+        assert result is not None
+        assert result.filename == "custom-crop.png"
+
+    def test_data_url_swaps_extension_when_orig_filename_mismatches(self):
+        """If user uploaded `shot.jpg` then the cropper exported
+        as PNG, the result keeps the base name but uses .png."""
+        result = extract_image_from_request(
+            data_url=_png_data_url(),
+            orig_filename="shot.jpg",
+        )
+        assert result is not None
+        assert result.filename == "shot.png"

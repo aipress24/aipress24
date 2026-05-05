@@ -1,9 +1,22 @@
+{# `hx-boost` is INTENTIONALLY off on the BW-tunnel header logo.
+   When the user clicks « back to platform » (i.e. the logo), they
+   leave the BW tunnel and land on the wire / news feed. That feed
+   renders article cards via an Alpine-driven `Carousel` component
+   whose slides start with `style="display: none"` — Alpine flips
+   them to visible on `x-init`. With `hx-boost` on, htmx swaps the
+   body without re-running Alpine init → carousels stay hidden →
+   user sees the news page with no photos until they hit refresh.
+   Ref: bug #0109 part 1.
+
+   The « retour vers la plateforme » buttons in the body
+   (`_back_to_platform.html`) similarly avoid `hx-boost` for the
+   same reason. #}
 <nav class="border-b border-gray-200 bg-white">
   <div class="max-w-7xl mx-auto px-4">
     <div class="flex justify-between h-16">
       <div class="flex">
         <div class="flex-shrink-0 flex items-center">
-          <a hx-boost="true" href="/">
+          <a href="/">
             <img
               class="block lg:hidden h-8 w-auto"
               src="/static/img/aipress24-logo-small.png"
