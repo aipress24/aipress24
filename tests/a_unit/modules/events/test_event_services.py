@@ -7,13 +7,21 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
+from unittest.mock import MagicMock
 
 import pytest
 from typeguard import TypeCheckError
 
+from app.enums import RoleEnum
 from app.models.auth import User
 from app.modules.events.models import EventPost, participation_table
-from app.modules.events.services import get_participants
+from app.modules.events.services import (
+    add_participant,
+    can_user_accredit,
+    get_participants,
+    is_participant,
+    remove_participant,
+)
 
 if TYPE_CHECKING:
     from flask_sqlalchemy import SQLAlchemy
@@ -159,3 +167,83 @@ class TestGetParticipants:
         assert result1[0].email == "specific1@example.com"
         assert len(result2) == 1
         assert result2[0].email == "specific2@example.com"
+
+
+# ----------------------------------------------------------------
+# Bug 0127 — accreditation toggle services
+# ----------------------------------------------------------------
+
+
+@pytest.fixture
+def journalist(db: SQLAlchemy) -> User:
+    user = User(email="journalist@example.com", first_name="Jane", last_name="Doe")
+    db.session.add(user)
+    db.session.flush()
+    return user
+
+
+class TestIsParticipant:
+    def test_false_when_not_accredited(
+        self, event_post: EventPost, journalist: User
+    ) -> None:
+        assert is_participant(event_post, journalist) is False
+
+    def test_true_after_add(
+        self, db: SQLAlchemy, event_post: EventPost, journalist: User
+    ) -> None:
+        _add_participant(db, event_post, journalist)
+        assert is_participant(event_post, journalist) is True
+
+
+class TestAddParticipant:
+    def test_inserts_row_when_absent(
+        self, event_post: EventPost, journalist: User
+    ) -> None:
+        inserted = add_participant(event_post, journalist)
+        assert inserted is True
+        assert is_participant(event_post, journalist) is True
+
+    def test_idempotent_when_already_accredited(
+        self, db: SQLAlchemy, event_post: EventPost, journalist: User
+    ) -> None:
+        _add_participant(db, event_post, journalist)
+
+        inserted = add_participant(event_post, journalist)
+
+        assert inserted is False
+        # And exactly one row, not two — UniqueConstraint on (user_id, event_id).
+        assert len(get_participants(event_post)) == 1
+
+
+class TestRemoveParticipant:
+    def test_deletes_existing_row(
+        self, db: SQLAlchemy, event_post: EventPost, journalist: User
+    ) -> None:
+        _add_participant(db, event_post, journalist)
+
+        deleted = remove_participant(event_post, journalist)
+
+        assert deleted is True
+        assert is_participant(event_post, journalist) is False
+
+    def test_idempotent_when_absent(
+        self, event_post: EventPost, journalist: User
+    ) -> None:
+        deleted = remove_participant(event_post, journalist)
+        assert deleted is False
+
+
+class TestCanUserAccredit:
+    """Bug 0127: accreditation reserved to journalists (RoleEnum.PRESS_MEDIA)."""
+
+    def test_journalist_can_accredit(self, event_post: EventPost) -> None:
+        user = MagicMock(spec=User)
+        user.has_role = MagicMock(side_effect=lambda r: r == RoleEnum.PRESS_MEDIA)
+
+        assert can_user_accredit(user, event_post) is True
+
+    def test_non_journalist_cannot_accredit(self, event_post: EventPost) -> None:
+        user = MagicMock(spec=User)
+        user.has_role = MagicMock(return_value=False)
+
+        assert can_user_accredit(user, event_post) is False
