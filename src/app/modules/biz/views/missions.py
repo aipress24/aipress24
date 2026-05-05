@@ -37,6 +37,8 @@ from app.modules.biz.views._offers_common import (
     mark_filled,
     update_application_status,
 )
+from app.modules.kyc.dynform import CountrySelectField
+from app.modules.kyc.ontology_loader import get_choices as get_ontology_choices
 
 
 class MissionOfferForm(Form):
@@ -49,7 +51,17 @@ class MissionOfferForm(Form):
         validators=[validators.InputRequired(), validators.Length(min=20)],
     )
     sector = StringField("Secteur", validators=[validators.Optional()])
-    location = StringField("Localisation", validators=[validators.Optional()])
+    pays_zip_ville = CountrySelectField(
+        name="pays_zip_ville",
+        name2="pays_zip_ville_detail",
+        label="Pays",
+        id="pzv",
+        id2="pzv_detail",
+        label2="Code postal et ville",
+        choices=[],
+        validate_choice=False,
+        readonly=0,
+    )
     budget_min = IntegerField("Budget min (€)", validators=[validators.Optional()])
     budget_max = IntegerField("Budget max (€)", validators=[validators.Optional()])
     deadline = DateField("Date limite", validators=[validators.Optional()])
@@ -60,12 +72,14 @@ def missions_new():
     user = cast(User, g.user)
 
     form = MissionOfferForm(request.form)
+    form.pays_zip_ville.choices = get_ontology_choices("country_pays")
     if request.method == "POST" and form.validate():
         mission = MissionOffer(
             title=form.title.data or "",
             description=form.description.data or "",
             sector=form.sector.data or "",
-            location=form.location.data or "",
+            pays_zip_ville=form.pays_zip_ville.data or "",
+            pays_zip_ville_detail=request.form.get("pays_zip_ville_detail", ""),
             budget_min=euros_to_cents(form.budget_min.data),
             budget_max=euros_to_cents(form.budget_max.data),
             deadline=date_to_datetime(form.deadline.data),

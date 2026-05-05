@@ -14,7 +14,8 @@
   <div class="text-sm text-gray-600 flex flex-wrap gap-x-4 gap-y-1 mb-3">
     {% if obj.project_type %}<span>{{ obj.project_type }}</span>{% endif %}
     {% if obj.sector %}<span>{{ obj.sector }}</span>{% endif %}
-    {% if obj.location %}<span>📍 {{ obj.location }}</span>{% endif %}
+    {% set _geo = obj|offer_geoloc %}
+    {% if _geo %}<span>📍 {{ _geo }}</span>{% endif %}
     {% if obj.team_size %}<span>👥 {{ obj.team_size }}</span>{% endif %}
     {% if obj.duration_months %}<span>⏳ {{ obj.duration_months }} mois</span>{% endif %}
     {% if obj.budget_min and obj.budget_max %}

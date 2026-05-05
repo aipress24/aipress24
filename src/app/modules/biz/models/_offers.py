@@ -79,6 +79,8 @@ class MissionOffer(MarketplaceContent, ClassificationMixin, Publishable):
     title: Mapped[str] = mapped_column(default="")
     description: Mapped[str] = mapped_column(default="")
     location: Mapped[str] = mapped_column(default="")
+    pays_zip_ville: Mapped[str] = mapped_column(default="")
+    pays_zip_ville_detail: Mapped[str] = mapped_column(default="")
     budget_min: Mapped[int | None] = mapped_column(default=None)  # cents
     budget_max: Mapped[int | None] = mapped_column(default=None)  # cents
     currency: Mapped[str] = mapped_column(default="EUR")
@@ -105,6 +107,8 @@ class ProjectOffer(MarketplaceContent, ClassificationMixin, Publishable):
     title: Mapped[str] = mapped_column(default="")
     description: Mapped[str] = mapped_column(default="")
     location: Mapped[str] = mapped_column(default="")
+    pays_zip_ville: Mapped[str] = mapped_column(default="")
+    pays_zip_ville_detail: Mapped[str] = mapped_column(default="")
     budget_min: Mapped[int | None] = mapped_column(default=None)
     budget_max: Mapped[int | None] = mapped_column(default=None)
     currency: Mapped[str] = mapped_column(default="EUR")
@@ -134,6 +138,8 @@ class JobOffer(MarketplaceContent, ClassificationMixin, Publishable):
     title: Mapped[str] = mapped_column(default="")
     description: Mapped[str] = mapped_column(default="")
     location: Mapped[str] = mapped_column(default="")
+    pays_zip_ville: Mapped[str] = mapped_column(default="")
+    pays_zip_ville_detail: Mapped[str] = mapped_column(default="")
     salary_min: Mapped[int | None] = mapped_column(default=None)  # cents/year
     salary_max: Mapped[int | None] = mapped_column(default=None)
     currency: Mapped[str] = mapped_column(default="EUR")
