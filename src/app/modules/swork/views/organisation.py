@@ -176,10 +176,20 @@ class OrgPublicationsTab(Tab):
 
 class OrgPressBookTab(Tab):
     id = "press-book"
-    label = "Press Book (0)"
 
     def guard(self) -> bool:
         return self.org.has_bw
+
+    @property
+    def label(self) -> str:
+        stmt = (
+            select(func.count())
+            .select_from(PressReleasePost)
+            .where(_press_releases_for_org_clause(self.org.id))
+            .where(PressReleasePost.status == PublicationStatus.PUBLIC)
+        )
+        count = db.session.execute(stmt).scalar()
+        return f"Press Book ({count})"
 
 
 def _press_releases_for_org_clause(org_id: int):

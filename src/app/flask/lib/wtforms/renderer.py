@@ -95,6 +95,10 @@ FIELD_TEMPLATE = """
   <div class="rounded-md shadow-sm">
     {{ field }}
   </div>
+
+  {% if description %}
+    <p class="mt-1 text-sm text-gray-500">{{ description }}</p>
+  {% endif %}
 </div>
 """
 
@@ -145,6 +149,10 @@ FIELD_VIEW_TEMPLATE = """
   <div class="rounded-md shadow-sm">
     {{ field }}
   </div>
+
+  {% if description %}
+    <p class="mt-1 text-sm text-gray-500">{{ description }}</p>
+  {% endif %}
 </div>
 """
 
@@ -236,6 +244,7 @@ class FormRenderer:
                 "field": field,
                 "errors": field.errors,
                 "width": width,
+                "description": field.description or "",
             }
         else:
             ctx = {
@@ -244,6 +253,7 @@ class FormRenderer:
                 "field": Markup(field_str),
                 "errors": field.errors,
                 "width": width,
+                "description": field.description or "",
             }
 
         if self.mode == "view":
