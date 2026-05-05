@@ -19,8 +19,9 @@
         {% if mission.sector %}
           <div><dt class="text-gray-500">Secteur</dt><dd>{{ mission.sector }}</dd></div>
         {% endif %}
-        {% if mission.location %}
-          <div><dt class="text-gray-500">Localisation</dt><dd>{{ mission.location }}</dd></div>
+        {% set _geo = mission|offer_geoloc %}
+        {% if _geo %}
+          <div><dt class="text-gray-500">Localisation</dt><dd>{{ _geo }}</dd></div>
         {% endif %}
         {% if mission.budget_min or mission.budget_max %}
           <div>

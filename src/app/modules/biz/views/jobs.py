@@ -41,6 +41,8 @@ from app.modules.biz.views._offers_common import (
     require_owner,
     update_application_status,
 )
+from app.modules.kyc.dynform import CountrySelectField
+from app.modules.kyc.ontology_loader import get_choices as get_ontology_choices
 
 _CONTRACT_CHOICES = [
     (ContractType.CDI.value, "CDI"),
@@ -61,7 +63,17 @@ class JobOfferForm(Form):
         validators=[validators.InputRequired(), validators.Length(min=20)],
     )
     sector = StringField("Secteur", validators=[validators.Optional()])
-    location = StringField("Localisation", validators=[validators.Optional()])
+    pays_zip_ville = CountrySelectField(
+        name="pays_zip_ville",
+        name2="pays_zip_ville_detail",
+        label="Pays",
+        id="pzv",
+        id2="pzv_detail",
+        label2="Code postal et ville",
+        choices=[],
+        validate_choice=False,
+        readonly=0,
+    )
     contract_type = SelectField(
         "Type de contrat",
         choices=_CONTRACT_CHOICES,
@@ -85,12 +97,14 @@ def jobs_new():
     user = cast(User, g.user)
 
     form = JobOfferForm(request.form)
+    form.pays_zip_ville.choices = get_ontology_choices("country_pays")
     if request.method == "POST" and form.validate():
         job = JobOffer(
             title=form.title.data or "",
             description=form.description.data or "",
             sector=form.sector.data or "",
-            location=form.location.data or "",
+            pays_zip_ville=form.pays_zip_ville.data or "",
+            pays_zip_ville_detail=request.form.get("pays_zip_ville_detail", ""),
             contract_type=ContractType(
                 form.contract_type.data or ContractType.CDI.value
             ),

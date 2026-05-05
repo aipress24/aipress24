@@ -19,8 +19,9 @@
         {% if project.sector %}
           <div><dt class="text-gray-500">Secteur</dt><dd>{{ project.sector }}</dd></div>
         {% endif %}
-        {% if project.location %}
-          <div><dt class="text-gray-500">Localisation</dt><dd>{{ project.location }}</dd></div>
+        {% set _geo = project|offer_geoloc %}
+        {% if _geo %}
+          <div><dt class="text-gray-500">Localisation</dt><dd>{{ _geo }}</dd></div>
         {% endif %}
         {% if project.project_type %}
           <div><dt class="text-gray-500">Type</dt><dd>{{ project.project_type }}</dd></div>

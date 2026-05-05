@@ -18,7 +18,8 @@
       <dl class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-gray-600 mb-6">
         <div><dt class="text-gray-500">Contrat</dt><dd>{{ job.contract_type.value }}{% if not job.full_time %} — temps partiel{% endif %}</dd></div>
         {% if job.sector %}<div><dt class="text-gray-500">Secteur</dt><dd>{{ job.sector }}</dd></div>{% endif %}
-        {% if job.location %}<div><dt class="text-gray-500">Lieu</dt><dd>{{ job.location }}{% if job.remote_ok %} (télétravail OK){% endif %}</dd></div>{% endif %}
+        {% set _geo = job|offer_geoloc %}
+        {% if _geo %}<div><dt class="text-gray-500">Lieu</dt><dd>{{ _geo }}{% if job.remote_ok %} (télétravail OK){% endif %}</dd></div>{% endif %}
         {% if job.salary_min or job.salary_max %}
           <div>
             <dt class="text-gray-500">Salaire</dt>
