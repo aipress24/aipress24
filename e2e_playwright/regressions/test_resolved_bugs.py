@@ -559,14 +559,23 @@ def test_bug_0107_bw_pre_fill_uses_metier_fonction_for_bw(
     Walk : login wizard user → POST select-subscription/media →
     GET nominate-contacts → assert input[name=owner_title] has a
     non-empty value attribute.
+
+    Skip-condition note : the test needs a user who is BOTH a
+    journalist (with `fonctions_journalisme` / `metiers` data,
+    so `metier_fonction_for_bw('media')` returns non-empty) AND
+    has no active BW yet (so they can drive the « first
+    activation » path). The default `PRESS_MEDIA` seed user
+    (erick) satisfies the first but already has BWs ; the
+    « wizard guinea-pig » (AliMbappe) satisfies the second but
+    is a PR-agency profile with no journalism data. No seed
+    user fits both — hence the skip below remains structural.
     """
     p = profile("PRESS_MEDIA")
     login(p)
     page.goto(f"{base_url}/BW/", wait_until="domcontentloaded")
     if "/BW/dashboard" in page.url or "/BW/select-bw" in page.url:
         # User has BW(s) ; select-subscription would error out.
-        # Skip — the wizard pre-fill is only on first activation
-        # and AliMbappe path covers it.
+        # Skip — the wizard pre-fill is only on first activation.
         pytest.skip(
             f"{p['email']} already has a BW — pre-fill path not "
             "exercised on this run"

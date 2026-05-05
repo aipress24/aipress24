@@ -24,6 +24,23 @@ from __future__ import annotations
 import pytest
 from playwright.sync_api import Page
 
+# erick (PRESS_MEDIA) owns multiple BWs ; pin the one his
+# `Organisation.bw_id` actually points to so
+# `current_business_wall(user)` resolves correctly. Same trick
+# used in CM-2 with BrigitteWasser. Discovered via direct DB :
+# see the CM-2 commit message for the pattern.
+_ERICK_BW_ID = "3be67123-b68d-48ad-9043-e2a206d18893"
+
+
+def _select_known_bw(page, base_url: str, authed_post) -> bool:
+    """POST /BW/select-bw/<uid> to pin the chosen BW into the
+    session. Returns True if the session is now primed for the
+    expected BW."""
+    sel = authed_post(
+        f"{base_url}/BW/select-bw/{_ERICK_BW_ID}", {}
+    )
+    return sel["status"] < 400 and "/auth/login" not in sel["url"]
+
 
 @pytest.mark.mutates_db
 @pytest.mark.parallel_unsafe
@@ -39,26 +56,23 @@ def test_stage_b3_change_emails_owner_only_is_noop(
     membership-shape change only."""
     p = profile("PRESS_MEDIA")
     login(p)
-    # Visit /BW/ first so the BW session is primed (the route
-    # requires `current_business_wall(user)` to succeed).
-    page.goto(f"{base_url}/BW/", wait_until="domcontentloaded")
-    if "/auth/login" in page.url:
-        pytest.skip("BW redirect to login — auth state lost")
-    # Hit the GET first to make sure the route renders for this
-    # user (skips early if they don't have a BW or are not a
-    # manager — the route bounces to /BW/not-authorized in that
-    # case).
+    # Pin the BW erick's `Organisation.bw_id` resolves to. Without
+    # this, `current_business_wall(user)` may return None (or a
+    # different BW the user isn't manager of) → not_authorized.
+    if not _select_known_bw(page, base_url, authed_post):
+        pytest.skip("can't pin /BW/select-bw — login lost or user changed")
+
     resp = page.goto(
         f"{base_url}/BW/manage-organisation-members",
         wait_until="domcontentloaded",
     )
-    if resp is None or resp.status >= 400:
-        pytest.skip(
-            f"/BW/manage-organisation-members not accessible : "
-            f"{resp.status if resp else '?'}"
-        )
-    if "not-authorized" in page.url:
-        pytest.skip("user not BW manager")
+    assert resp is not None and resp.status < 400, (
+        f"/BW/manage-organisation-members : "
+        f"status={resp.status if resp else '?'} url={page.url}"
+    )
+    assert "not-authorized" not in page.url, (
+        f"user not recognised as BW manager — got {page.url}"
+    )
 
     # POST with content = owner's email. Since the route uses
     # `remove_only=True` AND `never_remove=owner_mail`, this is
@@ -78,15 +92,17 @@ def test_stage_b3_post_unknown_action_renders_listing(
     re-renders the members listing (default GET path)."""
     p = profile("PRESS_MEDIA")
     login(p)
-    page.goto(f"{base_url}/BW/", wait_until="domcontentloaded")
-    if "/auth/login" in page.url:
-        pytest.skip("login lost")
+    if not _select_known_bw(page, base_url, authed_post):
+        pytest.skip("can't pin /BW/select-bw")
     resp = page.goto(
         f"{base_url}/BW/manage-organisation-members",
         wait_until="domcontentloaded",
     )
-    if resp is None or resp.status >= 400 or "not-authorized" in page.url:
-        pytest.skip("not accessible / not authorized")
+    assert resp is not None and resp.status < 400, (
+        f"/BW/manage-organisation-members : "
+        f"{resp.status if resp else '?'}"
+    )
+    assert "not-authorized" not in page.url, page.url
     resp_post = authed_post(
         f"{base_url}/BW/manage-organisation-members",
         {"action": "definitely-not-real"},

@@ -328,6 +328,27 @@ def test_bw_role_invitation_full_lifecycle(
         wait_until="domcontentloaded",
     )
 
+    # `invite_user_role` short-circuits silently (no mail) when the
+    # invitee is either (a) absent from the User table or (b) not
+    # a member of the BW's organisation. If the seed has drifted
+    # (e.g. previous CM-2/CM-5 runs mass-removed members), neither
+    # holds and the test would hard-fail with « 0 mails captured ».
+    # Probe the rendered manage-internal-roles page for the
+    # invitee's email or `data-target=...<user_id>` row — if
+    # absent, skip with a clear message.
+    page_text = page.evaluate(
+        """() => document.documentElement.innerText || ''"""
+    )
+    if _BWMI_INVITEE_EMAIL.lower() not in page_text.lower():
+        pytest.skip(
+            f"{_BWMI_INVITEE_EMAIL} not visible on "
+            "/BW/manage-internal-roles — the invitee is not a "
+            "member of this BW's organisation in the current "
+            "seed state. `invite_user_role` would short-circuit "
+            "before sending the mail. Run `make seed-reset` to "
+            "restore the baseline."
+        )
+
     # If a previous run died mid-lifecycle the invitee may linger
     # as PENDING or ACCEPTED. In either state `change_<role>` treats
     # them as already-known and skips the invite — no mail sent.
