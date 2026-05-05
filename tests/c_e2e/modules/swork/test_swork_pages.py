@@ -109,6 +109,28 @@ class TestSworkEndpoints:
         response = authenticated_client.get("/swork/")
         assert response.status_code in (200, 302)
 
+    def test_swork_home_layout_classes(self, app: Flask):
+        """Regression for bug 0126: SOCIAL aside ad modules were narrow and tall.
+
+        The aside used to be `xl:block xl:col-span-3` which made it hidden below
+        the xl breakpoint and only 3/12 of the grid (~25%) when visible. With a
+        2-col menu and 7-col main, that left the promo boxes too narrow. Switch
+        to a 4-col aside visible at lg (matches WIRE/BIZ proportions).
+        """
+        template_source = app.jinja_env.loader.get_source(
+            app.jinja_env, "pages/swork.j2"
+        )[0]
+        assert 'class="lg:col-span-6 my-8"' in template_source, (
+            "swork main column should be lg:col-span-6 (was lg:col-span-9 xl:col-span-7)"
+        )
+        assert 'class="hidden lg:block lg:col-span-4 my-8"' in template_source, (
+            "swork aside should be lg:col-span-4 visible at lg (was xl:col-span-3)"
+        )
+        # Guard against accidental revert.
+        assert "xl:col-span-3" not in template_source, (
+            "swork.j2 should not contain xl:col-span-3 anymore"
+        )
+
     def test_members_page_accessible(
         self, authenticated_client: FlaskClient, db_session: Session
     ):
