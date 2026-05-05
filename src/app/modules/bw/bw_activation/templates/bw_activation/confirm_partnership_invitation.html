@@ -85,6 +85,30 @@
                         </p>
                     </div>
                 {% endif %}
+
+                {# CTAs after the success/refused card so the user
+                   has an obvious next step (ref bug #0122 — testers
+                   were stuck on this page with no way back). The
+                   layout already includes a discreet « retour
+                   plateforme » strip top + bottom, but explicit CTAs
+                   inline give a more coherent flow when the user
+                   has just clicked accept / refuse. #}
+                <div class="mt-6 flex flex-col sm:flex-row justify-center gap-3">
+                    <a
+                        href="{{ url_for('bw_activation.index') }}"
+                        data-testid="back-to-bw"
+                        class="inline-flex items-center justify-center gap-1 rounded-md bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-700"
+                    >
+                        Gérer mes Business Walls →
+                    </a>
+                    <a
+                        href="/"
+                        data-testid="back-to-platform-card"
+                        class="inline-flex items-center justify-center gap-1 rounded-md border border-gray-300 bg-white px-5 py-2.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50"
+                    >
+                        ← Retour à la plateforme
+                    </a>
+                </div>
             </div>
 
         {% else %}

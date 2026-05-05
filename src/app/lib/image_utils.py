@@ -32,6 +32,16 @@ def extract_image_from_request(
     Handles both regular file uploads (FileStorage) and base64 data URLs
     from cropper.js widgets.
 
+    Priority : ``data_url`` BEFORE ``file_storage``. The two fields
+    co-exist in the cropper.js form pattern : the visible
+    ``<input type="file">`` carries the user's original upload as
+    a FileStorage, and a separate hidden ``<input name="image">``
+    carries the cropped image as a base64 data-URL once the user
+    has clicked « Valider le cadrage ». Preferring the data_url
+    means the user's CROPPED image is what gets saved (vs. the
+    pre-crop original) — ref bug #0121. If the cropper wasn't
+    used (data_url empty), we fall back to the file_storage as-is.
+
     Args:
         file_storage: FileStorage from request.files
         data_url: Base64 data URL from request.form
@@ -40,18 +50,10 @@ def extract_image_from_request(
     Returns:
         UploadedImageData or None if no image found
     """
-    # Regular file upload
-    if file_storage is not None:
-        image_bytes = file_storage.read()
-        if image_bytes:
-            return UploadedImageData(
-                bytes=image_bytes,
-                filename=file_storage.filename or "image.jpg",
-                content_type=file_storage.content_type or "application/octet-stream",
-            )
-        return None
-
-    # Handle base64 data URL from cropper
+    # 1) Cropper-generated data-URL takes precedence : if the user
+    # cropped the image, this carries the cropped result. The
+    # `file_storage` is the *original* upload that we should
+    # ignore in this case.
     if data_url and data_url.startswith("data:image/"):
         try:
             header, base64_data = data_url.split(",", 1)
@@ -77,7 +79,20 @@ def extract_image_from_request(
                 content_type=content_type,
             )
         except (ValueError, binascii.Error):
-            return None
+            # Malformed data-URL : fall through to the file
+            # storage rather than dropping the upload entirely.
+            pass
+
+    # 2) Plain file upload (cropper not used, or its data-URL was
+    # malformed).
+    if file_storage is not None:
+        image_bytes = file_storage.read()
+        if image_bytes:
+            return UploadedImageData(
+                bytes=image_bytes,
+                filename=file_storage.filename or "image.jpg",
+                content_type=file_storage.content_type or "application/octet-stream",
+            )
 
     return None
 
