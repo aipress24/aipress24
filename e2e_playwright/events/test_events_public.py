@@ -205,6 +205,90 @@ def test_events_filter_post_invalid_action_400(
     )
 
 
+# ----------------------------------------------------------------
+# Bug 0127 — self-accreditation, journalists only.
+# ----------------------------------------------------------------
+
+
+def test_events_detail_shows_accreditation_button_for_journalist(
+    page: Page, base_url: str, profile, login
+) -> None:
+    """A journalist (PRESS_MEDIA) viewing an event detail must see a
+    "S'accréditer" / "Annuler mon accréditation" button (the new accreditation
+    UI added by bug #127). Drives the `can_accredit` branch in
+    EventDetailView.get + the `{% if can_accredit %}` block in
+    event--header.j2."""
+    p = profile(_PRESS_MEDIA)
+    login(p)
+    event_id = _first_event_id(page, base_url)
+    if event_id is None:
+        pytest.skip("/events/ : no event found")
+    page.goto(f"{base_url}/events/{event_id}", wait_until="domcontentloaded")
+    body = page.content()
+    assert "S'accr" in body or "accréditation" in body.lower(), (
+        "expected accreditation button (S'accréditer / Annuler mon accréditation) "
+        "in event detail page for a journalist"
+    )
+
+
+@pytest.mark.mutates_db
+def test_events_toggle_participate_round_trip_journalist(
+    page: Page, base_url: str, profile, login, authed_post
+) -> None:
+    """POST /events/<id> action=toggle-participate twice as a journalist:
+    drives both branches of `_toggle_participate` (accredit + de-accredit).
+    Restores initial state by toggling an even number of times."""
+    p = profile(_PRESS_MEDIA)
+    login(p)
+    event_id = _first_event_id(page, base_url)
+    if event_id is None:
+        pytest.skip("/events/ : no event found")
+
+    page.goto(f"{base_url}/events/{event_id}", wait_until="domcontentloaded")
+
+    first = authed_post(
+        f"{base_url}/events/{event_id}",
+        {"action": "toggle-participate"},
+    )
+    assert first["status"] == 200, f"first toggle-participate: {first}"
+    assert "/auth/login" not in first["url"]
+    # HTMX swap: response body is the new button label, must be non-empty.
+    assert first["len"] > 0, f"expected non-empty button label, got {first}"
+
+    second = authed_post(
+        f"{base_url}/events/{event_id}",
+        {"action": "toggle-participate"},
+    )
+    assert second["status"] == 200, f"second toggle-participate: {second}"
+    assert second["len"] > 0
+
+
+def test_events_toggle_participate_refused_for_non_journalist(
+    page: Page, base_url: str, non_admin_profile, login, authed_post
+) -> None:
+    """POST /events/<id> action=toggle-participate as a non-journalist (PR
+    agency, expert, etc.) must return HTTP 403. Guards bug #127's role
+    restriction (`can_user_accredit` → only PRESS_MEDIA).
+
+    Uses non_admin_profile to avoid picking an account that holds ADMIN —
+    admin grants would bypass nothing here (the gate is on PRESS_MEDIA, not
+    on permissions) but it keeps the negative-test intent crisp."""
+    p = non_admin_profile("PRESS_RELATIONS")
+    login(p)
+    event_id = _first_event_id(page, base_url)
+    if event_id is None:
+        pytest.skip("/events/ : no event found")
+
+    resp = authed_post(
+        f"{base_url}/events/{event_id}",
+        {"action": "toggle-participate"},
+    )
+    assert resp["status"] == 403, (
+        f"toggle-participate as non-journalist: expected 403, got "
+        f"{resp['status']}"
+    )
+
+
 @pytest.mark.mutates_db
 def test_events_post_comment_creates_comment(
     page: Page,
