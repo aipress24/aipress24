@@ -450,6 +450,12 @@ class CommuniqueForm(Form):
 
     publisher_id = SimpleRichSelectField(
         "Publier pour",
+        description=(
+            "L'organisation au nom de laquelle ce contenu est publié. "
+            "Le contenu apparaîtra automatiquement sur le BW de l'organisation "
+            "sélectionnée, sur le BW de votre propre organisation, et dans la "
+            "rubrique NEWS / Idées & Comm'."
+        ),
         render_kw={"width": 6},
         coerce=int,
         validate_choice=False,
@@ -559,6 +565,12 @@ class EventForm(Form):
 
     publisher_id = SimpleRichSelectField(
         "Publier pour",
+        description=(
+            "L'organisation au nom de laquelle ce contenu est publié. "
+            "Le contenu apparaîtra automatiquement sur le BW de l'organisation "
+            "sélectionnée, sur le BW de votre propre organisation, et dans la "
+            "rubrique NEWS / Idées & Comm'."
+        ),
         render_kw={"width": 6},
         coerce=int,
         validate_choice=False,
