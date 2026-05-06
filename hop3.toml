@@ -1,9 +1,8 @@
-# Hop3 Configuration for AIPress24
-# Flask-based press/media management platform
+# Hop3 configuration for AIPress24
+# Flask press/media platform; deployed via `hop3 deploy aipress24`.
 
 [metadata]
 id = "aipress24"
-version = "2026.03"
 title = "AIPress24"
 description = "Press and media management platform"
 license = "AGPL-3.0-only"
@@ -11,33 +10,23 @@ license = "AGPL-3.0-only"
 [build]
 builder = "docker"
 
+[run]
+start = "gunicorn -b 0.0.0.0:$PORT -w 2 'app.flask.main:create_app()'"
+before-run = ["flask db upgrade"]
+
+[run.workers]
+worker = "flask queue worker"
+scheduler = "flask queue scheduler"
+
+[env]
+HOST_NAME = "aipress24.hop3.abilian.com"
+FLASK_FAKE_DATA = "False"
+
 [[addons]]
 type = "postgres"
 
-[env]
-# Hostname
-HOST_NAME = "aipress24.hop3.abilian.com"
-
-# Flask configuration
-FLASK_SECURITY_PASSWORD_SALT = "change-me-to-random-salt"
-
-# Admin user (set these for initial setup)
-# FLASK_ADMIN_EMAIL = "admin@example.com"
-# FLASK_ADMIN_PASSWORD = "change-me"
-
-# Disable fake data in production
-FLASK_FAKE_DATA = "False"
-
-# Stripe keys (configure if using payment features)
-# FLASK_STRIPE_PUBLIC_KEY = ""
-# FLASK_STRIPE_SECRET_KEY = ""
-# FLASK_STRIPE_WEBHOOK_SECRET = ""
-
-[run]
-# Main web process (uses gunicorn via Dockerfile CMD)
-start = "gunicorn -b 0.0.0.0:$PORT -w 2 'app.flask.main:create_app()'"
-# Run database migrations before starting the app
-before-run = ["flask db upgrade"]
+[[addons]]
+type = "redis"
 
 [healthcheck]
 path = "/system/health"
