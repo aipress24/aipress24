@@ -1,0 +1,24 @@
+{# Read-only image gallery shown in the "Voir" view of a communiqué. #}
+{# Bug 0128: previously the form view didn't render images at all, so authors #}
+{# had to navigate to the dedicated /images/ page to see what was attached. #}
+<section class="mt-8 pt-6 border-t border-gray-200">
+  <h2 class="text-lg font-medium text-gray-900 mb-4">Images</h2>
+  <ul role="list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    {% for image in images %}
+      <li class="border rounded overflow-hidden bg-white">
+        <img src="{{ image.url }}"
+             alt="{{ image.caption or '' }}"
+             class="w-full h-48 object-contain bg-gray-50">
+        <div class="p-3 text-sm">
+          <p class="font-medium text-gray-900">
+            ({{ image.position + 1 }})
+            {{ image.caption or "Pas de description" }}
+          </p>
+          <p class="mt-1 text-gray-500 text-xs">
+            {{ image.copyright or "Pas de mention de copyright" }}
+          </p>
+        </div>
+      </li>
+    {% endfor %}
+  </ul>
+</section>

@@ -264,7 +264,10 @@ class Calendar:
             }
 
             if include_details:
-                # List events that START on this day (for calendar page)
+                # List events that START on this day (for calendar page).
+                # Bug 0131: format `time` as HH:MM (was rendering HH:MM:SS via
+                # str(datetime.time)), and surface `id` + ISO datetime so the
+                # template can build a real link and a valid <time datetime>.
                 day_events = []
                 for event in events:
                     if (
@@ -273,8 +276,12 @@ class Calendar:
                     ):
                         day_events.append(
                             {
+                                "id": event.id,
                                 "title": event.title,
-                                "time": event.start_datetime.time(),
+                                "time": event.start_datetime.format("HH:mm"),
+                                "datetime": event.start_datetime.format(
+                                    "YYYY-MM-DDTHH:mm"
+                                ),
                             }
                         )
                 cell["events"] = day_events

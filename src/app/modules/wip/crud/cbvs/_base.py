@@ -50,6 +50,7 @@ VIEW_TEMPLATE = """
 {% extends "wip/layout/_base.j2" %}
 {% block body_content %}
   {{ form_rendered|safe }}
+  {{ extra_view_html|safe }}
 {% endblock %}
 """
 
@@ -235,7 +236,18 @@ class BaseWipView(FlaskView, abc.ABC):
         return {
             "title": title,
             "form_rendered": renderer.render(),
+            "extra_view_html": self._extra_view_html(model, mode),
         }
+
+    def _extra_view_html(self, model, mode: str) -> str:
+        """Hook for subclasses to inject HTML below the form (view mode only).
+
+        Default returns an empty string. Subclasses may override to render
+        e.g. an image gallery in view mode that the form itself doesn't
+        cover.
+        """
+        del model, mode
+        return ""
 
     def _update_model(self, form, model) -> None:
         repo = self._get_repo()

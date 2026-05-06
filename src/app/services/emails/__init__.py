@@ -31,6 +31,7 @@ from .mailers import (
     MissionApplicationMail,
     PRPublicationNotificationMail,
     PublicationNotificationMail,
+    SujetPropositionNotificationMail,
 )
 
 __all__ = [
@@ -52,6 +53,7 @@ __all__ = [
     "MissionApplicationMail",
     "PRPublicationNotificationMail",
     "PublicationNotificationMail",
+    "SujetPropositionNotificationMail",
 ]
 
 ALERTS_RECIPIENTS = ["test@aipress24.com"]

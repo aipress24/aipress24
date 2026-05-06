@@ -31,26 +31,44 @@ def add_invited_users(mails: str | list[str], org_id: int) -> list[str]:
     for committing at the request boundary.
 
     Returns: list of newly invited mails.
+
+    Bug 0130: emails are normalised (stripped + lowercased) before storage so
+    the lookup in `_organisation_inviting` matches reliably regardless of how
+    the inviter typed the address. Without this, an invitation entered with
+    upper-case or surrounding whitespace silently failed to surface in the
+    invitee's PROFIL/PRÉFÉRENCES/Invitation d'organisation tab.
     """
     already_invited: set[str] = {
-        m.lower() for m in emails_invited_to_organisation(org_id)
+        _normalise_email(m) for m in emails_invited_to_organisation(org_id)
     }
     if isinstance(mails, str):
         mails = [mails]
     appended_mails: list[str] = []
     db_session = db.session
-    for mail in mails:
+    for raw_mail in mails:
+        mail = _normalise_email(raw_mail)
         if not mail or "@" not in mail:
             continue
-        if mail.lower() in already_invited:
+        if mail in already_invited:
             continue
         invitation = Invitation(email=mail, organisation_id=org_id)
         db_session.add(invitation)
         db_session.flush()
-        already_invited.add(mail.lower())
+        already_invited.add(mail)
         appended_mails.append(mail)
     flush_session(db_session)
     return appended_mails
+
+
+def _normalise_email(email: str | None) -> str:
+    """Return a normalised email: trimmed and lowercased.
+
+    All Invitation lookups use the same normalisation, so storing and
+    querying with the same canonical form prevents silent mismatches.
+    """
+    if not email:
+        return ""
+    return email.strip().lower()
 
 
 def send_invitation_mails(mails: list[str], org_id: int) -> None:
@@ -82,11 +100,12 @@ def cancel_invitation_users(mails: str | list[str], org_id: int) -> None:
     if isinstance(mails, str):
         mails = [mails]
     db_session = db.session
-    for mail in mails:
+    for raw_mail in mails:
+        mail = _normalise_email(raw_mail)
         if not mail or "@" not in mail:
             continue
         stmt = select(Invitation).where(
-            func.lower(Invitation.email) == mail.lower(),
+            func.lower(Invitation.email) == mail,
             Invitation.organisation_id == org_id,
         )
         found = db_session.scalar(stmt)

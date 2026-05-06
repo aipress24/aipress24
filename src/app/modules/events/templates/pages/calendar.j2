@@ -86,11 +86,15 @@
                     <ol class="mt-2">
                       {% for event in cell.events %}
                         <li>
-                          <a href="#" class="group flex">
+                          {# Bug 0131: clicking the calendar entry was a #}
+                          {# dead link (`href="#"`) — point it at the real #}
+                          {# event detail page. Also surface a valid #}
+                          {# `<time datetime>` (was hardcoded). #}
+                          <a href="{{ url_for('.event', id=event.id) }}" class="group flex">
                             <p
                                 class="flex-auto truncate font-medium text-gray-900 group-hover:text-indigo-600">{{ event.title }}</p>
                             {% if event.time %}
-                              <time datetime="2022-01-03T10:00"
+                              <time datetime="{{ event.datetime }}"
                                     class="ml-3 hidden flex-none text-gray-500 group-hover:text-indigo-600 xl:block">{{ event.time }}
                               </time>
                             {% endif %}
