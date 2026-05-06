@@ -25,8 +25,9 @@ class TestStructuredCases:
             pays_zip_ville="FRA",
             pays_zip_ville_detail="FRA / 75001 Paris",
         )
-        with patch("app.ui.geoloc.country_code_to_label", return_value="France"), patch(
-            "app.ui.geoloc.country_zip_code_to_city", return_value="75001 Paris"
+        with (
+            patch("app.ui.geoloc.country_code_to_label", return_value="France"),
+            patch("app.ui.geoloc.country_zip_code_to_city", return_value="75001 Paris"),
         ):
             assert offer_geoloc_label(offer) == "75001 Paris, France"
 
@@ -37,8 +38,9 @@ class TestStructuredCases:
 
     def test_unknown_country_falls_through_to_legacy(self) -> None:
         offer = _FakeOffer(pays_zip_ville="???", location="Brest")
-        with patch("app.ui.geoloc.country_code_to_label", return_value=""), patch(
-            "app.ui.geoloc.country_zip_code_to_city", return_value=""
+        with (
+            patch("app.ui.geoloc.country_code_to_label", return_value=""),
+            patch("app.ui.geoloc.country_zip_code_to_city", return_value=""),
         ):
             # Helpers return empty: no structured label, fall back to location.
             assert offer_geoloc_label(offer) == "Brest"
