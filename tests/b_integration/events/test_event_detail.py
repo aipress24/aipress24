@@ -226,9 +226,7 @@ class TestGetMetadataList:
 
 def _grant_press_media_role(db_session: Session, user: User) -> None:
     """Give the user the PRESS_MEDIA role (idempotent)."""
-    role = (
-        db_session.query(Role).filter_by(name=RoleEnum.PRESS_MEDIA.name).first()
-    )
+    role = db_session.query(Role).filter_by(name=RoleEnum.PRESS_MEDIA.name).first()
     if role is None:
         role = Role(name=RoleEnum.PRESS_MEDIA.name, description="Press & Media")
         db_session.add(role)

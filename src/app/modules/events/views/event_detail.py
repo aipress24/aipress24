@@ -121,9 +121,7 @@ class EventDetailView(MethodView):
         if is_participant(event_obj, user):
             remove_participant(event_obj, user)
             new_label = "S'accréditer"
-            toast_msg = (
-                f"Vous n'êtes plus accrédité à l'événement {event_obj.title!r}"
-            )
+            toast_msg = f"Vous n'êtes plus accrédité à l'événement {event_obj.title!r}"
         else:
             add_participant(event_obj, user)
             new_label = "Annuler mon accréditation"

@@ -26,7 +26,9 @@ if TYPE_CHECKING:
 
 @pytest.fixture
 def post_owner(db_session: Session) -> User:
-    user = User(email="wire_meta_owner@example.com", first_name="Wire", last_name="Meta")
+    user = User(
+        email="wire_meta_owner@example.com", first_name="Wire", last_name="Meta"
+    )
     db_session.add(user)
     db_session.flush()
     return user
