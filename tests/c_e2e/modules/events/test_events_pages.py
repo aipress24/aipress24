@@ -429,3 +429,59 @@ class TestCalendar:
                 assert "date" in cell
                 assert "is_today" in cell
                 assert "num_events" in cell
+
+
+class TestCalendarBuildCellsDetails:
+    """Bug 0131: Calendar.build_cells (with include_details=True) feeds the
+    /events/calendar page. Each event entry must carry a clean HH:MM time
+    (was HH:MM:SS via str(datetime.time)), the event id (so the template
+    can build a real link, not href='#'), and an ISO datetime (so the
+    <time datetime> attribute is correct, not hardcoded to 2022-01-03)."""
+
+    def test_event_dict_has_id_for_linking(self, db_session: Session, test_user: User):
+        today = arrow.now()
+        event = EventPost(
+            title="Calendrier event",
+            owner_id=test_user.id,
+            status=PublicationStatus.PUBLIC,
+            start_datetime=today,
+        )
+        db_session.add(event)
+        db_session.flush()
+
+        cells = Calendar.build_cells(
+            [event], today, today.shift(days=1), today.date(), include_details=True
+        )
+        days_with_events = [c for c in cells if c.get("events")]
+        assert days_with_events, "event was not slotted into any day"
+        event_dict = days_with_events[0]["events"][0]
+
+        assert event_dict["id"] == event.id, "event dict must surface id"
+        assert event_dict["title"] == "Calendrier event"
+
+    def test_time_is_formatted_as_hh_mm_string(
+        self, db_session: Session, test_user: User
+    ):
+        """`time` must be a 5-char "HH:mm" string, not a `datetime.time`
+        object (which renders as HH:MM:SS in Jinja)."""
+        when = arrow.get("2026-05-01T20:00:00")
+        event = EventPost(
+            title="Fêtons l'ouverture",
+            owner_id=test_user.id,
+            status=PublicationStatus.PUBLIC,
+            start_datetime=when,
+        )
+        db_session.add(event)
+        db_session.flush()
+
+        cells = Calendar.build_cells(
+            [event], when, when.shift(days=1), when.date(), include_details=True
+        )
+        event_dict = next((c["events"][0] for c in cells if c.get("events")), None)
+        assert event_dict is not None
+
+        assert event_dict["time"] == "20:00", (
+            f"time should be HH:mm, got {event_dict['time']!r}"
+        )
+        assert ":" in event_dict["datetime"]
+        assert event_dict["datetime"].startswith("2026-05-01T20:00")

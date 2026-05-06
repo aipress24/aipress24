@@ -68,8 +68,12 @@ class InvitationsView(MethodView):
     def _organisation_inviting(self, user: User) -> list[dict[str, Any]]:
         """Get list of organizations that have invited this user."""
         db_session = db.session
+        # Bug 0130: normalise both sides (strip + lower) so an invitation
+        # whose email was stored with stray whitespace or uppercase still
+        # surfaces in the invitee's preferences page.
+        normalised_email = (user.email or "").strip().lower()
         stmt = select(Invitation).where(
-            func.lower(Invitation.email) == user.email.lower()
+            func.lower(func.trim(Invitation.email)) == normalised_email
         )
         invitations = db_session.scalars(stmt)
         invit_ids = [i.organisation_id for i in invitations]

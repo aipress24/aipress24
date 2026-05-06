@@ -227,6 +227,15 @@ class FormRenderer:
                     field_str = self.model.media.name
                 else:
                     field_str = ""
+            elif field.name == "publisher_id":
+                # Bug 0129: render publisher org name, not the raw FK id.
+                publisher = (
+                    getattr(self.model, "publisher", None) if self.model else None
+                )
+                if publisher is not None:
+                    field_str = publisher.bw_name or publisher.name or ""
+                else:
+                    field_str = ""
             else:
                 field_str = self.render_field_value(field.data)
         else:

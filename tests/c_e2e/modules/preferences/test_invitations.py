@@ -11,11 +11,13 @@ from typing import TYPE_CHECKING
 from unittest.mock import MagicMock
 
 import pytest
+from sqlalchemy import select
 
 from app.enums import RoleEnum
 from app.models.auth import KYCProfile, Role, User
 from app.models.invitation import Invitation
 from app.models.organisation import Organisation
+from app.modules.admin.invitations import add_invited_users
 from app.modules.bw.bw_activation.models import BusinessWall
 from app.modules.bw.bw_activation.models.business_wall import BWStatus
 from app.modules.preferences.views.invitations import InvitationsView
@@ -160,6 +162,74 @@ class TestInvitationsView:
         assert response.status_code == 200
         html = response.data.decode()
         assert inviting_org.bw_name in html
+
+
+class TestInvitationsEmailNormalisation:
+    """Bug 0130: invitations failed to surface when the stored email differed
+    from `user.email` only by case or surrounding whitespace.
+
+    Storage now lower-cases + strips at write time (`add_invited_users`) and
+    the lookup in `_organisation_inviting` mirrors the same normalisation
+    (`func.lower(func.trim(...))`)."""
+
+    def _make_invitation(
+        self, db_session: Session, raw_email: str, org: Organisation
+    ) -> Invitation:
+        """Insert an Invitation row with the raw email AS-IS (bypasses
+        add_invited_users so we can test the lookup against legacy data)."""
+        invitation = Invitation(email=raw_email, organisation_id=org.id)
+        db_session.add(invitation)
+        db_session.flush()
+        return invitation
+
+    def test_invitation_with_uppercase_stored_email_matches_lowercase_user(
+        self,
+        db_session: Session,
+        invitations_test_user: User,
+        inviting_org: Organisation,
+    ):
+        """Stored "USER@EXAMPLE.COM", user.email "user@example.com" → match."""
+        upper = invitations_test_user.email.upper()
+        self._make_invitation(db_session, upper, inviting_org)
+
+        view = InvitationsView()
+        result = view._organisation_inviting(invitations_test_user)
+
+        org_ids = [r["org_id"] for r in result]
+        assert str(inviting_org.id) in org_ids
+
+    def test_invitation_with_whitespace_around_email_still_matches(
+        self,
+        db_session: Session,
+        invitations_test_user: User,
+        inviting_org: Organisation,
+    ):
+        """Stored "  user@example.com  " must still match user.email."""
+        padded = f"  {invitations_test_user.email}  "
+        self._make_invitation(db_session, padded, inviting_org)
+
+        view = InvitationsView()
+        result = view._organisation_inviting(invitations_test_user)
+
+        org_ids = [r["org_id"] for r in result]
+        assert str(inviting_org.id) in org_ids
+
+    def test_add_invited_users_normalises_at_storage(
+        self, db_session: Session, inviting_org: Organisation
+    ):
+        """add_invited_users() must store a normalised (lowercase + stripped)
+        email, regardless of the casing/spacing the inviter used."""
+        appended = add_invited_users(
+            ["  Olivia.Buzzatti@Example.COM  "], inviting_org.id
+        )
+
+        assert appended == ["olivia.buzzatti@example.com"]
+
+        stored = db_session.scalar(
+            select(Invitation).where(Invitation.organisation_id == inviting_org.id)
+        )
+        assert stored is not None
+        assert stored.email == "olivia.buzzatti@example.com"
 
 
 class TestInvitationsViewHelpers:

@@ -19,8 +19,13 @@ establish a clean stacking context for any absolute-positioned dropdown panel.
 from __future__ import annotations
 
 from pathlib import Path
+from types import SimpleNamespace
 
-from app.flask.lib.wtforms.renderer import FIELD_TEMPLATE, FIELD_VIEW_TEMPLATE
+from app.flask.lib.wtforms.renderer import (
+    FIELD_TEMPLATE,
+    FIELD_VIEW_TEMPLATE,
+    FormRenderer,
+)
 from app.modules.wip.crud.cbvs._forms import CommuniqueForm, EventForm
 
 
@@ -60,8 +65,10 @@ class TestPublisherIdHelpText:
         )
         # Spot-check the wording covers the three destinations.
         text = form.publisher_id.description
-        assert "agence" in text or "votre propre organisation" in text.lower() or (
-            "votre" in text.lower() and "bw" in text.lower()
+        assert (
+            "agence" in text
+            or "votre propre organisation" in text.lower()
+            or ("votre" in text.lower() and "bw" in text.lower())
         )
         assert "NEWS" in text or "Idées" in text or "Comm" in text
 
@@ -76,6 +83,48 @@ class TestPublisherIdHelpText:
         text actually reaches the page."""
         assert "{{ description }}" in FIELD_TEMPLATE
         assert "{{ description }}" in FIELD_VIEW_TEMPLATE
+
+
+class TestPublisherIdRenderedAsName:
+    """Bug 0129: in view ("Voir") mode, the publisher_id field must show the
+    organisation name, not the raw FK id."""
+
+    def _render_publisher_field(self, app, form_cls, publisher):
+        form = form_cls()
+        form.publisher_id.data = (
+            getattr(publisher, "id", None) if publisher is not None else None
+        )
+        model = SimpleNamespace(id=1, publisher=publisher, media=None)
+        renderer = FormRenderer(form=form, model=model, mode="view")
+        with app.test_request_context():
+            return renderer.render_field(form.publisher_id)
+
+    def test_communique_view_renders_publisher_bw_name(self, app):
+        publisher = SimpleNamespace(id=42, name="Fake-Léonard", bw_name="Léonard SA")
+        html = self._render_publisher_field(app, CommuniqueForm, publisher)
+        assert "Léonard SA" in html
+        assert "42" not in html, (
+            f"raw publisher id leaked into the rendered view: {html!r}"
+        )
+
+    def test_event_view_renders_publisher_bw_name(self, app):
+        publisher = SimpleNamespace(id=999, name="Fake-Org", bw_name="My BW")
+        html = self._render_publisher_field(app, EventForm, publisher)
+        assert "My BW" in html
+        assert "999" not in html
+
+    def test_falls_back_to_name_when_bw_name_empty(self, app):
+        publisher = SimpleNamespace(id=7, name="OnlyName", bw_name="")
+        html = self._render_publisher_field(app, CommuniqueForm, publisher)
+        assert "OnlyName" in html
+        assert "7" not in html.replace("<", " <").split(">")[0]  # not in tag soup
+
+    def test_renders_empty_when_publisher_missing(self, app):
+        html = self._render_publisher_field(app, CommuniqueForm, publisher=None)
+        # Don't dump a raw int even if the form data carried one.
+        assert ">None<" not in html
+        # The label "Publier pour" remains; the value section is empty.
+        assert "Publier pour" in html
 
 
 class TestWidgetTemplateStackingContext:
@@ -96,6 +145,8 @@ class TestWidgetTemplateStackingContext:
         assert 'class="relative w-full"' in template
 
     def test_country_select_template_no_dead_grid_classes(self):
-        template = (self.SRC_ROOT / "modules" / "kyc" / "lib" / "country_select.j2").read_text()
+        template = (
+            self.SRC_ROOT / "modules" / "kyc" / "lib" / "country_select.j2"
+        ).read_text()
         assert "col-span-12" not in template
         assert 'class="relative w-full"' in template

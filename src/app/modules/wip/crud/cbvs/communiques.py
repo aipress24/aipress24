@@ -174,6 +174,21 @@ class CommuniquesWipView(BaseWipView):
         self._make_publisher_choices(form)
         return super()._view_ctx(model, form, mode, title)
 
+    def _extra_view_html(self, model, mode: str) -> str:
+        """Bug 0128: in view mode, render the CP image gallery below the form.
+
+        Images are managed on a separate page (`/wip/communiques/<id>/images/`)
+        and are NOT part of the WTForms `CommuniqueForm`, so the default
+        renderer doesn't show them in "Voir". Render a read-only thumbnail
+        strip here so RP authors can confirm the images attached to their CP.
+        """
+        if mode != "view" or model is None:
+            return ""
+        images = getattr(model, "sorted_images", None) or []
+        if not images:
+            return ""
+        return render_template("wip/communique/_view_images.j2", images=images)
+
     def _make_publisher_choices(self, form) -> None:
         """Populate the `publisher_id` select with the user's org + validated
         clients (for PR agency users)."""

@@ -99,6 +99,27 @@ class PRPublicationNotificationMail(EmailTemplate):
 
 
 @dataclass(kw_only=True)
+class SujetPropositionNotificationMail(EmailTemplate):
+    """Bug 0132: notify a media (BW owner / rédaction) that a journalist has
+    proposed a sujet to them on AiPRESS24.
+
+    Args:
+        - sender / recipient / sender_mail: standard EmailTemplate fields.
+        - sender_full_name: proposing journalist's full name.
+        - media_name: target media's display name.
+        - sujet_title: title of the proposed sujet.
+        - sujet_url: absolute URL to the sujet detail page.
+    """
+
+    subject: str = "[Aipress24] Une nouvelle proposition de sujet"
+    template_html: str = "sujet_proposition_notification.j2"
+    sender_full_name: str
+    media_name: str
+    sujet_title: str
+    sujet_url: str
+
+
+@dataclass(kw_only=True)
 class MissionApplicationMail(EmailTemplate):
     """Notify a mission emitter that someone has applied to their mission.
 
