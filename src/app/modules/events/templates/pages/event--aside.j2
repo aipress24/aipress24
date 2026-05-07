@@ -42,10 +42,15 @@
     </div>
 
     {% if event.publisher %}
+      {# Bug 0129: show the BW name (the public-facing label) instead of the #}
+      {# legal `Organisation.name`, and keep a fixed "Pour" header so the    #}
+      {# block isn't headerless when `publisher_type` happens to be empty.   #}
       <div>
-        <h3 class="text-sm font-medium text-gray-500">{{ event.publisher_type }}</h3>
+        <h3 class="text-sm font-medium text-gray-500">
+          {{ event.publisher_type|default("Pour", true) }}
+        </h3>
         <a href="{{ url_for(event.publisher) }}"
-            class="text-sm font-medium hover:underline">{{ event.publisher.name }}</a>
+            class="text-sm font-medium hover:underline">{{ event.publisher.bw_name or event.publisher.name }}</a>
       </div>
     {% endif %}
 

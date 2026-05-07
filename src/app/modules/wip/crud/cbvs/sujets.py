@@ -6,12 +6,16 @@ from __future__ import annotations
 
 from typing import cast
 
+from attr import define
 from flask import Flask, flash, g, redirect
 from flask_super.registry import register
+from sqlalchemy import and_, func, or_, select
+from sqlalchemy.orm import selectinload
 
 from app.flask.extensions import db
 from app.flask.routing import url_for
 from app.logging import warn
+from app.models.auth import User
 from app.models.lifecycle import PublicationStatus
 from app.modules.wip.models import Sujet, SujetRepository
 from app.modules.wip.services.sujet_notifications import (
@@ -20,7 +24,63 @@ from app.modules.wip.services.sujet_notifications import (
 
 from ._base import BaseWipView
 from ._forms import SujetForm
-from ._table import BaseTable
+from ._table import BaseDataSource, BaseTable
+
+
+@define
+class SujetDataSource(BaseDataSource):
+    """Bug 0132: rédacteurs en chef of a target media must see PUBLIC sujets
+    addressed to their organisation, not just sujets they own themselves.
+
+    Without this override the default `M.owner == user` clause filtered out
+    every sujet a journalist had just published to another media — the
+    notification mail arrived but the sujet itself was invisible in the
+    NEWSROOM list.
+    """
+
+    def _media_recipient_clause(self):
+        user: User = g.user
+        org_id = getattr(user, "organisation_id", None)
+        if not org_id:
+            return None
+        M = self.model_class
+        return and_(
+            M.media_id == org_id,
+            M.status == PublicationStatus.PUBLIC,
+        )
+
+    def _visibility_clause(self):
+        M = self.model_class
+        user: User = g.user
+        own = M.owner == user
+        media = self._media_recipient_clause()
+        return or_(own, media) if media is not None else own
+
+    def _base_query(self):
+        M = self.model_class
+        # Eager-load owner + media so the table renderer doesn't fire N+1
+        # queries when reading author / media name on each row.
+        stmt = (
+            select(M)
+            .options(selectinload(M.owner), selectinload(M.media))
+            .where(self._visibility_clause())
+            .where(M.deleted_at.is_(None))
+        )
+        if self.q:
+            stmt = stmt.where(M.titre.ilike(f"%{self.q}%"))
+        return stmt
+
+    def get_count(self) -> int:
+        M = self.model_class
+        stmt = (
+            select(func.count())
+            .select_from(M)
+            .where(self._visibility_clause())
+            .where(M.deleted_at.is_(None))
+        )
+        if self.q:
+            stmt = stmt.where(M.titre.ilike(f"%{self.q}%"))
+        return db.session.scalar(stmt) or 0
 
 
 class SujetsTable(BaseTable):
@@ -28,6 +88,9 @@ class SujetsTable(BaseTable):
 
     def __init__(self, q="") -> None:
         super().__init__(Sujet, q)
+
+    def _make_datasource(self, model_class: type, q: str) -> BaseDataSource:
+        return SujetDataSource(model_class=model_class, q=q)
 
     def url_for(self, obj, _action="get", **kwargs):  # type: ignore[override]
         return url_for(f"SujetsWipView:{_action}", id=obj.id, **kwargs)

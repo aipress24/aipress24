@@ -349,9 +349,14 @@
                                     if (!mainSelect || !detailSelect) return;
 
                                     // Initialize main select (single selection)
+                                    // Bug 0119: tom-select defaults `maxOptions` to 50, which silently
+                                    // truncates long taxonomies (e.g. "Organisations privées" has ~169
+                                    // entries → list ended at "Entreprise de décoration" alphabetically,
+                                    // and items past the 50th only surfaced via the search filter).
                                     typeOrgaTomSelect = new TomSelect(mainSelect, {
                                         create: false,
                                         maxItems: 1,
+                                        maxOptions: null,
                                         preload: true,
                                         labelField: 'label',
                                         searchField: ['label'],
@@ -368,6 +373,7 @@
                                     typeOrgaDetailTomSelect = new TomSelect(detailSelect, {
                                         create: false,
                                         maxItems: null,
+                                        maxOptions: null,
                                         preload: false,
                                         labelField: 'label',
                                         searchField: ['label'],
@@ -917,6 +923,7 @@
                     tomSelectInstances[id] = new TomSelect(el, {
                         create: false,
                         maxItems: null,
+                        maxOptions: null,
                         preload: true,
                         labelField: 'text',
                         searchField: ['text'],
@@ -944,6 +951,7 @@
                     tomSelectInstances[id] = new TomSelect(el, {
                         create: false,
                         maxItems: 1,
+                        maxOptions: null,
                         preload: true,
                         labelField: 'text',
                         searchField: ['text'],
@@ -974,6 +982,7 @@
                 const mainTom = new TomSelect(element, {
                     create: false,
                     maxItems: null,
+                    maxOptions: null,
                     preload: true,
                     labelField: 'label',
                     searchField: ['label'],
@@ -990,6 +999,7 @@
                 const detailTom = new TomSelect(detailEl, {
                     create: false,
                     maxItems: null,
+                    maxOptions: null,
                     preload: false,
                     labelField: 'label',
                     searchField: ['label'],
@@ -1058,6 +1068,7 @@
             countrySelectTom = new TomSelect(countrySelect, {
                 create: false,
                 maxItems: 1,
+                maxOptions: null,
                 preload: true,
                 labelField: 'text',
                 searchField: ['text'],

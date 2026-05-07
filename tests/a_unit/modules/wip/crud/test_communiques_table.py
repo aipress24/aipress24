@@ -80,43 +80,8 @@ class TestExtraViewHtml:
         with app.test_request_context():
             assert view._extra_view_html(None, mode="view") == ""
 
-    def test_renders_gallery_in_view_mode(self, app):
-        view = CommuniquesWipView()
-        model = SimpleNamespace(
-            sorted_images=[
-                SimpleNamespace(
-                    url="/img/cp1.png",
-                    caption="First image",
-                    copyright="© Igor",
-                    position=0,
-                ),
-                SimpleNamespace(
-                    url="/img/cp2.png",
-                    caption="Second image",
-                    copyright="© Igor",
-                    position=1,
-                ),
-            ]
-        )
-        with app.test_request_context():
-            html = view._extra_view_html(model, mode="view")
-
-        assert "/img/cp1.png" in html
-        assert "/img/cp2.png" in html
-        assert "First image" in html
-        assert "Second image" in html
-        # Gallery section header so the user understands what they see.
-        assert "Images" in html
-
-    def test_caption_falls_back_to_default(self, app):
-        view = CommuniquesWipView()
-        model = SimpleNamespace(
-            sorted_images=[
-                SimpleNamespace(url="/img/x.png", caption="", copyright="", position=0)
-            ]
-        )
-        with app.test_request_context():
-            html = view._extra_view_html(model, mode="view")
-
-        assert "Pas de description" in html
-        assert "Pas de mention de copyright" in html
+    # Rendering-path coverage (caption, src, carousel scaffolding) lives in
+    # `tests/c_e2e/modules/wip/comroom/test_communiques_images.py` —
+    # `TestCommuniqueViewGalleryRendersImages` uses a DB-backed Communique
+    # so it exercises CommuniqueVM (which queries PressReleasePost) end to
+    # end. SimpleNamespace mocking would no longer suffice here.

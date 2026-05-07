@@ -95,7 +95,13 @@ class BaseTable(Table):
 
     def __init__(self, model_class: type, q: str = "") -> None:
         self.q = q
-        self.data_source = make_datasource(model_class, q)
+        self.data_source = self._make_datasource(model_class, q)
+
+    def _make_datasource(self, model_class: type, q: str) -> BaseDataSource:
+        """Hook for subclasses to plug a domain-specific DataSource (e.g.
+        SujetDataSource for bug 0132 visibility scoping). Default returns
+        the generic BaseDataSource."""
+        return make_datasource(model_class, q)
 
     @property
     # Both base `Table.columns` and this override are `@property`

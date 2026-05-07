@@ -127,21 +127,18 @@ class BaseWipView(FlaskView, abc.ABC):
         return self._view_ctx(model, title=title)
 
     def get_media_organisations(self) -> list[tuple[str, str]]:
-        """Get list of Organisation and their ID of type MEDIA AGENCY and AUTO.
+        """Get list of media organisations (Sujet/Article/AvisEnquête target).
 
-        Organisations are included if either:
-        - They are auto (no bw_id)
-        - or they have bw_active equal to "media"
-
-        List not filtered for duplicates.
+        Bug 0133: previously this also pulled organisations with `bw_id IS
+        NULL` ("auto" placeholder orgs), so the picker drowned the real
+        media in junk. Now scoped to organisations that have an ACTIVE BW
+        of type "media" — i.e. those that actually subscribed to the
+        Business Wall for Media plan and can therefore receive editorial
+        proposals.
         """
-        from sqlalchemy import or_
-
         query = select(Organisation).where(
-            or_(
-                Organisation.bw_id.is_(None),  # auto organisations
-                Organisation.bw_active == "media",  # media organisations
-            )
+            Organisation.bw_id.is_not(None),
+            Organisation.bw_active == "media",
         )
         query_result = db.session.execute(query).scalars()
         result = sorted(

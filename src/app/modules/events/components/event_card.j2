@@ -51,6 +51,13 @@
     <a class="chip ~neutral @low">
       {{ event.sector.split("/")[-1] }}
     </a>
+    {# Bug 0129: also surface the publishing client (BW name) on the card #}
+    {# so attendees see "Pour : <client>" alongside type / category.       #}
+    {% if event.publisher %}
+      <a class="chip ~info @low">
+        Pour : {{ event.publisher.bw_name or event.publisher.name }}
+      </a>
+    {% endif %}
   </div>
 
   <div>
