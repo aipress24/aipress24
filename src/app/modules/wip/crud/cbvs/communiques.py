@@ -175,19 +175,24 @@ class CommuniquesWipView(BaseWipView):
         return super()._view_ctx(model, form, mode, title)
 
     def _extra_view_html(self, model, mode: str) -> str:
-        """Bug 0128: in view mode, render the CP image gallery below the form.
+        """Bug 0128: in view mode, render the same image carousel as NEWS.
 
         Images are managed on a separate page (`/wip/communiques/<id>/images/`)
         and are NOT part of the WTForms `CommuniqueForm`, so the default
-        renderer doesn't show them in "Voir". Render a read-only thumbnail
-        strip here so RP authors can confirm the images attached to their CP.
+        renderer doesn't show them in "Voir". The PO asked specifically for
+        "la même chose que ce qu'il y a dans la section NEWS" — i.e. the
+        Alpine-driven carousel (with caption + © overlay), not a plain grid.
+        We wrap the Communique in CommuniqueVM so `carousel()` accepts it.
         """
+        from app.modules.common.components.post_card import CommuniqueVM
+
         if mode != "view" or model is None:
             return ""
-        images = getattr(model, "sorted_images", None) or []
-        if not images:
+        if not getattr(model, "sorted_images", None):
             return ""
-        return render_template("wip/communique/_view_images.j2", images=images)
+        return render_template(
+            "wip/communique/_view_images.j2", post=CommuniqueVM(model)
+        )
 
     def _make_publisher_choices(self, form) -> None:
         """Populate the `publisher_id` select with the user's org + validated

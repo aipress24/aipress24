@@ -111,11 +111,16 @@ class EventsListView(MethodView):
         self, date_filter: DateFilter, filter_bar: FilterBar, search: str
     ) -> list[EventPost]:
         """Query events with filters applied."""
+        # Bug 0129: also eager-load publisher so the event card can render
+        # the client/publisher name without firing N+1 queries.
         stmt = (
             select(EventPost)
             .where(EventPost.status == PublicationStatus.PUBLIC)
             .order_by(EventPost.start_datetime)
-            .options(selectinload(EventPost.owner))
+            .options(
+                selectinload(EventPost.owner),
+                selectinload(EventPost.publisher),
+            )
         )
 
         stmt = date_filter.apply(stmt)
