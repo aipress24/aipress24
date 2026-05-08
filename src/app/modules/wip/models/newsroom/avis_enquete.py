@@ -5,9 +5,9 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
+from enum import StrEnum, auto
 
 import sqlalchemy as sa
-from aenum import StrEnum, auto
 from sqlalchemy import orm
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy_utils import ArrowType

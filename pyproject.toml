@@ -52,7 +52,6 @@ dependencies = [
     "loguru<1.0.0,>=0.7.2",
     "markdown<4.0.0,>=3.5.2",
     "svcs>=24.1.0",
-    "aenum<4.0.0,>=3.1.15",
     "buildstr<1.0.0,>=0.1.1",
     "case-convert<2.0.0,>=1.1.0",
     "requests<3.0.0,>=2.31.0",
@@ -335,13 +334,12 @@ exclude = [
     "src/app/modules/kyc/**/*.py",
 ]
 [tool.ty.rules]
-unused-ignore-comment = "ignore"
 unused-type-ignore-comment = "ignore"
-# silent invalid-argument-type until all fixed
-"invalid-argument-type" = "ignore"
-"invalid-assignment" = "ignore"
-"invalid-method-override" = "ignore"
-"unresolved-attribute" = "ignore"
+unused-ignore-comment = "ignore"
+invalid-argument-type = "ignore"
+invalid-assignment = "ignore"
+invalid-method-override = "ignore"
+unresolved-attribute = "ignore"
 
 # -----------------------------------------------------------------------------
 

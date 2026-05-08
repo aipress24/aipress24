@@ -5,10 +5,10 @@
 from __future__ import annotations
 
 from datetime import datetime
+from enum import StrEnum, auto
 from typing import ClassVar
 
 from advanced_alchemy.types.file_object import FileObject, StoredObject
-from aenum import StrEnum, auto
 from sqlalchemy import JSON, BigInteger, Enum, ForeignKey, orm
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql import func

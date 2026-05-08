@@ -4,8 +4,9 @@
 
 from __future__ import annotations
 
+from enum import StrEnum, auto
+
 import sqlalchemy as sa
-from aenum import StrEnum, auto
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.auth import User

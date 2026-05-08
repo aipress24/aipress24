@@ -98,7 +98,7 @@ def guess_best_bw_type(user: User) -> BWType:
     # `index()` and trigger this helper. Default to `MEDIA` like
     # the malformed-profile-code path below.
     if profile is None:
-        return BWType.MEDIA  # type: ignore[invalid-return-type]  # ty:ignore[invalid-return-type]
+        return BWType.MEDIA  # type: ignore[invalid-return-type]
     try:
         profile_code = ProfileEnum[profile.profile_code]
     except KeyError:
