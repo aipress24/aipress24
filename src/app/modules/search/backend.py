@@ -175,5 +175,6 @@ class SearchBackend:
             user.profile.presentation,
             # TODO: add more fields
         ]
+        # pyrefly: ignore [no-matching-overload]
         data["text"] = " ".join(text_fields)
         return data

@@ -385,10 +385,12 @@ class CommuniquesWipView(BaseWipView):
 
         match direction:
             case "up":
+                # pyrefly: ignore [bad-index]
                 prev_image = images[image.position - 1]
                 image.position -= 1
                 prev_image.position += 1
             case "down":
+                # pyrefly: ignore [bad-index]
                 next_image = images[image.position + 1]
                 image.position += 1
                 next_image.position -= 1

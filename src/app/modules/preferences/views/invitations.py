@@ -86,6 +86,7 @@ class InvitationsView(MethodView):
         result = []
         for org in organisations:
             if org.bw_id:
+                # pyrefly: ignore [no-matching-overload]
                 label = f"{org.bw_name} ({LABELS_BW_TYPE_V2.get(org.bw_active, org.bw_active)})"
             else:
                 label = f"{org.name}"

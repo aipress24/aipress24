@@ -257,26 +257,31 @@ def adapt(obj) -> Never:
     raise NotImplementedError(msg)
 
 
+# pyrefly: ignore [no-matching-overload]
 @adapt.register
 def adapt_user(user: User) -> SocialUser:
     return adapter.adapt(user, SocialUser)
 
 
+# pyrefly: ignore [no-matching-overload]
 @adapt.register
 def adapt_org(org: Organisation) -> SocialOrganisation:
     return adapter.adapt(org, SocialOrganisation)
 
 
+# pyrefly: ignore [no-matching-overload]
 @adapt.register
 def adapt_frontend_post(content: FrontendBaseContent) -> SocialContent:
     return adapter.adapt(content, SocialContent)
 
 
+# pyrefly: ignore [no-matching-overload]
 @adapt.register
 def adapt_content_post(content: ContentBaseContent) -> SocialContent:
     return adapter.adapt(content, SocialContent)
 
 
+# pyrefly: ignore [no-matching-overload]
 @adapt.register
 def adapt_event_post(event: EventPost) -> SocialContent:
     return adapter.adapt(event, SocialContent)

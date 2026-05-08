@@ -79,7 +79,9 @@ def get_taxonomy_dual_select(
         if item.category not in seen:
             seen.add(item.category)
             distinct.append(item.category)
+            # pyrefly: ignore [unsupported-operation]
             field2[item.category] = []
+        # pyrefly: ignore [bad-index]
         field2[item.category].append([item.value, item.name])
     response = {}
     response["field1"] = [(category, category) for category in distinct]

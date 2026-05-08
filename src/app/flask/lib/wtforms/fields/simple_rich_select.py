@@ -25,4 +25,5 @@ class SimpleRichSelectField(SelectField):
     def get_choices_for_js(self):
         # Serialize values as strings so JavaScript does not lose precision
         # on large integers (e.g. Snowflake IDs > 2^53).
+        # pyrefly: ignore [bad-unpacking]
         return [[str(v), label] for v, label in (self.choices or [])]
