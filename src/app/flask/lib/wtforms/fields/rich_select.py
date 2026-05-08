@@ -30,9 +30,11 @@ class RichSelectField(SelectField):
 
     def _choices(self):
         values = get_choices(self.key)
+        # pyrefly: ignore [not-iterable]
         return [(value, value) for value in values]
 
     def get_choices_for_js(self):
         values = get_choices(self.key)
         # Ensure string values so JavaScript cannot corrupt large integers.
+        # pyrefly: ignore [not-iterable]
         return [[str(value), str(value)] for value in values]

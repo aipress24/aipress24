@@ -48,6 +48,7 @@ def _to_opengraph_article(obj: ArticlePost):
     # og_data["og:image"] = obj.image_url
 
     og_data["article:author"] = obj.owner.full_name
+    # pyrefly: ignore [unsupported-operation]
     og_data["article:section"] = obj.section
     og_data["article:published_time"] = obj.created_at.isoformat()
 
@@ -79,7 +80,9 @@ def _to_opengraph_user(obj: User):
     og_data = to_opengraph_generic(obj)
     og_data["og:type"] = "profile"
     og_data["og:image"] = obj.photo_image_signed_url()
+    # pyrefly: ignore [unsupported-operation]
     og_data["og:profile:first_name"] = obj.first_name
+    # pyrefly: ignore [unsupported-operation]
     og_data["og:profile:last_name"] = obj.last_name
     # og_data["og:profile:username"] = obj.username
 

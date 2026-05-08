@@ -255,6 +255,7 @@ class FilterByTailleOrganisation(Filter):
             return
 
         options = sorted({self.selector(obj) for obj in objects})
+        # pyrefly: ignore [read-only]
         self.options = [opt for opt in options if opt]  # ty:ignore[invalid-attribute-access]
 
     @staticmethod

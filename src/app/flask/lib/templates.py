@@ -68,8 +68,8 @@ class TemplateResponse(Response):
         match self.template:
             case str(template_str):
                 return render_template_string(template_str, **self.context)
-            case Path(template_path):
-                return render_template(template_path, **self.context)
+            case Path() as template_path:
+                return render_template(str(template_path), **self.context)
             case _:
                 msg = "template_name or template_str must be provided"
                 raise ValueError(msg)

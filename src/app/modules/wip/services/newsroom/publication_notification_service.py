@@ -173,6 +173,7 @@ class PublicationNotificationService:
         for u in recipients:
             if u.id == journalist.id:
                 continue
+            # pyrefly: ignore [no-matching-overload]
             unique.setdefault(u.id, u)
         target_ids = list(unique.keys())
 

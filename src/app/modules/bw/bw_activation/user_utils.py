@@ -77,6 +77,7 @@ def get_current_user_data() -> StdDict:
     # otherwise `metier_fonction` would often return a misleading value
     # (bug #0107). Falls back to `metier_fonction` when bw_type unknown.
     bw_type = session.get("bw_type")
+    # pyrefly: ignore [no-matching-overload]
     data.update(
         {
             "first_name": user.first_name,
