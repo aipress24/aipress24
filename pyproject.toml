@@ -324,6 +324,7 @@ reportIncompatibleMethodOverride = false
 reportIncompatibleVariableOverride = false
 
 # -----------------------------------------------------------------------------
+
 [tool.ty.src]
 exclude = [
     "tests",
@@ -399,3 +400,25 @@ skip_empty = true
 
 [tool.coverage.html]
 show_contexts = true
+
+# -----------------------------------------------------------------------------
+
+[tool.pyrefly]
+project-includes = ["src"]
+project-excludes = [
+    ".nox",
+    "tests",
+    "sandbox",
+    "doc",
+    "scripts",
+    "tmp",
+    "src/app/modules/superadmin",
+]
+infer-with-first-use = false
+
+[tool.pyrefly.errors]
+bad-override = "ignore"
+bad-argument-type = "ignore"   # SQLAlchemy InstrumentedAttribute false positives
+bad-return = "ignore"
+bad-assignment = "ignore"
+missing-attribute = "ignore"

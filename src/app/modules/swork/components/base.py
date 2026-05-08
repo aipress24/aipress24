@@ -161,7 +161,8 @@ class Filter:
             return
 
         if callable(selector):
-            options = sorted({selector(obj) for obj in objects})
+            values: set[Any] = {selector(obj) for obj in objects}
+            options = sorted(values)
             self.options = [opt for opt in options if opt]
         elif isinstance(selector, str):
             self.options = sorted({getattr(o, selector) for o in objects})
