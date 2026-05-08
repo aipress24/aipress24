@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from aenum import StrEnum, auto
+from enum import StrEnum, auto
 
 
 class PublicationStatus(StrEnum):

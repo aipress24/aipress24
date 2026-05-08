@@ -5,9 +5,7 @@
 
 from __future__ import annotations
 
-from enum import Enum
-
-from aenum import StrEnum
+from enum import Enum, StrEnum
 
 
 class RoleEnum(StrEnum):

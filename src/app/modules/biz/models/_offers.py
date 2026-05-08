@@ -21,9 +21,9 @@ and projects.
 from __future__ import annotations
 
 from datetime import datetime
+from enum import StrEnum, auto
 
 import sqlalchemy as sa
-from aenum import StrEnum, auto
 from sqlalchemy import BigInteger, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
