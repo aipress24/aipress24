@@ -182,6 +182,7 @@ class XLSParser(ModelLoader):
             profile = self.survey_profiles[i]
             profile.community = community
 
+        contact_type = ""
         for i, cell in enumerate(rows[ROW_CONTACT][COL_PROFILE:]):
             if i >= nb_profiles:
                 break

@@ -4,6 +4,8 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 from attr import define
 from flask import session as flask_session
 from flask_super.decorators import service
@@ -55,7 +57,7 @@ class SessionService:
 
         return item in session
 
-    def get(self, key, default=_marker):
+    def get(self, key, default=_marker) -> Any:
         """Get a value from the user's session by key."""
         session = self.get_session()
         if not session:

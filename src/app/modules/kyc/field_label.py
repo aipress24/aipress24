@@ -40,6 +40,7 @@ def label_from_values_simple(data: str | list, key: str, ontology: str) -> str:
 def label_from_values_dual_first(data: str | list, key: str, ontology: str) -> str:
     """The ontology is a dict."""
     onto_dict = get_ontology_content(ontology)
+    assert isinstance(onto_dict, dict)
     onto_list = onto_dict["field1"]
     return labels_string(data, onto_list)
 
@@ -47,6 +48,7 @@ def label_from_values_dual_first(data: str | list, key: str, ontology: str) -> s
 def label_from_values_dual_second(data: str | list, key: str, ontology: str) -> str:
     """The ontology is a dict."""
     onto_dict = get_ontology_content(ontology)
+    assert isinstance(onto_dict, dict)
     field2 = onto_dict["field2"]
     onto_list = []
     for values in field2.values():
