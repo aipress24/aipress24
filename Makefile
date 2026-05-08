@@ -94,31 +94,21 @@ test-e2e-parallel:
 #
 .PHONY: lint/ruff lint hadolint audit
 
-##
+check: lint
+
 lint/ruff:
 	ruff check
 
 
-check: lint
-
 ## Lint source code and check typing
 lint:
 	ruff check
-	# FIXME...
-	# lint-imports
-	# deptry src
 	vulture --min-confidence 80 src
-	# Typecheck tests - mostly useless
-	# mypy --show-error-codes tests
-	# pyright tests
 	ty check src/app
-	# Typecheck src - much more useful but not ready yet
+	pyrefly check src/app
+	lint-imports
+	# deptry src
 	# mypy --show-error-codes src
-	# pyright src
-
-	# TODO later
-	# make hadolint
-	# mypy --check-untyped-defs --show-error-codes src
 
 ## Run security audit
 audit:
