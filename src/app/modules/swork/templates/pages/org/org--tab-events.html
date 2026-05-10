@@ -1,15 +1,16 @@
 <div x-show="tab === 'events'">
+  <h2 class="text-lg font-bold mb-2">Evénements</h2>
 
-  <h2 class="text-lg font-medium mb-2">Evénements mis en oeuvre par l'organisations</h2>
-
-  <p class="mb-4">...</p>
-
-  <h2 class="text-lg font-medium mb-2">Evénements auxquels participe l'organisations</h2>
-
-  <p class="mb-4">...</p>
-
-  <h2 class="text-lg font-medium mb-2">Evénements que soutient l'organisations</h2>
-
-  <p class="mb-4">...</p>
-
+  {% set events = org.events %}
+  {% if events %}
+    <ul role="list" class="grid gap-6 grid-cols-1 md:grid-cols-2">
+      {% for event in events %}
+        <li class="bg-white rounded shadow">
+          {{ component("event-card", event, class_="bg-gray-100") }}
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>L'organisation n'a publié aucun événement.</p>
+  {% endif %}
 </div>

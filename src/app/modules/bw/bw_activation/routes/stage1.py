@@ -22,7 +22,6 @@ from app.modules.bw.bw_activation.user_utils import (
 )
 from app.modules.bw.bw_activation.utils import (
     ERR_BW_NOT_FOUND,
-    ERR_NOT_MANAGER,
     fill_session,
     init_session,
 )
@@ -76,8 +75,12 @@ def index():
         # No manageable BW — check if org has an active BW but user lacks rights
         org_bw = get_business_wall_for_user(user)
         if org_bw and org_bw.status != BWStatus.CANCELLED.value:
-            session["error"] = ERR_NOT_MANAGER
-            return redirect(url_for("bw_activation.not_authorized"))
+            # Bug #0117: user belongs to an org with a BW but is not a manager.
+            # Instead of blocking with "not authorized", redirect to the
+            # activation flow. confirmation_free will either add the user as
+            # owner (if they're an org member) or create a fresh BW.
+            session["suggested_bw_type"] = guess_best_bw_type(user).value
+            return redirect(url_for("bw_activation.confirm_subscription"))
         # No BW at all — start activation flow
         session["suggested_bw_type"] = guess_best_bw_type(user).value
         return redirect(url_for("bw_activation.confirm_subscription"))

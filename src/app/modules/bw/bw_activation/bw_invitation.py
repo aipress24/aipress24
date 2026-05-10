@@ -402,6 +402,10 @@ def send_partnership_invitation_mail(
     sender_full_name = current_user.full_name
     bw_name = business_wall.name_safe or "(Nom inconnu)"
 
+    # Bug 0123: include the client company name in the invitation email
+    org = business_wall.get_organisation()
+    client_name = org.name if org else ""
+
     confirmation_url = url_for(
         "bw_activation.confirm_partnership_invitation",
         bw_id=business_wall.id,
@@ -415,6 +419,7 @@ def send_partnership_invitation_mail(
         sender_mail=sender_mail,
         sender_full_name=sender_full_name,
         bw_name=bw_name,
+        client_name=client_name,
         role="PR Manager (external)",
         confirmation_url=confirmation_url,
     )

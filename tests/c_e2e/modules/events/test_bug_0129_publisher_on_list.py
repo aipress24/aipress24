@@ -127,3 +127,33 @@ def test_event_detail_aside_shows_publisher_bw_name(
     html = response.data.decode()
     assert "Léonard SA" in html, "publisher.bw_name missing from event detail aside"
     assert "Pour" in html
+
+
+def test_event_shows_published_by_relation_when_cross_org(
+    app: Flask,
+    db_session: Session,
+):
+    """Bug #0129 extension — When the event author belongs to an agency
+    and publishes for a client, the detail page should show:
+    "Publié par <agency> en tant que contact presse de <client>".
+    """
+    user = _make_user(db_session)
+    agency = Organisation(name="Fake-Les Propulseurs PR")
+    client_org = Organisation(name="Fake-Davi Logistique", bw_name="Davi Logistique")
+    db_session.add_all([agency, client_org])
+    db_session.flush()
+
+    # Author belongs to the PR agency
+    user.organisation = agency
+    db_session.flush()
+
+    event = _make_event_with_publisher(db_session, user.id, client_org)
+
+    client = make_authenticated_client(app, user)
+    response = client.get(f"/events/{event.id}", follow_redirects=True)
+    assert response.status_code == 200
+    html = response.data.decode()
+    assert (
+        "Publié par Fake-Les Propulseurs PR en tant que contact presse de Fake-Davi Logistique"
+        in html
+    ), "missing 'Publié par X en tant que contact presse de Y' on event detail"

@@ -299,6 +299,7 @@ class OrgVM(ViewModel):
             "cover_image_copyright": self.get_cover_image_copyright(),
             "press_releases": self.get_press_releases(),
             "publications": self.get_publications(),
+            "events": self.get_events(),
             "timeline": timeline,
             "address_formatted": self._get_address_formatted(),
             "type_organisation": self.get_type_organisation(),
@@ -385,6 +386,15 @@ class OrgVM(ViewModel):
         )
         articles = get_multi(ArticlePost, stmt)
         return list(articles)
+
+    def get_events(self) -> list:
+        stmt = (
+            select(EventPost)
+            .where(EventPost.publisher_id == self.org.id)
+            .where(EventPost.status == PublicationStatus.PUBLIC)
+        )
+        events = get_multi(EventPost, stmt)
+        return list(events)
 
     def _get_address_formatted(self) -> str:
         if self.bw is not None:

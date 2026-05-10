@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING, cast
 
 from flask import (
@@ -29,7 +30,12 @@ from app.modules.bw.bw_activation.bw_creation import (
     create_new_paid_bw_record,
 )
 from app.modules.bw.bw_activation.config import BW_TYPES
-from app.modules.bw.bw_activation.models import BWStatus
+from app.modules.bw.bw_activation.models import (
+    BWRoleType,
+    BWStatus,
+    InvitationStatus,
+    RoleAssignmentService,
+)
 from app.modules.bw.bw_activation.user_utils import current_business_wall
 from app.modules.bw.bw_activation.utils import (
     fill_session,
@@ -107,17 +113,37 @@ def confirmation_free():
     # next click. Ref: bugs #0110, #0115, #0116, #0117.
     user = cast("User", g.user)
     existing = current_business_wall(user)
-    if (
-        existing is not None
-        and existing.status != BWStatus.CANCELLED.value
-        and is_bw_manager_or_admin(user, existing)
-    ):
-        fill_session(existing)
-        return render_template(
-            "bw_activation/02_activation_gratuit_confirme.html",
-            bw_type=bw_type,
-            bw_info=bw_info,
-        )
+    if existing is not None and existing.status != BWStatus.CANCELLED.value:
+        if is_bw_manager_or_admin(user, existing):
+            fill_session(existing)
+            return render_template(
+                "bw_activation/02_activation_gratuit_confirme.html",
+                bw_type=bw_type,
+                bw_info=bw_info,
+            )
+        # Bug #0117: user belongs to an org with a BW but is not a manager.
+        # If they are a member of the BW's organisation, add them as owner
+        # instead of creating a duplicate BW.
+        org = existing.get_organisation()
+        if org and user in org.members:
+            role_service = container.get(RoleAssignmentService)
+            role_service.create(
+                {
+                    "business_wall_id": existing.id,
+                    "user_id": user.id,
+                    "role_type": BWRoleType.BW_OWNER.value,
+                    "invitation_status": InvitationStatus.ACCEPTED.value,
+                    "accepted_at": datetime.now(UTC),
+                },
+                auto_commit=False,
+            )
+            db.session.commit()
+            fill_session(existing)
+            return render_template(
+                "bw_activation/02_activation_gratuit_confirme.html",
+                bw_type=bw_type,
+                bw_info=bw_info,
+            )
     # Stale `session["bw_id"]` would otherwise prevent a fresh
     # creation attempt from succeeding. Drop it so the new BW
     # picked by `current_business_wall(user)` post-creation is the

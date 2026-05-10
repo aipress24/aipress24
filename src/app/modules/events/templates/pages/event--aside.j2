@@ -52,6 +52,11 @@
         <a href="{{ url_for(event.publisher) }}"
             class="text-sm font-medium hover:underline">{{ event.publisher.bw_name or event.publisher.name }}</a>
       </div>
+      {% if event.author.organisation and event.author.organisation.id != event.publisher.id %}
+        <div class="text-xs italic text-gray-500 mt-1">
+          Publié par {{ event.author.organisation.name }} en tant que contact presse de {{ event.publisher.name }}.
+        </div>
+      {% endif %}
     {% endif %}
 
     {% for metadata in metadata_list %}

@@ -137,8 +137,13 @@ class TestIndex:
             or "not_authorized" in response.location
         ), f"got {response.location!r}"
 
-    def test_redirects_non_manager_to_not_authorized(self, app: Flask, fresh_db):
-        """Index redirects to not-authorized if user is not BW manager."""
+    def test_redirects_non_manager_to_confirm_subscription(self, app: Flask, fresh_db):
+        """Index redirects to confirm-subscription if user is not BW manager.
+
+        Bug #0117: previously blocked with "not-authorized". Now redirects
+        to the wizard so the user can claim ownership if they are a member
+        of the organisation.
+        """
         data = create_bw_test_data(fresh_db)
 
         # Create another user in the SAME organisation (but not owner/manager)
@@ -158,10 +163,7 @@ class TestIndex:
         response = client.get("/BW/", follow_redirects=False)
 
         assert response.status_code == 302
-        assert (
-            "not-authorized" in response.location
-            or "not_authorized" in response.location
-        )
+        assert "confirm-subscription" in response.location
 
 
 # -----------------------------------------------------------------------------
