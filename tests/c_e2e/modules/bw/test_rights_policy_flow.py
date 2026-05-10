@@ -127,9 +127,10 @@ def test_settings_page_owner_can_save(app: Flask, db_session: Session, scenario:
             "/BW/rights-policy",
             data={
                 "option": "blacklist",
-                "media_ids": (
-                    f"{scenario['buyer_bw'].id}\n\n00000000-0000-0000-0000-000000000999"
-                ),
+                "media_ids": [
+                    str(scenario["buyer_bw"].id),
+                    "00000000-0000-0000-0000-000000000999",
+                ],
             },
             follow_redirects=False,
         )

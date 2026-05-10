@@ -139,18 +139,29 @@ class InvitationsView(MethodView):
 
         Partnership invitations are sent to a PR Agency's BusinessWall owner
         to become an external PR Manager for another BusinessWall.
+
+        Bug #0123: previously this only looked at `org.bw_id` (the active BW).
+        If the agency had not activated its BW yet, or if `bw_id` was stale,
+        the invitation was invisible. Now we search across all BWs that
+        belong to the user's organisation.
         """
         db_session = db.session
         org = user.organisation
-        if not org or not org.has_bw:
+        if not org:
             return []
 
-        user_bw_id = str(org.bw_id)
+        # Find every BW tied to this organisation (not just the active one).
+        stmt = select(BusinessWall).where(BusinessWall.organisation_id == org.id)
+        org_bws = list(db_session.scalars(stmt))
+        if not org_bws:
+            return []
+
+        bw_ids = [str(bw.id) for bw in org_bws]
         stmt = (
             select(Partnership, BusinessWall)
             .join(BusinessWall, Partnership.business_wall_id == BusinessWall.id)
             .where(
-                Partnership.partner_bw_id == user_bw_id,
+                Partnership.partner_bw_id.in_(bw_ids),
                 Partnership.status == PartnershipStatus.INVITED.value,
             )
         )

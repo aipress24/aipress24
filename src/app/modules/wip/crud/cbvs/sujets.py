@@ -89,6 +89,39 @@ class SujetsTable(BaseTable):
     def __init__(self, q="") -> None:
         super().__init__(Sujet, q)
 
+    def get_columns(self):
+        return [
+            {
+                "name": "titre",
+                "label": "Titre",
+                "class": "max-w-0 w-full truncate",
+            },
+            {
+                "name": "owner",
+                "label": "Auteur",
+                "class": "max-w-24",
+                "render": self.get_owner_name,
+            },
+            {
+                "name": "status",
+                "label": "Statut",
+            },
+            {
+                "name": "created_at",
+                "label": "Création",
+            },
+            {
+                "name": "$actions",
+                "label": "",
+            },
+        ]
+
+    def get_owner_name(self, obj):
+        owner = getattr(obj, "owner", None)
+        if not owner:
+            return ""
+        return owner.full_name
+
     def _make_datasource(self, model_class: type, q: str) -> BaseDataSource:
         return SujetDataSource(model_class=model_class, q=q)
 
@@ -138,6 +171,20 @@ class SujetsWipView(BaseWipView):
 
     msg_delete_ok = "Le sujet a été supprimé"
     msg_delete_ko = "Vous n'êtes pas autorisé à supprimer ce sujet"
+
+    def _extra_view_html(self, model, mode: str) -> str:
+        """Show the author name below the form in view mode."""
+        if mode != "view":
+            return ""
+        owner = getattr(model, "owner", None)
+        if not owner:
+            return ""
+        return f"""
+        <div class="mt-4 p-4 bg-gray-50 rounded border">
+            <h3 class="text-sm font-medium text-gray-500">Auteur</h3>
+            <p class="text-sm font-medium text-gray-900">{owner.full_name}</p>
+        </div>
+        """
 
     def publish(self, id):
         """Bug 0132: move sujet DRAFT → PUBLIC and notify the target media."""

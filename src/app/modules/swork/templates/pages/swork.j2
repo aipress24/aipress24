@@ -23,7 +23,7 @@
     </main>
 
     <aside class="hidden lg:block lg:col-span-4 my-8">
-      <div class="sticky top-4 space-y-4">
+      <div class="sticky top-4 space-y-4 max-h-[80vh] overflow-y-auto">
         {% from "macros/promo.j2" import promo_box with context %}
         {{ promo_box("swork/1") }}
         {{ promo_box("swork/2") }}

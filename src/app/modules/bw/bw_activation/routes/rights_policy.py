@@ -16,10 +16,12 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, cast
 
 from flask import flash, g, redirect, render_template, request, url_for
+from sqlalchemy import select
 from werkzeug.exceptions import Forbidden, NotFound
 
 from app.flask.extensions import db
 from app.modules.bw.bw_activation import bp
+from app.modules.bw.bw_activation.models.business_wall import BusinessWall, BWStatus
 from app.modules.bw.bw_activation.rights_policy import get_policy
 from app.modules.bw.bw_activation.user_utils import current_business_wall
 from app.modules.bw.bw_activation.utils import is_bw_manager_or_admin
@@ -47,7 +49,7 @@ def rights_policy():
             flash("Option invalide.", "error")
             return redirect(url_for(".rights_policy"))
 
-        media_ids = _parse_media_ids(request.form.get("media_ids") or "")
+        media_ids = request.form.getlist("media_ids")
         bw.rights_sales_policy = {
             "option": option,
             "media_ids": media_ids,
@@ -57,15 +59,23 @@ def rights_policy():
         return redirect(url_for(".rights_policy"))
 
     current = get_policy(bw)
+    media_bws = _get_media_business_walls()
+    selected_ids = set(current["media_ids"])
     return render_template(
         "bw_activation/rights_policy.html",
         bw=bw,
         option=current["option"],
-        media_ids_text="\n".join(current["media_ids"]),
+        media_bws=media_bws,
+        selected_ids=selected_ids,
     )
 
 
-def _parse_media_ids(raw: str) -> list[str]:
-    """Split a textarea into stripped non-empty lines."""
-    lines = [line.strip() for line in raw.splitlines()]
-    return [line for line in lines if line]
+def _get_media_business_walls() -> list[BusinessWall]:
+    """Return all active media-type Business Walls for the picker."""
+    stmt = (
+        select(BusinessWall)
+        .where(BusinessWall.bw_type == "media")
+        .where(BusinessWall.status == BWStatus.ACTIVE.value)
+        .order_by(BusinessWall.name)
+    )
+    return list(db.session.scalars(stmt))

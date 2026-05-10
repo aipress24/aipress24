@@ -49,6 +49,7 @@ class BWRoleInvitationMail(EmailTemplate):
         - sender_mail (str): bw_manager.email (user sending mail), informative.
         - sender_full_name (str): bw_manager.full_name (user sending mail), informative.
         - bw_name (str): organisation.name, name of inviting organisation.
+        - client_name (str): name of the client company (for PR external invitations).
         - role: proposed role
         - confirmation_url: URL on aipress24.com to confirm invitation
 
@@ -59,6 +60,7 @@ class BWRoleInvitationMail(EmailTemplate):
             sender_mail=sender_mail,
             sender_full_name=sender_full_name,
             bw_name=org_name,
+            client_name=client_name,
             role=bw_role,
             confirmation_url=confirmation_url,
         )
@@ -69,6 +71,7 @@ class BWRoleInvitationMail(EmailTemplate):
     template_html: str = "bw_role_invitation.j2"
     sender_full_name: str
     bw_name: str
+    client_name: str = ""
     role: str
     confirmation_url: str
 
