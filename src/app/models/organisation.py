@@ -60,6 +60,9 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
     status: Mapped[str] = mapped_column(default="")
     karma: Mapped[int] = mapped_column(default=0)
 
+    # Spec: local-notes/specs/finances.md §3 (Customer = Organisation).
+    stripe_customer_id: Mapped[str | None] = mapped_column(default=None)
+
     members = relationship(
         User,
         primaryjoin="User.organisation_id == Organisation.id",

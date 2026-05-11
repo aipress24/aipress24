@@ -318,12 +318,14 @@ def register_filters(app: Flask) -> None:
     Args:
         app: Flask application instance.
     """
+    from app.services.stripe.prices import stripe_price_display
     from app.ui.geoloc import offer_geoloc_label
 
     app.template_filter("label")(make_label)
     app.template_filter("localdt")(make_localdt)
     app.template_filter("naivedt")(make_naivedt)
     app.template_filter("offer_geoloc")(offer_geoloc_label)
+    app.template_filter("stripe_price")(stripe_price_display)
 
 
 def register_stripe(app: Flask) -> None:

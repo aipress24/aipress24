@@ -36,7 +36,7 @@
                 action="{{ url_for('wire.buy', post_id=post_id, product='consultation') }}">
             <button type="submit"
                     class="inline-flex items-center px-5 py-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium rounded-md">
-              Acheter la consultation
+              Acheter la consultation — {{ config.get("STRIPE_PRICE_CONSULTATION") | stripe_price }}
             </button>
           </form>
         </div>

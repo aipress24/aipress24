@@ -32,8 +32,8 @@ def billing_portal():
         flash("Accès non autorisé.", "error")
         return redirect(url_for("bw_activation.index"))
 
-    sub = bw.subscription
-    if sub is None or not sub.stripe_customer_id:
+    customer_id = _resolve_stripe_customer_id(bw)
+    if not customer_id:
         flash("Aucun abonnement Stripe actif pour ce Business Wall.", "error")
         return redirect(url_for("bw_activation.dashboard"))
 
@@ -47,7 +47,21 @@ def billing_portal():
         return redirect(url_for("bw_activation.dashboard"))
 
     portal_session = stripe.billing_portal.Session.create(
-        customer=sub.stripe_customer_id,
+        customer=customer_id,
         return_url=url_for("bw_activation.dashboard", _external=True),
     )
     return redirect(portal_session.url, code=303)
+
+
+def _resolve_stripe_customer_id(bw) -> str | None:
+    """Read the Stripe customer id from the Organisation, with a Subscription
+    fallback for rows that pre-date the `Organisation.stripe_customer_id`
+    migration. Cf. `specs/finances.md` §3.
+    """
+    org = bw.get_organisation()
+    if org is not None and org.stripe_customer_id:
+        return org.stripe_customer_id
+    sub = bw.subscription
+    if sub is not None and sub.stripe_customer_id:
+        return sub.stripe_customer_id
+    return None
