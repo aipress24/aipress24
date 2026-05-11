@@ -12,6 +12,7 @@ from flask import jsonify, redirect, render_template, request, url_for
 from flask.views import MethodView
 from svcs.flask import container
 
+from app.flask.extensions import db
 from app.flask.lib.nav import nav
 from app.logging import warn
 from app.modules.admin import blueprint
@@ -73,6 +74,7 @@ class PromotionsView(MethodView):
         warn(f"post {slug!r} {body!r}")
         if slug:
             promo_service.store_promotion(slug=slug, title=title, body=body)
+            db.session.commit()
         return redirect(url_for("admin.promotions", saved_promo=slug))
 
 

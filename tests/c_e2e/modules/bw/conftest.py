@@ -15,6 +15,8 @@ from typing import TYPE_CHECKING
 from unittest.mock import patch
 
 import pytest
+from flask import Flask, session
+from flask_security import login_user
 
 from app.enums import ProfileEnum
 from app.models.auth import KYCProfile, User
@@ -30,7 +32,8 @@ from app.modules.bw.bw_activation.models import (
 )
 
 if TYPE_CHECKING:
-    pass
+    from flask.testing import FlaskClient
+    from sqlalchemy.orm import Session
 
 
 def _unique_email() -> str:
@@ -205,3 +208,119 @@ def mock_email_sending():
         ),
     ):
         yield
+
+
+# -----------------------------------------------------------------------------
+# HTTP-test fixtures (migrated from tests/b_integration/modules/bw/conftest.py).
+# Used by the route-level tests under this directory.
+# -----------------------------------------------------------------------------
+
+
+@pytest.fixture
+def test_org(db_session: Session) -> Organisation:
+    """Create a test organisation."""
+    org = Organisation(name="Test Media Org for Management")
+    db_session.add(org)
+    db_session.flush()
+    return org
+
+
+@pytest.fixture
+def test_user_owner(db_session: Session, test_org: Organisation) -> User:
+    """Create a test user who will be BW owner."""
+    user = User(
+        email=_unique_email(),
+        first_name="Owner",
+        last_name="User",
+        active=True,
+    )
+    user.organisation = test_org
+    user.organisation_id = test_org.id
+    db_session.add(user)
+    db_session.flush()
+
+    profile = KYCProfile(
+        user_id=user.id,
+        profile_id="profile_owner",
+        profile_code=ProfileEnum.PM_DIR.value,
+        profile_label="Dirigeant Presse",
+        info_personnelle={"metier_principal_detail": ["Owner"]},
+        match_making={"fonctions_journalisme": ["Directeur"]},
+    )
+    db_session.add(profile)
+    db_session.flush()
+    return user
+
+
+@pytest.fixture
+def test_business_wall(
+    db_session: Session,
+    test_org: Organisation,
+    test_user_owner: User,
+) -> BusinessWall:
+    """Create a test Business Wall with owner role."""
+    bw = BusinessWall(
+        bw_type="media",
+        status=BWStatus.ACTIVE.value,
+        is_free=True,
+        owner_id=test_user_owner.id,
+        payer_id=test_user_owner.id,
+        organisation_id=test_org.id,
+    )
+    db_session.add(bw)
+    db_session.flush()
+
+    test_org.bw_id = bw.id
+    db_session.flush()
+
+    owner_role = RoleAssignment(
+        business_wall_id=bw.id,
+        user_id=test_user_owner.id,
+        role_type=BWRoleType.BW_OWNER.value,
+        invitation_status=InvitationStatus.ACCEPTED.value,
+    )
+    db_session.add(owner_role)
+    db_session.flush()
+
+    return bw
+
+
+@pytest.fixture
+def authenticated_owner_client(
+    app: Flask,
+    db,
+    test_user_owner: User,
+    test_business_wall: BusinessWall,
+) -> FlaskClient:
+    """Create a test client logged in as BW owner with activated session."""
+    client = app.test_client()
+    with app.test_request_context():
+        login_user(test_user_owner)
+        with client.session_transaction() as sess:
+            sess["bw_type"] = "media"
+            sess["bw_type_confirmed"] = True
+            sess["contacts_confirmed"] = True
+            sess["bw_activated"] = True
+            for key, value in session.items():
+                if key not in sess:
+                    sess[key] = value
+    return client
+
+
+@pytest.fixture
+def unauthenticated_bw_client(
+    app: Flask,
+    db,
+    test_user_owner: User,
+) -> FlaskClient:
+    """Create a test client logged in but without BW."""
+    client = app.test_client()
+    with app.test_request_context():
+        login_user(test_user_owner)
+        with client.session_transaction() as sess:
+            sess["bw_activated"] = True
+            sess["bw_type"] = "media"
+            for key, value in session.items():
+                if key not in sess:
+                    sess[key] = value
+    return client
