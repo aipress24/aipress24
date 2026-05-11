@@ -52,7 +52,7 @@ class SujetDataSource(BaseDataSource):
     def _visibility_clause(self):
         M = self.model_class
         user: User = g.user
-        own = M.owner == user
+        own = M.owner_id == user.id
         media = self._media_recipient_clause()
         return or_(own, media) if media is not None else own
 

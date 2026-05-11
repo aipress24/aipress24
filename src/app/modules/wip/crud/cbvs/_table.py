@@ -38,7 +38,7 @@ class BaseDataSource(DataSource):
 
         stmt = (
             select(M)
-            .where(M.owner == user)  # type: ignore[union-attr, arg-type]
+            .where(M.owner_id == user.id)
             .where(M.deleted_at.is_(None))  # type: ignore[union-attr]
         )
         # no ordering the results here.
@@ -66,7 +66,7 @@ class BaseDataSource(DataSource):
         stmt = (
             select(func.count())
             .select_from(M)
-            .where(M.owner == user)  # type: ignore[attr-defined]
+            .where(M.owner_id == user.id)
             .where(M.deleted_at.is_(None))  # type: ignore[attr-defined]
         )
         if self.q:

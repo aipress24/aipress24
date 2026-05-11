@@ -2,7 +2,12 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
-"""Shared fixtures for Business Wall integration tests."""
+"""Shared fixtures for Business Wall integration tests.
+
+Note: HTTP-route tests live in `tests/c_e2e/modules/bw/`. This conftest
+only carries DB-level fixtures used by integration tests that call the
+service / model layer directly.
+"""
 
 from __future__ import annotations
 
@@ -11,8 +16,6 @@ from typing import TYPE_CHECKING
 from unittest.mock import patch
 
 import pytest
-from flask import Flask, session
-from flask_security import login_user
 
 from app.enums import ProfileEnum
 from app.models.auth import KYCProfile, User
@@ -26,7 +29,6 @@ from app.modules.bw.bw_activation.models import (
 )
 
 if TYPE_CHECKING:
-    from flask.testing import FlaskClient
     from sqlalchemy.orm import Session
 
 
@@ -103,48 +105,6 @@ def test_business_wall(
     db_session.flush()
 
     return bw
-
-
-@pytest.fixture
-def authenticated_owner_client(
-    app: Flask,
-    db,
-    test_user_owner: User,
-    test_business_wall: BusinessWall,
-) -> FlaskClient:
-    """Create a test client logged in as BW owner with activated session."""
-    client = app.test_client()
-    with app.test_request_context():
-        login_user(test_user_owner)
-        with client.session_transaction() as sess:
-            # Set up activated BW session state
-            sess["bw_type"] = "media"
-            sess["bw_type_confirmed"] = True
-            sess["contacts_confirmed"] = True
-            sess["bw_activated"] = True
-            for key, value in session.items():
-                if key not in sess:
-                    sess[key] = value
-    return client
-
-
-@pytest.fixture
-def unauthenticated_bw_client(
-    app: Flask,
-    db,
-    test_user_owner: User,
-) -> FlaskClient:
-    """Create a test client logged in but without BW."""
-    client = app.test_client()
-    with app.test_request_context():
-        login_user(test_user_owner)
-        with client.session_transaction() as sess:
-            sess["bw_activated"] = True
-            sess["bw_type"] = "media"
-            for key, value in session.items():
-                if key not in sess:
-                    sess[key] = value
-    return client
 
 
 @pytest.fixture

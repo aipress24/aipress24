@@ -18,8 +18,10 @@ class PromotionService:
     """Service class for Promotion model."""
 
     def store_promotion(self, slug: str, title: str, body: str) -> Promotion:
-        # def store_promotion(self, slug: str, title: str, body: str, profile: ProfileEnum | None = None) -> Promotion:
+        """Insert or update a Promotion identified by slug.
 
+        Does NOT commit — caller (view layer or CLI) commits explicitly.
+        """
         repo = container.get(PromotionRepository)
         promo = repo.get_one_or_none(slug=slug)
         if promo is None:
@@ -30,7 +32,6 @@ class PromotionService:
 
         promo = repo.add(promo)
         repo.session.flush()
-        repo.session.commit()
         return promo
 
     def get_promotion(self, slug: str) -> Promotion | None:
