@@ -9,6 +9,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import pytest
+from flask_security import login_user
 
 from app.constants import LABEL_COMPTE_DESACTIVE
 from app.models.auth import KYCProfile, Role, User
@@ -92,3 +93,100 @@ class TestRemoveOrganisation:
             view._remove_organisation(user_with_org)
 
         assert user_with_org.organisation_id is None
+
+
+class TestGrantAdmin:
+    """Tests for granting the ADMIN role from the show_user view."""
+
+    def test_grant_admin_adds_role(
+        self,
+        app: Flask,
+        db_session: Session,
+        admin_user: User,
+        user_with_org: User,
+    ):
+        """_grant_admin adds the ADMIN role to the target user."""
+        view = ShowUserView()
+        assert not user_with_org.has_role("ADMIN")
+
+        with app.test_request_context():
+            login_user(admin_user)
+            view._grant_admin(user_with_org)
+
+        assert user_with_org.has_role("ADMIN")
+
+    def test_grant_admin_is_idempotent(
+        self,
+        app: Flask,
+        db_session: Session,
+        admin_user: User,
+        user_with_org: User,
+    ):
+        """Granting admin to a user who already has it is a no-op."""
+        admin_role = db_session.query(Role).filter_by(name="ADMIN").one()
+        user_with_org.roles.append(admin_role)
+        db_session.flush()
+        view = ShowUserView()
+
+        with app.test_request_context():
+            login_user(admin_user)
+            view._grant_admin(user_with_org)
+
+        assert user_with_org.has_role("ADMIN")
+
+
+class TestRevokeAdmin:
+    """Tests for revoking the ADMIN role from the show_user view."""
+
+    def test_revoke_admin_removes_role(
+        self,
+        app: Flask,
+        db_session: Session,
+        admin_user: User,
+        user_with_org: User,
+    ):
+        """_revoke_admin removes the ADMIN role from the target user."""
+        admin_role = db_session.query(Role).filter_by(name="ADMIN").one()
+        user_with_org.roles.append(admin_role)
+        db_session.flush()
+        assert user_with_org.has_role("ADMIN")
+        view = ShowUserView()
+
+        with app.test_request_context():
+            login_user(admin_user)
+            view._revoke_admin(user_with_org)
+
+        assert not user_with_org.has_role("ADMIN")
+
+    def test_revoke_admin_is_idempotent(
+        self,
+        app: Flask,
+        db_session: Session,
+        admin_user: User,
+        user_with_org: User,
+    ):
+        """Revoking admin from a non-admin is a no-op."""
+        view = ShowUserView()
+        assert not user_with_org.has_role("ADMIN")
+
+        with app.test_request_context():
+            login_user(admin_user)
+            view._revoke_admin(user_with_org)
+
+        assert not user_with_org.has_role("ADMIN")
+
+    def test_self_revoke_is_blocked(
+        self,
+        app: Flask,
+        db_session: Session,
+        admin_user: User,
+    ):
+        """An admin cannot revoke their own ADMIN role (lockout guard)."""
+        view = ShowUserView()
+        assert admin_user.has_role("ADMIN")
+
+        with app.test_request_context():
+            login_user(admin_user)
+            view._revoke_admin(admin_user)
+
+        assert admin_user.has_role("ADMIN")
