@@ -36,8 +36,7 @@ from playwright.sync_api import Page, expect
 
 ROOT = Path(__file__).resolve().parent.parent
 CSV_PATH = (
-    ROOT / "local-notes" / "cards" / "attachments"
-    / "00-ListeDesProfilsDeTests-7.2.csv"
+    ROOT / "local-notes" / "00-ListeDesProfilsDeTests-7.2.csv"
 )
 CATEGORY_RE = re.compile(
     r"^(Journalistes|PR Agency|Academics|Transformers|Leaders & Experts)"

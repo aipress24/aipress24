@@ -6,7 +6,7 @@
 """Login-check all test profiles against a running AiPRESS24 instance.
 
 Reads the test-profile list from
-`local-notes/cards/attachments/00-ListeDesProfilsDeTests-7.2.csv`
+`local-notes/00-ListeDesProfilsDeTests-7.2.csv`
 and POSTs credentials to `/auth/login` on the target host. No
 browser, no JS — just `httpx` with CSRF handling. Writes a CSV
 report and prints a digest to stdout.
@@ -38,8 +38,7 @@ import httpx
 
 ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_CSV = (
-    ROOT / "local-notes" / "cards" / "attachments"
-    / "00-ListeDesProfilsDeTests-7.2.csv"
+    ROOT / "local-notes" / "00-ListeDesProfilsDeTests-7.2.csv"
 )
 DEFAULT_REPORT = ROOT / "scripts" / "check_test_profiles.report.csv"
 

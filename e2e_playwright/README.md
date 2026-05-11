@@ -1,6 +1,6 @@
 # Playwright e2e — pre-launch checks
 
-Read-only Playwright tests that exercise the four **go/no-go** sections of `local-notes/plans-2026.md`. Each test logs in with a real account from `local-notes/cards/attachments/00-ListeDesProfilsDeTests-7.2.csv` and inspects the running app — local dev server **or** production.
+Read-only Playwright tests that exercise the four **go/no-go** sections of `local-notes/plans-2026.md`. Each test logs in with a real account from `local-notes/00-ListeDesProfilsDeTests-7.2.csv` and inspects the running app — local dev server **or** production.
 
 ## Run
 
