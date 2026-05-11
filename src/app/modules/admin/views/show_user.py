@@ -11,9 +11,12 @@ from typing import ClassVar, cast
 from arrow import now
 from flask import Response, render_template, request, url_for
 from flask.views import MethodView
+from flask_login import current_user
+from loguru import logger
 from sqlalchemy import func, select
 
 from app.constants import LABEL_COMPTE_DESACTIVE, LOCAL_TZ
+from app.enums import RoleEnum
 from app.flask.extensions import db
 from app.flask.lib.nav import nav
 from app.flask.sqla import get_obj
@@ -34,6 +37,7 @@ from app.modules.bw.bw_activation.user_utils import (
     get_business_wall_for_user,
 )
 from app.modules.kyc.views import admin_info_context
+from app.services.roles import add_role, has_role
 from app.ui.labels import LABELS_BW_TYPE_V2
 
 
@@ -194,6 +198,16 @@ class ShowUserView(MethodView):
                 db.session.commit()
                 response = Response("")
                 response.headers["HX-Redirect"] = url_for("admin.show_user", uid=uid)
+            case "grant_admin":
+                self._grant_admin(user)
+                db.session.commit()
+                response = Response("")
+                response.headers["HX-Redirect"] = url_for("admin.show_user", uid=uid)
+            case "revoke_admin":
+                self._revoke_admin(user)
+                db.session.commit()
+                response = Response("")
+                response.headers["HX-Redirect"] = url_for("admin.show_user", uid=uid)
             case _:
                 response = Response("")
                 response.headers["HX-Redirect"] = url_for("admin.users")
@@ -218,6 +232,43 @@ class ShowUserView(MethodView):
         previous_organisation = user.organisation
         remove_user_organisation(user)
         gc_organisation(previous_organisation)
+
+    def _grant_admin(self, user: User) -> None:
+        """Grant ADMIN role to the user.
+
+        Note: Does NOT commit - caller is responsible for committing.
+        """
+        if has_role(user, RoleEnum.ADMIN):
+            return
+        add_role(user, RoleEnum.ADMIN)
+        logger.info(
+            "Admin role granted to user {} ({}) by {} ({})",
+            user.id,
+            user.email,
+            current_user.id,
+            current_user.email,
+        )
+
+    def _revoke_admin(self, user: User) -> None:
+        """Revoke ADMIN role from the user.
+
+        Self-revocation is refused to prevent admin lockout — the UI also hides
+        the button in this case; this check is the defensive backstop.
+
+        Note: Does NOT commit - caller is responsible for committing.
+        """
+        if user.id == current_user.id:
+            return
+        if not has_role(user, RoleEnum.ADMIN):
+            return
+        user.remove_role(RoleEnum.ADMIN)
+        logger.info(
+            "Admin role revoked from user {} ({}) by {} ({})",
+            user.id,
+            user.email,
+            current_user.id,
+            current_user.email,
+        )
 
 
 # Register the view
