@@ -88,7 +88,8 @@ class TestReconcileCLI:
         ):
             result = runner.invoke(reconcile, [])
         assert result.exit_code == 0
-        assert "No drift" in result.output
+        # `reconcile` is now a deprecation alias of `verify subscriptions`.
+        assert "no drift" in result.output
 
     def test_drift_exits_nonzero(self, fresh_db, app):
         session = fresh_db.session

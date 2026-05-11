@@ -1,29 +1,53 @@
-# Copyright (c) 2025, Abilian SAS & TCA
+# Copyright (c) 2025-2026, Abilian SAS & TCA
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
-"""Stripe CLI commands for reconciliation and local dry-run.
+"""Stripe CLI commands.
 
-Commands:
+Three command groups:
 
-- `flask stripe reconcile` : compare every local Subscription with its
-  Stripe state, log warnings on drift, emit a non-zero exit code if any
-  drift is found (useful in cron monitoring).
-- `flask stripe simulate-checkout <bw_id>` : fire a fake
-  `checkout.session.completed` event through the same handler Stripe
-  would call. No network hit, for local dev only.
+- `flask stripe verify <resource>` — read-only drift detection (exits
+  non-zero if any drift is found ; cron-friendly).
+- `flask stripe sync <resource>` — manual write-side correction
+  (pulls canonical state from Stripe and updates the local mirror).
+- `flask stripe simulate-checkout <bw_id>` — dev/test only, fires a
+  fake `checkout.session.completed` through the live handler.
+
+The legacy command `flask stripe reconcile` is preserved as an alias of
+`flask stripe verify subscriptions`. Spec: local-notes/specs/finances.md §9.
 """
 
 from __future__ import annotations
 
+import os
 import sys
 import uuid
+from collections.abc import Callable
 from types import SimpleNamespace
 
 import click
 from flask.cli import with_appcontext
 from flask_super.cli import group
 from loguru import logger
+from svcs.flask import container
+
+from app.services.emails import EmailService
+from app.services.stripe.prices import list_drifts, sync_all_prices
+from app.services.stripe.reconciliation import (
+    reconcile_customers,
+    reconcile_purchases,
+    reconcile_subscriptions,
+)
+
+# Resource name → drift-listing function. Single source of truth for
+# `verify <resource>` and `verify all`. Each function returns a list of
+# dataclass instances; an empty list means "no drift".
+VERIFIERS: dict[str, Callable[[], list]] = {
+    "prices": list_drifts,
+    "customers": reconcile_customers,
+    "subscriptions": reconcile_subscriptions,
+    "purchases": reconcile_purchases,
+}
 
 
 @group(short_help="Stripe integration tooling")
@@ -31,28 +55,100 @@ def stripe() -> None:
     """Stripe integration utilities."""
 
 
+# ---------------------------------------------------------------------------
+# verify — read-only drift detection
+# ---------------------------------------------------------------------------
+
+
+@stripe.group()
+def verify() -> None:
+    """Detect drift between local mirror and Stripe (read-only)."""
+
+
+@verify.command("prices")
+@with_appcontext
+def verify_prices() -> None:
+    """Compare local `stripe_price` rows with Stripe."""
+    _report_drifts("prices", VERIFIERS["prices"]())
+
+
+@verify.command("subscriptions")
+@with_appcontext
+def verify_subscriptions() -> None:
+    """Compare local `Subscription` rows with Stripe."""
+    _report_drifts("subscriptions", VERIFIERS["subscriptions"]())
+
+
+@verify.command("customers")
+@with_appcontext
+def verify_customers() -> None:
+    """Compare `Organisation.stripe_customer_id` rows with Stripe."""
+    _report_drifts("customers", VERIFIERS["customers"]())
+
+
+@verify.command("purchases")
+@with_appcontext
+def verify_purchases() -> None:
+    """Compare recent `ArticlePurchase` rows with Stripe checkout sessions."""
+    _report_drifts("purchases", VERIFIERS["purchases"]())
+
+
+@verify.command("all")
+@with_appcontext
+def verify_all() -> None:
+    """Run every verify command sequentially. Exit non-zero on any drift."""
+    failures: list[str] = []
+    for name, fn in VERIFIERS.items():
+        drifts = fn()
+        if drifts:
+            failures.append(name)
+            _report_drifts(name, drifts, exit_on_drift=False)
+        else:
+            click.echo(f"✓ {name}: no drift")
+
+    if failures:
+        click.echo(f"Drift detected in: {', '.join(failures)}.", err=True)
+        sys.exit(1)
+
+
+# ---------------------------------------------------------------------------
+# sync — manual correction
+# ---------------------------------------------------------------------------
+
+
+@stripe.group()
+def sync() -> None:
+    """Push state from Stripe into the local mirror (write-side, manual)."""
+
+
+@sync.command("prices")
+@with_appcontext
+def sync_prices() -> None:
+    """Re-sync every active Stripe Price into `stripe_price`."""
+    n = sync_all_prices()
+    click.echo(f"Synced {n} active price(s) from Stripe.")
+
+
+# ---------------------------------------------------------------------------
+# Legacy `reconcile` — kept as an alias of `verify subscriptions`.
+# ---------------------------------------------------------------------------
+
+
 @stripe.command()
 @with_appcontext
 def reconcile() -> None:
-    """Compare local Subscription state with Stripe and log drifts."""
-    from app.services.stripe.reconciliation import reconcile_subscriptions
+    """Deprecated. Use `flask stripe verify subscriptions` instead."""
+    click.echo(
+        "Note: `flask stripe reconcile` is now an alias of "
+        "`flask stripe verify subscriptions`. Switch to the new name.",
+        err=True,
+    )
+    _report_drifts("subscriptions", VERIFIERS["subscriptions"]())
 
-    drifts = reconcile_subscriptions()
-    if not drifts:
-        click.echo("No drift: local and Stripe states match.")
-        return
 
-    for d in drifts:
-        logger.warning(
-            "Stripe drift | sub={} stripe={} issue={} local={} stripe_status={}",
-            d.subscription_id,
-            d.stripe_id,
-            d.issue,
-            d.local_status,
-            d.stripe_status,
-        )
-    click.echo(f"{len(drifts)} drift(s) detected; see logs.", err=True)
-    sys.exit(1)
+# ---------------------------------------------------------------------------
+# simulate-checkout — dev helper
+# ---------------------------------------------------------------------------
 
 
 @stripe.command("simulate-checkout")
@@ -77,7 +173,6 @@ def simulate_checkout(
 
     Useful to validate the webhook flow without configuring the Stripe CLI.
     """
-    # Validate bw_id shape early.
     try:
         uuid.UUID(bw_id)
     except (ValueError, TypeError):
@@ -97,7 +192,38 @@ def simulate_checkout(
     on_checkout_session_completed(fake_event)
     click.echo(
         f"Dispatched fake checkout.session.completed "
-        f"(session={session_id}, bw={bw_id})."
+        f"(session={session_id}, bw={bw_id}).",
+    )
+
+
+# ---------------------------------------------------------------------------
+# Internals
+# ---------------------------------------------------------------------------
+
+
+def _report_drifts(name: str, drifts, *, exit_on_drift: bool = True) -> None:
+    """Log drifts, optionally exit non-zero, email an admin if `CRON_RUN=1`."""
+    if not drifts:
+        click.echo(f"✓ {name}: no drift")
+        return
+
+    for d in drifts:
+        logger.warning("{} drift: {}", name, d)
+
+    click.echo(f"{len(drifts)} drift(s) in {name}; see logs.", err=True)
+    if os.environ.get("CRON_RUN") == "1":
+        _send_drift_email(name, drifts)
+    if exit_on_drift:
+        sys.exit(1)
+
+
+def _send_drift_email(name: str, drifts) -> None:
+    """Notify the admin recipients defined in `EmailService` on drift."""
+    body_lines = [f"Drift detected on Stripe mirror for: {name}.", ""]
+    body_lines.extend(f"  {d}" for d in drifts)
+    container.get(EmailService).send_system_email(
+        msg="\n".join(body_lines),
+        subject=f"[Aipress24] Stripe drift on {name}",
     )
 
 

@@ -36,6 +36,7 @@ from app.modules.bw.bw_activation.models import (
 from app.modules.bw.bw_activation.models.business_wall import BWType
 from app.modules.stripe import blueprint
 from app.modules.wire.models import ArticlePurchase, PurchaseProduct, PurchaseStatus
+from app.services.stripe.prices import upsert_price_from_event
 from app.services.stripe.product import stripe_bw_subscription_dict
 from app.services.stripe.retriever import (
     retrieve_customer,
@@ -155,6 +156,11 @@ _EVENT_HANDLER_NAMES = {
     "customer.subscription.resumed": "on_customer_subscription_resumed",
     "customer.subscription.trial_will_end": "on_customer_subscription_trial_will_end",
     "customer.subscription.updated": "on_customer_subscription_updated",
+    # Price mirror — local cache kept in sync with Stripe by these 3 events.
+    # Spec: local-notes/specs/finances.md §4.
+    "price.created": "on_price_created",
+    "price.updated": "on_price_updated",
+    "price.deleted": "on_price_deleted",
 }
 
 
@@ -297,6 +303,31 @@ def on_customer_subscription_trial_will_end(event: stripe.Event) -> None:
     _register_bw_subscription(subinfo)
 
 
+def on_price_created(event: stripe.Event) -> None:
+    """Mirror a newly-created Stripe Price into the local cache."""
+    _handle_price_event(event)
+
+
+def on_price_updated(event: stripe.Event) -> None:
+    """Reflect a Stripe Price update into the local cache."""
+    _handle_price_event(event)
+
+
+def on_price_deleted(event: stripe.Event) -> None:
+    """Mark a deleted Stripe Price as inactive locally (never DELETE)."""
+    # `price.deleted` carries `active=true` in the payload despite the
+    # price being deleted Stripe-side, so force the local row inactive.
+    _handle_price_event(event, force_inactive=True)
+
+
+def _handle_price_event(event: stripe.Event, *, force_inactive: bool = False) -> None:
+    data_obj = _get_event_object(event)
+    price = upsert_price_from_event(data_obj)
+    if force_inactive:
+        price.active = False
+    db.session.commit()
+
+
 def on_customer_subscription_updated(event: stripe.Event) -> None:
     """Occurs whenever a subscription changes (e.g., switching from one
     plan to another, or changing the status from trial to active).
@@ -373,6 +404,7 @@ def on_checkout_session_completed(event: stripe.Event) -> None:
         subscription_id=get("subscription"),
         checkout_session_id=session_id,
     )
+    db.session.commit()
 
 
 def _activate_bw_from_checkout(
@@ -382,7 +414,12 @@ def _activate_bw_from_checkout(
     subscription_id: str,
     checkout_session_id: str,
 ) -> None:
-    """Wire a Stripe Checkout success into the local BW / Subscription."""
+    """Wire a Stripe Checkout success into the local BW / Subscription.
+
+    Caller is responsible for committing. Kept side-effect-free at the DB
+    transaction level so tests can call this helper directly inside their
+    transaction wrapper without leaking state into the next test.
+    """
     sub = bw.subscription
     if sub is None:
         sub = Subscription(
@@ -400,12 +437,27 @@ def _activate_bw_from_checkout(
     sub.status = SubscriptionStatus.ACTIVE.value
     sub.started_at = datetime.now(UTC)
 
+    _bind_customer_to_organisation(bw, customer_id)
+
     bw.status = BWStatus.ACTIVE.value
-    db.session.commit()
     info(
         f"BW {bw.id} activated via Stripe Checkout "
         f"(customer={customer_id}, subscription={subscription_id})"
     )
+
+
+def _bind_customer_to_organisation(bw, customer_id: str) -> None:
+    """Pin the Stripe customer to the BW's organisation, first time only.
+
+    A previous binding is never overwritten — silent reassignment would
+    detach the org from its existing Stripe history.
+    """
+    if not (bw.organisation_id and customer_id):
+        return
+    org = db.session.get(Organisation, bw.organisation_id)
+    if org is None or org.stripe_customer_id:
+        return
+    org.stripe_customer_id = customer_id
 
 
 def _record_article_purchase_from_checkout(data_obj) -> None:
