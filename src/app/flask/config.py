@@ -72,10 +72,6 @@ def set_db_uri(app: Flask) -> None:
     if database_url:
         app.config["SQLALCHEMY_DATABASE_URI"] = database_url
 
-    redis_url = os.environ.get("REDISCLOUD_URL", "")
-    if redis_url:
-        app.config["REDIS_URL"] = redis_url
-
 
 def get_db_url(app):
     """Get database URL from environment variables.

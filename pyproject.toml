@@ -79,7 +79,6 @@ dependencies = [
     "dramatiq<2.0.0,>=1.15.0",
     "dramatiq-pg<1.0.0,>=0.11.0",
     "apscheduler<4.0.0,>=3.10.4",
-    "redis<6.0.0,>=5.0.1",
     # PDF generation
     "weasyprint<64,>=63",
     # Security / auth
@@ -163,7 +162,6 @@ dev = [
     "types-python-slugify",
     "types-pytz",
     "types-pyyaml",
-    "types-redis",
     "types-requests",
     # Must be pinned for now (version 82 breaks some packages)
     "types-setuptools>=81,<82",
@@ -261,8 +259,6 @@ DEP002 = [
     # Web server
     'gunicorn',
     'honcho',
-    # Used by dramatic (?)
-    'redis',
     # Used as a script
     'shot-scraper',
     # Used during install
@@ -274,8 +270,6 @@ DEP002 = [
     'phonenumbers',
     'jinja2-fragments',
     'pluggy',
-    # Can be removed (I think)
-    'dramatiq-pg',
     # Used by the WTForms
     'email-validator',
     'dnspython',

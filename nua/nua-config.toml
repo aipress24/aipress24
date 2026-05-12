@@ -66,18 +66,8 @@ DB_USER = { from="database", key="POSTGRES_USER" }
 DB_PASSWORD = { from="database", key="POSTGRES_PASSWORD" }
 FLASK_SQLALCHEMY_DATABASE_URI = "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_DATABASE}"
 
-REDIS_HOST = { from="redis", key="hostname" }
-REDIS_PORT = { from="redis", key="REDIS_PORT" }
-FLASK_REDIS_URL = "redis://{REDIS_HOST}:{REDIS_PORT}/0"
-FLASK_RQ_DASHBOARD_REDIS_URL = "redis://{REDIS_HOST}:{REDIS_PORT}/0"
-
 
 [[resource]]
 name = "database"
 type = "postgres"
 version = ">=14, <15"
-
-[[resource]]
-name = "redis"
-type = "redis-cache"
-version = ">=7"

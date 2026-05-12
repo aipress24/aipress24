@@ -55,14 +55,6 @@ FORMS_DIR = "src/app/forms"
 
 
 #
-# RQ
-#
-RQ_ASYNC = true
-RQ_QUEUES = ["default", "low"]
-REDIS_URL = "redis://localhost:6379/0"
-RQ_DASHBOARD_REDIS_URL = "@format {this.REDIS_URL}"
-
-#
 # Email
 #
 MAIL_PORT = 587
