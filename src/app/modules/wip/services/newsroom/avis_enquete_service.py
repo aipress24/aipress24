@@ -413,22 +413,35 @@ class AvisEnqueteService:
         self,
         avis: AvisEnquete,
         experts: list[User],
-        notification_url: str,
+        notification_urls: list[str],
     ) -> None:
         """
         Send notifications to experts about an Avis d'Enquête.
 
+        Each expert receives a notification pointing to their own
+        opportunity URL (one URL per contact, in the same order as
+        `experts`).
+
         Args:
             avis: The Avis d'Enquête
             experts: List of experts to notify
-            notification_url: URL for the notification link
+            notification_urls: One URL per expert, same order
+
+        Raises:
+            ValueError: if the two lists have different lengths
 
         Note:
             Caller should commit after this method to persist notifications.
         """
+        if len(experts) != len(notification_urls):
+            msg = (
+                f"experts and notification_urls must match in length: "
+                f"got {len(experts)} experts and {len(notification_urls)} urls"
+            )
+            raise ValueError(msg)
         message = f"Un nouvel avis d'enquête est disponible: {avis.title}"
-        for expert in experts:
-            self._notification_service.post(expert, message, notification_url)
+        for expert, url in zip(experts, notification_urls, strict=True):
+            self._notification_service.post(expert, message, url)
         self._db_session.flush()
 
     def filter_known_experts(

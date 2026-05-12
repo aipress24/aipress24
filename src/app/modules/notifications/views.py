@@ -19,8 +19,16 @@ from . import blueprint
 
 
 def _is_safe_url(target: str) -> bool:
-    """True iff `target` is same-origin (or relative)."""
+    """True iff `target` is same-origin AND not fragment-only.
+
+    A fragment-only URL like `#foo` would resolve client-side relative
+    to the current page, which for the POST `mark_read` route means
+    re-issuing a GET on the same POST-only endpoint → 405. We reject
+    those as unsafe and fall back to the default.
+    """
     parsed = urlparse(target)
+    if parsed.fragment and not parsed.netloc and not parsed.path:
+        return False
     return not parsed.netloc or parsed.netloc == request.host
 
 

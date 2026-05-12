@@ -211,7 +211,7 @@ class AvisEnqueteWipView(BaseWipView):
                         model, new_experts
                     )
                     urls = self._build_opportunities_urls(contacts)
-                    avis_service.notify_experts(model, new_experts, "#TODO")
+                    avis_service.notify_experts(model, new_experts, urls)
                     avis_service.send_avis_enquete_emails(
                         model, new_experts, urls, sender
                     )

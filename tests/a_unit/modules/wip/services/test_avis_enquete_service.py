@@ -12,6 +12,7 @@ from unittest.mock import patch
 
 import arrow
 import pytest
+from svcs.flask import container
 
 from app.models.auth import KYCProfile, User
 from app.models.organisation import Organisation
@@ -27,6 +28,7 @@ from app.modules.wip.services.newsroom import (
     RDVAcceptanceData,
     RDVProposalData,
 )
+from app.services.notifications import NotificationService
 
 if TYPE_CHECKING:
     from sqlalchemy.orm import scoped_session
@@ -457,6 +459,63 @@ class TestAvisEnqueteServiceCiblage:
         assert expert1.id not in expert_ids
         assert expert2.id in expert_ids
         assert expert3.id in expert_ids
+
+
+class TestNotifyExperts:
+    """Tests for notify_experts — regression for bug #0140.
+
+    Each expert must receive their own opportunity URL (per contact),
+    not a shared placeholder. Storing `#TODO` was the original symptom
+    that caused 405 errors when clicking the notification.
+    """
+
+    def test_each_expert_gets_their_own_url(self, db_session: scoped_session) -> None:
+        """notify_experts should store one URL per expert."""
+        journaliste = User(email="j@test.com")
+        expert1 = User(email="e1@test.com")
+        expert2 = User(email="e2@test.com")
+        media = Organisation(name="Media")
+        db_session.add_all([journaliste, expert1, expert2, media])
+        db_session.flush()
+
+        enquete = _create_test_enquete(db_session, journaliste, media)
+
+        service = AvisEnqueteService(db_session=db_session)
+        urls = [
+            "https://aipress24.com/wip/opportunities/1",
+            "https://aipress24.com/wip/opportunities/2",
+        ]
+        service.notify_experts(enquete, [expert1, expert2], urls)
+
+        notif_service = container.get(NotificationService)
+        n1 = notif_service.get_notifications(expert1)
+        n2 = notif_service.get_notifications(expert2)
+        assert len(n1) == 1
+        assert len(n2) == 1
+        assert n1[0].url == urls[0]
+        assert n2[0].url == urls[1]
+        # Regression guard: no placeholder URLs leak through.
+        assert "#TODO" not in n1[0].url
+        assert "#TODO" not in n2[0].url
+
+    def test_notify_experts_rejects_mismatched_url_list(
+        self, db_session: scoped_session
+    ) -> None:
+        """Service should refuse mismatched lengths between experts and URLs."""
+        journaliste = User(email="j@test.com")
+        expert1 = User(email="e1@test.com")
+        expert2 = User(email="e2@test.com")
+        media = Organisation(name="Media")
+        db_session.add_all([journaliste, expert1, expert2, media])
+        db_session.flush()
+
+        enquete = _create_test_enquete(db_session, journaliste, media)
+        service = AvisEnqueteService(db_session=db_session)
+
+        with pytest.raises(ValueError, match="must match"):
+            service.notify_experts(
+                enquete, [expert1, expert2], ["https://only-one-url"]
+            )
 
 
 class TestSuggestColleague:
