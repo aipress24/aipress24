@@ -118,7 +118,7 @@ steps:
 - PostgreSQL
 - Redis
 
-Full-text search runs in-process via wesh (a vendored fork of Whoosh).
+Full-text search runs in-process via wesh (a fork of Whoosh, on PyPI).
 Its index lives in the application's PostgreSQL database; no extra
 service is required.
 
@@ -445,7 +445,7 @@ Here is the REUSE summary as of 2024/06/17:
 - [Flask](https://flask.palletsprojects.com/)
 - [RQ](https://python-rq.org/) -> Actually, replaced by [Dramatiq](https://dramatiq.io)
 - [SQLAlchemy](https://sqlalchemy.org)
-- [wesh](https://github.com/abilian/wesh) (vendored Whoosh fork — full-text search)
+- [wesh](https://github.com/abilian/wesh) (Whoosh fork — full-text search)
 - [Redis](https://redis.io)
 - [PostgreSQL](https://www.postgresql.org)
 

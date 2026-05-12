@@ -16,14 +16,14 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 from flask_super.decorators import service
-from whoosh.qparser import MultifieldParser
-from whoosh.query import And, Or, Term
+from wesh.qparser import MultifieldParser
+from wesh.query import And, Or, Term
 
 from .schema import SCHEMA
 
 if TYPE_CHECKING:
     from svcs import Container
-    from whoosh.backends.filedb.filestore import Storage
+    from wesh.backends.filedb.filestore import Storage
 
 
 @service
@@ -43,7 +43,7 @@ class SearchEngine:
     @classmethod
     def svcs_factory(cls, container: Container) -> SearchEngine:
         from flask import current_app
-        from whoosh.backends.sql.storage import SQLAlchemyStorage
+        from wesh.backends.sql.storage import SQLAlchemyStorage
 
         url = current_app.config["SQLALCHEMY_DATABASE_URI"]
         storage = SQLAlchemyStorage(url).create()
@@ -84,7 +84,7 @@ class SearchEngine:
         before re-walking the database. Cheaper than dropping and
         recreating the storage tables.
         """
-        from whoosh.writing import CLEAR
+        from wesh.writing import CLEAR
 
         ix = self._get_index()
         writer = ix.writer()
@@ -98,7 +98,7 @@ class SearchEngine:
         with ix.searcher() as s:
             if type is None:
                 return s.doc_count()
-            from whoosh.query import Term
+            from wesh.query import Term
 
             return s.search(Term("type", type), limit=None).estimated_length()
 

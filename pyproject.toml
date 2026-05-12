@@ -72,7 +72,7 @@ dependencies = [
     # Images
     "pillow<13,>=12",
     # Full text search
-    "whoosh-reloaded",
+    "wesh>=3.0.0,<4",
     "beautifulsoup4<5.0,>=4.12",
     "stripe<13,>=12",
     # Queues
@@ -210,10 +210,6 @@ dev = [
 [build-system]
 requires = ["pdm-backend"]
 build-backend = "pdm.backend"
-
-
-[tool.uv.sources]
-whoosh-reloaded = { path = "vendor/wesh", editable = true }
 
 
 [tool.pdm.build]

@@ -18,7 +18,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 import svcs.flask
-from whoosh.backends.filedb.filestore import RamStorage
+from wesh.backends.filedb.filestore import RamStorage
 
 from app.enums import RoleEnum
 from app.models.auth import Role, User

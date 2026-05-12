@@ -275,7 +275,7 @@ dependencies = [
     { name = "webargs" },
     { name = "webbits" },
     { name = "werkzeug" },
-    { name = "whoosh-reloaded" },
+    { name = "wesh" },
     { name = "wtforms" },
     { name = "yarl" },
     { name = "zxcvbn" },
@@ -433,7 +433,7 @@ requires-dist = [
     { name = "webargs", specifier = ">=8.4.0,<9.0.0" },
     { name = "webbits", specifier = ">=0.1.2,<1.0.0" },
     { name = "werkzeug", specifier = ">=3.0.1,<4.0.0" },
-    { name = "whoosh-reloaded", editable = "vendor/wesh" },
+    { name = "wesh", specifier = ">=3.0.0,<4" },
     { name = "wtforms", specifier = ">=3.1.2,<4.0.0" },
     { name = "yarl", specifier = ">=1.9.4,<2.0.0" },
     { name = "zxcvbn", specifier = ">=4.4.28,<5.0.0" },
@@ -4941,9 +4941,9 @@ wheels = [
 ]
 
 [[package]]
-name = "whoosh-reloaded"
+name = "wesh"
 version = "3.0.0"
-source = { editable = "vendor/wesh" }
+source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "cached-property" },
     { name = "loguru" },
@@ -4951,45 +4951,9 @@ dependencies = [
     { name = "redis" },
     { name = "sqlalchemy" },
 ]
-
-[package.metadata]
-requires-dist = [
-    { name = "cached-property", specifier = "==2.0.1" },
-    { name = "fastembed", marker = "extra == 'fastembed'", specifier = ">=0.3" },
-    { name = "hnswlib", marker = "extra == 'hnsw'", specifier = ">=0.7" },
-    { name = "httpx", marker = "extra == 'openai'", specifier = ">=0.27" },
-    { name = "loguru", specifier = "==0.7.3" },
-    { name = "numpy", marker = "extra == 'vector'", specifier = ">=1.24" },
-    { name = "onnxruntime", marker = "extra == 'vector'", specifier = "<1.26" },
-    { name = "orjson", specifier = ">=3.10" },
-    { name = "redis", specifier = ">=5.0" },
-    { name = "sqlalchemy", specifier = ">=2.0" },
-    { name = "whoosh-reloaded", extras = ["fastembed"], marker = "extra == 'all'" },
-    { name = "whoosh-reloaded", extras = ["hnsw"], marker = "extra == 'all'" },
-    { name = "whoosh-reloaded", extras = ["openai"], marker = "extra == 'all'" },
-    { name = "whoosh-reloaded", extras = ["vector"], marker = "extra == 'all'" },
-    { name = "whoosh-reloaded", extras = ["vector"], marker = "extra == 'fastembed'" },
-    { name = "whoosh-reloaded", extras = ["vector"], marker = "extra == 'hnsw'" },
-    { name = "whoosh-reloaded", extras = ["vector"], marker = "extra == 'openai'" },
-]
-provides-extras = ["vector", "fastembed", "hnsw", "openai", "all"]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "fakeredis", specifier = ">=2.35" },
-    { name = "flynt", specifier = ">=1.0.6" },
-    { name = "mkdocstrings", extras = ["python"], specifier = ">=0.30" },
-    { name = "mypy", specifier = ">=2.0.0" },
-    { name = "nox", specifier = ">=2026.4.10" },
-    { name = "numpy", specifier = ">=1.24" },
-    { name = "pre-commit", specifier = ">=4.6.0" },
-    { name = "pyrefly", specifier = ">=0.64.0" },
-    { name = "pytest", specifier = ">=9.0.3" },
-    { name = "pytest-cov", specifier = ">=7.1.0" },
-    { name = "pyupgrade", specifier = ">=3.21.2" },
-    { name = "ruff", specifier = ">=0.15.12" },
-    { name = "ty", specifier = ">=0.0.34" },
-    { name = "zensical", specifier = ">=0.0.41" },
+sdist = { url = "https://files.pythonhosted.org/packages/8d/4c/db9b05b57b8206900e7166ce51bbf7908cbaa800b910ab1eb6807c44adfa/wesh-3.0.0.tar.gz", hash = "sha256:fe5c4313048699b09f8691a551fefe3160720bb971baad70782adb356d06be19", size = 586064, upload-time = "2026-05-12T09:04:06.908Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/12/1b/8180a5d6040ffcd4df16b90557cc70234dc2268e16d0500625442eafad51/wesh-3.0.0-py3-none-any.whl", hash = "sha256:57e2eea484e7c853275e7829e51dc8ff3bfde122a075d26184a6e2e2940835ba", size = 523647, upload-time = "2026-05-12T09:04:05.057Z" },
 ]
 
 [[package]]

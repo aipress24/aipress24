@@ -11,8 +11,8 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
-from whoosh.backends.filedb.filestore import RamStorage
-from whoosh.backends.sql.storage import SQLAlchemyStorage
+from wesh.backends.filedb.filestore import RamStorage
+from wesh.backends.sql.storage import SQLAlchemyStorage
 
 from app.modules.search.engine import SearchEngine
 

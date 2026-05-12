@@ -12,10 +12,10 @@ from __future__ import annotations
 import tempfile
 from pathlib import Path
 
-from whoosh import fields
-from whoosh.backends.filedb.filestore import RamStorage
-from whoosh.backends.sql.storage import SQLAlchemyStorage
-from whoosh.qparser import QueryParser
+from wesh import fields
+from wesh.backends.filedb.filestore import RamStorage
+from wesh.backends.sql.storage import SQLAlchemyStorage
+from wesh.qparser import QueryParser
 
 SCHEMA = fields.Schema(
     id=fields.ID(stored=True, unique=True),

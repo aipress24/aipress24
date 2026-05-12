@@ -10,7 +10,7 @@ Stored fields are returned in hit documents and drive the UI. Indexed
 
 from __future__ import annotations
 
-from whoosh import fields
+from wesh import fields
 
 SCHEMA = fields.Schema(
     type=fields.KEYWORD(stored=True, lowercase=True, facet=True),

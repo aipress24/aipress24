@@ -25,7 +25,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 import svcs.flask
-from whoosh.backends.filedb.filestore import RamStorage
+from wesh.backends.filedb.filestore import RamStorage
 
 from app.models.auth import User
 from app.models.lifecycle import PublicationStatus
