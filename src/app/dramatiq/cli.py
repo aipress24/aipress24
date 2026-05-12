@@ -5,25 +5,16 @@
 
 from __future__ import annotations
 
-import sys
-from pathlib import Path
+import os
 
 import click
 import dramatiq
-from dramatiq.cli import (
-    main as dramatiq_worker,
-    make_argument_parser as dramatiq_argument_parser,
-)
-from flask import current_app
 from flask.cli import with_appcontext
 from flask_super.cli import group
-from loguru import logger
-
-from app.actors.dummy import dummy
 
 from .scheduler import run_scheduler
 
-BROKER = "app.dramatiq.setup:setup_broker"
+WORKER_ENTRY = "app.dramatiq.worker_entry"
 
 
 @group(short_help="Queue commands")
@@ -56,7 +47,7 @@ def scheduler() -> None:
     default=1,
     metavar="THREADS",
     show_default=True,
-    help="the number of worker treads per processes",
+    help="the number of worker threads per process",
 )
 @click.option(
     "-Q",
@@ -67,70 +58,48 @@ def scheduler() -> None:
     show_default=True,
     help="listen to a subset of queues, comma separated",
 )
-@with_appcontext
 def worker(verbose, processes, threads, queues) -> None:
-    r"""Run dramatiq workers.
+    r"""Run a Dramatiq worker.
 
-    Setup Dramatiq with broker and task modules from Flask app.
+    Convenience wrapper around the upstream ``dramatiq`` CLI: this
+    command ``exec``\s into ``dramatiq`` so the worker becomes the
+    foreground process, which is the only way SIGINT (^C) reaches its
+    own signal handlers cleanly. Running ``dramatiq.cli.main`` inside
+    a Click callback leaves the fork-pool subprocesses parented to
+    Click, and ^C doesn't propagate.
+
+    The ``WORKER_ENTRY`` module loads the Flask app + initialises the
+    broker as a side effect of import.
 
     \b
     examples:
-      # Run dramatiq with 1 thread per process.
-      $ flask worker --threads 1
+      # Default: 1 process × 1 thread.
+      $ flask queue worker
 
     \b
-      # Listen only to the "foo" and "bar" queues.
-      $ flask worker -Q foo,bar
+      # 1 process × 4 threads.
+      $ flask queue worker -t 4
 
     \b
-      # Consuming from a specific broker
-      $ flask worker mybroker
+      # Listen only to specific queues.
+      $ flask queue worker -Q foo,bar
     """
-    # Plugin for flask.commands entrypoint.
-    #
-    # Wraps dramatiq worker CLI in a Flask command. This is private API of
-    # dramatiq.
-
-    parser = dramatiq_argument_parser()
-
-    # Set worker broker globally.
-    # needle = "dramatiq-" + broker_name
-    # broker = current_app.extensions[needle].broker
-    # set_broker(broker)
-
-    command = [
+    args = [
+        "dramatiq",
+        WORKER_ENTRY,
         "--processes",
         str(processes),
         "--threads",
         str(threads),
-        # This module does not have broker local. Thus dramatiq fallbacks to
-        # global broker.
-        __name__,
     ]
-    if current_app.config["DEBUG"]:
-        verbose = max(1, verbose)
-        # if HAS_WATCHDOG:
-        #     command += ["--watch", guess_code_directory(broker)]
-
     if queues:
-        queues = queues.split(",")
-    else:
-        queues = []
-    if queues:
-        command += ["--queues", *queues]
-
-    command += verbose * ["-v"]
-
-    args = parser.parse_args(command)
-
-    broker = dramatiq.get_broker()
-
-    logger.info("Able to execute the following actors:")
-    for actor in list_managed_actors(broker, queues):
-        current_app.logger.info("    %s.", format_actor(actor))
-
-    args.broker = BROKER
-    dramatiq_worker(args)
+        args += ["--queues", *queues.split(",")]
+    args += ["-v"] * verbose
+    # Replace the Click process with dramatiq so signal handling works.
+    # PATH lookup is the right resolution here — the venv's bin is on
+    # PATH when this CLI is invoked, and we want the dramatiq that
+    # matches the installed version, not a hardcoded path.
+    os.execvp("dramatiq", args)  # noqa: S606, S607
 
 
 @queue.command()
@@ -138,60 +107,6 @@ def worker(verbose, processes, threads, queues) -> None:
 def info() -> None:
     """Display information about registered actors."""
     broker = dramatiq.get_broker()
-    all_actors = broker.actors.values()
-
     print("The following actors are registered:")
-    for actor in all_actors:
-        print(f"-    {format_actor(actor)}.")
-
-
-def list_managed_actors(broker, queues):
-    """List actors managed by the broker for specific queues.
-
-    Args:
-        broker: Dramatiq broker instance.
-        queues: List of queue names to filter by.
-
-    Returns:
-        List of actors for the specified queues.
-    """
-    queues = set(queues)
-    all_actors = broker.actors.values()
-    if not queues:
-        return all_actors
-    return [a for a in all_actors if a.queue_name in queues]
-
-
-def guess_code_directory(broker):
-    """Guess the code directory from broker actors.
-
-    Args:
-        broker: Dramatiq broker instance.
-
-    Returns:
-        Path to the code directory.
-    """
-    actor = next(iter(broker.actors.values()))
-    modname, *_ = actor.fn.__module__.partition(".")
-    mod = sys.modules[modname]
-    assert mod.__file__ is not None
-    return Path(mod.__file__).parent
-
-
-def format_actor(actor) -> str:
-    """Format an actor for display.
-
-    Args:
-        actor: Dramatiq actor instance.
-
-    Returns:
-        Formatted string representation of the actor.
-    """
-    return f"{actor.actor_name}@{actor.queue_name}"
-
-
-@queue.command()
-@with_appcontext
-def launch_dummy() -> None:
-    """Launch a dummy task for testing."""
-    dummy.send()
+    for actor in broker.actors.values():
+        print(f"-    {actor.actor_name}@{actor.queue_name}.")

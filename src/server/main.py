@@ -3,8 +3,6 @@
 # Copyright (c) 2024, Abilian SAS & TCA
 from __future__ import annotations
 
-import threading
-
 import granian
 from asgiref.wsgi import WsgiToAsgi
 from granian.constants import Interfaces, Loops
@@ -15,7 +13,6 @@ from starlette.routing import Mount
 
 from adminapp.main import create_app as create_admin_app
 from app.flask.main import create_app as create_flask_app
-from server.scheduler import scheduler
 
 config = Config()
 
@@ -64,9 +61,6 @@ def serve(
         log_level: Logging level for the server.
     """
     print("debug:", debug)
-
-    scheduler_thread = threading.Thread(target=scheduler)
-    scheduler_thread.start()
 
     reload = debug
     granian.Granian(

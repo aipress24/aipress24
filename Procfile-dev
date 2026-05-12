@@ -1,7 +1,4 @@
 vite: flask vite start
 backend: flask --debug run --reload
-
-# scheduler: flask rq scheduler
-# worker: flask rq worker
-# scheduler: flask queue scheduler
-# worker: flask queue worker
+worker: flask queue worker --threads 2
+scheduler: flask queue scheduler
