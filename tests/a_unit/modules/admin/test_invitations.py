@@ -7,15 +7,21 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
+from unittest.mock import patch
 from uuid import uuid4
 
+from svcs.flask import container
+
+from app.models.auth import User
 from app.models.invitation import Invitation
 from app.models.organisation import Organisation
 from app.modules.admin.invitations import (
     add_invited_users,
     cancel_invitation_users,
     emails_invited_to_organisation,
+    send_invitation_mails,
 )
+from app.services.notifications import NotificationService
 
 if TYPE_CHECKING:
     from flask_sqlalchemy import SQLAlchemy
@@ -82,6 +88,75 @@ class TestAddInvitedUsers:
         )
 
         assert result == ["valid@ex.com"]
+
+
+class TestSendInvitationMails:
+    """Regression for bug #0145.
+
+    The invitee must surface their invitation immediately in the bell
+    when they already have an active account on the platform, so the
+    workflow no longer relies solely on mail delivery.
+    """
+
+    def _make_sender(self, db: SQLAlchemy) -> User:
+        sender = User(email="sender@example.com", active=True)
+        sender.first_name = "Erick"
+        sender.last_name = "Haehnsen"
+        db.session.add(sender)
+        db.session.flush()
+        return sender
+
+    def test_existing_active_user_gets_in_app_notification(
+        self, db: SQLAlchemy
+    ) -> None:
+        sender = self._make_sender(db)
+        invitee = User(email="eliane@example.com", active=True)
+        invitee.first_name = "Eliane"
+        invitee.last_name = "Kan"
+        db.session.add(invitee)
+        org = _create_org(db, "TCA")
+        db.session.flush()
+
+        with patch("app.modules.admin.invitations.current_user", sender), patch(
+            "app.services.emails.BWInvitationMail.send", return_value=True
+        ):
+            send_invitation_mails([invitee.email], org.id)
+            db.session.flush()
+
+        notif_service = container.get(NotificationService)
+        notifications = notif_service.get_notifications(invitee)
+        assert len(notifications) == 1
+        assert "TCA" in notifications[0].message
+        assert notifications[0].url == "/preferences/invitations"
+
+    def test_unknown_email_skips_notification_but_still_mails(
+        self, db: SQLAlchemy
+    ) -> None:
+        sender = self._make_sender(db)
+        org = _create_org(db, "TCA")
+
+        with patch("app.modules.admin.invitations.current_user", sender), patch(
+            "app.services.emails.BWInvitationMail.send", return_value=True
+        ) as mock_send:
+            send_invitation_mails(["nobody-yet@example.com"], org.id)
+
+            assert mock_send.called
+
+    def test_inactive_user_does_not_get_notification(self, db: SQLAlchemy) -> None:
+        sender = self._make_sender(db)
+        invitee = User(email="eliane-inactive@example.com", active=False)
+        db.session.add(invitee)
+        org = _create_org(db, "TCA")
+        db.session.flush()
+
+        with patch("app.modules.admin.invitations.current_user", sender), patch(
+            "app.services.emails.BWInvitationMail.send", return_value=True
+        ):
+            send_invitation_mails([invitee.email], org.id)
+            db.session.flush()
+
+        notif_service = container.get(NotificationService)
+        assert notif_service.get_notifications(invitee) == []
 
 
 class TestCancelInvitationUsers:

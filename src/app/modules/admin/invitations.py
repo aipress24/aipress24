@@ -7,7 +7,9 @@ from __future__ import annotations
 from typing import cast
 
 from flask_login import current_user
+from loguru import logger
 from sqlalchemy import func, select
+from svcs.flask import container
 
 from app.flask.extensions import db
 from app.flask.sqla import get_obj
@@ -15,6 +17,7 @@ from app.models.auth import User
 from app.models.invitation import Invitation
 from app.models.organisation import Organisation
 from app.services.emails import BWInvitationMail
+from app.services.notifications import NotificationService
 
 from .utils import flush_session
 
@@ -72,6 +75,14 @@ def _normalise_email(email: str | None) -> str:
 
 
 def send_invitation_mails(mails: list[str], org_id: int) -> None:
+    """Notify newly-invited emails (in-app + email).
+
+    Bug #0145: invitees were not reliably reached. We now also post an
+    in-app Notification for any invitee who already has an active
+    account, so the invitation surfaces immediately in the bell
+    regardless of mail delivery, and we log each mail attempt so
+    operators can see failures in production.
+    """
     if not mails:
         return
     organisation = get_obj(org_id, Organisation)
@@ -80,7 +91,17 @@ def send_invitation_mails(mails: list[str], org_id: int) -> None:
     sender_full_name = user.full_name
     bw_name = organisation.name
 
+    notification_service = container.get(NotificationService)
+    invitation_url = "/preferences/invitations"
+    notif_message = (
+        f"{sender_full_name} vous invite à rejoindre l'organisation {bw_name}."
+    )
+
     for mail in mails:
+        invitee = _find_active_user_by_email(mail)
+        if invitee is not None:
+            notification_service.post(invitee, notif_message, url=invitation_url)
+
         invit_mail = BWInvitationMail(
             sender="contact@aipress24.com",
             recipient=mail,
@@ -88,7 +109,27 @@ def send_invitation_mails(mails: list[str], org_id: int) -> None:
             sender_full_name=sender_full_name,
             bw_name=bw_name,
         )
-        invit_mail.send()
+        sent = invit_mail.send()
+        if not sent:
+            logger.warning(
+                "BW invitation email NOT sent",
+                recipient=mail,
+                org_id=org_id,
+                sender=sender_mail,
+            )
+
+
+def _find_active_user_by_email(email: str) -> User | None:
+    """Return the active User with this email, normalised, or None."""
+    normalised = (email or "").strip().lower()
+    if not normalised or "@" not in normalised:
+        return None
+    stmt = select(User).where(
+        func.lower(func.trim(User.email)) == normalised,
+        User.active.is_(True),
+        User.deleted_at.is_(None),
+    )
+    return db.session.scalar(stmt)
 
 
 def cancel_invitation_users(mails: str | list[str], org_id: int) -> None:
