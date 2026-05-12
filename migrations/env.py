@@ -5,14 +5,14 @@ from __future__ import annotations
 
 import logging
 from logging.config import fileConfig
-from typing import Any, Mapping
+from typing import Any
+from collections.abc import Mapping
 
 from advanced_alchemy.types.file_object import FileObject
 from alembic import context
 from flask import current_app
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.ext.compiler import compiles
-from sqlalchemy.types import JSON
 
 
 @compiles(FileObject)
@@ -68,6 +68,27 @@ def get_metadata():
     return target_db.metadata
 
 
+def include_object(object, name, type_, reflected, compare_to):
+    """Filter callback for ``alembic`` autogenerate.
+
+    Some tables live in the ``public`` schema but are managed by
+    out-of-band metadata (the wesh search index, formerly named
+    ``whoosh-reloaded`` on PyPI). Without this filter, autogenerate
+    proposes ``DROP TABLE`` for every wesh table on every migration
+    pass. wesh recreates them at app boot via
+    ``app.modules.search.engine.SearchEngine`` so dropping them is
+    actively harmful in dev and prod.
+
+    Dramatiq-pg's tables live in their own ``dramatiq`` schema and
+    are already invisible to alembic (which only walks ``public``).
+    """
+    if type_ == "table" and (
+        name.startswith("wesh_") or name.startswith("whoosh_")
+    ):
+        return False
+    return True
+
+
 def run_migrations_offline():
     """Run migrations in 'offline' mode.
 
@@ -81,7 +102,12 @@ def run_migrations_offline():
 
     """
     url = config.get_main_option("sqlalchemy.url")
-    context.configure(url=url, target_metadata=get_metadata(), literal_binds=True)
+    context.configure(
+        url=url,
+        target_metadata=get_metadata(),
+        literal_binds=True,
+        include_object=include_object,
+    )
 
     with context.begin_transaction():
         context.run_migrations()
@@ -112,6 +138,7 @@ def run_migrations_online():
             connection=connection,
             target_metadata=get_metadata(),
             process_revision_directives=process_revision_directives,
+            include_object=include_object,
             **current_app.extensions["migrate"].configure_args,
         )
 
