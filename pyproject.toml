@@ -9,7 +9,7 @@ authors = [
     {name = "Abilian SAS", email = "contact@abilian.com"},
     {name = "Techno Chroniqueurs Associés", email = "erick@agencetca.info"},
 ]
-requires-python = "<4.0,>=3.11"
+requires-python = "<4.0,>=3.12"
 dependencies = [
     "flask<4.0.0,>=3.0.0",
     # Make implicit flask deps explicit
@@ -72,7 +72,7 @@ dependencies = [
     # Images
     "pillow<13,>=12",
     # Full text search
-    "typesense ~= 1.0",
+    "whoosh-reloaded",
     "beautifulsoup4<5.0,>=4.12",
     "stripe<13,>=12",
     # Queues
@@ -210,6 +210,10 @@ dev = [
 [build-system]
 requires = ["pdm-backend"]
 build-backend = "pdm.backend"
+
+
+[tool.uv.sources]
+whoosh-reloaded = { path = "vendor/wesh", editable = true }
 
 
 [tool.pdm.build]

@@ -17,6 +17,7 @@ from app.flask.extensions import db
 from app.models.lifecycle import PublicationStatus
 from app.modules.admin import blueprint
 from app.modules.biz.models import MarketplaceContent
+from app.signals import marketplace_published
 
 _SUPPORTED_KINDS = {"mission_offer", "project_offer", "job_offer"}
 
@@ -43,6 +44,7 @@ def biz_moderation_approve(id: int):
     offer = _load_pending_or_404(id)
     offer.status = PublicationStatus.PUBLIC
     db.session.commit()
+    marketplace_published.send(offer)
     flash(f"Offre « {_title(offer)} » publiée.", "success")
     return redirect(url_for(".biz_moderation"))
 

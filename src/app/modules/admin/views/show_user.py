@@ -219,10 +219,14 @@ class ShowUserView(MethodView):
 
         Note: Does NOT commit - caller is responsible for committing.
         """
+        from app.signals import user_deactivated
+
         user.active = False
         user.validation_status = LABEL_COMPTE_DESACTIVE
         user.validated_at = now(LOCAL_TZ)
         db.session.merge(user)
+
+        user_deactivated.send(user)
 
     def _remove_organisation(self, user: User) -> None:
         """Remove user from organisation.

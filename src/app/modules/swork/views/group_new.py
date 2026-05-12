@@ -16,6 +16,7 @@ from app.flask.lib.nav import nav
 from app.flask.routing import url_for
 from app.modules.swork import blueprint
 from app.modules.swork.models import Group
+from app.signals import group_published
 
 
 class NewGroupView(MethodView):
@@ -43,6 +44,8 @@ class NewGroupView(MethodView):
         )
         db.session.add(group)
         db.session.commit()
+        if group.privacy == "public":
+            group_published.send(group)
         flash("Groupe créé avec succès.")
         return redirect(url_for("swork.groups"))
 

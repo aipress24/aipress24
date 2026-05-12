@@ -22,6 +22,7 @@ from wtforms import (
 
 from app.flask.extensions import db
 from app.models.auth import User
+from app.models.lifecycle import PublicationStatus
 from app.modules.biz import blueprint
 from app.modules.biz.models import (
     ApplicationStatus,
@@ -43,6 +44,7 @@ from app.modules.biz.views._offers_common import (
 )
 from app.modules.kyc.dynform import CountrySelectField
 from app.modules.kyc.ontology_loader import get_choices as get_ontology_choices
+from app.signals import marketplace_published
 
 _CONTRACT_CHOICES = [
     (ContractType.CDI.value, "CDI"),
@@ -122,6 +124,8 @@ def jobs_new():
         )
         db.session.add(job)
         db.session.commit()
+        if job.status == PublicationStatus.PUBLIC:
+            marketplace_published.send(job)
         msg = (
             "Offre d'emploi envoyée pour modération."
             if job.status.value == "pending"

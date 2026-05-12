@@ -62,8 +62,6 @@ SKIP_ENDPOINTS = {
     # Flask-Security endpoints that may not be configured in test mode
     "preferences.password",
     "preferences.email",
-    # Requires Typesense configuration
-    "search.search",
     # Missing template
     "wip.billing",
     # Requires POST with parameters

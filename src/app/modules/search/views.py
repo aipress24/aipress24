@@ -2,138 +2,178 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
-"""Search views using convention-driven navigation."""
+"""Search page: thin layer over ``SearchEngine``.
+
+The route accepts ``qs`` (the query string) and ``filter`` (the
+collection name from :data:`COLLECTIONS`). Renders one section per
+type when ``filter=all``, or a single section otherwise. The sidebar
+shows per-type counts driven by ``engine.count(qs, type=…)``.
+
+Empty queries render the page with zero hits and a hint to type
+something — running BM25 on an empty query is wasteful and produces a
+useless empty result page.
+"""
 
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from typing import TYPE_CHECKING
 
 import arrow
-from flask import render_template, request
+import svcs.flask
+from flask import current_app, render_template, request
+from loguru import logger
 
 from app.flask.routing import url_for
 from app.modules.search import blueprint
-from app.modules.search.backend import SearchBackend
 from app.modules.search.constants import COLLECTIONS
+from app.modules.search.engine import SearchEngine
 
-backend = SearchBackend()
+if TYPE_CHECKING:
+    from datetime import datetime
+
+_DEFAULT_LIMIT = 20
 
 
 @blueprint.route("/")
 def search():
     """Rechercher"""
-    qs = request.args.get("qs", "")
-    filter_type = request.args.get("filter", "all")
+    qs = request.args.get("qs", "").strip()
+    filter_name = request.args.get("filter", "all")
 
-    results = SearchResults(qs, filter_type)
+    _warn_if_semantic_requested()
 
-    ctx = {
-        "qs": qs,
-        "search_menu": results.make_menu(),
-        "result_sets": results.get_active_sets(),
-    }
-    return render_template("pages/search.j2", **ctx)
+    if not qs:
+        return render_template(
+            "pages/search.j2",
+            title="Rechercher",
+            qs="",
+            search_menu=_make_menu(qs="", counts={}, current=filter_name),
+            result_sets=[],
+        )
+
+    engine = svcs.flask.container.get(SearchEngine)
+    counts = _counts_by_name(engine, qs)
+    result_sets = _result_sets(engine, qs, filter_name, counts)
+
+    return render_template(
+        "pages/search.j2",
+        title="Rechercher",
+        qs=qs,
+        search_menu=_make_menu(qs=qs, counts=counts, current=filter_name),
+        result_sets=result_sets,
+    )
 
 
-# =============================================================================
-# Helper Classes
-# =============================================================================
+# ── Helpers ─────────────────────────────────────────────────────────
+
+
+def _counts_by_name(engine: SearchEngine, qs: str) -> dict[str, int]:
+    """Per-collection-name hit counts. The ``all`` entry is the sum."""
+    counts: dict[str, int] = {}
+    for collection in COLLECTIONS:
+        type_name = collection["type"]
+        if type_name is None:
+            continue
+        counts[collection["name"]] = engine.count(qs, type=type_name)
+    counts["all"] = sum(counts.values())
+    return counts
+
+
+def _result_sets(
+    engine: SearchEngine,
+    qs: str,
+    filter_name: str,
+    counts: dict[str, int],
+) -> list[ResultSet]:
+    if filter_name == "all":
+        named_types = [c for c in COLLECTIONS if c["type"] is not None]
+    else:
+        named_types = [c for c in COLLECTIONS if c["name"] == filter_name]
+
+    out: list[ResultSet] = []
+    for collection in named_types:
+        type_name = collection["type"]
+        if type_name is None:
+            continue
+        hits = engine.search(qs, type=type_name, limit=_DEFAULT_LIMIT)
+        if not hits:
+            continue
+        out.append(
+            ResultSet(
+                name=collection["name"],
+                label=collection["label"],
+                icon=collection["icon"],
+                count=counts.get(collection["name"], len(hits)),
+                hits=[Hit.from_doc(doc) for doc in hits],
+            )
+        )
+    return out
+
+
+def _make_menu(
+    *, qs: str, counts: dict[str, int], current: str
+) -> list[dict]:
+    return [
+        {
+            "name": c["name"],
+            "label": c["label"],
+            "icon": c["icon"],
+            "href": url_for(".search", qs=qs, filter=c["name"]),
+            "current": current == c["name"],
+            "count": counts.get(c["name"], 0),
+        }
+        for c in COLLECTIONS
+    ]
+
+
+def _warn_if_semantic_requested() -> None:
+    """The ``SEARCH_SEMANTIC=on`` switch is reserved for a future phase
+    (vector field + HybridQuery). Until then, log once and fall through
+    to the plain BM25 path so the page never silently misbehaves.
+    """
+    if current_app.config.get("SEARCH_SEMANTIC"):
+        logger.warning(
+            "SEARCH_SEMANTIC is set but vector indexing is not yet "
+            "implemented; falling back to BM25-only ranking."
+        )
+
+
+# ── View models ─────────────────────────────────────────────────────
 
 
 @dataclass(frozen=True)
-class SearchResults:
-    qs: str
-    filter: str
-    results: list = field(default_factory=list)
-    result_sets: list = field(default_factory=list)
+class Hit:
+    """Template-friendly view over a wesh hit document."""
 
-    def __post_init__(self):
-        for collection in COLLECTIONS:
-            cls = collection["class"]
-            if not cls:
-                continue
-            assert isinstance(cls, type)
+    type: str
+    title: str
+    summary: str
+    url: str
+    timestamp: datetime | None
 
-            search_parameters = {
-                "q": self.qs,
-                "query_by": "text",
-                "facet_by": "tags",
-                "sort_by": "timestamp:desc",
-                "exclude_fields": "text",
-            }
-            result_set = ResultSet(collection, search_parameters)
-            self.result_sets.append(result_set)
+    @classmethod
+    def from_doc(cls, doc: dict) -> Hit:
+        return cls(
+            type=doc.get("type", ""),
+            title=doc.get("title", ""),
+            summary=doc.get("summary", ""),
+            url=doc.get("url", ""),
+            timestamp=doc.get("timestamp"),
+        )
 
-    def make_menu(self):
-        menu = []
-        for collection in COLLECTIONS:
-            name = collection["name"]
-            label = collection["label"]
-            icon = collection["icon"]
-
-            if name == "all":
-                count = sum(r.count for r in self.result_sets)
-            else:
-                count = sum(r.count for r in self.result_sets if r.name == name)
-
-            entry = {
-                "name": name,
-                "label": label,
-                "icon": icon,
-                "href": url_for(".search", qs=self.qs, filter=name),
-                "current": self.filter == name,
-                "count": count,
-            }
-            menu.append(entry)
-
-        return menu
-
-    def get_active_sets(self):
-        match self.filter:
-            case "all":
-                active_sets = [r for r in self.result_sets if r.count > 0]
-            case _:
-                active_sets = [r for r in self.result_sets if r.name == self.filter]
-        return active_sets
+    @property
+    def date(self) -> arrow.Arrow | None:
+        """Arrow handle exposing ``isoformat()``/``format()`` for Jinja."""
+        if self.timestamp is None:
+            return None
+        return arrow.get(self.timestamp)
 
 
+@dataclass(frozen=True)
 class ResultSet:
-    cls: type
-    qs: str
-
     name: str
     label: str
     icon: str
-
-    count: int = 0
-    hits: list = field(default_factory=list)
-
-    def __init__(self, collection, search_parameters) -> None:
-        self.name = collection["name"]
-        self.label = collection["label"]
-        self.icon = collection["icon"]
-
-        result = backend.get_collection(self.name).documents.search(search_parameters)
-        self.count = result["found"]
-        self.hits = [Hit(hit) for hit in result["hits"]]  # type: ignore[arg-type]
-
-
-@dataclass
-class Hit:
-    _hit: dict
-
-    @property
-    def title(self):
-        return self._hit["document"]["title"]
-
-    @property
-    def summary(self):
-        return self._hit["document"]["summary"]
-
-    @property
-    def date(self):
-        return arrow.get(self._hit["document"]["timestamp"])
-
-    @property
-    def url(self):
-        return self._hit["document"]["url"]
+    count: int
+    hits: list[Hit] = field(default_factory=list)

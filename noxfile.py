@@ -9,7 +9,7 @@ import nox
 # nox.options.reuse_existing_virtualenvs = True
 
 # NB: first one is the default
-PYTHONS = ["3.12", "3.11", "3.13", "3.14"]
+PYTHONS = ["3.12", "3.13", "3.14"]
 
 
 @nox.session(python=PYTHONS)

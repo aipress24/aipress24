@@ -20,6 +20,7 @@ from wtforms import (
 
 from app.flask.extensions import db
 from app.models.auth import User
+from app.models.lifecycle import PublicationStatus
 from app.modules.biz import blueprint
 from app.modules.biz.models import (
     ApplicationStatus,
@@ -40,6 +41,7 @@ from app.modules.biz.views._offers_common import (
 )
 from app.modules.kyc.dynform import CountrySelectField
 from app.modules.kyc.ontology_loader import get_choices as get_ontology_choices
+from app.signals import marketplace_published
 
 
 class ProjectOfferForm(Form):
@@ -108,6 +110,8 @@ def projects_new():
         )
         db.session.add(project)
         db.session.commit()
+        if project.status == PublicationStatus.PUBLIC:
+            marketplace_published.send(project)
         msg = (
             "Projet envoyé pour modération."
             if project.status.value == "pending"

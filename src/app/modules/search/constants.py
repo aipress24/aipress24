@@ -2,57 +2,47 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
+"""UI-facing list of search collections.
+
+Derived from :data:`registry.REGISTRY` — the per-type metadata
+(``label`` / ``icon`` / type-discriminator) lives there. This module
+just glues the registry onto an ``"all"`` aggregator entry at the top
+so the sidebar can show the "everything" bucket.
+
+If you want to change a label or an icon, edit ``registry.py``, not
+this file.
+"""
+
 from __future__ import annotations
 
 from typing import Any
 
-from app.models.auth import User
-from app.models.organisation import Organisation
-from app.modules.swork.models import Group
-from app.modules.wire.models import ArticlePost, PressReleasePost
+from .registry import REGISTRY
+
+
+def _collection_from(entry) -> dict[str, Any]:
+    # The view layer expects a single string when there is only one
+    # discriminator, a list when there are many (so the engine can OR
+    # them). Preserving that quirk keeps ``views.py`` unchanged.
+    type_value: str | list[str]
+    if len(entry.doc_types) == 1:
+        type_value = entry.doc_types[0]
+    else:
+        type_value = list(entry.doc_types)
+    return {
+        "name": entry.ui_name,
+        "label": entry.label,
+        "icon": entry.icon,
+        "type": type_value,
+    }
+
 
 COLLECTIONS: list[dict[str, Any]] = [
     {
         "name": "all",
         "label": "Tout",
         "icon": "rectangle-stack",
-        "class": None,
+        "type": None,
     },
-    {
-        "name": "articles",
-        "label": "Articles",
-        "icon": "newspaper",
-        "class": ArticlePost,
-    },
-    {
-        "name": "press-releases",
-        "label": "Communiqués",
-        "icon": "speaker-wave",
-        "class": PressReleasePost,
-    },
-    # TODO
-    # {
-    #     "name": "events",
-    #     "label": "Evénements",
-    #     "icon": "calendar",
-    #     "class": Event,
-    # },
-    {
-        "name": "members",
-        "label": "Membres",
-        "icon": "user",
-        "class": User,
-    },
-    {
-        "name": "orgs",
-        "label": "Entreprises",
-        "icon": "building-office",
-        "class": Organisation,
-    },
-    {
-        "name": "groups",
-        "label": "Groupes",
-        "icon": "user-group",
-        "class": Group,
-    },
+    *(_collection_from(entry) for entry in REGISTRY),
 ]

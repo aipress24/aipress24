@@ -8,8 +8,6 @@ from __future__ import annotations
 from blinker import signal
 
 # Documents signals
-document_created = signal("document-created")
-document_updated = signal("document-updated")
 article_published = signal("article-published")
 article_unpublished = signal("article-unpublished")
 article_updated = signal("article-updated")
@@ -19,6 +17,14 @@ communique_updated = signal("communique-updated")
 event_published = signal("event-published")
 event_unpublished = signal("event-unpublished")
 event_updated = signal("event-updated")
+marketplace_published = signal("marketplace-published")
+marketplace_unpublished = signal("marketplace-unpublished")
+group_published = signal("group-published")
+group_unpublished = signal("group-unpublished")
+user_activated = signal("user-activated")
+user_deactivated = signal("user-deactivated")
+org_activated = signal("org-activated")
+org_deactivated = signal("org-deactivated")
 
 # Initialisation signals
 after_config = signal("after-config")

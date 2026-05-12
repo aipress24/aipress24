@@ -117,13 +117,10 @@ steps:
 
 - PostgreSQL
 - Redis
-- Typesense
 
-To start Typesense (currently):
-
-```
-docker run -p 8108:8108 -v/srv/typesense-server-data-1c/:/data -d typesense/typesense:0.23.1 --data-dir /data --api-key=<key> --listen-port 8108 --enable-cors
-```
+Full-text search runs in-process via wesh (a vendored fork of Whoosh).
+Its index lives in the application's PostgreSQL database; no extra
+service is required.
 
 ### Testing
 
@@ -448,7 +445,7 @@ Here is the REUSE summary as of 2024/06/17:
 - [Flask](https://flask.palletsprojects.com/)
 - [RQ](https://python-rq.org/) -> Actually, replaced by [Dramatiq](https://dramatiq.io)
 - [SQLAlchemy](https://sqlalchemy.org)
-- [Typesense](https://typesense.org)
+- [wesh](https://github.com/abilian/wesh) (vendored Whoosh fork — full-text search)
 - [Redis](https://redis.io)
 - [PostgreSQL](https://www.postgresql.org)
 
@@ -496,14 +493,11 @@ To deploy Aipress24 to Heroku, you can use the following commands:
 heroku create my-aipress24 # Use your own app name
 heroku addons:create heroku-postgresql:essential-0
 heroku addons:create heroku-redis:mini
-# heroku addons:create typesense:free # Not yet available
 heroku config:set FLASK_APP=aipress24
 heroku config:set FLASK_ENV=production
 heroku config:set FLASK_SECRET_KEY=$(openssl rand -hex 16)
 heroku config:set FLASK_SQLALCHEMY_DATABASE_URI=$(heroku config:get DATABASE_URL)
 heroku config:set FLASK_REDIS_URL=$(heroku config:get REDIS_URL)
-# heroku config:set FLASK_TYPESENSE_URL=$(heroku config:get TYPESENSE_URL)
-# heroku config:set FLASK_TYPESENSE_KEY=$(heroku config:get TYPESENSE_KEY)
 heroku config:set FLASK_MAIL_SERVER=smtp.sendgrid.net
 heroku config:set FLASK_MAIL_PORT=587
 heroku config:set FLASK_MAIL_USE_TLS=1

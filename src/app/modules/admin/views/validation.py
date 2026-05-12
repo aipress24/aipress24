@@ -29,6 +29,7 @@ from app.modules.admin import blueprint
 from app.modules.admin.utils import gc_all_auto_organisations
 from app.modules.kyc.organisation_utils import retrieve_user_organisation
 from app.modules.kyc.views import admin_info_context
+from app.signals import user_activated, user_deactivated
 
 
 class ValidationUserView(MethodView):
@@ -103,6 +104,8 @@ class ValidationUserView(MethodView):
         db.session.merge(user)
         db.session.flush()
 
+        user_deactivated.send(user)
+
         msg = f"User marked as deleted {user.id} {user.email}"
         logger.info(msg)
         print(msg, file=sys.stderr)
@@ -130,6 +133,8 @@ class ValidationUserView(MethodView):
         db.session.delete(user)
         db.session.flush()
 
+        user_activated.send(orig_user)
+
         # Clean up orphan auto organisations
         gc_all_auto_organisations()
 
@@ -147,6 +152,8 @@ class ValidationUserView(MethodView):
         user.validated_at = now(LOCAL_TZ)
 
         db.session.merge(user)
+
+        user_activated.send(user)
 
 
 # Register the view

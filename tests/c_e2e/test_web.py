@@ -82,8 +82,6 @@ def test_all_unparameterized_endpoints(app: Flask, fresh_db: SQLAlchemy) -> None
         "/preferences/",
         "/webhook",
         "/system/boot",
-        # Skip search - requires Typesense configuration
-        "/search/",
     ]
     # Skip endpoints that are internal helpers or not meant to be called directly
     skip_endpoints = ["update_breadcrumbs"]

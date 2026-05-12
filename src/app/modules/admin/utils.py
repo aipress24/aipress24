@@ -157,6 +157,8 @@ def _mark_organisation_as_deleted(
     Note: This flushes but does NOT commit. The caller is responsible
     for committing at the request boundary.
     """
+    from app.signals import org_deactivated
+
     organisation.active = False
 
     # as a security, remove link to any remaining BW
@@ -166,6 +168,8 @@ def _mark_organisation_as_deleted(
     organisation.deleted_at = now(LOCAL_TZ)
     db_session.merge(organisation)
     db_session.flush()
+
+    org_deactivated.send(organisation)
 
 
 def gc_organisation(organisation: Organisation | None) -> bool:
@@ -249,10 +253,17 @@ def toggle_org_active(org: Organisation) -> None:
     Note: This flushes but does NOT commit. The caller is responsible
     for committing at the request boundary.
     """
+    from app.signals import org_activated, org_deactivated
+
     db_session = db.session
     org.active = not org.active
     db_session.merge(org)
     db_session.flush()
+
+    if org.active:
+        org_activated.send(org)
+    else:
+        org_deactivated.send(org)
 
 
 def merge_organisation(org: Organisation) -> None:
