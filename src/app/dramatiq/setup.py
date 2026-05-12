@@ -88,11 +88,23 @@ def _ensure_dramatiq_schema(broker: PostgresBroker) -> None:
     Postgres advisory lock and check existence under the lock. The
     lock is transaction-scoped: ``pg_advisory_xact_lock`` releases
     automatically on commit.
+
+    In production, the app's DB user typically does not have DDL
+    privileges on the database — the schema is provisioned once at
+    install time by an admin (see runbook below). We catch the
+    permission error and log a clear pointer rather than crashing
+    every command that boots the app:
+
+        psql -d <DB> -c "$(python -c 'from dramatiq_pg import generate_init_sql; print(generate_init_sql())')"
     """
+    import psycopg2.errors
+
     conn = broker.pool.getconn()
     try:
         with conn.cursor() as cur:
-            cur.execute("SELECT pg_advisory_xact_lock(%s)", (_BOOTSTRAP_LOCK_ID,))
+            cur.execute(
+                "SELECT pg_advisory_xact_lock(%s)", (_BOOTSTRAP_LOCK_ID,)
+            )
             cur.execute(
                 """
                 SELECT 1
@@ -105,7 +117,20 @@ def _ensure_dramatiq_schema(broker: PostgresBroker) -> None:
                 conn.commit()
                 return
             logger.info("Creating dramatiq schema")
-            cur.execute(generate_init_sql())
-        conn.commit()
+            try:
+                cur.execute(generate_init_sql())
+                conn.commit()
+            except psycopg2.errors.InsufficientPrivilege:
+                conn.rollback()
+                logger.error(
+                    "dramatiq schema is missing and the current DB user "
+                    "lacks DDL privileges to create it. Provision it once "
+                    "by running, as a DB admin:\n"
+                    '  psql -d <DB> -c "$(python -c '
+                    "'from dramatiq_pg import generate_init_sql; "
+                    "print(generate_init_sql())')\"\n"
+                    "Until then, jobs sent via .send() will fail at "
+                    "enqueue time."
+                )
     finally:
         broker.pool.putconn(conn)

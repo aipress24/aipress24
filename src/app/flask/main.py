@@ -65,10 +65,19 @@ SCAN_PACKAGES = [
     "app",
 ]
 
-# Sub-packages excluded from the scan. `app.faker` depends on `faker` +
-# `mimesis` (dev-only deps) and is only ever used by the `flask fake` CLI;
-# it must not be imported during normal app startup.
-SCAN_EXCLUDES: frozenset[str] = frozenset({"app.faker"})
+# Sub-packages excluded from the scan.
+#
+# - `app.faker` depends on `faker` + `mimesis` (dev-only deps) and is
+#   only ever used by the `flask fake` CLI; it must not be imported
+#   during normal app startup.
+# - `app.dramatiq.worker_entry` calls `create_app()` at module top
+#   level — that's the entrypoint the `dramatiq` CLI binary imports.
+#   Auto-importing it from the package scanner would trigger a nested
+#   `create_app()` and re-run broker initialisation as a side effect
+#   of every Flask command.
+SCAN_EXCLUDES: frozenset[str] = frozenset(
+    {"app.faker", "app.dramatiq.worker_entry"}
+)
 
 
 def _scan_packages_filtered(packages: Iterable[str]) -> None:

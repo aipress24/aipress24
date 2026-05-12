@@ -1,4 +1,4 @@
-"""Rename profileenum + tighten marketplace + stripe_price column types
+"""Tighten marketplace + stripe_price column types
 
 Manually edited after autogenerate produced:
 
@@ -8,10 +8,12 @@ Manually edited after autogenerate produced:
   Filtered out in ``env.py`` via ``include_object`` so future
   autogenerate runs don't propose them either.
 
-- An ``ALTER COLUMN profile TYPE profileenum`` that pointed at a type
-  that doesn't exist yet. The actual schema change wanted is a *type
-  rename*: ``ALTER TYPE adm_profileenum RENAME TO profileenum``.
-  Replaced below.
+- An enum rename ``adm_profileenum → profileenum`` driven by a
+  dropped ``name=`` argument on the ``Promotion.profile`` column.
+  The rename had no functional value (same enum, same values) and
+  required ownership of the type, which the prod app user does not
+  have. Instead, the model was reverted to declare the explicit
+  ``name="adm_profileenum"`` so the DB and code agree without DDL.
 
 Revision ID: fe9ab2b94cf4
 Revises: 4140cfd1faba
@@ -32,11 +34,6 @@ depends_on = None
 
 
 def upgrade() -> None:
-    # Rename the existing enum type. PG metadata-only operation; every
-    # column already bound to ``adm_profileenum`` keeps its binding
-    # under the new name, so we don't need an ``ALTER TABLE``.
-    op.execute("ALTER TYPE adm_profileenum RENAME TO profileenum")
-
     with op.batch_alter_table("mkp_job_offer", schema=None) as batch_op:
         batch_op.alter_column(
             "pays_zip_ville",
@@ -152,5 +149,3 @@ def downgrade() -> None:
             nullable=True,
             existing_server_default=sa.text("''::character varying"),
         )
-
-    op.execute("ALTER TYPE profileenum RENAME TO adm_profileenum")

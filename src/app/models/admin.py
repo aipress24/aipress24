@@ -20,4 +20,12 @@ class Promotion(Base):
     slug: Mapped[str] = mapped_column(primary_key=True)
     title: Mapped[str] = mapped_column(default="")
     body: Mapped[str] = mapped_column(default="")
-    profile: Mapped[ProfileEnum] = mapped_column(sa.Enum(ProfileEnum), nullable=True)
+    # Explicit ``name=`` is load-bearing: without it SQLAlchemy derives
+    # the PG type name from the Python class (``profileenum``), but the
+    # existing schema has the type as ``adm_profileenum``. Dropping the
+    # argument silently triggers an enum-rename migration that requires
+    # ownership of the type — privileges the app user doesn't have in
+    # prod.
+    profile: Mapped[ProfileEnum] = mapped_column(
+        sa.Enum(ProfileEnum, name="adm_profileenum"), nullable=True
+    )
