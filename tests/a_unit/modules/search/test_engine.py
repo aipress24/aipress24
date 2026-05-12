@@ -115,9 +115,7 @@ class TestSearchEngineCRUD:
 
 
 class TestSearchEngineRanking:
-    def test_bm25_orders_by_relevance(
-        self, populated_engine: SearchEngine
-    ) -> None:
+    def test_bm25_orders_by_relevance(self, populated_engine: SearchEngine) -> None:
         hits = populated_engine.search("python")
 
         # All three docs mention python; the title match on
@@ -179,3 +177,76 @@ class TestSearchEngineSqlStorage:
             hits = engine.search("answer", type="article")
 
             assert [h["id"] for h in hits] == ["article:42"]
+
+
+class TestSearchEngineEdgeCases:
+    def test_reset_clears_all_docs(self, populated_engine: SearchEngine) -> None:
+        assert populated_engine.search("python")  # warm-up: there are docs
+        populated_engine.reset()
+        assert populated_engine.search("python") == []
+        assert populated_engine.doc_count() == 0
+
+    def test_reset_keeps_schema_so_engine_still_usable(
+        self, populated_engine: SearchEngine
+    ) -> None:
+        populated_engine.reset()
+        populated_engine.upsert(
+            _doc(type="article", pk=999, title="post-reset", text="post-reset body")
+        )
+        hits = populated_engine.search("post-reset")
+        assert [h["id"] for h in hits] == ["article:999"]
+
+    def test_count_matches_search_for_small_corpus(
+        self, populated_engine: SearchEngine
+    ) -> None:
+        assert populated_engine.count("python") == len(
+            populated_engine.search("python", limit=100)
+        )
+
+    def test_count_with_type_filter_matches_search(
+        self, populated_engine: SearchEngine
+    ) -> None:
+        assert populated_engine.count("python", type="article") == len(
+            populated_engine.search("python", type="article", limit=100)
+        )
+
+    def test_list_type_filter_unions_types(
+        self, populated_engine: SearchEngine
+    ) -> None:
+        """When ``type`` is a list, hits include docs of any matching type."""
+        article_event_hits = populated_engine.search(
+            "python", type=["article", "event"]
+        )
+        article_only_hits = populated_engine.search("python", type="article")
+        event_only_hits = populated_engine.search("python", type="event")
+
+        ids = {h["id"] for h in article_event_hits}
+        assert ids == {h["id"] for h in article_only_hits} | {
+            h["id"] for h in event_only_hits
+        }
+
+    def test_empty_list_type_filter_returns_nothing(
+        self, populated_engine: SearchEngine
+    ) -> None:
+        """A list filter with no allowed types is a contradiction —
+        OR of nothing matches nothing."""
+        assert populated_engine.search("python", type=[]) == []
+
+    def test_unknown_type_filter_returns_empty(
+        self, populated_engine: SearchEngine
+    ) -> None:
+        assert populated_engine.search("python", type="nonexistent") == []
+
+    def test_delete_unknown_id_does_not_affect_others(
+        self, populated_engine: SearchEngine
+    ) -> None:
+        before = populated_engine.doc_count()
+        populated_engine.delete("article:99999999")
+        assert populated_engine.doc_count() == before
+
+    def test_search_with_limit_larger_than_corpus(
+        self, populated_engine: SearchEngine
+    ) -> None:
+        # Corpus has 3 docs total; asking for 100 should return at most 3.
+        hits = populated_engine.search("python", limit=100)
+        assert 1 <= len(hits) <= 3

@@ -74,15 +74,25 @@ def _normalise_pg_url(url: str) -> str:
     return url
 
 
+_BOOTSTRAP_LOCK_ID = 0xDEAD_DD11_BB55  # arbitrary 64-bit constant
+
+
 def _ensure_dramatiq_schema(broker: PostgresBroker) -> None:
     """Run dramatiq-pg's init SQL once if the schema isn't there yet.
 
     The generated DDL is not idempotent (``CREATE TYPE`` has no
-    ``IF NOT EXISTS`` clause), so we check existence first.
+    ``IF NOT EXISTS`` clause, and ``CREATE SCHEMA IF NOT EXISTS``
+    races against the underlying ``pg_namespace`` insert when several
+    processes call it concurrently — e.g. honcho starting ``vite`` and
+    ``backend`` in parallel during dev), so we serialize with a
+    Postgres advisory lock and check existence under the lock. The
+    lock is transaction-scoped: ``pg_advisory_xact_lock`` releases
+    automatically on commit.
     """
     conn = broker.pool.getconn()
     try:
         with conn.cursor() as cur:
+            cur.execute("SELECT pg_advisory_xact_lock(%s)", (_BOOTSTRAP_LOCK_ID,))
             cur.execute(
                 """
                 SELECT 1
@@ -92,6 +102,7 @@ def _ensure_dramatiq_schema(broker: PostgresBroker) -> None:
             )
             if cur.fetchone():
                 logger.debug("dramatiq schema already present")
+                conn.commit()
                 return
             logger.info("Creating dramatiq schema")
             cur.execute(generate_init_sql())

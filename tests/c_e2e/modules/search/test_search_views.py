@@ -154,9 +154,7 @@ class TestSearchView:
         test_engine: SearchEngine,
         filter_name: str,
     ):
-        response = authenticated_client.get(
-            f"/search/?qs=foo&filter={filter_name}"
-        )
+        response = authenticated_client.get(f"/search/?qs=foo&filter={filter_name}")
         assert response.status_code == 200
 
     def test_unknown_filter_renders_without_error(

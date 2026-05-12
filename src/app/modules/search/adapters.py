@@ -261,12 +261,10 @@ def _(obj: User) -> dict[str, Any]:
     title = obj.full_name.strip() or str(obj.email or "")
     profile = getattr(obj, "profile", None)
     job_title = str(
-        (getattr(profile, "profile_label", "") if profile is not None else "")
-        or ""
+        (getattr(profile, "profile_label", "") if profile is not None else "") or ""
     )
     presentation = str(
-        (getattr(profile, "presentation", "") if profile is not None else "")
-        or ""
+        (getattr(profile, "presentation", "") if profile is not None else "") or ""
     )
     return {
         "type": "user",

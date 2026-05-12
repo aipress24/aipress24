@@ -63,9 +63,7 @@ def _make_article_post(db_session, *, status, newsroom_id, **fields) -> ArticleP
     post = ArticlePost(
         owner=user,
         status=status,
-        published_at=fields.pop(
-            "published_at", datetime(2026, 1, 1, tzinfo=UTC)
-        ),
+        published_at=fields.pop("published_at", datetime(2026, 1, 1, tzinfo=UTC)),
         **fields,
     )
     post.newsroom_id = newsroom_id
@@ -74,16 +72,16 @@ def _make_article_post(db_session, *, status, newsroom_id, **fields) -> ArticleP
     return post
 
 
-def _make_press_release(db_session, *, status, newsroom_id, **fields) -> PressReleasePost:
+def _make_press_release(
+    db_session, *, status, newsroom_id, **fields
+) -> PressReleasePost:
     user = User(email=f"pr{newsroom_id}@example.com")
     db_session.add(user)
     db_session.flush()
     post = PressReleasePost(
         owner=user,
         status=status,
-        published_at=fields.pop(
-            "published_at", datetime(2026, 1, 1, tzinfo=UTC)
-        ),
+        published_at=fields.pop("published_at", datetime(2026, 1, 1, tzinfo=UTC)),
         **fields,
     )
     post.newsroom_id = newsroom_id
@@ -227,9 +225,7 @@ class TestReindexFromSourceMarketplace:
 
             assert test_engine.search("Rejected body") == []
 
-    def test_status_flip_removes_from_index(
-        self, app, db_session, test_engine
-    ):
+    def test_status_flip_removes_from_index(self, app, db_session, test_engine):
         with app.test_request_context():
             offer = _make_mission_offer(
                 db_session,
@@ -246,9 +242,7 @@ class TestReindexFromSourceMarketplace:
 
             assert test_engine.search("marketplaceflip") == []
 
-    def test_job_offer_uses_polymorphic_loading(
-        self, app, db_session, test_engine
-    ):
+    def test_job_offer_uses_polymorphic_loading(self, app, db_session, test_engine):
         """Source type ``marketplace`` resolves to ``MarketplaceContent``
         and polymorphic loading returns the concrete subclass — the
         adapter then computes the right ``job_offer`` discriminator.
@@ -333,9 +327,7 @@ class TestReindexFromSourceUser:
             assert hits[0]["type"] == "user"
             assert hits[0]["title"] == "Marie Dupont"
 
-    def test_unvalidated_user_is_not_indexed(
-        self, app, db_session, test_engine
-    ):
+    def test_unvalidated_user_is_not_indexed(self, app, db_session, test_engine):
         with app.test_request_context():
             user = User(
                 email="pending_user@example.com",
@@ -395,9 +387,7 @@ class TestReindexFromSourceOrganisation:
 
 
 class TestRebuildCli:
-    def test_rebuild_indexes_only_public_posts(
-        self, app, db_session, test_engine
-    ):
+    def test_rebuild_indexes_only_public_posts(self, app, db_session, test_engine):
         """``flask search rebuild`` should clear the index and then
         re-walk the database, keeping only public posts.
         """

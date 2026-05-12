@@ -37,9 +37,7 @@ class BaseDataSource(DataSource):
         user: User = g.user
 
         stmt = (
-            select(M)
-            .where(M.owner_id == user.id)
-            .where(M.deleted_at.is_(None))  # type: ignore[union-attr]
+            select(M).where(M.owner_id == user.id).where(M.deleted_at.is_(None))  # type: ignore[union-attr]
         )
         # no ordering the results here.
 

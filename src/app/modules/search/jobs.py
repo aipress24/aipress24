@@ -51,9 +51,7 @@ def reindex_from_source(source_type: str, source_id: int) -> None:
         # Either the mirror hasn't been written yet (signal race —
         # retry covers it) or there's nothing to index. Either way,
         # nothing to do right now.
-        logger.debug(
-            "search: no post for ({}, {}); skipping", source_type, source_id
-        )
+        logger.debug("search: no post for ({}, {}); skipping", source_type, source_id)
         return
 
     engine = svcs.flask.container.get(SearchEngine)
@@ -63,9 +61,7 @@ def reindex_from_source(source_type: str, source_id: int) -> None:
 def _find_post(entry, source_id: int) -> BaseContent | None:
     if entry.fk_column is None:
         return db.session.get(entry.model, source_id)
-    stmt = select(entry.model).where(
-        getattr(entry.model, entry.fk_column) == source_id
-    )
+    stmt = select(entry.model).where(getattr(entry.model, entry.fk_column) == source_id)
     return db.session.scalar(stmt)
 
 

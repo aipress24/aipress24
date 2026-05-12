@@ -23,7 +23,7 @@ def index() -> None:
     logger.info("scheduler: rebuilding search index")
     app = create_app()
     with app.app_context():
-        counts = rebuild_index()
+        counts = rebuild_index(show_progress=False)
     logger.info("scheduler: search index rebuild done — {}", counts)
 
 

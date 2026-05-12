@@ -111,9 +111,7 @@ def _result_sets(
     return out
 
 
-def _make_menu(
-    *, qs: str, counts: dict[str, int], current: str
-) -> list[dict]:
+def _make_menu(*, qs: str, counts: dict[str, int], current: str) -> list[dict]:
     return [
         {
             "name": c["name"],

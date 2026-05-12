@@ -69,6 +69,20 @@ class SearchEngine:
         with ix.writer() as w:
             w.update_document(**doc)
 
+    def bulk_upsert(self, docs) -> None:
+        """Upsert many documents under a single writer transaction.
+
+        Use this on the rebuild path: opening one writer + committing
+        once per N docs is orders of magnitude faster than calling
+        ``upsert`` N times. ``docs`` is iterated lazily — pass a
+        generator and we'll stream through it without loading the
+        whole batch into memory.
+        """
+        ix = self._get_index()
+        with ix.writer() as w:
+            for doc in docs:
+                w.update_document(**doc)
+
     def delete(self, doc_id: str) -> None:
         """Remove a document by composite id (``"<type>:<pk>"``). No-op
         if the id is not in the index.
@@ -132,9 +146,7 @@ class SearchEngine:
         with ix.searcher() as s:
             return s.search(query, limit=None).estimated_length()
 
-    def _build_query(
-        self, qs: str, *, type: str | list[str] | None
-    ) -> Any:
+    def _build_query(self, qs: str, *, type: str | list[str] | None) -> Any:
         parser = MultifieldParser(["title", "text"], schema=SCHEMA)
         query = parser.parse(qs)
         if type is None:
