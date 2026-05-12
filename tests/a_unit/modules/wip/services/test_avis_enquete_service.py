@@ -461,6 +461,127 @@ class TestAvisEnqueteServiceCiblage:
         assert expert3.id in expert_ids
 
 
+class TestRDVSideEffectsCoupling:
+    """Regression for bug #0147.
+
+    propose_rdv / accept_rdv / refuse_rdv must perform notification +
+    email as part of the same call so the caller cannot accidentally
+    omit a side-effect. Symptom of the original bug: the journalist
+    proposed a RDV three times in a row but the expert never received
+    anything because the four-call sequence was easy to break.
+    """
+
+    def test_propose_rdv_creates_notification_for_expert(
+        self, db_session: scoped_session
+    ) -> None:
+        journaliste = User(email="j@test.com")
+        expert = User(email="e@test.com")
+        media = Organisation(name="Media")
+        db_session.add_all([journaliste, expert, media])
+        db_session.flush()
+
+        enquete = _create_test_enquete(db_session, journaliste, media)
+        contact = _create_test_contact(
+            db_session, enquete, journaliste, expert, StatutAvis.ACCEPTE
+        )
+
+        service = AvisEnqueteService(db_session=db_session)
+        future_slot = _get_next_weekday_slot()
+        data = RDVProposalData(
+            rdv_type=RDVType.PHONE,
+            proposed_slots=[future_slot],
+            rdv_phone="+33612345678",
+        )
+
+        with patch(
+            "app.services.emails.ContactAvisEnqueteRDVProposalMail.send",
+            return_value=True,
+        ):
+            service.propose_rdv(contact.id, data, "/wip/opportunities/42")
+
+        notif_service = container.get(NotificationService)
+        notifications = notif_service.get_notifications(expert)
+        assert len(notifications) == 1
+        assert notifications[0].url == "/wip/opportunities/42"
+
+    def test_accept_rdv_creates_notification_for_journalist(
+        self, db_session: scoped_session
+    ) -> None:
+        journaliste = User(email="j@test.com")
+        expert = User(email="e@test.com")
+        media = Organisation(name="Media")
+        db_session.add_all([journaliste, expert, media])
+        db_session.flush()
+
+        enquete = _create_test_enquete(db_session, journaliste, media)
+        contact = _create_test_contact(
+            db_session, enquete, journaliste, expert, StatutAvis.ACCEPTE
+        )
+
+        service = AvisEnqueteService(db_session=db_session)
+        future_slot = _get_next_weekday_slot()
+        propose_data = RDVProposalData(
+            rdv_type=RDVType.PHONE,
+            proposed_slots=[future_slot],
+            rdv_phone="+33612345678",
+        )
+
+        with patch(
+            "app.services.emails.ContactAvisEnqueteRDVProposalMail.send",
+            return_value=True,
+        ), patch(
+            "app.services.emails.ContactAvisEnqueteRDVAcceptedMail.send",
+            return_value=True,
+        ):
+            service.propose_rdv(contact.id, propose_data, "/wip/opportunities/42")
+            accept_data = RDVAcceptanceData(selected_slot=future_slot)
+            service.accept_rdv(contact.id, accept_data, "/wip/reponses/42")
+
+        notif_service = container.get(NotificationService)
+        journalist_notifs = notif_service.get_notifications(journaliste)
+        assert len(journalist_notifs) == 1
+        assert journalist_notifs[0].url == "/wip/reponses/42"
+
+    def test_refuse_rdv_creates_notification_for_journalist(
+        self, db_session: scoped_session
+    ) -> None:
+        journaliste = User(email="j@test.com")
+        expert = User(email="e@test.com")
+        media = Organisation(name="Media")
+        db_session.add_all([journaliste, expert, media])
+        db_session.flush()
+
+        enquete = _create_test_enquete(db_session, journaliste, media)
+        contact = _create_test_contact(
+            db_session, enquete, journaliste, expert, StatutAvis.ACCEPTE
+        )
+
+        service = AvisEnqueteService(db_session=db_session)
+        future_slot = _get_next_weekday_slot()
+        propose_data = RDVProposalData(
+            rdv_type=RDVType.PHONE,
+            proposed_slots=[future_slot],
+            rdv_phone="+33612345678",
+        )
+
+        with patch(
+            "app.services.emails.ContactAvisEnqueteRDVProposalMail.send",
+            return_value=True,
+        ), patch(
+            "app.services.emails.ContactAvisEnqueteRDVRefusedMail.send",
+            return_value=True,
+        ):
+            service.propose_rdv(contact.id, propose_data, "/wip/opportunities/42")
+            service.refuse_rdv(contact.id, "/wip/reponses/42")
+
+        notif_service = container.get(NotificationService)
+        journalist_notifs = notif_service.get_notifications(journaliste)
+        # One for "accepted" path won't happen; only for refused.
+        assert any(
+            "refusé" in n.message.lower() for n in journalist_notifs
+        )
+
+
 class TestNotifyExperts:
     """Tests for notify_experts — regression for bug #0140.
 

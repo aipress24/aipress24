@@ -476,8 +476,6 @@ class AvisEnqueteWipView(BaseWipView):
                     contact_id=contact.id,
                 )
                 service.propose_rdv(int(contact_id), data, notification_url)
-                service.notify_rdv_proposed(contact, notification_url)
-                service.send_rdv_proposed_email(contact)
                 service.commit()
             except ValueError as e:
                 flash(str(e), "error")
@@ -572,8 +570,6 @@ class AvisEnqueteWipView(BaseWipView):
                             "AvisEnqueteWipView:reponses", id=model.id
                         )
                         service.refuse_rdv(int(contact_id), notification_url)
-                        service.notify_rdv_refused(contact, notification_url)
-                        service.send_rdv_refused_email(contact)
                         service.commit()
                     except ValueError as e:
                         flash(str(e), "error")
@@ -606,8 +602,6 @@ class AvisEnqueteWipView(BaseWipView):
                                 "AvisEnqueteWipView:reponses", id=model.id
                             )
                             service.refuse_rdv(int(contact_id), notification_url)
-                            service.notify_rdv_refused(contact, notification_url)
-                            service.send_rdv_refused_email(contact)
                             service.commit()
                         except ValueError as e:
                             flash(str(e), "error")
@@ -629,8 +623,6 @@ class AvisEnqueteWipView(BaseWipView):
                             "AvisEnqueteWipView:reponses", id=model.id
                         )
                         service.accept_rdv(int(contact_id), data, notification_url)
-                        service.notify_rdv_accepted(contact, notification_url)
-                        service.send_rdv_accepted_email(contact)
                         service.commit()
                     except ValueError as e:
                         flash(str(e), "error")

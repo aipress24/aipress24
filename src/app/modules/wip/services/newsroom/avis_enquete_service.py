@@ -107,18 +107,17 @@ class AvisEnqueteService:
         notification_url: str,
     ) -> ContactAvisEnquete:
         """
-        Propose a RDV to an expert.
+        Propose a RDV to an expert (state change + notification + email).
 
-        Orchestrates:
-        1. Load contact
-        2. Call domain method (validates + updates state)
-        3. Commit transaction
-        4. Send notification to expert
+        Bug #0147: previously the caller had to make four coordinated calls
+        (propose, notify, email, commit) and if any was forgotten the
+        recipient silently received nothing. The service now performs all
+        three side-effects in one call. Caller still commits at the end.
 
         Args:
             contact_id: ID of the ContactAvisEnquete
             data: RDV proposal data (type, slots, contact info)
-            notification_url: URL for the notification link
+            notification_url: URL for the in-app notification link
 
         Returns:
             Updated contact entity
@@ -129,7 +128,6 @@ class AvisEnqueteService:
         """
         contact = self._get_contact_or_raise(contact_id)
 
-        # Domain logic (validates and updates state)
         contact.propose_rdv(
             rdv_type=data.rdv_type,
             proposed_slots=data.proposed_slots,
@@ -138,10 +136,10 @@ class AvisEnqueteService:
             rdv_address=data.rdv_address,
             rdv_notes=data.rdv_notes,
         )
-
-        # Flush to make changes visible but don't commit
-        # Caller should commit after this method returns
         self._db_session.flush()
+
+        self.notify_rdv_proposed(contact, notification_url)
+        self.send_rdv_proposed_email(contact)
 
         return contact
 
@@ -152,36 +150,22 @@ class AvisEnqueteService:
         notification_url: str,
     ) -> ContactAvisEnquete:
         """
-        Accept a proposed RDV slot.
+        Accept a proposed RDV slot (state + notification + email).
 
-        Orchestrates:
-        1. Load contact
-        2. Call domain method (validates + updates state)
-        3. Commit transaction
-        4. Send notification to journalist
-
-        Args:
-            contact_id: ID of the ContactAvisEnquete
-            data: RDV acceptance data (selected slot, notes)
-            notification_url: URL for the notification link
-
-        Returns:
-            Updated contact entity
-
-        Raises:
-            ValueError: If acceptance is invalid (from domain)
-            LookupError: If contact not found
+        Bug #0147: side-effects (notify + email) are now coupled with the
+        state change so the journalist always learns about the acceptance.
+        Caller commits at the end.
         """
         contact = self._get_contact_or_raise(contact_id)
 
-        # Domain logic
         contact.accept_rdv(
             selected_slot=data.selected_slot,
             expert_notes=data.expert_notes,
         )
-
-        # Flush to make changes visible but don't commit
         self._db_session.flush()
+
+        self.notify_rdv_accepted(contact, notification_url)
+        self.send_rdv_accepted_email(contact)
 
         return contact
 
@@ -191,33 +175,18 @@ class AvisEnqueteService:
         notification_url: str,
     ) -> ContactAvisEnquete:
         """
-        Refuse all proposed RDV slot.
+        Refuse all proposed RDV slots (state + notification + email).
 
-        Orchestrates:
-        1. Load contact
-        2. Call domain method (validates + updates state)
-        3. Commit transaction
-        4. Send notification to journalist
-
-        Args:
-            contact_id: ID of the ContactAvisEnquete
-            data: RDV acceptance data (selected slot, notes)
-            notification_url: URL for the notification link
-
-        Returns:
-            Updated contact entity
-
-        Raises:
-            ValueError: If acceptance is invalid (from domain)
-            LookupError: If contact not found
+        Bug #0147: side-effects are coupled with the state change so the
+        journalist always learns about the refusal. Caller commits.
         """
         contact = self._get_contact_or_raise(contact_id)
 
-        # Domain logic
         contact.refuse_rdv()
-
-        # Flush to make changes visible but don't commit
         self._db_session.flush()
+
+        self.notify_rdv_refused(contact, notification_url)
+        self.send_rdv_refused_email(contact)
 
         return contact
 

@@ -219,6 +219,8 @@ class User(LifeCycleMixin, Addressable, UserMixin, Base):
 
     @hybrid_property
     def metier_fonction(self) -> str:
+        if self.profile is None:
+            return ""
         return self.profile.metier_fonction
 
     def metier_fonction_for_bw(self, bw_type: str | None) -> str:
