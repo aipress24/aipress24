@@ -21,11 +21,11 @@ from app.models.auth import BW_TYPE_FONCTION_SOURCES
 from app.modules.admin.utils import Organisation
 from app.modules.bw.bw_activation.models import (
     BusinessWall,
-    BWRoleType,
     InvitationStatus,
     RoleAssignment,
 )
 from app.modules.bw.bw_activation.models.business_wall import BWStatus, BWType
+from app.modules.bw.bw_activation.utils import DASHBOARD_ACCESS_ROLES
 
 StdDict = dict[str, str | int | float | bool | None]
 
@@ -269,17 +269,13 @@ def get_manageable_business_walls_for_user(user: User) -> list[BusinessWall]:
     stmt_owner = select(BusinessWall.id).where(BusinessWall.owner_id == user.id)
     manageable_ids.update(db.session.execute(stmt_owner).scalars().all())
 
-    # BWs where user has an accepted managementrole
+    # BWs where user has an accepted management role. Use the shared
+    # DASHBOARD_ACCESS_ROLES constant so this list stays in sync with the
+    # dashboard route guard / template visibility check.
     stmt_roles = select(RoleAssignment.business_wall_id).where(
         RoleAssignment.user_id == user.id,
         RoleAssignment.invitation_status == InvitationStatus.ACCEPTED.value,
-        RoleAssignment.role_type.in_(
-            {
-                BWRoleType.BW_OWNER.value,
-                BWRoleType.BWMI.value,
-                BWRoleType.BWME.value,
-            }
-        ),
+        RoleAssignment.role_type.in_(DASHBOARD_ACCESS_ROLES),
     )
     manageable_ids.update(db.session.execute(stmt_roles).scalars().all())
 

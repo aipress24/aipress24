@@ -18,7 +18,14 @@ from app.models.organisation import Organisation
 
 
 def get_user_per_email(email: str) -> User | None:
-    """Return the User with provided email, or None."""
+    """Return the active, non-clone, non-deleted User with this email.
+
+    The comparison is normalised on both sides: input is `strip()` +
+    `lower()`-ed, and the column is matched via
+    `lower(trim(User.email))` so legacy rows imported with stray
+    whitespace still surface. Without `trim`, the lookup would silently
+    miss e.g. " sf@abilian.com " in the DB.
+    """
     email = email.strip().lower()
     if not email:
         return None
@@ -28,7 +35,7 @@ def get_user_per_email(email: str) -> User | None:
         User.active == true(),
         User.is_clone == false(),
         User.deleted_at.is_(None),
-        func.lower(User.email) == email,
+        func.lower(func.trim(User.email)) == email,
     )
     return db.session.scalar(stmt)
 

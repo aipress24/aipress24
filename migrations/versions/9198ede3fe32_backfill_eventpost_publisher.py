@@ -9,18 +9,19 @@ org.id).
 
 This migration walks every EventPost whose publisher_id is NULL and
 copies the value from the matching Event (linked via
-EventPost.eventroom_id = Event.id). Idempotent — re-running is a no-op
-since the second pass finds nothing to back-fill.
+evt_event_post.eventroom_id = evr_event.id). Idempotent — re-running
+is a no-op since the second pass finds nothing to back-fill.
 
-Revision ID: backfill_evt_publisher_20260513
+Revision ID: 9198ede3fe32
 Revises: fe9ab2b94cf4
+Create Date: 2026-05-13
 """
 
 from __future__ import annotations
 
 from alembic import op
 
-revision = "backfill_evt_publisher_20260513"
+revision = "9198ede3fe32"
 down_revision = "fe9ab2b94cf4"
 branch_labels = None
 depends_on = None

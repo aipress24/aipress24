@@ -6,13 +6,27 @@
 
 from __future__ import annotations
 
+from typing import Protocol
+
 from flask import g, redirect, url_for
 from sqlalchemy import func, select
 from sqlalchemy.orm import scoped_session
 from svcs.flask import container
 
-from app.models.mixins import Owned
 from app.services.auth import AuthService
+
+
+class _OwnedSoftDeletable(Protocol):
+    """A model class that is both `Owned` and `LifeCycleMixin`-derived.
+
+    Used as the parameter type of `count_owned_non_deleted` so the type
+    contract is honest: the helper requires *both* `owner_id` and
+    `deleted_at` mapped columns, not just one. A model that's only
+    `Owned` (without LifeCycleMixin) would crash at access time today.
+    """
+
+    owner_id: int
+    deleted_at: object  # SQLAlchemy mapped column; type unimportant here
 
 
 def check_auth():
@@ -30,7 +44,7 @@ def get_secondary_menu(current_name: str):
     return make_menu(current_name)
 
 
-def count_owned_non_deleted(model_class: type[Owned]) -> int:
+def count_owned_non_deleted(model_class: type[_OwnedSoftDeletable]) -> int:
     """Count rows of model_class owned by the current user, non-deleted.
 
     Bug #0143: the tile counters on the Newsroom / Com'room / Event'room
@@ -48,6 +62,4 @@ def count_owned_non_deleted(model_class: type[Owned]) -> int:
         .where(model_class.owner_id == user.id)
         .where(model_class.deleted_at.is_(None))
     )
-    result = db_session.execute(stmt).scalar()
-    assert isinstance(result, int)
-    return result
+    return db_session.execute(stmt).scalar() or 0
