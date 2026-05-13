@@ -10,10 +10,11 @@ from typing import TYPE_CHECKING
 from unittest import mock
 
 from app.enums import BWType
-from app.models.auth import User
+from app.models.auth import KYCProfile, User
 from app.models.organisation import Organisation
 from app.modules.bw.bw_activation.models.business_wall import BusinessWall, BWStatus
 from app.modules.bw.bw_activation.user_utils import (
+    _fonctions_disponibles_for_bw,
     get_active_business_wall_for_organisation,
     get_any_business_wall_for_organisation,
     get_business_wall_for_user,
@@ -479,3 +480,48 @@ class TestGuessBestBwType:
         result = guess_best_bw_type(test_user_unknown_profile)
 
         assert result == BWType.MEDIA
+
+
+class TestFonctionsDisponiblesForBw:
+    """Bug #0107: the BW activation step 2 must expose the user's full
+    list of KYC fonctions so the inviter can pick the right one instead
+    of being stuck with an arbitrary [0] default."""
+
+    def test_returns_empty_list_when_no_profile(self, db_session: Session):
+        user = User(email="no-profile@example.com")
+        db_session.add(user)
+        db_session.flush()
+
+        assert _fonctions_disponibles_for_bw(user, "media") == []
+
+    def test_returns_journalisme_fonctions_for_media_bw(self, db_session: Session):
+        user = User(email="redchef@example.com")
+        user.profile = KYCProfile(
+            match_making={
+                "fonctions_journalisme": [
+                    "Chef.fe de projet média",
+                    "Rédacteur en chef",
+                ]
+            }
+        )
+        db_session.add(user)
+        db_session.flush()
+
+        result = _fonctions_disponibles_for_bw(user, "media")
+        assert "Chef.fe de projet média" in result
+        assert "Rédacteur en chef" in result
+
+    def test_dedupes_across_sources(self, db_session: Session):
+        user = User(email="pr@example.com")
+        user.profile = KYCProfile(
+            match_making={
+                "fonctions_org_priv_detail": ["Directeur RP", "Chef de projet"],
+                "fonctions_pol_adm_detail": ["Chef de projet"],  # dup
+            }
+        )
+        db_session.add(user)
+        db_session.flush()
+
+        result = _fonctions_disponibles_for_bw(user, "pr")
+        # No duplicates, original order preserved.
+        assert result == ["Directeur RP", "Chef de projet"]

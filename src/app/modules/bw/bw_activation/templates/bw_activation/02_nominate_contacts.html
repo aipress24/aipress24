@@ -98,14 +98,26 @@
                                 Fonction / Titre
                             </label>
                             <div class="mt-2">
+                                {# Bug #0107: offer the user's KYC fonctions
+                                   as an autocomplete list so they can pick
+                                   the right one instead of having to retype
+                                   it when the arbitrary default is wrong. #}
                                 <input
                                     type="text"
                                     name="owner_title"
                                     id="owner_title"
                                     value="{{ owner_data.fonction }}"
                                     placeholder="Ex: Directeur de la Communication"
+                                    list="owner_title_options"
                                     class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-600 focus:ring-blue-600 sm:text-sm px-3 py-2 border"
                                 />
+                                {% if owner_data.fonctions_disponibles %}
+                                    <datalist id="owner_title_options">
+                                        {% for fonction in owner_data.fonctions_disponibles %}
+                                            <option value="{{ fonction }}"></option>
+                                        {% endfor %}
+                                    </datalist>
+                                {% endif %}
                             </div>
                         </div>
 

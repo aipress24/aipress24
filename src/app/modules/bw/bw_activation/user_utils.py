@@ -85,10 +85,41 @@ def get_current_user_data() -> StdDict:
             "phone": user.tel_mobile,
             "email": user.email,
             "fonction": user.metier_fonction_for_bw(bw_type),
+            # Bug #0107: the default value is the first item of an
+            # unordered KYC list, which is often misleading (e.g. "chef
+            # de projet média" for a "rédacteur en chef"). Expose the
+            # full list of relevant fonctions so the template can offer
+            # autocomplete on the input.
+            "fonctions_disponibles": _fonctions_disponibles_for_bw(user, bw_type),
             "allow_activation": (org and org.is_auto_or_inactive),
         }
     )
     return data
+
+
+def _fonctions_disponibles_for_bw(user: User, bw_type: str | None) -> list[str]:
+    """Return all KYC fonctions relevant for a given BW type, deduped.
+
+    Used by the step-2 Fonction/Titre input to offer the user every
+    fonction they have in their KYC profile (so they can switch from
+    the arbitrary default without having to retype it).
+    """
+    profile = getattr(user, "profile", None)
+    if profile is None:
+        return []
+    from app.models.auth import _BW_TYPE_FONCTION_SOURCES
+
+    sources = _BW_TYPE_FONCTION_SOURCES.get(bw_type or "")
+    if not sources:
+        return list(profile.toutes_fonctions)
+    seen: set[str] = set()
+    out: list[str] = []
+    for attr in sources:
+        for value in getattr(profile, attr, None) or []:
+            if value and value not in seen:
+                seen.add(value)
+                out.append(value)
+    return out
 
 
 def guess_best_bw_type(user: User) -> BWType:
