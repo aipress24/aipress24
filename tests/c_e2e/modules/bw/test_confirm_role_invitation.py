@@ -205,3 +205,63 @@ class TestConfirmRoleInvitationPost:
         role = fresh_db.session.get(RoleAssignment, data["role_assignment"].id)
         assert role.invitation_status == InvitationStatus.REJECTED.value
         assert role.rejected_at is not None
+
+
+class TestDashboardButtonVisibility:
+    """Regression for bug #0139.
+
+    The "Aller au tableau de bord" button used to render for every
+    accepted invitation, but only Owner / BWMI / BWME actually have
+    dashboard access — for a PR Manager (internal) clicking it landed
+    on "Accès non autorisé".
+    """
+
+    def test_pr_manager_internal_does_not_see_dashboard_button(
+        self, app: Flask, fresh_db
+    ):
+        """A BWPRI accepted invitation must not surface the dashboard
+        button — it would mislead the user into a 403."""
+        data = create_bw_test_data(
+            fresh_db,
+            create_pr_user=True,
+            create_role_assignment=True,
+            invitation_status=InvitationStatus.ACCEPTED,
+            role_type=BWRoleType.BWPRI,
+        )
+        data["role_assignment"].accepted_at = datetime.now(UTC)
+        fresh_db.session.commit()
+
+        client = make_authenticated_client(app, data["pr_owner"])
+        url = (
+            f"/BW/confirm-role-invitation/{data['media_bw'].id}"
+            f"/{BWRoleType.BWPRI.value}/{data['pr_owner'].id}"
+        )
+        response = client.get(url)
+
+        assert response.status_code == 200
+        html = response.data.decode()
+        assert "Aller au tableau de bord" not in html
+        # A friendly fallback link is offered instead.
+        assert "Retour à mon profil" in html
+
+    def test_bwmi_sees_dashboard_button(self, app: Flask, fresh_db):
+        """Owner/BWMI/BWME still get the dashboard button after accept."""
+        data = create_bw_test_data(
+            fresh_db,
+            create_pr_user=True,
+            create_role_assignment=True,
+            invitation_status=InvitationStatus.ACCEPTED,
+            role_type=BWRoleType.BWMI,
+        )
+        data["role_assignment"].accepted_at = datetime.now(UTC)
+        fresh_db.session.commit()
+
+        client = make_authenticated_client(app, data["pr_owner"])
+        url = (
+            f"/BW/confirm-role-invitation/{data['media_bw'].id}"
+            f"/{BWRoleType.BWMI.value}/{data['pr_owner'].id}"
+        )
+        response = client.get(url)
+
+        assert response.status_code == 200
+        assert "Aller au tableau de bord" in response.data.decode()

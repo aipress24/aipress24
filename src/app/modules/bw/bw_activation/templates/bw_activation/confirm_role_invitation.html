@@ -82,13 +82,26 @@
                 {% endif %}
             </div>
 
+            {# Bug #0139: only Owner/Managers (BWMI/BWME) can reach the
+               dashboard. For PR roles the button used to land on "Accès
+               non autorisé" — hide it and offer a back-to-profile link
+               instead so the user has a non-error follow-up. #}
             <div class="flex justify-center mt-8">
-                <a
-                    href="{{ url_for('bw_activation.dashboard') }}"
-                    class="rounded-md bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-blue-700"
-                >
-                    Aller au tableau de bord
-                </a>
+                {% if action == 'accepted' and role_has_dashboard_access %}
+                    <a
+                        href="{{ url_for('bw_activation.dashboard') }}"
+                        class="rounded-md bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-blue-700"
+                    >
+                        Aller au tableau de bord
+                    </a>
+                {% else %}
+                    <a
+                        href="{{ url_for('preferences.invitations') }}"
+                        class="rounded-md bg-gray-200 px-6 py-3 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-300"
+                    >
+                        Retour à mon profil
+                    </a>
+                {% endif %}
             </div>
         {% else %}
             {# invitation en attente #}
