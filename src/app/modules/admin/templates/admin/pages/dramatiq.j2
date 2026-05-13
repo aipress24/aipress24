@@ -1,0 +1,151 @@
+{# Admin dashboard for Dramatiq queue. Read-only.
+   See `app.modules.admin.views.dramatiq_dashboard`. #}
+{% extends "admin/layout/_base.j2" %}
+
+{% macro state_badge(state) -%}
+  {%- set color =
+        "bg-blue-100 text-blue-800"       if state == "queued"   else
+        "bg-yellow-100 text-yellow-800"   if state == "consumed" else
+        "bg-red-100 text-red-800"         if state == "rejected" else
+        "bg-green-100 text-green-800"     if state == "done"     else
+        "bg-gray-100 text-gray-800" -%}
+  <span class="inline-block px-2 py-0.5 rounded text-xs font-medium {{ color }}">
+    {{ state }}
+  </span>
+{%- endmacro %}
+
+{% block main %}
+  <div class="content space-y-6">
+    {% if not schema_present %}
+      <div class="bg-yellow-50 border border-yellow-200 rounded p-4 text-sm text-yellow-900">
+        The <code>dramatiq</code> schema is not present in this database.
+        The dashboard is showing zero data — either the broker is a
+        <code>StubBroker</code> (tests), or the schema was never provisioned.
+        See the runbook in <code>app/dramatiq/setup.py</code>.
+      </div>
+    {% endif %}
+
+    {# 1) Per-queue state counts #}
+    <section>
+      <h2 class="text-lg font-semibold text-gray-900 mb-3">
+        Queues
+      </h2>
+      {% if queues %}
+        <table class="dui-table dui-table-zebra w-full text-sm">
+          <thead>
+            <tr class="text-left">
+              <th>Queue</th>
+              <th>State</th>
+              <th class="text-right">Count</th>
+              <th>Last update (UTC)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in queues %}
+              <tr>
+                <td><code>{{ row.queue }}</code></td>
+                <td>{{ state_badge(row.state) }}</td>
+                <td class="text-right tabular-nums">{{ row.count }}</td>
+                <td class="text-gray-600">
+                  {% if row.last_mtime %}
+                    {{ row.last_mtime.strftime("%Y-%m-%d %H:%M:%S") }}
+                  {% else %}
+                    —
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p class="text-sm text-gray-500 italic">
+          No messages in any queue.
+        </p>
+      {% endif %}
+    </section>
+
+    {# 2) Registered actors (live broker introspection) #}
+    <section>
+      <h2 class="text-lg font-semibold text-gray-900 mb-3">
+        Registered actors
+        <span class="text-sm font-normal text-gray-500">
+          ({{ actors|length }})
+        </span>
+      </h2>
+      {% if actors %}
+        <table class="dui-table dui-table-zebra w-full text-sm">
+          <thead>
+            <tr class="text-left">
+              <th>Actor</th>
+              <th>Queue</th>
+              <th class="text-right">Priority</th>
+              <th>Options</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for a in actors %}
+              <tr>
+                <td><code>{{ a.name }}</code></td>
+                <td><code>{{ a.queue }}</code></td>
+                <td class="text-right tabular-nums">{{ a.priority }}</td>
+                <td class="text-xs text-gray-600">
+                  {{ a.options|tojson }}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p class="text-sm text-gray-500 italic">
+          No actors registered on the current broker.
+        </p>
+      {% endif %}
+    </section>
+
+    {# 3) Recent messages #}
+    <section>
+      <h2 class="text-lg font-semibold text-gray-900 mb-3">
+        Recent messages
+        <span class="text-sm font-normal text-gray-500">
+          (latest {{ recent_limit }})
+        </span>
+      </h2>
+      {% if recent %}
+        <table class="dui-table dui-table-zebra w-full text-sm">
+          <thead>
+            <tr class="text-left">
+              <th>Mtime (UTC)</th>
+              <th>Queue</th>
+              <th>State</th>
+              <th>Actor</th>
+              <th>Args preview</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for m in recent %}
+              <tr>
+                <td class="text-gray-600 whitespace-nowrap">
+                  {% if m.mtime %}
+                    {{ m.mtime.strftime("%Y-%m-%d %H:%M:%S") }}
+                  {% else %}
+                    —
+                  {% endif %}
+                </td>
+                <td><code>{{ m.queue }}</code></td>
+                <td>{{ state_badge(m.state) }}</td>
+                <td><code>{{ m.actor_name }}</code></td>
+                <td class="text-xs text-gray-700 truncate max-w-md">
+                  {{ m.args_preview }}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p class="text-sm text-gray-500 italic">
+          No recent messages.
+        </p>
+      {% endif %}
+    </section>
+  </div>
+{% endblock %}
