@@ -8,7 +8,11 @@
   >
     {% include "pages/_swork_menu.j2" %}
 
-    <main class="lg:col-span-6 my-8">
+    {# Bug #0126: `min-w-0` on the two grid items so Firefox lets them
+       shrink when a post contains a long unbreakable URL — otherwise
+       the main column grows past its track and squashes the aside to
+       a few pixels of width. Safari was lenient and shrank by default. #}
+    <main class="lg:col-span-6 my-8 min-w-0">
       <ul role="list" class="space-y-4">
 
         <!-- post box -->
@@ -22,7 +26,7 @@
       </ul>
     </main>
 
-    <aside class="hidden lg:block lg:col-span-4 my-8">
+    <aside class="hidden lg:block lg:col-span-4 my-8 min-w-0">
       <div class="sticky top-4 space-y-4 max-h-[80vh] overflow-y-auto">
         {% from "macros/promo.j2" import promo_box with context %}
         {{ promo_box("swork/1") }}
