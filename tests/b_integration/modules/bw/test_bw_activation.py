@@ -895,7 +895,7 @@ class TestInviteBwmiByEmail:
         # send_role_invitation_mail is mocked
         result = invite_bwmi_by_email(test_business_wall, "member@example.com")
 
-        assert result is True
+        assert result.is_success
 
         # Verify role assignment was created
         db_session.refresh(test_business_wall)
@@ -914,7 +914,8 @@ class TestInviteBwmiByEmail:
         """invite_bwmi_by_email should fail for non-existent users."""
         result = invite_bwmi_by_email(test_business_wall, "nonexistent@example.com")
 
-        assert result is False
+        assert result.is_failure
+        assert result.code.value == "failed_unknown_email"
 
 
 class TestRevokeBwmiByEmail:
@@ -939,7 +940,7 @@ class TestRevokeBwmiByEmail:
         invite_result = invite_bwmi_by_email(
             test_business_wall, "revoke_test@example.com"
         )
-        assert invite_result is True, "Failed to invite user first"
+        assert invite_result.is_success, "Failed to invite user first"
         db_session.flush()
 
         db_session.refresh(test_business_wall)
@@ -1104,7 +1105,7 @@ class TestScenarioRoleManagement:
         # Step 1: Owner invites team member as BWMi
         # send_role_invitation_mail is mocked
         result = invite_user_role(test_business_wall, team_member, BWRoleType.BWMI)
-        assert result is True
+        assert result.is_success
 
         # Verify pending invitation
         db_session.refresh(test_business_wall)
@@ -1145,14 +1146,14 @@ class TestScenarioRoleManagement:
         # Invite as BWMi
         # send_role_invitation_mail is mocked
         result1 = invite_user_role(test_business_wall, multi_role_user, BWRoleType.BWMI)
-        assert result1 is True
+        assert result1.is_success
 
         # Invite as BWPRi (should succeed - different role)
         db_session.refresh(test_business_wall)
         result2 = invite_user_role(
             test_business_wall, multi_role_user, BWRoleType.BWPRI
         )
-        assert result2 is True
+        assert result2.is_success
 
         # Verify user has both roles
         db_session.refresh(test_business_wall)

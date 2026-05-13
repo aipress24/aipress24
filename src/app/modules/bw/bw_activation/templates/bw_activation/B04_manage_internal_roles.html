@@ -7,6 +7,22 @@
         class="max-w-6xl mx-auto"
         x-data="{ selfBWMi: false, selfBWPRi: false }"
     >
+        {# Bug #0139 v2: surface invitation failures the route flashed
+           (e.g. e-mail not in the org's members). The bw_activation
+           layout has no global flash slot, so render the banner inline. #}
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="mb-4 space-y-2" data-testid="invitation-flash">
+                    {% for category, msg in messages %}
+                        <div
+                            class="p-4 rounded-md border {% if category == 'error' %}bg-red-50 border-red-200 text-red-800{% else %}bg-blue-50 border-blue-200 text-blue-800{% endif %}"
+                        >
+                            {{ msg }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
         <div class="bg-white p-8 rounded-2xl shadow-lg border border-gray-200">
             <h1 class="text-3xl font-bold text-gray-900">
                 5- Gérer les Rôles Internes

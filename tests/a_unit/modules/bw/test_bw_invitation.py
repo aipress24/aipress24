@@ -134,7 +134,7 @@ class TestInviteUserRole:
         """Successfully invite a user to a role."""
         result = invite_user_role(business_wall, invited_user, BWRoleType.BWMI)
 
-        assert result is True
+        assert result.is_success
 
         # Verify role assignment was created
         db_session.refresh(business_wall)
@@ -154,7 +154,8 @@ class TestInviteUserRole:
         """Cannot invite user who is not an organisation member."""
         result = invite_user_role(business_wall, external_user, BWRoleType.BWMI)
 
-        assert result is False
+        assert result.is_failure
+        assert result.code.value == "failed_not_in_org"
 
     def test_invite_user_role_fails_if_duplicate_role(
         self,
@@ -166,12 +167,13 @@ class TestInviteUserRole:
         """Cannot invite user who already has the same role."""
         # First invitation - should succeed
         result1 = invite_user_role(business_wall, invited_user, BWRoleType.BWMI)
-        assert result1 is True
+        assert result1.is_success
 
-        # Second invitation with same role - should fail
+        # Second invitation with same role - idempotent (already pending)
         db_session.refresh(business_wall)
         result2 = invite_user_role(business_wall, invited_user, BWRoleType.BWMI)
-        assert result2 is False
+        assert result2.is_idempotent
+        assert result2.code.value == "already_pending"
 
     def test_invite_user_role_allows_different_roles(
         self,
@@ -183,12 +185,12 @@ class TestInviteUserRole:
         """User can have multiple different roles."""
         # First role - BWMI
         result1 = invite_user_role(business_wall, invited_user, BWRoleType.BWMI)
-        assert result1 is True
+        assert result1.is_success
 
         # Second role - BWPRI (should succeed - different role)
         db_session.refresh(business_wall)
         result2 = invite_user_role(business_wall, invited_user, BWRoleType.BWPRI)
-        assert result2 is True
+        assert result2.is_success
 
         # Verify user has both roles
         db_session.refresh(business_wall)
@@ -246,7 +248,7 @@ class TestRevokeUserRole:
     ) -> None:
         """Cannot revoke a different role than what user has."""
         invite_result = invite_user_role(business_wall, invited_user, BWRoleType.BWMI)
-        assert invite_result is True
+        assert invite_result.is_success
 
         # Test - should fail (trying to revoke BWPRI when user has BWMI)
         result = revoke_user_role(business_wall, invited_user, BWRoleType.BWPRI)
@@ -267,7 +269,7 @@ class TestEnsureRolesMembership:
         """Remove role assignments for users no longer in organisation."""
         # Invite member to role
         invite_result = invite_user_role(business_wall, invited_user, BWRoleType.BWMI)
-        assert invite_result is True
+        assert invite_result.is_success
         db_session.flush()
 
         # Verify role assignment exists
@@ -306,7 +308,7 @@ class TestEnsureRolesMembership:
     ) -> None:
         """Keep role assignments for current organisation members."""
         invite_result = invite_user_role(business_wall, invited_user, BWRoleType.BWMI)
-        assert invite_result is True
+        assert invite_result.is_success
         db_session.flush()
 
         revoked_count = ensure_roles_membership(business_wall)

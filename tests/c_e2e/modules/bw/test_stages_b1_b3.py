@@ -89,3 +89,39 @@ class TestStageB3ManageInternalRolesRoutes:
         assert response.status_code == 200
         # The page should contain some content about roles
         assert b"role" in response.data.lower() or b"BWM" in response.data
+
+    def test_change_bwpri_unknown_email_surfaces_flash(
+        self,
+        authenticated_owner_client: FlaskClient,
+        test_business_wall: BusinessWall,
+    ) -> None:
+        """Bug #0139 v2: posting an unknown e-mail to the BWPRi list
+        must flash an admin-readable error on the next render.
+
+        The route used to swallow every failure silently — the admin
+        saw « tout va bien » while the invitation had been dropped.
+        Now `_flash_invitation_outcomes` posts an `error` flash that
+        the B04 template renders inline."""
+        response = authenticated_owner_client.post(
+            "/BW/manage-internal-roles",
+            data={
+                "action": "change_bwpri_invitations",
+                "content": "ghost@example.com",
+            },
+            follow_redirects=False,
+        )
+        # HTMX redirect via HX-Redirect header; the body is empty.
+        assert response.status_code == 200
+        assert response.headers.get("HX-Redirect") == "/BW/manage-internal-roles"
+
+        # Follow the redirect to surface the flash on the next render.
+        next_page = authenticated_owner_client.get("/BW/manage-internal-roles")
+        assert next_page.status_code == 200
+        body = next_page.data.decode()
+        assert "invitation-flash" in body
+        assert "ghost@example.com" in body
+        assert (
+            "Aucun utilisateur" in body
+            or "n&#39;est pas membre" in body
+            or "inactif" in body
+        )

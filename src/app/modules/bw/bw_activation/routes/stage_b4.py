@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, cast
 
-from flask import g, redirect, render_template, request, session, url_for
+from flask import flash, g, redirect, render_template, request, session, url_for
 from werkzeug import Response
 from werkzeug.exceptions import NotFound
 
@@ -18,6 +18,7 @@ from app.logging import warn
 from app.models.auth import User
 from app.modules.bw.bw_activation import bp
 from app.modules.bw.bw_activation.bw_invitation import (
+    InvitationOutcome,
     change_bwmi_emails,
     change_bwpri_emails,
     revoke_user_role,
@@ -65,8 +66,9 @@ def manage_internal_roles():
         match action:
             case "change_bwmi_invitations":
                 raw_mails = request.form["content"]
-                change_bwmi_emails(business_wall, raw_mails)
+                outcomes = change_bwmi_emails(business_wall, raw_mails)
                 db.session.commit()
+                _flash_invitation_outcomes(outcomes)
                 response = Response("")
                 response.headers["HX-Redirect"] = url_for(
                     "bw_activation.manage_internal_roles"
@@ -74,8 +76,9 @@ def manage_internal_roles():
                 return response
             case "change_bwpri_invitations":
                 raw_mails = request.form["content"]
-                change_bwpri_emails(business_wall, raw_mails)
+                outcomes = change_bwpri_emails(business_wall, raw_mails)
                 db.session.commit()
+                _flash_invitation_outcomes(outcomes)
                 response = Response("")
                 response.headers["HX-Redirect"] = url_for(
                     "bw_activation.manage_internal_roles"
@@ -123,6 +126,25 @@ def manage_internal_roles():
         "bw_activation/B04_manage_internal_roles.html",
         **ctx,
     )
+
+
+def _flash_invitation_outcomes(outcomes: list[InvitationOutcome]) -> None:
+    """Flash a single banner per failed invitation so the admin learns
+    that a typed e-mail did not produce a PENDING role assignment.
+
+    Successful or idempotent outcomes stay silent — the refreshed
+    listing already shows them. Failures are the only thing the admin
+    cannot infer from the next page render. Bug #0139 v2: the route
+    used to swallow every failure, so an admin who typed an e-mail
+    outside the org saw « tout va bien » while the invitation was
+    silently dropped.
+    """
+    for outcome in outcomes:
+        if outcome.is_failure:
+            label = outcome.email or "(adresse vide)"
+            flash(
+                f"Invitation impossible pour {label} : {outcome.admin_message}", "error"
+            )
 
 
 def _build_context(

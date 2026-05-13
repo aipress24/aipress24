@@ -21,7 +21,10 @@ from app.enums import ProfileEnum
 from app.models.auth import KYCProfile, User
 from app.models.organisation import Organisation
 from app.modules.bw.bw_activation.bw_invitation import (
+    InvitationOutcomeCode,
     apply_bw_missions_to_pr_user,
+    change_bwmi_emails,
+    change_bwpri_emails,
     ensure_roles_membership,
     invite_pr_provider,
     invite_user_role,
@@ -39,6 +42,7 @@ from app.modules.bw.bw_activation.models import (
     PermissionType,
     RoleAssignment,
 )
+from app.services.notifications._models import Notification
 
 if TYPE_CHECKING:
     from sqlalchemy.orm import Session
@@ -192,7 +196,8 @@ class TestInviteUserRoleIntegration:
         # Invite the member
         result = invite_user_role(media_bw, member, BWRoleType.BWMI)
 
-        assert result is True
+        assert result.is_success
+        assert result.code.value == "created"
 
         # Verify role assignment was created
         assignments = (
@@ -209,6 +214,223 @@ class TestInviteUserRoleIntegration:
         assert assignments[0].invitation_status == InvitationStatus.PENDING.value
         assert assignments[0].invited_at is not None
 
+    def test_invite_posts_in_app_notification(
+        self,
+        db_session: Session,
+        media_bw: BusinessWall,
+        media_org: Organisation,
+    ):
+        """Bug #0139 v2: inviting a user also creates an in-app Notification.
+
+        Without the in-app trace, an invitee whose email is lost (SMTP
+        failure, spam filter, mistyped address) has no way of knowing
+        they were invited. The notification + the `/preferences/invitations`
+        list together must keep the invitee informed even if the email
+        path silently fails.
+        """
+        member = User(
+            email=_unique_email(),
+            first_name="Lorraine",
+            last_name="Abassie",
+            active=True,
+        )
+        member.organisation = media_org
+        member.organisation_id = media_org.id
+        db_session.add(member)
+        db_session.flush()
+
+        assert invite_user_role(media_bw, member, BWRoleType.BWPRI).is_success
+
+        notifications = (
+            db_session.query(Notification).filter_by(receiver_id=member.id).all()
+        )
+        assert len(notifications) == 1
+        assert "PR Manager (internal)" in notifications[0].message
+        assert notifications[0].url == "/preferences/invitations"
+
+    def test_invite_inactive_user_returns_failed_inactive(
+        self,
+        db_session: Session,
+        media_bw: BusinessWall,
+        media_org: Organisation,
+    ):
+        """A deactivated account cannot be invited and surfaces a specific code."""
+        member = User(
+            email=_unique_email(),
+            first_name="Inactive",
+            last_name="User",
+            active=False,
+        )
+        member.organisation = media_org
+        member.organisation_id = media_org.id
+        db_session.add(member)
+        db_session.flush()
+
+        result = invite_user_role(media_bw, member, BWRoleType.BWMI)
+
+        assert result.is_failure
+        assert result.code == InvitationOutcomeCode.FAILED_INACTIVE
+        assert result.admin_message
+        # No side effect on DB / notifications.
+        assert (
+            db_session.query(RoleAssignment).filter_by(user_id=member.id).count() == 0
+        )
+        assert (
+            db_session.query(Notification).filter_by(receiver_id=member.id).count() == 0
+        )
+
+    def test_invite_non_member_returns_failed_not_in_org(
+        self,
+        db_session: Session,
+        media_bw: BusinessWall,
+    ):
+        """Inviting a user outside the BW org is the most common admin
+        mistake (bug #0139 v2) — must surface a precise failure code."""
+        outsider = User(
+            email=_unique_email(),
+            first_name="Outside",
+            last_name="User",
+            active=True,
+        )
+        db_session.add(outsider)
+        db_session.flush()
+
+        result = invite_user_role(media_bw, outsider, BWRoleType.BWPRI)
+
+        assert result.is_failure
+        assert result.code == InvitationOutcomeCode.FAILED_NOT_IN_ORG
+        assert "organisation" in result.admin_message
+        assert (
+            db_session.query(RoleAssignment).filter_by(user_id=outsider.id).count() == 0
+        )
+        assert (
+            db_session.query(Notification).filter_by(receiver_id=outsider.id).count()
+            == 0
+        )
+
+    def test_invite_when_already_accepted_is_idempotent(
+        self,
+        db_session: Session,
+        media_bw: BusinessWall,
+        media_org: Organisation,
+    ):
+        """Re-inviting a user who already accepted the same role is a
+        no-op — no new role, no second notification."""
+        member = User(
+            email=_unique_email(),
+            first_name="Accepted",
+            last_name="User",
+            active=True,
+        )
+        member.organisation = media_org
+        member.organisation_id = media_org.id
+        db_session.add(member)
+        db_session.flush()
+
+        existing = RoleAssignment(
+            business_wall_id=media_bw.id,
+            user_id=member.id,
+            role_type=BWRoleType.BWMI.value,
+            invitation_status=InvitationStatus.ACCEPTED.value,
+        )
+        db_session.add(existing)
+        db_session.flush()
+        db_session.refresh(media_bw)
+
+        result = invite_user_role(media_bw, member, BWRoleType.BWMI)
+
+        assert not result.is_success
+        assert result.is_idempotent
+        assert result.code == InvitationOutcomeCode.ALREADY_ACCEPTED
+        # No extra role assignment.
+        assert (
+            db_session.query(RoleAssignment)
+            .filter_by(user_id=member.id, role_type=BWRoleType.BWMI.value)
+            .count()
+            == 1
+        )
+        # No notification posted for an idempotent re-invite.
+        assert (
+            db_session.query(Notification).filter_by(receiver_id=member.id).count() == 0
+        )
+
+    def test_invite_when_already_pending_is_idempotent(
+        self,
+        db_session: Session,
+        media_bw: BusinessWall,
+        media_org: Organisation,
+    ):
+        """A second invitation while the first is still pending is a
+        no-op — prevents accidental double-notify spam."""
+        member = User(
+            email=_unique_email(),
+            first_name="Pending",
+            last_name="User",
+            active=True,
+        )
+        member.organisation = media_org
+        member.organisation_id = media_org.id
+        db_session.add(member)
+        db_session.flush()
+
+        first = invite_user_role(media_bw, member, BWRoleType.BWPRI)
+        assert first.is_success
+        notifications_after_first = (
+            db_session.query(Notification).filter_by(receiver_id=member.id).count()
+        )
+
+        db_session.refresh(media_bw)
+        second = invite_user_role(media_bw, member, BWRoleType.BWPRI)
+
+        assert second.is_idempotent
+        assert second.code == InvitationOutcomeCode.ALREADY_PENDING
+        notifications_after_second = (
+            db_session.query(Notification).filter_by(receiver_id=member.id).count()
+        )
+        assert notifications_after_second == notifications_after_first
+
+    def test_invite_after_rejection_resends(
+        self,
+        db_session: Session,
+        media_bw: BusinessWall,
+        media_org: Organisation,
+    ):
+        """If a previous invitation was rejected/expired, re-inviting
+        revives it: status flips back to PENDING and a fresh notification
+        is posted."""
+        member = User(
+            email=_unique_email(),
+            first_name="Rejected",
+            last_name="User",
+            active=True,
+        )
+        member.organisation = media_org
+        member.organisation_id = media_org.id
+        db_session.add(member)
+        db_session.flush()
+
+        existing = RoleAssignment(
+            business_wall_id=media_bw.id,
+            user_id=member.id,
+            role_type=BWRoleType.BWMI.value,
+            invitation_status=InvitationStatus.REJECTED.value,
+        )
+        db_session.add(existing)
+        db_session.flush()
+        db_session.refresh(media_bw)
+
+        result = invite_user_role(media_bw, member, BWRoleType.BWMI)
+
+        assert result.is_success
+        assert result.code == InvitationOutcomeCode.RESENT
+        db_session.refresh(existing)
+        assert existing.invitation_status == InvitationStatus.PENDING.value
+        # A fresh notification was posted.
+        notifications = (
+            db_session.query(Notification).filter_by(receiver_id=member.id).all()
+        )
+        assert len(notifications) == 1
+
     def test_invite_external_user_creates_role_assignment(
         self,
         db_session: Session,
@@ -221,7 +443,7 @@ class TestInviteUserRoleIntegration:
             media_bw, pr_owner, BWRoleType.BWPRI, is_internal=False
         )
 
-        assert result is True
+        assert result.is_success
 
         # Verify role assignment was created
         assignments = (
@@ -234,6 +456,284 @@ class TestInviteUserRoleIntegration:
         )
 
         assert len(assignments) == 1
+
+
+# -----------------------------------------------------------------------------
+# Tests: change_bwpri_emails / change_bwmi_emails aggregators
+# -----------------------------------------------------------------------------
+
+
+class TestChangeRoleEmails:
+    """Integration tests for the textarea-driven aggregators.
+
+    The aggregators are what the admin route calls when Hermance hits
+    « Valider » on the BWMi / BWPRi modal. They must return a list of
+    outcomes so the route can flash failures — bug #0139 v2 surfaced
+    that admins received zero feedback when an invitation was dropped.
+    """
+
+    def test_change_bwpri_emails_returns_outcome_per_new_invite(
+        self,
+        db_session: Session,
+        media_bw: BusinessWall,
+        media_org: Organisation,
+    ):
+        """Each new email in the list produces exactly one outcome,
+        and the role written to DB is BWPRi — NOT BWMi.
+
+        Bug #0139 v2 reporter wrote « Lorraine a un rôle de BWMi au lieu
+        d'avoir un rôle de BWPRMi pour lequel elle avait été invitée ».
+        That symptom would only happen if the BWPRi modal handler wrote
+        a BWMi role assignment. This test pins that contract.
+        """
+        member = User(
+            email="lorraine@example.com",
+            first_name="Lorraine",
+            last_name="Abassie",
+            active=True,
+            is_clone=False,
+        )
+        member.organisation = media_org
+        member.organisation_id = media_org.id
+        db_session.add(member)
+        db_session.flush()
+
+        outcomes = change_bwpri_emails(media_bw, "lorraine@example.com")
+        db_session.flush()
+
+        assert len(outcomes) == 1
+        assert outcomes[0].is_success
+        assert outcomes[0].code == InvitationOutcomeCode.CREATED
+        assert outcomes[0].email == "lorraine@example.com"
+
+        # Pin the role_type explicitly: a BWPRi-modal submission must
+        # never write a BWMi RoleAssignment.
+        assignments = (
+            db_session.query(RoleAssignment).filter_by(user_id=member.id).all()
+        )
+        assert len(assignments) == 1
+        assert assignments[0].role_type == BWRoleType.BWPRI.value
+        assert assignments[0].role_type != BWRoleType.BWMI.value
+        # And on the parallel /preferences/invitations channel, the
+        # pending invitation is visible with the correct role label.
+        notifications = (
+            db_session.query(Notification).filter_by(receiver_id=member.id).all()
+        )
+        assert len(notifications) == 1
+        assert "PR Manager (internal)" in notifications[0].message
+        assert "Business Wall Manager (internal)" not in notifications[0].message
+
+    def test_change_bwpri_emails_surfaces_unknown_email(
+        self,
+        media_bw: BusinessWall,
+    ):
+        """An e-mail that doesn't match any active user returns a
+        specific failure code so the route can flash the admin."""
+        outcomes = change_bwpri_emails(media_bw, "ghost@example.com")
+
+        assert len(outcomes) == 1
+        assert outcomes[0].is_failure
+        assert outcomes[0].code == InvitationOutcomeCode.FAILED_UNKNOWN_EMAIL
+        assert outcomes[0].email == "ghost@example.com"
+
+    def test_change_bwpri_emails_surfaces_non_member_failure(
+        self,
+        db_session: Session,
+        media_bw: BusinessWall,
+    ):
+        """Bug #0139 v2 root cause: an admin types a colleague's e-mail
+        but the colleague is not (yet) a member of the BW org. The
+        aggregator surfaces the failure so the route can flash a clear
+        explanation instead of silently dropping it."""
+        outsider = User(
+            email="outsider@example.com",
+            first_name="Outsider",
+            last_name="User",
+            active=True,
+            is_clone=False,
+        )
+        # NOT a member of media_org.
+        db_session.add(outsider)
+        db_session.flush()
+
+        outcomes = change_bwpri_emails(media_bw, "outsider@example.com")
+
+        assert len(outcomes) == 1
+        assert outcomes[0].is_failure
+        assert outcomes[0].code == InvitationOutcomeCode.FAILED_NOT_IN_ORG
+
+    def test_change_bwpri_emails_skips_already_accepted(
+        self,
+        db_session: Session,
+        media_bw: BusinessWall,
+        media_org: Organisation,
+    ):
+        """A user already accepted for BWPRi is skipped — no second
+        invitation, no failure reported. The list-based UI is meant
+        to ADD new invitees, not re-prompt existing members."""
+        member = User(
+            email="accepted@example.com",
+            first_name="Accepted",
+            last_name="Member",
+            active=True,
+            is_clone=False,
+        )
+        member.organisation = media_org
+        member.organisation_id = media_org.id
+        db_session.add(member)
+        db_session.flush()
+
+        db_session.add(
+            RoleAssignment(
+                business_wall_id=media_bw.id,
+                user_id=member.id,
+                role_type=BWRoleType.BWPRI.value,
+                invitation_status=InvitationStatus.ACCEPTED.value,
+            )
+        )
+        db_session.flush()
+        db_session.refresh(media_bw)
+
+        outcomes = change_bwpri_emails(media_bw, "accepted@example.com")
+
+        # The aggregator filtered the address out: no invite attempted.
+        assert outcomes == []
+
+    def test_change_bwpri_emails_mixed_batch(
+        self,
+        db_session: Session,
+        media_bw: BusinessWall,
+        media_org: Organisation,
+    ):
+        """A realistic batch with one success and one failure each
+        produces an outcome the admin can read."""
+        valid_member = User(
+            email="valid@example.com",
+            first_name="Valid",
+            last_name="Member",
+            active=True,
+            is_clone=False,
+        )
+        valid_member.organisation = media_org
+        valid_member.organisation_id = media_org.id
+        db_session.add(valid_member)
+        db_session.flush()
+
+        outcomes = change_bwpri_emails(
+            media_bw, "valid@example.com unknown@example.com"
+        )
+
+        outcomes_by_email = {o.email: o for o in outcomes}
+        assert outcomes_by_email["valid@example.com"].is_success
+        assert outcomes_by_email["unknown@example.com"].is_failure
+        assert (
+            outcomes_by_email["unknown@example.com"].code
+            == InvitationOutcomeCode.FAILED_UNKNOWN_EMAIL
+        )
+
+    def test_bwpri_invite_does_not_mutate_existing_bwmi_role(
+        self,
+        db_session: Session,
+        media_bw: BusinessWall,
+        media_org: Organisation,
+    ):
+        """Bug #0139 v2 reporter's exact scenario: Lorraine has a
+        stale ACCEPTED BWMi role from a previous interaction. Hermance
+        invites her to BWPRi via the BWPRi modal. The BWPRi invitation
+        must create a SECOND, distinct RoleAssignment (PENDING BWPRi) —
+        without touching the existing ACCEPTED BWMi row.
+
+        If this test ever flips, the « Lorraine still has BWMi »
+        symptom is real: the new BWPRi invitation would be silently
+        merged into the existing BWMi assignment.
+        """
+        lorraine = User(
+            email="lorraine@example.com",
+            first_name="Lorraine",
+            last_name="Abassie",
+            active=True,
+            is_clone=False,
+        )
+        lorraine.organisation = media_org
+        lorraine.organisation_id = media_org.id
+        db_session.add(lorraine)
+        db_session.flush()
+
+        # Pre-existing ACCEPTED BWMi role (stale from a previous flow).
+        stale_bwmi = RoleAssignment(
+            business_wall_id=media_bw.id,
+            user_id=lorraine.id,
+            role_type=BWRoleType.BWMI.value,
+            invitation_status=InvitationStatus.ACCEPTED.value,
+        )
+        db_session.add(stale_bwmi)
+        db_session.flush()
+        db_session.refresh(media_bw)
+
+        # Hermance now invites Lorraine to BWPRi.
+        outcomes = change_bwpri_emails(media_bw, "lorraine@example.com")
+        db_session.flush()
+
+        assert outcomes[0].is_success
+        # Lorraine ends up with BOTH roles, distinct rows.
+        assignments = (
+            db_session.query(RoleAssignment).filter_by(user_id=lorraine.id).all()
+        )
+        roles = {(a.role_type, a.invitation_status) for a in assignments}
+        assert roles == {
+            (BWRoleType.BWMI.value, InvitationStatus.ACCEPTED.value),
+            (BWRoleType.BWPRI.value, InvitationStatus.PENDING.value),
+        }
+        # The stale BWMi row was NOT mutated.
+        db_session.refresh(stale_bwmi)
+        assert stale_bwmi.invitation_status == InvitationStatus.ACCEPTED.value
+        assert stale_bwmi.role_type == BWRoleType.BWMI.value
+
+    def test_change_bwmi_emails_revokes_pending_user_dropped_from_list(
+        self,
+        db_session: Session,
+        media_bw: BusinessWall,
+        media_org: Organisation,
+    ):
+        """A pending BWMi user who is no longer in the list is revoked.
+
+        Documents the intentional asymmetry with ACCEPTED users (which
+        the « Retirer » per-member button handles) — relevant to
+        bug #0139 v2 because the stale BWMi role Lorraine retains
+        comes from this asymmetry, not from an aggregator bug.
+        """
+        pending = User(
+            email="pending@example.com",
+            first_name="Pending",
+            last_name="User",
+            active=True,
+            is_clone=False,
+        )
+        pending.organisation = media_org
+        pending.organisation_id = media_org.id
+        db_session.add(pending)
+        db_session.flush()
+
+        db_session.add(
+            RoleAssignment(
+                business_wall_id=media_bw.id,
+                user_id=pending.id,
+                role_type=BWRoleType.BWMI.value,
+                invitation_status=InvitationStatus.PENDING.value,
+            )
+        )
+        db_session.flush()
+        db_session.refresh(media_bw)
+
+        change_bwmi_emails(media_bw, "")
+        db_session.flush()
+
+        remaining = (
+            db_session.query(RoleAssignment)
+            .filter_by(user_id=pending.id, role_type=BWRoleType.BWMI.value)
+            .count()
+        )
+        assert remaining == 0
 
 
 # -----------------------------------------------------------------------------

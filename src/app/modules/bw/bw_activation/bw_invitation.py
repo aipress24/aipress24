@@ -6,7 +6,9 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from datetime import UTC, datetime
+from enum import StrEnum
 from typing import cast
 from uuid import UUID
 
@@ -32,6 +34,7 @@ from app.modules.bw.bw_activation.models import (
 )
 from app.modules.bw.bw_activation.utils import bw_roles_ids
 from app.services.emails import BWRoleInvitationMail
+from app.services.notifications import NotificationService
 
 BW_ROLE_TYPE_LABEL: dict[str, str] = {
     "BW_OWNER": "Business Wall Owner",
@@ -42,15 +45,110 @@ BW_ROLE_TYPE_LABEL: dict[str, str] = {
 }
 
 
+class InvitationOutcomeCode(StrEnum):
+    """Outcome of a single `invite_user_role` attempt.
+
+    Distinguishes the three families that admin feedback needs to
+    treat differently:
+
+    - **Side-effects produced** (`CREATED`, `RESENT`): a PENDING role
+      assignment is in DB, mail dispatched, in-app notification posted.
+    - **Idempotent no-op** (`ALREADY_PENDING`, `ALREADY_ACCEPTED`):
+      the user is already in the requested state — no email, no
+      notification, no flash.
+    - **Failure** (`FAILED_*`): nothing happened. The admin must be
+      told why so they can correct the input (add the user to the
+      org, fix the email, etc.). Bug #0139 v2: the original code
+      collapsed all of these into `bool` and the admin saw success
+      even when the invitation had silently been dropped.
+    """
+
+    CREATED = "created"
+    RESENT = "resent"
+    ALREADY_PENDING = "already_pending"
+    ALREADY_ACCEPTED = "already_accepted"
+    FAILED_INACTIVE = "failed_inactive"
+    FAILED_NOT_IN_ORG = "failed_not_in_org"
+    FAILED_NO_ORG = "failed_no_org"
+    FAILED_UNKNOWN_EMAIL = "failed_unknown_email"
+
+
+_FAILURE_MESSAGES: dict[str, str] = {
+    InvitationOutcomeCode.FAILED_INACTIVE.value: (
+        "Compte utilisateur inactif. L'invitation n'a pas été envoyée."
+    ),
+    InvitationOutcomeCode.FAILED_NOT_IN_ORG.value: (
+        "L'utilisateur n'est pas membre de votre organisation. "
+        "Ajoutez-le aux membres avant de lui attribuer un rôle interne."
+    ),
+    InvitationOutcomeCode.FAILED_NO_ORG.value: (
+        "Aucune organisation n'est rattachée à ce Business Wall."
+    ),
+    InvitationOutcomeCode.FAILED_UNKNOWN_EMAIL.value: (
+        "Aucun utilisateur actif ne correspond à cette adresse e-mail."
+    ),
+}
+
+
+@dataclass(frozen=True)
+class InvitationOutcome:
+    """Structured result of an invitation attempt.
+
+    Supports `bool(outcome)` (truthy iff a new PENDING role was
+    written to DB and notifications dispatched) so existing call sites
+    of the form `if invite_user_role(...):` keep working.
+    """
+
+    code: InvitationOutcomeCode
+    email: str = ""
+
+    @property
+    def is_success(self) -> bool:
+        """A new PENDING role assignment was just created or refreshed."""
+        return self.code in (
+            InvitationOutcomeCode.CREATED,
+            InvitationOutcomeCode.RESENT,
+        )
+
+    @property
+    def is_failure(self) -> bool:
+        """Nothing happened and the admin needs to be told why."""
+        return self.code.value.startswith("failed_")
+
+    @property
+    def is_idempotent(self) -> bool:
+        """Nothing happened but the user is already in the desired state."""
+        return self.code in (
+            InvitationOutcomeCode.ALREADY_PENDING,
+            InvitationOutcomeCode.ALREADY_ACCEPTED,
+        )
+
+    @property
+    def admin_message(self) -> str:
+        """Human-readable explanation for the admin, empty on success."""
+        return _FAILURE_MESSAGES.get(self.code.value, "")
+
+    def __bool__(self) -> bool:
+        return self.is_success
+
+
 def invite_user_role(
     business_wall: BusinessWall, user: User, role: BWRoleType, is_internal=True
-) -> bool:
+) -> InvitationOutcome:
     """Invite a user to take a specific role in the Business Wall.
 
     Conditions:
-        - User must exist with the given email,
-        - be a member of the BusinessWall organisation,
-        - must not already have the same role assignment.
+        - User must be active.
+        - For internal roles (`is_internal=True`), the user must
+          already be a member of the BusinessWall organisation.
+        - User must not already have the same role accepted or
+          pending — re-invitation only resurrects a previously
+          rejected/expired assignment.
+
+    On success (`CREATED` or `RESENT`), a PENDING `RoleAssignment` is
+    persisted, an in-app `Notification` is posted, and the invitation
+    email is dispatched. Failures and idempotent no-ops produce no
+    side effects.
 
     Args:
         business_wall: The BusinessWall instance
@@ -59,23 +157,25 @@ def invite_user_role(
         is_internal: if the invitation is for an internal role
 
     Returns:
-        True if done successfully
+        `InvitationOutcome` describing what happened. `bool(outcome)`
+        is True iff a fresh invitation was just dispatched.
     """
+    email = user.email or ""
     if not user.active:
         warn("invite_user_role: not user active")
-        return False
+        return InvitationOutcome(InvitationOutcomeCode.FAILED_INACTIVE, email)
 
     if is_internal:
         org = business_wall.get_organisation()
         if not org:
             warn("invite_user_role: no org")
-            return False
+            return InvitationOutcome(InvitationOutcomeCode.FAILED_NO_ORG, email)
 
         if user not in org.members:
             warn(
                 f"invite_user_role: user {user.email} not in its organisation {org.name}"
             )
-            return False
+            return InvitationOutcome(InvitationOutcomeCode.FAILED_NOT_IN_ORG, email)
 
     if business_wall.role_assignments:
         for assignment in business_wall.role_assignments:
@@ -83,19 +183,24 @@ def invite_user_role(
                 # do not invite already accepted
                 if assignment.invitation_status == InvitationStatus.ACCEPTED.value:
                     warn("invite_user_role: already assigned")
-                    return False
+                    return InvitationOutcome(
+                        InvitationOutcomeCode.ALREADY_ACCEPTED, email
+                    )
                 # neither invite twice
                 if assignment.invitation_status == InvitationStatus.PENDING.value:
                     warn("invite_user_role: already pending")
-                    return False
+                    return InvitationOutcome(
+                        InvitationOutcomeCode.ALREADY_PENDING, email
+                    )
                 # we can re-invite previous removed users
                 assignment.invitation_status = InvitationStatus.PENDING.value
                 assignment.invited_at = datetime.now(UTC)
                 assignment.accepted_at = None
                 assignment.rejected_at = None
                 db.session.flush()
+                post_role_invitation_notification(business_wall, user, role)
                 send_role_invitation_mail(business_wall, user, role)
-                return True
+                return InvitationOutcome(InvitationOutcomeCode.RESENT, email)
 
     role_assignment = RoleAssignment(
         business_wall_id=business_wall.id,
@@ -107,9 +212,30 @@ def invite_user_role(
     db.session.add(role_assignment)
     db.session.flush()
 
+    post_role_invitation_notification(business_wall, user, role)
     send_role_invitation_mail(business_wall, user, role)
 
-    return True
+    return InvitationOutcome(InvitationOutcomeCode.CREATED, email)
+
+
+def post_role_invitation_notification(
+    business_wall: BusinessWall,
+    invited_user: User,
+    role: BWRoleType,
+) -> None:
+    """Post an in-app notification for a BW role invitation.
+
+    Belt-and-suspenders with the email: if SMTP fails or the user
+    misses the mail, the bell + `/preferences/invitations` page still
+    surface the pending role. Bug #0139 v2: a BWPRi invitation that
+    only delivered via email left the invitee unaware (no mail, no
+    in-app trace) — they need a second channel inside the app itself.
+    """
+    bw_name = business_wall.name_safe or "(Nom inconnu)"
+    bw_role = BW_ROLE_TYPE_LABEL.get(role.value, "(rôle inconnu)")
+    message = f"Invitation à un rôle « {bw_role} » sur le Business Wall « {bw_name} »."
+    notification_service = container.get(NotificationService)
+    notification_service.post(invited_user, message, url="/preferences/invitations")
 
 
 def send_role_invitation_mail(
@@ -168,17 +294,16 @@ def revoke_user_role(business_wall: BusinessWall, user: User, role: BWRoleType) 
     return False
 
 
-def invite_bwmi_by_email(business_wall: BusinessWall, email: str) -> bool:
+def invite_bwmi_by_email(business_wall: BusinessWall, email: str) -> InvitationOutcome:
     """Invite a user to become BWMi (Business Wall Manager Internal).
 
-    User must exist with the given email and be a member of the BusinessWall organisation
-
     Returns:
-        True if invitation was created successfully, False otherwise.
+        `InvitationOutcome` describing the result. `FAILED_UNKNOWN_EMAIL`
+        if no active user matches the address.
     """
     user = get_user_per_email(email)
     if not user or not user.active:
-        return False
+        return InvitationOutcome(InvitationOutcomeCode.FAILED_UNKNOWN_EMAIL, email)
 
     return invite_user_role(business_wall, user, BWRoleType.BWMI)
 
@@ -196,17 +321,16 @@ def revoke_bwmi_by_email(business_wall: BusinessWall, email: str) -> bool:
     return revoke_user_role(business_wall, user, BWRoleType.BWMI)
 
 
-def invite_bwpri_by_email(business_wall: BusinessWall, email: str) -> bool:
+def invite_bwpri_by_email(business_wall: BusinessWall, email: str) -> InvitationOutcome:
     """Invite a user to become BWPRI (PR Manager Internal).
 
-    User must exist with the given email and be a member of the BusinessWall organisation
-
     Returns:
-        True if invitation was created successfully, False otherwise.
+        `InvitationOutcome` describing the result. `FAILED_UNKNOWN_EMAIL`
+        if no active user matches the address.
     """
     user = get_user_per_email(email)
-    if not user:
-        return False
+    if not user or not user.active:
+        return InvitationOutcome(InvitationOutcomeCode.FAILED_UNKNOWN_EMAIL, email)
 
     return invite_user_role(business_wall, user, BWRoleType.BWPRI)
 
@@ -257,70 +381,74 @@ def ensure_roles_membership(business_wall: BusinessWall) -> int:
     return revoked_count
 
 
-def change_bwmi_emails(business_wall: BusinessWall, raw_mails: str) -> None:
-    """Update BWMi invitations based on email list."""
-    new_mails = set(raw_mails.lower().split())
+def change_bwmi_emails(
+    business_wall: BusinessWall, raw_mails: str
+) -> list[InvitationOutcome]:
+    """Update BWMi invitations based on email list.
+
+    Returns:
+        List of `InvitationOutcome`, one per email that triggered a new
+        invitation attempt (skips entries already pending/accepted in
+        the current list). The caller surfaces failures to the admin.
+    """
+    return _apply_email_list(
+        business_wall, raw_mails, BWRoleType.BWMI, invite_bwmi_by_email
+    )
+
+
+def change_bwpri_emails(
+    business_wall: BusinessWall, raw_mails: str
+) -> list[InvitationOutcome]:
+    """Update BWPRi invitations based on email list.
+
+    Returns:
+        List of `InvitationOutcome`, one per email that triggered a new
+        invitation attempt.
+    """
+    return _apply_email_list(
+        business_wall, raw_mails, BWRoleType.BWPRI, invite_bwpri_by_email
+    )
+
+
+def _apply_email_list(
+    business_wall: BusinessWall,
+    raw_mails: str,
+    role: BWRoleType,
+    invite_fn,
+) -> list[InvitationOutcome]:
+    """Diff a textarea-supplied email list against the current set.
+
+    Pending users no longer in the list are revoked. Emails not yet
+    pending-or-accepted are invited via `invite_fn`. Returns the
+    outcomes of every invite attempt so the route can flash failures
+    to the admin — bug #0139 v2 surfaced the cost of swallowing them.
+    """
+    new_mails = {m.strip().lower() for m in raw_mails.split() if m.strip()}
     org = business_wall.get_organisation()
     if not org:
-        return
-    current_bwmi_pending_ids = bw_roles_ids(
-        business_wall,
-        {BWRoleType.BWMI.value},
-        {InvitationStatus.PENDING.value},
+        return [InvitationOutcome(InvitationOutcomeCode.FAILED_NO_ORG)]
+
+    pending_users = _safe_get_user_list(
+        bw_roles_ids(business_wall, {role.value}, {InvitationStatus.PENDING.value})
     )
-    current_bwmi_pending_users = _safe_get_user_list(current_bwmi_pending_ids)
-    # current_bwmi_pending_emails = {u.email.lower() for u in current_bwmi_pending_users}
-
-    # Get all current BWMi pending or accepted) to check for new invitations
-    current_bwmi_all_ids = bw_roles_ids(
-        business_wall,
-        {BWRoleType.BWMI.value},
-        {InvitationStatus.PENDING.value, InvitationStatus.ACCEPTED.value},
+    active_users = _safe_get_user_list(
+        bw_roles_ids(
+            business_wall,
+            {role.value},
+            {InvitationStatus.PENDING.value, InvitationStatus.ACCEPTED.value},
+        )
     )
-    current_bwmi_all_users = _safe_get_user_list(current_bwmi_all_ids)
-    current_bwmi_all_emails = {u.email.lower() for u in current_bwmi_all_users}
+    active_emails = {u.email.lower() for u in active_users}
 
-    for user in current_bwmi_pending_users:
-        if user.email not in new_mails:
-            revoke_user_role(business_wall, user, BWRoleType.BWMI)
+    for user in pending_users:
+        if (user.email or "").lower() not in new_mails:
+            revoke_user_role(business_wall, user, role)
 
-    # add users of the new list that are not in the current list of bwmi
+    outcomes: list[InvitationOutcome] = []
     for mail in new_mails:
-        if mail not in current_bwmi_all_emails:
-            invite_bwmi_by_email(business_wall, mail)
-
-
-def change_bwpri_emails(business_wall: BusinessWall, raw_mails: str) -> None:
-    """Update BWPRi invitations based on email list."""
-    new_mails = set(raw_mails.lower().split())
-    org = business_wall.get_organisation()
-    if not org:
-        return
-    current_bwpri_pending_ids = bw_roles_ids(
-        business_wall,
-        {BWRoleType.BWPRI.value},
-        {InvitationStatus.PENDING.value},
-    )
-    current_bwpri_pending_users = _safe_get_user_list(current_bwpri_pending_ids)
-    # current_bwpri_pending_emails = {
-    #     u.email.lower() for u in current_bwpri_pending_users
-    # }
-
-    current_bwpri_all_ids = bw_roles_ids(
-        business_wall,
-        {BWRoleType.BWPRI.value},
-        {InvitationStatus.PENDING.value, InvitationStatus.ACCEPTED.value},
-    )
-    current_bwpri_all_users = _safe_get_user_list(current_bwpri_all_ids)
-    current_bwpri_all_emails = {u.email.lower() for u in current_bwpri_all_users}
-
-    for user in current_bwpri_pending_users:
-        if user.email not in new_mails:
-            revoke_user_role(business_wall, user, BWRoleType.BWPRI)
-
-    for mail in new_mails:
-        if mail not in current_bwpri_all_emails:
-            invite_bwpri_by_email(business_wall, mail)
+        if mail not in active_emails:
+            outcomes.append(invite_fn(business_wall, mail))
+    return outcomes
 
 
 def _safe_get_user_list(
