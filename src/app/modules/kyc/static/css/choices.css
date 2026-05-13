@@ -16,6 +16,12 @@ div.choices,
 }
 .choices.is-open {
     overflow: visible;
+    /* Bugs #0136, #0146: without a stacking context on the open wrapper,
+       the absolute-positioned dropdown stays behind the following sibling
+       form fields (Pays, Ville, etc.) that come later in the DOM. Lift
+       the wrapper above its siblings only while it's open. */
+    z-index: 50;
+    position: relative;
 }
 .choices.is-disabled .choices__inner,
 .choices.is-disabled .choices__input {
