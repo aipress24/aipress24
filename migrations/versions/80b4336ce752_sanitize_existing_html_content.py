@@ -77,20 +77,30 @@ def upgrade() -> None:
             # columns won't carry XSS payloads anyway.
             continue
 
-        # We iterate by id ranges so the migration survives concurrent
+        # We iterate by PK ranges so the migration survives concurrent
         # writes during a rolling deploy. Using `> last_id` instead of
         # OFFSET so the second pass doesn't re-scan rows already done.
-        last_id = -(2**63)
+        # The first pass omits the WHERE clause entirely: a typed
+        # sentinel (`-2**63`) breaks against varchar PKs like
+        # `adm_promotion.slug` (Postgres can't compare bigint > varchar).
         pk = _primary_key_column(conn, table)
+        last_id = None
         while True:
-            rows = conn.execute(
-                text(
+            if last_id is None:
+                query = text(
+                    f"SELECT {pk}, {column} FROM {table} "
+                    f"WHERE {column} IS NOT NULL "
+                    f"ORDER BY {pk} LIMIT :batch"
+                )
+                params: dict = {"batch": _BATCH_SIZE}
+            else:
+                query = text(
                     f"SELECT {pk}, {column} FROM {table} "
                     f"WHERE {pk} > :last_id AND {column} IS NOT NULL "
                     f"ORDER BY {pk} LIMIT :batch"
-                ),
-                {"last_id": last_id, "batch": _BATCH_SIZE},
-            ).fetchall()
+                )
+                params = {"last_id": last_id, "batch": _BATCH_SIZE}
+            rows = conn.execute(query, params).fetchall()
             if not rows:
                 break
             for row in rows:
@@ -105,6 +115,8 @@ def upgrade() -> None:
                         {"cleaned": cleaned, "pk": row_id},
                     )
                 last_id = row_id
+            if len(rows) < _BATCH_SIZE:
+                break
 
 
 def downgrade() -> None:
