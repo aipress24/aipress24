@@ -27,7 +27,11 @@ from app.modules.bw.bw_activation.models import (
 from app.modules.bw.bw_activation.models.business_wall import BWStatus, BWType
 from app.modules.bw.bw_activation.utils import DASHBOARD_ACCESS_ROLES
 
-StdDict = dict[str, str | int | float | bool | None]
+# Loose dict shape used to carry KYC-shaped data from the view layer
+# to templates. Includes `list[str]` so step 2 can expose the user's
+# full list of available fonctions for the autocomplete datalist
+# (bug #0107).
+StdDict = dict[str, str | int | float | bool | None | list[str]]
 
 if TYPE_CHECKING:
     from app.models.auth import User
