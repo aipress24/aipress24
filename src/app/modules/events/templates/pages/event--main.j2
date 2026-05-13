@@ -6,7 +6,8 @@
   </div>
 
   <div class="prose xl:prose-lg max-w-full">
-    {{ event.content }}
+    {# event.content is Trix-rendered HTML; opt out of .j2 autoescape. #}
+    {{ event.content|safe }}
   </div>
 </section>
 

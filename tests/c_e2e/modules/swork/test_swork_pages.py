@@ -159,13 +159,37 @@ class TestSworkEndpoints:
         )
 
 
+class TestJinjaAutoescapeForJ2:
+    """Bug #0126 v4 + systemic XSS audit: `app.flask.config` now
+    extends Jinja autoescape policy to `.j2` files (was only
+    .html/.htm/.xml/.xhtml by default). Pin the policy so future
+    config changes don't silently undo it.
+    """
+
+    def test_j2_extension_is_autoescaped(self, app: Flask):
+        """The systemic fix: `.j2` must autoescape."""
+        autoescape_fn = app.jinja_env.autoescape
+        assert callable(autoescape_fn), (
+            "expected a callable autoescape policy (select_autoescape)"
+        )
+        assert autoescape_fn("foo.j2") is True, (
+            "`.j2` files must autoescape — otherwise every user-input "
+            "variable is a stored-XSS vector. See bug #0126 v4."
+        )
+        # Sanity: standard HTML extensions still escape.
+        assert autoescape_fn("foo.html") is True
+        # And non-template extensions still don't.
+        assert autoescape_fn("foo.txt") is False
+
+
 class TestSworkPostHtmlEscape:
     """Bug #0126 v4: `.j2` templates don't autoescape in Flask, so
     `{{ post.content }}` rendered raw HTML from user input. A user
     typing `<b>...<b>` (unclosed tags) leaked into the page DOM and
     cascaded into broken layout. Same defect was an XSS vector.
 
-    The fix puts an explicit `|e` filter on post.content. Pin it.
+    The systemic fix is `.j2` autoescape (test above). The macro keeps
+    an explicit `|e` filter as belt-and-suspenders.
     """
 
     def test_post_html_is_escaped(self, app: Flask):

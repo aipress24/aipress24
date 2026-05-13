@@ -51,7 +51,10 @@
         {% endif %}
       </dl>
 
-      <div class="prose max-w-none text-gray-800 mb-8">{{ project.description|safe }}</div>
+      {# `description` is TextAreaField (plain text). Stripped the
+         original `|safe` — it was a stored-XSS vector. Newlines kept
+         readable via `whitespace-pre-wrap`. #}
+      <div class="prose max-w-none text-gray-800 mb-8 whitespace-pre-wrap">{{ project.description }}</div>
 
       {% if is_owner %}
         <div class="border-t pt-6 flex flex-wrap gap-2">

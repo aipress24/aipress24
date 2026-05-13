@@ -23,7 +23,8 @@
     </div>
 
     <div class="mt-5 content overflow-hidden {% if not can_read_full %}relative{% endif %}">
-      {{ body_preview|safe if body_preview is defined else post.content }}
+      {# Both branches are Trix-rendered HTML; opt out of .j2 autoescape. #}
+      {{ body_preview|safe if body_preview is defined else post.content|safe }}
 
       {% if not can_read_full and config.get("STRIPE_LIVE_ENABLED") %}
         <div class="paywall-overlay pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-white via-white/90 to-white/0"></div>

@@ -10,7 +10,7 @@ import os
 from dynaconf import Dynaconf
 from flask import Flask
 from flask_super.initializers.logging import init_sentry
-from jinja2 import StrictUndefined
+from jinja2 import StrictUndefined, select_autoescape
 
 __all__ = ["setup_config"]
 
@@ -26,6 +26,16 @@ def setup_config(app, config) -> None:
     """
     configure_app(app, config)
     app.jinja_env.undefined = StrictUndefined
+    # Bug #0126 root cause: Flask's default `select_jinja_autoescape`
+    # only escapes `.html`/`.htm`/`.xml`/`.xhtml` extensions. Every
+    # `.j2` template in this codebase was therefore rendering
+    # `{{ user_input }}` as raw HTML — both a layout-breaking pitfall
+    # (unclosed `<b>` tags in posts) and a stored-XSS vector. Extend
+    # the policy to `.j2` so templates are safe by default; the
+    # legitimate HTML-rendering call sites carry `|safe` explicitly.
+    app.jinja_env.autoescape = select_autoescape(
+        ["html", "htm", "xml", "xhtml", "j2"]
+    )
     # Configure logging as soon as we have the config
     init_logging(app)
 

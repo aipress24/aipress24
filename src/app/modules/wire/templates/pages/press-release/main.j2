@@ -23,7 +23,8 @@
     </div>
 
     <div class="mt-5 content overflow-hidden">
-      {{ post.content }}
+      {# post.content is Trix-rendered HTML; opt out of .j2 autoescape. #}
+      {{ post.content|safe }}
     </div>
   </div>
 </div>
