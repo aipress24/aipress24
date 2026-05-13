@@ -11,14 +11,35 @@
     {{ promo_box("events/1") }}
     {{ promo_box("events/2") }}
 
+    {# Bug #0148: "Votre agenda" used to render a static
+       "you're not registered to any event" message even when the user
+       was accredited. Now we read user_agenda_events from the view. #}
     <div class="card bg-white p-0 border-0 rounded shadow">
       <h2 id="sort" class="px-4 py-3 text-lg font-medium text-gray-900 bg-gray-200">
         Votre agenda
       </h2>
       <div class="py-2 px-4 text-gray-700">
-        <div class="my-3">
-          Vous ne vous êtes encore inscrit à aucun événement.
-        </div>
+        {% if user_agenda_events %}
+          <ul class="my-3 space-y-3 text-sm">
+            {% for event in user_agenda_events %}
+              <li>
+                <a href="{{ url_for('events.event', id=event.id) }}"
+                   class="hover:underline font-medium text-gray-900">
+                  {{ event.title }}
+                </a>
+                {% if event.start_datetime %}
+                  <div class="text-xs text-gray-500">
+                    {{ event.start_datetime.format('DD MMM YYYY', locale='fr') }}
+                  </div>
+                {% endif %}
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <div class="my-3">
+            Vous ne vous êtes encore inscrit à aucun événement.
+          </div>
+        {% endif %}
       </div>
     </div>
 

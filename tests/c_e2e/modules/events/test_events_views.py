@@ -10,15 +10,18 @@ from typing import TYPE_CHECKING
 
 import arrow
 import pytest
+import sqlalchemy as sa
 from flask import Flask, g
 from svcs.flask import container
 
+from app.enums import RoleEnum
 from app.flask.lib.nav.registration import _inject_breadcrumbs_to_context
 from app.flask.lib.nav.request import NavRequest
-from app.models.auth import User
+from app.models.auth import Role, User
 from app.models.lifecycle import PublicationStatus
-from app.modules.events.models import EventPost
+from app.modules.events.models import EventPost, participation_table
 from app.services.context import Context
+from tests.c_e2e.conftest import make_authenticated_client
 
 if TYPE_CHECKING:
     from flask.testing import FlaskClient
@@ -374,3 +377,57 @@ class TestNavigationIntegration:
             assert "name" in breadcrumbs[-1]
             assert "href" in breadcrumbs[-1]
             assert "current" in breadcrumbs[-1]
+
+
+class TestUserAgendaWidget:
+    """Regression for bug #0148.
+
+    The "Votre agenda" widget used to render a static "Vous ne vous
+    êtes encore inscrit à aucun événement" message even when the
+    current user was accredited to events. Now it lists their actual
+    participations.
+    """
+
+    def _setup_user_with_role(self, db_session: Session, user: User) -> None:
+        user.active = True
+        role = Role(
+            name=RoleEnum.PRESS_MEDIA.name, description=RoleEnum.PRESS_MEDIA.value
+        )
+        db_session.add(role)
+        db_session.flush()
+        user.roles.append(role)
+        db_session.flush()
+
+    def test_widget_shows_accredited_event(
+        self,
+        app: Flask,
+        db_session: Session,
+        test_user: User,
+        sample_event: EventPost,
+    ):
+        self._setup_user_with_role(db_session, test_user)
+        db_session.execute(
+            sa.insert(participation_table).values(
+                event_id=sample_event.id, user_id=test_user.id
+            )
+        )
+        db_session.commit()
+
+        client = make_authenticated_client(app, test_user)
+        response = client.get("/events/")
+        assert response.status_code == 200
+        html = response.data.decode()
+        assert sample_event.title in html
+        assert "Vous ne vous êtes encore inscrit" not in html
+
+    def test_widget_empty_when_user_has_no_accreditation(
+        self,
+        app: Flask,
+        db_session: Session,
+        test_user: User,
+    ):
+        self._setup_user_with_role(db_session, test_user)
+        client = make_authenticated_client(app, test_user)
+        response = client.get("/events/")
+        assert response.status_code == 200
+        assert "Vous ne vous êtes encore inscrit" in response.data.decode()

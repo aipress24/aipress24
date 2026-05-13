@@ -207,6 +207,8 @@ class User(LifeCycleMixin, Addressable, UserMixin, Base):
 
     @hybrid_property
     def job_title(self) -> str:
+        if self.profile is None:
+            return ""
         return self.profile.profile_label
 
     @hybrid_property

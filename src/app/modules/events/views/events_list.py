@@ -10,20 +10,21 @@ import json
 import re
 from collections import defaultdict
 
+import arrow
 import webargs
 from attrs import asdict
-from flask import render_template, request, session
+from flask import g, render_template, request, session
 from flask.views import MethodView
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 from sqlalchemy.sql import Select
 from webargs.flaskparser import parser
 
-from app.flask.extensions import htmx
+from app.flask.extensions import db, htmx
 from app.flask.sqla import get_multi
 from app.models.lifecycle import PublicationStatus
 from app.modules.events import blueprint
-from app.modules.events.models import EventPost
+from app.modules.events.models import EventPost, participation_table
 
 from ._common import TABS, Calendar, DateFilter, EventListVM
 from ._filters import FilterBar
@@ -105,7 +106,37 @@ class EventsListView(MethodView):
             "calendar": asdict(Calendar(month, active_tab_ids)),
             "title": "Evénements",
             "filter_bar": filter_bar,
+            "user_agenda_events": self._get_user_agenda_events(),
         }
+
+    def _get_user_agenda_events(self) -> list[EventPost]:
+        """Bug #0148: the "Votre agenda" widget used to be a hard-coded
+        "Vous ne vous êtes encore inscrit à aucun événement" message,
+        even when the user had been accredited to events. Populate it
+        with the user's future participations so the widget reflects
+        reality."""
+        user = getattr(g, "user", None)
+        if user is None or getattr(user, "is_anonymous", True):
+            return []
+        now = arrow.now()
+        stmt = (
+            select(EventPost)
+            .join(
+                participation_table,
+                participation_table.c.event_id == EventPost.id,
+            )
+            .where(
+                participation_table.c.user_id == user.id,
+                EventPost.status == PublicationStatus.PUBLIC,
+            )
+            .where(
+                # Show events that haven't ended yet (or have no end date).
+                (EventPost.end_datetime.is_(None))
+                | (EventPost.end_datetime >= now)
+            )
+            .order_by(EventPost.start_datetime)
+        )
+        return list(db.session.scalars(stmt))
 
     def _get_events(
         self, date_filter: DateFilter, filter_bar: FilterBar, search: str
