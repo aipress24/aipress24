@@ -44,17 +44,37 @@ _HTML_LEAK_TOKENS: tuple[str, ...] = (
     'class="',
 )
 
-# Top-level navigation surfaces. Every authenticated user with
-# PRESS_MEDIA role can reach all of these; if /work/ or /events/
-# requires another role the test will skip on the redirect.
+# Top-level navigation surfaces. Real URLs taken from `flask routes`
+# — the top menu's NEWS/WORK/EVENTS/MARKET/SOCIAL items map to
+# `/wire/`, `/wip/...`, `/events/`, `/biz/`, `/swork/`. `/wire/tab/all`
+# is the exact path that surfaced the original bug — keep it in the
+# list as a named regression sentinel.
 _SURFACES: tuple[str, ...] = (
     "/",
+    # NEWS
     "/wire/",
-    "/news/",
-    "/work/",
+    "/wire/tab/all",
+    "/wire/tab/wall",
+    # WORK
+    "/wip/",
+    "/wip/dashboard",
+    "/wip/newsroom",
+    "/wip/eventroom",
+    "/wip/comroom",
+    "/wip/opportunities",
+    # EVENTS
     "/events/",
-    "/market/",
+    "/events/calendar",
+    # MARKET
+    "/biz/",
+    # SOCIAL
     "/swork/",
+    "/swork/members/",
+    "/swork/groups/",
+    "/swork/organisations/",
+    # Other top-level surfaces with shared layout
+    "/preferences/",
+    "/search/",
 )
 
 
