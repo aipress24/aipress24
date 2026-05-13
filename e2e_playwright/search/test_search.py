@@ -147,14 +147,29 @@ def test_search_form_submission_updates_url(
     page: Page, base_url: str, profile, login
 ) -> None:
     """Filling the search input and submitting the form should issue
-    a GET with ``?qs=...`` in the query string."""
+    a GET with ``?qs=...`` in the query string.
+
+    Scope the submit button to the *search* form: the page has ~12
+    other submit buttons in (initially hidden) dropdowns / modals, and
+    a bare ``button[type="submit"]`` locator grabbed the first hidden
+    one and timed out waiting for visibility.
+    """
     p = profile("PRESS_MEDIA")
     login(p)
 
     page.goto(f"{base_url}/search/", wait_until="domcontentloaded")
-    page.fill('input[name="qs"]', "alpha_search_token")
-    page.click('button[type="submit"]')
-    page.wait_for_load_state("domcontentloaded")
+    # There are TWO `name="qs"` inputs on this page: the nav-bar
+    # quicksearch (`#qs`, no submit button — submits on Enter) and
+    # the page's main search form (`#search-qs`). Target the latter
+    # explicitly so we exercise the form-and-button code path the
+    # test is named for.
+    search_form = page.locator("form:has(#search-qs)")
+    search_form.locator("#search-qs").fill("alpha_search_token")
+    # `click()` doesn't block on the form's GET, and a bare
+    # `wait_for_load_state` returns immediately if the navigation
+    # hasn't kicked in yet — `expect_navigation` is the right wait.
+    with page.expect_navigation(url=lambda u: "qs=alpha_search_token" in u):
+        search_form.locator('button[type="submit"]').click()
 
     assert "qs=alpha_search_token" in page.url
 
