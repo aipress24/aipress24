@@ -8,6 +8,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+import arrow
+
+from app.flask.extensions import db
+from app.modules.wip.models.eventroom import Event
+
 if TYPE_CHECKING:
     from flask.testing import FlaskClient
 
@@ -56,3 +61,26 @@ class TestEventroomContent:
         # Page should render successfully with zero items
         html = response.data.decode()
         assert "0" in html or "Evénement" in html or "event" in html.lower()
+
+    def test_eventroom_count_excludes_soft_deleted(
+        self, logged_in_client: FlaskClient, test_user: User
+    ):
+        """Regression for bug #0143: the EV tile counted soft-deleted events,
+        so a user who created 3 and deleted 2 still saw "3 élément(s)"."""
+        # Create 3 events, delete 2 (soft).
+        events = []
+        for title in ("Kept event", "Deleted 1", "Deleted 2"):
+            ev = Event(titre=title, owner_id=test_user.id)
+            db.session.add(ev)
+            events.append(ev)
+        db.session.flush()
+        events[1].deleted_at = arrow.now()
+        events[2].deleted_at = arrow.now()
+        db.session.commit()
+
+        response = logged_in_client.get("/wip/eventroom")
+        assert response.status_code == 200
+        html = response.data.decode()
+        # The count next to the EV tile must read 1, not 3.
+        assert "1 élément" in html
+        assert "3 élément" not in html

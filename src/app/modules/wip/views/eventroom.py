@@ -53,13 +53,20 @@ def eventroom():
 
 
 def _item_count(model_class: type[Owned]) -> int:
-    """Count items for model class."""
+    """Count non-deleted items for model class.
+
+    Bug #0143: the Event'room tile (EV) used to display the gross row
+    count including soft-deleted events, so an author who created 3
+    and deleted 2 still saw "3 élément(s)". Filter on `deleted_at IS
+    NULL` so the tile matches the visible list.
+    """
     db_session = container.get(scoped_session)
     user = container.get(AuthService).get_user()
     stmt = (
         select(func.count())
         .select_from(model_class)
         .where(model_class.owner_id == user.id)
+        .where(model_class.deleted_at.is_(None))
     )
     result = db_session.execute(stmt).scalar()
     assert isinstance(result, int)
