@@ -10,6 +10,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from app.enums import ProfileEnum
 from app.models.base import Base
+from app.services.html_sanitize import SanitizedHTML
 
 
 class Promotion(Base):
@@ -19,7 +20,9 @@ class Promotion(Base):
 
     slug: Mapped[str] = mapped_column(primary_key=True)
     title: Mapped[str] = mapped_column(default="")
-    body: Mapped[str] = mapped_column(default="")
+    # Body — admin-edited Trix HTML; sanitize on write so a
+    # compromised admin can't store live <script> in a promo.
+    body: Mapped[str] = mapped_column(SanitizedHTML, default="")
     # Explicit ``name=`` is load-bearing: without it SQLAlchemy derives
     # the PG type name from the Python class (``profileenum``), but the
     # existing schema has the type as ``adm_profileenum``. Dropping the

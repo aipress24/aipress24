@@ -12,6 +12,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 from app.models.auth import User
 from app.models.base import Base
 from app.models.mixins import Addressable, IdMixin, LifeCycleMixin, Owned
+from app.services.html_sanitize import SanitizedHTML
 
 
 class Group(IdMixin, Owned, LifeCycleMixin, Addressable, Base):
@@ -19,7 +20,8 @@ class Group(IdMixin, Owned, LifeCycleMixin, Addressable, Base):
 
     name: Mapped[str] = mapped_column(index=True)
     privacy: Mapped[str] = mapped_column(default="private")
-    description: Mapped[str] = mapped_column(default="")
+    # Description — Quill-rendered HTML; sanitize on write.
+    description: Mapped[str] = mapped_column(SanitizedHTML, default="")
 
     logo_url: Mapped[str] = mapped_column(default="")
     cover_image_url: Mapped[str] = mapped_column(default="")

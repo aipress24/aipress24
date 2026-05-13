@@ -11,6 +11,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 from app.models.base import Base
 from app.models.base_content import BaseContent
 from app.models.mixins import LifeCycleMixin
+from app.services.html_sanitize import SanitizedHTML
 
 
 class ShortPost(BaseContent, LifeCycleMixin, Base):
@@ -18,7 +19,12 @@ class ShortPost(BaseContent, LifeCycleMixin, Base):
         "polymorphic_identity": "short_post",
     }
 
-    content: Mapped[str] = mapped_column(default="", use_existing_column=True)
+    # Carry the SanitizedHTML type from BaseContent forward — the
+    # `use_existing_column=True` redeclaration would otherwise drop
+    # it and let raw HTML reach the DB.
+    content: Mapped[str] = mapped_column(
+        SanitizedHTML, default="", use_existing_column=True
+    )
 
 
 class Comment(BaseContent, LifeCycleMixin, Base):
@@ -26,5 +32,7 @@ class Comment(BaseContent, LifeCycleMixin, Base):
         "polymorphic_identity": "comment",
     }
 
-    content: Mapped[str] = mapped_column(default="", use_existing_column=True)
+    content: Mapped[str] = mapped_column(
+        SanitizedHTML, default="", use_existing_column=True
+    )
     object_id: Mapped[str] = mapped_column(index=True, nullable=True)

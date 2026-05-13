@@ -11,43 +11,42 @@ from sqlalchemy.orm import Mapped, declared_attr, mapped_column
 from app.lib.names import to_snake_case
 from app.models.base import Base
 from app.models.mixins import IdMixin, LifeCycleMixin, Owned
+from app.services.html_sanitize import SanitizedHTML
 
-"""
-'-----------------------------------------------------------------
-'Main abstract classes
-'-----------------------------------------------------------------
-
-abstract class BaseContent {
-    +creators: list[Person]
-    +contributors: list[Person]
-
-    +date_created: DateTime
-    +date_modified: DateTime
-
-    +keywords: list[String]
-}
-note left: "Classe de base de tous les contenus de l'application"
-
-abstract class EditorialContent {
-    +copyright_holder: string
-    +copyright_notice: string
-
-    +title: string
-    +pub_status: string
-
-    +genres: set[string]
-    +language: string
-
-    +url: URI
-    +info_source: URI
-}
-EditorialContent -up-|> BaseContent
-
-abstract class TextEditorialContent {
-    +content: HTML
-}
-TextEditorialContent -up-|> EditorialContent
-"""
+# -----------------------------------------------------------------
+# Main abstract classes (PlantUML-flavored diagram)
+# -----------------------------------------------------------------
+#
+# abstract class BaseContent {
+#     +creators: list[Person]
+#     +contributors: list[Person]
+#
+#     +date_created: DateTime
+#     +date_modified: DateTime
+#
+#     +keywords: list[String]
+# }
+# note left: "Classe de base de tous les contenus de l'application"
+#
+# abstract class EditorialContent {
+#     +copyright_holder: string
+#     +copyright_notice: string
+#
+#     +title: string
+#     +pub_status: string
+#
+#     +genres: set[string]
+#     +language: string
+#
+#     +url: URI
+#     +info_source: URI
+# }
+# EditorialContent -up-|> BaseContent
+#
+# abstract class TextEditorialContent {
+#     +content: HTML
+# }
+# TextEditorialContent -up-|> EditorialContent
 
 
 # Abstract
@@ -68,7 +67,13 @@ class BaseContent(IdMixin, LifeCycleMixin, Owned, Base):
         }
 
     title: Mapped[str] = mapped_column(default="")
-    content: Mapped[str] = mapped_column(default="")
+    # Sanitize HTML on write — covers every polymorphic subclass
+    # (ArticlePost, PressReleasePost, EventPost, ShortPost, Comment,
+    # …). For subclasses whose content is plain text, this is a
+    # no-op; for HTML-bearing ones (Trix-rendered articles, comments,
+    # event bodies) it neutralises script/event-handler injection
+    # before the row ever reaches the DB.
+    content: Mapped[str] = mapped_column(SanitizedHTML, default="")
     summary: Mapped[str] = mapped_column(default="")
     url: Mapped[str] = mapped_column(default="")
 

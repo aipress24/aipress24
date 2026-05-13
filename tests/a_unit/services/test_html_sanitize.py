@@ -12,7 +12,7 @@ from __future__ import annotations
 
 from markupsafe import Markup
 
-from app.services.html_sanitize import sanitize_html
+from app.services.html_sanitize import SanitizedHTML, sanitize_html
 
 
 class TestSanitizeRemovesDangerous:
@@ -165,3 +165,56 @@ class TestSanitizeContract:
         out = sanitize_html("&lt;script&gt;alert(1)&lt;/script&gt;")
         assert "<script>" not in out
         # Either kept as entities or escaped — both safe.
+
+
+class TestSanitizedHTMLColumnType:
+    """The `SanitizedHTML` SQLAlchemy type sanitizes on *write* so the
+    DB never stores raw `<script>`. Sanitize on read remains in the
+    template layer for defense-in-depth, but the column type closes
+    the door on every alternative write path (faker scripts, SQL
+    imports, future API endpoints) that might skip the form layer.
+    """
+
+    def test_bind_param_strips_script(self):
+        col = SanitizedHTML()
+        out = col.process_bind_param(
+            "<p>ok</p><script>alert(1)</script>", dialect=None
+        )
+        assert "<p>ok</p>" in out
+        assert "<script" not in out
+
+    def test_bind_param_strips_javascript_href(self):
+        col = SanitizedHTML()
+        out = col.process_bind_param(
+            '<a href="javascript:alert(1)">x</a>', dialect=None
+        )
+        assert "javascript:" not in out
+
+    def test_bind_param_passes_none_through(self):
+        col = SanitizedHTML()
+        assert col.process_bind_param(None, dialect=None) is None
+
+    def test_bind_param_returns_str_not_markup(self):
+        # The DB column type is String; round-tripping a `Markup`
+        # subclass through psycopg can be quirky on some serializers.
+        # Stay with plain str on the wire.
+        col = SanitizedHTML()
+        out = col.process_bind_param("<b>hi</b>", dialect=None)
+        assert type(out) is str
+
+    def test_result_value_is_passthrough(self):
+        # Sanitization on read happens at the template layer (the
+        # `|sanitize` filter). The column type does not re-process.
+        col = SanitizedHTML()
+        # Even if a value somehow contains script (e.g. legacy data
+        # not yet back-filled), the type returns it as-is — the
+        # template `|sanitize` is the second line of defense.
+        out = col.process_result_value(
+            "<p>hi</p><script>alert(1)</script>", dialect=None
+        )
+        assert out == "<p>hi</p><script>alert(1)</script>"
+
+    def test_caching_marker(self):
+        # SQLAlchemy emits a `SAWarning` for TypeDecorators that
+        # don't set `cache_ok` (it defaults to False).
+        assert SanitizedHTML.cache_ok is True

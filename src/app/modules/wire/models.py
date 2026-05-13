@@ -20,6 +20,7 @@ from app.models.base_content import BaseContent
 from app.models.lifecycle import PublicationStatus
 from app.models.mixins import IdMixin, LifeCycleMixin, Owned, Timestamped
 from app.models.organisation import Organisation
+from app.services.html_sanitize import SanitizedHTML
 from app.services.tagging.interfaces import Taggable
 
 DRAFT = PublicationStatus.DRAFT
@@ -117,7 +118,13 @@ class Post(NewsMetadataMixin, BaseContent, LifeCycleMixin):
     }
 
     title: Mapped[str] = mapped_column(default="", use_existing_column=True)
-    content: Mapped[str] = mapped_column(default="", use_existing_column=True)
+    # Re-declaring `content` here with `use_existing_column=True` would
+    # silently drop the SanitizedHTML type set on the BaseContent
+    # parent column. Carry the type forward so ArticlePost /
+    # PressReleasePost still sanitize on write.
+    content: Mapped[str] = mapped_column(
+        SanitizedHTML, default="", use_existing_column=True
+    )
     summary: Mapped[str] = mapped_column(default="")
 
     # Etat: Brouillon, Publié, Archivé

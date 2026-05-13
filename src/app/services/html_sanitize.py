@@ -20,10 +20,14 @@ you DO chain `|safe`, it is a no-op on `Markup`.)
 
 from __future__ import annotations
 
+from typing import Any
+
 import bleach
 from markupsafe import Markup
+from sqlalchemy import String
+from sqlalchemy.types import TypeDecorator
 
-__all__ = ["sanitize_html"]
+__all__ = ["SanitizedHTML", "sanitize_html"]
 
 
 # Tags actually emitted by Trix in this codebase + the typography
@@ -77,12 +81,66 @@ def sanitize_html(html: object) -> Markup:
     """
     if html is None:
         return Markup("")
-    cleaned = bleach.clean(
-        str(html),
+    cleaned = _sanitize_to_str(str(html))
+    return Markup(cleaned)
+
+
+def _sanitize_to_str(html: str) -> str:
+    """Same sanitization as `sanitize_html` but return plain `str`.
+
+    Used by the `SanitizedHTML` SQLAlchemy type so the value bound to
+    the DB row is a regular Python string, not a `Markup` — most DB
+    drivers don't care, but the column type is `String` and round-
+    tripping `Markup` through psycopg can lose attrs on some
+    serializers. Plain `str` is the conservative choice.
+    """
+    return bleach.clean(
+        html,
         tags=_ALLOWED_TAGS,
         attributes=_ALLOWED_ATTRS,
         protocols=_ALLOWED_PROTOCOLS,
         strip=True,
         strip_comments=True,
     )
-    return Markup(cleaned)
+
+
+class SanitizedHTML(TypeDecorator):
+    """SQLAlchemy column type that sanitizes HTML before the DB bind.
+
+    Use on every model field that stores user-supplied HTML — Trix
+    article bodies, comment content, group/event descriptions, admin
+    promo boxes. The sanitization runs *on write*, so the DB never
+    holds raw `<script>` even if a future code path renders the
+    field without `|sanitize` or bypasses the form layer entirely
+    (e.g. an API endpoint, a faker script, a SQL import).
+
+    Backed by `String` at the SQL level — no schema change required
+    when adopting it on an existing column. Existing rows are not
+    rewritten by this; pair the adoption with a one-shot Alembic
+    migration that runs `sanitize_html` on every row.
+
+    Usage::
+
+        from app.services.html_sanitize import SanitizedHTML
+
+        class Article(Base):
+            content: Mapped[str] = mapped_column(SanitizedHTML, default="")
+
+    Defense-in-depth: templates that render these fields keep their
+    `|sanitize` filter — sanitize on read *and* write — so a bug in
+    either path is recovered by the other.
+    """
+
+    impl = String
+    cache_ok = True
+
+    def process_bind_param(self, value: Any, dialect: Any) -> Any:
+        if value is None:
+            return None
+        return _sanitize_to_str(str(value))
+
+    def process_result_value(self, value: Any, dialect: Any) -> Any:
+        # No-op on read: the value was sanitized when it was written.
+        # Defense-in-depth is handled at the template layer by the
+        # `|sanitize` filter, not here.
+        return value

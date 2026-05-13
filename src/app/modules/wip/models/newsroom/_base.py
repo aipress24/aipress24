@@ -11,6 +11,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 from app.models.auth import User
 from app.models.mixins import IdMixin, LifeCycleMixin, Owned
 from app.models.organisation import Organisation
+from app.services.html_sanitize import SanitizedHTML
 
 
 class NewsroomCommonMixin(IdMixin, LifeCycleMixin, Owned):
@@ -32,8 +33,11 @@ class NewsroomCommonMixin(IdMixin, LifeCycleMixin, Owned):
     # N° d’édition
     numero_edition: Mapped[str] = mapped_column(default="")
 
-    # Contenu
-    contenu: Mapped[str] = mapped_column(default="")
+    # Contenu — Article uses Trix HTML; AvisEnquete/Sujet/Commande
+    # use plain text. SanitizedHTML is a no-op on the plain-text
+    # variants (no tags = nothing to strip) and neutralises script /
+    # event-handler injection on the Trix-rendered Article.
+    contenu: Mapped[str] = mapped_column(SanitizedHTML, default="")
 
     # Type
     type_contenu: Mapped[str] = mapped_column(default="")

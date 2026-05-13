@@ -19,6 +19,7 @@ from app.models.base import Base
 from app.models.lifecycle import PublicationStatus
 from app.models.mixins import IdMixin, LifeCycleMixin, Owned
 from app.models.organisation import Organisation
+from app.services.html_sanitize import SanitizedHTML
 
 DRAFT = PublicationStatus.DRAFT
 
@@ -35,9 +36,9 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
     # owner_id...
     # owner...
 
-    # Contenu
+    # Contenu — Trix-rendered HTML; sanitize on write.
     chapo: Mapped[str] = mapped_column(default="")
-    contenu: Mapped[str] = mapped_column(default="")
+    contenu: Mapped[str] = mapped_column(SanitizedHTML, default="")
 
     # Etat: Brouillon, Publié, Archivé...
     status: Mapped[PublicationStatus] = mapped_column(
