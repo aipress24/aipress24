@@ -10,7 +10,16 @@ from datetime import UTC, datetime
 from typing import TYPE_CHECKING, cast
 
 from attr import frozen
-from flask import current_app, flash, g, redirect, render_template, request, url_for
+from flask import (
+    abort,
+    current_app,
+    flash,
+    g,
+    redirect,
+    render_template,
+    request,
+    url_for,
+)
 from flask_login import current_user
 from svcs.flask import container
 from werkzeug import Response
@@ -55,13 +64,40 @@ def opportunities():
 
 @blueprint.route("/opportunities/<int:id>")
 def media_opportunity(id: int):
-    """Opportunité média"""
+    """Opportunité média.
+
+    Reached from the avis-d'enquête notification email. Three failure
+    paths used to all return an empty body (blank page in the
+    browser) — fix by redirecting to actionable surfaces instead:
+
+    - Anonymous visitor → the login page, with a `next=` so they
+      land back on this URL after auth.
+    - Authenticated as the wrong user → a flash + the opportunities
+      list (we can't show them another expert's opportunity).
+    - Unknown contact id → 404 (e.g. id from an old email after
+      the contact was deleted).
+    """
     from app.modules.wip.models import ContactAvisEnqueteRepository
 
+    if g.user.is_anonymous:
+        return redirect(
+            url_for("security.login", next=request.path)
+        )
+
     repo = container.get(ContactAvisEnqueteRepository)
-    contact = repo.get(id)
+    # `repo.get(id)` raises NotFoundError on unknown ids — use the
+    # `_or_none` variant so we can issue a clean 404 instead of a
+    # 500 with a stack trace.
+    contact = repo.get_one_or_none(id=id)
+    if contact is None:
+        abort(404)
     if g.user.id != contact.expert_id:
-        return ""
+        flash(
+            "Cet avis d'enquête ne vous est pas adressé. "
+            "Voici vos opportunités personnelles.",
+            "warning",
+        )
+        return redirect(url_for("wip.opportunities"))
 
     html = _render_media_opportunity(id)
     html = extract_fragment(html, id="form")

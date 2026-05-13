@@ -144,7 +144,7 @@ class TestOpportunityDetail:
         response = logged_in_client.get(f"/wip/opportunities/{test_contact.id}")
         assert response.status_code == 200
 
-    def test_view_opportunity_other_user_returns_empty(
+    def test_view_opportunity_other_user_redirects(
         self,
         logged_in_client: FlaskClient,
         test_user: User,
@@ -152,8 +152,9 @@ class TestOpportunityDetail:
         journalist_user: User,
         db_session: Session,
     ):
-        """Test viewing another user's opportunity returns empty."""
-        # Create contact for another expert
+        """Following the avis-d'enquête notification link as the wrong
+        user used to render an empty body (blank page in the browser).
+        It now redirects to the opportunities list with a flash."""
         other_expert = User(
             email="other-expert@example.com",
             first_name="Other",
@@ -172,10 +173,40 @@ class TestOpportunityDetail:
         db_session.add(other_contact)
         db_session.commit()
 
-        # Try to view other expert's contact
         response = logged_in_client.get(f"/wip/opportunities/{other_contact.id}")
-        # Should return empty (authorization check)
-        assert response.data == b""
+        assert response.status_code == 302
+        assert response.location.endswith("/wip/opportunities")
+        # The response body must not be empty — the original bug was
+        # a blank page; we now always send the user *somewhere*.
+        assert response.data != b""
+
+    def test_view_opportunity_anonymous_redirects_to_login(
+        self,
+        client: FlaskClient,
+    ):
+        """An anonymous visitor clicking the email link must be sent
+        to the login page (with a `next=` round-trip) rather than
+        getting a silent blank page. The contact id need not exist —
+        the anonymous check runs before the DB lookup, on purpose,
+        so an expired email link still routes the user through auth.
+        """
+        response = client.get("/wip/opportunities/123")
+        assert response.status_code == 302
+        # The exact login URL is Flask-Security config-driven; accept
+        # either `/auth/login` or the Flask-Login default `/login`.
+        assert "login" in response.location
+        # And the destination is NOT the empty page that used to ship.
+        assert response.data != b""
+
+    def test_view_opportunity_unknown_id_returns_404(
+        self,
+        logged_in_client: FlaskClient,
+        test_user: User,
+    ):
+        """An id that doesn't match any contact row (e.g. old email
+        after the row was deleted) returns 404, not a blank page."""
+        response = logged_in_client.get("/wip/opportunities/99999999999")
+        assert response.status_code == 404
 
 
 class TestOpportunityResponse:
