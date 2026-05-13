@@ -114,6 +114,28 @@ def init_missions_state():
         }
 
 
+# Roles that grant access to the Business Wall management dashboard.
+# Centralised so the predicate stays in sync between the dashboard
+# route guard and any UI surface that links to it (bug #0139).
+DASHBOARD_ACCESS_ROLES: frozenset[str] = frozenset(
+    {
+        BWRoleType.BW_OWNER.value,
+        BWRoleType.BWMI.value,
+        BWRoleType.BWME.value,
+    }
+)
+
+
+def can_access_bw_dashboard(role_type: str) -> bool:
+    """True if `role_type` grants access to the BW management dashboard.
+
+    Bug #0139: the role list was previously inlined in
+    `confirm_role_invitation.py` and risked drifting from the dashboard
+    route guard. Lifted here so both call sites consult the same source.
+    """
+    return role_type in DASHBOARD_ACCESS_ROLES
+
+
 def bw_managers_ids(bw: BusinessWall) -> set[int]:
     """Get the set of user IDs with management rights (BWMI, BWME, BW_OWNER) on the BusinessWall.
     Args:
@@ -122,13 +144,8 @@ def bw_managers_ids(bw: BusinessWall) -> set[int]:
     Returns:
         Set of user IDs with management role
     """
-    required_roles = {
-        BWRoleType.BW_OWNER.value,
-        BWRoleType.BWMI.value,
-        BWRoleType.BWME.value,
-    }
     required_status = {InvitationStatus.ACCEPTED.value}
-    manager_ids = bw_roles_ids(bw, required_roles, required_status)
+    manager_ids = bw_roles_ids(bw, set(DASHBOARD_ACCESS_ROLES), required_status)
     manager_ids.add(bw.owner_id)  # usefull in first stage of BW registration
     return manager_ids
 

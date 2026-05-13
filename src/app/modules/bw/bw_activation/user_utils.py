@@ -17,6 +17,7 @@ from sqlalchemy.exc import NoInspectionAvailable
 from app.enums import ProfileEnum
 from app.flask.extensions import db
 from app.logging import warn
+from app.models.auth import BW_TYPE_FONCTION_SOURCES
 from app.modules.admin.utils import Organisation
 from app.modules.bw.bw_activation.models import (
     BusinessWall,
@@ -107,9 +108,7 @@ def _fonctions_disponibles_for_bw(user: User, bw_type: str | None) -> list[str]:
     profile = getattr(user, "profile", None)
     if profile is None:
         return []
-    from app.models.auth import _BW_TYPE_FONCTION_SOURCES
-
-    sources = _BW_TYPE_FONCTION_SOURCES.get(bw_type or "")
+    sources = BW_TYPE_FONCTION_SOURCES.get(bw_type or "")
     if not sources:
         return list(profile.toutes_fonctions)
     seen: set[str] = set()

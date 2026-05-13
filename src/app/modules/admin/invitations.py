@@ -19,7 +19,7 @@ from app.models.organisation import Organisation
 from app.services.emails import BWInvitationMail
 from app.services.notifications import NotificationService
 
-from .utils import flush_session
+from .utils import flush_session, get_user_per_email
 
 
 def invite_users(mails: str | list[str], org_id: int) -> None:
@@ -98,8 +98,13 @@ def send_invitation_mails(mails: list[str], org_id: int) -> None:
     )
 
     for mail in mails:
-        invitee = _find_active_user_by_email(mail)
+        invitee = get_user_per_email(mail)
         if invitee is not None:
+            # User exists and is active (get_user_per_email also filters
+            # clones + soft-deleted). An inactive user (account not yet
+            # validated) wouldn't be able to log in to see the bell, so
+            # we deliberately skip the in-app notification for them and
+            # rely on the email for first contact.
             notification_service.post(invitee, notif_message, url=invitation_url)
 
         invit_mail = BWInvitationMail(
@@ -117,19 +122,6 @@ def send_invitation_mails(mails: list[str], org_id: int) -> None:
                 org_id=org_id,
                 sender=sender_mail,
             )
-
-
-def _find_active_user_by_email(email: str) -> User | None:
-    """Return the active User with this email, normalised, or None."""
-    normalised = (email or "").strip().lower()
-    if not normalised or "@" not in normalised:
-        return None
-    stmt = select(User).where(
-        func.lower(func.trim(User.email)) == normalised,
-        User.active.is_(True),
-        User.deleted_at.is_(None),
-    )
-    return db.session.scalar(stmt)
 
 
 def cancel_invitation_users(mails: str | list[str], org_id: int) -> None:

@@ -29,6 +29,7 @@ from app.modules.bw.bw_activation.utils import (
     ERR_BW_NOT_FOUND,
     ERR_INVITATION_NOT_FOUND,
     ERR_WRONG_VALIDATION_LINK,
+    can_access_bw_dashboard,
 )
 
 if TYPE_CHECKING:
@@ -80,14 +81,10 @@ def confirm_role_invitation(bw_id: str, role_type: str, user_id: int):
 
     bw_name = business_wall.name_safe or "(Nom inconnu)"
     bw_role_name = BW_ROLE_TYPE_LABEL.get(role_assignment.role_type, "(rôle inconnu)")
-    # Bug #0139: only Owner/Managers (BWMI/BWME) can reach the BW
-    # dashboard. PR roles see a 403 if shown the button. Pass the flag
-    # to the template so it can hide the button for unauthorised roles.
-    role_has_dashboard_access = role_assignment.role_type in (
-        BWRoleType.BW_OWNER.value,
-        BWRoleType.BWMI.value,
-        BWRoleType.BWME.value,
-    )
+    # Bug #0139: only roles with dashboard access should see the
+    # button. Centralised in utils.can_access_bw_dashboard so the
+    # predicate stays in sync with the dashboard route guard.
+    role_has_dashboard_access = can_access_bw_dashboard(role_assignment.role_type)
 
     # Check invitation is pending
     if role_assignment.invitation_status != InvitationStatus.PENDING.value:

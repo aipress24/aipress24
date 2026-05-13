@@ -349,7 +349,7 @@ class Role(Base, RoleMixin):
 # "fonction" from. First non-empty list wins; if nothing matches we
 # return "" rather than falling back on `metiers[0]` which is often
 # misleading (bug #0107).
-_BW_TYPE_FONCTION_SOURCES: dict[str, tuple[str, ...]] = {
+BW_TYPE_FONCTION_SOURCES: dict[str, tuple[str, ...]] = {
     "media": ("fonctions_journalisme",),
     "corporate_media": ("fonctions_journalisme", "fonctions_org_priv_detail"),
     "pr": (
@@ -522,7 +522,7 @@ class KYCProfile(Base):
         de pertinent n'est trouvé — le champ reste alors pré-rempli
         uniquement par son placeholder.
         """
-        sources = _BW_TYPE_FONCTION_SOURCES.get(bw_type or "")
+        sources = BW_TYPE_FONCTION_SOURCES.get(bw_type or "")
         if sources is None:
             # BW type inconnu ou vide : on conserve le comportement existant.
             return self.metier_fonction
