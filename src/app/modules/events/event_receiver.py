@@ -79,6 +79,10 @@ def update_post(
     post.summary = info.chapo
     post.content = info.contenu
     post.owner_id = info.owner_id
+    # Bugs #0135/#0138: propagate publisher_id so the client/agency BW
+    # `WHERE EventPost.publisher_id == org.id` query finds the event.
+    # The same propagation is done for articles (wire/receivers.py).
+    post.publisher_id = info.publisher_id
 
     # Schedule
     post.start_datetime = info.start_time  # type: ignore[assignment]

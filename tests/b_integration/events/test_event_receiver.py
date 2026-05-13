@@ -261,6 +261,34 @@ class TestUpdatePost:
         assert post.url == test_event.url
         assert post.language == test_event.language
 
+    def test_update_post_propagates_publisher_id(
+        self,
+        db_session: Session,
+        test_event: Event,
+        test_user: User,
+        test_org: Organisation,
+    ):
+        """Regression for bugs #0135/#0138.
+
+        When an event is published "pour" a client org (publisher_id),
+        the public EventPost must carry that same publisher_id so the
+        client's Business Wall lists the event. Without this propagation
+        the BW query `WHERE EventPost.publisher_id == org.id` returned
+        nothing for both the agency and the client.
+        """
+        client_org = Organisation(name="Davi Logistique")
+        db_session.add(client_org)
+        db_session.flush()
+        test_event.publisher_id = client_org.id
+
+        post = EventPost(title="Title", content="Content", owner=test_user)
+        db_session.add(post)
+        db_session.flush()
+
+        update_post(post, test_event)
+
+        assert post.publisher_id == client_org.id
+
 
 class TestOnPublishEvent:
     """Test suite for on_publish_event signal handler."""
