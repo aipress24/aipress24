@@ -173,10 +173,17 @@ class SujetsWipView(BaseWipView):
     msg_delete_ko = "Vous n'êtes pas autorisé à supprimer ce sujet"
 
     def _extra_view_html(self, model, mode: str) -> str:
-        """Show the author name below the form in view mode."""
-        if mode != "view":
+        """Show the author name below the form.
+
+        Bug #0132: previously only shown in pure view mode. The chief
+        editor of the receiving media opens the developed sujet in edit
+        mode and must still see who proposed it — but cannot modify the
+        author. Render the author as a read-only block in any mode where
+        we have an existing model (so not in `new`).
+        """
+        if mode == "new":
             return ""
-        owner = getattr(model, "owner", None)
+        owner = getattr(model, "owner", None) if model else None
         if not owner:
             return ""
         return f"""

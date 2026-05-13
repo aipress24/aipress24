@@ -243,8 +243,11 @@ class SujetForm(Form):
         render_kw={"width": 6},
         validators=[validators.InputRequired()],
     )
+    # Bug #0132: label renamed from "Média" to "Média destinataire" so
+    # the form makes clear this is *who receives* the proposal, not the
+    # author's media.
     media_id = SimpleRichSelectField(
-        "Média",
+        "Média destinataire",
         render_kw={"width": 6},
         validators=[validators.InputRequired()],
     )

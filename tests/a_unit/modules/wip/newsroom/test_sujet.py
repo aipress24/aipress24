@@ -25,7 +25,8 @@ import pytest
 from app.models.auth import User
 from app.models.lifecycle import PublicationStatus
 from app.models.organisation import Organisation
-from app.modules.wip.crud.cbvs.sujets import SujetsTable
+from app.modules.wip.crud.cbvs._forms import SujetForm
+from app.modules.wip.crud.cbvs.sujets import SujetsTable, SujetsWipView
 from app.modules.wip.models.newsroom.sujet import Sujet
 from app.modules.wip.services.sujet_notifications import (
     notify_media_of_sujet_proposition,
@@ -165,6 +166,29 @@ class TestSujetsTableActions:
         assert "Voir" in labels
         assert "Modifier" in labels
         assert "Supprimer" in labels
+
+
+class TestSujetFormFields:
+    """Bug #0132 final cleanup: media_id label must be unambiguous and
+    the developed view must display the author so the chief editor of
+    the receiving media knows who proposed the topic."""
+
+    def test_media_id_label_says_destinataire(self):
+        form = SujetForm()
+        assert "destinataire" in form.media_id.label.text.lower()
+
+    def test_extra_view_html_shows_author_in_edit_mode(
+        self, db_session: Session, media_org: Organisation, author_user: User
+    ):
+        """The chief editor opens the developed sujet (edit mode) and must
+        see the author — they were already shown in pure view mode."""
+        sujet = _make_sujet(
+            db_session, media_id=media_org.id, owner_id=author_user.id
+        )
+        view = SujetsWipView()
+        html = view._extra_view_html(sujet, mode="edit")
+        assert "Auteur" in html
+        assert author_user.full_name in html
 
 
 class TestNotifyMediaOfSujetProposition:

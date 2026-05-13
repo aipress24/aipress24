@@ -28,7 +28,7 @@ sujet_form = {
             "rows": 8,
         },
         "media": {
-            "label": "Média",
+            "label": "Média destinataire",
             "group": "headers",
             "type": "select",
             "key": "media",
