@@ -190,6 +190,22 @@ class TestSujetFormFields:
         assert "Auteur" in html
         assert author_user.full_name in html
 
+    def test_extra_view_html_escapes_author_name(
+        self, db_session: Session, media_org: Organisation
+    ):
+        """The output is rendered with `|safe`, so any HTML in the author's
+        name must be escaped to avoid XSS."""
+        author = User(email="xss@example.com", first_name="<script>", last_name="x")
+        db_session.add(author)
+        db_session.flush()
+        sujet = _make_sujet(
+            db_session, media_id=media_org.id, owner_id=author.id
+        )
+        view = SujetsWipView()
+        html = view._extra_view_html(sujet, mode="edit")
+        assert "<script>" not in html
+        assert "&lt;script&gt;" in html
+
 
 class TestNotifyMediaOfSujetProposition:
     def test_skips_when_author_belongs_to_target_media(self, monkeypatch):

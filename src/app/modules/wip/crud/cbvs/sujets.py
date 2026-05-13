@@ -9,6 +9,7 @@ from typing import cast
 from attr import define
 from flask import Flask, flash, g, redirect
 from flask_super.registry import register
+from markupsafe import escape
 from sqlalchemy import and_, func, or_, select
 from sqlalchemy.orm import selectinload
 
@@ -180,16 +181,21 @@ class SujetsWipView(BaseWipView):
         mode and must still see who proposed it — but cannot modify the
         author. Render the author as a read-only block in any mode where
         we have an existing model (so not in `new`).
+
+        The result is rendered via `{{ extra_view_html|safe }}` in the
+        parent template, so any user-controlled value must be HTML-escaped
+        before being interpolated.
         """
         if mode == "new":
             return ""
         owner = getattr(model, "owner", None) if model else None
         if not owner:
             return ""
+        safe_name = escape(owner.full_name)
         return f"""
         <div class="mt-4 p-4 bg-gray-50 rounded border">
             <h3 class="text-sm font-medium text-gray-500">Auteur</h3>
-            <p class="text-sm font-medium text-gray-900">{owner.full_name}</p>
+            <p class="text-sm font-medium text-gray-900">{safe_name}</p>
         </div>
         """
 
