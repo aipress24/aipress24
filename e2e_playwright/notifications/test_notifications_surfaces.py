@@ -90,6 +90,34 @@ def test_notifications_mark_one_read_unknown_id_no_5xx(
     assert "/auth/login" not in resp["url"]
 
 
+def test_notifications_mark_one_read_fragment_only_url_no_405(
+    page: Page, base_url: str, profile, login, authed_post
+) -> None:
+    """Bug #0140: a notification whose stored URL is fragment-only
+    (`#TODO`) used to cause a 405 because `redirect("#TODO")` made
+    the browser re-GET the POST-only mark_read route. The hardened
+    `_is_safe_url` now rejects fragment-only URLs and falls back to
+    `/`, so the round-trip is a clean 302 — never 405.
+    """
+    p = profile(_PRESS_MEDIA)
+    login(p)
+    page.goto(f"{base_url}/", wait_until="domcontentloaded")
+
+    resp = authed_post(
+        f"{base_url}/notifications/999999999/read", {"url": "#TODO"}
+    )
+    # The whole point: must NOT be a 405.
+    assert resp["status"] != 405, (
+        f"fragment-only `url` triggered 405 — _is_safe_url no longer "
+        f"rejects fragments. Response: {resp}"
+    )
+    assert resp["status"] < 400, f"mark_read with fragment url : {resp}"
+    # Final URL must not echo the placeholder fragment.
+    assert "#TODO" not in resp["url"], (
+        f"final URL still contains the fragment placeholder: {resp['url']}"
+    )
+
+
 def test_notifications_mark_one_read_open_redirect_safe(
     page: Page, base_url: str, profile, login, authed_post
 ) -> None:
