@@ -142,6 +142,22 @@ class TestSworkEndpoints:
             "swork.j2 should not contain xl:col-span-3 anymore"
         )
 
+        # Bug #0126 v3 (prod regression): the aside needs an inline
+        # `min-width` floor that survives Tailwind purges. The value
+        # itself can be tuned, but the style attribute must be there
+        # and contain `min-width`.
+        assert "min-width" in aside_open, (
+            "swork aside should carry an inline `min-width` floor — "
+            "without it the column can still get squashed by an unbreakable "
+            "image/figure inside a post on Firefox. See bug #0126 v3."
+        )
+        # And main keeps `min-w-0` so an unbreakable URL in a post
+        # wraps instead of growing main past its track.
+        assert "min-w-0" in main_open, (
+            "swork main column should keep `min-w-0` for the bug #0126 v2 "
+            "fix to wrap long URLs in posts."
+        )
+
     def test_members_page_accessible(
         self, authenticated_client: FlaskClient, db_session: Session
     ):

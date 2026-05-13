@@ -3,15 +3,24 @@
 {% extends "layout/private.j2" %}
 
 {% block content %}
+  {# Bug #0126: two-layer fix for the SOCIAL aside being squashed to
+     ~40px wide on Firefox/prod by posts containing long unbreakable
+     URLs:
+     - `min-w-0` on `<main>` lets the grid track shrink, so the URL
+       wraps inside `.break-all` instead of forcing main to grow past
+       its track and squeeze the aside.
+     - inline `min-width: 280px` on `<aside>` (via the `style=` attr,
+       so it can't be tree-shaken away by an aggressive Tailwind purge)
+       guarantees the aside stays readable even if some future grid
+       item content drives the track distribution sideways. The value
+       leaves room for the «AiPRESS24 vous informe» header to render
+       on one line, but doesn't break the 1024px-1100px lg-breakpoint
+       window since the menu+main col-span-2+6 still fit alongside. #}
   <div
     class="max-w-3xl mx-auto sm:px-6 lg:max-w-7xl lg:px-8 lg:grid lg:grid-cols-12 lg:gap-8"
   >
     {% include "pages/_swork_menu.j2" %}
 
-    {# Bug #0126: `min-w-0` on the two grid items so Firefox lets them
-       shrink when a post contains a long unbreakable URL — otherwise
-       the main column grows past its track and squashes the aside to
-       a few pixels of width. Safari was lenient and shrank by default. #}
     <main class="lg:col-span-6 my-8 min-w-0">
       <ul role="list" class="space-y-4">
 
@@ -26,7 +35,7 @@
       </ul>
     </main>
 
-    <aside class="hidden lg:block lg:col-span-4 my-8 min-w-0">
+    <aside class="hidden lg:block lg:col-span-4 my-8" style="min-width: 280px;">
       <div class="sticky top-4 space-y-4 max-h-[80vh] overflow-y-auto">
         {% from "macros/promo.j2" import promo_box with context %}
         {{ promo_box("swork/1") }}
