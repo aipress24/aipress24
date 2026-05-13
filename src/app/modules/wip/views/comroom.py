@@ -7,9 +7,6 @@
 from __future__ import annotations
 
 from flask import g, render_template
-from sqlalchemy import func, select
-from sqlalchemy.orm import scoped_session
-from svcs.flask import container
 from werkzeug.exceptions import Forbidden
 
 from app.enums import RoleEnum
@@ -18,9 +15,8 @@ from app.flask.routing import url_for
 from app.models.mixins import Owned
 from app.modules.wip import blueprint
 from app.modules.wip.pr_access import user_can_access_comroom
-from app.services.auth import AuthService
 
-from ._common import get_secondary_menu
+from ._common import count_owned_non_deleted, get_secondary_menu
 
 
 @blueprint.route("/comroom")
@@ -57,7 +53,7 @@ def comroom():
     items = main_items.copy()
     for item in items:
         model_class: type[Owned] = item["model_class"]  # type: ignore[assignment]
-        item["count"] = str(_item_count(model_class))
+        item["count"] = str(count_owned_non_deleted(model_class))
         item["href"] = url_for(item["endpoint"])
 
     return render_template(
@@ -66,17 +62,3 @@ def comroom():
         items=items,
         menus={"secondary": get_secondary_menu("comroom")},
     )
-
-
-def _item_count(model_class: type[Owned]) -> int:
-    """Count items for model class."""
-    db_session = container.get(scoped_session)
-    user = container.get(AuthService).get_user()
-    stmt = (
-        select(func.count())
-        .select_from(model_class)
-        .where(model_class.owner_id == user.id)
-    )
-    result = db_session.execute(stmt).scalar()
-    assert isinstance(result, int)
-    return result

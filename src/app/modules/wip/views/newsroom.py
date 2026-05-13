@@ -9,21 +9,16 @@ from __future__ import annotations
 from typing import Any
 
 from flask import g, render_template
-from sqlalchemy import func, select
-from sqlalchemy.orm import scoped_session
-from svcs.flask import container
 from werkzeug.exceptions import Forbidden
 
 from app.enums import ProfileEnum, RoleEnum
 from app.flask.lib.nav import nav
 from app.flask.routing import url_for
-from app.models.mixins import Owned
 from app.modules.bw.bw_activation.user_utils import get_business_wall_for_user
 from app.modules.wip import blueprint
-from app.services.auth import AuthService
 from app.services.roles import has_role
 
-from ._common import get_secondary_menu
+from ._common import count_owned_non_deleted, get_secondary_menu
 
 ALLOW_NEWSROOM_ARTICLE: set[ProfileEnum] = {
     ProfileEnum.PM_DIR,
@@ -100,7 +95,7 @@ def newsroom():
     items = _allowed_redaction_items(main_items)
     for item in items:
         model_class = item["model_class"]
-        item["count"] = str(_item_count(model_class))
+        item["count"] = str(count_owned_non_deleted(model_class))
         if endpoint := item.get("endpoint"):
             item["href"] = url_for(endpoint)
         else:
@@ -125,20 +120,6 @@ def _allowed_redaction_items(items: list[dict[str, Any]]) -> list[dict[str, Any]
     items = _filter_avis_enquetes_items(items, [has_bw, allow_journalist])
     items = _filter_commandes_items(items, [has_bw, allow_commands])
     return items
-
-
-def _item_count(model_class: type[Owned]) -> int:
-    """Count items for model class."""
-    db_session = container.get(scoped_session)
-    user = container.get(AuthService).get_user()
-    stmt = (
-        select(func.count())
-        .select_from(model_class)
-        .where(model_class.owner_id == user.id)
-    )
-    result = db_session.execute(stmt).scalar()
-    assert isinstance(result, int)
-    return result
 
 
 def _has_active_business_wall() -> bool:

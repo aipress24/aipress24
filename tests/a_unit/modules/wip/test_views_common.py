@@ -8,7 +8,15 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock, patch
 
-from app.modules.wip.views._common import check_auth, get_secondary_menu
+import arrow
+
+from app.models.auth import User
+from app.modules.wip.models.eventroom import Event
+from app.modules.wip.views._common import (
+    check_auth,
+    count_owned_non_deleted,
+    get_secondary_menu,
+)
 
 
 class TestCheckAuth:
@@ -37,6 +45,42 @@ class TestCheckAuth:
                 # Should return a redirect response
                 assert result is not None
                 assert result.status_code == 302
+
+
+class TestCountOwnedNonDeleted:
+    """Regression for bug #0143 (and its sibling defects in com'room and
+    newsroom): the room tiles used to count soft-deleted rows."""
+
+    def test_excludes_soft_deleted(self, app, db_session):
+        user = User(email="counter@example.com", active=True)
+        db_session.add(user)
+        db_session.flush()
+
+        kept = Event(titre="Kept", owner_id=user.id)
+        deleted = Event(titre="Gone", owner_id=user.id)
+        db_session.add_all([kept, deleted])
+        db_session.flush()
+        deleted.deleted_at = arrow.now()
+        db_session.flush()
+
+        with app.test_request_context():
+            with patch(
+                "app.services.auth.AuthService.get_user", return_value=user
+            ):
+                count = count_owned_non_deleted(Event)
+        assert count == 1
+
+    def test_zero_when_no_rows(self, app, db_session):
+        user = User(email="empty@example.com", active=True)
+        db_session.add(user)
+        db_session.flush()
+
+        with app.test_request_context():
+            with patch(
+                "app.services.auth.AuthService.get_user", return_value=user
+            ):
+                count = count_owned_non_deleted(Event)
+        assert count == 0
 
 
 class TestGetSecondaryMenu:
