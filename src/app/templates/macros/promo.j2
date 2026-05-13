@@ -18,9 +18,10 @@
 
         <div class="py-2 px-4 text-gray-700 text-sm overflow-hidden">
           <div class="my-3">
-            {# `box.body` is admin-rendered Trix HTML; opt out of the
-               .j2 autoescape that was enabled in `app.flask.config`. #}
-            {{ box.body|safe }}
+            {# `box.body` is admin-edited Trix HTML. Sanitize on render
+               so a compromised admin (or a Trix bug) cannot inject
+               script/iframe/event handlers. #}
+            {{ box.body|sanitize }}
           </div>
         </div>
       </div>

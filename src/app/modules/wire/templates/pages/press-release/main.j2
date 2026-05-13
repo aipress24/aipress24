@@ -23,8 +23,10 @@
     </div>
 
     <div class="mt-5 content overflow-hidden">
-      {# post.content is Trix-rendered HTML; opt out of .j2 autoescape. #}
-      {{ post.content|safe }}
+      {# post.content is Trix-rendered HTML. Sanitize on render —
+         Trix is a client widget, so an attacker can POST arbitrary
+         HTML directly. #}
+      {{ post.content|sanitize }}
     </div>
   </div>
 </div>

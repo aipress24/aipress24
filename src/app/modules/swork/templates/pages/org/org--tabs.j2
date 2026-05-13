@@ -34,7 +34,10 @@
             class="text-blue-600 underline">{{ value }}</a>
       </dd>
     {% else %}
-      <dd class="text-gray-900 ml-6 whitespace-pre-wrap">{{ value | safe }}</dd>
+      {# `value` is a KYC profile field — could be plain text, could
+         carry HTML markup. Sanitize on render so neither path is
+         exploitable. #}
+      <dd class="text-gray-900 ml-6 whitespace-pre-wrap">{{ value | sanitize }}</dd>
     {% endif %}
   </div>
 {% endmacro %}
