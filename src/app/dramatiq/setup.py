@@ -102,9 +102,7 @@ def _ensure_dramatiq_schema(broker: PostgresBroker) -> None:
     conn = broker.pool.getconn()
     try:
         with conn.cursor() as cur:
-            cur.execute(
-                "SELECT pg_advisory_xact_lock(%s)", (_BOOTSTRAP_LOCK_ID,)
-            )
+            cur.execute("SELECT pg_advisory_xact_lock(%s)", (_BOOTSTRAP_LOCK_ID,))
             cur.execute(
                 """
                 SELECT 1

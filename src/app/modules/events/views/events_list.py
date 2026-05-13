@@ -131,8 +131,7 @@ class EventsListView(MethodView):
             )
             .where(
                 # Show events that haven't ended yet (or have no end date).
-                (EventPost.end_datetime.is_(None))
-                | (EventPost.end_datetime >= now)
+                (EventPost.end_datetime.is_(None)) | (EventPost.end_datetime >= now)
             )
             .order_by(EventPost.start_datetime)
         )

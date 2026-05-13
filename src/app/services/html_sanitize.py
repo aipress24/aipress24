@@ -37,18 +37,52 @@ __all__ = ["SanitizedHTML", "sanitize_html"]
 _ALLOWED_TAGS: frozenset[str] = frozenset(
     {
         # Inline text
-        "a", "abbr", "b", "br", "code", "em", "i", "kbd",
-        "mark", "s", "small", "span", "strong", "sub", "sup", "u",
+        "a",
+        "abbr",
+        "b",
+        "br",
+        "code",
+        "em",
+        "i",
+        "kbd",
+        "mark",
+        "s",
+        "small",
+        "span",
+        "strong",
+        "sub",
+        "sup",
+        "u",
         # Block text
-        "blockquote", "div", "figure", "figcaption", "hr", "p", "pre",
+        "blockquote",
+        "div",
+        "figure",
+        "figcaption",
+        "hr",
+        "p",
+        "pre",
         # Headings
-        "h1", "h2", "h3", "h4", "h5", "h6",
+        "h1",
+        "h2",
+        "h3",
+        "h4",
+        "h5",
+        "h6",
         # Lists
-        "li", "ol", "ul",
+        "li",
+        "ol",
+        "ul",
         # Media
         "img",
         # Tables
-        "caption", "table", "tbody", "td", "tfoot", "th", "thead", "tr",
+        "caption",
+        "table",
+        "tbody",
+        "td",
+        "tfoot",
+        "th",
+        "thead",
+        "tr",
     }
 )
 
@@ -58,7 +92,9 @@ _ALLOWED_ATTRS: dict[str, list[str]] = {
     "a": ["href", "rel", "target"],
     "img": ["src", "alt", "width", "height"],
     "figure": [
-        "class", "data-trix-attachment", "data-trix-attributes",
+        "class",
+        "data-trix-attachment",
+        "data-trix-attributes",
         "data-trix-content-type",
     ],
     "figcaption": ["class"],

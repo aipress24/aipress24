@@ -526,12 +526,15 @@ class TestRDVSideEffectsCoupling:
             rdv_phone="+33612345678",
         )
 
-        with patch(
-            "app.services.emails.ContactAvisEnqueteRDVProposalMail.send",
-            return_value=True,
-        ), patch(
-            "app.services.emails.ContactAvisEnqueteRDVAcceptedMail.send",
-            return_value=True,
+        with (
+            patch(
+                "app.services.emails.ContactAvisEnqueteRDVProposalMail.send",
+                return_value=True,
+            ),
+            patch(
+                "app.services.emails.ContactAvisEnqueteRDVAcceptedMail.send",
+                return_value=True,
+            ),
         ):
             service.propose_rdv(contact.id, propose_data, "/wip/opportunities/42")
             accept_data = RDVAcceptanceData(selected_slot=future_slot)
@@ -564,12 +567,15 @@ class TestRDVSideEffectsCoupling:
             rdv_phone="+33612345678",
         )
 
-        with patch(
-            "app.services.emails.ContactAvisEnqueteRDVProposalMail.send",
-            return_value=True,
-        ), patch(
-            "app.services.emails.ContactAvisEnqueteRDVRefusedMail.send",
-            return_value=True,
+        with (
+            patch(
+                "app.services.emails.ContactAvisEnqueteRDVProposalMail.send",
+                return_value=True,
+            ),
+            patch(
+                "app.services.emails.ContactAvisEnqueteRDVRefusedMail.send",
+                return_value=True,
+            ),
         ):
             service.propose_rdv(contact.id, propose_data, "/wip/opportunities/42")
             service.refuse_rdv(contact.id, "/wip/reponses/42")
@@ -577,9 +583,7 @@ class TestRDVSideEffectsCoupling:
         notif_service = container.get(NotificationService)
         journalist_notifs = notif_service.get_notifications(journaliste)
         # One for "accepted" path won't happen; only for refused.
-        assert any(
-            "refusé" in n.message.lower() for n in journalist_notifs
-        )
+        assert any("refusé" in n.message.lower() for n in journalist_notifs)
 
 
 class TestNotifyExperts:

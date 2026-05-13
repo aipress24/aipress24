@@ -64,9 +64,7 @@ class TestCountOwnedNonDeleted:
         db_session.flush()
 
         with app.test_request_context():
-            with patch(
-                "app.services.auth.AuthService.get_user", return_value=user
-            ):
+            with patch("app.services.auth.AuthService.get_user", return_value=user):
                 count = count_owned_non_deleted(Event)
         assert count == 1
 
@@ -76,9 +74,7 @@ class TestCountOwnedNonDeleted:
         db_session.flush()
 
         with app.test_request_context():
-            with patch(
-                "app.services.auth.AuthService.get_user", return_value=user
-            ):
+            with patch("app.services.auth.AuthService.get_user", return_value=user):
                 count = count_owned_non_deleted(Event)
         assert count == 0
 

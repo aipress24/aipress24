@@ -100,10 +100,7 @@ def test_avis_enquete_notification_mail():
         # rendered the URL as bare text inside the paragraph, which
         # silently degraded to non-clickable in clients that don't
         # auto-link plain URLs.
-        assert (
-            '<a href="https://example.com">https://example.com</a>'
-            in kwargs["body"]
-        )
+        assert '<a href="https://example.com">https://example.com</a>' in kwargs["body"]
 
 
 def test_contact_avis_enquete_acceptance_mail():

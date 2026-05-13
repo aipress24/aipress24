@@ -117,8 +117,9 @@ class TestSendInvitationMails:
         org = _create_org(db, "TCA")
         db.session.flush()
 
-        with patch("app.modules.admin.invitations.current_user", sender), patch(
-            "app.services.emails.BWInvitationMail.send", return_value=True
+        with (
+            patch("app.modules.admin.invitations.current_user", sender),
+            patch("app.services.emails.BWInvitationMail.send", return_value=True),
         ):
             send_invitation_mails([invitee.email], org.id)
             db.session.flush()
@@ -135,9 +136,12 @@ class TestSendInvitationMails:
         sender = self._make_sender(db)
         org = _create_org(db, "TCA")
 
-        with patch("app.modules.admin.invitations.current_user", sender), patch(
-            "app.services.emails.BWInvitationMail.send", return_value=True
-        ) as mock_send:
+        with (
+            patch("app.modules.admin.invitations.current_user", sender),
+            patch(
+                "app.services.emails.BWInvitationMail.send", return_value=True
+            ) as mock_send,
+        ):
             send_invitation_mails(["nobody-yet@example.com"], org.id)
 
             assert mock_send.called
@@ -149,8 +153,9 @@ class TestSendInvitationMails:
         org = _create_org(db, "TCA")
         db.session.flush()
 
-        with patch("app.modules.admin.invitations.current_user", sender), patch(
-            "app.services.emails.BWInvitationMail.send", return_value=True
+        with (
+            patch("app.modules.admin.invitations.current_user", sender),
+            patch("app.services.emails.BWInvitationMail.send", return_value=True),
         ):
             send_invitation_mails([invitee.email], org.id)
             db.session.flush()

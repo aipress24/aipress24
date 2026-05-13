@@ -75,9 +75,7 @@ SCAN_PACKAGES = [
 #   Auto-importing it from the package scanner would trigger a nested
 #   `create_app()` and re-run broker initialisation as a side effect
 #   of every Flask command.
-SCAN_EXCLUDES: frozenset[str] = frozenset(
-    {"app.faker", "app.dramatiq.worker_entry"}
-)
+SCAN_EXCLUDES: frozenset[str] = frozenset({"app.faker", "app.dramatiq.worker_entry"})
 
 
 def _scan_packages_filtered(packages: Iterable[str]) -> None:

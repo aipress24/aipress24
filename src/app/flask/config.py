@@ -33,9 +33,7 @@ def setup_config(app, config) -> None:
     # (unclosed `<b>` tags in posts) and a stored-XSS vector. Extend
     # the policy to `.j2` so templates are safe by default; the
     # legitimate HTML-rendering call sites carry `|safe` explicitly.
-    app.jinja_env.autoescape = select_autoescape(
-        ["html", "htm", "xml", "xhtml", "j2"]
-    )
+    app.jinja_env.autoescape = select_autoescape(["html", "htm", "xml", "xhtml", "j2"])
     # Configure logging as soon as we have the config
     init_logging(app)
 

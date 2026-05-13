@@ -56,9 +56,7 @@ class TestSanitizeRemovesDangerous:
         # go to object storage so inline base64 isn't a real UI need,
         # and accepting it widens the attack surface (image/svg+xml
         # data URIs can carry inline scripts).
-        out = sanitize_html(
-            '<img src="data:image/png;base64,iVBORw=" alt="ok">'
-        )
+        out = sanitize_html('<img src="data:image/png;base64,iVBORw=" alt="ok">')
         assert "data:" not in out
 
     def test_style_tag_dropped(self):
@@ -134,12 +132,8 @@ class TestJinjaFilterWiring:
 
     def test_filter_renders_from_template(self, app):
         """End-to-end through a Jinja string template."""
-        template = app.jinja_env.from_string(
-            "{{ html|sanitize }}"
-        )
-        out = template.render(
-            html='<a href="javascript:alert(1)">x</a><b>ok</b>'
-        )
+        template = app.jinja_env.from_string("{{ html|sanitize }}")
+        out = template.render(html='<a href="javascript:alert(1)">x</a><b>ok</b>')
         assert "javascript:" not in out
         assert "<b>ok</b>" in out
 
@@ -177,9 +171,7 @@ class TestSanitizedHTMLColumnType:
 
     def test_bind_param_strips_script(self):
         col = SanitizedHTML()
-        out = col.process_bind_param(
-            "<p>ok</p><script>alert(1)</script>", dialect=None
-        )
+        out = col.process_bind_param("<p>ok</p><script>alert(1)</script>", dialect=None)
         assert "<p>ok</p>" in out
         assert "<script" not in out
 

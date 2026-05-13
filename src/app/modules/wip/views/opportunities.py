@@ -80,9 +80,7 @@ def media_opportunity(id: int):
     from app.modules.wip.models import ContactAvisEnqueteRepository
 
     if g.user.is_anonymous:
-        return redirect(
-            url_for("security.login", next=request.path)
-        )
+        return redirect(url_for("security.login", next=request.path))
 
     repo = container.get(ContactAvisEnqueteRepository)
     # `repo.get(id)` raises NotFoundError on unknown ids — use the

@@ -182,9 +182,7 @@ class TestSujetFormFields:
     ):
         """The chief editor opens the developed sujet (edit mode) and must
         see the author — they were already shown in pure view mode."""
-        sujet = _make_sujet(
-            db_session, media_id=media_org.id, owner_id=author_user.id
-        )
+        sujet = _make_sujet(db_session, media_id=media_org.id, owner_id=author_user.id)
         view = SujetsWipView()
         html = view._extra_view_html(sujet, mode="edit")
         assert "Auteur" in html
@@ -198,9 +196,7 @@ class TestSujetFormFields:
         author = User(email="xss@example.com", first_name="<script>", last_name="x")
         db_session.add(author)
         db_session.flush()
-        sujet = _make_sujet(
-            db_session, media_id=media_org.id, owner_id=author.id
-        )
+        sujet = _make_sujet(db_session, media_id=media_org.id, owner_id=author.id)
         view = SujetsWipView()
         html = view._extra_view_html(sujet, mode="edit")
         assert "<script>" not in html
