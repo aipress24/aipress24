@@ -120,11 +120,22 @@ class TestSworkEndpoints:
         template_source = app.jinja_env.loader.get_source(
             app.jinja_env, "pages/swork.j2"
         )[0]
-        assert 'class="lg:col-span-6 my-8"' in template_source, (
-            "swork main column should be lg:col-span-6 (was lg:col-span-9 xl:col-span-7)"
+        # Assert the *intent* (column proportions, visible at lg) rather than
+        # the exact class string, so adding utility classes like `min-w-0`
+        # (bug #0126 v2) doesn't snap this regression test.
+        assert "<main " in template_source
+        main_open = template_source.split("<main ", 1)[1].split(">", 1)[0]
+        assert "lg:col-span-6" in main_open, (
+            f"swork main column should be lg:col-span-6 (got: {main_open!r})"
         )
-        assert 'class="hidden lg:block lg:col-span-4 my-8"' in template_source, (
-            "swork aside should be lg:col-span-4 visible at lg (was xl:col-span-3)"
+
+        assert "<aside " in template_source
+        aside_open = template_source.split("<aside ", 1)[1].split(">", 1)[0]
+        assert "lg:col-span-4" in aside_open, (
+            f"swork aside should be lg:col-span-4 (got: {aside_open!r})"
+        )
+        assert "hidden lg:block" in aside_open, (
+            f"swork aside should be visible at lg (got: {aside_open!r})"
         )
         # Guard against accidental revert.
         assert "xl:col-span-3" not in template_source, (
