@@ -23,8 +23,17 @@
         </div>
       </div>
 
+      {# Bug #0126 v4 — root cause discovered: `.j2` templates do NOT
+         autoescape in Flask. A user typing `<b>...<b>` (unclosed tag)
+         in a post leaked into the page DOM, broke HTML parsing, and
+         cascaded into the SOCIAL aside being squashed to ~40px wide.
+         Same defect was also a stored-XSS vector — `<script>` in a
+         post would have executed.
+
+         Explicit `|e` filter here as the surgical fix. A wider audit
+         on every `.j2` `{{ var }}` is required separately. #}
       <div class="mt-2 text-sm text-gray-700 space-y-4 break-all">
-        {{ post.content }}
+        {{ post.content|e }}
       </div>
 
       <div class="mt-6 flex justify-between space-x-8">

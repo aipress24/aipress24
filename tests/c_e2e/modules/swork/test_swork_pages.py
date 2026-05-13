@@ -158,6 +158,27 @@ class TestSworkEndpoints:
             "fix to wrap long URLs in posts."
         )
 
+
+class TestSworkPostHtmlEscape:
+    """Bug #0126 v4: `.j2` templates don't autoescape in Flask, so
+    `{{ post.content }}` rendered raw HTML from user input. A user
+    typing `<b>...<b>` (unclosed tags) leaked into the page DOM and
+    cascaded into broken layout. Same defect was an XSS vector.
+
+    The fix puts an explicit `|e` filter on post.content. Pin it.
+    """
+
+    def test_post_html_is_escaped(self, app: Flask):
+        template_source = app.jinja_env.loader.get_source(
+            app.jinja_env, "pages/swork-macros.j2"
+        )[0]
+        assert "post.content|e" in template_source or (
+            "post.content|escape" in template_source
+        ), (
+            "swork-macros.j2 must escape `post.content` — raw `{{ post.content }}` "
+            "renders user-supplied HTML and is an XSS vector. See bug #0126 v4."
+        )
+
     def test_members_page_accessible(
         self, authenticated_client: FlaskClient, db_session: Session
     ):
