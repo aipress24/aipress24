@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 from collections.abc import Generator
+from dataclasses import dataclass
 from typing import cast
 
 from flask import request
@@ -42,6 +43,21 @@ from .expert_selectors import (
 )
 
 MAX_SELECTABLE_EXPERTS = 50
+
+
+@dataclass(frozen=True)
+class SelectorSection:
+    """A titled group of selectors rendered in the ciblage UI.
+
+    Phase 2 of bug #0150 (Annie's ciblage request): the journalist
+    asked for the dropdowns to be grouped under 4 thematic headings
+    instead of an undifferentiated 2-column grid of 17 items. Sections
+    are pure UI metadata — the underlying selectors and filter
+    pipeline are unchanged.
+    """
+
+    title: str
+    selectors: list[BaseSelector]
 
 
 class ExpertFilterService:
@@ -168,6 +184,55 @@ class ExpertFilterService:
     def selectors(self) -> list[BaseSelector]:
         """Property alias for get_selectors() for template compatibility."""
         return self._get_selectors()
+
+    @property
+    def sections(self) -> list[SelectorSection]:
+        """Selectors grouped into Annie's 4 thematic sections.
+
+        Order and titles follow the spec from bug #0150. A flat
+        `.selectors` view is still exposed for callers that don't
+        care about grouping (e.g. validation, state plumbing).
+        """
+        by_id = {s.id: s for s in self._get_selectors()}
+
+        def pick(*ids: str) -> list[BaseSelector]:
+            return [by_id[i] for i in ids if i in by_id]
+
+        return [
+            SelectorSection(
+                title="Secteurs d'activité et types d'organisation",
+                selectors=pick(
+                    "secteur",
+                    "type_organisation",
+                    "type_entreprise_presse_medias",
+                    "type_presse_et_media",
+                    "taille_organisation",
+                ),
+            ),
+            SelectorSection(
+                title="Géolocalisation",
+                selectors=pick("pays", "departement", "ville"),
+            ),
+            SelectorSection(
+                title="Fonctions",
+                selectors=pick(
+                    "fonction_pol_adm",
+                    "fonction_org_priv",
+                    "fonction_ass_syn",
+                    "fonction",
+                    "fonction_journalisme",
+                ),
+            ),
+            SelectorSection(
+                title="Métiers, compétences & langues",
+                selectors=pick(
+                    "metier",
+                    "competences",
+                    "competences_journalisme",
+                    "langues",
+                ),
+            ),
+        ]
 
     def get_action_from_request(self) -> str:
         """

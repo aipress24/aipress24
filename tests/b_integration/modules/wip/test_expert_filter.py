@@ -15,7 +15,10 @@ from typing import TYPE_CHECKING
 import pytest
 
 from app.models.auth import KYCProfile, User
-from app.modules.wip.services.newsroom.expert_filter import MAX_SELECTABLE_EXPERTS
+from app.modules.wip.services.newsroom.expert_filter import (
+    MAX_SELECTABLE_EXPERTS,
+    ExpertFilterService,
+)
 from app.modules.wip.services.newsroom.expert_selectors import (
     SecteurSelector,
 )
@@ -189,3 +192,76 @@ class TestFilterState:
         selector = SecteurSelector(state, experts)
 
         assert len(selector.values) == 0
+
+
+class TestSelectorSections:
+    """Phase 2 of bug #0150 (Annie's ciblage request).
+
+    Selectors are grouped into 4 thematic sections instead of one
+    undifferentiated 2-column grid of 17 items. Sections are pure UI
+    metadata — every selector still belongs to the same form and
+    the filter pipeline is unchanged.
+    """
+
+    def test_sections_cover_every_selector(self, experts, app):
+        """Every selector exposed by the service appears in exactly
+        one section. No orphan selectors, no duplicates."""
+        with app.test_request_context():
+            service = ExpertFilterService()
+            service._all_experts = experts
+            flat_ids = {s.id for s in service.selectors}
+            section_ids = [
+                sel.id for section in service.sections for sel in section.selectors
+            ]
+            assert set(section_ids) == flat_ids, (
+                "Sections must cover every selector — found in flat list "
+                f"but missing from sections: {flat_ids - set(section_ids)}; "
+                f"found in sections but not in flat list: "
+                f"{set(section_ids) - flat_ids}"
+            )
+            assert len(section_ids) == len(set(section_ids)), (
+                "A selector appears in two sections — fix the grouping"
+            )
+
+    def test_sections_match_anne_spec_titles_and_order(self, experts, app):
+        """The 4 section titles and their order follow Annie's spec
+        (1- Secteurs, 2- Géo, 3- Fonctions, 4- Métiers)."""
+        with app.test_request_context():
+            service = ExpertFilterService()
+            service._all_experts = experts
+            titles = [section.title for section in service.sections]
+            assert titles == [
+                "Secteurs d'activité et types d'organisation",
+                "Géolocalisation",
+                "Fonctions",
+                "Métiers, compétences & langues",
+            ]
+
+    def test_secteurs_section_groups_organisation_dimensions(self, experts, app):
+        """Section 1 holds the 5 « secteurs & types d'organisation »
+        dimensions: secteur, type_organisation, type_entreprise_presse,
+        type_presse, taille_organisation."""
+        with app.test_request_context():
+            service = ExpertFilterService()
+            service._all_experts = experts
+            section_1 = service.sections[0]
+            ids = [s.id for s in section_1.selectors]
+            assert ids == [
+                "secteur",
+                "type_organisation",
+                "type_entreprise_presse_medias",
+                "type_presse_et_media",
+                "taille_organisation",
+            ]
+
+    def test_geo_section_orders_pays_dept_ville(self, experts, app):
+        """Section 2 keeps the geographic cascade in order: pays →
+        département → ville. The DepartementSelector / VilleSelector
+        filter their options based on selections in earlier dropdowns,
+        so the visual order must match the data flow."""
+        with app.test_request_context():
+            service = ExpertFilterService()
+            service._all_experts = experts
+            section_2 = service.sections[1]
+            ids = [s.id for s in section_2.selectors]
+            assert ids == ["pays", "departement", "ville"]

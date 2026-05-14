@@ -28,12 +28,23 @@
 
     <h2 class="aui-title">Cibler les personnes à contacter</h2>
 
+    {# Bug #0150 / phase 2: sections thématiques pour ne plus noyer
+       la rédactrice dans 17 dropdowns plats. Chaque section reste
+       un sous-bloc du même <form> — l'état de tous les sélecteurs
+       est soumis ensemble par HTMX. #}
     <form id="search-form" hx-target="#main">
-      <div class="grid lg:grid-cols-2 gap-4">
-        {% for selector in form.selectors %}
-          {{ render_selector(selector, model) }}
-        {% endfor %}
-      </div>
+      {% for section in form.sections %}
+        <section class="mb-6">
+          <h3 class="text-lg font-semibold text-gray-800 border-b border-gray-200 pb-1 mb-3">
+            {{ section.title }}
+          </h3>
+          <div class="grid lg:grid-cols-2 gap-4">
+            {% for selector in section.selectors %}
+              {{ render_selector(selector, model) }}
+            {% endfor %}
+          </div>
+        </section>
+      {% endfor %}
     </form>
 
     {% include "wip/avis_enquete/_experts.j2" %}
