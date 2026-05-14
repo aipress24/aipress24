@@ -274,19 +274,32 @@ class ExpertFilterService:
         if "selector_change" not in selector_data:
             return
 
-        selector_keys = {s.id for s in self._get_selectors()}
-        seen_selectors: set[str] = set()
+        # Dual selectors expose two form fields (parent + child). The
+        # parent field is UI-only — it narrows the child dropdown but
+        # doesn't filter experts. We still track it in state so the
+        # cascade UI keeps its selection across HTMX re-renders.
+        selectors = self._get_selectors()
+        selector_keys = {s.id for s in selectors}
+        parent_keys = {
+            getattr(s, "parent_id", "")
+            for s in selectors
+            if getattr(s, "is_dual", False)
+        }
+        parent_keys.discard("")
+        tracked_keys = selector_keys | parent_keys
+        seen_keys: set[str] = set()
 
         for key, values in selector_data.items():
-            if key in selector_keys:
+            if key in tracked_keys:
                 actual_values = [v for v in values if v]
                 if actual_values:
                     self._state[key] = actual_values
-                    seen_selectors.add(key)
+                    seen_keys.add(key)
 
-        # Clear unmentioned selectors
-        for key in selector_keys:
-            if key not in seen_selectors:
+        # Clear unmentioned fields so unchecking a dropdown actually
+        # drops the criterion (rather than leaving stale state).
+        for key in tracked_keys:
+            if key not in seen_keys:
                 self._state.pop(key, None)
 
     def _get_expert_ids_from_request(self) -> Generator[int]:

@@ -15,6 +15,9 @@ from app.modules.wip.services.newsroom.expert_selectors import (
     CompetencesGeneralesSelector,
     DepartementSelector,
     FilterOption,
+    FonctionAssociationsSyndicatsSelector,
+    FonctionOrganisationsPriveesSelector,
+    FonctionPolitiquesAdministrativesSelector,
     FonctionSelector,
     LanguesSelector,
     MetierSelector,
@@ -521,3 +524,118 @@ class TestBaseSelectorValues:
         selector = SecteurSelector(state, experts_with_profiles)
 
         assert selector.values == {"Tech"}
+
+
+class TestDualSelector:
+    """Phase 3 of bug #0150 (Annie's ciblage request): 7 fields render
+    as a parent → child cascade, reusing KYC's dual_select_multi
+    widget shape (so we inherit the #0119 fix that made it actually
+    work)."""
+
+    def test_dual_selectors_advertise_themselves(self, experts_with_profiles):
+        """Each of the 7 cascading selectors sets `is_dual = True`
+        so the template can route it to the cascade partial instead
+        of the flat dropdown macro."""
+        state: dict = {}
+        duals = [
+            SecteurSelector(state, experts_with_profiles),
+            TypeOrganisationSelector(state, experts_with_profiles),
+            FonctionPolitiquesAdministrativesSelector(state, experts_with_profiles),
+            FonctionOrganisationsPriveesSelector(state, experts_with_profiles),
+            FonctionAssociationsSyndicatsSelector(state, experts_with_profiles),
+            MetierSelector(state, experts_with_profiles),
+            CompetencesGeneralesSelector(state, experts_with_profiles),
+        ]
+        for s in duals:
+            assert s.is_dual is True, (
+                f"{type(s).__name__} should render as a dual cascade"
+            )
+            assert s.parent_id, f"{type(s).__name__} missing parent_id"
+            assert s.parent_id != s.id, (
+                f"{type(s).__name__} parent_id must differ from id "
+                "(they are independent form fields)"
+            )
+            assert s.taxonomy_name, f"{type(s).__name__} missing taxonomy_name"
+
+    def test_get_data_returns_repr_of_parent_selection(
+        self, experts_with_profiles, db_session
+    ):
+        """`get_data()` produces a Python-literal repr of selected
+        parents — that's what the dual_select_multi.j2 inline JS
+        consumes for the initial Tom-Select state."""
+        state = {"secteur_parent": ["Agriculture", "Tech"]}
+        selector = SecteurSelector(state, experts_with_profiles)
+        rendered = selector.get_data()
+        # Order may vary because state lists are stored as-is.
+        assert "Agriculture" in rendered
+        assert "Tech" in rendered
+        # repr-of-list shape, not JSON
+        assert rendered.startswith("[")
+        assert rendered.endswith("]")
+
+    def test_get_data2_returns_repr_of_child_selection(self, experts_with_profiles):
+        """`get_data2()` produces a repr-list of selected child values."""
+        state = {"secteur": ["Tech", "Media"]}
+        selector = SecteurSelector(state, experts_with_profiles)
+        rendered = selector.get_data2()
+        assert "Tech" in rendered
+        assert "Media" in rendered
+
+    def test_get_data_empty_when_no_parent_selected(self, experts_with_profiles):
+        """An empty cascade renders `[]` — the JS expects a Python list
+        literal, never `None`."""
+        state = {}
+        selector = SecteurSelector(state, experts_with_profiles)
+        assert selector.get_data() == "[]"
+        assert selector.get_data2() == "[]"
+
+    def test_dual_choices_for_js_has_field1_and_field2(
+        self, experts_with_profiles, db_session
+    ):
+        """`get_dual_tom_choices_for_js()` returns a dict with `field1`
+        (parents) and `field2` (qualified `Parent / Child` items) —
+        the shape `dual_select_multi.j2` consumes.
+
+        Production taxonomy entries for dual fields use qualified
+        `"Parent / Child"` values (the bootstrap formats them that
+        way); the test seeds the same shape so the JS-side parent
+        derivation (`value.split(' / ')[0]`) works end-to-end.
+        """
+        create_entry(
+            taxonomy_name="secteur_detaille",
+            name="Agriculture / Viticulture",
+            category="Agriculture",
+            value="Agriculture / Viticulture",
+        )
+        create_entry(
+            taxonomy_name="secteur_detaille",
+            name="Agriculture / Élevage",
+            category="Agriculture",
+            value="Agriculture / Élevage",
+        )
+        db_session.flush()
+
+        state: dict = {}
+        selector = SecteurSelector(state, experts_with_profiles)
+        choices = selector.get_dual_tom_choices_for_js()
+        assert "field1" in choices
+        assert "field2" in choices
+        # field1 = parent categories
+        parent_labels = {row["label"] for row in choices["field1"]}
+        assert "Agriculture" in parent_labels
+        # field2 = qualified Parent / Child entries
+        child_labels = {row["label"] for row in choices["field2"]}
+        assert any(label.startswith("Agriculture / ") for label in child_labels), (
+            f"Expected `Agriculture / X` entries, got {child_labels}"
+        )
+
+    def test_filter_still_uses_child_values(self, experts_with_profiles):
+        """The cascade upgrade is UI-only — the filter pipeline still
+        compares against the expert's detail-list values exactly like
+        the single-level selector did."""
+        state = {}
+        selector = SecteurSelector(state, experts_with_profiles)
+        # Fixture: Bob/Charlie don't hold Finance — Bob does.
+        result = selector.filter_experts({"Finance"}, experts_with_profiles)
+        assert len(result) == 1
+        assert result[0].email == "expert2@test.com"

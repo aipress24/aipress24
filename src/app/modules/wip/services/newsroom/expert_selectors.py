@@ -35,7 +35,8 @@ from app.modules.kyc.field_label import (
     country_code_to_country_name,
     taille_orga_code_to_label,
 )
-from app.services.taxonomies import get_taxonomy
+from app.modules.kyc.lib.dual_select_multi import convert_dual_choices_js
+from app.services.taxonomies import get_taxonomy, get_taxonomy_dual_select
 
 # Type alias for filter state that can contain:
 # - Filter values (list[str]) for selectors like secteur, metier, etc.
@@ -80,6 +81,9 @@ class BaseSelector(abc.ABC):
     id: str
     label: str
     taxonomy_name: str | None = None
+    # Phase 3 of bug #0150: subclasses set this to True when they
+    # render via the dual-select (parent / child) cascade widget.
+    is_dual: bool = False
 
     def __init__(
         self,
@@ -185,15 +189,108 @@ def _normalize(text: str) -> str:
 
 
 # ----------------------------------------------------------------
+# Dual-select cascade (parent → child) base class
+# ----------------------------------------------------------------
+
+
+class DualSelector(BaseSelector):
+    """Two-level cascade selector (parent category → detail).
+
+    Reuses the KYC `dual_select_multi.j2` widget shape so the same
+    Alpine/TomSelect choreography (already fixed for bug #0119) keeps
+    powering the cascade — no new JS to debug. Annie's explicit
+    warning « les sélecteurs sur 2 niveaux, il faut que ça marche! »
+    is the reason we don't roll our own.
+
+    Contract:
+    - `id` / `label` (inherited) — the *child* / detail field, the
+      one that actually feeds the filter pipeline.
+    - `parent_id` / `parent_label` — the parent dropdown that narrows
+      the child list. Its state is tracked in `FilterState` but it
+      isn't a filter criterion by itself (we don't store parent
+      values on expert profiles for these taxonomies).
+    - `taxonomy_name` — a *multidual* ontology name. Pulled via
+      `get_taxonomy_dual_select(name)` to feed the cascade.
+    - Detail values are qualified « Parent / Child » — same shape
+      KYC stores on profiles, so filtering works directly on the
+      profile's detail list.
+
+    Exposes the same shape as `wtforms` so the existing KYC
+    `dual_select_multi.j2` template can be reused with `selector` in
+    place of `field` (see the ciblage template's `render_dual_selector`
+    macro).
+    """
+
+    is_dual: bool = True
+    parent_id: str
+    parent_label: str
+
+    # --- WTForms-like attributes consumed by dual_select_multi.j2 ---
+
+    @property
+    def name(self) -> str:
+        # The parent dropdown's HTML name (= form key for parent state).
+        return self.parent_id
+
+    @property
+    def name2(self) -> str:
+        # The child dropdown's HTML name (= the actual filter key).
+        return self.id
+
+    @property
+    def id2(self) -> str:
+        return self.id
+
+    @property
+    def label2(self) -> str:
+        return self.label
+
+    lock: bool = False
+
+    @property
+    def flags(self) -> _RequiredFlag:
+        return _RequiredFlag(required=False)
+
+    # --- Cascade data feed ---
+
+    def get_dual_tom_choices_for_js(self) -> dict:
+        """Cascade options for inline JS, shape per `convert_dual_choices_js`."""
+        choices = get_taxonomy_dual_select(self.taxonomy_name or "")
+        return convert_dual_choices_js(choices)
+
+    def get_data(self) -> str:
+        """`repr` of currently-selected PARENT values (inline JS init)."""
+        parents = self._state.get(self.parent_id, [])
+        if isinstance(parents, str):
+            parents = [parents]
+        elif not isinstance(parents, list):
+            parents = list(parents)
+        return repr([str(p) for p in parents])
+
+    def get_data2(self) -> str:
+        """`repr` of currently-selected DETAIL values (inline JS init)."""
+        return repr(sorted(self.values))
+
+
+@dataclass(frozen=True)
+class _RequiredFlag:
+    """Mimics `wtforms.fields.Field.flags.required` for template reuse."""
+
+    required: bool
+
+
+# ----------------------------------------------------------------
 # Selector Implementations
 # ----------------------------------------------------------------
 
 
-class SecteurSelector(BaseSelector):
-    """Filter by sector of activity (detailed level)."""
+class SecteurSelector(DualSelector):
+    """Filter by sector of activity — two-level cascade."""
 
     id = "secteur"
-    label = "Secteur d'activité"
+    label = "Secteurs d'activité détaillés"
+    parent_id = "secteur_parent"
+    parent_label = "Catégorie de secteur"
     taxonomy_name = "secteur_detaille"
 
     def _expert_values(self, expert: User) -> Iterable[str]:
@@ -227,9 +324,11 @@ class LanguesSelector(BaseSelector):
         return expert.profile.langues
 
 
-class MetierSelector(BaseSelector):
+class MetierSelector(DualSelector):
     id = "metier"
     label = "Métier"
+    parent_id = "metier_parent"
+    parent_label = "Famille de métier"
     taxonomy_name = "metier"
 
     def _expert_values(self, expert: User) -> Iterable[str]:
@@ -273,36 +372,44 @@ class FonctionJournalismeSelector(BaseSelector):
         return expert.profile.fonctions_journalisme
 
 
-class FonctionPolitiquesAdministrativesSelector(BaseSelector):
+class FonctionPolitiquesAdministrativesSelector(DualSelector):
     id = "fonction_pol_adm"
     label = "Fonctions politiques et administratives"
+    parent_id = "fonction_pol_adm_parent"
+    parent_label = "Famille de fonction publique"
     taxonomy_name = "profession_fonction_public"
 
     def _expert_values(self, expert: User) -> Iterable[str]:
         return expert.profile.fonctions_pol_adm_detail
 
 
-class FonctionOrganisationsPriveesSelector(BaseSelector):
+class FonctionOrganisationsPriveesSelector(DualSelector):
     id = "fonction_org_priv"
     label = "Fonctions organisations privées"
+    parent_id = "fonction_org_priv_parent"
+    parent_label = "Famille de fonction privée"
     taxonomy_name = "profession_fonction_prive"
 
     def _expert_values(self, expert: User) -> Iterable[str]:
         return expert.profile.fonctions_org_priv_detail
 
 
-class FonctionAssociationsSyndicatsSelector(BaseSelector):
+class FonctionAssociationsSyndicatsSelector(DualSelector):
     id = "fonction_ass_syn"
     label = "Fonctions associations et syndicats"
+    parent_id = "fonction_ass_syn_parent"
+    parent_label = "Famille de fonction associative"
     taxonomy_name = "profession_fonction_asso"
 
     def _expert_values(self, expert: User) -> Iterable[str]:
         return expert.profile.fonctions_ass_syn_detail
 
 
-class CompetencesGeneralesSelector(BaseSelector):
+class CompetencesGeneralesSelector(DualSelector):
     id = "competences"
     label = "Compétences générales"
+    parent_id = "competences_parent"
+    parent_label = "Famille de compétence"
     taxonomy_name = "competence_expert"
 
     def _expert_values(self, expert: User) -> Iterable[str]:
@@ -318,9 +425,11 @@ class CompetencesJournalismeSelector(BaseSelector):
         return expert.profile.competences_journalisme
 
 
-class TypeOrganisationSelector(BaseSelector):
+class TypeOrganisationSelector(DualSelector):
     id = "type_organisation"
-    label = "Type d'organisation"
+    label = "Types d'organisation"
+    parent_id = "type_organisation_parent"
+    parent_label = "Catégorie d'organisation"
     taxonomy_name = "type_organisation_detail"
 
     def _expert_values(self, expert: User) -> Iterable[str]:

@@ -40,7 +40,11 @@
           </h3>
           <div class="grid lg:grid-cols-2 gap-4">
             {% for selector in section.selectors %}
-              {{ render_selector(selector, model) }}
+              {% if selector.is_dual %}
+                {% include "wip/avis_enquete/_dual_selector.j2" %}
+              {% else %}
+                {{ render_selector(selector, model) }}
+              {% endif %}
             {% endfor %}
           </div>
         </section>

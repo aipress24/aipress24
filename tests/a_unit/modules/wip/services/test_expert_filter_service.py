@@ -1361,6 +1361,48 @@ class TestStateManagement:
             assert "secteur" in service._state
             assert service._state["secteur"] == ["Tech", "Finance"]
 
+    def test_update_state_tracks_dual_parent_field(self, db_session, app) -> None:
+        """Phase 3 of bug #0150: dual selectors expose a `*_parent`
+        field next to the child filter. Its state must be tracked so
+        the cascade UI keeps the parent selection across HTMX
+        re-renders. The parent value itself doesn't filter experts —
+        only the child does — but state is the only way the JS knows
+        which parents are currently active."""
+        expert1 = _create_expert_with_profile(
+            db_session, "e1@test.com", secteurs=["Tech"]
+        )
+
+        with (
+            app.test_request_context(
+                method="POST",
+                headers={"HX-Request": "true"},
+                data={
+                    "selector_change": "secteur_parent",
+                    "secteur_parent": ["Agriculture"],
+                    "secteur": ["Agriculture / Viticulture"],
+                },
+            ),
+            patch(
+                "app.modules.wip.services.newsroom.expert_filter.container"
+            ) as mock_container,
+        ):
+            mock_session: dict = {}
+            mock_user_repo = MagicMock()
+            mock_user_repo.list.return_value = [expert1]
+            mock_container.get.return_value = mock_session
+
+            service = ExpertFilterService()
+            service._session = mock_session
+            service._user_repo = mock_user_repo
+            service._state = {}
+
+            service._update_state_from_request()
+
+            assert service._state.get("secteur_parent") == ["Agriculture"], (
+                "Parent field must survive in state, not be stripped"
+            )
+            assert service._state.get("secteur") == ["Agriculture / Viticulture"]
+
     def test_update_state_ignores_non_htmx_request(self, db_session, app) -> None:
         """State is NOT updated from non-HTMX requests."""
         # Request without HX-Request header
