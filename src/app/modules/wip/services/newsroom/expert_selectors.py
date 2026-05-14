@@ -9,12 +9,19 @@ métier, langue, …). It contributes (1) the list of options surfaced
 in the dropdown, (2) the predicate used to keep / drop experts in
 the candidate pool.
 
-Phase 1 of bug #0150 / Annie's ciblage request reshapes the option
-source: dropdowns now show the **full KYC taxonomy** (not just values
-present in the current expert pool), with each option suffixed by
-`(N)` — the number of experts in the candidate pool that match. This
-lets a journalist « ratisser plus large » when the database is sparse
-and instantly see which criteria would zero out the result set.
+Bug #0150 / Annie's ciblage request — option source:
+
+- Options come from the union of (KYC taxonomy ∪ values held by
+  experts ∪ values the user has already selected).
+- Only options matched by ≥ 1 expert in the current candidate pool
+  appear in the dropdown — the user explicitly asked for this after
+  the first cut: a criterion that immediately empties the result
+  set is frustrating noise.
+- Currently-selected values are preserved across HTMX re-renders
+  even if their count drops to 0 (otherwise the user's own chips
+  would vanish mid-edit).
+- Each option's label carries a `(N)` suffix so the user sees the
+  remaining headroom before committing.
 
 Selectors that are not backed by a static taxonomy (département,
 ville — derived from country selection) keep their data-driven
@@ -109,16 +116,17 @@ class BaseSelector(abc.ABC):
     def get_values(self) -> set[str]:
         """Available raw values for this selector.
 
-        Default: union of the full taxonomy (when `taxonomy_name` is
-        set) and the values currently held by any expert. The union
-        guarantees that legacy data entered before a taxonomy change
-        is not silently dropped from the list, while still surfacing
-        every option an admin can pick today.
+        Default: union of (a) the full taxonomy (when `taxonomy_name`
+        is set), (b) values currently held by any expert, and (c)
+        values the user has already selected. (a)+(b) supports legacy
+        rows whose values fell out of the taxonomy; (c) ensures a
+        chip the user typed never disappears mid-flight when an HTMX
+        re-render narrows the candidate pool.
 
         Subclasses with a derived data source (département, ville)
         override this.
         """
-        result: set[str] = set()
+        result: set[str] = set(self.values)
         if self.taxonomy_name:
             result.update(get_taxonomy(self.taxonomy_name))
         for expert in self._experts:
@@ -165,16 +173,31 @@ class BaseSelector(abc.ABC):
         return value
 
     def _make_options(self, values: Iterable[str]) -> list[FilterOption]:
-        """Build the sorted, count-annotated option list."""
+        """Build the sorted, count-annotated option list.
+
+        Options with zero matching experts are filtered out: the rule
+        Annie asked for after seeing the first cut — selecting a
+        criterion that immediately produces an empty result set is
+        frustrating, so taxonomy entries that aren't held by any
+        expert in the current candidate pool simply don't appear.
+
+        A *currently-selected* value is kept even at count 0 so the
+        UI never silently drops a chip the user can see; otherwise an
+        HTMX re-render after a parent change would erase the user's
+        own picks.
+        """
         seen: set[str] = set()
         rows: list[tuple[str, FilterOption]] = []
         for value in values:
             if not value or value in seen:
                 continue
             seen.add(value)
-            selected = "selected" if value in self.values else ""
-            label_text = self._label_for(value)
             count = self._count_by_value.get(value, 0)
+            is_selected = value in self.values
+            if count == 0 and not is_selected:
+                continue
+            label_text = self._label_for(value)
+            selected = "selected" if is_selected else ""
             display = f"{label_text} ({count})"
             sort_key = _normalize(label_text)
             rows.append((sort_key, FilterOption(value, display, selected)))
@@ -261,9 +284,40 @@ class DualSelector(BaseSelector):
     # and the inline JS would be unparseable.
 
     def get_dual_tom_choices_for_js(self) -> dict:
-        """Cascade options, shape per `convert_dual_choices_js`."""
-        choices = get_taxonomy_dual_select(self.taxonomy_name or "")
-        return convert_dual_choices_js(choices)
+        """Cascade options, shape per `convert_dual_choices_js`.
+
+        Same rule as flat selectors: an option only appears if at
+        least one expert in the candidate pool holds it. For the
+        cascade that means:
+
+        - **Child (`field2`)**: surviving values are those held by
+          ≥1 expert *or* currently selected by the user (preserved
+          across HTMX re-renders).
+        - **Parent (`field1`)**: keep a category only if it has at
+          least one surviving child (or is currently selected as a
+          parent itself). Otherwise the parent dropdown would offer
+          dead-ends that empty the child list.
+        """
+        raw = convert_dual_choices_js(
+            get_taxonomy_dual_select(self.taxonomy_name or "")
+        )
+        selected_parents = set(self._state.get(self.parent_id, []) or [])
+        if isinstance(selected_parents, str):
+            selected_parents = {selected_parents}
+
+        surviving_children = [
+            opt
+            for opt in raw["field2"]
+            if self._count_by_value.get(opt["value"], 0) > 0
+            or opt["value"] in self.values
+        ]
+        live_categories = {opt["value"].split(" / ")[0] for opt in surviving_children}
+        surviving_parents = [
+            opt
+            for opt in raw["field1"]
+            if opt["value"] in live_categories or opt["value"] in selected_parents
+        ]
+        return {"field1": surviving_parents, "field2": surviving_children}
 
     def get_data(self) -> list[str]:
         """Currently-selected PARENT values (init payload for the cascade)."""

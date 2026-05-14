@@ -422,14 +422,13 @@ class TestOntologyBackedOptions:
     zero out the result set.
     """
 
-    def test_secteur_options_include_zero_match_taxonomy_entries(
+    def test_zero_match_taxonomy_entries_are_filtered_out(
         self, experts_with_profiles, db_session
     ):
-        """A taxonomy entry that no expert holds still appears in the
-        dropdown, with `(0)` so the user knows it's empty.
-
-        Taxonomy entries are addressed by their `name` (what's stored
-        on KYC profiles), so we assert against the name we injected.
+        """A taxonomy entry that no expert holds must NOT appear in
+        the dropdown. (User-tightened rule after the first cut: « un
+        item ne doit apparaître comme option dans les sélecteurs que
+        quand il y a au moins 1 match possible ».)
         """
         create_entry(
             taxonomy_name="secteur_detaille",
@@ -442,12 +441,23 @@ class TestOntologyBackedOptions:
         state = {}
         selector = SecteurSelector(state, experts_with_profiles)
         option_ids = {o.id for o in selector.options}
-        assert "Phantom sector" in option_ids, (
-            "Full taxonomy must surface in dropdown even when 0 experts match"
+        assert "Phantom sector" not in option_ids, (
+            "Taxonomy entries unmatched by any expert must be filtered "
+            "out so the user never picks a criterion that empties the "
+            "result set"
         )
-        phantom = next(o for o in selector.options if o.id == "Phantom sector")
-        assert phantom.label.endswith("(0)"), (
-            f"Zero-match option must carry `(0)` badge, got {phantom.label!r}"
+
+    def test_selected_zero_count_option_is_preserved(self, experts_with_profiles):
+        """If a user already picked a value (state) but no expert in the
+        current pool now matches it (e.g. an HTMX re-render after a
+        parent change narrowed the pool), the chip must NOT silently
+        disappear from the rendered options — otherwise the textarea
+        loses the user's selection mid-flight."""
+        state = {"secteur": ["Some-value-no-expert-has"]}
+        selector = SecteurSelector(state, experts_with_profiles)
+        option_ids = {o.id for o in selector.options}
+        assert "Some-value-no-expert-has" in option_ids, (
+            "Currently-selected values must survive even at count 0"
         )
 
     def test_option_label_carries_count_badge(self, experts_with_profiles):
@@ -464,33 +474,49 @@ class TestOntologyBackedOptions:
             "shrinks to 0."
         )
 
-    def test_count_badge_zero_for_pool_misses(self, experts_with_profiles):
-        """An option held by zero experts shows `(0)` — not omitted,
-        not blank."""
+    def test_only_matching_options_appear(self, experts_with_profiles):
+        """Only options held by ≥ 1 expert appear in the dropdown.
+
+        The fixture seeds 3 experts whose sectors are Tech, Media,
+        Finance. Other taxonomy entries (e.g. AÉRONAUTIQUE from the
+        bootstrap data) must NOT appear because no expert matches.
+        """
         state = {}
         selector = SecteurSelector(state, experts_with_profiles)
-        non_match = next(
-            (o for o in selector.options if o.id not in {"Tech", "Media", "Finance"}),
-            None,
-        )
-        if non_match is None:
-            pytest.skip("Test taxonomy doesn't expose a non-matching entry")
-        assert non_match.label.endswith("(0)"), (
-            f"Non-matching taxonomy option must carry `(0)`, got {non_match.label!r}"
+        option_ids = {o.id for o in selector.options}
+        assert option_ids == {"Tech", "Media", "Finance"}, (
+            f"Only expert-held values must appear; got {option_ids}"
         )
 
     def test_no_hard_cap_on_option_count(self, experts_with_profiles, db_session):
         """Bug #0150 root: `MAX_OPTIONS = 100` truncated the dropdown
         — the user couldn't reach taxonomies beyond the first 100
-        entries. The cap is gone; we surface every taxonomy entry.
+        entries. The cap is gone; we surface every taxonomy entry
+        that at least one expert holds.
+
+        Inject 150 sector codes ALL held by the fixture expert (via
+        match_making.secteurs_activite) so the count > 0 rule keeps
+        them in the dropdown, then assert the option list isn't
+        truncated at 100.
         """
-        # Inject 150 phantom entries to prove the cap is gone.
-        for i in range(150):
+        sectors = [f"Phantom {i:03d}" for i in range(150)]
+        for name in sectors:
             create_entry(
                 taxonomy_name="secteur_detaille",
-                name=f"Phantom {i:03d}",
+                name=name,
                 category="Bench",
-                value=f"phantom_{i:03d}",
+                value=name,
+            )
+        # Spread the synthetic sectors across the 3 experts so each
+        # has count >= 1 in the pool — otherwise the new « hide 0
+        # match » rule would filter them all out and the test would
+        # measure the wrong thing.
+        for i, expert in enumerate(experts_with_profiles):
+            expert.profile.info_professionnelle["secteurs_activite_medias_detail"] = (
+                expert.profile.info_professionnelle.get(
+                    "secteurs_activite_medias_detail", []
+                )
+                + sectors[i * 50 : (i + 1) * 50]
             )
         db_session.flush()
 
@@ -595,6 +621,11 @@ class TestDualSelector:
         `"Parent / Child"` values (the bootstrap formats them that
         way); the test seeds the same shape so the JS-side parent
         derivation (`value.split(' / ')[0]`) works end-to-end.
+
+        Note: under the « only matching » rule, parents survive only
+        if they have a surviving child. Assign one of the synthetic
+        Agriculture details to the fixture expert so the parent isn't
+        filtered out.
         """
         create_entry(
             taxonomy_name="secteur_detaille",
@@ -608,6 +639,13 @@ class TestDualSelector:
             category="Agriculture",
             value="Agriculture / Élevage",
         )
+        # Give one expert a matching child so Agriculture survives.
+        existing_secteurs = experts_with_profiles[0].profile.info_professionnelle.get(
+            "secteurs_activite_medias_detail", []
+        )
+        experts_with_profiles[0].profile.info_professionnelle[
+            "secteurs_activite_medias_detail"
+        ] = [*existing_secteurs, "Agriculture / Viticulture"]
         db_session.flush()
 
         state: dict = {}
