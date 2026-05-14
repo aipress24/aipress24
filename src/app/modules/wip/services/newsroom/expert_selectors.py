@@ -2,31 +2,59 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
-"""Expert filtering service for Avis d'Enquête targeting."""
+"""Expert filtering service for Avis d'Enquête targeting.
+
+Each `BaseSelector` subclass owns one filter dimension (secteur,
+métier, langue, …). It contributes (1) the list of options surfaced
+in the dropdown, (2) the predicate used to keep / drop experts in
+the candidate pool.
+
+Phase 1 of bug #0150 / Annie's ciblage request reshapes the option
+source: dropdowns now show the **full KYC taxonomy** (not just values
+present in the current expert pool), with each option suffixed by
+`(N)` — the number of experts in the candidate pool that match. This
+lets a journalist « ratisser plus large » when the database is sparse
+and instantly see which criteria would zero out the result set.
+
+Selectors that are not backed by a static taxonomy (département,
+ville — derived from country selection) keep their data-driven
+behaviour.
+"""
 
 from __future__ import annotations
 
 import abc
 import unicodedata
+from collections import Counter
+from collections.abc import Iterable
 from dataclasses import dataclass
+from functools import cached_property
 
 from app.models.auth import User
 from app.modules.kyc.field_label import (
     country_code_to_country_name,
     taille_orga_code_to_label,
 )
+from app.services.taxonomies import get_taxonomy
 
 # Type alias for filter state that can contain:
 # - Filter values (list[str]) for selectors like secteur, metier, etc.
 # - Expert IDs (list[int]) for selected_experts
 FilterState = dict[str, str | list[str] | list[int]]
 
-MAX_OPTIONS = 100
-
 
 @dataclass(frozen=True, order=True)
 class FilterOption:
-    """A selectable filter option."""
+    """A selectable filter option.
+
+    `label` is the display text the user sees in the dropdown — it
+    includes the `(N)` count badge appended by `BaseSelector`. `id`
+    is the raw value used for filtering and DB storage; never enrich
+    it. Sort order is by `id` first (default dataclass `order`), but
+    `BaseSelector._make_options` re-sorts on a diacritic-stripped
+    version of the label-stem (count badge stripped) so the visual
+    order is alphabetical regardless of count.
+    """
 
     id: str
     label: str
@@ -34,15 +62,24 @@ class FilterOption:
 
 
 class BaseSelector(abc.ABC):
-    """
-    Base class for expert filter selectors.
+    """Base class for ciblage filter selectors.
 
-    Each selector filters experts by a specific criterion
-    (e.g., sector, location, organization type).
+    Subclasses declare:
+
+    - `id`, `label` — DOM/form id and human-readable section title.
+    - `taxonomy_name` — name of the static taxonomy that backs the
+      dropdown options. When set, options come from
+      `get_taxonomy(taxonomy_name)` and cover the FULL list, not just
+      values present in `self._experts`. Set to `None` for
+      data-driven selectors (département, ville).
+    - `_expert_values(expert)` — extracts the values this expert has
+      for this dimension. Used both to compute per-option counts and
+      to filter the expert pool.
     """
 
     id: str
     label: str
+    taxonomy_name: str | None = None
 
     def __init__(
         self,
@@ -63,34 +100,88 @@ class BaseSelector(abc.ABC):
     @property
     def options(self) -> list[FilterOption]:
         """Get available options for this selector."""
-        choice_values = self.get_values()
-        return self._make_options(choice_values)[:MAX_OPTIONS]
+        return self._make_options(self.get_values())
 
-    @abc.abstractmethod
     def get_values(self) -> set[str]:
-        """Get available values for this selector."""
+        """Available raw values for this selector.
+
+        Default: union of the full taxonomy (when `taxonomy_name` is
+        set) and the values currently held by any expert. The union
+        guarantees that legacy data entered before a taxonomy change
+        is not silently dropped from the list, while still surfacing
+        every option an admin can pick today.
+
+        Subclasses with a derived data source (département, ville)
+        override this.
+        """
+        result: set[str] = set()
+        if self.taxonomy_name:
+            result.update(get_taxonomy(self.taxonomy_name))
+        for expert in self._experts:
+            result.update(self._expert_values(expert))
+        return result
 
     @abc.abstractmethod
+    def _expert_values(self, expert: User) -> Iterable[str]:
+        """Return the values this expert has for this selector."""
+
     def filter_experts(
         self,
         criteria: set[str],
         experts: list[User],
     ) -> list[User]:
-        """Filter experts by criteria."""
+        """Default filter: keep experts whose `_expert_values` intersect
+        the criteria. Subclasses with non-list semantics override."""
+        if not criteria:
+            return experts
+        return [
+            e for e in experts if any(v in criteria for v in self._expert_values(e))
+        ]
 
-    def _make_options(self, values: set[str]) -> list[FilterOption]:
-        """Convert values to FilterOption list."""
-        options: set[FilterOption] = set()
+    @cached_property
+    def _count_by_value(self) -> dict[str, int]:
+        """Per-value count of matching experts in the candidate pool.
+
+        Lazy on first access so a test that instantiates a selector
+        without intending to render options doesn't pay (or trip on)
+        the expert profile iteration.
+        """
+        counter: Counter[str] = Counter()
+        for expert in self._experts:
+            for value in self._expert_values(expert):
+                counter[value] += 1
+        return dict(counter)
+
+    def _label_for(self, value: str) -> str:
+        """Display label for `value` before the count badge.
+
+        Override for selectors whose raw value is a code (taille,
+        pays). Default: value is its own label.
+        """
+        return value
+
+    def _make_options(self, values: Iterable[str]) -> list[FilterOption]:
+        """Build the sorted, count-annotated option list."""
+        seen: set[str] = set()
+        rows: list[tuple[str, FilterOption]] = []
         for value in values:
+            if not value or value in seen:
+                continue
+            seen.add(value)
             selected = "selected" if value in self.values else ""
-            option = FilterOption(value, value, selected)
-            options.add(option)
-        return sorted(options, key=self._sorter)
+            label_text = self._label_for(value)
+            count = self._count_by_value.get(value, 0)
+            display = f"{label_text} ({count})"
+            sort_key = _normalize(label_text)
+            rows.append((sort_key, FilterOption(value, display, selected)))
+        rows.sort(key=lambda r: r[0])
+        return [opt for _, opt in rows]
 
-    def _sorter(self, option: FilterOption) -> str:
-        """Sort key that ignores diacritics."""
-        normalized = unicodedata.normalize("NFKD", option.label)
-        return "".join(c for c in normalized if unicodedata.category(c) != "Mn")
+
+def _normalize(text: str) -> str:
+    """Sort key that ignores diacritics and case."""
+    normalized = unicodedata.normalize("NFKD", text)
+    return "".join(c for c in normalized if unicodedata.category(c) != "Mn").lower()
 
 
 # ----------------------------------------------------------------
@@ -99,372 +190,171 @@ class BaseSelector(abc.ABC):
 
 
 class SecteurSelector(BaseSelector):
-    """Filter by sector of activity."""
+    """Filter by sector of activity (detailed level)."""
 
     id = "secteur"
     label = "Secteur d'activité"
+    taxonomy_name = "secteur_detaille"
 
-    def get_values(self) -> set[str]:
-        merged: set[str] = set()
-        for expert in self._experts:
-            merged.update(expert.profile.secteurs_activite)
-        return merged
-
-    def filter_experts(
-        self,
-        criteria: set[str],
-        experts: list[User],
-    ) -> list[User]:
-        if not criteria:
-            return experts
-        return [
-            e
-            for e in experts
-            if any(x in criteria for x in e.profile.secteurs_activite)
-        ]
+    def _expert_values(self, expert: User) -> Iterable[str]:
+        return expert.profile.secteurs_activite
 
 
 class TypeEntreprisePresseMediasSelector(BaseSelector):
-    """Filter by Type d'entreprise presse & médias."""
-
     id = "type_entreprise_presse_medias"
     label = "Type d'entreprise presse & médias"
+    taxonomy_name = "type_entreprises_medias"
 
-    def get_values(self) -> set[str]:
-        merged: set[str] = set()
-        for expert in self._experts:
-            merged.update(expert.profile.type_entreprise_media)
-        return merged
-
-    def filter_experts(
-        self,
-        criteria: set[str],
-        experts: list[User],
-    ) -> list[User]:
-        if not criteria:
-            return experts
-        return [
-            e
-            for e in experts
-            if any(x in criteria for x in e.profile.type_entreprise_media)
-        ]
+    def _expert_values(self, expert: User) -> Iterable[str]:
+        return expert.profile.type_entreprise_media
 
 
 class TypePresseMediasSelector(BaseSelector):
-    """Filter by Type of presse & médias."""
-
     id = "type_presse_et_media"
     label = "Type presse et médias"
+    taxonomy_name = "media_type"
 
-    def get_values(self) -> set[str]:
-        merged: set[str] = set()
-        for expert in self._experts:
-            merged.update(expert.profile.type_presse_et_media)
-        return merged
-
-    def filter_experts(
-        self,
-        criteria: set[str],
-        experts: list[User],
-    ) -> list[User]:
-        if not criteria:
-            return experts
-        return [
-            e
-            for e in experts
-            if any(x in criteria for x in e.profile.type_presse_et_media)
-        ]
+    def _expert_values(self, expert: User) -> Iterable[str]:
+        return expert.profile.type_presse_et_media
 
 
 class LanguesSelector(BaseSelector):
-    """Filter by Type of presse & médias."""
-
     id = "langues"
     label = "Langues"
+    taxonomy_name = "langue"
 
-    def get_values(self) -> set[str]:
-        merged: set[str] = set()
-        for expert in self._experts:
-            merged.update(expert.profile.langues)
-        return merged
-
-    def filter_experts(
-        self,
-        criteria: set[str],
-        experts: list[User],
-    ) -> list[User]:
-        if not criteria:
-            return experts
-        return [e for e in experts if any(x in criteria for x in e.profile.langues)]
+    def _expert_values(self, expert: User) -> Iterable[str]:
+        return expert.profile.langues
 
 
 class MetierSelector(BaseSelector):
-    """Filter by profession/trade."""
-
     id = "metier"
     label = "Métier"
+    taxonomy_name = "metier"
 
-    def get_values(self) -> set[str]:
-        merged: set[str] = set()
-        for expert in self._experts:
-            merged.update(expert.tous_metiers)
-        return merged
-
-    def filter_experts(
-        self,
-        criteria: set[str],
-        experts: list[User],
-    ) -> list[User]:
-        if not criteria:
-            return experts
-        return [e for e in experts if any(x in criteria for x in e.tous_metiers)]
+    def _expert_values(self, expert: User) -> Iterable[str]:
+        return expert.tous_metiers
 
 
 class FonctionSelector(BaseSelector):
-    """Filter by job function."""
+    """Aggregate « toutes fonctions » selector across the three families."""
 
     id = "fonction"
     label = "Toutes fonctions"
+    # No single taxonomy backs "toutes fonctions" — it's the union of
+    # pol/adm, org-priv, ass/syn. We union the three taxonomies so
+    # the dropdown shows every possible function across the platform.
+    taxonomy_name = None  # populated below
+
+    def _expert_values(self, expert: User) -> Iterable[str]:
+        return expert.profile.toutes_fonctions
 
     def get_values(self) -> set[str]:
-        merged: set[str] = set()
+        # Union of the three function taxonomies + values held by
+        # current experts. Keeps « toutes fonctions » truly inclusive.
+        result: set[str] = set()
+        for tx in (
+            "profession_fonction_public",
+            "profession_fonction_prive",
+            "profession_fonction_asso",
+        ):
+            result.update(get_taxonomy(tx))
         for expert in self._experts:
-            merged.update(expert.profile.toutes_fonctions)
-        return merged
-
-    def filter_experts(
-        self,
-        criteria: set[str],
-        experts: list[User],
-    ) -> list[User]:
-        if not criteria:
-            return experts
-        return [
-            e for e in experts if any(x in criteria for x in e.profile.toutes_fonctions)
-        ]
+            result.update(self._expert_values(expert))
+        return result
 
 
 class FonctionJournalismeSelector(BaseSelector):
-    """Filter by job function."""
-
     id = "fonction_journalisme"
     label = "Fonctions du journalisme"
+    taxonomy_name = "journalisme_fonction"
 
-    def get_values(self) -> set[str]:
-        merged: set[str] = set()
-        for expert in self._experts:
-            merged.update(expert.profile.fonctions_journalisme)
-        return merged
-
-    def filter_experts(
-        self,
-        criteria: set[str],
-        experts: list[User],
-    ) -> list[User]:
-        if not criteria:
-            return experts
-        return [
-            e
-            for e in experts
-            if any(x in criteria for x in e.profile.fonctions_journalisme)
-        ]
+    def _expert_values(self, expert: User) -> Iterable[str]:
+        return expert.profile.fonctions_journalisme
 
 
 class FonctionPolitiquesAdministrativesSelector(BaseSelector):
-    """Filter by job function."""
-
     id = "fonction_pol_adm"
     label = "Fonctions politiques et administratives"
+    taxonomy_name = "profession_fonction_public"
 
-    def get_values(self) -> set[str]:
-        merged: set[str] = set()
-        for expert in self._experts:
-            merged.update(expert.profile.fonctions_pol_adm_detail)
-        return merged
-
-    def filter_experts(
-        self,
-        criteria: set[str],
-        experts: list[User],
-    ) -> list[User]:
-        if not criteria:
-            return experts
-        return [
-            e
-            for e in experts
-            if any(x in criteria for x in e.profile.fonctions_pol_adm_detail)
-        ]
+    def _expert_values(self, expert: User) -> Iterable[str]:
+        return expert.profile.fonctions_pol_adm_detail
 
 
 class FonctionOrganisationsPriveesSelector(BaseSelector):
-    """Filter by job function."""
-
     id = "fonction_org_priv"
     label = "Fonctions organisations privées"
+    taxonomy_name = "profession_fonction_prive"
 
-    def get_values(self) -> set[str]:
-        merged: set[str] = set()
-        for expert in self._experts:
-            merged.update(expert.profile.fonctions_org_priv_detail)
-        return merged
-
-    def filter_experts(
-        self,
-        criteria: set[str],
-        experts: list[User],
-    ) -> list[User]:
-        if not criteria:
-            return experts
-        return [
-            e
-            for e in experts
-            if any(x in criteria for x in e.profile.fonctions_org_priv_detail)
-        ]
+    def _expert_values(self, expert: User) -> Iterable[str]:
+        return expert.profile.fonctions_org_priv_detail
 
 
 class FonctionAssociationsSyndicatsSelector(BaseSelector):
-    """Filter by job function."""
-
     id = "fonction_ass_syn"
     label = "Fonctions associations et syndicats"
+    taxonomy_name = "profession_fonction_asso"
 
-    def get_values(self) -> set[str]:
-        merged: set[str] = set()
-        for expert in self._experts:
-            merged.update(expert.profile.fonctions_ass_syn_detail)
-        return merged
-
-    def filter_experts(
-        self,
-        criteria: set[str],
-        experts: list[User],
-    ) -> list[User]:
-        if not criteria:
-            return experts
-        return [
-            e
-            for e in experts
-            if any(x in criteria for x in e.profile.fonctions_ass_syn_detail)
-        ]
+    def _expert_values(self, expert: User) -> Iterable[str]:
+        return expert.profile.fonctions_ass_syn_detail
 
 
 class CompetencesGeneralesSelector(BaseSelector):
-    """Filter by competences."""
-
     id = "competences"
     label = "Compétences générales"
+    taxonomy_name = "competence_expert"
 
-    def get_values(self) -> set[str]:
-        merged: set[str] = set()
-        for expert in self._experts:
-            merged.update(expert.profile.competences)
-        return merged
-
-    def filter_experts(
-        self,
-        criteria: set[str],
-        experts: list[User],
-    ) -> list[User]:
-        if not criteria:
-            return experts
-        return [e for e in experts if any(x in criteria for x in e.profile.competences)]
+    def _expert_values(self, expert: User) -> Iterable[str]:
+        return expert.profile.competences
 
 
 class CompetencesJournalismeSelector(BaseSelector):
-    """Filter by competences journalisme."""
-
     id = "competences_journalisme"
     label = "Compétences journalisme"
+    taxonomy_name = "journalisme_competence"
 
-    def get_values(self) -> set[str]:
-        merged: set[str] = set()
-        for expert in self._experts:
-            merged.update(expert.profile.competences_journalisme)
-        return merged
-
-    def filter_experts(
-        self,
-        criteria: set[str],
-        experts: list[User],
-    ) -> list[User]:
-        if not criteria:
-            return experts
-        return [
-            e
-            for e in experts
-            if any(x in criteria for x in e.profile.competences_journalisme)
-        ]
+    def _expert_values(self, expert: User) -> Iterable[str]:
+        return expert.profile.competences_journalisme
 
 
 class TypeOrganisationSelector(BaseSelector):
-    """Filter by organization type."""
-
     id = "type_organisation"
     label = "Type d'organisation"
+    taxonomy_name = "type_organisation_detail"
 
-    def get_values(self) -> set[str]:
-        merged: set[str] = set()
-        for expert in self._experts:
-            merged.update(expert.profile.type_organisation)
-        return merged
-
-    def filter_experts(
-        self,
-        criteria: set[str],
-        experts: list[User],
-    ) -> list[User]:
-        if not criteria:
-            return experts
-        return [
-            e
-            for e in experts
-            if any(x in criteria for x in e.profile.type_organisation)
-        ]
+    def _expert_values(self, expert: User) -> Iterable[str]:
+        return expert.profile.type_organisation
 
 
 class TailleOrganisationSelector(BaseSelector):
-    """Filter by organization size."""
-
     id = "taille_organisation"
     label = "Taille de l'organisation"
+    taxonomy_name = "taille_organisation"
 
-    def get_values(self) -> set[str]:
-        merged: set[str] = set()
-        for expert in self._experts:
-            merged.update(expert.profile.taille_organisation)
-        return merged
+    def _expert_values(self, expert: User) -> Iterable[str]:
+        return expert.profile.taille_organisation
 
-    def filter_experts(
-        self,
-        criteria: set[str],
-        experts: list[User],
-    ) -> list[User]:
-        if not criteria:
-            return experts
-        return [
-            e
-            for e in experts
-            if any(x in criteria for x in e.profile.taille_organisation)
-        ]
-
-    def _make_options(self, values: set[str]) -> list[FilterOption]:
-        options: set[FilterOption] = set()
-        for value in values:
-            selected = "selected" if value in self.values else ""
-            label = taille_orga_code_to_label(value)
-            option = FilterOption(value, label, selected)
-            options.add(option)
-        return sorted(options)
+    def _label_for(self, value: str) -> str:
+        return taille_orga_code_to_label(value)
 
 
 class PaysSelector(BaseSelector):
-    """Filter by country."""
+    """Filter by country.
+
+    Backed by the `pays` taxonomy but the country code stored on a
+    profile is a single string, not a list — so `_expert_values`
+    wraps it in a single-element list and `filter_experts` is
+    overridden to compare on equality.
+    """
 
     id = "pays"
     label = "Pays"
+    taxonomy_name = "pays"
 
-    def get_values(self) -> set[str]:
-        return {e.profile.country for e in self._experts}
+    def _expert_values(self, expert: User) -> Iterable[str]:
+        country = expert.profile.country
+        return [country] if country else []
 
     def filter_experts(
         self,
@@ -475,21 +365,26 @@ class PaysSelector(BaseSelector):
             return experts
         return [e for e in experts if e.profile.country in criteria]
 
-    def _make_options(self, values: set[str]) -> list[FilterOption]:
-        options: set[FilterOption] = set()
-        for value in values:
-            selected = "selected" if value in self.values else ""
-            label = country_code_to_country_name(value)
-            option = FilterOption(value, label, selected)
-            options.add(option)
-        return sorted(options, key=self._sorter)
+    def _label_for(self, value: str) -> str:
+        return country_code_to_country_name(value)
 
 
 class DepartementSelector(BaseSelector):
-    """Filter by department (French administrative division)."""
+    """Filter by department.
+
+    Data-driven (no fixed taxonomy): the list of departments shown
+    depends on which countries are currently selected. Kept narrow on
+    purpose — listing all FR + intl departments would explode the
+    dropdown.
+    """
 
     id = "departement"
     label = "Département"
+    taxonomy_name = None
+
+    def _expert_values(self, expert: User) -> Iterable[str]:
+        dep = expert.profile.departement
+        return [dep] if dep else []
 
     def get_values(self) -> set[str]:
         selected_countries = self._state.get("pays")
@@ -498,11 +393,11 @@ class DepartementSelector(BaseSelector):
         if isinstance(selected_countries, str):
             country_criteria: set[str] = {selected_countries}
         else:
-            country_criteria = set(selected_countries)
+            country_criteria = {str(v) for v in selected_countries}
         return {
             u.profile.departement
             for u in self._experts
-            if u.profile.country in country_criteria
+            if u.profile.country in country_criteria and u.profile.departement
         }
 
     def filter_experts(
@@ -516,10 +411,15 @@ class DepartementSelector(BaseSelector):
 
 
 class VilleSelector(BaseSelector):
-    """Filter by city."""
+    """Filter by city — derived from selected departments."""
 
     id = "ville"
     label = "Ville"
+    taxonomy_name = None
+
+    def _expert_values(self, expert: User) -> Iterable[str]:
+        ville = expert.profile.ville
+        return [ville] if ville else []
 
     def get_values(self) -> set[str]:
         selected_departements = self._state.get("departement")
@@ -528,11 +428,11 @@ class VilleSelector(BaseSelector):
         if isinstance(selected_departements, str):
             departement_criteria: set[str] = {selected_departements}
         else:
-            departement_criteria = set(selected_departements)
+            departement_criteria = {str(v) for v in selected_departements}
         return {
             u.profile.ville
             for u in self._experts
-            if u.profile.departement in departement_criteria
+            if u.profile.departement in departement_criteria and u.profile.ville
         }
 
     def filter_experts(

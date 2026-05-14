@@ -24,6 +24,7 @@ from app.modules.wip.services.newsroom.expert_selectors import (
     TypeOrganisationSelector,
     VilleSelector,
 )
+from app.services.taxonomies import create_entry
 
 if TYPE_CHECKING:
     from sqlalchemy.orm import Session
@@ -405,6 +406,96 @@ class TestBaseSelectorOptions:
         # Check options are sorted
         labels = [o.label for o in options]
         assert labels == sorted(labels)
+
+
+class TestOntologyBackedOptions:
+    """Phase 1 of bug #0150 (Annie / ciblage taxonomies tronquées).
+
+    Selectors with a `taxonomy_name` surface the **full** KYC ontology
+    in their option list, not just values present in the candidate
+    expert pool. Each option carries a `(N)` count of matching experts
+    so the user knows up-front whether selecting a criterion will
+    zero out the result set.
+    """
+
+    def test_secteur_options_include_zero_match_taxonomy_entries(
+        self, experts_with_profiles, db_session
+    ):
+        """A taxonomy entry that no expert holds still appears in the
+        dropdown, with `(0)` so the user knows it's empty.
+
+        Taxonomy entries are addressed by their `name` (what's stored
+        on KYC profiles), so we assert against the name we injected.
+        """
+        create_entry(
+            taxonomy_name="secteur_detaille",
+            name="Phantom sector",
+            category="Other",
+            value="phantom_sector_xyz",
+        )
+        db_session.flush()
+
+        state = {}
+        selector = SecteurSelector(state, experts_with_profiles)
+        option_ids = {o.id for o in selector.options}
+        assert "Phantom sector" in option_ids, (
+            "Full taxonomy must surface in dropdown even when 0 experts match"
+        )
+        phantom = next(o for o in selector.options if o.id == "Phantom sector")
+        assert phantom.label.endswith("(0)"), (
+            f"Zero-match option must carry `(0)` badge, got {phantom.label!r}"
+        )
+
+    def test_option_label_carries_count_badge(self, experts_with_profiles):
+        """Every option's label ends with ` (N)` where N is the count
+        of experts in the pool matching that value."""
+        state = {}
+        selector = SecteurSelector(state, experts_with_profiles)
+        # Fixture has 3 experts: Alice/Bob/Charlie all hold "Tech".
+        tech = next((o for o in selector.options if o.id == "Tech"), None)
+        assert tech is not None
+        assert tech.label == "Tech (3)", (
+            f"Expected `Tech (3)`, got {tech.label!r}. Counts feed the user's "
+            "decision to keep a criterion or drop it before the result set "
+            "shrinks to 0."
+        )
+
+    def test_count_badge_zero_for_pool_misses(self, experts_with_profiles):
+        """An option held by zero experts shows `(0)` — not omitted,
+        not blank."""
+        state = {}
+        selector = SecteurSelector(state, experts_with_profiles)
+        non_match = next(
+            (o for o in selector.options if o.id not in {"Tech", "Media", "Finance"}),
+            None,
+        )
+        if non_match is None:
+            pytest.skip("Test taxonomy doesn't expose a non-matching entry")
+        assert non_match.label.endswith("(0)"), (
+            f"Non-matching taxonomy option must carry `(0)`, got {non_match.label!r}"
+        )
+
+    def test_no_hard_cap_on_option_count(self, experts_with_profiles, db_session):
+        """Bug #0150 root: `MAX_OPTIONS = 100` truncated the dropdown
+        — the user couldn't reach taxonomies beyond the first 100
+        entries. The cap is gone; we surface every taxonomy entry.
+        """
+        # Inject 150 phantom entries to prove the cap is gone.
+        for i in range(150):
+            create_entry(
+                taxonomy_name="secteur_detaille",
+                name=f"Phantom {i:03d}",
+                category="Bench",
+                value=f"phantom_{i:03d}",
+            )
+        db_session.flush()
+
+        state = {}
+        selector = SecteurSelector(state, experts_with_profiles)
+        assert len(selector.options) > 100, (
+            "Dropdown must not cap at 100 options — that was the "
+            "« tronqué » symptom Annie reported."
+        )
 
 
 class TestBaseSelectorValues:
