@@ -692,13 +692,12 @@ class TestDualSelector:
                 "secteurs_activite_medias_detail", []
             )
             child = (
-                "Agriculture / Viticulture"
-                if i % 2 == 0
-                else "Agriculture / Élevage"
+                "Agriculture / Viticulture" if i % 2 == 0 else "Agriculture / Élevage"
             )
-            expert.profile.info_professionnelle[
-                "secteurs_activite_medias_detail"
-            ] = [*existing, child]
+            expert.profile.info_professionnelle["secteurs_activite_medias_detail"] = [
+                *existing,
+                child,
+            ]
         db_session.flush()
 
         state: dict = {}
