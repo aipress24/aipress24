@@ -55,32 +55,122 @@
 
     <script>
       (function() {
+          // Re-fire the ciblage HTMX search whenever a selector changes.
+          // Shared between the flat selectors and the dual cascade so
+          // they behave identically — see bug #0150 phase 3.
+          function fireSearchUpdate() {
+              let values = htmx.values(htmx.find('#search-form'));
+              values.selector_change = 1;
+              const url = "{{ url_for('AvisEnqueteWipView:ciblage', id=model.id) }}";
+              htmx.ajax('GET', url, {
+                  target: '#main',
+                  select: '#main',
+                  values: values
+              });
+          }
+
+          // Tom-Select on flat selectors (single-level dropdowns).
+          function initFlatSelectors() {
+              document.querySelectorAll('.tom-select-it').forEach(el => {
+                  if (el.tomselect) return;
+                  new TomSelect(el, {
+                      maxOptions: null,
+                      maxItems: null,
+                      allowEmptyOption: true,
+                      plugins: ['remove_button'],
+                      onChange: fireSearchUpdate
+                  });
+              });
+          }
+
+          // Tom-Select on dual-cascade selectors (parent → child).
+          // Payload is carried on data-* attributes (HTML-attribute-safe
+          // JSON via Flask's tojson). One init per `.dual-select-cascade`
+          // container — much easier to debug than 7 parallel Alpine
+          // instances. Bug #0150 phase 3.
+          function initDualSelectors() {
+              document.querySelectorAll('.dual-select-cascade').forEach(container => {
+                  if (container.dataset.tomInitialized === '1') return;
+                  container.dataset.tomInitialized = '1';
+
+                  const allOptions = JSON.parse(container.dataset.options || '{}');
+                  const initialParent = JSON.parse(container.dataset.value || '[]');
+                  const initialChild = JSON.parse(container.dataset.secondValue || '[]');
+                  const parentEl = container.querySelector('select[data-role="parent"]');
+                  const childEl = container.querySelector('select[data-role="child"]');
+                  if (!parentEl || !childEl) return;
+
+                  const parentSelect = new TomSelect(parentEl, {
+                      maxOptions: null,
+                      maxItems: null,
+                      options: allOptions.field1 || [],
+                      preload: false,
+                      labelField: 'label',
+                      searchField: ['label'],
+                      diacritics: true,
+                      plugins: { remove_button: { title: 'Retirer' } }
+                  });
+
+                  const childSelect = new TomSelect(childEl, {
+                      maxOptions: null,
+                      maxItems: null,
+                      preload: false,
+                      labelField: 'label',
+                      searchField: ['label'],
+                      diacritics: true,
+                      plugins: { remove_button: { title: 'Retirer' } }
+                  });
+                  childSelect.disable();
+
+                  let lastVal = [];
+                  function refreshChild() {
+                      const selection = parentSelect.getValue() || [];
+                      if (JSON.stringify(selection) === JSON.stringify(lastVal)) return;
+                      lastVal = selection;
+                      const secondList = (allOptions.field2 || []).filter(el => {
+                          const key = el.value.split(' / ')[0];
+                          return selection.includes(key);
+                      });
+                      const keepValues = childSelect.getValue();
+                      childSelect.clear();
+                      childSelect.clearOptions();
+                      childSelect.addOptions(secondList);
+                      // refreshOptions(false): bug #0119 fix — passing
+                      // an array misfires the API and truncates the
+                      // dropdown rendering at ~50 items.
+                      childSelect.refreshOptions(false);
+                      childSelect.enable();
+                      const validValues = new Set(secondList.map(o => o.value));
+                      const surviving = (Array.isArray(keepValues) ? keepValues : [keepValues])
+                          .filter(v => validValues.has(v));
+                      if (surviving.length) {
+                          childSelect.setValue(surviving, true);
+                      }
+                  }
+
+                  parentEl.addEventListener('change', () => {
+                      refreshChild();
+                      fireSearchUpdate();
+                  });
+                  childEl.addEventListener('change', fireSearchUpdate);
+
+                  if (initialParent.length > 0) {
+                      parentSelect.setValue(initialParent, true);
+                      refreshChild();
+                  }
+                  if (initialChild.length > 0) {
+                      childSelect.setValue(initialChild, true);
+                  }
+              });
+          }
+
           function setup() {
               if (typeof TomSelect === 'undefined') {
                   setTimeout(setup, 10);
                   return;
               }
-
-              document.querySelectorAll('.tom-select-it').forEach(el => {
-                  if (el.tomselect) return;
-
-                  const ts = new TomSelect(el, {
-                      maxOptions: null,
-                      maxItems: null,
-                      allowEmptyOption: true,
-                      plugins: ['remove_button'],
-                      onChange: function() {
-                          let values = htmx.values(htmx.find('#search-form'));
-                          values.selector_change = 1;
-                          const url = "{{ url_for('AvisEnqueteWipView:ciblage', id=model.id) }}";
-                          htmx.ajax('GET', url, {
-                              target: '#main',
-                              select: '#main',
-                              values: values
-                          });
-                      }
-                  });
-              });
+              initFlatSelectors();
+              initDualSelectors();
           }
           setup();
       })();

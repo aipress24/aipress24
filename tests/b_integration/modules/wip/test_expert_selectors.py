@@ -641,16 +641,20 @@ class TestDualSelector:
         r"""Regression for the « rendering horror »: the cascade payload
         must survive Jinja's autoescape on .j2 includes.
 
-        Symptom: with KYC's `repr(...)` approach, every `'` and `"`
-        in a label became `&#39;` / `&#34;` once Jinja rendered the
-        partial — the inline JS was unparseable and Tom-Select never
-        initialized. By returning raw Python and serializing with
-        `| tojson` in the template, we get HTML-attribute-safe JSON
-        (`'` → `'`, `<` → `<`, etc).
+        Symptom history:
+        1. The first version embedded the payload inline via
+           `x-data="{ all_options: {{ ... | tojson }} }"`. tojson
+           outputs literal `"` (JSON's own string delimiter), which
+           terminated the double-quoted HTML attribute prematurely.
+           Tom-Select never initialized.
+        2. Switched to a `data-options='...'` (single-quoted) attribute
+           because tojson escapes `'` to `'` — JSON's `"` is safe
+           inside `'...'`.
 
-        This test exercises the contract by rendering a tojson roundtrip
-        on a label that contains both an apostrophe and an angle bracket,
-        and verifies the JSON parses back into the original data.
+        This test pins the contract: a single-quoted HTML attribute
+        carrying `| tojson` output must round-trip when read back via
+        `dataset.X`. If it ever stops, the cascade degrades to raw
+        `<select>` again.
         """
         create_entry(
             taxonomy_name="secteur_detaille",
@@ -664,7 +668,26 @@ class TestDualSelector:
         selector = SecteurSelector(state, experts_with_profiles)
         choices = selector.get_dual_tom_choices_for_js()
 
-        # Render through Jinja's tojson and parse back — must match.
+        # Embedded in a single-quoted HTML attribute (the shape
+        # `_dual_selector.j2` actually emits). Extract via a naive
+        # parse and reparse the JSON — proves nothing inside the
+        # tojson output broke the `'` delimiter.
+        with app.app_context():
+            t_attr = app.jinja_env.from_string(
+                "<div data-options='{{ x | tojson }}'></div>"
+            )
+            rendered = t_attr.render(x=choices)
+        assert rendered.count("'") == 2, (
+            "tojson output broke the single-quoted attribute "
+            f"delimiter (extra `'` leaked through): {rendered!r}. "
+            "If this fails, the data-options attribute will be "
+            "truncated and JSON.parse(container.dataset.options) will "
+            "throw — Tom-Select stays on the original empty <select>."
+        )
+        inner = rendered.split("'")[1]
+        assert loads(inner) == choices
+
+        # And the raw tojson output is parseable JSON too.
         with app.app_context():
             t = app.jinja_env.from_string("{{ x | tojson }}")
             json_payload = t.render(x=choices)

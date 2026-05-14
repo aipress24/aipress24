@@ -1,128 +1,30 @@
 {# Two-level cascade selector for the ciblage page.
 
-   Adapted from `src/app/modules/kyc/lib/dual_select_multi.j2` so we
-   inherit the KYC fix for bug #0119 (the second dropdown
-   truncation). Differences vs. the KYC widget:
+   Renders a parent → child cascade. Carries the cascade payload on
+   `data-*` attributes; ciblage.j2 has a single `initDualSelectors()`
+   pass that wires Tom-Select on every `.dual-select-cascade` element.
 
-   - Takes a `selector` arg (not WTForms `field`) — see DualSelector
-     in expert_selectors.py for the shape contract.
-   - The Tom-Select script tag is loaded once by `ciblage.j2`
-     itself; we do NOT include it here (would otherwise re-load
-     7 times, once per dual selector instance).
-   - JSON payloads (taxonomy options + selected values) are emitted
-     in sibling `<script type="application/json">` tags and parsed at
-     init. Inline-attribute embedding (the KYC approach) doesn't
-     survive Jinja autoescape on `.j2` includes — labels containing
-     a `"` or `'` would either break the HTML attribute or arrive
-     as HTML entities the JS can't parse.
-   - HTMX onChange hook: any selection (parent or child) re-fires
-     the ciblage search exactly like the flat selectors do, so the
-     candidate list updates live.
+   Why no Alpine here:
+   - The earlier Alpine-based version (commit e5eadd37) used
+     `x-data="{ ... JSON.parse(document.getElementById(...).textContent) ... }"`
+     to feed the cascade. On the live page Tom-Select still didn't
+     init — easier to debug a single vanilla setup function than seven
+     parallel Alpine instances reading JSON across the DOM.
+   - The flat selectors already use a vanilla `querySelectorAll`
+     pattern that polls until TomSelect is loaded; reusing that
+     pattern keeps the page consistent.
+
+   `data-options`, `data-value`, `data-second-value` carry the JSON
+   payload (Flask's `tojson` makes it HTML-attribute-safe — `'`, `<`,
+   `>`, `&` all escaped to `\\uXXXX`). `data-ajax-url` carries the
+   HTMX search URL so the setup function can re-fire the search on
+   selection change.
 #}
-<script type="application/json"
-        id="dual-{{ selector.id }}-options">{{ selector.get_dual_tom_choices_for_js() | tojson }}</script>
-<script type="application/json"
-        id="dual-{{ selector.id }}-value">{{ selector.get_data() | tojson }}</script>
-<script type="application/json"
-        id="dual-{{ selector.id }}-second-value">{{ selector.get_data2() | tojson }}</script>
-
-<div class="aui-field-group mb-4 col-span-1 lg:col-span-2"
-     x-data="{
-       all_options: JSON.parse(document.getElementById('dual-{{ selector.id }}-options').textContent),
-       value: JSON.parse(document.getElementById('dual-{{ selector.id }}-value').textContent),
-       second_value: JSON.parse(document.getElementById('dual-{{ selector.id }}-second-value').textContent),
-       last_val: [],
-       current_val: [],
-       second_list: null,
-       init() {
-         this.$nextTick(() => {
-           const parentSelect = new TomSelect(this.$refs.parent_select, {
-             maxOptions: null,
-             maxItems: null,
-             options: this.all_options.field1,
-             preload: false,
-             labelField: 'label',
-             searchField: ['label'],
-             diacritics: true,
-             plugins: { remove_button: { title: 'Retirer' } }
-           });
-
-           const childSelect = new TomSelect(this.$refs.child_select, {
-             maxOptions: null,
-             maxItems: null,
-             preload: false,
-             labelField: 'label',
-             searchField: ['label'],
-             diacritics: true,
-             plugins: { remove_button: { title: 'Retirer' } }
-           });
-           childSelect.disable();
-
-           const fireSearchUpdate = () => {
-             let values = htmx.values(htmx.find('#search-form'));
-             values.selector_change = 1;
-             const url = '{{ url_for("AvisEnqueteWipView:ciblage", id=model.id) }}';
-             htmx.ajax('GET', url, {
-               target: '#main',
-               select: '#main',
-               values: values
-             });
-           };
-
-           const refreshChild = () => {
-             const selection = JSON.parse(JSON.stringify(this.value));
-             if (selection
-                 && JSON.stringify(selection) !== JSON.stringify(this.last_val)) {
-               this.last_val = selection;
-               this.second_list = [];
-               for (const el of this.all_options.field2) {
-                 const key = el.value.split(' / ')[0];
-                 if (selection.includes(key)) {
-                   this.second_list.push(el);
-                 }
-               }
-               displayChildList();
-             }
-           };
-
-           const displayChildList = () => {
-             if (this.current_val === this.last_val) return;
-             const keepValues = childSelect.getValue();
-             childSelect.clear();
-             childSelect.clearOptions();
-             childSelect.addOptions(this.second_list);
-             childSelect.refreshOptions(false);
-             childSelect.enable();
-             const validValues = new Set(this.second_list.map(o => o.value));
-             const surviving = (Array.isArray(keepValues) ? keepValues : [keepValues])
-               .filter(v => validValues.has(v));
-             if (surviving.length) {
-               childSelect.setValue(surviving, true);
-             }
-             this.current_val = this.last_val;
-           };
-
-           if (this.value.length > 0) {
-             parentSelect.setValue(this.value, true);
-           }
-
-           this.$refs.parent_select.addEventListener('change', () => {
-             this.value = parentSelect.getValue();
-             refreshChild();
-             fireSearchUpdate();
-           });
-
-           this.$refs.child_select.addEventListener('change', () => {
-             fireSearchUpdate();
-           });
-
-           refreshChild();
-           if (this.second_value.length > 0) {
-             childSelect.setValue(this.second_value, true);
-           }
-         });
-       }
-     }">
+<div class="aui-field-group mb-4 col-span-1 lg:col-span-2 dual-select-cascade"
+     data-options='{{ selector.get_dual_tom_choices_for_js() | tojson }}'
+     data-value='{{ selector.get_data() | tojson }}'
+     data-second-value='{{ selector.get_data2() | tojson }}'
+     data-ajax-url='{{ url_for("AvisEnqueteWipView:ciblage", id=model.id) }}'>
   <label for="{{ selector.parent_id }}" class="font-bold block mb-1">
     {{ selector.label }}
   </label>
@@ -131,7 +33,7 @@
     <div>
       <span class="text-xs text-gray-600 block mb-1">{{ selector.parent_label }}</span>
       <select
-          x-ref="parent_select"
+          data-role="parent"
           id="{{ selector.parent_id }}"
           name="{{ selector.parent_id }}"
           multiple>
@@ -140,7 +42,7 @@
     <div>
       <span class="text-xs text-gray-600 block mb-1">Détail</span>
       <select
-          x-ref="child_select"
+          data-role="child"
           id="{{ selector.id }}"
           name="{{ selector.id }}"
           multiple>
