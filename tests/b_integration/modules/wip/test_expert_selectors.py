@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+from json import loads
 from typing import TYPE_CHECKING
 
 import pytest
@@ -557,37 +558,31 @@ class TestDualSelector:
             )
             assert s.taxonomy_name, f"{type(s).__name__} missing taxonomy_name"
 
-    def test_get_data_returns_repr_of_parent_selection(
-        self, experts_with_profiles, db_session
-    ):
-        """`get_data()` produces a Python-literal repr of selected
-        parents — that's what the dual_select_multi.j2 inline JS
-        consumes for the initial Tom-Select state."""
+    def test_get_data_returns_list_of_parent_selection(self, experts_with_profiles):
+        """`get_data()` returns the list of selected parents. The
+        template serializes via `| tojson` so we don't `repr()` here
+        — repr-ing would conflict with Jinja autoescape on `.j2`
+        includes (every `'` would be HTML-encoded into the inline JS)."""
         state = {"secteur_parent": ["Agriculture", "Tech"]}
         selector = SecteurSelector(state, experts_with_profiles)
-        rendered = selector.get_data()
-        # Order may vary because state lists are stored as-is.
-        assert "Agriculture" in rendered
-        assert "Tech" in rendered
-        # repr-of-list shape, not JSON
-        assert rendered.startswith("[")
-        assert rendered.endswith("]")
+        result = selector.get_data()
+        assert isinstance(result, list)
+        assert set(result) == {"Agriculture", "Tech"}
 
-    def test_get_data2_returns_repr_of_child_selection(self, experts_with_profiles):
-        """`get_data2()` produces a repr-list of selected child values."""
+    def test_get_data2_returns_list_of_child_selection(self, experts_with_profiles):
+        """`get_data2()` returns the (sorted) list of selected child values."""
         state = {"secteur": ["Tech", "Media"]}
         selector = SecteurSelector(state, experts_with_profiles)
-        rendered = selector.get_data2()
-        assert "Tech" in rendered
-        assert "Media" in rendered
+        result = selector.get_data2()
+        assert isinstance(result, list)
+        assert set(result) == {"Tech", "Media"}
 
     def test_get_data_empty_when_no_parent_selected(self, experts_with_profiles):
-        """An empty cascade renders `[]` — the JS expects a Python list
-        literal, never `None`."""
+        """An empty cascade returns `[]` — never `None`."""
         state = {}
         selector = SecteurSelector(state, experts_with_profiles)
-        assert selector.get_data() == "[]"
-        assert selector.get_data2() == "[]"
+        assert selector.get_data() == []
+        assert selector.get_data2() == []
 
     def test_dual_choices_for_js_has_field1_and_field2(
         self, experts_with_profiles, db_session
@@ -639,3 +634,44 @@ class TestDualSelector:
         result = selector.filter_experts({"Finance"}, experts_with_profiles)
         assert len(result) == 1
         assert result[0].email == "expert2@test.com"
+
+    def test_render_payload_round_trips_through_tojson(
+        self, experts_with_profiles, db_session, app
+    ):
+        r"""Regression for the « rendering horror »: the cascade payload
+        must survive Jinja's autoescape on .j2 includes.
+
+        Symptom: with KYC's `repr(...)` approach, every `'` and `"`
+        in a label became `&#39;` / `&#34;` once Jinja rendered the
+        partial — the inline JS was unparseable and Tom-Select never
+        initialized. By returning raw Python and serializing with
+        `| tojson` in the template, we get HTML-attribute-safe JSON
+        (`'` → `'`, `<` → `<`, etc).
+
+        This test exercises the contract by rendering a tojson roundtrip
+        on a label that contains both an apostrophe and an angle bracket,
+        and verifies the JSON parses back into the original data.
+        """
+        create_entry(
+            taxonomy_name="secteur_detaille",
+            name="L'industrie <auto>",
+            category="Mobilités",
+            value="Mobilités / L'industrie <auto>",
+        )
+        db_session.flush()
+
+        state: dict = {}
+        selector = SecteurSelector(state, experts_with_profiles)
+        choices = selector.get_dual_tom_choices_for_js()
+
+        # Render through Jinja's tojson and parse back — must match.
+        with app.app_context():
+            t = app.jinja_env.from_string("{{ x | tojson }}")
+            json_payload = t.render(x=choices)
+            roundtrip = loads(json_payload)
+        assert roundtrip == choices, (
+            "tojson must round-trip without losing data — if this fails, "
+            "the inline JS in _dual_selector.j2 will not parse the "
+            "taxonomy options and the cascade UI will degrade to raw "
+            "<select> elements."
+        )

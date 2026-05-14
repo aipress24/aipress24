@@ -9,15 +9,28 @@
    - The Tom-Select script tag is loaded once by `ciblage.j2`
      itself; we do NOT include it here (would otherwise re-load
      7 times, once per dual selector instance).
+   - JSON payloads (taxonomy options + selected values) are emitted
+     in sibling `<script type="application/json">` tags and parsed at
+     init. Inline-attribute embedding (the KYC approach) doesn't
+     survive Jinja autoescape on `.j2` includes — labels containing
+     a `"` or `'` would either break the HTML attribute or arrive
+     as HTML entities the JS can't parse.
    - HTMX onChange hook: any selection (parent or child) re-fires
      the ciblage search exactly like the flat selectors do, so the
      candidate list updates live.
 #}
+<script type="application/json"
+        id="dual-{{ selector.id }}-options">{{ selector.get_dual_tom_choices_for_js() | tojson }}</script>
+<script type="application/json"
+        id="dual-{{ selector.id }}-value">{{ selector.get_data() | tojson }}</script>
+<script type="application/json"
+        id="dual-{{ selector.id }}-second-value">{{ selector.get_data2() | tojson }}</script>
+
 <div class="aui-field-group mb-4 col-span-1 lg:col-span-2"
      x-data="{
-       all_options: {{ selector.get_dual_tom_choices_for_js() }},
-       value: {{ selector.get_data() }},
-       second_value: {{ selector.get_data2() }},
+       all_options: JSON.parse(document.getElementById('dual-{{ selector.id }}-options').textContent),
+       value: JSON.parse(document.getElementById('dual-{{ selector.id }}-value').textContent),
+       second_value: JSON.parse(document.getElementById('dual-{{ selector.id }}-second-value').textContent),
        last_val: [],
        current_val: [],
        second_list: null,
@@ -74,18 +87,12 @@
 
            const displayChildList = () => {
              if (this.current_val === this.last_val) return;
-             // Preserve current child selection across re-renders so a
-             // user who flips a parent off doesn't lose unrelated picks.
              const keepValues = childSelect.getValue();
              childSelect.clear();
              childSelect.clearOptions();
              childSelect.addOptions(this.second_list);
-             // refreshOptions(false) — bug #0119 fix: passing the option
-             // array misfires the API and truncates the dropdown at
-             // ~50 items. Boolean only.
              childSelect.refreshOptions(false);
              childSelect.enable();
-             // Re-apply selections that survive the new parent set.
              const validValues = new Set(this.second_list.map(o => o.value));
              const surviving = (Array.isArray(keepValues) ? keepValues : [keepValues])
                .filter(v => validValues.has(v));
@@ -122,7 +129,7 @@
 
   <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
     <div>
-      <span class="text-xs text-gray-600">{{ selector.parent_label }}</span>
+      <span class="text-xs text-gray-600 block mb-1">{{ selector.parent_label }}</span>
       <select
           x-ref="parent_select"
           id="{{ selector.parent_id }}"
@@ -131,7 +138,7 @@
       </select>
     </div>
     <div>
-      <span class="text-xs text-gray-600">Détail</span>
+      <span class="text-xs text-gray-600 block mb-1">Détail</span>
       <select
           x-ref="child_select"
           id="{{ selector.id }}"

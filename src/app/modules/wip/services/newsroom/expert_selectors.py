@@ -252,24 +252,31 @@ class DualSelector(BaseSelector):
         return _RequiredFlag(required=False)
 
     # --- Cascade data feed ---
+    #
+    # NB: methods return raw Python data structures; the template
+    # serializes them via `| tojson` to get HTML-attribute-safe JSON.
+    # Returning `repr()` strings (like KYC's widget) doesn't work here
+    # because the ciblage partial is loaded by `{% include %}` and goes
+    # through Jinja autoescape — every `"` and `'` would be HTML-encoded
+    # and the inline JS would be unparseable.
 
     def get_dual_tom_choices_for_js(self) -> dict:
-        """Cascade options for inline JS, shape per `convert_dual_choices_js`."""
+        """Cascade options, shape per `convert_dual_choices_js`."""
         choices = get_taxonomy_dual_select(self.taxonomy_name or "")
         return convert_dual_choices_js(choices)
 
-    def get_data(self) -> str:
-        """`repr` of currently-selected PARENT values (inline JS init)."""
+    def get_data(self) -> list[str]:
+        """Currently-selected PARENT values (init payload for the cascade)."""
         parents = self._state.get(self.parent_id, [])
         if isinstance(parents, str):
             parents = [parents]
         elif not isinstance(parents, list):
             parents = list(parents)
-        return repr([str(p) for p in parents])
+        return [str(p) for p in parents]
 
-    def get_data2(self) -> str:
-        """`repr` of currently-selected DETAIL values (inline JS init)."""
-        return repr(sorted(self.values))
+    def get_data2(self) -> list[str]:
+        """Currently-selected DETAIL values."""
+        return sorted(self.values)
 
 
 @dataclass(frozen=True)
