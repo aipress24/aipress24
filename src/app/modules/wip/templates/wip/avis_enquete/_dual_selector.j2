@@ -29,22 +29,31 @@
     {{ selector.label }}
   </label>
 
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-    <div>
+  {# Inner grid: parent dropdown on the left, child on the right.
+     Each `<select>` carries `placeholder` + Tailwind `w-full` so
+     Tom-Select inherits a stable column width when the widget is
+     empty — otherwise its wrapper shrinks to content and produces
+     the « tiny box » rendering seen on the live page. #}
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-2 w-full">
+    <div class="w-full">
       <span class="text-xs text-gray-600 block mb-1">{{ selector.parent_label }}</span>
       <select
           data-role="parent"
           id="{{ selector.parent_id }}"
           name="{{ selector.parent_id }}"
+          class="w-full"
+          placeholder="Choisir…"
           multiple>
       </select>
     </div>
-    <div>
+    <div class="w-full">
       <span class="text-xs text-gray-600 block mb-1">Détail</span>
       <select
           data-role="child"
           id="{{ selector.id }}"
           name="{{ selector.id }}"
+          class="w-full"
+          placeholder="Choisir…"
           multiple>
       </select>
     </div>

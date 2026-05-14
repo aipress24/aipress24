@@ -100,9 +100,14 @@
                   const childEl = container.querySelector('select[data-role="child"]');
                   if (!parentEl || !childEl) return;
 
+                  // `allowEmptyOption: true` matches the flat-selector
+                  // config — without it Tom-Select shrinks the empty
+                  // wrapper to a tiny content-sized box (visible on the
+                  // live page before this fix).
                   const parentSelect = new TomSelect(parentEl, {
                       maxOptions: null,
                       maxItems: null,
+                      allowEmptyOption: true,
                       options: allOptions.field1 || [],
                       preload: false,
                       labelField: 'label',
@@ -114,6 +119,7 @@
                   const childSelect = new TomSelect(childEl, {
                       maxOptions: null,
                       maxItems: null,
+                      allowEmptyOption: true,
                       preload: false,
                       labelField: 'label',
                       searchField: ['label'],
