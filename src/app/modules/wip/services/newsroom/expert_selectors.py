@@ -292,11 +292,14 @@ class DualSelector(BaseSelector):
 
         - **Child (`field2`)**: surviving values are those held by
           ≥1 expert *or* currently selected by the user (preserved
-          across HTMX re-renders).
+          across HTMX re-renders). Each child's label carries a
+          `(N)` count badge — same shape as the flat selector
+          labels, so the user sees the headroom before clicking.
         - **Parent (`field1`)**: keep a category only if it has at
           least one surviving child (or is currently selected as a
-          parent itself). Otherwise the parent dropdown would offer
-          dead-ends that empty the child list.
+          parent itself). The parent's `(N)` is the sum of counts
+          across its surviving children — a quick headline of how
+          many experts the whole category covers.
         """
         raw = convert_dual_choices_js(
             get_taxonomy_dual_select(self.taxonomy_name or "")
@@ -305,18 +308,35 @@ class DualSelector(BaseSelector):
         if isinstance(selected_parents, str):
             selected_parents = {selected_parents}
 
-        surviving_children = [
-            opt
-            for opt in raw["field2"]
-            if self._count_by_value.get(opt["value"], 0) > 0
-            or opt["value"] in self.values
-        ]
-        live_categories = {opt["value"].split(" / ")[0] for opt in surviving_children}
-        surviving_parents = [
-            opt
-            for opt in raw["field1"]
-            if opt["value"] in live_categories or opt["value"] in selected_parents
-        ]
+        surviving_children = []
+        per_parent_count: dict[str, int] = {}
+        for opt in raw["field2"]:
+            value = opt["value"]
+            count = self._count_by_value.get(value, 0)
+            if count == 0 and value not in self.values:
+                continue
+            parent_key = value.split(" / ")[0]
+            per_parent_count[parent_key] = per_parent_count.get(parent_key, 0) + count
+            surviving_children.append(
+                {"value": value, "label": f"{opt['label']} ({count})"}
+            )
+
+        surviving_parents = []
+        for opt in raw["field1"]:
+            parent_value = opt["value"]
+            if parent_value in per_parent_count:
+                surviving_parents.append(
+                    {
+                        "value": parent_value,
+                        "label": f"{opt['label']} ({per_parent_count[parent_value]})",
+                    }
+                )
+            elif parent_value in selected_parents:
+                # Preserve user's own selection across HTMX re-renders
+                # even when no expert matches any of its children.
+                surviving_parents.append(
+                    {"value": parent_value, "label": f"{opt['label']} (0)"}
+                )
         return {"field1": surviving_parents, "field2": surviving_children}
 
     def get_data(self) -> list[str]:

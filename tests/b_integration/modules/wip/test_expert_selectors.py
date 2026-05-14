@@ -653,13 +653,76 @@ class TestDualSelector:
         choices = selector.get_dual_tom_choices_for_js()
         assert "field1" in choices
         assert "field2" in choices
-        # field1 = parent categories
-        parent_labels = {row["label"] for row in choices["field1"]}
-        assert "Agriculture" in parent_labels
-        # field2 = qualified Parent / Child entries
-        child_labels = {row["label"] for row in choices["field2"]}
-        assert any(label.startswith("Agriculture / ") for label in child_labels), (
-            f"Expected `Agriculture / X` entries, got {child_labels}"
+        # field1 = parent categories. Values stay bare; labels carry `(N)`.
+        parent_values = {row["value"] for row in choices["field1"]}
+        assert "Agriculture" in parent_values
+        # field2 = qualified Parent / Child entries; values stay bare so
+        # the JS still splits on " / " to find the parent.
+        child_values = {row["value"] for row in choices["field2"]}
+        assert any(value.startswith("Agriculture / ") for value in child_values), (
+            f"Expected `Agriculture / X` entries, got {child_values}"
+        )
+
+    def test_dual_cascade_labels_carry_count_badge(
+        self, experts_with_profiles, db_session
+    ):
+        """Bug reported by Stéphane on 2026-05-14: « le badge (N)
+        n'apparaît pas sur les cascades ». The flat selectors enrich
+        each option's label with ` (N)` in `_make_options`; the
+        cascade used to bypass that path entirely (returned the raw
+        labels from `convert_dual_choices_js`). Both child AND parent
+        labels must now carry the badge — the parent count is the
+        sum of its surviving children's counts."""
+        # Two children under « Agriculture », both matched.
+        create_entry(
+            taxonomy_name="secteur_detaille",
+            name="Agriculture / Viticulture",
+            category="Agriculture",
+            value="Agriculture / Viticulture",
+        )
+        create_entry(
+            taxonomy_name="secteur_detaille",
+            name="Agriculture / Élevage",
+            category="Agriculture",
+            value="Agriculture / Élevage",
+        )
+        # Spread the children so the parent's aggregated count = 3.
+        for i, expert in enumerate(experts_with_profiles):
+            existing = expert.profile.info_professionnelle.get(
+                "secteurs_activite_medias_detail", []
+            )
+            child = (
+                "Agriculture / Viticulture"
+                if i % 2 == 0
+                else "Agriculture / Élevage"
+            )
+            expert.profile.info_professionnelle[
+                "secteurs_activite_medias_detail"
+            ] = [*existing, child]
+        db_session.flush()
+
+        state: dict = {}
+        selector = SecteurSelector(state, experts_with_profiles)
+        choices = selector.get_dual_tom_choices_for_js()
+
+        # Child labels carry their own count.
+        child_by_value = {opt["value"]: opt["label"] for opt in choices["field2"]}
+        assert child_by_value.get("Agriculture / Viticulture") == (
+            "Agriculture / Viticulture (2)"
+        ), (
+            f"Expected `Agriculture / Viticulture (2)`, got "
+            f"{child_by_value.get('Agriculture / Viticulture')!r}"
+        )
+        assert child_by_value.get("Agriculture / Élevage") == (
+            "Agriculture / Élevage (1)"
+        )
+
+        # Parent label sums the surviving children's counts.
+        parent_by_value = {opt["value"]: opt["label"] for opt in choices["field1"]}
+        assert parent_by_value.get("Agriculture") == "Agriculture (3)", (
+            f"Expected `Agriculture (3)`, got "
+            f"{parent_by_value.get('Agriculture')!r} — "
+            "parent count must aggregate its surviving children."
         )
 
     def test_dual_cascade_hides_zero_match_children(
