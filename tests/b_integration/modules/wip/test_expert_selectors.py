@@ -662,6 +662,89 @@ class TestDualSelector:
             f"Expected `Agriculture / X` entries, got {child_labels}"
         )
 
+    def test_dual_cascade_hides_zero_match_children(
+        self, experts_with_profiles, db_session
+    ):
+        """The « ≥ 1 match » rule also applies to the cascade.
+
+        Seed two children under « Agriculture »: one matched by an
+        expert, one not. The matched one survives in `field2`, the
+        unmatched one is filtered out.
+        """
+        create_entry(
+            taxonomy_name="secteur_detaille",
+            name="Agriculture / Viticulture",
+            category="Agriculture",
+            value="Agriculture / Viticulture",
+        )
+        create_entry(
+            taxonomy_name="secteur_detaille",
+            name="Agriculture / Élevage",
+            category="Agriculture",
+            value="Agriculture / Élevage",
+        )
+        existing = experts_with_profiles[0].profile.info_professionnelle.get(
+            "secteurs_activite_medias_detail", []
+        )
+        experts_with_profiles[0].profile.info_professionnelle[
+            "secteurs_activite_medias_detail"
+        ] = [*existing, "Agriculture / Viticulture"]
+        db_session.flush()
+
+        state: dict = {}
+        selector = SecteurSelector(state, experts_with_profiles)
+        choices = selector.get_dual_tom_choices_for_js()
+
+        child_values = {opt["value"] for opt in choices["field2"]}
+        assert "Agriculture / Viticulture" in child_values, (
+            "Matched child must survive the cascade filter"
+        )
+        assert "Agriculture / Élevage" not in child_values, (
+            "Unmatched child must be filtered from the cascade"
+        )
+
+    def test_dual_cascade_hides_parents_with_no_matching_children(
+        self, experts_with_profiles, db_session
+    ):
+        """A parent category that has no expert-matched child must
+        NOT appear in the cascade's parent dropdown.
+
+        Seed two parents:
+        - « Agriculture » with a matched child → must appear.
+        - « Pétrochimie » with only unmatched children → must be hidden.
+        """
+        create_entry(
+            taxonomy_name="secteur_detaille",
+            name="Agriculture / Viticulture",
+            category="Agriculture",
+            value="Agriculture / Viticulture",
+        )
+        create_entry(
+            taxonomy_name="secteur_detaille",
+            name="Pétrochimie / Raffinage",
+            category="Pétrochimie",
+            value="Pétrochimie / Raffinage",
+        )
+        existing = experts_with_profiles[0].profile.info_professionnelle.get(
+            "secteurs_activite_medias_detail", []
+        )
+        experts_with_profiles[0].profile.info_professionnelle[
+            "secteurs_activite_medias_detail"
+        ] = [*existing, "Agriculture / Viticulture"]
+        db_session.flush()
+
+        state: dict = {}
+        selector = SecteurSelector(state, experts_with_profiles)
+        choices = selector.get_dual_tom_choices_for_js()
+        parent_values = {opt["value"] for opt in choices["field1"]}
+        assert "Agriculture" in parent_values, (
+            "Parent with at least one expert-matched child must appear"
+        )
+        assert "Pétrochimie" not in parent_values, (
+            "Parent with zero expert-matched children must be hidden — "
+            "otherwise it would offer a dead-end category to the user"
+        )
+
     def test_filter_still_uses_child_values(self, experts_with_profiles):
         """The cascade upgrade is UI-only — the filter pipeline still
         compares against the expert's detail-list values exactly like
