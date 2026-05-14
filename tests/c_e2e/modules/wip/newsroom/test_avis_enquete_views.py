@@ -194,6 +194,86 @@ class TestJournalistAvisEnqueteViews:
         response = logged_in_client.get(url)
         assert response.status_code == 200
 
+    def test_ciblage_renders_four_sections(
+        self, logged_in_client: FlaskClient, test_avis_enquete: AvisEnquete
+    ):
+        """Bug #0150 phase 2: the page renders the 4 thematic section
+        headings Annie asked for. If a refactor drops one, this fails
+        before reaching the browser."""
+        url = url_for("AvisEnqueteWipView:ciblage", id=test_avis_enquete.id)
+        body = logged_in_client.get(url).data.decode()
+        for heading in (
+            "Secteurs d&#39;activité et types d&#39;organisation",
+            "Géolocalisation",
+            "Fonctions",
+            "Métiers, compétences &amp; langues",
+        ):
+            assert heading in body, (
+                f"Section heading {heading!r} missing from ciblage page"
+            )
+
+    def test_ciblage_emits_dual_cascade_containers(
+        self, logged_in_client: FlaskClient, test_avis_enquete: AvisEnquete
+    ):
+        """Bug #0150 phase 3: every 2-level selector must render a
+        `.dual-select-cascade` container with its data-* payload so
+        the in-page `initDualSelectors()` can wire Tom-Select on it.
+
+        If the partial regresses (e.g. someone reverts the class name
+        or drops the data-options attribute), Tom-Select never inits
+        and the dropdowns stay as raw `<select>` boxes — exactly the
+        symptom Annie reported when this shipped.
+        """
+        url = url_for("AvisEnqueteWipView:ciblage", id=test_avis_enquete.id)
+        body = logged_in_client.get(url).data.decode()
+        assert (
+            body.count(
+                'class="aui-field-group mb-4 col-span-1 lg:col-span-2 dual-select-cascade"'
+            )
+            == 7
+        ), (
+            "Expected 7 dual-cascade containers (one per 2-level field "
+            "Annie listed): secteur, type_organisation, fonction_pol_adm, "
+            "fonction_org_priv, fonction_ass_syn, metier, competences."
+        )
+        # Each container carries its 4 data-* feeds.
+        for attr in (
+            "data-options=",
+            "data-value=",
+            "data-second-value=",
+            "data-ajax-url=",
+        ):
+            assert body.count(attr) >= 7, (
+                f"Missing {attr!r} on at least one dual cascade — "
+                "Tom-Select init would fail to read its payload."
+            )
+        # And the JSON payload survived inside single-quoted attributes
+        # (the recurrent regression mode for this widget).
+        assert "data-options='" in body, (
+            "data-options attribute must be single-quoted — `tojson` "
+            "output's literal `\"` would break a double-quoted attribute "
+            "and Tom-Select would fail with a parse error."
+        )
+
+    def test_ciblage_flat_selectors_carry_tom_select_class(
+        self, logged_in_client: FlaskClient, test_avis_enquete: AvisEnquete
+    ):
+        """Flat selectors (geoloc, taille, langues…) use the
+        `.tom-select-it` class so `initFlatSelectors()` picks them up.
+        If the macro regresses (e.g. someone drops the class), they
+        also degrade to raw `<select>`."""
+        url = url_for("AvisEnqueteWipView:ciblage", id=test_avis_enquete.id)
+        body = logged_in_client.get(url).data.decode()
+        # 10 selectors are flat: pays, departement, ville,
+        # type_entreprise_presse_medias, type_presse_et_media,
+        # taille_organisation, fonction, fonction_journalisme,
+        # competences_journalisme, langues.
+        flat_count = body.count('class="tom-select-it"')
+        assert flat_count == 10, (
+            f"Expected 10 flat selectors with the .tom-select-it class, "
+            f"got {flat_count}"
+        )
+
     def test_view_responses(
         self,
         logged_in_client: FlaskClient,
