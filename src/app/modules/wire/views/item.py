@@ -338,7 +338,7 @@ class PressReleaseVM(PostVMMixin, Wrapper):
 class UserVM(Wrapper):
     """ViewModel for User."""
 
-    organisation: Organisation = field(init=False)
+    organisation: Organisation | None = field(init=False)
     _url: str = field(init=False)
 
     def extra_attrs(self):
@@ -348,13 +348,21 @@ class UserVM(Wrapper):
             "organisation": self.get_organisation(),
         }
 
-    def get_organisation(self) -> Organisation:
+    def get_organisation(self) -> Organisation | None:
+        # `User.organisation_id` is nullable (auth.py): an author with
+        # no organisation must not 500 the article / press-release
+        # page. The eager `Wrapper.extra_attrs()` builds this VM for
+        # every render, so a bare `assert result` here took the whole
+        # page down (audit C1, same class as the events orgless-
+        # participant crash). Mirror the safe twin in
+        # `common/components/post_card.py:UserVM` — return None and let
+        # the template guard with `{% if author.organisation %}`.
         user = cast("User", self._model)
+        if user.organisation_id is None:
+            return None
         stmt = (
             sa.select(Organisation)
             .where(Organisation.id == user.organisation_id)
             .order_by(Organisation.name)
         )
-        result = db.session.scalar(stmt)
-        assert result
-        return result
+        return db.session.scalar(stmt)
