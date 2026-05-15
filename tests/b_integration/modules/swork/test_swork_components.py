@@ -364,6 +364,74 @@ class TestMembersListStaticMethods:
         assert str(expected).startswith("SELECT")
 
 
+class TestMembersSearchByZip:
+    """Regression (audit 2026-05-15, C3): a member search containing a
+    digit must execute on the DB without a dialect error.
+
+    `members_list.apply_search` filtered with
+    `KYCProfile.code_postal.ilike(...)`. The `code_postal` SQL
+    expression used `split_part(... ->> 0, ' ', 3)` — Postgres-only
+    AND assuming `pays_zip_ville_detail` is a JSON array, while the
+    Python getter handles both str and list. SQLite has no
+    `split_part`, so this path was structurally untested in CI
+    (lessons-learned #11) and the array assumption is fragile on
+    Postgres. The test EXECUTES the statement so it runs under both
+    backends (`make test-postgres` covers the prod dialect).
+    """
+
+    def test_search_with_zip_executes_and_matches(
+        self, app: Flask, db_session: Session, test_user_with_profile: User
+    ) -> None:
+        # Fixture stores pays_zip_ville_detail = "75001 Paris" (a str,
+        # not a JSON array) — exactly the shape the old `->> 0`
+        # expression mishandled. The base query filters
+        # `User.active == true()` (default is False), so activate.
+        test_user_with_profile.active = True
+        db_session.flush()
+
+        with app.test_request_context():
+            members = MembersList()
+            members.search = "75001"
+            stmt = members.apply_search(members.get_base_statement())
+            # Must not raise (no split_part on SQLite; no array
+            # assumption on Postgres) and must find the member.
+            found = db_session.execute(stmt).scalars().all()
+
+        assert test_user_with_profile.id in {u.id for u in found}
+
+    def test_search_with_zip_no_false_positive(
+        self,
+        app: Flask,
+        db_session: Session,
+        test_user_with_profile: User,
+        second_user_with_profile: User,
+    ) -> None:
+        """A zip search must not return members whose postal area
+        doesn't contain those digits."""
+        test_user_with_profile.active = True
+        second_user_with_profile.active = True
+        # Give the second user a well-formed but non-matching location
+        # (its fixture leaves info_professionnelle = {}, which trips an
+        # unrelated `country` KeyError in the MembersList constructor —
+        # logged separately as audit finding L5, out of C3 scope).
+        second_user_with_profile.profile.info_professionnelle = {
+            "pays_zip_ville": "FRA",
+            "pays_zip_ville_detail": "69001 Lyon",
+        }
+        db_session.flush()
+
+        with app.test_request_context():
+            members = MembersList()
+            members.search = "75001"
+            stmt = members.apply_search(members.get_base_statement())
+            found_ids = {u.id for u in db_session.execute(stmt).scalars().all()}
+
+        # test_user (75001 Paris) matches; second_user has no
+        # pays_zip_ville_detail → must be excluded even though active.
+        assert test_user_with_profile.id in found_ids
+        assert second_user_with_profile.id not in found_ids
+
+
 class TestMembersDirectory:
     """Test MembersDirectory class."""
 
