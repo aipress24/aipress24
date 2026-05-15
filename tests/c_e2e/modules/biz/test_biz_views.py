@@ -9,8 +9,10 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import pytest
+from flask import render_template
 
 from app.models.auth import User
+from app.modules.biz.models import EditorialProduct
 
 if TYPE_CHECKING:
     from flask import Flask
@@ -40,6 +42,42 @@ def authenticated_client(app: Flask, test_user: User) -> FlaskClient:
         sess["_id"] = getattr(test_user, "fs_uniquifier", str(test_user.id))
 
     return client
+
+
+class TestBizItemOrglessSeller:
+    """Regression (audit 2026-05-15, C2): a marketplace item whose
+    seller has no KYC profile must render.
+
+    `biz-item--main.j2:111` did `{{ seller.profile.presentation }}`
+    unguarded. `User.profile` is nullable (`auth.py:210` itself does
+    `if self.profile is None`), so a seller without a completed KYC
+    profile raised `UndefinedError: 'None' has no attribute
+    'presentation'` under StrictUndefined and 500'd the item page.
+    Line 82 of the same template already used the null-safe
+    `seller.organisation_name` — `.profile` was the missed chain.
+
+    Rendered at the template level (real app Jinja env → custom
+    `url_for` + StrictUndefined) because the c_e2e client redirects
+    before reaching the template in this harness.
+    """
+
+    def test_item_main_renders_with_profileless_seller(
+        self, app: Flask, db_session: Session, test_user: User
+    ) -> None:
+        assert test_user.profile is None  # fixture user has no KYC profile
+
+        item = EditorialProduct(
+            owner=test_user,
+            title="Profileless seller product",
+            description="desc",
+        )
+        db_session.add(item)
+        db_session.flush()
+
+        with app.test_request_context():
+            html = render_template("pages/biz-item--main.j2", item=item)
+
+        assert "Profileless seller product" in html
 
 
 class TestBizHomeView:

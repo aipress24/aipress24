@@ -108,7 +108,7 @@
           A propos
         </dt>
         <dd class="mt-1 text-sm text-gray-900">
-          {{ seller.profile.presentation }}
+          {% if seller.profile %}{{ seller.profile.presentation }}{% endif %}
         </dd>
       </div>
     </dl>
