@@ -209,6 +209,39 @@ class TestOpportunityDetail:
         assert response.status_code == 404
 
 
+class TestOpportunityUnknownIdDoesNotCrash:
+    """Regression (audit 2026-05-15, C4): the POST endpoints used
+    `repo.get(id)`, which (Advanced-Alchemy `SQLAlchemySyncRepository`)
+    *raises* `NotFoundError` on an unknown id — not the werkzeug 404
+    — so a stale/forged contact id 500'd instead of 404'ing. The GET
+    sibling already does it right with `get_one_or_none` +
+    `abort(404)` (opportunities.py:89); these two had diverged
+    (lessons-learned #15).
+    """
+
+    def test_post_opportunity_unknown_id_returns_404(
+        self, logged_in_client: FlaskClient, test_user: User
+    ):
+        """POST /wip/opportunities/<bogus> → 404, not a 500 stack."""
+        response = logged_in_client.post(
+            "/wip/opportunities/99999999999",
+            data={"reponse1": "oui"},
+        )
+        assert response.status_code == 404
+
+    def test_post_opportunity_form_unknown_id_returns_404(
+        self, logged_in_client: FlaskClient, test_user: User
+    ):
+        """POST /wip/opportunities/<bogus>/form (HTMX partial) → 404,
+        not a 500 — `_render_media_opportunity` had the same
+        `repo.get(id)` misuse."""
+        response = logged_in_client.post(
+            "/wip/opportunities/99999999999/form",
+            data={"reponse1": "non"},
+        )
+        assert response.status_code == 404
+
+
 class TestOpportunityResponse:
     """Tests for submitting opportunity responses."""
 

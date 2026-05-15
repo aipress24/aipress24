@@ -147,12 +147,18 @@ def media_opportunity_post(id: int) -> str | Response:
     # Lazy import to avoid circular import
     from app.modules.wip.models import ContactAvisEnqueteRepository, StatutAvis
 
-    repo = container.get(ContactAvisEnqueteRepository)
-    contact = repo.get(id)
-
     expert = cast(User, current_user)
     if expert.is_anonymous:
         return ""
+
+    repo = container.get(ContactAvisEnqueteRepository)
+    # `repo.get(id)` raises Advanced-Alchemy `NotFoundError` (not the
+    # werkzeug 404) on a stale/forged id → unhandled 500. Mirror the
+    # GET sibling (`media_opportunity`, ~line 89): `_or_none` + 404.
+    # Audit C4 / lessons-learned #15.
+    contact = repo.get_one_or_none(id=id)
+    if contact is None:
+        abort(404)
 
     reponse = request.form.get("reponse1")
     if reponse:
@@ -230,7 +236,12 @@ def _render_media_opportunity(id: int) -> str:
     from app.modules.wip.models import ContactAvisEnqueteRepository, StatutAvis
 
     repo = container.get(ContactAvisEnqueteRepository)
-    contact = repo.get(id)
+    # Same raises-vs-None contract as media_opportunity_post — a
+    # stale id from an old HTMX form must 404, not 500.
+    # Audit C4 / lessons-learned #15.
+    contact = repo.get_one_or_none(id=id)
+    if contact is None:
+        abort(404)
     media_opp = MediaOpportunity(
         id=contact.id,
         avis_enquete=contact.avis_enquete,
