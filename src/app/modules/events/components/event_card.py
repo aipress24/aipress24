@@ -59,6 +59,13 @@ class EventCardVM(ViewModel):
 @define
 class EventCard(Component):
     event: EventPost
+    # Accepted for parity with `PostCard`: the org / member tab
+    # includes call every card the same way —
+    # `component("…-card", obj, class_="bg-gray-100")`. Without this
+    # field the events tab 500s with « unexpected keyword argument
+    # 'class_' » (prod fe36ebd9). Kept optional so the bare
+    # positional call still works.
+    class_: str = ""
 
     def __attrs_post_init__(self) -> None:
         # Wrap event in ViewModel for clean computed property access

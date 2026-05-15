@@ -237,6 +237,29 @@ class TestEventCard:
         assert card.event.author == owner
         assert card.event.opening == "De 10:00 à 12:00 le 15 jan 2024"
 
+    def test_accepts_class_kwarg(self):
+        """Regression (prod fe36ebd9, 2026-05-14): the org events tab
+        renders `component("event-card", event, class_="bg-gray-100")`
+        — the same call shape the sibling tabs use for `post-card`
+        (which accepts `class_`). EventCard must accept it too instead
+        of raising `TypeError: __init__() got an unexpected keyword
+        argument 'class_'` and 500-ing /swork/organisations/<id>."""
+        event = StubEvent()
+
+        card = EventCard(event=event, class_="bg-gray-100")
+
+        assert card.class_ == "bg-gray-100"
+        # The event is still wrapped — class_ doesn't break the VM.
+        assert isinstance(card.event, EventCardVM)
+
+    def test_class_kwarg_defaults_to_empty(self):
+        """`class_` is optional — the bare positional call still works."""
+        event = StubEvent()
+
+        card = EventCard(event=event)
+
+        assert card.class_ == ""
+
 
 class TestDefaultLogoUrl:
     """Test suite for DEFAULT_LOGO_URL constant."""

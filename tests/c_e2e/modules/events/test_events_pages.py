@@ -10,17 +10,23 @@ from typing import TYPE_CHECKING
 
 import arrow
 import pytest
+from flask import render_template
 from sqlalchemy import select
 
-from app.models.auth import User
+from app.enums import RoleEnum
+from app.models.auth import Role, User
 from app.models.lifecycle import PublicationStatus
 from app.modules.events.models import EventPost
+from app.modules.events.services import add_participant
 from app.modules.events.views._common import (
     Calendar,
     DateFilter,
-    EventDetailVM as EventVM,
+    EventDetailVM,
 )
 from app.modules.events.views._filters import FilterBar
+
+# Existing tests refer to the VM as `EventVM`; keep the alias.
+EventVM = EventDetailVM
 
 if TYPE_CHECKING:
     from flask import Flask
@@ -117,6 +123,63 @@ class TestEventsEndpoints:
         """Test event detail page is accessible."""
         response = authenticated_client.get(f"/events/{sample_event.id}")
         assert response.status_code in (200, 302)
+
+    def test_participants_template_with_orgless_participant(
+        self,
+        app: Flask,
+        db_session: Session,
+        sample_event: EventPost,
+    ):
+        """Regression (prod 4e6bef99, 2026-05-14): a participant with
+        no organisation must not 500 the event page.
+
+        `event--participants.j2` rendered `@{{ user.organisation.name }}`
+        unconditionally; under Jinja StrictUndefined an orgless
+        participant (organisation is None) raised
+        `UndefinedError: 'None' has no attribute 'name'`.
+
+        Rendered at the template level (not over HTTP) because the
+        c_e2e client redirects before reaching the template in this
+        harness — the sibling endpoint tests already tolerate the
+        302, so they never exercise the participants partial.
+        """
+        orgless = User(
+            email="orgless_participant@example.com",
+            first_name="No",
+            last_name="Org",
+        )
+        orgless.photo = b""
+        # A real participant has a community role (so `profile_image`
+        # resolves) — what they lack here is an *organisation*. Pin
+        # exactly that shape so the test isolates the orgless `.name`
+        # crash rather than tripping on `first_community()`.
+        expert_role = db_session.execute(
+            select(Role).where(Role.name == RoleEnum.EXPERT.name)
+        ).scalar_one_or_none()
+        if expert_role is None:
+            expert_role = Role(
+                name=RoleEnum.EXPERT.name, description=RoleEnum.EXPERT.value
+            )
+            db_session.add(expert_role)
+            db_session.flush()
+        orgless.roles.append(expert_role)
+        db_session.add(orgless)
+        db_session.flush()
+        assert orgless.organisation is None
+
+        add_participant(sample_event, orgless)
+        db_session.flush()
+
+        view_model = EventDetailVM(sample_event)
+        assert any(p.id == orgless.id for p in view_model.participants)
+
+        # `render_template` uses the app's real Jinja env (custom
+        # `url_for`, StrictUndefined, autoescape) — same conditions
+        # as production.
+        with app.test_request_context():
+            html = render_template("pages/event--participants.j2", event=view_model)
+
+        assert "No Org" in html, "Orgless participant must still be listed by name"
 
     def test_event_page_not_found(
         self, authenticated_client: FlaskClient, db_session: Session
