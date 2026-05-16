@@ -9,7 +9,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import pytest
-from flask import render_template
+from flask import g, render_template
 
 from app.models.auth import User
 from app.modules.biz.models import EditorialProduct
@@ -56,18 +56,32 @@ class TestBizItemOrglessSeller:
     Line 82 of the same template already used the null-safe
     `seller.organisation_name` — `.profile` was the missed chain.
 
-    Rendered at the template level (real app Jinja env → custom
-    `url_for` + StrictUndefined) because the c_e2e client redirects
-    before reaching the template in this harness.
+    Rendered via `flask.render_template` (provides the object-aware
+    `url_for` context processor the template needs — it's NOT the
+    Jinja global, so a bare `get_template().render()` breaks). The
+    c_e2e fake-auth client only 302/401s on `/biz/<id>`, so the route
+    path is unreachable here (same harness limit as the events
+    orgless test). `g.user` is forced to `None` so the global
+    `inject_nav` context processor builds the menu without
+    role-gating — deterministic regardless of any leftover detached
+    `g.user` from prior full-suite tests (the flake this replaces).
     """
 
     def test_item_main_renders_with_profileless_seller(
         self, app: Flask, db_session: Session, test_user: User
     ) -> None:
-        assert test_user.profile is None  # fixture user has no KYC profile
+        seller = User(
+            email="profileless_seller@example.com",
+            first_name="Pro",
+            last_name="Fileless",
+        )
+        seller.photo = b""
+        db_session.add(seller)
+        db_session.flush()
+        assert seller.profile is None  # the missed `.profile` chain
 
         item = EditorialProduct(
-            owner=test_user,
+            owner=seller,
             title="Profileless seller product",
             description="desc",
         )
@@ -75,6 +89,7 @@ class TestBizItemOrglessSeller:
         db_session.flush()
 
         with app.test_request_context():
+            g.user = None  # nav skips role checks → no detached lazy-load
             html = render_template("pages/biz-item--main.j2", item=item)
 
         assert "Profileless seller product" in html
