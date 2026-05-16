@@ -8,10 +8,10 @@ from pathlib import Path
 
 import toml
 from flask import current_app, render_template
-from markdown import markdown
+from markupsafe import Markup
 from svcs.flask import container
 
-from app.modules.admin.cms import CorporatePageService
+from app.modules.admin.cms import CorporatePageService, render_cms_html
 from app.modules.public import get
 
 
@@ -51,14 +51,23 @@ def page(path: str):
 
 
 def _render_md_content(title: str, body_md: str):
+    # Audit S2: render through the SAME sanitizer the admin preview
+    # uses (`render_cms_html`) so the public page can never serve
+    # something the preview made look safe. `title` comes from the
+    # admin-set page title / filesystem front-matter; escape it too
+    # rather than f-string it raw into markup.
     cls = "py-20 max-w-4xl mx-4 lg:mx-auto"
-    html = f"""
+    safe_title = Markup.escape(title)
+    safe_body = render_cms_html(body_md)
+    html = Markup(
+        f"""
         <div class="{cls}">
-            <h1 class="text-3xl font-bold mb-6">{title}</h1>
+            <h1 class="text-3xl font-bold mb-6">{safe_title}</h1>
 
             <div class="prose lg:prose-lg">
-                {markdown(body_md)}
+                {safe_body}
             </div>
         </div>
     """
+    )
     return render_template("pages/generic-page.j2", content=html, title=title)

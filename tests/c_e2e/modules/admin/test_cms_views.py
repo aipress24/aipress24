@@ -137,6 +137,48 @@ class TestPublicPageRoute:
         assert "Du contenu en base" in body
         assert "Ceci vient de la DB." in body
 
+    def test_served_db_page_is_sanitized_like_preview(
+        self,
+        client: FlaskClient,
+        db_session,
+    ):
+        """Regression (audit 2026-05-15, S2): the public served path
+        must sanitize stored HTML the same way the admin preview does.
+
+        `cms_preview` strips `<script>`/`<iframe>` + `bleach.clean`s,
+        but `public/views/page.py:_render_md_content` did a bare
+        `markdown(body_md)` into `{{ content|safe }}`. An admin who
+        pasted hostile HTML saw a *clean* preview, published, and the
+        public page (anonymous audience) then served the live payload.
+        Both paths must go through one shared sanitized renderer.
+        """
+        svc = container.get(CorporatePageService)
+        svc.upsert(
+            slug="CGV-BusinessWall",
+            title="Hostile",
+            body_md=(
+                '<script>alert("xss")</script>\n\n'
+                '<img src=x onerror="alert(1)">\n\n'
+                '<iframe src="http://evil"></iframe>\n\nvisible text'
+            ),
+        )
+        db_session.commit()
+
+        resp = client.get("/page/CGV-BusinessWall")
+        assert resp.status_code == 200
+        body = resp.data.decode()
+
+        # Payload-specific signatures must be gone (the page layout
+        # legitimately contains its own <script> chrome, so assert on
+        # the injected vectors, not a bare "<script>").
+        assert 'alert("xss")' not in body
+        assert "<script>alert" not in body
+        assert "onerror=" not in body
+        assert "<iframe" not in body
+        assert "http://evil" not in body
+        # Benign content still rendered.
+        assert "visible text" in body
+
     def test_falls_back_to_filesystem_when_no_db_row(
         self,
         client: FlaskClient,
