@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 import pytest
+from jinja2 import select_autoescape
 from typeguard import TypeCheckError
 from wtforms import Form
 
@@ -77,6 +78,65 @@ class TestFormSelectMultiFree(Form):
         choices=[("tag1", "Tag 1")],
         readonly=True,
     )
+
+
+_XSS_PAYLOAD = '"></script><img src=x onerror=alert(1)>'
+
+
+class TestSelectOneFreeXSSContainment:
+    """Audit 2026-05-15, S1 — corrected severity.
+
+    The audit flagged the free-text KYC widgets as exploitable stored
+    XSS, on the premise that `jinja_env.from_string()` (used by the
+    widget) renders with autoescape OFF. That premise is FALSE:
+    `select_autoescape(..., default_for_string=True)` — Flask's /
+    Jinja's default — returns True for an unnamed (string) template,
+    so `from_string` IS autoescaped. A user-typed value carrying
+    `"`/`</script>`/`<img …>` is therefore entity-encoded inside the
+    `x-data` *attribute*; in attribute context the browser decodes it
+    only as the attribute value (Alpine then sees a JS string
+    literal), so there is no HTML / `</script>` breakout and no
+    attribute-delimiter break.
+
+    These tests pin BOTH facts:
+      1. the rendered widget entity-encodes a hostile value (no raw
+         breakout sequence survives), and
+      2. the load-bearing invariant — autoescape is ON for the
+         `from_string` path — because lessons-learned #1 records that
+         this exact policy has silently regressed before. If someone
+         flips `default_for_string` or routes these widgets through a
+         non-escaping path, test (2) fails loudly and (1) catches the
+         actual breakout.
+
+    Residual (low-severity, tracked separately, NOT fixed here):
+    `get_data()` hand-injects `repr(self.data)` — a *Python* literal —
+    as a *JS* literal; pathological inputs (U+2028/U+2029, exotic
+    escapes) can desync Python-repr vs JS-string semantics and break
+    the widget. `| tojson` is the correct defense-in-depth hardening
+    but it is not an urgent CVE and a 9-widget rewrite is out of
+    scope for this crash-fix pass.
+    """
+
+    def test_from_string_path_is_autoescaped(self) -> None:
+        # The single invariant the containment relies on.
+        policy = select_autoescape(["html", "htm", "xml", "xhtml", "j2"])
+        assert policy(None) is True, (
+            "from_string (template name=None) MUST be autoescaped — "
+            "the KYC free-text widgets rely on this to neutralise "
+            "user-typed option text. If this flips, the widgets become "
+            "a real stored-XSS vector (lessons-learned #1)."
+        )
+
+    def test_hostile_value_is_entity_encoded_not_broken_out(self, app) -> None:
+        form = TestFormSelectOneFree(data={"tag": _XSS_PAYLOAD})
+        with app.test_request_context():
+            html = str(form.tag)
+
+        # No raw breakout sequence survives (it lives in an attribute,
+        # entity-encoded) — the widget is not HTML-injectable.
+        assert "</script><img" not in html
+        assert "onerror=alert(1)>" not in html
+        assert "&lt;/script&gt;" in html or "&#60;/script&#62;" in html
 
 
 def test_convert_to_tom_choices_js_list():
