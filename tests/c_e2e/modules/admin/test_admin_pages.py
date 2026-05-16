@@ -24,6 +24,30 @@ class TestAdminUsersPage:
         response = admin_client.get("/admin/users")
         assert response.status_code == 200
 
+    def test_users_table_renders_as_real_html_not_escaped(
+        self, admin_client: FlaskClient
+    ) -> None:
+        """Audit H1: the admin generic-table must render as real HTML,
+        not escaped literal text.
+
+        `Table.render()` returns a bare `str`; `generic_table.j2` does
+        `{{ table.render() }}` and `.j2` autoescape (bug #0126) then
+        escapes the whole table to `&lt;div…&gt;` — a 200 response
+        whose body is unreadable literal markup (same class as the
+        `@macro` "absolute horror"). Existing tests only asserted the
+        200, never the rendered markup (lessons-learned #7).
+        """
+        response = admin_client.get("/admin/users")
+        assert response.status_code == 200
+        body = response.data.decode()
+        # The table wrapper must be real markup, not entity-escaped.
+        assert '<div class="relative overflow-x-auto' in body, (
+            "admin users table rendered as escaped literal text — "
+            "Table.render() must return markupsafe.Markup so it "
+            "survives .j2 autoescape"
+        )
+        assert "&lt;div class=&#34;relative overflow-x-auto" not in body
+
     def test_users_page_with_search(self, admin_client: FlaskClient) -> None:
         """Test users page with search parameter."""
         response = admin_client.get("/admin/users?search=test")

@@ -17,6 +17,7 @@ import webargs
 from attr import define
 from flask import request, url_for as url_for_orig
 from jinja2 import Environment, FileSystemLoader, select_autoescape
+from markupsafe import Markup
 from sqlalchemy import Select, false, func, nulls_last, or_, select
 from webargs.flaskparser import parser
 
@@ -89,7 +90,7 @@ class Table:
         value = record.get(column.name, "")
         return str(value) if value != "" else ""
 
-    def render(self) -> str:
+    def render(self) -> Markup:
         ctx = {
             "records": self.records,
             "columns": self.columns,
@@ -102,7 +103,13 @@ class Table:
             "all_search": self.all_search,
             "searching": self.searching,
         }
-        return self.template.render(**ctx)
+        # `Template.render()` returns a plain `str`. Consumed by
+        # `generic_table.j2` as `{{ table.render() }}`; under the
+        # `.j2` autoescape policy (bug #0126) a bare `str` of HTML is
+        # escaped to literal `&lt;div…&gt;`, so every admin
+        # generic-table page renders as unreadable text. Wrap in
+        # `Markup` — same fix as the `@macro` decorator (audit H1).
+        return Markup(self.template.render(**ctx))
 
 
 class DataSource:
