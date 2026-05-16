@@ -54,6 +54,48 @@ class TestUserOrganisationName:
         assert user.organisation_name == ""
 
 
+class TestKYCProfileGeoGettersMissingKey:
+    """Audit L5 (re-verified HIGH, audit said latent-low).
+
+    `KYCProfile.country/.code_postal/.departement` read
+    `self.info_professionnelle["…"]` with bracket access, raising
+    `KeyError` when the key is absent (a fresh / imported / partial
+    profile has `info_professionnelle == {}`). The swork members
+    directory builds filters over EVERY active user and calls
+    `user.profile.country`, so a single such profile 500s the public
+    `/swork/members/` page (hit live during the C3 fix). Must
+    degrade to "" like `.ville` already does (it uses `.get`).
+    """
+
+    def test_country_empty_when_key_missing(self, db: SQLAlchemy) -> None:
+        profile = KYCProfile()
+        profile.info_professionnelle = {}
+        assert profile.country == ""
+
+    def test_code_postal_empty_when_key_missing(self, db: SQLAlchemy) -> None:
+        profile = KYCProfile()
+        profile.info_professionnelle = {}
+        assert profile.code_postal == ""
+
+    def test_departement_empty_when_key_missing(self, db: SQLAlchemy) -> None:
+        profile = KYCProfile()
+        profile.info_professionnelle = {}
+        assert profile.departement == ""
+
+    def test_geo_getters_still_parse_when_present(self, db: SQLAlchemy) -> None:
+        """Behaviour unchanged when the key IS present."""
+        profile = KYCProfile()
+        # Getter indexing is split()[2] (code), [2][:2] (dept),
+        # [3] (ville) — real data is "FRA / 75001 Paris".
+        profile.info_professionnelle = {
+            "pays_zip_ville": "FRA",
+            "pays_zip_ville_detail": "FRA / 75001 Paris",
+        }
+        assert profile.country == "FRA"
+        assert profile.code_postal == "75001"
+        assert profile.departement == "75"
+
+
 class TestUserJobTitle:
     """Test suite for User.job_title property."""
 

@@ -437,12 +437,17 @@ class KYCProfile(Base):
 
     @property
     def country(self) -> str:
-        return self.info_professionnelle["pays_zip_ville"] or ""
+        # Audit L5: `.get` not `[...]` — a partial / imported profile
+        # has `info_professionnelle == {}`; bracket access raised
+        # KeyError and 500'd the swork members directory (which calls
+        # `.country` for every active user). `.ville` already used
+        # `.get`; align `.country`/`.code_postal`/`.departement`.
+        return self.info_professionnelle.get("pays_zip_ville") or ""
 
     @hybrid_property
     def code_postal(self) -> str:
         """Return the zip code"""
-        pays_zip_ville = self.info_professionnelle["pays_zip_ville_detail"]
+        pays_zip_ville = self.info_professionnelle.get("pays_zip_ville_detail")
         if not pays_zip_ville:
             return ""
         if isinstance(pays_zip_ville, list):
@@ -461,7 +466,7 @@ class KYCProfile(Base):
     @hybrid_property
     def departement(self) -> str:
         """Return the 2 first digit of zip code"""
-        pays_zip_ville = self.info_professionnelle["pays_zip_ville_detail"]
+        pays_zip_ville = self.info_professionnelle.get("pays_zip_ville_detail")
         if not pays_zip_ville:
             return ""
         if isinstance(pays_zip_ville, list):
