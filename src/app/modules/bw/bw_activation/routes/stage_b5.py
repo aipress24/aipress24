@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from typing import Any, cast
 
-from flask import g, redirect, render_template, request, session, url_for
+from flask import flash, g, redirect, render_template, request, session, url_for
 
 from app.flask.extensions import db
 
@@ -89,6 +89,21 @@ def manage_external_partners():
         if invite_pr_provider(business_wall, selected_pr_id, user.id):
             warn("invite_pr_provider success")
             db.session.commit()
+            flash("Invitation envoyée à l'agence RP sélectionnée.", "success")
+        else:
+            # Audit D2 (#0139-class): the invitation can fail for
+            # several user-correctable reasons (no agency selected,
+            # PR Business Wall not found, or already invited/active).
+            # `invite_pr_provider` collapses them to a bool — surface
+            # at least an explicit failure so the admin isn't left
+            # believing the partner was added.
+            warn("invite_pr_provider failed:", selected_pr_id)
+            flash(
+                "Impossible d'inviter cette agence RP : sélection "
+                "invalide, agence introuvable, ou partenariat déjà "
+                "existant.",
+                "error",
+            )
         return redirect(url_for("bw_activation.manage_external_partners"))
 
     return render_template(

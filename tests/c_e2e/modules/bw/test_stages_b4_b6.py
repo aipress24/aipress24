@@ -53,6 +53,31 @@ class TestStageB4ExternalPartnersRoutes:
         response = authenticated_owner_client.get("/BW/manage-external-partners")
         assert response.status_code == 200
 
+    def test_failed_pr_invite_surfaces_admin_feedback(
+        self,
+        authenticated_owner_client: FlaskClient,
+    ) -> None:
+        """Audit D2 (#0139-class): a failed `invite_pr_provider` must
+        not redirect silently.
+
+        Posting an empty/invalid `pr_provider` makes
+        `invite_pr_provider` return False (no PR selected). The route
+        used to `redirect(...)` with no flash / session error, so the
+        admin got zero feedback and the partnership was silently NOT
+        created. The page now flashes an explicit error.
+        """
+        response = authenticated_owner_client.post(
+            "/BW/manage-external-partners",
+            data={"pr_provider": ""},
+            follow_redirects=True,
+        )
+        assert response.status_code == 200
+        body = response.data.decode()
+        assert "partner-invite-flash" in body, (
+            "a failed PR-provider invitation must surface a visible "
+            "error to the admin, not redirect silently"
+        )
+
 
 class TestStageB5MissionsRoutes:
     """Tests for Stage B5 routes (missions assignment)."""

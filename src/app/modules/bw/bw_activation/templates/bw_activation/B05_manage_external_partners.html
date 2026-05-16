@@ -7,6 +7,22 @@
         class="max-w-6xl mx-auto"
         x-data="{ noPartner: false }"
     >
+        {# Audit D2: surface invitation/revocation feedback. The
+           bw_activation layout has no global flash slot (same as the
+           B04 #0139 v2 fix), so render the banner inline. #}
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="mb-4 space-y-2" data-testid="partner-invite-flash">
+                    {% for category, msg in messages %}
+                        <div
+                            class="p-4 rounded-md border {% if category == 'error' %}bg-red-50 border-red-200 text-red-800{% else %}bg-green-50 border-green-200 text-green-800{% endif %}"
+                        >
+                            {{ msg }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
         <div class="bg-white p-8 rounded-2xl shadow-lg border border-gray-200">
             <h1 class="text-3xl font-bold text-gray-900">
                 6- Gérer les Partenaires Externes
