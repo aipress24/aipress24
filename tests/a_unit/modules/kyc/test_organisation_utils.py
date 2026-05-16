@@ -280,6 +280,36 @@ class TestFindInvitingOrganisations:
         result = find_inviting_organisations("invalid-email")
         assert result == []
 
+    def test_orphaned_invitation_does_not_crash(self, db: SQLAlchemy) -> None:
+        """Audit L2: an Invitation whose organisation was deleted must
+        not 500 KYC signup.
+
+        `Invitation.organisation_id` has NO foreign key / cascade, so
+        deleting an Organisation leaves orphaned invitation rows. The
+        old `[get_obj(i.organisation_id, Organisation) for i in …]`
+        raised werkzeug `NotFound` on the dead id — and this is reached
+        from `retrieve_user_organisation` during KYC signup, so a user
+        whose email had an invitation to a since-deleted org could not
+        sign up. Orphans must be silently skipped; live invitations
+        still resolved.
+        """
+        org = Organisation(name="Live Inviting Org", bw_active="media", bw_id=uuid4())
+        db.session.add(org)
+        db.session.flush()
+
+        live_inv = Invitation(email="orphan-case@example.com", organisation_id=org.id)
+        # 10**12 is an id no Organisation row will ever have here.
+        orphan_inv = Invitation(email="orphan-case@example.com", organisation_id=10**12)
+        db.session.add_all([live_inv, orphan_inv])
+        db.session.flush()
+
+        result = find_inviting_organisations("orphan-case@example.com")
+
+        names = [o.name for o in result]
+        assert "Live Inviting Org" in names, "live invitation must still resolve"
+        # The orphan is skipped, not raised.
+        assert all(o is not None for o in result)
+
 
 class TestStoreAutoOrganisation:
     """Test suite for store_auto_organisation function."""

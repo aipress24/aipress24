@@ -7,7 +7,6 @@ from __future__ import annotations
 from sqlalchemy import func, or_, select
 
 from app.flask.extensions import db
-from app.flask.sqla import get_obj
 from app.models.auth import User
 from app.models.invitation import Invitation
 from app.models.organisation import Organisation
@@ -148,14 +147,32 @@ def retrieve_user_organisation(user: User) -> Organisation | None:
 
 
 def find_inviting_organisations(mail: str) -> list[Organisation]:
-    """Return the list of all Oganisation with an invitation for provided email."""
+    """Return the list of all Organisations with an invitation for provided email.
+
+    Audit L2: `Invitation.organisation_id` has no FK/cascade, so a
+    deleted Organisation leaves orphaned invitation rows. The old
+    `[get_obj(i.organisation_id, Organisation) for i in …]` raised
+    werkzeug `NotFound` on a dead id — reached from
+    `retrieve_user_organisation` during KYC signup, so an orphaned
+    invitation blocked the user from signing up. Resolve the orgs in
+    one membership query instead: orphans simply don't come back.
+    (`if not invitations:` was also dead — `db.session.scalars(...)`
+    returns an always-truthy ScalarResult.)
+    """
     if not mail or "@" not in mail:
         return []
-    stmt = select(Invitation).where(func.lower(Invitation.email) == mail.lower())
-    invitations = db.session.scalars(stmt)
-    if not invitations:
+    org_ids = list(
+        db.session.scalars(
+            select(Invitation.organisation_id).where(
+                func.lower(Invitation.email) == mail.lower()
+            )
+        )
+    )
+    if not org_ids:
         return []
-    return [get_obj(i.organisation_id, Organisation) for i in invitations]
+    return list(
+        db.session.scalars(select(Organisation).where(Organisation.id.in_(org_ids)))
+    )
 
 
 def store_auto_organisation(
