@@ -146,7 +146,15 @@ def bw_managers_ids(bw: BusinessWall) -> set[int]:
     """
     required_status = {InvitationStatus.ACCEPTED.value}
     manager_ids = bw_roles_ids(bw, set(DASHBOARD_ACCESS_ROLES), required_status)
-    manager_ids.add(bw.owner_id)  # usefull in first stage of BW registration
+    # Bug #0157: the owner used to be added *unconditionally* "for the
+    # first stage of BW registration". But that let an owner whose only
+    # accepted role is BWPRi (PR Manager — not a dashboard role) reach
+    # the BW management dashboard. The fallback is only a bootstrap
+    # safety net: keep it solely while no accepted dashboard manager
+    # exists yet. Once a real manager (BW_OWNER / BWMi / BWMe) is in
+    # place, dashboard access requires an accepted management role.
+    if not manager_ids:
+        manager_ids.add(bw.owner_id)
     return manager_ids
 
 
