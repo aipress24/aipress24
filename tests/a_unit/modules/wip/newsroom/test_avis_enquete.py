@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+import re
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
@@ -732,4 +733,39 @@ class TestStatutAvisPostgresEnumCoverage:
             f"Postgres ENUM `statutavis`; adding a member without the "
             f"migration 500s prod on the first UPDATE while SQLite "
             f"tests stay green (lessons-learned #11)."
+        )
+
+
+class TestRdvDetailsTemplateEnumLiterals:
+    """Ticket #0150: `rdv_details.j2` branched on
+    ``rdv_type.name == 'IN_PERSON'`` but the `RDVType` member is
+    ``F2F`` — the face-to-face address block could never render.
+
+    `Mapped[RDVType]` persists the member *name*; comparing
+    ``rdv_type.name`` to a string literal that is not a real member
+    name silently dead-codes a branch (no error, just a missing
+    block) — the rendering twin of the Postgres enum-drift trap
+    (lessons-learned #11). This guard scans the template and fails
+    if any ``rdv_type.name == '<X>'`` literal is not a valid
+    `RDVType` member.
+    """
+
+    def test_template_rdv_type_literals_are_valid_members(self) -> None:
+        template = (
+            Path(__file__).resolve().parents[5]
+            / "src/app/modules/wip/templates/wip/avis_enquete/rdv_details.j2"
+        )
+        assert template.is_file(), template
+        source = template.read_text(encoding="utf-8")
+
+        literals = set(re.findall(r"rdv_type\.name\s*==\s*'([^']+)'", source))
+        assert literals, "expected rdv_type.name comparisons in the template"
+
+        valid = {m.name for m in RDVType}
+        unknown = sorted(literals - valid)
+        assert not unknown, (
+            f"rdv_details.j2 compares rdv_type.name to {unknown}, "
+            f"which are not RDVType members ({sorted(valid)}). The "
+            f"branch can never match → its block never renders "
+            f"(ticket #0150, lessons-learned #11 family)."
         )

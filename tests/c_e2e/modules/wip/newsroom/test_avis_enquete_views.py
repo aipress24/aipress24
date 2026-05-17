@@ -17,7 +17,7 @@ import pytest
 
 from app.enums import RoleEnum
 from app.flask.routing import url_for
-from app.models.auth import Role, User
+from app.models.auth import KYCProfile, Role, User
 from app.modules.wip.models.newsroom.avis_enquete import (
     AvisEnquete,
     ContactAvisEnquete,
@@ -145,6 +145,53 @@ def contact_with_rdv_proposed(
             "2025-04-02T14:00:00+00:00",
         ],
         rdv_phone="0123456789",
+    )
+    db_session.add(contact)
+    db_session.commit()
+    return contact
+
+
+@pytest.fixture
+def expert_with_fonction(fresh_db, test_org: Organisation, expert_role: Role) -> User:
+    """An expert who has a job title (fonction), e.g. "Directrice de la Recherche"."""
+    db_session = fresh_db.session
+    profile = KYCProfile(profile_label="Directrice de la Recherche")
+    expert = User(
+        email="aminata@example.com",
+        first_name="Aminata",
+        last_name="Youkou",
+    )
+    expert.profile = profile
+    expert.photo = b""
+    expert.active = True
+    expert.organisation = test_org
+    expert.organisation_id = test_org.id
+    expert.roles.append(expert_role)
+    db_session.add(expert)
+    db_session.commit()
+    return expert
+
+
+@pytest.fixture
+def contact_with_rdv_f2f_confirmed(
+    fresh_db,
+    test_avis_enquete: AvisEnquete,
+    test_user: User,
+    expert_with_fonction: User,
+) -> ContactAvisEnquete:
+    """A confirmed face-to-face (F2F) RDV with an address set."""
+    db_session = fresh_db.session
+    test_avis_enquete.titre = "TMS nouvelle génération : quand l'IA dope l'exploitation"
+    contact = ContactAvisEnquete(
+        avis_enquete_id=test_avis_enquete.id,
+        journaliste_id=test_user.id,
+        expert_id=expert_with_fonction.id,
+        status=StatutAvis.ACCEPTE,
+        date_reponse=datetime.now(UTC),
+        rdv_status=RDVStatus.CONFIRMED,
+        rdv_type=RDVType.F2F,
+        date_rdv=datetime(2099, 4, 1, 10, 0, tzinfo=UTC),
+        rdv_address="12 rue de la Paix, 75002 Paris",
     )
     db_session.add(contact)
     db_session.commit()
@@ -409,6 +456,63 @@ class TestExpertAvisEnqueteViews:
             or b"home" in response.request.path.lower()
             or response.request.path == "/"
         )
+
+
+class TestRdvDetailsSummaryCompleteness:
+    """Ticket #0150: the confirmed-RDV summary was missing the enquête
+    title reminder, the media name, the expert's fonction, and — for a
+    face-to-face RDV — the address.
+
+    The address omission had a precise root cause: `rdv_details.j2`
+    branched on ``rdv_type.name == 'IN_PERSON'`` but the ``RDVType``
+    member is ``F2F``, so the address block could never render
+    (enum-name mismatch, lessons-learned #11 family — invisible on
+    SQLite because the column is a permissive VARCHAR there).
+    """
+
+    def test_journalist_summary_includes_all_rdv_context(
+        self,
+        logged_in_client: FlaskClient,
+        test_avis_enquete: AvisEnquete,
+        contact_with_rdv_f2f_confirmed: ContactAvisEnquete,
+    ):
+        """The journalist's RDV summary shows enquête, media, expert
+        fonction and the F2F address."""
+        url = url_for(
+            "AvisEnqueteWipView:rdv_details",
+            id=test_avis_enquete.id,
+            contact_id=contact_with_rdv_f2f_confirmed.id,
+        )
+        response = logged_in_client.get(url)
+        assert response.status_code == 200
+        body = response.data.decode()
+        assert "TMS nouvelle génération" in body  # enquête reminder
+        assert "WIP Test Organization" in body  # media name
+        assert "Aminata Youkou" in body  # expert
+        assert "Directrice de la Recherche" in body  # expert fonction
+        assert "12 rue de la Paix, 75002 Paris" in body  # F2F address
+
+    def test_expert_summary_includes_journalist_and_address(
+        self,
+        app: Flask,
+        expert_with_fonction: User,
+        test_avis_enquete: AvisEnquete,
+        contact_with_rdv_f2f_confirmed: ContactAvisEnquete,
+    ):
+        """The expert's RDV summary shows the journalist, the media
+        and the F2F address (ticket #0150, expert side)."""
+        client = make_authenticated_client(app, expert_with_fonction)
+        url = url_for(
+            "AvisEnqueteWipView:rdv_details",
+            id=test_avis_enquete.id,
+            contact_id=contact_with_rdv_f2f_confirmed.id,
+        )
+        response = client.get(url)
+        assert response.status_code == 200
+        body = response.data.decode()
+        assert "John Doe" in body  # journalist name
+        assert "WIP Test Organization" in body  # media name
+        assert "12 rue de la Paix, 75002 Paris" in body  # F2F address
 
 
 # ----------------------------------------------------------------

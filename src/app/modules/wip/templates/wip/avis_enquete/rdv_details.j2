@@ -7,10 +7,34 @@
   <div class="bg-white p-6 rounded-lg shadow-lg">
     <h1 class="text-2xl font-bold mb-4">{{ title }}</h1>
 
+    <div class="mb-6 border-l-4 border-blue-400 bg-blue-50 p-4">
+      <p class="text-sm text-gray-600">Avis d'enquête</p>
+      <p class="font-semibold">{{ model.title }}</p>
+      {% if model.media %}
+      <p class="text-sm text-gray-600 mt-1">
+        Média : {{ model.media.name }}
+      </p>
+      {% endif %}
+    </div>
+
     <div class="space-y-4">
       <div>
+        <h3 class="font-semibold">Journaliste:</h3>
+        <p>
+          {{ contact.journaliste.full_name }}
+          {% if contact.journaliste.job_title %}
+          <span class="text-gray-600">— {{ contact.journaliste.job_title }}</span>
+          {% endif %}
+        </p>
+      </div>
+      <div>
         <h3 class="font-semibold">Profil:</h3>
-        <p>{{ contact.expert.full_name }}</p>
+        <p>
+          {{ contact.expert.full_name }}
+          {% if contact.expert.job_title %}
+          <span class="text-gray-600">— {{ contact.expert.job_title }}</span>
+          {% endif %}
+        </p>
       </div>
       <div>
         <h3 class="font-semibold">Statut du RDV:</h3>
@@ -34,7 +58,7 @@
         <h3 class="font-semibold">Lien visioconférence:</h3>
         <p>{{ contact.rdv_video_link }}</p>
       </div>
-      {% elif contact.rdv_type and contact.rdv_type.name == 'IN_PERSON' %}
+      {% elif contact.rdv_type and contact.rdv_type.name == 'F2F' %}
       <div>
         <h3 class="font-semibold">Adresse:</h3>
         <p>{{ contact.rdv_address }}</p>
