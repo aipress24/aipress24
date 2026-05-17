@@ -7,10 +7,12 @@
 from __future__ import annotations
 
 import pytest
-from jinja2 import select_autoescape
+from jinja2 import Environment, select_autoescape
+from markupsafe import Markup
 from typeguard import TypeCheckError
 from wtforms import Form
 
+from app.modules.kyc.lib.country_select import CountrySelectField
 from app.modules.kyc.lib.dual_select_multi import (
     DualSelectField,
     convert_dual_choices_js,
@@ -567,3 +569,57 @@ class TestSelectOneFreeFieldGetTomOptgroupsForJs:
         result = form.tag.get_tom_optgroups_for_js()
 
         assert result == []
+
+
+class TestFormCountrySelect(Form):
+    """Test form for the country select field."""
+
+    pays = CountrySelectField(
+        label="Pays",
+        choices=[("FRA", "France"), ("BEL", "Belgique")],
+    )
+
+
+class TestKycWidgetsReturnMarkup:
+    """Ticket #0162: the custom KYC widgets returned a bare `str` from
+    `template.render()`. Under the codebase `.j2` autoescape policy
+    (#0126), a bare str is HTML-escaped at the call site, so the
+    MARKET mission/projet/job forms rendered the whole Tom-Select /
+    Alpine widget as literal text. Stock WTForms widgets return
+    `Markup`; these must too. This pins the contract for all three
+    affected widgets (Country, SelectOne, DualSelect).
+    """
+
+    def test_country_widget_returns_markup(self, app) -> None:
+        form = TestFormCountrySelect()
+        with app.test_request_context():
+            rendered = form.pays()
+        assert isinstance(rendered, Markup)
+
+    def test_select_one_widget_returns_markup(self, app) -> None:
+        form = TestFormSelectOne()
+        with app.test_request_context():
+            rendered = form.category()
+        assert isinstance(rendered, Markup)
+
+    def test_dual_select_widget_returns_markup(self, app) -> None:
+        form = TestFormDualSelect()
+        with app.test_request_context():
+            rendered = form.selector()
+        assert isinstance(rendered, Markup)
+
+    def test_country_widget_not_escaped_under_j2_autoescape(self, app) -> None:
+        """End-to-end: emitted via a `.j2`-style autoescaped template
+        the widget must stay live HTML (a real `<select>`), not the
+        escaped `&lt;select&gt;` the bug produced."""
+        env = Environment(
+            autoescape=select_autoescape(
+                ["html", "htm", "xml", "xhtml", "j2"],
+                default_for_string=True,
+            )
+        )
+        form = TestFormCountrySelect()
+        with app.test_request_context():
+            out = env.from_string("{{ field() }}").render(field=form.pays)
+        assert "<select" in out
+        assert "&lt;select" not in out

@@ -7,6 +7,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from flask import current_app
+from markupsafe import Markup
 from wtforms import widgets
 from wtforms.fields.choices import SelectField
 
@@ -23,8 +24,13 @@ def convert_country_to_tom_choices_js(choices: list) -> list:
 
 class CountrySelectWidget(widgets.Select):
     def __call__(self, field: CountrySelectField, **kwargs):
+        # #0162: return Markup, not bare str — under the .j2 autoescape
+        # policy (#0126) a plain str gets HTML-escaped at the call site
+        # (e.g. biz mission/projet/job forms render the widget as
+        # literal text). Stock WTForms widgets return Markup; restore
+        # that contract here so every call site is safe.
         template = self.get_template()
-        return template.render(field=field)
+        return Markup(template.render(field=field))
 
     def get_template(self):
         template_path = Path(__file__).parent / "country_select.j2"

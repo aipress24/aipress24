@@ -7,6 +7,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from flask import current_app
+from markupsafe import Markup
 from wtforms import widgets
 from wtforms.fields.choices import SelectMultipleField
 
@@ -52,8 +53,9 @@ def convert_dual_choices_js(choices: dict) -> dict:
 
 class DualSelectWidget(widgets.Select):
     def __call__(self, field: DualSelectField, **kwargs):
+        # #0162: return Markup, not bare str (see CountrySelectWidget).
         template = self.get_template()
-        return template.render(field=field)
+        return Markup(template.render(field=field))
 
     def get_template(self):
         template_path = Path(__file__).parent / "dual_select_multi.j2"
