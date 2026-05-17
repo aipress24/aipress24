@@ -89,43 +89,54 @@
             >
                 <div class="relative p-4 w-full max-w-screen-sm max-h-full">
                     <div
-                        class="relative bg-white rounded-lg shadow dark:bg-gray-700"
+                        class="relative bg-white rounded-2xl shadow-lg border border-gray-200"
                     >
-                        <h4
-                            class="pl-2 text-lg font-semibold text-gray-900 dark:text-white"
-                        >
-                            Liste des invitations à rejoindre le Business Wall
-                            de l'organisation
-                        </h4>
-                        <p
-                            class="bg-white rounded-lg shadow dark:bg-gray-700 pl-2 pr-2 pt-1 text-sm text-gray-900 dark:text-white"
-                        >
-                            Pour modifier la liste des invitations, ajouter ou
-                            retirer un email. L'invitation autorise un
-                            utilisateur actuel ou futur de Aipress24 à rejoindre
-                            le Business Wall de l'organisation.
-                        </p>
-                        <div class="p-2">
+                        <!-- Header: harmonised with the page card (#0142) -->
+                        <div class="px-6 py-4 border-b border-gray-200">
+                            <h4
+                                class="text-xl font-semibold text-teal-800"
+                            >
+                                Liste des invitations à rejoindre le Business
+                                Wall de l'organisation
+                            </h4>
+                            <p class="mt-1 text-sm text-gray-600">
+                                Pour modifier la liste des invitations, ajoutez
+                                ou retirez un email (un par ligne). L'invitation
+                                autorise un utilisateur actuel ou futur
+                                d'Aipress24 à rejoindre le Business Wall de
+                                l'organisation.
+                            </p>
+                        </div>
+                        <!-- Body -->
+                        <div class="px-6 py-5">
                             <form
                                 class="space-y-4"
                                 action="#"
                             >
                                 <div>
+                                    <label
+                                        for="content"
+                                        class="block text-sm font-medium text-gray-700 mb-1"
+                                    >
+                                        Emails invités (un par ligne)
+                                    </label>
                                     <textarea
                                         name="content"
                                         id="content"
-                                        class="block p-2 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300
-                                        placeholder:text-gray-900
-                                        focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:gray-100"
+                                        class="block w-full p-3 text-sm text-gray-900 bg-gray-50 rounded-md border border-gray-300 focus:ring-teal-500 focus:border-teal-500"
                                         rows="10"
-                                    >
-                                      {{- invitations_emails|sort|join('\n') -}}
-                                    </textarea
-                                    >
+                                    >{{- invitations_emails|sort|join('\n') -}}</textarea>
                                 </div>
                                 <div
-                                    class="mt-12 flex items-center justify-end gap-x-6"
+                                    class="flex items-center justify-end gap-x-3 pt-4 border-t border-gray-200"
                                 >
+                                    <button
+                                        data-modal-hide="list_invitations_modal"
+                                        type="button"
+                                        class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400"
+                                    >
+                                        Annuler
+                                    </button>
                                     <button
                                         type="submit"
                                         hx-post="{{ url_for('bw_activation.invite_organisation_members') }}"
@@ -134,13 +145,6 @@
                                         class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
                                     >
                                         Valider
-                                    </button>
-                                    <button
-                                        data-modal-hide="list_invitations_modal"
-                                        type="button"
-                                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-gray-500 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400"
-                                    >
-                                        Annuler
                                     </button>
                                 </div>
                             </form>

@@ -39,6 +39,30 @@ class TestStageB1InviteOrgMembersRoutes:
         response = authenticated_owner_client.get("/BW/invite-organisation-members")
         assert response.status_code == 200
 
+    def test_invitations_modal_harmonised_keeps_wiring(
+        self,
+        authenticated_owner_client: FlaskClient,
+    ) -> None:
+        """Ticket #0142: the "Modifier la liste des invitations" modal
+        was harmonised with the BW page card. The visual fix must keep
+        all functional wiring (modal id, HTMX action, textarea) and
+        drop the readability anti-pattern (a shadowed description box
+        nested inside the shadowed modal panel)."""
+        body = authenticated_owner_client.get(
+            "/BW/invite-organisation-members"
+        ).data.decode()
+
+        # Functional wiring intact.
+        assert 'id="list_invitations_modal"' in body
+        assert 'name="content"' in body
+        assert "change_invitations_emails" in body
+        assert "/BW/invite-organisation-members" in body
+        # Harmonised header present.
+        assert "Emails invités (un par ligne)" in body
+        # The double-card anti-pattern is gone: the description
+        # paragraph no longer carries its own shadow/rounded box.
+        assert 'class="bg-white rounded-lg shadow' not in body
+
 
 class TestStageB2ManageOrgMembersRoutes:
     """Tests for Stage B2 routes (manage organisation members)."""
