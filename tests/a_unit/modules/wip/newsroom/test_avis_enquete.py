@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
+from pathlib import Path
 
 import arrow
 import pytest
@@ -686,3 +687,49 @@ def test_rdv_temporal_calculations(db_session: scoped_session) -> None:
     assert contact.time_until_rdv() > timedelta(hours=24)
     assert contact.is_rdv_soon is False
     assert contact.is_rdv_past is False
+
+
+class TestStatutAvisPostgresEnumCoverage:
+    """Prod crash 2026-05-17: `StatutAvis.REFUSE_SUGGESTION` existed in
+    the Python enum but the Postgres native ENUM type `statutavis`
+    was never extended → `InvalidTextRepresentation` on UPDATE. SQLite
+    (test backend) treats the column as a permissive VARCHAR, so the
+    suite stayed green (lessons-learned #11).
+
+    `sa.Enum(StatutAvis)` persists the member *name* (uppercase).
+    Every member beyond the table-creation baseline must therefore
+    have its own `ALTER TYPE statutavis ADD VALUE '<NAME>'` migration.
+    This guard fails at unit-test time if a member is added without
+    one — closing the silent-Postgres-drift loop without needing a
+    Postgres run.
+    """
+
+    # Members present when the enum type was first created.
+    _BASELINE = frozenset({"EN_ATTENTE", "ACCEPTE", "REFUSE"})
+
+    def test_every_non_baseline_member_has_add_value_migration(self) -> None:
+        migrations_dir = Path(__file__).resolve().parents[5] / "migrations" / "versions"
+        assert migrations_dir.is_dir(), migrations_dir
+        all_sql = "\n".join(
+            p.read_text(encoding="utf-8") for p in migrations_dir.glob("*.py")
+        )
+
+        members = {m.name for m in StatutAvis}
+        # Sanity: the baseline must remain a subset (renaming a
+        # baseline member is itself a breaking schema change).
+        assert members >= self._BASELINE
+
+        missing = [
+            name
+            for name in sorted(members - self._BASELINE)
+            if "ALTER TYPE statutavis ADD VALUE" not in all_sql
+            or f"'{name}'" not in all_sql
+        ]
+        assert not missing, (
+            f"StatutAvis members {missing} have no "
+            f"`ALTER TYPE statutavis ADD VALUE '<NAME>'` migration. "
+            f"sa.Enum(StatutAvis) stores the member name in the "
+            f"Postgres ENUM `statutavis`; adding a member without the "
+            f"migration 500s prod on the first UPDATE while SQLite "
+            f"tests stay green (lessons-learned #11)."
+        )
