@@ -14,6 +14,7 @@ from sqlalchemy import and_, func, or_, select
 from sqlalchemy.orm import selectinload
 
 from app.flask.extensions import db
+from app.flask.lib.templates import templated
 from app.flask.routing import url_for
 from app.logging import warn
 from app.models.auth import User
@@ -26,6 +27,21 @@ from app.modules.wip.services.sujet_notifications import (
 from ._base import BaseWipView
 from ._forms import SujetForm
 from ._table import BaseDataSource, BaseTable
+
+# language=jinja2
+# Bug #0132 (2026-05-14): the chief editor wants the author mention
+# *at the very top* — between the "Voir le sujet '…'" heading and the
+# form title — not below the form. We can't reorder the shared
+# VIEW_TEMPLATE because Communiqué relies on `extra_view_html` staying
+# *below* the form (bug #0128 image carousel). So Sujet gets its own
+# view template that renders the author block first.
+_SUJET_VIEW_TEMPLATE = """
+{% extends "wip/layout/_base.j2" %}
+{% block body_content %}
+  {{ extra_view_html|safe }}
+  {{ form_rendered|safe }}
+{% endblock %}
+"""
 
 
 @define
@@ -173,29 +189,38 @@ class SujetsWipView(BaseWipView):
     msg_delete_ok = "Le sujet a été supprimé"
     msg_delete_ko = "Vous n'êtes pas autorisé à supprimer ce sujet"
 
+    @templated(_SUJET_VIEW_TEMPLATE)
+    def get(self, id):
+        """Bug #0132 (2026-05-14): render the author mention at the top
+        of the developed sujet, before the form, using Sujet's own
+        view template (see `_SUJET_VIEW_TEMPLATE`)."""
+        model = self._get_model(id)
+        title = f"{self.label_view} '{model.title}'"
+        return self._view_ctx(model, title=title, mode="view")
+
     def _extra_view_html(self, model, mode: str) -> str:
-        """Show the author name below the form.
+        """Show the author — name, fonction and média — above the form.
 
-        Bug #0132: previously only shown in pure view mode. The chief
-        editor of the receiving media opens the developed sujet in edit
-        mode and must still see who proposed it — but cannot modify the
-        author. Render the author as a read-only block in any mode where
-        we have an existing model (so not in `new`).
+        Bug #0132: the chief editor of the receiving media opens the
+        developed sujet (view or edit mode) and must see who proposed
+        it, with enough context to identify them, but cannot modify the
+        author. Per the 2026-05-14 feedback the line reads
+        "Auteur : <nom>, <fonction>, <média>" and sits at the top.
 
-        The result is rendered via `{{ extra_view_html|safe }}` in the
-        parent template, so any user-controlled value must be HTML-escaped
-        before being interpolated.
+        Rendered via `{{ extra_view_html|safe }}`, so every
+        user-controlled value must be HTML-escaped before interpolation.
         """
         if mode == "new":
             return ""
         owner = getattr(model, "owner", None) if model else None
         if not owner:
             return ""
-        safe_name = escape(owner.full_name)
+        parts = [owner.full_name, owner.job_title, owner.organisation_name]
+        line = ", ".join(escape(p) for p in parts if p)
         return f"""
-        <div class="mt-4 p-4 bg-gray-50 rounded border">
+        <div class="mb-6 border-l-4 border-blue-400 bg-blue-50 p-4">
             <h3 class="text-sm font-medium text-gray-500">Auteur</h3>
-            <p class="text-sm font-medium text-gray-900">{safe_name}</p>
+            <p class="text-sm font-medium text-gray-900">{line}</p>
         </div>
         """
 

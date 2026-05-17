@@ -22,11 +22,15 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from app.models.auth import User
+from app.models.auth import KYCProfile, User
 from app.models.lifecycle import PublicationStatus
 from app.models.organisation import Organisation
 from app.modules.wip.crud.cbvs._forms import SujetForm
-from app.modules.wip.crud.cbvs.sujets import SujetsTable, SujetsWipView
+from app.modules.wip.crud.cbvs.sujets import (
+    _SUJET_VIEW_TEMPLATE,
+    SujetsTable,
+    SujetsWipView,
+)
 from app.modules.wip.models.newsroom.sujet import Sujet
 from app.modules.wip.services.sujet_notifications import (
     notify_media_of_sujet_proposition,
@@ -201,6 +205,41 @@ class TestSujetFormFields:
         html = view._extra_view_html(sujet, mode="edit")
         assert "<script>" not in html
         assert "&lt;script&gt;" in html
+
+    def test_extra_view_html_includes_fonction_and_media(
+        self, db_session: Session, media_org: Organisation
+    ):
+        """Bug #0132 (2026-05-14): the author line must read
+        "<nom>, <fonction>, <média>" — not the bare name."""
+        org = Organisation(name="Fake-Le Quotient du Médecin")
+        db_session.add(org)
+        db_session.flush()
+        author = User(
+            email="nico@example.com", first_name="Nicolas", last_name="Mouriou"
+        )
+        author.profile = KYCProfile(
+            profile_label="journaliste avec carte de presse en micro-entreprise"
+        )
+        author.organisation = org
+        author.organisation_id = org.id
+        db_session.add(author)
+        db_session.flush()
+        sujet = _make_sujet(db_session, media_id=media_org.id, owner_id=author.id)
+
+        html = SujetsWipView()._extra_view_html(sujet, mode="view")
+
+        assert "Nicolas Mouriou" in html
+        assert "journaliste avec carte de presse en micro-entreprise" in html
+        assert "Fake-Le Quotient du Médecin" in html
+
+    def test_sujet_view_template_renders_author_before_form(self):
+        """Bug #0132 (2026-05-14): the author block sits *above* the
+        form. Sujet uses its own view template (the shared one keeps
+        `extra_view_html` below the form for Communiqué's carousel,
+        bug #0128)."""
+        assert _SUJET_VIEW_TEMPLATE.index(
+            "extra_view_html"
+        ) < _SUJET_VIEW_TEMPLATE.index("form_rendered")
 
 
 class TestNotifyMediaOfSujetProposition:
