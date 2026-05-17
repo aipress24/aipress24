@@ -8,6 +8,7 @@ import sys
 from pathlib import Path
 
 from flask import current_app
+from markupsafe import Markup
 from wtforms import widgets
 from wtforms.fields.choices import SelectMultipleField
 
@@ -49,7 +50,8 @@ def _dict_to_group_tom_choices(choices: dict) -> list:
 class SelectMultiOptgroupWidget(widgets.Select):
     def __call__(self, field: SelectMultiOptgroupField, **kwargs):
         template = self.get_template()
-        return template.render(field=field)
+        # #0162: return Markup, not bare str (see CountrySelectWidget).
+        return Markup(template.render(field=field))
 
     def get_template(self):
         template_path = Path(__file__).parent / "select_multi_optgroup.j2"

@@ -6,6 +6,8 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
 from jinja2 import Environment, select_autoescape
 from markupsafe import Markup
@@ -623,3 +625,38 @@ class TestKycWidgetsReturnMarkup:
             out = env.from_string("{{ field() }}").render(field=form.pays)
         assert "<select" in out
         assert "&lt;select" not in out
+
+
+class TestNoBareTemplateRenderInKycWidgets:
+    """Class-level guard for the autoescape regression family
+    (#0162 / H1 / #0126). Every KYC widget renders its template via
+    `jinja2.Template.render()` which returns a bare `str`; under the
+    `.j2` autoescape policy a bare str is HTML-escaped at the call
+    site (the widget shows up as literal text). The contract is: a
+    widget MUST return `markupsafe.Markup`. This fails if any widget
+    in `kyc/lib/` returns `template.render(...)` not wrapped in
+    `Markup(...)` — so a newly added widget can't silently
+    reintroduce the bug.
+    """
+
+    def test_every_widget_wraps_render_in_markup(self) -> None:
+        lib = Path(__file__).resolve().parents[4] / "src/app/modules/kyc/lib"
+        assert lib.is_dir(), lib
+        offenders: list[str] = []
+        for py in sorted(lib.glob("*.py")):
+            for lineno, line in enumerate(
+                py.read_text(encoding="utf-8").splitlines(), 1
+            ):
+                stripped = line.strip()
+                if not stripped.startswith("return "):
+                    continue
+                if "template.render(" not in stripped:
+                    continue
+                if "Markup(" not in stripped:
+                    offenders.append(f"{py.name}:{lineno}: {stripped}")
+        assert not offenders, (
+            "KYC widget(s) return a bare str from template.render() — "
+            "must wrap in markupsafe.Markup or the widget renders as "
+            "escaped literal text under .j2 autoescape (#0162):\n"
+            + "\n".join(offenders)
+        )

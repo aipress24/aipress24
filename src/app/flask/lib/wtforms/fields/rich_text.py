@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from typing import ClassVar
 
+from markupsafe import Markup
 from wtforms.fields.simple import StringField
 
 from .base import BaseWidget
@@ -43,7 +44,8 @@ class RichTextWidget(BaseWidget):
         ctx = {
             "field": field,
         }
-        return template.render(**ctx)
+        # #0162: return Markup, not bare str (autoescape class).
+        return Markup(template.render(**ctx))
 
 
 class RichTextField(StringField):

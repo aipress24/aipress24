@@ -7,13 +7,15 @@ from __future__ import annotations
 from pathlib import Path
 
 from flask import current_app
+from markupsafe import Markup
 from wtforms import StringField, widgets
 
 
 class ValidEmailFreeWidget(widgets.EmailInput):
     def __call__(self, field: ValidEmailFree, **kwargs):
         template = self.get_template()
-        return template.render(field=field)
+        # #0162: return Markup, not bare str (see CountrySelectWidget).
+        return Markup(template.render(field=field))
 
     def get_template(self):
         template_path = Path(__file__).parent / "valid_email_free.j2"
