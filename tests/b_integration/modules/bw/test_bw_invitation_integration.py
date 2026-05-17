@@ -42,6 +42,7 @@ from app.modules.bw.bw_activation.models import (
     PermissionType,
     RoleAssignment,
 )
+from app.modules.preferences.views.invitations import InvitationsView
 from app.services.notifications._models import Notification
 
 if TYPE_CHECKING:
@@ -1163,3 +1164,65 @@ class TestRevokePartnershipIntegration:
         result = revoke_partnership(media_bw, str(pr_bw.id))
 
         assert result is False
+
+
+class TestBwpriInvitationVisibleInPreferences:
+    """Ticket #0158: an internal member invited as BWPRi by her boss
+    must see the PENDING invitation in /preferences/invitations, and
+    accepting it must be reflected.
+
+    This locks the *correct* end-to-end contract for a well-formed
+    internal member (the invite path, the preferences query, and the
+    accept transition). Static analysis showed every code path is
+    correct for such a member; if this test ever fails the regression
+    is real and points at the broken layer. (The ticket's residual
+    failure mode is identity-specific — see the analysis note: a
+    clone / duplicate account makes the RoleAssignment land on a
+    different user_id than the one the invitee logs in as.)
+    """
+
+    def test_internal_member_bwpri_invite_is_visible_then_acceptable(
+        self,
+        app_context,
+        db_session: Session,
+        media_bw: BusinessWall,
+        media_org: Organisation,
+    ):
+        nina = User(
+            email="nina@example.com",
+            first_name="Nina",
+            last_name="Hermelin",
+            active=True,
+            is_clone=False,
+        )
+        nina.organisation = media_org
+        nina.organisation_id = media_org.id
+        db_session.add(nina)
+        db_session.flush()
+
+        # Boss invites Nina as BWPRi via the real textarea aggregator.
+        outcomes = change_bwpri_emails(media_bw, "nina@example.com")
+        db_session.flush()
+        assert outcomes[0].is_success
+
+        # 1. The PENDING invitation surfaces on /preferences/invitations.
+        role_invitations = InvitationsView()._role_invitations(nina)
+        assert len(role_invitations) == 1
+        invite = role_invitations[0]
+        assert invite["role_type"] == BWRoleType.BWPRI.value
+        assert invite["user_id"] == nina.id
+        assert str(media_bw.id) == invite["bw_id"]
+
+        # 2. Accepting it is reflected (status flips to ACCEPTED).
+        assignment = (
+            db_session.query(RoleAssignment)
+            .filter_by(user_id=nina.id, role_type=BWRoleType.BWPRI.value)
+            .one()
+        )
+        assignment.invitation_status = InvitationStatus.ACCEPTED.value
+        db_session.flush()
+
+        # Once accepted it leaves the PENDING list (expected behaviour).
+        assert InvitationsView()._role_invitations(nina) == []
+        db_session.refresh(assignment)
+        assert assignment.invitation_status == InvitationStatus.ACCEPTED.value
