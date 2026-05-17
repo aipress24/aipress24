@@ -325,3 +325,27 @@ class TestMissionDashboard:
             f"/biz/missions/{published_mission.id}/applications"
         )
         assert response.status_code == 403
+
+
+class TestOpenMissionShowsApplyForm:
+    """Ticket #0161: a freshly published (OPEN) mission must let other
+    users apply. `MissionStatus(StrEnum)` + `auto()` makes `.value`
+    lowercase ("open"), but the detail templates used to compare it to
+    "OPEN" — so the apply branch was never reachable and every OPEN
+    mission wrongly showed "n'accepte plus de candidatures" (same
+    enum-name-mismatch class as #0150 / lessons-learned #11).
+    """
+
+    def test_open_mission_renders_apply_form_for_other_user(
+        self,
+        app: Flask,
+        applicant: User,
+        published_mission: MissionOffer,
+    ):
+        client = make_authenticated_client(app, applicant)
+        response = client.get(f"/biz/missions/{published_mission.id}")
+        assert response.status_code == 200
+        body = response.data.decode()
+        assert "Candidater" in body
+        assert f"/biz/missions/{published_mission.id}/apply" in body
+        assert "n'accepte plus de candidatures" not in body
