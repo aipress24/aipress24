@@ -90,10 +90,23 @@ class MemberDetailView(MethodView):
 
         mask_fields = filter_email_mobile(g.user, user)
         context = public_info_context(user, mask_fields)
+
+        # Bug #0093: surface the publications count on the
+        # "Publications" tab (e.g. "Publications (1)"), mirroring the
+        # organisation page. The count reuses `get_posts()` so it is
+        # always consistent with the list the tab actually renders.
+        posts_count = len(user_vm.get_posts())
+        tabs = [
+            {**tab, "label": f"{tab['label']} ({posts_count})"}
+            if tab["id"] == "publications" and posts_count
+            else tab
+            for tab in MEMBER_TABS
+        ]
+
         context.update(
             {
                 "profile": user_vm,
-                "tabs": MEMBER_TABS,
+                "tabs": tabs,
                 "active_tab": active_tab,
                 "followers_sample": followers_sample,
             }

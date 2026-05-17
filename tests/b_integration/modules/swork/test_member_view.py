@@ -12,7 +12,9 @@ import pytest
 from flask import g
 
 from app.models.auth import KYCProfile, User
+from app.models.lifecycle import PublicationStatus
 from app.modules.swork.views.member import MemberDetailView
+from app.modules.wire.models import ArticlePost
 from app.services.social_graph import adapt
 
 # Note: Tests for _build_context and _render_tab are not included
@@ -99,3 +101,43 @@ class TestToggleFollow:
 
             assert not social_viewer.is_following(target_user)
             assert b"Suivre" in response.data
+
+
+class TestPublicationsTabCounter:
+    """Bug #0093: the member profile "Publications" tab must show an
+    active counter (e.g. "Publications (1)"), like the organisation
+    page. It was a static label with no count.
+    """
+
+    def _publications_label(self, ctx: dict) -> str:
+        tab = next(t for t in ctx["tabs"] if t["id"] == "publications")
+        return tab["label"]
+
+    def test_counter_reflects_published_post(
+        self, app: Flask, db_session: Session, target_user: User
+    ):
+        # public_info_context (called by _build_context) needs a valid
+        # survey profile id.
+        target_user.profile.profile_id = "P001"
+        post = ArticlePost(owner=target_user)
+        post.status = PublicationStatus.PUBLIC  # type: ignore[assignment]
+        db_session.add(post)
+        db_session.flush()
+
+        with app.test_request_context():
+            g.user = target_user
+            ctx = MemberDetailView()._build_context(target_user, "profile")
+
+        assert self._publications_label(ctx) == "Publications (1)"
+
+    def test_no_counter_when_no_publications(
+        self, app: Flask, db_session: Session, target_user: User
+    ):
+        target_user.profile.profile_id = "P001"
+        db_session.flush()
+
+        with app.test_request_context():
+            g.user = target_user
+            ctx = MemberDetailView()._build_context(target_user, "profile")
+
+        assert self._publications_label(ctx) == "Publications"
