@@ -1,0 +1,51 @@
+{#
+  Ticket #0151: navigation buttons across the Avis d'Enquête steps,
+  mirroring the Business Wall stepper. Rendered at the TOP and BOTTOM
+  of each step. "Supprimer" stays in the 3-dot menu (not here).
+
+  Steps & spec:
+    voir     → [Liste]                         [Suivant: Modifier]
+    modifier → [Liste]                         [Suivant: Cibler les contacts]
+    cibler   → [Liste] [Étape précédente]      [Suivant: Gérer les réponses]
+    reponses → [Liste] [Étape précédente]      [Suivant: Gérer les RDV]
+    rdv      → [Liste] [Étape précédente]
+#}
+{% macro step_nav(model, current) %}
+  {% set steps = [
+    ("voir",     "AvisEnqueteWipView:get",      "Modifier"),
+    ("modifier", "AvisEnqueteWipView:edit",     "Cibler les contacts"),
+    ("cibler",   "AvisEnqueteWipView:ciblage",  "Gérer les réponses"),
+    ("reponses", "AvisEnqueteWipView:reponses", "Gérer les RDV"),
+    ("rdv",      "AvisEnqueteWipView:rdv",      none),
+  ] %}
+  {% set names = steps | map(attribute=0) | list %}
+  {% set idx = names.index(current) %}
+  <div class="my-4 flex items-center justify-between gap-x-4 border-t border-b py-3">
+    <div class="flex items-center gap-x-4">
+      <a
+        href="{{ url_for('AvisEnqueteWipView:index') }}"
+        class="text-sm font-semibold leading-6 text-gray-900 hover:text-gray-700"
+      >
+        ← Retourner à la liste des Avis d'enquête
+      </a>
+      {% if idx >= 2 %}
+        {% set prev = steps[idx - 1] %}
+        <a
+          href="{{ url_for(prev[1], id=model.id) }}"
+          class="text-sm font-semibold leading-6 text-gray-900 hover:text-gray-700"
+        >
+          ← Retourner à l'étape précédente
+        </a>
+      {% endif %}
+    </div>
+    {% if idx <= 3 %}
+      {% set nextstep = steps[idx + 1] %}
+      <a
+        href="{{ url_for(nextstep[1], id=model.id) }}"
+        class="rounded-md bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-700"
+      >
+        Étape suivante : {{ steps[idx][2] }} →
+      </a>
+    {% endif %}
+  </div>
+{% endmacro %}

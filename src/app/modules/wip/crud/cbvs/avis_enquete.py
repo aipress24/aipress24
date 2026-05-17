@@ -23,6 +23,7 @@ from svcs.flask import container
 from werkzeug.wrappers import Response as WerkzeugResponse
 
 from app.flask.lib.htmx import extract_fragment
+from app.flask.lib.templates import templated
 from app.flask.routing import url_for
 from app.models.lifecycle import PublicationStatus
 
@@ -127,6 +128,37 @@ class AvisEnqueteTable(BaseTable):
         ]
 
 
+# language=jinja2
+# Ticket #0151: the "Voir" and "Modifier" steps reuse the shared
+# VIEW/UPDATE templates, which we must NOT alter (other WIP views
+# depend on them, cf. #0132/#0128). Avis d'Enquête gets its own
+# wrappers so the step-nav bar (#0151) frames the form top & bottom.
+# NB: the avis is passed as `avis` (not `model`) — a top-level
+# `model` key makes @templated's enrich_context run OpenGraph
+# (`url_for(obj)`), which 500s for AvisEnquete (no URL rule).
+_VOIR_TEMPLATE = """
+{% extends "wip/layout/_base.j2" %}
+{% from "wip/avis_enquete/_step_nav.j2" import step_nav %}
+{% block body_content %}
+  {{ step_nav(avis, "voir") }}
+  {{ form_rendered|safe }}
+  {{ extra_view_html|safe }}
+  {{ step_nav(avis, "voir") }}
+{% endblock %}
+"""
+
+# language=jinja2
+_MODIFIER_TEMPLATE = """
+{% extends "wip/layout/_base.j2" %}
+{% from "wip/avis_enquete/_step_nav.j2" import step_nav %}
+{% block body_content %}
+  {{ step_nav(avis, "modifier") }}
+  {{ form_rendered|safe }}
+  {{ step_nav(avis, "modifier") }}
+{% endblock %}
+"""
+
+
 class AvisEnqueteWipView(BaseWipView):
     name = "avis_enquete"
 
@@ -175,6 +207,24 @@ class AvisEnqueteWipView(BaseWipView):
         the underscore-prefixed name (ref bug #0070).
         """
         self.update_phase_breadcrumbs(model, phase)
+
+    @templated(_VOIR_TEMPLATE)
+    def get(self, id):
+        """Step "Voir" — wrapped with the #0151 step-nav bar."""
+        model = self._get_model(id)
+        title = f"{self.label_view} '{model.title}'"
+        ctx = self._view_ctx(model, title=title, mode="view")
+        ctx["avis"] = model
+        return ctx
+
+    @templated(_MODIFIER_TEMPLATE)
+    def edit(self, id):
+        """Step "Modifier" — wrapped with the #0151 step-nav bar."""
+        model = self._get_model(id)
+        title = f"{self.label_edit} '{model.title}'"
+        ctx = self._view_ctx(model, title=title)
+        ctx["avis"] = model
+        return ctx
 
     @route("/<id>/ciblage", methods=["GET", "POST"])
     def ciblage(self, id: str | int):

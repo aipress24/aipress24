@@ -548,6 +548,80 @@ class TestAvisEnqueteAccessControl:
         assert response.status_code == 200
 
 
+class TestStepNavButtons:
+    """Ticket #0151: every Avis d'Enquête step shows navigation
+    buttons (top & bottom), mirroring the Business Wall stepper.
+
+      voir     → [Liste]                    [Suivant: Modifier]
+      modifier → [Liste]                    [Suivant: Cibler les contacts]
+      cibler   → [Liste] [Étape précédente] [Suivant: Gérer les réponses]
+      reponses → [Liste] [Étape précédente] [Suivant: Gérer les RDV]
+      rdv      → [Liste] [Étape précédente]
+
+    "Supprimer" stays in the 3-dot menu (not asserted here).
+    """
+
+    _LIST = "Retourner à la liste des Avis d'enquête"
+    _PREV = "Retourner à l'étape précédente"
+
+    def _body(self, client: FlaskClient, endpoint: str, avis: AvisEnquete) -> str:
+        response = client.get(url_for(endpoint, id=avis.id))
+        assert response.status_code == 200
+        return response.data.decode()
+
+    def test_voir_step_nav(
+        self, logged_in_client: FlaskClient, test_avis_enquete: AvisEnquete
+    ):
+        body = self._body(logged_in_client, "AvisEnqueteWipView:get", test_avis_enquete)
+        assert body.count(self._LIST) >= 2  # top + bottom
+        assert "Étape suivante : Modifier" in body
+        assert self._PREV not in body
+
+    def test_modifier_step_nav(
+        self, logged_in_client: FlaskClient, test_avis_enquete: AvisEnquete
+    ):
+        body = self._body(
+            logged_in_client, "AvisEnqueteWipView:edit", test_avis_enquete
+        )
+        assert body.count(self._LIST) >= 2
+        assert "Étape suivante : Cibler les contacts" in body
+        assert self._PREV not in body
+
+    def test_ciblage_step_nav(
+        self, logged_in_client: FlaskClient, test_avis_enquete: AvisEnquete
+    ):
+        body = self._body(
+            logged_in_client, "AvisEnqueteWipView:ciblage", test_avis_enquete
+        )
+        assert body.count(self._LIST) >= 2
+        assert body.count(self._PREV) >= 2
+        assert "Étape suivante : Gérer les réponses" in body
+
+    def test_reponses_step_nav(
+        self,
+        logged_in_client: FlaskClient,
+        test_avis_enquete: AvisEnquete,
+        contact_with_rdv_proposed: ContactAvisEnquete,
+    ):
+        body = self._body(
+            logged_in_client, "AvisEnqueteWipView:reponses", test_avis_enquete
+        )
+        assert body.count(self._LIST) >= 2
+        assert body.count(self._PREV) >= 2
+        assert "Étape suivante : Gérer les RDV" in body
+
+    def test_rdv_step_nav(
+        self,
+        logged_in_client: FlaskClient,
+        test_avis_enquete: AvisEnquete,
+        contact_with_rdv_proposed: ContactAvisEnquete,
+    ):
+        body = self._body(logged_in_client, "AvisEnqueteWipView:rdv", test_avis_enquete)
+        assert body.count(self._LIST) >= 2
+        assert body.count(self._PREV) >= 2
+        assert "Étape suivante :" not in body  # rdv is the last step
+
+
 # ----------------------------------------------------------------
 # Form Submission Tests
 # ----------------------------------------------------------------

@@ -1,4 +1,5 @@
 {% extends "wip/layout/_base.j2" %}
+{% from "wip/avis_enquete/_step_nav.j2" import step_nav %}
 
   {% macro render_selector(selector, model) %}
   <div class="aui-field-group mb-4">
@@ -24,6 +25,7 @@
 
 {% block body_content %}
   <div id="main">
+    {{ step_nav(model, "cibler") }}
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
 
     <h2 class="aui-title">Cibler les personnes à contacter</h2>
@@ -181,5 +183,6 @@
           setup();
       })();
     </script>
+    {{ step_nav(model, "cibler") }}
   </div>
 {% endblock %}

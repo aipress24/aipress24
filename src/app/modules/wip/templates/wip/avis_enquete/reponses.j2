@@ -1,9 +1,11 @@
 {% extends "wip/layout/_base.j2" %}
+{% from "wip/avis_enquete/_step_nav.j2" import step_nav %}
 
 {% block body_class %}bg-gray-50{% endblock %}
 
 {% block body_content %}
     <div class="px-4 sm:px-6 lg:px-8">
+        {{ step_nav(model, "reponses") }}
         <div class="sm:flex sm:items-center">
             <div class="sm:flex-auto">
                 <h1 class="text-2xl font-semibold text-gray-900">{{ title }}</h1>
@@ -116,5 +118,6 @@
                 </div>
             </div>
         </div>
+        {{ step_nav(model, "reponses") }}
     </div>
 {% endblock %}

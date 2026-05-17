@@ -1,9 +1,11 @@
 {% extends "wip/layout/_base.j2" %}
+{% from "wip/avis_enquete/_step_nav.j2" import step_nav %}
 
 {% block body_class %}bg-gray-50{% endblock %}
 
 {% block body_content %}
     <div class="p-4">
+        {{ step_nav(model, "rdv") }}
         <div class="bg-white p-6 rounded-lg shadow-lg">
             <h1 class="text-2xl font-bold mb-4">{{ title }}</h1>
 
@@ -69,5 +71,6 @@
                 <a href="{{ url_for('AvisEnqueteWipView:index') }}" class="text-gray-500 hover:underline">Retour à la liste</a>
             </div>
         </div>
+        {{ step_nav(model, "rdv") }}
     </div>
 {% endblock %}
