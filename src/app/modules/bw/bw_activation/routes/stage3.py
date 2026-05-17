@@ -31,13 +31,11 @@ from app.modules.bw.bw_activation.bw_creation import (
 )
 from app.modules.bw.bw_activation.config import BW_TYPES
 from app.modules.bw.bw_activation.models import (
-    BWRoleType,
     BWStatus,
-    InvitationStatus,
-    RoleAssignmentService,
 )
 from app.modules.bw.bw_activation.user_utils import current_business_wall
 from app.modules.bw.bw_activation.utils import (
+    ERR_NOT_MANAGER,
     fill_session,
     is_bw_manager_or_admin,
 )
@@ -121,29 +119,24 @@ def confirmation_free():
                 bw_type=bw_type,
                 bw_info=bw_info,
             )
-        # Bug #0117: user belongs to an org with a BW but is not a manager.
-        # If they are a member of the BW's organisation, add them as owner
-        # instead of creating a duplicate BW.
+        # Bug #0139: a member of the BW's organisation who is NOT a
+        # manager must NOT be silently promoted to BW_OWNER here.
+        # `confirmation_free` is a GET whose only guard is
+        # `session["bw_activated"]` (set merely by accepting the CGV),
+        # so the previous auto-grant let any org member self-escalate
+        # to BW_OWNER with no invitation and no acceptance. We still
+        # must not create a duplicate BW for them
+        # (#0110/#0115/#0116/#0117) — so bail out to "not authorized".
+        # A role must be obtained through an explicit invitation +
+        # acceptance in the preferences flow, not by walking this URL.
         org = existing.get_organisation()
         if org and user in org.members:
-            role_service = container.get(RoleAssignmentService)
-            role_service.create(
-                {
-                    "business_wall_id": existing.id,
-                    "user_id": user.id,
-                    "role_type": BWRoleType.BW_OWNER.value,
-                    "invitation_status": InvitationStatus.ACCEPTED.value,
-                    "accepted_at": datetime.now(UTC),
-                },
-                auto_commit=False,
+            warn(
+                f"confirmation_free: non-manager member {user.email} of "
+                f"org with BW {existing.id} — no role granted (#0139)"
             )
-            db.session.commit()
-            fill_session(existing)
-            return render_template(
-                "bw_activation/02_activation_gratuit_confirme.html",
-                bw_type=bw_type,
-                bw_info=bw_info,
-            )
+            session["error"] = ERR_NOT_MANAGER
+            return redirect(url_for("bw_activation.not_authorized"))
     # Stale `session["bw_id"]` would otherwise prevent a fresh
     # creation attempt from succeeding. Drop it so the new BW
     # picked by `current_business_wall(user)` post-creation is the
@@ -332,7 +325,6 @@ def _get_or_create_draft_bw_for_checkout(user: User, bw_type: str):
     if none exists yet. Used as the target of the Stripe Pricing Table's
     `client-reference-id`.
     """
-    from datetime import UTC, datetime
 
     from app.flask.extensions import db
     from app.modules.bw.bw_activation.models import (

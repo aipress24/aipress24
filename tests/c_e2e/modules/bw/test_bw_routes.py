@@ -350,6 +350,61 @@ class TestStage3FreeRoutes:
         assert response.status_code in (302, 303)
         assert "activate-free" in response.headers.get("Location", "")
 
+    def test_confirmation_free_does_not_self_grant_owner_to_member(
+        self,
+        app: Flask,
+        db,
+        db_session: Session,
+        test_org: Organisation,
+        test_business_wall: BusinessWall,
+    ) -> None:
+        """Ticket #0139: a non-manager member of an org that already
+        has a BW must NOT be silently granted BW_OWNER by walking the
+        free-activation flow. `confirmation_free` is a GET whose only
+        guard is `session["bw_activated"]`; it used to create a
+        BW_OWNER RoleAssignment for any org member → privilege
+        escalation with no invitation/acceptance. It must now bail to
+        "not authorized" and create no role.
+        """
+        member = User(
+            email=_unique_email(),
+            first_name="Lorraine",
+            last_name="Abassie",
+            active=True,
+        )
+        member.organisation = test_org
+        member.organisation_id = test_org.id
+        db_session.add(member)
+        db_session.flush()
+
+        client = app.test_client()
+        with app.test_request_context():
+            login_user(member)
+            with client.session_transaction() as sess:
+                for key, value in session.items():
+                    sess[key] = value
+        with client.session_transaction() as sess:
+            sess["bw_activated"] = True
+            sess["bw_type"] = "media"
+            # `current_business_wall` resolves the org's existing BW
+            # via a selected/stale bw_id (the #0110/#0115/#0116 family).
+            sess["bw_id"] = str(test_business_wall.id)
+
+        response = client.get(
+            "/BW/confirmation/free", follow_redirects=False
+        )
+
+        assert response.status_code in (302, 303)
+        assert "not-authorized" in response.headers.get("Location", "")
+
+        # No role was granted to the member (the escalation is closed).
+        roles = (
+            db_session.query(RoleAssignment)
+            .filter_by(user_id=member.id)
+            .all()
+        )
+        assert roles == []
+
 
 # =============================================================================
 # Stage 3: Activation Routes (Paid)
