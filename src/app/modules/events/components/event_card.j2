@@ -51,15 +51,19 @@
     <a class="chip ~neutral @low">
       {{ event.sector.split("/")[-1] }}
     </a>
-    {# Bug 0129: also surface the publishing client (BW name) on the card #}
-    {# so attendees see "Pour : <client>" alongside type / category.       #}
-    {% if event.publisher %}
+    {# Bug 0138: in the delegated case (author org ≠ publisher) the     #}
+    {# italic "Publié par … en tant que contact presse de …" line says #}
+    {# the client, so the "Pour : <client>" chip (#0129) is a redundant #}
+    {# doublon — show the chip ONLY when the italic line is absent      #}
+    {# (self-published / no client delegation), keeping #0129 intact.   #}
+    {% set _delegated = event.author.organisation and event.publisher
+          and event.author.organisation.id != event.publisher.id %}
+    {% if event.publisher and not _delegated %}
       <a class="chip ~info @low">
         Pour : {{ event.publisher.bw_name or event.publisher.name }}
       </a>
     {% endif %}
-    {% if event.author.organisation and event.publisher
-          and event.author.organisation.id != event.publisher.id %}
+    {% if _delegated %}
       <div class="text-xs italic text-gray-500 mt-1">
         Publié par {{ event.author.organisation.name }} en tant que contact presse de {{ event.publisher.name }}.
       </div>

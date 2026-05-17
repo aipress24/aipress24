@@ -157,3 +157,38 @@ def test_event_shows_published_by_relation_when_cross_org(
         "Publié par Fake-Les Propulseurs PR en tant que contact presse de Fake-Davi Logistique"
         in html
     ), "missing 'Publié par X en tant que contact presse de Y' on event detail"
+
+
+def test_delegated_event_list_card_drops_redundant_pour_chip(
+    app: Flask,
+    db_session: Session,
+):
+    """Bug #0138: in the delegated case the italic "Publié par … en
+    tant que contact presse de …" line already names the client, so
+    the "Pour : <client>" chip (#0129) is a redundant doublon on the
+    card and must NOT be shown. The non-delegated #0129 behaviour
+    (chip shown) is still covered by the tests above.
+    """
+    user = _make_user(db_session)
+    agency = Organisation(name="Fake-Les Propulseurs PR")
+    client_org = Organisation(
+        name="Fake-Davi Logistique", bw_name="Davi Logistique"
+    )
+    db_session.add_all([agency, client_org])
+    db_session.flush()
+    user.organisation = agency
+    db_session.flush()
+    _make_event_with_publisher(db_session, user.id, client_org)
+
+    client = make_authenticated_client(app, user)
+    response = client.get("/events/", follow_redirects=True)
+    assert response.status_code == 200
+    html = response.data.decode()
+    assert (
+        "Publié par Fake-Les Propulseurs PR en tant que contact presse "
+        "de Fake-Davi Logistique" in html
+    )
+    assert "Pour :" not in html, (
+        "the redundant 'Pour : <client>' chip must be gone in the "
+        "delegated case (#0138)"
+    )
