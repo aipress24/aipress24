@@ -637,3 +637,18 @@ class TestOrgsDirectory:
     def test_vm_class(self):
         """Test OrgsDirectory has correct vm_class."""
         assert OrgsDirectory.vm_class == OrgListOrgVM
+
+
+class TestMembersSecteurFilterLabel:
+    """Bug #0078: the SOCIAL/Membres sector filter aggregates the
+    medias / rp / detailles KYC sub-fields, which all share the same
+    `secteur_detaille` ontology — so it IS the detailed-sector
+    taxonomy. The PO ("Bravo mais j'avais demandé 'Secteur d'activité
+    détaillés'") asked it to be named accordingly, not the generic
+    "Secteur activité".
+    """
+
+    def test_secteur_filter_label_is_detailed(self) -> None:
+        filters = make_member_filters([])
+        secteur = next(f for f in filters if f.id == "secteur_activite")
+        assert secteur.label == "Secteur d'activité détaillés"

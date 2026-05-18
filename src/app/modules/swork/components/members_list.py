@@ -303,7 +303,11 @@ class FilterByTailleOrganisation(Filter):
 
 class FilterBySecteurActivite(Filter):
     id = "secteur_activite"
-    label = "Secteur activité"
+    # Bug #0078: the 3 aggregated sub-fields (medias / rp / detailles)
+    # all share the same `secteur_detaille` KYC ontology (cf.
+    # field_label.py), so this filter IS the detailed-sector taxonomy.
+    # The PO asked for it to be named accordingly.
+    label = "Secteur d'activité détaillés"
     options: ClassVar[list[str]] = []  # ty:ignore[invalid-attribute-override]
 
     def __init__(self, objects: list | None = None) -> None:
