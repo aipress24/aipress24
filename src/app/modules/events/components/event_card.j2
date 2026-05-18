@@ -35,13 +35,14 @@
   </div>
 
   <div class="px-4">
+    {# Bug #0138: this type badge was a dead affordance — `href="#"` +
+       `hx-post="" hx-target="#content"` with no `force-tab` handler
+       anywhere; on the BW org page (no #content) clicking it did
+       nothing, so the event never "developed" (no Participants, no
+       accreditation block). Make it a real link to the event detail,
+       like the title link — works on every host. #}
     <a
-        href="#"
-        hx-trigger="click"
-        hx-post=""
-        hx-vals='{"force-tab": ""}'
-        hx-target="#content"
-        hx-swap="outerHTML"
+        href="{{ url_for(event) }}"
         class="chip ~positive @low"
     >{{ event.type_label }}</a>
 

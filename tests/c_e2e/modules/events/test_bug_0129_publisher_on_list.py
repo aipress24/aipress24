@@ -192,3 +192,31 @@ def test_delegated_event_list_card_drops_redundant_pour_chip(
         "the redundant 'Pour : <client>' chip must be gone in the "
         "delegated case (#0138)"
     )
+
+
+def test_event_card_type_badge_is_a_real_link_not_dead_chip(
+    app: Flask,
+    db_session: Session,
+):
+    """Bug #0138b: the event-card type badge used to be a dead
+    affordance (`href="#"` + `hx-post="" hx-target="#content"` with no
+    `force-tab` handler) — on the BW org page (no #content) clicking it
+    did nothing, so the event never "developed". It is now a real link
+    to the event detail. Guard: the dead htmx markers are gone and the
+    badge points at the event.
+    """
+    user = _make_user(db_session)
+    publisher = Organisation(name="Fake-Léonard Industries", bw_name="Léo")
+    db_session.add(publisher)
+    db_session.flush()
+    event = _make_event_with_publisher(db_session, user.id, publisher)
+
+    client = make_authenticated_client(app, user)
+    body = client.get("/events/", follow_redirects=True).data.decode()
+
+    # `force-tab` was unique to the dead chip (no handler anywhere) —
+    # its absence proves the broken affordance is gone, without the
+    # false positives of page-wide `#content` / `href="#"` chrome.
+    assert "force-tab" not in body
+    assert f'href="/events/{event.id}"' in body
+    assert "chip ~positive @low" in body  # the (now-linked) type badge
