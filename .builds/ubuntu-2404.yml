@@ -22,6 +22,13 @@ packages:
     # Other libraries
     - libffi-dev
     - libbz2-dev
+    # Probably needed to move to runtime
+    - libpango-1.0-0
+    - libpango1.0-dev
+    - libpangocairo-1.0-0
+    - libpangoft2-1.0-0
+    - libpangoxft-1.0-0
+    - libharfbuzz-gobject0
 
 tasks:
     - setup: |
