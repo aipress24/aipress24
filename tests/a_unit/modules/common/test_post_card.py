@@ -6,15 +6,20 @@
 
 from __future__ import annotations
 
+import arrow
 import pytest
+from flask import render_template_string
 
-from app.models.auth import User
+from app.enums import RoleEnum
+from app.models.auth import KYCProfile, Role, User
+from app.models.organisation import Organisation
 from app.modules.common.components.post_card import (
     ArticleVM,
     PostCard,
     PressReleaseVM,
     UserVM,
 )
+from app.modules.wip.models.comroom import Communique
 from app.modules.wire.models import ArticlePost, PressReleasePost
 
 
@@ -214,3 +219,89 @@ class TestUserVM:
 
             vm = UserVM(user)
             assert vm.get_organisation() is None
+
+
+class TestPostCardSelfPublicationByline:
+    """Bug #0093: a self-published communiqué (no client delegation)
+    must show an author byline "Publié par <Nom>, <fonction> chez
+    <organisation>." The card previously only rendered a byline for
+    the *delegated* case (author org ≠ publisher), so a PR consultant
+    publishing their own CP got no mention. The delegated phrasing
+    must stay unchanged (no regression).
+    """
+
+    def _render(self, app, communique) -> str:
+        with app.test_request_context():
+            return render_template_string(
+                '{{ component("post-card", c) }}', c=communique
+            )
+
+    @staticmethod
+    def _pr_role(db_session) -> Role:
+        role = Role(
+            name=RoleEnum.PRESS_RELATIONS.name,
+            description=RoleEnum.PRESS_RELATIONS.value,
+        )
+        db_session.add(role)
+        db_session.flush()
+        return role
+
+    def test_self_published_cp_shows_author_fonction_org(
+        self, db_session, app
+    ):
+        org = Organisation(name="Fake-RoulezJeunesse")
+        db_session.add(org)
+        db_session.flush()
+        user = User(
+            email="cath@example.com",
+            first_name="Catherine",
+            last_name="Samorian",
+        )
+        user.profile = KYCProfile(
+            profile_label="consultante en Relations Presse"
+        )
+        user.organisation = org
+        user.organisation_id = org.id
+        user.roles.append(self._pr_role(db_session))
+        db_session.add(user)
+        db_session.flush()
+
+        cp = Communique(owner=user, publisher=org)  # self-published
+        cp.published_at = arrow.utcnow()
+        db_session.add(cp)
+        db_session.flush()
+
+        html = self._render(app, cp)
+        assert (
+            "Publié par Catherine Samorian, consultante en Relations "
+            "Presse chez Fake-RoulezJeunesse." in html
+        )
+        assert "en tant que contact presse de" not in html
+
+    def test_delegated_cp_keeps_contact_presse_phrasing(
+        self, db_session, app
+    ):
+        agency = Organisation(name="Fake-Les Propulseurs PR")
+        client_org = Organisation(name="Fake-Davi Logistique")
+        db_session.add_all([agency, client_org])
+        db_session.flush()
+        user = User(
+            email="igor@example.com", first_name="Igor", last_name="F"
+        )
+        user.organisation = agency
+        user.organisation_id = agency.id
+        user.roles.append(self._pr_role(db_session))
+        db_session.add(user)
+        db_session.flush()
+
+        cp = Communique(owner=user, publisher=client_org)  # delegated
+        cp.published_at = arrow.utcnow()
+        db_session.add(cp)
+        db_session.flush()
+
+        html = self._render(app, cp)
+        assert (
+            "Publié par Fake-Les Propulseurs PR en tant que contact "
+            "presse de Fake-Davi Logistique." in html
+        )
+        assert "chez Fake-Les Propulseurs PR." not in html

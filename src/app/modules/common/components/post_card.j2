@@ -66,6 +66,13 @@
     <div class="px-4 py-1 text-xs italic text-gray-500">
       Publié par {{ post.author.organisation.name }} en tant que contact presse de {{ post.publisher.name }}.
     </div>
+  {% elif post.author %}
+    {# Bug #0093: self-publication (no client delegation) — surface
+       the author, fonction and organisation, like the delegated
+       byline above. #}
+    <div class="px-4 py-1 text-xs italic text-gray-500">
+      Publié par {{ post.author.full_name }}{% if post.author.job_title %}, {{ post.author.job_title }}{% endif %}{% if post.author.organisation %} chez {{ post.author.organisation.name }}{% endif %}.
+    </div>
   {% endif %}
 
   <hr class=""/>
