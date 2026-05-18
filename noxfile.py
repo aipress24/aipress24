@@ -15,7 +15,7 @@ PYTHONS = ["3.12", "3.13", "3.14"]
 @nox.session(python=PYTHONS)
 def tests(session: nox.Session) -> None:
     uv_sync(session)
-    session.run("pytest")
+    session.run("pytest", "tests", "-x")
 
 
 @nox.session(python=PYTHONS[0])
