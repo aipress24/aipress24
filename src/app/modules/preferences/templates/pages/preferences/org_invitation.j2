@@ -125,6 +125,33 @@
         </div>
     {% endif %}
 
+  {# Accepted roles (active) #}
+    <h2 class="pb-4 pt-8 mt-8 border-t border-gray-200">Rôles Business Wall actifs</h2>
+    {% if open_accepted_roles > 0 %}
+        <p class="mt-1 text-sm text-gray-500">
+            Vous occupez actuellement le ou les rôles suivants&nbsp;:
+        </p>
+        <div class="space-y-4 mt-4">
+            {% for role in accepted_roles %}
+                <div class="flex items-center justify-between p-4 bg-green-50 rounded-lg border border-green-200">
+                    <div>
+                        <div class="font-medium text-gray-900">{{ role.bw_name }}</div>
+                        <div class="text-sm text-gray-600">
+                            Rôle&nbsp;: <span class="font-semibold">{{ role.role_label }}</span>
+                        </div>
+                    </div>
+                    <span class="inline-flex items-center px-3 py-1 text-sm font-medium rounded-full bg-green-100 text-green-800">
+                        Confirmé
+                    </span>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="pt-0 items-center self-center text-left font-medium font-bold text-black">
+            Vous n'occupez actuellement aucun rôle Business Wall.
+        </div>
+    {% endif %}
+
   {# Partnership Invitations #}
     <h2 class="pb-4 pt-8 mt-8 border-t border-gray-200">Invitations à un partenariat Business Wall</h2>
     {% if open_partnership_invitations > 0 %}

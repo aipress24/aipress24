@@ -18,7 +18,11 @@ from app.models.auth import KYCProfile, Role, User
 from app.models.invitation import Invitation
 from app.models.organisation import Organisation
 from app.modules.admin.invitations import add_invited_users
-from app.modules.bw.bw_activation.models import BusinessWall
+from app.modules.bw.bw_activation.models import (
+    BusinessWall,
+    InvitationStatus,
+    RoleAssignment,
+)
 from app.modules.bw.bw_activation.models.business_wall import BWStatus
 from app.modules.preferences.views.invitations import InvitationsView
 from tests.c_e2e.conftest import make_authenticated_client
@@ -299,6 +303,61 @@ class TestInvitationsJoinOrg:
         )
         assert response.status_code == 200
         assert "HX-Redirect" in response.headers
+
+
+class TestAcceptedRoleStaysVisible:
+    """Bug: a BW role (e.g. BWPRi) that the user accepted vanished from
+    /preferences/invitations because the page only listed PENDING role
+    assignments. Once accepted the role still exists in DB but the user
+    perceived it as "lost". The accepted role must stay visible."""
+
+    @pytest.fixture
+    def accepted_role_for_user(
+        self,
+        db_session: Session,
+        invitations_test_user: User,
+        inviting_org: Organisation,
+    ) -> RoleAssignment:
+        """An ACCEPTED BWPRi role assignment for the test user."""
+        bw = db_session.scalar(
+            select(BusinessWall).where(BusinessWall.id == inviting_org.bw_id)
+        )
+        assert bw is not None
+        role = RoleAssignment(
+            business_wall_id=bw.id,
+            user_id=invitations_test_user.id,
+            role_type="BWPRi",
+            invitation_status=InvitationStatus.ACCEPTED.value,
+        )
+        db_session.add(role)
+        db_session.flush()
+        return role
+
+    def test_accepted_role_listed_by_helper(
+        self,
+        invitations_test_user: User,
+        accepted_role_for_user: RoleAssignment,
+    ):
+        """The view exposes accepted role assignments, not only pending ones."""
+        view = InvitationsView()
+        accepted = view._accepted_role_invitations(invitations_test_user)
+
+        role_types = [r["role_type"] for r in accepted]
+        assert "BWPRi" in role_types
+
+    def test_accepted_role_visible_on_page(
+        self,
+        invitations_auth_client: FlaskClient,
+        invitations_test_user: User,
+        accepted_role_for_user: RoleAssignment,
+        inviting_org: Organisation,
+    ):
+        """An accepted role still shows up on the invitations page."""
+        response = invitations_auth_client.get("/preferences/invitations")
+        assert response.status_code == 200
+        html = response.data.decode()
+        assert "PR Manager (internal)" in html
+        assert inviting_org.bw_name in html
 
 
 class TestInvitationsUserWithAutoOrg:

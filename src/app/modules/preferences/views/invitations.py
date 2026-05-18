@@ -39,12 +39,15 @@ class InvitationsView(MethodView):
         invitations_list = self._organisation_inviting(user)
         open_invitations = sum(i["disabled"] == "" for i in invitations_list)
         role_invitations_list = self._role_invitations(user)
+        accepted_roles_list = self._accepted_role_invitations(user)
         partnership_invitations_list = self._partnership_invitations(user)
         ctx = {
             "invitations": invitations_list,
             "open_invitations": open_invitations,
             "role_invitations": role_invitations_list,
             "open_role_invitations": len(role_invitations_list),
+            "accepted_roles": accepted_roles_list,
+            "open_accepted_roles": len(accepted_roles_list),
             "partnership_invitations": partnership_invitations_list,
             "open_partnership_invitations": len(partnership_invitations_list),
             "title": "Invitation d'organisation",
@@ -133,6 +136,40 @@ class InvitationsView(MethodView):
             }
             role_invitations.append(infos)
         return role_invitations
+
+    def _accepted_role_invitations(self, user: User) -> list[dict[str, Any]]:
+        """Return the BusinessWall roles this user has accepted.
+
+        Bug: an accepted role (e.g. BWPRi) disappeared from this page
+        because only PENDING assignments were listed, so the user thought
+        the role had been lost. Accepted roles must stay visible.
+        """
+        db_session = db.session
+        stmt = (
+            select(RoleAssignment, BusinessWall)
+            .join(BusinessWall, RoleAssignment.business_wall_id == BusinessWall.id)
+            .where(
+                RoleAssignment.user_id == user.id,
+                RoleAssignment.invitation_status == InvitationStatus.ACCEPTED.value,
+            )
+        )
+        results = db_session.execute(stmt).all()
+
+        accepted_roles = []
+        for role_assignment, business_wall in results:
+            role_label = BW_ROLE_TYPE_LABEL.get(
+                role_assignment.role_type, role_assignment.role_type
+            )
+            infos = {
+                "id": str(role_assignment.id),
+                "bw_id": str(business_wall.id),
+                "bw_name": business_wall.name_safe or "(Nom inconnu)",
+                "role_type": role_assignment.role_type,
+                "role_label": role_label,
+                "accepted_at": role_assignment.accepted_at,
+            }
+            accepted_roles.append(infos)
+        return accepted_roles
 
     def _partnership_invitations(self, user: User) -> list[dict[str, Any]]:
         """Return the list of pending BusinessWall partnership invitations for this user.
