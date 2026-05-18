@@ -171,9 +171,7 @@ def test_delegated_event_list_card_drops_redundant_pour_chip(
     """
     user = _make_user(db_session)
     agency = Organisation(name="Fake-Les Propulseurs PR")
-    client_org = Organisation(
-        name="Fake-Davi Logistique", bw_name="Davi Logistique"
-    )
+    client_org = Organisation(name="Fake-Davi Logistique", bw_name="Davi Logistique")
     db_session.add_all([agency, client_org])
     db_session.flush()
     user.organisation = agency

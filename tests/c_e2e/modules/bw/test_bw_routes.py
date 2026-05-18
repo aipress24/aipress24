@@ -390,19 +390,13 @@ class TestStage3FreeRoutes:
             # via a selected/stale bw_id (the #0110/#0115/#0116 family).
             sess["bw_id"] = str(test_business_wall.id)
 
-        response = client.get(
-            "/BW/confirmation/free", follow_redirects=False
-        )
+        response = client.get("/BW/confirmation/free", follow_redirects=False)
 
         assert response.status_code in (302, 303)
         assert "not-authorized" in response.headers.get("Location", "")
 
         # No role was granted to the member (the escalation is closed).
-        roles = (
-            db_session.query(RoleAssignment)
-            .filter_by(user_id=member.id)
-            .all()
-        )
+        roles = db_session.query(RoleAssignment).filter_by(user_id=member.id).all()
         assert roles == []
 
 

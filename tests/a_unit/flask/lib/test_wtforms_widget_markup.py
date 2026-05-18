@@ -23,16 +23,13 @@ from pathlib import Path
 
 def test_every_flask_wtforms_widget_wraps_render_in_markup() -> None:
     fields_dir = (
-        Path(__file__).resolve().parents[4]
-        / "src/app/flask/lib/wtforms/fields"
+        Path(__file__).resolve().parents[4] / "src/app/flask/lib/wtforms/fields"
     )
     assert fields_dir.is_dir(), fields_dir
 
     offenders: list[str] = []
     for py in sorted(fields_dir.glob("*.py")):
-        for lineno, line in enumerate(
-            py.read_text(encoding="utf-8").splitlines(), 1
-        ):
+        for lineno, line in enumerate(py.read_text(encoding="utf-8").splitlines(), 1):
             stripped = line.strip()
             if not stripped.startswith("return "):
                 continue
@@ -45,6 +42,5 @@ def test_every_flask_wtforms_widget_wraps_render_in_markup() -> None:
         "flask wtforms widget(s) return a bare str from "
         "template.render() — must wrap in markupsafe.Markup or the "
         "widget renders as escaped literal text when used directly "
-        "in a .j2 template (autoescape family, #0162):\n"
-        + "\n".join(offenders)
+        "in a .j2 template (autoescape family, #0162):\n" + "\n".join(offenders)
     )

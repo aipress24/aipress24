@@ -246,9 +246,7 @@ class TestPostCardSelfPublicationByline:
         db_session.flush()
         return role
 
-    def test_self_published_cp_shows_author_fonction_org(
-        self, db_session, app
-    ):
+    def test_self_published_cp_shows_author_fonction_org(self, db_session, app):
         org = Organisation(name="Fake-RoulezJeunesse")
         db_session.add(org)
         db_session.flush()
@@ -257,9 +255,7 @@ class TestPostCardSelfPublicationByline:
             first_name="Catherine",
             last_name="Samorian",
         )
-        user.profile = KYCProfile(
-            profile_label="consultante en Relations Presse"
-        )
+        user.profile = KYCProfile(profile_label="consultante en Relations Presse")
         user.organisation = org
         user.organisation_id = org.id
         user.roles.append(self._pr_role(db_session))
@@ -278,16 +274,12 @@ class TestPostCardSelfPublicationByline:
         )
         assert "en tant que contact presse de" not in html
 
-    def test_delegated_cp_keeps_contact_presse_phrasing(
-        self, db_session, app
-    ):
+    def test_delegated_cp_keeps_contact_presse_phrasing(self, db_session, app):
         agency = Organisation(name="Fake-Les Propulseurs PR")
         client_org = Organisation(name="Fake-Davi Logistique")
         db_session.add_all([agency, client_org])
         db_session.flush()
-        user = User(
-            email="igor@example.com", first_name="Igor", last_name="F"
-        )
+        user = User(email="igor@example.com", first_name="Igor", last_name="F")
         user.organisation = agency
         user.organisation_id = agency.id
         user.roles.append(self._pr_role(db_session))
