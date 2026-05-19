@@ -431,3 +431,38 @@ class TestUserAgendaWidget:
         response = client.get("/events/")
         assert response.status_code == 200
         assert "Vous ne vous êtes encore inscrit" in response.data.decode()
+
+    def test_widget_shows_past_accredited_event(
+        self,
+        app: Flask,
+        db_session: Session,
+        test_user: User,
+    ):
+        """Bug #0148 (Erick 2026-05-18): an accredited event that is
+        already over must still be visible — otherwise members never
+        see the events they participated in (the only listing is this
+        widget, which used to exclude past events)."""
+        self._setup_user_with_role(db_session, test_user)
+        past = arrow.now().shift(days=-7)
+        event = EventPost(
+            title="Fête du pain passée",
+            owner_id=test_user.id,
+            status=PublicationStatus.PUBLIC,
+            start_datetime=past,
+            end_datetime=past.shift(hours=4),
+        )
+        db_session.add(event)
+        db_session.flush()
+        db_session.execute(
+            sa.insert(participation_table).values(
+                event_id=event.id, user_id=test_user.id
+            )
+        )
+        db_session.commit()
+
+        client = make_authenticated_client(app, test_user)
+        response = client.get("/events/")
+        assert response.status_code == 200
+        html = response.data.decode()
+        assert "Fête du pain passée" in html
+        assert "Vous ne vous êtes encore inscrit" not in html

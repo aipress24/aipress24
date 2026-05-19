@@ -10,7 +10,6 @@ import json
 import re
 from collections import defaultdict
 
-import arrow
 import webargs
 from attrs import asdict
 from flask import g, render_template, request, session
@@ -112,13 +111,17 @@ class EventsListView(MethodView):
     def _get_user_agenda_events(self) -> list[EventPost]:
         """Bug #0148: the "Votre agenda" widget used to be a hard-coded
         "Vous ne vous êtes encore inscrit à aucun événement" message,
-        even when the user had been accredited to events. Populate it
-        with the user's future participations so the widget reflects
-        reality."""
+        even when the user had been accredited to events.
+
+        Erick (2026-05-18): a first fix only listed *future*
+        participations, so members still never saw the events they had
+        attended — this widget is the only place an accredited event
+        surfaces. List every accredited event (past included), newest
+        first, so the user can actually find what they participate in.
+        """
         user = getattr(g, "user", None)
         if user is None or getattr(user, "is_anonymous", True):
             return []
-        now = arrow.now()
         stmt = (
             select(EventPost)
             .join(
@@ -129,11 +132,7 @@ class EventsListView(MethodView):
                 participation_table.c.user_id == user.id,
                 EventPost.status == PublicationStatus.PUBLIC,
             )
-            .where(
-                # Show events that haven't ended yet (or have no end date).
-                (EventPost.end_datetime.is_(None)) | (EventPost.end_datetime >= now)
-            )
-            .order_by(EventPost.start_datetime)
+            .order_by(EventPost.start_datetime.desc())
         )
         return list(db.session.scalars(stmt))
 
