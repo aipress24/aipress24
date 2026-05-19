@@ -22,12 +22,36 @@ from app.modules.bw.bw_activation.user_utils import (
 )
 from app.modules.bw.bw_activation.utils import (
     ERR_BW_NOT_FOUND,
+    ERR_NOT_MANAGER,
     fill_session,
     init_session,
+    is_bw_manager_or_admin,
 )
 
 if TYPE_CHECKING:
     from app.models.auth import User
+
+
+def _check_active_bw_manager(user: User) -> Response | None:
+    """Bug #0157: forbid reconfiguring an already-ACTIVE BW unless the
+    user manages it.
+
+    `get_business_wall_for_user` only returns the org's BW when it is
+    ACTIVE. If such a BW exists and the user is not a manager (owner /
+    BWMi / BWMe) nor an admin, they must not re-enter the activation /
+    reconfiguration wizard — a BW PR Manager interne (BWPRi) could
+    otherwise restart the BW. When no active BW exists the wizard stays
+    open (bug #0117: org members / standalone profiles may still create
+    one).
+
+    Returns:
+        Redirect to not-authorized if the user lacks rights, else None.
+    """
+    active_bw = get_business_wall_for_user(user)
+    if active_bw is not None and not is_bw_manager_or_admin(user, active_bw):
+        session["error"] = ERR_NOT_MANAGER
+        return redirect(url_for("bw_activation.not_authorized"))
+    return None
 
 
 def _check_valid_organisation(user: User) -> Response | None:
@@ -102,6 +126,10 @@ def confirm_subscription():
 
     # Check user has a valid (non-deleted) organisation
     if error_response := _check_valid_organisation(user):
+        return error_response
+
+    # Bug #0157: an active BW can only be reconfigured by its managers.
+    if error_response := _check_active_bw_manager(user):
         return error_response
 
     suggested_type = session.get("suggested_bw_type", "media")

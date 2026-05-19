@@ -221,6 +221,41 @@ class TestConfirmSubscription:
             f"{response.status_code}"
         )
 
+    def test_non_manager_blocked_when_org_bw_active(self, app: Flask, fresh_db):
+        """Bug #0157: when the org's BW is already ACTIVE, a member who
+        is not a manager (e.g. a BW PR Manager interne) must NOT be able
+        to re-enter the (re)configuration wizard. Only BW Owner / BWMi /
+        BWMe may reconfigure an active BW.
+        """
+        data = create_bw_test_data(fresh_db)
+
+        non_manager = User(
+            email=f"pri_{uuid.uuid4().hex[:8]}@example.com",
+            first_name="PR",
+            last_name="Manager",
+            active=True,
+        )
+        non_manager.organisation = data["media_org"]
+        non_manager.organisation_id = data["media_org"].id
+        fresh_db.session.add(non_manager)
+        fresh_db.session.commit()
+
+        client = make_authenticated_client(app, non_manager)
+        response = client.get("/BW/confirm-subscription", follow_redirects=False)
+
+        assert response.status_code == 302
+        assert "not-authorized" in response.location
+
+    def test_manager_can_access_when_org_bw_active(self, app: Flask, fresh_db):
+        """The BW Owner must still reach confirm-subscription on an
+        active BW (counterpart of the #0157 guard)."""
+        data = create_bw_test_data(fresh_db)
+
+        client = make_authenticated_client(app, data["media_owner"])
+        response = client.get("/BW/confirm-subscription", follow_redirects=False)
+
+        assert response.status_code == 200
+
 
 # -----------------------------------------------------------------------------
 # Tests: Select Subscription route
