@@ -109,19 +109,21 @@ dependencies = [
     "ijson>=3.3.0",
     "psutil>=6.1.1",
     "tenacity>=8.5.0",
-    # Cap below 81: setuptools 81 removed the bundled `pkg_resources`,
-    # which passlib 1.7.4 (pulled in by Flask-Security via passlib.pwd)
-    # still imports → ModuleNotFoundError at runtime and in CI. 80.x is
-    # the last series shipping pkg_resources (deprecation warning is
-    # already silenced in app/flask/main.py).
-    "setuptools>=80,<81",
+    # Pinned to 82 (83 breaks some packages). No longer constrained by
+    # pkg_resources: the only consumer was passlib, now replaced by
+    # libpass (a maintained passlib fork without pkg_resources).
+    "setuptools>=82,<83",
     "pyyaml>=6.0.2",
     "schedule>=1.2.2",
     "pyexcel>=0.7.3",
     "pyexcel-ods3>=0.6.1",
     "fsspec>=2025.10.0",
     "s3fs>=2025.10.0",
-    "passlib>=1.7.4",
+    # libpass = maintained passlib fork (same `passlib` import
+    # namespace) with the pkg_resources dependency removed. Also what
+    # Flask-Security-Too >=5.8 requires; our explicit pin used to force
+    # the legacy `passlib` distribution instead.
+    "libpass>=1.9.3",
     "cachetools>=7.0.3",
     "bleach>=6.3.0",
 ]
@@ -252,7 +254,9 @@ DEP002 = [
     'zxcvbn',
     'bcrypt',
     'argon2-cffi',
-    'passlib',
+    # libpass provides the `passlib` import namespace, so deptry sees
+    # the distribution as "unused".
+    'libpass',
     # Used (implicitely) by Flask (I think)
     'python-dotenv',
     # Used (implicitely) by SQLA

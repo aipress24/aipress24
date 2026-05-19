@@ -3,14 +3,8 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 #
-# ruff: noqa: E402  # warnings filter must be set before other imports
 
 from __future__ import annotations
-
-import warnings
-
-# Suppress deprecation warning from passlib using pkg_resources
-warnings.filterwarnings("ignore", message="pkg_resources is deprecated")
 
 import importlib
 import os
