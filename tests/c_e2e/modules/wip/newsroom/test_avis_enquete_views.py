@@ -349,6 +349,33 @@ class TestJournalistAvisEnqueteViews:
         response = logged_in_client.get(url)
         assert response.status_code == 200
 
+    def test_propose_rdv_slots_have_calendar_affordance(
+        self,
+        logged_in_client: FlaskClient,
+        test_avis_enquete: AvisEnquete,
+        accepted_contact: ContactAvisEnquete,
+    ):
+        """Bug #0150 (résiduel UX): the RDV slot inputs were bare
+        datetime fields — Erick had to "click on the date" to discover
+        the picker, inconsistent with the rest of the app. Each slot
+        must now expose an explicit calendar-picker button, and the
+        form contract (slot_datetime_N) must be unchanged.
+        """
+        url = url_for(
+            "AvisEnqueteWipView:rdv_propose",
+            id=test_avis_enquete.id,
+            contact_id=accepted_contact.id,
+        )
+        response = logged_in_client.get(url)
+        assert response.status_code == 200
+        html = response.data.decode()
+        # Explicit, discoverable picker trigger (5 slots).
+        assert html.count("rdv-slot-picker") >= 5
+        assert "showPicker()" in html
+        # Form contract preserved.
+        assert 'name="slot_datetime_1"' in html
+        assert 'name="slot_datetime_5"' in html
+
     def test_rdv_management_page(
         self,
         logged_in_client: FlaskClient,
