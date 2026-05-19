@@ -109,8 +109,12 @@ dependencies = [
     "ijson>=3.3.0",
     "psutil>=6.1.1",
     "tenacity>=8.5.0",
-    # Must be pinned for now (version 82 breaks some packages)
-    "setuptools>=82,<83",
+    # Cap below 81: setuptools 81 removed the bundled `pkg_resources`,
+    # which passlib 1.7.4 (pulled in by Flask-Security via passlib.pwd)
+    # still imports → ModuleNotFoundError at runtime and in CI. 80.x is
+    # the last series shipping pkg_resources (deprecation warning is
+    # already silenced in app/flask/main.py).
+    "setuptools>=80,<81",
     "pyyaml>=6.0.2",
     "schedule>=1.2.2",
     "pyexcel>=0.7.3",
