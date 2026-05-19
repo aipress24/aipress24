@@ -569,9 +569,7 @@ class AvisEnqueteService:
         )
 
         profile = getattr(expert, "profile", None)
-        fallback = (
-            profile.get_value("email_relation_presse") if profile else ""
-        ) or ""
+        fallback = (profile.get_value("email_relation_presse") if profile else "") or ""
 
         org = expert.organisation
         if org is None:
@@ -583,8 +581,7 @@ class AvisEnqueteService:
         for assignment in bw.role_assignments:
             if (
                 assignment.role_type == BWRoleType.BWPRI.value
-                and assignment.invitation_status
-                == InvitationStatus.ACCEPTED.value
+                and assignment.invitation_status == InvitationStatus.ACCEPTED.value
             ):
                 pr_user = self._db_session.get(UserModel, assignment.user_id)
                 if pr_user is not None and pr_user.email:

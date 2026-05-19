@@ -108,9 +108,7 @@ class TestPressOfficerEmail:
         db_session.add(profile)
         db_session.flush()
 
-    def test_resolves_accepted_bwpri_email(
-        self, db_session: scoped_session
-    ) -> None:
+    def test_resolves_accepted_bwpri_email(self, db_session: scoped_session) -> None:
         org = Organisation(name="Fake Strada Transports")
         db_session.add(org)
         db_session.flush()
@@ -186,9 +184,7 @@ class TestPressOfficerEmail:
         service = AvisEnqueteService(db_session=db_session)
         assert service.press_officer_email(pdg) == "legacy@profile.com"
 
-    def test_falls_back_to_profile_when_no_bw(
-        self, db_session: scoped_session
-    ) -> None:
+    def test_falls_back_to_profile_when_no_bw(self, db_session: scoped_session) -> None:
         org = Organisation(name="No BW Org")
         db_session.add(org)
         db_session.flush()
