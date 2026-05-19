@@ -378,6 +378,40 @@ class AvisEnqueteService:
         self._contact_repo.add_many(contacts)
         return contacts
 
+    def resync_targeting(
+        self,
+        avis: AvisEnquete,
+        selected_experts: list[User],
+    ) -> list[ContactAvisEnquete]:
+        """Prune contacts of experts dropped from the targeting selection.
+
+        Bug #0061-c: re-targeting an avis only ever added contacts, so a
+        recipient removed by the journalist kept the avis in
+        WORK/Opportunités. Remove the contacts of experts no longer
+        selected — but only the *untouched* ones: still EN_ATTENTE, no
+        RDV in progress, and not chained in via the "non-mais" colleague
+        suggestion. Engaged or suggested contacts are preserved (data
+        safety: never silently drop a live conversation).
+
+        Returns the list of removed contacts.
+        """
+        from app.modules.wip.models import RDVStatus, StatutAvis
+
+        desired_ids = {expert.id for expert in selected_experts}
+        removed: list[ContactAvisEnquete] = []
+        for contact in self._contact_repo.list(avis_enquete_id=avis.id):
+            if (
+                contact.expert_id not in desired_ids
+                and contact.status == StatutAvis.EN_ATTENTE
+                and contact.rdv_status == RDVStatus.NO_RDV
+                and contact.suggested_by_user_id is None
+            ):
+                self._db_session.delete(contact)
+                removed.append(contact)
+        if removed:
+            self._db_session.flush()
+        return removed
+
     def notify_experts(
         self,
         avis: AvisEnquete,

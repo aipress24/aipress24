@@ -243,6 +243,12 @@ class AvisEnqueteWipView(BaseWipView):
         match action:
             case "confirm":
                 selected_experts = filter_service.get_selected_experts()
+                # Bug #0061-c: drop contacts of de-selected experts so a
+                # removed recipient no longer sees the avis (only prunes
+                # untouched contacts — see resync_targeting).
+                removed_contacts = avis_service.resync_targeting(
+                    model, selected_experts
+                )
                 new_experts = avis_service.filter_known_experts(model, selected_experts)
                 new_experts, skipped_experts = (
                     avis_service.partition_by_notification_cap(new_experts)
@@ -272,8 +278,15 @@ class AvisEnqueteWipView(BaseWipView):
                     else:
                         msg = "Avis d'enquête envoyé au contact sélectionné"
                     flash(msg, "success")
+                elif removed_contacts:
+                    avis_service.commit()
                 elif not skipped_experts:
                     flash("Aucun nouveau profil sélectionné", "error")
+                if removed_contacts:
+                    flash(
+                        f"{len(removed_contacts)} contact(s) retiré(s) du ciblage.",
+                        "info",
+                    )
                 response = Response("")
                 response.headers["HX-Redirect"] = url_for("AvisEnqueteWipView:index")
                 return response

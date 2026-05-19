@@ -202,6 +202,89 @@ class TestPressOfficerEmail:
         assert service.press_officer_email(pdg) == "legacy2@profile.com"
 
 
+class TestResyncTargeting:
+    """Bug #0061-c: re-targeting an avis only ever *added* contacts.
+    When a journalist removed a recipient, that recipient kept the
+    avis in WORK/Opportunités. `resync_targeting` prunes the contacts
+    of de-selected experts — but only the untouched ones (still
+    EN_ATTENTE, no RDV, not suggested via the colleague chain).
+    """
+
+    def test_removes_deselected_pending_contact(
+        self, db_session: scoped_session
+    ) -> None:
+        journaliste = User(email="j-resync@test.com")
+        kept = User(email="kept@test.com")
+        dropped = User(email="dropped@test.com")
+        media = Organisation(name="Resync Media")
+        db_session.add_all([journaliste, kept, dropped, media])
+        db_session.flush()
+        enquete = _create_test_enquete(db_session, journaliste, media)
+        c_kept = _create_test_contact(
+            db_session, enquete, journaliste, kept, StatutAvis.EN_ATTENTE
+        )
+        _create_test_contact(
+            db_session, enquete, journaliste, dropped, StatutAvis.EN_ATTENTE
+        )
+
+        service = AvisEnqueteService(db_session=db_session)
+        removed = service.resync_targeting(enquete, [kept])
+
+        removed_ids = {c.expert_id for c in removed}
+        assert removed_ids == {dropped.id}
+        remaining = service.get_contacts_for_avis(enquete.id)
+        assert [c.id for c in remaining] == [c_kept.id]
+
+    def test_keeps_engaged_contact_even_if_deselected(
+        self, db_session: scoped_session
+    ) -> None:
+        """A contact that already answered must never be silently
+        dropped — that would destroy a live conversation."""
+        journaliste = User(email="j-engaged@test.com")
+        answered = User(email="answered@test.com")
+        media = Organisation(name="Engaged Media")
+        db_session.add_all([journaliste, answered, media])
+        db_session.flush()
+        enquete = _create_test_enquete(db_session, journaliste, media)
+        _create_test_contact(
+            db_session, enquete, journaliste, answered, StatutAvis.ACCEPTE
+        )
+
+        service = AvisEnqueteService(db_session=db_session)
+        removed = service.resync_targeting(enquete, [])
+
+        assert removed == []
+        assert len(service.get_contacts_for_avis(enquete.id)) == 1
+
+    def test_keeps_suggested_contact_even_if_deselected(
+        self, db_session: scoped_session
+    ) -> None:
+        """A colleague chained in via "non-mais" was never in the
+        targeting selection; resync must not delete them."""
+        journaliste = User(email="j-sugg@test.com")
+        suggester = User(email="suggester@test.com")
+        suggested = User(email="suggested@test.com")
+        media = Organisation(name="Sugg Media")
+        db_session.add_all([journaliste, suggester, suggested, media])
+        db_session.flush()
+        enquete = _create_test_enquete(db_session, journaliste, media)
+        contact = ContactAvisEnquete(
+            avis_enquete_id=enquete.id,
+            journaliste_id=journaliste.id,
+            expert_id=suggested.id,
+            suggested_by_user_id=suggester.id,
+            status=StatutAvis.EN_ATTENTE,
+        )
+        db_session.add(contact)
+        db_session.flush()
+
+        service = AvisEnqueteService(db_session=db_session)
+        removed = service.resync_targeting(enquete, [])
+
+        assert removed == []
+        assert len(service.get_contacts_for_avis(enquete.id)) == 1
+
+
 class TestAvisEnqueteServicePropose:
     """Tests for propose_rdv method."""
 
