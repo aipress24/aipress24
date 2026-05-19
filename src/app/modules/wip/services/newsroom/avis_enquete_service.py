@@ -514,6 +514,49 @@ class AvisEnqueteService:
     # mon organisation mieux placée que moi"
     # ----------------------------------------------------------------
 
+    def press_officer_email(self, expert: User) -> str:
+        """Email of the org's press officer (BW PR Manager interne).
+
+        Bug #0061-b: the avis-d'enquête form used
+        `expert.profile.get_value("email_relation_presse")`, a personal
+        profile field. For a PDG / BW Owner that field is empty or
+        holds their own address, so the journalist saw the wrong
+        contact. The right one is the org's *accepted* BWPRi. Fall
+        back to the legacy profile field when the org has no accepted
+        internal PR manager (or no active BW).
+        """
+        from app.models.auth import User as UserModel
+        from app.modules.bw.bw_activation.models import (
+            BWRoleType,
+            InvitationStatus,
+        )
+        from app.modules.bw.bw_activation.user_utils import (
+            get_active_business_wall_for_organisation,
+        )
+
+        profile = getattr(expert, "profile", None)
+        fallback = (
+            profile.get_value("email_relation_presse") if profile else ""
+        ) or ""
+
+        org = expert.organisation
+        if org is None:
+            return fallback
+        bw = get_active_business_wall_for_organisation(org)
+        if bw is None:
+            return fallback
+
+        for assignment in bw.role_assignments:
+            if (
+                assignment.role_type == BWRoleType.BWPRI.value
+                and assignment.invitation_status
+                == InvitationStatus.ACCEPTED.value
+            ):
+                pr_user = self._db_session.get(UserModel, assignment.user_id)
+                if pr_user is not None and pr_user.email:
+                    return pr_user.email
+        return fallback
+
     def list_eligible_colleagues(
         self,
         contact: ContactAvisEnquete,

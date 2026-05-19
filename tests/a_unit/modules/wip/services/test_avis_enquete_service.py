@@ -16,6 +16,13 @@ from svcs.flask import container
 
 from app.models.auth import KYCProfile, User
 from app.models.organisation import Organisation
+from app.modules.bw.bw_activation.models import (
+    BusinessWall,
+    BWRoleType,
+    InvitationStatus,
+    RoleAssignment,
+)
+from app.modules.bw.bw_activation.models.business_wall import BWStatus
 from app.modules.wip.models import (
     AvisEnquete,
     ContactAvisEnquete,
@@ -80,6 +87,119 @@ def _create_test_contact(
     db_session.add(contact)
     db_session.flush()
     return contact
+
+
+class TestPressOfficerEmail:
+    """Bug #0061-b: the avis-d'enquête form pre-filled / stored the
+    expert's own `email_relation_presse` profile field. For a PDG /
+    BW Owner answering, that field is empty or holds their own
+    address — Erick saw the PDG's email instead of the comm manager's.
+    It must resolve the org's accepted BW PR Manager interne (BWPRi).
+    """
+
+    def _attach_profile(
+        self, db_session: scoped_session, user: User, email_rp: str
+    ) -> None:
+        profile = KYCProfile(
+            user_id=user.id,
+            info_professionnelle={"email_relation_presse": email_rp},
+        )
+        user.profile = profile
+        db_session.add(profile)
+        db_session.flush()
+
+    def test_resolves_accepted_bwpri_email(
+        self, db_session: scoped_session
+    ) -> None:
+        org = Organisation(name="Fake Strada Transports")
+        db_session.add(org)
+        db_session.flush()
+
+        pdg = User(email="jocelyne-pdg@test.com")
+        pdg.organisation = org
+        pr = User(email="layelle-bwpri@test.com")
+        pr.organisation = org
+        db_session.add_all([pdg, pr])
+        db_session.flush()
+        self._attach_profile(db_session, pdg, "pdg-own-wrong@test.com")
+
+        bw = BusinessWall(
+            bw_type="media",
+            status=BWStatus.ACTIVE.value,
+            owner_id=pdg.id,
+            payer_id=pdg.id,
+            organisation_id=org.id,
+            name="Strada BW",
+        )
+        db_session.add(bw)
+        db_session.flush()
+        org.bw_id = bw.id
+        db_session.flush()
+        db_session.add(
+            RoleAssignment(
+                business_wall_id=bw.id,
+                user_id=pr.id,
+                role_type=BWRoleType.BWPRI.value,
+                invitation_status=InvitationStatus.ACCEPTED.value,
+            )
+        )
+        db_session.flush()
+
+        service = AvisEnqueteService(db_session=db_session)
+        assert service.press_officer_email(pdg) == "layelle-bwpri@test.com"
+
+    def test_ignores_pending_bwpri_and_falls_back(
+        self, db_session: scoped_session
+    ) -> None:
+        org = Organisation(name="Pending PR Org")
+        db_session.add(org)
+        db_session.flush()
+        pdg = User(email="pdg-pending@test.com")
+        pdg.organisation = org
+        pr = User(email="pending-bwpri@test.com")
+        pr.organisation = org
+        db_session.add_all([pdg, pr])
+        db_session.flush()
+        self._attach_profile(db_session, pdg, "legacy@profile.com")
+        bw = BusinessWall(
+            bw_type="media",
+            status=BWStatus.ACTIVE.value,
+            owner_id=pdg.id,
+            payer_id=pdg.id,
+            organisation_id=org.id,
+            name="Pending BW",
+        )
+        db_session.add(bw)
+        db_session.flush()
+        org.bw_id = bw.id
+        db_session.flush()
+        db_session.add(
+            RoleAssignment(
+                business_wall_id=bw.id,
+                user_id=pr.id,
+                role_type=BWRoleType.BWPRI.value,
+                invitation_status=InvitationStatus.PENDING.value,
+            )
+        )
+        db_session.flush()
+
+        service = AvisEnqueteService(db_session=db_session)
+        assert service.press_officer_email(pdg) == "legacy@profile.com"
+
+    def test_falls_back_to_profile_when_no_bw(
+        self, db_session: scoped_session
+    ) -> None:
+        org = Organisation(name="No BW Org")
+        db_session.add(org)
+        db_session.flush()
+        pdg = User(email="pdg-nobw@test.com")
+        pdg.organisation = org
+        db_session.add(pdg)
+        db_session.flush()
+        self._attach_profile(db_session, pdg, "legacy2@profile.com")
+
+        service = AvisEnqueteService(db_session=db_session)
+        assert service.press_officer_email(pdg) == "legacy2@profile.com"
 
 
 class TestAvisEnqueteServicePropose:

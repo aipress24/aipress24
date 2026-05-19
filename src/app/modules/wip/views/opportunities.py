@@ -169,8 +169,10 @@ def media_opportunity_post(id: int) -> str | Response:
         elif reponse == "oui_relation_presse":
             contact.status = StatutAvis.ACCEPTE_RELATION_PRESSE  # type: ignore[assignment]
             contact.rdv_notes_expert = request.form.get("contribution", "")
-            contact.email_relation_presse = expert.profile.get_value(
-                "email_relation_presse"
+            # Bug #0061-b: resolve the org's accepted BWPRi, not the
+            # expert's own profile field (gave the PDG's own email).
+            contact.email_relation_presse = AvisEnqueteService().press_officer_email(
+                expert
             )
         elif reponse == "non":
             contact.status = StatutAvis.REFUSE  # type: ignore[assignment]
@@ -256,7 +258,9 @@ def _render_media_opportunity(id: int) -> str:
     contribution = ""
     refusal_reason = ""
     suggestion = ""
-    email_relation_presse = expert.profile.get_value("email_relation_presse")
+    avis_service = AvisEnqueteService()
+    # Bug #0061-b: prefill with the org's accepted BWPRi email.
+    email_relation_presse = avis_service.press_officer_email(expert)
 
     if contact.status == StatutAvis.ACCEPTE:
         reponse1 = "oui"
@@ -281,7 +285,7 @@ def _render_media_opportunity(id: int) -> str:
     }
 
     is_answered = contact.status != StatutAvis.EN_ATTENTE
-    eligible_colleagues = AvisEnqueteService().list_eligible_colleagues(contact)
+    eligible_colleagues = avis_service.list_eligible_colleagues(contact)
 
     return render_template(
         "wip/pages/media_opportunity.j2",
