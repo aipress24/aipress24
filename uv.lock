@@ -187,7 +187,7 @@ wheels = [
 
 [[package]]
 name = "aipress24-flask"
-version = "2026.5.12.1"
+version = "2026.5.19.1"
 source = { editable = "." }
 dependencies = [
     { name = "advanced-alchemy" },
@@ -941,15 +941,6 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/62/85/7ff647c2429f58737d7508f62206fd8e1efc370f507104919010d731cb04/buildstr-0.1.1.tar.gz", hash = "sha256:e22d13b40d601b4fa8345604cf260cb2277d1e0bf98f9ae1f7b6ca5eaa0de29b", size = 3742, upload-time = "2023-08-08T13:23:18.664Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/b6/e7/fe00c6f9f32f32975cd392ed80cd72a905a8564f84406537141406780f4f/buildstr-0.1.1-py3-none-any.whl", hash = "sha256:b27b24e0e447460c1c828887fe79bb102743d2ced59882530fed6275959682da", size = 4062, upload-time = "2023-08-08T13:23:17.658Z" },
-]
-
-[[package]]
-name = "cached-property"
-version = "2.0.1"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/76/4b/3d870836119dbe9a5e3c9a61af8cc1a8b69d75aea564572e385882d5aefb/cached_property-2.0.1.tar.gz", hash = "sha256:484d617105e3ee0e4f1f58725e72a8ef9e93deee462222dbd51cd91230897641", size = 10574, upload-time = "2024-10-25T15:43:55.667Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/11/0e/7d8225aab3bc1a0f5811f8e1b557aa034ac04bdf641925b30d3caf586b28/cached_property-2.0.1-py3-none-any.whl", hash = "sha256:f617d70ab1100b7bcf6e42228f9ddcb78c676ffa167278d9f730d1c2fba69ccb", size = 7428, upload-time = "2024-10-25T15:43:54.711Z" },
 ]
 
 [[package]]
@@ -2123,14 +2114,14 @@ wheels = [
 
 [[package]]
 name = "hypothesis"
-version = "6.152.7"
+version = "6.152.8"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "sortedcontainers" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/91/dd/19d273652eb20dac15f32bbc484f2f6d51ccd8fe51fdb27da3f85f9017e8/hypothesis-6.152.7.tar.gz", hash = "sha256:741dedcede2ae0f32c32929a5992804b61f2b0400403b6a51a881a2b58482782", size = 468147, upload-time = "2026-05-13T04:19:34.124Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/ac/81/9260841df522f923a1c9b5879f2192e237db22e68d3594939866a97f1120/hypothesis-6.152.8.tar.gz", hash = "sha256:9c0dd56c6ce5649ef3289555ae9fec40663401cf7134a99f926acf1b91fb6d9f", size = 468156, upload-time = "2026-05-18T23:19:27.866Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/0a/1e/8222edaee03c37350eaa726213614e343a62f1e56396dd000ad9277bfa3d/hypothesis-6.152.7-py3-none-any.whl", hash = "sha256:c0b17dd428fcb6e962f60315f6f4a77816c72fbb281ce9ba73699dabead5ec82", size = 533802, upload-time = "2026-05-13T04:19:30.635Z" },
+    { url = "https://files.pythonhosted.org/packages/54/59/0faf3a4ad69ac1d14988658f02b03a1384e32131abd17af8b8a6069db21c/hypothesis-6.152.8-py3-none-any.whl", hash = "sha256:61b1e6e14f0623e8afe27a4a1b1fce5a4611beefef015b987a5c7d0359babbda", size = 533809, upload-time = "2026-05-18T23:19:24.735Z" },
 ]
 
 [[package]]
@@ -3876,15 +3867,6 @@ wheels = [
 ]
 
 [[package]]
-name = "redis"
-version = "7.4.0"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/7b/7f/3759b1d0d72b7c92f0d70ffd9dc962b7b7b5ee74e135f9d7d8ab06b8a318/redis-7.4.0.tar.gz", hash = "sha256:64a6ea7bf567ad43c964d2c30d82853f8df927c5c9017766c55a1d1ed95d18ad", size = 4943913, upload-time = "2026-03-24T09:14:37.53Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/74/3a/95deec7db1eb53979973ebd156f3369a72732208d1391cd2e5d127062a32/redis-7.4.0-py3-none-any.whl", hash = "sha256:a9c74a5c893a5ef8455a5adb793a31bb70feb821c86eccb62eebef5a19c429ec", size = 409772, upload-time = "2026-03-24T09:14:35.968Z" },
-]
-
-[[package]]
 name = "requests"
 version = "2.34.2"
 source = { registry = "https://pypi.org/simple" }
@@ -4452,11 +4434,11 @@ wheels = [
 
 [[package]]
 name = "types-deprecated"
-version = "1.3.1.20260508"
+version = "1.3.1.20260519"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/7a/3e/9cd21c9292ea64682f1533d315d429c7e35617e168fd54b90e22d530178c/types_deprecated-1.3.1.20260508.tar.gz", hash = "sha256:a03c378da8fd83e2d5715fcdab204cfed1cfccf09766163390333684bb8413c8", size = 8566, upload-time = "2026-05-08T04:46:13.754Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/3d/e6/84cba9960022f7cc49c4a704b47f5783237a6fbb205644dad9494720e9c0/types_deprecated-1.3.1.20260519.tar.gz", hash = "sha256:e2c5b24f2a37bad7fb2bc478069e3c002d2ea2db4b9a3a6c6d17c3999b1f96a4", size = 8595, upload-time = "2026-05-19T05:56:13.316Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/7f/9f/d05eefc9d26aa2aa2d07f3cde9a909b569370324acfd8403ff7bee466419/types_deprecated-1.3.1.20260508-py3-none-any.whl", hash = "sha256:02de536e9a57fc5fdff09ecfdaae3099a000764597ec4c03b343db4f09adbb37", size = 9059, upload-time = "2026-05-08T04:46:12.686Z" },
+    { url = "https://files.pythonhosted.org/packages/f0/65/8142f9e5d9784452225f1dc432ae07f40d513e264016f2934f3e0d673f13/types_deprecated-1.3.1.20260519-py3-none-any.whl", hash = "sha256:d7ba0a4b8a449308c62ea8f521167f4f11ea26a43e42045ff40c4679d7323e64", size = 9079, upload-time = "2026-05-19T05:56:12.491Z" },
 ]
 
 [[package]]
@@ -4864,18 +4846,15 @@ wheels = [
 
 [[package]]
 name = "wesh"
-version = "3.0.0"
+version = "3.1.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "cached-property" },
     { name = "loguru" },
     { name = "orjson" },
-    { name = "redis" },
-    { name = "sqlalchemy" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/8d/4c/db9b05b57b8206900e7166ce51bbf7908cbaa800b910ab1eb6807c44adfa/wesh-3.0.0.tar.gz", hash = "sha256:fe5c4313048699b09f8691a551fefe3160720bb971baad70782adb356d06be19", size = 586064, upload-time = "2026-05-12T09:04:06.908Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/59/62/6e61fc843f4b5c44a89296376db67c66e7c0aac42cb05ef9ddb14d9f3b7f/wesh-3.1.0.tar.gz", hash = "sha256:561e8404f2627e45a7ab5def2b52a02e7eb71ccce89be20bc8106ff80a32dadb", size = 590969, upload-time = "2026-05-19T10:00:09.839Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/12/1b/8180a5d6040ffcd4df16b90557cc70234dc2268e16d0500625442eafad51/wesh-3.0.0-py3-none-any.whl", hash = "sha256:57e2eea484e7c853275e7829e51dc8ff3bfde122a075d26184a6e2e2940835ba", size = 523647, upload-time = "2026-05-12T09:04:05.057Z" },
+    { url = "https://files.pythonhosted.org/packages/02/1b/3a67395da1686d29e18f1932275921e62c818ef4e999bfe06fdcfb29a48f/wesh-3.1.0-py3-none-any.whl", hash = "sha256:846659b26f24a750367660cb1b4098a837292adcfdc51c64331b9460b786fbb6", size = 527306, upload-time = "2026-05-19T10:00:08.424Z" },
 ]
 
 [[package]]
