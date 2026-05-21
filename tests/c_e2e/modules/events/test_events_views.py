@@ -20,6 +20,7 @@ from app.flask.lib.nav.request import NavRequest
 from app.models.auth import Role, User
 from app.models.lifecycle import PublicationStatus
 from app.modules.events.models import EventPost, participation_table
+from app.modules.events.views.events_list import EventsListView
 from app.services.context import Context
 from tests.c_e2e.conftest import make_authenticated_client
 
@@ -466,3 +467,100 @@ class TestUserAgendaWidget:
         html = response.data.decode()
         assert "Fête du pain passée" in html
         assert "Vous ne vous êtes encore inscrit" not in html
+
+    def test_agenda_widget_appears_before_promos(
+        self,
+        app: Flask,
+        db_session: Session,
+        test_user: User,
+        sample_event: EventPost,
+    ):
+        """Sidebar order: calendar, then « Votre agenda », then the
+        two promo boxes (Stéfane, 2026-05-20)."""
+        self._setup_user_with_role(db_session, test_user)
+        db_session.execute(
+            sa.insert(participation_table).values(
+                event_id=sample_event.id, user_id=test_user.id
+            )
+        )
+        db_session.commit()
+
+        client = make_authenticated_client(app, test_user)
+        response = client.get("/events/")
+        assert response.status_code == 200
+        html = response.data.decode()
+        # Stable HTML-comment sentinels in events--aside.j2 — survive
+        # whether or not promo content is configured (the macro renders
+        # nothing without DB-backed admin promos).
+        agenda_pos = html.find("events:aside:agenda")
+        promo_pos = html.find("events:aside:promos")
+        assert agenda_pos != -1, "agenda sentinel must be in the page"
+        assert promo_pos != -1, "promo sentinel must be in the page"
+        assert agenda_pos < promo_pos, (
+            "« Votre agenda » must appear before the promo boxes"
+        )
+
+    def test_agenda_orders_upcoming_first_then_recent_past(
+        self,
+        app: Flask,
+        db_session: Session,
+        test_user: User,
+    ):
+        """Stéfane (2026-05-20): chronological order, closest first —
+        upcoming events soonest at the top, past events after (most
+        recent first), so the next event the user is going to is
+        always at the top of « Votre agenda »."""
+        self._setup_user_with_role(db_session, test_user)
+        now = arrow.now()
+        near_future = EventPost(
+            title="Conférence demain",
+            owner_id=test_user.id,
+            status=PublicationStatus.PUBLIC,
+            start_datetime=now.shift(days=+1),
+            end_datetime=now.shift(days=+1, hours=2),
+        )
+        far_future = EventPost(
+            title="Salon dans un mois",
+            owner_id=test_user.id,
+            status=PublicationStatus.PUBLIC,
+            start_datetime=now.shift(days=+30),
+            end_datetime=now.shift(days=+30, hours=4),
+        )
+        recent_past = EventPost(
+            title="Atelier hier",
+            owner_id=test_user.id,
+            status=PublicationStatus.PUBLIC,
+            start_datetime=now.shift(days=-1),
+            end_datetime=now.shift(days=-1, hours=2),
+        )
+        older_past = EventPost(
+            title="Conférence il y a un mois",
+            owner_id=test_user.id,
+            status=PublicationStatus.PUBLIC,
+            start_datetime=now.shift(days=-30),
+            end_datetime=now.shift(days=-30, hours=4),
+        )
+        db_session.add_all([near_future, far_future, recent_past, older_past])
+        db_session.flush()
+        for event in (near_future, far_future, recent_past, older_past):
+            db_session.execute(
+                sa.insert(participation_table).values(
+                    event_id=event.id, user_id=test_user.id
+                )
+            )
+        db_session.commit()
+
+        # Bypass HTML and call the view method directly — html.find()
+        # would mix the aside ordering with the main listing's titles,
+        # so a layout coincidence could mask a wrong query order. The
+        # widget contract is what `_get_user_agenda_events` returns.
+        with app.test_request_context("/events/"):
+            g.user = test_user
+            ordered = EventsListView()._get_user_agenda_events()
+
+        assert [e.title for e in ordered] == [
+            near_future.title,   # upcoming, soonest first
+            far_future.title,    # upcoming, later
+            recent_past.title,   # past, most recent
+            older_past.title,    # past, older
+        ]

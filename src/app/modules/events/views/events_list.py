@@ -10,6 +10,7 @@ import json
 import re
 from collections import defaultdict
 
+import arrow
 import webargs
 from attrs import asdict
 from flask import g, render_template, request, session
@@ -116,8 +117,13 @@ class EventsListView(MethodView):
         Erick (2026-05-18): a first fix only listed *future*
         participations, so members still never saw the events they had
         attended — this widget is the only place an accredited event
-        surfaces. List every accredited event (past included), newest
-        first, so the user can actually find what they participate in.
+        surfaces. List every accredited event (past included).
+
+        Stéfane (2026-05-20): chronological order, closest first — the
+        next event the user is going to must be at the top of the
+        widget. Upcoming events sorted ascending (soonest first), past
+        events appended in descending order (most recent first); events
+        without a start_datetime sink to the bottom.
         """
         user = getattr(g, "user", None)
         if user is None or getattr(user, "is_anonymous", True):
@@ -132,9 +138,21 @@ class EventsListView(MethodView):
                 participation_table.c.user_id == user.id,
                 EventPost.status == PublicationStatus.PUBLIC,
             )
-            .order_by(EventPost.start_datetime.desc())
         )
-        return list(db.session.scalars(stmt))
+        events = list(db.session.scalars(stmt))
+
+        now = arrow.now()
+        upcoming = sorted(
+            (e for e in events if e.start_datetime and e.start_datetime >= now),
+            key=lambda e: e.start_datetime,
+        )
+        past = sorted(
+            (e for e in events if e.start_datetime and e.start_datetime < now),
+            key=lambda e: e.start_datetime,
+            reverse=True,
+        )
+        undated = [e for e in events if not e.start_datetime]
+        return [*upcoming, *past, *undated]
 
     def _get_events(
         self, date_filter: DateFilter, filter_bar: FilterBar, search: str
