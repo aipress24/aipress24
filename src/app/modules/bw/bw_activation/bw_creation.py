@@ -41,9 +41,8 @@ def _create_required_organisation(user: User, bw_info: dict[str, Any], bw_type: 
     org_name = cast(str, bw_info.get("name", f"Org for BW {bw_type}"))
     org = Organisation(name=org_name)
     db.session.add(org)
-    db.session.flush()  # Get the org ID
     # Associate user with the new organisation
-    user.organisation_id = org.id
+    user.organisation = org
     db.session.flush()
 
 
@@ -110,7 +109,7 @@ def create_new_free_bw_record(session: MutableMapping) -> bool:
             "is_free": True,
             "owner_id": int(user.id),
             "payer_id": int(user.id),
-            "organisation_id": int(org.id) if org.id else None,
+            "organisation_id": int(org.id) if org and org.id else None,
             "activated_at": now,
             "payer_is_owner": bool(payer_is_owner),
             "payer_first_name": str(payer_first_name) if payer_first_name else "",
@@ -147,8 +146,9 @@ def create_new_free_bw_record(session: MutableMapping) -> bool:
         auto_commit=False,  # Don't commit yet
     )
 
-    org.bw_active = business_wall.bw_type
-    org.bw_id = business_wall.id
+    if org:
+        org.bw_active = business_wall.bw_type
+        org.bw_id = business_wall.id
 
     # commit do not happen in the utility fonction
     return True
@@ -220,7 +220,7 @@ def create_new_paid_bw_record(session: MutableMapping) -> bool:
             "is_free": False,
             "owner_id": int(user.id),
             "payer_id": int(user.id),
-            "organisation_id": int(org.id) if org.id else None,
+            "organisation_id": int(org.id) if org and org.id else None,
             "activated_at": now,
             "payer_is_owner": bool(payer_is_owner),
             "payer_first_name": str(payer_first_name) if payer_first_name else "",
@@ -257,8 +257,9 @@ def create_new_paid_bw_record(session: MutableMapping) -> bool:
         auto_commit=False,  # Don't commit yet
     )
 
-    org.bw_active = business_wall.bw_type
-    org.bw_id = business_wall.id
+    if org:
+        org.bw_active = business_wall.bw_type
+        org.bw_id = business_wall.id
 
     # commit do not happen in the utility fonction
     return True
