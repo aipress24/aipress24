@@ -500,49 +500,53 @@ class TestUserAgendaWidget:
             "« Votre agenda » must appear before the promo boxes"
         )
 
-    def test_agenda_orders_upcoming_first_then_recent_past(
+    def test_agenda_orders_by_proximity_to_now(
         self,
         app: Flask,
         db_session: Session,
         test_user: User,
     ):
-        """Stéfane (2026-05-20): chronological order, closest first —
-        upcoming events soonest at the top, past events after (most
-        recent first), so the next event the user is going to is
-        always at the top of « Votre agenda »."""
+        """Stéfane (2026-05-20, clarification PM) : « les plus proches
+        en premier » signifie distance absolue à *maintenant*. Un
+        événement J−1 (passé d'hier) doit passer devant un J+6 (la
+        semaine prochaine) — pas un partitionnement futur-puis-passé.
+        """
         self._setup_user_with_role(db_session, test_user)
         now = arrow.now()
-        near_future = EventPost(
+        # Distances distinctes pour rendre l'ordre univoque.
+        next_day = EventPost(
             title="Conférence demain",
             owner_id=test_user.id,
             status=PublicationStatus.PUBLIC,
             start_datetime=now.shift(days=+1),
             end_datetime=now.shift(days=+1, hours=2),
         )
-        far_future = EventPost(
-            title="Salon dans un mois",
+        three_days_ago = EventPost(
+            title="Atelier il y a trois jours",
             owner_id=test_user.id,
             status=PublicationStatus.PUBLIC,
-            start_datetime=now.shift(days=+30),
-            end_datetime=now.shift(days=+30, hours=4),
+            start_datetime=now.shift(days=-3),
+            end_datetime=now.shift(days=-3, hours=2),
         )
-        recent_past = EventPost(
-            title="Atelier hier",
+        in_ten_days = EventPost(
+            title="Salon dans dix jours",
             owner_id=test_user.id,
             status=PublicationStatus.PUBLIC,
-            start_datetime=now.shift(days=-1),
-            end_datetime=now.shift(days=-1, hours=2),
+            start_datetime=now.shift(days=+10),
+            end_datetime=now.shift(days=+10, hours=4),
         )
-        older_past = EventPost(
+        thirty_days_ago = EventPost(
             title="Conférence il y a un mois",
             owner_id=test_user.id,
             status=PublicationStatus.PUBLIC,
             start_datetime=now.shift(days=-30),
             end_datetime=now.shift(days=-30, hours=4),
         )
-        db_session.add_all([near_future, far_future, recent_past, older_past])
+        db_session.add_all(
+            [next_day, three_days_ago, in_ten_days, thirty_days_ago]
+        )
         db_session.flush()
-        for event in (near_future, far_future, recent_past, older_past):
+        for event in (next_day, three_days_ago, in_ten_days, thirty_days_ago):
             db_session.execute(
                 sa.insert(participation_table).values(
                     event_id=event.id, user_id=test_user.id
@@ -550,17 +554,16 @@ class TestUserAgendaWidget:
             )
         db_session.commit()
 
-        # Bypass HTML and call the view method directly — html.find()
-        # would mix the aside ordering with the main listing's titles,
-        # so a layout coincidence could mask a wrong query order. The
-        # widget contract is what `_get_user_agenda_events` returns.
+        # Appel direct de la méthode — html.find() mélangerait l'ordre
+        # de l'aside avec celui de la liste principale, ce qui pourrait
+        # masquer un mauvais tri côté requête.
         with app.test_request_context("/events/"):
             g.user = test_user
             ordered = EventsListView()._get_user_agenda_events()
 
         assert [e.title for e in ordered] == [
-            near_future.title,   # upcoming, soonest first
-            far_future.title,    # upcoming, later
-            recent_past.title,   # past, most recent
-            older_past.title,    # past, older
+            next_day.title,  # |+1d|  = 1
+            three_days_ago.title,  # |-3d|  = 3
+            in_ten_days.title,  # |+10d| = 10
+            thirty_days_ago.title,  # |-30d| = 30
         ]

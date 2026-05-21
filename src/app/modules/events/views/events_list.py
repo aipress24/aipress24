@@ -119,11 +119,11 @@ class EventsListView(MethodView):
         attended — this widget is the only place an accredited event
         surfaces. List every accredited event (past included).
 
-        Stéfane (2026-05-20): chronological order, closest first — the
-        next event the user is going to must be at the top of the
-        widget. Upcoming events sorted ascending (soonest first), past
-        events appended in descending order (most recent first); events
-        without a start_datetime sink to the bottom.
+        Stéfane (2026-05-20): « les plus proches en premier » — order
+        by absolute distance to *now*, regardless of past/future. A
+        yesterday's event (J−1) outranks a next-week's event (J+6).
+        Ties broken in favour of the upcoming side; events without a
+        start_datetime sink to the bottom.
         """
         user = getattr(g, "user", None)
         if user is None or getattr(user, "is_anonymous", True):
@@ -142,17 +142,16 @@ class EventsListView(MethodView):
         events = list(db.session.scalars(stmt))
 
         now = arrow.now()
-        upcoming = sorted(
-            (e for e in events if e.start_datetime and e.start_datetime >= now),
-            key=lambda e: e.start_datetime,
-        )
-        past = sorted(
-            (e for e in events if e.start_datetime and e.start_datetime < now),
-            key=lambda e: e.start_datetime,
-            reverse=True,
-        )
-        undated = [e for e in events if not e.start_datetime]
-        return [*upcoming, *past, *undated]
+
+        def _proximity_key(event: EventPost) -> tuple[int, float, int]:
+            if event.start_datetime is None:
+                return (1, 0.0, 0)
+            delta = (event.start_datetime - now).total_seconds()
+            past_tiebreak = 0 if delta >= 0 else 1
+            return (0, abs(delta), past_tiebreak)
+
+        events.sort(key=_proximity_key)
+        return events
 
     def _get_events(
         self, date_filter: DateFilter, filter_bar: FilterBar, search: str
