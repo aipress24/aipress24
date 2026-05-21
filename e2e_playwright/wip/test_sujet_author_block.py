@@ -19,7 +19,6 @@ from __future__ import annotations
 import pytest
 from playwright.sync_api import Page
 
-
 _PRESS_MEDIA = "PRESS_MEDIA"
 
 
@@ -31,9 +30,7 @@ def test_sujet_new_form_uses_media_destinataire_label(
     p = profile(_PRESS_MEDIA)
     login(p)
 
-    response = page.goto(
-        f"{base_url}/wip/sujets/new/", wait_until="domcontentloaded"
-    )
+    response = page.goto(f"{base_url}/wip/sujets/new/", wait_until="domcontentloaded")
     if response is None or response.status >= 400:
         pytest.skip(
             f"/wip/sujets/new/ unavailable for {p['email']!r} "

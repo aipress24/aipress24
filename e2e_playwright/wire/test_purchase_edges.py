@@ -34,9 +34,7 @@ _RESERVED_TAILS = ("me", "tab", "purchase", "")
 
 def _find_an_article(page: Page, base_url: str) -> str | None:
     """Find a /wire/<id> article id off the wall listing."""
-    page.goto(
-        f"{base_url}/wire/tab/wall", wait_until="domcontentloaded"
-    )
+    page.goto(f"{base_url}/wire/tab/wall", wait_until="domcontentloaded")
     return page.evaluate(
         """() => {
             const reserved = new Set(['me', 'tab', 'purchase', '']);
@@ -68,9 +66,7 @@ def test_buy_invalid_product_returns_404(
     if not article_id:
         pytest.skip("no article on /wire/tab/wall")
 
-    page.goto(
-        f"{base_url}/wire/{article_id}", wait_until="domcontentloaded"
-    )
+    page.goto(f"{base_url}/wire/{article_id}", wait_until="domcontentloaded")
     resp = page.evaluate(
         """async (url) => {
             const r = await fetch(url, {
@@ -126,9 +122,7 @@ def test_buy_anonymous_redirects_to_login(
     # cross-origin contexts but stays 302 same-origin. Either way,
     # the route should NOT have hit Stripe (anon → flash + login
     # redirect). Accept anything < 400.
-    assert resp["status"] < 400, (
-        f"anonymous buy should redirect/flash, got {resp}"
-    )
+    assert resp["status"] < 400, f"anonymous buy should redirect/flash, got {resp}"
 
 
 def test_purchase_success_404_for_unknown_id(
@@ -171,9 +165,7 @@ def test_purchase_success_renders_for_owner(
     if not article_id:
         pytest.skip("no article on /wire/tab/wall")
 
-    page.goto(
-        f"{base_url}/wire/{article_id}", wait_until="domcontentloaded"
-    )
+    page.goto(f"{base_url}/wire/{article_id}", wait_until="domcontentloaded")
     # Drive the consultation buy. The mock redirects success_url
     # back to /wire/purchase/<id>/success.
     page.request.post(
@@ -197,24 +189,19 @@ def test_purchase_success_renders_for_owner(
     if buy_resp["status"] >= 400:
         pytest.skip(f"consultation buy failed: {buy_resp}")
     # Captured session has url=success_url. Find it.
-    sessions = page.request.get(
-        f"{base_url}/debug/stripe/sessions"
-    ).json()
+    sessions = page.request.get(f"{base_url}/debug/stripe/sessions").json()
     if not sessions:
         pytest.skip("no Stripe session captured")
     success_url_ = sessions[-1].get("url", "")
     m = re.search(r"/wire/purchase/(\d+)/success", success_url_)
     if not m:
-        pytest.skip(
-            f"success_url didn't match expected shape : {success_url_!r}"
-        )
+        pytest.skip(f"success_url didn't match expected shape : {success_url_!r}")
     success_resp = page.goto(
         f"{base_url}/wire/purchase/{m.group(1)}/success",
         wait_until="domcontentloaded",
     )
     assert success_resp is not None and success_resp.status == 200, (
-        f"success page : "
-        f"{success_resp.status if success_resp else '?'}"
+        f"success page : {success_resp.status if success_resp else '?'}"
     )
 
     # Same /wire/purchase/<id>/cancel renders 200.
@@ -223,6 +210,5 @@ def test_purchase_success_renders_for_owner(
         wait_until="domcontentloaded",
     )
     assert cancel_resp is not None and cancel_resp.status == 200, (
-        f"cancel page : "
-        f"{cancel_resp.status if cancel_resp else '?'}"
+        f"cancel page : {cancel_resp.status if cancel_resp else '?'}"
     )

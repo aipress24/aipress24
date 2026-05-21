@@ -32,21 +32,13 @@ def test_backdoor_landing_renders(page: Page, base_url: str) -> None:
     """``/backdoor/`` (no role query) renders the full landing
     page — fail-fast if ``UNSECURE`` ever defaults False."""
     page.context.clear_cookies()
-    resp = page.goto(
-        f"{base_url}/backdoor/", wait_until="domcontentloaded"
-    )
+    resp = page.goto(f"{base_url}/backdoor/", wait_until="domcontentloaded")
     if resp is None or resp.status == 403:
-        pytest.skip(
-            "/backdoor/ is 403 — UNSECURE is not enabled on this env"
-        )
-    assert resp.status == 200, (
-        f"/backdoor/ : status={resp.status}"
-    )
+        pytest.skip("/backdoor/ is 403 — UNSECURE is not enabled on this env")
+    assert resp.status == 200, f"/backdoor/ : status={resp.status}"
 
 
-def test_backdoor_with_role_query_renders_banner(
-    page: Page, base_url: str
-) -> None:
+def test_backdoor_with_role_query_renders_banner(page: Page, base_url: str) -> None:
     """``/backdoor/?role=ADMIN`` renders the banner-only
     variant (different code branch from the landing)."""
     page.context.clear_cookies()
@@ -60,9 +52,7 @@ def test_backdoor_with_role_query_renders_banner(
 
 
 @pytest.mark.mutates_db
-def test_backdoor_login_known_role_redirects_to_wire(
-    page: Page, base_url: str
-) -> None:
+def test_backdoor_login_known_role_redirects_to_wire(page: Page, base_url: str) -> None:
     """``GET /backdoor/admin`` logs in as the first ADMIN user
     and 302-redirects to the wire feed.
 
@@ -71,24 +61,19 @@ def test_backdoor_login_known_role_redirects_to_wire(
     page.context.clear_cookies()
     # Use page.request.get with redirect: 'manual' to inspect
     # the redirect target without auto-following.
-    resp = page.request.get(
-        f"{base_url}/backdoor/admin", max_redirects=0
-    )
+    resp = page.request.get(f"{base_url}/backdoor/admin", max_redirects=0)
     if resp.status == 403:
         pytest.skip("UNSECURE not enabled")
     # Either 302 (manual redirect) or 200 (followed) — accept both.
     if resp.status == 302:
         assert "/wire" in (resp.headers.get("location") or ""), (
-            f"expected redirect to /wire, got "
-            f"{resp.headers.get('location')!r}"
+            f"expected redirect to /wire, got {resp.headers.get('location')!r}"
         )
     else:
         assert resp.status == 200
 
 
-def test_backdoor_login_unknown_role_returns_404(
-    page: Page, base_url: str
-) -> None:
+def test_backdoor_login_unknown_role_returns_404(page: Page, base_url: str) -> None:
     """A role that doesn't match any seeded user → NotFound."""
     page.context.clear_cookies()
     resp = page.goto(

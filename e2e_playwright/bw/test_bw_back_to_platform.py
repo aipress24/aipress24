@@ -42,13 +42,10 @@ def test_back_to_platform_button_renders(
     BW page, with a link to `/`."""
     p = profile("PRESS_MEDIA")
     login(p)
-    resp = page.goto(
-        f"{base_url}{path}", wait_until="domcontentloaded"
-    )
+    resp = page.goto(f"{base_url}{path}", wait_until="domcontentloaded")
     if resp is None or resp.status >= 400:
         pytest.skip(
-            f"{path} returned "
-            f"{resp.status if resp else '?'} for {p['email']!r}"
+            f"{path} returned {resp.status if resp else '?'} for {p['email']!r}"
         )
     body = page.content()
     if "Activation" not in body and "Business Wall" not in body:
@@ -66,6 +63,4 @@ def test_back_to_platform_button_renders(
     # most pages. Single-button cases are tolerated (some pages
     # extend a different parent template).
     href = buttons.first.get_attribute("href")
-    assert href == "/", (
-        f"button href is {href!r}, expected '/' (platform home)"
-    )
+    assert href == "/", f"button href is {href!r}, expected '/' (platform home)"

@@ -38,12 +38,8 @@ from playwright.sync_api import Page
 _ERICK_NAMED_BW_ID = "3be67123-b68d-48ad-9043-e2a206d18893"
 _PRESS_MEDIA_COMMUNITY = "PRESS_MEDIA"
 
-_NAME_INPUT_RE = re.compile(
-    r'<input[^>]+name="name"[^>]*value="([^"]*)"', re.I
-)
-_SIREN_INPUT_RE = re.compile(
-    r'<input[^>]+name="siren"[^>]*value="([^"]*)"', re.I
-)
+_NAME_INPUT_RE = re.compile(r'<input[^>]+name="name"[^>]*value="([^"]*)"', re.IGNORECASE)
+_SIREN_INPUT_RE = re.compile(r'<input[^>]+name="siren"[^>]*value="([^"]*)"', re.IGNORECASE)
 
 
 def _extract_form_value(html: str, pattern: re.Pattern[str]) -> str:
@@ -79,9 +75,7 @@ def test_bw_configure_content_post_uploads_logo(
 
     # GET the form to extract current `name` + `siren` (mandatory
     # fields ; the route flashes + redirects if either is empty).
-    page.goto(
-        f"{base_url}/BW/configure-content", wait_until="domcontentloaded"
-    )
+    page.goto(f"{base_url}/BW/configure-content", wait_until="domcontentloaded")
     html = page.content()
     name = _extract_form_value(html, _NAME_INPUT_RE)
     siren = _extract_form_value(html, _SIREN_INPUT_RE) or "123456789"
@@ -124,9 +118,7 @@ def test_bw_configure_content_post_uploads_logo(
     # raised — that's the underlying S3/MinIO bug ; surface it.
     body = resp["body"]
     if "Erreur lors de l'upload du logo" in body:
-        m = re.search(
-            r"Erreur lors de l'upload du logo[^\"]*", body
-        )
+        m = re.search(r"Erreur lors de l'upload du logo[^\"]*", body)
         pytest.fail(
             f"configure-content : upload caught and flashed an error : "
             f"{m.group(0)[:300] if m else '(no match)'}"
@@ -156,9 +148,7 @@ def test_bw_configure_content_post_uploads_bandeau(
     sel = authed_post(f"{base_url}/BW/select-bw/{_ERICK_NAMED_BW_ID}", {})
     assert sel["status"] < 400 and "/auth/login" not in sel["url"]
 
-    page.goto(
-        f"{base_url}/BW/configure-content", wait_until="domcontentloaded"
-    )
+    page.goto(f"{base_url}/BW/configure-content", wait_until="domcontentloaded")
     html = page.content()
     name = _extract_form_value(html, _NAME_INPUT_RE)
     siren = _extract_form_value(html, _SIREN_INPUT_RE) or "123456789"
@@ -203,9 +193,7 @@ def test_bw_configure_gallery_post_adds_image(
 
     # Snapshot the current gallery so we can diff after the POST and
     # find the freshly-added image's UUID for cleanup.
-    page.goto(
-        f"{base_url}/BW/configure-gallery", wait_until="domcontentloaded"
-    )
+    page.goto(f"{base_url}/BW/configure-gallery", wait_until="domcontentloaded")
     before_ids = set(_gallery_image_ids(page))
 
     js_post_with_body = """async (args) => {
@@ -237,20 +225,14 @@ def test_bw_configure_gallery_post_adds_image(
             resp["body"],
         )
         exc = m.group(1).strip() if m else "(no exc heading)"
-        m2 = re.search(
-            r'<h2[^>]*class="traceback"[^>]*>([^<]+)</h2>', resp["body"]
-        )
+        m2 = re.search(r'<h2[^>]*class="traceback"[^>]*>([^<]+)</h2>', resp["body"])
         title = m2.group(1).strip() if m2 else ""
-        pytest.fail(
-            f"configure-gallery : 500 — exc={exc!r} title={title!r}"
-        )
+        pytest.fail(f"configure-gallery : 500 — exc={exc!r} title={title!r}")
     assert resp["status"] < 400, f"configure-gallery : {resp}"
     assert "/auth/login" not in resp["url"]
     assert "/not-authorized" not in resp["url"]
 
-    page.goto(
-        f"{base_url}/BW/configure-gallery", wait_until="domcontentloaded"
-    )
+    page.goto(f"{base_url}/BW/configure-gallery", wait_until="domcontentloaded")
     after_ids = set(_gallery_image_ids(page))
     new_ids = after_ids - before_ids
     if not new_ids:
@@ -266,9 +248,7 @@ def test_bw_configure_gallery_post_adds_image(
 
     # Cleanup : delete every image we just added.
     for image_id in new_ids:
-        cleanup = authed_post(
-            f"{base_url}/BW/delete-gallery-image/{image_id}", {}
-        )
+        cleanup = authed_post(f"{base_url}/BW/delete-gallery-image/{image_id}", {})
         assert cleanup["status"] < 400, (
             f"cleanup delete-gallery-image/{image_id} : {cleanup}"
         )

@@ -77,9 +77,7 @@ def _first_id_on_listing(
 ) -> str | None:
     """Open `listing_path`, scrape the first href matching
     `href_re`, return the captured id."""
-    page.goto(
-        f"{base_url}{listing_path}", wait_until="domcontentloaded"
-    )
+    page.goto(f"{base_url}{listing_path}", wait_until="domcontentloaded")
     hrefs = page.locator("a[href]").evaluate_all(
         "els => els.map(e => e.getAttribute('href'))"
     )
@@ -98,9 +96,7 @@ def _first_id_on_listing(
 # ─── Listings ──────────────────────────────────────────────────────
 
 
-def test_swork_root_renders(
-    page: Page, base_url: str, profile, login
-) -> None:
+def test_swork_root_renders(page: Page, base_url: str, profile, login) -> None:
     """``/swork/`` (home wall) renders without 5xx for a member."""
     p = profile(_PRESS_MEDIA)
     login(p)
@@ -113,9 +109,7 @@ def test_swork_groups_listing_renders(
 ) -> None:
     p = profile(_PRESS_MEDIA)
     login(p)
-    resp = page.goto(
-        f"{base_url}/swork/groups/", wait_until="domcontentloaded"
-    )
+    resp = page.goto(f"{base_url}/swork/groups/", wait_until="domcontentloaded")
     assert resp is not None and resp.status < 400
 
 
@@ -125,9 +119,7 @@ def test_swork_groups_new_form_renders(
     """``/swork/groups/new`` GET renders the create-group form."""
     p = profile(_PRESS_MEDIA)
     login(p)
-    resp = page.goto(
-        f"{base_url}/swork/groups/new", wait_until="domcontentloaded"
-    )
+    resp = page.goto(f"{base_url}/swork/groups/new", wait_until="domcontentloaded")
     assert resp is not None and resp.status < 400
     assert page.locator("form").count() >= 1, (
         "/swork/groups/new : no <form> element rendered"
@@ -151,20 +143,14 @@ def test_swork_members_listing_renders(
 ) -> None:
     p = profile(_PRESS_MEDIA)
     login(p)
-    resp = page.goto(
-        f"{base_url}/swork/members/", wait_until="domcontentloaded"
-    )
+    resp = page.goto(f"{base_url}/swork/members/", wait_until="domcontentloaded")
     assert resp is not None and resp.status < 400
 
 
-def test_swork_parrainages_renders(
-    page: Page, base_url: str, profile, login
-) -> None:
+def test_swork_parrainages_renders(page: Page, base_url: str, profile, login) -> None:
     p = profile(_PRESS_MEDIA)
     login(p)
-    resp = page.goto(
-        f"{base_url}/swork/parrainages/", wait_until="domcontentloaded"
-    )
+    resp = page.goto(f"{base_url}/swork/parrainages/", wait_until="domcontentloaded")
     assert resp is not None and resp.status < 400
 
 
@@ -176,24 +162,19 @@ def test_swork_profile_redirects_to_self_member(
     login(p)
     page.goto(f"{base_url}/swork/profile/", wait_until="domcontentloaded")
     assert "/swork/members/" in page.url, (
-        f"/swork/profile/ : expected redirect to /swork/members/<id>, "
-        f"got {page.url}"
+        f"/swork/profile/ : expected redirect to /swork/members/<id>, got {page.url}"
     )
 
 
 # ─── Detail pages ──────────────────────────────────────────────────
 
 
-def test_swork_group_detail_renders(
-    page: Page, base_url: str, profile, login
-) -> None:
+def test_swork_group_detail_renders(page: Page, base_url: str, profile, login) -> None:
     """Pick the first group from /swork/groups/ and render its
     detail page. Drives ``GroupDetailView.get`` + ``GroupVM``."""
     p = profile(_PRESS_MEDIA)
     login(p)
-    group_id = _first_id_on_listing(
-        page, base_url, "/swork/groups/", _GROUP_RE
-    )
+    group_id = _first_id_on_listing(page, base_url, "/swork/groups/", _GROUP_RE)
     if group_id is None:
         pytest.skip("/swork/groups/ : no group available — seed empty ?")
     resp = page.goto(
@@ -201,21 +182,16 @@ def test_swork_group_detail_renders(
         wait_until="domcontentloaded",
     )
     assert resp is not None and resp.status < 400, (
-        f"/swork/groups/{group_id} : "
-        f"status={resp.status if resp else '?'}"
+        f"/swork/groups/{group_id} : status={resp.status if resp else '?'}"
     )
 
 
-def test_swork_member_detail_renders(
-    page: Page, base_url: str, profile, login
-) -> None:
+def test_swork_member_detail_renders(page: Page, base_url: str, profile, login) -> None:
     """Pick the first member from /swork/members/ and render their
     detail page (default tab=profile)."""
     p = profile(_PRESS_MEDIA)
     login(p)
-    member_id = _first_id_on_listing(
-        page, base_url, "/swork/members/", _MEMBER_RE
-    )
+    member_id = _first_id_on_listing(page, base_url, "/swork/members/", _MEMBER_RE)
     if member_id is None:
         pytest.skip("/swork/members/ : no member found")
     resp = page.goto(
@@ -234,9 +210,7 @@ def test_swork_member_each_tab_renders(
     """
     p = profile(_PRESS_MEDIA)
     login(p)
-    member_id = _first_id_on_listing(
-        page, base_url, "/swork/members/", _MEMBER_RE
-    )
+    member_id = _first_id_on_listing(page, base_url, "/swork/members/", _MEMBER_RE)
     if member_id is None:
         pytest.skip("/swork/members/ : no member found")
     resp = page.goto(
@@ -244,8 +218,7 @@ def test_swork_member_each_tab_renders(
         wait_until="domcontentloaded",
     )
     assert resp is not None and resp.status < 400, (
-        f"/swork/members/{member_id}?tab={tab} : "
-        f"status={resp.status if resp else '?'}"
+        f"/swork/members/{member_id}?tab={tab} : status={resp.status if resp else '?'}"
     )
     # Wait for the HTMX swap to land (any non-empty content in #tabs).
     try:
@@ -270,9 +243,7 @@ def test_swork_organisation_detail_renders(
     """
     p = profile(_PRESS_MEDIA)
     login(p)
-    org_id = _first_id_on_listing(
-        page, base_url, "/swork/organisations/", _ORG_RE
-    )
+    org_id = _first_id_on_listing(page, base_url, "/swork/organisations/", _ORG_RE)
     if org_id is None:
         pytest.skip("/swork/organisations/ : no org found")
     resp = page.goto(
@@ -295,9 +266,7 @@ def test_swork_group_toggle_join_round_trip(
     """
     p = profile(_PRESS_MEDIA)
     login(p)
-    group_id = _first_id_on_listing(
-        page, base_url, "/swork/groups/", _GROUP_RE
-    )
+    group_id = _first_id_on_listing(page, base_url, "/swork/groups/", _GROUP_RE)
     if group_id is None:
         pytest.skip("/swork/groups/ : no group found")
 
@@ -335,18 +304,14 @@ def test_swork_member_toggle_follow_round_trip(
     p = profile(_PRESS_MEDIA)
     login(p)
 
-    page.goto(
-        f"{base_url}/swork/members/", wait_until="domcontentloaded"
-    )
+    page.goto(f"{base_url}/swork/members/", wait_until="domcontentloaded")
     # Find own member id first to skip it.
     page.goto(f"{base_url}/swork/profile/", wait_until="domcontentloaded")
     self_member_url = page.url.rstrip("/")
     self_id = self_member_url.rsplit("/", 1)[-1].split("?", 1)[0]
 
     # Now scan members listing for someone else.
-    page.goto(
-        f"{base_url}/swork/members/", wait_until="domcontentloaded"
-    )
+    page.goto(f"{base_url}/swork/members/", wait_until="domcontentloaded")
     hrefs = page.locator("a[href]").evaluate_all(
         "els => els.map(e => e.getAttribute('href'))"
     )
@@ -362,9 +327,7 @@ def test_swork_member_toggle_follow_round_trip(
             target_id = m.group(1)
             break
     if target_id is None:
-        pytest.skip(
-            "/swork/members/ : no other-than-self member to follow"
-        )
+        pytest.skip("/swork/members/ : no other-than-self member to follow")
 
     page.goto(
         f"{base_url}/swork/members/{target_id}",
@@ -392,9 +355,7 @@ def test_swork_organisation_toggle_follow_round_trip(
     """POST /swork/organisations/<id> action=toggle-follow round-trip."""
     p = profile(_PRESS_MEDIA)
     login(p)
-    org_id = _first_id_on_listing(
-        page, base_url, "/swork/organisations/", _ORG_RE
-    )
+    org_id = _first_id_on_listing(page, base_url, "/swork/organisations/", _ORG_RE)
     if org_id is None:
         pytest.skip("/swork/organisations/ : no org found")
 

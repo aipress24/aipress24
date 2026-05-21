@@ -20,9 +20,7 @@ for ~30 stmts of currently uncovered code :
 
 from __future__ import annotations
 
-import pytest
 from playwright.sync_api import Page
-
 
 # ─── pricing_page branches ─────────────────────────────────────────
 
@@ -142,9 +140,7 @@ def test_set_pricing_non_integer_value_redirects(
 # ─── payment branches ──────────────────────────────────────────────
 
 
-def test_payment_free_type_redirects(
-    page: Page, base_url: str, profile, login
-) -> None:
+def test_payment_free_type_redirects(page: Page, base_url: str, profile, login) -> None:
     """``GET /BW/payment/<free_type>`` → redirect (the same
     bw_type-free guard as set_pricing / pricing_page)."""
     p = profile("PRESS_MEDIA")
@@ -181,9 +177,7 @@ def test_simulate_payment_free_type_redirects(
     """``POST /BW/simulate_payment/<free_type>`` → redirect."""
     p = profile("PRESS_MEDIA")
     login(p)
-    resp = authed_post(
-        f"{base_url}/BW/simulate_payment/media", {}
-    )
+    resp = authed_post(f"{base_url}/BW/simulate_payment/media", {})
     assert resp["status"] < 400, resp
 
 
@@ -194,9 +188,7 @@ def test_simulate_payment_no_pricing_value_redirects(
     ``session["pricing_value"]`` → redirect to /BW/."""
     p = profile("PRESS_MEDIA")
     login(p)
-    resp = authed_post(
-        f"{base_url}/BW/simulate_payment/pr", {}
-    )
+    resp = authed_post(f"{base_url}/BW/simulate_payment/pr", {})
     assert resp["status"] < 400, resp
 
 

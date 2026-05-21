@@ -30,49 +30,65 @@ from playwright.sync_api import Page
 SUBPAGES = [
     # Articles : edit form (+ pre-filled with bound data).
     (
-        "article-edit", "PRESS_MEDIA",
-        "/wip/articles/", re.compile(r"^/wip/articles/\d+/$"),
+        "article-edit",
+        "PRESS_MEDIA",
+        "/wip/articles/",
+        re.compile(r"^/wip/articles/\d+/$"),
         "/wip/articles/edit/{id}/",
     ),
     # Avis-enquete : the lion's share of the cbvs/avis_enquete.py
     # branches. Each subpath exercises a different code path.
     (
-        "avis-edit", "PRESS_MEDIA",
-        "/wip/avis-enquete/", re.compile(r"^/wip/avis-enquete/\d+/$"),
+        "avis-edit",
+        "PRESS_MEDIA",
+        "/wip/avis-enquete/",
+        re.compile(r"^/wip/avis-enquete/\d+/$"),
         "/wip/avis-enquete/edit/{id}/",
     ),
     (
-        "avis-ciblage", "PRESS_MEDIA",
-        "/wip/avis-enquete/", re.compile(r"^/wip/avis-enquete/\d+/$"),
+        "avis-ciblage",
+        "PRESS_MEDIA",
+        "/wip/avis-enquete/",
+        re.compile(r"^/wip/avis-enquete/\d+/$"),
         "/wip/avis-enquete/{id}/ciblage",
     ),
     (
-        "avis-reponses", "PRESS_MEDIA",
-        "/wip/avis-enquete/", re.compile(r"^/wip/avis-enquete/\d+/$"),
+        "avis-reponses",
+        "PRESS_MEDIA",
+        "/wip/avis-enquete/",
+        re.compile(r"^/wip/avis-enquete/\d+/$"),
         "/wip/avis-enquete/{id}/reponses",
     ),
     (
-        "avis-rdv", "PRESS_MEDIA",
-        "/wip/avis-enquete/", re.compile(r"^/wip/avis-enquete/\d+/$"),
+        "avis-rdv",
+        "PRESS_MEDIA",
+        "/wip/avis-enquete/",
+        re.compile(r"^/wip/avis-enquete/\d+/$"),
         "/wip/avis-enquete/{id}/rdv",
     ),
     (
-        "avis-notify-publication", "PRESS_MEDIA",
-        "/wip/avis-enquete/", re.compile(r"^/wip/avis-enquete/\d+/$"),
+        "avis-notify-publication",
+        "PRESS_MEDIA",
+        "/wip/avis-enquete/",
+        re.compile(r"^/wip/avis-enquete/\d+/$"),
         "/wip/avis-enquete/{id}/notify-publication",
     ),
     # Communiques : edit form.
     (
-        "communique-edit", "PRESS_RELATIONS",
-        "/wip/communiques/", re.compile(r"^/wip/communiques/\d+/$"),
+        "communique-edit",
+        "PRESS_RELATIONS",
+        "/wip/communiques/",
+        re.compile(r"^/wip/communiques/\d+/$"),
         "/wip/communiques/edit/{id}/",
     ),
     # Events : edit form (the bare /wip/events/<id>/ 500s for the
     # only data-bearing user, so we leave that one out — but the
     # edit page may still render).
     (
-        "event-edit", "PRESS_MEDIA",
-        "/wip/events/", re.compile(r"^/wip/events/\d+/$"),
+        "event-edit",
+        "PRESS_MEDIA",
+        "/wip/events/",
+        re.compile(r"^/wip/events/\d+/$"),
         "/wip/events/edit/{id}/",
     ),
     # Opportunities : an opportunity is an ContactAvisEnquete row
@@ -80,25 +96,33 @@ SUBPAGES = [
     # first PRESS_RELATIONS profile in the dev DB has one. Listing
     # URL has no trailing slash and the detail href doesn't either.
     (
-        "opportunity-detail", "PRESS_RELATIONS",
-        "/wip/opportunities", re.compile(r"^/wip/opportunities/\d+$"),
+        "opportunity-detail",
+        "PRESS_RELATIONS",
+        "/wip/opportunities",
+        re.compile(r"^/wip/opportunities/\d+$"),
         "/wip/opportunities/{id}",
     ),
     # Image listings : exercises the per-resource image gallery view
     # in cbvs/{articles,communiques,events}.py.
     (
-        "article-images", "PRESS_MEDIA",
-        "/wip/articles/", re.compile(r"^/wip/articles/\d+/$"),
+        "article-images",
+        "PRESS_MEDIA",
+        "/wip/articles/",
+        re.compile(r"^/wip/articles/\d+/$"),
         "/wip/articles/{id}/images/",
     ),
     (
-        "communique-images", "PRESS_RELATIONS",
-        "/wip/communiques/", re.compile(r"^/wip/communiques/\d+/$"),
+        "communique-images",
+        "PRESS_RELATIONS",
+        "/wip/communiques/",
+        re.compile(r"^/wip/communiques/\d+/$"),
         "/wip/communiques/{id}/images/",
     ),
     (
-        "event-images", "PRESS_MEDIA",
-        "/wip/events/", re.compile(r"^/wip/events/\d+/$"),
+        "event-images",
+        "PRESS_MEDIA",
+        "/wip/events/",
+        re.compile(r"^/wip/events/\d+/$"),
         "/wip/events/{id}/images/",
     ),
 ]
@@ -146,9 +170,7 @@ def test_avis_ciblage_add_post(
     avis_pat = re.compile(r"^/wip/avis-enquete/\d+/$")
     avis_id = _OWNED_IDS.get(("PRESS_MEDIA", "/wip/avis-enquete/"))
     if avis_id is None:
-        avis_id = _first_owned_id(
-            page, base_url, "/wip/avis-enquete/", avis_pat
-        )
+        avis_id = _first_owned_id(page, base_url, "/wip/avis-enquete/", avis_pat)
         _OWNED_IDS[("PRESS_MEDIA", "/wip/avis-enquete/")] = avis_id
     if avis_id is None:
         pytest.skip(f"avis-enquete: no item for {p['email']}")
@@ -158,8 +180,7 @@ def test_avis_ciblage_add_post(
         {"action:add": "1"},
     )
     assert resp["status"] < 400, (
-        f"POST /ciblage action:add returned {resp['status']} "
-        f"(landed on {resp['url']})"
+        f"POST /ciblage action:add returned {resp['status']} (landed on {resp['url']})"
     )
     assert "/auth/login" not in resp["url"], (
         "POST /ciblage redirected to login — session lost"
@@ -190,13 +211,14 @@ def test_avis_rdv_propose_post_validation_error(
         f"{base_url}/wip/avis-enquete/{avis_id}/rdv",
         wait_until="domcontentloaded",
     )
-    rdv_re = re.compile(
-        rf"^/wip/avis-enquete/{avis_id}/rdv-details/(\d+)$"
-    )
+    rdv_re = re.compile(rf"^/wip/avis-enquete/{avis_id}/rdv-details/(\d+)$")
     contact_id: str | None = None
-    for href in page.locator("a[href]").evaluate_all(
-        "els => els.map(e => e.getAttribute('href'))"
-    ) or ():
+    for href in (
+        page.locator("a[href]").evaluate_all(
+            "els => els.map(e => e.getAttribute('href'))"
+        )
+        or ()
+    ):
         if not href:
             continue
         path = href.split("#", 1)[0].split("?", 1)[0]
@@ -216,9 +238,7 @@ def test_avis_rdv_propose_post_validation_error(
         f"{base_url}/wip/avis-enquete/{avis_id}/rdv-propose/{contact_id}",
         {},
     )
-    assert resp["status"] < 400, (
-        f"POST /rdv-propose returned {resp['status']}"
-    )
+    assert resp["status"] < 400, f"POST /rdv-propose returned {resp['status']}"
     assert "/auth/login" not in resp["url"], (
         "POST /rdv-propose redirected to login — session lost"
     )
@@ -246,9 +266,7 @@ def test_avis_ciblage_update_post(
     avis_pat = re.compile(r"^/wip/avis-enquete/\d+/$")
     avis_id = _OWNED_IDS.get(("PRESS_MEDIA", "/wip/avis-enquete/"))
     if avis_id is None:
-        avis_id = _first_owned_id(
-            page, base_url, "/wip/avis-enquete/", avis_pat
-        )
+        avis_id = _first_owned_id(page, base_url, "/wip/avis-enquete/", avis_pat)
         _OWNED_IDS[("PRESS_MEDIA", "/wip/avis-enquete/")] = avis_id
     if avis_id is None:
         pytest.skip(f"avis-enquete: no item for {p['email']}")
@@ -331,14 +349,15 @@ def test_avis_ciblage_confirm_post(
     # strips the selection and 0 mails get sent). The form's
     # thematic pre-filter narrows the pool — some avis show only a
     # handful of candidates, all already contacts.
-    page.goto(
-        f"{base_url}/wip/avis-enquete/", wait_until="domcontentloaded"
-    )
+    page.goto(f"{base_url}/wip/avis-enquete/", wait_until="domcontentloaded")
     avis_pat = re.compile(r"^/wip/avis-enquete/(\d+)/$")
     avis_ids: list[str] = []
-    for href in page.locator("a[href]").evaluate_all(
-        "els => els.map(e => e.getAttribute('href'))"
-    ) or ():
+    for href in (
+        page.locator("a[href]").evaluate_all(
+            "els => els.map(e => e.getAttribute('href'))"
+        )
+        or ()
+    ):
         if not href:
             continue
         m = avis_pat.match(href.split("#", 1)[0].split("?", 1)[0])
@@ -361,22 +380,18 @@ def test_avis_ciblage_confirm_post(
             f"{base_url}/wip/avis-enquete/{avis_id}/ciblage",
             wait_until="domcontentloaded",
         )
-        keys = page.locator(
-            'input[name^="expert:"]'
-        ).evaluate_all("els => els.map(e => e.name)")
+        keys = page.locator('input[name^="expert:"]').evaluate_all(
+            "els => els.map(e => e.name)"
+        )
         url = f"{base_url}/wip/avis-enquete/{avis_id}/ciblage"
         # Cap attempts per avis so a fully-contacted avis doesn't
         # waste the test's runtime.
         for chosen in keys[:5]:
             mail_outbox.reset()
-            add = page.evaluate(
-                js, {"url": url, "body": f"{chosen}=on&action:add=1"}
-            )
+            add = page.evaluate(js, {"url": url, "body": f"{chosen}=on&action:add=1"})
             if add["status"] >= 400:
                 continue
-            resp = page.evaluate(
-                js, {"url": url, "body": "action:confirm=1"}
-            )
+            resp = page.evaluate(js, {"url": url, "body": "action:confirm=1"})
             if resp["status"] >= 400 or "/auth/login" in resp["url"]:
                 continue
             # Either we caught an avis-enquete email (selected
@@ -431,9 +446,7 @@ def test_avis_rdv_propose_happy_path(
 
     # Find a (avis, contact) that has a propose-rdv link visible
     # on /reponses (template only renders it when can_propose_rdv()).
-    page.goto(
-        f"{base_url}/wip/avis-enquete/", wait_until="domcontentloaded"
-    )
+    page.goto(f"{base_url}/wip/avis-enquete/", wait_until="domcontentloaded")
     avis_pat = re.compile(r"^/wip/avis-enquete/(\d+)/$")
     avis_ids = [
         m.group(1)
@@ -441,17 +454,12 @@ def test_avis_rdv_propose_happy_path(
             "els => els.map(e => e.getAttribute('href'))"
         )
         or ()
-        if href
-        and (m := avis_pat.match(
-            href.split("#", 1)[0].split("?", 1)[0]
-        ))
+        if href and (m := avis_pat.match(href.split("#", 1)[0].split("?", 1)[0]))
     ]
     if not avis_ids:
         pytest.skip(f"avis-enquete: no item for {p['email']}")
 
-    propose_pat = re.compile(
-        r"^/wip/avis-enquete/(\d+)/rdv-propose/(\d+)$"
-    )
+    propose_pat = re.compile(r"^/wip/avis-enquete/(\d+)/rdv-propose/(\d+)$")
     chosen_avis: str | None = None
     chosen_contact: str | None = None
     for avis_id in avis_ids:
@@ -459,9 +467,12 @@ def test_avis_rdv_propose_happy_path(
             f"{base_url}/wip/avis-enquete/{avis_id}/reponses",
             wait_until="domcontentloaded",
         )
-        for href in page.locator("a[href]").evaluate_all(
-            "els => els.map(e => e.getAttribute('href'))"
-        ) or ():
+        for href in (
+            page.locator("a[href]").evaluate_all(
+                "els => els.map(e => e.getAttribute('href'))"
+            )
+            or ()
+        ):
             if not href:
                 continue
             m = propose_pat.match(href.split("#", 1)[0].split("?", 1)[0])
@@ -492,16 +503,17 @@ def test_avis_rdv_propose_happy_path(
         });
         return {status: r.status, url: r.url};
     }"""
-    resp = page.evaluate(js, {
-        "url": (
-            f"{base_url}/wip/avis-enquete/{chosen_avis}"
-            f"/rdv-propose/{chosen_contact}"
-        ),
-        "body": body,
-    })
-    assert resp["status"] < 400, (
-        f"POST /rdv-propose returned {resp['status']}"
+    resp = page.evaluate(
+        js,
+        {
+            "url": (
+                f"{base_url}/wip/avis-enquete/{chosen_avis}"
+                f"/rdv-propose/{chosen_contact}"
+            ),
+            "body": body,
+        },
     )
+    assert resp["status"] < 400, f"POST /rdv-propose returned {resp['status']}"
     assert "/auth/login" not in resp["url"]
     captured = mail_outbox.messages()
     assert len(captured) >= 1, (
@@ -552,12 +564,13 @@ def test_notifications_publication_free_form_post(
         });
         return {status: r.status, url: r.url};
     }"""
-    resp = page.evaluate(js, {
-        "url": (
-            f"{base_url}/wip/newsroom/notifications-publication/new"
-        ),
-        "body": body,
-    })
+    resp = page.evaluate(
+        js,
+        {
+            "url": (f"{base_url}/wip/newsroom/notifications-publication/new"),
+            "body": body,
+        },
+    )
     assert resp["status"] < 400, (
         f"POST notifications-publication/new returned {resp['status']}"
     )
@@ -590,9 +603,7 @@ def test_avis_notify_publication_post(
     avis_pat = re.compile(r"^/wip/avis-enquete/\d+/$")
     avis_id = _OWNED_IDS.get(("PRESS_MEDIA", "/wip/avis-enquete/"))
     if avis_id is None:
-        avis_id = _first_owned_id(
-            page, base_url, "/wip/avis-enquete/", avis_pat
-        )
+        avis_id = _first_owned_id(page, base_url, "/wip/avis-enquete/", avis_pat)
         _OWNED_IDS[("PRESS_MEDIA", "/wip/avis-enquete/")] = avis_id
     if avis_id is None:
         pytest.skip(f"avis-enquete: no item for {p['email']}")
@@ -604,9 +615,7 @@ def test_avis_notify_publication_post(
         f"{base_url}/wip/avis-enquete/{avis_id}/notify-publication",
         wait_until="domcontentloaded",
     )
-    contact_ids = page.locator(
-        'input[name="contact_ids"]'
-    ).evaluate_all(
+    contact_ids = page.locator('input[name="contact_ids"]').evaluate_all(
         "els => els.map(e => e.value)"
     )
     if not contact_ids:
@@ -620,9 +629,7 @@ def test_avis_notify_publication_post(
         "message": "Notification triggered by e2e test.",
     }
     body = "&".join(f"contact_ids={cid}" for cid in contact_ids)
-    body += "&" + "&".join(
-        f"{k}={v}".replace(" ", "+") for k, v in form.items()
-    )
+    body += "&" + "&".join(f"{k}={v}".replace(" ", "+") for k, v in form.items())
     js = """async (args) => {
         const r = await fetch(args.url, {
             method: 'POST', credentials: 'same-origin',
@@ -631,13 +638,14 @@ def test_avis_notify_publication_post(
         });
         return {status: r.status, url: r.url};
     }"""
-    resp = page.evaluate(js, {
-        "url": f"{base_url}/wip/avis-enquete/{avis_id}/notify-publication",
-        "body": body,
-    })
-    assert resp["status"] < 400, (
-        f"POST /notify-publication returned {resp['status']}"
+    resp = page.evaluate(
+        js,
+        {
+            "url": f"{base_url}/wip/avis-enquete/{avis_id}/notify-publication",
+            "body": body,
+        },
     )
+    assert resp["status"] < 400, f"POST /notify-publication returned {resp['status']}"
     assert "/auth/login" not in resp["url"], (
         "POST /notify-publication redirected to login"
     )
@@ -663,9 +671,7 @@ def test_opportunity_response_oui(
     p = profile("PRESS_RELATIONS")
     login(p)
 
-    page.goto(
-        f"{base_url}/wip/opportunities", wait_until="domcontentloaded"
-    )
+    page.goto(f"{base_url}/wip/opportunities", wait_until="domcontentloaded")
     hrefs = page.locator("a[href]").evaluate_all(
         "els => els.map(e => e.getAttribute('href'))"
     )
@@ -688,13 +694,9 @@ def test_opportunity_response_oui(
     assert resp["status"] < 400, (
         f"POST opportunity reponse=oui returned {resp['status']}"
     )
-    assert "/auth/login" not in resp["url"], (
-        "POST /opportunities redirected to login"
-    )
+    assert "/auth/login" not in resp["url"], "POST /opportunities redirected to login"
     captured = mail_outbox.messages()
-    assert len(captured) == 1, (
-        f"expected 1 captured email, got {len(captured)}"
-    )
+    assert len(captured) == 1, f"expected 1 captured email, got {len(captured)}"
     assert captured[0]["to"], "captured email has no recipient"
 
 
@@ -717,13 +719,14 @@ def test_avis_rdv_propose_get_renders(
         f"{base_url}/wip/avis-enquete/{avis_id}/rdv",
         wait_until="domcontentloaded",
     )
-    rdv_re = re.compile(
-        rf"^/wip/avis-enquete/{avis_id}/rdv-details/(\d+)$"
-    )
+    rdv_re = re.compile(rf"^/wip/avis-enquete/{avis_id}/rdv-details/(\d+)$")
     contact_id: str | None = None
-    for href in page.locator("a[href]").evaluate_all(
-        "els => els.map(e => e.getAttribute('href'))"
-    ) or ():
+    for href in (
+        page.locator("a[href]").evaluate_all(
+            "els => els.map(e => e.getAttribute('href'))"
+        )
+        or ()
+    ):
         if not href:
             continue
         path = href.split("#", 1)[0].split("?", 1)[0]
@@ -736,10 +739,7 @@ def test_avis_rdv_propose_get_renders(
     if contact_id is None:
         pytest.skip(f"no rdv contact under avis {avis_id}")
 
-    url = (
-        f"{base_url}/wip/avis-enquete/{avis_id}"
-        f"/rdv-propose/{contact_id}"
-    )
+    url = f"{base_url}/wip/avis-enquete/{avis_id}/rdv-propose/{contact_id}"
     resp = page.goto(url, wait_until="domcontentloaded")
     assert resp is not None and resp.status < 400, (
         f"GET {url} returned {resp.status if resp else '?'}"
@@ -760,9 +760,7 @@ def test_avis_rdv_details_renders(
     avis_pat = re.compile(r"^/wip/avis-enquete/\d+/$")
     avis_id = _OWNED_IDS.get(("PRESS_MEDIA", "/wip/avis-enquete/"))
     if avis_id is None:
-        avis_id = _first_owned_id(
-            page, base_url, "/wip/avis-enquete/", avis_pat
-        )
+        avis_id = _first_owned_id(page, base_url, "/wip/avis-enquete/", avis_pat)
         _OWNED_IDS[("PRESS_MEDIA", "/wip/avis-enquete/")] = avis_id
     if avis_id is None:
         pytest.skip(f"avis-enquete: no item for {p['email']}")
@@ -771,9 +769,7 @@ def test_avis_rdv_details_renders(
         f"{base_url}/wip/avis-enquete/{avis_id}/rdv",
         wait_until="domcontentloaded",
     )
-    rdv_re = re.compile(
-        rf"^/wip/avis-enquete/{avis_id}/rdv-details/(\d+)$"
-    )
+    rdv_re = re.compile(rf"^/wip/avis-enquete/{avis_id}/rdv-details/(\d+)$")
     hrefs = page.locator("a[href]").evaluate_all(
         "els => els.map(e => e.getAttribute('href'))"
     )
@@ -788,15 +784,11 @@ def test_avis_rdv_details_renders(
             contact_url = f"{base_url}{path}"
             break
     if contact_url is None:
-        pytest.skip(
-            f"avis-enquete {avis_id} has no rdv-details link "
-            f"for {p['email']}"
-        )
+        pytest.skip(f"avis-enquete {avis_id} has no rdv-details link for {p['email']}")
 
     resp = page.goto(contact_url, wait_until="domcontentloaded")
     assert resp is not None and resp.status < 400, (
-        f"{contact_url} returned "
-        f"{resp.status if resp else '?'} for {p['email']}"
+        f"{contact_url} returned {resp.status if resp else '?'} for {p['email']}"
     )
 
 
@@ -823,9 +815,7 @@ def test_subpage_renders(
 
     key = (community, listing)
     if key not in _OWNED_IDS:
-        _OWNED_IDS[key] = _first_owned_id(
-            page, base_url, listing, detail_pat
-        )
+        _OWNED_IDS[key] = _first_owned_id(page, base_url, listing, detail_pat)
     item_id = _OWNED_IDS[key]
     if item_id is None:
         pytest.skip(f"{label}: no item on {listing} for {p['email']}")
@@ -835,6 +825,4 @@ def test_subpage_renders(
     assert resp is not None, f"{label}: no response for {url}"
     if resp.status == 404:
         pytest.skip(f"{label}: {url} returned 404 — endpoint moved?")
-    assert resp.status < 400, (
-        f"{label}: {url} returned {resp.status} for {p['email']}"
-    )
+    assert resp.status < 400, f"{label}: {url} returned {resp.status} for {p['email']}"

@@ -39,9 +39,7 @@ from playwright.sync_api import Page
 
 def _first_admin_org_uid(page: Page, base_url: str) -> str | None:
     """Open /admin/orgs and return the first scrapable uid."""
-    page.goto(
-        f"{base_url}/admin/orgs", wait_until="domcontentloaded"
-    )
+    page.goto(f"{base_url}/admin/orgs", wait_until="domcontentloaded")
     hrefs = page.locator("a[href]").evaluate_all(
         "els => els.map(e => e.getAttribute('href'))"
     )
@@ -54,9 +52,7 @@ def _first_admin_org_uid(page: Page, base_url: str) -> str | None:
     return None
 
 
-def _post_action_via_browser(
-    page: Page, base_url: str, uid: str, form: dict[str, str]
-):
+def _post_action_via_browser(page: Page, base_url: str, uid: str, form: dict[str, str]):
     """POST a form to /admin/show_org/<uid> via fetch (same-origin
     cookies)."""
     return page.evaluate(

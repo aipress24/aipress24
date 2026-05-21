@@ -104,9 +104,7 @@ def test_wip_content_create_edit_delete(
     journalist = profile(community)
     login(journalist)
 
-    page.goto(
-        f"{base_url}/wip/{slug}/new/", wait_until="domcontentloaded"
-    )
+    page.goto(f"{base_url}/wip/{slug}/new/", wait_until="domcontentloaded")
     # Build the create payload from every form field the new-form
     # renders (so all `validate_choice=True` SelectFields get a
     # legitimate value, not just the ones that are
@@ -117,10 +115,7 @@ def test_wip_content_create_edit_delete(
     for name in required_selects:
         v = _first_option_value(page, name)
         if not v:
-            pytest.skip(
-                f"{slug}/new : empty options for required select "
-                f"{name!r}"
-            )
+            pytest.skip(f"{slug}/new : empty options for required select {name!r}")
         create_payload[name] = v
     title = f"e2e-{slug}-{int(time.time() * 1000) % 10**10}"
     # Date placeholders : `DateTimeField` columns that map to
@@ -140,12 +135,14 @@ def test_wip_content_create_edit_delete(
     ):
         if date_name in create_payload or _form_has_field(page, date_name):
             create_payload[date_name] = future_date
-    create_payload.update({
-        "_action": "save",
-        "titre": title,
-        "chapo": f"Chapô e2e {slug}",
-        "contenu": f"<p>Contenu e2e {slug}</p>",
-    })
+    create_payload.update(
+        {
+            "_action": "save",
+            "titre": title,
+            "chapo": f"Chapô e2e {slug}",
+            "contenu": f"<p>Contenu e2e {slug}</p>",
+        }
+    )
     create = page.evaluate(
         """async (args) => {
             const r = await fetch(args.url, {
@@ -186,12 +183,8 @@ def test_wip_content_create_edit_delete(
     # call `get_flashed_messages()`) — one consumes the flashes, the
     # other is empty. We just need one of them to contain the
     # success marker.
-    toasts_blocks = re.findall(
-        r"window\.toasts\s*=\s*(\[[^;]*?\])\s*;", create["body"]
-    )
-    success_in_toasts = any(
-        "Enregistr" in tb for tb in toasts_blocks
-    )
+    toasts_blocks = re.findall(r"window\.toasts\s*=\s*(\[[^;]*?\])\s*;", create["body"])
+    success_in_toasts = any("Enregistr" in tb for tb in toasts_blocks)
     if not success_in_toasts:
         # Form validation failed silently — pull WTForms field
         # errors out of the re-rendered template so the failure
@@ -219,9 +212,7 @@ def test_wip_content_create_edit_delete(
         )
 
     new_id = _find_resource_id(page, base_url, slug, title)
-    assert new_id is not None, (
-        f"created {slug} {title!r} not in listing"
-    )
+    assert new_id is not None, f"created {slug} {title!r} not in listing"
 
     try:
         # Edit : scrape full rendered form, change title, re-submit.
@@ -263,16 +254,12 @@ def test_wip_content_create_edit_delete(
             f"{slug} POST edit : no `Enregistré` flash — "
             "validation likely failed silently."
         )
-        page.goto(
-            f"{base_url}/wip/{slug}/", wait_until="domcontentloaded"
-        )
+        page.goto(f"{base_url}/wip/{slug}/", wait_until="domcontentloaded")
         assert edited_title in page.content(), (
             f"edited title {edited_title!r} not visible in listing"
         )
     finally:
-        cleanup = authed_get(
-            f"{base_url}/wip/{slug}/{new_id}/delete"
-        )
+        cleanup = authed_get(f"{base_url}/wip/{slug}/{new_id}/delete")
         assert cleanup["status"] < 400
 
 
@@ -312,9 +299,7 @@ def test_wip_create_without_dates_is_rejected_cleanly(
     journalist = profile(community)
     login(journalist)
 
-    page.goto(
-        f"{base_url}/wip/{slug}/new/", wait_until="domcontentloaded"
-    )
+    page.goto(f"{base_url}/wip/{slug}/new/", wait_until="domcontentloaded")
     # Minimal payload : just the title and content, no dates,
     # no required selects. Pre-fix this would 500 on
     # NotNullViolation. Post-fix the form rejects with errors.
@@ -459,9 +444,7 @@ def _scrape_form_values(page: Page) -> dict[str, str]:
     )
 
 
-def _find_resource_id(
-    page: Page, base_url: str, slug: str, title: str
-) -> str | None:
+def _find_resource_id(page: Page, base_url: str, slug: str, title: str) -> str | None:
     """Find the row whose <tr> contains `title`, return its id (str).
 
     Uses the listing's `q=` query param (the WIP listings filter by

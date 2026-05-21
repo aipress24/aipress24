@@ -75,9 +75,7 @@ _SCAN_LIMIT = 12
 # Module-level cache. Key = (community, listing, pattern.pattern).
 # Value = (profile dict, absolute detail URL) on hit, (None, None)
 # on confirmed miss.
-_FOUND: dict[
-    tuple[str, str, str], tuple[dict | None, str | None]
-] = {}
+_FOUND: dict[tuple[str, str, str], tuple[dict | None, str | None]] = {}
 
 
 def _logout(page: Page, base_url: str) -> None:
@@ -146,24 +144,18 @@ def test_first_detail_renders(
     key = (community, listing, pat.pattern)
     if key not in _FOUND:
         pool = [
-            p for p in profiles
-            if p["community"] == community
-            and p["email"] not in known_broken
+            p
+            for p in profiles
+            if p["community"] == community and p["email"] not in known_broken
         ]
-        _FOUND[key] = _scan_for_detail(
-            page, base_url, pool, listing, pat, login
-        )
+        _FOUND[key] = _scan_for_detail(page, base_url, pool, listing, pat, login)
     prof, detail_url = _FOUND[key]
     if prof is None:
-        pytest.skip(
-            f"{label}: no profile in {community} has items on {listing}"
-        )
+        pytest.skip(f"{label}: no profile in {community} has items on {listing}")
     login(prof)
     resp = page.goto(detail_url, wait_until="domcontentloaded")
     assert resp is not None, f"{label}: no response for {detail_url}"
     status = resp.status
     if status == 404:
         pytest.skip(f"{label}: {detail_url} returned 404")
-    assert status < 400, (
-        f"{label}: {detail_url} returned {status} for {prof['email']}"
-    )
+    assert status < 400, f"{label}: {detail_url} returned {status} for {prof['email']}"

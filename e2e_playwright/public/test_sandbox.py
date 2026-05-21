@@ -23,16 +23,12 @@ from playwright.sync_api import Page
 def test_sandbox_index_lists_files(page: Page, base_url: str) -> None:
     """``/sandbox/`` renders an HTML page with at least one
     `<a href="/sandbox/...">` link per file in the templates dir."""
-    resp = page.goto(
-        f"{base_url}/sandbox/", wait_until="domcontentloaded"
-    )
+    resp = page.goto(f"{base_url}/sandbox/", wait_until="domcontentloaded")
     assert resp is not None and resp.status == 200, (
         f"/sandbox/ : status={resp.status if resp else '?'}"
     )
     body = page.content()
-    assert "Sandbox Pages" in body, (
-        "expected the index page heading to render"
-    )
+    assert "Sandbox Pages" in body, "expected the index page heading to render"
     # Index should list at least the known fixtures shipped with
     # the repo (`bw-edit`, `reglage-ventes-droits`).
     links = page.locator('a[href^="/sandbox/"]').evaluate_all(
@@ -43,13 +39,9 @@ def test_sandbox_index_lists_files(page: Page, base_url: str) -> None:
     )
 
 
-def test_sandbox_renders_known_fixture(
-    page: Page, base_url: str
-) -> None:
+def test_sandbox_renders_known_fixture(page: Page, base_url: str) -> None:
     """``/sandbox/bw-edit`` returns the raw HTML of the fixture."""
-    resp = page.goto(
-        f"{base_url}/sandbox/bw-edit", wait_until="domcontentloaded"
-    )
+    resp = page.goto(f"{base_url}/sandbox/bw-edit", wait_until="domcontentloaded")
     assert resp is not None and resp.status == 200, (
         f"/sandbox/bw-edit : status={resp.status if resp else '?'}"
     )
@@ -58,9 +50,7 @@ def test_sandbox_renders_known_fixture(
     assert "<" in body and ">" in body
 
 
-def test_sandbox_strips_trailing_slash(
-    page: Page, base_url: str
-) -> None:
+def test_sandbox_strips_trailing_slash(page: Page, base_url: str) -> None:
     """``/sandbox/bw-edit/`` should resolve the same as
     ``/sandbox/bw-edit`` (the route does
     `path.removesuffix("/")` to handle copy-paste)."""
@@ -71,17 +61,14 @@ def test_sandbox_strips_trailing_slash(
     assert resp is not None and resp.status == 200
 
 
-def test_sandbox_unknown_path_returns_404(
-    page: Page, base_url: str
-) -> None:
+def test_sandbox_unknown_path_returns_404(page: Page, base_url: str) -> None:
     """``/sandbox/<unknown>`` raises NotFound."""
     resp = page.goto(
         f"{base_url}/sandbox/this-fixture-does-not-exist",
         wait_until="domcontentloaded",
     )
     assert resp is not None and resp.status == 404, (
-        f"/sandbox/<unknown> : expected 404, got "
-        f"{resp.status if resp else '?'}"
+        f"/sandbox/<unknown> : expected 404, got {resp.status if resp else '?'}"
     )
 
 

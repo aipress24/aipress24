@@ -56,9 +56,7 @@ def test_cm5_bw_activation_propagates_to_swork(
 ) -> None:
     """End-to-end CM-5 : wizard complet + assertions cross-module
     sur /swork/ avant cleanup."""
-    user = next(
-        (p for p in profiles if p["email"] == _WIZARD_USER_EMAIL), None
-    )
+    user = next((p for p in profiles if p["email"] == _WIZARD_USER_EMAIL), None)
     if user is None:
         pytest.skip(f"{_WIZARD_USER_EMAIL} not in CSV")
 
@@ -73,9 +71,7 @@ def test_cm5_bw_activation_propagates_to_swork(
         )
 
     # ───── step 2 : walk the wizard (mirrors test_bw_full_wizard) ─
-    select = authed_post(
-        f"{base_url}/BW/select-subscription/{_BW_TYPE}", {}
-    )
+    select = authed_post(f"{base_url}/BW/select-subscription/{_BW_TYPE}", {})
     assert select["status"] < 400 and "/auth/login" not in select["url"]
 
     submit = authed_post(
@@ -109,9 +105,7 @@ def test_cm5_bw_activation_propagates_to_swork(
         )
         # /swork/profile/ → redirects to /swork/members/<base62-id>
         member_url = page.url.rstrip("/")
-        member_match = re.search(
-            r"/swork/members/([^/?#]+)$", member_url
-        )
+        member_match = re.search(r"/swork/members/([^/?#]+)$", member_url)
         assert member_match, (
             f"/swork/profile/ : expected redirect to "
             f"/swork/members/<id>, got {member_url}"
@@ -172,16 +166,14 @@ def test_cm5_bw_activation_propagates_to_swork(
         # bw/test_bw_wizard.py to handle the prefetch-double-creation
         # quirk).
         for _ in range(5):
-            cancel = authed_post(
-                f"{base_url}/BW/cancel-subscription", {}
-            )
+            cancel = authed_post(f"{base_url}/BW/cancel-subscription", {})
             if cancel["status"] >= 400:
                 break
             page.goto(
                 f"{base_url}/BW/dashboard",
                 wait_until="domcontentloaded",
             )
-            if "/BW/confirm-subscription" in page.url or page.url.rstrip(
-                "/"
-            ).endswith("/BW"):
+            if "/BW/confirm-subscription" in page.url or page.url.rstrip("/").endswith(
+                "/BW"
+            ):
                 break

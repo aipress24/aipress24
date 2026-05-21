@@ -36,9 +36,7 @@ def _select_known_bw(page, base_url: str, authed_post) -> bool:
     """POST /BW/select-bw/<uid> to pin the chosen BW into the
     session. Returns True if the session is now primed for the
     expected BW."""
-    sel = authed_post(
-        f"{base_url}/BW/select-bw/{_ERICK_BW_ID}", {}
-    )
+    sel = authed_post(f"{base_url}/BW/select-bw/{_ERICK_BW_ID}", {})
     return sel["status"] < 400 and "/auth/login" not in sel["url"]
 
 
@@ -99,8 +97,7 @@ def test_stage_b3_post_unknown_action_renders_listing(
         wait_until="domcontentloaded",
     )
     assert resp is not None and resp.status < 400, (
-        f"/BW/manage-organisation-members : "
-        f"{resp.status if resp else '?'}"
+        f"/BW/manage-organisation-members : {resp.status if resp else '?'}"
     )
     assert "not-authorized" not in page.url, page.url
     resp_post = authed_post(

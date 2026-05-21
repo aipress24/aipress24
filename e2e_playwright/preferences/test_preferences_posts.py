@@ -36,15 +36,11 @@ from playwright.sync_api import Page
 _PRESS_MEDIA = "PRESS_MEDIA"
 
 
-def test_preferences_home_renders(
-    page: Page, base_url: str, profile, login
-) -> None:
+def test_preferences_home_renders(page: Page, base_url: str, profile, login) -> None:
     """``/preferences/`` home renders for a logged-in user."""
     p = profile(_PRESS_MEDIA)
     login(p)
-    resp = page.goto(
-        f"{base_url}/preferences/", wait_until="domcontentloaded"
-    )
+    resp = page.goto(f"{base_url}/preferences/", wait_until="domcontentloaded")
     assert resp is not None and resp.status < 400
 
 
@@ -203,9 +199,7 @@ def test_preferences_interests_post_round_trip(
             wait_until="domcontentloaded",
         )
         body = page.content()
-        assert new_hobbies in body, (
-            f"interests : marker {new_hobbies!r} not in body"
-        )
+        assert new_hobbies in body, f"interests : marker {new_hobbies!r} not in body"
     finally:
         # Restore.
         authed_post(

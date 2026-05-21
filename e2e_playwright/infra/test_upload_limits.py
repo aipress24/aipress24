@@ -28,7 +28,7 @@ from __future__ import annotations
 from playwright.sync_api import Page, expect
 
 # Sized to bracket the production ``MAX_CONTENT_LENGTH`` (32 MB) :
-SMALL_BYTES = 1 * 1024 * 1024     # well under the limit
+SMALL_BYTES = 1 * 1024 * 1024  # well under the limit
 OVERSIZED_BYTES = 64 * 1024 * 1024  # well over
 
 

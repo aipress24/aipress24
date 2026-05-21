@@ -36,23 +36,17 @@ def test_system_version_slash(page: Page, base_url: str) -> None:
     assert "20" in body, f"expected a version string, got {body!r}"
 
 
-def test_system_boot_returns_already_done(
-    page: Page, base_url: str
-) -> None:
+def test_system_boot_returns_already_done(page: Page, base_url: str) -> None:
     """``/system/boot`` returns « Already done » when the zip
     codes table is populated (it always is in e2e seeds)."""
-    resp = page.goto(
-        f"{base_url}/system/boot", wait_until="domcontentloaded"
-    )
+    resp = page.goto(f"{base_url}/system/boot", wait_until="domcontentloaded")
     assert resp is not None and resp.status == 200
     body = page.content()
     assert "Bootstrap" in body, body
     assert "Already done" in body or "OK" in body
 
 
-def test_system_test_anonymous_returns_empty_user(
-    page: Page, base_url: str
-) -> None:
+def test_system_test_anonymous_returns_empty_user(page: Page, base_url: str) -> None:
     """``/system/test`` while anonymous → JSON with empty
     `user` field. Branch coverage on `user.is_anonymous`."""
     page.context.clear_cookies()
@@ -70,10 +64,9 @@ def test_system_test_anonymous_returns_empty_user(
     )
     assert resp["status"] == 200
     import json
+
     data = json.loads(resp["text"])
-    assert data == {"user": {}}, (
-        f"expected empty user for anon, got {data!r}"
-    )
+    assert data == {"user": {}}, f"expected empty user for anon, got {data!r}"
 
 
 def test_system_test_authenticated_returns_user_info(
@@ -93,6 +86,7 @@ def test_system_test_authenticated_returns_user_info(
     )
     assert resp["status"] == 200
     import json
+
     data = json.loads(resp["text"])
     user = data.get("user")
     assert isinstance(user, dict) and user, data

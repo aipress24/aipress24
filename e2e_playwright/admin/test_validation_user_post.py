@@ -39,16 +39,12 @@ from playwright.sync_api import Page
 _USER_PAT = re.compile(r"/admin/show_user/([^/?#]+)")
 
 
-def _first_validation_uid(
-    page: Page, base_url: str
-) -> str | None:
+def _first_validation_uid(page: Page, base_url: str) -> str | None:
     """Open /admin/new_users and find a user uid awaiting
     validation. Falls back to /admin/users if the new_users
     listing is empty."""
     for path in ("/admin/new_users", "/admin/users"):
-        page.goto(
-            f"{base_url}{path}", wait_until="domcontentloaded"
-        )
+        page.goto(f"{base_url}{path}", wait_until="domcontentloaded")
         hrefs = page.locator("a[href]").evaluate_all(
             "els => els.map(e => e.getAttribute('href'))"
         )

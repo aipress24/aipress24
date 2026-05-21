@@ -38,9 +38,7 @@ def test_notifications_mark_all_read_does_not_5xx(
     p = profile(_PRESS_MEDIA)
     login(p)
     page.goto(f"{base_url}/", wait_until="domcontentloaded")
-    resp = authed_post(
-        f"{base_url}/notifications/mark-all-read", {}
-    )
+    resp = authed_post(f"{base_url}/notifications/mark-all-read", {})
     assert resp["status"] < 400, f"mark-all-read : {resp}"
     assert "/auth/login" not in resp["url"]
 
@@ -66,9 +64,8 @@ def test_notifications_mark_all_read_open_redirect_safe(
     )
     # Conversely, the response should land somewhere on our host.
     # base_url has the form http://127.0.0.1:5000.
-    assert "127.0.0.1:5000" in resp["url"] or "/" == resp["url"], (
-        f"open-redirect defense : final URL not on our host : "
-        f"{resp['url']}"
+    assert "127.0.0.1:5000" in resp["url"] or resp["url"] == "/", (
+        f"open-redirect defense : final URL not on our host : {resp['url']}"
     )
 
 
@@ -83,9 +80,7 @@ def test_notifications_mark_one_read_unknown_id_no_5xx(
     p = profile(_PRESS_MEDIA)
     login(p)
     page.goto(f"{base_url}/", wait_until="domcontentloaded")
-    resp = authed_post(
-        f"{base_url}/notifications/999999999/read", {}
-    )
+    resp = authed_post(f"{base_url}/notifications/999999999/read", {})
     assert resp["status"] < 400, f"mark-one-read unknown : {resp}"
     assert "/auth/login" not in resp["url"]
 
@@ -103,9 +98,7 @@ def test_notifications_mark_one_read_fragment_only_url_no_405(
     login(p)
     page.goto(f"{base_url}/", wait_until="domcontentloaded")
 
-    resp = authed_post(
-        f"{base_url}/notifications/999999999/read", {"url": "#TODO"}
-    )
+    resp = authed_post(f"{base_url}/notifications/999999999/read", {"url": "#TODO"})
     # The whole point: must NOT be a 405.
     assert resp["status"] != 405, (
         f"fragment-only `url` triggered 405 — _is_safe_url no longer "

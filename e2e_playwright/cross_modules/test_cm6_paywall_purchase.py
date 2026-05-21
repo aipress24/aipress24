@@ -102,13 +102,9 @@ def test_cm6_paywall_justificatif_purchase_end_to_end(
     assert buy_resp["status"] < 500, f"buy POST : {buy_resp}"
 
     # ───── step 3 : capture Stripe session
-    sessions = page.request.get(
-        f"{base_url}/debug/stripe/sessions"
-    ).json()
+    sessions = page.request.get(f"{base_url}/debug/stripe/sessions").json()
     if not sessions:
-        pytest.skip(
-            "no Stripe session captured — buy didn't reach SDK"
-        )
+        pytest.skip("no Stripe session captured — buy didn't reach SDK")
     session_id = sessions[-1]["id"]
 
     # ───── step 4 : fire webhook
@@ -140,9 +136,7 @@ def test_cm6_paywall_justificatif_purchase_end_to_end(
     # We don't pin the exact rendering but confirm the article id
     # or "justificatif" wording appears somewhere.
     assert (
-        article_id in body
-        or "justificatif" in body.lower()
-        or "Justificatif" in body
+        article_id in body or "justificatif" in body.lower() or "Justificatif" in body
     ), (
         "/wire/me/purchases : freshly-paid purchase not visible — "
         "either the page filters to only PENDING/older, or the "
@@ -154,8 +148,7 @@ def test_cm6_paywall_justificatif_purchase_end_to_end(
     targets = [
         m
         for m in captured
-        if p["email"] in (m.get("to") or [])
-        or p["email"] in str(m.get("to") or "")
+        if p["email"] in (m.get("to") or []) or p["email"] in str(m.get("to") or "")
     ]
     if not targets:
         # The PDF generation may have raised on WeasyPrint setup
@@ -171,9 +164,6 @@ def test_cm6_paywall_justificatif_purchase_end_to_end(
     # At least one mail addressed to buyer — ideally a
     # JustificatifReadyMail.
     subjects = [m.get("subject", "") for m in targets]
-    assert any(
-        "justificatif" in s.lower() for s in subjects
-    ) or any(s for s in subjects), (
-        f"no recognisable JustificatifReadyMail subject — got "
-        f"{subjects!r}"
-    )
+    assert any("justificatif" in s.lower() for s in subjects) or any(
+        s for s in subjects
+    ), f"no recognisable JustificatifReadyMail subject — got {subjects!r}"

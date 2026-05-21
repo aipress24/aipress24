@@ -26,9 +26,7 @@ from playwright.sync_api import Page
 _AVIS_PAT = re.compile(r"^/wip/avis-enquete/(\d+)/$")
 
 
-def _first_owned_avis_id(
-    page: Page, base_url: str
-) -> str | None:
+def _first_owned_avis_id(page: Page, base_url: str) -> str | None:
     """Find an avis-enquête owned by the current user."""
     page.goto(
         f"{base_url}/wip/avis-enquete/",
@@ -68,9 +66,7 @@ def test_rdv_propose_post_missing_rdv_type_flashes(
         f"{base_url}/wip/avis-enquete/{avis_id}/rdv",
         wait_until="domcontentloaded",
     )
-    contact_re = re.compile(
-        rf"/wip/avis-enquete/{avis_id}/rdv-details/(\d+)"
-    )
+    contact_re = re.compile(rf"/wip/avis-enquete/{avis_id}/rdv-details/(\d+)")
     hrefs = page.locator("a[href]").evaluate_all(
         "els => els.map(e => e.getAttribute('href'))"
     )
@@ -235,6 +231,5 @@ def test_rdv_accept_get_unknown_contact_flashes(
     # The route flashes + redirects to public home OR rdv_details ;
     # both are <400.
     assert resp is not None and resp.status < 400, (
-        f"rdv-accept unknown : status="
-        f"{resp.status if resp else '?'}"
+        f"rdv-accept unknown : status={resp.status if resp else '?'}"
     )

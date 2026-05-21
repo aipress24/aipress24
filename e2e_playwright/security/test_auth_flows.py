@@ -27,9 +27,7 @@ def test_login_lands_outside_login_form(
     """Sanity-check : a known-good profile reaches a logged-in surface."""
     p = profile("PRESS_MEDIA")
     login(p)
-    expect(page).not_to_have_url(
-        re.compile(r".*/auth/login.*"), timeout=10_000
-    )
+    expect(page).not_to_have_url(re.compile(r".*/auth/login.*"), timeout=10_000)
     # Cookie set by Flask-Security.
     cookies = page.context.cookies()
     assert any("session" in c["name"].lower() for c in cookies), (
@@ -52,9 +50,7 @@ def test_login_with_unknown_account_keeps_form_visible(
     page.fill('input[name="email"]', "no-such-account@example.invalid")
     page.fill('input[name="password"]', "irrelevant")
     page.click('button[type="submit"], input[type="submit"]')
-    expect(page).to_have_url(
-        re.compile(r".*/auth/login.*"), timeout=10_000
-    )
+    expect(page).to_have_url(re.compile(r".*/auth/login.*"), timeout=10_000)
     assert page.locator('input[name="password"]').count() > 0
 
 
@@ -70,9 +66,7 @@ def test_logout_returns_to_unauthenticated_landing(
     page.goto(f"{base_url}/auth/logout", wait_until="domcontentloaded")
     # Hitting any private page now should redirect to /auth/login.
     page.goto(f"{base_url}/wip/", wait_until="domcontentloaded")
-    expect(page).to_have_url(
-        re.compile(r".*/auth/login.*"), timeout=10_000
-    )
+    expect(page).to_have_url(re.compile(r".*/auth/login.*"), timeout=10_000)
 
 
 def test_password_reset_form_renders(page: Page, base_url: str) -> None:

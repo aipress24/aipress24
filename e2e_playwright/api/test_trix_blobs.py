@@ -92,6 +92,7 @@ def test_trix_blob_valid_upload_returns_signed_url(
     # Pass the PNG bytes through Playwright as a base64 string,
     # rebuild a Blob in JS, and POST as multipart.
     import base64
+
     b64 = base64.b64encode(_PNG_1x1).decode("ascii")
     resp = page.evaluate(
         """async (args) => {

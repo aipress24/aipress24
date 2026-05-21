@@ -141,9 +141,7 @@ def test_webhook_customer_subscription_event_returns_200(
     )
 
 
-def test_webhook_unmanaged_event_type_returns_200(
-    page: Page, base_url: str
-) -> None:
+def test_webhook_unmanaged_event_type_returns_200(page: Page, base_url: str) -> None:
     """An event type not in `_EVENT_HANDLER_NAMES` falls through to
     `unmanaged_event` and the webhook returns 200.
 
@@ -227,9 +225,7 @@ def test_webhook_checkout_subscription_missing_bw_id_returns_200(
     assert data["webhook_status"] == 200, data.get("webhook_body")
 
 
-def test_webhook_checkout_unknown_mode_returns_200(
-    page: Page, base_url: str
-) -> None:
+def test_webhook_checkout_unknown_mode_returns_200(page: Page, base_url: str) -> None:
     """`checkout.session.completed` with `mode=setup` (neither
     `payment` nor `subscription`) hits the
     `« unexpected mode »` warning branch. Webhook still returns

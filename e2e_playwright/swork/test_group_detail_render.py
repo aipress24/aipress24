@@ -33,9 +33,7 @@ _GROUP_PAT = re.compile(r"^/swork/groups/([^/?#]+)$")
 
 def _first_group_id(page: Page, base_url: str) -> str | None:
     """Open /swork/groups/ and return the first scrapable group id."""
-    page.goto(
-        f"{base_url}/swork/groups/", wait_until="domcontentloaded"
-    )
+    page.goto(f"{base_url}/swork/groups/", wait_until="domcontentloaded")
     hrefs = page.locator("a[href]").evaluate_all(
         "els => els.map(e => e.getAttribute('href'))"
     )
@@ -68,8 +66,7 @@ def test_group_detail_renders_with_members_and_timeline(
         wait_until="domcontentloaded",
     )
     assert resp is not None and resp.status < 400, (
-        f"/swork/groups/{group_id} : status="
-        f"{resp.status if resp else '?'}"
+        f"/swork/groups/{group_id} : status={resp.status if resp else '?'}"
     )
     body = page.content()
     # Page should NOT be a generic error.

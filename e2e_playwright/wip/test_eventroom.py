@@ -68,9 +68,7 @@ def test_wip_event_create_then_delete(
     journalist = profile(_PRESS_MEDIA_COMMUNITY)
     login(journalist)
 
-    page.goto(
-        f"{base_url}/wip/events/new", wait_until="domcontentloaded"
-    )
+    page.goto(f"{base_url}/wip/events/new", wait_until="domcontentloaded")
     sector = _first_option_value(page, "sector")
     event_type = _first_option_value(page, "event_type")
     if not sector or not event_type:
@@ -149,9 +147,7 @@ def test_wip_event_create_edit_delete(
     journalist = profile(_PRESS_MEDIA_COMMUNITY)
     login(journalist)
 
-    page.goto(
-        f"{base_url}/wip/events/new", wait_until="domcontentloaded"
-    )
+    page.goto(f"{base_url}/wip/events/new", wait_until="domcontentloaded")
     sector = _first_option_value(page, "sector")
     event_type = _first_option_value(page, "event_type")
     if not sector or not event_type:
@@ -228,9 +224,7 @@ def test_wip_event_create_edit_delete(
             "events POST edit : no `Enregistré` flash in response — "
             "validation likely failed silently."
         )
-        page.goto(
-            f"{base_url}/wip/events/", wait_until="domcontentloaded"
-        )
+        page.goto(f"{base_url}/wip/events/", wait_until="domcontentloaded")
         assert edited_title in page.content(), (
             f"edited title {edited_title!r} not visible in listing"
         )
@@ -258,9 +252,7 @@ def test_wip_event_image_upload(
     journalist = profile(_PRESS_MEDIA_COMMUNITY)
     login(journalist)
 
-    page.goto(
-        f"{base_url}/wip/events/", wait_until="domcontentloaded"
-    )
+    page.goto(f"{base_url}/wip/events/", wait_until="domcontentloaded")
     event_id = _first_event_id_from_listing(page)
     if event_id is None:
         pytest.skip(

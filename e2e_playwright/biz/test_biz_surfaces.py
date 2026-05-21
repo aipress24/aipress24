@@ -55,14 +55,11 @@ _OFFER_TYPES = ("missions", "projects", "jobs")
 
 # Detail URL pattern : /biz/<resource>/<int>
 _OFFER_DETAIL_RE = {
-    resource: re.compile(rf"/biz/{resource}/(\d+)$")
-    for resource in _OFFER_TYPES
+    resource: re.compile(rf"/biz/{resource}/(\d+)$") for resource in _OFFER_TYPES
 }
 
 
-def _first_offer_id(
-    page: Page, base_url: str, resource: str
-) -> str | None:
+def _first_offer_id(page: Page, base_url: str, resource: str) -> str | None:
     """Open /biz/?current_tab=<resource> and return the first
     /biz/<resource>/<id> we find in the page."""
     page.goto(
@@ -88,9 +85,7 @@ def _first_offer_id(
 # ─── Home ──────────────────────────────────────────────────────────
 
 
-def test_biz_home_renders(
-    page: Page, base_url: str, profile, login
-) -> None:
+def test_biz_home_renders(page: Page, base_url: str, profile, login) -> None:
     """``/biz/`` (default tab=stories) renders for a logged-in user."""
     p = profile(_PRESS_MEDIA)
     login(p)
@@ -117,8 +112,7 @@ def test_biz_home_each_tab_renders(
         wait_until="domcontentloaded",
     )
     assert resp is not None and resp.status < 400, (
-        f"/biz/?current_tab={tab} : "
-        f"status={resp.status if resp else '?'}"
+        f"/biz/?current_tab={tab} : status={resp.status if resp else '?'}"
     )
 
 
@@ -139,9 +133,7 @@ def test_biz_home_unknown_tab_renders_empty(
 # ─── New-form smokes ───────────────────────────────────────────────
 
 
-@pytest.mark.parametrize(
-    "resource", _OFFER_TYPES, ids=list(_OFFER_TYPES)
-)
+@pytest.mark.parametrize("resource", _OFFER_TYPES, ids=list(_OFFER_TYPES))
 def test_biz_offer_new_form_renders(
     page: Page, base_url: str, profile, login, resource: str
 ) -> None:
@@ -155,8 +147,7 @@ def test_biz_offer_new_form_renders(
         wait_until="domcontentloaded",
     )
     assert resp is not None and resp.status < 400, (
-        f"/biz/{resource}/new : "
-        f"status={resp.status if resp else '?'}"
+        f"/biz/{resource}/new : status={resp.status if resp else '?'}"
     )
     assert page.locator("form").count() >= 1, (
         f"/biz/{resource}/new : no <form> rendered"
@@ -166,9 +157,7 @@ def test_biz_offer_new_form_renders(
 # ─── Detail pages ──────────────────────────────────────────────────
 
 
-@pytest.mark.parametrize(
-    "resource", _OFFER_TYPES, ids=list(_OFFER_TYPES)
-)
+@pytest.mark.parametrize("resource", _OFFER_TYPES, ids=list(_OFFER_TYPES))
 def test_biz_offer_detail_renders(
     page: Page, base_url: str, profile, login, resource: str
 ) -> None:
@@ -189,14 +178,11 @@ def test_biz_offer_detail_renders(
         wait_until="domcontentloaded",
     )
     assert resp is not None and resp.status < 400, (
-        f"/biz/{resource}/{offer_id} : "
-        f"status={resp.status if resp else '?'}"
+        f"/biz/{resource}/{offer_id} : status={resp.status if resp else '?'}"
     )
 
 
-@pytest.mark.parametrize(
-    "resource", _OFFER_TYPES, ids=list(_OFFER_TYPES)
-)
+@pytest.mark.parametrize("resource", _OFFER_TYPES, ids=list(_OFFER_TYPES))
 def test_biz_offer_unknown_id_returns_404(
     page: Page, base_url: str, profile, login, resource: str
 ) -> None:
@@ -211,8 +197,7 @@ def test_biz_offer_unknown_id_returns_404(
     )
     assert resp is not None
     assert resp.status == 404, (
-        f"/biz/{resource}/9999999999 : expected 404, got "
-        f"{resp.status}"
+        f"/biz/{resource}/9999999999 : expected 404, got {resp.status}"
     )
 
 
@@ -226,9 +211,7 @@ def test_biz_generic_item_unknown_id_returns_404(
     abort(404) when no MarketplaceContent matches."""
     p = profile(_PRESS_MEDIA)
     login(p)
-    resp = page.goto(
-        f"{base_url}/biz/9999999999", wait_until="domcontentloaded"
-    )
+    resp = page.goto(f"{base_url}/biz/9999999999", wait_until="domcontentloaded")
     assert resp is not None
     assert resp.status == 404
 
@@ -236,9 +219,7 @@ def test_biz_generic_item_unknown_id_returns_404(
 # ─── Owner-side applications listing ───────────────────────────────
 
 
-@pytest.mark.parametrize(
-    "resource", _OFFER_TYPES, ids=list(_OFFER_TYPES)
-)
+@pytest.mark.parametrize("resource", _OFFER_TYPES, ids=list(_OFFER_TYPES))
 def test_biz_offer_applications_listing_for_non_owner_403_or_404(
     page: Page, base_url: str, profile, login, resource: str
 ) -> None:
@@ -279,12 +260,9 @@ def test_biz_purchases_listing_renders(
     with zero purchases."""
     p = profile(_PRESS_MEDIA)
     login(p)
-    resp = page.goto(
-        f"{base_url}/biz/purchases/", wait_until="domcontentloaded"
-    )
+    resp = page.goto(f"{base_url}/biz/purchases/", wait_until="domcontentloaded")
     assert resp is not None and resp.status < 400, (
-        f"/biz/purchases/ : "
-        f"status={resp.status if resp else '?'}"
+        f"/biz/purchases/ : status={resp.status if resp else '?'}"
     )
 
 
@@ -292,9 +270,7 @@ def test_biz_purchases_listing_renders(
 
 
 @pytest.mark.mutates_db
-@pytest.mark.parametrize(
-    "resource", _OFFER_TYPES, ids=list(_OFFER_TYPES)
-)
+@pytest.mark.parametrize("resource", _OFFER_TYPES, ids=list(_OFFER_TYPES))
 def test_biz_offer_create_then_detail_renders(
     page: Page,
     base_url: str,
@@ -358,8 +334,7 @@ def test_biz_offer_create_then_detail_renders(
     expected_re = re.compile(rf"/biz/{resource}/(\d+)$")
     m = expected_re.search(final_url)
     assert m, (
-        f"{resource}/new : expected redirect to /biz/{resource}/<id>, "
-        f"got {final_url}"
+        f"{resource}/new : expected redirect to /biz/{resource}/<id>, got {final_url}"
     )
     new_id = m.group(1)
 

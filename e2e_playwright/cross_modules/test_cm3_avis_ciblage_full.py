@@ -44,9 +44,7 @@ from playwright.sync_api import Page
 _AVIS_PAT = re.compile(r"^/wip/avis-enquete/(\d+)/$")
 
 
-def _first_owned_avis_id(
-    page: Page, base_url: str
-) -> str | None:
+def _first_owned_avis_id(page: Page, base_url: str) -> str | None:
     """Find the first avis-enquête owned by the current user."""
     page.goto(
         f"{base_url}/wip/avis-enquete/",
@@ -166,13 +164,9 @@ def test_cm3_avis_ciblage_full_notification_cycle(
         # picked experts (best-effort — the To address may
         # belong to an expert whose org email differs from the
         # User.email).
-        recipient_addrs = [
-            (m.get("to") or [""])[0]
-            for m in captured
-        ]
+        recipient_addrs = [(m.get("to") or [""])[0] for m in captured]
         # Smoke : assert any captured email looks plausible
         # (has @ + isn't blank).
         assert any("@" in r for r in recipient_addrs), (
-            f"captured mails have invalid recipients : "
-            f"{recipient_addrs!r}"
+            f"captured mails have invalid recipients : {recipient_addrs!r}"
         )

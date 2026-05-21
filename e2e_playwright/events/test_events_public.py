@@ -56,9 +56,7 @@ def _first_event_id(page: Page, base_url: str) -> str | None:
     return None
 
 
-def test_events_listing_renders(
-    page: Page, base_url: str, profile, login
-) -> None:
+def test_events_listing_renders(page: Page, base_url: str, profile, login) -> None:
     p = profile(_PRESS_MEDIA)
     login(p)
     resp = page.goto(f"{base_url}/events/", wait_until="domcontentloaded")
@@ -68,20 +66,14 @@ def test_events_listing_renders(
     assert "Traceback" not in body
 
 
-def test_events_calendar_renders(
-    page: Page, base_url: str, profile, login
-) -> None:
+def test_events_calendar_renders(page: Page, base_url: str, profile, login) -> None:
     p = profile(_PRESS_MEDIA)
     login(p)
-    resp = page.goto(
-        f"{base_url}/events/calendar", wait_until="domcontentloaded"
-    )
+    resp = page.goto(f"{base_url}/events/calendar", wait_until="domcontentloaded")
     assert resp is not None and resp.status < 400
 
 
-def test_events_detail_renders(
-    page: Page, base_url: str, profile, login
-) -> None:
+def test_events_detail_renders(page: Page, base_url: str, profile, login) -> None:
     """Pick the first event and render its detail page. Drives
     `EventDetailView.get` + `EventDetailVM`."""
     p = profile(_PRESS_MEDIA)
@@ -89,12 +81,9 @@ def test_events_detail_renders(
     event_id = _first_event_id(page, base_url)
     if event_id is None:
         pytest.skip("/events/ : no event published — seed empty ?")
-    resp = page.goto(
-        f"{base_url}/events/{event_id}", wait_until="domcontentloaded"
-    )
+    resp = page.goto(f"{base_url}/events/{event_id}", wait_until="domcontentloaded")
     assert resp is not None and resp.status < 400, (
-        f"/events/{event_id} : "
-        f"status={resp.status if resp else '?'}"
+        f"/events/{event_id} : status={resp.status if resp else '?'}"
     )
 
 
@@ -109,9 +98,7 @@ def test_events_detail_unknown_id_returns_404(
         wait_until="domcontentloaded",
     )
     assert resp is not None
-    assert resp.status == 404, (
-        f"/events/9999999999 : expected 404, got {resp.status}"
-    )
+    assert resp.status == 404, f"/events/9999999999 : expected 404, got {resp.status}"
 
 
 @pytest.mark.mutates_db
@@ -128,9 +115,7 @@ def test_events_toggle_like_round_trip(
     if event_id is None:
         pytest.skip("/events/ : no event found")
 
-    page.goto(
-        f"{base_url}/events/{event_id}", wait_until="domcontentloaded"
-    )
+    page.goto(f"{base_url}/events/{event_id}", wait_until="domcontentloaded")
     first = authed_post(
         f"{base_url}/events/{event_id}",
         {"action": "toggle-like"},
@@ -151,7 +136,10 @@ def test_events_toggle_like_round_trip(
         ("toggle-genre", {"action": "toggle", "id": "genre", "value": "conference"}),
         ("toggle-sector", {"action": "toggle", "id": "sector", "value": "presse"}),
         ("toggle-pays", {"action": "toggle", "id": "pays_zip_ville", "value": "FRA"}),
-        ("toggle-departement", {"action": "toggle", "id": "departement", "value": "75"}),
+        (
+            "toggle-departement",
+            {"action": "toggle", "id": "departement", "value": "75"},
+        ),
         ("toggle-ville", {"action": "toggle", "id": "ville", "value": "Paris"}),
         ("remove-genre", {"action": "remove", "id": "genre", "value": "conference"}),
         ("sort-date", {"action": "sort-by", "value": "date"}),
@@ -284,8 +272,7 @@ def test_events_toggle_participate_refused_for_non_journalist(
         {"action": "toggle-participate"},
     )
     assert resp["status"] == 403, (
-        f"toggle-participate as non-journalist: expected 403, got "
-        f"{resp['status']}"
+        f"toggle-participate as non-journalist: expected 403, got {resp['status']}"
     )
 
 
@@ -311,9 +298,7 @@ def test_events_post_comment_creates_comment(
     if event_id is None:
         pytest.skip("/events/ : no event found")
 
-    page.goto(
-        f"{base_url}/events/{event_id}", wait_until="domcontentloaded"
-    )
+    page.goto(f"{base_url}/events/{event_id}", wait_until="domcontentloaded")
     marker = f"e2e-comment-{int(time.time() * 1000)}"
     comment = (
         f"Test commentaire {marker} — généré automatiquement "
@@ -329,16 +314,13 @@ def test_events_post_comment_creates_comment(
     # The redirect lands on /events/<id>#comments-title — confirm
     # we're back on the same event detail.
     assert f"/events/{event_id}" in resp["url"], (
-        f"post-comment : expected redirect under /events/{event_id}, "
-        f"got {resp['url']}"
+        f"post-comment : expected redirect under /events/{event_id}, got {resp['url']}"
     )
 
     # Reload the event page and verify the marker is somewhere
     # in the DOM (the comments section may be HTMX-loaded ; we
     # accept either inline or a placeholder reference).
-    page.goto(
-        f"{base_url}/events/{event_id}", wait_until="domcontentloaded"
-    )
+    page.goto(f"{base_url}/events/{event_id}", wait_until="domcontentloaded")
     body = page.content()
     if marker not in body:
         pytest.skip(

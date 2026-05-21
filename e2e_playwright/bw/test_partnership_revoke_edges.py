@@ -62,17 +62,13 @@ def _ensure_partnership_active(
 
     Mirrors the setup of `test_bw_partnership_full_lifecycle`."""
     journalist = profile("PRESS_MEDIA")
-    pr_owner = next(
-        (p for p in profiles if p["email"] == _PR_BW_OWNER_EMAIL), None
-    )
+    pr_owner = next((p for p in profiles if p["email"] == _PR_BW_OWNER_EMAIL), None)
     if pr_owner is None:
         pytest.skip(f"{_PR_BW_OWNER_EMAIL} not in CSV")
         return None  # pragma: no cover
 
     login(journalist)
-    sel = authed_post(
-        f"{base_url}/BW/select-bw/{_ERICK_NAMED_BW_ID}", {}
-    )
+    sel = authed_post(f"{base_url}/BW/select-bw/{_ERICK_NAMED_BW_ID}", {})
     if sel["status"] >= 400 or "/auth/login" in sel["url"]:
         pytest.skip(f"select-bw warm-up failed : {sel}")
 
@@ -80,9 +76,7 @@ def _ensure_partnership_active(
         f"{base_url}/BW/manage-external-partners",
         wait_until="domcontentloaded",
     )
-    options = page.locator(
-        'select[name="pr_provider"] option[value]'
-    ).evaluate_all(
+    options = page.locator('select[name="pr_provider"] option[value]').evaluate_all(
         "els => els.map(e => e.value).filter(v => v && v !== '')"
     )
     if not options:
@@ -155,9 +149,7 @@ def test_partnership_revoke_with_invalid_id(
     journalist = profile("PRESS_MEDIA")
     login(journalist)
 
-    sel = authed_post(
-        f"{base_url}/BW/select-bw/{_ERICK_NAMED_BW_ID}", {}
-    )
+    sel = authed_post(f"{base_url}/BW/select-bw/{_ERICK_NAMED_BW_ID}", {})
     assert sel["status"] < 400 and "/auth/login" not in sel["url"]
 
     resp = authed_post(
@@ -208,9 +200,7 @@ def test_partnership_revoke_from_agency_side_is_noop(
     # state is enough — the agency has the same lack of authority to
     # revoke regardless of state.)
 
-    pr_owner = next(
-        (p for p in profiles if p["email"] == _PR_BW_OWNER_EMAIL), None
-    )
+    pr_owner = next((p for p in profiles if p["email"] == _PR_BW_OWNER_EMAIL), None)
     assert pr_owner is not None  # asserted in _ensure_partnership_active
 
     # Login as the agency. Their `current_business_wall` is the
@@ -229,9 +219,7 @@ def test_partnership_revoke_from_agency_side_is_noop(
     # Confirm the partnership still appears on the journalist's
     # manage page (i.e. wasn't actually revoked).
     login(profile("PRESS_MEDIA"))
-    sel = authed_post(
-        f"{base_url}/BW/select-bw/{_ERICK_NAMED_BW_ID}", {}
-    )
+    sel = authed_post(f"{base_url}/BW/select-bw/{_ERICK_NAMED_BW_ID}", {})
     assert sel["status"] < 400 and "/auth/login" not in sel["url"]
     page.goto(
         f"{base_url}/BW/manage-external-partners",

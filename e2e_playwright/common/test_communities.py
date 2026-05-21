@@ -81,8 +81,7 @@ def test_wip_sidebar_per_community(
 
     for label in expected_labels:
         assert label in text, (
-            f"{community} ({p['email']}) : « {label} » absent du WIP "
-            f"sidebar"
+            f"{community} ({p['email']}) : « {label} » absent du WIP sidebar"
         )
     for label in forbidden_labels:
         assert label not in text, (

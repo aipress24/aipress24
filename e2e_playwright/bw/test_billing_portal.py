@@ -41,9 +41,7 @@ def test_billing_portal_no_bw_redirects_to_index(
     to inspect the redirect target without auto-following."""
     p = profile("PRESS_MEDIA")
     login(p)
-    resp = authed_post(
-        f"{base_url}/BW/billing-portal", {}
-    )
+    resp = authed_post(f"{base_url}/BW/billing-portal", {})
     # The route always answers <400 (flash + redirect), regardless
     # of the user's BW state. The interesting check is « did NOT
     # 500 ».

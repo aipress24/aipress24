@@ -25,9 +25,7 @@ import pytest
 from playwright.sync_api import Page
 
 
-def test_alt_content_index_renders(
-    page: Page, base_url: str, profile, login
-) -> None:
+def test_alt_content_index_renders(page: Page, base_url: str, profile, login) -> None:
     """``GET /wip/alt-content`` renders the publications page."""
     p = profile("PRESS_MEDIA")
     login(p)
@@ -36,8 +34,7 @@ def test_alt_content_index_renders(
         wait_until="domcontentloaded",
     )
     assert resp is not None and resp.status < 400, (
-        f"/wip/alt-content : "
-        f"status={resp.status if resp else '?'}"
+        f"/wip/alt-content : status={resp.status if resp else '?'}"
     )
     body = page.content()
     assert "Internal Server Error" not in body
@@ -53,6 +50,7 @@ def test_alt_content_json_data_default(
     login(p)
     page.goto(f"{base_url}/wip/", wait_until="commit")
     import json
+
     raw = page.evaluate(
         """async (url) => {
             const r = await fetch(url, {credentials: 'same-origin'});
@@ -75,6 +73,7 @@ def test_alt_content_json_data_with_search_no_match(
     login(p)
     page.goto(f"{base_url}/wip/", wait_until="commit")
     import json
+
     raw = page.evaluate(
         """async (url) => {
             const r = await fetch(url, {credentials: 'same-origin'});
@@ -99,6 +98,7 @@ def test_alt_content_json_data_respects_limit(
     login(p)
     page.goto(f"{base_url}/wip/", wait_until="commit")
     import json
+
     raw = page.evaluate(
         """async (url) => {
             const r = await fetch(url, {credentials: 'same-origin'});

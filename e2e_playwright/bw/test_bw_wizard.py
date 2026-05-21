@@ -53,9 +53,7 @@ def test_bw_full_wizard_free_activation(
     authed_post,
     mail_outbox,
 ) -> None:
-    user = next(
-        (p for p in profiles if p["email"] == _WIZARD_USER_EMAIL), None
-    )
+    user = next((p for p in profiles if p["email"] == _WIZARD_USER_EMAIL), None)
     if user is None:
         pytest.skip(f"{_WIZARD_USER_EMAIL} not in CSV")
 
@@ -70,9 +68,7 @@ def test_bw_full_wizard_free_activation(
         )
 
     # ----- step 2 : select subscription type ----------------------
-    select = authed_post(
-        f"{base_url}/BW/select-subscription/{_BW_TYPE}", {}
-    )
+    select = authed_post(f"{base_url}/BW/select-subscription/{_BW_TYPE}", {})
     assert select["status"] < 400 and "/auth/login" not in select["url"]
 
     # ----- step 3 : submit contacts (owner = user, payer = same) --
@@ -103,9 +99,7 @@ def test_bw_full_wizard_free_activation(
     assert "/BW/" in page.url and "/auth/login" not in page.url
 
     # ----- step 6 : verify the BW was created -----------------
-    dashboard = page.goto(
-        f"{base_url}/BW/dashboard", wait_until="domcontentloaded"
-    )
+    dashboard = page.goto(f"{base_url}/BW/dashboard", wait_until="domcontentloaded")
     assert dashboard is not None and dashboard.status < 400, (
         f"/BW/dashboard returned {dashboard.status if dashboard else '?'}"
     )
@@ -123,10 +117,8 @@ def test_bw_full_wizard_free_activation(
             break
         # Re-establish bw_activated session flag for the next cancel
         # (clear_bw_session wipes it inside cancel-subscription).
-        page.goto(
-            f"{base_url}/BW/dashboard", wait_until="domcontentloaded"
-        )
-        if "/BW/confirm-subscription" in page.url or page.url.rstrip(
-            "/"
-        ).endswith("/BW"):
+        page.goto(f"{base_url}/BW/dashboard", wait_until="domcontentloaded")
+        if "/BW/confirm-subscription" in page.url or page.url.rstrip("/").endswith(
+            "/BW"
+        ):
             break

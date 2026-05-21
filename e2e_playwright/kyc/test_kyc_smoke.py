@@ -59,9 +59,7 @@ def test_kyc_index_renders_for_anonymous(page: Page, base_url: str) -> None:
         f"/kyc/ : status={resp.status if resp else '?'}"
     )
     # Should not have bounced to /auth/login.
-    assert "/auth/login" not in page.url, (
-        "/kyc/ should be reachable as anonymous"
-    )
+    assert "/auth/login" not in page.url, "/kyc/ should be reachable as anonymous"
 
 
 def test_kyc_profile_lists_all_communities(page: Page, base_url: str) -> None:
@@ -72,9 +70,7 @@ def test_kyc_profile_lists_all_communities(page: Page, base_url: str) -> None:
     `survey_model.get_survey_model`."""
     page.goto(f"{base_url}/kyc/profile", wait_until="domcontentloaded")
     # Each profile renders a radio with id="P001"…"P033".
-    rendered = page.locator(
-        'input[type="radio"][name="profile"]'
-    ).evaluate_all(
+    rendered = page.locator('input[type="radio"][name="profile"]').evaluate_all(
         "els => els.map(e => e.value).filter(v => v && v !== '')"
     )
     assert len(rendered) >= 30, (
@@ -113,19 +109,15 @@ def test_kyc_wizard_renders_for_each_community(
         wait_until="domcontentloaded",
     )
     assert resp is not None and resp.status < 400, (
-        f"/kyc/wizard/{profile_id} : "
-        f"status={resp.status if resp else '?'}"
+        f"/kyc/wizard/{profile_id} : status={resp.status if resp else '?'}"
     )
     # Form must have at least the standard fs_uniquifier / csrf hidden
     # fields plus *some* visible field.
     form_count = page.locator("form").count()
-    assert form_count >= 1, (
-        f"/kyc/wizard/{profile_id} ({community}) : no <form> found"
-    )
+    assert form_count >= 1, f"/kyc/wizard/{profile_id} ({community}) : no <form> found"
     # Wizard form should have a CSRF token (Flask-WTF auto-injected).
     assert page.locator('input[name="csrf_token"]').count() > 0, (
-        f"/kyc/wizard/{profile_id} : no CSRF token — "
-        "Flask-WTF protection not engaged"
+        f"/kyc/wizard/{profile_id} : no CSRF token — Flask-WTF protection not engaged"
     )
 
 
@@ -144,12 +136,8 @@ def test_kyc_profile_post_redirects_to_wizard(
     # page must have navigated *somewhere* same-origin first or
     # the fetch errors with "Failed to fetch" (no document URL).
     page.goto(f"{base_url}/kyc/profile", wait_until="domcontentloaded")
-    resp = authed_post(
-        f"{base_url}/kyc/profile", {"profile": "P002"}
-    )
-    assert resp["status"] < 400, (
-        f"/kyc/profile POST : {resp}"
-    )
+    resp = authed_post(f"{base_url}/kyc/profile", {"profile": "P002"})
+    assert resp["status"] < 400, f"/kyc/profile POST : {resp}"
     assert resp["url"].endswith("/kyc/wizard/P002") or (
         "/kyc/wizard/P002" in resp["url"]
     ), f"/kyc/profile POST : did not land on wizard — url={resp['url']}"
@@ -165,13 +153,10 @@ def test_kyc_profile_post_with_unknown_id_re_renders(
     No 5xx, no redirect to wizard.
     """
     page.goto(f"{base_url}/kyc/profile", wait_until="domcontentloaded")
-    resp = authed_post(
-        f"{base_url}/kyc/profile", {"profile": "P999_NOT_REAL"}
-    )
+    resp = authed_post(f"{base_url}/kyc/profile", {"profile": "P999_NOT_REAL"})
     assert resp["status"] < 400, f"/kyc/profile bogus : {resp}"
     assert "/kyc/wizard/" not in resp["url"], (
-        f"/kyc/profile bogus : unexpectedly landed on wizard "
-        f"({resp['url']})"
+        f"/kyc/profile bogus : unexpectedly landed on wizard ({resp['url']})"
     )
 
 
@@ -190,9 +175,7 @@ def test_kyc_check_mail_with_existing_email_returns_empty(
     """
     p = profile("PRESS_MEDIA")
     page.goto(f"{base_url}/kyc/", wait_until="domcontentloaded")
-    resp = authed_get(
-        f"{base_url}/kyc/check_mail/{p['email']}"
-    )
+    resp = authed_get(f"{base_url}/kyc/check_mail/{p['email']}")
     assert resp["status"] < 400
     # The route returns the literal string "" (empty body) when the
     # email is taken — `len` should be 0.
@@ -211,13 +194,10 @@ def test_kyc_check_mail_with_new_valid_email_returns_ok(
     # Tag-aliased on agencetca.info (real MX, not in seed CSV).
     new_email = "eliane+e2e_kyc_check_unique_2026@agencetca.info"
     page.goto(f"{base_url}/kyc/", wait_until="domcontentloaded")
-    resp = authed_get(
-        f"{base_url}/kyc/check_mail/{new_email}"
-    )
+    resp = authed_get(f"{base_url}/kyc/check_mail/{new_email}")
     assert resp["status"] < 400
     assert resp["len"] == 2, (
-        f"/kyc/check_mail with new email : expected 'ok' (len=2), "
-        f"got len={resp['len']}"
+        f"/kyc/check_mail with new email : expected 'ok' (len=2), got len={resp['len']}"
     )
 
 
@@ -231,9 +211,7 @@ def test_kyc_check_mail_with_invalid_email_returns_empty(
     """
     # `not-an-email` has no @, should be rejected.
     page.goto(f"{base_url}/kyc/", wait_until="domcontentloaded")
-    resp = authed_get(
-        f"{base_url}/kyc/check_mail/not-an-email"
-    )
+    resp = authed_get(f"{base_url}/kyc/check_mail/not-an-email")
     assert resp["status"] < 400
     assert resp["len"] == 0, (
         f"/kyc/check_mail with malformed email : "
@@ -248,9 +226,7 @@ def test_kyc_undone_renders(page: Page, base_url: str) -> None:
     """``/kyc/undone`` is the dead-end page when the user didn't
     accept the GCU. Renders later.html with no session
     requirements."""
-    resp = page.goto(
-        f"{base_url}/kyc/undone", wait_until="domcontentloaded"
-    )
+    resp = page.goto(f"{base_url}/kyc/undone", wait_until="domcontentloaded")
     assert resp is not None and resp.status < 400
 
 
@@ -266,13 +242,10 @@ def test_kyc_validation_empty_session_redirects_to_profile(
     rather than calling ``get_survey_profile("")`` which raised
     ``ValueError``.
     """
-    resp = page.goto(
-        f"{base_url}/kyc/validation", wait_until="domcontentloaded"
-    )
+    resp = page.goto(f"{base_url}/kyc/validation", wait_until="domcontentloaded")
     assert resp is not None
     assert resp.status < 400, (
-        f"/kyc/validation : expected redirect (<400), got "
-        f"{resp.status}"
+        f"/kyc/validation : expected redirect (<400), got {resp.status}"
     )
     assert "/kyc/profile" in page.url, (
         f"/kyc/validation empty session : expected redirect to "
@@ -292,13 +265,10 @@ def test_kyc_modify_redirects_for_authenticated(
     Drives the modify-an-existing-account path of the KYC flow."""
     p = profile("PRESS_MEDIA")
     login(p)
-    page.goto(
-        f"{base_url}/kyc/modify", wait_until="domcontentloaded"
-    )
+    page.goto(f"{base_url}/kyc/modify", wait_until="domcontentloaded")
     # Final URL must end on /kyc/profile (the redirect target).
     assert "/kyc/profile" in page.url, (
-        f"/kyc/modify : expected redirect to /kyc/profile, "
-        f"got {page.url}"
+        f"/kyc/modify : expected redirect to /kyc/profile, got {page.url}"
     )
 
 
@@ -324,8 +294,7 @@ def test_kyc_wizard_post_invalid_form_re_renders(
     # /kyc/validation.
     assert resp["status"] < 500, f"empty wizard POST : {resp}"
     assert "/kyc/validation" not in resp["url"], (
-        f"empty POST should NOT redirect to /kyc/validation — "
-        f"got {resp['url']}"
+        f"empty POST should NOT redirect to /kyc/validation — got {resp['url']}"
     )
 
 
@@ -380,16 +349,11 @@ def test_kyc_wizard_post_valid_form_redirects_to_validation(
         )
 
     # Step 3 : POST /kyc/profile to confirm and land on wizard.
-    sel = authed_post(
-        f"{base_url}/kyc/profile", {"profile": profile_id}
-    )
+    sel = authed_post(f"{base_url}/kyc/profile", {"profile": profile_id})
     if sel["status"] >= 400 or "/auth/login" in sel["url"]:
         pytest.skip(f"/kyc/profile POST failed : {sel}")
     if "/kyc/wizard/" not in sel["url"]:
-        pytest.skip(
-            f"/kyc/profile POST didn't land on wizard — "
-            f"got {sel['url']}"
-        )
+        pytest.skip(f"/kyc/profile POST didn't land on wizard — got {sel['url']}")
 
     # Step 4 : load wizard, scrape every form input.
     page.goto(
@@ -397,9 +361,7 @@ def test_kyc_wizard_post_valid_form_redirects_to_validation(
         wait_until="domcontentloaded",
     )
     if "/kyc/wizard/" not in page.url:
-        pytest.skip(
-            f"GET /kyc/wizard/{profile_id} : landed on {page.url}"
-        )
+        pytest.skip(f"GET /kyc/wizard/{profile_id} : landed on {page.url}")
     # Scrape every named input / textarea / checked-radio /
     # selected-option / unchecked-checkbox absent.
     form_values = page.evaluate(
@@ -431,12 +393,9 @@ def test_kyc_wizard_post_valid_form_redirects_to_validation(
     # round-trip — the form may have validators that reject some
     # raced fields. Accept either the redirect (success) or a
     # re-render (validation issue) ; pin both as < 500.
-    resp = authed_post(
-        f"{base_url}/kyc/wizard/{profile_id}", form_values
-    )
+    resp = authed_post(f"{base_url}/kyc/wizard/{profile_id}", form_values)
     assert resp["status"] < 500, (
-        f"valid wizard POST : 5xx — {resp}. Form payload had "
-        f"{len(form_values)} fields."
+        f"valid wizard POST : 5xx — {resp}. Form payload had {len(form_values)} fields."
     )
     # Best-effort : if redirect, it should be to /kyc/validation.
     if "/kyc/validation" in resp["url"]:
@@ -449,8 +408,7 @@ def test_kyc_wizard_post_valid_form_redirects_to_validation(
             wait_until="domcontentloaded",
         )
         assert page.url.endswith("/kyc/validation"), (
-            f"/kyc/validation : expected to stay there, got "
-            f"{page.url}"
+            f"/kyc/validation : expected to stay there, got {page.url}"
         )
         body = page.content()
         assert "Internal Server Error" not in body

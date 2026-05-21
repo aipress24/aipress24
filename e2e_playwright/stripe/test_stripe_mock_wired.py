@@ -33,9 +33,7 @@ _PRESS_MEDIA = "PRESS_MEDIA"
 
 def test_stripe_debug_dashboard_renders(page: Page, base_url: str) -> None:
     """``/debug/stripe/`` renders the captured-sessions dashboard."""
-    resp = page.goto(
-        f"{base_url}/debug/stripe/", wait_until="domcontentloaded"
-    )
+    resp = page.goto(f"{base_url}/debug/stripe/", wait_until="domcontentloaded")
     assert resp is not None and resp.status < 400
     body = page.content()
     assert "Stripe debug" in body, (
@@ -44,9 +42,7 @@ def test_stripe_debug_dashboard_renders(page: Page, base_url: str) -> None:
     )
 
 
-def test_stripe_debug_sessions_endpoint_starts_empty(
-    page: Page, base_url: str
-) -> None:
+def test_stripe_debug_sessions_endpoint_starts_empty(page: Page, base_url: str) -> None:
     """``GET /debug/stripe/sessions`` returns a JSON array.
 
     Reset first, then check empty (per-worker bucket isolated)."""
@@ -61,8 +57,7 @@ def test_stripe_debug_sessions_endpoint_starts_empty(
     data = resp.json()
     assert isinstance(data, list)
     assert len(data) == 0, (
-        f"after reset, expected empty sessions list, got "
-        f"{len(data)} entries"
+        f"after reset, expected empty sessions list, got {len(data)} entries"
     )
 
 
@@ -138,9 +133,7 @@ def test_wire_buy_consultation_redirects_via_mock(
     # Either we landed on /wire/purchase/<id>/success (mock
     # short-circuit) or the route flashed and bounced back to
     # the article. Verify a Stripe session WAS captured.
-    sessions = page.request.get(
-        f"{base_url}/debug/stripe/sessions"
-    ).json()
+    sessions = page.request.get(f"{base_url}/debug/stripe/sessions").json()
     if not sessions:
         # Most likely : Stripe price ID isn't configured locally
         # (STRIPE_PRICE_CONSULTATION env var) → route flashes
@@ -154,17 +147,13 @@ def test_wire_buy_consultation_redirects_via_mock(
         )
     # Mock did fire → assert URL contains expected purchase_success
     # path (mock sets session.url = success_url).
-    assert any(
-        "/wire/purchase/" in s.get("url", "") for s in sessions
-    ), (
+    assert any("/wire/purchase/" in s.get("url", "") for s in sessions), (
         f"captured Stripe session URLs don't look like wire "
         f"purchase_success ; got {[s.get('url') for s in sessions]}"
     )
 
 
-def test_stripe_mock_does_not_call_real_api(
-    page: Page, base_url: str
-) -> None:
+def test_stripe_mock_does_not_call_real_api(page: Page, base_url: str) -> None:
     """Régression test : si la monkey-patch ne kicks in pas, les
     appels Stripe partiraient vers l'API réelle (qui timeoute /
     rejette avec une 401 sans clé valide). Le test validate
@@ -172,9 +161,7 @@ def test_stripe_mock_does_not_call_real_api(
     intercepté en vérifiant le module-level flag.
     """
     # Hit the dashboard to confirm extension is loaded.
-    resp = page.goto(
-        f"{base_url}/debug/stripe/", wait_until="domcontentloaded"
-    )
+    resp = page.goto(f"{base_url}/debug/stripe/", wait_until="domcontentloaded")
     assert resp is not None and resp.status < 400
 
 
@@ -256,14 +243,9 @@ def test_stripe_webhook_simulation_drives_purchase_paid(
     )
     assert buy_resp["status"] < 500, f"buy POST : {buy_resp}"
 
-    sessions = page.request.get(
-        f"{base_url}/debug/stripe/sessions"
-    ).json()
+    sessions = page.request.get(f"{base_url}/debug/stripe/sessions").json()
     if not sessions:
-        pytest.skip(
-            "no Stripe session captured — likely a missing seed "
-            "or rights gate"
-        )
+        pytest.skip("no Stripe session captured — likely a missing seed or rights gate")
     session_id = sessions[-1]["id"]
 
     # ──── step 2 : fire the synthetic webhook ────

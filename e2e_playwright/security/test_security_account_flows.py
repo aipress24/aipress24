@@ -95,9 +95,7 @@ def _restore_password(
     except AssertionError:
         # Login with current_pw failed — the test must have left
         # the password in some other state. Bail to forgot-password.
-        _force_reset_via_email(
-            page, base_url, profile_dict["email"], target_pw
-        )
+        _force_reset_via_email(page, base_url, profile_dict["email"], target_pw)
         return
 
     page.goto(f"{base_url}/auth/change", wait_until="domcontentloaded")
@@ -148,9 +146,7 @@ def test_change_password_full_round_trip(
     original_pw = p["password"]
     try:
         login(p)
-        page.goto(
-            f"{base_url}/auth/change", wait_until="domcontentloaded"
-        )
+        page.goto(f"{base_url}/auth/change", wait_until="domcontentloaded")
         assert "/auth/change" in page.url, (
             f"unexpected URL after /auth/change : {page.url}"
         )
@@ -178,17 +174,13 @@ def test_change_password_full_round_trip(
         # "current pw is _TEMP_PASSWORD" and "current pw is
         # original" (e.g. failed before the change).
         try:
-            _restore_password(
-                page, base_url, login, p, _TEMP_PASSWORD
-            )
+            _restore_password(page, base_url, login, p, _TEMP_PASSWORD)
         except Exception:
             # Last-ditch : try with the original (in case the change
             # never landed). Swallow ; if both fail the next test
             # will catch it via its own login.
             try:
-                _restore_password(
-                    page, base_url, login, p, original_pw
-                )
+                _restore_password(page, base_url, login, p, original_pw)
             except Exception:
                 pass
 
@@ -247,8 +239,7 @@ def test_password_reset_full_round_trip(
         # set-new-password form.
         page.goto(token_url, wait_until="domcontentloaded")
         assert page.locator('input[name="password"]').count() > 0, (
-            f"reset URL did not render the new-password form : "
-            f"url={page.url}"
+            f"reset URL did not render the new-password form : url={page.url}"
         )
         page.fill('input[name="password"]', _TEMP_PASSWORD)
         page.fill('input[name="password_confirm"]', _TEMP_PASSWORD)
@@ -261,19 +252,14 @@ def test_password_reset_full_round_trip(
         page.context.clear_cookies()
         login({**p, "password": _TEMP_PASSWORD})
         assert "/auth/login" not in page.url, (
-            f"new password did not authenticate after reset — "
-            f"url={page.url}"
+            f"new password did not authenticate after reset — url={page.url}"
         )
     finally:
         try:
-            _restore_password(
-                page, base_url, login, p, _TEMP_PASSWORD
-            )
+            _restore_password(page, base_url, login, p, _TEMP_PASSWORD)
         except Exception:
             try:
-                _restore_password(
-                    page, base_url, login, p, original_pw
-                )
+                _restore_password(page, base_url, login, p, original_pw)
             except Exception:
                 pass
 
@@ -348,9 +334,7 @@ def test_change_email_request_sends_confirmation_mail(
     login(p)
     mail_outbox.reset()
 
-    page.goto(
-        f"{base_url}/auth/change-email", wait_until="domcontentloaded"
-    )
+    page.goto(f"{base_url}/auth/change-email", wait_until="domcontentloaded")
     if "/auth/change-email" not in page.url:
         pytest.skip(
             f"/auth/change-email is not reachable as logged-in user "
@@ -362,8 +346,7 @@ def test_change_email_request_sends_confirmation_mail(
     # form's email field to `change_email_form.email`. No re-auth
     # password required (the app's local override doesn't render it).
     assert page.locator('input[name="email"]').count() > 0, (
-        "change-email form does not have an `email` field — "
-        "template may have changed"
+        "change-email form does not have an `email` field — template may have changed"
     )
     page.fill('input[name="email"]', new_email)
     page.click('input[type="submit"]')
@@ -378,18 +361,16 @@ def test_change_email_request_sends_confirmation_mail(
         "`example.com`). Use a tag-alias on the seed domain instead."
     )
     targeted_at_new = [
-        m for m in captured if new_email in (m.get("to") or [])
-        or new_email in str(m.get("to") or "")
+        m
+        for m in captured
+        if new_email in (m.get("to") or []) or new_email in str(m.get("to") or "")
     ]
     assert targeted_at_new, (
         f"change-email : no mail addressed to {new_email!r} ; "
         f"got {[m.get('to') for m in captured]!r}"
     )
     # And the confirmation URL must be in the body.
-    body_blobs = [
-        m.get("body", "") + "\n" + m.get("html", "")
-        for m in targeted_at_new
-    ]
+    body_blobs = [m.get("body", "") + "\n" + m.get("html", "") for m in targeted_at_new]
     assert any(_CHANGE_EMAIL_URL_RE.search(b) for b in body_blobs), (
         f"change-email : no confirmation URL matching regex in "
         f"any captured body. subjects="
@@ -414,12 +395,9 @@ def test_preferences_password_redirects_to_change_password(
     """
     p = profile(_TARGET_COMMUNITY)
     login(p)
-    page.goto(
-        f"{base_url}/preferences/password", wait_until="domcontentloaded"
-    )
+    page.goto(f"{base_url}/preferences/password", wait_until="domcontentloaded")
     assert "/auth/change" in page.url, (
-        f"/preferences/password did not redirect to /auth/change — "
-        f"url={page.url}"
+        f"/preferences/password did not redirect to /auth/change — url={page.url}"
     )
 
 
@@ -432,10 +410,7 @@ def test_preferences_email_redirects_to_change_email(
     """GET /preferences/email (logged in) → 302 → /auth/change-email."""
     p = profile(_TARGET_COMMUNITY)
     login(p)
-    page.goto(
-        f"{base_url}/preferences/email", wait_until="domcontentloaded"
-    )
+    page.goto(f"{base_url}/preferences/email", wait_until="domcontentloaded")
     assert "/auth/change-email" in page.url, (
-        f"/preferences/email did not redirect to /auth/change-email — "
-        f"url={page.url}"
+        f"/preferences/email did not redirect to /auth/change-email — url={page.url}"
     )

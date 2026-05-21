@@ -44,7 +44,7 @@ _ERICK_COMMUNITY = "PRESS_MEDIA"
 _BW_ID_RE = re.compile(
     r"/BW/select-bw/([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-"
     r"[a-f0-9]{4}-[a-f0-9]{12})",
-    re.I,
+    re.IGNORECASE,
 )
 
 
@@ -104,8 +104,7 @@ def test_select_bw_switching_updates_session(
     bw_ids = _list_bw_ids_on_select_page(page)
     if len(bw_ids) < 2:
         pytest.skip(
-            f"select-bw : need >= 2 manageable BWs to test switching, "
-            f"got {len(bw_ids)}"
+            f"select-bw : need >= 2 manageable BWs to test switching, got {len(bw_ids)}"
         )
     first_id, second_id = bw_ids[0], bw_ids[1]
 
@@ -158,9 +157,7 @@ def test_select_bw_get_no_bw_redirects_home(
     # /BW/confirm-subscription. We just want to confirm we left
     # /select-bw and never saw the listing.
     assert "/BW/" in final, f"expected to land somewhere under /BW/, got {final}"
-    assert "/BW/select-bw" not in final, (
-        f"didn't escape select-bw — final {final}"
-    )
+    assert "/BW/select-bw" not in final, f"didn't escape select-bw — final {final}"
 
 
 def _list_bw_ids_on_select_page(page: Page) -> list[str]:

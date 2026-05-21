@@ -79,17 +79,13 @@ def test_cm2_partnership_communique_publication_notifies_client(
 
     # ───── step 1 : journalist invites agency to partnership ─────
     login(journalist)
-    sel = authed_post(
-        f"{base_url}/BW/select-bw/{_ERICK_NAMED_BW_ID}", {}
-    )
+    sel = authed_post(f"{base_url}/BW/select-bw/{_ERICK_NAMED_BW_ID}", {})
     assert sel["status"] < 400 and "/auth/login" not in sel["url"]
     page.goto(
         f"{base_url}/BW/manage-external-partners",
         wait_until="domcontentloaded",
     )
-    options = page.locator(
-        'select[name="pr_provider"] option[value]'
-    ).evaluate_all(
+    options = page.locator('select[name="pr_provider"] option[value]').evaluate_all(
         "els => els.map(e => e.value).filter(v => v && v !== '')"
     )
     if not options:
@@ -98,9 +94,7 @@ def test_cm2_partnership_communique_publication_notifies_client(
     # in the BW that get_business_wall_for_user(pr_owner) resolves
     # to). Fallback to options[0] if not in the list.
     partner_bw_id = (
-        _BRIGITTE_AGENCY_BW_ID
-        if _BRIGITTE_AGENCY_BW_ID in options
-        else options[0]
+        _BRIGITTE_AGENCY_BW_ID if _BRIGITTE_AGENCY_BW_ID in options else options[0]
     )
 
     mail_outbox.reset()
@@ -129,9 +123,7 @@ def test_cm2_partnership_communique_publication_notifies_client(
         wait_until="domcontentloaded",
     )
     assert confirm_get is not None and confirm_get.status < 400
-    accept = authed_post(
-        f"{base_url}{confirm_path}", {"action": "accept"}
-    )
+    accept = authed_post(f"{base_url}{confirm_path}", {"action": "accept"})
     assert accept["status"] < 400 and "/auth/login" not in accept["url"]
 
     try:
@@ -170,7 +162,8 @@ def test_cm2_partnership_communique_publication_notifies_client(
         # guess via label — the first non-"Mon organisation" one.
         client_option = next(
             (
-                o for o in publisher_options
+                o
+                for o in publisher_options
                 if "mon organisation" not in o["label"].lower()
             ),
             None,
@@ -234,16 +227,18 @@ def test_cm2_partnership_communique_publication_notifies_client(
         )
         marker = f"e2e-cm2-{int(time.time() * 1000)}"
         title = f"Communique CM-2 {marker}"
-        form_values.update({
-            "_action": "save",
-            "titre": title,
-            "chapo": f"Chapô CM-2 {marker}",
-            "contenu": (
-                f"<p>Contenu CM-2 — {marker}. Test propagation "
-                "partnership communiqué notif client.</p>"
-            ),
-            "publisher_id": client_org_id,
-        })
+        form_values.update(
+            {
+                "_action": "save",
+                "titre": title,
+                "chapo": f"Chapô CM-2 {marker}",
+                "contenu": (
+                    f"<p>Contenu CM-2 — {marker}. Test propagation "
+                    "partnership communiqué notif client.</p>"
+                ),
+                "publisher_id": client_org_id,
+            }
+        )
 
         # ───── step 4 : POST create the communiqué
         create_resp = page.evaluate(
@@ -274,8 +269,7 @@ def test_cm2_partnership_communique_publication_notifies_client(
         # 19-digit snowflakes (Number.MAX_SAFE_INTEGER overflow,
         # so kept as strings in the URL).
         page.goto(
-            f"{base_url}/wip/communiques/?q="
-            f"{urllib.parse.quote(title)}",
+            f"{base_url}/wip/communiques/?q={urllib.parse.quote(title)}",
             wait_until="domcontentloaded",
         )
         new_id = page.evaluate(
@@ -323,7 +317,8 @@ def test_cm2_partnership_communique_publication_notifies_client(
         )
         journalist_email = journalist["email"]
         targets = [
-            m for m in notif_captured
+            m
+            for m in notif_captured
             if journalist_email in (m.get("to") or [])
             or journalist_email in str(m.get("to") or "")
         ]
@@ -341,9 +336,7 @@ def test_cm2_partnership_communique_publication_notifies_client(
     finally:
         # ───── cleanup : journalist revokes partnership
         login(journalist)
-        authed_post(
-            f"{base_url}/BW/select-bw/{_ERICK_NAMED_BW_ID}", {}
-        )
+        authed_post(f"{base_url}/BW/select-bw/{_ERICK_NAMED_BW_ID}", {})
         authed_post(
             f"{base_url}/BW/manage-external-partners",
             {"revoke_partner_bw_id": partner_bw_id},

@@ -50,7 +50,7 @@ def _first_article_url(page: Page, base_url: str) -> str | None:
         # Must look like /wire/<token> with no further slash.
         if not path.startswith("/wire/"):
             continue
-        suffix = path[len("/wire/"):].rstrip("/")
+        suffix = path[len("/wire/") :].rstrip("/")
         if "/" in suffix or suffix in reserved:
             continue
         return f"{base_url}{path}"

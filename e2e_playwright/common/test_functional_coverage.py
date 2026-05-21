@@ -126,9 +126,7 @@ ALL_COMMUNITIES = tuple(PER_COMMUNITY_SURFACES.keys())
 DEEP_AGNOSTIC_AS = "PRESS_RELATIONS"
 
 
-def _assert_accessible(
-    page: Page, base_url: str, path: str, who: str
-) -> None:
+def _assert_accessible(page: Page, base_url: str, path: str, who: str) -> None:
     """Open `path` and assert the response is neither a server
     crash nor an authorization rejection. 404 is soft-skipped.
 
@@ -175,11 +173,7 @@ def test_common_surfaces_per_community(
 @pytest.mark.parametrize(
     ("community", "path"),
     [(c, p) for c, paths in PER_COMMUNITY_SURFACES.items() for p in paths],
-    ids=[
-        f"{c}-{p}"
-        for c, paths in PER_COMMUNITY_SURFACES.items()
-        for p in paths
-    ],
+    ids=[f"{c}-{p}" for c, paths in PER_COMMUNITY_SURFACES.items() for p in paths],
 )
 def test_community_specific_surfaces(
     page: Page,
@@ -208,6 +202,4 @@ def test_deep_agnostic_surfaces(
     one community (`DEEP_AGNOSTIC_AS`) to keep the matrix manageable."""
     p = profile(DEEP_AGNOSTIC_AS)
     login(p)
-    _assert_accessible(
-        page, base_url, path, f"{DEEP_AGNOSTIC_AS} ({p['email']})"
-    )
+    _assert_accessible(page, base_url, path, f"{DEEP_AGNOSTIC_AS} ({p['email']})")

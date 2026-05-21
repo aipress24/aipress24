@@ -34,9 +34,7 @@ def test_mail_outbox_captures_opportunity_response(
     login(p)
 
     # Find the opportunity id from /wip/opportunities.
-    page.goto(
-        f"{base_url}/wip/opportunities", wait_until="domcontentloaded"
-    )
+    page.goto(f"{base_url}/wip/opportunities", wait_until="domcontentloaded")
     hrefs = page.locator("a[href]").evaluate_all(
         "els => els.map(e => e.getAttribute('href'))"
     )
@@ -63,9 +61,7 @@ def test_mail_outbox_captures_opportunity_response(
     )
 
     captured = mail_outbox.messages()
-    assert len(captured) == 1, (
-        f"expected 1 captured email, got {len(captured)}"
-    )
+    assert len(captured) == 1, f"expected 1 captured email, got {len(captured)}"
     msg = captured[0]
     assert "réponse" in msg["subject"].lower() or "response" in msg["subject"].lower()
     assert msg["to"], "captured message has no recipient"

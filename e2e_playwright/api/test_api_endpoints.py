@@ -39,8 +39,7 @@ def test_api_anonymous_likes_redirects_to_login(
     page.goto(f"{base_url}/", wait_until="domcontentloaded")
     resp = authed_post(f"{base_url}/api/likes/post/9999", {})
     assert "/auth/login" in resp["url"], (
-        f"/api/likes anon : expected redirect to /auth/login, "
-        f"got {resp['url']}"
+        f"/api/likes anon : expected redirect to /auth/login, got {resp['url']}"
     )
 
 
@@ -52,9 +51,7 @@ def test_api_likes_unknown_post_returns_404(
     p = profile(_PRESS_MEDIA)
     login(p)
     page.goto(f"{base_url}/swork/", wait_until="domcontentloaded")
-    resp = authed_post(
-        f"{base_url}/api/likes/post/9999999999", {}
-    )
+    resp = authed_post(f"{base_url}/api/likes/post/9999999999", {})
     assert resp["status"] == 404, (
         f"/api/likes unknown id : expected 404, got {resp['status']}"
     )
@@ -95,15 +92,11 @@ def test_api_likes_toggle_round_trip(
         )
 
     # Toggle on.
-    on_resp = authed_post(
-        f"{base_url}/api/likes/post/{post_id}", {}
-    )
+    on_resp = authed_post(f"{base_url}/api/likes/post/{post_id}", {})
     assert on_resp["status"] < 400, f"toggle on : {on_resp}"
 
     # Toggle off (revert).
-    off_resp = authed_post(
-        f"{base_url}/api/likes/post/{post_id}", {}
-    )
+    off_resp = authed_post(f"{base_url}/api/likes/post/{post_id}", {})
     assert off_resp["status"] < 400, f"toggle off : {off_resp}"
 
 
@@ -119,6 +112,5 @@ def test_api_trix_blobs_no_file_returns_400(
     page.goto(f"{base_url}/swork/", wait_until="domcontentloaded")
     resp = authed_post(f"{base_url}/api/trix_blobs/", {})
     assert resp["status"] == 400, (
-        f"/api/trix_blobs no-file : expected 400, got "
-        f"{resp['status']}"
+        f"/api/trix_blobs no-file : expected 400, got {resp['status']}"
     )

@@ -62,9 +62,7 @@ def test_swork_new_post_appears_on_own_wall(
     message = f"Post de test {marker} (CM-7 Sprint 1)"
 
     page.goto(f"{base_url}/swork/", wait_until="domcontentloaded")
-    resp = authed_post(
-        f"{base_url}/swork/new_post", {"message": message}
-    )
+    resp = authed_post(f"{base_url}/swork/new_post", {"message": message})
     assert resp["status"] < 400, f"new_post POST : {resp}"
     assert "/auth/login" not in resp["url"], (
         f"new_post POST : redirected to login — {resp['url']}"
@@ -101,13 +99,10 @@ def test_swork_new_post_with_empty_message_is_noop(
     login(p)
 
     page.goto(f"{base_url}/swork/", wait_until="domcontentloaded")
-    resp = authed_post(
-        f"{base_url}/swork/new_post", {"message": ""}
-    )
+    resp = authed_post(f"{base_url}/swork/new_post", {"message": ""})
     assert resp["status"] < 400, f"new_post empty : {resp}"
     assert "/auth/login" not in resp["url"]
     # The redirect lands on /swork/ — verify the URL.
     assert "/swork" in resp["url"], (
-        f"new_post empty : expected redirect under /swork/, "
-        f"got {resp['url']}"
+        f"new_post empty : expected redirect under /swork/, got {resp['url']}"
     )

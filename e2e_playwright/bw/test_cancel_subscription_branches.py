@@ -20,13 +20,10 @@ user's BW) — left out.
 
 from __future__ import annotations
 
-import pytest
 from playwright.sync_api import Page
 
 
-def test_cancel_subscription_anon_redirects(
-    page: Page, base_url: str
-) -> None:
+def test_cancel_subscription_anon_redirects(page: Page, base_url: str) -> None:
     """``POST /BW/cancel-subscription`` while anonymous → auth
     redirect (< 400)."""
     page.context.clear_cookies()
@@ -61,9 +58,7 @@ def test_cancel_subscription_no_active_session(
     login(p)
     # Don't pre-visit /BW/ which would set bw_activated. POST
     # straight away.
-    resp = authed_post(
-        f"{base_url}/BW/cancel-subscription", {}
-    )
+    resp = authed_post(f"{base_url}/BW/cancel-subscription", {})
     assert resp["status"] < 500, resp
     # The route always returns < 400 (response with HX-Redirect
     # header). No 4xx error page.
@@ -90,9 +85,7 @@ def test_cancel_subscription_with_stripe_subscription_blocks(
     # First visit /BW/ to set bw_activated in session if user
     # has an active BW.
     page.goto(f"{base_url}/BW/", wait_until="domcontentloaded")
-    resp = authed_post(
-        f"{base_url}/BW/cancel-subscription", {}
-    )
+    resp = authed_post(f"{base_url}/BW/cancel-subscription", {})
     # Whichever branch fires : HX-Redirect → response 200 OR
     # the user is bounced. Either way, no 5xx.
     assert resp["status"] < 500, resp

@@ -62,9 +62,7 @@ def test_avis_rdv_full_lifecycle(
     mail_outbox,
 ) -> None:
     journalist = profile(JOURNALIST_COMMUNITY)
-    expert = next(
-        (p for p in profiles if p["email"] == EXPERT_EMAIL), None
-    )
+    expert = next((p for p in profiles if p["email"] == EXPERT_EMAIL), None)
     if expert is None:
         pytest.skip(f"{EXPERT_EMAIL} not in CSV — fixture data drift")
 
@@ -102,9 +100,7 @@ def test_avis_rdv_full_lifecycle(
     assert resp["status"] < 400, f"opportunity oui : {resp}"
     assert "/auth/login" not in resp["url"]
     captured = mail_outbox.messages()
-    assert len(captured) == 1, (
-        f"expected 1 acceptance mail, got {len(captured)}"
-    )
+    assert len(captured) == 1, f"expected 1 acceptance mail, got {len(captured)}"
 
     # ----- step 2 : journalist proposes RDV -----------------------
     login(journalist)
@@ -125,10 +121,7 @@ def test_avis_rdv_full_lifecycle(
     # ----- step 3 : expert accepts the proposed slot --------------
     login(expert)
     mail_outbox.reset()
-    accept_body = (
-        "action=accept"
-        "&selected_slot=2031-03-12T10%3A00%3A00"
-    )
+    accept_body = "action=accept&selected_slot=2031-03-12T10%3A00%3A00"
     resp = post(
         f"{base_url}/wip/avis-enquete/{AVIS_ID}/rdv-accept/{CONTACT_ID}",
         accept_body,
@@ -169,9 +162,7 @@ def test_avis_rdv_accept_refuse_branch(
     ``service.refuse_rdv`` + ``send_rdv_refused_email`` — different
     branch from accept (``send_rdv_accepted_email``)."""
     journalist = profile(JOURNALIST_COMMUNITY)
-    expert = next(
-        (p for p in profiles if p["email"] == EXPERT_EMAIL), None
-    )
+    expert = next((p for p in profiles if p["email"] == EXPERT_EMAIL), None)
     if expert is None:
         pytest.skip(f"{EXPERT_EMAIL} not in CSV")
 
@@ -231,9 +222,7 @@ def test_opportunities_notifications_publication_views(
     `opportunities_notification_publication_detail` (both at 0 % of
     the file's coverage gap before this)."""
     journalist = profile(JOURNALIST_COMMUNITY)
-    expert = next(
-        (p for p in profiles if p["email"] == EXPERT_EMAIL), None
-    )
+    expert = next((p for p in profiles if p["email"] == EXPERT_EMAIL), None)
     if expert is None:
         pytest.skip(f"{EXPERT_EMAIL} not in CSV")
 
@@ -253,11 +242,7 @@ def test_opportunities_notifications_publication_views(
         ).map(o => ({value: o.value, text: o.textContent || ''}))"""
     )
     expert_id: str | None = next(
-        (
-            o["value"]
-            for o in options
-            if "Hennequin" in o["text"]
-        ),
+        (o["value"] for o in options if "Hennequin" in o["text"]),
         None,
     )
     if not expert_id:
@@ -278,10 +263,13 @@ def test_opportunities_notifications_publication_views(
         "&article_title=Pub+notif+test"
         "&message=Lifecycle"
     )
-    resp = page.evaluate(js_post, {
-        "url": f"{base_url}/wip/newsroom/notifications-publication/new",
-        "body": body,
-    })
+    resp = page.evaluate(
+        js_post,
+        {
+            "url": f"{base_url}/wip/newsroom/notifications-publication/new",
+            "body": body,
+        },
+    )
     assert resp["status"] < 400 and "/auth/login" not in resp["url"]
 
     # Switch to the expert and open the recipient-side views.
@@ -292,13 +280,14 @@ def test_opportunities_notifications_publication_views(
     )
     assert listing is not None and listing.status < 400
     # Find a detail link (URL pattern ".../<int:contact_id>$").
-    detail_pat = re.compile(
-        r"^/wip/opportunities/notifications-publication/(\d+)$"
-    )
+    detail_pat = re.compile(r"^/wip/opportunities/notifications-publication/(\d+)$")
     detail_path: str | None = None
-    for href in page.locator("a[href]").evaluate_all(
-        "els => els.map(e => e.getAttribute('href'))"
-    ) or ():
+    for href in (
+        page.locator("a[href]").evaluate_all(
+            "els => els.map(e => e.getAttribute('href'))"
+        )
+        or ()
+    ):
         if not href:
             continue
         m = detail_pat.match(href.split("#", 1)[0].split("?", 1)[0])
@@ -308,9 +297,7 @@ def test_opportunities_notifications_publication_views(
     if detail_path is None:
         pytest.skip("no notification detail link visible for the expert")
 
-    detail = page.goto(
-        f"{base_url}{detail_path}", wait_until="domcontentloaded"
-    )
+    detail = page.goto(f"{base_url}{detail_path}", wait_until="domcontentloaded")
     assert detail is not None and detail.status < 400, (
         f"detail page returned {detail.status if detail else '?'}"
     )

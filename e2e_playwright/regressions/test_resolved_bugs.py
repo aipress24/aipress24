@@ -1,4 +1,4 @@
-# ruff: noqa: INP001, PLC0415, B012, Q000, PT018, PT007
+# ruff: noqa: INP001, PLC0415, B012, PT018, PT007
 # Copyright (c) 2021-2026, Abilian SAS & TCA
 #
 # SPDX-License-Identifier: AGPL-3.0-only
@@ -93,11 +93,7 @@ def test_bug_0050_pr_card_renders_direct_pricing_link(
     """
     # Re-use the wizard guinea pig from `test_bw_wizard.py`.
     user = next(
-        (
-            p
-            for p in profiles
-            if p["email"] == "eliane+AliMbappe@agencetca.info"
-        ),
+        (p for p in profiles if p["email"] == "eliane+AliMbappe@agencetca.info"),
         None,
     )
     if user is None:
@@ -112,9 +108,7 @@ def test_bug_0050_pr_card_renders_direct_pricing_link(
         )
 
     # Confirm bw_type=pr to unlock activation-choice rendering.
-    select = authed_post(
-        f"{base_url}/BW/select-subscription/pr", {}
-    )
+    select = authed_post(f"{base_url}/BW/select-subscription/pr", {})
     assert select["status"] < 400
     assert "/auth/login" not in select["url"]
 
@@ -240,9 +234,7 @@ def test_bug_0061_avis_enquete_non_mais_wording(
         Path(__file__).resolve().parent.parent.parent
         / "src/app/modules/wip/templates/wip/pages/media_opportunity.j2"
     )
-    assert template.exists(), (
-        f"media_opportunity.j2 not at expected path : {template}"
-    )
+    assert template.exists(), f"media_opportunity.j2 not at expected path : {template}"
     template_content = template.read_text()
     assert expected_label in template_content, (
         f"media_opportunity.j2 : new wording ({expected_label!r}) "
@@ -278,9 +270,7 @@ def test_bug_0070_avis_enquete_phase_breadcrumbs(
     """
     p = profile("PRESS_MEDIA")
     login(p)
-    page.goto(
-        f"{base_url}/wip/avis-enquete/", wait_until="domcontentloaded"
-    )
+    page.goto(f"{base_url}/wip/avis-enquete/", wait_until="domcontentloaded")
     hrefs = page.locator("a[href]").evaluate_all(
         "els => els.map(e => e.getAttribute('href'))"
     )
@@ -293,10 +283,7 @@ def test_bug_0070_avis_enquete_phase_breadcrumbs(
             avis_id = m.group(1)
             break
     if avis_id is None:
-        pytest.skip(
-            f"{p['email']} has no avis-enquete — seed empty for "
-            "this user"
-        )
+        pytest.skip(f"{p['email']} has no avis-enquete — seed empty for this user")
 
     # Visit the ciblage phase page (any phase URL has the same
     # breadcrumb structure post-fix).
@@ -357,9 +344,7 @@ def test_bug_0088_change_email_confirm_lands_on_preferences(
 
     # Step 1 : POST change-email request. Captures a confirmation
     # mail addressed to `new_email`.
-    page.goto(
-        f"{base_url}/auth/change-email", wait_until="domcontentloaded"
-    )
+    page.goto(f"{base_url}/auth/change-email", wait_until="domcontentloaded")
     page.fill('input[name="email"]', new_email)
     page.click('input[type="submit"]')
 
@@ -389,9 +374,11 @@ def test_bug_0088_change_email_confirm_lands_on_preferences(
             "(SECURITY_POST_CHANGE_EMAIL_VIEW) may have regressed."
         )
         # Sanity : NOT on the change-email request form (the bug).
-        assert "/auth/change-email" not in page.url or page.url.endswith(
-            "/auth/change-email-confirm"
-        ) or "preferences" in page.url, (
+        assert (
+            "/auth/change-email" not in page.url
+            or page.url.endswith("/auth/change-email-confirm")
+            or "preferences" in page.url
+        ), (
             f"change-email confirm : landed back on the change-email "
             f"form ({page.url}) — bug #0088 has regressed."
         )
@@ -453,13 +440,9 @@ def test_bug_0095_taxonomies_no_whitespace_dupes(
     # Need a navigated page before authed_post.
     page.goto(f"{base_url}/BW/", wait_until="domcontentloaded")
     if "/BW/confirm-subscription" in page.url:
-        pytest.skip(
-            f"{p['email']} has no BW — can't reach configure-content"
-        )
+        pytest.skip(f"{p['email']} has no BW — can't reach configure-content")
     # /BW/select-bw/<id> is POST-only.
-    sel = authed_post(
-        f"{base_url}/BW/select-bw/{erick_bw_id}", {}
-    )
+    sel = authed_post(f"{base_url}/BW/select-bw/{erick_bw_id}", {})
     if sel["status"] >= 400 or "/auth/login" in sel["url"]:
         pytest.skip(f"select-bw failed : {sel}")
     page.goto(
@@ -468,8 +451,7 @@ def test_bug_0095_taxonomies_no_whitespace_dupes(
     )
     if "/BW/configure-content" not in page.url:
         pytest.skip(
-            f"{p['email']} can't reach /BW/configure-content — "
-            f"landed on {page.url}"
+            f"{p['email']} can't reach /BW/configure-content — landed on {page.url}"
         )
     body = page.content()
 
@@ -477,9 +459,7 @@ def test_bug_0095_taxonomies_no_whitespace_dupes(
     # its label — this is the corruption pattern.
     # Pattern : <optgroup label="ORGANISATIONS PRIVÉES "> (with
     # trailing space before the closing quote).
-    bad_optgroup = re.search(
-        r'<optgroup\s+label="[^"]+ "', body
-    )
+    bad_optgroup = re.search(r'<optgroup\s+label="[^"]+ "', body)
     assert bad_optgroup is None, (
         f"BW configure-content : optgroup label with trailing "
         f"space found ({bad_optgroup.group(0)!r}) — bug #0095 "
@@ -527,9 +507,10 @@ def test_bug_0068_avis_enquete_mail_wording() -> None:
     content = template.read_text()
 
     # Wordmark : 'A<span ...>i</span>PRESS24' inline-styled.
-    assert "AIPRESS24" in content or "AiPRESS24" in content or (
-        '<strong>A<span' in content
-        and 'PRESS24' in content
+    assert (
+        "AIPRESS24" in content
+        or "AiPRESS24" in content
+        or ("<strong>A<span" in content and "PRESS24" in content)
     ), (
         "avis_enquete_notification.j2 : missing AiPRESS24 "
         "wordmark — bug #0068 regressed."
@@ -540,12 +521,8 @@ def test_bug_0068_avis_enquete_mail_wording() -> None:
         "absent — Emetteur ne mentionne plus la fonction."
     )
     # The CTA paragraph wording.
-    assert (
-        "Pour participer à cette enquête journalistique"
-        in content
-    ), (
-        "avis_enquete_notification.j2 : CTA wording absent — "
-        "bug #0068 regressed."
+    assert "Pour participer à cette enquête journalistique" in content, (
+        "avis_enquete_notification.j2 : CTA wording absent — bug #0068 regressed."
     )
 
 
@@ -594,13 +571,10 @@ def test_bug_0107_bw_pre_fill_uses_metier_fonction_for_bw(
         # User has BW(s) ; select-subscription would error out.
         # Skip — the wizard pre-fill is only on first activation.
         pytest.skip(
-            f"{p['email']} already has a BW — pre-fill path not "
-            "exercised on this run"
+            f"{p['email']} already has a BW — pre-fill path not exercised on this run"
         )
     # Confirm bw_type=media to unlock nominate-contacts.
-    sel = authed_post(
-        f"{base_url}/BW/select-subscription/media", {}
-    )
+    sel = authed_post(f"{base_url}/BW/select-subscription/media", {})
     if sel["status"] >= 400 or "/auth/login" in sel["url"]:
         pytest.skip(f"select-subscription failed : {sel}")
 
@@ -609,16 +583,13 @@ def test_bug_0107_bw_pre_fill_uses_metier_fonction_for_bw(
         wait_until="domcontentloaded",
     )
     if "/BW/nominate-contacts" not in page.url:
-        pytest.skip(
-            f"can't reach /BW/nominate-contacts — landed on "
-            f"{page.url}"
-        )
+        pytest.skip(f"can't reach /BW/nominate-contacts — landed on {page.url}")
     # The form has <input name="owner_title" value="...">. Read
     # the value.
     try:
-        title_value = page.locator(
-            'input[name="owner_title"]'
-        ).first.input_value(timeout=2_000)
+        title_value = page.locator('input[name="owner_title"]').first.input_value(
+            timeout=2_000
+        )
     except Exception:
         title_value = ""
     # Pre-fix : value would often be a "metiers[0]" misleading
@@ -749,8 +720,7 @@ def test_bug_0118_events_filter_does_not_leak_between_users(
     )
     if set_state["status"] >= 400:
         pytest.skip(
-            f"GET /events?q=... unavailable for "
-            f"{user_a['email']!r}: {set_state}"
+            f"GET /events?q=... unavailable for {user_a['email']!r}: {set_state}"
         )
     cookies_a = page.context.cookies()
     assert cookies_a, "user A login didn't set a session cookie"
@@ -801,9 +771,7 @@ def test_bug_0122_partnership_accepted_page_has_back_ctas(
     card. End-to-end: trigger a partnership invite (CM-2 setup), agency
     accepts, then verify the two CTAs are present."""
     journalist = profile(_PRESS_MEDIA)
-    pr_owner = next(
-        (p for p in profiles if p["email"] == _PR_BW_OWNER_EMAIL), None
-    )
+    pr_owner = next((p for p in profiles if p["email"] == _PR_BW_OWNER_EMAIL), None)
     if pr_owner is None:
         pytest.skip(f"{_PR_BW_OWNER_EMAIL} not in CSV")
 
@@ -814,17 +782,13 @@ def test_bug_0122_partnership_accepted_page_has_back_ctas(
         f"{base_url}/BW/manage-external-partners",
         wait_until="domcontentloaded",
     )
-    options = page.locator(
-        'select[name="pr_provider"] option[value]'
-    ).evaluate_all(
+    options = page.locator('select[name="pr_provider"] option[value]').evaluate_all(
         "els => els.map(e => e.value).filter(v => v && v !== '')"
     )
     if not options:
         pytest.skip("no PR-BW available for partnership")
     partner_bw_id = (
-        _BRIGITTE_AGENCY_BW_ID
-        if _BRIGITTE_AGENCY_BW_ID in options
-        else options[0]
+        _BRIGITTE_AGENCY_BW_ID if _BRIGITTE_AGENCY_BW_ID in options else options[0]
     )
 
     mail_outbox.reset()
@@ -849,9 +813,7 @@ def test_bug_0122_partnership_accepted_page_has_back_ctas(
 
     login(pr_owner)
     try:
-        accept = authed_post(
-            f"{base_url}{confirm_path}", {"action": "accept"}
-        )
+        accept = authed_post(f"{base_url}{confirm_path}", {"action": "accept"})
         assert accept["status"] < 400, accept
 
         page.goto(f"{base_url}{confirm_path}", wait_until="domcontentloaded")
@@ -863,15 +825,11 @@ def test_bug_0122_partnership_accepted_page_has_back_ctas(
             "missing « Gérer mes Business Walls » CTA on "
             "post-partnership-accept page — bug #0122 regression"
         )
-        assert (
-            page.locator('[data-testid="back-to-platform-card"]').count() >= 1
-        ), (
+        assert page.locator('[data-testid="back-to-platform-card"]').count() >= 1, (
             "missing « Retour à la plateforme » CTA on "
             "post-partnership-accept page — bug #0122 regression"
         )
-        layout_buttons = page.locator(
-            '[data-testid="back-to-platform"]'
-        ).count()
+        layout_buttons = page.locator('[data-testid="back-to-platform"]').count()
         assert layout_buttons >= 1, (
             "BW layout's `_back_to_platform.html` strip missing "
             "— bugs #0109/#0111/#0114 regression"
@@ -1096,9 +1054,7 @@ def test_bug_0126_swork_right_column_scrollable(
     """
     p = profile(_PRESS_MEDIA)
     login(p)
-    resp = page.goto(
-        f"{base_url}/swork/", wait_until="domcontentloaded"
-    )
+    resp = page.goto(f"{base_url}/swork/", wait_until="domcontentloaded")
     assert resp is not None and resp.status < 400
 
     # The sticky container should have max-h-[80vh] and overflow-y-auto
@@ -1136,9 +1092,7 @@ def test_bug_0133_choices_dropdown_not_masked(
     """
     p = profile(_PRESS_MEDIA)
     login(p)
-    resp = page.goto(
-        f"{base_url}/wip/sujets/new/", wait_until="domcontentloaded"
-    )
+    resp = page.goto(f"{base_url}/wip/sujets/new/", wait_until="domcontentloaded")
     assert resp is not None and resp.status < 400
 
     # Bug #0133: verify the CSS rule for .choices__list--dropdown
@@ -1196,22 +1150,18 @@ def test_bug_0112_rights_policy_has_media_picker(
     login(p)
     page.goto(f"{base_url}/BW/", wait_until="domcontentloaded")
     if "/BW/dashboard" in page.url or "/BW/select-bw" in page.url:
-        sel = authed_post(
-            f"{base_url}/BW/select-bw/{erick_bw_id}", {}
-        )
+        sel = authed_post(f"{base_url}/BW/select-bw/{erick_bw_id}", {})
         if sel["status"] >= 400 or "/auth/login" in sel["url"]:
-            pytest.skip(
-                f"select-bw failed : {sel} — can't reach rights-policy"
-            )
+            pytest.skip(f"select-bw failed : {sel} — can't reach rights-policy")
 
-    resp = page.goto(
-        f"{base_url}/BW/rights-policy", wait_until="domcontentloaded"
-    )
+    resp = page.goto(f"{base_url}/BW/rights-policy", wait_until="domcontentloaded")
     assert resp is not None and resp.status < 400
     body = page.content()
 
     # Post-fix : must have checkboxes, NOT a textarea
-    has_checkboxes = page.locator('input[type="checkbox"][name="media_ids"]').count() > 0
+    has_checkboxes = (
+        page.locator('input[type="checkbox"][name="media_ids"]').count() > 0
+    )
     has_textarea = page.locator('textarea[name="media_ids"]').count() > 0
     assert has_checkboxes and not has_textarea, (
         "rights-policy page should show checkboxes for media BWs, "
@@ -1253,9 +1203,7 @@ def test_bug_0129_event_shows_published_by_relation(
     if event_id is None:
         pytest.skip("no events found in seed data")
 
-    resp = page.goto(
-        f"{base_url}/events/{event_id}", wait_until="domcontentloaded"
-    )
+    resp = page.goto(f"{base_url}/events/{event_id}", wait_until="domcontentloaded")
     assert resp is not None and resp.status < 400
     body = page.content()
 
@@ -1286,14 +1234,11 @@ def test_bug_0132_sujet_list_and_view_show_author(
     login(p)
 
     # 1. List view must have "Auteur" column header
-    resp = page.goto(
-        f"{base_url}/wip/sujets/", wait_until="domcontentloaded"
-    )
+    resp = page.goto(f"{base_url}/wip/sujets/", wait_until="domcontentloaded")
     assert resp is not None and resp.status < 400
     body = page.content()
     assert "Auteur" in body, (
-        "sujets list table should have 'Auteur' column — "
-        "bug #0132 extension regression"
+        "sujets list table should have 'Auteur' column — bug #0132 extension regression"
     )
 
     # 2. Detail view must show author section
@@ -1301,9 +1246,7 @@ def test_bug_0132_sujet_list_and_view_show_author(
     if sid is None:
         pytest.skip("no sujet in seed data")
 
-    resp = page.goto(
-        f"{base_url}/wip/sujets/{sid}/", wait_until="domcontentloaded"
-    )
+    resp = page.goto(f"{base_url}/wip/sujets/{sid}/", wait_until="domcontentloaded")
     assert resp is not None and resp.status < 400
     body = page.content()
     assert "Auteur" in body, (

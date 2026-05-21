@@ -29,9 +29,7 @@ from playwright.sync_api import Page
 _WIRE_TABS = ("wall", "agencies", "media", "journalists", "com")
 
 
-def test_wire_root_anon_redirects_to_login(
-    page: Page, base_url: str
-) -> None:
+def test_wire_root_anon_redirects_to_login(page: Page, base_url: str) -> None:
     """``/wire/`` requires authentication — anon users land on
     /auth/login.
 
@@ -80,9 +78,7 @@ def test_wire_each_tab_renders_for_member(
     """
     p = profile("EXPERT")
     login(p)
-    resp = page.goto(
-        f"{base_url}/wire/tab/{tab}", wait_until="domcontentloaded"
-    )
+    resp = page.goto(f"{base_url}/wire/tab/{tab}", wait_until="domcontentloaded")
     assert resp is not None and resp.status < 400, (
         f"/wire/tab/{tab} : status={resp.status if resp else '?'}"
     )
@@ -106,9 +102,7 @@ def test_wire_unknown_tab_returns_404(
         wait_until="domcontentloaded",
     )
     assert resp is not None
-    assert resp.status == 404, (
-        f"/wire/tab/garbage : expected 404, got {resp.status}"
-    )
+    assert resp.status == 404, f"/wire/tab/garbage : expected 404, got {resp.status}"
 
 
 def test_wire_post_unknown_numeric_id_returns_404(
@@ -170,9 +164,7 @@ def test_wire_tab_post_with_filter_renders(
     login(p)
 
     # Need to navigate first so authed_post has a page context.
-    page.goto(
-        f"{base_url}/wire/tab/wall", wait_until="domcontentloaded"
-    )
+    page.goto(f"{base_url}/wire/tab/wall", wait_until="domcontentloaded")
     # FilterBar.update_state requires a valid action — empty form
     # would 400 with `Unknown action: ""`. `sort-by` with any value
     # is a safe minimal payload.
@@ -200,24 +192,17 @@ def test_wire_tab_with_tag_query_redirects_to_wall(
         f"{base_url}/wire/tab/agencies?tag=AnyTagValue",
         wait_until="domcontentloaded",
     )
-    assert page.url.endswith("/wire/tab/wall") or (
-        "/wire/tab/wall" in page.url
-    ), (
-        f"tag query did not redirect to /wire/tab/wall — "
-        f"final URL : {page.url}"
+    assert page.url.endswith("/wire/tab/wall") or ("/wire/tab/wall" in page.url), (
+        f"tag query did not redirect to /wire/tab/wall — final URL : {page.url}"
     )
 
 
-def test_wire_me_purchases_anon_redirects_to_login(
-    page: Page, base_url: str
-) -> None:
+def test_wire_me_purchases_anon_redirects_to_login(page: Page, base_url: str) -> None:
     """``/wire/me/purchases`` requires authentication — anonymous
     users must be redirected to /auth/login (not 5xx, not 200)."""
     page.goto(f"{base_url}/auth/logout", wait_until="domcontentloaded")
     page.context.clear_cookies()
-    resp = page.goto(
-        f"{base_url}/wire/me/purchases", wait_until="domcontentloaded"
-    )
+    resp = page.goto(f"{base_url}/wire/me/purchases", wait_until="domcontentloaded")
     assert resp is not None and resp.status < 500
     # Either redirected to /auth/login, or 401/403 outright.
     assert "/auth/login" in page.url or (resp.status in (401, 403)), (
@@ -243,6 +228,5 @@ def test_wire_purchase_unknown_id_404_or_redirect(
             wait_until="domcontentloaded",
         )
         assert resp is not None and resp.status < 500, (
-            f"/wire/purchase/999999/{action} : "
-            f"status={resp.status if resp else '?'}"
+            f"/wire/purchase/999999/{action} : status={resp.status if resp else '?'}"
         )

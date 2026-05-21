@@ -32,12 +32,9 @@ def test_billing_index_renders_for_authed_user(
     (with or without invoices)."""
     p = profile("PRESS_MEDIA")
     login(p)
-    resp = page.goto(
-        f"{base_url}/wip/billing", wait_until="domcontentloaded"
-    )
+    resp = page.goto(f"{base_url}/wip/billing", wait_until="domcontentloaded")
     assert resp is not None and resp.status < 400, (
-        f"/wip/billing : status="
-        f"{resp.status if resp else '?'}"
+        f"/wip/billing : status={resp.status if resp else '?'}"
     )
     body = page.content()
     assert "Internal Server Error" not in body
@@ -89,6 +86,4 @@ def test_billing_get_pdf_missing_invoice_id_query(
     # Werkzeug raises BadRequest for missing required args → 400.
     # Some globally-installed error handlers may recast as 500 ;
     # accept either as long as it's not 200 (which would be a bug).
-    assert resp.status in (400, 500), (
-        f"expected 400/500, got {resp.status}"
-    )
+    assert resp.status in (400, 500), f"expected 400/500, got {resp.status}"

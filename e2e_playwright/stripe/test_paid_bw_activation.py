@@ -55,9 +55,7 @@ def test_paid_bw_activation_end_to_end_via_mock(
 ) -> None:
     """End-to-end paid BW activation via in-tree Stripe mock."""
     bw_type = "pr"
-    user = next(
-        (p for p in profiles if p["email"] == _WIZARD_USER_EMAIL), None
-    )
+    user = next((p for p in profiles if p["email"] == _WIZARD_USER_EMAIL), None)
     if user is None:
         pytest.skip(f"{_WIZARD_USER_EMAIL} not in CSV")
 
@@ -73,9 +71,7 @@ def test_paid_bw_activation_end_to_end_via_mock(
 
     try:
         # ───── step 2 : select paid bw_type
-        sel = authed_post(
-            f"{base_url}/BW/select-subscription/{bw_type}", {}
-        )
+        sel = authed_post(f"{base_url}/BW/select-subscription/{bw_type}", {})
         assert sel["status"] < 400 and "/auth/login" not in sel["url"]
 
         # ───── step 3 : submit contacts
@@ -136,15 +132,14 @@ def test_paid_bw_activation_end_to_end_via_mock(
         # The template injects `bw_id` as
         # `<stripe-pricing-table client-reference-id="<uuid>">`.
         body = page.content()
-        bw_id_match = re.search(
-            r'client-reference-id="([0-9a-f-]{36})"', body
-        )
+        bw_id_match = re.search(r'client-reference-id="([0-9a-f-]{36})"', body)
         if bw_id_match is None:
             # Diagnostics : check if `stripe-pricing-table` element
             # is present at all.
             has_embed = "stripe-pricing-table" in body
             # Save body for inspection.
             from pathlib import Path
+
             Path(f"/tmp/payment_{bw_type}_body.html").write_text(body)
             pytest.skip(
                 f"/BW/payment/{bw_type} : no client-reference-id "
@@ -193,16 +188,14 @@ def test_paid_bw_activation_end_to_end_via_mock(
         # ───── cleanup : cancel-subscription loop (mirrors
         # bw/test_bw_wizard.py)
         for _ in range(5):
-            cancel = authed_post(
-                f"{base_url}/BW/cancel-subscription", {}
-            )
+            cancel = authed_post(f"{base_url}/BW/cancel-subscription", {})
             if cancel["status"] >= 400:
                 break
             page.goto(
                 f"{base_url}/BW/dashboard",
                 wait_until="domcontentloaded",
             )
-            if "/BW/confirm-subscription" in page.url or page.url.rstrip(
-                "/"
-            ).endswith("/BW"):
+            if "/BW/confirm-subscription" in page.url or page.url.rstrip("/").endswith(
+                "/BW"
+            ):
                 break

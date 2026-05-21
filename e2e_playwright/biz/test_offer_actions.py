@@ -118,9 +118,7 @@ def test_offer_unknown_apply_returns_404(
     offer doesn't exist. Drives `get_offer_or_404`."""
     p = profile("PRESS_MEDIA")
     login(p)
-    resp = authed_post(
-        f"{base_url}/biz/missions/9999999999/apply", {}
-    )
+    resp = authed_post(f"{base_url}/biz/missions/9999999999/apply", {})
     # `get_offer_or_404` raises NotFound → 404. But some
     # endpoints prepend a get_obj-style cleanup that returns 404
     # for unknown ids. Either way, < 500.

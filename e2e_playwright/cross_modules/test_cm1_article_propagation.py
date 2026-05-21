@@ -40,9 +40,7 @@ _ARTICLE_LISTING_RE = re.compile(r"^/wip/articles/(\d+)/$")
 _ARTICLE_TITLE_SELECTOR = "td a, h2 a, .title a, a"  # heuristic
 
 
-def _find_article_id_and_title(
-    page: Page, base_url: str
-) -> tuple[str, str] | None:
+def _find_article_id_and_title(page: Page, base_url: str) -> tuple[str, str] | None:
     """Open /wip/articles/ and return (id, title) of the first
     article row owned by the current user. None if empty.
 
@@ -50,9 +48,7 @@ def _find_article_id_and_title(
     — this is the canonical authored title, not a wrapped breadcrumb
     or detail-page heading.
     """
-    page.goto(
-        f"{base_url}/wip/articles/", wait_until="domcontentloaded"
-    )
+    page.goto(f"{base_url}/wip/articles/", wait_until="domcontentloaded")
     hrefs = page.locator("a[href]").evaluate_all(
         "els => els.map(e => e.getAttribute('href'))"
     )
@@ -114,8 +110,7 @@ def test_cm1_article_publish_then_visible_on_wire_and_swork(
     found = _find_article_id_and_title(page, base_url)
     if found is None:
         pytest.skip(
-            f"no article owned by {p['email']} in /wip/articles/ — "
-            "seed exhausted ?"
+            f"no article owned by {p['email']} in /wip/articles/ — seed exhausted ?"
         )
     article_id, title = found
     needle = _title_substring(title)
@@ -127,14 +122,11 @@ def test_cm1_article_publish_then_visible_on_wire_and_swork(
         # Step 1 : publish (idempotent if already published).
         resp = page.goto(publish_url, wait_until="domcontentloaded")
         assert resp is not None and resp.status < 400, (
-            f"publish article {article_id} : "
-            f"status={resp.status if resp else '?'}"
+            f"publish article {article_id} : status={resp.status if resp else '?'}"
         )
 
         # Step 2 : assert visible on /wire/tab/wall.
-        page.goto(
-            f"{base_url}/wire/tab/wall", wait_until="domcontentloaded"
-        )
+        page.goto(f"{base_url}/wire/tab/wall", wait_until="domcontentloaded")
         wire_body = page.content()
         assert needle in wire_body, (
             f"CM-1 wire propagation : needle {needle!r} not found "
@@ -152,9 +144,7 @@ def test_cm1_article_publish_then_visible_on_wire_and_swork(
         # renders ``member--tab-publications.j2`` with the user's
         # ArticlePost / Communique listing
         # (cf. swork.views._common.get_posts).
-        page.goto(
-            f"{base_url}/swork/profile/", wait_until="domcontentloaded"
-        )
+        page.goto(f"{base_url}/swork/profile/", wait_until="domcontentloaded")
         if "/auth/login" in page.url:
             pytest.skip(
                 "/swork/profile/ requires re-auth — session may "
@@ -189,6 +179,7 @@ def test_cm1_article_publish_then_visible_on_wire_and_swork(
         if needle not in swork_body:
             empty_marker = "n'a pas encore publié de contenu"
             from pathlib import Path
+
             Path("/tmp/cm1_swork_body.html").write_text(swork_body)
             if empty_marker in swork_body:
                 pytest.skip(

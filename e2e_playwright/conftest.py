@@ -35,9 +35,7 @@ import pytest
 from playwright.sync_api import Page, expect
 
 ROOT = Path(__file__).resolve().parent.parent
-CSV_PATH = (
-    ROOT / "local-notes" / "00-ListeDesProfilsDeTests-7.2.csv"
-)
+CSV_PATH = ROOT / "local-notes" / "00-ListeDesProfilsDeTests-7.2.csv"
 CATEGORY_RE = re.compile(
     r"^(Journalistes|PR Agency|Academics|Transformers|Leaders & Experts)"
 )
@@ -45,22 +43,39 @@ CATEGORY_RE = re.compile(
 # Accounts whose stored credentials don't match the CSV — we don't
 # want to remove them from the smoke (it's how we'd notice a fix),
 # but they're skipped from any test that needs a working login.
-KNOWN_BROKEN: frozenset[str] = frozenset({
-    "erick+AichaBenMahfoud@agencetca.info",
-    "eliane+HermineDeLaRoya3@agencetca.info",
-    "eliane+FrancineParaquelo@agencetca.info",
-})
+KNOWN_BROKEN: frozenset[str] = frozenset(
+    {
+        "erick+AichaBenMahfoud@agencetca.info",
+        "eliane+HermineDeLaRoya3@agencetca.info",
+        "eliane+FrancineParaquelo@agencetca.info",
+    }
+)
 
-# CSV accounts that ALSO hold the ADMIN role in the local dev DB
-# (granted to project owners for ops convenience). Filtered out of
-# the `non_admin_profile` fixture so authorization-negative tests
-# pick a regular community member instead of bypassing the gate.
-# These may or may not also be admins in prod — the filter is just
-# pessimistic, so prod runs stay correct either way.
-KNOWN_ADMINS: frozenset[str] = frozenset({
-    "erick@agencetca.info",
-    "eliane@agencetca.info",
-})
+# Mailbox addresses (bare local-part, no `+suffix`) that hold the
+# ADMIN role in the local dev DB. The CSV uses `+TestName` aliases
+# (e.g. `eliane+ElianeKan@…`) that all route to the same mailbox /
+# same human; we match at the mailbox level via `_mailbox()` so every
+# alias of an admin gets filtered out of `non_admin_profile`. Without
+# this, a non-admin authorization test would pick an aliased admin
+# account and the gate would (correctly) let it through, masking the
+# real signal.
+KNOWN_ADMIN_MAILBOXES: frozenset[str] = frozenset(
+    {
+        "erick@agencetca.info",
+        "eliane@agencetca.info",
+    }
+)
+
+
+def _mailbox(email: str) -> str:
+    """Normalise an email to its mailbox form by stripping a `+suffix`
+    from the local-part. `alice+test@x.com` → `alice@x.com`."""
+    local, sep, domain = email.partition("@")
+    if not sep:
+        return email
+    base = local.split("+", 1)[0]
+    return f"{base}@{domain}"
+
 
 # CSV section name → community label used in tests.
 SECTION_TO_COMMUNITY = {
@@ -111,8 +126,7 @@ def pytest_configure(config):
     """Register custom markers."""
     config.addinivalue_line(
         "markers",
-        "slow: long-running tests (e.g. 169-profile smoke). "
-        "Skip with `-m 'not slow'`.",
+        "slow: long-running tests (e.g. 169-profile smoke). Skip with `-m 'not slow'`.",
     )
     config.addinivalue_line(
         "markers",
@@ -336,12 +350,17 @@ def non_admin_profile(profiles) -> Callable[[str], dict]:
     def _pick(community: str) -> dict:
         candidates = [p for p in profiles if p["community"] == community]
         good = [
-            p for p in candidates
+            p
+            for p in candidates
             if p["email"] not in KNOWN_BROKEN
-            and p["email"] not in KNOWN_ADMINS
+            and _mailbox(p["email"]) not in KNOWN_ADMIN_MAILBOXES
         ]
         if not good:
-            raise RuntimeError(f"no usable non-admin profile for {community}")
+            # Configuration gap (test data has no non-admin in this
+            # community), not an authorization defect — skip rather
+            # than fail so the matrix stays meaningful for the other
+            # communities and CI dashboards don't show a false red.
+            pytest.skip(f"no non-admin profile available for {community}")
         return good[0]
 
     return _pick
@@ -349,18 +368,20 @@ def non_admin_profile(profiles) -> Callable[[str], dict]:
 
 @pytest.fixture(scope="session")
 def admin_profile(profiles) -> Callable[[], dict]:
-    """Return one of the `KNOWN_ADMINS` accounts (project owners
-    holding ADMIN locally). Used by admin-positive coverage tests."""
+    """Return one of the `KNOWN_ADMIN_MAILBOXES` accounts (project
+    owners holding ADMIN locally). Used by admin-positive coverage
+    tests."""
 
     def _pick() -> dict:
         good = [
-            p for p in profiles
-            if p["email"] in KNOWN_ADMINS
+            p
+            for p in profiles
+            if _mailbox(p["email"]) in KNOWN_ADMIN_MAILBOXES
             and p["email"] not in KNOWN_BROKEN
         ]
         if not good:
             raise RuntimeError(
-                "no usable admin profile — KNOWN_ADMINS not present in CSV"
+                "no usable admin profile — KNOWN_ADMIN_MAILBOXES not present in CSV"
             )
         return good[0]
 
@@ -402,9 +423,7 @@ def _abort_vite_dev_assets(page: Page) -> None:
     non-Vite scripts (htmx, alpine, choices.js, tom-select) which
     are already inlined or served by the Flask blueprint.
     """
-    page.route(
-        "**://localhost:3000/**", lambda route: route.abort()
-    )
+    page.route("**://localhost:3000/**", lambda route: route.abort())
 
 
 _LOGIN_URL_RE = re.compile(r".*/auth/login.*")
@@ -426,18 +445,14 @@ def _try_submit_login(page: Page, base_url: str, p: dict) -> bool:
     page.goto(f"{base_url}/auth/login", wait_until="domcontentloaded")
     if "/auth/login" not in page.url:
         try:
-            page.goto(
-                f"{base_url}/auth/logout", wait_until="domcontentloaded"
-            )
+            page.goto(f"{base_url}/auth/logout", wait_until="domcontentloaded")
         except Exception:
             pass
         page.context.clear_cookies()
         page.goto(f"{base_url}/auth/login", wait_until="domcontentloaded")
     page.fill('input[name="email"]', p["email"])
     page.fill('input[name="password"]', p["password"])
-    page.click(
-        'button[type="submit"], input[type="submit"]', timeout=30_000
-    )
+    page.click('button[type="submit"], input[type="submit"]', timeout=30_000)
     try:
         expect(page).not_to_have_url(_LOGIN_URL_RE, timeout=30_000)
     except AssertionError:
@@ -461,10 +476,7 @@ def login(page: Page, base_url: str) -> Callable[[dict], None]:
         # One retry — wait briefly for any in-flight JS to settle.
         page.wait_for_timeout(500)
         if not _try_submit_login(page, base_url, p):
-            msg = (
-                f"login failed twice for {p['email']} "
-                f"(URL still {page.url})"
-            )
+            msg = f"login failed twice for {p['email']} (URL still {page.url})"
             raise AssertionError(msg)
 
     return _login
@@ -496,9 +508,7 @@ def _profiles_loaded_on_target(base_url, profiles):
     """
     if not base_url or not profiles:
         return
-    probe = next(
-        (p for p in profiles if p["email"] not in KNOWN_BROKEN), None
-    )
+    probe = next((p for p in profiles if p["email"] not in KNOWN_BROKEN), None)
     if probe is None:
         return
     try:
@@ -509,9 +519,7 @@ def _profiles_loaded_on_target(base_url, profiles):
             try:
                 page = browser.new_page()
                 page.set_default_timeout(15_000)
-                page.goto(
-                    f"{base_url}/auth/login", wait_until="domcontentloaded"
-                )
+                page.goto(f"{base_url}/auth/login", wait_until="domcontentloaded")
                 page.fill('input[name="email"]', probe["email"])
                 page.fill('input[name="password"]', probe["password"])
                 page.click('button[type="submit"], input[type="submit"]')

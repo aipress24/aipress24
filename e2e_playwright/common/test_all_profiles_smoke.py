@@ -41,7 +41,5 @@ def test_each_profile_logs_in(
     for that account.
     """
     if profile_smoke["email"] in known_broken:
-        pytest.skip(
-            f"known credential mismatch for {profile_smoke['email']}"
-        )
+        pytest.skip(f"known credential mismatch for {profile_smoke['email']}")
     login(profile_smoke)

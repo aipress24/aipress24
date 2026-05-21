@@ -27,9 +27,7 @@ from playwright.sync_api import Page
 _COMM_PAT = re.compile(r"/wip/communiques/(\d+)/")
 
 
-def _first_owned_communique_id(
-    page: Page, base_url: str
-) -> str | None:
+def _first_owned_communique_id(page: Page, base_url: str) -> str | None:
     """Find a communiqué id owned by the current user."""
     page.goto(
         f"{base_url}/wip/communiques/",
@@ -61,8 +59,7 @@ def test_communique_images_index_renders(
         wait_until="domcontentloaded",
     )
     assert resp is not None and resp.status < 400, (
-        f"/wip/communiques/{cid}/images/ : "
-        f"status={resp.status if resp else '?'}"
+        f"/wip/communiques/{cid}/images/ : status={resp.status if resp else '?'}"
     )
     body = page.content()
     assert "Internal Server Error" not in body

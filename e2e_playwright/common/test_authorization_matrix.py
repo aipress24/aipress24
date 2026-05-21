@@ -52,9 +52,7 @@ def test_newsroom_forbidden_for_non_press_media(
     """Only PRESS_MEDIA can reach /wip/newsroom."""
     p = profile(community)
     login(p)
-    resp = page.goto(
-        f"{base_url}/wip/newsroom", wait_until="domcontentloaded"
-    )
+    resp = page.goto(f"{base_url}/wip/newsroom", wait_until="domcontentloaded")
     assert resp is not None
     assert resp.status in FORBIDDEN_STATUSES, (
         f"{community} ({p['email']}) should be forbidden on "
@@ -71,9 +69,7 @@ def test_comroom_forbidden_for_press_media(
     """PRESS_MEDIA must NOT reach /wip/comroom — Newsroom is theirs."""
     p = profile("PRESS_MEDIA")
     login(p)
-    resp = page.goto(
-        f"{base_url}/wip/comroom", wait_until="domcontentloaded"
-    )
+    resp = page.goto(f"{base_url}/wip/comroom", wait_until="domcontentloaded")
     assert resp is not None
     assert resp.status in FORBIDDEN_STATUSES, (
         f"PRESS_MEDIA ({p['email']}) should be forbidden on "
@@ -93,7 +89,7 @@ def test_admin_forbidden_for_non_admin(
 
     Uses `non_admin_profile` (not `profile`) so we don't accidentally
     pick a project-owner account that legitimately holds ADMIN in
-    the local DB (`KNOWN_ADMINS` in conftest)."""
+    the local DB (`KNOWN_ADMIN_MAILBOXES` in conftest)."""
     p = non_admin_profile(community)
     login(p)
     resp = page.goto(f"{base_url}/admin/", wait_until="domcontentloaded")

@@ -129,9 +129,7 @@ def test_admin_validation_profile_renders(
 # ─── Exports ───────────────────────────────────────────────────────
 
 
-@pytest.mark.parametrize(
-    "name", _EXPORTER_NAMES, ids=list(_EXPORTER_NAMES)
-)
+@pytest.mark.parametrize("name", _EXPORTER_NAMES, ids=list(_EXPORTER_NAMES))
 def test_admin_export_route_returns_file(
     page: Page,
     base_url: str,
@@ -148,13 +146,9 @@ def test_admin_export_route_returns_file(
     # Need a navigated page for authed_get.
     page.goto(f"{base_url}/admin/", wait_until="domcontentloaded")
     resp = authed_get(f"{base_url}/admin/export/{name}")
-    assert resp["status"] == 200, (
-        f"/admin/export/{name} : {resp}"
-    )
+    assert resp["status"] == 200, f"/admin/export/{name} : {resp}"
     assert "/auth/login" not in resp["url"]
-    assert resp["len"] > 0, (
-        f"/admin/export/{name} : empty body"
-    )
+    assert resp["len"] > 0, f"/admin/export/{name} : empty body"
 
 
 def test_admin_export_unknown_returns_404_or_redirect(
@@ -167,8 +161,7 @@ def test_admin_export_unknown_returns_404_or_redirect(
     page.goto(f"{base_url}/admin/", wait_until="domcontentloaded")
     resp = authed_get(f"{base_url}/admin/export/no_such_exporter")
     assert resp["status"] < 500, (
-        f"/admin/export/no_such_exporter : got {resp['status']} "
-        "— expected < 500"
+        f"/admin/export/no_such_exporter : got {resp['status']} — expected < 500"
     )
 
 
@@ -201,9 +194,7 @@ def test_admin_ontology_create_form_renders(
         wait_until="domcontentloaded",
     )
     assert resp is not None and resp.status < 400
-    assert "/admin/ontology/create" in page.url, (
-        f"create form expected, got {page.url}"
-    )
+    assert "/admin/ontology/create" in page.url, f"create form expected, got {page.url}"
     assert page.locator("form").count() >= 1
 
 
@@ -245,9 +236,7 @@ def test_admin_cms_list_renders(
     """``/admin/cms`` lists corporate pages."""
     p = admin_profile()
     login(p)
-    resp = page.goto(
-        f"{base_url}/admin/cms", wait_until="domcontentloaded"
-    )
+    resp = page.goto(f"{base_url}/admin/cms", wait_until="domcontentloaded")
     assert resp is not None and resp.status < 400
 
 
@@ -318,8 +307,7 @@ def test_admin_biz_moderation_unknown_id_no_5xx(
             {},
         )
         assert resp["status"] < 500, (
-            f"/admin/biz/moderation/9999999999/{action} : "
-            f"got {resp['status']}"
+            f"/admin/biz/moderation/9999999999/{action} : got {resp['status']}"
         )
 
 
@@ -361,8 +349,6 @@ def test_admin_groups_post_no_5xx(
     """``POST /admin/groups`` form smoke."""
     p = admin_profile()
     login(p)
-    page.goto(
-        f"{base_url}/admin/groups", wait_until="domcontentloaded"
-    )
+    page.goto(f"{base_url}/admin/groups", wait_until="domcontentloaded")
     resp = authed_post(f"{base_url}/admin/groups", {})
     assert resp["status"] < 500

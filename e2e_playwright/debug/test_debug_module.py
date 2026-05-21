@@ -26,14 +26,10 @@ import pytest
 from playwright.sync_api import Page
 
 
-def test_debug_root_returns_json_config_and_env(
-    page: Page, base_url: str
-) -> None:
+def test_debug_root_returns_json_config_and_env(page: Page, base_url: str) -> None:
     """``GET /debug/`` returns a JSON document with ``config``
     and ``env`` keys."""
-    resp = page.goto(
-        f"{base_url}/debug/", wait_until="domcontentloaded"
-    )
+    resp = page.goto(f"{base_url}/debug/", wait_until="domcontentloaded")
     if resp is None or resp.status == 401:
         pytest.skip("UNSECURE gate is closed")
     assert resp.status == 200
@@ -55,9 +51,7 @@ def test_debug_root_returns_json_config_and_env(
     assert isinstance(data["env"], dict)
 
 
-def test_debug_db_returns_uri_and_engine(
-    page: Page, base_url: str
-) -> None:
+def test_debug_db_returns_uri_and_engine(page: Page, base_url: str) -> None:
     """``GET /debug/db`` returns JSON with the DB URI and engine
     repr — sanity check on the ORM init."""
     page.goto(f"{base_url}/", wait_until="commit")
@@ -79,9 +73,7 @@ def test_debug_db_returns_uri_and_engine(
 def test_debug_env_renders_pre(page: Page, base_url: str) -> None:
     """``GET /debug/env`` returns a `<pre>`-wrapped dump of
     os.environ. Each line is `KEY=value`."""
-    resp = page.goto(
-        f"{base_url}/debug/env", wait_until="domcontentloaded"
-    )
+    resp = page.goto(f"{base_url}/debug/env", wait_until="domcontentloaded")
     if resp is None or resp.status == 401:
         pytest.skip("UNSECURE gate is closed")
     assert resp.status == 200
@@ -93,9 +85,7 @@ def test_debug_env_renders_pre(page: Page, base_url: str) -> None:
 def test_debug_config_renders_pre(page: Page, base_url: str) -> None:
     """``GET /debug/config`` returns a `<pre>`-wrapped dump of
     app.config. Pin a few well-known keys we set ourselves."""
-    resp = page.goto(
-        f"{base_url}/debug/config", wait_until="domcontentloaded"
-    )
+    resp = page.goto(f"{base_url}/debug/config", wait_until="domcontentloaded")
     if resp is None or resp.status == 401:
         pytest.skip("UNSECURE gate is closed")
     assert resp.status == 200

@@ -24,7 +24,6 @@ from __future__ import annotations
 import pytest
 from playwright.sync_api import Page
 
-
 _PRESS_MEDIA = "PRESS_MEDIA"
 
 # Minimum width we want the aside to keep at the lg breakpoint. The
@@ -46,9 +45,7 @@ def test_social_aside_keeps_minimum_width(
     p = profile(_PRESS_MEDIA)
     login(p)
 
-    response = page.goto(
-        f"{base_url}/swork/", wait_until="domcontentloaded"
-    )
+    response = page.goto(f"{base_url}/swork/", wait_until="domcontentloaded")
     if response is None or response.status >= 400:
         pytest.skip(
             f"/swork/ unavailable for {p['email']!r} "

@@ -5,7 +5,7 @@
 """Admin section read-only coverage.
 
 Logs in as a project-owner account that holds ADMIN
-(``KNOWN_ADMINS`` in conftest) and visits every top-level admin
+(``KNOWN_ADMIN_MAILBOXES`` in conftest) and visits every top-level admin
 URL. Pure GET, no mutation.
 
 The motivation is to push e2e coverage of ``app.modules.admin.*``

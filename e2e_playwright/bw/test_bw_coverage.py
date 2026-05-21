@@ -75,18 +75,12 @@ _NULL_UUID = "00000000-0000-0000-0000-000000000000"
 CONFIRMATION_URLS = (
     # Valid UUIDs but caller isn't the partnership target → exercises
     # the lookup-then-redirect branches.
-    (
-        f"/BW/confirm-partnership-invitation/{_VALID_BW_ID}/"
-        f"{_VALID_PARTNERSHIP_ID}"
-    ),
+    (f"/BW/confirm-partnership-invitation/{_VALID_BW_ID}/{_VALID_PARTNERSHIP_ID}"),
     # Invalid UUIDs → exercises the not-found branches (sets
     # session error, redirects to not-authorized).
     f"/BW/confirm-partnership-invitation/{_NULL_UUID}/{_NULL_UUID}",
     # Real role assignment → owner-check branch.
-    (
-        f"/BW/confirm-role-invitation/{_VALID_ROLE_BW_ID}/BW_OWNER/"
-        f"{_VALID_ROLE_USER_ID}"
-    ),
+    (f"/BW/confirm-role-invitation/{_VALID_ROLE_BW_ID}/BW_OWNER/{_VALID_ROLE_USER_ID}"),
     # Invalid → not-found branch.
     f"/BW/confirm-role-invitation/{_NULL_UUID}/BW_OWNER/0",
 )
@@ -131,12 +125,8 @@ def test_bw_url_renders(
         # The « no BW yet » state hides some endpoints entirely
         # (rights-policy, etc.). The 404 itself exercises the
         # router's not-found path, which is fine for coverage.
-        pytest.skip(
-            f"{community}: {path} 404s — endpoint hidden in this state"
-        )
-    assert resp.status < 400, (
-        f"{community} {p['email']}: {path} returned {resp.status}"
-    )
+        pytest.skip(f"{community}: {path} 404s — endpoint hidden in this state")
+    assert resp.status < 400, f"{community} {p['email']}: {path} returned {resp.status}"
 
 
 # `/BW/select-bw/<bw_id>` POST cases. Each exercises a distinct
@@ -206,15 +196,11 @@ def test_bw_configure_content_post_idempotent(
     login(p)
     # Select the BW that has a non-empty name (the warm-up via
     # /BW/dashboard would pick erick's first BW, which has NULL name).
-    sel_resp = authed_post(
-        f"{base_url}/BW/select-bw/{_ERICK_NAMED_BW_ID}", {}
-    )
+    sel_resp = authed_post(f"{base_url}/BW/select-bw/{_ERICK_NAMED_BW_ID}", {})
     assert sel_resp["status"] < 400 and "/auth/login" not in sel_resp["url"], (
         f"select-bw warm-up failed : {sel_resp}"
     )
-    page.goto(
-        f"{base_url}/BW/configure-content", wait_until="domcontentloaded"
-    )
+    page.goto(f"{base_url}/BW/configure-content", wait_until="domcontentloaded")
     name_input = page.locator('input[name="name"]').first
     if name_input.count() == 0:
         pytest.skip("configure-content has no `name` field for this user")
@@ -222,12 +208,8 @@ def test_bw_configure_content_post_idempotent(
     if not name:
         pytest.skip("configure-content `name` field is empty")
 
-    resp = authed_post(
-        f"{base_url}/BW/configure-content", {"name": name}
-    )
-    assert resp["status"] < 400, (
-        f"POST /BW/configure-content returned {resp['status']}"
-    )
+    resp = authed_post(f"{base_url}/BW/configure-content", {"name": name})
+    assert resp["status"] < 400, f"POST /BW/configure-content returned {resp['status']}"
     assert "/auth/login" not in resp["url"], (
         "POST /BW/configure-content redirected to login — session lost"
     )
@@ -253,9 +235,7 @@ def test_bw_invite_organisation_members_post(
     p = profile("PRESS_MEDIA")
     login(p)
     # Warm up + select the named BW (configure-content style).
-    sel = authed_post(
-        f"{base_url}/BW/select-bw/{_ERICK_NAMED_BW_ID}", {}
-    )
+    sel = authed_post(f"{base_url}/BW/select-bw/{_ERICK_NAMED_BW_ID}", {})
     assert sel["status"] < 400 and "/auth/login" not in sel["url"]
 
     # Capture the existing invitation list to restore later.
@@ -275,15 +255,10 @@ def test_bw_invite_organisation_members_post(
             f"{base_url}/BW/invite-organisation-members",
             {"action": "change_invitations_emails", "content": new_content},
         )
-        assert resp["status"] < 400, (
-            f"POST invite returned {resp['status']}"
-        )
+        assert resp["status"] < 400, f"POST invite returned {resp['status']}"
         assert "/auth/login" not in resp["url"]
         captured = mail_outbox.messages()
-        assert any(
-            test_email in (m["to"] or [])
-            for m in captured
-        ), (
+        assert any(test_email in (m["to"] or []) for m in captured), (
             f"no captured email targeted at {test_email!r} "
             f"(captured {len(captured)} total)"
         )
@@ -321,9 +296,7 @@ def test_bw_manage_internal_roles_post(
     """
     p = profile("PRESS_MEDIA")
     login(p)
-    sel = authed_post(
-        f"{base_url}/BW/select-bw/{_ERICK_NAMED_BW_ID}", {}
-    )
+    sel = authed_post(f"{base_url}/BW/select-bw/{_ERICK_NAMED_BW_ID}", {})
     assert sel["status"] < 400 and "/auth/login" not in sel["url"]
 
     page.goto(
@@ -352,24 +325,18 @@ def test_bw_manage_internal_roles_post(
     # the page for an `@` text node, pick one and propose them as
     # BWMi. If no eligible email is scrapable, skip — there's no
     # one to invite.
-    page_text = page.evaluate(
-        """() => document.documentElement.innerText || ''"""
-    )
+    page_text = page.evaluate("""() => document.documentElement.innerText || ''""")
     import re as _re
-    candidates = _re.findall(
-        r"[\w.+-]+@[\w-]+\.[\w.-]+", page_text
-    )
+
+    candidates = _re.findall(r"[\w.+-]+@[\w-]+\.[\w.-]+", page_text)
     # Strip the user's own email and emails already in the
     # textarea (those would skip the « new mail » diff branch).
     own = (p["email"] or "").lower()
-    already = {
-        line.strip().lower() for line in original_bwmi.splitlines()
-    }
+    already = {line.strip().lower() for line in original_bwmi.splitlines()}
     eligible = [
-        c for c in candidates
-        if c.lower() != own
-        and c.lower() not in already
-        and "no-reply" not in c.lower()
+        c
+        for c in candidates
+        if c.lower() != own and c.lower() not in already and "no-reply" not in c.lower()
     ]
     if not eligible:
         pytest.skip(
@@ -380,11 +347,7 @@ def test_bw_manage_internal_roles_post(
         )
     test_email = eligible[0].lower()
 
-    new_content = (
-        original_bwmi
-        + ("\n" if original_bwmi.strip() else "")
-        + test_email
-    )
+    new_content = original_bwmi + ("\n" if original_bwmi.strip() else "") + test_email
     try:
         resp = authed_post(
             f"{base_url}/BW/manage-internal-roles",
@@ -398,10 +361,7 @@ def test_bw_manage_internal_roles_post(
         )
         assert "/auth/login" not in resp["url"]
         captured = mail_outbox.messages()
-        assert any(
-            test_email in (m["to"] or [])
-            for m in captured
-        ), (
+        assert any(test_email in (m["to"] or []) for m in captured), (
             f"no captured email targeted at {test_email!r} "
             f"(captured {len(captured)} total)"
         )
@@ -437,16 +397,12 @@ def test_bw_rights_policy_post_idempotent(
     surface — `rights_policy` raises NotFound otherwise."""
     p = profile("PRESS_MEDIA")
     login(p)
-    sel = authed_post(
-        f"{base_url}/BW/select-bw/{_ERICK_NAMED_BW_ID}", {}
-    )
+    sel = authed_post(f"{base_url}/BW/select-bw/{_ERICK_NAMED_BW_ID}", {})
     assert sel["status"] < 400 and "/auth/login" not in sel["url"]
-    page.goto(
-        f"{base_url}/BW/rights-policy", wait_until="domcontentloaded"
+    page.goto(f"{base_url}/BW/rights-policy", wait_until="domcontentloaded")
+    selected = page.locator('input[name="option"]:checked').evaluate_all(
+        "els => els.map(e => e.value)"
     )
-    selected = page.locator(
-        'input[name="option"]:checked'
-    ).evaluate_all("els => els.map(e => e.value)")
     if not selected:
         # Select fallback : first available radio value.
         selected = page.locator('input[name="option"]').evaluate_all(
@@ -460,9 +416,7 @@ def test_bw_rights_policy_post_idempotent(
         f"{base_url}/BW/rights-policy",
         {"option": current_option, "media_ids": ""},
     )
-    assert resp["status"] < 400, (
-        f"POST /BW/rights-policy returned {resp['status']}"
-    )
+    assert resp["status"] < 400, f"POST /BW/rights-policy returned {resp['status']}"
     assert "/auth/login" not in resp["url"]
 
 
@@ -480,14 +434,10 @@ def test_bw_billing_portal_post(
     gate) all run and bump routes/billing_portal.py from 40 %."""
     p = profile("PRESS_MEDIA")
     login(p)
-    sel = authed_post(
-        f"{base_url}/BW/select-bw/{_ERICK_NAMED_BW_ID}", {}
-    )
+    sel = authed_post(f"{base_url}/BW/select-bw/{_ERICK_NAMED_BW_ID}", {})
     assert sel["status"] < 400 and "/auth/login" not in sel["url"]
     resp = authed_post(f"{base_url}/BW/billing-portal", {})
-    assert resp["status"] < 400, (
-        f"POST /BW/billing-portal returned {resp['status']}"
-    )
+    assert resp["status"] < 400, f"POST /BW/billing-portal returned {resp['status']}"
     assert "/auth/login" not in resp["url"]
 
 
@@ -510,9 +460,7 @@ def test_bw_manage_external_partners_post(
     """
     p = profile("PRESS_MEDIA")
     login(p)
-    sel = authed_post(
-        f"{base_url}/BW/select-bw/{_ERICK_NAMED_BW_ID}", {}
-    )
+    sel = authed_post(f"{base_url}/BW/select-bw/{_ERICK_NAMED_BW_ID}", {})
     assert sel["status"] < 400 and "/auth/login" not in sel["url"]
 
     # Read the form ; `pr_provider` is a select with PR-type BWs
@@ -521,9 +469,7 @@ def test_bw_manage_external_partners_post(
         f"{base_url}/BW/manage-external-partners",
         wait_until="domcontentloaded",
     )
-    options = page.locator(
-        'select[name="pr_provider"] option[value]'
-    ).evaluate_all(
+    options = page.locator('select[name="pr_provider"] option[value]').evaluate_all(
         "els => els.map(e => e.value).filter(v => v && v !== '')"
     )
     if not options:
@@ -555,8 +501,10 @@ def test_bw_manage_external_partners_post(
     "path",
     CONFIRMATION_URLS,
     ids=[
-        "partnership-valid", "partnership-invalid",
-        "role-valid", "role-invalid",
+        "partnership-valid",
+        "partnership-invalid",
+        "role-valid",
+        "role-invalid",
     ],
 )
 def test_bw_confirmation_url_renders(
@@ -577,6 +525,4 @@ def test_bw_confirmation_url_renders(
     login(p)
     resp = page.goto(f"{base_url}{path}", wait_until="domcontentloaded")
     assert resp is not None, f"{path}: no response"
-    assert resp.status < 400, (
-        f"{path} returned {resp.status} for {p['email']}"
-    )
+    assert resp.status < 400, f"{path} returned {resp.status} for {p['email']}"

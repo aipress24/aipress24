@@ -36,13 +36,9 @@ from playwright.sync_api import Page
 _ARTICLE_PAT = re.compile(r"/wip/articles/(\d+)/")
 
 
-def _first_owned_article_id(
-    page: Page, base_url: str
-) -> str | None:
+def _first_owned_article_id(page: Page, base_url: str) -> str | None:
     """Find an article id owned by the current user."""
-    page.goto(
-        f"{base_url}/wip/articles/", wait_until="domcontentloaded"
-    )
+    page.goto(f"{base_url}/wip/articles/", wait_until="domcontentloaded")
     hrefs = page.locator("a[href]").evaluate_all(
         "els => els.map(e => e.getAttribute('href'))"
     )
@@ -70,8 +66,7 @@ def test_article_images_index_renders(
         wait_until="domcontentloaded",
     )
     assert resp is not None and resp.status < 400, (
-        f"/wip/articles/{article_id}/images/ : "
-        f"status={resp.status if resp else '?'}"
+        f"/wip/articles/{article_id}/images/ : status={resp.status if resp else '?'}"
     )
     body = page.content()
     assert "Internal Server Error" not in body

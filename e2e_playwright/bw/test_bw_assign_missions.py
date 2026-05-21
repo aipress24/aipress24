@@ -34,9 +34,7 @@ def _setup_erick_bw_session(
     /BW/assign-missions is reachable (BW activated, manager role)."""
     p = profile("PRESS_MEDIA")
     login(p)
-    sel = authed_post(
-        f"{base_url}/BW/select-bw/{_ERICK_BW_ID}", {}
-    )
+    sel = authed_post(f"{base_url}/BW/select-bw/{_ERICK_BW_ID}", {})
     if sel["status"] >= 400 or "/auth/login" in sel["url"]:
         return False
     return True
@@ -46,24 +44,19 @@ def test_assign_missions_get_renders(
     page: Page, base_url: str, profile, login, authed_post
 ) -> None:
     """``GET /BW/assign-missions`` rend le form post-fill_session."""
-    if not _setup_erick_bw_session(
-        page, base_url, profile, login, authed_post
-    ):
+    if not _setup_erick_bw_session(page, base_url, profile, login, authed_post):
         pytest.skip("can't setup erick BW session")
     resp = page.goto(
         f"{base_url}/BW/assign-missions",
         wait_until="domcontentloaded",
     )
     assert resp is not None and resp.status < 400, (
-        f"/BW/assign-missions GET : "
-        f"status={resp.status if resp else '?'}"
+        f"/BW/assign-missions GET : status={resp.status if resp else '?'}"
     )
     body = page.content()
     assert "Internal Server Error" not in body
     # Form has at least one mission_* checkbox.
-    has_missions_inputs = page.locator(
-        'input[name^="mission_"]'
-    ).count()
+    has_missions_inputs = page.locator('input[name^="mission_"]').count()
     assert has_missions_inputs >= 1, (
         "/BW/assign-missions : no mission_* inputs rendered — "
         "form structure may have changed"
@@ -113,9 +106,7 @@ def test_assign_missions_post_finish_action(
     flags) + sync_all_pr_missions + db.commit. Les 3 paramétrages
     couvrent : aucune mission, sous-ensemble, toutes les missions.
     """
-    if not _setup_erick_bw_session(
-        page, base_url, profile, login, authed_post
-    ):
+    if not _setup_erick_bw_session(page, base_url, profile, login, authed_post):
         pytest.skip("can't setup erick BW session")
 
     page.goto(
@@ -123,9 +114,7 @@ def test_assign_missions_post_finish_action(
         wait_until="domcontentloaded",
     )
     payload = {**missions_payload, "action": "finish"}
-    resp = authed_post(
-        f"{base_url}/BW/assign-missions", payload
-    )
+    resp = authed_post(f"{base_url}/BW/assign-missions", payload)
     assert resp["status"] < 400, f"assign-missions {label} : {resp}"
     assert "/auth/login" not in resp["url"]
     # `case "finish"` → redirect to dashboard.
@@ -141,9 +130,7 @@ def test_assign_missions_post_previous_action(
     """``POST /BW/assign-missions`` avec ``action=previous`` :
     pour un media BW, redirige vers manage_external_partners.
     Drives le `case "previous"` branche `bw_type != "pr"`."""
-    if not _setup_erick_bw_session(
-        page, base_url, profile, login, authed_post
-    ):
+    if not _setup_erick_bw_session(page, base_url, profile, login, authed_post):
         pytest.skip("can't setup erick BW session")
     page.goto(
         f"{base_url}/BW/assign-missions",
@@ -172,9 +159,7 @@ def test_assign_missions_post_unknown_action_500(
     (un raise ValueError pour un mauvais form input devrait être un
     400 ou un flash + redirect).
     """
-    if not _setup_erick_bw_session(
-        page, base_url, profile, login, authed_post
-    ):
+    if not _setup_erick_bw_session(page, base_url, profile, login, authed_post):
         pytest.skip("can't setup erick BW session")
     page.goto(
         f"{base_url}/BW/assign-missions",
@@ -186,6 +171,5 @@ def test_assign_missions_post_unknown_action_500(
     )
     # Pin current behavior : ValueError → 500.
     assert resp["status"] == 500, (
-        f"unknown action : expected 500 (ValueError uncaught), got "
-        f"{resp['status']}"
+        f"unknown action : expected 500 (ValueError uncaught), got {resp['status']}"
     )

@@ -38,8 +38,7 @@ def test_contact_options_real_submit_round_trip(
         wait_until="domcontentloaded",
     )
     assert resp is not None and resp.status < 400, (
-        f"GET /preferences/contact-options : "
-        f"status={resp.status if resp else '?'}"
+        f"GET /preferences/contact-options : status={resp.status if resp else '?'}"
     )
 
     # POST a minimal payload that DOESN'T have submit=cancel —
