@@ -100,6 +100,11 @@ def test_avis_enquete_notification_mail():
         # rendered the URL as bare text inside the paragraph, which
         # silently degraded to non-clickable in clients that don't
         # auto-link plain URLs.
+        assert 'href="https://example.com"' in kwargs["body"]
+        # Bug #0068 (2026-05-21): expose the link as a visible CTA
+        # rather than a raw URL the user has to decipher. A fallback
+        # text link is kept below for mail clients that strip styles.
+        assert "Ouvrir l'avis d'enquête" in kwargs["body"]
         assert '<a href="https://example.com">https://example.com</a>' in kwargs["body"]
 
 
