@@ -349,6 +349,61 @@ class TestJournalistAvisEnqueteViews:
         response = logged_in_client.get(url)
         assert response.status_code == 200
 
+    def test_reponses_page_links_expert_name_to_profile(
+        self,
+        logged_in_client: FlaskClient,
+        test_avis_enquete: AvisEnquete,
+        contact_with_avis: ContactAvisEnquete,
+    ):
+        """Erick (2026-05-21) : consulter le profil d'un répondant est
+        une info critique. Sur la page « Gérer les réponses », le nom
+        de chaque répondant doit être cliquable vers son profil."""
+        url = url_for("AvisEnqueteWipView:reponses", id=test_avis_enquete.id)
+        response = logged_in_client.get(url)
+        assert response.status_code == 200
+        html = response.data.decode()
+        expert_profile_url = url_for(contact_with_avis.expert)
+        assert f'href="{expert_profile_url}"' in html, (
+            "Le nom du répondant doit pointer vers son profil"
+        )
+
+    def test_rdv_management_links_expert_name_to_profile(
+        self,
+        logged_in_client: FlaskClient,
+        test_avis_enquete: AvisEnquete,
+        contact_with_rdv_proposed: ContactAvisEnquete,
+    ):
+        """Sur la page « Gérer les RDV », le nom de l'expert dans la
+        table doit être cliquable vers son profil."""
+        url = url_for("AvisEnqueteWipView:rdv", id=test_avis_enquete.id)
+        response = logged_in_client.get(url)
+        assert response.status_code == 200
+        html = response.data.decode()
+        expert_profile_url = url_for(contact_with_rdv_proposed.expert)
+        assert f'href="{expert_profile_url}"' in html
+
+    def test_rdv_details_links_journaliste_and_expert_to_profiles(
+        self,
+        logged_in_client: FlaskClient,
+        test_avis_enquete: AvisEnquete,
+        contact_with_rdv_proposed: ContactAvisEnquete,
+    ):
+        """Page de détail d'un RDV : les noms du journaliste ET de
+        l'expert doivent tous deux être cliquables vers leurs
+        profils (Erick 2026-05-21)."""
+        url = url_for(
+            "AvisEnqueteWipView:rdv_details",
+            id=test_avis_enquete.id,
+            contact_id=contact_with_rdv_proposed.id,
+        )
+        response = logged_in_client.get(url)
+        assert response.status_code == 200
+        html = response.data.decode()
+        journaliste_profile_url = url_for(contact_with_rdv_proposed.journaliste)
+        expert_profile_url = url_for(contact_with_rdv_proposed.expert)
+        assert f'href="{journaliste_profile_url}"' in html
+        assert f'href="{expert_profile_url}"' in html
+
     def test_propose_rdv_slots_have_calendar_affordance(
         self,
         logged_in_client: FlaskClient,

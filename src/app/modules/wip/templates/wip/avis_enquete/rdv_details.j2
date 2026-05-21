@@ -21,7 +21,9 @@
       <div>
         <h3 class="font-semibold">Journaliste:</h3>
         <p>
-          {{ contact.journaliste.full_name }}
+          <a href="{{ url_for(contact.journaliste) }}" class="text-primary-700 hover:underline">
+            {{ contact.journaliste.full_name }}
+          </a>
           {% if contact.journaliste.job_title %}
           <span class="text-gray-600">— {{ contact.journaliste.job_title }}</span>
           {% endif %}
@@ -30,7 +32,9 @@
       <div>
         <h3 class="font-semibold">Profil:</h3>
         <p>
-          {{ contact.expert.full_name }}
+          <a href="{{ url_for(contact.expert) }}" class="text-primary-700 hover:underline">
+            {{ contact.expert.full_name }}
+          </a>
           {% if contact.expert.job_title %}
           <span class="text-gray-600">— {{ contact.expert.job_title }}</span>
           {% endif %}

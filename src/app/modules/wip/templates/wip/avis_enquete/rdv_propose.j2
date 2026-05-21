@@ -8,7 +8,8 @@
       <div class="sm:flex-auto">
         <h1 class="text-2xl font-semibold text-gray-900">{{ title }}</h1>
         <p class="mt-2 text-sm text-gray-700">
-          Proposez des créneaux pour un entretien avec {{ contact.expert.full_name }}
+          Proposez des créneaux pour un entretien avec
+          <a href="{{ url_for(contact.expert) }}" class="text-primary-700 hover:underline">{{ contact.expert.full_name }}</a>
         </p>
       </div>
     </div>

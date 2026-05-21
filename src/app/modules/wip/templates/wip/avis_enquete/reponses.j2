@@ -41,12 +41,14 @@
                                     <tr>
                                         <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-0">
                                             <div class="flex items-center">
-                                                <div class="h-10 w-10 flex-shrink-0">
+                                                <a href="{{ url_for(response.expert) }}" class="h-10 w-10 flex-shrink-0 block">
                                                     {{ profile_image(response.expert, size=10) }}
-                                                </div>
+                                                </a>
                                                 <div class="ml-4">
                                                     <div class="font-medium text-gray-900">
-                                                        {{ response.expert.full_name }}
+                                                        <a href="{{ url_for(response.expert) }}" class="hover:underline">
+                                                            {{ response.expert.full_name }}
+                                                        </a>
                                                     </div>
                                                     <div class="text-gray-500">
                                                         {{ response.expert.email }}

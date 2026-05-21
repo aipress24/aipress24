@@ -60,7 +60,11 @@
                                        class="mt-1 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"/>
                                 <span class="text-sm">
                                     <span class="font-medium text-gray-900">
-                                        {{ c.expert.full_name if c.expert else '—' }}
+                                        {% if c.expert %}
+                                            <a href="{{ url_for(c.expert) }}" class="text-primary-700 hover:underline">
+                                                {{ c.expert.full_name }}
+                                            </a>
+                                        {% else %}—{% endif %}
                                     </span>
                                     <span class="text-gray-500">
                                         · statut : {{ c.status.value if c.status else '—' }}

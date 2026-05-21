@@ -24,7 +24,11 @@
                         <tbody>
                             {% for contact in contacts_with_rdv %}
                                 <tr>
-                                    <td class="py-2 px-4 border-b">{{ contact.expert.full_name }}</td>
+                                    <td class="py-2 px-4 border-b">
+                                        <a href="{{ url_for(contact.expert) }}" class="text-primary-700 hover:underline">
+                                            {{ contact.expert.full_name }}
+                                        </a>
+                                    </td>
                                     <td class="py-2 px-4 border-b">
                                         {{ contact.date_rdv.strftime('%d/%m/%Y à %H:%M') if contact.date_rdv else 'Non défini' }}
                                     </td>
