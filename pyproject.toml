@@ -229,6 +229,7 @@ addopts = [
     "--disable-warnings",
     "--disable-pytest-warnings",
     "--ignore=src/app/sandbox/",
+    "--ignore=src/app/dramatiq/worker_entry.py",
     "--tb=short",
     "--doctest-modules",
 ]
