@@ -91,14 +91,8 @@ def test_marketplace_unpublished_enqueues(captured_sends):
     assert captured_sends == [(("marketplace", 301), {})]
 
 
-def test_group_published_enqueues(captured_sends):
-    receivers._on_group_published(_payload(400))
-    assert captured_sends == [(("group", 400), {})]
-
-
-def test_group_unpublished_enqueues(captured_sends):
-    receivers._on_group_unpublished(_payload(401))
-    assert captured_sends == [(("group", 401), {})]
+# Group receiver tests retirés le 2026-05-21 — les Groupes ne sont
+# plus enregistrés dans le moteur de recherche.
 
 
 def test_user_activated_enqueues(captured_sends):

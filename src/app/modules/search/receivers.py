@@ -25,8 +25,6 @@ from app.signals import (
     event_published,
     event_unpublished,
     event_updated,
-    group_published,
-    group_unpublished,
     marketplace_published,
     marketplace_unpublished,
     org_activated,
@@ -41,7 +39,6 @@ if TYPE_CHECKING:
     from app.models.auth import User
     from app.models.organisation import Organisation
     from app.modules.biz.models import MarketplaceContent
-    from app.modules.swork.models import Group
     from app.modules.wip.models import Article, Communique
     from app.modules.wip.models.eventroom import Event
 
@@ -113,17 +110,7 @@ def _on_marketplace_unpublished(offer: MarketplaceContent) -> None:
     reindex_from_source.send("marketplace", offer.id)
 
 
-# ── Group ──────────────────────────────────────────────────────────
-
-
-@group_published.connect
-def _on_group_published(group: Group) -> None:
-    reindex_from_source.send("group", group.id)
-
-
-@group_unpublished.connect
-def _on_group_unpublished(group: Group) -> None:
-    reindex_from_source.send("group", group.id)
+# Group: retiré de la recherche (2026-05-21) — plus de connect ici.
 
 
 # ── User (members directory) ───────────────────────────────────────

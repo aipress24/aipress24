@@ -34,7 +34,6 @@ from app.modules.biz.models import JobOffer, MissionOffer
 from app.modules.search.cli import rebuild
 from app.modules.search.engine import SearchEngine
 from app.modules.search.jobs import reindex_from_source
-from app.modules.swork.models import Group
 from app.modules.wire.models import ArticlePost, PressReleasePost
 
 if TYPE_CHECKING:
@@ -267,44 +266,8 @@ class TestReindexFromSourceMarketplace:
             assert hits[0]["type"] == "job_offer"
 
 
-class TestReindexFromSourceGroup:
-    def test_public_group_is_indexed(self, app, db_session, test_engine):
-        with app.test_request_context():
-            owner = User(email="group_owner@example.com")
-            db_session.add(owner)
-            db_session.flush()
-            group = Group(
-                name="Cercle des journalistes",
-                description="Échange professionnel.",
-                privacy="public",
-                owner=owner,
-            )
-            db_session.add(group)
-            db_session.flush()
-
-            reindex_from_source.fn("group", group.id)
-
-            hits = test_engine.search("Cercle")
-            assert len(hits) == 1
-            assert hits[0]["type"] == "group"
-
-    def test_private_group_is_not_indexed(self, app, db_session, test_engine):
-        with app.test_request_context():
-            owner = User(email="private_group_owner@example.com")
-            db_session.add(owner)
-            db_session.flush()
-            group = Group(
-                name="Hidden",
-                description="Caché.",
-                privacy="private",
-                owner=owner,
-            )
-            db_session.add(group)
-            db_session.flush()
-
-            reindex_from_source.fn("group", group.id)
-
-            assert test_engine.search("Hidden") == []
+# Group indexing tests retirés le 2026-05-21 — les Groupes ne sont plus
+# enregistrés dans le moteur de recherche.
 
 
 class TestReindexFromSourceUser:

@@ -32,7 +32,6 @@ from app.models.lifecycle import PublicationStatus
 from app.models.organisation import Organisation
 from app.modules.biz.models import MarketplaceContent
 from app.modules.events.models import EventPost
-from app.modules.swork.models import Group
 from app.modules.wire.models import ArticlePost, PressReleasePost
 from app.services.tagging import get_tags
 
@@ -207,37 +206,8 @@ def _(obj: MarketplaceContent) -> bool:
 
 
 # ── Group (swork) ────────────────────────────────────────────────────
-
-
-@doc_type.register
-def _(_: Group) -> str:
-    return "group"
-
-
-@to_doc.register
-def _(obj: Group) -> dict[str, Any]:
-    # ``obj.name`` etc. are typed as ``InstrumentedAttribute[str]`` at
-    # the class level; pyrefly can't see through the SQLAlchemy
-    # descriptor to know they're plain ``str`` on instances. Explicit
-    # ``str()`` coercion keeps the type checker happy without lying
-    # about runtime behaviour.
-    name = str(obj.name or "")
-    description = str(obj.description or "")
-    return {
-        "type": "group",
-        "id": f"group:{obj.id}",
-        "title": name,
-        "text": " ".join(filter(None, [name, description])),
-        "summary": description,
-        "url": url_for(obj),
-        "timestamp": _to_datetime(getattr(obj, "created_at", None)),
-        "tags": "",
-    }
-
-
-@is_public.register
-def _(obj: Group) -> bool:
-    return obj.privacy == "public"
+# Retiré de la recherche le 2026-05-21 — l'adapter et le receiver ne
+# sont plus enregistrés.
 
 
 # ── User (members) ───────────────────────────────────────────────────

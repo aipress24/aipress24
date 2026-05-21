@@ -22,7 +22,6 @@ from app.modules.biz.models import (
 )
 from app.modules.events.models import EventPost
 from app.modules.search.adapters import doc_id, doc_type, is_public, to_doc
-from app.modules.swork.models import Group
 from app.modules.wire.models import ArticlePost, PressReleasePost
 
 # ── is_public: pure unit tests (no DB) ─────────────────────────────────
@@ -333,44 +332,8 @@ class TestToDocMarketplace:
 # ── Group ──────────────────────────────────────────────────────────
 
 
-class TestIsPublicGroup:
-    def test_public_privacy_is_public(self):
-        group = Group(name="Open club", privacy="public")
-        assert is_public(group) is True
-
-    @pytest.mark.parametrize("privacy", ["private", "semi-public", ""])
-    def test_non_public_privacy_is_not_public(self, privacy):
-        group = Group(name="x", privacy=privacy)
-        assert is_public(group) is False
-
-    def test_doc_type_and_id(self):
-        group = Group(name="x", privacy="public")
-        assert doc_type(group) == "group"
-
-
-class TestToDocGroup:
-    def test_doc_shape(self, db_session, app):
-        with app.test_request_context():
-            user = User(email="group_owner@example.com")
-            db_session.add(user)
-            db_session.flush()
-            group = Group(
-                name="Cercle des journalistes",
-                description="Espace d'échange professionnel.",
-                privacy="public",
-                owner=user,
-            )
-            db_session.add(group)
-            db_session.flush()
-
-            doc = to_doc(group)
-
-            assert doc["type"] == "group"
-            assert doc["id"] == f"group:{group.id}"
-            assert doc["title"] == "Cercle des journalistes"
-            assert "Cercle des journalistes" in doc["text"]
-            assert "échange professionnel" in doc["text"]
-            assert doc["summary"] == "Espace d'échange professionnel."
+# Group adapter tests retirés le 2026-05-21 — les Groupes ne sont plus
+# enregistrés dans le moteur de recherche (cf. `search/registry.py`).
 
 
 # ── User ───────────────────────────────────────────────────────────

@@ -57,12 +57,12 @@ class TestSearchStatusCli:
         assert result.exit_code == 0, result.output
         assert "Total:" in result.output
         assert "0" in result.output
-        # Every doc-type should appear in the breakdown.
+        # Every doc-type should appear in the breakdown (Groups retirés
+        # le 2026-05-21).
         for type_name in (
             "article",
             "press_release",
             "event",
-            "group",
             "user",
             "organisation",
         ):

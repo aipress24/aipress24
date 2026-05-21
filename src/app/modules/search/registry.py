@@ -30,7 +30,6 @@ from app.models.auth import User
 from app.models.organisation import Organisation
 from app.modules.biz.models import MarketplaceContent
 from app.modules.events.models import EventPost
-from app.modules.swork.models import Group
 from app.modules.wire.models import ArticlePost, PressReleasePost
 
 
@@ -114,15 +113,9 @@ REGISTRY: tuple[IndexableType, ...] = (
             "editorial_product",
         ),
     ),
-    IndexableType(
-        source_type="group",
-        model=Group,
-        fk_column=None,
-        ui_name="groups",
-        label="Groupes",
-        icon="user-group",
-        doc_types=("group",),
-    ),
+    # Groups: retirés de la recherche (2026-05-21). Le modèle et ses
+    # données restent intacts ; seule l'exposition dans le moteur de
+    # recherche est désactivée (registry + adapter + receivers).
     IndexableType(
         source_type="user",
         model=User,
