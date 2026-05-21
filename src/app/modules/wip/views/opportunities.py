@@ -27,6 +27,7 @@ from werkzeug import Response
 from app.flask.lib.htmx import extract_fragment
 from app.flask.lib.nav import nav
 from app.models.auth import User
+from app.modules.bw.bw_activation.user_utils import get_business_wall_for_user
 from app.modules.wip import blueprint
 from app.modules.wip.services.newsroom import AvisEnqueteService
 from app.services.emails import ContactAvisEnqueteAcceptanceMail
@@ -160,6 +161,19 @@ def media_opportunity_post(id: int) -> str | Response:
     if contact is None:
         abort(404)
 
+    # Bug #0164: a response is only meaningful once the user's org has
+    # an active Business Wall. Before this guard, the POST silently
+    # mutated the contact and the user came back to find the answer
+    # "lost". Refuse here so the GET banner remains the single source
+    # of truth on the prerequisite.
+    if get_business_wall_for_user(expert) is None:
+        flash(
+            "Vous devez configurer un Business Wall actif avant de "
+            "répondre à un avis d'enquête.",
+            "warning",
+        )
+        return redirect(url_for("wip.media_opportunity", id=id))
+
     reponse = request.form.get("reponse1")
     if reponse:
         contact.date_reponse = datetime.now(UTC)
@@ -286,6 +300,9 @@ def _render_media_opportunity(id: int) -> str:
 
     is_answered = contact.status != StatutAvis.EN_ATTENTE
     eligible_colleagues = avis_service.list_eligible_colleagues(contact)
+    # Bug #0164: gate the response form on having an active BW so the
+    # user is not invited to type an answer that won't persist.
+    requires_bw = get_business_wall_for_user(expert) is None
 
     return render_template(
         "wip/pages/media_opportunity.j2",
@@ -294,6 +311,7 @@ def _render_media_opportunity(id: int) -> str:
         contact=contact,
         form_state=form_state,
         is_answered=is_answered,
+        requires_bw=requires_bw,
         eligible_colleagues=eligible_colleagues,
         menus={"secondary": get_secondary_menu("opportunities")},
     )

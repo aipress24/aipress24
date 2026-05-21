@@ -17,6 +17,8 @@ import pytest
 from app.enums import RoleEnum
 from app.models.auth import KYCProfile, Role, User
 from app.models.organisation import Organisation
+from app.modules.bw.bw_activation.models import BusinessWall
+from app.modules.bw.bw_activation.models.business_wall import BWStatus
 
 # Import the helper from root conftest
 from tests.c_e2e.conftest import make_authenticated_client
@@ -69,3 +71,27 @@ def logged_in_client(app: Flask, test_user: User) -> FlaskClient:
     Depends on test_user which creates the user and org.
     """
     return make_authenticated_client(app, test_user)
+
+
+@pytest.fixture
+def active_bw(fresh_db, test_org: Organisation, test_user: User) -> BusinessWall:
+    """Active Business Wall on the test org.
+
+    Several wip tests assume the expert can respond to an avis d'enquête.
+    Since bug #0164, responding requires the org to have an active BW;
+    request this fixture in those tests so the response gate opens.
+    """
+    db_session = fresh_db.session
+    bw = BusinessWall(
+        bw_type="leaders_experts",
+        status=BWStatus.ACTIVE.value,
+        owner_id=test_user.id,
+        payer_id=test_user.id,
+        organisation_id=test_org.id,
+        name="WIP Test BW",
+    )
+    db_session.add(bw)
+    db_session.flush()
+    test_org.bw_id = bw.id
+    db_session.commit()
+    return bw
