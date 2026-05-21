@@ -542,9 +542,7 @@ class TestUserAgendaWidget:
             start_datetime=now.shift(days=-30),
             end_datetime=now.shift(days=-30, hours=4),
         )
-        db_session.add_all(
-            [next_day, three_days_ago, in_ten_days, thirty_days_ago]
-        )
+        db_session.add_all([next_day, three_days_ago, in_ten_days, thirty_days_ago])
         db_session.flush()
         for event in (next_day, three_days_ago, in_ten_days, thirty_days_ago):
             db_session.execute(
