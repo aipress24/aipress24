@@ -18,6 +18,10 @@ from flask import Flask, g, session
 from app.enums import ProfileEnum
 from app.models.auth import KYCProfile, User
 from app.models.organisation import Organisation
+from app.modules.bw.bw_activation.bw_creation import (
+    create_new_free_bw_record,
+    create_new_paid_bw_record,
+)
 from app.modules.bw.bw_activation.bw_invitation import (
     invite_bwmi_by_email,
     invite_user_role,
@@ -48,6 +52,71 @@ from app.modules.bw.bw_activation.utils import (
     init_missions_state,
     init_session,
 )
+
+
+class TestBwCreation:
+    """Tests for BW creation utility functions."""
+
+    def test_create_new_free_bw_record_user_without_org(
+        self,
+        app: Flask,
+        db_session: Session,
+    ) -> None:
+        """create_new_free_bw_record should work for a user without an org (#bug-0164-fix)."""
+        # Create a user with NO organization
+        user = User(email=_unique_email(), first_name="NoOrg", last_name="User")
+        db_session.add(user)
+        db_session.flush()
+
+        with app.test_request_context():
+            g.user = user
+            session["bw_activated"] = True
+            session["bw_type"] = "micro"  # a free type
+
+            # This should NOT raise AttributeError
+            success = create_new_free_bw_record(session)
+
+            assert success is True
+            db_session.refresh(user)
+            assert user.organisation is not None
+            assert user.organisation.name == "Business Wall for Micro"
+
+            # Verify BW was created
+            bw = current_business_wall(user)
+            assert bw is not None
+            assert bw.bw_type == "micro"
+            assert bw.organisation_id == user.organisation.id
+
+    def test_create_new_paid_bw_record_user_without_org(
+        self,
+        app: Flask,
+        db_session: Session,
+    ) -> None:
+        """create_new_paid_bw_record should work for a user without an org (#bug-0164-fix)."""
+        # Create a user with NO organization
+        user = User(email=_unique_email(), first_name="NoOrgPaid", last_name="User")
+        db_session.add(user)
+        db_session.flush()
+
+        with app.test_request_context():
+            g.user = user
+            session["bw_activated"] = True
+            session["bw_type"] = "pr"  # a paid type
+
+            # This should NOT raise AttributeError
+            success = create_new_paid_bw_record(session)
+
+            assert success is True
+            db_session.refresh(user)
+            assert user.organisation is not None
+            assert user.organisation.name == "Business Wall for PR"
+
+            # Verify BW was created
+            bw = current_business_wall(user)
+            assert bw is not None
+            assert bw.bw_type == "pr"
+            assert bw.organisation_id == user.organisation.id
+
 
 if TYPE_CHECKING:
     from sqlalchemy.orm import Session
