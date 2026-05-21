@@ -147,6 +147,33 @@ class TestStageB6ContentRoutes:
         response = authenticated_owner_client.get("/BW/configure-content")
         assert response.status_code == 200
 
+    def test_configure_content_leaders_experts_no_duplicate_name_group(
+        self,
+        authenticated_owner_client: FlaskClient,
+        test_business_wall: BusinessWall,
+        db_session: Session,
+    ) -> None:
+        """Bug #0099 : pour les BW « leaders_experts » et « transformers »,
+        le champ « Groupe ou entité de rattachement » (`name_group`)
+        était rendu deux fois — un bloc générique (corporate_media / pr /
+        leaders_experts / transformers / academics) et un bloc spécifique
+        leaders_experts/transformers. Le second écrasait la valeur du
+        premier au POST. Doit n'apparaître qu'une seule fois.
+
+        Note : `fill_session(bw)` côté route écrase `session["bw_type"]`
+        avec `bw.bw_type`, donc on modifie le type sur la BW elle-même.
+        """
+        test_business_wall.bw_type = "leaders_experts"
+        db_session.commit()
+
+        response = authenticated_owner_client.get("/BW/configure-content")
+        assert response.status_code == 200
+        html = response.data.decode()
+        assert html.count('name="name_group"') == 1, (
+            'name="name_group" doit apparaître exactement une fois '
+            "(rendu deux fois = écrasement au POST, cf. bug #0099)"
+        )
+
     def test_configure_content_post_syncs_name_and_bw_name(
         self,
         authenticated_owner_client: FlaskClient,

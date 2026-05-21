@@ -541,24 +541,20 @@
                                 </textarea>
                             </div>
                         {% endif %}
-                        <!-- Leaders & Experts / Transformers fields -->
+                        {# Leaders & Experts / Transformers — Bug #0099:
+                           the "Groupe ou entité de rattachement" field
+                           was rendered twice for these types (once via
+                           the generic block above, once here), the
+                           second silently overwriting the first on POST.
+                           "name_group" stays in the generic block; we
+                           only keep the type-specific "name_official"
+                           field here. #}
                         {% if bw_type in ['leaders_experts', 'transformers'] %}
                             <div>
                                 <label class="block text-sm font-medium text-gray-900 mb-2">Nom officiel de votre organisation</label>
                                 <input type="text"
                                        name="name_official"
                                        value="{{ business_wall.name_official or '' }}"
-                                       class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-4 py-2 border" />
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-900 mb-2">
-                                    Groupe ou entité de rattachement (si
-                                    applicable)
-                                </label>
-                                <input type="text"
-                                       name="name_group"
-                                       value="{{ business_wall.name_group or '' }}"
-                                       placeholder="Optionnel"
                                        class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-4 py-2 border" />
                             </div>
                         {% endif %}
