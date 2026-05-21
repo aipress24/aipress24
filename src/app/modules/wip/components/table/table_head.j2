@@ -4,7 +4,15 @@
     <th
         class="px-4 py-4 text-left tracking-wider"
         scope="col">
-      {{ column.label }}
+      {# Erick (2026-05-21) : en-tête « Menu » explicite au-dessus de
+         la colonne d'actions trois-points pour que les utilisateurs
+         non-techs la repèrent. Centralisé ici, les CBV gardent leur
+         `label=""` sur le pseudo-champ `$actions`. #}
+      {%- if column.name == "$actions" -%}
+        Menu
+      {%- else -%}
+        {{ column.label }}
+      {%- endif -%}
     </th>
   {% endfor %}
 </tr>

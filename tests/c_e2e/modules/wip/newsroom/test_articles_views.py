@@ -72,6 +72,29 @@ class TestArticlesIndex:
         response = logged_in_client.get(url)
         assert response.status_code == 200
 
+    def test_index_actions_column_shows_menu_header_and_styled_button(
+        self, logged_in_client: FlaskClient, test_article: Article
+    ):
+        """Erick (2026-05-21) : le menu d'actions (trois points) est
+        difficile à repérer pour les non-techs. Ajustement léger : un
+        en-tête « Menu » au-dessus de la colonne, et un bouton coloré
+        avec la palette « primary » (celle du bouton « +New ») au lieu
+        du gris discret."""
+        url = url_for("ArticlesWipView:index")
+        response = logged_in_client.get(url)
+        assert response.status_code == 200
+        html = response.data.decode()
+        # Header label
+        assert ">Menu</th>" in html or ">\n      Menu" in html.replace(
+            "\n        ", "\n      "
+        ) or "Menu</th>" in html, (
+            "L'en-tête de la colonne actions doit afficher « Menu »"
+        )
+        # Button color aligned with the +New (primary) palette
+        assert "text-primary-700" in html, (
+            "Le bouton trois-points doit utiliser la palette `primary`"
+        )
+
     def test_index_no_rights_reminder_without_media_bw(
         self, logged_in_client: FlaskClient, test_article: Article
     ):
