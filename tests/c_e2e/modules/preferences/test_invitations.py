@@ -359,6 +359,84 @@ class TestAcceptedRoleStaysVisible:
         assert "PR Manager (internal)" in html
         assert inviting_org.bw_name in html
 
+    def test_cancelled_bw_role_is_hidden(
+        self,
+        db_session: Session,
+        invitations_test_user: User,
+        inviting_org: Organisation,
+        test_inviting_user_with_profile: User,
+    ):
+        """Bug #0139 (constat B) : un rôle accepté sur un BW
+        *cancelled* (itération antérieure d'un BW recréé depuis) ne
+        doit plus apparaître dans le profil — sinon l'utilisateur voit
+        des duplicats fantômes (« 2× PR Manager interne », trace d'un
+        BWO d'une iteration passée, etc.)."""
+        # BW actif (déjà fourni par `inviting_org`)
+        active_bw = db_session.scalar(
+            select(BusinessWall).where(BusinessWall.id == inviting_org.bw_id)
+        )
+        assert active_bw is not None
+        db_session.add(
+            RoleAssignment(
+                business_wall_id=active_bw.id,
+                user_id=invitations_test_user.id,
+                role_type="BWPRi",
+                invitation_status=InvitationStatus.ACCEPTED.value,
+            )
+        )
+        # BW cancelled (vestige d'une itération antérieure de la même
+        # org, avec un rôle accepté qui ne devrait plus être listé)
+        cancelled_bw = BusinessWall(
+            bw_type="media",
+            status=BWStatus.CANCELLED.value,
+            owner_id=test_inviting_user_with_profile.id,
+            payer_id=test_inviting_user_with_profile.id,
+            organisation_id=inviting_org.id,
+            name="Vestige BW cancelled",
+        )
+        db_session.add(cancelled_bw)
+        db_session.flush()
+        db_session.add(
+            RoleAssignment(
+                business_wall_id=cancelled_bw.id,
+                user_id=invitations_test_user.id,
+                role_type="BWPRi",
+                invitation_status=InvitationStatus.ACCEPTED.value,
+            )
+        )
+        # Et une invitation PENDING sur le BW cancelled (idem)
+        pending_cancelled_bw = BusinessWall(
+            bw_type="media",
+            status=BWStatus.CANCELLED.value,
+            owner_id=test_inviting_user_with_profile.id,
+            payer_id=test_inviting_user_with_profile.id,
+            organisation_id=inviting_org.id,
+            name="Vestige PENDING BW",
+        )
+        db_session.add(pending_cancelled_bw)
+        db_session.flush()
+        db_session.add(
+            RoleAssignment(
+                business_wall_id=pending_cancelled_bw.id,
+                user_id=invitations_test_user.id,
+                role_type="BWMi",
+                invitation_status=InvitationStatus.PENDING.value,
+            )
+        )
+        db_session.flush()
+
+        view = InvitationsView()
+        accepted_bw_names = {
+            r["bw_name"] for r in view._accepted_role_invitations(invitations_test_user)
+        }
+        pending_bw_names = {
+            r["bw_name"] for r in view._role_invitations(invitations_test_user)
+        }
+        assert "Vestige BW cancelled" not in accepted_bw_names
+        assert "Vestige PENDING BW" not in pending_bw_names
+        # And the active BW still appears
+        assert inviting_org.bw_name in accepted_bw_names
+
 
 class TestInvitationsUserWithAutoOrg:
     """Tests for user with auto-created organization."""

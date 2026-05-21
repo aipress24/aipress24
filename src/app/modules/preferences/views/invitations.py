@@ -27,6 +27,7 @@ from app.modules.bw.bw_activation.models import (
     PartnershipStatus,
     RoleAssignment,
 )
+from app.modules.bw.bw_activation.models.business_wall import BWStatus
 from app.modules.preferences import blueprint
 from app.ui.labels import LABELS_BW_TYPE_V2
 
@@ -108,7 +109,12 @@ class InvitationsView(MethodView):
         return result
 
     def _role_invitations(self, user: User) -> list[dict[str, Any]]:
-        """Return the list of pending BusinessWall role invitations for this user."""
+        """Return the list of pending BusinessWall role invitations for this user.
+
+        Bug #0139 (constat B) : ne lister que les rôles attachés à un
+        BW *actif* — sans ce filtre, les rôles d'itérations antérieures
+        (BWs cancelled/recréés) ressurgissaient comme duplicats fantômes.
+        """
         db_session = db.session
         stmt = (
             select(RoleAssignment, BusinessWall)
@@ -116,6 +122,7 @@ class InvitationsView(MethodView):
             .where(
                 RoleAssignment.user_id == user.id,
                 RoleAssignment.invitation_status == InvitationStatus.PENDING.value,
+                BusinessWall.status == BWStatus.ACTIVE.value,
             )
         )
         results = db_session.execute(stmt).all()
@@ -143,6 +150,12 @@ class InvitationsView(MethodView):
         Bug: an accepted role (e.g. BWPRi) disappeared from this page
         because only PENDING assignments were listed, so the user thought
         the role had been lost. Accepted roles must stay visible.
+
+        Bug #0139 (constat B) : filtrer sur BW actif uniquement — un
+        rôle accepté sur un BW cancelled (itération antérieure d'un BW
+        recréé depuis) ne doit plus apparaître. Cela neutralise aussi
+        d'éventuels rôles legacy hérités d'avant le fix `stage3.py`
+        (BWO non sollicité de Lorraine, etc.).
         """
         db_session = db.session
         stmt = (
@@ -151,6 +164,7 @@ class InvitationsView(MethodView):
             .where(
                 RoleAssignment.user_id == user.id,
                 RoleAssignment.invitation_status == InvitationStatus.ACCEPTED.value,
+                BusinessWall.status == BWStatus.ACTIVE.value,
             )
         )
         results = db_session.execute(stmt).all()
