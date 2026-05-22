@@ -89,4 +89,8 @@ def dashboard():
 def reset():
     """Reset all session data."""
     session.clear()
+    user = cast("User", g.user)
+    if user and not user.is_anonymous:
+        user.selected_bw_id = None
+        db.session.commit()
     return redirect(url_for("bw_activation.index"))
