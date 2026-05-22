@@ -103,9 +103,31 @@ def select_bw_post(bw_id: str):
         session["error"] = ERR_NOT_MANAGER
         return redirect(url_for("bw_activation.not_authorized"))
 
-    if not is_bw_manager_or_admin(user, bw):
-        session["error"] = ERR_NOT_MANAGER
-        return redirect(url_for("bw_activation.not_authorized"))
+    MANAGEMENT_ROLES = {
+        BWRoleType.BW_OWNER.value,
+        BWRoleType.BWMI.value,
+        BWRoleType.BWME.value,
+    }
 
+    user.selected_bw_id = bw.id
+    db.session.commit()
     fill_session(bw)
-    return redirect(url_for("bw_activation.dashboard"))
+
+    # Check if user has management right to see the dashboard
+    has_management_rights = False
+    if bw.owner_id == user.id:
+        has_management_rights = True
+    elif bw.role_assignments:
+        for assignment in bw.role_assignments:
+            if (
+                assignment.user_id == user.id
+                and assignment.invitation_status == InvitationStatus.ACCEPTED.value
+                and assignment.role_type in MANAGEMENT_ROLES
+            ):
+                has_management_rights = True
+                break
+
+    if has_management_rights:
+        return redirect(url_for("bw_activation.dashboard"))
+
+    return redirect(url_for("bw_activation.select_bw"))
