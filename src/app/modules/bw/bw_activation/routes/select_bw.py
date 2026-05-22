@@ -18,6 +18,7 @@ from app.modules.bw.bw_activation.models import BusinessWall
 from app.modules.bw.bw_activation.models.business_wall import BWStatus
 from app.modules.bw.bw_activation.user_utils import (
     get_manageable_business_walls_for_user,
+    get_user_rights_on_bw,
 )
 from app.modules.bw.bw_activation.utils import (
     ERR_NOT_MANAGER,
@@ -43,9 +44,19 @@ def select_bw():
     if not active_bws:
         return redirect(url_for("bw_activation.index"))
 
+    # Prepare data for the template
+    bw_data = []
+    for bw in active_bws:
+        bw_data.append(
+            {
+                "bw": bw,
+                "rights": get_user_rights_on_bw(user, bw),
+            }
+        )
+
     return render_template(
         "bw_activation/select_bw.html",
-        business_walls=active_bws,
+        bw_data=bw_data,
         labels=LABELS_BW_TYPE_V2,
     )
 

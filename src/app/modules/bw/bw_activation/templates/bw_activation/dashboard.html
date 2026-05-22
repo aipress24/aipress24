@@ -10,24 +10,40 @@
         <div class="bg-white p-8 rounded-2xl shadow-lg border border-gray-200">
             <div class="border-b pb-6 mb-8">
                 <h1 class="text-3xl font-bold text-gray-900">
-                    {% if current_bw and current_bw.name %}
-                        Gérer le Business Wall : {{ current_bw.name }}
+                    {% if current_bw and current_bw.name_safe %}
+                        Gérer le Business Wall : {{ current_bw.name_safe }}
                     {% else %}
-                        Gérer mon nouveau Business Wall
+                        Gérer le Business Wall
                     {% endif %}
                 </h1>
-                <p class="mt-2 text-gray-600">{{ bw_info.name }}</p>
-                <span
-                    class="inline-block mt-2 px-3 py-1
-                           {% if bw_info.free %}
-                               bg-blue-100 text-blue-800
-                           {% else %}
-                               bg-green-100 text-green-800
-                           {% endif %}
-                           text-xs font-semibold rounded-full"
-                >
-                    {{ bw_info.rate_message }}
-                </span>
+                <p class="mt-2 text-gray-600">
+                    {{ bw_info.name }}
+                    {% if user_role_label %}
+                        — <span class="font-medium text-gray-800">Votre rôle : {{ user_role_label }}</span>
+                    {% endif %}
+                </p>
+                <div class="flex flex-wrap items-center gap-2 mt-2">
+                    <span
+                        class="px-3 py-1
+                               {% if bw_info.free %}
+                                   bg-blue-100 text-blue-800
+                               {% else %}
+                                   bg-green-100 text-green-800
+                               {% endif %}
+                               text-xs font-semibold rounded-full"
+                    >
+                        {{ bw_info.rate_message }}
+                    </span>
+
+                    {% if active_manageable|length > 1 %}
+                        <a
+                            href="{{ url_for('bw_activation.select_bw') }}"
+                            class="px-3 py-1 bg-orange-100 text-orange-800 text-xs font-semibold rounded-full hover:bg-orange-200 transition"
+                        >
+                            ⇄ Changer de Business Wall
+                        </a>
+                    {% endif %}
+                </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
