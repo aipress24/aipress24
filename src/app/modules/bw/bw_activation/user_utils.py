@@ -243,18 +243,29 @@ def get_business_wall_for_user(user: User) -> BusinessWall | None:
 def get_selected_business_wall_for_user(user: User) -> BusinessWall | None:
     """Get the currently selected BusinessWall for the user.
 
-    First checks session for an explicitly selected BW (e.g. via the
-    select-bw page), then falls back to the user's organisation BW.
+    Checks the user for an explicitly selected BW, then the session,
+    then falls back to the user's organisation default BW.
     """
-    bw_id: str | None = session.get("bw_id")
+    # 1. Check user profile
+    bw_id = user.selected_bw_id
     if bw_id:
+        stmt = select(BusinessWall).where(BusinessWall.id == bw_id)
+        bw = db.session.execute(stmt).scalars().one_or_none()
+        if bw:
+            return bw
+
+    # 2. Check session fallback
+    bw_id_sess: str | None = session.get("bw_id")
+    if bw_id_sess:
         try:
-            stmt = select(BusinessWall).where(BusinessWall.id == UUID(bw_id))
+            stmt = select(BusinessWall).where(BusinessWall.id == UUID(bw_id_sess))
             bw = db.session.execute(stmt).scalars().one_or_none()
             if bw:
                 return bw
         except ValueError:
             pass  # invalid UUID
+
+    # 3. Fallback to org
     return get_business_wall_for_user(user)
 
 
