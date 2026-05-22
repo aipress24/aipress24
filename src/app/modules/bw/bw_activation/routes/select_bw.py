@@ -14,7 +14,11 @@ from sqlalchemy import select
 
 from app.flask.extensions import db
 from app.modules.bw.bw_activation import bp
-from app.modules.bw.bw_activation.models import BusinessWall
+from app.modules.bw.bw_activation.models import (
+    BusinessWall,
+    BWRoleType,
+    InvitationStatus,
+)
 from app.modules.bw.bw_activation.models.business_wall import BWStatus
 from app.modules.bw.bw_activation.user_utils import (
     get_manageable_business_walls_for_user,
@@ -46,11 +50,34 @@ def select_bw():
 
     # Prepare data for the template
     bw_data = []
+    MANAGEMENT_ROLES = {
+        BWRoleType.BW_OWNER.value,
+        BWRoleType.BWMI.value,
+        BWRoleType.BWME.value,
+    }
+
     for bw in active_bws:
+        rights = get_user_rights_on_bw(user, bw)
+
+        # Check if user has at least one role from the MANAGEMENT_ROLES set
+        has_management_rights = False
+        if bw.owner_id == user.id:
+            has_management_rights = True
+        elif bw.role_assignments:
+            for assignment in bw.role_assignments:
+                if (
+                    assignment.user_id == user.id
+                    and assignment.invitation_status == InvitationStatus.ACCEPTED.value
+                    and assignment.role_type in MANAGEMENT_ROLES
+                ):
+                    has_management_rights = True
+                    break
+
         bw_data.append(
             {
                 "bw": bw,
-                "rights": get_user_rights_on_bw(user, bw),
+                "rights": rights,
+                "has_management_rights": has_management_rights,
             }
         )
 

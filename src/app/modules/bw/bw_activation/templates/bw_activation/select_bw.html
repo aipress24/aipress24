@@ -63,12 +63,21 @@
                             method="POST"
                             action="{{ url_for('bw_activation.select_bw_post', bw_id=bw.id) }}"
                         >
-                            <button
-                                type="submit"
-                                class="rounded-md bg-orange-600 px-5 py-2 text-sm font-semibold text-white hover:bg-orange-700"
-                            >
-                                Gérer →
-                            </button>
+                            {% if item.has_management_rights %}
+                                <button
+                                    type="submit"
+                                    class="rounded-md bg-orange-600 px-5 py-2 text-sm font-semibold text-white hover:bg-orange-700"
+                                >
+                                    Sélectionner et gérer le BW →
+                                </button>
+                            {% else %}
+                                <button
+                                    type="button"
+                                    class="rounded-md bg-gray-400 px-5 py-2 text-sm font-semibold text-white cursor-not-allowed"
+                                >
+                                    Sélectionner le BW
+                                </button>
+                            {% endif %}
                         </form>
                     </div>
                 {% endfor %}
