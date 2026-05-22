@@ -485,6 +485,10 @@ def invite_pr_provider(
     if not uuid:
         return False
 
+    if str(business_wall.id) == uuid:
+        warn(f"BusinessWall {uuid} cannot invite itself as a partner.")
+        return False
+
     bw_service = container.get(BusinessWallService)
     pr_bw = bw_service.get(UUID(uuid))
     if not pr_bw:
