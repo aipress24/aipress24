@@ -295,6 +295,14 @@ class User(LifeCycleMixin, Addressable, UserMixin, Base):
                 raise ValueError(msg)
 
     @property
+    def is_managing_another_bw(self) -> bool:
+        """True if user has selected a Business Wall that is not their own."""
+        if self.selected_bw_id is None:
+            return False
+        own_bw_id = self.organisation.bw_id if self.organisation else None
+        return self.selected_bw_id != own_bw_id
+
+    @property
     def is_manager(self) -> bool:
         return self.has_role(RoleEnum.MANAGER)
 
