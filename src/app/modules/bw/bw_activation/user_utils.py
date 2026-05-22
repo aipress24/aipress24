@@ -19,8 +19,10 @@ from app.flask.extensions import db
 from app.logging import warn
 from app.models.auth import BW_TYPE_FONCTION_SOURCES
 from app.modules.admin.utils import Organisation
+from app.modules.bw.bw_activation.bw_invitation import BW_ROLE_TYPE_LABEL
 from app.modules.bw.bw_activation.models import (
     BusinessWall,
+    BWRoleType,
     InvitationStatus,
     RoleAssignment,
 )
@@ -259,6 +261,61 @@ def get_selected_business_wall_for_user(user: User) -> BusinessWall | None:
 def current_business_wall(user: User) -> BusinessWall | None:
     """Get the active BusinessWall for a user (checks session first)."""
     return get_selected_business_wall_for_user(user)
+
+
+def get_user_rights_on_bw(user: User, bw: BusinessWall) -> list[str]:
+    """Return a list of human-readable rights/actions for the user on this BW."""
+
+    MISSION_LABELS = {
+        "press_release": "Publier des communiqués de presse",
+        "events": "Publier des événements",
+        "missions": "Publier des Missions",
+        "projects": "Publier des Projets",
+        "internships": "Publier des offres de stage",
+        "apprenticeships": "Publier des offres d'alternance",
+        "doctoral": "Publier des offres de convention doctorale",
+    }
+
+    rights = []
+    seen_roles = set()
+    seen_missions = set()
+
+    # 1. Check if owner
+    if bw.owner_id == user.id:
+        rights.append(f"Propriétaire ({BW_ROLE_TYPE_LABEL['BW_OWNER']})")
+        seen_roles.add(BWRoleType.BW_OWNER.value)
+
+    # 2. Check RoleAssignments
+    if bw.role_assignments:
+        for assignment in bw.role_assignments:
+            if (
+                assignment.user_id == user.id
+                and assignment.invitation_status == InvitationStatus.ACCEPTED.value
+            ):
+                if assignment.role_type not in seen_roles:
+                    role_label = BW_ROLE_TYPE_LABEL.get(
+                        assignment.role_type, assignment.role_type
+                    )
+                    rights.append(f"Rôle : {role_label}")
+                    seen_roles.add(assignment.role_type)
+
+                # Granular permissions for PR Managers
+                if assignment.role_type in (
+                    BWRoleType.BWPRI.value,
+                    BWRoleType.BWPRE.value,
+                ):
+                    for perm in assignment.permissions:
+                        if (
+                            perm.is_granted
+                            and perm.permission_type not in seen_missions
+                        ):
+                            mission_label = MISSION_LABELS.get(
+                                perm.permission_type, perm.permission_type
+                            )
+                            rights.append(f"Mission : {mission_label}")
+                            seen_missions.add(perm.permission_type)
+
+    return rights
 
 
 def get_manageable_business_walls_for_user(user: User) -> list[BusinessWall]:

@@ -122,6 +122,8 @@ DASHBOARD_ACCESS_ROLES: frozenset[str] = frozenset(
         BWRoleType.BW_OWNER.value,
         BWRoleType.BWMI.value,
         BWRoleType.BWME.value,
+        BWRoleType.BWPRI.value,
+        BWRoleType.BWPRE.value,
     }
 )
 
