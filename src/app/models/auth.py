@@ -13,6 +13,7 @@ from typing import Any, ClassVar
 
 import arrow
 import sqlalchemy as sa
+from advanced_alchemy.types import GUID
 from advanced_alchemy.types.file_object import FileObject, StoredObject
 from flask_security import RoleMixin, UserMixin
 from sqlalchemy import JSON, DateTime, ForeignKey, orm
@@ -119,6 +120,9 @@ class User(LifeCycleMixin, Addressable, UserMixin, Base):
     photo_carte_presse_image: Mapped[FileObject | None] = mapped_column(
         StoredObject(backend="s3"), nullable=True
     )
+    # selected BW the user is acting as (for BW managers)
+    selected_bw_id: Mapped[uuid.UUID | None] = mapped_column(GUID, nullable=True)
+
     # job_title: Mapped[str] = mapped_column(default="")
     # job_description: Mapped[str] = mapped_column(default="")
 
