@@ -6,13 +6,15 @@
 
 from __future__ import annotations
 
+import contextlib
 from typing import cast
 from uuid import UUID
 
-from flask import session
+from flask import g, session
 from svcs.flask import container
 
 from app.enums import RoleEnum
+from app.flask.extensions import db
 from app.flask.sqla import get_obj
 from app.models.auth import User
 from app.modules.bw.bw_activation.models import (
@@ -84,6 +86,12 @@ def fill_session(current_bw: BusinessWall) -> None:
     session["pricing_value"] = None
     session["error"] = ""
 
+    # Persist the selection in the user profile if logged in
+    with contextlib.suppress(Exception):
+        if g.user and not g.user.is_anonymous:
+            g.user.selected_bw_id = current_bw.id
+            db.session.commit()
+
 
 def clear_bw_session() -> None:
     """Clear session BW information when cancelling subscription."""
@@ -95,6 +103,12 @@ def clear_bw_session() -> None:
     session["bw_activated"] = False
     session["pricing_value"] = None
     session["error"] = ""
+
+    # Clear from user profile if logged in
+    with contextlib.suppress(Exception):
+        if g.user and not g.user.is_anonymous:
+            g.user.selected_bw_id = None
+            db.session.commit()
 
 
 def init_missions_state():
