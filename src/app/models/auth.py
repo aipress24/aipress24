@@ -295,6 +295,13 @@ class User(LifeCycleMixin, Addressable, UserMixin, Base):
                 raise ValueError(msg)
 
     @property
+    def current_selected_bw_id(self) -> uuid.UUID | None:
+        """The ID of the currently selected Business Wall (falls back to own BW)."""
+        if self.selected_bw_id:
+            return self.selected_bw_id
+        return self.organisation.bw_id if self.organisation else None
+
+    @property
     def is_managing_another_bw(self) -> bool:
         """True if user has selected a Business Wall that is not their own."""
         if self.selected_bw_id is None:
