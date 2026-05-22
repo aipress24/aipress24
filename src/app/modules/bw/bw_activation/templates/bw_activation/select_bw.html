@@ -18,13 +18,24 @@
             <div class="space-y-4">
                 {% for item in bw_data %}
                     {% set bw = item.bw %}
+                    {% set is_selected = (g.user.current_selected_bw_id == bw.id) %}
                     <div
-                        class="border border-gray-300 p-6 rounded-lg hover:shadow-md hover:border-orange-500 transition flex items-center justify-between"
+                        class="border {{ 'border-green-500 bg-green-50 shadow-md' if is_selected else 'border-gray-300' }} p-6 rounded-lg hover:shadow-md hover:border-orange-500 transition flex items-center justify-between"
                     >
                         <div>
-                            <h2 class="text-xl font-semibold text-gray-800">
-                                {{ bw.name_safe }}
-                            </h2>
+                            <div class="flex items-center gap-2">
+                                <h2 class="text-xl font-semibold text-gray-800">
+                                    {{ bw.name_safe }}
+                                </h2>
+                                {% if is_selected %}
+                                    <span class="inline-flex items-center rounded-full bg-green-600 px-3 py-1 text-xs font-bold text-white shadow-sm">
+                                        <svg class="mr-1.5 h-3.5 w-3.5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                        </svg>
+                                        Sélectionné
+                                    </span>
+                                {% endif %}
+                            </div>
                             <p class="text-sm text-gray-600 mt-1">
                                 Type :
                                 <span class="font-medium">
@@ -66,14 +77,18 @@
                             {% if item.has_management_rights %}
                                 <button
                                     type="submit"
-                                    class="rounded-md bg-orange-600 px-5 py-2 text-sm font-semibold text-white hover:bg-orange-700"
+                                    class="rounded-md {{ 'bg-green-600 hover:bg-green-700' if is_selected else 'bg-orange-600 hover:bg-orange-700' }} px-5 py-2 text-sm font-semibold text-white transition shadow-sm"
                                 >
-                                    Sélectionner et gérer le BW →
+                                    {% if is_selected %}
+                                        Sélectionné — Gérer le BW →
+                                    {% else %}
+                                        Sélectionner et gérer le BW →
+                                    {% endif %}
                                 </button>
                             {% else %}
                                 <button
-                                    type="button"
-                                    class="rounded-md bg-gray-400 px-5 py-2 text-sm font-semibold text-white cursor-not-allowed"
+                                    type="submit"
+                                    class="rounded-md {{ 'bg-green-600 hover:bg-green-700' if is_selected else 'bg-gray-600 hover:bg-gray-700' }} px-5 py-2 text-sm font-semibold text-white transition shadow-sm"
                                 >
                                     Sélectionner le BW
                                 </button>
