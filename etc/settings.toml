@@ -162,7 +162,7 @@ DB.URI = "@format postgresql://{this.DB.USER}:{this.DB.PASSWORD}@{this.DB.HOST}/
 
 SECRET_KEY = "PhTYwoqiuweOljl9AmQPqM"
 
-DEBUG_TB_ENABLED = true
+DEBUG_TB_ENABLED = false
 DEBUG_TB_INTERCEPT_REDIRECTS = false
 
 # MAIL_BACKEND = 'locmem'
