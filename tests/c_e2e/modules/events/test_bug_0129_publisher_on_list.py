@@ -192,6 +192,36 @@ def test_delegated_event_list_card_drops_redundant_pour_chip(
     )
 
 
+def test_event_detail_shows_accreditation_button_for_journalist(
+    app: Flask,
+    db_session: Session,
+):
+    """Ticket #0138b (Erick, 2026-05-17): on the event detail page,
+    a journalist must see the « S'accréditer » button. Erick reported
+    that for a delegated event (PR agency publishing for a client) the
+    button was missing entirely. The button is guarded by the
+    ``can_accredit`` flag, which is true for users with the
+    ``PRESS_MEDIA`` role.
+    """
+    user = _make_user(db_session)
+    agency = Organisation(name="Fake-Les Propulseurs PR")
+    client_org = Organisation(name="Fake-Davi Logistique", bw_name="Davi Logistique")
+    db_session.add_all([agency, client_org])
+    db_session.flush()
+    user.organisation = agency
+    db_session.flush()
+    event = _make_event_with_publisher(db_session, user.id, client_org)
+
+    client = make_authenticated_client(app, user)
+    response = client.get(f"/events/{event.id}", follow_redirects=True)
+    assert response.status_code == 200
+    html = response.data.decode()
+    assert "S'accréditer" in html or "accrediter" in html.lower(), (
+        "the « S'accréditer » button must be visible to journalists on "
+        "the event detail (#0138b)"
+    )
+
+
 def test_event_card_type_badge_is_a_real_link_not_dead_chip(
     app: Flask,
     db_session: Session,
