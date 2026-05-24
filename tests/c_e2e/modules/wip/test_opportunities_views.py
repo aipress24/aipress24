@@ -427,9 +427,7 @@ class TestOpportunityResponseRequiresActiveBW:
         show a clear « configurez d'abord un Business Wall » message
         and hide the response form (so the user can't fill it and
         lose the answer)."""
-        response = logged_in_client.get(
-            f"/wip/opportunities/{test_contact.id}"
-        )
+        response = logged_in_client.get(f"/wip/opportunities/{test_contact.id}")
         assert response.status_code == 200
         html = response.data.decode()
         assert "Business Wall" in html

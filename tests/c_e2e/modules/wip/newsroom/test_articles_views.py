@@ -85,11 +85,11 @@ class TestArticlesIndex:
         assert response.status_code == 200
         html = response.data.decode()
         # Header label
-        assert ">Menu</th>" in html or ">\n      Menu" in html.replace(
-            "\n        ", "\n      "
-        ) or "Menu</th>" in html, (
-            "L'en-tête de la colonne actions doit afficher « Menu »"
-        )
+        assert (
+            ">Menu</th>" in html
+            or ">\n      Menu" in html.replace("\n        ", "\n      ")
+            or "Menu</th>" in html
+        ), "L'en-tête de la colonne actions doit afficher « Menu »"
         # Button color aligned with the +New (primary) palette
         assert "text-primary-700" in html, (
             "Le bouton trois-points doit utiliser la palette `primary`"
