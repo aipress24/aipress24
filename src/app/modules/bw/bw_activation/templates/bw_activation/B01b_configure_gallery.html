@@ -2,6 +2,25 @@
 {% block title %}Configurer la Galerie du Business Wall{% endblock %}
 {% block content %}
     <div class="max-w-4xl mx-auto">
+        {# `configure-content` redirects here on success, so the flashes it
+           set (« Logo mis à jour avec succès », « Bandeau mis à jour avec
+           succès », « Erreur lors de l'upload … ») are consumed on THIS
+           render. The bw_activation layout has no global flash slot, so
+           surface them inline — same pattern as B04 / B05. Without this
+           the user uploads a logo and gets no visible confirmation. #}
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="mb-4 space-y-2" data-testid="gallery-flash">
+                    {% for category, msg in messages %}
+                        <div
+                            class="p-4 rounded-md border {% if category == 'error' %}bg-red-50 border-red-200 text-red-800{% else %}bg-blue-50 border-blue-200 text-blue-800{% endif %}"
+                        >
+                            {{ msg }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
         <div class="bg-white p-8 rounded-2xl shadow-lg border border-gray-200">
             <h1 class="text-3xl font-bold text-gray-900">
                 2- Configurer la Galerie
