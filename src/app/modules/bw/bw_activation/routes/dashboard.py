@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING, cast
 
 from flask import g, redirect, render_template, session, url_for
 
+from app.flask.extensions import db
 from app.modules.bw.bw_activation import bp
 from app.modules.bw.bw_activation.bw_invitation import BW_ROLE_TYPE_LABEL
 from app.modules.bw.bw_activation.config import BW_TYPES
