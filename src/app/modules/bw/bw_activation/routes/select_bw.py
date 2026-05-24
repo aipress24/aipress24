@@ -27,7 +27,6 @@ from app.modules.bw.bw_activation.user_utils import (
 from app.modules.bw.bw_activation.utils import (
     ERR_NOT_MANAGER,
     fill_session,
-    is_bw_manager_or_admin,
 )
 from app.ui.labels import LABELS_BW_TYPE_V2
 
