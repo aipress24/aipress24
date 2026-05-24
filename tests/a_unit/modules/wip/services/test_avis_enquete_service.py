@@ -785,6 +785,120 @@ class TestRDVSideEffectsCoupling:
         assert any("refusé" in n.message.lower() for n in journalist_notifs)
 
 
+class TestRDVMailRecipients:
+    """Regression for tickets #0076 / #0077 / #0147.
+
+    Earlier tests in :class:`TestRDVSideEffectsCoupling` verify the
+    in-app notification side, but they patch ``Mail.send`` with a plain
+    ``Mock`` and never check that the mail was actually constructed for
+    the right recipient. If a refactor swapped the recipient (e.g.
+    accidentally e-mailed the expert on refusal instead of the
+    journalist), the in-app test would still pass. These tests close
+    that gap by capturing the actual ``EmailMessage`` kwargs.
+    """
+
+    def _capture_mail(self):
+        captured: list[dict] = []
+
+        def _factory(*_args, **kwargs):
+            captured.append(kwargs)
+
+            class _Stub:
+                content_subtype = ""
+
+                def send(self):
+                    return None
+
+            return _Stub()
+
+        return captured, _factory
+
+    def test_propose_rdv_emails_the_expert(self, db_session: scoped_session) -> None:
+        """#0077 / #0147: proposing a RDV must send mail TO the expert.
+
+        Also covers the re-proposal case (#0077) — calling propose_rdv
+        a second time must trigger a second mail to the same expert.
+        """
+        journaliste = User(email="journalist@test.com")
+        expert = User(email="expert@test.com")
+        media = Organisation(name="Media")
+        db_session.add_all([journaliste, expert, media])
+        db_session.flush()
+
+        enquete = _create_test_enquete(db_session, journaliste, media)
+        contact = _create_test_contact(
+            db_session, enquete, journaliste, expert, StatutAvis.ACCEPTE
+        )
+
+        service = AvisEnqueteService(db_session=db_session)
+        future_slot = _get_next_weekday_slot()
+        data = RDVProposalData(
+            rdv_type=RDVType.PHONE,
+            proposed_slots=[future_slot],
+            rdv_phone="+33612345678",
+        )
+
+        captured, factory = self._capture_mail()
+        with patch(
+            "app.services.emails.base.EmailMessage",
+            side_effect=factory,
+        ):
+            service.propose_rdv(contact.id, data, "/wip/opportunities/42")
+            # #0077: after a refusal, a new proposal must e-mail the
+            # expert again. The domain refuses propose-while-PROPOSED,
+            # so we go via the refuse path between calls.
+            service.refuse_rdv(contact.id, "/wip/reponses/42")
+            service.propose_rdv(contact.id, data, "/wip/opportunities/42")
+
+        # 3 mails: propose -> expert, refuse -> journalist, re-propose -> expert.
+        assert len(captured) == 3
+        propose_kwargs, refuse_kwargs, re_propose_kwargs = captured
+        assert propose_kwargs["to"] == ["expert@test.com"]
+        assert refuse_kwargs["to"] == ["journalist@test.com"]
+        assert re_propose_kwargs["to"] == ["expert@test.com"], (
+            "re-proposing after a refusal must e-mail the expert again (#0077)"
+        )
+
+    def test_refuse_rdv_emails_the_journalist(self, db_session: scoped_session) -> None:
+        """#0076: when the expert refuses all proposed slots, the
+        journalist must be e-mailed (and the in-app notification is
+        already covered above)."""
+        journaliste = User(email="journalist@test.com")
+        expert = User(email="expert@test.com")
+        media = Organisation(name="Media")
+        db_session.add_all([journaliste, expert, media])
+        db_session.flush()
+
+        enquete = _create_test_enquete(db_session, journaliste, media)
+        contact = _create_test_contact(
+            db_session, enquete, journaliste, expert, StatutAvis.ACCEPTE
+        )
+
+        service = AvisEnqueteService(db_session=db_session)
+        future_slot = _get_next_weekday_slot()
+        propose_data = RDVProposalData(
+            rdv_type=RDVType.PHONE,
+            proposed_slots=[future_slot],
+            rdv_phone="+33612345678",
+        )
+
+        captured, factory = self._capture_mail()
+        with patch(
+            "app.services.emails.base.EmailMessage",
+            side_effect=factory,
+        ):
+            service.propose_rdv(contact.id, propose_data, "/wip/opportunities/42")
+            service.refuse_rdv(contact.id, "/wip/reponses/42")
+
+        # Two mails total: propose (to expert) + refuse (to journalist).
+        assert len(captured) == 2
+        propose_kwargs, refuse_kwargs = captured
+        assert propose_kwargs["to"] == ["expert@test.com"]
+        assert refuse_kwargs["to"] == ["journalist@test.com"], (
+            "refuse_rdv mail recipient must be the journalist (#0076)"
+        )
+
+
 class TestNotifyExperts:
     """Tests for notify_experts — regression for bug #0140.
 
