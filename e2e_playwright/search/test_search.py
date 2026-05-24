@@ -112,6 +112,8 @@ def test_sidebar_lists_all_filter_categories(
     assert resp is not None
     assert resp.status == 200
 
+    # « Groupes » was removed from the search engine in commit 61b489f4
+    # — see ``src/app/modules/search/registry.py`` (no more Group entry).
     expected_labels = (
         "Tout",
         "Articles",
@@ -120,7 +122,6 @@ def test_sidebar_lists_all_filter_categories(
         "Marketplace",
         "Membres",
         "Organisations",
-        "Groupes",
     )
     body = page.content()
     for label in expected_labels:
