@@ -16,6 +16,7 @@ from typing import TYPE_CHECKING
 from unittest.mock import patch
 
 import pytest
+from flask import g
 
 from app.enums import ProfileEnum
 from app.models.auth import KYCProfile, User
@@ -1068,6 +1069,58 @@ class TestInvitePrProviderIntegration:
         )
 
         assert len(partnerships) == 1
+
+    def test_invite_pr_provider_mail_includes_client_name(
+        self,
+        app,
+        db_session: Session,
+        media_bw: BusinessWall,
+        pr_bw: BusinessWall,
+        media_owner: User,
+    ):
+        """Ticket #0123: the partnership-invitation mail body must mention
+        the *client* organisation (the BW owner's org), so the agency
+        owner knows whose BW they're being invited to manage.
+
+        Earlier the mail named only the BW; Erick reported the missing
+        company name. The fix added a ``client_name`` field to
+        ``BWRoleInvitationMail``. We assert it is wired in by capturing
+        the actual ``EmailMessage`` body.
+        """
+        client_org_name = media_bw.get_organisation().name
+        captured: dict = {}
+
+        def _capture_email(*_args, **kwargs):
+            captured.update(kwargs)
+
+            class _Stub:
+                content_subtype = ""
+
+                def send(self):
+                    return None
+
+            return _Stub()
+
+        with (
+            app.test_request_context("/"),
+            patch(
+                "app.services.emails.base.EmailMessage",
+                side_effect=_capture_email,
+            ),
+        ):
+            g.user = media_owner
+            result = invite_pr_provider(
+                media_bw, str(pr_bw.id), invited_by_user_id=media_owner.id
+            )
+
+        assert result is True
+        assert captured, "EmailMessage was never constructed"
+
+        body = captured.get("body", "")
+        assert client_org_name in body, (
+            f"the partnership invitation body must mention the client "
+            f"organisation '{client_org_name}' (#0123)"
+        )
 
 
 # -----------------------------------------------------------------------------
