@@ -131,13 +131,19 @@ def init_missions_state():
 # Roles that grant access to the Business Wall management dashboard.
 # Centralised so the predicate stays in sync between the dashboard
 # route guard and any UI surface that links to it (bug #0139).
+#
+# BWPRi and BWPRe are intentionally NOT in this set: PR managers can
+# publish on behalf of the BW (handled by partnership-aware authorization
+# in user_utils) but do not reach the management dashboard — clicking
+# "Aller au tableau de bord" used to land them on a 403 (#0139), and an
+# owner whose only accepted role was BWPRi could manage a BW they had no
+# business managing (#0157). Both are guarded by regression tests; do
+# not add BWPRi/BWPRe here without updating those tests first.
 DASHBOARD_ACCESS_ROLES: frozenset[str] = frozenset(
     {
         BWRoleType.BW_OWNER.value,
         BWRoleType.BWMI.value,
         BWRoleType.BWME.value,
-        BWRoleType.BWPRI.value,
-        BWRoleType.BWPRE.value,
     }
 )
 
