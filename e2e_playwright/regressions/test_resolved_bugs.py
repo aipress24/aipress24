@@ -478,20 +478,22 @@ def test_bug_0095_taxonomies_no_whitespace_dupes(
 
 def test_bug_0068_avis_enquete_mail_wording() -> None:
     """Bug #0068 — Le template de mail de notification d'avis
-    d'enquête (`avis_enquete_notification.j2`) doit utiliser le
-    wording demandé par Erick :
+    d'enquête (`avis_enquete_notification.j2`) doit respecter les
+    contrats demandés par Erick :
 
     - « AiPRESS24 » avec le « i » rouge inline-stylé (pas
       « Aipress24 » ou autre casse).
-    - « Un avis d'enquête vient d'être diffusé par un journaliste
-      membre d'AiPRESS24 ».
     - Inclure profession (`sender_job`) sur la ligne « Emetteur ».
-    - Inclure le bloc « Pour participer à cette enquête
-      journalistique, connectez-vous à AiPRESS24, puis collez le
-      lien ci-dessous… ».
+    - Le CTA est un **bouton stylé** vers l'avis d'enquête (lien
+      direct, pas d'explications longues) — demandé par Erick le
+      2026-05-21, livré en commit `550a3db2`. Avant, le lien était
+      une URL brute précédée d'un paragraphe « Pour participer à
+      cette enquête journalistique, cliquez sur le lien ci-dessous »
+      que ce test pinnait — on bascule la garde sur le nouveau
+      contrat (bouton + texte d'accroche court).
 
     Pure content check : pas d'e2e mail-roundtrip (demanderait un
-    avis publié + ciblage en cours d'envoi). Cf. commit `24ff45d1`
+    avis publié + ciblage en cours d'envoi). Cf. commit `550a3db2`
     et `bugs/resolus/0068`.
     """
     from pathlib import Path
@@ -520,9 +522,22 @@ def test_bug_0068_avis_enquete_mail_wording() -> None:
         "avis_enquete_notification.j2 : `sender_job` Jinja var "
         "absent — Emetteur ne mentionne plus la fonction."
     )
-    # The CTA paragraph wording.
-    assert "Pour participer à cette enquête journalistique" in content, (
-        "avis_enquete_notification.j2 : CTA wording absent — bug #0068 regressed."
+    # CTA contract (post-2026-05-21) : a styled <a> button labelled
+    # « Ouvrir l'avis d'enquête » with an inline background color,
+    # plus a short lead-in that drops the long « cliquez sur le lien
+    # ci-dessous » phrase. The lead-in keeps « Pour participer à
+    # cette enquête » so the email reads naturally.
+    assert "Pour participer à cette enquête" in content, (
+        "avis_enquete_notification.j2 : CTA lead-in absent — bug #0068 regressed."
+    )
+    assert "Ouvrir l'avis d'enquête" in content, (
+        "avis_enquete_notification.j2 : CTA button label "
+        "« Ouvrir l'avis d'enquête » absent — bug #0068 regressed."
+    )
+    assert "background-color" in content, (
+        "avis_enquete_notification.j2 : the CTA button must be "
+        "inline-styled (background-color) for email-client "
+        "compatibility — bug #0068 regressed."
     )
 
 
