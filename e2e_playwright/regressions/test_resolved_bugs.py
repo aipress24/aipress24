@@ -1287,9 +1287,19 @@ def test_bug_0132_sujets_table_exposes_publier_action(
     body = page.content()
     if "/wip/sujets/" not in body:
         pytest.skip("sujets list page didn't render the listing area")
-    has_row = page.locator("a[href*='/wip/sujets/']").count() > 0
+
+    # Discriminating skip : a *row* URL ends in `/wip/sujets/<digits>`
+    # (the matcher used by `_first_id_in_table`). The previous heuristic
+    # — "any href containing /wip/sujets/" — also matched the breadcrumb,
+    # the « Créer un sujet » button, and pagination links, so the skip
+    # never fired even when the user had no sujet, and the test reached
+    # the body-assertion below with an empty table → false red.
+    hrefs = page.locator("a[href]").evaluate_all(
+        "els => els.map(e => e.getAttribute('href') || '')"
+    )
+    has_row = any(_SUJET_PAT.search(h) for h in (hrefs or ()))
     if not has_row:
-        pytest.skip("no sujet in seed data for this user")
+        pytest.skip("no sujet row in this user's table — seed data")
 
     assert "Publier" in body or "Dépublier" in body, (
         "neither Publier nor Dépublier action found on /wip/sujets/ — "
