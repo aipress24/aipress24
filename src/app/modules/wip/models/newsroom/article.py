@@ -17,7 +17,6 @@ from app.lib.file_object_utils import media_url
 from app.models.base import Base
 from app.models.lifecycle import PublicationStatus
 from app.models.mixins import IdMixin, LifeCycleMixin, Owned
-from app.models.organisation import Organisation
 
 from ._base import NewsMetadataMixin, NewsroomCommonMixin
 

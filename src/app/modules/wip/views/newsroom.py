@@ -20,7 +20,6 @@ from app.modules.wip.pr_access import (
     user_can_access_newsroom,
     user_is_acting_as_pr_manager,
 )
-from app.services.roles import has_role
 
 from ._common import count_owned_non_deleted, get_secondary_menu
 
