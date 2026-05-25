@@ -24,6 +24,15 @@ class NewsroomCommonMixin(IdMixin, LifeCycleMixin, Owned):
     # Commanditaire
     commanditaire_id: Mapped[int] = mapped_column(sa.BigInteger, sa.ForeignKey(User.id))
 
+    # Publisher (for PR managers acting on behalf of a client BW)
+    publisher_id: Mapped[int | None] = mapped_column(
+        sa.BigInteger, sa.ForeignKey(Organisation.id), nullable=True
+    )
+
+    @orm.declared_attr
+    def publisher(cls):
+        return orm.relationship(Organisation, foreign_keys=[cls.publisher_id])  # type: ignore[list-item]
+
     # Titre
     titre: Mapped[str] = mapped_column(default="")
 
