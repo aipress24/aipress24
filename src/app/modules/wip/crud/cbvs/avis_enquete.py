@@ -10,8 +10,10 @@ from typing import TYPE_CHECKING, cast
 from flask import (
     Flask,
     Response,
+    abort,
     current_app,
     flash,
+    g,
     redirect,
     render_template,
     request,
@@ -25,9 +27,12 @@ from werkzeug.wrappers import Response as WerkzeugResponse
 from app.flask.lib.htmx import extract_fragment
 from app.flask.lib.templates import templated
 from app.flask.routing import url_for
+from app.logging import warn
 from app.models.lifecycle import PublicationStatus
-
-# from app.logging import warn
+from app.modules.bw.bw_activation.user_utils import (
+    can_user_publish_for,
+    get_validated_client_orgs_for_user,
+)
 from app.modules.wip.models import (
     AvisEnquete,
     AvisEnqueteRepository,
@@ -35,6 +40,7 @@ from app.modules.wip.models import (
     RDVType,
     StatutAvis,
 )
+from app.modules.wip.pr_access import user_can_access_newsroom
 from app.modules.wip.services.newsroom import (
     AvisEnqueteService,
     ExpertFilterService,
@@ -184,6 +190,47 @@ class AvisEnqueteWipView(BaseWipView):
 
     msg_delete_ok = "L'avis d'enquête a été supprimé"
     msg_delete_ko = "Vous n'êtes pas autorisé à supprimer cet avis d'enquête"
+
+    def before_request(self, *_args, **_kwargs) -> Response | None:
+        if resp := super().before_request(*_args, **_kwargs):
+            return resp
+
+        if not user_can_access_newsroom(g.user):
+            abort(403)
+        return None
+
+    def _post_update_model(self, model: AvisEnquete) -> None:
+        # Validate publisher_id: if the user selected a client org they are
+        # not authorized to publish for, warn but DO NOT silently reset.
+        if model.publisher_id and not can_user_publish_for(g.user, model.publisher_id):
+            warn(
+                f"AvisEnquete {model.id}: user {g.user.id} selected publisher_id="
+                f"{model.publisher_id} but can_user_publish_for is False. "
+            )
+        if not model.publisher_id and g.user.organisation_id:
+            model.publisher_id = g.user.organisation_id
+
+    def _view_ctx(self, model=None, form=None, mode="edit", title=""):
+        if not form:
+            form = self.form_class(obj=model)
+        self._make_publisher_choices(form)
+        return super()._view_ctx(model, form, mode, title)
+
+    def _make_publisher_choices(self, form) -> None:
+        """Populate the `publisher_id` select with the user's org + validated
+        clients (for PR agency users)."""
+        if not hasattr(form, "publisher_id"):
+            return
+        choices = []
+        user = g.user
+        own_org = getattr(user, "organisation", None)
+        if user.organisation_id and own_org is not None:
+            choices.append(
+                (user.organisation_id, f"Mon organisation — {own_org.bw_name}")
+            )
+        for client_org in get_validated_client_orgs_for_user(user):
+            choices.append((client_org.id, client_org.bw_name))
+        form.publisher_id.choices = choices
 
     def _build_opportunity_url(self, contact: ContactAvisEnquete) -> str:
         domain = str(current_app.config.get("SERVER_NAME"))

@@ -57,6 +57,18 @@ class ArticleForm(Form):
         validators=[validators.InputRequired()],
     )
 
+    publisher_id = SimpleRichSelectField(
+        "Publier pour",
+        description=(
+            "L'organisation au nom de laquelle ce contenu est publié. "
+            "Le contenu apparaîtra sur le BW de l'organisation sélectionnée "
+            "et dans la Newsroom."
+        ),
+        render_kw={"width": 6},
+        coerce=int,
+        validate_choice=False,
+    )
+
     pays_zip_ville = CountrySelectField(
         name="pays_zip_ville",
         name2="pays_zip_ville_detail",
@@ -149,6 +161,18 @@ class AvisEnqueteForm(Form):
         validators=[validators.InputRequired()],
     )
 
+    publisher_id = SimpleRichSelectField(
+        "Publier pour",
+        description=(
+            "L'organisation au nom de laquelle ce contenu est publié. "
+            "Le contenu apparaîtra sur le BW de l'organisation sélectionnée "
+            "et dans la Newsroom."
+        ),
+        render_kw={"width": 6},
+        coerce=int,
+        validate_choice=False,
+    )
+
     pays_zip_ville = CountrySelectField(
         name="pays_zip_ville",
         name2="pays_zip_ville_detail",
@@ -196,6 +220,7 @@ class AvisEnqueteForm(Form):
                     "topic",
                     "sector",
                     "media_id",
+                    "publisher_id",
                     "pays_zip_ville",
                 ],
             },
@@ -252,6 +277,18 @@ class SujetForm(Form):
         validators=[validators.InputRequired()],
     )
 
+    publisher_id = SimpleRichSelectField(
+        "Publier pour",
+        description=(
+            "L'organisation au nom de laquelle ce sujet est proposé. "
+            "Le contenu apparaîtra sur le BW de l'organisation sélectionnée "
+            "et dans la Newsroom."
+        ),
+        render_kw={"width": 6},
+        coerce=int,
+        validate_choice=False,
+    )
+
     pays_zip_ville = CountrySelectField(
         name="pays_zip_ville",
         name2="pays_zip_ville_detail",
@@ -289,6 +326,7 @@ class SujetForm(Form):
                     "topic",
                     "sector",
                     "media_id",
+                    "publisher_id",
                     "pays_zip_ville",
                 ],
             },
@@ -333,6 +371,18 @@ class CommandeForm(Form):
         "Média",
         render_kw={"width": 6},
         validators=[validators.InputRequired()],
+    )
+
+    publisher_id = SimpleRichSelectField(
+        "Publier pour",
+        description=(
+            "L'organisation au nom de laquelle ce contenu est publié. "
+            "Le contenu apparaîtra sur le BW de l'organisation sélectionnée "
+            "et dans la Newsroom."
+        ),
+        render_kw={"width": 6},
+        coerce=int,
+        validate_choice=False,
     )
 
     pays_zip_ville = CountrySelectField(
@@ -382,6 +432,7 @@ class CommandeForm(Form):
                     "topic",
                     "sector",
                     "media_id",
+                    "publisher_id",
                     "pays_zip_ville",
                 ],
             },
