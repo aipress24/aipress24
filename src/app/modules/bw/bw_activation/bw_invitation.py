@@ -33,7 +33,7 @@ from app.modules.bw.bw_activation.models import (
     RolePermission,
 )
 from app.modules.bw.bw_activation.utils import bw_roles_ids
-from app.services.emails import BWRoleInvitationMail
+from app.services.emails import BWPartnershipRevokedMail, BWRoleInvitationMail
 from app.services.notifications import NotificationService
 
 BW_ROLE_TYPE_LABEL: dict[str, str] = {
@@ -569,6 +569,10 @@ def revoke_partnership(
     organisation. After revocation the agency no longer has
     publishing rights for this client.
 
+    Ticket #0169 : also notifies the partner agency owner via in-app
+    notification and email so they know they lost a client (the page
+    silently dropped the line otherwise).
+
     Args:
         business_wall: The client BusinessWall revoking the partnership.
         partner_bw_id: UUID (as str) of the partner PR agency BW.
@@ -607,7 +611,84 @@ def revoke_partnership(
                 db.session.delete(assignment)
 
     db.session.flush()
+
+    # Ticket #0169: notify the partner agency owner. Belt-and-suspenders :
+    # in-app bell + email. Wrap each in try/except so a notification
+    # failure doesn't leave the partnership half-revoked.
+    if partner_bw is not None:
+        try:
+            notify_partnership_revoked(business_wall, partner_bw)
+        except Exception as exc:
+            warn(f"revoke_partnership: in-app notification failed: {exc}")
+        try:
+            send_partnership_revoked_mail(business_wall, partner_bw)
+        except Exception as exc:
+            warn(f"revoke_partnership: email failed: {exc}")
+
     return True
+
+
+def notify_partnership_revoked(
+    business_wall: BusinessWall,
+    partner_bw: BusinessWall,
+) -> None:
+    """Post an in-app notification on the partner agency owner's bell
+    (ticket #0169)."""
+    client_org = business_wall.get_organisation()
+    client_name = client_org.name if client_org else "(client inconnu)"
+    bw_name = business_wall.name_safe or "(Nom inconnu)"
+    message = (
+        f"Fin du partenariat RP : {client_name} a mis fin au partenariat "
+        f"avec votre PR Agency sur le Business Wall « {bw_name} »."
+    )
+    agency_owner = get_obj(partner_bw.owner_id, User)
+    if agency_owner is None:
+        return
+    notification_service = container.get(NotificationService)
+    notification_service.post(
+        agency_owner, message, url="/preferences/invitations"
+    )
+
+
+def send_partnership_revoked_mail(
+    business_wall: BusinessWall,
+    partner_bw: BusinessWall,
+) -> None:
+    """Email the partner agency owner that the client revoked the
+    partnership (ticket #0169)."""
+    from app.models.organisation import Organisation
+
+    current_user = cast("User", g.user)
+    sender_mail = current_user.email
+    sender_full_name = current_user.full_name
+
+    client_org = business_wall.get_organisation()
+    client_name = client_org.name if client_org else "(client inconnu)"
+    bw_name = business_wall.name_safe or "(Nom inconnu)"
+
+    agency_owner = get_obj(partner_bw.owner_id, User)
+    if agency_owner is None or not agency_owner.email:
+        return
+
+    partner_org = (
+        get_obj(partner_bw.organisation_id, Organisation)
+        if partner_bw.organisation_id
+        else None
+    )
+    agency_name = (
+        (partner_org.name if partner_org else None) or partner_bw.name_safe or "(PR Agency inconnue)"
+    )
+
+    mail = BWPartnershipRevokedMail(
+        sender="contact@aipress24.com",
+        recipient=agency_owner.email,
+        sender_mail=sender_mail,
+        sender_full_name=sender_full_name,
+        agency_name=agency_name,
+        bw_name=bw_name,
+        client_name=client_name,
+    )
+    mail.send()
 
 
 def apply_bw_missions_to_pr_user(

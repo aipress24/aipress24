@@ -17,6 +17,7 @@ from unittest.mock import patch
 
 import pytest
 from flask import g
+from svcs.flask import container
 
 from app.enums import ProfileEnum
 from app.models.auth import KYCProfile, User
@@ -44,6 +45,7 @@ from app.modules.bw.bw_activation.models import (
     RoleAssignment,
 )
 from app.modules.preferences.views.invitations import InvitationsView
+from app.services.notifications import NotificationService
 from app.services.notifications._models import Notification
 
 if TYPE_CHECKING:
@@ -1194,6 +1196,73 @@ class TestRevokePartnershipIntegration:
             .all()
         )
         assert remaining == []
+
+    def test_revoke_notifies_partner_agency_owner(
+        self,
+        app,
+        db_session: Session,
+        media_bw: BusinessWall,
+        pr_bw: BusinessWall,
+        pr_owner: User,
+        media_owner: User,
+    ):
+        """Ticket #0169 (Erick, 2026-05-22) : when a client revokes a
+        partnership, the PR Agency owner had no signal — no cloche,
+        no mail, the row simply disappeared from their preferences.
+        Add (a) an in-app notification and (b) an email to the
+        agency owner, both naming the client org so the agency
+        knows whose partnership ended."""
+        partnership = Partnership(
+            business_wall_id=media_bw.id,
+            partner_bw_id=str(pr_bw.id),
+            status=PartnershipStatus.ACTIVE.value,
+            invited_by_user_id=media_bw.owner_id,
+            invited_at=datetime.now(UTC),
+            accepted_at=datetime.now(UTC),
+        )
+        db_session.add(partnership)
+        db_session.flush()
+
+        captured_mail: dict = {}
+
+        def _capture_email(*_args, **kwargs):
+            captured_mail.update(kwargs)
+
+            class _Stub:
+                content_subtype = ""
+
+                def send(self):
+                    return None
+
+            return _Stub()
+
+        with (
+            app.test_request_context("/"),
+            patch(
+                "app.services.emails.base.EmailMessage",
+                side_effect=_capture_email,
+            ),
+        ):
+            g.user = media_owner
+            result = revoke_partnership(media_bw, str(pr_bw.id))
+
+        assert result is True
+
+        # (a) In-app notification posted to the agency owner.
+        notifs = container.get(NotificationService).get_notifications(pr_owner)
+        client_org_name = media_bw.get_organisation().name
+        assert any(
+            client_org_name in n.message and "partenariat" in n.message.lower()
+            for n in notifs
+        ), (
+            "agency owner must get an in-app notification mentioning the "
+            "client org (#0169)"
+        )
+
+        # (b) Email sent to the agency owner with the client org name.
+        assert captured_mail, "an email must be sent to the agency owner"
+        assert captured_mail.get("to") == [pr_owner.email]
+        assert client_org_name in captured_mail.get("body", "")
 
     def test_revoke_returns_false_when_no_active_partnership(
         self,

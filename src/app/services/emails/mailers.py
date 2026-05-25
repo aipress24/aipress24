@@ -77,6 +77,32 @@ class BWRoleInvitationMail(EmailTemplate):
 
 
 @dataclass(kw_only=True)
+class BWPartnershipRevokedMail(EmailTemplate):
+    """
+    Notify a PR Agency owner that one of their clients has revoked the
+    RP partnership (ticket #0169). Without this mail the agency only
+    saw a row disappear from their /preferences/invitations page, with
+    no signal they had lost a client.
+
+    Args:
+        - sender (str): mail of actual sender, usually "contact@aipress24.com".
+        - recipient (str): mail of the PR agency owner.
+        - sender_mail (str): client BW owner's email (informative).
+        - sender_full_name (str): client BW owner's full name.
+        - agency_name (str): name of the PR agency's organisation.
+        - bw_name (str): name of the client's BusinessWall.
+        - client_name (str): name of the client organisation.
+    """
+
+    subject: str = "[Aipress24] Fin du partenariat RP"
+    template_html: str = "bw_partnership_revoked.j2"
+    sender_full_name: str
+    agency_name: str
+    bw_name: str
+    client_name: str
+
+
+@dataclass(kw_only=True)
 class PRPublicationNotificationMail(EmailTemplate):
     """Notify a client's BW owner that their PR agency has published on
     their behalf.
