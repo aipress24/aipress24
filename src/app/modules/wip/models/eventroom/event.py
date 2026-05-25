@@ -167,6 +167,19 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
             msg = "Cannot publish event: contenu is required"
             raise ValueError(msg)
 
+        # Bug #0172 — BUSINESS RULE: an event without dates would be
+        # silently filtered out of the public /events/ list (the
+        # default DateFilter compares `start_datetime`/`end_datetime`
+        # against today, and NULL >= today evaluates to NULL = false).
+        # Block at publish time with a clear error so the user knows
+        # *why* their event would otherwise be invisible.
+        if not self.start_time or not self.end_time:
+            msg = (
+                "Cannot publish event: la date de début et la date de "
+                "fin sont obligatoires pour publier un événement."
+            )
+            raise ValueError(msg)
+
         # BUSINESS RULE: Validate temporal consistency
         if self.start_time and self.end_time:
             # Handle timezone-naive datetimes

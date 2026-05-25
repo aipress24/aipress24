@@ -158,6 +158,36 @@ class TestEventsPublish:
         response = logged_in_client.get(url, follow_redirects=False)
         assert response.status_code == 302
 
+    def test_publish_event_without_dates_fails(
+        self,
+        logged_in_client: FlaskClient,
+        db_session: Session,
+        test_user: User,
+        test_org: Organisation,
+    ):
+        """Ticket #0172 (Sophie-Anne, 2026-05-25) — publishing an
+        event without start_time/end_time produced a PUBLIC row that
+        was silently filtered out of /events/ (the default DateFilter
+        compares against today, and NULL >= today evaluates to NULL).
+        Block at publish time with a clear flash so the user knows
+        why their event would otherwise be invisible."""
+        event = Event(owner=test_user, publisher=test_org)
+        event.titre = "Event without dates"
+        event.contenu = "Some content"
+        event.status = PublicationStatus.DRAFT
+        # No start_time / end_time set.
+        db_session.add(event)
+        db_session.flush()
+
+        url = url_for("EventsWipView:publish", id=event.id)
+        response = logged_in_client.get(url, follow_redirects=False)
+        assert response.status_code == 302
+        db_session.refresh(event)
+        assert event.status == PublicationStatus.DRAFT, (
+            "publish must NOT have flipped status to PUBLIC when dates "
+            "are missing (#0172)"
+        )
+
 
 class TestEventsUnpublish:
     """Tests for the event unpublish workflow."""
