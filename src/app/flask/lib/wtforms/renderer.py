@@ -39,6 +39,12 @@ FORM_TEMPLATE = """
     <input type="hidden" name="id" value="{{ model.id }}"/>
   {% endif %}
 
+  {% if publisher_text %}
+    <div class="pt-4 pb-2">
+      <p class="text-base font-medium text-gray-900">{{ publisher_text }}</p>
+    </div>
+  {% endif %}
+
   {% for group in groups %}
     {{ renderer.render_group(group) }}
   {% endfor %}
@@ -85,12 +91,14 @@ FIELD_TEMPLATE = """
 {% endif %}
 
 <div class="sm:col-span-{{ width }}">
+  {% if label %}
   <label for="{{ id }}" class="dui-label">
     <span class="aui-label-text {{error_class}}">{{ label }}</span>
     {% if errors %}
         <div class="text-red-500 text-sm">{{ errors[0] }}</div>
     {% endif %}
   </label>
+  {% endif %}
 
   <div class="rounded-md shadow-sm">
     {{ field }}
@@ -142,9 +150,11 @@ GROUP_VIEW_TEMPLATE = """
 # language=html
 FIELD_VIEW_TEMPLATE = """
 <div class="sm:col-span-{{ width }}">
+  {% if label %}
   <label for="{{ id }}" class="dui-label">
     <span class="aui-label-text">{{ label }}</span>
   </label>
+  {% endif %}
 
   <div class="rounded-md shadow-sm">
     {{ field }}
@@ -190,11 +200,32 @@ class FormRenderer:
             template = current_app.jinja_env.from_string(FORM_VIEW_TEMPLATE)
         else:
             template = current_app.jinja_env.from_string(FORM_TEMPLATE)
+
+        publisher_text = ""
+        from flask import g
+
+        if g and hasattr(g, "user") and g.user:
+            from app.modules.bw.bw_activation.user_utils import (
+                get_selected_business_wall_for_user,
+            )
+
+            if getattr(g.user, "is_managing_another_bw", False):
+                bw = get_selected_business_wall_for_user(g.user)
+                if bw:
+                    publisher_text = f'Publié pour le compte de "{bw.name}"'
+            else:
+                own_org = getattr(g.user, "organisation", None)
+                if own_org:
+                    publisher_text = (
+                        f'Publié pour le compte de "{own_org.bw_name or own_org.name}"'
+                    )
+
         ctx = {
             "groups": groups,
             "form": self.form,
             "model": self.model,
             "renderer": self,
+            "publisher_text": publisher_text,
         }
         return Markup(template.render(**ctx).strip())
 
@@ -250,6 +281,7 @@ class FormRenderer:
             ctx = {
                 "id": field.id,
                 "label": field.label.text,
+                "field_name": field.name,
                 "field": field,
                 "errors": field.errors,
                 "width": width,
@@ -259,6 +291,7 @@ class FormRenderer:
             ctx = {
                 "id": field.id,
                 "label": field.label.text,
+                "field_name": field.name,
                 "field": Markup(field_str),
                 "errors": field.errors,
                 "width": width,

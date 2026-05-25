@@ -57,18 +57,6 @@ class ArticleForm(Form):
         validators=[validators.InputRequired()],
     )
 
-    publisher_id = SimpleRichSelectField(
-        "Publier pour",
-        description=(
-            "L'organisation au nom de laquelle ce contenu est publié. "
-            "Le contenu apparaîtra sur le BW de l'organisation sélectionnée "
-            "et dans la Newsroom."
-        ),
-        render_kw={"width": 6},
-        coerce=int,
-        validate_choice=False,
-    )
-
     pays_zip_ville = CountrySelectField(
         name="pays_zip_ville",
         name2="pays_zip_ville_detail",
@@ -161,18 +149,6 @@ class AvisEnqueteForm(Form):
         validators=[validators.InputRequired()],
     )
 
-    publisher_id = SimpleRichSelectField(
-        "Publier pour",
-        description=(
-            "L'organisation au nom de laquelle ce contenu est publié. "
-            "Le contenu apparaîtra sur le BW de l'organisation sélectionnée "
-            "et dans la Newsroom."
-        ),
-        render_kw={"width": 6},
-        coerce=int,
-        validate_choice=False,
-    )
-
     pays_zip_ville = CountrySelectField(
         name="pays_zip_ville",
         name2="pays_zip_ville_detail",
@@ -220,7 +196,6 @@ class AvisEnqueteForm(Form):
                     "topic",
                     "sector",
                     "media_id",
-                    "publisher_id",
                     "pays_zip_ville",
                 ],
             },
@@ -277,18 +252,6 @@ class SujetForm(Form):
         validators=[validators.InputRequired()],
     )
 
-    publisher_id = SimpleRichSelectField(
-        "Publier pour",
-        description=(
-            "L'organisation au nom de laquelle ce sujet est proposé. "
-            "Le contenu apparaîtra sur le BW de l'organisation sélectionnée "
-            "et dans la Newsroom."
-        ),
-        render_kw={"width": 6},
-        coerce=int,
-        validate_choice=False,
-    )
-
     pays_zip_ville = CountrySelectField(
         name="pays_zip_ville",
         name2="pays_zip_ville_detail",
@@ -326,7 +289,6 @@ class SujetForm(Form):
                     "topic",
                     "sector",
                     "media_id",
-                    "publisher_id",
                     "pays_zip_ville",
                 ],
             },
@@ -371,18 +333,6 @@ class CommandeForm(Form):
         "Média",
         render_kw={"width": 6},
         validators=[validators.InputRequired()],
-    )
-
-    publisher_id = SimpleRichSelectField(
-        "Publier pour",
-        description=(
-            "L'organisation au nom de laquelle ce contenu est publié. "
-            "Le contenu apparaîtra sur le BW de l'organisation sélectionnée "
-            "et dans la Newsroom."
-        ),
-        render_kw={"width": 6},
-        coerce=int,
-        validate_choice=False,
     )
 
     pays_zip_ville = CountrySelectField(
@@ -432,7 +382,6 @@ class CommandeForm(Form):
                     "topic",
                     "sector",
                     "media_id",
-                    "publisher_id",
                     "pays_zip_ville",
                 ],
             },
@@ -502,19 +451,6 @@ class CommuniqueForm(Form):
         readonly=0,
     )
 
-    publisher_id = SimpleRichSelectField(
-        "Publier pour",
-        description=(
-            "L'organisation au nom de laquelle ce contenu est publié. "
-            "Le contenu apparaîtra automatiquement sur le BW de l'organisation "
-            "sélectionnée, sur le BW de votre propre organisation, et dans la "
-            "rubrique NEWS / Idées & Comm'."
-        ),
-        render_kw={"width": 6},
-        coerce=int,
-        validate_choice=False,
-    )
-
     # --- Groupe: Dates ---
     embargoed_until = DateTimeField(
         "Date/heure d'embargo (parution prévue)",
@@ -547,10 +483,6 @@ class CommuniqueForm(Form):
                     "topic",
                     "sector",
                     "pays_zip_ville",
-                    # Render publisher_id LAST: its Choices.js dropdown panel
-                    # extends downward and was being visually masked by the
-                    # CountrySelectField tom-select widget when rendered above.
-                    "publisher_id",
                 ],
             },
             "dates": {
@@ -617,19 +549,6 @@ class EventForm(Form):
         validators=[validators.Optional()],
     )
 
-    publisher_id = SimpleRichSelectField(
-        "Publier pour",
-        description=(
-            "L'organisation au nom de laquelle ce contenu est publié. "
-            "Le contenu apparaîtra automatiquement sur le BW de l'organisation "
-            "sélectionnée, sur le BW de votre propre organisation, et dans la "
-            "rubrique NEWS / Idées & Comm'."
-        ),
-        render_kw={"width": 6},
-        coerce=int,
-        validate_choice=False,
-    )
-
     # --- Groupe: Dates ---
     start_time = DateTimeField(
         "Date/heure de début de l'événement",
@@ -662,7 +581,6 @@ class EventForm(Form):
                     "address",
                     "pays_zip_ville",
                     "url",
-                    "publisher_id",
                 ],
             },
             "dates": {

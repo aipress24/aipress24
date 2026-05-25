@@ -30,7 +30,7 @@ from app.models.lifecycle import PublicationStatus
 from app.modules.bw.bw_activation.models import PermissionType
 from app.modules.bw.bw_activation.user_utils import (
     can_user_publish_for,
-    get_validated_client_orgs_for_user,
+    get_selected_business_wall_for_user,
 )
 from app.modules.wip.models import (
     ComImage,
@@ -184,18 +184,17 @@ class CommuniquesWipView(BaseWipView):
                 f"{model.publisher_id} but can_user_publish_for is False. "
                 "Keeping the value so the user sees the error at publish time."
             )
-        if not model.publisher_id and g.user.organisation_id:
-            model.publisher_id = g.user.organisation_id
+        if not model.publisher_id:
+            if g.user.is_managing_another_bw:
+                bw = get_selected_business_wall_for_user(g.user)
+                if bw:
+                    model.publisher_id = bw.organisation_id
+            if not model.publisher_id and g.user.organisation_id:
+                model.publisher_id = g.user.organisation_id
 
         if not model.status:
             model.status = PublicationStatus.DRAFT  # type: ignore[assignment]
         communique_updated.send(model)
-
-    def _view_ctx(self, model=None, form=None, mode="edit", title=""):
-        if not form:
-            form = self.form_class(obj=model)
-        self._make_publisher_choices(form)
-        return super()._view_ctx(model, form, mode, title)
 
     def _extra_view_html(self, model, mode: str) -> str:
         """Bug 0128: in view mode, render the same image carousel as NEWS.
@@ -216,22 +215,6 @@ class CommuniquesWipView(BaseWipView):
         return render_template(
             "wip/communique/_view_images.j2", post=CommuniqueVM(model)
         )
-
-    def _make_publisher_choices(self, form) -> None:
-        """Populate the `publisher_id` select with the user's org + validated
-        clients (for PR agency users)."""
-        if not hasattr(form, "publisher_id"):
-            return
-        choices = []
-        user = g.user
-        own_org = getattr(user, "organisation", None)
-        if user.organisation_id and own_org is not None:
-            choices.append(
-                (user.organisation_id, f"Mon organisation — {own_org.bw_name}")
-            )
-        for client_org in get_validated_client_orgs_for_user(user):
-            choices.append((client_org.id, client_org.bw_name))
-        form.publisher_id.choices = choices
 
     def publish(self, id):
         repo = self._get_repo()
