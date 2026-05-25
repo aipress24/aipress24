@@ -62,13 +62,6 @@ class Article(
     expired_at: Mapped[datetime | None] = mapped_column(
         ArrowType(timezone=True), nullable=True
     )
-    publisher_id: Mapped[int | None] = mapped_column(
-        sa.ForeignKey("crp_organisation.id")
-    )
-
-    publisher: Mapped[Organisation | None] = orm.relationship(
-        Organisation, foreign_keys=[publisher_id]
-    )
 
     images: ClassVar[list[Image]]
 

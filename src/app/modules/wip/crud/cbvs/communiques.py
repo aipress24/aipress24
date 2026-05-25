@@ -8,6 +8,8 @@ from typing import TYPE_CHECKING, cast
 
 from flask import (
     Flask,
+    Response,
+    abort,
     flash,
     g,
     redirect,
@@ -25,15 +27,21 @@ from app.lib.file_object_utils import create_file_object
 from app.lib.image_utils import extract_image_from_request
 from app.logging import warn
 from app.models.lifecycle import PublicationStatus
+from app.modules.bw.bw_activation.models import PermissionType
 from app.modules.bw.bw_activation.user_utils import (
     can_user_publish_for,
-    get_validated_client_orgs_for_user,
+    get_selected_business_wall_for_user,
 )
 from app.modules.wip.models import (
     ComImage,
     ComImageRepository,
     Communique,
     CommuniqueRepository,
+)
+from app.modules.wip.pr_access import (
+    user_can_access_comroom,
+    user_has_mission,
+    user_is_acting_as_pr_manager,
 )
 from app.modules.wip.services.pr_notifications import (
     absolute_url_for,
@@ -145,6 +153,21 @@ class CommuniquesWipView(BaseWipView):
     msg_delete_ok = "Le communiqué a été supprimé"
     msg_delete_ko = "Vous n'êtes pas autorisé à supprimer ce communiqué"
 
+    def before_request(self, *_args, **_kwargs) -> Response | None:
+        if resp := super().before_request(*_args, **_kwargs):
+            return resp
+
+        user = g.user
+        if not user_can_access_comroom(user):
+            abort(403)
+
+        if user_is_acting_as_pr_manager(user) and not user_has_mission(
+            user, PermissionType.PRESS_RELEASE
+        ):
+            abort(403)
+
+        return None
+
     def _get_model(self, id):
         """Override to handle base62 encoded IDs from URLs."""
         return get_obj(id, self.model_class)
@@ -161,18 +184,17 @@ class CommuniquesWipView(BaseWipView):
                 f"{model.publisher_id} but can_user_publish_for is False. "
                 "Keeping the value so the user sees the error at publish time."
             )
-        if not model.publisher_id and g.user.organisation_id:
-            model.publisher_id = g.user.organisation_id
+        if not model.publisher_id:
+            if g.user.is_managing_another_bw:
+                bw = get_selected_business_wall_for_user(g.user)
+                if bw:
+                    model.publisher_id = bw.organisation_id
+            if not model.publisher_id and g.user.organisation_id:
+                model.publisher_id = g.user.organisation_id
 
         if not model.status:
             model.status = PublicationStatus.DRAFT  # type: ignore[assignment]
         communique_updated.send(model)
-
-    def _view_ctx(self, model=None, form=None, mode="edit", title=""):
-        if not form:
-            form = self.form_class(obj=model)
-        self._make_publisher_choices(form)
-        return super()._view_ctx(model, form, mode, title)
 
     def _extra_view_html(self, model, mode: str) -> str:
         """Bug 0128: in view mode, render the same image carousel as NEWS.
@@ -193,22 +215,6 @@ class CommuniquesWipView(BaseWipView):
         return render_template(
             "wip/communique/_view_images.j2", post=CommuniqueVM(model)
         )
-
-    def _make_publisher_choices(self, form) -> None:
-        """Populate the `publisher_id` select with the user's org + validated
-        clients (for PR agency users)."""
-        if not hasattr(form, "publisher_id"):
-            return
-        choices = []
-        user = g.user
-        own_org = getattr(user, "organisation", None)
-        if user.organisation_id and own_org is not None:
-            choices.append(
-                (user.organisation_id, f"Mon organisation — {own_org.bw_name}")
-            )
-        for client_org in get_validated_client_orgs_for_user(user):
-            choices.append((client_org.id, client_org.bw_name))
-        form.publisher_id.choices = choices
 
     def publish(self, id):
         repo = self._get_repo()

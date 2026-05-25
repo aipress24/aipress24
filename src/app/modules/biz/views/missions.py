@@ -38,8 +38,11 @@ from app.modules.biz.views._offers_common import (
     mark_filled,
     update_application_status,
 )
+from app.modules.bw.bw_activation.models import PermissionType
+from app.modules.bw.bw_activation.user_utils import get_selected_business_wall_for_user
 from app.modules.kyc.dynform import CountrySelectField
 from app.modules.kyc.ontology_loader import get_choices as get_ontology_choices
+from app.modules.wip.pr_access import check_mission
 from app.signals import marketplace_published
 
 
@@ -72,10 +75,17 @@ class MissionOfferForm(Form):
 @blueprint.route("/missions/new", methods=["GET", "POST"])
 def missions_new():
     user = cast(User, g.user)
+    check_mission(user, PermissionType.MISSIONS)
 
     form = MissionOfferForm(request.form)
     form.pays_zip_ville.choices = get_ontology_choices("country_pays")
     if request.method == "POST" and form.validate():
+        emitter_org_id = getattr(user, "organisation_id", None)
+        if user.is_managing_another_bw:
+            bw = get_selected_business_wall_for_user(user)
+            if bw:
+                emitter_org_id = bw.organisation_id
+
         mission = MissionOffer(
             title=form.title.data or "",
             description=form.description.data or "",
@@ -91,7 +101,7 @@ def missions_new():
             status=default_new_offer_status(),
             mission_status=MissionStatus.OPEN,
             owner_id=user.id,
-            emitter_org_id=getattr(user, "organisation_id", None),
+            emitter_org_id=emitter_org_id,
         )
         db.session.add(mission)
         db.session.commit()

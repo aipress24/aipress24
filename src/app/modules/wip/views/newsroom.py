@@ -16,6 +16,10 @@ from app.flask.lib.nav import nav
 from app.flask.routing import url_for
 from app.modules.bw.bw_activation.user_utils import get_business_wall_for_user
 from app.modules.wip import blueprint
+from app.modules.wip.pr_access import (
+    user_can_access_newsroom,
+    user_is_acting_as_pr_manager,
+)
 from app.services.roles import has_role
 
 from ._common import count_owned_non_deleted, get_secondary_menu
@@ -53,7 +57,7 @@ def newsroom():
 
     # Check ACL
     user = g.user
-    if not has_role(user, [RoleEnum.PRESS_MEDIA]):
+    if not user_can_access_newsroom(user):
         msg = "Access denied to newsroom"
         raise Forbidden(msg)
 
@@ -115,10 +119,17 @@ def _allowed_redaction_items(items: list[dict[str, Any]]) -> list[dict[str, Any]
     allow_commands = _check_command_creation_by_redac_chief()
     has_bw = _has_active_business_wall()
 
+    # PR managers acting for another BW can also publish sujets,
+    # avis d'enquêtes and commandes
+    is_pr_manager = user_is_acting_as_pr_manager(g.user)
+    allow_sujet = allow_journalist or is_pr_manager
+    allow_avis = allow_journalist or is_pr_manager
+    allow_commande = allow_commands or is_pr_manager
+
     items = _filter_articles_items(items, [has_bw, allow_journalist])
-    items = _filter_sujets_items(items, [has_bw, allow_journalist])
-    items = _filter_avis_enquetes_items(items, [has_bw, allow_journalist])
-    items = _filter_commandes_items(items, [has_bw, allow_commands])
+    items = _filter_sujets_items(items, [has_bw, allow_sujet])
+    items = _filter_avis_enquetes_items(items, [has_bw, allow_avis])
+    items = _filter_commandes_items(items, [has_bw, allow_commande])
     return items
 
 

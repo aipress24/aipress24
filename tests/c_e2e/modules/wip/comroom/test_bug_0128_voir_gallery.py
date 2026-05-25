@@ -21,6 +21,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
+from app.enums import RoleEnum
 from app.flask.routing import url_for
 from app.lib.file_object_utils import create_file_object
 from app.models.lifecycle import PublicationStatus
@@ -77,6 +78,11 @@ def test_view_renders_attached_images(
     communique_with_title: Communique,
     db_session: Session,
 ):
+    # Ensure user has a Comroom-allowed role
+    user = communique_with_title.owner
+    user.roles[0].name = RoleEnum.EXPERT.name
+    db_session.commit()
+
     _attach_image(
         db_session, communique_with_title, caption="Première image", position=0
     )
