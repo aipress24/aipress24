@@ -16,7 +16,12 @@ import pytest
 from app.enums import RoleEnum
 from app.models.auth import KYCProfile, Role, User
 from app.models.organisation import Organisation
-from app.modules.bw.bw_activation.models import BusinessWall
+from app.modules.bw.bw_activation.models import (
+    BusinessWall,
+    BWRoleType,
+    InvitationStatus,
+    RoleAssignment,
+)
 from app.modules.bw.bw_activation.models.business_wall import BWStatus
 from app.modules.wip.models.newsroom.avis_enquete import (
     AvisEnquete,
@@ -301,6 +306,81 @@ class TestOpportunityResponse:
 
         db_session.refresh(test_contact)
         assert test_contact.status == StatutAvis.ACCEPTE_RELATION_PRESSE
+
+    def test_accept_with_press_relation_picks_user_chosen_email(
+        self,
+        logged_in_client: FlaskClient,
+        test_user: User,
+        test_contact: ContactAvisEnquete,
+        active_bw,
+        db_session: Session,
+    ):
+        """Ticket #0075/2 : when the form rendered a dropdown of press
+        contacts, the route must persist the email the user *picked*
+        (validated against the current valid set), not whichever one
+        the service returned first."""
+        # Seed an internal BWPRi (Layelle) for the active BW so the
+        # service's valid set includes a known email we can pick.
+        layelle = User(
+            email="layelle-bwpri@example.com",
+            first_name="Layelle",
+            last_name="LeKun",
+            active=True,
+        )
+        layelle.organisation = test_user.organisation
+        layelle.organisation_id = test_user.organisation_id
+        db_session.add(layelle)
+        db_session.flush()
+        db_session.add(
+            RoleAssignment(
+                business_wall_id=active_bw.id,
+                user_id=layelle.id,
+                role_type=BWRoleType.BWPRI.value,
+                invitation_status=InvitationStatus.ACCEPTED.value,
+            )
+        )
+        db_session.commit()
+
+        with patch(
+            "app.modules.wip.views.opportunities.send_avis_enquete_acceptance_email"
+        ):
+            response = logged_in_client.post(
+                f"/wip/opportunities/{test_contact.id}",
+                data={
+                    "reponse1": "oui_relation_presse",
+                    "contribution": "Contact my PR team",
+                    "email_relation_presse": "layelle-bwpri@example.com",
+                },
+            )
+        assert response.status_code == 302
+        db_session.refresh(test_contact)
+        assert test_contact.email_relation_presse == "layelle-bwpri@example.com"
+
+    def test_accept_with_press_relation_rejects_tampered_email(
+        self,
+        logged_in_client: FlaskClient,
+        test_user: User,
+        test_contact: ContactAvisEnquete,
+        active_bw,
+        db_session: Session,
+    ):
+        """Ticket #0075/2 : a POST carrying an email NOT in the valid
+        set (form tampering) must fall back to the service's pick,
+        never persist the arbitrary address."""
+        with patch(
+            "app.modules.wip.views.opportunities.send_avis_enquete_acceptance_email"
+        ):
+            response = logged_in_client.post(
+                f"/wip/opportunities/{test_contact.id}",
+                data={
+                    "reponse1": "oui_relation_presse",
+                    "contribution": "Contact my PR team",
+                    "email_relation_presse": "attacker@evil.com",
+                },
+            )
+        assert response.status_code == 302
+        db_session.refresh(test_contact)
+        assert test_contact.email_relation_presse != "attacker@evil.com"
 
     def test_refuse_opportunity(
         self,

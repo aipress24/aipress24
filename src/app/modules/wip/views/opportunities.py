@@ -185,9 +185,21 @@ def media_opportunity_post(id: int) -> str | Response:
             contact.rdv_notes_expert = request.form.get("contribution", "")
             # Bug #0061-b: resolve the org's accepted BWPRi, not the
             # expert's own profile field (gave the PDG's own email).
-            contact.email_relation_presse = AvisEnqueteService().press_officer_email(
-                expert
-            )
+            # Bug #0075/2: when the form rendered a dropdown of multiple
+            # press contacts (internal + external partners), trust the
+            # user's pick. Validate it against the current valid set so
+            # a tampered POST can't slip in an arbitrary address. Fall
+            # back to the first emitted email if the form didn't carry
+            # an explicit choice (single-option case).
+            svc = AvisEnqueteService()
+            valid_emails = svc.press_officer_emails(expert)
+            picked = (request.form.get("email_relation_presse") or "").strip()
+            if picked and picked in valid_emails:
+                contact.email_relation_presse = picked
+            elif valid_emails:
+                contact.email_relation_presse = valid_emails[0]
+            else:
+                contact.email_relation_presse = ""
         elif reponse == "non":
             contact.status = StatutAvis.REFUSE  # type: ignore[assignment]
             contact.rdv_notes_expert = request.form.get("refusal_reason", "")
@@ -274,7 +286,11 @@ def _render_media_opportunity(id: int) -> str:
     suggestion = ""
     avis_service = AvisEnqueteService()
     # Bug #0061-b: prefill with the org's accepted BWPRi email.
-    email_relation_presse = avis_service.press_officer_email(expert)
+    # Bug #0075/2: full list (internal BWPRi + external BWPRe partners)
+    # so the form can render a dropdown when the org has more than one
+    # press contact.
+    press_officer_emails = avis_service.press_officer_emails(expert)
+    email_relation_presse = press_officer_emails[0] if press_officer_emails else ""
 
     if contact.status == StatutAvis.ACCEPTE:
         reponse1 = "oui"
@@ -296,6 +312,7 @@ def _render_media_opportunity(id: int) -> str:
         "suggestion": request.form.get("suggestion", suggestion),
         "suggested_colleague_id": request.form.get("suggested_colleague_id", ""),
         "email_relation_presse": email_relation_presse,
+        "press_officer_emails": press_officer_emails,
     }
 
     is_answered = contact.status != StatutAvis.EN_ATTENTE

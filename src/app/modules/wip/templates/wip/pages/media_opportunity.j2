@@ -94,7 +94,7 @@
                         <label for="oui">Oui</label>
                     </div>
 
-                    {% if form_state.email_relation_presse and form_state.email_relation_presse != '' %}
+                    {% if form_state.press_officer_emails %}
                         <div>
                             <input
                                 type="radio"
@@ -103,7 +103,36 @@
                                 value="oui_relation_presse"
                                 {% if form_state.reponse1 == "oui_relation_presse" %}checked{% endif %}
                             />
-                            <label for="oui_relation_presse">Oui et je voudrais associer mon attaché.e de presse ou le-la responsable de la communication de mon organisation: {{form_state.email_relation_presse}}</label>
+                            <label for="oui_relation_presse">
+                                Oui et je voudrais associer mon attaché.e de presse ou le-la
+                                responsable de la communication de mon organisation
+                                {# Ticket #0075/2 : when the org has multiple press
+                                   contacts (internal BWPRi + active BWPRe partner
+                                   agencies), render a dropdown so the expert picks
+                                   the right one. Otherwise the single email is shown
+                                   inline as before. #}
+                                {% if form_state.press_officer_emails | length > 1 %}
+                                    <select
+                                        name="email_relation_presse"
+                                        class="ml-2"
+                                        {% if is_answered %}disabled{% endif %}
+                                    >
+                                        {% for email in form_state.press_officer_emails %}
+                                            <option
+                                                value="{{ email }}"
+                                                {% if email == form_state.email_relation_presse %}selected{% endif %}
+                                            >{{ email }}</option>
+                                        {% endfor %}
+                                    </select>
+                                {% else %}
+                                    : {{ form_state.email_relation_presse }}
+                                    <input
+                                        type="hidden"
+                                        name="email_relation_presse"
+                                        value="{{ form_state.email_relation_presse }}"
+                                    />
+                                {% endif %}
+                            </label>
                         </div>
                     {% endif %}
 

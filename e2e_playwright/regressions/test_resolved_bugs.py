@@ -1339,6 +1339,42 @@ def test_bug_0132_publish_sujet_round_trip(
     assert unpublish_resp is not None and unpublish_resp.status < 400
 
 
+# ─── #0075 (part 2) ───────────────────────────────────────────────
+
+
+def test_bug_0075_part2_press_officer_emails_includes_external() -> None:
+    """Bug #0075 part 2 — Erick 2026-05-22 : « Il manque les
+    Partenaires PR Agencies: Anne-Laure Capri [...] ainsi que Marc
+    Rodriguez de l'agence Fake-Les Propulseurs RP. En toute logique,
+    ces mail devraient remonter automatiquement à cet endroit ».
+
+    The service exposes `press_officer_emails` returning the full
+    list (internal BWPRi + active BWPRe partner agency owners), and
+    the form renders it as a dropdown when there's more than one
+    candidate. The route validates the user's pick against the
+    current valid set so a tampered POST can't slip in an arbitrary
+    address.
+    """
+    from pathlib import Path
+
+    src = Path(__file__).resolve().parent.parent.parent / "src/app"
+    service = src / "modules/wip/services/newsroom/avis_enquete_service.py"
+    assert service.exists()
+    service_content = service.read_text()
+    assert "def press_officer_emails" in service_content, (
+        "press_officer_emails helper must exist — bug #0075/2 regressed."
+    )
+    # The body must explicitly iterate partnerships to include BWPRe
+    # owners (not just BWPRi role assignments).
+    assert "partnerships" in service_content, (
+        "press_officer_emails must consider partnerships (BWPRe) — "
+        "bug #0075/2 regressed."
+    )
+    # Route must validate the picked email against the valid set.
+    route = src / "modules/wip/views/opportunities.py"
+    assert "press_officer_emails" in route.read_text()
+
+
 # ─── #0071 (part 2) ───────────────────────────────────────────────
 
 
