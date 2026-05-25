@@ -472,6 +472,19 @@ class TestSuggestColleagueRadioAlwaysClickable:
             f"« non-mais » label must not be greyed out (#0075/3): "
             f"{label_m.group(0)}"
         )
+        # Bug #0071 part 1 (Erick, 2026-05-21) : the form must not
+        # surface a confusing « aucun collègue disponible » / « écrivez-
+        # nous: contact@aipress24.com » fallback that the user has no
+        # way to act on. Was an empty-state hint inside the radio
+        # label ; gone now (#0075/3) but guard it explicitly.
+        assert "aucun collègue" not in html.lower(), (
+            "media_opportunity form must not surface a "
+            "« aucun collègue disponible » hint (#0071 part 1)"
+        )
+        assert "contact@aipress24.com" not in html, (
+            "media_opportunity form must not surface "
+            "« écrivez-nous: contact@aipress24.com » (#0071 part 1)"
+        )
 
 
 class TestOpportunityResponseRequiresActiveBW:

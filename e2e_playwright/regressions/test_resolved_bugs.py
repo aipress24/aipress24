@@ -1339,6 +1339,43 @@ def test_bug_0132_publish_sujet_round_trip(
     assert unpublish_resp is not None and unpublish_resp.status < 400
 
 
+# ─── #0071 (part 1) ───────────────────────────────────────────────
+
+
+def test_bug_0071_no_dead_end_colleague_fallback() -> None:
+    """Bug #0071 part 1 — Erick 2026-05-21 : « il y a la mention
+    "Aucun collègue disponible, écrivez-nous: contact@aipress24.com".
+    Il faut la retirer car je ne saurais pas comment gérer cette
+    situation ». The form must not surface a dead-end fallback the
+    user can't act on.
+
+    Template guard ; runtime coverage lives in
+    ``tests/c_e2e/modules/wip/test_opportunities_views.py::
+    TestSuggestColleagueRadioAlwaysClickable``.
+    """
+    from pathlib import Path
+
+    template = (
+        Path(__file__).resolve().parent.parent.parent
+        / "src/app/modules/wip/templates/wip/pages"
+        / "media_opportunity.j2"
+    )
+    assert template.exists()
+    content = template.read_text()
+    assert "aucun collègue" not in content.lower(), (
+        "media_opportunity.j2 must not re-introduce the "
+        "« aucun collègue disponible » hint — bug #0071/1 regressed."
+    )
+    assert "écrivez-nous" not in content.lower(), (
+        "media_opportunity.j2 must not include a « écrivez-nous » "
+        "dead-end fallback — bug #0071/1 regressed."
+    )
+    assert "contact@aipress24.com" not in content, (
+        "media_opportunity.j2 must not surface contact@aipress24.com "
+        "as a fallback — bug #0071/1 regressed."
+    )
+
+
 # ─── #0075 (part 3) ───────────────────────────────────────────────
 
 
