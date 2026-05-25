@@ -200,6 +200,25 @@ class TestEventsCRUD:
         response = logged_in_client.get(url)
         assert response.status_code == 200
 
+    def test_voir_step_nav_links_to_list_and_modifier(
+        self, logged_in_client: FlaskClient, test_event: Event
+    ):
+        """Ticket #0154 — Voir surfaces step-nav."""
+        url = url_for("EventsWipView:get", id=test_event.id)
+        body = logged_in_client.get(url).data.decode()
+        assert "Retourner à la liste des événements" in body
+        assert "Étape suivante" in body
+        assert "Modifier" in body
+
+    def test_modifier_step_nav_links_to_list_and_back(
+        self, logged_in_client: FlaskClient, test_event: Event
+    ):
+        """Ticket #0154 — Modifier surfaces step-nav with back link."""
+        url = url_for("EventsWipView:edit", id=test_event.id)
+        body = logged_in_client.get(url).data.decode()
+        assert "Retourner à la liste des événements" in body
+        assert "Étape précédente" in body
+
 
 class TestEventsTemporalValidation:
     """Tests for event temporal validation."""

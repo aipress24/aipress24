@@ -1,0 +1,48 @@
+{#
+  Ticket #0154 — Erick on 2026-05-22 asked to extend the avis-enquête
+  step nav (#0151) to NEWSROOM/Articles, COMROOM/Communiqués and
+  EVENT'ROOM/Événements. These modules have a simpler workflow than
+  Avis d'enquête : just two steps, « Voir » ↔ « Modifier ». The
+  publish / unpublish / delete actions stay in the 3-dot row menu.
+
+  Usage example (Articles, voir step) :
+
+      {% from "wip/_step_nav_simple.j2" import step_nav_simple %}
+      {{ step_nav_simple(article, "ArticlesWipView", "voir",
+                         "articles") }}
+
+  Args :
+    model         — the object (must expose `.id`)
+    view_name     — flask-classful CBV name, e.g. `ArticlesWipView`
+    current       — "voir" | "modifier"
+    list_label    — short module label used in the « Retourner à la
+                    liste des … » link (e.g. "articles")
+#}
+{% macro step_nav_simple(model, view_name, current, list_label) %}
+  <div class="my-4 flex items-center justify-between gap-x-4 border-t border-b py-3">
+    <div class="flex items-center gap-x-4">
+      <a
+        href="{{ url_for(view_name ~ ':index') }}"
+        class="text-sm font-semibold leading-6 text-gray-900 hover:text-gray-700"
+      >
+        ← Retourner à la liste des {{ list_label }}
+      </a>
+      {% if current == "modifier" %}
+        <a
+          href="{{ url_for(view_name ~ ':get', id=model.id) }}"
+          class="text-sm font-semibold leading-6 text-gray-900 hover:text-gray-700"
+        >
+          ← Étape précédente : Voir
+        </a>
+      {% endif %}
+    </div>
+    {% if current == "voir" %}
+      <a
+        href="{{ url_for(view_name ~ ':edit', id=model.id) }}"
+        class="rounded-md bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-700"
+      >
+        Étape suivante : Modifier →
+      </a>
+    {% endif %}
+  </div>
+{% endmacro %}

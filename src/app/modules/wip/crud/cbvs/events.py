@@ -22,6 +22,7 @@ from werkzeug.exceptions import NotFound
 from werkzeug.wrappers import Response
 
 from app.flask.extensions import db
+from app.flask.lib.templates import templated
 from app.flask.routing import url_for
 from app.lib.file_object_utils import create_file_object
 from app.lib.image_utils import extract_image_from_request
@@ -109,6 +110,33 @@ class EventsTable(BaseTable):
         return actions
 
 
+# Ticket #0154: surface the step-nav bar on the Voir / Modifier pages
+# (carried over from #0151 on Avis d'enquête). See the corresponding
+# block in articles.py for rationale.
+# language=jinja2
+_EVENT_VOIR_TEMPLATE = """
+{% extends "wip/layout/_base.j2" %}
+{% from "wip/_step_nav_simple.j2" import step_nav_simple %}
+{% block body_content %}
+  {{ step_nav_simple(event, "EventsWipView", "voir", "événements") }}
+  {{ form_rendered|safe }}
+  {{ extra_view_html|safe }}
+  {{ step_nav_simple(event, "EventsWipView", "voir", "événements") }}
+{% endblock %}
+"""
+
+# language=jinja2
+_EVENT_MODIFIER_TEMPLATE = """
+{% extends "wip/layout/_base.j2" %}
+{% from "wip/_step_nav_simple.j2" import step_nav_simple %}
+{% block body_content %}
+  {{ step_nav_simple(event, "EventsWipView", "modifier", "événements") }}
+  {{ form_rendered|safe }}
+  {{ step_nav_simple(event, "EventsWipView", "modifier", "événements") }}
+{% endblock %}
+"""
+
+
 class EventsWipView(BaseWipView):
     name = "events"
 
@@ -149,6 +177,24 @@ class EventsWipView(BaseWipView):
             abort(403)
 
         return None
+
+    @templated(_EVENT_VOIR_TEMPLATE)
+    def get(self, id):
+        """Step « Voir » — wrapped with the #0154 step-nav bar."""
+        model = self._get_model(id)
+        title = f"{self.label_view} '{model.title}'"
+        ctx = self._view_ctx(model, title=title, mode="view")
+        ctx["event"] = model
+        return ctx
+
+    @templated(_EVENT_MODIFIER_TEMPLATE)
+    def edit(self, id):
+        """Step « Modifier » — wrapped with the #0154 step-nav bar."""
+        model = self._get_model(id)
+        title = f"{self.label_edit} '{model.title}'"
+        ctx = self._view_ctx(model, title=title)
+        ctx["event"] = model
+        return ctx
 
     def _post_update_model(self, model: Event) -> None:
         # Validate publisher_id: if the user selected a client org they are

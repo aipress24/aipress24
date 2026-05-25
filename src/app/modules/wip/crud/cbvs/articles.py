@@ -61,6 +61,34 @@ _ARTICLES_LIST_TEMPLATE = """
 {% endblock %}
 """
 
+# Ticket #0154: surface the step-nav bar (carried over from #0151
+# on Avis d'enquête) at the top and bottom of the Voir / Modifier
+# pages. The base VIEW_TEMPLATE / UPDATE_TEMPLATE in _base.py is
+# shared across several CBVs we shouldn't disturb ; subclass-level
+# wrappers keep the change scoped.
+# language=jinja2
+_ARTICLE_VOIR_TEMPLATE = """
+{% extends "wip/layout/_base.j2" %}
+{% from "wip/_step_nav_simple.j2" import step_nav_simple %}
+{% block body_content %}
+  {{ step_nav_simple(article, "ArticlesWipView", "voir", "articles") }}
+  {{ form_rendered|safe }}
+  {{ extra_view_html|safe }}
+  {{ step_nav_simple(article, "ArticlesWipView", "voir", "articles") }}
+{% endblock %}
+"""
+
+# language=jinja2
+_ARTICLE_MODIFIER_TEMPLATE = """
+{% extends "wip/layout/_base.j2" %}
+{% from "wip/_step_nav_simple.j2" import step_nav_simple %}
+{% block body_content %}
+  {{ step_nav_simple(article, "ArticlesWipView", "modifier", "articles") }}
+  {{ form_rendered|safe }}
+  {{ step_nav_simple(article, "ArticlesWipView", "modifier", "articles") }}
+{% endblock %}
+"""
+
 
 def _user_has_media_bw() -> bool:
     """True if the current user's active BW is of type `media`."""
@@ -197,6 +225,24 @@ class ArticlesWipView(BaseWipView):
             "table": self._make_table(q),
             "rights_reminder": _user_has_media_bw(),
         }
+
+    @templated(_ARTICLE_VOIR_TEMPLATE)
+    def get(self, id):
+        """Step « Voir » — wrapped with the #0154 step-nav bar."""
+        model = self._get_model(id)
+        title = f"{self.label_view} '{model.title}'"
+        ctx = self._view_ctx(model, title=title, mode="view")
+        ctx["article"] = model
+        return ctx
+
+    @templated(_ARTICLE_MODIFIER_TEMPLATE)
+    def edit(self, id):
+        """Step « Modifier » — wrapped with the #0154 step-nav bar."""
+        model = self._get_model(id)
+        title = f"{self.label_edit} '{model.title}'"
+        ctx = self._view_ctx(model, title=title)
+        ctx["article"] = model
+        return ctx
 
     def _post_update_model(self, model: Article) -> None:
         if not model.status:

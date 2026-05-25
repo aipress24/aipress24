@@ -282,6 +282,37 @@ class TestArticlesCRUD:
         response = logged_in_client.get(url)
         assert response.status_code == 200
 
+    def test_voir_step_nav_links_to_list_and_modifier(
+        self, logged_in_client: FlaskClient, test_article: Article
+    ):
+        """Ticket #0154 (Erick, 2026-05-22) — extend the step nav
+        from Avis d'enquête to Articles : on « Voir », surface
+        a « Retourner à la liste » link and a « Étape suivante :
+        Modifier » button."""
+        url = url_for("ArticlesWipView:get", id=test_article.id)
+        body = logged_in_client.get(url).data.decode()
+        assert "Retourner à la liste" in body, (
+            "voir page must surface a return-to-list link (#0154)"
+        )
+        assert "Étape suivante" in body, (
+            "voir page must surface the « Étape suivante » button (#0154)"
+        )
+        assert "Modifier" in body, (
+            "voir's next-step button must point to « Modifier » (#0154)"
+        )
+
+    def test_modifier_step_nav_links_to_list_and_back_to_voir(
+        self, logged_in_client: FlaskClient, test_article: Article
+    ):
+        """Ticket #0154 — on « Modifier », surface a « Retourner à
+        la liste » link and a « Étape précédente : Voir » link."""
+        url = url_for("ArticlesWipView:edit", id=test_article.id)
+        body = logged_in_client.get(url).data.decode()
+        assert "Retourner à la liste" in body
+        assert "Étape précédente" in body
+        # The back-step points at the « Voir » action.
+        assert f"/wip/articles/{test_article.id}" in body
+
 
 class TestArticlesDelete:
     """Tests for deleting articles."""
