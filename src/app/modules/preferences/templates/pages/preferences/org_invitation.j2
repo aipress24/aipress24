@@ -183,4 +183,44 @@
             Vous n'avez actuellement aucune invitation à un partenariat Business Wall.
         </div>
     {% endif %}
+
+  {# Ticket #0169 part 3 — surface revoked partnerships so the PR Agency
+     owner knows they lost a client. The cloche + email cover the moment
+     of revocation ; this section is the persistent acknowledgement
+     point. The « Confirmer » button hard-deletes the row (Erick :
+     « éliminer cette ligne »). #}
+    {% if open_revoked_partnerships > 0 %}
+        <h2 class="pb-4 pt-8 mt-8 border-t border-gray-200">Partenariats RP terminés</h2>
+        <p class="mt-1 text-sm text-gray-500">
+            Vous avez été notifié de la fin d'un partenariat RP. Cliquez
+            sur « Confirmer » pour retirer la ligne après prise de
+            connaissance.
+        </p>
+        <div class="space-y-4 mt-4">
+            {% for revoked in revoked_partnerships %}
+                <div class="flex items-center justify-between p-4 bg-red-50 rounded-lg border border-red-200" data-testid="revoked-partnership-row">
+                    <div>
+                        <div class="font-medium text-gray-900">
+                            Fin du partenariat avec
+                            <span class="font-semibold">{{ revoked.client_name }}</span>
+                            (Business Wall : {{ revoked.bw_name }})
+                        </div>
+                        {% if revoked.revoked_at %}
+                            <div class="text-sm text-gray-600">
+                                Résiliation : {{ revoked.revoked_at.strftime('%d/%m/%Y') }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <form method="POST" action="{{ url_for('.invitations') }}">
+                        <input type="hidden" name="action" value="ack_revoked_partnership">
+                        <input type="hidden" name="partnership_id" value="{{ revoked.id }}">
+                        <button type="submit"
+                                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm !text-white bg-gray-600 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                            Confirmer
+                        </button>
+                    </form>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
 {% endblock %}

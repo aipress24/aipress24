@@ -1410,6 +1410,33 @@ def test_bug_0071_part2_draft_bw_activates_on_confirmation_revisit() -> None:
     )
 
 
+# ─── #0169 (part 3) ────────────────────────────────────────────────
+
+
+def test_bug_0169_part3_revoked_partnership_row_in_preferences() -> None:
+    """Bug #0169 part 3 — Erick : « Indiquer dans PROFIL/PRÉFÉRENCES/
+    Invitations d'organisations [...] la fin du partenariat [...] avec
+    un bouton "Confirmer" qui conduira à éliminer cette ligne ».
+
+    Source-level guards : the InvitationsView must expose a
+    `_revoked_partnerships` helper, an `ack_revoked_partnership` POST
+    action, and the template must render the explicit row.
+    """
+    from pathlib import Path
+
+    src = Path(__file__).resolve().parent.parent.parent / "src/app"
+    view = src / "modules/preferences/views/invitations.py"
+    assert view.exists()
+    view_content = view.read_text()
+    assert "_revoked_partnerships" in view_content
+    assert "ack_revoked_partnership" in view_content
+    tpl = (
+        src
+        / "modules/preferences/templates/pages/preferences/org_invitation.j2"
+    )
+    assert "Partenariats RP terminés" in tpl.read_text()
+
+
 # ─── #0169 (parts 1 & 2) ──────────────────────────────────────────
 
 
