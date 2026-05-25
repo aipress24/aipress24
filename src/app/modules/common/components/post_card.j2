@@ -1,104 +1,104 @@
 <!-- top -->
 <div class="px-4 py-3 border-b border-gray-200 rounded">
-  <div class="flex items-center justify-between flex-wrap sm:flex-nowrap">
-    <div>
-      <h3 class="font-medium text-gray-900">
-        {{ post.section }}
-      </h3>
+    <div class="flex items-center justify-between flex-wrap sm:flex-nowrap">
+        <div>
+            <h3 class="font-medium text-gray-900">
+                {{ post.section }}
+            </h3>
+        </div>
+        <div class="flex-shrink-0">
+            <h3 class="text-gray-500 flex">
+                {{ post.published_at.format("DD MMM YYYY, HH:mm", locale="fr") }}
+            </h3>
+        </div>
     </div>
-    <div class="flex-shrink-0">
-      <h3 class="text-gray-500 flex">
-        {{ post.published_at.format("DD MMM YYYY, HH:mm", locale="fr") }}
-      </h3>
-    </div>
-  </div>
 </div>
 
 {{ carousel(post) }}
 
 <!-- text -->
 <div>
-  <a href="{{ url_for(post) }}">
-    <div class="p-5" style="height: 128px; overflow: hidden;">
-      <h3 class="-mt-1 text-gray-700 text-sm font-semibold">
-        {{ post.title }}
-      </h3>
+    <a href="{{ url_for(post) }}">
+        <div class="p-5" style="height: 128px; overflow: hidden;">
+            <h3 class="-mt-1 text-gray-700 text-sm font-semibold">
+                {{ post.title }}
+            </h3>
 
-      <p class="mt-2 text-gray-600 text-sm">
-        {{ post.summary }}
-      </p>
-    </div>
-  </a>
+            <p class="mt-2 text-gray-600 text-sm">
+                {{ post.summary }}
+            </p>
+        </div>
+    </a>
 </div>
 
 <!-- author & publisher -->
 
 {% if show_author %}
-  <hr class="mt-4"/>
+    <hr class="mt-4"/>
 
-  <div class="px-4 py-3 flex items-center space-x-3">
-    <div class="flex-shrink-0">
-      <a href="{{ url_for(post.author) }}" class="focus:outline-none">
-        {{ profile_image(post.author, size=10) }}
-      </a>
+    <div class="px-4 py-3 flex items-center space-x-3">
+        <div class="flex-shrink-0">
+            <a href="{{ url_for(post.author) }}" class="focus:outline-none">
+                {{ profile_image(post.author, size=10) }}
+            </a>
+        </div>
+
+        <div class="flex-1 min-w-0">
+            <a href="{{ url_for(post.author) }}" class="focus:outline-none">
+                <p class="text-sm font-medium text-gray-900">
+                    {{ post.author.name }}
+                </p>
+                {% if post.author.organisation %}
+                    <p class="text-sm text-gray-500 truncate">
+                        {{ post.author.job_title }} @ {{ post.author.organisation.bw_name or post.author.organisation.name }}
+                    </p>
+                {% else %}
+                    <p class="text-sm text-gray-500 truncate">
+                        {{ post.author.job_title }}
+                    </p>
+                {% endif%}
+            </a>
+        </div>
     </div>
 
-    <div class="flex-1 min-w-0">
-      <a href="{{ url_for(post.author) }}" class="focus:outline-none">
-        <p class="text-sm font-medium text-gray-900">
-          {{ post.author.name }}
-        </p>
-        {% if post.author.organisation %}
-          <p class="text-sm text-gray-500 truncate">
-            {{ post.author.job_title }} @ {{ post.author.organisation.name }}
-          </p>
-        {% else %}
-          <p class="text-sm text-gray-500 truncate">
-            {{ post.author.job_title }}
-          </p>
-        {% endif%}
-      </a>
-    </div>
-  </div>
-
-  {% if post.author.organisation and post.publisher
-        and post.author.organisation.id != post.publisher.id %}
+    {% if post.author.organisation and post.publisher
+    and post.author.organisation.id != post.publisher.id %}
     <div class="px-4 py-1 text-xs italic text-gray-500">
-      Publié par {{ post.author.organisation.name }} en tant que contact presse de {{ post.publisher.name }}.
+        Publié par {{ post.author.organisation.bw_name or post.author.organisation.name }} en tant que contact presse de {{ post.publisher.bw_name or post.publisher.name }}.
     </div>
-  {% elif post.author %}
+{% elif post.author %}
     {# Bug #0093: self-publication (no client delegation) — surface
        the author, fonction and organisation, like the delegated
        byline above. #}
     <div class="px-4 py-1 text-xs italic text-gray-500">
-      Publié par {{ post.author.full_name }}{% if post.author.job_title %}, {{ post.author.job_title }}{% endif %}{% if post.author.organisation %} chez {{ post.author.organisation.name }}{% endif %}.
+        Publié par {{ post.author.full_name }}{% if post.author.job_title %}, {{ post.author.job_title }}{% endif %}{% if post.author.organisation %} chez {{ post.author.organisation.bw_name or post.author.organisation.name }}{% endif %}.
     </div>
-  {% endif %}
+{% endif %}
 
-  <hr class=""/>
-    <div class="flex flex-col space-y-1">
-      <div class="px-4 py-1.5 border-b min-w-0">
+<hr class=""/>
+<div class="flex flex-col space-y-1">
+    <div class="px-4 py-1.5 border-b min-w-0">
         {% if post.publisher %}
-          <a href="{#{ url_for(post.publisher) #}" class="focus:outline-none">
+            <a href="{#{ url_for(post.publisher) #}" class="focus:outline-none">
             {#{ org_logo(post.publisher, size=10) }#}
-          </a>
-          <a href="{# url_for(post.publisher) #}" class="focus:outline-none">
-            <p class="text-sm font-medium text-gray-900">
-              {{ post.publisher.name }}
-            </p>
-          </a>
+            </a>
+            <a href="{# url_for(post.publisher) #}" class="focus:outline-none">
+                <p class="text-sm font-medium text-gray-900">
+                    {{ post.publisher.bw_name or post.publisher.name }}
+                </p>
+            </a>
         {% endif %}
         {% if post.media %}
-          <div class="flex-1 min-w-0">
-            <a href="{{ url_for(post.media) }}" class="focus:outline-none">
-              <p class="text-sm font-medium text-gray-900">
-                Pour: {{ post.media.name }}
-              </p>
-            </a>
-          </div>
+            <div class="flex-1 min-w-0">
+                <a href="{{ url_for(post.media) }}" class="focus:outline-none">
+                    <p class="text-sm font-medium text-gray-900">
+                        Pour: {{ post.media.name }}
+                    </p>
+                </a>
+            </div>
         {% endif %}
-      </div>
     </div>
+</div>
 
 {% endif %}
 
@@ -106,38 +106,38 @@
 <!-- social items -->
 
 <div class="px-4 py-3 flex justify-between space-x-8">
-  <div class="flex space-x-4">
-    <span class="inline-flex items-center text-sm">
-      <button
-          type="button"
-          class="inline-flex space-x-2 text-gray-400 hover:text-gray-500"
-          hx-post="{{ url_for(post) }}"
-          hx-vals='{"action": "toggle-like"}'
-          hx-target="#likes-{{ post.id }}"
-          hx-swap="innerHTML"
-      >
-        {{ icon("hand-thumb-up", class="h-5 w-5") }}
-        <span id="likes-{{ post.id }}" class="font-medium text-gray-900">{{ post.likes }}</span>
-        <span class="sr-only">likes</span>
-      </button>
-    </span>
+    <div class="flex space-x-4">
+        <span class="inline-flex items-center text-sm">
+            <button
+                type="button"
+                class="inline-flex space-x-2 text-gray-400 hover:text-gray-500"
+                hx-post="{{ url_for(post) }}"
+                hx-vals='{"action": "toggle-like"}'
+                hx-target="#likes-{{ post.id }}"
+                hx-swap="innerHTML"
+            >
+                {{ icon("hand-thumb-up", class="h-5 w-5") }}
+                <span id="likes-{{ post.id }}" class="font-medium text-gray-900">{{ post.likes }}</span>
+                <span class="sr-only">likes</span>
+            </button>
+        </span>
 
-    <a href="{{ url_for(post) }}#comments-title" class="inline-flex items-center text-sm">
-      <span class="inline-flex space-x-2 text-gray-400">
-        {{ icon("chat-bubble-left-ellipsis", class="h-5 w-5") }}
-        <span class="font-medium text-gray-900">{{ post.replies }}</span>
-        <span class="sr-only">replies</span>
-      </span>
-    </a>
+        <a href="{{ url_for(post) }}#comments-title" class="inline-flex items-center text-sm">
+            <span class="inline-flex space-x-2 text-gray-400">
+                {{ icon("chat-bubble-left-ellipsis", class="h-5 w-5") }}
+                <span class="font-medium text-gray-900">{{ post.replies }}</span>
+                <span class="sr-only">replies</span>
+            </span>
+        </a>
 
-    <span class="inline-flex items-center text-sm">
-      <span class="inline-flex space-x-2 text-gray-400">
-        {{ icon("eye", class="h-5 w-5") }}
-        <span class="font-medium text-gray-900">{{ post.views }}</span>
-        <span class="sr-only">views</span>
-      </span>
-    </span>
-  </div>
+        <span class="inline-flex items-center text-sm">
+            <span class="inline-flex space-x-2 text-gray-400">
+                {{ icon("eye", class="h-5 w-5") }}
+                <span class="font-medium text-gray-900">{{ post.views }}</span>
+                <span class="sr-only">views</span>
+            </span>
+        </span>
+    </div>
 
 {#  <div class="flex text-sm space-x-3">#}
 {#    <span class="inline-flex items-center text-sm">#}

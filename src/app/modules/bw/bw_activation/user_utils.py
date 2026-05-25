@@ -434,9 +434,28 @@ def can_user_publish_for(user: User, publisher_org_id: int) -> bool:
 
     A user may always publish for their own organisation. A user whose agency
     has an active Partnership with the target organisation may also publish
-    on that organisation's behalf.
+    on that organisation's behalf, or if the user has an explicit PR role assignment.
     """
     if user.organisation_id and publisher_org_id == user.organisation_id:
+        return True
+
+    stmt = (
+        select(BusinessWall.id)
+        .join(RoleAssignment, RoleAssignment.business_wall_id == BusinessWall.id)
+        .where(BusinessWall.organisation_id == publisher_org_id)
+        .where(RoleAssignment.user_id == user.id)
+        .where(RoleAssignment.invitation_status == InvitationStatus.ACCEPTED.value)
+        .where(
+            RoleAssignment.role_type.in_(
+                (
+                    BWRoleType.BWPRI.value,
+                    BWRoleType.BWPRE.value,
+                    BWRoleType.BW_OWNER.value,
+                )
+            )
+        )
+    )
+    if db.session.execute(stmt).first():
         return True
 
     client_orgs = get_validated_client_orgs_for_user(user)

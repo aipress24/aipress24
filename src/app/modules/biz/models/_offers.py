@@ -68,6 +68,7 @@ class ContractType(StrEnum):
     STAGE = "STAGE"
     APPRENTISSAGE = "APPRENTISSAGE"
     FREELANCE = "FREELANCE"
+    DOCTORAL = "DOCTORAL"
 
 
 class MissionOffer(MarketplaceContent, ClassificationMixin, Publishable):

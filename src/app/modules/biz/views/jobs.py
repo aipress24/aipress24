@@ -42,8 +42,11 @@ from app.modules.biz.views._offers_common import (
     require_owner,
     update_application_status,
 )
+from app.modules.bw.bw_activation.models import PermissionType
+from app.modules.bw.bw_activation.user_utils import get_selected_business_wall_for_user
 from app.modules.kyc.dynform import CountrySelectField
 from app.modules.kyc.ontology_loader import get_choices as get_ontology_choices
+from app.modules.wip.pr_access import check_mission
 from app.signals import marketplace_published
 
 _CONTRACT_CHOICES = [
@@ -52,6 +55,7 @@ _CONTRACT_CHOICES = [
     (ContractType.STAGE.value, "Stage"),
     (ContractType.APPRENTISSAGE.value, "Apprentissage"),
     (ContractType.FREELANCE.value, "Freelance"),
+    (ContractType.DOCTORAL.value, "Convention doctorale"),
 ]
 
 
@@ -101,15 +105,33 @@ def jobs_new():
     form = JobOfferForm(request.form)
     form.pays_zip_ville.choices = get_ontology_choices("country_pays")
     if request.method == "POST" and form.validate():
+        contract_type = ContractType(form.contract_type.data or ContractType.CDI.value)
+
+        # Check mission based on contract type
+        match contract_type:
+            case ContractType.STAGE:
+                check_mission(user, PermissionType.INTERNSHIPS)
+            case ContractType.APPRENTISSAGE:
+                check_mission(user, PermissionType.APPRENTICESHIPS)
+            case ContractType.DOCTORAL:
+                check_mission(user, PermissionType.DOCTORAL)
+            case _:
+                if user.is_managing_another_bw:
+                    abort(403)
+
+        emitter_org_id = getattr(user, "organisation_id", None)
+        if user.is_managing_another_bw:
+            bw = get_selected_business_wall_for_user(user)
+            if bw:
+                emitter_org_id = bw.organisation_id
+
         job = JobOffer(
             title=form.title.data or "",
             description=form.description.data or "",
             sector=form.sector.data or "",
             pays_zip_ville=form.pays_zip_ville.data or "",
             pays_zip_ville_detail=request.form.get("pays_zip_ville_detail", ""),
-            contract_type=ContractType(
-                form.contract_type.data or ContractType.CDI.value
-            ),
+            contract_type=contract_type,
             full_time=bool(form.full_time.data),
             remote_ok=bool(form.remote_ok.data),
             salary_min=euros_to_cents(form.salary_min.data),
@@ -120,7 +142,7 @@ def jobs_new():
             status=default_new_offer_status(),
             mission_status=MissionStatus.OPEN,
             owner_id=user.id,
-            emitter_org_id=getattr(user, "organisation_id", None),
+            emitter_org_id=emitter_org_id,
         )
         db.session.add(job)
         db.session.commit()

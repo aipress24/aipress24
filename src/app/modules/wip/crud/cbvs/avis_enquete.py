@@ -10,8 +10,10 @@ from typing import TYPE_CHECKING, cast
 from flask import (
     Flask,
     Response,
+    abort,
     current_app,
     flash,
+    g,
     redirect,
     render_template,
     request,
@@ -22,12 +24,17 @@ from flask_super.registry import register
 from svcs.flask import container
 from werkzeug.wrappers import Response as WerkzeugResponse
 
+from app.enums import RoleEnum
 from app.flask.lib.htmx import extract_fragment
 from app.flask.lib.templates import templated
 from app.flask.routing import url_for
+from app.logging import warn
 from app.models.lifecycle import PublicationStatus
-
-# from app.logging import warn
+from app.modules.bw.bw_activation.user_utils import (
+    can_user_publish_for,
+    get_selected_business_wall_for_user,
+    get_validated_client_orgs_for_user,
+)
 from app.modules.wip.models import (
     AvisEnquete,
     AvisEnqueteRepository,
@@ -35,6 +42,7 @@ from app.modules.wip.models import (
     RDVType,
     StatutAvis,
 )
+from app.modules.wip.pr_access import user_can_access_newsroom
 from app.modules.wip.services.newsroom import (
     AvisEnqueteService,
     ExpertFilterService,
@@ -47,6 +55,7 @@ from app.modules.wip.services.newsroom.publication_notification_service import (
 )
 from app.modules.wip.services.pr_notifications import absolute_url_for
 from app.services.auth import AuthService
+from app.services.roles import has_role
 
 from ._base import BaseWipView
 from ._forms import AvisEnqueteForm
@@ -184,6 +193,39 @@ class AvisEnqueteWipView(BaseWipView):
 
     msg_delete_ok = "L'avis d'enquête a été supprimé"
     msg_delete_ko = "Vous n'êtes pas autorisé à supprimer cet avis d'enquête"
+
+    EXPERT_ALLOWED_ACTIONS = frozenset({"rdv_accept", "rdv_details", "rdv_cancel"})
+
+    def before_request(self, *_args, **_kwargs) -> Response | None:
+        if resp := super().before_request(*_args, **_kwargs):
+            return resp
+
+        if user_can_access_newsroom(g.user):
+            return None
+
+        action = request.endpoint and request.endpoint.split(":")[-1]
+        if action in self.EXPERT_ALLOWED_ACTIONS and has_role(
+            g.user, [RoleEnum.EXPERT]
+        ):
+            return None
+
+        abort(403)
+
+    def _post_update_model(self, model: AvisEnquete) -> None:
+        # Validate publisher_id: if the user selected a client org they are
+        # not authorized to publish for, warn but DO NOT silently reset.
+        if model.publisher_id and not can_user_publish_for(g.user, model.publisher_id):
+            warn(
+                f"AvisEnquete {model.id}: user {g.user.id} selected publisher_id="
+                f"{model.publisher_id} but can_user_publish_for is False. "
+            )
+        if not model.publisher_id:
+            if g.user.is_managing_another_bw:
+                bw = get_selected_business_wall_for_user(g.user)
+                if bw:
+                    model.publisher_id = bw.organisation_id
+            if not model.publisher_id and g.user.organisation_id:
+                model.publisher_id = g.user.organisation_id
 
     def _build_opportunity_url(self, contact: ContactAvisEnquete) -> str:
         domain = str(current_app.config.get("SERVER_NAME"))

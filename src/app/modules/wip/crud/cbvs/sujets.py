@@ -7,11 +7,12 @@ from __future__ import annotations
 from typing import cast
 
 from attr import define
-from flask import Flask, flash, g, redirect
+from flask import Flask, abort, flash, g, redirect
 from flask_super.registry import register
 from markupsafe import escape
 from sqlalchemy import and_, func, or_, select
 from sqlalchemy.orm import selectinload
+from werkzeug import Response
 
 from app.flask.extensions import db
 from app.flask.lib.templates import templated
@@ -19,7 +20,13 @@ from app.flask.routing import url_for
 from app.logging import warn
 from app.models.auth import User
 from app.models.lifecycle import PublicationStatus
+from app.modules.bw.bw_activation.user_utils import (
+    can_user_publish_for,
+    get_selected_business_wall_for_user,
+    get_validated_client_orgs_for_user,
+)
 from app.modules.wip.models import Sujet, SujetRepository
+from app.modules.wip.pr_access import user_can_access_newsroom
 from app.modules.wip.services.sujet_notifications import (
     notify_media_of_sujet_proposition,
 )
@@ -189,6 +196,32 @@ class SujetsWipView(BaseWipView):
     msg_delete_ok = "Le sujet a été supprimé"
     msg_delete_ko = "Vous n'êtes pas autorisé à supprimer ce sujet"
 
+    def _post_update_model(self, model: Sujet) -> None:
+        # Validate publisher_id: if the user selected a client org they are
+        # not authorized to publish for, warn but DO NOT silently reset.
+        # The publish() step will enforce the auth and show an explicit error.
+        if model.publisher_id and not can_user_publish_for(g.user, model.publisher_id):
+            warn(
+                f"Sujet {model.id}: user {g.user.id} selected publisher_id="
+                f"{model.publisher_id} but can_user_publish_for is False. "
+                "Keeping the value so the user sees the error at publish time."
+            )
+        if not model.publisher_id:
+            if g.user.is_managing_another_bw:
+                bw = get_selected_business_wall_for_user(g.user)
+                if bw:
+                    model.publisher_id = bw.organisation_id
+            if not model.publisher_id and g.user.organisation_id:
+                model.publisher_id = g.user.organisation_id
+
+    def before_request(self, *_args, **_kwargs) -> Response | None:
+        if resp := super().before_request(*_args, **_kwargs):
+            return resp
+
+        if not user_can_access_newsroom(g.user):
+            abort(403)
+        return None
+
     @templated(_SUJET_VIEW_TEMPLATE)
     def get(self, id):
         """Bug #0132 (2026-05-14): render the author mention at the top
@@ -215,7 +248,11 @@ class SujetsWipView(BaseWipView):
         owner = getattr(model, "owner", None) if model else None
         if not owner:
             return ""
-        parts = [owner.full_name, owner.job_title, owner.organisation_name]
+
+        publisher = getattr(model, "publisher", None)
+        org_name = publisher.name if publisher else owner.organisation_name
+
+        parts = [owner.full_name, owner.job_title, org_name]
         line = ", ".join(escape(p) for p in parts if p)
         return f"""
         <div class="mb-6 border-l-4 border-blue-400 bg-blue-50 p-4">
@@ -228,6 +265,14 @@ class SujetsWipView(BaseWipView):
         """Bug 0132: move sujet DRAFT → PUBLIC and notify the target media."""
         repo = self._get_repo()
         sujet = cast("Sujet", self._get_model(id))
+
+        publisher_id = sujet.publisher_id or g.user.organisation_id or None
+        if publisher_id and not can_user_publish_for(g.user, publisher_id):
+            flash(
+                "Vous n'êtes pas autorisé à publier pour cette organisation.",
+                "error",
+            )
+            return redirect(self._url_for("edit", id=id))
 
         try:
             sujet.publish()
