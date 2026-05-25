@@ -198,8 +198,11 @@ class AvisEnqueteWipView(BaseWipView):
     # `abort()` raises HTTPException — the final fall-through never
     # returns, but ruff RET503 doesn't model NoReturn for third-party
     # callables, so suppress here on the function definition (where
-    # RET503 is anchored).
-    def before_request(self, *_args, **_kwargs) -> Response | None:  # noqa: RET503
+    # RET503 is anchored). Annotated with `WerkzeugResponse` (not
+    # `flask.Response`) to match the parent override : the base
+    # `BaseWipView.before_request` returns `werkzeug.Response | None`
+    # and ty rejects narrowing to flask's subclass.
+    def before_request(self, *_args, **_kwargs) -> WerkzeugResponse | None:  # noqa: RET503
         if resp := super().before_request(*_args, **_kwargs):
             return resp
 
