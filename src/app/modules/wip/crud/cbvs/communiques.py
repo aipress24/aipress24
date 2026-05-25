@@ -8,6 +8,8 @@ from typing import TYPE_CHECKING, cast
 
 from flask import (
     Flask,
+    Response,
+    abort,
     flash,
     g,
     redirect,
@@ -25,6 +27,7 @@ from app.lib.file_object_utils import create_file_object
 from app.lib.image_utils import extract_image_from_request
 from app.logging import warn
 from app.models.lifecycle import PublicationStatus
+from app.modules.bw.bw_activation.models import PermissionType
 from app.modules.bw.bw_activation.user_utils import (
     can_user_publish_for,
     get_validated_client_orgs_for_user,
@@ -34,6 +37,11 @@ from app.modules.wip.models import (
     ComImageRepository,
     Communique,
     CommuniqueRepository,
+)
+from app.modules.wip.pr_access import (
+    user_can_access_comroom,
+    user_has_mission,
+    user_is_acting_as_pr_manager,
 )
 from app.modules.wip.services.pr_notifications import (
     absolute_url_for,
@@ -144,6 +152,21 @@ class CommuniquesWipView(BaseWipView):
 
     msg_delete_ok = "Le communiqué a été supprimé"
     msg_delete_ko = "Vous n'êtes pas autorisé à supprimer ce communiqué"
+
+    def before_request(self, *_args, **_kwargs) -> Response | None:
+        if resp := super().before_request(*_args, **_kwargs):
+            return resp
+
+        user = g.user
+        if not user_can_access_comroom(user):
+            abort(403)
+
+        if user_is_acting_as_pr_manager(user) and not user_has_mission(
+            user, PermissionType.PRESS_RELEASE
+        ):
+            abort(403)
+
+        return None
 
     def _get_model(self, id):
         """Override to handle base62 encoded IDs from URLs."""
