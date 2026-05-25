@@ -300,6 +300,15 @@ class DualSelector(BaseSelector):
           parent itself). The parent's `(N)` is the sum of counts
           across its surviving children — a quick headline of how
           many experts the whole category covers.
+
+        Note (ticket #0171) : because we drop values with 0 candidates,
+        a taxonomy item visible in /admin/ontology may not appear in
+        the ciblage cascade until at least one expert holds it in
+        their profile. There is *no cache* to refresh — adding /
+        editing an entry in /admin/ontology takes effect on the next
+        request. If a journalist expects to see an item the taxonomy
+        defines, the gating signal is "is any candidate-pool expert
+        tagged with it?", not "is the taxonomy entry present?".
         """
         raw = convert_dual_choices_js(
             get_taxonomy_dual_select(self.taxonomy_name or "")
