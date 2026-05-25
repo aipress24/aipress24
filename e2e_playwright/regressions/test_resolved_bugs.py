@@ -1339,6 +1339,46 @@ def test_bug_0132_publish_sujet_round_trip(
     assert unpublish_resp is not None and unpublish_resp.status < 400
 
 
+# ─── #0169 (parts 1 & 2) ──────────────────────────────────────────
+
+
+def test_bug_0169_revoke_partnership_notifies_partner() -> None:
+    """Bug #0169 — Erick 2026-05-22 : when a client revokes a
+    partnership, the PR Agency owner had no signal (no cloche, no
+    mail, the row just disappeared). Add (a) an in-app notification
+    and (b) an email naming the client org so the agency owner knows
+    they lost a client.
+
+    Source-level guard ; runtime coverage in
+    ``tests/b_integration/modules/bw/test_bw_invitation_integration.py::
+    TestRevokePartnershipIntegration::test_revoke_notifies_partner_agency_owner``.
+
+    Part 3 (explicit revoked-partnership row in
+    /preferences/invitations with a « Confirmer » button) is a
+    separate follow-up — the cloche + email cover the main
+    awareness gap.
+    """
+    from pathlib import Path
+
+    src = Path(__file__).resolve().parent.parent.parent / "src/app"
+    invitation_module = src / "modules/bw/bw_activation/bw_invitation.py"
+    assert invitation_module.exists()
+    content = invitation_module.read_text()
+    assert "notify_partnership_revoked" in content, (
+        "revoke_partnership must trigger an in-app notification — "
+        "bug #0169 regressed."
+    )
+    assert "send_partnership_revoked_mail" in content, (
+        "revoke_partnership must trigger an email — bug #0169 regressed."
+    )
+    # The mailer must exist.
+    mailer = src / "services/emails/mailers.py"
+    assert "BWPartnershipRevokedMail" in mailer.read_text()
+    # The template must exist.
+    tpl = src / "services/emails/mail_templates/bw_partnership_revoked.j2"
+    assert tpl.exists(), "bw_partnership_revoked.j2 must be present"
+
+
 # ─── #0172 ────────────────────────────────────────────────────────
 
 
