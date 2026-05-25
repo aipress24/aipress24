@@ -9,6 +9,7 @@ from __future__ import annotations
 from flask import g, render_template
 from werkzeug.exceptions import Forbidden
 
+from app.enums import RoleEnum
 from app.flask.lib.nav import nav
 from app.flask.routing import url_for
 from app.models.mixins import Owned
@@ -24,7 +25,15 @@ from ._common import count_owned_non_deleted, get_secondary_menu
 
 
 @blueprint.route("/eventroom")
-@nav(icon="calendar")
+@nav(
+    icon="calendar",
+    acl=[
+        ("Allow", RoleEnum.PRESS_RELATIONS, "view"),
+        ("Allow", RoleEnum.EXPERT, "view"),
+        ("Allow", RoleEnum.TRANSFORMER, "view"),
+        ("Allow", RoleEnum.ACADEMIC, "view"),
+    ],
+)
 def eventroom():
     """Event'room"""
     # Lazy import to avoid circular import
