@@ -35,6 +35,11 @@ def is_minio_available() -> bool:
             region_name="fr-paris",
         )
         client.list_buckets()
+        bucket_name = "aipress24-images"
+        try:
+            client.head_bucket(Bucket=bucket_name)
+        except ClientError:
+            client.create_bucket(Bucket=bucket_name)
         return True
     except (ClientError, BotoCoreError, OSError):
         return False
