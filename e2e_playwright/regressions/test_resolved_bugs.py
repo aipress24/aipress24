@@ -1339,6 +1339,49 @@ def test_bug_0132_publish_sujet_round_trip(
     assert unpublish_resp is not None and unpublish_resp.status < 400
 
 
+# ─── #0142 (step 4) ────────────────────────────────────────────────
+
+
+def test_bug_0142_step4_modal_harmonised() -> None:
+    """Bug #0142 step 4 — Erick 2026-05-22 : « Sur "3-Gérer les
+    invitations à rejoindre le BW", c'est résolu. Mais pas sur
+    "4-Gérer la liste des membres du BW" c'est encore l'ancienne
+    interface ». Port the step-3 harmonisation pattern to step 4.
+
+    Template content guard ; the runtime test
+    ``tests/c_e2e/modules/bw/test_stages_b1_b3.py::
+    TestStageB2ManageOrgMembersRoutes::test_members_modal_harmonised_keeps_wiring``
+    covers the rendered surface.
+    """
+    from pathlib import Path
+
+    template = (
+        Path(__file__).resolve().parent.parent.parent
+        / "src/app/modules/bw/bw_activation/templates/bw_activation"
+        / "B03_manage_organisation_members.html"
+    )
+    assert template.exists()
+    content = template.read_text()
+    # Old anti-patterns gone.
+    assert "dark:bg-gray-700" not in content, (
+        "B03 must not re-introduce the dark-mode container styling "
+        "— bug #0142 step 4 regressed."
+    )
+    assert "rounded-lg shadow dark:" not in content, (
+        "B03 modal must use the harmonised `rounded-2xl shadow-lg "
+        "border border-gray-200` card — bug #0142 step 4 regressed."
+    )
+    # New harmonised pattern present.
+    assert "rounded-2xl shadow-lg border border-gray-200" in content, (
+        "B03 modal must use the harmonised card class — bug #0142 "
+        "step 4 regressed."
+    )
+    assert "Emails des membres" in content, (
+        "B03 must surface an explicit form label above the textarea "
+        "(harmonisation marker) — bug #0142 step 4 regressed."
+    )
+
+
 # ─── #0071 (part 1) ───────────────────────────────────────────────
 
 

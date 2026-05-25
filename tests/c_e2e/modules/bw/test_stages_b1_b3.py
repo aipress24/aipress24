@@ -83,6 +83,33 @@ class TestStageB2ManageOrgMembersRoutes:
         response = authenticated_owner_client.get("/BW/manage-organisation-members")
         assert response.status_code == 200
 
+    def test_members_modal_harmonised_keeps_wiring(
+        self,
+        authenticated_owner_client: FlaskClient,
+    ) -> None:
+        """Ticket #0142 step 4 (Erick, 2026-05-22) : the « Gérer la
+        liste des membres » modal was still on the old interface
+        (rounded-lg shadow, dark:bg-gray-700, no inline label) after
+        the step 3 harmonisation. Port the same harmonisation pattern
+        — visual change must keep all functional wiring (modal id,
+        HTMX action, textarea name)."""
+        body = authenticated_owner_client.get(
+            "/BW/manage-organisation-members"
+        ).data.decode()
+
+        # Functional wiring intact.
+        assert 'id="list_users_modal"' in body
+        assert 'name="content"' in body
+        assert "change_emails" in body
+        assert "/BW/manage-organisation-members" in body
+        # The dark-mode / double-card anti-pattern is gone.
+        assert "dark:bg-gray-700" not in body, (
+            "old dark-mode container styling must be dropped (#0142/4)"
+        )
+        # Harmonised header label : explicit field label visible above
+        # the textarea (matches B02's « Emails invités (un par ligne) »).
+        assert "Emails des membres" in body
+
 
 class TestStageB3ManageInternalRolesRoutes:
     """Tests for Stage B3 routes (manage internal roles)."""
