@@ -1171,7 +1171,6 @@ def test_bug_0112_rights_policy_has_media_picker(
 
     resp = page.goto(f"{base_url}/BW/rights-policy", wait_until="domcontentloaded")
     assert resp is not None and resp.status < 400
-    body = page.content()
 
     # Post-fix : must have checkboxes, NOT a textarea
     has_checkboxes = (
@@ -1338,6 +1337,46 @@ def test_bug_0132_publish_sujet_round_trip(
         wait_until="domcontentloaded",
     )
     assert unpublish_resp is not None and unpublish_resp.status < 400
+
+
+# ─── #0075 (part 3) ───────────────────────────────────────────────
+
+
+def test_bug_0075_non_mais_radio_always_clickable() -> None:
+    """Bug #0075 part 3 — The « Non, mais je vous suggère une personne
+    de mon organisation mieux placée que moi » radio used to render
+    `disabled` (and the label `text-gray-400`) when no eligible
+    colleague existed. Erick : « On ne peut l'activer ». The radio
+    must be clickable in every state.
+
+    Pure template content check ; the runtime gate is in
+    ``tests/c_e2e/modules/wip/test_opportunities_views.py::
+    TestSuggestColleagueRadioAlwaysClickable``.
+    """
+    from pathlib import Path
+
+    template = (
+        Path(__file__).resolve().parent.parent.parent
+        / "src/app/modules/wip/templates/wip/pages"
+        / "media_opportunity.j2"
+    )
+    assert template.exists()
+    content = template.read_text()
+    # The historical pattern was `{% if not eligible_colleagues %}
+    # disabled{% endif %}` on the `non-mais` radio (and a grey label).
+    # Anchor on the literal Jinja predicate so the legit `is_answered`
+    # gates on the contribution/refusal_reason fields aren't tripped.
+    # `eligible_colleagues` is still legitimately used as a truthy
+    # gate for the select (only show it when there's something to
+    # pick) — we ban the *negated* predicate that disabled the radio.
+    # The grey label class flows from the same predicate, so guarding
+    # the predicate guards both.
+    import re
+
+    assert not re.search(r"{%\s*if\s+not\s+eligible_colleagues\s*%}", content), (
+        "media_opportunity.j2 must not gate any rendering on "
+        "`{% if not eligible_colleagues %}` — bug #0075/3 regressed."
+    )
 
 
 # ─── #0170 ────────────────────────────────────────────────────────

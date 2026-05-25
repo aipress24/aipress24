@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+import re
 from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING
 from unittest.mock import patch
@@ -14,18 +15,20 @@ import pytest
 
 from app.enums import RoleEnum
 from app.models.auth import KYCProfile, Role, User
+from app.models.organisation import Organisation
+from app.modules.bw.bw_activation.models import BusinessWall
+from app.modules.bw.bw_activation.models.business_wall import BWStatus
 from app.modules.wip.models.newsroom.avis_enquete import (
     AvisEnquete,
     ContactAvisEnquete,
     StatutAvis,
 )
 from app.modules.wip.views.opportunities import MediaOpportunity
+from tests.c_e2e.conftest import make_authenticated_client
 
 if TYPE_CHECKING:
     from flask.testing import FlaskClient
     from sqlalchemy.orm import Session
-
-    from app.models.organisation import Organisation
 
 
 @pytest.fixture
@@ -377,6 +380,98 @@ class TestOpportunityResponse:
         )
         assert chained.suggested_by_user_id == test_user.id
         assert chained.status == StatutAvis.EN_ATTENTE
+
+
+class TestSuggestColleagueRadioAlwaysClickable:
+    """Bug #0075 part 3 (Erick, 2026-05-22) : the « Non, mais je suggère
+    une personne de mon organisation mieux placée que moi » radio used
+    to be `disabled` + `text-gray-400` when ``eligible_colleagues`` was
+    empty. Erick : « La mention est en caractères grisés. On ne peut
+    l'activer ». The radio must be clickable in every state.
+    """
+
+    def test_radio_not_disabled_when_no_eligible_colleagues(
+        self,
+        app,
+        db_session: Session,
+        # `test_user` first to seed the PRESS_MEDIA role before
+        # `journalist_user` tries to create it again (the two fixtures
+        # disagree on the check-or-create pattern and order matters).
+        test_user: User,
+        journalist_user: User,
+        test_avis_enquete: AvisEnquete,
+        active_bw,
+    ):
+        """The expert is the only member of their org → no eligible
+        colleagues. The radio must still render WITHOUT ``disabled``."""
+        # Solo org / solo expert so list_eligible_colleagues() returns
+        # an empty list. The default `test_user` shares its org with
+        # `journalist_user`, which would seed an "eligible" colleague.
+        solo_org = Organisation(name="Fake-Solo Expert SARL")
+        db_session.add(solo_org)
+        db_session.flush()
+        # An EXPERT role is required for `first_community()` to resolve
+        # when rendering the page header.
+        expert_role = db_session.query(Role).filter_by(name=RoleEnum.EXPERT.name).first()
+        if expert_role is None:
+            expert_role = Role(
+                name=RoleEnum.EXPERT.name, description=RoleEnum.EXPERT.value
+            )
+            db_session.add(expert_role)
+            db_session.flush()
+        solo_expert = User(
+            email="solo-expert@example.com",
+            first_name="Solo",
+            last_name="Expert",
+            active=True,
+        )
+        solo_expert.organisation = solo_org
+        solo_expert.organisation_id = solo_org.id
+        solo_expert.roles.append(expert_role)
+        db_session.add(solo_expert)
+        db_session.flush()
+
+        # Active BW so the #0164 gate doesn't hide the response form.
+        solo_bw = BusinessWall(
+            bw_type="leaders_experts",
+            status=BWStatus.ACTIVE.value,
+            owner_id=solo_expert.id,
+            payer_id=solo_expert.id,
+            organisation_id=solo_org.id,
+            name="Solo Expert BW",
+        )
+        db_session.add(solo_bw)
+        db_session.flush()
+        solo_org.bw_id = solo_bw.id
+
+        contact = ContactAvisEnquete(
+            avis_enquete_id=test_avis_enquete.id,
+            journaliste_id=journalist_user.id,
+            expert_id=solo_expert.id,
+            status=StatutAvis.EN_ATTENTE,
+        )
+        db_session.add(contact)
+        db_session.commit()
+
+        client = make_authenticated_client(app, solo_expert)
+        response = client.get(f"/wip/opportunities/{contact.id}")
+        assert response.status_code == 200
+        html = response.data.decode()
+        # The radio for « non-mais » must be present and not disabled.
+        # We search for the id and check the absence of `disabled` in
+        # the same `<input>` tag.
+        m = re.search(r'<input\b[^>]*\bid="non-mais"[^>]*>', html)
+        assert m is not None, "« non-mais » radio missing from the form"
+        assert "disabled" not in m.group(0), (
+            f"« non-mais » radio must not be disabled (#0075/3): {m.group(0)}"
+        )
+        # The label must not be greyed out either.
+        label_m = re.search(r'<label\b[^>]*\bfor="non-mais"[^>]*>', html)
+        assert label_m is not None
+        assert "text-gray-400" not in label_m.group(0), (
+            f"« non-mais » label must not be greyed out (#0075/3): "
+            f"{label_m.group(0)}"
+        )
 
 
 class TestOpportunityResponseRequiresActiveBW:

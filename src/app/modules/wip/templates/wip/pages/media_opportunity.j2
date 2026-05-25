@@ -118,6 +118,15 @@
                         <label for="non">Non</label>
                     </div>
 
+                    {# Ticket #0075/3 : Erick (« On ne peut l'activer »).
+                       The radio used to be `disabled` + grey label when
+                       `eligible_colleagues` was empty. Keep it clickable
+                       in every state — when the user picks it with no
+                       eligible colleagues, the conditional select below
+                       (see `if form_state.reponse1 == "non-mais" and
+                       eligible_colleagues`) renders nothing and the
+                       form-level validation surfaces a clear flash on
+                       submit. #}
                     <div>
                         <input
                             type="radio"
@@ -125,16 +134,9 @@
                             name="reponse1"
                             value="non-mais"
                             {% if form_state.reponse1 == "non-mais" %}checked{% endif %}
-                            {% if not eligible_colleagues %}disabled{% endif %}
                         />
-                        <label for="non-mais"
-                               {% if not eligible_colleagues %}class="text-gray-400"{% endif %}>
+                        <label for="non-mais">
                             Non, mais je vous suggère une personne de mon organisation mieux placée que moi
-                            {% if not eligible_colleagues %}
-                                <span class="text-sm italic">
-                                    (aucun collègue disponible)
-                                </span>
-                            {% endif %}
                         </label>
                     </div>
                 </fieldset>
