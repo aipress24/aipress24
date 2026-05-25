@@ -208,7 +208,11 @@ def test_landing_page_shows_search_form(
     assert resp is not None
     assert resp.status == 200
 
-    # The input is named "qs" per search-top-bar.j2.
-    assert page.locator('input[name="qs"]').count() == 1
+    # Two `name="qs"` inputs exist on every page: the nav-bar quicksearch
+    # (`#qs`) and the page's main search form (`#search-qs`) — see the
+    # note in `test_search_form_submission_updates_url`. Target the main
+    # form specifically so the test fails iff the page-level form goes
+    # missing, not when the nav-bar input appears/disappears.
+    assert page.locator("#search-qs").count() == 1
     # And the submit button is present.
     assert page.locator('button[type="submit"]').count() >= 1
