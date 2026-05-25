@@ -23,7 +23,6 @@ from app.models.lifecycle import PublicationStatus
 from app.modules.bw.bw_activation.user_utils import (
     can_user_publish_for,
     get_selected_business_wall_for_user,
-    get_validated_client_orgs_for_user,
 )
 from app.modules.wip.models import Sujet, SujetRepository
 from app.modules.wip.pr_access import user_can_access_newsroom

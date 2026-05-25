@@ -19,7 +19,6 @@ from tests.c_e2e.conftest import make_authenticated_client
 
 if TYPE_CHECKING:
     from flask import Flask
-    from flask.testing import FlaskClient
 
     from app.models.organisation import Organisation
 

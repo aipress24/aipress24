@@ -31,7 +31,6 @@ from app.modules.bw.bw_activation.models import PermissionType
 from app.modules.bw.bw_activation.user_utils import (
     can_user_publish_for,
     get_selected_business_wall_for_user,
-    get_validated_client_orgs_for_user,
 )
 from app.modules.wip.models.eventroom import (
     Event,

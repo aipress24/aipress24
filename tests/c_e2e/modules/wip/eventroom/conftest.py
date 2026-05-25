@@ -18,7 +18,6 @@ import pytest
 from app.enums import RoleEnum
 from app.models.auth import KYCProfile, Role, User
 from app.models.organisation import Organisation
-
 from tests.c_e2e.conftest import make_authenticated_client
 
 if TYPE_CHECKING:
