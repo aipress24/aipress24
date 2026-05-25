@@ -1338,3 +1338,37 @@ def test_bug_0132_publish_sujet_round_trip(
         wait_until="domcontentloaded",
     )
     assert unpublish_resp is not None and unpublish_resp.status < 400
+
+
+# ─── #0170 ────────────────────────────────────────────────────────
+
+
+def test_bug_0170_rdv_details_omits_proposed_slots() -> None:
+    """Bug #0170 — Once a slot has been accepted, the « Créneaux
+    proposés » list becomes noise on the RDV detail page (Erick :
+    « Autant les retirer car cela trouble la lecture »). The block
+    must NOT be present in ``rdv_details.j2``.
+
+    Pure template content check — runtime coverage is in
+    ``test_avis_enquete_views.py::test_rdv_details_omits_proposed_slots_list``.
+    """
+    from pathlib import Path
+
+    template = (
+        Path(__file__).resolve().parent.parent.parent
+        / "src/app/modules/wip/templates/wip/avis_enquete"
+        / "rdv_details.j2"
+    )
+    assert template.exists()
+    content = template.read_text()
+    # Anchor on the rendered HTML pattern (h3 closing tag) rather than
+    # the bare label, so the in-source comment that *names* the
+    # removed block in past tense doesn't trip the guard.
+    assert "Créneaux proposés:</h3>" not in content, (
+        "rdv_details.j2 must not re-introduce the proposed-slots <h3> "
+        "block — bug #0170 regressed."
+    )
+    assert "proposed_slots_dt" not in content, (
+        "rdv_details.j2 must not iterate `proposed_slots_dt` — bug "
+        "#0170 regressed."
+    )
