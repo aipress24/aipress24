@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from typing import cast
 
-from flask import flash, g, redirect, render_template, request, url_for
+from flask import abort, flash, g, redirect, render_template, request, url_for
 from wtforms import (
     BooleanField,
     DateField,
