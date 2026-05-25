@@ -24,6 +24,7 @@ from flask_super.registry import register
 from svcs.flask import container
 from werkzeug.wrappers import Response as WerkzeugResponse
 
+from app.enums import RoleEnum
 from app.flask.lib.htmx import extract_fragment
 from app.flask.lib.templates import templated
 from app.flask.routing import url_for
@@ -54,6 +55,7 @@ from app.modules.wip.services.newsroom.publication_notification_service import (
 )
 from app.modules.wip.services.pr_notifications import absolute_url_for
 from app.services.auth import AuthService
+from app.services.roles import has_role
 
 from ._base import BaseWipView
 from ._forms import AvisEnqueteForm
@@ -192,13 +194,22 @@ class AvisEnqueteWipView(BaseWipView):
     msg_delete_ok = "L'avis d'enquête a été supprimé"
     msg_delete_ko = "Vous n'êtes pas autorisé à supprimer cet avis d'enquête"
 
+    EXPERT_ALLOWED_ACTIONS = frozenset({"rdv_accept", "rdv_details", "rdv_cancel"})
+
     def before_request(self, *_args, **_kwargs) -> Response | None:
         if resp := super().before_request(*_args, **_kwargs):
             return resp
 
-        if not user_can_access_newsroom(g.user):
-            abort(403)
-        return None
+        if user_can_access_newsroom(g.user):
+            return None
+
+        action = request.endpoint and request.endpoint.split(":")[-1]
+        if action in self.EXPERT_ALLOWED_ACTIONS and has_role(
+            g.user, [RoleEnum.EXPERT]
+        ):
+            return None
+
+        abort(403)
 
     def _post_update_model(self, model: AvisEnquete) -> None:
         # Validate publisher_id: if the user selected a client org they are
