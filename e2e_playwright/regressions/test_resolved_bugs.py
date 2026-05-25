@@ -1339,6 +1339,33 @@ def test_bug_0132_publish_sujet_round_trip(
     assert unpublish_resp is not None and unpublish_resp.status < 400
 
 
+# ─── #0172 ────────────────────────────────────────────────────────
+
+
+def test_bug_0172_event_publish_requires_dates() -> None:
+    """Bug #0172 — Sophie-Anne (2026-05-25) : « j'ai créé un événement
+    qui apparaît bien dans ma liste sous le statut publié mais il
+    n'apparaît pas dans EVENTS ». Root cause : the default DateFilter
+    on ``/events/`` filters on ``start_datetime >= today OR
+    end_datetime >= today``, and NULL >= today evaluates to NULL —
+    so events published without dates land in PUBLIC but are silently
+    invisible.
+
+    Fix : require both ``start_time`` and ``end_time`` at publish
+    time. Source-level check on the publish() guard.
+    """
+    from pathlib import Path
+
+    src = Path(__file__).resolve().parent.parent.parent / "src/app/modules/wip"
+    event_model = src / "models/eventroom/event.py"
+    assert event_model.exists()
+    content = event_model.read_text()
+    # The publish guard must still check start_time AND end_time.
+    assert "if not self.start_time or not self.end_time" in content, (
+        "Event.publish() must require both dates — bug #0172 regressed."
+    )
+
+
 # ─── #0154 (articles/communiques/events) ─────────────────────────
 
 

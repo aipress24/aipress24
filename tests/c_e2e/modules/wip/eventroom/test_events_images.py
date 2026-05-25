@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+from datetime import UTC, datetime, timedelta
 from io import BytesIO
 from typing import TYPE_CHECKING
 from unittest.mock import MagicMock
@@ -48,6 +49,10 @@ def published_event(
     event.titre = "Published Event"
     event.contenu = "Published content"
     event.status = PublicationStatus.DRAFT
+    # #0172: publish requires both dates.
+    now = datetime.now(UTC)
+    event.start_time = now + timedelta(days=1)
+    event.end_time = now + timedelta(days=2)
     event.publish(publisher_id=test_org.id)
     db_session.add(event)
     db_session.flush()

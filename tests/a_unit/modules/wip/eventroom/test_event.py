@@ -107,8 +107,21 @@ def test_event_publication_validation(db_session: scoped_session) -> None:
     with pytest.raises(ValueError, match="contenu"):
         event.publish()
 
-    # Valid event can be published
+    # Bug #0172 — BUSINESS RULE: Cannot publish without start/end dates.
+    # Without dates, the event would land in PublicationStatus.PUBLIC
+    # but be silently filtered out of the public /events/ listing by
+    # the default DateFilter (`start_datetime >= today OR end_datetime
+    # >= today` — both sides evaluate to NULL for a dateless event, so
+    # the row is excluded). Block at publish time with a clear flash
+    # rather than letting the user wonder where their event went.
     event.contenu = "Some content"
+    with pytest.raises(ValueError, match="date"):
+        event.publish()
+
+    # Valid event with dates can be published
+    now = datetime.now(UTC)
+    event.start_time = now + timedelta(days=1)
+    event.end_time = now + timedelta(days=2)
     event.publish()
     assert event.status == PublicationStatus.PUBLIC
 
@@ -149,6 +162,10 @@ def test_event_query_properties(db_session: scoped_session) -> None:
     event = Event(owner=joe)
     event.titre = "Test Event"
     event.contenu = "Test content"
+    # Dates required at publish time (#0172).
+    now = datetime.now(UTC)
+    event.start_time = now + timedelta(days=1)
+    event.end_time = now + timedelta(days=2)
 
     db_session.add(event)
     db_session.flush()
