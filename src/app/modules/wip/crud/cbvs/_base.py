@@ -22,6 +22,9 @@ from app.flask.lib.htmx import extract_fragment
 from app.flask.lib.templates import templated
 from app.flask.lib.wtforms.renderer import FormRenderer
 from app.models.organisation import Organisation
+from app.modules.bw.bw_activation.user_utils import (
+    get_selected_business_wall_for_user,
+)
 from app.modules.kyc.ontology_loader import get_choices as get_ontology_choices
 from app.modules.wip.crud.cbvs._table import BaseTable
 from app.modules.wip.menu import make_menu
@@ -223,6 +226,19 @@ class BaseWipView(FlaskView, abc.ABC):
             else:
                 form.pays_zip_ville.lock = 0  # type: ignore[attr-defined]
 
+        publisher_text = ""
+
+        if getattr(g.user, "is_managing_another_bw", False):
+            bw = get_selected_business_wall_for_user(g.user)
+            if bw:
+                publisher_text = f'Publié pour le compte de "{bw.name}"'
+        else:
+            own_org = getattr(g.user, "organisation", None)
+            if own_org:
+                publisher_text = (
+                    f'Publié pour le compte de "{own_org.bw_name or own_org.name}"'
+                )
+
         renderer = FormRenderer(
             form,
             model=model,
@@ -232,6 +248,7 @@ class BaseWipView(FlaskView, abc.ABC):
 
         return {
             "title": title,
+            "publisher_text": publisher_text,
             "form_rendered": renderer.render(),
             "extra_view_html": self._extra_view_html(model, mode),
         }

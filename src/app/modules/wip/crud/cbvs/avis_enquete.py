@@ -31,6 +31,7 @@ from app.logging import warn
 from app.models.lifecycle import PublicationStatus
 from app.modules.bw.bw_activation.user_utils import (
     can_user_publish_for,
+    get_selected_business_wall_for_user,
     get_validated_client_orgs_for_user,
 )
 from app.modules.wip.models import (
@@ -207,30 +208,13 @@ class AvisEnqueteWipView(BaseWipView):
                 f"AvisEnquete {model.id}: user {g.user.id} selected publisher_id="
                 f"{model.publisher_id} but can_user_publish_for is False. "
             )
-        if not model.publisher_id and g.user.organisation_id:
-            model.publisher_id = g.user.organisation_id
-
-    def _view_ctx(self, model=None, form=None, mode="edit", title=""):
-        if not form:
-            form = self.form_class(obj=model)
-        self._make_publisher_choices(form)
-        return super()._view_ctx(model, form, mode, title)
-
-    def _make_publisher_choices(self, form) -> None:
-        """Populate the `publisher_id` select with the user's org + validated
-        clients (for PR agency users)."""
-        if not hasattr(form, "publisher_id"):
-            return
-        choices = []
-        user = g.user
-        own_org = getattr(user, "organisation", None)
-        if user.organisation_id and own_org is not None:
-            choices.append(
-                (user.organisation_id, f"Mon organisation — {own_org.bw_name}")
-            )
-        for client_org in get_validated_client_orgs_for_user(user):
-            choices.append((client_org.id, client_org.bw_name))
-        form.publisher_id.choices = choices
+        if not model.publisher_id:
+            if g.user.is_managing_another_bw:
+                bw = get_selected_business_wall_for_user(g.user)
+                if bw:
+                    model.publisher_id = bw.organisation_id
+            if not model.publisher_id and g.user.organisation_id:
+                model.publisher_id = g.user.organisation_id
 
     def _build_opportunity_url(self, contact: ContactAvisEnquete) -> str:
         domain = str(current_app.config.get("SERVER_NAME"))
