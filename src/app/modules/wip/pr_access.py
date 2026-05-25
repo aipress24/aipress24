@@ -17,8 +17,14 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from flask import abort
+
 from app.enums import RoleEnum
-from app.modules.bw.bw_activation.models import BWRoleType, InvitationStatus
+from app.modules.bw.bw_activation.models import (
+    BWRoleType,
+    InvitationStatus,
+    PermissionType,
+)
 from app.modules.bw.bw_activation.user_utils import (
     get_selected_business_wall_for_user,
 )
@@ -43,7 +49,19 @@ def user_can_access_comroom(user: User) -> bool:
     """True if `user` may author press releases in Com'room."""
     if not user or user.is_anonymous:
         return False
-    return has_role(user, [role.name for role in COMROOM_COMMUNITY_ROLES])
+    if has_role(user, [role.name for role in COMROOM_COMMUNITY_ROLES]):
+        return True
+    return user_is_acting_as_pr_manager(user)
+
+
+def user_can_access_eventroom(user: User) -> bool:
+    """True if `user` may author events in Eventroom."""
+    if not user or user.is_anonymous:
+        return False
+    # For now, allow same as comroom
+    if has_role(user, [role.name for role in COMROOM_COMMUNITY_ROLES]):
+        return True
+    return user_is_acting_as_pr_manager(user)
 
 
 def user_can_access_newsroom(user: User) -> bool:
@@ -81,3 +99,39 @@ def user_is_acting_as_pr_manager(user: User) -> bool:
             return True
 
     return False
+
+
+def user_has_mission(user: User, mission: PermissionType) -> bool:
+    """True if `user` has the specified mission on the currently selected BW.
+
+    Always True for BW owners. For others, checks the active RoleAssignment
+    and its granted permissions.
+    """
+    if not user or user.is_anonymous:
+        return False
+
+    bw = get_selected_business_wall_for_user(user)
+    if not bw:
+        return False
+
+    # Owners have all missions
+    if bw.owner_id == user.id:
+        return True
+
+    for assignment in bw.role_assignments:
+        if (
+            assignment.user_id == user.id
+            and assignment.invitation_status == InvitationStatus.ACCEPTED.value
+        ):
+            # Check for the specific mission
+            for perm in assignment.permissions:
+                if perm.permission_type == mission.value and perm.is_granted:
+                    return True
+
+    return False
+
+
+def check_mission(user: User, mission: PermissionType) -> None:
+    """Abort with 403 if `user` is an acting PR manager without `mission`."""
+    if user_is_acting_as_pr_manager(user) and not user_has_mission(user, mission):
+        abort(403)
