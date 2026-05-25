@@ -1339,6 +1339,41 @@ def test_bug_0132_publish_sujet_round_trip(
     assert unpublish_resp is not None and unpublish_resp.status < 400
 
 
+# ─── #0071 (part 2) ───────────────────────────────────────────────
+
+
+def test_bug_0071_part2_draft_bw_activates_on_confirmation_revisit() -> None:
+    """Bug #0071 part 2 — Erick 2026-05-21 : Jocelyne configures her
+    BW from the avis-d'enquête gate, returns to the opportunity page,
+    but the gate is still showing. Root cause : the activation flow's
+    idempotency check accepted any non-CANCELLED status (including
+    DRAFT) and rendered « Activation Réussie » without finalising the
+    BW. The opportunity gate later rejected DRAFT (ACTIVE-only) and
+    the banner persisted.
+
+    The fix flips DRAFT → ACTIVE when the user comes back through
+    confirmation_free / confirmation_paid as a manager. Source-level
+    guard ; runtime coverage in
+    ``tests/c_e2e/modules/bw/test_bw_routes.py::TestStage3FreeRoutes::
+    test_confirmation_free_activates_existing_draft_bw``.
+    """
+    from pathlib import Path
+
+    stage3 = (
+        Path(__file__).resolve().parent.parent.parent
+        / "src/app/modules/bw/bw_activation/routes"
+        / "stage3.py"
+    )
+    assert stage3.exists()
+    content = stage3.read_text()
+    # The finalisation branch must be present in both confirmation_free
+    # and confirmation_paid.
+    assert content.count("existing.status = BWStatus.ACTIVE.value") >= 2, (
+        "stage3.py must finalise DRAFT BWs in both confirmation_free "
+        "and confirmation_paid — bug #0071/2 regressed."
+    )
+
+
 # ─── #0169 (parts 1 & 2) ──────────────────────────────────────────
 
 
