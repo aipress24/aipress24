@@ -10,10 +10,12 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime
 from typing import TYPE_CHECKING
+from uuid import UUID
 
 from sqlalchemy.orm import scoped_session
 from svcs.flask import container
 
+from app.modules.bw.bw_activation.models import BusinessWall
 from app.modules.wip.models import (
     AvisEnquete,
     ContactAvisEnquete,
@@ -549,44 +551,90 @@ class AvisEnqueteService:
     # ----------------------------------------------------------------
 
     def press_officer_email(self, expert: User) -> str:
-        """Email of the org's press officer (BW PR Manager interne).
+        """First press-officer email — kept for the single-value
+        callers (DB column ``email_relation_presse``). New surfaces
+        should call ``press_officer_emails`` which returns the full
+        list (BWPRi + active BWPRe partners — ticket #0075/2)."""
+        emails = self.press_officer_emails(expert)
+        return emails[0] if emails else ""
 
-        Bug #0061-b: the avis-d'enquête form used
-        `expert.profile.get_value("email_relation_presse")`, a personal
-        profile field. For a PDG / BW Owner that field is empty or
-        holds their own address, so the journalist saw the wrong
-        contact. The right one is the org's *accepted* BWPRi. Fall
-        back to the legacy profile field when the org has no accepted
-        internal PR manager (or no active BW).
+    def press_officer_emails(self, expert: User) -> list[str]:
+        """Emails of the org's press officers (internal + external).
+
+        Bug #0061-b : the form used to read a personal profile field
+        and showed the PDG's own address. The right contacts are the
+        org's *accepted* BWPRi (internal) AND the owners of each
+        active PR-Agency partnership (BWPRe — ticket #0075/2).
+
+        Order : internal BWPRi(s) first, then external partner owners.
+        Duplicates are removed while preserving first-seen order. If
+        the org has no active BW / no accepted PR contact, fall back
+        to the legacy ``email_relation_presse`` profile field so the
+        form still surfaces *something* sensible.
         """
         from app.models.auth import User as UserModel
         from app.modules.bw.bw_activation.models import (
             BWRoleType,
             InvitationStatus,
+            PartnershipStatus,
         )
         from app.modules.bw.bw_activation.user_utils import (
             get_active_business_wall_for_organisation,
         )
 
         profile = getattr(expert, "profile", None)
-        fallback = (profile.get_value("email_relation_presse") if profile else "") or ""
+        fallback_str = (
+            profile.get_value("email_relation_presse") if profile else ""
+        ) or ""
 
         org = expert.organisation
         if org is None:
-            return fallback
+            return [fallback_str] if fallback_str else []
         bw = get_active_business_wall_for_organisation(org)
         if bw is None:
-            return fallback
+            return [fallback_str] if fallback_str else []
 
-        for assignment in bw.role_assignments:
+        ordered: list[str] = []
+        seen: set[str] = set()
+
+        # 1) Internal BWPRi(s).
+        for assignment in bw.role_assignments or ():
             if (
                 assignment.role_type == BWRoleType.BWPRI.value
                 and assignment.invitation_status == InvitationStatus.ACCEPTED.value
             ):
                 pr_user = self._db_session.get(UserModel, assignment.user_id)
-                if pr_user is not None and pr_user.email:
-                    return pr_user.email
-        return fallback
+                if pr_user is not None and pr_user.email and pr_user.email not in seen:
+                    ordered.append(pr_user.email)
+                    seen.add(pr_user.email)
+
+        # 2) External PR Agency partners (active partnerships).
+        active_statuses = {
+            PartnershipStatus.ACCEPTED.value,
+            PartnershipStatus.ACTIVE.value,
+        }
+        for partnership in bw.partnerships or ():
+            if partnership.status not in active_statuses:
+                continue
+            try:
+                partner_uuid = UUID(partnership.partner_bw_id)
+            except (TypeError, ValueError):
+                continue
+            partner_bw = self._db_session.get(BusinessWall, partner_uuid)
+            if partner_bw is None or partner_bw.status != "active":
+                continue
+            agency_owner = self._db_session.get(UserModel, partner_bw.owner_id)
+            if (
+                agency_owner is not None
+                and agency_owner.email
+                and agency_owner.email not in seen
+            ):
+                ordered.append(agency_owner.email)
+                seen.add(agency_owner.email)
+
+        if ordered:
+            return ordered
+        return [fallback_str] if fallback_str else []
 
     def list_eligible_colleagues(
         self,

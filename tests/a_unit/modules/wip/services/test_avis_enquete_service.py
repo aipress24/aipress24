@@ -20,6 +20,8 @@ from app.modules.bw.bw_activation.models import (
     BusinessWall,
     BWRoleType,
     InvitationStatus,
+    Partnership,
+    PartnershipStatus,
     RoleAssignment,
 )
 from app.modules.bw.bw_activation.models.business_wall import BWStatus
@@ -196,6 +198,127 @@ class TestPressOfficerEmail:
 
         service = AvisEnqueteService(db_session=db_session)
         assert service.press_officer_email(pdg) == "legacy2@profile.com"
+
+    def test_press_officer_emails_includes_external_partners(
+        self, db_session: scoped_session
+    ) -> None:
+        """Ticket #0075 part 2 (Erick, 2026-05-22) : the dropdown under
+        « Oui, associer attaché de presse » must surface BWPRi
+        (internal) AND BWPRe (external — owners of active PR-Agency
+        partner BWs). Today it only surfaces BWPRi.
+
+        Setup mirrors Erick's case : Jocelyne (PDG) of Fake-Strada
+        Transports has Layelle as internal BWPRi and is partnered
+        with Fake-Les Propulseurs RP (owned by Marc Rodriguez)."""
+        client_org = Organisation(name="Fake-Strada Transports")
+        agency_org = Organisation(name="Fake-Les Propulseurs RP")
+        db_session.add_all([client_org, agency_org])
+        db_session.flush()
+
+        pdg = User(email="jocelyne-pdg@test.com")
+        pdg.organisation = client_org
+        layelle = User(email="layelle-bwpri@test.com")
+        layelle.organisation = client_org
+        marc = User(email="marc-rp-owner@test.com")
+        marc.organisation = agency_org
+        db_session.add_all([pdg, layelle, marc])
+        db_session.flush()
+        self._attach_profile(db_session, pdg, "pdg-fallback@test.com")
+
+        # Client BW with internal BWPRi.
+        client_bw = BusinessWall(
+            bw_type="leaders_experts",
+            status=BWStatus.ACTIVE.value,
+            owner_id=pdg.id,
+            payer_id=pdg.id,
+            organisation_id=client_org.id,
+            name="Strada BW",
+        )
+        # Agency BW owned by Marc.
+        agency_bw = BusinessWall(
+            bw_type="pr",
+            status=BWStatus.ACTIVE.value,
+            owner_id=marc.id,
+            payer_id=marc.id,
+            organisation_id=agency_org.id,
+            name="Propulseurs BW",
+        )
+        db_session.add_all([client_bw, agency_bw])
+        db_session.flush()
+        client_org.bw_id = client_bw.id
+        db_session.flush()
+
+        db_session.add(
+            RoleAssignment(
+                business_wall_id=client_bw.id,
+                user_id=layelle.id,
+                role_type=BWRoleType.BWPRI.value,
+                invitation_status=InvitationStatus.ACCEPTED.value,
+            )
+        )
+        # Active partnership between client and agency.
+        db_session.add(
+            Partnership(
+                business_wall_id=client_bw.id,
+                partner_bw_id=str(agency_bw.id),
+                status=PartnershipStatus.ACTIVE.value,
+                invited_by_user_id=pdg.id,
+            )
+        )
+        db_session.flush()
+
+        service = AvisEnqueteService(db_session=db_session)
+        emails = service.press_officer_emails(pdg)
+        assert "layelle-bwpri@test.com" in emails
+        assert "marc-rp-owner@test.com" in emails
+
+    def test_press_officer_emails_skips_revoked_partnerships(
+        self, db_session: scoped_session
+    ) -> None:
+        """Revoked partnerships must not leak into the dropdown."""
+        client_org = Organisation(name="Fake-Solo Client")
+        agency_org = Organisation(name="Fake-Ex-Agency")
+        db_session.add_all([client_org, agency_org])
+        db_session.flush()
+
+        pdg = User(email="solo-pdg@test.com")
+        pdg.organisation = client_org
+        marc = User(email="ex-agency-marc@test.com")
+        marc.organisation = agency_org
+        db_session.add_all([pdg, marc])
+        db_session.flush()
+        self._attach_profile(db_session, pdg, "")
+
+        client_bw = BusinessWall(
+            bw_type="leaders_experts",
+            status=BWStatus.ACTIVE.value,
+            owner_id=pdg.id,
+            payer_id=pdg.id,
+            organisation_id=client_org.id,
+        )
+        agency_bw = BusinessWall(
+            bw_type="pr",
+            status=BWStatus.ACTIVE.value,
+            owner_id=marc.id,
+            payer_id=marc.id,
+            organisation_id=agency_org.id,
+        )
+        db_session.add_all([client_bw, agency_bw])
+        db_session.flush()
+        client_org.bw_id = client_bw.id
+        db_session.add(
+            Partnership(
+                business_wall_id=client_bw.id,
+                partner_bw_id=str(agency_bw.id),
+                status=PartnershipStatus.REVOKED.value,
+                invited_by_user_id=pdg.id,
+            )
+        )
+        db_session.flush()
+
+        service = AvisEnqueteService(db_session=db_session)
+        emails = service.press_officer_emails(pdg)
+        assert "ex-agency-marc@test.com" not in emails
 
 
 class TestResyncTargeting:
