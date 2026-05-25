@@ -113,6 +113,17 @@ def confirmation_free():
     existing = current_business_wall(user)
     if existing is not None and existing.status != BWStatus.CANCELLED.value:
         if is_bw_manager_or_admin(user, existing):
+            # Bug #0071/2 : a DRAFT BW (e.g. pre-Stripe pre-checkout, or
+            # left dangling because the webhook never fired) used to be
+            # treated as « already activated » and the page rendered
+            # the confirmation card without flipping the status. The
+            # opportunity gate later rejected it (ACTIVE-only) and the
+            # user saw the same banner forever. Finalise the DRAFT
+            # here so the user's mental model (« j'ai configuré mon
+            # BW ») matches the underlying state.
+            if existing.status != BWStatus.ACTIVE.value:
+                existing.status = BWStatus.ACTIVE.value  # type: ignore[assignment]
+                db.session.commit()
             fill_session(existing)
             return render_template(
                 "bw_activation/02_activation_gratuit_confirme.html",
@@ -408,6 +419,15 @@ def confirmation_paid():
         and existing.status != BWStatus.CANCELLED.value
         and is_bw_manager_or_admin(user, existing)
     ):
+        # Bug #0071/2 : same DRAFT-stays-DRAFT trap as confirmation_free.
+        # A paid BW pre-checkout sits in DRAFT until the Stripe webhook
+        # flips it ; when the webhook fails (or doesn't exist, like in
+        # recette), the user comes back here and the « Activation
+        # Réussie » card lied. Flip the status here too so the gate on
+        # /wip/opportunities/ stops blocking.
+        if existing.status != BWStatus.ACTIVE.value:
+            existing.status = BWStatus.ACTIVE.value  # type: ignore[assignment]
+            db.session.commit()
         fill_session(existing)
         return render_template(
             "bw_activation/03_activation_payant_confirme.html",

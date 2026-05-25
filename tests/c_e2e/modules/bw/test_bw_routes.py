@@ -399,6 +399,74 @@ class TestStage3FreeRoutes:
         roles = db_session.query(RoleAssignment).filter_by(user_id=member.id).all()
         assert roles == []
 
+    def test_confirmation_free_activates_existing_draft_bw(
+        self,
+        app: Flask,
+        db,
+        db_session: Session,
+        test_org: Organisation,
+        test_user_owner: User,
+    ) -> None:
+        """Ticket #0071 part 2 (Erick, 2026-05-21) : Jocelyne (PDG)
+        configures her BW from the avis-d'enquête gate, returns to
+        the opportunity page, but the gate is still showing. Root
+        cause : the BW exists in DRAFT (created by the paid-flow
+        Stripe pre-checkout helper, or because the webhook never
+        fired in this environment), and the activation flow's
+        idempotency check renders « Activation Réussie » for any
+        non-CANCELLED status — including DRAFT — without flipping
+        the BW to ACTIVE. The opportunity gate then uses
+        `get_active_business_wall_for_organisation` which requires
+        ACTIVE, so the banner persists.
+
+        Fix : when the idempotency check finds an existing DRAFT
+        (or SUSPENDED) BW that the user manages, finalize it
+        (status → ACTIVE) before rendering the confirmation page.
+        """
+        # DRAFT BW owned by the user — pre-payment state.
+        bw = BusinessWall(
+            bw_type="leaders_experts",
+            status=BWStatus.DRAFT.value,
+            is_free=False,
+            owner_id=test_user_owner.id,
+            payer_id=test_user_owner.id,
+            organisation_id=test_org.id,
+        )
+        db_session.add(bw)
+        db_session.flush()
+        test_org.bw_id = bw.id
+        db_session.add(
+            RoleAssignment(
+                business_wall_id=bw.id,
+                user_id=test_user_owner.id,
+                role_type=BWRoleType.BW_OWNER.value,
+                invitation_status=InvitationStatus.ACCEPTED.value,
+            )
+        )
+        db_session.commit()
+
+        client = app.test_client()
+        with app.test_request_context():
+            login_user(test_user_owner)
+            with client.session_transaction() as sess:
+                for key, value in session.items():
+                    sess[key] = value
+        with client.session_transaction() as sess:
+            sess["bw_activated"] = True
+            sess["bw_type"] = "leaders_experts"
+            sess["bw_id"] = str(bw.id)
+
+        response = client.get("/BW/confirmation/free", follow_redirects=False)
+        # 200 = idempotent confirmation page (BW finalized). 302 to
+        # « not-authorized » would mean the role guard misfired ; the
+        # user IS the owner here, so we expect 200.
+        assert response.status_code == 200
+
+        db_session.refresh(bw)
+        assert bw.status == BWStatus.ACTIVE.value, (
+            "DRAFT BW must be finalised to ACTIVE on revisit (#0071/2)"
+        )
+
 
 # =============================================================================
 # Stage 3: Activation Routes (Paid)
