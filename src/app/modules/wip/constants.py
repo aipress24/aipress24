@@ -7,7 +7,11 @@ from __future__ import annotations
 from collections.abc import Callable
 from typing import Any, NamedTuple
 
-from app.modules.wip.pr_access import user_can_access_comroom, user_can_access_newsroom
+from app.modules.wip.pr_access import (
+    user_can_access_comroom,
+    user_can_access_eventroom,
+    user_can_access_newsroom,
+)
 
 
 class MenuEntry(NamedTuple):
@@ -52,6 +56,7 @@ MENU = [
         label="Event'room",
         icon="calendar",
         endpoint="wip.eventroom",
+        allowed_check=user_can_access_eventroom,
     ),
     MenuEntry(
         name="opportunities",
