@@ -8,7 +8,6 @@ from typing import TYPE_CHECKING, cast
 
 from flask import (
     Flask,
-    Response,
     abort,
     flash,
     g,
@@ -20,6 +19,7 @@ from flask_classful import route
 from flask_super.registry import register
 from sqlalchemy_utils.types.arrow import arrow
 from werkzeug.exceptions import NotFound
+from werkzeug.wrappers import Response
 
 from app.flask.extensions import db
 from app.flask.routing import url_for
