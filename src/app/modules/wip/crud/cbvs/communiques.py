@@ -21,6 +21,7 @@ from werkzeug.exceptions import NotFound
 from werkzeug.wrappers import Response
 
 from app.flask.extensions import db
+from app.flask.lib.templates import templated
 from app.flask.routing import url_for
 from app.flask.sqla import get_obj
 from app.lib.file_object_utils import create_file_object
@@ -127,6 +128,33 @@ class CommuniquesTable(BaseTable):
         return actions
 
 
+# Ticket #0154: surface the step-nav bar on the Voir / Modifier pages
+# (carried over from #0151 on Avis d'enquête). See the corresponding
+# block in articles.py for rationale.
+# language=jinja2
+_COMMUNIQUE_VOIR_TEMPLATE = """
+{% extends "wip/layout/_base.j2" %}
+{% from "wip/_step_nav_simple.j2" import step_nav_simple %}
+{% block body_content %}
+  {{ step_nav_simple(communique, "CommuniquesWipView", "voir", "communiqués") }}
+  {{ form_rendered|safe }}
+  {{ extra_view_html|safe }}
+  {{ step_nav_simple(communique, "CommuniquesWipView", "voir", "communiqués") }}
+{% endblock %}
+"""
+
+# language=jinja2
+_COMMUNIQUE_MODIFIER_TEMPLATE = """
+{% extends "wip/layout/_base.j2" %}
+{% from "wip/_step_nav_simple.j2" import step_nav_simple %}
+{% block body_content %}
+  {{ step_nav_simple(communique, "CommuniquesWipView", "modifier", "communiqués") }}
+  {{ form_rendered|safe }}
+  {{ step_nav_simple(communique, "CommuniquesWipView", "modifier", "communiqués") }}
+{% endblock %}
+"""
+
+
 class CommuniquesWipView(BaseWipView):
     name = "communiques"
 
@@ -171,6 +199,24 @@ class CommuniquesWipView(BaseWipView):
     def _get_model(self, id):
         """Override to handle base62 encoded IDs from URLs."""
         return get_obj(id, self.model_class)
+
+    @templated(_COMMUNIQUE_VOIR_TEMPLATE)
+    def get(self, id):
+        """Step « Voir » — wrapped with the #0154 step-nav bar."""
+        model = self._get_model(id)
+        title = f"{self.label_view} '{model.title}'"
+        ctx = self._view_ctx(model, title=title, mode="view")
+        ctx["communique"] = model
+        return ctx
+
+    @templated(_COMMUNIQUE_MODIFIER_TEMPLATE)
+    def edit(self, id):
+        """Step « Modifier » — wrapped with the #0154 step-nav bar."""
+        model = self._get_model(id)
+        title = f"{self.label_edit} '{model.title}'"
+        ctx = self._view_ctx(model, title=title)
+        ctx["communique"] = model
+        return ctx
 
     def _post_update_model(self, model: Communique) -> None:
         # Validate publisher_id: if the user selected a client org they are

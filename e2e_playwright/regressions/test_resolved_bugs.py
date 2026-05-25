@@ -1339,6 +1339,55 @@ def test_bug_0132_publish_sujet_round_trip(
     assert unpublish_resp is not None and unpublish_resp.status < 400
 
 
+# ─── #0154 (articles/communiques/events) ─────────────────────────
+
+
+def test_bug_0154_step_nav_extended_to_articles_communiques_events() -> None:
+    """Bug #0154 — Erick 2026-05-22 : extend the step-nav bar (delivered
+    on Avis d'enquête in #0151) to NEWSROOM/Articles, COMROOM/Communiqués
+    and EVENT'ROOM/Événements. These modules have a simpler workflow
+    (just Voir ↔ Modifier) so a dedicated 2-step macro lives at
+    ``wip/_step_nav_simple.j2``. Each CBV must wire it on its Voir
+    and Modifier templates.
+
+    Template content guard — runtime coverage lives in the per-module
+    test files (``test_articles_views.py``, ``test_communiques_views.py``,
+    ``test_events_views.py``).
+    """
+    from pathlib import Path
+
+    src = Path(__file__).resolve().parent.parent.parent / "src/app/modules/wip"
+
+    # The shared macro must exist.
+    macro = src / "templates/wip/_step_nav_simple.j2"
+    assert macro.exists(), "_step_nav_simple.j2 macro must be present"
+    macro_content = macro.read_text()
+    assert "macro step_nav_simple" in macro_content
+    assert "Étape suivante" in macro_content
+    assert "Étape précédente" in macro_content
+    assert "Retourner à la liste des" in macro_content
+
+    # Each CBV must import the macro on its Voir / Modifier templates.
+    for cbv_path, view_name in (
+        ("crud/cbvs/articles.py", "ArticlesWipView"),
+        ("crud/cbvs/communiques.py", "CommuniquesWipView"),
+        ("crud/cbvs/events.py", "EventsWipView"),
+    ):
+        cbv = src / cbv_path
+        assert cbv.exists()
+        cbv_content = cbv.read_text()
+        assert "_step_nav_simple.j2" in cbv_content, (
+            f"{cbv_path} must import the step_nav_simple macro — "
+            f"bug #0154 regressed."
+        )
+        assert f'"{view_name}"' in cbv_content, (
+            f"{cbv_path} step-nav calls must reference {view_name!r}"
+        )
+        # Both `voir` and `modifier` step labels must be present.
+        assert '"voir"' in cbv_content
+        assert '"modifier"' in cbv_content
+
+
 # ─── #0142 (step 4) ────────────────────────────────────────────────
 
 
