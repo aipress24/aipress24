@@ -33,7 +33,6 @@ from app.models.lifecycle import PublicationStatus
 from app.modules.bw.bw_activation.user_utils import (
     can_user_publish_for,
     get_selected_business_wall_for_user,
-    get_validated_client_orgs_for_user,
 )
 from app.modules.wip.models import (
     AvisEnquete,
@@ -196,7 +195,11 @@ class AvisEnqueteWipView(BaseWipView):
 
     EXPERT_ALLOWED_ACTIONS = frozenset({"rdv_accept", "rdv_details", "rdv_cancel"})
 
-    def before_request(self, *_args, **_kwargs) -> Response | None:
+    # `abort()` raises HTTPException — the final fall-through never
+    # returns, but ruff RET503 doesn't model NoReturn for third-party
+    # callables, so suppress here on the function definition (where
+    # RET503 is anchored).
+    def before_request(self, *_args, **_kwargs) -> Response | None:  # noqa: RET503
         if resp := super().before_request(*_args, **_kwargs):
             return resp
 
