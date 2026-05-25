@@ -68,18 +68,10 @@
         <p>{{ contact.rdv_address }}</p>
       </div>
       {% endif %}
-      <div>
-        <h3 class="font-semibold">Créneaux proposés:</h3>
-        {% if contact.proposed_slots_dt %}
-        <ul>
-          {% for slot in contact.proposed_slots_dt %}
-          <li class="list-disc ml-4">{{ slot.strftime('%d/%m/%Y à %H:%M') }}</li>
-          {% endfor %}
-        </ul>
-        {% else %}
-        <p>Aucun créneau proposé.</p>
-        {% endif %}
-      </div>
+      {# Ticket #0170: drop the « Créneaux proposés » list. Once a slot
+         has been accepted, only the chosen ``date_rdv`` matters here.
+         The negotiation slots remain visible on the rdv_propose /
+         rdv_accept pages, which is where they belong. #}
       <div>
         <h3 class="font-semibold">Notes du journaliste:</h3>
         <p>{{ contact.rdv_notes_journaliste if contact.rdv_notes_journaliste else 'Aucune note.' }}</p>

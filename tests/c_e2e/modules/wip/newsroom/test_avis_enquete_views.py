@@ -457,6 +457,34 @@ class TestJournalistAvisEnqueteViews:
         response = logged_in_client.get(url)
         assert response.status_code == 200
 
+    def test_rdv_details_omits_proposed_slots_list(
+        self,
+        logged_in_client: FlaskClient,
+        test_avis_enquete: AvisEnquete,
+        contact_with_rdv_f2f_confirmed: ContactAvisEnquete,
+    ):
+        """Ticket #0170: once a slot is accepted, the other proposed
+        slots are noise on the RDV detail page. Erick : « Autant les
+        retirer car cela trouble la lecture ». The block must NOT be
+        rendered any more — only the chosen ``date_rdv`` is relevant
+        on this view."""
+        url = url_for(
+            "AvisEnqueteWipView:rdv_details",
+            id=test_avis_enquete.id,
+            contact_id=contact_with_rdv_f2f_confirmed.id,
+        )
+        response = logged_in_client.get(url)
+        assert response.status_code == 200
+        body = response.data.decode()
+        assert "Créneaux proposés" not in body, (
+            "RDV details must not show the (now-obsolete) proposed-slots "
+            "block — #0170"
+        )
+        assert "Aucun créneau proposé" not in body, (
+            "RDV details must not show the « Aucun créneau proposé » "
+            "empty-state — #0170"
+        )
+
 
 # ----------------------------------------------------------------
 # Expert Views Tests
