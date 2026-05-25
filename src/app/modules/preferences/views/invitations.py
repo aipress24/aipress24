@@ -42,6 +42,7 @@ class InvitationsView(MethodView):
         role_invitations_list = self._role_invitations(user)
         accepted_roles_list = self._accepted_role_invitations(user)
         partnership_invitations_list = self._partnership_invitations(user)
+        revoked_partnerships_list = self._revoked_partnerships(user)
         ctx = {
             "invitations": invitations_list,
             "open_invitations": open_invitations,
@@ -51,6 +52,8 @@ class InvitationsView(MethodView):
             "open_accepted_roles": len(accepted_roles_list),
             "partnership_invitations": partnership_invitations_list,
             "open_partnership_invitations": len(partnership_invitations_list),
+            "revoked_partnerships": revoked_partnerships_list,
+            "open_revoked_partnerships": len(revoked_partnerships_list),
             "title": "Invitation d'organisation",
         }
         return render_template("pages/preferences/org_invitation.j2", **ctx)
@@ -64,10 +67,55 @@ class InvitationsView(MethodView):
                 self._join_organisation(user, org_id)
                 response = Response("")
                 response.headers["HX-Redirect"] = url_for(".invitations")
+            case "ack_revoked_partnership":
+                # Ticket #0169 part 3 : user clicked « Confirmer » on a
+                # revoked partnership row → hard-delete the Partnership
+                # row so the line disappears from the list. Matches
+                # Erick's « éliminer cette ligne ».
+                user = cast(User, g.user)
+                self._ack_revoked_partnership(
+                    user, request.form.get("partnership_id", "")
+                )
+                response = Response("")
+                response.headers["HX-Redirect"] = url_for(".invitations")
             case _:
                 response = Response("")
                 response.headers["HX-Redirect"] = url_for(".home")
         return response
+
+    def _ack_revoked_partnership(self, user: User, partnership_id: str) -> None:
+        """Hard-delete a REVOKED partnership the user's org is the
+        partner of (ticket #0169 part 3)."""
+        if not partnership_id:
+            return
+        org = user.organisation
+        if org is None:
+            return
+        # Find every BW tied to this user's organisation — the row to
+        # ack lives in `partner_bw_id` of a REVOKED Partnership whose
+        # `business_wall_id` is on the client side.
+        db_session = db.session
+        stmt = select(BusinessWall.id).where(BusinessWall.organisation_id == org.id)
+        bw_ids = {str(bw_id) for bw_id in db_session.scalars(stmt)}
+        if not bw_ids:
+            return
+        try:
+            from uuid import UUID
+
+            pid = UUID(partnership_id)
+        except (TypeError, ValueError):
+            return
+        partnership = db_session.get(Partnership, pid)
+        if partnership is None:
+            return
+        # Only the partner side (PR Agency) can ack — the *client* side
+        # owns the row and shouldn't delete its own revoke trail this way.
+        if partnership.partner_bw_id not in bw_ids:
+            return
+        if partnership.status != PartnershipStatus.REVOKED.value:
+            return
+        db_session.delete(partnership)
+        db_session.commit()
 
     def _organisation_inviting(self, user: User) -> list[dict[str, Any]]:
         """Get list of organizations that have invited this user."""
@@ -229,6 +277,52 @@ class InvitationsView(MethodView):
             }
             partnership_invitations.append(infos)
         return partnership_invitations
+
+    def _revoked_partnerships(self, user: User) -> list[dict[str, Any]]:
+        """Return REVOKED partnerships where the user's organisation
+        is the partner (i.e. the PR Agency whose client revoked the
+        partnership). Ticket #0169 part 3 — Erick : « Indiquer dans
+        PROFIL/PRÉFÉRENCES/Invitations d'organisations [...] la fin
+        du partenariat [...] avec un bouton "Confirmer" qui conduira
+        à éliminer cette ligne ».
+        """
+        db_session = db.session
+        org = user.organisation
+        if not org:
+            return []
+
+        stmt = select(BusinessWall).where(BusinessWall.organisation_id == org.id)
+        org_bws = list(db_session.scalars(stmt))
+        if not org_bws:
+            return []
+
+        bw_ids = [str(bw.id) for bw in org_bws]
+        stmt = (
+            select(Partnership, BusinessWall)
+            .join(BusinessWall, Partnership.business_wall_id == BusinessWall.id)
+            .where(
+                Partnership.partner_bw_id.in_(bw_ids),
+                Partnership.status == PartnershipStatus.REVOKED.value,
+            )
+            .order_by(Partnership.revoked_at.desc())
+        )
+        results = db_session.execute(stmt).all()
+
+        revoked = []
+        for partnership, business_wall in results:
+            client_org = business_wall.get_organisation()
+            client_name = (
+                client_org.name if client_org else business_wall.name_safe or "(client inconnu)"
+            )
+            revoked.append(
+                {
+                    "id": str(partnership.id),
+                    "bw_name": business_wall.name_safe or "(Nom inconnu)",
+                    "client_name": client_name,
+                    "revoked_at": partnership.revoked_at,
+                }
+            )
+        return revoked
 
     def _unofficial_organisation(self, user: User) -> dict[str, Any]:
         """Get user's unofficial (auto-created) organization if any."""

@@ -7,8 +7,10 @@
 from __future__ import annotations
 
 import uuid
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 from unittest.mock import MagicMock
+from uuid import UUID
 
 import pytest
 from sqlalchemy import select
@@ -21,6 +23,8 @@ from app.modules.admin.invitations import add_invited_users
 from app.modules.bw.bw_activation.models import (
     BusinessWall,
     InvitationStatus,
+    Partnership,
+    PartnershipStatus,
     RoleAssignment,
 )
 from app.modules.bw.bw_activation.models.business_wall import BWStatus
@@ -279,6 +283,170 @@ class TestInvitationsViewHelpers:
             assert result["org_id"] == "123"
             assert result["disabled"] == "disabled"
             assert "Auto Organization" in result["label"]
+
+
+class TestRevokedPartnershipRow:
+    """Ticket #0169 part 3 (Erick, 2026-05-22) : when a client revokes
+    a PR partnership, the PR Agency owner must see an explicit row in
+    /preferences/invitations naming the client, with a « Confirmer »
+    button that hard-deletes the row (Erick : « éliminer cette ligne »).
+    """
+
+    @pytest.fixture
+    def revoked_partnership_setup(
+        self,
+        db_session: Session,
+        invitations_test_user: User,
+    ) -> tuple[BusinessWall, Partnership]:
+        """Build : a PR Agency BW owned by the test user + a client BW
+        owned by someone else + a Partnership in REVOKED status."""
+        # Client org + BW (the side that revoked).
+        client_org = Organisation(name="Fake-Davi Logistique")
+        db_session.add(client_org)
+        db_session.flush()
+        client_owner = User(email=f"client-owner-{uuid.uuid4().hex[:6]}@example.com")
+        client_owner.organisation = client_org
+        client_owner.active = True
+        db_session.add(client_owner)
+        db_session.flush()
+        client_bw = BusinessWall(
+            bw_type="leaders_experts",
+            status=BWStatus.ACTIVE.value,
+            owner_id=client_owner.id,
+            payer_id=client_owner.id,
+            organisation_id=client_org.id,
+            name="Davi Logistique BW",
+        )
+        db_session.add(client_bw)
+        db_session.flush()
+        client_org.bw_id = client_bw.id
+
+        # Agency BW for the test user (who is the PR Agency owner).
+        agency_bw = BusinessWall(
+            bw_type="pr",
+            status=BWStatus.ACTIVE.value,
+            owner_id=invitations_test_user.id,
+            payer_id=invitations_test_user.id,
+            organisation_id=invitations_test_user.organisation_id,
+            name="Test Agency BW",
+        )
+        db_session.add(agency_bw)
+        db_session.flush()
+
+        partnership = Partnership(
+            business_wall_id=client_bw.id,
+            partner_bw_id=str(agency_bw.id),
+            status=PartnershipStatus.REVOKED.value,
+            invited_by_user_id=client_owner.id,
+            invited_at=datetime.now(UTC),
+            revoked_at=datetime.now(UTC),
+        )
+        db_session.add(partnership)
+        db_session.commit()
+        return client_bw, partnership
+
+    def test_revoked_partnership_row_visible(
+        self,
+        invitations_auth_client: FlaskClient,
+        revoked_partnership_setup: tuple,
+    ):
+        """GET /preferences/invitations surfaces the revoked row with
+        the client org name."""
+        _client_bw, _partnership = revoked_partnership_setup
+        response = invitations_auth_client.get("/preferences/invitations")
+        assert response.status_code == 200
+        html = response.data.decode()
+        assert "Partenariats RP terminés" in html
+        assert "Fake-Davi Logistique" in html
+        assert "Confirmer" in html
+
+    def test_confirm_deletes_revoked_partnership_row(
+        self,
+        invitations_auth_client: FlaskClient,
+        revoked_partnership_setup: tuple,
+        db_session: Session,
+    ):
+        """POST action=ack_revoked_partnership hard-deletes the row."""
+        _client_bw, partnership = revoked_partnership_setup
+        partnership_id = str(partnership.id)
+
+        response = invitations_auth_client.post(
+            "/preferences/invitations",
+            data={
+                "action": "ack_revoked_partnership",
+                "partnership_id": partnership_id,
+            },
+            follow_redirects=False,
+        )
+        assert response.status_code == 200
+        assert "HX-Redirect" in response.headers
+        # The Partnership row is gone.
+        assert db_session.get(Partnership, UUID(partnership_id)) is None
+
+    def test_confirm_refuses_partnership_not_owned_by_user(
+        self,
+        invitations_auth_client: FlaskClient,
+        db_session: Session,
+    ):
+        """A user cannot ack a partnership where their org isn't on
+        the partner side (would let them delete arbitrary rows)."""
+        other_owner = User(email=f"other-{uuid.uuid4().hex[:6]}@example.com")
+        other_org = Organisation(name="Other PR Agency")
+        db_session.add(other_org)
+        db_session.flush()
+        other_owner.organisation = other_org
+        other_owner.active = True
+        client_owner = User(email=f"client-{uuid.uuid4().hex[:6]}@example.com")
+        client_org = Organisation(name="Other Client")
+        db_session.add(client_org)
+        db_session.flush()
+        client_owner.organisation = client_org
+        client_owner.active = True
+        db_session.add_all([other_owner, client_owner])
+        db_session.flush()
+
+        other_bw = BusinessWall(
+            bw_type="pr",
+            status=BWStatus.ACTIVE.value,
+            owner_id=other_owner.id,
+            payer_id=other_owner.id,
+            organisation_id=other_org.id,
+        )
+        client_bw = BusinessWall(
+            bw_type="leaders_experts",
+            status=BWStatus.ACTIVE.value,
+            owner_id=client_owner.id,
+            payer_id=client_owner.id,
+            organisation_id=client_org.id,
+        )
+        db_session.add_all([other_bw, client_bw])
+        db_session.flush()
+
+        partnership = Partnership(
+            business_wall_id=client_bw.id,
+            partner_bw_id=str(other_bw.id),  # NOT the test user's BW
+            status=PartnershipStatus.REVOKED.value,
+            invited_by_user_id=client_owner.id,
+            invited_at=datetime.now(UTC),
+            revoked_at=datetime.now(UTC),
+        )
+        db_session.add(partnership)
+        db_session.commit()
+        partnership_id = str(partnership.id)
+
+        invitations_auth_client.post(
+            "/preferences/invitations",
+            data={
+                "action": "ack_revoked_partnership",
+                "partnership_id": partnership_id,
+            },
+            follow_redirects=False,
+        )
+
+        assert db_session.get(Partnership, UUID(partnership_id)) is not None, (
+            "user must not be able to delete a partnership their org "
+            "doesn't own"
+        )
 
 
 class TestInvitationsJoinOrg:
