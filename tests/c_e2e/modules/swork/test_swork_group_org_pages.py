@@ -9,6 +9,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from unittest.mock import patch
 
+import arrow
 import pytest
 from flask import Flask, g
 
@@ -17,6 +18,7 @@ from app.models.lifecycle import PublicationStatus
 from app.models.organisation import Organisation
 from app.modules.bw.bw_activation.models import BusinessWall
 from app.modules.bw.bw_activation.models.business_wall import BWStatus
+from app.modules.events.models import EventPost
 from app.modules.swork.models import Group
 from app.modules.swork.views._common import (
     GROUP_TABS,
@@ -616,6 +618,98 @@ class TestOrgEventsTab:
         tab = OrgEventsTab(org=test_organisation_media)
         assert tab.guard() is True
 
+    def test_label_counts_direct_publisher(
+        self,
+        app: Flask,
+        db_session: Session,
+        test_organisation_media: Organisation,
+        test_user_with_profile: User,
+    ):
+        """Events directly attributed to the org increment the label."""
+        now = arrow.now()
+        event = EventPost(
+            title="Direct Event",
+            owner_id=test_user_with_profile.id,
+            publisher_id=test_organisation_media.id,
+            status=PublicationStatus.PUBLIC,
+            start_datetime=now,
+            end_datetime=now.shift(days=1),
+            genre="Salon",
+            sector="Tech",
+        )
+        db_session.add(event)
+        db_session.flush()
+
+        with app.test_request_context():
+            tab = OrgEventsTab(org=test_organisation_media)
+            assert tab.label == "Evénements (1)"
+
+    def test_label_counts_event_published_on_behalf_by_agency_member(
+        self,
+        app: Flask,
+        db_session: Session,
+        test_organisation_media: Organisation,
+        test_user_with_profile: User,
+    ):
+        """#0135 — When an agency member publishes an event for a client
+        (publisher_id=client), the event must also surface on the agency
+        BW's « Événements » tab, via the owner.organisation clause.
+        Mirrors the press-release semantics (#0125).
+        """
+        test_user_with_profile.organisation = test_organisation_media
+        test_user_with_profile.organisation_id = test_organisation_media.id
+        client_org = Organisation(name="Client Org for Events")
+        db_session.add(client_org)
+        db_session.flush()
+
+        now = arrow.now()
+        event = EventPost(
+            title="Delegated Event",
+            owner_id=test_user_with_profile.id,
+            publisher_id=client_org.id,
+            status=PublicationStatus.PUBLIC,
+            start_datetime=now,
+            end_datetime=now.shift(days=1),
+            genre="Salon",
+            sector="Logistique",
+        )
+        db_session.add(event)
+        db_session.flush()
+
+        with app.test_request_context():
+            agency_tab = OrgEventsTab(org=test_organisation_media)
+            client_tab = OrgEventsTab(org=client_org)
+            assert agency_tab.label == "Evénements (1)", (
+                "delegated event must count on the agency BW (#0135)"
+            )
+            assert client_tab.label == "Evénements (1)"
+
+    def test_label_excludes_drafts(
+        self,
+        app: Flask,
+        db_session: Session,
+        test_organisation_media: Organisation,
+        test_user_with_profile: User,
+    ):
+        """Draft events must not appear in the count."""
+        now = arrow.now()
+        event = EventPost(
+            title="Draft Event",
+            owner_id=test_user_with_profile.id,
+            publisher_id=test_organisation_media.id,
+            status=PublicationStatus.DRAFT,
+            start_datetime=now,
+            end_datetime=now.shift(days=1),
+            genre="Salon",
+            sector="Tech",
+        )
+        db_session.add(event)
+        db_session.flush()
+
+        with app.test_request_context():
+            tab = OrgEventsTab(org=test_organisation_media)
+            assert tab.label == "Evénements (0)"
+
 
 # =============================================================================
 # OrgVM Tests
@@ -734,3 +828,79 @@ class TestOrgVM:
             publications = vm.get_publications()
 
             assert isinstance(publications, list)
+
+    def test_get_events_includes_delegated_events_on_agency_bw(
+        self,
+        app: Flask,
+        db_session: Session,
+        test_user_with_profile: User,
+        test_organisation_media: Organisation,
+    ):
+        """#0135 — Igor (PR agency member) publishes an event for his
+        client Fake-Davi Logistique. On Erick's 2026-05-22 reread, the
+        event was visible on the client BW but not on the agency BW.
+        Now get_events() must surface it on both, via the same dual-case
+        clause used for press releases.
+        """
+        test_user_with_profile.organisation = test_organisation_media
+        test_user_with_profile.organisation_id = test_organisation_media.id
+        client_org = Organisation(name="Fake-Davi Logistique")
+        db_session.add(client_org)
+        db_session.flush()
+
+        now = arrow.now()
+        event = EventPost(
+            title="L'Orange bleue fête ses 30 ans",
+            owner_id=test_user_with_profile.id,
+            publisher_id=client_org.id,
+            status=PublicationStatus.PUBLIC,
+            start_datetime=now,
+            end_datetime=now.shift(days=1),
+            genre="Salon",
+            sector="Logistique",
+        )
+        db_session.add(event)
+        db_session.flush()
+
+        with app.test_request_context():
+            g.user = test_user_with_profile
+
+            agency_events = OrgVM(test_organisation_media).get_events()
+            assert len(agency_events) == 1, (
+                "delegated event must appear on the agency BW Events tab "
+                "(#0135) — was previously missing because get_events() "
+                "only matched publisher_id"
+            )
+            assert agency_events[0].title == event.title
+
+            client_events = OrgVM(client_org).get_events()
+            assert len(client_events) == 1, (
+                "delegated event must also still appear on the client BW"
+            )
+
+    def test_get_events_excludes_drafts(
+        self,
+        app: Flask,
+        db_session: Session,
+        test_user_with_profile: User,
+        test_organisation_media: Organisation,
+    ):
+        """Draft events must not leak into the public Events tab."""
+        now = arrow.now()
+        event = EventPost(
+            title="Draft Only",
+            owner_id=test_user_with_profile.id,
+            publisher_id=test_organisation_media.id,
+            status=PublicationStatus.DRAFT,
+            start_datetime=now,
+            end_datetime=now.shift(days=1),
+            genre="Salon",
+            sector="Tech",
+        )
+        db_session.add(event)
+        db_session.flush()
+
+        with app.test_request_context():
+            g.user = test_user_with_profile
+            events = OrgVM(test_organisation_media).get_events()
+            assert events == []
