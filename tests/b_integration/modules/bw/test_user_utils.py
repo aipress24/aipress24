@@ -12,12 +12,14 @@ from unittest import mock
 from app.enums import BWType
 from app.models.auth import KYCProfile, User
 from app.models.organisation import Organisation
+from app.modules.bw.bw_activation.models import Partnership, PartnershipStatus
 from app.modules.bw.bw_activation.models.business_wall import BusinessWall, BWStatus
 from app.modules.bw.bw_activation.user_utils import (
     _fonctions_disponibles_for_bw,
     get_active_business_wall_for_organisation,
     get_any_business_wall_for_organisation,
     get_business_wall_for_user,
+    get_manageable_business_walls_for_user,
     get_organisation_logo_url,
     guess_best_bw_type,
 )
@@ -525,3 +527,90 @@ class TestFonctionsDisponiblesForBw:
         result = _fonctions_disponibles_for_bw(user, "pr")
         # No duplicates, original order preserved.
         assert result == ["Directeur RP", "Chef de projet"]
+
+
+class TestGetManageableBusinessWallsForUser:
+    """Ticket #0166 (Alfred Delarue, 2026-05-21) : a PR Agency owner
+    who has accepted a partnership with a client BW (BWPRe role) must
+    see that client BW in « Gérer mes Business Walls » so they can
+    switch into it and publish CP / Events for the client.
+
+    Without this, Alfred only sees his own agency BW and lands on it
+    when clicking the dashboard link — there's no way to reach the
+    client's BW management surface.
+    """
+
+    def _seed_partnership(
+        self, db_session, *, accepted: bool = True
+    ):
+        client_org = Organisation(name="Fake-OSS A380")
+        agency_org = Organisation(name="Fake-Garden RP")
+        db_session.add_all([client_org, agency_org])
+        db_session.flush()
+
+        client_owner = User(email="ossa380@example.com", active=True)
+        client_owner.organisation = client_org
+        client_owner.organisation_id = client_org.id
+        agent = User(email="alfred@example.com", active=True)
+        agent.organisation = agency_org
+        agent.organisation_id = agency_org.id
+        db_session.add_all([client_owner, agent])
+        db_session.flush()
+
+        client_bw = BusinessWall(
+            bw_type="leaders_experts",
+            status=BWStatus.ACTIVE.value,
+            owner_id=client_owner.id,
+            payer_id=client_owner.id,
+            organisation_id=client_org.id,
+            name="OSS A380 BW",
+        )
+        agency_bw = BusinessWall(
+            bw_type="pr",
+            status=BWStatus.ACTIVE.value,
+            owner_id=agent.id,
+            payer_id=agent.id,
+            organisation_id=agency_org.id,
+            name="Garden RP BW",
+        )
+        db_session.add_all([client_bw, agency_bw])
+        db_session.flush()
+        client_org.bw_id = client_bw.id
+
+        status = (
+            PartnershipStatus.ACCEPTED.value
+            if accepted
+            else PartnershipStatus.REVOKED.value
+        )
+        db_session.add(
+            Partnership(
+                business_wall_id=client_bw.id,
+                partner_bw_id=str(agency_bw.id),
+                status=status,
+                invited_by_user_id=client_owner.id,
+            )
+        )
+        db_session.flush()
+        return agent, agency_bw, client_bw
+
+    def test_includes_own_bw_and_partnership_client_bw(self, db_session):
+        agent, agency_bw, client_bw = self._seed_partnership(db_session, accepted=True)
+
+        bws = get_manageable_business_walls_for_user(agent)
+        ids = {bw.id for bw in bws}
+        assert agency_bw.id in ids, "own BW must be listed"
+        assert client_bw.id in ids, (
+            "partnership client BW must be listed (#0166)"
+        )
+
+    def test_excludes_revoked_partnership_client_bw(self, db_session):
+        agent, agency_bw, client_bw = self._seed_partnership(
+            db_session, accepted=False
+        )
+
+        bws = get_manageable_business_walls_for_user(agent)
+        ids = {bw.id for bw in bws}
+        assert agency_bw.id in ids
+        assert client_bw.id not in ids, (
+            "revoked partnership must not surface the client BW (#0166)"
+        )
