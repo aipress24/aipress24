@@ -534,7 +534,14 @@ class TestExpertAvisEnqueteViews:
         expert_role: Role,
         test_org: Organisation,
     ):
-        """Expert cannot access another expert's RDV accept page."""
+        """Expert cannot access another expert's RDV accept page.
+
+        Since #0173 the per-contact gate runs upstream in
+        ``before_request``, so a non-party gets a clean 403 (no redirect
+        / flash). Older behaviour redirected to home and flashed an
+        « Vous n'êtes pas autorisé » message — the new behaviour is
+        stricter and matches the standard Flask 403 contract.
+        """
         db_session = fresh_db.session
 
         # Create a different expert
@@ -555,16 +562,131 @@ class TestExpertAvisEnqueteViews:
             id=test_avis_enquete.id,
             contact_id=contact_with_rdv_proposed.id,
         )
-        response = other_expert_client.get(url, follow_redirects=True)
+        response = other_expert_client.get(url, follow_redirects=False)
 
-        # Should be redirected with error
-        assert response.status_code == 200
-        # Should contain error message or be redirected to home
-        assert (
-            b"autoris" in response.data.lower()
-            or b"home" in response.request.path.lower()
-            or response.request.path == "/"
+        assert response.status_code == 403
+
+
+class TestRdvAccessByNonExpertParticipant:
+    """Ticket #0173 (Erick, 2026-05-26) : on a confirmed RDV, the user
+    targeted as the expert of the contact (``contact.expert_id``) gets a
+    403 when she opens « Voir les détails » — because the route gate in
+    ``AvisEnqueteWipView.before_request`` only authorizes users with the
+    ``EXPERT`` community role, while the expert of the contact may hold
+    a different community role (``ACADEMIC`` for Enseignant.e-Chercheur.e,
+    ``PRESS_RELATIONS`` for a BWPRi). RDV access must be per-contact, not
+    role-gated.
+
+    These tests prove that an ACADEMIC user can reach her own RDV pages
+    and that the per-contact check still rejects intruders.
+    """
+
+    @pytest.fixture
+    def academic_user(self, fresh_db, test_org: Organisation) -> User:
+        db_session = fresh_db.session
+        role = db_session.query(Role).filter_by(name=RoleEnum.ACADEMIC.name).first()
+        if role is None:
+            role = Role(
+                name=RoleEnum.ACADEMIC.name,
+                description=RoleEnum.ACADEMIC.value,
+            )
+            db_session.add(role)
+            db_session.flush()
+        user = User(
+            email="nina-academic@example.com",
+            first_name="Nina",
+            last_name="Hermelin",
         )
+        user.photo = b""
+        user.active = True
+        user.organisation = test_org
+        user.organisation_id = test_org.id
+        user.roles.append(role)
+        db_session.add(user)
+        db_session.commit()
+        return user
+
+    @pytest.fixture
+    def confirmed_rdv_for_academic(
+        self,
+        fresh_db,
+        test_avis_enquete: AvisEnquete,
+        test_user: User,
+        academic_user: User,
+    ) -> ContactAvisEnquete:
+        db_session = fresh_db.session
+        contact = ContactAvisEnquete(
+            avis_enquete_id=test_avis_enquete.id,
+            journaliste_id=test_user.id,
+            expert_id=academic_user.id,
+            status=StatutAvis.ACCEPTE,
+            date_reponse=datetime.now(UTC),
+            rdv_status=RDVStatus.CONFIRMED,
+            rdv_type=RDVType.F2F,
+            date_rdv=datetime(2099, 5, 1, 10, 0, tzinfo=UTC),
+            rdv_address="42 avenue Foch, Paris",
+        )
+        db_session.add(contact)
+        db_session.commit()
+        return contact
+
+    def test_academic_can_open_their_own_rdv_details(
+        self,
+        app: Flask,
+        academic_user: User,
+        test_avis_enquete: AvisEnquete,
+        confirmed_rdv_for_academic: ContactAvisEnquete,
+    ):
+        """An ACADEMIC user (no EXPERT role) who is the contact's
+        ``expert_id`` must be able to reach ``rdv_details``."""
+        client = make_authenticated_client(app, academic_user)
+        url = url_for(
+            "AvisEnqueteWipView:rdv_details",
+            id=test_avis_enquete.id,
+            contact_id=confirmed_rdv_for_academic.id,
+        )
+        response = client.get(url)
+        assert response.status_code == 200, (
+            "Non-EXPERT expert of a contact must reach their own RDV "
+            "details page (#0173)"
+        )
+
+    def test_unrelated_user_still_gets_403_on_rdv_details(
+        self,
+        fresh_db,
+        app: Flask,
+        test_org: Organisation,
+        test_avis_enquete: AvisEnquete,
+        confirmed_rdv_for_academic: ContactAvisEnquete,
+    ):
+        """The per-contact check must still keep out anyone who is
+        neither the journalist nor the contact's expert."""
+        db_session = fresh_db.session
+        role = db_session.query(Role).filter_by(name=RoleEnum.ACADEMIC.name).first()
+        if role is None:
+            role = Role(
+                name=RoleEnum.ACADEMIC.name,
+                description=RoleEnum.ACADEMIC.value,
+            )
+            db_session.add(role)
+            db_session.flush()
+        intruder = User(email="intruder@example.com")
+        intruder.photo = b""
+        intruder.active = True
+        intruder.organisation = test_org
+        intruder.organisation_id = test_org.id
+        intruder.roles.append(role)
+        db_session.add(intruder)
+        db_session.commit()
+
+        client = make_authenticated_client(app, intruder)
+        url = url_for(
+            "AvisEnqueteWipView:rdv_details",
+            id=test_avis_enquete.id,
+            contact_id=confirmed_rdv_for_academic.id,
+        )
+        response = client.get(url, follow_redirects=False)
+        assert response.status_code == 403
 
 
 class TestRdvDetailsSummaryCompleteness:

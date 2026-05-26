@@ -24,7 +24,6 @@ from flask_super.registry import register
 from svcs.flask import container
 from werkzeug.wrappers import Response as WerkzeugResponse
 
-from app.enums import RoleEnum
 from app.flask.lib.htmx import extract_fragment
 from app.flask.lib.templates import templated
 from app.flask.routing import url_for
@@ -54,7 +53,6 @@ from app.modules.wip.services.newsroom.publication_notification_service import (
 )
 from app.modules.wip.services.pr_notifications import absolute_url_for
 from app.services.auth import AuthService
-from app.services.roles import has_role
 
 from ._base import BaseWipView
 from ._forms import AvisEnqueteForm
@@ -193,7 +191,13 @@ class AvisEnqueteWipView(BaseWipView):
     msg_delete_ok = "L'avis d'enquête a été supprimé"
     msg_delete_ko = "Vous n'êtes pas autorisé à supprimer cet avis d'enquête"
 
-    EXPERT_ALLOWED_ACTIONS = frozenset({"rdv_accept", "rdv_details", "rdv_cancel"})
+    # Ticket #0173 : actions related to a specific RDV authorize on a
+    # per-contact basis (« is this user the journalist or the expert of
+    # that contact ? »), not on a community role. The expert of a contact
+    # can hold any community role — ACADEMIC for an Enseignant.e-Chercheur.e,
+    # PRESS_RELATIONS for a BWPRi who answers on behalf of their BW, etc.
+    # Filtering by RoleEnum.EXPERT alone wrongly 403'd them.
+    PER_CONTACT_ACTIONS = frozenset({"rdv_accept", "rdv_details", "rdv_cancel"})
 
     # `abort()` raises HTTPException — the final fall-through never
     # returns, but ruff RET503 doesn't model NoReturn for third-party
@@ -210,12 +214,31 @@ class AvisEnqueteWipView(BaseWipView):
             return None
 
         action = request.endpoint and request.endpoint.split(":")[-1]
-        if action in self.EXPERT_ALLOWED_ACTIONS and has_role(
-            g.user, [RoleEnum.EXPERT]
-        ):
+        if action in self.PER_CONTACT_ACTIONS and self._user_is_party_to_contact():
             return None
 
         abort(403)
+
+    def _user_is_party_to_contact(self) -> bool:
+        """True if the logged-in user is the journalist or the expert
+        of the contact targeted by the current request URL.
+
+        Used by per-contact RDV actions (#0173) so we can authorize the
+        contact's two parties regardless of their community role.
+        """
+        contact_id_raw = (request.view_args or {}).get("contact_id")
+        avis_id_raw = (request.view_args or {}).get("id")
+        if contact_id_raw is None or avis_id_raw is None:
+            return False
+        try:
+            contact_id = int(contact_id_raw)
+            avis_id = int(avis_id_raw)
+        except (TypeError, ValueError):
+            return False
+        contact = AvisEnqueteService().get_contact_for_avis(contact_id, avis_id)
+        if contact is None:
+            return False
+        return g.user.id in {contact.journaliste_id, contact.expert_id}
 
     def _post_update_model(self, model: AvisEnquete) -> None:
         # Validate publisher_id: if the user selected a client org they are
