@@ -276,23 +276,21 @@ class User(LifeCycleMixin, Addressable, UserMixin, Base):
         return True
 
     def remove_role(self, role: str | RoleEnum | Role) -> None:
-        """Remove the role of the user role list."""
+        """Remove all instances of the role from the user's roles list.
+
+        Note: role should be unique, but test DB used to crash on this."""
         match role:
             case Role():
-                self.roles.remove(role)
+                role_name = role.name
             case RoleEnum():
-                for current in self.roles:
-                    if role.name == current.name:
-                        self.roles.remove(current)
-                        break
+                role_name = role.name
             case str():
-                for current in self.roles:
-                    if role == current.name:
-                        self.roles.remove(current)
-                        break
+                role_name = role
             case _:
                 msg = f"Invalid role: {role}"
                 raise ValueError(msg)
+
+        self.roles = [r for r in self.roles if r.name != role_name]
 
     @property
     def current_selected_bw_id(self) -> uuid.UUID | None:
