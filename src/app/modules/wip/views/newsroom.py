@@ -21,7 +21,7 @@ from app.modules.wip.pr_access import (
     user_is_acting_as_pr_manager,
 )
 
-from ._common import count_owned_non_deleted, get_secondary_menu
+from ._common import count_owned_non_deleted, count_visible_sujets, get_secondary_menu
 
 ALLOW_NEWSROOM_ARTICLE: set[ProfileEnum] = {
     ProfileEnum.PM_DIR,
@@ -98,7 +98,12 @@ def newsroom():
     items = _allowed_redaction_items(main_items)
     for item in items:
         model_class = item["model_class"]
-        item["count"] = str(count_owned_non_deleted(model_class))
+        # Bug #0132 part 4 : Sujets count must include received sujets
+        # (proposed to the user's media), not only owned ones.
+        if item["id"] == "sujets":
+            item["count"] = str(count_visible_sujets())
+        else:
+            item["count"] = str(count_owned_non_deleted(model_class))
         if endpoint := item.get("endpoint"):
             item["href"] = url_for(endpoint)
         else:

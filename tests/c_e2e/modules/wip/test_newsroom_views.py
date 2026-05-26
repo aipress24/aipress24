@@ -6,14 +6,18 @@
 
 from __future__ import annotations
 
+import re
+from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING
 
 import pytest
 
 from app.enums import ProfileEnum, RoleEnum
 from app.models.auth import KYCProfile, Role, User
+from app.models.lifecycle import PublicationStatus
 from app.models.organisation import Organisation
 from app.modules.bw.bw_activation.models import BusinessWall, BWStatus
+from app.modules.wip.models.newsroom.sujet import Sujet
 
 if TYPE_CHECKING:
     from flask import Flask
@@ -187,6 +191,66 @@ class TestNewsroomContent:
         assert any(
             term in html
             for term in ["Article", "Sujet", "Commande", "Avis", "enquête", "enquete"]
+        )
+
+    def test_sujets_counter_includes_received_sujets(
+        self,
+        app: Flask,
+        db_session: Session,
+        journalist_with_bw: User,
+        test_org: Organisation,
+    ):
+        """Ticket #0132 part 4 (Erick, 2026-05-22) : « le compteur de
+        Sujets dans NEWSROOM/Sujets n'est pas actif ». The rédac chef
+        used to see 0 because `count_owned_non_deleted(Sujet)` only
+        counted sujets they *owned* — sujets *proposed to their
+        media* (which is what the table actually shows) didn't count.
+        Align the counter with the SujetDataSource's visibility :
+        own + media-recipient."""
+        # An author from another org publishes a sujet to the rédac
+        # chef's media (test_org).
+        other_org = Organisation(name="Author's Org")
+        db_session.add(other_org)
+        db_session.flush()
+        author = User(
+            email="author-proposing@example.com",
+            first_name="Nicolas",
+            last_name="Mouriou",
+            active=True,
+        )
+        author.organisation = other_org
+        author.organisation_id = other_org.id
+        db_session.add(author)
+        db_session.flush()
+        sujet = Sujet(
+            owner_id=author.id,
+            media_id=test_org.id,
+            commanditaire_id=author.id,
+            titre="Proposed sujet",
+            contenu="Body",
+            status=PublicationStatus.PUBLIC,
+            date_limite_validite=datetime.now(UTC) + timedelta(days=7),
+            date_parution_prevue=datetime.now(UTC) + timedelta(days=14),
+        )
+        db_session.add(sujet)
+        db_session.commit()
+
+        client = make_authenticated_client(app, journalist_with_bw)
+        response = client.get("/wip/newsroom")
+        assert response.status_code == 200
+        html = response.data.decode()
+        # The Sujets tile must show ≥ 1 « élément(s) » (the received
+        # sujet). Anchor on the tile label « Sujets » then the count
+        # phrase « N élément(s) » to discriminate against other tiles.
+        tile_match = re.search(
+            r"Sujets\s*</span>\s*<p[^>]*>(\d+) élément",
+            html.replace("\n", " "),
+            re.IGNORECASE | re.DOTALL,
+        )
+        assert tile_match is not None, "Sujets tile not found in the newsroom page"
+        assert int(tile_match.group(1)) >= 1, (
+            f"Sujets counter must include sujets proposed to the user's "
+            f"media (#0132/4) — got {tile_match.group(1)}"
         )
 
     def test_newsroom_filters_items_without_bw(

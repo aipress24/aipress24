@@ -1339,6 +1339,67 @@ def test_bug_0132_publish_sujet_round_trip(
     assert unpublish_resp is not None and unpublish_resp.status < 400
 
 
+# ─── #0132 (parts 2, 3, 4, 5) ─────────────────────────────────────
+
+
+def test_bug_0132_sujet_workflow_completeness() -> None:
+    """Bug #0132 follow-ups — Erick 2026-05-22 closed out a series of
+    sub-tasks on the Sujet workflow :
+
+    - part 2 : the author's full_name in `_extra_view_html` must be
+      wrapped in a profile link so the rédac chef can open the
+      mini-profile.
+    - part 3 : the rédac chef must have an « Accepter » action that
+      creates a Commande and archives the sujet, with author notif.
+    - part 4 : the « Sujets » tile in /wip/newsroom must count
+      received sujets (own + media-recipient), not just owned ones.
+    - part 5 : the sujet-proposition flow must also post an in-app
+      notification (cloche) on top of the email.
+
+    Source-level guards ; runtime coverage in :
+    - ``tests/a_unit/modules/wip/newsroom/test_sujet.py`` (parts 2, 3, 5)
+    - ``tests/c_e2e/modules/wip/newsroom/test_sujet_accept_route.py`` (part 3)
+    - ``tests/c_e2e/modules/wip/test_newsroom_views.py`` (part 4)
+    """
+    from pathlib import Path
+
+    src = Path(__file__).resolve().parent.parent.parent / "src/app/modules/wip"
+
+    # part 2 : the cbv renders an <a> for the author name.
+    cbv = src / "crud/cbvs/sujets.py"
+    cbv_content = cbv.read_text()
+    assert "url_for(owner)" in cbv_content, (
+        "_extra_view_html must wrap the author full_name in a profile "
+        "link via url_for(owner) — bug #0132/2 regressed."
+    )
+
+    # part 3 : the accept service + the cbv route exist.
+    accept_svc = src / "services/newsroom/sujet_accept.py"
+    assert accept_svc.exists(), "sujet_accept service must exist (#0132/3)"
+    accept_content = accept_svc.read_text()
+    assert "def accept_sujet_as_commande" in accept_content
+    assert "def notify_author_of_sujet_acceptance" in accept_content
+    assert "def accept(self, id):" in cbv_content, (
+        "SujetsWipView.accept route must be wired — bug #0132/3 regressed."
+    )
+
+    # part 4 : newsroom uses the visibility-aware counter for Sujets.
+    common = src / "views/_common.py"
+    assert "def count_visible_sujets" in common.read_text(), (
+        "count_visible_sujets helper must exist — bug #0132/4 regressed."
+    )
+    newsroom = src / "views/newsroom.py"
+    assert "count_visible_sujets" in newsroom.read_text()
+
+    # part 5 : sujet_notifications posts a cloche notif.
+    notif = src / "services/sujet_notifications.py"
+    notif_content = notif.read_text()
+    assert "NotificationService" in notif_content and ".post(" in notif_content, (
+        "notify_media_of_sujet_proposition must post an in-app notif "
+        "— bug #0132/5 regressed."
+    )
+
+
 # ─── #0075 (part 2) ───────────────────────────────────────────────
 
 
