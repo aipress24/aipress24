@@ -17,7 +17,7 @@ from typing import TYPE_CHECKING
 import arrow
 import boto3
 import pytest
-from botocore.exceptions import BotoCoreError, ClientError
+from botocore.exceptions import ClientError
 
 from app.flask.routing import url_for
 from app.models.lifecycle import PublicationStatus
@@ -25,7 +25,15 @@ from app.modules.wip.models.newsroom.article import Article
 
 
 def is_minio_available() -> bool:
-    """Check if MinIO server is available and accepts test credentials."""
+    """Check if MinIO server is available and accepts test credentials.
+
+    The exception catch is deliberately broad : when MinIO isn't running
+    locally, botocore's redirect-handling chain can surface unexpected
+    error types (e.g. ``TypeError`` raised deep in the bucket-name
+    validation when the redirect handler is fed a ``None`` bucket).
+    Any failure here means « storage not available » — let the test
+    skip cleanly instead of crashing collection.
+    """
     try:
         client = boto3.client(
             "s3",
@@ -41,7 +49,7 @@ def is_minio_available() -> bool:
         except ClientError:
             client.create_bucket(Bucket=bucket_name)
         return True
-    except (ClientError, BotoCoreError, OSError):
+    except Exception:
         return False
 
 

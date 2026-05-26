@@ -262,9 +262,7 @@ class TestUserRemoveRole:
         with pytest.raises(ValueError):
             user.remove_role(123)  # type: ignore
 
-    def test_remove_role_handles_in_memory_duplicates(
-        self, db: SQLAlchemy
-    ) -> None:
+    def test_remove_role_handles_in_memory_duplicates(self, db: SQLAlchemy) -> None:
         """Regression for commit 2f7d18cf — `User.remove_role` previously
         used `list.remove(...) + break`, so when the in-memory roles list
         contained the same Role twice (the bad-data state observed in
@@ -303,9 +301,7 @@ class TestUserRoleUniqueConstraint:
     prevents new duplicates from being inserted in the first place.
     """
 
-    def test_unique_constraint_blocks_duplicate_user_role(
-        self, db: SQLAlchemy
-    ) -> None:
+    def test_unique_constraint_blocks_duplicate_user_role(self, db: SQLAlchemy) -> None:
         user = User(email="role_unique@example.com")
         profile = KYCProfile()
         user.profile = profile
@@ -321,9 +317,7 @@ class TestUserRoleUniqueConstraint:
 
         # Second insert of the same (user_id, role_id) pair must be
         # rejected by the UNIQUE constraint.
-        duplicate_insert = roles_users.insert().values(
-            user_id=user.id, role_id=role.id
-        )
+        duplicate_insert = roles_users.insert().values(user_id=user.id, role_id=role.id)
         with pytest.raises(IntegrityError):  # noqa: PT012
             db.session.execute(duplicate_insert)
             db.session.flush()
