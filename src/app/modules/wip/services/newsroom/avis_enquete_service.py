@@ -238,9 +238,9 @@ class AvisEnqueteService:
         elif contact.rdv_type and contact.rdv_type.name == "VIDEO":
             rdv_type = "Rendez-vous visioconférence"
             rdv_info = f"Lien visioconférence: {contact.rdv_video_link}"
-        elif contact.rdv_type and contact.rdv_type.name == "IN_PERSON":
-            rdv_type = "Rendez-vous faceà face"
-            rdv_info = f"Adresse: {contact.contact.rdv_address}"
+        elif contact.rdv_type and contact.rdv_type.name == "F2F":
+            rdv_type = "Rendez-vous face-à-face"
+            rdv_info = f"Adresse: {contact.rdv_address}"
         else:
             rdv_type = ""
             rdv_info = ""
@@ -871,9 +871,9 @@ class AvisEnqueteService:
         elif contact.rdv_type and contact.rdv_type.name == "VIDEO":
             rdv_type = "Rendez-vous visioconférence"
             rdv_info = f"Lien visioconférence: {contact.rdv_video_link}"
-        elif contact.rdv_type and contact.rdv_type.name == "IN_PERSON":
-            rdv_type = "Rendez-vous faceà face"
-            rdv_info = f"Adresse: {contact.contact.rdv_address}"
+        elif contact.rdv_type and contact.rdv_type.name == "F2F":
+            rdv_type = "Rendez-vous face-à-face"
+            rdv_info = f"Adresse: {contact.rdv_address}"
         else:
             rdv_type = ""
             rdv_info = ""
