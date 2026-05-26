@@ -378,9 +378,7 @@ def get_manageable_business_walls_for_user(user: User) -> list[BusinessWall]:
                 Partnership.partner_bw_id.in_(agency_bw_id_strs),
                 Partnership.status.in_(_ACTIVE_PARTNERSHIP_STATUSES),
             )
-            manageable_ids.update(
-                db.session.execute(stmt_partnerships).scalars().all()
-            )
+            manageable_ids.update(db.session.execute(stmt_partnerships).scalars().all())
 
     if not manageable_ids:
         return []
