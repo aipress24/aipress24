@@ -26,6 +26,7 @@ from werkzeug import Response
 
 from app.flask.lib.htmx import extract_fragment
 from app.flask.lib.nav import nav
+from app.logging import warn
 from app.models.auth import User
 from app.modules.bw.bw_activation.user_utils import get_business_wall_for_user
 from app.modules.wip import blueprint
@@ -200,6 +201,33 @@ def media_opportunity_post(id: int) -> str | Response:
                 contact.email_relation_presse = valid_emails[0]
             else:
                 contact.email_relation_presse = ""
+
+            # Bug #0071 / #0174 (Erick, 2026-05-26): also chain a new
+            # ContactAvisEnquete for the picked press officer so they
+            # actually receive the mail + in-app notification — the
+            # previous code only stored the email but never propagated.
+            if contact.email_relation_presse:
+
+                def _build_pr_opportunity_url(c: ContactAvisEnquete) -> str:
+                    domain = str(current_app.config.get("SERVER_NAME"))
+                    protocol = "http" if domain.startswith("127.") else "https"
+                    path = str(url_for("wip.media_opportunity", id=c.id))
+                    return f"{protocol}://{domain}{path}"
+
+                try:
+                    svc.associate_press_officer(
+                        contact=contact,
+                        press_officer_email=contact.email_relation_presse,
+                        url_builder=_build_pr_opportunity_url,
+                    )
+                except ValueError as e:
+                    # Should not happen — `picked` was just validated
+                    # above against `valid_emails`. Log and continue
+                    # rather than blocking the response.
+                    warn(
+                        f"associate_press_officer failed for contact "
+                        f"{contact.id}, email={contact.email_relation_presse!r}: {e}"
+                    )
         elif reponse == "non":
             contact.status = StatutAvis.REFUSE  # type: ignore[assignment]
             contact.rdv_notes_expert = request.form.get("refusal_reason", "")
